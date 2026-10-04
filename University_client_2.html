@@ -111,7 +111,8 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
 .flow-course-row{display:flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--line);padding:18px;border-radius:20px;text-decoration:none}
 .flow-course-row:hover{border-color:var(--line-strong)}
 .flow-course-thumb{height:72px;width:72px;flex:none;border-radius:14px;overflow:hidden;background:#F5F1E6;display:grid;place-items:center}
-.flow-course-thumb>svg{width:100%;height:100%;display:block}
+.flow-course-thumb>svg,.flow-course-thumb>img{width:100%;height:100%;display:block}
+.flow-course-thumb>img{object-fit:cover}
 .flow-course-thumb .flow-source-icon{width:28px;height:28px}
 .flow-course-copy{flex:1;min-width:0}
 .flow-course-copy h2{font-size:18px;line-height:1.4;margin:0 0 5px;overflow-wrap:anywhere}
@@ -238,6 +239,8 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
 .pl-cover{border-radius:22px;overflow:hidden;margin:0 0 22px}
 .pl-cover svg{display:block;width:100%;height:auto;aspect-ratio:16/7}
 .pl-banner svg{aspect-ratio:16/5}
+.pl-cover img{display:block;width:100%;aspect-ratio:16/7;object-fit:cover}
+:root[data-appearance="dark"] .pl-cover img,:root[data-appearance="dark"] .flow-course-thumb>img{filter:brightness(.92)}
 .pl-cbg{fill:#F3EEE2}
 :root[data-appearance="dark"] .pl-cbg{fill:#1C2530}
 .pl-c1{fill:#0F6B66;opacity:.75}.pl-c2{fill:#17324D;opacity:.7}.pl-c3{fill:#E8C766;opacity:.8}.pl-c4{fill:#9F3038;opacity:.55}
@@ -828,12 +831,13 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
   var cfg = window.UNIVERSITY_CONFIG || {};
   var http = { baseUrl: typeof cfg.apiBase === 'string' ? cfg.apiBase : null, timeoutMs: 60000 };
   var states = ['queued','extracting','researching','planning','building','validating','ready','failed'];
-  var sample = null;
+  var sample = null, sampleReady = Promise.resolve(null);
   if (http.baseUrl === null && window.claude && typeof window.claude.use === 'function') {
-    window.claude.use('sample').then(function (s) {
+    sampleReady = window.claude.use('sample').then(function (s) {
       sample = s || null;
       if (sample) document.dispatchEvent(new CustomEvent('university-engine-ready'));
-    }).catch(function () {});
+      return sample;
+    }).catch(function () { return null; });
   }
   function mode() { return http.baseUrl !== null ? 'server' : sample ? 'preview' : 'none'; }
   function available() { return mode() !== 'none'; }
@@ -1113,9 +1117,14 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
       return ['Lesson 1 (' + t.lesson.title + ') could not be written yet: ' + (e && e.message ? e.message : 'unknown problem') + ' It will be built when you open it.'];
     }
   }
-  // Every build ends the same way: the finished plan, lesson 1 written, then ready.
+  // Every build ends the same way: the finished plan, its cover picture, lesson 1 written, then ready.
   async function publish(job, course, set, head, plan) {
     job.result = Object.assign(head, plan, { createdAt:new Date().toISOString() });
+    if (await artConnector()) {
+      set('building', 'Painting the course cover');
+      var cover = await picture(job.result);
+      if (cover) await patchCourse(course.id, function (c) { c.cover = cover; });
+    }
     (await buildUpFront(course, job.result, set)).forEach(function (x) { job.result.warnings.push(x); });
     set('ready', 'Your course is ready');
   }
@@ -1141,6 +1150,67 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
   var FAITHFUL = 'Stay faithful to the material: teach exactly what it says, in the order it makes sense to learn. If something in the material is wrong, out of date or contradicts itself, keep what the material says and add a callout of kind "flag" that explains the problem plainly. Never silently correct it, and never add facts from outside the material. ' + FLAG_RULE;
   var mcpNs = null, mcpReady = window.claude && typeof window.claude.use === 'function'
     ? window.claude.use('mcp').then(function (m) { return (mcpNs = m || null); }).catch(function () { return null; }) : Promise.resolve(null);
+
+  /* ---- pictures: Claude describes one, the viewer's Hugging Face connector paints it ---- */
+  // The connector's display name in claude.ai. Anyone who should get pictures needs a connector with exactly this name.
+  var ART_SERVER = 'Claude MCP';
+  var ART_STYLE = 'Warm educational illustration in a soft watercolour style on a cream background, with muted teal, navy and amber accents, gentle light and a calm, uncluttered composition. No text, letters, numbers or labels anywhere in the picture.';
+  // Tried in order; each later one is a backup for when the ones before it are busy or fail.
+  function space(name, params) { return { operation: 'invoke', space_name: name, parameters: JSON.stringify(params) }; }
+  var PAINTERS = [
+    { model: 'Z-Image Turbo', tool: 'gr1_z_image_turbo_generate', input: function (prompt) { return { prompt: prompt, resolution: '1344x576 ( 21:9 )' }; } },
+    { model: 'Qwen-Image', tool: 'dynamic_space', input: function (prompt) { return space('mcp-tools/Qwen-Image', { prompt: prompt, aspect_ratio: '16:9', negative_prompt: 'text, letters, words, numbers, labels, watermark, signature, blurry, low resolution' }); } },
+    { model: 'FLUX.1 schnell', tool: 'dynamic_space', input: function (prompt) { return space('evalstate/flux1_schnell', { prompt: prompt, width: 1344, height: 576 }); } }
+  ];
+  // Errors about the connector itself, not the model: trying the backup cannot help.
+  var ART_STOP = ['server_not_connected', 'needs_reauth', 'not_in_manifest', 'selection_required', 'blocked_by_policy', 'approval_required', 'not_granted', 'capability_disabled', 'capability_removed'];
+  var artPromise = null;
+  // The connector namespace when this viewer has the picture connector, else null. Listing never asks for permission.
+  function artConnector() {
+    return artPromise || (artPromise = mcpReady.then(function (m) {
+      return m && Promise.resolve().then(function () { return m.listTools(ART_SERVER); }).then(function (l) {
+        return ((l && l.servers) || []).some(function (x) { return x.server === ART_SERVER && x.authStatus !== 'needs_reauth'; }) ? m : null;
+      }, function () { return null; });
+    }));
+  }
+  function base64Blob(data, type) {
+    var bin = atob(String(data).replace(/^data:[^,]*,/, '')), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: type || 'image/webp' });
+  }
+  function picturePrompt(plan, item) {
+    return [
+      item ? 'You are choosing the picture that opens one lesson in a study app.' : 'You are choosing the cover picture for a course in a study app.',
+      'Course: ' + plan.title + '. ' + (plan.summary || ''),
+      item ? 'Lesson: ' + item.lesson.title + '. ' + (item.lesson.summary || '') : 'It covers: ' + lessonsOf(plan).slice(0, 10).map(function (x) { return x.lesson.title; }).join('; '),
+      'Describe one concrete scene that shows what ' + (item ? 'this lesson' : 'the whole course') + ' is about, in 25 to 45 words: the main subject, how it is arranged and the setting. Choose something a learner would recognise at a glance, and use a visual metaphor only when the idea is abstract. Do not mention art style or colours, and include no words, letters, numbers, labels or diagrams.',
+      '', 'Format: {"picture":"..."}', '', 'Reply with the JSON only.'
+    ].join('\n');
+  }
+  // One picture for a course (no lessonId) or for one lesson. Resolves {blob, description, model}, or null;
+  // it never rejects, so a missing picture never stops a build.
+  async function picture(plan, lessonId) {
+    try {
+      var m = await artConnector(), ai = await sampleReady;
+      if (!m || !ai) return null;
+      var item = lessonId ? lessonsOf(plan).filter(function (x) { return x.id === lessonId; })[0] : null;
+      if (lessonId && !item) return null;
+      var description = str((parseJsonText((await ai(picturePrompt(plan, item), { modelTier: 'quick', cache: false })).text) || {}).picture, 400);
+      if (!description) return null;
+      for (var i = 0; i < PAINTERS.length; i++) {
+        try {
+          var r = await m.callTool(ART_SERVER, PAINTERS[i].tool, PAINTERS[i].input(description + ' ' + ART_STYLE));
+          var img = ((r && r.content) || []).filter(function (b) { return b && b.type === 'image' && b.data; })[0];
+          if (img) return { blob: base64Blob(img.data, img.mimeType), description: description, model: PAINTERS[i].model };
+        } catch (e) {
+          if (e && ART_STOP.indexOf(e.code) !== -1) break;
+        }
+      }
+      // Every painter failed (often the day's free picture time is used up): rest until the next visit.
+      artPromise = Promise.resolve(null);
+      return null;
+    } catch (e) { return null; }
+  }
   // Google's text for a Drive file. Scanned pages come back as recognised text; the book's own printed page numbers are kept where found.
   async function readDriveText(driveId) {
     if (!mcpNs) throw new Error('Google Drive is not available here.');
@@ -1669,10 +1739,11 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
         partial.parts = {}; partial.reviewed = {}; mem.set(key, partial);
       }
       var sk = partial.skeleton, total = sk.parts.length, diagrams = sk.parts.filter(function (p) { return p.visual === 'diagram'; }).length;
-      // One bar for the whole lesson: every part written, every part checked, every diagram drawn.
+      var art = await artConnector();
+      // One bar for the whole lesson: every part written, every part checked, every diagram drawn, and its picture.
       function progress(stage) {
         var done = Object.keys(partial.parts).length + Object.keys(partial.reviewed || {}).length + Object.keys(partial.drawn || {}).length;
-        report(stage, { done: done, total: total * 2 + diagrams });
+        report(stage, { done: done, total: total * 2 + diagrams + (art ? 1 : 0) });
       }
       await parallel(pending(sk.parts, function (i) { return !partial.parts[i]; }), async function (i) {
         progress('Writing part ' + (i + 1) + ' of ' + total);
@@ -1703,6 +1774,11 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
       });
       var lesson = { schemaVersion: 1, lessonId: lessonId, intro: sk.intro, parts: sk.parts.map(function (_, i) { return partial.parts[i]; }), remember: sk.remember, lessonCheck: sk.lessonCheck,
         reviews: sk.parts.map(function (_, i) { return partial.reviewed[i] || ''; }), builtAt: new Date().toISOString() };
+      if (art) {
+        progress('Painting the lesson picture');
+        var pic = await picture(plan, lessonId);
+        if (pic) lesson.picture = pic;
+      }
       mem.del(key);
       return lesson;
     } catch (e) { throw new Error(friendly(e)); }
@@ -1717,7 +1793,7 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
   window.UniversityCourseEngine = Object.freeze({
     available:available, mode:mode, canBuild:canBuild,
     buildLesson:buildLesson, forgetLesson:function (courseId, lessonId) { mem.del(partialKey(courseId, lessonId)); },
-    ai:function () { return sample; }, test:testClaude, drive:function () { return mcpReady; }, driveText:readDriveText,
+    ai:function () { return sample; }, test:testClaude, drive:function () { return mcpReady; }, driveText:readDriveText, picture:picture,
     submit:function (course, files) { return mode() === 'server' ? serverSubmit(course, files) : previewSubmit(course, files); },
     status:function (id) { return mode() === 'server' ? request('/api/course-jobs/' + encodeURIComponent(id)) : previewStatus(id); }
   });
@@ -1800,7 +1876,8 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     var built = isBuilt(course);
     var row = el('a','flow-course-row');row.href = (built ? '#/course/' : '#/draft/') + encodeURIComponent(course.id);
     var thumb = el('span','flow-course-thumb');
-    thumb.setAttribute('aria-hidden','true');thumb.innerHTML = built ? window.UniversityPlayer.coverHTML(course.job.result.title || course.title) : icons[course.source] || icons.research;
+    thumb.setAttribute('aria-hidden','true');
+    if (built) thumb.appendChild(window.UniversityPlayer.thumbArt(course)); else thumb.innerHTML = icons[course.source] || icons.research;
     var copy = el('div','flow-course-copy');copy.appendChild(el('h2','',course.title));
     if (built) {
       var lessons = course.job.result.modules.reduce(function (n, m) { return n + m.lessons.length; }, 0);
@@ -2012,11 +2089,19 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
   function dataUrl(blob) {
     return new Promise(function (resolve,reject) { var reader = new FileReader();reader.onload = function () { resolve(reader.result); };reader.onerror = function () { reject(reader.error); };reader.readAsDataURL(blob); });
   }
+  // A copy of the course for the backup file, with each painted picture as a data URL.
+  async function withPictures(course) {
+    var copy = JSON.parse(JSON.stringify(course, function (k, v) { return v instanceof Blob ? undefined : v; }));
+    if (course.cover && course.cover.blob) copy.cover.dataUrl = await dataUrl(course.cover.blob);
+    var ids = Object.keys(course.lessons || {});
+    for (var i = 0; i < ids.length; i++) { var pic = course.lessons[ids[i]].picture; if (pic && pic.blob) copy.lessons[ids[i]].picture.dataUrl = await dataUrl(pic.blob); }
+    return copy;
+  }
   async function downloadBackup(entry) {
     var files = await Promise.all(entry.files.map(async function (file) {
       return {id:file.id,name:file.name,type:file.type,size:file.size,lastModified:file.lastModified,dataUrl:await dataUrl(file.blob)};
     }));
-    var payload = {format:'university-course-brief',schemaVersion:1,exportedAt:new Date().toISOString(),course:entry.course,files:files};
+    var payload = {format:'university-course-brief',schemaVersion:1,exportedAt:new Date().toISOString(),course:await withPictures(entry.course),files:files};
     var url = URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));
     var a = el('a');a.href = url;a.download = (entry.course.title.replace(/[^a-z0-9]+/gi,'-').slice(0,60) || 'Course') + '.university-course.json';
     document.body.appendChild(a);a.click();a.remove();setTimeout(function () { URL.revokeObjectURL(url); },15000);
@@ -2325,10 +2410,46 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     }
     return '<svg viewBox="0 0 320 190" preserveAspectRatio="xMidYMid slice"><rect class="pl-cbg" width="320" height="190"/>' + shapes + '</svg>';
   }
-  function cover(title, cls) {
+  // A painted picture; its object URL is released as soon as the browser has the image.
+  function artImg(blob) {
+    var url = URL.createObjectURL(blob), img = h('img', { alt: '', src: url });
+    img.onload = img.onerror = function () { URL.revokeObjectURL(url); };
+    return img;
+  }
+  // The painted picture when there is one, otherwise the circles drawn from the title.
+  function cover(title, cls, pic) {
     var wrap = h('div', { class: cls || 'pl-cover', 'aria-hidden': 'true' });
-    wrap.innerHTML = coverSvg(title);
+    if (pic && pic.blob) wrap.appendChild(artImg(pic.blob)); else wrap.innerHTML = coverSvg(title);
     return wrap;
+  }
+  function thumbArt(course) {
+    if (course.cover && course.cover.blob) return artImg(course.cover.blob);
+    var t = document.createElement('div'); t.innerHTML = coverSvg((planOf(course) || {}).title || course.title);
+    return t.firstChild;
+  }
+  // A picture can arrive while the learner is on the page: write it into the open copy when it is
+  // this course, so the next save keeps it, and never bring back a course deleted meanwhile.
+  async function keepArt(courseId, apply) {
+    var entry = await store.get(courseId);
+    if (!entry) return false;
+    if (current && current.course.id === courseId) { apply(current.course); await save(); }
+    else { apply(entry.course); await store.put(entry.course).catch(function () {}); }
+    return true;
+  }
+  // Missing pictures (courses made before pictures, or a painter that was busy) are tried again,
+  // once per visit, in the background; the picture replaces the circles in place when it arrives.
+  var artTried = {};
+  function backfillArt(course, lessonId, holder) {
+    var tag = course.id + '/' + (lessonId || 'cover');
+    if (artTried[tag] || !engine || !engine.picture) return;
+    artTried[tag] = true;
+    engine.picture(planOf(course), lessonId).then(function (pic) {
+      if (!pic) return;
+      return keepArt(course.id, function (c) {
+        if (!lessonId) c.cover = pic;
+        else if (c.lessons && c.lessons[lessonId]) c.lessons[lessonId].picture = pic;
+      }).then(function (kept) { if (kept && holder.isConnected) holder.replaceChildren(artImg(pic.blob)); });
+    }).catch(function () {});
   }
 
   /* ---------- celebrations ---------- */
@@ -2468,7 +2589,9 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     var next = items.filter(function (i) { return lessonState(course, i) !== 'done'; })[0];
     var page = h('div', { class: 'pl-page' });
     page.appendChild(h('a', { class: 'pl-back', href: '#/courses', text: 'All courses' }));
-    page.appendChild(cover(titleOf(course)));
+    var coverEl = cover(titleOf(course), null, course.cover);
+    page.appendChild(coverEl);
+    if (!course.cover) backfillArt(course, null, coverEl);
     page.appendChild(h('p', { class: 'pl-kick', text: done === items.length ? 'Course complete' : done + ' of ' + items.length + ' lessons complete' }));
     page.appendChild(h('h1', { class: 'pl-h1', text: titleOf(course) }));
     if (plan.summary) page.appendChild(h('p', { class: 'pl-lede', text: plan.summary }));
@@ -2611,14 +2734,29 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     if (v.type === 'slider') return '<figure>' + t + '<p>What happens as <strong>' + esc(v.variable) + '</strong> changes:</p><ul>' + v.outcomes.slice().sort(function (a, b) { return a.at - b.at; }).map(function (o) { return '<li><strong>' + esc(v.variable) + ' ' + o.at + (v.unit ? ' ' + esc(v.unit) : '') + ':</strong> ' + richHtml(o.text) + '</li>'; }).join('') + '</ul></figure>';
     return '';
   }
-  function packHtml(course, mi) {
+  function dataUrlOf(blob) {
+    return new Promise(function (resolve) { var r = new FileReader(); r.onload = function () { resolve(r.result); }; r.onerror = function () { resolve(''); }; r.readAsDataURL(blob); });
+  }
+  // The pictures a printed module carries, as data URLs, so the saved file stands on its own.
+  async function packArt(course, mi) {
+    var art = { cover: '', lessons: {} };
+    if (course.cover && course.cover.blob) art.cover = await dataUrlOf(course.cover.blob);
+    var items = lessonsOf(planOf(course)).filter(function (i) { return i.mi === mi; });
+    for (var k = 0; k < items.length; k++) {
+      var L = course.lessons && course.lessons[items[k].id];
+      if (L && L.picture && L.picture.blob) art.lessons[items[k].id] = await dataUrlOf(L.picture.blob);
+    }
+    return art;
+  }
+  function packHtml(course, mi, art) {
     var plan = planOf(course), m = plan.modules[mi], items = lessonsOf(plan).filter(function (i) { return i.mi === mi; });
-    var out = [];
-    out.push('<section class="cover"><p class="k">' + esc(titleOf(course)) + '</p><h1>Module ' + (mi + 1) + ': ' + esc(m.title) + '</h1>' + (m.summary ? '<p class="lede">' + esc(m.summary) + '</p>' : '') +
+    var out = [], pics = art.cover || Object.keys(art.lessons).length;
+    var img = function (src) { return src ? '<img class="art" alt="" src="' + src + '">' : ''; };
+    out.push('<section class="cover">' + img(art.cover) + '<p class="k">' + esc(titleOf(course)) + '</p><h1>Module ' + (mi + 1) + ': ' + esc(m.title) + '</h1>' + (m.summary ? '<p class="lede">' + esc(m.summary) + '</p>' : '') +
       '<p class="k">Study pack for paper. ' + items.length + ' lesson' + (items.length === 1 ? '' : 's') + '. Answers are at the end of each lesson.</p></section>');
     items.forEach(function (i) {
       var L = course.lessons && course.lessons[i.id];
-      out.push('<section class="lesson"><p class="k">Lesson ' + i.n + '</p><h2>' + esc(i.lesson.title) + '</h2>');
+      out.push('<section class="lesson"><p class="k">Lesson ' + i.n + '</p><h2>' + esc(i.lesson.title) + '</h2>' + img(art.lessons[i.id]));
       if (!L) { out.push('<p class="note">This lesson hasn\u2019t been written yet. Open it in the app first, then print the module again.</p></section>'); return; }
       if (L.intro) out.push('<p class="lede">' + richHtml(L.intro) + '</p>');
       var keys = [];
@@ -2649,11 +2787,11 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
       'figure{margin:1em 0;padding:10px 14px;border:1px solid #E5E7EB;border-radius:8px;page-break-inside:avoid}figcaption{font-size:10.5pt;color:#4B5563}.vt{font-weight:bold;color:#17324D;margin:0 0 .4em}.dg svg{max-width:420px;width:100%;height:auto;display:block;margin:0 auto}' +
       'table{border-collapse:collapse;width:100%}th,td{border:1px solid #CBD5E1;padding:6px 8px;vertical-align:top;text-align:left}td ul{margin:0;padding-left:1.1em}.src{font-size:9.5pt;color:#6B7280}' +
       '.lines{height:110px;background:repeating-linear-gradient(to bottom,transparent 0,transparent 21px,#CBD5E1 21px,#CBD5E1 22px);margin:0 0 1.2em}.answers{margin-top:2em;padding-top:1em;border-top:1px dashed #9CA3AF;page-break-before:always}.keys li{margin:.3em 0}.note{color:#9F3038}' +
-      '@page{margin:18mm}@media print{body{padding:0}}';
+      '@page{margin:18mm}@media print{body{padding:0}}' + (pics ? '.art{display:block;width:100%;height:auto;max-height:70mm;object-fit:cover;border-radius:8px;margin:.4em 0 1em}' : '');
     return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(titleOf(course)) + ': Module ' + (mi + 1) + '</title><style>' + css + '</style></head><body>' + out.join('') + '</body></html>';
   }
   async function printModule(course, mi, status) {
-    var html = packHtml(course, mi);
+    var html = packHtml(course, mi, await packArt(course, mi));
     var name = (titleOf(course) + ' - Module ' + (mi + 1) + ' study pack.html').replace(/[\\/:*?"<>|]+/g, ' ');
     if (!downloadsAsked && window.claude && typeof window.claude.use === 'function') { downloadsAsked = true; try { downloadsNs = await window.claude.use('downloads'); } catch (e) { downloadsNs = null; } }
     if (downloadsNs) {
@@ -2880,7 +3018,9 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     page.appendChild(seg);
     page.appendChild(h('p', { class: 'pl-kick', text: 'Lesson ' + item.n + ', part ' + partNo + ' of ' + (P + 1) }));
     if (partNo === 1) {
-      page.appendChild(cover(item.lesson.title, 'pl-cover pl-banner'));
+      var banner = cover(item.lesson.title, 'pl-cover pl-banner', L.picture);
+      page.appendChild(banner);
+      if (!L.picture) backfillArt(course, item.id, banner);
       page.appendChild(h('h1', { class: 'pl-h1', text: item.lesson.title }));
       if (L.intro) page.appendChild(rich(L.intro, 'p')).className = 'pl-lede';
     }
@@ -3196,7 +3336,7 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     var t = view.querySelector('.pl-part-t'); if (t && m[4]) t.focus({ preventScroll: true });
   }
   function hide() { token++; view.hidden = true; hideSheet(); }
-  window.UniversityPlayer = Object.freeze({ show: show, hide: hide, coverHTML: coverSvg, deleteCourse: deleteCourse });
+  window.UniversityPlayer = Object.freeze({ show: show, hide: hide, thumbArt: thumbArt, deleteCourse: deleteCourse });
 })();
 </script>
 <script>/* Course setup as a guided flow: one question per screen, cards to tap, a progress bar and a Continue button.
