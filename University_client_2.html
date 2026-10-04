@@ -142,6 +142,7 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
 .flow-drive-actions{display:flex;flex-direction:column;gap:6px;flex:none}
 .flow-drive-actions .flow-secondary{min-height:40px;padding:6px 12px;white-space:nowrap}
 .flow-drive-note{display:block;color:var(--muted);margin-top:4px}
+.flow-drive-more{margin-top:12px;width:100%;min-height:44px}
 .flow-files{list-style:none;padding:0;margin:12px 0 0}
 .flow-file{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5}
 .flow-file-copy{flex:1;min-width:0;overflow-wrap:anywhere}
@@ -618,6 +619,7 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
           <div class="flow-drive-search"><input id="flow-drive-q" type="search" placeholder="Search your Drive by file name" aria-label="Search Google Drive"><button type="button" class="flow-secondary" id="flow-drive-go">Search</button></div>
           <p class="flow-live" id="flow-drive-status" aria-live="polite"></p>
           <ul class="flow-files" id="flow-drive-list"></ul>
+          <button type="button" class="flow-secondary flow-drive-more" id="flow-drive-more" hidden>Show more</button>
         </div>
         <input class="sr-only-input" id="flow-camera-input" type="file" accept="image/*" capture="environment" aria-label="Take a photo of your notes" tabindex="-1">
       </div>
@@ -1211,12 +1213,14 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
       return null;
     } catch (e) { return null; }
   }
-  // Google's text for a Drive file. Scanned pages come back as recognised text; the book's own printed page numbers are kept where found.
+  // Google's text for a Drive file: the text already inside it, with the book's own printed page numbers where found.
+  // Google does not read pictures of pages, so a scan without a text layer comes back as empty "Page N" blocks; that counts as no text.
   async function readDriveText(driveId) {
     if (!mcpNs) throw new Error('Google Drive is not available here.');
     var r = await mcpNs.callTool('Google Drive','read_file_content',{ fileId: driveId });
     var p = r && r.payload && typeof r.payload === 'object' ? r.payload : {};
-    return typeof p.fileContent === 'string' ? p.fileContent : '';
+    var text = typeof p.fileContent === 'string' ? p.fileContent : '';
+    return text.replace(/\bpage\s*\d+\b|\buntitled\b/gi, '').replace(/[^a-z]/gi, '').length < 40 ? '' : text;
   }
   function splitByPrintedPages(text) {
     var lines = String(text || '').replace(/\r\n?/g,'\n').split('\n'), pages = [], cur = [], found = 0;
@@ -1284,7 +1288,7 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
   }
   async function transcribeImages(images, fileName, caps) {
     caps = caps || await sample.limits().catch(function () { return null; });
-    if (!caps || !caps.images) throw new Error('Pages of \u201c' + fileName + '\u201d have no readable text, and this app cannot send images to Claude here. Try a text-based PDF.');
+    if (!caps || !caps.images) throw new Error('Pages of \u201c' + fileName + '\u201d are pictures with no text, and Claude cannot see pictures in this window. Run the PDF through an OCR tool (search for \u201cOCR PDF\u201d) so its pages carry text, then add the new copy.');
     var out = [], per = Math.max(1, Math.min(caps.images.maxCount, 4));
     for (var i = 0; i < images.length; i += per) {
       var batch = images.slice(i, i + per);
@@ -1313,9 +1317,9 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
         } else if (file.driveId) {
           report('\u201c' + name + '\u201d is scanned, so Google is reading the text off its pages.');
           var gtext = await readDriveText(file.driveId);
-          if (gtext.trim().length < 40) throw new Error('Google could not read the scanned pages of \u201c' + name + '\u201d.');
+          if (gtext.trim().length < 40) throw new Error('Pages of \u201c' + name + '\u201d are pictures with no text, and Claude cannot see pictures in this window. Run the PDF through an OCR tool (search for \u201cOCR PDF\u201d) so its pages carry text, then add the new copy.');
           pages = splitByPrintedPages(gtext);
-        } else throw new Error('Pages of \u201c' + name + '\u201d are scanned images, and Claude cannot see images here. Add the file from Google Drive instead, so Google can read the pages, or use a text-based PDF.');
+        } else throw new Error('Pages of \u201c' + name + '\u201d are pictures with no text, and Claude cannot see pictures in this window. Run the PDF through an OCR tool (search for \u201cOCR PDF\u201d) so its pages carry text, then add the new copy.');
       } else pages = pages.map(function (p) { return { page: p.page, text: p.text }; });
     } else if (type.indexOf('image/') === 0) {
       pages = await transcribeImages([{ page: 1, image: file.blob }], name);
@@ -1948,16 +1952,29 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     return 'Google Drive didn\u2019t answer this time. ' + (e && e.message ? e.message : 'Try again.');
   }
   function driveSize(n) { n = Number(n) || 0; return n ? size(n) : ''; }
-  async function driveSearch() {
+  // Drive often answers a search with only a few files and a token for the rest, so each search
+  // keeps asking until it has a screenful, and "Show more" carries on from where it stopped.
+  var driveQuery = '', driveNext = null, driveSeq = 0;
+  async function driveSearch(more) {
+    var status = $('flow-drive-status'), list = $('flow-drive-list'), moreBtn = $('flow-drive-more'), seq = ++driveSeq;
     var q = $('flow-drive-q').value.trim().replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    var query = q ? "title contains '" + q + "'" : "mimeType = 'application/pdf'";
-    var status = $('flow-drive-status'), list = $('flow-drive-list');
-    status.textContent = q ? 'Searching\u2026' : 'Finding your PDFs\u2026';list.replaceChildren();
+    if (!more) {
+      driveQuery = q ? "title contains '" + q + "'" : "mimeType = 'application/pdf'";driveNext = null;
+      status.textContent = q ? 'Searching\u2026' : 'Finding your PDFs\u2026';list.replaceChildren();
+    } else status.textContent = 'Finding more\u2026';
+    moreBtn.hidden = true;
     try {
-      var r = await mcp.callTool('Google Drive','search_files',{query:query,pageSize:15,excludeContentSnippets:true});
-      var files = r && r.payload && Array.isArray(r.payload.files) ? r.payload.files : [];
-      files = files.filter(function (f) { return f && f.id && f.mimeType !== 'application/vnd.google-apps.folder'; });
-      status.textContent = files.length ? (q ? files.length + ' found.' : 'Your PDFs, or search by name.') + ' Whole files up to 5.5 MB come through as they are. Bigger ones can only come through as text.' : 'Nothing found. Try another name.';
+      var files = [], token = more ? driveNext : null, asks = 0;
+      do {
+        var input = {query:driveQuery,pageSize:15,excludeContentSnippets:true};
+        if (token) input.pageToken = token;
+        var r = await mcp.callTool('Google Drive','search_files',input);
+        if (seq !== driveSeq) return;
+        var p = r && r.payload && typeof r.payload === 'object' ? r.payload : {};
+        files = files.concat((Array.isArray(p.files) ? p.files : []).filter(function (f) { return f && f.id && f.mimeType !== 'application/vnd.google-apps.folder'; }));
+        token = typeof p.nextPageToken === 'string' && p.nextPageToken ? p.nextPageToken : null;
+      } while (token && files.length < 15 && ++asks < 5);
+      driveNext = token;
       files.forEach(function (f) {
         var item = el('li','flow-file'), copy = el('span','flow-file-copy');
         copy.append(el('strong','',f.title || 'Untitled'),el('small','',[f.mimeType === 'application/pdf' ? 'PDF' : f.mimeType === 'application/vnd.google-apps.document' ? 'Google Doc' : (f.fileExtension || '').toUpperCase(), driveSize(f.fileSize)].filter(Boolean).join(' \u00b7 ')));
@@ -1970,11 +1987,14 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
         add.onclick = function () { driveAdd(f, add, big); };actions.appendChild(add);
         item.append(copy,actions);list.appendChild(item);
       });
-    } catch (e) { status.textContent = driveError(e); }
+      var shown = list.children.length;
+      status.textContent = shown ? (driveQuery.indexOf('title') === 0 ? shown + (driveNext ? '+' : '') + ' found.' : 'Your PDFs, or search by name.') + ' Whole files up to 5.5 MB come through as they are. Bigger ones can only come through as text.' : 'Nothing found. Try another name.';
+      moreBtn.hidden = !driveNext;
+    } catch (e) { if (seq === driveSeq) { status.textContent = driveError(e);moreBtn.hidden = !(more && driveNext); } }
   }
   async function driveFetchText(f) {
     var text = (await engine.driveText(f.id)).trim();
-    if (text.length < 40) throw new Error('Google could not read any text out of this file.');
+    if (text.length < 40) throw new Error('This file has no text in it, only pictures of pages, and Google does not read those. Run the PDF through an OCR tool (search for \u201cOCR PDF\u201d) so its pages carry text, then add the new copy.');
     var mb = Number(f.fileSize) / 1048576, thin = mb > 2 && text.length < mb * 1500;
     return { blob: new Blob([text],{type:'text/plain'}), name: (f.title || 'Drive file').replace(/\.[a-z0-9]+$/i,'') + ' (text).txt',
       note: 'Added as text: ' + Math.round(text.length / 1000) + 'k characters.' + (thin ? ' That is very little for a ' + Math.round(mb) + ' MB file, so Google probably did not read all of it. Check the course covers what you expect.' : '') };
@@ -2013,7 +2033,8 @@ body.in-portal main{flex:1;min-height:0;width:100%;max-width:960px;overflow:hidd
     }
   }
   $('flow-drive-btn').addEventListener('click',function () { var panel = $('flow-drive');panel.hidden = !panel.hidden;if (!panel.hidden && !$('flow-drive-list').children.length) driveSearch(); });
-  $('flow-drive-go').addEventListener('click',driveSearch);
+  $('flow-drive-go').addEventListener('click',function () { driveSearch(); });
+  $('flow-drive-more').addEventListener('click',function () { driveSearch(true); });
   $('flow-drive-q').addEventListener('keydown',function (e) { if (e.key === 'Enter') { e.preventDefault();driveSearch(); } });
   $('flow-paste-add').addEventListener('click',function () {
     var text = $('flow-paste-text').value.trim();
