@@ -1,0 +1,998 @@
+{
+ "synthesis": {
+  "summary": "I synthesised 24 judgements of 8 lessons into the changes below and edited no files. Every lesson scored 3 overall except bronze/i4 (2.33). The weakest parts across all lessons were predict (2.96), interactive (3.00) and checks (3.17). Two parts did better: say-it-back (3.79) and explain (3.54).\n\nSeven causes are shared across most lessons:\n1. **The predict answers itself.** This happened in 6 of 8 lessons. Dan sees the idea's title and one-line summary just above the question. The calibration answers and the 'Watch for…' lede (the line above the interactive, built by friendlyBrief) also give it away. The prompt says only 'ask something different', with no rule against stating the mechanism or against straw-man options.\n2. **The checks test recall.** This happened in all 8 lessons. The validator forces a target check even when Dan can solve it by dragging until the readout matches.\n3. **The interactives show only the effect.** This happened in 7 of 8 lessons. Some are a picker or slideshow, and the cause is never drawn. The only mechanism exemplar, compound-growth.html, is really a quantity page.\n4. **Absolute claims are false.** This happened in all 8 lessons. Lessons say 'only', 'never', 'every' or 'just one' when the claim fails at other settings, in everyday life or after a later idea. Review cards then repeat them without the ignores panel.\n5. **The explanation skips the causal step.** This happened in 7 of 8 lessons. In vaccines/i3 it gives a reason that is equally true of the first meeting.\n6. **Research is too thin for the lesson.** This happened in 7 of 8 lessons. It drops causes and qualifiers and misreads date ranges. lessonResearch passes a lesson only its own notes, the notes of ideas it builds on, and topic notes. So dated facts filed under later ideas never reach the lessons that need them (Egypt c.1177 BC; the headphone small-cavity point).\n7. **Labels are hard to read on a phone.** This happened in all 8 lessons. SVG text is about 9.5 px, labels run together, text sits over lines, and an unknown colour role only warns.\n\nAlready fixed since the runs (f1add32, 44fc305), and not re-proposed:\n- the amber-line colour alias\n- the overlap check for touching labels\n- default SVG text fill in dark mode\n- canvas axis titles shrinking to fit\n- K.sound.hold\n- K.anim button:false\n- the lesson-prompt formula limit for NEW learners\n\nThe build-prompt half of that formula limit is still open.\n\nFiles the changes touch:\n- /home/user/Study-App/app/src/js/30-prompts.js\n- /home/user/Study-App/app/src/js/33-interactive.js\n- /home/user/Study-App/app/kit/KIT.md\n- /home/user/Study-App/app/kit/kit.js\n- /home/user/Study-App/app/kit/examples/\n- /home/user/Study-App/app/src/js/50-lesson.js\n- /home/user/Study-App/app/src/js/41-cards.js\n- /home/user/Study-App/tools/eval/render.mjs\n\nRelaxing the required target check also needs an update to docs/ARCHITECTURE.md section 5, which is the contract between modules.",
+  "changes": [
+   {
+    "priority": "high",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson: calibration block (line 397), predict q (line 417), contested predict (line 419), options (line 420), BEFORE YOU REPLY (line 490); /home/user/Study-App/app/src/js/50-lesson.js fillHead (line 239) and friendlyBrief/renderPlay (lines 89-95, 582)",
+    "change": "PREDICT: stop it being answered before Dan guesses, and aim it at the surprise in the brief's one thing.\n(a) Line 397. Current: 'QUESTIONS DAN ANSWERED WHEN HE STARTED THIS TOPIC (ask something different in your predict and checks)', followed by each c.q only. New: 'QUESTIONS DAN ANSWERED WHEN HE STARTED THIS TOPIC. He has seen each right answer and its why, so treat them as known and build on them. Never write a predict or check they already answer (a new case with the same answer is the same question), and never reuse their scenario or wording. If one probes the heart of this idea, test that misconception from a new angle on the interactive.' Print each line as '- <q> Answer: <options[answer]>. <why>'.\n(b) After line 417 ('...so the opening screen must not already show the answer.') add: 'He also reads this idea\\'s title (\"' + idea.title + '\") and its one-line summary just above your question, so they must not answer it either. Ask about the brief\\'s one thing at the point where intuition fails: how much, how soon, which way, an in-between setting, a changed condition, or the case where nothing happens. Set up the situation without stating the rule or the mechanism. Test: if someone who has read only the title and the question could rule out every wrong option by logic, ask about a different case. Do not ask something most adults already get right.'\n(c) Line 420. Current: '- options: 2-4 short choices (at most 12 words each); one is the common intuition, especially where it is wrong. Leave options out only when a free guess works better.' New: '- options: 2-4 short choices (at most 12 words each) that state outcomes only, in the same terms and about the same length. The right one never carries its reason or repeats the rule. One is the common intuition, especially where it is wrong. Every option is something a thoughtful adult might pick: no straw men (\"all in the same year\", \"longer, because the defenders are worn out\"). Two options are fine. Leave options out only when a free guess works better.'\n(d) Line 419. Current begins: 'For a contested idea, ask instead which view he finds more convincing, or what evidence would settle it.' New: 'When the idea itself is the debate, ask instead which view he finds more convincing, or what evidence would settle it. When only a detail is debated (how long, how many), predict the part the evidence settles and leave the debate to the reveal. No option may be right under one view and wrong under another unless the reveal says so.' Keep the rest.\n(e) Line 490. Current: '- explain.text is at most 170 words, and the interactive\\'s opening state does not already answer the predict.' New: '- explain.text is at most 170 words. Neither the interactive\\'s opening state, the idea\\'s title and one line, nor the calibration answers already answer the predict.'\n(f) App changes:\n- In fillHead, keep the oneLine element (`one`) hidden until the predict is answered or skipped.\n- friendlyBrief currently turns the brief into 'Watch for <answer> when you <action>', and renderPlay shows it before play. Before play, match /^the one thing (?:you should|to) see is\\s+(.+?)\\s+(?:when|as|if|while|once) you\\s+(.+)$/i and show 'Try this: ' + m[2]. Show the 'Watch for…' sentence only after the reveal.\nExamples:\n- anc/i4: 'Delay the second hum by a quarter of a wave. Together, are they bigger or smaller than one hum alone?' The answer is 1.41x.\n- vaccines/i3: 'How high will the second rise go compared with the first?'\n- bronze/i1: 'Half the tin never reaches the smith. How much bronze can he make now?'\n- vaccines/i1: 'A germ with hexagons arrives. How many defenders grab it?'",
+    "why": "Predict is the lowest-scoring part (2.96). It scored 2.33-2.67 in 6 of 8 lessons, and teachers gave it 2.5. In each of those lessons the answer was on screen or already known before Dan committed: the title and oneLine sat above the question, the calibration had just taught it, the lede spelled it out, or the question stated the mechanism. The two rainbows lessons asked about a boundary case or a turning point and scored 4.3-4.7, which shows the target to aim for.",
+    "evidence": [
+     "anc/i1 teacher (major) and learner: the predict asks what the eardrum does, not the air staying put; the model avoided the heart of the idea because the calibration said 'ask something different'",
+     "anc/i4 teacher (major) and learner (major): the title 'Opposite sounds add up to quiet' sits above the question, and the question states the mechanism; the teacher also found friendlyBrief's lede 'Watch for the combined wave shrinking to a flat line...' shown before play",
+     "vaccines/i1 teacher (major) and learner (major): the stem states the rule ('each with a different-shaped detector'), and the right option carries its own reason",
+     "vaccines/i3 teacher (major), learner (major) and expert: the title 'Memory makes the second time faster' plus calibration c2 answered it; 'worn out' is a straw man",
+     "bronze/i1 teacher (major) and learner (major): the zero-tin case follows from the calibration answer 'tin'",
+     "bronze/i4 teacher (major) and learner: 'all on the same year' is a straw man, and the right answer depends on which side of the contested duration you take"
+    ]
+   },
+   {
+    "priority": "high",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson checks section (lines 460-465) and validator vLesson (line 917); /home/user/Study-App/app/src/js/41-cards.js target() and the kit (quiz mode); U.sandbox.reach",
+    "change": "CHECKS: make each one test reasoning, not recall or readout-scrubbing.\n(a) Line 460. Current: '- Test understanding, not recall of your wording. At least one applies the idea to a new case he has not seen in this lesson. Each must make sense alone weeks later: no \"as you saw above\".' New: '- Test understanding, not recall: not of your wording, a source\\'s phrase, or a number the lesson or a readout stated.\n- Each check tests a different side of the idea from the predict, the say-it-back and the other checks: the why; its limit (where it stops applying, e.g. memory of measles does nothing against chickenpox); a new case.\n- At least two apply the idea to a case the interactive did not show; a case it already showed does not count. At least one asks him to compare or reason about amounts, not only the all-or-nothing case.\n- None restates the predict, a calibration question or the say-it-back.\n- A check draws only on this idea and the ideas it builds on, never a later idea in THE COURSE. Every step its right answer needs is in your explanation or visible on the interactive.\n- Each must make sense alone weeks later: no \"as you saw above\".'\n(b) Line 462. Current sentence: 'Wrong options are real misconceptions or near-miss related examples.' New: 'Wrong options are misconceptions real people hold, or near-miss related examples, in the same terms as the right one. If you cannot say who believes an option, replace it. The right option never reuses the takeaway, four or more words in a row of your explanation, or the question\\'s own words. The question never states a fact that rules out an option.'\n(c) Line 463. Current: '- order: 3-6 items (at most 10 words each) in the CORRECT order; the app shuffles them. For sequences, processes and chronology.' New: '...For sequences, processes and chronology where the order is something he could get wrong (a hidden cause before a visible effect, a step people misplace). Each item stands alone: no \"it\", \"that\" or \"then\" pointing at another item, and never the interactive\\'s own step names. If the wording, or left-to-right on the picture, gives the order away, write a choice check instead.'\n(d) Line 464, estimate: add 'a number he can reason his way to from the idea, which the lesson has not already stated'.\n(e) Line 465. Current ending: 'Every other control stays at its opening value: do the arithmetic, so the target is reachable within that control\\'s range and steps. Include one whenever the interactive has outputs and such a control.' New: '...do the arithmetic. If the output shows decimals, some step of the control must display the target exactly at those decimals; otherwise write \"about Z\". Name every setting that works in why. Include a target check only when reaching it needs the idea: a value the lesson has not paired with its setting, ideally one past a turning point or one that two settings give, so the naive direction fails. Never use a number from predict.reveal, explain or the rubric. While Dan answers, the app hides that readout and the .say line, so he steers by the picture and the rule. Choose a target and tolerance he can hit that way (\"Tilt the torch until the beam turns by about 20°, give or take 3°\").'\n(f) Validator changes:\n- Line 917: make the required-target rule advice, not a failure, and update ARCHITECTURE section 5 to match.\n- Add a problem when a target check's target, rounded to the output's decimals, or an estimate check's answer appears in predict.reveal or explain.text.\n- Add a problem when a choice check's right option shares 4 or more consecutive words with explain.text, predict.reveal or say.model.\n- Add a problem when the right option is more than 1.5x the average length of the others.\n(g) App and kit: mount target checks, both in the lesson and as review cards in 41-cards.js, with {quiz: {hide: output}}. The kit shows that readout as '?' (reusing the afterMove mechanism) and hides .say until 'Check my setting'. U.sandbox.reach should also report whether any step displays the target exactly.",
+    "why": "Every lesson's checks were criticised. Checks averaged 3.17, and teachers gave them 2.5. These cards become Dan's spaced-review deck, so recall-only cards waste months of review. The validator currently forces a target check even when it can only be solved by dragging until the readout matches.",
+    "evidence": [
+     "anc/i1 teacher and learner: order check c2 runs left to right and each item leads into the next",
+     "anc/i4 teacher: the target check is slider-hunting; anc/i4 expert: no setting shows '1.00' (33% gives 1.02, 34% gives 0.96)",
+     "vaccines/i1 teacher (major) and learner: every right answer is the 'fits one shape' slogan, and c3's wrong options are beliefs nobody holds",
+     "vaccines/i3 teacher (major) and learner (major): c1 replays the stage names, c2 repeats the predict and calibration c2, c3 tests i2's idea",
+     "rainbows/i1 teacher (major): the 19° target is solved by scrubbing with the readout visible",
+     "rainbows/i4 teacher (major), expert and learner: c1's 42.5° is stated three times, c3's 15° is recall, and c2 needs i5",
+     "bronze/i1 teacher (major) and learner: c2 is solved by sliding until the readout shows 5.0, and c3's stem rules out its own wrong options",
+     "bronze/i4 teacher, expert and learner: c3's right answer copies 'last significant New Kingdom ruler'"
+    ]
+   },
+   {
+    "priority": "high",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js KIND_PLAY (lines 255-259), controls rule (line 430), ranges (line 434), brief (lines 427-428), BEFORE YOU REPLY; /home/user/Study-App/app/kit/KIT.md Rules (lines 147, 164); /home/user/Study-App/app/kit/examples; kit.js (new K.drag)",
+    "change": "INTERACTIVE: draw the cause, let Dan cause it, and show both sides of the rule.\n(a) KIND_PLAY.mechanism. Current: 'a moving diagram of the cause and effect: his control is the cause, and he watches the effect happen (arrows growing, parts turning, particles speeding up).' New: 'a moving diagram he drives with his own hand, in which the cause itself is drawn. Whatever your explanation\\'s \"because\" says happens on the picture (one edge of a wide beam slowing first, squashed air pushing back, a shape slotting into a notch), and his control makes it happen (a \"Give one push\" or \"Send it in\" button, a drag, a switch). Prefer an action he performs over a switch he flips and then watches. Include the setting where the cause does not produce the effect (nothing fits, nothing flows), so he sees both sides of the rule.'\n(b) KIND_PLAY.quantity: append ' When the idea is that things crowd, pile up or spread out (brightness, density, a distribution), also show the pile itself: send many evenly spaced cases (50 or more) through the rule and show how many land in each band (bars, or a strip that darkens).'\n(c) KIND_PLAY.process: append ' Draw the thing that carries the change (the cells left behind, the stock built up), not only its effect. If the point is that an earlier stage changes a later one, add a switch for that cause beside the stepper, as the bill example does. A stepper alone is a slideshow.' Line 430: after 'one. Add a second only if the idea cannot be seen without it' add ', or, for a process whose point is what one stage does to a later one, a switch for that cause'.\n(d) KIND_PLAY.history. Current: 'a timeline he steps through (documented dates and events only), or a named choice between causes or views that shows what each one explains.' New: 'a timeline he acts on, not a slideshow: he drags through the years and dated events appear, or he picks a cause or view by name and the timeline shows, as a labelled sketch, the pattern that view expects beside the documented dates (documented dates and events only). Use a stepper only when every step changes the drawing.'\n(e) Brief, after the Bad/Good line (428), add: '  For a mechanism, the brief names the cause as well as the effect, and the heart of the idea rather than a step towards it. Bad: \"the beam\\'s kink growing when you tilt the torch\". Good: \"the near edge of the beam slowing first and the beam swinging round when you tilt the torch\". If the idea is that light piles up at one angle, the thing to see is the pile, not the curve that causes it.'\n(f) Line 434, after 'Numeric ranges are wide enough that the effect is unmistakable.' add: ' They stay on the side of the effect the idea is about; run past a turning point only when the turning point is the lesson. When the idea reads \"X, so Y\", the picture links both halves. When it turns on where things are, use a sketch map with places in their true relative positions, labelled \"sketch map\", with no invented distances.'\n(g) BEFORE YOU REPLY: add '- Every consequence your explanation states, and the cause its why names, can be seen on some setting of the interactive.'\n(h) KIT.md, after line 147, add: '- If the explanation gives a reason (X because Y), draw Y so Dan can watch it. Draw the mechanism as it physically works: parts that fit are drawn fitting (a bump slotting into a matching notch), never two identical icons joined by a line. Whatever the rule text says happens (drifts, grabs, multiplies) happens on screen.' Line 164: replace 'use `K.stepper`, `K.choice`, a timeline slider or a sorter' with 'prefer a timeline slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the drawing'.\n(i) Kit:\n- Add a true mechanism exemplar: a pushable or draggable source with K.anim({button: false}) and K.reveal() on drag.\n- Re-tag compound-growth.html as `kind: quantity`. It is three sliders, four readouts and a plot, and its caption repeats a power formula and the ignores text.\n- Add K.drag(el, {control, toValue(x, y)}): touch-action none, pointer capture, a 44 px target, keeps the slider in step, calls K.reveal().",
+    "why": "Interactive averaged 3.0 and had majors in 7 of 8 lessons. Each was a switch-and-watch, a picker, a slideshow, or a picture of the result with the cause the explanation teaches never drawn. Dan was then graded on a mechanism he never saw. The builder's only 'mechanism' exemplar is a quantity page, so it has no model of a hands-on mechanism.",
+    "evidence": [
+     "anc/i1 learner (major): a toy he switches on and watches; he can never make one squeeze himself; the only mechanism exemplar is compound-growth.html",
+     "vaccines/i1 teacher (major) and learner (major): a picker in which every germ gets caught, so 'no single defender can catch everything' is never shown; teacher, expert and learner all flag matching by identical icons rather than fit",
+     "vaccines/i3 teacher (major), expert and learner (major x2): memory cells are never drawn ('a few memory cells on watch' floats over empty space); a five-click slideshow",
+     "rainbows/i1 teacher (major), expert and learner (major): the beam is a zero-width line, and the edge-first slowing is never drawn",
+     "rainbows/i4 teacher (major) and learner (major): the curve is shown but not the pile-up of light",
+     "bronze/i1 teacher (major): 'found far apart' is two text labels; learner (major): a thin min() bar chart",
+     "bronze/i4 learner (major): press Next five times; the Egypt step changes nothing"
+    ]
+   },
+   {
+    "priority": "high",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson: reveal (line 421), ignores (line 437), explain takeaway (line 444), checks (line 460), BEFORE YOU REPLY (lines 489-495); planTopic oneLine (line 108)",
+    "change": "CLAIMS: make every claim true across the whole range, in everyday life, after later ideas, and on a review card read without the ignores panel.\n(a) Line 421, append to the reveal: ' If the tempting answer is true in other cases (other settings of the interactive, or everyday life), say when it holds (\"usually true, but not when ...\"). Never call an intuition wrong in general because it fails in this one case. Words about timing (\"in step\", \"at once\", \"instantly\") must be literally true: anything passed along arrives later, with the same rhythm.'\n(b) Line 437. Current: '- ignores (at most 50 words): what this model deliberately leaves out, honestly. Shown to Dan as \"What this model ignores\".' New: '- ignores (at most 50 words): what this model deliberately leaves out, honestly. Start with anything a newcomer would wrongly conclude from the picture: a stage drawn empty that is not, a quantity drawn reaching zero that does not, a time scale shortened or slowed (say by roughly how much). Include anything a curious adult may already know that the picture seems to contradict, and any real-world way round the effect (a substitute, recycling). It carries no footnotes, so every claim in it is textbook-certain. A condition the main result depends on (only at one spot, only for equal strengths, only once-reflected light) is not an omission: state it wherever the result is stated. Shown to Dan as \"What this model ignores\".'\n(c) Checks: add '- Checks, the say rubric and the model answer come back as review cards for months without your ignores panel. Each must be true alone, of the real world as well as your model, and stay true after Dan has learned every later idea in THE COURSE. Keep a research note\\'s qualifiers (\"after one reflection\", \"B cells\", \"in this model\") in the option itself. If a lesson word covers only part of something (\"defenders\" meaning the shape-matching kind), use the narrower name. Never mark as wrong a belief that is true of what the model leaves out. When later ideas reuse this one in a new setting, one check applies it there.'\n(d) Line 444. Current: 'Close with the one-sentence takeaway.' New: 'Close with the one-sentence takeaway, footnoted when a source supports it and limited to the places and period the sources describe. If none supports it, word it as what follows from the steps above, and no stronger.'\n(e) BEFORE YOU REPLY, add:\n'- Every general claim in reveal, explain, rubric, misconception lines and whys (\"only when\", \"always\", \"never\", \"must\", \"every\", \"just one\") holds across the interactive\\'s whole range (test it with your rule at both ends and the middle), in the everyday case, and against every later idea\\'s oneLine.'\n'- Every sentence about what the picture does (direction, timing, size) is true of a faithful model at every moment.'\n'- Each rule is stated in the general form later ideas will need (\"the line square to the surface where the light crosses\", not \"straight down\").'\n(f) Plan line 108. Current: '- oneLine: one sentence (at most 25 words) saying what he will understand, in plain words.' New: '... in plain words, true as stated and as a textbook would put it: hedged where reality is graded (\"fits one shape, or ones very like it\"), naming the narrower kind when it covers only one kind. Later lessons treat it as the learning goal.'",
+    "why": "This was the main source of factual errors. All 8 lessons contained an absolute or general claim that their own interactive, everyday experience or a later lesson contradicts. These claims become review cards Dan sees for months, with the caveat left behind in an ignores panel the cards never show. Experts gave accuracy 3.25.",
+    "evidence": [
+     "anc/i1 expert (major): the reveal says the eardrum moves 'in step with the speaker cone'; it lags, about 160° out of phase",
+     "anc/i4 teacher, expert and learner (all major): the reveal says two sounds are louder 'only' when in step, while its own readout says 1.41x at 75%; expert (major): cancelling taught as 'the sound goes quiet', which is true only at one spot",
+     "vaccines/i1 teacher (major), expert (major x2) and learner (major): 'defenders' overgeneralised, absolute one-shape specificity, 'a single detector'",
+     "vaccines/i3 expert (major): 'no wait at all', and antibody drawn falling to zero",
+     "rainbows/i1 expert (major): 'swings towards straight down' is false for a curved drop; c1 ignores the critical angle",
+     "rainbows/i4 expert (major): c2's 'never wider than 42°' is false once i7 teaches the second bow",
+     "bronze/i1 expert: the takeaway says 'every bronze-making kingdom'; c1 says bronze-making 'stops'",
+     "bronze/i4 expert (major): overlapping date ranges presented as evidence of spread"
+    ]
+   },
+   {
+    "priority": "high",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson explain section (lines 442 and 444)",
+    "change": "EXPLAIN: build the real why from first principles.\n(a) Line 442. Current: '- Start from what playing shows, written as something he can do or check, never as something he did:' Append ' Use one or two sentences; do not retell every setting.' at the end of that bullet.\n(b) Line 444. Current opening: '- Then the why, from first principles, one step per sentence.' New: '- Then the why, from first principles, one step per sentence.\n- The first step is something he already knows or has felt (squash the air in a bike pump and it pushes back; a cell has no eyes, so it notices only what touches it). Name what makes each step happen, including the step that links his control to the effect (why this setting produces it), and cover every part the picture shows.\n- When the idea says a later case differs from an earlier one, name what is physically different, and check that your reason does not equally describe the earlier case. A sharp friend would ask: \"but weren\\'t those cells there the first time too?\"\n- When the payoff is read off a curve (a flat top, a turn), give that reading its own everyday sentence (\"each slice of the drop catches the same sunlight; squeeze a slice\\'s light into fewer degrees and each degree gets more\").\n- For a history idea, the why is how we know (what the evidence is and how it is dated, so why a date is a window) and what the pattern rules in or out.\n- If your analogy\\'s breaks names part of the mechanism, the explanation explains that part.\n- Teach every part of \"What Dan should come away understanding\".\n- For a new learner, use at most two numbers, the ones the picture shows; a spread between sources goes in ignores.\n- Give the version of the why a specialist accepts as true at this level. If you use a teaching model (a rigid beam, a ball), say so in one clause and set confidence to \"simplified\". If RESEARCH does not support the why, offer it as \"One way to picture it: ...\".'\nKeep the rest of the bullet; Change 8 rewrites its terms sentence.",
+    "why": "7 of 8 lessons skipped the step that makes the mechanism make sense. In vaccines/i3 the explanation gave a reason that is equally true of the first meeting, and the rubric rewards it. In bronze/i4 half the idea (timing as a clue to causes) was never taught, yet a check tested it.",
+    "evidence": [
+     "anc/i1 teacher (major): never says why air comes back (it is springy) or how a stretch is passed on",
+     "anc/i4 teacher (major): never says why a half-wave delay lines a squeeze up with a stretch",
+     "vaccines/i1 teacher (major): asserts recognition by shape without the reason (no eyes; molecules notice by fitting)",
+     "vaccines/i3 teacher (major) and expert (major): 'already waiting' was equally true the first time; the real reasons (more cells, quicker switch-on, stronger antibody) were in the tool returns",
+     "rainbows/i1 learner (major) and expert: the edge-first why is unsourced and presented as settled, though it is a teaching model",
+     "rainbows/i4 teacher: skips the step from crowded rays to bright",
+     "bronze/i4 teacher (major): lists six date ranges, never says how dates are known, and never links timing to cause, yet c2 tests that link"
+    ]
+   },
+   {
+    "priority": "high",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js research(): steps 1, 3 and 5 (lines 171-176), SOURCES (line 181), claim line (line 202); lessonResearch() (lines 212-245)",
+    "change": "RESEARCH: gather causes and qualifiers, read dates correctly, and get each fact to every lesson that needs it.\n(a) Step 1, line 171. After '...then for the ideas whose facts, mechanisms or numbers a lesson will lean on (typical values, constants, dates, who did what).' add: ' Include the basic principle each idea\\'s interactive will compute (\"the pressures of two sounds add at each moment\"), from a textbook page wherever one exists. Search for every claim in each idea\\'s oneLine. If one finds no source, add a note saying so, so the lesson can drop it.'\n(b) Step 3, line 173. Current: '3. For each idea, write 1-4 claim notes: the facts, mechanisms and numbers a lesson on that idea will need, each backed by at least one source.' New: '3. For each idea, write 1-6 claim notes (up to 8 for a history idea a timeline will show), each backed by at least one source, in this order:\n- what causes the idea\\'s headline: what is physically different, step by step, from a page that explains it, not one that only says it happens (for \"the second time is faster\": what is different about the cells the second time);\n- the conclusion in the oneLine\\'s \"so ...\";\n- why it mattered to people then, when a source says so;\n- the facts and numbers.\nFor every constant an interactive computes with, quote one sentence that defines it (n = speed in vacuum ÷ speed in the material) as well as one that gives its value. For a history idea about timing or order, give dated events across the whole period, earliest to latest, from at least five places.' Extend the next sentence: 'Put facts shared by several ideas in topic.notes, with every constant, named case (a ship, a site) and dated event more than one idea uses. File each claim under the idea that teaches it. List a fact under every idea whose main claim it limits (the small cavity under headphones limits \"two sounds cancel\").'\n(c) SOURCES, line 181. After 'Pick a quote that supports the claim citing it on its own, read cold by someone who has not seen the page.' add: ' Keep in the quote any date, place or qualifier that limits the claim; never cut a sentence so it reads wider than it was. Prefer a page\\'s general statement to its description of one figure. A date range in brackets after a name (a period, a pottery phase, a reign) dates that name, not the event in the sentence; if it is not clear which, do not use the number. If a quote\\'s numbers and words disagree (125 years called \"two centuries\"), leave it out. Avoid quotes that state a known misconception as fact (\"denser\" for refraction); if none better exists, word the claim correctly and add \"(source\\'s wording is loose: ...)\". When a quote describes a case without naming it (\"the cargo\"), add a quote that names and dates it. For a site or event, prefer the excavators\\' or a specialist\\'s account over an encyclopedia summary.'\n(d) Line 202. Current: 'claim: one plain sentence (at most 40 words) that the cited quotes actually support. Use only the idea ids listed above.' New: 'claim: one plain sentence (at most 40 words) that the cited quotes actually support, and no more strongly. Name exactly what the quote names (B cells, not \"lymphocytes\"). Never add \"only\", \"always\", \"all\", \"never\", \"no\", or a stronger verb (\"is switched on\" for \"can react\"), beyond what the quote uses. Quote an absolute (\"no lag\") only when no page you were shown says something weaker (\"a shorter lag\"); otherwise give the spread. Use only the idea ids listed above.'\n(e) Code, lessonResearch: also pass, after the idea's own notes, every note from any other idea whose claim holds a date (always for kind 'history'), and every note that names this idea's id or limits its main claim. Mark them '(from another idea in this course)'.",
+    "why": "Several of the experts' accuracy errors begin in research.json. A cause found by the tools never reached the notes. A figure description ('no lag time') was picked over the page's own summary. A qualifier was dropped (B to all lymphocytes). A pottery-phase date was read as a span of destructions. Facts filed under a later idea never reached the earlier lesson, because lessonResearch passes only the idea's own notes, the notes of ideas it builds on, and topic notes.",
+    "evidence": [
+     "vaccines/i3 teacher (major) and expert (major x2): the cause of the faster response was in tools/03 and 06 but not in the notes; 'no lag' came from one figure description while the same page says 'shorter'",
+     "vaccines/i1 expert (major): a note merges 'B and T lymphocytes' with a B-only quote; 'switched on only when' is stronger than the quote's 'can react'",
+     "rainbows/i1 learner (major) and teacher: the mechanism is unsourced; expert: n defined vaguely, and the quotes teach 'denser'",
+     "anc/i4 expert: superposition is unsourced; n18 (small cavity) was filed under i6, so i4 never saw it",
+     "rainbows/i4 expert: 'sky brighter inside the bow' was filed under i4 but belongs to i5",
+     "bronze/i1 teacher, expert and learner: the takeaway is unsourced although n10 and n13 existed; Uluburun was filed under i2; the Central Asia quote was cut from a dated sentence",
+     "bronze/i4 teacher (major), expert (major x2) and learner (major): only three city dates; Drake's 1315-1190 BCE misread; Egypt c.1177 BC filed under i6 and never reached i4"
+    ]
+   },
+   {
+    "priority": "high",
+    "where": "/home/user/Study-App/app/kit/KIT.md Drawings (lines 118-121) and Colour; /home/user/Study-App/app/kit/kit.js self-test (overlap check near line 1732, K.labels at line 1253, K.color unknown-role handling near line 151)",
+    "change": "LEGIBILITY: make SVG text readable on a phone, and let the self-test fail what Dan can't read.\n(a) KIT.md line 118. Current: 'Give an `<svg>` a viewBox about 340 wide, `width=\"100%\"`, text 11-14 units,' New: '... text 13-16 units, never under 12 (a 340-unit drawing shows at about 0.85x on a phone, so 13 units is about 11 px). A row of N labels gets about 300/N units each; label only what differs (\"grabs it\" under the lit ones, not \"ignores it\" five times).'\n(b) KIT.md lines 120-121. Current: 'nudging each off other text and inside the drawing: use it for labels that move.' New: '... use it for labels that move or appear at a later step or setting, and pass the lines a label must stay off as `avoid`. Hand-placed text is for fixed axis titles only. Put an angle\\'s label inside its wedge, beyond the arc, centred, and hide it while the wedge is too narrow.' Document `size?` on line 113.\n(c) kit.js changes:\n- K.labels defaults 'font-size' to it.size || 13 and gains `avoid: [elements]`.\n- The self-test fails, as clip-style errors, on SVG text rendered under 11 CSS px in the 340 px frame, and on text boxes crossing stroked lines, paths or arrowheads (marker-end).\n- It warns when same-row labels are less than about 4 px apart; the current test needs ix > 2.\n- An unknown K.color role, or any invalid stroke or fill, becomes an error instead of a warning, so the repair round fixes it.\n- Check SVG text contrast of at least 3:1 against --k-bg and --k-panel in both themes.\nAlready done and kept: the dark-mode default fill via kit.css `:where(svg:not([fill]))`, the touching-label overlap check, the amber-line alias and text halos.",
+    "why": "All 8 lessons had labels that were too small, ran together, sat on lines or arrows, or never drew at all. Their self-tests passed every one. Text at about 9.5 px beside 17 px body text breaks 'phone first'.",
+    "evidence": [
+     "anc/i1 learner and anc/i4 learner: labels at 9.5-10.5 CSS px",
+     "vaccines/i1 learner (major): 'ignores it ignores it ignores it' runs together at 360 px with clipped: []",
+     "vaccines/i3 teacher, expert and learner (major): 'germ arrivesame germ returns' overlap (since fixed in kit)",
+     "rainbows/i1 expert and learner (major): beams strike through '40°', '29°', '41°' and '48°' at every width",
+     "rainbows/i4 teacher, expert and learner (major): amber arc invisible because 'amber-line' was unknown; '17.2°' sits on the drop's outline",
+     "bronze/i1 teacher (major), expert and learner: labels near-black in dark mode (since fixed); 'runs out first' sits on the arrow tip",
+     "bronze/i4 learner (major): timeline labels at about 9.5 px"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson explain (line 444, term sentence), priorBlock (line 309), analogy (line 451), DAN jargon line (line 49), BEFORE YOU REPLY",
+    "change": "NAMES: one name per thing; earned terms only; consistent analogies.\n(a) Line 444. Current: 'Name a key term only after the reader understands the thing: mark it [[like this]] the first time (at most 3 new terms). A term the picture needs may appear on it before this; mark it here where you explain it. Call each thing by the name the course plan and earlier lessons use.' New: 'Name a key term only after the reader understands the thing: mark it [[like this]] the first time (at most 3 new terms, at most 2 at level NEW, and only a term a later part of this lesson or a later idea uses).\n- A term of two or more words (\"pressure wave\") comes only once each of its words is explained.\n- Define a term as the research notes define it, whole-topic notes included, never narrowed to fit this picture.\n- Give each thing one name in this lesson (the plain word the picture and readouts use) and one verb for one event. An earlier lesson\\'s term may appear once, as a reminder (\"a squeeze, the compression you met before\").\n- Say a source\\'s point in your own words; do not borrow its vocabulary (peak, trough).\n- When a name is a modern label rather than the period\\'s own word (Sea Peoples), say so. A period, dynasty or title (New Kingdom) gets a few plain words or stays out; [[ ]] is for ideas, not proper names.\n- A term the picture needs may appear on it before this; mark it here where you explain it.'\n(b) Line 309. Current: 'Use these terms exactly as they were introduced, without defining them again,' New: 'Use these terms exactly as they were introduced, without defining them again; pick one name for each new thing in this lesson and use only that name in every part,'\n(c) Line 451. Current: '- text (at most 45 words): a comparison to everyday life or to the ideas Dan already knows that genuinely matches the mechanism.' New: '... that matches how it works, not only the outcome it produces (a firm keeping a trained team on standby, not a person getting practised). Prefer the comparison textbooks use when one fits. If the explanation or plan already uses an image, map it identically (say which part is the key and which the lock), or choose a new comparison that adds something; otherwise use null. \"breaks\" must itself be correct science.'\n(d) BEFORE YOU REPLY: add '- Any comparison maps the same parts to the same things everywhere in the lesson, and no word carries two meanings (\"scarce\" for short in the recipe and rare in the ground).'",
+    "why": "7 of 8 lessons had naming problems. Some used several names for one thing (six names in one anc/i4 sentence), some brought in source vocabulary unearned, some used compound terms before their parts were explained, and one swapped the lock-and-key roles between sections. A NEW learner ends up carrying two vocabularies.",
+    "evidence": [
+     "anc/i1 teacher and expert: 'pressure wave' is defined without pressure; three terms arrive in two sentences",
+     "anc/i4 teacher (major) and learner: compression, rarefaction, squeeze, stretch, peak and trough all appear in one sentence",
+     "vaccines/i1 teacher and learner: lock and key flip between explain and analogy; 'lymphocytes' is never used again; five verbs for one event; expert: 'antigens' defined as the epitope",
+     "vaccines/i3 teacher: memory cells get four names; the wardrobe analogy explains speed by practice",
+     "anc/i1 expert: the analogy's breaks says air 'pulls'",
+     "bronze/i1 teacher: 'scarce' carries two meanings",
+     "bronze/i4 teacher, expert and learner: 'Sea Peoples' presented as Egypt's own term; 'New Kingdom' unexplained"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson say section (lines 455-456); vLesson validator (say block near line 857)",
+    "change": "SAY-IT-BACK: make the rubric fair and diagnostic.\n(a) Line 455. Current: '- prompt (at most 30 words): an open \"why\" or \"how\" question in plain words: \"In your own words: why …?\" It asks for the heart of the idea, not a definition.' Append: ' Prefer a why that makes him use the rule on a consequence over a how he can copy from the takeaway. The prompt sets out the situation and never states a rubric point (\"...if the air itself doesn\\'t travel?\" gives one away).'\n(b) Line 456. Current: '- rubric: 2-3 points his answer should contain, each a single idea in plain words (at most 15 words). Never require jargon: \"squash\" meets \"compress\".' New: '- rubric: 2-3 points his answer should contain.\n- Each is a different step of the idea\\'s chain, so no sentence of the takeaway meets two of them. Each is a single idea in plain words (at most 15 words; no \";\" or \"and\" joining two claims), and the last is the conclusion the prompt asks for.\n- Each point is part of the heart of the idea, never a detail of method, a number or a name. It is true of this idea and not equally of the earlier idea it builds on.\n- A full, correct answer to the prompt exactly as worded meets every point: never require a case the question does not ask about. Each point restates a sentence of your explanation.\n- Never require jargon: \"squash\" meets \"compress\".'\n(c) Validator changes:\n- A rubric point containing ';' gets: 'say.rubric[n] holds two ideas; split it or keep the one at the heart of the lesson.'\n- Flag a rubric point whose content words all appear in say.prompt.",
+    "why": "6 of 8 lessons had rubric problems: points that overlapped, that bundled two claims, that the question gave away, that required something not asked, or that rewarded a non-reason. Grading is got-it only when every point is met, so an unfair rubric marks a good answer 'partly' and schedules the card as Hard.",
+    "evidence": [
+     "anc/i1 teacher: the prompt states rubric point 3",
+     "vaccines/i1 teacher: two of three points are the same idea",
+     "vaccines/i3 teacher and expert: point 2 is equally true of the first meeting; point 3 restates the question",
+     "rainbows/i1 teacher (major) and learner: point 3 joins two claims with ';' and requires the head-on case the question never asks",
+     "bronze/i1 teacher: points 1 and 2 overlap, and there is no point for the trade conclusion",
+     "bronze/i4 teacher: point 2 rewards a dating-method detail"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js THE NUMBER RULE (lines 474-479); /home/user/Study-App/app/src/js/33-interactive.js briefSection (line 153) and rulesSection (line 197); KIT.md line 151",
+    "change": "NUMBERS: honest labels, real cases that stay true, and model values reconciled with real ones.\n(a) Line 475. Current: '- computed: worked out from the rule in whatAmILookingAt;' New: '- computed: worked out from the rule in whatAmILookingAt. A peak, crossing or threshold comes from the rule itself, not the slider steps: if it falls between steps, write \"near 85%\", never \"at 85%\";'\n(b) Line 476 constant: append 'Its label says only what its quote says (no colour, place or condition the quote lacks). In whatAmILookingAt, say what the constant physically is. A zero, \"none\" or \"at once\" is a constant only when no source in RESEARCH says otherwise. When you apply a rounded constant (\"around 10 per cent\") to a real, documented case, work out what your rule then says about that case. If it shows something no source says (a real cargo leaving a ton of copper idle), pick a value inside the stated range that keeps the real case true, and say you chose it.'\n(c) Line 477. Current: '- assumed: a value chosen for the example (a £1,000 pot, a village of 100), shown as \"for example\", never as a finding. A sketched curve\\'s shape (when it peaks, how much higher the second rise is) chosen inside what the sources say is assumed too, and the caption says it is a sketch;' New: '- assumed: a value chosen for the example (a £1,000 pot, a village of 100), worded so he can tell it was chosen, not found (\"say a £1,000 pot\", \"drawn 10 times higher here\"). A setting the interactive itself uses (the pitch it plays) is stated plainly as its choice (\"this hum is 220 squeezes a second\"). A sketched curve\\'s shape (when it starts and peaks, how much higher the second rise is, how fast each part falls) chosen inside what the sources say is assumed too. List it in numbers, make it follow every shape fact in RESEARCH (what stays high, what falls back), describe it as drawn in whatAmILookingAt, and have the caption say it is a sketch;'\n(d) After line 479 ('...never give false precision.') add: ' When the model\\'s result and a cited real value describe the same thing but differ (42.5° against about 42°), say why in one clause and use one real value in explain, checks and whys. Use metric units: a source\\'s \"tons\" for a metric amount becomes \"tonnes\". Write each number in explain exactly as its readout shows it.'\n(e) 33-interactive.js line 197. Current: 'Show assumed values as examples (\"for example, £1,000\").' New: 'Every label, caption or .say sentence that shows an assumed value marks it as chosen in that same label or sentence (\"drawn 10 times higher here\"). A setting the page itself uses is stated plainly. Every constant in your script that shapes the picture (a rise or fall time) is one of the numbers listed above. Write a constant the way the lesson does (10 tonnes, not 10.0).' Line 153: replace 'shown as \"for example\"' with 'worded as chosen, not found'. Mirror the same in KIT.md line 151.\n(f) Kit: K.fmt(v, {decimals, trim: true}) lets whole values read whole.",
+    "why": "5 of 8 lessons mislabelled numbers. A real 220 Hz tone was hedged 'for example'. An assumed '10 times' appeared bare. Unlisted decay constants contradicted the sources. Three different 'top angles' were never reconciled. A rounding choice made the real Uluburun cargo look tin-short.",
+    "evidence": [
+     "anc/i1 teacher, expert and learner: 'squeezes the air, for example, 220 times a second'",
+     "anc/i4 learner: 'for example' repeated mid-sentence in the caption and the Sounding line",
+     "vaccines/i3 expert (major): decay times 4 and 12 are not in numbers and contradict the IgG source; '10 times' shown bare; '0 days' listed as a constant",
+     "rainbows/i4 teacher, expert and learner: 42.5°, 42° and 42.7° unreconciled; 'red light' label not in the quote; expert: the peak is at 86.2%, not '85%'",
+     "bronze/i1 teacher, expert (major) and learner: the exact 9:1 recipe shows the real cargo with 1 t of copper unused; '10.0 tons' vs '10 tons'; tons vs tonnes"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/33-interactive.js rulesSection (lines 192-200); /home/user/Study-App/app/kit/KIT.md 'Rules for a great interactive'; /home/user/Study-App/app/src/js/30-prompts.js whatAmILookingAt (line 436)",
+    "change": "PICTURE: mark on the drawing what the lesson talks about.\n(a) Add to rulesSection:\n'- Mark the brief\\'s one quantity on the picture itself, labelled with its readout\\'s value (an arc between the no-bend path and the beam reading \"11°\").'\n'- Every label sits on, or points to, something drawn; a label over empty space means a mark is missing.'\n'- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).'\n'- Draw every comparison the explanation makes (this band against that one, the first wait against the second) the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.'\n'- Give each reference line its own look and a label beside it, never two lines in the same style; every styled line is in the key or labelled on the drawing.'\n'- Draw only what the lesson names in its brief, whatAmILookingAt or explanation. Any extra figure carries a plain label saying how to read it, and every graph says on itself what its line stands for (\"the air at one spot near your ear\") and which way is which.'\n(b) Line 436. Current: '- whatAmILookingAt (at most 120 words; aim for about 100): the rule the model follows, in plain words first,' After 'in plain words first' add ' (the rule, not choreography the builder may not draw). Name every part the picture needs (reference lines, any graph beside it, what each axis direction means) in the terms later lessons will use, so the builder and the explanation use the same names.'\n(c) KIT.md: document a line legend item, `<span><i class=\"swatch line dash\"></i>where it would go with no bend</span>`.",
+    "why": "In 5 lessons the drawing failed to show the thing the explanation and checks were about. The bend was never marked. A band shaded the wrong axis. A label floated over empty space. Two dashed grey lines meant different things. An unexplained graph sat beside the picture, and the 'drifts past them all' motion was never drawn.",
+    "evidence": [
+     "rainbows/i1 teacher and learner: the change of direction the brief and target check ask about is never marked; two identical dashed grey lines; broken legend",
+     "rainbows/i4 teacher, expert and learner (major): the 'rays crowd here' band spans x (inputs) while the crowding is in y; the 2.4° vs 8.6° comparison is not drawn",
+     "vaccines/i3 teacher, expert and learner: 'memory cells' label over empty space; no 'no wait' mark at day 30",
+     "anc/i1 teacher: the eardrum trace is never named, and its 'up' contradicts i4's",
+     "anc/i4 learner: the waves never say what they show",
+     "vaccines/i1 teacher and learner: whatAmILookingAt promises the germ 'drifts past them all'; it only slides in"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/kit/KIT.md line 147 and The self-test (line 170); /home/user/Study-App/tools/eval/render.mjs line 86",
+    "change": "TIMING: the answer appears within about 3 seconds of Dan's first move.\nKIT.md line 147. Current: '- One idea, visible within ten seconds of play. One or two controls, three at most.' New: '- One idea. The answer to Dan\\'s prediction is on screen within about 3 seconds of his first move. When something must travel or build up first (a wave, a pulse, a queue), choose distances and speeds so it arrives within 2-3 s, and add a K.check that it does. Make the change unmistakable at 340 px, and keep transitions under 400 ms in total. It is still worth a second and third try: something Dan causes, and at least one case that surprises. One or two controls, three at most.'\nThe lesson's ignores already says by how much the picture is slowed (Change 4).\nSelf-test: play each K.anim for 3 s of model time; it currently plays 60 frames at 1/30 s, about 2 s.\nrender.mjs line 86 currently waits `info.actions.length ? 1500 : 500`. Wait 3000 ms after any set or press before the moved shot, and have the verdict confirm the predicted answer is visible in that shot.",
+    "why": "In anc/i1 all three judges raised it as a major. The first squeeze reached the eardrum about 6.9 s after the switch, so the thing Dan predicted was the last thing to appear, and on a phone he would likely scroll on. The 'ten seconds' rule allowed it, and no automated shot caught it.",
+    "evidence": [
+     "anc/i1 teacher (major), expert (major) and learner (major): V=40 over a 276-unit path gives a 6.9 s travel; the moved shot at 1.5 s shows a flat eardrum; only the extra 9 s shot shows the answer",
+     "vaccines/i1 learner: the lock-on line fades in after 0.45 s + 0.3 s; render.mjs shoots after 500 ms, so the line is nearly invisible"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js line 425; /home/user/Study-App/app/kit/KIT.md Sound (lines 100-104); /home/user/Study-App/app/kit/kit.js low-pitch warning (lines 1504-1507); /home/user/Study-App/app/src/js/33-interactive.js repair line 291",
+    "change": "SOUND: tie it to the picture and control, use pitches a phone can play, and never leave a silent button.\n(a) Line 425. Current: '- An idea about sound or music lets him hear it: a Play button that sounds what the picture shows.' New: '- An idea about sound or music lets him hear it when hearing teaches something the picture can\\'t (two pitches, two loudnesses, a hum that fades as waves cancel). Use a sound he keeps playing while he moves the control (K.sound.hold), so he hears the change itself, with one button to start and stop it. When the picture is slowed down, say so plainly (\"the real hum repeats this 220 times a second\"). Leave sound out when it only decorates.'\n(b) KIT.md lines 103-104. Current: 'Phone speakers can\\'t play below about 150 Hz: use 200 to 2,000 Hz for anything Dan must hear, and say so when the real sound is lower.' New: 'Phone speakers barely play pure tones below about 300 Hz. Use 300 to 1,000 Hz for a demonstration tone (or type \\'triangle\\', whose harmonics carry), and a gain near 1 for the loudest case. Say on the page when the real sound is lower (headphones help). When two sounds add or cancel, let him hear the second arrive: start one hum alone with K.sound.hold, then follow the slider. A Play button always makes or stops a sound he expects; never one whose result is silence without saying so. Clear any \"Sounding\" line when the sound stops.'\n(c) Kit:\n- Raise the warning threshold in kit.js from 150 to 300 Hz for sine.\n- tone() returns a promise or takes onend.\n- Add K.sound.pair(hz, {offset, gain2}): two real oscillators with a phase offset, so cancelling happens in the audio.\n- Change the repair hint '(200 to 2,000 for anything Dan must hear on a phone)' to 300 to 1,000.",
+    "why": "Both sound lessons were criticised by all three judges. The hum was decoration with no link to a picture slowed a hundredfold. It played at 220 Hz, a pitch phone speakers barely produce. In anc/i4 the button changed a volume rather than letting Dan hear cancelling, and at 50% it played nothing, which looks broken.",
+    "evidence": [
+     "anc/i1 teacher, expert and learner: a 2 s 220 Hz sine cut off from the picture; probably faint on an Android speaker; the 'Sounding' line never clears",
+     "anc/i4 teacher, expert and learner (major): one tone at gain 0.12 x combined; silence at 50%; the 2x vs 1.41x difference (about 3 dB) may be inaudible"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/33-interactive.js LEVEL (line 22); /home/user/Study-App/app/kit/KIT.md Page shape step 5 (lines 14-15) and the example caption; /home/user/Study-App/app/src/js/30-prompts.js whatAmILookingAt (line 436)",
+    "change": "CAPTION AND MATHS: keep them at Dan's level, and keep the caption a short restatement.\n(a) Line 22. Current: \"LEVEL = { new: 'Dan is new to this topic.', some: 'Dan knows a little about this topic.', ...\" New new: 'Dan is new to this topic: on the page (caption, labels, .say), say every rule in words; no formula beyond simple arithmetic (no cos, square roots, powers, logs or |...|).' New some: 'Dan knows a little about this topic: show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.'\n(b) KIT.md step 5. Current: '5. `<p class=\"caption\">`: at most two short sentences (the rule, where constants come from). The app shows what the model leaves out.' New: '5. `<p class=\"caption\">`: one short sentence, at most 20 words: where the numbers come from (\"A sketch, not measured data; timings from the lesson\\'s sources\"), or the rule in the explanation\\'s words at Dan\\'s level. It restates the lesson in fewer words and never adds a claim. It names no law or term (Snell\\'s law, refractive index) the explanation does not teach. The app shows the full rule and what the model leaves out.' Update the KIT example and compound-growth.html captions to match. The compound-growth caption currently also lists what it leaves out, against the kit's own rule.\n(c) Line 436. After 'in plain words first,' add 'built from steps he can see in the picture (what each step adds or takes away: \"the bounce adds 2β, each bend takes away α − β\"),'. Then add: 'Name a law or term here only if the explanation earns it too. Explain a function by what it does in the picture, not by a calculator key.'",
+    "why": "The lesson prompt now limits formulas for NEW learners (line 436), but the build prompt doesn't. So trigonometry still reached a NEW learner's caption. Elsewhere, captions named unearned laws, repeated the panel, or added claims the lesson never made (the 'cave record').",
+    "evidence": [
+     "anc/i4 teacher, expert and learner: '2 x |cos(180° x d)|' under every state for a NEW learner",
+     "rainbows/i1 teacher: 'Snell\\'s law ... refractive index' in the caption; never taught",
+     "rainbows/i4 teacher and learner: '4β − 2α' with α and β never explained on the page",
+     "vaccines/i3 learner: the caption repeats whatAmILookingAt and the say lines",
+     "bronze/i4 learner (major): the caption repeats the false 'cave record' claim on every step"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js THE NUMBER RULE date line (line 478), confidence 'contested' (line 470), BEFORE YOU REPLY; /home/user/Study-App/app/src/js/33-interactive.js rulesSection; kit.js sweep",
+    "change": "HISTORY: treat dates, timelines and debates honestly.\n(a) Line 478. Current: '- date: a historical date or documented historical fact, with \"source\": n when a source above states it.' Append: ' A date range is uncertainty about when one event happened, not how long it took. Word it \"sometime between 1200 and 1180 BC\", never use overlapping ranges as evidence that events were spread out, and keep it apart from anything that truly lasted years. A city emptying over decades is shown as a process, never a point. Say how a date was found (pottery, texts, radiocarbon, a cave record) only if the quote says so. Convert years before present to BC or AD.'\n(b) Line 470. Current ends: 'Give 2 or more views, each { label: who holds it, text: the view fairly stated in at most 50 words }.' Append: ' Each view comes from a named scholar or a peer-reviewed or university source, and all views answer the same question. A general encyclopedia states the mainstream; it is not one side of a debate. When two sources\\' dates do not fit together, say so in one plain sentence.'\n(c) BEFORE YOU REPLY, add:\n'- Place each date on the axis you plan: the change your brief names is really visible with these numbers at that scale. If the dates bunch, rewrite the brief to what they show and say in ignores what is missing.'\n'- Never tell Dan a source lacks something (\"our sources give no date\"); say \"this lesson does not show it\".'\n'- Every date and span squares with what a specialist knows; drop a source number that would surprise one.'\n(d) rulesSection, add: '- On a timeline, draw a dating window differently from a span that really lasted (a faded window against a solid bar), and say which is which. Text that appears at a later step goes in the .say line or below the controls, never inside the stage above them, and never repeats the .say sentence.'\n(e) Sweep: warn when the first control's top moves more than 40 px across stepper or choice values.",
+    "why": "bronze/i4 was the lowest-scoring lesson (overall 2.33, accuracy 2.67), and all three judges raised these as majors. Every history idea timeline is exposed to the same failures: date windows read as durations, a timeline whose dates bunch against the line it claims to break, an invented dating method, a false 'no date in our sources', and unequal 'views'.",
+    "evidence": [
+     "bronze/i4 teacher (major x2), expert (major) and learner (major): three city dates within 20 years of 1200; 'a range of years, not a single day' treats uncertainty as duration",
+     "bronze/i4 expert, learner (major) and teacher: 'Pylos\\'s date comes from a cave record'",
+     "bronze/i4 teacher (major), expert (major) and learner: 'Our sources give no date for the battle' while the research has c.1177 BC",
+     "bronze/i4 expert: WHE set against a peer-reviewed paper; Hattusa drawn as an instant 'destroyed' tick",
+     "bronze/i4 teacher and learner: the Egypt box pushes Back/Next about 400 px down"
+    ]
+   },
+   {
+    "priority": "medium",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson THE COURSE block (lines 380-388)",
+    "change": "COURSE THREAD: link each lesson to the course's puzzle and to the lessons around it.\nAdd the line: 'Puzzle the course answers: ' + data(topic.hook, 320).\nLines 386-388. Current: 'Teach only this idea; the others get their own lessons. ' + (idx <= 0 ? 'This is the first idea.' ...). New: 'Teach only this idea; the others get their own lessons. Just before the takeaway, add one sentence on what part this idea plays in answering the puzzle (for a history idea, also why it mattered to people then, from a source), without teaching the next idea. When a later idea is a debate (its oneLine says people argue), describe its subject neutrally here and leave the verdict to that lesson (\"groups Egyptian records describe arriving by sea\", not \"raiders\"). ' + (idx <= 0 ? ...)",
+    "why": "writeLesson never receives the hook. The first rainbows lesson never mentions rain, a drop or a rainbow. The bronze lessons never say what bronze was for, and bronze/i4 settled i6's debate in advance.",
+    "evidence": [
+     "rainbows/i1 teacher and learner (major): no 'rain', 'drop', 'sun' or 'rainbow' anywhere; the hook is not in the prompt",
+     "bronze/i1 learner and teacher: no stakes, and the ship is unnamed",
+     "bronze/i4 teacher and expert: 'the raiders its records call the Sea Peoples' prejudges i6 ('raiders or refugees?')"
+    ]
+   },
+   {
+    "priority": "low",
+    "where": "/home/user/Study-App/app/kit/KIT.md K.anim docs (lines 81-82); kit.js self-test",
+    "change": "ONE CONTROL PER ACTION.\nCurrent: '`anim` adds a Play button (text `label`; `button: false` when your own control calls `play()` and `pause()`); `reset` adds Reset.' Append: ' When a K.toggle or K.button starts the motion, always pass `button: false` and call play() from that control: one control per action. Add a separate \"Freeze\" button only when a still frame teaches something.'\nSelf-test: warn when a page has a K.toggle or K.button and a K.anim Play button, and the anim's step sets that toggle: 'A switch already starts this motion: use K.anim({button: false}).'",
+    "why": "In anc/i1 'Speaker on', 'Run' and 'Play the hum' all started the same thing, and Run silently flipped the switch. button:false is now documented, but nothing makes it the rule or catches the duplicate.",
+    "evidence": [
+     "anc/i1 teacher, expert and learner: three controls for one switch's worth of idea; Run sets speakerOn"
+    ]
+   },
+   {
+    "priority": "low",
+    "where": "/home/user/Study-App/app/kit/kit.js afterMoveAdvice (lines 1924-1925) and K.stage/K.plot; /home/user/Study-App/app/kit/KIT.md Page shape step 3 (line 12); /home/user/Study-App/app/src/js/33-interactive.js briefSection (line 143)",
+    "change": "LAYOUT.\n(a) kit.js line 1925. Current: `if (hole) report.warnings.push(hole);` New: `if (hole) report.errors.push(hole);`, so the repair round fixes a blank opening hole. Also give K.plot series and marks an `afterMove: true` option that draws the axes in the opening view and reveals only the curve and dot.\n(b) KIT.md line 12. Current: '3. Readouts in <div class=\"k-readouts\">, then <p class=\"say\">: one sentence that changes with the state.' New: '3. <p class=\"say\"> straight under the stage (one sentence that changes with the state), then readouts only for numbers the drawing does not already label.' When K.stage lays the visual and controls side by side, move .k-readouts and .say into the controls column.\n(c) 33-interactive.js line 143. Current: 'Outputs (return each from K.model under exactly this key, and show it with K.readout using the same id' New: '... and show it once: as a K.readout, or as a label on the drawing when the drawing already shows it, never both (target checks read K.model, not the tile)'.",
+    "why": "A 350 px blank hole shipped because hole-detection only warns, and warnings reach the model only in a repair round. Duplicate readouts pushed the live sentence below the phone fold. On laptops the narration sat far from the controls.",
+    "evidence": [
+     "anc/i4 teacher, expert and learner (major): about 350 px blank opening card at 360 and 1280 px",
+     "bronze/i1 learner: readouts repeat the bar labels and push .say about 735 px down",
+     "vaccines/i3 learner, rainbows/i1 learner, rainbows/i4 learner: on a laptop the say and readouts sit far below the slider, with an empty column under the controls"
+    ]
+   },
+   {
+    "priority": "low",
+    "where": "/home/user/Study-App/app/kit/KIT.md Rules (lines 157-158), mirrored in the build prompt; optional validator",
+    "change": "K.CHECK SOURCES.\nCurrent: '`source` may ONLY be a URL from the lesson\\'s own sources; if it has none, omit `source`.' New: '`source` may ONLY be a URL from the lesson\\'s own sources, and only on a check whose label restates what that source\\'s quote says. A result you worked out from the rule, or a fact about your own drawing (how many cells), takes no source. If the sources hold no checkable fact, use a worked example instead.' Optionally warn when no number in a sourced check's label appears in that source's quote.",
+    "why": "Self-tests reported a modelling choice or a tautology as backed by a source, which hides model errors behind citations.",
+    "evidence": [
+     "vaccines/i1 expert: 'no two share a shape' cited to OpenStax Bio 42.2, which does not say it (clones share receptors)",
+     "bronze/i1 expert (and the cause of expert major #1): 'make 10 tons of bronze, with 1 ton of copper spare' cited to the wreck paper, which never says it"
+    ]
+   },
+   {
+    "priority": "low",
+    "where": "/home/user/Study-App/app/src/js/30-prompts.js writeLesson citation bullet (line 446) and SOURCES (line 486); vLesson/finalise",
+    "change": "FOOTNOTE PLACEMENT.\nLine 446. Current: '- Cite with [^n] straight after the sentence a source supports, using only the source numbers listed under RESEARCH. Every fact or number a source covers gets its footnote.' New: '- Put [^n] straight after the words its quote supports, using only the source numbers listed under RESEARCH. If a sentence adds reasoning the quote does not contain, split it so the footnote sits only on the supported part. Every fact or number a source covers gets its footnote. When two sources support a point, cite the one whose quote uses no loose terms or unexplained jargon. If a quote names one kind of thing, your sentence names that kind; if you widen it, say in ignores which members work differently. When you restate a cited fact elsewhere (reveal, misconception, rubric), keep the quote\\'s qualifiers (\"one type of receptor\" never becomes \"a single detector\"). If a source shows real people acting on the rule (a cargo packed in the recipe\\'s ratio), use it.'\nValidator: report a listed-but-uncited source as a problem in the write step rather than dropping it silently in finaliseLesson. In the eval, add a quote-vs-claim judge that compares each footnoted clause with its quote.",
+    "why": "Footnotes sat on reasoning their quotes do not contain. Qualifiers were lost when facts were restated, and the best evidence on offer went unused.",
+    "evidence": [
+     "rainbows/i1 expert: [^4] sits after eye-traces-it-back reasoning the quote lacks",
+     "anc/i4 expert: [^1] sits on 'stays still'; the quote says only 'cancel each other'",
+     "vaccines/i1 expert: 'one type of receptor' becomes 'a single detector' in the reveal, whatAmILookingAt and c1",
+     "rainbows/i4 expert: source [4] listed but never cited",
+     "bronze/i1 teacher, expert and learner: [8] ('intended to be alloyed with the copper on board') offered and unused"
+    ]
+   },
+   {
+    "priority": "low",
+    "where": "/home/user/Study-App/app/kit/kit.js K.control; /home/user/Study-App/app/kit/KIT.md Controls and Colour (lines 133-134); build prompt",
+    "change": "CONTROL ERGONOMICS AND MATERIAL COLOURS.\n(a) Add K.control({..., snap: [values]}): a drag within 2% of the range of a listed value lands on it. Make − / + repeat while held. The build prompt passes the predict's setting as a snap.\n(b) KIT.md after 'cat1 and cat2 first.' add: ' When the things drawn are materials or objects with a familiar colour, never give one another thing\\'s colour (a blue copper, an orange tin): use the nearest role (copper as cat2, tin or silver as muted, gold or bronze as fill2) and label it. What is still there stays solid: mark a state such as unused with a label or bracket, not by fading the thing, and give any dashed or faint style a key.'",
+    "why": "Exact settings were hard to hit on a phone (50 taps to reach 50%). Colours fought the real metals, and fading 'unused' copper read as 'the copper is gone'.",
+    "evidence": [
+     "anc/i4 learner: about 1.6 px per step on a 160 px track, and the answer appears only at exactly 50",
+     "bronze/i1 learner: copper drawn blue and tin orange-red; the whole copper stack turns into a faint dashed box at zero tin"
+    ]
+   }
+  ],
+  "accuracyErrors": [
+   "anc/i1: the predict reveal says the eardrum rocks 'in step with the speaker cone'. Correct: it has the same rhythm but lags, by distance ÷ speed. In this model it lags 3.45 cycles, so it swings about 160° out of phase with the cone. Source [2] supports only 'the same frequency'.",
+   "anc/i1: the analogy's breaks says 'Air also passes on stretches, the pull back after each squeeze'. Correct: a gas cannot pull. A stretch travels because the air beyond pushes less hard than usual. People with hands on shoulders can also pass pulls, so that is not the real limit; a slinky passes both.",
+   "anc/i1: 'pressure wave' is defined as 'a disturbance passed outward from its source, not air flowing'. That defines a wave, not pressure. Correct: a squeeze is higher pressure and a stretch lower pressure, as source [2] says; this is dropped although i2 and i4 rely on it.",
+   "anc/i1: the lesson frames sound as passed only 'through the air', yet c3 relies on solids passing squeezes (helmets), a fact never taught or cited. Correct: sound travels through any matter (water, wood, plastic), per source [1]'s 'disturbance of matter'.",
+   "anc/i4: the reveal says two sounds are louder than one 'only when they're in step'. Correct: by the model's own rule the pair is bigger than one hum at any delay under a third or over two thirds of a wave (1.41x at 25% and 75%, as the page itself says). Unrelated everyday sounds add in intensity, about +3 dB, so cancelling is the special case.",
+   "anc/i4: cancelling is taught as 'the sound goes quiet' / 'the hum vanishes' for two speakers. Correct: two out-of-step speakers cancel only at spots where the arrivals meet equal and opposite. Most of a room still hears sound. That cancelling works only in a small space is why headphones can do it.",
+   "anc/i4: the plan, reveal, explain ('the air never moves'), rubric and say line say cancelled sound leaves 'still air'. Correct: equal squeeze plus stretch leaves the pressure at normal. It does not in general stop air motion: where waves meet from different directions, pressure nodes are where the air moves most. [^1] is attached to 'stays still', which its quote does not support.",
+   "anc/i4: check c2 asks Dan to make the readout show '1.00'. No setting does: 33% shows 1.02 and 34% shows 0.96. Its why names only 'about a third of a wave', though two thirds works too.",
+   "vaccines/i1: 'A defender switches on only when its detector fits a shape on the germ' is applied to all lymphocytes, the cells the lesson names. Correct: that is B cells. T cells never bind the germ's surface; they recognise protein fragments the body's own cells display on MHC.",
+   "vaccines/i1: absolute one-shape specificity ('Just one', 'fits just one shape', 'Each kind's detector fits only one particular shape'). Correct: receptors cross-react, several receptors can fit one shape, many identical cells share each receptor, and the real repertoire runs to millions. i5's 'old memory fits less well' needs partial fit.",
+   "vaccines/i1: 'each carries a single detector' (reveal, whatAmILookingAt, c1 misconception, drawing). Correct: each lymphocyte carries many thousands of copies of one kind of receptor; source [2] says 'one type of antigen receptor'.",
+   "vaccines/i1: 'Those surface shapes are called antigens'. Correct: that describes an epitope. An antigen is any substance the immune system responds to, which can be a whole killed or weakened germ (WHO, used in i4). Source [3] itself says 'epitopes of an antigen'.",
+   "vaccines/i1: a fitting detector means the defender 'grabs it' and is switched on. Correct: activation usually also needs a second go-ahead signal (help from other immune cells), and a fit without it can silence the cell. The research note overstated the quote's 'can react'.",
+   "vaccines/i1: ignores says general-purpose defenders 'attack many germs without matching shapes'. Correct: innate cells also recognise shapes, through pattern-recognition receptors that fit molecular patterns many germs share.",
+   "vaccines/i1: c1 and the reveal mark 'all defenders attack anything foreign' as simply wrong. Correct: innate (general-purpose) defenders do attack a broad range of invaders; the claim is wrong only for the shape-matching lymphocytes.",
+   "vaccines/i1: the picture shows recognition as identical icons (a triangle detector for triangle bumps). Correct: binding is complementary (a pocket shaped to fit the bump), as the lesson's own lock-and-key analogy implies. The lock and key also swap roles between explain and analogy.",
+   "vaccines/i1: K.check 'Each defender carries one detector, and no two share a shape' cites OpenStax Bio 42.2. The source does not say this, and in reality clones of a cell share the same receptor (i2's subject).",
+   "vaccines/i1: whatAmILookingAt says the germ 'drifts past them all'. On the page it only slides in from the left and parks above the row.",
+   "vaccines/i3: the explanation's reason for the faster second response ('a few are left ... already waiting') is equally true of the first meeting. Correct: afterwards there are far more matching cells than before. Memory cells are a separately trained set that switch on faster, with less of the germ and less help, and secondary antibodies bind more strongly (OpenStax, OpenLearn in the tool returns).",
+   "vaccines/i3: 'There is no wait this time', 'rises straight away', and 'Days with no antibody after the second meeting: 0' (constant); the drawing reaches the first peak's height 6 hours after the germ returns. Correct: the secondary lag is shorter, a few days (standard texts give 1-3 days). The same source's summary says 'The lag time ... is shorter'.",
+   "vaccines/i3: the drawn falls contradict the sources. The first response is at 6% of peak on day 21, which [9] says is about when IgG usually peaks; whatAmILookingAt promises 'a slow fall'. The second response halves in about 10 days, but the source says secondary IgG 'has not declined' 12 days later and is 'maintained for longer'.",
+   "vaccines/i3: the predict says 'your defence takes about 4 days to get going'. Correct: source [5] says IgM antibody appears after about 4 days. The body's first-line (innate) defences act within hours; the adaptive response takes days.",
+   "vaccines/i3: the picture shows antibody back at zero before the second meeting, and the gap as 20 days. Correct: leftover antibody often persists for years (for measles, the course hook, decades), and the gap is usually months or years. Ignores mentions neither.",
+   "vaccines/i3: '10 times the first peak' is shown bare on the chart and in the say line. Correct: it is an assumed drawing value. The returned sources put the ratio anywhere from about 3x (OpenStax figure) to about 100x (OpenLearn IgG 50 to several thousand units).",
+   "vaccines/i3: 'the main antibody's first peak'. 'main' is not in quote [9], and it implies several antibody kinds that are never explained.",
+   "vaccines/i3: the flat-pack wardrobe analogy puts the speed down to the same person getting practised. Correct: memory is kept as a larger, separately trained population of cells. The analogy also says nothing about the response being bigger.",
+   "rainbows/i1: the rule is stated as 'a slanted beam always swings towards the upright line' / 'towards straight down' (rubric, model, labels). Correct: light bends towards the normal, the line square to the surface where it crosses, which points straight down only for flat water. In a raindrop, light entering the lower half bends upward, towards the centre. Source [2] says 'towards the normal'.",
+   "rainbows/i1: the edge-first (cart-axle) why is taught as settled fact and required by the rubric. Correct: refraction is a wave effect. Each wavefront slows one end first and swings round; even a hair-thin beam bends the same amount, which the beam-edge story cannot explain. Confidence should be 'simplified'.",
+   "rainbows/i1: refractive index is defined as 'a number for how strongly it bends light'. Correct: n = speed of light in vacuum ÷ speed in the material, so 1.33 means light travels 1.33 times slower in water. Bending also depends on angle and on the other material.",
+   "rainbows/i1: footnote quotes [1] and [2] teach that light bends passing into something 'denser'. Correct: mass density does not set refraction. Cooking oil is less dense than water but slows light more (n about 1.47 vs 1.33).",
+   "rainbows/i1: [^4] is placed after 'light ... changes direction on its way out, and your eye traces it back along the wrong line', but the quote says only that a pencil in water is a classic observation of refraction.",
+   "rainbows/i1: c1 says a beam leaving the water at a slant swings away from the upright line. This is true only below the critical angle, asin(1/1.33) ≈ 48.8°; beyond it the light is totally reflected and none leaves the water.",
+   "rainbows/i4: c2's right answer 'Drops send light back at angles up to about 42°, never wider', and its why 'drops just outside send you none'. Correct: that holds only for once-reflected light. Twice-reflected light forms the secondary bow at about 50-54°, and light reflects off the outside of every drop; i7 teaches the wider bow.",
+   "rainbows/i4: 42.7° is labelled 'Widest angle for real drops, red light'. Source [3] names no colour; Stull's 0-42.7° is the spread over all colours. Red is about 42.4° (n = 1.331 gives 42.37°; St Andrews' 137.6° minimum deviation gives 42.4°). The lesson's 42.5°, 'about 42°' and 42.7° are never reconciled.",
+   "rainbows/i4: the peak is said to be 'at 85%' and filed as a control value. Correct: for n = 1.33 the true peak is 42.52° at about 86.2%; 85% is only the nearest slider step, and the value is a computed result.",
+   "rainbows/i4: c3 treats a ray grazing the top edge as leaving at about 15°. Correct: in reality almost all of a grazing ray's light glances off the outside of the drop, so almost none leaves at 15°. Ignores also omits wave effects (small drops smear the bow and add supernumerary bands).",
+   "rainbows/i4: the 'rays crowd here' band spans entry heights 75-90% on the x-axis, implying more light enters there. Correct: light enters evenly. The crowding is in the output, the narrow 40.1-42.5° band of exit angle on the y-axis.",
+   "bronze/i1: the opening state shows the real wreck's 10 t copper and 1 t tin making 10.0 t of bronze with 1.0 t of copper unused, and a K.check cites the wreck source for this. Correct: experts describe the Uluburun cargo as matched at about 10:1, enough for about 11 t of bronze. Source [8] says the tin was 'most likely intended to be alloyed with the copper on board'.",
+   "bronze/i1: tin origins are given as 'Central Asia, or Cornwall and Devon'. Correct: the Central Asia quote is cut from a sentence about the late third millennium BC. The cited paper references work rejecting Central Asia (Mušiston) for the Uluburun tin. Powell et al. 2022 assign about two-thirds to Kestel in Anatolia, which is missing, and Berger et al. 2023 and the 2025 Antiquity paper favour Cornwall and Devon. Quote [9] 'still an unsolved problem' is one cargo's pre-results framing, used for 'most of it'.",
+   "bronze/i1: the takeaway says 'every bronze-making kingdom depended on long trade routes'. Correct: no source says 'every'. Britain, Iberia, Brittany and the Erzgebirge had local tin, and Anatolia may have had Kestel.",
+   "bronze/i1: c1's answer and the reveal say bronze-making 'stops' and 'with no tin the copper just sits there'. Correct: smiths routinely re-melted scrap bronze (e.g. the Cape Gelidonya cargo), and plain or arsenical copper was still worked.",
+   "bronze/i1: 'tons' is used for amounts the sources give in metric tonnes ('11 metric tons'); in UK English a ton is the imperial ton.",
+   "bronze/i4: '1315-1190 BCE' (Drake 2012) is presented as the span of palace destructions, so collapse lasted 'a century, or two'. Correct: in that paper 1315-1190 BCE dates the LH IIIB pottery phase, the height of the palaces. Destructions ran from the 13th to the 11th century BC, and no specialist dates palace falls to the 1310s BC. 1315-1190 is also 125 years, not 'two centuries'.",
+   "bronze/i4: Pylos (about 1200-1180), Hattusa (around 1200) and Ugarit (1190-1185) are presented as 'separate date ranges spread along the timeline', and the rubric says 'The dates are ranges spread over years'. Correct: a range is uncertainty about when one event happened, not how long it took. Overlapping ranges fit simultaneous falls just as well. Real evidence of spread runs from Merneptah c.1208 to Lachish VI and Megiddo VIIA c.1130.",
+   "bronze/i4: 'Our sources give no date for the battle' (the Egypt note, step 6 and ignores). Correct: the course's own research dates Ramesses III's year 8 to probably c.1177 BCE (Livius), and Merneptah reigned 1213-1203; it was filed under i6.",
+   "bronze/i4: 'the raiders its records call the Sea Peoples'. Correct: 'Sea Peoples' is a 19th-century scholars' label (de Rougé, Maspero). Egyptian texts name separate groups (Peleset, Tjeker, Shekelesh, Denyen, Weshesh, Sherden), and 'raiders' prejudges i6's question.",
+   "bronze/i4: 'Pylos's date comes from a cave record counted in years before 1950' (whatAmILookingAt and the caption on every step). Correct: the destruction is dated by the LH IIIB to LH IIIC pottery transition (archaeological chronology: ceramics cross-dated with Egyptian fixed points and radiocarbon). The cave stalagmite records rainfall.",
+   "bronze/i4: Hattusa is labelled 'destroyed' and drawn as an instant tick on 1200. Correct: excavations (Seeher) found the court left in an orderly way with its valuables, and fire hit only some buildings, possibly later. 'Abandoned around 1200 BC, emptying over decades' fits better, and the reveal and explain give the order inconsistently.",
+   "bronze/i4: the contested views are not like for like. A general reference site (World History Encyclopedia, dating the whole collapse) is set against a peer-reviewed paper's date for a Greek pottery phase, as 'Experts date the whole collapse differently'.",
+   "bronze/i4: c3's misconception for 'grew into the region's new great power' gives no reason it is wrong. Correct: Egypt lost its empire in Canaan within decades of the collapse, and the New Kingdom ended in the 11th century BC (the 'shrank' the plan promised and research never sourced).",
+   "bronze/i4: the climate band ends at 1190 BC ('palaces fell 1315-1190') while the Pylos band runs to 1180 and Ugarit sits at 1190-1185. The lesson never explains this clash between differently dated studies."
+  ],
+  "averages": {
+   "perPartAcrossAll24Judgements": {
+    "overall": 3.13,
+    "predict": 2.96,
+    "interactive": 3,
+    "explain": 3.54,
+    "sayItBack": 3.79,
+    "checks": 3.17,
+    "accuracy": 3.63
+   },
+   "perLesson": {
+    "anc/i1": {
+     "overall": 3.33,
+     "predict": 2.67,
+     "interactive": 3,
+     "explain": 4,
+     "sayItBack": 4.33,
+     "checks": 3.67,
+     "accuracy": 4
+    },
+    "anc/i4": {
+     "overall": 3.33,
+     "predict": 2.33,
+     "interactive": 3.67,
+     "explain": 3.33,
+     "sayItBack": 4,
+     "checks": 3.67,
+     "accuracy": 3.67
+    },
+    "vaccines/i1": {
+     "overall": 3,
+     "predict": 2.67,
+     "interactive": 3,
+     "explain": 3.33,
+     "sayItBack": 3.67,
+     "checks": 2.67,
+     "accuracy": 3.33
+    },
+    "vaccines/i3": {
+     "overall": 3,
+     "predict": 2.33,
+     "interactive": 2.67,
+     "explain": 3.33,
+     "sayItBack": 3.33,
+     "checks": 3,
+     "accuracy": 3.67
+    },
+    "rainbows/i1": {
+     "overall": 3.33,
+     "predict": 4.33,
+     "interactive": 3.33,
+     "explain": 4,
+     "sayItBack": 3.33,
+     "checks": 3.67,
+     "accuracy": 4
+    },
+    "rainbows/i4": {
+     "overall": 3.67,
+     "predict": 4.67,
+     "interactive": 3.33,
+     "explain": 4,
+     "sayItBack": 5,
+     "checks": 2.67,
+     "accuracy": 4
+    },
+    "bronze/i1": {
+     "overall": 3,
+     "predict": 2.33,
+     "interactive": 3,
+     "explain": 3.67,
+     "sayItBack": 3.67,
+     "checks": 2.67,
+     "accuracy": 3.67
+    },
+    "bronze/i4": {
+     "overall": 2.33,
+     "predict": 2.33,
+     "interactive": 2,
+     "explain": 2.67,
+     "sayItBack": 3,
+     "checks": 3.33,
+     "accuracy": 2.67
+    }
+   },
+   "perJudge": {
+    "teacher": {
+     "overall": 2.88,
+     "predict": 2.5,
+     "interactive": 3,
+     "explain": 3.25,
+     "sayItBack": 3.5,
+     "checks": 2.5,
+     "accuracy": 3.75
+    },
+    "expert": {
+     "overall": 3.38,
+     "predict": 3.63,
+     "interactive": 3.25,
+     "explain": 3.63,
+     "sayItBack": 3.88,
+     "checks": 3.5,
+     "accuracy": 3.25
+    },
+    "learner": {
+     "overall": 3.13,
+     "predict": 2.75,
+     "interactive": 2.75,
+     "explain": 3.75,
+     "sayItBack": 4,
+     "checks": 3.5,
+     "accuracy": 3.88
+    }
+   }
+  }
+ },
+ "judgements": [
+  {
+   "lesson": "anc/i1",
+   "judge": "teacher",
+   "scores": {
+    "overall": 3,
+    "predict": 2,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 4,
+    "checks": 3,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The predict misses the heart of the idea. It asks what the eardrum does (rock in and out vs one push vs nothing), while the brief, the takeaway and the say-it-back are all about the air staying put while the pattern travels. Most adults already know eardrums vibrate, so it sparks little curiosity, and 'one push' is not a misconception people commonly hold. The lead line then splits Dan's attention: 'watch what the eardrum… does. Then follow the marked bit of air.'",
+    "major / kit: The answer to the predict arrives too late, and the squeezes are faint. The first squeeze reaches the eardrum about 6.9 s after the switch, and 'again and again' takes about 11 s. The marked bit of air doesn't move until 3.3 s. The thing Dan predicted is the last thing to appear. On a phone the bunching is subtle.",
+    "major / lesson-prompt: The explanation skips the step that makes the mechanism make sense. It says 'each bit of air shoves its neighbour, which shoves the next' but never says why a bit of air comes back, or how a stretch gets passed on: air is springy, so squashed air pushes back. 'Rocks in place' is stated, not understood. The analogy's 'breaks' admits the gap ('People only pass on shoves. Air also passes on stretches') and nothing fills it. Relatedly, a curious adult who knows that air molecules dart about may find 'each bit of air only rocks in place' contradicts what he knows, and the ignores panel doesn't cover it.",
+    "minor / lesson-prompt: Too much jargon for a NEW learner. Three terms arrive in two sentences (compression, rarefaction, pressure wave). 'Pressure' sits inside a term without ever being explained (squeezed air = higher pressure), and the definition given for 'pressure wave' never mentions pressure. The course itself teaches in 'squeeze' and 'stretch', so Dan now carries two sets of words. i4 then mixes them ('each compression from it arrives with a rarefaction').",
+    "minor / lesson-prompt: Check c2 (put in order) makes a weak review card. The sequence just runs left to right across the picture and repeats the explanation's sentences, so it tests reading, not understanding. It only includes pushes, with no stretch, which reinforces the 'one push' picture the reveal warned against. c1 also nearly repeats calibration c1 (breeze vs ripple), so the lesson never checks a second facet, such as the pattern taking time to travel.",
+    "minor / lesson-prompt: The say-it-back prompt gives away a rubric point. The question itself states that the air doesn't travel, so rubric point 3 ('The air only rocks in place; the pattern is what travels') comes free, and the grade can't tell whether Dan holds the key idea.",
+    "minor / lesson-prompt: The page has a second figure that no lesson text mentions. The 'Eardrum over the last few seconds' in/out trace is the natural bridge from dots to the wavy-line pictures i4 relies on, but neither whatAmILookingAt nor the explanation names it or says how to read it. Its 'up' means the eardrum pushed in, while i4's 'above the middle line' means air squeezed. A NEW learner shown an unexplained wiggle beside a picture of air moving to and fro is at risk of the classic 'sound is a sideways wiggle' misconception.",
+    "minor / lesson-prompt: The page has three controls for one switch's worth of idea, and the hum is decoration. The toggle starts the motion, a separate 'Run' button also switches the speaker on, and 'Play the hum' plays a 2 s, 220 Hz sine with no visible link to the slowed picture. The hum line misuses the number rule: 'This one squeezes the air, for example, 220 times a second' presents the actual played pitch as an example."
+   ]
+  },
+  {
+   "lesson": "anc/i1",
+   "judge": "expert",
+   "scores": {
+    "overall": 4,
+    "accuracy": 4,
+    "predict": 3,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 5,
+    "checks": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The predict reveal claims a timing the physics and the picture both contradict. It says the eardrum 'rocks in and out, again and again, in step with the speaker cone'. A distant eardrum has the same rhythm as the cone but lags behind it. In this model it moves almost opposite to the cone.",
+    "major / kit: The picture is slowed so much that the answer to the prediction takes about 7 seconds to appear, and no part of the lesson says how fast real sound is. Dan waits 7–9 s for the eardrum to move, and could come away believing sound takes noticeable time to cross a room. The lesson had a cited speed of sound in its RESEARCH list ([7], 343 m/s) and did not use it.",
+    "minor / lesson-prompt: A real fact is hedged as a hypothetical. The tone played really is 220 Hz, yet Dan reads 'This one squeezes the air, for example, 220 times a second', which makes an exact property of the interactive sound like a guess.",
+    "minor / lesson-prompt: The lesson introduces the term 'pressure wave' without ever saying what pressure has to do with it. The definition it gives ('a disturbance passed outward from its source, not air flowing') defines 'wave', not 'pressure'. Source [2]'s link (compressions are high-pressure regions, rarefactions low-pressure) is dropped, even though i2 (how hard each squeeze is) and i4 depend on it.",
+    "minor / lesson-prompt: The lesson frames sound as air only, while its checks rely on sound passing through solids, a fact the lesson never teaches or cites. The title and bold takeaway say sound is 'passed through the air'. c3's misconception tells Dan helmets are 'solid stuff that can pass squeezes along', and its why says 'one bit of matter to the next'. i3 (low rumbles shaking through ear cups) will need this fact too.",
+    "minor / lesson-prompt: The analogy's 'breaks' sentence contains a small physics error. 'Air also passes on stretches, the pull back after each squeeze' implies air pulls on air, but a gas cannot pull. A stretch moves along because the air beyond pushes less hard. Also, people with hands on shoulders can pass pulls, so the stated limit is not quite the real one. A slinky, the standard textbook comparison, passes both squeezes and stretches.",
+    "minor / kit: Three controls for a one-switch idea, plus a description that does not match the drawing. Besides the 'Speaker on' toggle there is a Run/Pause button, and pressing Run with the speaker off silently switches the speaker on. whatAmILookingAt says 'a row of dots' but the drawing is a 5 × 26 field.",
+    "minor / build-prompt: The 220 Hz sine 'hum' may be barely audible on Dan's Android phone, because small phone speakers roll off steeply below about 300 Hz. The 'Sounding: a steady hum' line may describe a sound he cannot hear."
+   ]
+  },
+  {
+   "lesson": "anc/i1",
+   "judge": "learner",
+   "scores": {
+    "overall": 3,
+    "predict": 3,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 4,
+    "checks": 4,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: This is a toy he switches on and watches, not one he plays with. Dan's only action is to flip 'Speaker on' and then wait. He can never make one squeeze himself and watch it travel while the air goes back home, which is the clearest way to show the idea. He also can't test the tempting predict option 'Bulge in once and stay pushed in'. It won't feel like a toy worth playing with.",
+    "major / build-prompt: The answer comes too late. After Dan switches the speaker on, the eardrum stays still for about 7 s, and its first full in-and-out ends at about 9 s. On a phone he is likely to think nothing is happening and scroll on before he sees the answer to his prediction.",
+    "major / lesson-prompt: The sound is cut off from the picture and is probably barely audible on his Android phone. 'Play the hum' plays a 2-second 220 Hz sine while the picture keeps running in silence. The 'Sounding: a steady hum...' line stays on screen after the sound has stopped. Phone speakers are weak at 220 Hz with a pure sine.",
+    "minor / kit: Several controls start the same thing, which clutters the screen and confuses. 'Speaker on', 'Run' and 'Play the hum' all start the motion, and pressing Run with the speaker off silently switches it on. Dan has to wonder what Run does that the switch doesn't. The useful part, freezing the frame to see the bunching, is hidden behind a button labelled 'Run'.",
+    "minor / kit: The labels on the picture are too small to read comfortably on his phone. 'squeeze', 'stretch', 'in', 'out' and 'Eardrum over the last few seconds' come out at about 9.5 CSS px, roughly half the size of the body text.",
+    "minor / lesson-prompt: The predict misses the heart of the idea. It asks what the eardrum will do, and most adults would guess 'vibrate' correctly. The brief's 'one thing', the lead line ('Then follow the marked bit of air') and the bold takeaway are about the air staying put while the squeeze travels, but Dan never commits to a guess about that.",
+    "minor / lesson-prompt: 'This one squeezes the air, for example, 220 times a second' hedges a number that is exactly what plays. Dan can't tell whether the hum really is 220 or not, which chips at trust and reads clumsily.",
+    "minor / lesson-prompt: The order check c2 gives itself away. Each item's wording leads into the next ('The air beside it is squeezed together' → 'That squeeze shoves the next air along' → 'The squeeze reaches your ear'), so it tests reading, not understanding. As a review card weeks later it will be close to worthless."
+   ]
+  },
+  {
+   "lesson": "anc/i4",
+   "judge": "teacher",
+   "scores": {
+    "overall": 3,
+    "predict": 2,
+    "interactive": 4,
+    "explain": 3,
+    "sayItBack": 4,
+    "checks": 3,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: Before he guesses, the screen already answers the predict question, so a guess carries no tension and no prediction error. It aims at a real misconception ('two hums beat one'), but nobody picks that option here. The surprising facts the model holds go unused: a quarter-wave delay, halfway to cancelling, still gives 1.41x, which is more than one hum, and a whole-wave delay goes back to 2x.",
+    "major / model-judgement: The reveal states a rule that the lesson's own slider disproves, and every learner reads it whichever option they chose.",
+    "major / other: The app shows Dan the outcome before he plays. That turns predict-observe-explain into predict, be told, confirm. The reveal is held back until 'I've had a play', but the line above the interactive has already given it away. This affects every lesson.",
+    "major / lesson-prompt: The explanation skips the step that makes cancelling obvious: why half a wave's delay lines a squeeze up with a stretch. It also never explains why a whole wave puts them back in step. Its key sentence gives a new learner six names for two things, and 'peak' and 'trough' arrive unearned, only so the footnote can hang on the source's words.",
+    "minor / lesson-prompt: The target check is slider-hunting rather than understanding. He drags while watching the big readout until it says 1.00. At this level he cannot reason why a third of a wave works (that needs cosine), so the 'why' stays vague. As a review card it remounts the interactive and gets answered the same way weeks later, so it tests nothing he kept.",
+    "minor / build-prompt: The page uses maths beyond a NEW learner's level. The rule shown is trigonometry, and a '180 degrees' constant appears that is never explained, yet the honest rule in words ('the two pushes add at every moment') is simple arithmetic and already on the page.",
+    "minor / kit: The sound works as a volume knob, not cancellation. Dan never hears a hum vanish as its opposite joins it, which is the moment that would make this idea unforgettable. At 50% the Play button makes no sound at all, which can read as broken.",
+    "minor / kit: Two phone layout flaws hurt the calm, nothing-in-the-way reading: a large blank hole on the opening screen and a clipped axis title. The self-test caught neither."
+   ]
+  },
+  {
+   "lesson": "anc/i4",
+   "judge": "expert",
+   "scores": {
+    "overall": 4,
+    "accuracy": 3,
+    "predict": 3,
+    "interactive": 4,
+    "explain": 4,
+    "sayItBack": 4,
+    "checks": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The predict reveal says something false: that two sounds are louder than one only when they are in step. That contradicts the lesson's own interactive. At 25% and 75% the readout shows 1.41 and the say line says 'still bigger than one hum alone'; any delay under a third or over two thirds of a wave gives more than one hum. It is also wrong for everyday life. Two unrelated sounds (not locked together) add up louder on average: their intensities add, about +3 dB. So the lesson tells Dan his correct everyday intuition is wrong, when cancelling is actually the special case: it needs a copy locked in opposite timing. That special case is exactly the point i5 needs.",
+    "major / lesson-prompt: Cancelling is taught as the sound going quiet, when it only goes quiet at one spot. The predict asks what happens to 'the sound' from two speakers, and the answer is 'It goes quiet'. Explain says 'the hum vanishes', and the Play button says 'Sounding: nothing at all'. Real speakers half a wave apart still fill most of a room with sound; it is quiet only where the two arrivals meet equal and opposite. That this works only in a small space is the very reason headphones can do it (New Scientist's small-cavity point). Only the ignores panel admits it ('elsewhere the two sounds can meet at different moments and not cancel'), and c3 ('What do you hear?') carries the same unstated assumption. Dan could leave thinking two out-of-step speakers make a silent room.",
+    "minor / plan-prompt: The lesson says cancelled sound means 'still air'. That mixes up pressure with motion. In i1's terms, the squeeze and stretch are pressure (compression and rarefaction). Cancelling them leaves the pressure at its normal level; it does not in general stop the air moving. Where two sounds meet from different directions, the spots with no pressure change are where the air rocks most (a standing wave). In a headphone's ear canal, both sounds travel the same way, so the conclusion survives there. Stated generally for 'two speakers', though, it is false. It also sits in the graded say rubric and becomes a review card. The [^1] footnote is attached to 'stays still', which its quote does not support (it says only 'the two cancel each other'). The door analogy ('doesn't budge') reinforces the motion framing.",
+    "minor / research-prompt: The lesson's central physical principle has no source. Sounds meeting at a point simply add: squeeze plus squeeze gives twice the squeeze, and that 2x is the opening readout. The only i4 sources are two popular-press pages (New Scientist, HowStuffWorks), although the research prompt prefers textbooks. OpenStax College Physics has a sound interference section that states superposition directly. The fact is textbook-standard, so it is not wrong, but the brief says unsourced content is labelled, and this sentence carries the whole interactive.",
+    "minor / lesson-prompt: The rule is given as a cosine formula to a NEW learner. '2 × |cos(180° × d)|' appears in whatAmILookingAt and in the on-page caption, and '180 degrees in half a turn of the wave pattern' is listed as a 'constant'. The level line says 'No maths beyond simple arithmetic'. The formula is correct, but it is a derived result; the model's real rule is the plain-words one already on the page ('add the two at every moment'), and the plot already shows the shape.",
+    "minor / lesson-prompt: Check c2 asks Dan to make the readout show '1.00', which no setting does: 33% shows 1.02 and 34% shows 0.96. The card's 'Aim for 1 (give or take 0.05)' line rescues the grading, but the question still asks for a reading Dan can never find. The 'why' mentions only 'about a third of a wave', though two thirds works too.",
+    "minor / kit: The Play button never lets Dan hear cancelling. It plays one precomputed 220 Hz tone whose volume is set by the combined size. That is mathematically the true sum at one spot, and the caption is honest, but Dan hears a volume change, not two hums undoing each other. It is also very quiet: gain 0.12 x c through the kit's 0.25 master, so at most 0.06 peak. At 220 Hz, near where phone speakers roll off, the 2x versus 1.41x difference (about 3 dB) may be inaudible on Dan's Android.",
+    "minor / kit: Layout faults on the phone that the self-test missed. The 360 px opening has a blank hole of about 350 px: the plot is hidden with k-after-move but keeps its space. After moving, the plot's x-axis title is cut off ('...(% of a wave' with no closing bracket), yet the self-test reported clipped: []."
+   ]
+  },
+  {
+   "lesson": "anc/i4",
+   "judge": "learner",
+   "scores": {
+    "overall": 3,
+    "accuracy": 4,
+    "predict": 2,
+    "interactive": 3,
+    "explain": 3,
+    "sayItBack": 4,
+    "checks": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The predict answers itself. The lesson header shows the title 'Opposite sounds add up to quiet' and the oneLine '...two opposite sounds arriving together can cancel each other out' directly above the question (50-lesson.js fillHead). The question also states the mechanism. Dan commits to nothing and gets no surprise, so the 'predict makes it stick' step is lost.",
+    "major / kit: Dan never hears two sounds cancel. 'Play the two together' plays a single 220 Hz tone whose volume follows the combined size. At 50% the button plays nothing, which a phone user can't tell apart from muted or broken audio. There is no moment where a hum he is hearing vanishes, which is the whole thrill of this idea. 220 Hz at gain 0.12 will also be faint on an Android speaker.",
+    "major / kit: The opening screen looks broken. The whole plot is wrapped in k-after-move, so its space is kept but empty. Between the say line and the caption there is about 350 px of blank card at 360 px, and a similar hole at 1280 px. That is Dan's first impression of the interactive. Separately, the moved shots show the plot's x-axis title clipped to '(% of a wave' with no closing bracket.",
+    "minor / model-judgement: The reveal makes a claim the interactive contradicts. It says two sounds are louder than one 'only' when in step. The interactive then shows 1.41 at 25% and 75% with 'still bigger than one hum alone', and c2 is built on 1.00 at a third of a wave. A curious adult who has just slid the control will notice, and it chips at trust.",
+    "minor / build-prompt: A trigonometry formula appears on the page for a NEW learner, and the example pitch is repeated in awkward wording. The caption shows '2 x |cos(180 deg x d)|' under every state, and the numbers list includes 'Degrees in half a turn of the wave pattern: 180 (constant)'. Neither cos nor |...| is ever explained. 'Each squeezes the air, for example, 220 times a second' appears in both the Sounding line and the caption, with 'for example' stuck mid-sentence.",
+    "minor / lesson-prompt: The explain uses three names for the same thing in one 40-word sentence. Compression/rarefaction come from i1, squeeze/stretch from the picture and readout, and peak/trough (unmarked) from the source quote. The causal order is also back to front: the still air is given before the reason. For a new learner this is the muddiest sentence in the lesson.",
+    "minor / build-prompt: The picture never says what its waves are. i1 showed air as dots moving in space; here Dan suddenly gets lines over time, labelled only 'squeeze', 'stretch' and 'time ->'. The key bridge, 'this line is the air at one spot near your ear, over time', lives only in the 'What am I looking at?' panel, which he may never open. First principles get skipped exactly where a new learner needs them.",
+    "minor / kit: Phone ergonomics are fiddly. The slider spans 0-100 in steps of 1 on a track of about 160 CSS px at 360 px width, roughly 1.6 px per step. The answer ('Silence.') appears only at exactly 50, and the predict tells him to land there. Reaching 50 with the + button takes 50 taps. The diagram labels are 11-12 viewBox units, which render at about 9.5-10.5 px on the phone next to 17 px body text."
+   ]
+  },
+  {
+   "lesson": "vaccines/i1",
+   "judge": "teacher",
+   "scores": {
+    "overall": 3,
+    "predict": 2,
+    "interactive": 3,
+    "explain": 3,
+    "sayItBack": 3,
+    "checks": 2,
+    "accuracy": 3
+   },
+   "issues": [
+    "major / lesson-prompt: The predict answers itself, so it creates no curiosity and tests no real misconception.",
+    "major / lesson-prompt: The interactive never shows the case that makes the idea matter: a germ that no defender fits. Every option gets caught, so the claim that you need variety rests on something Dan never sees.",
+    "major / build-prompt: The picture shows recognition as identical icons ('same shape = match'), not as a fit. Nothing actually grabs, and the rule text describes motion the page does not draw.",
+    "major / lesson-prompt: The checks test whether Dan recognises the lesson's slogan, not whether he understands it, so they make weak review cards.",
+    "major / lesson-prompt: Review cards and the reveal mark a half-truth as flatly wrong. The only caveat is in the 'ignores' panel, and review cards never show that panel.",
+    "major / lesson-prompt: The explanation is not built from first principles. It asserts that defenders recognise by shape but skips the step that makes shape the obvious way. It also spends a new-term slot on a label with no payoff and retells the presets.",
+    "minor / lesson-prompt: The lock-and-key mapping flips between parts of the lesson, and the analogy repeats an image already used five times.",
+    "minor / lesson-prompt: The say-it-back invites recitation, and two of its three rubric points are the same idea, so parroting the takeaway in one sentence meets the whole rubric."
+   ]
+  },
+  {
+   "lesson": "vaccines/i1",
+   "judge": "expert",
+   "scores": {
+    "overall": 3,
+    "accuracy": 3,
+    "predict": 4,
+    "interactive": 3,
+    "explain": 3,
+    "sayItBack": 4,
+    "checks": 3
+   },
+   "issues": [
+    "major / lesson-prompt: The lesson takes a B-cell fact and applies it to all lymphocytes. The explanation says 'The defenders here stand for cells called [[lymphocytes]]' and then 'A defender switches on only when its detector fits a shape on the germ'. That is false for T cells, the other half of the lymphocytes it names (source [^1] says 'B and T lymphocytes'). T cells never bind the germ's surface. They recognise fragments of germ proteins that the body's own cells display (on MHC). The 'ignores' panel does not mention this, and i4 (mRNA vaccines: your own cells make the protein) will lean on that difference.",
+    "major / lesson-prompt: Absolute one-shape specificity is fixed into the review cards. The picture's one-to-one simplification (six shapes, six defenders, exactly one fit each) becomes absolute claims in c3's answer ('Each kind's detector fits only one particular shape'), in the rubric ('fits just one shape') and in the reveal ('Just one'). In reality receptors cross-react: several different receptors fit one shape, one receptor fits close relatives of its shape, and many identical cells share each receptor. Later ideas depend on this. i5's 'old memory fits less well' requires partial fit, and so does cowpox protecting against smallpox. The ignores panel admits graded fit, but review cards come back months later without it. The real scale (millions of detector shapes, about 1 in 100,000 to 1,000,000 cells fitting any one antigen, per research source 14) is never hinted. Six-in-six makes the variety look like a handful.",
+    "minor / lesson-prompt: 'Each carries a single detector' is false. A lymphocyte carries tens of thousands of copies of its one kind of receptor. The explanation gets this right ('one kind of detector', matching source [^2] 'one type of antigen receptor'), but the reveal, whatAmILookingAt, the c1 misconception and the picture all say or draw one detector.",
+    "minor / lesson-prompt: The lesson defines antigen as the narrower thing, the epitope, and it clashes with the course's own sources. 'Those surface shapes are called [[antigens]]' is the definition of an epitope (source [^3] itself says 'epitopes of an antigen having a corresponding shape'). The lesson prompt's whole-topic note gave the standard definition, 'any substance that makes the immune system start producing antibodies'. In i4, WHO's quote calls a whole killed or weakened germ an antigen, so Dan will meet a contradiction.",
+    "minor / build-prompt: The picture shows matching by identity, not fit, and it does not move the way the rule text says. A triangle detector lights up for triangle bumps, so 'match' reads as 'same symbol'. Real binding is complementary (a pocket shaped to the bump), which is exactly what the lesson's own lock-and-key analogy says. The lock and key also swap roles: the analogy makes the defender the lock and the shape the key, while the topic oneLine reads 'detector fits ... like a key in a lock'. whatAmILookingAt says the germ 'drifts past them all', but it only slides in and parks above. The lock-on line, the one mark that shows the fit, is nearly invisible in the moved shots.",
+    "minor / research-prompt: The lesson treats a fit as enough to switch a defender on. In the interactive, every fitting defender 'grabs it' and is 'switched on'. Real activation usually also needs a second go-ahead signal (help from other immune cells), and a fit without it can silence the cell instead. The overstatement starts in research: the note says 'A B lymphocyte is switched on only when its receptor fits', but the quote only says the cell 'can now react with' a corresponding shape.",
+    "minor / model-judgement: The ignores panel describes innate immunity wrongly. It says general-purpose defenders 'attack many germs without matching shapes'. Innate cells do match shapes: their pattern-recognition receptors fit molecular patterns that many germs share. This is an unsourced claim in a panel Dan reads as the honest small print.",
+    "minor / build-prompt: One of the interactive's self-checks cites a source for a claim the source does not make. K.check('Each defender carries one detector, and no two share a shape') only tests that the drawing's own array has six distinct entries, yet it cites OpenStax Bio 42.2. That quote says each cell expresses one receptor type. It says nothing about no two cells sharing a receptor, which is false in reality: clones share receptors, and that is i2's whole subject. Dan does not see check labels, but the self-test now reports a tautology as backed by a source."
+   ]
+  },
+  {
+   "lesson": "vaccines/i1",
+   "judge": "learner",
+   "scores": {
+    "overall": 3,
+    "predict": 2,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 4,
+    "checks": 3,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The interactive is a picker, not a toy. Dan chooses one of four fixed labels, and a highlight and a line appear. He has seen everything after one tap: there is nothing to cause, no case that surprises him, and no germ that gets past. The lesson's own takeaway ('no single defender can catch everything. Your protection comes from having many different defenders') is never shown, because every germ on offer has a ready-made match among the six.",
+    "major / kit: On the phone the labels are tiny and run together. The SVG text renders at about 10 px, and the five 'ignores it' status labels sit with no gap, so they read as one string: 'ignores it ignores it ignores it ignores it ignores it'. 'No germ yet' touches the dashed circle. The self-test passed all of this.",
+    "major / lesson-prompt: The predict gives its answer away. The question already contains the rule ('each with a different-shaped detector'), and the right option is the only one that states the mechanism ('the defender whose detector fits triangles'). 'About half, whichever happen to be nearest' is a strawman. Committing to a guess creates no tension, so the reveal teaches nothing.",
+    "major / lesson-prompt: The review cards overgeneralise 'defenders'. Inside the lesson, 'defenders' means only lymphocytes, the shape-matching kind. Check c1 marks 'all defenders attack anything foreign' as the misconception and explains that 'each one carries a single detector'. Weeks later that card comes back on its own, without the ignores panel that admits 'general-purpose defenders that attack many germs without matching shapes'. Read cold, it tells Dan something false about his immune system.",
+    "minor / build-prompt: The picture shows matching icons, not a fit. Each detector is the same solid shape as the germ's surface shape (a triangle on a stalk next to a triangle on the germ), and the two are joined by a line across empty space. Nothing fits into anything, so the key-in-a-lock idea the text keeps repeating is never seen. It reads as the card game Snap, and it hints that recognising a shape means having the same shape, when the source says 'corresponding shape'.",
+    "minor / lesson-prompt: The words drift. The explanation maps the analogy one way ('its detector fits a shape on the germ, the way a key fits a lock', so detector = key). The analogy panel and caption map it the other way ('each defender as a lock and each shape on a germ as a key'). The analogy section repeats the key/lock comparison for about the fifth time and adds no new angle. One event gets five verbs: grab, switch on, lock on, react, catch. The lesson also defines antigens as 'those surface shapes', while i4's research uses 'antigen' for a whole killed germ or genetic instructions, so the term will clash two lessons later.",
+    "minor / build-prompt: The 'What am I looking at?' panel promises motion the page never shows: 'When you pick a germ, it drifts past them all.' The germ only slides in from the left and stops above the row. The eval's screenshot step also fired too early to see the lock-on line: the model's fade is a 0.45 s delay plus 0.3 s, and render.mjs waits 500 ms, so the moved shots show an almost invisible line.",
+    "minor / model-judgement: Two of the three checks are weak. In c3 the wrong options are strawmen nobody holds ('Defenders wear out after a single fight', 'Bigger germs need more kinds of defender'), and the right answer is the only one that repeats the lesson's key phrase, so keyword matching answers it. c1 is the lesson's own triangles-and-stars case reworded as 'a new virus carries two different shapes', which tests recall rather than transfer."
+   ]
+  },
+  {
+   "lesson": "vaccines/i3",
+   "judge": "teacher",
+   "scores": {
+    "overall": 3,
+    "predict": 2,
+    "interactive": 3,
+    "explain": 3,
+    "sayItBack": 3,
+    "checks": 2,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The page header answers the predict question before Dan reads it, and so did a question he answered when he started the topic. That leaves no curiosity and no real misconception to test.",
+    "major / research-prompt: The explanation never gives the real reason the second response is faster. The rubric and the model answer reward a reason that was already true the first time.",
+    "major / lesson-prompt: The checks mostly test recall and repetition, so they will make poor review cards. None of them tests what i4 and i5 need from this idea.",
+    "major / build-prompt: The interactive shows the effect (antibody) but not the cause (memory cells), and one label invites a misconception. It is also a slideshow: Dan presses Next but changes nothing.",
+    "minor / research-prompt: The core explanation paragraph is crowded with timings and a disagreement between sources. That is too much load for a new learner, and it pushes out the causal step.",
+    "minor / kit: On the answer frame, two labels are drawn over each other ('germ arrivesame germ returns') at every width, and the self-test passed it.",
+    "minor / lesson-prompt: The predict question describes the process inaccurately, and that wording contradicts the lesson's own later feedback.",
+    "minor / model-judgement: The analogy explains the speed by the wrong mechanism, and the lesson keeps changing what it calls the key thing."
+   ]
+  },
+  {
+   "lesson": "vaccines/i3",
+   "judge": "expert",
+   "scores": {
+    "overall": 3,
+    "accuracy": 3,
+    "predict": 3,
+    "interactive": 3,
+    "explain": 3,
+    "sayItBack": 3,
+    "checks": 4
+   },
+   "issues": [
+    "major / research-prompt: The lesson never says why memory makes the second time faster. Its causal chain is 'the defenders dwindle until only a few are left... These are memory cells... they are already waiting'. That is equally true of the first meeting: i2, calibration c1 and this lesson's own c3 ('Only a few defenders fit it, and they must multiply first') teach that a few matching cells already exist before any germ arrives. So the explanation does not account for the speed-up. It also treats memory cells as the leftover fighters, when they are a separately trained set.",
+    "major / research-prompt: 'No wait at all' at the second meeting is stated more strongly than the sources support, and the drawing makes it physically impossible. The curve reaches the first fight's peak height 6 hours after the germ returns, and about 4 times that peak after one day. A K.check locks this in. The lesson also lists 'Days with no antibody after the second meeting: 0' as a sourced constant.",
+    "major / lesson-prompt: The drawn falls contradict the cited sources and the lesson's own words. The first response is drawn with an unlisted 4-day decay, so on day 21 the line is at 6% of its peak. That is the day [9] says IgG 'usually reach[es] its highest level', and whatAmILookingAt promises 'a slow fall'. The second response is drawn halving within about 10 days (51% at day 42). The source behind [5]/[6] says secondary IgG 'has not declined' by then and that 'high levels of IgG antibodies are maintained for longer'. That lasting level is one of the source's four key differences, and the bridge to i4's lasting protection.",
+    "minor / lesson-prompt: The framing and the 'ignores' panel let a newcomer draw false conclusions. The predict stem says 'your defence takes about 4 days to get going' and stage 2 is 'The wait before the fight', but [5] says only that IgM antibody appears after 4 days. The body's general first-line defences act within hours. The picture also shows antibody back at zero before the germ returns, so protection looks like it rests on memory cells alone. In reality leftover antibody often stays for years: for measles, the course hook, for decades. The day-30 second meeting quietly shrinks a gap that is usually months or years. 'ignores' mentions none of these.",
+    "minor / lesson-prompt: Say-it-back rubric point 2, 'Those cells already fit that germ, so there's no long wait', is equally true of the first-time defenders taught in i2. Grading will pass an answer that does not explain memory. 'No long wait' also inherits the overstatement in issue 2.",
+    "minor / build-prompt: Assumed values appear on the picture as if they were findings. The bold chart label '10 times the first peak' and the stage-5 .say line ('peaks 4 days later and reaches 10 times the first peak') carry no 'for example'. Only the small caption hedges. The sources the tools returned put this ratio anywhere from 'about three times' (OpenStax figure text) to roughly 100x (OpenLearn: IgG 'about 50 units' first, then 'several thousand units').",
+    "minor / lesson-prompt: The picture never draws the subject of the idea. Memory cells appear only as a floating label ('a few memory cells on watch') with nothing drawn, so the cause of the faster second response is invisible and only its effect (antibody) is shown. On stage 5 at every width that label sits beside 'germ arrives' and 'same germ returns', which print over each other ('germ arrivesame germ returns')."
+   ]
+  },
+  {
+   "lesson": "vaccines/i3",
+   "judge": "learner",
+   "scores": {
+    "overall": 3,
+    "accuracy": 4,
+    "explain": 4,
+    "predict": 2,
+    "interactive": 2,
+    "sayItBack": 4,
+    "checks": 3
+   },
+   "issues": [
+    "major / lesson-prompt: The interactive is a five-click slideshow, not a toy. The only control is Back/Next over a line that is already decided, so there is nothing to vary and nothing to find out: Dan presses Next four times, sees the spike, and has no reason to come back. The idea is a cause and its effect (memory causes the fast second response), yet he can never switch the cause off and watch the effect disappear.",
+    "major / lesson-prompt: The thing this idea is about, the memory cells, is never drawn. The picture shows only antibody, which falls back to nothing. At stage 4, 'Germ gone, a few stay', the label 'a few memory cells on watch' floats over empty white space, so the picture shows nothing staying. A new learner could easily take away 'everything vanished, then it came back bigger' without seeing what was kept.",
+    "major / lesson-prompt: The predict is answered before Dan plays. The lesson heading right above it reads 'Memory makes the second time faster'. The calibration question he answered at the start (measles a second time: 'their body recognises it quickly') asked the same thing. The question itself leads him there ('takes about 4 days... how long is the wait now?') and offers a straw-man option ('defenders are worn out'). Committing to a guess teaches nothing when the answer is on screen.",
+    "major / validator: On the payoff screen (step 5 of 5), two labels are printed on top of each other as 'germ arrivesame germ returns', at 360 px and at 1280 px, in light and in dark. This is the frame Dan is meant to remember, and it looks broken. The self-test reported clipped: [] and the verdict was ok, so the app would have shipped it.",
+    "major / lesson-prompt: The predict and the checks all test the same fact, so spaced review will keep showing Dan three versions of the same card. c2 (antibody in March, then May) is the predict again in new clothes, which was itself calibration c2. c1 is an order check that replays the interactive's five stage titles almost word for word (recall, not understanding). c3 tests i2's idea. No check covers the two points that set up i4 and i5: memory is for one germ's shapes only (the analogy's 'breaks' says so, but nothing tests it), and having almost no antibody left does not mean having no memory.",
+    "minor / build-prompt: The wait is marked as a tall amber block running from the axis almost to the top of an antibody chart. It reads like a bar of something during the one period that has no antibody, and it is the brightest thing on the screen while marking the least important stage. The day-30 meeting has no matching 'no wait' mark, even though the predict asks exactly about the wait, so the comparison he guessed about is left for him to infer.",
+    "minor / lesson-prompt: The explanation's third paragraph is crowded for a new learner. It packs four footnoted numbers into two sentences, plus a hedge about 'the main antibody', which quietly brings in the idea that there are several kinds of antibody and never explains it. The sketch already shows the 2-5 and 5-10 day contrast, so the paragraph reads like a textbook just where it should feel like a friend at a whiteboard.",
+    "minor / build-prompt: The same facts are said three times on the page. The caption (six grey lines on a phone) repeats whatAmILookingAt, which repeats the say lines ('about 4 days', 'no wait', '10 times the first'). On a 1280 px laptop, the say sentence sits under the chart at bottom left, far from the Next button at top right, with an empty column beneath the controls, so the narration changes away from where he is clicking."
+   ]
+  },
+  {
+   "lesson": "rainbows/i1",
+   "judge": "teacher",
+   "scores": {
+    "overall": 3,
+    "predict": 4,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 3,
+    "checks": 3,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: This is a mechanism lesson, but the interactive shows only the result (Snell's-law angles), never the cause it teaches. The reveal, the explanation, the analogy and rubric point 2 all rest on 'one edge reaches the water and slows first, so the beam swings round'. On screen the beam is a single thin line with no width, no wavefronts and nothing visibly slowing. Dan meets the 'why' only as text, then is graded in say-it-back on something he never saw. The tilt control is not the cause either: slowing is.",
+    "major / validator: Target check c2 can be solved by scrubbing alone, and it makes a poor review card. The review card loads the whole interactive with the 'Change of direction' readout and the .say sentence both showing the bend live. Dan slides until '19' appears. The value 19 is arbitrary, and the 'why' just repeats the readout. With no understanding needed, it adds nothing in spaced review.",
+    "major / lesson-prompt: The say-it-back rubric is unfair. Point 3 joins two ideas and demands a case the question never asks about. The prompt asks only why a beam bends 'at a slant', yet the rubric also requires 'head-on it doesn't bend'. A complete, correct answer to the question as written would be graded 'partly', which counts as Hard on every review of this recall card.",
+    "minor / build-prompt: Jargon appears on the page without being earned. The caption under the readouts says 'Snell's law: sin(tilt) = 1.33 × sin(lean in water). 1.33 is water's refractive index'. The explanation never teaches Snell's law, sine or refractive index. The panel defines sin only as 'the sine key on a calculator', which isn't first principles. Refractive index is the very idea i2 builds on, so it should be earned here, not dropped into a caption.",
+    "minor / build-prompt: The picture's key comparison is unclear. Two identical grey dashed lines stand for different things: the upright line, and where the beam would go with no bend. The lesson text names only the upright one, and at small tilts the two nearly merge. The diagram labels tilt and lean, but not the change of direction that the brief and the target check are about. Angle labels sit on the beams (40°, 29°, 41°, 48°). The legend meant to separate the two dashed lines rendered broken. (The kit's later legend markup and text halo help, but don't fix the design.)",
+    "minor / lesson-prompt: There is no bridge to the course's puzzle. Lesson 1 never mentions a raindrop or a rainbow, even though the hook is 'why can you never reach it?' and source [1] is literally about raindrops. Curiosity rests only on the boundary-case predict, and Dan can't see why refraction matters to the topic he asked about.",
+    "minor / research-prompt: The central 'why' (one edge slows first, so the beam wheels round) has no source. Research found only 'because light travels slower in water' (NOAA). Yet the lesson's say-it-back grades Dan on this uncited mechanism, and c3 states as fact that light slows more in glass, also without a source. The physics is standard (the Huygens wavefront argument), but the product rule is 'faithful to sources'.",
+    "minor / model-judgement: Some distractors are weak and one check rests on a step that was never taught. Predict option 'It bends even more sharply' is not something people believe about light arriving straight down. c3's misconception for option 1 ('a clear, solid block lets light through more easily') is invented. c3 also needs 'more slowing means more bend', which neither the explanation nor the interactive establishes, since only one material is shown."
+   ]
+  },
+  {
+   "lesson": "rainbows/i1",
+   "judge": "expert",
+   "scores": {
+    "overall": 4,
+    "accuracy": 4,
+    "predict": 5,
+    "interactive": 4,
+    "explain": 4,
+    "sayItBack": 3,
+    "checks": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The lesson ties the rule to 'straight down / the upright line' instead of 'the line square to the surface'. That rule is false for a raindrop, which is where this course takes it next. Light bends towards the line square to the surface where it crosses. That line points straight down only because this water is flat. In a drop, sunlight entering the lower half bends upwards, towards the drop's centre, which is the opposite of 'towards straight down'. Dan will say this wrong general rule back, it will be graded as correct, and spaced review will bring it back.",
+    "minor / lesson-prompt: The 'why' is the beam-edge (cart-axle) model, presented as settled fact. The rubric requires it and the interactive cannot show it. Refraction is a wave effect: each crest of the light wave reaches the water one end first, that end slows first, and the crest swings round. A beam of any width bends by the same angle, even a hair-thin laser, and the beam-edge story cannot explain that. The interactive draws a zero-width line, so the cause the lesson names (slowing) is never visible, only its result. The analogy already has the correct picture: rows of marchers are the crests.",
+    "minor / research-prompt: The refractive index is defined vaguely, which breaks the lesson's own causal chain. n = speed of light in empty space ÷ speed in water. So 1.33 means light travels 1.33 times slower in water. That is the exact quantitative link to 'it bends because it slows', and it is what i2 needs (each colour has a slightly different speed). 'How strongly it bends light' is loose: the bend also depends on the angle and on the other material. The source cited for 1.33 is also an odd quote when read cold: an unnamed 'He', and no definition.",
+    "minor / research-prompt: The cited footnote quotes teach 'denser', and the research note repeats it. Mass density is not what sets bending. Cooking oil is less dense than water but slows light more (n ≈ 1.47 against 1.33), so it bends light more. The quotes also use 'the normal', which the lesson never explains. The lesson's own text avoids both problems, but Dan reads the quotes when he opens a footnote. [^3] (NOAA) alone could have supported naming refraction.",
+    "minor / lesson-prompt: A footnote is placed after reasoning its quote does not contain, and the main 'why' sentence is neither sourced nor labelled as the lesson's own explanation. The physics in both is right. But the footnote implies OpenStax gives the eye-traces-it-back mechanism, and it does not. The product rule says unsourced content is labelled as such.",
+    "minor / kit: Reading the diagram is harder than it should be. Angle labels are struck through by the beams. Two dashed grey lines with different meanings (the upright reference and the no-bend path) share one style, and only one of them is in the legend. On a phone the legend's dashed swatch renders as a tiny bar, separated from its text.",
+    "minor / lesson-prompt: Check c1 leaves out the limit on its answer. Underwater light more than about 48.8° from straight up does not leave the water at all: it reflects back completely. Dan could try this with a laser pointer and see the beam stay in the tank, which would contradict the card he is reviewing. The research notes already flag reflection inside drops as a common confusion for i3."
+   ]
+  },
+  {
+   "lesson": "rainbows/i1",
+   "judge": "learner",
+   "scores": {
+    "overall": 3,
+    "accuracy": 4,
+    "predict": 4,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 4,
+    "checks": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The interactive shows the result (two angles) but never the cause the lesson teaches. The explanation, the say-it-back rubric and the whys of c1 and c3 all rest on \"one edge reaches the water first and slows first, so the beam swings round\". On screen, though, the beam is a single thin line: it has no width, no edges, no wave crests and no visible change of speed. Dan gets graded on a mechanism he only read about and never watched, and with one 5°-step slider and nothing moving it plays like a protractor rather than a toy.",
+    "major / lesson-prompt: Nothing in the lesson connects it to rainbows. Dan typed \"how rainbows form\", and his first lesson is about a torch and a pool. The explanation, predict, checks and interactive never mention sunlight, a raindrop or a rainbow, so he never hears why this matters to the question he asked. That is the cheapest way to make the lesson stick, and it was missed.",
+    "major / research-prompt: The central \"why\" has no source, yet it is presented as settled fact and Dan is graded on it. The edge-first slowing picture is a sound teaching model, but no checked source states it. Research found only \"because light travels slower in water\". The edge-first picture is also a simplification of how waves behave, and the lesson never says so.",
+    "major / kit: The angle labels sit on top of the beams at every width and every tilt. The incoming beam strikes through \"40°\", and the refracted beam strikes through \"29°\", \"41°\" and \"48°\". At 5° the \"5°\" and \"4°\" labels jam against the dashed upright line, and the beam crosses \"4°\". This is the first thing his eye lands on, and it looks unfinished.",
+    "minor / build-prompt: The brief's \"one thing\", the beam's change of direction, is never marked on the drawing. Arcs label the tilt and the lean in water. The 11° gap between the dashed no-bend line and the beam is the number the explanation leads with and the target check asks for, but it appears only in a readout below the legend. On a laptop that readout sits about 400 px below the slider, with an empty column under the slider, so it is away from his hand while he drags.",
+    "minor / kit: The legend is broken and confusing. The dashed-line swatch renders as a tiny grey bar floating above the text. At 360 px, \"where it would go with no bend\" wraps onto its own line, away from its swatch. The drawing also has two grey dashed lines, the upright reference and the no-bend path, that differ only in dash length, so the key can't tell them apart even when it renders.",
+    "minor / kit: It doesn't feel like a toy you can grab. On a phone the torch is the obvious thing to swing, but he can only work a slider beneath the picture. The beam is drawn as a dark navy rod in light mode, so it reads more like a stick than like light.",
+    "minor / validator: Say-it-back rubric point 3 combines two ideas. If Dan explains the swing well but leaves out the head-on case, he would be marked \"partly\" even though he has the heart of the idea."
+   ]
+  },
+  {
+   "lesson": "rainbows/i4",
+   "judge": "teacher",
+   "scores": {
+    "overall": 3,
+    "predict": 4,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 5,
+    "checks": 2,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The interactive shows what causes the pile-up (a curve of exit angle against entry height) but never the pile-up itself, which is the lesson's heart: lots of light leaving in one direction, so that direction looks bright. To see the crowding from the curve, Dan has to know that a flat top means many entry heights share one angle. Nothing makes that inference except a band labelled 'rays crowd here'. Worse, the band sits on the x-axis (entry heights), while the crowding happens on the y-axis (angles). The fan of faint rays from other entry heights, which should show the bunching, has only 21 rays. In the 85% shot the bunch is hidden under the thick main ray and cut off at the bottom of the picture, the stray 100% ray crosses the fan, and the explanation never mentions the fan.",
+    "major / lesson-prompt: Two of the three checks, which become Dan's review cards, test recall or slider-sweeping rather than understanding. c1's target, 42.5° at 85%, has already been given in the predict reveal, the explanation and the on-screen sentence at 85%, and the question itself states the value. With 21 slider stops he can sweep until the readout says 42.5, with no understanding needed. c3 asks for the grazing ray's angle (15°), a minor model-specific number the explanation states outright ('falls to 15.0° at the edge'), as does the on-screen sentence at 100%. Weeks later these cards test memory of numbers, not the idea.",
+    "major / lesson-prompt: c2 is the only transfer check, and its aim is good, but it depends on a later idea and the answer can be spotted from its wording. Knowing that the sky just inside the bow is brighter needs i5's step: a drop at angle X from your shadow's head sends you the light that leaves it at X. This lesson never teaches that. Its explanation only says 'that bright direction is about 42°'. Without that step, Dan can still pick the right option because it is the only one that uses the lesson's own idea and number, and it is the longest (58 characters against 46 and 46). The two wrong options ('rain is heavier inside the bow', 'colours spill inwards') are not things people actually believe.",
+    "minor / lesson-prompt: The explanation skips the step from 'crowded rays' to 'bright'. It compares two bands of entry height (0–15% and 75–90%) without saying they are the same width, so each catches the same amount of sunlight. Then it jumps with 'So light piles up... and that direction looks bright.' For a learner who knows a little, that skipped step is the whole idea. Earlier, 'the bounce off the back flings it out wider' is stated, but the picture gives Dan no way to see it.",
+    "minor / lesson-prompt: Dan meets three different values for the bright angle, and nothing explains the differences: 42.5° (the model), about 42° (the St Andrews source, in the explanation) and 42.7° (Stull, in c2's why). The c2 card will contradict the readout he remembers. The numbers list also labels 42.7 as 'Widest angle for real drops, red light', but 'red light' is not in source [3]'s quote, so the label claims more than its source says.",
+    "minor / build-prompt: The whole curve appears on Dan's first nudge of the slider, so he is shown the turn-round as a finished drawing instead of discovering it while the readout climbs, stalls and falls. If the plot left a dot at each setting he visits, he would build the curve himself, and the dots bunching vertically near the top would be the crowding, made with his own hands.",
+    "minor / kit: The readout's meaning ('angle from straight back') is never marked on the picture. The amber arc meant to show it was invisible because K.color('amber-line') did not resolve. The angle label sits on the drop's outline at the opening state at 1280 px and is crossed by rays at 5%. The kit fix in commit f1add32 (the 'amber-line' alias, a warning for unknown colour roles, label halos) already addresses this for future builds.",
+    "minor / build-prompt: The full trigonometric rule is printed as an always-visible caption under the plot: 'Angle = 4β − 2α, with sin α = entry height ÷ 100 and sin α = 1.33 × sin β'. Nothing on the interactive explains α, β or sin, and 4β − 2α is never derived. For a learner who knows a little, this is unexplained notation in his main view. It also repeats what the 'What am I looking at?' panel already holds."
+   ]
+  },
+  {
+   "lesson": "rainbows/i4",
+   "judge": "expert",
+   "scores": {
+    "overall": 4,
+    "accuracy": 4,
+    "predict": 5,
+    "interactive": 4,
+    "explain": 4,
+    "sayItBack": 5,
+    "checks": 3
+   },
+   "issues": [
+    "major / lesson-prompt: Check c2's right answer is false as a stand-alone review card. 'Drops send light back at angles up to about 42°, never wider', and the 'why' says 'drops just outside send you none'. That is true only of light bounced once inside the drop. Drops do send light out wider: the twice-bounced second bow sits at about 50–54°, and some light reflects off the outside of every drop. The lesson dropped the qualifier the research note carried ('After one reflection…'). This card will come back in spaced review after Dan has done i7, which teaches exactly the wider bow it denies.",
+    "minor / lesson-prompt: Check c2 tests something the lesson never teaches and that belongs to a later idea. Where the bright light shows up in the sky ('just inside the bow') is i5 (circle round your shadow's head). The explain never mentions sky brightness, and source [4], the only support, is listed in sources but never cited. Dan can only get it right by elimination, and the 'why' carries the teaching.",
+    "minor / lesson-prompt: The lesson gives three different 'top angles' (42.5° in the model, about 42° for real drops, 42.7° in c2's why) and never says why they differ. The 42.7° entry is labelled 'Widest angle for real drops, red light', which its source does not say. Stull's 0–42.7° is the spread over all colours from a spreadsheet sample, and Stull himself puts red near 42.5°. The research's own sources give red at about 42.4°: OpenStax n = 1.331 gives a peak of 42.37°, and St Andrews' 137.6° minimum deviation gives 42.4°.",
+    "minor / build-prompt: The plot's amber band 'rays crowd here' spans entry heights 75–90% on the x-axis. That reads as 'more light enters the drop there', but rays enter evenly. The crowding is in the output: those heights all land in a narrow 40.1–42.5° band of angle on the y-axis. The kit supports a y-band ({y0, y1}), which would show the actual mechanism: a wide x-range squeezed into a thin y-range.",
+    "minor / lesson-prompt: The peak's position is stated as a fact of the rule ('tops out at 42.5° at 85%', 'when the ray enters 85% of the way up'), but 85% is only the nearest 5% slider step. For n = 1.33 the true peak is at 86.2% (42.52°). The lesson also files 'Entry height giving the widest angle' as kind 'control' when it is a computed result. The builder's self-check ('widest angle … is at 85%') compares slider steps only, so it can't see this.",
+    "minor / lesson-prompt: Check c3 asks Dan to recall a number the lesson states three times (15.0° at the edge in the explain, the say-line at 100% and the c3 why). It tests memory, not understanding. It also presents an idealised case as a real raindrop fact: a ray that just grazes a drop mostly glances off the outside, so almost none of 'its light' comes out at 15°. The 'ignores' panel mentions partial reflection only at the back. It also omits that light is a wave: tiny drops smear the bow and add faint extra bands.",
+    "minor / lesson-prompt: The 'What am I looking at?' panel gives 'angle = 4 × β − 2 × α' as a bare formula, though the lesson's own story derives it in one line: the bounce turns the ray 2β out from straight back, and each of the two bends pulls it back by α − β, so 2β − 2(α − β) = 4β − 2α. Without that line the equation looks handed down, against the first-principles rule, when it could read as a sum of steps Dan has just watched.",
+    "minor / kit: The diagram never marks the angle being measured. The amber arc between 'straight back' and the outgoing ray drew nothing, because the build prompt named the role `amber-line` while the kit only knew `amberLine`. The '17.2°' label also sits on the drop's outline at 1280 px. Dan sees a number floating near the exit point with no arc to say which angle it is. The kit has since been fixed (commit f1add32: K.color accepts 'amber-line', warns about unknown roles, and gives labels a halo). This run should be re-rendered to confirm."
+   ]
+  },
+  {
+   "lesson": "rainbows/i4",
+   "judge": "learner",
+   "scores": {
+    "overall": 4,
+    "predict": 5,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 5,
+    "checks": 3,
+    "accuracy": 4
+   },
+   "issues": [
+    "major / lesson-prompt: The interactive teaches 'the angle has a maximum' but never lets Dan see the pile-up, which is the actual idea ('Raindrops pile their light at one angle … making that direction bright'). The brief targets the shape of the curve, not the crowding. Brightness appears only in the text. Dan has to infer crowding from a flat stretch of an angle-vs-height plot, which is the most abstract way to show it.",
+    "major / build-prompt: The explanation's key evidence ('75% to 90% … within 2.4°, while 0% to 15% … over 8.6°') is not drawn anywhere. The amber band labelled 'rays crowd here' marks entry heights 75-90 on the x-axis, which is where the rays come from. The crowding happens in the angle on the y-axis, so the label points Dan at the wrong axis.",
+    "major / kit: The angle that the big readout names is never drawn. The amber arc between 'straight back' and the outgoing ray is invisible, so '17.2°', '2.9°' and '40.1°' float under the exit point with nothing to measure. At 1280 px opening and at 5%, the label sits right on the drop's outline.",
+    "minor / kit: The fan of 'light from the other entry heights' runs off the bottom of the drawing exactly where the rays crowd. It is sampled only every 5%, and the 100% grazing ray cuts across the whole fan at 15°. The one picture that could show the bunching is cropped and tangled with the main ray and its label.",
+    "minor / lesson-prompt: The rule is shown but never earned. whatAmILookingAt jumps straight to 'angle = 4 × β − 2 × α', and the on-page caption repeats it with α and β unexplained. Dan, at level 'some', cannot see where 4β or 2α come from, even though the explanation already says it in words: the bounce widens it, the two bends pull it back.",
+    "minor / lesson-prompt: Three different 'top' angles appear in one lesson and are never reconciled: 42.5° (the model), 'about 42°' (real drops, explain) and 42.7° (red light, in check c2's why). A careful learner will ask which one is right, and that dents trust. The 'ignores' line mentions the single 1.33 but does not connect it to the gap.",
+    "minor / lesson-prompt: The checks lean on recall and on a later idea. c3 asks him to remember that a grazing ray leaves at about 15°. As a spaced-review card weeks later, that tests memory of a side number, not the bunching idea. c2 (sky brighter inside the bow) needs i5's link between a drop's exit angle and where it sits in the sky, which he has not been taught yet. Its correct option is also the only technical-sounding one, so it stands out.",
+    "minor / kit: Laptop layout: the plot spans about 1,500 px by 500 px and is mostly empty grid at opening, with one dot. A tall blank column sits under the single slider, and a blank band sits under the drop, kept for the hidden fan. On a laptop it reads as sparse rather than calm."
+   ]
+  },
+  {
+   "lesson": "bronze/i1",
+   "judge": "teacher",
+   "scores": {
+    "overall": 3,
+    "accuracy": 4,
+    "predict": 2,
+    "interactive": 3,
+    "explain": 3,
+    "sayItBack": 3,
+    "checks": 2
+   },
+   "issues": [
+    "major / lesson-prompt: The predict asks the one case Dan can already answer from the definition he gave minutes earlier. It creates no curiosity and targets no real misconception. The real misconception, that a small share can only have a small effect, appears only as a distractor in a check.",
+    "major / lesson-prompt: The predict, c1, c3 and the say-it-back all drill the same fact. c3 tests recall of the lesson's wording, and its stem rules out the wrong options. c2 can be solved by sliding until the readout says 5.0. No check tests the leverage (a ton of tin makes about ten tons of bronze) or asks for a comparison, so the review deck rewards memory of one sentence.",
+    "major / lesson-prompt: Half of the idea, 'found far apart', is told and never shown. The interactive teaches the recipe bottleneck well, but the geography that makes it a trade dependency is two text labels and a curly arrow, with no frame of reference.",
+    "major / kit: In dark mode the labels on the picture that carry the numbers are near-black on a dark panel, so the effect is hard to read in a setting Dan can choose. At 360 px the 'runs out first' tag also lands on the copper supply arrow.",
+    "minor / lesson-prompt: The say-it-back rubric repeats one idea in two points, packs two ideas into the third, and has no point for the conclusion the prompt asks for. A good answer can come back 'partly', which grades the recall card Hard.",
+    "minor / lesson-prompt: The slider runs past the turning point into a second regime where copper runs out first. That pulls attention away from the idea and gives 'scarce' two meanings in two sentences.",
+    "minor / research-prompt: The lesson never gives the stakes (what bronze was for, why a kingdom cared), and its bold takeaway has no footnote, although the research held sources that back it. 'every' is also stronger than any quote supports.",
+    "minor / model-judgement: Turning 'around 10 per cent' into exactly 9:1 makes the real wreck's opening state look as if the ship carried a ton of surplus copper. It also misses the lesson's best evidence: the cargo was packed close to the bronze recipe, meant to be mixed together."
+   ]
+  },
+  {
+   "lesson": "bronze/i1",
+   "judge": "expert",
+   "scores": {
+    "overall": 3,
+    "accuracy": 3,
+    "predict": 3,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 4,
+    "checks": 3
+   },
+   "issues": [
+    "major / lesson-prompt: The interactive's opening state misdescribes the real wreck. The model fixes tin at exactly 10% of the bronze, so the cargo the lesson calls 'one real wreck' (10 t copper, 1 t tin) shows only 10.0 t of bronze, a 1.0 t 'Copper left unused' readout and a dashed 'unused' block. Experts describe this cargo as a matched set at about 10:1 that makes about 11 t of bronze. A K.check states the mismatch as a sourced fact.",
+    "major / research-prompt: The tin-origin claims read wider than their sources and run together views that compete for this very wreck. The arrow into this wreck's hold reads 'Tin: from far off, Central Asia, or Cornwall and Devon'. The Central Asia quote is cut from a sentence about the late third millennium BC. The paper it comes from cites work rejecting Central Asia for the Uluburun tin. The Anatolian (Kestel) candidate is missing, and if it is right it weakens 'tin came from far away'.",
+    "minor / lesson-prompt: The bolded takeaway overgeneralises: 'No tin, no bronze, so every bronze-making kingdom depended on long trade routes.' No source says 'every'. Britain, Iberia, Brittany and the Erzgebirge had local tin, and Anatolia may have had Kestel. It is the one line Dan is meant to remember, and it is stated more strongly than the evidence allows.",
+    "minor / lesson-prompt: Review card c1 and the predict reveal treat the model's simplification as a fact about the world: if the tin route closes, bronze-making 'stops', and 'with no tin the copper just sits there'. Late Bronze Age smiths routinely re-melted scrap bronze, and plain or arsenical copper was still worked. 'ignores' mentions neither. Weeks later, the c1 review card shows up without the model around it.",
+    "minor / build-prompt: A K.check cites a source for a result the model worked out itself. The wreck paper says only '10 tons of copper ... one ton of tin'. It never says they make 10 t of bronze with 1 t of copper spare. The check therefore puts the source's authority behind a modelling choice, and the passing self-test hides it.",
+    "minor / research-prompt: The wreck behind the main numbers is never named, placed or dated ('one real wreck'). Dan cannot learn that it is the Uluburun ship of about 1330–1300 BC, a century before the collapse, so it is evidence of the trade system working, not failing. He cannot follow it up or connect it to i2 and i4.",
+    "minor / kit: In dark mode the numbers drawn on the picture can't be read. The bar values ('10.0 tons', '1.5 tons', '11.1 tons') and 'runs out first' are near-black on the dark panel. At 360 px, 'runs out first' also sits on the copper arrow.",
+    "minor / lesson-prompt: The units suit a US reader, not Dan. The lesson says 'tons' throughout, but the Uluburun figures are metric tonnes ('11 metric tons' in the Powell release), and in UK English 'ton' means the imperial ton. The readouts show '10.0 tons' while the explanation says '10 tons', although the prompt says to round as the readout does."
+   ]
+  },
+  {
+   "lesson": "bronze/i1",
+   "judge": "learner",
+   "scores": {
+    "overall": 3,
+    "accuracy": 4,
+    "predict": 2,
+    "interactive": 3,
+    "explain": 4,
+    "sayItBack": 4,
+    "checks": 3
+   },
+   "issues": [
+    "major / lesson-prompt: The predict question is a giveaway. Its answer follows from the definition Dan confirmed at the start of the topic, so committing to a guess teaches nothing. The surprise this toy can deliver, that tin is a tenth of the weight yet halving it halves the bronze, is used only as a later target check.",
+    "major / lesson-prompt: The toy is thin. It is a min() bar chart with one slider, and Dan gets everything out of it in about ten seconds. The other half of the idea, that the metals came from far apart so bronze depended on long routes, is fixed decoration: the Cyprus and tin arrows never respond to anything.",
+    "minor / kit: The colours fight the real metals. Copper is drawn blue and tin orange-red. A visual learner will read the orange bar as copper, and orange-red near the scarce ingredient also hints at the warning red.",
+    "minor / build-prompt: Each number appears up to three times. The three readout tiles repeat the labels already on the bars, and they push the live .say sentence, the line that tells Dan what he is seeing, below the phone fold while his thumb is on the slider. The value labels also show stiff '10.0 tons' and '0.0 tons' where the explanation says '10 tons'.",
+    "minor / research-prompt: The history is anonymous and carries no stakes. The ship is 'one real wreck', although the research names it (Uluburun, about 1330–1300 BCE). The lesson never says what bronze was for (weapons, armour, tools), so 'no tin, no bronze' carries no danger for a kingdom. That danger is the thread to the collapse.",
+    "minor / model-judgement: A rounding choice shows up on the opening screen as if it were a finding. The 9:1 recipe makes the wreck's real cargo show 1 ton of copper 'left unused', which suggests the ship carried the wrong mix. The source says the tin was meant to be mixed with that copper, and 'around 10 per cent' fits 10:1 just as well, which balances the real cargo exactly.",
+    "minor / kit: Several drawing details are confusing. The moving labels are bigger than the rest of the drawing's text, and 'runs out first' sits on the Cyprus arrow's tip. Faint dashed bars mean 'unused', but no key says so. At zero tin the whole copper stack becomes a faint dashed box, which reads as 'the copper is gone', the opposite of the lesson's point that it is still sitting in the hold.",
+    "minor / lesson-prompt: The question in check c3 gives its own answer away, and the check repeats the say-it-back. As a review card weeks later it tests memory of the lesson's wording, not understanding."
+   ]
+  },
+  {
+   "lesson": "bronze/i4",
+   "judge": "teacher",
+   "scores": {
+    "overall": 2,
+    "predict": 2,
+    "interactive": 2,
+    "explain": 2,
+    "sayItBack": 3,
+    "checks": 3,
+    "accuracy": 3
+   },
+   "issues": [
+    "major / research-prompt: The evidence shown cannot make the idea visible. The idea is 'cities fell one after another over several decades', but all three dated cities sit within 1200–1180 BC, right against the popular 1200 line on an axis 180 years wide. At a glance the picture supports the popular story. The only spread comes from two summary bars that are scholars' datings, not cities. The brief promised 'separate date ranges spread along the timeline', and the data cannot produce that.",
+    "major / model-judgement: The lesson confuses not knowing exactly when something happened with how long it took. This plants a misconception, and the lesson contradicts itself. The step-1 sentence presents Pylos's dating window as if the destruction took years. Check c1 later says, correctly, that a range only means we don't know exactly when. The drawing has the same mix-up: the dating windows are solid bars, while the one thing that really lasted decades (Hattusa emptying) is the thinnest mark on screen, with small grey text beside it.",
+    "major / lesson-prompt: Half the idea is never taught, and the explanation lists dates instead of building the 'why'. The plan's 'the order gives clues about causes' gets no sentence, yet c2 tests it. Nothing explains how we know when a city fell (a burnt layer, pottery styles, letters, a climate record) or why that gives a window rather than a year. Nothing explains what a spread-out fall rules in or out. For a learner who 'knows a little', the 165 words carry six date ranges and 12 footnotes, so the load is high and the understanding thin.",
+    "major / research-prompt: Egypt's battle is left off the timeline, and Dan is told 'Our sources give no date for the battle', yet the course research has one. The Livius date (year 8 of Ramesses III, probably c.1177 BCE) and Merneptah's reign (1213–1203) were filed under i6. lessonResearch passes on only the lesson's own notes, the notes of ideas it builds on, and topic notes, and i6 builds on i4, so the date never reached this lesson. As a result, the one dated event that would show an order (Egypt fights the Sea Peoples after Ugarit has fallen) becomes a tall amber text box beside the chart. That box repeats the .say sentence almost word for word, and lesson i6 will contradict it.",
+    "major / lesson-prompt: The predict sparks little curiosity, and its right answer depends on which side of the debate you take. 'Yes, all on the same year' is a straw man nobody holds. 'No, they are centuries apart' is defensible under the 1315–1190 BC view that the lesson itself presents, so the predict quietly takes a side on the contested duration. The real misconception goes untested: that one wave of invaders brought the whole world down at a stroke. The fix already made after this run would push this lesson the wrong way. It makes every contested idea's predict an opinion question, but here the central claim (several separate falls, not one blow) is well supported and only the length of the collapse is debated.",
+    "minor / lesson-prompt: Several small accuracy slips, and one prejudges a debate a later lesson teaches. (a) Calling them 'the raiders its records call the Sea Peoples' settles i6's question ('raiders or refugees?') before that lesson. 'Sea Peoples' is also a label modern scholars gave them, not what Egyptian records call them. (b) 'Pylos's date comes from a cave record' is not what the source says: it dates the destruction to the change between two pottery phases ('the transition from LH IIIB to LH IIIC'), and the cave record is the paper's climate evidence. (c) The explanation marks [[Sea Peoples]] as a term, while 'New Kingdom', which Dan has never met, goes unexplained in the explanation, the interactive and c3.",
+    "minor / validator: Check c3 tests recall of the lesson's wording on a side point, and its right answer stands out. The right option copies the explanation's phrase, is the longest and most specific option, and rests on jargon the lesson never explains. As a review card weeks later it is trivia about Egypt. No check tests the central claim itself (separate falls spread over years, not one blow) in a new case.",
+    "minor / lesson-prompt: The say-it-back rubric rewards a detail of dating method instead of the heart of the idea. Point 2 also carries the range-versus-duration confusion. Point 1 claims something c1 says overlapping ranges cannot show. Because 'got-it' needs every point met, a strong answer could be marked only 'partly' for leaving out 'ranges'. For example: 'they fell one by one over decades, Hattusa emptied slowly, and that timing hints at several causes'. Nothing in the rubric asks why timing matters."
+   ]
+  },
+  {
+   "lesson": "bronze/i4",
+   "judge": "expert",
+   "scores": {
+    "overall": 2,
+    "accuracy": 2,
+    "predict": 3,
+    "interactive": 2,
+    "explain": 3,
+    "sayItBack": 3,
+    "checks": 3
+   },
+   "issues": [
+    "major / research-prompt: The '1315–1190 BCE' from the 2012 climate study (Drake) is misread as the span of palace destructions. In that paper 1315–1190 BCE is the date of the LH IIIB pottery phase, the height of the Mycenaean palaces. The paper says destructions ran from the 13th to the 11th century BC. No specialist dates palace falls to the 1310s BC. The misreading creates a false second 'view' on the collapse's length ('a century, or two').",
+    "major / lesson-prompt: The city evidence does not show the lesson's headline. The lesson also treats dating uncertainty as if it showed duration. Pylos (about 1200–1180), Hattusa (around 1200) and Ugarit (1190–1185) all sit within about 20 years of the 1200 line. A range is our uncertainty about when one event happened, and ranges that overlap fit simultaneous falls just as well. Once the misread Drake band is removed, the picture supports the 'around 1200 BC' story it claims to break.",
+    "major / lesson-prompt: The lesson tells Dan 'Our sources give no date for the battle' and parks Egypt beside the timeline. The course's own research has the date: Ramesses III's year 8, c. 1177 BC, the best-known single date of the collapse. It also has Merneptah's reign (1213–1203), which would have widened the spread of dated events. The false 'no date' will clash with lesson i6.",
+    "minor / model-judgement: 'The raiders its records call the Sea Peoples' is an anachronism. 'Sea Peoples' is a 19th-century scholars' label (Emmanuel de Rougé, Gaston Maspero). Egyptian texts name separate groups (Peleset, Tjeker, Shekelesh, Denyen, Weshesh, Sherden) and say the foreign lands 'made conspiracy in their isles'.",
+    "minor / model-judgement: The lesson misstates where Pylos's date comes from. It says the date 'comes from a cave record'. The quote dates the destruction by excavation: the LH IIIB to LH IIIC pottery transition. The paper's stalagmite (Mavri Trypa cave) records rainfall, and the authors give the excavation date in years before present only to line it up with that climate record. Dan is taught that palaces are dated by stalagmites.",
+    "minor / model-judgement: Hattusa is labelled 'destroyed' and drawn as an instant tick on the popular line, and the order of events is told inconsistently. Excavations led by Jürgen Seeher found the court left in an orderly way, taking its valuables, and fire hit only some buildings, possibly later. 'Abandoned around 1200 BC' fits the evidence better. The one city whose fall was demonstrably slow is drawn as a point exactly on 1200.",
+    "minor / lesson-prompt: The contested 'views' are not like for like. A general reference website (World History Encyclopedia) is presented as one expert dating against a peer-reviewed paper, and the two 'datings' answer different questions. WHE dates the whole eastern-Mediterranean collapse, while Drake's range dates a Greek pottery phase. The interactive tells Dan 'Experts date the whole collapse differently'.",
+    "minor / lesson-prompt: Check c3 tests recall of a source's phrase rather than understanding, and gives an incomplete picture of Egypt. Its right answer depends on remembering 'last significant New Kingdom ruler'. The misconception for 'grew into the new great power' gives no reason it is wrong. Egypt in fact lost its empire in Canaan within a few decades of the collapse, and the New Kingdom ended in the 11th century BC. That is the 'shrank' the plan promised and research never sourced."
+   ]
+  },
+  {
+   "lesson": "bronze/i4",
+   "judge": "learner",
+   "scores": {
+    "overall": 3,
+    "accuracy": 3,
+    "interactive": 2,
+    "predict": 2,
+    "explain": 3,
+    "sayItBack": 3,
+    "checks": 4
+   },
+   "issues": [
+    "major / research-prompt: The picture undercuts the lesson's message. The only dated city falls (Pylos about 1200-1180, Hattusa around 1200, Ugarit 1190-1185) bunch within about 20 years, right next to the popular 1200 line. The lesson itself says the ranges overlap and the order is unsure, so all three could have fallen in 1190-1185. The 'spread over decades' rests only on two scholars' overall date bands and a text note, and Hattusa's gradual emptying (the one city-level sign of decades) is drawn as the thinnest tick. Dan may conclude that the popular picture was roughly right, while the say-it-back rubric asks for 'Different cities fell at different dates'. Better dates were in the research but never reached this lesson: the Sea Peoples' battle with Egypt 'probably c.1177 BCE' (Ramesses III's Year 8) and Merneptah's earlier fight with them (r.1213-1203). Both were filed under i6, which is not one of i4's deps.",
+    "major / lesson-prompt: It is a slideshow, not a toy. Dan presses Next five times to reveal pre-scripted marks and has no decision to make or hypothesis to test. The last step (Egypt) changes nothing on the timeline. Once through, there is no reason to play again. That is far from the interactive, visual learning Dan loves.",
+    "major / lesson-prompt: There is a factual misstatement on every step: 'Pylos's date comes from a cave record counted in years before 1950.' The cited paper says the destruction date comes from the archaeological chronology (pottery cross-dated with Egyptian fixed points and radiocarbon dates); the cave record dates the climate. The years-before-1950 arithmetic is also noise for a history learner, and the caption and the 'What am I looking at?' panel both repeat it.",
+    "major / kit: The timeline text is too small on a phone. The SVG uses 11-unit text in a 340-wide viewBox that renders about 290 px wide inside the card, so labels like 'emptied gradually over decades' and 'A climate study: palaces fell 1315-1190 BC' come out at about 9.5 CSS px on a 360 px Android screen. The dates are the content here, and they are the hardest text on the page to read.",
+    "minor / build-prompt: The Egypt step leaks pipeline gaps, repeats itself and makes the layout jump. 'Our sources give no date for the battle, so it sits here, beside the timeline' is untrue for the course as a whole (the research has c.1177 BC) and makes the app sound unsure of itself. The same three facts appear twice, in the amber box and in the .say line directly below. The box is inside #scene, so on a phone it pushes Back and Next down about 400 px (screenshot pixels) under Dan's thumb.",
+    "minor / lesson-prompt: 'New Kingdom' is unexplained jargon. It appears in the explanation, the interactive, the say-it-back model and check c3, and c3 really tests whether Dan remembers a source's phrase ('its last significant New Kingdom ruler'), not understanding. The correct option is also the one that carries that distinctive phrase.",
+    "minor / model-judgement: There is an unexplained clash on screen. The climate study's band ends at 1190 BC ('palaces fell 1315-1190'), yet the Pylos palace band runs to 1180 and Ugarit sits at 1190-1185, past the end of a study that claims to cover palace destructions. A careful Dan will wonder which is wrong, and nothing tells him that different studies use different chronologies.",
+    "minor / lesson-prompt: The idea's payoff ('the order gives clues about causes', which i5-i7 build on) is never taught. The explanation and the interactive say the order is unsure, and only check c2 raises timing as evidence of cause. The predict is also too easy: 'Yes, all on the same year' and 'No, they are centuries apart' are straw men, so the right answer can be guessed without thinking and is not about decades at all."
+   ]
+  }
+ ]
+}
