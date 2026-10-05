@@ -76,11 +76,12 @@
   rows.ping.btn.querySelector('.name').appendChild(K.el('br'));
   rows.ping.btn.querySelector('.name').appendChild(badge);
 
-  // The pure model: (step index, amended?) -> where the bill is.
+  // The pure model: (step index, amended?) -> where the bill is (numbers and short strings only).
+  const orderFor = (amended) => stepsFor(amended).map((s) => s.title);
   K.model((p) => {
     const steps = stepsFor(p.amended);
     const i = Math.min(Math.max(0, p.step), steps.length - 1);
-    return { total: steps.length, stage: steps[i].title, key: steps[i].key, order: steps.map((s) => s.title) };
+    return { total: steps.length, stage: steps[i].title, key: steps[i].key };
   });
 
   K.update((p, o) => {
@@ -108,13 +109,13 @@
 
   // Known answers from UK Parliament's guide.
   K.check('Each House\'s stages run: first reading, second reading, committee, report, third reading', () =>
-    K.at({ amended: false }).order.slice(0, 5).join('|') === 'First reading|Second reading|Committee stage|Report stage|Third reading', { source: SOURCE });
+    orderFor(false).slice(0, 5).join('|') === 'First reading|Second reading|Committee stage|Report stage|Third reading', { source: SOURCE });
   K.check('With amendments there are 8 steps; without, 7 (no ping-pong)', () =>
     K.at({ amended: true }).total === 8 && K.at({ amended: false }).total === 7);
   K.check('Royal Assent is always the last step', () =>
-    [true, false].every((a) => { const o = K.at({ amended: a }); return o.order[o.total - 1] === 'Royal Assent'; }));
+    [true, false].every((a) => K.at({ amended: a, step: 99 }).stage === 'Royal Assent' && orderFor(a).indexOf('Royal Assent') === orderFor(a).length - 1));
   K.check('Ping-pong comes after the other House and before Royal Assent', () => {
-    const o = K.at({ amended: true }).order;
+    const o = orderFor(true);
     return o.indexOf('Consideration of amendments') === o.indexOf('The same five stages again') + 1 && o.indexOf('Royal Assent') === o.length - 1;
   });
 
