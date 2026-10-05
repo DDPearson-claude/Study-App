@@ -43,6 +43,9 @@ img, svg { max-width: 100%; }
 .aa { font: 600 17px/1 var(--serif); }
 
 .view { display: block; max-width: var(--col); margin: 0 auto; padding: 20px 16px calc(var(--tabbar-h) + 40px + env(safe-area-inset-bottom, 0px)); outline: none; }
+/* Focus mode (lessons, reviews): no app chrome, just the screen's own close + progress bar. */
+:root.focus { --topbar-h: 0px; }
+.focus .topbar { display: none; }
 .focus .view { padding-bottom: 48px; }
 
 /* tabs: bottom bar on phones, inline on wide screens */
@@ -74,7 +77,6 @@ img, svg { max-width: 100%; }
   .tab-badge { position: static; }
   .settings-btn { margin-left: 0; }
   .view { padding-bottom: 64px; }
-  .focus .tabs { display: flex; visibility: hidden; }
 }
 
 /* ---------- type helpers ---------- */
