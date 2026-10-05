@@ -453,6 +453,7 @@ U.cards.types / interactiveOf(doc) / controlOf(doc, id) / outputOf(doc, id) / ve
 U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>   outcome {checks:{id:{correct}}, say:{text, verdict}}
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
+U.review.outlook() -> Promise<{size, done, cards, next}>   size = dueCount (same read); next = "Next up: 2 cards tomorrow." or ''
 ```
 Views and app services
 ```
@@ -519,7 +520,11 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   switches tabs. When `#view` is at least 900 px wide a review card keeps the question and
   answers on the left with Check under them and shows the feedback beside them; a target card
   gives its interactive the full width and docks the goal and Check under it.
-- Learn at least 900 px wide puts the reviews row (or, on first run, the welcome) beside the ask.
+- Learn with `#view` at least 58rem wide (the ask keeps 35rem, so the breakpoint follows the
+  text size) puts the reviews row beside the ask: on first run the welcome, with nothing waiting
+  a quiet line from `U.review.outlook()` (done for today or nothing to review, and when cards
+  come back). Narrower, Learn is one column and the quiet line is hidden. The ask box fits its
+  height to its text or placeholder whenever its width, its placeholder or the text size changes.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The

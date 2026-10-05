@@ -9,6 +9,8 @@
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
 //   U.review.dueCount() -> Promise<number>     what today's session holds right now
+//   U.review.outlook() -> Promise<{size, done, cards, next}>   dueCount, cards reviewed today, cards
+//       in all, and "Next up: 2 cards tomorrow." (or '') for Learn when nothing is waiting
 //   U.review.refreshBadge()                    #today-badge text + hidden
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses}]>   ideas forgotten 2+ times in 30 days
@@ -291,6 +293,8 @@
     addFromLesson: addFromLesson,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
+    // For Learn when nothing is waiting, from the same read as dueCount.
+    outlook: function () { return planShared().then(function (p) { return { size: p.size, done: p.done, cards: p.data.cards.length, next: nextUp(p) }; }); },
     refreshBadge: function () {
       changed();
       return U.review.dueCount().then(setBadge, function (e) { console.error('badge', e); return 0; });
@@ -323,6 +327,13 @@
   function longDate(day) {
     var p = day.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  // "Next up: 2 cards tomorrow." for the soonest day cards come back after today, or ''.
+  function nextUp(p) {
+    var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
+    var nextDay = upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
+    var nextN = upcoming.filter(function (c) { return c.s.due === nextDay; }).length;
+    return nextDay ? 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.' : '';
   }
   function whenDay(day, today) {
     var n = U.daysBetween(today, day);
@@ -453,9 +464,7 @@
     }
 
     function drawClear(p) {
-      var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
-      var nextDay = upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
-      var nextN = upcoming.filter(function (c) { return c.s.due === nextDay; }).length;
+      var next = nextUp(p);
       var box = h('section', { class: 'td-clear' });
       if (p.done > 0) {
         box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
@@ -467,7 +476,7 @@
           ? 'Everything you have learned is holding up for now.'
           : 'When you finish a lesson, the questions you answered come back here the next day, so they stick.'));
       }
-      if (nextDay) box.appendChild(h('p', { class: 'muted' }, 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.'));
+      if (next) box.appendChild(h('p', { class: 'muted' }, next));
       var actions = h('div', { class: 'td-actions' }, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
       var more = p.due.length;
       if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));

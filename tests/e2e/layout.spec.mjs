@@ -6,7 +6,8 @@
 // pinned phone layout on a laptop is a centred phone column with its tab bar and sheets inside
 // it; a pinned laptop layout on a phone keeps the top bar on one row; the laptop shapes (topic
 // grid, topic page columns, Map columns, a wide lesson interactive with a narrower text column);
-// and no screen ever scrolls sideways. Screenshots land in tests/out/layout/.
+// Learn at narrow laptop widths and every text size (the ask box's height, when Learn goes two
+// columns, the line shown beside the ask when nothing is due); and no screen ever scrolls sideways. Screenshots land in tests/out/layout/.
 // Usage: node tests/e2e/layout.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -55,9 +56,9 @@ function seedDb() {
 }
 
 // Opens the app at a size, optionally with a pinned layout already saved on this device.
-async function open(width, height, { layout = null, hash = '#/' } = {}) {
+async function open(width, height, { layout = null, hash = '#/', db = seedDb() } = {}) {
   const app = await openApp({
-    width, height, file: FILE, config: { db: seedDb() },
+    width, height, file: FILE, config: { db },
     sample: (input) => (taskOf(input) === 'tutor' ? 'Sure.' : new Promise(() => {})),
   });
   current.apps.push(app);
@@ -222,6 +223,127 @@ await test('in-app links route even when something else cancels link clicks', as
   eq(await app.page.evaluate(() => location.hash), '#/map', 'the address follows');
   const ext = await app.page.evaluate(() => { const a = U.views.extLink('https://example.org/x', 'x'); return { href: a.getAttribute('href'), target: a.target, rel: a.rel }; });
   assert(ext.href === 'https://example.org/x' && ext.target === '_blank' && /noopener/.test(ext.rel), 'outbound links are plain new-tab links ' + JSON.stringify(ext));
+});
+
+// ---------- Learn at narrow laptop widths (UX round 3) ----------
+const localDay = (n = 0) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+// Reading settings saved in the db profile, so boot applies them (and emits 'prefs') while Learn draws.
+function withPrefs(db, prefs) { return { ...db, [`data/users/${UID}/profile`]: { prefs: { theme: 'light', size: 'm', easy: false, cap: 15, light: false, ...prefs } } }; }
+// Cards for one topic: `due` of them due today, `later` due in two days.
+function withCards(db, { due = 0, later = 0 } = {}) {
+  const cards = {};
+  for (let i = 0; i < due + later; i++) {
+    const id = 'i1_c' + i, at = new Date(Date.now() - 9 * 864e5).toISOString();
+    cards[id] = { id, tid: 'how-tides-work-ab12', iid: 'i1', type: 'choice', createdAt: at, learnedAt: at, hist: [{ at, grade: 3, ok: true }],
+      spec: { id: 'c' + i, type: 'choice', q: 'How many high tides do most coasts get in a day?', options: ['One', 'Two'], answer: 1, why: 'Two bulges.' },
+      s: { due: localDay(i < due ? 0 : 2), stability: 3, difficulty: 5, reps: 1, lapses: 0, last: localDay(-9) } };
+  }
+  return { ...db, [`data/users/${UID}/profile/cards/how-tides-work-ab12`]: { cards } };
+}
+const askBox = (app) => app.page.evaluate(() => {
+  const r = (s) => { const b = document.querySelector(s).getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, width: b.width, height: b.height }; };
+  const learn = document.querySelector('.learn');
+  return { input: r('#ask-input'), go: r('.ask-go'), ask: r('.ask'), rem: parseFloat(getComputedStyle(document.documentElement).fontSize),
+    cols: getComputedStyle(learn).gridTemplateColumns.split(' ').filter((c) => /px$/.test(c)).length, size: document.documentElement.dataset.size };
+});
+const frames = (app) => app.page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 50)))));
+// An empty ask box is one line tall, level with its go button (which is one line tall at every size).
+async function oneLine(app, where) {
+  await frames(app);
+  const b = await askBox(app);
+  assert(Math.abs(b.input.height - b.go.height) < 1.5 && Math.abs(b.input.top - b.go.top) < 1.5,
+    `${where} (${b.size}): the empty box is one line, level with its button (box ${b.input.height} at ${b.input.top}, button ${b.go.height} at ${b.go.top})`);
+  return b;
+}
+
+await test('ux3: the ask box fits its words and placeholder after boot, a text size change and a resize', async () => {
+  // The boot 'prefs' event used to fit the box while Learn still had its first-run placeholder,
+  // and the box kept two lines once Dan's topics arrived (940-1024 px, every size but s).
+  for (const [w, size] of [[1024, 'xl'], [940, 'm'], [960, 'l']]) {
+    const app = await open(w, 768, { db: withCards(withPrefs(seedDb(), { size }), { due: 2 }) });
+    await app.page.locator('.tcard').first().waitFor();
+    await oneLine(app, `returning at ${w}`);
+    if (w !== 1024) continue;
+    for (const s of ['m', 'l', 'xl']) {
+      await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), s);
+      await oneLine(app, `text size changed at ${w}`);
+    }
+    for (const [vw, vh] of [[940, 768], [1366, 768], [960, 700]]) {
+      await app.page.setViewportSize({ width: vw, height: vh });
+      await oneLine(app, `resized to ${vw}`);
+    }
+    await app.page.fill('#ask-input', 'How do vaccines train the immune system to remember a virus it has never met before');
+    await frames(app);
+    const grown = await askBox(app);
+    assert(grown.input.height > grown.go.height + 10, 'a long question still grows the box: ' + grown.input.height);
+    await app.page.fill('#ask-input', '');
+    await oneLine(app, 'cleared');
+    // A width change that is not a window resize (here the Layout setting) fits the box again too.
+    await app.page.setViewportSize({ width: 1366, height: 768 });
+    await app.page.fill('#ask-input', 'How do tides work around a small island');
+    await oneLine(app, 'a short question on the laptop');
+    await app.page.evaluate(() => U.layout.set('phone'));
+    await frames(app);
+    const framed = await askBox(app);
+    assert(framed.input.width < 400 && framed.input.height > framed.go.height + 10, `in the phone column the question wraps and the box grows (${framed.input.width} wide, ${framed.input.height} tall)`);
+    await app.page.evaluate(() => U.layout.set('auto'));
+    await oneLine(app, 'back on the laptop');
+  }
+});
+
+await test('ux3: Learn goes two columns only when the ask keeps 35rem; the box stays wider than Start learning', async () => {
+  const db = withPrefs(Object.fromEntries(Object.entries(seedDb()).filter(([k]) => !k.startsWith('topics/'))), { size: 'xl' });
+  const app = await open(960, 768, { db });
+  await app.page.locator('.welcome').waitFor();
+  for (const [vw, size] of [[960, 'xl'], [1024, 'xl'], [1100, 'l'], [1366, 'xl'], [940, 'm'], [960, 'm'], [1366, 'm']]) {
+    await app.page.setViewportSize({ width: vw, height: 768 });
+    await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+    const b = await oneLine(app, `first run at ${vw}`);   // the placeholder fits on one line
+    const where = `${vw} px at ${size}`;
+    assert(b.input.width > b.go.width + 40, `${where}: the box (${b.input.width}) is wider than its button (${b.go.width})`);
+    if (b.cols === 2) {
+      assert(b.ask.width >= 35 * b.rem - 1, `${where}: beside the welcome the ask keeps 35rem (${b.ask.width} < ${35 * b.rem})`);
+      const welcome = await rect(app, '.welcome');
+      assert(welcome.left >= b.ask.right, `${where}: how it works sits beside the ask`);
+    }
+    await noSideways(app, where);
+    if (vw === 960 && size === 'xl') await shot(app, 'ux3-learn-first-960-xl');
+  }
+  // The checker's case: at 960 px and Extra large the ask now has the full width.
+  await app.page.setViewportSize({ width: 960, height: 768 });
+  await app.page.evaluate(() => U.settings.apply(Object.assign({}, U.settings.prefs, { size: 'xl' })));
+  await frames(app);
+  eq((await askBox(app)).cols, 0, 'one column at 960 px and Extra large');
+  await app.page.setViewportSize({ width: 1366, height: 768 });
+  await frames(app);
+  eq((await askBox(app)).cols, 2, 'two columns at 1366 px and Extra large');
+});
+
+await test('ux3: laptop Learn with nothing due says so quietly beside the ask; phones and one column do not', async () => {
+  const app = await open(1366, 768, { db: withCards(seedDb(), { later: 2 }) });
+  await app.page.locator('.today-row.is-quiet').waitFor();
+  const quiet = await rect(app, '.today-row.is-quiet'), ask = await rect(app, '.ask'), h1 = await rect(app, '.ask h1');
+  assert(quiet.left >= ask.right && quiet.top < h1.bottom, 'the line sits in the top-right, beside the ask ' + JSON.stringify({ quiet, ask }));
+  const words = await app.page.locator('.today-row.is-quiet').innerText();
+  assert(/Nothing to review today/.test(words) && /Next up: 2 cards (tomorrow|on )/.test(words), 'says nothing is due and when cards come back: ' + words);
+  eq(await app.page.locator('.learn-today a').count(), 0, 'a status, not a nudge to tap');
+  eq(await app.page.locator('.today-row:not(.is-quiet)').count(), 0, 'no reviews row');
+  await shot(app, 'ux3-learn-nothing-due-1366');
+  await app.page.setViewportSize({ width: 940, height: 768 });
+  await frames(app);
+  eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'one column at 940 px: no line');
+  await app.page.setViewportSize({ width: 390, height: 844 });
+  await frames(app);
+  eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'phone: no line, Continue stays near the top');
+
+  // No cards at all yet; and with reviews waiting the row that opens Today is back.
+  const fresh = await open(1366, 768);
+  await fresh.page.locator('.today-row.is-quiet').waitFor();
+  assert(/Nothing to review yet/.test(await fresh.page.locator('.today-row.is-quiet').innerText()), 'no cards yet');
+  const due = await open(1366, 768, { db: withCards(seedDb(), { due: 3, later: 1 }) });
+  await due.page.locator('a.today-row').waitFor();
+  eq(await due.page.locator('.today-row.is-quiet').count(), 0, 'reviews waiting: the usual row');
+  assert(/3 reviews ready/.test(await due.page.locator('a.today-row').innerText()), 'three ready');
 });
 
 const failed = results.filter((r) => !r.ok);
