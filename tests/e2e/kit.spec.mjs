@@ -589,6 +589,18 @@ section('exemplars and the host API');
   const hostTheme = await app.page.evaluate(() => U.sandbox.theme());
   expect('the frame follows the app into dark mode', dark.dark && dark.attr === 'dark' && hostTheme.dark && hostTheme.c.bg.toLowerCase() === '#1a2029', { dark, hostTheme });
   await app.page.evaluate(() => { document.documentElement.dataset.muTheme = 'light'; });
+  // Text size: the setting scales the app's root font size (--fs stays 1.125rem), and the kit size
+  // follows: 16 / 18 / 20 px at M / L / XL. Inside the frame the body and rem sizes both follow.
+  const sizes = await app.page.evaluate(() => ['s', 'm', 'l', 'xl'].map((s) => { document.documentElement.dataset.size = s; return U.sandbox.theme().size; }));
+  expect('theme().size follows Text size: 16 / 16 / 18 / 20 at S / M / L / XL', sizes.join() === '16,16,18,20', sizes);
+  await app.page.waitForTimeout(300);
+  const xl = await frame.evaluate(() => ({ size: K.theme.size, root: getComputedStyle(document.documentElement).fontSize, body: getComputedStyle(document.body).fontSize,
+    readout: getComputedStyle(document.querySelector('.k-readout-label')).fontSize }));
+  expect('at XL the frame\'s text is 20 px, rem sizes too (readout label 17 px)', xl.size === 20 && xl.root === '20px' && xl.body === '20px' && xl.readout === '17px', xl);
+  await app.page.evaluate(() => { delete document.documentElement.dataset.size; });
+  await app.page.waitForTimeout(300);
+  const m16 = await frame.evaluate(() => getComputedStyle(document.body).fontSize);
+  expect('back at M the frame\'s text is 16 px again', m16 === '16px', m16);
   const st = await app.page.evaluate(() => __m.selftest());
   expect('selftest() on a mounted frame returns a passing report', st.ok && st.checks.length === 5, st);
   await app.page.evaluate(() => __m.destroy());
