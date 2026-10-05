@@ -8,6 +8,7 @@
   var THEMES = [['light', 'Light'], ['dark', 'Dark'], ['system', 'Match system']];
   var SIZES = [['s', 'Small text'], ['m', 'Medium text'], ['l', 'Large text'], ['xl', 'Extra large text']];
   var CAPS = [10, 15, 20, 30];
+  var LAYOUTS = [['auto', 'Auto'], ['phone', 'Phone'], ['laptop', 'Laptop']];
 
   function defaults() { return U.store.profile.defaults().prefs; }
   function clean(p) {
@@ -148,6 +149,21 @@
         });
       } } }, 'Save a backup');
 
+      // Layout is per device (U.layout, localStorage only), so it is not one of the prefs.
+      function layoutNote() {
+        var eff = U.layout.effective();
+        return (U.layout.pref() === 'auto' ? 'Auto picks for this screen: the ' + eff + ' layout here. ' : '') + 'Saved on this device only.';
+      }
+      var layoutNoteEl = U.h('p', { class: 'muted small set-note set-layout-note' }, layoutNote());
+      var layoutGroup = U.layout ? group('Layout', [
+        seg('Layout', LAYOUTS.map(function (l) { return { value: l[0], label: l[1] }; }), U.layout.pref(), function (v) {
+          U.layout.set(v);
+          layoutNoteEl.textContent = layoutNote();
+        }, 'seg-layout'),
+        layoutNoteEl,
+      ]) : null;
+      var offLayout = U.on('layout', function () { layoutNoteEl.textContent = layoutNote(); });
+
       var body = U.h('div', { class: 'set' },
         group('Appearance', seg('Appearance', THEMES.map(function (t) { return { value: t[0], label: t[1] }; }), p.theme, function (v) { S.set('theme', v); })),
         group('Text size', [
@@ -155,6 +171,7 @@
           U.h('p', { class: 'reading set-preview' }, 'Tides rise and fall twice a day because the Moon pulls on the oceans.'),
           toggle('Easier reading', 'A very clear typeface with a little more space between letters.', p.easy, function (v) { S.set('easy', v); }, 'easy'),
         ]),
+        layoutGroup,
         group('Daily reviews', [
           seg('Most reviews in a day', CAPS.map(function (c) { return { value: c, label: String(c) }; }), p.cap, function (v) { S.set('cap', v); }),
           toggle('Light days', 'Just 5 reviews a day until you turn this off. For busy or tired weeks.', p.light, function (v) { S.set('light', v); }, 'light'),
@@ -163,7 +180,7 @@
         group('Backup', backupBtn, 'Save a copy of everything: topics, lessons, sources, your answers, review cards and settings.'),
         U.h('p', { class: 'set-build muted small' }, 'Build ' + U.BUILD));
 
-      S._sheet = U.sheet({ title: 'Settings', body: body, autofocus: false, onClose: function () { S._sheet = null; } });
+      S._sheet = U.sheet({ title: 'Settings', body: body, autofocus: false, onClose: function () { S._sheet = null; offLayout(); } });
       return S._sheet;
     },
   });

@@ -6,7 +6,7 @@ The live app is one private claude.ai artifact, built from this repo.
 ```
 node tools/build.mjs                 # -> dist/my-university.html
 node --test tests/*.test.mjs         # unit tests
-node tests/e2e/run.mjs               # browser suites (kit, lesson, review, views)
+node tests/e2e/run.mjs               # browser suites (kit, layout, lesson, review, views)
 ```
 Publish only when every suite passes.
 
@@ -22,14 +22,15 @@ Capabilities (full declaration):
 ```json
 {
   "db": {},
-  "user": {},
+  "user": { "scopes": ["profile"] },
   "sample": {},
-  "downloads": {},
+  "downloads": true,
   "mcp": { "servers": [ { "server": "Parallel Search", "tools": ["web_search", "web_fetch"] } ] }
 }
 ```
 - `db` + `user`: topics and lessons (shared docs) and Dan's private progress, cards and profile
-  (`data/users/<id>/…`). Default rules are right for a private, single-person artifact.
+  (`data/users/<id>/…`). Default rules are right for a private, single-person artifact. The
+  `profile` scope lets Learn greet Dan by his first name; nothing else uses it and no name is stored.
 - `sample`: Claude in the page, on Dan's usage (planning, lessons, interactives, grading, tutor).
 - `mcp` Parallel Search: live research with real pages. Optional; the app labels content
   "not yet source-checked" when it is not connected.

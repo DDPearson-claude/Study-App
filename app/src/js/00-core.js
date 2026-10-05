@@ -158,6 +158,47 @@ U._bus = {};
 U.on = function (evt, fn) { (U._bus[evt] = U._bus[evt] || []).push(fn); return function () { U._bus[evt] = (U._bus[evt] || []).filter(function (f) { return f !== fn; }); }; };
 U.emit = function (evt, data) { (U._bus[evt] || []).slice().forEach(function (fn) { try { fn(data); } catch (e) { console.error(e); } }); };
 
+// ---------- layout (per device) ----------
+// 'auto' (the default) gives the laptop layout when the window is at least WIDE px wide and the
+// phone layout below that; Dan can pin either in settings. The choice belongs to the device, not
+// to Dan, so it lives in localStorage 'mu-layout' and never goes to the db. head.html applies it
+// before first paint; this keeps it right as the window changes. html[data-layout] is 'phone' or
+// 'laptop'; html.framed marks a phone layout pinned on a wide window (a centred phone column).
+// U.emit('layout', effective) when the effective layout changes.
+U.layout = (function () {
+  var WIDE = 900, FRAME = 600, mem = null;
+  function mq(q) { try { return window.matchMedia ? window.matchMedia(q) : null; } catch (e) { return null; } }
+  function listen(q, fn) { if (!q) return; if (q.addEventListener) q.addEventListener('change', fn); else if (q.addListener) q.addListener(fn); }
+  var wideQ = mq('(min-width: ' + WIDE + 'px)'), frameQ = mq('(min-width: ' + FRAME + 'px)');
+  var L = {
+    WIDE: WIDE,
+    CHOICES: ['auto', 'phone', 'laptop'],
+    pref: function () {
+      var v = mem;
+      try { v = localStorage.getItem('mu-layout') || mem; } catch (e) { /* storage blocked: the in-memory copy */ }
+      return v === 'phone' || v === 'laptop' ? v : 'auto';
+    },
+    effective: function (pref) {
+      pref = pref || L.pref();
+      return pref !== 'auto' ? pref : (wideQ && wideQ.matches ? 'laptop' : 'phone');
+    },
+    apply: function () {
+      var d = document.documentElement, pref = L.pref(), eff = L.effective(pref), before = d.getAttribute('data-layout');
+      d.setAttribute('data-layout', eff);
+      d.classList.toggle('framed', pref === 'phone' && !!(frameQ && frameQ.matches));
+      if (before !== eff) U.emit('layout', eff);
+      return eff;
+    },
+    set: function (pref) {
+      mem = L.CHOICES.indexOf(pref) >= 0 ? pref : 'auto';
+      try { if (mem === 'auto') localStorage.removeItem('mu-layout'); else localStorage.setItem('mu-layout', mem); } catch (e) { /* kept for this visit */ }
+      return L.apply();
+    },
+  };
+  try { if (typeof document !== 'undefined' && document.documentElement) { L.apply(); listen(wideQ, L.apply); listen(frameQ, L.apply); } } catch (e) { /* no DOM (node evals) */ }
+  return L;
+})();
+
 // ---------- router ----------
 // Views register with U.routes.add('#/t/:tid', fn, {focus, tab, title}). fn(params, ctx) renders
 // into ctx.view and may return a cleanup function. ctx.alive() is false once the user has navigated
@@ -169,7 +210,15 @@ U.routes = {
   add: function (pattern, handler, opts) {
     var keys = [];
     var re = new RegExp('^' + pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\?:([a-z]+)/gi, function (_, k) { keys.push(k); return '([^/]+)'; }) + '/?$');
-    this.list.push({ re: re, keys: keys, handler: handler, opts: opts || {} });
+    this.list.push({ re: re, keys: keys, handler: handler, opts: opts || {}, screen: (opts && opts.screen) || U.routes.screenOf(pattern) });
+  },
+  // The screen a route draws, set as #view[data-screen] so each screen can choose its width on
+  // a laptop: learn, topic, lesson, today, review, map, book (or opts.screen).
+  screenOf: function (pattern) {
+    var segs = String(pattern).replace(/^#\/?/, '').split('/').filter(Boolean);
+    if (!segs.length) return 'learn';
+    if (segs[0] === 't') return segs.length === 2 ? 'topic' : 'lesson';
+    return segs[0];
   },
 };
 U.go = function (hash) { if (location.hash === hash) U._route(); else location.hash = hash; };
@@ -199,6 +248,7 @@ U._route = function () {
   U.clear(view);
   U.closeSheets();
   if (!r) { location.replace('#/'); return; }
+  view.setAttribute('data-screen', bad ? 'none' : r.screen);
   U.focusMode(!!r.opts.focus);
   U.setTab(r.opts.tab || null);
   U.setTitle(typeof r.opts.title === 'string' ? r.opts.title : '');
@@ -347,7 +397,7 @@ U.sheet = function (o) {
   }
   // Swipe down on the grip or the heading closes the sheet on a phone.
   var drag = null;
-  function narrow() { return !(window.matchMedia && window.matchMedia('(min-width: 760px)').matches); }
+  function narrow() { return document.documentElement.getAttribute('data-layout') !== 'laptop'; }
   function down(e) {
     if (!narrow() || (e.button != null && e.button !== 0) || (e.target.closest && e.target.closest('button'))) return;
     drag = { y: e.clientY, dy: 0 };

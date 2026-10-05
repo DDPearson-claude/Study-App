@@ -1856,9 +1856,12 @@
   function measure() {
     var b = document.body;
     if (!b) return 0;
-    var top = document.documentElement.getBoundingClientRect().top;
+    var top = document.documentElement.getBoundingClientRect().top, r = b.getBoundingClientRect();
     var cs = getComputedStyle(b);
-    return Math.ceil(b.getBoundingClientRect().bottom - top + (parseFloat(cs.marginBottom) || 0));
+    // Content that spills out of a fixed-height box (a plot taller than the 180px div it was
+    // given) still has to be seen: body.scrollHeight includes it.
+    var bottom = Math.max(r.bottom, r.top + b.scrollHeight);
+    return Math.ceil(bottom - top + (parseFloat(cs.marginBottom) || 0));
   }
   function sendHeight() {
     hTimer = 0;

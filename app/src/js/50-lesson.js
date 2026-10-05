@@ -629,8 +629,11 @@
     // (the height this device last measured for this interactive at this width, else a typical
     // one), so the page below barely moves when the interactive arrives.
     function mountPanel(holder, built, title) {
-      var wide = window.innerWidth >= 700;
-      var hkey = 'mu-lsn-h:' + key + (wide ? ':wide' : ''), reserve = wide ? 760 : 600;
+      // By the width the panel really gets: a phone, a wide column (stacked controls) or a
+      // laptop (controls beside the picture, so a shorter frame).
+      var w = holder.getBoundingClientRect().width || window.innerWidth;
+      var size = w >= 860 ? 'laptop' : w >= 560 ? 'wide' : 'phone';
+      var hkey = 'mu-lsn-h:' + key + (size === 'phone' ? '' : ':' + size), reserve = size === 'laptop' ? 640 : size === 'wide' ? 760 : 600;
       try { reserve = Number(localStorage.getItem(hkey)) || reserve; } catch (e) {}
       var panel = U.h('div', { class: 'lsn-panel' });
       var meta = U.h('div', { class: 'lsn-panel-foot' });

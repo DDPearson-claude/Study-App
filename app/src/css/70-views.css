@@ -13,7 +13,7 @@
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .section-head h2 { font-size: 1.25rem; }
 .page-head { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 28px; }
-.page-head h1 { font-size: clamp(1.8rem, 6.6vw, 2.4rem); }
+.page-head h1 { font-size: clamp(1.8rem, 6.6vw, 2.4rem); font-size: clamp(1.8rem, 6.6cqi, 2.4rem); }
 .page-head > p.muted { font-size: 1.0625rem; max-width: 34em; }
 .v-empty { display: grid; justify-items: center; gap: 12px; text-align: center; padding: 36px 8px 24px; }
 .v-empty p { max-width: 30em; color: var(--muted); }
@@ -52,7 +52,7 @@
 .learn { display: flex; flex-direction: column; gap: 36px; }
 .learn-continue:empty, .learn-today:empty { display: none; }
 .ask { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
-.ask h1 { font-size: clamp(2rem, 7.4vw, 2.7rem); letter-spacing: -.025em; }
+.ask h1 { font-size: clamp(2rem, 7.4vw, 2.7rem); font-size: clamp(2rem, 7.4cqi, 2.7rem); letter-spacing: -.025em; }
 .ask-sub { font-size: 1.0625rem; max-width: 32em; }
 .ask-form { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
 .ask-input.input { min-height: 60px; padding: 16px 18px; border-radius: 18px; font-size: 1.125rem; box-shadow: var(--shadow); border-color: var(--line); }
@@ -77,12 +77,12 @@
 .learn.is-returning .ask-go:not(.is-busy) { flex: none; width: 60px; padding: 0; }
 .learn.is-returning .ask-go:not(.is-busy) .ask-go-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .learn.is-returning .ask-go svg { width: 24px; height: 24px; }
-.learn.is-returning .ask h1 { font-size: clamp(1.6rem, 5.4vw, 2rem); }
+.learn.is-returning .ask h1 { font-size: clamp(1.6rem, 5.4vw, 2rem); font-size: clamp(1.6rem, 5.4cqi, 2rem); }
 .learn-note:empty { display: none; }
 .v-load-error { align-items: center; }
 .v-slow { padding: 4px 2px 12px; }
 .v-load-error .working { max-width: 200px; margin-top: 4px; }
-@media (min-width: 600px) {
+@container view (min-width: 568px) {
   .ask-form { flex-direction: row; }
   .ask-form .ask-input { flex: 1; min-width: 0; }
   .ask-form .ask-go { flex: none; padding-inline: 26px; }
@@ -101,7 +101,7 @@
 .ccard-progress { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .ccard-progress .bar { flex: 1; }
 .ccard-btn.btn { margin-top: 10px; width: 100%; }
-@media (min-width: 640px) {
+@container view (min-width: 608px) {
   .ccard { grid-template-columns: 40% 1fr; }
   .ccard-cover { aspect-ratio: auto; min-height: 250px; }
   .ccard-body { padding: 24px 26px; justify-content: center; }
@@ -148,7 +148,7 @@
 .tcard.is-planning .tcard-title { color: var(--ink); }
 .tcard.is-skeleton { box-shadow: none; background: transparent; }
 .tcard.is-skeleton .tcard-body { gap: 4px; }
-@media (min-width: 560px) {
+@container view (min-width: 528px) {
   .tgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
   .tcard { flex-direction: column; align-items: stretch; gap: 0; padding: 0; border-radius: 22px; }
   .tcard:focus-visible { border-radius: 22px; }
@@ -177,8 +177,8 @@
 .tp-head { display: flex; flex-direction: column; gap: 10px; }
 .tp-banner { position: relative; aspect-ratio: 2.3 / 1; overflow: hidden; border-radius: 22px; margin: 2px 0 10px; background: var(--sunk); }
 .tp-sk-banner { aspect-ratio: 2.3 / 1; border-radius: 22px; }
-@media (min-width: 640px) { .tp-banner, .tp-sk-banner { aspect-ratio: 3.4 / 1; } }
-.tp-title { font-size: clamp(1.85rem, 6.8vw, 2.5rem); letter-spacing: -.025em; }
+@container view (min-width: 608px) { .tp-banner, .tp-sk-banner { aspect-ratio: 3.4 / 1; } }
+.tp-title { font-size: clamp(1.85rem, 6.8vw, 2.5rem); font-size: clamp(1.85rem, 6.8cqi, 2.5rem); letter-spacing: -.025em; }
 .tp-hook { margin-top: 6px; max-width: 30em; font: 500 calc(var(--fs) * 1.22)/1.45 var(--serif); color: var(--heading); }
 .tp-breath .eyebrow { color: color-mix(in srgb, var(--ink) 70%, var(--amber)); margin-bottom: 6px; }
 .tp-breath .reading { line-height: 1.7; }
@@ -187,7 +187,7 @@
 .tp-cta.btn { align-self: flex-start; max-width: 100%; margin-top: 10px; }
 .tp-cta-text { min-width: 0; text-align: left; overflow-wrap: anywhere; }
 .tp-cta.btn { justify-content: space-between; }
-@media (max-width: 559px) { .tp-cta.btn { align-self: stretch; } }
+@container view (max-width: 527px) { .tp-cta.btn { align-self: stretch; } }
 .tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; }
 .tp-ask { margin-top: -8px; }
 .tp-foot { display: flex; justify-content: center; padding-top: 12px; border-top: 1px solid var(--line); }
@@ -266,7 +266,7 @@
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; margin-bottom: 18px;
   padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); font-size: .875rem; line-height: 1.35;
 }
-@media (min-width: 640px) { .map-legend { grid-template-columns: repeat(4, auto); justify-content: space-between; } }
+@container view (min-width: 608px) { .map-legend { grid-template-columns: repeat(4, auto); justify-content: space-between; } }
 .map-legend-item { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .map-legend-item strong { color: var(--heading); }
 .map-legend-text { display: grid; }
@@ -363,3 +363,35 @@
 .boot-notice-x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); cursor: pointer; }
 .boot-notice-x svg { width: 18px; height: 18px; }
 .boot-opening { display: grid; gap: 14px; max-width: 280px; margin: 0 auto; padding: 72px 8px; text-align: center; }
+
+/* ---------- laptop ----------
+   Learn, the topic page and the Map use the width (the view is up to --wide on a laptop); the
+   ask, the hook and anything you read keep a comfortable line length. These rules follow the
+   width the screen actually gets, so a narrow laptop window falls back to the phone shapes. */
+.tp-top, .tp-cols, .tp-main, .tp-rail, .tp-end { display: flex; flex-direction: column; gap: 36px; }
+.tp-rail:empty { display: none; }
+@container view (min-width: 900px) {
+  /* Learn: a wide Continue card and three columns of topics. */
+  .learn { gap: 40px; }
+  .ask { max-width: var(--measure); }
+  .ccard { grid-template-columns: 46% 1fr; }
+  .ccard-cover { min-height: 300px; }
+  .ccard-body { padding: 32px 36px; gap: 10px; }
+  .ccard-title { font-size: 1.75rem; }
+  .today-row { max-width: var(--measure); }
+  .tgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  .welcome { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+  .welcome-art { aspect-ratio: auto; height: 100%; min-height: 300px; }
+  .welcome-body { padding: 32px 36px; }
+
+  /* Topic: the path on the left; Ask Claude and the sources beside it. */
+  .tp-head { max-width: none; }
+  .tp-banner, .tp-sk-banner { aspect-ratio: 4.6 / 1; }
+  .tp-head > :not(.tp-banner):not(.backlink) { max-width: var(--measure); }
+  .tp-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 56px; align-items: start; }
+  .tp-ask { margin-top: 0; }
+  .tp-planning-in, .tp-failed-in { max-width: var(--measure); }
+
+  /* Map: two topics side by side. */
+  .map-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+}

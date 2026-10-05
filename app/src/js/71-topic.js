@@ -82,6 +82,14 @@
       if (state !== shown.state) {
         shown.state = state; shown.slots = {};
         shown.box = U.h('div', { class: state === 'ready' ? 'tp-ready' : state === 'planning' ? 'tp-planning' : state === 'failed' ? 'tp-failed' : 'tp-other' });
+        // The ready page has regions: the header (top), the path (main), Ask Claude and the
+        // sources (rail) and the footer (end). On a phone they stack in that order; on a laptop
+        // main and rail sit side by side (70-views.css).
+        shown.regions = { main: shown.box };
+        if (state === 'ready') {
+          shown.regions = { top: U.h('div', { class: 'tp-top' }), main: U.h('div', { class: 'tp-main' }), rail: U.h('div', { class: 'tp-rail' }), end: U.h('div', { class: 'tp-end' }) };
+          U.append(shown.box, [shown.regions.top, U.h('div', { class: 'tp-cols' }, shown.regions.main, shown.regions.rail), shown.regions.end]);
+        }
         U.clear(root).appendChild(shown.box);
       }
       var parts = state === 'ready' ? readyParts()
@@ -91,21 +99,25 @@
           if (state === 'loading') return ui.slow ? U.h('div', { class: 'stack' }, V.slowNote('this topic'), loadingView()) : loadingView();
           return state === 'gone' ? goneView() : V.loadError('This topic', failure && failure.e, failure && failure.retrying);
         }]];
-      var box = shown.box, at = 0, used = {};
+      var at = {}, used = {};
       parts.forEach(function (p) {
         if (!p) return;
         var name = p[0], sig = p[1], slot = shown.slots[name];
+        var where = p[3] && shown.regions[p[3]] ? p[3] : 'main', box = shown.regions[where], i = at[where] || 0;
         if (!slot || slot.sig !== sig) {
           var el = p[2]();
           slot = shown.slots[name] = { sig: sig, el: el };
         }
         used[name] = true;
         if (!slot.el) return;
-        var cur = box.children[at];
+        var cur = box.children[i];
         if (cur !== slot.el) box.insertBefore(slot.el, cur || null);
-        at++;
+        at[where] = i + 1;
       });
-      while (box.children.length > at) box.lastChild.remove();
+      Object.keys(shown.regions).forEach(function (k) {
+        var box = shown.regions[k], n = at[k] || 0;
+        while (box.children.length > n) box.lastChild.remove();
+      });
       Object.keys(shown.slots).forEach(function (n) { if (!used[n]) delete shown.slots[n]; });
       if (key && !(document.activeElement && root.contains(document.activeElement))) {
         var el = root.querySelector('[data-key="' + key + '"]');
@@ -239,7 +251,7 @@
       var cal = progress.calibration || {};
       var r = topic.research || {};
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.started, s.allDone), function () { return head(s); }],
+        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.started, s.allDone), function () { return head(s); }, 'top'],
         topic.oneBreath ? ['breath', sig(topic.oneBreath), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
             U.h('p', { class: 'eyebrow' }, 'In one breath'),
@@ -259,11 +271,11 @@
         }],
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
-        }] : null,
-        ['library', sig(r.status, r.at, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }],
+        }, 'rail'] : null,
+        ['library', sig(r.status, r.at, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
           return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
-        }],
+        }, 'end'],
       ];
     }
 

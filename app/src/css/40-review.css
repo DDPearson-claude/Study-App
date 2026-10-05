@@ -55,13 +55,11 @@
 .qc-finished .qc-foot { position: static; }
 .qc-finished .qc-fb { animation: none; }
 
-@media (max-width: 759px) {
-  /* Phone review: the panel becomes a sheet across the full width of the screen. */
-  .qc-review .qc-fb {
-    margin: 0 -16px; border-radius: 22px 22px 0 0; border-width: 1.5px 0 0;
-    padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 -8px 24px rgba(23, 50, 77, .08);
-  }
+/* Phone review: the panel becomes a sheet across the full width of the screen. */
+:root:not([data-layout="laptop"]) .qc-review .qc-fb {
+  margin: 0 -16px; border-radius: 22px 22px 0 0; border-width: 1.5px 0 0;
+  padding: 18px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -8px 24px rgba(23, 50, 77, .08);
 }
 
 /* ---------- grade: auto line + override picker ---------- */
@@ -75,8 +73,8 @@
 }
 .qc-grades { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 /* Two by two when the row would crack: narrow screens, or large text on a phone. */
-@media (max-width: 339px) { .qc-grades { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 420px) { :root[data-size="l"] .qc-grades, :root[data-size="xl"] .qc-grades { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container view (max-width: 307px) { .qc-grades { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@container view (max-width: 388px) { :root[data-size="l"] .qc-grades, :root[data-size="xl"] .qc-grades { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 /* All four keep one height; Claude's pick is a small badge inside that height, so marking it
    never moves the buttons. */
 .qc-g {
@@ -290,9 +288,7 @@
 .rv-back ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: .9375rem; }
 .rv-done .td-relearn { width: 100%; max-width: 520px; text-align: left; }
 
-@media (min-width: 760px) {
-  .qc-q { font-size: 1.35rem; }
-  .qc-review .qc-foot.qc-foot-fb { padding-bottom: 20px; }
-  .td-actions { flex-direction: row; }
-  .td-actions .btn { flex: 1; }
-}
+:root[data-layout="laptop"] .qc-q { font-size: 1.35rem; }
+:root[data-layout="laptop"] .qc-review .qc-foot.qc-foot-fb { padding-bottom: 20px; }
+:root[data-layout="laptop"] .td-actions { flex-direction: row; }
+:root[data-layout="laptop"] .td-actions .btn { flex: 1; }

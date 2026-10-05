@@ -1,5 +1,8 @@
-/* Layout concept: one calm reading column (max 720px) with a sticky top bar; on phones the
-   section tabs dock to the bottom edge. Colour marks meaning, never decoration. */
+/* Layout concept: one calm reading column (max 720px) with a sticky top bar. Two layouts, set on
+   <html data-layout> by head.html and U.layout: "phone" docks the section tabs to the bottom edge;
+   "laptop" puts them in the top bar and lets the Learn, topic, lesson and Map screens use the
+   width (up to --wide). A phone layout pinned on a wide window is a centred --frame column
+   (html.framed). Colour marks meaning, never decoration. */
 :root {
   /* Dan's palette (Design Brief v2) */
   --bg: #F7F5F0;          /* warm off-white page */
@@ -30,6 +33,10 @@
 
   --fs: 18px;             /* reading size; settings change it */
   --col: 720px;           /* reading column */
+  --measure: 44rem;       /* longest comfortable line of reading text on a laptop */
+  --wide: 1200px;         /* laptop screens that use the width */
+  --frame: 430px;         /* the phone column when the phone layout is pinned on a wide window */
+  --shell: var(--col);    /* how wide the top bar's contents run */
   --r-sm: 12px; --r: 18px; --r-lg: 24px;
   --gap: 16px;
   --topbar-h: 60px;

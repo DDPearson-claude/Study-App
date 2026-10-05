@@ -19,5 +19,13 @@
   d.setAttribute('data-mu-theme', s.theme === 'dark' || s.theme === 'system' ? s.theme : 'light');
   if (s.size) d.setAttribute('data-size', s.size);
   if (s.easy) d.setAttribute('data-easy', '1');
+  // Layout belongs to this device ('mu-layout', never the db): 'auto' gives the laptop layout
+  // from 900 px wide, or Dan pins phone or laptop in settings. A phone layout pinned on a wide
+  // window is a centred phone column (html.framed). U.layout keeps this right after load.
+  var lay = null, mm = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
+  try { lay = localStorage.getItem('mu-layout'); } catch (e) {}
+  var eff = lay === 'phone' || lay === 'laptop' ? lay : (mm('(min-width: 900px)') ? 'laptop' : 'phone');
+  d.setAttribute('data-layout', eff);
+  if (lay === 'phone' && mm('(min-width: 600px)')) d.classList.add('framed');
 })();
 </script>

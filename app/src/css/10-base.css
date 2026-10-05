@@ -24,7 +24,7 @@ body {
 }
 :root[data-easy="1"] body { letter-spacing: .02em; word-spacing: .1em; }
 h1, h2, h3 { font-family: var(--sans); color: var(--heading); line-height: 1.22; letter-spacing: -.015em; text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(1.7rem, 5.4vw, 2.2rem); font-weight: 800; }
+h1 { font-size: clamp(1.7rem, 5.4vw, 2.2rem); font-size: clamp(1.7rem, 5.4cqi, 2.2rem); font-weight: 800; }
 h2 { font-size: 1.3rem; font-weight: 700; }
 h3 { font-size: 1.05rem; font-weight: 700; }
 p { margin: 0; }
@@ -41,7 +41,7 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .topbar {
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   display: flex; align-items: center; gap: 12px;
-  height: var(--topbar-h); padding-inline: max(16px, calc((100% - var(--col)) / 2));
+  height: var(--topbar-h); padding-inline: max(16px, calc((100% - var(--shell)) / 2));
   border-bottom: 1px solid var(--line);
 }
 /* The frosted glass lives on a pseudo-element: a backdrop-filter on .topbar itself would become
@@ -61,7 +61,9 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
 .settings-btn { margin-left: auto; }
 .aa { font: 600 1.0625rem/1 var(--serif); }
 
-.view { display: block; max-width: var(--col); margin: 0 auto; padding: 20px 16px calc(var(--tabbar-h) + 40px + env(safe-area-inset-bottom, 0px)); outline: none; }
+/* The view is a size container: screens lay themselves out by the width they actually get
+   (@container view), so a phone column pinned on a laptop really gets the phone layout. */
+.view { display: block; max-width: var(--col); margin: 0 auto; padding: 20px 16px calc(var(--tabbar-h) + 40px + env(safe-area-inset-bottom, 0px)); outline: none; container: view / inline-size; }
 /* Focus mode (lessons, reviews): no app chrome, just the screen's own close + progress bar. */
 :root.focus { --topbar-h: 0px; --tabbar-h: 0px; }
 .focus .topbar { display: none; }
@@ -87,17 +89,34 @@ h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
   background: var(--heading); color: var(--on-heading); font: 800 .75rem/1.5 var(--sans); text-align: center;
 }
 .focus .tabs { display: none; }
-@media (min-width: 760px) {
-  .tabs { position: static; flex: 1; justify-content: center; gap: 4px; padding: 0; background: none; border: 0; }
-  :root, :root[data-size] { --tabbar-h: 0px; }
-  .tab { flex-direction: row; gap: 8px; min-height: 44px; font-size: .875rem; }
-  .tab svg { width: 20px; height: 20px; }
-  .tab[aria-current="page"] { background: var(--sunk); }
-  .tab[aria-current="page"]::before { display: none; }
-  .tab-badge { position: static; }
-  .settings-btn { margin-left: 0; }
-  .view { padding-bottom: 64px; }
+:root[data-layout="laptop"] { --shell: var(--wide); }
+:root[data-layout="laptop"], :root[data-layout="laptop"][data-size] { --tabbar-h: 0px; }
+:root[data-layout="laptop"] .tabs { position: static; flex: 1; justify-content: center; gap: 4px; padding: 0; background: none; border: 0; }
+:root[data-layout="laptop"] .tab { flex-direction: row; gap: 8px; min-height: 44px; font-size: .875rem; }
+:root[data-layout="laptop"] .tab svg { width: 20px; height: 20px; }
+:root[data-layout="laptop"] .tab[aria-current="page"] { background: var(--sunk); }
+:root[data-layout="laptop"] .tab[aria-current="page"]::before { display: none; }
+:root[data-layout="laptop"] .tab-badge { position: static; }
+:root[data-layout="laptop"] .settings-btn { margin-left: 0; }
+:root[data-layout="laptop"] .view { padding-bottom: 64px; }
+/* Each screen's width on a laptop: reading screens keep the column; these use the room. */
+:root[data-layout="laptop"] .view[data-screen="learn"],
+:root[data-layout="laptop"] .view[data-screen="topic"],
+:root[data-layout="laptop"] .view[data-screen="map"] { max-width: var(--wide); }
+:root[data-layout="laptop"] .view[data-screen="lesson"] { max-width: 1120px; }
+/* The laptop layout pinned on a narrow window: the top bar keeps to one row. */
+@media (max-width: 699px) { :root[data-layout="laptop"] .brand-name { display: none; } }
+@media (max-width: 539px) {
+  :root[data-layout="laptop"] .topbar { gap: 4px; }
+  :root[data-layout="laptop"] .tabs { gap: 0; }
+  :root[data-layout="laptop"] .tab { min-width: 44px; padding: 6px 8px; }
+  :root[data-layout="laptop"] .tab > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
+
+/* The phone layout pinned on a wide window: a centred phone column; the rest stays quiet. */
+:root.framed body { background: var(--sunk); }
+:root.framed .app { max-width: var(--frame); min-height: 100vh; margin: 0 auto; background: var(--bg); box-shadow: 0 0 0 1px var(--line), 0 12px 40px rgba(23, 50, 77, .08); }
+:root.framed .tabs, :root.framed .sheet, :root.framed .toasts { left: calc(50% - var(--frame) / 2); right: calc(50% - var(--frame) / 2); }
 
 /* ---------- type helpers ---------- */
 .eyebrow { font: 700 .75rem/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
@@ -228,10 +247,8 @@ mark.term {
 .sheet-head { display: flex; align-items: center; gap: 12px; touch-action: pan-x; }
 .sheet-head h2 { flex: 1; font-size: 1.15rem; }
 .sheet-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
-@media (min-width: 760px) {
-  .sheet-grip { display: none; }
-  .sheet { left: 50%; right: auto; bottom: auto; top: 50%; width: min(620px, calc(100vw - 32px)); transform: translate(-50%, -50%); border-radius: 24px; animation: mu-fade .2s ease-out; }
-}
+:root[data-layout="laptop"] .sheet-grip { display: none; }
+:root[data-layout="laptop"] .sheet { left: 50%; right: auto; bottom: auto; top: 50%; width: min(620px, calc(100vw - 32px)); transform: translate(-50%, -50%); border-radius: 24px; animation: mu-fade .2s ease-out; }
 
 /* ---------- celebration (shared) ---------- */
 .cheer { position: fixed; left: 50%; top: 38%; z-index: 80; display: grid; justify-items: center; gap: 10px; transform: translate(-50%, -50%); pointer-events: none; }
