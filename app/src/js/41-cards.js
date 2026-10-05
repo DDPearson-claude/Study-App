@@ -60,6 +60,16 @@
   function primary(text, onClick) { return h('button', { class: 'btn wide qc-primary', type: 'button', on: { click: onClick } }, text); }
   function richBlock(cls, text) { return h('div', { class: cls }, U.rich(String(text || ''))); }
   function why(text) { return text ? h('div', { class: 'qc-why' }, label('Why'), richBlock('qc-prose', text)) : null; }
+  // Misconception notes should talk to Dan ("It's easy to think..."). Older lessons describe him in
+  // the third person ("Thinks the push comes from..."): turn those into the same friendly form.
+  var VERB = { think: 'think', thinks: 'think', believe: 'believe', believes: 'believe', assume: 'assume', assumes: 'assume',
+    confuse: 'confuse', confuses: 'confuse', expect: 'expect', expects: 'expect', 'mix up': 'mix up', 'mixes up': 'mix up' };
+  function toYou(text) {
+    var t = String(text || '').trim();
+    var m = t.match(/^(?:(?:dan|the learner|learner|a learner|students?|they|he|she)\s+)?(thinks?|believes?|assumes?|confuses?|expects?|mix(?:es)? up)\b\s*(.*)$/i);
+    if (!m || !m[2]) return t;
+    return 'It\'s easy to ' + VERB[m[1].toLowerCase()] + ' ' + m[2];
+  }
 
   // ---------- card shell ----------
   function shell(card, opts) {
@@ -158,7 +168,8 @@
       var drawLine = function () {
         U.clear(line);
         var name = GRADES[chosen - 1].label;
-        line.appendChild(h('span', null, days ? 'Marked ' + name + ' · back ' + inDays(days[chosen]) : 'Marked ' + name));
+        line.appendChild(h('span', null, days ? 'Coming back ' + inDays(days[chosen]) : 'Marked ' + name));
+        if (days) line.appendChild(h('span', { class: 'qc-grade-name' }, ' · ' + name));
       };
       drawLine();
       panel.appendChild(h('div', { class: 'qc-grade' }, h('div', { class: 'qc-grade-row' }, line, change), picker.el));
@@ -221,7 +232,7 @@
       });
       var mis = !correct && s.misconception && s.misconception[picked];
       var parts = [];
-      if (mis) parts.push(h('div', { class: 'qc-mis' }, label('A common mix-up', 'bad'), richBlock('qc-prose', mis)));
+      if (mis) parts.push(h('div', { class: 'qc-mis' }, label('A common mix-up', 'bad'), richBlock('qc-prose', toYou(mis))));
       if (!correct) parts.push(h('p', { class: 'qc-answer' }, 'The answer: ', inline('strong', null, options[answer])));
       parts.push(why(s.why));
       feedback(c, {
@@ -315,22 +326,31 @@
     var log = !!s.log && min > 0;
     var step = niceStep((max - min) / 200);
     if (!log && tol > 0 && step > tol) step = niceStep(tol, true);
+    // On a log scale values snap to 2 significant figures, but never to a step wider than the
+    // tolerance: every answer that counts as right can be reached.
+    var tolStep = tol > 0 ? niceStep(tol, true) : Infinity;
+    function unitAt(v) { return log ? Math.min(Math.pow(10, Math.floor(Math.log10(Math.abs(v) || min)) - 1), tolStep) : step; }
+    // Slider positions: enough that each one moves by less than a snap step near the answer.
+    var N = 1000;
+    if (log && tol > 0) N = Math.ceil(1.05 * Math.log(max / min) / Math.log(1 + unitAt(ans) / Math.max(ans, min)));
+    else if (!log) N = Math.ceil((max - min) / step);
+    N = Math.min(10000, Math.max(1000, N || 1000));
     var dec = log ? null : decimalsFor(step);
     function toPos(v) { v = clamp(v, min, max); return log ? Math.log(v / min) / Math.log(max / min) : (v - min) / (max - min); }
     function fromPos(p) { return log ? min * Math.pow(max / min, p) : min + p * (max - min); }
-    function sig2(v) { var e = Math.floor(Math.log10(Math.abs(v))) - 1, u = Math.pow(10, e); return Math.round(v / u) * u; }
-    function snap(v) { v = clamp(v, min, max); return log ? clamp(sig2(v), min, max) : clamp(Math.round((v - min) / step) * step + min, min, max); }
-    function disp(v) { return fmt(v, log ? (Math.abs(v) >= 10 ? 0 : decimalsFor(Math.pow(10, Math.floor(Math.log10(Math.abs(v))) - 1))) : dec); }
+    function onGrid(v, u) { return Number((Math.round(v / u) * u).toFixed(decimalsFor(u))); }
+    function snap(v) { v = clamp(v, min, max); return log ? clamp(onGrid(v, unitAt(v)), min, max) : clamp(onGrid(v - min, step) + min, min, max); }
+    function disp(v) { return fmt(v, log ? decimalsFor(unitAt(v)) : dec); }
     function nudge(dir) {
       if (log) {
-        var e = Math.floor(Math.log10(value)) - 1, u = Math.pow(10, e);
+        var u = unitAt(dir < 0 ? value * 0.9999 : value);
         set(clamp((Math.round(value / u) + dir) * u, min, max));
       } else set(value + dir * step);
       touched();
     }
     var value = snap(fromPos(0.5)), moved = false;
     var out = h('output', { class: 'qc-est-value', 'aria-live': 'polite' });
-    var range = h('input', { class: 'qc-range', type: 'range', min: '0', max: '1000', step: '1', 'aria-label': 'Your estimate' });
+    var range = h('input', { class: 'qc-range', type: 'range', min: '0', max: String(N), step: '1', 'aria-label': 'Your estimate' });
     var band = h('i', { class: 'qc-band', hidden: true });
     var ansMark = h('i', { class: 'qc-ans', hidden: true });
     var ansTag = h('span', { class: 'qc-ans-tag', hidden: true });
@@ -368,13 +388,13 @@
     }
     function set(v) {
       value = snap(v);
-      range.value = String(Math.round(toPos(value) * 1000));
+      range.value = String(Math.round(toPos(value) * N));
       U.clear(out).appendChild(h('span', { class: 'qc-est-num' }, disp(value)));
       if (unit) out.appendChild(h('span', { class: 'qc-est-unit' }, ' ' + unit));
       range.setAttribute('aria-valuetext', withUnit(disp(value), unit));
     }
     function touched() { if (!moved) { moved = true; lock.disabled = false; hint.textContent = 'Happy with that? Lock it in.'; } }
-    range.addEventListener('input', function () { set(fromPos(Number(range.value) / 1000)); touched(); });
+    range.addEventListener('input', function () { set(fromPos(Number(range.value) / N)); touched(); });
     var hint = h('p', { class: 'qc-tip muted small' }, log ? 'Drag to your best guess. The scale stretches: each step along multiplies the number.' : 'Drag to your best guess.');
     var scale = h('div', { class: 'qc-scale', 'aria-hidden': 'true' },
       h('span', null, withUnit(disp(min), unit)),
@@ -404,7 +424,7 @@
       return;
     }
     var goal = num(s.target, 0), tol = Math.abs(num(s.tolerance, 0)), ctl = controlOf(c.opts.lesson, s.control);
-    var tries = 0, api = null;
+    var tries = 0, fails = 0, api = null, skip = null;
     var goalLine = h('p', { class: 'qc-goal' },
       ctl ? 'Use the ' : null, ctl ? h('strong', null, ctl.label || ctl.id) : null, ctl ? ' control. ' : null,
       'Aim for ', h('strong', null, fmt(goal)), tol ? ' (give or take ' + fmt(tol) + ')' : '', '.');
@@ -413,7 +433,9 @@
     c.body.append(goalLine, stage);
     var btn = primary('Check my setting', check);
     btn.disabled = true;
-    c.setFoot([hintBox, btn]);
+    // The goal again beside the button: the interactive can be taller than the screen.
+    var aim = h('p', { class: 'qc-aim muted small' }, 'Aim for ', h('strong', null, fmt(goal)), tol ? ' (give or take ' + fmt(tol) + ')' : '');
+    c.setFoot([hintBox, aim, btn]);
     function enable() { if (!c.locked) btn.disabled = false; }
     try {
       api = U.sandbox.mount(stage, {
@@ -464,10 +486,24 @@
         });
       }).catch(function (e) {
         clearTimeout(timer);
+        if (c.done) return;
         console.warn('target check failed', e);
-        U.toast('The interactive did not answer. Move the control a little and try again.', { kind: 'bad' });
-        btn.textContent = tries ? 'Check again' : 'Check my setting';
+        fails++;
+        hintBox.hidden = false;
+        U.clear(hintBox).append(label('No reading', 'bad'), h('p', null, fails < 2
+          ? 'The interactive did not give a reading. Move the control a little and check again.'
+          : 'The interactive is still not giving a reading, so this one cannot be checked right now. You can skip it.'));
+        btn.textContent = 'Check again';
         btn.disabled = false;
+        // After a second failed reading there is a way out (in review the card is then retired).
+        if (fails >= 2 && !skip) {
+          skip = h('button', { class: 'btn wide secondary qc-skip', type: 'button', on: { click: function () {
+            if (c.done) return;
+            c.locked = true;
+            c.finish({ correct: null, grade: null, answer: null, skipped: true, reason: 'no-reading' });
+          } } }, 'Skip this one');
+          c.foot.appendChild(skip);
+        }
       });
     }
   }
@@ -512,13 +548,16 @@
         status,
         c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' }, h('summary', null, 'What you wrote when you learned it'), h('p', null, String(s.mine))) : null);
 
-      var picker = null, pickHint = null;
+      var picker = null, pickHint = null, pickNote = null, settleUntil = 0;
+      // Taps that land just after Claude's grade arrived (the layout may have moved) are ignored.
+      function steady() { return Date.now() >= settleUntil; }
       if (c.mode === 'review') {
-        picker = gradePicker(c, null, function (g) { picked = g; refresh(); reveal(c); });
+        picker = gradePicker(c, null, function (g) { if (!steady()) { picker.set(picked || claudeGrade); return; } picked = g; refresh(); reveal(c); });
         pickHint = h('p', { class: 'qc-label' }, 'How well did you know it?');
-        panel.append(pickHint, picker.el);
+        pickNote = h('p', { class: 'muted small qc-pick-note', hidden: true }, 'Claude\'s pick is marked. Change it if you disagree.');
+        panel.append(pickHint, pickNote, picker.el);
       }
-      var cont = h('button', { class: 'btn wide qc-continue', type: 'button', on: { click: done } }, 'Continue');
+      var cont = h('button', { class: 'btn wide qc-continue', type: 'button', on: { click: function () { if (steady()) done(); } } }, 'Continue');
       panel.appendChild(cont);
 
       function drawStatus() {
@@ -540,12 +579,12 @@
         picker.set(g);
         picker.btns.forEach(function (b) {
           var tag = b.querySelector('.qc-g-claude');
-          if (Number(b.dataset.g) === claudeGrade && !tag) b.appendChild(h('span', { class: 'qc-g-claude' }, 'Claude'));
+          if (Number(b.dataset.g) === claudeGrade && !tag) b.appendChild(h('span', { class: 'qc-g-claude', 'aria-label': ', Claude\'s pick' }, 'Claude'));
         });
         // Continue needs a rating, unless Claude is still grading (then it finishes in the background).
         cont.disabled = !g && failed;
         cont.textContent = !g && !failed ? 'Continue, Claude will grade it' : 'Continue';
-        pickHint.textContent = claudeGrade && !picked ? 'How well did you know it? Claude\'s pick is marked; change it if you disagree.' : 'How well did you know it?';
+        pickNote.hidden = !(claudeGrade && !picked);
       }
       function done() {
         var g = picked || claudeGrade;
@@ -590,6 +629,7 @@
           graded = r && VERDICT[r.verdict] ? r : null;
           if (!graded) { failed = true; refresh(); return; }
           claudeGrade = verdictGrade(graded);
+          settleUntil = Date.now() + 350;
           requestAnimationFrame(function () { if (!c.done) reveal(c, true); });
           var met = Array.isArray(graded.met) ? graded.met : [];
           points.forEach(function (li, i) {

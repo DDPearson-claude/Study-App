@@ -47,9 +47,48 @@ U.parseJson = function (text) {
   throw { code: 'bad_json', message: 'Claude replied with JSON that could not be read.' };
 };
 
-// U.ask(input, {tier, onText, signal, tools, json, schema, cache, label})
+// ---------- priority gate ----------
+// Foreground calls (what Dan is waiting for: planning, the lesson on screen, grading, the tutor)
+// go straight to Claude. Background calls (prefetching the next lesson, research) run one at a
+// time, and only while no foreground call is in flight, so the lesson he is on never queues
+// behind work he only glanced at. A background call still waiting is dropped when its signal
+// aborts (rejects {code:'cancelled'}); one that has started is cancelled through sample's signal.
+U._gate = { fg: 0, bg: 0, queue: [] };
+U._gate.enter = function (opts) {
+  var G = U._gate;
+  function cancelled() { return { code: 'cancelled', message: 'Stopped.' }; }
+  if (opts.priority !== 'background') {
+    G.fg++;
+    var done = false;
+    return Promise.resolve(function () { if (!done) { done = true; G.fg--; G.pump(); } });
+  }
+  return new Promise(function (resolve, reject) {
+    var sig = opts.signal;
+    if (sig && sig.aborted) return reject(cancelled());
+    var w = { resolve: resolve };
+    if (sig && sig.addEventListener) sig.addEventListener('abort', function () {
+      var i = G.queue.indexOf(w);
+      if (i >= 0) { G.queue.splice(i, 1); reject(cancelled()); }
+    });
+    G.queue.push(w);
+    G.pump();
+  });
+};
+U._gate.pump = function () {
+  var G = U._gate;
+  while (G.bg === 0 && G.fg === 0 && G.queue.length) {
+    var w = G.queue.shift(), done = false;
+    G.bg++;
+    w.resolve(function () { if (!done) { done = true; G.bg--; G.pump(); } });
+  }
+};
+
+// U.ask(input, {tier, onText, signal, tools, json, schema, cache, label, priority})
 //   json:true  -> resolves the parsed object
 //   schema(fn) -> returns [] or a list of problems; one corrective retry with the problems listed
+//   priority   'foreground' (default) | 'background' (see the gate above)
+// A transient 'upstream_error' or 'unavailable' is retried once after 1-3 s. 'rate_limited' is
+// never retried from here (retrying a rate limit only makes it last longer): it reaches the caller.
 U.ask = function (input, opts) {
   opts = opts || {};
   var sample = U.rt.sample;
@@ -61,14 +100,19 @@ U.ask = function (input, opts) {
   if (opts.images) o.images = opts.images;
   var started = Date.now();
   function once(inp, attempt) {
-    return sample(inp, o).then(function (r) {
-      U.emit('ask', { label: opts.label, tier: o.modelTier, ms: Date.now() - started, chars: (r.text || '').length, truncated: !!r.truncated });
-      if (r.truncated && opts.json) throw { code: 'truncated', message: 'Claude\'s answer was cut off.', text: r.text };
-      return r.text || '';
-    }, function (e) {
-      if (e && e.code === 'rate_limited' && attempt < 2) return U.sleep(2500 + Math.random() * 2500).then(function () { return once(inp, attempt + 1); });
-      if (e && e.code === 'unavailable' && attempt < 1) return U.sleep(1200).then(function () { return once(inp, attempt + 1); });
-      throw e;
+    return U._gate.enter(opts).then(function (release) {
+      return Promise.resolve().then(function () { return sample(inp, o); }).then(function (r) {
+        release();
+        U.emit('ask', { label: opts.label, tier: o.modelTier, ms: Date.now() - started, chars: (r.text || '').length, truncated: !!r.truncated });
+        if (r.truncated && opts.json) throw { code: 'truncated', message: 'Claude\'s answer was cut off.', text: r.text };
+        return r.text || '';
+      }, function (e) {
+        release();
+        if (e && (e.code === 'upstream_error' || e.code === 'unavailable') && attempt < 1 && !(opts.signal && opts.signal.aborted)) {
+          return U.sleep(1000 + Math.random() * 2000).then(function () { return once(inp, attempt + 1); });
+        }
+        throw e;
+      });
     });
   }
   if (!opts.json) return once(input, 0);

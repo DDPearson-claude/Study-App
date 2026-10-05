@@ -1,6 +1,8 @@
-// Boot: runs last. Wires the settings button, waits for the runtime (U.rt.ready), applies Dan's
-// saved reading settings, warns once when progress cannot be kept, starts the hash router and
-// the Today badge, and counts study minutes while the page is visible and in use.
+// Boot: runs last. Wires the settings button, waits for the runtime (U.rt.ready, which every
+// bridge call bounds at 10 s), starts the hash router at once (the device's reading settings were
+// already applied before first paint by head.html; the db copy is loaded in the background and
+// applied when it arrives), warns once when progress cannot be kept, starts the Today badge, and
+// counts study minutes while the page is visible and in use.
 // Exposes U.boot.study for tests. Contract: docs/ARCHITECTURE.md sections 3, 4 and 10.
 (function () {
   'use strict';
@@ -80,15 +82,20 @@
 
   function start() {
     var btn = document.getElementById('settings-btn');
-    if (btn) btn.addEventListener('click', function () {
-      if (U.settings) U.settings.open(); else U.toast('Settings are not available in this build.');
-    });
+    if (btn) {
+      btn.setAttribute('aria-label', 'Settings');
+      btn.addEventListener('click', function () {
+        if (U.settings) U.settings.open(); else U.toast('Settings are not available in this build.');
+      });
+    }
     var view = document.getElementById('view');
+    // Each screen announces itself through its h1 (focused on every route) and its own small live
+    // regions; the whole view as one live region read every change out loud.
+    if (view) view.removeAttribute('aria-live');
     if (view && !view.firstChild) view.appendChild(opening());
 
     U.rt.ready.then(function () {
-      return loadPrefs().catch(function (e) { console.error('prefs', e); });
-    }).then(function () {
+      loadPrefs().catch(function (e) { console.error('prefs', e); });
       persistNotice();
       window.addEventListener('hashchange', U._route);
       U._route();

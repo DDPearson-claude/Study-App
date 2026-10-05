@@ -3,7 +3,8 @@
 //   U.gen.createTopic(query, {level, onCreated(tid)}) -> Promise<tid>   resolves once planned
 //   U.gen.replan(tid) -> Promise<tid>                plans a failed topic again
 //   U.gen.research(tid) -> Promise<result|null>      (re)runs source research; never rejects
-//   U.gen.ensureLesson(tid, iid, {onStatus(text)}) -> Promise<lessonDoc>
+//   U.gen.ensureLesson(tid, iid, {onStatus(text), background, signal}) -> Promise<lessonDoc>
+//       background: a prefetch (yields to Dan's calls; aborting signal cancels it)
 //   U.gen.relearn(tid, iid, {onStatus, feedback}) -> Promise<lessonDoc>   new lesson, different
 //       interactive; feedback = Dan's "This looks wrong" note (up to 1000 characters), which the
 //       writer is asked to address
@@ -12,16 +13,20 @@
 //   U.gen.status(tid) -> {planning, research, lessons:{iid: status}}   this page's live work
 // Progress is also broadcast as U.emit('gen', {tid, iid, kind, status, text}).
 //
-// Lesson docs move writing -> building -> ready (or failed, with a readable `error`). While a job
-// runs, the doc's updatedAt is refreshed every 45 s; a 'writing'/'building' doc left by another
-// device is watched until it settles, and taken over once it has been silent for 4 minutes.
+// Lesson docs move writing -> building -> ready (or failed, with a readable `error`). A job holds
+// the db's lease on its lesson doc (renewed every 45 s with the doc's updatedAt); another device
+// waits for it, and takes over once the lease runs out (without leases: once the doc has been
+// silent for 4 minutes). Errors that say nothing about the lesson never mark it failed.
 (function () {
   'use strict';
   var U = window.U;
   var CFG = {
-    STALE_MS: 4 * 60 * 1000,          // a busy lesson doc silent this long is abandoned
-    HEARTBEAT_MS: 45 * 1000,          // how often a running job refreshes its doc
+    STALE_MS: 4 * 60 * 1000,          // without leases: a busy lesson doc silent this long is abandoned
+    HEARTBEAT_MS: 45 * 1000,          // how often a running job refreshes its doc and lease
+    LEASE_MS: 90 * 1000,              // the generation lease on a lesson doc (renewed by the heartbeat)
+    LEASE_ROUNDS: 8,                  // how many times a job waits out another holder before giving up
     RESEARCH_WAIT_MS: 120 * 1000,     // longest a lesson waits for research (from research start)
+    FIRST_RESEARCH_WAIT_MS: 15 * 1000, // ...and the topic's first lesson, so Dan is not kept waiting
     RESEARCH_STALE_MS: 8 * 60 * 1000, // a 'running' research older than this is abandoned
     RESEARCH_RETRY_MS: 10 * 60 * 1000, // a lesson re-tries 'failed'/'unavailable' research this old
     KNOWN_MAX: 60,
@@ -29,14 +34,20 @@
   var LEVELS = ['new', 'some', 'solid'];
   var NO_INTERACTIVE = 'The interactive for this idea could not be built and tested this time, so this lesson carries on without it.';
   var PAGE = U.id('p');
-  var DEVICE = (function () {
+  // Ids that outlive a reload: this device (localStorage) and this tab (sessionStorage, so two
+  // tabs of one browser never mistake each other's live work for their own leftovers).
+  function kept(store, key, prefix) {
     try {
-      if (typeof localStorage === 'undefined') return U.id('d');
-      var v = localStorage.getItem('mu.device');
-      if (!v) { v = U.id('d'); localStorage.setItem('mu.device', v); }
+      var st = store();
+      if (!st) return U.id(prefix);
+      var v = st.getItem(key);
+      if (!v) { v = U.id(prefix); st.setItem(key, v); }
       return v;
-    } catch (e) { return U.id('d'); }
-  })();
+    } catch (e) { return U.id(prefix); }
+  }
+  var DEVICE = kept(function () { return typeof localStorage === 'undefined' ? null : localStorage; }, 'mu.device', 'd');
+  var TAB = kept(function () { return typeof sessionStorage === 'undefined' ? null : sessionStorage; }, 'mu.tab', 't');
+  var HOLDER = DEVICE + '/' + TAB;
 
   var jobs = {};        // 'tid/iid' -> lesson job (de-duplicates work in this page)
   var plans = {};       // tid -> planning promise
@@ -295,7 +306,7 @@
     }).then(function (tools) {
       if (!tools || !tools.length) throw { code: 'unavailable', message: 'The research tools did not load.' };
       return U.ask(U.prompts.research(topic, { ideas: topic.ideas }), {
-        tier: 'default', json: true, label: 'research', tools: wrapTools(tools, corpus),
+        tier: 'default', json: true, label: 'research', tools: wrapTools(tools, corpus), priority: 'background',
         schema: function (o) { return U.validate.research(o, { ideas: ids }); },
       });
     }).then(function (raw) {
@@ -357,8 +368,9 @@
     });
   }
   // The research a lesson should be written from: waits (bounded) for research that is running.
-  function researchFor(topic, iid, job) {
-    var tid = topic.id, r = topic.research || {}, wait = null;
+  // The topic's first lesson waits only briefly; it is written unsourced rather than keep Dan waiting.
+  function researchFor(tid, topic, iid, job) {
+    var r = topic.research || {}, wait = null;
     var started = Date.parse(r.at || '') || Date.now();
     if (researching[tid]) wait = researching[tid];
     else if (r.status === 'running' && age(r.at) < CFG.RESEARCH_STALE_MS) wait = 'watch';
@@ -366,6 +378,8 @@
       ((r.status === 'failed' || r.status === 'unavailable') && age(r.at) > CFG.RESEARCH_RETRY_MS)) { started = Date.now(); wait = research(tid); }
     if (!wait) return loadResearch(tid, iid);
     var left = Math.max(5000, CFG.RESEARCH_WAIT_MS - (Date.now() - started));
+    var first = (topic.ideas || []).filter(function (i) { return !i.known; })[0];
+    if (first && first.id === iid) left = Math.min(left, CFG.FIRST_RESEARCH_WAIT_MS);
     progress(job, 'Checking sources for this idea…', 'writing');
     var p = wait === 'watch' ? waitForTopicResearch(tid, left) : Promise.race([wait.catch(noop), U.sleep(left)]);
     return p.then(function () { return loadResearch(tid, iid); });
@@ -373,13 +387,51 @@
 
   // ==================================================================================
   // Lessons
+  //
+  // One writer per lesson, across devices and tabs: a job claims the db's cooperative lease on
+  // the lesson doc (holder = this tab), renews it with the heartbeat, and before each write checks
+  // that it still holds the lease and that the doc still names it; if not, another device has
+  // taken over and this job stops without writing. Where the db has no leases (memdb), the doc's
+  // `by` and updatedAt decide who waits, as before. Errors that say nothing about the lesson (no
+  // permission, rate limits, a cancelled prefetch, a passing outage) leave the shared doc as it
+  // was: only this page hears about them.
   // ==================================================================================
-  function newJob(tid, iid, onStatus) {
-    var job = { tid: tid, iid: iid, key: tid + '/' + iid, subs: [], text: '', hb: null, promise: null };
-    subscribe(job, onStatus);
+  var TRANSIENT = ['not_granted', 'rate_limited', 'cancelled', 'aborted', 'unavailable', 'upstream_error', 'timeout', 'session_expired'];
+  function transient(e) { return !!(e && TRANSIENT.indexOf(e.code) >= 0); }
+  function superseded(job) { job.lost = true; return { code: 'superseded', message: 'Another device took over this lesson.' }; }
+
+  function newJob(tid, iid, opts) {
+    var job = {
+      tid: tid, iid: iid, key: tid + '/' + iid, subs: [], text: '', hb: null, promise: null, ref: null, lost: false,
+      background: !!opts.background, ctrl: typeof AbortController === 'function' ? new AbortController() : null,
+    };
+    join(job, opts);
     jobs[job.key] = job;
     return job;
   }
+  // Another caller for the same lesson. A foreground caller (Dan opening it) promotes a
+  // background prefetch, which then can no longer be cancelled.
+  function join(job, opts) {
+    subscribe(job, opts.onStatus);
+    if (!opts.background) { job.background = false; return; }
+    var sig = opts.signal;
+    if (sig && typeof sig.addEventListener === 'function') {
+      if (sig.aborted) cancel(job);
+      else sig.addEventListener('abort', function () { cancel(job); });
+    }
+  }
+  function cancel(job) { if (job.background && job.ctrl && !job.ctrl.signal.aborted) job.ctrl.abort(); }
+  function cancelled(job) { return !!(job.ctrl && job.ctrl.signal.aborted); }
+  function stillWanted(job) { if (cancelled(job)) throw { code: 'cancelled', message: 'This lesson was not needed after all.' }; }
+  // U.ask options for this job: background work yields to Dan's foreground calls.
+  function askOpts(job, o) {
+    if (job.ctrl) o.signal = job.ctrl.signal;
+    if (job.background) o.priority = 'background';
+    return o;
+  }
+  // A job already running here for this lesson, unless it was a cancelled prefetch.
+  function running(tid, iid) { var job = jobs[tid + '/' + iid]; return job && !cancelled(job) ? job : null; }
+
   function subscribe(job, fn) { if (typeof fn === 'function') { job.subs.push(fn); if (job.text) safe(fn, job.text); } }
   function progress(job, text, status) {
     if (status) liveOf(job.tid).lessons[job.iid] = status;
@@ -387,58 +439,115 @@
     emit(job.tid, job.iid, 'lesson', status || liveOf(job.tid).lessons[job.iid] || 'writing', text);
   }
   function settle(job) {
-    function done() { stopBeat(job); if (jobs[job.key] === job) delete jobs[job.key]; }
+    function done() { stopBeat(job); release(job); if (jobs[job.key] === job) delete jobs[job.key]; }
     job.promise.then(function (doc) {
       liveOf(job.tid).lessons[job.iid] = (doc && doc.status) || 'ready';
       done();
     }, function () { liveOf(job.tid).lessons[job.iid] = 'failed'; done(); });
     return job.promise;
   }
+
+  // ---------- the lease ----------
+  var leaseDb = null; // tests swap in a db with acquire()
+  function leaseRef(job) {
+    var db = leaseDb || (U.rt && U.rt.db);
+    if (!db || typeof db.doc !== 'function') return null;
+    try {
+      var ref = db.doc(U.store.paths.lesson(job.tid, job.iid));
+      return ref && typeof ref.acquire === 'function' ? ref : null;
+    } catch (e) { return null; }
+  }
+  // Claim or renew -> {acquired, expiresAt}. Trouble with the lease itself is no reason to stop.
+  function claim(job, ttl) {
+    var ref = job.ref || leaseRef(job);
+    if (!ref) return Promise.resolve({ acquired: true, none: true });
+    return Promise.resolve().then(function () { return ref.acquire({ holder: HOLDER, ttlMs: ttl || CFG.LEASE_MS }); }).then(function (r) {
+      r = r && typeof r === 'object' ? r : { acquired: true };
+      if (r.acquired) job.ref = ref;
+      return r;
+    }, function (e) { console.warn('lesson lease', e); return { acquired: true }; });
+  }
+  // Let the lease lapse at once (the shortest lease there is), so the next writer need not wait.
+  function release(job) {
+    var ref = job.ref;
+    job.ref = null;
+    if (ref) Promise.resolve().then(function () { return ref.acquire({ holder: HOLDER, ttlMs: 1000 }); }).catch(noop);
+  }
+  // Is this lesson still ours: the lease (renewed here) and the doc's `by`?
+  function mine(job) {
+    if (job.lost) return Promise.reject(superseded(job));
+    return claim(job).then(function (r) {
+      if (!r.acquired) throw superseded(job);
+      return U.store.lesson.get(job.tid, job.iid);
+    }).then(function (doc) {
+      if (doc && doc.by && doc.by.holder && doc.by.holder !== HOLDER) throw superseded(job);
+    });
+  }
+  // Before each write: still wanted, and still ours.
+  function own(job) { return Promise.resolve().then(function () { stillWanted(job); return mine(job); }); }
   function beat(job) {
     stopBeat(job);
-    job.hb = setInterval(function () { U.store.lesson.update(job.tid, job.iid, {}).catch(noop); }, CFG.HEARTBEAT_MS);
+    job.hb = setInterval(function () {
+      own(job).then(function () { return U.store.lesson.update(job.tid, job.iid, {}); }).catch(function (e) { if (e && e.code === 'superseded') stopBeat(job); });
+    }, CFG.HEARTBEAT_MS);
   }
   function stopBeat(job) { if (job.hb) { clearInterval(job.hb); job.hb = null; } }
   function busy(doc) { return doc && (doc.status === 'writing' || doc.status === 'building'); }
-  // Left by this device with no job running for it here (an earlier load of the app, or a job
-  // that ended without saving): that work died with the page, so there is nothing to wait for.
-  function abandoned(doc) { return !!(doc.by && doc.by.device === DEVICE); }
+  // Left by this tab with no job running for it here (an earlier load of the page, or a job that
+  // ended without saving): that work died with the page, so there is nothing to wait for.
+  function abandoned(doc) { return !!(doc.by && doc.by.tab && doc.by.tab === TAB); }
+  function untilExpiry(r) { var t = Date.parse((r && r.expiresAt) || ''); return Math.min(CFG.LEASE_MS, Math.max(300, isFinite(t) ? t - Date.now() + 200 : CFG.LEASE_MS)); }
 
+  // ensureLesson(tid, iid, {onStatus, background, signal}): background marks a prefetch (its
+  // calls yield to Dan's, and aborting `signal` cancels it until a foreground caller joins).
   function ensureLesson(tid, iid, opts) {
     opts = opts || {};
-    var job = jobs[tid + '/' + iid];
-    if (job) { subscribe(job, opts.onStatus); return job.promise; }
-    job = newJob(tid, iid, opts.onStatus);
+    var job = running(tid, iid);
+    if (job) { join(job, opts); return job.promise; }
+    if (jobs[tid + '/' + iid]) return jobs[tid + '/' + iid].promise.catch(noop).then(function () { return ensureLesson(tid, iid, opts); });
+    job = newJob(tid, iid, opts);
     job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
       if (doc && doc.status === 'ready' && doc.lesson) return doc;
-      if (busy(doc) && fresh(doc.updatedAt) && !abandoned(doc)) {
-        progress(job, 'Your other device is preparing this lesson. Waiting for it…', 'waiting');
-        return watchOther(tid, iid).then(function (d) {
-          return d || U.store.lesson.get(tid, iid).then(function (now) { return takeOver(job, now); });
-        });
-      }
-      return takeOver(job, doc);
+      return takeOver(job, doc, 0);
     });
     return settle(job);
   }
-  // A lesson already written but left at 'building' only needs its interactive; anything else is rewritten.
-  function takeOver(job, doc) {
+  // Claim the lesson and finish it: a lesson already written but left at 'building' only needs
+  // its interactive; anything else is written. While another device holds it, wait for that.
+  function takeOver(job, doc, round) {
     if (doc && doc.status === 'ready' && doc.lesson) return doc;
-    if (doc && doc.status === 'building' && doc.lesson) return resume(job, doc);
-    return write(job, { avoid: doc && doc.avoid, feedback: doc && doc.feedback });
+    var tid = job.tid, iid = job.iid;
+    if (!leaseRef(job) && busy(doc) && fresh(doc.updatedAt) && !abandoned(doc) && !round) {
+      progress(job, 'Your other device is preparing this lesson. Waiting for it…', 'waiting');
+      return watchOther(tid, iid).then(function (d) {
+        return d || U.store.lesson.get(tid, iid).then(function (now) { return takeOver(job, now, 1); });
+      });
+    }
+    return claim(job).then(function (r) {
+      if (!r.acquired) {
+        if (round >= CFG.LEASE_ROUNDS) throw { code: 'busy', message: 'Another device is preparing this lesson. Try again in a minute.' };
+        progress(job, 'Your other device is preparing this lesson. Waiting for it…', 'waiting');
+        return watchOther(tid, iid, untilExpiry(r)).then(function (d) {
+          return d || U.store.lesson.get(tid, iid).then(function (now) { return takeOver(job, now, round + 1); });
+        });
+      }
+      if (doc && doc.status === 'building' && doc.lesson) return resume(job, doc);
+      return write(job, { avoid: doc && doc.avoid, feedback: doc && doc.feedback, prev: doc });
+    });
   }
 
-  // Watch a lesson another device is writing. Resolves the ready doc, or null to take over
-  // (it failed, vanished or went silent for STALE_MS).
-  function watchOther(tid, iid) {
+  // Watch a lesson another device is writing. Resolves the ready doc, or null to try again: with a
+  // lease, when it runs out (untilMs); without, when the doc fails, vanishes or goes silent.
+  function watchOther(tid, iid, untilMs) {
     return new Promise(function (resolve) {
       var stop = null, done = false, timer = null;
       function finish(v) { if (done) return; done = true; clearTimeout(timer); if (stop) stop(); resolve(v); }
+      if (untilMs != null) timer = setTimeout(function () { finish(null); }, untilMs);
       stop = U.store.lesson.watch(tid, iid, function (doc) {
         if (done) return;
-        if (!doc || doc.status === 'failed') return finish(null);
-        if (doc.status === 'ready' && doc.lesson) return finish(U.clone(doc));
-        if (!fresh(doc.updatedAt)) return finish(null);
+        if (doc && doc.status === 'ready' && doc.lesson) return finish(U.clone(doc));
+        if (untilMs != null) return;
+        if (!doc || doc.status === 'failed' || !fresh(doc.updatedAt)) return finish(null);
         clearTimeout(timer);
         timer = setTimeout(function () { finish(null); }, Math.max(500, CFG.STALE_MS - age(doc.updatedAt) + 500));
       });
@@ -448,14 +557,24 @@
 
   function relearn(tid, iid, opts) {
     opts = opts || {};
-    var job = jobs[tid + '/' + iid];
-    if (job) { subscribe(job, opts.onStatus); return job.promise; }
-    job = newJob(tid, iid, opts.onStatus);
+    var job = running(tid, iid);
+    if (job) { join(job, opts); return job.promise; }
+    job = newJob(tid, iid, {});
+    subscribe(job, opts.onStatus);
+    var feedback = isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null;
     job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
       var avoid = [], brief = doc && ((doc.interactive && doc.interactive.brief) || (doc.lesson && doc.lesson.interactive && doc.lesson.interactive.brief));
       if (isStr(brief)) avoid.push(brief);
       [].concat((doc && doc.avoid) || []).forEach(function (a) { if (isStr(a) && avoid.indexOf(a) < 0) avoid.push(a); });
-      return write(job, { avoid: avoid.slice(0, 3), feedback: isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null });
+      // A ready lesson does not count as done here: wait out another holder, then write.
+      return (function attempt(round) {
+        return claim(job).then(function (r) {
+          if (r.acquired) return write(job, { avoid: avoid.slice(0, 3), feedback: feedback, prev: doc });
+          if (round >= CFG.LEASE_ROUNDS) throw { code: 'busy', message: 'Another device is preparing this lesson. Try again in a minute.' };
+          progress(job, 'Your other device is working on this lesson. Waiting for it…', 'waiting');
+          return U.sleep(untilExpiry(r)).then(function () { return attempt(round + 1); });
+        });
+      })(0);
     });
     return settle(job);
   }
@@ -487,13 +606,46 @@
     }
     return patch;
   }
+  function who() { return { device: DEVICE, tab: TAB, page: PAGE, holder: HOLDER }; }
+
+  // The doc back as it was before this job touched it: gone if the job created it, or if it was
+  // someone's unfinished work (restoring that would only make it look alive again).
+  function restore(tid, iid, prev) {
+    if (prev && !busy(prev)) { var d = U.clone(prev); delete d.__id; return U.store.lesson.set(tid, iid, d); }
+    if (U.store.lesson.remove) return U.store.lesson.remove(tid, iid);
+    var db = U.rt.db || U.memdb;
+    return db.doc(U.store.paths.lesson(tid, iid)).delete();
+  }
+  // How a job that stopped part-way leaves the shared doc. stage: 'none' (untouched), 'writing'
+  // (claimed, no lesson text yet) or 'building' (lesson saved, interactive unfinished).
+  function stopped(job, e, stage, prev, doing) {
+    stopBeat(job);
+    var f = failure(e, doing), tid = job.tid, iid = job.iid;
+    if (e && e.code === 'superseded') {
+      progress(job, 'Your other device took over this lesson. Waiting for it…', 'waiting');
+      return watchOther(tid, iid).then(function (d) { return d || U.store.lesson.get(tid, iid); });
+    }
+    progress(job, f.message, 'failed');
+    if (stage === 'none') throw f;
+    if (transient(e)) {
+      // Nothing is wrong with the lesson: a 'building' doc stays resumable; a claimed one goes back.
+      return (stage === 'writing' ? mine(job).then(function () { return restore(tid, iid, prev); }) : Promise.resolve())
+        .catch(noop).then(function () { release(job); throw f; });
+    }
+    return mine(job).then(function () {
+      return U.store.lesson.update(tid, iid, { status: 'failed', error: f.message, errorCode: f.code, errorDetail: f.detail || null });
+    }).catch(noop).then(function () { throw f; });
+  }
 
   function write(job, o) {
     o = o || {};
-    var tid = job.tid, iid = job.iid, topic, idea, lr = null, wrote = false;
+    var tid = job.tid, iid = job.iid, topic, idea, lr = null, stage = 'none';
     var avoid = [].concat(o.avoid || []).filter(isStr), feedback = isStr(o.feedback) ? o.feedback : null;
     progress(job, 'Reading the plan for this idea…', 'writing');
     return (plans[tid] ? plans[tid].catch(noop) : Promise.resolve()).then(function () {
+      stillWanted(job);
+      // A page that cannot reach Claude leaves the shared doc alone.
+      if (!U.rt || !U.rt.sample) throw { code: 'not_granted', message: 'Claude is not available in this view.' };
       return U.store.topic.get(tid);
     }).then(function (t) {
       if (!t || !Array.isArray(t.ideas)) throw { code: 'not_found', message: 'This topic could not be found. It may have been deleted.' };
@@ -502,89 +654,91 @@
       topic = t;
       return U.store.lesson.set(tid, iid, {
         status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
-        by: { device: DEVICE, page: PAGE }, avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
+        by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
       });
     }).then(function (r) {
       goneIfNull(r);
-      wrote = true;
+      stage = 'writing';
       beat(job);
-      return researchFor(topic, iid, job);
+      return researchFor(tid, topic, iid, job);
     }).then(function (rsrch) {
+      stillWanted(job);
       lr = U.prompts.lessonResearch(rsrch, iid);
       var allowed = lr && lr.sources.length ? lr.sources : null;
       return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');
-        return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), {
+        return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
           tier: 'default', json: true, label: 'write-lesson',
           schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
-        });
+        }));
       });
     }).then(function (raw) {
       var lesson = finaliseLesson(raw, iid, lr);
       var sourced = lesson.sources.length > 0;
-      if (!lesson.interactive) {
-        return U.store.lesson.update(tid, iid, { status: 'ready', lesson: lesson, sourced: sourced, interactive: null, note: null, error: null });
-      }
-      progress(job, 'Building your interactive…', 'building');
-      return U.store.lesson.update(tid, iid, { status: 'building', lesson: lesson, sourced: sourced }).then(function (r) {
-        goneIfNull(r);
-        return buildInteractive(topic, idea, lesson, avoid, job);
-      }).then(function (built) {
-        progress(job, built ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'building');
-        return U.store.lesson.update(tid, iid, builtPatch(lesson, built));
+      return own(job).then(function () {
+        if (!lesson.interactive) return U.store.lesson.update(tid, iid, { status: 'ready', lesson: lesson, sourced: sourced, interactive: null, note: null, error: null });
+        progress(job, 'Building your interactive…', 'building');
+        return U.store.lesson.update(tid, iid, { status: 'building', lesson: lesson, sourced: sourced }).then(function (r) {
+          goneIfNull(r);
+          stage = 'building';
+          return buildInteractive(topic, idea, lesson, avoid, job);
+        }).then(function (built) {
+          progress(job, built ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'building');
+          return own(job).then(function () { return U.store.lesson.update(tid, iid, builtPatch(lesson, built)); });
+        });
       });
     }).then(function (r) {
       goneIfNull(r);
       stopBeat(job);
       progress(job, 'Ready.', 'ready');
       return U.store.lesson.get(tid, iid);
-    }).catch(function (e) {
-      stopBeat(job);
-      var f = failure(e, 'write lessons');
-      progress(job, f.message, 'failed');
-      if (!wrote) throw f;
-      return U.store.lesson.update(tid, iid, { status: 'failed', error: f.message, errorCode: f.code, errorDetail: f.detail || null })
-        .catch(noop).then(function () { throw f; });
-    });
+    }).catch(function (e) { return stopped(job, e, stage, o.prev, 'write lessons'); });
   }
 
   // Finish a lesson whose text was saved but whose interactive build never completed.
   function resume(job, doc) {
-    var tid = job.tid, iid = job.iid, wrote = false;
+    var tid = job.tid, iid = job.iid, stage = 'none';
     var avoid = [].concat(doc.avoid || []).filter(isStr);
     progress(job, 'Finishing the interactive for this lesson…', 'building');
     return U.store.topic.get(tid).then(function (t) {
       var idea = t && (t.ideas || []).filter(function (i) { return i.id === iid; })[0];
-      if (!idea) return write(job, { avoid: avoid });
-      return U.store.lesson.update(tid, iid, { status: 'building', by: { device: DEVICE, page: PAGE }, error: null }).then(function (r) {
+      if (!idea) return write(job, { avoid: avoid, prev: doc });
+      return Promise.resolve().then(function () {
+        stillWanted(job);
+        if (!U.rt || !U.rt.sample) throw { code: 'not_granted', message: 'Claude is not available in this view.' };
+        return U.store.lesson.update(tid, iid, { status: 'building', by: who(), error: null });
+      }).then(function (r) {
         goneIfNull(r);
-        wrote = true;
+        stage = 'building';
         beat(job);
         return buildInteractive(t, idea, doc.lesson, avoid, job);
       }).then(function (built) {
-        return U.store.lesson.update(tid, iid, builtPatch(doc.lesson, built));
+        return own(job).then(function () { return U.store.lesson.update(tid, iid, builtPatch(doc.lesson, built)); });
       }).then(function (r) {
         goneIfNull(r);
         stopBeat(job);
         progress(job, 'Ready.', 'ready');
         return U.store.lesson.get(tid, iid);
-      }, function (e) {
-        stopBeat(job);
-        var f = failure(e, 'build interactives');
-        progress(job, f.message, 'failed');
-        if (!wrote) throw f;
-        return U.store.lesson.update(tid, iid, { status: 'failed', error: f.message, errorCode: f.code, errorDetail: f.detail || null })
-          .catch(noop).then(function () { throw f; });
-      });
+      }).catch(function (e) { return stopped(job, e, stage, doc, 'build interactives'); });
     });
   }
 
+  // The kit body for a written lesson, or null when it could not be built and tested. Errors that
+  // say nothing about the lesson (no permission, rate limits, cancelled) are passed on instead.
   function buildInteractive(topic, idea, lesson, avoid, job) {
     var I = U.interactive;
     if (!I || typeof I.build !== 'function') return Promise.resolve(null);
     return Promise.resolve().then(function () {
-      return I.build(topic, idea, lesson, { onStatus: function (t) { if (isStr(t)) progress(job, t, 'building'); }, avoid: avoid[0] || null });
-    }).then(function (r) { return r && isStr(r.html) ? r : null; }, function (e) { console.warn('interactive build failed', e); return null; });
+      stillWanted(job);
+      return I.build(topic, idea, lesson, {
+        onStatus: function (t) { if (isStr(t)) progress(job, t, 'building'); }, avoid: avoid[0] || null,
+        signal: job.ctrl ? job.ctrl.signal : undefined, priority: job.background ? 'background' : undefined,
+      });
+    }).then(function (r) { return r && isStr(r.html) ? r : null; }, function (e) {
+      if (transient(e) || cancelled(job)) throw e;
+      console.warn('interactive build failed', e);
+      return null;
+    });
   }
 
   // Map the model's sources onto the checked research sources, drop anything else, renumber
@@ -750,7 +904,8 @@
     knownIdeas: knownIdeas,
     // exposed for tests and tools
     _cfg: CFG,
-    _who: function () { return { device: DEVICE, page: PAGE }; },
+    _who: who,
+    _leaseDb: function (db) { leaseDb = db || null; },
     _filterResearch: filterResearch,
     _finaliseLesson: finaliseLesson,
     _builtPatch: builtPatch,

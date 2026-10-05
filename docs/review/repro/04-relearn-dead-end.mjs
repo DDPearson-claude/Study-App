@@ -15,12 +15,13 @@ await page.waitForSelector('.td-relearn-link');
 await sleep(500);
 const flag = await page.evaluate((p) => window.__CLAUDE_STUB__.get(p).ideas.i1.relearn, P('profile/progress/tA'));
 await page.click('.td-relearn-link');
-await page.waitForSelector('.lsn-done', { timeout: 5000 });
+await page.waitForSelector('.lsn-done, .lsn-prep', { timeout: 5000 });
 await sleep(1500);
-const shown = (await page.textContent('.lsn-done h2')).trim();
+const shown = (await page.$('.lsn-done h2')) ? (await page.textContent('.lsn-done h2')).trim() : (await page.textContent('.lsn-prep')).replace(/\s+/g, ' ').trim().slice(0, 120);
 const lessonDoc = await page.evaluate(() => window.__CLAUDE_STUB__.get('topics/tA/lessons/i1'));
-report('"Learn it again" opens the old finished lesson; nothing is rebuilt', flag === true && /learned this idea/i.test(shown) && !(await page.evaluate(() => Object.keys(window.__CLAUDE_STUB__.dump()))).some((k) => k === 'x') && lessonDoc.status === 'ready' && lessonDoc.updatedAt === db['topics/tA/lessons/i1'].updatedAt,
-  'relearn flag=' + flag + '; lesson screen heading: "' + shown + '"; sample calls: ' + calls.length + '; lesson status: ' + lessonDoc.status);
+const prog = await page.evaluate((p) => window.__CLAUDE_STUB__.get(p).ideas.i1, P('profile/progress/tA'));
+report('"Learn it again" opens the old finished lesson; nothing is rebuilt', flag === true && /learned this idea/i.test(shown) && lessonDoc.status === 'ready' && lessonDoc.updatedAt === db['topics/tA/lessons/i1'].updatedAt,
+  'relearn flag=' + flag + '; lesson screen shows: "' + shown + '"; sample calls: ' + JSON.stringify(calls) + '; lesson status: ' + lessonDoc.status + '; progress.ideas.i1 now: ' + JSON.stringify({ round: prog.round, stage: prog.stage, relearn: prog.relearn, checks: prog.checks }));
 await page.goto(app.url('#/today'));
 await page.waitForSelector('.td-title');
 console.log('   Today still says: ' + ((await page.$('.td-relearn')) ? (await page.textContent('.td-relearn')).replace(/\s+/g, ' ').slice(0, 90) : 'no relearn block'));

@@ -10,13 +10,14 @@ import { open, report, sleep, P, TODAY, addDays, NOW, isoDaysAgo, topic, lesson 
   await page.waitForSelector('.lsn-say-input');
   await page.evaluate(() => { U.gen.grade = () => Promise.resolve({ met: [true, true], verdict: 'got-it', nailed: 'Yes.', followUp: '' }); });
   // Phone: Dan explains it there first.
+  // (the phone writes an old-style array here, the hardest case: it must be kept and converted)
   await page.evaluate((p) => { const d = window.__CLAUDE_STUB__.get(p); d.ideas.i1.say = [{ text: 'PHONE: a squeeze handed from molecule to molecule', at: new Date().toISOString(), verdict: 'got-it', met: [true, true] }]; d.ideas.i1.stage = 'checks'; window.__CLAUDE_STUB__.seed(p, d); }, P('profile/progress/tA'));
   // Desktop (still showing Say it back) — Dan types here too.
   await page.fill('.lsn-say-input', 'DESKTOP: pressure wave passed along');
   await page.click('.lsn-compose .lsn-main');
   await page.waitForSelector('.lsn-grade');
   await sleep(500);
-  const say = await page.evaluate((p) => window.__CLAUDE_STUB__.get(p).ideas.i1.say.map((s) => s.text), P('profile/progress/tA'));
+  const say = await page.evaluate((p) => { const v = window.__CLAUDE_STUB__.get(p).ideas.i1.say; return (Array.isArray(v) ? v : Object.values(v || {})).filter(Boolean).map((s) => s.text); }, P('profile/progress/tA'));
   report('(a) say[] from the other device is erased', !say.some((t) => t.startsWith('PHONE')), 'progress.ideas.i1.say = ' + JSON.stringify(say));
   await app.close();
 }

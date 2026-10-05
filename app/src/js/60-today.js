@@ -16,7 +16,13 @@
 // Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen).
 // Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
 // Card fields beyond the contract: learnedAt (last time the lesson was completed; lapses before it
-// no longer count towards "Learn it again") and retired (a target card whose interactive is gone).
+// no longer count towards "Learn it again") and retired (a card that cannot be used: its interactive
+// is gone, or it was skipped as unusable in review).
+//
+// Writes never replace the whole cards doc: finishing a lesson patches only the cards it changes,
+// and saving a review re-reads that one card inside the write and merges its history, so a review
+// saved on another device in the meantime is kept. Cards with no type or question, and cards whose
+// topic no longer exists, never reach a session (their leftover docs are tidied away).
 (function () {
   var h = U.h;
   var DEFAULT_CAP = 15, LIGHT_CAP = 5, MORE = 5;
@@ -31,7 +37,8 @@
       var cards = (all[tid] && all[tid].cards) || {};
       Object.keys(cards).forEach(function (id) {
         var c = cards[id];
-        if (!c || typeof c !== 'object') return;
+        // A partial card (no type or question) is a leftover, never something to show.
+        if (!c || typeof c !== 'object' || !c.type || !c.spec || typeof c.spec !== 'object') return;
         c.id = c.id || id;
         c.tid = c.tid || tid;
         list.push(c);
@@ -39,12 +46,28 @@
     });
     return list;
   }
-  function loadCards() { return U.store.cards.all().then(flatten); }
+  // Every usable card; the cards of topics deleted (here or on another device) are dropped and
+  // their leftover docs removed.
+  function loadCards() {
+    return U.store.cards.all().then(function (all) {
+      var tids = Object.keys(all);
+      if (!tids.length) return [];
+      return U.store.topicsExist(tids).then(function (ok) {
+        var keep = {};
+        tids.forEach(function (tid) {
+          if (ok[tid] !== false) keep[tid] = all[tid];
+          else U.store.cards.dropOrphan(tid).catch(function (e) { console.warn('tidy', e); });
+        });
+        return flatten(keep);
+      }, function () { return flatten(all); });
+    });
+  }
   function dayOf(iso) { return iso ? U.today(new Date(iso)) : null; }
   function isDue(c, day) { return !c.retired && !!(c.s && c.s.due) && c.s.due <= day; }
+  function hist(c) { return Array.isArray(c.hist) ? c.hist : U.list(c.hist); }
   function reviewedOn(cards, day) {
     var n = 0;
-    cards.forEach(function (c) { (c.hist || []).forEach(function (e) { if (dayOf(e.at) === day) n++; }); });
+    cards.forEach(function (c) { hist(c).forEach(function (e) { if (dayOf(e.at) === day) n++; }); });
     return n;
   }
   function capOf(prefs, opts) {
@@ -88,6 +111,16 @@
     return out;
   }
 
+  // One plan({}) shared for about 2 s: the badge, Learn and Today ask at the same moment at boot.
+  var shared = null;
+  function planShared() {
+    if (shared && Date.now() - shared.at < 2000) return shared.p;
+    var p = plan({});
+    var mine = shared = { p: p, at: Date.now() };
+    p.catch(function () { if (shared === mine) shared = null; });
+    return p;
+  }
+  function changed() { shared = null; }
   // Everything Today and a session need, from one read of the cards and the profile.
   function plan(opts, data) {
     opts = opts || {};
@@ -105,42 +138,68 @@
     var since = U.addDays(day, -LAPSE_DAYS), groups = {};
     cards.forEach(function (c) {
       if (c.retired) return;
-      (c.hist || []).forEach(function (e) {
+      hist(c).forEach(function (e) {
         if (e.grade !== 1 || !e.at || dayOf(e.at) <= since) return;
         if (c.learnedAt && e.at < c.learnedAt) return;
         var k = ideaKey(c);
-        groups[k] = groups[k] || { tid: c.tid, iid: c.iid, lapses: 0 };
+        groups[k] = groups[k] || { tid: c.tid, iid: c.iid, lapses: 0, last: '' };
         groups[k].lapses++;
+        if (e.at > groups[k].last) groups[k].last = e.at;
       });
     });
     return Object.keys(groups).map(function (k) { return groups[k]; }).filter(function (g) { return g.lapses >= LAPSE_LIMIT; });
   }
-  // Tell the lesson view to rebuild these ideas with a different interactive.
-  function flagRelearn(list) {
-    list.forEach(function (g) {
-      U.store.progress.get(g.tid).then(function (p) {
-        var idea = p && p.ideas && p.ideas[g.iid];
+  // The slipping ideas still worth offering: one Dan is already re-learning (a fresh round began
+  // after those lapses) is left out. The rest are flagged on progress (relearn: true) so the lesson
+  // screen rebuilds them with a different interactive.
+  function slippingNow(cards, day) {
+    var list = slippingIn(cards, day);
+    if (!list.length) return Promise.resolve([]);
+    var tids = uniq(list.map(function (g) { return g.tid; })), prog = {};
+    return Promise.all(tids.map(function (tid) {
+      return U.store.progress.get(tid).then(function (p) { prog[tid] = p; }, function () { prog[tid] = null; });
+    })).then(function () {
+      var out = list.filter(function (g) {
+        var idea = prog[g.tid] && prog[g.tid].ideas && prog[g.tid].ideas[g.iid];
+        return !(idea && idea.againAt && idea.againAt >= g.last);
+      });
+      out.forEach(function (g) {
+        var idea = prog[g.tid] && prog[g.tid].ideas && prog[g.tid].ideas[g.iid];
         if (idea && idea.relearn) return;
         var patch = { ideas: {} };
         patch.ideas[g.iid] = { relearn: true };
-        return U.store.progress.patch(g.tid, patch);
-      }).catch(function (e) { console.error('relearn flag failed', e); });
+        U.store.progress.patch(g.tid, patch).catch(function (e) { console.error('relearn flag failed', e); });
+      });
+      return out;
     });
   }
 
-  // Record one answer: new FSRS state + history entry, saved straight away.
+  // Record one answer: the card is re-read inside the write, so a review saved on another device
+  // since this session loaded is kept (its history entry and its effect on the schedule).
+  function mergeHist(a, b) {
+    var seen = {}, out = [];
+    a.concat(b).forEach(function (e) {
+      if (!e || typeof e !== 'object') return;
+      var k = e.at + '|' + e.grade;
+      if (seen[k]) return;
+      seen[k] = true;
+      out.push(e);
+    });
+    out.sort(function (x, y) { return String(x.at) < String(y.at) ? -1 : String(x.at) > String(y.at) ? 1 : 0; });
+    return out.slice(-HIST_MAX);
+  }
   function save(card, grade, ok) {
-    var day = U.today();
-    card.s = U.fsrs.review(card.s || U.fsrs.init(day), grade, day, card.id);
-    card.hist = (card.hist || []).concat([{ at: U.now(), grade: grade, ok: !!ok }]).slice(-HIST_MAX);
-    var patch = { cards: {} };
-    patch.cards[card.id] = { s: card.s, hist: card.hist };
-    return U.store.cards.patch(card.tid, patch).then(function () { U.review.refreshBadge(); });
+    var day = U.today(), entry = { at: U.now(), grade: grade, ok: !!ok };
+    changed();
+    return U.store.cards.update(card.tid, card.id, function (fresh) {
+      var before = hist(fresh);
+      if (before.some(function (e) { return e && e.at === entry.at; })) return null;   // already saved (a resend)
+      return { s: U.fsrs.review(fresh.s || U.fsrs.init(day), grade, day, card.id), hist: mergeHist(before, [entry]) };
+    }).then(function (fields) { if (fields) { card.s = fields.s; card.hist = fields.hist; } return fields; });
   }
   function retire(card) {
-    var patch = { cards: {} };
-    patch.cards[card.id] = { retired: true };
-    return U.store.cards.patch(card.tid, patch).catch(function () {});
+    changed();
+    return U.store.cards.update(card.tid, card.id, function () { return { retired: true }; }).catch(function () {});
   }
 
   function sameQuestion(a, b, type) {
@@ -166,24 +225,28 @@
         spec: { prompt: sp.prompt, rubric: sp.rubric || [], model: sp.model || '', mine: String(say.text) },
       };
     }
+    // Only this idea's cards change: unchanged questions keep their schedule (Dan's latest words
+    // refreshed), changed ones start afresh, ones the lesson no longer has are removed. A re-learned
+    // lesson reuses check ids (c1, c2...), so a card is kept only when its question is the same.
     return U.store.cards.get(tid).then(function (doc) {
-      var cards = Object.assign({}, (doc && doc.cards) || {});
-      Object.keys(cards).forEach(function (id) { if (cards[id] && cards[id].iid === iid && !made[id]) delete cards[id]; });
+      var cards = (doc && doc.cards) || {}, patch = { cards: {} };
+      Object.keys(cards).forEach(function (id) { var c = cards[id]; if (c && c.iid === iid && !made[id]) patch.cards[id] = null; });
       Object.keys(made).forEach(function (id) {
         var m = made[id], old = cards[id];
-        if (old && old.type === m.type && sameQuestion(old.spec, m.spec, m.type)) {
-          old.spec = m.spec;            // keeps the schedule; refreshes Dan's latest words
-          old.learnedAt = now;
-          delete old.retired;
+        if (old && old.s && old.type === m.type && sameQuestion(old.spec, m.spec, m.type)) {
+          var keep = { spec: U.store.replacing(old.spec, m.spec), learnedAt: now };
+          if (old.retired != null) keep.retired = null;
+          patch.cards[id] = keep;
         } else {
           m.createdAt = now;
           m.learnedAt = now;
           m.s = U.fsrs.init(day);
           m.hist = [];
-          cards[id] = m;
+          patch.cards[id] = old && typeof old === 'object' ? U.store.replacing(old, m) : m;
         }
       });
-      return U.store.setDoc(U.store.paths.cards(tid), { cards: cards });
+      changed();
+      return Object.keys(patch.cards).length ? U.store.cards.patch(tid, patch) : null;
     }).then(function () {
       U.review.refreshBadge();
       return Object.keys(made);
@@ -211,22 +274,25 @@
     });
   }
 
+  function setBadge(n) {
+    var b = document.getElementById('today-badge');
+    if (!b) return n;
+    b.textContent = n > 99 ? '99+' : String(n);
+    b.hidden = !n;
+    b.setAttribute('aria-label', n + (n === 1 ? ' card' : ' cards') + ' to review');
+    return n;
+  }
   U.review = {
     addFromLesson: addFromLesson,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
-    dueCount: function () { return plan({}).then(function (p) { return p.size; }); },
+    dueCount: function () { return planShared().then(function (p) { return p.size; }); },
     refreshBadge: function () {
-      return U.review.dueCount().then(function (n) {
-        var b = document.getElementById('today-badge');
-        if (!b) return n;
-        b.textContent = n > 99 ? '99+' : String(n);
-        b.hidden = !n;
-        b.setAttribute('aria-label', n + (n === 1 ? ' card' : ' cards') + ' to review');
-        return n;
-      }, function (e) { console.error('badge', e); return 0; });
+      changed();
+      return U.review.dueCount().then(setBadge, function (e) { console.error('badge', e); return 0; });
     },
+    setBadge: setBadge,
     ideaBands: ideaBands,
-    slipping: function () { return loadCards().then(function (cards) { return slippingIn(cards, U.today()); }); },
+    slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.today()); }); },
     _interleave: interleave,
     _plan: plan,
   };
@@ -250,11 +316,16 @@
     if (n < 7) return 'on ' + d.toLocaleDateString(undefined, { weekday: 'long' });
     return 'on ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
   }
+  // Titles for these topics, from one read of the topics list.
   function topicsFor(tids) {
     var out = {};
-    return Promise.all(tids.map(function (tid) {
-      return U.store.topic.get(tid).then(function (t) { out[tid] = t; }, function () { out[tid] = null; });
-    })).then(function () { return out; });
+    if (!tids.length) return Promise.resolve(out);
+    return U.store.topics.list().then(function (list) {
+      var by = {};
+      list.forEach(function (t) { by[t.__id || t.id] = t; });
+      tids.forEach(function (tid) { out[tid] = by[tid] || null; });
+      return out;
+    }, function () { tids.forEach(function (tid) { out[tid] = null; }); return out; });
   }
   function ideaTitle(topics, tid, iid) {
     var t = topics[tid], ideas = (t && t.ideas) || [];
@@ -270,7 +341,7 @@
       h('p', { class: 'eyebrow' }, 'Worth another look'),
       h('p', { class: 'td-relearn-lead' }, list.length === 1 ? 'This idea has slipped a couple of times lately. A fresh lesson with a new interactive often makes it click.' : 'These ideas have slipped a couple of times lately. A fresh lesson with a new interactive often makes them click.'),
       h('ul', { class: 'td-relearn-list' }, list.map(function (g) {
-        return h('li', null, h('a', { class: 'td-relearn-link', href: '#/t/' + encodeURIComponent(g.tid) + '/' + encodeURIComponent(g.iid) },
+        return h('li', null, h('a', { class: 'td-relearn-link', href: '#/t/' + encodeURIComponent(g.tid) + '/' + encodeURIComponent(g.iid) + '/again' },
           h('span', { class: 'td-relearn-text' }, h('strong', null, ideaTitle(topics, g.tid, g.iid)), h('span', { class: 'muted small' }, topicTitle(topics, g.tid))),
           h('span', { class: 'td-relearn-go' }, 'Learn it again', U.icon('arrow'))));
       })));
@@ -279,9 +350,11 @@
   // Monday-to-Sunday dots for days with any study (logged minutes or reviews). Facts only: no
   // streaks, no missed-day marks.
   function weekStrip(days, today, cards) {
-    days = Object.assign({}, days || {});
+    var mins = {};
+    Object.keys(days || {}).forEach(function (d) { mins[d] = U.store.minutesOn(days[d]); });
+    days = mins;
     (cards || []).forEach(function (c) {
-      (c.hist || []).forEach(function (e) { var d = dayOf(e.at); if (d && !(days[d] > 0)) days[d] = 0.5; });
+      hist(c).forEach(function (e) { var d = dayOf(e.at); if (d && !(days[d] > 0)) days[d] = 0.5; });
     });
     var p = today.split('-').map(Number), dow = (new Date(p[0], p[1] - 1, p[2]).getDay() + 6) % 7;
     var start = U.addDays(today, -dow), studied = 0;
@@ -309,14 +382,12 @@
     ctx.view.appendChild(root);
     root.appendChild(h('div', { class: 'td-loading' }, h('div', { class: 'skeleton', style: { height: '28px', width: '60%' } }), h('div', { class: 'skeleton', style: { height: '180px' } })));
 
-    plan({}).then(function (p) {
+    planShared().then(function (p) {
       var tids = uniq(p.data.cards.map(function (c) { return c.tid; }));
-      return topicsFor(tids).then(function (topics) { return { p: p, topics: topics }; });
+      return Promise.all([topicsFor(tids), slippingNow(p.data.cards, p.day)]).then(function (r) { return { p: p, topics: r[0], slipping: r[1] }; });
     }).then(function (r) {
       if (!ctx.alive()) return;
-      var p = r.p, topics = r.topics, slipping = slippingIn(p.data.cards, p.day);
-      if (slipping.length) flagRelearn(slipping);
-      draw(p, topics, slipping);
+      draw(r.p, r.topics, r.slipping);
     }).catch(function (e) {
       if (!ctx.alive()) return;
       console.error(e);
@@ -349,6 +420,7 @@
         p.data.profile.prefs = Object.assign({}, p.data.profile.prefs, { lightDay: day });
         if (U.settings && U.settings.prefs) U.settings.prefs.lightDay = day;
         U.store.profile.patch({ prefs: { lightDay: day } }).catch(function () {});
+        changed();
         plan({ light: on }, p.data).then(update);
         setTimeout(function () { U.review.refreshBadge(); }, 400);
       });
@@ -465,7 +537,10 @@
       }
       function answered(card, r) {
         S.ms += r.ms || 0;
-        if (!r.skipped) {
+        // Skipped as unusable (an interactive that gives no reading, a card that cannot be shown):
+        // retire it, so it does not head every session from now on.
+        if (r.skipped) retire(card);
+        else {
           var rec = { card: card, grade: r.grade, correct: r.correct };
           S.results.push(rec);
           var job = r.pending
@@ -474,6 +549,8 @@
           S.saves.push(job.catch(function (e) { console.error('save failed', e); }));
         }
         S.i++;
+        // The badge follows the session itself (no re-read of every card after each answer).
+        if (!extra) setBadge(Math.max(0, S.queue.length - S.i));
         showCard();
       }
       // 99-boot.js already counts active minutes app-wide; log here only when it is not running.
@@ -503,8 +580,9 @@
         U.clear(stage).appendChild(waiting);
         var all = Promise.all(S.saves);
         var limit = new Promise(function (r) { setTimeout(r, 32000); });
-        Promise.race([all, limit]).then(function () { return loadCards(); }).then(function (cards) {
-          var slipping = slippingIn(cards, U.today());
+        Promise.race([all, limit]).then(function () { changed(); return loadCards(); }).then(function (cards) {
+          return slippingNow(cards, U.today());
+        }).then(function (slipping) {
           var missing = uniq(slipping.map(function (g) { return g.tid; })).filter(function (tid) { return !(tid in S.topics); });
           return topicsFor(missing).then(function (more) { Object.assign(S.topics, more); return slipping; });
         }).then(function (slipping) {
@@ -512,7 +590,6 @@
         }, function (e) { console.error(e); if (ctx.alive()) drawSummary([]); });
       }
       function drawSummary(slipping) {
-        if (slipping.length) flagRelearn(slipping);
         var n = S.results.length;
         var again = S.results.filter(function (r) { return r.grade === 1; });
         var kept = n - again.length;
@@ -523,7 +600,7 @@
         });
         U.clear(stage).appendChild(h('section', { class: 'rv-done' },
           h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
-          h('h1', null, 'Review done'),
+          h('h1', { tabindex: '-1' }, 'Review done'),
           h('p', { class: 'td-lead' }, n ? 'You went through ' + plural(n, 'card') + ' in about ' + plural(mins, 'minute') + '.' : 'Nothing was reviewed this time.'),
           n ? h('dl', { class: 'rv-stats' },
             h('div', null, h('dt', null, 'Remembered'), h('dd', null, String(kept))),
@@ -533,7 +610,9 @@
           h('div', { class: 'td-actions' },
             h('a', { class: 'btn wide', href: '#/today' }, 'Done'),
             h('a', { class: 'btn wide secondary', href: '#/' }, 'Learn something new'))));
-        if (n) U.cheer('Review done');
+        // No pop-up cheer here: the page's own tick already says it, and the cheer covered the heading.
+        var h1 = stage.querySelector('.rv-done h1');
+        if (h1) try { h1.focus({ preventScroll: true }); } catch (e) { /* fine */ }
         U.review.refreshBadge();
       }
 
@@ -545,9 +624,9 @@
     };
   }
 
-  U.routes.add('#/today', todayView, { tab: 'today' });
-  U.routes.add('#/review', reviewView(false), { focus: true });
-  U.routes.add('#/review/more', reviewView(true), { focus: true });
+  U.routes.add('#/today', todayView, { tab: 'today', title: 'Today' });
+  U.routes.add('#/review', reviewView(false), { focus: true, title: 'Review' });
+  U.routes.add('#/review/more', reviewView(true), { focus: true, title: 'Review' });
 
   // A new day can make cards due while the app sits open: refresh the badge when Dan comes back.
   if (typeof document !== 'undefined' && document.addEventListener && U.rt && U.rt.ready) {

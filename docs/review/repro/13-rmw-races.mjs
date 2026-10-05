@@ -21,10 +21,14 @@ const r = await page.evaluate(async ([cardsPath, profPath, today]) => {
   const card = S.get(cardsPath).cards.i2_c1;
   // Both devices log 2 study minutes at about the same time.
   const b = U.logStudy(2);
-  setTimeout(() => { const d = S.get(profPath); d.days[today] += 2; S.seed(profPath, d); }, 100);
+  // The other device adds its 2 minutes the way this version does (its own count; an older
+  // single number for the day is kept as legacy). Before the fix that was "+= 2" on the number.
+  setTimeout(() => { const d = S.get(profPath); const v = d.days[today]; d.days[today] = typeof v === 'number' ? { legacy: v, phone: 2 } : Object.assign({}, v, { phone: 2 }); S.seed(profPath, d); }, 100);
   await b; await new Promise((ok) => setTimeout(ok, 300));
-  return { card: { due: card.s.due, hist: card.hist.length }, minutes: S.get(profPath).days[today] };
+  const v = S.get(profPath).days[today];
+  const sum = typeof v === 'number' ? v : Object.values(v || {}).reduce((s, n) => s + (Number(n) || 0), 0);
+  return { card: { due: card.s.due, hist: card.hist.length }, minutes: sum, raw: v };
 }, [P('profile/cards/tA'), P('profile'), TODAY]);
 report('addFromLesson full-document set drops a concurrent review', r.card.due === TODAY && r.card.hist === 0, 'card i2_c1 after both writes: ' + JSON.stringify(r.card) + ' (phone had saved due 2026-11-01 with 1 hist entry)');
-report('logStudy loses a concurrent increment', r.minutes === 12, 'minutes today: ' + r.minutes + ' (expected 14)');
+report('logStudy loses a concurrent increment', r.minutes !== 14, 'minutes today: ' + r.minutes + ' (expected 14); stored as ' + JSON.stringify(r.raw));
 await app.close();

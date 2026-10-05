@@ -13,11 +13,12 @@ await page.evaluate(([a, b]) => { const S = window.__CLAUDE_STUB__; ['topics/tA'
 await page.click('.qc-opt >> nth=0'); await page.click('.qc-primary'); await page.click('.qc-continue');
 await page.waitForSelector('.lsn-done');
 await sleep(800);
+console.log('   lesson screen notice: ' + ((await page.$('.lsn-notice:not([hidden])')) ? (await page.textContent('.lsn-notice')).replace(/\s+/g, ' ').trim() : 'none'));
 const dump = await page.evaluate(() => window.__CLAUDE_STUB__.dump());
 const keys = Object.keys(dump).filter((k) => /tA/.test(k));
 report('finishing a lesson of a deleted topic recreates its progress and cards', !dump['topics/tA'] && keys.length >= 2, 'docs for tA now: ' + JSON.stringify(keys));
 // Tomorrow the card is due: make it due now and look at Today.
-await page.evaluate((p) => { const S = window.__CLAUDE_STUB__; const d = S.get(p); Object.values(d.cards).forEach((c) => { c.s.due = '2000-01-01'; }); S.seed(p, d); }, P('profile/cards/tA'));
+await page.evaluate((p) => { const S = window.__CLAUDE_STUB__; const d = S.get(p); if (!d) return; Object.values(d.cards).forEach((c) => { c.s.due = '2000-01-01'; }); S.seed(p, d); }, P('profile/cards/tA'));
 await page.goto(app.url('#/today'));
 await page.waitForSelector('.td-title');
 console.log('   Today: ' + (await page.textContent('.td')).replace(/\s+/g, ' ').slice(0, 120));

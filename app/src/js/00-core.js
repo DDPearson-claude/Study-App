@@ -265,13 +265,26 @@ U.toast = function (text, opts) {
   box.appendChild(t);
   t._t = setTimeout(function () { t.remove(); }, ms);
 };
+// Plain words for an error. Errors from saved data (tagged where:'db' by the store) never blame Claude.
 U.errText = function (e) {
   var code = e && e.code;
+  if (e && e.where === 'db') {
+    if (code === 'quota_exceeded') return 'Your University storage is full. Delete an old topic to make room.';
+    if (/^(unavailable|timeout|resource_exhausted|deadline_exceeded|aborted|internal)$/.test(code || '')) return 'Your saved work could not be reached just now. Check your connection, then try again.';
+    if (/^(permission_denied|not_granted|revoked)$/.test(code || '')) return 'Saving is not allowed in this view.';
+    if (code === 'invalid_argument') return 'That could not be saved because it was not in the right form.';
+  }
   if (code === 'not_granted') return 'Claude needs your permission for this. Tap allow when the app asks.';
   if (code === 'rate_limited') return 'Claude is busy right now. Wait a moment and try again.';
   if (code === 'cancelled') return 'Stopped.';
   if (code === 'quota_exceeded') return 'Your University storage is full. Delete an old topic to make room.';
   if (code === 'unavailable' || code === 'timeout') return 'Claude could not be reached. Check your connection and try again.';
+  if (code === 'upstream_error' || code === 'overloaded') return 'Claude ran into a problem on its side. Try again in a moment.';
+  if (code === 'session_expired') return 'Your Claude session has ended. Close and reopen the app, then try again.';
+  if (code === 'refused') return 'Claude would not answer this one. Try asking it a different way.';
+  if (code === 'empty_completion') return 'Claude sent back an empty answer. Try again.';
+  if (code === 'prompt_too_large') return 'This was too long for Claude to read in one go.';
+  if (code === 'truncated') return 'Claude\'s answer was cut off. Try again.';
   return (e && (e.message || e.code)) ? String(e.message || e.code) : 'Something went wrong.';
 };
 

@@ -1033,6 +1033,7 @@
 
       // 5. Marks: a dot with a ring and optional guides to the axes.
       var placed = [], shown = [];
+      api.labels = [];   // where each label went (canvas px), for tests and after()
       (cur.marks || []).forEach(function (m) {
         if (!isNum(m.x) || !isNum(m.y)) { problem('plot "' + name + '": mark "' + (m.label || '') + '" has a non-finite position'); return; }
         var px = sx(m.x), py = sy(m.y), col = K.color(m.color || 'accent2'), rad = num(m.r, 6.5);
@@ -1069,7 +1070,7 @@
           var k = crossings(r) * 100 + i;
           if (k < cost) { cost = k; best = r; }
         });
-        if (best) placed.push(best);
+        if (best) { placed.push(best); api.labels.push({ text: String(text), x: best.x, y: best.y, w: best.w, h: best.h }); }
         else if (sink) addUnique(labelSkips, 'plot "' + name + '": the label "' + String(text).slice(0, 40) + '" was left out for lack of room (shorten it or give the plot more space)', 6);
         return best;
       }
@@ -1106,16 +1107,20 @@
           smallLabel(text, function (bw, bh) { return [[box.x + box.w - bw - 4, y - bh - 3], [box.x + 4, y - bh - 3], [box.x + box.w - bw - 4, y + 3], [box.x + 4, y + 3], [box.x + box.w / 2 - bw / 2, y - bh - 3], [box.x + box.w / 2 - bw / 2, y + 3]]; }, c.muted, 0.85);
         }
       });
-      // Shade labels: in the middle of the widest part of the band, or just beside it.
+      // Shade labels: inside the band where it is wide enough (widest first), else just beside it.
       shades.forEach(function (d) {
         if (!d || !d.sh.label) return;
-        var best = null, gap = -1;
-        d.pts.forEach(function (p) { if (ok(p[1]) && ok(p[2])) { var g = Math.abs(sy(p[1]) - sy(p[2])); if (g > gap) { gap = g; best = p; } } });
-        if (!best) return;
-        var cx = sx(best[0]), cy = (sy(best[1]) + sy(best[2])) / 2, half = gap / 2;
+        var spots = d.pts.filter(function (p) { return ok(p[1]) && ok(p[2]); })
+          .map(function (p) { return { x: sx(p[0]), y: (sy(p[1]) + sy(p[2])) / 2, gap: Math.abs(sy(p[1]) - sy(p[2])) }; })
+          .sort(function (a, b) { return b.gap - a.gap; });
+        if (!spots.length) return;
+        var picks = [];
+        spots.forEach(function (q) { if (picks.length < 6 && picks.every(function (r) { return Math.abs(r.x - q.x) > 30; })) picks.push(q); });
         smallLabel(String(d.sh.label), function (bw, bh) {
-          return [[cx - bw / 2, cy - bh / 2], [cx - bw - 6, cy - bh / 2], [cx + 6, cy - bh / 2], [cx - bw / 2, cy - half - bh - 4], [cx - bw / 2, cy + half + 4],
-            [cx - bw * 1.5, cy - bh / 2], [cx + bw / 2, cy - bh / 2]];
+          var cands = [];
+          picks.forEach(function (q) { if (q.gap >= bh + 4) cands.push([q.x - bw / 2, q.y - bh / 2], [q.x - bw, q.y - bh / 2], [q.x, q.y - bh / 2]); });
+          var q0 = picks[0];
+          return cands.concat([[q0.x - bw / 2, q0.y - q0.gap / 2 - bh - 4], [q0.x - bw / 2, q0.y + q0.gap / 2 + 4], [q0.x - bw - 6, q0.y - bh / 2]]);
         }, c.ink, 0.7);
       });
       // Region labels: inside the band, at a corner.
@@ -1247,14 +1252,15 @@
       var b = t.getBoundingClientRect();
       if (!b.width) return t;
       var w = b.width, h = b.height, best = null, bestCost = Infinity;
+      // Each candidate spot is first pulled inside the drawing, then checked against the others.
       [[0, 0], [0, -(h + gap)], [0, h + gap], [w / 2 + gap * 2, 0], [-(w / 2 + gap * 2), 0], [w / 2 + gap, -(h + gap)], [-(w / 2 + gap), -(h + gap)],
-        [w / 2 + gap, h + gap], [-(w / 2 + gap), h + gap], [0, -2 * (h + gap)], [0, 2 * (h + gap)]].forEach(function (d, i) {
-        var r = { x: b.left + d[0], y: b.top + d[1], w: w, h: h };
-        var out = Math.max(0, sr.left - r.x) + Math.max(0, r.x + w - sr.right) + Math.max(0, sr.top - r.y) + Math.max(0, r.y + h - sr.bottom);
+        [w / 2 + gap, h + gap], [-(w / 2 + gap), h + gap], [0, -2 * (h + gap)], [0, 2 * (h + gap)], [w + gap, 0], [-(w + gap), 0]].forEach(function (d, i) {
+        var x = clamp(b.left + d[0], sr.left + 1, Math.max(sr.left + 1, sr.right - w - 1)), y = clamp(b.top + d[1], sr.top + 1, Math.max(sr.top + 1, sr.bottom - h - 1));
+        var r = { x: x, y: y, w: w, h: h };
         var hit = 0;
         taken.forEach(function (q) { if (overlap({ x: r.x + 1, y: r.y + 1, w: w - 2, h: h - 2 }, q)) hit++; });
-        var cost = hit * 1000 + out * 50 + i;
-        if (cost < bestCost) { bestCost = cost; best = d; }
+        var cost = hit * 1000 + Math.hypot(x - b.left, y - b.top) / scale + i * 0.5;
+        if (cost < bestCost) { bestCost = cost; best = [x - b.left, y - b.top]; }
       });
       if (best[0] || best[1]) {
         t.setAttribute('x', +it.x + best[0] / scale);
@@ -1457,6 +1463,7 @@
     mute: function (on) { audio.muted = on !== false; if (audio.muted) K.sound.stop(); return K.sound; },
   };
   Object.defineProperty(K.sound, 'muted', { get: function () { return audio.muted || hostMute; }, enumerable: true });
+  Object.defineProperty(K.sound, 'ready', { get: function () { return !!audio.ctx && audio.ctx.state === 'running'; }, enumerable: true });
   Object.defineProperty(K.sound, 'playing', { get: function () { return !!audio.ctx && audio.live.some(function (v) { return v.end > audio.ctx.currentTime; }); }, enumerable: true });
 
   // ---------- checks and ready ----------
@@ -1560,11 +1567,15 @@
         var cx = as.overflowX === 'hidden' || as.overflowX === 'clip', cy = as.overflowY === 'hidden' || as.overflowY === 'clip';
         if (!cx && !cy) continue;
         var r = a.getBoundingClientRect(), L = r.left + a.clientLeft, T = r.top + a.clientTop, R = L + a.clientWidth, B = T + a.clientHeight;
+        var padL = parseFloat(as.paddingLeft) || 0, padR = parseFloat(as.paddingRight) || 0;
+        // Overflow clips at the padding edge; an ellipsis already shows at the content edge.
+        var dots = as.textOverflow === 'ellipsis';
+        if (dots) { L += padL; R -= padR; }
         var tolY = Math.max(2, fs * 0.25);
         var cutX = cx && (b.left < L - 1 || b.right > R + 1), cutY = cy && (b.top < T - tolY || b.bottom > B + tolY);
         if (cutX || cutY) {
           seenEl.add(el);
-          var why = cutX ? (es.textOverflow === 'ellipsis' || as.textOverflow === 'ellipsis' ? 'shortened with "…": ' : '') + 'it needs ' + Math.ceil(b.width) + 'px and has ' + Math.floor(a.clientWidth) + 'px'
+          var why = cutX ? (dots ? 'shortened with "…": ' : '') + 'it needs ' + Math.ceil(b.width) + 'px and has ' + Math.max(0, Math.floor(a.clientWidth - padL - padR)) + 'px'
             : 'cut off at the ' + (b.bottom > B + tolY ? 'bottom' : 'top');
           out.push({ key: 'clip|' + pathOf(el), msg: '"' + text + '" is cut off by ' + describeEl(a) + ' (' + why + ')' });
           break;
@@ -1636,14 +1647,34 @@
     if (gap <= PHONE_VIEW) return null;
     return 'On a phone the first control starts ' + Math.round(gap) + ' px below the top of the main figure, so Dan can\'t see the figure while he moves it: put the controls right under the main visual with K.stage(visual, controls), and secondary figures below them.';
   }
+  // The self-test runs in short slices, yielding to the browser in between, so it never holds
+  // up the page (the frame may share a thread with the app) for more than a few tens of ms.
+  var yq = null;
+  function pause() {
+    return new Promise(function (resolve) {
+      try {
+        if (!yq) { yq = { ch: new MessageChannel(), list: [] }; yq.ch.port1.onmessage = function () { var f = yq.list.shift(); if (f) f(); }; }
+        yq.list.push(resolve);
+        yq.ch.port2.postMessage(0);
+      } catch (e) { setTimeout(resolve, 0); }
+    });
+  }
+  function slicer(ms) {
+    var t = now();
+    return function () { if (now() - t < ms) return Promise.resolve(); return pause().then(function () { t = now(); }); };
+  }
   // Exercise every control across its range, show what waits for a move, press every K.button,
   // play every K.anim for a burst, timing each update and checking for faults, sideways
   // overflow and cut-off text at each setting; then restore the opening state.
-  function sweep(throwaway) {
+  async function sweep(throwaway) {
     var s = { seen: Object.create(null), order: [], ctx: '' }, overflow = null;
     var clip = { seen: Object.create(null), order: [] };
+    var breathe = slicer(25);
     sink = s;
+    document.documentElement.classList.add('k-testing');   // no fade-ins while it looks
     var init = controls.map(function (c) { return c.get(); });
+    // In a throwaway test frame nothing should move things between steps.
+    if (throwaway) anims.forEach(function (a) { a.api.pause(); });
     function look(ctxText) {
       if (!overflow) { var o = overflowNow(); if (o) overflow = o + ' (at ' + ctxText + ')'; }
       clippedNow().forEach(function (it) {
@@ -1653,63 +1684,76 @@
         clip.order.push(it.key);
       });
     }
-    function step(ctxText) {
+    async function step(ctxText) {
       s.ctx = ctxText;
       var t0 = now(); run(); var dt = now() - t0;
       if (dt > SLOW_MS) { t0 = now(); run(); dt = Math.min(dt, now() - t0); }
       if (dt > SLOW_MS) problem('an update took ' + Math.round(dt) + ' ms (keep each under ' + SLOW_MS + ' ms)');
+      await breathe();
+      s.ctx = ctxText;
       look(ctxText);
+      await breathe();
     }
     try {
-      step('the opening state');
+      await step('the opening state');
       if (!moved) {
         sweepReveal = true;
         setMovedClass(true);
         if (throwaway) afterMoveFns.forEach(function (fn) { s.ctx = 'K.afterMove'; try { fn(); } catch (e) { fault('K.afterMove', e); } });
-        step('the opening state, after a move');
+        await step('the opening state, after a move');
       }
-      controls.forEach(function (c, i) {
-        c.sweep().forEach(function (v) { c.set(v, true); step(c.id + ' = ' + c.describe(v)); });
+      for (var i = 0; i < controls.length; i++) {
+        var c = controls[i], vals = c.sweep();
+        for (var j = 0; j < vals.length; j++) { c.set(vals[j], true); await step(c.id + ' = ' + c.describe(vals[j])); }
         c.set(init[i], true);
-      });
+      }
       if (controls.length > 1) {
         controls.forEach(function (c) { var v = c.sweep(); c.set(v[0], true); });
-        step('every control at its lowest');
+        await step('every control at its lowest');
         controls.forEach(function (c) { var v = c.sweep(); c.set(v[v.length - 1], true); });
-        step('every control at its highest');
-        controls.forEach(function (c, i) { c.set(init[i], true); });
+        await step('every control at its highest');
+        controls.forEach(function (c, k) { c.set(init[k], true); });
       }
-      if (throwaway) actions.forEach(function (a) {
-        s.ctx = 'pressing "' + a.label + '"';
-        a.run();
-        step('after pressing "' + a.label + '"');
-      });
-      anims.forEach(function (a) {
-        var where = 'playing "' + a.label + '"', t = 0;
-        s.ctx = where;
+      if (throwaway) {
+        for (var b = 0; b < actions.length; b++) {
+          s.ctx = 'pressing "' + actions[b].label + '"';
+          actions[b].run();
+          await step('after pressing "' + actions[b].label + '"');
+        }
+      }
+      for (var a = 0; a < anims.length; a++) {
+        var an = anims[a], where = 'playing "' + an.label + '"', t = 0;
         for (var k = 1; k <= 60; k++) {
           t += 1 / 30;
+          s.ctx = where;
           var r;
-          try { r = a.o.step(1 / 30, t); } catch (e) { problem('K.anim step threw ' + errText(e) + stackLine(e)); break; }
-          if (k % 15 === 0 || r === false) { step(where + ' (frame ' + k + ')'); s.ctx = where; }
+          try { r = an.o.step(1 / 30, t); } catch (e) { problem('K.anim step threw ' + errText(e) + stackLine(e)); break; }
+          if (k % 15 === 0 || r === false) await step(where + ' (frame ' + k + ')');
+          else await breathe();
           if (r === false) break;
         }
-        a.api.reset();
-      });
+        an.api.reset();
+      }
     } finally {
-      controls.forEach(function (c, i) { c.set(init[i], true); });
+      controls.forEach(function (c, k) { c.set(init[k], true); });
       sweepReveal = false;
       if (!moved) setMovedClass(false);
+      document.documentElement.classList.remove('k-testing');
       s.ctx = 'restoring the opening state';
       run();
       sink = null;
     }
     var problems = s.order.map(function (m) { var e = s.seen[m]; return m + ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; });
-    var clipped = clip.order.slice(0, 12).map(function (k) { var e = clip.seen[k]; return e.msg + ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; });
+    var clipped = clip.order.slice(0, 12).map(function (key) { var e = clip.seen[key]; return e.msg + ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; });
     return { problems: problems, overflow: overflow, seen: s.seen, clipped: clipped };
   }
+  var testing = null;
   function selftest(opt) {
-    opt = opt || {};
+    if (testing) return testing;     // one at a time; a second request shares the first
+    testing = selftestNow(opt || {}).then(function (r) { testing = null; return r; }, function (e) { testing = null; throw e; });
+    return testing;
+  }
+  async function selftestNow(opt) {
     var t0 = now();
     scanExternal();
     if (!readyCalled) addUnique(errors, 'K.ready() was never called: call it once at the end of the script.');
@@ -1717,7 +1761,8 @@
     var checkResults = runChecks();
     audio.calls = 0;
     labelSkips = [];
-    var sw = sweep(!!opt.throwaway);
+    await pause();
+    var sw = await sweep(!!opt.throwaway);
     var problems = liveProblems.filter(function (m) { return !sw.seen[m]; }).concat(sw.problems);
     attachedProblems(problems);
     var report = {
@@ -1754,31 +1799,35 @@
     return report;
   }
   // Does some setting of one control bring an output to a target? Tries every setting the control
-  // can take (all options of a choice), others staying where they are. -> {reachable, best:{value, output}, tried}
-  function reach(d) {
+  // can take (all options of a choice), others staying where they are. Runs in short slices.
+  // -> {reachable, best:{value, output}, tried}
+  async function reach(d) {
     var c = byId[d.control];
-    if (!c) return { reachable: false, error: 'No control "' + d.control + '"', tried: 0 };
+    if (!c) return { reachable: false, best: null, error: 'No control "' + d.control + '"', tried: 0 };
     var target = +d.target, tol = Math.abs(+d.tolerance || 0), key = String(d.output);
-    var vals = c.values(), init = c.get(), base = K.params(), best = null;
+    var vals = c.values(), init = c.get(), base = K.params(), best = null, breathe = slicer(25);
     var fromModel = false;
     try { fromModel = !!modelFn && Object.prototype.hasOwnProperty.call(modelFn(base) || {}, key); } catch (e) {}
     var saved = sink;
-    sink = { seen: Object.create(null), order: [], ctx: 'reach' };
     try {
-      vals.forEach(function (v) {
-        var out;
+      for (var i = 0; i < vals.length; i++) {
+        var v = vals[i], out;
+        sink = { seen: Object.create(null), order: [], ctx: 'reach' };
         if (fromModel) {
           var p = Object.assign({}, base); p[c.id] = v;
           try { out = (modelFn(p) || {})[key]; } catch (e) { out = NaN; }
         } else { c.set(v, true); run(); out = stateOutputs()[key]; }
+        sink = saved;
         out = +out;
-        if (!isNum(out)) return;
-        var diff = Math.abs(out - target);
-        if (!best || diff < best.diff) best = { value: v, output: out, diff: diff };
-      });
+        if (isNum(out)) {
+          var diff = Math.abs(out - target);
+          if (!best || diff < best.diff) best = { value: v, output: out, diff: diff };
+        }
+        await breathe();
+      }
     } finally {
-      if (!fromModel) { c.set(init, true); run(); }
       sink = saved;
+      if (!fromModel) { c.set(init, true); run(); }
     }
     return {
       reachable: !!best && best.diff <= tol + Math.abs(target) * 1e-9 + 1e-12,
@@ -1836,9 +1885,11 @@
     var rid = d.rid;
     function state() { post({ type: 'state', rid: rid, params: K.params(), outputs: stateOutputs(), moved: moved }); }
     if (d.type === 'selftest') {
-      var report;
-      try { report = selftest({ throwaway: !!d.throwaway }); } catch (e) { report = { ok: false, errors: ['The self-test itself failed: ' + errText(e)], overflow: false, clipped: [], checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [] }; }
-      post({ type: 'report', rid: rid, report: report });
+      Promise.resolve().then(function () { return selftest({ throwaway: !!d.throwaway }); }).then(function (report) {
+        post({ type: 'report', rid: rid, report: report });
+      }, function (e) {
+        post({ type: 'report', rid: rid, report: { ok: false, errors: ['The self-test itself failed: ' + errText(e)], overflow: false, clipped: [], checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [] } });
+      });
     } else if (d.type === 'get') {
       state();
     } else if (d.type === 'set') {
@@ -1862,9 +1913,8 @@
     } else if (d.type === 'inputs') {
       post({ type: 'inputs', rid: rid, inputs: controls.map(function (x) { return x.info(); }), actions: actions.map(function (x) { return x.label; }).concat(anims.map(function (x) { return x.label; })) });
     } else if (d.type === 'reach') {
-      var res;
-      try { res = reach(d); } catch (e) { res = { reachable: false, error: errText(e), tried: 0 }; }
-      post({ type: 'reach', rid: rid, result: res });
+      Promise.resolve().then(function () { return reach(d); }).then(function (res) { post({ type: 'reach', rid: rid, result: res }); },
+        function (e) { post({ type: 'reach', rid: rid, result: { reachable: false, best: null, error: errText(e), tried: 0 } }); });
     } else if (d.type === 'theme') {
       applyTheme(d.theme);
       plots.forEach(function (p) { p.redraw(); });

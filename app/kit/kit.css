@@ -61,6 +61,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* Kept hidden (with its space reserved, so nothing jumps) until Dan first moves something. */
 .k-after-move { visibility: hidden; }
 html.k-moved .k-after-move { visibility: visible; animation: k-fade .35s ease both; }
+html.k-testing .k-after-move { animation: none; }
 @keyframes k-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* Custom figures that span the column are capped and centred on wide screens (kit.js sets
@@ -175,6 +176,7 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
 }
 .k-switch { position: relative; flex: none; width: 52px; height: 30px; border-radius: 999px; background: var(--k-strong); transition: background .15s ease; }
 .k-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: var(--k-bg); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform .15s ease; }
+.k-toggle .k-field-label { display: block; }
 .k-toggle[aria-checked="true"] .k-switch { background: var(--k-accent2); }
 .k-toggle[aria-checked="true"] .k-switch::after { transform: translateX(22px); }
 

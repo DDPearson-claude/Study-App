@@ -61,7 +61,7 @@
   const NATIONS = [['Serbia', 30], ['Austria-Hungary', 30], ['Germany', 34], ['Russia', 34], ['France', 36], ['Belgium', 37], ['Britain', 37]];
   const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August'];
   const dateOf = (d) => { const t = new Date(1914, 5, 28 + d); return t.getDate() + ' ' + MONTHS[t.getMonth()]; };
-  const short = (d) => { const t = dateOf(d).split(' '); return t[0] + ' ' + t[1].slice(0, 3); };
+  const short = (d) => { const t = dateOf(d).split(' '); return t[0] + '\u00a0' + t[1].slice(0, 3); };   // "28 Jul", kept on one line
 
   const day = K.control({ id: 'day', label: 'Date in 1914', min: 0, max: 37, step: 1, value: 25, fmt: dateOf, into: '#controls' });
   K.stage('#scene', '#controls');

@@ -126,6 +126,40 @@
   };
   V.isDone = function (progress, iid) { var s = progress && progress.ideas && progress.ideas[iid]; return !!(s && s.stage === 'done'); };
 
+  // Work left behind by a page that went away (reloaded, killed in the background, republished).
+  // A topic still 'planning' 90 s after its last change, with no planning running in this page,
+  // has stopped: it is shown as failed, with Try again and Delete. A research status left at
+  // 'running' for over 5 minutes counts as not checked.
+  V.PLAN_STALE_MS = 90 * 1000;
+  V.RESEARCH_STALE_MS = 5 * 60 * 1000;
+  V.age = function (iso) { var t = Date.parse(iso || ''); return isFinite(t) ? Date.now() - t : Infinity; };
+  function live(tid) { try { return U.gen && typeof U.gen.status === 'function' ? U.gen.status(tid) || {} : {}; } catch (e) { return {}; } }
+  V.planningStuck = function (t) {
+    if (!t || t.status !== 'planning' || live(t.id).planning) return false;
+    return V.age(t.updatedAt || t.createdAt) > V.PLAN_STALE_MS;
+  };
+  // Milliseconds until a planning topic would count as stopped (Infinity if never).
+  V.untilStuck = function (t) {
+    if (!t || t.status !== 'planning' || live(t.id).planning) return Infinity;
+    return Math.max(0, V.PLAN_STALE_MS - V.age(t.updatedAt || t.createdAt));
+  };
+  V.researchStale = function (t) {
+    var r = t && t.research;
+    if (!r || r.status !== 'running' || live(t.id).research === 'running') return false;
+    return V.age(r.at) > V.RESEARCH_STALE_MS;
+  };
+
+  // A calm error state for a screen whose data could not be loaded (never an empty screen).
+  //   retrying: the store is reconnecting by itself; otherwise Try again re-opens the screen.
+  V.loadError = function (what, e, retrying) {
+    return U.h('div', { class: 'notice v-load-error' + (retrying ? '' : ' bad'), role: 'status' },
+      U.h('div', { class: 'stack-sm' },
+        U.h('p', null, U.h('strong', null, retrying ? 'Reconnecting… ' : what + ' could not be loaded just now. '),
+          retrying ? 'The connection to your saved work dropped for a moment.' : U.errText(e)),
+        retrying ? U.h('div', { class: 'working', 'aria-hidden': 'true' })
+          : U.h('div', null, U.h('button', { class: 'btn small secondary', type: 'button', on: { click: function () { U._route(); } } }, 'Try again'))));
+  };
+
   // A short local date: "12 Sept", with the year when it is not this year.
   V.day = function (iso) {
     if (!iso) return '';
@@ -217,16 +251,18 @@
       eyebrow,
       U.h('h1', { id: 'ask-h' }, 'What do you want to learn?'),
       U.h('p', { class: 'ask-sub muted' }, 'Type anything you are curious about. Claude maps it into a few clear ideas, each with something to play with.'),
-      form, working,
       U.h('div', { class: 'ask-row ask-level-row' }, U.h('span', { class: 'ask-label', id: 'lvl-l' }, 'How well do you know it?'),
         U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips)),
+      form, working,
       U.h('div', { class: 'ask-row ask-try' }, U.h('span', { class: 'ask-label', id: 'try-l' }, 'Or try one'),
         U.h('div', { class: 'chips', role: 'group', 'aria-labelledby': 'try-l' }, exampleChips)));
 
     var continueBox = U.h('div', { class: 'learn-continue' });
     var todayBox = U.h('div', { class: 'learn-today' });
+    var noteBox = U.h('div', { class: 'learn-note' });
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
-    var page = U.h('div', { class: 'learn' }, ask, continueBox, todayBox, listBox);
+    // Reviews waiting come first: today's study is one tap away.
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, noteBox, listBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -278,14 +314,41 @@
     }
 
     // --- live data ---
-    var stop = U.store.topics.watch(function (list) {
-      topics = list || [];
+    // Topics (live) and progress are read in parallel; the first progress read starts with the
+    // screen. Later topic changes re-read progress (debounced). Nothing re-renders unless what it
+    // shows changed. A failed read shows an error, never the first-run welcome.
+    var progressP = U.store.progress.all();
+    var progressFailed = null, shownKey = null, stuckTimer = null, refetch = null;
+    function loadProgress(p) {
       var my = ++seq;
-      U.store.progress.all().then(function (p) { return p; }, function () { return {}; }).then(function (p) {
+      p.then(function (r) {
         if (my !== seq || !ctx.alive()) return;
-        progress = p || {};
+        progress = r || {};
+        progressFailed = null;
+        render();
+      }, function (e) {
+        if (my !== seq || !ctx.alive()) return;
+        console.warn('progress', e);
+        progressFailed = e;
         render();
       });
+    }
+    var stop = U.store.topics.watch(function (list) {
+      var firstTime = topics === null;
+      topics = list || [];
+      if (firstTime) { loadProgress(progressP); return; }
+      clearTimeout(refetch);
+      refetch = setTimeout(function () { if (ctx.alive()) loadProgress(U.store.progress.all()); }, 250);
+    }, function (e, info) {
+      if (!ctx.alive()) return;
+      if (topics !== null) {
+        // Keep showing what is there; say so only once the store has given up reconnecting.
+        if (!info.retrying) { U.clear(noteBox).appendChild(V.loadError('Your topics', e, false)); }
+        return;
+      }
+      shownKey = null;
+      U.clear(continueBox);
+      U.clear(listBox).appendChild(V.loadError('Your topics', e, info.retrying));
     });
 
     if (U.review && U.review.dueCount) {
@@ -307,9 +370,17 @@
     }
 
     function render() {
+      // Re-arm the moment a planning topic would count as stopped.
+      clearTimeout(stuckTimer);
+      var soonest = Math.min.apply(null, topics.map(V.untilStuck).concat([Infinity]));
+      if (soonest < Infinity) stuckTimer = setTimeout(function () { if (ctx.alive()) { shownKey = null; render(); } }, soonest + 500);
+      var keyNow = JSON.stringify([topics.map(function (t) { return [t.id, t.updatedAt, t.status, V.planningStuck(t), V.researchStale(t)]; }), progress, !!progressFailed]);
+      if (keyNow === shownKey) return;
+      shownKey = keyNow;
       page.classList.toggle('is-returning', topics.length > 0);
       input.placeholder = topics.length ? 'Type any topic…' : 'Tides, black holes, jazz…';
-      U.clear(continueBox); U.clear(listBox);
+      U.clear(continueBox); U.clear(listBox); U.clear(noteBox);
+      if (progressFailed) noteBox.appendChild(V.loadError('Your progress', progressFailed, false));
       if (!topics.length) { listBox.appendChild(welcome()); return; }
       var c = continueCard();
       if (c) continueBox.appendChild(c);
@@ -345,7 +416,7 @@
     function topicCard(t) {
       var href = '#/t/' + encodeURIComponent(t.id);
       var title = t.title || t.query || 'Untitled topic';
-      if (t.status === 'planning') {
+      if (t.status === 'planning' && !V.planningStuck(t)) {
         return U.h('a', { class: 'tcard is-planning', href: href },
           U.h('div', { class: 'tcard-cover' }, V.cover(t), U.h('div', { class: 'tcard-shimmer' })),
           U.h('div', { class: 'tcard-body' },
@@ -353,7 +424,7 @@
             U.h('p', { class: 'tcard-meta muted' }, 'Planning the ideas…'),
             U.h('div', { class: 'working' })));
       }
-      if (t.status === 'failed') {
+      if (t.status === 'failed' || t.status === 'planning') {
         return U.h('a', { class: 'tcard is-failed', href: href },
           U.h('div', { class: 'tcard-cover' }, V.cover(t)),
           U.h('div', { class: 'tcard-body' },
@@ -364,7 +435,7 @@
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
       var r = t.research || {};
       var badge = r.status === 'done' ? U.h('span', { class: 'src-badge' }, 'Sources checked')
-        : r.status === 'running' ? U.h('span', { class: 'src-badge is-quiet' }, 'Checking sources…') : null;
+        : r.status === 'running' && !V.researchStale(t) ? U.h('span', { class: 'src-badge is-quiet' }, 'Checking sources…') : null;
       return U.h('a', { class: 'tcard' + (s.allDone ? ' is-done' : ''), href: href },
         U.h('div', { class: 'tcard-cover' }, V.cover(t)),
         U.h('div', { class: 'tcard-body' },
@@ -397,6 +468,6 @@
       }));
     }
 
-    return function () { stop(); };
-  }, { tab: 'learn' });
+    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); };
+  }, { tab: 'learn', title: 'Learn' });
 })();

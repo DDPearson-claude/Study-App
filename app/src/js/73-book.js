@@ -1,8 +1,9 @@
 // Book (#/book): Dan's own words. For every idea he has explained back ("say it back" in a
 // lesson), it shows his first explanation and his latest, with dates, so he can see how his
 // understanding grew, plus the questions he asked Claude. Exports as Markdown or JSON.
-// Reads progress.ideas[iid].say = [{text, at, verdict}] (docs/ARCHITECTURE.md section 4) and
-// progress.questions = [{q, iid, at}] (written by the tutor, 51-tutor.js).
+// Reads progress.ideas[iid].say and progress.questions, each either a keyed map
+// ({[key]: {text, at, verdict}} / {[key]: {q, iid, at}}) or, in older data, an array; both are read
+// with U.list, oldest first (see 20-store.js for the shapes).
 (function () {
   'use strict';
   var V = U.views;
@@ -13,10 +14,10 @@
       var pr = progress[t.id] || {}, pi = pr.ideas || {};
       var all = Array.isArray(t.ideas) ? t.ideas : [];
       var ideas = all.map(function (idea) {
-        var say = ((pi[idea.id] && pi[idea.id].say) || []).filter(function (s) { return s && String(s.text || '').trim(); });
+        var say = U.list(pi[idea.id] && pi[idea.id].say).filter(function (s) { return String(s.text || '').trim(); });
         return say.length ? { id: idea.id, title: idea.title, say: say } : null;
       }).filter(Boolean);
-      var questions = (Array.isArray(pr.questions) ? pr.questions : []).filter(function (q) { return q && String(q.q || '').trim(); }).map(function (q) {
+      var questions = U.list(pr.questions).filter(function (q) { return String(q.q || '').trim(); }).map(function (q) {
         var idea = q.iid ? all.filter(function (i) { return i.id === q.iid; })[0] : null;
         return { q: String(q.q).trim(), iid: q.iid || null, idea: idea ? idea.title : null, at: q.at || null };
       });
@@ -137,7 +138,7 @@
     }, function (e) {
       if (ctx.alive()) U.fail(body, e);
     });
-  }, { tab: 'book' });
+  }, { tab: 'book', title: 'Book' });
 
   U.book = { collect: collect, toMarkdown: toMarkdown, toJson: toJson };
 })();

@@ -47,18 +47,22 @@
 
   // Draw one topic's constellation for a given pixel width: a snake of rows (left to right, then
   // right to left) joined by a dotted trail, each dot labelled underneath.
+  // Label size follows the reading-size setting (the labels are 0.875rem, see 70-views.css).
+  function labelPx() { var r = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; return Math.round(r * 0.875 * 10) / 10; }
   function constellation(topic, bands, W) {
     var ideas = topic.ideas || [];
-    var font = '600 14px ' + getComputedStyle(document.body).fontFamily;
-    var n = ideas.length, LINE = 18;
+    var px = labelPx();
+    var font = '600 ' + px + 'px ' + getComputedStyle(document.body).fontFamily;
+    var n = ideas.length, LINE = Math.round(px * 1.3);
     var cols = Math.max(2, Math.min(4, Math.floor(W / 150)));
     if (n <= 4 && W >= 480) cols = Math.max(2, n);
     var pad = 12, inner = W - pad * 2, cellW = inner / cols;
     var labelW = Math.min(cellW - 14, 170);
-    var labels = ideas.map(function (idea) { return wrap(idea.title, labelW, font, 3); });
+    // Up to four lines: a phone's narrow columns would otherwise cut titles short.
+    var labels = ideas.map(function (idea) { return wrap(idea.title, labelW, font, W < 480 ? 4 : 3); });
     var halfW = labels.map(function (ls) { return Math.max.apply(null, ls.map(function (l) { return textWidth(l, font); }).concat([20])) / 2; });
     var maxLines = Math.max.apply(null, labels.map(function (l) { return l.length; }).concat([1]));
-    var top = 30, rowH = 76 + LINE * maxLines, rows = Math.ceil(n / cols);
+    var top = 30, rowH = 58 + px + LINE * maxLines, rows = Math.ceil(n / cols);
     var H = top + (rows - 1) * rowH + 48 + LINE * (maxLines - 1) + 8;
     var pts = ideas.map(function (idea, i) {
       var row = Math.floor(i / cols), c = i % cols;
@@ -89,7 +93,7 @@
       a.appendChild(V.s('rect', { class: 'map-hit', x: -cellW / 2 + 4, y: -24, width: cellW - 8, height: rowH - 20, rx: 14 }));
       a.appendChild(V.s('circle', { class: 'map-halo', r: 19 }));
       a.appendChild(dot(band, 13));
-      var label = V.s('text', { class: 'map-label', x: 0, y: 40, 'text-anchor': 'middle', 'aria-hidden': 'true' });
+      var label = V.s('text', { class: 'map-label', x: 0, y: 26 + px, 'text-anchor': 'middle', 'aria-hidden': 'true' });
       labels[i].forEach(function (ln, k) { label.appendChild(V.s('tspan', { x: 0, dy: k ? LINE : 0, text: ln })); });
       a.appendChild(label);
       svg.appendChild(a);
@@ -105,7 +109,7 @@
   }
 
   U.routes.add('#/map', function (params, ctx) {
-    var topics = null, progress = {}, bandsAll = {}, seq = 0, lastW = 0;
+    var topics = null, progress = {}, bandsAll = {}, seq = 0, lastW = 0, shownKey = null, drawJob = 0;
     var listBox = U.h('div', { class: 'map-list' });
     var body = U.h('div', { class: 'map-body' }, U.h('div', { class: 'skeleton map-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'map' },
@@ -124,18 +128,30 @@
         progress = r[0] || {}; bandsAll = r[1] || {};
         render();
       });
+    }, function (e, info) {
+      if (!ctx.alive() || topics !== null) return;
+      U.clear(body).appendChild(V.loadError('Your map', e, info.retrying));
     });
 
+    // An idea Dan has finished counts as learned even before its first review (its cards say
+    // 'new' until then), so the dot agrees with "N of M ideas learned".
     function bandsFor(t) {
       var from = bandsAll[t.id] || {}, out = {};
       t.ideas.forEach(function (i) {
-        var b = from[i.id];
-        out[i.id] = WORDS[b] ? b : (V.isDone(progress[t.id], i.id) ? 'growing' : 'new');
+        var b = WORDS[from[i.id]] ? from[i.id] : null, done = V.isDone(progress[t.id], i.id);
+        if (!b || (b === 'new' && done)) b = done ? 'growing' : 'new';
+        out[i.id] = b;
       });
       return out;
     }
 
+    // Redraws only when something it shows changed; constellations are drawn a few per frame so a
+    // large library never blocks the screen.
     function render() {
+      var keyNow = JSON.stringify([topics.map(function (t) { return [t.id, t.title, t.hue, t.ideas.map(function (i) { return [i.id, i.title]; })]; }),
+        topics.map(function (t) { return [bandsFor(t), V.summary(t, progress[t.id]).done]; })]);
+      if (keyNow === shownKey) return;
+      shownKey = keyNow;
       U.clear(body);
       if (!topics.length) {
         body.appendChild(V.empty({
@@ -152,7 +168,7 @@
       topics.forEach(function (t) {
         var s = V.summary(t, progress[t.id]);
         var holder = U.h('div', { class: 'map-svg-box', dataset: { tid: t.id } });
-        listBox.appendChild(U.h('section', { class: 'card map-topic' },
+        listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
           U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
             U.h('span', { class: 'map-thumb' }, V.cover(t)),
             U.h('span', { class: 'map-topic-text' },
@@ -165,16 +181,22 @@
     }
 
     function draw(force) {
-      var boxes = listBox.querySelectorAll('.map-svg-box');
+      var boxes = Array.prototype.slice.call(listBox.querySelectorAll('.map-svg-box'));
       if (!boxes.length) return;
       var W = Math.floor(boxes[0].clientWidth);
       if (!W || (!force && Math.abs(W - lastW) < 4)) return;
       lastW = W;
-      boxes.forEach(function (box) {
-        var t = topics.filter(function (x) { return x.id === box.dataset.tid; })[0];
-        if (!t) return;
-        U.clear(box).appendChild(constellation(t, bandsFor(t), W));
-      });
+      var job = ++drawJob, byId = {};
+      topics.forEach(function (t) { byId[t.id] = t; });
+      (function chunk() {
+        if (job !== drawJob || !ctx.alive()) return;
+        var t0 = performance.now();
+        while (boxes.length && performance.now() - t0 < 12) {
+          var box = boxes.shift(), t = byId[box.dataset.tid];
+          if (t) U.clear(box).appendChild(constellation(t, bandsFor(t), W));
+        }
+        if (boxes.length) requestAnimationFrame(chunk);
+      })();
     }
 
     var ro = null, raf = 0;
@@ -182,6 +204,7 @@
       ro = new ResizeObserver(function () { if (raf) return; raf = requestAnimationFrame(function () { raf = 0; if (ctx.alive()) draw(false); }); });
       ro.observe(ctx.view);
     }
+    var onPrefs = U.on('prefs', function () { if (ctx.alive()) draw(true); });
 
     function emptyArt() {
       var svg = V.s('svg', { viewBox: '0 0 220 90', width: 220, height: 90, 'aria-hidden': 'true' });
@@ -196,6 +219,6 @@
       return svg;
     }
 
-    return function () { stop(); if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
-  }, { tab: 'map' });
+    return function () { stop(); onPrefs(); drawJob++; if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
+  }, { tab: 'map', title: 'Map' });
 })();

@@ -4,8 +4,9 @@
 // for this page session, keyed by topic and idea, so closing and reopening the sheet keeps them
 // (a reply that is still streaming carries on into the reopened sheet). When context.getState is
 // given, the interactive's current {params, outputs} go with each question as context.state.
-// Questions Dan types are saved to progress.questions ([{q, iid, at}], newest last, 20 kept) so the
-// Book can show what he wondered about; the quick chips are not saved.
+// Questions Dan types are saved to progress.questions ({[key]: {q, iid, at}}, the newest 20 kept;
+// older docs hold an array, see 20-store.js) so the Book can show what he wondered about; the quick
+// chips are not saved.
 (function () {
   var CHIPS = ['Explain it differently', 'Give me an example', 'Are you sure?'];
   var KEEP = 20;
@@ -65,12 +66,17 @@
     ]);
   }
 
+  // Each question is its own keyed entry, so questions asked on two devices are both kept; the
+  // oldest beyond KEEP are removed (null) in the same write.
   function saveQuestion(tid, iid, q) {
     if (!tid || !U.store || !U.store.progress) return;
+    var rec = { q: q.slice(0, 500), iid: iid || null, at: U.now() }, k = U.key();
     saving = saving.then(function () {
       return U.store.progress.get(tid).then(function (p) {
-        var list = (Array.isArray(p && p.questions) ? p.questions : []).concat([{ q: q.slice(0, 500), iid: iid || null, at: U.now() }]).slice(-KEEP);
-        return U.store.progress.patch(tid, { questions: list });
+        var list = U.entries(p && p.questions), patch = { questions: {} };
+        patch.questions[k] = rec;
+        list.slice(0, Math.max(0, list.length - (KEEP - 1))).forEach(function (e) { patch.questions[e.key] = null; });
+        return U.store.progress.patch(tid, patch);
       });
     }).catch(function () { /* the store already told Dan if a write failed */ });
   }

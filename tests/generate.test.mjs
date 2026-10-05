@@ -100,7 +100,7 @@ async function boot({ handlers = {}, research = false, build = okBuild } = {}) {
   const warnings = [];
   const quiet = { log() {}, info() {}, warn: (...a) => warnings.push(a), error: (...a) => warnings.push(a), debug() {} };
   const ctx = {
-    console: quiet, Promise, Date, Math, JSON, clearTimeout, clearInterval,
+    console: quiet, Promise, Date, Math, JSON, clearTimeout, clearInterval, AbortController,
     setTimeout: (f, ms, ...a) => { const t = setTimeout(f, ms, ...a); if (ms > 2000 && t.unref) t.unref(); return t; },
     setInterval: (f, ms) => { const t = setInterval(f, ms); if (t.unref) t.unref(); return t; },
   };
@@ -621,7 +621,7 @@ test('not_granted and plan failures tell Dan what to do; replan recovers', async
   const { U } = app;
   await app.seed('topics/t1', PLAN_JET);
   await assert.rejects(U.gen.ensureLesson('t1', 'i2'), (e) => e.code === 'not_granted' && /Allow/.test(e.message));
-  assert.match((await app.get('topics/t1/lessons/i2')).error, /permission/);
+  assert.equal(await app.get('topics/t1/lessons/i2'), null, 'no permission here says nothing about the lesson: the shared doc is left alone');
 
   let created = null;
   await assert.rejects(U.gen.createTopic('why the Roman Republic fell', { level: 'some', onCreated: (t) => { created = t; } }), (e) => e.code === 'invalid');
@@ -685,7 +685,7 @@ test('a fresh doc from another device is watched until it is ready', async () =>
   assert.equal(app.count('write-lesson'), 0, 'nothing was written here');
 });
 
-test('a watched doc that goes silent is taken over; this device\'s leftovers are not waited for', async () => {
+test('a watched doc that goes silent is taken over; this tab\'s leftovers are not waited for', async () => {
   const app = await boot({ handlers: handlers({ 'write-lesson': (input) => ({ ...unsourced(L_JET1), iid: ideaOf(input) }) }) });
   const { U } = app;
   U.gen._cfg.STALE_MS = 250;
@@ -698,7 +698,7 @@ test('a watched doc that goes silent is taken over; this device\'s leftovers are
   assert.equal(app.count('write-lesson'), 1);
 
   U.gen._cfg.STALE_MS = 60 * 1000;
-  await app.seed('topics/t1/lessons/i2', { status: 'writing', updatedAt: new Date().toISOString(), by: { device: U.gen._who().device, page: 'an-earlier-load' } });
+  await app.seed('topics/t1/lessons/i2', { status: 'writing', updatedAt: new Date().toISOString(), by: { ...U.gen._who(), page: 'an-earlier-load' } });
   const t1 = Date.now();
   const d2 = await U.gen.ensureLesson('t1', 'i2');
   assert.ok(Date.now() - t1 < 2000);
@@ -710,7 +710,7 @@ test('a lesson left at "building" only has its interactive rebuilt', async () =>
   const app = await boot({ handlers: handlers(), build: (t, i, l, o) => { builds++; return okBuild(t, i, l, o); } });
   const { U } = app;
   await app.seed('topics/t1', PLAN_JET);
-  await app.seed('topics/t1/lessons/i2', { status: 'building', updatedAt: new Date().toISOString(), lesson: L_JET2, sourced: true, interactive: null, by: { device: U.gen._who().device, page: 'an-earlier-load' } });
+  await app.seed('topics/t1/lessons/i2', { status: 'building', updatedAt: new Date().toISOString(), lesson: L_JET2, sourced: true, interactive: null, by: { ...U.gen._who(), page: 'an-earlier-load' } });
   const doc = await U.gen.ensureLesson('t1', 'i2');
   assert.equal(doc.status, 'ready');
   assert.equal(app.count('write-lesson'), 0, 'the written lesson is kept');
@@ -827,6 +827,142 @@ test('work on a topic deleted mid-way stops and leaves nothing behind', async ()
   assert.equal(await app.get('topics/t1'), null);
 });
 
+// A db lease table like the platform's acquire(): one holder per doc until its lease runs out.
+function leaseTable() {
+  const held = {};
+  return {
+    held,
+    doc: (path) => ({
+      acquire: ({ holder, ttlMs }) => {
+        const now = Date.now(), h = held[path];
+        if (h && h.holder !== holder && h.until > now) return Promise.resolve({ acquired: false, expiresAt: new Date(h.until).toISOString() });
+        held[path] = { holder, until: now + Math.max(1000, ttlMs || 30000) };
+        return Promise.resolve({ acquired: true, holder, expiresAt: new Date(held[path].until).toISOString() });
+      },
+    }),
+  };
+}
+const PHONE = { device: 'phone', tab: 'tab1', page: 'p1', holder: 'phone/tab1' };
+
+test('one writer per lesson: a live holder is waited for, a dead one is taken over once its lease runs out', async () => {
+  const app = await boot({ handlers: handlers() });
+  const { U } = app;
+  const leases = leaseTable();
+  U.gen._leaseDb(leases);
+  await app.seed('topics/t1', PLAN_JET);
+  // The phone is writing i1 and finishes it: nothing is written here.
+  leases.held['topics/t1/lessons/i1'] = { holder: PHONE.holder, until: Date.now() + 5000 };
+  await app.seed('topics/t1/lessons/i1', { status: 'writing', updatedAt: new Date().toISOString(), by: PHONE });
+  const p1 = U.gen.ensureLesson('t1', 'i1');
+  await tick(80);
+  assert.equal(U.gen.status('t1').lessons.i1, 'waiting');
+  await app.seed('topics/t1/lessons/i1', { status: 'ready', updatedAt: new Date().toISOString(), lesson: L_JET1, interactive: null, sourced: true, by: PHONE });
+  assert.equal((await p1).lesson.title, L_JET1.title);
+  assert.equal(app.count('write-lesson'), 0);
+  // The phone died while writing i2: its doc looks fresh, but its lease lapses and this tab takes over.
+  leases.held['topics/t1/lessons/i2'] = { holder: PHONE.holder, until: Date.now() + 300 };
+  await app.seed('topics/t1/lessons/i2', { status: 'writing', updatedAt: new Date().toISOString(), by: PHONE });
+  const t0 = Date.now();
+  const d2 = await U.gen.ensureLesson('t1', 'i2');
+  assert.ok(Date.now() - t0 >= 250, 'it waited for the lease to run out');
+  assert.equal(d2.status, 'ready');
+  assert.deepEqual(d2.by, plain(U.gen._who()));
+  assert.equal(app.count('write-lesson'), 1);
+});
+
+test('a job that lost the lesson to another device writes nothing more and waits for that device', async () => {
+  for (const how of ['lease', 'doc']) {
+    let release;
+    const gate = new Promise((r) => { release = r; });
+    const app = await boot({ handlers: handlers({ 'write-lesson': async () => { await gate; return unsourced(L_JET1); } }) });
+    const { U } = app;
+    const leases = leaseTable();
+    if (how === 'lease') U.gen._leaseDb(leases);
+    await app.seed('topics/t1', PLAN_JET);
+    const p = U.gen.ensureLesson('t1', 'i1');
+    await until(() => app.count('write-lesson') === 1);
+    // This page was suspended; the phone took over (its lease, or its name on the doc).
+    if (how === 'lease') leases.held['topics/t1/lessons/i1'] = { holder: PHONE.holder, until: Date.now() + 60000 };
+    await app.seed('topics/t1/lessons/i1', { status: 'writing', updatedAt: new Date().toISOString(), by: PHONE });
+    release();
+    await tick(60);
+    await app.seed('topics/t1/lessons/i1', { status: 'ready', updatedAt: new Date().toISOString(), lesson: L_JET2, interactive: null, sourced: true, by: PHONE });
+    const doc = await p;
+    assert.equal(doc.lesson.title, L_JET2.title, how + ': the other device\'s lesson stands');
+    assert.deepEqual(app.statuses, ['i1:writing'], how + ': nothing written after losing it');
+  }
+});
+
+test('errors that say nothing about the lesson leave the shared doc as it was', async () => {
+  const app = await boot({ handlers: handlers({ 'write-lesson': () => { throw { code: 'not_granted', message: 'denied' }; } }) });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const before = { status: 'failed', updatedAt: '2026-10-01T00:00:00.000Z', error: 'An older problem.', lesson: null };
+  await app.seed('topics/t1/lessons/i1', before);
+  await assert.rejects(U.gen.ensureLesson('t1', 'i1'), (e) => e.code === 'not_granted');
+  const back = await app.get('topics/t1/lessons/i1');
+  assert.equal(back.status, 'failed');
+  assert.equal(back.error, 'An older problem.', 'put back as it was');
+  // A page with no Claude at all never touches the doc.
+  U.rt.sample = null;
+  await assert.rejects(U.gen.ensureLesson('t1', 'i2'), (e) => e.code === 'not_granted');
+  assert.equal(await app.get('topics/t1/lessons/i2'), null);
+  assert.ok(!app.statuses.includes('i2:writing'));
+  // A rate limit while the interactive builds keeps the written lesson, ready to resume.
+  const b = await boot({ handlers: handlers(), build: () => Promise.reject({ code: 'rate_limited', message: 'busy' }) });
+  await b.seed('topics/t1', PLAN_JET);
+  await assert.rejects(b.U.gen.ensureLesson('t1', 'i1'), (e) => e.code === 'rate_limited' && /busy right now/.test(e.message));
+  const kept = await b.get('topics/t1/lessons/i1');
+  assert.equal(kept.status, 'building');
+  assert.equal(kept.lesson.iid, 'i1');
+  assert.deepEqual(b.statuses, ['i1:writing', 'i1:building']);
+});
+
+test('the first lesson waits only briefly for research; later lessons use it once it is done', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const base = handlers();
+  const app = await boot({ handlers: handlers({ research: async (input, o) => { await gate; return base.research(input, o); } }), research: true });
+  const { U } = app;
+  U.gen._cfg.FIRST_RESEARCH_WAIT_MS = 150;
+  await app.seed('topics/t1', { ...clone(PLAN_JET), id: 't1', research: { status: 'none', at: null, sources: 0 } });
+  const t0 = Date.now();
+  const d1 = await U.gen.ensureLesson('t1', 'i1');
+  assert.ok(Date.now() - t0 < 3000, 'lesson 1 did not wait for research');
+  assert.equal(d1.sourced, false, 'written unsourced, and labelled so');
+  assert.equal((await app.get('topics/t1')).research.status, 'running', 'research was still going');
+  release();
+  await until(async () => (await app.get('topics/t1')).research.status === 'done');
+  const d2 = await U.gen.ensureLesson('t1', 'i2');
+  assert.equal(d2.sourced, true);
+});
+
+test('a background prefetch yields to Dan, and is cancelled when he leaves unless he opened it', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const app = await boot({ handlers: handlers({ 'write-lesson': async (input) => { await gate; return { ...unsourced(L_JET1), iid: ideaOf(input) }; } }) });
+  const { U } = app;
+  const seen = [];
+  const ask = U.ask;
+  U.ask = (input, o) => { seen.push(o.label + ':' + (o.priority || 'foreground') + ':' + !!o.signal); return ask(input, o); };
+  await app.seed('topics/t1', PLAN_JET);
+  const leave = new AbortController(), stay = new AbortController();
+  const p2 = U.gen.ensureLesson('t1', 'i2', { background: true, signal: leave.signal });
+  const p3 = U.gen.ensureLesson('t1', 'i3', { background: true, signal: stay.signal });
+  await until(() => seen.length === 2);
+  await tick(50);
+  assert.deepEqual(seen, ['write-lesson:background:true', 'write-lesson:background:true'], 'both are asked as background work');
+  assert.equal(app.count('write-lesson'), 1, 'and the runtime runs one background call at a time');
+  const opened = U.gen.ensureLesson('t1', 'i3', {});  // Dan opens i3: no longer a prefetch
+  leave.abort();
+  stay.abort();
+  release();
+  await assert.rejects(p2, (e) => e.code === 'cancelled');
+  assert.equal(await app.get('topics/t1/lessons/i2'), null, 'the cancelled prefetch left nothing behind');
+  assert.equal((await p3).status, 'ready');
+  assert.equal(await opened, await p3);
+});
+
 test('grade: rubric-based, model answer withheld on attempt 1 and given on attempt 2', async () => {
   let reply = { met: [true, true, false], verdict: 'partly', nailed: 'You nailed the push-back.', followUp: 'Does it need anything behind it?', model: 'LEAKED' };
   const app = await boot({ handlers: { grade: () => reply } });
@@ -893,7 +1029,7 @@ function builder({ kitMd, examples, reach = true, replies = [] } = {}) {
   if (kitMd !== undefined) U.KIT_MD = kitMd;
   if (examples) U.KIT_EXAMPLES = examples;
   const asked = [];
-  U.ask = (text, o) => { asked.push({ text, label: o.label, tier: o.tier }); return Promise.resolve(replies[Math.min(asked.length, replies.length) - 1]); };
+  U.ask = (text, o) => { asked.push({ text, label: o.label, tier: o.tier, priority: o.priority }); return Promise.resolve(replies[Math.min(asked.length, replies.length) - 1]); };
   // The fake self-test reads markers in the body: BROKEN fails, NOMODEL leaves "thrust" a readout
   // only, WARN adds the kit's "no source" advice; reach fails on FAR.
   U.sandbox = {
@@ -991,8 +1127,10 @@ test('build: target checks must be reachable, read from model outputs, and are c
   r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
   assert.ok(r.attempts === 2 && b.asked[1].text.includes('Missing output "thrust": the lesson reads it, so K.model must return it'), 'a readout alone is not enough');
   b = builder({ reach: false, replies: [page('FAR')] });
-  r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2, { priority: 'background' });
   assert.equal(r.attempts, 1, 'without U.sandbox.reach the check is skipped');
+  assert.equal(b.asked[0].priority, 'background', 'a prefetch\'s build is background work');
+  assert.equal(b.asked[0].tier, 'complex');
   b = builder({ replies: [page('NOLOAD')] });
   r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
   assert.equal(r.attempts, 1, 'a reach that could not run says nothing about the target');

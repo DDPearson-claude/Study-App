@@ -23,13 +23,20 @@ await page.goto(app.url('#/today'));
 await page.waitForSelector('.td-title');
 const today = (await page.textContent('.td')).replace(/\s+/g, ' ').slice(0, 140);
 console.log('   Today says: ' + today);
-// Make it due again (as it will be tomorrow) and open a review.
-await page.evaluate((p) => { const d = window.__CLAUDE_STUB__.get(p); Object.values(d.cards).forEach((c) => { c.s.due = '2000-01-01'; }); window.__CLAUDE_STUB__.seed(p, d); }, P('profile/cards/tA'));
-await page.goto(app.url('#/review'));
-await page.waitForSelector('.qc');
-console.log('   review card shows: ' + (await page.textContent('.qc')).replace(/\s+/g, ' ').slice(0, 120));
-await page.click('.qc-continue'); await sleep(600);
-const after = await page.evaluate((p) => window.__CLAUDE_STUB__.get(p), P('profile/cards/tA'));
-console.log('   after Skip, still due: ' + JSON.stringify(Object.values(after.cards).map((c) => c.s.due)));
-console.log('   badge: ' + await page.evaluate(() => document.getElementById('today-badge') && document.getElementById('today-badge').textContent));
+if (doc) {
+  // Make it due again (as it will be tomorrow) and open a review.
+  await page.evaluate((p) => { const d = window.__CLAUDE_STUB__.get(p); Object.values(d.cards).forEach((c) => { c.s.due = '2000-01-01'; }); window.__CLAUDE_STUB__.seed(p, d); }, P('profile/cards/tA'));
+  await page.goto(app.url('#/review'));
+  await page.waitForSelector('.qc, .rv-empty');
+  console.log('   review shows: ' + (await page.textContent('.rv-stage')).replace(/\s+/g, ' ').slice(0, 120));
+  if (await page.$('.qc-continue')) { await page.click('.qc-continue'); await sleep(600); }
+  const after = await page.evaluate((p) => window.__CLAUDE_STUB__.get(p), P('profile/cards/tA'));
+  console.log('   after Skip, still due: ' + JSON.stringify(after ? Object.values(after.cards).filter(Boolean).map((c) => c.s && c.s.due) : null));
+}
+// Defence in depth: even a leftover partial card (from an older version) never reaches review.
+await page.evaluate((p) => window.__CLAUDE_STUB__.seed(p, { cards: { ghost: { s: { due: '2000-01-01' }, hist: [] } } }), P('profile/cards/tA'));
+const badge = await page.evaluate(async () => { await U.review.refreshBadge(); const b = document.getElementById('today-badge'); return b && !b.hidden ? b.textContent : '0'; });
+await sleep(400);
+const left = await page.evaluate((p) => window.__CLAUDE_STUB__.get(p), P('profile/cards/tA'));
+report('a leftover partial card for a deleted topic is still offered', badge !== '0', 'badge: ' + badge + '; leftover cards doc after the badge refresh: ' + JSON.stringify(left));
 await app.close();

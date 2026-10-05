@@ -58,6 +58,26 @@ U.sandbox = (function () {
   // JSON that is safe inside an inline <script>.
   function inlineJson(v) { return JSON.stringify(v).replace(/</g, '\\u003c'); }
 
+  // A timeout on a clock that only runs while the app is visible and awake: time with the page
+  // hidden doesn't count, and nor does the gap when the device suspended it (a tick that arrives
+  // far later than scheduled counts as one tick). So a late timer never fails anything by itself.
+  // -> {cancel()}
+  var TICK = 250;
+  function visibleTimeout(fn, ms) {
+    var used = 0, last = Date.now(), id = 0, done = false;
+    function tick() {
+      if (done) return;
+      var t = Date.now(), gap = t - last;
+      last = t;
+      if (document.visibilityState !== 'hidden') used += Math.min(gap, TICK * 2);
+      if (used >= ms) { done = true; fn(); return; }
+      id = setTimeout(tick, Math.max(10, Math.min(TICK, ms - used)));
+    }
+    id = setTimeout(tick, Math.max(10, Math.min(TICK, ms)));
+    return { cancel: function () { done = true; clearTimeout(id); } };
+  }
+  function cancel(t) { if (t && t.cancel) t.cancel(); }
+
   // The full document for one body: CSP first, then kit CSS, theme, kit JS, then the body.
   // Throws {code:'too_large'}.
   function srcdoc(body, o) {
@@ -108,7 +128,7 @@ U.sandbox = (function () {
         if (d.rid && pending[d.rid]) {
           var p = pending[d.rid];
           delete pending[d.rid];
-          clearTimeout(p.timer);
+          cancel(p.timer);
           if (d.type === 'error') p.reject({ code: 'kit_error', message: d.message });
           else p.resolve(d);
           return;
@@ -125,7 +145,7 @@ U.sandbox = (function () {
           if (!w) return reject({ code: 'gone', message: 'The interactive is no longer on the page.' });
           var rid = 'r' + (++seq);
           var msg = Object.assign({ src: 'kit', type: type, rid: rid }, data || {});
-          pending[rid] = { resolve: resolve, reject: reject, timer: setTimeout(function () {
+          pending[rid] = { resolve: resolve, reject: reject, timer: visibleTimeout(function () {
             delete pending[rid];
             reject({ code: 'timeout', message: 'The interactive did not answer in time.' });
           }, ms || 4000) };
@@ -136,7 +156,7 @@ U.sandbox = (function () {
       close: function () {
         live = live.filter(function (e) { return e !== entry; });
         Object.keys(pending).forEach(function (rid) {
-          clearTimeout(pending[rid].timer);
+          cancel(pending[rid].timer);
           pending[rid].reject({ code: 'gone', message: 'The interactive was closed.' });
         });
         pending = {};
@@ -210,15 +230,15 @@ U.sandbox = (function () {
         if (o.onChange) try { o.onChange({ params: d.params, outputs: d.outputs }); } catch (e) { console.error(e); }
       }
     }, function () { api.destroy(); });
-    var readyTimer = setTimeout(function () { settle(null); reveal(); }, 12000);
+    var readyTimer = visibleTimeout(function () { settle(null); reveal(); }, 12000);
     // A body that navigates its frame away from the kit is stopped there. (A frame that was moved
     // in the page reloads the kit, which says ready again within moments.)
-    var awayTimer = 0;
+    var awayTimer = null;
     frame.addEventListener('load', function () {
       if (++loads < 2 || destroyed) return;
       readyCount = 0;
-      clearTimeout(awayTimer);
-      awayTimer = setTimeout(function () {
+      cancel(awayTimer);
+      awayTimer = visibleTimeout(function () {
         if (!readyCount && !destroyed) { report('The interactive tried to leave its page, so it was stopped.'); api.destroy(); }
       }, 3000);
     });
@@ -259,7 +279,7 @@ U.sandbox = (function () {
       destroy: function () {
         if (destroyed) return;
         destroyed = true;
-        clearTimeout(readyTimer); clearTimeout(revealTimer); clearTimeout(awayTimer);
+        cancel(readyTimer); clearTimeout(revealTimer); cancel(awayTimer);
         mo.disconnect();
         if (mq && mq.removeEventListener) mq.removeEventListener('change', onScheme);
         ch.close();
@@ -298,11 +318,11 @@ U.sandbox = (function () {
   // One hidden frame at one width -> the kit's Report (or a failing one on timeout).
   function testOne(html, width, timeout, th) {
     return new Promise(function (resolve) {
-      var finished = false, asked = false, graceTimer = 0, hf = null, t0 = Date.now(), timer = 0;
+      var finished = false, asked = false, graceTimer = null, hf = null, t0 = Date.now(), timer = null;
       function finish(report) {
         if (finished) return;
         finished = true;
-        clearTimeout(timer); clearTimeout(graceTimer);
+        cancel(timer); cancel(graceTimer);
         if (hf) hf.close();
         report.width = width;
         resolve(report);
@@ -310,18 +330,19 @@ U.sandbox = (function () {
       function ask() {
         if (asked || finished) return;
         asked = true;
-        var left = Math.max(1500, timeout - (Date.now() - t0));
+        // The self-test itself gets the whole budget again (on the visible clock): the load is done.
+        var left = Math.max(1500, timeout);
         // throwaway: this frame is discarded afterwards, so the kit may press buttons and run
         // K.afterMove callbacks as part of the test.
         hf.ch.request('selftest', { throwaway: true }, left).then(function (d) { finish(d.report || failing('The self-test returned nothing.', width)); },
           function (e) { finish(failing(e && e.code === 'timeout' ? 'The self-test did not finish within ' + Math.round(timeout / 1000) + ' s (a loop that never ends, or a very slow update?).' : 'The self-test could not run: ' + (e && e.message), width)); });
       }
-      timer = setTimeout(function () { finish(failing('The interactive did not load within ' + Math.round(timeout / 1000) + ' s.', width)); }, timeout);
+      timer = visibleTimeout(function () { if (!asked) finish(failing('The interactive did not load within ' + Math.round(timeout / 1000) + ' s.', width)); }, timeout);
       try {
         hf = hiddenFrame(html, width, th, function (d) { if (d.type === 'ready') setTimeout(ask, 30); });
       } catch (e) { return finish(failing(e.message || String(e), width)); }
       // After load, give a body that calls K.ready() late a moment, then test whatever is there.
-      hf.frame.addEventListener('load', function () { graceTimer = setTimeout(ask, 1000); });
+      hf.frame.addEventListener('load', function () { graceTimer = visibleTimeout(ask, 1000); });
     });
   }
   // Merge per-width reports. A message seen at only some widths says where.
@@ -374,9 +395,10 @@ U.sandbox = (function () {
     var big = tooBig(html);
     if (big) return Promise.resolve(merge(widths.map(function (w) { return failing(big, w); })));
     var th = o.theme || theme(), reports = [];
-    // One width at a time, so timings aren't skewed by a neighbour.
+    // One width at a time with a breath in between, so the app stays responsive.
     return widths.reduce(function (p, w) {
-      return p.then(function () { return testOne(html, w, timeout, th).then(function (r) { reports.push(r); }); });
+      return p.then(function () { return new Promise(function (r) { setTimeout(r, 16); }); })
+        .then(function () { return testOne(html, w, timeout, th).then(function (r) { reports.push(r); }); });
     }, Promise.resolve()).then(function () { return merge(reports); });
   }
 
@@ -389,9 +411,9 @@ U.sandbox = (function () {
     if (big) return Promise.resolve({ reachable: false, best: null, tried: 0, error: big });
     var timeout = o.timeout || 8000;
     return new Promise(function (resolve) {
-      var hf = null, done = false, timer = 0;
-      function finish(r) { if (done) return; done = true; clearTimeout(timer); if (hf) hf.close(); resolve(r); }
-      timer = setTimeout(function () { finish({ reachable: false, best: null, tried: 0, error: 'The interactive did not load within ' + Math.round(timeout / 1000) + ' s.' }); }, timeout);
+      var hf = null, done = false, timer = null;
+      function finish(r) { if (done) return; done = true; cancel(timer); if (hf) hf.close(); resolve(r); }
+      timer = visibleTimeout(function () { finish({ reachable: false, best: null, tried: 0, error: 'The interactive did not load within ' + Math.round(timeout / 1000) + ' s.' }); }, timeout);
       try {
         hf = hiddenFrame(html, o.width || 340, o.theme || theme(), function (d) {
           if (d.type !== 'ready') return;

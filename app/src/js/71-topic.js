@@ -17,8 +17,8 @@
 
   U.routes.add('#/t/:tid', function (params, ctx) {
     var tid = params.tid;
-    var topic = null, loaded = false, progress = { ideas: {} }, deleting = false;
-    var ui = { reveal: null, line: 0, retrying: false };
+    var topic = null, loaded = false, failure = null, progress = { ideas: {} }, deleting = false;
+    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false };
     var lib = { key: null, groups: null };
     var avail = null;
     var root = U.h('div', { class: 'tp' });
@@ -32,7 +32,16 @@
     }
 
     var stops = [
-      U.store.topic.watch(tid, function (t) { topic = t; loaded = true; if (t && t.status === 'ready') loadLibrary(); schedule(); }),
+      U.store.topic.watch(tid, function (t) {
+        topic = t; loaded = true; failure = null;
+        if (t) U.setTitle(t.title || asTitle(t.query));
+        if (t && t.status === 'ready') loadLibrary();
+        schedule();
+      }, function (e, info) {
+        if (loaded) return;                    // keep showing the page it has
+        failure = { e: e, retrying: info.retrying };
+        schedule();
+      }),
       U.store.progress.watch(tid, function (p) { progress = p || { ideas: {} }; schedule(); }),
     ];
     U.research.available().then(function (a) { avail = !!a; schedule(); }, function () { avail = false; schedule(); });
@@ -46,18 +55,74 @@
       el.textContent = WAITING[ui.line];
       el.classList.add('is-in');
     }, 3200);
-
-    // Re-render the whole page, keeping keyboard focus on the same control.
-    function render() {
-      var key = document.activeElement && root.contains(document.activeElement) ? document.activeElement.getAttribute('data-key') : null;
-      U.clear(root);
-      if (!loaded) root.appendChild(loadingView());
-      else if (!topic) root.appendChild(goneView());
-      else if (topic.status === 'planning') root.appendChild(planningView());
-      else if (topic.status === 'failed') root.appendChild(failedView());
-      else root.appendChild(readyView());
-      if (key) { var el = root.querySelector('[data-key="' + key + '"]'); if (el) try { el.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
+    // A planning topic that nobody is planning any more turns into "Planning stopped" by itself.
+    var stuckTimer = null;
+    function armStuck() {
+      clearTimeout(stuckTimer);
+      var ms = V.untilStuck(topic);
+      if (ms < Infinity) stuckTimer = setTimeout(function () { if (ctx.alive()) schedule(); }, ms + 500);
     }
+
+    // ---------- rendering ----------
+    // Only the parts whose data changed are rebuilt (a progress write elsewhere must not rebuild
+    // the whole page under Dan's thumb or a screen reader's cursor); focus stays where it was.
+    var shown = { state: null, box: null, slots: {} };
+    function stateOf() {
+      if (!loaded) return failure ? 'error' : 'loading';
+      if (!topic) return 'gone';
+      if (topic.status === 'planning' && !V.planningStuck(topic)) return 'planning';
+      if (topic.status === 'failed' || topic.status === 'planning') return 'failed';
+      return 'ready';
+    }
+    function render() {
+      var state = stateOf();
+      armStuck();
+      var key = document.activeElement && root.contains(document.activeElement) ? document.activeElement.getAttribute('data-key') : null;
+      if (state !== shown.state) {
+        shown.state = state; shown.slots = {};
+        shown.box = U.h('div', { class: state === 'ready' ? 'tp-ready' : state === 'planning' ? 'tp-planning' : state === 'failed' ? 'tp-failed' : 'tp-other' });
+        U.clear(root).appendChild(shown.box);
+      }
+      var parts = state === 'ready' ? readyParts()
+        : state === 'planning' ? planningParts()
+        : state === 'failed' ? failedParts()
+        : [['only', state + (failure ? String(failure.retrying) : ''), function () {
+          return state === 'loading' ? loadingView() : state === 'gone' ? goneView() : V.loadError('This topic', failure && failure.e, failure && failure.retrying);
+        }]];
+      var box = shown.box, at = 0, used = {};
+      parts.forEach(function (p) {
+        if (!p) return;
+        var name = p[0], sig = p[1], slot = shown.slots[name];
+        if (!slot || slot.sig !== sig) {
+          var el = p[2]();
+          slot = shown.slots[name] = { sig: sig, el: el };
+        }
+        used[name] = true;
+        if (!slot.el) return;
+        var cur = box.children[at];
+        if (cur !== slot.el) box.insertBefore(slot.el, cur || null);
+        at++;
+      });
+      while (box.children.length > at) box.lastChild.remove();
+      Object.keys(shown.slots).forEach(function (n) { if (!used[n]) delete shown.slots[n]; });
+      if (key && !(document.activeElement && root.contains(document.activeElement))) {
+        var el = root.querySelector('[data-key="' + key + '"]');
+        if (el) try { el.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+      }
+      if (state === 'ready' && !ui.scrolled) arrived();
+    }
+    // Back from a lesson: bring the idea to do next into view instead of the top of the page.
+    function arrived() {
+      ui.scrolled = true;
+      var from = null;
+      try { from = sessionStorage.getItem('mu-from-lesson'); sessionStorage.removeItem('mu-from-lesson'); } catch (e) { /* fine */ }
+      if (from !== tid) return;
+      requestAnimationFrame(function () {
+        var cur = root.querySelector('.pnode.is-current') || root.querySelector('.path');
+        if (cur) cur.scrollIntoView({ block: 'center', behavior: 'auto' });
+      });
+    }
+    function sig() { return JSON.stringify(Array.prototype.slice.call(arguments)); }
 
     // ---------- states ----------
 
@@ -76,36 +141,43 @@
         V.empty({ title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Back to Learn' } }));
     }
 
-    function planningView() {
-      return U.h('div', { class: 'tp-planning' },
-        V.back('#/', 'All topics'),
-        U.h('div', { class: 'tp-banner is-planning' }, V.cover(topic), U.h('div', { class: 'tcard-shimmer' })),
-        U.h('p', { class: 'eyebrow' }, 'Planning your topic'),
-        U.h('h1', { class: 'tp-title' }, asTitle(topic.query || topic.title) || 'Your new topic'),
-        U.h('div', { class: 'tp-wait', role: 'status' },
-          U.h('div', { class: 'working' }),
-          U.h('p', { class: 'tp-wait-line is-in' }, WAITING[ui.line])),
-        U.h('div', { class: 'tp-sk-path', 'aria-hidden': 'true' }, [0, 1, 2, 3, 4].map(function (i) {
-          return U.h('div', { class: 'tp-sk-node' }, U.h('span', { class: 'skeleton tp-sk-dot' }),
-            U.h('span', { class: 'tp-sk-text' }, U.h('span', { class: 'skeleton sk-line', style: { width: (78 - i * 7) + '%' } }), U.h('span', { class: 'skeleton sk-line short' })));
-        })));
+    function planningParts() {
+      return [['planning', sig(topic.query, topic.title, topic.hue), function () {
+        return U.h('div', { class: 'tp-planning-in' },
+          V.back('#/', 'All topics'),
+          U.h('div', { class: 'tp-banner is-planning' }, V.cover(topic), U.h('div', { class: 'tcard-shimmer' })),
+          U.h('p', { class: 'eyebrow' }, 'Planning your topic'),
+          U.h('h1', { class: 'tp-title' }, asTitle(topic.query || topic.title) || 'Your new topic'),
+          U.h('div', { class: 'tp-wait', role: 'status' },
+            U.h('div', { class: 'working' }),
+            U.h('p', { class: 'tp-wait-line is-in' }, WAITING[ui.line])),
+          U.h('div', { class: 'tp-sk-path', 'aria-hidden': 'true' }, [0, 1, 2, 3, 4].map(function (i) {
+            return U.h('div', { class: 'tp-sk-node' }, U.h('span', { class: 'skeleton tp-sk-dot' }),
+              U.h('span', { class: 'tp-sk-text' }, U.h('span', { class: 'skeleton sk-line', style: { width: (78 - i * 7) + '%' } }), U.h('span', { class: 'skeleton sk-line short' })));
+          })));
+      }]];
     }
 
-    function failedView() {
-      var q = asTitle(topic.query || topic.title) || 'Your new topic';
-      return U.h('div', { class: 'tp-failed' },
-        V.back('#/', 'All topics'),
-        U.h('div', { class: 'tp-banner is-quiet' }, V.cover(topic)),
-        U.h('p', { class: 'eyebrow' }, 'New topic'),
-        U.h('h1', { class: 'tp-title' }, q),
-        U.h('div', { class: 'notice bad', role: 'alert' },
-          U.h('div', null,
-            U.h('strong', null, 'Planning did not finish. '),
-            U.h('span', null, topic.error ? U.errText(typeof topic.error === 'string' ? { message: topic.error } : topic.error) : 'Nothing was lost. Try again in a moment.'))),
-        U.h('div', { class: 'row tp-failed-actions' },
-          U.h('button', { class: 'btn', type: 'button', 'data-key': 'retry', disabled: ui.retrying, on: { click: retry } }, ui.retrying ? 'Trying again…' : 'Try again'),
-          U.h('button', { class: 'btn ghost', type: 'button', on: { click: del } }, 'Delete this topic')),
-        ui.retrying ? U.h('div', { class: 'working' }) : null);
+    // Planning failed, or stopped (the page that was planning went away: still 'planning' but
+    // nothing has happened for a while). Both offer Try again and Delete.
+    function failedParts() {
+      var stopped = topic.status === 'planning';
+      return [['failed', sig(topic.query, topic.title, topic.error, stopped, ui.retrying), function () {
+        var q = asTitle(topic.query || topic.title) || 'Your new topic';
+        return U.h('div', { class: 'tp-failed-in' },
+          V.back('#/', 'All topics'),
+          U.h('div', { class: 'tp-banner is-quiet' }, V.cover(topic)),
+          U.h('p', { class: 'eyebrow' }, 'New topic'),
+          U.h('h1', { class: 'tp-title' }, q),
+          U.h('div', { class: 'notice bad', role: 'alert' },
+            U.h('div', null,
+              U.h('strong', null, stopped ? 'Planning stopped before it finished. ' : 'Planning did not finish. '),
+              U.h('span', null, !stopped && topic.error ? U.errText(typeof topic.error === 'string' ? { message: topic.error } : topic.error) : 'Nothing was lost. Try again in a moment.'))),
+          U.h('div', { class: 'row tp-failed-actions' },
+            U.h('button', { class: 'btn', type: 'button', 'data-key': 'retry', disabled: ui.retrying, on: { click: retry } }, ui.retrying ? 'Trying again…' : 'Try again'),
+            U.h('button', { class: 'btn ghost', type: 'button', 'data-key': 'delete-failed', on: { click: del } }, 'Delete this topic')),
+          ui.retrying ? U.h('div', { class: 'working' }) : null);
+      }]];
     }
 
     function retry() {
@@ -134,21 +206,22 @@
     }
 
     function del() {
+      if (deleting) return;
       var title = topic.title || topic.query || 'this topic';
       U.confirmSheet({
         title: 'Delete this topic?',
         text: 'This removes “' + title + '”, its lessons, your answers and its review cards from all your devices. You cannot undo this.',
         confirm: 'Delete topic', danger: true,
       }).then(function (yes) {
-        if (!yes) return;
+        if (!yes || deleting) return;
         deleting = true;
-        return U.store.topic.remove(tid).then(function () {
-          U.toast('Topic deleted.');
+        return U.store.topic.remove(tid).then(function (r) {
+          U.toast(r && r.leftovers ? 'Topic deleted. A few of its saved pieces could not be cleared yet; they are hidden and will be tidied up later.' : 'Topic deleted.');
           if (U.review && U.review.refreshBadge) try { U.review.refreshBadge(); } catch (e) { console.error(e); }
           if (ctx.alive()) U.go('#/');
         }, function (e) {
           deleting = false;
-          U.toast('Could not delete the topic: ' + U.errText(e), { kind: 'bad' });
+          U.toast('Could not delete the topic: ' + U.errText(e) + ' Nothing was removed.', { kind: 'bad' });
           if (ctx.alive()) render();
         });
       });
@@ -156,38 +229,55 @@
 
     // ---------- ready ----------
 
-    function readyView() {
+    function readyParts() {
       var ideas = Array.isArray(topic.ideas) ? topic.ideas : [];
       var s = V.summary(topic, progress);
-      var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
-      var head = U.h('header', { class: 'tp-head' },
+      var pi = progress.ideas || {};
+      var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known]; });
+      var cal = progress.calibration || {};
+      var r = topic.research || {};
+      return [
+        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.started, s.allDone), function () { return head(s); }],
+        topic.oneBreath ? ['breath', sig(topic.oneBreath), function () {
+          return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
+            U.h('p', { class: 'eyebrow' }, 'In one breath'),
+            U.h('div', { class: 'reading' }, U.rich(topic.oneBreath)));
+        }] : null,
+        ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
+        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea), function () {
+          var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
+            U.h('div', { class: 'row' },
+              s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
+                : U.h('span', { class: 'muted' }, s.done + ' of ' + s.total + ' ideas done')),
+            U.h('div', { class: 'bar' + (s.allDone ? ' is-complete' : ''), role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(s.total), 'aria-valuenow': String(s.done), 'aria-label': 'Ideas done' }, U.h('i', { style: { width: (s.total ? Math.round((s.done / s.total) * 100) : 0) + '%' } }))) : null;
+          return U.h('section', { class: 'tp-path-sec', 'aria-labelledby': 'path-h' },
+            U.h('div', { class: 'section-head' }, U.h('h2', { id: 'path-h' }, 'Your path'), prog ? null : U.h('span', { class: 'muted small' }, 'Take them in order, or start anywhere')),
+            prog,
+            U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s); })));
+        }],
+        U.tutor && U.tutor.open ? ['ask', 'ask', function () {
+          return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
+        }] : null,
+        ['library', sig(r.status, r.at, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }],
+        ['foot', 'foot', function () {
+          return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
+        }],
+      ];
+    }
+
+    function head(s) {
+      // The next step, right at the top: no scrolling past the warm-up to find it.
+      var cta = s.current && !s.allDone
+        ? U.h('a', { class: 'btn tp-cta', 'data-key': 'cta', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(s.current.id) },
+          U.h('span', { class: 'tp-cta-text' }, (s.started ? 'Continue: ' : 'Start: ') + s.current.title), U.icon('arrow'))
+        : null;
+      return U.h('header', { class: 'tp-head' },
         V.back('#/', 'All topics'),
         U.h('div', { class: 'tp-banner' }, V.cover(topic)),
         U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
         U.h('h1', { class: 'tp-title' }, topic.title || topic.query),
-        topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null);
-
-      var breath = topic.oneBreath ? U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
-        U.h('p', { class: 'eyebrow' }, 'In one breath'),
-        U.h('div', { class: 'reading' }, U.rich(topic.oneBreath))) : null;
-
-      var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
-        U.h('div', { class: 'row' },
-          s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
-            : U.h('span', { class: 'muted' }, s.done + ' of ' + s.total + ' ideas done')),
-        U.h('div', { class: 'bar' + (s.allDone ? ' is-complete' : ''), role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(s.total), 'aria-valuenow': String(s.done), 'aria-label': 'Ideas done' }, U.h('i', { style: { width: pct + '%' } }))) : null;
-
-      var ask = U.tutor && U.tutor.open ? U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic') : null;
-
-      return U.h('div', { class: 'tp-ready' },
-        head, breath, warmup(),
-        U.h('section', { class: 'tp-path-sec', 'aria-labelledby': 'path-h' },
-          U.h('div', { class: 'section-head' }, U.h('h2', { id: 'path-h' }, 'Your path'), prog ? null : U.h('span', { class: 'muted small' }, 'Take them in order, or start anywhere')),
-          prog,
-          U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s); }))),
-        ask,
-        library(ideas),
-        U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic')));
+        topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
+        cta);
     }
 
     function pathNode(idea, i, ideas, s) {
@@ -215,7 +305,7 @@
             idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
             deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
-            current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start here', U.icon('arrow')) : null)));
+            current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start this idea', U.icon('arrow')) : null)));
     }
 
     // Known from the plan, from progress, or from a right warm-up answer about this idea.
@@ -244,7 +334,7 @@
           if (begun) return null; // he is already learning: the warm-up has done its job
           return U.h('p', { class: 'tp-warm-again' }, U.h('button', { class: 'linkish', type: 'button', 'data-key': 'warm-again', on: { click: function () {
             progress = Object.assign({}, progress, { calibrationSkipped: false });
-            U.store.progress.patch(tid, { calibrationSkipped: false });
+            U.store.progress.patch(tid, { calibrationSkipped: false }).catch(function () { /* told */ });
             render();
           } } }, 'Try the ' + (qs.length === 1 ? 'warm-up question' : qs.length + ' warm-up questions')));
         }
@@ -259,11 +349,12 @@
 
       var q = revealQ || qs.filter(function (x) { return !answered(x); })[0];
       var idx = qs.indexOf(q), picked = ans[q.id], revealing = !!revealQ;
+      var chosen = !revealing && ui.pick && ui.pick.q === q.id ? ui.pick.i : null;
       var options = q.options.map(function (opt, i) {
         var cls = 'option';
         if (revealing && i === q.answer) cls += ' correct';
         else if (revealing && i === picked) cls += ' wrong';
-        return U.h('button', { class: cls, type: 'button', disabled: revealing, 'aria-pressed': revealing && i === picked ? 'true' : 'false', 'data-key': 'warm-' + q.id + '-' + i, on: { click: function () { pick(q, i); } } },
+        return U.h('button', { class: cls, type: 'button', disabled: revealing, 'aria-pressed': (revealing ? i === picked : i === chosen) ? 'true' : 'false', 'data-key': 'warm-' + q.id + '-' + i, on: { click: function () { choose(q, i); } } },
           U.plain(opt));
       });
       var isLast = qs.filter(function (x) { return !answered(x) && x.id !== q.id; }).length === 0;
@@ -273,21 +364,32 @@
           revealing ? null : U.h('button', { class: 'linkish tp-skip', type: 'button', 'data-key': 'warm-skip', on: { click: skip } }, 'Skip')),
         idx === 0 && !revealing ? U.h('p', { class: 'muted small' }, 'A quick look at where you stand. It never locks anything.') : null,
         U.inline(U.h('p', { class: 'tp-warm-q' }), q.q),
-        U.h('div', { class: 'options' }, options),
+        U.h('div', { class: 'options', role: 'group', 'aria-label': 'Answers' }, options),
         revealing ? U.h('div', { class: 'tp-warm-why', role: 'status' },
           U.h('p', { class: 'tp-warm-verdict' }, picked === q.answer ? 'Right.' : 'Not quite. The answer is “' + U.plain(q.options[q.answer] || '') + '”.'),
           q.why ? U.h('div', { class: 'muted' }, U.rich(q.why)) : null,
-          U.h('button', { class: 'btn small', type: 'button', 'data-key': 'warm-next', on: { click: function () { ui.reveal = null; render(); } } }, isLast ? 'Done' : 'Next question')) : null);
+          U.h('button', { class: 'btn small', type: 'button', 'data-key': 'warm-next', on: { click: function () { ui.reveal = null; render(); } } }, isLast ? 'Done' : 'Next question'))
+          : U.h('div', { class: 'tp-warm-go' }, U.h('button', { class: 'btn small tp-warm-check', type: 'button', 'data-key': 'warm-check', disabled: chosen == null, on: { click: function () { if (chosen != null) pick(q, chosen); } } }, 'Check')));
+    }
+
+    function choose(q, i) {
+      ui.pick = { q: q.id, i: i };
+      render();
+      var check = root.querySelector('[data-key="warm-check"]');
+      var opt = root.querySelector('[data-key="warm-' + q.id + '-' + i + '"]');
+      if (opt) try { opt.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+      void check;
     }
 
     function pick(q, i) {
       ui.reveal = q.id;
+      ui.pick = null;
       var cal = Object.assign({}, progress.calibration || {});
       cal[q.id] = i;
       progress = Object.assign({}, progress, { calibration: cal });
       var patch = { calibration: {} };
       patch.calibration[q.id] = i;
-      U.store.progress.patch(tid, patch);
+      U.store.progress.patch(tid, patch).catch(function () { /* the store already told Dan */ });
       render();
       var next = root.querySelector('[data-key="warm-next"]');
       if (next) try { next.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
@@ -295,7 +397,7 @@
 
     function skip() {
       progress = Object.assign({}, progress, { calibrationSkipped: true });
-      U.store.progress.patch(tid, { calibrationSkipped: true });
+      U.store.progress.patch(tid, { calibrationSkipped: true }).catch(function () { /* told */ });
       render();
     }
 
@@ -328,15 +430,18 @@
     function library(ideas) {
       var r = topic.research || {};
       var count = (lib.groups || []).reduce(function (n, g) { return n + g.sources.length; }, 0);
-      var status;
-      if (r.status === 'running') {
+      var status, stale = V.researchStale(topic);
+      if (ui.researching || (r.status === 'running' && !stale)) {
         status = U.h('div', { class: 'lib-status is-running' }, U.h('span', null, 'Checking sources…'), U.h('div', { class: 'working' }));
       } else if (r.status === 'done') {
         status = U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Sources checked' + (count ? ' · ' + count + (count === 1 ? ' source' : ' sources') : '')));
       } else {
-        var text = r.status === 'failed' ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
+        // A check left 'running' by a page that went away counts as not finished.
+        var text = r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
         if (avail === false) text += ' Connect Parallel Search in Claude\'s settings to add sources.';
-        status = U.h('p', { class: 'lib-status is-none' }, text);
+        var again = (r.status === 'failed' || stale) && avail !== false && U.gen && typeof U.gen.research === 'function'
+          ? U.h('button', { class: 'linkish lib-retry', type: 'button', 'data-key': 'research-again', on: { click: researchAgain } }, 'Check the sources again') : null;
+        status = U.h('div', { class: 'lib-status is-none' }, U.h('p', null, text), again);
       }
       var groups = (lib.groups || []).map(function (g) {
         var idea = g.key === 'topic' ? null : ideas.filter(function (i) { return i.id === g.key; })[0];
@@ -347,6 +452,15 @@
       return U.h('section', { class: 'tp-lib', 'aria-labelledby': 'lib-h' },
         U.h('div', { class: 'section-head' }, U.h('h2', { id: 'lib-h' }, 'Library')),
         status, groups);
+    }
+
+    function researchAgain() {
+      if (ui.researching) return;
+      ui.researching = true; render();
+      Promise.resolve().then(function () { return U.gen.research(tid); }).catch(function () { /* research never rejects */ }).then(function () {
+        ui.researching = false;
+        if (ctx.alive()) render();
+      });
     }
 
     function sourceItem(src) {
@@ -360,7 +474,8 @@
     return function () {
       stops.forEach(function (f) { try { f(); } catch (e) { console.error(e); } });
       clearInterval(timer);
+      clearTimeout(stuckTimer);
       if (frame) cancelAnimationFrame(frame);
     };
-  }, { tab: 'learn' });
+  }, { tab: 'learn', title: 'Topic' });
 })();

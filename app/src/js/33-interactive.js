@@ -336,7 +336,7 @@ U.interactive = (function () {
     });
   }
 
-  // build(topic, idea, lesson, {onStatus, avoid, signal})
+  // build(topic, idea, lesson, {onStatus, avoid, signal, priority})   priority: 'background' for a prefetch
   //   -> Promise<{html, title, brief, selftest, attempts, unreachable?:[check ids]} | null>
   // Resolves null when the lesson has no interactive brief or no attempt passed its self-test;
   // rejects only when Claude can't be reached ({code, message} from U.ask). `unreachable` lists
@@ -347,7 +347,7 @@ U.interactive = (function () {
     if (!spec) return Promise.resolve(null);
     var status = function (t) { if (o.onStatus) try { o.onStatus(t); } catch (e) { console.error(e); } };
     var attempts = 0, html = '';
-    function ask(text, label) { return U.ask(text, { tier: 'complex', label: label, signal: o.signal }); }
+    function ask(text, label) { return U.ask(text, { tier: 'complex', label: label, signal: o.signal, priority: o.priority }); }
     function check(reply) {
       attempts++;
       html = extract(reply);

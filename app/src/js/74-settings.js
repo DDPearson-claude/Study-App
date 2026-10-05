@@ -1,4 +1,4 @@
-// Reading settings: U.settings.open() shows a sheet with appearance, text size, easier reading,
+// Settings: U.settings.open() shows a sheet with appearance, text size, easier reading,
 // daily reviews, research status, a full backup and the build id. Every change applies at once,
 // is mirrored to localStorage 'mu-prefs' (read before first paint by head.html) and saved to the
 // profile in the db (docs/ARCHITECTURE.md section 4: profile.prefs).
@@ -94,7 +94,7 @@
     },
 
     open: function () {
-      if (S._sheet && S._sheet.el.isConnected) return S._sheet; // already open (a route change clears sheets without onClose)
+      if (S._sheet && S._sheet.el.isConnected) return S._sheet; // already open
       var p = S.prefs;
 
       // A row of radio buttons that behaves like a segmented control.
@@ -163,7 +163,7 @@
         group('Backup', backupBtn, 'Save a copy of everything: topics, lessons, sources, your answers, review cards and settings.'),
         U.h('p', { class: 'set-build muted small' }, 'Build ' + U.BUILD));
 
-      S._sheet = U.sheet({ title: 'Reading settings', body: body, autofocus: false, onClose: function () { S._sheet = null; } });
+      S._sheet = U.sheet({ title: 'Settings', body: body, autofocus: false, onClose: function () { S._sheet = null; } });
       return S._sheet;
     },
   });
