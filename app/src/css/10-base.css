@@ -23,9 +23,14 @@ img, svg { max-width: 100%; }
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
   display: flex; align-items: center; gap: 12px;
   height: var(--topbar-h); padding-inline: max(16px, calc((100% - var(--col)) / 2));
+  border-bottom: 1px solid var(--line);
+}
+/* The frosted glass lives on a pseudo-element: a backdrop-filter on .topbar itself would become
+   the containing block for the fixed bottom tab bar (which sits inside the header). */
+.topbar::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
-  border-bottom: 1px solid var(--line);
 }
 .brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--heading); min-height: 44px; }
 .brand-mark { width: 28px; height: 28px; color: var(--teal); flex: none; }

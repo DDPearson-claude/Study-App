@@ -1,0 +1,554 @@
+// Spaced review: the card store, today's queue, the Today tab and the review session
+// (docs/ARCHITECTURE.md sections 4, 8, 9, 10).
+//
+//   U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>
+//       outcome = {checks:{[checkId]:{correct}}, say:{text, verdict}}. Each check Dan answered becomes
+//       a card of the same type; his say-it-back answer becomes a 'recall' card. Re-learning an idea
+//       replaces its cards (unchanged questions keep their schedule).
+//   U.review.queue({cap, light, extra}) -> Promise<[card]>   due today or overdue, most overdue first,
+//       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
+//       counts cards already reviewed today, unless `extra` (a "keep going" batch).
+//   U.review.dueCount() -> Promise<number>     what today's session holds right now
+//   U.review.refreshBadge()                    #today-badge text + hidden
+//   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
+//   U.review.slipping() -> Promise<[{tid, iid, lapses}]>   ideas forgotten 2+ times in 30 days
+//
+// Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen).
+// Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
+// Card fields beyond the contract: learnedAt (last time the lesson was completed; lapses before it
+// no longer count towards "Learn it again") and retired (a target card whose interactive is gone).
+(function () {
+  var h = U.h;
+  var DEFAULT_CAP = 15, LIGHT_CAP = 5, MORE = 5;
+  var LAPSE_DAYS = 30, LAPSE_LIMIT = 2, HIST_MAX = 40;
+  var SECONDS = { choice: 25, order: 40, estimate: 30, target: 60, recall: 90 };
+  var TYPES = { choice: 1, order: 1, estimate: 1, target: 1 };
+
+  // ---------- data ----------
+  function flatten(all) {
+    var list = [];
+    Object.keys(all || {}).forEach(function (tid) {
+      var cards = (all[tid] && all[tid].cards) || {};
+      Object.keys(cards).forEach(function (id) {
+        var c = cards[id];
+        if (!c || typeof c !== 'object') return;
+        c.id = c.id || id;
+        c.tid = c.tid || tid;
+        list.push(c);
+      });
+    });
+    return list;
+  }
+  function loadCards() { return U.store.cards.all().then(flatten); }
+  function dayOf(iso) { return iso ? U.today(new Date(iso)) : null; }
+  function isDue(c, day) { return !c.retired && !!(c.s && c.s.due) && c.s.due <= day; }
+  function reviewedOn(cards, day) {
+    var n = 0;
+    cards.forEach(function (c) { (c.hist || []).forEach(function (e) { if (dayOf(e.at) === day) n++; }); });
+    return n;
+  }
+  function capOf(prefs, opts) {
+    var cap = opts.cap > 0 ? opts.cap : prefs.cap > 0 ? prefs.cap : DEFAULT_CAP;
+    var light = opts.light != null ? !!opts.light : !!prefs.light;
+    return light ? Math.min(cap, LIGHT_CAP) : cap;
+  }
+  function ideaKey(c) { return c.tid + '/' + c.iid; }
+
+  // Most overdue first; then the most faded; then a stable shuffle.
+  function byPriority(day) {
+    return function (a, b) {
+      return (U.daysBetween(b.s.due, day) - U.daysBetween(a.s.due, day)) ||
+        (U.fsrs.retrievability(a.s, day) - U.fsrs.retrievability(b.s, day)) ||
+        (U.hash(a.id + a.tid) - U.hash(b.id + b.tid));
+    };
+  }
+
+  // Order a session so the same idea never comes twice in a row (when that is possible at all) and
+  // topics alternate, while keeping the most overdue cards early.
+  function interleave(list) {
+    var rest = list.slice(), out = [];
+    function arrangeable(i) {
+      var k = ideaKey(rest[i]), counts = {}, n = rest.length - 1;
+      rest.forEach(function (c, j) { if (j !== i) counts[ideaKey(c)] = (counts[ideaKey(c)] || 0) + 1; });
+      return Object.keys(counts).every(function (g) { return counts[g] <= (g === k ? Math.floor(n / 2) : Math.ceil(n / 2)); });
+    }
+    function find(test) { for (var i = 0; i < rest.length; i++) if (test(i)) return i; return -1; }
+    while (rest.length) {
+      var prev = out[out.length - 1];
+      var fresh = function (i) { return !prev || ideaKey(rest[i]) !== ideaKey(prev); };
+      var otherTopic = function (i) { return !prev || rest[i].tid !== prev.tid; };
+      var pick = find(function (i) { return fresh(i) && otherTopic(i) && arrangeable(i); });
+      if (pick < 0) pick = find(function (i) { return fresh(i) && arrangeable(i); });
+      if (pick < 0) pick = find(fresh);
+      if (pick < 0) pick = 0;
+      out.push(rest.splice(pick, 1)[0]);
+    }
+    return out;
+  }
+
+  // Everything Today and a session need, from one read of the cards and the profile.
+  function plan(opts, data) {
+    opts = opts || {};
+    var load = data ? Promise.resolve(data) : Promise.all([loadCards(), U.store.profile.get()]).then(function (r) { return { cards: r[0], profile: r[1] || {} }; });
+    return load.then(function (d) {
+      var day = U.today(), prefs = d.profile.prefs || {};
+      var due = d.cards.filter(function (c) { return isDue(c, day); }).sort(byPriority(day));
+      var cap = capOf(prefs, opts), done = reviewedOn(d.cards, day);
+      var size = Math.min(due.length, opts.extra ? cap : Math.max(0, cap - done));
+      return { data: d, day: day, prefs: prefs, due: due, cap: cap, done: done, size: size, queue: interleave(due.slice(0, size)) };
+    });
+  }
+
+  function slippingIn(cards, day) {
+    var since = U.addDays(day, -LAPSE_DAYS), groups = {};
+    cards.forEach(function (c) {
+      if (c.retired) return;
+      (c.hist || []).forEach(function (e) {
+        if (e.grade !== 1 || !e.at || dayOf(e.at) <= since) return;
+        if (c.learnedAt && e.at < c.learnedAt) return;
+        var k = ideaKey(c);
+        groups[k] = groups[k] || { tid: c.tid, iid: c.iid, lapses: 0 };
+        groups[k].lapses++;
+      });
+    });
+    return Object.keys(groups).map(function (k) { return groups[k]; }).filter(function (g) { return g.lapses >= LAPSE_LIMIT; });
+  }
+  // Tell the lesson view to rebuild these ideas with a different interactive.
+  function flagRelearn(list) {
+    list.forEach(function (g) {
+      U.store.progress.get(g.tid).then(function (p) {
+        var idea = p && p.ideas && p.ideas[g.iid];
+        if (idea && idea.relearn) return;
+        var patch = { ideas: {} };
+        patch.ideas[g.iid] = { relearn: true };
+        return U.store.progress.patch(g.tid, patch);
+      }).catch(function (e) { console.error('relearn flag failed', e); });
+    });
+  }
+
+  // Record one answer: new FSRS state + history entry, saved straight away.
+  function save(card, grade, ok) {
+    var day = U.today();
+    card.s = U.fsrs.review(card.s || U.fsrs.init(day), grade, day, card.id);
+    card.hist = (card.hist || []).concat([{ at: U.now(), grade: grade, ok: !!ok }]).slice(-HIST_MAX);
+    var patch = { cards: {} };
+    patch.cards[card.id] = { s: card.s, hist: card.hist };
+    return U.store.cards.patch(card.tid, patch).then(function () { U.review.refreshBadge(); });
+  }
+  function retire(card) {
+    var patch = { cards: {} };
+    patch.cards[card.id] = { retired: true };
+    return U.store.cards.patch(card.tid, patch).catch(function () {});
+  }
+
+  function sameQuestion(a, b, type) {
+    if (!a || !b) return false;
+    if (type === 'recall') return a.prompt === b.prompt && a.model === b.model;
+    return JSON.stringify(a) === JSON.stringify(b);
+  }
+
+  function addFromLesson(tid, iid, lesson, outcome) {
+    lesson = lesson || {};
+    outcome = outcome || {};
+    var now = U.now(), day = U.today(), made = {};
+    (lesson.checks || []).forEach(function (ch) {
+      if (!ch || !ch.id || !TYPES[ch.type]) return;
+      if (!outcome.checks || !outcome.checks[ch.id]) return;     // only what Dan actually answered
+      var id = iid + '_' + ch.id;
+      made[id] = { id: id, tid: tid, iid: iid, type: ch.type, spec: U.clone(ch) };
+    });
+    var say = outcome.say, sp = lesson.say;
+    if (say && say.text && sp && sp.prompt) {
+      made[iid + '_say'] = {
+        id: iid + '_say', tid: tid, iid: iid, type: 'recall',
+        spec: { prompt: sp.prompt, rubric: sp.rubric || [], model: sp.model || '', mine: String(say.text) },
+      };
+    }
+    return U.store.cards.get(tid).then(function (doc) {
+      var cards = Object.assign({}, (doc && doc.cards) || {});
+      Object.keys(cards).forEach(function (id) { if (cards[id] && cards[id].iid === iid && !made[id]) delete cards[id]; });
+      Object.keys(made).forEach(function (id) {
+        var m = made[id], old = cards[id];
+        if (old && old.type === m.type && sameQuestion(old.spec, m.spec, m.type)) {
+          old.spec = m.spec;            // keeps the schedule; refreshes Dan's latest words
+          old.learnedAt = now;
+          delete old.retired;
+        } else {
+          m.createdAt = now;
+          m.learnedAt = now;
+          m.s = U.fsrs.init(day);
+          m.hist = [];
+          cards[id] = m;
+        }
+      });
+      return U.store.setDoc(U.store.paths.cards(tid), { cards: cards });
+    }).then(function () {
+      U.review.refreshBadge();
+      return Object.keys(made);
+    });
+  }
+
+  function ideaBands() {
+    var RANK = { new: 0, fragile: 1, growing: 2, strong: 3 }, NAMES = ['new', 'fragile', 'growing', 'strong'];
+    return loadCards().then(function (cards) {
+      var day = U.today(), groups = {}, out = {};
+      cards.forEach(function (c) {
+        if (c.retired || !c.iid) return;
+        var t = groups[c.tid] = groups[c.tid] || {};
+        (t[c.iid] = t[c.iid] || []).push(RANK[U.fsrs.band(c.s, day)]);
+      });
+      Object.keys(groups).forEach(function (tid) {
+        out[tid] = {};
+        Object.keys(groups[tid]).forEach(function (iid) {
+          // The middle reviewed card decides, so one slip does not paint a whole idea fragile.
+          var ranks = groups[tid][iid].filter(function (r) { return r > 0; }).sort();
+          out[tid][iid] = ranks.length ? NAMES[ranks[Math.floor((ranks.length - 1) / 2)]] : 'new';
+        });
+      });
+      return out;
+    });
+  }
+
+  U.review = {
+    addFromLesson: addFromLesson,
+    queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
+    dueCount: function () { return plan({}).then(function (p) { return p.size; }); },
+    refreshBadge: function () {
+      return U.review.dueCount().then(function (n) {
+        var b = document.getElementById('today-badge');
+        if (!b) return n;
+        b.textContent = n > 99 ? '99+' : String(n);
+        b.hidden = !n;
+        b.setAttribute('aria-label', n + (n === 1 ? ' card' : ' cards') + ' to review');
+        return n;
+      }, function (e) { console.error('badge', e); return 0; });
+    },
+    ideaBands: ideaBands,
+    slipping: function () { return loadCards().then(function (cards) { return slippingIn(cards, U.today()); }); },
+    _interleave: interleave,
+    _plan: plan,
+  };
+
+  // ---------- shared view bits ----------
+  function minutesFor(cards) {
+    var s = 0;
+    cards.forEach(function (c) { s += SECONDS[c.type] || 30; });
+    return Math.max(1, Math.round(s / 60));
+  }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many || one + 's'); }
+  function longDate(day) {
+    var p = day.split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  function whenDay(day, today) {
+    var n = U.daysBetween(today, day);
+    if (n <= 0) return 'today';
+    if (n === 1) return 'tomorrow';
+    var p = day.split('-').map(Number), d = new Date(p[0], p[1] - 1, p[2]);
+    if (n < 7) return 'on ' + d.toLocaleDateString(undefined, { weekday: 'long' });
+    return 'on ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
+  }
+  function topicsFor(tids) {
+    var out = {};
+    return Promise.all(tids.map(function (tid) {
+      return U.store.topic.get(tid).then(function (t) { out[tid] = t; }, function () { out[tid] = null; });
+    })).then(function () { return out; });
+  }
+  function ideaTitle(topics, tid, iid) {
+    var t = topics[tid], ideas = (t && t.ideas) || [];
+    for (var i = 0; i < ideas.length; i++) if (ideas[i].id === iid) return ideas[i].title;
+    return 'An idea';
+  }
+  function topicTitle(topics, tid) { return (topics[tid] && topics[tid].title) || 'A topic'; }
+  function uniq(list) { return list.filter(function (x, i) { return list.indexOf(x) === i; }); }
+
+  function relearnBlock(list, topics) {
+    if (!list.length) return null;
+    return h('section', { class: 'card-quiet td-relearn', 'aria-label': 'Ideas to learn again' },
+      h('p', { class: 'eyebrow' }, 'Worth another look'),
+      h('p', { class: 'td-relearn-lead' }, list.length === 1 ? 'This idea has slipped a couple of times lately. A fresh lesson with a new interactive often makes it click.' : 'These ideas have slipped a couple of times lately. A fresh lesson with a new interactive often makes them click.'),
+      h('ul', { class: 'td-relearn-list' }, list.map(function (g) {
+        return h('li', null, h('a', { class: 'td-relearn-link', href: '#/t/' + encodeURIComponent(g.tid) + '/' + encodeURIComponent(g.iid) },
+          h('span', { class: 'td-relearn-text' }, h('strong', null, ideaTitle(topics, g.tid, g.iid)), h('span', { class: 'muted small' }, topicTitle(topics, g.tid))),
+          h('span', { class: 'td-relearn-go' }, 'Learn it again', U.icon('arrow'))));
+      })));
+  }
+
+  // Monday-to-Sunday dots for days with any study (logged minutes or reviews). Facts only: no
+  // streaks, no missed-day marks.
+  function weekStrip(days, today, cards) {
+    days = Object.assign({}, days || {});
+    (cards || []).forEach(function (c) {
+      (c.hist || []).forEach(function (e) { var d = dayOf(e.at); if (d && !(days[d] > 0)) days[d] = 0.5; });
+    });
+    var p = today.split('-').map(Number), dow = (new Date(p[0], p[1] - 1, p[2]).getDay() + 6) % 7;
+    var start = U.addDays(today, -dow), studied = 0;
+    var cells = [];
+    for (var i = 0; i < 7; i++) {
+      var d = U.addDays(start, i), mins = Number(days[d]) || 0, q = d.split('-').map(Number);
+      var date = new Date(q[0], q[1] - 1, q[2]);
+      var on = mins > 0 && d <= today;
+      if (on) studied++;
+      cells.push(h('li', {
+        class: 'td-day' + (on ? ' on' : '') + (d === today ? ' today' : '') + (d > today ? ' future' : ''),
+        'aria-label': date.toLocaleDateString(undefined, { weekday: 'long' }) + (on ? ', studied' + (mins >= 1 ? ' ' + plural(Math.round(mins), 'minute') : '') : ''),
+      }, h('span', { class: 'td-day-name', 'aria-hidden': 'true' }, date.toLocaleDateString(undefined, { weekday: 'narrow' })),
+        h('span', { class: 'td-day-dot', 'aria-hidden': 'true' }, on ? U.icon('tick') : null)));
+    }
+    return h('section', { class: 'td-week', 'aria-label': 'This week' },
+      h('div', { class: 'td-week-head' }, h('h2', { class: 'eyebrow' }, 'This week'),
+        h('p', { class: 'muted small' }, studied ? 'You studied on ' + plural(studied, 'day') + '.' : 'Days you study show up here.')),
+      h('ol', { class: 'td-days' }, cells));
+  }
+
+  // ---------- #/today ----------
+  function todayView(params, ctx) {
+    var root = h('div', { class: 'td' });
+    ctx.view.appendChild(root);
+    root.appendChild(h('div', { class: 'td-loading' }, h('div', { class: 'skeleton', style: { height: '28px', width: '60%' } }), h('div', { class: 'skeleton', style: { height: '180px' } })));
+
+    plan({}).then(function (p) {
+      var tids = uniq(p.data.cards.map(function (c) { return c.tid; }));
+      return topicsFor(tids).then(function (topics) { return { p: p, topics: topics }; });
+    }).then(function (r) {
+      if (!ctx.alive()) return;
+      var p = r.p, topics = r.topics, slipping = slippingIn(p.data.cards, p.day);
+      if (slipping.length) flagRelearn(slipping);
+      draw(p, topics, slipping);
+    }).catch(function (e) {
+      if (!ctx.alive()) return;
+      console.error(e);
+      U.clear(root).appendChild(h('div', { class: 'notice bad' }, h('p', null, 'Today\'s review could not be loaded. ' + U.errText(e))));
+    });
+
+    function draw(p, topics, slipping) {
+      U.clear(root);
+      root.appendChild(h('p', { class: 'eyebrow td-date' }, longDate(p.day)));
+      if (p.size > 0) drawDue(p, topics);
+      else drawClear(p);
+      U.append(root, relearnBlock(slipping, topics));
+      root.appendChild(weekStrip(p.data.profile.days, p.day, p.data.cards));
+    }
+
+    function drawDue(p, topics) {
+      var names = uniq(p.queue.map(function (c) { return c.tid; })).map(function (tid) { return topicTitle(topics, tid); });
+      var count = h('span', { class: 'td-count-n' }), minutes = h('span');
+      var light = h('input', { class: 'td-switch-input', type: 'checkbox', role: 'switch', checked: !!p.prefs.light, 'aria-describedby': 'td-light-note' });
+      var start = h('button', { class: 'btn wide td-start', type: 'button', on: { click: function () { U.go('#/review'); } } }, 'Start review', U.icon('arrow'));
+      var countWord = h('span', { class: 'td-count-word' });
+      function update(q) {
+        count.textContent = String(q.size);
+        countWord.textContent = q.size === 1 ? 'card to revisit' : 'cards to revisit';
+        minutes.textContent = 'About ' + plural(minutesFor(q.queue), 'minute');
+      }
+      light.addEventListener('change', function () {
+        var on = light.checked;
+        p.data.profile.prefs = Object.assign({}, p.data.profile.prefs, { light: on });
+        U.store.profile.patch({ prefs: { light: on } }).catch(function () {});
+        plan({ light: on }, p.data).then(update);
+        setTimeout(function () { U.review.refreshBadge(); }, 400);
+      });
+      root.appendChild(h('h1', { class: 'td-title' }, 'Today\'s review'));
+      root.appendChild(h('p', { class: 'td-lead' }, 'A few things you learned are ready to come back. Remembering them now is what makes them stick.'));
+      root.appendChild(h('section', { class: 'card td-plan', 'aria-label': 'Today\'s plan' },
+        h('p', { class: 'td-count' }, count, ' ', countWord),
+        h('p', { class: 'td-meta muted' }, minutes, names.length ? ' · from ' + names.slice(0, 3).join(', ') + (names.length > 3 ? ' and more' : '') : ''),
+        h('label', { class: 'td-light' },
+          h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
+          light, h('span', { class: 'td-switch', 'aria-hidden': 'true' })),
+        start));
+      update(p);
+    }
+
+    function drawClear(p) {
+      var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
+      var nextDay = upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
+      var nextN = upcoming.filter(function (c) { return c.s.due === nextDay; }).length;
+      var box = h('section', { class: 'td-clear' });
+      if (p.done > 0) {
+        box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
+        box.appendChild(h('h1', { class: 'td-title' }, 'Done for today'));
+        box.appendChild(h('p', { class: 'td-lead' }, 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.'));
+      } else {
+        box.appendChild(h('h1', { class: 'td-title' }, 'Nothing to review right now'));
+        box.appendChild(h('p', { class: 'td-lead' }, p.data.cards.length
+          ? 'Everything you have learned is holding up for now.'
+          : 'When you finish a lesson, the questions you answered come back here the next day, so they stick.'));
+      }
+      if (nextDay) box.appendChild(h('p', { class: 'muted' }, 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.'));
+      var actions = h('div', { class: 'td-actions' }, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
+      var more = p.due.length;
+      if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
+      box.appendChild(actions);
+      if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
+      root.appendChild(box);
+    }
+  }
+
+  // ---------- #/review ----------
+  function reviewView(extra) {
+    return function (params, ctx) {
+      var root = h('div', { class: 'rv' });
+      var fill = h('i', { style: { width: '0%' } });
+      var bar = h('div', { class: 'bar rv-bar', role: 'progressbar', 'aria-label': 'Review progress', 'aria-valuemin': '0', 'aria-valuemax': '0', 'aria-valuenow': '0' }, fill);
+      var count = h('span', { class: 'rv-count' });
+      var close = h('button', { class: 'icon-btn rv-close', type: 'button', 'aria-label': 'Close review', on: { click: function () { U.go('#/today'); } } }, U.icon('close'));
+      var where = h('p', { class: 'rv-where' });
+      var stage = h('div', { class: 'rv-stage' }, h('div', { class: 'skeleton', style: { height: '220px' } }));
+      root.append(h('div', { class: 'rv-top' }, close, bar, count), where, stage);
+      ctx.view.appendChild(root);
+
+      var S = { queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
+
+      plan(extra ? { extra: true, cap: MORE } : {}).then(function (p) {
+        S.queue = p.queue;
+        return topicsFor(uniq(p.queue.map(function (c) { return c.tid; })));
+      }).then(function (topics) {
+        if (!ctx.alive()) return;
+        S.topics = topics;
+        bar.setAttribute('aria-valuemax', String(S.queue.length));
+        if (!S.queue.length) return empty();
+        showCard();
+      }).catch(function (e) {
+        if (!ctx.alive()) return;
+        console.error(e);
+        U.clear(stage).appendChild(h('div', { class: 'notice bad' }, h('p', null, 'The review could not start. ' + U.errText(e))));
+      });
+
+      function progress() {
+        var n = S.queue.length;
+        fill.style.width = (n ? Math.round(S.i / n * 100) : 0) + '%';
+        bar.setAttribute('aria-valuenow', String(S.i));
+        count.textContent = Math.min(S.i + 1, n) + ' of ' + n;
+      }
+      function lessonFor(card) {
+        if (card.type !== 'target') return Promise.resolve({ use: 'ok', doc: null });
+        return U.store.lesson.get(card.tid, card.iid).then(function (doc) {
+          if (!doc) return { use: 'retire' };
+          if (doc.status && doc.status !== 'ready') return { use: 'later' };
+          if (!U.cards.interactiveOf(doc)) return { use: 'retire' };
+          var lj = doc.lesson || {}, ctl = lj.interactive && lj.interactive.controls;
+          if (Array.isArray(ctl) && ctl.length && !U.cards.controlOf(doc, card.spec && card.spec.control)) return { use: 'retire' };
+          return { use: 'ok', doc: doc };
+        }, function () { return { use: 'later' }; });
+      }
+      function showCard() {
+        if (S.i >= S.queue.length) return summary();
+        var card = S.queue[S.i];
+        progress();
+        // Take the answered card away at once; a target card may need a moment to load its lesson.
+        if (S.el && S.el.destroy) S.el.destroy();
+        S.el = null;
+        where.textContent = '';
+        U.clear(stage).appendChild(h('div', { class: 'skeleton rv-loading', 'aria-hidden': 'true' }));
+        lessonFor(card).then(function (l) {
+          if (!ctx.alive()) return;
+          if (l.use !== 'ok') {
+            // Not usable (its interactive was rebuilt or is mid-build): drop it from this session.
+            if (l.use === 'retire') retire(card);
+            S.queue.splice(S.i, 1);
+            bar.setAttribute('aria-valuemax', String(S.queue.length));
+            return showCard();
+          }
+          where.textContent = topicTitle(S.topics, card.tid) + ' · ' + ideaTitle(S.topics, card.tid, card.iid);
+          var el = U.cards.render(card, { mode: 'review', lesson: l.doc, onDone: function (r) { answered(card, r); } });
+          S.el = el;
+          U.clear(stage).appendChild(el);
+          window.scrollTo(0, 0);
+          var q = el.querySelector('.qc-q');
+          if (q) { q.setAttribute('tabindex', '-1'); try { q.focus({ preventScroll: true }); } catch (e) {} }
+        });
+      }
+      function answered(card, r) {
+        S.ms += r.ms || 0;
+        if (!r.skipped) {
+          var rec = { card: card, grade: r.grade, correct: r.correct };
+          S.results.push(rec);
+          var job = r.pending
+            ? r.pending.then(function (x) { rec.grade = x.grade; rec.correct = x.correct; return save(card, x.grade, x.correct == null ? x.grade > 1 : x.correct); })
+            : save(card, r.grade || 3, r.correct == null ? (r.grade || 3) > 1 : r.correct);
+          S.saves.push(job.catch(function (e) { console.error('save failed', e); }));
+        }
+        S.i++;
+        showCard();
+      }
+      // 99-boot.js already counts active minutes app-wide; log here only when it is not running.
+      function logTime() {
+        if (S.logged || !S.results.length) return;
+        S.logged = true;
+        if (U.boot && U.boot.study) return;
+        U.logStudy(Math.max(1, Math.round(S.ms / 60000))).catch(function () {});
+      }
+      function empty() {
+        fill.style.width = '100%';
+        count.textContent = '';
+        U.clear(stage).appendChild(h('div', { class: 'empty rv-empty' },
+          h('h2', null, 'Nothing to review right now'),
+          h('p', null, 'Everything you have learned is holding up for now.'),
+          h('div', { class: 'td-actions' }, h('a', { class: 'btn', href: '#/today' }, 'Back to Today'))));
+      }
+      function summary() {
+        fill.style.width = '100%';
+        bar.setAttribute('aria-valuenow', String(S.queue.length));
+        count.textContent = '';
+        where.textContent = '';
+        if (S.el && S.el.destroy) S.el.destroy();
+        S.el = null;
+        logTime();
+        var waiting = h('div', { class: 'rv-wait' }, h('div', { class: 'working', 'aria-hidden': 'true' }), h('p', { class: 'muted' }, 'Saving your answers…'));
+        U.clear(stage).appendChild(waiting);
+        var all = Promise.all(S.saves);
+        var limit = new Promise(function (r) { setTimeout(r, 32000); });
+        Promise.race([all, limit]).then(function () { return loadCards(); }).then(function (cards) {
+          var slipping = slippingIn(cards, U.today());
+          var missing = uniq(slipping.map(function (g) { return g.tid; })).filter(function (tid) { return !(tid in S.topics); });
+          return topicsFor(missing).then(function (more) { Object.assign(S.topics, more); return slipping; });
+        }).then(function (slipping) {
+          if (ctx.alive()) drawSummary(slipping);
+        }, function (e) { console.error(e); if (ctx.alive()) drawSummary([]); });
+      }
+      function drawSummary(slipping) {
+        if (slipping.length) flagRelearn(slipping);
+        var n = S.results.length;
+        var again = S.results.filter(function (r) { return r.grade === 1; });
+        var kept = n - again.length;
+        var mins = Math.max(1, Math.round(S.ms / 60000));
+        var back = uniq(again.map(function (r) { return r.card.tid + '\n' + r.card.iid; })).map(function (k) {
+          var t = k.split('\n');
+          return h('li', null, h('strong', null, ideaTitle(S.topics, t[0], t[1])), h('span', { class: 'muted small' }, ' · ' + topicTitle(S.topics, t[0])));
+        });
+        U.clear(stage).appendChild(h('section', { class: 'rv-done' },
+          h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
+          h('h1', null, 'Review done'),
+          h('p', { class: 'td-lead' }, n ? 'You went through ' + plural(n, 'card') + ' in about ' + plural(mins, 'minute') + '.' : 'Nothing was reviewed this time.'),
+          n ? h('dl', { class: 'rv-stats' },
+            h('div', null, h('dt', null, 'Remembered'), h('dd', null, String(kept))),
+            h('div', null, h('dt', null, 'Back tomorrow'), h('dd', null, String(again.length)))) : null,
+          back.length ? h('div', { class: 'rv-back' }, h('p', { class: 'qc-label' }, 'Coming back tomorrow'), h('ul', null, back)) : null,
+          relearnBlock(slipping, S.topics),
+          h('div', { class: 'td-actions' },
+            h('a', { class: 'btn wide', href: '#/today' }, 'Done'),
+            h('a', { class: 'btn wide secondary', href: '#/' }, 'Learn something new'))));
+        if (n) U.cheer('Review done');
+        U.review.refreshBadge();
+      }
+
+      return function cleanup() {
+        if (S.el && S.el.destroy) S.el.destroy();
+        logTime();
+        U.review.refreshBadge();
+      };
+    };
+  }
+
+  U.routes.add('#/today', todayView, { tab: 'today' });
+  U.routes.add('#/review', reviewView(false), { focus: true });
+  U.routes.add('#/review/more', reviewView(true), { focus: true });
+
+  // A new day can make cards due while the app sits open: refresh the badge when Dan comes back.
+  if (typeof document !== 'undefined' && document.addEventListener && U.rt && U.rt.ready) {
+    U.rt.ready.then(function () {
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) U.review.refreshBadge(); });
+    });
+  }
+})();
