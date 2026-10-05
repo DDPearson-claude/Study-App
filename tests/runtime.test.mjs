@@ -81,9 +81,9 @@ test('research tools: big results are trimmed (search 12 KB, fetch 20 KB); conne
   const s = await search.execute({ objective: 'o', search_queries: ['a b c'] });
   const sj = JSON.parse(s);
   assert.ok(s.length <= 12000, 'search fits in 12 KB (' + s.length + ')');
-  assert.equal(sj.results.length, 40, 'every result kept; their excerpts are shortened instead');
-  assert.ok(sj.results.every((r) => r.excerpts[0].startsWith('Verbatim text from page')), 'each excerpt keeps its start');
-  assert.ok(sj.results.some((r) => r.excerpts[0].endsWith(' …')), 'a cut is marked');
+  assert.ok(sj.results.length >= 30, 'most results kept (' + sj.results.length + '); their text is shortened instead');
+  assert.ok(sj.results.every((r, i) => r.url === 'https://example.org/page-' + i && r.excerpts[0].startsWith('Verbatim text from page ' + i)), 'kept in rank order, each excerpt keeps its start');
+  assert.ok(sj.results[sj.results.length - 1].excerpts[0].endsWith(' …'), 'the lowest-ranked are shortened first, the cut marked');
   const f = await fetch.execute({ urls: ['https://example.org/page-0'] });
   assert.ok(f.length <= 20000 && JSON.parse(f).results[0].excerpts[0].endsWith(' …'), 'fetch fits in 20 KB as valid JSON');
   mcp.callTool = () => Promise.reject({ code: 'rate_limited', message: 'slow down' });
@@ -149,4 +149,39 @@ test('research tools: a runaway loop meets the budget (10 searches, 6 fetches by
   const [s2] = await U.research.tools(null, { budget: { web_search: 1 } });
   await s2.execute({ objective: 'o', search_queries: ['a b c'] });
   assert.match(await s2.execute({ objective: 'o', search_queries: ['a b d'] }), /^Tool error \(budget\): /, 'a caller can set its own budget');
+});
+
+test('research tools: fitting to size keeps the best-ranked results whole', async () => {
+  const mcp = fakeMcp({ web_search: () => searchPayload(8, 2500), web_fetch: () => ({ results: [] }) });
+  const U = boot({ mcp });
+  const [search] = await U.research.tools();
+  const r = JSON.parse(await search.execute({ objective: 'o', search_queries: ['a b c'] }));
+  assert.equal(r.results.length, 8, 'nothing dropped when shortening the tail is enough');
+  assert.ok(!r.results[0].excerpts[0].endsWith(' …') && r.results[0].excerpts[0].length > 2500, 'the top result is whole');
+  assert.ok(r.results[7].excerpts[0].endsWith(' …'), 'the last is shortened');
+});
+
+test('research tools: rate limits, failures and connector errors that arrive as text', async () => {
+  let n = 0;
+  const limited = 'Error POSTing to endpoint: event: message\ndata: {"error":{"code":-32000,"message":"You\'ve hit the free-tier rate limit for Parallel Search MCP."}}';
+  const mcp = fakeMcp({ web_search: () => (++n === 1 ? limited : searchPayload(1)), web_fetch: () => { throw { code: 'tool_error', message: 'boom' }; } });
+  let U = boot({ mcp });
+  let [search] = await U.research.tools(null, { patient: [5] });
+  const r = await search.execute({ objective: 'o', search_queries: ['a b c'] });
+  assert.ok(JSON.parse(r).results.length === 1 && mcp.calls.length === 2, 'patient research waits out a rate limit and retries');
+  n = 0;
+  [search] = await U.research.tools();
+  const busy = await search.execute({ objective: 'o', search_queries: ['a b c'] });
+  assert.match(busy, /^Tool error \(rate_limited\): the search service is busy/, 'Dan never waits: a plain message, no connector text');
+  assert.ok(!/api key/i.test(busy));
+  const tools = await U.research.tools(null, { budget: { web_search: 1 } });
+  n = 0;
+  assert.match(await tools[0].execute({ objective: 'o', search_queries: ['a'] }), /^Tool error \(rate_limited\)/);
+  assert.ok(!/^Tool error/.test(await tools[0].execute({ objective: 'o', search_queries: ['a'] })), 'a failed call does not use up the budget');
+  // Four failures and the tools stop calling the connector.
+  U = boot({ mcp: fakeMcp({ web_search: () => searchPayload(1), web_fetch: () => { throw { code: 'tool_error', message: 'boom' }; } }) });
+  const [s2, f2] = await U.research.tools();
+  await s2.execute({ objective: 'o', search_queries: ['a'] });
+  for (let i = 0; i < 4; i++) assert.match(await f2.execute({ urls: ['https://example.org/page-0'] }), /^Tool error \(tool_error\)/);
+  assert.match(await f2.execute({ urls: ['https://example.org/page-0'] }), /^Tool error \(unavailable\)/);
 });

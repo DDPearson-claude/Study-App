@@ -217,41 +217,62 @@ U.research = {
     return Object.assign({}, p, { results: p.results.map(function (r) {
       if (!r || typeof r !== 'object') return r;
       var o = Object.assign({}, r);
+      if (typeof o.title === 'string') o.title = o.title.replace(/\s+/g, ' ').replace(/^\[(PDF|DOCX?|PPTX?|XLSX?)\]\s*/i, '').trim();
       if (Array.isArray(o.excerpts)) o.excerpts = o.excerpts.map(function (e) { return typeof e === 'string' ? U.research._plain(e) : e; });
       if (typeof o.full_content === 'string') o.full_content = U.research._plain(o.full_content);
       return o;
     }) });
   },
-  // A result as JSON of at most max characters that stays valid JSON: the longest excerpt (or
-  // page text) is cut at a word, marked " …", until it fits; then the last results go.
+  // A result as JSON of at most max characters that stays valid JSON. Results come ranked, best
+  // first, so the top ones are kept whole: the lowest-ranked result's text is shortened first
+  // (to 1,200 characters, then 500, then 200, cut at a word and marked " …"), working up the
+  // list, and only then are the last results dropped.
   _fit: function (p, max) {
     var s = typeof p === 'string' ? p : JSON.stringify(p);
     if (s.length <= max) return s;
     if (!p || typeof p !== 'object' || !Array.isArray(p.results)) return U.research._trim(s, max);
     p = JSON.parse(s);
-    function texts() {
-      var out = [];
-      p.results.forEach(function (r) {
-        if (!r || typeof r !== 'object') return;
-        (Array.isArray(r.excerpts) ? r.excerpts : []).forEach(function (e, j) { if (typeof e === 'string') out.push({ get: function () { return r.excerpts[j]; }, set: function (v) { r.excerpts[j] = v; } }); });
-        if (typeof r.full_content === 'string') out.push({ get: function () { return r.full_content; }, set: function (v) { r.full_content = v; } });
-      });
-      return out;
+    function cut(t, n) {
+      if (t.length <= n) return t;
+      var c = t.slice(0, Math.max(0, n - 2)), sp = c.lastIndexOf(' ');
+      return (sp > n * 0.6 ? c.slice(0, sp) : c) + ' …';
     }
-    for (var guard = 0; guard < 500 && s.length > max; guard++) {
-      var best = null;
-      texts().forEach(function (t) { var n = t.get().length; if (!best || n > best.n) best = { t: t, n: n }; });
-      if (!best || best.n <= 60) break;
-      var keep = Math.max(40, best.n - (s.length - max) - 4), cut = best.t.get().slice(0, keep), sp = cut.lastIndexOf(' ');
-      best.t.set((sp > keep * 0.6 ? cut.slice(0, sp) : cut) + ' …');
-      s = JSON.stringify(p);
+    // Keeps at most n characters of a result's text, its excerpts in order, then its page text.
+    function shrink(r, n) {
+      if (!r || typeof r !== 'object') return;
+      var left = n;
+      if (Array.isArray(r.excerpts)) {
+        r.excerpts = r.excerpts.reduce(function (out, e) {
+          if (typeof e !== 'string') return out;
+          if (left > 40) { var k = cut(e, left); out.push(k); left -= k.length; }
+          return out;
+        }, []);
+      }
+      if (typeof r.full_content === 'string') r.full_content = left > 40 ? cut(r.full_content, left) : '';
     }
+    [1200, 500, 200].forEach(function (floor) {
+      for (var i = p.results.length - 1; i >= 0 && s.length > max; i--) { shrink(p.results[i], floor); s = JSON.stringify(p); }
+    });
     while (s.length > max && p.results.length > 1) { p.results.pop(); s = JSON.stringify(p); }
     return s.length > max ? U.research._trim(s, max) : s;
   },
   call: function (tool, input) {
     var mcp = U.rt.mcp;
-    return mcp.callTool(U.research.SERVER, tool, input).then(function (r) { return r && r.payload !== undefined ? r.payload : r; });
+    return Promise.resolve().then(function () { return mcp.callTool(U.research.SERVER, tool, input); }).then(function (r) {
+      var p = r && r.payload !== undefined ? r.payload : r;
+      // A connector failure can come back as text instead of a rejection.
+      if (typeof p === 'string' && /^Error POSTing|"error"\s*:\s*\{\s*"code"\s*:\s*-?\d/.test(p)) throw { code: 'tool_error', message: p };
+      return p;
+    });
+  },
+  // Parallel Search's free tier limits bursts of calls.
+  _isRate: function (e) { return !!e && (e.code === 'rate_limited' || /rate.?limit|too many requests|\b429\b/i.test(String(e.message || ''))); },
+  // call(), waiting out a rate limit before each retry (waits: ms per retry, e.g. [20000, 45000]).
+  _call: function (tool, input, waits) {
+    return U.research.call(tool, input).catch(function (e) {
+      if (!waits || !waits.length || !U.research._isRate(e)) throw e;
+      return U.sleep(waits[0]).then(function () { return U.research._call(tool, input, waits.slice(1)); });
+    });
   },
   // Normalised form of a web address for comparing (no fragment, no trailing slash, lower-case host).
   _norm: function (u) {
@@ -276,11 +297,14 @@ U.research = {
   // web_fetch only opens pages that web_search returned in this same set of tools, so text
   // planted in a page or a prompt can't send Dan's words to an address of its choosing.
   // opts.budget: most calls of each tool in this set of tools (default 10 searches, 6 fetches: a
-  // little above what the prompts ask for, so only a runaway loop meets it).
+  // little above what the prompts ask for, so only a runaway loop meets it). A failed call does
+  // not use up the budget; after 4 failures the tools stop calling the connector.
+  // opts.patient: wait out a rate limit and retry (background research; never while Dan waits).
   tools: function (log, opts) {
     opts = opts || {};
     var allowed = new Set();
-    var budget = Object.assign({ web_search: 10, web_fetch: 6 }, opts.budget || {}), used = { web_search: 0, web_fetch: 0 };
+    var budget = Object.assign({ web_search: 10, web_fetch: 6 }, opts.budget || {}), used = { web_search: 0, web_fetch: 0 }, failed = 0;
+    var waits = Array.isArray(opts.patient) ? opts.patient : opts.patient ? [20000, 45000] : [];
     (opts.allow || []).forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
     return U.research._loadSchemas().then(function (sc) {
       function def(name, description, schema, fallback, max) {
@@ -290,6 +314,7 @@ U.research = {
           execute: function (input) {
             if (log) log({ tool: name, input: input });
             if (used[name] >= budget[name]) return Promise.resolve('Tool error (budget): that is all the ' + (name === 'web_search' ? 'searches' : 'page openings') + ' for this question. Write your answer from what you already have.');
+            if (failed >= 4) return Promise.resolve('Tool error (unavailable): the search service is not answering. Write your answer from what you already have.');
             if (name === 'web_fetch') {
               var asked = U.research._urlsIn(input);
               var refused = asked.filter(function (u) { var n = U.research._norm(u); return !n || !allowed.has(n); });
@@ -300,7 +325,7 @@ U.research = {
             if (input && typeof input === 'object' && !Array.isArray(input) && input.session_id == null) {
               input = Object.assign({}, input, { session_id: U.research.SESSION });
             }
-            return U.research.call(name, input).then(function (p) {
+            return U.research._call(name, input, waits).then(function (p) {
               p = U.research._clean(p);
               if (name === 'web_search') {
                 var found = p && Array.isArray(p.results) ? p.results.map(function (r) { return r && r.url; }) : U.research._urlsIn(p);
@@ -308,7 +333,10 @@ U.research = {
               }
               return U.research._fit(p, max);
             }, function (e) {
-              return 'Tool error (' + (e && e.code) + '): ' + (e && e.message) + '. Check the arguments against the tool schema and try again.';
+              used[name]--;
+              failed++;
+              if (U.research._isRate(e)) return 'Tool error (rate_limited): the search service is busy right now. Do not repeat the call; write your answer from what you already have.';
+              return 'Tool error (' + (e && e.code) + '): ' + String(e && e.message || '').slice(0, 300) + '. Check the arguments against the tool schema; try a different call at most once.';
             });
           },
         };

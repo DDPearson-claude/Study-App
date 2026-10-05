@@ -570,6 +570,9 @@ test('source checking: corpus matching and lesson renumbering', async () => {
   c2.add(JSON.stringify({ results: [{ url: 'https://ex.org/a', title: 'A', excerpts: ['the basic thermodynamics of [gases](https://ex.org/state.html) .\nGases have properties'] }] }));
   assert.ok(c2.hasQuote('the basic thermodynamics of gases. Gases have properties', 'https://ex.org/a'));
   assert.ok(!c2.hasUrl('https://ex.org/state.html'), 'a link inside an excerpt is not a page the tools returned');
+  // A PDF line break inside a word ("dis- turbances") still matches the word.
+  c2.add(JSON.stringify({ results: [{ url: 'https://ex.org/b', title: 'B', excerpts: ['low frequency tonal dis- turbances are the easiest to cancel'] }] }));
+  assert.ok(c2.hasQuote('low frequency tonal disturbances are the easiest to cancel', 'https://ex.org/b'));
 
   // The model cites [^3] before [^1], lists an invented source, and a number cites [^3].
   const lr = U.prompts.lessonResearch(RESEARCH_JET, 'i1');

@@ -272,8 +272,12 @@
       },
     };
   }
+  // Lower-case words only. A hyphen between two letters or digits is dropped, with any line break
+  // after it, so "dis- turbances" (a PDF line break), "disturbances" and "well-known" / "wellknown"
+  // compare equal on both sides.
   function normText(t) {
     return s(t).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      .replace(/([a-z0-9])[-‐‑–]\s*([a-z0-9])/g, '$1$2')
       .replace(/&(amp|nbsp|quot|apos|lt|gt|#\d+);/g, ' ')
       .replace(/[^a-z0-9]+/g, ' ').trim();
   }
@@ -330,7 +334,7 @@
     return U.research.tools(function (call) {
       if (call && call.tool === 'web_search') emit(topic.id, null, 'research', 'running', 'Searching for sources…');
       if (call && call.tool === 'web_fetch') emit(topic.id, null, 'research', 'running', 'Reading sources…');
-    }).then(function (tools) {
+    }, { patient: true }).then(function (tools) {
       if (!tools || !tools.length) throw { code: 'unavailable', message: 'The research tools did not load.' };
       return U.ask(U.prompts.research(topic, { ideas: topic.ideas }), {
         tier: 'default', json: true, label: 'research', tools: wrapTools(tools, corpus), priority: 'background',
