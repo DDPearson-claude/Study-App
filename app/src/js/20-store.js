@@ -412,6 +412,12 @@ U.store = (function () {
       return getDoc(S.paths.topic(tid)).then(function (t) { noteTopic(tid, !!t); return t ? setDoc(S.paths.lesson(tid, iid), data) : null; });
     },
     update: function (tid, iid, patch) { patch.updatedAt = U.now(); return patchDoc(S.paths.lesson(tid, iid), patch); },
+    // Deletes one lesson doc (a job putting back a doc it created). Queued behind pending writes.
+    remove: function (tid, iid) {
+      var path = S.paths.lesson(tid, iid);
+      delete held[path];
+      return run(path, function () { return D(path).delete(); });
+    },
     list: function (tid) { return listColl('topics/' + tid + '/lessons'); },
   };
   S.research = {

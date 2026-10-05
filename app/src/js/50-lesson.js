@@ -24,9 +24,28 @@
   var STEPS = STAGES.slice(0, 5);
   var LABEL = { predict: 'Predict', play: 'Play', explain: 'Explain', say: 'Say it back', checks: 'Check', done: 'Done' };
   var VERDICT = { 'got-it': 'You\'ve got it', partly: 'Partly there', 'not-yet': 'Not there yet' };
-  var NUMBER_KIND = { control: 'you set this', computed: 'worked out from the rule', constant: 'a fixed value' };
+  // How each number in "What am I looking at?" is labelled. Assumed values are examples chosen
+  // for the interactive ("for example …"), never findings; dates are plain facts.
+  var NUMBER_KIND = { control: 'you set this', computed: 'worked out from the rule', constant: 'a fixed value', assumed: 'an example value', date: null };
   var WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five'];
   var drafts = {}; // unsent say-it-back text for this page session, by 'tid/iid'
+  // Prefetches of the next idea. Each keeps running while Dan stays in its topic (the topic page
+  // or another of its lessons, where he is likely to open it next) and is cancelled once he
+  // leaves the topic. A prefetch Dan opens becomes his foreground lesson (U.gen promotes it).
+  var prefetches = [];
+  function inTopic(tid) {
+    var base = '#/t/' + encodeURIComponent(tid), h = location.hash || '';
+    return h === base || h.indexOf(base + '/') === 0;
+  }
+  function sweepPrefetches() {
+    prefetches = prefetches.filter(function (p) {
+      if (p.done) return false;
+      if (inTopic(p.tid)) return true;
+      try { p.ctrl.abort(); } catch (e) { /* fine */ }
+      return false;
+    });
+  }
+  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('hashchange', sweepPrefetches);
 
   // ---------- small helpers ----------
   function media(q) { return !!(window.matchMedia && window.matchMedia(q).matches); }
@@ -253,12 +272,25 @@
       if (!st.begun) begin();
       prefetchNext();
     }
+    // Background calls for this lesson already waiting their turn (it was being prefetched) run
+    // now: Dan is waiting for it.
+    function promote() {
+      if (!U._gate || typeof U._gate.promote !== 'function' || !st.idea) return;
+      var needle = String(st.idea.title || '').slice(0, 60).split('"')[0];
+      if (needle.length < 4) return;
+      U._gate.promote(function (input, o) {
+        if (!/^(write-lesson|build-interactive|repair-interactive)$/.test(o && o.label || '')) return false;
+        return (typeof input === 'string' ? input : JSON.stringify(input)).indexOf(needle) >= 0;
+      });
+    }
     function ensure() {
       st.prep.start(st.lesson ? 'Asking Claude to finish the interactive' : 'Asking Claude to write this lesson');
       var gen = st.gen;
       Promise.resolve().then(function () {
         if (!U.gen || typeof U.gen.ensureLesson !== 'function') throw { message: 'The lesson writer is not loaded in this view.' };
-        return U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
+        var p = U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
+        promote();
+        return p;
       }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, ensure); });
     }
     function makePrep() {
@@ -316,10 +348,14 @@
     function prefetchNext() {
       var nx = nextIdea();
       if (!nx || !U.gen || typeof U.gen.ensureLesson !== 'function') return;
+      var ctrl = typeof AbortController === 'function' ? new AbortController() : { signal: undefined, abort: function () {} };
+      var entry = { tid: tid, ctrl: ctrl, done: false };
+      prefetches.push(entry);
       U.store.lesson.get(tid, nx.id).then(function (d) {
         if (d && d.status === 'ready') return null;
-        return U.gen.ensureLesson(tid, nx.id, { priority: 'background' });
-      }).catch(function () { /* background work: the next lesson retries when opened */ });
+        if (!inTopic(tid)) return null;
+        return U.gen.ensureLesson(tid, nx.id, { background: true, signal: ctrl.signal });
+      }).catch(function () { /* background work: the next lesson retries when opened */ }).then(function () { entry.done = true; });
     }
     function nextIdea() {
       var ideas = (st.topic && st.topic.ideas) || [], prog = (st.progress && st.progress.ideas) || {};
@@ -658,11 +694,14 @@
             var c = n.kind === 'control' ? controlFor(n) : null;
             var now = c ? U.h('span', { class: 'lsn-num-now', hidden: true }) : null;
             if (now) live.push({ el: now, c: c });
+            var val = String(n.value == null ? '' : n.value);
+            var named = c && Array.isArray(c.options) && c.options.length ? c.options.map(String) : null;
             return U.h('div', { class: 'lsn-num' },
               U.h('dt', null, String(n.label)),
-              U.h('dd', null, U.h('span', { class: 'lsn-num-val' }, String(n.value == null ? '' : n.value)), now,
+              U.h('dd', null, U.h('span', { class: 'lsn-num-val' }, n.kind === 'assumed' && !/^for example/i.test(val) ? 'for example ' + val : val), now,
                 NUMBER_KIND[n.kind] ? U.h('span', { class: 'lsn-num-kind' }, NUMBER_KIND[n.kind] + (n.kind === 'computed' && mount ? ', from its starting values' : '')) : null,
-                n.source != null && sourceOf(n.source) ? fnButton(n.source) : null));
+                n.source != null && sourceOf(n.source) ? fnButton(n.source) : null),
+              named ? U.h('dd', { class: 'lsn-num-options' }, 'Choices: ' + named.join(' · ')) : null);
           })) : null]);
         if (live.length && mount && typeof mount.get === 'function') {
           d.addEventListener('toggle', function () {
@@ -670,9 +709,16 @@
             Promise.race([Promise.resolve().then(function () { return mount.get(); }), U.sleep(1500).then(function () { return null; })]).then(function (s) {
               var params = s && s.params || {};
               live.forEach(function (x) {
-                var v = Number(params[x.c.id]);
-                if (!isFinite(v)) return;
-                x.el.textContent = 'now ' + (Math.round(v * 1000) / 1000).toLocaleString() + (x.c.unit ? ' ' + x.c.unit : '');
+                var raw = params[x.c.id], text = null;
+                if (Array.isArray(x.c.options) && x.c.options.length) {
+                  // A named control: its value is the chosen option (or its index).
+                  text = typeof raw === 'number' && x.c.options[raw] != null ? String(x.c.options[raw]) : (typeof raw === 'string' && raw ? raw : null);
+                } else {
+                  var v = Number(raw);
+                  if (raw != null && raw !== '' && isFinite(v)) text = (Math.round(v * 1000) / 1000).toLocaleString() + (x.c.unit ? ' ' + x.c.unit : '');
+                }
+                if (text == null) return;
+                x.el.textContent = 'now ' + text;
                 x.el.hidden = false;
               });
             }, function () { /* the interactive did not answer: the starting values stay */ });

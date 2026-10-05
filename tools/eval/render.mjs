@@ -3,8 +3,8 @@
 //   node tools/eval/render.mjs body.html --out tests/out/eval/<name> [--app dist/my-university.html] [--no-moved]
 // Writes <out>-report.json, <out>-{360,1280}-{light,dark}.png (the opening state) and
 // <out>-{360,1280}-{light,dark}-moved.png: every control set to another value through the host's
-// set() (a slider to 75% of its range, or its far end if it opens near there; a choice or stepper to its
-// next option; a toggle flipped), then the first K.button pressed or K.anim played, as Dan would.
+// set() (a slider to 75% of its range, or to its top or middle if it opens near 75%; a choice or
+// stepper to its next option; a toggle flipped), then the first K.button pressed or K.anim played.
 // Prints the merged report plus what was moved.
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';

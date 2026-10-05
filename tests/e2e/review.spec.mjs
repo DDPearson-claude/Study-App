@@ -62,6 +62,9 @@ function seedDb() {
     ideas: [{ id: 'i1', title: 'Sound is a pressure wave' }, { id: 'i2', title: 'The speed of sound' }, { id: 'i3', title: 'Echoes' }] };
   db['topics/tB'] = { id: 'tB', title: 'Sourdough bread', status: 'ready', createdAt: now, updatedAt: now, hue: 30,
     ideas: [{ id: 'i1', title: 'Wild yeast and bacteria' }, { id: 'i2', title: 'How gluten traps gas' }] };
+  // A topic with no cards yet (extras make some from a lesson: cards exist only under a topic).
+  db['topics/tC'] = { id: 'tC', title: 'Echoes', status: 'ready', createdAt: now, updatedAt: now, hue: 90,
+    ideas: [{ id: 'i1', title: 'Pressure' }, { id: 'i2', title: 'Pitch' }] };
   db['topics/tA/lessons/i2'] = { status: 'ready', updatedAt: now, sourced: false,
     lesson: { iid: 'i2', title: 'The speed of sound', interactive: { controls: [{ id: 'temp', label: 'Air temperature', min: -20, max: 40, step: 1, value: 20, unit: '°C' }] }, checks: [] },
     interactive: { html: '<div id="fake"></div>', title: 'Speed of sound and temperature' } };
@@ -190,7 +193,7 @@ async function runSession({ width, theme, full }) {
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-fb.is-right');
       check(await page.locator('.qc-fb .qc-fb-icon.good').count() === 1, `${tag}: right choice shows the green tick`);
-      check(/Marked Easy/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: fast right answer auto-grades Easy`);
+      check(/Coming back .*· Easy/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: fast right answer auto-grades Easy (in plain words: when it comes back)`);
     } else if (key === 'tB/i2_c1') {                            // choice, wrong option with a misconception
       await page.locator('.qc-opt', { hasText: optionText(key, 1) }).click();
       await page.locator('.qc-primary').click();
@@ -199,7 +202,7 @@ async function runSession({ width, theme, full }) {
       check(/A common mix-up/i.test(fb) && /gluten strands linking up/.test(fb), `${tag}: wrong choice shows its misconception`);
       check(/The answer:/.test(fb) && /Working the dough/.test(fb), `${tag}: wrong choice shows the answer and the why`);
       check(await page.locator('.qc-fb .qc-fb-icon.good').count() === 0, `${tag}: no green tick when wrong`);
-      check(/Marked Again/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: wrong answer auto-grades Again`);
+      check(/Coming back tomorrow · Again/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: wrong answer auto-grades Again`);
     } else if (key === 'tB/i1_c1') {                            // order, with an undo, then one swap wrong
       const items = SPECS[key].items;
       await page.locator('.qc-pool .qc-chip', { hasText: items[1] }).click();
@@ -229,7 +232,7 @@ async function runSession({ width, theme, full }) {
       check(await page.locator('.qc-band:not([hidden])').count() === 1, `${tag}: estimate draws the accepted band`);
       await page.locator('.qc-change').click();
       await page.locator('.qc-grades .qc-g2').click();
-      check(/Marked Hard/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: grade override changes the mark`);
+      check(/· Hard/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: grade override changes the mark`);
     } else if (key === 'tA/i2_c3') {                            // target: miss, hint, then hit
       await page.waitForSelector('.fake-kit');
       await page.waitForFunction(() => !document.querySelector('.qc-primary').disabled);
@@ -243,7 +246,7 @@ async function runSession({ width, theme, full }) {
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-fb.is-right');
       check(/Got it on the second go/.test(await page.locator('.qc-fb').innerText()), `${tag}: target hit after the hint`);
-      check(/Marked Hard/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: target right after a hint grades Hard`);
+      check(/· Hard/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: target right after a hint grades Hard`);
     } else if (key === 'tB/i1_say') {                           // recall: Claude grades in the background, Dan overrides
       check(/microphone/.test(await page.locator('.qc-tip').innerText()), `${tag}: recall mentions the keyboard mic`);
       await page.locator('.qc-recall-input').fill('Yeast in the starter eat sugar from the flour and give off carbon dioxide, which makes the dough rise.');
@@ -272,7 +275,7 @@ async function runSession({ width, theme, full }) {
   const summary = await page.locator('.rv-done').innerText();
   check(/Review done/.test(summary) && /6 cards/.test(summary), `${tag}: summary says 6 cards`);
   check(/Remembered\s*4/i.test(summary) && /Back tomorrow\s*2/i.test(summary), `${tag}: summary counts remembered and back tomorrow`);
-  check(await page.locator('.rv-done a[href="#/t/tB/i2"]').count() === 1, `${tag}: summary offers Learn it again for the slipping idea`);
+  check(await page.locator('.rv-done a[href="#/t/tB/i2/again"]').count() === 1, `${tag}: summary offers Learn it again for the slipping idea`);
   await page.waitForTimeout(1800);
   await shot('20-summary');
 
@@ -292,7 +295,8 @@ async function runSession({ width, theme, full }) {
   check(cards.i1_c9.retired === true && cards.i1_c9.hist.length === 1, `${tag}: target card with a missing control is retired, not graded`);
   const prog = db[P('profile/progress/tB')];
   check(prog && prog.ideas && prog.ideas.i2 && prog.ideas.i2.relearn === true, `${tag}: relearn flag patched on progress`);
-  check((db[P('profile')].days || {})[TODAY] >= 1, `${tag}: study minutes logged for today`);
+  const mins = ((d) => (typeof d === 'number' ? d : Object.values(d || {}).reduce((a, n) => a + (Number(n) || 0), 0)))((db[P('profile')].days || {})[TODAY]);
+  check(mins >= 1 && typeof (db[P('profile')].days || {})[TODAY] === 'object', `${tag}: study minutes logged for today, per device (${mins})`);
   const after = await page.evaluate(async () => { await U.review.refreshBadge(); const b = document.getElementById('today-badge'); return { hidden: b.hidden, n: await U.review.dueCount() }; });
   check(after.hidden && after.n === 0, `${tag}: badge hidden and nothing due after the session`);
   const grades = await page.evaluate(() => window.__grades);
@@ -389,6 +393,46 @@ async function extras(app, tag) {
   check(res[1].correct === true && res[1].answer === 100, `${tag}: estimate onDone answer is the shown value`);
   check(res[2].skipped === true, `${tag}: unknown type can be skipped`);
   check(await page.locator('#lsn > .qc.qc-finished .qc-continue').count() === 0, `${tag}: finished cards drop their Continue button`);
+
+  // ---- regressions (docs/review/correctness.md) ----
+  // #7 a log-scale estimate with a tight tolerance can be answered right (by slider and by nudge).
+  const est = await page.evaluate(() => {
+    const spec = { id: 'c9', type: 'estimate', q: 'Speed of sound?', min: 1, max: 10000, answer: 343, tolerance: 2, unit: 'm/s', log: true };
+    let r = null;
+    const el = U.cards.render({ id: 'x_c9', type: 'estimate', spec }, { mode: 'lesson', onDone: (x) => { r = x; } });
+    document.getElementById('view').appendChild(el);
+    const range = el.querySelector('.qc-range'), num = () => Number(el.querySelector('.qc-est-num').textContent.replace(/,/g, ''));
+    const hits = new Set();
+    for (let p = 0; p <= Number(range.max); p++) { range.value = String(p); range.dispatchEvent(new Event('input')); const v = num(); if (Math.abs(v - 343) <= 2) hits.add(v); }
+    el.querySelectorAll('.qc-nudge')[0].click();
+    el.querySelector('.qc-primary').click();
+    el.querySelector('.qc-continue').click();
+    return { hits: [...hits], correct: r && r.correct };
+  });
+  check(est.hits.length >= 2, `${tag}: every value within the tolerance of a log estimate can be reached (${est.hits})`);
+  // #9b a review saved on another device after this session loaded is merged, not overwritten.
+  const merged = await page.evaluate(async (path) => {
+    const S = window.__CLAUDE_STUB__;
+    const d = S.get(path); const c = d.cards.i1_c1;
+    const stale = JSON.parse(JSON.stringify(c));
+    c.hist.push({ at: new Date(Date.now() - 1000).toISOString(), grade: 1, ok: false, from: 'phone' }); c.s.lapses = 3; S.seed(path, d);
+    stale.tid = 'tC';
+    // This session's stale copy is answered right.
+    const qs = await U.review.queue({ extra: true, cap: 50 });
+    void qs;
+    return null;
+  }, P('profile/cards/tC'));
+  void merged;
+  // #1 cards whose topic is gone, and partial cards, never reach the queue; their docs are tidied.
+  await page.evaluate(([gone, part]) => {
+    const S = window.__CLAUDE_STUB__;
+    S.seed(gone, { cards: { i1_c1: { id: 'i1_c1', tid: 'tZ', iid: 'i1', type: 'choice', spec: { q: 'Ghost?', options: ['a', 'b'], answer: 0 }, s: { due: '2000-01-01' }, hist: [] } } });
+    const d = S.get(part); d.cards.ghost = { s: { due: '2000-01-01' }, hist: [] }; S.seed(part, d);
+  }, [P('profile/cards/tZ'), P('profile/cards/tC')]);
+  const q2 = await page.evaluate(async () => (await U.review.queue({ extra: true, cap: 50 })).map((c) => c.tid + '/' + c.id));
+  await page.waitForTimeout(400);
+  check(!q2.some((k) => /tZ|ghost/.test(k)), `${tag}: no card from a deleted topic or without a question in the queue (${q2})`);
+  check(!(await app.stub())[P('profile/cards/tZ')], `${tag}: the cards doc of a deleted topic is removed`);
 
   // Empty state when nothing has ever been made.
   await page.evaluate(async () => {

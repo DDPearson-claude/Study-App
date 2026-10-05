@@ -53,19 +53,24 @@ U.parseJson = function (text) {
 // time, and only while no foreground call is in flight, so the lesson he is on never queues
 // behind work he only glanced at. A background call still waiting is dropped when its signal
 // aborts (rejects {code:'cancelled'}); one that has started is cancelled through sample's signal.
+// A queued background call becomes foreground (it runs at once) when:
+//   - a foreground call with the same opts.key arrives (callers that share a key: one lesson's job), or
+//   - U._gate.promote(test) finds it: test(input, opts) -> true (the lesson screen promotes the
+//     prefetch of the lesson Dan just opened).
 U._gate = { fg: 0, bg: 0, queue: [] };
-U._gate.enter = function (opts) {
+U._gate.enter = function (opts, input) {
   var G = U._gate;
   function cancelled() { return { code: 'cancelled', message: 'Stopped.' }; }
+  function fgRelease() { var done = false; return function () { if (!done) { done = true; G.fg--; G.pump(); } }; }
   if (opts.priority !== 'background') {
+    if (opts.key) G.promote(function (inp, o) { return o.key === opts.key; });
     G.fg++;
-    var done = false;
-    return Promise.resolve(function () { if (!done) { done = true; G.fg--; G.pump(); } });
+    return Promise.resolve(fgRelease());
   }
   return new Promise(function (resolve, reject) {
     var sig = opts.signal;
     if (sig && sig.aborted) return reject(cancelled());
-    var w = { resolve: resolve };
+    var w = { resolve: resolve, opts: opts, input: input, fgRelease: fgRelease };
     if (sig && sig.addEventListener) sig.addEventListener('abort', function () {
       var i = G.queue.indexOf(w);
       if (i >= 0) { G.queue.splice(i, 1); reject(cancelled()); }
@@ -82,11 +87,23 @@ U._gate.pump = function () {
     w.resolve(function () { if (!done) { done = true; G.bg--; G.pump(); } });
   }
 };
+U._gate.promote = function (test) {
+  var G = U._gate, n = 0;
+  G.queue.slice().forEach(function (w) {
+    var hit = false;
+    try { hit = !!test(w.input, w.opts); } catch (e) { hit = false; }
+    if (!hit) return;
+    G.queue.splice(G.queue.indexOf(w), 1);
+    G.fg++; n++;
+    w.resolve(w.fgRelease());
+  });
+  return n;
+};
 
-// U.ask(input, {tier, onText, signal, tools, json, schema, cache, label, priority})
+// U.ask(input, {tier, onText, signal, tools, json, schema, cache, label, priority, key})
 //   json:true  -> resolves the parsed object
 //   schema(fn) -> returns [] or a list of problems; one corrective retry with the problems listed
-//   priority   'foreground' (default) | 'background' (see the gate above)
+//   priority   'foreground' (default) | 'background'; key: see the gate above
 // A transient 'upstream_error' or 'unavailable' is retried once after 1-3 s. 'rate_limited' is
 // never retried from here (retrying a rate limit only makes it last longer): it reaches the caller.
 U.ask = function (input, opts) {
@@ -100,7 +117,7 @@ U.ask = function (input, opts) {
   if (opts.images) o.images = opts.images;
   var started = Date.now();
   function once(inp, attempt) {
-    return U._gate.enter(opts).then(function (release) {
+    return U._gate.enter(opts, inp).then(function (release) {
       return Promise.resolve().then(function () { return sample(inp, o); }).then(function (r) {
         release();
         U.emit('ask', { label: opts.label, tier: o.modelTier, ms: Date.now() - started, chars: (r.text || '').length, truncated: !!r.truncated });

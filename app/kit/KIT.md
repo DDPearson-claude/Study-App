@@ -44,7 +44,7 @@ K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}
 K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
 ```
 `control` is a big slider with − / + buttons. Keep `unit` short ('s', 'km/h', '%'); `prefix` for
-'£'; `fmt(v)` returns the whole text; `log: true` spans decades. `choice` is 2-5 short named
+'£'; `fmt(v)` returns the whole text; `log: true` spans decades. `choice` is 2-8 short named
 options; `value` is an option's value or its 0-based index (as lesson controls with `options`
 give it); `params[id]` is the chosen value. `stepper` walks a process with Back / Next (value =
 step index; `compact: true` when your diagram shows the content). `button` is an action (Shout,

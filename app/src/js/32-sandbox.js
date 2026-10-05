@@ -424,5 +424,5 @@ U.sandbox = (function () {
     });
   }
 
-  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach };
+  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach, visibleTimeout: visibleTimeout };
 })();

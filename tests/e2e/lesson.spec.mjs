@@ -36,7 +36,7 @@ const LESSON = (iid) => `topics/pendulums/lessons/${iid}`;
 
 // ---------- fakes, installed in the page before routing (must be self-contained) ----------
 function installFakes(cfg) {
-  var T = window.__T = { ensure: [], grade: [], tutor: [], add: [], mounts: [], pending: {}, gradeReplies: cfg.gradeReplies || [], kit: '' };
+  var T = window.__T = { ensure: [], grade: [], tutor: [], add: [], relearn: [], mounts: [], pending: {}, gradeReplies: cfg.gradeReplies || [], kit: '' };
   (cfg.pending || []).forEach(function (iid) {
     T.pending[iid] = function (o) { return new Promise(function (res, rej) { T.prep = { o: o, res: res, rej: rej }; }); };
   });
@@ -57,8 +57,19 @@ function installFakes(cfg) {
     grade: function (say, text, attempt, opts) {
       T.grade.push({ text: text, attempt: attempt, rubric: (say.rubric || []).length, previous: (opts && opts.previous) || null, title: (opts && opts.title) || null });
       var r = T.gradeReplies.shift() || { met: [true, false, false], verdict: 'partly', nailed: 'You have the main point.', followUp: 'What happens if you make it four times as long?' };
-      return U.sleep(350).then(function () { return r; });
+      return U.sleep(cfg.gradeMs || 350).then(function () { return r; });
     },
+    // Learn it again: like the real one, the lesson doc is replaced (writing, then the new lesson).
+    relearn: cfg.relearnDoc ? function (tid, iid, o) {
+      T.relearn.push({ tid: tid, iid: iid, feedback: (o && o.feedback) || null });
+      return U.store.lesson.set(tid, iid, { status: 'writing', lesson: null, interactive: null, sourced: false }).then(function () {
+        return U.sleep(300);
+      }).then(function () {
+        var d = JSON.parse(JSON.stringify(cfg.relearnDoc));
+        d.lesson.predict.q = d.lesson.predict.q + ' (take ' + T.relearn.length + ')';
+        return U.store.lesson.set(tid, iid, d).then(function () { return U.store.lesson.get(tid, iid); });
+      });
+    } : undefined,
     tutor: function (messages, context, o) {
       T.tutor.push({ messages: messages.map(function (m) { return { role: m.role, content: m.content }; }), state: context.state || null, iid: context.iid || null, hasLesson: !!context.lesson });
       var reply = T.tutor.length === 1
@@ -105,6 +116,8 @@ async function shot(app, name, full = false) {
   await app.page.screenshot({ path: join(OUT, 'lesson-' + name + '.png'), fullPage: full });
 }
 const T = (app) => app.page.evaluate(() => JSON.parse(JSON.stringify(window.__T)));
+// Keyed lists (say, questions, flags) may be maps or old arrays: values, oldest first.
+const vals = (m) => (Array.isArray(m) ? m : Object.values(m || {})).filter(Boolean).sort((a, b) => String(a.at).localeCompare(String(b.at)));
 const doc = (app, path) => app.page.evaluate((p) => window.__CLAUDE_STUB__.get(p), path);
 async function noOverflow(app) {
   const w = await app.page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
@@ -163,7 +176,7 @@ async function walk(width, dark) {
     await page.waitForTimeout(1000);
     const settledH = await play.locator('.lsn-panel').evaluate((el) => el.getBoundingClientRect().height);
     console.log(`  interactive: reserved ${Math.round(reserved)}px, settled ${Math.round(settledH)}px`);
-    ok(await page.evaluate(() => Number(localStorage.getItem('mu-lsn-h:pendulums/i1')) > 200), 'measured height remembered for next time');
+    ok(await page.evaluate((k) => Number(localStorage.getItem(k)) > 200, 'mu-lsn-h:pendulums/i1' + (width >= 700 ? ':wide' : '')), 'measured height remembered for next time (per width)');
     let progress = await doc(app, PROGRESS);
     ok(progress && progress.ideas.i1.predict && progress.ideas.i1.predict.answer === 'It takes twice as long', 'prediction saved');
     ok(progress && progress.ideas.i1.stage === 'play' && progress.lastIdea === 'i1', 'stage play and lastIdea saved');
@@ -192,7 +205,8 @@ async function walk(width, dark) {
     t = await T(app);
     ok(t.tutor[1].messages.length === 3, 'second question carries the conversation (3 messages)');
     progress = await doc(app, PROGRESS);
-    ok(progress.questions && progress.questions.length === 1 && progress.questions[0].iid === 'i1' && /square root/.test(progress.questions[0].q), 'typed question saved to progress.questions (chips are not)');
+    const qs = vals(progress.questions);
+    ok(progress.questions && !Array.isArray(progress.questions) && qs.length === 1 && qs[0].iid === 'i1' && /square root/.test(qs[0].q), 'typed question saved to progress.questions as a keyed entry (chips are not)');
     await shot(app, `${tag}-3b-tutor`);
     await page.keyboard.press('Escape');
     await page.locator('.tutor-sheet').waitFor({ state: 'detached' });
@@ -221,10 +235,12 @@ async function walk(width, dark) {
     await page.locator('.lsn-flag-link').click();
     await page.locator('.sheet textarea').fill('The analogy says pushing harder does nothing, but the text says it does for big swings.');
     await shot(app, `${tag}-5c-flag`);
-    await page.locator('.sheet .btn', { hasText: 'Send' }).click();
+    ok(/kept with this lesson/.test(await page.locator('.sheet').textContent()) && !/checked and fixed/.test(await page.locator('.sheet').textContent()), 'flag sheet says what happens to the note');
+    await page.locator('.sheet .btn', { hasText: 'Keep my note' }).click();
     await page.waitForTimeout(400);
     const lessonDoc = await doc(app, LESSON('i1'));
-    ok(lessonDoc.flags && lessonDoc.flags.length === 1 && /analogy/.test(lessonDoc.flags[0].note) && lessonDoc.flags[0].at, 'flag saved on the lesson doc');
+    const flags = vals(lessonDoc.flags);
+    ok(flags.length === 1 && /analogy/.test(flags[0].note) && flags[0].at && !Array.isArray(lessonDoc.flags), 'flag saved on the lesson doc as a keyed entry');
     ok(lessonDoc.status === 'ready' && lessonDoc.lesson, 'flagging keeps the lesson intact');
     await ex.getByRole('button', { name: 'Continue' }).click();
 
@@ -250,7 +266,8 @@ async function walk(width, dark) {
     ok(await say.locator('.lsn-rubric li.is-met').count() === 2, 'model answer marks the 2 points he made');
     await page.waitForTimeout(300);
     progress = await doc(app, PROGRESS);
-    ok(progress.ideas.i1.say.length === 2 && progress.ideas.i1.say[1].verdict === 'partly' && progress.ideas.i1.say[1].met.join() === 'true,true,false', 'both attempts saved for the Book');
+    const says = vals(progress.ideas.i1.say);
+    ok(says.length === 2 && says[1].verdict === 'partly' && says[1].met.join() === 'true,true,false', 'both attempts saved for the Book');
     await shot(app, `${tag}-6c-say-model`);
     await say.getByRole('button', { name: 'Continue' }).click();
 
@@ -466,6 +483,142 @@ async function plain(width, dark) {
   await app.close();
 }
 
+
+// ---------- scenario: two devices on one idea (stages only move forward; nothing overwritten) ----------
+async function twoDevices() {
+  current = 'two-devices 360-light';
+  console.log('\n' + current);
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i5', seed: { 'topics/pendulums': TOPIC, [LESSON('i5')]: CLOCKS }, reduced: true });
+  const { page } = app;
+  try {
+    const input = page.locator('.lsn-stage[data-stage="predict"] input');
+    await input.waitFor();
+    await page.waitForTimeout(400);
+    // The phone finishes the idea while this screen still shows Predict (its say list in the old array shape).
+    const at = new Date().toISOString();
+    await app.seed(PROGRESS, { updatedAt: at, lastIdea: 'i5', ideas: { i5: { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'Huygens', at },
+      say: [{ text: 'PHONE: the swing keeps the beat', at, verdict: 'got-it', met: [true, true] }], checks: { c1: { correct: true, at } } } } });
+    await page.waitForTimeout(400);
+    await input.fill('Galileo');
+    await input.press('Enter');
+    await page.waitForTimeout(700);
+    let pr = await doc(app, PROGRESS);
+    ok(pr.ideas.i5.stage === 'done' && pr.ideas.i5.doneAt === at, 'a stale screen never moves a finished idea back (stage ' + pr.ideas.i5.stage + ')');
+    ok(pr.ideas.i5.predict.answer === 'Huygens', 'the guess saved first (on the phone) is kept');
+    // Go through it again: a separate record; the originals stay.
+    await page.evaluate(() => U.go(location.hash));
+    await page.locator('.lsn-done').waitFor();
+    await page.locator('.lsn-again button').click();
+    await page.locator('.lsn-stage[data-stage="predict"] input').fill('Newton');
+    await page.locator('.lsn-stage[data-stage="predict"] input').press('Enter');
+    await page.locator('.lsn-stage[data-stage="play"]').getByRole('button', { name: 'Continue' }).click();
+    await page.locator('.lsn-stage[data-stage="explain"]').getByRole('button', { name: 'Continue' }).click();
+    await page.locator('.lsn-stage[data-stage="say"] .lsn-after').getByRole('button', { name: 'Continue' }).click();
+    await answerCheck(app, CLOCKS.lesson.checks[0], false);
+    await continueCheck(app);
+    await page.locator('.lsn-done').waitFor();
+    await page.waitForTimeout(500);
+    pr = await doc(app, PROGRESS);
+    const t = await T(app);
+    const rp = vals(pr.ideas.i5.replays);
+    ok(pr.ideas.i5.predict.answer === 'Huygens' && pr.ideas.i5.checks.c1.correct === true, 'replay keeps the first guess and check results');
+    ok(rp.length === 1 && rp[0].predict.answer === 'Newton' && rp[0].checks.c1.correct === false, 'the replay is recorded separately');
+    ok(t.add.length === 0, 'replay does not remake review cards (learnedAt kept)');
+    ok(vals(pr.ideas.i5.say).some((x) => /^PHONE/.test(x.text)), 'the phone\'s explanation is kept');
+    await shot(app, 'two-devices-replay-done');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'two-devices-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: Learn it again, and Rebuild from "This looks wrong" ----------
+async function relearnScenario() {
+  current = 'relearn 360-light';
+  console.log('\n' + current);
+  const at = '2026-09-01T10:00:00.000Z';
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i5')]: CLOCKS,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i5', ideas: { i5: { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'Galileo', at },
+      say: { k1: { text: 'old words', at, verdict: 'got-it', met: [true, true] } }, checks: { c1: { correct: false, at } }, relearn: true } } } };
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i5/again', seed, cfg: { relearnDoc: CLOCKS } });
+  const { page } = app;
+  try {
+    await page.locator('.lsn-prep').waitFor();
+    ok(/fresh lesson/i.test(await page.locator('.lsn-prep').textContent()), 'says a fresh lesson is being written');
+    await shot(app, 'relearn-1-writing');
+    await page.locator('.lsn-stage[data-stage="predict"] input').waitFor();
+    ok(/take 1/.test(await page.locator('.lsn-stage[data-stage="predict"] .lsn-h').textContent()), 'the fresh lesson is the one shown');
+    ok(await page.evaluate(() => location.hash) === '#/t/pendulums/i5', 'the address drops /again (a reload does not rebuild it again)');
+    let pr = await doc(app, PROGRESS);
+    const i5 = pr.ideas.i5;
+    ok(i5.round === 1 && i5.stage === 'predict' && !i5.checks && !i5.doneAt && !i5.predict && i5.relearn === false, 'a new round: stage, guess and check results reset, flag cleared');
+    ok(i5.past && i5.past[0] && i5.past[0].checks.c1.correct === false && i5.past[0].predict.answer === 'Galileo', 'the first round is kept under past');
+    ok(vals(i5.say).length === 1, 'his earlier explanation stays (for the Book)');
+    // Through the fresh lesson: Say it back asks again (the old answer was for the old lesson).
+    await page.locator('.lsn-stage[data-stage="predict"] input').fill('Huygens');
+    await page.locator('.lsn-stage[data-stage="predict"] input').press('Enter');
+    await page.locator('.lsn-stage[data-stage="play"]').getByRole('button', { name: 'Continue' }).click();
+    await page.locator('.lsn-stage[data-stage="explain"]').getByRole('button', { name: 'Continue' }).click();
+    ok(await page.locator('.lsn-stage[data-stage="say"] textarea').isVisible(), 'say it back asks again in the new round');
+    await page.locator('.lsn-stage[data-stage="say"] textarea').fill('The pendulum keeps a steady beat and the clock counts it.');
+    await page.locator('.lsn-stage[data-stage="say"]').getByRole('button', { name: 'Check my answer' }).click();
+    await page.locator('.lsn-stage[data-stage="say"] .lsn-grade').waitFor();
+    await page.locator('.lsn-stage[data-stage="say"]').getByRole('button', { name: /Show me a model answer|Continue/ }).first().click();
+    const cont = page.locator('.lsn-stage[data-stage="say"] .lsn-after').getByRole('button', { name: 'Continue' });
+    if (await cont.count()) await cont.click();
+    await answerCheck(app, CLOCKS.lesson.checks[0], true);
+    await continueCheck(app);
+    await page.locator('.lsn-done').waitFor();
+    await page.waitForTimeout(500);
+    const t = await T(app);
+    pr = await doc(app, PROGRESS);
+    ok(t.add.length === 1 && t.add[0].outcome.checks.c1.correct === true, 'finishing the new round makes its review cards (from the new answers)');
+    ok(pr.ideas.i5.stage === 'done' && pr.ideas.i5.doneAt && pr.ideas.i5.round === 1, 'the new round is done');
+    // "This looks wrong" -> Rebuild this lesson, with the note.
+    await page.locator('.lsn-flag-link').click();
+    await page.locator('.sheet textarea').fill('The date in the reveal looks wrong.');
+    await shot(app, 'relearn-2-flag-sheet');
+    await page.locator('.sheet .btn', { hasText: 'Rebuild this lesson' }).click();
+    await page.locator('.lsn-stage[data-stage="predict"] input').waitFor();
+    const t2 = await T(app);
+    ok(t2.relearn.length === 2 && t2.relearn[1].feedback === 'The date in the reveal looks wrong.', 'Rebuild passes his note to U.gen.relearn');
+    pr = await doc(app, PROGRESS);
+    ok(pr.ideas.i5.round === 2 && pr.ideas.i5.stage === 'predict', 'rebuilding starts another round');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'relearn-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: leaving while an answer is being graded still saves it ----------
+async function leaveWhileGrading() {
+  current = 'leave-while-grading 360-light';
+  console.log('\n' + current);
+  const at = new Date().toISOString();
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i5')]: CLOCKS,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i5', ideas: { i5: { stage: 'say', startedAt: at, predict: { answer: 'x', at } } } } };
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i5', seed, cfg: { gradeMs: 1200 } });
+  const { page } = app;
+  try {
+    await page.locator('.lsn-stage[data-stage="say"] textarea').fill('A swinging weight keeps time.');
+    await page.locator('.lsn-stage[data-stage="say"]').getByRole('button', { name: 'Check my answer' }).click();
+    await page.waitForTimeout(200);
+    await page.evaluate(() => { location.hash = '#/t/pendulums/i1'; });
+    await page.waitForTimeout(1800);
+    const pr = await doc(app, PROGRESS);
+    const says = vals(pr.ideas.i5.say);
+    ok(says.length === 1 && /swinging weight/.test(says[0].text) && says[0].verdict, 'the graded answer is saved although he left the lesson');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 // ---------- scenario: the complete app, real modules, only the model stubbed ----------
 async function fullApp() {
   current = 'full-app 360-light';
@@ -513,7 +666,7 @@ async function fullApp() {
     const types = cards ? Object.values(cards.cards).map((c) => c.type).sort().join(',') : '';
     ok(types === 'choice,estimate,order,recall', `real review module made cards from the lesson (${types})`);
     const pr = dump[PROGRESS];
-    ok(pr && pr.ideas.i1.stage === 'done' && pr.ideas.i1.say.length === 1 && pr.questions.length === 1, 'progress saved through the real store');
+    ok(pr && pr.ideas.i1.stage === 'done' && vals(pr.ideas.i1.say).length === 1 && vals(pr.questions).length === 1, 'progress saved through the real store');
     ok(tasks.includes('grade') && tasks.includes('tutor') && tasks.includes('write-lesson'), `grade, tutor and the next-idea prefetch reach the model (${[...new Set(tasks)].join(', ')})`);
     await shot(app, 'full-app-done');
   } catch (e) {
@@ -535,6 +688,9 @@ const scenarios = [
   ['resume-1280-dark', () => resume(1280, true)],
   ['plain-360-dark', () => plain(360, true)],
   ['plain-1280-light', () => plain(1280, false)],
+  ['two-devices', twoDevices],
+  ['relearn', relearnScenario],
+  ['leave-while-grading', leaveWhileGrading],
   ['full-app', fullApp],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();

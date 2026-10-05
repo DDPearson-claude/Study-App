@@ -183,6 +183,27 @@ section('self-test catches broken bodies');
   expect('a body that never answers times out as a failing report', !r.ok && has(r.errors, /did not load within/), r.errors);
   expect('srcdoc() refuses an oversized body', await app.page.evaluate(() => { try { U.sandbox.srcdoc('x'.repeat(160 * 1024)); return false; } catch (e) { return e.code === 'too_large'; } }));
 
+  // Timeouts run on a clock that stops while the app is hidden or suspended.
+  const slowReady = '<div class="k-controls" id="c"></div><script>K.control({ id: "a", label: "A", min: 0, max: 1, into: "#c" });' +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true); setTimeout(() => K.ready(), 1500);</script>";
+  r = await test(slowReady, { widths: [340], timeout: 900 });
+  expect('(control) a body that is ready after 1.5 s fails a 0.9 s budget while the app is visible', !r.ok && has(r.errors, /did not load within/), r.errors);
+  r = await app.page.evaluate(async (h) => {
+    Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+    setTimeout(() => { delete document.visibilityState; }, 1800);
+    return U.sandbox.test(h, { widths: [340], timeout: 900 });
+  }, slowReady);
+  expect('time while the app is hidden does not count: the same body passes', r.ok, r.errors);
+  const late = await app.page.evaluate(() => new Promise((resolve) => {
+    let fired = 0;
+    U.sandbox.visibleTimeout(() => { fired = performance.now(); }, 800);
+    const t = performance.now();
+    while (performance.now() - t < 1200) {}            // the page is frozen (as when the phone suspends it)
+    const thawed = performance.now();
+    setTimeout(() => resolve({ wait: Math.round(fired - thawed), early: fired && fired < thawed }), 1200);
+  }));
+  expect('a timer that wakes up late counts the frozen time as one tick, so it never fires early', !late.early && late.wait >= 150, late);
+
   // Clipped text (cut off, ellipsised, spilling, outside an SVG, labels over each other).
   r = await test(body(plain, { html: '<div id="pill" style="width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">lungs breathe air in</div>' }));
   expect('an ellipsised label fails as clipped text, naming it', !r.ok && has(r.clipped, /"lungs breathe air in" is cut off by <div#pill> \(shortened with "…"/), r.clipped);
