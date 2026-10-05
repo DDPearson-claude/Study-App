@@ -219,6 +219,22 @@ section('self-test catches broken bodies');
   r = await test(body(plain + "\nK.update((p) => { document.getElementById('b2').setAttribute('x', p.a > 0.7 ? 32 : 75); });",
     { html: '<svg viewBox="0 0 120 40" width="100%"><text x="30" y="20" font-size="10">swap</text><text id="b2" x="75" y="20" font-size="10">drags back</text></svg>' }));
   expect('SVG labels printed over each other at some setting fail', !r.ok && has(r.clipped, /SVG labels "swap" and "drags back" are printed over each other \(at a = 0\.8/), r.clipped);
+  // A word split across two lines (overflow-wrap breaking a word wider than its box) fails, at
+  // the size under test and at Text size XL, which the self-test also sweeps; a break at a hyphen
+  // or a space is fine.
+  // Words in px boxes: "Potassium" in 1rem bold is about 94 px wide at M and 118 px at XL.
+  const words = (w) => ['Potassium', 'Austria-Hungary'].map((t, i) => '<b' + (i ? '' : ' id="w"') + ' style="display:block;width:' + w + ';font-size:1rem">' + t + '</b>').join('');
+  r = await test(body(plain, { html: words('50px') }));
+  expect('a word split across two lines fails, naming the word and its room',
+    !r.ok && has(r.clipped, /the word "Potassium" is split across two lines in <b#w> \(it needs \d+px and has 50px\) \(at the opening state/), r.clipped);
+  r = await test(body(plain, { html: words('104px') }), { widths: [340] });
+  expect('a word that splits only at Text size XL is caught there (the self-test sweeps XL too)',
+    !r.ok && has(r.clipped, /"Potassium" is split across two lines .*\(at Text size XL/) && !has(r.clipped, /\(at the opening state/), r.clipped);
+  r = await test(body(plain, { html: words('6.5rem') }), { widths: [340] });
+  expect('the same boxes sized in rem keep every word whole at XL; a break at a hyphen is fine', r.ok && !r.clipped.length, r.clipped);
+  r = await test(body("K.model((p) => ({ y: p.a * 2, z: 1, w: 2, v: 3, u: 4 }));\n" +
+    ['z:Electronegativity', 'w:Mass', 'v:Charge', 'u:Radius'].map((t) => "K.readout({ id: '" + t.split(':')[0] + "', label: '" + t.split(':')[1] + "', into: '#o' });").join(' ')), { widths: [720] });
+  expect('a readout tile is never narrower than the longest word of its label', r.ok && !r.clipped.length, r.clipped);
   // Common patterns that are not clipping.
   const fine = body(plain + "\nconst rr = K.readout({ id: 'words', label: 'Pattern', into: '#o' }); K.update(() => rr.set('181 for every 120'));",
     { html: '<div class="panel" style="overflow:hidden;border-radius:12px"><p>Rounded panel with ordinary wrapping text that is long enough to wrap onto several lines.</p></div>' +
@@ -240,7 +256,7 @@ section('self-test catches broken bodies');
 
   // Choice controls: every option swept, reported with its options.
   r = await test(choiceBody);
-  expect('a choice is swept through every option (a NaN at option "e" is caught by its label)', !r.ok && has(r.sweep.problems, /readout "y" was given NaN \(at pick = "Label E"\)/), r.sweep);
+  expect('a choice is swept through every option (a NaN at option "e" is caught by its label)', !r.ok && has(r.sweep.problems, /readout "y" was given NaN \(at pick = "Label E"(, and \d+ more settings?)?\)/), r.sweep);
   expect('the report lists the choice with its options', r.controls.includes('pick') && JSON.stringify((r.inputs || [])[0] && r.inputs[0].options) === '["a","b","c","d","e","f"]' && r.inputs[0].value === 'b', r.inputs);
 
   // Buttons and animations are exercised.
@@ -542,6 +558,9 @@ section('exemplars and the host API');
     expect(ex.name + ' passes at 340, 720 and 1040 (' + (Date.now() - t0) + ' ms)', r.ok && r.widths.every((w) => w.ok) && !r.overflow && r.sweep.ok && !r.errors.length, r);
     expect(ex.name + ': 3+ checks, all pass, one cites a source', r.checks.length >= 3 && r.checks.every((c) => c.ok) && r.checks.some((c) => /^https:\/\//.test(c.source || '')), r.checks);
     expect(ex.name + ': no warnings', !(r.warnings || []).length, r.warnings);
+    // In the lesson's frame on a 360 / 390 px phone at Text size XL: no word splits ("German/y").
+    const xl = await app.page.evaluate((h) => U.sandbox.test(h, { widths: [338, 368], theme: Object.assign(U.sandbox.theme(), { size: 20 }) }), ex.body);
+    expect(ex.name + ' at Text size XL in a 338 and 368 px frame: every word whole, nothing cut off', xl.ok && !xl.clipped.length, xl.clipped.concat(xl.errors));
   }
 
   // mount: ready, get/set, sandbox, spoofed messages, keyboard, onChange, theme, errors, destroy

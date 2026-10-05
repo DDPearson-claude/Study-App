@@ -49,13 +49,18 @@
 /* ---------- heading ---------- */
 .lsn-head { display: flex; flex-direction: column; gap: 10px; padding: 28px 0 4px; }
 .lsn-eb { min-height: 17px; }
-/* "Topic name · Idea 1 of 5" on one line. When both don't fit (a narrow phone at XL, a long
-   name), the name drops out whole rather than wrapping: the row runs right to left with the count
-   placed first, so the name is what wraps to a second line, and that line is clipped. The DOM
-   keeps name, then count, for screen readers. */
-.lsn-eb.is-filled { display: flex; flex-flow: row-reverse wrap; justify-content: flex-end; max-height: 1.4em; overflow: hidden; }
+/* "Topic name · Idea 1 of 5": the topic name is shown nowhere else on the lesson, so it wraps
+   (at a space) rather than going, and the count never splits. Only at XL on a phone, where every
+   line counts, does the eyebrow keep to one line, and the name drops out whole when it cannot fit
+   beside the count: the row runs right to left with the count placed first, so the name is what
+   wraps to a second line, and that line is clipped. The DOM keeps name, then count, for screen
+   readers. */
 .lsn-eb-topic::after { content: "\00a0·\00a0"; }
-.lsn-eb-n { order: -1; white-space: nowrap; }
+.lsn-eb-n { white-space: nowrap; }
+@container view (max-width: 527px) {
+  :root[data-size="xl"] .lsn-eb.is-filled { display: flex; flex-flow: row-reverse wrap; justify-content: flex-end; max-height: 1.4em; overflow: hidden; }
+  :root[data-size="xl"] .lsn-eb-n { order: -1; }
+}
 .lsn-title { font-size: clamp(calc(1.65 * var(--lsn-hrem)), 6.6vw, calc(2.15 * var(--lsn-hrem))); font-size: clamp(calc(1.65 * var(--lsn-hrem)), 6.6cqi, calc(2.15 * var(--lsn-hrem))); }
 .lsn-one { color: var(--muted); font-size: 1.0625rem; line-height: 1.5; max-width: 34em; }
 .lsn-sk-eb { display: inline-block; width: 46%; height: 12px; vertical-align: middle; }
@@ -230,6 +235,10 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-checks { display: flex; flex-direction: column; gap: 32px; }
 .lsn-check { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: calc(var(--topbar-h) + var(--lsn-bar-h) + 12px); }
 .lsn-check-count { font: 700 .75rem/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+/* A check's question follows the lesson's heading scale (--lsn-hrem) like the predict question,
+   one step below the stage heading ("Quick checks") on a phone and a laptop alike. Review cards
+   outside a lesson keep their own sizes (40-review.css). */
+.lsn-check .qc-q, :root[data-layout="laptop"] .lsn-check .qc-q { font-size: calc(1.2 * var(--lsn-hrem)); }
 .lsn-check-list { margin: 0; padding: 0 0 0 20px; display: flex; flex-direction: column; gap: 12px; }
 .lsn-check-list li { font-size: .9688rem; line-height: 1.5; }
 .lsn-check-q { display: block; }
@@ -299,6 +308,10 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tutor-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
 .tutor-chips::-webkit-scrollbar { display: none; }
 .tutor-chips .chip { flex: none; min-height: 44px; }
+/* Before the first question only the two starters show, and they wrap so both are whole; the
+   one-line sideways row is for the three chips under a conversation. */
+.tutor-sheet.is-empty .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
+.tutor-sheet.is-empty .tutor-chips .chip { flex: 0 1 auto; }
 .tutor-chips .chip[disabled] { opacity: .5; cursor: default; }
 .tutor-compose { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 8px; align-items: end; }
 .tutor-input.textarea { min-height: 52px; max-height: 160px; resize: none; padding-block: 13px; overflow-y: auto; }

@@ -301,9 +301,10 @@ Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label,
            sweep:{ ok, problems:[] }, controls:[ids], readouts:[ids], outputs:[model keys],
            inputs:[…], actions:[labels], ready, warnings:[], width, height, ms }
 ```
-`ok` = no errors, no overflow, nothing clipped, at least one check and all pass, sweep ok,
-`K.ready()` called. The self-test (KIT.md, "The self-test") also sweeps every control, reveals
-the after-move parts, steps every `K.anim` and, in a throwaway frame, presses every `K.button`.
+`ok` = no errors, no overflow, nothing clipped (a word split across two lines counts as clipped),
+at least one check and all pass, sweep ok, `K.ready()` called. The self-test (KIT.md, "The
+self-test") also sweeps every control, reveals the after-move parts, steps every `K.anim` and, in
+a throwaway frame, presses every `K.button` and sweeps the controls again at Text size XL (20 px).
 
 Height: the kit posts the body's height, including content that spills out of a fixed-height
 box (`body.scrollHeight`), capped at 6000 px; the host sizes the frame to it (hidden test

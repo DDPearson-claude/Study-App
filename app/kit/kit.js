@@ -17,6 +17,7 @@
   var PHONE = 560;                        // frames narrower than this get the phone layout
   var PHONE_VIEW = 640;                   // roughly how much of the frame a phone shows at once
   var FIG_MAX = 600;                      // custom figures never grow wider than this
+  var SIZE_XL = 20;                       // K.theme.size at the app's largest Text size (XL)
   var BODY_LINE = +window.K_BODY_LINE || 0; // srcdoc line where the body starts (for error lines)
   var host = window.parent;                // captured now, so a body can't redirect it
   var hosted = !!host && host !== window;
@@ -725,10 +726,12 @@
     }
     r.get = function () { return r.value; };
     r.text = function () { return val.textContent; };
-    // Tiles share a row; a long label gets a wider tile so it wraps to at most two lines.
+    // Tiles share a row; a long label gets a wider tile so it wraps to at most two lines, and
+    // never one narrower than its longest word, so no word splits (at a large Text size too).
     r.layout = function () {
-      var w = textWidth(o.label || id, fontOf(lab));
-      el.style.flexBasis = 'min(100%, ' + Math.max(132, Math.ceil(w / 1.8 + 34)) + 'px)';
+      var font = fontOf(lab), w = textWidth(o.label || id, font);
+      var word = String(o.label || id).split(/\s+/).reduce(function (m, t) { return Math.max(m, textWidth(t, font)); }, 0);
+      el.style.flexBasis = 'min(100%, ' + Math.max(132, Math.ceil(w / 1.8 + 34), Math.ceil(word + 30)) + 'px)';
       fit();
     };
     readouts[id] = r;
@@ -1381,6 +1384,13 @@
   function halosSoon() { if (!haloRaf) haloRaf = (window.requestAnimationFrame || setTimeout)(halos); }
 
   // ---------- layout ----------
+  // The text size in px (the self-test's XL pass): the root, so every rem size, and the body
+  // follow --k-fs, and the layout is redone for it.
+  function setTextSize(px) {
+    K.theme.size = px;
+    document.documentElement.style.setProperty('--k-fs', px + 'px');
+    if (readyCalled) relayout();
+  }
   // Width-dependent layout: control end labels and value widths, readout tiles, figure caps
   // and stages. Runs after K.ready(), when the frame changes width, and on a theme change.
   function relayout() {
@@ -1646,9 +1656,28 @@
     }
     return 'content is ' + de.scrollWidth + 'px wide in a ' + cw + 'px frame' + (culprits.length ? ': ' + culprits.join(', ') : '');
   }
+  // A word in a wrapping text node that is split across two lines (overflow-wrap breaks a word
+  // wider than its box: "Germany" as "German" / "y"). Hyphens and spaces are ordinary breaks, so
+  // "Austria-" / "Hungary" is fine. Changes `range`. -> {word, need} | null
+  var WORD = /[\p{L}\p{N}][\p{L}\p{N}\p{M}'\u2019]*/gu;
+  function splitWord(n, range) {
+    var text = n.nodeValue, m;
+    WORD.lastIndex = 0;
+    while ((m = WORD.exec(text))) {
+      if (m[0].length < 2) continue;
+      range.setStart(n, m.index);
+      range.setEnd(n, m.index + m[0].length);
+      var rs = Array.prototype.filter.call(range.getClientRects(), function (r) { return r.width > 0; });
+      if (rs.length > 1 && rs[rs.length - 1].top - rs[0].top > rs[0].height / 2) {
+        return { word: m[0], need: rs.reduce(function (w, r) { return w + r.width; }, 0) };
+      }
+    }
+    return null;
+  }
   // Text a person can't fully read at this width: cut off by its own or an ancestor's overflow
-  // (hidden, clip, or a text-overflow ellipsis), a no-wrap line spilling out of its box, text off
-  // the left edge, SVG text outside its drawing, and SVG labels printed over each other.
+  // (hidden, clip, or a text-overflow ellipsis), a no-wrap line spilling out of its box, a word
+  // split across two lines, text off the left edge, SVG text outside its drawing, and SVG labels
+  // printed over each other.
   // -> [{key, msg}]
   function clippedNow() {
     var out = [], styles = new Map();
@@ -1668,6 +1697,16 @@
       if (!b.width || !b.height) continue;
       var text = snippet(el.textContent || n.nodeValue), fs = parseFloat(es.fontSize) || 16;
       if (b.left < -1) { seenEl.add(el); out.push({ key: 'left|' + pathOf(el), msg: '"' + text + '" runs off the left edge of the page' }); continue; }
+      // Only a node that wraps onto more than one line can split a word.
+      var split = range.getClientRects().length > 1 && splitWord(n, range);
+      if (split) {
+        var box = el;
+        while (box.parentElement && box !== document.body && /^(inline|contents)$/.test(st(box).display)) box = box.parentElement;
+        var bs = st(box), room = box.clientWidth - (parseFloat(bs.paddingLeft) || 0) - (parseFloat(bs.paddingRight) || 0);
+        seenEl.add(el);
+        out.push({ key: 'split|' + pathOf(el), msg: 'the word "' + split.word + '" is split across two lines in ' + describeEl(box) + ' (it needs ' + Math.ceil(split.need) + 'px and has ' + Math.max(0, Math.floor(room)) + 'px)' });
+        continue;
+      }
       // A line that may not wrap (white-space: nowrap or pre) spilling out of its own box.
       if (/^(nowrap|pre)$/.test(es.whiteSpace) && es.display !== 'inline' && el.clientWidth) {
         var er = el.getBoundingClientRect(), left = er.left + el.clientLeft, right = left + el.clientWidth;
@@ -1846,6 +1885,20 @@
         controls.forEach(function (c) { var v = c.sweep(); c.set(v[v.length - 1], true); });
         await step('every control at its highest');
         controls.forEach(function (c, k) { c.set(init[k], true); });
+      }
+      // Once more at Dan's largest Text size: rem sizes grow by a quarter, so a word that fits
+      // its tile at M can split, or a line spill, at XL. Throwaway frames only (Dan never sees it).
+      if (throwaway && K.theme.size < SIZE_XL) {
+        var size0 = K.theme.size;
+        setTextSize(SIZE_XL);
+        try {
+          await step('Text size XL');
+          for (var x = 0; x < controls.length; x++) {
+            var cx = controls[x], xs = cx.sweep();
+            for (var y = 0; y < xs.length; y++) { cx.set(xs[y], true); await step('Text size XL, ' + cx.id + ' = ' + cx.describe(xs[y])); }
+            cx.set(init[x], true);
+          }
+        } finally { setTextSize(size0); }
       }
       if (throwaway) {
         for (var b = 0; b < actions.length; b++) {
