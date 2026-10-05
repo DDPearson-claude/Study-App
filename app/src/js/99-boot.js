@@ -1,8 +1,9 @@
-// Boot: runs last. Wires the settings button, waits for the runtime (U.rt.ready, which every
-// bridge call bounds at 10 s), starts the hash router at once (the device's reading settings were
-// already applied before first paint by head.html; the db copy is loaded in the background and
-// applied when it arrives), warns once when progress cannot be kept, starts the Today badge, and
-// counts study minutes while the page is visible and in use.
+// Boot: runs last. Wires the settings button, waits for the runtime (U.rt.ready: 10 s for each
+// bridge call, up to 30 s for Dan's saved work, saying so plainly while it waits), starts the hash
+// router at once (the device's reading settings were already applied before first paint by
+// head.html; the db copy is loaded in the background and applied when it arrives), warns once
+// when progress cannot be kept, starts the Today badge, and counts study minutes while the page is
+// visible and in use. Saved work that arrives after the app opened is shown at once.
 // Exposes U.boot.study for tests. Contract: docs/ARCHITECTURE.md sections 3, 4 and 10.
 (function () {
   'use strict';
@@ -59,19 +60,48 @@
   }
 
   // ---------- one-line notice when nothing will be kept ----------
+  // Two cases, said plainly: saved work still on its way (U.rt.late), or none in this view.
+  function savedLate() { return (U.rt.late || []).some(function (n) { return n === 'db' || n === 'user' || n === 'uid'; }); }
   function persistNotice() {
-    if (U.store.persistent()) return;
-    try { if (sessionStorage.getItem('mu-notice-persist') === '1') return; } catch (e) { /* fine */ }
+    var old = document.getElementById('persist-notice');
+    if (U.store.persistent()) { if (old) old.remove(); return; }
+    var kind = savedLate() ? 'late' : 'none';
+    if (old) { if (old.getAttribute('data-kind') === kind) return; old.remove(); }
+    if (kind === 'none') try { if (sessionStorage.getItem('mu-notice-persist') === '1') return; } catch (e) { /* fine */ }
     var view = document.getElementById('view');
-    if (!view || document.getElementById('persist-notice')) return;
-    var box = U.h('div', { class: 'boot-notice', id: 'persist-notice', role: 'note' },
+    if (!view) return;
+    var box = U.h('div', { class: 'boot-notice', id: 'persist-notice', role: 'note', 'data-kind': kind },
       U.h('div', { class: 'boot-notice-in' },
-        U.h('span', null, 'Open this in the Claude app to keep your progress.'),
+        U.h('span', null, kind === 'late'
+          ? 'Your saved work has not loaded yet, so what you do now may not be kept. It will appear here as soon as it arrives.'
+          : 'Open this in the Claude app to keep your progress.'),
         U.h('button', { class: 'boot-notice-x', type: 'button', 'aria-label': 'Dismiss', on: { click: function () {
           box.remove();
-          try { sessionStorage.setItem('mu-notice-persist', '1'); } catch (e) { /* fine */ }
+          if (kind === 'none') try { sessionStorage.setItem('mu-notice-persist', '1'); } catch (e) { /* fine */ }
         } } }, U.icon('close'))));
     view.parentNode.insertBefore(box, view);
+  }
+
+  // Saved work that arrived after the app opened: the screen is drawn again from it, the reading
+  // settings and the Today badge reload, and the notice goes (or says what is still missing).
+  B.persistent = false;
+  U.on('rt-late', function (name) {
+    if (!B.ready) return;
+    var now = U.store.persistent();
+    if ((name === 'db' && U.rt.db) || (name === 'uid' && U.rt.uid)) {
+      if (B.stopProfile) { try { B.stopProfile(); } catch (e) { /* gone */ } B.stopProfile = null; }
+      loadPrefs().catch(function (e) { console.error('prefs', e); });
+      U._route();
+      refreshBadge();
+      if (now && !B.persistent) U.toast('Your saved work has loaded.', { kind: 'good' });
+    }
+    B.persistent = now;
+    persistNotice();
+  });
+  function refreshBadge() {
+    if (U.review && U.review.refreshBadge) {
+      Promise.resolve().then(function () { return U.review.refreshBadge(); }).catch(function (e) { console.error('badge', e); });
+    }
   }
 
   function opening() {
@@ -93,8 +123,15 @@
     // regions; the whole view as one live region read every change out loud.
     if (view) view.removeAttribute('aria-live');
     if (view && !view.firstChild) view.appendChild(opening());
+    // Only Dan's saved work keeps boot waiting past 10 s (U.rt.ready): say that it is the slow part.
+    var slow = setTimeout(function () {
+      var line = view && view.querySelector('.boot-opening p');
+      if (line && !B.ready) line.textContent = 'Your saved work is taking longer than usual to load. Still waiting for it…';
+    }, U.rt.TIMEOUT_MS + 1000);
 
     U.rt.ready.then(function () {
+      clearTimeout(slow);
+      B.persistent = U.store.persistent();
       loadPrefs().catch(function (e) { console.error('prefs', e); });
       persistNotice();
       window.addEventListener('hashchange', function () { U._memHash = null; U._route(); });
@@ -108,9 +145,7 @@
         U.go(a.getAttribute('href'));
       }, true);
       U._route();
-      if (U.review && U.review.refreshBadge) {
-        Promise.resolve().then(function () { return U.review.refreshBadge(); }).catch(function (e) { console.error('badge', e); });
-      }
+      refreshBadge();
       study.start();
       B.ready = true;
       U.emit('booted');

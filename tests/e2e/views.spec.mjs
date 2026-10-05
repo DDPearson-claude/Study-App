@@ -604,6 +604,60 @@ await test('boot: study minutes count only while in use', async () => {
 });
 
 
+// Audit round 3, finding 14: a capability that answers late used to be dropped for the visit
+// (the app ran on the in-memory store and looked wiped). The page clock is faked so the 10 s and
+// 30 s waits pass at once.
+await test('boot: slow saved work is waited for, said plainly, and shown when it arrives late', async () => {
+  async function slowApp(name, ms) {
+    const app = await openApp({ width: 360, height: 707, file: FILE, config: { db: seedDb() } });
+    current.apps.push(app);
+    await app.page.addInitScript(installFakes, { review: true, tutor: true, gen: 'fast', bands: SEED.bands, due: 4 });
+    await app.page.clock.install();
+    await app.page.addInitScript(([n, wait]) => {
+      const real = window.claude;
+      window.claude = { use: (k) => (k === n ? new Promise((r) => setTimeout(r, wait)).then(() => real.use(k)) : real.use(k)) };
+    }, [name, ms]);
+    await app.page.goto(app.url('#/'));
+    return app;
+  }
+  const notice = (app) => app.page.evaluate(() => { const n = document.getElementById('persist-notice'); return n ? n.textContent : null; });
+
+  // db answers at 12 s: boot waits for it (saying why after 10 s) and opens on Dan's own topics.
+  let app = await slowApp('db', 12000);
+  await app.page.clock.runFor(11500);
+  assert((await text(app, '.boot-opening')).includes('Your saved work is taking longer than usual to load'), 'says what is slow');
+  await app.page.clock.runFor(1000);
+  await app.page.waitForFunction(() => U.boot.ready === true);
+  await app.page.waitForSelector('.ccard');
+  eq(await count(app, '.welcome'), 0, 'never the first-run screen');
+  eq(await notice(app), null, 'no notice');
+
+  // db answers at 35 s: the app opens at 30 s, says plainly that the saved work is not in yet,
+  // and shows it the moment it arrives.
+  app = await slowApp('db', 35000);
+  await app.page.clock.runFor(30500);
+  await app.page.waitForFunction(() => U.boot.ready === true);
+  assert(/Your saved work has not loaded yet/.test(await notice(app)), 'plain notice, not "open this in the Claude app"');
+  await app.page.clock.runFor(5000);
+  await app.page.waitForSelector('.ccard');
+  eq(await app.page.evaluate(() => U.store.persistent()), true, 'the real db is in use');
+  eq(await notice(app), null, 'the notice goes');
+  await app.page.waitForFunction(() => /Your saved work has loaded/.test(document.getElementById('toasts').textContent));
+  eq(await count(app, '.tcard'), Object.keys(SEED.topics).length, 'every topic is back');
+
+  // The user capability late: topics show, progress joins them when the id arrives.
+  app = await slowApp('user', 35000);
+  await app.page.clock.runFor(30500);
+  await app.page.waitForFunction(() => U.boot.ready === true);
+  await app.page.waitForSelector('.tcard');
+  assert((await text(app, '.ccard')).includes('0 of 5 done'), 'no progress yet');
+  assert(/Your saved work has not loaded yet/.test(await notice(app)), 'notice while progress is missing');
+  await app.page.clock.runFor(5000);
+  await app.page.waitForFunction(() => /2 of 6 done/.test((document.querySelector('.ccard') || {}).textContent || ''));
+  eq(await app.page.evaluate(() => U.rt.uid), UID);
+  eq(await notice(app), null);
+});
+
 // ---------- regressions (docs/review/correctness.md, ux.md, performance.md) ----------
 const ago = (ms) => new Date(Date.now() - ms).toISOString();
 

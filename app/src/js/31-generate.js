@@ -234,10 +234,19 @@
       if (text && typeof text === 'object') return text;
       try { return JSON.parse(String(text)); } catch (e) { return null; }
     }
+    // The quote is on the page: every part of it between ellipses, however short (an invented
+    // "… 400 m/s" is often the short part), in the order the quote gives them, each as whole words
+    // ("400" is not found inside "1400"). normText turns an ellipsis copied from an excerpt into a
+    // space on both sides, so such a quote still matches.
     function found(hay, quote) {
-      var frags = s(quote).split(/\.\.\.|…/).map(normText).filter(function (f) { return f.length >= 8; });
-      if (!frags.length) frags = [normText(quote)];
-      return frags.every(function (f) { return f && hay.indexOf(f) >= 0; });
+      var frags = s(quote).split(/\.\.\.|…/).map(normText).filter(Boolean);
+      var text = ' ' + hay + ' ', at = 0;
+      return frags.length > 0 && frags.every(function (f) {
+        var i = text.indexOf(' ' + f + ' ', at);
+        if (i < 0) return false;
+        at = i + f.length + 1;
+        return true;
+      });
     }
     return {
       calls: 0,
@@ -282,7 +291,7 @@
       .replace(/[^a-z0-9]+/g, ' ').trim();
   }
   function wrapTools(tools, corpus) {
-    return (tools || []).map(function (t) {
+    var out = (tools || []).map(function (t) {
       var w = {};
       Object.keys(t).forEach(function (k) { w[k] = t[k]; });
       w.execute = function (input) {
@@ -298,6 +307,9 @@
       };
       return w;
     });
+    // U.ask gives each call to Claude a fresh budget through the list's reset(); keep it.
+    if (tools && typeof tools.reset === 'function') out.reset = tools.reset;
+    return out;
   }
 
   // raw = research reply {sources, topic:{notes}, ideas:{iid:{notes}}} -> per-key docs.
@@ -355,12 +367,18 @@
   function research(tid) {
     if (researching[tid]) return researching[tid];
     var L = liveOf(tid);
-    var p = Promise.resolve().then(function () { return U.research.available(); }).then(function (ok) {
-      if (!ok) {
-        L.research = 'unavailable';
-        emit(tid, null, 'research', 'unavailable', '');
-        return U.store.topic.update(tid, { research: { status: 'unavailable', at: U.now(), sources: 0 } }).then(function () { return null; });
-      }
+    // No connector, or a view that cannot run page tools (sample.limits() without `tools`, or a
+    // call that rejects tools_unavailable): nothing here can check sources, which is not a
+    // failure to retry. Lessons are written and labelled unsourced.
+    function unavailable() {
+      L.research = 'unavailable';
+      emit(tid, null, 'research', 'unavailable', '');
+      return U.store.topic.update(tid, { research: { status: 'unavailable', at: U.now(), sources: 0 } }).then(function () { return null; });
+    }
+    var p = Promise.resolve().then(function () {
+      return Promise.all([U.research.available(), U.rt.toolsOk ? U.rt.toolsOk() : true]);
+    }).then(function (ok) {
+      if (!ok[0] || !ok[1]) return unavailable();
       return U.store.topic.get(tid).then(function (t) {
         if (!t || !Array.isArray(t.ideas) || !t.ideas.length) throw { code: 'not_found', message: 'There is no plan to research yet.' };
         L.research = 'running';
@@ -369,10 +387,21 @@
       });
     }).then(function (res) {
       if (!res) return null;
+      if (!res.kept) {
+        // Research ran, but no source survived the check (no URL the tools returned, or no quote
+        // on its page), so nothing was checked: the topic must not say "Sources checked" over
+        // lessons that say "Not yet source-checked". Kept as failed: the Library offers "Check the
+        // sources again" and lessons try again later.
+        var none = 'No source could be confirmed against the pages the search returned.';
+        L.research = 'failed';
+        emit(tid, null, 'research', 'failed', none);
+        return U.store.topic.update(tid, { research: { status: 'failed', at: U.now(), sources: 0, dropped: res.dropped.length, error: none } }).then(function () { return res; });
+      }
       L.research = 'done';
       emit(tid, null, 'research', 'done', res.kept + ' sources checked');
       return U.store.topic.update(tid, { research: { status: 'done', at: U.now(), sources: res.kept, dropped: res.dropped.length, error: null } }).then(function () { return res; });
     }).catch(function (e) {
+      if (e && e.code === 'tools_unavailable') return unavailable().catch(noop).then(function () { return null; });
       console.warn('research failed', e);
       L.research = 'failed';
       var f = failure(e, 'check sources');
@@ -618,9 +647,15 @@
 
   function relearn(tid, iid, opts) {
     opts = opts || {};
-    var job = running(tid, iid);
-    if (job) { join(job, opts); return job.promise; }
-    job = newJob(tid, iid, {});
+    // Never join a job already running for this lesson (the first writing, an interactive still
+    // building, another Rebuild): it would hand back that lesson as the "fresh" one, and Dan's
+    // note would never reach the writer. Let it finish, then write the new lesson.
+    var busyJob = jobs[tid + '/' + iid];
+    if (busyJob) {
+      if (typeof opts.onStatus === 'function') safe(opts.onStatus, 'Finishing the lesson already being prepared, then writing the new one…');
+      return busyJob.promise.catch(noop).then(function () { return relearn(tid, iid, opts); });
+    }
+    var job = newJob(tid, iid, {});
     subscribe(job, opts.onStatus);
     var feedback = isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null;
     job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
@@ -668,11 +703,27 @@
     return patch;
   }
   function who() { return { device: DEVICE, tab: TAB, page: PAGE, holder: HOLDER }; }
+  // The "This looks wrong" notes on any of these docs, as one keyed map (the newest 30), or null.
+  function flagsOf(docs) {
+    var all = {}, out = {};
+    docs.forEach(function (d) { if (d && d.flags) U.entries(d.flags).forEach(function (e) { all[e.key] = e.value; }); });
+    var list = U.entries(all).slice(-30);
+    list.forEach(function (e) { out[e.key] = e.value; });
+    return list.length ? out : null;
+  }
 
   // The doc back as it was before this job touched it: gone if the job created it, or if it was
   // someone's unfinished work (restoring that would only make it look alive again).
   function restore(tid, iid, prev) {
-    if (prev && !busy(prev)) { var d = U.clone(prev); delete d.__id; return U.store.lesson.set(tid, iid, d); }
+    if (prev && !busy(prev)) {
+      var d = U.clone(prev);
+      delete d.__id;
+      // Notes Dan left while this job held the doc stay with it.
+      return U.store.lesson.get(tid, iid).catch(function () { return null; }).then(function (now) {
+        d.flags = flagsOf([prev, now]);
+        return U.store.lesson.set(tid, iid, d);
+      });
+    }
     if (U.store.lesson.remove) return U.store.lesson.remove(tid, iid);
     var db = U.rt.db || U.memdb;
     return db.doc(U.store.paths.lesson(tid, iid)).delete();
@@ -713,9 +764,15 @@
       idea = t.ideas.filter(function (i) { return i.id === iid; })[0];
       if (!idea) throw { code: 'not_found', message: 'This idea is not part of the topic any more.' };
       topic = t;
-      return U.store.lesson.set(tid, iid, {
-        status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
-        by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
+      // The claim replaces the whole doc. Dan's "This looks wrong" notes belong to the idea, not
+      // to one version of its lesson, so they come along: those on the doc this job started from,
+      // and those on it now (a note saved just before Rebuild may have landed since).
+      return U.store.lesson.get(tid, iid).catch(function () { return null; }).then(function (now) {
+        return U.store.lesson.set(tid, iid, {
+          status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
+          by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
+          flags: flagsOf([o.prev, now]),
+        });
       });
     }).then(function (r) {
       goneIfNull(r);
@@ -879,10 +936,13 @@
     }, function (e) { throw failure(e, 'check your answers'); });
   }
 
-  // The tutor's tools: web_fetch opens pages from its own searches, plus `allow` (the checked sources).
+  // The tutor's tools: web_fetch opens pages from its own searches, plus `allow` (the checked
+  // sources). None without the connector, or on a view that cannot run page tools.
   function researchTools(allow) {
-    return Promise.resolve().then(function () { return U.research.available(); }).then(function (ok) {
-      return ok ? U.research.tools(null, { allow: allow || [] }) : null;
+    return Promise.resolve().then(function () {
+      return Promise.all([U.research.available(), U.rt.toolsOk ? U.rt.toolsOk() : true]);
+    }).then(function (ok) {
+      return ok[0] && ok[1] ? U.research.tools(null, { allow: allow || [] }) : null;
     }).catch(function () { return null; });
   }
   // Pages the tutor may reopen without searching: the lesson's sources and the checked research.
@@ -933,20 +993,28 @@
     return tutorContext(context || {}).then(function (ctx) {
       return researchTools(sourceUrls(ctx)).then(function (tools) { return [ctx, tools]; });
     }).then(function (r) {
-      var ctx = r[0], tools = r[1];
-      ctx.tools = !!(tools && tools.length);
-      var turns = conversation(U.prompts.tutor(ctx), messages);
-      if (!turns) throw { code: 'invalid', message: 'Ask a question first.' };
-      var acc = '';
-      return U.ask(turns, {
-        tier: 'default', label: 'tutor', signal: opts.signal, tools: tools || undefined,
-        onText: typeof opts.onText === 'function' ? function (ev) {
-          if (typeof ev === 'string') acc = acc && ev.indexOf(acc) === 0 ? ev : acc + ev;
-          else if (ev && typeof ev.text === 'string') acc = ev.text;
-          else if (ev && typeof ev.delta === 'string') acc += ev.delta;
-          safe(opts.onText, acc);
-        } : undefined,
-      });
+      var ctx = r[0], tools = r[1] && r[1].length ? r[1] : null;
+      // A view that turns out not to run page tools (tools_unavailable) gets the question asked
+      // again without them, and without the prompt's lines about them: an answer, not an error.
+      function ask(withTools) {
+        ctx.tools = withTools;
+        var turns = conversation(U.prompts.tutor(ctx), messages);
+        if (!turns) throw { code: 'invalid', message: 'Ask a question first.' };
+        var acc = '';
+        return U.ask(turns, {
+          tier: 'default', label: 'tutor', signal: opts.signal, tools: withTools ? tools : undefined,
+          onText: typeof opts.onText === 'function' ? function (ev) {
+            if (typeof ev === 'string') acc = acc && ev.indexOf(acc) === 0 ? ev : acc + ev;
+            else if (ev && typeof ev.text === 'string') acc = ev.text;
+            else if (ev && typeof ev.delta === 'string') acc += ev.delta;
+            safe(opts.onText, acc);
+          } : undefined,
+        }).catch(function (e) {
+          if (withTools && e && e.code === 'tools_unavailable') return ask(false);
+          throw e;
+        });
+      }
+      return ask(!!tools);
     }).then(function (text) { return s(text).trim(); }, function (e) { throw failure(e, 'answer questions'); });
   }
 

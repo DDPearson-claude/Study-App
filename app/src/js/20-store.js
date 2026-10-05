@@ -184,6 +184,9 @@ U.store = (function () {
   function privTid(path) { return isPriv(path) ? tidOf(path) : null; }
   function gone(path) { var t = tidOf(path); return !!(t && removed.has(t)); }
   function noteTopic(tid, ok) { if (tid) known[tid] = { ok: !!ok, at: Date.now() }; }
+  // Saved work that arrived after the app opened (10-runtime.js, U.rt.late): what was learned
+  // about topics from the in-memory store until then says nothing about the real one.
+  U.on('rt-late', function () { known = {}; checking = {}; });
   // Does topics/{tid} exist? Cached per page; a "no" is final (ids are never reused), a "yes" is
   // re-checked after a minute, or at once with fresh=true.
   function topicExists(tid, fresh) {

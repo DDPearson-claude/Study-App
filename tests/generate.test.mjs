@@ -508,7 +508,7 @@ test('createTopic with research: sources are checked against what the tools retu
   assert.equal(topic.research.sources, 9, 'the invented page and the misquote are dropped');
   assert.equal(topic.research.dropped, 2);
   const rc = app.calls.find((c) => c.task === 'research');
-  assert.deepEqual(rc.tools, ['web_search', 'web_fetch']);
+  assert.deepEqual(plain(rc.tools), ['web_search', 'web_fetch']); // plain: U.ask hands sample a copy made in the VM
   assert.equal(rc.tier, 'default');
 
   const r3 = await app.get('topics/' + tid + '/research/i3');
@@ -1052,7 +1052,7 @@ test('tutor: preamble on the first user turn, streaming, tools and context loadi
   assert.deepEqual(seen, ['Good ', 'Good question. 2 tools.'], 'onText gets the text so far');
   const call = app.calls[0];
   assert.equal(call.task, 'tutor');
-  assert.deepEqual(call.tools, ['web_search', 'web_fetch']);
+  assert.deepEqual(plain(call.tools), ['web_search', 'web_fetch']);
   const turns = call.input;
   assert.equal(turns.length, 1, 'consecutive user turns merge');
   assert.ok(turns[0].content.startsWith('TASK: tutor\n'));
@@ -1196,4 +1196,173 @@ test('build: target checks must be reachable, read from model outputs, and are c
   b = builder({ replies: [page('NOLOAD')] });
   r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
   assert.equal(r.attempts, 1, 'a reach that could not run says nothing about the target');
+});
+
+// =========================================================================================
+// Audit round 3 (docs/review/audit-round3.md)
+// =========================================================================================
+test('source check: every part of a quote between ellipses is on its page, in order, as whole words (audit 4)', async () => {
+  const { U } = await boot();
+  const url = 'https://www.example.edu/physics/sound';
+  const page = 'The speed of sound in dry air at 20 °C is about 343 metres per second. Sound travels faster in water. A sonar pulse moves at about 1400 m/s.';
+  const kept = (quote, excerpt = page) => {
+    const c = U.gen._corpus();
+    c.add(JSON.stringify({ results: [{ url, title: 'Sound', excerpts: [excerpt] }] }));
+    return U.gen._filterResearch({ sources: [{ n: 1, title: 'Sound', url, quote }], topic: { notes: [{ claim: 'x', sourceIds: [1] }] }, ideas: {} }, c, []).kept === 1;
+  };
+  assert.ok(kept('The speed of sound in dry air at 20 °C is about 343 metres per second.'));
+  assert.ok(kept('The speed of sound in dry air … 343 metres per second'), 'a true quote with an ellipsis');
+  assert.ok(kept('faster in water … and in steel', 'Sound travels faster in water … and in steel.'), 'an ellipsis copied from the excerpt itself');
+  assert.ok(!kept('The speed of sound in dry air at 20 °C is about … 400 m/s'), 'an invented number after an ellipsis');
+  assert.ok(!kept('Sound travels faster … in vacuum'), 'an invented short tail');
+  assert.ok(!kept('Sound travels faster in water … The speed of sound in dry air'), 'fragments stitched out of order');
+  assert.ok(!kept('A sonar pulse moves at about … 400 m/s'), '"400" is not found inside "1400"');
+  assert.ok(!kept('…'), 'nothing to check is not a quote');
+});
+
+test('Rebuild while the interactive is still building waits for that job, then writes a fresh lesson with Dan\'s note (audit 2)', async () => {
+  const builds = [];
+  const build = (t, i, l) => new Promise((r) => builds.push(() => r({ html: '<p>x</p><script>K.ready()</script>', title: l.interactive.title, brief: l.interactive.brief, selftest: { ok: true, errors: [], checks: [] }, attempts: 1 })));
+  const app = await boot({ handlers: handlers(), build });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const first = U.gen.ensureLesson('t1', 'i1');
+  await until(async () => ((await app.get('topics/t1/lessons/i1')) || {}).status === 'building' && builds.length === 1);
+  const lines = [];
+  const note = 'The slider makes the thrust go DOWN but the text says up.';
+  const again = U.gen.relearn('t1', 'i1', { feedback: note, onStatus: (t) => lines.push(t) });
+  assert.notEqual(again, first, 'not the running job\'s promise');
+  await tick(30);
+  assert.equal(app.count('write-lesson'), 1, 'nothing is written over the lesson still being built');
+  assert.ok(lines.some((l) => /already being prepared/.test(l)), 'Dan is told why he waits');
+  builds.shift()();
+  assert.equal((await first).status, 'ready');
+  await until(() => builds.length === 1);
+  const writes = () => app.calls.filter((c) => c.task === 'write-lesson').map((c) => firstUser(c.input));
+  assert.equal(writes().length, 2, 'then a fresh lesson is written');
+  assert.ok(writes()[1].includes('thrust go DOWN') && writes()[1].includes('A FRESH ANGLE'), 'with Dan\'s note');
+  // A second Rebuild while that one runs waits as well, and its own note reaches the writer.
+  const third = U.gen.relearn('t1', 'i1', { feedback: 'Source 2 is a shop page.' });
+  builds.shift()();
+  assert.equal((await again).feedback, note);
+  await until(() => builds.length === 1);
+  builds.shift()();
+  const doc3 = await third;
+  assert.equal(writes().length, 3);
+  assert.ok(writes()[2].includes('Source 2 is a shop page.'));
+  assert.equal(doc3.status, 'ready');
+  assert.equal(doc3.feedback, 'Source 2 is a shop page.');
+});
+
+test('"This looks wrong" notes survive the lesson being rewritten or put back (audit 29)', async () => {
+  let hold = null;
+  const app = await boot({ handlers: handlers({ 'write-lesson': (input) => (hold ? hold(input) : handlers()['write-lesson'](input)) }) });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  await U.gen.ensureLesson('t1', 'i1');
+  // As the lesson screen's saveFlag() does it.
+  const saveFlag = async (note) => {
+    const d = await U.store.lesson.get('t1', 'i1');
+    const patch = { flags: U.keyed(d.flags) };
+    patch.flags[U.key()] = { note, at: U.now(), stage: 'play' };
+    return U.store.lesson.update('t1', 'i1', patch);
+  };
+  const notes = async () => plain(U.list((await app.get('topics/t1/lessons/i1')).flags).map((f) => f.note));
+  await saveFlag('the slider says faster but the text says slower');
+  await tick(5);
+  await saveFlag('source 2 is a shop page');
+  // A note that lands after relearn read the doc but before it claims it (another device, say).
+  const getTopic = U.store.topic.get;
+  U.store.topic.get = async (tid) => {
+    U.store.topic.get = getTopic;
+    const d = await app.get('topics/t1/lessons/i1');
+    d.flags.kLate = { note: 'and the units are wrong', at: U.now(), stage: 'explain' };
+    await app.seed('topics/t1/lessons/i1', d);
+    return getTopic(tid);
+  };
+  const doc = await U.gen.relearn('t1', 'i1', { feedback: 'source 2 is a shop page' });
+  assert.equal(doc.status, 'ready');
+  assert.deepEqual(await notes(), ['the slider says faster but the text says slower', 'source 2 is a shop page', 'and the units are wrong']);
+
+  // A rewrite stopped by a passing error puts the old lesson back, with a note made meanwhile.
+  let release;
+  hold = () => new Promise((res, rej) => { release = () => rej({ code: 'rate_limited', message: 'busy' }); });
+  const failing = U.gen.relearn('t1', 'i1');
+  await until(() => release);
+  assert.equal((await app.get('topics/t1/lessons/i1')).status, 'writing');
+  await saveFlag('one more while it was rewriting');
+  await tick(150);
+  release();
+  await assert.rejects(failing, (e) => e.code === 'rate_limited');
+  const back = await app.get('topics/t1/lessons/i1');
+  assert.equal(back.status, 'ready', 'the old lesson is back');
+  assert.equal((await notes()).length, 4);
+  assert.ok((await notes()).includes('one more while it was rewriting'));
+});
+
+test('research that keeps no source is not labelled as checked (audit 47)', async () => {
+  const misquoted = async (input, o) => {
+    const r = await handlers().research(input, o);
+    r.sources.forEach((x) => { x.quote = 'Words that appear on none of the pages the tools returned.'; });
+    return r;
+  };
+  const app = await boot({ handlers: handlers({ research: misquoted }), research: true });
+  const { U } = app;
+  await app.seed('topics/t1', { ...clone(PLAN_JET), id: 't1', research: { status: 'none', at: null, sources: 0 } });
+  const events = [];
+  U.on('gen', (e) => { if (e.kind === 'research') events.push(e.status); });
+  const res = await U.gen.research('t1');
+  assert.equal(res.kept, 0);
+  const r = (await app.get('topics/t1')).research;
+  assert.equal(r.status, 'failed', 'not "done", so no "Sources checked" badge');
+  assert.equal(r.sources, 0);
+  assert.equal(r.dropped, res.dropped.length);
+  assert.match(r.error, /No source could be confirmed/);
+  assert.equal(events[events.length - 1], 'failed');
+  const d = await U.gen.ensureLesson('t1', 'i2');
+  assert.equal(d.sourced, false, 'its lessons say "Not yet source-checked", and so does the topic');
+});
+
+test('a view that cannot run page tools: research is unavailable, not failed, and Ask Claude answers without them (audit 5)', async () => {
+  const tutor = (input, o) => (o.tools ? Promise.reject({ code: 'tools_unavailable', message: 'this view cannot run page tools' }) : 'A plain answer.');
+  const research = (input, o) => (o.tools ? Promise.reject({ code: 'tools_unavailable', message: 'this view cannot run page tools' }) : '{}');
+  const ask = (U) => U.gen.tutor([{ role: 'user', content: 'Why does the air speed up?' }], { tid: 't1', iid: 'i1' });
+  const seed = (app) => app.seed('topics/t1', { ...clone(PLAN_JET), id: 't1', research: { status: 'none', at: null, sources: 0 } });
+
+  // sample.limits() says so: tools are never offered, and nothing is asked for research.
+  let app = await boot({ handlers: handlers({ tutor, research }), research: true });
+  app.U.rt.sample.limits = () => Promise.resolve({ maxPromptBytes: 262144 });
+  await seed(app);
+  assert.equal(await ask(app.U), 'A plain answer.');
+  assert.deepEqual(app.calls.map((c) => c.task + ':' + c.tools.length), ['tutor:0']);
+  assert.ok(!firstUser(app.calls[0].input).includes('You have web_search'), 'the no-tools prompt');
+  assert.equal(await app.U.gen.research('t1'), null);
+  assert.equal((await app.get('topics/t1')).research.status, 'unavailable');
+  assert.equal(app.count('research'), 0);
+
+  // No limits() to ask: the first call with tools is refused, and the answer comes without them.
+  app = await boot({ handlers: handlers({ tutor, research }), research: true });
+  await seed(app);
+  assert.equal(await ask(app.U), 'A plain answer.');
+  assert.deepEqual(app.calls.map((c) => c.task + ':' + c.tools.length), ['tutor:2', 'tutor:0']);
+  assert.ok(!firstUser(app.calls[1].input).includes('You have web_search'));
+  assert.equal(await ask(app.U), 'A plain answer.');
+  assert.equal(app.calls[2].tools.length, 0, 'after that, tools are not offered again');
+  app = await boot({ handlers: handlers({ tutor, research }), research: true });
+  await seed(app);
+  await app.U.gen.research('t1');
+  const r = (await app.get('topics/t1')).research;
+  assert.equal(r.status, 'unavailable', 'not "failed": nothing to retry on this view');
+  assert.ok(!r.error);
+});
+
+test('the source checker keeps the tool list\'s reset(), so each call to Claude gets a fresh budget (audit 25)', async () => {
+  const { U } = await boot();
+  let resets = 0;
+  const list = fakeResearchTools();
+  list.reset = () => { resets++; };
+  const wrapped = U.gen._wrapTools(list, U.gen._corpus());
+  assert.equal(typeof wrapped.reset, 'function');
+  wrapped.reset();
+  assert.equal(resets, 1);
 });

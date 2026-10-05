@@ -17,8 +17,8 @@
  *   calls                   every sample / mcp / downloads call, in order
  *   onSample(fn)            fn(input, opts) -> string | object | Promise
  *   onTool(server, tool, fn) fn(input) -> payload | Promise
- * Optional window.__CLAUDE_STUB_CONFIG__ = {userId, owner, deny:[names], db:{path:data}}
- * set before this script runs.
+ * Optional window.__CLAUDE_STUB_CONFIG__ = {userId, owner, deny:[names], db:{path:data}, noTools}
+ * set before this script runs (noTools: a view where sample cannot run page tools).
  */
 (function () {
   'use strict';
@@ -204,6 +204,8 @@
     opts = opts || {};
     calls.push({ kind: 'sample', input: input, opts: { modelTier: opts.modelTier, hasTools: !!opts.tools } });
     return new Promise(function (res, rej) {
+      // A view that cannot run page tools (cfg.noTools) refuses a call that offers them.
+      if (cfg.noTools && opts.tools && opts.tools.length) return later(function () { rej(err('tools_unavailable', 'this view cannot run page tools')); });
       later(function () {
         if (!sampleHandler) return rej(err('not_granted', 'no stub sample handler'));
         Promise.resolve().then(function () { return sampleHandler(input, opts); }).then(function (out) {
@@ -220,7 +222,12 @@
       return JSON.parse(t);
     });
   };
-  sample.limits = function () { return Promise.resolve({ images: true, maxImages: 4 }); };
+  // `tools` only where page tools can run (sample.d.ts); cfg.noTools plays a view that cannot.
+  sample.limits = function () {
+    var l = { maxPromptBytes: 262144, images: true, maxImages: 4 };
+    if (!cfg.noTools) l.tools = { maxCount: 20 };
+    return Promise.resolve(l);
+  };
 
   var mcp = Object.freeze({
     listTools: function (server) {
