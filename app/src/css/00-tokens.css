@@ -1,0 +1,62 @@
+/* Layout concept: one calm reading column (max 720px) with a sticky top bar; on phones the
+   section tabs dock to the bottom edge. Colour marks meaning, never decoration. */
+:root {
+  /* Dan's palette (Design Brief v2) */
+  --bg: #F7F5F0;          /* warm off-white page */
+  --surface: #FFFFFF;     /* cards, sheets */
+  --sunk: #EFEBE3;        /* wells, tracks, inactive fills */
+  --ink: #1F2937;         /* main text, charcoal */
+  --muted: #5B6573;       /* secondary text (4.9:1 on --bg) */
+  --heading: #17324D;     /* deep navy: headings, progress, controls */
+  --teal: #0F6B66;        /* small labels, diagram details */
+  --teal-tint: #E2EFED;
+  --amber: #FFF1CC;       /* "remember this" boxes */
+  --hl: #FBE29A;          /* highlighter stroke for key terms */
+  --red: #9F3038;         /* warnings, mistakes, "experts disagree" */
+  --red-tint: #F8ECEC;
+  --green: #2E7D4F;       /* completion only */
+  --green-tint: #E5F1E9;
+  --line: #DED8CC;
+  --line-strong: #B9B1A3;
+  --on-heading: #F7F5F0;  /* text on navy fills */
+  --shadow: 0 1px 2px rgba(23, 50, 77, .05), 0 8px 24px rgba(23, 50, 77, .06);
+  --scrim: rgba(15, 23, 32, .42);
+
+  --serif: "Literata", Georgia, "Times New Roman", serif;
+  --sans: "Plus Jakarta Sans", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --easy: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs: 18px;             /* reading size; settings change it */
+  --col: 720px;           /* reading column */
+  --r-sm: 12px; --r: 18px; --r-lg: 24px;
+  --gap: 16px;
+  --topbar-h: 60px;
+  --tabbar-h: 64px;
+  color-scheme: light;
+}
+:root[data-size="s"] { --fs: 16px; }
+:root[data-size="l"] { --fs: 20px; }
+:root[data-size="xl"] { --fs: 22px; }
+
+/* Dark palette: applied by explicit choice, or by "system" when the viewer/OS is dark. */
+:root[data-mu-theme="dark"],
+:root[data-mu-theme="system"][data-theme="dark"] {
+  --bg: #12161C; --surface: #1A2029; --sunk: #232A35; --ink: #E7E4DD; --muted: #A9B1BC;
+  --heading: #BBD0E6; --teal: #6CC7BD; --teal-tint: #17302D; --amber: #3A3016; --hl: rgba(232, 199, 102, .34);
+  --red: #F2A6AC; --red-tint: #2E1A1D; --green: #6FCB94; --green-tint: #16291F;
+  --line: #2C3440; --line-strong: #4A5564; --on-heading: #12161C;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .28); --scrim: rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-mu-theme="system"]:not([data-theme="light"]) {
+    --bg: #12161C; --surface: #1A2029; --sunk: #232A35; --ink: #E7E4DD; --muted: #A9B1BC;
+    --heading: #BBD0E6; --teal: #6CC7BD; --teal-tint: #17302D; --amber: #3A3016; --hl: rgba(232, 199, 102, .34);
+    --red: #F2A6AC; --red-tint: #2E1A1D; --green: #6FCB94; --green-tint: #16291F;
+    --line: #2C3440; --line-strong: #4A5564; --on-heading: #12161C;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .28); --scrim: rgba(0, 0, 0, .6);
+    color-scheme: dark;
+  }
+}
+:root[data-easy="1"] { --sans: var(--easy); --serif: var(--easy); }
