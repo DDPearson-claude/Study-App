@@ -35,7 +35,7 @@
     var stops = [
       U.store.topic.watch(tid, function (t) {
         topic = t; loaded = true; failure = null;
-        if (t) U.setTitle(t.title || asTitle(t.query));
+        if (t) U.setTitle(t.title || V.asTitle(t.query));
         if (t && t.status === 'ready') loadLibrary();
         schedule();
       }, function (e, info) {
@@ -140,14 +140,14 @@
 
     // ---------- states ----------
 
-    function asTitle(q) { q = String(q || '').trim(); return q.charAt(0).toUpperCase() + q.slice(1); }
-
+    // Shaped like the page it stands in for (cover beside the header on a laptop), so nothing jumps.
     function loadingView() {
-      return U.h('div', { class: 'stack', 'aria-hidden': 'true' },
+      return U.h('div', { class: 'tp-split', 'aria-hidden': 'true' },
         U.h('div', { class: 'skeleton tp-sk-banner' }),
-        U.h('div', { class: 'skeleton sk-line tall' }),
-        U.h('div', { class: 'skeleton sk-line' }),
-        U.h('div', { class: 'skeleton sk-line short' }));
+        U.h('div', { class: 'tp-split-main' },
+          U.h('div', { class: 'skeleton sk-line tall' }),
+          U.h('div', { class: 'skeleton sk-line' }),
+          U.h('div', { class: 'skeleton sk-line short' })));
     }
 
     function goneView() {
@@ -155,20 +155,27 @@
         V.empty({ title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Back to Learn' } }));
     }
 
+    // The planning and failed pages share the ready page's header shape: on a laptop the cover
+    // sits beside the words instead of above them.
     function planningParts() {
       return [['planning', sig(topic.query, topic.title, topic.hue), function () {
         return U.h('div', { class: 'tp-planning-in' },
           V.back('#/', 'All topics'),
-          U.h('div', { class: 'tp-banner is-planning' }, V.cover(topic), U.h('div', { class: 'tcard-shimmer' })),
-          U.h('p', { class: 'eyebrow' }, 'Planning your topic'),
-          U.h('h1', { class: 'tp-title' }, asTitle(topic.query || topic.title) || 'Your new topic'),
-          U.h('div', { class: 'tp-wait', role: 'status' },
-            U.h('div', { class: 'working' }),
-            U.h('p', { class: 'tp-wait-line is-in' }, WAITING[ui.line])),
-          U.h('div', { class: 'tp-sk-path', 'aria-hidden': 'true' }, [0, 1, 2, 3, 4].map(function (i) {
-            return U.h('div', { class: 'tp-sk-node' }, U.h('span', { class: 'skeleton tp-sk-dot' }),
-              U.h('span', { class: 'tp-sk-text' }, U.h('span', { class: 'skeleton sk-line', style: { width: (78 - i * 7) + '%' } }), U.h('span', { class: 'skeleton sk-line short' })));
-          })));
+          U.h('div', { class: 'tp-split' },
+            U.h('div', { class: 'tp-banner is-planning' }, V.cover(topic), U.h('div', { class: 'tcard-shimmer' })),
+            U.h('div', { class: 'tp-split-main' },
+              U.h('p', { class: 'eyebrow' }, 'Planning your topic'),
+              U.h('h1', { class: 'tp-title' }, V.asTitle(topic.query || topic.title) || 'Your new topic'),
+              // How long, and that it is safe to look away: the plan is made in this page, so it
+              // carries on while the app is open (a closed app shows "Planning stopped" later).
+              U.h('p', { class: 'muted tp-wait-note' }, 'This usually takes under a minute. It carries on while you look around the app.'),
+              U.h('div', { class: 'tp-wait', role: 'status' },
+                U.h('div', { class: 'working' }),
+                U.h('p', { class: 'tp-wait-line is-in' }, WAITING[ui.line])),
+              U.h('div', { class: 'tp-sk-path', 'aria-hidden': 'true' }, [0, 1, 2, 3, 4].map(function (i) {
+                return U.h('div', { class: 'tp-sk-node' }, U.h('span', { class: 'skeleton tp-sk-dot' }),
+                  U.h('span', { class: 'tp-sk-text' }, U.h('span', { class: 'skeleton sk-line', style: { width: (78 - i * 7) + '%' } }), U.h('span', { class: 'skeleton sk-line short' })));
+              })))));
       }]];
     }
 
@@ -177,20 +184,23 @@
     function failedParts() {
       var stopped = topic.status === 'planning';
       return [['failed', sig(topic.query, topic.title, topic.error, stopped, ui.retrying), function () {
-        var q = asTitle(topic.query || topic.title) || 'Your new topic';
+        var q = V.asTitle(topic.query || topic.title) || 'Your new topic';
         return U.h('div', { class: 'tp-failed-in' },
           V.back('#/', 'All topics'),
-          U.h('div', { class: 'tp-banner is-quiet' }, V.cover(topic)),
-          U.h('p', { class: 'eyebrow' }, 'New topic'),
-          U.h('h1', { class: 'tp-title' }, q),
-          U.h('div', { class: 'notice bad', role: 'alert' },
-            U.h('div', null,
-              U.h('strong', null, stopped ? 'Planning stopped before it finished. ' : 'Planning did not finish. '),
-              U.h('span', null, !stopped && topic.error ? U.errText(typeof topic.error === 'string' ? { message: topic.error } : topic.error) : 'Nothing was lost. Try again in a moment.'))),
-          U.h('div', { class: 'row tp-failed-actions' },
-            U.h('button', { class: 'btn', type: 'button', 'data-key': 'retry', disabled: ui.retrying, on: { click: retry } }, ui.retrying ? 'Trying again…' : 'Try again'),
-            U.h('button', { class: 'btn ghost', type: 'button', 'data-key': 'delete-failed', on: { click: del } }, 'Delete this topic')),
-          ui.retrying ? U.h('div', { class: 'working' }) : null);
+          U.h('div', { class: 'tp-split' },
+            U.h('div', { class: 'tp-banner is-quiet' }, V.cover(topic)),
+            U.h('div', { class: 'tp-split-main' },
+              U.h('p', { class: 'eyebrow' }, 'New topic'),
+              U.h('h1', { class: 'tp-title' }, q),
+              U.h('div', { class: 'notice bad', role: 'alert' },
+                U.h('div', null,
+                  U.h('strong', null, stopped ? 'Planning stopped before it finished. ' : 'Planning did not finish. '),
+                  U.h('span', null, !stopped && topic.error ? U.errText(typeof topic.error === 'string' ? { message: topic.error } : topic.error) : 'Nothing was lost. Try again in a moment.'))),
+              // Delete is red here too, as on the ready page: it removes the topic for good.
+              U.h('div', { class: 'row tp-failed-actions' },
+                U.h('button', { class: 'btn', type: 'button', 'data-key': 'retry', disabled: ui.retrying, on: { click: retry } }, ui.retrying ? 'Trying again…' : 'Try again'),
+                U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete-failed', on: { click: del } }, 'Delete this topic')),
+              ui.retrying ? U.h('div', { class: 'working' }) : null)));
       }]];
     }
 
@@ -221,7 +231,7 @@
 
     function del() {
       if (deleting) return;
-      var title = topic.title || topic.query || 'this topic';
+      var title = V.asTitle(topic.title || topic.query) || 'this topic';
       U.confirmSheet({
         title: 'Delete this topic?',
         text: 'This removes “' + title + '”, its lessons, your answers and its review cards from all your devices. You cannot undo this.',
@@ -285,13 +295,17 @@
         ? U.h('a', { class: 'btn tp-cta', 'data-key': 'cta', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(s.current.id) },
           U.h('span', { class: 'tp-cta-text' }, (s.started ? 'Continue: ' : 'Start: ') + s.current.title), U.icon('arrow'))
         : null;
+      // On a laptop the cover sits beside the title (above the rail), not across the page, so
+      // the path starts on the first screen.
       return U.h('header', { class: 'tp-head' },
         V.back('#/', 'All topics'),
-        U.h('div', { class: 'tp-banner' }, V.cover(topic)),
-        U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
-        U.h('h1', { class: 'tp-title' }, topic.title || topic.query),
-        topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
-        cta);
+        U.h('div', { class: 'tp-split' },
+          U.h('div', { class: 'tp-banner' }, V.cover(topic)),
+          U.h('div', { class: 'tp-split-main' },
+            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
+            U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
+            topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
+            cta)));
     }
 
     function pathNode(idea, i, ideas, s) {

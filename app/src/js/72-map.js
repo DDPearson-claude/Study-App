@@ -179,9 +179,12 @@
           listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
             U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
               U.h('span', { class: 'map-thumb' }, V.cover(t)),
+              // A finished topic says so in words and green (finished only), as the topic cards
+              // on Learn do; the dots keep showing how well each idea is holding.
               U.h('span', { class: 'map-topic-text' },
                 U.h('h2', null, t.title),
-                U.h('span', { class: 'muted small' }, s.allDone ? 'Every idea learned' : s.done ? s.done + ' of ' + s.total + ' ideas learned' : 'Not started yet')),
+                s.allDone ? U.h('span', { class: 'done-note small' }, U.icon('tick'), 'Every idea learned')
+                  : U.h('span', { class: 'muted small' }, s.done ? s.done + ' of ' + s.total + ' ideas learned' : 'Not started yet')),
               U.icon('arrow', 'map-topic-go')),
             holder));
           if (!lastW) lastW = Math.floor(holder.clientWidth);

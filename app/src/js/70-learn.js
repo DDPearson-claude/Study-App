@@ -54,7 +54,19 @@
     return 'M' + f1(x) + ' ' + f1(bottom) + ' V' + f1(top + rad) + ' A' + f1(rad) + ' ' + f1(rad) + ' 0 0 1 ' + f1(x + w) + ' ' + f1(top + rad) + ' V' + f1(bottom) + ' Z';
   }
 
-  // Three calm compositions; the topic title picks one and every detail of it.
+  // A jagged ridge line across the cover, closed to the bottom edge.
+  function ridgePath(r, base, amp) {
+    var n = 4 + Math.floor(r() * 3), step = 360 / n, d = 'M-20 200 L-20 ' + f1(base);
+    for (var i = 0; i < n; i++) {
+      var x = -20 + i * step;
+      d += ' L' + f1(x + step * (0.35 + r() * 0.3)) + ' ' + f1(base - amp * (0.45 + r() * 0.55)) + ' L' + f1(x + step) + ' ' + f1(base + (r() - 0.5) * amp * 0.3);
+    }
+    return d + ' L340 200 Z';
+  }
+
+  // Six calm compositions; the topic title picks one and every detail of it. The first three
+  // are the originals: a topic whose title chose one of them before (seed % 3) still does, as
+  // seed % 6 < 3 picks the same one, so half of the existing covers stay as Dan knows them.
   var COMPOSE = [
     function hills(svg, r) {
       var sx = 60 + r() * 200, sy = 44 + r() * 26, sr = 20 + r() * 12;
@@ -88,6 +100,36 @@
       }
       svg.appendChild(V.s('rect', { class: 'cv-3', x: -20, y: 150, width: 360, height: 4 }));
     },
+    function peaks(svg, r) {
+      svg.appendChild(V.s('circle', { class: 'cv-sun', cx: 50 + r() * 220, cy: 36 + r() * 18, r: 15 + r() * 8 }));
+      svg.appendChild(V.s('path', { class: 'cv-1', d: ridgePath(r, 112, 52) }));
+      svg.appendChild(V.s('path', { class: 'cv-2', d: ridgePath(r, 138, 36) }));
+      svg.appendChild(V.s('path', { class: 'cv-3', d: ridgePath(r, 164, 20) }));
+    },
+    // A cairn: balanced stones, kept near the middle so square crops still show it.
+    function stones(svg, r) {
+      svg.appendChild(V.s('circle', { class: 'cv-1 cv-soft', cx: 40 + r() * 240, cy: 50 + r() * 30, r: 62 }));
+      svg.appendChild(V.s('circle', { class: 'cv-sun', cx: 60 + r() * 200, cy: 32 + r() * 14, r: 13 + r() * 6 }));
+      svg.appendChild(V.s('path', { class: 'cv-1', d: hillPath(r, 156, 5) }));
+      var n = 3 + Math.floor(r() * 2), y = 158, w = 112 + r() * 28, cx = 148 + r() * 24;
+      for (var i = 0; i < n; i++) {
+        var h = 26 - i * 2 + r() * 6;
+        svg.appendChild(V.s('ellipse', { class: i % 2 ? 'cv-2' : 'cv-3', cx: cx + (r() - 0.5) * 12, cy: y - h / 2, rx: w / 2, ry: h / 2 }));
+        y -= h - 3; w *= 0.7 + r() * 0.1;
+      }
+    },
+    // A small constellation, like the Map's: dots joined by a quiet line.
+    function stars(svg, r) {
+      svg.appendChild(V.s('circle', { class: 'cv-1 cv-soft', cx: 220 + r() * 60, cy: 40 + r() * 30, r: 70 }));
+      svg.appendChild(V.s('path', { class: 'cv-1', d: hillPath(r, 160, 7) }));
+      var n = 5 + Math.floor(r() * 2), pts = [];
+      for (var i = 0; i < n; i++) pts.push([48 + i * (224 / (n - 1)) + (r() - 0.5) * 16, 62 + r() * 52]);
+      svg.appendChild(V.s('path', { class: 'cv-line', d: 'M' + pts.map(function (p) { return f1(p[0]) + ' ' + f1(p[1]); }).join(' L') }));
+      var star = 1 + Math.floor(r() * (n - 2));
+      pts.forEach(function (p, k) {
+        svg.appendChild(V.s('circle', { class: k === star ? 'cv-sun' : k % 2 ? 'cv-3' : 'cv-2', cx: p[0], cy: p[1], r: k === star ? 11 : 6 + r() * 3 }));
+      });
+    },
   ];
 
   // V.cover(topic, {class}) -> <svg>: a calm abstract cover drawn from topic.hue and the title.
@@ -100,7 +142,9 @@
     var svg = V.s('svg', { class: 'cover' + (opts.class ? ' ' + opts.class : ''), viewBox: '0 0 320 180', preserveAspectRatio: 'xMidYMid slice', 'aria-hidden': 'true', focusable: 'false' });
     svg.style.setProperty('--h', String(((Math.round(hue) % 360) + 360) % 360));
     svg.appendChild(V.s('rect', { class: 'cv-bg', x: -20, y: -20, width: 360, height: 220 }));
-    COMPOSE[seed % COMPOSE.length](svg, V.rand(seed));
+    var compose = COMPOSE[seed % COMPOSE.length];
+    svg.setAttribute('data-motif', compose.name);
+    compose(svg, V.rand(seed));
     return svg;
   };
 
@@ -175,6 +219,10 @@
     return d.toLocaleDateString(undefined, o);
   };
 
+  // A topic's name as a title. Until Claude's plan names it, a topic is called by Dan's own
+  // question, typed however it came: "how black holes form" shows as "How black holes form".
+  V.asTitle = function (q) { q = String(q || '').trim(); return q.charAt(0).toUpperCase() + q.slice(1); };
+
   V.site = function (url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
 
   // An outbound link: a real link, which the viewer opens in a new tab (window.open is refused
@@ -214,9 +262,28 @@
 
     // --- ask ---
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
-    var input = U.h('input', {
-      class: 'input ask-input', id: 'ask-input', type: 'text', autocomplete: 'off', autocapitalize: 'sentences',
+    // A question can be long ("how vaccines train the immune system"), so the box wraps and grows
+    // to three lines instead of scrolling sideways; Enter still asks (it never adds a new line).
+    var input = U.h('textarea', {
+      class: 'input ask-input', id: 'ask-input', rows: '1', autocomplete: 'off', autocapitalize: 'sentences',
       enterkeyhint: 'go', maxlength: '200', placeholder: 'Tides, black holes, jazz…',
+    });
+    function fit() {
+      if (!input.isConnected) return;
+      input.style.height = '';
+      var cs = getComputedStyle(input), border = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
+      var max = Math.ceil((parseFloat(cs.lineHeight) || 26) * 3 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + border);
+      var need = input.scrollHeight + border;
+      if (need > input.offsetHeight) input.style.height = Math.min(need, max) + 'px';
+      input.style.overflowY = need > max + 1 ? 'auto' : 'hidden';
+    }
+    input.addEventListener('input', fit);
+    window.addEventListener('resize', fit);
+    var offPrefs = U.on('prefs', fit); // a new text size changes the line height
+    input.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
+      e.preventDefault();
+      submit();
     });
     var goLabel = U.h('span', { class: 'ask-go-label' }, 'Start learning');
     var goBtn = U.h('button', { class: 'btn ask-go', type: 'submit' }, goLabel, U.icon('arrow'));
@@ -233,6 +300,7 @@
       return U.h('button', { class: 'chip chip-soft', type: 'button', on: { click: function () {
         if (input.disabled) return;
         input.value = t;
+        fit();
         input.focus();
         try { input.setSelectionRange(t.length, t.length); } catch (e) { /* not supported: fine */ }
       } } }, t);
@@ -264,7 +332,7 @@
     // (Focus on the heading, where each screen puts it when it opens, is not typing.)
     function typing() {
       var a = document.activeElement;
-      page.classList.toggle('is-typing', !!input.value.trim() || !!(a && ask.contains(a) && a.matches && a.matches('input, button')));
+      page.classList.toggle('is-typing', !!input.value.trim() || !!(a && ask.contains(a) && a.matches && a.matches('textarea, button')));
     }
     input.addEventListener('input', typing);
     ask.addEventListener('focusin', typing);
@@ -454,7 +522,7 @@
 
     function topicCard(t) {
       var href = '#/t/' + encodeURIComponent(t.id);
-      var title = t.title || t.query || 'Untitled topic';
+      var title = V.asTitle(t.title || t.query) || 'Untitled topic';
       if (t.status === 'planning' && !V.planningStuck(t)) {
         return U.h('a', { class: 'tcard is-planning', href: href },
           U.h('div', { class: 'tcard-cover' }, V.cover(t), U.h('div', { class: 'tcard-shimmer' })),
@@ -463,12 +531,14 @@
             U.h('p', { class: 'tcard-meta muted' }, 'Planning the ideas…'),
             U.h('div', { class: 'working' })));
       }
+      // The same words as the topic page: "did not finish" when planning failed, "stopped" when
+      // the page that was planning went away.
       if (t.status === 'failed' || t.status === 'planning') {
         return U.h('a', { class: 'tcard is-failed', href: href },
           U.h('div', { class: 'tcard-cover' }, V.cover(t)),
           U.h('div', { class: 'tcard-body' },
             U.h('h3', { class: 'tcard-title' }, title),
-            U.h('p', { class: 'tcard-meta tcard-warn' }, 'Planning stopped. Open it to try again.')));
+            U.h('p', { class: 'tcard-meta tcard-warn' }, (t.status === 'failed' ? 'Planning did not finish.' : 'Planning stopped.') + ' Open it to try again.')));
       }
       var s = V.summary(t, progress[t.id]);
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
@@ -507,6 +577,6 @@
       }));
     }
 
-    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); };
+    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); offPrefs(); };
   }, { tab: 'learn', title: 'Learn' });
 })();

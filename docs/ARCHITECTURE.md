@@ -455,7 +455,7 @@ U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid
 ```
 Views and app services
 ```
-U.views (70-learn.js)   cover, summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
+U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
    planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 5 min),
    loadError(what, e, retrying), slowNote, extLink(url, label) (window.open, else copy the link), empty, back, day
 U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
@@ -513,7 +513,11 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   bottom sheets (swipe down to close) or centred dialogs (up to 620 px).
 - Laptop widths by `#view[data-screen]`: Learn, the topic page and the Map run up to `--wide`
   (1200 px); the lesson up to 1120 px, with reading text capped at `--measure` (44rem) and the
-  interactive full width; every other screen keeps the 720 px column (`--col`).
+  interactive full width; every other screen keeps the 720 px column (`--col`). Tab screens all
+  start at the wide screens' left edge, so headings do not move when Dan switches tabs.
+- Learn at least 900 px wide puts the reviews row (or, on first run, the welcome) beside the ask.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
-  when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px).
+  when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The
+  header, and the planning and failed pages, put the cover in a `.tp-split` with the words: above
+  them on a phone, beside them (in the rail's column) at 900 px and up.
