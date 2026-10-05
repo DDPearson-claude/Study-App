@@ -220,7 +220,7 @@
     }
     function nextIdea() {
       var ideas = (st.topic && st.topic.ideas) || [], prog = (st.progress && st.progress.ideas) || {};
-      function open(i) { var p = prog[i.id] || {}; return i.id !== iid && p.stage !== 'done' && !p.known; }
+      function open(i) { var p = prog[i.id] || {}; return i.id !== iid && p.stage !== 'done' && !p.known && !i.known; }
       for (var k = st.index + 1; k < ideas.length; k++) if (open(ideas[k])) return ideas[k];
       for (var j = 0; j < st.index; j++) if (open(ideas[j])) return ideas[j];
       return null;
@@ -828,8 +828,9 @@
       destroyLive();
       st.stops.splice(0).forEach(function (f) { try { f(); } catch (e) {} });
       if (st.prep) st.prep.stop();
+      // Study time is logged by the boot module's activity tracker (U.boot.study); log here only without it.
       var mins = (Date.now() - st.openedAt) / 60000;
-      if (mins >= 0.5 && typeof U.logStudy === 'function') {
+      if (!(U.boot && U.boot.study) && mins >= 0.5 && typeof U.logStudy === 'function') {
         Promise.resolve().then(function () { return U.logStudy(Math.min(60, Math.max(1, Math.round(mins)))); }).catch(function () {});
       }
     };

@@ -147,7 +147,8 @@ async function runSession({ width, theme, full }) {
     await shot('01-today-lightday');
     await page.waitForTimeout(300);
     const prefs = (await app.stub())[P('profile')].prefs;
-    check(prefs.light === true, `${tag}: light day saved to profile prefs`);
+    const today = await page.evaluate(() => U.today());
+    check(prefs.lightDay === today && !prefs.light, `${tag}: light day saved for today only (lightDay ${prefs.lightDay})`);
     await page.locator('.td-light').click();
     await page.waitForTimeout(400);
     check(/7\s+cards to revisit/.test(await page.locator('.td-plan').innerText()), `${tag}: light day off shows 7 again`);

@@ -49,9 +49,11 @@
   }
   function capOf(prefs, opts) {
     var cap = opts.cap > 0 ? opts.cap : prefs.cap > 0 ? prefs.cap : DEFAULT_CAP;
-    var light = opts.light != null ? !!opts.light : !!prefs.light;
+    var light = opts.light != null ? !!opts.light : lightToday(prefs);
     return light ? Math.min(cap, LIGHT_CAP) : cap;
   }
+  // 'Light days' in settings is a lasting mode; the switch on Today sets a light day for today only.
+  function lightToday(prefs) { return !!prefs.light || prefs.lightDay === U.today(); }
   function ideaKey(c) { return c.tid + '/' + c.iid; }
 
   // Most overdue first; then the most faded; then a stable shuffle.
@@ -333,7 +335,8 @@
     function drawDue(p, topics) {
       var names = uniq(p.queue.map(function (c) { return c.tid; })).map(function (tid) { return topicTitle(topics, tid); });
       var count = h('span', { class: 'td-count-n' }), minutes = h('span');
-      var light = h('input', { class: 'td-switch-input', type: 'checkbox', role: 'switch', checked: !!p.prefs.light, 'aria-describedby': 'td-light-note' });
+      var lasting = !!p.prefs.light;
+      var light = h('input', { class: 'td-switch-input', type: 'checkbox', role: 'switch', checked: lightToday(p.prefs), disabled: lasting, 'aria-describedby': 'td-light-note' });
       var start = h('button', { class: 'btn wide td-start', type: 'button', on: { click: function () { U.go('#/review'); } } }, 'Start review', U.icon('arrow'));
       var countWord = h('span', { class: 'td-count-word' });
       function update(q) {
@@ -342,9 +345,10 @@
         minutes.textContent = 'About ' + plural(minutesFor(q.queue), 'minute');
       }
       light.addEventListener('change', function () {
-        var on = light.checked;
-        p.data.profile.prefs = Object.assign({}, p.data.profile.prefs, { light: on });
-        U.store.profile.patch({ prefs: { light: on } }).catch(function () {});
+        var on = light.checked, day = on ? U.today() : '';
+        p.data.profile.prefs = Object.assign({}, p.data.profile.prefs, { lightDay: day });
+        if (U.settings && U.settings.prefs) U.settings.prefs.lightDay = day;
+        U.store.profile.patch({ prefs: { lightDay: day } }).catch(function () {});
         plan({ light: on }, p.data).then(update);
         setTimeout(function () { U.review.refreshBadge(); }, 400);
       });
@@ -354,7 +358,7 @@
         h('p', { class: 'td-count' }, count, ' ', countWord),
         h('p', { class: 'td-meta muted' }, minutes, names.length ? ' · from ' + names.slice(0, 3).join(', ') + (names.length > 3 ? ' and more' : '') : ''),
         h('label', { class: 'td-light' },
-          h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
+          h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, lasting ? 'Light days are on in settings: ' + LIGHT_CAP + ' cards a day, the most overdue first.' : 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
           light, h('span', { class: 'td-switch', 'aria-hidden': 'true' })),
         start));
       update(p);

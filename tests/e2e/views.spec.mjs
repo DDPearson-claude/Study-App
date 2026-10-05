@@ -103,18 +103,12 @@ function installFakes({ review, tutor, gen, bands, due }) {
   }
 }
 
-// TEMPORARY: the shell's .topbar has backdrop-filter, which makes it the containing block for the
-// fixed #tabs inside it, so on phones the tab bar covers the top bar (reported to the shell owner).
-// Screenshots neutralise it so they show the views as intended; the check below reports it.
-const SHELL_SHIM = '.topbar{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:var(--bg)!important}';
-
-async function open({ width = 360, dark = false, db = {}, fakes = {}, tools = {}, deny = [], hash = '#/', prefs = null, shim = true } = {}) {
+async function open({ width = 360, dark = false, db = {}, fakes = {}, tools = {}, deny = [], hash = '#/', prefs = null } = {}) {
   const app = await openApp({ width, height: width < 700 ? 707 : 900, dark, file: FILE, config: { db }, tools, deny });
   current.apps.push(app);
   await app.page.addInitScript(installFakes, { review: true, tutor: true, gen: 'fast', bands: SEED.bands, due: 4, ...fakes });
   const p = prefs || (dark ? { theme: 'dark' } : null);
   if (p) await app.page.addInitScript((v) => { try { if (!sessionStorage.getItem('__prefsSet')) { localStorage.setItem('mu-prefs', JSON.stringify(v)); sessionStorage.setItem('__prefsSet', '1'); } } catch (e) {} }, p);
-  if (shim) await app.page.addInitScript((css) => { document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = css; document.head.appendChild(s); }); }, SHELL_SHIM);
   await app.page.goto(app.url(hash));
   await app.page.waitForFunction(() => window.U && U.boot && U.boot.ready === true);
   // A stand-in lesson screen and Today screen so navigation can be checked.
@@ -140,10 +134,12 @@ const tag = (w, dark) => `${w}-${dark ? 'dark' : 'light'}`;
 
 // ---------- tests ----------
 
-await test('shell: phone tab bar sits at the bottom (reported, not owned here)', async () => {
-  const app = await open({ shim: false });
-  const r = await app.page.evaluate(() => { const t = document.getElementById('tabs').getBoundingClientRect(); return { top: t.top, vh: innerHeight }; });
-  if (r.top < r.vh / 2) console.log('      NOTE: #tabs renders at the top of the screen on phones (top bar backdrop-filter). Shell fix needed.');
+await test('shell: on a phone the tab bar sits at the bottom and the settings button is tappable', async () => {
+  const app = await open({});
+  const r = await app.page.evaluate(() => { const t = document.getElementById('tabs').getBoundingClientRect(); return { bottom: t.bottom, vh: innerHeight }; });
+  assert(Math.abs(r.bottom - r.vh) < 2, `tab bar at the bottom (bottom ${r.bottom}, viewport ${r.vh})`);
+  await app.page.click('#settings-btn');
+  await app.page.waitForSelector('.set');
 });
 
 await test('home: first run at 360 and 1280, light and dark', async () => {

@@ -62,6 +62,11 @@ U.interactive = (function () {
       out.push('Controls (use these ids exactly; keep the ranges unless one is clearly wrong):');
       controls.forEach(function (c) { out.push(controlLine(c)); });
     }
+    var outs = (spec.outputs || []).filter(function (o) { return o && o.id; });
+    if (outs.length) {
+      out.push('Outputs (return each from K.model under exactly this key, and show it with K.readout using the same id):');
+      outs.forEach(function (o) { out.push('- id "' + str(o.id) + '": ' + str(o.label) + (o.unit ? ' (' + str(o.unit) + ')' : '')); });
+    }
     var nums = (spec.numbers || []).filter(function (n) { return n && n.label; });
     if (nums.length) {
       out.push('Numbers it may show (control = Dan sets it, computed = from the rule, constant = cited):');
