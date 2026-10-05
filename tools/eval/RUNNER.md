@@ -4,7 +4,7 @@ You are testing My University's generation prompts. The app sends these exact pr
 inside the page. Your job is to answer them **exactly as that in-page Claude would**, run the
 app's own validators and self-tests on what you produced, and report honestly.
 
-Inputs (given to you): QUERY, LEVEL (new|some|solid), SLUG, RUN (e.g. run1).
+Inputs (given to you): QUERY, LEVEL (new|some|solid), SLUG, RUN (e.g. run1), RESEARCH (live|none).
 Work in `/home/user/Study-App`. Output dir: `D=tests/out/eval-$RUN/$SLUG` (create it).
 Do not edit any file outside `$D`. Do not commit.
 
@@ -23,12 +23,30 @@ Do not edit any file outside `$D`. Do not commit.
    model hat again, reply with corrected JSON given the problem list, to `$D/plan.reply2.txt`, validate again.
    Save the final plan JSON as `$D/topic.json` with `"query": "$QUERY"` and `"level": "$LEVEL"` added, as the app
    stores them (the lesson and build prompts read the level from it).
+2b. Research (only when RESEARCH=live). This is what the app does right after planning, with the
+   real Parallel Search connector (`mcp__Parallel_Search__web_search` / `web_fetch`; load them with
+   ToolSearch).
+   `node tools/eval/prompts.mjs research --topic $D/topic.json > $D/research.prompt.txt`, then `mkdir -p $D/tools`.
+   Model hat: read the prompt and decide each tool call exactly as the in-page model would (its
+   input shapes, its budget). For every call: operator makes the real call with that input (add
+   `"session_id": "mu-eval-$SLUG-0000000000000000000000"`), then saves the result verbatim with
+   the Write tool as `$D/tools/NN-<tool>.json` = `{"tool": "...", "input": {...}, "output": <the
+   result JSON exactly as returned>}` (NN = 01, 02, ... in call order). Model hat then reads ONLY
+   `node tools/eval/sources.mjs --show $D/tools/NN-<tool>.json`: that is the cleaned, size-fitted
+   text the in-page model gets. Never quote from the raw file. The app refuses a web_fetch of an
+   address that no earlier web_search returned (the reply is `Tool error (refused): ...`); behave
+   the same and don't make that call.
+   Model hat writes the research reply to `$D/research.reply.txt`. Operator:
+   `node tools/eval/sources.mjs --reply $D/research.reply.txt --tools $D/tools --topic $D/topic.json --out $D/research.json`.
+   Record how many sources were cited, kept and dropped, and why each was dropped. Pass
+   `--research $D/research.json` to every write-lesson prompt below, and `--sources $D/research.json`
+   to every lesson validation.
 3. Pick two ideas: `i1` and the idea with the richest thing to manipulate (if that is i1, take i2).
    For each idea `I`:
-   a. `node tools/eval/prompts.mjs write-lesson --topic $D/topic.json --idea I > $D/I.lesson.prompt.txt`
+   a. `node tools/eval/prompts.mjs write-lesson --topic $D/topic.json --idea I [--research $D/research.json] > $D/I.lesson.prompt.txt`
       For the second idea, pass the first lesson as an earlier lesson, as the app does:
       add `--prior $D/i1.lesson.json`.
-      Model hat -> `$D/I.lesson.reply.txt`. Operator: `node tools/eval/validate.mjs lesson $D/I.lesson.reply.txt --iid I`;
+      Model hat -> `$D/I.lesson.reply.txt`. Operator: `node tools/eval/validate.mjs lesson $D/I.lesson.reply.txt --iid I [--sources $D/research.json]`;
       one corrective round if needed. Save the final lesson JSON as `$D/I.lesson.json`.
    b. If the lesson has an interactive: `node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.json > $D/I.build.prompt.txt`
       Model hat -> the body HTML into `$D/I.body1.html` (strip nothing; the app's extractor runs in the next step).
