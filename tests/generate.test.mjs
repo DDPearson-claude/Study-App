@@ -212,7 +212,8 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
     ['named control with a bad opening index', (l) => { l.interactive.controls[0] = { id: 'airFlow', label: 'Air', options: ['a', 'b', 'c'], value: 3 }; }, /0-based index of the opening option/],
     ['named control with one option', (l) => { l.interactive.controls[0] = { id: 'airFlow', label: 'Air', options: ['a'], value: 0 }; }, /2-8 short names/],
     ['control label over 6 words', (l) => { l.interactive.controls[0].label = 'The air that the engine throws back each second'; }, /at most 6/],
-    ['output label over 6 words', (l) => { l.interactive.outputs[0].label = 'How hard the engine pushes the plane forwards'; }, /outputs\[0\]\.label has 8 words/],
+    ['output label over 30 characters', (l) => { l.interactive.outputs[0].label = 'How hard the engine pushes the plane'; }, /outputs\[0\]\.label .* is 36 characters; readout labels are at most 30/],
+    ['output decimals not a whole number', (l) => { l.interactive.outputs[0].decimals = 1.5; }, /decimals must be a whole number from 0 to 6/],
     ['unit over 10 characters', (l) => { l.interactive.controls[0].unit = 'kilograms per second'; }, /at most 10/],
     ['whatAmILookingAt over 120 words', (l) => { l.interactive.whatAmILookingAt = 'word '.repeat(121); }, /whatAmILookingAt has 121 words/],
     ['unknown number kind', (l) => { l.interactive.numbers[0].kind = 'guess'; }, /"assumed" or "date"/],
@@ -350,7 +351,7 @@ test('prompt builders start with their TASK line, stay small and carry the key r
     'hypothetical check case', 'where the comparison stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Include one whenever the interactive has outputs', '"contested": { "views"',
     '[1] Newton\'s Third Law of Motion — NASA Glenn Research Center — https://www.grc.nasa.gov/www/k-12/BGP/newton3.html', 'with "source": n when a source above states it',
     '<-- THIS LESSON', 'Teach only this idea', 'This is the first idea', 'Known idea number 3', '[[like this]]', 'UK English',
-    'moving away from that state', 'kettle', 'which view he finds more convincing', 'never as something he did', 'never by its shade', 'FAIR EXAMPLES',
+    'moving away from that state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Round each number in your explanation the way its readout shows it', 'action buttons', 'a Play button that sounds what the picture shows', 'which view he finds more convincing', 'never as something he did', 'never by its shade', 'FAIR EXAMPLES',
     'Never invent probabilities', 'controls: one.', 'spoken to him as "you"', 'named: options', 'may start off', 'zero when zero is the real case', 'at most 120 words', 'label (at most 6 words)'])
     assert.ok(lesson.includes(s), 'write-lesson mentions ' + s);
   assert.ok(!lesson.includes('A FRESH ANGLE'));
@@ -1056,10 +1057,10 @@ test('build prompt: one source rule, the opening state, number kinds, wording an
   assert.ok(!/standard reference you would trust|encyclopedia/.test(bare), 'never asks for a URL from memory');
   for (const s of ['Dan answers his prediction by moving away from the opening state', 'k-after-move, K.moved', 'The opening view still looks alive',
     'the same rounding', 'shown as "for example"', 'fair and representative', 'never advice', 'do not repeat it on the page',
-    'use these ids, ranges and opening values exactly', 'reads "thrust"', 'moving "speedAdded" alone can reach the target', 'Dan\'s prediction, made before playing: "' + L_JET2.predict.q])
+    'use these ids, ranges and opening values exactly', 'reads "thrust"', 'and the decimals given, which is how the explanation rounds it', '- id "thrust": Thrust (kN), decimals: 0', 'moving "speedAdded" alone can reach the target', 'Dan\'s prediction, made before playing: "' + L_JET2.predict.q])
     assert.ok(bare.includes(s), 'build prompt mentions ' + s);
   const sourced = U.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
-  assert.ok(sourced.includes('The only web addresses this page may contain') && sourced.includes(L_JET2.sources[0].url));
+  assert.ok(sourced.includes('The only web addresses this page may contain, each only as a K.check {source}') && sourced.includes(L_JET2.sources[0].url));
   // A kit reference without the after-move pattern gets a plain instruction instead.
   const { U: U0 } = builder({ kitMd: '# Kit\nK.control only' });
   const plainKit = U0.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
@@ -1073,6 +1074,7 @@ test('build prompt: one source rule, the opening state, number kinds, wording an
   // The real kit reference is embedded, headings nested one level down.
   const real = loadPrompts().interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
   assert.ok(real.includes('## The house kit (complete API reference)') && real.includes('K.control({id, label, min, max'));
+  assert.match(real, /## A finished example \(kind: [a-z]+\)\. .*Its SOURCE line and \{source\} addresses belong to that example's own lesson: never copy them/, 'exemplar sources are not to be copied');
 });
 
 test('exampleFor maps each idea kind to the closest exemplar', () => {
@@ -1108,6 +1110,10 @@ test('build: an unlisted web address is sent back for repair, and stripped as a 
   assert.ok(r && !r.html.includes(WIKI) && r.selftest.ok, 'kept, with the address stripped');
   const clip = builder().U.interactive.problems({ ok: false, errors: [], checks: [], clipped: ['"181 for every 120" spills out of div.k-readout-value (it needs 140px and has 96px) (at r = 181)'] }, L_JET2, '');
   assert.ok(clip.includes('Text cut off: "181 for every 120" spills out of div.k-readout-value (it needs 140px and has 96px) (at r = 181)'), 'clipped text reaches the repair');
+  const rp = builder().U.interactive.repairPrompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2, page(), { ok: false, errors: [], checks: [], warnings: ['On a phone the first control starts 900 px below the top of the main figure'] });
+  for (const s of ['place them with K.labels', 'K.model returns single numbers or short strings', 'from a K.button press or a K.anim step', 'K.stage(visual, controls)',
+    'frequencies 20 to 20,000 Hz', 'no <a href> or forms', 'never cut it off', '- Advice: On a phone the first control starts 900 px'])
+    assert.ok(rp.includes(s), 'repair prompt mentions ' + s);
   b = builder({ replies: [page('BROKEN'), page('BROKEN'), page('BROKEN')] });
   assert.equal(await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2), null, 'a page that never passes its self-test is dropped');
   assert.equal(b.asked.length, 3);

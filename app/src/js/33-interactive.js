@@ -123,6 +123,7 @@ U.interactive = (function () {
     var unit = c.unit ? (/^[%°:×]/.test(str(c.unit)) ? '' : ' ') + str(c.unit) : '';
     return head + 'from ' + c.min + ' to ' + c.max + (c.step != null ? ' in steps of ' + c.step : '') + ', opening at ' + c.value + unit;
   }
+  function isDp(o) { return typeof o.decimals === 'number' && o.decimals >= 0 && o.decimals <= 6 && Math.floor(o.decimals) === o.decimals; }
   function numberLine(n) {
     return '- ' + str(n.label) + ': ' + str(n.value) + ' (' + (str(n.kind) || 'number') + (n.source != null ? ', source [' + n.source + ']' : '') + ')';
   }
@@ -139,8 +140,11 @@ U.interactive = (function () {
     } else out.push('No controls were specified: choose the one that best shows the idea.');
     var outs = (spec.outputs || []).filter(function (o) { return o && o.id; });
     if (outs.length) {
-      out.push('Outputs (return each from K.model under exactly this key, and show it with K.readout using the same id):');
-      outs.forEach(function (o) { out.push('- id "' + str(o.id) + '": ' + str(o.label) + (o.unit ? ' (' + str(o.unit) + ')' : '')); });
+      out.push('Outputs (return each from K.model under exactly this key, and show it with K.readout using the same id' +
+        (outs.some(isDp) ? ' and the decimals given, which is how the explanation rounds it' : '') + '):');
+      outs.forEach(function (o) {
+        out.push('- id "' + str(o.id) + '": ' + str(o.label) + (o.unit ? ' (' + str(o.unit) + ')' : '') + (isDp(o) ? ', decimals: ' + o.decimals : ''));
+      });
     } else if (Array.isArray(spec.outputs)) {
       out.push('Outputs: none. No rule computes a number here, so show no readouts: the picture, its labels and the .say line do the teaching.');
     }
@@ -172,7 +176,7 @@ U.interactive = (function () {
       return '## Sources\nThis lesson has no checked sources, so the page contains no web addresses at all: its K.check entries are known-answer checks with no {source}, ' +
         'and the caption cites nothing. Use only textbook-standard rules, values and facts you are certain of. The app rejects any web address.';
     }
-    return '## Sources\nThe only web addresses this page may contain, in a K.check {source} or the caption; the app rejects any other:\n' + src.map(function (s) {
+    return '## Sources\nThe only web addresses this page may contain, each only as a K.check {source} (the caption names a source in words); the app rejects any other:\n' + src.map(function (s) {
       return '[' + s.n + '] ' + clip(s.title, 120) + ' (' + str(s.url) + ')' + (s.quote ? ': "' + clip(s.quote, 240) + '"' : '');
     }).join('\n');
   }
@@ -219,7 +223,7 @@ U.interactive = (function () {
       kitSection(),
     ];
     if (ex) {
-      parts.push('## A finished example (kind: ' + ex.kind + '). Match its standard and structure, not its topic\n' + ex.body.trim());
+      parts.push('## A finished example (kind: ' + ex.kind + '). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example\'s own lesson: never copy them\n' + ex.body.trim());
     }
     if (o.avoid) {
       parts.push('## Make it different\nA previous interactive for this idea did this: "' + clip(o.avoid, 400) + '". Dan has already seen it. ' +
@@ -278,10 +282,14 @@ U.interactive = (function () {
       briefSection(lesson),
       '## What the checks found (at 340 px and 720 px wide)\n' + (found.length ? found.map(function (p) { return '- ' + p; }).join('\n') : '- It did not pass, but reported no details. Check that K.ready() is called once at the end.'),
       '## How to fix the usual problems\n' + [
-        '- A thrown error: go to the body line it names; check element ids, variable names and the kit call signatures.',
+        '- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.',
         '- NaN or Infinity: guard the maths at the ends of every control\'s range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.',
+        '- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.',
         '- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.',
-        '- Text cut off: shorten the words, let them wrap, or give them room (inside the SVG viewBox, a wider box); never hide the overflow.',
+        '- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other: place them with K.labels.',
+        '- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.',
+        '- K.sound: frequencies 20 to 20,000 Hz, dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.',
+        '- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.',
         '- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete or weaken a correct check to pass.',
         '- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.',
         '- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.',

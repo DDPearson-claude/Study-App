@@ -359,7 +359,7 @@
       '',
       'HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)',
       '1. predict: before playing, he commits to a guess about what will happen when he changes something. Committing first makes the answer stick.',
-      '2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams, simulations and sound. It is about 340 px wide on his phone. No text input, no images or data from the web. Then your predict reveal is shown.',
+      '2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound, played when he presses a button. It is about 340 px wide on his phone. No text input, no images or data from the web. Then your predict reveal is shown.',
       '3. explain: he reads your explanation of what playing showed.',
       '4. analogy (optional): a comparison to something he knows, plus where it breaks.',
       '5. say: he explains the idea back in his own words; Claude grades it against your rubric.',
@@ -412,6 +412,7 @@
       '',
       'interactive',
       '- Its form follows the idea. For a ' + kind + ' idea: ' + KIND_PLAY[kind],
+      '- An idea about sound or music lets him hear it: a Play button that sounds what the picture shows.',
       '- Never invent probabilities, rates, scores or "shares" to turn an idea into a numeric model. Readouts and target checks exist only where a real rule computes a number; a history, process, structure or concept idea often has none.',
       '- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___." One visible change, caused by one action. This sentence drives the build, so make it concrete.',
       '  Bad: "The one thing you should see is how tides work when you use the sliders." Good: "The one thing you should see is the braking distance quadrupling when you double the speed."',
@@ -421,7 +422,7 @@
       '    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or',
       '    named: options (2-8 names of at most 6 words, in a sensible order; stages in order become a stepper) and value (the 0-based index of the opening option).',
       '  The opening setting is a realistic case (zero when zero is the real case). Numeric ranges are wide enough that the effect is unmistakable.',
-      '- outputs: 0-3 live readouts, each { id (camelCase, unlike any control id), label (at most 6 words), unit (at most 10 characters) }. The builder uses these ids, and target checks read them.',
+      '- outputs: 0-3 live readouts, each { id (camelCase, unlike any control id), label (at most 30 characters), unit (short, at most 10 characters), decimals (optional: the decimal places it shows) }. The builder uses these ids, and target checks read them. Round each number in your explanation the way its readout shows it.',
       '- whatAmILookingAt (at most 120 words): the rule the model follows, in plain words first, then the equation if there is one (each symbol named). Shown to Dan in a "What am I looking at?" panel, so write it to him.',
       '- ignores (at most 50 words): what this model deliberately leaves out, honestly. Shown to Dan as "What this model ignores".',
       '- numbers: every number the interactive shows: each control\'s opening value, the key computed results there, and every constant, assumed value and date it uses. Each { label (with its unit, at most 12 words), value, kind }' + (hasSources ? ' plus "source" where cited' : '') + '. See THE NUMBER RULE.',
@@ -493,7 +494,7 @@
       '    "brief": "The one thing you should see is … when you ….",',
       '    "title": "…",',
       '    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],',
-      '    "outputs": [ { "id": "result", "label": "…", "unit": "…" } ],',
+      '    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],',
       '    "whatAmILookingAt": "…",',
       '    "ignores": "…",',
       '    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": "…", "kind": "computed" }, { "label": "…", "value": 9.81, "kind": "constant"' + (hasSources ? ', "source": 1' : '') + ' } ]',
@@ -806,9 +807,10 @@
             if (!isStr(r.id) || !CONTROL_ID.test(r.id)) v.add(p + '.id must be camelCase letters and digits.');
             else if (outs.indexOf(r.id) >= 0 || ctrl.indexOf(r.id) >= 0) v.add(p + '.id "' + r.id + '" clashes with another control or output id.');
             else outs.push(r.id);
-            if (v.str(r.label, p + '.label', 80)) wordCap(r.label, p + '.label', 6);
+            if (v.str(r.label, p + '.label') && one(r.label).length > 30) v.add(p + '.label "' + clip(r.label, 50) + '" is ' + one(r.label).length + ' characters; readout labels are at most 30 ("Swing time", "Thrust").');
             if (r.unit != null && typeof r.unit !== 'string') v.add(p + '.unit must be a string.');
             else if (r.unit && r.unit.length > 10) v.add(p + '.unit "' + r.unit + '" is ' + r.unit.length + ' characters; keep units to at most 10.');
+            if (r.decimals != null && !(isInt(r.decimals) && r.decimals >= 0 && r.decimals <= 6)) v.add(p + '.decimals must be a whole number from 0 to 6, or left out.');
           });
         }
         if (v.str(it.whatAmILookingAt, 'interactive.whatAmILookingAt', 1500)) wordCap(it.whatAmILookingAt, 'interactive.whatAmILookingAt', 120);
