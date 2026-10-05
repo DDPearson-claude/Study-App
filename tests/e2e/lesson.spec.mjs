@@ -176,7 +176,10 @@ async function walk(width, dark) {
     await page.waitForTimeout(1000);
     const settledH = await play.locator('.lsn-panel').evaluate((el) => el.getBoundingClientRect().height);
     console.log(`  interactive: reserved ${Math.round(reserved)}px, settled ${Math.round(settledH)}px`);
-    ok(await page.evaluate((k) => Number(localStorage.getItem(k)) > 200, 'mu-lsn-h:pendulums/i1' + (width >= 700 ? ':wide' : '')), 'measured height remembered for next time (per width)');
+    // The key follows the width the panel gets: phone, a wide column, or a laptop.
+    const panelW = await play.locator('.lsn-play').evaluate((el) => el.getBoundingClientRect().width);
+    const hkey = 'mu-lsn-h:pendulums/i1' + (panelW >= 860 ? ':laptop' : panelW >= 560 ? ':wide' : '');
+    ok(await page.evaluate((k) => Number(localStorage.getItem(k)) > 200, hkey), 'measured height remembered for next time (per width: ' + hkey + ')');
     let progress = await doc(app, PROGRESS);
     ok(progress && progress.ideas.i1.predict && progress.ideas.i1.predict.answer === 'It takes twice as long', 'prediction saved');
     ok(progress && progress.ideas.i1.stage === 'play' && progress.lastIdea === 'i1', 'stage play and lastIdea saved');

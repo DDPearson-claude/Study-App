@@ -1412,7 +1412,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-05-58d0a5f";
+U.BUILD = "2026-10-05-ed60662";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -1633,15 +1633,28 @@ U.routes = {
     return segs[0];
   },
 };
-U.go = function (hash) { if (location.hash === hash) U._route(); else location.hash = hash; };
+// The address hash is the route. If the frame ever refuses a fragment change, the route is kept
+// in memory instead (U._memHash) so navigation still works; a real hashchange clears it.
+U._memHash = null;
+U.currentHash = function () { var h = U._memHash || location.hash || '#/'; return h === '#' ? '#/' : h; };
+U.go = function (hash) {
+  if (U.currentHash() === hash) { U._route(); return; }
+  try { location.hash = hash; } catch (e) { /* refused: handled below */ }
+  if (location.hash !== hash) { U._memHash = hash; U._route(); }
+  else U._memHash = null;
+};
+// Back to Learn without adding a history entry (bad or unknown addresses).
+U._home = function () {
+  try { location.replace('#/'); } catch (e) { /* refused: handled below */ }
+  if (location.hash !== '#/') { U._memHash = '#/'; setTimeout(U._route, 0); }
+};
 U._cleanup = null;
 U._routeSeq = 0;
 U.setTitle = function (text) {
   try { document.title = (text ? String(text).replace(/\s+/g, ' ').trim().slice(0, 80) + ' · ' : '') + 'My University'; } catch (e) { /* fine */ }
 };
 U._route = function () {
-  var hash = location.hash || '#/';
-  if (hash === '#') hash = '#/';
+  var hash = U.currentHash();
   // Find the route and decode its params before touching the screen: a malformed %-escape
   // (or any other bad address) goes home instead of leaving a blank view.
   var r = null, params = {}, bad = false;
@@ -1650,7 +1663,7 @@ U._route = function () {
     if (!m) continue;
     r = U.routes.list[i];
     try { r.keys.forEach(function (k, j) { params[k] = decodeURIComponent(m[j + 1]); }); }
-    catch (e) { console.warn('bad address', hash); location.replace('#/'); return; }
+    catch (e) { console.warn('bad address', hash); U._home(); return; }
     bad = r.keys.some(function (k) { return !U.validId(params[k]); });
   }
   var seq = ++U._routeSeq;
@@ -1659,7 +1672,7 @@ U._route = function () {
   var view = document.getElementById('view');
   U.clear(view);
   U.closeSheets();
-  if (!r) { location.replace('#/'); return; }
+  if (!r) { U._home(); return; }
   view.setAttribute('data-screen', bad ? 'none' : r.screen);
   U.focusMode(!!r.opts.focus);
   U.setTab(r.opts.tab || null);
@@ -6306,7 +6319,7 @@ U.interactive = (function () {
   // leaves the topic. A prefetch Dan opens becomes his foreground lesson (U.gen promotes it).
   var prefetches = [];
   function inTopic(tid) {
-    var base = '#/t/' + encodeURIComponent(tid), h = location.hash || '';
+    var base = '#/t/' + encodeURIComponent(tid), h = U.currentHash();
     return h === base || h.indexOf(base + '/') === 0;
   }
   function sweepPrefetches() {
@@ -8456,23 +8469,12 @@ U.interactive = (function () {
 
   V.site = function (url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
 
-  // An outbound link that works inside the viewer: window.open first; if that is blocked,
-  // copy the address so Dan can paste it. Only http(s) URLs become links.
+  // An outbound link: a real link, which the viewer opens in a new tab (window.open is refused
+  // for many viewers, so the page never tries it). Only http(s) URLs become links.
   V.extLink = function (url, label, cls) {
     var ok = /^https?:\/\//i.test(String(url || ''));
     if (!ok) return U.h('span', { class: cls || '' }, label);
-    return U.h('a', {
-      class: cls || '', href: url, target: '_blank', rel: 'noopener noreferrer',
-      on: { click: function (e) {
-        e.preventDefault();
-        var w = null;
-        try { w = window.open(url, '_blank'); } catch (err) { w = null; }
-        if (w) { try { w.opener = null; } catch (err) { /* cross-origin: fine */ } return; }
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(url).then(function () { U.toast('Link copied. Paste it into your browser to open it.'); }, function () { U.toast(url); });
-        } else U.toast(url);
-      } },
-    }, label);
+    return U.h('a', { class: cls || '', href: url, target: '_blank', rel: 'noopener noreferrer' }, label);
   };
 
   V.back = function (href, label) {
@@ -9972,7 +9974,16 @@ U.interactive = (function () {
     U.rt.ready.then(function () {
       loadPrefs().catch(function (e) { console.error('prefs', e); });
       persistNotice();
-      window.addEventListener('hashchange', U._route);
+      window.addEventListener('hashchange', function () { U._memHash = null; U._route(); });
+      // In-app links ("#/...") route here (capture phase, before anything else sees the click),
+      // so a viewer that handles link clicks itself can never send them anywhere else.
+      document.addEventListener('click', function (e) {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target && e.target.closest ? e.target.closest('a[href^="#/"]') : null;
+        if (!a || a.target) return;
+        e.preventDefault();
+        U.go(a.getAttribute('href'));
+      }, true);
       U._route();
       if (U.review && U.review.refreshBadge) {
         Promise.resolve().then(function () { return U.review.refreshBadge(); }).catch(function (e) { console.error('badge', e); });

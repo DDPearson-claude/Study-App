@@ -208,6 +208,22 @@ await test('pinned laptop on a phone: the top bar stays on one row', async () =>
   await shot(app, 'pinned-laptop-phone');
 });
 
+// ---------- navigation inside the viewer ----------
+await test('in-app links route even when something else cancels link clicks', async () => {
+  const app = await openApp({ width: 390, height: 844, file: FILE, config: { db: seedDb() }, sample: () => new Promise(() => {}) });
+  current.apps.push(app);
+  // A stand-in for a viewer that cancels every link click to handle it itself.
+  await app.page.addInitScript(() => { document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('a')) e.preventDefault(); }); });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  await app.page.click('#tabs a[data-tab="map"]');
+  await app.page.waitForFunction(() => document.getElementById('view').dataset.screen === 'map', null, { timeout: 5000 });
+  await app.page.locator('.tcard, .map-topic-head').first().waitFor({ timeout: 8000 }).catch(() => {});
+  eq(await app.page.evaluate(() => location.hash), '#/map', 'the address follows');
+  const ext = await app.page.evaluate(() => { const a = U.views.extLink('https://example.org/x', 'x'); return { href: a.getAttribute('href'), target: a.target, rel: a.rel }; });
+  assert(ext.href === 'https://example.org/x' && ext.target === '_blank' && /noopener/.test(ext.rel), 'outbound links are plain new-tab links ' + JSON.stringify(ext));
+});
+
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} layout tests passed`);
 process.exit(failed.length ? 1 : 0);

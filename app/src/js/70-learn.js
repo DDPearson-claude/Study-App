@@ -176,23 +176,12 @@
 
   V.site = function (url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
 
-  // An outbound link that works inside the viewer: window.open first; if that is blocked,
-  // copy the address so Dan can paste it. Only http(s) URLs become links.
+  // An outbound link: a real link, which the viewer opens in a new tab (window.open is refused
+  // for many viewers, so the page never tries it). Only http(s) URLs become links.
   V.extLink = function (url, label, cls) {
     var ok = /^https?:\/\//i.test(String(url || ''));
     if (!ok) return U.h('span', { class: cls || '' }, label);
-    return U.h('a', {
-      class: cls || '', href: url, target: '_blank', rel: 'noopener noreferrer',
-      on: { click: function (e) {
-        e.preventDefault();
-        var w = null;
-        try { w = window.open(url, '_blank'); } catch (err) { w = null; }
-        if (w) { try { w.opener = null; } catch (err) { /* cross-origin: fine */ } return; }
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(url).then(function () { U.toast('Link copied. Paste it into your browser to open it.'); }, function () { U.toast(url); });
-        } else U.toast(url);
-      } },
-    }, label);
+    return U.h('a', { class: cls || '', href: url, target: '_blank', rel: 'noopener noreferrer' }, label);
   };
 
   V.back = function (href, label) {

@@ -34,7 +34,7 @@
   // leaves the topic. A prefetch Dan opens becomes his foreground lesson (U.gen promotes it).
   var prefetches = [];
   function inTopic(tid) {
-    var base = '#/t/' + encodeURIComponent(tid), h = location.hash || '';
+    var base = '#/t/' + encodeURIComponent(tid), h = U.currentHash();
     return h === base || h.indexOf(base + '/') === 0;
   }
   function sweepPrefetches() {

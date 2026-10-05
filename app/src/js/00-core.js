@@ -221,15 +221,28 @@ U.routes = {
     return segs[0];
   },
 };
-U.go = function (hash) { if (location.hash === hash) U._route(); else location.hash = hash; };
+// The address hash is the route. If the frame ever refuses a fragment change, the route is kept
+// in memory instead (U._memHash) so navigation still works; a real hashchange clears it.
+U._memHash = null;
+U.currentHash = function () { var h = U._memHash || location.hash || '#/'; return h === '#' ? '#/' : h; };
+U.go = function (hash) {
+  if (U.currentHash() === hash) { U._route(); return; }
+  try { location.hash = hash; } catch (e) { /* refused: handled below */ }
+  if (location.hash !== hash) { U._memHash = hash; U._route(); }
+  else U._memHash = null;
+};
+// Back to Learn without adding a history entry (bad or unknown addresses).
+U._home = function () {
+  try { location.replace('#/'); } catch (e) { /* refused: handled below */ }
+  if (location.hash !== '#/') { U._memHash = '#/'; setTimeout(U._route, 0); }
+};
 U._cleanup = null;
 U._routeSeq = 0;
 U.setTitle = function (text) {
   try { document.title = (text ? String(text).replace(/\s+/g, ' ').trim().slice(0, 80) + ' · ' : '') + 'My University'; } catch (e) { /* fine */ }
 };
 U._route = function () {
-  var hash = location.hash || '#/';
-  if (hash === '#') hash = '#/';
+  var hash = U.currentHash();
   // Find the route and decode its params before touching the screen: a malformed %-escape
   // (or any other bad address) goes home instead of leaving a blank view.
   var r = null, params = {}, bad = false;
@@ -238,7 +251,7 @@ U._route = function () {
     if (!m) continue;
     r = U.routes.list[i];
     try { r.keys.forEach(function (k, j) { params[k] = decodeURIComponent(m[j + 1]); }); }
-    catch (e) { console.warn('bad address', hash); location.replace('#/'); return; }
+    catch (e) { console.warn('bad address', hash); U._home(); return; }
     bad = r.keys.some(function (k) { return !U.validId(params[k]); });
   }
   var seq = ++U._routeSeq;
@@ -247,7 +260,7 @@ U._route = function () {
   var view = document.getElementById('view');
   U.clear(view);
   U.closeSheets();
-  if (!r) { location.replace('#/'); return; }
+  if (!r) { U._home(); return; }
   view.setAttribute('data-screen', bad ? 'none' : r.screen);
   U.focusMode(!!r.opts.focus);
   U.setTab(r.opts.tab || null);

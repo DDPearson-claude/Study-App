@@ -97,7 +97,16 @@
     U.rt.ready.then(function () {
       loadPrefs().catch(function (e) { console.error('prefs', e); });
       persistNotice();
-      window.addEventListener('hashchange', U._route);
+      window.addEventListener('hashchange', function () { U._memHash = null; U._route(); });
+      // In-app links ("#/...") route here (capture phase, before anything else sees the click),
+      // so a viewer that handles link clicks itself can never send them anywhere else.
+      document.addEventListener('click', function (e) {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        var a = e.target && e.target.closest ? e.target.closest('a[href^="#/"]') : null;
+        if (!a || a.target) return;
+        e.preventDefault();
+        U.go(a.getAttribute('href'));
+      }, true);
       U._route();
       if (U.review && U.review.refreshBadge) {
         Promise.resolve().then(function () { return U.review.refreshBadge(); }).catch(function (e) { console.error('badge', e); });
