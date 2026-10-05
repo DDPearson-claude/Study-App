@@ -183,7 +183,7 @@ U.interactive = (function () {
   var DAN = [
     '## Dan and how he learns',
     '- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.',
-    '- He uses an Android phone (this frame is about 340 px wide there, touch only) and a desktop. Design for the phone first.',
+    '- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.',
   ].join('\n');
   // What this lesson asks of the page beyond the kit reference's general rules (which cover
   // captions, rounding, colour words, extremes, checks and sound). Hiding the answer falls back
@@ -280,7 +280,7 @@ U.interactive = (function () {
       'The interactive below, written for Dan\'s learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.',
       ideaSection(topic, idea),
       briefSection(lesson),
-      '## What the checks found (at 340 px and 720 px wide)\n' + (found.length ? found.map(function (p) { return '- ' + p; }).join('\n') : '- It did not pass, but reported no details. Check that K.ready() is called once at the end.'),
+      '## What the checks found (at 340, 720 and 1040 px wide)\n' + (found.length ? found.map(function (p) { return '- ' + p; }).join('\n') : '- It did not pass, but reported no details. Check that K.ready() is called once at the end.'),
       '## How to fix the usual problems\n' + [
         '- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.',
         '- NaN or Infinity: guard the maths at the ends of every control\'s range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.',
@@ -329,7 +329,7 @@ U.interactive = (function () {
   // self-test proper, with the lesson's ids); ok is true only when nothing at all is wrong.
   function testBody(html, lesson) {
     if (!html) return Promise.resolve({ ok: false, passed: false, errors: ['The reply contained no HTML.'], overflow: false, checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], outputs: [], warnings: [], missing: [], foreign: [], unreachable: [] });
-    return U.sandbox.test(html, { widths: [340, 720] }).then(function (r) {
+    return U.sandbox.test(html, { widths: [340, 720, 1040] }).then(function (r) {
       r.missing = missingIds(r, lesson);
       r.foreign = foreignUrls(html, lesson, r);
       r.unreachable = [];

@@ -520,8 +520,8 @@ section('exemplars and the host API');
   const test = (html, o) => app.page.evaluate(([h, opts]) => U.sandbox.test(h, opts), [html, o || {}]);
   for (const ex of examples.concat([{ name: 'KIT.md example', body: kitExample }])) {
     const t0 = Date.now();
-    const r = await test(ex.body, { widths: [340, 720] });
-    expect(ex.name + ' passes at 340 and 720 (' + (Date.now() - t0) + ' ms)', r.ok && r.widths.every((w) => w.ok) && !r.overflow && r.sweep.ok && !r.errors.length, r);
+    const r = await test(ex.body, { widths: [340, 720, 1040] });
+    expect(ex.name + ' passes at 340, 720 and 1040 (' + (Date.now() - t0) + ' ms)', r.ok && r.widths.every((w) => w.ok) && !r.overflow && r.sweep.ok && !r.errors.length, r);
     expect(ex.name + ': 3+ checks, all pass, one cites a source', r.checks.length >= 3 && r.checks.every((c) => c.ok) && r.checks.some((c) => /^https:\/\//.test(c.source || '')), r.checks);
     expect(ex.name + ': no warnings', !(r.warnings || []).length, r.warnings);
   }
@@ -576,6 +576,32 @@ section('exemplars and the host API');
   await app.page.evaluate(() => __m.destroy());
   const gone = await app.page.evaluate(() => __m.get().then(() => 'resolved', (e) => e.code + ':' + !!document.querySelector('#host .kit-frame')));
   expect('destroy() removes the frame and later requests reject', gone === 'gone:false', gone);
+
+  // K.stage: the controls sit beside the visual in a laptop-wide frame, under it in a phone-wide
+  // one, and beside: false keeps them under it at any width.
+  await app.page.setViewportSize({ width: 1280, height: 900 });
+  const staged = examples.find((e) => /K\.stage\('#plot', '#controls'/.test(e.body));
+  expect('an exemplar shows K.stage with a plot', !!staged);
+  const stacked = staged.body.replace(/K\.stage\('#plot', '#controls'(, \{ max: (\d+) \})?\)/, (_, __, max) => "K.stage('#plot', '#controls', { " + (max ? 'max: ' + max + ', ' : '') + 'beside: false })');
+  expect('the stacked variant really sets beside: false', stacked.includes('beside: false'));
+  for (const [html, w, want] of [[staged.body, 1048, 'beside'], [staged.body, 360, 'under'], [stacked, 1048, 'under']]) {
+    await app.page.evaluate(async ([h, width]) => {
+      const box = document.createElement('div');
+      box.style.width = width + 'px';
+      document.body.appendChild(box);
+      window.__probe = U.sandbox.mount(box, { html: h });
+      await window.__probe.ready;
+    }, [html, w]);
+    const fr = app.page.frames().filter((f) => f !== app.page.mainFrame()).pop();
+    const got = await fr.evaluate(() => {
+      const st = document.querySelector('.k-stage');
+      const a = st.children[0].getBoundingClientRect(), b = st.children[1].getBoundingClientRect();
+      return b.left >= a.right - 1 && b.top < a.bottom ? 'beside' : b.top >= a.bottom - 1 ? 'under' : 'overlap';
+    });
+    expect('K.stage at ' + w + ' px' + (html === stacked ? ' with beside: false' : '') + ': controls ' + want + ' the visual', got === want, got);
+    await app.page.evaluate(() => { __probe.destroy(); });
+  }
+  await app.page.setViewportSize({ width: 360, height: 800 });
 
   expect('no page errors on the host page so far', app.errors.length === 0, app.errors);
   const late = body(plain + "\nsetTimeout(() => { throw new Error('late trouble'); }, 50);");

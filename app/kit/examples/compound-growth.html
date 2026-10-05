@@ -21,6 +21,8 @@
   K.readout({ id: 'rule72', label: 'Doubling, rule of 72', unit: 'years', dp: 1, into: '#outs' });
   K.readout({ id: 'exact', label: 'Doubling, exact', unit: 'years', dp: 1, into: '#outs' });
 
+  K.stage('#plot', '#controls', { max: 760 });   // three sliders: let the pair run a little taller on a phone
+
   const plot = K.plot('#plot', {
     x: { min: 0, max: 30, label: 'Years' },
     y: { label: 'Balance', prefix: '£' },

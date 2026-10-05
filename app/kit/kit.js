@@ -1276,13 +1276,14 @@
   };
 
   // ---------- stage: the main visual and its controls together ----------
-  // K.stage(visual, controls, {max}) -> {el}. Puts the controls right under the main visual and,
-  // on a phone, shrinks the visual so the pair fits in about max px (600) of height: Dan can see
-  // the picture while his thumb is on the slider. Secondary figures go below the stage.
+  // K.stage(visual, controls, {max, beside}) -> {el}. Puts the controls right under the main
+  // visual and, on a phone, shrinks the visual so the pair fits in about max px (600) of height:
+  // Dan can see the picture while his thumb is on the slider. In a wide frame (a laptop) the
+  // controls sit beside the visual instead, unless beside is false. Secondary figures go below.
   K.stage = function (visual, ctrls, o) {
     o = o || {};
     var v = resolve(visual, 'K.stage'), c = resolve(ctrls, 'K.stage');
-    var st = K.el('div', { class: 'k-stage' });
+    var st = K.el('div', { class: 'k-stage' + (o.beside === false ? ' k-stacked' : '') });
     v.parentNode.insertBefore(st, v);
     st.appendChild(v);
     st.appendChild(c);

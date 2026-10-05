@@ -2,7 +2,7 @@
 
 You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
 with `K.ready()`. It runs in a sandboxed iframe on Dan's Android phone (about 340 px wide, touch)
-and on desktop (about 640 px), with the global `K` and a calm stylesheet for light and dark. No
+and his laptop (about 1000 px), with the global `K` and a calm stylesheet for light and dark. No
 network or storage: web addresses are blocked; no `fetch`, `localStorage`, `alert` or `prompt`.
 
 ## Page shape that works
@@ -12,7 +12,7 @@ network or storage: web addresses are blocked; no `fetch`, `localStorage`, `aler
 3. Readouts in `<div class="k-readouts">`, then `<p class="say">`: one sentence that changes with the state.
 4. Secondary figures and anything that grows go below.
 5. `<p class="caption">`: at most two short sentences (the rule, where constants come from). The
-   app shows what the model leaves out in its own panel.
+   app shows what the model leaves out.
 
 ## Keep the answer hidden until Dan moves
 Dan predicts before he plays, so the opening screen must not answer the prediction. Open on a
@@ -95,8 +95,8 @@ For sound or music, let Dan hear it:
 K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
 ```
 `dur` in seconds (default 1, at most 10); `hz` 20 to 20,000; `type` 'sine', 'triangle', 'square'
-or 'sawtooth'. It is quiet and plays only after Dan presses something: call it from a `K.button`,
-and show what is sounding on screen.
+or 'sawtooth'. It is quiet and plays only after Dan presses something: call it from a `K.button`;
+show what is sounding.
 ```js
 K.button({ label: 'Hear the chord', into: '#controls', press: () => K.sound.chord([261.63, 329.63, 392.0], { dur: 1.5 }) });
 ```
@@ -106,7 +106,7 @@ K.button({ label: 'Hear the chord', into: '#controls', press: () => K.sound.chor
 K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
 K.svg(tag, attrs?, ...children)   the same in the SVG namespace
 K.labels(group, [{x, y, text, anchor?, class?, color?}]) -> [<text>]
-K.stage(visual, controls, {max?}) -> {el}
+K.stage(visual, controls, {max?, beside?}) -> {el}
 K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
 K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
 ```
@@ -114,7 +114,8 @@ Give an `<svg>` a viewBox about 340 wide, `width="100%"`, text 11-14 units, `rol
 `aria-label` that follows the state; on desktop the kit centres and caps it (600 px, 1.45 × the
 viewBox) so text stays a sensible size. `K.labels` places labels in a `<g>` (viewBox units),
 nudging each off other text and inside the drawing: use it for labels that move. `K.stage` joins
-the visual and its controls, shrinking the visual on a phone so the pair fits 600 px.
+the visual and its controls: fitted to 600 px tall on a phone, side by side on a laptop
+(`beside: false` stacks them).
 
 ## Colour
 Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')`
@@ -155,7 +156,7 @@ legend), `k-btn` (`secondary`), `k-controls`, `k-readouts`, `k-after-move`.
   timeline slider or a sorter with an HTML or SVG diagram; checks assert order and structure facts.
 
 ## The self-test
-Before Dan sees it, the app loads your body at 340 and 720 px wide, runs every check, sets each
+Before Dan sees it, the app loads your body at 340, 720 and 1040 px wide, runs every check, sets each
 control to five values from min to max (every option of a choice), reveals the after-move parts,
 presses every `K.button` and plays every `K.anim` for 60 frames. It fails on an exception, NaN or
 Infinity, a list or object output, an update over 150 ms, sideways overflow, text cut off at any

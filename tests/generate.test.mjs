@@ -343,7 +343,8 @@ test('prompt builders start with their TASK line, stay small and carry the key r
   assert.ok(plan.includes('"known": true goes only on a refresher idea'));
 
   const research = prompts.research;
-  for (const s of ['web_search', 'web_fetch', 'at most 30 words', 'Never cite a page you did not open', '"contested"', '"i1"', '"i6"', 'encyclopedias'])
+  for (const s of ['web_search: { objective, search_queries }', 'search_queries: 2-3 keyword queries of 3-6 words', 'excerpts', 'web_fetch: { urls, objective }', 'Put several pages in one call',
+    'at most 8 searches and 4 fetches', 'at most 30 words', 'Never cite a page your tools did not return', '"contested"', '"i1"', '"i6"', 'encyclopedias'])
     assert.ok(research.includes(s), 'research mentions ' + s);
 
   const lesson = prompts['write-lesson'];
@@ -382,7 +383,7 @@ test('prompt builders start with their TASK line, stay small and carry the key r
   for (const s of ['generous', 'ONE short question', 'got-it', 'not-yet', '"met" has exactly 3 entries', L_JET1.say.rubric[2]]) assert.ok(g1.includes(s), 'grade mentions ' + s);
 
   const tutor = prompts.tutor, offline = U.prompts.tutor({ topic: PLAN_JET, idea: PLAN_JET.ideas[0], lesson: L_JET1, tools: false });
-  for (const s of ['This goes beyond this lesson', 'never just hand over', 'never hand these over', 'It speeds up: the gas it throws back pushes it forwards', 'web_search', 'Never cite a page you did not open', L_JET1.sources[0].url])
+  for (const s of ['This goes beyond this lesson', 'never just hand over', 'never hand these over', 'It speeds up: the gas it throws back pushes it forwards', 'web_search', '2-3 short keyword queries', 'Use web_fetch only when the excerpts are thin', 'Never cite a page the tools did not return', L_JET1.sources[0].url])
     assert.ok(tutor.includes(s), 'tutor mentions ' + s);
   assert.ok(offline.includes('cannot look things up') && !offline.includes('You have web_search'));
   assert.ok(U.prompts.tutor({}).startsWith('TASK: tutor\n'), 'tutor copes with an empty context');

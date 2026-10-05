@@ -37,7 +37,7 @@ export async function renderBody(body, out, appFile, o = {}) {
       await app.page.goto(app.url('#/__eval'));
       await app.page.evaluate((t) => { document.documentElement.dataset.muTheme = t; }, theme);
       if (!report) {
-        report = await app.page.evaluate(async (html) => { await U.rt.ready; return U.sandbox.test(html, { widths: [340, 720], timeout: 9000 }); }, body);
+        report = await app.page.evaluate(async (html) => { await U.rt.ready; return U.sandbox.test(html, { widths: [340, 720, 1040], timeout: 9000 }); }, body);
       }
       await app.page.evaluate(async (html) => {
         await U.rt.ready;
@@ -48,7 +48,7 @@ export async function renderBody(body, out, appFile, o = {}) {
         host.style.cssText = 'min-height:100vh;background:var(--bg);padding:1px 0';
         document.body.appendChild(host);
         const box = document.createElement('div');
-        box.style.cssText = 'max-width:720px;margin:16px auto;padding:0 16px';
+        box.style.cssText = 'max-width:' + (window.innerWidth >= 1000 ? 1080 : 720) + 'px;margin:16px auto;padding:0 16px';
         host.appendChild(box);
         window.__render = U.sandbox.mount(box, { html });
         await Promise.race([window.__render.ready, new Promise((r) => setTimeout(r, 6000))]);
