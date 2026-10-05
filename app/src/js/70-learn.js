@@ -151,6 +151,10 @@
 
   // A calm error state for a screen whose data could not be loaded (never an empty screen).
   //   retrying: the store is reconnecting by itself; otherwise Try again re-opens the screen.
+  // Shown when saved data is slow to arrive (a stalled connection): calm, not an error.
+  V.slowNote = function (what) {
+    return U.h('p', { class: 'v-slow muted small', role: 'status' }, 'Still waiting for ' + what + '. The connection seems slow; ' + (/s$/.test(what) ? 'they appear' : 'it appears') + ' as soon as ' + (/s$/.test(what) ? 'they arrive' : 'it arrives') + '.');
+  };
   V.loadError = function (what, e, retrying) {
     return U.h('div', { class: 'notice v-load-error' + (retrying ? '' : ' bad'), role: 'status' },
       U.h('div', { class: 'stack-sm' },
@@ -322,13 +326,18 @@
     // screen. Later topic changes re-read progress (debounced). Nothing re-renders unless what it
     // shows changed. A failed read shows an error, never the first-run welcome.
     var progressP = U.store.progress.all();
-    var progressFailed = null, shownKey = null, stuckTimer = null, refetch = null;
+    var progressFailed = null, shownKey = null, stuckTimer = null, refetch = null, progressAt = 0;
+    var slowTimer = setTimeout(function () {
+      if (ctx.alive() && topics === null && listBox.querySelector('.is-skeleton')) listBox.insertBefore(V.slowNote('your topics'), listBox.firstChild);
+    }, 8000);
     function loadProgress(p) {
       var my = ++seq;
+      progressAt = Date.now();
       p.then(function (r) {
         if (my !== seq || !ctx.alive()) return;
         progress = r || {};
         progressFailed = null;
+        noteProgress();
         render();
       }, function (e) {
         if (my !== seq || !ctx.alive()) return;
@@ -340,9 +349,13 @@
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
       topics = list || [];
+      progSig = {};
       if (firstTime) { loadProgress(progressP); return; }
+      // Topic changes from another device: progress is re-read at most every 10 s; in between
+      // only the cards that changed are redrawn.
       clearTimeout(refetch);
-      refetch = setTimeout(function () { if (ctx.alive()) loadProgress(U.store.progress.all()); }, 250);
+      if (Date.now() - progressAt >= 10000) refetch = setTimeout(function () { if (ctx.alive()) loadProgress(U.store.progress.all()); }, 250);
+      else if (seq && progressAt) render();
     }, function (e, info) {
       if (!ctx.alive()) return;
       if (topics !== null) {
@@ -373,28 +386,58 @@
         U.icon('arrow', 'today-go')));
     }
 
+    // Cheap per-topic summary of progress (what the cards show), recomputed when progress loads.
+    var progVersion = 0, progSig = {};
+    function noteProgress() {
+      progVersion++;
+      progSig = {};
+      (topics || []).forEach(function (t) { var x = V.summary(t, progress[t.id]); progSig[t.id] = [x.done, x.total, x.current && x.current.id, x.started, x.touched].join('|'); });
+    }
+    function sigOf(t) {
+      if (!(t.id in progSig)) { var x = V.summary(t, progress[t.id]); progSig[t.id] = [x.done, x.total, x.current && x.current.id, x.started, x.touched].join('|'); }
+      var r = t.research || {};
+      return [t.title, t.query, t.hue, t.status, r.status, r.sources, t.ideas ? t.ideas.length : 0, V.planningStuck(t), V.researchStale(t), progSig[t.id]].join('\u0001');
+    }
+    // Only what changed is redrawn: cards are kept per topic and re-ordered in place.
+    var shownFailed = null, grid = null, head = null, contSig = null;
     function render() {
       // Re-arm the moment a planning topic would count as stopped.
       clearTimeout(stuckTimer);
       var soonest = Math.min.apply(null, topics.map(V.untilStuck).concat([Infinity]));
       if (soonest < Infinity) stuckTimer = setTimeout(function () { if (ctx.alive()) { shownKey = null; render(); } }, soonest + 500);
-      var keyNow = JSON.stringify([topics.map(function (t) { return [t.id, t.updatedAt, t.status, V.planningStuck(t), V.researchStale(t)]; }), progress, !!progressFailed]);
+      var sigs = topics.map(sigOf);
+      var keyNow = topics.map(function (t) { return t.id; }).join(',') + '\n' + sigs.join('\n') + '\n' + progVersion + '\n' + !!progressFailed;
       if (keyNow === shownKey) return;
       shownKey = keyNow;
       page.classList.toggle('is-returning', topics.length > 0);
       input.placeholder = topics.length ? 'Type any topic…' : 'Tides, black holes, jazz…';
-      U.clear(continueBox); U.clear(listBox); U.clear(noteBox);
-      if (progressFailed) noteBox.appendChild(V.loadError('Your progress', progressFailed, false));
-      if (!topics.length) { listBox.appendChild(welcome()); return; }
-      var c = continueCard();
-      if (c) continueBox.appendChild(c);
-      listBox.appendChild(U.h('div', { class: 'section-head' },
-        U.h('h2', null, 'Your topics'),
-        U.h('span', { class: 'muted small' }, topics.length === 1 ? '1 topic' : topics.length + ' topics')));
-      listBox.appendChild(U.h('div', { class: 'tgrid' }, topics.map(topicCard)));
+      if (shownFailed !== progressFailed) {
+        shownFailed = progressFailed;
+        U.clear(noteBox);
+        if (progressFailed) noteBox.appendChild(V.loadError('Your progress', progressFailed, false));
+      }
+      if (!topics.length) { U.clear(continueBox); U.clear(listBox); grid = head = null; listBox.appendChild(welcome()); return; }
+      var best = continuePick(), cs = best ? best.t.id + '|' + sigOf(best.t) : '';
+      if (cs !== contSig) { contSig = cs; U.clear(continueBox); if (best) continueBox.appendChild(continueCard(best)); }
+      if (!grid || !grid.isConnected) {
+        U.clear(listBox);
+        head = U.h('span', { class: 'muted small' });
+        grid = U.h('div', { class: 'tgrid' });
+        listBox.append(U.h('div', { class: 'section-head' }, U.h('h2', null, 'Your topics'), head), grid);
+      }
+      head.textContent = topics.length === 1 ? '1 topic' : topics.length + ' topics';
+      var keep = {};
+      topics.forEach(function (t, i) {
+        var c = cards[t.id];
+        if (!c || c.sig !== sigs[i]) { var el = topicCard(t); if (c && c.el.parentNode === grid) grid.replaceChild(el, c.el); c = cards[t.id] = { sig: sigs[i], el: el }; }
+        keep[t.id] = true;
+        if (grid.children[i] !== c.el) grid.insertBefore(c.el, grid.children[i] || null);
+      });
+      Object.keys(cards).forEach(function (id) { if (!keep[id]) { cards[id].el.remove(); delete cards[id]; } });
     }
+    var cards = {};
 
-    function continueCard() {
+    function continuePick() {
       var best = null;
       topics.forEach(function (t) {
         if (t.status !== 'ready') return;
@@ -402,7 +445,9 @@
         if (!s.current || s.allDone) return;
         if (!best || String(s.touched) > String(best.s.touched)) best = { t: t, s: s };
       });
-      if (!best) return null;
+      return best;
+    }
+    function continueCard(best) {
       var t = best.t, s = best.s, begun = s.started || s.done > 0;
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
       return U.h('a', { class: 'ccard', href: '#/t/' + encodeURIComponent(t.id) + '/' + encodeURIComponent(s.current.id), 'aria-label': (begun ? 'Continue ' : 'Start ') + t.title + ': ' + s.current.title },
@@ -472,6 +517,6 @@
       }));
     }
 
-    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); };
+    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); };
   }, { tab: 'learn', title: 'Learn' });
 })();

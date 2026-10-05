@@ -136,7 +136,7 @@
           questions(t)));
       });
     }, function (e) {
-      if (ctx.alive()) U.fail(body, e);
+      if (ctx.alive()) U.clear(body).appendChild(V.loadError('Your Book', e, false));
     });
   }, { tab: 'book', title: 'Book' });
 

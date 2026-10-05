@@ -149,10 +149,18 @@
     paintBar();
 
     // ---- load ----
+    var loaded = false;
+    var slowTimer = setTimeout(function () {
+      if (loaded || !alive()) return;
+      U.clear(notice).appendChild(U.h('p', { class: 'muted small', role: 'status' }, 'Still waiting for this lesson. The connection seems slow; it appears as soon as it arrives.'));
+      notice.hidden = false;
+    }, 8000);
     U.rt.ready.then(function () {
       return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid)]);
     }).then(function (r) {
+      loaded = true;
       if (!alive()) return;
+      if (!st.gone) { U.clear(notice); notice.hidden = true; }
       var topic = r[0], doc = r[2];
       if (!topic) return missing('#/');
       st.topic = topic;
@@ -175,7 +183,7 @@
       if (doc && doc.status === 'ready' && doc.lesson) {
         setDoc(doc); st.ready = true; begin(); prefetchNext();
       } else prepare(doc);
-    }).catch(function (e) { if (alive()) fatal(e); });
+    }).catch(function (e) { loaded = true; if (alive()) fatal(e); });
 
     function normalise(ip) {
       ip = ip || {};
@@ -1098,6 +1106,7 @@
 
     return function cleanup() {
       st.dead = true;
+      clearTimeout(slowTimer);
       destroyLive();
       st.stops.splice(0).forEach(function (f) { try { f(); } catch (e) {} });
       if (st.prep) st.prep.stop();

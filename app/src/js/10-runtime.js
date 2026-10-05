@@ -163,6 +163,18 @@ U.ask = function (input, opts) {
 // ---------- live research (Parallel Search connector) ----------
 U.research = {
   SERVER: 'Parallel Search',
+  // One stable id per page load, sent with every search and fetch (the connector uses it for
+  // free-tier rate limiting): 'mu-' + 32 hex characters.
+  SESSION: (function () {
+    var hex = '';
+    try {
+      var b = new Uint8Array(16);
+      (window.crypto || window.msCrypto).getRandomValues(b);
+      for (var i = 0; i < b.length; i++) hex += (b[i] < 16 ? '0' : '') + b[i].toString(16);
+    } catch (e) { hex = ''; }
+    while (hex.length < 32) hex += Math.floor(Math.random() * 16).toString(16);
+    return 'mu-' + hex.slice(0, 32);
+  })(),
   _avail: null,
   _schemas: null,
   available: function () {
@@ -208,7 +220,13 @@ U.research = {
     else if (value && typeof value === 'object') Object.keys(value).forEach(function (k) { U.research._urlsIn(value[k], out); });
     return out;
   },
-  // sample tool definitions; execute() never throws, so Claude can recover from a bad call.
+  // sample tool definitions; execute() never throws, so Claude can recover from a bad call. Every
+  // error it returns starts "Tool error (<code>): " (31-generate.js skips those texts when it
+  // records what the tools returned). The real connector's shapes:
+  //   web_search {objective, search_queries:[2-3 queries of 3-6 words], session_id?, model_name?}
+  //     -> {search_id, results:[{url, title, publish_date, excerpts:[...]}], warnings, session_id}
+  //   web_fetch {urls:[up to 20], objective?, search_queries?, full_content?, allow_live_fetch?, session_id?}
+  // session_id is filled in (U.research.SESSION) when Claude leaves it out; model_name is never set.
   // opts.allow: extra addresses web_fetch may open (e.g. the lesson's own sources). Otherwise
   // web_fetch only opens pages that web_search returned in this same set of tools, so text
   // planted in a page or a prompt can't send Dan's words to an address of its choosing.
@@ -226,8 +244,11 @@ U.research = {
             if (name === 'web_fetch') {
               var asked = U.research._urlsIn(input);
               var refused = asked.filter(function (u) { var n = U.research._norm(u); return !n || !allowed.has(n); });
-              if (!asked.length) return Promise.resolve('Tool error: give the full web address of a page from your search results.');
-              if (refused.length) return Promise.resolve('Tool error: only pages returned by web_search in this conversation (or the lesson\'s own sources) can be opened. Not allowed: ' + refused.slice(0, 3).join(', ') + '. Search first, then open a result.');
+              if (!asked.length) return Promise.resolve('Tool error (bad_request): give the full web address of a page from your search results.');
+              if (refused.length) return Promise.resolve('Tool error (refused): only pages returned by web_search in this conversation (or the lesson\'s own sources) can be opened. Not allowed: ' + refused.slice(0, 3).join(', ') + '. Search first, then open a result.');
+            }
+            if (input && typeof input === 'object' && !Array.isArray(input) && input.session_id == null) {
+              input = Object.assign({}, input, { session_id: U.research.SESSION });
             }
             return U.research.call(name, input).then(function (p) {
               if (name === 'web_search') U.research._urlsIn(p).forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
@@ -240,9 +261,16 @@ U.research = {
       }
       return [
         def('web_search', 'Search the web. Returns ranked results with URLs, titles and excerpts. Use specific queries; prefer encyclopedias, universities, standards bodies, textbooks and government sources.', sc.web_search,
-          { type: 'object', properties: { objective: { type: 'string', description: 'What you are trying to find out' }, search_queries: { type: 'array', items: { type: 'string' } } }, required: ['objective'] }, 12000),
+          { type: 'object', properties: {
+            objective: { type: 'string', description: 'What you are trying to find out, in a sentence' },
+            search_queries: { type: 'array', items: { type: 'string' }, description: '2-3 short keyword queries (3-6 words each)' },
+          }, required: ['objective', 'search_queries'] }, 12000),
         def('web_fetch', 'Open one or more web pages and return their text, so you can quote them exactly.', sc.web_fetch,
-          { type: 'object', properties: { urls: { type: 'array', items: { type: 'string' } } }, required: ['urls'] }, 20000),
+          { type: 'object', properties: {
+            urls: { type: 'array', items: { type: 'string' }, description: 'Up to 20 addresses from your search results' },
+            objective: { type: 'string', description: 'What you want from these pages' },
+            full_content: { type: 'boolean', description: 'true for the whole page text; false (default) for the relevant excerpts' },
+          }, required: ['urls'] }, 20000),
       ];
     });
   },

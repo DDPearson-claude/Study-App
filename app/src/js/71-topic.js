@@ -18,7 +18,8 @@
   U.routes.add('#/t/:tid', function (params, ctx) {
     var tid = params.tid;
     var topic = null, loaded = false, failure = null, progress = { ideas: {} }, deleting = false;
-    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false };
+    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false };
+    var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
     var lib = { key: null, groups: null };
     var avail = null;
     var root = U.h('div', { class: 'tp' });
@@ -86,8 +87,9 @@
       var parts = state === 'ready' ? readyParts()
         : state === 'planning' ? planningParts()
         : state === 'failed' ? failedParts()
-        : [['only', state + (failure ? String(failure.retrying) : ''), function () {
-          return state === 'loading' ? loadingView() : state === 'gone' ? goneView() : V.loadError('This topic', failure && failure.e, failure && failure.retrying);
+        : [['only', state + (failure ? String(failure.retrying) : '') + ui.slow, function () {
+          if (state === 'loading') return ui.slow ? U.h('div', { class: 'stack' }, V.slowNote('this topic'), loadingView()) : loadingView();
+          return state === 'gone' ? goneView() : V.loadError('This topic', failure && failure.e, failure && failure.retrying);
         }]];
       var box = shown.box, at = 0, used = {};
       parts.forEach(function (p) {
@@ -475,6 +477,7 @@
       stops.forEach(function (f) { try { f(); } catch (e) { console.error(e); } });
       clearInterval(timer);
       clearTimeout(stuckTimer);
+      clearTimeout(slowTimer);
       if (frame) cancelAnimationFrame(frame);
     };
   }, { tab: 'learn', title: 'Topic' });

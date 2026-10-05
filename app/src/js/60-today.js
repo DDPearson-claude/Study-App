@@ -303,6 +303,11 @@
   };
 
   // ---------- shared view bits ----------
+  function errorBox(lead, e) {
+    return h('div', { class: 'notice bad', role: 'status' }, h('div', { class: 'stack-sm' },
+      h('p', null, h('strong', null, lead), U.errText(e)),
+      h('div', null, h('button', { class: 'btn small secondary', type: 'button', on: { click: function () { U._route(); } } }, 'Try again'))));
+  }
   function minutesFor(cards) {
     var s = 0;
     cards.forEach(function (c) { s += SECONDS[c.type] || 30; });
@@ -396,7 +401,7 @@
     }).catch(function (e) {
       if (!ctx.alive()) return;
       console.error(e);
-      U.clear(root).appendChild(h('div', { class: 'notice bad' }, h('p', null, 'Today\'s review could not be loaded. ' + U.errText(e))));
+      U.clear(root).appendChild(errorBox('Today\'s review could not be loaded. ', e));
     });
 
     function draw(p, topics, slipping) {
@@ -493,7 +498,7 @@
       }).catch(function (e) {
         if (!ctx.alive()) return;
         console.error(e);
-        U.clear(stage).appendChild(h('div', { class: 'notice bad' }, h('p', null, 'The review could not start. ' + U.errText(e))));
+        U.clear(stage).appendChild(errorBox('The review could not start. ', e));
       });
 
       function progress() {

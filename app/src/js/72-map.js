@@ -145,13 +145,16 @@
       return out;
     }
 
-    // Redraws only when something it shows changed; constellations are drawn a few per frame so a
-    // large library never blocks the screen.
+    // Redraws only when something it shows changed. Topics are added a few per frame (each with
+    // its constellation), so a large library never blocks the screen.
+    var renderJob = 0;
     function render() {
       var keyNow = JSON.stringify([topics.map(function (t) { return [t.id, t.title, t.hue, t.ideas.map(function (i) { return [i.id, i.title]; })]; }),
         topics.map(function (t) { return [bandsFor(t), V.summary(t, progress[t.id]).done]; })]);
       if (keyNow === shownKey) return;
       shownKey = keyNow;
+      var job = ++renderJob;
+      drawJob++;
       U.clear(body);
       if (!topics.length) {
         body.appendChild(V.empty({
@@ -165,21 +168,30 @@
       body.appendChild(legend());
       U.clear(listBox);
       body.appendChild(listBox);
-      topics.forEach(function (t) {
-        var s = V.summary(t, progress[t.id]);
-        var holder = U.h('div', { class: 'map-svg-box', dataset: { tid: t.id } });
-        listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
-          U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
-            U.h('span', { class: 'map-thumb' }, V.cover(t)),
-            U.h('span', { class: 'map-topic-text' },
-              U.h('h2', null, t.title),
-              U.h('span', { class: 'muted small' }, s.allDone ? 'Every idea learned' : s.done ? s.done + ' of ' + s.total + ' ideas learned' : 'Not started yet')),
-            U.icon('arrow', 'map-topic-go')),
-          holder));
-      });
-      draw(true);
+      var queue = topics.slice();
+      (function chunk() {
+        if (job !== renderJob || !ctx.alive()) return;
+        var t0 = performance.now(), first = !listBox.firstChild;
+        while (queue.length && (first || performance.now() - t0 < 12)) {
+          first = false;
+          var t = queue.shift(), s = V.summary(t, progress[t.id]);
+          var holder = U.h('div', { class: 'map-svg-box', dataset: { tid: t.id } });
+          listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
+            U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
+              U.h('span', { class: 'map-thumb' }, V.cover(t)),
+              U.h('span', { class: 'map-topic-text' },
+                U.h('h2', null, t.title),
+                U.h('span', { class: 'muted small' }, s.allDone ? 'Every idea learned' : s.done ? s.done + ' of ' + s.total + ' ideas learned' : 'Not started yet')),
+              U.icon('arrow', 'map-topic-go')),
+            holder));
+          if (!lastW) lastW = Math.floor(holder.clientWidth);
+          if (lastW) holder.appendChild(constellation(t, bandsFor(t), lastW));
+        }
+        if (queue.length) requestAnimationFrame(chunk);
+      })();
     }
 
+    // After a resize: redraw the constellations already there, a few per frame.
     function draw(force) {
       var boxes = Array.prototype.slice.call(listBox.querySelectorAll('.map-svg-box'));
       if (!boxes.length) return;
@@ -193,7 +205,7 @@
         var t0 = performance.now();
         while (boxes.length && performance.now() - t0 < 12) {
           var box = boxes.shift(), t = byId[box.dataset.tid];
-          if (t) U.clear(box).appendChild(constellation(t, bandsFor(t), W));
+          if (t && box.isConnected) U.clear(box).appendChild(constellation(t, bandsFor(t), lastW));
         }
         if (boxes.length) requestAnimationFrame(chunk);
       })();
@@ -219,6 +231,6 @@
       return svg;
     }
 
-    return function () { stop(); onPrefs(); drawJob++; if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
+    return function () { stop(); onPrefs(); drawJob++; renderJob++; if (ro) ro.disconnect(); if (raf) cancelAnimationFrame(raf); };
   }, { tab: 'map', title: 'Map' });
 })();
