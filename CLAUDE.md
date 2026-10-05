@@ -26,7 +26,7 @@ changing code; it is the contract between modules.
 
 ## Commands
 - Build: `node tools/build.mjs` -> `dist/my-university.html`
-- Unit tests: `node --test tests/`
+- Unit tests: `node --test tests/*.test.mjs`
 - Browser tests: `node tests/e2e/run.mjs` (Playwright via the global install; uses `tools/harness/claude-stub.js`)
 - Playwright import path: `/opt/node22/lib/node_modules/playwright/index.mjs` (or use `tools/harness/page.mjs`)
 
