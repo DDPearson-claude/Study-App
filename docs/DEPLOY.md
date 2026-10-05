@@ -13,7 +13,7 @@ Publish only when every suite passes.
 ## Publish
 Use the Artifact tool's publish action with `file_path: dist/my-university.html`.
 
-- **First publish** (already done once; see the URL below): pass `icon: "graduation"` and the capabilities below.
+- **First publish** (done on 5 Oct 2026; see the URL below): passed `icon: "graduation"` and the capabilities below.
 - **Every later publish from another session:** pass the artifact `url` below so the same link updates
   in place (read it first with the Artifact tool's read action, as the tool requires). Omit `capabilities`
   to keep the stored declaration, unless you are changing it.
@@ -37,7 +37,7 @@ Capabilities (full declaration):
 - `downloads`: Book and backup exports.
 
 ## Live artifact
-URL: (filled in after the first publish)
+URL: https://claude.ai/artifact/XV69hX3x3kQfSUuCgyED2d (first published 5 Oct 2026)
 
 ## After publishing
 Ask Dan to open it once on his phone. The app works on its own; there is no server, routine or

@@ -31,6 +31,6 @@ changing code; it is the contract between modules.
 - Playwright import path: `/opt/node22/lib/node_modules/playwright/index.mjs` (or use `tools/harness/page.mjs`)
 
 ## Publishing
-The live app is a private claude.ai artifact. Publish `dist/my-university.html` with the Artifact tool,
-keeping the same URL (see `docs/DEPLOY.md` once it exists). Capabilities: db, user, sample, downloads,
+The live app is a private claude.ai artifact: https://claude.ai/artifact/XV69hX3x3kQfSUuCgyED2d
+Publish `dist/my-university.html` with the Artifact tool, keeping that URL (see `docs/DEPLOY.md`). Capabilities: db, user, sample, downloads,
 mcp (Parallel Search: web_search, web_fetch).
