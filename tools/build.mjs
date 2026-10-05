@@ -2,14 +2,14 @@
 // Builds app/ into one self-contained page: dist/my-university.html
 // Usage: node tools/build.mjs [--out path]
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const app = join(root, 'app');
 const outArg = process.argv.indexOf('--out');
-const out = outArg > 0 ? process.argv[outArg + 1] : join(root, 'dist', 'my-university.html');
+const out = outArg > 0 ? resolve(process.argv[outArg + 1]) : join(root, 'dist', 'my-university.html');
 
 const read = (p) => readFileSync(p, 'utf8');
 const listed = (dir, ext) => existsSync(dir)
