@@ -12,7 +12,8 @@
 // addFromLesson, Ask Claude with the interactive's state, footnote sheet, "This looks wrong",
 // revisiting a finished idea), preparing (ensureLesson pending with onStatus lines, predict while
 // the interactive builds, prefetch of the next idea), an error with Retry, resuming mid-lesson,
-// and the no-interactive path (contested, not source-checked). Screenshots: tests/out/lesson-*.png.
+// the no-interactive path (contested, not source-checked), and Text size XL on a phone (headings,
+// eyebrow, the interactive's own text size). Screenshots: tests/out/lesson-*.png.
 //
 // Usage: node tests/e2e/lesson.spec.mjs [scenario-filter]     exits non-zero on any failure
 import { spawnSync } from 'node:child_process';
@@ -96,15 +97,16 @@ const results = [];
 let current = '';
 function ok(cond, msg) { results.push({ ok: !!cond, msg: current + ': ' + msg }); if (!cond) console.log('  FAIL ' + msg); }
 
-async function open({ width, dark, hash, seed = {}, cfg = {}, reduced = false }) {
-  const app = await openApp({ width, height: width < 700 ? 707 : 860, file: PAGE });
+async function open({ width, height, dark, size = null, hash, seed = {}, cfg = {}, reduced = false }) {
+  const app = await openApp({ width, height: height || (width < 700 ? 707 : 860), file: PAGE });
   if (reduced) await app.page.emulateMedia({ reducedMotion: 'reduce' });
   await app.page.goto(app.url(hash));
-  await app.page.evaluate(async ({ theme, seed }) => {
+  await app.page.evaluate(async ({ theme, size, seed }) => {
     await U.rt.ready;
     document.documentElement.dataset.muTheme = theme;
+    if (size) document.documentElement.dataset.size = size;
     Object.keys(seed).forEach((p) => window.__CLAUDE_STUB__.seed(p, seed[p]));
-  }, { theme: dark ? 'dark' : 'light', seed });
+  }, { theme: dark ? 'dark' : 'light', size, seed });
   await app.page.evaluate(installFakes, cfg);
   const mods = await app.page.evaluate(() => [window.__T.kit, window.__T.cards]);
   ok(mods[0] === 'real' && mods[1] === 'real', `real kit host and cards module present (${mods.join(', ')})`);
@@ -140,6 +142,22 @@ async function answerCheck(app, check, right = true) {
   await card.locator('.qc-continue').waitFor();
 }
 async function continueCheck(app) { await app.page.locator('.lsn-check').last().locator('.qc-continue').click(); }
+// The eyebrow above the title: how many lines it takes, and whether the topic name and the
+// "Idea n of N" count are inside its visible box.
+function eyebrowOf(page) {
+  return page.locator('.lsn-eb').evaluate((el) => {
+    const box = el.getBoundingClientRect(), inside = (sel) => { const p = el.querySelector(sel), r = p && p.getBoundingClientRect(); return !!r && r.top >= box.top - 1 && r.bottom <= box.bottom + 1; };
+    return { lines: Math.round(box.height / parseFloat(getComputedStyle(el).lineHeight)), topic: inside('.lsn-eb-topic'), count: inside('.lsn-eb-n') };
+  });
+}
+// The Ask Claude sheet: the chips showing in its dock, chips in the conversation, its height.
+function tutorState(page) {
+  return page.evaluate(() => {
+    const sh = document.querySelector('.tutor-sheet');
+    return { chips: [...sh.querySelectorAll('.tutor-dock .chip')].filter((c) => !c.hidden).map((c) => c.textContent).join('|'), inLog: sh.querySelectorAll('.tutor-log .chip').length,
+      empty: sh.classList.contains('is-empty'), h: Math.round(sh.getBoundingClientRect().height), vh: innerHeight };
+  });
+}
 
 // ---------- scenario: the whole lesson ----------
 async function walk(width, dark) {
@@ -157,6 +175,8 @@ async function walk(width, dark) {
     await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor();
     ok(await page.locator('.lsn-title').textContent() === 'What sets the beat', 'idea title from the topic doc');
     ok((await page.locator('.lsn-eb').textContent()).includes('Idea 1 of 5'), 'eyebrow says Idea 1 of 5');
+    const eb = await eyebrowOf(page);
+    ok(eb.lines === 1 && eb.count && (width < 700 || eb.topic), `eyebrow is one line with the count${width < 700 ? '' : ' and the topic name'} (${JSON.stringify(eb)})`);
     ok(await page.locator('.lsn-step.is-now').count() === 1, 'one current step in the progress bar');
     const sure = page.getByRole('button', { name: 'That\'s my guess' });
     ok(await sure.isDisabled(), 'guess button waits for a choice');
@@ -192,6 +212,9 @@ async function walk(width, dark) {
     // Ask Claude while playing: the interactive's state goes along
     await page.locator('.lsn-ask').click();
     await page.locator('.tutor-sheet').waitFor();
+    const empty = await tutorState(page);
+    ok(empty.chips === 'Explain it differently|Give me an example' && empty.inLog === 0, `empty Ask Claude: the two starters sit just above the input (${empty.chips})`);
+    ok(empty.empty && empty.h < empty.vh * 0.7, `empty Ask Claude is only as tall as it needs to be (${empty.h} of ${empty.vh}px)`);
     await shot(app, `${tag}-3a-tutor-empty`);
     await page.locator('.tutor-input').fill('Why the square root and not just double?');
     await page.locator('.tutor-input').press('Enter');
@@ -207,6 +230,8 @@ async function walk(width, dark) {
     await page.waitForTimeout(300);
     t = await T(app);
     ok(t.tutor[1].messages.length === 3, 'second question carries the conversation (3 messages)');
+    const talking = await tutorState(page);
+    ok(talking.chips === 'Explain it differently|Give me an example|Are you sure?' && !talking.empty && talking.h > empty.h, 'after an answer: all three chips, and the sheet grows to hold the conversation');
     progress = await doc(app, PROGRESS);
     const qs = vals(progress.questions);
     ok(progress.questions && !Array.isArray(progress.questions) && qs.length === 1 && qs[0].iid === 'i1' && /square root/.test(qs[0].q), 'typed question saved to progress.questions as a keyed entry (chips are not)');
@@ -226,6 +251,14 @@ async function walk(width, dark) {
     ok(await ex.locator('mark.term').count() === 2, 'key terms highlighted');
     ok(await ex.locator('.lsn-reading .fn').count() === 2, 'footnote buttons for known sources');
     ok(await ex.locator('.lsn-quiet').count() === 0, 'no "not source-checked" note on a sourced lesson');
+    const paras = await ex.locator('.lsn-reading p').evaluateAll((ps) => ps.map((p) => {
+      const cs = getComputedStyle(p), fn = p.querySelector('.fn'), hit = fn && getComputedStyle(fn, '::after');
+      return { fn: !!fn, lines: p.getBoundingClientRect().height / parseFloat(cs.lineHeight), em: p.getBoundingClientRect().width / parseFloat(cs.fontSize),
+        hit: hit ? [parseFloat(hit.width), parseFloat(hit.height)] : null };
+    }));
+    ok(paras.some((q) => q.fn) && paras.every((q) => Math.abs(q.lines - Math.round(q.lines)) < 0.05), 'a footnote badge leaves its line the same height as the others: ' + paras.map((q) => q.lines.toFixed(2)).join(', '));
+    ok(paras.filter((q) => q.fn).every((q) => q.hit[0] >= 44 && q.hit[1] >= 44), 'footnote badges keep a 44 px tap target');
+    ok(paras.every((q) => q.em <= 33.01), 'the explanation keeps a reading measure (at most 33em: ' + paras.map((q) => q.em.toFixed(1)).join(', ') + ')');
     await shot(app, `${tag}-5a-explain`);
     await ex.locator('.lsn-reading .fn').first().click();
     const link = page.locator('.sheet .lsn-src-link');
@@ -240,6 +273,8 @@ async function walk(width, dark) {
     await shot(app, `${tag}-5c-flag`);
     ok(/kept with this lesson/.test(await page.locator('.sheet').textContent()) && !/checked and fixed/.test(await page.locator('.sheet').textContent()), 'flag sheet says what happens to the note');
     await page.locator('.sheet .btn', { hasText: 'Keep my note' }).click();
+    await page.locator('.lsn-flag-kept', { hasText: 'Your note is kept with this lesson' }).waitFor();
+    ok(await page.locator('#toasts .toast').count() === 0, 'the thanks shows under the link, not in a toast over the next stage');
     await page.waitForTimeout(400);
     const lessonDoc = await doc(app, LESSON('i1'));
     const flags = vals(lessonDoc.flags);
@@ -311,6 +346,9 @@ async function walk(width, dark) {
     await page.evaluate(() => U.go(location.hash));
     await page.locator('.lsn-done').waitFor();
     ok(await page.locator('.lsn-past').count() === 5, 'revisit shows all five stages collapsed');
+    // The script shortens a summary at a word; the row must show all of it (no cut-off mid-word).
+    const sums = await page.locator('.lsn-past-sum').evaluateAll((els) => els.map((el) => ({ text: el.textContent, cut: el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1 })));
+    ok(sums.every((x) => !x.cut), 'stage summaries wrap and show in full: ' + sums.map((x) => x.text + (x.cut ? ' (cut)' : '')).join(' | '));
     await page.waitForTimeout(600);
     ok(await page.locator('.cheer').count() === 0, 'no celebration on a revisit');
     t = await T(app);
@@ -393,6 +431,45 @@ async function retry() {
     await shot(app, 'retry-2-ready');
   } catch (e) {
     ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: Text size XL on a phone ----------
+// Headings grow less than body text, so the predict options still start on the first screen; the
+// eyebrow keeps to one line by dropping the topic name; the interactive's text follows the setting.
+async function xl() {
+  current = 'xl 390-light';
+  console.log('\n' + current);
+  const app = await open({ width: 390, height: 844, dark: false, size: 'xl', hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM } });
+  const { page } = app;
+  try {
+    const pred = page.locator('.lsn-stage[data-stage="predict"]');
+    await pred.locator('.option').first().waitFor();
+    const eb = await eyebrowOf(page);
+    ok(eb.lines === 1 && eb.count && !eb.topic, `eyebrow keeps to one line: the count stays, the topic name drops out whole (${JSON.stringify(eb)})`);
+    const sz = await page.evaluate(() => {
+      const px = (el) => parseFloat(getComputedStyle(el).fontSize);
+      const opts = [...document.querySelectorAll('.lsn-stage[data-stage="predict"] .option')];
+      return { body: px(document.body), h2: px(document.querySelector('.lsn-stage[data-stage="predict"] .lsn-h')), h1: px(document.querySelector('.lsn-title')),
+        onScreen: opts.filter((o) => o.getBoundingClientRect().bottom <= innerHeight).length };
+    });
+    ok(sz.body === 20 && sz.h2 > 21.6 && sz.h2 <= 24.5 && sz.h1 <= 30, `headings grow half as fast as the text (body ${sz.body}px, question ${sz.h2}px, title ${sz.h1}px)`);
+    ok(sz.onScreen >= 2, `the first answers are on the first screen (${sz.onScreen} of 4)`);
+    await noOverflow(app);
+    await shot(app, 'xl-1-predict');
+    await pred.locator('.option').first().click();
+    await page.getByRole('button', { name: 'That\'s my guess' }).click();
+    const play = page.locator('.lsn-stage[data-stage="play"]');
+    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    const inner = await page.frameLocator('.lsn-panel iframe').locator('body').evaluate((b) => ({ body: getComputedStyle(b).fontSize, root: getComputedStyle(document.documentElement).fontSize, size: K.theme.size }));
+    ok(inner.size === 20 && inner.body === '20px' && inner.root === '20px', 'the interactive follows Text size XL (' + JSON.stringify(inner) + ')');
+    await page.evaluate(() => { const p = document.querySelector('.lsn-stage[data-stage="play"]'); window.scrollTo(0, p.getBoundingClientRect().top + scrollY - 70); });
+    await shot(app, 'xl-2-play');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'xl-error').catch(() => {});
   }
   ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
   await app.close();
@@ -587,6 +664,7 @@ async function relearnScenario() {
     await page.locator('.lsn-stage[data-stage="predict"] input').waitFor();
     const t2 = await T(app);
     ok(t2.relearn.length === 2 && t2.relearn[1].feedback === 'The date in the reveal looks wrong.', 'Rebuild passes his note to U.gen.relearn');
+    ok(await page.locator('.lsn-flag-kept').textContent() === '', 'a rebuild shows no "note kept" line');
     pr = await doc(app, PROGRESS);
     ok(pr.ideas.i5.round === 2 && pr.ideas.i5.stage === 'predict', 'rebuilding starts another round');
   } catch (e) {
@@ -687,6 +765,7 @@ const scenarios = [
   ['walk-1280-dark', () => walk(1280, true)],
   ['preparing', preparing],
   ['retry', retry],
+  ['xl-390', xl],
   ['resume-360-light', () => resume(360, false)],
   ['resume-1280-dark', () => resume(1280, true)],
   ['plain-360-dark', () => plain(360, true)],

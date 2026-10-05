@@ -143,8 +143,10 @@
     var notice = U.h('div', { class: 'lsn-notice', hidden: true });
     var flow = U.h('div', { class: 'lsn-flow' });
     var prepSlot = U.h('div', { class: 'lsn-prep-slot' });
-    // "This looks wrong" appears once there is a lesson to attach the note to.
-    var foot = U.h('footer', { class: 'lsn-foot', hidden: true }, linkBtn('This looks wrong', flagSheet, 'lsn-flag-link'));
+    // "This looks wrong" appears once there is a lesson to attach the note to. Its thanks shows
+    // under the link (flagKept), where Dan is looking when the sheet closes.
+    var flagKept = U.h('p', { class: 'lsn-flag-kept', role: 'status' });
+    var foot = U.h('footer', { class: 'lsn-foot', hidden: true }, linkBtn('This looks wrong', flagSheet, 'lsn-flag-link'), flagKept);
     var root = U.h('div', { class: 'lsn' }, bar, U.h('header', { class: 'lsn-head' }, eb, h1, one), notice, flow, prepSlot, foot);
     ctx.view.appendChild(root);
     paintBar();
@@ -234,7 +236,9 @@
 
     function fillHead() {
       var n = (st.topic.ideas || []).length;
-      eb.textContent = (st.topic.title || 'Topic') + ' · Idea ' + (st.index + 1) + ' of ' + n;
+      // Two parts, so a narrow screen can drop the topic name whole (50-lesson.css).
+      U.append(U.clear(eb), [U.h('span', { class: 'lsn-eb-topic' }, st.topic.title || 'Topic'), U.h('span', { class: 'lsn-eb-n' }, 'Idea ' + (st.index + 1) + ' of ' + n)]);
+      eb.classList.add('is-filled');
       h1.textContent = st.idea.title || (st.lesson && st.lesson.title) || 'This idea';
       one.textContent = st.idea.oneLine || '';
       one.hidden = !st.idea.oneLine;
@@ -378,6 +382,7 @@
       st.again = true; st.gen++; st.feedback = opts.feedback || null; st.replay = null; st.guess = null;
       st.ready = false; st.begun = false; st.lesson = null; st.doc = null;
       foot.hidden = true;
+      U.clear(flagKept);
       destroyLive();
       U.clear(flow); st.sections = {}; st.closed = {}; st.stage = 'predict'; st.waiters = [];
       paintBar();
@@ -444,20 +449,21 @@
     function attemptsNow() {
       return U.list(st.ip.say).filter(function (a) { return (Number(a.round) || 0) === round(); });
     }
+    // The summary on a finished stage's row: about two lines on a phone (the row wraps, 50-lesson.css).
     function summaryOf(stage) {
       var l = st.lesson || {};
       if (stage === 'predict') {
         var g = guessOf(), a = g && g.answer;
-        return a != null && a !== '' ? 'You guessed: ' + clip(a, 70) : 'You skipped the guess';
+        return a != null && a !== '' ? 'You guessed: ' + clip(a, 52) : 'You skipped the guess';
       }
       if (stage === 'play') {
         var it = st.doc && st.doc.interactive;
         return it && it.html ? clip(it.title || (l.interactive && l.interactive.title) || 'The interactive', 70) : 'No interactive for this idea';
       }
-      if (stage === 'explain') return clip(l.explain && l.explain.text, 80);
+      if (stage === 'explain') return clip(l.explain && l.explain.text, 64);
       if (stage === 'say') {
         var says = attemptsNow(), last = says[says.length - 1];
-        return last ? '“' + clip(last.text, 60) + '”' : 'Not answered';
+        return last ? '“' + clip(last.text, 56) + '”' : 'Not answered';
       }
       if (stage === 'checks') {
         var res = run().checks || {}, list = usableChecks(), right = list.filter(function (c) { return res[c.id] && res[c.id].correct; }).length;
@@ -1064,8 +1070,11 @@
           var note = ta.value.trim();
           if (!note) { ta.focus(); return; }
           api.close();
-          saveFlag(note).then(function () { if (!rebuild) U.toast('Thanks. Your note is kept with this lesson.'); },
-            function (e) { if (!(e && e.queued)) U.toast('That could not be saved: ' + U.errText(e), { kind: 'bad' }); });
+          // The thanks goes under the link, not in a toast: a toast would sit over the next stage
+          // for seconds and take its taps.
+          saveFlag(note).then(function () {
+            if (!rebuild && alive()) U.append(U.clear(flagKept), [U.icon('tick'), 'Thanks. Your note is kept with this lesson.']);
+          }, function (e) { if (!(e && e.queued)) U.toast('That could not be saved: ' + U.errText(e), { kind: 'bad' }); });
           if (rebuild && alive()) startRelearn({ feedback: note });
         };
       }

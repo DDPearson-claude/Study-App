@@ -9,6 +9,7 @@
 // chips are not saved.
 (function () {
   var CHIPS = ['Explain it differently', 'Give me an example', 'Are you sure?'];
+  var STARTERS = 2;     // the chips that make sense before any answer ("Are you sure?" needs one)
   var KEEP = 20;
   var threads = {};     // 'tid/iid' -> [{role, content, pending?, error?}]
   var view = null;      // the open sheet: {key, refresh(msg), close()}
@@ -141,10 +142,12 @@
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value, false); }
     });
+    // The chips sit just above the input from the start, so every way to ask is in one place; an
+    // empty conversation also makes the sheet only as tall as it needs to be (50-lesson.css).
     function sync() {
       sendBtn.disabled = !!msgs.busy || !input.value.trim();
-      chips.querySelectorAll('.chip').forEach(function (c) { c.disabled = !!msgs.busy || !msgs.length; });
-      chips.hidden = !msgs.length;
+      chips.querySelectorAll('.chip').forEach(function (c, i) { c.disabled = !!msgs.busy; c.hidden = !msgs.length && i >= STARTERS; });
+      if (sheet) sheet.el.classList.toggle('is-empty', !msgs.length);
     }
 
     function msgEl(m, i) {
@@ -170,10 +173,7 @@
       if (!msgs.length) {
         log.appendChild(U.h('div', { class: 'tutor-empty' },
           U.h('p', { class: 'tutor-empty-head' }, 'Stuck, curious or not convinced?'),
-          U.h('p', null, 'Ask anything about “' + clip(about, 60) + '”. No question is too small. Or start with one of these:'),
-          U.h('div', { class: 'tutor-starters' }, CHIPS.slice(0, 2).map(function (c) {
-            return U.h('button', { class: 'chip', type: 'button', on: { click: function () { send(c, true); } } }, c);
-          }))));
+          U.h('p', null, 'Ask anything about “' + clip(about, 60) + '”. No question is too small.')));
       }
       msgs.forEach(function (m, i) { var el = msgEl(m, i); els.set(m, el); log.appendChild(el); });
       sync();

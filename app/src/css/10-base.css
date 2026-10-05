@@ -130,13 +130,15 @@ mark.term {
   background: linear-gradient(180deg, transparent 50%, var(--hl) 50%, var(--hl) 92%, transparent 92%);
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
 }
+/* A footnote badge sized to the text, raised by relative positioning (top) rather than
+   vertical-align, which would make its line taller than the others. */
 .fn {
-  position: relative; display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 6px; margin: 0 2px;
-  border: 0; border-radius: 7px; background: var(--teal-tint); color: var(--teal);
-  font: 700 .75rem/1 var(--sans); vertical-align: super; cursor: pointer;
+  position: relative; top: -.4em; display: inline-grid; place-items: center; min-width: 1.6em; height: 1.6em; padding: 0 .35em; margin: 0 2px;
+  border: 0; border-radius: 6px; background: var(--teal-tint); color: var(--teal);
+  font: 700 .75rem/1 var(--sans); vertical-align: baseline; cursor: pointer;
 }
-/* A larger invisible hit area than the badge itself. */
-.fn::after { content: ""; position: absolute; inset: -8px; }
+/* The tap target is larger than the badge: at least 44 px square, centred on it. */
+.fn::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: 44px; transform: translate(-50%, -50%); }
 .reading code, code { font-family: var(--mono); font-size: .88em; background: var(--sunk); padding: .1em .35em; border-radius: 6px; }
 .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 

@@ -4,7 +4,9 @@
    navy = progress and controls, green = completion, red = disagreement and problems,
    amber = "remember this", teal = small labels. */
 
-.lsn { --lsn-bar-h: 56px; padding-bottom: 8px; }
+/* --lsn-hrem is the rem for headings: it grows half as fast with Text size (16 px at M, 18 px at
+   XL instead of 20), so at L and XL a long question still leaves room on screen for the answers. */
+.lsn { --lsn-bar-h: 56px; --lsn-hrem: calc(.5rem + 8px); padding-bottom: 8px; }
 
 /* ---------- sticky bar: close, segmented progress, Ask ---------- */
 .lsn-bar {
@@ -47,7 +49,14 @@
 /* ---------- heading ---------- */
 .lsn-head { display: flex; flex-direction: column; gap: 10px; padding: 28px 0 4px; }
 .lsn-eb { min-height: 17px; }
-.lsn-title { font-size: clamp(1.65rem, 6.6vw, 2.15rem); font-size: clamp(1.65rem, 6.6cqi, 2.15rem); }
+/* "Topic name · Idea 1 of 5" on one line. When both don't fit (a narrow phone at XL, a long
+   name), the name drops out whole rather than wrapping: the row runs right to left with the count
+   placed first, so the name is what wraps to a second line, and that line is clipped. The DOM
+   keeps name, then count, for screen readers. */
+.lsn-eb.is-filled { display: flex; flex-flow: row-reverse wrap; justify-content: flex-end; max-height: 1.4em; overflow: hidden; }
+.lsn-eb-topic::after { content: "\00a0·\00a0"; }
+.lsn-eb-n { order: -1; white-space: nowrap; }
+.lsn-title { font-size: clamp(calc(1.65 * var(--lsn-hrem)), 6.6vw, calc(2.15 * var(--lsn-hrem))); font-size: clamp(calc(1.65 * var(--lsn-hrem)), 6.6cqi, calc(2.15 * var(--lsn-hrem))); }
 .lsn-one { color: var(--muted); font-size: 1.0625rem; line-height: 1.5; max-width: 34em; }
 .lsn-sk-eb { display: inline-block; width: 46%; height: 12px; vertical-align: middle; }
 .lsn-sk-h1 { display: block; width: 78%; height: 32px; }
@@ -59,7 +68,7 @@
 .lsn-stage + .lsn-stage { margin-top: 32px; border-top: 1px solid var(--line); }
 .lsn-past + .lsn-stage { margin-top: 12px; }
 .lsn-stage > .eyebrow { margin-bottom: -10px; }
-.lsn-h { font-size: 1.35rem; line-height: 1.3; }
+.lsn-h { font-size: calc(1.35 * var(--lsn-hrem)); line-height: 1.3; }
 .lsn-h:focus { outline: none; }
 .lsn-lede { color: var(--muted); font-size: 1rem; line-height: 1.55; max-width: 36em; }
 .lsn-go { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 6px; }
@@ -82,13 +91,15 @@
 .lsn-past-tick { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); color: var(--heading); }
 .lsn-past-tick svg { width: 17px; height: 17px; }
 .lsn-past-label { display: block; font: 700 .75rem/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
-.lsn-past-sum { display: block; margin-top: 2px; font: 500 .9375rem/1.4 var(--sans); color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The summary wraps: the script already shortens it at a word ("…"), so no word is cut in half.
+   Three lines at most, for a very large text size. */
+.lsn-past-sum { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-top: 2px; font: 500 .9375rem/1.4 var(--sans); color: var(--ink); }
 .lsn-chev { display: grid; place-items: center; color: var(--muted); }
 .lsn-chev svg { width: 20px; height: 20px; transform: rotate(-90deg); transition: transform .2s ease; }
 details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-past-body { display: flex; flex-direction: column; gap: 16px; padding: 6px 16px 22px; border-top: 1px solid var(--line); }
 .lsn-past-body > :first-child { margin-top: 16px; }
-.lsn-past-body .lsn-h { font-size: 1.15rem; }
+.lsn-past-body .lsn-h { font-size: calc(1.15 * var(--lsn-hrem)); }
 
 /* ---------- preparing ---------- */
 .lsn-prep { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
@@ -157,7 +168,9 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-reveal-text p + p { margin-top: .6em; }
 
 /* ---------- explain ---------- */
-.lsn-reading p { max-width: none; }
+/* The explanation is the main reading: about 65-70 characters a line of Literata on a laptop
+   (the analogy and sources below keep the wider column). A phone column is narrower anyway. */
+.lsn-reading p { max-width: 33em; }
 .lsn-quiet { padding: 2px 0 2px 12px; border-left: 3px solid var(--line-strong); color: var(--muted); font-size: .875rem; line-height: 1.55; }
 .lsn-quiet strong { color: var(--ink); font-weight: 700; }
 .lsn-analogy { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
@@ -231,7 +244,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-done-mark { width: 76px; height: 76px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: var(--bg); box-shadow: 0 8px 24px color-mix(in srgb, var(--green) 30%, transparent); }
 .lsn-done-mark svg { width: 40px; height: 40px; }
 .lsn-stage.lsn-done.is-fresh { scroll-margin-top: max(calc(var(--topbar-h) + var(--lsn-bar-h) + 12px), calc(38vh - 78px)); }
-.lsn-done .lsn-h { font-size: 1.6rem; }
+.lsn-done .lsn-h { font-size: calc(1.6 * var(--lsn-hrem)); }
 .lsn-done-text { color: var(--muted); max-width: 30em; font-size: 1rem; line-height: 1.6; }
 .lsn-next { align-self: stretch; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 20px; text-align: left; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); }
 .lsn-next h3 { font-size: 1.15rem; }
@@ -239,8 +252,10 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-again { margin-top: -4px; }
 
 /* ---------- footer ---------- */
-.lsn-foot { display: flex; justify-content: center; margin-top: 56px; padding-top: 8px; border-top: 1px solid var(--line); }
+.lsn-foot { display: flex; flex-direction: column; align-items: center; margin-top: 56px; padding-top: 8px; border-top: 1px solid var(--line); }
 .lsn-flag-link { color: var(--muted); font-size: .875rem; font-weight: 600; }
+.lsn-flag-kept { color: var(--muted); font: 600 .875rem/1.4 var(--sans); text-align: center; }
+.lsn-flag-kept svg { display: inline-block; width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; color: var(--teal); }
 .lsn-missing-go { margin-top: 16px; }
 .lsn-notice { margin-top: 16px; }
 
@@ -259,13 +274,14 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tutor-sheet { display: flex; flex-direction: column; height: min(88vh, 860px); padding-bottom: 0; }
 .tutor-sheet > .sheet-in { flex: 1; width: 100%; min-height: 0; }
 :root[data-layout="laptop"] .tutor-sheet { height: min(82vh, 720px); }
+/* Before the first question there is only a line of welcome, the chips and the input: no tall
+   empty sheet, and on a phone the lesson stays in view above it. */
+.tutor-sheet.is-empty, :root[data-layout="laptop"] .tutor-sheet.is-empty { height: auto; }
 .tutor { flex: 1; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
 .tutor-about { margin-top: -8px; color: var(--muted); font-size: .875rem; }
 .tutor-log { flex: 1; display: flex; flex-direction: column; gap: 16px; padding-bottom: 8px; }
 .tutor-empty { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; color: var(--muted); font-size: .9688rem; line-height: 1.55; }
 .tutor-empty-head { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
-.tutor-starters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-.tutor-starters .chip, .tutor-chips .chip { min-height: 44px; }
 .tutor-msg.me { align-self: flex-end; max-width: 88%; padding: 10px 15px; border-radius: 18px 18px 6px 18px; background: var(--sunk); }
 .tutor-msg.me p { font-size: 1rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .tutor-msg.bot { max-width: 100%; }
@@ -280,7 +296,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 }
 .tutor-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
 .tutor-chips::-webkit-scrollbar { display: none; }
-.tutor-chips .chip { flex: none; }
+.tutor-chips .chip { flex: none; min-height: 44px; }
 .tutor-chips .chip[disabled] { opacity: .5; cursor: default; }
 .tutor-compose { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 8px; align-items: end; }
 .tutor-input.textarea { min-height: 52px; max-height: 160px; resize: none; padding-block: 13px; overflow-y: auto; }

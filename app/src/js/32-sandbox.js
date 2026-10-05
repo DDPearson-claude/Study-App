@@ -45,9 +45,16 @@ U.sandbox = (function () {
     var dark = scheme === 'dark';
     var base = FALLBACK[dark ? 'dark' : 'light'], c = {};
     Object.keys(TOKENS).forEach(function (k) { c[k] = cs.getPropertyValue(TOKENS[k]).trim() || base[k]; });
-    // Reading size (Aa setting): the app's 18px default maps to the kit's 16px.
-    var fs = parseFloat(cs.getPropertyValue('--fs')) || 18;
-    return { dark: dark, size: Math.max(16, Math.round(fs * 0.9)), c: c };
+    // Reading size (Aa setting): the app's 18px default maps to the kit's 16px, so L and XL give 18
+    // and 20.
+    return { dark: dark, size: Math.max(16, Math.round(readingPx(cs) * 0.9)), c: c };
+  }
+  // --fs in px. A custom property comes back as written ("1.125rem"), not in px, so a rem or em
+  // value is scaled by the root's font size, which is what the Text size setting changes.
+  function readingPx(cs) {
+    var v = String(cs.getPropertyValue('--fs') || '').trim(), n = parseFloat(v);
+    if (!(n > 0)) return 18;
+    return /r?em$/i.test(v) ? n * (parseFloat(cs.fontSize) || 16) : n;
   }
 
   function byteLength(s) { try { return new TextEncoder().encode(s).length; } catch (e) { return s.length * 2; } }

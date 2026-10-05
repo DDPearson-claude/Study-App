@@ -21,8 +21,10 @@
 :root[data-theme="dark"] { color-scheme: dark; }
 
 *, *::before, *::after { box-sizing: border-box; }
-/* The host sizes the frame to the content, so the page itself never scrolls vertically. */
-html { background: var(--k-bg); overflow-y: hidden; -webkit-text-size-adjust: 100%; }
+/* The host sizes the frame to the content, so the page itself never scrolls vertically.
+   The root takes the app's text size (--k-fs), so rem sizes (headings, readouts, a body's own
+   styles) grow with Dan's Text size setting like the rest of the page. */
+html { background: var(--k-bg); overflow-y: hidden; -webkit-text-size-adjust: 100%; font-size: var(--k-fs); }
 body {
   margin: 0; padding: 18px 16px 22px; background: var(--k-bg); color: var(--k-ink);
   font: 400 var(--k-fs)/1.55 var(--k-font); overflow-wrap: break-word;
