@@ -67,19 +67,37 @@ U.store = (function () {
     U.toast(e && e.code === 'quota_exceeded' ? U.errText(e) : 'Could not save just now: ' + U.errText(e), { kind: 'bad' });
     throw e;
   }
-  function setDoc(path, data) { return run(path, function () { return D(path).set(data); }).catch(reportWrite); }
+  // Topics deleted in this page: late writes from work still in flight (research, a prefetched
+  // lesson) must not bring them back.
+  var removed = new Set();
+  function tidOf(path) {
+    var seg = path.split('/');
+    if (seg[0] === 'topics') return seg[1];
+    var i = seg.indexOf('progress'); if (i < 0) i = seg.indexOf('cards');
+    return i >= 0 && seg[i + 1] ? seg[i + 1] : null;
+  }
+  function gone(path) { var t = tidOf(path); return !!(t && removed.has(t)); }
+  function setDoc(path, data) {
+    if (gone(path)) return Promise.resolve(null);
+    return run(path, function () { return D(path).set(data); }).catch(reportWrite);
+  }
+  // Private docs (progress, cards, profile) are created on first patch. Shared content (topics,
+  // lessons, research) is created only by an explicit set: a patch to a missing one is dropped,
+  // so a topic deleted on another device stays deleted.
   function patchDoc(path, patch) {
+    if (gone(path)) return Promise.resolve(null);
     var p = pending[path];
     if (p) { deepMerge(p.patch, patch); return p.promise; }
     p = pending[path] = { patch: U.clone(patch) };
     p.promise = U.sleep(120).then(function () {
       delete pending[path];
       var body = p.patch;
+      if (gone(path)) return null;
       return run(path, function () {
         var ref = D(path);
         return ref.get().then(function (s) {
           if (s.exists) return ref.update(body);
-          return ref.set(body);
+          return isPriv(path) ? ref.set(body) : null;
         });
       });
     }).catch(reportWrite);
@@ -102,6 +120,7 @@ U.store = (function () {
       cards: function (tid) { return priv('profile/cards/' + tid); },
     },
     persistent: function () { return !!(U.rt.db && U.rt.uid); },
+    isRemoved: function (tid) { return removed.has(tid); },
     setDoc: setDoc, patchDoc: patchDoc, getDoc: getDoc, watchDoc: watchDoc,
   };
 
@@ -119,6 +138,7 @@ U.store = (function () {
     create: function (data) { return setDoc(S.paths.topic(data.id), data).then(function () { return data; }); },
     update: function (tid, patch) { patch.updatedAt = U.now(); return patchDoc(S.paths.topic(tid), patch); },
     remove: function (tid) {
+      removed.add(tid);
       var jobs = [listColl('topics/' + tid + '/lessons'), listColl('topics/' + tid + '/research')];
       return Promise.all(jobs).then(function (r) {
         var dels = [];
@@ -132,13 +152,19 @@ U.store = (function () {
   S.lesson = {
     get: function (tid, iid) { return getDoc(S.paths.lesson(tid, iid)); },
     watch: function (tid, iid, fn) { return watchDoc(S.paths.lesson(tid, iid), fn); },
-    set: function (tid, iid, data) { data.updatedAt = U.now(); return setDoc(S.paths.lesson(tid, iid), data); },
+    // Only under a topic that still exists (it may have been deleted on another device).
+    set: function (tid, iid, data) {
+      data.updatedAt = U.now();
+      return getDoc(S.paths.topic(tid)).then(function (t) { return t ? setDoc(S.paths.lesson(tid, iid), data) : null; });
+    },
     update: function (tid, iid, patch) { patch.updatedAt = U.now(); return patchDoc(S.paths.lesson(tid, iid), patch); },
     list: function (tid) { return listColl('topics/' + tid + '/lessons'); },
   };
   S.research = {
     get: function (tid, key) { return getDoc(S.paths.research(tid, key)); },
-    set: function (tid, key, data) { return setDoc(S.paths.research(tid, key), data); },
+    set: function (tid, key, data) {
+      return getDoc(S.paths.topic(tid)).then(function (t) { return t ? setDoc(S.paths.research(tid, key), data) : null; });
+    },
   };
   S.progress = {
     get: function (tid) { return getDoc(S.paths.progress(tid)).then(function (d) { return d || { ideas: {} }; }); },

@@ -129,8 +129,26 @@ U.research = {
     var mcp = U.rt.mcp;
     return mcp.callTool(U.research.SERVER, tool, input).then(function (r) { return r && r.payload !== undefined ? r.payload : r; });
   },
-  // sample tool definitions; execute() never throws, so Claude can recover from a bad call
-  tools: function (log) {
+  // Normalised form of a web address for comparing (no fragment, no trailing slash, lower-case host).
+  _norm: function (u) {
+    var m = String(u || '').trim().match(/^(https?):\/\/([^\/?#\s]+)([^#\s]*)/i);
+    if (!m) return null;
+    return m[1].toLowerCase() + '://' + m[2].toLowerCase() + (m[3] || '').replace(/\/+$/, '');
+  },
+  _urlsIn: function (value, out) {
+    out = out || [];
+    if (typeof value === 'string') { (value.match(/https?:\/\/[^\s"'<>)\]\\]+/gi) || []).forEach(function (u) { out.push(u); }); }
+    else if (value && typeof value === 'object') Object.keys(value).forEach(function (k) { U.research._urlsIn(value[k], out); });
+    return out;
+  },
+  // sample tool definitions; execute() never throws, so Claude can recover from a bad call.
+  // opts.allow: extra addresses web_fetch may open (e.g. the lesson's own sources). Otherwise
+  // web_fetch only opens pages that web_search returned in this same set of tools, so text
+  // planted in a page or a prompt can't send Dan's words to an address of its choosing.
+  tools: function (log, opts) {
+    opts = opts || {};
+    var allowed = new Set();
+    (opts.allow || []).forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
     return U.research._loadSchemas().then(function (sc) {
       function def(name, description, schema, fallback, max) {
         return {
@@ -138,7 +156,16 @@ U.research = {
           inputSchema: schema || fallback,
           execute: function (input) {
             if (log) log({ tool: name, input: input });
-            return U.research.call(name, input).then(function (p) { return U.research._trim(p, max); }, function (e) {
+            if (name === 'web_fetch') {
+              var asked = U.research._urlsIn(input);
+              var refused = asked.filter(function (u) { var n = U.research._norm(u); return !n || !allowed.has(n); });
+              if (!asked.length) return Promise.resolve('Tool error: give the full web address of a page from your search results.');
+              if (refused.length) return Promise.resolve('Tool error: only pages returned by web_search in this conversation (or the lesson\'s own sources) can be opened. Not allowed: ' + refused.slice(0, 3).join(', ') + '. Search first, then open a result.');
+            }
+            return U.research.call(name, input).then(function (p) {
+              if (name === 'web_search') U.research._urlsIn(p).forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
+              return U.research._trim(p, max);
+            }, function (e) {
               return 'Tool error (' + (e && e.code) + '): ' + (e && e.message) + '. Check the arguments against the tool schema and try again.';
             });
           },

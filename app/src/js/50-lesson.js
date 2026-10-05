@@ -443,7 +443,10 @@
       function settle(checks) {
         if (settled || !alive()) return;
         settled = true;
-        selfChecks(meta, checks && checks.length ? checks : ((built.selftest && built.selftest.checks) || []));
+        // The badge comes from the self-test the app ran itself before saving the lesson, never
+        // from what the frame reports about itself.
+        void checks;
+        selfChecks(meta, (built.selftest && built.selftest.checks) || []);
         setTimeout(function () {
           var hgt = m && m.frame && m.frame.isConnected ? Math.round(m.frame.getBoundingClientRect().height) : 0;
           if (hgt > 120) try { localStorage.setItem(hkey, String(hgt)); } catch (e) {}
@@ -452,7 +455,9 @@
       function trouble(e) {
         if (warned || !alive()) return;
         warned = true;
-        meta.appendChild(U.h('p', { class: 'lsn-selfwarn callout warn' }, 'The interactive hit a problem: ' + clip(e && (e.message || e) || 'unknown error', 140) + '. You can carry on; the explanation below does not depend on it.'));
+        // Fixed wording: text from inside the frame never appears in the app's own interface.
+        console.warn('interactive problem:', e && (e.message || e));
+        meta.appendChild(U.h('p', { class: 'lsn-selfwarn callout warn' }, 'The interactive hit a problem. You can carry on; the explanation below does not depend on it.'));
       }
       if (!U.sandbox || typeof U.sandbox.mount !== 'function') return trouble({ message: 'the interactive player is not loaded in this view' });
       var m = null;
@@ -552,7 +557,7 @@
       box.appendChild(U.h('p', { class: 'lsn-lede' }, 'Explain it as if to a friend who hasn\'t seen it. A few sentences is plenty.' + tip));
       box.appendChild(log);
       var slot = U.h('div', { class: 'lsn-say-slot' });
-      var ta = U.h('textarea', { class: 'textarea lsn-say-input', rows: 4, 'aria-label': 'Your explanation', placeholder: 'In my own words…' });
+      var ta = U.h('textarea', { class: 'textarea lsn-say-input', rows: 4, maxlength: 2000, 'aria-label': 'Your explanation', placeholder: 'In my own words…' });
       ta.value = drafts[key] || '';
       var send = btn('Check my answer', submit, 'lsn-main');
       send.disabled = !ta.value.trim();
@@ -787,7 +792,7 @@
       });
     }
     function flagSheet() {
-      var ta = U.h('textarea', { class: 'textarea', rows: 3, 'aria-label': 'What looks wrong', placeholder: 'For example: the slider makes the swing faster, but the text says slower' });
+      var ta = U.h('textarea', { class: 'textarea', rows: 3, maxlength: 1000, 'aria-label': 'What looks wrong', placeholder: 'For example: the slider makes the swing faster, but the text says slower' });
       U.sheet({
         title: 'What looks wrong?',
         body: U.h('div', { class: 'stack-sm' }, U.h('p', { class: 'muted' }, 'Say what seems off and where. It is saved with this lesson so it can be checked and fixed.'), ta),

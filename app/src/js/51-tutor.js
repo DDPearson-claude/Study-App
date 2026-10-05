@@ -41,10 +41,26 @@
     return out;
   }
 
+  // The interactive's state crosses the sandbox boundary into a prompt that can use web tools,
+  // so keep only short, plain names with finite numbers or booleans: no free text.
+  function cleanState(s) {
+    if (!s || typeof s !== 'object') return null;
+    function pick(o) {
+      var out = {}, n = 0;
+      if (!o || typeof o !== 'object') return out;
+      Object.keys(o).forEach(function (k) {
+        var v = o[k];
+        if (n >= 24 || !/^[A-Za-z][A-Za-z0-9_]{0,31}$/.test(k)) return;
+        if ((typeof v === 'number' && isFinite(v)) || typeof v === 'boolean') { out[k] = v; n++; }
+      });
+      return out;
+    }
+    return { params: pick(s.params), outputs: pick(s.outputs) };
+  }
   function stateOf(context) {
     if (typeof context.getState !== 'function') return Promise.resolve(null);
     return Promise.race([
-      Promise.resolve().then(function () { return context.getState(); }).catch(function () { return null; }),
+      Promise.resolve().then(function () { return context.getState(); }).then(cleanState, function () { return null; }),
       U.sleep(1500).then(function () { return null; }),
     ]);
   }
@@ -101,7 +117,7 @@
 
     var log = U.h('div', { class: 'tutor-log', role: 'log', 'aria-live': 'polite' });
     var els = new Map();
-    var input = U.h('textarea', { class: 'textarea tutor-input', rows: 1, 'aria-label': 'Your question', placeholder: 'Type your question', enterkeyhint: 'send' });
+    var input = U.h('textarea', { class: 'textarea tutor-input', rows: 1, maxlength: 2000, 'aria-label': 'Your question', placeholder: 'Type your question', enterkeyhint: 'send' });
     var sendBtn = U.h('button', { class: 'tutor-send', type: 'button', 'aria-label': 'Send', disabled: true, on: { click: function () { send(input.value, false); } } }, U.icon('arrow'));
     var chips = U.h('div', { class: 'chips tutor-chips' }, CHIPS.map(function (c) {
       return U.h('button', { class: 'chip', type: 'button', on: { click: function () { send(c, true); } } }, c);

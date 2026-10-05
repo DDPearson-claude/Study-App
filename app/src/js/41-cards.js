@@ -480,7 +480,7 @@
   }
   function recall(c) {
     var s = c.spec, rubric = Array.isArray(s.rubric) ? s.rubric : [];
-    var ta = h('textarea', { class: 'textarea qc-recall-input', rows: '5', placeholder: 'Explain it in your own words…', 'aria-label': 'Your answer' });
+    var ta = h('textarea', { class: 'textarea qc-recall-input', rows: '5', maxlength: '2000', placeholder: 'Explain it in your own words…', 'aria-label': 'Your answer' });
     var tip = h('p', { class: 'qc-tip muted small' }, 'Tip: tap the microphone on your keyboard to say it out loud instead of typing.');
     c.body.append(ta, tip);
     var submitBtn = primary('Check my answer', submit);
