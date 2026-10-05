@@ -29,7 +29,7 @@ img, svg { max-width: 100%; }
    the containing block for the fixed bottom tab bar (which sits inside the header). */
 .topbar::before {
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
   -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
 }
 .brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--heading); min-height: 44px; }
@@ -127,7 +127,7 @@ mark.term {
 .btn[disabled] { opacity: .5; cursor: default; }
 .btn.secondary { background: var(--surface); color: var(--heading); border: 1.5px solid var(--line-strong); box-shadow: 0 3px 0 var(--line); }
 .btn.ghost { background: transparent; color: var(--heading); box-shadow: none; min-height: 44px; padding: 8px 12px; }
-.btn.good { background: var(--green); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--green) 65%, #000); }
+.btn.good { background: var(--green); color: var(--on-green); box-shadow: 0 3px 0 color-mix(in srgb, var(--green) 65%, #000); }
 .btn.danger { background: var(--red); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--red) 65%, #000); }
 .btn.wide { width: 100%; }
 .btn.small { min-height: 44px; padding: 8px 16px; font-size: 15px; border-radius: 14px; }
@@ -174,7 +174,7 @@ mark.term {
 /* ---------- toasts ---------- */
 .toasts { position: fixed; left: 0; right: 0; bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px)); z-index: 60; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 16px; }
 .toast { max-width: 520px; padding: 12px 18px; border-radius: 14px; background: var(--heading); color: var(--on-heading); font: 600 15px/1.4 var(--sans); box-shadow: var(--shadow); pointer-events: auto; animation: mu-rise .25s ease-out; }
-.toast.good { background: var(--green); color: #fff; }
+.toast.good { background: var(--green); color: var(--on-green); }
 .toast.bad { background: var(--red); color: #fff; }
 @keyframes mu-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
@@ -198,9 +198,9 @@ mark.term {
 
 /* ---------- celebration (shared) ---------- */
 .cheer { position: fixed; left: 50%; top: 38%; z-index: 80; display: grid; justify-items: center; gap: 10px; transform: translate(-50%, -50%); pointer-events: none; }
-.cheer-bubble { width: 76px; height: 76px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; box-shadow: 0 10px 30px rgba(46, 125, 79, .35); animation: mu-pop 1.6s cubic-bezier(.2, .9, .3, 1.2) forwards; }
+.cheer-bubble { width: 76px; height: 76px; border-radius: 50%; background: var(--green); color: var(--on-green); display: grid; place-items: center; box-shadow: 0 10px 30px rgba(46, 125, 79, .35); animation: mu-pop 1.6s cubic-bezier(.2, .9, .3, 1.2) forwards; }
 .cheer-bubble svg { width: 40px; height: 40px; }
-.cheer-text { padding: 8px 16px; border-radius: 999px; background: var(--green); color: #fff; font: 700 15px/1.3 var(--sans); animation: mu-pop 1.6s cubic-bezier(.2, .9, .3, 1.2) forwards; }
+.cheer-text { padding: 8px 16px; border-radius: 999px; background: var(--green); color: var(--on-green); font: 700 15px/1.3 var(--sans); animation: mu-pop 1.6s cubic-bezier(.2, .9, .3, 1.2) forwards; }
 @keyframes mu-pop { 0% { opacity: 0; transform: scale(.6); } 18% { opacity: 1; transform: scale(1.06); } 28% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px); } }
 
 /* ---------- empty / error states ---------- */

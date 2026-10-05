@@ -234,7 +234,7 @@ U.confirmSheet = function (o) {
       onClose: function () { if (!done) resolve(false); },
       actions: [
         { label: o.cancel || 'Cancel', kind: 'secondary', onClick: function (api) { done = true; api.close(); resolve(false); } },
-        { label: o.confirm || 'OK', kind: o.danger ? 'danger' : '', onClick: function (api) { done = true; api.close(); resolve(true); } },
+        { label: o.confirm || 'OK', kind: o.danger ? 'danger' : 'primary', onClick: function (api) { done = true; api.close(); resolve(true); } },
       ],
     });
     return s;
