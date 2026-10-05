@@ -13,7 +13,7 @@
 //       a choice's option value, label or 0-based index, or a toggle's true/false.
 //       press(label?) presses a K.button (or starts a K.anim) by label, or the first one.
 //       inputs() -> {inputs:[{id, kind, label, min?, max?, step?, options?, value}], actions:[labels]}
-//   U.sandbox.test(html, {widths:[340, 720], timeout:8000}) -> Promise<Report>   hidden, merged
+//   U.sandbox.test(html, {widths:[340, 720, 1040], timeout:8000}) -> Promise<Report>   hidden, merged
 //   U.sandbox.reach(mounted | html, {control, output, target, tolerance}) ->
 //       Promise<{reachable, best:{value, output} | null, tried, error?}>
 //     Can moving that one control (every setting it has, every option of a choice; the others at
@@ -387,10 +387,11 @@ U.sandbox = (function () {
     if (od.length) merged.overflowDetail = od.join('; ');
     return merged;
   }
-  // test(html, {widths:[340, 720], timeout:8000}) -> Promise<Report>   hidden frames, one per width
+  // test(html, {widths:[340, 720, 1040], timeout:8000}) -> Promise<Report>   hidden frames, one per width
+  //   (a phone, a wide column, a laptop lesson where K.stage sets the controls beside the visual)
   function test(html, o) {
     o = o || {};
-    var widths = o.widths && o.widths.length ? o.widths : [340, 720];
+    var widths = o.widths && o.widths.length ? o.widths : [340, 720, 1040];
     var timeout = o.timeout || 8000;
     var big = tooBig(html);
     if (big) return Promise.resolve(merge(widths.map(function (w) { return failing(big, w); })));

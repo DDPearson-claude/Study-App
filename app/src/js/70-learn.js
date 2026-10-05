@@ -129,9 +129,10 @@
   // Work left behind by a page that went away (reloaded, killed in the background, republished).
   // A topic still 'planning' 90 s after its last change, with no planning running in this page,
   // has stopped: it is shown as failed, with Try again and Delete. A research status left at
-  // 'running' for over 5 minutes counts as not checked.
+  // 'running' past the generator's own limit (31-generate.js RESEARCH_STALE_MS, 8 minutes) counts
+  // as not checked, the moment lessons stop waiting for it.
   V.PLAN_STALE_MS = 90 * 1000;
-  V.RESEARCH_STALE_MS = 5 * 60 * 1000;
+  V.RESEARCH_STALE_MS = (U.gen && U.gen._cfg && U.gen._cfg.RESEARCH_STALE_MS) || 8 * 60 * 1000;
   V.age = function (iso) { var t = Date.parse(iso || ''); return isFinite(t) ? Date.now() - t : Infinity; };
   function live(tid) { try { return U.gen && typeof U.gen.status === 'function' ? U.gen.status(tid) || {} : {}; } catch (e) { return {}; } }
   V.planningStuck = function (t) {

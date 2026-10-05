@@ -60,7 +60,7 @@
     fromProfile: function (prefs) {
       if (Date.now() - S._localAt < 3000 || !prefs) return;
       var p = clean(prefs), cur = S.prefs;
-      if (p.theme !== cur.theme || p.size !== cur.size || p.easy !== cur.easy || p.cap !== cur.cap || p.light !== cur.light) S.apply(p);
+      if (p.theme !== cur.theme || p.size !== cur.size || p.easy !== cur.easy || p.cap !== cur.cap || p.light !== cur.light || p.lightDay !== cur.lightDay) S.apply(p);
     },
 
     // Everything Dan has, as one JSON document.

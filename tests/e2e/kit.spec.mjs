@@ -137,7 +137,7 @@ section('self-test catches broken bodies');
   const has = (list, re) => (list || []).some((m) => re.test(m));
 
   let r = await test(body(plain));
-  expect('a small correct body passes', r.ok && r.checks.length === 3 && r.widths.length === 2, r);
+  expect('a small correct body passes', r.ok && r.checks.length === 3 && r.widths.length === 3, r);
   expect('the report lists controls, readouts and model outputs', r.controls.join() === 'a' && r.readouts.join() === 'y' && r.outputs.join() === 'y', r);
 
   const thrown = body(plain + '\nnotAFunction();');

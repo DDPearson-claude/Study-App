@@ -440,7 +440,11 @@
   // background prefetch, which then can no longer be cancelled.
   function join(job, opts) {
     subscribe(job, opts.onStatus);
-    if (!opts.background) { job.background = false; return; }
+    if (!opts.background) {
+      job.background = false;
+      if (U._gate && typeof U._gate.promote === 'function') U._gate.promote(function (input, o) { return !!o && o.key === gateKey(job); });
+      return;
+    }
     var sig = opts.signal;
     if (sig && typeof sig.addEventListener === 'function') {
       if (sig.aborted) cancel(job);
@@ -448,12 +452,30 @@
     }
   }
   function cancel(job) { if (job.background && job.ctrl && !job.ctrl.signal.aborted) job.ctrl.abort(); }
+  // Dan left a lesson that is still being written: it carries on as background work (it yields to
+  // whatever he opens next) and stops when opts.signal aborts (he leaves the topic), exactly like a
+  // prefetch. Opening it again makes it foreground once more. -> true if a job was demoted.
+  function demote(tid, iid, opts) {
+    var job = running(tid, iid);
+    if (!job || job.background) return false;
+    job.background = true;
+    var sig = opts && opts.signal;
+    if (sig && typeof sig.addEventListener === 'function') {
+      if (sig.aborted) cancel(job);
+      else sig.addEventListener('abort', function () { cancel(job); });
+    }
+    return true;
+  }
   function cancelled(job) { return !!(job.ctrl && job.ctrl.signal.aborted); }
   function stillWanted(job) { if (cancelled(job)) throw { code: 'cancelled', message: 'This lesson was not needed after all.' }; }
   // U.ask options for this job: background work yields to Dan's foreground calls.
+  // Every model call for one lesson carries the lesson's key, so when Dan opens a lesson that
+  // was being prefetched its queued calls run at once (U._gate promotes by key).
+  function gateKey(job) { return 'lesson:' + job.key; }
   function askOpts(job, o) {
     if (job.ctrl) o.signal = job.ctrl.signal;
     if (job.background) o.priority = 'background';
+    o.key = gateKey(job);
     return o;
   }
   // A job already running here for this lesson, unless it was a cancelled prefetch.
@@ -759,7 +781,9 @@
       stillWanted(job);
       return I.build(topic, idea, lesson, {
         onStatus: function (t) { if (isStr(t)) progress(job, t, 'building'); }, avoid: avoid[0] || null,
-        signal: job.ctrl ? job.ctrl.signal : undefined, priority: job.background ? 'background' : undefined,
+        signal: job.ctrl ? job.ctrl.signal : undefined, key: gateKey(job),
+        // Asked at each call, so repairs follow the lesson once Dan opens it.
+        priority: function () { return job.background ? 'background' : undefined; },
       });
     }).then(function (r) { return r && isStr(r.html) ? r : null; }, function (e) {
       if (transient(e) || cancelled(job)) throw e;
@@ -924,6 +948,7 @@
     replan: replan,
     research: research,
     ensureLesson: ensureLesson,
+    demote: demote,
     relearn: relearn,
     grade: grade,
     tutor: tutor,

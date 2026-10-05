@@ -275,9 +275,12 @@ U.research = {
   // opts.allow: extra addresses web_fetch may open (e.g. the lesson's own sources). Otherwise
   // web_fetch only opens pages that web_search returned in this same set of tools, so text
   // planted in a page or a prompt can't send Dan's words to an address of its choosing.
+  // opts.budget: most calls of each tool in this set of tools (default 10 searches, 6 fetches: a
+  // little above what the prompts ask for, so only a runaway loop meets it).
   tools: function (log, opts) {
     opts = opts || {};
     var allowed = new Set();
+    var budget = Object.assign({ web_search: 10, web_fetch: 6 }, opts.budget || {}), used = { web_search: 0, web_fetch: 0 };
     (opts.allow || []).forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
     return U.research._loadSchemas().then(function (sc) {
       function def(name, description, schema, fallback, max) {
@@ -286,12 +289,14 @@ U.research = {
           inputSchema: schema || fallback,
           execute: function (input) {
             if (log) log({ tool: name, input: input });
+            if (used[name] >= budget[name]) return Promise.resolve('Tool error (budget): that is all the ' + (name === 'web_search' ? 'searches' : 'page openings') + ' for this question. Write your answer from what you already have.');
             if (name === 'web_fetch') {
               var asked = U.research._urlsIn(input);
               var refused = asked.filter(function (u) { var n = U.research._norm(u); return !n || !allowed.has(n); });
               if (!asked.length) return Promise.resolve('Tool error (bad_request): give the full web address of a page from your search results.');
               if (refused.length) return Promise.resolve('Tool error (refused): only pages returned by web_search in this conversation (or the lesson\'s own sources) can be opened. Not allowed: ' + refused.slice(0, 3).join(', ') + '. Search first, then open a result.');
             }
+            used[name] = (used[name] || 0) + 1;
             if (input && typeof input === 'object' && !Array.isArray(input) && input.session_id == null) {
               input = Object.assign({}, input, { session_id: U.research.SESSION });
             }

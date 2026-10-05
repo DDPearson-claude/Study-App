@@ -136,3 +136,17 @@ test('research tools: markdown links in excerpts become plain text and are not r
   assert.match(await fetch.execute({ urls: ['https://www.grc.nasa.gov/www/k-12/airplane/state.html'] }), /^Tool error \(refused\): /, 'a page only linked from an excerpt is not a result');
   assert.ok(!/^Tool error/.test(await fetch.execute({ urls: [page.url] })), 'the result itself can be opened');
 });
+
+test('research tools: a runaway loop meets the budget (10 searches, 6 fetches by default)', async () => {
+  const mcp = fakeMcp({ web_search: () => searchPayload(2), web_fetch: (inp) => ({ results: inp.urls.map((u) => ({ url: u, excerpts: ['ok'] })) }) });
+  const U = boot({ mcp });
+  const [search, fetch] = await U.research.tools();
+  for (let i = 0; i < 10; i++) assert.ok(!/^Tool error/.test(await search.execute({ objective: 'o', search_queries: ['a b c ' + i] })));
+  assert.match(await search.execute({ objective: 'o', search_queries: ['one more'] }), /^Tool error \(budget\): /);
+  for (let i = 0; i < 6; i++) assert.ok(!/^Tool error/.test(await fetch.execute({ urls: ['https://example.org/page-0'] })));
+  assert.match(await fetch.execute({ urls: ['https://example.org/page-1'] }), /^Tool error \(budget\): /);
+  assert.equal(mcp.calls.length, 16, 'calls over the budget never reach the connector');
+  const [s2] = await U.research.tools(null, { budget: { web_search: 1 } });
+  await s2.execute({ objective: 'o', search_queries: ['a b c'] });
+  assert.match(await s2.execute({ objective: 'o', search_queries: ['a b d'] }), /^Tool error \(budget\): /, 'a caller can set its own budget');
+});

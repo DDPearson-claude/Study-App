@@ -510,10 +510,11 @@
   }
 
   // ---------- recall (say it back, graded by Claude in the background) ----------
+  // Claude's verdict as a review grade: got it = Good, partly = Hard, not yet = Again. A recall is
+  // the hardest kind of card, so Claude never awards Easy; Dan can, with "Change".
   function verdictGrade(r) {
     var v = VERDICT[r && r.verdict];
-    if (!v) return null;
-    return r.verdict === 'got-it' && r.nailed ? 4 : v.grade;
+    return v ? v.grade : null;
   }
   function recall(c) {
     var s = c.spec, rubric = Array.isArray(s.rubric) ? s.rubric : [];

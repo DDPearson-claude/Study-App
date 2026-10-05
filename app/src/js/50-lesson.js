@@ -31,7 +31,8 @@
   var drafts = {}; // unsent say-it-back text for this page session, by 'tid/iid'
   // Prefetches of the next idea. Each keeps running while Dan stays in its topic (the topic page
   // or another of its lessons, where he is likely to open it next) and is cancelled once he
-  // leaves the topic. A prefetch Dan opens becomes his foreground lesson (U.gen promotes it).
+  // leaves the topic. A prefetch Dan opens becomes his foreground lesson: U.gen promotes its queued
+  // model calls by the lesson's gate key.
   var prefetches = [];
   function inTopic(tid) {
     var base = '#/t/' + encodeURIComponent(tid), h = U.currentHash();
@@ -280,24 +281,15 @@
       if (!st.begun) begin();
       prefetchNext();
     }
-    // Background calls for this lesson already waiting their turn (it was being prefetched) run
-    // now: Dan is waiting for it.
-    function promote() {
-      if (!U._gate || typeof U._gate.promote !== 'function' || !st.idea) return;
-      var needle = String(st.idea.title || '').slice(0, 60).split('"')[0];
-      if (needle.length < 4) return;
-      U._gate.promote(function (input, o) {
-        if (!/^(write-lesson|build-interactive|repair-interactive)$/.test(o && o.label || '')) return false;
-        return (typeof input === 'string' ? input : JSON.stringify(input)).indexOf(needle) >= 0;
-      });
-    }
     function ensure() {
       st.prep.start(st.lesson ? 'Asking Claude to finish the interactive' : 'Asking Claude to write this lesson');
       var gen = st.gen;
       Promise.resolve().then(function () {
         if (!U.gen || typeof U.gen.ensureLesson !== 'function') throw { message: 'The lesson writer is not loaded in this view.' };
-        var p = U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
-        promote();
+        // A foreground call: if this lesson was being prefetched, U.gen promotes its queued
+        // calls (they share the lesson's gate key) so they run at once.
+        var p = st.pending = U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
+        p.then(function () { if (st.pending === p) st.pending = null; }, function () { if (st.pending === p) st.pending = null; });
         return p;
       }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, ensure); });
     }
@@ -1109,6 +1101,17 @@
 
     return function cleanup() {
       st.dead = true;
+      // Still being written: it carries on in the background like a prefetch, so it never holds
+      // up what Dan opens next, and stops if he leaves the topic.
+      if (st.pending && U.gen && typeof U.gen.demote === 'function') {
+        var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+        if (ctrl && U.gen.demote(tid, iid, { signal: ctrl.signal })) {
+          var entry = { tid: tid, ctrl: ctrl, done: false };
+          prefetches.push(entry);
+          st.pending.then(function () { entry.done = true; }, function () { entry.done = true; });
+          sweepPrefetches();
+        }
+      }
       clearTimeout(slowTimer);
       destroyLive();
       st.stops.splice(0).forEach(function (f) { try { f(); } catch (e) {} });

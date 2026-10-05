@@ -966,6 +966,8 @@ test('a background prefetch yields to Dan, and is cancelled when he leaves unles
   assert.deepEqual(seen, ['write-lesson:background:true', 'write-lesson:background:true'], 'both are asked as background work');
   assert.equal(app.count('write-lesson'), 1, 'and the runtime runs one background call at a time');
   const opened = U.gen.ensureLesson('t1', 'i3', {});  // Dan opens i3: no longer a prefetch
+  await until(() => app.count('write-lesson') === 2);
+  assert.equal(app.count('write-lesson'), 2, 'opening it runs its queued call at once (promoted by the lesson\'s gate key)');
   leave.abort();
   stay.abort();
   release();
@@ -973,6 +975,24 @@ test('a background prefetch yields to Dan, and is cancelled when he leaves unles
   assert.equal(await app.get('topics/t1/lessons/i2'), null, 'the cancelled prefetch left nothing behind');
   assert.equal((await p3).status, 'ready');
   assert.equal(await opened, await p3);
+});
+
+test('a lesson Dan leaves while it is being written yields, and stops when he leaves the topic', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const app = await boot({ handlers: handlers({ 'write-lesson': async (input) => { await gate; return { ...unsourced(L_JET1), iid: ideaOf(input) }; } }) });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const p = U.gen.ensureLesson('t1', 'i2', {});
+  await until(() => app.count('write-lesson') === 1);
+  assert.equal(U.gen.demote('t1', 'i9', {}), false, 'nothing to demote for a lesson not being written');
+  const leave = new AbortController();
+  assert.equal(U.gen.demote('t1', 'i2', { signal: leave.signal }), true, 'Dan left: it becomes background work');
+  assert.equal(U.gen.demote('t1', 'i2', {}), false, 'already background');
+  leave.abort();
+  release();
+  await assert.rejects(p, (e) => e.code === 'cancelled');
+  assert.equal(await app.get('topics/t1/lessons/i2'), null, 'the stopped lesson left nothing behind');
 });
 
 test('grade: rubric-based, model answer withheld on attempt 1 and given on attempt 2', async () => {
@@ -1041,7 +1061,7 @@ function builder({ kitMd, examples, reach = true, replies = [] } = {}) {
   if (kitMd !== undefined) U.KIT_MD = kitMd;
   if (examples) U.KIT_EXAMPLES = examples;
   const asked = [];
-  U.ask = (text, o) => { asked.push({ text, label: o.label, tier: o.tier, priority: o.priority }); return Promise.resolve(replies[Math.min(asked.length, replies.length) - 1]); };
+  U.ask = (text, o) => { asked.push({ text, label: o.label, tier: o.tier, priority: o.priority, key: o.key }); return Promise.resolve(replies[Math.min(asked.length, replies.length) - 1]); };
   // The fake self-test reads markers in the body: BROKEN fails, NOMODEL leaves "thrust" a readout
   // only, WARN adds the kit's "no source" advice; reach fails on FAR.
   U.sandbox = {
@@ -1147,6 +1167,14 @@ test('build: target checks must be reachable, read from model outputs, and are c
   r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2, { priority: 'background' });
   assert.equal(r.attempts, 1, 'without U.sandbox.reach the check is skipped');
   assert.equal(b.asked[0].priority, 'background', 'a prefetch\'s build is background work');
+  let bg = true;
+  b = builder({ replies: [page('BROKEN'), page()] });
+  const built = b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2, { priority: () => (bg ? 'background' : undefined), key: 'lesson:t1/i2' });
+  bg = false;   // Dan opens the lesson before the repair is asked
+  r = await built;
+  assert.equal(b.asked[0].key, 'lesson:t1/i2', 'every build call carries the lesson\'s gate key');
+  assert.equal(b.asked.length, 2, 'one repair');
+  assert.equal(b.asked[1].priority, undefined, 'a repair asked after Dan opened the lesson is foreground');
   assert.equal(b.asked[0].tier, 'complex');
   b = builder({ replies: [page('NOLOAD')] });
   r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
