@@ -23,8 +23,14 @@ const build = new Date().toISOString().slice(0, 10) + '-' + sha;
 const kitJs = read(join(app, 'kit', 'kit.js'));
 const kitCss = read(join(app, 'kit', 'kit.css'));
 
-const css = listed(join(app, 'src', 'css'), '.css').map((f) => `/* ${f.slice(app.length + 1)} */\n` + read(f)).join('\n');
-let js = listed(join(app, 'src', 'js'), '.js').map((f) => `// ---- ${f.slice(app.length + 1)} ----\n` + read(f)).join('\n');
+// --only 00,10,20,32  builds with just the JS/CSS files whose names start with those prefixes
+// (for testing one module while others are mid-edit). Core files 00/10/20 are always included.
+const onlyArg = process.argv.indexOf('--only');
+const only = onlyArg > 0 ? ['00', '10', '20'].concat(process.argv[onlyArg + 1].split(',')) : null;
+const pick = (f) => !only || only.some((p) => f.split(/[\\/]/).pop().startsWith(p));
+const css = listed(join(app, 'src', 'css'), '.css').filter(pick).map((f) => `/* ${f.slice(app.length + 1)} */\n` + read(f)).join('\n');
+let js = listed(join(app, 'src', 'js'), '.js').filter(pick).map((f) => `// ---- ${f.slice(app.length + 1)} ----\n` + read(f)).join('\n');
+if (only && !js.includes('"@@KIT_JS@@"')) js += '\n' + read(join(app, 'src', 'js', '32-sandbox.js'));
 
 const replacements = {
   '"@@KIT_JS@@"': JSON.stringify(kitJs),
