@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { openApp, ROOT } from '../../tools/harness/page.mjs';
 
 const OUT = join(ROOT, 'tests', 'out', 'review.html');
-execFileSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '40,41,60', '--out', OUT], { stdio: 'inherit' });
+execFileSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '40,41,60,70-views', '--out', OUT], { stdio: 'inherit' });
 
 const UID = 'u_stubuser0000000000000000';
 const P = (rest) => `data/users/${UID}/${rest}`;
@@ -66,7 +66,8 @@ function seedDb() {
   db['topics/tC'] = { id: 'tC', title: 'Echoes', status: 'ready', createdAt: now, updatedAt: now, hue: 90,
     ideas: [{ id: 'i1', title: 'Pressure' }, { id: 'i2', title: 'Pitch' }] };
   db['topics/tA/lessons/i2'] = { status: 'ready', updatedAt: now, sourced: false,
-    lesson: { iid: 'i2', title: 'The speed of sound', interactive: { controls: [{ id: 'temp', label: 'Air temperature', min: -20, max: 40, step: 1, value: 20, unit: '°C' }] }, checks: [] },
+    lesson: { iid: 'i2', title: 'The speed of sound', interactive: { controls: [{ id: 'temp', label: 'Air temperature', min: -20, max: 40, step: 1, value: 20, unit: '°C' }],
+      outputs: [{ id: 'speed', label: 'Speed of sound', unit: 'm/s', decimals: 1 }] }, checks: [] },
     interactive: { html: '<div id="fake"></div>', title: 'Speed of sound and temperature' } };
   db['topics/tA/lessons/i1'] = { status: 'ready', updatedAt: now, lesson: { iid: 'i1', interactive: { controls: [{ id: 'amp', label: 'Loudness' }] }, checks: [] },
     interactive: { html: '<div></div>', title: 'Pressure wave' } };
@@ -142,6 +143,7 @@ async function runSession({ width, theme, full }) {
   check(badge.text === '7' && !badge.hidden, `${tag}: badge shows 7`);
   await shot('00-today');
 
+  check(await page.locator('.td-light input.switch[role="switch"]').count() === 1, `${tag}: Light day uses the shared switch`);
   if (full) {
     // Light day trims the session to 5 and remembers it; then switch back.
     await page.locator('.td-light').click();
@@ -185,19 +187,37 @@ async function runSession({ width, theme, full }) {
     const name = `${n}-${info.type}`;
     check(!!key, `${tag}: card ${n} is a seeded card (${info.type}: ${info.q.slice(0, 40)})`);
     await page.waitForTimeout(150);
+    if (width >= 1200 && info.type === 'choice') {
+      const gap = await page.evaluate(() => document.querySelector('.rv-stage .qc-primary').getBoundingClientRect().top - document.querySelector('.rv-stage .qc-options').getBoundingClientRect().bottom);
+      check(gap >= 0 && gap < 40, `${tag}: Check follows the answers on a laptop (${Math.round(gap)} px below them)`);
+    }
     await vshot(name + '-before');
     const cont = page.locator('.rv-stage .qc-continue');
+    // Right after answering: the question stays in view with the feedback (Dan's own taps on
+    // Change or a grade may then scroll on to the grades); on a laptop the panel sits beside the answers.
+    const fbView = async () => {
+      await page.waitForTimeout(500);
+      const v = await page.evaluate(() => {
+        const r = (s) => { const e = document.querySelector(s); return e && e.getBoundingClientRect(); };
+        const q = r('.rv-stage .qc-q'), bar = r('.rv-top'), fb = r('.rv-stage .qc-fb'), body = r('.rv-stage .qc-body');
+        return { q: q.top, qb: q.bottom, bar: bar.bottom, fbTop: fb.top, fbLeft: fb.left, bodyRight: body.right, vh: innerHeight, wide: getComputedStyle(document.querySelector('.rv-stage .qc')).display === 'grid' };
+      });
+      check(v.q >= v.bar - 1 && v.qb <= v.vh, `${tag}: ${info.type} keeps the question in view with the feedback (q ${Math.round(v.q)}-${Math.round(v.qb)}, bar ${Math.round(v.bar)})`);
+      if (width >= 1200) check(v.wide && v.fbLeft > v.bodyRight && v.fbTop < v.qb, `${tag}: ${info.type} feedback sits beside the answers on a laptop`);
+    };
 
     if (key === 'tA/i1_c1') {                                   // choice, answered right and quickly -> Easy
       await page.locator('.qc-opt', { hasText: optionText(key, 0) }).click();
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-fb.is-right');
+      await fbView();
       check(await page.locator('.qc-fb .qc-fb-icon.good').count() === 1, `${tag}: right choice shows the green tick`);
       check(/Coming back .*· Easy/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: fast right answer auto-grades Easy (in plain words: when it comes back)`);
     } else if (key === 'tB/i2_c1') {                            // choice, wrong option with a misconception
       await page.locator('.qc-opt', { hasText: optionText(key, 1) }).click();
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-fb.is-wrong');
+      await fbView();
       const fb = await page.locator('.qc-fb').innerText();
       check(/A common mix-up/i.test(fb) && /gluten strands linking up/.test(fb), `${tag}: wrong choice shows its misconception`);
       check(/The answer:/.test(fb) && /Working the dough/.test(fb), `${tag}: wrong choice shows the answer and the why`);
@@ -214,6 +234,7 @@ async function runSession({ width, theme, full }) {
       }
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-fb.is-wrong');
+      await fbView();
       check(await page.locator('.qc-seq .qc-step.wrong').count() === 2 && await page.locator('.qc-seq .qc-step.correct').count() === 2, `${tag}: order marks 2 right and 2 wrong`);
       check(await page.locator('.qc-right-order li').count() === 4 && /You put it 3rd/.test(await page.locator('.qc-right-order').innerText()), `${tag}: order shows the right order with mistakes marked`);
     } else if (key === 'tA/i2_c2') {                            // estimate: slide, nudge, lock in; override to Hard
@@ -227,6 +248,7 @@ async function runSession({ width, theme, full }) {
       await vshot(name + '-moved');
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-fb.is-right');
+      await fbView();
       const fb = await page.locator('.qc-fb').innerText();
       check(/Anything from 313 m\/s to 373 m\/s counts/.test(fb), `${tag}: estimate shows the tolerance after`);
       check(await page.locator('.qc-band:not([hidden])').count() === 1, `${tag}: estimate draws the accepted band`);
@@ -235,11 +257,14 @@ async function runSession({ width, theme, full }) {
       check(/· Hard/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: grade override changes the mark`);
     } else if (key === 'tA/i2_c3') {                            // target: miss, hint, then hit
       await page.waitForSelector('.fake-kit');
+      const goal = await page.locator('.qc-goal').innerText();
+      check(/Use the Air temperature control to make Speed of sound read 350 m\/s \(give or take 2 m\/s\)/.test(goal), `${tag}: target goal names the readout and its unit (${goal})`);
+      check(/Speed of sound: aim for 350 m\/s/.test(await page.locator('.qc-aim').innerText()), `${tag}: the goal beside the button has the unit too`);
       await page.waitForFunction(() => !document.querySelector('.qc-primary').disabled);
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-hint:not([hidden])');
       const hint = await page.locator('.qc-hint').innerText();
-      check(/343/.test(hint) && /higher/.test(hint), `${tag}: target miss gives one hint (${hint.replace(/\n/g, ' ')})`);
+      check(/Speed of sound reads 343 m\/s and you are aiming for 350 m\/s/.test(hint) && /higher/.test(hint), `${tag}: target miss gives one hint, with units (${hint.replace(/\n/g, ' ')})`);
       await page.waitForTimeout(350);
       await vshot(name + '-hint');
       await page.evaluate(() => { const r = document.querySelector('.fake-kit-range'); r.value = '32'; r.dispatchEvent(new Event('input', { bubbles: true })); });
@@ -257,7 +282,10 @@ async function runSession({ width, theme, full }) {
       check(/Wild yeast living in the starter/.test(await page.locator('.qc-model').innerText()), `${tag}: recall reveals the model answer`);
       await vshot(name + '-grading');
       await page.waitForSelector('.qc-verdict');
+      await fbView();
       check(/Partly there/.test(await page.locator('.qc-verdict').innerText()), `${tag}: recall shows Claude's verdict`);
+      check(/^Something to think over\s+You have the yeast/i.test(await page.locator('.qc-follow').innerText()), `${tag}: Claude's follow-up is offered as something to think over`);
+      check(await page.locator('.qc-mine summary .qc-chev svg').count() === 1 && !(await page.locator('.qc-mine').evaluate((d) => d.open)), `${tag}: Dan's earlier words sit behind a row with a chevron`);
       check(await page.locator('.qc-g2[aria-pressed="true"] .qc-g-claude').count() === 1, `${tag}: Claude's pick (Hard) is preselected`);
       check(await page.locator('.qc-point.met').count() === 2 && await page.locator('.qc-point.missed').count() === 1, `${tag}: rubric points marked from the grade`);
       // Taps in the first moments after Claude's grade lands are ignored (the layout may have moved).
@@ -279,6 +307,11 @@ async function runSession({ width, theme, full }) {
   const summary = await page.locator('.rv-done').innerText();
   check(/Review done/.test(summary) && /6 cards/.test(summary), `${tag}: summary says 6 cards`);
   check(/Remembered\s*4/i.test(summary) && /Back tomorrow\s*2/i.test(summary), `${tag}: summary counts remembered and back tomorrow`);
+  check(/2 cards, from 2 ideas:/.test(summary), `${tag}: summary says how the cards coming back map to ideas`);
+  const widths = await page.evaluate(() => [...document.querySelectorAll('.rv-done > .rv-stats, .rv-done > .rv-back, .rv-done > .td-relearn, .rv-done > .td-actions')].map((e) => Math.round(e.getBoundingClientRect().width)));
+  check(widths.length === 4 && new Set(widths).size === 1, `${tag}: summary blocks share one width (${widths})`);
+  const bleed = await page.evaluate(() => { const b = document.querySelector('.rv-top').getBoundingClientRect(), v = document.getElementById('view').getBoundingClientRect(); return Math.abs(b.left - v.left) + Math.abs(b.right - v.right); });
+  check(bleed < 1, `${tag}: the sticky review header spans the whole view (${bleed})`);
   check(await page.locator('.rv-done a[href="#/t/tB/i2/again"]').count() === 1, `${tag}: summary offers Learn it again for the slipping idea`);
   await page.waitForTimeout(1800);
   await shot('20-summary');

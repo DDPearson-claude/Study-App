@@ -163,7 +163,7 @@
         picker.el.hidden = !picker.el.hidden;
         change.setAttribute('aria-expanded', String(!picker.el.hidden));
         change.textContent = picker.el.hidden ? 'Change' : 'Done';
-        reveal(c);
+        reveal(c, { end: true });
       } } }, 'Change');
       var drawLine = function () {
         U.clear(line);
@@ -196,14 +196,34 @@
       if (focusEl) try { focusEl.focus({ preventScroll: true }); } catch (e) {}
     });
   }
-  // Scroll so the end of the card (where the panel sits in the flow) is on screen. scrollIntoView
-  // would not do: a docked (sticky) panel already counts as visible while it covers the answer.
-  // A panel taller than most of the screen stops docking, so the answer above stays reachable.
-  function reveal(c, noScroll) {
-    var panel = c.foot.firstChild;
-    if (panel && panel.offsetHeight > window.innerHeight * 0.62) c.foot.classList.add('qc-unstick');
-    if (noScroll) return;
-    var over = c.el.getBoundingClientRect().bottom - window.innerHeight + 8;
+  // Scroll towards the end of the card (where the panel sits in the flow), but never so far that
+  // the question goes under the sticky bar: Dan should see the question, his answer and the
+  // feedback together. scrollIntoView would not do: a docked (sticky) panel already counts as
+  // visible while it covers the answer. A docked panel may cover a sliver of the answers (they are
+  // marked, and the panel names the right one), never most of them: then it joins the flow below
+  // them and peeks in at the bottom of the screen. A panel in the flow shows at least its start;
+  // when the question cannot stay as well, the panel wins. A panel taller than most of the screen
+  // never docks, so the answer above stays reachable.
+  //   o.noScroll  only re-check the docking     o.end  bring the panel's end (the grades) into view
+  function reveal(c, o) {
+    o = o || {};
+    var vh = window.innerHeight, panel = c.foot.firstChild;
+    if (panel && panel.offsetHeight > vh * 0.62) c.foot.classList.add('qc-unstick');
+    if (o.noScroll) return;
+    var docked = function () { return getComputedStyle(c.foot).position === 'sticky'; };
+    var over = c.el.getBoundingClientRect().bottom - vh + 8;
+    if (!o.end || docked()) {
+      // Where the bar's bottom edge sits once it has stuck (it rides a little lower before that).
+      var bar = document.querySelector('.rv-top, .lsn-bar'), q = c.el.querySelector('.qc-q');
+      var top = bar ? (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight : 0;
+      var keep = q ? q.getBoundingClientRect().top - top - 12 : over;
+      // How much of the answers a docked panel would hide once the question is under the bar. (A
+      // target card's answer is the interactive, already read: its panel may stay docked over it.)
+      var hidden = panel && c.type !== 'target' && over > keep && docked() ? c.body.getBoundingClientRect().bottom - keep - (vh - panel.offsetHeight) : 0;
+      if (hidden > 64) c.foot.classList.add('qc-unstick');
+      var p = panel && !docked() && panel.getBoundingClientRect();
+      over = p && p.top + Math.min(p.height, 120) - vh + 8 > keep ? Math.min(over, p.top - top - 12) : Math.min(over, keep);
+    }
     if (over > 0) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
   }
 
@@ -417,6 +437,13 @@
     for (var i = 0; i < list.length; i++) if (list[i] && list[i].id === id) return list[i];
     return null;
   }
+  // The readout a target check reads: its label and unit say what the number is ("Time for one
+  // swing", "s"). Lessons older than declared readouts have none; then the number stands alone.
+  function outputOf(l, id) {
+    var lj = l && (l.lesson || l), list = (lj && lj.interactive && lj.interactive.outputs) || [];
+    for (var i = 0; i < list.length; i++) if (list[i] && list[i].id === id) return list[i];
+    return null;
+  }
   function target(c) {
     var s = c.spec, it = interactiveOf(c.opts.lesson);
     if (!it || !U.sandbox || typeof U.sandbox.mount !== 'function') {
@@ -424,17 +451,23 @@
       return;
     }
     var goal = num(s.target, 0), tol = Math.abs(num(s.tolerance, 0)), ctl = controlOf(c.opts.lesson, s.control);
+    var out = outputOf(c.opts.lesson, s.output), name = out && out.label ? String(out.label) : '', unit = out && out.unit ? String(out.unit) : '';
+    var dp = out && out.decimals >= 0 && out.decimals <= 6 ? Math.round(out.decimals) : null;
     var tries = 0, fails = 0, api = null, skip = null;
+    // Every number says what it is: "make Time for one swing read 3 s (give or take 0.05 s)".
+    function amount(v, d) { return withUnit(fmt(v, d), unit); }
+    var within = tol ? ' (give or take ' + amount(tol) + ')' : '';
     var goalLine = h('p', { class: 'qc-goal' },
-      ctl ? 'Use the ' : null, ctl ? h('strong', null, ctl.label || ctl.id) : null, ctl ? ' control. ' : null,
-      'Aim for ', h('strong', null, fmt(goal)), tol ? ' (give or take ' + fmt(tol) + ')' : '', '.');
+      ctl ? 'Use the ' : null, ctl ? h('strong', null, ctl.label || ctl.id) : null,
+      name ? [ctl ? ' control to make ' : 'Make ', h('strong', null, name), ' read '] : [ctl ? ' control. ' : '', 'Aim for a reading of '],
+      h('strong', null, amount(goal)), within, '.');
     var stage = h('div', { class: 'qc-stage' });
     var hintBox = h('div', { class: 'qc-hint', role: 'status', hidden: true });
     c.body.append(goalLine, stage);
     var btn = primary('Check my setting', check);
     btn.disabled = true;
     // The goal again beside the button: the interactive can be taller than the screen.
-    var aim = h('p', { class: 'qc-aim muted small' }, 'Aim for ', h('strong', null, fmt(goal)), tol ? ' (give or take ' + fmt(tol) + ')' : '');
+    var aim = h('p', { class: 'qc-aim muted small' }, name ? name + ': aim for ' : 'Aim for ', h('strong', null, amount(goal)), within);
     c.setFoot([hintBox, aim, btn]);
     function enable() { if (!c.locked) btn.disabled = false; }
     try {
@@ -469,7 +502,7 @@
         if (!ok && tries === 1) {
           hintBox.hidden = false;
           U.clear(hintBox).append(label('Not yet', 'bad'), h('p', null,
-            'It reads ', h('strong', null, fmt(v)), ' and you are aiming for ', h('strong', null, fmt(goal)), '. ',
+            (name || 'It') + ' reads ', h('strong', null, amount(v, dp)), ' and you are aiming for ', h('strong', null, amount(goal)), '. ',
             v < goal ? 'Try a setting that pushes the reading higher.' : 'Try a setting that brings the reading lower.'));
           btn.textContent = 'Check again';
           btn.disabled = false;
@@ -481,7 +514,7 @@
         feedback(c, {
           correct: ok,
           title: ok ? (tries === 1 ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Got it on the second go') : 'Not quite',
-          parts: [ok ? null : h('p', { class: 'qc-answer' }, 'It read ' + fmt(v) + '; the target was ' + fmt(goal) + (tol ? ' give or take ' + fmt(tol) : '') + '.'), why(s.why)],
+          parts: [ok ? null : h('p', { class: 'qc-answer' }, (name || 'It') + ' read ' + amount(v, dp) + '; the target was ' + amount(goal) + (tol ? ', give or take ' + amount(tol) : '') + '.'), why(s.why)],
           grade: autoGrade(c, ok, { hinted: tries > 1, noEasy: true }), result: { answer: v, tries: tries },
         });
       }).catch(function (e) {
@@ -548,13 +581,15 @@
         richBlock('qc-model qc-prose', s.model),
         points.length ? h('div', { class: 'qc-rubric' }, label('A good answer covers'), h('ul', { class: 'qc-points' }, points)) : null,
         status,
-        c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' }, h('summary', null, 'What you wrote when you learned it'), h('p', null, String(s.mine))) : null);
+        c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' },
+          h('summary', null, h('span', null, 'What you wrote when you learned it'), h('span', { class: 'qc-chev', 'aria-hidden': 'true' }, U.icon('back'))),
+          h('p', null, String(s.mine))) : null);
 
       var picker = null, pickHint = null, pickNote = null, settleUntil = 0;
       // Taps that land just after Claude's grade arrived (the layout may have moved) are ignored.
       function steady() { return Date.now() >= settleUntil; }
       if (c.mode === 'review') {
-        picker = gradePicker(c, null, function (g) { if (!steady()) { picker.set(picked || claudeGrade); return; } picked = g; refresh(); reveal(c); });
+        picker = gradePicker(c, null, function (g) { if (!steady()) { picker.set(picked || claudeGrade); return; } picked = g; refresh(); reveal(c, { end: true }); });
         pickHint = h('p', { class: 'qc-label' }, 'How well did you know it?');
         pickNote = h('p', { class: 'muted small qc-pick-note', hidden: true }, 'Claude\'s pick is marked. Change it if you disagree.');
         panel.append(pickHint, pickNote, picker.el);
@@ -567,7 +602,9 @@
         if (graded) {
           var v = VERDICT[graded.verdict] || VERDICT.partly;
           status.appendChild(h('p', { class: 'qc-verdict ' + v.cls }, v.cls === 'good' ? U.icon('tick') : null, v.text));
-          if (graded.followUp) status.appendChild(richBlock('qc-prose qc-follow', graded.followUp));
+          // The answer box is locked by now, so Claude's follow-up question is something to mull
+          // over (the model answer above usually settles it), not a prompt to type again.
+          if (graded.followUp) status.appendChild(h('div', { class: 'qc-follow' }, label('Something to think over'), richBlock('qc-prose', graded.followUp)));
         } else if (failed) {
           status.appendChild(h('p', { class: 'muted small' }, grading ? 'Claude could not check this one just now. Compare it yourself.' : 'Compare your answer with the model answer.'));
         } else {
@@ -632,7 +669,7 @@
           if (!graded) { failed = true; refresh(); return; }
           claudeGrade = verdictGrade(graded);
           settleUntil = Date.now() + 350;
-          requestAnimationFrame(function () { if (!c.done) reveal(c, true); });
+          requestAnimationFrame(function () { if (!c.done) reveal(c, { noScroll: true }); });
           var met = Array.isArray(graded.met) ? graded.met : [];
           points.forEach(function (li, i) {
             if (met[i] == null) return;
@@ -676,6 +713,7 @@
     },
     interactiveOf: interactiveOf,
     controlOf: controlOf,
+    outputOf: outputOf,
     verdictGrade: verdictGrade,
   };
 })();

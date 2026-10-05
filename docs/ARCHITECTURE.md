@@ -448,7 +448,8 @@ U.gen.createTopic / replan / research / ensureLesson / relearn / grade / tutor /
 U.cards.render(card, {mode:'lesson'|'review', lesson?, onDone(result)}) -> Element with destroy()
    card {id, type, spec, s?}; lesson: the lesson doc (a target card mounts its interactive)
    result {correct, grade, answer, ms, auto?, verdict?, skipped?, pending?: Promise<{grade, correct, verdict}>}
-U.cards.types / interactiveOf(doc) / controlOf(doc, id) / verdictGrade(gradeResult)
+U.cards.types / interactiveOf(doc) / controlOf(doc, id) / outputOf(doc, id) / verdictGrade(gradeResult)
+   a target card names its readout and unit from outputOf ("make Time for one swing read 3 s")
 U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>   outcome {checks:{id:{correct}}, say:{text, verdict}}
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
@@ -512,8 +513,11 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   Shell rules key off `data-layout`: tabs docked at the bottom or in the top bar, sheets as
   bottom sheets (swipe down to close) or centred dialogs (up to 620 px).
 - Laptop widths by `#view[data-screen]`: Learn, the topic page and the Map run up to `--wide`
-  (1200 px); the lesson up to 1120 px, with reading text capped at `--measure` (44rem) and the
-  interactive full width; every other screen keeps the 720 px column (`--col`).
+  (1200 px); the lesson and the review up to 1120 px, with reading text capped at `--measure`
+  (44rem) and the interactive full width; every other screen keeps the 720 px column (`--col`).
+  When `#view` is at least 900 px wide a review card keeps the question and answers on the left
+  with Check under them and shows the feedback beside them; a target card gives its interactive
+  the full width and docks the goal and Check under it.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px).
