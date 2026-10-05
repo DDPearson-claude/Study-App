@@ -503,6 +503,7 @@
             c.finish({ correct: null, grade: null, answer: null, skipped: true, reason: 'no-reading' });
           } } }, 'Skip this one');
           c.foot.appendChild(skip);
+          requestAnimationFrame(function () { try { skip.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { /* fine */ } });
         }
       });
     }

@@ -260,6 +260,10 @@ async function runSession({ width, theme, full }) {
       check(/Partly there/.test(await page.locator('.qc-verdict').innerText()), `${tag}: recall shows Claude's verdict`);
       check(await page.locator('.qc-g2[aria-pressed="true"] .qc-g-claude').count() === 1, `${tag}: Claude's pick (Hard) is preselected`);
       check(await page.locator('.qc-point.met').count() === 2 && await page.locator('.qc-point.missed').count() === 1, `${tag}: rubric points marked from the grade`);
+      // Taps in the first moments after Claude's grade lands are ignored (the layout may have moved).
+      const grid = await page.locator('.qc-grades').boundingBox();
+      check(grid && (await page.locator('.qc-g').evaluateAll((bs) => new Set(bs.map((b) => Math.round(b.getBoundingClientRect().height))).size)) === 1, `${tag}: the four grade buttons keep one height with Claude's badge`);
+      await page.waitForTimeout(450);
       await page.locator('.qc-grades .qc-g3').click();
     } else {
       check(false, `${tag}: unexpected card ${key}`);
@@ -410,19 +414,6 @@ async function extras(app, tag) {
     return { hits: [...hits], correct: r && r.correct };
   });
   check(est.hits.length >= 2, `${tag}: every value within the tolerance of a log estimate can be reached (${est.hits})`);
-  // #9b a review saved on another device after this session loaded is merged, not overwritten.
-  const merged = await page.evaluate(async (path) => {
-    const S = window.__CLAUDE_STUB__;
-    const d = S.get(path); const c = d.cards.i1_c1;
-    const stale = JSON.parse(JSON.stringify(c));
-    c.hist.push({ at: new Date(Date.now() - 1000).toISOString(), grade: 1, ok: false, from: 'phone' }); c.s.lapses = 3; S.seed(path, d);
-    stale.tid = 'tC';
-    // This session's stale copy is answered right.
-    const qs = await U.review.queue({ extra: true, cap: 50 });
-    void qs;
-    return null;
-  }, P('profile/cards/tC'));
-  void merged;
   // #1 cards whose topic is gone, and partial cards, never reach the queue; their docs are tidied.
   await page.evaluate(([gone, part]) => {
     const S = window.__CLAUDE_STUB__;
@@ -447,11 +438,66 @@ async function extras(app, tag) {
   await app.shot(`review-${tag}-32-today-empty`);
 }
 
+// Regressions from the correctness review: a target card that gives no reading (#6) and a review
+// saved on another device while this session was open (#9b).
+async function regressions() {
+  const tag = 'regressions';
+  console.log(`\n== ${tag}`);
+  const db = seedDb();
+  // Only two cards due: the target (most overdue) and a choice card.
+  for (const tid of ['tA', 'tB']) for (const c of Object.values(db[P('profile/cards/' + tid)].cards)) c.s.due = addDays(TODAY, 3);
+  db[P('profile/cards/tA')].cards.i2_c3.s.due = addDays(TODAY, -5);
+  db[P('profile/cards/tA')].cards.i1_c1.s.due = addDays(TODAY, -1);
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.evaluate(() => {
+    const mount = U.sandbox.mount;
+    U.sandbox.mount = (c, o) => Object.assign(mount(c, o), { get: () => Promise.resolve({ params: { temp: 20 }, outputs: { other: 343 } }) });
+  });
+  await page.waitForSelector('.td-plan');
+  await page.locator('.td-start').click();
+  await page.waitForSelector('.qc-type-target .qc-primary:not([disabled])');
+  await page.locator('.qc-primary').click();
+  await page.waitForSelector('.qc-hint:not([hidden])');
+  check(await page.locator('.qc-skip').count() === 0, `${tag}: no Skip after the first failed reading`);
+  await page.waitForSelector('.qc-type-target .qc-primary:not([disabled])');
+  await page.locator('.qc-primary').click();
+  await page.waitForSelector('.qc-skip');
+  check(await page.locator('#toasts .toast').count() === 0, `${tag}: failed readings are explained on the card, not in toasts`);
+  check(/not giving a reading/.test(await page.locator('.qc-hint').innerText()), `${tag}: the card says why it can be skipped`);
+  await page.screenshot({ path: join(ROOT, 'tests', 'out', 'review-regressions-target-skip.png') });
+  await page.locator('.qc-skip').click();
+  // The other device reviews the choice card while this session shows it.
+  await page.waitForSelector('.qc-type-choice .qc-opt');
+  await page.evaluate((path) => {
+    const S = window.__CLAUDE_STUB__, d = S.get(path), c = d.cards.i1_c1;
+    c.hist.push({ at: new Date(Date.now() - 5000).toISOString(), grade: 1, ok: false, from: 'phone' });
+    c.s = Object.assign({}, c.s, { lapses: 1, reps: 2, due: '2099-01-01' });
+    S.seed(path, d);
+  }, P('profile/cards/tA'));
+  await page.locator('.qc-opt', { hasText: optionText('tA/i1_c1', 0) }).click();
+  await page.locator('.qc-primary').click();
+  await page.locator('.qc-continue').click();
+  await page.waitForSelector('.rv-done', { timeout: 15000 });
+  await page.waitForTimeout(500);
+  const cards = (await app.stub())[P('profile/cards/tA')].cards;
+  check(cards.i2_c3.retired === true && cards.i2_c3.hist.length === 1, `${tag}: a target card skipped as unusable is retired, not graded`);
+  const h = cards.i1_c1.hist;
+  check(h.length === 3 && h.some((e) => e.from === 'phone') && cards.i1_c1.s.lapses >= 1 && cards.i1_c1.s.reps === 3, `${tag}: the other device's review is kept and this answer added on top (hist ${h.map((e) => e.grade).join(',')}, lapses ${cards.i1_c1.s.lapses}, reps ${cards.i1_c1.s.reps})`);
+  const after = await page.evaluate(async () => { await U.review.refreshBadge(); return document.getElementById('today-badge').hidden; });
+  check(after, `${tag}: the badge clears`);
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
 // ONLY=360-light node tests/e2e/review.spec.mjs runs a single combination while iterating.
 const RUNS = [{ width: 360, theme: 'light', full: true }, { width: 360, theme: 'dark' }, { width: 1280, theme: 'light' }, { width: 1280, theme: 'dark' }]
   .filter((r) => !process.env.ONLY || process.env.ONLY === `${r.width}-${r.theme}`);
 try {
   for (const r of RUNS) await runSession({ full: false, ...r });
+  if (!process.env.ONLY || process.env.ONLY === 'regressions') await regressions();
 } catch (e) {
   failures.push('crashed: ' + (e.stack || e));
   console.error(e);

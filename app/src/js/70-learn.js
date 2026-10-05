@@ -267,7 +267,11 @@
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
     // level choice appears as soon as he starts typing.
-    function typing() { page.classList.toggle('is-typing', !!input.value.trim() || ask.contains(document.activeElement)); }
+    // (Focus on the heading, where each screen puts it when it opens, is not typing.)
+    function typing() {
+      var a = document.activeElement;
+      page.classList.toggle('is-typing', !!input.value.trim() || !!(a && ask.contains(a) && a.matches && a.matches('input, button')));
+    }
     input.addEventListener('input', typing);
     ask.addEventListener('focusin', typing);
     ask.addEventListener('focusout', function (e) { if (!e.relatedTarget || !ask.contains(e.relatedTarget)) setTimeout(typing, 0); });

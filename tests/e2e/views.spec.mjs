@@ -91,6 +91,7 @@ function installFakes({ review, tutor, gen, bands, due }) {
         return id;
       },
     };
+    U.gen.research = async (tid) => { window.__calls.gen.push({ research: tid }); await U.store.topic.update(tid, { research: { status: 'running', at: U.now(), sources: 0 } }); return null; };
     if (gen === 'replan') {
       U.gen.replan = async (tid) => {
         window.__calls.gen.push({ replan: tid });
@@ -185,7 +186,9 @@ await test('home: typing a topic shows planning, then the plan arrives', async (
     await shot(app, `topic-planning-${tag(w, dark)}`);
     await app.page.waitForSelector('.path', { timeout: 6000 });
     eq(await count(app, '.pnode'), 5, 'five ideas once ready');
-    eq(await text(app, '.pnode.is-current .pnode-btn'), 'Start here', 'first idea says Start here');
+    eq(await text(app, '.pnode.is-current .pnode-kicker'), 'START HERE', 'first idea is marked Start here');
+    eq(await text(app, '.pnode.is-current .pnode-btn'), 'Start this idea', 'its button says what it does');
+    assert((await text(app, '.tp-cta')).startsWith('Start: Gravity weakens'), 'the header offers the first idea');
     // Back home the topic shows as a card and as the Continue card.
     await app.page.click('.backlink');
     await app.page.waitForSelector('.ccard');
@@ -211,7 +214,8 @@ await test('home: a failed createTopic explains and re-enables', async () => {
 });
 
 await test('home: continue card, Today row and topic cards', async () => {
-  const planning = { id: 'black-holes-zz', title: '', query: 'How black holes form', createdAt: '2026-10-05T09:00:00.000Z', updatedAt: '2026-10-05T09:00:00.000Z', status: 'planning', hue: 250, ideas: [] };
+  const fresh = new Date().toISOString();   // planning right now (an old 'planning' would show as stopped)
+  const planning = { id: 'black-holes-zz', title: '', query: 'How black holes form', createdAt: fresh, updatedAt: fresh, status: 'planning', hue: 250, ideas: [] };
   for (const [w, dark] of WIDTHS) {
     const app = await open({ width: w, dark, db: seedDb({ extra: { 'topics/black-holes-zz': planning } }) });
     await app.page.waitForSelector('.ccard');
@@ -244,7 +248,8 @@ await test('home: continue card, Today row and topic cards', async () => {
 await test('home: topic cards update live', async () => {
   const app = await open({ db: seedDb({ topics: ['index-funds-cd34'] }) });
   await app.page.waitForSelector('.tcard');
-  await app.seed('topics/new-one-aa', { id: 'new-one-aa', title: '', query: 'The fall of Rome', createdAt: '2026-10-05T10:00:00.000Z', updatedAt: '2026-10-05T10:00:00.000Z', status: 'planning', hue: 20, ideas: [] });
+  const now = new Date().toISOString();
+  await app.seed('topics/new-one-aa', { id: 'new-one-aa', title: '', query: 'The fall of Rome', createdAt: now, updatedAt: now, status: 'planning', hue: 20, ideas: [] });
   await app.page.waitForSelector('.tcard.is-planning');
   assert((await text(app, '.tcard.is-planning')).includes('The fall of Rome'), 'planning card shows the query');
 });
@@ -278,10 +283,14 @@ await test('topic: warm-up saves answers and never blocks the path', async () =>
   assert((await text(app, '.tp-warm')).toLowerCase().includes('warm-up · 1 of 2'), 'warm-up shows');
   eq(await count(app, '.pnode.is-current'), 1, 'path is open while the warm-up waits');
   await app.page.click('.tp-warm .option >> text=The middle note');
+  eq(await count(app, '.tp-warm-why'), 0, 'a tap only selects (it can be changed)');
+  eq(await app.page.getAttribute('.tp-warm .option[aria-pressed="true"]', 'data-key'), 'warm-c1-1', 'the tapped answer is selected');
+  await app.page.click('.tp-warm-check');
   await app.page.waitForSelector('.tp-warm-why');
   eq(await text(app, '.tp-warm-verdict'), 'Right.', 'right answer');
   await app.page.click('.tp-warm-why .btn');
   await app.page.click('.tp-warm .option >> text=Yes, always');
+  await app.page.click('.tp-warm-check');
   assert((await text(app, '.tp-warm-verdict')).startsWith('Not quite'), 'wrong answer named kindly');
   await shot(app, 'topic-warmup-reveal-360-light');
   await app.page.click('.tp-warm-why .btn');
@@ -311,7 +320,9 @@ await test('topic: skip the warm-up; ask Claude; open an idea', async () => {
 });
 
 await test('topic: research states and no tutor module', async () => {
-  const app = await open({ db: seedDb(), hash: '#/t/minor-keys-ef56', fakes: { tutor: false } });
+  const db = seedDb();
+  db['topics/minor-keys-ef56'] = { ...db['topics/minor-keys-ef56'], research: { status: 'running', at: new Date().toISOString(), sources: 0 } };
+  const app = await open({ db, hash: '#/t/minor-keys-ef56', fakes: { tutor: false } });
   await app.page.waitForSelector('.path');
   assert((await text(app, '.lib-status')).includes('Checking sources…'), 'running');
   eq(await count(app, '.tp-ask'), 0, 'no Ask button without the tutor');
@@ -464,7 +475,8 @@ await test('settings: changes apply at once, save, and survive a reload', async 
   const app = await open({ db: seedDb() });
   await app.page.click('#settings-btn');
   await app.page.waitForSelector('.set');
-  assert((await text(app, '.sheet-head h2')) === 'Reading settings', 'sheet title');
+  assert((await text(app, '.sheet-head h2')) === 'Settings', 'sheet title');
+  eq(await app.page.getAttribute('#settings-btn', 'aria-label'), 'Settings', 'button named for what it opens');
   await app.page.waitForFunction(() => /Not connected/.test(document.querySelector('.set-research').textContent));
   await shot(app, 'settings-360-light', { full: false });
   await app.page.evaluate(() => { const s = document.querySelector('.sheet'); s.scrollTop = s.scrollHeight; });
@@ -530,6 +542,8 @@ await test('settings: wide and dark, research connected, match system', async ()
 
 await test('settings: db prefs win over this device, and apply live from another device', async () => {
   const app = await open({ db: { [`data/users/${UID}/profile`]: { prefs: { theme: 'dark', size: 'l', easy: false, cap: 15, light: false }, days: {} } }, prefs: { theme: 'light', size: 's' } });
+  // Boot routes at once; the profile's prefs arrive just after.
+  await app.page.waitForFunction(() => document.documentElement.getAttribute('data-mu-theme') === 'dark');
   eq(await app.page.getAttribute('html', 'data-mu-theme'), 'dark', 'profile theme applied at boot');
   eq(await app.page.getAttribute('html', 'data-size'), 'l', 'profile size applied at boot');
   await app.seed(`data/users/${UID}/profile`, { prefs: { theme: 'light', size: 'm', easy: true, cap: 15, light: false }, days: {} });
@@ -561,7 +575,190 @@ await test('boot: study minutes count only while in use', async () => {
     await new Promise((r) => setTimeout(r, 400));
     return (await U.store.profile.get()).days;
   });
-  eq(days[await app.page.evaluate(() => U.today())], 2, 'two minutes logged, idle time ignored');
+  const today = days[await app.page.evaluate(() => U.today())];
+  eq(typeof today === 'object' ? Object.values(today).reduce((a, n) => a + n, 0) : today, 2, 'two minutes logged, idle time ignored');
+  eq(Object.keys(today).length, 1, 'kept under this device\'s own key');
+});
+
+
+// ---------- regressions (docs/review/correctness.md, ux.md, performance.md) ----------
+const ago = (ms) => new Date(Date.now() - ms).toISOString();
+
+await test('regressions: a planning topic nobody is planning offers Try again and Delete', async () => {
+  const stuck = { id: 'tides-zz', title: '', query: 'how tides work', createdAt: ago(3 * 60e3), updatedAt: ago(3 * 60e3), status: 'planning', hue: 200, ideas: [], level: 'new' };
+  const soon = { id: 'rome-zz', title: '', query: 'the fall of rome', createdAt: ago(88e3), updatedAt: ago(88e3), status: 'planning', hue: 20, ideas: [] };
+  const app = await open({ db: { 'topics/tides-zz': stuck, 'topics/rome-zz': soon }, hash: '#/t/tides-zz' });
+  await app.page.waitForSelector('.tp-failed');
+  assert((await text(app, '.tp-failed .notice')).includes('Planning stopped'), 'says planning stopped');
+  eq(await count(app, '.tp-failed .btn >> text=Try again'), 1, 'Try again');
+  eq(await count(app, '.tp-failed .btn >> text=Delete this topic'), 1, 'Delete');
+  await shot(app, 'regress-planning-stopped-360-light');
+  // One that is still within its 90 s turns into "stopped" by itself.
+  await app.page.goto(app.url('#/t/rome-zz'));
+  await app.page.waitForSelector('.tp-planning');
+  await app.page.waitForSelector('.tp-failed', { timeout: 6000 });
+  await app.page.goto(app.url('#/'));
+  await app.page.waitForSelector('.tcard');
+  eq(await count(app, '.tcard.is-planning'), 0, 'no endless "Planning…" card on Learn');
+  assert((await text(app, '.tcard.is-failed')).includes('Planning stopped'), 'Learn says it stopped');
+});
+
+await test('regressions: research left running by a closed page counts as not checked, with a retry', async () => {
+  const db = seedDb();
+  db['topics/minor-keys-ef56'] = { ...db['topics/minor-keys-ef56'], research: { status: 'running', at: ago(10 * 60e3), sources: 0 } };
+  const app = await open({ db, hash: '#/t/minor-keys-ef56', tools: { 'Parallel Search': { web_search: () => ({ results: [] }), web_fetch: () => ({}) } } });
+  await app.page.waitForSelector('.lib-retry');
+  assert((await text(app, '.lib-status')).includes('did not finish'), 'not checked');
+  await app.page.click('.lib-retry');
+  await app.page.waitForFunction(() => window.__calls.gen.some((c) => c.research === 'minor-keys-ef56'));
+  await app.page.waitForFunction(() => /Checking sources/.test(document.querySelector('.lib-status').textContent));
+  await app.page.goto(app.url('#/'));
+  await app.page.waitForSelector('.tcard');
+});
+
+await test('regressions: a dead subscription shows an error with Try again, never the first-run screen', async () => {
+  const app = await open({ db: seedDb() });
+  await app.page.waitForSelector('.tcard');
+  await app.page.evaluate(() => {
+    const real = U.rt.db;
+    const dying = (ref, code) => new Proxy(ref, { get(t, k) {
+      if (k === 'onSnapshot') return (next, error) => { setTimeout(() => error && error({ code, message: 'listener stopped' }), 10); return () => {}; };
+      if (k === 'orderBy' || k === 'where' || k === 'limit') return (...a) => dying(t[k](...a), code);
+      const v = t[k]; return typeof v === 'function' ? v.bind(t) : v;
+    } });
+    U.rt.db = { doc: (p) => dying(real.doc(p), 'revoked'), collection: (p) => dying(real.collection(p), 'unavailable') };
+  });
+  await app.page.evaluate(() => U.go('#/map'));
+  await app.page.evaluate(() => U.go('#/'));
+  await app.page.waitForSelector('.learn-topics .v-load-error');
+  assert(!/starts here/.test(await text(app, '.learn-topics')), 'not the welcome');
+  assert(/Reconnecting/.test(await text(app, '.learn-topics')), 'says it is reconnecting first');
+  await app.page.waitForFunction(() => /could not be loaded/.test(document.querySelector('.learn-topics').textContent), null, { timeout: 8000 });
+  eq(await count(app, '.learn-topics .btn >> text=Try again'), 1, 'then Try again');
+  await shot(app, 'regress-learn-dead-subscription-360-light');
+  await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
+  await app.page.waitForSelector('.tp .v-load-error');
+  eq(await count(app, '.tp .skeleton'), 0, 'no endless skeleton on the topic page');
+});
+
+await test('regressions: bad addresses go home or say "not here"', async () => {
+  const app = await open({ db: seedDb(), hash: '#/t/how-tides-work-ab12' });
+  await app.page.waitForSelector('.path');
+  await app.page.evaluate(() => { location.hash = '#/t/how-tides-work-ab12%E0%A4%A'; });
+  await app.page.waitForFunction(() => location.hash === '#/');
+  await app.page.waitForSelector('.ask');
+  await app.page.evaluate(() => { location.hash = '#/t/..'; });
+  await app.page.waitForSelector('.not-here');
+  eq(await text(app, '.not-here h1'), 'This page is not here', 'not-here screen');
+});
+
+await test('regressions: sheets take focus, trap Tab, block the app, never stack, and close fully on navigation', async () => {
+  const app = await open({ width: 1280, db: seedDb(), hash: '#/t/index-funds-cd34' });
+  await app.page.addInitScript(() => {});
+  await app.page.waitForSelector('.path');
+  const base = await app.page.evaluate(() => { window.__kd = 0; const a = document.addEventListener.bind(document), r = document.removeEventListener.bind(document);
+    document.addEventListener = (t, f, o) => { if (t === 'keydown') window.__kd++; return a(t, f, o); };
+    document.removeEventListener = (t, f, o) => { if (t === 'keydown') window.__kd--; return r(t, f, o); }; return 0; });
+  void base;
+  await app.page.focus('.tp-delete');
+  await app.page.keyboard.press('Enter');
+  await app.page.waitForSelector('.sheet');
+  await app.page.keyboard.press('Enter').catch(() => {});
+  await app.page.evaluate(() => document.querySelector('.tp-delete').click());
+  await app.page.waitForTimeout(200);
+  eq(await count(app, '.sheet'), 1, 'one confirmation, not two');
+  eq(await app.page.evaluate(() => document.querySelector('.sheet').contains(document.activeElement)), true, 'focus is inside the sheet');
+  eq(await app.page.evaluate(() => document.getElementById('app').hasAttribute('inert')), true, 'the app behind is inert');
+  for (let i = 0; i < 6; i++) await app.page.keyboard.press('Tab');
+  eq(await app.page.evaluate(() => document.querySelector('.sheet').contains(document.activeElement)), true, 'Tab stays inside the sheet');
+  await app.page.evaluate(() => { window.__answer = 'pending'; U.confirmSheet({ title: 'Delete this topic?', text: 'x' }).then((v) => { window.__answer = String(v); }); });
+  await app.page.evaluate(() => U.go('#/map'));
+  await app.page.waitForSelector('.map');
+  await app.page.waitForTimeout(100);
+  eq(await app.page.evaluate(() => window.__answer), 'false', 'a confirmation closed by navigation answers "no"');
+  eq(await app.page.evaluate(() => window.__kd), 0, 'no keydown listener left behind');
+  eq(await app.page.evaluate(() => document.getElementById('app').hasAttribute('inert')), false, 'the app is usable again');
+});
+
+await test('regressions: the Map shows a just-finished idea as learned', async () => {
+  const db = seedDb();
+  const pr = JSON.parse(JSON.stringify(db[`data/users/${UID}/profile/progress/how-tides-work-ab12`]));
+  pr.ideas.i3 = { stage: 'done', doneAt: new Date().toISOString() };
+  db[`data/users/${UID}/profile/progress/how-tides-work-ab12`] = pr;
+  const app = await open({ width: 1280, db, hash: '#/map' });
+  await app.page.waitForSelector('.map-svg');
+  eq(await app.page.locator('a[href="#/t/how-tides-work-ab12/i3"] .map-dot').getAttribute('class'), 'map-dot is-growing', 'done, first review not yet due -> growing');
+});
+
+await test('regressions: the Book reads keyed explanations and questions (and old arrays)', async () => {
+  const db = seedDb();
+  const pr = JSON.parse(JSON.stringify(db[`data/users/${UID}/profile/progress/how-tides-work-ab12`]));
+  pr.ideas.i1.say = { kb: { text: 'Second explanation, from the phone.', at: '2026-10-02T08:00:00.000Z', verdict: 'got-it' }, ka: { text: 'First explanation.', at: '2026-09-01T08:00:00.000Z', verdict: 'partly' }, kx: null };
+  pr.questions = { q2: { q: 'Newest question?', iid: 'i1', at: '2026-10-03T08:00:00.000Z' }, q1: { q: 'Older question?', iid: 'i1', at: '2026-09-03T08:00:00.000Z' } };
+  db[`data/users/${UID}/profile/progress/how-tides-work-ab12`] = pr;
+  const app = await open({ db, hash: '#/book' });
+  await app.page.waitForSelector('.book-entry');
+  const first = app.page.locator('.book-entry').first();
+  assert((await first.locator('.is-first').innerText()).includes('First explanation.'), 'first by time');
+  assert((await first.locator('.is-latest').innerText()).includes('Second explanation'), 'latest by time');
+  eq(await text(app, '.book-q'), 'Newest question?', 'newest question first');
+});
+
+await test('a11y: each screen takes focus on its h1, names itself, and the view is not one live region', async () => {
+  const app = await open({ db: seedDb() });
+  await app.page.waitForSelector('.tcard');
+  eq(await app.page.getAttribute('#view', 'aria-live'), null, 'no aria-live on the whole view');
+  eq(await app.page.getAttribute('html', 'lang'), 'en-GB', 'language set');
+  await app.page.click('.tab[data-tab="map"]');
+  await app.page.waitForSelector('.map h1');
+  await app.page.waitForFunction(() => document.activeElement && document.activeElement.tagName === 'H1');
+  eq(await app.page.title(), 'Map · My University', 'title');
+  await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
+  await app.page.waitForFunction(() => document.title === 'How tides work · My University');
+  await app.page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('tp-title'));
+  // A progress write elsewhere does not rebuild the path under him.
+  const before = await app.page.evaluate(() => { const n = document.querySelector('.pnode.is-current'); n.__mark = 1; return !!n; });
+  await app.seed(`data/users/${UID}/profile/progress/how-tides-work-ab12`, { ...SEED.progress['how-tides-work-ab12'], calibrationSkipped: true });
+  await app.page.waitForTimeout(300);
+  eq(before && await app.page.evaluate(() => document.querySelector('.pnode.is-current').__mark === 1), true, 'unchanged parts are not rebuilt');
+});
+
+await test('topic: back from a lesson brings the next idea into view; the header offers it', async () => {
+  const app = await open({ db: seedDb(), hash: '#/' });
+  await app.page.waitForSelector('.tcard');
+  await app.page.evaluate(() => { sessionStorage.setItem('mu-from-lesson', 'how-tides-work-ab12'); U.go('#/t/how-tides-work-ab12'); });
+  await app.page.waitForSelector('.pnode.is-current');
+  await app.page.waitForTimeout(300);
+  const inView = await app.page.evaluate(() => { const r = document.querySelector('.pnode.is-current').getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; });
+  eq(inView, true, 'current idea on screen');
+  assert((await text(app, '.tp-cta')).startsWith('Continue: Two bulges'), 'header says Continue with the idea');
+  await shot(app, 'topic-from-lesson-360-light', { full: false });
+});
+
+await test('text size: XL scales the whole app, not only the reading text', async () => {
+  const sizes = {};
+  for (const size of ['m', 'xl']) {
+    const app = await open({ db: seedDb(), hash: '#/t/minor-keys-ef56', prefs: { theme: 'light', size } });
+    await app.page.waitForSelector('.tp-warm .option');
+    sizes[size] = await app.page.evaluate(() => ['.tp-warm .option', '.eyebrow', '.pnode-title', '.tab', '.btn'].map((q) => parseFloat(getComputedStyle(document.querySelector(q)).fontSize)));
+    if (size === 'xl') await shot(app, 'topic-warmup-360-light-xl');
+  }
+  sizes.xl.forEach((v, i) => assert(Math.abs(v / sizes.m[i] - 1.25) < 0.02, `size ${i} scales by 1.25 (${sizes.m[i]} -> ${v})`));
+});
+
+await test('dark mode: the delete button and error toasts are readable', async () => {
+  const app = await open({ dark: true, db: seedDb(), hash: '#/t/index-funds-cd34' });
+  await app.page.waitForSelector('.path');
+  await app.page.click('.tp-delete');
+  await app.page.waitForSelector('.sheet .btn.danger');
+  await app.page.evaluate(() => U.toast('Claude is busy right now.', { kind: 'bad' }));
+  const ratio = await app.page.evaluate(() => {
+    function lum(c) { const m = c.match(/\d+(\.\d+)?/g).map(Number).slice(0, 3).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; }
+    function cr(el) { const s = getComputedStyle(el); const a = lum(s.color), b = lum(s.backgroundColor); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); }
+    return [cr(document.querySelector('.sheet .btn.danger')), cr(document.querySelector('.toast.bad'))];
+  });
+  assert(ratio[0] >= 4.5 && ratio[1] >= 4.5, 'contrast ' + ratio.map((r) => r.toFixed(2)).join(', '));
+  await shot(app, 'topic-delete-confirm-360-dark', { full: false });
 });
 
 // ---------- summary ----------

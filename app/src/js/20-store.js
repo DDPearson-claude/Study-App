@@ -114,17 +114,21 @@ U.store = (function () {
     p.then(wrote, function () {});
     return p;
   }
-  // Outbox: writes that failed for a transient reason wait in this page and are sent again when
-  // the db answers again (the next write that succeeds), when the device comes back online or to
-  // the foreground, or every 20 s. A held patch is merged under any newer patch to the same doc,
-  // so a resend never undoes something newer. Dan sees one notice per outage, not one per write.
-  var held = {}, cardJobs = [], outage = false, flushTimer = null;
-  function waiting() { return Object.keys(held).length + cardJobs.length; }
-  function arm() { if (!flushTimer) flushTimer = setTimeout(flush, 20000); }
+  // Outbox: writes that failed for a transient reason wait in this page and are sent again: every
+  // 3 s for the first minute of an outage (then every 15 s), at once when another write succeeds,
+  // and when the device comes back online or to the foreground. A held patch is merged under any
+  // newer patch to the same doc, so a resend never undoes something newer. Dan sees one notice per
+  // outage, not one per write, and another when saving works again.
+  var held = {}, later = [], outage = false, since = 0, flushTimer = null;
+  function waiting() { return Object.keys(held).length + later.length; }
+  function arm() {
+    if (flushTimer || !waiting()) return;
+    flushTimer = setTimeout(flush, Date.now() - since < 60000 ? 3000 : 15000);
+  }
   function flush() {
     clearTimeout(flushTimer); flushTimer = null;
     Object.keys(held).forEach(function (path) { if (!pending[path]) patchDoc(path, {}).catch(function () { /* held again */ }); });
-    cardJobs.splice(0).forEach(function (t) { Promise.resolve().then(t).catch(function () { /* held again */ }); });
+    later.splice(0).forEach(function (t) { Promise.resolve().then(t).catch(function () { /* queued again by itself */ }); });
   }
   function wrote() {
     if (outage) { outage = false; U.toast('Saving works again. What you did meanwhile is saved.', { kind: 'good' }); }
@@ -134,21 +138,34 @@ U.store = (function () {
     window.addEventListener('online', function () { if (waiting()) flush(); });
     if (typeof document !== 'undefined') document.addEventListener('visibilitychange', function () { if (!document.hidden && waiting()) flush(); });
   }
+  function noteOutage() {
+    if (!outage) {
+      since = Date.now();
+      U.toast('Your work could not be saved just now. It is kept here and saved as soon as the connection is back.', { kind: 'bad', ms: 8000 });
+    }
+    outage = true;
+    arm();
+  }
   // A write failed after its retry. keep(): hold it for a resend (returns false when it cannot be
-  // held). Tells Dan once per outage, and rejects with e.queued set when the write will be resent.
+  // held). Rejects with e.queued set when the write will be resent.
   function failed(e, keep) {
     tag(e);
     var kept = !!keep && resendable(e) && keep() !== false;
     if (kept && e && typeof e === 'object') try { e.queued = true; } catch (x) { /* frozen */ }
     console.error('db write failed', e);
-    if (kept) {
-      arm();
-      if (!outage) U.toast('Your work could not be saved just now. It is kept here and saved as soon as the connection is back.', { kind: 'bad', ms: 8000 });
-      outage = true;
-    } else {
-      U.toast(e && e.code === 'quota_exceeded' ? U.errText(e) : 'Could not save just now: ' + U.errText(e), { kind: 'bad' });
-    }
+    if (kept) noteOutage();
+    else U.toast(e && e.code === 'quota_exceeded' ? U.errText(e) : 'Could not save just now: ' + U.errText(e), { kind: 'bad' });
     throw e;
+  }
+  // For work made of several steps (a read, then writes): run `job` again once the db answers,
+  // if `e` says it is worth it. Returns e (marked queued) for the caller to rethrow.
+  function retryLater(e, job) {
+    tag(e);
+    if (!resendable(e)) return e;
+    if (e && typeof e === 'object') try { e.queued = true; } catch (x) { /* frozen */ }
+    later.push(job);
+    noteOutage();
+    return e;
   }
   function reportWrite(e) { return failed(e, null); }
 
@@ -300,7 +317,7 @@ U.store = (function () {
         body.cards[id] = fields;
         return ref.update(body).then(function () { return fields; });
       });
-    }).catch(function (e) { return failed(e, function () { cardJobs.push(function () { return updateCard(tid, id, fn); }); }); });
+    }).catch(function (e) { return failed(e, function () { later.push(function () { return updateCard(tid, id, fn); }); }); });
   }
   function getDoc(path) { return retrying(function () { return D(path).get(); }).then(function (s) { return s.exists ? U.clone(s.data()) : null; }); }
 
@@ -312,6 +329,7 @@ U.store = (function () {
     function quit() { if (stop) { try { stop(); } catch (e) { /* already gone */ } stop = null; } }
     function fail(e) {
       if (dead) return;
+      tag(e);
       console.warn('watch failed', e && (e.code || e.message), e);
       quit();
       var again = transient(e) && tries < 3;
@@ -351,6 +369,7 @@ U.store = (function () {
     topicsExist: topicsExist,
     replacing: replacing,
     waiting: waiting,
+    retryLater: retryLater,
     flush: flush,
     setDoc: setDoc, patchDoc: patchDoc, getDoc: getDoc, watchDoc: watchDoc,
     // Minutes studied on one day, whichever shape days[day] has.

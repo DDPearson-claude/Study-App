@@ -250,6 +250,11 @@
     }).then(function () {
       U.review.refreshBadge();
       return Object.keys(made);
+    }, function (e) {
+      // The cards could not be read (or written) just now: the whole step runs again once the
+      // db answers (it is safe to repeat: only this idea's cards are patched).
+      if (e && e.queued) throw e;
+      throw U.store.retryLater(e, function () { return addFromLesson(tid, iid, lesson, outcome); });
     });
   }
 

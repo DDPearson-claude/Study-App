@@ -75,6 +75,10 @@
     };
   });
   window.open = function () { fail('window.open() is not available. Keep everything on this page.'); return null; };
+  // Peer-to-peer connections are outside the page's Content-Security-Policy: not available.
+  ['RTCPeerConnection', 'webkitRTCPeerConnection', 'RTCDataChannel'].forEach(function (name) {
+    try { Object.defineProperty(window, name, { value: undefined, configurable: false, writable: false }); } catch (e) {}
+  });
   window.fetch = function () {
     fail('fetch() is not available: interactives have no network. Put the data in the script.');
     return new Promise(function () {});
@@ -1630,6 +1634,14 @@
       if (/@import|url\(\s*['"]?(https?:)?\/\//i.test(st.textContent || '')) bad.push('<style> loading a URL');
     });
     if (bad.length) addUnique(errors, 'External resources are not allowed (no network in the app): ' + bad.slice(0, 4).join(', '));
+    // The policy blocks requests, but not a page that leaves itself: no links out, no navigating.
+    var links = Array.prototype.filter.call(document.querySelectorAll('a[href], area[href], form[action]'), function (a) {
+      return /^\s*(https?:|\/\/|javascript:)/i.test(a.getAttribute('href') || a.getAttribute('action') || '');
+    });
+    if (links.length) addUnique(errors, 'Links and forms that leave the page are not allowed: ' + links.slice(0, 3).map(function (a) { return '<' + a.tagName.toLowerCase() + ' ' + (a.getAttribute('href') || a.getAttribute('action')).slice(0, 60) + '>'; }).join(', ') + '. Name sources in words; the app shows the links.');
+    var src = Array.prototype.map.call(document.body ? document.body.querySelectorAll('script') : [], function (x) { return x.textContent; }).join('\n');
+    var leave = src.match(/(?:\b(?:window|document|self|top|parent)\.|(?<![\w$.]|\b(?:const|let|var)\s+))location\s*(?:\.\s*(?:href|assign|replace|search|hash|pathname|host|hostname)\b\s*(?:=(?!=)|\()|=(?!=))|\bcreateElement\s*\(\s*['"`](?:iframe|frame|object|embed)\b|\bRTCPeerConnection\b|\bsendBeacon\b|\bWebSocket\b|\bEventSource\b|\bXMLHttpRequest\b|\bimportScripts\b/);
+    if (leave) addUnique(errors, 'The page may not navigate, open connections or make frames (found "' + leave[0].slice(0, 40) + '"). Everything stays on this page.');
   }
   function attachedProblems(list) {
     controls.forEach(function (c) { if (c.el && !c.el.isConnected) list.push('control "' + c.id + '" was created but never added to the page (pass into: or append control.el)'); });
