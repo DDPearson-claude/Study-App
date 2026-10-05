@@ -89,7 +89,8 @@ expect('build prompt embeds the kit reference, brief, ids, sources and the quant
   p1.stdout.includes('reads "eff"') && p1.stdout.includes('grc.nasa.gov') && p1.stdout.includes('kind: quantity -->'));
 expect('build prompt ends with the output format', /## Output\nReturn ONLY the body/.test(p1.stdout));
 const p2 = cli(['build-interactive', '--topic', join(fx, 'topic.json'), '--idea', 'i2', '--lesson', join(fx, 'lesson.json')]);
-expect('a history idea gets the process exemplar', p2.status === 0 && p2.stdout.includes('kind: process -->'), p2.stderr);
+const nearest = examples.some((e) => e.kind === 'history') ? 'history' : 'process';
+expect('a history idea gets the ' + nearest + ' exemplar', p2.status === 0 && p2.stdout.includes('kind: ' + nearest + ' -->'), p2.stderr);
 const p3 = cli(['repair-interactive', '--topic', join(fx, 'topic.json'), '--idea', 'i1', '--lesson', join(fx, 'lesson.json'), '--html', join(fx, 'body.html'), '--report', join(fx, 'report.json')]);
 expect('prompts.mjs repair-interactive runs', p3.status === 0, p3.stderr);
 expect('repair prompt starts with TASK and lists the problems and the failing body',

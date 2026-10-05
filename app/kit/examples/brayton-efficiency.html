@@ -64,7 +64,8 @@
       s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
         less.toFixed(1) + ' points: the curve has flattened.';
     }
-    document.getElementById('say').textContent = s;
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
   });
 
   // Known answers, worked out by hand from the formula.

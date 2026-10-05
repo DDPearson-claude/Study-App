@@ -1,6 +1,8 @@
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
 U.BUILD = "@@BUILD@@";
+// TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
+try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
 // ---------- element builder ----------
 U.h = function (tag, attrs) {
@@ -90,6 +92,40 @@ U.plain = function (text) { return String(text || '').replace(/\[\[([^\]]+)\]\]/
 
 // ---------- ids, time, hashing ----------
 U.id = function (prefix) { return (prefix || 'x') + Date.now().toString(36).slice(-5) + Math.random().toString(36).slice(2, 7); };
+// A unique key for an entry in a keyed list (say attempts, questions, flags): time first, so keys
+// written on different devices never collide and sort roughly by when they were made.
+U.key = function () { return 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); };
+// This browser's id (shared with 31-generate.js through the same localStorage key).
+U.device = function () {
+  if (U._device) return U._device;
+  try {
+    var v = localStorage.getItem('mu.device');
+    if (!v) { v = U.id('d'); localStorage.setItem('mu.device', v); }
+    U._device = v;
+  } catch (e) { U._device = U.id('d'); }
+  return U._device;
+};
+// ---------- keyed lists ----------
+// Lists that two devices can add to at once are stored as maps keyed by U.key() (a merge keeps
+// both sides' entries). Older data stored them as arrays; these helpers read either shape.
+//   U.entries(v) -> [{key, value}] oldest first (by value.at, then key); arrays get keys 'L000'...
+//   U.list(v)    -> [value] oldest first
+U.legacyKey = function (i) { return 'L' + ('00' + i).slice(-3); };
+U.entries = function (v) {
+  var out = [];
+  if (Array.isArray(v)) v.forEach(function (x, i) { if (x && typeof x === 'object') out.push({ key: U.legacyKey(i), value: x, i: i }); });
+  else if (v && typeof v === 'object') Object.keys(v).forEach(function (k, i) { var x = v[k]; if (x && typeof x === 'object') out.push({ key: k, value: x, i: i }); });
+  out.sort(function (a, b) {
+    var x = String(a.value.at || ''), y = String(b.value.at || '');
+    return x < y ? -1 : x > y ? 1 : a.key < b.key ? -1 : a.key > b.key ? 1 : a.i - b.i;
+  });
+  return out;
+};
+U.list = function (v) { return U.entries(v).map(function (e) { return e.value; }); };
+// The map form of a keyed list (old arrays become {L000:…}); null entries are dropped.
+U.keyed = function (v) { var o = {}; U.entries(v).forEach(function (e) { o[e.key] = e.value; }); return o; };
+// Ids that are safe as one db path segment (the router rejects anything else).
+U.validId = function (s) { return typeof s === 'string' && /^[A-Za-z0-9_\-.~:@+]{1,200}$/.test(s) && s !== '.' && s !== '..'; };
 U.slug = function (text) {
   var s = String(text || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, '');
   return s || 'topic';
@@ -123,8 +159,11 @@ U.on = function (evt, fn) { (U._bus[evt] = U._bus[evt] || []).push(fn); return f
 U.emit = function (evt, data) { (U._bus[evt] || []).slice().forEach(function (fn) { try { fn(data); } catch (e) { console.error(e); } }); };
 
 // ---------- router ----------
-// Views register with U.routes.add('#/t/:tid', fn). fn(params, ctx) renders into ctx.view and may
-// return a cleanup function. ctx.alive() is false once the user has navigated away.
+// Views register with U.routes.add('#/t/:tid', fn, {focus, tab, title}). fn(params, ctx) renders
+// into ctx.view and may return a cleanup function. ctx.alive() is false once the user has navigated
+// away. Params must be valid db ids (U.validId); anything else shows a "not here" screen. After a
+// route renders, keyboard and screen-reader focus moves to the screen's h1 and document.title names
+// the screen (views refine it with U.setTitle once their data arrives).
 U.routes = {
   list: [],
   add: function (pattern, handler, opts) {
@@ -136,31 +175,70 @@ U.routes = {
 U.go = function (hash) { if (location.hash === hash) U._route(); else location.hash = hash; };
 U._cleanup = null;
 U._routeSeq = 0;
+U.setTitle = function (text) {
+  try { document.title = (text ? String(text).replace(/\s+/g, ' ').trim().slice(0, 80) + ' · ' : '') + 'My University'; } catch (e) { /* fine */ }
+};
 U._route = function () {
   var hash = location.hash || '#/';
   if (hash === '#') hash = '#/';
+  // Find the route and decode its params before touching the screen: a malformed %-escape
+  // (or any other bad address) goes home instead of leaving a blank view.
+  var r = null, params = {}, bad = false;
+  for (var i = 0; i < U.routes.list.length && !r; i++) {
+    var m = hash.match(U.routes.list[i].re);
+    if (!m) continue;
+    r = U.routes.list[i];
+    try { r.keys.forEach(function (k, j) { params[k] = decodeURIComponent(m[j + 1]); }); }
+    catch (e) { console.warn('bad address', hash); location.replace('#/'); return; }
+    bad = r.keys.some(function (k) { return !U.validId(params[k]); });
+  }
   var seq = ++U._routeSeq;
+  var prevFocus = document.activeElement;
   if (U._cleanup) { try { U._cleanup(); } catch (e) { console.error(e); } U._cleanup = null; }
   var view = document.getElementById('view');
   U.clear(view);
   U.closeSheets();
-  for (var i = 0; i < U.routes.list.length; i++) {
-    var r = U.routes.list[i], m = hash.match(r.re);
-    if (!m) continue;
-    var params = {};
-    r.keys.forEach(function (k, j) { params[k] = decodeURIComponent(m[j + 1]); });
-    U.focusMode(!!r.opts.focus);
-    U.setTab(r.opts.tab || null);
-    var ctx = { view: view, hash: hash, alive: function () { return seq === U._routeSeq; } };
-    try {
-      var out = r.handler(params, ctx);
-      if (out && typeof out.then === 'function') out.then(function (c) { if (typeof c === 'function') { if (ctx.alive()) U._cleanup = c; else c(); } }, function (e) { U.fail(view, e); });
-      else if (typeof out === 'function') U._cleanup = out;
-    } catch (e) { U.fail(view, e); }
-    window.scrollTo(0, 0);
-    return;
+  if (!r) { location.replace('#/'); return; }
+  U.focusMode(!!r.opts.focus);
+  U.setTab(r.opts.tab || null);
+  U.setTitle(typeof r.opts.title === 'string' ? r.opts.title : '');
+  if (bad) { U.notHere(view); window.scrollTo(0, 0); U._focusScreen(view, seq, prevFocus); return; }
+  var ctx = { view: view, hash: hash, alive: function () { return seq === U._routeSeq; } };
+  try {
+    var out = r.handler(params, ctx);
+    if (out && typeof out.then === 'function') out.then(function (c) { if (typeof c === 'function') { if (ctx.alive()) U._cleanup = c; else c(); } }, function (e) { U.fail(view, e); });
+    else if (typeof out === 'function') U._cleanup = out;
+  } catch (e) { U.fail(view, e); }
+  window.scrollTo(0, 0);
+  U._focusScreen(view, seq, prevFocus);
+};
+// Move focus to the new screen's h1 once it exists (views may draw it after their data arrives),
+// unless Dan has already put focus somewhere else in the meantime.
+U._focusScreen = function (view, seq, prevFocus) {
+  var mo = null, timer = null;
+  function stop() { if (mo) mo.disconnect(); mo = null; clearTimeout(timer); }
+  function untouched() {
+    var a = document.activeElement;
+    return !a || a === document.body || a === view || a === prevFocus || !a.isConnected;
   }
-  location.replace('#/');
+  function attempt() {
+    if (seq !== U._routeSeq || !untouched()) { stop(); return true; }
+    var h = view.querySelector('h1');
+    if (!h || h.querySelector('.skeleton')) return false;
+    if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+    try { h.focus({ preventScroll: true }); } catch (e) { /* fine */ }
+    stop();
+    return true;
+  }
+  if (attempt()) return;
+  if (window.MutationObserver) { mo = new MutationObserver(attempt); mo.observe(view, { childList: true, subtree: true }); }
+  timer = setTimeout(stop, 6000);
+};
+U.notHere = function (view) {
+  U.clear(view).appendChild(U.h('div', { class: 'empty not-here' },
+    U.h('h1', { class: 'not-here-h' }, 'This page is not here'),
+    U.h('p', null, 'The link may be wrong, or what it pointed to has been removed.'),
+    U.h('p', { class: 'not-here-go' }, U.h('a', { class: 'btn secondary', href: '#/' }, 'Go to Learn'))));
 };
 U.fail = function (view, e) {
   console.error(e);
@@ -174,12 +252,18 @@ U.setTab = function (tab) {
 };
 
 // ---------- toasts ----------
+// The same message twice in a row extends the one on screen instead of stacking a copy.
 U.toast = function (text, opts) {
   opts = opts || {};
   var box = document.getElementById('toasts');
-  var t = U.h('div', { class: 'toast' + (opts.kind ? ' ' + opts.kind : '') }, text);
+  if (!box) return;
+  var ms = opts.ms || (opts.kind === 'bad' ? 6000 : 3200);
+  var cls = 'toast' + (opts.kind ? ' ' + opts.kind : '');
+  var same = Array.prototype.filter.call(box.children, function (t) { return t.textContent === String(text) && t.className === cls; })[0];
+  if (same) { clearTimeout(same._t); same._t = setTimeout(function () { same.remove(); }, ms); return; }
+  var t = U.h('div', { class: cls }, text);
   box.appendChild(t);
-  setTimeout(function () { t.remove(); }, opts.ms || (opts.kind === 'bad' ? 6000 : 3200));
+  t._t = setTimeout(function () { t.remove(); }, ms);
 };
 U.errText = function (e) {
   var code = e && e.code;
@@ -192,53 +276,129 @@ U.errText = function (e) {
 };
 
 // ---------- sheets ----------
-U.closeSheets = function () { var root = document.getElementById('sheets'); if (root) U.clear(root); document.documentElement.classList.remove('sheet-open'); };
+// U.sheet({title, body, actions:[{label, kind, onClick(api)}], onClose, autofocus, key}) -> api
+// A modal bottom sheet (a centred dialog on wide screens). While any sheet is open the app behind
+// it is inert, Tab stays inside the top sheet and the page behind does not scroll. Focus moves into
+// the sheet (its first field or button, or its heading when autofocus is false) and returns to
+// where it was on close. Opening a sheet with the same key (default: its title) as one already open
+// brings that one forward instead of stacking a copy. U.closeSheets() (every route change) runs each
+// open sheet's full close: listeners removed, onClose called, a pending confirmSheet settles false.
+U._sheets = [];
+U._syncSheets = function () {
+  var open = U._sheets.length > 0, app = document.getElementById('app');
+  document.documentElement.classList.toggle('sheet-open', open);
+  if (app) { if (open) app.setAttribute('inert', ''); else app.removeAttribute('inert'); }
+};
+U.closeSheets = function () {
+  U._sheets.slice().reverse().forEach(function (api) { try { api.close({ quiet: true }); } catch (e) { console.error(e); } });
+  var root = document.getElementById('sheets');
+  if (root) U.clear(root);
+  U._sheets = [];
+  U._syncSheets();
+};
 U.sheet = function (o) {
+  var key = o.key || ('title:' + (o.title || ''));
+  var open = U._sheets.filter(function (s) { return s.key === key; })[0];
+  if (open) { open.focus(); return open; }
   var root = document.getElementById('sheets');
   var prevFocus = document.activeElement;
   var scrim = U.h('div', { class: 'scrim' });
   var titleId = U.id('sh');
+  var closed = false;
   var actions = (o.actions || []).map(function (a) {
     return U.h('button', { class: 'btn small ' + (a.kind || 'secondary'), type: 'button', on: { click: function () { a.onClick ? a.onClick(api) : api.close(); } } }, a.label);
   });
+  var grip = U.h('div', { class: 'sheet-grip', 'aria-hidden': 'true' });
+  var title = U.h('h2', { id: titleId, tabindex: '-1' }, o.title || '');
+  var head = U.h('div', { class: 'sheet-head' }, title,
+    U.h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Close', on: { click: function () { api.close(); } } }, U.icon('close')));
   var box = U.h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': titleId },
-    U.h('div', { class: 'sheet-in' },
-      U.h('div', { class: 'sheet-grip', 'aria-hidden': 'true' }),
-      U.h('div', { class: 'sheet-head' },
-        U.h('h2', { id: titleId }, o.title || ''),
-        U.h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Close', on: { click: function () { api.close(); } } }, U.icon('close'))),
+    U.h('div', { class: 'sheet-in' }, grip, head,
       o.body || null,
       actions.length ? U.h('div', { class: 'sheet-actions' }, actions) : null));
-  function onKey(e) { if (e.key === 'Escape') api.close(); }
+  function top() { return U._sheets[U._sheets.length - 1] === api; }
+  function focusables() {
+    return Array.prototype.filter.call(box.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), summary, [tabindex]:not([tabindex="-1"])'),
+      function (el) { return el.offsetParent !== null || el === document.activeElement; });
+  }
+  function onKey(e) {
+    if (!top()) return;
+    if (e.key === 'Escape') { e.preventDefault(); api.close(); return; }
+    if (e.key !== 'Tab') return;
+    var f = focusables();
+    if (!f.length) { e.preventDefault(); title.focus(); return; }
+    var first = f[0], last = f[f.length - 1], a = document.activeElement;
+    if (!box.contains(a)) { e.preventDefault(); first.focus(); }
+    else if (e.shiftKey && (a === first || a === title)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && a === last) { e.preventDefault(); first.focus(); }
+  }
+  // Swipe down on the grip or the heading closes the sheet on a phone.
+  var drag = null;
+  function narrow() { return !(window.matchMedia && window.matchMedia('(min-width: 760px)').matches); }
+  function down(e) {
+    if (!narrow() || (e.button != null && e.button !== 0) || (e.target.closest && e.target.closest('button'))) return;
+    drag = { y: e.clientY, dy: 0 };
+    box.style.transition = 'none';
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* fine */ }
+  }
+  function move(e) { if (!drag) return; drag.dy = Math.max(0, e.clientY - drag.y); box.style.transform = drag.dy ? 'translateY(' + drag.dy + 'px)' : ''; }
+  function up() {
+    if (!drag) return;
+    var dy = drag.dy; drag = null;
+    box.style.transition = ''; box.style.transform = '';
+    if (dy > 90) api.close();
+  }
+  [grip, head].forEach(function (el) {
+    el.addEventListener('pointerdown', down);
+    el.addEventListener('pointermove', move);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+  });
   var api = {
-    el: box,
-    close: function () {
+    el: box, key: key,
+    focus: function () {
+      var f = o.autofocus !== false ? box.querySelector('textarea, input, button.btn') : null;
+      try { (f || title).focus({ preventScroll: !!f }); } catch (e) { /* fine */ }
+    },
+    // close({quiet}) - quiet when a route change closes it: focus is not sent back to the old screen.
+    close: function (opts) {
+      if (closed) return;
+      closed = true;
       scrim.remove(); box.remove(); document.removeEventListener('keydown', onKey);
-      if (!root.children.length) document.documentElement.classList.remove('sheet-open');
-      if (o.onClose) o.onClose();
-      if (prevFocus && prevFocus.focus) try { prevFocus.focus(); } catch (e) {}
+      U._sheets = U._sheets.filter(function (s) { return s !== api; });
+      U._syncSheets();
+      if (o.onClose) try { o.onClose(); } catch (e) { console.error(e); }
+      if (!(opts && opts.quiet) && prevFocus && prevFocus.isConnected && prevFocus.focus) try { prevFocus.focus({ preventScroll: true }); } catch (e) { /* fine */ }
     },
   };
   scrim.addEventListener('click', function () { api.close(); });
   document.addEventListener('keydown', onKey);
   root.appendChild(scrim); root.appendChild(box);
-  document.documentElement.classList.add('sheet-open');
-  setTimeout(function () { var f = box.querySelector('textarea, input, button.btn'); if (f && o.autofocus !== false) f.focus(); }, 60);
+  U._sheets.push(api);
+  U._syncSheets();
+  setTimeout(function () { if (!closed && top() && !box.contains(document.activeElement)) api.focus(); }, 60);
   return api;
 };
+// U.confirmSheet({title, text, confirm, cancel, danger}) -> Promise<boolean>. Asking the same
+// question again while it is open returns the pending answer instead of a second sheet.
 U.confirmSheet = function (o) {
-  return new Promise(function (resolve) {
+  var key = 'confirm:' + (o.title || '');
+  var open = U._sheets.filter(function (s) { return s.key === key; })[0];
+  if (open && open.answer) { open.focus(); return open.answer; }
+  var s = null;
+  var answer = new Promise(function (resolve) {
     var done = false;
-    var s = U.sheet({
-      title: o.title, body: U.h('p', { class: 'muted' }, o.text || ''), autofocus: false,
-      onClose: function () { if (!done) resolve(false); },
+    s = U.sheet({
+      key: key, title: o.title, body: U.h('p', { class: 'muted' }, o.text || ''), autofocus: false,
+      onClose: function () { if (!done) { done = true; resolve(false); } },
       actions: [
-        { label: o.cancel || 'Cancel', kind: 'secondary', onClick: function (api) { done = true; api.close(); resolve(false); } },
-        { label: o.confirm || 'OK', kind: o.danger ? 'danger' : 'primary', onClick: function (api) { done = true; api.close(); resolve(true); } },
+        { label: o.cancel || 'Cancel', kind: 'secondary', onClick: function (api) { done = true; resolve(false); api.close(); } },
+        { label: o.confirm || 'OK', kind: o.danger ? 'danger' : 'primary', onClick: function (api) { done = true; resolve(true); api.close(); } },
       ],
     });
-    return s;
   });
+  if (s) s.answer = answer;
+  return answer;
 };
 
 // ---------- feedback ----------

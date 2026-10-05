@@ -18,7 +18,7 @@
 <div class="groups" id="groups" role="img" aria-label=""></div>
 <div class="key" id="key" aria-hidden="true"></div>
 <div class="k-readouts" id="outs"></div>
-<p class="say k-after-move" id="say"></p>
+<p class="say" id="say"></p>
 <p class="caption">Behaviour and state at room temperature, as in the source. A good grouping predicts things you did not sort by; a pair of group-mates "behaves alike" when they share the behaviour in the key.</p>
 
 <script>
@@ -61,9 +61,9 @@
 
   // The lesson's control: named options, opening on the first (index 0).
   K.choice({ id: 'by', label: 'Sort them by', value: 0, into: '#controls', options: [
-    { value: 'state', label: 'Solid, liquid or gas' },
-    { value: 'mass', label: 'Light or heavy atoms' },
-    { value: 'column', label: 'Periodic table column' },
+    { value: 'state', label: 'Solid, liquid, gas' },
+    { value: 'mass', label: 'Weight' },
+    { value: 'column', label: 'Table column' },
   ] });
   K.readout({ id: 'alike', label: 'Group-mates that behave alike', unit: '%', decimals: 0, into: '#outs' });
   K.readout({ id: 'mixed', label: 'Groups with mixed behaviour', into: '#outs' });
@@ -95,7 +95,7 @@
     box.setAttribute('aria-label', groupsFor(p.by).map((g) => g.name + ': ' + g.members.map((e) => e.name + ' (' + DOES[e.does].text.toLowerCase() + ')').join(', ')).join('. '));
     // The sentence uses the readout's own rounding (whole percent), so the two always agree.
     const pct = K.fmt(o.alike, { dp: 0 }) + '%';
-    document.getElementById('say').textContent = {
+    document.getElementById('say').textContent = !K.moved ? 'Which way of sorting will keep elements that behave alike together? Make your guess, then try each one.' : {
       state: 'Sorted by state, only ' + pct + ' of group-mates behave alike: bromine sits alone as the only liquid, and the gases mix elements that react eagerly with ones that hardly react at all.',
       mass: 'Sorted by weight, just ' + pct + ' of group-mates behave alike: lithium shares a group with neon, potassium with bromine. Weight alone predicts almost nothing here.',
       column: 'Sorted by column, ' + pct + ' of group-mates behave alike. Knowing the column tells you how an element reacts: a natural grouping, and the reason the periodic table is laid out this way.',

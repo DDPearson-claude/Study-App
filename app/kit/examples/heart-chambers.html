@@ -1,6 +1,6 @@
 <!-- kind: structure -->
 <style>
-  .heart text { font: 600 12px var(--k-font); fill: var(--k-ink); }
+  .heart text { font: 600 11.5px var(--k-font); fill: var(--k-ink); }
   .heart .organ { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
   .heart .vessel { fill: none; stroke: var(--k-sunk); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
   .heart .room { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 2; }
@@ -31,10 +31,10 @@
     <rect class="room" id="room-la" x="192" y="92" width="90" height="58" rx="12"/>
     <rect class="room" id="room-rv" x="58" y="160" width="90" height="86" rx="14"/>
     <rect class="room thick" id="room-lv" x="192" y="160" width="90" height="86" rx="14"/>
-    <text x="114" y="114" text-anchor="middle">Right</text><text x="114" y="129" text-anchor="middle">atrium</text>
-    <text x="230" y="114" text-anchor="middle">Left</text><text x="230" y="129" text-anchor="middle">atrium</text>
-    <text x="114" y="191" text-anchor="middle">Right</text><text x="114" y="206" text-anchor="middle">ventricle</text>
-    <text x="226" y="191" text-anchor="middle">Left</text><text x="226" y="206" text-anchor="middle">ventricle</text>
+    <text x="117" y="114" text-anchor="middle">Right</text><text x="117" y="129" text-anchor="middle">atrium</text>
+    <text x="225" y="114" text-anchor="middle">Left</text><text x="225" y="129" text-anchor="middle">atrium</text>
+    <text x="117" y="191" text-anchor="middle">Right</text><text x="117" y="206" text-anchor="middle">ventricle</text>
+    <text x="225" y="191" text-anchor="middle">Left</text><text x="225" y="206" text-anchor="middle">ventricle</text>
     <text class="side" x="103" y="266" text-anchor="middle">THEIR RIGHT</text>
     <text class="side" x="237" y="266" text-anchor="middle">THEIR LEFT</text>
     <path class="trail poor" id="trail-poor"/>
@@ -51,7 +51,7 @@
 </div>
 <div class="k-controls" id="controls"></div>
 <div class="k-readouts" id="outs"></div>
-<p class="say k-after-move" id="say"></p>
+<p class="say" id="say"></p>
 <p class="caption">A flat map of the heart, seen as if facing the person, so their right side is on your left. Real chambers squeeze together in a beat rather than one drop at a time.</p>
 
 <script>
@@ -137,8 +137,8 @@
 
   K.readout({ id: 'place', label: 'Where the drop is', into: '#outs' });
   K.readout({ id: 'oxygen', label: 'Oxygen it carries', into: '#outs' });
-  const next = K.readout({ id: 'next', label: 'Where it goes next', into: '#outs' });
-  next.el.classList.add('k-after-move');
+  // Shows "?" until Dan moves something: it would answer his prediction.
+  K.readout({ id: 'next', label: 'Where it goes next', afterMove: true, into: '#outs' });
 
   // The pure model: position round the loop -> where the drop is (text outputs only).
   K.model((p) => {
@@ -174,7 +174,8 @@
     const v = L.valve ? L : null;
     K.labels('#valve-label', v ? [{ x: v.pts[0][0] + 12, y: v.pts[0][1] + 9, text: v.name.toLowerCase(), anchor: 'start', class: 'valve-name' }] : []);
     svg.setAttribute('aria-label', 'Map of the heart. The drop is in the ' + L.name.toLowerCase() + ', carrying ' + o.oxygen.toLowerCase() + ' oxygen.');
-    document.getElementById('say').textContent = L.say;
+    // Until Dan moves something, the sentence asks rather than tells.
+    document.getElementById('say').textContent = K.moved ? L.say : 'Where will this drop go after the right atrium? Make your guess, then move it on.';
   });
 
   // Known answers: the route and the valves, as the source describes them.

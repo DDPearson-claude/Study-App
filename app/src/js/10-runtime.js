@@ -1,20 +1,26 @@
 // Runtime capabilities: db, user, sample, mcp, downloads, permissions.
 // Everything degrades gracefully: a missing capability resolves null and features hide.
-U.rt = { db: null, user: null, sample: null, mcp: null, downloads: null, permissions: null, uid: null, inViewer: false };
+U.rt = { db: null, user: null, sample: null, mcp: null, downloads: null, permissions: null, uid: null, inViewer: false, TIMEOUT_MS: 10000 };
 U.rt.has = function (name) { return !!U.rt[name]; };
 U.rt.ready = (function () {
   var claude = window.claude;
   if (!claude || typeof claude.use !== 'function') return Promise.resolve(U.rt);
   U.rt.inViewer = true;
-  function use(name) {
+  // Every bridge call gets the same 10 s guard: a call that never answers must not hold up boot.
+  function guard(p) {
     return Promise.race([
-      claude.use(name).catch(function () { return null; }),
-      new Promise(function (r) { setTimeout(function () { r(null); }, 10000); }),
-    ]).then(function (ns) { U.rt[name] = ns || null; return ns; });
+      Promise.resolve(p).catch(function () { return null; }),
+      new Promise(function (r) { setTimeout(function () { r(null); }, U.rt.TIMEOUT_MS); }),
+    ]);
+  }
+  function use(name) {
+    return guard(Promise.resolve().then(function () { return claude.use(name); })).then(function (ns) { U.rt[name] = ns || null; return ns; });
   }
   return Promise.all(['db', 'user', 'sample', 'mcp', 'downloads', 'permissions'].map(use)).then(function () {
     if (!U.rt.user || !U.rt.user.id) return U.rt;
-    return Promise.resolve(U.rt.user.id()).then(function (id) { U.rt.uid = id || null; return U.rt; }, function () { return U.rt; });
+    // No uid (it never answered): private data falls back to the in-memory store, and boot shows
+    // the "keep your progress" notice.
+    return guard(Promise.resolve().then(function () { return U.rt.user.id(); })).then(function (id) { U.rt.uid = id || null; return U.rt; });
   });
 })();
 

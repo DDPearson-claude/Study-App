@@ -3,7 +3,7 @@
 //   node tools/eval/render.mjs body.html --out tests/out/eval/<name> [--app dist/my-university.html] [--no-moved]
 // Writes <out>-report.json, <out>-{360,1280}-{light,dark}.png (the opening state) and
 // <out>-{360,1280}-{light,dark}-moved.png: every control set to another value through the host's
-// set() (a slider to 75% of its range, or 25% if it opens near there; a choice or stepper to its
+// set() (a slider to 75% of its range, or its far end if it opens near there; a choice or stepper to its
 // next option; a toggle flipped), then the first K.button pressed or K.anim played, as Dan would.
 // Prints the merged report plus what was moved.
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
@@ -22,7 +22,7 @@ export function movedValue(c) {
   if (c.kind === 'stepper') return c.value < c.max ? c.value + 1 : Math.max(0, c.value - 1);
   const span = c.max - c.min, at = (t) => c.log ? c.min * Math.pow(c.max / c.min, t) : c.min + t * span;
   const t = c.log ? Math.log(c.value / c.min) / Math.log(c.max / c.min) : (c.value - c.min) / span;
-  return at(Math.abs(t - 0.75) < 0.1 ? 0.25 : 0.75);
+  return at(Math.abs(t - 0.75) >= 0.1 ? 0.75 : t < 0.75 ? 1 : 0.5);
 }
 
 export async function renderBody(body, out, appFile, o = {}) {

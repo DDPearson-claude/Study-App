@@ -4,7 +4,9 @@
 //   U.gen.replan(tid) -> Promise<tid>                plans a failed topic again
 //   U.gen.research(tid) -> Promise<result|null>      (re)runs source research; never rejects
 //   U.gen.ensureLesson(tid, iid, {onStatus(text)}) -> Promise<lessonDoc>
-//   U.gen.relearn(tid, iid, {onStatus}) -> Promise<lessonDoc>   new lesson, different interactive
+//   U.gen.relearn(tid, iid, {onStatus, feedback}) -> Promise<lessonDoc>   new lesson, different
+//       interactive; feedback = Dan's "This looks wrong" note (up to 1000 characters), which the
+//       writer is asked to address
 //   U.gen.grade(say, answer, attempt, {previous, title}) -> Promise<{met, verdict, nailed, followUp, model?}>
 //   U.gen.tutor(messages, context, {onText(textSoFar), signal}) -> Promise<string>
 //   U.gen.status(tid) -> {planning, research, lessons:{iid: status}}   this page's live work
@@ -423,7 +425,7 @@
   function takeOver(job, doc) {
     if (doc && doc.status === 'ready' && doc.lesson) return doc;
     if (doc && doc.status === 'building' && doc.lesson) return resume(job, doc);
-    return write(job, { avoid: doc && doc.avoid });
+    return write(job, { avoid: doc && doc.avoid, feedback: doc && doc.feedback });
   }
 
   // Watch a lesson another device is writing. Resolves the ready doc, or null to take over
@@ -453,7 +455,7 @@
       var avoid = [], brief = doc && ((doc.interactive && doc.interactive.brief) || (doc.lesson && doc.lesson.interactive && doc.lesson.interactive.brief));
       if (isStr(brief)) avoid.push(brief);
       [].concat((doc && doc.avoid) || []).forEach(function (a) { if (isStr(a) && avoid.indexOf(a) < 0) avoid.push(a); });
-      return write(job, { avoid: avoid.slice(0, 3) });
+      return write(job, { avoid: avoid.slice(0, 3), feedback: isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null });
     });
     return settle(job);
   }
@@ -489,7 +491,7 @@
   function write(job, o) {
     o = o || {};
     var tid = job.tid, iid = job.iid, topic, idea, lr = null, wrote = false;
-    var avoid = [].concat(o.avoid || []).filter(isStr);
+    var avoid = [].concat(o.avoid || []).filter(isStr), feedback = isStr(o.feedback) ? o.feedback : null;
     progress(job, 'Reading the plan for this idea…', 'writing');
     return (plans[tid] ? plans[tid].catch(noop) : Promise.resolve()).then(function () {
       return U.store.topic.get(tid);
@@ -500,7 +502,7 @@
       topic = t;
       return U.store.lesson.set(tid, iid, {
         status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
-        by: { device: DEVICE, page: PAGE }, avoid: avoid.length ? avoid : null, startedAt: U.now(),
+        by: { device: DEVICE, page: PAGE }, avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
       });
     }).then(function (r) {
       goneIfNull(r);
@@ -512,7 +514,7 @@
       var allowed = lr && lr.sources.length ? lr.sources : null;
       return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');
-        return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, prior: r[1] }), {
+        return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), {
           tier: 'default', json: true, label: 'write-lesson',
           schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
         });

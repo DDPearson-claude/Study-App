@@ -87,20 +87,21 @@
   //   strokes and text: ink, muted, accent2 (main), accent (second), warn, good, amberLine
   //   fills behind things: panel, sunk, amber (note box), hl (key-term highlighter),
   //     fill1 (main area), fill2 (highlighted area, amber), fill3 (second area)
-  //   cat1..cat4: telling equal things apart (both strokes and fills), never meaning.
+  //   cat1..cat4: telling equal things apart (both strokes and fills), never meaning: blue,
+  //     orange, magenta, aqua, checked for colour-blind separation as a set in both themes.
   var LIGHT = {
     bg: '#FFFFFF', panel: '#F7F5F0', sunk: '#EFEBE3', ink: '#1F2937', muted: '#5B6573', line: '#DED8CC',
     strong: '#B9B1A3', accent: '#0F6B66', accent2: '#17324D', onAccent2: '#F7F5F0', warn: '#9F3038',
     good: '#2E7D4F', amber: '#FFF1CC',
     hl: '#FBE29A', amberLine: '#B7791F', fill1: '#D6E0EB', fill2: '#F8D47A', fill3: '#CFE8E4',
-    cat1: '#2A78D6', cat2: '#EB6834', cat3: '#1BAF7A', cat4: '#4A3AA7',
+    cat1: '#2A78D6', cat2: '#EB6834', cat3: '#C2418A', cat4: '#1BAF7A',
   };
   var DARK = {
     bg: '#1A2029', panel: '#12161C', sunk: '#232A35', ink: '#E7E4DD', muted: '#A9B1BC', line: '#2C3440',
     strong: '#4A5564', accent: '#6CC7BD', accent2: '#BBD0E6', onAccent2: '#12161C', warn: '#F2A6AC',
     good: '#6FCB94', amber: '#3A3016',
     hl: '#6E561E', amberLine: '#E8B64C', fill1: '#2E4763', fill2: '#8F6A1E', fill3: '#1F4D49',
-    cat1: '#3987E5', cat2: '#D95926', cat3: '#199E70', cat4: '#9085E9',
+    cat1: '#3987E5', cat2: '#D95926', cat3: '#CC5FA8', cat4: '#199E70',
   };
   var KIT_ROLES = ['hl', 'amberLine', 'fill1', 'fill2', 'fill3', 'cat1', 'cat2', 'cat3', 'cat4'];
   var FILL_ROLES = ['fill1', 'fill2', 'fill3', 'hl', 'amber', 'panel', 'sunk'];
@@ -661,7 +662,7 @@
   };
 
   // ---------- readouts ----------
-  // K.readout({id, label, unit, prefix, dp | decimals, sig, fmt, big, hint, into}) -> {el, set(v), get(), text()}
+  // K.readout({id, label, unit, prefix, dp | decimals, sig, fmt, big, hint, afterMove, into}) -> {el, set(v), get(), text()}
   // A readout whose id matches a key of the model's outputs updates itself on every change.
   // Default rounding: see autoText. Give decimals to match the rounding the lesson text uses.
   K.readout = function (o) {
@@ -691,8 +692,12 @@
     function setValue(v) {
       r.value = v;
       while (val.firstChild) val.removeChild(val.firstChild);
+      // afterMove: a "?" until Dan first moves something, so it can't answer his prediction.
+      var wait = !!o.afterMove && !K.moved;
+      val.classList.toggle('k-wait', wait);
       if (typeof v === 'number') {
         if (!isFinite(v)) { val.textContent = '—'; problem('readout "' + id + '" was given ' + (isNaN(v) ? 'NaN' : 'Infinity')); return; }
+        if (wait) { val.textContent = '?'; return; }
         if (o.fmt) { val.appendChild(K.el('span', { class: 'k-num' }, String(o.fmt(v)))); return; }
         val.appendChild(K.el('span', { class: 'k-num' }, (o.prefix || '') + K.fmt(v, dp != null ? { dp: dp } : o.sig ? { sig: o.sig } : null)));
         if (o.unit) val.appendChild(K.el('span', { class: 'k-readout-unit' }, unitText(o.unit)));
@@ -700,8 +705,9 @@
         val.textContent = '—';
         problem('readout "' + id + '" was given ' + v);
       } else {
-        val.textContent = String(v);
-        if (/\bNaN\b|\bundefined\b|Infinity|\[object /.test(val.textContent)) problem('readout "' + id + '" shows "' + val.textContent.slice(0, 40) + '"');
+        var shown = String(v);
+        if (/\bNaN\b|\bundefined\b|Infinity|\[object /.test(shown)) problem('readout "' + id + '" shows "' + shown.slice(0, 40) + '"');
+        val.textContent = wait ? '?' : shown;
       }
     }
     r.get = function () { return r.value; };
@@ -1298,7 +1304,7 @@
 
   // ---------- figures ----------
   // A custom drawing that spans its column (an <svg> with a viewBox, or a canvas) is capped on
-  // wide screens and centred: never wider than 600 px, nor 1.6 times its viewBox width, so
+  // wide screens and centred: never wider than 600 px, nor 1.45 times its viewBox width, so
   // its text stays a readable size on desktop while it fills the phone.
   function figures() {
     if (!document.body) return;
@@ -1314,7 +1320,7 @@
       var cs = getComputedStyle(p), pw = p.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
       if (w < 0.9 * pw) continue;
       var max = FIG_MAX;
-      if (tag === 'svg') { var vb = el.viewBox && el.viewBox.baseVal; if (vb && vb.width > 0) max = clamp(1.6 * vb.width, 320, FIG_MAX); }
+      if (tag === 'svg') { var vb = el.viewBox && el.viewBox.baseVal; if (vb && vb.width > 0) max = clamp(1.45 * vb.width, 320, FIG_MAX); }
       el.classList.add('k-fig');
       el.style.setProperty('--k-fig-max', Math.round(max) + 'px');
     }

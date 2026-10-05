@@ -157,7 +157,7 @@ U.interactive = (function () {
     var pr = lesson && lesson.predict;
     if (pr && pr.q) {
       out.push('Dan\'s prediction, made before playing: "' + clip(pr.q, 240) + '"' + (pr.options && pr.options.length ? ' (options: ' + pr.options.map(str).join(' / ') + ')' : '') +
-        '. He answers it by moving away from the opening state (see the first rule below).');
+        '.');
     }
     return out.join('\n');
   }
@@ -180,28 +180,20 @@ U.interactive = (function () {
     '## Dan and how he learns',
     '- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.',
     '- He uses an Android phone (this frame is about 340 px wide there, touch only) and a desktop. Design for the phone first.',
-    '- Calm: generous space, one idea, colour only for meaning, always through the kit\'s colour variables so light and dark mode both work.',
   ].join('\n');
-  // Lesson-specific rules, naming kit features only when this build's KIT.md documents them.
-  function rulesSection(lesson) {
-    var sourced = sourceList(lesson).length > 0;
+  // What this lesson asks of the page beyond the kit reference's general rules (which cover
+  // captions, rounding, colour words, extremes, checks and sound). Hiding the answer falls back
+  // to a plain instruction when this build's KIT.md does not document k-after-move.
+  function rulesSection() {
     return [
       '## Rules for this page',
-      '- Hide the answer until Dan moves. He answers his prediction by changing something, so whatever gives it away (the result readout, a verdict in the .say line, the telling part of a plot) appears only after his first move: ' +
-        (kitHas('afterMove') ? 'give it the class "k-after-move", or reveal it in K.afterMove(fn).' : 'reveal it once any control differs from its opening value.'),
-      '- The opening view still looks alive: draw the picture, its labels and the opening state, and let the lead line say what to try.',
-      '- Phone layout: the main visual and its controls fit on one phone screen together' + (kitHas('K.stage') ? ' (put them in K.stage)' : '') + '; any second figure goes below them and must not be needed.',
-      '- Every number on screen is one listed above or computed from the rule. Show assumed values as examples ("for example, £1,000"). Round readouts the way the explanation writes the same numbers (set dp), so the two never disagree. Any example cases you choose are fair and representative, never picked to exaggerate the effect.',
-      '- A readout holds a number and a short unit (longer text is cut off); sentences go in the .say line. Sentences built from numbers read right at every setting: "none" and "all", "1 farm" but "2 farms", never "0 of the 100".',
-      '- Words name things, never shades: say "the changed squares" or use the legend\'s names, never "the dark square" (dark mode swaps light and dark). ' +
-        (kitHas('cat1') ? 'To tell equal parts apart (two poles, two halves), use the neutral colour roles cat1-cat4, never red, green or amber.' : 'Red, green and amber carry meaning: never use them just to tell parts apart.'),
-      '- Caption: at most two short sentences: what the picture shows, and the rule in brief. Leave out what the model ignores; the app shows that.',
-      '- K.check: 3-5 known answers: an edge case, a shape fact (rises, halves, always last), and at least one answer from outside the model: ' +
-        (sourced ? 'a worked example from the explanation, an everyday known case, or a value one of the sources states (with {source: its URL}).'
-          : 'a worked example from the explanation or an everyday known case. No {source}: this lesson has no sources.'),
-      kitHas('K.sound') ? '- An idea about sound lets him hear it: a K.button whose press plays it with K.sound.' : null,
+      '- Dan answers his prediction by moving away from the opening state, so whatever gives the answer away stays hidden until his first move' +
+        (kitHas('k-after-move') ? ' (the kit reference shows how: k-after-move, K.moved).' : ': reveal it once any control differs from its opening value.') +
+        ' The opening view still looks alive: the picture, its labels and the opening state are drawn, and the lead line says what to try.',
+      '- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding). Show assumed values as examples ("for example, £1,000").',
+      '- Any example cases you choose are fair and representative, never picked to exaggerate the effect.',
       '- Money, health and law: show how it works, never advice, and never a guaranteed outcome.',
-    ].filter(Boolean).join('\n');
+    ].join('\n');
   }
   // KIT.md nested under this section: its title dropped, its headings one level down.
   function kitSection() { return '## The house kit (complete API reference)\n' + kitMd().replace(/^# [^\n]*\n+/, '').replace(/^(#{2,}) /gm, '#$1 '); }
@@ -223,7 +215,7 @@ U.interactive = (function () {
       explainSection(lesson),
       sourcesSection(lesson),
       DAN,
-      rulesSection(lesson),
+      rulesSection(),
       kitSection(),
     ];
     if (ex) {
@@ -297,7 +289,7 @@ U.interactive = (function () {
         '- A target out of reach: make the model follow the lesson\'s rule with the lesson\'s ranges and opening values, so moving that one control brings the output to the target.',
       ].join('\n'),
       sourcesSection(lesson),
-      rulesSection(lesson),
+      rulesSection(),
       kitSection(),
       '## The body that failed\n' + String(html || '(empty reply)'),
       outputSection(true),
