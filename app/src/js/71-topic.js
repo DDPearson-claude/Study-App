@@ -1,0 +1,366 @@
+// Topic page (#/t/:tid): the plan for one topic, live from the db. While Claude plans it shows
+// the question and gentle waiting lines; if planning failed it says why and offers Retry; once
+// ready it shows the hook, the idea "in one breath", an optional warm-up (never locks anything),
+// the path of ideas, the Library of research sources, Ask Claude, and Delete.
+// Contract: docs/ARCHITECTURE.md sections 4 (topics, progress, research) and 9.
+(function () {
+  'use strict';
+  var V = U.views;
+
+  var WAITING = [
+    'Finding the few ideas that matter most…',
+    'Putting them in an order where each one builds on the last…',
+    'Looking for something you can play with in every idea…',
+    'Checking what you might already know from other topics…',
+    'Writing a first question to get you thinking…',
+  ];
+
+  U.routes.add('#/t/:tid', function (params, ctx) {
+    var tid = params.tid;
+    var topic = null, loaded = false, progress = { ideas: {} }, deleting = false;
+    var ui = { reveal: null, line: 0, retrying: false };
+    var lib = { key: null, groups: null };
+    var avail = null;
+    var root = U.h('div', { class: 'tp' });
+    ctx.view.appendChild(root);
+    root.appendChild(loadingView());
+
+    var frame = 0;
+    function schedule() {
+      if (frame) return;
+      frame = requestAnimationFrame(function () { frame = 0; if (ctx.alive() && !deleting) render(); });
+    }
+
+    var stops = [
+      U.store.topic.watch(tid, function (t) { topic = t; loaded = true; if (t && t.status === 'ready') loadLibrary(); schedule(); }),
+      U.store.progress.watch(tid, function (p) { progress = p || { ideas: {} }; schedule(); }),
+    ];
+    U.research.available().then(function (a) { avail = !!a; schedule(); }, function () { avail = false; schedule(); });
+
+    var timer = setInterval(function () {
+      var el = root.querySelector('.tp-wait-line');
+      if (!el) return;
+      ui.line = (ui.line + 1) % WAITING.length;
+      el.classList.remove('is-in');
+      void el.offsetWidth; // restart the fade
+      el.textContent = WAITING[ui.line];
+      el.classList.add('is-in');
+    }, 3200);
+
+    // Re-render the whole page, keeping keyboard focus on the same control.
+    function render() {
+      var key = document.activeElement && root.contains(document.activeElement) ? document.activeElement.getAttribute('data-key') : null;
+      U.clear(root);
+      if (!loaded) root.appendChild(loadingView());
+      else if (!topic) root.appendChild(goneView());
+      else if (topic.status === 'planning') root.appendChild(planningView());
+      else if (topic.status === 'failed') root.appendChild(failedView());
+      else root.appendChild(readyView());
+      if (key) { var el = root.querySelector('[data-key="' + key + '"]'); if (el) try { el.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
+    }
+
+    // ---------- states ----------
+
+    function asTitle(q) { q = String(q || '').trim(); return q.charAt(0).toUpperCase() + q.slice(1); }
+
+    function loadingView() {
+      return U.h('div', { class: 'stack', 'aria-hidden': 'true' },
+        U.h('div', { class: 'skeleton tp-sk-banner' }),
+        U.h('div', { class: 'skeleton sk-line tall' }),
+        U.h('div', { class: 'skeleton sk-line' }),
+        U.h('div', { class: 'skeleton sk-line short' }));
+    }
+
+    function goneView() {
+      return U.h('div', null, V.back('#/', 'All topics'),
+        V.empty({ title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Back to Learn' } }));
+    }
+
+    function planningView() {
+      return U.h('div', { class: 'tp-planning' },
+        V.back('#/', 'All topics'),
+        U.h('div', { class: 'tp-banner is-planning' }, V.cover(topic), U.h('div', { class: 'tcard-shimmer' })),
+        U.h('p', { class: 'eyebrow' }, 'Planning your topic'),
+        U.h('h1', { class: 'tp-title' }, asTitle(topic.query || topic.title) || 'Your new topic'),
+        U.h('div', { class: 'tp-wait', role: 'status' },
+          U.h('div', { class: 'working' }),
+          U.h('p', { class: 'tp-wait-line is-in' }, WAITING[ui.line])),
+        U.h('div', { class: 'tp-sk-path', 'aria-hidden': 'true' }, [0, 1, 2, 3, 4].map(function (i) {
+          return U.h('div', { class: 'tp-sk-node' }, U.h('span', { class: 'skeleton tp-sk-dot' }),
+            U.h('span', { class: 'tp-sk-text' }, U.h('span', { class: 'skeleton sk-line', style: { width: (78 - i * 7) + '%' } }), U.h('span', { class: 'skeleton sk-line short' })));
+        })));
+    }
+
+    function failedView() {
+      var q = asTitle(topic.query || topic.title) || 'Your new topic';
+      return U.h('div', { class: 'tp-failed' },
+        V.back('#/', 'All topics'),
+        U.h('div', { class: 'tp-banner is-quiet' }, V.cover(topic)),
+        U.h('p', { class: 'eyebrow' }, 'New topic'),
+        U.h('h1', { class: 'tp-title' }, q),
+        U.h('div', { class: 'notice bad', role: 'alert' },
+          U.h('div', null,
+            U.h('strong', null, 'Planning did not finish. '),
+            U.h('span', null, topic.error ? U.errText(typeof topic.error === 'string' ? { message: topic.error } : topic.error) : 'Nothing was lost. Try again in a moment.'))),
+        U.h('div', { class: 'row tp-failed-actions' },
+          U.h('button', { class: 'btn', type: 'button', 'data-key': 'retry', disabled: ui.retrying, on: { click: retry } }, ui.retrying ? 'Trying again…' : 'Try again'),
+          U.h('button', { class: 'btn ghost', type: 'button', on: { click: del } }, 'Delete this topic')),
+        ui.retrying ? U.h('div', { class: 'working' }) : null);
+    }
+
+    function retry() {
+      if (ui.retrying) return;
+      var q = topic.query || topic.title, level = topic.level || 'new';
+      var job;
+      if (U.gen && U.gen.replan) job = Promise.resolve().then(function () { return U.gen.replan(tid); }).then(function () { return tid; });
+      else if (U.gen && U.gen.createTopic && q) {
+        job = Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level }); }).then(function (newTid) {
+          if (!newTid || newTid === tid) return tid;
+          // The new topic exists; now let the failed one go.
+          deleting = true;
+          return U.store.topic.remove(tid).then(function () { return newTid; }, function () { return newTid; });
+        });
+      } else job = Promise.reject({ message: 'Claude cannot plan topics in this view yet.' });
+      ui.retrying = true; render();
+      job.then(function (id) {
+        ui.retrying = false;
+        if (id !== tid) { if (ctx.alive()) U.go('#/t/' + encodeURIComponent(id)); }
+        else if (ctx.alive()) render();
+      }, function (e) {
+        ui.retrying = false; deleting = false;
+        U.toast(U.errText(e), { kind: 'bad' });
+        if (ctx.alive()) render();
+      });
+    }
+
+    function del() {
+      var title = topic.title || topic.query || 'this topic';
+      U.confirmSheet({
+        title: 'Delete this topic?',
+        text: 'This removes “' + title + '”, its lessons, your answers and its review cards from all your devices. You cannot undo this.',
+        confirm: 'Delete topic', danger: true,
+      }).then(function (yes) {
+        if (!yes) return;
+        deleting = true;
+        return U.store.topic.remove(tid).then(function () {
+          U.toast('Topic deleted.');
+          if (U.review && U.review.refreshBadge) try { U.review.refreshBadge(); } catch (e) { console.error(e); }
+          if (ctx.alive()) U.go('#/');
+        }, function (e) {
+          deleting = false;
+          U.toast('Could not delete the topic: ' + U.errText(e), { kind: 'bad' });
+          if (ctx.alive()) render();
+        });
+      });
+    }
+
+    // ---------- ready ----------
+
+    function readyView() {
+      var ideas = Array.isArray(topic.ideas) ? topic.ideas : [];
+      var s = V.summary(topic, progress);
+      var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
+      var head = U.h('header', { class: 'tp-head' },
+        V.back('#/', 'All topics'),
+        U.h('div', { class: 'tp-banner' }, V.cover(topic)),
+        U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
+        U.h('h1', { class: 'tp-title' }, topic.title || topic.query),
+        topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null);
+
+      var breath = topic.oneBreath ? U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
+        U.h('p', { class: 'eyebrow' }, 'In one breath'),
+        U.h('div', { class: 'reading' }, U.rich(topic.oneBreath))) : null;
+
+      var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
+        U.h('div', { class: 'row' },
+          s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
+            : U.h('span', { class: 'muted' }, s.done + ' of ' + s.total + ' ideas done')),
+        U.h('div', { class: 'bar' + (s.allDone ? ' is-complete' : ''), role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(s.total), 'aria-valuenow': String(s.done), 'aria-label': 'Ideas done' }, U.h('i', { style: { width: pct + '%' } }))) : null;
+
+      var ask = U.tutor && U.tutor.open ? U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic') : null;
+
+      return U.h('div', { class: 'tp-ready' },
+        head, breath, warmup(),
+        U.h('section', { class: 'tp-path-sec', 'aria-labelledby': 'path-h' },
+          U.h('div', { class: 'section-head' }, U.h('h2', { id: 'path-h' }, 'Your path'), prog ? null : U.h('span', { class: 'muted small' }, 'Take them in order, or start anywhere')),
+          prog,
+          U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s); }))),
+        ask,
+        library(ideas),
+        U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic')));
+    }
+
+    function pathNode(idea, i, ideas, s) {
+      var st = (progress.ideas && progress.ideas[idea.id]) || {};
+      var done = st.stage === 'done';
+      var current = s.current && s.current.id === idea.id;
+      var started = !done && !!st.stage;
+      var depIds = Array.isArray(idea.deps) ? idea.deps : [];
+      // "Builds on the idea just before" is what the path already shows; only say more.
+      if (depIds.length === 1 && i > 0 && depIds[0] === ideas[i - 1].id) depIds = [];
+      var deps = depIds.map(function (d) {
+        var x = ideas.filter(function (k) { return k.id === d; })[0];
+        return x ? x.title : null;
+      }).filter(Boolean);
+      var kicker = done ? 'Done' + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
+        : current ? (s.started ? 'In progress' : (s.done === 0 ? 'Start here' : 'Up next'))
+        : started ? 'Started' : 'Idea ' + (i + 1);
+      var cls = 'pnode' + (done ? ' is-done' : '') + (current ? ' is-current' : '');
+      return U.h('li', { class: cls },
+        U.h('a', { class: 'pnode-link', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(idea.id), 'data-key': 'idea-' + idea.id },
+          U.h('span', { class: 'pnode-mark', 'aria-hidden': 'true' }, done ? U.icon('tick') : String(i + 1)),
+          U.h('span', { class: 'pnode-body' },
+            U.h('span', { class: 'pnode-kicker' }, kicker),
+            U.h('span', { class: 'pnode-title' }, idea.title),
+            idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
+            mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
+            deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
+            current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start here', U.icon('arrow')) : null)));
+    }
+
+    // Known from the plan, from progress, or from a right warm-up answer about this idea.
+    function mayKnow(idea, st) {
+      if (idea.known || st.known) return true;
+      var ans = progress.calibration || {};
+      return (Array.isArray(topic.calibration) ? topic.calibration : []).some(function (q) {
+        return q && q.iid === idea.id && typeof ans[q.id] === 'number' && ans[q.id] === q.answer;
+      });
+    }
+
+    // ---------- warm-up (calibration) ----------
+
+    function warmup() {
+      var qs = (Array.isArray(topic.calibration) ? topic.calibration : []).filter(function (q) { return q && q.id && q.q && Array.isArray(q.options) && q.options.length; });
+      if (!qs.length) return null;
+      var ans = progress.calibration || {};
+      function answered(q) { return typeof ans[q.id] === 'number'; }
+      var done = qs.filter(answered);
+      var revealQ = ui.reveal ? qs.filter(function (q) { return q.id === ui.reveal; })[0] : null;
+      var s = V.summary(topic, progress);
+      var begun = s.done > 0 || s.started;
+
+      if (!revealQ && (done.length === qs.length || progress.calibrationSkipped || begun)) {
+        if (!done.length) {
+          if (begun) return null; // he is already learning: the warm-up has done its job
+          return U.h('p', { class: 'tp-warm-again' }, U.h('button', { class: 'linkish', type: 'button', 'data-key': 'warm-again', on: { click: function () {
+            progress = Object.assign({}, progress, { calibrationSkipped: false });
+            U.store.progress.patch(tid, { calibrationSkipped: false });
+            render();
+          } } }, 'Try the ' + (qs.length === 1 ? 'warm-up question' : qs.length + ' warm-up questions')));
+        }
+        var right = done.filter(function (q) { return ans[q.id] === q.answer; }).length;
+        var note = right === done.length ? 'You already know some of this. The early ideas may go quickly.'
+          : right === 0 ? 'All new ground, which is the best kind. The path starts from the beginning.'
+          : 'A good place to start. The path fills in the rest.';
+        return U.h('div', { class: 'tp-warm-done' },
+          U.h('span', { class: 'eyebrow' }, 'Warm-up'),
+          U.h('p', null, U.h('strong', null, right + ' of ' + done.length + ' right. '), U.h('span', { class: 'muted' }, note)));
+      }
+
+      var q = revealQ || qs.filter(function (x) { return !answered(x); })[0];
+      var idx = qs.indexOf(q), picked = ans[q.id], revealing = !!revealQ;
+      var options = q.options.map(function (opt, i) {
+        var cls = 'option';
+        if (revealing && i === q.answer) cls += ' correct';
+        else if (revealing && i === picked) cls += ' wrong';
+        return U.h('button', { class: cls, type: 'button', disabled: revealing, 'aria-pressed': revealing && i === picked ? 'true' : 'false', 'data-key': 'warm-' + q.id + '-' + i, on: { click: function () { pick(q, i); } } },
+          U.plain(opt));
+      });
+      var isLast = qs.filter(function (x) { return !answered(x) && x.id !== q.id; }).length === 0;
+      return U.h('section', { class: 'card tp-warm', 'aria-labelledby': 'warm-h' },
+        U.h('div', { class: 'row tp-warm-top' },
+          U.h('p', { class: 'eyebrow grow', id: 'warm-h' }, 'Warm-up · ' + (idx + 1) + ' of ' + qs.length),
+          revealing ? null : U.h('button', { class: 'linkish tp-skip', type: 'button', 'data-key': 'warm-skip', on: { click: skip } }, 'Skip')),
+        idx === 0 && !revealing ? U.h('p', { class: 'muted small' }, 'A quick look at where you stand. It never locks anything.') : null,
+        U.inline(U.h('p', { class: 'tp-warm-q' }), q.q),
+        U.h('div', { class: 'options' }, options),
+        revealing ? U.h('div', { class: 'tp-warm-why', role: 'status' },
+          U.h('p', { class: 'tp-warm-verdict' }, picked === q.answer ? 'Right.' : 'Not quite. The answer is “' + U.plain(q.options[q.answer] || '') + '”.'),
+          q.why ? U.h('div', { class: 'muted' }, U.rich(q.why)) : null,
+          U.h('button', { class: 'btn small', type: 'button', 'data-key': 'warm-next', on: { click: function () { ui.reveal = null; render(); } } }, isLast ? 'Done' : 'Next question')) : null);
+    }
+
+    function pick(q, i) {
+      ui.reveal = q.id;
+      var cal = Object.assign({}, progress.calibration || {});
+      cal[q.id] = i;
+      progress = Object.assign({}, progress, { calibration: cal });
+      var patch = { calibration: {} };
+      patch.calibration[q.id] = i;
+      U.store.progress.patch(tid, patch);
+      render();
+      var next = root.querySelector('[data-key="warm-next"]');
+      if (next) try { next.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+    }
+
+    function skip() {
+      progress = Object.assign({}, progress, { calibrationSkipped: true });
+      U.store.progress.patch(tid, { calibrationSkipped: true });
+      render();
+    }
+
+    // ---------- library ----------
+
+    function loadLibrary() {
+      var r = topic.research || {};
+      var ideas = Array.isArray(topic.ideas) ? topic.ideas : [];
+      var key = [r.status, r.at, r.sources, ideas.map(function (i) { return i.id; }).join(',')].join('|');
+      if (key === lib.key) return;
+      lib.key = key;
+      var keys = ['topic'].concat(ideas.map(function (i) { return i.id; }));
+      Promise.all(keys.map(function (k) { return U.store.research.get(tid, k).catch(function () { return null; }); })).then(function (docs) {
+        if (key !== lib.key) return;
+        var seen = {};
+        lib.groups = docs.map(function (d, i) {
+          var list = (d && Array.isArray(d.sources) ? d.sources : []).filter(function (src) {
+            if (!src || !(src.title || src.url)) return false;
+            var id = src.url || src.title;
+            if (seen[id]) return false;
+            seen[id] = true;
+            return true;
+          });
+          return { key: keys[i], sources: list };
+        }).filter(function (g) { return g.sources.length; });
+        schedule();
+      });
+    }
+
+    function library(ideas) {
+      var r = topic.research || {};
+      var count = (lib.groups || []).reduce(function (n, g) { return n + g.sources.length; }, 0);
+      var status;
+      if (r.status === 'running') {
+        status = U.h('div', { class: 'lib-status is-running' }, U.h('span', null, 'Checking sources…'), U.h('div', { class: 'working' }));
+      } else if (r.status === 'done') {
+        status = U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Sources checked' + (count ? ' · ' + count + (count === 1 ? ' source' : ' sources') : '')));
+      } else {
+        var text = r.status === 'failed' ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
+        if (avail === false) text += ' Connect Parallel Search in Claude\'s settings to add sources.';
+        status = U.h('p', { class: 'lib-status is-none' }, text);
+      }
+      var groups = (lib.groups || []).map(function (g) {
+        var idea = g.key === 'topic' ? null : ideas.filter(function (i) { return i.id === g.key; })[0];
+        return U.h('div', { class: 'lib-group' },
+          g.key === 'topic' ? null : U.h('h3', { class: 'lib-group-h' }, 'For “' + (idea ? idea.title : g.key) + '”'),
+          U.h('ol', { class: 'sources' }, g.sources.map(sourceItem)));
+      });
+      return U.h('section', { class: 'tp-lib', 'aria-labelledby': 'lib-h' },
+        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'lib-h' }, 'Library')),
+        status, groups);
+    }
+
+    function sourceItem(src) {
+      var site = V.site(src.url);
+      return U.h('li', { class: 'src' },
+        V.extLink(src.url, src.title || site || src.url, 'src-title'),
+        site ? U.h('span', { class: 'src-site' }, site) : null,
+        src.quote ? U.h('blockquote', { class: 'src-quote' }, '“' + String(src.quote).replace(/^["“]|["”]$/g, '') + '”') : null);
+    }
+
+    return function () {
+      stops.forEach(function (f) { try { f(); } catch (e) { console.error(e); } });
+      clearInterval(timer);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, { tab: 'learn' });
+})();

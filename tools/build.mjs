@@ -41,6 +41,21 @@ for (const [k, v] of Object.entries(replacements)) {
   if (!js.includes(k)) throw new Error(`placeholder ${k} missing from app/src/js`);
   js = js.split(k).join(v);
 }
+
+// The kit reference and exemplar bodies, quoted in build-interactive prompts (33-interactive.js).
+// Filled the same way as tools/eval/prompts.mjs; optional so partial builds without 33 work.
+// "<!--" is escaped too: inside the bundle's <script> it could otherwise start an escaped section.
+const kitDir = join(app, 'kit');
+const examples = listed(join(kitDir, 'examples'), '.html').map((f) => {
+  const body = read(f);
+  const m = body.match(/<!--\s*kind:\s*([a-z-]+)\s*-->/i);
+  return { name: f.split(/[\\/]/).pop().replace(/\.html$/, ''), kind: m ? m[1] : 'concept', body };
+});
+const optional = {
+  '"@@KIT_MD@@"': JSON.stringify(existsSync(join(kitDir, 'KIT.md')) ? read(join(kitDir, 'KIT.md')) : ''),
+  '"@@KIT_EXAMPLES@@"': JSON.stringify(examples),
+};
+for (const [k, v] of Object.entries(optional)) js = js.split(k).join(v.replace(/<!--/g, '<\\u0021--'));
 // A literal </script> inside the bundle would end the script element early.
 js = js.replace(/<\/script/gi, '<\\/script');
 

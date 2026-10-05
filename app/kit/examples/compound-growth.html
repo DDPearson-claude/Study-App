@@ -1,0 +1,80 @@
+<!-- kind: mechanism -->
+<p class="lead">Compound interest pays interest on your interest, so the pot grows faster every year. Set a rate and a time, and compare it with simple interest, which only ever pays on the starting amount.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<div class="k-readouts" id="outs"></div>
+<p class="say" id="say"></p>
+<p class="caption">Compound: balance = P × (1 + r)<sup>t</sup>. Simple: balance = P × (1 + r × t). Interest is added once a year at a fixed rate, and the line joins the year-end balances smoothly. Leaves out tax, fees, inflation and rates that change.</p>
+
+<script>
+  const SOURCE = 'https://en.wikipedia.org/wiki/Rule_of_72';
+  const money = (v) => '£' + K.fmt(v, { dp: v < 1000 ? 2 : 0 });
+  const years1 = (v) => K.fmt(v, { dp: 1 }) + ' years';
+
+  K.control({ id: 'principal', label: 'Starting amount', min: 100, max: 10000, step: 100, value: 1000, prefix: '£', into: '#controls' });
+  K.control({ id: 'rate', label: 'Interest rate per year', min: 0.5, max: 15, step: 0.5, value: 6, unit: '%', into: '#controls' });
+  K.control({ id: 'years', label: 'Years', min: 1, max: 50, step: 1, value: 30, fmt: (v) => v + (v === 1 ? ' year' : ' years'), into: '#controls' });
+
+  K.readout({ id: 'compound', label: 'Compound', fmt: money, into: '#outs' });
+  K.readout({ id: 'simple', label: 'Simple', fmt: money, into: '#outs' });
+  K.readout({ id: 'rule72', label: 'Doubling, rule of 72', unit: 'years', dp: 1, into: '#outs' });
+  K.readout({ id: 'exact', label: 'Doubling, exact', unit: 'years', dp: 1, into: '#outs' });
+
+  const plot = K.plot('#plot', {
+    x: { min: 0, max: 30, label: 'Years' },
+    y: { label: 'Balance', prefix: '£' },
+    label: 'Compound growth curves upward while simple growth is a straight line',
+  });
+
+  // The pure model. Rates are entered in percent; r is the yearly fraction.
+  const grow = (P, r, t) => P * Math.pow(1 + r, t);
+  K.model((p) => {
+    const r = p.rate / 100;
+    return {
+      compound: grow(p.principal, r, p.years),
+      simple: p.principal * (1 + r * p.years),
+      rule72: 72 / p.rate,
+      exact: Math.LN2 / Math.log(1 + r),
+    };
+  });
+
+  K.update((p, o) => {
+    const r = p.rate / 100;
+    // Each doubling takes the same time: mark the last four that fit.
+    const marks = [];
+    for (let k = 1; k * o.exact <= p.years && k <= 10; k++) marks.push({ x: k * o.exact, y: p.principal * Math.pow(2, k), label: '×' + Math.pow(2, k), r: 5 });
+    plot.draw({
+      x: { min: 0, max: p.years, label: 'Years' },
+      series: [
+        { fn: (t) => grow(p.principal, r, t), label: 'Compound: interest on interest' },
+        { fn: (t) => p.principal * (1 + r * t), label: 'Simple: interest on the start only', color: 'muted', dash: true },
+      ],
+      marks: marks.slice(-4),
+    });
+    const extra = o.compound - o.simple;
+    const gap = Math.abs(o.rule72 - o.exact);
+    const first = p.years === 1
+      ? 'After 1 year both give ' + money(o.compound) + ': interest on interest only starts once the first year\'s interest has been added.'
+      : 'After ' + p.years + ' years at ' + p.rate + '%, compounding gives ' + money(o.compound) + ' against ' + money(o.simple) +
+        ' with simple interest: ' + money(extra) + ' more, earned as interest on earlier interest.';
+    document.getElementById('say').textContent = first + ' The pot doubles every ' + years1(o.exact) +
+      ' whatever the starting amount; the rule of 72 says ' + years1(o.rule72) + (gap < 0.05 ? ', almost exactly right.' : ', off by ' + years1(gap) + '.');
+  });
+
+  // Known answers, worked by hand, plus Wikipedia's rule of 72 example.
+  K.check('£1,000 at 5% for 10 years compounds to £1,628.89', () => K.near(K.at({ principal: 1000, rate: 5, years: 10 }).compound, 1628.89, 0.005));
+  K.check('£1,000 at 5% simple interest for 10 years gives £1,500', () => K.near(K.at({ principal: 1000, rate: 5, years: 10 }).simple, 1500, 1e-9));
+  K.check('At 9% the rule of 72 says 8 years and the exact answer is 8.0432 years', () => {
+    const o = K.at({ rate: 9 });
+    return K.near(o.rule72, 8, 1e-9) && K.near(o.exact, 8.0432, 0.0001);
+  }, { source: SOURCE });
+  K.check('Doubling time does not depend on the starting amount', () =>
+    K.near(K.at({ principal: 100, rate: 6 }).exact, K.at({ principal: 10000, rate: 6 }).exact, 1e-12));
+  K.check('After one doubling time the balance really has doubled', () => {
+    const o = K.at({ principal: 1000, rate: 6 });
+    return K.near(grow(1000, 0.06, o.exact), 2000, 1e-6);
+  });
+
+  K.ready();
+</script>
