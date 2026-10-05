@@ -11,6 +11,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import vm from 'node:vm';
+import { loadPrompts } from '../tools/eval/prompts.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (f) => readFileSync(join(root, 'app', 'src', 'js', f), 'utf8');
@@ -24,6 +25,7 @@ const RESEARCH_JET = fx('research-jet-engines.json');
 const L_JET1 = fx('lesson-jet-engines-i1.json');
 const L_JET2 = fx('lesson-jet-engines-i2.json');
 const L_ROME1 = fx('lesson-roman-republic-i1.json');
+const L_ROME4 = fx('lesson-roman-republic-i4.json');
 
 function firstUser(input) {
   if (typeof input === 'string') return input;
@@ -170,6 +172,7 @@ test('validators accept every fixture', () => {
   assert.deepEqual(plain(U.validate.lesson(L_JET1, { iid: 'i1', sources: lr1.sources, final: true })), []);
   assert.deepEqual(plain(U.validate.lesson(L_JET2, { iid: 'i2', sources: lr2.sources, final: true })), []);
   assert.deepEqual(plain(U.validate.lesson(L_ROME1, { iid: 'i1', sources: null, final: true })), []);
+  assert.deepEqual(plain(U.validate.lesson(L_ROME4, { iid: 'i4', sources: null, final: true })), [], 'a timeline with named options, no outputs and dates');
   assert.ok(U.prompts.words(L_JET1.explain.text) <= 170);
   assert.ok(U.prompts.words(L_ROME1.explain.text) <= 170);
   assert.deepEqual(plain(U.validate.grade({ met: [true, true, false], verdict: 'partly', nailed: 'You got the push-back.', followUp: 'What does it push on?' }, { rubric: 3, attempt: 1 })), []);
@@ -196,13 +199,25 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
     ['predict missing', (l) => { delete l.predict; }, /predict is missing/],
     ['control min not below max', (l) => { l.interactive.controls[0].min = 2000; }, /min < max/],
     ['control start value out of range', (l) => { l.interactive.controls[1].value = 900; }, /value must be a number between/],
-    ['three controls', (l) => { l.interactive.controls.push({ id: 'third', label: 'x', min: 0, max: 1, step: 0.1, value: 0, unit: '' }); }, /1-2 sliders/],
+    ['three controls', (l) => { l.interactive.controls.push({ id: 'third', label: 'x', min: 0, max: 1, step: 0.1, value: 0, unit: '' }); }, /1-2 controls/],
     ['bad control id', (l) => { l.interactive.controls[0].id = 'air flow'; }, /camelCase/],
     ['duplicate check ids', (l) => { l.checks[1].id = 'c1'; }, /used twice/],
     ['brief in the wrong form', (l) => { l.interactive.brief = 'Play with the sliders to learn about thrust.'; }, /The one thing you should see is/],
     ['quote longer than 30 words', (l) => { l.sources[0].quote = 'word '.repeat(40).trim(); }, /at most 30/],
     ['duplicate source numbers', (l) => { l.sources.push({ ...l.sources[0] }); }, /used twice/],
-    ['outputs but no target check', (l) => { l.checks[0] = { id: 'c1', type: 'choice', q: 'Which?', options: ['a', 'b'], answer: 0, why: 'because' }; }, /at least one check of type "target"/],
+    ['outputs but no target check', (l) => { l.checks[0] = { id: 'c1', type: 'choice', q: 'Which?', options: ['a', 'b'], answer: 0, why: 'because' }; }, /one check of type "target"/],
+    ['target tolerance of 0', (l) => { l.checks[0].tolerance = 0; }, /tolerance must be a number greater than 0/],
+    ['target on a switch', (l) => { Object.assign(l.interactive.controls[1], { min: 0, max: 1, step: 1, value: 0 }); }, /needs a numeric control with at least three settings/],
+    ['target on named options', (l) => { l.interactive.controls[1] = { id: 'speedAdded', label: 'Speed added', options: ['slow', 'fast'], value: 1 }; }, /switch or named options/],
+    ['named control with a bad opening index', (l) => { l.interactive.controls[0] = { id: 'airFlow', label: 'Air', options: ['a', 'b', 'c'], value: 3 }; }, /0-based index of the opening option/],
+    ['named control with one option', (l) => { l.interactive.controls[0] = { id: 'airFlow', label: 'Air', options: ['a'], value: 0 }; }, /2-8 short names/],
+    ['control label over 6 words', (l) => { l.interactive.controls[0].label = 'The air that the engine throws back each second'; }, /at most 6/],
+    ['output label over 6 words', (l) => { l.interactive.outputs[0].label = 'How hard the engine pushes the plane forwards'; }, /outputs\[0\]\.label has 8 words/],
+    ['unit over 10 characters', (l) => { l.interactive.controls[0].unit = 'kilograms per second'; }, /at most 10/],
+    ['whatAmILookingAt over 120 words', (l) => { l.interactive.whatAmILookingAt = 'word '.repeat(121); }, /whatAmILookingAt has 121 words/],
+    ['unknown number kind', (l) => { l.interactive.numbers[0].kind = 'guess'; }, /"assumed" or "date"/],
+    ['an assumed value with a source', (l) => { l.interactive.numbers[3].kind = 'assumed'; l.interactive.numbers[3].source = 1; }, /assumed example value/],
+    ['a web address in a check', (l) => { l.checks[2].why += ' See https://example.org/thrust.'; }, /checks\[2\]\.why contains a web address/],
     ['misconception on the right answer', (l) => { l.checks[2].misconception['2'] = 'nope'; }, /describes the right answer/],
     ['unknown check type', (l) => { l.checks[1].type = 'essay'; }, /type must be/],
     ['number cites a missing source', (l) => { l.interactive.numbers[0].source = 9; }, /source 9 is not in sources/],
@@ -315,31 +330,46 @@ test('prompt builders start with their TASK line, stay small and carry the key r
     assert.ok(!/undefined|\[object Object\]|NaN/.test(p), task + ' has no undefined/object leaks');
   }
   const plan = prompts['plan-topic'];
-  for (const s of ['how jet engines work', '5-8 ideas', 'exactly 2', 'misconceptions', 'puzzle question', 'Never a definition', 'deps', 'mechanism', 'skill', 'oneBreath', 'Known idea number 0 (from: Topic 0)', 'Do not re-teach', '"known": true', 'Aim for 5-6 ideas'])
+  for (const s of ['how jet engines work', '5-8 ideas', 'a century of history will not fit in 5', 'exactly 2', 'misconceptions', 'puzzle question', 'Never a definition', 'deps', 'mechanism', 'skill', 'oneBreath', 'Known idea number 0 (from: Topic 0)', 'Do not re-teach', '"known": true', 'Usually 5-6 ideas', 'never promise an outcome'])
     assert.ok(plan.includes(s), 'plan-topic mentions ' + s);
   assert.ok(!plan.includes('Known idea number 60'), 'known ideas are capped at 60');
   assert.ok(U.prompts.planTopic('x', { level: 'solid' }).includes('SOLID GROUNDING'));
   assert.ok(U.prompts.planTopic('x', {}).includes('None yet'));
   assert.ok(!U.prompts.planTopic('x', {}).includes('Do not re-teach'), 'no advice about an empty list');
+  assert.ok(!U.prompts.planTopic('x', {}).includes('"known"'), 'no dangling "known" instruction without known ideas');
+  assert.ok(plan.includes('"known": true goes only on a refresher idea'));
 
   const research = prompts.research;
   for (const s of ['web_search', 'web_fetch', 'at most 30 words', 'Never cite a page you did not open', '"contested"', '"i1"', '"i6"', 'encyclopedias'])
     assert.ok(research.includes(s), 'research mentions ' + s);
 
   const lesson = prompts['write-lesson'];
-  for (const s of ['at most 170 words', 'The one thing you should see is', 'whatAmILookingAt', 'ignores', 'THE NUMBER RULE', '"control"', '"computed"', '"constant"',
-    'where the comparison stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Include at least one target check', '"contested"',
-    '[1] Newton\'s Third Law of Motion — NASA Glenn Research Center — https://www.grc.nasa.gov/www/k-12/BGP/newton3.html',
-    '<-- THIS LESSON', 'Do not teach the later ideas', 'Known idea number 3', '[[like this]]', 'UK English'])
+  for (const s of ['at most 170 words', 'The one thing you should see is', 'whatAmILookingAt', 'ignores', 'THE NUMBER RULE', '- control:', '- computed:', '- constant:', '- assumed:', '- date:',
+    'hypothetical check case', 'where the comparison stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Include one whenever the interactive has outputs', '"contested": { "views"',
+    '[1] Newton\'s Third Law of Motion — NASA Glenn Research Center — https://www.grc.nasa.gov/www/k-12/BGP/newton3.html', 'with "source": n when a source above states it',
+    '<-- THIS LESSON', 'Teach only this idea', 'This is the first idea', 'Known idea number 3', '[[like this]]', 'UK English',
+    'moving away from that state', 'kettle', 'which view he finds more convincing', 'never as something he did', 'never by its shade', 'FAIR EXAMPLES',
+    'Never invent probabilities', 'controls: one.', 'named: options', 'may start off', 'zero when zero is the real case', 'at most 120 words', 'label (at most 6 words)'])
     assert.ok(lesson.includes(s), 'write-lesson mentions ' + s);
   assert.ok(!lesson.includes('A FRESH ANGLE'));
+  assert.ok(!lesson.includes('EARLIER LESSONS') && !lesson.includes('Builds on'), 'the first idea has nothing earlier to refer to');
+  assert.ok(lesson.includes('QUESTIONS DAN ANSWERED') && lesson.includes(PLAN_JET.calibration[0].q), 'the first lesson sees the calibration questions');
 
   const bare = U.prompts.writeLesson(PLAN_ROME, PLAN_ROME.ideas[0], {});
   assert.ok(bare.includes('No checked sources are available') && bare.includes('"sources": []') && !/^\[1\] /m.test(bare), 'no research -> no footnotes');
-  assert.ok(!bare.includes('"source": 1'));
-  const again = U.prompts.writeLesson(PLAN_JET, PLAN_JET.ideas[1], { avoid: L_JET2.interactive.brief, prior: [{ title: 'Throw something back', brief: L_JET1.interactive.brief }] });
+  assert.ok(!bare.includes('"source": 1') && !bare.includes('"source": n') && bare.includes('no web addresses anywhere in the lesson'), 'no research -> no source fields, no URLs');
+  assert.ok(bare.includes('controls: 1-2') === false && bare.includes('controls: one.'), 'level "some" asks for one control');
+  assert.ok(!bare.includes('IDEAS DAN KNOWS FROM OTHER TOPICS'), 'no empty known block in a lesson');
+  assert.ok(U.prompts.writeLesson({ ...PLAN_ROME, level: 'solid' }, PLAN_ROME.ideas[0], {}).includes('controls: 1-2;'), 'solid allows two controls');
+  const again = U.prompts.writeLesson(PLAN_JET, PLAN_JET.ideas[1], { avoid: L_JET2.interactive.brief, prior: U.prompts.priorSummary([L_JET1]) });
   assert.ok(again.includes('A FRESH ANGLE') && again.includes(L_JET2.interactive.brief), 'relearn passes the old brief to avoid');
-  assert.ok(again.includes(L_JET1.interactive.brief) && again.includes('Dan has worked through the ideas before this one'));
+  for (const s of ['EARLIER LESSONS IN THIS COURSE', 'i1 "' + L_JET1.title + '"', 'Terms: Newton\'s third law, thrust', 'Analogy: ' + L_JET1.analogy.text.slice(0, 40), 'Interactive: ' + L_JET1.interactive.brief,
+    'You plus the skateboard = 70 kg (assumed)', 'Predict: ' + L_JET1.predict.q, 'Choose a different analogy', 'Builds on: i1 "Throw something back, get pushed forward".'])
+    assert.ok(again.includes(s), 'a later lesson sees ' + s);
+  const blind = U.prompts.writeLesson(PLAN_JET, PLAN_JET.ideas[1], {});
+  assert.ok(blind.includes('No lesson has been written for the earlier ideas yet') && !blind.includes('EARLIER LESSONS') && !/refer back/i.test(blind), 'nothing earlier to refer back to');
+  assert.ok(U.prompts.writeLesson(PLAN_ROME, PLAN_ROME.ideas[4], {}).includes(PLAN_ROME.calibration[1].q), 'a lesson whose idea a calibration question probes sees it');
+  assert.ok(!U.prompts.writeLesson(PLAN_ROME, PLAN_ROME.ideas[5], {}).includes('QUESTIONS DAN ANSWERED'), 'later lessons do not');
 
   const g1 = prompts.grade, g2 = U.prompts.grade(L_JET1.say, 'it throws air back', { attempt: 2, previous: { text: 'first go', followUp: 'What pushes back?' } });
   const template = (p) => p.split('\n').find((l) => l.startsWith('{ "met"'));
@@ -378,6 +408,23 @@ test('lessonResearch numbers sources per lesson: the idea\'s first, then the top
   assert.equal(U.prompts.lessonResearch({ topic: null, idea: null }, 'i1'), null);
 });
 
+test('priorSummary keeps what earlier lessons gave Dan: exact terms, analogy, brief, numbers, predict', () => {
+  const U = loadPure();
+  const [a, b] = plain(U.prompts.priorSummary([L_JET1, { status: 'ready', lesson: L_ROME4 }, null, { iid: 'x' }]));
+  assert.equal(a.iid, 'i1');
+  assert.equal(a.title, L_JET1.title);
+  assert.deepEqual(a.terms, ['Newton\'s third law', 'thrust'], 'the [[terms]], once each, in order');
+  assert.equal(a.analogy, L_JET1.analogy.text);
+  assert.equal(a.brief, L_JET1.interactive.brief);
+  assert.ok(a.numbers.includes('Mass of the ball (kg) = 2') && a.numbers.includes('You plus the skateboard = 70 kg (assumed)'), JSON.stringify(a.numbers));
+  assert.equal(a.asked, L_JET1.predict.q);
+  assert.equal(b.iid, 'i4', 'a lesson doc is read through its lesson');
+  assert.deepEqual(b.terms, ['emergency decree', 'unwritten rules']);
+  assert.ok(b.numbers.includes('Tiberius Gracchus is tribune = 133 BC (date)'));
+  assert.deepEqual(plain(U.prompts.priorSummary([a])), [a], 'summaries pass through unchanged');
+  assert.deepEqual(plain(U.prompts.priorSummary(null)), []);
+});
+
 test('the eval tool prints sensible prompts', (t) => {
   const run = (args) => spawnSync(process.execPath, [join(root, 'tools', 'eval', 'prompts.mjs'), ...args], { cwd: root, encoding: 'utf8' });
   const plan = run(['plan-topic', '--query', 'how jet engines work']);
@@ -389,6 +436,12 @@ test('the eval tool prints sensible prompts', (t) => {
   assert.ok(lesson.stdout.startsWith('TASK: write-lesson\n'));
   assert.ok(lesson.stdout.includes('[2] How Does a Jet Engine Work? — NASA Glenn Research Center'));
   assert.ok(lesson.stdout.includes('Idea i1: "Throw something back, get pushed forward"'));
+  const prior = run(['write-lesson', '--topic', 'tests/fixtures/plan-jet-engines.json', '--idea', 'i2', '--prior', 'tests/fixtures/lesson-jet-engines-i1.json']);
+  assert.equal(prior.status, 0, prior.stderr);
+  assert.ok(prior.stdout.includes('EARLIER LESSONS IN THIS COURSE') && prior.stdout.includes('Terms: Newton\'s third law, thrust'), 'write-lesson --prior uses priorSummary');
+  assert.ok(prior.stdout.includes('His level: NEW'), 'level comes from topic.json');
+  const solid = run(['write-lesson', '--topic', 'tests/fixtures/lesson-ui-topic.json', '--idea', 'i1', '--level', 'solid']);
+  assert.equal(solid.status, 0, solid.stderr);
   const grade = run(['grade', '--lesson', 'tests/fixtures/lesson-jet-engines-i1.json', '--answer', 'air goes back so the plane goes forward']);
   assert.equal(grade.status, 0, grade.stderr);
   assert.ok(grade.stdout.startsWith('TASK: grade\n'));
@@ -513,7 +566,7 @@ test('source checking: corpus matching and lesson renumbering', async () => {
     { n: 3, title: 'y', url: lr.sources[2].url + '/', quote: 'something else' },
     { n: 7, title: 'Invented', url: 'https://example.com/nope', quote: 'Never said.' },
   ];
-  raw.interactive.numbers[2].source = 3;
+  Object.assign(raw.interactive.numbers[2], { kind: 'constant', source: 3 });
   const out = plain(U.gen._finaliseLesson(raw, 'i1', lr));
   assert.deepEqual(out.sources.map((s) => s.url), [lr.sources[2].url, lr.sources[0].url], 'renumbered in order of first citation');
   assert.equal(out.sources[0].quote, lr.sources[2].quote, 'title, url and quote come from the checked research');
@@ -716,6 +769,46 @@ test('known ideas from other topics reach the planner and the lesson writer', as
   assert.ok(firstUser(app.calls.find((c) => c.task === 'write-lesson').input).includes('Rockets push on their own exhaust'));
 });
 
+test('a later lesson is written with what the earlier lessons gave Dan', async () => {
+  const app = await boot({ handlers: handlers() });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  await U.gen.ensureLesson('t1', 'i1');
+  await U.gen.ensureLesson('t1', 'i2');
+  const [p1, p2] = app.calls.filter((c) => c.task === 'write-lesson').map((c) => firstUser(c.input));
+  assert.ok(!p1.includes('EARLIER LESSONS'));
+  assert.ok(p2.includes('EARLIER LESSONS IN THIS COURSE') && p2.includes('Terms: Newton\'s third law, thrust') && p2.includes('Interactive: ' + L_JET1.interactive.brief), 'i2 sees i1\'s terms and interactive');
+  // An idea further on sees every earlier lesson that exists, not just its deps.
+  await U.gen.ensureLesson('t1', 'i4');
+  const p4 = firstUser(app.calls.filter((c) => c.task === 'write-lesson')[2].input);
+  assert.ok(p4.includes('- i1 "') && p4.includes('- i2 "'), 'i4 (deps: i3) still sees i1 and i2');
+});
+
+test('target checks the built interactive cannot reach are dropped from the lesson', async () => {
+  const build = (t, i, l, o) => okBuild(t, i, l, o).then((r) => ({ ...r, unreachable: ['c1'] }));
+  const app = await boot({ handlers: handlers({ 'write-lesson': () => unsourced(L_JET2) }), build });
+  await app.seed('topics/t1', PLAN_JET);
+  const doc = await app.U.gen.ensureLesson('t1', 'i2');
+  assert.deepEqual(doc.lesson.checks.map((c) => c.id), ['c2', 'c3']);
+  assert.equal(doc.interactive.unreachable, undefined, 'the stored interactive stays clean');
+  assert.equal(doc.status, 'ready');
+});
+
+test('work on a topic deleted mid-way stops and leaves nothing behind', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const app = await boot({ handlers: handlers({ 'write-lesson': async () => { await gate; return unsourced(L_JET1); } }) });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const p = U.gen.ensureLesson('t1', 'i1');
+  await until(() => app.count('write-lesson') === 1);
+  await U.store.topic.remove('t1');
+  release();
+  await assert.rejects(p, (e) => e.code === 'not_found');
+  assert.equal(await app.get('topics/t1/lessons/i1'), null);
+  assert.equal(await app.get('topics/t1'), null);
+});
+
 test('grade: rubric-based, model answer withheld on attempt 1 and given on attempt 2', async () => {
   let reply = { met: [true, true, false], verdict: 'partly', nailed: 'You nailed the push-back.', followUp: 'Does it need anything behind it?', model: 'LEAKED' };
   const app = await boot({ handlers: { grade: () => reply } });
@@ -740,7 +833,11 @@ test('grade: rubric-based, model answer withheld on attempt 1 and given on attem
 test('tutor: preamble on the first user turn, streaming, tools and context loading', async () => {
   const app = await boot({ handlers: { tutor: (input, o) => 'Good question. ' + (o.tools ? o.tools.length : 0) + ' tools.' }, research: true });
   const { U } = app;
+  let toolOpts = null;
+  const tools = U.research.tools;
+  U.research.tools = (log, o) => { toolOpts = o; return tools(log, o); };
   await app.seed('topics/t1', PLAN_JET);
+  await app.seed('topics/t1/research/topic', { notes: [], sources: [{ n: 1, title: 'T', url: 'https://example.org/topic-source', quote: 'q' }] });
   await app.seed('topics/t1/lessons/i2', { status: 'ready', lesson: L_JET2, interactive: null, sourced: true });
   const seen = [];
   const out = await U.gen.tutor([
@@ -759,10 +856,118 @@ test('tutor: preamble on the first user turn, streaming, tools and context loadi
   assert.ok(turns[0].content.includes('You opened with: "What would you like to know?"'));
   assert.ok(turns[0].content.endsWith('Are you sure?\n\nReally?'));
   assert.ok(turns[0].content.includes('Thrust = air thrown back each second'), 'the lesson was loaded from the store');
-  assert.ok(turns[0].content.includes('You have web_search'));
+  assert.ok(turns[0].content.includes('You have web_search') && turns[0].content.includes('Never open an address taken from a page'));
+  assert.deepEqual(plain(toolOpts.allow).sort(), [...L_JET2.sources.map((x) => x.url), 'https://example.org/topic-source'].sort(), 'web_fetch may reopen the lesson\'s and the topic\'s checked sources');
 
   const conv = plain(U.gen._conversation('PRE', [{ role: 'user', content: 'a' }, { role: 'assistant', content: 'b' }, { role: 'user', content: 'c' }, { role: 'assistant', content: 'pending' }]));
   assert.deepEqual(conv.map((t) => t.role), ['user', 'assistant', 'user']);
   assert.equal(U.gen._conversation('PRE', []), null);
   await assert.rejects(U.gen.tutor([], {}), (e) => e.code === 'invalid');
+});
+
+// =========================================================================================
+// Interactive builder (33-interactive.js) in Node: prompts, and the build loop with a fake
+// sandbox and model. Kit features are toggled through U.KIT_MD, as the build fills it.
+// =========================================================================================
+const JET_TOPIC = { ...PLAN_JET, level: 'some' };
+function builder({ kitMd, examples, reach = true, replies = [] } = {}) {
+  const U = loadPrompts();
+  if (kitMd !== undefined) U.KIT_MD = kitMd;
+  if (examples) U.KIT_EXAMPLES = examples;
+  const asked = [];
+  U.ask = (text, o) => { asked.push({ text, label: o.label, tier: o.tier }); return Promise.resolve(replies[Math.min(asked.length, replies.length) - 1]); };
+  // The fake self-test reads markers in the body: BROKEN fails, NOMODEL leaves "thrust" a readout
+  // only, WARN adds the kit's "no source" advice; reach fails on FAR.
+  U.sandbox = {
+    test: (html) => Promise.resolve({
+      ok: !html.includes('BROKEN'), errors: html.includes('BROKEN') ? ['boom (body line 3)'] : [], overflow: false,
+      checks: [{ label: 'known case', ok: true }], sweep: { ok: true, problems: [] },
+      controls: ['airFlow', 'speedAdded'], readouts: ['thrust'], outputs: html.includes('NOMODEL') ? [] : ['thrust'],
+      warnings: html.includes('WARN') ? ['No K.check has a source: add one known value from a cited reference.'] : [],
+    }),
+  };
+  if (reach) U.sandbox.reach = (html, spec) => Promise.resolve({ reachable: !html.includes('FAR'), best: { value: 38.1, setting: 4 }, spec });
+  return { U, asked };
+}
+const page = (extra = '') => '<p class="lead">Push the air.</p>' + extra + '<script>K.ready()</script>';
+const WIKI = 'https://en.wikipedia.org/wiki/Thrust';
+
+test('build prompt: one source rule, the opening state, number kinds, wording and level', () => {
+  const { U } = builder({ kitMd: '# Kit\nK.control and K.afterMove(fn) and K.sound and roles cat1 cat2' });
+  const bare = U.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], unsourced(L_JET2));
+  assert.ok(bare.startsWith('TASK: build-interactive\n'));
+  assert.ok(bare.includes('Dan knows a little about this topic.') && !/Dan is knows/.test(bare), 'level sentence reads right');
+  assert.ok(bare.includes('the page contains no web addresses at all') && bare.includes('No {source}: this lesson has no sources.'), 'no sources: no URLs anywhere');
+  assert.ok(!/standard reference you would trust|encyclopedia/.test(bare), 'never asks for a URL from memory');
+  for (const s of ['Hide the answer until Dan moves', 'k-after-move', 'K.afterMove(fn)', 'The opening view still looks alive', 'one phone screen together',
+    'Round readouts the way the explanation writes', '"none" and "all"', 'never "the dark square"', 'cat1-cat4', 'at most two short sentences',
+    'do not repeat it on the page', 'at least one answer from outside the model', 'K.sound', 'never advice', 'assumed = an example value, shown as "for example"',
+    'use these ids, ranges and opening values exactly', 'reads "thrust"', 'moving "speedAdded" alone can reach the target', 'He answers it by moving away from the opening state'])
+    assert.ok(bare.includes(s), 'build prompt mentions ' + s);
+  const sourced = U.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  assert.ok(sourced.includes('The only web addresses this page may contain') && sourced.includes(L_JET2.sources[0].url) && sourced.includes('with {source: its URL}'));
+  // Kit features the KIT.md does not document are not named.
+  const { U: U0 } = builder({ kitMd: '# Kit\nK.control only' });
+  const plainKit = U0.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  assert.ok(plainKit.includes('once any control differs from its opening value') && !plainKit.includes('afterMove') && !plainKit.includes('K.sound') && !plainKit.includes('cat1'));
+  // Named options, switches and no outputs.
+  const hist = U.interactive.prompt(PLAN_ROME, PLAN_ROME.ideas[3], L_ROME4);
+  assert.ok(hist.includes('named options in this order: "133 BC: a land law" / "133 BC: the veto"') && hist.includes('opening on "133 BC: a land law" (K.choice; K.stepper when they are stages in order)'), 'named control');
+  assert.ok(hist.includes('Outputs: none.') && hist.includes('133 BC (date)'));
+  const sw = clone(L_JET2); sw.interactive.controls[0] = { id: 'fanOn', label: 'Big fan', min: 0, max: 1, step: 1, value: 0, unit: '' };
+  assert.ok(U.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], sw).includes('id "fanOn": Big fan, an on/off switch (K.toggle), starting off'));
+});
+
+test('exampleFor maps each idea kind to the closest exemplar', () => {
+  const ex = (kinds) => kinds.map((k) => ({ name: k + '-ex', kind: k, body: '<!-- kind: ' + k + ' -->' }));
+  const { U } = builder({ examples: ex(['mechanism', 'process', 'quantity']) });
+  const pick = (k) => U.interactive.exampleFor(k).kind;
+  assert.deepEqual(['quantity', 'mechanism', 'skill', 'process', 'history', 'structure', 'concept'].map(pick), ['quantity', 'mechanism', 'quantity', 'process', 'process', 'process', 'process']);
+  const all = builder({ examples: ex(['concept', 'history', 'mechanism', 'process', 'quantity', 'structure']) }).U;
+  assert.deepEqual(['history', 'structure', 'concept', 'skill'].map((k) => all.interactive.exampleFor(k).kind), ['history', 'structure', 'concept', 'quantity']);
+});
+
+test('only the lesson\'s own sources may appear on the page', () => {
+  const { U } = builder();
+  const html = '<svg xmlns="http://www.w3.org/2000/svg"></svg><script>K.check("x", () => true, { source: "' + WIKI + '" });' +
+    'K.check("y", () => true, { source: "https://grc.nasa.gov/www/k-12/BGP/thrsteq.html/" });</script>';
+  assert.deepEqual(plain(U.interactive.foreignUrls(html, L_JET2)), [WIKI], 'namespaces and the lesson\'s source (any spelling) are fine');
+  assert.deepEqual(plain(U.interactive.foreignUrls(html, unsourced(L_JET2))), [WIKI, 'https://grc.nasa.gov/www/k-12/BGP/thrsteq.html/'], 'no sources: every address is foreign');
+  assert.deepEqual(plain(U.interactive.foreignUrls('<p>x</p>', L_JET2, { checks: [{ source: 'https://example.org/made-up' }] })), ['https://example.org/made-up'], 'sources built at run time are seen in the report');
+  assert.ok(!U.interactive.stripUrls(html, [WIKI]).includes('wikipedia'));
+});
+
+test('build: an unlisted web address is sent back for repair, and stripped as a last resort', async () => {
+  let b = builder({ replies: [page('WARN <a>' + WIKI + '</a>'), page('WARN')] });
+  let r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], unsourced(L_JET2));
+  assert.equal(r.attempts, 2);
+  const repair = b.asked[1];
+  assert.equal(repair.label, 'repair-interactive');
+  assert.ok(repair.text.includes('- Unlisted web address "' + WIKI + '": this lesson has no checked sources, so the page must contain no web addresses.'), repair.text.slice(0, 3000));
+  assert.ok(!repair.text.includes('No K.check has a source'), 'no advice to cite a source when there are none');
+  b = builder({ replies: [page(WIKI), page(WIKI), page(WIKI)] });
+  r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], unsourced(L_JET2));
+  assert.equal(b.asked.length, 3);
+  assert.ok(r && !r.html.includes(WIKI) && r.selftest.ok, 'kept, with the address stripped');
+  b = builder({ replies: [page('BROKEN'), page('BROKEN'), page('BROKEN')] });
+  assert.equal(await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2), null, 'a page that never passes its self-test is dropped');
+  assert.equal(b.asked.length, 3);
+});
+
+test('build: target checks must be reachable, read from model outputs, and are checked only when the host can', async () => {
+  let b = builder({ replies: [page('FAR'), page()] });
+  let r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  assert.equal(r.attempts, 2);
+  assert.ok(b.asked[1].text.includes('- Target out of reach: check "c1" asks Dan to move "speedAdded" until "thrust" reads 50 (give or take 1), but the closest this page gets is 38.1, with "speedAdded" at 4.'), b.asked[1].text.slice(0, 3000));
+  assert.equal(r.unreachable, undefined);
+  b = builder({ replies: [page('FAR'), page('FAR'), page('FAR')] });
+  r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  assert.deepEqual(plain(r.unreachable), ['c1'], 'out of repairs: the page is kept and the check is reported');
+  assert.ok(r.selftest.ok);
+  b = builder({ replies: [page('NOMODEL'), page()] });
+  r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  assert.ok(r.attempts === 2 && b.asked[1].text.includes('Missing output "thrust": the lesson reads it, so K.model must return it'), 'a readout alone is not enough');
+  b = builder({ reach: false, replies: [page('FAR')] });
+  r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  assert.equal(r.attempts, 1, 'without U.sandbox.reach the check is skipped');
 });

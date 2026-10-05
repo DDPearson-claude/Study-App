@@ -1,13 +1,17 @@
 /* House kit styles: inlined into every interactive's sandboxed iframe (see app/kit/KIT.md).
    A plain body (headings, paragraphs, a plot, a few controls) should look calm and roomy with no
-   extra CSS. Colours come from the host theme as --k-* variables (set by kit.js from K_THEME);
-   the values below are Dan's light palette, used when the page is opened on its own.
+   extra CSS. Colours come from the host theme as --k-* variables (set by kit.js for light or
+   dark); the values below are Dan's light palette, used when the page is opened on its own.
    Colour carries meaning only: navy (accent2) for controls and the main data, teal (accent) for
-   small labels, red (warn) for warnings, green (good) for "done", amber (hl) for highlights. */
+   small labels, red (warn) for warnings, green (good) for "done", amber for highlights;
+   cat1-cat4 tell equal things apart. Strokes: ink, muted, accent2, accent, warn, good, amber-line.
+   Fills: panel, sunk, amber, hl, fill1, fill2, fill3. */
 :root {
   --k-bg: #FFFFFF; --k-panel: #F7F5F0; --k-sunk: #EFEBE3; --k-ink: #1F2937; --k-muted: #5B6573;
   --k-line: #DED8CC; --k-strong: #B9B1A3; --k-accent: #0F6B66; --k-accent2: #17324D; --k-on-accent2: #F7F5F0;
-  --k-warn: #9F3038; --k-good: #2E7D4F; --k-hl: #FBE29A; --k-amber: #FFF1CC;
+  --k-warn: #9F3038; --k-good: #2E7D4F; --k-amber: #FFF1CC;
+  --k-hl: #FBE29A; --k-amber-line: #B7791F; --k-fill1: #D6E0EB; --k-fill2: #F8D47A; --k-fill3: #CFE8E4;
+  --k-cat1: #2A78D6; --k-cat2: #EB6834; --k-cat3: #1BAF7A; --k-cat4: #4A3AA7;
   --k-fs: 16px;
   --k-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --k-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -54,6 +58,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
 :focus-visible { outline: 3px solid var(--k-accent); outline-offset: 2px; border-radius: 6px; }
 [hidden] { display: none !important; }
 
+/* Kept hidden (with its space reserved, so nothing jumps) until Dan first moves something. */
+.k-after-move { visibility: hidden; }
+html.k-moved .k-after-move { visibility: visible; animation: k-fade .35s ease both; }
+@keyframes k-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Custom figures that span the column are capped and centred on wide screens (kit.js sets
+   --k-fig-max from the viewBox), so their text never balloons on desktop. */
+.k-fig { display: block; width: 100%; max-width: min(100%, var(--k-fig-max, 600px)); margin-left: auto; margin-right: auto; }
+svg.k-fig:not([preserveAspectRatio="none"]) { height: auto; }
+
+/* The main visual with its controls right underneath (K.stage). */
+.k-stage > * + * { margin-top: 12px; }
+
 /* Small teal label (eyebrow) and amber highlighter for key terms. */
 .k-label, .label { display: block; font: 700 12px/1.4 var(--k-font); letter-spacing: .08em; text-transform: uppercase; color: var(--k-accent); }
 mark, .term {
@@ -76,6 +93,9 @@ mark, .term {
 .big { font-size: 2rem; font-weight: 800; line-height: 1.1; color: var(--k-ink); font-variant-numeric: tabular-nums; }
 .caption { font-size: .875rem; color: var(--k-muted); }
 .say { font-size: 1.02em; line-height: 1.6; }
+.key { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .9rem; color: var(--k-muted); }
+.key > span { display: inline-flex; align-items: center; gap: 7px; }
+.swatch { display: inline-block; flex: none; width: 14px; height: 14px; border-radius: 4px; background: var(--k-accent2); }
 
 table { width: 100%; border-collapse: collapse; font-size: .95em; font-variant-numeric: tabular-nums; }
 th { text-align: left; font: 700 12px/1.4 var(--k-font); letter-spacing: .06em; text-transform: uppercase; color: var(--k-accent); padding: 6px 8px; border-bottom: 1.5px solid var(--k-line); }
@@ -97,10 +117,11 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
 /* ---------- controls ---------- */
 .k-controls { display: grid; gap: 18px; padding: 14px 16px 12px; background: var(--k-panel); border-radius: var(--k-r); }
 .k-field { min-width: 0; }
-.k-field-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 36px; }
-.k-field-label { font-weight: 650; font-size: .95em; color: var(--k-ink); line-height: 1.3; }
+/* Label and live value share a line; when both don't fit, the value drops below on the right. */
+.k-field-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; column-gap: 10px; min-height: 36px; }
+.k-field-label { flex: 1 1 9em; min-width: 0; font-weight: 650; font-size: .95em; color: var(--k-ink); line-height: 1.3; }
 .k-hint { display: block; font-size: .875rem; line-height: 1.4; color: var(--k-muted); margin-top: 1px; }
-.k-value { flex: none; }
+.k-value { flex: none; margin-left: auto; }
 .k-value output { display: block; padding-left: 4px; text-align: right; font-weight: 750; font-size: 1.1rem; color: var(--k-accent2); white-space: nowrap; }
 .k-slide { display: flex; align-items: flex-start; gap: 8px; }
 .k-track { flex: 1; min-width: 0; }
@@ -132,14 +153,19 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
 .k-range::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--k-bg); border: 3px solid var(--k-accent2); box-shadow: 0 2px 6px rgba(0, 0, 0, .22); }
 .k-range:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--k-accent) 45%, transparent); }
 .k-range:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px color-mix(in srgb, var(--k-accent) 45%, transparent); }
-.k-scale { display: flex; justify-content: space-between; gap: 8px; margin-top: -4px; font-size: 12.5px; color: var(--k-muted); font-variant-numeric: tabular-nums; }
+/* End labels: one line each, pinned to the two ends of the track. */
+.k-scale { display: flex; justify-content: space-between; gap: 12px; margin-top: -4px; font-size: 12.5px; color: var(--k-muted); font-variant-numeric: tabular-nums; }
+.k-scale span { white-space: nowrap; }
+.k-scale.tight { font-size: 11px; gap: 6px; }
 
-/* Segmented choice */
+/* Segmented choice: one row when the options fit, otherwise a tidy stacked list. */
 .k-seg { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; padding: 4px; border-radius: 13px; background: var(--k-sunk); }
 .k-seg button {
   flex: 1 1 auto; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 10px; cursor: pointer;
   background: transparent; color: var(--k-ink); font: 600 15px/1.25 var(--k-font); touch-action: manipulation;
 }
+.k-seg.stack { display: grid; grid-template-columns: 1fr; }
+.k-seg.stack button { text-align: left; padding-left: 14px; }
 .k-seg button[aria-checked="true"] { background: var(--k-accent2); color: var(--k-on-accent2); box-shadow: 0 1px 3px rgba(0, 0, 0, .18); }
 
 /* Toggle switch (the whole row is the button) */
@@ -164,10 +190,14 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
 .k-stepper-nav .k-btn { flex: 1; }
 
 /* ---------- outputs ---------- */
-.k-readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
-.k-readout { display: flex; flex-direction: column; min-width: 0; padding: 10px 12px 12px 14px; border-radius: var(--k-r); background: var(--k-panel); }
+/* Tiles share rows; kit.js widens a tile whose label is long, so labels wrap to two lines at
+   most, and a tile left alone on its row fills it. Values sit on a common baseline. */
+.k-readouts { display: flex; flex-wrap: wrap; gap: 10px; }
+.k-readout { display: flex; flex-direction: column; flex: 1 1 140px; min-width: 0; padding: 10px 12px 12px 14px; border-radius: var(--k-r); background: var(--k-panel); }
 .k-readout-label { display: block; font-size: .85rem; font-weight: 600; color: var(--k-muted); line-height: 1.3; }
-.k-readout-value { display: block; margin-top: auto; padding-top: 2px; white-space: nowrap; overflow: hidden; font-size: 1.4rem; font-weight: 800; line-height: 1.2; color: var(--k-ink); font-variant-numeric: tabular-nums; }
+/* Never cut off: words wrap, a number never breaks (kit.js shrinks it a little first). */
+.k-readout-value { display: block; margin-top: auto; padding-top: 2px; white-space: normal; overflow-wrap: break-word; font-size: 1.4rem; font-weight: 800; line-height: 1.2; color: var(--k-ink); font-variant-numeric: tabular-nums; }
+.k-num { white-space: nowrap; }
 .k-readout-unit { font-size: .62em; font-weight: 650; color: var(--k-muted); white-space: nowrap; }
 .k-readout.big .k-readout-value { font-size: 2rem; }
 

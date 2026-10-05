@@ -1,22 +1,44 @@
 // Kit host: runs model-written interactive bodies in sandboxed srcdoc iframes on top of the house
 // kit (app/kit), sizes each frame to its content, and self-tests bodies in hidden frames.
 // Contract: docs/ARCHITECTURE.md sections 6 and 9. The frame never gets allow-same-origin, so a
-// body cannot reach the app, its storage or the network; messages are trusted only when they come
-// from that frame's own window.
+// body cannot reach the app or its storage; a Content-Security-Policy (the first thing in every
+// srcdoc) blocks all network requests from it; messages are trusted only when they come from that
+// frame's own window. Error text that comes from a frame (onError, report errors) is for logs and
+// repair prompts only: the app shows fixed wording, never the frame's own words.
+//
+//   U.sandbox.srcdoc(body, {theme}) -> string
+//   U.sandbox.mount(container, {html, title, onReady, onError, onChange, minHeight, loading}) ->
+//     { el, frame, ready, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t), destroy() }
+//       set() counts as a move (it reveals the body's .k-after-move parts), and takes a slider value,
+//       a choice's option value, label or 0-based index, or a toggle's true/false.
+//       press(label?) presses a K.button (or starts a K.anim) by label, or the first one.
+//       inputs() -> {inputs:[{id, kind, label, min?, max?, step?, options?, value}], actions:[labels]}
+//   U.sandbox.test(html, {widths:[340, 720], timeout:8000}) -> Promise<Report>   hidden, merged
+//   U.sandbox.reach(mounted | html, {control, output, target, tolerance}) ->
+//       Promise<{reachable, best:{value, output} | null, tried, error?}>
+//     Can moving that one control (every setting it has, every option of a choice; the others at
+//     their opening values) bring the output within tolerance of the target? For lesson target
+//     checks. Given html it runs in a hidden frame; given a mounted frame it uses that one.
+//   U.sandbox.theme() -> {dark, size, c:{...}}
 U.KIT_JS = "@@KIT_JS@@";
 U.KIT_CSS = "@@KIT_CSS@@";
 
 U.sandbox = (function () {
   var MAX_BYTES = 150 * 1024;
-  // Dan's palettes, used when the app's CSS variables can't be read.
+  // No network from a body: no fetch/XHR/beacon/WebSocket, no images, fonts, media, frames,
+  // forms or <base> from anywhere; only the inline kit, styles and scripts. data: images stay.
+  var CSP = "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; media-src data:; " +
+    "connect-src 'none'; form-action 'none'; base-uri 'none'";
+  // Dan's palettes, used when the app's CSS variables can't be read. The kit owns its data
+  // colours (highlighter, fills, categorical), tuned per theme, so they are not passed here.
   var FALLBACK = {
-    light: { bg: '#FFFFFF', panel: '#F7F5F0', sunk: '#EFEBE3', ink: '#1F2937', muted: '#5B6573', line: '#DED8CC', strong: '#B9B1A3', accent: '#0F6B66', accent2: '#17324D', onAccent2: '#F7F5F0', warn: '#9F3038', good: '#2E7D4F', hl: '#FBE29A', amber: '#FFF1CC' },
-    dark: { bg: '#1A2029', panel: '#12161C', sunk: '#232A35', ink: '#E7E4DD', muted: '#A9B1BC', line: '#2C3440', strong: '#4A5564', accent: '#6CC7BD', accent2: '#BBD0E6', onAccent2: '#12161C', warn: '#F2A6AC', good: '#6FCB94', hl: 'rgba(232, 199, 102, .34)', amber: '#3A3016' },
+    light: { bg: '#FFFFFF', panel: '#F7F5F0', sunk: '#EFEBE3', ink: '#1F2937', muted: '#5B6573', line: '#DED8CC', strong: '#B9B1A3', accent: '#0F6B66', accent2: '#17324D', onAccent2: '#F7F5F0', warn: '#9F3038', good: '#2E7D4F', amber: '#FFF1CC' },
+    dark: { bg: '#1A2029', panel: '#12161C', sunk: '#232A35', ink: '#E7E4DD', muted: '#A9B1BC', line: '#2C3440', strong: '#4A5564', accent: '#6CC7BD', accent2: '#BBD0E6', onAccent2: '#12161C', warn: '#F2A6AC', good: '#6FCB94', amber: '#3A3016' },
   };
   // Kit palette name -> app token. The interactive sits on a card, so its page is --surface.
-  var TOKENS = { bg: '--surface', panel: '--bg', sunk: '--sunk', ink: '--ink', muted: '--muted', line: '--line', strong: '--line-strong', accent: '--teal', accent2: '--heading', onAccent2: '--on-heading', warn: '--red', good: '--green', hl: '--hl', amber: '--amber' };
+  var TOKENS = { bg: '--surface', panel: '--bg', sunk: '--sunk', ink: '--ink', muted: '--muted', line: '--line', strong: '--line-strong', accent: '--teal', accent2: '--heading', onAccent2: '--on-heading', warn: '--red', good: '--green', amber: '--amber' };
 
-  // The app's current palette for the kit: {dark, size, c:{bg, panel, ..., hl, amber}}.
+  // The app's current palette for the kit: {dark, size, c:{bg, panel, ..., amber}}.
   function theme() {
     var cs = getComputedStyle(document.documentElement);
     var scheme = (cs.getPropertyValue('color-scheme') || '').trim();
@@ -36,13 +58,17 @@ U.sandbox = (function () {
   // JSON that is safe inside an inline <script>.
   function inlineJson(v) { return JSON.stringify(v).replace(/</g, '\\u003c'); }
 
-  // The full document for one body: kit CSS, theme, kit JS, then the body. Throws {code:'too_large'}.
+  // The full document for one body: CSP first, then kit CSS, theme, kit JS, then the body.
+  // Throws {code:'too_large'}.
   function srcdoc(body, o) {
     o = o || {};
     body = String(body || '');
     var big = tooBig(body);
     if (big) throw { code: 'too_large', message: big };
-    var head = '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+    var head = '<!doctype html><html lang="en"><head>' +
+      '<meta http-equiv="Content-Security-Policy" content="' + CSP + '">' +
+      '<meta http-equiv="x-dns-prefetch-control" content="off">' +
+      '<meta charset="utf-8">' +
       '<meta name="viewport" content="width=device-width, initial-scale=1">' +
       '<style>' + U.KIT_CSS + '</style>' +
       '<script>window.K_THEME=' + inlineJson(o.theme || theme()) + ';window.K_BODY_LINE=@@LINE@@;</' + 'script>' +
@@ -117,20 +143,35 @@ U.sandbox = (function () {
       },
     };
   }
+  // Requests every frame api shares (mounted and hidden).
+  function requests(ch) {
+    return {
+      get: function () { return ch.request('get').then(function (d) { return { params: d.params, outputs: d.outputs }; }); },
+      set: function (id, value) { return ch.request('set', { id: id, value: value }).then(function (d) { return { params: d.params, outputs: d.outputs }; }); },
+      press: function (label) { return ch.request('press', { label: label || '' }).then(function (d) { return { params: d.params, outputs: d.outputs }; }); },
+      inputs: function () { return ch.request('inputs').then(function (d) { return { inputs: d.inputs || [], actions: d.actions || [] }; }); },
+      reach: function (spec) {
+        spec = spec || {};
+        return ch.request('reach', { control: String(spec.control || ''), output: String(spec.output || ''), target: Number(spec.target), tolerance: Math.abs(Number(spec.tolerance)) || 0 }, 10000)
+          .then(function (d) { return d.result; });
+      },
+    };
+  }
 
   // ---------- mount ----------
   // mount(container, {html, title, onReady(checks), onError(msg), onChange(state), minHeight, loading})
-  //   -> {el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), theme(t), destroy()}
+  //   -> {el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label), inputs(), reach(spec), theme(t), destroy()}
   // ready resolves with the kit's check results, or null if K.ready() never arrives (12 s).
-  // onChange({params, outputs}) follows Dan's changes (debounced). loading:false hides the
-  // built-in loading line, for callers that draw their own cover.
+  // onChange({params, outputs}) follows Dan's changes (debounced). onError(msg) carries the frame's
+  // own text: log it, never show it. loading:false hides the built-in loading line, for callers
+  // that draw their own cover.
   function mount(container, o) {
     o = o || {};
     var minHeight = Math.max(120, o.minHeight || 320);
     var wrap = U.h('div', { class: 'kit-frame', dataset: { state: 'loading' } });
     var frame = U.h('iframe', {
       class: 'kit-iframe', sandbox: 'allow-scripts', title: o.title || 'Interactive',
-      referrerpolicy: 'no-referrer', allow: '', style: { height: minHeight + 'px' },
+      referrerpolicy: 'no-referrer', allow: 'autoplay', style: { height: minHeight + 'px' },
     });
     var loading = U.h('div', { class: 'kit-loading', role: 'status' },
       U.h('div', { class: 'working', 'aria-hidden': 'true' }),
@@ -139,13 +180,18 @@ U.sandbox = (function () {
     wrap.appendChild(loading);
     wrap.appendChild(frame);
 
-    var resolveReady, readyDone = false, revealTimer = 0, destroyed = false, seenErrors = [];
+    var resolveReady, readyDone = false, revealTimer = 0, destroyed = false, seenErrors = [], loads = 0, readyCount = 0;
     var ready = new Promise(function (r) { resolveReady = r; });
     function settle(v) { if (!readyDone) { readyDone = true; resolveReady(v); } }
     function reveal() {
       if (wrap.dataset.state === 'live') return;
       wrap.dataset.state = 'live';
       loading.remove();
+    }
+    function report(msg) {
+      if (seenErrors.indexOf(msg) >= 0) return;
+      seenErrors.push(msg);
+      if (o.onError) try { o.onError(String(msg || 'error')); } catch (e) { console.error(e); }
     }
     prune();
     var ch = channel(frame, function (d) {
@@ -154,18 +200,28 @@ U.sandbox = (function () {
         // Reveal on ready; if the body never calls K.ready, show it shortly after it has drawn.
         if (!revealTimer) revealTimer = setTimeout(reveal, 900);
       } else if (d.type === 'ready') {
+        readyCount++;
         reveal();
         settle(d.checks || []);
         if (o.onReady) try { o.onReady(d.checks || []); } catch (e) { console.error(e); }
       } else if (d.type === 'error') {
-        if (seenErrors.indexOf(d.message) >= 0) return;
-        seenErrors.push(d.message);
-        if (o.onError) try { o.onError(String(d.message || 'error')); } catch (e) { console.error(e); }
+        report(d.message);
       } else if (d.type === 'change') {
         if (o.onChange) try { o.onChange({ params: d.params, outputs: d.outputs }); } catch (e) { console.error(e); }
       }
     }, function () { api.destroy(); });
     var readyTimer = setTimeout(function () { settle(null); reveal(); }, 12000);
+    // A body that navigates its frame away from the kit is stopped there. (A frame that was moved
+    // in the page reloads the kit, which says ready again within moments.)
+    var awayTimer = 0;
+    frame.addEventListener('load', function () {
+      if (++loads < 2 || destroyed) return;
+      readyCount = 0;
+      clearTimeout(awayTimer);
+      awayTimer = setTimeout(function () {
+        if (!readyCount && !destroyed) { report('The interactive tried to leave its page, so it was stopped.'); api.destroy(); }
+      }, 3000);
+    });
 
     // Follow the app's light/dark and text-size settings while mounted.
     var lastTheme = '';
@@ -187,58 +243,67 @@ U.sandbox = (function () {
       frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0 }));
     } catch (e) {
       wrap.dataset.state = 'failed';
-      U.clear(loading).appendChild(U.h('span', { class: 'small' }, e.message || 'This interactive could not be shown.'));
+      U.clear(loading).appendChild(U.h('span', { class: 'small' }, 'This interactive could not be shown.'));
       frame.remove();
       settle(null);
       if (o.onError) setTimeout(function () { o.onError(e.message || String(e)); });
     }
     container.appendChild(wrap);
 
-    var api = {
+    var api = Object.assign({
       el: wrap,
       frame: frame,
       ready: ready,
       selftest: function () { return ch.request('selftest', null, 10000).then(function (d) { return d.report; }); },
-      get: function () { return ch.request('get').then(function (d) { return { params: d.params, outputs: d.outputs }; }); },
-      set: function (id, value) { return ch.request('set', { id: id, value: value }).then(function (d) { return { params: d.params, outputs: d.outputs }; }); },
       theme: function (t) { ch.send('theme', { theme: t || theme() }); },
       destroy: function () {
         if (destroyed) return;
         destroyed = true;
-        clearTimeout(readyTimer); clearTimeout(revealTimer);
+        clearTimeout(readyTimer); clearTimeout(revealTimer); clearTimeout(awayTimer);
         mo.disconnect();
         if (mq && mq.removeEventListener) mq.removeEventListener('change', onScheme);
         ch.close();
         settle(null);
         wrap.remove();
       },
-    };
+    }, requests(ch));
     return api;
+  }
+
+  // ---------- hidden frames ----------
+  // A frame in the viewport (so the browser doesn't throttle it) but invisible and inert.
+  // onMessage gets the kit's unsolicited messages; returns {frame, ch, close}.
+  function hiddenFrame(html, width, th, onMessage) {
+    var frame = document.createElement('iframe');
+    frame.setAttribute('sandbox', 'allow-scripts');
+    frame.setAttribute('aria-hidden', 'true');
+    frame.setAttribute('tabindex', '-1');
+    frame.title = 'Interactive self-test';
+    frame.className = 'kit-test';
+    frame.style.cssText = 'position:fixed;left:0;top:0;border:0;opacity:0;pointer-events:none;z-index:-1;' +
+      'width:' + width + 'px;height:700px;max-width:none';
+    var ch = channel(frame, function (d) {
+      if (d.type === 'height' && d.px > 0) frame.style.height = Math.min(4000, Math.ceil(d.px)) + 'px';
+      if (onMessage) onMessage(d);
+    });
+    frame.setAttribute('srcdoc', srcdoc(html, { theme: th }));
+    document.body.appendChild(frame);
+    return { frame: frame, ch: ch, close: function () { ch.close(); frame.remove(); } };
   }
 
   // ---------- test ----------
   function failing(message, width) {
-    return { ok: false, errors: [message], overflow: false, checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], ready: false, warnings: [], width: width };
+    return { ok: false, errors: [message], overflow: false, clipped: [], checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], ready: false, warnings: [], width: width };
   }
   // One hidden frame at one width -> the kit's Report (or a failing one on timeout).
   function testOne(html, width, timeout, th) {
     return new Promise(function (resolve) {
-      var frame = document.createElement('iframe');
-      frame.setAttribute('sandbox', 'allow-scripts');
-      frame.setAttribute('aria-hidden', 'true');
-      frame.setAttribute('tabindex', '-1');
-      frame.title = 'Interactive self-test';
-      frame.className = 'kit-test';
-      // In the viewport (so the browser doesn't throttle it) but invisible and inert.
-      frame.style.cssText = 'position:fixed;left:0;top:0;border:0;opacity:0;pointer-events:none;z-index:-1;' +
-        'width:' + width + 'px;height:700px;max-width:none';
-      var finished = false, asked = false, graceTimer = 0, ch = null, t0 = Date.now();
+      var finished = false, asked = false, graceTimer = 0, hf = null, t0 = Date.now(), timer = 0;
       function finish(report) {
         if (finished) return;
         finished = true;
         clearTimeout(timer); clearTimeout(graceTimer);
-        if (ch) ch.close();
-        frame.remove();
+        if (hf) hf.close();
         report.width = width;
         resolve(report);
       }
@@ -246,18 +311,17 @@ U.sandbox = (function () {
         if (asked || finished) return;
         asked = true;
         var left = Math.max(1500, timeout - (Date.now() - t0));
-        ch.request('selftest', null, left).then(function (d) { finish(d.report || failing('The self-test returned nothing.', width)); },
+        // throwaway: this frame is discarded afterwards, so the kit may press buttons and run
+        // K.afterMove callbacks as part of the test.
+        hf.ch.request('selftest', { throwaway: true }, left).then(function (d) { finish(d.report || failing('The self-test returned nothing.', width)); },
           function (e) { finish(failing(e && e.code === 'timeout' ? 'The self-test did not finish within ' + Math.round(timeout / 1000) + ' s (a loop that never ends, or a very slow update?).' : 'The self-test could not run: ' + (e && e.message), width)); });
       }
-      ch = channel(frame, function (d) {
-        if (d.type === 'height' && d.px > 0) frame.style.height = Math.min(4000, Math.ceil(d.px)) + 'px';
-        else if (d.type === 'ready') setTimeout(ask, 30);
-      });
-      var timer = setTimeout(function () { finish(failing('The interactive did not load within ' + Math.round(timeout / 1000) + ' s.', width)); }, timeout);
+      timer = setTimeout(function () { finish(failing('The interactive did not load within ' + Math.round(timeout / 1000) + ' s.', width)); }, timeout);
+      try {
+        hf = hiddenFrame(html, width, th, function (d) { if (d.type === 'ready') setTimeout(ask, 30); });
+      } catch (e) { return finish(failing(e.message || String(e), width)); }
       // After load, give a body that calls K.ready() late a moment, then test whatever is there.
-      frame.addEventListener('load', function () { graceTimer = setTimeout(ask, 1000); });
-      try { frame.setAttribute('srcdoc', srcdoc(html, { theme: th })); } catch (e) { return finish(failing(e.message || String(e), width)); }
-      document.body.appendChild(frame);
+      hf.frame.addEventListener('load', function () { graceTimer = setTimeout(ask, 1000); });
     });
   }
   // Merge per-width reports. A message seen at only some widths says where.
@@ -286,11 +350,14 @@ U.sandbox = (function () {
       ok: reports.every(function (r) { return r.ok; }),
       errors: union(function (r) { return r.errors; }),
       overflow: reports.some(function (r) { return r.overflow; }),
+      clipped: union(function (r) { return r.clipped; }),
       checks: checks,
       sweep: { ok: reports.every(function (r) { return r.sweep && r.sweep.ok; }), problems: problems },
       controls: first.controls || [],
       readouts: first.readouts || [],
       outputs: first.outputs || [],
+      inputs: first.inputs || [],
+      actions: first.actions || [],
       ready: reports.every(function (r) { return r.ready; }),
       warnings: union(function (r) { return r.warnings; }),
       widths: reports.map(function (r) { return { width: r.width, ok: !!r.ok }; }),
@@ -313,5 +380,27 @@ U.sandbox = (function () {
     }, Promise.resolve()).then(function () { return merge(reports); });
   }
 
-  return { MAX_BYTES: MAX_BYTES, theme: theme, srcdoc: srcdoc, mount: mount, test: test, merge: merge };
+  // reach(mounted | html, {control, output, target, tolerance}) -> Promise<{reachable, best, tried, error?}>
+  function reach(target, spec, o) {
+    o = o || {};
+    if (target && typeof target === 'object' && typeof target.reach === 'function') return target.reach(spec);
+    var html = String(target || '');
+    var big = tooBig(html);
+    if (big) return Promise.resolve({ reachable: false, best: null, tried: 0, error: big });
+    var timeout = o.timeout || 8000;
+    return new Promise(function (resolve) {
+      var hf = null, done = false, timer = 0;
+      function finish(r) { if (done) return; done = true; clearTimeout(timer); if (hf) hf.close(); resolve(r); }
+      timer = setTimeout(function () { finish({ reachable: false, best: null, tried: 0, error: 'The interactive did not load within ' + Math.round(timeout / 1000) + ' s.' }); }, timeout);
+      try {
+        hf = hiddenFrame(html, o.width || 340, o.theme || theme(), function (d) {
+          if (d.type !== 'ready') return;
+          requests(hf.ch).reach(spec).then(function (r) { finish(r || { reachable: false, best: null, tried: 0, error: 'no answer' }); },
+            function (e) { finish({ reachable: false, best: null, tried: 0, error: (e && e.message) || 'no answer' }); });
+        });
+      } catch (e) { finish({ reachable: false, best: null, tried: 0, error: e.message || String(e) }); }
+    });
+  }
+
+  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach };
 })();

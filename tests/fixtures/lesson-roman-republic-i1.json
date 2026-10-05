@@ -2,34 +2,87 @@
   "iid": "i1",
   "title": "Power that expires: two consuls, one year",
   "predict": {
-    "q": "A Roman could hold the top job for one year, then had to wait ten years before holding it again. Over thirty years of public life, how much of that time could one man spend in charge?",
-    "options": ["About a tenth", "About a third", "About half", "Nearly all of it"],
-    "reveal": "About a tenth: three single years out of thirty. People often guess higher, but short terms plus a long wait meant no one stayed at the top long enough to become a king."
+    "q": "Start with no wait between terms, then add Rome's ten-year wait. How much of a 30-year public life could one man now spend in charge?",
+    "options": [
+      "Still nearly all of it",
+      "About half",
+      "About a third",
+      "About a tenth"
+    ],
+    "reveal": "About a tenth: three single years out of thirty. People often guess higher, but a short term plus a long wait meant no one stayed at the top long enough to become a king."
   },
   "interactive": {
-    "brief": "The one thing you should see is one man's share of top power shrinking towards a tenth when you shorten the term and lengthen the wait before he can serve again.",
+    "brief": "The one thing you should see is one man's share of top power shrinking towards a tenth when you lengthen the wait before he can serve again.",
     "title": "How long could one man rule?",
     "controls": [
-      { "id": "termYears", "label": "Length of one term", "min": 1, "max": 10, "step": 1, "value": 1, "unit": "years" },
-      { "id": "gapYears", "label": "Wait before serving again", "min": 0, "max": 10, "step": 1, "value": 10, "unit": "years" }
+      {
+        "id": "termYears",
+        "label": "Length of one term",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "value": 1,
+        "unit": "years"
+      },
+      {
+        "id": "gapYears",
+        "label": "Wait before serving again",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "value": 0,
+        "unit": "years"
+      }
     ],
     "outputs": [
-      { "id": "yearsInPower", "label": "Most years one man could hold top power", "unit": "years" },
-      { "id": "sharePct", "label": "Share of his 30-year public life", "unit": "%" }
+      {
+        "id": "yearsInPower",
+        "label": "Years one man holds top power",
+        "unit": "years"
+      },
+      {
+        "id": "sharePct",
+        "label": "Share of his 30-year public life",
+        "unit": "%"
+      }
     ],
     "whatAmILookingAt": "A man starts his first term at the beginning of a 30-year public life. After each term he must sit out the wait before he can serve again. Terms he can fit in = 1 + the whole number of times (term + wait) goes into (30 − term). Years in power = terms × term length, and his share = years in power ÷ 30.",
     "ignores": "Real careers varied, Rome sometimes waived the rule in emergencies, and the model leaves out the second safeguard: a colleague with equal power who could block you.",
     "numbers": [
-      { "label": "Length of one term (years)", "value": 1, "kind": "control" },
-      { "label": "Wait before serving again (years)", "value": 10, "kind": "control" },
-      { "label": "Years of public life in this model (assumed)", "value": 30, "kind": "constant" },
-      { "label": "Rome's wait between consulships, from 342 BC (years)", "value": 10, "kind": "constant" },
-      { "label": "Years in power at the start", "value": 3, "kind": "computed" },
-      { "label": "Share of his public life at the start", "value": "10%", "kind": "computed" }
+      {
+        "label": "Length of one term (years)",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Wait before serving again (years)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Years of public life in this model",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rome's wait between consulships, from 342 BC (years)",
+        "value": 10,
+        "kind": "date"
+      },
+      {
+        "label": "Years in power at the start",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of his public life at the start",
+        "value": "100%",
+        "kind": "computed"
+      }
     ]
   },
   "explain": {
-    "text": "In the model, one-year terms with a ten-year wait left a man in charge for just 3 years out of 30. Stretch the term or shorten the wait, and his share climbed towards a king's.\n\nThat was the point. Having thrown out their last king, the Romans handed supreme power not to one man but to two, called [[consuls]], elected for one year only. Each consul could block the other, so neither could rule alone. When his year ended he was an ordinary citizen again, and could be put on trial for what he had done in office.\n\nLater, a law also made a man wait ten years before he could be consul again, a rule Rome bent in emergencies.\n\n**Shared power, and power that runs out:** almost every Roman office worked this way. The Republic's later story is largely about ambitious men finding ways round both.\n\nHow this system first took shape is less certain than the Romans' own story suggests."
+    "text": "Set the wait to ten years and a man with one-year terms is in charge for just 3 years out of 30. Shorten the wait or stretch the term, and his share climbs back towards a king's.\n\nThat was the point. Having thrown out their last king, the Romans handed supreme power not to one man but to two, called [[consuls]], elected for one year only. Each consul could block the other, so neither could rule alone. When his year ended he was an ordinary citizen again, and could be put on trial for what he had done in office.\n\nLater, a law also made a man wait ten years before he could be consul again, a rule Rome bent in emergencies.\n\n**Shared power, and power that runs out:** almost every Roman office worked this way. The Republic's later story is largely about ambitious men finding ways round both.\n\nHow this system first took shape is less certain than the Romans' own story suggests."
   },
   "analogy": {
     "text": "Like a shared bank account that needs both signatures on every payment, and closes itself after a year.",

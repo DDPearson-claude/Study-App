@@ -21,10 +21,13 @@ Do not edit any file outside `$D`. Do not commit.
    Model hat: Read `$D/plan.prompt.txt`, write the reply to `$D/plan.reply.txt`.
    Operator: `node tools/eval/validate.mjs plan $D/plan.reply.txt`. If it reports problems, do what the app does:
    model hat again, reply with corrected JSON given the problem list, to `$D/plan.reply2.txt`, validate again.
-   Save the final plan JSON (just the object) as `$D/topic.json`.
+   Save the final plan JSON as `$D/topic.json` with `"query": "$QUERY"` and `"level": "$LEVEL"` added, as the app
+   stores them (the lesson and build prompts read the level from it).
 3. Pick two ideas: `i1` and the idea with the richest thing to manipulate (if that is i1, take i2).
    For each idea `I`:
    a. `node tools/eval/prompts.mjs write-lesson --topic $D/topic.json --idea I > $D/I.lesson.prompt.txt`
+      For the second idea, pass the first lesson as an earlier lesson, as the app does:
+      add `--prior $D/i1.lesson.json`.
       Model hat -> `$D/I.lesson.reply.txt`. Operator: `node tools/eval/validate.mjs lesson $D/I.lesson.reply.txt --iid I`;
       one corrective round if needed. Save the final lesson JSON as `$D/I.lesson.json`.
    b. If the lesson has an interactive: `node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.json > $D/I.build.prompt.txt`
@@ -32,10 +35,16 @@ Do not edit any file outside `$D`. Do not commit.
       Operator: extract the way the app does and self-test + screenshot:
       `node --input-type=module -e "const {loadPrompts}=await import('./tools/eval/prompts.mjs');const U=loadPrompts();const fs=await import('fs');fs.writeFileSync('$D/I.body1.x.html',U.interactive.extract(fs.readFileSync('$D/I.body1.html','utf8')))"`
       `node tools/eval/render.mjs $D/I.body1.x.html --out $D/I.a1 --app tests/out/kit.html`
-      Read `$D/I.a1-report.json`. If `report.ok` is false: write just the report object to `$D/I.a1.report-only.json`, then
+      Then add what the app's builder checks on top of the self-test (the lesson's ids, web addresses other than the
+      lesson's sources, and whether every target check can be reached):
+      `node tools/eval/prompts.mjs verdict --lesson $D/I.lesson.json --html $D/I.body1.x.html --report $D/I.a1-report.json > $D/I.a1.verdict.json`
+      If its `ok` is false: write its `report` object to `$D/I.a1.report-only.json`, then
       `node tools/eval/prompts.mjs repair-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.json --html $D/I.body1.x.html --report $D/I.a1.report-only.json > $D/I.repair1.prompt.txt`,
       model hat -> `$D/I.body2.html`, extract + render as `I.a2`. Up to two repairs (a3), exactly like the app.
-   c. Look at the screenshots of the last attempt (`-360-light.png`, `-360-dark.png`, `-1280-light.png`) with the Read tool.
+   c. Look at the screenshots of the last attempt with the Read tool: the opening state (`-360-light.png`, `-360-dark.png`,
+      `-1280-light.png`) and the `-moved` shots render.mjs takes after moving the controls. The opening state must not show
+      the predicted answer yet still look alive; the moved state must show it; sentences and labels must read right at
+      the extremes (none/all, singular/plural) and nothing may be clipped.
 4. Write `$D/notes.md`: per step, the validation problems you hit, self-test results per attempt, and anything in the
    prompts that was ambiguous, contradictory, missing or hard to follow while you wore the model hat (be specific: quote
    the prompt line). Also anything the interactive screenshots show that is wrong or ugly.

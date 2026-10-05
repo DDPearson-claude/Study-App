@@ -63,6 +63,12 @@
     if (code === 'not_found') return s(e.message) || 'That could not be found.';
     return U.errText(e);
   }
+  // A store write resolves null when its topic has been deleted (here or on another device):
+  // the work in hand stops.
+  function goneIfNull(r) {
+    if (r === null) throw { code: 'not_found', message: 'This topic has been deleted.' };
+    return r;
+  }
   function failure(e, doing) {
     var out = { code: (e && e.code) || 'error', message: friendly(e, doing) };
     if (e && e.message && e.message !== out.message) out.detail = String(e.message).slice(0, 600);
@@ -158,7 +164,8 @@
         status: 'ready', title: pl.title, hook: pl.hook, oneBreath: pl.oneBreath, ideas: pl.ideas,
         calibration: pl.calibration, error: null, plannedAt: U.now(),
       });
-    }).then(function () {
+    }).then(function (r) {
+      goneIfNull(r);
       L.planning = false;
       emit(tid, null, 'plan', 'ready', 'Planned.');
       afterPlan(tid);
@@ -335,7 +342,7 @@
   }
 
   function loadResearch(tid, iid) {
-    return Promise.all([U.store.research.get(tid, 'topic'), U.store.research.get(tid, iid)]).then(function (r) {
+    return Promise.all([U.store.research.get(tid, 'topic'), iid ? U.store.research.get(tid, iid) : null]).then(function (r) {
       return r[0] || r[1] ? { topic: r[0], idea: r[1] } : null;
     }, function () { return null; });
   }
@@ -451,16 +458,32 @@
     return settle(job);
   }
 
-  // Briefs of the ready lessons this idea builds on, so the writer can refer back to them.
-  function priorLessons(topic, idea) {
-    var deps = (idea.deps || []).slice(-3);
-    return Promise.all(deps.map(function (d) {
-      return U.store.lesson.get(topic.id, d).then(function (doc) {
-        var i = (topic.ideas || []).filter(function (x) { return x.id === d; })[0];
-        var it = doc && doc.status === 'ready' && doc.lesson && doc.lesson.interactive;
-        return it ? { title: (i && i.title) || d, brief: it.brief } : null;
+  // What the lessons already written for earlier ideas in this topic gave Dan (terms, analogy,
+  // interactive, numbers), so the writer can build on them without repeating or contradicting.
+  function priorLessons(tid, topic, idea) {
+    var ideas = topic.ideas || [], idx = ideas.map(function (i) { return i.id; }).indexOf(idea.id);
+    return Promise.all(ideas.slice(0, Math.max(0, idx)).map(function (i) {
+      return U.store.lesson.get(tid, i.id).then(function (doc) {
+        return doc && doc.lesson && (doc.status === 'ready' || doc.status === 'building') ? doc.lesson : null;
       }, function () { return null; });
-    })).then(function (list) { return list.filter(Boolean); });
+    })).then(function (list) { return U.prompts.priorSummary(list.filter(Boolean)); });
+  }
+
+  // The lesson doc patch once the interactive build is over. Target checks the built page could
+  // not satisfy are dropped: Dan is never asked for a reading the interactive cannot give.
+  function builtPatch(lesson, built) {
+    var patch = { status: 'ready', interactive: null, note: NO_INTERACTIVE, error: null };
+    if (!built) return patch;
+    var drop = Array.isArray(built.unreachable) ? built.unreachable : [];
+    patch.interactive = { html: built.html, title: built.title, brief: built.brief, selftest: built.selftest, attempts: built.attempts };
+    patch.note = null;
+    if (drop.length && lesson && Array.isArray(lesson.checks)) {
+      console.warn('interactive: dropping target checks it cannot reach', drop);
+      var L = U.clone(lesson);
+      L.checks = L.checks.filter(function (c) { return !(c && c.type === 'target' && drop.indexOf(c.id) >= 0); });
+      patch.lesson = L;
+    }
+    return patch;
   }
 
   function write(job, o) {
@@ -479,14 +502,15 @@
         status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
         by: { device: DEVICE, page: PAGE }, avoid: avoid.length ? avoid : null, startedAt: U.now(),
       });
-    }).then(function () {
+    }).then(function (r) {
+      goneIfNull(r);
       wrote = true;
       beat(job);
       return researchFor(topic, iid, job);
     }).then(function (rsrch) {
       lr = U.prompts.lessonResearch(rsrch, iid);
       var allowed = lr && lr.sources.length ? lr.sources : null;
-      return Promise.all([knownIdeas(tid), priorLessons(topic, idea)]).then(function (r) {
+      return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');
         return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, prior: r[1] }), {
           tier: 'default', json: true, label: 'write-lesson',
@@ -500,13 +524,15 @@
         return U.store.lesson.update(tid, iid, { status: 'ready', lesson: lesson, sourced: sourced, interactive: null, note: null, error: null });
       }
       progress(job, 'Building your interactive…', 'building');
-      return U.store.lesson.update(tid, iid, { status: 'building', lesson: lesson, sourced: sourced }).then(function () {
+      return U.store.lesson.update(tid, iid, { status: 'building', lesson: lesson, sourced: sourced }).then(function (r) {
+        goneIfNull(r);
         return buildInteractive(topic, idea, lesson, avoid, job);
       }).then(function (built) {
         progress(job, built ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'building');
-        return U.store.lesson.update(tid, iid, { status: 'ready', interactive: built, note: built ? null : NO_INTERACTIVE, error: null });
+        return U.store.lesson.update(tid, iid, builtPatch(lesson, built));
       });
-    }).then(function () {
+    }).then(function (r) {
+      goneIfNull(r);
       stopBeat(job);
       progress(job, 'Ready.', 'ready');
       return U.store.lesson.get(tid, iid);
@@ -528,13 +554,15 @@
     return U.store.topic.get(tid).then(function (t) {
       var idea = t && (t.ideas || []).filter(function (i) { return i.id === iid; })[0];
       if (!idea) return write(job, { avoid: avoid });
-      return U.store.lesson.update(tid, iid, { status: 'building', by: { device: DEVICE, page: PAGE }, error: null }).then(function () {
+      return U.store.lesson.update(tid, iid, { status: 'building', by: { device: DEVICE, page: PAGE }, error: null }).then(function (r) {
+        goneIfNull(r);
         wrote = true;
         beat(job);
         return buildInteractive(t, idea, doc.lesson, avoid, job);
       }).then(function (built) {
-        return U.store.lesson.update(tid, iid, { status: 'ready', interactive: built, note: built ? null : NO_INTERACTIVE, error: null });
-      }).then(function () {
+        return U.store.lesson.update(tid, iid, builtPatch(doc.lesson, built));
+      }).then(function (r) {
+        goneIfNull(r);
         stopBeat(job);
         progress(job, 'Ready.', 'ready');
         return U.store.lesson.get(tid, iid);
@@ -632,10 +660,19 @@
     }, function (e) { throw failure(e, 'check your answers'); });
   }
 
-  function researchTools() {
+  // The tutor's tools: web_fetch opens pages from its own searches, plus `allow` (the checked sources).
+  function researchTools(allow) {
     return Promise.resolve().then(function () { return U.research.available(); }).then(function (ok) {
-      return ok ? U.research.tools() : null;
+      return ok ? U.research.tools(null, { allow: allow || [] }) : null;
     }).catch(function () { return null; });
+  }
+  // Pages the tutor may reopen without searching: the lesson's sources and the checked research.
+  function sourceUrls(ctx) {
+    var out = [];
+    function add(list) { (Array.isArray(list) ? list : []).forEach(function (x) { if (x && isStr(x.url) && out.indexOf(x.url) < 0) out.push(x.url); }); }
+    add(ctx.lesson && ctx.lesson.sources);
+    if (ctx.research) { add(ctx.research.topic && ctx.research.topic.sources); add(ctx.research.idea && ctx.research.idea.sources); }
+    return out;
   }
   // Fill in whatever the caller did not pass: topic, idea, lesson and research for the idea.
   function tutorContext(c) {
@@ -643,7 +680,7 @@
     return Promise.all([
       c.topic && Array.isArray(c.topic.ideas) ? c.topic : tid ? U.store.topic.get(tid) : (c.topic || null),
       c.lesson ? c.lesson : c.lessonDoc && c.lessonDoc.lesson ? c.lessonDoc.lesson : tid && iid ? U.store.lesson.get(tid, iid).then(function (d) { return (d && d.lesson) || null; }) : null,
-      tid && iid ? loadResearch(tid, iid) : null,
+      tid ? loadResearch(tid, iid) : null,
     ]).then(function (r) {
       var topic = r[0] || c.topic || {};
       var idea = c.idea || (topic.ideas || []).filter(function (i) { return i.id === iid; })[0] || {};
@@ -674,7 +711,9 @@
   }
   function tutor(messages, context, opts) {
     opts = opts || {};
-    return Promise.all([tutorContext(context || {}), researchTools()]).then(function (r) {
+    return tutorContext(context || {}).then(function (ctx) {
+      return researchTools(sourceUrls(ctx)).then(function (tools) { return [ctx, tools]; });
+    }).then(function (r) {
       var ctx = r[0], tools = r[1];
       ctx.tools = !!(tools && tools.length);
       var turns = conversation(U.prompts.tutor(ctx), messages);
@@ -712,6 +751,7 @@
     _who: function () { return { device: DEVICE, page: PAGE }; },
     _filterResearch: filterResearch,
     _finaliseLesson: finaliseLesson,
+    _builtPatch: builtPatch,
     _corpus: Corpus,
     _wrapTools: wrapTools,
     _conversation: conversation,

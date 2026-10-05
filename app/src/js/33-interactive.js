@@ -1,35 +1,105 @@
 // Interactive builder: asks Claude to write one kit body for an idea (TASK: build-interactive),
-// pulls the HTML out of the reply, self-tests it in hidden sandboxes (32-sandbox.js) and asks for
-// up to two repairs (TASK: repair-interactive) with the failing report. Contract:
-// docs/ARCHITECTURE.md section 9. The prompt builders are pure (no DOM at load or call), so
-// tools/eval/prompts.mjs can run them in Node.
+// pulls the HTML out of the reply, self-tests it in hidden sandboxes (32-sandbox.js), checks what
+// the lesson itself needs (the ids its checks use, no web addresses but its own sources, every
+// target check reachable) and asks for up to two repairs (TASK: repair-interactive) with the
+// problems found. Contract: docs/ARCHITECTURE.md section 9. The prompt builders are pure (no DOM
+// at load or call), so tools/eval/prompts.mjs can run them in Node. Kit features that may not
+// exist yet are used only when KIT.md documents them (prompts) or U.sandbox has them (reach).
 U.KIT_MD = "@@KIT_MD@@";
 U.KIT_EXAMPLES = "@@KIT_EXAMPLES@@";   // [{name, kind, body}] from app/kit/examples
 
 U.interactive = (function () {
-  // Which exemplar anchors which kind of idea (exact kind first, then its nearest cousin).
-  var COUSIN = { quantity: 'quantity', concept: 'quantity', mechanism: 'mechanism', skill: 'mechanism', process: 'process', history: 'process', structure: 'process' };
-  var LEVEL = { new: 'new to this topic', some: 'knows a little about this topic', solid: 'already fairly solid on this topic' };
+  // Which exemplar anchors which kind of idea: its own kind, then the nearest cousins.
+  var NEAREST = {
+    quantity: ['quantity', 'mechanism', 'skill'],
+    mechanism: ['mechanism', 'quantity'],
+    skill: ['skill', 'quantity', 'mechanism'],
+    process: ['process', 'history', 'structure'],
+    history: ['history', 'process', 'structure'],
+    structure: ['structure', 'process', 'concept'],
+    concept: ['concept', 'structure', 'process'],
+  };
+  var LEVEL = { new: 'Dan is new to this topic.', some: 'Dan knows a little about this topic.', solid: 'Dan is already fairly solid on this topic.' };
   var MAX_ATTEMPTS = 3; // the first build plus two repairs
 
   function str(v) { return v == null ? '' : String(v).trim(); }
   function clip(v, n) { v = str(v); return v.length > n ? v.slice(0, n - 1) + '…' : v; }
+  function num(v) { var n = Number(v); return isFinite(n) ? String(+n.toPrecision(4)) : str(v); }
   function examples() { return Array.isArray(U.KIT_EXAMPLES) ? U.KIT_EXAMPLES : []; }
   function kitMd() { return typeof U.KIT_MD === 'string' && U.KIT_MD.indexOf('@@') !== 0 ? U.KIT_MD : '(kit reference missing from this build)'; }
+  function kitHas(name) { return kitMd().indexOf(name) >= 0; }
   function exampleFor(kind) {
-    var list = examples(), want = COUSIN[kind] || 'quantity';
-    return list.filter(function (e) { return e.kind === kind; })[0] || list.filter(function (e) { return e.kind === want; })[0] || list[0] || null;
+    var list = examples(), order = NEAREST[kind] || NEAREST.concept;
+    for (var i = 0; i < order.length; i++) {
+      var hit = list.filter(function (e) { return e.kind === order[i]; })[0];
+      if (hit) return hit;
+    }
+    return list[0] || null;
   }
 
-  // Ids a lesson's own checks rely on: 'target' checks set a control and read an output.
+  // ---------- what the lesson needs from the page ----------
+  function targetChecks(lesson) {
+    return ((lesson && lesson.checks) || []).filter(function (c) { return c && c.type === 'target' && c.control && c.output; });
+  }
+  // Ids the page must have: controls that target checks set, and model outputs that target
+  // checks read or the lesson declares.
   function requiredIds(lesson) {
     var out = { controls: [], outputs: [] };
-    ((lesson && lesson.checks) || []).forEach(function (c) {
-      if (!c || c.type !== 'target') return;
-      if (c.control && out.controls.indexOf(c.control) < 0) out.controls.push(String(c.control));
-      if (c.output && out.outputs.indexOf(c.output) < 0) out.outputs.push(String(c.output));
-    });
+    function add(list, id) { id = str(id); if (id && list.indexOf(id) < 0) list.push(id); }
+    targetChecks(lesson).forEach(function (c) { add(out.controls, c.control); add(out.outputs, c.output); });
+    (((lesson && lesson.interactive) || {}).outputs || []).forEach(function (o) { if (o) add(out.outputs, o.id); });
     return out;
+  }
+
+  // Web addresses: a page may contain only its lesson's own sources (SVG/XML namespaces aside).
+  function sourceList(lesson) { return ((lesson && lesson.sources) || []).filter(function (s) { return s && s.url; }); }
+  function urlKey(u) {
+    return str(u).toLowerCase().replace(/^https?:\/\//, '').replace(/^www\d?\./, '').replace(/#.*$/, '').replace(/\/+$/, '');
+  }
+  function urlsIn(text) {
+    var out = [], re = /https?:\/\/[^\s'"`<>\\)\]]+/gi, m;
+    while ((m = re.exec(String(text || '')))) {
+      var u = m[0].replace(/[.,;:!?]+$/, '');
+      if (!/^https?:\/\/(www\.)?w3\.org\//i.test(u) && out.indexOf(u) < 0) out.push(u);
+    }
+    return out;
+  }
+  // Addresses in the body, or in the self-test's check sources, that are not the lesson's sources.
+  function foreignUrls(html, lesson, report) {
+    var allowed = sourceList(lesson).map(function (s) { return urlKey(s.url); }), found = urlsIn(html);
+    ((report && report.checks) || []).forEach(function (c) {
+      if (c && c.source) urlsIn(c.source).forEach(function (u) { if (found.indexOf(u) < 0) found.push(u); });
+    });
+    return found.filter(function (u) { return allowed.indexOf(urlKey(u)) < 0; });
+  }
+  function stripUrls(html, urls) {
+    var out = String(html || '');
+    urls.slice().sort(function (a, b) { return b.length - a.length; }).forEach(function (u) { out = out.split(u).join(''); });
+    return out;
+  }
+
+  // Target checks the page can't satisfy by moving their control alone (U.sandbox.reach, when the
+  // host has it) -> [{id, q, control, output, target, tolerance, best}]
+  function unreachable(html, lesson) {
+    var S = U.sandbox, list = targetChecks(lesson), out = [];
+    if (!html || !S || typeof S.reach !== 'function' || !list.length) return Promise.resolve(out);
+    return list.reduce(function (p, c) {
+      return p.then(function () {
+        return Promise.resolve().then(function () {
+          return S.reach(html, { control: str(c.control), output: str(c.output), target: Number(c.target), tolerance: Math.abs(Number(c.tolerance)) || 0 });
+        }).then(function (r) {
+          if (r && r.reachable === false) out.push({ id: str(c.id), q: str(c.q), control: str(c.control), output: str(c.output), target: c.target, tolerance: c.tolerance, best: r.best == null ? null : r.best });
+        }, function (e) { console.warn('target reach could not be checked', e); });
+      });
+    }, Promise.resolve()).then(function () { return out; });
+  }
+  function pick() { for (var i = 0; i < arguments.length; i++) if (arguments[i] != null && arguments[i] !== '') return arguments[i]; return null; }
+  function bestText(b, control) {
+    if (b == null) return '';
+    var obj = typeof b === 'object', val = obj ? pick(b.value, b.output, b.reading, b.y) : b;
+    var at = obj ? pick(b.setting, b.at, b.x, b.params && b.params[control], b[control]) : null;
+    if (val == null || !isFinite(Number(val))) return '';
+    return ', but the closest this page gets is ' + num(val) + (at != null && isFinite(Number(at)) ? ', with "' + control + '" at ' + num(at) : '');
   }
 
   // ---------- prompt sections ----------
@@ -40,13 +110,19 @@ U.interactive = (function () {
       'Topic: ' + str(topic.title || topic.query),
       'Idea: ' + str(idea.title) + (idea.oneLine ? ' (' + str(idea.oneLine) + ')' : ''),
       'Kind: ' + (str(idea.kind) || 'concept'),
-      'Dan is ' + (LEVEL[topic.level] || LEVEL.new) + '.',
+      LEVEL[topic.level] || LEVEL.new,
     ].join('\n');
   }
   function controlLine(c) {
+    var head = '- id "' + str(c.id) + '": ' + str(c.label) + ', ';
+    if (Array.isArray(c.options)) {
+      var open = c.options[c.value] != null ? c.options[c.value] : c.options[0];
+      return head + 'named options in this order: ' + c.options.map(function (x) { return '"' + str(x) + '"'; }).join(' / ') +
+        ', opening on "' + str(open) + '" (K.choice; K.stepper when they are stages in order)';
+    }
+    if (c.min === 0 && c.max === 1 && c.step === 1) return head + 'an on/off switch (K.toggle), starting ' + (c.value ? 'on' : 'off');
     var unit = c.unit ? (/^[%°:×]/.test(str(c.unit)) ? '' : ' ') + str(c.unit) : '';
-    return '- id "' + str(c.id) + '": ' + str(c.label) + ', from ' + c.min + ' to ' + c.max + (c.step != null ? ' in steps of ' + c.step : '') +
-      ', starting at ' + c.value + unit;
+    return head + 'from ' + c.min + ' to ' + c.max + (c.step != null ? ' in steps of ' + c.step : '') + ', opening at ' + c.value + unit;
   }
   function numberLine(n) {
     return '- ' + str(n.label) + ': ' + str(n.value) + ' (' + (str(n.kind) || 'number') + (n.source != null ? ', source [' + n.source + ']' : '') + ')';
@@ -55,36 +131,34 @@ U.interactive = (function () {
     var spec = (lesson && lesson.interactive) || {}, out = ['## What the interactive must show'];
     if (spec.brief) out.push('Brief: ' + str(spec.brief));
     if (spec.title) out.push('Title (the app shows it above the frame, so do not repeat it): ' + str(spec.title));
-    if (spec.whatAmILookingAt) out.push('The rule, in plain words: ' + str(spec.whatAmILookingAt));
-    if (spec.ignores) out.push('What it leaves out (say so briefly in the caption): ' + str(spec.ignores));
+    if (spec.whatAmILookingAt) out.push('The rule (the app also shows it beside the page, under "What am I looking at?"): ' + str(spec.whatAmILookingAt));
+    if (spec.ignores) out.push('What the model leaves out (the app shows this in its own panel; do not repeat it on the page): ' + str(spec.ignores));
     var controls = (spec.controls || []).filter(function (c) { return c && c.id; });
     if (controls.length) {
-      out.push('Controls (use these ids exactly; keep the ranges unless one is clearly wrong):');
+      out.push('Controls (use these ids, ranges and opening values exactly):');
       controls.forEach(function (c) { out.push(controlLine(c)); });
-    }
+    } else out.push('No controls were specified: choose the one that best shows the idea.');
     var outs = (spec.outputs || []).filter(function (o) { return o && o.id; });
     if (outs.length) {
       out.push('Outputs (return each from K.model under exactly this key, and show it with K.readout using the same id):');
       outs.forEach(function (o) { out.push('- id "' + str(o.id) + '": ' + str(o.label) + (o.unit ? ' (' + str(o.unit) + ')' : '')); });
+    } else if (Array.isArray(spec.outputs)) {
+      out.push('Outputs: none. No rule computes a number here, so show no readouts: the picture, its labels and the .say line do the teaching.');
     }
     var nums = (spec.numbers || []).filter(function (n) { return n && n.label; });
     if (nums.length) {
-      out.push('Numbers it may show (control = Dan sets it, computed = from the rule, constant = cited):');
+      out.push('Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, shown as "for example"; date = a historical date or fact):');
       nums.forEach(function (n) { out.push(numberLine(n)); });
     }
-    var req = requiredIds(lesson);
-    ((lesson && lesson.checks) || []).forEach(function (c) {
-      if (c && c.type === 'target') {
-        out.push('A lesson check asks Dan: "' + clip(c.q, 200) + '" It sets control "' + str(c.control) + '" and reads "' + str(c.output) +
-          '" through the kit (target ' + c.target + ', give or take ' + c.tolerance + '). Both ids must exist: "' + str(c.output) +
-          '" as a K.readout id or a key of the model\'s outputs.');
-      }
+    targetChecks(lesson).forEach(function (c) {
+      out.push('A lesson check asks Dan: "' + clip(c.q, 200) + '" It sets control "' + str(c.control) + '" and reads "' + str(c.output) + '" through the kit (target ' + c.target +
+        ', give or take ' + c.tolerance + '), every other control at its opening value. "' + str(c.output) + '" must be a key of what K.model returns, and the app checks that moving "' +
+        str(c.control) + '" alone can reach the target.');
     });
-    if (!req.controls.length && !req.outputs.length && !controls.length) out.push('No controls were specified: choose the one or two that best show the idea.');
     var pr = lesson && lesson.predict;
     if (pr && pr.q) {
-      out.push('Before playing, Dan predicted an answer to: "' + clip(pr.q, 240) + '"' + (pr.options && pr.options.length ? ' (options: ' + pr.options.map(str).join(' / ') + ')' : '') +
-        '. Let playing answer it; do not print the answer before he moves anything.');
+      out.push('Dan\'s prediction, made before playing: "' + clip(pr.q, 240) + '"' + (pr.options && pr.options.length ? ' (options: ' + pr.options.map(str).join(' / ') + ')' : '') +
+        '. He answers it by moving away from the opening state (see the first rule below).');
     }
     return out.join('\n');
   }
@@ -94,22 +168,42 @@ U.interactive = (function () {
     return '## The explanation Dan reads after playing (use the same words for the same things)\n' + clip(U.plain ? U.plain(t) : t, 1400);
   }
   function sourcesSection(lesson) {
-    var src = ((lesson && lesson.sources) || []).filter(function (s) { return s && s.url; });
+    var src = sourceList(lesson);
     if (!src.length) {
-      return '## Sources\nNo live sources were checked for this lesson. Use only textbook-standard rules and constants you are certain of, ' +
-        'and cite the standard reference you would trust (an encyclopedia, a standards body, a university page) in the K.check source.';
+      return '## Sources\nThis lesson has no checked sources, so the page contains no web addresses at all: its K.check entries are known-answer checks with no {source}, ' +
+        'and the caption cites nothing. Use only textbook-standard rules, values and facts you are certain of. The app rejects any web address.';
     }
-    return '## Sources (cite these in K.check sources and the caption; never invent others)\n' + src.map(function (s) {
+    return '## Sources\nThe only web addresses this page may contain, in a K.check {source} or the caption; the app rejects any other:\n' + src.map(function (s) {
       return '[' + s.n + '] ' + clip(s.title, 120) + ' (' + str(s.url) + ')' + (s.quote ? ': "' + clip(s.quote, 240) + '"' : '');
     }).join('\n');
   }
   var DAN = [
     '## Dan and how he learns',
-    '- He learns best by doing: something visual he can push and watch respond (graphs, diagrams, simulations). Warm, plain words, first principles; no jargon unless explained.',
+    '- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.',
     '- He uses an Android phone (this frame is about 340 px wide there, touch only) and a desktop. Design for the phone first.',
-    '- Calm: generous space, one idea, colour only for meaning (navy = the main thing and the controls, teal = small labels, red = warnings or mistakes, green = done, amber = a highlighted key term). Light and dark mode both work if you use the kit\'s colour variables.',
-    '- Accuracy he can trust: every number is a control, computed from the rule on screen, or a constant whose source the caption names. Say plainly what is simplified.',
+    '- Calm: generous space, one idea, colour only for meaning, always through the kit\'s colour variables so light and dark mode both work.',
   ].join('\n');
+  // Lesson-specific rules, naming kit features only when this build's KIT.md documents them.
+  function rulesSection(lesson) {
+    var sourced = sourceList(lesson).length > 0;
+    return [
+      '## Rules for this page',
+      '- Hide the answer until Dan moves. He answers his prediction by changing something, so whatever gives it away (the result readout, a verdict in the .say line, the telling part of a plot) appears only after his first move: ' +
+        (kitHas('afterMove') ? 'give it the class "k-after-move", or reveal it in K.afterMove(fn).' : 'reveal it once any control differs from its opening value.'),
+      '- The opening view still looks alive: draw the picture, its labels and the opening state, and let the lead line say what to try.',
+      '- Phone layout: the main visual and its controls fit on one phone screen together; any second figure goes below them and must not be needed.',
+      '- Every number on screen is one listed above or computed from the rule. Show assumed values as examples ("for example, £1,000"). Round readouts the way the explanation writes the same numbers (set dp), so the two never disagree.',
+      '- A readout holds a number and a short unit (longer text is cut off); sentences go in the .say line. Sentences built from numbers read right at every setting: "none" and "all", "1 farm" but "2 farms", never "0 of the 100".',
+      '- Words name things, never shades: say "the changed squares" or use the legend\'s names, never "the dark square" (dark mode swaps light and dark). ' +
+        (kitHas('cat1') ? 'To tell equal parts apart (two poles, two halves), use the neutral colour roles cat1-cat4, never red, green or amber.' : 'Red, green and amber carry meaning: never use them just to tell parts apart.'),
+      '- Caption: at most two short sentences: what the picture shows, and the rule in brief. Leave out what the model ignores; the app shows that.',
+      '- K.check: 3-5 known answers: an edge case, a shape fact (rises, halves, always last), and at least one answer from outside the model: ' +
+        (sourced ? 'a worked example from the explanation, an everyday known case, or a value one of the sources states (with {source: its URL}).'
+          : 'a worked example from the explanation or an everyday known case. No {source}: this lesson has no sources.'),
+      kitHas('K.sound') ? '- An idea about sound gets a Play button that lets him hear it (K.sound).' : null,
+      '- Money, health and law: show how it works, never advice, and never a guaranteed outcome.',
+    ].filter(Boolean).join('\n');
+  }
   // KIT.md nested under this section: its title dropped, its headings one level down.
   function kitSection() { return '## The house kit (complete API reference)\n' + kitMd().replace(/^# [^\n]*\n+/, '').replace(/^(#{2,}) /gm, '#$1 '); }
   function outputSection(repair) {
@@ -130,6 +224,7 @@ U.interactive = (function () {
       explainSection(lesson),
       sourcesSection(lesson),
       DAN,
+      rulesSection(lesson),
       kitSection(),
     ];
     if (ex) {
@@ -143,44 +238,65 @@ U.interactive = (function () {
     return parts.filter(Boolean).join('\n\n');
   }
 
-  // The failing report as plain lines a repair can act on (also used for the build loop's checks).
-  function problems(report, lesson) {
-    var out = [];
+  // ---------- problems, as lines a repair can act on ----------
+  // Ids the lesson needs that the tested page lacks.
+  function missingIds(report, lesson) {
+    var req = requiredIds(lesson), out = [];
+    var controls = (report && report.controls) || [], outs = (report && report.outputs) || [];
+    req.controls.forEach(function (id) { if (controls.indexOf(id) < 0) out.push('Missing control id "' + id + '": a lesson check sets it, so a control must use exactly this id.'); });
+    req.outputs.forEach(function (id) { if (outs.indexOf(id) < 0) out.push('Missing output "' + id + '": the lesson reads it, so K.model must return it under exactly this key (a readout alone is not enough).'); });
+    return out;
+  }
+  function urlProblem(u, lesson) {
+    return 'Unlisted web address "' + u + '": ' + (sourceList(lesson).length
+      ? 'only the addresses under Sources may appear.'
+      : 'this lesson has no checked sources, so the page must contain no web addresses.') + ' Remove it, and the {source} that holds it.';
+  }
+  function reachProblem(x) {
+    return 'Target out of reach: check "' + x.id + '" asks Dan to move "' + x.control + '" until "' + x.output + '" reads ' + num(x.target) +
+      (x.tolerance ? ' (give or take ' + num(x.tolerance) + ')' : '') + bestText(x.best, x.control) + '.';
+  }
+  // The failing report as plain lines (also used for the build loop's progress events).
+  function problems(report, lesson, html) {
     if (!report) return ['The self-test did not run.'];
+    var out = [];
     (report.errors || []).forEach(function (e) { out.push('Error: ' + e); });
     (report.checks || []).forEach(function (c) { if (!c.ok) out.push('Check failed: "' + c.label + '"' + (c.error ? ' (' + c.error + ')' : '')); });
     ((report.sweep && report.sweep.problems) || []).forEach(function (p) { out.push('While sweeping the controls: ' + p); });
     if (report.overflow) out.push('Too wide: ' + (report.overflowDetail || 'the page scrolls sideways at 340 px') + '.');
-    return out.concat(missingIds(report, lesson));
-  }
-  // Ids the lesson's checks need that the tested page lacks, as repair lines.
-  function missingIds(report, lesson) {
-    var req = requiredIds(lesson), out = [];
-    var controls = (report && report.controls) || [], outs = ((report && report.readouts) || []).concat((report && report.outputs) || []);
-    req.controls.forEach(function (id) { if (controls.indexOf(id) < 0) out.push('Missing control id "' + id + '": a lesson check sets it, so a K.control (or choice/toggle) must use exactly this id.'); });
-    req.outputs.forEach(function (id) { if (outs.indexOf(id) < 0) out.push('Missing output "' + id + '": a lesson check reads it, so a K.readout id or a model output key must be exactly this.'); });
+    out = out.concat(missingIds(report, lesson));
+    var foreign = Array.isArray(report.foreign) ? report.foreign : html != null ? foreignUrls(html, lesson, report) : [];
+    foreign.forEach(function (u) { out.push(urlProblem(u, lesson)); });
+    (report.unreachable || []).forEach(function (x) { out.push(reachProblem(x)); });
     return out;
   }
-  function advice(report) { return ((report && report.warnings) || []).map(function (w) { return 'Advice: ' + w; }); }
+  // The kit's warnings, minus advice to cite a source when the lesson has none to cite.
+  function advice(report, lesson) {
+    var sourced = sourceList(lesson).length > 0;
+    return ((report && report.warnings) || []).filter(function (w) { return sourced || !/source/i.test(w); }).map(function (w) { return 'Advice: ' + w; });
+  }
 
   // TASK: repair-interactive
   function repairPrompt(topic, idea, lesson, html, report) {
-    var found = problems(report, lesson).concat(advice(report));
+    var found = problems(report, lesson, html).concat(advice(report, lesson));
     return [
       'TASK: repair-interactive',
-      'The interactive below, written for Dan\'s learning app, failed its automatic self-test. Fix every problem listed and return the complete corrected body. Keep what already works.',
+      'The interactive below, written for Dan\'s learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.',
       ideaSection(topic, idea),
       briefSection(lesson),
-      '## What the self-test found (at 340 px and 720 px wide)\n' + (found.length ? found.map(function (p) { return '- ' + p; }).join('\n') : '- It did not pass, but reported no details. Check that K.ready() is called once at the end.'),
+      '## What the checks found (at 340 px and 720 px wide)\n' + (found.length ? found.map(function (p) { return '- ' + p; }).join('\n') : '- It did not pass, but reported no details. Check that K.ready() is called once at the end.'),
       '## How to fix the usual problems\n' + [
         '- A thrown error: go to the body line it names; check element ids, variable names and the kit call signatures.',
         '- NaN or Infinity: guard the maths at the ends of every control\'s range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.',
         '- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.',
-        '- A failing check: work the expected value out again, by hand and from the source. Fix whichever is wrong, the model or the check. Never delete or weaken a correct check to pass.',
+        '- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete or weaken a correct check to pass.',
         '- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.',
-        '- Missing ids: rename to exactly the ids listed.',
+        '- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.',
+        '- An unlisted web address: delete it, and the {source} that held it.',
+        '- A target out of reach: make the model follow the lesson\'s rule with the lesson\'s ranges and opening values, so moving that one control brings the output to the target.',
       ].join('\n'),
       sourcesSection(lesson),
+      rulesSection(lesson),
       kitSection(),
       '## The body that failed\n' + String(html || '(empty reply)'),
       outputSection(true),
@@ -207,20 +323,31 @@ U.interactive = (function () {
     return first < 0 ? '' : t.trim();
   }
 
-  // Test one body and fold in the lesson's own requirements (ids its checks depend on).
+  // Test one body against the kit's self-test and the lesson's own needs. The report gains
+  // missing (ids), foreign (web addresses), unreachable (target checks) and passed (the
+  // self-test proper, with the lesson's ids); ok is true only when nothing at all is wrong.
   function testBody(html, lesson) {
-    if (!html) return Promise.resolve({ ok: false, errors: ['The reply contained no HTML.'], overflow: false, checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], outputs: [], warnings: [] });
+    if (!html) return Promise.resolve({ ok: false, passed: false, errors: ['The reply contained no HTML.'], overflow: false, checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], outputs: [], warnings: [], missing: [], foreign: [], unreachable: [] });
     return U.sandbox.test(html, { widths: [340, 720] }).then(function (r) {
-      var missing = missingIds(r, lesson);
-      if (missing.length) { r.ok = false; r.missing = missing; }
-      return r;
+      r.missing = missingIds(r, lesson);
+      r.foreign = foreignUrls(html, lesson, r);
+      r.unreachable = [];
+      r.passed = !!r.ok && !r.missing.length;
+      r.ok = r.passed && !r.foreign.length;
+      if (!r.passed) return r;
+      return unreachable(html, lesson).then(function (list) {
+        r.unreachable = list;
+        if (list.length) r.ok = false;
+        return r;
+      });
     });
   }
 
   // build(topic, idea, lesson, {onStatus, avoid, signal})
-  //   -> Promise<{html, title, brief, selftest, attempts} | null>
-  // Resolves null when the lesson has no interactive brief or every attempt failed its self-test;
-  // rejects only when Claude can't be reached ({code, message} from U.ask).
+  //   -> Promise<{html, title, brief, selftest, attempts, unreachable?:[check ids]} | null>
+  // Resolves null when the lesson has no interactive brief or no attempt passed its self-test;
+  // rejects only when Claude can't be reached ({code, message} from U.ask). `unreachable` lists
+  // target checks the final page could not satisfy: the caller drops them from the lesson.
   function build(topic, idea, lesson, o) {
     o = o || {};
     var spec = lesson && lesson.interactive;
@@ -234,18 +361,37 @@ U.interactive = (function () {
       status(attempts === 1 ? 'Testing it on a phone-sized screen…' : 'Testing the fix…');
       return testBody(html, lesson);
     }
+    function result(report) {
+      return { html: html, title: str(spec.title) || str(idea && idea.title) || 'Interactive', brief: str(spec.brief), selftest: report, attempts: attempts };
+    }
     function next(report) {
       U.emit('interactive-test', { idea: idea && idea.id, attempt: attempts, ok: report.ok, problems: report.ok ? [] : problems(report, lesson).slice(0, 6) });
-      if (report.ok) {
-        return { html: html, title: str(spec.title) || str(idea && idea.title) || 'Interactive', brief: str(spec.brief), selftest: report, attempts: attempts };
+      if (report.ok) return result(report);
+      if (attempts < MAX_ATTEMPTS) {
+        status('Fixing something the test found…');
+        return ask(repairPrompt(topic, idea, lesson, html, report), 'repair-interactive').then(check).then(next);
       }
-      if (attempts >= MAX_ATTEMPTS) return null;
-      status('Fixing something the test found…');
-      return ask(repairPrompt(topic, idea, lesson, html, report), 'repair-interactive').then(check).then(next);
+      return salvage(report);
+    }
+    // Out of repairs, a page that passes its own self-test is still kept: unlisted web addresses
+    // are stripped (and the page tested again), and unreachable target checks are reported.
+    function salvage(report) {
+      if (!report.passed) return null;
+      var again = report.foreign.length ? testBody(html = stripUrls(html, report.foreign), lesson) : Promise.resolve(report);
+      return again.then(function (r) {
+        if (!r.passed || r.foreign.length) return null;
+        r.ok = true;
+        var out = result(r);
+        if (r.unreachable.length) out.unreachable = r.unreachable.map(function (x) { return x.id; });
+        return out;
+      });
     }
     status('Building the interactive…');
     return ask(prompt(topic, idea, lesson, { avoid: o.avoid }), 'build-interactive').then(check).then(next);
   }
 
-  return { prompt: prompt, repairPrompt: repairPrompt, extract: extract, build: build, problems: problems, exampleFor: exampleFor, requiredIds: requiredIds };
+  return {
+    prompt: prompt, repairPrompt: repairPrompt, extract: extract, build: build, problems: problems,
+    exampleFor: exampleFor, requiredIds: requiredIds, foreignUrls: foreignUrls, stripUrls: stripUrls, unreachable: unreachable,
+  };
 })();

@@ -14,23 +14,59 @@
     "brief": "The one thing you should see is the thrust doubling when you double either the air thrown back each second or how much faster it leaves.",
     "title": "What sets an engine's push",
     "controls": [
-      { "id": "airFlow", "label": "Air thrown back each second", "min": 10, "max": 1000, "step": 10, "value": 100, "unit": "kg/s" },
-      { "id": "speedAdded", "label": "How much faster the air leaves", "min": 0, "max": 600, "step": 10, "value": 400, "unit": "m/s" }
+      {
+        "id": "airFlow",
+        "label": "Air thrown back each second",
+        "min": 10,
+        "max": 1000,
+        "step": 10,
+        "value": 100,
+        "unit": "kg/s"
+      },
+      {
+        "id": "speedAdded",
+        "label": "How much faster the air leaves",
+        "min": 0,
+        "max": 600,
+        "step": 10,
+        "value": 400,
+        "unit": "m/s"
+      }
     ],
     "outputs": [
-      { "id": "thrust", "label": "Thrust", "unit": "kN" }
+      {
+        "id": "thrust",
+        "label": "Thrust",
+        "unit": "kN"
+      }
     ],
     "whatAmILookingAt": "Thrust = air thrown back each second × how much faster it leaves than it arrived. In symbols: F = ṁ × (v_out − v_in), where ṁ is the mass of air per second. 1 kg/s sped up by 1 m/s gives 1 newton; the readout shows kilonewtons (1 kN = 1,000 N). The graph shows thrust against the speed added, at the air flow you have set.",
     "ignores": "The small extra mass of the burned fuel, any push from a pressure difference at the nozzle, and the fact that real exhaust doesn't all leave at one speed.",
     "numbers": [
-      { "label": "Air thrown back each second (kg/s)", "value": 100, "kind": "control" },
-      { "label": "How much faster the air leaves (m/s)", "value": 400, "kind": "control" },
-      { "label": "Thrust at the start (kN)", "value": 40, "kind": "computed" },
-      { "label": "Newtons in a kilonewton", "value": 1000, "kind": "constant" }
+      {
+        "label": "Air thrown back each second (kg/s)",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "How much faster the air leaves (m/s)",
+        "value": 400,
+        "kind": "control"
+      },
+      {
+        "label": "Thrust at the start (kN)",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Newtons in a kilonewton",
+        "value": 1000,
+        "kind": "constant"
+      }
     ]
   },
   "explain": {
-    "text": "As you moved the sliders, the thrust followed both of them: double the air and the push doubled; double the extra speed and it doubled again.\n\nThat's Newton's push-back, counted second by second. Each second the engine grabs some air and throws it out of the back faster than it arrived. The push it gets is the mass of air thrown each second times the extra speed it gave that air:[^1]\n\n**thrust = air per second × speed added**\n\nEngineers call the air per second the [[mass flow]]. One kilogram of air sped up by one metre per second, every second, gives one [[newton]] of push.\n\nThat's why the two engines in the puzzle tie: 100 kg/s sped up by 400 m/s and 400 kg/s sped up by 100 m/s both make 40,000 newtons.\n\nSo a designer has a choice: throw a little air very fast, or a lot of air more gently. Which one saves fuel is a story for later."
+    "text": "Move either slider and the thrust follows it: double the air and the push doubles; double the extra speed and it doubles again.\n\nThat's Newton's push-back, counted second by second. Each second the engine grabs some air and throws it out of the back faster than it arrived. The push it gets is the mass of air thrown each second times the extra speed it gave that air:[^1]\n\n**thrust = air per second × speed added**\n\nEngineers call the air per second the [[mass flow]]. One kilogram of air sped up by one metre per second, every second, gives one [[newton]] of push.\n\nThat's why the two engines in the puzzle tie: 100 kg/s sped up by 400 m/s and 400 kg/s sped up by 100 m/s both make 40,000 newtons.\n\nSo a designer has a choice: throw a little air very fast, or a lot of air more gently. Which one saves fuel is a story for later."
   },
   "analogy": {
     "text": "Think of bailing a rowing boat with a bucket, flinging the water out behind you. Big bucketfuls tossed gently or small ones flung hard can give the boat the same shove.",
@@ -72,7 +108,12 @@
       "id": "c3",
       "type": "choice",
       "q": "A designer doubles the air an engine throws back each second, but halves how much she speeds it up. What happens to the thrust?",
-      "options": ["It doubles", "It halves", "It stays the same", "It drops to a quarter"],
+      "options": [
+        "It doubles",
+        "It halves",
+        "It stays the same",
+        "It drops to a quarter"
+      ],
       "answer": 2,
       "misconception": {
         "0": "Counts the extra air but forgets that the speed added was halved.",

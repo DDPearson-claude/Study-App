@@ -1,9 +1,10 @@
 /* House kit for My University interactives (API reference for prompts: app/kit/KIT.md).
  * Runs inside <iframe sandbox="allow-scripts" srcdoc>: no same-origin, so no storage, no network
  * and no access to the app. A model-written body uses the global K to build themed controls,
- * readouts and plots, declares a pure model, known-answer checks, and calls K.ready().
+ * readouts, plots, buttons and sound, declares a pure model, known-answer checks, and calls K.ready().
  * The kit talks to the host (app/src/js/32-sandbox.js) with postMessage, every message tagged
- * src:'kit': height, ready, error, change, and replies to selftest / get / set / theme.
+ * src:'kit': height, ready, error, change, and replies to selftest / get / set / press / inputs /
+ * reach / theme.
  * This file is inlined into a <script> element, so it never contains a closing script tag or an
  * HTML comment opener. */
 (function () {
@@ -13,6 +14,9 @@
   var SVGNS = 'http://www.w3.org/2000/svg';
   var FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
   var SLOW_MS = 150;                      // an update slower than this feels laggy on a phone
+  var PHONE = 560;                        // frames narrower than this get the phone layout
+  var PHONE_VIEW = 640;                   // roughly how much of the frame a phone shows at once
+  var FIG_MAX = 600;                      // custom figures never grow wider than this
   var BODY_LINE = +window.K_BODY_LINE || 0; // srcdoc line where the body starts (for error lines)
   var host = window.parent;                // captured now, so a body can't redirect it
   var hosted = !!host && host !== window;
@@ -77,30 +81,74 @@
   };
 
   // ---------- theme ----------
-  // The host sets window.K_THEME = {dark, size, c:{...}} before this script. Dan's light palette
-  // is the fallback so a body opened on its own still looks right.
+  // The host sets window.K_THEME = {dark, size, mute, c:{...}} before this script; Dan's light
+  // palette is the fallback so a body opened on its own still looks right. The data roles in
+  // KIT_ROLES belong to the kit (tuned so fills and highlights read on both backgrounds):
+  //   strokes and text: ink, muted, accent2 (main), accent (second), warn, good, amberLine
+  //   fills behind things: panel, sunk, amber (note box), hl (key-term highlighter),
+  //     fill1 (main area), fill2 (highlighted area, amber), fill3 (second area)
+  //   cat1..cat4: telling equal things apart (both strokes and fills), never meaning.
   var LIGHT = {
     bg: '#FFFFFF', panel: '#F7F5F0', sunk: '#EFEBE3', ink: '#1F2937', muted: '#5B6573', line: '#DED8CC',
     strong: '#B9B1A3', accent: '#0F6B66', accent2: '#17324D', onAccent2: '#F7F5F0', warn: '#9F3038',
-    good: '#2E7D4F', hl: '#FBE29A', amber: '#FFF1CC',
+    good: '#2E7D4F', amber: '#FFF1CC',
+    hl: '#FBE29A', amberLine: '#B7791F', fill1: '#D6E0EB', fill2: '#F8D47A', fill3: '#CFE8E4',
+    cat1: '#2A78D6', cat2: '#EB6834', cat3: '#1BAF7A', cat4: '#4A3AA7',
   };
+  var DARK = {
+    bg: '#1A2029', panel: '#12161C', sunk: '#232A35', ink: '#E7E4DD', muted: '#A9B1BC', line: '#2C3440',
+    strong: '#4A5564', accent: '#6CC7BD', accent2: '#BBD0E6', onAccent2: '#12161C', warn: '#F2A6AC',
+    good: '#6FCB94', amber: '#3A3016',
+    hl: '#6E561E', amberLine: '#E8B64C', fill1: '#2E4763', fill2: '#8F6A1E', fill3: '#1F4D49',
+    cat1: '#3987E5', cat2: '#D95926', cat3: '#199E70', cat4: '#9085E9',
+  };
+  var KIT_ROLES = ['hl', 'amberLine', 'fill1', 'fill2', 'fill3', 'cat1', 'cat2', 'cat3', 'cat4'];
+  var FILL_ROLES = ['fill1', 'fill2', 'fill3', 'hl', 'amber', 'panel', 'sunk'];
+  var hostMute = false;
   K.theme = { dark: false, size: 16, c: {} };
   function cssName(k) { return '--k-' + k.replace(/[A-Z]/g, function (m) { return '-' + m.toLowerCase(); }); }
   function applyTheme(t) {
     t = t && typeof t === 'object' ? t : {};
-    var c = {}, src = t.c || {};
-    Object.keys(LIGHT).forEach(function (k) { c[k] = typeof src[k] === 'string' && src[k] ? src[k] : LIGHT[k]; });
-    K.theme.dark = !!t.dark;
+    var dark = !!t.dark, base = dark ? DARK : LIGHT, src = t.c || {};
+    K.theme.dark = dark;
     K.theme.size = clamp(+t.size || 16, 14, 24);
-    Object.keys(c).forEach(function (k) { K.theme.c[k] = c[k]; });
+    hostMute = !!t.mute;
     var root = document.documentElement, s = root.style;
-    Object.keys(c).forEach(function (k) { s.setProperty(cssName(k), c[k]); });
+    Object.keys(base).forEach(function (k) {
+      var v = src[k];
+      K.theme.c[k] = KIT_ROLES.indexOf(k) < 0 && typeof v === 'string' && v ? v : base[k];
+      s.setProperty(cssName(k), K.theme.c[k]);
+    });
     s.setProperty('--k-fs', K.theme.size + 'px');
-    root.setAttribute('data-theme', K.theme.dark ? 'dark' : 'light');
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
   }
   applyTheme(window.K_THEME);
-  // A palette name ('accent2', 'muted', ...) or any CSS colour.
-  K.color = function (name) { return K.theme.c[name] || name || K.theme.c.accent2; };
+  // Colour parsing (any CSS colour the canvas understands) for K.color(name, alpha).
+  var cc = null;
+  function rgbaOf(col) {
+    var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(col);
+    if (m) {
+      var h = m[1].length === 3 ? m[1].replace(/./g, '$&$&') : m[1];
+      return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16), 1];
+    }
+    try {
+      if (!cc) cc = document.createElement('canvas').getContext('2d');
+      cc.fillStyle = '#000'; cc.fillStyle = col;
+      var s = String(cc.fillStyle);
+      if (s.charAt(0) === '#') return rgbaOf(s);
+      var n = s.match(/[\d.]+/g);
+      if (n && n.length >= 3) return [+n[0], +n[1], +n[2], n.length > 3 ? +n[3] : 1];
+    } catch (e) {}
+    return null;
+  }
+  // A palette role ('accent2', 'fill2', 'cat1', ...) or any CSS colour; with alpha, an rgba() of it.
+  K.color = function (name, alpha) {
+    var c = K.theme.c[name] || name || K.theme.c.accent2;
+    if (alpha == null || !isNum(+alpha)) return c;
+    var p = rgbaOf(c);
+    if (!p) return c;
+    return 'rgba(' + p[0] + ', ' + p[1] + ', ' + p[2] + ', ' + +(clamp(+alpha, 0, 1) * p[3]).toFixed(3) + ')';
+  };
 
   // ---------- small helpers ----------
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
@@ -130,30 +178,40 @@
   }
   var SUP = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻' };
   function group(v, dp) { return v.toLocaleString('en-GB', { minimumFractionDigits: dp, maximumFractionDigits: dp }); }
-  // K.fmt(v, {dp, sig, unit, prefix, percent, sign, compact}) -> readable text. Non-finite -> '—'.
-  //   default: 3 significant figures, thousands separators, a true minus sign, ×10ⁿ for extremes.
+  function sci(v, sig) {
+    var e = v.toExponential(sig - 1).split('e');
+    return e[0].replace(/\.?0+$/, '') + ' × 10' + String(+e[1]).split('').map(function (ch) { return SUP[ch] || ch; }).join('');
+  }
+  // The default rounding (readouts and K.fmt): whole numbers stay whole; otherwise 3 significant
+  // figures with trailing zeros kept, so the digits don't jump as a value changes; 100 and over
+  // to the nearest whole number; extremes as × 10ⁿ.
+  function autoText(v) {
+    var a = Math.abs(v);
+    if (a === 0) return '0';
+    if (a >= 1e15 || a < 1e-4) return sci(v, 3);
+    if (Number.isInteger(v)) return group(v, 0);
+    var p = Math.abs(+v.toPrecision(3));
+    if (p >= 100) return group(v, 0);
+    return group(v, clamp(2 - Math.floor(Math.log10(p)), 0, 12));
+  }
+  // K.fmt(v, {dp | decimals, sig, unit, prefix, percent, sign, compact}) -> readable text. Non-finite -> '—'.
   K.fmt = function (v, o) {
     o = typeof o === 'number' ? { dp: o } : (o || {});
     if (!isNum(v)) return '—';
     if (o.percent) v = v * 100;
-    var a = Math.abs(v), s;
+    var a = Math.abs(v), s, dp = o.dp != null ? o.dp : o.decimals;
     if (o.compact && a >= 1e4) {
       var units = [[1e12, ' trillion'], [1e9, ' billion'], [1e6, ' million'], [1e3, 'k']];
       for (var i = 0; i < units.length; i++) if (a >= units[i][0]) { s = K.fmt(v / units[i][0], { sig: o.sig || 3 }) + units[i][1]; break; }
-    } else if (o.dp != null) {
-      s = group(v, clamp(o.dp | 0, 0, 12));
-    } else {
-      var sig = clamp(o.sig || 3, 1, 12);
+    } else if (dp != null) {
+      s = group(v, clamp(dp | 0, 0, 12));
+    } else if (o.sig) {
+      var sig = clamp(o.sig | 0, 1, 12);
       if (a === 0) s = '0';
-      else if (a >= 1e15 || a < 1e-4) {
-        var e = v.toExponential(sig - 1).split('e');
-        s = e[0].replace(/\.?0+$/, '') + ' × 10' + String(+e[1]).split('').map(function (ch) { return SUP[ch] || ch; }).join('');
-      } else if (a >= Math.pow(10, sig)) s = group(Math.round(v), 0);
-      else {
-        var p = +v.toPrecision(sig);
-        s = group(p, Math.max(0, Math.min(12, decimalsOf(p))));
-      }
-    }
+      else if (a >= 1e15 || a < 1e-4) s = sci(v, sig);
+      else if (a >= Math.pow(10, sig)) s = group(Math.round(v), 0);
+      else { var p = +v.toPrecision(sig); s = group(p, Math.max(0, Math.min(12, decimalsOf(p)))); }
+    } else s = autoText(v);
     s = s.replace(/^-/, '−');
     if (o.sign && v > 0) s = '+' + s;
     if (o.percent) s += '%';
@@ -210,14 +268,25 @@
     play: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2.8v10.4L13 8z" fill="currentColor"/></svg>',
     pause: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z" fill="currentColor"/></svg>',
   };
+  // Text width in px for a font (for layout decisions made before or without rendering).
+  function textWidth(text, font) {
+    try {
+      if (!cc) cc = document.createElement('canvas').getContext('2d');
+      cc.font = font;
+      return cc.measureText(String(text)).width;
+    } catch (e) { return String(text).length * 8; }
+  }
+  function fontOf(el) { var cs = getComputedStyle(el); return cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily; }
 
   // ---------- registry and the update pipeline ----------
   // Every control registers itself; K.params() is {id: value}. A change runs: model(params) ->
   // outputs; readouts whose id matches an output key update themselves; then each K.update fn.
   var controls = [], byId = Object.create(null), readouts = Object.create(null), readoutList = [], plots = [], anims = [], checks = [];
+  var actions = [], stages = [];
   var modelFn = null, updates = [], lastOutputs = {}, readyCalled = false, everRun = false;
   var sink = null;          // during the self-test sweep: where problems go, with the current setting
   var liveProblems = [];    // problems seen outside the sweep (e.g. a NaN while Dan plays)
+  var labelSkips = [];      // plot labels left out for lack of room (advice)
 
   function problem(msg) {
     if (!sink) { addUnique(liveProblems, msg, 12); return; }
@@ -249,17 +318,25 @@
     Object.keys(over || {}).forEach(function (k) { p[k] = over[k]; });
     return modelFn ? (modelFn(p) || {}) : {};
   };
+  function checkOutputs(out) {
+    Object.keys(out).forEach(function (k) {
+      var v = out[k];
+      if (v != null && typeof v === 'object') problem('the model returned an ' + (Array.isArray(v) ? 'array' : 'object') + ' for "' + k + '": outputs must be numbers or short strings (keep lists in your own variables)');
+    });
+  }
   function run() {
     everRun = true;
     var p = K.params(), out = {};
     if (modelFn) {
       try { out = modelFn(p) || {}; } catch (e) { fault('the model', e); return; }
+      if (sink) checkOutputs(out);
     }
     lastOutputs = out;
     Object.keys(out).forEach(function (k) { if (readouts[k]) readouts[k].set(out[k]); });
     for (var i = 0; i < updates.length; i++) {
       try { updates[i](p, out); } catch (e) { fault('K.update', e); }
     }
+    if (readyCalled) figures();
     heightSoon();
   }
   K.refresh = function () { run(); return K; };
@@ -288,6 +365,29 @@
     return o;
   }
 
+  // ---------- reveal after a move ----------
+  // Anything with class k-after-move stays hidden (its space kept) until Dan first moves a control
+  // or presses a kit button, so the opening screen never answers his prediction. K.moved says
+  // whether that has happened; K.afterMove(fn) runs fn once at that moment; K.reveal() marks it
+  // from your own handlers (a drag on a drawing, say). The self-test shows these parts while it
+  // checks the page, then hides them again.
+  var moved = false, sweepReveal = false, afterMoveFns = [];
+  function setMovedClass(on) { document.documentElement.classList.toggle('k-moved', !!on); }
+  function markMoved() {
+    if (moved) return;
+    moved = true;
+    setMovedClass(true);
+    afterMoveFns.slice().forEach(function (fn) { try { fn(); } catch (e) { fault('K.afterMove', e); } });
+  }
+  Object.defineProperty(K, 'moved', { get: function () { return moved || sweepReveal; }, enumerable: true });
+  K.afterMove = function (fn) {
+    if (typeof fn !== 'function') throw new Error('K.afterMove needs a function');
+    afterMoveFns.push(fn);
+    if (moved) { try { fn(); } catch (e) { fault('K.afterMove', e); } }
+    return K;
+  };
+  K.reveal = function () { markMoved(); changed(); return K; };
+
   // ---------- controls ----------
   // Label (and live value on the right), then an optional one-line hint across the full width.
   function fieldHead(id, label, hint, right) {
@@ -305,7 +405,10 @@
     var step = num(o.step, 0) > 0 ? +o.step : (log ? 0 : niceStep((max - min) / 100));
     var dp = Math.max(decimalsOf(step), decimalsOf(min));
     var N = 1000; // log sliders run over N positions
-    var show = function (v) { return o.fmt ? String(o.fmt(v)) : (o.prefix || '') + (log && !o.step ? K.fmt(v) : K.fmt(v, { dp: dp })) + unitText(o.unit); };
+    var numText = function (v) { return (o.prefix || '') + (log && !o.step ? K.fmt(v, { sig: 3 }) : K.fmt(v, { dp: dp })); };
+    var show = function (v) { return o.fmt ? String(o.fmt(v)) : numText(v) + unitText(o.unit); };
+    // A long unit ("per second") is shown once, on the right-hand end of the scale.
+    var longUnit = !o.fmt && o.unit && (/\s/.test(String(o.unit).trim()) || String(o.unit).trim().length > 4);
     function snap(v) {
       v = clamp(num(v, min), min, max);
       if (log && !step) return clamp(+v.toPrecision(3), min, max);
@@ -324,12 +427,11 @@
       type: 'range', id: fid, class: 'k-range', min: log ? 0 : min, max: log ? N : max,
       step: log ? 1 : step, 'aria-label': o.label || c.id,
     });
+    var lo = K.el('span', null, longUnit ? numText(min) : show(min)), hi = K.el('span', null, show(max));
+    var scale = K.el('div', { class: 'k-scale', 'aria-hidden': 'true' }, lo, hi);
     var el = K.el('div', { class: 'k-field k-control', 'data-id': c.id },
       fieldHead(fid, o.label || c.id, o.hint, K.el('span', { class: 'k-value' }, out)),
-      K.el('div', { class: 'k-slide' }, minus,
-        K.el('div', { class: 'k-track' }, input,
-          K.el('div', { class: 'k-scale', 'aria-hidden': 'true' }, K.el('span', null, show(min)), K.el('span', null, show(max)))),
-        plus));
+      K.el('div', { class: 'k-slide' }, minus, K.el('div', { class: 'k-track' }, input, scale), plus));
     function paint() {
       input.value = String(toPos(value));
       var t = log ? Math.log(value / min) / Math.log(max / min) : (value - min) / (max - min);
@@ -346,17 +448,44 @@
       if (!log || value === before) value = snap(value + dir * (step || value * 0.05));
       paint(); changed();
     }
-    input.addEventListener('input', function () { value = snap(fromPos(+input.value)); paint(); changed(); });
-    minus.addEventListener('click', function () { nudge(-1); });
-    plus.addEventListener('click', function () { nudge(1); });
+    input.addEventListener('input', function () { markMoved(); value = snap(fromPos(+input.value)); paint(); changed(); });
+    minus.addEventListener('click', function () { markMoved(); nudge(-1); });
+    plus.addEventListener('click', function () { markMoved(); nudge(1); });
     c.el = el; c.input = input;
     c.get = function () { return value; };
     c.set = function (v, silent) { value = snap(v); paint(); if (!silent) changed(); return c; };
+    c.accepts = function (v) { return isNum(num(v, NaN)); };
     c.sweep = function () {
       var vals = [0, 0.25, 0.5, 0.75, 1].map(function (t) { return snap(log ? min * Math.pow(max / min, t) : min + t * (max - min)); });
       return vals.filter(function (v, i) { return vals.indexOf(v) === i; });
     };
+    // Every reachable setting (up to 2001 of them), for reach().
+    c.values = function () {
+      var out2 = [], n = log && !step ? N : Math.round((max - min) / step);
+      var count = Math.min(n, 2000);
+      for (var k = 0; k <= count; k++) {
+        var t = k / count, v = log ? snap(min * Math.pow(max / min, t)) : snap(min + t * (max - min));
+        if (!out2.length || out2[out2.length - 1] !== v) out2.push(v);
+      }
+      return out2;
+    };
+    c.info = function () { return { id: c.id, kind: 'control', label: o.label || c.id, min: min, max: max, step: step || null, log: log, value: value }; };
     c.describe = show;
+    // Layout at the current width: the live value keeps a steady width (no jumping as it
+    // changes), and the end labels never wrap or collide.
+    c.fit = function () {
+      if (!el.isConnected || !out.clientWidth && !el.clientWidth) return;
+      var f = fontOf(out), wmax = 0;
+      [min, max, value, (min + max) / 2].forEach(function (v) { wmax = Math.max(wmax, textWidth(show(snap(v)), f)); });
+      out.style.minWidth = wmax < el.clientWidth * 0.55 ? Math.ceil(wmax + 2) + 'px' : '';
+      lo.textContent = longUnit ? numText(min) : show(min); hi.textContent = show(max);
+      scale.classList.remove('tight');
+      var W = scale.clientWidth;
+      if (!W) return;
+      if (lo.offsetWidth + hi.offsetWidth + 12 <= W) return;
+      if (!o.fmt) { lo.textContent = numText(min); hi.textContent = numText(max); }
+      if (lo.offsetWidth + hi.offsetWidth + 12 > W) scale.classList.add('tight');
+    };
     paint();
     place(el, o.into, who);
     return c;
@@ -364,30 +493,39 @@
 
   function normOptions(list) {
     return (list || []).map(function (x) {
-      return x && typeof x === 'object' ? { value: x.value, label: x.label != null ? String(x.label) : String(x.value) } : { value: x, label: String(x) };
+      return x && typeof x === 'object' ? { value: x.value !== undefined ? x.value : x.label, label: x.label != null ? String(x.label) : String(x.value) } : { value: x, label: String(x) };
     });
   }
   // K.choice({id, label, options:[value | {value, label}], value, hint, into}) -> {el, get, set}
+  // value (and host set) takes an option's value, its label, or its 0-based index.
   K.choice = function (o) {
     o = o || {};
     var opts = normOptions(o.options);
     var who = 'K.choice "' + (o.id || '') + '"';
     if (opts.length < 2) throw new Error(who + ': needs at least two options');
-    function has(v) { return opts.some(function (x) { return x.value === v; }); }
-    var value = has(o.value) ? o.value : opts[0].value;
+    function find(v) {
+      var i;
+      for (i = 0; i < opts.length; i++) if (opts[i].value === v) return opts[i];
+      for (i = 0; i < opts.length; i++) if (String(opts[i].value) === String(v)) return opts[i];
+      for (i = 0; i < opts.length; i++) if (opts[i].label === String(v)) return opts[i];
+      var n = typeof v === 'string' && /^\d+$/.test(v) ? +v : v;
+      return typeof n === 'number' && Number.isInteger(n) && n >= 0 && n < opts.length ? opts[n] : null;
+    }
+    var first = o.value == null ? null : find(o.value);
+    var value = first ? first.value : opts[0].value;
     var c = { id: o.id, initial: value };
     register(c, 'choice');
     var labId = 'k-' + c.id + '-label';
     var seg = K.el('div', { class: 'k-seg', role: 'radiogroup', 'aria-labelledby': labId });
     var buttons = opts.map(function (x, i) {
       var b = K.el('button', { type: 'button', role: 'radio' }, x.label);
-      b.addEventListener('click', function () { c.set(x.value); });
+      b.addEventListener('click', function () { markMoved(); c.set(x.value); });
       b.addEventListener('keydown', function (ev) {
         var d = ev.key === 'ArrowRight' || ev.key === 'ArrowDown' ? 1 : ev.key === 'ArrowLeft' || ev.key === 'ArrowUp' ? -1 : 0;
         if (!d) return;
         ev.preventDefault();
         var j = (i + d + opts.length) % opts.length;
-        c.set(opts[j].value); buttons[j].focus();
+        markMoved(); c.set(opts[j].value); buttons[j].focus();
       });
       seg.appendChild(b);
       return b;
@@ -406,15 +544,21 @@
     }
     c.el = el;
     c.get = function () { return value; };
-    c.set = function (v, silent) {
-      if (!has(v)) { var n = opts.filter(function (x) { return String(x.value) === String(v); })[0]; if (!n) return c; v = n.value; }
-      value = v; paint(); if (!silent) changed(); return c;
-    };
+    c.set = function (v, silent) { var x = find(v); if (!x) return c; value = x.value; paint(); if (!silent) changed(); return c; };
+    c.accepts = function (v) { return !!find(v); };
+    c.index = function () { for (var i = 0; i < opts.length; i++) if (opts[i].value === value) return i; return 0; };
     c.sweep = function () {
-      if (opts.length <= 8) return opts.map(function (x) { return x.value; });
-      return K.linspace(0, opts.length - 1, 8).map(function (i) { return opts[Math.round(i)].value; });
+      if (opts.length <= 24) return opts.map(function (x) { return x.value; });
+      return K.linspace(0, opts.length - 1, 24).map(function (i) { return opts[Math.round(i)].value; });
     };
-    c.describe = function (v) { var x = opts.filter(function (y) { return y.value === v; })[0]; return x ? x.label : String(v); };
+    c.values = function () { return opts.map(function (x) { return x.value; }); };
+    c.info = function () { return { id: c.id, kind: 'choice', label: o.label || c.id, options: opts.map(function (x) { return x.value; }), labels: opts.map(function (x) { return x.label; }), value: value, index: c.index() }; };
+    c.describe = function (v) { var x = find(v); return x ? '"' + x.label + '"' : String(v); };
+    // Options that don't fit on one row stack into a tidy list instead of a lopsided wrap.
+    c.fit = function () {
+      seg.classList.remove('stack');
+      if (buttons.length > 1 && buttons[buttons.length - 1].offsetTop > buttons[0].offsetTop + 4) seg.classList.add('stack');
+    };
     paint();
     place(el, o.into, who);
     return c;
@@ -429,13 +573,16 @@
     var btn = K.el('button', { type: 'button', class: 'k-toggle', role: 'switch' },
       K.el('span', null, K.el('span', { class: 'k-field-label' }, o.label || c.id), o.hint ? K.el('span', { class: 'k-hint' }, o.hint) : null),
       K.el('span', { class: 'k-switch', 'aria-hidden': 'true' }));
-    btn.addEventListener('click', function () { c.set(!value); });
+    btn.addEventListener('click', function () { markMoved(); c.set(!value); });
     var el = K.el('div', { class: 'k-field k-toggle-field', 'data-id': c.id }, btn);
     function paint() { btn.setAttribute('aria-checked', value ? 'true' : 'false'); }
     c.el = el;
     c.get = function () { return value; };
-    c.set = function (v, silent) { value = v === true || v === 'true' || v === 1; paint(); if (!silent) changed(); return c; };
+    c.set = function (v, silent) { value = v === true || v === 'true' || v === 1 || v === '1' || v === 'on'; paint(); if (!silent) changed(); return c; };
+    c.accepts = function () { return true; };
     c.sweep = function () { return [false, true]; };
+    c.values = c.sweep;
+    c.info = function () { return { id: c.id, kind: 'toggle', label: o.label || c.id, options: [false, true], value: value }; };
     c.describe = function (v) { return v ? 'on' : 'off'; };
     paint();
     place(el, o.into, 'K.toggle "' + c.id + '"');
@@ -462,8 +609,8 @@
     var dots = K.el('div', { class: 'k-dots', 'aria-hidden': 'true' });
     var back = K.el('button', { type: 'button', class: 'k-btn secondary' }, 'Back');
     var next = K.el('button', { type: 'button', class: 'k-btn' }, 'Next');
-    back.addEventListener('click', function () { c.set(value - 1); });
-    next.addEventListener('click', function () { c.set(value + 1); });
+    back.addEventListener('click', function () { markMoved(); c.set(value - 1); });
+    next.addEventListener('click', function () { markMoved(); c.set(value + 1); });
     var el = K.el('div', { class: 'k-field k-stepper' + (o.compact ? ' compact' : ''), 'data-id': c.id, role: 'group', 'aria-label': o.label || 'Steps' },
       K.el('div', { 'aria-live': 'polite' }, count, o.compact ? null : [title, text]), dots, K.el('div', { class: 'k-stepper-nav' }, back, next));
     function paint() {
@@ -480,60 +627,91 @@
     c.el = el;
     c.get = function () { return value; };
     c.set = function (v, silent) { value = clamp(num(v, 0) | 0, 0, steps.length - 1); paint(); if (!silent) changed(); return c; };
+    c.accepts = function (v) { return isNum(num(v, NaN)); };
     c.steps = function () { return steps.slice(); };
     c.setSteps = function (list) { steps = norm(list); value = clamp(value, 0, steps.length - 1); paint(); return c; };
     c.sweep = function () {
       var n = steps.length;
-      if (n <= 12) return K.linspace(0, n - 1, Math.max(n, 2)).map(Math.round).filter(function (v, i, a) { return a.indexOf(v) === i; });
-      return K.linspace(0, n - 1, 12).map(Math.round);
+      if (n <= 24) return K.linspace(0, n - 1, Math.max(n, 2)).map(Math.round).filter(function (v, i, a) { return a.indexOf(v) === i; });
+      return K.linspace(0, n - 1, 24).map(Math.round);
     };
+    c.values = function () { return steps.map(function (s, i) { return i; }); };
+    c.info = function () { return { id: c.id, kind: 'stepper', label: o.label || c.id, min: 0, max: steps.length - 1, step: 1, steps: steps.map(function (s) { return s.title; }), value: value }; };
     c.describe = function (v) { return 'step ' + (v + 1); };
     paint();
     place(el, o.into, 'K.stepper "' + c.id + '"');
     return c;
   };
 
+  // K.button({label, press, secondary, id, into}) -> {el, press(), setLabel(text)}
+  // An action button (Shout, Hear it, Drop the ball, Clear). Pressing it counts as Dan moving
+  // something; the self-test presses every K.button to check what it does.
+  K.button = function (o) {
+    o = o || {};
+    if (typeof o.press !== 'function') throw new Error('K.button "' + (o.label || '') + '" needs press: function');
+    var b = K.el('button', { type: 'button', class: 'k-btn' + (o.secondary ? ' secondary' : ''), 'data-id': o.id || null }, o.label || 'Go');
+    var a = { el: b, label: String(o.label || 'button ' + (actions.length + 1)), kind: 'button' };
+    a.run = function () { try { o.press(); } catch (e) { fault('K.button "' + a.label + '"', e); } };
+    a.press = function () { a.run(); changed(); return a; };
+    a.setLabel = function (t) { b.textContent = String(t); return a; };
+    b.addEventListener('click', function () { markMoved(); a.press(); });
+    actions.push(a);
+    place(b, o.into, 'K.button "' + a.label + '"');
+    return a;
+  };
+
   // ---------- readouts ----------
-  // K.readout({id, label, unit, prefix, fmt, big, hint, into}) -> {el, set(v), get()}
+  // K.readout({id, label, unit, prefix, dp | decimals, sig, fmt, big, hint, into}) -> {el, set(v), get(), text()}
   // A readout whose id matches a key of the model's outputs updates itself on every change.
+  // Default rounding: see autoText. Give decimals to match the rounding the lesson text uses.
   K.readout = function (o) {
     o = o || {};
     var id = String(o.id || 'readout' + (readoutList.length + 1));
     if (readouts[id]) fail('Two readouts share the id "' + id + '": ids must be unique.');
+    var dp = o.decimals != null ? o.decimals : o.dp;
+    var lab = K.el('span', { class: 'k-readout-label' }, o.label || id);
     var val = K.el('span', { class: 'k-readout-value' }, '—');
-    var el = K.el('div', { class: 'k-readout' + (o.big ? ' big' : ''), 'data-id': id },
-      K.el('span', { class: 'k-readout-label' }, o.label || id), val,
+    var el = K.el('div', { class: 'k-readout' + (o.big ? ' big' : ''), 'data-id': id }, lab, val,
       o.hint ? K.el('span', { class: 'k-hint' }, o.hint) : null);
     var r = { id: id, el: el, value: undefined };
-    // Long values stay on one line: shrink the text (down to 60%) rather than break a number.
+    // A long value shrinks a little (to 75% for words, 55% for a number) before it wraps; a number
+    // itself never breaks across lines, and nothing is ever cut off.
     function fit() {
       val.style.fontSize = '';
       var w = val.clientWidth;
-      if (!w || val.scrollWidth <= w + 1) return;
-      var px = parseFloat(getComputedStyle(val).fontSize);
-      val.style.fontSize = Math.max(px * 0.6, Math.floor(px * w / val.scrollWidth * 10) / 10) + 'px';
+      if (!w) return;
+      val.style.whiteSpace = 'nowrap';
+      var need = val.scrollWidth;
+      val.style.whiteSpace = '';
+      if (need <= w + 1) return;
+      var px = parseFloat(getComputedStyle(val).fontSize), least = typeof r.value === 'number' ? 0.55 : 0.75;
+      val.style.fontSize = Math.max(px * least, Math.floor(px * w / need * 10) / 10) + 'px';
     }
-    r.set = function (v) {
-      setValue(v);
-      fit();
-      return r;
-    };
+    r.set = function (v) { setValue(v); fit(); return r; };
     function setValue(v) {
       r.value = v;
+      while (val.firstChild) val.removeChild(val.firstChild);
       if (typeof v === 'number') {
         if (!isFinite(v)) { val.textContent = '—'; problem('readout "' + id + '" was given ' + (isNaN(v) ? 'NaN' : 'Infinity')); return; }
-        var text = o.fmt ? String(o.fmt(v)) : K.fmt(v, o.dp != null ? { dp: o.dp } : null);
-        val.textContent = (o.fmt ? '' : (o.prefix || '')) + text;
-        if (o.unit && !o.fmt) val.appendChild(K.el('span', { class: 'k-readout-unit' }, unitText(o.unit)));
+        if (o.fmt) { val.appendChild(K.el('span', { class: 'k-num' }, String(o.fmt(v)))); return; }
+        val.appendChild(K.el('span', { class: 'k-num' }, (o.prefix || '') + K.fmt(v, dp != null ? { dp: dp } : o.sig ? { sig: o.sig } : null)));
+        if (o.unit) val.appendChild(K.el('span', { class: 'k-readout-unit' }, unitText(o.unit)));
       } else if (v == null) {
         val.textContent = '—';
         problem('readout "' + id + '" was given ' + v);
       } else {
         val.textContent = String(v);
-        if (/\bNaN\b|\bundefined\b|Infinity/.test(val.textContent)) problem('readout "' + id + '" shows "' + val.textContent.slice(0, 40) + '"');
+        if (/\bNaN\b|\bundefined\b|Infinity|\[object /.test(val.textContent)) problem('readout "' + id + '" shows "' + val.textContent.slice(0, 40) + '"');
       }
     }
     r.get = function () { return r.value; };
+    r.text = function () { return val.textContent; };
+    // Tiles share a row; a long label gets a wider tile so it wraps to at most two lines.
+    r.layout = function () {
+      var w = textWidth(o.label || id, fontOf(lab));
+      el.style.flexBasis = 'min(100%, ' + Math.max(132, Math.ceil(w / 1.8 + 34)) + 'px)';
+      fit();
+    };
     readouts[id] = r;
     readoutList.push(r);
     place(el, o.into, 'K.readout "' + id + '"');
@@ -541,9 +719,10 @@
   };
 
   // ---------- plots ----------
-  // K.plot(target, {x, y, series, marks, regions, lines, height, aspect, label, after}) -> {draw(opts)}
+  // K.plot(target, {x, y, series, shade, marks, regions, lines, height, aspect, label, after}) -> {draw(opts)}
   //   x / y: {min, max, label, log, prefix, unit, fmt, ticks}; leave out y.min/max to fit the data.
   //   series: [{fn(x) | points:[[x,y]...], label, color, dash, width, fill, dots, gaps}]
+  //   shade:  [{between:[a, b], label, color, x0, x1}]  a / b: a series label, a function or a number
   //   marks:  [{x, y, label, color, guides}]   regions: [{x0, x1 | y0, y1, label, color}]
   //   lines:  [{x | y, label, color}]          after(ctx, plot): draw extra things on top
   // draw(opts) redraws with opts layered over the options the plot was created with.
@@ -551,7 +730,7 @@
   function compact(v) {
     var a = Math.abs(v), u = [[1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'k']];
     for (var i = 0; i < u.length; i++) if (a >= u[i][0]) return K.fmt(v / u[i][0], { sig: 3 }) + u[i][1];
-    return K.fmt(v);
+    return K.fmt(v, { sig: 3 });
   }
   function axisTicks(A, count) {
     if (Array.isArray(A.ticks)) {
@@ -575,8 +754,34 @@
   }
   function tickText(A, v) {
     if (A.fmt) return String(A.fmt(v));
-    var s = Math.abs(v) >= 1e4 ? compact(v) : A.log || !A.step ? K.fmt(v) : K.fmt(v, { dp: Math.min(6, decimalsOf(A.step)) });
+    var s = Math.abs(v) >= 1e4 ? compact(v) : A.log || !A.step ? K.fmt(v, { sig: 3 }) : K.fmt(v, { dp: Math.min(6, decimalsOf(A.step)) });
     return (A.prefix || '') + s + unitText(A.unit);
+  }
+  function overlap(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
+  function inside(px, py, r) { return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h; }
+  function segsCross(ax, ay, bx, by, cx, cy, dx, dy) {
+    var d1 = (dx - cx) * (ay - cy) - (dy - cy) * (ax - cx), d2 = (dx - cx) * (by - cy) - (dy - cy) * (bx - cx);
+    var d3 = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax), d4 = (bx - ax) * (dy - ay) - (by - ay) * (dx - ax);
+    return d1 * d2 < 0 && d3 * d4 < 0;
+  }
+  function segHits(x1, y1, x2, y2, r) {
+    if (Math.max(x1, x2) < r.x || Math.min(x1, x2) > r.x + r.w || Math.max(y1, y2) < r.y || Math.min(y1, y2) > r.y + r.h) return false;
+    if (inside(x1, y1, r) || inside(x2, y2, r)) return true;
+    var X2 = r.x + r.w, Y2 = r.y + r.h;
+    return segsCross(x1, y1, x2, y2, r.x, r.y, X2, r.y) || segsCross(x1, y1, x2, y2, X2, r.y, X2, Y2) ||
+      segsCross(x1, y1, x2, y2, r.x, Y2, X2, Y2) || segsCross(x1, y1, x2, y2, r.x, r.y, r.x, Y2);
+  }
+  // Interpolate a points series (for shading against it).
+  function interp(points) {
+    var p = points.map(function (q) { return Array.isArray(q) ? [q[0], q[1]] : [q && q.x, q && q.y]; })
+      .filter(function (q) { return isNum(q[0]); }).sort(function (a, b) { return a[0] - b[0]; });
+    return function (x) {
+      if (!p.length || x < p[0][0] || x > p[p.length - 1][0]) return NaN;
+      var lo = 0, hi = p.length - 1;
+      while (hi - lo > 1) { var m = (lo + hi) >> 1; if (p[m][0] <= x) lo = m; else hi = m; }
+      var a = p[lo], b = p[hi];
+      return b[0] === a[0] ? a[1] : a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]);
+    };
   }
 
   K.plot = function (target, o) {
@@ -592,7 +797,8 @@
     var ctx = canvas.getContext('2d');
     var base = o, cur = o, lastW = -1, geom = null;
     var name = o.id || root.id || (o.y && o.y.label) || 'plot';
-    var api = { el: root, canvas: canvas, ctx: ctx };
+    var api = { el: root, canvas: canvas, ctx: ctx, maxHeight: 0 };
+    root.__kplot = api;
 
     function axisOf(spec, which) {
       spec = spec || {};
@@ -601,29 +807,58 @@
       if (A.log && which === 'x' && !(A.min > 0)) throw new Error('K.plot "' + name + '": a log x axis needs min > 0');
       return A;
     }
-    function sample(s, i, X, w) {
+    function xs(X, n, x0, x1) {
+      var a = X.log ? Math.log(x0) : x0, b = X.log ? Math.log(x1) : x1, out = [];
+      for (var k = 0; k <= n; k++) { var x = a + (b - a) * k / n; out.push(X.log ? Math.exp(x) : x); }
+      return out;
+    }
+    function sample(s, i, X, n) {
       var pts = [], label = s.label || 'series ' + (i + 1), bad = null;
       if (typeof s.fn === 'function') {
-        var n = clamp(Math.round(w / 2), 80, 600);
-        var a = X.log ? Math.log(X.min) : X.min, b = X.log ? Math.log(X.max) : X.max;
-        for (var k = 0; k <= n; k++) {
-          var x = a + (b - a) * k / n;
-          if (X.log) x = Math.exp(x);
+        var list = xs(X, n, X.min, X.max);
+        for (var k = 0; k < list.length; k++) {
           var y;
-          try { y = s.fn(x); } catch (e) { fault('plot "' + name + '" series "' + label + '"', e); break; }
-          pts.push([x, y]);
+          try { y = s.fn(list[k]); } catch (e) { fault('plot "' + name + '" series "' + label + '"', e); break; }
+          pts.push([list[k], y]);
         }
       } else if (Array.isArray(s.points)) {
         pts = s.points.map(function (p) { return Array.isArray(p) ? [p[0], p[1]] : [p && p.x, p && p.y]; });
       }
       pts.forEach(function (p) { if (!bad && !(isNum(p[0]) && isNum(p[1]))) bad = p; });
       if (bad && !s.gaps) problem('plot "' + name + '": series "' + label + '" has ' + (isNaN(bad[1]) || isNaN(bad[0]) ? 'NaN' : 'Infinity') + ' at x = ' + K.fmt(bad[0]));
-      return { s: s, pts: pts, label: s.label, color: K.color(s.color || SERIES_COLORS[i % SERIES_COLORS.length]) };
+      var role = s.color || SERIES_COLORS[i % SERIES_COLORS.length];
+      return { s: s, pts: pts, label: s.label, role: role, color: K.color(role) };
     }
-    function fitY(Y, data, marks) {
+    // A shade's edge: a series label, a function of x, or a constant y.
+    function edgeFn(ref) {
+      if (typeof ref === 'function') return ref;
+      if (isNum(ref)) return function () { return ref; };
+      var s = (cur.series || []).filter(function (q) { return q && q.label != null && String(q.label) === String(ref); })[0];
+      if (!s) return null;
+      if (typeof s.fn === 'function') return s.fn;
+      if (Array.isArray(s.points)) return interp(s.points);
+      return null;
+    }
+    function sampleShade(sh, X, n) {
+      var b = Array.isArray(sh.between) ? sh.between : [];
+      var fa = edgeFn(b[0]), fb = edgeFn(b[1]);
+      if (!fa || !fb) { problem('plot "' + name + '": shade "' + (sh.label || '') + '" needs between: [a, b], each a series label, a function or a number (no series is labelled "' + (fa ? b[1] : b[0]) + '")'); return null; }
+      var x0 = Math.max(X.min, isNum(sh.x0) ? sh.x0 : X.min), x1 = Math.min(X.max, isNum(sh.x1) ? sh.x1 : X.max);
+      if (!(x1 > x0)) return null;
+      var out = [];
+      xs(X, n, x0, x1).forEach(function (x) {
+        var a, c;
+        try { a = fa(x); c = fb(x); } catch (e) { fault('plot "' + name + '" shade', e); a = c = NaN; }
+        out.push([x, a, c]);
+      });
+      return { sh: sh, pts: out };
+    }
+    function fitY(Y, data, marks, shades) {
       var lo = Infinity, hi = -Infinity;
-      data.forEach(function (d) { d.pts.forEach(function (p) { if (isNum(p[1]) && (!Y.log || p[1] > 0)) { lo = Math.min(lo, p[1]); hi = Math.max(hi, p[1]); } }); });
-      (marks || []).forEach(function (m) { if (isNum(m.y)) { lo = Math.min(lo, m.y); hi = Math.max(hi, m.y); } });
+      function see(v) { if (isNum(v) && (!Y.log || v > 0)) { lo = Math.min(lo, v); hi = Math.max(hi, v); } }
+      data.forEach(function (d) { d.pts.forEach(function (p) { see(p[1]); }); });
+      shades.forEach(function (d) { if (d) d.pts.forEach(function (p) { see(p[1]); see(p[2]); }); });
+      (marks || []).forEach(function (m) { see(m.y); });
       if (!isNum(lo)) { lo = Y.log ? 1 : 0; hi = Y.log ? 10 : 1; }
       if (Y.log) {
         Y.min = isNum(Y.min) ? Y.min : Math.pow(10, Math.floor(Math.log10(lo)));
@@ -642,10 +877,11 @@
     }
 
     function render() {
-      var c = K.theme.c;
+      var c = K.theme.c, dark = K.theme.dark;
       var w = Math.round(root.clientWidth || (root.parentNode && root.parentNode.clientWidth) || 320);
       lastW = root.clientWidth;
       var h = Math.round(num(cur.height, 0) || clamp(w * num(cur.aspect, 0.62), 220, 380));
+      if (api.maxHeight > 0) h = Math.max(180, Math.min(h, api.maxHeight));
       var dpr = clamp(window.devicePixelRatio || 1, 1, 3);
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
@@ -653,8 +889,11 @@
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       var X = axisOf(cur.x, 'x'), Y = axisOf(cur.y, 'y');
-      var data = (cur.series || []).map(function (s, i) { return sample(s, i, X, w); });
-      if (!(Y.max > Y.min) || Y.log && !(Y.min > 0)) fitY(Y, data, cur.marks);
+      // Curves are sampled once per device pixel column, so they stay smooth on a phone.
+      var n = clamp(Math.round(w * dpr), 120, 2400);
+      var data = (cur.series || []).map(function (s, i) { return sample(s, i, X, n); });
+      var shades = (cur.shade || []).map(function (sh) { return sampleShade(sh || {}, X, Math.round(n / 2)); });
+      if (!(Y.max > Y.min) || Y.log && !(Y.min > 0)) fitY(Y, data, cur.marks, shades);
       var tickFont = '12.5px ' + FONT, labelFont = '600 13px ' + FONT;
 
       // Space for tick labels, then the plotting box.
@@ -676,21 +915,15 @@
       function sy(v) { return clamp(box.y + box.h - fy(v) * box.h, -1e4, 1e4); }
       geom = { box: box, X: X, Y: Y };
       api.x = sx; api.y = sy; api.box = box;
+      var areaAlpha = dark ? 0.3 : 0.16, bandAlpha = dark ? 0.85 : 0.55;
+      function bandColor(role) { return FILL_ROLES.indexOf(role) >= 0 ? K.color(role, bandAlpha) : K.color(role, areaAlpha + 0.04); }
+      var ok = function (v) { return isNum(v) && (!Y.log || v > 0); };
 
-      // Gridlines (horizontal only: calm) and the baseline.
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = c.line;
-      yt.forEach(function (t) { var y = Math.round(sy(t)) + 0.5; ctx.beginPath(); ctx.moveTo(box.x, y); ctx.lineTo(box.x + box.w, y); ctx.stroke(); });
-      ctx.strokeStyle = c.strong;
-      ctx.beginPath(); ctx.moveTo(box.x, Math.round(box.y + box.h) + 0.5); ctx.lineTo(box.x + box.w, Math.round(box.y + box.h) + 0.5); ctx.stroke();
-
+      // 1. Areas, under everything: regions, shading between lines, filled series.
       ctx.save();
       ctx.beginPath(); ctx.rect(box.x, box.y - 1, box.w, box.h + 2); ctx.clip();
-      // Shaded regions (amber highlight by default).
       (cur.regions || []).forEach(function (r) {
-        var col = K.color(r.color || 'hl');
-        ctx.fillStyle = col;
-        ctx.globalAlpha = r.color && r.color !== 'hl' ? 0.14 : (K.theme.dark ? 1 : 0.6);
+        ctx.fillStyle = bandColor(r.color || 'fill2');
         if (isNum(r.x0) || isNum(r.x1)) {
           var a = sx(isNum(r.x0) ? r.x0 : X.min), b = sx(isNum(r.x1) ? r.x1 : X.max);
           ctx.fillRect(Math.min(a, b), box.y, Math.abs(b - a), box.h);
@@ -698,19 +931,62 @@
           var t = sy(isNum(r.y1) ? r.y1 : Y.max), u = sy(isNum(r.y0) ? r.y0 : Y.min);
           ctx.fillRect(box.x, Math.min(t, u), box.w, Math.abs(u - t));
         }
-        ctx.globalAlpha = 1;
       });
-      // Reference lines.
+      shades.forEach(function (d) {
+        if (!d) return;
+        ctx.fillStyle = bandColor(d.sh.color || 'fill2');
+        var run = [];
+        function flush() {
+          if (run.length > 1) {
+            ctx.beginPath();
+            run.forEach(function (p, j) { if (j) ctx.lineTo(sx(p[0]), sy(p[1])); else ctx.moveTo(sx(p[0]), sy(p[1])); });
+            for (var j = run.length - 1; j >= 0; j--) ctx.lineTo(sx(run[j][0]), sy(run[j][2]));
+            ctx.closePath(); ctx.fill();
+          }
+          run = [];
+        }
+        d.pts.forEach(function (p) { if (ok(p[1]) && ok(p[2])) run.push(p); else flush(); });
+        flush();
+      });
+      var zero = sy(Y.log ? Y.min : clamp(0, Y.min, Y.max));
+      var runsOf = data.map(function (d) {
+        var runs = [], run = [];
+        d.pts.forEach(function (p) {
+          if (isNum(p[0]) && ok(p[1])) run.push([sx(p[0]), sy(p[1])]);
+          else if (run.length) { runs.push(run); run = []; }
+        });
+        if (run.length) runs.push(run);
+        if (d.s.fill && !d.s.dots) {
+          ctx.fillStyle = K.color(d.role, areaAlpha);
+          runs.forEach(function (r) {
+            ctx.beginPath(); ctx.moveTo(r[0][0], zero);
+            r.forEach(function (q) { ctx.lineTo(q[0], q[1]); });
+            ctx.lineTo(r[r.length - 1][0], zero); ctx.closePath(); ctx.fill();
+          });
+        }
+        return runs;
+      });
+      ctx.restore();
+
+      // 2. Gridlines (horizontal only: calm) and the baseline, over the areas.
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = c.line;
+      yt.forEach(function (t) { var y = Math.round(sy(t)) + 0.5; ctx.beginPath(); ctx.moveTo(box.x, y); ctx.lineTo(box.x + box.w, y); ctx.stroke(); });
+      ctx.strokeStyle = c.strong;
+      ctx.beginPath(); ctx.moveTo(box.x, Math.round(box.y + box.h) + 0.5); ctx.lineTo(box.x + box.w, Math.round(box.y + box.h) + 0.5); ctx.stroke();
+
+      // 3. Reference lines and series.
+      var segs = [];   // screen segments labels should keep off: [x1, y1, x2, y2]
+      ctx.save();
+      ctx.beginPath(); ctx.rect(box.x, box.y - 1, box.w, box.h + 2); ctx.clip();
       (cur.lines || []).forEach(function (l) {
         ctx.strokeStyle = K.color(l.color || 'muted');
         ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5;
         ctx.beginPath();
-        if (isNum(l.x)) { ctx.moveTo(sx(l.x), box.y); ctx.lineTo(sx(l.x), box.y + box.h); }
-        else if (isNum(l.y)) { ctx.moveTo(box.x, sy(l.y)); ctx.lineTo(box.x + box.w, sy(l.y)); }
+        if (isNum(l.x)) { ctx.moveTo(sx(l.x), box.y); ctx.lineTo(sx(l.x), box.y + box.h); segs.push([sx(l.x), box.y, sx(l.x), box.y + box.h]); }
+        else if (isNum(l.y)) { ctx.moveTo(box.x, sy(l.y)); ctx.lineTo(box.x + box.w, sy(l.y)); segs.push([box.x, sy(l.y), box.x + box.w, sy(l.y)]); }
         ctx.stroke(); ctx.setLineDash([]);
       });
-      // Series.
-      var zero = sy(Y.log ? Y.min : clamp(0, Y.min, Y.max));
       data.forEach(function (d, i) {
         var s = d.s;
         ctx.strokeStyle = d.color; ctx.fillStyle = d.color;
@@ -721,29 +997,19 @@
           d.pts.forEach(function (p) { if (isNum(p[0]) && isNum(p[1])) { ctx.beginPath(); ctx.arc(sx(p[0]), sy(p[1]), num(s.r, 3.5), 0, 7); ctx.fill(); } });
           return;
         }
-        var runs = [], run = [];
-        d.pts.forEach(function (p) {
-          if (isNum(p[0]) && isNum(p[1]) && (!Y.log || p[1] > 0)) run.push([sx(p[0]), sy(p[1])]);
-          else if (run.length) { runs.push(run); run = []; }
-        });
-        if (run.length) runs.push(run);
-        runs.forEach(function (r) {
-          if (s.fill) {
-            ctx.globalAlpha = 0.13;
-            ctx.beginPath(); ctx.moveTo(r[0][0], zero);
-            r.forEach(function (q) { ctx.lineTo(q[0], q[1]); });
-            ctx.lineTo(r[r.length - 1][0], zero); ctx.closePath(); ctx.fill();
-            ctx.globalAlpha = 1;
-          }
+        var every = Math.max(1, Math.round(dpr));
+        runsOf[i].forEach(function (r) {
           ctx.beginPath();
           r.forEach(function (q, j) { if (j) ctx.lineTo(q[0], q[1]); else ctx.moveTo(q[0], q[1]); });
           ctx.stroke();
+          for (var j = every; j < r.length; j += every) segs.push([r[j - every][0], r[j - every][1], r[j][0], r[j][1]]);
+          if (r.length > 1 && (r.length - 1) % every) segs.push([r[r.length - 2][0], r[r.length - 2][1], r[r.length - 1][0], r[r.length - 1][1]]);
         });
         ctx.setLineDash([]);
       });
       ctx.restore();
 
-      // Tick labels and axis titles.
+      // 4. Tick labels and axis titles.
       ctx.font = tickFont; ctx.fillStyle = c.muted; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
       yt.forEach(function (t) { ctx.fillText(tickText(Y, t), box.x - 8, sy(t)); });
       ctx.textAlign = 'center'; ctx.textBaseline = 'top';
@@ -759,25 +1025,7 @@
       if (X.label) { ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(X.label, box.x + box.w / 2, h - 2, w - 8); }
       if (Y.label) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(Y.label, 2, 4, w - 8); }
 
-      // Region labels (top-left inside the band).
-      ctx.font = '600 12px ' + FONT; ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillStyle = c.ink;
-      (cur.regions || []).forEach(function (r) {
-        if (!r.label) return;
-        var x0 = isNum(r.x0) ? sx(r.x0) : box.x;
-        var tw = ctx.measureText(r.label).width;
-        ctx.fillText(r.label, clamp(x0 + 6, box.x + 4, box.x + box.w - tw - 4), isNum(r.y1) && !isNum(r.x0) ? sy(r.y1) + 4 : box.y + 4);
-      });
-      (cur.lines || []).forEach(function (l) {
-        if (!l.label) return;
-        ctx.fillStyle = c.muted;
-        var tw = ctx.measureText(l.label).width;
-        if (isNum(l.x)) ctx.fillText(l.label, clamp(sx(l.x) + 5, box.x + 2, box.x + box.w - tw - 2), box.y + 4);
-        else if (isNum(l.y)) { ctx.textBaseline = 'bottom'; ctx.fillText(l.label, box.x + box.w - tw - 4, sy(l.y) - 3); ctx.textBaseline = 'top'; }
-      });
-
-      // Marks: a dot with a ring and optional guides to the axes; then label pills, each placed
-      // above-right, above-left, below-right or below-left of its dot, wherever it collides with
-      // nothing already drawn (a label that fits nowhere is left out; its dot stays).
+      // 5. Marks: a dot with a ring and optional guides to the axes.
       var placed = [], shown = [];
       (cur.marks || []).forEach(function (m) {
         if (!isNum(m.x) || !isNum(m.y)) { problem('plot "' + name + '": mark "' + (m.label || '') + '" has a non-finite position'); return; }
@@ -787,6 +1035,7 @@
           ctx.strokeStyle = col; ctx.globalAlpha = 0.5; ctx.lineWidth = 1.25; ctx.setLineDash([3, 4]);
           ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, box.y + box.h); ctx.moveTo(px, py); ctx.lineTo(box.x, py); ctx.stroke();
           ctx.setLineDash([]); ctx.globalAlpha = 1;
+          segs.push([px, py, px, box.y + box.h], [box.x, py, px, py]);
         }
         ctx.beginPath(); ctx.arc(px, py, rad, 0, 7);
         ctx.fillStyle = col; ctx.fill();
@@ -794,22 +1043,86 @@
         placed.push({ x: px - rad - 2, y: py - rad - 2, w: 2 * rad + 4, h: 2 * rad + 4 });
         if (m.label) shown.push({ px: px, py: py, text: String(m.label) });
       });
+
+      // 6. Labels, each in the first free spot near its thing: clear of the axes and their labels
+      // (inside the plot box, or in the margin above and to its right), never over another label
+      // or a dot, and as far as possible off the lines. A label with no room is left out (and
+      // reported as advice) rather than drawn over something.
+      if (Y.label) { ctx.font = labelFont; placed.push({ x: 0, y: 0, w: ctx.measureText(Y.label).width + 8, h: 24 }); }
+      function crossings(r) {
+        var e = { x: r.x - 2, y: r.y - 2, w: r.w + 4, h: r.h + 4 }, k = 0;
+        for (var i = 0; i < segs.length; i++) if (segHits(segs[i][0], segs[i][1], segs[i][2], segs[i][3], e)) k++;
+        return k;
+      }
+      function spot(cands, bw, bh, text) {
+        var best = null, cost = Infinity;
+        cands.forEach(function (p, i) {
+          var r = { x: p[0], y: p[1], w: bw, h: bh };
+          if (r.x < box.x + 1 || r.x + bw > w - 2 || r.y < 2 || r.y + bh > box.y + box.h - 1) return;
+          if (placed.some(function (q) { return overlap(r, q); })) return;
+          var k = crossings(r) * 100 + i;
+          if (k < cost) { cost = k; best = r; }
+        });
+        if (best) placed.push(best);
+        else if (sink) addUnique(labelSkips, 'plot "' + name + '": the label "' + String(text).slice(0, 40) + '" was left out for lack of room (shorten it or give the plot more space)', 6);
+        return best;
+      }
+      function halo(r, alpha) { ctx.fillStyle = K.color('bg', alpha); roundRect(ctx, r.x, r.y, r.w, r.h, 5); ctx.fill(); }
       ctx.font = '700 13px ' + FONT;
       shown.forEach(function (l) {
-        var tw = ctx.measureText(l.text).width, bw = tw + 14, bh = 24;
-        var spots = [[l.px + 10, l.py - bh - 8], [l.px - 10 - bw, l.py - bh - 8], [l.px + 10, l.py + 10], [l.px - 10 - bw, l.py + 10]];
-        var spot = null;
-        for (var k = 0; k < spots.length && !spot; k++) {
-          var r = { x: spots[k][0], y: spots[k][1], w: bw, h: bh };
-          if (r.x < 2 || r.x + bw > w - 2 || r.y < 2 || r.y + bh > h - 2) continue;
-          if (!placed.some(function (q) { return r.x < q.x + q.w && q.x < r.x + r.w && r.y < q.y + q.h && q.y < r.y + r.h; })) spot = r;
-        }
-        if (!spot) return;
-        placed.push(spot);
+        var tw = ctx.measureText(l.text).width, bw = tw + 14, bh = 24, px = l.px, py = l.py;
+        var r = spot([[px + 10, py - bh - 8], [px - 10 - bw, py - bh - 8], [px + 10, py + 10], [px - 10 - bw, py + 10],
+          [px - bw / 2, py - bh - 14], [px - bw / 2, py + 14], [px + 14, py - bh / 2], [px - 14 - bw, py - bh / 2],
+          [px + 10, py - bh - 32], [px - 10 - bw, py - bh - 32], [px + 10, py + 34], [px - 10 - bw, py + 34]], bw, bh, l.text);
+        if (!r) return;
         ctx.fillStyle = c.bg; ctx.strokeStyle = c.line; ctx.lineWidth = 1;
-        roundRect(ctx, spot.x, spot.y, bw, bh, 8); ctx.fill(); ctx.stroke();
+        roundRect(ctx, r.x, r.y, bw, bh, 8); ctx.fill(); ctx.stroke();
         ctx.fillStyle = c.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText(l.text, spot.x + 7, spot.y + bh / 2 + 0.5);
+        ctx.fillText(l.text, r.x + 7, r.y + bh / 2 + 0.5);
+      });
+      ctx.font = '600 12px ' + FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+      function smallLabel(text, cands, color, alpha) {
+        var tw = ctx.measureText(text).width, bw = tw + 8, bh = 18;
+        var r = spot(cands(bw, bh), bw, bh, text);
+        if (!r) return;
+        halo(r, alpha);
+        ctx.fillStyle = color; ctx.fillText(text, r.x + 4, r.y + bh / 2 + 0.5);
+      }
+      // Reference line labels sit beside their line, never across it.
+      (cur.lines || []).forEach(function (l) {
+        if (!l.label) return;
+        var text = String(l.label);
+        if (isNum(l.x)) {
+          var x = sx(l.x);
+          smallLabel(text, function (bw, bh) { return [[x + 5, box.y + 3], [x - 5 - bw, box.y + 3], [x + 5, box.y + box.h - bh - 3], [x - 5 - bw, box.y + box.h - bh - 3], [x + 5, box.y + box.h / 2 - bh / 2], [x - 5 - bw, box.y + box.h / 2 - bh / 2]]; }, c.muted, 0.85);
+        } else if (isNum(l.y)) {
+          var y = sy(l.y);
+          smallLabel(text, function (bw, bh) { return [[box.x + box.w - bw - 4, y - bh - 3], [box.x + 4, y - bh - 3], [box.x + box.w - bw - 4, y + 3], [box.x + 4, y + 3], [box.x + box.w / 2 - bw / 2, y - bh - 3], [box.x + box.w / 2 - bw / 2, y + 3]]; }, c.muted, 0.85);
+        }
+      });
+      // Shade labels: in the middle of the widest part of the band, or just beside it.
+      shades.forEach(function (d) {
+        if (!d || !d.sh.label) return;
+        var best = null, gap = -1;
+        d.pts.forEach(function (p) { if (ok(p[1]) && ok(p[2])) { var g = Math.abs(sy(p[1]) - sy(p[2])); if (g > gap) { gap = g; best = p; } } });
+        if (!best) return;
+        var cx = sx(best[0]), cy = (sy(best[1]) + sy(best[2])) / 2, half = gap / 2;
+        smallLabel(String(d.sh.label), function (bw, bh) {
+          return [[cx - bw / 2, cy - bh / 2], [cx - bw - 6, cy - bh / 2], [cx + 6, cy - bh / 2], [cx - bw / 2, cy - half - bh - 4], [cx - bw / 2, cy + half + 4],
+            [cx - bw * 1.5, cy - bh / 2], [cx + bw / 2, cy - bh / 2]];
+        }, c.ink, 0.7);
+      });
+      // Region labels: inside the band, at a corner.
+      (cur.regions || []).forEach(function (r) {
+        if (!r.label) return;
+        var text = String(r.label);
+        if (isNum(r.x0) || isNum(r.x1)) {
+          var a = Math.min(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max)), b = Math.max(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max));
+          smallLabel(text, function (bw, bh) { return [[a + 4, box.y + 3], [b - bw - 4, box.y + 3], [a + 4, box.y + box.h - bh - 3], [b - bw - 4, box.y + box.h - bh - 3], [a + 4, box.y + 24], [b - bw - 4, box.y + 24]]; }, c.ink, 0.6);
+        } else {
+          var t = Math.min(sy(isNum(r.y1) ? r.y1 : Y.max), sy(isNum(r.y0) ? r.y0 : Y.min)), u = Math.max(sy(isNum(r.y1) ? r.y1 : Y.max), sy(isNum(r.y0) ? r.y0 : Y.min));
+          smallLabel(text, function (bw, bh) { return [[box.x + 4, t + 3], [box.x + box.w - bw - 4, t + 3], [box.x + 4, u - bh - 3], [box.x + box.w - bw - 4, u - bh - 3]]; }, c.ink, 0.6);
+        }
       });
 
       if (typeof cur.after === 'function') {
@@ -825,6 +1138,7 @@
         legend.appendChild(K.el('span', { class: 'k-key' }, K.el('i', { class: d.s.dash ? 'dash' : '', style: { color: d.color } }), d.label));
       });
       var alt = cur.label || ((Y.label || 'y') + ' against ' + (X.label || 'x'));
+      shades.forEach(function (d) { if (d && d.sh.label) alt += '. Shaded: ' + d.sh.label; });
       (cur.marks || []).forEach(function (m) { if (m.label) alt += '. ' + m.label + ' at ' + K.fmt(m.x) + ', ' + K.fmt(m.y); });
       canvas.setAttribute('aria-label', alt);
     }
@@ -855,7 +1169,7 @@
     ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath();
   }
 
-  // K.bars(target, {max, unit, prefix, fmt, into}) -> {draw(items)}   horizontal bars in HTML
+  // K.bars(target, {max, unit, prefix, fmt, dp, into}) -> {draw(items)}   horizontal bars in HTML
   //   items: [{label, value, color?}]; values are non-negative; max defaults to a nice ceiling.
   K.bars = function (target, o) {
     if (o === undefined && target && typeof target === 'object' && !target.nodeType) { o = target; target = null; }
@@ -879,7 +1193,8 @@
         var ok = isNum(it.value);
         if (!ok) problem('bars: "' + (it.label || i) + '" has a non-finite value');
         row.querySelector('span').textContent = it.label || '';
-        row.querySelector('b').textContent = ok ? (opt.fmt ? String(opt.fmt(it.value)) : (opt.prefix || '') + K.fmt(it.value) + unitText(opt.unit)) : '—';
+        var d = opt.dp != null ? { dp: opt.dp } : opt.decimals != null ? { dp: opt.decimals } : null;
+        row.querySelector('b').textContent = ok ? (opt.fmt ? String(opt.fmt(it.value)) : (opt.prefix || '') + K.fmt(it.value, d) + unitText(opt.unit)) : '—';
         var fill = row.querySelector('i');
         fill.style.width = (ok ? clamp(it.value / top, 0, 1) * 100 : 0).toFixed(2) + '%';
         fill.style.background = K.color(it.color || 'accent2');
@@ -891,27 +1206,159 @@
     return api;
   };
 
+  // ---------- SVG labels ----------
+  // K.labels(svg | g, [{x, y, text, anchor, class, size, color}], {gap}) -> [<text>]
+  // Puts text labels on a drawing (in its viewBox units) and nudges each one off the labels
+  // already there (its own and any other <text> in the drawing) and inside the drawing's edges:
+  // it tries the spot you gave, then just above, below, right and left. Call it in K.update
+  // with the same group each time; it replaces that group's labels.
+  K.labels = function (into, items, o) {
+    o = o || {};
+    var g = resolve(into, 'K.labels');
+    if (!g) return [];
+    var svg = g.tagName.toLowerCase() === 'svg' ? g : g.ownerSVGElement;
+    if (g === svg) {
+      var mine = null;
+      for (var i = 0; i < svg.children.length; i++) if (svg.children[i].getAttribute('class') === 'k-labels') mine = svg.children[i];
+      g = mine || svg.appendChild(K.svg('g', { class: 'k-labels' }));
+    }
+    while (g.firstChild) g.removeChild(g.firstChild);
+    if (!svg) return [];
+    var sr = svg.getBoundingClientRect(), vb = svg.viewBox && svg.viewBox.baseVal;
+    var scale = vb && vb.width && sr.width ? sr.width / vb.width : 1;
+    var gap = num(o.gap, 2) * scale;
+    var taken = [];
+    Array.prototype.forEach.call(svg.querySelectorAll('text'), function (t) {
+      var b = t.getBoundingClientRect();
+      if (b.width && !g.contains(t)) taken.push({ x: b.left, y: b.top, w: b.width, h: b.height });
+    });
+    return (items || []).map(function (it) {
+      var t = K.svg('text', {
+        x: it.x, y: it.y, 'text-anchor': it.anchor || 'middle', class: it.class || null, 'font-size': it.size || null,
+        fill: it.color ? K.color(it.color) : null, 'dominant-baseline': it.baseline || null,
+      }, String(it.text == null ? '' : it.text));
+      g.appendChild(t);
+      var b = t.getBoundingClientRect();
+      if (!b.width) return t;
+      var w = b.width, h = b.height, best = null, bestCost = Infinity;
+      [[0, 0], [0, -(h + gap)], [0, h + gap], [w / 2 + gap * 2, 0], [-(w / 2 + gap * 2), 0], [w / 2 + gap, -(h + gap)], [-(w / 2 + gap), -(h + gap)],
+        [w / 2 + gap, h + gap], [-(w / 2 + gap), h + gap], [0, -2 * (h + gap)], [0, 2 * (h + gap)]].forEach(function (d, i) {
+        var r = { x: b.left + d[0], y: b.top + d[1], w: w, h: h };
+        var out = Math.max(0, sr.left - r.x) + Math.max(0, r.x + w - sr.right) + Math.max(0, sr.top - r.y) + Math.max(0, r.y + h - sr.bottom);
+        var hit = 0;
+        taken.forEach(function (q) { if (overlap({ x: r.x + 1, y: r.y + 1, w: w - 2, h: h - 2 }, q)) hit++; });
+        var cost = hit * 1000 + out * 50 + i;
+        if (cost < bestCost) { bestCost = cost; best = d; }
+      });
+      if (best[0] || best[1]) {
+        t.setAttribute('x', +it.x + best[0] / scale);
+        t.setAttribute('y', +it.y + best[1] / scale);
+      }
+      taken.push({ x: b.left + best[0], y: b.top + best[1], w: w, h: h });
+      return t;
+    });
+  };
+
+  // ---------- stage: the main visual and its controls together ----------
+  // K.stage(visual, controls, {max}) -> {el}. Puts the controls right under the main visual and,
+  // on a phone, shrinks the visual so the pair fits in about max px (600) of height: Dan can see
+  // the picture while his thumb is on the slider. Secondary figures go below the stage.
+  K.stage = function (visual, ctrls, o) {
+    o = o || {};
+    var v = resolve(visual, 'K.stage'), c = resolve(ctrls, 'K.stage');
+    var st = K.el('div', { class: 'k-stage' });
+    v.parentNode.insertBefore(st, v);
+    st.appendChild(v);
+    st.appendChild(c);
+    stages.push({ el: st, visual: v, controls: c, max: num(o.max, 600) });
+    return { el: st };
+  };
+  function stageFigure(s) {
+    if (s.visual.__kplot) return { plot: s.visual.__kplot };
+    var f = /^(svg|canvas)$/i.test(s.visual.tagName) ? s.visual : s.visual.querySelector('.k-plot, svg, canvas');
+    if (f && f.__kplot) return { plot: f.__kplot };
+    if (f && f.classList.contains('k-plot')) return { plot: f.__kplot };
+    return f ? { el: f } : null;
+  }
+  function fitStage(s) {
+    var f = stageFigure(s);
+    if (!f || !s.el.isConnected) return;
+    if (f.plot) { if (f.plot.maxHeight) { f.plot.maxHeight = 0; f.plot.redraw(); } }
+    else f.el.style.maxHeight = '';
+    if (document.documentElement.clientWidth >= PHONE) return;
+    var extra = s.el.getBoundingClientRect().height - s.max;
+    if (extra <= 0) return;
+    if (f.plot) {
+      f.plot.maxHeight = Math.max(180, f.plot.canvas.getBoundingClientRect().height - extra);
+      f.plot.redraw();
+    } else {
+      f.el.style.maxHeight = Math.max(180, f.el.getBoundingClientRect().height - extra) + 'px';
+    }
+  }
+
+  // ---------- figures ----------
+  // A custom drawing that spans its column (an <svg> with a viewBox, or a canvas) is capped on
+  // wide screens and centred: never wider than 600 px, nor 1.6 times its viewBox width, so
+  // its text stays a readable size on desktop while it fills the phone.
+  function figures() {
+    if (!document.body) return;
+    var list = document.body.querySelectorAll('svg, canvas');
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i], tag = el.tagName.toLowerCase();
+      if (el.classList.contains('k-fig') || el.ownerSVGElement) continue;
+      if (el.closest('button, a, .k-plot, .k-field, .k-legend, .k-anim')) continue;
+      if (tag === 'svg' && !el.getAttribute('viewBox')) continue;
+      if (el.style.maxWidth || tag === 'canvas' && el.style.height) continue;
+      var w = el.getBoundingClientRect().width, p = el.parentElement;
+      if (w < 200 || !p) continue;
+      var cs = getComputedStyle(p), pw = p.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0);
+      if (w < 0.9 * pw) continue;
+      var max = FIG_MAX;
+      if (tag === 'svg') { var vb = el.viewBox && el.viewBox.baseVal; if (vb && vb.width > 0) max = clamp(1.6 * vb.width, 320, FIG_MAX); }
+      el.classList.add('k-fig');
+      el.style.setProperty('--k-fig-max', Math.round(max) + 'px');
+    }
+  }
+
+  // ---------- layout ----------
+  // Width-dependent layout: control end labels and value widths, readout tiles, figure caps
+  // and stages. Runs after K.ready(), when the frame changes width, and on a theme change.
+  function relayout() {
+    if (!document.body) return;
+    figures();
+    controls.forEach(function (c) { if (c.fit) try { c.fit(); } catch (e) {} });
+    readoutList.forEach(function (r) { try { r.layout(); } catch (e) {} });
+    stages.forEach(function (s) { try { fitStage(s); } catch (e) {} });
+    heightSoon();
+  }
+
   // ---------- animation ----------
   // K.anim({step(dt, t), reset?, label?, autoplay?, into}) -> {el, play, pause, toggle, reset, playing()}
-  // Never autoplays when the viewer prefers reduced motion; pauses when the page is hidden.
+  // step advances your own state (dt in seconds, at most 0.05) and redraws; it may set a control
+  // (control.set(v) reruns the pipeline). Return false from step to stop (e.g. the echo is home).
+  // reset (optional) adds a Reset button. Never autoplays when the viewer prefers reduced motion;
+  // pauses when the page is hidden. Pressing Play counts as Dan moving something.
   K.anim = function (o) {
     o = o || {};
     if (typeof o.step !== 'function') throw new Error('K.anim needs step(dt, t)');
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     var playing = false, t = 0, last = 0, raf = 0;
+    var label = o.label || 'Play';
     var btn = K.el('button', { type: 'button', class: 'k-btn', 'aria-pressed': 'false' });
     var resetBtn = o.reset ? K.el('button', { type: 'button', class: 'k-btn secondary' }, 'Reset') : null;
     var el = K.el('div', { class: 'k-anim' }, btn, resetBtn);
     function paint() {
       btn.innerHTML = playing ? ICON.pause : ICON.play;
-      btn.appendChild(document.createTextNode(playing ? 'Pause' : (o.label || 'Play')));
+      btn.appendChild(document.createTextNode(playing ? 'Pause' : label));
       btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
     }
     function frame(ts) {
       if (!playing) return;
       var dt = last ? Math.min((ts - last) / 1000, 0.05) : 0;
       last = ts; t += dt;
-      try { o.step(dt, t); } catch (e) { api.pause(); fault('K.anim step', e); return; }
+      var r;
+      try { r = o.step(dt, t); } catch (e) { api.pause(); fault('K.anim step', e); return; }
+      if (r === false) { api.pause(); return; }
       raf = requestAnimationFrame(frame);
     }
     var api = {
@@ -923,14 +1370,88 @@
       reset: function () { api.pause(); t = 0; if (o.reset) { try { o.reset(); } catch (e) { fault('K.anim reset', e); } } return api; },
       time: function () { return t; },
     };
-    btn.addEventListener('click', api.toggle);
-    if (resetBtn) resetBtn.addEventListener('click', api.reset);
+    btn.addEventListener('click', function () { markMoved(); api.toggle(); });
+    if (resetBtn) resetBtn.addEventListener('click', function () { api.reset(); changed(); });
     document.addEventListener('visibilitychange', function () { if (document.hidden) api.pause(); });
-    anims.push({ o: o, api: api, autoplay: !!o.autoplay && !reduce });
+    anims.push({ o: o, api: api, label: label, autoplay: !!o.autoplay && !reduce });
     paint();
     place(el, o.into, 'K.anim');
     return api;
   };
+
+  // ---------- sound ----------
+  // K.sound.tone(hz, {dur, type, gain, at}), K.sound.chord([hz...], {dur, type, gain, stagger}),
+  // K.sound.stop(), K.sound.mute(on). Plays only after Dan presses something (call it from a
+  // K.button's press), never by itself; quiet by design, with a soft start and end (no clicks).
+  // The self-test can't listen, so there it checks each call's numbers without making a sound.
+  var audio = { ctx: null, out: null, live: [], gesture: false, muted: false, calls: 0 };
+  ['pointerdown', 'keydown', 'touchstart'].forEach(function (ev) { document.addEventListener(ev, function () { audio.gesture = true; }, true); });
+  var WAVES = ['sine', 'triangle', 'square', 'sawtooth'];
+  function soundTrouble(msg) { if (sink) problem(msg); else addUnique(warnings, msg, 8); }
+  function audioOut() {
+    if (!audio.ctx) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { audio.ctx = new AC(); } catch (e) { return null; }
+      audio.out = audio.ctx.createGain();
+      audio.out.gain.value = 0.25;
+      audio.out.connect(audio.ctx.destination);
+    }
+    if (audio.ctx.state === 'suspended' && audio.ctx.resume) { try { audio.ctx.resume(); } catch (e) {} }
+    return audio.ctx;
+  }
+  function voice(ac, f, start, dur, type, peak) {
+    var osc = ac.createOscillator(), g = ac.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(f, start);
+    var att = Math.min(0.025, dur / 4), rel = Math.min(0.3, dur / 3), end = start + dur;
+    g.gain.setValueAtTime(0, start);
+    g.gain.linearRampToValueAtTime(peak, start + att);
+    g.gain.linearRampToValueAtTime(peak * 0.7, end - rel);
+    g.gain.linearRampToValueAtTime(0, end);
+    osc.connect(g); g.connect(audio.out);
+    osc.start(start); osc.stop(end + 0.05);
+    var v = { osc: osc, g: g, end: end };
+    audio.live.push(v);
+    osc.onended = function () { audio.live = audio.live.filter(function (x) { return x !== v; }); try { g.disconnect(); } catch (e) {} };
+  }
+  function playNotes(freqs, o, who) {
+    o = o || {};
+    audio.calls++;
+    var list = (freqs || []).map(Number);
+    var dur = o.dur == null ? 1 : +o.dur, type = o.type || 'sine', gain = o.gain == null ? 1 : +o.gain;
+    var at = num(o.at, 0), stagger = num(o.stagger, 0);
+    var bad = list.filter(function (f) { return !(isNum(f) && f >= 20 && f <= 20000); });
+    if (!list.length || bad.length) { soundTrouble(who + ' was given ' + (list.length ? 'a frequency of ' + bad[0] : 'no frequencies') + ' (use 20 to 20,000 Hz)'); return false; }
+    if (!(isNum(dur) && dur > 0 && dur <= 10)) { soundTrouble(who + ': dur must be more than 0 and at most 10 seconds (got ' + o.dur + ')'); return false; }
+    if (WAVES.indexOf(type) < 0) { soundTrouble(who + ': type must be one of ' + WAVES.join(', ')); return false; }
+    if (!(isNum(gain) && gain >= 0 && gain <= 1)) { soundTrouble(who + ': gain must be from 0 to 1'); return false; }
+    if (sink) return true;
+    if (audio.muted || hostMute) return false;
+    var active = audio.gesture || (navigator.userActivation && navigator.userActivation.hasBeenActive);
+    if (!active) { addUnique(warnings, 'K.sound was asked to play before Dan pressed anything: play sound only from a button press.', 8); return false; }
+    var ac = audioOut();
+    if (!ac) return false;
+    var t = ac.currentTime + 0.03 + Math.max(0, at);
+    var peak = gain * (type === 'square' || type === 'sawtooth' ? 0.35 : 0.8) / Math.sqrt(list.length);
+    list.forEach(function (f, i) { voice(ac, f, t + i * Math.max(0, stagger), dur, type, peak); });
+    return true;
+  }
+  K.sound = {
+    tone: function (hz, o) { return playNotes([hz], o, 'K.sound.tone'); },
+    chord: function (list, o) { return playNotes(Array.isArray(list) ? list : [], o, 'K.sound.chord'); },
+    stop: function () {
+      if (!audio.ctx) return K.sound;
+      var t = audio.ctx.currentTime;
+      audio.live.forEach(function (v) {
+        try { v.g.gain.cancelScheduledValues(t); v.g.gain.setValueAtTime(v.g.gain.value, t); v.g.gain.linearRampToValueAtTime(0, t + 0.06); v.osc.stop(t + 0.08); } catch (e) {}
+      });
+      return K.sound;
+    },
+    mute: function (on) { audio.muted = on !== false; if (audio.muted) K.sound.stop(); return K.sound; },
+  };
+  Object.defineProperty(K.sound, 'muted', { get: function () { return audio.muted || hostMute; }, enumerable: true });
+  Object.defineProperty(K.sound, 'playing', { get: function () { return !!audio.ctx && audio.live.some(function (v) { return v.end > audio.ctx.currentTime; }); }, enumerable: true });
 
   // ---------- checks and ready ----------
   // K.check(label, fn, {source}) -> fn() must return true. Use K.at({...}) to ask the model.
@@ -957,6 +1478,7 @@
     if (readyCalled) return K;
     readyCalled = true;
     run();
+    relayout();
     var results = runChecks();
     post({ type: 'ready', checks: results });
     sendHeight();
@@ -969,10 +1491,21 @@
   function describeEl(el) {
     var s = el.tagName.toLowerCase();
     if (el.id) s += '#' + el.id;
-    var cls = typeof el.className === 'string' ? el.className.trim().split(/\s+/)[0] : '';
+    var cls = typeof el.className === 'string' ? el.className.trim().split(/\s+/)[0] : (el.getAttribute && el.getAttribute('class') || '').trim().split(/\s+/)[0];
     if (cls) s += '.' + cls;
     return '<' + s + '>';
   }
+  // A stable key for "the same element" across redraws (tag and position among its siblings).
+  function pathOf(el) {
+    var parts = [];
+    for (var e = el, k = 0; e && e !== document.body && k < 8; e = e.parentElement, k++) {
+      var i = 0;
+      for (var s = e.previousElementSibling; s; s = s.previousElementSibling) if (s.tagName === e.tagName) i++;
+      parts.unshift(e.tagName + i + (e.id ? '#' + e.id : ''));
+    }
+    return parts.join('>');
+  }
+  function snippet(text) { text = String(text).replace(/\s+/g, ' ').trim(); return text.length > 40 ? text.slice(0, 39) + '…' : text; }
   function overflowNow() {
     var de = document.documentElement, cw = de.clientWidth;
     if (de.scrollWidth <= cw + 1) return null;
@@ -985,6 +1518,89 @@
       }
     }
     return 'content is ' + de.scrollWidth + 'px wide in a ' + cw + 'px frame' + (culprits.length ? ': ' + culprits.join(', ') : '');
+  }
+  // Text a person can't fully read at this width: cut off by its own or an ancestor's overflow
+  // (hidden, clip, or a text-overflow ellipsis), a no-wrap line spilling out of its box, text off
+  // the left edge, SVG text outside its drawing, and SVG labels printed over each other.
+  // -> [{key, msg}]
+  function clippedNow() {
+    var out = [], styles = new Map();
+    if (!document.body) return out;
+    function st(el) { var s = styles.get(el); if (!s) { s = getComputedStyle(el); styles.set(el, s); } return s; }
+    var range = document.createRange();
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    var seenEl = new Set();
+    for (var n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (!/\S/.test(n.nodeValue)) continue;
+      var el = n.parentElement;
+      if (!el || seenEl.has(el) || el.closest('script, style, svg, noscript, template, textarea, select')) continue;
+      var es = st(el);
+      if (es.visibility !== 'visible' || es.display === 'none' || +es.opacity === 0) continue;
+      range.selectNodeContents(n);
+      var b = range.getBoundingClientRect();
+      if (!b.width || !b.height) continue;
+      var text = snippet(el.textContent || n.nodeValue), fs = parseFloat(es.fontSize) || 16;
+      if (b.left < -1) { seenEl.add(el); out.push({ key: 'left|' + pathOf(el), msg: '"' + text + '" runs off the left edge of the page' }); continue; }
+      // A line that may not wrap (white-space: nowrap or pre) spilling out of its own box.
+      if (/^(nowrap|pre)$/.test(es.whiteSpace) && es.display !== 'inline' && el.clientWidth) {
+        var er = el.getBoundingClientRect(), left = er.left + el.clientLeft, right = left + el.clientWidth;
+        if (b.right > right + 2 || b.left < left - 2) {
+          if (es.overflowX === 'visible') { seenEl.add(el); out.push({ key: 'spill|' + pathOf(el), msg: '"' + text + '" spills out of ' + describeEl(el) + ' (it needs ' + Math.ceil(b.width) + 'px and has ' + el.clientWidth + 'px)' }); continue; }
+        }
+      }
+      for (var a = el; a && a !== document.body && a !== document.documentElement; a = a.parentElement) {
+        var as = st(a);
+        if (as.display === 'inline' || as.display === 'contents') continue;
+        var cx = as.overflowX === 'hidden' || as.overflowX === 'clip', cy = as.overflowY === 'hidden' || as.overflowY === 'clip';
+        if (!cx && !cy) continue;
+        var r = a.getBoundingClientRect(), L = r.left + a.clientLeft, T = r.top + a.clientTop, R = L + a.clientWidth, B = T + a.clientHeight;
+        var tolY = Math.max(2, fs * 0.25);
+        var cutX = cx && (b.left < L - 1 || b.right > R + 1), cutY = cy && (b.top < T - tolY || b.bottom > B + tolY);
+        if (cutX || cutY) {
+          seenEl.add(el);
+          var why = cutX ? (es.textOverflow === 'ellipsis' || as.textOverflow === 'ellipsis' ? 'shortened with "…": ' : '') + 'it needs ' + Math.ceil(b.width) + 'px and has ' + Math.floor(a.clientWidth) + 'px'
+            : 'cut off at the ' + (b.bottom > B + tolY ? 'bottom' : 'top');
+          out.push({ key: 'clip|' + pathOf(el), msg: '"' + text + '" is cut off by ' + describeEl(a) + ' (' + why + ')' });
+          break;
+        }
+      }
+    }
+    // SVG text: inside the drawing's visible box, and not printed over another label.
+    Array.prototype.forEach.call(document.body.querySelectorAll('svg'), function (svg) {
+      if (svg.ownerSVGElement || svg.closest('button')) return;
+      var sr = svg.getBoundingClientRect();
+      if (!sr.width || !sr.height) return;
+      var ss = st(svg), clips = ss.overflow !== 'visible';
+      var boxes = [];
+      Array.prototype.forEach.call(svg.querySelectorAll('text'), function (t) {
+        var txt = (t.textContent || '').trim();
+        if (!txt) return;
+        var ts = st(t);
+        if (ts.visibility !== 'visible' || ts.display === 'none') return;
+        for (var p = t; p && p !== svg; p = p.parentNode) if (p.nodeType === 1 && (+st(p).opacity === 0 || st(p).display === 'none')) return;
+        var b = t.getBoundingClientRect();
+        if (!b.width || !b.height) return;
+        var tol = Math.max(1.5, b.height * 0.12), key = pathOf(t);
+        if (clips) {
+          var sides = [];
+          if (b.left < sr.left - 1.5) sides.push('left by ' + Math.ceil(sr.left - b.left) + 'px');
+          if (b.right > sr.right + 1.5) sides.push('right by ' + Math.ceil(b.right - sr.right) + 'px');
+          if (b.top < sr.top - tol) sides.push('top by ' + Math.ceil(sr.top - b.top) + 'px');
+          if (b.bottom > sr.bottom + tol) sides.push('bottom by ' + Math.ceil(b.bottom - sr.bottom) + 'px');
+          if (sides.length) out.push({ key: 'svgout|' + key, msg: 'SVG text "' + snippet(txt) + '" runs outside its drawing (' + sides.join(', ') + ')' });
+        }
+        boxes.push({ x: b.left, y: b.top, w: b.width, h: b.height, text: txt, key: key });
+      });
+      for (var i = 0; i < boxes.length; i++) for (var j = i + 1; j < boxes.length; j++) {
+        var p1 = boxes[i], p2 = boxes[j];
+        var ix = Math.min(p1.x + p1.w, p2.x + p2.w) - Math.max(p1.x, p2.x), iy = Math.min(p1.y + p1.h, p2.y + p2.h) - Math.max(p1.y, p2.y);
+        if (ix <= 0 || iy <= 0) continue;
+        var area = ix * iy, small = Math.min(p1.w * p1.h, p2.w * p2.h);
+        if (p1.text === p2.text && area > 0.9 * small) continue;   // the same text drawn twice (a halo)
+        if (area > 0.25 * small) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+      }
+    });
+    return out;
   }
   function scanExternal() {
     var bad = [];
@@ -1002,21 +1618,50 @@
     controls.forEach(function (c) { if (c.el && !c.el.isConnected) list.push('control "' + c.id + '" was created but never added to the page (pass into: or append control.el)'); });
     readoutList.forEach(function (r) { if (!r.el.isConnected) list.push('readout "' + r.id + '" was created but never added to the page'); });
     plots.forEach(function (p, i) { if (!p.el.isConnected) list.push('plot ' + (i + 1) + ' is not on the page'); });
+    actions.forEach(function (a) { if (!a.el.isConnected) list.push('button "' + a.label + '" was created but never added to the page'); });
   }
-  // Exercise every control across its range, timing each update and catching faults, then restore.
-  function sweep() {
+  // On a phone, the main figure and the first control should fit on one screen together.
+  function phoneAdvice() {
+    if (document.documentElement.clientWidth >= PHONE) return null;
+    var first = controls.filter(function (c) { return c.el && c.el.isConnected; })[0];
+    var fig = document.body.querySelector('.k-stage, .k-plot, svg.k-fig, canvas.k-fig');
+    if (!first || !fig) return null;
+    var gap = first.el.getBoundingClientRect().top - fig.getBoundingClientRect().top;
+    if (gap <= PHONE_VIEW) return null;
+    return 'On a phone the first control starts ' + Math.round(gap) + ' px below the top of the main figure, so Dan can\'t see the figure while he moves it: put the controls right under the main visual with K.stage(visual, controls), and secondary figures below them.';
+  }
+  // Exercise every control across its range, show what waits for a move, press every K.button,
+  // play every K.anim for a burst, timing each update and checking for faults, sideways
+  // overflow and cut-off text at each setting; then restore the opening state.
+  function sweep(throwaway) {
     var s = { seen: Object.create(null), order: [], ctx: '' }, overflow = null;
+    var clip = { seen: Object.create(null), order: [] };
     sink = s;
     var init = controls.map(function (c) { return c.get(); });
+    function look(ctxText) {
+      if (!overflow) { var o = overflowNow(); if (o) overflow = o + ' (at ' + ctxText + ')'; }
+      clippedNow().forEach(function (it) {
+        var e = clip.seen[it.key];
+        if (e) { e.n++; return; }
+        clip.seen[it.key] = { msg: it.msg, at: ctxText, n: 1 };
+        clip.order.push(it.key);
+      });
+    }
     function step(ctxText) {
       s.ctx = ctxText;
       var t0 = now(); run(); var dt = now() - t0;
       if (dt > SLOW_MS) { t0 = now(); run(); dt = Math.min(dt, now() - t0); }
       if (dt > SLOW_MS) problem('an update took ' + Math.round(dt) + ' ms (keep each under ' + SLOW_MS + ' ms)');
-      if (!overflow) { var o = overflowNow(); if (o) overflow = o + ' (at ' + ctxText + ')'; }
+      look(ctxText);
     }
     try {
       step('the opening state');
+      if (!moved) {
+        sweepReveal = true;
+        setMovedClass(true);
+        if (throwaway) afterMoveFns.forEach(function (fn) { s.ctx = 'K.afterMove'; try { fn(); } catch (e) { fault('K.afterMove', e); } });
+        step('the opening state, after a move');
+      }
       controls.forEach(function (c, i) {
         c.sweep().forEach(function (v) { c.set(v, true); step(c.id + ' = ' + c.describe(v)); });
         c.set(init[i], true);
@@ -1026,39 +1671,61 @@
         step('every control at its lowest');
         controls.forEach(function (c) { var v = c.sweep(); c.set(v[v.length - 1], true); });
         step('every control at its highest');
+        controls.forEach(function (c, i) { c.set(init[i], true); });
       }
-      anims.forEach(function (a, i) {
-        s.ctx = 'animation ' + (i + 1);
-        try { for (var k = 1; k <= 30; k++) a.o.step(1 / 30, k / 30); } catch (e) { problem('K.anim step threw ' + errText(e) + stackLine(e)); }
+      if (throwaway) actions.forEach(function (a) {
+        s.ctx = 'pressing "' + a.label + '"';
+        a.run();
+        step('after pressing "' + a.label + '"');
+      });
+      anims.forEach(function (a) {
+        var where = 'playing "' + a.label + '"', t = 0;
+        s.ctx = where;
+        for (var k = 1; k <= 60; k++) {
+          t += 1 / 30;
+          var r;
+          try { r = a.o.step(1 / 30, t); } catch (e) { problem('K.anim step threw ' + errText(e) + stackLine(e)); break; }
+          if (k % 15 === 0 || r === false) { step(where + ' (frame ' + k + ')'); s.ctx = where; }
+          if (r === false) break;
+        }
         a.api.reset();
       });
     } finally {
       controls.forEach(function (c, i) { c.set(init[i], true); });
+      sweepReveal = false;
+      if (!moved) setMovedClass(false);
       s.ctx = 'restoring the opening state';
       run();
       sink = null;
     }
     var problems = s.order.map(function (m) { var e = s.seen[m]; return m + ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; });
-    return { problems: problems, overflow: overflow, seen: s.seen };
+    var clipped = clip.order.slice(0, 12).map(function (k) { var e = clip.seen[k]; return e.msg + ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; });
+    return { problems: problems, overflow: overflow, seen: s.seen, clipped: clipped };
   }
-  function selftest() {
+  function selftest(opt) {
+    opt = opt || {};
     var t0 = now();
     scanExternal();
     if (!readyCalled) addUnique(errors, 'K.ready() was never called: call it once at the end of the script.');
     if (!checks.length) addUnique(errors, 'There are no K.check(...) assertions: add 3-5 known-answer checks.');
     var checkResults = runChecks();
-    var sw = sweep();
+    audio.calls = 0;
+    labelSkips = [];
+    var sw = sweep(!!opt.throwaway);
     var problems = liveProblems.filter(function (m) { return !sw.seen[m]; }).concat(sw.problems);
     attachedProblems(problems);
     var report = {
       ok: false,
       errors: errors.slice(),
       overflow: !!sw.overflow,
+      clipped: sw.clipped,
       checks: checkResults,
       sweep: { ok: !problems.length, problems: problems.slice(0, 16) },
       controls: controls.map(function (c) { return c.id; }),
       readouts: readoutList.map(function (r) { return r.id; }),
       outputs: Object.keys(lastOutputs || {}),
+      inputs: controls.map(function (c) { return c.info(); }),
+      actions: actions.map(function (a) { return a.label; }).concat(anims.map(function (a) { return a.label; })),
       ready: readyCalled,
       warnings: warnings.slice(),
       width: document.documentElement.clientWidth,
@@ -1067,12 +1734,51 @@
     };
     if (sw.overflow) report.overflowDetail = sw.overflow;
     if (checks.length && checks.length < 3) report.warnings.push('Only ' + checks.length + ' K.check assertion' + (checks.length > 1 ? 's' : '') + ': aim for 3-5.');
-    if (checks.length && !checks.some(function (c) { return c.source; })) report.warnings.push('No K.check has a source: add one known value from a cited reference.');
-    if (!controls.length) report.warnings.push('No K.control / K.choice / K.toggle / K.stepper: the self-test could not exercise the model.');
-    report.ok = !report.errors.length && !report.overflow && checkResults.length > 0 &&
+    if (!controls.length && !actions.length && !anims.length) report.warnings.push('No K.control / K.choice / K.toggle / K.stepper / K.button: the self-test could not exercise the model.');
+    var advice = phoneAdvice();
+    if (advice) report.warnings.push(advice);
+    labelSkips.forEach(function (m) { report.warnings.push(m); });
+    if (opt.throwaway && !audio.calls) {
+      var src = Array.prototype.map.call(document.body.querySelectorAll('script'), function (x) { return x.textContent; }).join('\n');
+      if (/K\.sound\.(tone|chord)\s*\(/.test(src)) report.warnings.push('K.sound is used but no K.button press played anything: play sound from a K.button\'s press so the self-test (and Dan) can reach it.');
+    }
+    report.ok = !report.errors.length && !report.overflow && !report.clipped.length && checkResults.length > 0 &&
       checkResults.every(function (c) { return c.ok; }) && report.sweep.ok && readyCalled;
     report.ms = Math.round(now() - t0);
     return report;
+  }
+  // Does some setting of one control bring an output to a target? Tries every setting the control
+  // can take (all options of a choice), others staying where they are. -> {reachable, best:{value, output}, tried}
+  function reach(d) {
+    var c = byId[d.control];
+    if (!c) return { reachable: false, error: 'No control "' + d.control + '"', tried: 0 };
+    var target = +d.target, tol = Math.abs(+d.tolerance || 0), key = String(d.output);
+    var vals = c.values(), init = c.get(), base = K.params(), best = null;
+    var fromModel = false;
+    try { fromModel = !!modelFn && Object.prototype.hasOwnProperty.call(modelFn(base) || {}, key); } catch (e) {}
+    var saved = sink;
+    sink = { seen: Object.create(null), order: [], ctx: 'reach' };
+    try {
+      vals.forEach(function (v) {
+        var out;
+        if (fromModel) {
+          var p = Object.assign({}, base); p[c.id] = v;
+          try { out = (modelFn(p) || {})[key]; } catch (e) { out = NaN; }
+        } else { c.set(v, true); run(); out = stateOutputs()[key]; }
+        out = +out;
+        if (!isNum(out)) return;
+        var diff = Math.abs(out - target);
+        if (!best || diff < best.diff) best = { value: v, output: out, diff: diff };
+      });
+    } finally {
+      if (!fromModel) { c.set(init, true); run(); }
+      sink = saved;
+    }
+    return {
+      reachable: !!best && best.diff <= tol + Math.abs(target) * 1e-9 + 1e-12,
+      best: best ? { value: best.value, output: best.output } : null,
+      tried: vals.length,
+    };
   }
 
   // ---------- height ----------
@@ -1101,8 +1807,13 @@
   }
   function heightSoon() { if (!hTimer) hTimer = setTimeout(sendHeight, 30); }
   function boot() {
+    var lastWidth = document.documentElement.clientWidth;
     if (window.ResizeObserver) {
-      var ro = new ResizeObserver(heightSoon);
+      var ro = new ResizeObserver(function () {
+        heightSoon();
+        var w = document.documentElement.clientWidth;
+        if (w !== lastWidth) { lastWidth = w; if (readyCalled) relayout(); }
+      });
       ro.observe(document.body);
       ro.observe(document.documentElement);
     }
@@ -1117,22 +1828,42 @@
     var d = ev.data;
     if (!d || typeof d !== 'object' || typeof d.type !== 'string') return;
     var rid = d.rid;
+    function state() { post({ type: 'state', rid: rid, params: K.params(), outputs: stateOutputs(), moved: moved }); }
     if (d.type === 'selftest') {
       var report;
-      try { report = selftest(); } catch (e) { report = { ok: false, errors: ['The self-test itself failed: ' + errText(e)], overflow: false, checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [] }; }
+      try { report = selftest({ throwaway: !!d.throwaway }); } catch (e) { report = { ok: false, errors: ['The self-test itself failed: ' + errText(e)], overflow: false, clipped: [], checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [] }; }
       post({ type: 'report', rid: rid, report: report });
     } else if (d.type === 'get') {
-      post({ type: 'state', rid: rid, params: K.params(), outputs: stateOutputs() });
+      state();
     } else if (d.type === 'set') {
       var c = byId[d.id];
       if (!c) { post({ type: 'error', rid: rid, message: 'No control with id "' + d.id + '"' }); return; }
+      if (c.accepts && !c.accepts(d.value)) { post({ type: 'error', rid: rid, message: 'Control "' + d.id + '" has no setting "' + d.value + '"' }); return; }
+      markMoved();
       c.set(d.value, true);
       run();
-      post({ type: 'state', rid: rid, params: K.params(), outputs: stateOutputs() });
+      state();
+    } else if (d.type === 'press') {
+      // Press a K.button (by label, or the first) or start a K.anim (Play).
+      var want = d.label ? String(d.label).toLowerCase() : '';
+      var a = actions.filter(function (x) { return !want || x.label.toLowerCase().indexOf(want) >= 0; })[0];
+      var an = a ? null : anims.filter(function (x) { return !want || x.label.toLowerCase().indexOf(want) >= 0; })[0];
+      if (!a && !an) { post({ type: 'error', rid: rid, message: 'No button' + (want ? ' labelled "' + d.label + '"' : '') }); return; }
+      markMoved();
+      if (a) a.press(); else an.api.play();
+      run();
+      state();
+    } else if (d.type === 'inputs') {
+      post({ type: 'inputs', rid: rid, inputs: controls.map(function (x) { return x.info(); }), actions: actions.map(function (x) { return x.label; }).concat(anims.map(function (x) { return x.label; })) });
+    } else if (d.type === 'reach') {
+      var res;
+      try { res = reach(d); } catch (e) { res = { reachable: false, error: errText(e), tried: 0 }; }
+      post({ type: 'reach', rid: rid, result: res });
     } else if (d.type === 'theme') {
       applyTheme(d.theme);
       plots.forEach(function (p) { p.redraw(); });
       if (everRun) run();
+      if (readyCalled) relayout();
     }
   });
 })();
