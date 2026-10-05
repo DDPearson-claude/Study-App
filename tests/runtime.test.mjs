@@ -79,9 +79,13 @@ test('research tools: big results are trimmed (search 12 KB, fetch 20 KB); conne
   const U = boot({ mcp });
   const [search, fetch] = await U.research.tools();
   const s = await search.execute({ objective: 'o', search_queries: ['a b c'] });
-  assert.ok(s.length <= 12000 + 20 && s.endsWith('…[trimmed]'), 'search trimmed to 12 KB');
+  const sj = JSON.parse(s);
+  assert.ok(s.length <= 12000, 'search fits in 12 KB (' + s.length + ')');
+  assert.equal(sj.results.length, 40, 'every result kept; their excerpts are shortened instead');
+  assert.ok(sj.results.every((r) => r.excerpts[0].startsWith('Verbatim text from page')), 'each excerpt keeps its start');
+  assert.ok(sj.results.some((r) => r.excerpts[0].endsWith(' …')), 'a cut is marked');
   const f = await fetch.execute({ urls: ['https://example.org/page-0'] });
-  assert.ok(f.length <= 20000 + 20 && f.endsWith('…[trimmed]'), 'fetch trimmed to 20 KB');
+  assert.ok(f.length <= 20000 && JSON.parse(f).results[0].excerpts[0].endsWith(' …'), 'fetch fits in 20 KB as valid JSON');
   mcp.callTool = () => Promise.reject({ code: 'rate_limited', message: 'slow down' });
   assert.match(await search.execute({ objective: 'o', search_queries: ['a b c'] }), /^Tool error \(rate_limited\): /);
 });
@@ -120,4 +124,15 @@ test('ask: rate limits are not retried; a transient upstream error is retried on
   U2.sleep = () => Promise.resolve();
   assert.equal(await U2.ask('y'), 'ok');
   assert.equal(m, 2);
+});
+
+test('research tools: markdown links in excerpts become plain text and are not results', async () => {
+  const page = { url: 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html', title: 'Brayton Cycle', excerpts: ['we must study the basic thermodynamics of [gases](https://www.grc.nasa.gov/www/k-12/airplane/state.html) .\nGases have **p** and ![a figure](https://x.org/f.png) [T](https://e.org/a_(b))'] };
+  const mcp = fakeMcp({ web_search: () => ({ results: [page] }), web_fetch: (inp) => ({ results: inp.urls.map((u) => ({ url: u, excerpts: ['ok'] })) }) });
+  const U = boot({ mcp });
+  const [search, fetch] = await U.research.tools();
+  const r = JSON.parse(await search.execute({ objective: 'o', search_queries: ['brayton cycle efficiency'] }));
+  assert.equal(r.results[0].excerpts[0], 'we must study the basic thermodynamics of gases .\nGases have p and a figure T');
+  assert.match(await fetch.execute({ urls: ['https://www.grc.nasa.gov/www/k-12/airplane/state.html'] }), /^Tool error \(refused\): /, 'a page only linked from an excerpt is not a result');
+  assert.ok(!/^Tool error/.test(await fetch.execute({ urls: [page.url] })), 'the result itself can be opened');
 });

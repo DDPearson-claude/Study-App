@@ -204,6 +204,51 @@ U.research = {
     var s = typeof payload === 'string' ? payload : JSON.stringify(payload);
     return s.length > max ? s.slice(0, max) + ' …[trimmed]' : s;
   },
+  // Excerpts arrive as markdown: links ("[gases](https://…)") and emphasis become plain text, so
+  // Claude quotes clean words, the quote check compares like with like, and a link inside a
+  // page's text never passes for a page the tools returned.
+  _plain: function (t) {
+    return String(t)
+      .replace(/!?\[([^\]\n]*)\]\((?:[^()\s]|\([^()\s]*\))*\)/g, '$1')
+      .replace(/\*\*([^*\n]+)\*\*/g, '$1').replace(/__([^_\n]+)__/g, '$1');
+  },
+  _clean: function (p) {
+    if (!p || typeof p !== 'object' || !Array.isArray(p.results)) return p;
+    return Object.assign({}, p, { results: p.results.map(function (r) {
+      if (!r || typeof r !== 'object') return r;
+      var o = Object.assign({}, r);
+      if (Array.isArray(o.excerpts)) o.excerpts = o.excerpts.map(function (e) { return typeof e === 'string' ? U.research._plain(e) : e; });
+      if (typeof o.full_content === 'string') o.full_content = U.research._plain(o.full_content);
+      return o;
+    }) });
+  },
+  // A result as JSON of at most max characters that stays valid JSON: the longest excerpt (or
+  // page text) is cut at a word, marked " …", until it fits; then the last results go.
+  _fit: function (p, max) {
+    var s = typeof p === 'string' ? p : JSON.stringify(p);
+    if (s.length <= max) return s;
+    if (!p || typeof p !== 'object' || !Array.isArray(p.results)) return U.research._trim(s, max);
+    p = JSON.parse(s);
+    function texts() {
+      var out = [];
+      p.results.forEach(function (r) {
+        if (!r || typeof r !== 'object') return;
+        (Array.isArray(r.excerpts) ? r.excerpts : []).forEach(function (e, j) { if (typeof e === 'string') out.push({ get: function () { return r.excerpts[j]; }, set: function (v) { r.excerpts[j] = v; } }); });
+        if (typeof r.full_content === 'string') out.push({ get: function () { return r.full_content; }, set: function (v) { r.full_content = v; } });
+      });
+      return out;
+    }
+    for (var guard = 0; guard < 500 && s.length > max; guard++) {
+      var best = null;
+      texts().forEach(function (t) { var n = t.get().length; if (!best || n > best.n) best = { t: t, n: n }; });
+      if (!best || best.n <= 60) break;
+      var keep = Math.max(40, best.n - (s.length - max) - 4), cut = best.t.get().slice(0, keep), sp = cut.lastIndexOf(' ');
+      best.t.set((sp > keep * 0.6 ? cut.slice(0, sp) : cut) + ' …');
+      s = JSON.stringify(p);
+    }
+    while (s.length > max && p.results.length > 1) { p.results.pop(); s = JSON.stringify(p); }
+    return s.length > max ? U.research._trim(s, max) : s;
+  },
   call: function (tool, input) {
     var mcp = U.rt.mcp;
     return mcp.callTool(U.research.SERVER, tool, input).then(function (r) { return r && r.payload !== undefined ? r.payload : r; });
@@ -251,8 +296,12 @@ U.research = {
               input = Object.assign({}, input, { session_id: U.research.SESSION });
             }
             return U.research.call(name, input).then(function (p) {
-              if (name === 'web_search') U.research._urlsIn(p).forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
-              return U.research._trim(p, max);
+              p = U.research._clean(p);
+              if (name === 'web_search') {
+                var found = p && Array.isArray(p.results) ? p.results.map(function (r) { return r && r.url; }) : U.research._urlsIn(p);
+                found.forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
+              }
+              return U.research._fit(p, max);
             }, function (e) {
               return 'Tool error (' + (e && e.code) + '): ' + (e && e.message) + '. Check the arguments against the tool schema and try again.';
             });

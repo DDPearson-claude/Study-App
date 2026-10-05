@@ -218,9 +218,11 @@
   // ==================================================================================
 
   // Everything the research tools returned, so sources can be checked against it: a source
-  // survives only if its URL appeared in a tool result (or was opened) and its quote is on it.
+  // survives only if its URL is a page a tool returned and its quote is on that page. Results
+  // are read per page (the connector's {results:[{url, title, excerpts, full_content}]}); text
+  // that isn't in that shape is kept whole and checked the old way (URL anywhere, quote anywhere).
   function Corpus() {
-    var raw = [], norm = [];
+    var raw = [], norm = [], pages = {};
     function unescape(t) {
       return String(t)
         .replace(/\\u([0-9a-fA-F]{4})/g, function (_, h) { return String.fromCharCode(parseInt(h, 16)); })
@@ -228,20 +230,45 @@
         .replace(/\\(["\\/])/g, '$1');
     }
     function esc(x) { return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+    function parsed(text) {
+      if (text && typeof text === 'object') return text;
+      try { return JSON.parse(String(text)); } catch (e) { return null; }
+    }
+    function found(hay, quote) {
+      var frags = s(quote).split(/\.\.\.|…/).map(normText).filter(function (f) { return f.length >= 8; });
+      if (!frags.length) frags = [normText(quote)];
+      return frags.every(function (f) { return f && hay.indexOf(f) >= 0; });
+    }
     return {
       calls: 0,
-      add: function (text) { var t = unescape(text); raw.push(t.toLowerCase()); norm.push(normText(t)); },
+      add: function (text) {
+        var p = parsed(text);
+        if (p && Array.isArray(p.results)) {
+          p.results.forEach(function (r) {
+            var key = r && U.prompts.urlKey(r.url);
+            if (!key) return;
+            var parts = [r.title].concat(Array.isArray(r.excerpts) ? r.excerpts : [], [r.full_content]).filter(function (x) { return typeof x === 'string'; });
+            if (U.research && U.research._plain) parts = parts.map(U.research._plain);
+            (pages[key] = pages[key] || []).push(normText(parts.join(' \u0001 ')));
+          });
+          return true;
+        }
+        var t = unescape(text); raw.push(t.toLowerCase()); norm.push(normText(t));
+        return false;
+      },
       hasUrl: function (url) {
         var key = U.prompts.urlKey(url);
         if (!key || key.indexOf('.') < 0) return false;
+        if (pages[key]) return true;
         var re = new RegExp(esc(key) + '/?(?=$|[\\s"\'<>\\\\)\\]},?#|])');
         return raw.some(function (t) { return re.test(t); });
       },
-      hasQuote: function (quote) {
-        var hay = norm.join(' \u0001 ');
-        var frags = s(quote).split(/\.\.\.|…/).map(normText).filter(function (f) { return f.length >= 8; });
-        if (!frags.length) frags = [normText(quote)];
-        return frags.every(function (f) { return f && hay.indexOf(f) >= 0; });
+      // With a url: the quote must be on that page when the tools returned it as a result.
+      hasQuote: function (quote, url) {
+        var key = url ? U.prompts.urlKey(url) : null;
+        if (key && pages[key]) return found(pages[key].join(' \u0001 '), quote);
+        var all = norm.concat(Object.keys(pages).map(function (k) { return pages[k].join(' \u0001 '); }));
+        return found(all.join(' \u0001 '), quote);
       },
     };
   }
@@ -259,8 +286,8 @@
         return Promise.resolve().then(function () { return t.execute(input); }).then(function (out) {
           var text = typeof out === 'string' ? out : JSON.stringify(out);
           if (!/^Tool error \(/.test(text)) {
-            corpus.add(text);
-            if (t.name === 'web_fetch' && input) corpus.add([].concat(input.urls || input.url || []).join('\n'));
+            // A fetch whose reply isn't in the results shape still counts the pages it opened.
+            if (!corpus.add(text) && t.name === 'web_fetch' && input) corpus.add([].concat(input.urls || input.url || []).join('\n'));
           }
           return out;
         });
@@ -275,7 +302,7 @@
     (Array.isArray(raw && raw.sources) ? raw.sources : []).forEach(function (x) {
       if (!x || !isStr(x.url)) return;
       if (!corpus.hasUrl(x.url)) { dropped.push({ n: x.n, url: x.url, why: 'not a page the tools returned' }); return; }
-      if (!corpus.hasQuote(x.quote)) { dropped.push({ n: x.n, url: x.url, why: 'quote not found in what the tools returned' }); return; }
+      if (!corpus.hasQuote(x.quote, x.url)) { dropped.push({ n: x.n, url: x.url, why: 'quote not found on that page' }); return; }
       keep[x.n] = sources.length + 1;
       sources.push({ n: sources.length + 1, title: one(x.title), url: one(x.url), quote: one(x.quote) });
     });

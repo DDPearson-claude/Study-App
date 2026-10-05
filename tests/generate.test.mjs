@@ -560,6 +560,16 @@ test('source checking: corpus matching and lesson renumbering', async () => {
   assert.ok(corpus.hasQuote('His third law states that for every action (force) in nature there is an equal and opposite reaction.'));
   assert.ok(corpus.hasQuote('Newton\'s Third Law'), 'curly and straight apostrophes match');
   assert.ok(!corpus.hasQuote('for every action there is a bigger reaction'));
+  // Per page: a quote counts only on the page it is cited for, when that page was a result.
+  await tools[1].execute({ urls: ['https://www.grc.nasa.gov/www/k-12/BGP/thrsteq.html'] });
+  const law = 'for every action (force) in nature there is an equal and opposite reaction';
+  assert.ok(corpus.hasQuote(law, 'https://www.grc.nasa.gov/www/k-12/BGP/newton3.html'), 'quote on its own page');
+  assert.ok(!corpus.hasQuote(law, 'https://www.grc.nasa.gov/www/k-12/BGP/thrsteq.html'), 'the same quote cited to another returned page is refused');
+  // Markdown links inside an excerpt: the linked page is not a result, and a quote reads through the link text.
+  const c2 = U.gen._corpus();
+  c2.add(JSON.stringify({ results: [{ url: 'https://ex.org/a', title: 'A', excerpts: ['the basic thermodynamics of [gases](https://ex.org/state.html) .\nGases have properties'] }] }));
+  assert.ok(c2.hasQuote('the basic thermodynamics of gases. Gases have properties', 'https://ex.org/a'));
+  assert.ok(!c2.hasUrl('https://ex.org/state.html'), 'a link inside an excerpt is not a page the tools returned');
 
   // The model cites [^3] before [^1], lists an invented source, and a number cites [^3].
   const lr = U.prompts.lessonResearch(RESEARCH_JET, 'i1');
