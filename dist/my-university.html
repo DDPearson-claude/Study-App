@@ -611,8 +611,19 @@ mark.term {
 .qc-verdict.good { color: var(--green); }
 .qc-verdict.mid { color: var(--heading); }
 .qc-verdict.bad { color: var(--red); }
-.qc-mine summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font: 700 .875rem/1.3 var(--sans); color: var(--teal); }
-.qc-mine p { padding: 4px 0 6px; font-size: .9375rem; line-height: 1.55; color: var(--muted); white-space: pre-wrap; }
+.qc-follow { display: flex; flex-direction: column; gap: 4px; }
+/* Dan's words from the lesson, folded away: a row with a chevron, like the lesson's disclosures,
+   so it reads as something to open rather than a heading. */
+.qc-mine { border-block: 1px solid var(--line); }
+.qc-mine summary {
+  list-style: none; min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  cursor: pointer; font: 700 .875rem/1.3 var(--sans); color: var(--heading);
+}
+.qc-mine summary::-webkit-details-marker { display: none; }
+.qc-chev { flex: none; display: grid; place-items: center; color: var(--muted); }
+.qc-chev svg { width: 20px; height: 20px; transform: rotate(-90deg); transition: transform .2s ease; }
+.qc-mine[open] .qc-chev svg { transform: rotate(90deg); }
+.qc-mine p { padding: 0 0 12px; font-size: .9375rem; line-height: 1.55; color: var(--muted); white-space: pre-wrap; }
 
 /* ---------- Today ---------- */
 .td { display: flex; flex-direction: column; gap: 18px; }
@@ -624,14 +635,9 @@ mark.term {
 .td-count-n { font: 800 3.2rem/1 var(--sans); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
 .td-count-word { font: 700 1.15rem/1.3 var(--sans); }
 .td-meta { font-size: .9375rem; }
-.td-light { position: relative; display: flex; align-items: center; gap: 14px; margin: 10px 0 8px; padding: 14px 0 4px; border-top: 1px solid var(--line); cursor: pointer; min-height: 56px; }
+/* The switch itself is the shared .switch (70-views.css), the same one Settings uses. */
+.td-light { display: flex; align-items: center; gap: 14px; margin: 10px 0 8px; padding: 14px 0 4px; border-top: 1px solid var(--line); cursor: pointer; min-height: 56px; }
 .td-light-text { flex: 1; display: flex; flex-direction: column; gap: 2px; color: var(--heading); }
-.td-switch-input { position: absolute; opacity: 0; width: 52px; height: 32px; right: 0; margin: 0; cursor: pointer; }
-.td-switch { flex: none; position: relative; width: 52px; height: 32px; border-radius: 999px; background: var(--sunk); box-shadow: inset 0 0 0 2px var(--muted); transition: background .2s ease; }
-.td-switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%; background: var(--muted); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform .2s ease; }
-.td-switch-input:checked + .td-switch { background: var(--heading); box-shadow: none; }
-.td-switch-input:checked + .td-switch::after { transform: translateX(20px); background: var(--on-heading); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
-.td-switch-input:focus-visible + .td-switch { outline: 3px solid var(--teal); outline-offset: 2px; }
 .td-start svg { width: 20px; height: 20px; }
 
 .td-clear { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 24px 0 8px; }
@@ -669,7 +675,7 @@ mark.term {
 .rv { display: flex; flex-direction: column; gap: 8px; min-height: calc(100vh - var(--topbar-h) - 20px); min-height: calc(100dvh - var(--topbar-h) - 20px); }
 .focus .view:has(> .rv) { padding-bottom: 0; }
 /* Close and progress stay in reach while the feedback panel is open. */
-.rv-top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; padding-block: 8px; margin-top: -8px; background: var(--bg); }
+.rv-top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 12px; padding: 8px 16px; margin: -8px -16px 0; background: var(--bg); }
 .rv-close { flex: none; }
 .rv-close svg { width: 20px; height: 20px; }
 .rv-bar { flex: 1; }
@@ -681,16 +687,57 @@ mark.term {
 .rv-wait { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 60px 0; }
 .rv-wait .working { width: 160px; }
 .rv-done { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding: 24px 0 40px; }
-.rv-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 420px; margin: 4px 0 0; }
+/* Everything in the summary shares one width, so tiles, list, card and buttons line up. */
+.rv-done > * { width: 100%; max-width: 560px; }
+.rv-done > .td-done-mark { width: 64px; }
+.rv-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 4px 0 0; }
 .rv-stats > div { padding: 14px 10px; border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); }
 .rv-stats dt { font: 700 .75rem/1.3 var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--teal); }
 .rv-stats dd { margin: 4px 0 0; font: 800 2rem/1 var(--sans); color: var(--heading); font-variant-numeric: tabular-nums; }
-.rv-back { width: 100%; max-width: 420px; text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.rv-back { text-align: left; display: flex; flex-direction: column; gap: 6px; }
+.rv-back-count { font-size: .9375rem; color: var(--muted); }
 .rv-back ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: .9375rem; }
-.rv-done .td-relearn { width: 100%; max-width: 520px; text-align: left; }
+.rv-done .td-relearn { text-align: left; }
 
 :root[data-layout="laptop"] .qc-q { font-size: 1.35rem; }
 :root[data-layout="laptop"] .qc-review .qc-foot.qc-foot-fb { padding-bottom: 20px; }
+
+/* ---------- laptop review: use the width ----------
+   The question and answers keep a column on the left, Check follows the answers, and the
+   feedback appears beside them, so the question, Dan's answer and the feedback share one
+   screen. A target card gives its interactive the full width (K.stage then puts the controls
+   beside the picture) and docks the goal and Check under it. These follow the width the review
+   actually gets, so a narrow laptop window keeps the phone shapes. */
+:root[data-layout="laptop"] .view[data-screen="review"] { max-width: 1120px; }
+@container view (min-width: 900px) {
+  /* The last row soaks up the card's spare height, so a tall panel beside never spreads the
+     question and answers apart. */
+  .qc-review {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); grid-template-rows: auto auto auto 1fr;
+    column-gap: 48px; row-gap: 14px; align-content: start;
+  }
+  .qc-review > * { grid-column: 1; }
+  .qc-review .qc-foot { position: static; align-self: start; margin-top: 0; padding: 6px 0 0; background: none; }
+  /* The panel lines up with the question, beside the answers it marks. */
+  .qc-review .qc-foot.qc-foot-fb { grid-column: 2; grid-row: 2 / -1; padding-top: 0; }
+
+  .qc-review.qc-type-target > .qc-body { grid-column: 1 / -1; }
+  .qc-review.qc-type-target > .qc-foot {
+    grid-column: 1 / -1; align-self: end; position: sticky; bottom: 0; z-index: 4;
+    padding: 18px 0 16px; background: linear-gradient(to bottom, transparent, var(--bg) 20px);
+  }
+  /* One row: the goal (or, after a miss, the hint, which restates it) beside the button, so the
+     bar never grows over the controls Dan is about to move. */
+  .qc-review.qc-type-target > .qc-foot:not(.qc-foot-fb) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); align-items: center; gap: 10px 24px; }
+  .qc-review.qc-type-target > .qc-foot > .qc-hint, .qc-review.qc-type-target > .qc-foot > .qc-aim { grid-column: 1; grid-row: 1; margin: 0; }
+  .qc-review.qc-type-target > .qc-foot > .qc-aim { justify-self: end; text-align: right; }
+  .qc-review.qc-type-target > .qc-foot > .qc-hint:not([hidden]) + .qc-aim { display: none; }
+  .qc-review.qc-type-target > .qc-foot > .btn { grid-column: 2; }
+  /* After Check: the panel docks where the button was, a reading width wide. */
+  .qc-review.qc-type-target > .qc-foot.qc-foot-fb { grid-column: 1 / -1; grid-row: auto; padding: 8px 0 20px; background: none; }
+  .qc-review.qc-type-target > .qc-foot.qc-unstick { position: static; }
+  .qc-review.qc-type-target .qc-fb { width: 100%; max-width: 720px; margin-inline: auto; }
+}
 :root[data-layout="laptop"] .td-actions { flex-direction: row; }
 :root[data-layout="laptop"] .td-actions .btn { flex: 1; }
 
@@ -1329,16 +1376,20 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .set-switch { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; cursor: pointer; }
 .set-switch-text { display: grid; gap: 2px; }
 .set-switch-text strong { color: var(--heading); font-size: 1rem; }
+/* The one on/off switch (Settings, and Today's "Light day"). Off is an outlined, sunken track
+   with a grey knob on the left; on is a filled navy track with a light knob on the right, so the
+   two never look alike in either theme. */
 .switch {
   -webkit-appearance: none; appearance: none; position: relative; flex: none; width: 52px; height: 32px; margin: 0;
-  border-radius: 999px; background: var(--muted); cursor: pointer; transition: background .2s ease;
+  border-radius: 999px; background: var(--sunk); box-shadow: inset 0 0 0 2px var(--muted); cursor: pointer; transition: background .2s ease;
 }
 .switch::after {
-  content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%;
-  background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform .2s ease;
+  content: ""; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--muted); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform .2s ease;
 }
-.switch:checked { background: var(--heading); }
-.switch:checked::after { transform: translateX(20px); background: var(--surface); }
+.switch:checked { background: var(--heading); box-shadow: none; }
+.switch:checked::after { transform: translateX(20px); background: var(--on-heading); }
+.switch:disabled { opacity: .55; cursor: default; }
 .switch:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 999px; }
 .set-research { display: grid; gap: 8px; font-size: .9375rem; line-height: 1.5; }
 .set-ok { display: flex; align-items: flex-start; gap: 8px; color: var(--ink); }
@@ -1412,7 +1463,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-05-44fc305";
+U.BUILD = "2026-10-05-f1a38be";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -5929,7 +5980,7 @@ U.interactive = (function () {
         picker.el.hidden = !picker.el.hidden;
         change.setAttribute('aria-expanded', String(!picker.el.hidden));
         change.textContent = picker.el.hidden ? 'Change' : 'Done';
-        reveal(c);
+        reveal(c, { end: true });
       } } }, 'Change');
       var drawLine = function () {
         U.clear(line);
@@ -5962,14 +6013,34 @@ U.interactive = (function () {
       if (focusEl) try { focusEl.focus({ preventScroll: true }); } catch (e) {}
     });
   }
-  // Scroll so the end of the card (where the panel sits in the flow) is on screen. scrollIntoView
-  // would not do: a docked (sticky) panel already counts as visible while it covers the answer.
-  // A panel taller than most of the screen stops docking, so the answer above stays reachable.
-  function reveal(c, noScroll) {
-    var panel = c.foot.firstChild;
-    if (panel && panel.offsetHeight > window.innerHeight * 0.62) c.foot.classList.add('qc-unstick');
-    if (noScroll) return;
-    var over = c.el.getBoundingClientRect().bottom - window.innerHeight + 8;
+  // Scroll towards the end of the card (where the panel sits in the flow), but never so far that
+  // the question goes under the sticky bar: Dan should see the question, his answer and the
+  // feedback together. scrollIntoView would not do: a docked (sticky) panel already counts as
+  // visible while it covers the answer. A docked panel may cover a sliver of the answers (they are
+  // marked, and the panel names the right one), never most of them: then it joins the flow below
+  // them and peeks in at the bottom of the screen. A panel in the flow shows at least its start;
+  // when the question cannot stay as well, the panel wins. A panel taller than most of the screen
+  // never docks, so the answer above stays reachable.
+  //   o.noScroll  only re-check the docking     o.end  bring the panel's end (the grades) into view
+  function reveal(c, o) {
+    o = o || {};
+    var vh = window.innerHeight, panel = c.foot.firstChild;
+    if (panel && panel.offsetHeight > vh * 0.62) c.foot.classList.add('qc-unstick');
+    if (o.noScroll) return;
+    var docked = function () { return getComputedStyle(c.foot).position === 'sticky'; };
+    var over = c.el.getBoundingClientRect().bottom - vh + 8;
+    if (!o.end || docked()) {
+      // Where the bar's bottom edge sits once it has stuck (it rides a little lower before that).
+      var bar = document.querySelector('.rv-top, .lsn-bar'), q = c.el.querySelector('.qc-q');
+      var top = bar ? (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight : 0;
+      var keep = q ? q.getBoundingClientRect().top - top - 12 : over;
+      // How much of the answers a docked panel would hide once the question is under the bar. (A
+      // target card's answer is the interactive, already read: its panel may stay docked over it.)
+      var hidden = panel && c.type !== 'target' && over > keep && docked() ? c.body.getBoundingClientRect().bottom - keep - (vh - panel.offsetHeight) : 0;
+      if (hidden > 64) c.foot.classList.add('qc-unstick');
+      var p = panel && !docked() && panel.getBoundingClientRect();
+      over = p && p.top + Math.min(p.height, 120) - vh + 8 > keep ? Math.min(over, p.top - top - 12) : Math.min(over, keep);
+    }
     if (over > 0) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
   }
 
@@ -6183,6 +6254,13 @@ U.interactive = (function () {
     for (var i = 0; i < list.length; i++) if (list[i] && list[i].id === id) return list[i];
     return null;
   }
+  // The readout a target check reads: its label and unit say what the number is ("Time for one
+  // swing", "s"). Lessons older than declared readouts have none; then the number stands alone.
+  function outputOf(l, id) {
+    var lj = l && (l.lesson || l), list = (lj && lj.interactive && lj.interactive.outputs) || [];
+    for (var i = 0; i < list.length; i++) if (list[i] && list[i].id === id) return list[i];
+    return null;
+  }
   function target(c) {
     var s = c.spec, it = interactiveOf(c.opts.lesson);
     if (!it || !U.sandbox || typeof U.sandbox.mount !== 'function') {
@@ -6190,17 +6268,23 @@ U.interactive = (function () {
       return;
     }
     var goal = num(s.target, 0), tol = Math.abs(num(s.tolerance, 0)), ctl = controlOf(c.opts.lesson, s.control);
+    var out = outputOf(c.opts.lesson, s.output), name = out && out.label ? String(out.label) : '', unit = out && out.unit ? String(out.unit) : '';
+    var dp = out && out.decimals >= 0 && out.decimals <= 6 ? Math.round(out.decimals) : null;
     var tries = 0, fails = 0, api = null, skip = null;
+    // Every number says what it is: "make Time for one swing read 3 s (give or take 0.05 s)".
+    function amount(v, d) { return withUnit(fmt(v, d), unit); }
+    var within = tol ? ' (give or take ' + amount(tol) + ')' : '';
     var goalLine = h('p', { class: 'qc-goal' },
-      ctl ? 'Use the ' : null, ctl ? h('strong', null, ctl.label || ctl.id) : null, ctl ? ' control. ' : null,
-      'Aim for ', h('strong', null, fmt(goal)), tol ? ' (give or take ' + fmt(tol) + ')' : '', '.');
+      ctl ? 'Use the ' : null, ctl ? h('strong', null, ctl.label || ctl.id) : null,
+      name ? [ctl ? ' control to make ' : 'Make ', h('strong', null, name), ' read '] : [ctl ? ' control. ' : '', 'Aim for a reading of '],
+      h('strong', null, amount(goal)), within, '.');
     var stage = h('div', { class: 'qc-stage' });
     var hintBox = h('div', { class: 'qc-hint', role: 'status', hidden: true });
     c.body.append(goalLine, stage);
     var btn = primary('Check my setting', check);
     btn.disabled = true;
     // The goal again beside the button: the interactive can be taller than the screen.
-    var aim = h('p', { class: 'qc-aim muted small' }, 'Aim for ', h('strong', null, fmt(goal)), tol ? ' (give or take ' + fmt(tol) + ')' : '');
+    var aim = h('p', { class: 'qc-aim muted small' }, name ? name + ': aim for ' : 'Aim for ', h('strong', null, amount(goal)), within);
     c.setFoot([hintBox, aim, btn]);
     function enable() { if (!c.locked) btn.disabled = false; }
     try {
@@ -6235,7 +6319,7 @@ U.interactive = (function () {
         if (!ok && tries === 1) {
           hintBox.hidden = false;
           U.clear(hintBox).append(label('Not yet', 'bad'), h('p', null,
-            'It reads ', h('strong', null, fmt(v)), ' and you are aiming for ', h('strong', null, fmt(goal)), '. ',
+            (name || 'It') + ' reads ', h('strong', null, amount(v, dp)), ' and you are aiming for ', h('strong', null, amount(goal)), '. ',
             v < goal ? 'Try a setting that pushes the reading higher.' : 'Try a setting that brings the reading lower.'));
           btn.textContent = 'Check again';
           btn.disabled = false;
@@ -6247,7 +6331,7 @@ U.interactive = (function () {
         feedback(c, {
           correct: ok,
           title: ok ? (tries === 1 ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Got it on the second go') : 'Not quite',
-          parts: [ok ? null : h('p', { class: 'qc-answer' }, 'It read ' + fmt(v) + '; the target was ' + fmt(goal) + (tol ? ' give or take ' + fmt(tol) : '') + '.'), why(s.why)],
+          parts: [ok ? null : h('p', { class: 'qc-answer' }, (name || 'It') + ' read ' + amount(v, dp) + '; the target was ' + amount(goal) + (tol ? ', give or take ' + amount(tol) : '') + '.'), why(s.why)],
           grade: autoGrade(c, ok, { hinted: tries > 1, noEasy: true }), result: { answer: v, tries: tries },
         });
       }).catch(function (e) {
@@ -6314,13 +6398,15 @@ U.interactive = (function () {
         richBlock('qc-model qc-prose', s.model),
         points.length ? h('div', { class: 'qc-rubric' }, label('A good answer covers'), h('ul', { class: 'qc-points' }, points)) : null,
         status,
-        c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' }, h('summary', null, 'What you wrote when you learned it'), h('p', null, String(s.mine))) : null);
+        c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' },
+          h('summary', null, h('span', null, 'What you wrote when you learned it'), h('span', { class: 'qc-chev', 'aria-hidden': 'true' }, U.icon('back'))),
+          h('p', null, String(s.mine))) : null);
 
       var picker = null, pickHint = null, pickNote = null, settleUntil = 0;
       // Taps that land just after Claude's grade arrived (the layout may have moved) are ignored.
       function steady() { return Date.now() >= settleUntil; }
       if (c.mode === 'review') {
-        picker = gradePicker(c, null, function (g) { if (!steady()) { picker.set(picked || claudeGrade); return; } picked = g; refresh(); reveal(c); });
+        picker = gradePicker(c, null, function (g) { if (!steady()) { picker.set(picked || claudeGrade); return; } picked = g; refresh(); reveal(c, { end: true }); });
         pickHint = h('p', { class: 'qc-label' }, 'How well did you know it?');
         pickNote = h('p', { class: 'muted small qc-pick-note', hidden: true }, 'Claude\'s pick is marked. Change it if you disagree.');
         panel.append(pickHint, pickNote, picker.el);
@@ -6333,7 +6419,9 @@ U.interactive = (function () {
         if (graded) {
           var v = VERDICT[graded.verdict] || VERDICT.partly;
           status.appendChild(h('p', { class: 'qc-verdict ' + v.cls }, v.cls === 'good' ? U.icon('tick') : null, v.text));
-          if (graded.followUp) status.appendChild(richBlock('qc-prose qc-follow', graded.followUp));
+          // The answer box is locked by now, so Claude's follow-up question is something to mull
+          // over (the model answer above usually settles it), not a prompt to type again.
+          if (graded.followUp) status.appendChild(h('div', { class: 'qc-follow' }, label('Something to think over'), richBlock('qc-prose', graded.followUp)));
         } else if (failed) {
           status.appendChild(h('p', { class: 'muted small' }, grading ? 'Claude could not check this one just now. Compare it yourself.' : 'Compare your answer with the model answer.'));
         } else {
@@ -6398,7 +6486,7 @@ U.interactive = (function () {
           if (!graded) { failed = true; refresh(); return; }
           claudeGrade = verdictGrade(graded);
           settleUntil = Date.now() + 350;
-          requestAnimationFrame(function () { if (!c.done) reveal(c, true); });
+          requestAnimationFrame(function () { if (!c.done) reveal(c, { noScroll: true }); });
           var met = Array.isArray(graded.met) ? graded.met : [];
           points.forEach(function (li, i) {
             if (met[i] == null) return;
@@ -6442,6 +6530,7 @@ U.interactive = (function () {
     },
     interactiveOf: interactiveOf,
     controlOf: controlOf,
+    outputOf: outputOf,
     verdictGrade: verdictGrade,
   };
 })();
@@ -8111,6 +8200,7 @@ U.interactive = (function () {
     slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.today()); }); },
     _interleave: interleave,
     _plan: plan,
+    _backCount: backCount,
   };
 
   // ---------- shared view bits ----------
@@ -8125,6 +8215,11 @@ U.interactive = (function () {
     return Math.max(1, Math.round(s / 60));
   }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many || one + 's'); }
+  // "4 cards, from 2 ideas:" above the list of ideas coming back.
+  function backCount(cards, ideas) {
+    if (ideas === 1) return cards === 1 ? 'One card, from this idea:' : plural(cards, 'card') + ', all from this idea:';
+    return plural(cards, 'card') + ', from ' + ideas + ' ideas:';
+  }
   function longDate(day) {
     var p = day.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
@@ -8228,7 +8323,7 @@ U.interactive = (function () {
       var names = uniq(p.queue.map(function (c) { return c.tid; })).map(function (tid) { return topicTitle(topics, tid); });
       var count = h('span', { class: 'td-count-n' }), minutes = h('span');
       var lasting = !!p.prefs.light;
-      var light = h('input', { class: 'td-switch-input', type: 'checkbox', role: 'switch', checked: lightToday(p.prefs), disabled: lasting, 'aria-describedby': 'td-light-note' });
+      var light = h('input', { class: 'switch', type: 'checkbox', role: 'switch', checked: lightToday(p.prefs), disabled: lasting, 'aria-describedby': 'td-light-note' });
       var start = h('button', { class: 'btn wide td-start', type: 'button', on: { click: function () { U.go('#/review'); } } }, 'Start review', U.icon('arrow'));
       var countWord = h('span', { class: 'td-count-word' });
       function update(q) {
@@ -8252,7 +8347,7 @@ U.interactive = (function () {
         h('p', { class: 'td-meta muted' }, minutes, names.length ? ' · from ' + names.slice(0, 3).join(', ') + (names.length > 3 ? ' and more' : '') : ''),
         h('label', { class: 'td-light' },
           h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, lasting ? 'Light days are on in settings: ' + LIGHT_CAP + ' cards a day, the most overdue first.' : 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
-          light, h('span', { class: 'td-switch', 'aria-hidden': 'true' })),
+          light),
         start));
       update(p);
     }
@@ -8426,7 +8521,9 @@ U.interactive = (function () {
           n ? h('dl', { class: 'rv-stats' },
             h('div', null, h('dt', null, 'Remembered'), h('dd', null, String(kept))),
             h('div', null, h('dt', null, 'Back tomorrow'), h('dd', null, String(again.length)))) : null,
-          back.length ? h('div', { class: 'rv-back' }, h('p', { class: 'qc-label' }, 'Coming back tomorrow'), h('ul', null, back)) : null,
+          // The tile counts cards; the list names ideas. Say how the two meet ("4 cards, from 2 ideas").
+          back.length ? h('div', { class: 'rv-back' }, h('p', { class: 'qc-label' }, 'Coming back tomorrow'),
+            h('p', { class: 'rv-back-count' }, backCount(again.length, back.length)), h('ul', null, back)) : null,
           relearnBlock(slipping, S.topics),
           h('div', { class: 'td-actions' },
             h('a', { class: 'btn wide', href: '#/today' }, 'Done'),

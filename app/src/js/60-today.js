@@ -300,6 +300,7 @@
     slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.today()); }); },
     _interleave: interleave,
     _plan: plan,
+    _backCount: backCount,
   };
 
   // ---------- shared view bits ----------
@@ -314,6 +315,11 @@
     return Math.max(1, Math.round(s / 60));
   }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many || one + 's'); }
+  // "4 cards, from 2 ideas:" above the list of ideas coming back.
+  function backCount(cards, ideas) {
+    if (ideas === 1) return cards === 1 ? 'One card, from this idea:' : plural(cards, 'card') + ', all from this idea:';
+    return plural(cards, 'card') + ', from ' + ideas + ' ideas:';
+  }
   function longDate(day) {
     var p = day.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
@@ -417,7 +423,7 @@
       var names = uniq(p.queue.map(function (c) { return c.tid; })).map(function (tid) { return topicTitle(topics, tid); });
       var count = h('span', { class: 'td-count-n' }), minutes = h('span');
       var lasting = !!p.prefs.light;
-      var light = h('input', { class: 'td-switch-input', type: 'checkbox', role: 'switch', checked: lightToday(p.prefs), disabled: lasting, 'aria-describedby': 'td-light-note' });
+      var light = h('input', { class: 'switch', type: 'checkbox', role: 'switch', checked: lightToday(p.prefs), disabled: lasting, 'aria-describedby': 'td-light-note' });
       var start = h('button', { class: 'btn wide td-start', type: 'button', on: { click: function () { U.go('#/review'); } } }, 'Start review', U.icon('arrow'));
       var countWord = h('span', { class: 'td-count-word' });
       function update(q) {
@@ -441,7 +447,7 @@
         h('p', { class: 'td-meta muted' }, minutes, names.length ? ' · from ' + names.slice(0, 3).join(', ') + (names.length > 3 ? ' and more' : '') : ''),
         h('label', { class: 'td-light' },
           h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, lasting ? 'Light days are on in settings: ' + LIGHT_CAP + ' cards a day, the most overdue first.' : 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
-          light, h('span', { class: 'td-switch', 'aria-hidden': 'true' })),
+          light),
         start));
       update(p);
     }
@@ -615,7 +621,9 @@
           n ? h('dl', { class: 'rv-stats' },
             h('div', null, h('dt', null, 'Remembered'), h('dd', null, String(kept))),
             h('div', null, h('dt', null, 'Back tomorrow'), h('dd', null, String(again.length)))) : null,
-          back.length ? h('div', { class: 'rv-back' }, h('p', { class: 'qc-label' }, 'Coming back tomorrow'), h('ul', null, back)) : null,
+          // The tile counts cards; the list names ideas. Say how the two meet ("4 cards, from 2 ideas").
+          back.length ? h('div', { class: 'rv-back' }, h('p', { class: 'qc-label' }, 'Coming back tomorrow'),
+            h('p', { class: 'rv-back-count' }, backCount(again.length, back.length)), h('ul', null, back)) : null,
           relearnBlock(slipping, S.topics),
           h('div', { class: 'td-actions' },
             h('a', { class: 'btn wide', href: '#/today' }, 'Done'),
