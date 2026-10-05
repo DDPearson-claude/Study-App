@@ -1,5 +1,5 @@
 // Regression check: deleting a topic while its background research is still running used to
-// resurrect a ghost topic doc (no id/title) on Learn. Fixed by the uncommitted 20-store.js change
+// resurrect a ghost topic doc (no id/title) on Learn. Fixed by the 20-store.js change in ce034f6
 // (patches no longer create shared docs); prints NOT REPRODUCED on the current tree.
 import { open, taskOf, readJson, report, sleep } from './lib.mjs';
 const plan = readJson('tests/fixtures/plan-jet-engines.json');
