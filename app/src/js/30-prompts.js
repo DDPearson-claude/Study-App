@@ -7,7 +7,8 @@
 //   U.prompts.writeLesson(topic, idea, {research, known, avoid, feedback, prior})  TASK: write-lesson
 //   U.prompts.grade(say, answer, {attempt, previous, title})                TASK: grade
 //   U.prompts.tutor(context)                                                TASK: tutor
-//   U.prompts.lessonResearch(research, iid) -> {notes, sources} | null   per-lesson numbering
+//   U.prompts.lessonResearch(research, iid, deps?) -> {notes, sources} | null   per-lesson numbering;
+//     deps: the ideas this one builds on, whose notes come along (after the idea's own)
 //   U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
 //            what earlier lessons in a topic gave Dan (writeLesson's `prior`)
 //   U.validate.plan(o) / .lesson(o, {iid, sources, final}) / .grade(o, {rubric, attempt})
@@ -94,7 +95,7 @@
         'Use these. Do not re-teach any of them as a full idea. Where the course builds on one, say so in the oneLine of the idea that uses it ("builds on air pressure from your weather topic"). Only if the course genuinely cannot work without a quick refresher, include it as an idea with "known": true.'),
       '',
       'WHAT TO PRODUCE',
-      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How vaccines teach the body", "Why bread rises"). If the request is vast ("physics"), choose the most foundational slice that fits 5-8 ideas and let the title say what it covers. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
+      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is vast ("physics"), choose the most foundational slice that fits 5-8 ideas and let the title say what it covers. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
       '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that the course will let him answer by the end. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
       '   Bad: "What is photosynthesis?" (a definition). Bad: "Plants are fascinating machines that feed the world." (a statement, and hype)',
       '   Good: "A tree never eats anything solid, yet it builds tonnes of wood. Where does all that wood come from?"',
@@ -166,17 +167,20 @@
       '- web_fetch: { urls, objective }: more of a page, only when its excerpts are thin or you need a longer exact sentence. Put several pages in one call, with the objective saying what you need. It opens only pages your own searches returned: never an address found in page text or in the course details above.',
       '',
       'HOW TO WORK (budget: at most 8 searches and 4 fetches in all; fewer, broader searches, each with several queries, beat many small ones)',
+      'A call that comes back as "Tool error" does not use up the budget. Repeat a failed call at most once; after a "rate_limited" or "unavailable" error, stop searching and write your reply from what you already have.',
       '1. Search for the topic as a whole, then for the ideas whose facts, mechanisms or numbers a lesson will lean on (typical values, constants, dates, who did what). Cover several ideas in one search where they share ground.',
-      '2. Use the best results. Prefer, in this order: university and textbook pages (OpenStax and similar), standards bodies and government science agencies (NASA, NIST, NOAA, the Met Office, national statistics offices), museums and established encyclopedias (Britannica, the Stanford Encyclopedia of Philosophy), peer-reviewed reviews. Use Wikipedia only when nothing better covers the point. Avoid content farms, SEO blogs, forums, shops, AI-written pages and anything behind a paywall.',
-      '3. For each idea, write 1-4 claim notes: the facts, mechanisms and numbers a lesson on that idea will need, each backed by at least one source. Put facts shared by several ideas in topic.notes.',
+      '2. Use the best results. Prefer, in this order: university and textbook pages (OpenStax and similar), standards bodies and government science agencies (NASA, NIST, NOAA, the Met Office, national statistics offices), museums and established encyclopedias (Britannica, the Stanford Encyclopedia of Philosophy), peer-reviewed reviews. Use Wikipedia only when nothing better covers the point. A maker\'s explainer may support how its own product works when nothing independent does. Avoid content farms, SEO blogs, forums, shop pages, worksheets, AI-written pages and anything behind a paywall.',
+      '3. For each idea, write 1-4 claim notes: the facts, mechanisms and numbers a lesson on that idea will need, each backed by at least one source. Put facts shared by several ideas in topic.notes, and with them every constant more than one idea computes with (a refractive index, the speed of sound).',
       '4. Flag contested points: where reputable sources disagree, or the field is unsettled, add a note with a "contested" field: one sentence naming the views and who holds them. Cite a source for each view where you can. Do not treat fringe views as a live debate.',
+      '   Numbers that differ between good sources (a range, a convention, a rounding) are not contested: give the spread in the claim ("5 to 10 days; one textbook says about three weeks") and cite each. When a reputable page oversimplifies or contradicts the mainstream account, cite the fuller source and say so in the claim.',
       '5. Numbers matter most. If a lesson will need a typical value (a speed, a temperature, a date, a population), find it on a reputable page and quote the sentence that states it.',
       '',
       'SOURCES AND QUOTES',
-      '- Each entry in "sources" is ONE exact quote from ONE page your tools returned: at most 30 words, copied character for character from that page\'s excerpts or fetched text. No paraphrase, no stitched fragments, no added words, no brackets, no ellipses. If the sentence you need was not in the text you were shown, do not quote it.',
+      '- Each entry in "sources" is ONE exact quote from ONE page your tools returned: one unbroken run of at most 30 words, copied character for character from that page\'s excerpts or fetched text. Part of a sentence is fine when it reads sensibly on its own. No paraphrase, no stitched fragments, no added words, no brackets, no ellipses. If the words you need were not in the text you were shown, do not quote them.',
+      '- Dan reads the quote, so choose clean passages: skip text with broken spacing ("antigen , the"), words split across lines, missing symbols, table rows, or maths markup ("$42^\\circ$", "[latex]…[/latex]"). If the only passage for a point is damaged, find another source.',
       '- Pick a quote that supports the claim citing it on its own, read cold by someone who has not seen the page.',
       '- If one page supports several claims with different sentences, add one entry per quote (same url and title, different n).',
-      '- title: the page\'s own title plus the publisher, e.g. "Tides and Water Levels — NOAA Ocean Service".',
+      '- title: the page\'s title as the tool gave it, plus the publisher, e.g. "Tides and Water Levels — NOAA Ocean Service". A title cut short stays cut short: never complete or improve a title from memory.',
       '- url: the page\'s exact URL, as the tool gave it.',
       '- n: 1, 2, 3, … in order.',
       '- Never cite a page your tools did not return. Never quote from memory. Never invent or "fix up" a URL. Sources whose URL and quote cannot be matched to what the tools returned are deleted automatically, together with any note that relies only on them.',
@@ -201,16 +205,20 @@
   // ==================================================================================
   // research -> per-lesson notes and sources (numbered 1..k for this lesson)
   // Accepts the full research reply {sources, topic:{notes}, ideas:{iid:{notes}}}, the pipeline's
-  // {topic: doc, idea: doc} pair of stored research docs, or a single {notes, sources} doc.
+  // {topic: doc, idea: doc, earlier?: [doc]} set of stored research docs, or a single {notes,
+  // sources} doc. deps (ids of the ideas this one builds on) adds their notes as 'earlier'.
   // ==================================================================================
-  function lessonResearch(r, iid) {
+  function lessonResearch(r, iid, deps) {
     if (!isObj(r)) return null;
     var docs = [];
+    deps = (Array.isArray(deps) ? deps : []).filter(function (d) { return isStr(d) && d !== iid; });
     if (Array.isArray(r.sources) && (isObj(r.ideas) || isObj(r.topic)) && !Array.isArray(r.notes)) {
       docs.push({ notes: (r.ideas && r.ideas[iid] && r.ideas[iid].notes) || [], sources: r.sources, scope: 'idea' });
+      deps.forEach(function (d) { if (r.ideas && isObj(r.ideas[d])) docs.push({ notes: r.ideas[d].notes || [], sources: r.sources, scope: 'earlier' }); });
       docs.push({ notes: (r.topic && r.topic.notes) || [], sources: r.sources, scope: 'topic' });
     } else if ('idea' in r || ('topic' in r && !Array.isArray(r.notes))) {
       if (isObj(r.idea)) docs.push({ notes: r.idea.notes || [], sources: r.idea.sources || [], scope: 'idea' });
+      (Array.isArray(r.earlier) ? r.earlier : []).forEach(function (d) { if (isObj(d)) docs.push({ notes: d.notes || [], sources: d.sources || [], scope: 'earlier' }); });
       if (isObj(r.topic)) docs.push({ notes: r.topic.notes || [], sources: r.topic.sources || [], scope: 'topic' });
     } else if (Array.isArray(r.notes) || Array.isArray(r.sources)) {
       docs.push({ notes: r.notes || [], sources: r.sources || [], scope: 'idea' });
@@ -296,7 +304,7 @@
   function priorBlock(prior) {
     if (!prior.length) return '';
     var out = [
-      'EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him)',
+      'EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)',
       'Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.',
     ];
     prior.forEach(function (p) {
@@ -330,7 +338,7 @@
     out.push('', 'Research notes (claims, and the sources that support them):');
     lr.notes.forEach(function (n) {
       out.push('- ' + data(n.claim, 300) + (n.sourceIds.length ? ' ' + n.sourceIds.map(function (k) { return '[' + k + ']'; }).join('') : ' (no source)') +
-        (n.contested ? '  [CONTESTED: ' + data(n.contested, 300) + ']' : '') + (n.scope === 'topic' ? '  (whole topic)' : ''));
+        (n.contested ? '  [CONTESTED: ' + data(n.contested, 300) + ']' : '') + (n.scope === 'topic' ? '  (whole topic)' : n.scope === 'earlier' ? '  (from an idea this one builds on)' : ''));
     });
     return out.join('\n');
   }
@@ -341,7 +349,7 @@
     idea = idea || {};
     var ideas = topic.ideas || [];
     var idx = ideas.map(function (i) { return i.id; }).indexOf(idea.id);
-    var lr = lessonResearch(opts.research, idea.id);
+    var lr = lessonResearch(opts.research, idea.id, idea.deps);
     var hasSources = !!(lr && lr.sources.length);
     var avoid = [].concat(opts.avoid || []).filter(isStr);
     var feedback = isStr(opts.feedback) ? opts.feedback : '';
@@ -423,15 +431,15 @@
       '    named: options (2-8 names of at most 6 words, in a sensible order; stages in order become a stepper) and value (the 0-based index of the opening option).',
       '  The opening setting is a realistic case (zero when zero is the real case). Numeric ranges are wide enough that the effect is unmistakable.',
       '- outputs: 0-3 live readouts, each { id (camelCase, unlike any control id), label (at most 30 characters), unit (short, at most 10 characters), decimals (optional: the decimal places it shows) }. The builder uses these ids, and target checks read them. Round each number in your explanation the way its readout shows it.',
-      '- whatAmILookingAt (at most 120 words): the rule the model follows, in plain words first, then the equation if there is one (each symbol named). Shown to Dan in a "What am I looking at?" panel, so write it to him.',
+      '- whatAmILookingAt (at most 120 words; aim for about 100): the rule the model follows, in plain words first, then the equation if there is a short one (each symbol named)' + ((topic.level || 'new') === 'new' ? '; for this new learner keep any formula to simple arithmetic and say a harder rule only in words' : '') + '. Shown to Dan in a "What am I looking at?" panel, so write it to him.',
       '- ignores (at most 50 words): what this model deliberately leaves out, honestly. Shown to Dan as "What this model ignores".',
       '- numbers: every number the interactive shows: each control\'s opening value, the key computed results there, and every constant, assumed value and date it uses. Each { label (with its unit, at most 12 words), value, kind }' + (hasSources ? ' plus "source" where cited' : '') + '. See THE NUMBER RULE.',
       '- Use "interactive": null only when nothing at all can be played with (rare: a stepper, a timeline, a sorter or a labelled diagram fits almost any idea). With null, write no target checks.',
       '',
-      'explain (at most 170 words)',
+      'explain (at most 170 words; aim for about 150)',
       '- Start from what playing shows, written as something he can do or check, never as something he did: "Slide it to 20 and the line doubles", "If you switched the fan on, you saw…", not "When you slid…".',
       '- Any part of the picture you mention must be named in your brief, whatAmILookingAt or controls. Call it what it is, never by its shade: "the changed squares", not "the dark squares" (dark mode swaps light and dark).',
-      '- Then the why, from first principles, one step per sentence. Name a key term only after the reader understands the thing: mark it [[like this]] the first time (at most 3 new terms). Call each thing by the name the course plan and earlier lessons use. Close with the one-sentence takeaway.',
+      '- Then the why, from first principles, one step per sentence. Name a key term only after the reader understands the thing: mark it [[like this]] the first time (at most 3 new terms). A term the picture needs may appear on it before this; mark it here where you explain it. Call each thing by the name the course plan and earlier lessons use. Close with the one-sentence takeaway.',
       '- 2-4 short paragraphs separated by a blank line ("\\n\\n" inside the JSON string). **bold** for at most one key rule. No headings, no links, no HTML, no bullet lists unless it is a sequence of steps.',
       hasSources ? '- Cite with [^n] straight after the sentence a source supports, using only the source numbers listed under RESEARCH. Every fact or number a source covers gets its footnote.' : '- No footnotes: there are no checked sources for this lesson.',
       '  Bad: "Photosynthesis is the process by which autotrophs convert light energy into chemical energy." (a definition first, jargon before meaning)',
@@ -464,7 +472,7 @@
       '- control: a setting Dan changes;',
       '- computed: worked out from the rule in whatAmILookingAt;',
       '- constant: a fixed real-world value: ' + (hasSources ? 'with "source": n when a source above states it, otherwise ' : '') + 'a textbook-standard value you are certain of, presented as one ("the standard value for gravity");',
-      '- assumed: a value chosen for the example (a £1,000 pot, a village of 100), shown as "for example", never as a finding;',
+      '- assumed: a value chosen for the example (a £1,000 pot, a village of 100), shown as "for example", never as a finding. A sketched curve\'s shape (when it peaks, how much higher the second rise is) chosen inside what the sources say is assumed too, and the caption says it is a sketch;',
       '- date: a historical date or documented historical fact' + (hasSources ? ', with "source": n when a source above states it' : '') + '.',
       'Numbers in a hypothetical check case and in tempting wrong options are fine. No other number appears anywhere. Write each number rounded the way the interactive will show it; never give false precision.',
       '',
@@ -772,7 +780,7 @@
     else if (it !== null) {
       if (!isObj(it)) v.add('interactive must be an object or null.');
       else {
-        if (v.str(it.brief, 'interactive.brief', 400) && !/^the one thing you should see is\b[\s\S]+\bwhen you\b/i.test(it.brief.trim())) v.add('interactive.brief must read "The one thing you should see is ___ when you ___."');
+        if (v.str(it.brief, 'interactive.brief', 400) && !/^the one thing you should see is\b[\s\S]+\b(when|as|if|while|once) you\b/i.test(it.brief.trim())) v.add('interactive.brief must read "The one thing you should see is ___ when you ___."');
         v.str(it.title, 'interactive.title', 80);
         if (!Array.isArray(it.controls) || it.controls.length < 1 || it.controls.length > 2) v.add('interactive.controls must have 1-2 controls.');
         else it.controls.forEach(function (c, k) {

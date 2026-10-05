@@ -385,10 +385,18 @@
     return p;
   }
 
-  function loadResearch(tid, iid) {
-    return Promise.all([U.store.research.get(tid, 'topic'), iid ? U.store.research.get(tid, iid) : null]).then(function (r) {
-      return r[0] || r[1] ? { topic: r[0], idea: r[1] } : null;
+  // The topic's research, the idea's, and that of the ideas it builds on (deps).
+  function loadResearch(tid, iid, deps) {
+    deps = (Array.isArray(deps) ? deps : []).filter(function (d) { return d && d !== iid; }).slice(0, 4);
+    var get = function (k) { return U.store.research.get(tid, k).catch(function () { return null; }); };
+    return Promise.all([get('topic'), iid ? get(iid) : null].concat(deps.map(get))).then(function (r) {
+      var earlier = r.slice(2).filter(Boolean);
+      return r[0] || r[1] || earlier.length ? { topic: r[0], idea: r[1], earlier: earlier } : null;
     }, function () { return null; });
+  }
+  function depsOf(topic, iid) {
+    var idea = (topic && topic.ideas || []).filter(function (i) { return i.id === iid; })[0];
+    return idea && Array.isArray(idea.deps) ? idea.deps : [];
   }
   function waitForTopicResearch(tid, ms) {
     return new Promise(function (resolve) {
@@ -407,13 +415,13 @@
     else if (r.status === 'running' && age(r.at) < CFG.RESEARCH_STALE_MS) wait = 'watch';
     else if (!r.status || r.status === 'none' || r.status === 'running' ||
       ((r.status === 'failed' || r.status === 'unavailable') && age(r.at) > CFG.RESEARCH_RETRY_MS)) { started = Date.now(); wait = research(tid); }
-    if (!wait) return loadResearch(tid, iid);
+    if (!wait) return loadResearch(tid, iid, depsOf(topic, iid));
     var left = Math.max(5000, CFG.RESEARCH_WAIT_MS - (Date.now() - started));
     var first = (topic.ideas || []).filter(function (i) { return !i.known; })[0];
     if (first && first.id === iid) left = Math.min(left, CFG.FIRST_RESEARCH_WAIT_MS);
     progress(job, 'Checking sources for this idea…', 'writing');
     var p = wait === 'watch' ? waitForTopicResearch(tid, left) : Promise.race([wait.catch(noop), U.sleep(left)]);
-    return p.then(function () { return loadResearch(tid, iid); });
+    return p.then(function () { return loadResearch(tid, iid, depsOf(topic, iid)); });
   }
 
   // ==================================================================================
@@ -716,7 +724,7 @@
       return researchFor(tid, topic, iid, job);
     }).then(function (rsrch) {
       stillWanted(job);
-      lr = U.prompts.lessonResearch(rsrch, iid);
+      lr = U.prompts.lessonResearch(rsrch, iid, idea.deps);
       var allowed = lr && lr.sources.length ? lr.sources : null;
       return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');

@@ -73,12 +73,17 @@ svg.k-fig:not([preserveAspectRatio="none"]) { height: auto; }
    (a laptop), so the picture changes right next to the control Dan is moving. */
 .k-stage > * + * { margin-top: 12px; }
 @media (min-width: 860px) {
-  .k-stage:not(.k-stacked) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 36%); gap: 28px; align-items: start; }
+  .k-stage:not(.k-stacked) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 36%); gap: 28px; align-items: center; }
+  /* A plot on its own is capped, so a wide frame never shows a vast, empty grid. */
+  body > .k-plot, .k-stack > .k-plot { max-width: 760px; margin-left: auto; margin-right: auto; }
   .k-stage:not(.k-stacked) > * + * { margin-top: 0; }
   /* Controls under a figure share rows in a wide frame; beside a figure they stay one column. */
   .k-controls { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); column-gap: 28px; }
   .k-stage:not(.k-stacked) .k-controls { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* SVG labels that cross lines and shapes keep a thin halo of the page colour (kit.js picks them). */
+svg text.k-halo { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3px; stroke-linejoin: round; }
 
 /* Small teal label (eyebrow) and amber highlighter for key terms. */
 .k-label, .label { display: block; font: 700 12px/1.4 var(--k-font); letter-spacing: .08em; text-transform: uppercase; color: var(--k-accent); }

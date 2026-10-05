@@ -148,7 +148,16 @@
   }
   // A palette role ('accent2', 'fill2', 'cat1', ...) or any CSS colour; with alpha, an rgba() of it.
   K.color = function (name, alpha) {
-    var c = K.theme.c[name] || name || K.theme.c.accent2;
+    // 'amber-line' and 'amberLine' are the same role; an unknown bare word warns and falls back.
+    var key = typeof name === 'string' ? name.replace(/-([a-z0-9])/g, function (_, ch) { return ch.toUpperCase(); }) : name;
+    var c = K.theme.c[key];
+    if (!c) {
+      c = name || K.theme.c.accent2;
+      if (typeof name === 'string' && /^[a-z][a-zA-Z0-9-]*$/.test(name) && window.CSS && CSS.supports && !CSS.supports('color', name)) {
+        addUnique(warnings, 'K.color(\'' + name + '\') is not a colour role, so it drew nothing: use one of ' + Object.keys(K.theme.c).join(', ') + '.', 8);
+        c = K.theme.c.accent2;
+      }
+    }
     if (alpha == null || !isNum(+alpha)) return c;
     var p = rgbaOf(c);
     if (!p) return c;
@@ -1031,9 +1040,23 @@
         lastRight = x + tw / 2;
         ctx.strokeStyle = c.strong; ctx.beginPath(); ctx.moveTo(Math.round(sx(t)) + 0.5, box.y + box.h); ctx.lineTo(Math.round(sx(t)) + 0.5, box.y + box.h + 4); ctx.stroke();
       });
+      // Axis titles fit the canvas: a smaller size first, then kept inside the edges (a title
+      // centred on the plot box sits right of the canvas centre); one far too long is reported.
+      function titleText(text, x, y, centred) {
+        var avail = w - 8, px = 13, tw;
+        for (;;) { ctx.font = '600 ' + px + 'px ' + FONT; tw = ctx.measureText(text).width; if (tw <= avail || px <= 10.5) break; px -= 0.5; }
+        var shown = Math.min(tw, avail);
+        if (centred) x = clamp(x, shown / 2 + 4, w - shown / 2 - 4);
+        if (tw > avail * 1.06) {
+          var msg = 'plot "' + name + '": the axis title "' + text + '" is too long for a phone (' + Math.ceil(tw) + 'px, room for ' + Math.floor(avail) + 'px): shorten it';
+          if (tw > avail * 1.2) problem(msg); else addUnique(warnings, msg, 12);
+        }
+        ctx.fillText(text, x, y, avail);
+        ctx.font = labelFont;
+      }
       ctx.font = labelFont; ctx.fillStyle = c.muted;
-      if (X.label) { ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(X.label, box.x + box.w / 2, h - 2, w - 8); }
-      if (Y.label) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(Y.label, 2, 4, w - 8); }
+      if (X.label) { ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; titleText(String(X.label), box.x + box.w / 2, h - 2, true); }
+      if (Y.label) { ctx.textAlign = 'left'; ctx.textBaseline = 'top'; titleText(String(Y.label), 2, 4, false); }
 
       // 5. Marks: a dot with a ring and optional guides to the axes.
       var placed = [], shown = [];
@@ -1337,6 +1360,26 @@
     }
   }
 
+  // ---------- halos ----------
+  // SVG text drawn in a colour that stands out from the page gets a thin halo of the page colour
+  // (class k-halo), so a label stays readable where it crosses a line or a shape. Text in a colour
+  // close to the page's (white on a navy box) gets none; .k-nohalo on the text or a parent opts out.
+  var haloBg = null, haloRaf = 0;
+  function haloOne(t) {
+    if (t.closest('.k-nohalo')) { t.classList.remove('k-halo'); return; }
+    var f = rgbaOf(getComputedStyle(t).fill);
+    if (!f || !haloBg) return;
+    var d = Math.abs(f[0] - haloBg[0]) + Math.abs(f[1] - haloBg[1]) + Math.abs(f[2] - haloBg[2]);
+    t.classList.toggle('k-halo', d > 160 && f[3] > 0.5);
+  }
+  function halos() {
+    haloRaf = 0;
+    if (!document.body) return;
+    haloBg = rgbaOf(getComputedStyle(document.body).backgroundColor) || haloBg;
+    Array.prototype.forEach.call(document.body.querySelectorAll('svg text'), haloOne);
+  }
+  function halosSoon() { if (!haloRaf) haloRaf = (window.requestAnimationFrame || setTimeout)(halos); }
+
   // ---------- layout ----------
   // Width-dependent layout: control end labels and value widths, readout tiles, figure caps
   // and stages. Runs after K.ready(), when the frame changes width, and on a theme change.
@@ -1346,6 +1389,7 @@
     controls.forEach(function (c) { if (c.fit) try { c.fit(); } catch (e) {} });
     readoutList.forEach(function (r) { try { r.layout(); } catch (e) {} });
     stages.forEach(function (s) { try { fitStage(s); } catch (e) {} });
+    try { halos(); } catch (e) {}
     heightSoon();
   }
 
@@ -1354,17 +1398,19 @@
   // step advances your own state (dt in seconds, at most 0.05) and redraws; it may set a control
   // (control.set(v) reruns the pipeline). Return false from step to stop (e.g. the echo is home).
   // reset (optional) adds a Reset button. Never autoplays when the viewer prefers reduced motion;
-  // pauses when the page is hidden. Pressing Play counts as Dan moving something.
+  // pauses when the page is hidden. Pressing Play counts as Dan moving something. button: false
+  // leaves out the Play button when the page's own control starts and stops it (play/pause).
   K.anim = function (o) {
     o = o || {};
     if (typeof o.step !== 'function') throw new Error('K.anim needs step(dt, t)');
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     var playing = false, t = 0, last = 0, raf = 0;
     var label = o.label || 'Play';
-    var btn = K.el('button', { type: 'button', class: 'k-btn', 'aria-pressed': 'false' });
+    var btn = o.button === false ? null : K.el('button', { type: 'button', class: 'k-btn', 'aria-pressed': 'false' });
     var resetBtn = o.reset ? K.el('button', { type: 'button', class: 'k-btn secondary' }, 'Reset') : null;
     var el = K.el('div', { class: 'k-anim' }, btn, resetBtn);
     function paint() {
+      if (!btn) return;
       btn.innerHTML = playing ? ICON.pause : ICON.play;
       btn.appendChild(document.createTextNode(playing ? 'Pause' : label));
       btn.setAttribute('aria-pressed', playing ? 'true' : 'false');
@@ -1387,12 +1433,12 @@
       reset: function () { api.pause(); t = 0; if (o.reset) { try { o.reset(); } catch (e) { fault('K.anim reset', e); } } return api; },
       time: function () { return t; },
     };
-    btn.addEventListener('click', function () { markMoved(); api.toggle(); });
+    if (btn) btn.addEventListener('click', function () { markMoved(); api.toggle(); });
     if (resetBtn) resetBtn.addEventListener('click', function () { api.reset(); changed(); });
     document.addEventListener('visibilitychange', function () { if (document.hidden) api.pause(); });
     anims.push({ o: o, api: api, label: label, autoplay: !!o.autoplay && !reduce });
     paint();
-    place(el, o.into, 'K.anim');
+    if (btn || resetBtn) place(el, o.into, 'K.anim');
     return api;
   };
 
@@ -1440,6 +1486,7 @@
     var at = num(o.at, 0), stagger = num(o.stagger, 0);
     var bad = list.filter(function (f) { return !(isNum(f) && f >= 20 && f <= 20000); });
     if (!list.length || bad.length) { soundTrouble(who + ' was given ' + (list.length ? 'a frequency of ' + bad[0] : 'no frequencies') + ' (use 20 to 20,000 Hz)'); return false; }
+    lowWarn(list, who);
     if (!(isNum(dur) && dur > 0 && dur <= 10)) { soundTrouble(who + ': dur must be more than 0 and at most 10 seconds (got ' + o.dur + ')'); return false; }
     if (WAVES.indexOf(type) < 0) { soundTrouble(who + ': type must be one of ' + WAVES.join(', ')); return false; }
     if (!(isNum(gain) && gain >= 0 && gain <= 1)) { soundTrouble(who + ': gain must be from 0 to 1'); return false; }
@@ -1454,8 +1501,70 @@
     list.forEach(function (f, i) { voice(ac, f, t + i * Math.max(0, stagger), dur, type, peak); });
     return true;
   }
+  // Phone speakers give out below about 150 Hz: a lower note may play as silence.
+  function lowWarn(list, who) {
+    var low = list.filter(function (f) { return f < 150; })[0];
+    if (low != null) addUnique(warnings, who + ' plays ' + low + ' Hz, below what a phone speaker can make (about 150 Hz): Dan may hear nothing. Use 200 to 2,000 Hz and say on screen when the real sound is lower.', 8);
+  }
+  // K.sound.hold(hz, {type, gain, max}) -> {set({hz, gain}), stop(), playing()}: a tone that keeps
+  // sounding (up to max seconds, default 20) while the page changes its pitch or loudness, e.g.
+  // a slider that makes a hum fade as two waves line up. Start it from a button press.
+  function hold(hz, o) {
+    o = o || {};
+    audio.calls++;
+    var type = o.type || 'sine', gain = o.gain == null ? 1 : +o.gain, max = o.max == null ? 20 : +o.max;
+    function okHz(f) { return isNum(f) && f >= 20 && f <= 20000; }
+    function check(x) {
+      x = x || {};
+      if (x.hz != null && !okHz(+x.hz)) { soundTrouble('K.sound.hold set() was given a frequency of ' + x.hz + ' (use 20 to 20,000 Hz)'); return false; }
+      if (x.gain != null && !(isNum(+x.gain) && +x.gain >= 0 && +x.gain <= 1)) { soundTrouble('K.sound.hold set(): gain must be from 0 to 1 (got ' + x.gain + ')'); return false; }
+      return true;
+    }
+    var stub = { set: function (x) { check(x); return stub; }, stop: function () { return stub; }, playing: function () { return false; } };
+    if (!okHz(+hz)) { soundTrouble('K.sound.hold was given a frequency of ' + hz + ' (use 20 to 20,000 Hz)'); return stub; }
+    if (WAVES.indexOf(type) < 0) { soundTrouble('K.sound.hold: type must be one of ' + WAVES.join(', ')); return stub; }
+    if (!(isNum(gain) && gain >= 0 && gain <= 1)) { soundTrouble('K.sound.hold: gain must be from 0 to 1'); return stub; }
+    if (!(isNum(max) && max > 0 && max <= 60)) { soundTrouble('K.sound.hold: max must be more than 0 and at most 60 seconds'); return stub; }
+    lowWarn([+hz], 'K.sound.hold');
+    if (sink || audio.muted || hostMute) return stub;
+    var active = audio.gesture || (navigator.userActivation && navigator.userActivation.hasBeenActive);
+    if (!active) { addUnique(warnings, 'K.sound was asked to play before Dan pressed anything: play sound only from a button press.', 8); return stub; }
+    var ac = audioOut();
+    if (!ac) return stub;
+    var scale = type === 'square' || type === 'sawtooth' ? 0.35 : 0.8;
+    var osc = ac.createOscillator(), g = ac.createGain(), t0 = ac.currentTime + 0.02, end = t0 + max, on = true;
+    osc.type = type;
+    osc.frequency.setValueAtTime(+hz, t0);
+    function fadeOut(at) { g.gain.setTargetAtTime(0, Math.max(at, ac.currentTime), 0.08); }
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(gain * scale, t0 + 0.03);
+    fadeOut(end - 0.3);
+    osc.connect(g); g.connect(audio.out);
+    osc.start(t0); osc.stop(end + 0.1);
+    var v = { osc: osc, g: g, end: end };
+    audio.live.push(v);
+    osc.onended = function () { on = false; audio.live = audio.live.filter(function (x) { return x !== v; }); try { g.disconnect(); } catch (e) {} };
+    var api = {
+      set: function (x) {
+        if (!on || !check(x)) return api;
+        var t = ac.currentTime;
+        if (x.hz != null) osc.frequency.setTargetAtTime(+x.hz, t, 0.03);
+        if (x.gain != null) { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.setTargetAtTime(+x.gain * scale, t, 0.04); fadeOut(end - 0.3); }
+        return api;
+      },
+      stop: function () {
+        if (!on) return api;
+        var t = ac.currentTime;
+        try { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t); g.gain.linearRampToValueAtTime(0, t + 0.06); osc.stop(t + 0.08); } catch (e) {}
+        return api;
+      },
+      playing: function () { return on && ac.currentTime < end; },
+    };
+    return api;
+  }
   K.sound = {
     tone: function (hz, o) { return playNotes([hz], o, 'K.sound.tone'); },
+    hold: hold,
     chord: function (list, o) { return playNotes(Array.isArray(list) ? list : [], o, 'K.sound.chord'); },
     stop: function () {
       if (!audio.ctx) return K.sound;
@@ -1619,7 +1728,8 @@
         if (ix <= 0 || iy <= 0) continue;
         var area = ix * iy, small = Math.min(p1.w * p1.h, p2.w * p2.h);
         if (p1.text === p2.text && area > 0.9 * small) continue;   // the same text drawn twice (a halo)
-        if (area > 0.25 * small) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+        // Any real overlap reads as a collision ("germ arrivesame germ returns"), even a few letters.
+        if (ix > 2 && iy > 0.35 * Math.min(p1.h, p2.h) && area > 0.03 * small) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
       }
     });
     return out;
@@ -1649,6 +1759,16 @@
     readoutList.forEach(function (r) { if (!r.el.isConnected) list.push('readout "' + r.id + '" was created but never added to the page'); });
     plots.forEach(function (p, i) { if (!p.el.isConnected) list.push('plot ' + (i + 1) + ' is not on the page'); });
     actions.forEach(function (a) { if (!a.el.isConnected) list.push('button "' + a.label + '" was created but never added to the page'); });
+  }
+  // A big part hidden until Dan moves leaves a blank hole in the opening screen.
+  function afterMoveAdvice() {
+    // Whole blocks and whole drawings only: marks inside a drawing (an SVG group of arrows) sit over
+    // the picture and leave no hole.
+    var big = Array.prototype.filter.call(document.querySelectorAll('.k-after-move'), function (el) {
+      return !el.ownerSVGElement && el.getBoundingClientRect().height > 180;
+    })[0];
+    if (!big) return null;
+    return 'A part hidden until Dan moves something (' + describeEl(big) + ') is ' + Math.round(big.getBoundingClientRect().height) + ' px tall, so the opening screen has a large blank space: hide only the answer (the line, the mark, the sentence), not the whole figure.';
   }
   // On a phone, the main figure and the first control should fit on one screen together.
   function phoneAdvice() {
@@ -1801,6 +1921,8 @@
     if (!controls.length && !actions.length && !anims.length) report.warnings.push('No K.control / K.choice / K.toggle / K.stepper / K.button: the self-test could not exercise the model.');
     var advice = phoneAdvice();
     if (advice) report.warnings.push(advice);
+    var hole = afterMoveAdvice();
+    if (hole) report.warnings.push(hole);
     labelSkips.forEach(function (m) { report.warnings.push(m); });
     if (opt.throwaway && !audio.calls) {
       var src = Array.prototype.map.call(document.body.querySelectorAll('script'), function (x) { return x.textContent; }).join('\n');
@@ -1888,6 +2010,8 @@
       ro.observe(document.body);
       ro.observe(document.documentElement);
     }
+    // Labels drawn or redrawn later (in K.update) get their halo too.
+    if (window.MutationObserver && document.body) new MutationObserver(halosSoon).observe(document.body, { childList: true, subtree: true });
     sendHeight();
     [120, 600].forEach(function (ms) { setTimeout(sendHeight, ms); });
   }

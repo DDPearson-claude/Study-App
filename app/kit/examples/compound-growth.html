@@ -9,8 +9,8 @@
 
 <script>
   const SOURCE = 'https://en.wikipedia.org/wiki/Rule_of_72';
-  const money = (v) => '£' + K.fmt(v, { dp: v < 1000 ? 2 : 0 });
-  const years1 = (v) => K.fmt(v, { dp: 1 }) + ' years';
+  const money = (v) => '£' + K.fmt(v, { decimals: v < 1000 ? 2 : 0 });
+  const years1 = (v) => K.fmt(v, { decimals: 1 }) + ' years';
 
   K.control({ id: 'principal', label: 'Starting amount', min: 100, max: 10000, step: 100, value: 1000, prefix: '£', into: '#controls' });
   K.control({ id: 'rate', label: 'Interest rate per year', min: 0.5, max: 15, step: 0.5, value: 6, unit: '%', into: '#controls' });
@@ -18,8 +18,8 @@
 
   K.readout({ id: 'compound', label: 'Compound', fmt: money, into: '#outs' });
   K.readout({ id: 'simple', label: 'Simple', fmt: money, into: '#outs' });
-  K.readout({ id: 'rule72', label: 'Doubling, rule of 72', unit: 'years', dp: 1, into: '#outs' });
-  K.readout({ id: 'exact', label: 'Doubling, exact', unit: 'years', dp: 1, into: '#outs' });
+  K.readout({ id: 'rule72', label: 'Doubling, rule of 72', unit: 'years', decimals: 1, into: '#outs' });
+  K.readout({ id: 'exact', label: 'Doubling, exact', unit: 'years', decimals: 1, into: '#outs' });
 
   K.stage('#plot', '#controls', { max: 760 });   // three sliders: let the pair run a little taller on a phone
 

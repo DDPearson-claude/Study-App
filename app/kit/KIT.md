@@ -18,6 +18,7 @@ network or storage: web addresses are blocked; no `fetch`, `localStorage`, `aler
 Dan predicts before he plays, so the opening screen must not answer the prediction. Open on a
 setting it is not about, and hide whatever gives the answer away until he first moves something:
 - class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the figure: a hidden plot leaves a blank hole; hide its line or mark.
 - `K.readout({..., afterMove: true})`: shows "?" until then.
 - `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
 - `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your own handlers (a drag).
@@ -75,9 +76,10 @@ room is left out. A quantity that jumps (counts) reads better as `dots: true` or
 are navy, then teal; `color: 'muted', dash: true` for a baseline.
 ```
 K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
-K.anim({step(dt, t), reset?, label?, autoplay?, into}) -> {el, play, pause, toggle, reset, playing()}
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
 ```
-`anim` adds a Play button (text `label`); `reset` adds Reset. In `step` advance your state (`dt`
+`anim` adds a Play button (text `label`; `button: false` when your own control calls `play()`
+and `pause()`); `reset` adds Reset. In `step` advance your state (`dt`
 in seconds) and redraw; return `false` to stop. To drive a slider, keep the exact value yourself
 (the slider moves in whole steps):
 ```js
@@ -93,10 +95,13 @@ K.anim({ label: 'Play', into: '#controls', step: (dt) => {
 For sound or music, let Dan hear it:
 ```
 K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
 ```
 `dur` in seconds (default 1, at most 10); `hz` 20 to 20,000; `type` 'sine', 'triangle', 'square'
 or 'sawtooth'. It is quiet and plays only after Dan presses something: call it from a `K.button`;
-show what is sounding.
+show what is sounding. `hold` keeps a tone going (up to `max` seconds, default 20) while `set()`
+follows a slider: a hum that fades as two waves line up. Phone speakers can't play below about
+150 Hz: use 200 to 2,000 Hz for anything Dan must hear, and say so when the real sound is lower.
 ```js
 K.button({ label: 'Hear the chord', into: '#controls', press: () => K.sound.chord([261.63, 329.63, 392.0], { dur: 1.5 }) });
 ```
@@ -133,8 +138,10 @@ Never describe colours by lightness or hue in words Dan reads ("the dark square"
 changes them. Name the thing, or use a key.
 
 Classes: `lead`, `say`, `caption`, `muted`, `small`, `k-label` (small teal caps), `mark` (key
-term), `note` (amber box), `warn-note`, `panel`, `row`, `grid2`, `big`, `key` with `swatch` (a
-legend), `k-btn` (`secondary`), `k-controls`, `k-readouts`, `k-after-move`.
+term), `note` (amber box), `warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`),
+`k-controls`, `k-readouts`, `k-after-move`, and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>First hum</span></div>`.
+SVG text that crosses lines gets a thin page-coloured halo by itself (`k-nohalo` turns it off).
 
 ## Rules for a great interactive
 - One idea, visible within ten seconds of play. One or two controls, three at most.
@@ -148,11 +155,13 @@ legend), `k-btn` (`secondary`), `k-controls`, `k-readouts`, `k-after-move`.
 - 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
   always last), and at least one answer from outside your formula (a worked example, an everyday
   case, a value from the lesson's sources). `source` may ONLY be a URL from the lesson's own
-  sources; if it has none, omit `source`. Never cite from memory.
+  sources; if it has none, omit `source`. Never cite from memory. Compare numbers with
+  `K.near(a, b, tol)`: a tolerance of about a millionth of the size for exact rules, wider (a
+  thousandth) where square roots or small steps meet rounding.
 - Ids that lesson checks use must exist.
 - Each update well under 150 ms; `K.anim` for motion, never endless timers.
 - No `vh` units, `position: fixed` or `height: 100%` (the frame grows to fit you).
-- Ideas without numbers (process, structure, history, concept) use `K.stepper`, `K.choice`, a
+- Ideas without numbers (mechanism, process, structure, history, concept) use `K.stepper`, `K.choice`, a
   timeline slider or a sorter with an HTML or SVG diagram; checks assert order and structure facts.
 
 ## The self-test

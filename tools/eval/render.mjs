@@ -5,7 +5,9 @@
 // <out>-{360,1280}-{light,dark}-moved.png: every control set to another value through the host's
 // set() (a slider to 75% of its range, or to its top or middle if it opens near 75%; a choice or
 // stepper to its next option; a toggle flipped), then the first K.button pressed or K.anim played.
-// Prints the merged report plus what was moved.
+// Then <out>-{360,1280}-{light,dark}-end.png: every control at its far end (a slider's top, or its
+// bottom if it opens there; a choice's or stepper's last option) after 2.5 s, so an answer at the
+// end of a process or a slow animation is seen. Prints the merged report plus what was moved.
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { openApp, ROOT } from '../harness/page.mjs';
@@ -25,6 +27,17 @@ export function movedValue(c) {
   return at(Math.abs(t - 0.75) >= 0.1 ? 0.75 : t < 0.75 ? 1 : 0.5);
 }
 
+// The far end of a control: what a reviewer should also see.
+export function endValue(c) {
+  if (c.kind === 'choice' || c.kind === 'stepper') {
+    const opts = c.options || [];
+    if (opts.length) return opts[opts.length - 1] === c.value ? opts[0] : opts[opts.length - 1];
+    return c.max != null ? (c.value === c.max ? 0 : c.max) : c.value;
+  }
+  if (c.kind === 'toggle') return !c.value;
+  return c.value >= c.max ? c.min : c.max;
+}
+
 export async function renderBody(body, out, appFile, o = {}) {
   mkdirSync(dirname(out), { recursive: true });
   const shots = [];
@@ -33,7 +46,7 @@ export async function renderBody(body, out, appFile, o = {}) {
     for (const theme of ['light', 'dark']) {
       const app = await openApp({ width, height: 900, file: appFile });
       // The in-page move loop below uses movedValue.
-      await app.page.addInitScript(`window.__movedValue = ${movedValue.toString()};`);
+      await app.page.addInitScript(`window.__movedValue = ${movedValue.toString()}; window.__endValue = ${endValue.toString()};`);
       await app.page.goto(app.url('#/__eval'));
       await app.page.evaluate((t) => { document.documentElement.dataset.muTheme = t; }, theme);
       if (!report) {
@@ -77,6 +90,15 @@ export async function renderBody(body, out, appFile, o = {}) {
         const mpath = `${out}-${width}-${theme}-moved.png`;
         await app.page.screenshot({ path: mpath, fullPage: true });
         shots.push(mpath);
+        await app.page.evaluate(async () => {
+          const m = window.__render;
+          const info = m && typeof m.inputs === 'function' ? await m.inputs().catch(() => null) : null;
+          for (const c of (info && info.inputs) || []) { try { await m.set(c.id, window.__endValue(c)); } catch (e) { /* reported by the moved pass */ } }
+          await new Promise((r) => setTimeout(r, 2500));
+        }).catch(() => {});
+        const epath = `${out}-${width}-${theme}-end.png`;
+        await app.page.screenshot({ path: epath, fullPage: true });
+        shots.push(epath);
       }
       if (app.errors.length) report.hostErrors = (report.hostErrors || []).concat(app.errors);
       await app.close();

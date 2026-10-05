@@ -30,7 +30,10 @@ try {
   if (kind === 'lesson') {
     opts.iid = arg('iid');
     // The lesson's own sources, numbered from 1 for this idea, as the app hands them over.
-    if (arg('sources')) { const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid); opts.sources = lr && lr.sources.length ? lr.sources : null; }
+    // --topic gives the idea's deps, whose research comes along as the app passes it.
+    const topic = arg('topic') ? JSON.parse(readFileSync(arg('topic'), 'utf8')) : null;
+    const idea = topic && (topic.ideas || []).find((i) => i.id === opts.iid);
+    if (arg('sources')) { const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps); opts.sources = lr && lr.sources.length ? lr.sources : null; }
   }
   if (kind === 'grade') opts.attempt = Number(arg('attempt', '1'));
   problems = U.validate[kind](obj, opts);

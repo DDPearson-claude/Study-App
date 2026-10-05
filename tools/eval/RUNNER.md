@@ -46,7 +46,7 @@ Do not edit any file outside `$D`. Do not commit.
    a. `node tools/eval/prompts.mjs write-lesson --topic $D/topic.json --idea I [--research $D/research.json] > $D/I.lesson.prompt.txt`
       For the second idea, pass the first lesson as an earlier lesson, as the app does:
       add `--prior $D/i1.lesson.json`.
-      Model hat -> `$D/I.lesson.reply.txt`. Operator: `node tools/eval/validate.mjs lesson $D/I.lesson.reply.txt --iid I [--sources $D/research.json]`;
+      Model hat -> `$D/I.lesson.reply.txt`. Operator: `node tools/eval/validate.mjs lesson $D/I.lesson.reply.txt --iid I [--sources $D/research.json --topic $D/topic.json]`;
       one corrective round if needed. Save the final lesson JSON as `$D/I.lesson.json`.
    b. If the lesson has an interactive: `node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.json > $D/I.build.prompt.txt`
       Model hat -> the body HTML into `$D/I.body1.html` (strip nothing; the app's extractor runs in the next step).

@@ -31,7 +31,7 @@
   const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
 
   const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
-  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', dp: 1, big: true, into: '#outs' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
 
   K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
 

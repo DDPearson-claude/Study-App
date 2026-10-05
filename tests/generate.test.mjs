@@ -548,6 +548,20 @@ test('lessons re-try research that failed a while ago, but not a fresh failure',
   assert.equal((await app.get('topics/t2')).research.status, 'done');
 });
 
+test('lesson research brings the notes of the ideas this one builds on', () => {
+  const U = loadPure();
+  const src = (n, host) => ({ n, title: 'Page ' + n, url: 'https://' + host + '/p' + n, quote: 'an exact quote number ' + n });
+  const r = { sources: [src(1, 'a.org'), src(2, 'b.org'), src(3, 'c.org')], topic: { notes: [{ claim: 'Topic fact', sourceIds: [3] }] },
+    ideas: { i1: { notes: [{ claim: 'Earlier fact', sourceIds: [1] }] }, i2: { notes: [{ claim: 'Own fact', sourceIds: [2] }] } } };
+  const lr = plain(U.prompts.lessonResearch(r, 'i2', ['i1']));
+  assert.deepEqual(lr.notes.map((n) => [n.claim, n.scope, n.sourceIds]), [['Own fact', 'idea', [1]], ['Earlier fact', 'earlier', [2]], ['Topic fact', 'topic', [3]]], 'own sources first, then the earlier idea\'s, then the topic\'s');
+  const docs = { idea: { notes: [{ claim: 'Own fact', sourceIds: [1] }], sources: [{ ...src(2, 'b.org'), n: 1 }] }, earlier: [{ notes: [{ claim: 'Earlier fact', sourceIds: [1] }], sources: [{ ...src(1, 'a.org'), n: 1 }] }], topic: null };
+  assert.deepEqual(plain(U.prompts.lessonResearch(docs, 'i2')).notes.map((n) => n.scope), ['idea', 'earlier'], 'stored docs carry the earlier ideas too');
+  const topic = { ...PLAN_JET, ideas: PLAN_JET.ideas.map((i) => (i.id === 'i2' ? { ...i, deps: ['i1'] } : i)) };
+  const prompt = U.prompts.writeLesson(topic, topic.ideas.find((i) => i.id === 'i2'), { research: r });
+  assert.ok(prompt.includes('Earlier fact') && prompt.includes('(from an idea this one builds on)'), 'the lesson prompt shows them');
+});
+
 test('source checking: corpus matching and lesson renumbering', async () => {
   const app = await boot();
   const { U } = app;

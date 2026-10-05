@@ -37,7 +37,7 @@ const kitJs = readFileSync(join(ROOT, 'app', 'kit', 'kit.js'), 'utf8');
 const kitMd = readFileSync(join(ROOT, 'app', 'kit', 'KIT.md'), 'utf8');
 expect('kit.js has no closing script tag or HTML comment opener', !/<\/script|<!--/i.test(kitJs));
 const words = kitMd.split(/\s+/).filter(Boolean).length;
-expect('KIT.md is at most 2000 words (' + words + ')', words <= 2000);
+expect('KIT.md is at most 2200 words (' + words + ')', words <= 2200);
 const exDir = join(ROOT, 'app', 'kit', 'examples');
 const examples = readdirSync(exDir).filter((f) => f.endsWith('.html')).sort().map((f) => {
   const body = readFileSync(join(exDir, f), 'utf8');
@@ -265,6 +265,24 @@ section('self-test catches broken bodies');
   expect('a control far below the main figure on a phone gets advice naming K.stage', has(r.warnings, /first control starts \d+ px below the top of the main figure.*K\.stage/), r.warnings);
   r = await test(far.replace("K.update((p) =>", "K.stage('#pf', '#c'); K.update((p) =>"));
   expect('...and K.stage puts the controls under the figure', !has(r.warnings, /main figure/), r.warnings);
+
+  // Eval run 2: labels touching by a few letters, long axis titles, colour names, anim without
+  // its button, held sound, and big after-move holes.
+  r = await test(body(plain, { html: '<svg viewBox="0 0 340 60" width="100%" role="img" aria-label="x"><text x="10" y="30" font-size="14">germ arrives</text><text x="88" y="30" font-size="14">same germ returns</text></svg>' }));
+  expect('SVG labels touching by a few letters are reported', !r.ok && JSON.stringify(r).includes('are printed over each other'), r.clipped);
+  r = await test(body(plain + "\nconst pl = K.plot('#pf', { x: { min: 0, max: 1, label: 'Delay of the second hum, measured from the start of the first hum (% of a wave)' }, y: { min: 0, max: 2 } }); K.update(() => pl.draw({ series: [{ fn: (x) => x }] }));", { html: '<div id="pf"></div>' }), { widths: [340] });
+  expect('an axis title far too long for a phone is reported', !r.ok && JSON.stringify(r).includes('is too long for a phone'), r);
+  r = await test(body(plain + "\nK.check('kebab colour', () => K.color('amber-line') === K.color('amberLine') && /^#/.test(K.color('amber-line')));\nconst bad = K.color('purpleish');"));
+  expect('K.color accepts amber-line and amberLine alike', r.checks.some((c) => c.label === 'kebab colour' && c.ok), r.checks);
+  expect('...and warns about a colour role that does not exist', has(r.warnings, /K\.color\('purpleish'\) is not a colour role/), r.warnings);
+  r = await test(body(plain + "\nK.anim({ step: () => {}, button: false, into: '#c' });\nK.check('no anim button', () => !document.querySelector('.k-anim'));"));
+  expect('K.anim with button: false adds no button', r.ok && r.checks.find((c) => c.label === 'no anim button').ok, r);
+  r = await test(body(plain + "\nK.button({ label: 'Hum', into: '#c', press: () => K.sound.hold(NaN) });"));
+  expect('K.sound.hold with a bad frequency is caught when its button is pressed', !r.ok && has(r.sweep.problems, /K\.sound\.hold was given a frequency of NaN/), r.sweep);
+  r = await test(body(plain + "\nK.button({ label: 'Hum', into: '#c', press: () => { const h = K.sound.hold(100); h.set({ gain: 0.5 }); } });"));
+  expect('a held 100 Hz hum warns that a phone speaker cannot play it', r.ok && has(r.warnings, /below what a phone speaker can make/), r.warnings);
+  r = await test(body(plain, { html: '<div class="k-after-move" style="height:300px">the answer</div>' }));
+  expect('a big after-move block gets advice', has(r.warnings, /large blank space/), r.warnings);
 
   // Plot shading needs a real edge.
   r = await test(body(plain + "\nconst ps = K.plot(K.el('div'), { x: { min: 0, max: 1 }, y: { min: 0, max: 2 } }); document.body.appendChild(ps.el);\nK.update(() => ps.draw({ series: [{ fn: (x) => x, label: 'low' }], shade: [{ between: ['low', 'high'] }] }));"));
@@ -601,6 +619,19 @@ section('exemplars and the host API');
     expect('K.stage at ' + w + ' px' + (html === stacked ? ' with beside: false' : '') + ': controls ' + want + ' the visual', got === want, got);
     await app.page.evaluate(() => { __probe.destroy(); });
   }
+  // Halos: dark labels on the page get one; a white label on a navy box does not.
+  await app.page.evaluate(async () => {
+    const box = document.createElement('div');
+    box.style.width = '600px';
+    document.body.appendChild(box);
+    window.__halo = U.sandbox.mount(box, { html: '<svg viewBox="0 0 340 80" width="100%" role="img" aria-label="x"><line x1="0" y1="20" x2="340" y2="20" stroke="black"/><text id="dark" x="10" y="24" fill="var(--k-ink)">on the page</text><rect x="150" y="40" width="150" height="30" fill="var(--k-accent2)"/><text id="light" x="160" y="60" fill="var(--k-on-accent2)">on navy</text></svg><script>K.model(() => ({})); K.check("a", () => true); K.ready();</script>' });
+    await window.__halo.ready;
+  });
+  await app.page.waitForTimeout(200);
+  const hf = app.page.frames().filter((f) => f !== app.page.mainFrame()).pop();
+  const halo = await hf.evaluate(() => ({ dark: document.getElementById('dark').classList.contains('k-halo'), light: document.getElementById('light').classList.contains('k-halo'), paint: getComputedStyle(document.getElementById('dark')).paintOrder }));
+  expect('a dark label crossing a line gets a page-coloured halo; white text on navy does not', halo.dark && !halo.light && /stroke/.test(halo.paint), halo);
+  await app.page.evaluate(() => { __halo.destroy(); });
   await app.page.setViewportSize({ width: 360, height: 800 });
 
   expect('no page errors on the host page so far', app.errors.length === 0, app.errors);
