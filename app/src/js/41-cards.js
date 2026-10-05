@@ -224,6 +224,11 @@
       var p = panel && !docked() && panel.getBoundingClientRect();
       over = p && p.top + Math.min(p.height, 120) - vh + 8 > keep ? Math.min(over, p.top - top - 12) : Math.min(over, keep);
     }
+    // Dan asked for the grades (Change, or a grade): a panel in the flow, even one that has just
+    // left the dock because the grades made it taller, shows its end and Continue, though the
+    // question may scroll away for them. (The panel's own end: beside a tall interactive on a
+    // laptop, the card's end is further down.)
+    if (o.end && !docked()) over = c.foot.getBoundingClientRect().bottom - vh + 8;
     if (over > 0) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
   }
 
@@ -474,6 +479,9 @@
       api = U.sandbox.mount(stage, {
         html: it.html, title: it.title || 'Interactive', minHeight: 280,
         onError: function (msg) { console.warn('interactive error', msg); },
+        // Only a K.stage that sets its controls beside the visual gains from a laptop's full
+        // width (40-review.css); any other interactive keeps the answers' column.
+        onReady: function (checks, info) { c.el.classList.toggle('qc-wide', !!(info && info.beside)); },
       });
     } catch (e) {
       console.error(e);

@@ -288,7 +288,8 @@ helpers    K.el K.svg K.labels K.fmt K.near K.clamp K.lerp K.linspace K.round K.
 ```
 Messages (`postMessage`, each with `src:'kit'`; a reply carries its request's `rid`):
 ```
-kit -> host  {type:'height', px}  {type:'ready', checks:[{label, ok, source?, error?}]}  {type:'error', message}
+kit -> host  {type:'height', px}  {type:'ready', checks:[{label, ok, source?, error?}], beside}  {type:'error', message}
+             (beside: a K.stage sets its controls beside the visual in a wide frame)
              {type:'change', params, outputs}   (250 ms after Dan changes something)
 host -> kit  selftest {throwaway?}   -> {type:'report', report}
              get                     -> {type:'state', params, outputs, moved}
@@ -409,7 +410,7 @@ new round. "This looks wrong" offers the same rebuild, with Dan's note as feedba
 `32-sandbox.js` (kit host)
 ```
 U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme}) (throws {code:'too_large'})
-U.sandbox.mount(container, {html, title, onReady(checks), onError(msg), onChange({params, outputs}), minHeight = 320, loading}) ->
+U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), minHeight = 320, loading}) ->
    { el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t?), destroy() }
    ready is null if K.ready() has not come after 12 s; follows the app's theme and text size;
    a frame that navigates away is stopped; one removed from the page is destroyed.
@@ -518,7 +519,10 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   Tab screens all start at the wide screens' left edge, so headings do not move when Dan
   switches tabs. When `#view` is at least 900 px wide a review card keeps the question and
   answers on the left with Check under them and shows the feedback beside them; a target card
-  gives its interactive the full width and docks the goal and Check under it.
+  keeps its interactive in that column with the goal, hint and Check (then the feedback) beside
+  it, held under the review bar, so they never cover its controls. Only an interactive whose
+  K.stage goes side by side (the kit's `ready` says `beside`) gets the full width, with the goal
+  and Check docked under it.
 - Learn at least 900 px wide puts the reviews row (or, on first run, the welcome) beside the ask.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;

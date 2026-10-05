@@ -224,6 +224,109 @@ await test('in-app links route even when something else cancels link clicks', as
   assert(ext.href === 'https://example.org/x' && ext.target === '_blank' && /noopener/.test(ext.rel), 'outbound links are plain new-tab links ' + JSON.stringify(ext));
 });
 
+// ---------- review cards on a phone and a laptop ----------
+// Cards on the pendulum lesson (its interactive has no K.stage); a body with one swapped in.
+const pad2 = (n) => (n < 10 ? '0' : '') + n;
+const localDay = (n) => { const d = new Date(Date.now() + n * 864e5); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+const CARDS = {
+  i1_c1: { ...PENDULUM.lesson.checks[0] },
+  i1_c4: { id: 'c4', type: 'target', q: 'Set the string length so one swing takes 3 seconds.', control: 'L', output: 'T', target: 3, tolerance: 0.05, why: 'T = 2π√(L/g), so 3 s needs about 2.24 m.' },
+};
+const STAGED = PENDULUM.interactive.html.replace('K.check(', 'K.stage(\'.pd\', \'#pd-ctl\');\nK.check(');
+async function openReview(width, height, { card, size = 'm', dark = false, html = null }) {
+  const db = seedDb();
+  if (html) db['topics/pendulums/lessons/i1'] = { ...PENDULUM, interactive: { ...PENDULUM.interactive, html } };
+  db[`data/users/${UID}/profile`] = { prefs: { theme: dark ? 'dark' : 'light', size, easy: false, cap: 15, light: false }, days: {}, createdAt: new Date().toISOString() };
+  db[`data/users/${UID}/profile/cards/pendulums`] = { cards: { [card]: { id: card, tid: 'pendulums', iid: 'i1', type: CARDS[card].type, spec: CARDS[card],
+    createdAt: new Date().toISOString(), s: { due: localDay(-2), stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: localDay(-9) }, hist: [] } } };
+  const app = await openApp({ width, height, dark, file: FILE, config: { db }, sample: () => new Promise(() => {}) });
+  current.apps.push(app);
+  await app.page.addInitScript(([t, s]) => { try { localStorage.setItem('mu-prefs', JSON.stringify({ theme: t, size: s })); } catch (e) {} }, [dark ? 'dark' : 'light', size]);
+  await app.page.goto(app.url('#/review'));
+  await app.page.evaluate(() => U.rt.ready);
+  await app.page.locator('.rv-stage > .qc').waitFor({ timeout: 15000 });
+  return app;
+}
+// Viewport rects of the review bar, the card parts and (for target cards) the slider and the
+// readout inside the interactive.
+async function reviewRects(app) {
+  const r = await app.page.evaluate(() => {
+    const box = (s) => { const e = document.querySelector(s); if (!e || e.hidden) return null; const b = e.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width }; };
+    return { vh: innerHeight, bar: box('.rv-top'), q: box('.rv-stage .qc-q'), grades: box('.rv-stage .qc-grades'), cont: box('.rv-stage .qc-continue'), frame: box('.qc-stage iframe'),
+      hint: box('.qc-hint'), btn: box('.qc-primary'), wide: document.querySelector('.rv-stage .qc').classList.contains('qc-wide') };
+  });
+  if (r.frame) {
+    const inner = await app.page.frameLocator('.qc-stage iframe').locator('body').evaluate(() => {
+      const box = (s) => { const e = document.querySelector(s); if (!e) return null; const b = e.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom }; };
+      return { range: box('.k-control input[type=range], input[type=range]'), readout: box('.k-readout') };
+    });
+    const at = (b) => b && { left: b.left + r.frame.left, right: b.right + r.frame.left, top: b.top + r.frame.top, bottom: b.bottom + r.frame.top };
+    r.range = at(inner.range); r.readout = at(inner.readout);
+  }
+  return r;
+}
+const overlaps = (a, b) => !!(a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom);
+const onScreen = (b, r) => !!b && b.top >= r.bar.bottom - 1 && b.bottom <= r.vh + 1;
+
+for (const [w, h] of [[390, 844], [360, 707]]) {
+  await test(`review on a ${w}x${h} phone: after a wrong answer, Change brings the grades and Continue on screen`, async () => {
+    const app = await openReview(w, h, { card: 'i1_c1' });
+    await app.page.locator('.qc-opt', { hasText: '8 s' }).click();
+    await app.page.locator('.qc-primary').click();
+    await app.page.locator('.qc-fb.is-wrong').waitFor();
+    await app.page.waitForTimeout(800);
+    let r = await reviewRects(app);
+    assert(r.q.top >= r.bar.bottom - 1 && r.q.bottom <= r.vh, 'the question stays in view right after answering ' + JSON.stringify({ q: r.q, bar: r.bar.bottom }));
+    await app.page.locator('.qc-change').click();
+    await app.page.waitForTimeout(900);
+    r = await reviewRects(app);
+    assert(onScreen(r.grades, r) && onScreen(r.cont, r), 'after Change the grade buttons and Continue are on screen ' + JSON.stringify({ grades: r.grades, cont: r.cont, vh: r.vh }));
+    await shot(app, `review-phone-${w}-change`);
+  });
+}
+
+for (const size of ['m', 'xl']) {
+  await test(`laptop review at ${size}: a target card without K.stage keeps a column; the hint and Check sit beside it, over nothing`, async () => {
+    const app = await openReview(1366, 768, { card: 'i1_c4', size });
+    await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+    await app.page.waitForTimeout(1200);
+    let r = await reviewRects(app);
+    assert(!r.wide && r.frame.width <= 720, 'the interactive keeps a reading column, not the full width ' + JSON.stringify({ wide: r.wide, frame: r.frame.width }));
+    assert(r.btn.left >= r.frame.right, 'Check sits beside the interactive ' + JSON.stringify({ btn: r.btn, frame: r.frame }));
+    await app.page.locator('.qc-primary').click();
+    await app.page.locator('.qc-hint:not([hidden])').waitFor();
+    await app.page.waitForTimeout(500);
+    r = await reviewRects(app);
+    for (const [k, part] of [['hint', r.hint], ['Check', r.btn]]) {
+      for (const [n, target] of [['slider', r.range], ['readout', r.readout]]) assert(!overlaps(part, target), `the ${k} does not cover the ${n} ` + JSON.stringify({ part, target }));
+    }
+    assert(r.hint.top >= r.bar.bottom - 1 && r.btn.bottom <= r.vh, 'the hint and Check are on screen ' + JSON.stringify({ hint: r.hint, btn: r.btn }));
+    // Dan scrolls down to the slider: they stay beside it, on screen.
+    await app.page.evaluate(() => window.scrollBy(0, 300));
+    await app.page.waitForTimeout(300);
+    r = await reviewRects(app);
+    assert(r.hint.top >= r.bar.bottom - 1 && r.btn.bottom <= r.vh && !overlaps(r.btn, r.range) && !overlaps(r.hint, r.readout), 'scrolled, the hint and Check stay in view beside the interactive ' + JSON.stringify({ hint: r.hint, btn: r.btn }));
+    await noSideways(app, 'target card');
+    await shot(app, `review-laptop-target-${size}`);
+  });
+}
+
+await test('laptop review: a target card whose interactive has a K.stage gets the full width, and the docked bar clears its controls', async () => {
+  const app = await openReview(1366, 768, { card: 'i1_c4', size: 'xl', html: STAGED });
+  await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+  await app.page.waitForTimeout(1200);
+  let r = await reviewRects(app);
+  assert(r.wide && r.frame.width >= 1000, 'the kit reports the stage and the interactive gets the width ' + JSON.stringify({ wide: r.wide, frame: r.frame.width }));
+  await app.page.locator('.qc-primary').click();
+  await app.page.locator('.qc-hint:not([hidden])').waitFor();
+  await app.page.waitForTimeout(500);
+  r = await reviewRects(app);
+  for (const [k, part] of [['hint', r.hint], ['Check', r.btn]]) {
+    for (const [n, target] of [['slider', r.range], ['readout', r.readout]]) assert(!overlaps(part, target), `the ${k} does not cover the ${n} ` + JSON.stringify({ part, target }));
+  }
+  await shot(app, 'review-laptop-target-stage');
+});
+
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} layout tests passed`);
 process.exit(failed.length ? 1 : 0);
