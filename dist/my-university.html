@@ -33,8 +33,8 @@
 /* src/css/00-tokens.css */
 /* Layout concept: one calm reading column (max 720px) with a sticky top bar. Two layouts, set on
    <html data-layout> by head.html and U.layout: "phone" docks the section tabs to the bottom edge;
-   "laptop" puts them in the top bar and lets the Learn, topic, lesson and Map screens use the
-   width (up to --wide). A phone layout pinned on a wide window is a centred --frame column
+   "laptop" puts them in the top bar and lets Learn, the topic page and the Map use the width (up
+   to --wide) and the lesson up to 1120px. A phone layout pinned on a wide window is a centred --frame column
    (html.framed). Colour marks meaning, never decoration. */
 :root {
   /* Dan's palette (Design Brief v2) */
@@ -1412,7 +1412,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-05-a336675";
+U.BUILD = "2026-10-05-4bf50b8";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2176,9 +2176,12 @@ U.research = {
   // opts.allow: extra addresses web_fetch may open (e.g. the lesson's own sources). Otherwise
   // web_fetch only opens pages that web_search returned in this same set of tools, so text
   // planted in a page or a prompt can't send Dan's words to an address of its choosing.
+  // opts.budget: most calls of each tool in this set of tools (default 10 searches, 6 fetches: a
+  // little above what the prompts ask for, so only a runaway loop meets it).
   tools: function (log, opts) {
     opts = opts || {};
     var allowed = new Set();
+    var budget = Object.assign({ web_search: 10, web_fetch: 6 }, opts.budget || {}), used = { web_search: 0, web_fetch: 0 };
     (opts.allow || []).forEach(function (u) { var n = U.research._norm(u); if (n) allowed.add(n); });
     return U.research._loadSchemas().then(function (sc) {
       function def(name, description, schema, fallback, max) {
@@ -2187,12 +2190,14 @@ U.research = {
           inputSchema: schema || fallback,
           execute: function (input) {
             if (log) log({ tool: name, input: input });
+            if (used[name] >= budget[name]) return Promise.resolve('Tool error (budget): that is all the ' + (name === 'web_search' ? 'searches' : 'page openings') + ' for this question. Write your answer from what you already have.');
             if (name === 'web_fetch') {
               var asked = U.research._urlsIn(input);
               var refused = asked.filter(function (u) { var n = U.research._norm(u); return !n || !allowed.has(n); });
               if (!asked.length) return Promise.resolve('Tool error (bad_request): give the full web address of a page from your search results.');
               if (refused.length) return Promise.resolve('Tool error (refused): only pages returned by web_search in this conversation (or the lesson\'s own sources) can be opened. Not allowed: ' + refused.slice(0, 3).join(', ') + '. Search first, then open a result.');
             }
+            used[name] = (used[name] || 0) + 1;
             if (input && typeof input === 'object' && !Array.isArray(input) && input.session_id == null) {
               input = Object.assign({}, input, { session_id: U.research.SESSION });
             }
@@ -4222,7 +4227,11 @@ U.logStudy = (function () {
   // background prefetch, which then can no longer be cancelled.
   function join(job, opts) {
     subscribe(job, opts.onStatus);
-    if (!opts.background) { job.background = false; return; }
+    if (!opts.background) {
+      job.background = false;
+      if (U._gate && typeof U._gate.promote === 'function') U._gate.promote(function (input, o) { return !!o && o.key === gateKey(job); });
+      return;
+    }
     var sig = opts.signal;
     if (sig && typeof sig.addEventListener === 'function') {
       if (sig.aborted) cancel(job);
@@ -4230,12 +4239,30 @@ U.logStudy = (function () {
     }
   }
   function cancel(job) { if (job.background && job.ctrl && !job.ctrl.signal.aborted) job.ctrl.abort(); }
+  // Dan left a lesson that is still being written: it carries on as background work (it yields to
+  // whatever he opens next) and stops when opts.signal aborts (he leaves the topic), exactly like a
+  // prefetch. Opening it again makes it foreground once more. -> true if a job was demoted.
+  function demote(tid, iid, opts) {
+    var job = running(tid, iid);
+    if (!job || job.background) return false;
+    job.background = true;
+    var sig = opts && opts.signal;
+    if (sig && typeof sig.addEventListener === 'function') {
+      if (sig.aborted) cancel(job);
+      else sig.addEventListener('abort', function () { cancel(job); });
+    }
+    return true;
+  }
   function cancelled(job) { return !!(job.ctrl && job.ctrl.signal.aborted); }
   function stillWanted(job) { if (cancelled(job)) throw { code: 'cancelled', message: 'This lesson was not needed after all.' }; }
   // U.ask options for this job: background work yields to Dan's foreground calls.
+  // Every model call for one lesson carries the lesson's key, so when Dan opens a lesson that
+  // was being prefetched its queued calls run at once (U._gate promotes by key).
+  function gateKey(job) { return 'lesson:' + job.key; }
   function askOpts(job, o) {
     if (job.ctrl) o.signal = job.ctrl.signal;
     if (job.background) o.priority = 'background';
+    o.key = gateKey(job);
     return o;
   }
   // A job already running here for this lesson, unless it was a cancelled prefetch.
@@ -4541,7 +4568,9 @@ U.logStudy = (function () {
       stillWanted(job);
       return I.build(topic, idea, lesson, {
         onStatus: function (t) { if (isStr(t)) progress(job, t, 'building'); }, avoid: avoid[0] || null,
-        signal: job.ctrl ? job.ctrl.signal : undefined, priority: job.background ? 'background' : undefined,
+        signal: job.ctrl ? job.ctrl.signal : undefined, key: gateKey(job),
+        // Asked at each call, so repairs follow the lesson once Dan opens it.
+        priority: function () { return job.background ? 'background' : undefined; },
       });
     }).then(function (r) { return r && isStr(r.html) ? r : null; }, function (e) {
       if (transient(e) || cancelled(job)) throw e;
@@ -4706,6 +4735,7 @@ U.logStudy = (function () {
     replan: replan,
     research: research,
     ensureLesson: ensureLesson,
+    demote: demote,
     relearn: relearn,
     grade: grade,
     tutor: tutor,
@@ -4741,7 +4771,7 @@ U.logStudy = (function () {
 //       a choice's option value, label or 0-based index, or a toggle's true/false.
 //       press(label?) presses a K.button (or starts a K.anim) by label, or the first one.
 //       inputs() -> {inputs:[{id, kind, label, min?, max?, step?, options?, value}], actions:[labels]}
-//   U.sandbox.test(html, {widths:[340, 720], timeout:8000}) -> Promise<Report>   hidden, merged
+//   U.sandbox.test(html, {widths:[340, 720, 1040], timeout:8000}) -> Promise<Report>   hidden, merged
 //   U.sandbox.reach(mounted | html, {control, output, target, tolerance}) ->
 //       Promise<{reachable, best:{value, output} | null, tried, error?}>
 //     Can moving that one control (every setting it has, every option of a choice; the others at
@@ -5115,10 +5145,11 @@ U.sandbox = (function () {
     if (od.length) merged.overflowDetail = od.join('; ');
     return merged;
   }
-  // test(html, {widths:[340, 720], timeout:8000}) -> Promise<Report>   hidden frames, one per width
+  // test(html, {widths:[340, 720, 1040], timeout:8000}) -> Promise<Report>   hidden frames, one per width
+  //   (a phone, a wide column, a laptop lesson where K.stage sets the controls beside the visual)
   function test(html, o) {
     o = o || {};
-    var widths = o.widths && o.widths.length ? o.widths : [340, 720];
+    var widths = o.widths && o.widths.length ? o.widths : [340, 720, 1040];
     var timeout = o.timeout || 8000;
     var big = tooBig(html);
     if (big) return Promise.resolve(merge(widths.map(function (w) { return failing(big, w); })));
@@ -5502,7 +5533,8 @@ U.interactive = (function () {
     });
   }
 
-  // build(topic, idea, lesson, {onStatus, avoid, signal, priority})   priority: 'background' for a prefetch
+  // build(topic, idea, lesson, {onStatus, avoid, signal, priority, key})   priority: 'background' for
+  //   a prefetch, or a function returning it (read at each call); key: U.ask's gate key
   //   -> Promise<{html, title, brief, selftest, attempts, unreachable?:[check ids]} | null>
   // Resolves null when the lesson has no interactive brief or no attempt passed its self-test;
   // rejects only when Claude can't be reached ({code, message} from U.ask). `unreachable` lists
@@ -5513,7 +5545,10 @@ U.interactive = (function () {
     if (!spec) return Promise.resolve(null);
     var status = function (t) { if (o.onStatus) try { o.onStatus(t); } catch (e) { console.error(e); } };
     var attempts = 0, html = '';
-    function ask(text, label) { return U.ask(text, { tier: 'complex', label: label, signal: o.signal, priority: o.priority }); }
+    function ask(text, label) {
+      var priority = typeof o.priority === 'function' ? o.priority() : o.priority;
+      return U.ask(text, { tier: 'complex', label: label, signal: o.signal, priority: priority, key: o.key });
+    }
     function check(reply) {
       attempts++;
       html = extract(reply);
@@ -6189,10 +6224,11 @@ U.interactive = (function () {
   }
 
   // ---------- recall (say it back, graded by Claude in the background) ----------
+  // Claude's verdict as a review grade: got it = Good, partly = Hard, not yet = Again. A recall is
+  // the hardest kind of card, so Claude never awards Easy; Dan can, with "Change".
   function verdictGrade(r) {
     var v = VERDICT[r && r.verdict];
-    if (!v) return null;
-    return r.verdict === 'got-it' && r.nailed ? 4 : v.grade;
+    return v ? v.grade : null;
   }
   function recall(c) {
     var s = c.spec, rubric = Array.isArray(s.rubric) ? s.rubric : [];
@@ -6392,7 +6428,8 @@ U.interactive = (function () {
   var drafts = {}; // unsent say-it-back text for this page session, by 'tid/iid'
   // Prefetches of the next idea. Each keeps running while Dan stays in its topic (the topic page
   // or another of its lessons, where he is likely to open it next) and is cancelled once he
-  // leaves the topic. A prefetch Dan opens becomes his foreground lesson (U.gen promotes it).
+  // leaves the topic. A prefetch Dan opens becomes his foreground lesson: U.gen promotes its queued
+  // model calls by the lesson's gate key.
   var prefetches = [];
   function inTopic(tid) {
     var base = '#/t/' + encodeURIComponent(tid), h = U.currentHash();
@@ -6641,24 +6678,15 @@ U.interactive = (function () {
       if (!st.begun) begin();
       prefetchNext();
     }
-    // Background calls for this lesson already waiting their turn (it was being prefetched) run
-    // now: Dan is waiting for it.
-    function promote() {
-      if (!U._gate || typeof U._gate.promote !== 'function' || !st.idea) return;
-      var needle = String(st.idea.title || '').slice(0, 60).split('"')[0];
-      if (needle.length < 4) return;
-      U._gate.promote(function (input, o) {
-        if (!/^(write-lesson|build-interactive|repair-interactive)$/.test(o && o.label || '')) return false;
-        return (typeof input === 'string' ? input : JSON.stringify(input)).indexOf(needle) >= 0;
-      });
-    }
     function ensure() {
       st.prep.start(st.lesson ? 'Asking Claude to finish the interactive' : 'Asking Claude to write this lesson');
       var gen = st.gen;
       Promise.resolve().then(function () {
         if (!U.gen || typeof U.gen.ensureLesson !== 'function') throw { message: 'The lesson writer is not loaded in this view.' };
-        var p = U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
-        promote();
+        // A foreground call: if this lesson was being prefetched, U.gen promotes its queued
+        // calls (they share the lesson's gate key) so they run at once.
+        var p = st.pending = U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
+        p.then(function () { if (st.pending === p) st.pending = null; }, function () { if (st.pending === p) st.pending = null; });
         return p;
       }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, ensure); });
     }
@@ -7470,6 +7498,17 @@ U.interactive = (function () {
 
     return function cleanup() {
       st.dead = true;
+      // Still being written: it carries on in the background like a prefetch, so it never holds
+      // up what Dan opens next, and stops if he leaves the topic.
+      if (st.pending && U.gen && typeof U.gen.demote === 'function') {
+        var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
+        if (ctrl && U.gen.demote(tid, iid, { signal: ctrl.signal })) {
+          var entry = { tid: tid, ctrl: ctrl, done: false };
+          prefetches.push(entry);
+          st.pending.then(function () { entry.done = true; }, function () { entry.done = true; });
+          sweepPrefetches();
+        }
+      }
       clearTimeout(slowTimer);
       destroyLive();
       st.stops.splice(0).forEach(function (f) { try { f(); } catch (e) {} });
@@ -8498,9 +8537,10 @@ U.interactive = (function () {
   // Work left behind by a page that went away (reloaded, killed in the background, republished).
   // A topic still 'planning' 90 s after its last change, with no planning running in this page,
   // has stopped: it is shown as failed, with Try again and Delete. A research status left at
-  // 'running' for over 5 minutes counts as not checked.
+  // 'running' past the generator's own limit (31-generate.js RESEARCH_STALE_MS, 8 minutes) counts
+  // as not checked, the moment lessons stop waiting for it.
   V.PLAN_STALE_MS = 90 * 1000;
-  V.RESEARCH_STALE_MS = 5 * 60 * 1000;
+  V.RESEARCH_STALE_MS = (U.gen && U.gen._cfg && U.gen._cfg.RESEARCH_STALE_MS) || 8 * 60 * 1000;
   V.age = function (iso) { var t = Date.parse(iso || ''); return isFinite(t) ? Date.now() - t : Infinity; };
   function live(tid) { try { return U.gen && typeof U.gen.status === 'function' ? U.gen.status(tid) || {} : {}; } catch (e) { return {}; } }
   V.planningStuck = function (t) {
@@ -9824,7 +9864,7 @@ U.interactive = (function () {
     fromProfile: function (prefs) {
       if (Date.now() - S._localAt < 3000 || !prefs) return;
       var p = clean(prefs), cur = S.prefs;
-      if (p.theme !== cur.theme || p.size !== cur.size || p.easy !== cur.easy || p.cap !== cur.cap || p.light !== cur.light) S.apply(p);
+      if (p.theme !== cur.theme || p.size !== cur.size || p.easy !== cur.easy || p.cap !== cur.cap || p.light !== cur.light || p.lightDay !== cur.lightDay) S.apply(p);
     },
 
     // Everything Dan has, as one JSON document.
