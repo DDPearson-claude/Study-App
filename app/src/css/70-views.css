@@ -47,6 +47,7 @@
 .cover .cv-sun { fill: color-mix(in oklab, #F2C75C 70%, var(--surface)); }
 .cover .cv-soft { opacity: .55; }
 .cover .cv-ring { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 52%) 40%, var(--surface)); stroke-width: 2; }
+.cover .cv-line { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 48%) 55%, var(--surface)); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: .1 7; }
 
 /* ---------- Learn ---------- */
 .learn { display: flex; flex-direction: column; gap: 36px; }
@@ -54,11 +55,12 @@
 .ask { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
 .ask h1 { font-size: clamp(2rem, 7.4vw, 2.7rem); font-size: clamp(2rem, 7.4cqi, 2.7rem); letter-spacing: -.025em; }
 .ask-sub { font-size: 1.0625rem; max-width: 32em; }
-.ask-form { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-.ask-input.input { min-height: 60px; padding: 16px 18px; border-radius: 18px; font-size: 1.125rem; box-shadow: var(--shadow); border-color: var(--line); }
+.ask-form { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; --ask-h: max(60px, calc(1.125rem * 1.45 + 35px)); }
+/* A textarea (rows=1) that 70-learn.js grows to three lines; one line is --ask-h tall. */
+.ask-input.input { display: block; min-height: var(--ask-h); padding: 16px 18px; border-radius: 18px; font-size: 1.125rem; box-shadow: var(--shadow); border-color: var(--line); resize: none; overflow-y: hidden; }
 .ask-input.input:focus { border-color: var(--heading); }
 .ask-input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
-.ask-go.btn { min-height: 58px; border-radius: 18px; font-size: 1.0625rem; white-space: nowrap; }
+.ask-go.btn { min-height: var(--ask-h); border-radius: 18px; font-size: 1.0625rem; white-space: nowrap; }
 .ask-levels { max-width: 440px; }
 .ask-levels .seg-btn { font-size: .875rem; }
 .ask-working { display: grid; gap: 10px; padding: 2px 4px; }
@@ -72,7 +74,7 @@
 .learn.is-returning .ask-sub, .learn.is-returning .ask-try { display: none; }
 .learn.is-returning:not(.is-typing) .ask-level-row { display: none; }
 .learn.is-returning .ask-level-row { order: 1; }
-.learn.is-returning .ask-form { flex-direction: row; }
+.learn.is-returning .ask-form { flex-direction: row; align-items: flex-end; }
 .learn.is-returning .ask-input { flex: 1; min-width: 0; }
 .learn.is-returning .ask-go:not(.is-busy) { flex: none; width: 60px; padding: 0; }
 .learn.is-returning .ask-go:not(.is-busy) .ask-go-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -83,7 +85,7 @@
 .v-slow { padding: 4px 2px 12px; }
 .v-load-error .working { max-width: 200px; margin-top: 4px; }
 @container view (min-width: 568px) {
-  .ask-form { flex-direction: row; }
+  .ask-form { flex-direction: row; align-items: flex-end; }
   .ask-form .ask-input { flex: 1; min-width: 0; }
   .ask-form .ask-go { flex: none; padding-inline: 26px; }
 }
@@ -175,6 +177,8 @@
 .tp-ready { gap: 36px; }
 .tp-planning, .tp-failed { gap: 14px; }
 .tp-head { display: flex; flex-direction: column; gap: 10px; }
+/* The cover and the words under it (ready, planning and failed pages alike); side by side on a laptop. */
+.tp-split, .tp-split-main { display: flex; flex-direction: column; gap: var(--tp-gap, 10px); }
 .tp-banner { position: relative; aspect-ratio: 2.3 / 1; overflow: hidden; border-radius: 22px; margin: 2px 0 10px; background: var(--sunk); }
 .tp-sk-banner { aspect-ratio: 2.3 / 1; border-radius: 22px; }
 @container view (min-width: 608px) { .tp-banner, .tp-sk-banner { aspect-ratio: 3.4 / 1; } }
@@ -188,7 +192,7 @@
 .tp-cta-text { min-width: 0; text-align: left; overflow-wrap: anywhere; }
 .tp-cta.btn { justify-content: space-between; }
 @container view (max-width: 527px) { .tp-cta.btn { align-self: stretch; } }
-.tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; }
+.tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; --tp-gap: 14px; }
 .tp-ask { margin-top: -8px; }
 .tp-foot { display: flex; justify-content: center; padding-top: 12px; border-top: 1px solid var(--line); }
 .tp-delete.linkish { color: var(--red); text-decoration-color: color-mix(in srgb, var(--red) 40%, transparent); }
@@ -245,6 +249,9 @@
 .lib-group-h { margin: 22px 0 0; font: 700 .9375rem/1.4 var(--sans); color: var(--heading); }
 .sources { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; }
 .src { display: grid; gap: 4px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); }
+/* The padding makes a 44 px tap target; the negative margin gives the space back, and position
+   keeps the link's padding above the line under it. */
+.src-title, .book-idea a { position: relative; padding-block: 12px; margin-block: -12px; }
 .src-title { justify-self: start; font: 700 1rem/1.35 var(--sans); color: var(--heading); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; overflow-wrap: anywhere; }
 .src-site { font: 600 .8125rem/1.4 var(--sans); color: var(--teal); }
 .src-quote { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--hl); font: italic 400 .9375rem/1.6 var(--serif); color: var(--ink); }
@@ -255,6 +262,9 @@
 .tp-wait { display: grid; gap: 14px; margin: 8px 0 16px; }
 .tp-wait-line { min-height: 3.2em; font: italic 400 calc(var(--fs) * 1.05)/1.6 var(--serif); color: var(--ink); }
 .tp-wait-line.is-in { animation: mu-rise .6s ease-out; }
+.tp-wait-note { max-width: 32em; }
+/* The shape of the path to come, drawn in --line so it shows on the page (--sunk nearly vanished). */
+.tp-sk-path .skeleton { background-image: linear-gradient(90deg, var(--line), color-mix(in srgb, var(--line) 45%, var(--surface)), var(--line)); }
 .tp-sk-path { display: grid; gap: 22px; }
 .tp-sk-node { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; }
 .tp-sk-dot { width: 44px; height: 44px; border-radius: 50%; }
@@ -291,8 +301,6 @@
 .map-dot { stroke-width: 2.5; }
 .map-dot.is-new { fill: var(--surface); stroke: var(--muted); }
 .map-dot.is-fragile { fill: #EDC25A; stroke: #A87B12; }
-/* A topic with every idea learned: green (finished) rings round its dots. */
-.map-topic.is-done .map-dot { stroke: var(--green); stroke-width: 3.5; }
 .map-dot.is-growing { fill: var(--teal); stroke: var(--teal); }
 .map-dot.is-strong { fill: var(--heading); stroke: var(--heading); }
 .map-label { font: 600 .875rem var(--sans); fill: var(--ink); }
@@ -308,7 +316,7 @@
 .book-topic-head:focus-visible { border-radius: 14px; }
 .book-entry { display: grid; gap: 16px; padding: 20px 20px 22px; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow); }
 .book-idea { font-size: 1.08rem; }
-.book-idea a { color: var(--heading); text-decoration: none; }
+.book-idea a { display: inline-block; color: var(--heading); text-decoration: none; }
 .book-words { display: grid; gap: 6px; }
 .book-when { font: 700 .75rem/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .book-date { font-weight: 600; letter-spacing: 0; text-transform: none; font-size: .8125rem; }
@@ -375,26 +383,35 @@
 .tp-top, .tp-cols, .tp-main, .tp-rail, .tp-end { display: flex; flex-direction: column; gap: 36px; }
 .tp-rail:empty { display: none; }
 @container view (min-width: 900px) {
-  /* Learn: a wide Continue card and three columns of topics. */
-  .learn { gap: 40px; }
-  .ask { max-width: var(--measure); }
+  /* Learn: the ask on the left and, beside it, the reviews waiting (or, the very first time,
+     how it all works), so the first screen has no empty corner; then a wide Continue card and
+     three columns of topics. */
+  .learn { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); gap: 40px; }
+  .learn, .learn.is-returning { column-gap: 48px; }
+  .learn > * { grid-column: 1 / -1; }
+  .learn > .ask { grid-column: 1; grid-row: 1; max-width: var(--measure); }
+  .learn > .learn-today { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn > .learn-topics:has(> .welcome) { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
   .ccard { grid-template-columns: 46% 1fr; }
   .ccard-cover { min-height: 300px; }
   .ccard-body { padding: 32px 36px; gap: 10px; }
   .ccard-title { font-size: 1.75rem; }
-  .today-row { max-width: var(--measure); }
   .tgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
   .welcome { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
   .welcome-art { aspect-ratio: auto; height: 100%; min-height: 300px; }
   .welcome-body { padding: 32px 36px; }
+  .learn-topics:has(> .welcome) > .welcome { display: block; }
+  .learn-topics:has(> .welcome) .welcome-art { aspect-ratio: 16 / 7; height: auto; min-height: 0; }
+  .learn-topics:has(> .welcome) .welcome-body { padding: 22px 26px 26px; }
 
-  /* Topic: the path on the left; Ask Claude and the sources beside it. */
-  .tp-head { max-width: none; }
-  .tp-banner, .tp-sk-banner { aspect-ratio: 4.6 / 1; }
-  .tp-head > :not(.tp-banner):not(.backlink) { max-width: var(--measure); }
+  /* Topic: the cover beside the header, above the rail; the path on the left; Ask Claude and
+     the sources beside it. The planning and failed pages keep the same two columns. */
+  .tp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); column-gap: 56px; align-items: start; }
+  .tp-split > .tp-banner, .tp-split > .tp-sk-banner { grid-column: 2; grid-row: 1; aspect-ratio: 16 / 9; margin: 0; }
+  .tp-split-main { grid-column: 1; grid-row: 1; }
+  .tp-split-main > * { max-width: var(--measure); }
   .tp-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 56px; align-items: start; }
   .tp-ask { margin-top: 0; }
-  .tp-planning-in, .tp-failed-in { max-width: var(--measure); }
 
   /* Map: two topics side by side. */
   .map-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }

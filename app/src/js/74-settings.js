@@ -150,9 +150,14 @@
       } } }, 'Save a backup');
 
       // Layout is per device (U.layout, localStorage only), so it is not one of the prefs.
+      // The laptop layout on a narrow screen keeps the tabs in the top bar as icons only (the
+      // 539 px breakpoint in 10-base.css), so the note says so before he wonders where the words went.
       function layoutNote() {
-        var eff = U.layout.effective();
-        return (U.layout.pref() === 'auto' ? 'Auto picks for this screen: the ' + eff + ' layout here. ' : '') + 'Saved on this device only.';
+        var eff = U.layout.effective(), narrow = false;
+        try { narrow = window.matchMedia('(max-width: 539px)').matches; } catch (e) { /* old browser: no note */ }
+        return (U.layout.pref() === 'auto' ? 'Auto picks for this screen: the ' + eff + ' layout here. ' : '') +
+          (eff === 'laptop' && narrow ? 'On a screen this narrow, the laptop layout shows the tabs as icons only. ' : '') +
+          'Saved on this device only.';
       }
       var layoutNoteEl = U.h('p', { class: 'muted small set-note set-layout-note' }, layoutNote());
       var layoutGroup = U.layout ? group('Layout', [
@@ -180,7 +185,19 @@
         group('Backup', backupBtn, 'Save a copy of everything: topics, lessons, sources, your answers, review cards and settings.'),
         U.h('p', { class: 'set-build muted small' }, 'Build ' + U.BUILD));
 
-      S._sheet = U.sheet({ title: 'Settings', body: body, autofocus: false, onClose: function () { S._sheet = null; offLayout(); } });
+      // Settings runs taller than a laptop dialog or a phone sheet: while more is below, the
+      // bottom edge fades (.sheet.has-more in 10-base.css), so a row cut in half reads as "scroll".
+      var box = null, ro = null;
+      function more() { if (box) box.classList.toggle('has-more', box.scrollHeight - box.clientHeight - box.scrollTop > 8); }
+      S._sheet = U.sheet({ title: 'Settings', body: body, autofocus: false, onClose: function () {
+        S._sheet = null; offLayout(); window.removeEventListener('resize', more); if (ro) ro.disconnect();
+      } });
+      box = S._sheet.el;
+      box.addEventListener('scroll', more, { passive: true });
+      window.addEventListener('resize', more);
+      // The content changes height too: the research line arrives, the text size changes.
+      if (window.ResizeObserver) { ro = new ResizeObserver(function () { more(); }); ro.observe(body); }
+      more();
       return S._sheet;
     },
   });

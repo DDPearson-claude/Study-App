@@ -153,6 +153,10 @@ await test('home: first run at 360 and 1280, light and dark', async () => {
     eq(await count(app, '.ccard'), 0, 'no continue card on first run');
     eq(await count(app, '.today-row'), 0, 'no Today row when nothing is due');
     eq(await app.page.getAttribute('html', 'data-mu-theme'), dark ? 'dark' : 'light', 'theme');
+    if (w === 1280) {
+      const r = await app.page.evaluate(() => { const a = document.querySelector('.ask').getBoundingClientRect(), b = document.querySelector('.welcome').getBoundingClientRect(); return { gap: b.left - a.right, dy: b.top - a.top }; });
+      assert(r.gap >= 0 && Math.abs(r.dy) < 40, `how it works sits beside the ask on a laptop (${JSON.stringify(r)})`);
+    }
     await shot(app, `home-first-${tag(w, dark)}`);
   }
 });
@@ -223,6 +227,10 @@ await test('home: continue card, Today row and topic cards', async () => {
     assert((await text(app, '.ccard-next')).includes('Idea 3 of 6'), 'next idea shown');
     eq(await app.page.getAttribute('.ccard', 'href'), '#/t/how-tides-work-ab12/i3', 'continue opens the lesson');
     assert((await text(app, '.today-row')).includes('4 reviews ready'), 'Today row');
+    if (w === 1280) {
+      const r = await app.page.evaluate(() => { const a = document.querySelector('.ask-form').getBoundingClientRect(), b = document.querySelector('.today-row').getBoundingClientRect(), h = document.querySelector('.ask h1').getBoundingClientRect(); return { gap: b.left - a.right, top: b.top - h.top, below: b.top < a.bottom }; });
+      assert(r.gap > 0 && r.below && Math.abs(r.top) < 60, `reviews sit beside the ask on a laptop (${JSON.stringify(r)})`);
+    }
     eq(await count(app, '.tcard'), 4, 'four topic cards');
     eq(await count(app, '.tcard.is-planning'), 1, 'planning card');
     assert((await text(app, '.tcard.is-done')).includes('All 5 ideas done'), 'finished topic');
@@ -273,6 +281,12 @@ await test('topic: ready page with hook, path and library (no warm-up once start
     assert((await text(app, '.lib-group-h')).includes('Spring and neap tides'), 'per-idea sources');
     eq(await count(app, '.tp-warm, .tp-warm-again'), 0, 'no warm-up once Dan has started');
     eq(await count(app, '.pnode:nth-child(3) .pnode-deps'), 0, 'no deps text when it is just the idea before');
+    if (w === 1280) {
+      const r = await app.page.evaluate(() => { const b = document.querySelector('.tp-banner').getBoundingClientRect(), t = document.querySelector('.tp-title').getBoundingClientRect(), rail = document.querySelector('.tp-rail').getBoundingClientRect(), path = document.querySelector('.path').getBoundingClientRect();
+        return { beside: b.left > t.right, h: Math.round(b.height), railEdge: Math.round(b.left - rail.left), path: Math.round(path.top), vh: innerHeight }; });
+      assert(r.beside && r.h < 240 && Math.abs(r.railEdge) <= 1, `cover beside the title, over the rail (${JSON.stringify(r)})`);
+      assert(r.path < r.vh, `the path starts on the first screen (${JSON.stringify(r)})`);
+    }
     await shot(app, `topic-ready-${tag(w, dark)}`);
   }
 });
@@ -409,6 +423,9 @@ await test('map: constellations by strength band', async () => {
       return out;
     });
     eq(bad.join('; '), '', 'labels readable');
+    eq(await text(app, '.map-topic.is-done .map-topic-text .done-note'), 'Every idea learned', 'a finished topic says so, in green words');
+    const ring = await app.page.evaluate(() => { const d = document.querySelector('.map-topic.is-done .map-dot'), c = document.querySelector('.map-topic:not(.is-done) .map-dot'); return [getComputedStyle(d).strokeWidth, getComputedStyle(c).strokeWidth]; });
+    eq(ring[0], ring[1], 'no special ring on a finished topic\'s dots');
     await shot(app, `map-${tag(w, dark)}`);
     if (w === 360 && !dark) {
       await app.page.click('a[href="#/t/how-tides-work-ab12/i2"]');
@@ -447,10 +464,13 @@ await test('book: first and latest explanations, and export', async () => {
     eq(await first.locator('.book-words').count(), 2, 'first and latest');
     eq(await count(app, '.book-q'), 2, 'questions Dan asked');
     eq(await text(app, '.book-q'), 'Does the Sun make tides too?', 'newest question first');
+    eq(await count(app, '.book-words.is-first'), await count(app, '.book-words.is-latest'), 'only a first try with a later one beside it is marked as a first try');
+    const ink = await app.page.evaluate(() => [getComputedStyle(document.querySelector('.book-words.is-only .book-text')).color, getComputedStyle(document.querySelector('.book-words.is-latest .book-text')).color]);
+    eq(ink[0], ink[1], 'a lone explanation reads at full strength, like a latest one');
     await shot(app, `book-${tag(w, dark)}`);
     if (w === 360 && !dark) {
       await app.page.click('.book-actions .btn >> text=Save as Markdown');
-      await app.page.click('.book-actions .btn >> text=Save as JSON');
+      await app.page.click('.book-actions .btn >> text=Save a full copy');
       await app.page.waitForTimeout(200);
       const dl = (await app.calls()).filter((c) => c.kind === 'download').map((c) => c.filename);
       assert(/^my-book-\d{4}-\d{2}-\d{2}\.md$/.test(dl[0]), 'markdown file ' + dl[0]);
@@ -479,9 +499,12 @@ await test('settings: changes apply at once, save, and survive a reload', async 
   eq(await app.page.getAttribute('#settings-btn', 'aria-label'), 'Settings', 'button named for what it opens');
   await app.page.waitForFunction(() => /Not connected/.test(document.querySelector('.set-research').textContent));
   await shot(app, 'settings-360-light', { full: false });
+  eq(await app.page.evaluate(() => document.querySelector('.sheet').classList.contains('has-more')), true, 'the bottom edge fades while more is below');
   await app.page.evaluate(() => { const s = document.querySelector('.sheet'); s.scrollTop = s.scrollHeight; });
+  await app.page.waitForFunction(() => !document.querySelector('.sheet').classList.contains('has-more'));
   await shot(app, 'settings-360-light-end', { full: false });
   await app.page.evaluate(() => { document.querySelector('.sheet').scrollTop = 0; });
+  await app.page.waitForFunction(() => document.querySelector('.sheet').classList.contains('has-more'));
   await app.page.click('.set .seg-btn >> text=Dark');
   eq(await app.page.getAttribute('html', 'data-mu-theme'), 'dark', 'dark applied');
   await app.page.click('.set .seg-btn[aria-label="Extra large text"]');
@@ -591,7 +614,7 @@ await test('regressions: a planning topic nobody is planning offers Try again an
   await app.page.waitForSelector('.tp-failed');
   assert((await text(app, '.tp-failed .notice')).includes('Planning stopped'), 'says planning stopped');
   eq(await count(app, '.tp-failed .btn >> text=Try again'), 1, 'Try again');
-  eq(await count(app, '.tp-failed .btn >> text=Delete this topic'), 1, 'Delete');
+  eq(await count(app, '.tp-failed .tp-delete >> text=Delete this topic'), 1, 'Delete');
   await shot(app, 'regress-planning-stopped-360-light');
   // One that is still within its 90 s turns into "stopped" by itself.
   await app.page.goto(app.url('#/t/rome-zz'));
@@ -759,6 +782,110 @@ await test('dark mode: the delete button and error toasts are readable', async (
   });
   assert(ratio[0] >= 4.5 && ratio[1] >= 4.5, 'contrast ' + ratio.map((r) => r.toFixed(2)).join(', '));
   await shot(app, 'topic-delete-confirm-360-dark', { full: false });
+});
+
+// ---------- UX round 2 (docs/review/ux-round2.md: screens) ----------
+
+await test('ux2: planning and failed topics get a proper title, the topic page\'s words, a red Delete and a time note', async () => {
+  const fresh = new Date().toISOString(), old = ago(3 * 60e3);
+  const db = {
+    'topics/holes-zz': { id: 'holes-zz', title: '', query: 'how black holes form', createdAt: fresh, updatedAt: fresh, status: 'planning', hue: 250, ideas: [] },
+    'topics/roads-zz': { id: 'roads-zz', title: '', query: 'how the romans built roads', createdAt: old, updatedAt: old, status: 'failed', error: 'Claude is busy right now.', hue: 30, ideas: [] },
+    'topics/rome-zz': { id: 'rome-zz', title: '', query: 'the fall of rome', createdAt: old, updatedAt: old, status: 'planning', hue: 20, ideas: [] },
+  };
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, db });
+    await app.page.waitForSelector('.tcard.is-failed');
+    eq(await text(app, '.tcard.is-planning .tcard-title'), 'How black holes form', 'planning card titled like the topic page');
+    const failed = await text(app, '.tcard[href="#/t/roads-zz"]'), stuck = await text(app, '.tcard[href="#/t/rome-zz"]');
+    assert(failed.startsWith('How the romans built roads') && failed.includes('Planning did not finish. Open it to try again.'), 'failed card: ' + failed);
+    assert(stuck.startsWith('The fall of rome') && stuck.includes('Planning stopped. Open it to try again.'), 'stopped card: ' + stuck);
+    await app.page.evaluate(() => U.go('#/t/roads-zz'));
+    await app.page.waitForSelector('.tp-failed');
+    assert((await text(app, '.tp-failed .notice')).startsWith('Planning did not finish.'), 'the page uses the same words');
+    const red = await app.page.evaluate(() => { const d = document.querySelector('.tp-failed .tp-delete'), probe = document.createElement('span'); probe.style.color = 'var(--red)'; document.body.appendChild(probe); const r = [getComputedStyle(d).color, getComputedStyle(probe).color]; probe.remove(); return r; });
+    eq(red[0], red[1], 'Delete is red, as it is everywhere else');
+    if (w === 1280) {
+      const r = await app.page.evaluate(() => { const b = document.querySelector('.tp-banner').getBoundingClientRect(), n = document.querySelector('.tp-failed .notice').getBoundingClientRect(); return { beside: b.left > n.right, top: Math.round(b.top - document.querySelector('.tp-failed .eyebrow').getBoundingClientRect().top) }; });
+      assert(r.beside && Math.abs(r.top) < 12, `failed page: the cover sits beside the words (${JSON.stringify(r)})`);
+    }
+    await shot(app, `ux2-failed-${tag(w, dark)}`, { full: false });
+    await app.page.evaluate(() => U.go('#/t/holes-zz'));
+    await app.page.waitForSelector('.tp-planning');
+    eq(await text(app, '.tp-title'), 'How black holes form', 'planning page title');
+    assert((await text(app, '.tp-wait-note')).includes('usually takes under a minute'), 'says how long it takes');
+    const sk = await app.page.evaluate(() => { const probe = document.createElement('span'); probe.style.color = 'var(--line)'; document.body.appendChild(probe); const line = getComputedStyle(probe).color; probe.remove(); return { line, bg: getComputedStyle(document.querySelector('.tp-sk-path .skeleton')).backgroundImage }; });
+    assert(sk.bg.includes(sk.line), 'the waiting path is drawn in --line, so it shows: ' + sk.bg);
+    await shot(app, `ux2-planning-${tag(w, dark)}`, { full: false });
+  }
+});
+
+await test('ux2: a long question wraps in the ask box (up to three lines), and Enter still asks', async () => {
+  const LONG = 'How do vaccines train the immune system to remember a virus it has never met before';
+  for (const w of [360, 1280]) {
+    const app = await open({ width: w, db: seedDb() });
+    await app.page.waitForSelector('.tcard');
+    eq(await app.page.evaluate(() => document.getElementById('ask-input').tagName), 'TEXTAREA', 'a box that wraps');
+    const one = await app.page.evaluate(() => document.getElementById('ask-input').getBoundingClientRect().height);
+    await app.page.fill('#ask-input', LONG);
+    const m = await app.page.evaluate(() => { const i = document.getElementById('ask-input'), cs = getComputedStyle(i); return { h: i.getBoundingClientRect().height, sw: i.scrollWidth, cw: i.clientWidth, line: parseFloat(cs.lineHeight), go: document.querySelector('.ask-go').getBoundingClientRect().bottom, bottom: i.getBoundingClientRect().bottom }; });
+    assert(m.sw <= m.cw, `no sideways scroll (${m.sw} > ${m.cw})`);
+    assert(m.h > one + m.line * 0.9 && m.h <= one + m.line * 2 + 2, `grows by whole lines, to three at most (${one} -> ${m.h})`);
+    assert(Math.abs(m.go - m.bottom) < 2, 'the go button stays beside the last line');
+    if (w === 360) await shot(app, 'ux2-ask-long-360-light', { full: false });
+    await app.page.press('#ask-input', 'Enter');
+    await app.page.waitForSelector('.tp-planning');
+    eq((await app.page.evaluate(() => window.__calls.gen))[0].query, LONG, 'Enter asks, with no new line added');
+  }
+});
+
+await test('ux2: covers come in six motifs, and the three older ones still go to the same topics', async () => {
+  const app = await open({});
+  const r = await app.page.evaluate(() => {
+    const titles = Array.from({ length: 60 }, (_, i) => 'Topic number ' + i);
+    const old = ['hills', 'orbits', 'arches'], seen = {}, moved = [];
+    titles.forEach((t) => {
+      const m = U.views.cover({ title: t }).getAttribute('data-motif'), h = U.hash(t);
+      seen[m] = (seen[m] || 0) + 1;
+      if (h % 6 < 3 && m !== old[h % 3]) moved.push(t);
+    });
+    return { seen, moved };
+  });
+  eq(Object.keys(r.seen).sort().join(','), 'arches,hills,orbits,peaks,stars,stones', 'six motifs in use');
+  eq(r.moved.join(', '), '', 'a topic on an older motif keeps it');
+});
+
+await test('ux2: the Today badge sits on the clock\'s corner at every text size', async () => {
+  for (const size of ['m', 'xl']) {
+    const app = await open({ db: seedDb(), prefs: { theme: 'light', size } });
+    await app.page.waitForSelector('#today-badge:not([hidden])');
+    const r = await app.page.evaluate(() => { const i = document.querySelector('.tab[data-tab="today"] svg').getBoundingClientRect(), b = document.getElementById('today-badge').getBoundingClientRect(); return { left: (b.left - i.left) / i.width, bottom: (b.bottom - i.top) / i.height }; });
+    assert(r.left >= 0.75 && r.bottom <= 0.6, `badge in the icon's top-right corner at ${size} (${JSON.stringify(r)})`);
+    if (size === 'xl') await shot(app, 'ux2-badge-360-xl', { full: false });
+  }
+});
+
+await test('ux2: on a laptop every tab screen starts at the same left edge', async () => {
+  const app = await open({ width: 1280, db: seedDb() });
+  await app.page.waitForSelector('.tcard');
+  const lefts = {};
+  for (const [hash, sel] of [['#/', '.ask h1'], ['#/today', '#fake-today'], ['#/map', '.map h1'], ['#/book', '.book h1']]) {
+    await app.page.evaluate((h) => U.go(h), hash);
+    await app.page.waitForSelector(sel);
+    lefts[hash] = await app.page.evaluate((s) => Math.round(document.querySelector(s).getBoundingClientRect().left), sel);
+  }
+  eq(new Set(Object.values(lefts)).size, 1, 'headings do not jump sideways ' + JSON.stringify(lefts));
+  await shot(app, 'ux2-book-1280-light', { full: false });
+});
+
+await test('ux2: the laptop layout on a narrow screen says its tabs are icons only', async () => {
+  const app = await open({});
+  await app.page.evaluate(() => U.layout.set('laptop'));
+  await app.page.click('#settings-btn');
+  await app.page.waitForSelector('.set-layout-note');
+  assert(/tabs as icons only/.test(await text(app, '.set-layout-note')), 'note: ' + await text(app, '.set-layout-note'));
+  await app.page.click('.seg-layout .seg-btn >> text=Phone');
+  assert(!/icons only/.test(await text(app, '.set-layout-note')), 'no such note for the phone layout');
 });
 
 // ---------- summary ----------

@@ -72,9 +72,11 @@
         U.h('p', { class: 'book-when' }, U.h('span', null, label), s.at ? U.h('span', { class: 'book-date' }, ' · ' + V.day(s.at)) : null),
         U.h('p', { class: 'book-text' }, String(s.text).trim()));
     }
+    // Only a first try that has a later one beside it is drawn quieter; a lone explanation is
+    // his current one and reads at full strength.
     return U.h('article', { class: 'book-entry' },
       U.h('h3', { class: 'book-idea' }, U.h('a', { href: '#/t/' + encodeURIComponent(t.id) + '/' + encodeURIComponent(i.id) }, i.title)),
-      words(many ? 'First' : 'In your words', first, 'is-first'),
+      words(many ? 'First' : 'In your words', first, many ? 'is-first' : 'is-only'),
       many ? words('Latest', latest, 'is-latest') : null,
       i.say.length > 2 ? U.h('p', { class: 'muted small book-count' }, 'You have explained this ' + i.say.length + ' times.') : null);
   }
@@ -96,14 +98,14 @@
     // Export lives quietly at the end, after his words.
     var actions = U.h('section', { class: 'book-actions', hidden: true, 'aria-labelledby': 'book-save-h' },
       U.h('h2', { id: 'book-save-h' }, 'Keep a copy'),
-      U.h('p', { class: 'muted small' }, 'Markdown opens in any notes app. JSON keeps every explanation, not just the first and latest.'),
+      U.h('p', { class: 'muted small' }, 'Markdown opens in any notes app. A full copy keeps every explanation, not just the first and latest, as a file to keep safe.'),
       U.h('div', { class: 'book-save' },
         U.h('button', { class: 'btn secondary small', type: 'button', on: { click: function () {
           U.saveFile('my-book-' + U.today() + '.md', toMarkdown(book), 'text/markdown');
         } } }, 'Save as Markdown'),
         U.h('button', { class: 'btn secondary small', type: 'button', on: { click: function () {
           U.saveFile('my-book-' + U.today() + '.json', toJson(book), 'application/json');
-        } } }, 'Save as JSON')));
+        } } }, 'Save a full copy')));
     var body = U.h('div', { class: 'book-body' }, U.h('div', { class: 'skeleton book-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'book' },
       U.h('header', { class: 'page-head' },

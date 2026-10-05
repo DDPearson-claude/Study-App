@@ -335,6 +335,8 @@ async function walk(width, dark) {
     ok(progress.ideas.i1.stage === 'done' && progress.ideas.i1.doneAt, 'stage done and doneAt saved');
     ok(progress.ideas.i1.checks.c1.correct === false && progress.ideas.i1.checks.c3.correct === true, 'check results saved');
     ok((await done.locator('.lsn-next h3').textContent()) === 'Gravity’s part', 'where next names the next idea');
+    const lines = await done.locator('.lsn-done-text > span').allTextContents();
+    ok(lines.length === 2 && lines[0] === '2 of 3 checks right.' && /in your Book/.test(lines[1]), 'done says how it went and where his work went, on two short lines: ' + JSON.stringify(lines));
     ok(await page.locator('.lsn-step.is-all').count() === 5, 'progress bar turns green when done');
     t = await T(app);
     ok(t.ensure.some((e) => e.iid === 'i2'), 'next idea prefetched');

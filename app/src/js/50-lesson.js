@@ -1018,11 +1018,11 @@
       var sec = U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea learned' },
         U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
         heading(live ? (st.replay ? 'Gone through again' : 'Idea learned') : 'You\'ve learned this idea'),
+        // Two short centred lines (how it went; where his work went), not one long ragged paragraph.
         U.h('p', { class: 'lsn-done-text' },
-          (!all.length ? '' : right === all.length ? (all.length === 1 ? 'You got the check right. ' : 'All ' + all.length + ' checks right. ') : right + ' of ' + all.length + ' checks right. ') +
-          (live && st.replay ? 'Your first answers stay as they were; this run is noted separately.' :
-            (says.length ? 'Your explanation is saved in your Book, and ' : '') +
-            (says.length ? 'what you answered comes back as review cards, spaced out so it sticks.' : 'What you answered comes back as review cards, spaced out so it sticks.'))),
+          all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
+          U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
+            : says.length ? 'Your words are in your Book, and your answers will come back in review.' : 'Your answers will come back in review.')),
         nx
           ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
             nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
