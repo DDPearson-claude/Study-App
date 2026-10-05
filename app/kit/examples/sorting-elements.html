@@ -1,0 +1,117 @@
+<!-- kind: concept -->
+<style>
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .group { padding: 10px 12px 12px; border-radius: var(--k-r); background: var(--k-panel); }
+  .group-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 10px; }
+  .group-head b { font-size: .95rem; }
+  .group-head span { font-size: .8rem; color: var(--k-muted); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; margin-top: 8px; }
+  .card { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 7px; padding: 6px 8px; border-radius: 10px; background: var(--k-bg); }
+  .card i { font-style: normal; font-size: 13px; line-height: 1; }
+  .card b { font-size: 1rem; line-height: 1.1; }
+  .card span { grid-column: 1 / -1; font-size: .75rem; color: var(--k-muted); }
+</style>
+
+<p class="lead">Sort these ten elements three ways. Which way puts elements that behave alike in the same group?</p>
+
+<div class="k-controls" id="controls"></div>
+<div class="groups" id="groups" role="img" aria-label=""></div>
+<div class="key" id="key" aria-hidden="true"></div>
+<div class="k-readouts" id="outs"></div>
+<p class="say k-after-move" id="say"></p>
+<p class="caption">Behaviour and state at room temperature, as in the source. A good grouping predicts things you did not sort by; a pair of group-mates "behaves alike" when they share the behaviour in the key.</p>
+
+<script>
+  // Source [1] of the lesson: the halogens, alkali metals and noble gases.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Halogen';
+
+  // A fair set: the first members of three families in order (no hand-picking to make one sort
+  // look good), with hydrogen left out because it is not an alkali metal.
+  const ELEMENTS = [
+    { sym: 'Li', name: 'Lithium', column: 1, state: 'Solid', mass: 6.94, does: 'metal' },
+    { sym: 'Na', name: 'Sodium', column: 1, state: 'Solid', mass: 22.99, does: 'metal' },
+    { sym: 'K', name: 'Potassium', column: 1, state: 'Solid', mass: 39.10, does: 'metal' },
+    { sym: 'F', name: 'Fluorine', column: 17, state: 'Gas', mass: 19.00, does: 'salt' },
+    { sym: 'Cl', name: 'Chlorine', column: 17, state: 'Gas', mass: 35.45, does: 'salt' },
+    { sym: 'Br', name: 'Bromine', column: 17, state: 'Liquid', mass: 79.90, does: 'salt' },
+    { sym: 'I', name: 'Iodine', column: 17, state: 'Solid', mass: 126.90, does: 'salt' },
+    { sym: 'He', name: 'Helium', column: 18, state: 'Gas', mass: 4.00, does: 'inert' },
+    { sym: 'Ne', name: 'Neon', column: 18, state: 'Gas', mass: 20.18, does: 'inert' },
+    { sym: 'Ar', name: 'Argon', column: 18, state: 'Gas', mass: 39.95, does: 'inert' },
+  ];
+  // Three equal kinds of behaviour: categorical colours, each with its own shape too.
+  const DOES = {
+    metal: { text: 'Soft metal that fizzes in water', role: 'cat1', mark: '●' },
+    salt: { text: 'Joins with sodium to make a salt', role: 'cat2', mark: '▲' },
+    inert: { text: 'Hardly ever reacts', role: 'cat3', mark: '■' },
+  };
+  // Each way of sorting: the group an element goes in, and the groups in display order.
+  const SORTS = {
+    state: { groupOf: (e) => e.state, order: ['Solid', 'Liquid', 'Gas'] },
+    mass: { groupOf: (e) => e.mass < 30 ? 'Lighter atoms' : 'Heavier atoms', order: ['Lighter atoms', 'Heavier atoms'] },
+    column: { groupOf: (e) => 'Column ' + e.column, order: ['Column 1', 'Column 17', 'Column 18'] },
+  };
+  const groupsFor = (by) => SORTS[by].order.map((g) => ({ name: g, members: ELEMENTS.filter((e) => SORTS[by].groupOf(e) === g) }));
+  // Pairs of group-mates, and how many of them share a behaviour.
+  function pairs(by) {
+    let all = 0, alike = 0;
+    groupsFor(by).forEach((g) => g.members.forEach((a, i) => g.members.slice(i + 1).forEach((b) => { all++; if (a.does === b.does) alike++; })));
+    return { all, alike };
+  }
+
+  // The lesson's control: named options, opening on the first (index 0).
+  K.choice({ id: 'by', label: 'Sort them by', value: 0, into: '#controls', options: [
+    { value: 'state', label: 'Solid, liquid or gas' },
+    { value: 'mass', label: 'Light or heavy atoms' },
+    { value: 'column', label: 'Periodic table column' },
+  ] });
+  K.readout({ id: 'alike', label: 'Group-mates that behave alike', unit: '%', decimals: 0, into: '#outs' });
+  K.readout({ id: 'mixed', label: 'Groups with mixed behaviour', into: '#outs' });
+
+  // The pure model: a way of sorting -> how well its groups predict behaviour.
+  K.model((p) => {
+    const n = pairs(p.by), groups = groupsFor(p.by);
+    return {
+      alike: n.all ? 100 * n.alike / n.all : 0,
+      mixed: groups.filter((g) => new Set(g.members.map((e) => e.does)).size > 1).length,
+      groups: groups.length,
+    };
+  });
+
+  const key = document.getElementById('key');
+  Object.keys(DOES).forEach((k) => key.appendChild(K.el('span', null, K.el('i', { style: { color: K.color(DOES[k].role), fontStyle: 'normal' } }, DOES[k].mark), DOES[k].text)));
+
+  K.update((p, o) => {
+    const box = document.getElementById('groups');
+    box.textContent = '';
+    groupsFor(p.by).forEach((g) => {
+      const kinds = new Set(g.members.map((e) => e.does)).size;
+      const verdict = g.members.length < 2 ? 'on its own' : kinds === 1 ? 'all behave alike' : 'mixed: ' + kinds + ' kinds';
+      box.appendChild(K.el('div', { class: 'group' },
+        K.el('div', { class: 'group-head' }, K.el('b', null, g.name + ' · ' + g.members.length), K.el('span', null, verdict)),
+        K.el('div', { class: 'cards' }, g.members.map((e) => K.el('div', { class: 'card' },
+          K.el('i', { style: { color: K.color(DOES[e.does].role) }, 'aria-hidden': 'true' }, DOES[e.does].mark), K.el('b', null, e.sym), K.el('span', null, e.name))))));
+    });
+    box.setAttribute('aria-label', groupsFor(p.by).map((g) => g.name + ': ' + g.members.map((e) => e.name + ' (' + DOES[e.does].text.toLowerCase() + ')').join(', ')).join('. '));
+    // The sentence uses the readout's own rounding (whole percent), so the two always agree.
+    const pct = K.fmt(o.alike, { dp: 0 }) + '%';
+    document.getElementById('say').textContent = {
+      state: 'Sorted by state, only ' + pct + ' of group-mates behave alike: bromine sits alone as the only liquid, and the gases mix elements that react eagerly with ones that hardly react at all.',
+      mass: 'Sorted by weight, just ' + pct + ' of group-mates behave alike: lithium shares a group with neon, potassium with bromine. Weight alone predicts almost nothing here.',
+      column: 'Sorted by column, ' + pct + ' of group-mates behave alike. Knowing the column tells you how an element reacts: a natural grouping, and the reason the periodic table is laid out this way.',
+    }[p.by];
+  });
+
+  // Known answers, counted by hand from the table above.
+  K.check('By column, all 12 pairs of group-mates behave alike (100%)', () => K.near(K.at({ by: 'column' }).alike, 100) && K.at({ by: 'column' }).mixed === 0);
+  K.check('By state, 7 of 16 pairs behave alike (43.75%)', () => K.near(K.at({ by: 'state' }).alike, 43.75));
+  K.check('By weight, 5 of 20 pairs behave alike (25%)', () => K.near(K.at({ by: 'mass' }).alike, 25) && K.at({ by: 'mass' }).mixed === 2);
+  K.check('At room temperature bromine is the only liquid; fluorine and chlorine are gases, iodine a solid', () =>
+    groupsFor('state')[1].members.map((e) => e.sym).join() === 'Br' &&
+    ['F', 'Cl'].every((s) => ELEMENTS.find((e) => e.sym === s).state === 'Gas') && ELEMENTS.find((e) => e.sym === 'I').state === 'Solid', { source: SOURCE });
+  K.check('A fair test: every sort places each of the ten exactly once', () =>
+    Object.keys(SORTS).every((by) => groupsFor(by).reduce((n, g) => n + g.members.length, 0) === 10 &&
+      ELEMENTS.every((e) => groupsFor(by).filter((g) => g.members.includes(e)).length === 1)));
+
+  K.ready();
+</script>

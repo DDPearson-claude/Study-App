@@ -88,18 +88,17 @@ U.interactive = (function () {
         return Promise.resolve().then(function () {
           return S.reach(html, { control: str(c.control), output: str(c.output), target: Number(c.target), tolerance: Math.abs(Number(c.tolerance)) || 0 });
         }).then(function (r) {
-          if (r && r.reachable === false) out.push({ id: str(c.id), q: str(c.q), control: str(c.control), output: str(c.output), target: c.target, tolerance: c.tolerance, best: r.best == null ? null : r.best });
+          // A page that could not be asked at all (load trouble) tells us nothing about the target.
+          if (r && r.error && !r.tried) console.warn('target reach could not be checked', r.error);
+          else if (r && r.reachable === false) out.push({ id: str(c.id), q: str(c.q), control: str(c.control), output: str(c.output), target: c.target, tolerance: c.tolerance, best: r.best || null });
         }, function (e) { console.warn('target reach could not be checked', e); });
       });
     }, Promise.resolve()).then(function () { return out; });
   }
-  function pick() { for (var i = 0; i < arguments.length; i++) if (arguments[i] != null && arguments[i] !== '') return arguments[i]; return null; }
+  // best = {value: the control's setting, output: the reading there}, as U.sandbox.reach gives it.
   function bestText(b, control) {
-    if (b == null) return '';
-    var obj = typeof b === 'object', val = obj ? pick(b.value, b.output, b.reading, b.y) : b;
-    var at = obj ? pick(b.setting, b.at, b.x, b.params && b.params[control], b[control]) : null;
-    if (val == null || !isFinite(Number(val))) return '';
-    return ', but the closest this page gets is ' + num(val) + (at != null && isFinite(Number(at)) ? ', with "' + control + '" at ' + num(at) : '');
+    if (!b || b.output == null || !isFinite(Number(b.output))) return '';
+    return ', but the closest this page gets is ' + num(b.output) + (b.value != null && b.value !== '' ? ', with "' + control + '" at ' + num(b.value) : '');
   }
 
   // ---------- prompt sections ----------
@@ -191,8 +190,8 @@ U.interactive = (function () {
       '- Hide the answer until Dan moves. He answers his prediction by changing something, so whatever gives it away (the result readout, a verdict in the .say line, the telling part of a plot) appears only after his first move: ' +
         (kitHas('afterMove') ? 'give it the class "k-after-move", or reveal it in K.afterMove(fn).' : 'reveal it once any control differs from its opening value.'),
       '- The opening view still looks alive: draw the picture, its labels and the opening state, and let the lead line say what to try.',
-      '- Phone layout: the main visual and its controls fit on one phone screen together; any second figure goes below them and must not be needed.',
-      '- Every number on screen is one listed above or computed from the rule. Show assumed values as examples ("for example, £1,000"). Round readouts the way the explanation writes the same numbers (set dp), so the two never disagree.',
+      '- Phone layout: the main visual and its controls fit on one phone screen together' + (kitHas('K.stage') ? ' (put them in K.stage)' : '') + '; any second figure goes below them and must not be needed.',
+      '- Every number on screen is one listed above or computed from the rule. Show assumed values as examples ("for example, £1,000"). Round readouts the way the explanation writes the same numbers (set dp), so the two never disagree. Any example cases you choose are fair and representative, never picked to exaggerate the effect.',
       '- A readout holds a number and a short unit (longer text is cut off); sentences go in the .say line. Sentences built from numbers read right at every setting: "none" and "all", "1 farm" but "2 farms", never "0 of the 100".',
       '- Words name things, never shades: say "the changed squares" or use the legend\'s names, never "the dark square" (dark mode swaps light and dark). ' +
         (kitHas('cat1') ? 'To tell equal parts apart (two poles, two halves), use the neutral colour roles cat1-cat4, never red, green or amber.' : 'Red, green and amber carry meaning: never use them just to tell parts apart.'),
@@ -200,7 +199,7 @@ U.interactive = (function () {
       '- K.check: 3-5 known answers: an edge case, a shape fact (rises, halves, always last), and at least one answer from outside the model: ' +
         (sourced ? 'a worked example from the explanation, an everyday known case, or a value one of the sources states (with {source: its URL}).'
           : 'a worked example from the explanation or an everyday known case. No {source}: this lesson has no sources.'),
-      kitHas('K.sound') ? '- An idea about sound gets a Play button that lets him hear it (K.sound).' : null,
+      kitHas('K.sound') ? '- An idea about sound lets him hear it: a K.button whose press plays it with K.sound.' : null,
       '- Money, health and law: show how it works, never advice, and never a guaranteed outcome.',
     ].filter(Boolean).join('\n');
   }
@@ -264,6 +263,7 @@ U.interactive = (function () {
     (report.checks || []).forEach(function (c) { if (!c.ok) out.push('Check failed: "' + c.label + '"' + (c.error ? ' (' + c.error + ')' : '')); });
     ((report.sweep && report.sweep.problems) || []).forEach(function (p) { out.push('While sweeping the controls: ' + p); });
     if (report.overflow) out.push('Too wide: ' + (report.overflowDetail || 'the page scrolls sideways at 340 px') + '.');
+    (report.clipped || []).forEach(function (c) { out.push('Text cut off: ' + c); });
     out = out.concat(missingIds(report, lesson));
     var foreign = Array.isArray(report.foreign) ? report.foreign : html != null ? foreignUrls(html, lesson, report) : [];
     foreign.forEach(function (u) { out.push(urlProblem(u, lesson)); });
@@ -289,6 +289,7 @@ U.interactive = (function () {
         '- A thrown error: go to the body line it names; check element ids, variable names and the kit call signatures.',
         '- NaN or Infinity: guard the maths at the ends of every control\'s range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.',
         '- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.',
+        '- Text cut off: shorten the words, let them wrap, or give them room (inside the SVG viewBox, a wider box); never hide the overflow.',
         '- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete or weaken a correct check to pass.',
         '- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.',
         '- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.',

@@ -886,22 +886,23 @@ function builder({ kitMd, examples, reach = true, replies = [] } = {}) {
       warnings: html.includes('WARN') ? ['No K.check has a source: add one known value from a cited reference.'] : [],
     }),
   };
-  if (reach) U.sandbox.reach = (html, spec) => Promise.resolve({ reachable: !html.includes('FAR'), best: { value: 38.1, setting: 4 }, spec });
+  if (reach) U.sandbox.reach = (html, spec) => Promise.resolve(html.includes('NOLOAD') ? { reachable: false, best: null, tried: 0, error: 'did not load' }
+    : { reachable: !html.includes('FAR'), best: { value: 4, output: 38.1 }, tried: 60, spec });
   return { U, asked };
 }
 const page = (extra = '') => '<p class="lead">Push the air.</p>' + extra + '<script>K.ready()</script>';
 const WIKI = 'https://en.wikipedia.org/wiki/Thrust';
 
 test('build prompt: one source rule, the opening state, number kinds, wording and level', () => {
-  const { U } = builder({ kitMd: '# Kit\nK.control and K.afterMove(fn) and K.sound and roles cat1 cat2' });
+  const { U } = builder({ kitMd: '# Kit\nK.control and K.afterMove(fn) and K.stage and K.sound and roles cat1 cat2' });
   const bare = U.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], unsourced(L_JET2));
   assert.ok(bare.startsWith('TASK: build-interactive\n'));
   assert.ok(bare.includes('Dan knows a little about this topic.') && !/Dan is knows/.test(bare), 'level sentence reads right');
   assert.ok(bare.includes('the page contains no web addresses at all') && bare.includes('No {source}: this lesson has no sources.'), 'no sources: no URLs anywhere');
   assert.ok(!/standard reference you would trust|encyclopedia/.test(bare), 'never asks for a URL from memory');
   for (const s of ['Hide the answer until Dan moves', 'k-after-move', 'K.afterMove(fn)', 'The opening view still looks alive', 'one phone screen together',
-    'Round readouts the way the explanation writes', '"none" and "all"', 'never "the dark square"', 'cat1-cat4', 'at most two short sentences',
-    'do not repeat it on the page', 'at least one answer from outside the model', 'K.sound', 'never advice', 'assumed = an example value, shown as "for example"',
+    'Round readouts the way the explanation writes', '"none" and "all"', 'never "the dark square"', 'cat1-cat4', 'at most two short sentences', '(put them in K.stage)',
+    'do not repeat it on the page', 'at least one answer from outside the model', 'a K.button whose press plays it with K.sound', 'never advice', 'assumed = an example value, shown as "for example"',
     'use these ids, ranges and opening values exactly', 'reads "thrust"', 'moving "speedAdded" alone can reach the target', 'He answers it by moving away from the opening state'])
     assert.ok(bare.includes(s), 'build prompt mentions ' + s);
   const sourced = U.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
@@ -909,7 +910,7 @@ test('build prompt: one source rule, the opening state, number kinds, wording an
   // Kit features the KIT.md does not document are not named.
   const { U: U0 } = builder({ kitMd: '# Kit\nK.control only' });
   const plainKit = U0.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
-  assert.ok(plainKit.includes('once any control differs from its opening value') && !plainKit.includes('afterMove') && !plainKit.includes('K.sound') && !plainKit.includes('cat1'));
+  assert.ok(plainKit.includes('once any control differs from its opening value') && !/afterMove|K\.sound|cat1|K\.stage/.test(plainKit));
   // Named options, switches and no outputs.
   const hist = U.interactive.prompt(PLAN_ROME, PLAN_ROME.ideas[3], L_ROME4);
   assert.ok(hist.includes('named options in this order: "133 BC: a land law" / "133 BC: the veto"') && hist.includes('opening on "133 BC: a land law" (K.choice; K.stepper when they are stages in order)'), 'named control');
@@ -949,6 +950,8 @@ test('build: an unlisted web address is sent back for repair, and stripped as a 
   r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], unsourced(L_JET2));
   assert.equal(b.asked.length, 3);
   assert.ok(r && !r.html.includes(WIKI) && r.selftest.ok, 'kept, with the address stripped');
+  const clip = builder().U.interactive.problems({ ok: false, errors: [], checks: [], clipped: ['"181 for every 120" spills out of div.k-readout-value (it needs 140px and has 96px) (at r = 181)'] }, L_JET2, '');
+  assert.ok(clip.includes('Text cut off: "181 for every 120" spills out of div.k-readout-value (it needs 140px and has 96px) (at r = 181)'), 'clipped text reaches the repair');
   b = builder({ replies: [page('BROKEN'), page('BROKEN'), page('BROKEN')] });
   assert.equal(await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2), null, 'a page that never passes its self-test is dropped');
   assert.equal(b.asked.length, 3);
@@ -970,4 +973,7 @@ test('build: target checks must be reachable, read from model outputs, and are c
   b = builder({ reach: false, replies: [page('FAR')] });
   r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
   assert.equal(r.attempts, 1, 'without U.sandbox.reach the check is skipped');
+  b = builder({ replies: [page('NOLOAD')] });
+  r = await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);
+  assert.equal(r.attempts, 1, 'a reach that could not run says nothing about the target');
 });
