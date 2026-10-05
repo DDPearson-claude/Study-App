@@ -91,6 +91,15 @@ function installFakes({ review, tutor, gen, bands, due }) {
         return id;
       },
     };
+    if (gen === 'replan') {
+      U.gen.replan = async (tid) => {
+        window.__calls.gen.push({ replan: tid });
+        await U.store.topic.update(tid, { status: 'planning', error: null });
+        await new Promise((r) => setTimeout(r, 600));
+        await U.store.topic.update(tid, planned(''));
+        return tid;
+      };
+    }
   }
 }
 
@@ -244,7 +253,7 @@ await test('home: topic cards update live', async () => {
   assert((await text(app, '.tcard.is-planning')).includes('The fall of Rome'), 'planning card shows the query');
 });
 
-await test('topic: ready page with warm-up, path and library', async () => {
+await test('topic: ready page with hook, path and library (no warm-up once started)', async () => {
   for (const [w, dark] of WIDTHS) {
     const app = await open({ width: w, dark, db: seedDb(), hash: '#/t/how-tides-work-ab12' });
     await app.page.waitForSelector('.path');
@@ -334,6 +343,17 @@ await test('topic: failed planning offers Try again (recreates with the same que
     await app.page.waitForTimeout(300);
     eq(await doc(app, 'topics/jazz-xx'), undefined, 'failed topic removed');
   }
+});
+
+await test('topic: Try again uses U.gen.replan when it exists', async () => {
+  const failed = { id: 'jazz-xx', title: 'How jazz chords work', query: 'how jazz chords work', createdAt: '2026-10-05T09:00:00.000Z', updatedAt: '2026-10-05T09:00:00.000Z', status: 'failed', error: 'Claude is busy right now.', hue: 140, ideas: [] };
+  const app = await open({ db: { 'topics/jazz-xx': failed }, hash: '#/t/jazz-xx', fakes: { gen: 'replan' } });
+  await app.page.waitForSelector('.tp-failed');
+  await app.page.click('.tp-failed .btn >> text=Try again');
+  await app.page.waitForSelector('.tp-planning');
+  await app.page.waitForSelector('.path');
+  eq(await hash(app), '#/t/jazz-xx', 'same topic, planned again');
+  eq(JSON.stringify(await app.page.evaluate(() => window.__calls.gen)), JSON.stringify([{ replan: 'jazz-xx' }]), 'replan called, nothing recreated');
 });
 
 await test('topic: delete asks first, then removes everything', async () => {
@@ -484,9 +504,10 @@ await test('settings: changes apply at once, save, and survive a reload', async 
   await app.page.waitForSelector('.map');
   await app.page.click('#settings-btn');
   await app.page.waitForSelector('.set');
+  await app.page.keyboard.press('Escape');
+  await app.page.evaluate(() => U.go('#/'));
   // Reload: the stub db starts empty, so prefs come back from localStorage (first paint) and
   // are adopted into the new profile.
-  await app.page.keyboard.press('Escape');
   await app.page.reload();
   await app.page.waitForFunction(() => window.U && U.boot && U.boot.ready === true);
   eq(await app.page.getAttribute('html', 'data-mu-theme'), 'dark', 'dark kept after reload');
