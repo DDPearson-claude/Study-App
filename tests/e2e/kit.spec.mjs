@@ -624,13 +624,15 @@ section('exemplars and the host API');
     const box = document.createElement('div');
     box.style.width = '600px';
     document.body.appendChild(box);
-    window.__halo = U.sandbox.mount(box, { html: '<svg viewBox="0 0 340 80" width="100%" role="img" aria-label="x"><line x1="0" y1="20" x2="340" y2="20" stroke="black"/><text id="dark" x="10" y="24" fill="var(--k-ink)">on the page</text><rect x="150" y="40" width="150" height="30" fill="var(--k-accent2)"/><text id="light" x="160" y="60" fill="var(--k-on-accent2)">on navy</text></svg><script>K.model(() => ({})); K.check("a", () => true); K.ready();</script>' });
+    window.__halo = U.sandbox.mount(box, { html: '<svg viewBox="0 0 340 80" width="100%" role="img" aria-label="x"><line x1="0" y1="20" x2="340" y2="20" stroke="black"/><text id="dark" x="10" y="24" fill="var(--k-ink)">on the page</text><rect x="150" y="40" width="150" height="30" fill="var(--k-accent2)"/><text id="light" x="160" y="60" fill="var(--k-on-accent2)">on navy</text><text id="nofill" x="10" y="70">no fill</text><g fill="var(--k-warn)"><text id="ingroup" x="10" y="78">group fill</text></g></svg><script>K.model(() => ({})); K.check("a", () => true); K.ready();</script>' });
     await window.__halo.ready;
   });
   await app.page.waitForTimeout(200);
   const hf = app.page.frames().filter((f) => f !== app.page.mainFrame()).pop();
-  const halo = await hf.evaluate(() => ({ dark: document.getElementById('dark').classList.contains('k-halo'), light: document.getElementById('light').classList.contains('k-halo'), paint: getComputedStyle(document.getElementById('dark')).paintOrder }));
+  const halo = await hf.evaluate(() => ({ dark: document.getElementById('dark').classList.contains('k-halo'), light: document.getElementById('light').classList.contains('k-halo'), paint: getComputedStyle(document.getElementById('dark')).paintOrder,
+    nofill: getComputedStyle(document.getElementById('nofill')).fill, ink: getComputedStyle(document.body).color, group: getComputedStyle(document.getElementById('ingroup')).fill, warn: K.theme.c.warn }));
   expect('a dark label crossing a line gets a page-coloured halo; white text on navy does not', halo.dark && !halo.light && /stroke/.test(halo.paint), halo);
+  expect('text with no fill of its own takes the theme ink (not black), and a group fill still wins', halo.nofill === halo.ink && halo.group !== halo.ink, halo);
   await app.page.evaluate(() => { __halo.destroy(); });
   await app.page.setViewportSize({ width: 360, height: 800 });
 

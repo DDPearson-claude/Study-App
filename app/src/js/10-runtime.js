@@ -226,7 +226,8 @@ U.research = {
   // A result as JSON of at most max characters that stays valid JSON. Results come ranked, best
   // first, so the top ones are kept whole: the lowest-ranked result's text is shortened first
   // (to 1,200 characters, then 500, then 200, cut at a word and marked " …"), working up the
-  // list, and only then are the last results dropped.
+  // list; the top three are shortened only after every result below them is down to 200 (and
+  // then to 2,400, 1,200, 500, 200); only then are the last results dropped.
   _fit: function (p, max) {
     var s = typeof p === 'string' ? p : JSON.stringify(p);
     if (s.length <= max) return s;
@@ -250,8 +251,9 @@ U.research = {
       }
       if (typeof r.full_content === 'string') r.full_content = left > 40 ? cut(r.full_content, left) : '';
     }
-    [1200, 500, 200].forEach(function (floor) {
-      for (var i = p.results.length - 1; i >= 0 && s.length > max; i--) { shrink(p.results[i], floor); s = JSON.stringify(p); }
+    // Results below the top three give way first, all the way down; the top three only after.
+    [[3, 1200], [3, 500], [3, 200], [0, 2400], [0, 1200], [0, 500], [0, 200]].forEach(function (pass) {
+      for (var i = p.results.length - 1; i >= pass[0] && s.length > max; i--) { shrink(p.results[i], pass[1]); s = JSON.stringify(p); }
     });
     while (s.length > max && p.results.length > 1) { p.results.pop(); s = JSON.stringify(p); }
     return s.length > max ? U.research._trim(s, max) : s;

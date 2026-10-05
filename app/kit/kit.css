@@ -82,6 +82,9 @@ svg.k-fig:not([preserveAspectRatio="none"]) { height: auto; }
   .k-stage:not(.k-stacked) .k-controls { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* A drawing's default ink follows the theme (text and shapes with no fill of their own would
+   otherwise be black, unreadable in dark mode); any fill you set wins. */
+:where(svg:not([fill])) { fill: var(--k-ink); color: var(--k-ink); }
 /* SVG labels that cross lines and shapes keep a thin halo of the page colour (kit.js picks them). */
 svg text.k-halo { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3px; stroke-linejoin: round; }
 

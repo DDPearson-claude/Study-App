@@ -203,7 +203,7 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
     ['bad control id', (l) => { l.interactive.controls[0].id = 'air flow'; }, /camelCase/],
     ['duplicate check ids', (l) => { l.checks[1].id = 'c1'; }, /used twice/],
     ['brief in the wrong form', (l) => { l.interactive.brief = 'Play with the sliders to learn about thrust.'; }, /The one thing you should see is/],
-    ['quote longer than 30 words', (l) => { l.sources[0].quote = 'word '.repeat(40).trim(); }, /at most 30/],
+    ['quote longer than 40 words', (l) => { l.sources[0].quote = 'word '.repeat(41).trim(); }, /at most 40/],
     ['duplicate source numbers', (l) => { l.sources.push({ ...l.sources[0] }); }, /used twice/],
     ['outputs but no target check', (l) => { l.checks[0] = { id: 'c1', type: 'choice', q: 'Which?', options: ['a', 'b'], answer: 0, why: 'because' }; }, /one check of type "target"/],
     ['target tolerance of 0', (l) => { l.checks[0].tolerance = 0; }, /tolerance must be a number greater than 0/],
@@ -295,7 +295,7 @@ test('grade and research validators reject broken replies', () => {
   const ideas = PLAN_JET.ideas;
   const rcases = [
     ['note cites a missing source', (r) => { r.ideas.i1.notes[0].sourceIds = [42]; }, /not in sources/],
-    ['quote too long', (r) => { r.sources[0].quote = 'word '.repeat(31).trim(); }, /at most 30/],
+    ['quote too long', (r) => { r.sources[0].quote = 'word '.repeat(41).trim(); }, /at most 40/],
     ['url not http', (r) => { r.sources[0].url = 'grc.nasa.gov/x'; }, /http/],
     ['unknown idea key', (r) => { r.ideas.i9 = { notes: [] }; }, /not one of the course idea ids/],
     ['unsourced note', (r) => { r.ideas.i2.notes[0].sourceIds = []; }, /cites no source/],
@@ -344,7 +344,7 @@ test('prompt builders start with their TASK line, stay small and carry the key r
 
   const research = prompts.research;
   for (const s of ['web_search: { objective, search_queries }', 'search_queries: 2-3 keyword queries of 3-6 words', 'excerpts', 'web_fetch: { urls, objective }', 'Put several pages in one call',
-    'at most 8 searches and 4 fetches', 'at most 30 words', 'Never cite a page your tools did not return', '"contested"', '"i1"', '"i6"', 'encyclopedias'])
+    'at most 8 searches and 4 fetches', 'at most 40 words', 'Never cite a page your tools did not return', '"contested"', '"i1"', '"i6"', 'encyclopedias'])
     assert.ok(research.includes(s), 'research mentions ' + s);
 
   const lesson = prompts['write-lesson'];

@@ -59,3 +59,15 @@ what a person would notice, or what the checks let through.
 25. `validate.mjs --sources` compared against the topic-wide numbering (fixed: per idea).
 26. render.mjs's "moved" shot moves a stepper one step and waits 0.5-1.5 s: also shoot the far end
     of every control after a longer wait.
+
+## From the Late Bronze Age run (history, contested)
+27. **SVG text with no fill is black in dark mode** (K.labels without `color`): a drawing's default
+    ink now follows the theme.
+28. **Contested predict** ("which view is more convincing") contradicted "he answers it by moving":
+    for a contested idea, playing shows what each view explains and the reveal names no winner.
+29. **Plan details research does not back** ("letters begging for grain") reached the lesson: the
+    lesson leaves them out or says them with care.
+30. **Quotes:** 40 words (30 forced cold-unreadable fragments); no reference markers; the original
+    publisher, never a mirror; abstracts are fine; "years before present" quoted with its definition.
+31. **History outputs:** plain counts of what is on screen are fine; nothing else.
+32. **Fitting:** results below the top three now shrink fully before the top three are touched.

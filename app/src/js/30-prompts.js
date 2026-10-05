@@ -176,10 +176,11 @@
       '5. Numbers matter most. If a lesson will need a typical value (a speed, a temperature, a date, a population), find it on a reputable page and quote the sentence that states it.',
       '',
       'SOURCES AND QUOTES',
-      '- Each entry in "sources" is ONE exact quote from ONE page your tools returned: one unbroken run of at most 30 words, copied character for character from that page\'s excerpts or fetched text. Part of a sentence is fine when it reads sensibly on its own. No paraphrase, no stitched fragments, no added words, no brackets, no ellipses. If the words you need were not in the text you were shown, do not quote them.',
+      '- Each entry in "sources" is ONE exact quote from ONE page your tools returned: one unbroken run of at most 40 words, copied character for character from that page\'s excerpts or fetched text. Part of a sentence is fine when it reads sensibly on its own. No paraphrase, no stitched fragments, no added words or brackets of your own, no ellipses; choose a run without reference markers ("[12]"). If the words you need were not in the text you were shown, do not quote them.',
       '- Dan reads the quote, so choose clean passages: skip text with broken spacing ("antigen , the"), words split across lines, missing symbols, table rows, or maths markup ("$42^\\circ$", "[latex]…[/latex]"). If the only passage for a point is damaged, find another source.',
       '- Pick a quote that supports the claim citing it on its own, read cold by someone who has not seen the page.',
       '- If one page supports several claims with different sentences, add one entry per quote (same url and title, different n).',
+      '- url: the original publisher\'s page, never a copy, mirror or file-sharing upload of it. An abstract the tools returned may be quoted; never cite what is behind a paywall that you did not see. A date given as "years before present" (before AD 1950): quote that definition too, so the lesson can say it as a year BC or AD.',
       '- title: the page\'s title as the tool gave it, plus the publisher, e.g. "Tides and Water Levels — NOAA Ocean Service". A title cut short stays cut short: never complete or improve a title from memory.',
       '- url: the page\'s exact URL, as the tool gave it.',
       '- n: 1, 2, 3, … in order.',
@@ -190,7 +191,7 @@
       'When your research is done, reply with one JSON object only (no commentary before or after), exactly this shape:',
       '{',
       '  "sources": [',
-      '    { "n": 1, "title": "<page title — publisher>", "url": "https://…", "quote": "<exact words from the page, at most 30>" }',
+      '    { "n": 1, "title": "<page title — publisher>", "url": "https://…", "quote": "<exact words from the page, at most 40>" }',
       '  ],',
       '  "topic": { "notes": [ { "claim": "<a fact the whole course uses>", "sourceIds": [1] } ] },',
       '  "ideas": {',
@@ -330,7 +331,8 @@
       }
       return lines.join('\n');
     }
-    var out = ['RESEARCH: the only sources you may cite (cite as [^n] with these numbers)'];
+    var out = ['RESEARCH: the only sources you may cite (cite as [^n] with these numbers)',
+      'The course plan was written before this research. A detail in the plan that these notes do not back (a specific event, number or claim) stays out of the lesson, or is said with care ("probably", "some historians think").'];
     lr.sources.forEach(function (src) {
       out.push('[' + src.n + '] ' + data(src.title, 160) + ' — ' + data(src.url, 300));
       out.push('    "' + data(src.quote, 400) + '"');
@@ -414,7 +416,7 @@
       'predict',
       '- q (at most 40 words): what will happen when Dan changes something from the interactive\'s opening state. He answers it by moving away from that state, so the opening screen must not already show the answer.',
       '  Example: the interactive opens with a kettle half full. Ask "Fill it to the top: how much longer will it take to boil?", not "How long does it take to boil?".',
-      '  For a contested idea, ask instead which view he finds more convincing, or what evidence would settle it.',
+      '  For a contested idea, ask instead which view he finds more convincing, or what evidence would settle it. Then the opening screen shows no view as the answer, and playing shows what each view explains; the reveal weighs them without a winner.',
       '- options: 2-4 short choices (at most 12 words each); one is the common intuition, especially where it is wrong. Leave options out only when a free guess works better.',
       '- reveal (at most 50 words): what actually happens and why the tempting answer tempts, reading well whichever option he chose. For a contested idea: what each side points to, with no winner.',
       '',
@@ -925,7 +927,7 @@
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
       if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be a full http(s) URL.');
-      if (v.str(x.quote, p + '.quote') && words(x.quote) > 30) v.add(p + '.quote has ' + words(x.quote) + ' words; quotes are at most 30.');
+      if (v.str(x.quote, p + '.quote') && words(x.quote) > 40) v.add(p + '.quote has ' + words(x.quote) + ' words; quotes are at most 40.');
     });
     if (opts.sources === null && Array.isArray(o.sources) && o.sources.length) v.add('No research was supplied, so "sources" must be [] and the lesson must have no [^n] markers.');
     if (Array.isArray(opts.sources) && Array.isArray(o.sources)) o.sources.forEach(function (x, k) {
@@ -996,7 +998,7 @@
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
       if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be the full http(s) URL you opened.');
-      if (v.str(x.quote, p + '.quote') && words(x.quote) > 30) v.add(p + '.quote has ' + words(x.quote) + ' words; copy at most 30 words.');
+      if (v.str(x.quote, p + '.quote') && words(x.quote) > 40) v.add(p + '.quote has ' + words(x.quote) + ' words; copy at most 40 words.');
     });
     function notes(list, p) {
       if (!Array.isArray(list)) { v.add(p + ' must be a list of { claim, sourceIds }.'); return; }

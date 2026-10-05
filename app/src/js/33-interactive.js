@@ -146,7 +146,7 @@ U.interactive = (function () {
         out.push('- id "' + str(o.id) + '": ' + str(o.label) + (o.unit ? ' (' + str(o.unit) + ')' : '') + (isDp(o) ? ', decimals: ' + o.decimals : ''));
       });
     } else if (Array.isArray(spec.outputs)) {
-      out.push('Outputs: none. No rule computes a number here, so show no readouts: the picture, its labels and the .say line do the teaching.');
+      out.push('Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.');
     }
     var nums = (spec.numbers || []).filter(function (n) { return n && n.label; });
     if (nums.length) {
