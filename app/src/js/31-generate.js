@@ -29,6 +29,7 @@
     FIRST_RESEARCH_WAIT_MS: 15 * 1000, // ...and the topic's first lesson, so Dan is not kept waiting
     RESEARCH_STALE_MS: 8 * 60 * 1000, // a 'running' research older than this is abandoned
     RESEARCH_RETRY_MS: 10 * 60 * 1000, // a lesson re-tries 'failed'/'unavailable' research this old
+    RESEARCH_TRIES: 3,                // ...but runs that failed (error, timeout, page gone) only this many in a row
     KNOWN_MAX: 60,
   };
   var LEVELS = ['new', 'some', 'solid'];
@@ -252,10 +253,27 @@
       if (text && typeof text === 'object') return text;
       try { return JSON.parse(String(text)); } catch (e) { return null; }
     }
-    function found(hay, quote) {
-      var frags = s(quote).split(/\.\.\.|…/).map(normText).filter(function (f) { return f.length >= 8; });
-      if (!frags.length) frags = [normText(quote)];
-      return frags.every(function (f) { return f && hay.indexOf(f) >= 0; });
+    // The quote is in one text the tools returned (one excerpt, one page's full text, a title):
+    // every part of it between ellipses, however short (an invented "… 400 m/s" is often the short
+    // part), in the order the quote gives them, all in that same text. Research usually searches
+    // and then fetches the same page, so its words are held twice; checking each text on its own
+    // keeps "B … A" from passing because A is in the fetched page and B in a search excerpt.
+    function found(texts, quote) {
+      var frags = s(quote).split(/\.\.\.|…/).map(normText).filter(Boolean);
+      return frags.length > 0 && texts.some(function (hay) { return inOrder(' ' + hay + ' ', frags); });
+    }
+    // Each part as whole words: "400" is not found inside "1400", and a quote can never begin or
+    // end part-way through a word of the page, which could turn "impossible" into "possible" or
+    // "unsafe" into "safe". A quote copied from an excerpt that was itself cut mid-word still
+    // passes: the edge of a text counts as a word boundary.
+    function inOrder(text, frags) {
+      var at = 0;
+      return frags.every(function (f) {
+        for (var i = text.indexOf(f, at); i >= 0; i = text.indexOf(f, i + 1)) {
+          if (text[i - 1] === ' ' && text[i + f.length] === ' ') { at = i + f.length; return true; }
+        }
+        return false;
+      });
     }
     return {
       calls: 0,
@@ -265,9 +283,11 @@
           p.results.forEach(function (r) {
             var key = r && U.prompts.urlKey(r.url);
             if (!key) return;
+            // Each text kept on its own (found() checks a quote within one of them).
             var parts = [r.title].concat(Array.isArray(r.excerpts) ? r.excerpts : [], [r.full_content]).filter(function (x) { return typeof x === 'string'; });
             if (U.research && U.research._plain) parts = parts.map(U.research._plain);
-            (pages[key] = pages[key] || []).push(normText(parts.join(' \u0001 ')));
+            var list = pages[key] = pages[key] || [];
+            parts.map(normText).forEach(function (x) { if (x && list.indexOf(x) < 0) list.push(x); });
           });
           return true;
         }
@@ -284,23 +304,28 @@
       // With a url: the quote must be on that page when the tools returned it as a result.
       hasQuote: function (quote, url) {
         var key = url ? U.prompts.urlKey(url) : null;
-        if (key && pages[key]) return found(pages[key].join(' \u0001 '), quote);
-        var all = norm.concat(Object.keys(pages).map(function (k) { return pages[k].join(' \u0001 '); }));
-        return found(all.join(' \u0001 '), quote);
+        if (key && pages[key]) return found(pages[key], quote);
+        return found(norm.concat.apply(norm, Object.keys(pages).map(function (k) { return pages[k]; })), quote);
       },
     };
   }
   // Lower-case words only. A hyphen between two letters or digits is dropped, with any line break
   // after it, so "dis- turbances" (a PDF line break), "disturbances" and "well-known" / "wellknown"
-  // compare equal on both sides.
+  // compare equal on both sides. A number stays one word: its digit groups join ("1,481", or
+  // with a thin or no-break space, is "1481") and a decimal point between digits stays inside it
+  // ("343.2" is "343p2"), so an invented "… 481 metres" is not found in "1,481 metres", nor
+  // "… 2 metres" in "343.2 metres". Done before NFKD, which would make those spaces plain ones.
   function normText(t) {
-    return s(t).normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
+    // Digit groups are joined on both sides, whatever separates them (a comma, a plain, no-break
+    // or thin space), so "1,481", "1 481" and "1481" are one word and "481" is not it.
+    return s(t).replace(/(\d)[, \u00a0\u2009\u202f](?=\d{3}(?!\d))/g, '$1').replace(/(\d)\.(?=\d)/g, '$1p')
+      .normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase()
       .replace(/([a-z0-9])[-‐‑–]\s*([a-z0-9])/g, '$1$2')
       .replace(/&(amp|nbsp|quot|apos|lt|gt|#\d+);/g, ' ')
       .replace(/[^a-z0-9]+/g, ' ').trim();
   }
   function wrapTools(tools, corpus) {
-    return (tools || []).map(function (t) {
+    var out = (tools || []).map(function (t) {
       var w = {};
       Object.keys(t).forEach(function (k) { w[k] = t[k]; });
       w.execute = function (input) {
@@ -316,6 +341,9 @@
       };
       return w;
     });
+    // U.ask gives each call to Claude a fresh budget through the list's reset(); keep it.
+    if (tools && typeof tools.reset === 'function') out.reset = tools.reset;
+    return out;
   }
 
   // raw = research reply {sources, topic:{notes}, ideas:{iid:{notes}}} -> per-key docs.
@@ -373,30 +401,52 @@
   function research(tid) {
     if (researching[tid]) return researching[tid];
     var L = liveOf(tid);
-    var p = Promise.resolve().then(function () { return U.research.available(); }).then(function (ok) {
-      if (!ok) {
-        L.research = 'unavailable';
-        emit(tid, null, 'research', 'unavailable', '');
-        return U.store.topic.update(tid, { research: { status: 'unavailable', at: U.now(), sources: 0 } }).then(function () { return null; });
-      }
+    // No connector, or a view that cannot run page tools (sample.limits() without `tools`, or a
+    // call that rejects tools_unavailable): nothing here can check sources, which is not a
+    // failure to retry. Lessons are written and labelled unsourced.
+    function unavailable() {
+      L.research = 'unavailable';
+      emit(tid, null, 'research', 'unavailable', '');
+      return U.store.topic.update(tid, { research: { status: 'unavailable', at: U.now(), sources: 0, reason: null } }).then(function () { return null; });
+    }
+    var p = Promise.resolve().then(function () {
+      return Promise.all([U.research.available(), U.rt.toolsOk ? U.rt.toolsOk() : true]);
+    }).then(function (ok) {
+      if (!ok[0] || !ok[1]) return unavailable();
       return U.store.topic.get(tid).then(function (t) {
         if (!t || !Array.isArray(t.ideas) || !t.ideas.length) throw { code: 'not_found', message: 'There is no plan to research yet.' };
         L.research = 'running';
         emit(tid, null, 'research', 'running', 'Looking for sources…');
-        return U.store.topic.update(tid, { research: { status: 'running', at: U.now(), sources: 0, error: null } }).then(function () { return runResearch(t); });
+        // tries: runs in a row that did not finish (failed, or left 'running' by a page that went
+        // away), this one included. Lessons stop re-running research at CFG.RESEARCH_TRIES.
+        var before = t.research || {};
+        var tries = (before.status === 'failed' || before.status === 'running') && before.reason !== 'none_confirmed' ? (Number(before.tries) || 0) + 1 : 1;
+        return U.store.topic.update(tid, { research: { status: 'running', at: U.now(), sources: 0, error: null, reason: null, tries: tries } }).then(function () { return runResearch(t); });
       });
     }).then(function (res) {
       if (!res) return null;
+      if (!res.kept) {
+        // Research ran, but no source survived the check (no URL the tools returned, or no quote
+        // on its page), so nothing was checked: the topic must not say "Sources checked" over
+        // lessons that say "Not yet source-checked". Stored as failed, so the Library offers "Check
+        // the sources again", with reason 'none_confirmed': the run itself finished, so lessons
+        // never re-run it on their own (the same search would cost the same and confirm nothing).
+        var none = 'No source could be confirmed against the pages the search returned.';
+        L.research = 'failed';
+        emit(tid, null, 'research', 'failed', none);
+        return U.store.topic.update(tid, { research: { status: 'failed', at: U.now(), sources: 0, dropped: res.dropped.length, error: none, reason: 'none_confirmed' } }).then(function () { return res; });
+      }
       L.research = 'done';
       emit(tid, null, 'research', 'done', res.kept + ' sources checked');
-      return U.store.topic.update(tid, { research: { status: 'done', at: U.now(), sources: res.kept, dropped: res.dropped.length, error: null } }).then(function () { return res; });
+      return U.store.topic.update(tid, { research: { status: 'done', at: U.now(), sources: res.kept, dropped: res.dropped.length, error: null, reason: null, tries: 0 } }).then(function () { return res; });
     }).catch(function (e) {
+      if (e && e.code === 'tools_unavailable') return unavailable().catch(noop).then(function () { return null; });
       console.warn('research failed', e);
       L.research = 'failed';
       var f = failure(e, 'check sources');
       emit(tid, null, 'research', 'failed', f.message);
       if (e && e.code === 'not_found') return null;
-      return U.store.topic.update(tid, { research: { status: 'failed', at: U.now(), sources: 0, error: f.message } }).catch(noop).then(function () { return null; });
+      return U.store.topic.update(tid, { research: { status: 'failed', at: U.now(), sources: 0, error: f.message, reason: 'error' } }).catch(noop).then(function () { return null; });
     });
     researching[tid] = p;
     p.then(function () { if (researching[tid] === p) delete researching[tid]; });
@@ -424,22 +474,35 @@
       if (done && stop) stop();
     });
   }
+  // Should a lesson start research again on its own? Research that never ran, yes. Otherwise only
+  // after RESEARCH_RETRY_MS, and only research that did not finish: 'unavailable' (asking costs
+  // nothing: no tools here means no call to Claude), or a run that failed or was left 'running'
+  // by a page that went away, at most RESEARCH_TRIES runs in a row. A run that finished but could
+  // confirm no source is final here: each re-run is a paid call (up to 8 searches and 4 fetches)
+  // that a lesson would wait for, to the same end. Dan's "Check the sources again" still runs it.
+  function rerun(r) {
+    if (!r.status || r.status === 'none') return true;
+    if (r.status === 'unavailable') return age(r.at) > CFG.RESEARCH_RETRY_MS;
+    if (r.status !== 'failed' && r.status !== 'running') return false;
+    if (r.reason === 'none_confirmed' || (Number(r.tries) || 0) >= CFG.RESEARCH_TRIES) return false;
+    return r.status === 'running' || age(r.at) > CFG.RESEARCH_RETRY_MS;
+  }
   // The research a lesson should be written from: waits (bounded) for research that is running.
-  // The topic's first lesson waits only briefly; it is written unsourced rather than keep Dan waiting.
+  // The topic's first lesson waits only briefly; it is written unsourced rather than keep Dan
+  // waiting. A job that is cancelled stops waiting at once.
   function researchFor(tid, topic, iid, job) {
     var r = topic.research || {}, wait = null;
     var started = Date.parse(r.at || '') || Date.now();
     if (researching[tid]) wait = researching[tid];
     else if (r.status === 'running' && age(r.at) < CFG.RESEARCH_STALE_MS) wait = 'watch';
-    else if (!r.status || r.status === 'none' || r.status === 'running' ||
-      ((r.status === 'failed' || r.status === 'unavailable') && age(r.at) > CFG.RESEARCH_RETRY_MS)) { started = Date.now(); wait = research(tid); }
+    else if (rerun(r)) { started = Date.now(); wait = research(tid); }
     if (!wait) return loadResearch(tid, iid, depsOf(topic, iid));
     var left = Math.max(5000, CFG.RESEARCH_WAIT_MS - (Date.now() - started));
     var first = (topic.ideas || []).filter(function (i) { return !i.known; })[0];
     if (first && first.id === iid) left = Math.min(left, CFG.FIRST_RESEARCH_WAIT_MS);
     progress(job, 'Checking sources for this idea…', 'writing');
     var p = wait === 'watch' ? waitForTopicResearch(tid, left) : Promise.race([wait.catch(noop), U.sleep(left)]);
-    return p.then(function () { return loadResearch(tid, iid, depsOf(topic, iid)); });
+    return unlessCancelled(job, p).then(function () { return loadResearch(tid, iid, depsOf(topic, iid)); });
   }
 
   // ==================================================================================
@@ -498,6 +561,21 @@
   }
   function cancelled(job) { return !!(job.ctrl && job.ctrl.signal.aborted); }
   function stillWanted(job) { if (cancelled(job)) throw { code: 'cancelled', message: 'This lesson was not needed after all.' }; }
+  // p, or {code:'cancelled'} the moment the job is cancelled: work nobody wants any more stops
+  // waiting at once (for research, Claude's reply, an interactive's tests, another device), and
+  // what it was waiting for carries on alone, ignored. The job then leaves the doc as the rules
+  // in stopped() say, without waiting for any of that to end.
+  function unlessCancelled(job, p) {
+    var sig = job && job.ctrl && job.ctrl.signal;
+    if (!sig || typeof sig.addEventListener !== 'function') return Promise.resolve(p);
+    return new Promise(function (resolve, reject) {
+      function stop() { try { stillWanted(job); } catch (e) { reject(e); } }
+      if (sig.aborted) return stop();
+      sig.addEventListener('abort', stop);
+      Promise.resolve(p).then(function (v) { sig.removeEventListener('abort', stop); resolve(v); },
+        function (e) { sig.removeEventListener('abort', stop); reject(e); });
+    });
+  }
   // U.ask options for this job: background work yields to Dan's foreground calls.
   // Every model call for one lesson carries the lesson's key, so when Dan opens a lesson that
   // was being prefetched its queued calls run at once (U._gate promotes by key).
@@ -602,7 +680,7 @@
     var tid = job.tid, iid = job.iid;
     if (!leaseRef(job) && busy(doc) && fresh(doc.updatedAt) && !abandoned(doc) && !round) {
       progress(job, 'Your other device is preparing this lesson. Waiting for it…', 'waiting');
-      return watchOther(tid, iid).then(function (d) {
+      return unlessCancelled(job, watchOther(tid, iid)).then(function (d) {
         return d || U.store.lesson.get(tid, iid).then(function (now) { return takeOver(job, now, 1); });
       });
     }
@@ -610,7 +688,7 @@
       if (!r.acquired) {
         if (round >= CFG.LEASE_ROUNDS) throw { code: 'busy', message: 'Another device is preparing this lesson. Try again in a minute.' };
         progress(job, 'Your other device is preparing this lesson. Waiting for it…', 'waiting');
-        return watchOther(tid, iid, untilExpiry(r)).then(function (d) {
+        return unlessCancelled(job, watchOther(tid, iid, untilExpiry(r))).then(function (d) {
           return d || U.store.lesson.get(tid, iid).then(function (now) { return takeOver(job, now, round + 1); });
         });
       }
@@ -640,9 +718,21 @@
 
   function relearn(tid, iid, opts) {
     opts = opts || {};
-    var job = running(tid, iid);
-    if (job) { join(job, opts); return job.promise; }
-    job = newJob(tid, iid, {});
+    // Never join a job already running for this lesson (the first writing, an interactive still
+    // building, another Rebuild): it would hand back that lesson as the "fresh" one, and Dan's
+    // note would never reach the writer. A job Dan is waiting for (foreground) finishes first,
+    // then the new lesson is written. A background one (a prefetch, or a lesson he left while it
+    // was being written) is work nobody is waiting for, on a lesson about to be replaced: it is
+    // cancelled (its queued calls drop, running ones stop, its waits end at once) and only puts
+    // the doc back as stopped() says (a fresh claim undone, a written lesson left resumable)
+    // before the rewrite starts.
+    var busyJob = jobs[tid + '/' + iid];
+    if (busyJob) {
+      if (busyJob.background || cancelled(busyJob)) cancel(busyJob);
+      else if (typeof opts.onStatus === 'function') safe(opts.onStatus, 'Finishing the lesson already being prepared, then writing the new one…');
+      return busyJob.promise.catch(noop).then(function () { return relearn(tid, iid, opts); });
+    }
+    var job = newJob(tid, iid, {});
     subscribe(job, opts.onStatus);
     var feedback = isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null;
     job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
@@ -655,7 +745,7 @@
           if (r.acquired) return write(job, { avoid: avoid.slice(0, 3), feedback: feedback, prev: doc });
           if (round >= CFG.LEASE_ROUNDS) throw { code: 'busy', message: 'Another device is preparing this lesson. Try again in a minute.' };
           progress(job, 'Your other device is working on this lesson. Waiting for it…', 'waiting');
-          return U.sleep(untilExpiry(r)).then(function () { return attempt(round + 1); });
+          return unlessCancelled(job, U.sleep(untilExpiry(r))).then(function () { return attempt(round + 1); });
         });
       })(0);
     });
@@ -690,11 +780,27 @@
     return patch;
   }
   function who() { return { device: DEVICE, tab: TAB, page: PAGE, holder: HOLDER }; }
+  // The "This looks wrong" notes on any of these docs, as one keyed map (the newest 30), or null.
+  function flagsOf(docs) {
+    var all = {}, out = {};
+    docs.forEach(function (d) { if (d && d.flags) U.entries(d.flags).forEach(function (e) { all[e.key] = e.value; }); });
+    var list = U.entries(all).slice(-30);
+    list.forEach(function (e) { out[e.key] = e.value; });
+    return list.length ? out : null;
+  }
 
   // The doc back as it was before this job touched it: gone if the job created it, or if it was
   // someone's unfinished work (restoring that would only make it look alive again).
   function restore(tid, iid, prev) {
-    if (prev && !busy(prev)) { var d = U.clone(prev); delete d.__id; return U.store.lesson.set(tid, iid, d); }
+    if (prev && !busy(prev)) {
+      var d = U.clone(prev);
+      delete d.__id;
+      // Notes Dan left while this job held the doc stay with it.
+      return U.store.lesson.get(tid, iid).catch(function () { return null; }).then(function (now) {
+        d.flags = flagsOf([prev, now]);
+        return U.store.lesson.set(tid, iid, d);
+      });
+    }
     if (U.store.lesson.remove) return U.store.lesson.remove(tid, iid);
     var db = U.rt.db || U.memdb;
     return db.doc(U.store.paths.lesson(tid, iid)).delete();
@@ -735,9 +841,15 @@
       idea = t.ideas.filter(function (i) { return i.id === iid; })[0];
       if (!idea) throw { code: 'not_found', message: 'This idea is not part of the topic any more.' };
       topic = t;
-      return U.store.lesson.set(tid, iid, {
-        status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
-        by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
+      // The claim replaces the whole doc. Dan's "This looks wrong" notes belong to the idea, not
+      // to one version of its lesson, so they come along: those on the doc this job started from,
+      // and those on it now (a note saved just before Rebuild may have landed since).
+      return U.store.lesson.get(tid, iid).catch(function () { return null; }).then(function (now) {
+        return U.store.lesson.set(tid, iid, {
+          status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
+          by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
+          flags: flagsOf([o.prev, now]),
+        });
       });
     }).then(function (r) {
       goneIfNull(r);
@@ -750,11 +862,12 @@
       var allowed = lr && lr.sources.length ? lr.sources : null;
       return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');
+        // Each call ends the moment the job is cancelled (relearn cancelling a prefetch).
         function ask() {
-          return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
+          return unlessCancelled(job, U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
             tier: 'default', json: true, label: 'write-lesson',
             schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
-          }));
+          })));
         }
         return ask().catch(function (e) {
           if (!rewritable(e)) throw e;
@@ -823,12 +936,12 @@
     if (!I || typeof I.build !== 'function') return Promise.resolve(null);
     return Promise.resolve().then(function () {
       stillWanted(job);
-      return I.build(topic, idea, lesson, {
-        onStatus: function (t) { if (isStr(t)) progress(job, t, 'building'); }, avoid: avoid[0] || null,
+      return unlessCancelled(job, I.build(topic, idea, lesson, {
+        onStatus: function (t) { if (isStr(t) && !cancelled(job)) progress(job, t, 'building'); }, avoid: avoid[0] || null,
         signal: job.ctrl ? job.ctrl.signal : undefined, key: gateKey(job),
         // Asked at each call, so repairs follow the lesson once Dan opens it.
         priority: function () { return job.background ? 'background' : undefined; },
-      });
+      }));
     }).then(function (r) { return r && isStr(r.html) ? r : null; }, function (e) {
       if (transient(e) || cancelled(job)) throw e;
       console.warn('interactive build failed', e);
@@ -911,10 +1024,13 @@
     }, function (e) { throw failure(e, 'check your answers'); });
   }
 
-  // The tutor's tools: web_fetch opens pages from its own searches, plus `allow` (the checked sources).
+  // The tutor's tools: web_fetch opens pages from its own searches, plus `allow` (the checked
+  // sources). None without the connector, or on a view that cannot run page tools.
   function researchTools(allow) {
-    return Promise.resolve().then(function () { return U.research.available(); }).then(function (ok) {
-      return ok ? U.research.tools(null, { allow: allow || [] }) : null;
+    return Promise.resolve().then(function () {
+      return Promise.all([U.research.available(), U.rt.toolsOk ? U.rt.toolsOk() : true]);
+    }).then(function (ok) {
+      return ok[0] && ok[1] ? U.research.tools(null, { allow: allow || [] }) : null;
     }).catch(function () { return null; });
   }
   // Pages the tutor may reopen without searching: the lesson's sources and the checked research.
@@ -965,20 +1081,28 @@
     return tutorContext(context || {}).then(function (ctx) {
       return researchTools(sourceUrls(ctx)).then(function (tools) { return [ctx, tools]; });
     }).then(function (r) {
-      var ctx = r[0], tools = r[1];
-      ctx.tools = !!(tools && tools.length);
-      var turns = conversation(U.prompts.tutor(ctx), messages);
-      if (!turns) throw { code: 'invalid', message: 'Ask a question first.' };
-      var acc = '';
-      return U.ask(turns, {
-        tier: 'default', label: 'tutor', signal: opts.signal, tools: tools || undefined,
-        onText: typeof opts.onText === 'function' ? function (ev) {
-          if (typeof ev === 'string') acc = acc && ev.indexOf(acc) === 0 ? ev : acc + ev;
-          else if (ev && typeof ev.text === 'string') acc = ev.text;
-          else if (ev && typeof ev.delta === 'string') acc += ev.delta;
-          safe(opts.onText, acc);
-        } : undefined,
-      });
+      var ctx = r[0], tools = r[1] && r[1].length ? r[1] : null;
+      // A view that turns out not to run page tools (tools_unavailable) gets the question asked
+      // again without them, and without the prompt's lines about them: an answer, not an error.
+      function ask(withTools) {
+        ctx.tools = withTools;
+        var turns = conversation(U.prompts.tutor(ctx), messages);
+        if (!turns) throw { code: 'invalid', message: 'Ask a question first.' };
+        var acc = '';
+        return U.ask(turns, {
+          tier: 'default', label: 'tutor', signal: opts.signal, tools: withTools ? tools : undefined,
+          onText: typeof opts.onText === 'function' ? function (ev) {
+            if (typeof ev === 'string') acc = acc && ev.indexOf(acc) === 0 ? ev : acc + ev;
+            else if (ev && typeof ev.text === 'string') acc = ev.text;
+            else if (ev && typeof ev.delta === 'string') acc += ev.delta;
+            safe(opts.onText, acc);
+          } : undefined,
+        }).catch(function (e) {
+          if (withTools && e && e.code === 'tools_unavailable') return ask(false);
+          throw e;
+        });
+      }
+      return ask(!!tools);
     }).then(function (text) { return s(text).trim(); }, function (e) { throw failure(e, 'answer questions'); });
   }
 

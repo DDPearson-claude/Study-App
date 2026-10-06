@@ -200,6 +200,12 @@
   V.slowNote = function (what) {
     return U.h('p', { class: 'v-slow muted small', role: 'status' }, 'Still waiting for ' + what + '. The connection seems slow; ' + (/s$/.test(what) ? 'they appear' : 'it appears') + ' as soon as ' + (/s$/.test(what) ? 'they arrive' : 'it arrives') + '.');
   };
+  // Dan's saved work has not arrived yet (U.rt.savedLate: db or user still on its way, see
+  // 10-runtime.js): an empty list may only mean that, so a screen says so instead of its
+  // first-visit or "not here" state. Boot draws the screen again when the saved work comes.
+  V.savedLate = function (what) {
+    return U.h('p', { class: 'v-slow v-saved-late muted small', role: 'status' }, 'Your saved work is still loading, so ' + what + ' may not show yet. ' + (/s$/.test(what) ? 'They appear' : 'It appears') + ' here as soon as it arrives.');
+  };
   V.loadError = function (what, e, retrying) {
     return U.h('div', { class: 'notice v-load-error' + (retrying ? '' : ' bad'), role: 'status' },
       U.h('div', { class: 'stack-sm' },
@@ -467,14 +473,21 @@
       var keyNow = topics.map(function (t) { return t.id; }).join(',') + '\n' + sigs.join('\n') + '\n' + progVersion + '\n' + !!progressFailed;
       if (keyNow === shownKey) return;
       shownKey = keyNow;
-      page.classList.toggle('is-returning', topics.length > 0);
+      // While his saved work is still loading he is not a first-time visitor either.
+      var late = !topics.length && U.rt.savedLate();
+      page.classList.toggle('is-returning', topics.length > 0 || late);
       input.placeholder = topics.length ? 'Type any topic…' : 'Tides, black holes, jazz…';
       if (shownFailed !== progressFailed) {
         shownFailed = progressFailed;
         U.clear(noteBox);
         if (progressFailed) noteBox.appendChild(V.loadError('Your progress', progressFailed, false));
       }
-      if (!topics.length) { U.clear(continueBox); U.clear(listBox); grid = head = null; listBox.appendChild(welcome()); return; }
+      if (!topics.length) {
+        U.clear(continueBox); U.clear(listBox); grid = head = null;
+        if (late) listBox.append(V.savedLate('your topics'), skeletonCards());
+        else listBox.appendChild(welcome());
+        return;
+      }
       var best = continuePick(), cs = best ? best.t.id + '|' + sigOf(best.t) : '';
       if (cs !== contSig) { contSig = cs; U.clear(continueBox); if (best) continueBox.appendChild(continueCard(best)); }
       if (!grid || !grid.isConnected) {

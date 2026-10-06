@@ -119,6 +119,7 @@
       book = collect(r[0] || [], r[1] || {});
       U.clear(body);
       actions.hidden = !book.length;
+      if (!book.length && U.rt.savedLate()) { body.appendChild(V.savedLate('your Book')); return; }
       if (!book.length) {
         body.appendChild(V.empty({
           art: U.h('div', { class: 'v-empty-art book-empty-art', 'aria-hidden': 'true' }, U.icon('book')),

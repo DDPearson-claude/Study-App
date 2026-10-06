@@ -156,6 +156,7 @@
       var job = ++renderJob;
       drawJob++;
       U.clear(body);
+      if (!topics.length && U.rt.savedLate()) { body.appendChild(V.savedLate('your map')); return; }
       if (!topics.length) {
         body.appendChild(V.empty({
           art: U.h('div', { class: 'v-empty-art map-empty-art' }, emptyArt()),

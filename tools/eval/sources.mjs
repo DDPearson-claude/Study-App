@@ -64,8 +64,13 @@ for (const f of files) {
   const text = seen(t);
   if (!corpus.add(text) && t.tool === 'web_fetch' && t.input) corpus.add([].concat(t.input.urls || []).join('\n'));
 }
+// The answer is picked as the app picks it (U.ask: U.parseJson.pick with the research validator).
 let raw = null, problems = [];
-try { raw = U.parseJson(replyText); problems = U.validate.research(raw, { ideas: topic.ideas }); } catch (e) { problems = ['could not parse: ' + (e.message || e)]; }
+const got = U.parseJson.pick(replyText, (o) => U.validate.research(o, { ideas: topic.ideas }));
+if (got.problems) {
+  problems = got.problems;
+  try { raw = U.parseJson(replyText); } catch (e) { problems = ['could not parse: ' + (e.message || e)]; }
+} else raw = got.value;
 const ids = (topic.ideas || []).map((i) => i.id);
 const res = raw ? U.gen._filterResearch(raw, corpus, ids) : { docs: {}, kept: 0, dropped: [] };
 // Back to the reply's shape: kept sources renumbered 1..k, notes pointing at them.
