@@ -304,6 +304,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
   position: sticky; bottom: 0; z-index: 1; display: flex; flex-direction: column; gap: 10px;
   margin: 0 -20px; padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
   background: var(--surface); border-top: 1px solid var(--line);
+  container: tutor-dock / inline-size;   /* the chips wrap by the width the dock gets (below) */
 }
 .tutor-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
 .tutor-chips::-webkit-scrollbar { display: none; }
@@ -317,11 +318,17 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tutor-chips.more-left { --fade-l: transparent; }
 .tutor-chips.more-right { --fade-r: transparent; }
 /* The chips wrap, so every one is whole, before the first question (only the two starters show)
-   and on a laptop, where the dialog has room for a second row. The one-line sideways row is for
-   the three chips under a conversation on a phone, and for the starters while the keyboard is up
-   on a short phone screen (is-cramped, 51-tutor.js), so the welcome above them stays readable. */
-.tutor-sheet.is-empty:not(.is-cramped) .tutor-chips, :root[data-layout="laptop"] .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
-.tutor-sheet.is-empty:not(.is-cramped) .tutor-chips .chip, :root[data-layout="laptop"] .tutor-chips .chip { flex: 0 1 auto; }
+   and in a dock wide enough for the first two side by side (a laptop's dialog: 440 px and 25rem
+   inside it), so the three take two rows at most. The one-line sideways row is for the three
+   chips under a conversation in a phone-wide sheet (Laptop pinned on a phone too), and for the
+   chips while the keyboard is up on a short screen (is-cramped, 51-tutor.js), so the welcome or
+   the conversation above them stays readable. */
+.tutor-sheet.is-empty:not(.is-cramped) .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
+.tutor-sheet.is-empty:not(.is-cramped) .tutor-chips .chip { flex: 0 1 auto; }
+@container tutor-dock (min-width: 440px) and (min-width: 25rem) {
+  .tutor-sheet:not(.is-cramped) .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
+  .tutor-sheet:not(.is-cramped) .tutor-chips .chip { flex: 0 1 auto; }
+}
 .tutor-chips .chip[disabled] { opacity: .5; cursor: default; }
 .tutor-compose { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 8px; align-items: end; }
 .tutor-input.textarea { min-height: 52px; max-height: 160px; resize: none; padding-block: 13px; overflow-y: auto; }

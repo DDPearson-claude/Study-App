@@ -553,17 +553,23 @@ section('the kit in a live frame');
     '<div id="tiles" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(6rem,1fr));gap:8px">' +
     ['Serbia', 'Germany', 'Russia', 'France', 'Belgium', 'Britain'].map((t) => '<b class="panel">' + t + '</b>').join('') + '</div></div>' });
   const july = examples.find((e) => e.name === 'july-1914').body;
-  for (const [name, html, tiles] of [['a centred tile grid', tileBody, '#tiles > *'], ['july-1914', july, '.nation']]) {
+  // The same with no max-width: the visual is itself the grid of tiles, centred with auto margins.
+  const gridBody = body(plain + "\nK.stage('#scene', '#c');", { html: '<div id="scene" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(6rem,1fr));gap:8px;margin:0 auto">' +
+    ['Serbia', 'Germany', 'Russia', 'France', 'Belgium', 'Britain'].map((t) => '<b class="panel">' + t + '</b>').join('') + '</div>' });
+  const mountStage = async (html, width) => {
+    await wide.page.evaluate(async ([h, w]) => {
+      if (window.st) window.st.destroy();
+      const box = document.getElementById('stagebox') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'stagebox' }));
+      box.style.cssText = 'width:' + w + 'px';
+      window.st = U.sandbox.mount(box, { html: h });
+      await window.st.ready;
+      await new Promise((r) => setTimeout(r, 300));
+    }, [html, width]);
+    return wide.page.frames().filter((f) => f !== wide.page.mainFrame() && !f.isDetached()).pop();
+  };
+  for (const [name, html, tiles] of [['a centred tile grid', tileBody, '#tiles > *'], ['july-1914', july, '.nation'], ['a grid of tiles centred with auto margins', gridBody, '#scene > *']]) {
     for (const w of [926, 1086]) {
-      await wide.page.evaluate(async ([h, width]) => {
-        if (window.st) window.st.destroy();
-        const box = document.getElementById('stagebox') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'stagebox' }));
-        box.style.cssText = 'width:' + width + 'px';
-        window.st = U.sandbox.mount(box, { html: h });
-        await window.st.ready;
-        await new Promise((r) => setTimeout(r, 300));
-      }, [html, w]);
-      const sf = wide.page.frames().filter((f) => f !== wide.page.mainFrame() && !f.isDetached()).pop();
+      const sf = await mountStage(html, w);
       const s = await sf.evaluate((sel) => {
         const st = document.querySelector('.k-stage'), v = st.firstElementChild, c = st.lastElementChild;
         const col = parseFloat(getComputedStyle(st).gridTemplateColumns), max = parseFloat(getComputedStyle(v).maxWidth) || Infinity;
@@ -573,6 +579,23 @@ section('the kit in a live frame');
       expect(`${name} in a ${w} px K.stage: the visual fills its column (up to its max-width) beside the controls, tiles ${name === 'july-1914' ? 'four' : 'several'} to a row`,
         s.beside && Math.abs(s.visual - Math.min(s.col, s.max)) <= 2 && (name === 'july-1914' ? s.cols === 4 : s.cols >= 4), s);
     }
+  }
+  // ...but a fixed-size drawing the body centres (auto margins on its wrapper, text-align, or
+  // justify-self) stays centred in the column at its own size, not stretched to the left edge.
+  const dial = '<canvas id="cv" width="260" height="260" style="width:260px;height:260px"></canvas>';
+  for (const [name, html] of [
+    ['a wrapper with auto margins', '<div id="scene" style="margin:0 auto">' + dial + '<p class="caption">The dial</p></div>'],
+    ['a wrapper with auto margins and text-align: center', '<div id="scene" style="margin:0 auto;text-align:center">' + dial + '</div>'],
+    ['a wrapper with justify-self: center', '<div id="scene" style="justify-self:center">' + dial + '</div>'],
+  ]) {
+    const sf = await mountStage(body(plain + "\nK.stage('#scene', '#c');", { html }), 926);
+    const s = await sf.evaluate(() => {
+      const st = document.querySelector('.k-stage'), sr = st.getBoundingClientRect(), d = document.getElementById('cv').getBoundingClientRect();
+      const col = parseFloat(getComputedStyle(st).gridTemplateColumns);
+      return { col: Math.round(col), drawing: Math.round(d.width), centre: Math.round(d.left + d.width / 2 - sr.left), want: Math.round(col / 2), beside: st.lastElementChild.getBoundingClientRect().left > d.right };
+    });
+    expect(`a 260 px drawing centred by ${name} in a 926 px K.stage stays centred in its column at its own size`,
+      s.beside && s.drawing === 260 && Math.abs(s.centre - s.want) <= 2, s);
   }
   await wide.page.evaluate(() => { window.st.destroy(); document.getElementById('stagebox').remove(); });
 

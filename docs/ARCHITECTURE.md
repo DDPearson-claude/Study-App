@@ -284,7 +284,8 @@ sound      K.sound.tone / chord / stop / mute                     plays only aft
 until moved  class k-after-move, K.moved, K.afterMove(fn), K.reveal()
 layout     K.stage(visual, controls, {max = 600, beside}): controls under the visual, fitted to max px
            tall in a frame under 560 px; beside the visual in a frame >= 860 px wide (unless beside:false),
-           the visual filling its column up to its own max-width
+           a side that is a grid or has a max-width filling its column up to it (k-fill), a
+           fixed-size drawing the body centres keeping its size
 helpers    K.el K.svg K.labels K.fmt K.near K.clamp K.lerp K.linspace K.round K.color(role, alpha?)  K.theme {dark, size, c}
 ```
 Messages (`postMessage`, each with `src:'kit'`; a reply carries its request's `rid`):

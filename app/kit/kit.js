@@ -1313,9 +1313,21 @@
     v.parentNode.insertBefore(st, v);
     st.appendChild(v);
     st.appendChild(c);
+    stageFill(v); stageFill(c);
     stages.push({ el: st, visual: v, controls: c, max: num(o.max, 600) });
     return { el: st };
   };
+  // Beside each other (a wide frame) the two sides are grid items, and one centred with auto
+  // margins shrinks to its narrowest content: a grid of tiles to one column. A side that is a grid,
+  // or has a max-width, gets k-fill and fills its column up to that max-width, as on a phone
+  // (kit.css). A side with neither (a fixed-size drawing the body centres) keeps its own size, and
+  // so does one the body places itself (justify-self).
+  function stageFill(el) {
+    if (!el || /^(svg|canvas|img|video)$/i.test(el.tagName)) return;
+    var cs = getComputedStyle(el), mw = cs.maxWidth;
+    el.classList.toggle('k-fill', (/grid/.test(cs.display) || (mw !== 'none' && mw !== '100%')) &&
+      /^(auto|normal|stretch|)$/.test(cs.justifySelf || ''));
+  }
   function stageFigure(s) {
     if (s.visual.__kplot) return { plot: s.visual.__kplot };
     var f = /^(svg|canvas)$/i.test(s.visual.tagName) ? s.visual : s.visual.querySelector('.k-plot, svg, canvas');
@@ -1324,8 +1336,10 @@
     return f ? { el: f } : null;
   }
   function fitStage(s) {
+    if (!s.el.isConnected) return;
+    stageFill(s.visual); stageFill(s.controls);   // the body's own styles may change with the width
     var f = stageFigure(s);
-    if (!f || !s.el.isConnected) return;
+    if (!f) return;
     if (f.plot) { if (f.plot.maxHeight) { f.plot.maxHeight = 0; f.plot.redraw(); } }
     else f.el.style.maxHeight = '';
     if (document.documentElement.clientWidth >= PHONE) return;

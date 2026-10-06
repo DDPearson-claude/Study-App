@@ -119,8 +119,9 @@ Give an `<svg>` a viewBox about 340 wide, `width="100%"`, text 11-14 units, `rol
 `aria-label` that follows the state; on desktop the kit centres and caps it (600 px, 1.45 × the
 viewBox) so text stays a sensible size. `K.labels` places labels in a `<g>` (viewBox units),
 nudging each off other text and inside the drawing: use it for labels that move. `K.stage` joins
-the visual and its controls: fitted to 600 px tall on a phone, side by side on a laptop, the visual
-filling the left column up to its max-width (`beside: false` stacks them).
+the visual and its controls: fitted to 600 px tall on a phone, side by side on a laptop, a
+max-width visual filling its column, a centred fixed-size one keeping its size (`beside: false`
+stacks them).
 
 ## Colour
 Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')`

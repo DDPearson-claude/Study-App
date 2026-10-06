@@ -157,16 +157,19 @@ function eyebrowOf(page) {
 // The Ask Claude sheet: the chips showing in its dock, chips in the conversation, its height,
 // and whether every chip showing is whole inside the sheet (not cut off at its edge); how many
 // rows the chips take, whether their row scrolls sideways and which of its edges fade (more-left,
-// more-right), whether the keyboard-up layout is on (is-cramped), and whether the empty-state
-// heading is whole between the sheet's top and the dock.
+// more-right), whether the keyboard-up layout is on (is-cramped), whether the empty-state
+// heading is whole between the sheet's top and the dock, and the height left for the
+// conversation between the sheet's title and the dock (msgArea).
 function tutorState(page) {
   return page.evaluate(() => {
     const sh = document.querySelector('.tutor-sheet'), sr = sh.getBoundingClientRect();
     const row = sh.querySelector('.tutor-chips'), cs = getComputedStyle(row), dock = sh.querySelector('.tutor-dock').getBoundingClientRect();
     const shown = [...sh.querySelectorAll('.tutor-dock .chip')].filter((c) => !c.hidden);
     const head = sh.querySelector('.tutor-empty-head'), hr = head && head.getBoundingClientRect();
+    const title = sh.querySelector('.sheet-head').getBoundingClientRect();
     return { chips: shown.map((c) => c.textContent).join('|'), inLog: sh.querySelectorAll('.tutor-log .chip').length,
-      empty: sh.classList.contains('is-empty'), h: Math.round(sr.height), vh: innerHeight,
+      empty: sh.classList.contains('is-empty'), h: Math.round(sr.height), vh: innerHeight, layout: document.documentElement.dataset.layout,
+      dockH: Math.round(dock.height), msgArea: Math.round(dock.top - Math.max(sr.top, title.bottom)),
       whole: shown.every((c) => { const r = c.getBoundingClientRect(); return r.left >= sr.left - 0.5 && r.right <= sr.right + 0.5; }),
       rows: new Set(shown.map((c) => Math.round(c.getBoundingClientRect().top))).size,
       scrolls: row.scrollWidth > row.clientWidth + 1, fade: [...row.classList].filter((c) => /^more-/.test(c)).join(' '),
@@ -559,7 +562,8 @@ async function textSizes() {
 // With the keyboard up on a phone (the input focused in a 360 x 400 viewport, at XL), the two
 // starters go back on one sideways row so the welcome above them stays whole; with it down they
 // wrap, both whole. Under a conversation every chip is whole on a laptop at every Text size (they
-// wrap); on a phone the sideways row fades at the edge it runs on past, until scrolled to its end.
+// wrap); on a phone the sideways row fades at the edge it runs on past, until scrolled to its end,
+// and so it does with Laptop pinned on a phone, whose dialog is phone-wide (keyboard up and down).
 async function tutorChips() {
   current = 'tutor chips';
   console.log('\n' + current);
@@ -610,6 +614,27 @@ async function tutorChips() {
     await page.waitForTimeout(200);
     t = await tutorState(page);
     ok(t.fade === 'more-left' && t.mask, `scrolled to its end, the row fades only at the left edge (${JSON.stringify(t)})`);
+
+    // Laptop pinned on a phone: the dialog is phone-wide, so the chips keep the sideways row as on
+    // the phone layout (wrapped there they took three rows and, with the keyboard up, nearly all
+    // the room the conversation had).
+    await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = 0; });
+    for (const [w, h, size] of [[390, 844, 'm'], [360, 707, 'xl'], [390, 844, 'xl']]) {
+      await page.evaluate(() => U.layout.set('auto'));
+      const phoneDock = (await view(w, h, size)).dockH;
+      await page.evaluate(() => U.layout.set('laptop'));
+      t = await view(w, h, size);
+      ok(t.layout === 'laptop' && t.rows === 1 && t.scrolls && t.fade === 'more-right' && t.mask && t.dockH <= phoneDock + 2,
+        `Laptop pinned at ${w}x${h} ${size}: the chips run on one sideways row that fades at its edge, the dock no taller than on the phone layout (${phoneDock}px) (${JSON.stringify(t)})`);
+      if (w === 390 && size === 'm') await shot(app, 'tutor-pinned-laptop-390-m-chips');
+    }
+    await page.locator('.tutor-input').focus();
+    t = await view(360, 400, 'xl');   // the keyboard comes up
+    ok(t.layout === 'laptop' && t.cramped && t.rows === 1 && t.msgArea >= 120,
+      `Laptop pinned at 360x400 XL, keyboard up: the chips stay on one row, leaving room for the conversation (${JSON.stringify(t)})`);
+    await shot(app, 'tutor-pinned-laptop-360x400-xl-keyboard');
+    await page.locator('.tutor-input').blur();
+    await page.evaluate(() => U.layout.set('auto'));
     await page.evaluate(() => { document.documentElement.dataset.size = 'm'; });
     await noOverflow(app);
   } catch (e) {
