@@ -17,6 +17,7 @@
   var PHONE = 560;                        // frames narrower than this get the phone layout
   var PHONE_VIEW = 640;                   // roughly how much of the frame a phone shows at once
   var FIG_MAX = 600;                      // custom figures never grow wider than this
+  var SIZE_XL = 20;                       // K.theme.size at the app's largest Text size (XL)
   var BODY_LINE = +window.K_BODY_LINE || 0; // srcdoc line where the body starts (for error lines)
   var host = window.parent;                // captured now, so a body can't redirect it
   var hosted = !!host && host !== window;
@@ -725,10 +726,12 @@
     }
     r.get = function () { return r.value; };
     r.text = function () { return val.textContent; };
-    // Tiles share a row; a long label gets a wider tile so it wraps to at most two lines.
+    // Tiles share a row; a long label gets a wider tile so it wraps to at most two lines, and
+    // never one narrower than its longest word, so no word splits (at a large Text size too).
     r.layout = function () {
-      var w = textWidth(o.label || id, fontOf(lab));
-      el.style.flexBasis = 'min(100%, ' + Math.max(132, Math.ceil(w / 1.8 + 34)) + 'px)';
+      var font = fontOf(lab), w = textWidth(o.label || id, font);
+      var word = String(o.label || id).split(/\s+/).reduce(function (m, t) { return Math.max(m, textWidth(t, font)); }, 0);
+      el.style.flexBasis = 'min(100%, ' + Math.max(132, Math.ceil(w / 1.8 + 34), Math.ceil(word + 30)) + 'px)';
       fit();
     };
     readouts[id] = r;
@@ -1310,9 +1313,21 @@
     v.parentNode.insertBefore(st, v);
     st.appendChild(v);
     st.appendChild(c);
+    stageFill(v); stageFill(c);
     stages.push({ el: st, visual: v, controls: c, max: num(o.max, 600) });
     return { el: st };
   };
+  // Beside each other (a wide frame) the two sides are grid items, and one centred with auto
+  // margins shrinks to its narrowest content: a grid of tiles to one column. A side that is a grid,
+  // or has a max-width, gets k-fill and fills its column up to that max-width, as on a phone
+  // (kit.css). A side with neither (a fixed-size drawing the body centres) keeps its own size, and
+  // so does one the body places itself (justify-self).
+  function stageFill(el) {
+    if (!el || /^(svg|canvas|img|video)$/i.test(el.tagName)) return;
+    var cs = getComputedStyle(el), mw = cs.maxWidth;
+    el.classList.toggle('k-fill', (/grid/.test(cs.display) || (mw !== 'none' && mw !== '100%')) &&
+      /^(auto|normal|stretch|)$/.test(cs.justifySelf || ''));
+  }
   function stageFigure(s) {
     if (s.visual.__kplot) return { plot: s.visual.__kplot };
     var f = /^(svg|canvas)$/i.test(s.visual.tagName) ? s.visual : s.visual.querySelector('.k-plot, svg, canvas');
@@ -1321,8 +1336,10 @@
     return f ? { el: f } : null;
   }
   function fitStage(s) {
+    if (!s.el.isConnected) return;
+    stageFill(s.visual); stageFill(s.controls);   // the body's own styles may change with the width
     var f = stageFigure(s);
-    if (!f || !s.el.isConnected) return;
+    if (!f) return;
     if (f.plot) { if (f.plot.maxHeight) { f.plot.maxHeight = 0; f.plot.redraw(); } }
     else f.el.style.maxHeight = '';
     if (document.documentElement.clientWidth >= PHONE) return;
@@ -1381,6 +1398,13 @@
   function halosSoon() { if (!haloRaf) haloRaf = (window.requestAnimationFrame || setTimeout)(halos); }
 
   // ---------- layout ----------
+  // The text size in px (the self-test's XL pass): the root, so every rem size, and the body
+  // follow --k-fs, and the layout is redone for it.
+  function setTextSize(px) {
+    K.theme.size = px;
+    document.documentElement.style.setProperty('--k-fs', px + 'px');
+    if (readyCalled) relayout();
+  }
   // Width-dependent layout: control end labels and value widths, readout tiles, figure caps
   // and stages. Runs after K.ready(), when the frame changes width, and on a theme change.
   function relayout() {
@@ -1648,9 +1672,55 @@
     }
     return 'content is ' + de.scrollWidth + 'px wide in a ' + cw + 'px frame' + (culprits.length ? ': ' + culprits.join(', ') : '');
   }
+  // A word in a wrapping text node that is split across two lines (overflow-wrap breaks a word
+  // wider than its box: "Germany" as "German" / "y"). Hyphens, soft hyphens and spaces are
+  // ordinary breaks, so "Austria-" / "Hungary" is fine. Words come from Intl.Segmenter (else
+  // runs of Latin letters and digits). Scripts that wrap between characters (Chinese, Japanese,
+  // Korean) or by the line breaker's own dictionary (Thai, Lao, Khmer, Myanmar) end a line
+  // anywhere in a "word", so they are never flagged. Changes `range`. -> {word, need} | null
+  var WRAPS_ANYWHERE = /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Hangul}\p{sc=Bopomofo}\p{sc=Thai}\p{sc=Lao}\p{sc=Khmer}\p{sc=Myanmar}]/u;
+  var LATIN_WORD = /[\p{sc=Latin}\p{N}][\p{sc=Latin}\p{N}\p{M}'\u2019]*/gu;
+  var segmenter = null;
+  try { segmenter = new Intl.Segmenter(undefined, { granularity: 'word' }); } catch (e) { /* the Latin rule below */ }
+  function wordsOf(text) {
+    var out = [], m;
+    if (segmenter) {
+      Array.from(segmenter.segment(text), function (s) {
+        if (!s.isWordLike || WRAPS_ANYWHERE.test(s.segment)) return;
+        // A soft hyphen is a break too. The range of the part after one also holds the hyphen
+        // drawn at the end of the line before, so that part is measured from its second letter.
+        var at = s.index;
+        s.segment.split('\u00ad').forEach(function (w, k) { out.push({ index: at, word: w, from: k ? 1 : 0 }); at += w.length + 1; });
+      });
+    } else {
+      LATIN_WORD.lastIndex = 0;
+      while ((m = LATIN_WORD.exec(text))) out.push({ index: m.index, word: m[0], from: text.charAt(m.index - 1) === '\u00ad' ? 1 : 0 });
+    }
+    return out;
+  }
+  function splitWord(n, range) {
+    var words = wordsOf(n.nodeValue);
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      if (w.word.length < 2) continue;
+      range.setStart(n, w.index + (w.from || 0));
+      range.setEnd(n, w.index + w.word.length);
+      var rs = Array.prototype.filter.call(range.getClientRects(), function (r) { return r.width > 0; });
+      if (rs.length > 1 && rs[rs.length - 1].top - rs[0].top > rs[0].height / 2) {
+        if (w.from) {   // the whole word for its width, less the hyphen on the line before
+          var line1 = rs[0].top - rs[0].height / 2;
+          range.setStart(n, w.index);
+          rs = Array.prototype.filter.call(range.getClientRects(), function (r) { return r.width > 0 && r.top > line1; });
+        }
+        return { word: w.word, need: rs.reduce(function (sum, r) { return sum + r.width; }, 0) };
+      }
+    }
+    return null;
+  }
   // Text a person can't fully read at this width: cut off by its own or an ancestor's overflow
-  // (hidden, clip, or a text-overflow ellipsis), a no-wrap line spilling out of its box, text off
-  // the left edge, SVG text outside its drawing, and SVG labels printed over each other.
+  // (hidden, clip, or a text-overflow ellipsis), a no-wrap line spilling out of its box, a word
+  // split across two lines, text off the left edge, SVG text outside its drawing, and SVG labels
+  // printed over each other.
   // -> [{key, msg}]
   function clippedNow() {
     var out = [], styles = new Map();
@@ -1670,6 +1740,18 @@
       if (!b.width || !b.height) continue;
       var text = snippet(el.textContent || n.nodeValue), fs = parseFloat(es.fontSize) || 16;
       if (b.left < -1) { seenEl.add(el); out.push({ key: 'left|' + pathOf(el), msg: '"' + text + '" runs off the left edge of the page' }); continue; }
+      // Only a node that wraps onto more than one line can split a word, and not where the body
+      // asks for breaks inside words on purpose (hyphens: auto, a DNA string with break-all).
+      var anyBreak = (es.hyphens || es.webkitHyphens) === 'auto' || es.wordBreak === 'break-all' || es.overflowWrap === 'anywhere' || es.lineBreak === 'anywhere';
+      var split = !anyBreak && range.getClientRects().length > 1 && splitWord(n, range);
+      if (split) {
+        var box = el;
+        while (box.parentElement && box !== document.body && /^(inline|contents)$/.test(st(box).display)) box = box.parentElement;
+        var bs = st(box), room = box.clientWidth - (parseFloat(bs.paddingLeft) || 0) - (parseFloat(bs.paddingRight) || 0);
+        seenEl.add(el);
+        out.push({ key: 'split|' + pathOf(el), msg: 'the word "' + split.word + '" is split across two lines in ' + describeEl(box) + ' (it needs ' + Math.ceil(split.need) + 'px and has ' + Math.max(0, Math.floor(room)) + 'px)' });
+        continue;
+      }
       // A line that may not wrap (white-space: nowrap or pre) spilling out of its own box.
       if (/^(nowrap|pre)$/.test(es.whiteSpace) && es.display !== 'inline' && el.clientWidth) {
         var er = el.getBoundingClientRect(), left = er.left + el.clientLeft, right = left + el.clientWidth;
@@ -1848,6 +1930,20 @@
         controls.forEach(function (c) { var v = c.sweep(); c.set(v[v.length - 1], true); });
         await step('every control at its highest');
         controls.forEach(function (c, k) { c.set(init[k], true); });
+      }
+      // Once more at Dan's largest Text size: rem sizes grow by a quarter, so a word that fits
+      // its tile at M can split, or a line spill, at XL. Throwaway frames only (Dan never sees it).
+      if (throwaway && K.theme.size < SIZE_XL) {
+        var size0 = K.theme.size;
+        setTextSize(SIZE_XL);
+        try {
+          await step('Text size XL');
+          for (var x = 0; x < controls.length; x++) {
+            var cx = controls[x], xs = cx.sweep();
+            for (var y = 0; y < xs.length; y++) { cx.set(xs[y], true); await step('Text size XL, ' + cx.id + ' = ' + cx.describe(xs[y])); }
+            cx.set(init[x], true);
+          }
+        } finally { setTextSize(size0); }
       }
       if (throwaway) {
         for (var b = 0; b < actions.length; b++) {

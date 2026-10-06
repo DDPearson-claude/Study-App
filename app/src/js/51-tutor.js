@@ -10,6 +10,7 @@
 (function () {
   var CHIPS = ['Explain it differently', 'Give me an example', 'Are you sure?'];
   var STARTERS = 2;     // the chips that make sense before any answer ("Are you sure?" needs one)
+  var SHORT = 500;      // a viewport shorter than this (px) with the input focused: the keyboard is up
   var KEEP = 20;
   var threads = {};     // 'tid/iid' -> [{role, content, pending?, error?}]
   var view = null;      // the open sheet: {key, refresh(msg), close()}
@@ -148,6 +149,21 @@
       sendBtn.disabled = !!msgs.busy || !input.value.trim();
       chips.querySelectorAll('.chip').forEach(function (c, i) { c.disabled = !!msgs.busy; c.hidden = !msgs.length && i >= STARTERS; });
       if (sheet) sheet.el.classList.toggle('is-empty', !msgs.length);
+      edges();
+    }
+    // A sideways row of chips that runs on past the sheet's edge fades out there (50-lesson.css).
+    function edges() {
+      var max = chips.scrollWidth - chips.clientWidth;
+      chips.classList.toggle('more-left', max > 1 && chips.scrollLeft > 1);
+      chips.classList.toggle('more-right', max > 1 && chips.scrollLeft < max - 1);
+    }
+    // The keyboard is up on a phone: the input has focus in a short viewport. The starters then go
+    // back on one sideways row, so the welcome above them stays readable (50-lesson.css).
+    var vv = window.visualViewport;
+    function cramped() {
+      var h = Math.min(window.innerHeight || Infinity, vv && vv.height || Infinity);
+      if (sheet) sheet.el.classList.toggle('is-cramped', document.activeElement === input && h < SHORT);
+      edges();
     }
 
     function msgEl(m, i) {
@@ -210,12 +226,29 @@
       ask(key, msgs, m, context);
     }
 
+    // The keyboard opening or closing resizes the viewport. Leaving the input is looked at a moment
+    // later, so a starter tapped then does not move under the finger before its click lands.
+    var later = 0, ro = null;
+    function blurred() { clearTimeout(later); later = setTimeout(cramped, 150); }
     var sheet = U.sheet({
       title: 'Ask Claude', body: body, autofocus: !media('(pointer: coarse)'),
-      onClose: function () { if (view && view.sheet === sheet) view = null; },
+      onClose: function () {
+        if (view && view.sheet === sheet) view = null;
+        clearTimeout(later);
+        window.removeEventListener('resize', cramped);
+        if (vv) vv.removeEventListener('resize', cramped);
+        if (ro) ro.disconnect();
+      },
     });
     sheet.el.classList.add('tutor-sheet');
     view = { key: key, sheet: sheet, refresh: refresh, close: function () { sheet.close(); } };
+    input.addEventListener('focus', cramped);
+    input.addEventListener('blur', blurred);
+    window.addEventListener('resize', cramped);
+    if (vv) vv.addEventListener('resize', cramped);
+    chips.addEventListener('scroll', edges, { passive: true });
+    // The row changes size with the text size and the layout too.
+    if (window.ResizeObserver) { ro = new ResizeObserver(function () { edges(); }); ro.observe(chips); }
     draw();
     requestAnimationFrame(function () { toBottom(true); });
     return sheet;

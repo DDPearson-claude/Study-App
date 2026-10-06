@@ -12,8 +12,11 @@
 // addFromLesson, Ask Claude with the interactive's state, footnote sheet, "This looks wrong",
 // revisiting a finished idea), preparing (ensureLesson pending with onStatus lines, predict while
 // the interactive builds, prefetch of the next idea), an error with Retry, resuming mid-lesson,
-// the no-interactive path (contested, not source-checked), and Text size XL on a phone (headings,
-// eyebrow, the interactive's own text size). Screenshots: tests/out/lesson-*.png.
+// the no-interactive path (contested, not source-checked), Text size XL on a phone (headings,
+// eyebrow, the interactive's own text size), and every Text size on phones and a laptop (the
+// eyebrow keeps the topic name, Ask Claude's starters, check questions on the heading scale), and
+// Ask Claude's chips with the keyboard up on a phone, under a conversation on a laptop and a phone.
+// Screenshots: tests/out/lesson-*.png.
 //
 // Usage: node tests/e2e/lesson.spec.mjs [scenario-filter]     exits non-zero on any failure
 import { spawnSync } from 'node:child_process';
@@ -142,20 +145,36 @@ async function answerCheck(app, check, right = true) {
   await card.locator('.qc-continue').waitFor();
 }
 async function continueCheck(app) { await app.page.locator('.lsn-check').last().locator('.qc-continue').click(); }
-// The eyebrow above the title: how many lines it takes, and whether the topic name and the
-// "Idea n of N" count are inside its visible box.
+// The eyebrow above the title: how many lines it takes, whether the topic name and the
+// "Idea n of N" count are inside its visible box, and whether the count is on one line (whole).
 function eyebrowOf(page) {
   return page.locator('.lsn-eb').evaluate((el) => {
-    const box = el.getBoundingClientRect(), inside = (sel) => { const p = el.querySelector(sel), r = p && p.getBoundingClientRect(); return !!r && r.top >= box.top - 1 && r.bottom <= box.bottom + 1; };
-    return { lines: Math.round(box.height / parseFloat(getComputedStyle(el).lineHeight)), topic: inside('.lsn-eb-topic'), count: inside('.lsn-eb-n') };
+    const box = el.getBoundingClientRect(), inside = (sel) => { const p = el.querySelector(sel), r = p && p.getBoundingClientRect(); return !!r && r.width > 0 && r.top >= box.top - 1 && r.bottom <= box.bottom + 1; };
+    return { lines: Math.round(box.height / parseFloat(getComputedStyle(el).lineHeight)), topic: inside('.lsn-eb-topic'), count: inside('.lsn-eb-n'),
+      whole: el.querySelector('.lsn-eb-n').getClientRects().length === 1 };
   });
 }
-// The Ask Claude sheet: the chips showing in its dock, chips in the conversation, its height.
+// The Ask Claude sheet: the chips showing in its dock, chips in the conversation, its height,
+// and whether every chip showing is whole inside the sheet (not cut off at its edge); how many
+// rows the chips take, whether their row scrolls sideways and which of its edges fade (more-left,
+// more-right), whether the keyboard-up layout is on (is-cramped), whether the empty-state
+// heading is whole between the sheet's top and the dock, and the height left for the
+// conversation between the sheet's title and the dock (msgArea).
 function tutorState(page) {
   return page.evaluate(() => {
-    const sh = document.querySelector('.tutor-sheet');
-    return { chips: [...sh.querySelectorAll('.tutor-dock .chip')].filter((c) => !c.hidden).map((c) => c.textContent).join('|'), inLog: sh.querySelectorAll('.tutor-log .chip').length,
-      empty: sh.classList.contains('is-empty'), h: Math.round(sh.getBoundingClientRect().height), vh: innerHeight };
+    const sh = document.querySelector('.tutor-sheet'), sr = sh.getBoundingClientRect();
+    const row = sh.querySelector('.tutor-chips'), cs = getComputedStyle(row), dock = sh.querySelector('.tutor-dock').getBoundingClientRect();
+    const shown = [...sh.querySelectorAll('.tutor-dock .chip')].filter((c) => !c.hidden);
+    const head = sh.querySelector('.tutor-empty-head'), hr = head && head.getBoundingClientRect();
+    const title = sh.querySelector('.sheet-head').getBoundingClientRect();
+    return { chips: shown.map((c) => c.textContent).join('|'), inLog: sh.querySelectorAll('.tutor-log .chip').length,
+      empty: sh.classList.contains('is-empty'), h: Math.round(sr.height), vh: innerHeight, layout: document.documentElement.dataset.layout,
+      dockH: Math.round(dock.height), msgArea: Math.round(dock.top - Math.max(sr.top, title.bottom)),
+      whole: shown.every((c) => { const r = c.getBoundingClientRect(); return r.left >= sr.left - 0.5 && r.right <= sr.right + 0.5; }),
+      rows: new Set(shown.map((c) => Math.round(c.getBoundingClientRect().top))).size,
+      scrolls: row.scrollWidth > row.clientWidth + 1, fade: [...row.classList].filter((c) => /^more-/.test(c)).join(' '),
+      mask: (cs.maskImage || cs.webkitMaskImage || 'none') !== 'none', cramped: sh.classList.contains('is-cramped'),
+      headWhole: !!hr && hr.top >= sr.top - 0.5 && hr.bottom <= dock.top + 0.5 };
   });
 }
 
@@ -176,7 +195,7 @@ async function walk(width, dark) {
     ok(await page.locator('.lsn-title').textContent() === 'What sets the beat', 'idea title from the topic doc');
     ok((await page.locator('.lsn-eb').textContent()).includes('Idea 1 of 5'), 'eyebrow says Idea 1 of 5');
     const eb = await eyebrowOf(page);
-    ok(eb.lines === 1 && eb.count && (width < 700 || eb.topic), `eyebrow is one line with the count${width < 700 ? '' : ' and the topic name'} (${JSON.stringify(eb)})`);
+    ok(eb.topic && eb.count && eb.whole && eb.lines <= (width < 700 ? 2 : 1), `eyebrow shows the topic name and the whole count${width < 700 ? ' (wrapping on a phone)' : ' on one line'} (${JSON.stringify(eb)})`);
     ok(await page.locator('.lsn-step.is-now').count() === 1, 'one current step in the progress bar');
     ok(await page.locator('.lsn-steps-label').textContent() === 'Predict', 'the bar names the stage, without a second "of N" beside the eyebrow\'s');
     ok(await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 1 of 5: Predict, current step', 'the current segment tells a screen reader "Step 1 of 5: Predict"');
@@ -216,6 +235,7 @@ async function walk(width, dark) {
     await page.locator('.tutor-sheet').waitFor();
     const empty = await tutorState(page);
     ok(empty.chips === 'Explain it differently|Give me an example' && empty.inLog === 0, `empty Ask Claude: the two starters sit just above the input (${empty.chips})`);
+    ok(empty.whole, 'empty Ask Claude: both starters are whole, not cut off at the sheet edge');
     ok(empty.empty && empty.h < empty.vh * 0.7, `empty Ask Claude is only as tall as it needs to be (${empty.h} of ${empty.vh}px)`);
     await shot(app, `${tag}-3a-tutor-empty`);
     await page.locator('.tutor-input').fill('Why the square root and not just double?');
@@ -476,6 +496,154 @@ async function xl() {
   } catch (e) {
     ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
     await shot(app, 'xl-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: Text size on phones and a laptop ----------
+// At every Text size, in one lesson resumed at its checks: the eyebrow keeps the topic name at M
+// and L (wrapping it, the count whole) and drops it at XL on a phone only when it cannot fit
+// beside the count; Ask Claude's two starters are whole before the first question; a check's
+// question follows the lesson's heading scale (--lsn-hrem), one step below its stage heading.
+async function textSizes() {
+  current = 'text sizes';
+  console.log('\n' + current);
+  const at = '2026-10-04T18:00:00.000Z';
+  const seed = {
+    'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'checks', startedAt: at, predict: { answer: 'It takes twice as long', at } } } },
+  };
+  const titles = ['Tides', 'Why pendulums keep time', 'Why minor keys sound sad', 'Why the Roman Republic fell', 'How the Romans built roads that lasted'];
+  const app = await open({ width: 360, height: 707, hash: '#/t/pendulums/i1', seed, reduced: true });
+  const { page } = app;
+  try {
+    await page.locator('.lsn-stage[data-stage="checks"] .qc-q').first().waitFor({ timeout: 15000 });
+    for (const [w, h] of [[360, 707], [390, 844], [1366, 768]]) {
+      await page.setViewportSize({ width: w, height: h });
+      for (const size of ['m', 'l', 'xl']) {
+        await page.evaluate((sz) => { document.documentElement.dataset.size = sz; }, size);
+        await page.waitForTimeout(200);
+        const tag = `${w} ${size}`;
+        const dropped = [];
+        for (const title of titles) {
+          await page.evaluate((t) => { document.querySelector('.lsn-eb-topic').textContent = t; }, title);
+          const eb = await eyebrowOf(page);
+          if (!eb.count || !eb.whole) ok(false, `${tag}: the eyebrow's count is whole for "${title}" (${JSON.stringify(eb)})`);
+          if (w < 700 && size === 'xl') {
+            if (eb.lines !== 1) ok(false, `${tag}: at XL on a phone the eyebrow keeps to one line for "${title}" (${JSON.stringify(eb)})`);
+            if (!eb.topic) dropped.push(title);
+          } else if (!eb.topic) ok(false, `${tag}: the topic name "${title}" stays in the eyebrow (${JSON.stringify(eb)})`);
+        }
+        if (w < 700 && size === 'xl') ok(!dropped.includes('Tides'), `${tag}: a topic name that fits beside the count stays at XL (dropped: ${dropped.join(', ')})`);
+        const q = await page.evaluate(() => {
+          const px = (sel) => parseFloat(getComputedStyle(document.querySelector(sel)).fontSize);
+          return { root: px('html'), stage: px('.lsn-stage[data-stage="checks"] .lsn-h'), q: px('.lsn-stage[data-stage="checks"] .qc-q') };
+        });
+        const hrem = q.root / 2 + 8;
+        ok(Math.abs(q.stage - 1.35 * hrem) < 0.1 && Math.abs(q.q - 1.2 * hrem) < 0.1 && q.q < q.stage,
+          `${tag}: the check question follows the heading scale below "Quick checks" (question ${q.q}px, heading ${q.stage}px, predict ${(1.35 * hrem).toFixed(2)}px)`);
+        await page.locator('.lsn-ask').click();
+        await page.locator('.tutor-sheet').waitFor();
+        await page.waitForTimeout(350);
+        const t = await tutorState(page);
+        ok(t.empty && t.chips === 'Explain it differently|Give me an example' && t.whole, `${tag}: empty Ask Claude shows both starters whole (${JSON.stringify(t)})`);
+        if (w === 360 && size === 'xl') await shot(app, 'sizes-360-xl-tutor');
+        await page.keyboard.press('Escape');
+        await page.locator('.tutor-sheet').waitFor({ state: 'detached' });
+      }
+    }
+    await noOverflow(app);
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'sizes-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: Ask Claude's chips with the keyboard up, on a phone and on a laptop ----------
+// With the keyboard up on a phone (the input focused in a 360 x 400 viewport, at XL), the two
+// starters go back on one sideways row so the welcome above them stays whole; with it down they
+// wrap, both whole. Under a conversation every chip is whole on a laptop at every Text size (they
+// wrap); on a phone the sideways row fades at the edge it runs on past, until scrolled to its end,
+// and so it does with Laptop pinned on a phone, whose dialog is phone-wide (keyboard up and down).
+async function tutorChips() {
+  current = 'tutor chips';
+  console.log('\n' + current);
+  const app = await open({ width: 360, height: 707, size: 'xl', hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM }, reduced: true });
+  const { page } = app;
+  const view = async (w, h, size) => {
+    await page.setViewportSize({ width: w, height: h });
+    if (size) await page.evaluate((sz) => { document.documentElement.dataset.size = sz; }, size);
+    await page.waitForTimeout(350);
+    return tutorState(page);
+  };
+  try {
+    await page.locator('.lsn-ask').waitFor({ timeout: 15000 });
+    await page.locator('.lsn-ask').click();
+    await page.locator('.tutor-sheet').waitFor();
+    let t = await view(360, 707);
+    ok(t.empty && !t.cramped && t.rows === 2 && t.whole && t.headWhole, `360x707 XL, keyboard down: both starters whole on two rows, the welcome above them (${JSON.stringify(t)})`);
+    await page.locator('.tutor-input').focus();
+    t = await view(360, 707);
+    ok(!t.cramped && t.rows === 2 && t.whole, `360x707 XL, input focused with room to spare: the starters stay wrapped and whole (${JSON.stringify(t)})`);
+    t = await view(360, 400);   // the keyboard comes up
+    ok(t.cramped && t.rows === 1 && t.headWhole && t.scrolls && t.fade === 'more-right' && t.mask,
+      `360x400 XL, keyboard up: the starters go on one sideways row that fades at its edge, and the welcome heading stays whole (${JSON.stringify(t)})`);
+    await shot(app, 'tutor-360x400-xl-keyboard');
+    await page.locator('.tutor-input').blur();   // and goes down
+    t = await view(360, 707);
+    ok(!t.cramped && t.rows === 2 && t.whole && !t.fade && !t.mask, `360x707 XL, keyboard down again: both starters whole on two rows, no fade (${JSON.stringify(t)})`);
+
+    await page.locator('.tutor-input').fill('Why the square root?');
+    await page.locator('.tutor-input').press('Enter');
+    await page.waitForFunction(() => /swing takes about/.test(document.querySelector('.tutor-log').textContent));
+    await page.waitForTimeout(300);
+    for (const [w, h] of [[1366, 768], [960, 768]]) {
+      for (const size of ['m', 'l', 'xl']) {
+        t = await view(w, h, size);
+        ok(!t.empty && t.chips.split('|').length === 3 && t.whole && !t.scrolls && !t.fade, `${w}x${h} ${size}: under a conversation all three chips are whole in the dialog (${JSON.stringify(t)})`);
+        if (size === 'xl') await shot(app, `tutor-${w}-xl-chips`);
+      }
+    }
+    for (const [w, h] of [[360, 707], [390, 844]]) {
+      for (const size of ['m', 'xl']) {
+        t = await view(w, h, size);
+        ok(t.rows === 1 && t.scrolls && t.fade === 'more-right' && t.mask, `${w}x${h} ${size}: the chips run on one sideways row that fades at the edge they run past (${JSON.stringify(t)})`);
+      }
+    }
+    await shot(app, 'tutor-390-xl-chips');
+    await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+    await page.waitForTimeout(200);
+    t = await tutorState(page);
+    ok(t.fade === 'more-left' && t.mask, `scrolled to its end, the row fades only at the left edge (${JSON.stringify(t)})`);
+
+    // Laptop pinned on a phone: the dialog is phone-wide, so the chips keep the sideways row as on
+    // the phone layout (wrapped there they took three rows and, with the keyboard up, nearly all
+    // the room the conversation had).
+    await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = 0; });
+    for (const [w, h, size] of [[390, 844, 'm'], [360, 707, 'xl'], [390, 844, 'xl']]) {
+      await page.evaluate(() => U.layout.set('auto'));
+      const phoneDock = (await view(w, h, size)).dockH;
+      await page.evaluate(() => U.layout.set('laptop'));
+      t = await view(w, h, size);
+      ok(t.layout === 'laptop' && t.rows === 1 && t.scrolls && t.fade === 'more-right' && t.mask && t.dockH <= phoneDock + 2,
+        `Laptop pinned at ${w}x${h} ${size}: the chips run on one sideways row that fades at its edge, the dock no taller than on the phone layout (${phoneDock}px) (${JSON.stringify(t)})`);
+      if (w === 390 && size === 'm') await shot(app, 'tutor-pinned-laptop-390-m-chips');
+    }
+    await page.locator('.tutor-input').focus();
+    t = await view(360, 400, 'xl');   // the keyboard comes up
+    ok(t.layout === 'laptop' && t.cramped && t.rows === 1 && t.msgArea >= 120,
+      `Laptop pinned at 360x400 XL, keyboard up: the chips stay on one row, leaving room for the conversation (${JSON.stringify(t)})`);
+    await shot(app, 'tutor-pinned-laptop-360x400-xl-keyboard');
+    await page.locator('.tutor-input').blur();
+    await page.evaluate(() => U.layout.set('auto'));
+    await page.evaluate(() => { document.documentElement.dataset.size = 'm'; });
+    await noOverflow(app);
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'tutor-chips-error').catch(() => {});
   }
   ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
   await app.close();
@@ -848,6 +1016,8 @@ const scenarios = [
   ['preparing', preparing],
   ['retry', retry],
   ['xl-390', xl],
+  ['text-sizes', textSizes],
+  ['tutor-chips', tutorChips],
   ['resume-360-light', () => resume(360, false)],
   ['resume-1280-dark', () => resume(1280, true)],
   ['plain-360-dark', () => plain(360, true)],

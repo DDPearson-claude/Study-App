@@ -119,8 +119,9 @@ Give an `<svg>` a viewBox about 340 wide, `width="100%"`, text 11-14 units, `rol
 `aria-label` that follows the state; on desktop the kit centres and caps it (600 px, 1.45 × the
 viewBox) so text stays a sensible size. `K.labels` places labels in a `<g>` (viewBox units),
 nudging each off other text and inside the drawing: use it for labels that move. `K.stage` joins
-the visual and its controls: fitted to 600 px tall on a phone, side by side on a laptop
-(`beside: false` stacks them).
+the visual and its controls: fitted to 600 px tall on a phone, side by side on a laptop, a
+max-width visual filling its column, a centred fixed-size one keeping its size (`beside: false`
+stacks them).
 
 ## Colour
 Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')`
@@ -147,6 +148,8 @@ SVG text that crosses lines gets a thin page-coloured halo by itself (`k-nohalo`
 - One idea, visible within ten seconds of play. One or two controls, three at most.
 - Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
   information, tap targets at least 44 px.
+- Text grows with Dan's Text size (a quarter bigger at XL). Size tiles and grid columns in rem
+  (`minmax(6rem, 1fr)`), so they reflow to fewer columns and no word splits across two lines.
 - Every number shown is a control, computed by the rule shown, a constant from the lesson, an
   assumed value shown as "for example", or a date from the lesson. Never invent data, rates or chances.
 - The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
@@ -167,10 +170,10 @@ SVG text that crosses lines gets a thin page-coloured halo by itself (`k-nohalo`
 ## The self-test
 Before Dan sees it, the app loads your body at 340, 720 and 1040 px wide, runs every check, sets each
 control to five values from min to max (every option of a choice), reveals the after-move parts,
-presses every `K.button` and plays every `K.anim` for 60 frames. It fails on an exception, NaN or
-Infinity, a list or object output, an update over 150 ms, sideways overflow, text cut off at any
-of those settings (hidden overflow, an ellipsis, SVG text outside its drawing or over another
-label), a control not on the page, or no `K.ready()`. It warns when the first control sits over a
+presses every `K.button` and plays every `K.anim` for 60 frames, then sweeps again at Text size XL.
+It fails on an exception, NaN or Infinity, a list or object output, an update over 150 ms, sideways
+overflow, text cut off at any of those settings (hidden overflow, an ellipsis, a word split across
+two lines, SVG text outside its drawing or over another label), a control not on the page, or no `K.ready()`. It warns when the first control sits over a
 phone screen below the main figure.
 
 ## Example

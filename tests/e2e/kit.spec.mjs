@@ -219,6 +219,43 @@ section('self-test catches broken bodies');
   r = await test(body(plain + "\nK.update((p) => { document.getElementById('b2').setAttribute('x', p.a > 0.7 ? 32 : 75); });",
     { html: '<svg viewBox="0 0 120 40" width="100%"><text x="30" y="20" font-size="10">swap</text><text id="b2" x="75" y="20" font-size="10">drags back</text></svg>' }));
   expect('SVG labels printed over each other at some setting fail', !r.ok && has(r.clipped, /SVG labels "swap" and "drags back" are printed over each other \(at a = 0\.8/), r.clipped);
+  // A word split across two lines (overflow-wrap breaking a word wider than its box) fails, at
+  // the size under test and at Text size XL, which the self-test also sweeps; a break at a hyphen
+  // or a space is fine.
+  // Words in px boxes: "Potassium" in 1rem bold is about 94 px wide at M and 118 px at XL.
+  const words = (w) => ['Potassium', 'Austria-Hungary'].map((t, i) => '<b' + (i ? '' : ' id="w"') + ' style="display:block;width:' + w + ';font-size:1rem">' + t + '</b>').join('');
+  r = await test(body(plain, { html: words('50px') }));
+  expect('a word split across two lines fails, naming the word and its room',
+    !r.ok && has(r.clipped, /the word "Potassium" is split across two lines in <b#w> \(it needs \d+px and has 50px\) \(at the opening state/), r.clipped);
+  r = await test(body(plain, { html: words('104px') }), { widths: [340] });
+  expect('a word that splits only at Text size XL is caught there (the self-test sweeps XL too)',
+    !r.ok && has(r.clipped, /"Potassium" is split across two lines .*\(at Text size XL/) && !has(r.clipped, /\(at the opening state/), r.clipped);
+  r = await test(body(plain, { html: words('6.5rem') }), { widths: [340] });
+  expect('the same boxes sized in rem keep every word whole at XL; a break at a hyphen is fine', r.ok && !r.clipped.length, r.clipped);
+  r = await test(body("K.model((p) => ({ y: p.a * 2, z: 1, w: 2, v: 3, u: 4 }));\n" +
+    ['z:Electronegativity', 'w:Mass', 'v:Charge', 'u:Radius'].map((t) => "K.readout({ id: '" + t.split(':')[0] + "', label: '" + t.split(':')[1] + "', into: '#o' });").join(' ')), { widths: [720] });
+  expect('a readout tile is never narrower than the longest word of its label', r.ok && !r.clipped.length, r.clipped);
+  // Ordinary line breaks inside a "word" are not splits: Chinese and Japanese wrap between any two
+  // characters, the browser hyphenates where the body asks it to (hyphens: auto), a soft hyphen is
+  // a break, and break-all / overflow-wrap: anywhere break long codes on purpose. A Latin word
+  // split by overflow-wrap is still caught, inside a Japanese sentence too.
+  const wrapping = {
+    'a Japanese sentence wider than its box': '<p lang="ja" style="font-size:1.25rem;line-height:1.6">ひらがなとカタカナと漢字を組み合わせて日本語の文章を書きます。</p>',
+    'a Chinese sentence wider than its box': '<p lang="zh" style="font-size:1.25rem">汉字是中文的书写系统，每个字都代表一个音节和一个意思，句子之间没有空格。</p>',
+    'hyphens: auto with a lang': '<p lang="en" style="hyphens:auto;width:90px">Electronegativity and photosynthesis</p>',
+    'a soft hyphen': '<p style="width:6rem">Electro­negativity</p>',
+    'a DNA string with word-break: break-all': '<p style="word-break:break-all;font-family:monospace">ATGCGTACGTTAGCATGCGTACGTTAGCATGCGTACGTTAGCATGCGTACGTTAGCATGCGTACGTTAGC</p>',
+    'a hex string with overflow-wrap: anywhere': '<p style="overflow-wrap:anywhere;font-family:monospace">0x3fa94c2b7e1d0f5a8c6b3e2d1f0a9b8c7d6e5f4a3b2c1d0e</p>',
+  };
+  for (const [what, html] of Object.entries(wrapping)) {
+    r = await test(body(plain, { html }), { widths: [340] });
+    expect(what + ' wraps without failing the self-test (at M and XL)', r.ok && !r.clipped.length, r.clipped.concat(r.errors));
+  }
+  r = await test(body(plain, { html: '<b id="w" style="display:block;width:50px;font-size:1rem">Germany</b>' }), { widths: [340] });
+  expect('"Germany" split across two lines still fails', !r.ok && has(r.clipped, /the word "Germany" is split across two lines in <b#w>/), r.clipped);
+  r = await test(body(plain, { html: '<p lang="ja" style="width:120px">これは <b>Electronegativity</b> の説明です。</p>' }), { widths: [340] });
+  expect('a Latin word split inside a Japanese sentence still fails (and only that word)',
+    !r.ok && has(r.clipped, /the word "Electronegativity" is split/) && r.clipped.length === 1, r.clipped);
   // Common patterns that are not clipping.
   const fine = body(plain + "\nconst rr = K.readout({ id: 'words', label: 'Pattern', into: '#o' }); K.update(() => rr.set('181 for every 120'));",
     { html: '<div class="panel" style="overflow:hidden;border-radius:12px"><p>Rounded panel with ordinary wrapping text that is long enough to wrap onto several lines.</p></div>' +
@@ -240,7 +277,7 @@ section('self-test catches broken bodies');
 
   // Choice controls: every option swept, reported with its options.
   r = await test(choiceBody);
-  expect('a choice is swept through every option (a NaN at option "e" is caught by its label)', !r.ok && has(r.sweep.problems, /readout "y" was given NaN \(at pick = "Label E"\)/), r.sweep);
+  expect('a choice is swept through every option (a NaN at option "e" is caught by its label)', !r.ok && has(r.sweep.problems, /readout "y" was given NaN \(at pick = "Label E"(, and \d+ more settings?)?\)/), r.sweep);
   expect('the report lists the choice with its options', r.controls.includes('pick') && JSON.stringify((r.inputs || [])[0] && r.inputs[0].options) === '["a","b","c","d","e","f"]' && r.inputs[0].value === 'b', r.inputs);
 
   // Buttons and animations are exercised.
@@ -509,6 +546,59 @@ section('the kit in a live frame');
   const desk = await wf.evaluate(() => { const r = K.$('#fig').getBoundingClientRect(); return { w: r.width, left: r.left, right: document.documentElement.clientWidth - r.right, page: document.documentElement.clientWidth }; });
   expect('on desktop a 340-wide figure is capped near 1.45x (493 px) and centred', Math.abs(desk.w - 493) <= 2 && Math.abs(desk.left - desk.right) <= 2, desk);
 
+  // K.stage on a laptop: a visual centred with a max-width and auto margins fills the stage's
+  // left column (up to that max-width), so a grid of tiles in it is not squeezed to one column.
+  // The july-1914 exemplar shows its seven tiles four to a row in the lesson's laptop frames.
+  const tileBody = body(plain + "\nK.stage('#scene', '#c');", { html: '<div id="scene" style="max-width:560px;margin-left:auto;margin-right:auto">' +
+    '<div id="tiles" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(6rem,1fr));gap:8px">' +
+    ['Serbia', 'Germany', 'Russia', 'France', 'Belgium', 'Britain'].map((t) => '<b class="panel">' + t + '</b>').join('') + '</div></div>' });
+  const july = examples.find((e) => e.name === 'july-1914').body;
+  // The same with no max-width: the visual is itself the grid of tiles, centred with auto margins.
+  const gridBody = body(plain + "\nK.stage('#scene', '#c');", { html: '<div id="scene" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(6rem,1fr));gap:8px;margin:0 auto">' +
+    ['Serbia', 'Germany', 'Russia', 'France', 'Belgium', 'Britain'].map((t) => '<b class="panel">' + t + '</b>').join('') + '</div>' });
+  const mountStage = async (html, width) => {
+    await wide.page.evaluate(async ([h, w]) => {
+      if (window.st) window.st.destroy();
+      const box = document.getElementById('stagebox') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'stagebox' }));
+      box.style.cssText = 'width:' + w + 'px';
+      window.st = U.sandbox.mount(box, { html: h });
+      await window.st.ready;
+      await new Promise((r) => setTimeout(r, 300));
+    }, [html, width]);
+    return wide.page.frames().filter((f) => f !== wide.page.mainFrame() && !f.isDetached()).pop();
+  };
+  for (const [name, html, tiles] of [['a centred tile grid', tileBody, '#tiles > *'], ['july-1914', july, '.nation'], ['a grid of tiles centred with auto margins', gridBody, '#scene > *']]) {
+    for (const w of [926, 1086]) {
+      const sf = await mountStage(html, w);
+      const s = await sf.evaluate((sel) => {
+        const st = document.querySelector('.k-stage'), v = st.firstElementChild, c = st.lastElementChild;
+        const col = parseFloat(getComputedStyle(st).gridTemplateColumns), max = parseFloat(getComputedStyle(v).maxWidth) || Infinity;
+        const lefts = [...document.querySelectorAll(sel)].map((t) => Math.round(t.getBoundingClientRect().left));
+        return { col: Math.round(col), visual: Math.round(v.getBoundingClientRect().width), max, beside: c.getBoundingClientRect().left > v.getBoundingClientRect().right, cols: new Set(lefts).size, tiles: lefts.length };
+      }, tiles);
+      expect(`${name} in a ${w} px K.stage: the visual fills its column (up to its max-width) beside the controls, tiles ${name === 'july-1914' ? 'four' : 'several'} to a row`,
+        s.beside && Math.abs(s.visual - Math.min(s.col, s.max)) <= 2 && (name === 'july-1914' ? s.cols === 4 : s.cols >= 4), s);
+    }
+  }
+  // ...but a fixed-size drawing the body centres (auto margins on its wrapper, text-align, or
+  // justify-self) stays centred in the column at its own size, not stretched to the left edge.
+  const dial = '<canvas id="cv" width="260" height="260" style="width:260px;height:260px"></canvas>';
+  for (const [name, html] of [
+    ['a wrapper with auto margins', '<div id="scene" style="margin:0 auto">' + dial + '<p class="caption">The dial</p></div>'],
+    ['a wrapper with auto margins and text-align: center', '<div id="scene" style="margin:0 auto;text-align:center">' + dial + '</div>'],
+    ['a wrapper with justify-self: center', '<div id="scene" style="justify-self:center">' + dial + '</div>'],
+  ]) {
+    const sf = await mountStage(body(plain + "\nK.stage('#scene', '#c');", { html }), 926);
+    const s = await sf.evaluate(() => {
+      const st = document.querySelector('.k-stage'), sr = st.getBoundingClientRect(), d = document.getElementById('cv').getBoundingClientRect();
+      const col = parseFloat(getComputedStyle(st).gridTemplateColumns);
+      return { col: Math.round(col), drawing: Math.round(d.width), centre: Math.round(d.left + d.width / 2 - sr.left), want: Math.round(col / 2), beside: st.lastElementChild.getBoundingClientRect().left > d.right };
+    });
+    expect(`a 260 px drawing centred by ${name} in a 926 px K.stage stays centred in its column at its own size`,
+      s.beside && s.drawing === 260 && Math.abs(s.centre - s.want) <= 2, s);
+  }
+  await wide.page.evaluate(() => { window.st.destroy(); document.getElementById('stagebox').remove(); });
+
   // reach(): can the lesson's target be met by moving its control?
   const brayton = examples.find((e) => e.kind === 'quantity').body;
   const sorter = examples.find((e) => e.kind === 'concept').body;
@@ -542,6 +632,9 @@ section('exemplars and the host API');
     expect(ex.name + ' passes at 340, 720 and 1040 (' + (Date.now() - t0) + ' ms)', r.ok && r.widths.every((w) => w.ok) && !r.overflow && r.sweep.ok && !r.errors.length, r);
     expect(ex.name + ': 3+ checks, all pass, one cites a source', r.checks.length >= 3 && r.checks.every((c) => c.ok) && r.checks.some((c) => /^https:\/\//.test(c.source || '')), r.checks);
     expect(ex.name + ': no warnings', !(r.warnings || []).length, r.warnings);
+    // In the lesson's frame on a 360 / 390 px phone at Text size XL: no word splits ("German/y").
+    const xl = await app.page.evaluate((h) => U.sandbox.test(h, { widths: [338, 368], theme: Object.assign(U.sandbox.theme(), { size: 20 }) }), ex.body);
+    expect(ex.name + ' at Text size XL in a 338 and 368 px frame: every word whole, nothing cut off', xl.ok && !xl.clipped.length, xl.clipped.concat(xl.errors));
   }
 
   // mount: ready, get/set, sandbox, spoofed messages, keyboard, onChange, theme, errors, destroy
