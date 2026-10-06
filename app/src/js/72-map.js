@@ -1,6 +1,8 @@
 // Map (#/map): every topic as a small constellation of idea dots, coloured by how well each idea
 // is holding (new = outline, fragile = amber, growing = teal, strong = navy). Bands come from
 // U.review.ideaBands() when the review module is present, else from progress (done = growing).
+// An idea Dan chose only to read ("Just teach me") is finished but never reviewed: its own dot,
+// "Read", and the key shows it only when a topic has one.
 // The SVG is laid out in real pixels for the card's width so labels stay readable on a phone;
 // tapping a dot opens that idea. Contract: docs/ARCHITECTURE.md sections 8 and 9.
 (function () {
@@ -13,7 +15,8 @@
     ['growing', 'Growing', 'settling in'],
     ['strong', 'Strong', 'yours for now'],
   ];
-  var WORDS = { new: 'new', fragile: 'fragile', growing: 'growing', strong: 'strong' };
+  var READ = ['read', 'Read', 'just for reading'];
+  var WORDS = { new: 'new', fragile: 'fragile', growing: 'growing', strong: 'strong', read: 'read' };
 
   var measureCtx = null;
   function textWidth(text, font) {
@@ -101,8 +104,8 @@
     return svg;
   }
 
-  function legend() {
-    return U.h('div', { class: 'map-legend', role: 'list', 'aria-label': 'What the colours mean' }, BANDS.map(function (b) {
+  function legend(withRead) {
+    return U.h('div', { class: 'map-legend' + (withRead ? ' has-read' : ''), role: 'list', 'aria-label': 'What the colours mean' }, BANDS.concat(withRead ? [READ] : []).map(function (b) {
       var s = V.s('svg', { class: 'map-key', viewBox: '-10 -10 20 20', width: 20, height: 20, 'aria-hidden': 'true' }, dot(b[0], 7));
       return U.h('div', { class: 'map-legend-item', role: 'listitem' }, s, U.h('span', { class: 'map-legend-text' }, U.h('strong', null, b[1]), U.h('span', { class: 'muted' }, b[2])));
     }));
@@ -138,6 +141,7 @@
     function bandsFor(t) {
       var from = bandsAll[t.id] || {}, out = {};
       t.ideas.forEach(function (i) {
+        if (V.isRead(progress[t.id], i.id)) { out[i.id] = 'read'; return; }
         var b = WORDS[from[i.id]] ? from[i.id] : null, done = V.isDone(progress[t.id], i.id);
         if (!b || (b === 'new' && done)) b = done ? 'growing' : 'new';
         out[i.id] = b;
@@ -166,7 +170,7 @@
         }));
         return;
       }
-      body.appendChild(legend());
+      body.appendChild(legend(topics.some(function (t) { return t.ideas.some(function (i) { return V.isRead(progress[t.id], i.id); }); })));
       U.clear(listBox);
       body.appendChild(listBox);
       var queue = topics.slice();
@@ -175,7 +179,7 @@
         var t0 = performance.now(), first = !listBox.firstChild;
         while (queue.length && (first || performance.now() - t0 < 12)) {
           first = false;
-          var t = queue.shift(), s = V.summary(t, progress[t.id]);
+          var t = queue.shift(), s = V.summary(t, progress[t.id]), word = V.doneWord(t, progress[t.id]);
           var holder = U.h('div', { class: 'map-svg-box', dataset: { tid: t.id } });
           listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
             U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
@@ -184,8 +188,8 @@
               // on Learn do; the dots keep showing how well each idea is holding.
               U.h('span', { class: 'map-topic-text' },
                 U.h('h2', null, t.title),
-                s.allDone ? U.h('span', { class: 'done-note small' }, U.icon('tick'), 'Every idea learned')
-                  : U.h('span', { class: 'muted small' }, s.done ? s.done + ' of ' + s.total + ' ideas learned' : 'Not started yet')),
+                s.allDone ? U.h('span', { class: 'done-note small' }, U.icon('tick'), 'Every idea ' + word)
+                  : U.h('span', { class: 'muted small' }, s.done ? s.done + ' of ' + s.total + ' ideas ' + word : 'Not started yet')),
               U.icon('arrow', 'map-topic-go')),
             holder));
           if (!lastW) lastW = Math.floor(holder.clientWidth);

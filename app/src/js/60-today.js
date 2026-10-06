@@ -19,6 +19,8 @@
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
 //       (only Agains since the idea was last learned and since its latest round began)
+//   Ideas read, not studied ("Just teach me": progress readRound is the idea's round) have no
+//   cards, and any left from an earlier round are never counted anywhere (loadCards).
 //
 // Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen).
 // Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
@@ -53,20 +55,30 @@
     });
     return list;
   }
+  // An idea whose latest round was a read lesson ("Just teach me": progress readRound, written when
+  // it is finished, 50-lesson.js). Its round makes no cards, and any its earlier rounds left are
+  // never counted: not in Today, a review, the badge, the Map's bands or Learn it again.
+  function readIdea(idea) {
+    return !!idea && typeof idea === 'object' && idea.readRound != null && Number(idea.readRound) === (Number(idea.round) || 0);
+  }
   // Every usable card; the cards of topics deleted (here or on another device) are dropped and
-  // their leftover docs removed.
+  // their leftover docs removed; the cards of ideas he chose only to read are left out.
   function loadCards() {
-    return U.store.cards.all().then(function (all) {
+    return Promise.all([U.store.cards.all(), U.store.progress.all().catch(function () { return {}; })]).then(function (r) {
+      var all = r[0], prog = r[1] || {};
       var tids = Object.keys(all);
       if (!tids.length) return [];
+      function usable(list) {
+        return list.filter(function (c) { var p = prog[c.tid], ideas = p && p.ideas; return !(ideas && readIdea(ideas[c.iid])); });
+      }
       return U.store.topicsExist(tids).then(function (ok) {
         var keep = {};
         tids.forEach(function (tid) {
           if (ok[tid] !== false) keep[tid] = all[tid];
           else U.store.cards.dropOrphan(tid).catch(function (e) { console.warn('tidy', e); });
         });
-        return flatten(keep);
-      }, function () { return flatten(all); });
+        return usable(flatten(keep));
+      }, function () { return usable(flatten(all)); });
     });
   }
   // Every day in review is a study day (U.studyDay, turning over at 4 am): due dates, the cap,
@@ -376,7 +388,7 @@
         var ideas = (r[0][tid] && r[0][tid].ideas) || {};
         Object.keys(ideas).forEach(function (iid) {
           var idea = ideas[iid], round = Number(idea && idea.round) || 0;
-          if (!idea || typeof idea !== 'object' || idea.stage !== 'done' || making[tid + '/' + iid]) return;
+          if (!idea || typeof idea !== 'object' || idea.stage !== 'done' || making[tid + '/' + iid] || readIdea(idea)) return;
           if (idea.cardsRound != null && Number(idea.cardsRound) >= round) return;
           todo.push({ tid: tid, iid: iid, idea: idea, round: round });
         });

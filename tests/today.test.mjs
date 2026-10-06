@@ -63,6 +63,7 @@ function load(seed = {}) {
     progress: {
       get: async (tid) => clone(docs.progress[tid]) || null,
       patch: async (tid, p) => { docs.progress[tid] = merge(docs.progress[tid] || {}, clone(p)); },
+      all: async () => clone(docs.progress),
     },
     replacing: (old, neu) => neu,
     retryLater: (e) => e,
@@ -270,4 +271,37 @@ test('Learn and Today share one estimate for the same reviews (per card type)', 
   const none = load({ cards: { tA: { cards: { i1_c1: card('i1_c1', 'i1', { s: { due: '2026-10-09', stability: 3, difficulty: 5, reps: 1, lapses: 0, last: day }, hist: [] }) } } } });
   none.at(new Date(2026, 9, 6, 12, 0));
   assert.equal((await none.U.review.outlook()).minutes, 0);
+});
+
+// ---------- v9: ideas read, not studied ("Just teach me") ----------
+// A read lesson makes no cards (its round is marked readRound, and cardsRound so nothing makes
+// them later). Cards left from an earlier, studied round of the same idea are never counted:
+// not in Today's plan, the badge's count, the Map's bands or Learn it again; nor made again.
+test('ideas finished as read lessons are never counted: Today, the badge, bands, slipping, mending', async () => {
+  const day = '2026-10-06', ago = (d) => iso(new Date(2026, 9, 6 - d, 10, 0));
+  const due = (id, iid, extra = {}) => card(id, iid, { learnedAt: ago(20), s: { due: day, stability: 3, difficulty: 5, reps: 1, lapses: 0, last: '2026-10-03' }, hist: [], ...extra });
+  const slipped = [{ at: ago(3), grade: 1, ok: false }, { at: ago(2), grade: 1, ok: false }];
+  const cards = { i1_c1: due('i1_c1', 'i1'), i2_c1: due('i2_c1', 'i2', { hist: slipped }), i2_say: due('i2_say', 'i2'), i3_c1: due('i3_c1', 'i3') };
+  const progress = { tA: { ideas: {
+    i1: { round: 0, stage: 'done', doneAt: ago(20), cardsRound: 0 },
+    // Studied first (round 0, its cards above), then learned again as a read lesson (round 1).
+    i2: { round: 1, stage: 'done', doneAt: ago(1), readRound: 1, cardsRound: 1, againAt: ago(2) },
+    // Read in round 0, then started again as a study round (1): its cards count once it makes them.
+    i3: { round: 1, stage: 'play', readRound: 0, againAt: ago(1) },
+  } } };
+  const { U, docs, at } = load({ cards: { tA: { cards } }, progress });
+  at(new Date(2026, 9, 6, 12, 0));
+  const o = await U.review.outlook();
+  assert.equal(o.size, 2, 'Today counts i1 and i3, never the read idea i2');
+  assert.equal(await U.review.dueCount(), 2, 'nor does the badge');
+  const q = await U.review.queue({});
+  assert.equal(q.map((c) => c.iid).sort().join(), 'i1,i3', 'a review never shows its cards');
+  const bands = await U.review.ideaBands();
+  assert.ok(!(bands.tA && bands.tA.i2), 'no strength band for a read idea: ' + JSON.stringify(bands));
+  assert.equal((await U.review.slipping()).length, 0, 'never offered to learn again');
+  // A read round whose progress never recorded its cards is left alone by mending.
+  docs.progress.tA.ideas.i2.cardsRound = 0;
+  U.store.lesson = { get: async () => { throw new Error('mending must not read a read idea\'s lesson'); } };
+  assert.equal((await U.review.mendCards(true)).length, 0, 'nothing is made for a read idea');
+  assert.ok(docs.cards.tA.cards.i2_say, 'and nothing of its is touched');
 });

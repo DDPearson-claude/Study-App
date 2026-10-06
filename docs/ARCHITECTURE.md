@@ -296,6 +296,35 @@ section 7) with his answers, saved at creation (`U.prompts.cleanIntake`: ids q1�
 folded into `other: true`, only listed options picked, one unless `multi`, his own words at most 300
 characters); `null` when he skipped them. The plan and every lesson prompt read the answered ones as
 "WHAT DAN TOLD US HE WANTS" (data, not instructions); none answered, no block.
+
+**v9 shared contract: how Dan learns a topic, and the intake** (both builders implement their
+side exactly; 30/31/34 the generation side, the screens and review the rest):
+- `topic.mode`: `'study'` ("Teach and test me": the default, and what a topic without the field
+  means) or `'read'` ("Just teach me": the reading and the interactive only). Chosen beside the
+  level on Learn; `U.store.topic.update(tid, {mode})` switches it on the topic page; it applies to
+  lessons written after the switch (an idea already started keeps its lesson).
+- `topic.intake`: Dan's answers to a few questions about what he wants from the topic, saved on
+  the topic doc at creation (null when he skipped them, or none came). `U.gen.intake(query,
+  {level, mode}) -> Promise<{questions}>` (2-4 questions, quick tier, a "TASK: intake" prompt;
+  rejects like U.ask does). Learn asks for it once he taps Start and shows the questions in place
+  (each as chips, one or several by `multi`, a "Something else" field by `other`) with "Plan my
+  course" and "Skip the questions"; an intake that fails or takes over `U.views.INTAKE_MS` (12 s)
+  goes straight to planning with a calm note. Then `U.gen.createTopic(query, {level, mode,
+  intake: {questions, answers} | null, onCreated})` stores mode and intake and passes them to the
+  plan. `answers` holds only the questions he answered; `other` is null when he wrote nothing.
+- `lesson.practice: { text }`: "Put it into practice" for the idea, U.rich text (at most about 160
+  words): numbered steps or a checklist, a rule of thumb or two, one worked example with real
+  numbers or a real case, and the common mistakes; for an idea that is not a skill, how to apply
+  it (what to look for, how to check a claim, how to use it in a decision). Written with the
+  lesson and fact-checked against its sources. In every new lesson; absent in older ones (the
+  screens then show nothing). Parts are best named by a lead label ("**Steps**", "**Rule of
+  thumb:**", "**Worked example:**", "**Common mistakes**"), which the dossier sorts by
+  (`U.dossier.practiceParts`, section 4 Dossiers); lists are "- " or "1. " lines.
+- A lesson written in read mode has `predict: null`, `say: null`, `checks: []` and no target
+  checks, everything else as usual (title, interactive with brief, explain, analogy, practice,
+  sources, confidence); `lesson.mode` records the mode it was written for (`'study'|'read'`). A
+  study lesson keeps all its parts. The lesson screen shows a lesson read-style when its
+  `lesson.mode` is `'read'` (whatever the topic says now), study-style otherwise.
 `topics/{tid}/lessons/{iid}`
 ```
 { status:'writing'|'building'|'ready'|'failed', updatedAt, startedAt,
@@ -350,8 +379,16 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     past:{ [round]:{ stage, predict, checks, doneAt, at } },   // earlier rounds
     replays:{ [key]:{ at, predict, checks } },                 // "Go through it again" runs
     cardsRound?,                                               // the round whose review cards were made
+    readRound?,                                                // v9: the round finished as a read lesson
     againAt?, relearn?, relearnId?, relearnAt?, relearnNote?, known? } } }
 ```
+`readRound` (v9) is written with `stage: 'done'` when Dan finishes a read lesson, with `cardsRound`
+set to the same round (it makes no cards, so nothing makes them later). An idea is **read** while
+`readRound` equals its `round` (`U.views.isRead`): the topic page's path says "Read", the Map gives it
+its own dot, and Today, a review, the badge, the Map's bands and Learn it again leave out every card
+of it, even one left from an earlier, studied round (`loadCards` in 60-today.js). A new round (Learn
+it again, Rebuild) is no longer read until it is finished as one.
+
 `relearn: true` alone is Today's suggestion (the idea was slipping when Today looked): it never
 rebuilds a lesson by itself. With `relearnId` it is Dan's open Learn it again request (Today's link
 followed while the idea is slipping, or Rebuild): `relearnId` is its token, which the rewrite stamps
@@ -372,8 +409,11 @@ review); learning the idea again clears it.
 **Dossiers** (75-dossier.js). A course "keeps a dossier" unless Dan turns it off on its topic page:
 `progress.dossier === false` (absent or true: on; private, so turning it on or off never moves the
 course in Learn's list). Each idea he finishes is bound as a chapter: a snapshot of the lesson's own
-content when he finishes it, taken again (a new edition) when he learns it again. Nothing he wrote,
-chose or scored is ever read into a dossier: not `topic.query`, `progress.ideas[iid]` beyond
+content when he finishes it, taken again (a new edition) when he learns it again. It is a
+teach-you-how book (v9): the explanation, analogy, key facts card, plate, "Put it into practice" and
+sources, and never a test question, answer or trap (the snapshot no longer keeps checks; older
+chapter docs that still hold them are never printed). Nothing he wrote, chose or scored is ever
+read into a dossier: not `topic.query`, `progress.ideas[iid]` beyond
 `startedAt`, `doneAt` and `stage`, `progress.questions` or `calibration`, a lesson doc's `feedback`,
 `request` or `flags`, the lesson's `predict` or `say`, or any card.
 `profile/dossiers/{tid}` (the index, small)
@@ -389,7 +429,7 @@ chose or scored is ever read into a dossier: not `topic.query`, `progress.ideas[
 ```
 { v:1, tid, iid, title, oneLine, kind, deps, doneAt, edition, boundAt, sourced,
   lesson:{ title, explain, analogy, interactive:{ title, brief, whatAmILookingAt, ignores, numbers, controls, outputs } | null,
-           checks (with answers, whys and misconceptions), sources, confidence, contested },
+           practice:{ text } | null, sources, confidence, contested },        // practice: v9 lessons
   plate: the interactive's html | null, plateNote: string | null }   // a plate that would not fit is left out, with the note
 ```
 Bound only from a `ready` lesson doc. `U.dossier.bind` runs when an idea is finished (50-lesson.js,
@@ -410,10 +450,18 @@ plan's `deps` and the ideas that build on this one (links only to bound chapters
 `confidence` said once (or "Not yet source-checked" for an unsourced lesson); the glossary is each
 `[[term]]` with the sentence that introduces it (with the one before when it opens "This/That/
 These/It/Such"); the bibliography is one entry per address across the research and the bound
-lessons, title split on " — " into work and publisher, with the chapters resting on it. Field tests
-print each check with its right answer, why and the lesson's misconceptions as "Trap:", never what
-Dan chose; a target check only where the plate exists. The kind sketches mark the idea's kind,
-never the topic.
+lessons, title split on " — " into work and publisher, with the chapters resting on it. "Put it into
+practice" is `lesson.practice.text` sorted by `U.dossier.practiceParts` into the journal's parts,
+word for word: a part is named by its own lead label (on a line of its own, "**Label**", "## Label",
+or before its text, "Label:" / "**Label:**"), the label's words saying which part ("mistake",
+"pitfall", "avoid"… the common mistakes; "rule" the rules of thumb; "example", "worked" the worked
+example; "step", "how to", "checklist"… the steps); with no label, the first list is the steps, a
+paragraph that opens by naming its part ("For example, …", "A common mistake …") is that part,
+and any other block carries on the labelled part before it, else is plain prose. The page prints
+the steps as an ink checklist, the rules of thumb on a taped card, the worked example as a field
+note and the common mistakes in red ink. A chapter without practice (bound before lessons had it)
+ends with its sources on a page of their own. The kind sketches mark the idea's kind, never the
+topic.
 
 ## 5. Lesson JSON (what generation writes, what the player plays)
 
@@ -451,6 +499,8 @@ Lesson = {
   say: { prompt, rubric:[2-3], model } | null,   // null in a read lesson
   checks:[2-3 Check],                            // ids unique; [] in a read lesson
   sources:[Source],                              // final: 1..n in order of first citation, all cited
+  practice: { text } | null,                     // v9: Put it into practice (section 4, v9 contract)
+  mode: 'study'|'read',                          // v9: the mode it was written for (read: no predict, say, checks)
   confidence:'settled'|'simplified'|'contested',
   contested: { views:[2+ { label, text }] } | null,
   mode: 'study'|'read'                           // the topic's mode it was written for (stamped by 31-generate)
@@ -536,10 +586,8 @@ each problem it has that the lesson as written did not is a problem of the reply
 lesson's problem is soft (a field made too long), hard otherwise (a [^n] to no source, an uncited
 source, a web address, two options the same).
 
-Review cards come only from what Dan answered, so a read lesson (no checks, no say-it-back) never
-makes one: `addFromLesson` finds nothing to make from it (it would still remove that idea's cards
-from an earlier, study-mode round; whether finishing a read lesson calls it at all is the lesson
-screen's choice, 50-lesson.js). Each check he answered becomes a card of the
+A read lesson (v9) makes no review cards: finishing it records `readRound` and `cardsRound`
+(section 4) without calling `addFromLesson`, and its idea is never counted in review. Review cards come only from what Dan answered: each check he answered becomes a card of the
 same type; his say-it-back becomes `{ type:'recall', spec:{ prompt, rubric, model, mine } }`.
 Finishing a re-learned lesson replaces that idea's cards: an unchanged question keeps its
 schedule, a changed one starts afresh, one the lesson no longer has is removed. Once they are
@@ -1174,6 +1222,8 @@ U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   
 Views and app services
 ```
 U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
+   MODES ([['study', 'Teach and test me'], ['read', 'Just teach me']]), modeOf(topic), isRead(progress, iid) (section 4),
+   doneWord(topic, progress) -> 'read' | 'learned' | 'done' (what its finished ideas are called), INTAKE_MS (12 s),
    planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 8 min),
    sourcesChecked(t) (done, sources >= 1: "Sources found"), sourcesNone(t) (the check ran but kept no source; section 4),
    loadError(what, e, retrying, {lead?}) (lead: the words before the reason, '' under a heading of its own),
@@ -1204,6 +1254,7 @@ U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile
 U.dossier (75-dossier.js)   the course dossier (section 4, Dossiers; routes and pages: section 10)
    pure: chapterFrom(topic, iid, lessonDoc, doneAt, prevEntry) -> chapter | null;  researchFrom({key: researchDoc});
+     practiceParts(text) -> [{kind: 'steps'|'rules'|'example'|'mistakes'|'prose', label, paras, items, ordered}];
      indexFrom(topic, progress, prevIndex, research, {iid, info}?) -> index patch;  model(book) -> what every page prints
      (chapters, bound, glossary, works, leaves = the page order, done, finished);  due(topic, progress, index) -> [iid];
      countOf(index);  bytes(s);  LIMIT (240 KB);  PLATE_NOTE;  INK (the plate's K_THEME palettes and roles)
@@ -1246,7 +1297,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/book/:tid/contents                                         title page | contents
 #/book/:tid/:iid                                             a chapter's idea | explanation and analogy
 #/book/:tid/:iid/plate                                       the plate (asleep until Tap to play) | its notes; /plate/play: awake
-#/book/:tid/:iid/tests                                       field tests | sources
+#/book/:tid/:iid/practice                                    put it into practice | sources (sources alone without practice;
+                                                             /tests, its older address, opens the same leaf)
 #/book/:tid/glossary   (and /bibliography: the same leaf, at the bibliography on a phone)
 ```
 - A dossier page is one leaf: two pages side by side when the book is at least 55rem wide, else
@@ -1276,7 +1328,12 @@ topics started here are not source-checked); "Not connected." with the steps to 
   included, it says "Reconnecting…" calmly and fills in by itself). When the warm-up's Next
   question, Done, Skip or "Try the warm-up questions" takes away the button that had focus, focus
   goes to what replaced it (the next question, the summary, the "Try" line), not to the h1.
-- Learn's level choice (New to it, Know a bit, Know it well) is a radio group (`U.radios`), like Settings'.
+- Learn's level choice (New to it, Know a bit, Know it well) is a radio group (`U.radios`), like Settings',
+  and so is the mode beside it (Teach and test me, Just teach me; v9), and the topic page's switch.
+- Lesson stages (v9): a study lesson Predict, Play, Explain (with "Put it into practice" after the
+  analogy), Say it back, Check; a read lesson Explore (the interactive, "Try this", then what
+  happens if the lesson says), Read (explanation, analogy, practice, sources; "Done reading"),
+  finished as "Idea read". The step bar has a segment per step (five or two).
 - Tabs Learn / Today / Map / Library (`#tabs`, Today's badge `#today-badge`; the Library tab is
   `data-tab="book"`) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.

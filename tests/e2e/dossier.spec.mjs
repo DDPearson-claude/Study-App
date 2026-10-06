@@ -3,9 +3,11 @@
 // stubbed: the topic page's "Keep a dossier" option; the Library (dossiers first, finished and
 // still being written, then "In your own words"); the reader on a phone and on a laptop (cover,
 // contents, a chapter's three leaves with the plate asleep until Tap to play and drawn in ink,
-// glossary and bibliography; page turns, footnotes, Easy reading at XL, dark, reduced motion,
-// no sideways scroll); deleting a course and keeping (or not) its dossier; saving it as one HTML
-// file; and finishing an idea in a lesson binding its chapter. Nothing Dan wrote is ever shown.
+// "Put it into practice" and sources, glossary and bibliography; page turns, footnotes, Easy
+// reading at XL, dark, reduced motion, no sideways scroll); deleting a course and keeping (or not)
+// its dossier; saving it as one HTML file; and finishing an idea in a lesson binding its chapter.
+// Nothing Dan wrote is ever shown, and (v9) no test question anywhere: the dossier is a book to
+// learn from. Older chapters, bound before lessons had practice, end with their sources alone.
 // Screenshots land in tests/out/dossier/. Exits non-zero on any failure.
 // Usage: node tests/e2e/dossier.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
@@ -49,9 +51,19 @@ const fx = (n) => readJson('tests/fixtures/lesson-ui-' + n + '.json');
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const DAN = 'DANWORDS';
 const at = (m, d) => `2026-${m}-${d}T10:00:00.000Z`;
-function lesson(doc, iid) {
+// A lesson's "Put it into practice" (lesson.practice, v9).
+const PRACTICE = '**Steps**\n1. Measure the string from the pivot to the middle of the bob.\n2. Time ten swings and divide by ten.[^1]\n\n**Rule of thumb:** four times the length, twice the time.\n\n**Worked example:** a 1 m pendulum swings in about 2 s, so a 4 m one takes about 4 s.\n\n**Common mistakes**\n- Timing a single swing: your reaction time swamps it.\n- Measuring to the top of the bob.';
+// Every check question, answer and trap the seeded lessons hold: none may ever be printed.
+const TESTS = ['pendulum', 'small-swings', 'clocks'].flatMap((n) => (fx(n).lesson.checks || []).flatMap((c) => [c.q].concat(Object.values(c.misconception || {}))));
+async function noTests(app, tag, html) {
+  const t = html != null ? html : await app.page.evaluate(() => document.body.innerText);
+  const hit = TESTS.filter((q) => t.includes(q)).concat((t.match(/field tests?|trap:|the right answer|quick checks?/ig) || []));
+  assert(!hit.length, `${tag}: no test question, answer or "field test" anywhere: ` + hit.join(' | ').slice(0, 300));
+}
+function lesson(doc, iid, practice) {
   const d = clone(doc);
   d.lesson.iid = iid;
+  if (practice) d.lesson.practice = { text: practice };
   d.feedback = DAN + '-feedback'; d.flags = { k1: { note: DAN + '-flag', at: at('09', '01'), stage: 'play' } };
   return d;
 }
@@ -60,7 +72,7 @@ function seed({ option, finished = true } = {}) {
   const pend = fx('topic');
   const db = {
     'topics/pendulums': { ...pend, query: DAN + '-query' },
-    'topics/pendulums/lessons/i1': lesson(fx('pendulum'), 'i1'),
+    'topics/pendulums/lessons/i1': lesson(fx('pendulum'), 'i1', PRACTICE),
     'topics/pendulums/lessons/i3': lesson(fx('small-swings'), 'i3'),
     'topics/pendulums/lessons/i5': lesson(fx('clocks'), 'i5'),
     'topics/pendulums/research/topic': { notes: [], sources: fx('pendulum').lesson.sources.concat([{ n: 9, title: 'Pendulum clocks — Science Museum', url: 'https://www.sciencemuseum.org.uk/pendulum', quote: 'Huygens built the first pendulum clock in 1656.' }]), at: at('09', '01') },
@@ -232,19 +244,37 @@ await test('reader on a phone: cover, contents, the three leaves of a chapter, f
   await shot(app, 'plate-390');
   await app.page.locator('.wake').click();
   eq(await app.page.getAttribute('.mount', 'data-awake'), 'false', 'Done puts it back to sleep');
-  // Next: the field tests and sources.
+  // Next: put it into practice, and the sources.
+  assert(/Put it into practice/.test(await text(app, '.turn .next')), 'the page turn names it: ' + await text(app, '.turn .next'));
   await app.page.locator('.turn .next').click();
-  await app.page.waitForSelector('.tests');
-  eq(await focusedH1(app), 'Field tests', 'tests h1');
-  const right = await app.page.locator('.opt.right').first().innerText();
-  assert(right.includes('4 s'), 'the right answer, ticked: ' + right);
-  assert((await app.page.locator('.opt.right .vh').first().textContent()).includes('(the right answer)'), 'said to a screen reader');
-  assert((await app.page.locator('.trap').first().innerText()).startsWith('Trap:'), 'a wrong option keeps the lesson\'s trap');
-  assert(/about 6\.3 s/.test(await text(app, '.ans-line')), 'the estimate\'s answer in words');
+  await app.page.waitForSelector('.d-steps');
+  eq(await focusedH1(app), 'Put it into practice', 'its h1');
+  eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i1/practice', 'its address');
+  eq(await app.page.locator('.d-check li').count(), 2, 'the steps as an ink checklist');
+  eq((await app.page.locator('.d-check .d-step-n').allTextContents()).join(), '1,2', 'numbered');
+  eq(await app.page.locator('.d-check .d-box').count(), 2, 'each with its box');
+  assert((await text(app, '.d-rules')).includes('four times the length, twice the time'), 'the rule of thumb on a taped card');
+  eq(await app.page.locator('.d-rules .tape').count(), 2, 'taped');
+  assert(/Worked example[\s\S]*a 1 m pendulum/.test(await text(app, '.d-example')), 'the worked example as a field note');
+  assert(/Common mistakes[\s\S]*reaction time/.test(await text(app, '.d-mistakes')), 'the common mistakes');
+  const red = await app.page.evaluate(() => [getComputedStyle(document.querySelector('.d-mistakes')).color, getComputedStyle(document.querySelector('.dos')).getPropertyValue('--j-red').trim()]);
+  eq(red[0], 'rgb(150, 42, 34)', 'in red ink (' + red[1] + ')');
+  eq(await app.page.locator('.d-check button.fn').count(), 1, 'with its footnote');
   eq(await app.page.locator('.ev').count(), 2, 'the chapter\'s sources');
-  await noDan(app, 'tests');
-  await noSideways(app, 'tests');
-  await shot(app, 'tests-390', true);
+  await noDan(app, 'practice');
+  await noTests(app, 'practice');
+  await noSideways(app, 'practice');
+  await shot(app, 'practice-390', true);
+  // An older chapter (bound before lessons had practice): its sources alone.
+  await go(app, '#/book/pendulums/i3/practice');
+  await app.page.waitForSelector('.spread.single .evidence');
+  eq(await focusedH1(app), 'Sources', 'a page of its own, headed Sources');
+  eq(await app.page.locator('.spread > .page').count(), 1, 'one page');
+  eq(await app.page.locator('.d-steps, .d-rules').count(), 0, 'no practice to show');
+  await noTests(app, 'older chapter');
+  await go(app, '#/book/pendulums/i3/tests');
+  await app.page.waitForSelector('.spread.single .evidence');
+  assert(true, 'its older address opens the same leaf');
   // The glossary and bibliography.
   await go(app, '#/book/pendulums/bibliography');
   await app.page.waitForSelector('.biblio');
@@ -254,6 +284,63 @@ await test('reader on a phone: cover, contents, the three leaves of a chapter, f
   const biblioTop = await app.page.evaluate(() => document.getElementById('bibliography').getBoundingClientRect().top);
   assert(biblioTop < 300, 'on a phone #/…/bibliography opens at the bibliography (' + biblioTop + ')');
   await noSideways(app, 'back matter');
+  await noTests(app, 'back matter');
+  // Every page turn and the contents and tabs: no test anywhere in the book.
+  for (const h of ['#/book/pendulums', '#/book/pendulums/contents', '#/book/pendulums/i1', '#/book/pendulums/i1/plate', '#/book/pendulums/i5/practice']) {
+    await go(app, h);
+    await app.page.waitForSelector('.turn, .cover-actions');
+    await app.page.waitForTimeout(200);
+    await noTests(app, h);
+  }
+});
+
+await test('release-check nits: page-turn labels whole on a phone, the stamp clear of the key term at XL, a lone book\'s caption under it', async () => {
+  // The turn labels never break inside a word (the bibliography's back link was cut mid-word).
+  for (const w of [360, 390]) {
+    const app = await open({ width: w, height: 760, hash: '#/book/pendulums/bibliography' });
+    await app.page.waitForSelector('.biblio', { timeout: 20000 });
+    for (const h of ['#/book/pendulums/bibliography', '#/book/pendulums/i5/practice', '#/book/pendulums/i1/practice', '#/book/pendulums/i1/plate']) {
+      await go(app, h);
+      await app.page.waitForSelector('.turn a');
+      await app.page.waitForTimeout(150);
+      const cut = await app.page.$$eval('.turn a .tk, .turn a .tt', (els) => els.filter((e) => {
+        if (e.scrollWidth > e.clientWidth + 1) return true;
+        // A word split across lines: some word of it wider than the line, or a break inside a word.
+        const r = document.createRange(), t = e.firstChild;
+        if (!t || t.nodeType !== 3) return false;
+        const words = t.textContent.split(/(\s+)/); let at = 0;
+        for (const wd of words) {
+          if (wd.trim()) { r.setStart(t, at); r.setEnd(t, at + wd.length); if (r.getClientRects().length > 1) return true; }
+          at += wd.length;
+        }
+        return false;
+      }).map((e) => e.textContent));
+      assert(!cut.length, `${w} ${h}: page-turn labels cut or broken mid-word: ` + cut.join(' | '));
+    }
+    await shot(app, 'turn-labels-' + w);
+  }
+  // At XL the "Chapter complete" stamp keeps clear of the key term below it.
+  const xl = await open({ width: 360, height: 707, size: 'xl', hash: '#/book/pendulums/i1' });
+  await xl.page.waitForSelector('.d-card', { timeout: 20000 });
+  for (const h of ['#/book/pendulums/i1', '#/book/pendulums/i3', '#/book/pendulums/i5']) {
+    await go(xl, h);
+    await xl.page.waitForSelector('.d-card .stamp');
+    // Measured with the card held straight (it is taped in at a slight angle); the stamp keeps its own turn.
+    const g = await xl.page.evaluate(() => { const c = document.querySelector('.d-card'); c.style.transform = 'none'; const s = c.querySelector('.stamp').getBoundingClientRect(), n = c.querySelector('.card-name').getBoundingClientRect(); c.style.transform = ''; return { stamp: Math.round(s.bottom * 10) / 10, name: Math.round(n.top * 10) / 10 }; });
+    assert(g.stamp <= g.name - 2, `${h} at XL: the stamp touches the key term (${JSON.stringify(g)})`);
+  }
+  await shot(xl, 'stamp-xl-360');
+  // On a laptop a lone book's caption stands under its book, not at the shelf's far left.
+  const lib = await open({ width: 1366, height: 900, hash: '#/book' });
+  await lib.page.waitForFunction(() => document.querySelectorAll('.lib-dossiers .slot:not(.filler)').length === 2, null, { timeout: 20000 });
+  // Where the caption's words start, against the book's left edge.
+  const off = await lib.page.$$eval('.lib-dossiers .slot:not(.filler)', (ss) => ss.map((sl) => {
+    const c = sl.querySelector('.cloth').getBoundingClientRect(), r = document.createRange();
+    r.selectNodeContents(sl.querySelector('.meta'));
+    return Math.round(Math.abs(r.getBoundingClientRect().left - c.left));
+  }));
+  assert(off.every((d) => d <= 12), 'each caption starts under its book (px from the book\'s edge): ' + off);
+  await shot(lib, 'library-lone-1366');
 });
 
 await test('reader on a phone at XL with Easy reading, and dark with reduced motion', async () => {
@@ -293,7 +380,10 @@ await test('reader on a laptop: a two-page spread, page turns by arrow keys and 
   await app.page.waitForSelector('.mount');
   eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i1/plate', 'ArrowRight: the next leaf');
   await app.page.keyboard.press('ArrowRight');
-  await app.page.waitForSelector('.tests');
+  await app.page.waitForSelector('.d-steps');
+  const pp = await app.page.$$eval('.spread > .page', (ps) => ps.map((p) => Math.round(p.getBoundingClientRect().top)));
+  assert(pp.length === 2 && pp[0] === pp[1], 'put it into practice | sources, side by side');
+  await shot(app, 'practice-1366');
   await app.page.keyboard.press('ArrowLeft');
   await app.page.waitForSelector('.mount');
   eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i1/plate', 'ArrowLeft: back');
@@ -368,7 +458,9 @@ await test('save a copy: the whole dossier as one HTML file, styles inline, font
   assert(h.startsWith('<!doctype html>') && h.includes('<style>') && /fonts\.googleapis\.com\/css2\?family=Literata/.test(h), 'a page with its styles and a fonts link');
   assert(/"Courier New", ?monospace/.test(h) && /Georgia/.test(h), 'with fallbacks');
   assert(!/<script/i.test(h) && !/\son[a-z]+=/i.test(h) && !/<iframe/i.test(h), 'no scripts, handlers or frames');
-  for (const t of ['What sets the beat', 'Small swings and big swings', 'From pendulums to clocks', 'Field tests', 'Glossary', 'Bibliography', 'the right answer', 'The live plate plays']) assert(h.includes(t), 'contains ' + t);
+  for (const t of ['What sets the beat', 'Small swings and big swings', 'From pendulums to clocks', 'Put it into practice', 'Rule of thumb', 'Worked example', 'Common mistakes', 'four times the length, twice the time', 'Glossary', 'Bibliography', 'The live plate plays']) assert(h.includes(t), 'contains ' + t);
+  eq((h.match(/Put it into practice/g) || []).length, 1, 'practice only where the chapter has it (one of the three)');
+  await noTests(app, 'the saved copy', h.replace(/&#39;|&rsquo;/g, '’').replace(/&quot;/g, '"'));
   assert(!h.includes(DAN), 'none of Dan\'s words: ' + (h.match(/DANWORDS[-\w]*/g) || []).join(', '));
   // It reads on its own.
   const p2 = await app.context.newPage();

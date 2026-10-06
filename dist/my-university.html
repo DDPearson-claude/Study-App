@@ -983,6 +983,15 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-analogy-text { font: 400 calc(var(--fs) - 1px)/1.7 var(--serif); }
 .lsn-breaks { margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--line-strong); font: 400 calc(var(--fs) - .0625rem)/1.65 var(--serif); color: var(--ink); }
 .lsn-breaks .eyebrow { margin-bottom: 4px; }
+/* Put it into practice: how to use the idea (steps, rules of thumb, a worked example, the common
+   mistakes), in the lesson's own words. Navy numbers on the steps (progress and controls). */
+.lsn-practice { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.lsn-practice-text { display: flex; flex-direction: column; gap: .75em; font: 400 calc(var(--fs) - 1px)/1.7 var(--serif); }
+.lsn-practice-text ol, .lsn-practice-text ul { display: grid; gap: .4em; max-width: 36em; margin: 0; padding-left: 1.5em; }
+.lsn-practice-text ol { list-style: decimal; }
+.lsn-practice-text ul { list-style: disc; }
+.lsn-practice-text ol > li::marker { color: var(--heading); font: 700 .95em var(--sans); }
+.lsn-practice-text li { padding-left: .2em; }
 .lsn-contest { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--r); border: 1.5px solid color-mix(in srgb, var(--red) 38%, var(--line)); }
 .lsn-flag {
   align-self: flex-start; padding: 5px 11px; border-radius: 999px; background: var(--red-tint); color: var(--red);
@@ -1211,6 +1220,25 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .ask-levels { max-width: 440px; }
 .ask-levels .seg-btn { font-size: .875rem; }
 .ask-working { display: grid; gap: 10px; padding: 2px 4px; }
+/* The level and the mode, side by side where they fit (each a radio group, U.radios). */
+.ask-choices { display: flex; flex-wrap: wrap; gap: 6px 28px; margin-top: 8px; }
+.ask-choices > .ask-row { flex: 1 1 260px; max-width: 440px; margin-top: 0; }
+.ask-modes .seg-btn { font-size: .875rem; }
+.ask-mode-note { margin-top: -2px; }
+/* The intake: a few questions about what Dan wants from the topic, in place under his question. */
+.intake { display: grid; gap: 14px; padding: 18px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.intake-h { font-size: 1.25rem; }
+.intake-sub { margin-top: -8px; font-size: .9375rem; }
+.intake-qs { display: grid; gap: 20px; margin: 0; padding: 0; list-style: none; }
+.intake-q { display: grid; gap: 8px; }
+.intake-q-text { font: 700 1rem/1.45 var(--sans); color: var(--heading); }
+.intake-hint { margin-top: -6px; }
+.intake-chip { max-width: 100%; text-align: left; overflow-wrap: anywhere; }
+.intake-chip[aria-checked="true"] { background: var(--heading); color: var(--on-heading); border-color: var(--heading); }
+.intake-other.input { max-width: 440px; padding: 10px 14px; font-size: 1rem; }
+.intake-go { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; }
+.intake-plan svg { width: 20px; height: 20px; }
+.learn.is-returning.is-asking .ask-level-row { display: none; }
 .ask-row { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 .ask-label { font: 700 .8125rem/1.3 var(--sans); color: var(--muted); }
 .chip-soft { border-color: var(--line); color: var(--ink); font-weight: 500; }
@@ -1503,6 +1531,9 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .map-dot.is-fragile { fill: #EDC25A; stroke: #A87B12; }
 .map-dot.is-growing { fill: var(--teal); stroke: var(--teal); }
 .map-dot.is-strong { fill: var(--heading); stroke: var(--heading); }
+/* Read, not reviewed: finished (green ring), with no strength to show. */
+.map-dot.is-read { fill: var(--green-tint); stroke: var(--green); }
+@container view (min-width: 608px) { .map-legend.has-read { grid-template-columns: repeat(5, auto); } }
 .map-label { font: 600 .875rem var(--sans); fill: var(--ink); }
 .map-sk { height: 260px; border-radius: var(--r-lg); }
 
@@ -1631,6 +1662,18 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
   .learn-topics:has(> .welcome) .welcome-body { padding: 22px 26px 26px; }
 }
 
+/* The topic page's "How you are learning this": the mode (a radio group, like Learn's) and what
+   Dan told Claude when he started the topic. */
+.tp-mode { display: grid; gap: 10px; }
+.tp-modes .seg-btn { font-size: .875rem; }
+.tp-mode-note, .tp-mode-applies { line-height: 1.5; }
+.tp-mode-applies { margin-top: -6px; }
+.tp-told { margin-top: 6px; padding: 14px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.tp-told-h { font-size: 1rem; }
+.tp-told-list { display: grid; gap: 10px; margin: 8px 0 0; }
+.tp-told-row dt { font: 600 .875rem/1.45 var(--sans); color: var(--muted); }
+.tp-told-row dd { margin: 2px 0 0; font: 400 .9375rem/1.5 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
+
 /* src/css/75-dossier.css */
 /* The course dossier (75-dossier.js): a naturalist's field journal.
    Paper, ink, tape, cloth and leather are CSS gradients and inline SVG; every word is real text.
@@ -1643,7 +1686,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
    Google Fonts link added only when a dossier or the Library is drawn (U.dossier.fonts()); every
    family has a fallback and every size is in rem, so nothing reflows when they arrive.
    Sections: 1 tokens · 2 base · 3 library · 4 reader and pages · 5 type · 6 chapter · 7 plate ·
-   8 field tests · 9 sources · 10 cover · 11 contents · 12 back matter · 13 app chrome · 14 motion */
+   8 put it into practice · 9 sources · 10 cover · 11 contents · 12 back matter · 13 app chrome · 14 motion */
 
 /* ---------- 1. tokens (light here; lamp-lit dark below, the app's two-block pattern) ---------- */
 .dos {
@@ -1749,6 +1792,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .dos .lbl-t { display: block; margin-top: 3px; font: 400 clamp(.88rem, 3.6cqi, 1rem)/1.1 var(--caps); overflow-wrap: anywhere; hyphens: auto; }
 .dos .plank { position: relative; z-index: 0; height: 14px; margin: -3px -9px 0; background: linear-gradient(180deg, var(--wood-hi) 0, var(--wood) 3px, var(--wood) 9px, var(--wood-lo)); box-shadow: 0 8px 10px -6px rgba(40, 25, 10, .45); }
 .dos .meta { display: grid; gap: 4px; padding: 10px 0 14px; font: 600 .8125rem/1.35 var(--sans); color: var(--ink); }
+/* the caption stands under its book (as wide as the book at most), so a lone book on a wide shelf keeps it */
+.dos .meta { justify-self: center; width: min(100%, 190px); }
 .dos .st { display: flex; align-items: center; gap: 6px; }
 .dos .st svg { width: 16px; height: 16px; flex: none; }
 .dos .st.done { color: var(--green); }
@@ -1817,6 +1862,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
   .dos .page::after { inset: 0 0 0 auto; width: 80px; background: linear-gradient(to left, var(--gutter), transparent 24px), linear-gradient(to left, color-mix(in srgb, var(--gutter) 40%, transparent), transparent 80px); opacity: 1; }
   .dos .page-r::after { inset: 0 auto 0 0; background: linear-gradient(to right, var(--gutter), transparent 24px), linear-gradient(to right, color-mix(in srgb, var(--gutter) 40%, transparent), transparent 80px); }
 }
+/* one page alone (a chapter's sources, bound before lessons had practice): a right-hand page */
+@container book (min-width: 55rem) { .dos .spread.single { grid-template-columns: minmax(0, 42rem); justify-content: center; } }
 /* wide pages keep a margin column on their outer side for short notes (side notes) */
 @container book (min-width: 76rem) { .dos .page { --mw: 7.25rem; --mg: 14px; --out: 18px; } }
 .dos .page-l .d-wide { margin-left: calc(-1 * (var(--mw, 0px) + var(--mg, 0px))); }
@@ -1838,7 +1885,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .dos .turn svg { width: 22px; height: 22px; flex: none; }
 .dos .turn .tw { display: flex; flex-direction: column; min-width: 0; }
 .dos .turn .tk { font: 400 1.08rem/1.15 var(--caps); }
-.dos .turn .tt { font: .76rem/1.3 var(--typed); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the label wraps between words (never cut inside one, as an ellipsis did on a phone) */
+.dos .turn .tt { font: .76rem/1.3 var(--typed); letter-spacing: .05em; text-transform: uppercase; overflow-wrap: normal; text-wrap: balance; }
 .dos .turn .next { margin-left: auto; text-align: right; }
 .dos .turn .tw > * { max-width: 100%; }
 .dos .sides { display: none; }
@@ -1920,6 +1968,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .dos .tape.r { right: -14px; transform: rotate(28deg); }
 .dos .tape.c { left: 50%; margin-left: -40px; transform: rotate(-2deg); }
 .dos .card-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 4px 10px; }
+/* the stamp is turned, so its corners reach below its box: room under it, so it never touches the key term (XL) */
+.dos .card-top .stamp { margin: .25em 0 .8em; }
 .dos .card-k { padding-top: 4px; font: 400 1.06rem/1.4 var(--caps); color: var(--j-ink2); }
 .dos .card-name { margin-top: 2px; padding-bottom: 5px; border-bottom: 2px solid var(--rule-red); font: 400 1.75rem/1.12 var(--marker); text-transform: uppercase; overflow-wrap: anywhere; }
 .dos .card-name.long { font-size: 1.3rem; }
@@ -2002,42 +2052,24 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .dos .numbers .nk { font: .76rem/1.3 var(--typed); letter-spacing: .06em; text-transform: uppercase; color: var(--j-teal); }
 .dos .numbers .nv { font: .95rem/1.3 var(--typed); white-space: nowrap; }
 
-/* ---------- 8. FIELD TESTS: the right answer and why (never what was chosen) ---------- */
-.dos .tests { display: grid; }
-.dos .test { padding: 1.4rem 0; }
-.dos .test + .test { border-top: 1.5px dashed color-mix(in srgb, var(--j-ink) 28%, transparent); }
-.dos .test-k { display: flex; align-items: baseline; gap: 10px; font: .8rem/1.3 var(--typed); letter-spacing: .08em; text-transform: uppercase; color: var(--j-teal); }
-.dos .test-k b { font: 400 1.8rem/1 var(--title); color: var(--j-ink); letter-spacing: 0; }
-.dos .test-q { margin-top: 8px; font: 600 var(--fs)/1.55 var(--serif); }
-.dos .opts { display: grid; gap: 12px; margin-top: 14px; }
-.dos .opt { display: grid; grid-template-columns: 24px 1fr; column-gap: 12px; align-items: start; font: 1rem/1.5 var(--serif); color: var(--j-ink2); }
-.dos .opt-box { width: 22px; height: 22px; margin-top: 2px; overflow: visible; }
-.dos .opt.right { color: var(--j-ink); font-weight: 600; }
-.dos .opt-t { position: relative; }
-.dos .opt.right .opt-t { margin: 3px 10px 6px 0; }
-.dos .opt .loop { position: absolute; left: -10px; top: -7px; width: calc(100% + 18px); height: calc(100% + 14px); overflow: visible; color: var(--j-ink); pointer-events: none; }
-.dos .ans { display: inline-block; margin-left: 8px; padding: 0 6px; border: 1.5px solid currentColor; border-radius: 3px; font: 400 .76rem/1.5 var(--typed); letter-spacing: .12em; text-transform: uppercase; vertical-align: .12em; }
-.dos .trap { grid-column: 2; margin-top: 3px; font: 400 1.08rem/1.38 var(--hand); color: var(--j-red); }
-.dos .trap b { font: 400 1rem/1 var(--caps); letter-spacing: .04em; }
-.dos .order { counter-reset: o; display: grid; gap: 8px; margin-top: 12px; }
-.dos .order li { counter-increment: o; display: grid; grid-template-columns: 26px 1fr; column-gap: 12px; font: 600 1rem/1.5 var(--serif); }
-.dos .order li::before { content: counter(o); font: 400 1.15rem/1.3 var(--marker); text-align: center; }
-.dos .scale-w { max-width: 24rem; margin-top: 12px; }
-.dos .scale { display: block; width: 100%; height: auto; overflow: visible; }
-.dos .scale text { font: 12.5px var(--typed); fill: var(--j-ink2); }
-.dos .scale .ans { font: 16px var(--hand); fill: var(--j-ink); }
-.dos .scale .axis { fill: none; stroke: var(--j-ink); stroke-width: 1.4; stroke-linecap: round; }
-.dos .scale .band { fill: var(--hl); }
-.dos .scale .ptr { fill: var(--j-navy); }
-.dos .ans-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 12px; }
-.dos .ans-line .k { font: 400 1.04rem/1.2 var(--caps); color: var(--j-teal); }
-.dos .ans-line .v { font: 400 1.5rem/1.1 var(--marker); }
-.dos .ans-line .t { font: .98rem/1.5 var(--serif); color: var(--j-ink2); }
-.dos .go-plate { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; margin-top: 4px; color: var(--j-navy); font: 400 1.06rem/1 var(--caps); text-underline-offset: 4px; }
-.dos .go-plate svg { width: 18px; height: 18px; }
-.dos .why { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: baseline; margin-top: 12px; }
-.dos .why-k { font: 400 1.04rem/1.2 var(--caps); color: var(--j-teal); }
-.dos .why-t { font: 1rem/1.62 var(--serif); }
+/* ---------- 8. PUT IT INTO PRACTICE: the steps as an ink checklist, rules of thumb on a taped card,
+   the worked example as a field note, the common mistakes in red ink ---------- */
+.dos .d-steps .hh { margin-bottom: 1rem; }
+.dos .d-steps .prose { margin-bottom: .8rem; }
+.dos .d-check { display: grid; gap: 14px; margin-top: .4rem; }
+.dos .d-check li { display: grid; grid-template-columns: 26px auto 1fr; column-gap: 10px; align-items: start; font: var(--fs)/1.55 var(--serif); }
+.dos .d-box { width: 24px; height: 24px; margin-top: 2px; overflow: visible; color: var(--j-ink); }
+.dos .d-step-n { min-width: 1.1em; font: 400 1.3rem/1.2 var(--marker); color: var(--j-navy); }
+.dos .d-step-t { min-width: 0; }
+.dos .d-rules { margin-top: 2.6rem; }
+.dos .d-rules .card-k { margin-bottom: 4px; }
+.dos .d-rules p:not(.card-k), .dos .d-rules li { font: 400 1.16rem/1.42 var(--hand); }
+.dos .d-rules p + p { margin-top: .5rem; }
+.dos .d-items { display: grid; gap: 8px; margin-top: 6px; padding-left: 1.1em; list-style: disc; }
+.dos .d-items li::marker { color: currentColor; }
+.dos .d-note .note-t p + p, .dos .d-note .note-t p + ul, .dos .d-note .note-t ul + p { margin-top: .5rem; }
+.dos .d-note.d-example { max-width: 34rem; }
+.dos .d-note.d-mistakes { margin-left: 0; max-width: 34rem; }
 
 /* ---------- 9. SOURCES: evidence clippings with torn bottoms ---------- */
 .dos .evidence { display: grid; gap: 1.6rem; margin-top: 1.4rem; }
@@ -2182,7 +2214,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-898627a";
+U.BUILD = "2026-10-06-37ae88e";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -9327,6 +9359,11 @@ U.interactive = (function () {
 // ---- src/js/50-lesson.js ----
 // Lesson screen, route #/t/:tid/:iid (focus mode). Teaches one idea in five stages:
 //   Predict -> Play (the sandboxed interactive) -> Explain -> Say it back (graded) -> Check.
+// A lesson written to be read (lesson.mode 'read': "Just teach me", whatever the topic says now)
+// has two: Explore (the interactive) -> Read (explanation, analogy, Put it into practice, sources),
+// with no guess, no say-it-back and no checks; finishing marks the idea read (readRound, cardsRound:
+// no review cards) and never counts in Today, review or the badge. Both kinds show the lesson's
+// "Put it into practice" (lesson.practice) after the explanation and analogy.
 //
 // Reads topics/{tid} and topics/{tid}/lessons/{iid}. A lesson opens only when it is whole: status
 // ready, with its interactive built and tested (or ready without one, and the honest note why).
@@ -9361,6 +9398,10 @@ U.interactive = (function () {
   var STAGES = ['predict', 'play', 'explain', 'say', 'checks', 'done'];
   var STEPS = STAGES.slice(0, 5);
   var LABEL = { predict: 'Predict', play: 'Play', explain: 'Explain', say: 'Say it back', checks: 'Check', done: 'Done' };
+  // A read lesson (lesson.mode 'read'): the same stage names in progress, fewer of them, read-style labels.
+  var READ_STAGES = ['play', 'explain', 'done'];
+  var READ_STEPS = READ_STAGES.slice(0, 2);
+  var READ_LABEL = { play: 'Explore', explain: 'Read', done: 'Done' };
   var VERDICT = { 'got-it': 'You\'ve got it', partly: 'Partly there', 'not-yet': 'Not there yet' };
   // How each number in "What am I looking at?" is labelled. Assumed values are examples chosen
   // for the interactive ("for example …"), never findings; dates are plain facts.
@@ -9430,7 +9471,6 @@ U.interactive = (function () {
   function liveOf(tid, iid) {
     try { return U.gen && typeof U.gen.status === 'function' ? (((U.gen.status(tid) || {}).lessons) || {})[iid] : undefined; } catch (e) { return undefined; }
   }
-  function stepName(stage) { return 'Step ' + (STEPS.indexOf(stage) + 1) + ' of ' + STEPS.length + ': ' + LABEL[stage]; }
   // The interactive's build brief follows a template ("The one thing you should see is X when you
   // Y"); Dan sees it as a friendly instruction instead. Its first half is what to look for, which
   // is the predict's answer, so before the reveal he sees only what to do: "Try this: Y." (or
@@ -9485,9 +9525,25 @@ U.interactive = (function () {
     function requestOpen() { return !!(st.ip.relearn && (st.ip.relearnId || st.ip.relearnAt)); }
 
     // ---- frame: sticky bar, heading, stages, footer ----
-    var stepBtns = STEPS.map(function (s) {
-      return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, 'aria-label': stepName(s), on: { click: function () { jumpTo(s); } } }, U.h('i'));
-    });
+    // A read lesson (lesson.mode 'read') is shown read-style, whatever the topic's mode is now.
+    function reading() { return !!(st.lesson && st.lesson.mode === 'read'); }
+    function stagesNow() { return reading() ? READ_STAGES : STAGES; }
+    function stepsNow() { return reading() ? READ_STEPS : STEPS; }
+    function labelOf(stage) { return (reading() && READ_LABEL[stage]) || LABEL[stage]; }
+    function stepName(stage) { var list = stepsNow(); return 'Step ' + (list.indexOf(stage) + 1) + ' of ' + list.length + ': ' + labelOf(stage); }
+    // The stage after this one in this lesson's flow.
+    function after(stage) { var list = stagesNow(), i = list.indexOf(stage); return list[i + 1] || 'done'; }
+    var stepsRow = U.h('div', { class: 'lsn-steps-row' }), stepBtns = [];
+    // One segment per step of this lesson (five, or two for a read lesson), redrawn when that changes.
+    function drawSteps() {
+      var list = stepsNow();
+      if (stepBtns.length === list.length && stepBtns.every(function (b, i) { return b.dataset.stage === list[i]; })) return;
+      stepBtns = list.map(function (s) {
+        return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, dataset: { stage: s }, 'aria-label': stepName(s), on: { click: function () { jumpTo(s); } } }, U.h('i'));
+      });
+      U.append(U.clear(stepsRow), stepBtns);
+    }
+    drawSteps();
     // The bar names the stage only: its five segments show how far along he is, and the eyebrow
     // below already counts ideas ("Idea 1 of 6"), so a second "of N" would only confuse. Screen
     // readers hear the count from each segment's label ("Step 1 of 5: Predict, current step").
@@ -9496,7 +9552,7 @@ U.interactive = (function () {
       U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude')));
     var bar = U.h('div', { class: 'lsn-bar' },
       U.h('a', { class: 'icon-btn lsn-close', href: '#/t/' + encodeURIComponent(tid), 'aria-label': 'Close the lesson and go back to the topic', on: { click: function () { toTopic(tid); } } }, U.icon('close')),
-      U.h('nav', { class: 'lsn-steps', 'aria-label': 'Lesson progress' }, U.h('div', { class: 'lsn-steps-row' }, stepBtns), stepLabel),
+      U.h('nav', { class: 'lsn-steps', 'aria-label': 'Lesson progress' }, stepsRow, stepLabel),
       askBtn);
     var eb = U.h('p', { class: 'eyebrow lsn-eb' }, U.h('span', { class: 'skeleton lsn-sk-eb' }));
     var h1 = U.h('h1', { class: 'lsn-title' }, U.h('span', { class: 'skeleton lsn-sk-h1' }));
@@ -10020,25 +10076,30 @@ U.interactive = (function () {
 
     function begin() {
       st.begun = true;
+      var list = stagesNow(), start = list[0];
       // The idea counts as started only once its whole lesson is on screen.
       if (!st.replay) {
         var first = {};
         if (!st.ip.startedAt) first.startedAt = st.ip.startedAt = U.now();
-        if (!st.ip.stage) first.stage = st.ip.stage = 'predict';
+        if (!st.ip.stage) first.stage = st.ip.stage = start;
         saveIdea(first);
       }
       destroyLive();
       stopNext();
+      drawSteps();
       U.clear(flow); st.sections = {}; st.closed = {};
-      var cur = st.replay ? 'predict' : (st.ip.stage || 'predict');
-      var ci = STAGES.indexOf(cur);
-      if (ci < 0) { cur = 'predict'; ci = 0; }
-      for (var i = 0; i < Math.min(ci, 5); i++) addPast(STAGES[i]);
+      var cur = st.replay ? start : (st.ip.stage || start);
+      // A read lesson has no guess, say-it-back or checks: a stage saved as one of those (an older
+      // lesson's) opens at the nearest of its own.
+      if (reading()) cur = cur === 'predict' ? 'play' : cur === 'say' || cur === 'checks' ? 'explain' : cur;
+      var ci = list.indexOf(cur);
+      if (ci < 0) { cur = start; ci = 0; }
+      for (var i = 0; i < ci && list[i] !== 'done'; i++) addPast(list[i]);
       if (cur === 'done') addDone(false);
       else addLive(cur, false);
     }
     function addLive(stage, scroll) {
-      var sec = U.h('section', { class: 'lsn-stage', dataset: { stage: stage }, 'aria-label': LABEL[stage] });
+      var sec = U.h('section', { class: 'lsn-stage', dataset: { stage: stage }, 'aria-label': labelOf(stage) });
       flow.appendChild(sec);
       st.sections[stage] = sec; st.stage = stage;
       paintBar();
@@ -10051,7 +10112,7 @@ U.interactive = (function () {
       var det = U.h('details', { class: 'lsn-past', dataset: { stage: stage } },
         U.h('summary', null,
           U.h('span', { class: 'lsn-past-tick', 'aria-hidden': 'true' }, U.icon('tick')),
-          U.h('span', { class: 'lsn-past-text' }, U.h('span', { class: 'lsn-past-label' }, LABEL[stage]), U.h('span', { class: 'lsn-past-sum' }, summaryOf(stage))),
+          U.h('span', { class: 'lsn-past-text' }, U.h('span', { class: 'lsn-past-label' }, labelOf(stage)), U.h('span', { class: 'lsn-past-sum' }, summaryOf(stage))),
           U.h('span', { class: 'lsn-chev', 'aria-hidden': 'true' }, U.icon('back'))),
         body);
       var drawn = false;
@@ -10097,7 +10158,7 @@ U.interactive = (function () {
         sec.classList.add('is-done');
         sec.querySelectorAll('.lsn-go').forEach(function (g) { g.remove(); });
       }
-      var next = STAGES[STAGES.indexOf(stage) + 1];
+      var next = after(stage);
       // The saved stage only ever moves forward (another device may already be further on).
       if (!st.replay && order(next) > order(st.ip.stage)) { st.ip.stage = next; saveIdea({ stage: next }); }
       if (next === 'done') addDone(true);
@@ -10105,15 +10166,16 @@ U.interactive = (function () {
     }
     function paintBar() {
       // Before the lesson is on screen no step is current (and the label says it is being prepared).
-      var ci = st.begun ? STAGES.indexOf(st.stage) : -1, all = st.begun && st.stage === 'done';
+      drawSteps();
+      var list = stepsNow(), ci = st.begun ? list.indexOf(st.stage) : -1, all = st.begun && st.stage === 'done';
       stepBtns.forEach(function (b, i) {
         var state = all ? 'done' : ci < 0 ? 'later' : i < ci ? 'done' : i === ci ? 'now' : 'later';
         b.className = 'lsn-step is-' + state + (all ? ' is-all' : '');
-        b.disabled = !st.sections[STEPS[i]];
-        b.setAttribute('aria-label', stepName(STEPS[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
+        b.disabled = !st.sections[list[i]];
+        b.setAttribute('aria-label', stepName(list[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? 'Idea learned' : st.begun ? LABEL[st.stage] : st.prep ? 'Getting ready' : '';
+      stepLabel.textContent = all ? (reading() ? 'Idea read' : 'Idea learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
       bar.classList.toggle('is-all', all);
       paintOne();
     }
@@ -10191,6 +10253,11 @@ U.interactive = (function () {
     // titled false: the reveal goes without its "What happens" eyebrow (Play is headed so already).
     function guessAndReveal(noAnswer, titled) {
       var p = (st.lesson && st.lesson.predict) || {};
+      // A read lesson asked for no guess: only what happens, when it says (it may not).
+      if (reading()) {
+        return p.reveal && !noAnswer ? U.h('div', { class: 'lsn-reveal' }, U.h('div', { class: 'lsn-reveal-answer callout remember' },
+          titled === false ? null : eyebrow('What happens'), richBox(p.reveal, 'lsn-reveal-text', fn))) : null;
+      }
       var gr = guessOf(), g = gr && gr.answer;
       var said = g != null && g !== '';
       // When the lesson marks which option was right, a right guess is acknowledged.
@@ -10209,8 +10276,9 @@ U.interactive = (function () {
       // without one, nothing here is named after an interactive that is not there.
       var spec = (st.lesson && st.lesson.interactive) || null;
       var built = builtIt(), has = !!built, played = !live;
-      var title = has ? (built.title || (spec && spec.title) || 'What happens') : 'What happens';
-      U.append(box, [live ? eyebrow('Play') : null, heading(title)]);
+      var revealText = (st.lesson && st.lesson.predict && st.lesson.predict.reveal) || '';
+      var title = has ? (built.title || (spec && spec.title) || 'What happens') : reading() && !revealText ? 'Before you read' : 'What happens';
+      U.append(box, [live ? eyebrow(labelOf('play')) : null, heading(title)]);
       var brief = has && spec && spec.brief ? U.h('p', { class: 'lsn-lede' }) : null;
       var stage = U.h('div', { class: 'lsn-play' });
       var notes = U.h('div', { class: 'lsn-discs' });
@@ -10218,7 +10286,7 @@ U.interactive = (function () {
       U.append(box, [brief, stage, notes, after]);
       var m = null;
       if (has) m = mountPanel(stage, built, title);
-      else stage.appendChild(noInteractive(spec));
+      else stage.appendChild(noInteractive(spec, !reading() || !!revealText));
       if (spec && has) drawNotes(notes, spec, m);
       function drawAfter() {
         U.clear(after);
@@ -10227,7 +10295,9 @@ U.interactive = (function () {
         var acting = live && !st.closed.play;
         if (played || !has) {
           // Without an interactive, Play is headed "What happens": the answer is not titled again.
-          after.appendChild(guessAndReveal(false, has));
+          // A read lesson shows only what happens, when it says (it may not).
+          var shown = guessAndReveal(false, has);
+          if (shown) after.appendChild(shown);
           if (acting) after.appendChild(go(btn('Continue', function () { complete('play'); }, 'lsn-main')));
         } else if (acting) {
           after.appendChild(go(btn('I\'ve had a play', function () {
@@ -10235,7 +10305,7 @@ U.interactive = (function () {
             drawAfter();
             // The button has gone: focus goes to what appeared (the answer), which is also said.
             var reveal = (st.lesson && st.lesson.predict && st.lesson.predict.reveal) || '';
-            land(after.querySelector('.lsn-reveal-answer') || after.querySelector('.lsn-reveal-guess'));
+            land(after.querySelector('.lsn-reveal-answer') || after.querySelector('.lsn-reveal-guess') || after.querySelector('.btn'));
             if (reveal) announce('What happens: ' + reveal);
             bring(after, 'nearest');
           }, 'lsn-main')));
@@ -10296,13 +10366,14 @@ U.interactive = (function () {
           (n - ok) + ' of its ' + n + ' self-checks did not pass, so treat its exact numbers with some care. The pattern it shows should still hold.'));
       }
     }
-    function noInteractive(spec) {
+    // below: what happens is shown just below (a read lesson may have nothing to reveal).
+    function noInteractive(spec, below) {
       var why = spec
         ? 'The interactive for this idea did not pass its own tests, so it is left out rather than risk showing you something wrong.'
         : 'This idea is about how things fit together rather than numbers you can change, so there is nothing to play with.';
       return U.h('div', { class: 'lsn-none' },
         U.h('p', { class: 'lsn-none-head' }, 'No interactive for this one'),
-        U.h('p', { class: 'muted' }, why + ' What happens is just below.'));
+        U.h('p', { class: 'muted' }, why + (below === false ? ' The reading comes next.' : ' What happens is just below.')));
     }
     function named(c) { return !!c && Array.isArray(c.options) && c.options.length > 0; }
     // The lesson's own name for a named control's value from the frame, or null. raw: the index
@@ -10384,7 +10455,7 @@ U.interactive = (function () {
     // ---- 3. Explain ----
     function renderExplain(box, live) {
       var l = st.lesson || {}, ex = l.explain || {};
-      U.append(box, [live ? eyebrow('Explain') : null, heading('What\'s going on'), U.h('div', { class: 'reading lsn-reading' }, U.rich(ex.text || '', fn))]);
+      U.append(box, [live ? eyebrow(labelOf('explain')) : null, heading('What\'s going on'), U.h('div', { class: 'reading lsn-reading' }, U.rich(ex.text || '', fn))]);
       var src = sources(), checked = checkedLine(src.length);
       if (st.doc && st.doc.sourced === false) {
         box.appendChild(U.h('p', { class: 'lsn-quiet' }, U.h('strong', null, 'Not yet source-checked. '), 'Claude wrote this from what it already knows; no live sources were checked for this idea.'));
@@ -10407,6 +10478,8 @@ U.interactive = (function () {
             return U.h('div', { class: 'lsn-view' }, U.h('h3', null, String(v.label || 'One view')), richBox(v.text, 'lsn-view-text', fn));
           })) : null));
       }
+      var practice = practiceBox();
+      if (practice) box.appendChild(practice);
       if (src.length) {
         box.appendChild(U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', [U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
           return U.h('li', null, U.h('button', { class: 'lsn-source-btn', type: 'button', on: { click: function () { sourceSheet(s); } } },
@@ -10414,7 +10487,30 @@ U.interactive = (function () {
             U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
         })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null])));
       } else if (checked) box.appendChild(U.h('p', { class: 'lsn-checked' }, checked));
-      if (live) box.appendChild(go(btn('Continue', function () { complete('explain'); }, 'lsn-main')));
+      if (live) box.appendChild(go(btn(reading() ? 'Done reading' : 'Continue', function () { complete('explain'); }, 'lsn-main')));
+    }
+    // "Put it into practice" (lesson.practice): how to use the idea, in the lesson's own words (an
+    // older lesson has none, and shows nothing). Paragraphs, "- " lists and numbered "1. " steps.
+    function practiceBox() {
+      var pr = st.lesson && st.lesson.practice, text = pr && typeof pr.text === 'string' ? pr.text.trim() : '';
+      if (!text) return null;
+      var body = U.h('div', { class: 'reading lsn-practice-text' });
+      text.replace(/\r/g, '').split(/\n{2,}/).forEach(function (block) {
+        var lines = block.split('\n').map(function (l) { return l.trim(); }).filter(Boolean), para = [], list = null;
+        lines.forEach(function (l) {
+          var b = /^(?:[-•*]|(\d{1,2})[.)])\s+/.exec(l);
+          if (b) {
+            if (para.length) { body.appendChild(U.inline(U.h('p'), para.join(' '), fn)); para = []; }
+            if (!list) list = body.appendChild(U.h(b[1] ? 'ol' : 'ul'));
+            list.appendChild(U.inline(U.h('li'), l.slice(b[0].length), fn));
+          } else if (list) {
+            list.lastChild.appendChild(document.createTextNode(' '));
+            U.inline(list.lastChild, l, fn);
+          } else para.push(l);
+        });
+        if (para.length) body.appendChild(U.inline(U.h('p'), para.join(' '), fn));
+      });
+      return U.h('section', { class: 'lsn-practice', 'aria-label': 'Put it into practice' }, eyebrow('Put it into practice'), body);
     }
 
     // ---- 4. Say it back ----
@@ -10662,15 +10758,18 @@ U.interactive = (function () {
 
     // ---- Done ----
     function addDone(live) {
-      var first = live && !st.replay && !st.ip.doneAt;
+      var first = live && !st.replay && !st.ip.doneAt, read = reading();
       if (live && !st.replay) {
         var f = { stage: 'done' };
         if (first) f.doneAt = st.ip.doneAt = U.now();
+        // A read lesson makes no review cards: the round is marked read (Today, review and the
+        // badge never count it) and its cards as made, none (so nothing makes them later).
+        if (first && read) f.readRound = f.cardsRound = st.ip.readRound = round();
         st.ip.stage = 'done';
         saveIdea(f);
         // Review cards come from the first time through (or a fresh round of Learn it again). The
         // round is recorded with them, so cards lost with a closed app are made at the next open.
-        if (first && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
+        if (first && !read && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
           Promise.resolve().then(function () { return U.review.addFromLesson(tid, iid, st.lesson, outcome(), { round: round() }); })
             .catch(function (e) { if (!(e && e.queued)) U.toast('Your review cards could not be saved: ' + U.errText(e), { kind: 'bad' }); });
         }
@@ -10689,14 +10788,15 @@ U.interactive = (function () {
       var says = attemptsNow();
       var nx = nextIdea();
       var topicHref = '#/t/' + encodeURIComponent(tid);
-      var sec = U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea learned' },
+      var sec = U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': read ? 'Idea read' : 'Idea learned' },
         U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
-        heading(live ? (st.replay ? 'Gone through again' : 'Idea learned') : 'You\'ve learned this idea'),
+        heading(live ? (st.replay ? (read ? 'Read through again' : 'Gone through again') : read ? 'Idea read' : 'Idea learned') : read ? 'You\'ve read this idea' : 'You\'ve learned this idea'),
         // Two short centred lines (how it went; where his work went), not one long ragged paragraph.
-        U.h('p', { class: 'lsn-done-text' },
-          all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
-          U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
-            : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
+        read ? U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.'))
+          : U.h('p', { class: 'lsn-done-text' },
+            all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
+            U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
+              : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
         nx
           ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
             nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
@@ -10704,9 +10804,9 @@ U.interactive = (function () {
             go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
               U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
           : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
-            U.h('p', { class: 'muted' }, 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
+            U.h('p', { class: 'muted' }, read ? 'You have been through every idea here.' : 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
             go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
-        U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); })));
+        U.h('p', { class: 'lsn-again' }, linkBtn(read ? 'Read it again' : 'Go through it again', function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); })));
       flow.appendChild(sec);
       st.sections.done = sec;
       paintBar();
@@ -11280,6 +11380,8 @@ U.interactive = (function () {
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
 //       (only Agains since the idea was last learned and since its latest round began)
+//   Ideas read, not studied ("Just teach me": progress readRound is the idea's round) have no
+//   cards, and any left from an earlier round are never counted anywhere (loadCards).
 //
 // Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen).
 // Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
@@ -11314,20 +11416,30 @@ U.interactive = (function () {
     });
     return list;
   }
+  // An idea whose latest round was a read lesson ("Just teach me": progress readRound, written when
+  // it is finished, 50-lesson.js). Its round makes no cards, and any its earlier rounds left are
+  // never counted: not in Today, a review, the badge, the Map's bands or Learn it again.
+  function readIdea(idea) {
+    return !!idea && typeof idea === 'object' && idea.readRound != null && Number(idea.readRound) === (Number(idea.round) || 0);
+  }
   // Every usable card; the cards of topics deleted (here or on another device) are dropped and
-  // their leftover docs removed.
+  // their leftover docs removed; the cards of ideas he chose only to read are left out.
   function loadCards() {
-    return U.store.cards.all().then(function (all) {
+    return Promise.all([U.store.cards.all(), U.store.progress.all().catch(function () { return {}; })]).then(function (r) {
+      var all = r[0], prog = r[1] || {};
       var tids = Object.keys(all);
       if (!tids.length) return [];
+      function usable(list) {
+        return list.filter(function (c) { var p = prog[c.tid], ideas = p && p.ideas; return !(ideas && readIdea(ideas[c.iid])); });
+      }
       return U.store.topicsExist(tids).then(function (ok) {
         var keep = {};
         tids.forEach(function (tid) {
           if (ok[tid] !== false) keep[tid] = all[tid];
           else U.store.cards.dropOrphan(tid).catch(function (e) { console.warn('tidy', e); });
         });
-        return flatten(keep);
-      }, function () { return flatten(all); });
+        return usable(flatten(keep));
+      }, function () { return usable(flatten(all)); });
     });
   }
   // Every day in review is a study day (U.studyDay, turning over at 4 am): due dates, the cap,
@@ -11637,7 +11749,7 @@ U.interactive = (function () {
         var ideas = (r[0][tid] && r[0][tid].ideas) || {};
         Object.keys(ideas).forEach(function (iid) {
           var idea = ideas[iid], round = Number(idea && idea.round) || 0;
-          if (!idea || typeof idea !== 'object' || idea.stage !== 'done' || making[tid + '/' + iid]) return;
+          if (!idea || typeof idea !== 'object' || idea.stage !== 'done' || making[tid + '/' + iid] || readIdea(idea)) return;
           if (idea.cardsRound != null && Number(idea.cardsRound) >= round) return;
           todo.push({ tid: tid, iid: iid, idea: idea, round: round });
         });
@@ -12342,6 +12454,23 @@ U.interactive = (function () {
     return null;
   };
   V.isDone = function (progress, iid) { var s = progress && progress.ideas && progress.ideas[iid]; return !!(s && s.stage === 'done'); };
+  // How Dan learns a topic (topic.mode): 'study' (teach and test: the default, and what a topic
+  // without the field means) or 'read' (just teach: reading and the interactive, no questions and
+  // no review cards). A switch applies to lessons written after it; each lesson keeps the mode it
+  // was written for (lesson.mode), so an idea is "read" when its latest round was a read lesson.
+  V.MODES = [['study', 'Teach and test me'], ['read', 'Just teach me']];
+  V.modeOf = function (topic) { return topic && topic.mode === 'read' ? 'read' : 'study'; };
+  V.isRead = function (progress, iid) {
+    var s = progress && progress.ideas && progress.ideas[iid];
+    return !!(s && s.stage === 'done' && s.readRound != null && Number(s.readRound) === (Number(s.round) || 0));
+  };
+  // What a topic's finished ideas are called: 'read' when every one was read, 'learned' when none
+  // was, else 'done'.
+  V.doneWord = function (topic, progress) {
+    var done = ((topic && topic.ideas) || []).filter(function (i) { return V.isDone(progress, i.id); });
+    var read = done.filter(function (i) { return V.isRead(progress, i.id); }).length;
+    return !done.length ? (V.modeOf(topic) === 'read' ? 'read' : 'learned') : read === done.length ? 'read' : read ? 'done' : 'learned';
+  };
 
   // Work left behind by a page that went away (reloaded, killed in the background, republished).
   // A topic still 'planning' 90 s after its last change, with no planning running in this page,
@@ -12472,10 +12601,13 @@ U.interactive = (function () {
 
   var EXAMPLES = ['Why the sky is blue', 'The fall of Rome', 'How index funds work', 'Why minor keys sound sad', 'Sharpening a kitchen knife'];
   var LEVELS = [['new', 'New to it'], ['some', 'Know a bit'], ['solid', 'Know it well']];
+  var MODE_NOTE = { study: 'A guess first, quick checks, and reviews later so it sticks.', read: 'Just the reading and the interactive: no questions, no reviews.' };
+  // The intake questions (U.gen.intake) are waited for this long; then planning goes ahead without them.
+  V.INTAKE_MS = 12000;
   var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   U.routes.add('#/', function (params, ctx) {
-    var level = 'new', busy = false, topics = null, progress = {}, seq = 0;
+    var level = 'new', mode = 'study', busy = false, topics = null, progress = {}, seq = 0, job = 0;
 
     // --- ask ---
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
@@ -12516,15 +12648,27 @@ U.interactive = (function () {
     });
     var goLabel = U.h('span', { class: 'ask-go-label' }, 'Start learning');
     var goBtn = U.h('button', { class: 'btn ask-go', type: 'submit' }, goLabel, U.icon('arrow'));
-    var working = U.h('div', { class: 'ask-working', hidden: true },
-      U.h('div', { class: 'working' }),
-      U.h('p', { class: 'muted small' }, 'Claude is choosing the ideas that matter most. This takes a few seconds.'));
+    var workingText = U.h('p', { class: 'muted small' });
+    var working = U.h('div', { class: 'ask-working', hidden: true }, U.h('div', { class: 'working' }), workingText);
     var levelChips = LEVELS.map(function (l) {
       return U.h('button', { class: 'seg-btn', type: 'button', role: 'radio', 'aria-checked': String(l[0] === level), dataset: { level: l[0] }, on: { click: function () {
         level = l[0];
         levelChips.forEach(function (c) { c.setAttribute('aria-checked', String(c.dataset.level === level)); });
       } } }, l[1]);
     });
+    // How he wants to learn it (topic.mode): teach and test (the default), or just teach.
+    var modeNote = U.h('p', { class: 'ask-mode-note muted small', id: 'mode-n' }, MODE_NOTE[mode]);
+    var modeChips = V.MODES.map(function (m) {
+      return U.h('button', { class: 'seg-btn', type: 'button', role: 'radio', 'aria-checked': String(m[0] === mode), 'aria-describedby': 'mode-n', dataset: { mode: m[0] }, on: { click: function () {
+        mode = m[0];
+        modeChips.forEach(function (c) { c.setAttribute('aria-checked', String(c.dataset.mode === mode)); });
+        modeNote.textContent = MODE_NOTE[mode];
+      } } }, m[1]);
+    });
+    // The intake: a few questions about what he wants from the topic, asked in place once he taps
+    // Start (U.gen.intake), with a live region saying when they arrive.
+    var intakeSlot = U.h('div', { class: 'intake-slot' });
+    var said = U.h('p', { class: 'visually-hidden', role: 'status' });
     var exampleChips = EXAMPLES.map(function (t) {
       return U.h('button', { class: 'chip chip-soft', type: 'button', on: { click: function () {
         if (input.disabled) return;
@@ -12542,10 +12686,13 @@ U.interactive = (function () {
       eyebrow,
       U.h('h1', { id: 'ask-h' }, 'What do you want to learn?'),
       U.h('p', { class: 'ask-sub muted' }, 'Type anything you are curious about. Claude maps it into a few clear ideas, each with something to play with.'),
-      U.h('div', { class: 'ask-row ask-level-row' }, U.h('span', { class: 'ask-label', id: 'lvl-l' }, 'How well do you know it?'),
-        // Radios for the keyboard too (U.radios): one Tab stop, the arrow keys move the choice.
-        U.radios(U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips))),
-      form, working,
+      U.h('div', { class: 'ask-level-row ask-choices' },
+        U.h('div', { class: 'ask-row' }, U.h('span', { class: 'ask-label', id: 'lvl-l' }, 'How well do you know it?'),
+          // Radios for the keyboard too (U.radios): one Tab stop, the arrow keys move the choice.
+          U.radios(U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips))),
+        U.h('div', { class: 'ask-row' }, U.h('span', { class: 'ask-label', id: 'mode-l' }, 'How do you want to learn it?'),
+          U.radios(U.h('div', { class: 'seg ask-modes', role: 'radiogroup', 'aria-labelledby': 'mode-l' }, modeChips)), modeNote)),
+      form, working, intakeSlot, said,
       U.h('div', { class: 'ask-row ask-try' }, U.h('span', { class: 'ask-label', id: 'try-l' }, 'Or try one'),
         U.h('div', { class: 'chips', role: 'group', 'aria-labelledby': 'try-l' }, exampleChips)));
 
@@ -12578,23 +12725,124 @@ U.interactive = (function () {
       }, function () {});
     }
 
-    function setBusy(on) {
-      input.disabled = on; goBtn.disabled = on;
-      goLabel.textContent = on ? 'Planning…' : 'Start learning';
+    // phase: 'reading' (the intake questions are being asked for) or 'planning'.
+    function setBusy(on, phase) {
+      input.disabled = on; goBtn.disabled = on; goBtn.hidden = false;
+      page.classList.remove('is-asking');
+      goLabel.textContent = on ? (phase === 'reading' ? 'Reading…' : 'Planning…') : 'Start learning';
       goBtn.classList.toggle('is-busy', on);
       working.hidden = !on;
-      exampleChips.concat(levelChips).forEach(function (c) { c.disabled = on; });
+      workingText.textContent = phase === 'reading' ? 'Claude is reading your question, so it can ask what you want from it.'
+        : 'Claude is choosing the ideas that matter most. This takes a few seconds.';
+      exampleChips.concat(levelChips, modeChips).forEach(function (c) { c.disabled = on; });
       fit();
       if (on) input.scrollTop = 0;
     }
+    function say(text) { said.textContent = ''; setTimeout(function () { if (ctx.alive()) said.textContent = text; }, 60); }
+    function land(el) { if (el && el.isConnected) try { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest', behavior: 'auto' }); } catch (e) { /* fine */ } }
 
+    // Start: Claude reads the question and asks a few things about what he wants (U.gen.intake);
+    // his answers go to the plan. Never in the way: no intake in this view, no questions, a
+    // failure or a wait over V.INTAKE_MS goes straight to planning (a calm note says so).
     function submit() {
       var q = input.value.replace(/\s+/g, ' ').trim();
       if (!q) { input.focus(); U.toast('Type something you would like to learn first.'); return; }
       if (busy) return;
       if (!U.gen || !U.gen.createTopic) { U.toast('Claude cannot plan new topics in this view yet.', { kind: 'bad' }); return; }
       busy = true;
-      setBusy(true);
+      var my = ++job;
+      if (typeof U.gen.intake !== 'function') { plan(q, null, my); return; }
+      setBusy(true, 'reading');
+      var timer = null;
+      var late = new Promise(function (res, rej) { timer = setTimeout(function () { rej({ code: 'timeout', message: 'The questions took too long.' }); }, V.INTAKE_MS); });
+      Promise.race([Promise.resolve().then(function () { return U.gen.intake(q, { level: level, mode: mode }); }), late]).then(function (r) {
+        clearTimeout(timer);
+        if (my !== job || !ctx.alive()) return;
+        var qs = cleanQuestions(r && r.questions);
+        if (!qs.length) { plan(q, null, my); return; }
+        showIntake(q, qs, my);
+      }, function (e) {
+        clearTimeout(timer);
+        if (my !== job || !ctx.alive()) return;
+        console.warn('intake', e);
+        U.toast('Claude could not ask its questions just now, so it is planning your course straight away.');
+        say('Planning your course straight away.');
+        plan(q, null, my);
+      });
+    }
+    // The questions as the contract has them (2-5 options each, at most four questions), as text.
+    function cleanQuestions(list) {
+      var seen = {};
+      return (Array.isArray(list) ? list : []).filter(function (x) { return x && typeof x.q === 'string' && x.q.trim() && Array.isArray(x.options); }).map(function (x, k) {
+        var id = String(x.id || 'q' + (k + 1));
+        if (seen[id]) id += '_' + k;
+        seen[id] = true;
+        var opts = x.options.map(function (o) { return U.plain(String(o == null ? '' : o)).trim(); }).filter(function (o, i, a) { return o && a.indexOf(o) === i; }).slice(0, 5);
+        return { id: id, q: String(x.q).trim(), options: opts, multi: !!x.multi, other: !!x.other };
+      }).filter(function (x) { return x.options.length >= 2; }).slice(0, 4);
+    }
+    function showIntake(q, qs, my) {
+      input.disabled = true; goBtn.hidden = true; working.hidden = true;
+      page.classList.add('is-asking');
+      exampleChips.concat(levelChips, modeChips).forEach(function (c) { c.disabled = true; });
+      var answers = {};
+      function question(x, k) {
+        var a = answers[x.id] = { picked: [], other: '' }, qid = 'iq-' + k;
+        var chips = x.options.map(function (o) {
+          var b = U.h('button', { class: 'chip intake-chip', type: 'button', role: x.multi ? null : 'radio', 'aria-checked': x.multi ? null : 'false', 'aria-pressed': x.multi ? 'false' : null, on: { click: function () {
+            if (x.multi) {
+              var i = a.picked.indexOf(o);
+              if (i >= 0) a.picked.splice(i, 1); else a.picked.push(o);
+              b.setAttribute('aria-pressed', String(i < 0));
+            } else {
+              a.picked = [o];
+              chips.forEach(function (c) { c.setAttribute('aria-checked', String(c === b)); });
+            }
+          } } }, o);
+          return b;
+        });
+        var group = U.h('div', { class: 'chips intake-chips', role: x.multi ? 'group' : 'radiogroup', 'aria-labelledby': qid }, chips);
+        if (!x.multi) U.radios(group);
+        var other = x.other ? U.h('input', { class: 'input intake-other', type: 'text', maxlength: '200', autocomplete: 'off', enterkeyhint: 'done', placeholder: 'Something else (optional)', 'aria-label': 'Something else: ' + U.plain(x.q) }) : null;
+        if (other) {
+          other.addEventListener('input', function () { a.other = other.value; });
+          other.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+        }
+        return U.h('li', { class: 'intake-q' },
+          U.inline(U.h('p', { class: 'intake-q-text', id: qid }), x.q),
+          U.h('p', { class: 'muted small intake-hint' }, x.multi ? 'Pick any that fit.' : 'Pick one.'),
+          group, other);
+      }
+      function go() {
+        if (my !== job) return;
+        var out = {};
+        qs.forEach(function (x) {
+          var a = answers[x.id], other = a.other.replace(/\s+/g, ' ').trim();
+          if (a.picked.length || other) out[x.id] = { picked: a.picked.slice(), other: other || null };
+        });
+        U.clear(intakeSlot);
+        plan(q, { questions: qs, answers: out }, my);
+      }
+      var head = U.h('h2', { class: 'intake-h', id: 'intake-h', tabindex: '-1' }, 'A few questions first');
+      var panel = U.h('section', { class: 'intake', 'aria-labelledby': 'intake-h' },
+        head,
+        U.h('p', { class: 'muted intake-sub' }, 'So the course fits what you want from it. Answer any you like.'),
+        U.h('ol', { class: 'intake-qs' }, qs.map(question)),
+        U.h('div', { class: 'intake-go' },
+          U.h('button', { class: 'btn intake-plan', type: 'button', on: { click: go } }, 'Plan my course', U.icon('arrow')),
+          U.h('button', { class: 'linkish intake-skip', type: 'button', on: { click: function () { if (my !== job) return; U.clear(intakeSlot); plan(q, null, my); } } }, 'Skip the questions'),
+          U.h('button', { class: 'linkish intake-change', type: 'button', on: { click: function () {
+            job++; busy = false;
+            U.clear(intakeSlot);
+            setBusy(false);
+            input.focus();
+          } } }, 'Change my question')));
+      U.clear(intakeSlot).appendChild(panel);
+      say(qs.length === 1 ? 'Claude has a question to shape your course.' : 'Claude has ' + qs.length + ' questions to shape your course.');
+      land(head);
+    }
+    function plan(q, intake, my) {
+      setBusy(true, 'planning');
       var opened = false;
       // createTopic resolves once the plan is ready; onCreated lets Dan watch the plan form.
       function openTopic(tid) {
@@ -12602,14 +12850,14 @@ U.interactive = (function () {
         opened = true;
         U.go('#/t/' + encodeURIComponent(tid));
       }
-      Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level, onCreated: openTopic }); }).then(function (tid) {
-        busy = false;
+      Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level, mode: mode, intake: intake, onCreated: openTopic }); }).then(function (tid) {
+        if (my === job) busy = false;
         openTopic(tid);
       }, function (e) {
-        busy = false;
+        if (my === job) busy = false;
         if (opened) return; // the topic page already shows what went wrong, with Try again
         U.toast(U.errText(e), { kind: 'bad' });
-        if (ctx.alive()) { setBusy(false); input.focus(); }
+        if (ctx.alive() && my === job) { setBusy(false); input.focus(); }
       });
     }
 
@@ -12852,7 +13100,9 @@ U.interactive = (function () {
 // Topic page (#/t/:tid): the plan for one topic, live from the db. While Claude plans it shows
 // the question and gentle waiting lines; if planning failed it says why and offers Retry; once
 // ready it shows the hook, the idea "in one breath", an optional warm-up (never locks anything),
-// the path of ideas, the research Sources, Ask Claude, the "Keep a dossier" option (75-dossier.js)
+// the path of ideas, the research Sources, Ask Claude, how he is learning it (topic.mode: "Teach
+// and test me" or "Just teach me", which he can switch for the ideas still to come) with what he
+// told Claude when he started it (topic.intake), the "Keep a dossier" option (75-dossier.js)
 // and Delete (which asks whether to keep the dossier). The plan is written before any research and
 // never checked against it, so "in one breath", the hook and the warm-up's
 // answers say they are Claude's overview, and Sources says only what research found (each
@@ -12879,7 +13129,7 @@ U.interactive = (function () {
   U.routes.add('#/t/:tid', function (params, ctx) {
     var tid = params.tid;
     var topic = null, loaded = false, failure = null, progress = { ideas: {} }, deleting = false;
-    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null };
+    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null, mode: null };
     var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
     var lib = { key: null, groups: null, checked: null, seq: 0 };
     var dossier = null;   // the course's dossier index (75-dossier.js), for the option's link
@@ -12900,6 +13150,7 @@ U.interactive = (function () {
     var stops = [
       U.store.topic.watch(tid, function (t) {
         topic = t; loaded = true; failure = null; live.topic = null;
+        if (t && ui.mode && V.modeOf(t) === ui.mode) ui.mode = null;   // the switch has landed
         if (t) U.setTitle(t.title || V.asTitle(t.query));
         if (t && t.status === 'ready') loadLibrary();
         schedule();
@@ -13138,7 +13389,7 @@ U.interactive = (function () {
       var job;
       if (U.gen && U.gen.replan) job = Promise.resolve().then(function () { return U.gen.replan(tid); }).then(function () { return tid; });
       else if (U.gen && U.gen.createTopic && q) {
-        job = Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level }); }).then(function (newTid) {
+        job = Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level, mode: V.modeOf(topic), intake: topic.intake || null }); }).then(function (newTid) {
           if (!newTid || newTid === tid) return tid;
           // The new topic exists; now let the failed one go.
           deleting = true;
@@ -13190,7 +13441,7 @@ U.interactive = (function () {
       var ideas = Array.isArray(topic.ideas) ? topic.ideas : [];
       var s = V.summary(topic, progress);
       var pi = progress.ideas || {};
-      var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known]; });
+      var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known, V.isRead(progress, i.id)]; });
       var cal = progress.calibration || {};
       var r = topic.research || {};
       lw.watch(tid, s.current && !s.allDone ? s.current.id : null);
@@ -13198,7 +13449,7 @@ U.interactive = (function () {
       // The hook is a question in newer plans; older ones may have a statement.
       var hookIs = !topic.hook ? '' : /\?["'”’)]?\s*$/.test(U.plain(topic.hook).trim()) ? 'question' : 'line';
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
+        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
         // Written with the plan, before any research, and never checked: said in calm small words.
         topic.oneBreath ? ['breath', sig(topic.oneBreath, hookIs), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
@@ -13221,6 +13472,7 @@ U.interactive = (function () {
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
+        ['mode', sig(V.modeOf(topic), topic.intake, ui.mode), modeSection, 'rail'],
         U.dossier ? ['dossier', sig(U.dossier.on(progress), U.dossier.countOf(dossier), ideas.length), function () { return U.dossier.option(tid, progress, dossier, ideas.length); }, 'rail'] : null,
         ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, lib.checked, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
@@ -13243,7 +13495,7 @@ U.interactive = (function () {
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
-            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
+            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + (V.modeOf(topic) === 'read' ? ' · Just teach me' : '')),
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
@@ -13264,7 +13516,8 @@ U.interactive = (function () {
         var x = ideas.filter(function (k) { return k.id === d; })[0];
         return x ? x.title : null;
       }).filter(Boolean);
-      var kicker = done ? 'Done' + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
+      // A finished idea he chose only to read says "Read", never "Done" as if tested.
+      var kicker = done ? (V.isRead(progress, idea.id) ? 'Read' : 'Done') + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
         : current ? (s.started ? 'In progress' : (s.done === 0 ? 'Start here' : 'Up next'))
         : started ? 'Started' : 'Idea ' + (i + 1);
       var cls = 'pnode' + (done ? ' is-done' : '') + (current ? ' is-current' : '');
@@ -13290,12 +13543,58 @@ U.interactive = (function () {
       });
     }
 
+    // ---------- how he is learning it (topic.mode), and what he told Claude (topic.intake) ----------
+    // The mode is a radio group like Learn's; switching it saves topic.mode at once and applies to
+    // the lessons written after it (an idea already started keeps its lesson, so the note says
+    // "the ideas you have not started yet"). "What you told me" is his intake answers, shown back.
+    function modeSection() {
+      var cur = ui.mode || V.modeOf(topic);
+      var opts = V.MODES.map(function (m) {
+        return U.h('button', { class: 'seg-btn', type: 'button', role: 'radio', 'aria-checked': String(m[0] === cur), 'data-key': 'mode-' + m[0], dataset: { mode: m[0] }, on: { click: function () { setMode(m[0]); } } }, m[1]);
+      });
+      return U.h('section', { class: 'tp-mode', 'aria-labelledby': 'mode-h' },
+        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'mode-h' }, 'How you are learning this')),
+        U.radios(U.h('div', { class: 'seg tp-modes', role: 'radiogroup', 'aria-labelledby': 'mode-h', 'aria-describedby': 'mode-applies' }, opts)),
+        U.h('p', { class: 'muted small tp-mode-note' }, cur === 'read' ? 'The reading and the interactive for each idea: no questions and no review cards.' : 'A guess first, a say-it-back and quick checks for each idea, then review cards so it sticks.'),
+        U.h('p', { class: 'muted small tp-mode-applies', id: 'mode-applies' }, 'Applies to the ideas you have not started yet.'),
+        told());
+    }
+    function setMode(m) {
+      if (m === (ui.mode || V.modeOf(topic))) return;
+      var was = ui.mode;
+      ui.mode = m;
+      // Shown at once; the section is drawn again on the next frame (after the radio group has
+      // moved focus), and focus stays on the option by its key.
+      Array.prototype.forEach.call(root.querySelectorAll('.tp-modes [role="radio"]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.mode === m)); });
+      schedule();
+      U.store.topic.update(tid, { mode: m }).then(null, function () {
+        // The store has told Dan; the switch shows what is saved.
+        if (ui.mode === m) ui.mode = was || null;
+        if (ctx.alive()) schedule();
+      });
+    }
+    // His intake answers, as he gave them: each question with what he picked and wrote.
+    function told() {
+      var it = topic.intake, qs = it && Array.isArray(it.questions) ? it.questions : [], ans = (it && it.answers) || {};
+      var rows = qs.map(function (q) {
+        var a = q && ans[q.id];
+        if (!a) return null;
+        var said = (Array.isArray(a.picked) ? a.picked : []).map(String).filter(Boolean);
+        if (a.other && String(a.other).trim()) said.push(String(a.other).trim());
+        return said.length ? U.h('div', { class: 'tp-told-row' }, U.h('dt', null, U.plain(String(q.q || ''))), U.h('dd', null, said.join('; '))) : null;
+      }).filter(Boolean);
+      if (!rows.length) return null;
+      return U.h('div', { class: 'tp-told' }, U.h('h3', { class: 'tp-told-h' }, 'What you told me'), U.h('dl', { class: 'tp-told-list' }, rows));
+    }
+
     // ---------- warm-up (calibration) ----------
 
     // What takes focus after Next question, Done, Skip or "Try the warm-up questions" (render()).
     var WARM_NEXT = '.tp-warm-q, .tp-warm-done, .tp-warm-again';
 
     function warmup() {
+      // "Just teach me": no questions anywhere, the warm-up included.
+      if (V.modeOf && V.modeOf(topic) === 'read') return null;
       var qs = (Array.isArray(topic.calibration) ? topic.calibration : []).filter(function (q) { return q && q.id && q.q && Array.isArray(q.options) && q.options.length; });
       if (!qs.length) return null;
       var ans = progress.calibration || {};
@@ -13493,6 +13792,8 @@ U.interactive = (function () {
 // Map (#/map): every topic as a small constellation of idea dots, coloured by how well each idea
 // is holding (new = outline, fragile = amber, growing = teal, strong = navy). Bands come from
 // U.review.ideaBands() when the review module is present, else from progress (done = growing).
+// An idea Dan chose only to read ("Just teach me") is finished but never reviewed: its own dot,
+// "Read", and the key shows it only when a topic has one.
 // The SVG is laid out in real pixels for the card's width so labels stay readable on a phone;
 // tapping a dot opens that idea. Contract: docs/ARCHITECTURE.md sections 8 and 9.
 (function () {
@@ -13505,7 +13806,8 @@ U.interactive = (function () {
     ['growing', 'Growing', 'settling in'],
     ['strong', 'Strong', 'yours for now'],
   ];
-  var WORDS = { new: 'new', fragile: 'fragile', growing: 'growing', strong: 'strong' };
+  var READ = ['read', 'Read', 'just for reading'];
+  var WORDS = { new: 'new', fragile: 'fragile', growing: 'growing', strong: 'strong', read: 'read' };
 
   var measureCtx = null;
   function textWidth(text, font) {
@@ -13593,8 +13895,8 @@ U.interactive = (function () {
     return svg;
   }
 
-  function legend() {
-    return U.h('div', { class: 'map-legend', role: 'list', 'aria-label': 'What the colours mean' }, BANDS.map(function (b) {
+  function legend(withRead) {
+    return U.h('div', { class: 'map-legend' + (withRead ? ' has-read' : ''), role: 'list', 'aria-label': 'What the colours mean' }, BANDS.concat(withRead ? [READ] : []).map(function (b) {
       var s = V.s('svg', { class: 'map-key', viewBox: '-10 -10 20 20', width: 20, height: 20, 'aria-hidden': 'true' }, dot(b[0], 7));
       return U.h('div', { class: 'map-legend-item', role: 'listitem' }, s, U.h('span', { class: 'map-legend-text' }, U.h('strong', null, b[1]), U.h('span', { class: 'muted' }, b[2])));
     }));
@@ -13630,6 +13932,7 @@ U.interactive = (function () {
     function bandsFor(t) {
       var from = bandsAll[t.id] || {}, out = {};
       t.ideas.forEach(function (i) {
+        if (V.isRead(progress[t.id], i.id)) { out[i.id] = 'read'; return; }
         var b = WORDS[from[i.id]] ? from[i.id] : null, done = V.isDone(progress[t.id], i.id);
         if (!b || (b === 'new' && done)) b = done ? 'growing' : 'new';
         out[i.id] = b;
@@ -13658,7 +13961,7 @@ U.interactive = (function () {
         }));
         return;
       }
-      body.appendChild(legend());
+      body.appendChild(legend(topics.some(function (t) { return t.ideas.some(function (i) { return V.isRead(progress[t.id], i.id); }); })));
       U.clear(listBox);
       body.appendChild(listBox);
       var queue = topics.slice();
@@ -13667,7 +13970,7 @@ U.interactive = (function () {
         var t0 = performance.now(), first = !listBox.firstChild;
         while (queue.length && (first || performance.now() - t0 < 12)) {
           first = false;
-          var t = queue.shift(), s = V.summary(t, progress[t.id]);
+          var t = queue.shift(), s = V.summary(t, progress[t.id]), word = V.doneWord(t, progress[t.id]);
           var holder = U.h('div', { class: 'map-svg-box', dataset: { tid: t.id } });
           listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
             U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
@@ -13676,8 +13979,8 @@ U.interactive = (function () {
               // on Learn do; the dots keep showing how well each idea is holding.
               U.h('span', { class: 'map-topic-text' },
                 U.h('h2', null, t.title),
-                s.allDone ? U.h('span', { class: 'done-note small' }, U.icon('tick'), 'Every idea learned')
-                  : U.h('span', { class: 'muted small' }, s.done ? s.done + ' of ' + s.total + ' ideas learned' : 'Not started yet')),
+                s.allDone ? U.h('span', { class: 'done-note small' }, U.icon('tick'), 'Every idea ' + word)
+                  : U.h('span', { class: 'muted small' }, s.done ? s.done + ' of ' + s.total + ' ideas ' + word : 'Not started yet')),
               U.icon('arrow', 'map-topic-go')),
             holder));
           if (!lastW) lastW = Math.floor(holder.clientWidth);
@@ -14132,15 +14435,18 @@ U.interactive = (function () {
 
 // ---- src/js/75-dossier.js ----
 // The course dossier (docs/ARCHITECTURE.md sections 4, 9 and 10): a course bound as a naturalist's
-// field journal. Each idea Dan finishes in a course that keeps one (the topic page's "Keep a
-// dossier", on by default: progress.dossier !== false) is bound as a chapter: a snapshot of the
-// lesson's own content, taken when he finishes it (50-lesson.js calls U.dossier.bind) and taken
-// again when he learns it again (the newest edition). Ideas finished before dossiers existed are
-// bound from the stored lesson docs the first time the Library or the dossier opens (sync).
+// field journal, a teach-you-how book. Each idea Dan finishes in a course that keeps one (the topic
+// page's "Keep a dossier", on by default: progress.dossier !== false) is bound as a chapter: a
+// snapshot of the lesson's own teaching, taken when he finishes it (50-lesson.js calls
+// U.dossier.bind) and taken again when he learns it again (the newest edition). Ideas finished
+// before dossiers existed are bound from the stored lesson docs the first time the Library or the
+// dossier opens (sync).
 //
-// Only the course's content is printed, never anything Dan wrote, chose or scored: no say-it-back,
-// no predict, no answers or results, no questions, no "This looks wrong" notes, not even the words
-// he typed to start the course (topic.query). The only things about him are dates (begun,
+// Only the course's teaching is printed, never anything Dan wrote, chose or scored, and never a
+// test: no say-it-back, no predict, no questions, answers or results, no "This looks wrong" notes,
+// not even the words he typed to start the course (topic.query). What it keeps is what he could
+// pick up and use: the explanation, the analogy, the key facts card, the plate, "Put it into
+// practice" (lesson.practice) and the sources. The only things about him are dates (begun,
 // finished, learned on) and how many chapters are bound. Model text goes in through U.h / U.rich
 // / U.inline as text; the plate (the lesson's interactive) runs only in the sandboxed kit frame.
 //
@@ -14149,10 +14455,12 @@ U.interactive = (function () {
 // would not fit is left out with a note). A dossier outlives its course when Dan keeps it.
 //
 // Routes (the Library itself is #/book in 73-book.js):
-//   #/book/:tid  cover · /contents · /:iid (the idea) · /:iid/plate (/play: awake) · /:iid/tests
+//   #/book/:tid  cover · /contents · /:iid (the idea) · /:iid/plate (/play: awake)
+//   · /:iid/practice (put it into practice | sources; /tests, an older address, opens it too)
 //   · /glossary · /bibliography (the same leaf, at the bibliography)
 //
-// Pure parts (chapterFrom, researchFrom, indexFrom, model) touch no DOM, so Node tests run them.
+// Pure parts (chapterFrom, researchFrom, indexFrom, practiceParts, model) touch no DOM, so Node
+// tests run them.
 (function () {
   'use strict';
   var h = U.h;
@@ -14164,7 +14472,6 @@ U.interactive = (function () {
     contested: 'Experts disagree. The main views are set side by side.',
   };
   var UNSOURCED = 'Not yet source-checked: Claude wrote this from what it already knows.';
-  var TEST_KIND = { choice: 'Pick one', order: 'Put in order', estimate: 'Estimate', target: 'On the plate' };
   var CLOTH = ['#36324F', '#2F4536', '#5A2B24', '#2E3F52', '#4A2D40', '#5E4126'];
   var FONTS = 'https://fonts.googleapis.com/css2?family=Walter+Turncoat&family=Patrick+Hand&family=Patrick+Hand+SC&family=Permanent+Marker&family=Special+Elite&display=swap';
   // The plate in ink on paper: the kit's palette and its data roles (K_THEME.roles), for 32-sandbox.js.
@@ -14194,19 +14501,8 @@ U.interactive = (function () {
     return n;
   }
   function ideaOf(topic, iid) { return arr(topic && topic.ideas).filter(function (i) { return isObj(i) && i.id === iid; })[0] || null; }
-  function cleanCheck(k) {
-    if (!isObj(k)) return null;
-    var c = { id: str(k.id), type: str(k.type), q: str(k.q), why: str(k.why) };
-    if (k.type === 'choice') {
-      c.options = arr(k.options).map(str); c.answer = num(k.answer);
-      if (isObj(k.misconception)) { c.misconception = {}; Object.keys(k.misconception).forEach(function (i) { if (typeof k.misconception[i] === 'string') c.misconception[i] = k.misconception[i]; }); }
-    } else if (k.type === 'order') c.items = arr(k.items).map(str);
-    else if (k.type === 'estimate') { Object.assign(c, pick(k, ['min', 'max', 'answer', 'tolerance', 'unit', 'log'])); }
-    else if (k.type === 'target') { Object.assign(c, pick(k, ['control', 'output', 'target', 'tolerance'])); }
-    else return null;
-    return c;
-  }
-  // The lesson's own content. Left out on purpose: predict and say (activities Dan answers).
+  // The lesson's own teaching. Left out on purpose: predict, say and checks (questions Dan
+  // answers: the dossier is a book to learn from, never a test).
   function cleanLesson(L, doc) {
     var it = isObj(L.interactive) ? L.interactive : null, built = isObj(doc && doc.interactive) ? doc.interactive : null;
     return {
@@ -14219,7 +14515,7 @@ U.interactive = (function () {
         controls: arr(it.controls).filter(isObj).map(function (c) { return pick(c, ['id', 'label', 'min', 'max', 'step', 'value', 'unit', 'options']); }),
         outputs: arr(it.outputs).filter(isObj).map(function (o) { return pick(o, ['id', 'label', 'unit', 'decimals']); }),
       } : null,
-      checks: arr(L.checks).map(cleanCheck).filter(Boolean),
+      practice: isObj(L.practice) && typeof L.practice.text === 'string' && L.practice.text.trim() ? { text: L.practice.text } : null,
       sources: arr(L.sources).filter(isObj).map(function (s) { return { n: num(s.n), title: str(s.title), url: str(s.url), quote: str(s.quote) }; }),
       confidence: CERTAIN[L.confidence] ? L.confidence : 'settled',
       contested: isObj(L.contested) && Array.isArray(L.contested.views)
@@ -14298,6 +14594,61 @@ U.interactive = (function () {
   function paras(t) { return str(t).replace(/\r/g, '').split(/\n{2,}/).map(function (s) { return s.trim(); }).filter(Boolean); }
   function splitTitle(t) { var p = str(t).split(' — '); return { title: p[0].trim(), pub: (p[1] || '').trim() }; }
   function termsOf(L) { var out = [], re = /\[\[([^\]]+)\]\]/g, m, t = str(L && L.explain && L.explain.text); while ((m = re.exec(t))) if (out.indexOf(m[1]) < 0) out.push(m[1]); return out; }
+  // "Put it into practice" (lesson.practice.text, U.rich text) sorted into the journal's parts by
+  // fixed rules, word for word (nothing reworded or added): a part is named by its own lead label,
+  // on a line of its own or before its text ("**Steps**", "Rule of thumb:", "**Worked example:**",
+  // "## Common mistakes"); the label's words say which part it is (PRACTICE). A list with no label
+  // is the steps (the first one); a block with no label carries on the labelled part before it,
+  // else stays plain prose. Lists are "- " lines or numbered "1. " lines.
+  // -> [{kind: 'steps'|'rules'|'example'|'mistakes'|'prose', label, paras: [text], items: [text], ordered}]
+  var PRACTICE = [
+    ['mistakes', /mistake|pitfall|trap|go(es)? wrong|watch out|avoid|error/i],
+    ['rules', /\brules?\b/i],
+    ['example', /example|for instance|worked|real case|case study/i],
+    ['steps', /\bsteps?\b|how to|checklist|what to (do|look for|check)|in practice|method|try this/i],
+  ];
+  function practiceKind(label) { for (var i = 0; i < PRACTICE.length; i++) if (PRACTICE[i][1].test(label)) return PRACTICE[i][0]; return null; }
+  function leadOf(line) {
+    var m = /^#{1,4}\s+(.{1,60})$/.exec(line) || /^\*\*([^*]{1,60}?)\s*:?\s*\*\*\s*:?\s*([\s\S]*)$/.exec(line) || /^([A-Za-z][A-Za-z ’'-]{1,40}):(?:\s+([\s\S]*))?$/.exec(line);
+    if (!m) return null;
+    var label = m[1].replace(/[\s:*]+$/, '').trim(), kind = practiceKind(label);
+    return kind ? { label: label, kind: kind, rest: str(m[2]).trim() } : null;
+  }
+  var BULLET = /^\s*(?:[-•*]|(\d{1,2})[.)])\s+/;
+  // A paragraph with no label may still open by naming its part ("For example, …", "A common
+  // mistake is …", "A good rule of thumb: …"); its words stay as they are.
+  function openingKind(t) {
+    t = U.plain(str(t)).trim();
+    if (/^(for example|for instance|example\b|say you\b|suppose\b|imagine\b)/i.test(t)) return 'example';
+    if (/^((a|the|one|two)\s+)?((common|usual|classic|easy|big)\s+)?(mistakes?|pitfalls?|traps?)\b|^(watch out|beware|don['’]t|do not|avoid|never)\b/i.test(t)) return 'mistakes';
+    if (/^((a|one|the)\s+)?((good|simple|handy|useful)\s+)?rules? of thumb\b/i.test(t)) return 'rules';
+    return null;
+  }
+  function practiceParts(text) {
+    var parts = [], carry = null, named = null;
+    str(text).replace(/\r/g, '').split(/\n{2,}/).forEach(function (block) {
+      var lines = block.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+      if (!lines.length) return;
+      var lead = leadOf(lines[0]), own = lead || carry;
+      carry = null;
+      if (lead) { lines[0] = lead.rest; if (!lines[0]) lines.shift(); }
+      if (!lines.length) { carry = lead; return; }   // a label on its own: it names the next block
+      var ps = [], items = [], ordered = false;
+      lines.forEach(function (l) {
+        var b = BULLET.exec(l);
+        if (b) { if (!items.length) ordered = !!b[1]; items.push(l.slice(b[0].length).trim()); } else if (items.length) items[items.length - 1] += ' ' + l; else ps.push(l);
+      });
+      if (ps.length) ps = [ps.join(' ')];
+      var kind = own ? own.kind : !items.length ? openingKind(ps[0]) : null, prev = parts[parts.length - 1];
+      if (!kind && items.length && !parts.some(function (p) { return p.kind === 'steps'; })) kind = 'steps';
+      // Unlabelled: it carries on the labelled part just before it (or the prose before it).
+      if (!kind && prev && (named === prev || prev.kind === 'prose')) { prev.paras = prev.paras.concat(ps); prev.items = prev.items.concat(items); return; }
+      var part = { kind: kind || 'prose', label: own ? own.label : '', paras: ps, items: items, ordered: ordered };
+      parts.push(part);
+      named = kind ? part : null;
+    });
+    return parts;
+  }
   // book: {tid, title, hook, oneBreath, ideas, startedAt, research, chapters:{iid: chapter doc}, no, topic?}
   function model(book) {
     var base = '#/book/' + encodeURIComponent(book.tid), ideas = arr(book.ideas).filter(isObj), N = ideas.length, docs = book.chapters || {};
@@ -14305,7 +14656,12 @@ U.interactive = (function () {
       var d = isObj(docs[idea.id]) && isObj(docs[idea.id].lesson) ? docs[idea.id] : null;
       return { n: k + 1, rn: roman(k + 1), idea: idea, learned: d ? d.doneAt : null, doc: d, lesson: d ? d.lesson : null, href: base + '/' + encodeURIComponent(idea.id) };
     });
-    chapters.forEach(function (c) { c.hasPlate = !!(c.lesson && c.lesson.interactive && c.doc && (c.doc.plate || c.doc.plateNote)); });
+    chapters.forEach(function (c) {
+      c.hasPlate = !!(c.lesson && c.lesson.interactive && c.doc && (c.doc.plate || c.doc.plateNote));
+      // Older chapters (bound before lessons had it) have no practice: their last leaf is the sources.
+      var pr = c.lesson && isObj(c.lesson.practice) ? practiceParts(c.lesson.practice.text) : [];
+      c.practice = pr.length ? pr : null;
+    });
     var bound = chapters.filter(function (c) { return c.learned; });
     var byId = {}; chapters.forEach(function (c) { byId[c.idea.id] = c; });
     // Bibliography: one entry per web page the course's research and the bound lessons kept.
@@ -14348,7 +14704,8 @@ U.interactive = (function () {
     bound.forEach(function (c) {
       leaves.push({ id: c.idea.id + ':1', href: c.href, k: 'Chapter ' + c.rn, t: c.idea.title });
       if (c.hasPlate) leaves.push({ id: c.idea.id + ':2', href: c.href + '/plate', k: 'Plate ' + c.rn, t: c.lesson.interactive.title });
-      leaves.push({ id: c.idea.id + ':3', href: c.href + '/tests', k: 'Field tests', t: 'and sources, chapter ' + c.rn });
+      leaves.push(c.practice ? { id: c.idea.id + ':3', href: c.href + '/practice', k: 'Put it into practice', t: 'and sources, chapter ' + c.rn }
+        : { id: c.idea.id + ':3', href: c.href + '/practice', k: 'Sources', t: 'chapter ' + c.rn });
     });
     if (hasBack) leaves.push({ id: 'back', href: base + '/glossary', k: 'Glossary', t: 'and bibliography' });
     var done = N > 0 && bound.length >= N;
@@ -14496,7 +14853,6 @@ U.interactive = (function () {
     xref: '<svg viewBox="0 0 40 30"><path d="M36 26C30 12 19 5 5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11 1 4.5 6l6.6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     box: '<svg viewBox="0 0 22 22"><path d="M2.6 3.1c5.6-.5 11.2-.4 16.6-.1.3 5.4.4 10.8 0 16.1-5.5.4-11 .4-16.4.1-.4-5.3-.5-10.8-.2-16.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
     tick: '<svg viewBox="0 0 22 22"><path d="M2.6 3.1c5.6-.5 11.2-.4 16.6-.1.3 5.4.4 10.8 0 16.1-5.5.4-11 .4-16.4.1-.4-5.3-.5-10.8-.2-16.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity=".7"/><path d="M5.2 11.4c1.6 1.4 3 3 4.1 4.8 2.6-5.1 6-9.4 10.6-13.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    loop: '<svg viewBox="0 0 200 40" preserveAspectRatio="none"><path d="M24 2.6C80 .4 150 .8 188 3.4c9 .8 10.6 6 10.6 16.4 0 9.8-1.4 15.2-9.6 16.4-50 3.6-120 3.4-176 .4-8.6-.6-11.4-5.4-11.6-16C1.6 9 4 4 13 3.2 40 1 70 1.6 98 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>',
     ring: '<svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M54 4C80 3 97 14 96 30 95 47 74 57 48 56 22 55 4 45 5 29 6 14 26 5 46 6c6 0 12 1 18 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>',
     out: '<svg viewBox="0 0 12 12"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     hand: '<svg viewBox="0 0 24 24"><path d="M8.6 12.4V5.6c0-1 .8-1.7 1.7-1.7s1.6.7 1.6 1.7v5.2m0-1.3c0-.9.7-1.6 1.6-1.6s1.6.7 1.6 1.6v1.4m0-.6c0-.9.7-1.5 1.6-1.5s1.5.7 1.5 1.5v1.2m0-.2c0-.8.6-1.4 1.4-1.4s1.4.6 1.4 1.4v3.9c0 3.8-2.6 6.5-6.4 6.5h-1.2c-2.2 0-3.7-.9-5-2.6l-3-4.1c-.6-.8-.4-1.8.3-2.3.8-.5 1.7-.3 2.3.4l1.2 1.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -14611,9 +14967,6 @@ U.interactive = (function () {
   function inl(el, text, fx) { return chipsIn(U.inline(el, text, fnOpts(fx)), fx); }
   function rich(text, fx) { var d = h('div'); d.appendChild(U.rich(text, fnOpts(fx))); chipsIn(d, fx); return Array.prototype.slice.call(d.childNodes); }
   function sourcesOf(L) { var by = {}; arr(L && L.sources).forEach(function (s) { by[s.n] = s; }); return by; }
-  // The field tests a chapter prints: as the lesson does, a target check needs the interactive it
-  // is played on (a plate kept, or one left out only for its size).
-  function testsOf(c) { return arr(c.lesson.checks).filter(function (k) { return k.type !== 'target' || c.hasPlate; }); }
 
   // =====================================================================================
   // THE READER: one leaf (two pages) per route, in reading order
@@ -14650,7 +15003,7 @@ U.interactive = (function () {
     if (kind === 'cover') return cover(S, M);
     if (kind === 'back' || kind === 'biblio') return M.hasBack ? backMatter(S, M, kind) : contents(S, M);
     if (kind === 'contents' || !c || !c.learned) return contents(S, M);
-    if (kind === 'tests') return chapterTests(S, M, c);
+    if (kind === 'practice') return chapterPractice(S, M, c);
     if ((kind === 'plate' || kind === 'play') && c.hasPlate) return chapterPlate(S, M, c, kind === 'play');
     return chapterIdea(S, M, c);
   }
@@ -14713,7 +15066,8 @@ U.interactive = (function () {
   }
   function leaf(S, M, o) {
     var t = turnLinks(M, o.leaf);
-    var spread = h('article', { class: 'spread enter' }, o.left, o.right);
+    // One page alone (a chapter's sources, without practice) stands as a single right-hand page.
+    var spread = h('article', { class: 'spread enter' + (o.left ? '' : ' single') }, o.left, o.right);
     U.clear(S.root);
     U.append(S.root, [bar(S, M.book.title), tabs(M, o.tab), h('div', { class: 'd-book' }, spread, turnNav(t)), sideArrows(t)]);
     keys(S);
@@ -14862,7 +15216,7 @@ U.interactive = (function () {
       h('dl', null, rows.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); }), cert));
   }
   function chapterIdea(S, M, c) {
-    var L = c.lesson, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/tests');
+    var L = c.lesson, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/practice');
     U.setTitle('Chapter ' + c.rn + ' · ' + idea.title);
     // The closing all-bold paragraph becomes the field note (not printed twice); the first quoted
     // source cited after the opening paragraph is clipped in after the paragraph that cites it.
@@ -14900,7 +15254,7 @@ U.interactive = (function () {
 
   // ---------- chapter, leaf 2: the plate | its notes ----------
   function chapterPlate(S, M, c, play) {
-    var L = c.lesson, it = L.interactive, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/tests');
+    var L = c.lesson, it = L.interactive, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/practice');
     U.setTitle('Plate ' + c.rn + ' · ' + it.title);
     // A number from the sources: the first cited constant the explanation does not already quote
     // (else the first cited constant), circled in the margin.
@@ -14993,26 +15347,28 @@ U.interactive = (function () {
     S.plates.forEach(function (p) { S.io.observe(p.mount); });
   }
 
-  // ---------- chapter, leaf 3: field tests | sources ----------
-  function chapterTests(S, M, c) {
+  // ---------- chapter, leaf 3: put it into practice | sources ----------
+  // The practice page in the journal's hands (practiceParts): the steps as an ink checklist, the
+  // rules of thumb on a taped card, the worked example as a field note and the common mistakes in
+  // red ink. A chapter without practice (bound before lessons had it) has the sources page alone.
+  function chapterPractice(S, M, c) {
     var L = c.lesson, idea = c.idea, sid = 'c' + c.n;
-    U.setTitle('Chapter ' + c.rn + ' field tests · ' + idea.title);
+    U.setTitle((c.practice ? 'Chapter ' + c.rn + ', put it into practice · ' : 'Chapter ' + c.rn + ' sources · ') + idea.title);
     var fx = { by: sourcesOf(L), open: function (n) {
       var el = document.getElementById(sid + '-s' + n);
       if (el) { el.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }); el.focus({ preventScroll: true }); }
     } };
-    var left = page('l', 'Chapter ' + c.n + ', field tests', [
+    var left = c.practice ? page('l', 'Chapter ' + c.n + ', put it into practice', [
       deco('splat', 'splat'), runhead(M.book.title),
       h('header', { class: 'ch-head' },
         h('p', { class: 'kicker' }, 'Chapter ' + c.rn + ' · ' + idea.title),
-        h('h1', { class: 'ch-title', tabindex: '-1' }, 'Field tests'),
-        h('p', { class: 'sub' }, 'The lesson’s questions, each with its right answer and why.')),
-      h('ol', { class: 'tests' }, testsOf(c).map(function (k, j) { return fieldTest(M, c, L, k, j, fx); })),
-    ]);
+        h('h1', { class: 'ch-title', tabindex: '-1' }, 'Put it into practice'),
+        h('p', { class: 'sub' }, 'How to use this idea, from the lesson.')),
+    ].concat(c.practice.map(function (p) { return practicePart(p, fx); }))) : null;
     var right = page('r', 'Chapter ' + c.n + ', sources', [
       runhead('Chapter ' + c.rn, idea.title),
       h('section', { class: 'sources', 'aria-labelledby': sid + '-so' },
-        h('h2', { class: 'hh', id: sid + '-so' }, 'Sources'),
+        h(c.practice ? 'h2' : 'h1', { class: 'hh', id: sid + '-so', tabindex: c.practice ? null : '-1' }, 'Sources'),
         arr(L.sources).length ? h('p', { class: 'sub' }, 'The pages this chapter rests on, with the words it quoted.')
           : h('p', { class: 'sub' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'),
         h('ol', { class: 'evidence' }, arr(L.sources).map(function (s) {
@@ -15027,48 +15383,30 @@ U.interactive = (function () {
     ]);
     leaf(S, M, { leaf: idea.id + ':3', tab: idea.id, left: left, right: right });
   }
-  // One test: the question, the right answer and why. Nothing anywhere shows what Dan chose.
-  function fieldTest(M, c, L, k, j, fx) {
-    var body = [h('p', { class: 'test-k' }, h('b', { 'aria-hidden': 'true' }, String(j + 1)), vh('Field test ' + (j + 1) + ', '), h('span', null, 'Field test · ' + (TEST_KIND[k.type] || k.type))),
-      inl(h('p', { class: 'test-q' }), k.q, fx)];
-    if (k.type === 'choice') {
-      body.push(h('ul', { class: 'opts' }, arr(k.options).map(function (o, i) {
-        var right = i === k.answer, mis = k.misconception && k.misconception[i];
-        return h('li', { class: 'opt' + (right ? ' right' : '') },
-          icon(right ? 'tick' : 'box', 'opt-box'),
-          h('span', { class: 'opt-t' }, o, right ? [vh(' (the right answer)'), h('span', { class: 'ans', 'aria-hidden': 'true' }, 'Answer'), icon('loop', 'loop')] : null),
-          !right && mis ? inl(h('p', { class: 'trap' }, h('b', null, 'Trap: ')), mis, fx) : null);
-      })));
-    } else if (k.type === 'order') {
-      body.push(h('ol', { class: 'order', 'aria-label': 'The right order' }, arr(k.items).map(function (x) { return h('li', null, x); })));
-    } else if (k.type === 'estimate') {
-      body.push(scale(k), h('p', { class: 'ans-line' }, h('span', { class: 'k' }, 'Answer'), h('span', { class: 'v' }, 'about ' + fmtNum(k.answer, k.unit)),
-        h('span', { class: 't' }, 'anything from ' + fmtNum(+(k.answer - k.tolerance).toFixed(6), k.unit) + ' to ' + fmtNum(+(k.answer + k.tolerance).toFixed(6), k.unit) + ' counts')));
-    } else if (k.type === 'target') {
-      var it = L.interactive || {}, out = arr(it.outputs).filter(function (o) { return o.id === k.output; })[0] || {}, ctl = arr(it.controls).filter(function (o) { return o.id === k.control; })[0] || {};
-      body.push(h('p', { class: 'ans-line' }, h('span', { class: 'k' }, 'Aim for'), h('span', { class: 'v' }, fmtNum(k.target, out.unit)),
-        h('span', { class: 't' }, cap(String(out.label || k.output).toLowerCase()) + ', using the ' + String(ctl.label || k.control).toLowerCase() + ' (within ' + fmtNum(k.tolerance, out.unit) + ')')));
-      if (c.hasPlate && c.doc.plate) body.push(h('a', { class: 'go-plate', href: c.href + '/plate/play' }, 'Try it on Plate ' + c.rn, icon('next')));
+  var PART_LABEL = { steps: 'Steps', rules: 'Rules of thumb', example: 'Worked example', mistakes: 'Common mistakes' };
+  function partLabel(p) { return p.label || PART_LABEL[p.kind] || ''; }
+  // One part of the practice page, in the lesson's own words.
+  function practicePart(p, fx) {
+    var paras = p.paras.map(function (t) { return inl(h('p'), t, fx); });
+    if (p.kind === 'steps') {
+      return h('section', { class: 'd-steps', 'aria-label': partLabel(p) }, h('h2', { class: 'hh' }, partLabel(p)), paras.length ? h('div', { class: 'prose' }, paras) : null,
+        p.items.length ? h(p.ordered || !paras.length ? 'ol' : 'ul', { class: 'd-check' }, p.items.map(function (t, k) {
+          return h('li', null, icon('box', 'd-box'), h('span', { class: 'd-step-n', 'aria-hidden': 'true' }, String(k + 1)), inl(h('span', { class: 'd-step-t' }), t, fx));
+        })) : null);
     }
-    body.push(h('div', { class: 'why' }, h('p', { class: 'why-k' }, 'Why'), inl(h('p', { class: 'why-t' }), k.why, fx)));
-    return h('li', { class: 'test' }, body);
-  }
-  // An estimate's answer on its own ruler: the question's range, the answer and its tolerance.
-  function scale(k) {
-    var NS = 'http://www.w3.org/2000/svg', t = document.createElementNS(NS, 'svg');
-    var min = Number(k.min), max = Number(k.max), span = max - min;
-    if (!(span > 0)) return null;
-    var W = 320, x0 = 14, x1 = 306, X = function (v) { return x0 + (Math.min(max, Math.max(min, v)) - min) / span * (x1 - x0); };
-    var raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), mm = raw / p, step = (mm < 1.5 ? 1 : mm < 3.5 ? 2 : mm < 7.5 ? 5 : 10) * p, ticks = [];
-    for (var v = Math.ceil(min / step) * step; v <= max + 1e-9 && ticks.length < 20; v += step) ticks.push(+v.toFixed(6));
-    t.setAttribute('class', 'scale'); t.setAttribute('viewBox', '0 14 ' + W + ' 50'); t.setAttribute('aria-hidden', 'true'); t.setAttribute('focusable', 'false');
-    function s(tag, a, txt) { var e = document.createElementNS(NS, tag); Object.keys(a).forEach(function (q) { e.setAttribute(q, a[q]); }); if (txt != null) e.textContent = txt; t.appendChild(e); return e; }
-    var lo = Math.max(min, k.answer - k.tolerance), hi = Math.min(max, k.answer + k.tolerance), u = k.unit === '°' ? '°' : '';
-    s('rect', { x: X(lo), y: 21, width: Math.max(1, X(hi) - X(lo)), height: 14, class: 'band', rx: 3 });
-    s('path', { d: 'M' + x0 + ' 35 C ' + (x0 + 60) + ' 34.2, ' + (x1 - 90) + ' 35.8, ' + x1 + ' 35', class: 'axis' });
-    ticks.forEach(function (v) { s('line', { x1: X(v), x2: X(v), y1: 35, y2: 41, class: 'axis' }); s('text', { x: X(v), y: 56, 'text-anchor': 'middle' }, String(v) + u); });
-    s('path', { d: 'M' + X(k.answer) + ' 35 l-6 -12 h12 z', class: 'ptr' });
-    return h('div', { class: 'scale-w' }, t);
+    var list = p.items.length ? h('ul', { class: 'd-items' }, p.items.map(function (t) { return inl(h('li'), t, fx); })) : null;
+    if (p.kind === 'rules') {
+      return h('section', { class: 'd-card d-rules', 'aria-label': partLabel(p) }, tape('l'), tape('r'), h('p', { class: 'card-k' }, partLabel(p)), paras, list);
+    }
+    if (p.kind === 'example') {
+      return h('aside', { class: 'd-note d-field d-example', 'aria-label': partLabel(p) }, icon('nib', 'note-ico'),
+        h('div', null, h('p', { class: 'note-k' }, partLabel(p)), h('div', { class: 'note-t' }, paras, list)));
+    }
+    if (p.kind === 'mistakes') {
+      return h('aside', { class: 'd-note d-warn d-mistakes', 'aria-label': partLabel(p) }, icon('warn', 'note-ico'),
+        h('div', null, h('p', { class: 'note-k' }, partLabel(p)), h('div', { class: 'note-t' }, paras, list)));
+    }
+    return h('div', { class: 'prose' }, paras, list);
   }
 
   // ---------- back matter: glossary | bibliography ----------
@@ -15257,11 +15595,12 @@ U.interactive = (function () {
     '.line{font-style:italic;color:var(--ink2)}.hook{font:1.3rem/1.45 var(--hand)}dl.facts div,dl.card div{display:flex;gap:.6em;border-bottom:1px solid rgba(70,120,175,.3)}dt{font-family:var(--caps);color:var(--ink2);min-width:6em}dd{margin:0;font-family:var(--typed)}',
     '.card{background:var(--card);padding:12px 16px;margin:1em 0}.name{font:1.6rem/1.15 var(--marker);text-transform:uppercase;margin:.2em 0}.stamp{display:inline-block;border:2px solid var(--green);color:var(--green);padding:2px 8px;font:.8rem/1.3 var(--typed);letter-spacing:.1em;text-transform:uppercase}',
     'mark.term{background:var(--hl);color:inherit;font-weight:600;padding:0 .1em}sup.fn{font:700 .7em/1 sans-serif}sup.fn a{color:var(--teal);text-decoration:none}',
-    '.note{font:1.15rem/1.45 var(--hand);margin:1em 0}.note b{font-family:var(--caps);font-weight:400;color:var(--teal)}.warn,.warn b,.trap{color:var(--red)}.trap{font:1.05rem/1.4 var(--hand)}',
+    '.note{font:1.15rem/1.45 var(--hand);margin:1em 0}.note b{font-family:var(--caps);font-weight:400;color:var(--teal)}.warn,.warn b{color:var(--red)}',
     '.clip,blockquote{font:1rem/1.6 var(--typed)}.clip{background:#F7EFDC;padding:14px 16px;margin:1.4em 4%}.clip figcaption{font:.78rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}',
     '.views div{border:1.5px dashed rgba(150,42,34,.5);border-radius:6px;padding:10px 12px;margin:0 0 .8em}.plate{border:1.5px dashed rgba(43,33,25,.35);border-radius:6px;padding:14px 16px;margin:1em 0}',
-    '.tests>li{border-top:1.5px dashed rgba(43,33,25,.28);padding:1em 0}.q{font-weight:600}.opts{list-style:none;padding:0}.opts li{color:var(--ink2)}.opts li.right{color:var(--ink);font-weight:600}',
-    '.ans{font:1.4rem/1.2 var(--marker)}.why b,.ans-k{font-family:var(--caps);font-weight:400;color:var(--teal)}.src{font-size:1rem}.src .pub{font:.82rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}.dom{font:.82rem var(--typed);color:var(--teal)}',
+    '.practice{border-top:1.5px dashed rgba(43,33,25,.28);padding-top:.6em}.steps li{margin:0 0 .4em}.steps li::marker{font-family:var(--marker)}.rules{background:var(--card);padding:10px 16px;margin:1em 0;font-family:var(--hand)}',
+    '.rules b,.ex b,.mis b{display:block;font-family:var(--caps);font-weight:400;color:var(--teal)}.ex{font:1.1rem/1.45 var(--hand);margin:1em 0}.mis{font:1.1rem/1.45 var(--hand);color:var(--red);margin:1em 0}.mis b{color:var(--red)}',
+    '.src{font-size:1rem}.src .pub{font:.82rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}.dom{font:.82rem var(--typed);color:var(--teal)}',
     '.gloss dt{font:1.3rem/1.2 var(--title);color:var(--ink)}.gloss dd{margin:0 0 1em}.gc,.bc{font:.8rem/1.5 var(--typed);color:var(--ink2)}.small{font-size:.95rem;color:var(--ink2)}',
     '@media print{body{background:#fff}.x>section,.x>header,.x>nav{box-shadow:none;break-inside:auto}}',
   ].join('\n');
@@ -15313,27 +15652,24 @@ U.interactive = (function () {
           return xInl(h('li'), x.label + ': ' + x.value + ' (' + (x.kind === 'constant' ? 'cited' : x.kind === 'control' ? 'setting' : 'worked out') + ')' + (x.source && fx.by[x.source] ? ' [^' + x.source + ']' : ''), fx);
         })) : null));
     }
-    out.push(h('h3', null, 'Field tests'), h('ol', { class: 'tests' }, testsOf(c).map(function (k) {
-      var parts = [xInl(h('p', { class: 'q' }), k.q, fx)];
-      if (k.type === 'choice') parts.push(h('ul', { class: 'opts' }, arr(k.options).map(function (o, i) {
-        var right = i === k.answer, mis = k.misconception && k.misconception[i];
-        return h('li', { class: right ? 'right' : '' }, (right ? '✓ ' : '☐ ') + o, right ? ' (the right answer)' : null, !right && mis ? xInl(h('p', { class: 'trap' }, 'Trap: '), mis, fx) : null);
-      })));
-      else if (k.type === 'order') parts.push(h('ol', null, arr(k.items).map(function (x) { return h('li', null, x); })));
-      else if (k.type === 'estimate') parts.push(h('p', null, h('span', { class: 'ans-k' }, 'Answer: '), h('span', { class: 'ans' }, 'about ' + fmtNum(k.answer, k.unit)), ' (anything from ' + fmtNum(+(k.answer - k.tolerance).toFixed(6), k.unit) + ' to ' + fmtNum(+(k.answer + k.tolerance).toFixed(6), k.unit) + ' counts)'));
-      else if (k.type === 'target') {
-        var out2 = arr(it && it.outputs).filter(function (o) { return o.id === k.output; })[0] || {}, ctl = arr(it && it.controls).filter(function (o) { return o.id === k.control; })[0] || {};
-        parts.push(h('p', null, h('span', { class: 'ans-k' }, 'Aim for: '), h('span', { class: 'ans' }, fmtNum(k.target, out2.unit)), ' ' + cap(String(out2.label || k.output).toLowerCase()) + ', using the ' + String(ctl.label || k.control).toLowerCase() + ' (within ' + fmtNum(k.tolerance, out2.unit) + ')'));
-      }
-      parts.push(xInl(h('p', { class: 'why' }, h('b', null, 'Why: ')), k.why, fx));
-      return h('li', null, parts);
-    })));
+    if (c.practice) out.push(h('div', { class: 'practice' }, h('h3', null, 'Put it into practice'), c.practice.map(function (p) { return exportPart(p, fx); })));
     out.push(h('h3', null, 'Sources'), arr(L.sources).length ? h('ol', { class: 'src' }, arr(L.sources).map(function (s) {
       var t = splitTitle(s.title), url = safeUrl(s.url);
       return h('li', { id: sid + '-s' + s.n }, h('p', null, h('b', null, t.title), t.pub ? h('span', { class: 'pub' }, ' · ' + t.pub) : null),
         s.quote ? h('blockquote', null, unquote(s.quote)) : null, url ? h('p', null, h('a', { class: 'dom', href: url }, url)) : null);
     })) : h('p', { class: 'small' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'));
     return h('section', { id: 'ch-' + c.n }, out);
+  }
+  // One part of "Put it into practice", in the saved copy's plain style.
+  function exportPart(p, fx) {
+    var paras = p.paras.map(function (t) { return xInl(h('p'), t, fx); });
+    var list = p.items.length ? h(p.kind === 'steps' && (p.ordered || !paras.length) ? 'ol' : 'ul', { class: p.kind === 'steps' ? 'steps' : null }, p.items.map(function (t) { return xInl(h('li'), t, fx); })) : null;
+    var label = h('b', null, partLabel(p));
+    if (p.kind === 'steps') return [h('p', null, label), paras, list];
+    if (p.kind === 'rules') return h('div', { class: 'rules' }, label, paras, list);
+    if (p.kind === 'example') return h('div', { class: 'ex' }, label, paras, list);
+    if (p.kind === 'mistakes') return h('div', { class: 'mis' }, label, paras, list);
+    return [paras, list];
   }
   function exportHtml(M) {
     var b = M.book, x = h('div', { class: 'x' });
@@ -15386,11 +15722,12 @@ U.interactive = (function () {
   U.routes.add('#/book/:tid/:iid', reader('idea'), R);
   U.routes.add('#/book/:tid/:iid/plate', reader('plate'), R);
   U.routes.add('#/book/:tid/:iid/plate/play', reader('play'), R);
-  U.routes.add('#/book/:tid/:iid/tests', reader('tests'), R);
+  U.routes.add('#/book/:tid/:iid/practice', reader('practice'), R);
+  U.routes.add('#/book/:tid/:iid/tests', reader('practice'), R);   // its older address
 
   U.dossier = {
     LIMIT: LIMIT, PLATE_NOTE: PLATE_NOTE, INK: INK,
-    chapterFrom: chapterFrom, researchFrom: researchFrom, indexFrom: indexFrom, model: model, due: due, countOf: countOf, bytes: bytes,
+    chapterFrom: chapterFrom, researchFrom: researchFrom, indexFrom: indexFrom, practiceParts: practiceParts, model: model, due: due, countOf: countOf, bytes: bytes,
     on: on, bind: bind, sync: sync, keep: keep, remove: remove, setOn: setOn, load: load,
     fonts: fonts, shelf: shelf, option: option, confirmDelete: confirmDelete, exportHtml: exportHtml, save: save, inkTheme: inkTheme,
   };

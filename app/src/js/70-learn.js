@@ -224,6 +224,23 @@
     return null;
   };
   V.isDone = function (progress, iid) { var s = progress && progress.ideas && progress.ideas[iid]; return !!(s && s.stage === 'done'); };
+  // How Dan learns a topic (topic.mode): 'study' (teach and test: the default, and what a topic
+  // without the field means) or 'read' (just teach: reading and the interactive, no questions and
+  // no review cards). A switch applies to lessons written after it; each lesson keeps the mode it
+  // was written for (lesson.mode), so an idea is "read" when its latest round was a read lesson.
+  V.MODES = [['study', 'Teach and test me'], ['read', 'Just teach me']];
+  V.modeOf = function (topic) { return topic && topic.mode === 'read' ? 'read' : 'study'; };
+  V.isRead = function (progress, iid) {
+    var s = progress && progress.ideas && progress.ideas[iid];
+    return !!(s && s.stage === 'done' && s.readRound != null && Number(s.readRound) === (Number(s.round) || 0));
+  };
+  // What a topic's finished ideas are called: 'read' when every one was read, 'learned' when none
+  // was, else 'done'.
+  V.doneWord = function (topic, progress) {
+    var done = ((topic && topic.ideas) || []).filter(function (i) { return V.isDone(progress, i.id); });
+    var read = done.filter(function (i) { return V.isRead(progress, i.id); }).length;
+    return !done.length ? (V.modeOf(topic) === 'read' ? 'read' : 'learned') : read === done.length ? 'read' : read ? 'done' : 'learned';
+  };
 
   // Work left behind by a page that went away (reloaded, killed in the background, republished).
   // A topic still 'planning' 90 s after its last change, with no planning running in this page,
@@ -354,10 +371,13 @@
 
   var EXAMPLES = ['Why the sky is blue', 'The fall of Rome', 'How index funds work', 'Why minor keys sound sad', 'Sharpening a kitchen knife'];
   var LEVELS = [['new', 'New to it'], ['some', 'Know a bit'], ['solid', 'Know it well']];
+  var MODE_NOTE = { study: 'A guess first, quick checks, and reviews later so it sticks.', read: 'Just the reading and the interactive: no questions, no reviews.' };
+  // The intake questions (U.gen.intake) are waited for this long; then planning goes ahead without them.
+  V.INTAKE_MS = 12000;
   var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   U.routes.add('#/', function (params, ctx) {
-    var level = 'new', busy = false, topics = null, progress = {}, seq = 0;
+    var level = 'new', mode = 'study', busy = false, topics = null, progress = {}, seq = 0, job = 0;
 
     // --- ask ---
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
@@ -398,15 +418,27 @@
     });
     var goLabel = U.h('span', { class: 'ask-go-label' }, 'Start learning');
     var goBtn = U.h('button', { class: 'btn ask-go', type: 'submit' }, goLabel, U.icon('arrow'));
-    var working = U.h('div', { class: 'ask-working', hidden: true },
-      U.h('div', { class: 'working' }),
-      U.h('p', { class: 'muted small' }, 'Claude is choosing the ideas that matter most. This takes a few seconds.'));
+    var workingText = U.h('p', { class: 'muted small' });
+    var working = U.h('div', { class: 'ask-working', hidden: true }, U.h('div', { class: 'working' }), workingText);
     var levelChips = LEVELS.map(function (l) {
       return U.h('button', { class: 'seg-btn', type: 'button', role: 'radio', 'aria-checked': String(l[0] === level), dataset: { level: l[0] }, on: { click: function () {
         level = l[0];
         levelChips.forEach(function (c) { c.setAttribute('aria-checked', String(c.dataset.level === level)); });
       } } }, l[1]);
     });
+    // How he wants to learn it (topic.mode): teach and test (the default), or just teach.
+    var modeNote = U.h('p', { class: 'ask-mode-note muted small', id: 'mode-n' }, MODE_NOTE[mode]);
+    var modeChips = V.MODES.map(function (m) {
+      return U.h('button', { class: 'seg-btn', type: 'button', role: 'radio', 'aria-checked': String(m[0] === mode), 'aria-describedby': 'mode-n', dataset: { mode: m[0] }, on: { click: function () {
+        mode = m[0];
+        modeChips.forEach(function (c) { c.setAttribute('aria-checked', String(c.dataset.mode === mode)); });
+        modeNote.textContent = MODE_NOTE[mode];
+      } } }, m[1]);
+    });
+    // The intake: a few questions about what he wants from the topic, asked in place once he taps
+    // Start (U.gen.intake), with a live region saying when they arrive.
+    var intakeSlot = U.h('div', { class: 'intake-slot' });
+    var said = U.h('p', { class: 'visually-hidden', role: 'status' });
     var exampleChips = EXAMPLES.map(function (t) {
       return U.h('button', { class: 'chip chip-soft', type: 'button', on: { click: function () {
         if (input.disabled) return;
@@ -424,10 +456,13 @@
       eyebrow,
       U.h('h1', { id: 'ask-h' }, 'What do you want to learn?'),
       U.h('p', { class: 'ask-sub muted' }, 'Type anything you are curious about. Claude maps it into a few clear ideas, each with something to play with.'),
-      U.h('div', { class: 'ask-row ask-level-row' }, U.h('span', { class: 'ask-label', id: 'lvl-l' }, 'How well do you know it?'),
-        // Radios for the keyboard too (U.radios): one Tab stop, the arrow keys move the choice.
-        U.radios(U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips))),
-      form, working,
+      U.h('div', { class: 'ask-level-row ask-choices' },
+        U.h('div', { class: 'ask-row' }, U.h('span', { class: 'ask-label', id: 'lvl-l' }, 'How well do you know it?'),
+          // Radios for the keyboard too (U.radios): one Tab stop, the arrow keys move the choice.
+          U.radios(U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips))),
+        U.h('div', { class: 'ask-row' }, U.h('span', { class: 'ask-label', id: 'mode-l' }, 'How do you want to learn it?'),
+          U.radios(U.h('div', { class: 'seg ask-modes', role: 'radiogroup', 'aria-labelledby': 'mode-l' }, modeChips)), modeNote)),
+      form, working, intakeSlot, said,
       U.h('div', { class: 'ask-row ask-try' }, U.h('span', { class: 'ask-label', id: 'try-l' }, 'Or try one'),
         U.h('div', { class: 'chips', role: 'group', 'aria-labelledby': 'try-l' }, exampleChips)));
 
@@ -460,23 +495,124 @@
       }, function () {});
     }
 
-    function setBusy(on) {
-      input.disabled = on; goBtn.disabled = on;
-      goLabel.textContent = on ? 'Planning…' : 'Start learning';
+    // phase: 'reading' (the intake questions are being asked for) or 'planning'.
+    function setBusy(on, phase) {
+      input.disabled = on; goBtn.disabled = on; goBtn.hidden = false;
+      page.classList.remove('is-asking');
+      goLabel.textContent = on ? (phase === 'reading' ? 'Reading…' : 'Planning…') : 'Start learning';
       goBtn.classList.toggle('is-busy', on);
       working.hidden = !on;
-      exampleChips.concat(levelChips).forEach(function (c) { c.disabled = on; });
+      workingText.textContent = phase === 'reading' ? 'Claude is reading your question, so it can ask what you want from it.'
+        : 'Claude is choosing the ideas that matter most. This takes a few seconds.';
+      exampleChips.concat(levelChips, modeChips).forEach(function (c) { c.disabled = on; });
       fit();
       if (on) input.scrollTop = 0;
     }
+    function say(text) { said.textContent = ''; setTimeout(function () { if (ctx.alive()) said.textContent = text; }, 60); }
+    function land(el) { if (el && el.isConnected) try { el.focus({ preventScroll: true }); el.scrollIntoView({ block: 'nearest', behavior: 'auto' }); } catch (e) { /* fine */ } }
 
+    // Start: Claude reads the question and asks a few things about what he wants (U.gen.intake);
+    // his answers go to the plan. Never in the way: no intake in this view, no questions, a
+    // failure or a wait over V.INTAKE_MS goes straight to planning (a calm note says so).
     function submit() {
       var q = input.value.replace(/\s+/g, ' ').trim();
       if (!q) { input.focus(); U.toast('Type something you would like to learn first.'); return; }
       if (busy) return;
       if (!U.gen || !U.gen.createTopic) { U.toast('Claude cannot plan new topics in this view yet.', { kind: 'bad' }); return; }
       busy = true;
-      setBusy(true);
+      var my = ++job;
+      if (typeof U.gen.intake !== 'function') { plan(q, null, my); return; }
+      setBusy(true, 'reading');
+      var timer = null;
+      var late = new Promise(function (res, rej) { timer = setTimeout(function () { rej({ code: 'timeout', message: 'The questions took too long.' }); }, V.INTAKE_MS); });
+      Promise.race([Promise.resolve().then(function () { return U.gen.intake(q, { level: level, mode: mode }); }), late]).then(function (r) {
+        clearTimeout(timer);
+        if (my !== job || !ctx.alive()) return;
+        var qs = cleanQuestions(r && r.questions);
+        if (!qs.length) { plan(q, null, my); return; }
+        showIntake(q, qs, my);
+      }, function (e) {
+        clearTimeout(timer);
+        if (my !== job || !ctx.alive()) return;
+        console.warn('intake', e);
+        U.toast('Claude could not ask its questions just now, so it is planning your course straight away.');
+        say('Planning your course straight away.');
+        plan(q, null, my);
+      });
+    }
+    // The questions as the contract has them (2-5 options each, at most four questions), as text.
+    function cleanQuestions(list) {
+      var seen = {};
+      return (Array.isArray(list) ? list : []).filter(function (x) { return x && typeof x.q === 'string' && x.q.trim() && Array.isArray(x.options); }).map(function (x, k) {
+        var id = String(x.id || 'q' + (k + 1));
+        if (seen[id]) id += '_' + k;
+        seen[id] = true;
+        var opts = x.options.map(function (o) { return U.plain(String(o == null ? '' : o)).trim(); }).filter(function (o, i, a) { return o && a.indexOf(o) === i; }).slice(0, 5);
+        return { id: id, q: String(x.q).trim(), options: opts, multi: !!x.multi, other: !!x.other };
+      }).filter(function (x) { return x.options.length >= 2; }).slice(0, 4);
+    }
+    function showIntake(q, qs, my) {
+      input.disabled = true; goBtn.hidden = true; working.hidden = true;
+      page.classList.add('is-asking');
+      exampleChips.concat(levelChips, modeChips).forEach(function (c) { c.disabled = true; });
+      var answers = {};
+      function question(x, k) {
+        var a = answers[x.id] = { picked: [], other: '' }, qid = 'iq-' + k;
+        var chips = x.options.map(function (o) {
+          var b = U.h('button', { class: 'chip intake-chip', type: 'button', role: x.multi ? null : 'radio', 'aria-checked': x.multi ? null : 'false', 'aria-pressed': x.multi ? 'false' : null, on: { click: function () {
+            if (x.multi) {
+              var i = a.picked.indexOf(o);
+              if (i >= 0) a.picked.splice(i, 1); else a.picked.push(o);
+              b.setAttribute('aria-pressed', String(i < 0));
+            } else {
+              a.picked = [o];
+              chips.forEach(function (c) { c.setAttribute('aria-checked', String(c === b)); });
+            }
+          } } }, o);
+          return b;
+        });
+        var group = U.h('div', { class: 'chips intake-chips', role: x.multi ? 'group' : 'radiogroup', 'aria-labelledby': qid }, chips);
+        if (!x.multi) U.radios(group);
+        var other = x.other ? U.h('input', { class: 'input intake-other', type: 'text', maxlength: '200', autocomplete: 'off', enterkeyhint: 'done', placeholder: 'Something else (optional)', 'aria-label': 'Something else: ' + U.plain(x.q) }) : null;
+        if (other) {
+          other.addEventListener('input', function () { a.other = other.value; });
+          other.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+        }
+        return U.h('li', { class: 'intake-q' },
+          U.inline(U.h('p', { class: 'intake-q-text', id: qid }), x.q),
+          U.h('p', { class: 'muted small intake-hint' }, x.multi ? 'Pick any that fit.' : 'Pick one.'),
+          group, other);
+      }
+      function go() {
+        if (my !== job) return;
+        var out = {};
+        qs.forEach(function (x) {
+          var a = answers[x.id], other = a.other.replace(/\s+/g, ' ').trim();
+          if (a.picked.length || other) out[x.id] = { picked: a.picked.slice(), other: other || null };
+        });
+        U.clear(intakeSlot);
+        plan(q, { questions: qs, answers: out }, my);
+      }
+      var head = U.h('h2', { class: 'intake-h', id: 'intake-h', tabindex: '-1' }, 'A few questions first');
+      var panel = U.h('section', { class: 'intake', 'aria-labelledby': 'intake-h' },
+        head,
+        U.h('p', { class: 'muted intake-sub' }, 'So the course fits what you want from it. Answer any you like.'),
+        U.h('ol', { class: 'intake-qs' }, qs.map(question)),
+        U.h('div', { class: 'intake-go' },
+          U.h('button', { class: 'btn intake-plan', type: 'button', on: { click: go } }, 'Plan my course', U.icon('arrow')),
+          U.h('button', { class: 'linkish intake-skip', type: 'button', on: { click: function () { if (my !== job) return; U.clear(intakeSlot); plan(q, null, my); } } }, 'Skip the questions'),
+          U.h('button', { class: 'linkish intake-change', type: 'button', on: { click: function () {
+            job++; busy = false;
+            U.clear(intakeSlot);
+            setBusy(false);
+            input.focus();
+          } } }, 'Change my question')));
+      U.clear(intakeSlot).appendChild(panel);
+      say(qs.length === 1 ? 'Claude has a question to shape your course.' : 'Claude has ' + qs.length + ' questions to shape your course.');
+      land(head);
+    }
+    function plan(q, intake, my) {
+      setBusy(true, 'planning');
       var opened = false;
       // createTopic resolves once the plan is ready; onCreated lets Dan watch the plan form.
       function openTopic(tid) {
@@ -484,14 +620,14 @@
         opened = true;
         U.go('#/t/' + encodeURIComponent(tid));
       }
-      Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level, onCreated: openTopic }); }).then(function (tid) {
-        busy = false;
+      Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level, mode: mode, intake: intake, onCreated: openTopic }); }).then(function (tid) {
+        if (my === job) busy = false;
         openTopic(tid);
       }, function (e) {
-        busy = false;
+        if (my === job) busy = false;
         if (opened) return; // the topic page already shows what went wrong, with Try again
         U.toast(U.errText(e), { kind: 'bad' });
-        if (ctx.alive()) { setBusy(false); input.focus(); }
+        if (ctx.alive() && my === job) { setBusy(false); input.focus(); }
       });
     }
 
