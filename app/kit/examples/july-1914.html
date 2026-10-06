@@ -1,12 +1,12 @@
 <!-- kind: history -->
 <style>
   .scene { max-width: 560px; margin-left: auto; margin-right: auto; }
-  .line text { font: 600 11.5px var(--k-font); fill: var(--k-muted); }
+  .line text { font: 600 13px var(--k-font); fill: var(--k-muted); }
   .line .axis { stroke: var(--k-strong); stroke-width: 2; stroke-linecap: round; }
   .line .past { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
   .line .event { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
   .line .now-line { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 3 3; }
-  .line .now { font-size: 12.5px; font-weight: 700; fill: var(--k-ink); }
+  .line .now { font-size: 14px; font-weight: 700; fill: var(--k-ink); }
   /* Columns in rem, so at a large text size the tiles reflow to fewer, wider columns and no name
      splits; and at least 22% wide, so a wide frame (a laptop) shows four to a row, not five and two. */
   .nations { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6rem, 22%), 1fr)); gap: 8px; margin-top: 10px; }
@@ -37,7 +37,7 @@
   <span class="k-label">How each step led to the next</span>
   <ol class="chain" id="chain"></ol>
 </div>
-<p class="caption">Dates of the July Crisis, 1914. Other countries, such as Japan and the Ottoman Empire, joined the war later that year.</p>
+<p class="caption">Dates of the July Crisis, 1914; Japan and the Ottoman Empire joined the war later that year.</p>
 
 <script>
   // Source [1] of the lesson: the dates of the July Crisis.
@@ -65,6 +65,8 @@
   const dateOf = (d) => { const t = new Date(1914, 5, 28 + d); return t.getDate() + ' ' + MONTHS[t.getMonth()]; };
   const short = (d) => { const t = dateOf(d).split(' '); return t[0] + '\u00a0' + t[1].slice(0, 3); };   // "28 Jul", kept on one line
 
+  // The slider counts days after the first date, so it runs forward in time and shows the date itself
+  // (for BC dates, count years after the first one the same way: never a number that falls as it moves right).
   const day = K.control({ id: 'day', label: 'Date in 1914', min: 0, max: 37, step: 1, value: 25, fmt: dateOf, into: '#controls' });
   K.stage('#scene', '#controls');
   K.readout({ id: 'days', label: 'Days since the shots in Sarajevo', into: '#outs' });

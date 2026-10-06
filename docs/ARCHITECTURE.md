@@ -467,17 +467,30 @@ captured at load. The API (full reference in `app/kit/KIT.md`):
 ```
 pipeline   K.model(fn) K.update(fn) K.at(over) K.params() K.outputs() K.refresh() K.check(label, fn, {source?}) K.ready()
 controls   K.control K.choice K.toggle K.stepper K.button         each {id, label, …, into}; ids = the lesson's
-outputs    K.readout({id, …, decimals?, afterMove?})  K.plot(target, opts)  K.bars(target, opts)  K.anim({step, …})
+           K.control's snap: [values]: a drag within 2% of the range of one lands on it exactly (set and reach
+           take it too; shown with its own decimals); − / + repeat while held (a click with no pointer, one step)
+drag       K.drag(el, {control, toValue(x, y)}): the pointer in the drawing's viewBox units (px from el's top-left
+           for HTML) -> the control's value (a slider fits it to range, step and snap). touch-action none,
+           pointer capture, a 44 px target (an invisible k-drag-hit circle beside a small SVG handle, kept on
+           it after every update and frame; k-drag-small for HTML), the slider follows (the keyboard's way in),
+           and the first touch calls K.reveal()
+outputs    K.readout({id, …, decimals?, afterMove?})  K.plot(target, opts)  K.bars(target, opts)  K.anim({step, …, button?})
+           plot series, marks, shades, regions and lines take afterMove: true (drawn once Dan has moved; the
+           axes are fitted to them from the start). A word readout's tile widens to its widest word shown.
 sound      K.sound.tone / chord / stop / mute                     plays only after a press
 until moved  class k-after-move, K.moved, K.afterMove(fn), K.reveal()
 layout     K.stage(visual, controls, {max = 600, beside}): controls under the visual, fitted to max px
            tall in a frame under 560 px; beside the visual in a frame >= 860 px wide (unless beside:false),
            a side that is a grid or has a max-width filling its column up to it (k-fill), a
-           fixed-size drawing the body centres keeping its size
+           fixed-size drawing the body centres keeping its size. The controls sit in a .k-side column;
+           beside the visual, the .say and .k-readouts that follow the stage move into it (and back when
+           the frame narrows)
 helpers    K.el K.svg K.labels K.fmt K.near K.clamp K.lerp K.linspace K.round K.color(role, alpha?)  K.theme {dark, size, c}
            K.color takes a role, its var(--k-…) form or a CSS colour; a colour word ('navy') or one the
-           canvas can't draw is drawn as a role, with advice. K.choice reads a number as the index when
-           every option is a string ('1', '2', '4').
+           canvas can't draw is drawn as a role and fails the self-test. K.choice reads a number as the
+           index when every option is a string ('1', '2', '4'). K.labels(group, items, {size = 13, avoid}):
+           labels 13 units high unless sized, kept off other text, the edges, and the shapes in avoid
+           (elements, a selector or a list: a line or path by its course, a filled shape by its box)
 ```
 Messages (`postMessage`, each with `src:'kit'`; a reply carries its request's `rid`; kit -> host
 messages also carry `tok`, the frame's token):
@@ -509,14 +522,28 @@ Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label,
 and text the body lets break anywhere (`hyphens: auto`, `word-break: break-all`,
 `overflow-wrap: anywhere`) are ordinary breaks, and so is text kept for screen readers (a 1 x 1 px
 box, `clip: rect(0 0 0 0)`, `clip-path: inset(50%)`); turned SVG labels are compared by their own
-boxes, not their upright bounding boxes. The self-test (KIT.md, "The self-test") also
-sweeps every control, reveals the after-move parts, steps every `K.anim` and, in a throwaway
-frame, presses every `K.button` and sweeps the controls again at Text size XL (20 px). Sweep
-problems include: a model output that is NaN or Infinity; `K.fmt` given a non-number (it shows
-"—"); NaN, Infinity, undefined or "[object" in visible text, an aria-label or an SVG shape's
-numbers (words the body wrote itself, in its HTML or a quoted string, are not faults); `K.sound`
+boxes, not their upright bounding boxes. SVG text (svgNow) is also clipped when it is
+under 11 CSS px (0.25 px allowed) in a frame under 560 px wide, has a stroked line, path or
+outline through its letters (its box less the top 20% and bottom 22%; not faint strokes under
+1.5:1 against the page, not a band at least 0.6 of its height, not a line hidden under a solid
+shape painted between it and the text), sits on a marker-start / marker-end arrowhead, or has
+under 3:1 contrast with what is behind its centre (the shapes painted before it there,
+composited over the drawing's background; on the page, against both --k-bg and --k-panel).
+Labels on one row under 4 px apart are advice (warnings). The self-test (KIT.md, "The
+self-test") also sweeps every control, reveals the after-move parts, steps every `K.anim` for 3 s
+(90 frames of 1/30 s) and, in a throwaway frame, presses every `K.button`, sweeps the controls
+again at Text size XL (20 px) and looks once more in the other theme (light <-> dark, the kit's
+own palette). Sweep problems include: a model output that is NaN or Infinity; `K.fmt` given a
+non-number (it shows "—"); NaN, Infinity, undefined or "[object" in visible text, an aria-label or
+an SVG shape's numbers (words the body wrote itself, in its HTML or a quoted string, are not
+faults); an unknown K.color role; an SVG fill or stroke (attribute or inline style) that is a
+colour name, a var() the kit does not define, a url(#…) to nothing or not a colour; `K.sound`
 played from an update while the controls are swept; no control or button in view when the page
-opens (all inside `.k-after-move` or a hidden box); a `K.anim` whose Play button is not on the page.
+opens (all inside `.k-after-move` or a hidden box); a `K.anim` whose Play button is not on the
+page; a K.drag naming no control, or whose toValue at the drawing's centre or corners throws or
+gives a value its control cannot take. Errors include a `.k-after-move` block over 180 px tall (a
+blank hole). Warnings (throwaway frames) include a switch, slider or button that starts a K.anim
+which has its own Play button, and a Play button whose motion flips a switch.
 A body that navigates its test frame away fails ("navigated its frame away"), keeping what its
 self-test found if the report arrives first. On a phone a staged canvas whose height is capped
 keeps its shape (its width shrinks with it). SVG halos (`k-halo`, .25em of the page colour) skip
@@ -529,8 +556,9 @@ host posts `{type:'quiz', hide}` with the current state; `{type:'quiz', hide:nul
 `{type:'reveal'}` ends it (`api.quiz(null)`, `api.reveal()`; `api.quiz(id)` starts one later). In
 it the kit shows that output's readout as "?" (role img, aria-label "Hidden until you check your
 answer"; `readout.text()` gives "?"), hides every `.say` element (`html.k-quiz .say`: visibility,
-so nothing jumps), and K.plot (mark, line, shade and region labels, legend keys, the text
-alternative) and K.bars (a bar whose value is the output) draw no label giving the value: one
+so nothing jumps), K.plot (mark, line, shade and region labels, legend keys, the text
+alternative) and K.bars (a bar whose value is the output) draw no label giving the value, and SVG
+text in the body's own drawing that gives it is hidden (class k-veiled, after every update): one
 with a number that reads as the output's value at the number's own rounding ('2.01 s', '1,234',
 '45%', '2.5 × 10⁶', '1.2 million'), or a word output as a whole word. `state` and `change`
 messages still carry the real outputs (the app grades with them). The self-test runs with quiz
@@ -688,7 +716,11 @@ removed; `building` stays resumable); others mark it `failed`.
 
 Interactive build (`U.interactive.build`): the prompt carries the idea, the lesson's brief,
 controls, outputs, numbers, target checks, explanation and sources, KIT.md and the nearest
-exemplar by kind. Each body is self-tested at 340, 720 and 1040 px and checked against the
+exemplar by kind, Dan's level (new: every rule in words, no formula beyond arithmetic; some: an
+equation only with every symbol labelled on the picture) and the page rules (draw the cause and
+let Dan cause it, mark the brief's quantity on the picture, bands on the axis they describe,
+comparisons drawn alike, each output shown once, a snap for a setting the lesson names, a source
+only on a check that restates its quote). Each body is self-tested at 340, 720 and 1040 px and checked against the
 lesson: ids its checks need (`missing`), web addresses other than its sources (`foreign`), and
 target checks that moving one control cannot reach (`unreachable`, via `U.sandbox.reach` at the
 decimals the lesson gives that output).
@@ -867,6 +899,8 @@ U.interactive.extract(text) -> body   (fences, prose, doctype and html/head/body
 U.interactive.build(topic, idea, lesson, {onStatus, avoid, signal, priority}) ->
    Promise<{html, title, brief, selftest, attempts, unreachable?:[checkIds]} | null>   rejects only when Claude can't be reached
 U.interactive.problems(report, lesson, html?) / requiredIds / foreignUrls / stripUrls / unreachable / exampleFor(kind)
+U.interactive.advice(report, lesson) -> ['Advice: …']   the kit's warnings (source advice dropped when the lesson has
+   none), and a check cited to a source whose quote holds none of the check label's numbers
 ```
 `30-prompts.js`, `31-generate.js`
 ```

@@ -1,6 +1,6 @@
 <!-- kind: structure -->
 <style>
-  .heart text { font: 600 11.5px var(--k-font); fill: var(--k-ink); }
+  .heart text { font: 600 13px var(--k-font); fill: var(--k-ink); }
   .heart .organ { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
   .heart .vessel { fill: none; stroke: var(--k-sunk); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
   .heart .room { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 2; }
@@ -11,8 +11,8 @@
   .heart .rich { stroke: var(--k-cat2); }
   .heart .valve { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
   .heart .arrow { fill: var(--k-muted); }
-  .heart .side { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; fill: var(--k-accent); }
-  .heart .valve-name { font-size: 11.5px; fill: var(--k-accent2); }
+  .heart .side { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; fill: var(--k-accent); }
+  .heart .valve-name { font-size: 13px; fill: var(--k-accent2); }
   .heart .drop { stroke: var(--k-bg); stroke-width: 2.5; }
   .dot-poor { background: var(--k-cat1); }
   .dot-rich { background: var(--k-cat2); }
@@ -52,7 +52,7 @@
 <div class="k-controls" id="controls"></div>
 <div class="k-readouts" id="outs"></div>
 <p class="say" id="say"></p>
-<p class="caption">A flat map of the heart, seen as if facing the person, so their right side is on your left. Real chambers squeeze together in a beat rather than one drop at a time.</p>
+<p class="caption">A flat map of the heart seen from the front, so the person's right side is on your left.</p>
 
 <script>
   // Source [1] of the lesson: the heart's chambers, valves and the two circuits.
@@ -170,9 +170,9 @@
     drop.setAttribute('cx', x.toFixed(1)); drop.setAttribute('cy', y.toFixed(1));
     drop.style.fill = K.color(rich ? 'cat2' : 'cat1');
     ['ra', 'rv', 'la', 'lv'].forEach((r) => document.getElementById('room-' + r).classList.toggle('here', L.room === r));
-    // Name a valve while the drop is going through it, placed clear of the other labels.
+    // Name a valve while the drop is going through it, placed clear of the other labels and off the trails.
     const v = L.valve ? L : null;
-    K.labels('#valve-label', v ? [{ x: v.pts[0][0] + 12, y: v.pts[0][1] + 9, text: v.name.toLowerCase(), anchor: 'start', class: 'valve-name' }] : []);
+    K.labels('#valve-label', v ? [{ x: v.pts[0][0] + 12, y: v.pts[0][1] + 9, text: v.name.toLowerCase(), anchor: 'start', class: 'valve-name' }] : [], { avoid: '.trail' });
     svg.setAttribute('aria-label', 'Map of the heart. The drop is in the ' + L.name.toLowerCase() + ', carrying ' + o.oxygen.toLowerCase() + ' oxygen.');
     // Until Dan moves something, the sentence asks rather than tells.
     document.getElementById('say').textContent = K.moved ? L.say : 'Where will this drop go after the right atrium? Make your guess, then move it on.';
