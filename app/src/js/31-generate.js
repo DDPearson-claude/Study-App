@@ -1,10 +1,16 @@
 // Generation pipelines (docs/ARCHITECTURE.md sections 4, 7 and 9).
 //
-//   U.gen.createTopic(query, {level, onCreated(tid)}) -> Promise<tid>   resolves once planned
+//   U.gen.intake(query, {level, mode, signal}) -> Promise<{questions}>   2-4 questions about what Dan
+//       typed (quick tier, TASK: intake), tidied by U.prompts.cleanIntake; rejects {code, message}
+//   U.gen.createTopic(query, {level, mode, intake, onCreated(tid)}) -> Promise<tid>   resolves once
+//       planned; stores mode ('study' | 'read', default 'study') and intake ({questions, answers} |
+//       null when skipped) on the topic, and the plan is written with both
 //   U.gen.replan(tid) -> Promise<tid>                plans a failed topic again
 //   U.gen.research(tid) -> Promise<result|null>      (re)runs source research; never rejects
 //   U.gen.ensureLesson(tid, iid, {onStatus(text), background, signal}) -> Promise<lessonDoc>
 //       background: a prefetch (yields to Dan's calls; aborting signal cancels it)
+// A lesson is written for the topic's mode as it is when the writing starts (relearn included):
+// lesson.mode records it; a 'read' lesson has predict null, say null and checks [] (no review cards).
 //   U.gen.relearn(tid, iid, {onStatus, feedback, request}) -> Promise<lessonDoc>   new lesson, different
 //       interactive; feedback = Dan's "This looks wrong" note (up to 1000 characters), which the
 //       writer is asked to address; request = his request's token, stamped on the doc it writes
@@ -71,7 +77,7 @@
 
   // ---------- readable errors ----------
   // What a reply that failed the app's checks would have saved, by what Claude was doing.
-  var CHECKED = { 'write lessons': 'lesson', 'plan topics': 'plan', 'check sources': 'research' };
+  var CHECKED = { 'write lessons': 'lesson', 'plan topics': 'plan', 'check sources': 'research', 'ask about your topic': 'questions' };
   function friendly(e, doing) {
     var code = e && e.code;
     if (code === 'not_granted') return 'Claude needs your permission to ' + doing + '. Tap "Allow" when the app asks (or allow Claude for this app in its settings), then try again.';
@@ -129,17 +135,33 @@
   // ==================================================================================
   function tidyTitle(q) { q = one(q).slice(0, 90); return q.charAt(0).toUpperCase() + q.slice(1); }
 
+  // A few questions about what Dan typed, before the plan (his answers go to createTopic as intake).
+  function intake(query, opts) {
+    opts = opts || {};
+    var q = s(query).replace(/\s+/g, ' ').trim().slice(0, 300);
+    if (!q) return Promise.reject({ code: 'invalid', message: 'Type something you would like to learn first.' });
+    var level = LEVELS.indexOf(opts.level) >= 0 ? opts.level : 'new';
+    return U.ask(U.prompts.intake(q, { level: level, mode: U.prompts.modeOf(opts.mode) }), {
+      tier: 'quick', json: true, label: 'intake', schema: U.validate.intake, signal: opts.signal,
+    }).then(function (raw) {
+      var x = U.prompts.cleanIntake(raw);
+      if (!x) throw { code: 'invalid', message: 'No usable questions came back.' };
+      return { questions: x.questions };
+    }).catch(function (e) { throw failure(e, 'ask about your topic'); });
+  }
+
   function createTopic(query, opts) {
     opts = opts || {};
     var q = s(query).replace(/\s+/g, ' ').trim();
     if (!q) return Promise.reject({ code: 'invalid', message: 'Type something you would like to learn first.' });
     if (q.length > 300) q = q.slice(0, 300);
     var level = LEVELS.indexOf(opts.level) >= 0 ? opts.level : 'new';
+    var mode = U.prompts.modeOf(opts.mode);
     var tid = U.slug(q) + '-' + Math.random().toString(36).slice(2, 7);
     var now = U.now(), title = tidyTitle(q);
     var doc = {
       id: tid, title: title, query: q, createdAt: now, updatedAt: now, status: 'planning',
-      hook: '', oneBreath: '', level: level, ideas: [], calibration: [],
+      hook: '', oneBreath: '', level: level, mode: mode, intake: U.prompts.cleanIntake(opts.intake), ideas: [], calibration: [],
       research: { status: 'none', at: null, sources: 0 }, hue: U.hash(title) % 360, error: null,
     };
     liveOf(tid).planning = true;
@@ -183,7 +205,7 @@
       if (!t) throw { code: 'not_found', message: 'This topic could not be found. It may have been deleted.' };
       found = true;
       return knownIdeas(tid).then(function (known) {
-        return U.ask(U.prompts.planTopic(t.query || t.title, { level: t.level, known: known }), {
+        return U.ask(U.prompts.planTopic(t.query || t.title, { level: t.level, mode: t.mode, intake: t.intake, known: known }), {
           tier: 'quick', json: true, label: 'plan-topic', schema: U.validate.plan,
         });
       });
@@ -850,7 +872,7 @@
 
   function write(job, o) {
     o = o || {};
-    var tid = job.tid, iid = job.iid, topic, idea, lr = null, research = null, stage = 'none';
+    var tid = job.tid, iid = job.iid, topic, idea, lr = null, research = null, stage = 'none', mode = 'study';
     var avoid = [].concat(o.avoid || []).filter(isStr), feedback = isStr(o.feedback) ? o.feedback : null;
     progress(job, 'Reading the plan for this idea…', 'writing');
     return (plans[tid] ? plans[tid].catch(noop) : Promise.resolve()).then(function () {
@@ -863,6 +885,8 @@
       idea = t.ideas.filter(function (i) { return i.id === iid; })[0];
       if (!idea) throw { code: 'not_found', message: 'This idea is not part of the topic any more.' };
       topic = t;
+      // The topic's mode as the writing starts: Dan may switch it for the ideas still to come.
+      mode = U.prompts.modeOf(t.mode);
       // The claim replaces the whole doc. Dan's "This looks wrong" notes belong to the idea, not
       // to one version of its lesson, so they come along: those on the doc this job started from,
       // and those on it now (a note saved just before Rebuild may have landed since).
@@ -887,9 +911,9 @@
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');
         // Each call ends the moment the job is cancelled (relearn cancelling a prefetch).
         function ask() {
-          return unlessCancelled(job, U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
+          return unlessCancelled(job, U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1], mode: mode }), askOpts(job, {
             tier: 'default', json: true, label: 'write-lesson',
-            schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
+            schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed, mode: mode }); },
           })));
         }
         return ask().catch(function (e) {
@@ -902,7 +926,7 @@
         });
       });
     }).then(function (raw) {
-      var lesson = finaliseLesson(raw, iid, lr);
+      var lesson = finaliseLesson(raw, iid, lr, mode);
       var sourced = lesson.sources.length > 0;
       return own(job).then(function () {
         // The fact-check (contract V) and the interactive's build run side by side: the build
@@ -1057,10 +1081,14 @@
 
   // Map the model's sources onto the checked research sources, drop anything else, renumber
   // 1..n in order of first citation and rewrite every [^n] (and numbers[].source) to match.
-  var FIELD_ORDER = ['iid', 'title', 'predict', 'interactive', 'explain', 'analogy', 'say', 'checks', 'confidence', 'contested'];
-  function finaliseLesson(raw, iid, lr) {
+  // mode: the topic's mode it was written for, stamped as lesson.mode; a 'read' lesson keeps no
+  // predict, say or checks (dropped before renumbering, so a source only they cited goes too).
+  var FIELD_ORDER = ['iid', 'title', 'predict', 'interactive', 'explain', 'analogy', 'practice', 'say', 'checks', 'confidence', 'contested', 'mode'];
+  function finaliseLesson(raw, iid, lr, mode) {
     var L = U.clone(raw), allowed = (lr && lr.sources) || [], key = U.prompts.urlKey;
     L.iid = iid;
+    L.mode = U.prompts.modeOf(mode);
+    if (L.mode === 'read') { L.predict = null; L.say = null; L.checks = []; }
     var byModel = {};
     (Array.isArray(L.sources) ? L.sources : []).forEach(function (x) {
       if (!x || !isStr(x.url)) return;
@@ -1097,7 +1125,7 @@
     out.sources = order.map(function (x, i) { return { n: i + 1, title: x.title, url: x.url, quote: x.quote }; });
     if (out.analogy === undefined) out.analogy = null;
     if (out.confidence !== 'contested') out.contested = null;
-    var problems = U.validate.lesson(out, { iid: iid, final: true });
+    var problems = U.validate.lesson(out, { iid: iid, final: true, mode: out.mode });
     if (problems.length) console.warn('lesson ' + iid + ' after source checks:', problems);
     return out;
   }
@@ -1218,6 +1246,7 @@
   }
 
   U.gen = {
+    intake: intake,
     createTopic: createTopic,
     replan: replan,
     research: research,

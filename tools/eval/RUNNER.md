@@ -4,7 +4,8 @@ You are testing My University's generation prompts. The app sends these exact pr
 inside the page. Your job is to answer them **exactly as that in-page Claude would**, run the
 app's own validators and self-tests on what you produced, and report honestly.
 
-Inputs (given to you): QUERY, LEVEL (new|some|solid), SLUG, RUN (e.g. run1), RESEARCH (live|none).
+Inputs (given to you): QUERY, LEVEL (new|some|solid), SLUG, RUN (e.g. run1), RESEARCH (live|none),
+and optionally MODE (study, the default: taught and tested | read: just taught, no predict, say or checks).
 QUERY should be a fresh topic: not one an earlier eval used (`EVAL_SET` in `tests/prompts.test.mjs`
 keeps their words out of the prompts: vaccines, noise-cancelling headphones, rainbows, the Bronze
 Age collapse, the seasons, tides), and not a test fixture's (jet engines, the Roman Republic).
@@ -20,7 +21,12 @@ Do not edit any file outside `$D`. Do not commit.
 
 ## Steps
 1. `mkdir -p $D` and make sure `tests/out/kit.html` exists (else `node tools/build.mjs --only 32,33 --out tests/out/kit.html`).
-2. Plan: `node tools/eval/prompts.mjs plan-topic --query "$QUERY" --level $LEVEL > $D/plan.prompt.txt`.
+1b. Intake (what the app asks Dan before planning): `node tools/eval/prompts.mjs intake --query "$QUERY" --level $LEVEL --mode $MODE > $D/intake.prompt.txt`.
+   Model hat -> `$D/intake.reply.txt`; operator: `node tools/eval/validate.mjs intake $D/intake.reply.txt` (it prints
+   the questions as the app keeps them). Operator answers them as Dan might and saves `$D/intake.json` =
+   `{"questions": <those questions>, "answers": {"q1": {"picked": ["…"], "other": null}, …}}`; add `--intake $D/intake.json`
+   to the plan below, and keep `"intake"` and `"mode"` in `$D/topic.json` (the lesson prompt reads them from it).
+2. Plan: `node tools/eval/prompts.mjs plan-topic --query "$QUERY" --level $LEVEL [--mode $MODE --intake $D/intake.json] > $D/plan.prompt.txt`.
    Model hat: Read `$D/plan.prompt.txt`, write the reply to `$D/plan.reply.txt`.
    Operator: `node tools/eval/validate.mjs plan $D/plan.reply.txt`. If it reports problems, do what the app does:
    model hat again, reply with corrected JSON given the problem list, to `$D/plan.reply2.txt`, validate again.
