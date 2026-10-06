@@ -606,7 +606,7 @@ function buildEntity(worldStrokes, forcedType, opts = {}) {
     if (e.catalog && e.catalog.legY) e.legY = e.catalog.legY;   // fraction of height where the legs start (for the walk animation)
     e.speed = clamp(h * 1.1, 45, 150); e.jumpV = Math.sqrt(2 * GRAVITY * h * 1.15);
     e.ai = { state: 'idle', timer: rand(0.4, 1.6), target: null, goalX: null, memory: new Map(), stuck: 0, lastX: x, bubble: null, bubbleUntil: 0, carrying: null, seat: null, mood: 0, jumpCooldown: 0, fleeUntil: 0 };
-    e.mass = 1.25; e.restitution = 0; e.friction = 0.7;
+    e.mass = 1.4; e.restitution = 0; e.friction = 0.7;
   }
   if (type !== 'creature') { e.mass *= e.material === 'thick' ? 2.2 : e.material === 'thin' ? 0.5 : 1; if (hasTag(e, 'heavy')) e.mass *= 2.2; if (hasTag(e, 'light')) e.mass *= 0.5; }
   if (type === 'bird') { e.static = true; e.fly = { t: rand(0, 10), baseY: y + h / 2, vx: rand(40, 80) * (Math.random() < 0.5 ? -1 : 1), perchUntil: 0, perch: null }; }
@@ -630,11 +630,20 @@ function placeBeside(itemW, big) {
   if (!c) return { x: W / 2, y: floorY * 0.55 };
   const gap = c.w / 2 + itemW / 2 + (big ? 48 : 22), y = Math.min(feet(c), floorY) - 26;
   if (world.page) {
-    const sides = c.ai && c.ai.need ? [-c.facing, c.facing] : [c.facing, -c.facing];
-    for (const side of sides) for (let d = gap; d <= gap + 3 * U; d += 14) {
+    const occupied = (x) => world.entities.some((o) => o.alive && o !== c && !o.static && !o.held && o.x < x + itemW / 2 && o.x + o.w > x - itemW / 2 && feet(o) > floorY - 1.5 * U);
+    const pg = world.page, want = c.ai && (c.ai.need === 'locked' || c.ai.need === 'laser') ? pg.plates.find((p) => !p.plate.pressed) : null;
+    const first = want ? (Math.sign(want.x + want.w / 2 - cx(c)) || c.facing) : c.facing;
+    for (const side of [first, -first]) for (let d = gap; d <= gap + 2.2 * U; d += 14) {
       const x = cx(c) + side * d; if (x - itemW / 2 < 4 || x + itemW / 2 > W - 4) break;
       if (fixtureBetween(cx(c), x + side * itemW / 2)) break;
-      if (floorAtX(x - itemW * 0.4) === Infinity || floorAtX(x + itemW * 0.4) === Infinity) continue;
+      if (floorAtX(x - itemW * 0.4) === Infinity || floorAtX(x + itemW * 0.4) === Infinity) break;
+      if (occupied(x)) continue;
+      return { x, y };
+    }
+    for (let d = gap; d <= W; d += 14) for (const side of [c.facing, -c.facing]) {
+      const x = cx(c) + side * d; if (x - itemW / 2 < 4 || x + itemW / 2 > W - 4) continue;
+      if (floorAtX(x) === Infinity || occupied(x)) continue;
+      if (world.entities.some((o) => o.alive && o.fixture && !o.passable && !o.plate && o.x < x + itemW / 2 && o.x + o.w > x - itemW / 2)) continue;
       return { x, y };
     }
   }
@@ -749,6 +758,7 @@ function highestSurface(p, x0, x1) {
 function resolvePlatform(e, p, prevBottom) {
   if (e.x + e.w < p.x || e.x > p.x + p.w || e.y > p.y + p.h || e.y + e.h < p.y - 8) return;
   if (p.guard) { if (e.y + e.h > p.y + 4) { if (cx(e) < cx(p)) e.x = p.x - e.w; else e.x = p.x + p.w; e.vx = 0; if (e.ai) e.ai.blocked = true; } return; }
+  if (p.fixture && !p.plate && cx(e) > p.x && cx(e) < p.x + p.w && e.y + e.h > p.y + 4 + e.h * 0.3) { if (cx(e) < cx(p)) e.x = p.x - e.w; else e.x = p.x + p.w; e.vx = 0; if (e.ai) e.ai.blocked = true; return; }
   const feet = e.y + e.h;
   const stepUp = e.ai ? e.h * 0.3 : Math.max(e.h * 0.12, 8);
   const inset = e.type === 'ball' ? 0.4 : 0.22;
@@ -788,8 +798,8 @@ function resolvePair(a, b) {
   }
   // horizontal separation
   const dir = (a.x + a.w / 2) < (b.x + b.w / 2) ? -1 : 1;    // push a this way
-  const ma = (isFree(a) ? a.mass : 1e6) * (a.ai && a.ai.state === 'push' ? 20 : 1);
-  const mb = (isFree(b) ? b.mass : 1e6) * (b.ai && b.ai.state === 'push' ? 20 : 1);
+  const ma = (isFree(a) ? a.mass : 1e6) * (a.ai && a.ai.state === 'push' ? 20 : 1) * (a.hero && b.ai ? 1e4 : 1);
+  const mb = (isFree(b) ? b.mass : 1e6) * (b.ai && b.ai.state === 'push' ? 20 : 1) * (b.hero && a.ai ? 1e4 : 1);
   const tot = ma + mb;
   if (isFree(a)) a.x += dir * penX * (mb / tot);
   if (isFree(b)) b.x -= dir * penX * (ma / tot);
@@ -911,7 +921,7 @@ function decide(e) {
       if (top < feet(e) - e.h * 0.4 && top > feet(e) - e.h * 2.1 && t.w > e.w * 0.8 && e.support !== t) opts.push({ t, act: 'climb', w: 0.8 * dp });
     } else if (t.type === 'decor') opts.push({ t, act: 'look', w: 0.45 * dp });
   }
-  if (world.page) for (const p of world.page.plates) if (!p.plate.pressed && !fixtureBetween(cx(e), p.x + p.w / 2) && floorAtX(p.x + p.w / 2) < Infinity) opts.push({ t: p, act: 'hold', w: 12 });
+  if (world.page) for (const p of world.page.plates) if (!p.plate.pressed && !fixtureBetween(cx(e), p.x + p.w / 2) && walkableBetween(cx(e), p.x + p.w / 2, feet(e))) opts.push({ t: p, act: 'hold', w: 12 });
   opts.push({ t: null, act: 'wander', w: 1.4 }, { t: null, act: 'sleep', w: 0.22 }, { t: null, act: 'jump', w: 0.35 });
   let total = opts.reduce((s, o) => s + o.w, 0), r = Math.random() * total, chosen = opts[opts.length - 1];
   for (const o of opts) { r -= o.w; if (r <= 0) { chosen = o; break; } }
@@ -1064,7 +1074,7 @@ function updateCreature(e, dt) {
     case 'hold': { const p = ai.target; if (!p || !p.alive) { toIdle(e); break; } const pxc = p.x + p.w / 2; if (Math.abs(cx(e) - pxc) > 6) walkTo(e, pxc); else e.vx = 0; if (Math.random() < 0.004) sayText(e, pick(['still here', 'holding', 'take your time']), 1.6); break; }
     case 'airborne': if (e.onGround) { toIdle(e, 0.6); } break;
   }
-  if (world.page && e.onGround && Math.abs(e.vx) > 1 && !standableAt(cx(e) + e.facing * (e.w * 0.55 + 6), feet(e))) { e.vx = 0; if (ai.state === 'wander') toIdle(e); }
+  if (world.page && e.onGround && Math.abs(e.vx) > 1 && !standableAt(cx(e) + e.facing * (e.w * 0.55 + 6), feet(e))) { e.vx = 0; ai.stuck = 0; ai.stuckT = 0; if (ai.state === 'wander' || ai.state === 'seek' || ai.state === 'follow') toIdle(e, 0.8); }
   // walk animation
   const moving = Math.abs(e.vx) > 1 && e.onGround && ai.state !== 'sit';
   if (moving) { e.legPhase = (e.legPhase || 0) + Math.abs(e.vx) / Math.max(20, e.h * 0.9) * 7 * dt; e.bob = Math.abs(Math.sin(e.legPhase)) * e.h * 0.03; } else { e.bob = lerp(e.bob || 0, 0, 0.2); }
@@ -1603,12 +1613,12 @@ const COL = 8;      // planner column width in px
 const PAGES = [
   { id: 1, name: 'A Gap', ink: 6, par: 3, intro: 'a gap. he has never been good with gaps.', floor: [[0, 0.40], [0.56, 1]], spawn: 0.10, exit: 0.90 },
   { id: 2, name: 'Up', ink: 8, par: 4, intro: 'the exit is up there. he is down here.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, exitY: 1.9, fixtures: [{ k: 'wall', x: 0.62, w: 0.38, h: 1.9 }] },
-  { id: 3, name: 'Heavy', ink: 10, par: 5, intro: 'a plate and a door. the plate wants weight. he weighs very little.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'plate', id: 'p', x: 0.44, need: 1.2 }, { k: 'door', x: 0.70, h: 1.7, by: 'p' }] },
+  { id: 3, name: 'Heavy', ink: 10, par: 5, intro: 'a plate and a door. the plate wants weight. he weighs very little.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'plate', id: 'p', x: 0.44, need: 1.3 }, { k: 'door', x: 0.70, h: 1.7, by: 'p' }] },
   { id: 4, name: 'Drizzle', ink: 7, par: 4, intro: 'a cloud. he refuses to get wet. it is a whole thing.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'cloud', x0: 0.36, x1: 0.64, y: 2.7 }] },
   { id: 5, name: 'The Guard', ink: 8, par: 3, intro: 'something is in the way. it has teeth. he needs a sword. you have a pad.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'guard', x: 0.62 }] },
   { id: 6, name: 'Half the Answer', ink: 4, par: 3, intro: 'a wide gap, and ink for half a bridge. the page holds the other half.', floor: [[0, 0.28], [0.74, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'stone', x: 0.44, w: 0.12, y: 0 }] },
-  { id: 7, name: 'Paper Burns', ink: 12, par: 7, intro: 'a gap, a plate, a laser. lasers burn paper. thick ink is braver.', floor: [[0, 0.26], [0.40, 1]], spawn: 0.06, exit: 0.93, fixtures: [{ k: 'plate', id: 'p', x: 0.55, need: 1.2 }, { k: 'laser', x: 0.78, h: 1.9, by: 'p' }] },
-  { id: 8, name: 'The Whole Page', ink: 16, par: 10, intro: 'everything at once. he believes in you. he has no choice.', floor: [[0, 0.20], [0.33, 1]], spawn: 0.05, exit: 0.95, exitY: 1.6, fixtures: [{ k: 'cloud', x0: 0.40, x1: 0.56, y: 2.7 }, { k: 'plate', id: 'p', x: 0.48, need: 1.2 }, { k: 'door', x: 0.66, h: 1.7, by: 'p' }, { k: 'wall', x: 0.80, w: 0.20, h: 1.6 }] },
+  { id: 7, name: 'Paper Burns', ink: 12, par: 7, intro: 'a gap, a plate, a laser. lasers burn paper. thick ink is braver.', floor: [[0, 0.26], [0.40, 1]], spawn: 0.06, exit: 0.93, fixtures: [{ k: 'plate', id: 'p', x: 0.55, need: 1.3 }, { k: 'laser', x: 0.78, h: 1.9, by: 'p' }] },
+  { id: 8, name: 'The Whole Page', ink: 16, par: 10, intro: 'everything at once. he believes in you. he has no choice.', floor: [[0, 0.20], [0.33, 1]], spawn: 0.05, exit: 0.95, exitY: 1.6, fixtures: [{ k: 'cloud', x0: 0.40, x1: 0.56, y: 2.7 }, { k: 'plate', id: 'p', x: 0.48, need: 1.3 }, { k: 'door', x: 0.66, h: 1.7, by: 'p' }, { k: 'wall', x: 0.80, w: 0.20, h: 1.6 }] },
 ];
 const NEEDS = {
   gap: ['gap. no.', 'I need a bridge', 'that is a long way down'],
@@ -1659,7 +1669,7 @@ function buildFixture(pg, def) {
   if (def.k === 'stone') { const x = def.x * W, w = def.w * W, y = fy - def.y * U; return fixtureEntity([PEN(rectPts(x, y, w, 12), 4, true), PEN([{ x: x + 8, y: y + 6 }, { x: x + w - 8, y: y + 6 }], 2)], def); }
   if (def.k === 'plate') {
     const w = Math.max(60, 0.07 * W), x = def.x * W - w / 2, h = 9;
-    const e = fixtureEntity([PEN(rectPts(x, fy - h, w, h), 4, true), PEN([{ x: x + w / 2 - 6, y: fy - h - 2 }, { x: x + w / 2, y: fy - h - 9 }, { x: x + w / 2 + 6, y: fy - h - 2 }], 3)], def, { plate: { id: def.id, need: def.need, pressed: false } });
+    const e = fixtureEntity([PEN(rectPts(x, fy - h, w, h), 4, true)], def, { plate: { id: def.id, need: def.need, pressed: false, slabY: fy - h } });
     pg.plates.push(e); return e;
   }
   if (def.k === 'door') {
@@ -1686,6 +1696,8 @@ function buildFixture(pg, def) {
 }
 function loadPage(def, keep) {
   U = Math.min(110, Math.max(44, W / 8.5));
+  if (world.page && world.page.winT) clearTimeout(world.page.winT);
+  $('#pagewin').classList.remove('open');
   const kept = keep && world.page ? world.entities.filter((e) => e.drawn && e.alive) : [];
   for (const e of world.entities.slice()) if (!kept.includes(e)) removeEntity(e, false);
   world.particles = []; world.pending = null;
@@ -1734,7 +1746,7 @@ function note(text, secs) { const m = $('#margin'); m.textContent = text; m.clas
 function hideNote() { $('#margin').classList.remove('show'); }
 
 // ---------------- hazards, plates, doors, win
-function plateMass(p) { let m = 0; for (const e of world.entities) { if (e === p || !e.alive || e.static || e.held || e.hero) continue; if (e.x + e.w * 0.35 < p.x || e.x + e.w * 0.65 > p.x + p.w) continue; if (Math.abs(feet(e) - p.y) < 6) m += e.mass; } return m; }
+function plateMass(p) { let m = 0; for (const e of world.entities) { if (e === p || !e.alive || e.static || e.held || e.hero) continue; if (e.x + e.w * 0.35 < p.x || e.x + e.w * 0.65 > p.x + p.w) continue; if (Math.abs(feet(e) - p.plate.slabY) < 9) m += e.mass; } return m; }
 function setDoor(d, open) {
   if (d.door.open === open) return; d.door.open = open; d.passable = open; d.strokes = open ? d.door.openStrokes : d.door.closedStrokes; rebuildSprite(d); world.version++;
 }
@@ -1780,12 +1792,12 @@ function updatePage(dt) {
   if (pg.pulse && world.time > pg.pulseT) pg.pulse = null;
 }
 function winPage() {
-  const pg = world.page; pg.won = true; pg.won_at = world.time; const h = pg.hero; h.vx = 0; h.ai.state = 'act'; h.ai.timer = 99; h.ai.pose = 'cheer';
+  const pg = world.page; if (pg.won) return; pg.won = true; pg.won_at = world.time; const h = pg.hero; h.vx = 0; h.ai.state = 'act'; h.ai.timer = 99; h.ai.pose = 'cheer';
   say(h, 'climb', 3); burst(cx(h), h.y, 24, 'spark');
   const stars = 1 + (pg.used <= pg.def.par ? 1 : 0) + (pg.falls === 0 ? 1 : 0);
   progress[pg.id] = Math.max(progress[pg.id] || 0, stars); saveProgress();
   note(pick(NOTES.win).replace('{ink}', Math.round(pg.used * 2) / 2), 6);
-  setTimeout(() => { $('#pagewin-stars').textContent = '★★★'.slice(0, stars) + '☆☆☆'.slice(0, 3 - stars); $('#pagewin-text').textContent = 'Ink used: ' + (Math.round(pg.used * 2) / 2) + ' of ' + pg.def.ink + ' (par ' + pg.def.par + ')' + (pg.falls ? ', redrawn ' + pg.falls + ' time' + (pg.falls > 1 ? 's' : '') : ', never fell') + '.'; $('#pagewin-next').hidden = !PAGES.find((p) => p.id === pg.id + 1); $('#pagewin').classList.add('open'); }, 1400);
+  pg.winT = setTimeout(() => { if (world.page !== pg || !pg.won) return; $('#pagewin-stars').textContent = '★★★'.slice(0, stars) + '☆☆☆'.slice(0, 3 - stars); $('#pagewin-text').textContent = 'Ink used: ' + (Math.round(pg.used * 2) / 2) + ' of ' + pg.def.ink + ' (par ' + pg.def.par + ')' + (pg.falls ? ', redrawn ' + pg.falls + ' time' + (pg.falls > 1 ? 's' : '') : ', never fell') + '.'; $('#pagewin-next').hidden = !PAGES.find((p) => p.id === pg.id + 1); $('#pagewin').classList.add('open'); }, 1400);
 }
 
 // ---------------- the hero's planner
@@ -1793,10 +1805,12 @@ const NEED_LINES = new Set(Object.values(NEEDS).flat());
 const an = (w) => (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w;
 function solidsFor(h) { return world.entities.filter((e) => e.alive && e !== h && !e.held && !e.passable && e.mask && (e.type === 'platform' || e.type === 'thing')); }
 function colSpan(e, x) { const lx = localX(e, x); if (lx < 0 || lx >= e.mask.cw) return null; const t = e.mask.top[lx]; return t < 0 ? null : [e.y + t, e.y + e.mask.bottom[lx]]; }
-function roofAt(sol, x, y) { for (const e of sol) { if (e.guard) continue; const s = colSpan(e, x); if (s && s[1] <= y - 0.9 * U && s[1] >= y - 3.2 * U) return true; } return false; }
+function roofAt(sol, x, y) { for (const e of sol) { if (e.guard) continue; const s = colSpan(e, x); if (s && s[1] <= y - 0.5 * U && s[1] >= y - 3.2 * U) return true; } return false; }
 function heroSheltered(h) { const it = h.ai.carrying; return !!(it && hasTag(it, 'shelter')); }
-function onPlate(t) { const pg = world.page; return !!(pg && pg.plates.some((p) => t.x + t.w * 0.35 >= p.x && t.x + t.w * 0.65 <= p.x + p.w && Math.abs(feet(t) - p.y) < 8)); }
+function plateSurface(p, e) { const s = highestSurface(p, e.x + e.w * 0.25, e.x + e.w * 0.75); return s === null ? p.plate.slabY : Math.max(s, p.plate.slabY - 1); }
+function onPlate(t) { const pg = world.page; return !!(pg && pg.plates.some((p) => t.x + t.w * 0.35 >= p.x && t.x + t.w * 0.65 <= p.x + p.w && Math.abs(feet(t) - p.plate.slabY) < 9)); }
 function standableAt(x, y) { if (floorAtX(x) < Infinity && Math.abs(floorY - y) < 0.35 * U) return true; for (const e of world.entities) { if (!e.alive || e.held || e.passable || e.guard || !e.mask || (e.type !== 'platform' && e.type !== 'thing')) continue; const s = colSpan(e, x); if (s && Math.abs(s[0] - y) < 0.35 * U) return true; } return false; }
+function walkableBetween(x0, x1, y) { const a = Math.min(x0, x1), b = Math.max(x0, x1); for (let x = a; x <= b; x += 8) if (!standableAt(x, y)) return false; return true; }
 function fixtureBetween(x0, x1) {
   const a = Math.min(x0, x1), b = Math.max(x0, x1);
   for (const e of world.entities) { if (!e.alive || !e.fixture || e.passable || e.plate) continue; if (e.x < b && e.x + e.w > a && e.y + e.h > floorY - 0.9 * U) return e; }
@@ -1805,29 +1819,40 @@ function fixtureBetween(x0, x1) {
 function reachableItem(h, t) { return floorAtX(cx(t)) < Infinity && !fixtureBetween(cx(h), cx(t)); }
 function planPath(h) {
   const pg = world.page, sol = solidsFor(h), nCols = Math.ceil(W / COL);
-  const exitCol = Math.floor(pg.exitX / COL), exitY = pg.exitY, colX = (c) => c * COL + COL / 2, hw = 0.35 * h.w;
+  const exitCol = Math.floor(pg.exitX / COL), exitY = pg.exitY, colX = (c) => c * COL + COL / 2, hw = 0.35 * h.w, fw = 0.28 * h.w;
+  const apex = h.jumpV * h.jumpV / (2 * GRAVITY), maxUp = apex - 0.1 * U;
+  const standable = (e) => !(e.guard || (e.door && !e.door.open));
   const surf = new Array(nCols);
-  for (let c = 0; c < nCols; c++) { const x = colX(c), list = []; const fy = floorAtX(x); if (fy < Infinity) list.push({ y: fy, e: null }); for (const e of sol) { if (e.guard) continue; const s = colSpan(e, x); if (s && s[0] > floorY - 4.5 * U) list.push({ y: s[0], e }); } surf[c] = list; }
+  for (let c = 0; c < nCols; c++) {
+    const x = colX(c), list = []; const fy = floorAtX(x); if (fy < Infinity) list.push({ y: fy, e: null });
+    for (const e of sol) { if (!standable(e)) continue; let top = null; for (const ox of [-fw, 0, fw]) { const s = colSpan(e, x + ox); if (s && (top === null || s[0] < top)) top = s[0]; } if (top !== null && top > floorY - 4.5 * U) list.push({ y: top, e }); }
+    surf[c] = list;
+  }
   const sheltered = heroSheltered(h);
   const blockedAt = (c, y) => {
     const x = colX(c);
     for (const e of sol) {
       if (!e.fixture && e.type !== 'thing') continue;
+      if (e.plate) continue;
       if (e.guard) { if (x + hw >= e.x && x - hw <= e.x + e.w && y > e.y + 2 && y - 0.9 * U < e.y + e.h) return e; continue; }
-      for (const ox of [-hw, 0, hw]) { const s = colSpan(e, x + ox); if (s && s[0] < y - 3 && s[1] > y - 0.9 * U) return e; }
+      for (const ox of [-hw, 0, hw]) { const s = colSpan(e, x + ox); if (s && s[0] < y - 0.3 * U && s[1] > y - 0.9 * U) return e; }
     }
     return null;
   };
   const hazardRaw = (c, y) => { const x = colX(c); for (const l of pg.lasers) if (l.on && Math.abs(x - l.x) < COL + h.w * 0.5 + 12) return { k: 'laser', obj: l }; if (!sheltered) for (const r of pg.clouds) if (x >= r.x0 && x <= r.x1 && !roofAt(sol, x, y)) return { k: 'rain', obj: r }; return null; };
-  // start node: search the whole standing span, nearest to the centre first
   const fy0 = feet(h), cmid = clamp(Math.floor(cx(h) / COL), 0, nCols - 1), ca = clamp(Math.floor((h.x + 3) / COL), 0, nCols - 1), cb = clamp(Math.floor((h.x + h.w - 3) / COL), 0, nCols - 1);
   const order = [cmid]; for (let k = 1; k <= cb - ca; k++) { if (cmid - k >= ca) order.push(cmid - k); if (cmid + k <= cb) order.push(cmid + k); }
   let c0 = -1, i0 = -1, bestD = 1e9;
   for (const c of order) surf[c].forEach((s, i) => { if (!h.onGround && s.y < fy0 - 4) return; const dy = Math.abs(s.y - fy0); if (dy > 0.6 * U) return; const d = dy + Math.abs(c - cmid) * 2; if (d < bestD) { bestD = d; c0 = c; i0 = i; } });
   const dir0 = Math.sign(pg.exitX - cx(h)) || 1;
   if (c0 < 0) return { path: null, need: null, nudge: true, frontierX: cx(h), dir: dir0, blocker: null };
-  const escaping = !!hazardRaw(c0, surf[c0][i0].y);
-  const hazardAt = escaping ? () => null : hazardRaw;
+  // starting inside a hazard: allow walking out through the nearer edge only
+  let escape = null;
+  if (hazardRaw(c0, surf[c0][i0].y)) {
+    let l = c0, r = c0; while (l > 0 && hazardRaw(l - 1, surf[c0][i0].y)) l--; while (r < nCols - 1 && hazardRaw(r + 1, surf[c0][i0].y)) r++;
+    escape = (c0 - l) <= (r - c0) ? [l, c0] : [c0, r];
+  }
+  const hazardAt = (c, y) => (escape && c >= escape[0] && c <= escape[1]) ? null : hazardRaw(c, y);
   const unsafe = (h.ai.unsafe || []).filter((u) => world.time < u.until);
   const key = (c, i) => c * 32 + i, prev = new Map(), dist = new Map(), buckets = [[[c0, i0]]]; prev.set(key(c0, i0), null); dist.set(key(c0, i0), 0);
   let goal = null, frontier = [c0, i0], fdist = Math.abs(c0 - exitCol);
@@ -1840,18 +1865,20 @@ function planPath(h) {
       if (dist.get(key(c, i)) !== cost) continue;
       const y = surf[c][i].y;
       if (Math.abs(c - exitCol) <= 1 && Math.abs(y - exitY) < 0.45 * U) { goal = [c, i]; break; }
-      for (const dc of [-1, 1]) { const nc = c + dc; if (nc < 0 || nc >= nCols) continue; surf[nc].forEach((s, j) => { if (Math.abs(s.y - y) <= 0.3 * U && !blockedAt(nc, s.y) && !hazardAt(nc, s.y)) relax(nc, j, [c, i], false, cost + 1); }); }
+      for (const dc of [-1, 1]) { const nc = c + dc; if (nc < 0 || nc >= nCols) continue; surf[nc].forEach((s, j) => { const dy = s.y - y; if (dy >= -0.3 * U && dy <= 0.5 * U && !blockedAt(nc, s.y) && !hazardAt(nc, s.y)) relax(nc, j, [c, i], false, cost + 1); }); }
       if (unsafe.some((u) => Math.abs(u.x - colX(c)) < 24)) continue;
       for (let dc = -maxDc; dc <= maxDc; dc++) {
-        const nc = c + dc; if (nc < 0 || nc >= nCols) continue; const dx = Math.abs(dc) * COL;
+        const nc = c + dc; if (nc < 0 || nc >= nCols) continue; const dx = Math.abs(dc) * COL, sgn = Math.sign(dc);
         surf[nc].forEach((s, j) => {
           const dy = s.y - y; if (dc === 0 && dy >= -3) return;
           const through = dy < 0 && oneWay(s) && dx <= 0.5 * U;
           const reach = dy < -0.3 * U ? 0.65 * U : 0.75 * U + clamp(dy, 0, 2 * U) * 0.35;
-          if (!through && (dx > reach || dy < -1.05 * U)) return; if (through && dy < -1.0 * U) return;
+          if (!through && (dx > reach || dy < -maxUp)) return; if (through && dy < -(maxUp - 0.05 * U)) return;
           if (blockedAt(nc, s.y) || hazardAt(nc, s.y)) return;
+          if (dy > 0.3 * U && surf[nc].some((o) => o !== s && o.y >= y - 0.35 * U && o.y <= s.y - 4)) return;   // something would catch him first
+          if (dy < -0.3 * U && s.e && s.e.type === 'thing' && sgn && !colSpan(s.e, colX(nc) - sgn * 0.25 * h.w)) return;   // land well inside a box
           const mid = Math.min(y, s.y) - 0.3 * U;
-          for (let k = 1; k < Math.abs(dc); k++) { const ic = c + k * Math.sign(dc); if (hazardAt(ic, Math.min(y, s.y)) || blockedAt(ic, mid)) return; }
+          for (let k = 1; k < Math.abs(dc); k++) { const ic = c + k * sgn; if (hazardAt(ic, Math.min(y, s.y)) || blockedAt(ic, mid)) return; }
           relax(nc, j, [c, i], true, cost + 6 + 2 * Math.abs(dc));
         });
       }
@@ -1864,31 +1891,46 @@ function planPath(h) {
   const hz = hazardRaw(nc, fy), b = blockedAt(nc, fy);
   if (hz) { need = hz.k; blocker = hz.obj; }
   else if (b) { need = b.fixture ? (b.fixture.k === 'door' ? 'locked' : b.fixture.k === 'guard' ? 'guard' : 'ledge') : 'ledge'; blocker = b; }
-  else { const up = surf[nc].find((s) => s.y < fy - 0.3 * U); if (up) { need = 'ledge'; blocker = up.e; } else if (Math.abs(fc - exitCol) <= 1 && exitY < fy - 0.3 * U) { need = 'ledge'; blocker = null; } else { need = 'gap'; blocker = pitAt(colX(nc)) || pitAt(colX(fc)); } }
+  else { const up = surf[nc].find((s) => s.y < fy - 0.3 * U); if (up) { need = 'ledge'; blocker = up.e; } else if (Math.abs(fc - exitCol) <= 1 && exitY < fy - 0.3 * U) { need = 'ledge'; blocker = null; } else { const hzUp = surf[nc].length && hazardRaw(nc, surf[nc][0].y); if (hzUp) { need = hzUp.k; blocker = hzUp.obj; } else { need = 'gap'; blocker = pitAt(colX(nc)) || pitAt(colX(fc)); } } }
   const partial = rebuild(frontier);
   return { path: null, partial: partial.length > 1 ? partial : null, need, frontierX: colX(fc), frontierY: fy, dir, blocker };
 }
+function heroJump(h, mul) { const ai = h.ai; ai.lastJumpX = cx(h); ai.jumpLog = (ai.jumpLog || []).filter((j) => world.time - j.t < 6); ai.jumpLog.push({ x: cx(h), t: world.time }); doJump(h, mul); }
 function followPath(h, path) {
-  const ai = h.ai;
-  if (!h.onGround) { const n = path[0]; if (n) { const dx = n.x - cx(h); h.vx = clamp(dx * 4, -h.speed, h.speed); if (Math.abs(dx) > 4) h.facing = dx >= 0 ? 1 : -1; } return; }
+  const ai = h.ai, apex = h.jumpV * h.jumpV / (2 * GRAVITY);
+  if (!h.onGround) {
+    const n = path[0]; if (!n) return;
+    const dx = n.x - cx(h);
+    if (n.drop || Math.abs(dx) > 0.3 * U) h.vx = h.facing * h.speed; else h.vx = clamp(dx * 4, -h.speed, h.speed);
+    return;
+  }
   while (path.length > 1 && Math.abs(path[0].x - cx(h)) < 7 && Math.abs(path[0].y - feet(h)) < 0.35 * U) path.shift();
-  // launch upward jumps a little early so the body is not already touching the step
-  if (path.length > 1 && path[1].jump && path[1].y < feet(h) - 0.3 * U && Math.abs(path[1].x - cx(h)) <= 0.65 * U && ai.jumpCooldown <= 0) path.shift();
+  // launch upward jumps early: look past flat walk nodes to the next climb
+  for (let j = 1; j < Math.min(path.length, 7); j++) {
+    const m = path[j]; if (Math.abs(m.y - feet(h)) < 0.3 * U && !m.jump) continue;
+    if (m.jump && m.y < feet(h) - 0.3 * U && Math.abs(m.x - cx(h)) <= 0.65 * U && ai.jumpCooldown <= 0) path.splice(0, j);
+    break;
+  }
   const n = path[0]; if (!n) return;
   const dx = n.x - cx(h), dy = n.y - feet(h);
-  if (n.jump && Math.abs(dy) > 0.2 * U || n.jump && pitAt(cx(h) + Math.sign(dx) * 10)) {
+  const pitBetween = !!pitAt(cx(h) + Math.sign(dx || h.facing) * (h.w / 2 + 6));
+  if (n.jump && dy > 0.2 * U && !pitBetween) {      // a step down: walk off the edge, never jump
+    const dir = path.length > 1 ? (Math.sign(path[1].x - n.x) || Math.sign(dx)) : Math.sign(dx);
+    if (dir) h.facing = dir; h.vx = h.facing * h.speed; n.drop = true; return;
+  }
+  if (n.jump && Math.abs(dy) > 0.2 * U || n.jump && pitBetween) {
     if (Math.abs(dx) > 4) h.facing = dx >= 0 ? 1 : -1;
-    if (ai.jumpCooldown > 0 && pitAt(cx(h) + h.facing * (h.w / 2 + 4))) { h.vx = 0; return; }   // wait at the edge until the jump is allowed
+    if (ai.jumpCooldown > 0 && pitBetween) { h.vx = 0; return; }
     h.vx = dy < -0.2 * U && Math.abs(dx) < 0.3 * U ? clamp(dx * 4, -h.speed, h.speed) : h.facing * h.speed;
-    if (ai.jumpCooldown <= 0) { const mul = dy < 0 ? clamp(Math.sqrt((-dy + 0.3 * U) / (1.15 * U)), 0.6, 1) : (Math.abs(dx) > 0.5 * U ? 1 : 0.75); ai.lastJumpX = cx(h); doJump(h, mul); }
+    if (ai.jumpCooldown <= 0) { const mul = dy < 0 ? clamp(Math.sqrt((-dy + 0.3 * U) / apex), 0.6, 1) : (Math.abs(dx) > 0.5 * U ? 1 : 0.75); heroJump(h, mul); }
     return;
   }
   walkTo(h, n.x);
-  if (ai.blocked && ai.jumpCooldown <= 0 && Math.abs(dy) < 0.3 * U) doJump(h, 0.8);
+  if (ai.blocked && ai.jumpCooldown <= 0 && Math.abs(dy) < 0.3 * U) heroJump(h, 0.8);
 }
 function nearestItem(h, pred, maxD) {
   let best = null, bd = maxD || 1e9;
-  for (const t of world.entities) { if (!t.alive || t.held || t.type !== 'thing' || !liftable(t, h) || !(t.drawn || t.catalog) || onPlate(t) || !reachableItem(h, t)) continue; if (pred && !pred(t)) continue; const d = Math.abs(cx(t) - cx(h)); if (d < bd && Math.abs(feet(t) - feet(h)) < 1.2 * U) { bd = d; best = t; } }
+  for (const t of world.entities) { if (!t.alive || t.held || t.type !== 'thing' || !(t.drawn || t.catalog) || onPlate(t) || !reachableItem(h, t) || (t.dryUntil && world.time < t.dryUntil)) continue; if (pred && !pred(t)) continue; const d = Math.abs(cx(t) - cx(h)); if (d < bd && Math.abs(feet(t) - feet(h)) < 1.2 * U) { bd = d; best = t; } }
   return best;
 }
 function heroPickup(h, t) {
@@ -1907,6 +1949,8 @@ function updateHero(h, dt) {
   if (!ai.tried) ai.tried = new Set();
   if (ai.replyAt && world.time >= ai.replyAt) { say(h, ai.replyKey); ai.replyAt = 0; }
   const moving = () => { const m = Math.abs(h.vx) > 1 && h.onGround; if (m) { h.legPhase = (h.legPhase || 0) + Math.abs(h.vx) / Math.max(20, h.h * 0.9) * 7 * dt; h.bob = Math.abs(Math.sin(h.legPhase)) * h.h * 0.03; } else h.bob = lerp(h.bob || 0, 0, 0.2); };
+  if (ai.wasAir && h.onGround) { ai.planT = 0; const log = ai.jumpLog || []; if (log.length >= 3 && log.slice(-3).every((j) => Math.abs(j.x - log[log.length - 1].x) < 12) && Math.abs(cx(h) - log[log.length - 1].x) < 14) { ai.unsafe = (ai.unsafe || []).filter((u) => world.time < u.until); ai.unsafe.push({ x: cx(h), until: world.time + 20 }); ai.jumpLog = []; sayText(h, pick(['I keep landing in the same spot', 'this is not working', 'hm. no.']), 2.2); } }
+  ai.wasAir = !h.onGround;
   if (pg.won) { h.vx = 0; moving(); return; }
   switch (ai.state) {
     case 'held': h.vx = 0; return;
@@ -1914,34 +1958,45 @@ function updateHero(h, dt) {
     case 'knocked': h.vx *= Math.pow(0.05, dt); if (ai.timer <= 0) ai.state = 'go'; moving(); return;
     case 'act':
       h.vx = 0;
-      if (ai.timer <= 0) { ai.pose = null; ai.state = 'go'; if (ai.eating) { const t = ai.eating; ai.eating = null; if (t.alive) { burst(cx(t), t.y + t.h / 2, 8, 'poof'); removeEntity(t, false); } if (ai.carrying === t) ai.carrying = null; say(h, 'eat', 2); h.squash = 1.15; note(pick(['he ate it. it weighed nothing anyway.', 'lunch. the page waits.']), 3); } }
+      if (ai.timer <= 0) {
+        ai.pose = null; ai.state = 'go';
+        if (ai.eating) { const t = ai.eating; ai.eating = null; if (t.alive) { burst(cx(t), t.y + t.h / 2, 8, 'poof'); removeEntity(t, false); } if (ai.carrying === t) ai.carrying = null; say(h, 'eat', 2); h.squash = 1.15; if (pg.guard && pg.guard.alive && ai.need === 'guard') { ai.joked = t.id; note(pick(NOTES.guardLose), 4); } else note(pick(['he ate it. it weighed nothing anyway.', 'lunch. the page waits.']), 3); }
+        if (ai.judgePlate) { const p = ai.judgePlate; ai.judgePlate = null; const ok = p.plate.pressed; sayText(h, ok ? pick(['that should do it', 'heavy enough', 'there.']) : pick(['not heavy enough', 'it wants more', 'too light. thicker ink?']), 2.2); note(pick(ok ? NOTES.heavy : NOTES.light), 4); }
+      }
       moving(); return;
     case 'fetch': {
       const t = ai.target;
       if (!t || !t.alive || t.held) { ai.state = 'go'; break; }
       const dx = cx(t) - cx(h), reach = h.w / 2 + t.w / 2 + 6;
       if (Math.abs(dx) <= reach && Math.abs(feet(t) - feet(h)) < h.h) { h.facing = dx >= 0 ? 1 : -1; h.vx = 0; heroPickup(h, t); ai.target = null; break; }
-      if (h.onGround && pitAt(cx(h) + Math.sign(dx) * (h.w / 2 + 4))) { h.vx = 0; ai.seen.add(t.id); ai.tried.add(t.id); ai.state = 'go'; break; }
+      if (h.onGround && !standableAt(cx(h) + Math.sign(dx) * (h.w / 2 + 6), feet(h))) { h.vx = 0; ai.tried.add(t.id); ai.state = 'go'; break; }
       walkTo(h, cx(t) - Math.sign(dx) * (reach - 10));
-      if (ai.blocked && h.onGround && ai.jumpCooldown <= 0) doJump(h, 0.9);
-      if (ai.timer <= 0) { ai.state = 'go'; ai.seen.add(t.id); ai.tried.add(t.id); }
+      if (ai.blocked && h.onGround && ai.jumpCooldown <= 0) heroJump(h, 0.9);
+      if (ai.timer <= 0) { ai.state = 'go'; ai.tried.add(t.id); }
       break;
     }
     case 'deliver': {
       const it = ai.carrying, p = ai.target;
       if (!it || !p || !p.alive) { ai.state = 'go'; break; }
       const px = p.x + p.w / 2, dx = px - cx(h);
-      if (Math.abs(dx) <= h.w * 0.5 + 4 && Math.abs(feet(h) - p.y) < 0.5 * U) {
+      if (Math.abs(dx) <= h.w / 2 + it.w / 2 + 6 && Math.abs(feet(h) - p.plate.slabY) < 0.5 * U) {
         h.facing = dx >= 0 ? 1 : -1; h.vx = 0;
-        it.held = null; it.wield = false; it.tilt = 0; ai.carrying = null; it.x = px - it.w / 2; it.y = p.y - it.h; it.vx = 0; it.vy = 0; it.onGround = true; world.version++;
-        const ok = plateMass(p) >= p.plate.need - 1e-6; ai.tried.add(it.id);
-        sayText(h, ok ? pick(['that should do it', 'heavy enough', 'there.']) : pick(['not heavy enough', 'it wants more', 'too light. thicker ink?']), 2.2);
-        note(pick(ok ? NOTES.heavy : NOTES.light), 4);
-        ai.state = 'act'; ai.timer = 1.2; ai.target = null; break;
+        it.held = null; it.wield = false; it.tilt = 0; ai.carrying = null; it.x = px - it.w / 2; it.y = p.plate.slabY - it.h; it.vx = 0; it.vy = 0; it.onGround = true; world.version++;
+        ai.tried.add(it.id); ai.judgePlate = p; ai.state = 'act'; ai.timer = 1.0; ai.target = null; break;
       }
-      if (h.onGround && pitAt(cx(h) + Math.sign(dx) * (h.w / 2 + 4))) { heroDrop(h); ai.state = 'go'; break; }
-      walkTo(h, px); if (ai.blocked && h.onGround && ai.jumpCooldown <= 0) doJump(h, 0.9);
+      if (h.onGround && !standableAt(cx(h) + Math.sign(dx) * (h.w / 2 + 6), feet(h))) { heroDrop(h); ai.state = 'go'; break; }
+      walkTo(h, px); if (ai.blocked && h.onGround && ai.jumpCooldown <= 0) heroJump(h, 0.9);
       if (ai.timer <= 0) { heroDrop(h); ai.state = 'go'; }
+      break;
+    }
+    case 'push': {   // shove a heavy thing he cannot lift onto the plate
+      const it = ai.pushing, p = ai.target;
+      if (!it || !it.alive || it.held || !p) { ai.state = 'go'; ai.pushing = null; break; }
+      const px = p.x + p.w / 2, dir = Math.sign(px - cx(it)) || 1;
+      if (onPlate(it) || Math.abs(cx(it) - px) < 6) { h.vx = 0; ai.tried.add(it.id); ai.judgePlate = p; ai.state = 'act'; ai.timer = 1.0; ai.pushing = null; break; }
+      if (Math.sign(cx(it) - cx(h)) !== dir) { h.vx = 0; ai.tried.add(it.id); sayText(h, 'it is on the wrong side', 2); ai.state = 'go'; ai.pushing = null; break; }
+      h.facing = dir; h.vx = dir * h.speed * clamp(1.4 / it.mass, 0.25, 0.7);
+      if (ai.timer <= 0) { ai.tried.add(it.id); ai.state = 'go'; ai.pushing = null; }
       break;
     }
     case 'fight': {
@@ -1959,27 +2014,33 @@ function updateHero(h, dt) {
     default: { // 'go'
       ai.state = 'go';
       if (!h.onGround) { if (ai.plan && (ai.plan.path || ai.plan.partial)) followPath(h, ai.plan.path || ai.plan.partial); moving(); return; }
-      const fresh = nearestItem(h, (t) => !ai.seen.has(t.id), 2.2 * U);
+      const fresh = nearestItem(h, (t) => !ai.seen.has(t.id) && liftable(t, h), 2.2 * U);
       if (fresh && !ai.carrying) { ai.state = 'fetch'; ai.target = fresh; ai.timer = 6; break; }
+      const big = nearestItem(h, (t) => !ai.seen.has(t.id) && !liftable(t, h), 2.2 * U);
+      if (big) { ai.seen.add(big.id); sayText(h, big.catalog && big.catalog.say ? big.catalog.say : 'too big to carry', 3); ai.state = 'act'; ai.timer = 1.2; break; }
       ai.planT = (ai.planT || 0) - dt;
       if (!ai.plan || ai.planT <= 0 || ai.worldVer !== world.version) { ai.planT = 0.35; ai.worldVer = world.version; ai.plan = planPath(h); }
       const plan = ai.plan;
       if (plan.path) { if (ai.need) { ai.need = null; if (NEED_LINES.has(ai.bubble)) ai.bubbleUntil = 0; } pg.pulse = null; followPath(h, plan.path); break; }
-      if (plan.nudge) { walkTo(h, cx(h) + plan.dir * 0.5 * U); if (ai.blocked && ai.jumpCooldown <= 0) doJump(h, 0.8); break; }
-      // blocked: can what he carries, or what lies around, help?
+      if (plan.nudge) { walkTo(h, cx(h) + plan.dir * 0.5 * U); if (ai.blocked && ai.jumpCooldown <= 0) heroJump(h, 0.8); break; }
       if (plan.need === 'guard' && ai.carrying && (hasTag(ai.carrying, 'wield') || hasTag(ai.carrying, 'play'))) { ai.state = 'fight'; ai.fightAt = 0; break; }
       if (plan.need === 'locked' || plan.need === 'laser') {
         const plate = pg.plates.find((p) => !p.plate.pressed);
         if (plate && ai.carrying && !hasTag(ai.carrying, 'shelter')) {
           if (ai.carrying.mass >= plate.plate.need - 1e-6) { ai.state = 'deliver'; ai.target = plate; ai.timer = 12; break; }
-          if (!ai.tried.has(ai.carrying.id)) { ai.tried.add(ai.carrying.id); sayText(h, pick(['too light for the plate', 'this weighs nothing', 'the plate would laugh']), 2.2); h.facing = -plan.dir; heroDrop(h); h.facing = plan.dir; ai.state = 'act'; ai.timer = 1; break; }
+          if (!ai.tried.has(ai.carrying.id)) { ai.tried.add(ai.carrying.id); sayText(h, pick(['too light for the plate', 'this weighs nothing', 'the plate would laugh']), 2.2); note(pick(NOTES.light), 4); h.facing = -plan.dir; heroDrop(h); h.facing = plan.dir; ai.state = 'act'; ai.timer = 1; break; }
         }
-        if (plate && !ai.carrying) { const it = nearestItem(h, (t) => !ai.tried.has(t.id) && t.mass >= plate.plate.need - 1e-6 && !hasTag(t, 'shelter'), 1e9); if (it) { ai.state = 'fetch'; ai.target = it; ai.timer = 10; break; } }
+        if (plate && !ai.carrying) {
+          const heavy = (t) => !ai.tried.has(t.id) && t.mass >= plate.plate.need - 1e-6 && !hasTag(t, 'shelter');
+          const it = nearestItem(h, (t) => heavy(t) && liftable(t, h), 1e9);
+          if (it) { ai.state = 'fetch'; ai.target = it; ai.timer = 10; break; }
+          const bigOne = nearestItem(h, (t) => heavy(t) && !liftable(t, h) && Math.sign(cx(t) - cx(h)) === Math.sign(plate.x + plate.w / 2 - cx(t)), 1e9);
+          if (bigOne) { ai.state = 'push'; ai.pushing = bigOne; ai.target = plate; ai.timer = 14; sayText(h, pick(['too heavy to lift. I will push', 'heave', 'this will take a moment']), 2); break; }
+        }
       }
       if (plan.need === 'guard' && ai.carrying && ai.joked !== ai.carrying.id) { ai.joked = ai.carrying.id; const it = ai.carrying; sayText(h, it.catalog && it.catalog.say ? it.catalog.say : 'this is ' + an(it.labelText) + '. it is not a sword.', 3.2); note(pick(NOTES.guardLose), 4); h.facing = -plan.dir; heroDrop(h); h.facing = plan.dir; ai.state = 'act'; ai.timer = 2.2; break; }
       const fx = plan.frontierX, atFrontier = Math.abs(fx - cx(h)) <= 10;
-      if (!atFrontier && plan.partial) { followPath(h, plan.partial); if (ai.blocked && ai.jumpCooldown <= 0) doJump(h, 0.8); }
-      else if (!atFrontier) { walkTo(h, fx); if (ai.blocked && ai.jumpCooldown <= 0) doJump(h, 0.8); }
+      if (!atFrontier) { ai.need = null; if (plan.partial) followPath(h, plan.partial); else walkTo(h, fx); if (ai.blocked && ai.jumpCooldown <= 0) heroJump(h, 0.8); }
       else { h.vx = 0; h.facing = plan.dir; if (plan.need && (ai.need !== plan.need || world.time > ai.needSaidAt + 7)) { ai.need = plan.need; ai.needSaidAt = world.time; sayText(h, pick(NEEDS[plan.need]), 2.6); } pg.pulse = plan.blocker || plan.need; pg.pulseT = world.time + 0.5; }
     }
   }
@@ -2011,7 +2072,7 @@ function drawPage() {
     if (l.on) { ctx.strokeStyle = '#e8322f'; ctx.lineWidth = world.time - (l.flash || -9) < 0.3 ? 5 : 2.5; ctx.globalAlpha = 0.75 + Math.sin(world.time * 14) * 0.2; ctx.setLineDash([10, 6]); ctx.beginPath(); ctx.moveTo(l.x, top); ctx.lineTo(l.x, floorY); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = world.theme.pencil; }
   }
   // pressed plates glow
-  for (const p of pg.plates) if (p.plate.pressed) { ctx.globalAlpha = 0.35; ctx.fillStyle = world.theme.accent; ctx.fillRect(p.x, p.y - 4, p.w, p.h + 4); }
+  for (const p of pg.plates) { ctx.globalAlpha = 0.9; ctx.strokeStyle = world.theme.pencil; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x + p.w / 2 - 6, p.y - 3); ctx.lineTo(p.x + p.w / 2, p.y - 10); ctx.lineTo(p.x + p.w / 2 + 6, p.y - 3); ctx.stroke(); if (p.plate.pressed) { ctx.globalAlpha = 0.35; ctx.fillStyle = world.theme.accent; ctx.fillRect(p.x, p.y - 4, p.w, p.h + 4); } }
   // pulse on the blocker
   if (pg.pulse) {
     const a = 0.25 + 0.2 * Math.sin(world.time * 6); ctx.globalAlpha = a; ctx.strokeStyle = world.theme.accent; ctx.lineWidth = 6; ctx.setLineDash([12, 8]);
