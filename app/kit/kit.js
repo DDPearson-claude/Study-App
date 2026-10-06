@@ -1657,19 +1657,46 @@
     return 'content is ' + de.scrollWidth + 'px wide in a ' + cw + 'px frame' + (culprits.length ? ': ' + culprits.join(', ') : '');
   }
   // A word in a wrapping text node that is split across two lines (overflow-wrap breaks a word
-  // wider than its box: "Germany" as "German" / "y"). Hyphens and spaces are ordinary breaks, so
-  // "Austria-" / "Hungary" is fine. Changes `range`. -> {word, need} | null
-  var WORD = /[\p{L}\p{N}][\p{L}\p{N}\p{M}'\u2019]*/gu;
+  // wider than its box: "Germany" as "German" / "y"). Hyphens, soft hyphens and spaces are
+  // ordinary breaks, so "Austria-" / "Hungary" is fine. Words come from Intl.Segmenter (else
+  // runs of Latin letters and digits). Scripts that wrap between characters (Chinese, Japanese,
+  // Korean) or by the line breaker's own dictionary (Thai, Lao, Khmer, Myanmar) end a line
+  // anywhere in a "word", so they are never flagged. Changes `range`. -> {word, need} | null
+  var WRAPS_ANYWHERE = /[\p{sc=Han}\p{sc=Hiragana}\p{sc=Katakana}\p{sc=Hangul}\p{sc=Bopomofo}\p{sc=Thai}\p{sc=Lao}\p{sc=Khmer}\p{sc=Myanmar}]/u;
+  var LATIN_WORD = /[\p{sc=Latin}\p{N}][\p{sc=Latin}\p{N}\p{M}'\u2019]*/gu;
+  var segmenter = null;
+  try { segmenter = new Intl.Segmenter(undefined, { granularity: 'word' }); } catch (e) { /* the Latin rule below */ }
+  function wordsOf(text) {
+    var out = [], m;
+    if (segmenter) {
+      Array.from(segmenter.segment(text), function (s) {
+        if (!s.isWordLike || WRAPS_ANYWHERE.test(s.segment)) return;
+        // A soft hyphen is a break too. The range of the part after one also holds the hyphen
+        // drawn at the end of the line before, so that part is measured from its second letter.
+        var at = s.index;
+        s.segment.split('\u00ad').forEach(function (w, k) { out.push({ index: at, word: w, from: k ? 1 : 0 }); at += w.length + 1; });
+      });
+    } else {
+      LATIN_WORD.lastIndex = 0;
+      while ((m = LATIN_WORD.exec(text))) out.push({ index: m.index, word: m[0], from: text.charAt(m.index - 1) === '\u00ad' ? 1 : 0 });
+    }
+    return out;
+  }
   function splitWord(n, range) {
-    var text = n.nodeValue, m;
-    WORD.lastIndex = 0;
-    while ((m = WORD.exec(text))) {
-      if (m[0].length < 2) continue;
-      range.setStart(n, m.index);
-      range.setEnd(n, m.index + m[0].length);
+    var words = wordsOf(n.nodeValue);
+    for (var i = 0; i < words.length; i++) {
+      var w = words[i];
+      if (w.word.length < 2) continue;
+      range.setStart(n, w.index + (w.from || 0));
+      range.setEnd(n, w.index + w.word.length);
       var rs = Array.prototype.filter.call(range.getClientRects(), function (r) { return r.width > 0; });
       if (rs.length > 1 && rs[rs.length - 1].top - rs[0].top > rs[0].height / 2) {
-        return { word: m[0], need: rs.reduce(function (w, r) { return w + r.width; }, 0) };
+        if (w.from) {   // the whole word for its width, less the hyphen on the line before
+          var line1 = rs[0].top - rs[0].height / 2;
+          range.setStart(n, w.index);
+          rs = Array.prototype.filter.call(range.getClientRects(), function (r) { return r.width > 0 && r.top > line1; });
+        }
+        return { word: w.word, need: rs.reduce(function (sum, r) { return sum + r.width; }, 0) };
       }
     }
     return null;
@@ -1697,8 +1724,10 @@
       if (!b.width || !b.height) continue;
       var text = snippet(el.textContent || n.nodeValue), fs = parseFloat(es.fontSize) || 16;
       if (b.left < -1) { seenEl.add(el); out.push({ key: 'left|' + pathOf(el), msg: '"' + text + '" runs off the left edge of the page' }); continue; }
-      // Only a node that wraps onto more than one line can split a word.
-      var split = range.getClientRects().length > 1 && splitWord(n, range);
+      // Only a node that wraps onto more than one line can split a word, and not where the body
+      // asks for breaks inside words on purpose (hyphens: auto, a DNA string with break-all).
+      var anyBreak = (es.hyphens || es.webkitHyphens) === 'auto' || es.wordBreak === 'break-all' || es.overflowWrap === 'anywhere' || es.lineBreak === 'anywhere';
+      var split = !anyBreak && range.getClientRects().length > 1 && splitWord(n, range);
       if (split) {
         var box = el;
         while (box.parentElement && box !== document.body && /^(inline|contents)$/.test(st(box).display)) box = box.parentElement;

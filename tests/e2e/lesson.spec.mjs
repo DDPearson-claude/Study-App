@@ -14,7 +14,8 @@
 // the interactive builds, prefetch of the next idea), an error with Retry, resuming mid-lesson,
 // the no-interactive path (contested, not source-checked), Text size XL on a phone (headings,
 // eyebrow, the interactive's own text size), and every Text size on phones and a laptop (the
-// eyebrow keeps the topic name, Ask Claude's starters, check questions on the heading scale).
+// eyebrow keeps the topic name, Ask Claude's starters, check questions on the heading scale), and
+// Ask Claude's chips with the keyboard up on a phone, under a conversation on a laptop and a phone.
 // Screenshots: tests/out/lesson-*.png.
 //
 // Usage: node tests/e2e/lesson.spec.mjs [scenario-filter]     exits non-zero on any failure
@@ -154,14 +155,23 @@ function eyebrowOf(page) {
   });
 }
 // The Ask Claude sheet: the chips showing in its dock, chips in the conversation, its height,
-// and whether every chip showing is whole inside the sheet (not cut off at its edge).
+// and whether every chip showing is whole inside the sheet (not cut off at its edge); how many
+// rows the chips take, whether their row scrolls sideways and which of its edges fade (more-left,
+// more-right), whether the keyboard-up layout is on (is-cramped), and whether the empty-state
+// heading is whole between the sheet's top and the dock.
 function tutorState(page) {
   return page.evaluate(() => {
     const sh = document.querySelector('.tutor-sheet'), sr = sh.getBoundingClientRect();
+    const row = sh.querySelector('.tutor-chips'), cs = getComputedStyle(row), dock = sh.querySelector('.tutor-dock').getBoundingClientRect();
     const shown = [...sh.querySelectorAll('.tutor-dock .chip')].filter((c) => !c.hidden);
+    const head = sh.querySelector('.tutor-empty-head'), hr = head && head.getBoundingClientRect();
     return { chips: shown.map((c) => c.textContent).join('|'), inLog: sh.querySelectorAll('.tutor-log .chip').length,
       empty: sh.classList.contains('is-empty'), h: Math.round(sr.height), vh: innerHeight,
-      whole: shown.every((c) => { const r = c.getBoundingClientRect(); return r.left >= sr.left - 0.5 && r.right <= sr.right + 0.5; }) };
+      whole: shown.every((c) => { const r = c.getBoundingClientRect(); return r.left >= sr.left - 0.5 && r.right <= sr.right + 0.5; }),
+      rows: new Set(shown.map((c) => Math.round(c.getBoundingClientRect().top))).size,
+      scrolls: row.scrollWidth > row.clientWidth + 1, fade: [...row.classList].filter((c) => /^more-/.test(c)).join(' '),
+      mask: (cs.maskImage || cs.webkitMaskImage || 'none') !== 'none', cramped: sh.classList.contains('is-cramped'),
+      headWhole: !!hr && hr.top >= sr.top - 0.5 && hr.bottom <= dock.top + 0.5 };
   });
 }
 
@@ -545,6 +555,71 @@ async function textSizes() {
   await app.close();
 }
 
+// ---------- scenario: Ask Claude's chips with the keyboard up, on a phone and on a laptop ----------
+// With the keyboard up on a phone (the input focused in a 360 x 400 viewport, at XL), the two
+// starters go back on one sideways row so the welcome above them stays whole; with it down they
+// wrap, both whole. Under a conversation every chip is whole on a laptop at every Text size (they
+// wrap); on a phone the sideways row fades at the edge it runs on past, until scrolled to its end.
+async function tutorChips() {
+  current = 'tutor chips';
+  console.log('\n' + current);
+  const app = await open({ width: 360, height: 707, size: 'xl', hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM }, reduced: true });
+  const { page } = app;
+  const view = async (w, h, size) => {
+    await page.setViewportSize({ width: w, height: h });
+    if (size) await page.evaluate((sz) => { document.documentElement.dataset.size = sz; }, size);
+    await page.waitForTimeout(350);
+    return tutorState(page);
+  };
+  try {
+    await page.locator('.lsn-ask').waitFor({ timeout: 15000 });
+    await page.locator('.lsn-ask').click();
+    await page.locator('.tutor-sheet').waitFor();
+    let t = await view(360, 707);
+    ok(t.empty && !t.cramped && t.rows === 2 && t.whole && t.headWhole, `360x707 XL, keyboard down: both starters whole on two rows, the welcome above them (${JSON.stringify(t)})`);
+    await page.locator('.tutor-input').focus();
+    t = await view(360, 707);
+    ok(!t.cramped && t.rows === 2 && t.whole, `360x707 XL, input focused with room to spare: the starters stay wrapped and whole (${JSON.stringify(t)})`);
+    t = await view(360, 400);   // the keyboard comes up
+    ok(t.cramped && t.rows === 1 && t.headWhole && t.scrolls && t.fade === 'more-right' && t.mask,
+      `360x400 XL, keyboard up: the starters go on one sideways row that fades at its edge, and the welcome heading stays whole (${JSON.stringify(t)})`);
+    await shot(app, 'tutor-360x400-xl-keyboard');
+    await page.locator('.tutor-input').blur();   // and goes down
+    t = await view(360, 707);
+    ok(!t.cramped && t.rows === 2 && t.whole && !t.fade && !t.mask, `360x707 XL, keyboard down again: both starters whole on two rows, no fade (${JSON.stringify(t)})`);
+
+    await page.locator('.tutor-input').fill('Why the square root?');
+    await page.locator('.tutor-input').press('Enter');
+    await page.waitForFunction(() => /swing takes about/.test(document.querySelector('.tutor-log').textContent));
+    await page.waitForTimeout(300);
+    for (const [w, h] of [[1366, 768], [960, 768]]) {
+      for (const size of ['m', 'l', 'xl']) {
+        t = await view(w, h, size);
+        ok(!t.empty && t.chips.split('|').length === 3 && t.whole && !t.scrolls && !t.fade, `${w}x${h} ${size}: under a conversation all three chips are whole in the dialog (${JSON.stringify(t)})`);
+        if (size === 'xl') await shot(app, `tutor-${w}-xl-chips`);
+      }
+    }
+    for (const [w, h] of [[360, 707], [390, 844]]) {
+      for (const size of ['m', 'xl']) {
+        t = await view(w, h, size);
+        ok(t.rows === 1 && t.scrolls && t.fade === 'more-right' && t.mask, `${w}x${h} ${size}: the chips run on one sideways row that fades at the edge they run past (${JSON.stringify(t)})`);
+      }
+    }
+    await shot(app, 'tutor-390-xl-chips');
+    await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+    await page.waitForTimeout(200);
+    t = await tutorState(page);
+    ok(t.fade === 'more-left' && t.mask, `scrolled to its end, the row fades only at the left edge (${JSON.stringify(t)})`);
+    await page.evaluate(() => { document.documentElement.dataset.size = 'm'; });
+    await noOverflow(app);
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'tutor-chips-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 // ---------- scenario: resume mid-lesson ----------
 async function resume(width, dark) {
   const tag = `${width}-${dark ? 'dark' : 'light'}`;
@@ -837,6 +912,7 @@ const scenarios = [
   ['retry', retry],
   ['xl-390', xl],
   ['text-sizes', textSizes],
+  ['tutor-chips', tutorChips],
   ['resume-360-light', () => resume(360, false)],
   ['resume-1280-dark', () => resume(1280, true)],
   ['plain-360-dark', () => plain(360, true)],

@@ -308,10 +308,20 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tutor-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
 .tutor-chips::-webkit-scrollbar { display: none; }
 .tutor-chips .chip { flex: none; min-height: 44px; }
-/* Before the first question only the two starters show, and they wrap so both are whole; the
-   one-line sideways row is for the three chips under a conversation. */
-.tutor-sheet.is-empty .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
-.tutor-sheet.is-empty .tutor-chips .chip { flex: 0 1 auto; }
+/* A sideways row that runs on past the sheet's edge fades out at that edge (more-left and
+   more-right, set by 51-tutor.js), so a chip cut in half reads as "scroll for more". */
+.tutor-chips.more-left, .tutor-chips.more-right {
+  -webkit-mask-image: linear-gradient(to right, var(--fade-l, #000), #000 56px, #000 calc(100% - 56px), var(--fade-r, #000));
+  mask-image: linear-gradient(to right, var(--fade-l, #000), #000 56px, #000 calc(100% - 56px), var(--fade-r, #000));
+}
+.tutor-chips.more-left { --fade-l: transparent; }
+.tutor-chips.more-right { --fade-r: transparent; }
+/* The chips wrap, so every one is whole, before the first question (only the two starters show)
+   and on a laptop, where the dialog has room for a second row. The one-line sideways row is for
+   the three chips under a conversation on a phone, and for the starters while the keyboard is up
+   on a short phone screen (is-cramped, 51-tutor.js), so the welcome above them stays readable. */
+.tutor-sheet.is-empty:not(.is-cramped) .tutor-chips, :root[data-layout="laptop"] .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
+.tutor-sheet.is-empty:not(.is-cramped) .tutor-chips .chip, :root[data-layout="laptop"] .tutor-chips .chip { flex: 0 1 auto; }
 .tutor-chips .chip[disabled] { opacity: .5; cursor: default; }
 .tutor-compose { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 8px; align-items: end; }
 .tutor-input.textarea { min-height: 52px; max-height: 160px; resize: none; padding-block: 13px; overflow-y: auto; }

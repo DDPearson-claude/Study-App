@@ -235,6 +235,27 @@ section('self-test catches broken bodies');
   r = await test(body("K.model((p) => ({ y: p.a * 2, z: 1, w: 2, v: 3, u: 4 }));\n" +
     ['z:Electronegativity', 'w:Mass', 'v:Charge', 'u:Radius'].map((t) => "K.readout({ id: '" + t.split(':')[0] + "', label: '" + t.split(':')[1] + "', into: '#o' });").join(' ')), { widths: [720] });
   expect('a readout tile is never narrower than the longest word of its label', r.ok && !r.clipped.length, r.clipped);
+  // Ordinary line breaks inside a "word" are not splits: Chinese and Japanese wrap between any two
+  // characters, the browser hyphenates where the body asks it to (hyphens: auto), a soft hyphen is
+  // a break, and break-all / overflow-wrap: anywhere break long codes on purpose. A Latin word
+  // split by overflow-wrap is still caught, inside a Japanese sentence too.
+  const wrapping = {
+    'a Japanese sentence wider than its box': '<p lang="ja" style="font-size:1.25rem;line-height:1.6">ひらがなとカタカナと漢字を組み合わせて日本語の文章を書きます。</p>',
+    'a Chinese sentence wider than its box': '<p lang="zh" style="font-size:1.25rem">汉字是中文的书写系统，每个字都代表一个音节和一个意思，句子之间没有空格。</p>',
+    'hyphens: auto with a lang': '<p lang="en" style="hyphens:auto;width:90px">Electronegativity and photosynthesis</p>',
+    'a soft hyphen': '<p style="width:6rem">Electro­negativity</p>',
+    'a DNA string with word-break: break-all': '<p style="word-break:break-all;font-family:monospace">ATGCGTACGTTAGCATGCGTACGTTAGCATGCGTACGTTAGCATGCGTACGTTAGCATGCGTACGTTAGC</p>',
+    'a hex string with overflow-wrap: anywhere': '<p style="overflow-wrap:anywhere;font-family:monospace">0x3fa94c2b7e1d0f5a8c6b3e2d1f0a9b8c7d6e5f4a3b2c1d0e</p>',
+  };
+  for (const [what, html] of Object.entries(wrapping)) {
+    r = await test(body(plain, { html }), { widths: [340] });
+    expect(what + ' wraps without failing the self-test (at M and XL)', r.ok && !r.clipped.length, r.clipped.concat(r.errors));
+  }
+  r = await test(body(plain, { html: '<b id="w" style="display:block;width:50px;font-size:1rem">Germany</b>' }), { widths: [340] });
+  expect('"Germany" split across two lines still fails', !r.ok && has(r.clipped, /the word "Germany" is split across two lines in <b#w>/), r.clipped);
+  r = await test(body(plain, { html: '<p lang="ja" style="width:120px">これは <b>Electronegativity</b> の説明です。</p>' }), { widths: [340] });
+  expect('a Latin word split inside a Japanese sentence still fails (and only that word)',
+    !r.ok && has(r.clipped, /the word "Electronegativity" is split/) && r.clipped.length === 1, r.clipped);
   // Common patterns that are not clipping.
   const fine = body(plain + "\nconst rr = K.readout({ id: 'words', label: 'Pattern', into: '#o' }); K.update(() => rr.set('181 for every 120'));",
     { html: '<div class="panel" style="overflow:hidden;border-radius:12px"><p>Rounded panel with ordinary wrapping text that is long enough to wrap onto several lines.</p></div>' +
@@ -524,6 +545,36 @@ section('the kit in a live frame');
   const wf = wide.page.frames().find((f) => f !== wide.page.mainFrame());
   const desk = await wf.evaluate(() => { const r = K.$('#fig').getBoundingClientRect(); return { w: r.width, left: r.left, right: document.documentElement.clientWidth - r.right, page: document.documentElement.clientWidth }; });
   expect('on desktop a 340-wide figure is capped near 1.45x (493 px) and centred', Math.abs(desk.w - 493) <= 2 && Math.abs(desk.left - desk.right) <= 2, desk);
+
+  // K.stage on a laptop: a visual centred with a max-width and auto margins fills the stage's
+  // left column (up to that max-width), so a grid of tiles in it is not squeezed to one column.
+  // The july-1914 exemplar shows its seven tiles four to a row in the lesson's laptop frames.
+  const tileBody = body(plain + "\nK.stage('#scene', '#c');", { html: '<div id="scene" style="max-width:560px;margin-left:auto;margin-right:auto">' +
+    '<div id="tiles" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(6rem,1fr));gap:8px">' +
+    ['Serbia', 'Germany', 'Russia', 'France', 'Belgium', 'Britain'].map((t) => '<b class="panel">' + t + '</b>').join('') + '</div></div>' });
+  const july = examples.find((e) => e.name === 'july-1914').body;
+  for (const [name, html, tiles] of [['a centred tile grid', tileBody, '#tiles > *'], ['july-1914', july, '.nation']]) {
+    for (const w of [926, 1086]) {
+      await wide.page.evaluate(async ([h, width]) => {
+        if (window.st) window.st.destroy();
+        const box = document.getElementById('stagebox') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'stagebox' }));
+        box.style.cssText = 'width:' + width + 'px';
+        window.st = U.sandbox.mount(box, { html: h });
+        await window.st.ready;
+        await new Promise((r) => setTimeout(r, 300));
+      }, [html, w]);
+      const sf = wide.page.frames().filter((f) => f !== wide.page.mainFrame() && !f.isDetached()).pop();
+      const s = await sf.evaluate((sel) => {
+        const st = document.querySelector('.k-stage'), v = st.firstElementChild, c = st.lastElementChild;
+        const col = parseFloat(getComputedStyle(st).gridTemplateColumns), max = parseFloat(getComputedStyle(v).maxWidth) || Infinity;
+        const lefts = [...document.querySelectorAll(sel)].map((t) => Math.round(t.getBoundingClientRect().left));
+        return { col: Math.round(col), visual: Math.round(v.getBoundingClientRect().width), max, beside: c.getBoundingClientRect().left > v.getBoundingClientRect().right, cols: new Set(lefts).size, tiles: lefts.length };
+      }, tiles);
+      expect(`${name} in a ${w} px K.stage: the visual fills its column (up to its max-width) beside the controls, tiles ${name === 'july-1914' ? 'four' : 'several'} to a row`,
+        s.beside && Math.abs(s.visual - Math.min(s.col, s.max)) <= 2 && (name === 'july-1914' ? s.cols === 4 : s.cols >= 4), s);
+    }
+  }
+  await wide.page.evaluate(() => { window.st.destroy(); document.getElementById('stagebox').remove(); });
 
   // reach(): can the lesson's target be met by moving its control?
   const brayton = examples.find((e) => e.kind === 'quantity').body;

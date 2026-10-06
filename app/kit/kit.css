@@ -79,6 +79,10 @@ svg.k-fig:not([preserveAspectRatio="none"]) { height: auto; }
   /* A plot on its own is capped, so a wide frame never shows a vast, empty grid. */
   body > .k-plot, .k-stack > .k-plot { max-width: 760px; margin-left: auto; margin-right: auto; }
   .k-stage:not(.k-stacked) > * + * { margin-top: 0; }
+  /* Each side fills its column, as it would on a phone: a visual centred with a max-width and
+     auto margins would otherwise shrink to its narrowest content (a grid of tiles to one column).
+     A width the body sets itself wins. */
+  :where(.k-stage:not(.k-stacked)) > :not(svg, canvas, img, video) { width: 100%; width: -moz-available; width: -webkit-fill-available; width: stretch; }
   /* Controls under a figure share rows in a wide frame; beside a figure they stay one column. */
   .k-controls { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); column-gap: 28px; }
   .k-stage:not(.k-stacked) .k-controls { grid-template-columns: minmax(0, 1fr); }

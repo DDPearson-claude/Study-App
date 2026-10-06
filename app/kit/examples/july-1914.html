@@ -7,8 +7,9 @@
   .line .event { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
   .line .now-line { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 3 3; }
   .line .now { font-size: 12.5px; font-weight: 700; fill: var(--k-ink); }
-  /* Columns in rem, so at a large text size the tiles reflow to fewer, wider columns and no name splits. */
-  .nations { display: grid; grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr)); gap: 8px; margin-top: 10px; }
+  /* Columns in rem, so at a large text size the tiles reflow to fewer, wider columns and no name
+     splits; and at least 22% wide, so a wide frame (a laptop) shows four to a row, not five and two. */
+  .nations { display: grid; grid-template-columns: repeat(auto-fill, minmax(max(6rem, 22%), 1fr)); gap: 8px; margin-top: 10px; }
   .nation { padding: 8px 10px; border-radius: 12px; background: var(--k-panel); border: 1.5px solid transparent; }
   .nation b { display: block; font-size: .9rem; line-height: 1.25; }
   .nation span { display: block; font-size: .8rem; color: var(--k-muted); }

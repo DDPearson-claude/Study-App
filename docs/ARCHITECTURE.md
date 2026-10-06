@@ -283,7 +283,8 @@ outputs    K.readout({id, …, decimals?, afterMove?})  K.plot(target, opts)  K.
 sound      K.sound.tone / chord / stop / mute                     plays only after a press
 until moved  class k-after-move, K.moved, K.afterMove(fn), K.reveal()
 layout     K.stage(visual, controls, {max = 600, beside}): controls under the visual, fitted to max px
-           tall in a frame under 560 px; beside the visual in a frame >= 860 px wide (unless beside:false)
+           tall in a frame under 560 px; beside the visual in a frame >= 860 px wide (unless beside:false),
+           the visual filling its column up to its own max-width
 helpers    K.el K.svg K.labels K.fmt K.near K.clamp K.lerp K.linspace K.round K.color(role, alpha?)  K.theme {dark, size, c}
 ```
 Messages (`postMessage`, each with `src:'kit'`; a reply carries its request's `rid`):
@@ -301,10 +302,13 @@ Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label,
            sweep:{ ok, problems:[] }, controls:[ids], readouts:[ids], outputs:[model keys],
            inputs:[…], actions:[labels], ready, warnings:[], width, height, ms }
 ```
-`ok` = no errors, no overflow, nothing clipped (a word split across two lines counts as clipped),
-at least one check and all pass, sweep ok, `K.ready()` called. The self-test (KIT.md, "The
-self-test") also sweeps every control, reveals the after-move parts, steps every `K.anim` and, in
-a throwaway frame, presses every `K.button` and sweeps the controls again at Text size XL (20 px).
+`ok` = no errors, no overflow, nothing clipped, at least one check and all pass, sweep ok,
+`K.ready()` called. A word split across two lines counts as clipped; words come from
+`Intl.Segmenter`, and scripts that wrap between characters (Chinese, Japanese), a soft hyphen,
+and text the body lets break anywhere (`hyphens: auto`, `word-break: break-all`,
+`overflow-wrap: anywhere`) are ordinary breaks. The self-test (KIT.md, "The self-test") also
+sweeps every control, reveals the after-move parts, steps every `K.anim` and, in a throwaway
+frame, presses every `K.button` and sweeps the controls again at Text size XL (20 px).
 
 Height: the kit posts the body's height, including content that spills out of a fixed-height
 box (`body.scrollHeight`), capped at 6000 px; the host sizes the frame to it (hidden test
