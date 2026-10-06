@@ -108,7 +108,7 @@
   // Interval hints for the four grades ("back in 4 days"), when the card has a schedule.
   function nextDays(c) {
     if (c.mode !== 'review' || !U.fsrs) return null;
-    var day = U.today(), p = U.fsrs.preview(c.card.s || U.fsrs.init(day), day, c.card.id), out = {};
+    var day = U.studyDay(), p = U.fsrs.preview(c.card.s || U.fsrs.init(day), day, c.card.id), out = {};   // the day save() uses
     [1, 2, 3, 4].forEach(function (g) { out[g] = U.daysBetween(day, p[g].due); });
     return out;
   }

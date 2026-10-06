@@ -22,16 +22,22 @@ export function taskOf(input) {
   return m ? m[1] : 'unknown';
 }
 
+// Starting the browser, loading the page and waiting for U.boot.ready get a generous limit: with
+// several browser tests running on the machine at once, boot alone has taken over Playwright's
+// default 30 s. Only these waits are longer; what each test checks is unchanged.
+export const BOOT_MS = 90000;
+
 export async function openApp(opts = {}) {
   const {
     width = 360, height = 760, dark = false, config = {}, sample = null, tools = {},
     file = join(root, 'dist', 'my-university.html'), deny = [], headless = true,
   } = opts;
-  const browser = await chromium.launch({ headless });
+  const browser = await chromium.launch({ headless });   // Playwright's own launch limit (180 s) stands
   const context = await browser.newContext({ viewport: { width, height }, colorScheme: dark ? 'dark' : 'light', deviceScaleFactor: 2, hasTouch: width < 700 });
   // Web fonts can't load through this sandbox's proxy; fallbacks are fine for tests.
   await context.route(/fonts\.(googleapis|gstatic)\.com/, (r) => r.abort());
   const page = await context.newPage();
+  page.setDefaultNavigationTimeout(BOOT_MS);
   const errors = [];
   page.on('pageerror', (e) => errors.push('pageerror: ' + (e.stack || e.message || e)));
   page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push('console: ' + m.text()); });
@@ -74,6 +80,8 @@ export async function openApp(opts = {}) {
   return {
     browser, context, page, errors,
     url: (hash = '#/') => base + hash,
+    // Boot has finished (U.boot.ready, in builds that include 99-boot.js): routed, badge started.
+    booted: () => page.waitForFunction(() => window.U && U.boot && U.boot.ready === true, null, { timeout: BOOT_MS }),
     stub: () => page.evaluate(() => window.__CLAUDE_STUB__.dump()),
     calls: () => page.evaluate(() => window.__CLAUDE_STUB__.calls),
     seed: (path, data) => page.evaluate(([p, d]) => window.__CLAUDE_STUB__.seed(p, d), [path, data]),

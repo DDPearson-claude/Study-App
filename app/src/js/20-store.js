@@ -757,7 +757,7 @@ U.logStudy = (function () {
     try { localStorage.setItem(KEY, JSON.stringify({ uid: who(), day: day, n: n })); } catch (e) { /* this page's count only */ }
   }
   return function (minutes) {
-    var day = U.today(), dev = U.device();
+    var day = U.studyDay(), dev = U.device();   // the review's day: minutes after midnight count for the evening
     var job = chain.then(function () {
       return (load(day) == null ? U.store.profile.get() : Promise.resolve(null)).then(function (p) {
         var rec = {}, base = load(day);   // another tab may have started the day meanwhile

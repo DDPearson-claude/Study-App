@@ -67,6 +67,7 @@ U.append / U.clear / U.svg (static app markup only) / U.icon(name, cls?)   U.id(
 U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
     keyed lists: maps keyed by U.key() (time first), or old arrays read as L000, L001…; oldest first
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
+U.studyDay(d? Date|ISO) 'YYYY-MM-DD'   like U.today, but the day turns over at 4 am: every day in review (section 8)
 U.today(d?) 'YYYY-MM-DD' local   U.addDays   U.daysBetween   U.now() ISO   U.when(iso)   U.clone   U.sleep   U.shuffle
 U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, ask-soft, interactive-test, layout, prefs, booted, rt-late
 U.toast(text, {kind:'info'|'good'|'bad', ms})   the same text again extends the one shown. While a phone's
@@ -252,12 +253,12 @@ Private, under `data/users/{uid}/`:
 ```
 profile   { prefs:{ theme:'light'|'dark'|'system', size:'s'|'m'|'l'|'xl', easy, cap:10|15|20|30, light, lightDay? },
             prefsAt:{ [key]: iso },                                // when each setting was last written
-            days:{ 'YYYY-MM-DD': { [deviceId]: minutes, legacy?: minutes } },   // older days: a number
+            days:{ 'YYYY-MM-DD': { [deviceId]: minutes, legacy?: minutes } },   // study days; older days: a number
             createdAt }
 ```
 Defaults: light theme, size m, easy false, cap 15, light false. `light` is the lasting "Light
-days" setting; `lightDay` (a day, or '') is Today's switch for that day. Each device writes only
-its own minutes. Layout is not a pref (section 11).
+days" setting; `lightDay` (a study day, or '') is Today's switch for that day. Each device writes
+only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (section 11).
 
 `profile/progress/{tid}`
 ```
@@ -501,21 +502,49 @@ Bands: new (never reviewed); fragile (recall chance < 0.7 or stability < 2 days)
 (stability >= 21 days and chance >= 0.85); growing otherwise. The Map shows the middle reviewed
 card's band per idea, never a percentage.
 
+Days are study days (`U.studyDay`): local days that turn over at 4 am, not midnight, so a card
+learned or answered Again at 23:55 is due from 4 am the day after, not five minutes later (Anki
+uses the same hour). Everything in review uses them: `s.due`/`s.last`, the "back in N days"
+hints, the daily cap and the week strip (a `hist` entry's day), light days (`lightDay`),
+slipping's 30 days, Today's date line and the study minutes in `profile.days`. `U.fsrs` defaults
+`day` to today's study day.
+
 A session holds cards due today or overdue (not retired): most overdue first, then most faded,
 interleaved so one idea never comes twice in a row and topics alternate. The daily cap
 (`prefs.cap`, default 15) counts cards already reviewed today; a light day (`prefs.light`, or
-`prefs.lightDay` is today) caps it at 5. `#/review/more` is one extra batch of up to 5.
+`prefs.lightDay` is today) caps it at 5. `#/review/more` is one extra batch of up to 5. When the
+cap leaves nothing for today but cards are due (Light day turned on after some reviews), Today
+says "Done for today" with "Review 5 more" (and keeps the Light day switch while it is what holds
+them back), and `#/review` says the limit is reached instead of "holding up".
+
+An answer still on its way to the db (a recall card waits up to 30 s for Claude's grade before it
+is saved) is left out of every plan and counted as reviewed today until it lands, so Today, the
+badge and a new session never offer it again; closing a session recounts the badge once its saves
+have landed or failed. A plan whose read of the cards began before such an answer landed treats it
+the same way (that read may not show it yet), including a plan made again from the same read (the
+Light day switch); a save that failed wrote nothing, so the card is simply due.
+
+A target card plays on its idea's interactive. When the lesson doc is not 'ready' the session
+drops the card and saves why, so Today and the badge stop counting it: a lesson being written
+right now (status 'writing', `updatedAt` within 4 minutes; a write that fails for a passing reason
+restores the old lesson) puts the card off to the next day without a grade; anything else
+('building' a new interactive, 'failed', or a rebuild left part-way) retires it, as when its
+control has gone. Finishing the new lesson makes the idea's cards afresh (`addFromLesson`).
 
 Grades: in review, objective cards grade themselves (wrong = Again, right = Good, right within
 reading time plus a beat = Easy; a target hit on a second try = Hard, never Easy) and Dan can
-change the grade. Recall cards are graded by Claude while Dan moves on: got-it = Easy (Good
-without `nailed`), partly = Hard, not-yet = Again; no grade (failure, or 30 s) = Hard. Saving
-re-reads the card inside the write and merges `hist`, so reviews on two devices both count.
+change the grade. Recall cards are graded by Claude while Dan moves on: got-it = Good (Claude
+never awards Easy, whatever `nailed` says; Dan can choose it with Change), partly = Hard, not-yet =
+Again; no grade (failure, or 30 s) = Hard. Saving re-reads the card inside the write and merges
+`hist`, so reviews on two devices both count.
 
-Learn it again: an idea with two or more Again grades in 30 days (since it was last learned) is
-slipping. Today lists it (link `#/t/:tid/:iid/again`) and sets `relearn: true` on its progress,
-unless a new round began after those lapses. The lesson then calls `U.gen.relearn` and starts a
-new round. "This looks wrong" offers the same rebuild, with Dan's note as feedback.
+Learn it again: an idea with two or more Again grades in 30 days is slipping, counting only Agains
+since it was last learned and since its latest round began (`againAt`). Until Dan finishes a new
+round, the old round's cards stay in review with their old `learnedAt`; the lapses that started
+the round never count again, so one more Again does not flag a half-done round. Today lists a
+slipping idea (link `#/t/:tid/:iid/again`) and sets `relearn: true` on its progress. The lesson
+then calls `U.gen.relearn` and starts a new round. "This looks wrong" offers the same rebuild,
+with Dan's note as feedback.
 
 ## 9. Module APIs (cross-file contract)
 

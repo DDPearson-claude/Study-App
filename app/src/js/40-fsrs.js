@@ -2,7 +2,9 @@
 //
 // A card's memory state is s = { due, stability, difficulty, reps, lapses, last }, where
 // stability is the number of days until recall probability falls to 90%, difficulty runs 1..10,
-// and due/last are local 'YYYY-MM-DD' days. Grades: 1 Again, 2 Hard, 3 Good, 4 Easy.
+// and due/last are study days, 'YYYY-MM-DD' (U.studyDay: local days that turn over at 4 am, so a
+// card answered late at night is not due again just after midnight). `day` defaults to today's.
+// Grades: 1 Again, 2 Hard, 3 Good, 4 Easy.
 //
 //   U.fsrs.init(day)                       new card, first due the day after `day`
 //   U.fsrs.review(s, grade, day, cardId?)  state after a review on `day`
@@ -59,13 +61,13 @@
   function reviewed(s) { return !!(s && s.reps > 0 && s.stability > 0 && s.last); }
 
   function init(day) {
-    day = day || U.today();
+    day = day || U.studyDay();
     return { due: U.addDays(day, 1), stability: 0, difficulty: 0, reps: 0, lapses: 0, last: null };
   }
 
   // Next state for every grade at once, so intervals can be kept in order (Hard <= Good < Easy).
   function preview(s, day, cardId) {
-    day = day || U.today();
+    day = day || U.studyDay();
     s = s || init(day);
     var first = !reviewed(s);
     var r = first ? 1 : forgetting(Math.max(0, U.daysBetween(s.last, day)), s.stability);
@@ -100,7 +102,7 @@
 
   function retrievability(s, day) {
     if (!reviewed(s)) return 0;
-    return forgetting(Math.max(0, U.daysBetween(s.last, day || U.today())), s.stability);
+    return forgetting(Math.max(0, U.daysBetween(s.last, day || U.studyDay())), s.stability);
   }
 
   // Coarse strength for the Map: fragile = just forgotten or fading, strong = holds for weeks.

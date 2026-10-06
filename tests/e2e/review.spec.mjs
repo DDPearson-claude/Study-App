@@ -20,10 +20,11 @@ function check(cond, msg) {
   else { failures.push(msg); console.log('  FAIL ' + msg); }
 }
 
-// Local calendar days, the same way the app computes them.
+// Study days, the same way the app computes them (U.studyDay: the local day, turning over at 4 am).
 const pad = (n) => (n < 10 ? '0' : '') + n;
 const dayStr = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-const TODAY = dayStr(new Date());
+const studyDay = (d) => { const x = new Date(d); if (x.getHours() < 4) x.setDate(x.getDate() - 1); return dayStr(x); };
+const TODAY = studyDay(new Date());
 const addDays = (day, n) => { const [y, m, d] = day.split('-').map(Number); return dayStr(new Date(y, m - 1, d + n)); };
 const isoDaysAgo = (n) => new Date(Date.now() - n * 864e5).toISOString();
 
@@ -152,7 +153,7 @@ async function runSession({ width, theme, full }) {
     await shot('01-today-lightday');
     await page.waitForTimeout(300);
     const prefs = (await app.stub())[P('profile')].prefs;
-    const today = await page.evaluate(() => U.today());
+    const today = await page.evaluate(() => U.studyDay());
     check(prefs.lightDay === today && !prefs.light, `${tag}: light day saved for today only (lightDay ${prefs.lightDay})`);
     await page.locator('.td-light').click();
     await page.waitForTimeout(400);
@@ -525,12 +526,224 @@ async function regressions() {
   await app.close();
 }
 
+// ---------- audit round 3 (docs/review/audit-round3.md) ----------
+const TOMORROW = addDays(TODAY, 1);
+function auditDb(cards, prefs = {}) {
+  const db = {}, now = new Date().toISOString();
+  db['topics/tA'] = { id: 'tA', title: 'How sound travels', status: 'ready', createdAt: now, updatedAt: now, hue: 200,
+    ideas: Array.from({ length: 8 }, (_, i) => ({ id: 'i' + (i + 1), title: 'Idea ' + (i + 1) })) };
+  db[P('profile/cards/tA')] = { cards };
+  db[P('profile')] = { prefs: { size: 'm', easy: false, theme: 'light', cap: 15, light: false, ...prefs }, days: {}, createdAt: isoDaysAgo(30) };
+  return db;
+}
+const choiceCard = (id, iid, due, extra = {}) => ({ id, tid: 'tA', iid, type: 'choice', createdAt: isoDaysAgo(20), learnedAt: isoDaysAgo(20),
+  spec: { id: id.split('_')[1], type: 'choice', q: 'Question ' + id + '?', options: ['Right', 'Wrong'], answer: 0, why: 'Because.' },
+  s: { due, stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: addDays(TODAY, -7) }, hist: [{ at: isoDaysAgo(7), grade: 3, ok: true }], ...extra });
+const badgeOf = (page) => page.evaluate(() => { const b = document.getElementById('today-badge'); return b.hidden ? 0 : Number(b.textContent); });
+
+// #11 A target card whose lesson is not ready (a Learn it again or rebuild that failed, is under
+// way, or was left part-way) is neither shown nor left due for ever: the session retires it, or
+// (while the lesson is being written right now) puts it off a day, so Today and the badge agree.
+async function targetNotReady() {
+  const tag = 'audit #11';
+  console.log(`\n== ${tag}: target cards whose lesson is not ready`);
+  const now = new Date().toISOString(), tenMinAgo = new Date(Date.now() - 10 * 60e3).toISOString();
+  const target = (iid, due) => ({ id: iid + '_c3', tid: 'tA', iid, type: 'target', createdAt: isoDaysAgo(20), learnedAt: isoDaysAgo(20),
+    spec: { id: 'c3', type: 'target', q: 'Set the air temperature so sound travels at 350 m/s.', control: 'temp', output: 'speed', target: 350, tolerance: 2, why: 'w' },
+    s: { due, stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: addDays(TODAY, -7) }, hist: [{ at: isoDaysAgo(7), grade: 3, ok: true }] });
+  const db = auditDb({
+    i1_c1: choiceCard('i1_c1', 'i1', TODAY),
+    i2_c3: target('i2', addDays(TODAY, -4)), i3_c3: target('i3', addDays(TODAY, -3)), i4_c3: target('i4', addDays(TODAY, -2)), i5_c3: target('i5', addDays(TODAY, -1)),
+  });
+  const newLesson = { iid: 'iX', title: 'Rewritten', interactive: { controls: [{ id: 'temp', label: 'Air temperature' }] }, checks: [] };
+  db['topics/tA/lessons/i2'] = { status: 'failed', updatedAt: now, lesson: null, interactive: null, error: 'The lesson could not be written.' };
+  db['topics/tA/lessons/i3'] = { status: 'building', updatedAt: now, lesson: { ...newLesson, iid: 'i3' }, interactive: null };
+  db['topics/tA/lessons/i4'] = { status: 'writing', updatedAt: now, lesson: null, interactive: null };          // being written right now
+  db['topics/tA/lessons/i5'] = { status: 'writing', updatedAt: tenMinAgo, lesson: null, interactive: null };    // left part-way
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.waitForSelector('.td-plan');
+  check(/5\s+cards to revisit/.test(await page.locator('.td-plan').innerText()), `${tag}: Today first counts all 5 due cards`);
+  await page.locator('.td-start').click();
+  await page.waitForSelector('.rv-stage > .qc');
+  check(await page.locator('.rv-stage > .qc-type-choice').count() === 1, `${tag}: the session shows the choice card`);
+  await page.locator('.qc-opt', { hasText: 'Right' }).click();
+  await page.locator('.qc-primary').click();
+  await page.locator('.qc-continue').click();
+  await page.waitForSelector('.rv-done', { timeout: 15000 });
+  check(/1 card/.test(await page.locator('.rv-done .td-lead').innerText()), `${tag}: only the choice card was reviewed`);
+  await page.waitForTimeout(300);
+  const cards = (await app.stub())[P('profile/cards/tA')].cards;
+  for (const id of ['i2_c3', 'i3_c3', 'i5_c3']) {
+    check(cards[id].retired === true && cards[id].hist.length === 1 && cards[id].s.reps === 1, `${tag}: ${id} (${db['topics/tA/lessons/' + id.split('_')[0]].status}) is retired, not graded`);
+  }
+  const w = cards.i4_c3;
+  check(!w.retired && w.s.due === TOMORROW && w.hist.length === 1 && w.s.reps === 1 && w.s.stability === 3.2,
+    `${tag}: a card whose lesson is being written right now waits until tomorrow, ungraded (due ${w.s.due}, retired ${w.retired})`);
+  check(await badgeOf(page) === 0, `${tag}: the badge clears after the session (${await badgeOf(page)})`);
+  await page.locator('.rv-done a[href="#/today"]').click();
+  await page.waitForSelector('.td-clear, .td-plan');
+  const after = await page.locator('.td').innerText();
+  check(/Done for today/.test(after) && !/to revisit/.test(after), `${tag}: Today no longer counts the cards no session can show (${after.split('\n').slice(0, 3).join(' | ')})`);
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
+// #30 Closing the review while a recall answer still waits for Claude's grade: Today, the badge and
+// a new session leave that card out (it counts as reviewed), and stay right once it is saved.
+async function pendingRecall() {
+  const tag = 'audit #30';
+  console.log(`\n== ${tag}: closing review while a recall grade is pending`);
+  const recall = { id: 'i1_say', tid: 'tA', iid: 'i1', type: 'recall', createdAt: isoDaysAgo(20), learnedAt: isoDaysAgo(20),
+    spec: SPECS['tB/i1_say'], s: { due: TODAY, stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: addDays(TODAY, -7) }, hist: [{ at: isoDaysAgo(7), grade: 3, ok: true }] };
+  const db = auditDb({ i1_say: recall, i2_c1: choiceCard('i2_c1', 'i2', addDays(TODAY, 3)) });
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  // Claude takes 3 s to grade.
+  await page.evaluate(() => {
+    U.gen.grade = () => new Promise((r) => setTimeout(() => r({ met: [true, true, true], verdict: 'got-it', nailed: false, followUp: '' }), 3000));
+  });
+  await page.waitForSelector('.td-plan');
+  await page.locator('.td-start').click();
+  await page.waitForSelector('.qc-recall-input');
+  await page.locator('.qc-recall-input').fill('Yeast eat the sugar in flour and give off gas, and gluten traps it.');
+  await page.locator('.qc-primary').click();
+  await page.waitForSelector('.qc-fb-recall');
+  check(/Continue, Claude will grade it/.test(await page.locator('.qc-continue').innerText()), `${tag}: Dan moves on before the grade`);
+  await page.locator('.qc-continue').click();
+  await page.waitForSelector('.rv-wait');
+  await page.locator('.rv-close').click();                       // closes while "Saving your answers…"
+  await page.waitForSelector('.td-clear, .td-plan');
+  await page.waitForTimeout(300);
+  const today = await page.locator('.td').innerText();
+  check(/Done for today/.test(today) && /reviewed 1 card today/.test(today) && !/to revisit/.test(today),
+    `${tag}: Today does not offer the card being saved (${today.split('\n').slice(0, 3).join(' | ')})`);
+  check(await badgeOf(page) === 0, `${tag}: the badge does not count it (${await badgeOf(page)})`);
+  check((await page.evaluate(() => U.review.queue())).length === 0, `${tag}: a new session would not show it again`);
+  await page.waitForTimeout(3500);
+  const saved = (await app.stub())[P('profile/cards/tA')].cards.i1_say;
+  check(saved.hist.length === 2 && saved.hist[1].grade === 3 && saved.s.due > TODAY, `${tag}: the answer is saved once graded (due ${saved.s.due})`);
+  check(await badgeOf(page) === 0 && await page.evaluate(() => U.review.dueCount()) === 0, `${tag}: the badge stays right after it lands`);
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
+// #30, the race: on a slow connection Today's read of the cards begins as Dan closes the review,
+// the grade lands while that read is on its way, and the read answers with the card still due.
+// Today must not offer it again. The reads are held until the answer is in the db, so the race
+// happens every time however loaded the machine is.
+async function pendingRace() {
+  const tag = 'audit #30 race';
+  console.log(`\n== ${tag}: the grade lands while Today's plan is being read`);
+  const recall = { id: 'i1_say', tid: 'tA', iid: 'i1', type: 'recall', createdAt: isoDaysAgo(20), learnedAt: isoDaysAgo(20),
+    spec: SPECS['tB/i1_say'], s: { due: TODAY, stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: addDays(TODAY, -7) }, hist: [{ at: isoDaysAgo(7), grade: 3, ok: true }] };
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db: auditDb({ i1_say: recall }) } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.evaluate(() => {
+    // Claude's grade arrives when the test says; so do the cards, once window.__slow is set: each
+    // read answers with what was stored when it began.
+    const gate = new Promise((r) => { window.__releaseGrade = r; });
+    U.gen.grade = () => gate.then(() => ({ met: [true, true, true], verdict: 'got-it', nailed: false, followUp: '' }));
+    const all = U.store.cards.all, held = [];
+    U.store.cards.all = function () {
+      return all.call(U.store.cards).then((v) => (window.__slow ? new Promise((r) => held.push(() => r(v))) : v));
+    };
+    window.__answerReads = () => { window.__slow = false; held.splice(0).forEach((f) => f()); };
+  });
+  await page.waitForSelector('.td-plan');
+  await page.locator('.td-start').click();
+  await page.waitForSelector('.qc-recall-input');
+  await page.locator('.qc-recall-input').fill('Yeast eat the sugar in flour and give off gas, and gluten traps it.');
+  await page.locator('.qc-primary').click();
+  await page.locator('.qc-continue').click();
+  await page.waitForSelector('.rv-wait');
+  await page.evaluate(() => { window.__slow = true; });
+  await page.locator('.rv-close').click();
+  await page.waitForSelector('.td-loading');                      // Today's read is on its way
+  await page.evaluate(() => window.__releaseGrade());
+  const landed = async () => ((await app.stub())[P('profile/cards/tA')].cards.i1_say.hist || []).length === 2;
+  for (let i = 0; i < 100 && !(await landed()); i++) await page.waitForTimeout(100);
+  check(await landed(), `${tag}: the answer is saved while Today's read is still on its way`);
+  check(await page.locator('.td-loading').count() === 1, `${tag}: Today is still waiting for its read`);
+  await page.evaluate(() => window.__answerReads());
+  await page.waitForSelector('.td-clear, .td-plan');
+  await page.waitForTimeout(300);
+  const today = await page.locator('.td').innerText();
+  check(/Done for today/.test(today) && /reviewed 1 card today/.test(today) && !/to revisit/.test(today),
+    `${tag}: Today does not offer the card just saved (${today.split('\n').slice(0, 3).join(' | ')})`);
+  check(await badgeOf(page) === 0 && await page.evaluate(() => U.review.dueCount()) === 0, `${tag}: the badge and a new session agree`);
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
+// #31 Light day turned on after 6 reviews (cap 5) with 8 more due: "Done for today" with
+// "Review 5 more", not "0 cards to revisit"; the switch stays to undo it; #/review says the limit
+// is reached instead of "holding up".
+async function lightAfterReviews() {
+  const tag = 'audit #31';
+  console.log(`\n== ${tag}: Light day after some reviews`);
+  const cards = {};
+  for (let i = 1; i <= 14; i++) {
+    const iid = 'i' + ((i % 8) + 1), id = iid + '_c' + i;
+    cards[id] = i <= 6
+      ? choiceCard(id, iid, addDays(TODAY, 4), { s: { due: addDays(TODAY, 4), stability: 4, difficulty: 5, reps: 2, lapses: 0, last: TODAY }, hist: [{ at: isoDaysAgo(4), grade: 3, ok: true }, { at: new Date().toISOString(), grade: 3, ok: true }] })
+      : choiceCard(id, iid, TODAY);
+  }
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db: auditDb(cards) } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.waitForSelector('.td-plan');
+  check(/8\s+cards to revisit/.test(await page.locator('.td-plan').innerText()), `${tag}: 8 cards to revisit before`);
+  await page.locator('.td-light').click();
+  const clear = await page.waitForSelector('.td-clear', { timeout: 3000 }).catch(() => null);
+  const text = await page.locator('.td').innerText();
+  check(!!clear && /Done for today/.test(text) && /reviewed 6 cards today/.test(text) && !/0\s+cards to revisit/.test(text),
+    `${tag}: Light day says done for today, not "0 cards to revisit" (${text.split('\n').slice(0, 4).join(' | ')})`);
+  check(await page.locator('.td-clear a[href="#/review/more"]').innerText().catch(() => '') === 'Review 5 more' && /8 more cards are due/.test(text), `${tag}: offers Review 5 more`);
+  check(await page.locator('.td-clear .td-light .switch:checked').count() === 1, `${tag}: the Light day switch stays, on, to undo it`);
+  check(await page.evaluate(() => !!document.activeElement && document.activeElement.matches('.td-light .switch')), `${tag}: focus stays on the switch`);
+  await page.waitForTimeout(600);
+  check(await badgeOf(page) === 0, `${tag}: the badge clears (${await badgeOf(page)})`);
+  await page.screenshot({ path: join(ROOT, 'tests', 'out', 'review-audit31-lightday-done.png'), fullPage: true });
+  // Undo: back to the plan with the normal cap.
+  await page.locator('.td-light').click();
+  await page.waitForSelector('.td-plan', { timeout: 3000 }).catch(() => null);
+  check(/8\s+cards to revisit/.test(await page.locator('.td').innerText()), `${tag}: turning it off brings the 8 cards back`);
+  check(await page.evaluate(() => !!document.activeElement && document.activeElement.matches('.td-plan .td-light .switch')), `${tag}: focus follows to the plan's switch`);
+  // On again, then the review route itself.
+  await page.locator('.td-light').click();
+  await page.waitForSelector('.td-clear', { timeout: 3000 }).catch(() => null);
+  await page.goto(app.url('#/review'));
+  await page.waitForSelector('.rv-empty');
+  const empty = await page.locator('.rv-empty').innerText();
+  check(/reached today's limit of 5 cards/.test(empty) && /8 more cards are due/.test(empty) && !/holding up/.test(empty), `${tag}: #/review says the limit is reached (${empty.replace(/\n/g, ' | ')})`);
+  check(await page.locator('.rv-empty a[href="#/review/more"]').count() === 1, `${tag}: #/review offers Review 5 more`);
+  await page.locator('.rv-empty a[href="#/review/more"]').click();
+  await page.waitForSelector('.rv-stage > .qc');
+  check(/1 of 5/.test(await page.locator('.rv-count').innerText()), `${tag}: Review 5 more starts a batch of 5`);
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
 // ONLY=360-light node tests/e2e/review.spec.mjs runs a single combination while iterating.
 const RUNS = [{ width: 360, theme: 'light', full: true }, { width: 360, theme: 'dark' }, { width: 1280, theme: 'light' }, { width: 1280, theme: 'dark' }]
   .filter((r) => !process.env.ONLY || process.env.ONLY === `${r.width}-${r.theme}`);
 try {
   for (const r of RUNS) await runSession({ full: false, ...r });
   if (!process.env.ONLY || process.env.ONLY === 'regressions') await regressions();
+  if (!process.env.ONLY || process.env.ONLY === 'audit3') {
+    await targetNotReady();
+    await pendingRecall();
+    await pendingRace();
+    await lightAfterReviews();
+  }
 } catch (e) {
   failures.push('crashed: ' + (e.stack || e));
   console.error(e);
