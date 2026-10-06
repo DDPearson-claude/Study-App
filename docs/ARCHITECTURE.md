@@ -53,7 +53,8 @@ and `"@@BUILD@@"` (date + short git sha) are required; `"@@KIT_MD@@"` and `"@@KI
 - Prompt builders and validators are pure (no DOM at load) so Node can run them. Every prompt's
   first line is `TASK: <name>`.
 - Browser storage is per device and always inside try: localStorage `mu-prefs` (prefs mirror),
-  `mu-layout`, `mu.device` (device id); sessionStorage `mu.tab` (tab id).
+  `mu-layout`, `mu.device` (device id), `mu.minutes` (today's study minutes on this device, shared
+  by its tabs), `mu.outbox.<uid>.<page>` (held writes to private docs); sessionStorage `mu.tab` (tab id).
 
 ### Core API (`00-core.js`)
 ```
@@ -74,6 +75,8 @@ U.sheet({title, body, actions:[{label, kind, onClick(api)}], onClose, autofocus,
     modal: #app is inert behind it, Tab stays in the top sheet, Escape closes, focus returns on
     close; the same key (default: the title) brings the open one forward. U.closeSheets() on every route.
 U.confirmSheet({title, text, confirm, cancel, danger}) -> Promise<boolean>   (asked again: the same promise)
+U.radios(group) -> group   role=radio buttons in a role=radiogroup: one Tab stop (the checked one), arrow
+    keys move the choice and focus, wrapping (a move clicks the option, so its own handler picks it)
 U.layout (section 11);  U.routes, U.go, U.currentHash, U.setTitle, U.notHere, U.focusMode, U.setTab (section 10)
 ```
 
@@ -126,7 +129,7 @@ U.store.profile.defaults() / get() / watch(fn, onError) / patch(patch)          
 U.store.getDoc / setDoc / patchDoc / watchDoc(path, …)    persistent() (db and uid present)
 U.store.isRemoved(tid) / topicExists(tid, fresh?) / topicsExist([tid]) -> {tid: bool}
 U.store.replacing(old, neu) -> patch (keys only in old become null);  minutesOn(days[day]);  waiting / flush / retryLater(e, job)
-U.logStudy(minutes) -> Promise   adds to this device's count for today
+U.logStudy(minutes) -> Promise   adds to this device's count for today (kept in `mu.minutes`, so two tabs add up)
 U.memdb   in-memory db, same surface: used without the db capability, and for private docs without a uid
 ```
 - Writes to one doc are serialised; patches arriving within 120 ms coalesce (deep merge, `null`
@@ -135,7 +138,18 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   passing reason (unavailable, timeout, resource_exhausted, deadline_exceeded, aborted, internal),
   it waits in the outbox, merged under newer patches: resent every 3 s for a minute (then 15 s),
   after any write succeeds, on `online` and when the page shows again. It rejects with
-  `e.queued = true`; Dan gets one toast per outage and one when saving works. Db errors carry `e.where = 'db'`.
+  `e.queued = true`; Dan gets one toast per outage (it asks him to keep the app open) and one when
+  saving works. Db errors carry `e.where = 'db'`. Not held: lesson docs (the lesson job owns its
+  retries under the lease; a late patch could land on a lesson rewritten since), and a `setDoc`
+  drops a patch held for the same doc. Held patches to Dan's private docs are also kept in
+  localStorage `mu.outbox.<uid>.<page>` until they land; the next page of that user takes over
+  and sends those of pages that have closed, once the runtime is ready (or when the db or uid
+  answers late, `rt-late`). Each page holds the Web Lock `mu.page.<page>` while open, so a tab
+  still open keeps its own (without Web Locks, every page's are taken over). Shared-doc patches
+  and `retryLater` jobs live only with the page.
+- Private writes (`profile.patch`, `progress.patch`, `cards.patch/update`) asked for before
+  `U.rt.ready` wait for it (their path names the uid), and for the outbox takeover above, so the
+  older patches go out under them.
 - Shared docs (topics, lessons, research) are created only by `set`, and `lesson.set` and
   `research.set` only while the topic exists; a patch to a missing one is dropped (resolves
   `null`). Private docs are created on first patch; progress and cards only while the topic exists.
@@ -145,9 +159,11 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   moves forward and `predict`, `startedAt`, `doneAt` and each `checks[id]` keep their first
   value; a write tagged with an older round loses its round fields (say entries still land).
   The first keyed write over an old array list converts it in place.
-- Subscriptions call `onError(e, {retrying})`: on `unavailable` they resubscribe up to 3 times,
-  then `retrying:false`; views show an error with Try again, never "empty". `cards.update` reads
-  the card inside the write queue and never recreates one that is gone.
+- Subscriptions call `onError(e, {retrying})`: on `unavailable` (the platform's dead bridge) they
+  resubscribe 3 times quickly, then report `retrying:false` once and keep trying every 30 s
+  (`WATCH_PARK_MS`) and at once on `online`, when the page shows again, or after a write succeeds;
+  the next snapshot carries on as normal. Views show an error with Try again, never "empty".
+  `cards.update` reads the card inside the write queue and never recreates one that is gone.
 
 ## 4. Data model
 
@@ -463,11 +479,15 @@ U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile
 U.settings.prefs / apply(prefs) / set(key, value) / fromProfile(prefs) / readLocal() / backup() / open()
-U.boot.study   visible, recently touched time (TICK 15 s, IDLE 2 min), logged with U.logStudy in 2-minute chunks
+U.boot.study   visible, recently touched time (TICK 15 s, IDLE 2 min), logged with U.logStudy in 2-minute chunks;
+   a kit 'change' from an interactive on screen (iframe.kit-iframe, not a hidden test frame) counts as a touch
 ```
-`apply` sets `html[data-mu-theme]`, `[data-size]`, `[data-easy]`, mirrors to `mu-prefs` and
-emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device) is ignored for
-3 s after a local change. At boot the profile's prefs win; with none, the local copy is saved.
+`prefs` starts as the device copy (`mu-prefs`, what head.html painted). `apply` sets
+`html[data-mu-theme]`, `[data-size]`, `[data-easy]`, mirrors to `mu-prefs` and emits `prefs`; `set`
+saves one key to the profile; `fromProfile` (another device) is ignored while a local change is
+being saved and for 3 s after. At boot the profile's prefs win, except keys Dan changed while the
+app was opening; with no profile, the local copy is saved. The profile is watched even when the
+boot read fails.
 
 ## 10. Navigation
 

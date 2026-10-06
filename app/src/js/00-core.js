@@ -227,14 +227,24 @@ U._memHash = null;
 U.currentHash = function () { var h = U._memHash || location.hash || '#/'; return h === '#' ? '#/' : h; };
 U.go = function (hash) {
   if (U.currentHash() === hash) { U._route(); return; }
+  var before = location.hash;
   try { location.hash = hash; } catch (e) { /* refused: handled below */ }
   if (location.hash !== hash) { U._memHash = hash; U._route(); }
-  else U._memHash = null;
+  else {
+    U._memHash = null;
+    // Only the in-memory route differed: the frame already held this address, so no hashchange
+    // will come to draw it (going back to where the page started, after the fallback).
+    if (before === hash) U._route();
+  }
 };
-// Back to Learn without adding a history entry (bad or unknown addresses).
+// Back to Learn without adding a history entry (bad or unknown addresses). The address is spelled
+// out in full: a bare '#/' resolves against the document's base URL, which in a srcdoc frame is the
+// host page's, so the frame would load that page instead of moving to its own '#/'.
 U._home = function () {
-  try { location.replace('#/'); } catch (e) { /* refused: handled below */ }
+  var before = location.hash;
+  try { location.replace(location.href.split('#')[0] + '#/'); } catch (e) { /* refused: handled below */ }
   if (location.hash !== '#/') { U._memHash = '#/'; setTimeout(U._route, 0); }
+  else if (before === '#/' && U._memHash) { U._memHash = null; setTimeout(U._route, 0); }   // no hashchange will come
 };
 U._cleanup = null;
 U._routeSeq = 0;
@@ -312,6 +322,33 @@ U.setTab = function (tab) {
   document.querySelectorAll('.tab').forEach(function (a) {
     if (a.dataset.tab === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
+};
+
+// ---------- radio groups ----------
+// U.radios(group) -> group. The role="radio" buttons inside a role="radiogroup" behave as radios
+// do (and as the kit's K.choice does): the group is one Tab stop (the checked option, else the
+// first), and the arrow keys move the choice and the focus to the next or previous option,
+// wrapping. A move clicks the option, so the group's own click handler picks it and sets
+// aria-checked; the Tab stop follows the checked option after every click.
+U.radios = function (group) {
+  function all() { return Array.prototype.slice.call(group.querySelectorAll('[role="radio"]')); }
+  function sync() {
+    var list = all(), on = list.filter(function (b) { return b.getAttribute('aria-checked') === 'true'; })[0] || list[0];
+    list.forEach(function (b) { b.tabIndex = b === on ? 0 : -1; });
+  }
+  group.addEventListener('keydown', function (e) {
+    var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+    if (!d || e.altKey || e.ctrlKey || e.metaKey) return;
+    var list = all().filter(function (b) { return !b.disabled; }), i = list.indexOf(document.activeElement);
+    if (i < 0) return;
+    e.preventDefault();
+    var next = list[(i + d + list.length) % list.length];
+    next.click();
+    next.focus();
+  });
+  group.addEventListener('click', sync);   // bubbles here after the option's own handler ran
+  sync();
+  return group;
 };
 
 // ---------- toasts ----------

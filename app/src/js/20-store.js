@@ -1,8 +1,10 @@
 // Data layer over the artifact db (docs/ARCHITECTURE.md section 4).
 // Writes to one document are serialised and coalesced; reads go straight to the db. A write
 // rejected as 'unavailable' (a transient bridge blip) is retried once after 300-900 ms before
-// the failure is reported. Subscriptions that die with 'unavailable' resubscribe (up to 3 times,
-// backing off); other failures reach the view's onError so it can show an error, never "empty".
+// the failure is reported. Subscriptions that die with 'unavailable' resubscribe (3 quick tries,
+// then slowly until the bridge answers); other failures reach the view's onError so it can show
+// an error, never "empty". Writes to Dan's private docs asked for before the runtime is ready
+// wait for it (their path names his user id, which is only known then).
 //
 // Shapes beyond docs/ARCHITECTURE.md section 4 (what this layer and its callers agree on):
 //   progress.ideas[iid].say   {[key]: {text, at, verdict, met:[bool], nailed?, followUp?, model?, round}}
@@ -119,29 +121,101 @@ U.store = (function () {
   // and when the device comes back online or to the foreground. A held patch is merged under any
   // newer patch to the same doc, so a resend never undoes something newer. Dan sees one notice per
   // outage, not one per write, and another when saving works again.
+  // Patches to lesson docs are never held: the job writing a lesson owns its retries under the
+  // lesson's lease, and a patch sent later could land on a lesson that another device (or "Try
+  // again" here) has rewritten since, bringing back the old text beside the new interactive.
+  // Held patches to Dan's private docs (progress, cards, profile) are also kept on this device
+  // (localStorage 'mu.outbox.<uid>.<page>') until they land, and if this page closes first, the
+  // next page to open sends them.
+  // Patches to shared docs and multi-step jobs (`later`) live only as long as the page: by the
+  // next visit another device may have rewritten what an old patch would overwrite.
   var held = {}, later = [], outage = false, since = 0, flushTimer = null;
+  var carrying = {};   // path -> the write now resending a held patch (kept on the device until it lands)
+  var PAGE = U.id('p'), OUTBOX = 'mu.outbox.', LOCK = 'mu.page.';
   function waiting() { return Object.keys(held).length + later.length; }
+  function holdable(path) { return !/^topics\/[^/]+\/lessons\//.test(path); }
+  function ownPriv(path) { return !!U.rt.uid && path.indexOf('data/users/' + U.rt.uid + '/') === 0; }
+  function outboxKey() { return U.rt.db && U.rt.uid ? OUTBOX + U.rt.uid + '.' + PAGE : null; }
+  // This page holds a Web Lock named after it for as long as it is open (the browser lets go when
+  // the page closes or is killed). A page opening later can then tell what a closed page left on
+  // the device, which it takes over, from what a tab still open holds, which that tab sends itself.
+  function lockApi() { try { return typeof navigator !== 'undefined' && navigator.locks && typeof navigator.locks.query === 'function' ? navigator.locks : null; } catch (e) { return null; } }
+  (function () {
+    var L = lockApi();
+    if (L) try { L.request(LOCK + PAGE, function () { return new Promise(function () {}); }).catch(function () { /* no lock: other pages treat this one as closed */ }); } catch (e) { /* the same */ }
+  })();
+  // The ids of the pages still open, or null when the browser cannot tell (no Web Locks): then
+  // every page's leftovers are taken over, and a tab still open may send the same patch again.
+  function openPages() {
+    var L = lockApi();
+    if (!L) return Promise.resolve(null);
+    return Promise.resolve().then(function () { return L.query(); }).then(function (s) {
+      var o = {};
+      ((s && s.held) || []).forEach(function (l) { if (l && typeof l.name === 'string' && l.name.indexOf(LOCK) === 0) o[l.name.slice(LOCK.length)] = true; });
+      return o;
+    }, function () { return null; });
+  }
+  // Mirrors what waits for Dan's private docs onto the device (nothing without the db).
+  function persist() {
+    var key = outboxKey(), docs = {}, n = 0;
+    if (!key) return;
+    Object.keys(carrying).forEach(function (p) { if (ownPriv(p)) { docs[p] = carrying[p].patch; n++; } });
+    Object.keys(held).forEach(function (p) { if (ownPriv(p)) { docs[p] = docs[p] ? deepMerge(U.clone(docs[p]), held[p]) : held[p]; n++; } });
+    try { if (n) localStorage.setItem(key, JSON.stringify({ at: U.now(), docs: docs })); else localStorage.removeItem(key); } catch (e) { /* storage blocked: this page's copy only */ }
+  }
+  // Once the runtime is known, takes over what earlier pages of this user left on the device
+  // (closed before their writes landed) and sends it. Private writes of this page wait until this
+  // is done (whenKnown below), so what it restores is older than all of them.
+  function restore() {
+    var key = outboxKey(), mine = OUTBOX + U.rt.uid + '.', found = [];
+    if (!key) return null;
+    try {
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(mine) === 0 && k !== key) found.push(k); }
+    } catch (e) { return null; }
+    if (!found.length) return null;
+    return openPages().then(function (open) {
+      found.forEach(function (k) {
+        if (open && open[k.slice(mine.length)]) return;   // a tab still open sends its own
+        var saved = null;
+        try { saved = JSON.parse(localStorage.getItem(k) || 'null'); localStorage.removeItem(k); } catch (e) { /* unreadable: dropped */ }
+        var docs = saved && isObj(saved.docs) ? saved.docs : {};
+        Object.keys(docs).forEach(function (p) {
+          if (!ownPriv(p) || !isObj(docs[p])) return;
+          var n = latest[p];   // a newer write of this page not yet sent: goes out with it, under it
+          if (n && !n.started) { n.patch = deepMerge(U.clone(docs[p]), n.patch); carrying[p] = n; }
+          else held[p] = held[p] ? deepMerge(U.clone(docs[p]), held[p]) : U.clone(docs[p]);
+        });
+      });
+      persist();
+      if (waiting()) flush();
+    });
+  }
   function arm() {
     if (flushTimer || !waiting()) return;
     flushTimer = setTimeout(flush, Date.now() - since < 60000 ? 3000 : 15000);
   }
   function flush() {
     clearTimeout(flushTimer); flushTimer = null;
-    Object.keys(held).forEach(function (path) { if (!pending[path]) patchDoc(path, {}).catch(function () { /* held again */ }); });
+    Object.keys(held).forEach(function (path) {
+      if (gone(path)) { delete held[path]; persist(); return; }   // its topic was deleted in this page
+      if (!pending[path]) patchDoc(path, {}).catch(function () { /* held again */ });
+    });
     later.splice(0).forEach(function (t) { Promise.resolve().then(t).catch(function () { /* queued again by itself */ }); });
   }
   function wrote() {
     if (outage) { outage = false; U.toast('Saving works again. What you did meanwhile is saved.', { kind: 'good' }); }
     if (waiting()) setTimeout(flush, 0);
+    wake();   // the bridge answers again: subscriptions it ended can start again
   }
   if (typeof window !== 'undefined' && window.addEventListener) {
-    window.addEventListener('online', function () { if (waiting()) flush(); });
-    if (typeof document !== 'undefined') document.addEventListener('visibilitychange', function () { if (!document.hidden && waiting()) flush(); });
+    window.addEventListener('online', function () { if (waiting()) flush(); wake(); });
+    if (typeof document !== 'undefined') document.addEventListener('visibilitychange', function () { if (!document.hidden) { if (waiting()) flush(); wake(); } });
   }
   function noteOutage() {
     if (!outage) {
       since = Date.now();
-      U.toast('Your work could not be saved just now. It is kept here and saved as soon as the connection is back.', { kind: 'bad', ms: 8000 });
+      // Not "kept here": a job made of several steps lives only as long as this page does.
+      U.toast('Your work could not be saved just now. It will be saved as soon as the connection is back, so keep the app open until then.', { kind: 'bad', ms: 8000 });
     }
     outage = true;
     arm();
@@ -250,6 +324,8 @@ U.store = (function () {
   function setDoc(path, data) {
     if (gone(path)) return Promise.resolve(null);
     var tid = privTid(path);
+    // A whole new document supersedes any older patch still waiting to be sent for it.
+    if (held[path]) { delete held[path]; persist(); }
     return run(path, function () {
       return (tid ? topicExists(tid) : Promise.resolve(true)).then(function (ok) {
         if (!ok) return null;
@@ -281,21 +357,28 @@ U.store = (function () {
   function patchDoc(path, patch) {
     if (gone(path)) return Promise.resolve(null);
     var p = pending[path];
-    if (p) { deepMerge(p.patch, patch); return p.promise; }
+    if (p) { deepMerge(p.patch, patch); if (carrying[path] === p) persist(); return p.promise; }
     var base = held[path];
     delete held[path];
     p = pending[path] = latest[path] = { patch: base ? deepMerge(base, U.clone(patch)) : U.clone(patch), started: false };
+    if (base) carrying[path] = p;
     p.promise = U.sleep(120).then(function () {
       delete pending[path];
       if (gone(path)) return null;
       return run(path, function () { p.started = true; return writePatch(path, U.clone(p.patch)); });
-    }).then(function (r) { if (latest[path] === p) delete latest[path]; return r; }, function (e) {
+    }).then(function (r) {
       if (latest[path] === p) delete latest[path];
+      if (carrying[path] === p) { delete carrying[path]; persist(); }
+      return r;
+    }, function (e) {
+      if (latest[path] === p) delete latest[path];
+      if (carrying[path] === p) { delete carrying[path]; persist(); }
       return failed(e, function () {
-        if (gone(path)) return false;
+        if (gone(path) || !holdable(path)) return false;
         var n = latest[path];
-        if (n && !n.started) n.patch = deepMerge(U.clone(p.patch), n.patch);   // goes out with the newer one
+        if (n && !n.started) { n.patch = deepMerge(U.clone(p.patch), n.patch); carrying[path] = n; }   // goes out with the newer one
         else held[path] = held[path] ? deepMerge(U.clone(p.patch), held[path]) : U.clone(p.patch);
+        persist();
       });
     });
     return p.promise;
@@ -324,25 +407,36 @@ U.store = (function () {
   // ---- subscriptions that survive a dead bridge ----
   // onError(e, {retrying}) tells the view: retrying while it resubscribes after 'unavailable',
   // then (or at once, for any other code) retrying:false - the view shows an error with Try again.
+  // The platform ends a listener with 'unavailable' only when its bridge stops answering, and a
+  // fresh subscription is the only way back. So after the quick tries, one that died that way is
+  // parked, not dropped: it tries again every WATCH_PARK_MS, and at once when the device comes
+  // online or to the foreground or a write succeeds (wake()). The view hears retrying:false once;
+  // the next snapshot brings it back to life.
+  var parked = [];
+  function wake() { parked.splice(0).forEach(function (revive) { revive(); }); }
   function subscribe(source, onNext, onError) {
-    var stop = null, dead = false, tries = 0, timer = null;
+    var stop = null, dead = false, tries = 0, timer = null, told = false;
     function quit() { if (stop) { try { stop(); } catch (e) { /* already gone */ } stop = null; } }
+    function unpark() { parked = parked.filter(function (f) { return f !== revive; }); }
+    function revive() { if (dead) return; unpark(); clearTimeout(timer); timer = null; start(); }
     function fail(e) {
       if (dead) return;
       tag(e);
       console.warn('watch failed', e && (e.code || e.message), e);
       quit();
       var again = transient(e) && tries < 3;
-      if (onError) try { onError(e, { retrying: again }); } catch (x) { console.error(x); }
-      if (again) { tries++; timer = setTimeout(start, 400 * Math.pow(2, tries - 1) + Math.random() * 300); }
+      if (onError && !told) try { onError(e, { retrying: again }); } catch (x) { console.error(x); }
+      if (again) { tries++; timer = setTimeout(start, S.WATCH_RETRY_MS * Math.pow(2, tries - 1) + Math.random() * 300); return; }
+      told = true;
+      if (transient(e)) { unpark(); parked.push(revive); timer = setTimeout(revive, S.WATCH_PARK_MS); }
     }
     function start() {
       if (dead) return;
-      try { stop = source().onSnapshot(function (snap) { if (dead) return; tries = 0; onNext(snap); }, fail); }
+      try { stop = source().onSnapshot(function (snap) { if (dead) return; tries = 0; told = false; onNext(snap); }, fail); }
       catch (e) { fail(e); }
     }
     start();
-    return function () { dead = true; clearTimeout(timer); quit(); };
+    return function () { dead = true; clearTimeout(timer); unpark(); quit(); };
   }
   function watchDoc(path, fn, onError) {
     return subscribe(function () { return D(path); }, function (s) {
@@ -353,6 +447,20 @@ U.store = (function () {
     }, onError);
   }
   function listColl(path) { return retrying(function () { return C(path).get(); }).then(function (q) { return q.docs.map(function (d) { var x = U.clone(d.data()) || {}; x.__id = d.id; return x; }); }); }
+
+  // A private doc's path names Dan's user id, known only once the runtime is ready. A write asked
+  // for before then (a reading setting changed while the app is still opening) waits for it, so it
+  // reaches his profile instead of the in-memory stand-in (or an invalid 'local/me/…' db path).
+  // It also waits while what earlier pages left in the outbox is taken over, so those older
+  // patches go out under this page's newer ones, never after them.
+  var opened = false;
+  var opening = U.rt.ready.then(function () { return restore(); })
+    .catch(function (e) { console.warn('outbox', e); })
+    .then(function () { opened = true; });
+  function whenKnown(fn) { return opened ? fn() : opening.then(fn); }
+  // Saved work that answers only after the app opened (an 'rt-late' notice for the db or the user
+  // id): the outbox left by earlier pages can be taken over only now.
+  U.on('rt-late', function () { if (opened && outboxKey()) Promise.resolve(restore()).catch(function (e) { console.warn('outbox', e); }); });
 
   var S = {
     paths: {
@@ -378,6 +486,9 @@ U.store = (function () {
       if (!isObj(v)) return 0;
       return Object.keys(v).reduce(function (sum, k) { var n = Number(v[k]); return sum + (isFinite(n) ? n : 0); }, 0);
     },
+    // Subscriptions ended by a dead bridge: first quick resubscribe after WATCH_RETRY_MS (doubling,
+    // 3 tries), then one every WATCH_PARK_MS until it answers.
+    WATCH_RETRY_MS: 400, WATCH_PARK_MS: 30000,
     _known: known,
   };
 
@@ -448,13 +559,13 @@ U.store = (function () {
   S.progress = {
     get: function (tid) { return getDoc(S.paths.progress(tid)).then(function (d) { return d || { ideas: {} }; }); },
     watch: function (tid, fn, onError) { return watchDoc(S.paths.progress(tid), function (d) { fn(d || { ideas: {} }); }, onError); },
-    patch: function (tid, patch) { patch.updatedAt = U.now(); return patchDoc(S.paths.progress(tid), patch); },
+    patch: function (tid, patch) { patch.updatedAt = U.now(); return whenKnown(function () { return patchDoc(S.paths.progress(tid), patch); }); },
     all: function () { return listColl(priv('profile/progress')).then(function (l) { var o = {}; l.forEach(function (d) { o[d.__id] = d; }); return o; }); },
   };
   S.cards = {
     get: function (tid) { return getDoc(S.paths.cards(tid)).then(function (d) { return d || { cards: {} }; }); },
-    patch: function (tid, patch) { return patchDoc(S.paths.cards(tid), patch); },
-    update: updateCard,
+    patch: function (tid, patch) { return whenKnown(function () { return patchDoc(S.paths.cards(tid), patch); }); },
+    update: function (tid, id, fn) { return whenKnown(function () { return updateCard(tid, id, fn); }); },
     all: function () { return listColl(priv('profile/cards')).then(function (l) { var o = {}; l.forEach(function (d) { o[d.__id] = d; }); return o; }); },
     // Deletes the cards and progress docs of a topic that no longer exists (left behind by a
     // delete that half failed, or written by an older version of the app).
@@ -471,7 +582,7 @@ U.store = (function () {
     defaults: function () { return { prefs: { size: 'm', easy: false, theme: 'light', cap: 15, light: false }, days: {}, createdAt: U.now() }; },
     get: function () { return getDoc(S.paths.profile()).then(function (d) { return d ? deepMerge(S.profile.defaults(), d) : S.profile.defaults(); }); },
     watch: function (fn, onError) { return watchDoc(S.paths.profile(), function (d) { fn(d ? deepMerge(S.profile.defaults(), d) : S.profile.defaults()); }, onError); },
-    patch: function (patch) { return patchDoc(S.paths.profile(), patch); },
+    patch: function (patch) { return whenKnown(function () { return patchDoc(S.paths.profile(), patch); }); },
   };
   return S;
 })();
@@ -479,20 +590,37 @@ U.store = (function () {
 // Record study time for "this week". Each device keeps its own running total for the day
 // (profile.days[day][deviceId]), so two devices logging at once never undo each other; calls in
 // this page are queued so none is lost. An old single number for the day is kept as `legacy`.
+// Every tab of one browser shares the device id, so the running total lives where all of them see
+// it (localStorage 'mu.minutes'): each tab adds its minutes to it and writes the sum, and a tab
+// back from the background never writes a total older than the other tab's. (A key per tab or
+// page would also work, but would add a key to the profile for every visit.) Without storage the
+// total is this page's own.
 U.logStudy = (function () {
-  var chain = Promise.resolve(), mine = {};
+  var chain = Promise.resolve(), mem = {}, KEY = 'mu.minutes';
+  function who() { return String(U.rt.uid || ''); }
+  function load(day) {
+    var o = null;
+    try { o = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { /* storage blocked */ }
+    if (o && o.day === day && o.uid === who() && isFinite(Number(o.n))) return Number(o.n);
+    return mem[day] == null ? null : mem[day];
+  }
+  function save(day, n) {
+    mem[day] = n;
+    try { localStorage.setItem(KEY, JSON.stringify({ uid: who(), day: day, n: n })); } catch (e) { /* this page's count only */ }
+  }
   return function (minutes) {
     var day = U.today(), dev = U.device();
     var job = chain.then(function () {
-      return (mine[day] == null ? U.store.profile.get() : Promise.resolve(null)).then(function (p) {
-        var rec = {};
-        if (mine[day] == null) {
+      return (load(day) == null ? U.store.profile.get() : Promise.resolve(null)).then(function (p) {
+        var rec = {}, base = load(day);   // another tab may have started the day meanwhile
+        if (base == null) {
           var cur = p && p.days ? p.days[day] : null;
-          mine[day] = cur && typeof cur === 'object' ? (Number(cur[dev]) || 0) : 0;
+          base = cur && typeof cur === 'object' ? (Number(cur[dev]) || 0) : 0;
           if (typeof cur === 'number' && cur > 0) rec.legacy = cur;
         }
-        mine[day] = Math.round(mine[day] + (Number(minutes) || 0));
-        rec[dev] = mine[day];
+        var n = Math.round(base + (Number(minutes) || 0));
+        save(day, n);
+        rec[dev] = n;
         var patch = { days: {} };
         patch.days[day] = rec;
         return U.store.profile.patch(patch);
