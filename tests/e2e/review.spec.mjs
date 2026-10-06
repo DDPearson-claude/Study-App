@@ -3,7 +3,9 @@
 // Seeds cards for two topics into the stub db, runs a full review session through every card
 // type (choice, order, estimate, target, recall) at phone and desktop widths in light and dark,
 // checks that FSRS state and history were written, and screenshots every screen to tests/out/.
-// Also covers addFromLesson, lesson-mode cards, ideaBands and the Learn-it-again flag.
+// Also covers addFromLesson, lesson-mode cards, ideaBands and the Learn-it-again flag, and (v9)
+// that an idea finished as a read lesson ("Just teach me") is never counted: not in Today, a
+// review or the badge, even with cards left from an earlier, studied round.
 // Run: node tests/e2e/review.spec.mjs   (exits non-zero on any failure or page error)
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -769,6 +771,30 @@ async function whereWraps() {
   }
 }
 
+// v9: an idea Dan finished as a read lesson is never counted, though cards from its earlier,
+// studied round are still due in the db.
+async function readIdeas() {
+  const tag = 'v9 read ideas';
+  console.log(`\n== ${tag}`);
+  const db = seedDb();
+  db[P('profile/progress/tA')] = { ideas: { i1: { round: 1, stage: 'done', doneAt: isoDaysAgo(1), readRound: 1, cardsRound: 1, againAt: isoDaysAgo(2) } } };
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.waitForSelector('.td-plan');
+  const n = await page.evaluate(() => U.review.dueCount());
+  check(n === 5, `${tag}: Today counts 5 cards, not the read idea's 2 (got ${n})`);
+  await page.evaluate(() => U.review.refreshBadge());
+  check(await badgeOf(page) === 5, `${tag}: and so does the badge`);
+  const q = await page.evaluate(async () => (await U.review.queue({ extra: true, cap: 50 })).map((c) => c.tid + '/' + c.iid));
+  check(!q.includes('tA/i1'), `${tag}: a review never shows its cards (${q})`);
+  check(/\b5\b/.test(await page.locator('.td-plan').innerText()), `${tag}: Today's plan says 5`);
+  await page.screenshot({ path: join(ROOT, 'tests', 'out', 'review-v9-read-ideas.png') });
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
 // ONLY=360-light node tests/e2e/review.spec.mjs runs a single combination while iterating.
 const RUNS = [{ width: 360, theme: 'light', full: true }, { width: 360, theme: 'dark' }, { width: 1280, theme: 'light' }, { width: 1280, theme: 'dark' }]
   .filter((r) => !process.env.ONLY || process.env.ONLY === `${r.width}-${r.theme}`);
@@ -782,6 +808,7 @@ try {
     await lightAfterReviews();
     await whereWraps();
   }
+  if (!process.env.ONLY || process.env.ONLY === 'v9') await readIdeas();
 } catch (e) {
   failures.push('crashed: ' + (e.stack || e));
   console.error(e);

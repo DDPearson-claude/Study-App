@@ -9,7 +9,7 @@
    Google Fonts link added only when a dossier or the Library is drawn (U.dossier.fonts()); every
    family has a fallback and every size is in rem, so nothing reflows when they arrive.
    Sections: 1 tokens · 2 base · 3 library · 4 reader and pages · 5 type · 6 chapter · 7 plate ·
-   8 field tests · 9 sources · 10 cover · 11 contents · 12 back matter · 13 app chrome · 14 motion */
+   8 put it into practice · 9 sources · 10 cover · 11 contents · 12 back matter · 13 app chrome · 14 motion */
 
 /* ---------- 1. tokens (light here; lamp-lit dark below, the app's two-block pattern) ---------- */
 .dos {
@@ -115,6 +115,8 @@
 .dos .lbl-t { display: block; margin-top: 3px; font: 400 clamp(.88rem, 3.6cqi, 1rem)/1.1 var(--caps); overflow-wrap: anywhere; hyphens: auto; }
 .dos .plank { position: relative; z-index: 0; height: 14px; margin: -3px -9px 0; background: linear-gradient(180deg, var(--wood-hi) 0, var(--wood) 3px, var(--wood) 9px, var(--wood-lo)); box-shadow: 0 8px 10px -6px rgba(40, 25, 10, .45); }
 .dos .meta { display: grid; gap: 4px; padding: 10px 0 14px; font: 600 .8125rem/1.35 var(--sans); color: var(--ink); }
+/* the caption stands under its book (as wide as the book at most), so a lone book on a wide shelf keeps it */
+.dos .meta { justify-self: center; width: min(100%, 190px); }
 .dos .st { display: flex; align-items: center; gap: 6px; }
 .dos .st svg { width: 16px; height: 16px; flex: none; }
 .dos .st.done { color: var(--green); }
@@ -183,6 +185,8 @@
   .dos .page::after { inset: 0 0 0 auto; width: 80px; background: linear-gradient(to left, var(--gutter), transparent 24px), linear-gradient(to left, color-mix(in srgb, var(--gutter) 40%, transparent), transparent 80px); opacity: 1; }
   .dos .page-r::after { inset: 0 auto 0 0; background: linear-gradient(to right, var(--gutter), transparent 24px), linear-gradient(to right, color-mix(in srgb, var(--gutter) 40%, transparent), transparent 80px); }
 }
+/* one page alone (a chapter's sources, bound before lessons had practice): a right-hand page */
+@container book (min-width: 55rem) { .dos .spread.single { grid-template-columns: minmax(0, 42rem); justify-content: center; } }
 /* wide pages keep a margin column on their outer side for short notes (side notes) */
 @container book (min-width: 76rem) { .dos .page { --mw: 7.25rem; --mg: 14px; --out: 18px; } }
 .dos .page-l .d-wide { margin-left: calc(-1 * (var(--mw, 0px) + var(--mg, 0px))); }
@@ -204,7 +208,8 @@
 .dos .turn svg { width: 22px; height: 22px; flex: none; }
 .dos .turn .tw { display: flex; flex-direction: column; min-width: 0; }
 .dos .turn .tk { font: 400 1.08rem/1.15 var(--caps); }
-.dos .turn .tt { font: .76rem/1.3 var(--typed); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* the label wraps between words (never cut inside one, as an ellipsis did on a phone) */
+.dos .turn .tt { font: .76rem/1.3 var(--typed); letter-spacing: .05em; text-transform: uppercase; overflow-wrap: normal; text-wrap: balance; }
 .dos .turn .next { margin-left: auto; text-align: right; }
 .dos .turn .tw > * { max-width: 100%; }
 .dos .sides { display: none; }
@@ -286,6 +291,8 @@
 .dos .tape.r { right: -14px; transform: rotate(28deg); }
 .dos .tape.c { left: 50%; margin-left: -40px; transform: rotate(-2deg); }
 .dos .card-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 4px 10px; }
+/* the stamp is turned, so its corners reach below its box: room under it, so it never touches the key term (XL) */
+.dos .card-top .stamp { margin: .25em 0 .8em; }
 .dos .card-k { padding-top: 4px; font: 400 1.06rem/1.4 var(--caps); color: var(--j-ink2); }
 .dos .card-name { margin-top: 2px; padding-bottom: 5px; border-bottom: 2px solid var(--rule-red); font: 400 1.75rem/1.12 var(--marker); text-transform: uppercase; overflow-wrap: anywhere; }
 .dos .card-name.long { font-size: 1.3rem; }
@@ -368,42 +375,24 @@
 .dos .numbers .nk { font: .76rem/1.3 var(--typed); letter-spacing: .06em; text-transform: uppercase; color: var(--j-teal); }
 .dos .numbers .nv { font: .95rem/1.3 var(--typed); white-space: nowrap; }
 
-/* ---------- 8. FIELD TESTS: the right answer and why (never what was chosen) ---------- */
-.dos .tests { display: grid; }
-.dos .test { padding: 1.4rem 0; }
-.dos .test + .test { border-top: 1.5px dashed color-mix(in srgb, var(--j-ink) 28%, transparent); }
-.dos .test-k { display: flex; align-items: baseline; gap: 10px; font: .8rem/1.3 var(--typed); letter-spacing: .08em; text-transform: uppercase; color: var(--j-teal); }
-.dos .test-k b { font: 400 1.8rem/1 var(--title); color: var(--j-ink); letter-spacing: 0; }
-.dos .test-q { margin-top: 8px; font: 600 var(--fs)/1.55 var(--serif); }
-.dos .opts { display: grid; gap: 12px; margin-top: 14px; }
-.dos .opt { display: grid; grid-template-columns: 24px 1fr; column-gap: 12px; align-items: start; font: 1rem/1.5 var(--serif); color: var(--j-ink2); }
-.dos .opt-box { width: 22px; height: 22px; margin-top: 2px; overflow: visible; }
-.dos .opt.right { color: var(--j-ink); font-weight: 600; }
-.dos .opt-t { position: relative; }
-.dos .opt.right .opt-t { margin: 3px 10px 6px 0; }
-.dos .opt .loop { position: absolute; left: -10px; top: -7px; width: calc(100% + 18px); height: calc(100% + 14px); overflow: visible; color: var(--j-ink); pointer-events: none; }
-.dos .ans { display: inline-block; margin-left: 8px; padding: 0 6px; border: 1.5px solid currentColor; border-radius: 3px; font: 400 .76rem/1.5 var(--typed); letter-spacing: .12em; text-transform: uppercase; vertical-align: .12em; }
-.dos .trap { grid-column: 2; margin-top: 3px; font: 400 1.08rem/1.38 var(--hand); color: var(--j-red); }
-.dos .trap b { font: 400 1rem/1 var(--caps); letter-spacing: .04em; }
-.dos .order { counter-reset: o; display: grid; gap: 8px; margin-top: 12px; }
-.dos .order li { counter-increment: o; display: grid; grid-template-columns: 26px 1fr; column-gap: 12px; font: 600 1rem/1.5 var(--serif); }
-.dos .order li::before { content: counter(o); font: 400 1.15rem/1.3 var(--marker); text-align: center; }
-.dos .scale-w { max-width: 24rem; margin-top: 12px; }
-.dos .scale { display: block; width: 100%; height: auto; overflow: visible; }
-.dos .scale text { font: 12.5px var(--typed); fill: var(--j-ink2); }
-.dos .scale .ans { font: 16px var(--hand); fill: var(--j-ink); }
-.dos .scale .axis { fill: none; stroke: var(--j-ink); stroke-width: 1.4; stroke-linecap: round; }
-.dos .scale .band { fill: var(--hl); }
-.dos .scale .ptr { fill: var(--j-navy); }
-.dos .ans-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-top: 12px; }
-.dos .ans-line .k { font: 400 1.04rem/1.2 var(--caps); color: var(--j-teal); }
-.dos .ans-line .v { font: 400 1.5rem/1.1 var(--marker); }
-.dos .ans-line .t { font: .98rem/1.5 var(--serif); color: var(--j-ink2); }
-.dos .go-plate { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; margin-top: 4px; color: var(--j-navy); font: 400 1.06rem/1 var(--caps); text-underline-offset: 4px; }
-.dos .go-plate svg { width: 18px; height: 18px; }
-.dos .why { display: grid; grid-template-columns: auto 1fr; column-gap: 10px; align-items: baseline; margin-top: 12px; }
-.dos .why-k { font: 400 1.04rem/1.2 var(--caps); color: var(--j-teal); }
-.dos .why-t { font: 1rem/1.62 var(--serif); }
+/* ---------- 8. PUT IT INTO PRACTICE: the steps as an ink checklist, rules of thumb on a taped card,
+   the worked example as a field note, the common mistakes in red ink ---------- */
+.dos .d-steps .hh { margin-bottom: 1rem; }
+.dos .d-steps .prose { margin-bottom: .8rem; }
+.dos .d-check { display: grid; gap: 14px; margin-top: .4rem; }
+.dos .d-check li { display: grid; grid-template-columns: 26px auto 1fr; column-gap: 10px; align-items: start; font: var(--fs)/1.55 var(--serif); }
+.dos .d-box { width: 24px; height: 24px; margin-top: 2px; overflow: visible; color: var(--j-ink); }
+.dos .d-step-n { min-width: 1.1em; font: 400 1.3rem/1.2 var(--marker); color: var(--j-navy); }
+.dos .d-step-t { min-width: 0; }
+.dos .d-rules { margin-top: 2.6rem; }
+.dos .d-rules .card-k { margin-bottom: 4px; }
+.dos .d-rules p:not(.card-k), .dos .d-rules li { font: 400 1.16rem/1.42 var(--hand); }
+.dos .d-rules p + p { margin-top: .5rem; }
+.dos .d-items { display: grid; gap: 8px; margin-top: 6px; padding-left: 1.1em; list-style: disc; }
+.dos .d-items li::marker { color: currentColor; }
+.dos .d-note .note-t p + p, .dos .d-note .note-t p + ul, .dos .d-note .note-t ul + p { margin-top: .5rem; }
+.dos .d-note.d-example { max-width: 34rem; }
+.dos .d-note.d-mistakes { margin-left: 0; max-width: 34rem; }
 
 /* ---------- 9. SOURCES: evidence clippings with torn bottoms ---------- */
 .dos .evidence { display: grid; gap: 1.6rem; margin-top: 1.4rem; }

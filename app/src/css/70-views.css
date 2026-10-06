@@ -65,6 +65,25 @@
 .ask-levels { max-width: 440px; }
 .ask-levels .seg-btn { font-size: .875rem; }
 .ask-working { display: grid; gap: 10px; padding: 2px 4px; }
+/* The level and the mode, side by side where they fit (each a radio group, U.radios). */
+.ask-choices { display: flex; flex-wrap: wrap; gap: 6px 28px; margin-top: 8px; }
+.ask-choices > .ask-row { flex: 1 1 260px; max-width: 440px; margin-top: 0; }
+.ask-modes .seg-btn { font-size: .875rem; }
+.ask-mode-note { margin-top: -2px; }
+/* The intake: a few questions about what Dan wants from the topic, in place under his question. */
+.intake { display: grid; gap: 14px; padding: 18px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.intake-h { font-size: 1.25rem; }
+.intake-sub { margin-top: -8px; font-size: .9375rem; }
+.intake-qs { display: grid; gap: 20px; margin: 0; padding: 0; list-style: none; }
+.intake-q { display: grid; gap: 8px; }
+.intake-q-text { font: 700 1rem/1.45 var(--sans); color: var(--heading); }
+.intake-hint { margin-top: -6px; }
+.intake-chip { max-width: 100%; text-align: left; overflow-wrap: anywhere; }
+.intake-chip[aria-checked="true"] { background: var(--heading); color: var(--on-heading); border-color: var(--heading); }
+.intake-other.input { max-width: 440px; padding: 10px 14px; font-size: 1rem; }
+.intake-go { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; }
+.intake-plan svg { width: 20px; height: 20px; }
+.learn.is-returning.is-asking .ask-level-row { display: none; }
 .ask-row { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
 .ask-label { font: 700 .8125rem/1.3 var(--sans); color: var(--muted); }
 .chip-soft { border-color: var(--line); color: var(--ink); font-weight: 500; }
@@ -357,6 +376,9 @@
 .map-dot.is-fragile { fill: #EDC25A; stroke: #A87B12; }
 .map-dot.is-growing { fill: var(--teal); stroke: var(--teal); }
 .map-dot.is-strong { fill: var(--heading); stroke: var(--heading); }
+/* Read, not reviewed: finished (green ring), with no strength to show. */
+.map-dot.is-read { fill: var(--green-tint); stroke: var(--green); }
+@container view (min-width: 608px) { .map-legend.has-read { grid-template-columns: repeat(5, auto); } }
 .map-label { font: 600 .875rem var(--sans); fill: var(--ink); }
 .map-sk { height: 260px; border-radius: var(--r-lg); }
 
@@ -484,3 +506,15 @@
   .learn-topics:has(> .welcome) .welcome-art { aspect-ratio: 16 / 7; height: auto; min-height: 0; }
   .learn-topics:has(> .welcome) .welcome-body { padding: 22px 26px 26px; }
 }
+
+/* The topic page's "How you are learning this": the mode (a radio group, like Learn's) and what
+   Dan told Claude when he started the topic. */
+.tp-mode { display: grid; gap: 10px; }
+.tp-modes .seg-btn { font-size: .875rem; }
+.tp-mode-note, .tp-mode-applies { line-height: 1.5; }
+.tp-mode-applies { margin-top: -6px; }
+.tp-told { margin-top: 6px; padding: 14px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.tp-told-h { font-size: 1rem; }
+.tp-told-list { display: grid; gap: 10px; margin: 8px 0 0; }
+.tp-told-row dt { font: 600 .875rem/1.45 var(--sans); color: var(--muted); }
+.tp-told-row dd { margin: 2px 0 0; font: 400 .9375rem/1.5 var(--sans); color: var(--ink); overflow-wrap: anywhere; }

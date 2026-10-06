@@ -32,6 +32,10 @@
 // and Q: the fact-check's quiet line in the Sources panel (checked-line; walk), a target check in
 // quiz mode, its readout hidden until Check (quiz), and the lede before play saying only
 // "Try this: …", the whole "Watch for …" sentence after the reveal (walk).
+// Version 9: a lesson written to be read (lesson.mode 'read', "Just teach me"): Explore and Read
+// only, no guess, say-it-back or checks, "Put it into practice", finishing marks it read and makes
+// no review cards (read-lesson); "Put it into practice" in a study lesson after the explanation
+// and analogy, and nothing for an older lesson without it (practice-study).
 // Screenshots: tests/out/lesson-*.png.
 //
 // Usage: node tests/e2e/lesson.spec.mjs [scenario-filter]     exits non-zero on any failure
@@ -2321,6 +2325,119 @@ async function quizTarget() {
   await app.close();
 }
 
+// ---------- v9: a read lesson ("Just teach me") ----------
+const PRACTICE_TEXT = '**Steps**\n1. Measure the string from the pivot to the middle of the bob.\n2. Time ten swings and divide by ten.[^1]\n\n**Rule of thumb:** four times the length, twice the time.\n\n**Worked example:** a 1 m pendulum swings in about 2 s, so a 4 m one takes about 4 s.\n\n**Common mistakes**\n- Timing a single swing: your reaction time swamps it.\n- Measuring to the top of the bob.';
+function readLesson({ reveal }) {
+  const d = JSON.parse(JSON.stringify(PENDULUM));
+  d.lesson.mode = 'read';
+  d.lesson.predict = reveal ? { reveal: PENDULUM.lesson.predict.reveal } : null;
+  d.lesson.say = null;
+  d.lesson.checks = [];
+  d.lesson.practice = { text: PRACTICE_TEXT };
+  return d;
+}
+async function readScenario(width, dark, withReveal) {
+  const tag = `${width}-${dark ? 'dark' : 'light'}`;
+  current = 'read-lesson ' + tag + (withReveal ? ' (with what happens)' : '');
+  console.log('\n' + current);
+  // The topic is "Teach and test me" now: the lesson's own mode decides how it is shown.
+  const earlier = slippingCards('2026-09-01T10:00:00.000Z');
+  const seed = { 'topics/pendulums': { ...TOPIC, mode: 'study' }, [LESSON('i1')]: readLesson({ reveal: withReveal }), [LESSON('i2')]: CLOCKS,
+    // Cards from an earlier, studied round of this idea are never touched by finishing a read one.
+    [CARDS]: earlier };
+  const app = await open({ width, dark, hash: '#/t/pendulums/i1', seed, reduced: true });
+  const { page } = app;
+  try {
+    const play = page.locator('.lsn-stage[data-stage="play"]');
+    await play.locator('iframe').waitFor();
+    ok(await page.locator('.lsn-stage[data-stage="predict"], .lsn-past[data-stage="predict"]').count() === 0, 'no guess first');
+    ok(await page.locator('.lsn-step').count() === 2, 'two steps in the bar');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Explore', 'the bar names it Explore');
+    ok(await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 1 of 2: Explore, current step', 'and says so to a screen reader');
+    ok(await play.locator('.eyebrow').first().textContent() === 'Explore', 'the stage is Explore');
+    ok(await page.locator('.lsn-one').isVisible(), 'the idea\'s one line shows from the start (no guess to give away)');
+    ok(await play.locator('.lsn-lede').textContent() === 'Try this: drag the length slider.', 'the "Try this" lede before playing');
+    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await noOverflow(app);
+    await shot(app, `read-${tag}-1-explore`);
+    await page.getByRole('button', { name: 'I\'ve had a play' }).click();
+    ok(/^Watch for /.test(await play.locator('.lsn-lede').textContent()), 'then the whole sentence');
+    ok(await play.locator('.lsn-reveal-guess').count() === 0, 'no "Your guess"');
+    ok(await play.locator('.lsn-reveal-answer').count() === (withReveal ? 1 : 0), withReveal ? 'what happens, when the lesson says' : 'nothing to reveal when it does not');
+    await play.getByRole('button', { name: 'Continue' }).click();
+    const read = page.locator('.lsn-stage[data-stage="explain"]');
+    await read.locator('.lsn-practice').waitFor();
+    ok(await read.locator('.eyebrow').first().textContent() === 'Read', 'the stage is Read');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Read', 'and the bar says so');
+    const order = await read.evaluate((el) => ['.lsn-reading', '.lsn-analogy', '.lsn-practice', '.lsn-discs'].map((q) => { const x = el.querySelector(q); return x ? [...el.querySelectorAll('*')].indexOf(x) : -1; }));
+    ok(order.every((v, i) => v >= 0 && (i === 0 || v > order[i - 1])), 'explanation, analogy, Put it into practice, then sources: ' + order);
+    ok(await read.locator('.lsn-practice ol > li').count() === 2 && await read.locator('.lsn-practice ul > li').count() === 2, 'its steps numbered and its mistakes listed');
+    ok(await read.locator('.lsn-practice button.fn').count() === 1, 'with its footnote');
+    ok((await read.locator('.lsn-practice').innerText()).includes('four times the length, twice the time'), 'in the lesson\'s own words');
+    await read.locator('.lsn-practice').scrollIntoViewIfNeeded();
+    await shot(app, `read-${tag}-2-practice`);
+    await read.getByRole('button', { name: 'Done reading' }).click();
+    await page.locator('.lsn-done').waitFor();
+    ok(await page.locator('.lsn-stage[data-stage="say"], .lsn-stage[data-stage="checks"]').count() === 0, 'no say-it-back and no quick checks');
+    ok(await page.locator('.lsn-done .lsn-h').textContent() === 'Idea read', 'the idea is read');
+    ok(/just for reading/.test(await page.locator('.lsn-done-text').textContent()), 'and nothing comes back in review');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Idea read', 'the bar says Idea read');
+    ok(await page.locator('.lsn-next a', { hasText: 'Start this idea' }).count() === 1, 'the next idea is offered as usual');
+    await page.waitForTimeout(500);
+    const t = await T(app), pr = (await doc(app, PROGRESS)).ideas.i1;
+    ok(t.add.length === 0, 'no review cards are made');
+    ok(pr.stage === 'done' && !!pr.doneAt && pr.readRound === 0 && pr.cardsRound === 0, 'saved as read, with no cards to make: ' + JSON.stringify(pr));
+    ok(!pr.predict && !pr.checks && !Object.keys(pr.say || {}).length, 'nothing to answer was saved');
+    ok(JSON.stringify((await doc(app, CARDS)).cards) === JSON.stringify(earlier.cards), 'earlier cards left as they were (review leaves them out)');
+    await shot(app, `read-${tag}-3-done`);
+    // Coming back: the two stages collapsed, the idea read.
+    await page.evaluate(() => U._route());
+    await page.locator('.lsn-done').waitFor();
+    ok((await page.locator('.lsn-past .lsn-past-label').allTextContents()).join() === 'Explore,Read', 'reopened: Explore and Read collapsed');
+    ok(await page.locator('.lsn-done .lsn-h').textContent() === 'You\'ve read this idea', 'and it says he has read it');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'read-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+async function practiceStudy() {
+  current = 'practice-study';
+  console.log('\n' + current);
+  const at = '2026-10-04T18:00:00.000Z';
+  const withIt = JSON.parse(JSON.stringify(PENDULUM));
+  withIt.lesson.practice = { text: PRACTICE_TEXT };
+  const seed = { 'topics/pendulums': { ...TOPIC, mode: 'read' }, [LESSON('i1')]: withIt, [LESSON('i3')]: SMALL,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'explain', startedAt: at, predict: { answer: 'It takes twice as long', at } }, i3: { stage: 'explain', startedAt: at, predict: { answer: 'x', at } } } } };
+  const app = await open({ width: 390, dark: false, hash: '#/t/pendulums/i1', seed, reduced: true });
+  const { page } = app;
+  try {
+    const ex = page.locator('.lsn-stage[data-stage="explain"]');
+    await ex.locator('.lsn-practice').waitFor();
+    ok(await page.locator('.lsn-step').count() === 5, 'a study lesson keeps its five steps (whatever the topic says now)');
+    ok(await ex.locator('.eyebrow').first().textContent() === 'Explain', 'Explain');
+    const order = await ex.evaluate((el) => ['.lsn-reading', '.lsn-analogy', '.lsn-practice'].map((q) => [...el.querySelectorAll('*')].indexOf(el.querySelector(q))));
+    ok(order[0] < order[1] && order[1] < order[2], 'Put it into practice after the explanation and analogy: ' + order);
+    ok((await ex.locator('.lsn-practice .eyebrow').textContent()) === 'Put it into practice', 'headed in the app\'s style');
+    ok(await ex.locator('.lsn-practice ol > li').count() === 2, 'its steps');
+    await ex.locator('.lsn-practice').scrollIntoViewIfNeeded();
+    await noOverflow(app);
+    await shot(app, 'practice-study-390');
+    await ex.getByRole('button', { name: 'Continue' }).click();
+    await page.locator('.lsn-stage[data-stage="say"] textarea').waitFor();
+    ok(true, 'then Say it back, as before');
+    // An older lesson, written before practice: nothing in its place.
+    await page.evaluate(() => U.go('#/t/pendulums/i3'));
+    await page.locator('.lsn-stage[data-stage="explain"] .lsn-reading').waitFor();
+    ok(await page.locator('.lsn-practice').count() === 0, 'an older lesson without it shows nothing');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 const scenarios = [
   ['walk-360-light', () => walk(360, false)],
   ['walk-360-dark', () => walk(360, true)],
@@ -2367,6 +2484,9 @@ const scenarios = [
   ['cheer', cheerStays],
   ['checked-line', checkedLine],
   ['quiz', quizTarget],
+  ['read-lesson-360-light', () => readScenario(360, false, false)],
+  ['read-lesson-1280-dark', () => readScenario(1280, true, true)],
+  ['practice-study', practiceStudy],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();
 

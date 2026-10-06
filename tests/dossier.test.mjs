@@ -1,6 +1,8 @@
 // Unit tests for the course dossier (app/src/js/75-dossier.js) over the data layer and the real
 // runtime stub's db (tools/harness/claude-stub.js), in a VM page with no DOM. Checks: a chapter
-// keeps only the lesson's own content (nothing Dan wrote, chose or scored, not even his query); a
+// keeps only the lesson's own teaching (nothing Dan wrote, chose or scored, not even his query,
+// and no test question: v9 keeps "Put it into practice" instead); practice sorted into the
+// journal's parts by fixed rules, word for word; a
 // plate too big for one doc is left out with a note; Learn it again binds the newest edition;
 // ideas finished before dossiers existed are bound from the stored lessons (backfill), only where
 // the course keeps one; the index; keep and remove; the model's glossary, bibliography and page
@@ -50,6 +52,8 @@ async function page(seed = {}) {
 // A course with Dan's own words planted everywhere they live: his query, his guesses, his
 // say-it-back, his answers, his questions, his "This looks wrong" note and Learn it again request.
 const DAN = 'DANWORDS';
+// A lesson's "Put it into practice" (lesson.practice, v9), as write-lesson writes it.
+const PRACTICE = '**Steps**\n1. Measure from the pivot to the middle of the bob.\n2. Time ten swings and divide by ten.\n\n**Rule of thumb:** four times the length, twice the time.\n\n**Worked example:** a 1 m pendulum swings in about 2 s[^1], so a 4 m one takes about 4 s.\n\n**Common mistakes**\n- Timing a single swing: your reaction time swamps it.\n- Measuring to the top of the bob.';
 function course({ option = undefined, extra = {} } = {}) {
   const topic = { ...fx('topic'), query: DAN + '-query typed by Dan' };
   const lesson = (doc, mark) => {
@@ -73,7 +77,7 @@ function course({ option = undefined, extra = {} } = {}) {
   if (option !== undefined) progress.dossier = option;
   return {
     'topics/pendulums': topic,
-    'topics/pendulums/lessons/i1': lesson(fx('pendulum')),
+    'topics/pendulums/lessons/i1': (() => { const d = lesson(fx('pendulum')); d.lesson.practice = { text: PRACTICE }; return d; })(),
     'topics/pendulums/lessons/i2': { ...lesson(fx('pendulum')), status: 'building' },   // not whole: never bound
     'topics/pendulums/lessons/i3': lesson(fx('small-swings')),
     'topics/pendulums/research/topic': { notes: [{ claim: 'x', sourceIds: [1] }], sources: fx('pendulum').lesson.sources, at: at('01') },
@@ -84,7 +88,7 @@ function course({ option = undefined, extra = {} } = {}) {
 }
 function dossierDocs(t) { return t.paths().filter((p) => p.includes('/dossiers/')); }
 
-test('a chapter keeps only the lesson\'s own content: nothing Dan wrote, chose or scored', async () => {
+test('a chapter keeps only the lesson\'s own teaching: nothing Dan wrote, chose or scored, and no test question', async () => {
   const t = await page(course());
   const n = await t.U.dossier.sync('pendulums');
   assert.equal(n, 1, 'one chapter bound (i1); i2 is not whole, i3 has an open Learn it again request');
@@ -93,12 +97,15 @@ test('a chapter keeps only the lesson\'s own content: nothing Dan wrote, chose o
   const all = JSON.stringify(docs.map(t.get));
   assert.ok(!all.includes(DAN), 'no word of Dan\'s anywhere in the dossier: ' + (all.match(/DANWORDS[-\w]*/g) || []).join(', '));
   const ch = t.get(P('dossiers/pendulums/chapters/i1'));
-  for (const k of ['predict', 'say']) assert.ok(!(k in ch.lesson), 'the lesson\'s ' + k + ' is an activity, not chapter content');
+  for (const k of ['predict', 'say', 'checks']) assert.ok(!(k in ch.lesson), 'the lesson\'s ' + k + ' is a question for Dan, not chapter content');
   for (const k of ['feedback', 'request', 'flags', 'checks', 'stage', 'verdict']) assert.ok(!(k in ch), k + ' is not kept');
+  const kept = JSON.stringify(ch);
+  for (const c of fx('pendulum').lesson.checks) {
+    assert.ok(!kept.includes(c.q), 'no test question in the snapshot: ' + c.q);
+    for (const m of Object.values(c.misconception || {})) assert.ok(!kept.includes(m), 'no trap either: ' + m);
+  }
   assert.equal(ch.lesson.explain.text, fx('pendulum').lesson.explain.text, 'the explanation, word for word');
-  assert.deepEqual(ch.lesson.checks.map((c) => c.id), ['c1', 'c2', 'c3'], 'the lesson\'s checks with their right answers');
-  assert.equal(ch.lesson.checks[0].answer, 1);
-  assert.ok(ch.lesson.checks[0].misconception && ch.lesson.checks[0].misconception['2'], 'a wrong option keeps the lesson\'s trap');
+  assert.deepEqual(ch.lesson.practice, { text: PRACTICE }, 'Put it into practice, word for word');
   assert.equal(ch.plate, fx('pendulum').interactive.html, 'the plate is the lesson\'s interactive');
   assert.equal(ch.doneAt, '2026-09-03T10:00:00.000Z', 'learned on: the idea\'s doneAt');
   assert.equal(ch.edition, 1);
@@ -110,6 +117,38 @@ test('a chapter keeps only the lesson\'s own content: nothing Dan wrote, chose o
   assert.ok(idx.research.sources.some((s) => s.url === 'https://www.sciencemuseum.org.uk/pendulum'), 'the research is kept for the bibliography');
   assert.deepEqual(idx.research.ideas.i1.length, 1, 'with the sources each idea\'s research rests on');
   assert.equal(await t.U.dossier.sync('pendulums'), 0, 'a second backfill in the same page load does nothing');
+});
+
+test('practice is sorted into the journal\'s parts by fixed rules, word for word', async () => {
+  const { U } = await page();
+  const kinds = (t) => plain(U.dossier.practiceParts(t)).map((p) => p.kind + (p.label ? ':' + p.label : '') + '=' + p.paras.concat(p.items).join('|'));
+  assert.deepEqual(kinds(PRACTICE), [
+    'steps:Steps=Measure from the pivot to the middle of the bob.|Time ten swings and divide by ten.',
+    'rules:Rule of thumb=four times the length, twice the time.',
+    'example:Worked example=a 1 m pendulum swings in about 2 s[^1], so a 4 m one takes about 4 s.',
+    'mistakes:Common mistakes=Timing a single swing: your reaction time swamps it.|Measuring to the top of the bob.',
+  ], 'labelled parts, on their own line or before their text');
+  assert.equal(plain(U.dossier.practiceParts(PRACTICE))[0].ordered, true, 'numbered steps stay numbered');
+  // No labels: the first list is the steps; a paragraph that opens by naming its part is that part;
+  // a heading line ("## …") names the block after it.
+  const loose = 'To check a claim like this:\n- Ask what was measured.\n- Look for the date.\n\nFor example, the 1656 clock kept time to a minute a day.\n\nA common mistake is to trust the first number you see.\n\n## Rules of thumb\n\n- Older is not worse.\n- Two sources beat one.';
+  assert.deepEqual(kinds(loose), [
+    'steps=To check a claim like this:|Ask what was measured.|Look for the date.',
+    'example=For example, the 1656 clock kept time to a minute a day.',
+    'mistakes=A common mistake is to trust the first number you see.',
+    'rules:Rules of thumb=Older is not worse.|Two sources beat one.',
+  ]);
+  // A paragraph with no label carries on the labelled part before it; bold words that are not a
+  // part's name are text, not a label.
+  assert.deepEqual(kinds('**Worked example:** a 2 m swing.\n\nSo it takes about 2.8 s.\n\n**Length sets the beat.** Keep it in mind.'), [
+    'example:Worked example=a 2 m swing.|So it takes about 2.8 s.|**Length sets the beat.** Keep it in mind.',
+  ]);
+  assert.deepEqual(kinds('Just one plain paragraph.'), ['prose=Just one plain paragraph.']);
+  assert.deepEqual(kinds(''), []);
+  // Every word of the text is printed somewhere (nothing dropped but the labels themselves).
+  const words = (t) => U.plain(t).replace(/[^A-Za-z0-9]+/g, ' ').trim().split(' ');
+  const printed = words(plain(U.dossier.practiceParts(loose)).map((p) => p.label + ' ' + p.paras.concat(p.items).join(' ')).join(' '));
+  assert.deepEqual(words(loose).filter((w) => !printed.includes(w)), [], 'no word lost');
 });
 
 test('a plate too big for one doc is left out with a note, and the chapter still fits under the cap', async () => {
@@ -216,6 +255,20 @@ test('the model: glossary from the bound chapters, bibliography by address, and 
   assert.deepEqual(plain(M.leaves.map((l) => l.id)), ['cover', 'contents', 'i1:1', 'i1:2', 'i1:3', 'back']);
   assert.equal(M.bound.length, 1); assert.equal(M.done, false);
   assert.equal(M.chapters[1].learned, null, 'chapter II not yet written');
+  // A chapter bound before lessons had practice (and with the checks older snapshots kept): its
+  // last leaf is its sources alone, and no page turn, label or part of the model names a test.
+  const old = { ...ch, lesson: { ...L, checks: plain(fx('pendulum').lesson.checks) } };
+  const M1 = U.dossier.model({ tid: 'pendulums', title: 'T', ideas, chapters: { i1: old } });
+  const last = M1.leaves.find((l) => l.id === 'i1:3');
+  assert.equal(last.k + ' / ' + last.t, 'Sources / chapter I', 'an older chapter\'s last leaf: its sources');
+  assert.equal(last.href, '#/book/pendulums/i1/practice');
+  assert.equal(M1.chapters[0].practice, null);
+  // With practice: the practice leaf, its parts ready to print.
+  const M2 = U.dossier.model({ tid: 'pendulums', title: 'T', ideas, chapters: { i1: { ...ch, lesson: { ...L, practice: { text: PRACTICE } } } } });
+  const pl = M2.leaves.find((l) => l.id === 'i1:3');
+  assert.equal(pl.k + ' / ' + pl.t, 'Put it into practice / and sources, chapter I');
+  assert.deepEqual(plain(M2.chapters[0].practice.map((p) => p.kind)), ['steps', 'rules', 'example', 'mistakes']);
+  for (const m of [M1, M2]) assert.ok(!/test/i.test(JSON.stringify(m.leaves)), 'no "test" in any page turn: ' + JSON.stringify(m.leaves));
 });
 
 test('the router: a dossier\'s pages are their own screen; the Library and the Book are "book"', async () => {
@@ -224,6 +277,7 @@ test('the router: a dossier\'s pages are their own screen; the Library and the B
   assert.equal(U.routes.screenOf('#/book/words'), 'book');
   for (const p of ['#/book/:tid', '#/book/:tid/contents', '#/book/:tid/:iid', '#/book/:tid/:iid/plate/play']) assert.equal(U.routes.screenOf(p), 'dossier', p);
   const hit = (h) => (U.routes.list.find((r) => r.re.test(h)) || {}).screen;
-  assert.equal(hit('#/book/pendulums/i1/tests'), 'dossier');
+  assert.equal(hit('#/book/pendulums/i1/practice'), 'dossier');
+  assert.equal(hit('#/book/pendulums/i1/tests'), 'dossier', 'the older address still opens the same leaf');
   assert.equal(hit('#/book/pendulums/glossary'), 'dossier');
 });

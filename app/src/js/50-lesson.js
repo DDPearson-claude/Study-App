@@ -1,5 +1,10 @@
 // Lesson screen, route #/t/:tid/:iid (focus mode). Teaches one idea in five stages:
 //   Predict -> Play (the sandboxed interactive) -> Explain -> Say it back (graded) -> Check.
+// A lesson written to be read (lesson.mode 'read': "Just teach me", whatever the topic says now)
+// has two: Explore (the interactive) -> Read (explanation, analogy, Put it into practice, sources),
+// with no guess, no say-it-back and no checks; finishing marks the idea read (readRound, cardsRound:
+// no review cards) and never counts in Today, review or the badge. Both kinds show the lesson's
+// "Put it into practice" (lesson.practice) after the explanation and analogy.
 //
 // Reads topics/{tid} and topics/{tid}/lessons/{iid}. A lesson opens only when it is whole: status
 // ready, with its interactive built and tested (or ready without one, and the honest note why).
@@ -34,6 +39,10 @@
   var STAGES = ['predict', 'play', 'explain', 'say', 'checks', 'done'];
   var STEPS = STAGES.slice(0, 5);
   var LABEL = { predict: 'Predict', play: 'Play', explain: 'Explain', say: 'Say it back', checks: 'Check', done: 'Done' };
+  // A read lesson (lesson.mode 'read'): the same stage names in progress, fewer of them, read-style labels.
+  var READ_STAGES = ['play', 'explain', 'done'];
+  var READ_STEPS = READ_STAGES.slice(0, 2);
+  var READ_LABEL = { play: 'Explore', explain: 'Read', done: 'Done' };
   var VERDICT = { 'got-it': 'You\'ve got it', partly: 'Partly there', 'not-yet': 'Not there yet' };
   // How each number in "What am I looking at?" is labelled. Assumed values are examples chosen
   // for the interactive ("for example …"), never findings; dates are plain facts.
@@ -103,7 +112,6 @@
   function liveOf(tid, iid) {
     try { return U.gen && typeof U.gen.status === 'function' ? (((U.gen.status(tid) || {}).lessons) || {})[iid] : undefined; } catch (e) { return undefined; }
   }
-  function stepName(stage) { return 'Step ' + (STEPS.indexOf(stage) + 1) + ' of ' + STEPS.length + ': ' + LABEL[stage]; }
   // The interactive's build brief follows a template ("The one thing you should see is X when you
   // Y"); Dan sees it as a friendly instruction instead. Its first half is what to look for, which
   // is the predict's answer, so before the reveal he sees only what to do: "Try this: Y." (or
@@ -158,9 +166,25 @@
     function requestOpen() { return !!(st.ip.relearn && (st.ip.relearnId || st.ip.relearnAt)); }
 
     // ---- frame: sticky bar, heading, stages, footer ----
-    var stepBtns = STEPS.map(function (s) {
-      return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, 'aria-label': stepName(s), on: { click: function () { jumpTo(s); } } }, U.h('i'));
-    });
+    // A read lesson (lesson.mode 'read') is shown read-style, whatever the topic's mode is now.
+    function reading() { return !!(st.lesson && st.lesson.mode === 'read'); }
+    function stagesNow() { return reading() ? READ_STAGES : STAGES; }
+    function stepsNow() { return reading() ? READ_STEPS : STEPS; }
+    function labelOf(stage) { return (reading() && READ_LABEL[stage]) || LABEL[stage]; }
+    function stepName(stage) { var list = stepsNow(); return 'Step ' + (list.indexOf(stage) + 1) + ' of ' + list.length + ': ' + labelOf(stage); }
+    // The stage after this one in this lesson's flow.
+    function after(stage) { var list = stagesNow(), i = list.indexOf(stage); return list[i + 1] || 'done'; }
+    var stepsRow = U.h('div', { class: 'lsn-steps-row' }), stepBtns = [];
+    // One segment per step of this lesson (five, or two for a read lesson), redrawn when that changes.
+    function drawSteps() {
+      var list = stepsNow();
+      if (stepBtns.length === list.length && stepBtns.every(function (b, i) { return b.dataset.stage === list[i]; })) return;
+      stepBtns = list.map(function (s) {
+        return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, dataset: { stage: s }, 'aria-label': stepName(s), on: { click: function () { jumpTo(s); } } }, U.h('i'));
+      });
+      U.append(U.clear(stepsRow), stepBtns);
+    }
+    drawSteps();
     // The bar names the stage only: its five segments show how far along he is, and the eyebrow
     // below already counts ideas ("Idea 1 of 6"), so a second "of N" would only confuse. Screen
     // readers hear the count from each segment's label ("Step 1 of 5: Predict, current step").
@@ -169,7 +193,7 @@
       U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude')));
     var bar = U.h('div', { class: 'lsn-bar' },
       U.h('a', { class: 'icon-btn lsn-close', href: '#/t/' + encodeURIComponent(tid), 'aria-label': 'Close the lesson and go back to the topic', on: { click: function () { toTopic(tid); } } }, U.icon('close')),
-      U.h('nav', { class: 'lsn-steps', 'aria-label': 'Lesson progress' }, U.h('div', { class: 'lsn-steps-row' }, stepBtns), stepLabel),
+      U.h('nav', { class: 'lsn-steps', 'aria-label': 'Lesson progress' }, stepsRow, stepLabel),
       askBtn);
     var eb = U.h('p', { class: 'eyebrow lsn-eb' }, U.h('span', { class: 'skeleton lsn-sk-eb' }));
     var h1 = U.h('h1', { class: 'lsn-title' }, U.h('span', { class: 'skeleton lsn-sk-h1' }));
@@ -693,25 +717,30 @@
 
     function begin() {
       st.begun = true;
+      var list = stagesNow(), start = list[0];
       // The idea counts as started only once its whole lesson is on screen.
       if (!st.replay) {
         var first = {};
         if (!st.ip.startedAt) first.startedAt = st.ip.startedAt = U.now();
-        if (!st.ip.stage) first.stage = st.ip.stage = 'predict';
+        if (!st.ip.stage) first.stage = st.ip.stage = start;
         saveIdea(first);
       }
       destroyLive();
       stopNext();
+      drawSteps();
       U.clear(flow); st.sections = {}; st.closed = {};
-      var cur = st.replay ? 'predict' : (st.ip.stage || 'predict');
-      var ci = STAGES.indexOf(cur);
-      if (ci < 0) { cur = 'predict'; ci = 0; }
-      for (var i = 0; i < Math.min(ci, 5); i++) addPast(STAGES[i]);
+      var cur = st.replay ? start : (st.ip.stage || start);
+      // A read lesson has no guess, say-it-back or checks: a stage saved as one of those (an older
+      // lesson's) opens at the nearest of its own.
+      if (reading()) cur = cur === 'predict' ? 'play' : cur === 'say' || cur === 'checks' ? 'explain' : cur;
+      var ci = list.indexOf(cur);
+      if (ci < 0) { cur = start; ci = 0; }
+      for (var i = 0; i < ci && list[i] !== 'done'; i++) addPast(list[i]);
       if (cur === 'done') addDone(false);
       else addLive(cur, false);
     }
     function addLive(stage, scroll) {
-      var sec = U.h('section', { class: 'lsn-stage', dataset: { stage: stage }, 'aria-label': LABEL[stage] });
+      var sec = U.h('section', { class: 'lsn-stage', dataset: { stage: stage }, 'aria-label': labelOf(stage) });
       flow.appendChild(sec);
       st.sections[stage] = sec; st.stage = stage;
       paintBar();
@@ -724,7 +753,7 @@
       var det = U.h('details', { class: 'lsn-past', dataset: { stage: stage } },
         U.h('summary', null,
           U.h('span', { class: 'lsn-past-tick', 'aria-hidden': 'true' }, U.icon('tick')),
-          U.h('span', { class: 'lsn-past-text' }, U.h('span', { class: 'lsn-past-label' }, LABEL[stage]), U.h('span', { class: 'lsn-past-sum' }, summaryOf(stage))),
+          U.h('span', { class: 'lsn-past-text' }, U.h('span', { class: 'lsn-past-label' }, labelOf(stage)), U.h('span', { class: 'lsn-past-sum' }, summaryOf(stage))),
           U.h('span', { class: 'lsn-chev', 'aria-hidden': 'true' }, U.icon('back'))),
         body);
       var drawn = false;
@@ -770,7 +799,7 @@
         sec.classList.add('is-done');
         sec.querySelectorAll('.lsn-go').forEach(function (g) { g.remove(); });
       }
-      var next = STAGES[STAGES.indexOf(stage) + 1];
+      var next = after(stage);
       // The saved stage only ever moves forward (another device may already be further on).
       if (!st.replay && order(next) > order(st.ip.stage)) { st.ip.stage = next; saveIdea({ stage: next }); }
       if (next === 'done') addDone(true);
@@ -778,15 +807,16 @@
     }
     function paintBar() {
       // Before the lesson is on screen no step is current (and the label says it is being prepared).
-      var ci = st.begun ? STAGES.indexOf(st.stage) : -1, all = st.begun && st.stage === 'done';
+      drawSteps();
+      var list = stepsNow(), ci = st.begun ? list.indexOf(st.stage) : -1, all = st.begun && st.stage === 'done';
       stepBtns.forEach(function (b, i) {
         var state = all ? 'done' : ci < 0 ? 'later' : i < ci ? 'done' : i === ci ? 'now' : 'later';
         b.className = 'lsn-step is-' + state + (all ? ' is-all' : '');
-        b.disabled = !st.sections[STEPS[i]];
-        b.setAttribute('aria-label', stepName(STEPS[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
+        b.disabled = !st.sections[list[i]];
+        b.setAttribute('aria-label', stepName(list[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? 'Idea learned' : st.begun ? LABEL[st.stage] : st.prep ? 'Getting ready' : '';
+      stepLabel.textContent = all ? (reading() ? 'Idea read' : 'Idea learned') : st.begun ? labelOf(st.stage) : st.prep ? 'Getting ready' : '';
       bar.classList.toggle('is-all', all);
       paintOne();
     }
@@ -864,6 +894,11 @@
     // titled false: the reveal goes without its "What happens" eyebrow (Play is headed so already).
     function guessAndReveal(noAnswer, titled) {
       var p = (st.lesson && st.lesson.predict) || {};
+      // A read lesson asked for no guess: only what happens, when it says (it may not).
+      if (reading()) {
+        return p.reveal && !noAnswer ? U.h('div', { class: 'lsn-reveal' }, U.h('div', { class: 'lsn-reveal-answer callout remember' },
+          titled === false ? null : eyebrow('What happens'), richBox(p.reveal, 'lsn-reveal-text', fn))) : null;
+      }
       var gr = guessOf(), g = gr && gr.answer;
       var said = g != null && g !== '';
       // When the lesson marks which option was right, a right guess is acknowledged.
@@ -882,8 +917,9 @@
       // without one, nothing here is named after an interactive that is not there.
       var spec = (st.lesson && st.lesson.interactive) || null;
       var built = builtIt(), has = !!built, played = !live;
-      var title = has ? (built.title || (spec && spec.title) || 'What happens') : 'What happens';
-      U.append(box, [live ? eyebrow('Play') : null, heading(title)]);
+      var revealText = (st.lesson && st.lesson.predict && st.lesson.predict.reveal) || '';
+      var title = has ? (built.title || (spec && spec.title) || 'What happens') : reading() && !revealText ? 'Before you read' : 'What happens';
+      U.append(box, [live ? eyebrow(labelOf('play')) : null, heading(title)]);
       var brief = has && spec && spec.brief ? U.h('p', { class: 'lsn-lede' }) : null;
       var stage = U.h('div', { class: 'lsn-play' });
       var notes = U.h('div', { class: 'lsn-discs' });
@@ -891,7 +927,7 @@
       U.append(box, [brief, stage, notes, after]);
       var m = null;
       if (has) m = mountPanel(stage, built, title);
-      else stage.appendChild(noInteractive(spec));
+      else stage.appendChild(noInteractive(spec, !reading() || !!revealText));
       if (spec && has) drawNotes(notes, spec, m);
       function drawAfter() {
         U.clear(after);
@@ -900,7 +936,9 @@
         var acting = live && !st.closed.play;
         if (played || !has) {
           // Without an interactive, Play is headed "What happens": the answer is not titled again.
-          after.appendChild(guessAndReveal(false, has));
+          // A read lesson shows only what happens, when it says (it may not).
+          var shown = guessAndReveal(false, has);
+          if (shown) after.appendChild(shown);
           if (acting) after.appendChild(go(btn('Continue', function () { complete('play'); }, 'lsn-main')));
         } else if (acting) {
           after.appendChild(go(btn('I\'ve had a play', function () {
@@ -908,7 +946,7 @@
             drawAfter();
             // The button has gone: focus goes to what appeared (the answer), which is also said.
             var reveal = (st.lesson && st.lesson.predict && st.lesson.predict.reveal) || '';
-            land(after.querySelector('.lsn-reveal-answer') || after.querySelector('.lsn-reveal-guess'));
+            land(after.querySelector('.lsn-reveal-answer') || after.querySelector('.lsn-reveal-guess') || after.querySelector('.btn'));
             if (reveal) announce('What happens: ' + reveal);
             bring(after, 'nearest');
           }, 'lsn-main')));
@@ -969,13 +1007,14 @@
           (n - ok) + ' of its ' + n + ' self-checks did not pass, so treat its exact numbers with some care. The pattern it shows should still hold.'));
       }
     }
-    function noInteractive(spec) {
+    // below: what happens is shown just below (a read lesson may have nothing to reveal).
+    function noInteractive(spec, below) {
       var why = spec
         ? 'The interactive for this idea did not pass its own tests, so it is left out rather than risk showing you something wrong.'
         : 'This idea is about how things fit together rather than numbers you can change, so there is nothing to play with.';
       return U.h('div', { class: 'lsn-none' },
         U.h('p', { class: 'lsn-none-head' }, 'No interactive for this one'),
-        U.h('p', { class: 'muted' }, why + ' What happens is just below.'));
+        U.h('p', { class: 'muted' }, why + (below === false ? ' The reading comes next.' : ' What happens is just below.')));
     }
     function named(c) { return !!c && Array.isArray(c.options) && c.options.length > 0; }
     // The lesson's own name for a named control's value from the frame, or null. raw: the index
@@ -1057,7 +1096,7 @@
     // ---- 3. Explain ----
     function renderExplain(box, live) {
       var l = st.lesson || {}, ex = l.explain || {};
-      U.append(box, [live ? eyebrow('Explain') : null, heading('What\'s going on'), U.h('div', { class: 'reading lsn-reading' }, U.rich(ex.text || '', fn))]);
+      U.append(box, [live ? eyebrow(labelOf('explain')) : null, heading('What\'s going on'), U.h('div', { class: 'reading lsn-reading' }, U.rich(ex.text || '', fn))]);
       var src = sources(), checked = checkedLine(src.length);
       if (st.doc && st.doc.sourced === false) {
         box.appendChild(U.h('p', { class: 'lsn-quiet' }, U.h('strong', null, 'Not yet source-checked. '), 'Claude wrote this from what it already knows; no live sources were checked for this idea.'));
@@ -1080,6 +1119,8 @@
             return U.h('div', { class: 'lsn-view' }, U.h('h3', null, String(v.label || 'One view')), richBox(v.text, 'lsn-view-text', fn));
           })) : null));
       }
+      var practice = practiceBox();
+      if (practice) box.appendChild(practice);
       if (src.length) {
         box.appendChild(U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', [U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
           return U.h('li', null, U.h('button', { class: 'lsn-source-btn', type: 'button', on: { click: function () { sourceSheet(s); } } },
@@ -1087,7 +1128,30 @@
             U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
         })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null])));
       } else if (checked) box.appendChild(U.h('p', { class: 'lsn-checked' }, checked));
-      if (live) box.appendChild(go(btn('Continue', function () { complete('explain'); }, 'lsn-main')));
+      if (live) box.appendChild(go(btn(reading() ? 'Done reading' : 'Continue', function () { complete('explain'); }, 'lsn-main')));
+    }
+    // "Put it into practice" (lesson.practice): how to use the idea, in the lesson's own words (an
+    // older lesson has none, and shows nothing). Paragraphs, "- " lists and numbered "1. " steps.
+    function practiceBox() {
+      var pr = st.lesson && st.lesson.practice, text = pr && typeof pr.text === 'string' ? pr.text.trim() : '';
+      if (!text) return null;
+      var body = U.h('div', { class: 'reading lsn-practice-text' });
+      text.replace(/\r/g, '').split(/\n{2,}/).forEach(function (block) {
+        var lines = block.split('\n').map(function (l) { return l.trim(); }).filter(Boolean), para = [], list = null;
+        lines.forEach(function (l) {
+          var b = /^(?:[-•*]|(\d{1,2})[.)])\s+/.exec(l);
+          if (b) {
+            if (para.length) { body.appendChild(U.inline(U.h('p'), para.join(' '), fn)); para = []; }
+            if (!list) list = body.appendChild(U.h(b[1] ? 'ol' : 'ul'));
+            list.appendChild(U.inline(U.h('li'), l.slice(b[0].length), fn));
+          } else if (list) {
+            list.lastChild.appendChild(document.createTextNode(' '));
+            U.inline(list.lastChild, l, fn);
+          } else para.push(l);
+        });
+        if (para.length) body.appendChild(U.inline(U.h('p'), para.join(' '), fn));
+      });
+      return U.h('section', { class: 'lsn-practice', 'aria-label': 'Put it into practice' }, eyebrow('Put it into practice'), body);
     }
 
     // ---- 4. Say it back ----
@@ -1335,15 +1399,18 @@
 
     // ---- Done ----
     function addDone(live) {
-      var first = live && !st.replay && !st.ip.doneAt;
+      var first = live && !st.replay && !st.ip.doneAt, read = reading();
       if (live && !st.replay) {
         var f = { stage: 'done' };
         if (first) f.doneAt = st.ip.doneAt = U.now();
+        // A read lesson makes no review cards: the round is marked read (Today, review and the
+        // badge never count it) and its cards as made, none (so nothing makes them later).
+        if (first && read) f.readRound = f.cardsRound = st.ip.readRound = round();
         st.ip.stage = 'done';
         saveIdea(f);
         // Review cards come from the first time through (or a fresh round of Learn it again). The
         // round is recorded with them, so cards lost with a closed app are made at the next open.
-        if (first && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
+        if (first && !read && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
           Promise.resolve().then(function () { return U.review.addFromLesson(tid, iid, st.lesson, outcome(), { round: round() }); })
             .catch(function (e) { if (!(e && e.queued)) U.toast('Your review cards could not be saved: ' + U.errText(e), { kind: 'bad' }); });
         }
@@ -1362,14 +1429,15 @@
       var says = attemptsNow();
       var nx = nextIdea();
       var topicHref = '#/t/' + encodeURIComponent(tid);
-      var sec = U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea learned' },
+      var sec = U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': read ? 'Idea read' : 'Idea learned' },
         U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
-        heading(live ? (st.replay ? 'Gone through again' : 'Idea learned') : 'You\'ve learned this idea'),
+        heading(live ? (st.replay ? (read ? 'Read through again' : 'Gone through again') : read ? 'Idea read' : 'Idea learned') : read ? 'You\'ve read this idea' : 'You\'ve learned this idea'),
         // Two short centred lines (how it went; where his work went), not one long ragged paragraph.
-        U.h('p', { class: 'lsn-done-text' },
-          all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
-          U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
-            : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
+        read ? U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.'))
+          : U.h('p', { class: 'lsn-done-text' },
+            all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
+            U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
+              : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
         nx
           ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
             nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
@@ -1377,9 +1445,9 @@
             go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
               U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
           : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
-            U.h('p', { class: 'muted' }, 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
+            U.h('p', { class: 'muted' }, read ? 'You have been through every idea here.' : 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
             go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
-        U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); })));
+        U.h('p', { class: 'lsn-again' }, linkBtn(read ? 'Read it again' : 'Go through it again', function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); })));
       flow.appendChild(sec);
       st.sections.done = sec;
       paintBar();

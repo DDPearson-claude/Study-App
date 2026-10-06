@@ -1,13 +1,16 @@
 // The course dossier (docs/ARCHITECTURE.md sections 4, 9 and 10): a course bound as a naturalist's
-// field journal. Each idea Dan finishes in a course that keeps one (the topic page's "Keep a
-// dossier", on by default: progress.dossier !== false) is bound as a chapter: a snapshot of the
-// lesson's own content, taken when he finishes it (50-lesson.js calls U.dossier.bind) and taken
-// again when he learns it again (the newest edition). Ideas finished before dossiers existed are
-// bound from the stored lesson docs the first time the Library or the dossier opens (sync).
+// field journal, a teach-you-how book. Each idea Dan finishes in a course that keeps one (the topic
+// page's "Keep a dossier", on by default: progress.dossier !== false) is bound as a chapter: a
+// snapshot of the lesson's own teaching, taken when he finishes it (50-lesson.js calls
+// U.dossier.bind) and taken again when he learns it again (the newest edition). Ideas finished
+// before dossiers existed are bound from the stored lesson docs the first time the Library or the
+// dossier opens (sync).
 //
-// Only the course's content is printed, never anything Dan wrote, chose or scored: no say-it-back,
-// no predict, no answers or results, no questions, no "This looks wrong" notes, not even the words
-// he typed to start the course (topic.query). The only things about him are dates (begun,
+// Only the course's teaching is printed, never anything Dan wrote, chose or scored, and never a
+// test: no say-it-back, no predict, no questions, answers or results, no "This looks wrong" notes,
+// not even the words he typed to start the course (topic.query). What it keeps is what he could
+// pick up and use: the explanation, the analogy, the key facts card, the plate, "Put it into
+// practice" (lesson.practice) and the sources. The only things about him are dates (begun,
 // finished, learned on) and how many chapters are bound. Model text goes in through U.h / U.rich
 // / U.inline as text; the plate (the lesson's interactive) runs only in the sandboxed kit frame.
 //
@@ -16,10 +19,12 @@
 // would not fit is left out with a note). A dossier outlives its course when Dan keeps it.
 //
 // Routes (the Library itself is #/book in 73-book.js):
-//   #/book/:tid  cover · /contents · /:iid (the idea) · /:iid/plate (/play: awake) · /:iid/tests
+//   #/book/:tid  cover · /contents · /:iid (the idea) · /:iid/plate (/play: awake)
+//   · /:iid/practice (put it into practice | sources; /tests, an older address, opens it too)
 //   · /glossary · /bibliography (the same leaf, at the bibliography)
 //
-// Pure parts (chapterFrom, researchFrom, indexFrom, model) touch no DOM, so Node tests run them.
+// Pure parts (chapterFrom, researchFrom, indexFrom, practiceParts, model) touch no DOM, so Node
+// tests run them.
 (function () {
   'use strict';
   var h = U.h;
@@ -31,7 +36,6 @@
     contested: 'Experts disagree. The main views are set side by side.',
   };
   var UNSOURCED = 'Not yet source-checked: Claude wrote this from what it already knows.';
-  var TEST_KIND = { choice: 'Pick one', order: 'Put in order', estimate: 'Estimate', target: 'On the plate' };
   var CLOTH = ['#36324F', '#2F4536', '#5A2B24', '#2E3F52', '#4A2D40', '#5E4126'];
   var FONTS = 'https://fonts.googleapis.com/css2?family=Walter+Turncoat&family=Patrick+Hand&family=Patrick+Hand+SC&family=Permanent+Marker&family=Special+Elite&display=swap';
   // The plate in ink on paper: the kit's palette and its data roles (K_THEME.roles), for 32-sandbox.js.
@@ -61,19 +65,8 @@
     return n;
   }
   function ideaOf(topic, iid) { return arr(topic && topic.ideas).filter(function (i) { return isObj(i) && i.id === iid; })[0] || null; }
-  function cleanCheck(k) {
-    if (!isObj(k)) return null;
-    var c = { id: str(k.id), type: str(k.type), q: str(k.q), why: str(k.why) };
-    if (k.type === 'choice') {
-      c.options = arr(k.options).map(str); c.answer = num(k.answer);
-      if (isObj(k.misconception)) { c.misconception = {}; Object.keys(k.misconception).forEach(function (i) { if (typeof k.misconception[i] === 'string') c.misconception[i] = k.misconception[i]; }); }
-    } else if (k.type === 'order') c.items = arr(k.items).map(str);
-    else if (k.type === 'estimate') { Object.assign(c, pick(k, ['min', 'max', 'answer', 'tolerance', 'unit', 'log'])); }
-    else if (k.type === 'target') { Object.assign(c, pick(k, ['control', 'output', 'target', 'tolerance'])); }
-    else return null;
-    return c;
-  }
-  // The lesson's own content. Left out on purpose: predict and say (activities Dan answers).
+  // The lesson's own teaching. Left out on purpose: predict, say and checks (questions Dan
+  // answers: the dossier is a book to learn from, never a test).
   function cleanLesson(L, doc) {
     var it = isObj(L.interactive) ? L.interactive : null, built = isObj(doc && doc.interactive) ? doc.interactive : null;
     return {
@@ -86,7 +79,7 @@
         controls: arr(it.controls).filter(isObj).map(function (c) { return pick(c, ['id', 'label', 'min', 'max', 'step', 'value', 'unit', 'options']); }),
         outputs: arr(it.outputs).filter(isObj).map(function (o) { return pick(o, ['id', 'label', 'unit', 'decimals']); }),
       } : null,
-      checks: arr(L.checks).map(cleanCheck).filter(Boolean),
+      practice: isObj(L.practice) && typeof L.practice.text === 'string' && L.practice.text.trim() ? { text: L.practice.text } : null,
       sources: arr(L.sources).filter(isObj).map(function (s) { return { n: num(s.n), title: str(s.title), url: str(s.url), quote: str(s.quote) }; }),
       confidence: CERTAIN[L.confidence] ? L.confidence : 'settled',
       contested: isObj(L.contested) && Array.isArray(L.contested.views)
@@ -165,6 +158,61 @@
   function paras(t) { return str(t).replace(/\r/g, '').split(/\n{2,}/).map(function (s) { return s.trim(); }).filter(Boolean); }
   function splitTitle(t) { var p = str(t).split(' — '); return { title: p[0].trim(), pub: (p[1] || '').trim() }; }
   function termsOf(L) { var out = [], re = /\[\[([^\]]+)\]\]/g, m, t = str(L && L.explain && L.explain.text); while ((m = re.exec(t))) if (out.indexOf(m[1]) < 0) out.push(m[1]); return out; }
+  // "Put it into practice" (lesson.practice.text, U.rich text) sorted into the journal's parts by
+  // fixed rules, word for word (nothing reworded or added): a part is named by its own lead label,
+  // on a line of its own or before its text ("**Steps**", "Rule of thumb:", "**Worked example:**",
+  // "## Common mistakes"); the label's words say which part it is (PRACTICE). A list with no label
+  // is the steps (the first one); a block with no label carries on the labelled part before it,
+  // else stays plain prose. Lists are "- " lines or numbered "1. " lines.
+  // -> [{kind: 'steps'|'rules'|'example'|'mistakes'|'prose', label, paras: [text], items: [text], ordered}]
+  var PRACTICE = [
+    ['mistakes', /mistake|pitfall|trap|go(es)? wrong|watch out|avoid|error/i],
+    ['rules', /\brules?\b/i],
+    ['example', /example|for instance|worked|real case|case study/i],
+    ['steps', /\bsteps?\b|how to|checklist|what to (do|look for|check)|in practice|method|try this/i],
+  ];
+  function practiceKind(label) { for (var i = 0; i < PRACTICE.length; i++) if (PRACTICE[i][1].test(label)) return PRACTICE[i][0]; return null; }
+  function leadOf(line) {
+    var m = /^#{1,4}\s+(.{1,60})$/.exec(line) || /^\*\*([^*]{1,60}?)\s*:?\s*\*\*\s*:?\s*([\s\S]*)$/.exec(line) || /^([A-Za-z][A-Za-z ’'-]{1,40}):(?:\s+([\s\S]*))?$/.exec(line);
+    if (!m) return null;
+    var label = m[1].replace(/[\s:*]+$/, '').trim(), kind = practiceKind(label);
+    return kind ? { label: label, kind: kind, rest: str(m[2]).trim() } : null;
+  }
+  var BULLET = /^\s*(?:[-•*]|(\d{1,2})[.)])\s+/;
+  // A paragraph with no label may still open by naming its part ("For example, …", "A common
+  // mistake is …", "A good rule of thumb: …"); its words stay as they are.
+  function openingKind(t) {
+    t = U.plain(str(t)).trim();
+    if (/^(for example|for instance|example\b|say you\b|suppose\b|imagine\b)/i.test(t)) return 'example';
+    if (/^((a|the|one|two)\s+)?((common|usual|classic|easy|big)\s+)?(mistakes?|pitfalls?|traps?)\b|^(watch out|beware|don['’]t|do not|avoid|never)\b/i.test(t)) return 'mistakes';
+    if (/^((a|one|the)\s+)?((good|simple|handy|useful)\s+)?rules? of thumb\b/i.test(t)) return 'rules';
+    return null;
+  }
+  function practiceParts(text) {
+    var parts = [], carry = null, named = null;
+    str(text).replace(/\r/g, '').split(/\n{2,}/).forEach(function (block) {
+      var lines = block.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+      if (!lines.length) return;
+      var lead = leadOf(lines[0]), own = lead || carry;
+      carry = null;
+      if (lead) { lines[0] = lead.rest; if (!lines[0]) lines.shift(); }
+      if (!lines.length) { carry = lead; return; }   // a label on its own: it names the next block
+      var ps = [], items = [], ordered = false;
+      lines.forEach(function (l) {
+        var b = BULLET.exec(l);
+        if (b) { if (!items.length) ordered = !!b[1]; items.push(l.slice(b[0].length).trim()); } else if (items.length) items[items.length - 1] += ' ' + l; else ps.push(l);
+      });
+      if (ps.length) ps = [ps.join(' ')];
+      var kind = own ? own.kind : !items.length ? openingKind(ps[0]) : null, prev = parts[parts.length - 1];
+      if (!kind && items.length && !parts.some(function (p) { return p.kind === 'steps'; })) kind = 'steps';
+      // Unlabelled: it carries on the labelled part just before it (or the prose before it).
+      if (!kind && prev && (named === prev || prev.kind === 'prose')) { prev.paras = prev.paras.concat(ps); prev.items = prev.items.concat(items); return; }
+      var part = { kind: kind || 'prose', label: own ? own.label : '', paras: ps, items: items, ordered: ordered };
+      parts.push(part);
+      named = kind ? part : null;
+    });
+    return parts;
+  }
   // book: {tid, title, hook, oneBreath, ideas, startedAt, research, chapters:{iid: chapter doc}, no, topic?}
   function model(book) {
     var base = '#/book/' + encodeURIComponent(book.tid), ideas = arr(book.ideas).filter(isObj), N = ideas.length, docs = book.chapters || {};
@@ -172,7 +220,12 @@
       var d = isObj(docs[idea.id]) && isObj(docs[idea.id].lesson) ? docs[idea.id] : null;
       return { n: k + 1, rn: roman(k + 1), idea: idea, learned: d ? d.doneAt : null, doc: d, lesson: d ? d.lesson : null, href: base + '/' + encodeURIComponent(idea.id) };
     });
-    chapters.forEach(function (c) { c.hasPlate = !!(c.lesson && c.lesson.interactive && c.doc && (c.doc.plate || c.doc.plateNote)); });
+    chapters.forEach(function (c) {
+      c.hasPlate = !!(c.lesson && c.lesson.interactive && c.doc && (c.doc.plate || c.doc.plateNote));
+      // Older chapters (bound before lessons had it) have no practice: their last leaf is the sources.
+      var pr = c.lesson && isObj(c.lesson.practice) ? practiceParts(c.lesson.practice.text) : [];
+      c.practice = pr.length ? pr : null;
+    });
     var bound = chapters.filter(function (c) { return c.learned; });
     var byId = {}; chapters.forEach(function (c) { byId[c.idea.id] = c; });
     // Bibliography: one entry per web page the course's research and the bound lessons kept.
@@ -215,7 +268,8 @@
     bound.forEach(function (c) {
       leaves.push({ id: c.idea.id + ':1', href: c.href, k: 'Chapter ' + c.rn, t: c.idea.title });
       if (c.hasPlate) leaves.push({ id: c.idea.id + ':2', href: c.href + '/plate', k: 'Plate ' + c.rn, t: c.lesson.interactive.title });
-      leaves.push({ id: c.idea.id + ':3', href: c.href + '/tests', k: 'Field tests', t: 'and sources, chapter ' + c.rn });
+      leaves.push(c.practice ? { id: c.idea.id + ':3', href: c.href + '/practice', k: 'Put it into practice', t: 'and sources, chapter ' + c.rn }
+        : { id: c.idea.id + ':3', href: c.href + '/practice', k: 'Sources', t: 'chapter ' + c.rn });
     });
     if (hasBack) leaves.push({ id: 'back', href: base + '/glossary', k: 'Glossary', t: 'and bibliography' });
     var done = N > 0 && bound.length >= N;
@@ -363,7 +417,6 @@
     xref: '<svg viewBox="0 0 40 30"><path d="M36 26C30 12 19 5 5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11 1 4.5 6l6.6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     box: '<svg viewBox="0 0 22 22"><path d="M2.6 3.1c5.6-.5 11.2-.4 16.6-.1.3 5.4.4 10.8 0 16.1-5.5.4-11 .4-16.4.1-.4-5.3-.5-10.8-.2-16.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
     tick: '<svg viewBox="0 0 22 22"><path d="M2.6 3.1c5.6-.5 11.2-.4 16.6-.1.3 5.4.4 10.8 0 16.1-5.5.4-11 .4-16.4.1-.4-5.3-.5-10.8-.2-16.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity=".7"/><path d="M5.2 11.4c1.6 1.4 3 3 4.1 4.8 2.6-5.1 6-9.4 10.6-13.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    loop: '<svg viewBox="0 0 200 40" preserveAspectRatio="none"><path d="M24 2.6C80 .4 150 .8 188 3.4c9 .8 10.6 6 10.6 16.4 0 9.8-1.4 15.2-9.6 16.4-50 3.6-120 3.4-176 .4-8.6-.6-11.4-5.4-11.6-16C1.6 9 4 4 13 3.2 40 1 70 1.6 98 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>',
     ring: '<svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M54 4C80 3 97 14 96 30 95 47 74 57 48 56 22 55 4 45 5 29 6 14 26 5 46 6c6 0 12 1 18 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>',
     out: '<svg viewBox="0 0 12 12"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     hand: '<svg viewBox="0 0 24 24"><path d="M8.6 12.4V5.6c0-1 .8-1.7 1.7-1.7s1.6.7 1.6 1.7v5.2m0-1.3c0-.9.7-1.6 1.6-1.6s1.6.7 1.6 1.6v1.4m0-.6c0-.9.7-1.5 1.6-1.5s1.5.7 1.5 1.5v1.2m0-.2c0-.8.6-1.4 1.4-1.4s1.4.6 1.4 1.4v3.9c0 3.8-2.6 6.5-6.4 6.5h-1.2c-2.2 0-3.7-.9-5-2.6l-3-4.1c-.6-.8-.4-1.8.3-2.3.8-.5 1.7-.3 2.3.4l1.2 1.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -478,9 +531,6 @@
   function inl(el, text, fx) { return chipsIn(U.inline(el, text, fnOpts(fx)), fx); }
   function rich(text, fx) { var d = h('div'); d.appendChild(U.rich(text, fnOpts(fx))); chipsIn(d, fx); return Array.prototype.slice.call(d.childNodes); }
   function sourcesOf(L) { var by = {}; arr(L && L.sources).forEach(function (s) { by[s.n] = s; }); return by; }
-  // The field tests a chapter prints: as the lesson does, a target check needs the interactive it
-  // is played on (a plate kept, or one left out only for its size).
-  function testsOf(c) { return arr(c.lesson.checks).filter(function (k) { return k.type !== 'target' || c.hasPlate; }); }
 
   // =====================================================================================
   // THE READER: one leaf (two pages) per route, in reading order
@@ -517,7 +567,7 @@
     if (kind === 'cover') return cover(S, M);
     if (kind === 'back' || kind === 'biblio') return M.hasBack ? backMatter(S, M, kind) : contents(S, M);
     if (kind === 'contents' || !c || !c.learned) return contents(S, M);
-    if (kind === 'tests') return chapterTests(S, M, c);
+    if (kind === 'practice') return chapterPractice(S, M, c);
     if ((kind === 'plate' || kind === 'play') && c.hasPlate) return chapterPlate(S, M, c, kind === 'play');
     return chapterIdea(S, M, c);
   }
@@ -580,7 +630,8 @@
   }
   function leaf(S, M, o) {
     var t = turnLinks(M, o.leaf);
-    var spread = h('article', { class: 'spread enter' }, o.left, o.right);
+    // One page alone (a chapter's sources, without practice) stands as a single right-hand page.
+    var spread = h('article', { class: 'spread enter' + (o.left ? '' : ' single') }, o.left, o.right);
     U.clear(S.root);
     U.append(S.root, [bar(S, M.book.title), tabs(M, o.tab), h('div', { class: 'd-book' }, spread, turnNav(t)), sideArrows(t)]);
     keys(S);
@@ -729,7 +780,7 @@
       h('dl', null, rows.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); }), cert));
   }
   function chapterIdea(S, M, c) {
-    var L = c.lesson, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/tests');
+    var L = c.lesson, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/practice');
     U.setTitle('Chapter ' + c.rn + ' · ' + idea.title);
     // The closing all-bold paragraph becomes the field note (not printed twice); the first quoted
     // source cited after the opening paragraph is clipped in after the paragraph that cites it.
@@ -767,7 +818,7 @@
 
   // ---------- chapter, leaf 2: the plate | its notes ----------
   function chapterPlate(S, M, c, play) {
-    var L = c.lesson, it = L.interactive, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/tests');
+    var L = c.lesson, it = L.interactive, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/practice');
     U.setTitle('Plate ' + c.rn + ' · ' + it.title);
     // A number from the sources: the first cited constant the explanation does not already quote
     // (else the first cited constant), circled in the margin.
@@ -860,26 +911,28 @@
     S.plates.forEach(function (p) { S.io.observe(p.mount); });
   }
 
-  // ---------- chapter, leaf 3: field tests | sources ----------
-  function chapterTests(S, M, c) {
+  // ---------- chapter, leaf 3: put it into practice | sources ----------
+  // The practice page in the journal's hands (practiceParts): the steps as an ink checklist, the
+  // rules of thumb on a taped card, the worked example as a field note and the common mistakes in
+  // red ink. A chapter without practice (bound before lessons had it) has the sources page alone.
+  function chapterPractice(S, M, c) {
     var L = c.lesson, idea = c.idea, sid = 'c' + c.n;
-    U.setTitle('Chapter ' + c.rn + ' field tests · ' + idea.title);
+    U.setTitle((c.practice ? 'Chapter ' + c.rn + ', put it into practice · ' : 'Chapter ' + c.rn + ' sources · ') + idea.title);
     var fx = { by: sourcesOf(L), open: function (n) {
       var el = document.getElementById(sid + '-s' + n);
       if (el) { el.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }); el.focus({ preventScroll: true }); }
     } };
-    var left = page('l', 'Chapter ' + c.n + ', field tests', [
+    var left = c.practice ? page('l', 'Chapter ' + c.n + ', put it into practice', [
       deco('splat', 'splat'), runhead(M.book.title),
       h('header', { class: 'ch-head' },
         h('p', { class: 'kicker' }, 'Chapter ' + c.rn + ' · ' + idea.title),
-        h('h1', { class: 'ch-title', tabindex: '-1' }, 'Field tests'),
-        h('p', { class: 'sub' }, 'The lesson’s questions, each with its right answer and why.')),
-      h('ol', { class: 'tests' }, testsOf(c).map(function (k, j) { return fieldTest(M, c, L, k, j, fx); })),
-    ]);
+        h('h1', { class: 'ch-title', tabindex: '-1' }, 'Put it into practice'),
+        h('p', { class: 'sub' }, 'How to use this idea, from the lesson.')),
+    ].concat(c.practice.map(function (p) { return practicePart(p, fx); }))) : null;
     var right = page('r', 'Chapter ' + c.n + ', sources', [
       runhead('Chapter ' + c.rn, idea.title),
       h('section', { class: 'sources', 'aria-labelledby': sid + '-so' },
-        h('h2', { class: 'hh', id: sid + '-so' }, 'Sources'),
+        h(c.practice ? 'h2' : 'h1', { class: 'hh', id: sid + '-so', tabindex: c.practice ? null : '-1' }, 'Sources'),
         arr(L.sources).length ? h('p', { class: 'sub' }, 'The pages this chapter rests on, with the words it quoted.')
           : h('p', { class: 'sub' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'),
         h('ol', { class: 'evidence' }, arr(L.sources).map(function (s) {
@@ -894,48 +947,30 @@
     ]);
     leaf(S, M, { leaf: idea.id + ':3', tab: idea.id, left: left, right: right });
   }
-  // One test: the question, the right answer and why. Nothing anywhere shows what Dan chose.
-  function fieldTest(M, c, L, k, j, fx) {
-    var body = [h('p', { class: 'test-k' }, h('b', { 'aria-hidden': 'true' }, String(j + 1)), vh('Field test ' + (j + 1) + ', '), h('span', null, 'Field test · ' + (TEST_KIND[k.type] || k.type))),
-      inl(h('p', { class: 'test-q' }), k.q, fx)];
-    if (k.type === 'choice') {
-      body.push(h('ul', { class: 'opts' }, arr(k.options).map(function (o, i) {
-        var right = i === k.answer, mis = k.misconception && k.misconception[i];
-        return h('li', { class: 'opt' + (right ? ' right' : '') },
-          icon(right ? 'tick' : 'box', 'opt-box'),
-          h('span', { class: 'opt-t' }, o, right ? [vh(' (the right answer)'), h('span', { class: 'ans', 'aria-hidden': 'true' }, 'Answer'), icon('loop', 'loop')] : null),
-          !right && mis ? inl(h('p', { class: 'trap' }, h('b', null, 'Trap: ')), mis, fx) : null);
-      })));
-    } else if (k.type === 'order') {
-      body.push(h('ol', { class: 'order', 'aria-label': 'The right order' }, arr(k.items).map(function (x) { return h('li', null, x); })));
-    } else if (k.type === 'estimate') {
-      body.push(scale(k), h('p', { class: 'ans-line' }, h('span', { class: 'k' }, 'Answer'), h('span', { class: 'v' }, 'about ' + fmtNum(k.answer, k.unit)),
-        h('span', { class: 't' }, 'anything from ' + fmtNum(+(k.answer - k.tolerance).toFixed(6), k.unit) + ' to ' + fmtNum(+(k.answer + k.tolerance).toFixed(6), k.unit) + ' counts')));
-    } else if (k.type === 'target') {
-      var it = L.interactive || {}, out = arr(it.outputs).filter(function (o) { return o.id === k.output; })[0] || {}, ctl = arr(it.controls).filter(function (o) { return o.id === k.control; })[0] || {};
-      body.push(h('p', { class: 'ans-line' }, h('span', { class: 'k' }, 'Aim for'), h('span', { class: 'v' }, fmtNum(k.target, out.unit)),
-        h('span', { class: 't' }, cap(String(out.label || k.output).toLowerCase()) + ', using the ' + String(ctl.label || k.control).toLowerCase() + ' (within ' + fmtNum(k.tolerance, out.unit) + ')')));
-      if (c.hasPlate && c.doc.plate) body.push(h('a', { class: 'go-plate', href: c.href + '/plate/play' }, 'Try it on Plate ' + c.rn, icon('next')));
+  var PART_LABEL = { steps: 'Steps', rules: 'Rules of thumb', example: 'Worked example', mistakes: 'Common mistakes' };
+  function partLabel(p) { return p.label || PART_LABEL[p.kind] || ''; }
+  // One part of the practice page, in the lesson's own words.
+  function practicePart(p, fx) {
+    var paras = p.paras.map(function (t) { return inl(h('p'), t, fx); });
+    if (p.kind === 'steps') {
+      return h('section', { class: 'd-steps', 'aria-label': partLabel(p) }, h('h2', { class: 'hh' }, partLabel(p)), paras.length ? h('div', { class: 'prose' }, paras) : null,
+        p.items.length ? h(p.ordered || !paras.length ? 'ol' : 'ul', { class: 'd-check' }, p.items.map(function (t, k) {
+          return h('li', null, icon('box', 'd-box'), h('span', { class: 'd-step-n', 'aria-hidden': 'true' }, String(k + 1)), inl(h('span', { class: 'd-step-t' }), t, fx));
+        })) : null);
     }
-    body.push(h('div', { class: 'why' }, h('p', { class: 'why-k' }, 'Why'), inl(h('p', { class: 'why-t' }), k.why, fx)));
-    return h('li', { class: 'test' }, body);
-  }
-  // An estimate's answer on its own ruler: the question's range, the answer and its tolerance.
-  function scale(k) {
-    var NS = 'http://www.w3.org/2000/svg', t = document.createElementNS(NS, 'svg');
-    var min = Number(k.min), max = Number(k.max), span = max - min;
-    if (!(span > 0)) return null;
-    var W = 320, x0 = 14, x1 = 306, X = function (v) { return x0 + (Math.min(max, Math.max(min, v)) - min) / span * (x1 - x0); };
-    var raw = span / 6, p = Math.pow(10, Math.floor(Math.log10(raw))), mm = raw / p, step = (mm < 1.5 ? 1 : mm < 3.5 ? 2 : mm < 7.5 ? 5 : 10) * p, ticks = [];
-    for (var v = Math.ceil(min / step) * step; v <= max + 1e-9 && ticks.length < 20; v += step) ticks.push(+v.toFixed(6));
-    t.setAttribute('class', 'scale'); t.setAttribute('viewBox', '0 14 ' + W + ' 50'); t.setAttribute('aria-hidden', 'true'); t.setAttribute('focusable', 'false');
-    function s(tag, a, txt) { var e = document.createElementNS(NS, tag); Object.keys(a).forEach(function (q) { e.setAttribute(q, a[q]); }); if (txt != null) e.textContent = txt; t.appendChild(e); return e; }
-    var lo = Math.max(min, k.answer - k.tolerance), hi = Math.min(max, k.answer + k.tolerance), u = k.unit === '°' ? '°' : '';
-    s('rect', { x: X(lo), y: 21, width: Math.max(1, X(hi) - X(lo)), height: 14, class: 'band', rx: 3 });
-    s('path', { d: 'M' + x0 + ' 35 C ' + (x0 + 60) + ' 34.2, ' + (x1 - 90) + ' 35.8, ' + x1 + ' 35', class: 'axis' });
-    ticks.forEach(function (v) { s('line', { x1: X(v), x2: X(v), y1: 35, y2: 41, class: 'axis' }); s('text', { x: X(v), y: 56, 'text-anchor': 'middle' }, String(v) + u); });
-    s('path', { d: 'M' + X(k.answer) + ' 35 l-6 -12 h12 z', class: 'ptr' });
-    return h('div', { class: 'scale-w' }, t);
+    var list = p.items.length ? h('ul', { class: 'd-items' }, p.items.map(function (t) { return inl(h('li'), t, fx); })) : null;
+    if (p.kind === 'rules') {
+      return h('section', { class: 'd-card d-rules', 'aria-label': partLabel(p) }, tape('l'), tape('r'), h('p', { class: 'card-k' }, partLabel(p)), paras, list);
+    }
+    if (p.kind === 'example') {
+      return h('aside', { class: 'd-note d-field d-example', 'aria-label': partLabel(p) }, icon('nib', 'note-ico'),
+        h('div', null, h('p', { class: 'note-k' }, partLabel(p)), h('div', { class: 'note-t' }, paras, list)));
+    }
+    if (p.kind === 'mistakes') {
+      return h('aside', { class: 'd-note d-warn d-mistakes', 'aria-label': partLabel(p) }, icon('warn', 'note-ico'),
+        h('div', null, h('p', { class: 'note-k' }, partLabel(p)), h('div', { class: 'note-t' }, paras, list)));
+    }
+    return h('div', { class: 'prose' }, paras, list);
   }
 
   // ---------- back matter: glossary | bibliography ----------
@@ -1124,11 +1159,12 @@
     '.line{font-style:italic;color:var(--ink2)}.hook{font:1.3rem/1.45 var(--hand)}dl.facts div,dl.card div{display:flex;gap:.6em;border-bottom:1px solid rgba(70,120,175,.3)}dt{font-family:var(--caps);color:var(--ink2);min-width:6em}dd{margin:0;font-family:var(--typed)}',
     '.card{background:var(--card);padding:12px 16px;margin:1em 0}.name{font:1.6rem/1.15 var(--marker);text-transform:uppercase;margin:.2em 0}.stamp{display:inline-block;border:2px solid var(--green);color:var(--green);padding:2px 8px;font:.8rem/1.3 var(--typed);letter-spacing:.1em;text-transform:uppercase}',
     'mark.term{background:var(--hl);color:inherit;font-weight:600;padding:0 .1em}sup.fn{font:700 .7em/1 sans-serif}sup.fn a{color:var(--teal);text-decoration:none}',
-    '.note{font:1.15rem/1.45 var(--hand);margin:1em 0}.note b{font-family:var(--caps);font-weight:400;color:var(--teal)}.warn,.warn b,.trap{color:var(--red)}.trap{font:1.05rem/1.4 var(--hand)}',
+    '.note{font:1.15rem/1.45 var(--hand);margin:1em 0}.note b{font-family:var(--caps);font-weight:400;color:var(--teal)}.warn,.warn b{color:var(--red)}',
     '.clip,blockquote{font:1rem/1.6 var(--typed)}.clip{background:#F7EFDC;padding:14px 16px;margin:1.4em 4%}.clip figcaption{font:.78rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}',
     '.views div{border:1.5px dashed rgba(150,42,34,.5);border-radius:6px;padding:10px 12px;margin:0 0 .8em}.plate{border:1.5px dashed rgba(43,33,25,.35);border-radius:6px;padding:14px 16px;margin:1em 0}',
-    '.tests>li{border-top:1.5px dashed rgba(43,33,25,.28);padding:1em 0}.q{font-weight:600}.opts{list-style:none;padding:0}.opts li{color:var(--ink2)}.opts li.right{color:var(--ink);font-weight:600}',
-    '.ans{font:1.4rem/1.2 var(--marker)}.why b,.ans-k{font-family:var(--caps);font-weight:400;color:var(--teal)}.src{font-size:1rem}.src .pub{font:.82rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}.dom{font:.82rem var(--typed);color:var(--teal)}',
+    '.practice{border-top:1.5px dashed rgba(43,33,25,.28);padding-top:.6em}.steps li{margin:0 0 .4em}.steps li::marker{font-family:var(--marker)}.rules{background:var(--card);padding:10px 16px;margin:1em 0;font-family:var(--hand)}',
+    '.rules b,.ex b,.mis b{display:block;font-family:var(--caps);font-weight:400;color:var(--teal)}.ex{font:1.1rem/1.45 var(--hand);margin:1em 0}.mis{font:1.1rem/1.45 var(--hand);color:var(--red);margin:1em 0}.mis b{color:var(--red)}',
+    '.src{font-size:1rem}.src .pub{font:.82rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}.dom{font:.82rem var(--typed);color:var(--teal)}',
     '.gloss dt{font:1.3rem/1.2 var(--title);color:var(--ink)}.gloss dd{margin:0 0 1em}.gc,.bc{font:.8rem/1.5 var(--typed);color:var(--ink2)}.small{font-size:.95rem;color:var(--ink2)}',
     '@media print{body{background:#fff}.x>section,.x>header,.x>nav{box-shadow:none;break-inside:auto}}',
   ].join('\n');
@@ -1180,27 +1216,24 @@
           return xInl(h('li'), x.label + ': ' + x.value + ' (' + (x.kind === 'constant' ? 'cited' : x.kind === 'control' ? 'setting' : 'worked out') + ')' + (x.source && fx.by[x.source] ? ' [^' + x.source + ']' : ''), fx);
         })) : null));
     }
-    out.push(h('h3', null, 'Field tests'), h('ol', { class: 'tests' }, testsOf(c).map(function (k) {
-      var parts = [xInl(h('p', { class: 'q' }), k.q, fx)];
-      if (k.type === 'choice') parts.push(h('ul', { class: 'opts' }, arr(k.options).map(function (o, i) {
-        var right = i === k.answer, mis = k.misconception && k.misconception[i];
-        return h('li', { class: right ? 'right' : '' }, (right ? '✓ ' : '☐ ') + o, right ? ' (the right answer)' : null, !right && mis ? xInl(h('p', { class: 'trap' }, 'Trap: '), mis, fx) : null);
-      })));
-      else if (k.type === 'order') parts.push(h('ol', null, arr(k.items).map(function (x) { return h('li', null, x); })));
-      else if (k.type === 'estimate') parts.push(h('p', null, h('span', { class: 'ans-k' }, 'Answer: '), h('span', { class: 'ans' }, 'about ' + fmtNum(k.answer, k.unit)), ' (anything from ' + fmtNum(+(k.answer - k.tolerance).toFixed(6), k.unit) + ' to ' + fmtNum(+(k.answer + k.tolerance).toFixed(6), k.unit) + ' counts)'));
-      else if (k.type === 'target') {
-        var out2 = arr(it && it.outputs).filter(function (o) { return o.id === k.output; })[0] || {}, ctl = arr(it && it.controls).filter(function (o) { return o.id === k.control; })[0] || {};
-        parts.push(h('p', null, h('span', { class: 'ans-k' }, 'Aim for: '), h('span', { class: 'ans' }, fmtNum(k.target, out2.unit)), ' ' + cap(String(out2.label || k.output).toLowerCase()) + ', using the ' + String(ctl.label || k.control).toLowerCase() + ' (within ' + fmtNum(k.tolerance, out2.unit) + ')'));
-      }
-      parts.push(xInl(h('p', { class: 'why' }, h('b', null, 'Why: ')), k.why, fx));
-      return h('li', null, parts);
-    })));
+    if (c.practice) out.push(h('div', { class: 'practice' }, h('h3', null, 'Put it into practice'), c.practice.map(function (p) { return exportPart(p, fx); })));
     out.push(h('h3', null, 'Sources'), arr(L.sources).length ? h('ol', { class: 'src' }, arr(L.sources).map(function (s) {
       var t = splitTitle(s.title), url = safeUrl(s.url);
       return h('li', { id: sid + '-s' + s.n }, h('p', null, h('b', null, t.title), t.pub ? h('span', { class: 'pub' }, ' · ' + t.pub) : null),
         s.quote ? h('blockquote', null, unquote(s.quote)) : null, url ? h('p', null, h('a', { class: 'dom', href: url }, url)) : null);
     })) : h('p', { class: 'small' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'));
     return h('section', { id: 'ch-' + c.n }, out);
+  }
+  // One part of "Put it into practice", in the saved copy's plain style.
+  function exportPart(p, fx) {
+    var paras = p.paras.map(function (t) { return xInl(h('p'), t, fx); });
+    var list = p.items.length ? h(p.kind === 'steps' && (p.ordered || !paras.length) ? 'ol' : 'ul', { class: p.kind === 'steps' ? 'steps' : null }, p.items.map(function (t) { return xInl(h('li'), t, fx); })) : null;
+    var label = h('b', null, partLabel(p));
+    if (p.kind === 'steps') return [h('p', null, label), paras, list];
+    if (p.kind === 'rules') return h('div', { class: 'rules' }, label, paras, list);
+    if (p.kind === 'example') return h('div', { class: 'ex' }, label, paras, list);
+    if (p.kind === 'mistakes') return h('div', { class: 'mis' }, label, paras, list);
+    return [paras, list];
   }
   function exportHtml(M) {
     var b = M.book, x = h('div', { class: 'x' });
@@ -1253,11 +1286,12 @@
   U.routes.add('#/book/:tid/:iid', reader('idea'), R);
   U.routes.add('#/book/:tid/:iid/plate', reader('plate'), R);
   U.routes.add('#/book/:tid/:iid/plate/play', reader('play'), R);
-  U.routes.add('#/book/:tid/:iid/tests', reader('tests'), R);
+  U.routes.add('#/book/:tid/:iid/practice', reader('practice'), R);
+  U.routes.add('#/book/:tid/:iid/tests', reader('practice'), R);   // its older address
 
   U.dossier = {
     LIMIT: LIMIT, PLATE_NOTE: PLATE_NOTE, INK: INK,
-    chapterFrom: chapterFrom, researchFrom: researchFrom, indexFrom: indexFrom, model: model, due: due, countOf: countOf, bytes: bytes,
+    chapterFrom: chapterFrom, researchFrom: researchFrom, indexFrom: indexFrom, practiceParts: practiceParts, model: model, due: due, countOf: countOf, bytes: bytes,
     on: on, bind: bind, sync: sync, keep: keep, remove: remove, setOn: setOn, load: load,
     fonts: fonts, shelf: shelf, option: option, confirmDelete: confirmDelete, exportHtml: exportHtml, save: save, inkTheme: inkTheme,
   };

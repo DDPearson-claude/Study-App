@@ -1,7 +1,9 @@
 // Topic page (#/t/:tid): the plan for one topic, live from the db. While Claude plans it shows
 // the question and gentle waiting lines; if planning failed it says why and offers Retry; once
 // ready it shows the hook, the idea "in one breath", an optional warm-up (never locks anything),
-// the path of ideas, the research Sources, Ask Claude, the "Keep a dossier" option (75-dossier.js)
+// the path of ideas, the research Sources, Ask Claude, how he is learning it (topic.mode: "Teach
+// and test me" or "Just teach me", which he can switch for the ideas still to come) with what he
+// told Claude when he started it (topic.intake), the "Keep a dossier" option (75-dossier.js)
 // and Delete (which asks whether to keep the dossier). The plan is written before any research and
 // never checked against it, so "in one breath", the hook and the warm-up's
 // answers say they are Claude's overview, and Sources says only what research found (each
@@ -28,7 +30,7 @@
   U.routes.add('#/t/:tid', function (params, ctx) {
     var tid = params.tid;
     var topic = null, loaded = false, failure = null, progress = { ideas: {} }, deleting = false;
-    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null };
+    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null, mode: null };
     var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
     var lib = { key: null, groups: null, checked: null, seq: 0 };
     var dossier = null;   // the course's dossier index (75-dossier.js), for the option's link
@@ -49,6 +51,7 @@
     var stops = [
       U.store.topic.watch(tid, function (t) {
         topic = t; loaded = true; failure = null; live.topic = null;
+        if (t && ui.mode && V.modeOf(t) === ui.mode) ui.mode = null;   // the switch has landed
         if (t) U.setTitle(t.title || V.asTitle(t.query));
         if (t && t.status === 'ready') loadLibrary();
         schedule();
@@ -287,7 +290,7 @@
       var job;
       if (U.gen && U.gen.replan) job = Promise.resolve().then(function () { return U.gen.replan(tid); }).then(function () { return tid; });
       else if (U.gen && U.gen.createTopic && q) {
-        job = Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level }); }).then(function (newTid) {
+        job = Promise.resolve().then(function () { return U.gen.createTopic(q, { level: level, mode: V.modeOf(topic), intake: topic.intake || null }); }).then(function (newTid) {
           if (!newTid || newTid === tid) return tid;
           // The new topic exists; now let the failed one go.
           deleting = true;
@@ -339,7 +342,7 @@
       var ideas = Array.isArray(topic.ideas) ? topic.ideas : [];
       var s = V.summary(topic, progress);
       var pi = progress.ideas || {};
-      var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known]; });
+      var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known, V.isRead(progress, i.id)]; });
       var cal = progress.calibration || {};
       var r = topic.research || {};
       lw.watch(tid, s.current && !s.allDone ? s.current.id : null);
@@ -347,7 +350,7 @@
       // The hook is a question in newer plans; older ones may have a statement.
       var hookIs = !topic.hook ? '' : /\?["'”’)]?\s*$/.test(U.plain(topic.hook).trim()) ? 'question' : 'line';
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
+        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
         // Written with the plan, before any research, and never checked: said in calm small words.
         topic.oneBreath ? ['breath', sig(topic.oneBreath, hookIs), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
@@ -370,6 +373,7 @@
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
+        ['mode', sig(V.modeOf(topic), topic.intake, ui.mode), modeSection, 'rail'],
         U.dossier ? ['dossier', sig(U.dossier.on(progress), U.dossier.countOf(dossier), ideas.length), function () { return U.dossier.option(tid, progress, dossier, ideas.length); }, 'rail'] : null,
         ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, lib.checked, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
@@ -392,7 +396,7 @@
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
-            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
+            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + (V.modeOf(topic) === 'read' ? ' · Just teach me' : '')),
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
@@ -413,7 +417,8 @@
         var x = ideas.filter(function (k) { return k.id === d; })[0];
         return x ? x.title : null;
       }).filter(Boolean);
-      var kicker = done ? 'Done' + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
+      // A finished idea he chose only to read says "Read", never "Done" as if tested.
+      var kicker = done ? (V.isRead(progress, idea.id) ? 'Read' : 'Done') + (st.doneAt ? ' · ' + V.day(st.doneAt) : '')
         : current ? (s.started ? 'In progress' : (s.done === 0 ? 'Start here' : 'Up next'))
         : started ? 'Started' : 'Idea ' + (i + 1);
       var cls = 'pnode' + (done ? ' is-done' : '') + (current ? ' is-current' : '');
@@ -437,6 +442,50 @@
       return (Array.isArray(topic.calibration) ? topic.calibration : []).some(function (q) {
         return q && q.iid === idea.id && typeof ans[q.id] === 'number' && ans[q.id] === q.answer;
       });
+    }
+
+    // ---------- how he is learning it (topic.mode), and what he told Claude (topic.intake) ----------
+    // The mode is a radio group like Learn's; switching it saves topic.mode at once and applies to
+    // the lessons written after it (an idea already started keeps its lesson, so the note says
+    // "the ideas you have not started yet"). "What you told me" is his intake answers, shown back.
+    function modeSection() {
+      var cur = ui.mode || V.modeOf(topic);
+      var opts = V.MODES.map(function (m) {
+        return U.h('button', { class: 'seg-btn', type: 'button', role: 'radio', 'aria-checked': String(m[0] === cur), 'data-key': 'mode-' + m[0], dataset: { mode: m[0] }, on: { click: function () { setMode(m[0]); } } }, m[1]);
+      });
+      return U.h('section', { class: 'tp-mode', 'aria-labelledby': 'mode-h' },
+        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'mode-h' }, 'How you are learning this')),
+        U.radios(U.h('div', { class: 'seg tp-modes', role: 'radiogroup', 'aria-labelledby': 'mode-h', 'aria-describedby': 'mode-applies' }, opts)),
+        U.h('p', { class: 'muted small tp-mode-note' }, cur === 'read' ? 'The reading and the interactive for each idea: no questions and no review cards.' : 'A guess first, a say-it-back and quick checks for each idea, then review cards so it sticks.'),
+        U.h('p', { class: 'muted small tp-mode-applies', id: 'mode-applies' }, 'Applies to the ideas you have not started yet.'),
+        told());
+    }
+    function setMode(m) {
+      if (m === (ui.mode || V.modeOf(topic))) return;
+      var was = ui.mode;
+      ui.mode = m;
+      // Shown at once; the section is drawn again on the next frame (after the radio group has
+      // moved focus), and focus stays on the option by its key.
+      Array.prototype.forEach.call(root.querySelectorAll('.tp-modes [role="radio"]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.mode === m)); });
+      schedule();
+      U.store.topic.update(tid, { mode: m }).then(null, function () {
+        // The store has told Dan; the switch shows what is saved.
+        if (ui.mode === m) ui.mode = was || null;
+        if (ctx.alive()) schedule();
+      });
+    }
+    // His intake answers, as he gave them: each question with what he picked and wrote.
+    function told() {
+      var it = topic.intake, qs = it && Array.isArray(it.questions) ? it.questions : [], ans = (it && it.answers) || {};
+      var rows = qs.map(function (q) {
+        var a = q && ans[q.id];
+        if (!a) return null;
+        var said = (Array.isArray(a.picked) ? a.picked : []).map(String).filter(Boolean);
+        if (a.other && String(a.other).trim()) said.push(String(a.other).trim());
+        return said.length ? U.h('div', { class: 'tp-told-row' }, U.h('dt', null, U.plain(String(q.q || ''))), U.h('dd', null, said.join('; '))) : null;
+      }).filter(Boolean);
+      if (!rows.length) return null;
+      return U.h('div', { class: 'tp-told' }, U.h('h3', { class: 'tp-told-h' }, 'What you told me'), U.h('dl', { class: 'tp-told-list' }, rows));
     }
 
     // ---------- warm-up (calibration) ----------

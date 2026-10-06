@@ -2,7 +2,10 @@
 // Browser tests for the views: Learn (home), topic page, Map, Library and Book, reading settings and boot.
 // Builds a partial page with only these modules (plus core), fakes U.gen / U.review / U.tutor
 // and the lesson route where they are absent, and checks behaviour at 360 and 1280 px in light
-// and dark. Screenshots land in tests/out/views/. Exits non-zero on any failure.
+// and dark. Version 9: Learn's mode beside the level, the intake questions (answered, skipped,
+// changed, failing, slow, none), the topic page's mode switch and "What you told me", and ideas
+// only read shown as "Read" on the path and the Map.
+// Screenshots land in tests/out/views/. Exits non-zero on any failure.
 // Usage: node tests/e2e/views.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -53,7 +56,7 @@ function seedDb(opts = {}) {
 }
 
 // Stand-ins for modules other engineers own, installed before the app script runs.
-function installFakes({ review, tutor, gen, bands, due, minutes }) {
+function installFakes({ review, tutor, gen, bands, due, minutes, intake }) {
   window.U = window.U || {};
   window.__calls = { tutor: [], gen: [] };
   if (review) {
@@ -82,10 +85,10 @@ function installFakes({ review, tutor, gen, bands, due, minutes }) {
     });
     U.gen = {
       createTopic: async (query, opts) => {
-        window.__calls.gen.push({ query, level: opts && opts.level });
+        window.__calls.gen.push({ query, level: opts && opts.level, mode: opts && opts.mode, intake: opts && 'intake' in opts ? JSON.parse(JSON.stringify(opts.intake)) : undefined });
         if (gen === 'fail') { await new Promise((r) => setTimeout(r, 300)); throw { code: 'rate_limited', message: 'busy' }; }
         const id = U.slug(query) + '-' + Math.random().toString(36).slice(2, 6);
-        await U.store.topic.create({ id, title: '', query, createdAt: U.now(), updatedAt: U.now(), status: 'planning', level: (opts && opts.level) || 'new', hue: U.hash(query) % 360, ideas: [], research: { status: 'none' } });
+        await U.store.topic.create({ id, title: '', query, createdAt: U.now(), updatedAt: U.now(), status: 'planning', level: (opts && opts.level) || 'new', mode: (opts && opts.mode) || 'study', intake: (opts && opts.intake) || null, hue: U.hash(query) % 360, ideas: [], research: { status: 'none' } });
         if (opts && opts.onCreated) opts.onCreated(id);
         const flip = () => U.store.topic.update(id, planned(query));
         if (gen === 'slow') { await new Promise((r) => setTimeout(r, 1800)); await flip(); return id; }
@@ -93,6 +96,21 @@ function installFakes({ review, tutor, gen, bands, due, minutes }) {
         return id;
       },
     };
+    // The intake (v9 contract: U.gen.intake(query, {level, mode}) -> {questions}): 'ok' answers with
+    // two questions (one pick-one with "Something else", one pick-any); 'fail' rejects as U.ask does;
+    // 'slow' never answers; 'none' has no questions. No intake (undefined): this view has none.
+    if (intake) {
+      U.gen.intake = (query, opts) => {
+        window.__calls.gen.push({ intake: query, level: opts && opts.level, mode: opts && opts.mode });
+        if (intake === 'fail') return new Promise((res, rej) => setTimeout(() => rej({ code: 'unavailable', message: 'offline' }), 300));
+        if (intake === 'slow') return new Promise(() => {});
+        if (intake === 'none') return new Promise((res) => setTimeout(() => res({ questions: [] }), 200));
+        return new Promise((res) => setTimeout(() => res({ questions: [
+          { id: 'q1', q: 'What do you want to be able to do with this?', options: ['Explain it to my kids', 'Predict the tide times', 'Just understand it'], multi: false, other: true },
+          { id: 'q2', q: 'Which parts interest you most?', options: ['The Moon\'s pull', 'Spring and neap tides', 'Why there are two a day'], multi: true, other: false },
+        ] }), 400));
+      };
+    }
     U.gen.research = async (tid) => { window.__calls.gen.push({ research: tid }); await U.store.topic.update(tid, { research: { status: 'running', at: U.now(), sources: 0 } }); return null; };
     if (gen === 'replan') {
       U.gen.replan = async (tid) => {
@@ -1365,7 +1383,9 @@ await test('audit 49: Learn\'s level choice is one Tab stop and follows the arro
   eq(await app.page.locator('.ask-levels [aria-checked=true]').count(), 1, 'one level checked');
   eq(await stops(), '-1,-1,0', 'the Tab stop follows the choice');
   await app.page.keyboard.press('Tab');
-  assert(await focusedOn(app, '#ask-input'), 'Tab leaves the group in one step');
+  assert(await focusedOn(app, '.ask-modes [data-mode=study]'), 'Tab leaves the group in one step, to the mode (v9)');
+  await app.page.keyboard.press('Tab');
+  assert(await focusedOn(app, '#ask-input'), 'and the mode group is one Tab stop too');
   await app.page.fill('#ask-input', 'How tides work');
   await app.page.press('#ask-input', 'Enter');
   await app.page.waitForSelector('.tp-planning');
@@ -1631,6 +1651,172 @@ await test('views check 5: after the warm-up\'s Next question, Done or Skip, foc
   await b.page.keyboard.press('Enter');
   await b.page.waitForSelector('.tp-warm-q');
   eq(await on(b, '.tp-warm-q'), 'What changes between a major chord and a minor chord?', 'the first question has focus again');
+});
+
+// ---------- v9: how Dan learns a topic, and the intake ----------
+await test('v9 learn: the mode sits beside the level (teach and test by default) and goes to the plan', async () => {
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, fakes: { due: 0 } });
+    await app.page.waitForSelector('.welcome');
+    eq(await count(app, '.ask-modes [role=radio]'), 2, 'two modes');
+    eq((await app.page.locator('.ask-modes [role=radio]').allInnerTexts()).join('|'), 'Teach and test me|Just teach me', 'in plain words');
+    eq(await app.page.getAttribute('.ask-modes [data-mode=study]', 'aria-checked'), 'true', 'teach and test by default');
+    eq(await app.page.getAttribute('.ask-modes', 'role'), 'radiogroup', 'a radio group');
+    eq(await app.page.evaluate(() => document.querySelector('.ask-modes').getAttribute('aria-labelledby') && document.getElementById(document.querySelector('.ask-modes').getAttribute('aria-labelledby')).textContent), 'How do you want to learn it?', 'named');
+    await app.page.click('.ask-modes [data-mode=read]');
+    eq(await app.page.getAttribute('.ask-modes [data-mode=read]', 'aria-checked'), 'true', 'Just teach me picked');
+    assert(/no questions, no reviews/.test(await text(app, '.ask-mode-note')), 'and it says what that means');
+    const r = await app.page.evaluate(() => { const a = document.querySelector('.ask-levels').getBoundingClientRect(), b = document.querySelector('.ask-modes').getBoundingClientRect(); return { dy: Math.round(b.top - a.top), dx: Math.round(b.left - a.left) }; });
+    if (w === 1280) assert(Math.abs(r.dy) < 4 && r.dx > 200, 'beside the level on a laptop: ' + JSON.stringify(r));
+    else assert(r.dy > 30, 'under it on a phone: ' + JSON.stringify(r));
+    await shot(app, `v9-learn-mode-${tag(w, dark)}`);
+    await app.page.fill('#ask-input', 'How tides work');
+    await app.page.press('#ask-input', 'Enter');
+    await app.page.waitForSelector('.tp-planning');
+    const calls = await app.page.evaluate(() => window.__calls.gen);
+    eq(calls[0].mode, 'read', 'the mode goes to createTopic');
+    eq(calls[0].intake, null, 'no intake in this view: none');
+    await app.page.waitForSelector('.path', { timeout: 6000 });
+    assert(/just teach me/i.test(await text(app, '.tp-head .eyebrow')), 'the topic page says how it is learned: ' + await text(app, '.tp-head .eyebrow'));
+  }
+});
+
+await test('v9 learn: the intake asks a few questions in place; his answers go to the plan', async () => {
+  for (const [w, dark] of [[360, false], [1280, false]]) {
+    const app = await open({ width: w, dark, fakes: { intake: 'ok' } });
+    await app.page.fill('#ask-input', 'How tides work');
+    await app.page.click('.ask-levels [data-level=some]');
+    await app.page.press('#ask-input', 'Enter');
+    await app.page.waitForSelector('.ask-working:not([hidden])');
+    assert(/reading your question/i.test(await text(app, '.ask-working')), 'says what it is doing while it reads');
+    await app.page.waitForSelector('.intake');
+    eq(await hash(app), '#/', 'nothing is planned yet');
+    eq(await app.page.evaluate(() => document.activeElement && document.activeElement.id), 'intake-h', 'focus goes to the questions');
+    await app.page.waitForFunction(() => /2 questions/.test(document.querySelector('.ask [role=status]').textContent));
+    eq(await count(app, '.intake-q'), 2, 'two questions');
+    eq(await app.page.getAttribute('.intake-q:nth-child(1) .intake-chips', 'role'), 'radiogroup', 'pick one: a radio group');
+    eq(await app.page.getAttribute('.intake-q:nth-child(2) .intake-chips', 'role'), 'group', 'pick any: a group of toggles');
+    eq(await count(app, '.intake-q:nth-child(1) .intake-other'), 1, 'a "Something else" field where the question allows one');
+    eq(await count(app, '.intake-q:nth-child(2) .intake-other'), 0, 'and none where it does not');
+    const call = (await app.page.evaluate(() => window.__calls.gen)).find((c) => c.intake === 'How tides work');
+    assert(call && call.level === 'some' && call.mode === 'study', 'intake asked with the level and mode: ' + JSON.stringify(call));
+    await shot(app, `v9-intake-${tag(w, dark)}`);
+    // Keyboard: Tab reaches the first question's chips, the arrows pick one.
+    await app.page.focus('.intake-q:nth-child(1) .intake-chip');
+    await app.page.keyboard.press('ArrowRight');
+    eq(await app.page.getAttribute('.intake-q:nth-child(1) .intake-chip:nth-child(2)', 'aria-checked'), 'true', 'the arrow keys pick');
+    await app.page.click('.intake-q:nth-child(1) .intake-chip >> text=Predict the tide times');
+    await app.page.fill('.intake-other', 'For sailing');
+    await app.page.click('.intake-q:nth-child(2) .intake-chip >> text=The Moon\'s pull');
+    await app.page.click('.intake-q:nth-child(2) .intake-chip >> text=Why there are two a day');
+    await app.page.click('.intake-q:nth-child(2) .intake-chip >> text=The Moon\'s pull');
+    eq(await app.page.getAttribute('.intake-q:nth-child(2) .intake-chip >> nth=0', 'aria-pressed'), 'false', 'a second tap takes a pick back');
+    await app.page.click('.intake-plan');
+    await app.page.waitForSelector('.tp-planning');
+    const made = (await app.page.evaluate(() => window.__calls.gen)).find((c) => c.query === 'How tides work');
+    eq(JSON.stringify(made.intake.answers), JSON.stringify({ q1: { picked: ['Predict the tide times'], other: 'For sailing' }, q2: { picked: ['Why there are two a day'], other: null } }), 'his answers, as given');
+    eq(made.intake.questions.length, 2, 'with the questions they answer');
+    const tid = (await hash(app)).replace('#/t/', '');
+    eq(JSON.stringify((await doc(app, 'topics/' + tid)).intake.answers.q1), JSON.stringify({ picked: ['Predict the tide times'], other: 'For sailing' }), 'kept on the topic');
+    // The topic page reads them back.
+    await app.page.waitForSelector('.tp-told', { timeout: 6000 });
+    const told = await text(app, '.tp-told');
+    assert(/What you told me/.test(told) && /Predict the tide times; For sailing/.test(told) && /Why there are two a day/.test(told), 'what he told Claude: ' + told);
+    await shot(app, `v9-told-${tag(w, dark)}`, { full: true });
+  }
+});
+
+await test('v9 learn: Skip the questions plans at once; Change my question goes back to the box', async () => {
+  const app = await open({ fakes: { intake: 'ok' } });
+  await app.page.fill('#ask-input', 'How tides work');
+  await app.page.press('#ask-input', 'Enter');
+  await app.page.waitForSelector('.intake');
+  await app.page.click('.intake-change');
+  await app.page.waitForFunction(() => !document.querySelector('.intake') && !document.querySelector('#ask-input').disabled);
+  eq(await app.page.evaluate(() => document.activeElement.id), 'ask-input', 'back in the box, its words kept');
+  eq(await app.page.inputValue('#ask-input'), 'How tides work', 'his question kept');
+  await app.page.fill('#ask-input', 'How tides really work');
+  await app.page.press('#ask-input', 'Enter');
+  await app.page.waitForSelector('.intake');
+  await app.page.click('.intake-skip');
+  await app.page.waitForSelector('.tp-planning');
+  const made = (await app.page.evaluate(() => window.__calls.gen)).filter((c) => c.query);
+  eq(made.length, 1, 'one topic');
+  eq(made[0].query, 'How tides really work', 'the changed question');
+  eq(made[0].intake, null, 'skipped: no intake');
+  await app.page.waitForSelector('.path', { timeout: 6000 });
+  eq(await count(app, '.tp-told'), 0, 'nothing to read back');
+});
+
+await test('v9 learn: an intake that fails, takes too long or has no questions never gets in the way', async () => {
+  for (const kind of ['fail', 'slow', 'none']) {
+    const app = await open({ fakes: { intake: kind } });
+    await app.page.evaluate(() => { U.views.INTAKE_MS = 1500; });
+    await app.page.fill('#ask-input', 'How tides work');
+    const t0 = Date.now();
+    await app.page.press('#ask-input', 'Enter');
+    await app.page.waitForSelector('.tp-planning', { timeout: 6000 });
+    const ms = Date.now() - t0;
+    assert(kind !== 'slow' || ms < 4000, `${kind}: planning starts once the wait is over (${ms} ms)`);
+    eq(await count(app, '.intake'), 0, `${kind}: no questions`);
+    const made = (await app.page.evaluate(() => window.__calls.gen)).filter((c) => c.query);
+    eq(made.length, 1, `${kind}: planned once`);
+    eq(made[0].intake, null, `${kind}: with no intake`);
+    if (kind !== 'none') assert(/straight away/.test(await text(app, '#toasts')), `${kind}: a calm note says so`);
+    else eq(await count(app, '#toasts .toast'), 0, 'no questions is no failure: nothing to say');
+  }
+});
+
+await test('v9 topic: the mode shows with a switch for the ideas to come', async () => {
+  const db = seedDb();
+  const t = db['topics/index-funds-cd34'];
+  db['topics/index-funds-cd34'] = { ...t, mode: 'read', intake: { questions: [{ id: 'q1', q: 'What do you want from it?', options: ['Invest my savings', 'Understand the news'], multi: true, other: true }], answers: { q1: { picked: ['Invest my savings'], other: 'a pension' } } } };
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, db: JSON.parse(JSON.stringify(db)), hash: '#/t/index-funds-cd34' });
+    await app.page.waitForSelector('.tp-mode');
+    eq(await app.page.getAttribute('.tp-modes [data-mode=read]', 'aria-checked'), 'true', 'Just teach me, as saved');
+    eq(await app.page.getAttribute('.tp-modes', 'role'), 'radiogroup', 'a radio group');
+    assert(/Applies to the ideas you have not started yet/.test(await text(app, '.tp-mode')), 'says what a switch changes');
+    assert((await text(app, '.tp-told')).includes('Invest my savings; a pension'), 'what he told Claude');
+    if (w === 1280) {
+      const r = await app.page.evaluate(() => { const m = document.querySelector('.tp-mode').getBoundingClientRect(), p = document.querySelector('.tp-main').getBoundingClientRect(); return m.left > p.right - 1; });
+      eq(r, true, 'in the rail on a laptop');
+    }
+    await app.page.locator('.tp-mode').scrollIntoViewIfNeeded();
+    await shot(app, `v9-topic-mode-${tag(w, dark)}`);
+    // Switch with the keyboard: the choice and focus move together, and it is saved.
+    await app.page.focus('.tp-modes [data-mode=read]');
+    await app.page.keyboard.press('ArrowLeft');
+    await app.page.waitForFunction(() => { const d = window.__CLAUDE_STUB__.get('topics/index-funds-cd34'); return d && d.mode === 'study'; });
+    await app.page.waitForFunction(() => /quick checks/.test(document.querySelector('.tp-mode-note').textContent));
+    assert(await focusedOn(app, '.tp-modes [data-mode=study][aria-checked=true]'), 'focus stays on the chosen mode');
+    assert(!/just teach me/i.test(await text(app, '.tp-head .eyebrow')), 'the header follows');
+    await app.page.click('.tp-modes [data-mode=read]');
+    await app.page.waitForFunction(() => window.__CLAUDE_STUB__.get('topics/index-funds-cd34').mode === 'read');
+  }
+});
+
+await test('v9 topic and map: an idea he only read says "Read", and the Map shows it apart', async () => {
+  const db = seedDb();
+  const P = `data/users/${UID}/profile/progress/index-funds-cd34`;
+  db[P] = { updatedAt: '2026-10-04T19:00:00.000Z', ideas: { a1: { stage: 'done', round: 0, readRound: 0, cardsRound: 0, startedAt: '2026-10-01T10:00:00.000Z', doneAt: '2026-10-01T10:20:00.000Z' }, a2: { stage: 'done', round: 1, readRound: 0, startedAt: '2026-10-02T10:00:00.000Z', doneAt: '2026-10-02T10:20:00.000Z' } } };
+  const app = await open({ db, hash: '#/t/index-funds-cd34' });
+  await app.page.waitForSelector('.path');
+  assert(/^READ · (1 OCT|OCT 1)$/.test(await text(app, '.pnode:nth-child(1) .pnode-kicker')), 'read, never "done" as if tested: ' + await text(app, '.pnode:nth-child(1) .pnode-kicker'));
+  assert(/^DONE/.test(await text(app, '.pnode:nth-child(2) .pnode-kicker')), 'a round studied since says done');
+  await app.page.evaluate(() => U.go('#/map'));
+  await app.page.waitForSelector('.map-svg');
+  await app.page.waitForFunction(() => document.querySelectorAll('.map-legend-item').length === 5);
+  assert((await text(app, '.map-legend')).includes('Read'), 'the key has Read when there is one');
+  const dots = await app.page.$$eval('.map-topic', (ts) => ts.map((t) => [t.querySelector('h2').textContent, [...t.querySelectorAll('.map-node')].map((a) => a.getAttribute('aria-label').split(', ').pop()).join(',')]));
+  const funds = dots.find((d) => d[0] === 'How index funds work');
+  assert(funds && funds[1].startsWith('read,'), 'the read idea\'s dot says read: ' + JSON.stringify(funds));
+  assert((await app.page.locator('.map-topic', { hasText: 'How index funds work' }).innerText()).includes('2 of 5 ideas done'), 'one read and one learned: "done"');
+  await shot(app, 'v9-map-read');
+  // No read idea anywhere: the key keeps its four.
+  const b = await open({ db: seedDb(), hash: '#/map' });
+  await b.page.waitForSelector('.map-svg');
+  eq(await count(b, '.map-legend-item'), 4, 'four in the key');
 });
 
 // ---------- summary ----------
