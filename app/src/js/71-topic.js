@@ -350,7 +350,7 @@
       // The hook is a question in newer plans; older ones may have a statement.
       var hookIs = !topic.hook ? '' : /\?["'”’)]?\s*$/.test(U.plain(topic.hook).trim()) ? 'question' : 'line';
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
+        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
         // Written with the plan, before any research, and never checked: said in calm small words.
         topic.oneBreath ? ['breath', sig(topic.oneBreath, hookIs), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
@@ -396,7 +396,7 @@
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
-            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + (V.modeOf(topic) === 'read' ? ' · Just teach me' : '')),
+            U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas') + ((ui.mode || V.modeOf(topic)) === 'read' ? ' · Just teach me' : '')),   // the choice shows at once, before the saved topic comes back
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
