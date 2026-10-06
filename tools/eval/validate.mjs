@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 // Validates a model reply with the app's own validators.
 //   node tools/eval/validate.mjs plan    reply.json
-//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json]
+//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json --topic topic.json]
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
-// Prints {ok, problems, soft} and exits 1 when there are problems. soft: the length problems
-// (and a plan's calibration answer printed on its page) among them (docs/ARCHITECTURE.md section
-// 5); after its one repair the app accepts a reply whose only problems are soft. Replies may
+// Prints {ok, problems, soft, warnings} and exits 1 when there are problems. soft: the length
+// problems and the word-matching judgements among them (a plan's calibration answer printed on
+// its page; a lesson's check answer printed in its text, a right option echoing its wording or
+// standing out by length, a rubric point its prompt gives away, an uncited source: see
+// docs/ARCHITECTURE.md section 5); after its one repair the app accepts a reply whose only
+// problems are soft. warnings: advice that is never a problem (a lesson whose interactive could
+// carry a target check but has none). Replies may
 // contain prose or fences around the JSON; the answer is picked the way the app picks it
 // (U.parseJson.pick: the last JSON value in the reply that passes the validator).
 import { readFileSync } from 'node:fs';
@@ -26,21 +30,29 @@ if (!U.parseJson) {
 }
 const kind = process.argv[2];
 const text = readFileSync(process.argv[3], 'utf8');
-let problems;
+let problems, warnings = [];
 try {
   const opts = {};
   if (kind === 'lesson') {
     opts.iid = arg('iid');
-    // The lesson's own sources, numbered from 1 for this idea, as the app hands them over.
-    // --topic gives the idea's deps, whose research comes along as the app passes it.
+    // The lesson's own sources, numbered from 1 for this idea, as the write-lesson prompt numbers
+    // them. --topic gives the idea's deps, whose research comes along, and the course's ideas, so
+    // the notes it borrows from other ideas (U.prompts.lessonResearch) are numbered the same way.
     const topic = arg('topic') ? JSON.parse(readFileSync(arg('topic'), 'utf8')) : null;
     const idea = topic && (topic.ideas || []).find((i) => i.id === opts.iid);
-    if (arg('sources')) { const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps); opts.sources = lr && lr.sources.length ? lr.sources : null; }
+    if (arg('sources')) {
+      if (!topic) console.error('warning: no --topic, so the sources are numbered without the notes borrowed from other ideas; pass --topic as for the prompt.');
+      const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps, topic && topic.ideas);
+      opts.sources = lr && lr.sources.length ? lr.sources : null;
+    }
   }
   if (kind === 'grade') opts.attempt = Number(arg('attempt', '1'));
-  problems = U.parseJson.pick(text, (o) => U.validate[kind](o, opts)).problems || [];
+  const got = U.parseJson.pick(text, (o) => U.validate[kind](o, opts));
+  problems = got.problems || [];
+  // The advice for the reply the app would keep (its warnings ride on the validator's list).
+  if (got.value !== undefined) warnings = Array.from(U.validate[kind](got.value, opts).warnings || []);
 } catch (e) {
   problems = ['could not parse: ' + (e.message || e)];
 }
-console.log(JSON.stringify({ ok: problems.length === 0, problems, soft: Array.from(problems.soft || []) }, null, 2));
+console.log(JSON.stringify({ ok: problems.length === 0, problems, soft: Array.from(problems.soft || []), warnings }, null, 2));
 process.exit(problems.length ? 1 : 0);
