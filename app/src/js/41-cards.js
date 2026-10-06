@@ -6,7 +6,8 @@
 //            stored Card (with its FSRS state `s`, used for "back in N days" hints).
 //     mode   'lesson' (no rating) | 'review' (objective cards auto-grade, Dan can override)
 //     lesson the lesson doc (topics/{tid}/lessons/{iid}); needed only by 'target' cards, which mount
-//            its interactive
+//            its interactive in quiz mode (the readout aimed at shows "?" and .say lines are hidden
+//            until Check, which sends reveal; docs/ARCHITECTURE.md section 6)
 //     onDone(result) once Dan taps Continue:
 //            {correct: bool|null, grade: 1-4|null, answer, ms}
 //            + auto (review, the grade the app picked), verdict (recall), skipped (card unusable),
@@ -530,6 +531,10 @@
     try {
       api = U.sandbox.mount(stage, {
         html: it.html, title: it.title || 'Interactive', minHeight: 280,
+        // Quiz mode (contract Q): the readout he aims at shows "?" and the .say line is hidden
+        // while he answers, so he steers by the picture and the rule, not by scrubbing until the
+        // number matches. Check ends it (reveal); grading reads the real outputs either way.
+        quiz: s.output != null && s.output !== '' ? { hide: String(s.output) } : undefined,
         onError: function (msg) { console.warn('interactive error', msg); },
         // Only a K.stage that sets its controls beside the visual gains from a laptop's full
         // width (40-review.css); any other interactive keeps the answers' column.
@@ -551,6 +556,8 @@
       if (c.locked) return;
       btn.disabled = true;
       btn.textContent = 'Reading the interactive…';
+      // His answer is in: the hidden readout and the .say line show again.
+      try { if (api && typeof api.reveal === 'function') api.reveal(); } catch (e) { console.warn('reveal', e); }
       var timer;
       Promise.race([
         Promise.resolve().then(function () { return api.get(); }),

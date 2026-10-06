@@ -27,7 +27,7 @@ function load() {
   const ctx = { console, Math, JSON, Date };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of ['00-core.js', '30-prompts.js']) vm.runInContext(src(f), ctx, { filename: f });
+  for (const f of ['00-core.js', '30-prompts.js', '34-verify.js']) vm.runInContext(src(f), ctx, { filename: f });
   return ctx.U;
 }
 const U = load();

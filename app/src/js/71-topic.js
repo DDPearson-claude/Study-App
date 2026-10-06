@@ -4,7 +4,8 @@
 // the path of ideas, the Library of research sources, Ask Claude, and Delete. The plan is written
 // before any research and never checked against it, so "in one breath", the hook and the warm-up's
 // answers say they are Claude's overview, and the Library says only what research found (each
-// lesson says whether it drew on it). A lesson opens only when it is whole, so the header says
+// lesson says whether it drew on it), and that lessons were checked against it only as far as
+// their docs say so (doc.verified, 31-generate.js). A lesson opens only when it is whole, so the header says
 // whether the next idea's lesson is being prepared or ready, and the path marks any idea this
 // page is preparing. Every state has its own h1 and title (a missing topic, one that could not be
 // loaded; while the store is reconnecting it says so calmly instead); a live watch that stops once
@@ -28,7 +29,7 @@
     var topic = null, loaded = false, failure = null, progress = { ideas: {} }, deleting = false;
     var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null };
     var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
-    var lib = { key: null, groups: null };
+    var lib = { key: null, groups: null, checked: null, seq: 0 };
     var avail = null;
     // A watch that stopped after the page loaded (its error), cleared by its next snapshot.
     var live = { topic: null, progress: null };
@@ -64,7 +65,11 @@
     ];
     // The next idea's lesson (its doc), and this page's own work on any lesson of this topic.
     var lw = V.lessonWatch(schedule);
-    stops.push(lw.stop, U.on('gen', function (g) { if (g && g.kind === 'lesson' && g.tid === tid) schedule(); }));
+    stops.push(lw.stop, U.on('gen', function (g) {
+      if (!g || g.kind !== 'lesson' || g.tid !== tid) return;
+      if (g.status === 'ready' && lib.key) loadChecked();
+      schedule();
+    }));
     U.research.available().then(function (a) { avail = !!a; schedule(); }, function () { avail = false; schedule(); });
 
     var timer = setInterval(function () {
@@ -357,7 +362,7 @@
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
-        ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
+        ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, lib.checked, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
           return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
         }, 'end'],
@@ -538,6 +543,23 @@
         }).filter(function (g) { return g.sources.length; });
         schedule();
       });
+      loadChecked();
+    }
+    // How many whole lessons were checked against their sources (doc.verified.status 'done',
+    // with sources), so the Library claims a check only as far as it is true.
+    function loadChecked() {
+      var seq = ++lib.seq;
+      U.store.lesson.list(tid).then(function (docs) {
+        if (seq !== lib.seq || !ctx.alive()) return;
+        var c = { ready: 0, checked: 0 };
+        (docs || []).forEach(function (d) {
+          if (!d || d.status !== 'ready' || !d.lesson) return;
+          c.ready++;
+          if (d.verified && d.verified.status === 'done' && Array.isArray(d.lesson.sources) && d.lesson.sources.length) c.checked++;
+        });
+        lib.checked = c;
+        schedule();
+      }, function () { /* the Library then says only what research found */ });
     }
 
     function library(ideas) {
@@ -548,12 +570,16 @@
       if (ui.researching || (r.status === 'running' && !stale)) {
         status = U.h('div', { class: 'lib-status is-running' }, U.h('span', null, 'Checking sources…'), U.h('div', { class: 'working' }));
       } else if (r.status === 'done' && !none) {
-        // What research found, and no more: nothing checks a lesson against these sources, and the
-        // first lesson is often written before research finishes. Each lesson says which it is
-        // (its Sources, or "Not yet source-checked"; 50-lesson.js), so this says that much.
+        // What research found, and no more: the first lesson is often written before research
+        // finishes, and a lesson's fact-check can fail. Each lesson says which it is (its Sources
+        // and whether they were checked, or "Not yet source-checked"; 50-lesson.js), so this says
+        // lessons were checked only when every whole lesson was, and otherwise how many were.
+        var ck = lib.checked, note = 'Each lesson lists the sources it drew on, or says it was written without them.';
+        if (ck && ck.ready && ck.checked === ck.ready) note = 'Each lesson is checked against them before it opens.';
+        else if (ck && ck.checked) note += ' ' + ck.checked + ' of the ' + ck.ready + ' lessons written so far ' + (ck.checked === 1 ? 'was' : 'were') + ' checked against them.';
         status = [
           U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Research found ' + (count ? count + (count === 1 ? ' source' : ' sources') : 'sources'))),
-          U.h('p', { class: 'lib-note' }, 'Each lesson lists the sources it drew on, or says it was written without them.'),
+          U.h('p', { class: 'lib-note' }, note),
         ];
       } else {
         // A check left 'running' by a page that went away counts as not finished; one that ran

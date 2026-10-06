@@ -100,12 +100,15 @@ async function setup(theme) {
       followUp: 'You have the yeast and the gas. What holds the gas in, so the dough rises instead of leaking?' }), 500));
   };
   U.sandbox = U.sandbox || {};
-  window.__mounts = 0; window.__destroyed = 0;
+  window.__mounts = 0; window.__destroyed = 0; window.__quiz = []; window.__reveals = 0;
   U.sandbox.mount = function (container, o) {
     let temp = 20;
+    // Quiz mode as the kit does it (contract Q): the readout it hides shows "?" until reveal.
+    let hide = o && o.quiz && o.quiz.hide ? o.quiz.hide : null;
+    window.__quiz.push(o && o.quiz ? JSON.parse(JSON.stringify(o.quiz)) : null);
     const input = U.h('input', { type: 'range', min: '-20', max: '40', step: '1', value: '20', class: 'fake-kit-range', 'aria-label': 'Air temperature' });
     const out = U.h('output', { class: 'fake-kit-out' });
-    const draw = () => { out.textContent = 'Air ' + temp + ' °C · sound travels at ' + (331 + 0.6 * temp).toFixed(1) + ' m/s'; };
+    const draw = () => { out.textContent = 'Air ' + temp + ' °C · sound travels at ' + (hide === 'speed' ? '?' : (331 + 0.6 * temp).toFixed(1)) + ' m/s'; };
     input.addEventListener('input', () => { temp = Number(input.value); draw(); });
     draw();
     const el = U.h('div', { class: 'fake-kit', style: { padding: '24px 20px', display: 'grid', gap: '14px', fontWeight: '600' } },
@@ -114,6 +117,7 @@ async function setup(theme) {
     window.__mounts++;
     return { el, frame: null, ready: Promise.resolve([]), selftest: () => Promise.resolve({ ok: true }),
       get: () => Promise.resolve({ params: { temp }, outputs: { speed: 331 + 0.6 * temp } }), set: () => Promise.resolve(),
+      reveal: () => { window.__reveals++; hide = null; draw(); },
       destroy: () => { window.__destroyed++; el.remove(); } };
   };
   window.addEventListener('hashchange', U._route);
@@ -258,6 +262,9 @@ async function runSession({ width, theme, full }) {
       check(/· Hard/.test(await page.locator('.qc-grade-line').innerText()), `${tag}: grade override changes the mark`);
     } else if (key === 'tA/i2_c3') {                            // target: miss, hint, then hit
       await page.waitForSelector('.fake-kit');
+      // Quiz mode: the card mounts its interactive with the readout it aims at hidden, and Check reveals it.
+      const quiz = await page.evaluate(() => [window.__quiz[window.__quiz.length - 1], window.__reveals, document.querySelector('.fake-kit-out').textContent]);
+      check(JSON.stringify(quiz[0]) === '{"hide":"speed"}' && quiz[1] === 0 && /at \? m\/s/.test(quiz[2]), `${tag}: target card mounts in quiz mode, its readout hidden while he answers (${JSON.stringify(quiz)})`);
       const goal = await page.locator('.qc-goal').innerText();
       check(/Use the Air temperature control to make Speed of sound read 350\sm\/s \(give or take 2\sm\/s\)/.test(goal), `${tag}: target goal names the readout and its unit (${goal})`);
       check(/Speed of sound: aim for 350\sm\/s/.test(await page.locator('.qc-aim').innerText()), `${tag}: the goal beside the button has the unit too`);
@@ -266,6 +273,8 @@ async function runSession({ width, theme, full }) {
       await page.waitForSelector('.qc-hint:not([hidden])');
       const hint = await page.locator('.qc-hint').innerText();
       check(/Speed of sound reads 343\sm\/s and you are aiming for 350\sm\/s/.test(hint) && /higher/.test(hint), `${tag}: target miss gives one hint, with units (${hint.replace(/\n/g, ' ')})`);
+      const shown = await page.evaluate(() => [window.__reveals, document.querySelector('.fake-kit-out').textContent]);
+      check(shown[0] >= 1 && /at 343\.0 m\/s/.test(shown[1]), `${tag}: Check reveals the readout (${JSON.stringify(shown)})`);
       await page.waitForTimeout(350);
       await vshot(name + '-hint');
       await page.evaluate(() => { const r = document.querySelector('.fake-kit-range'); r.value = '32'; r.dispatchEvent(new Event('input', { bubbles: true })); });

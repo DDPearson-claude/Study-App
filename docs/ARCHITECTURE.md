@@ -261,10 +261,12 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   // Library) need done with sources >= 1 (U.views.sourcesChecked). A run that kept none (done
   // with 0 sources, stored before such runs counted as failed, or failed with reason
   // 'none_confirmed') reads "ran but could not confirm a single source" (sourcesNone).
-  // Nothing checks a lesson against these sources: lessons are written from them, and the first
-  // one often before research finishes (unsourced, FIRST_RESEARCH_WAIT_MS). So the Library claims
-  // nothing for the lessons beyond "Each lesson lists the sources it drew on, or says it was
-  // written without them" (the lesson's Sources, or its "Not yet source-checked" note).
+  // Lessons are written from these sources, the first one often before research finishes
+  // (unsourced, FIRST_RESEARCH_WAIT_MS), and each is then fact-checked against them (section 7),
+  // a check that can fail. So the Library says "Each lesson is checked against them before it
+  // opens." only when every whole lesson's `verified` is done with sources; otherwise "Each lesson
+  // lists the sources it drew on, or says it was written without them", adding "N of the M
+  // lessons written so far were checked against them." when some were.
   // hook, oneBreath and calibration (answer, why) come from plan-topic, before any research, and
   // are never checked, so the topic page says under "In one breath" (or under the hook, when there
   // is no oneBreath) and under a revealed warm-up answer, in small muted words, that they are
@@ -282,6 +284,9 @@ kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
   note: string|null,                             // why there is no interactive
   avoid:[brief]|null, feedback: string|null,      // Learn it again: briefs to avoid, Dan's note
   request: string|null,                           // the Learn it again request it was written for
+  verified:{ status:'done'|'failed'|'skipped', at,  // the fact-check (section 7); null while it is
+    applied:[{ path, problem }],                  // still owed (a building doc); absent on older
+    notes:[{ path, problem }] } | null,           // lessons, which say nothing about a check
   error, errorCode?, errorDetail?,                // when failed
   flags:{ [key]:{ note, at, stage } } }           // "This looks wrong", newest 30; kept when the
                                                   // lesson is rewritten or a stopped job puts it back
@@ -422,7 +427,22 @@ questions. Reported only when a word match is reliable: the whole right option, 
 word; or every word only the right option has, at least 2, within 15 words of one field);
 `research` {sources, topic:{notes}, ideas:{[iid]:{notes}}},
 a note citing at least one source unless contested; `grade` {met (one per rubric point), verdict
-(got-it = all met, partly = some, not-yet = none), nailed, followUp ('' only when got-it), model?}.
+(got-it = all met, partly = some, not-yet = none), nailed, followUp ('' only when got-it), model?};
+`verify` (the fact-check, `U.validate.verify(o, {lesson, sources})` in `34-verify.js`) {issues: at
+most 12 {path, problem (<= 300 chars), severity 'fix'|'note', now (the whole new text of that
+field, required for a fix)}}. A fix's path names one string field the lesson has: `predict.reveal`,
+`explain.text`, `analogy.text`, `analogy.breaks`, `interactive.whatAmILookingAt`,
+`interactive.ignores`, `say.model`, `say.rubric[i]`, `checks[i].q`, `checks[i].why`,
+`checks[i].options[j]`, `checks[i].misconception[j]` (keyed by the option's index),
+`checks[i].items[j]`, `contested.views[i].text`. Frozen (a fix there is a hard problem whose
+message says why and asks for a note): `predict.q` and `predict.options` (Dan may already have
+answered them), the rest of the interactive spec (it is built from it), check ids, types, answers,
+targets and every other check field, how many options or items a check has and their order, and
+`sources`. A note may name any field the lesson has. One fix per field. The lesson with every fix
+applied (`U.verify.apply`) is validated as the written lesson is (`{iid, sources, final: true}`):
+each problem it has that the lesson as written did not is a problem of the reply, soft when the
+lesson's problem is soft (a field made too long), hard otherwise (a [^n] to no source, an uncited
+source, a web address, two options the same).
 
 Review cards come only from what Dan answered: each check he answered becomes a card of the
 same type; his say-it-back becomes `{ type:'recall', spec:{ prompt, rubric, model, mine } }`.
@@ -549,7 +569,9 @@ self-test found if the report arrives first. On a phone a staged canvas whose he
 keeps its shape (its width shrinks with it). SVG halos (`k-halo`, .25em of the page colour) skip
 text with a stroke of its own or a fill that is not a plain colour.
 
-Quiz mode (contract Q), while Dan answers a target check on the interactive:
+Quiz mode (contract Q), while Dan answers a target check on the interactive (a target check in a
+lesson and a target review card both mount it so, from `41-cards.js`, hiding the check's `output`;
+pressing Check sends `reveal`, so a miss's hint and the reading it names show together):
 `U.sandbox.mount(container, {…, quiz: {hide: '<output id>'}})`. The srcdoc opens in it (`K_QUIZ`), so
 the value never shows, and after every `ready` (a frame moved in the page loads the kit again) the
 host posts `{type:'quiz', hide}` with the current state; `{type:'quiz', hide:null}` or
@@ -572,8 +594,9 @@ frames cap at 4000). A lesson keeps an interactive only after it passes (section
 ## 7. Generation (in the page)
 
 `30-prompts.js` owns the plan, research, lesson, grade and tutor prompts and every validator;
-`33-interactive.js` the build and repair prompts. Each JSON call passes its validator as `schema`.
-Tiers: plan-topic quick; build/repair-interactive complex; the rest default.
+`33-interactive.js` the build and repair prompts; `34-verify.js` the fact-check's prompt,
+validator and patcher (below). Each JSON call passes its validator as `schema`.
+Tiers: plan-topic quick; build/repair-interactive complex; the rest default (verify-lesson too).
 
 The write-lesson prompt gives the writer THE COURSE (title, the hook as the puzzle the course
 answers, level, oneBreath, every idea as "id title — one line [kind]"), this idea, `prior`, the
@@ -601,11 +624,10 @@ and 2 numbers for a NEW learner; and, in a lesson with sources, the rule that a 
 does not support appears only if a standard textbook states it, unfootnoted, as "textbooks add
 that …", and never as the only support for the predict's answer.
 
-The brief reads "The one thing you should see is ___ when you ___." The prompt is written for a
-lesson screen that shows Dan only "Try this: " and the "when you" half before he plays, and the
-whole sentence after the reveal, so that half names the action and never gives the answer away.
-(That screen is the lesson-screen group's change to `50-lesson.js`; until it lands, the screen
-shows the whole sentence before play as "Watch for …".) The explanation lists what it must do
+The brief reads "The one thing you should see is ___ when you ___." The lesson screen shows Dan
+only "Try this: " and the "when you" half before he plays (nothing, for a brief without that
+half), and the whole sentence, "Watch for ___ when you ___.", after the reveal (`friendlyBrief` in
+`50-lesson.js`), so the prompt has that half name the action and never give the answer away. The explanation lists what it must do
 within 170 words (what playing shows, the why from something Dan has felt, the one line's claim,
 the takeaway) and what it adds only if words remain. Checks are three, one per side (the why, the
 limit, and a new case that compares amounts where the idea involves how much, how many or how
@@ -667,7 +689,11 @@ Pipelines (`31-generate.js`):
    or `bad_json`) is written once more from scratch: a fresh call with the same prompt (and its
    own repair), status line "Having another go at writing this lesson…"; any other error keeps
    its handling below. Keep only citations of checked sources, renumbered 1..n; save
-   (`building`); build the interactive; save `ready` with it, or without it and a `note`.
+   (`building`, `verified: null`); then the fact-check and the interactive's build start side by
+   side (below); once both are over, save `ready` with the checked text and `verified`, and the
+   interactive or, without it, a `note`. A lesson with no interactive is checked, then saved
+   `ready`. A `building` doc taken up later (resumed) runs the check beside its build when its
+   `verified` has no status; one already checked keeps it.
    `onStatus(text, meta)`: `meta.redo` means the step in progress is being done again (the
    lesson screen rewrites that line instead of ticking it off); `meta.failed` carries the
    failure text (the screen shows it once, under the step that failed, never as a step).
@@ -702,6 +728,35 @@ Pipelines (`31-generate.js`):
    (this page only); `knownIdeas(excludeTid) -> [{title, topic}]`. Progress is broadcast as
    `U.emit('gen', {tid, iid, kind:'plan'|'research'|'lesson', status, text})`.
 
+The fact-check, "verify-lesson" (contract V; `34-verify.js`, pure like `30-prompts.js`). Why: the
+run-2 panel found an absolute or over-broad claim in every lesson, misread dates, skipped causes
+and checks whose right answer was arguable, which the writer cannot see in its own text.
+`U.prompts.verifyLesson(topic, idea, lesson, {research, later, level})` gives a fresh reader the
+lesson JSON with its numbered sources and quotes, the research notes the writer had (the same
+`lessonResearch`, numbered [R1]… apart from the lesson's [^n]), the course's later ideas (title and
+one line; default: those after this idea), Dan's level, `truthRules` (the writer's own CLAIMS THAT
+STAY TRUE and THE NUMBER RULE) and what to check: general claims true across the interactive's
+whole range, in everyday life and after every later idea; dates read correctly; numbers by the
+number rule; one defensible right answer per check, its wrong options really wrong; nothing beyond
+what the cited quotes support unless worded as a picture or a hedge; the parts agreeing. No tools;
+tier default; its schema is `U.validate.verify` (section 5), with the usual one repair.
+`U.verify.apply(lesson, reply) -> {lesson, applied, notes}` rewrites each fixed field (once; a
+refused or empty fix, or a note, is recorded in `notes`). In `write()` it starts with the build:
+the build works from the lesson as written (the verifier never touches the interactive's spec, so
+the build stays valid for the checked text), and the doc is saved `ready` only when both are over,
+with `verified: {status, at, applied:[{path, problem}], notes:[{path, problem}]}`. It never blocks
+the lesson: any error, `VERIFY_MS` (90 s from the start of the step) without a reply, a rate limit,
+a reply still invalid after its repair, or the job being cancelled saves the lesson as written,
+`status: 'failed'`; a page without the step loaded saves `'skipped'`. A lesson with no sources is
+still checked, for consistency and its claims: `'done'` with a first note "No sources were
+available…". Relearn goes through `write()`, so it checks too; a prefetch's check goes with priority
+background like its other calls (background calls run one at a time, so there it runs before the
+build). Lines: "Checking the lesson against its sources…" ("…for consistency…" without sources)
+before the build's own; if the build is over first, "Still checking the lesson against its
+sources…" after its last line. The lesson screen says what it did in one quiet line in its Sources
+panel (section 7's lesson screen); the topic page's Library claims a check only as far as the docs
+say so (section 4).
+
 One writer per lesson, across devices and tabs. The holder is `device/tab` (localStorage
 `mu.device`, sessionStorage `mu.tab`, read as the job starts and kept by it), named in the doc's `by`. A job claims the db's lease on
 the lesson doc (`ref.acquire({holder, ttlMs: 90000})`) and renews it every 45 s with a heartbeat
@@ -731,8 +786,8 @@ then one line per repair, "Fixing what the test found (try 2 of 3)…" (never th
 
 The lesson screen (`50-lesson.js`) opens a lesson only when it is whole (section 4). Until then
 it shows only the preparation card: the eyebrow, the title, the idea's one line, the job's
-`onStatus` lines as steps (writing, building the interactive, testing it, fixing what the test
-found; a doc that already has its text starts with "The lesson text is written"), and a calm
+`onStatus` lines as steps (writing, checking the lesson, building the interactive, testing it,
+fixing what the test found; a doc that already has its text starts with "The lesson text is written"), and a calm
 note ("This usually takes a few minutes. You can leave this screen; it keeps going while the app
 is open."). Never Predict or any lesson text. It switches to the whole lesson when its job settles
 or when the watched doc turns whole (another device finished it), resuming at the saved stage.
@@ -769,6 +824,13 @@ on the fresh lesson that has begun is finished, not begun again: whole, it opens
 (its rewrite finished while he was away); writing or building (or cut off by a reload) it goes
 through `ensureLesson`, whose claim carries his note, the briefs to avoid and the token.
 
+Explain's Sources panel ends with one quiet line (muted, small; no badge) from `doc.verified`:
+"Checked against its sources: N corrections made." (one: "1 correction made."), "Checked against
+its sources." when nothing needed correcting, and, for a lesson with no sources (no panel), the
+same line under its "Not yet source-checked" note: "Checked for consistency (no sources were
+available)."; nothing when the check failed, was skipped or never ran. Before play the lede says
+only "Try this: …" (above); target checks open in quiz mode (section 6).
+
 A say-it-back answer is filed under the round it was given in (the grade may land after a new round
 began); only answers of the round on screen count towards it. During the checks, Ask Claude is told
 the settings of the interactive Dan is using: a target question's own copy (its card's `mount`)
@@ -786,9 +848,10 @@ carrying the verdict on a checked card), never left on a removed button. In a le
 scroll padding reserves the sticky lesson bar, so a focused element never sits under it.
 
 The steps on the card are one line each. A doc with its text starts with "The lesson text is
-written" and the build's own lines follow (resuming adds no line of its own); both a fresh write
-and a resume end the build with the line for what really happened, "Interactive tested and
-ready." or "Finishing without the interactive…". A step that did not work out (a test that found
+written", then the fact-check's line (when it still owes one) and the build's own lines (resuming
+adds no line of its own); both a fresh write and a resume end the build with the line for what
+really happened, "Interactive tested and ready." or "Finishing without the interactive…" (then
+"Still checking the lesson against its sources…" if the check is not over). A step that did not work out (a test that found
 problems, a repair that did not pass: the next line is a repair or "Finishing without the
 interactive") ends with a quiet dash, never a tick; the step a failed job stopped at gets the red
 cross. A lesson whole without its interactive (none planned, or one that never passed its tests) is
@@ -797,7 +860,7 @@ played by what was built: Predict asks for a guess without "before you play", an
 the title of an interactive that is not there.
 
 Prefetch: once a lesson is whole, the next open idea is ensured with `background: true`: written,
-its interactive built and tested, and saved `ready`, all as background work. Leaving a lesson
+checked, its interactive built and tested, and saved `ready`, all as background work. Leaving a lesson
 that is still being prepared demotes its job (`U.gen.demote(tid, iid)`) rather than cancelling
 it. Both keep going while the app is open (they are not cancelled when Dan leaves the topic) and
 yield to his foreground calls; opening the lesson joins the job and promotes its queued calls
@@ -902,7 +965,7 @@ U.interactive.problems(report, lesson, html?) / requiredIds / foreignUrls / stri
 U.interactive.advice(report, lesson) -> ['Advice: …']   the kit's warnings (source advice dropped when the lesson has
    none), and a check cited to a source whose quote holds none of the check label's numbers
 ```
-`30-prompts.js`, `31-generate.js`
+`30-prompts.js`, `31-generate.js`, `34-verify.js`
 ```
 U.prompts.planTopic(query, {level, known:[{title, topic}]})                     TASK: plan-topic
 U.prompts.research(topic, {ideas})                                               TASK: research
@@ -911,6 +974,9 @@ U.prompts.grade(say, answer, {attempt, previous:{text, followUp}, title})       
 U.prompts.tutor(context) -> preamble (the pipeline adds the turns)              TASK: tutor
 U.prompts.lessonResearch(research, iid, deps?, ideas?) -> {notes, sources} | null   numbered 1..k for one lesson (section 7)
 U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
+U.prompts.verifyLesson(topic, idea, lesson, {research, later, level})            TASK: verify-lesson   (34-verify.js)
+U.validate.verify(reply, {lesson, sources}) -> [problems] (.soft)   U.verify.apply(lesson, reply) -> {lesson, applied, notes}
+U.verify.pathProblem(path, lesson, fix) -> string | null   U.verify.PATCHABLE   U.verify.MAX_ISSUES (12)
 U.prompts.urlKey(url) / words(text) / footnotes(obj) / VOICE / KINDS / NUMBER_KINDS
 U.validate.plan(o) / .lesson(o, {iid, sources, final}) / .grade(o, {rubric, attempt}) / .research(o, {ideas}) -> [problems]
    problems.soft: the length problems among them (section 5);  U.validate.hard(problems);  U.validate.allowed(max)
@@ -920,8 +986,9 @@ U.gen.demote(tid, iid, {signal?}) -> bool   a foreground job Dan left becomes ba
 `41-cards.js`, `60-today.js`
 ```
 U.cards.render(card, {mode:'lesson'|'review', lesson?, onDone(result)}) -> Element with destroy()
-   card {id, type, spec, s?}; lesson: the lesson doc (a target card mounts its interactive; its
-   element's `mount` is that U.sandbox.mount api). Focus never drops to the page: an answer moves it
+   card {id, type, spec, s?}; lesson: the lesson doc (a target card mounts its interactive in quiz
+   mode, quiz: {hide: spec.output}, and calls its reveal() when Check is pressed; its element's
+   `mount` is that U.sandbox.mount api). Focus never drops to the page: an answer moves it
    to Continue (aria-describedby: the verdict), an order card to the next item to place (then
    Check), a recall card to its panel's heading
    result {correct, grade, answer, ms, auto?, verdict?, skipped?, pending?: Promise<{grade, correct, verdict}>}

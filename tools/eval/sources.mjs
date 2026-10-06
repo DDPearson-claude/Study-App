@@ -30,7 +30,7 @@ function load() {
   ctx.window = ctx;
   ctx.addEventListener = noop;
   vm.createContext(ctx);
-  for (const f of ['00-core.js', '10-runtime.js', '30-prompts.js', '31-generate.js']) {
+  for (const f of ['00-core.js', '10-runtime.js', '30-prompts.js', '31-generate.js', '34-verify.js']) {
     vm.runInContext(readFileSync(join(root, 'app', 'src', 'js', f), 'utf8'), ctx, { filename: f });
   }
   return ctx.U;

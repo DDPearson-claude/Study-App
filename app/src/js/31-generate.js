@@ -14,7 +14,10 @@
 //   U.gen.status(tid) -> {planning, research, lessons:{iid: status}}   this page's live work
 // Progress is also broadcast as U.emit('gen', {tid, iid, kind, status, text}).
 //
-// Lesson docs move writing -> building -> ready (or failed, with a readable `error`). A job holds
+// Lesson docs move writing -> building -> ready (or failed, with a readable `error`). Once written,
+// a lesson is fact-checked (34-verify.js) while its interactive is built, and saved ready only when
+// both are over, with doc.verified saying what the check did; a check that fails never holds the
+// lesson back (verified.status 'failed'). Relearn and prefetches check too. A job holds
 // the db's lease on its lesson doc (renewed every 45 s with the doc's updatedAt); another device
 // waits for it, and takes over once the lease runs out (without leases: once the doc has been
 // silent for 4 minutes). Errors that say nothing about the lesson never mark it failed.
@@ -32,6 +35,7 @@
     RESEARCH_RETRY_MS: 10 * 60 * 1000, // a lesson re-tries 'failed'/'unavailable' research this old
     RESEARCH_TRIES: 3,                // ...but runs that failed (error, timeout, page gone) only this many in a row
     KNOWN_MAX: 60,
+    VERIFY_MS: 90 * 1000,             // the fact-check's longest wait; then the lesson goes on unverified
   };
   var LEVELS = ['new', 'some', 'solid'];
   var NO_INTERACTIVE = 'The interactive for this idea could not be built and tested this time, so this lesson carries on without it.';
@@ -842,7 +846,7 @@
 
   function write(job, o) {
     o = o || {};
-    var tid = job.tid, iid = job.iid, topic, idea, lr = null, stage = 'none';
+    var tid = job.tid, iid = job.iid, topic, idea, lr = null, research = null, stage = 'none';
     var avoid = [].concat(o.avoid || []).filter(isStr), feedback = isStr(o.feedback) ? o.feedback : null;
     progress(job, 'Reading the plan for this idea…', 'writing');
     return (plans[tid] ? plans[tid].catch(noop) : Promise.resolve()).then(function () {
@@ -872,6 +876,7 @@
       return researchFor(tid, topic, iid, job);
     }).then(function (rsrch) {
       stillWanted(job);
+      research = rsrch;
       lr = U.prompts.lessonResearch(rsrch, iid, idea.deps);
       var allowed = lr && lr.sources.length ? lr.sources : null;
       return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
@@ -896,13 +901,21 @@
       var lesson = finaliseLesson(raw, iid, lr);
       var sourced = lesson.sources.length > 0;
       return own(job).then(function () {
-        if (!lesson.interactive) return U.store.lesson.update(tid, iid, { status: 'ready', lesson: lesson, sourced: sourced, interactive: null, note: null, error: null });
-        progress(job, 'Building your interactive…', 'building');
-        return U.store.lesson.update(tid, iid, { status: 'building', lesson: lesson, sourced: sourced }).then(function (r) {
+        // The fact-check (contract V) and the interactive's build run side by side: the build
+        // works from the lesson as written (the verifier never touches the interactive's spec),
+        // and the lesson is saved whole, checked text and interactive together, once both are over.
+        if (!lesson.interactive) {
+          return checkLesson(job, topic, idea, lesson, research, 'writing').then(function (v) {
+            return own(job).then(function () {
+              return U.store.lesson.update(tid, iid, { status: 'ready', lesson: v.lesson, sourced: sourced, verified: v.verified, interactive: null, note: null, error: null });
+            });
+          });
+        }
+        return U.store.lesson.update(tid, iid, { status: 'building', lesson: lesson, sourced: sourced, verified: null }).then(function (r) {
           goneIfNull(r);
           stage = 'building';
-          return buildInteractive(topic, idea, lesson, avoid, job);
-        }).then(function (built) { return saveBuilt(job, lesson, built); });
+          return checkAndBuild(job, topic, idea, lesson, research, avoid, 'Building your interactive…');
+        });
       });
     }).then(function (r) {
       goneIfNull(r);
@@ -913,10 +926,73 @@
   }
 
   // The build is over: one line for what really happened (the interactive passed its tests, or
-  // the lesson goes on without it), then the doc is saved ready, with it or with the note why.
-  function saveBuilt(job, lesson, built) {
+  // the lesson goes on without it). The doc is saved ready by saveWhole, with it or with the note why.
+  function builtLine(job, built) {
     progress(job, built ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'building');
-    return own(job).then(function () { return U.store.lesson.update(job.tid, job.iid, builtPatch(lesson, built)); });
+  }
+  // The checked lesson and the build, saved together: the lesson whole at last.
+  function saveWhole(job, v, built) {
+    var patch = builtPatch(v.lesson, built);
+    if (!patch.lesson) patch.lesson = v.lesson;
+    patch.verified = v.verified;
+    return own(job).then(function () { return U.store.lesson.update(job.tid, job.iid, patch); });
+  }
+  // The fact-check and the interactive's build, started together. A build that fails for a reason
+  // that says nothing about the lesson (rate limits, cancelled) stops the job at once, as before;
+  // the check never does (checkLesson never rejects). Lines: the check's first, then `lead` (if
+  // any) and the build's, and, if the check is still going when the build is over, a line saying
+  // the app waits for it.
+  function checkAndBuild(job, topic, idea, lesson, rsrch, avoid, lead) {
+    var checked = false;
+    var checking = checkLesson(job, topic, idea, lesson, rsrch, 'building').then(function (v) { checked = true; return v; });
+    if (lead) progress(job, lead, 'building');
+    var building = buildInteractive(topic, idea, lesson, avoid, job).then(function (built) {
+      builtLine(job, built);
+      if (!checked && !cancelled(job)) progress(job, lesson.sources && lesson.sources.length ? 'Still checking the lesson against its sources…' : 'Still checking the lesson for consistency…', 'building');
+      return built;
+    });
+    return Promise.all([checking, building]).then(function (r) { return saveWhole(job, r[0], r[1]); });
+  }
+
+  // The fact-check (contract V, 34-verify.js): a fresh read of the lesson against the research
+  // its writer had. Never rejects: any error, VERIFY_MS without a reply, a rate limit or the job
+  // being cancelled leaves the lesson as written, with verified.status 'failed' (or 'skipped'
+  // where the step is not loaded). A lesson with no sources is still checked, for consistency
+  // and its claims, and says so in a note. status: the job's live status meanwhile. -> {lesson, verified}
+  function checkLesson(job, topic, idea, lesson, rsrch, status) {
+    var sources = (lesson && lesson.sources) || [];
+    function result(status, L, applied, notes) {
+      return { lesson: L || lesson, verified: { status: status, at: U.now(), applied: applied || [], notes: notes || [] } };
+    }
+    if (!U.verify || !U.prompts.verifyLesson || !U.validate.verify) return Promise.resolve(result('skipped'));
+    progress(job, sources.length ? 'Checking the lesson against its sources…' : 'Checking the lesson for consistency…', status);
+    // Its own signal: the job's (a cancelled job stops it) or the timeout.
+    var ctrl = typeof AbortController === 'function' ? new AbortController() : null, timer = null;
+    var jobSig = job.ctrl && job.ctrl.signal;
+    function abort() { if (ctrl && !ctrl.signal.aborted) ctrl.abort(); }
+    if (jobSig && typeof jobSig.addEventListener === 'function') { if (jobSig.aborted) abort(); else jobSig.addEventListener('abort', abort); }
+    var timeout = new Promise(function (_, reject) {
+      timer = setTimeout(function () { abort(); reject({ code: 'timeout', message: 'The check took too long.' }); }, CFG.VERIFY_MS);
+    });
+    function done() { clearTimeout(timer); if (jobSig && typeof jobSig.removeEventListener === 'function') jobSig.removeEventListener('abort', abort); }
+    return Promise.resolve().then(function () {
+      stillWanted(job);
+      var o = askOpts(job, {
+        tier: 'default', json: true, label: 'verify-lesson',
+        schema: function (x) { return U.validate.verify(x, { lesson: lesson }); },
+      });
+      if (ctrl) o.signal = ctrl.signal;
+      return Promise.race([unlessCancelled(job, U.ask(U.prompts.verifyLesson(topic, idea, lesson, { research: rsrch }), o)), timeout]);
+    }).then(function (reply) {
+      done();
+      var r = U.verify.apply(lesson, reply);
+      if (!sources.length) r.notes.unshift({ path: '', problem: 'No sources were available, so the lesson was checked for consistency and its claims only.' });
+      return result('done', r.lesson, r.applied, r.notes);
+    }, function (e) {
+      done();
+      console.warn('lesson ' + job.iid + ': the fact-check did not finish, so the lesson is saved as written', e);
+      return result('failed');
+    });
   }
 
   // Finish a lesson whose text was saved but whose interactive build never completed. The screen
@@ -937,8 +1013,16 @@
         goneIfNull(r);
         stage = 'building';
         beat(job);
-        return buildInteractive(t, idea, doc.lesson, avoid, job);
-      }).then(function (built) { return saveBuilt(job, doc.lesson, built); }).then(function (r) {
+        // A lesson saved before its check finished (or by an older version) is checked now, beside
+        // the build; one already checked keeps its result.
+        if (doc.verified && doc.verified.status) {
+          return buildInteractive(t, idea, doc.lesson, avoid, job).then(function (built) {
+            builtLine(job, built);
+            return saveWhole(job, { lesson: doc.lesson, verified: doc.verified }, built);
+          });
+        }
+        return loadResearch(tid, iid, idea.deps).then(function (rsrch) { return checkAndBuild(job, t, idea, doc.lesson, rsrch, avoid); });
+      }).then(function (r) {
         goneIfNull(r);
         stopBeat(job);
         progress(job, 'Ready.', 'ready');

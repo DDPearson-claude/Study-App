@@ -48,6 +48,16 @@ Do not edit any file outside `$D`. Do not commit.
       add `--prior $D/i1.lesson.json`.
       Model hat -> `$D/I.lesson.reply.txt`. Operator: `node tools/eval/validate.mjs lesson $D/I.lesson.reply.txt --iid I [--sources $D/research.json --topic $D/topic.json]`;
       one corrective round if needed. Save the final lesson JSON as `$D/I.lesson.json`.
+   a2. Fact-check it, as the app does next (a fresh read against the same research; no tools):
+      `node tools/eval/prompts.mjs verify-lesson --topic $D/topic.json --idea I --lesson $D/I.lesson.json [--research $D/research.json] > $D/I.verify.prompt.txt`
+      Model hat (a fresh reader: you did not write this lesson) -> `$D/I.verify.reply.txt`. Operator:
+      `node tools/eval/validate.mjs verify $D/I.verify.reply.txt --lesson $D/I.lesson.json --out $D/I.lesson.verified.json`;
+      one corrective round if needed, as for the lesson. It prints what was `applied` and the `notes`;
+      record both in notes.md. If hard problems remain after that round, the app keeps the lesson as
+      written (verified failed): copy `$D/I.lesson.json` to `$D/I.lesson.verified.json`. The build in b
+      uses `$D/I.lesson.json`, as the app builds from the lesson as written, beside the check (the
+      interactive's spec and the check ids are frozen, so the build fits the checked lesson too);
+      `$D/I.lesson.verified.json` is the lesson Dan would see: judge that one.
    b. If the lesson has an interactive: `node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.json > $D/I.build.prompt.txt`
       Model hat -> the body HTML into `$D/I.body1.html` (strip nothing; the app's extractor runs in the next step).
       Operator: extract the way the app does and self-test + screenshot:
