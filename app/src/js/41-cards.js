@@ -203,19 +203,24 @@
   // marked, and the panel names the right one), never most of them: then it joins the flow below
   // them and peeks in at the bottom of the screen. A panel in the flow shows at least its start;
   // when the question cannot stay as well, the panel wins. A panel taller than most of the screen
-  // never docks, so the answer above stays reachable.
+  // never docks, so the answer above stays reachable; one held under the bar instead (a laptop
+  // target card's column, 40-review.css) lets go only when it cannot fit below the bar. Either way
+  // a panel never starts under the bar: one that would (beside a question Dan has scrolled past,
+  // or one that has just let go) comes down to just under it.
   //   o.noScroll  only re-check the docking     o.end  bring the panel's end (the grades) into view
   function reveal(c, o) {
     o = o || {};
     var vh = window.innerHeight, panel = c.foot.firstChild;
-    if (panel && panel.offsetHeight > vh * 0.62) c.foot.classList.add('qc-unstick');
+    var fs = getComputedStyle(c.foot), under = fs.position === 'sticky' ? parseFloat(fs.top) : NaN;
+    if (panel && panel.offsetHeight > (under >= 0 ? vh - under - 16 : vh * 0.62)) c.foot.classList.add('qc-unstick');
     if (o.noScroll) return;
     var docked = function () { return getComputedStyle(c.foot).position === 'sticky'; };
+    // Where the bar's bottom edge sits once it has stuck (it rides a little lower before that).
+    var bar = document.querySelector('.rv-top, .lsn-bar');
+    var top = bar ? (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight : 0;
     var over = c.el.getBoundingClientRect().bottom - vh + 8;
     if (!o.end || docked()) {
-      // Where the bar's bottom edge sits once it has stuck (it rides a little lower before that).
-      var bar = document.querySelector('.rv-top, .lsn-bar'), q = c.el.querySelector('.qc-q');
-      var top = bar ? (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight : 0;
+      var q = c.el.querySelector('.qc-q');
       var keep = q ? q.getBoundingClientRect().top - top - 12 : over;
       // How much of the answers a docked panel would hide once the question is under the bar. (A
       // target card's answer is the interactive, already read: its panel may stay docked over it.)
@@ -224,7 +229,20 @@
       var p = panel && !docked() && panel.getBoundingClientRect();
       over = p && p.top + Math.min(p.height, 120) - vh + 8 > keep ? Math.min(over, p.top - top - 12) : Math.min(over, keep);
     }
-    if (over > 0) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
+    // Dan asked for the grades (Change, or a grade): a panel in the flow, even one that has just
+    // left the dock because the grades made it taller, shows its end and Continue, though the
+    // question may scroll away for them. (The panel's own end: beside a tall interactive on a
+    // laptop, the card's end is further down.)
+    var end = o.end && !docked();
+    if (end) over = c.foot.getBoundingClientRect().bottom - vh + 8;
+    // Where the panel starts, from the foot (the panel itself is still sliding up). Docked, it stays
+    // put as the page scrolls; held under the bar it can be pushed up by the card's end. In the
+    // flow it moves with the page: no further than keeps its start in view, unless its end was
+    // asked for and it is too tall to show both.
+    var start = panel ? c.foot.getBoundingClientRect().top - top - 12 : Infinity;
+    if (docked()) over = start < 0 ? start : Math.max(over, 0);
+    else if (!end || over <= start) over = Math.min(Math.max(over, 0), start);
+    if (Math.abs(over) >= 1) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
   }
 
   function unavailable(c, text) {
@@ -457,23 +475,54 @@
     // Every number says what it is: "make Time for one swing read 3 s (give or take 0.05 s)".
     function amount(v, d) { return withUnit(fmt(v, d), unit); }
     var within = tol ? ' (give or take ' + amount(tol) + ')' : '';
+    var goalNum = h('strong', { class: 'qc-goal-num' }, amount(goal));
     var goalLine = h('p', { class: 'qc-goal' },
       ctl ? 'Use the ' : null, ctl ? h('strong', null, ctl.label || ctl.id) : null,
       name ? [ctl ? ' control to make ' : 'Make ', h('strong', null, name), ' read '] : [ctl ? ' control. ' : '', 'Aim for a reading of '],
-      h('strong', null, amount(goal)), within, '.');
+      goalNum, within, '.');
     var stage = h('div', { class: 'qc-stage' });
     var hintBox = h('div', { class: 'qc-hint', role: 'status', hidden: true });
     c.body.append(goalLine, stage);
     var btn = primary('Check my setting', check);
     btn.disabled = true;
-    // The goal again beside the button: the interactive can be taller than the screen.
+    // The goal again beside the button: the interactive can be taller than the screen. In a laptop
+    // review the button sits beside the goal sentence (or docks under the interactive on the same
+    // screen), so there the aim shows only once the goal's number has left the screen
+    // (.qc-goal-away, 40-review.css, which brings it in under Check): the same instruction never
+    // shows twice at once.
     var aim = h('p', { class: 'qc-aim muted small' }, name ? name + ': aim for ' : 'Aim for ', h('strong', null, amount(goal)), within);
     c.setFoot([hintBox, aim, btn]);
+    if (c.mode === 'review') watchGoal();
+    function watchGoal() {
+      var raf = 0;
+      function seen() {
+        raf = 0;
+        if (!goalLine.isConnected) return;
+        var bar = document.querySelector('.rv-top'), n = goalNum.getBoundingClientRect();
+        // The number has left only once most of it is under the bar: with just its top edge
+        // covered it still reads. (Its box runs below the digits, so under 40% of the box showing
+        // is about a third of the digits.)
+        var on = n.bottom - (bar ? bar.getBoundingClientRect().bottom : 0) > n.height * 0.4 && goalLine.getBoundingClientRect().bottom <= window.innerHeight + 1;
+        c.el.classList.toggle('qc-goal-away', !on);
+      }
+      function soon() { if (!raf) raf = requestAnimationFrame(seen); }
+      window.addEventListener('scroll', soon, { passive: true });
+      window.addEventListener('resize', soon);
+      c.cleanups.push(function () {
+        window.removeEventListener('scroll', soon);
+        window.removeEventListener('resize', soon);
+        if (raf) cancelAnimationFrame(raf);
+      });
+      soon();
+    }
     function enable() { if (!c.locked) btn.disabled = false; }
     try {
       api = U.sandbox.mount(stage, {
         html: it.html, title: it.title || 'Interactive', minHeight: 280,
         onError: function (msg) { console.warn('interactive error', msg); },
+        // Only a K.stage that sets its controls beside the visual gains from a laptop's full
+        // width (40-review.css); any other interactive keeps the answers' column.
+        onReady: function (checks, info) { c.el.classList.toggle('qc-wide', !!(info && info.beside)); },
       });
     } catch (e) {
       console.error(e);

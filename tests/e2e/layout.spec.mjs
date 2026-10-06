@@ -12,6 +12,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { openApp, readJson, taskOf, ROOT } from '../../tools/harness/page.mjs';
+import { readPng } from '../../tools/harness/png.mjs';
 
 const FILE = join(ROOT, 'tests', 'out', 'layout.html');
 const SHOTS = join(ROOT, 'tests', 'out', 'layout');
@@ -223,6 +224,248 @@ await test('in-app links route even when something else cancels link clicks', as
   const ext = await app.page.evaluate(() => { const a = U.views.extLink('https://example.org/x', 'x'); return { href: a.getAttribute('href'), target: a.target, rel: a.rel }; });
   assert(ext.href === 'https://example.org/x' && ext.target === '_blank' && /noopener/.test(ext.rel), 'outbound links are plain new-tab links ' + JSON.stringify(ext));
 });
+
+// ---------- review cards on a phone and a laptop ----------
+// Cards on the pendulum lesson (its interactive has no K.stage); a body with one swapped in.
+const pad2 = (n) => (n < 10 ? '0' : '') + n;
+const localDay = (n) => { const d = new Date(Date.now() + n * 864e5); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
+const CARDS = {
+  i1_c1: { ...PENDULUM.lesson.checks[0] },
+  i1_c4: { id: 'c4', type: 'target', q: 'Set the string length so one swing takes 3 seconds.', control: 'L', output: 'T', target: 3, tolerance: 0.05, why: 'T = 2π√(L/g), so 3 s needs about 2.24 m.' },
+};
+const STAGED = PENDULUM.interactive.html.replace('K.check(', 'K.stage(\'.pd\', \'#pd-ctl\');\nK.check(');
+async function openReview(width, height, { card, size = 'm', dark = false, html = null, why = null }) {
+  const db = seedDb(), spec = why ? { ...CARDS[card], why } : CARDS[card];
+  if (html) db['topics/pendulums/lessons/i1'] = { ...PENDULUM, interactive: { ...PENDULUM.interactive, html } };
+  db[`data/users/${UID}/profile`] = { prefs: { theme: dark ? 'dark' : 'light', size, easy: false, cap: 15, light: false }, days: {}, createdAt: new Date().toISOString() };
+  db[`data/users/${UID}/profile/cards/pendulums`] = { cards: { [card]: { id: card, tid: 'pendulums', iid: 'i1', type: spec.type, spec,
+    createdAt: new Date().toISOString(), s: { due: localDay(-2), stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: localDay(-9) }, hist: [] } } };
+  const app = await openApp({ width, height, dark, file: FILE, config: { db }, sample: () => new Promise(() => {}) });
+  current.apps.push(app);
+  await app.page.addInitScript(([t, s]) => { try { localStorage.setItem('mu-prefs', JSON.stringify({ theme: t, size: s })); } catch (e) {} }, [dark ? 'dark' : 'light', size]);
+  await app.page.goto(app.url('#/review'));
+  await app.page.evaluate(() => U.rt.ready);
+  await app.page.locator('.rv-stage > .qc').waitFor({ timeout: 15000 });
+  return app;
+}
+// Viewport rects of the review bar, the card parts (null when not shown) and (for target cards)
+// the slider and the readout inside the interactive.
+async function reviewRects(app) {
+  const r = await app.page.evaluate(() => {
+    const box = (s) => { const e = document.querySelector(s); if (!e || e.hidden || !e.getClientRects().length) return null; const b = e.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height }; };
+    return { vh: innerHeight, bar: box('.rv-top'), q: box('.rv-stage .qc-q'), grades: box('.rv-stage .qc-grades'), cont: box('.rv-stage .qc-continue'), frame: box('.qc-stage iframe'),
+      hint: box('.qc-hint'), btn: box('.qc-primary'), wide: document.querySelector('.rv-stage .qc').classList.contains('qc-wide'),
+      goal: box('.rv-stage .qc-goal'), num: box('.rv-stage .qc-goal-num'), aim: box('.rv-stage .qc-aim'), fb: box('.rv-stage .qc-fb'), head: box('.rv-stage .qc-fb-head'), answer: box('.rv-stage .qc-fb .qc-answer'), done: box('.rv-stage .qc-change') };
+  });
+  if (r.frame) {
+    const inner = await app.page.frameLocator('.qc-stage iframe').locator('body').evaluate(() => {
+      const box = (s) => { const e = document.querySelector(s); if (!e) return null; const b = e.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom }; };
+      return { range: box('.k-control input[type=range], input[type=range]'), readout: box('.k-readout') };
+    });
+    const at = (b) => b && { left: b.left + r.frame.left, right: b.right + r.frame.left, top: b.top + r.frame.top, bottom: b.bottom + r.frame.top };
+    r.range = at(inner.range); r.readout = at(inner.readout);
+  }
+  return r;
+}
+const overlaps = (a, b) => !!(a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom);
+const onScreen = (b, r) => !!b && b.top >= r.bar.bottom - 1 && b.bottom <= r.vh + 1;
+
+for (const [w, h] of [[390, 844], [360, 707]]) {
+  await test(`review on a ${w}x${h} phone: after a wrong answer, Change brings the grades and Continue on screen`, async () => {
+    const app = await openReview(w, h, { card: 'i1_c1' });
+    await app.page.locator('.qc-opt', { hasText: '8 s' }).click();
+    await app.page.locator('.qc-primary').click();
+    await app.page.locator('.qc-fb.is-wrong').waitFor();
+    await app.page.waitForTimeout(800);
+    let r = await reviewRects(app);
+    assert(r.q.top >= r.bar.bottom - 1 && r.q.bottom <= r.vh, 'the question stays in view right after answering ' + JSON.stringify({ q: r.q, bar: r.bar.bottom }));
+    await app.page.locator('.qc-change').click();
+    await app.page.waitForTimeout(900);
+    r = await reviewRects(app);
+    assert(onScreen(r.grades, r) && onScreen(r.cont, r), 'after Change the grade buttons and Continue are on screen ' + JSON.stringify({ grades: r.grades, cont: r.cont, vh: r.vh }));
+    await shot(app, `review-phone-${w}-change`);
+  });
+}
+
+for (const size of ['m', 'xl']) {
+  await test(`laptop review at ${size}: a target card without K.stage keeps a column; the hint and Check sit beside it, over nothing`, async () => {
+    const app = await openReview(1366, 768, { card: 'i1_c4', size });
+    await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+    await app.page.waitForTimeout(1200);
+    let r = await reviewRects(app);
+    assert(!r.wide && r.frame.width <= 720, 'the interactive keeps a reading column, not the full width ' + JSON.stringify({ wide: r.wide, frame: r.frame.width }));
+    assert(r.btn.left >= r.frame.right, 'Check sits beside the interactive ' + JSON.stringify({ btn: r.btn, frame: r.frame }));
+    await app.page.locator('.qc-primary').click();
+    await app.page.locator('.qc-hint:not([hidden])').waitFor();
+    await app.page.waitForTimeout(500);
+    r = await reviewRects(app);
+    for (const [k, part] of [['hint', r.hint], ['Check', r.btn]]) {
+      for (const [n, target] of [['slider', r.range], ['readout', r.readout]]) assert(!overlaps(part, target), `the ${k} does not cover the ${n} ` + JSON.stringify({ part, target }));
+    }
+    assert(r.hint.top >= r.bar.bottom - 1 && r.btn.bottom <= r.vh, 'the hint and Check are on screen ' + JSON.stringify({ hint: r.hint, btn: r.btn }));
+    // Dan scrolls down to the slider: they stay beside it, on screen.
+    await app.page.evaluate(() => window.scrollBy(0, 300));
+    await app.page.waitForTimeout(300);
+    r = await reviewRects(app);
+    assert(r.hint.top >= r.bar.bottom - 1 && r.btn.bottom <= r.vh && !overlaps(r.btn, r.range) && !overlaps(r.hint, r.readout), 'scrolled, the hint and Check stay in view beside the interactive ' + JSON.stringify({ hint: r.hint, btn: r.btn }));
+    await noSideways(app, 'target card');
+    await shot(app, `review-laptop-target-${size}`);
+  });
+}
+
+await test('laptop review: a target card whose interactive has a K.stage gets the full width, and the docked bar clears its controls', async () => {
+  const app = await openReview(1366, 768, { card: 'i1_c4', size: 'xl', html: STAGED });
+  await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+  await app.page.waitForTimeout(1200);
+  let r = await reviewRects(app);
+  assert(r.wide && r.frame.width >= 1000, 'the kit reports the stage and the interactive gets the width ' + JSON.stringify({ wide: r.wide, frame: r.frame.width }));
+  assert(onScreen(r.num, r) && !r.aim, 'the docked bar does not repeat the goal sentence on screen ' + JSON.stringify({ num: r.num, aim: r.aim }));
+  await app.page.locator('.qc-primary').click();
+  await app.page.locator('.qc-hint:not([hidden])').waitFor();
+  await app.page.waitForTimeout(500);
+  r = await reviewRects(app);
+  for (const [k, part] of [['hint', r.hint], ['Check', r.btn]]) {
+    for (const [n, target] of [['slider', r.range], ['readout', r.readout]]) assert(!overlaps(part, target), `the ${k} does not cover the ${n} ` + JSON.stringify({ part, target }));
+  }
+  await shot(app, 'review-laptop-target-stage');
+});
+
+// The feedback beside a target card is held under the bar (top 76 px). Dan presses Check again
+// while scrolled down to the readout (or presses it, then scrolls down), then Change: a panel
+// that fits below the bar stays held there whole (heading, answer line, Done, grades, Continue)
+// and never drops back to the question's row above the screen; one too tall for that starts just
+// under the bar, and Change brings its grades and Continue on screen.
+const WHY4 = 'T = 2π√(L/g), so a 3 s swing needs a string about 2.24 m long. The swing time grows with the square root of the length, not with the length itself. That is why doubling the time needs four times the string, not twice as much. Gravity sets the scale: on the Moon, where the pull is about a sixth as strong, the same string would swing about two and a half times more slowly.';
+const WHY_HUGE = [WHY4, WHY4, WHY4].join('\n\n');
+// A first miss (the hint), then Check again: scrolled down by `by` before it ('scrolled') or
+// just after it ('then').
+async function checkTwice(app, by, when = 'scrolled') {
+  const scroll = async () => { await app.page.evaluate((y) => window.scrollBy(0, y), by); await app.page.waitForTimeout(400); };
+  await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+  await app.page.waitForTimeout(1200);
+  await app.page.locator('.qc-primary').click();
+  await app.page.locator('.qc-hint:not([hidden])').waitFor();
+  if (when === 'scrolled') await scroll();
+  await app.page.locator('.qc-primary').click();
+  await app.page.locator('.qc-fb.is-wrong').waitFor();
+  await app.page.waitForTimeout(900);
+  if (when === 'then') await scroll();
+  return reviewRects(app);
+}
+const offScreen = (r) => ['fb', 'head', 'answer', 'done', 'cont'].filter((k) => !onScreen(r[k], r));
+for (const [w, h, size, dark, by, why] of [[1366, 768, 'm', false, 400], [1366, 768, 'xl', false, 400], [960, 700, 'xl', true, 400], [960, 700, 'xl', true, 200], [1366, 768, 'm', false, 300, WHY4]]) {
+  for (const when of ['scrolled', 'then']) {
+    const how = when === 'scrolled' ? `scrolled ${by} px, Check again and Change` : `Check again, scroll ${by} px and Change`;
+    await test(`laptop review ${w}x${h} ${size}${dark ? ' dark' : ''}${why ? ', a long why' : ''}: ${how}; the target card's whole panel stays on screen`, async () => {
+      const app = await openReview(w, h, { card: 'i1_c4', size, dark, why });
+      let r = await checkTwice(app, by, when);
+      assert(!r.wide, 'the pendulum keeps the column layout');
+      assert(!offScreen(r).length, 'after Check again the whole panel is on screen, under the bar; off: ' + offScreen(r).join(', ') + ' ' + JSON.stringify({ fb: r.fb, bar: r.bar.bottom, vh: r.vh }));
+      if (when === 'scrolled') await shot(app, `review-laptop-target-${w}-${size}-${by}${why ? '-why' : ''}-check`);
+      await app.page.locator('.qc-change').click();
+      await app.page.waitForTimeout(900);
+      r = await reviewRects(app);
+      assert(!offScreen(r).length && onScreen(r.grades, r), 'after Change the whole panel and its grades are on screen; off: ' + offScreen(r).join(', ') + ' ' + JSON.stringify({ fb: r.fb, grades: r.grades, bar: r.bar.bottom, vh: r.vh }));
+      if (when === 'scrolled') await shot(app, `review-laptop-target-${w}-${size}-${by}${why ? '-why' : ''}-change`);
+    });
+  }
+}
+await test('laptop review 960x700 xl: a target panel too tall to hold under the bar starts just under it, and Change shows its grades and Continue', async () => {
+  const app = await openReview(960, 700, { card: 'i1_c4', size: 'xl', why: WHY_HUGE });
+  let r = await checkTwice(app, 400);
+  assert(r.fb.height > r.vh - 76, 'the panel is taller than the room under the bar ' + r.fb.height);
+  assert(onScreen(r.head, r) && r.fb.top >= r.bar.bottom - 1 && r.fb.top <= r.bar.bottom + 24, 'the panel starts just under the bar ' + JSON.stringify({ fb: r.fb, head: r.head, bar: r.bar.bottom }));
+  await app.page.locator('.qc-change').click();
+  await app.page.waitForTimeout(900);
+  r = await reviewRects(app);
+  assert(onScreen(r.done, r) && onScreen(r.grades, r) && onScreen(r.cont, r), 'after Change, Done, the grades and Continue are on screen ' + JSON.stringify({ done: r.done, grades: r.grades, cont: r.cont, vh: r.vh }));
+});
+
+// The aim beside Check repeats the goal sentence: on a laptop it shows only once the goal's
+// number can no longer be read, never beside a number Dan can still read, and never leaves him
+// without it. It comes in under Check (in the docked bar, beside it), so Check never moves. What
+// can be read is measured on the screen, not with the card's own rule (which compares boxes): the
+// share of the number's ink, found in a screenshot at the top, still drawn where the number now
+// is, every 2 px through the band where it passes under the bar, down and back up. A phone keeps
+// the aim under the interactive, above Check.
+const frames = (app) => app.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
+const dist = (d, i, e, j) => Math.abs(d[i] - e[j]) + Math.abs(d[i + 1] - e[j + 1]) + Math.abs(d[i + 2] - e[j + 2]);
+// The goal's number as drawn now (whole css px): its box and which of its pixels are ink.
+async function numberInk(app) {
+  const n = await rect(app, '.rv-stage .qc-goal-num'), x = Math.floor(n.left), y = Math.floor(n.top);
+  const box = { x, y, width: Math.ceil(n.right) - x, height: Math.ceil(n.bottom) - y };
+  const img = readPng(await app.page.screenshot({ clip: box })), ink = [];
+  for (let i = 0; i < img.width * img.height * img.channels; i += img.channels) if (dist(img.data, i, img.data, 0) > 90) ink.push(i);
+  return { box, img, ink, k: img.width / box.width, sy: await app.page.evaluate(() => scrollY) };
+}
+// The share of that ink still drawn in the same place now that the page has scrolled.
+async function inkShown(app, g) {
+  const sy = await app.page.evaluate(() => scrollY), top = g.box.y - (sy - g.sy), from = Math.max(0, top);
+  if (from >= top + g.box.height) return 0;
+  const img = readPng(await app.page.screenshot({ clip: { x: g.box.x, y: from, width: g.box.width, height: top + g.box.height - from } }));
+  const skip = Math.round((from - top) * g.k) * g.img.width * g.img.channels;
+  return g.ink.filter((i) => i >= skip && dist(img.data, i - skip, g.img.data, i) <= 60).length / g.ink.length;
+}
+// Whether showing or hiding the aim would move Check (the class the card's watcher sets, flipped
+// and put back before anything paints).
+const aimMovesCheck = (app) => app.page.evaluate(() => {
+  const card = document.querySelector('.rv-stage .qc'), at = () => { const b = card.querySelector('.qc-primary').getBoundingClientRect(); return [b.left, b.top, b.width, b.height].join(); };
+  const a = at(); card.classList.toggle('qc-goal-away'); const b = at(); card.classList.toggle('qc-goal-away');
+  return a !== b;
+});
+for (const [w, h, size, dark, html] of [[1366, 768, 'm', false], [1366, 768, 'xl', false], [960, 700, 'xl', true], [1366, 768, 'xl', false, STAGED]]) {
+  await test(`laptop review ${w}x${h} at ${size}${dark ? ' dark' : ''}${html ? ', K.stage' : ''}: the target card's aim shows only once the goal's number cannot be read, and Check never moves`, async () => {
+    const app = await openReview(w, h, { card: 'i1_c4', size, dark, html });
+    await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+    await app.page.waitForTimeout(800);
+    let r = await reviewRects(app);
+    assert(!!r.wide === !!html, 'the expected layout ' + JSON.stringify({ wide: r.wide }));
+    assert(onScreen(r.num, r) && !r.aim, 'with the goal sentence on screen the aim is not shown ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
+    const g = await numberInk(app);
+    assert(g.ink.length > 20 && (await inkShown(app, g)) === 1, 'the number is found on the screen ' + g.ink.length);
+    // Where the number's box passes under the bar once the bar has stuck.
+    const band = g.box.y + g.box.height - r.bar.height;
+    const down = [];
+    for (let y = 0; y < band - 36; y += 15) down.push(y);
+    for (let y = Math.max(0, band - 36); y <= band + 16; y += 2) down.push(y);
+    for (let y = band + 30; y < 420; y += 15) down.push(y);
+    down.push(420);
+    const up = [];
+    for (let y = band + 15; y >= band - 37; y -= 2) up.push(y);
+    let prev = null, partly = 0;
+    for (const y of [...down, ...up, 0]) {
+      await app.page.evaluate((v) => window.scrollTo(0, v), y);
+      await frames(app);
+      r = await reviewRects(app);
+      const sy = await app.page.evaluate(() => scrollY), shown = await inkShown(app, g), at = `scrolled to ${sy} px with ${Math.round(shown * 100)}% of the number showing`;
+      if (shown > 0 && shown < 1) partly++;
+      assert(!r.aim || shown < 0.5, `${at}, the aim shows beside a number Dan can still read ` + JSON.stringify({ num: r.num, bar: r.bar.bottom, aim: r.aim }));
+      assert(shown > 0 || onScreen(r.aim, r), `${at}, the number is gone and the aim is not on screen ` + JSON.stringify({ num: r.num, bar: r.bar.bottom, aim: r.aim }));
+      assert(!(await aimMovesCheck(app)), `${at}, showing or hiding the aim moves Check ` + JSON.stringify({ btn: r.btn }));
+      // Scrolling, Check moves with the page or stays put (held under the bar or docked), never against it.
+      if (prev) {
+        const moved = r.btn.top - prev.btn, by = sy - prev.sy;
+        assert(by >= 0 ? moved <= 0.5 && moved >= -by - 0.5 : moved >= -0.5 && moved <= -by + 0.5, `${at}, Check jumps by ${moved} px for a scroll of ${by} px`);
+      }
+      prev = { btn: r.btn.top, sy };
+      if (y === 420) {
+        assert(shown === 0 && onScreen(r.aim, r) && (html ? r.aim.right <= r.btn.left : r.aim.top >= r.btn.bottom), 'with the goal sentence gone, the aim shows ' + (html ? 'beside' : 'under') + ' Check ' + JSON.stringify({ aim: r.aim, btn: r.btn }));
+        await shot(app, `review-laptop-target-${w}-${size}${html ? '-stage' : ''}-aim`);
+      }
+    }
+    assert(partly >= 4, 'the sweep went through the band where the number is partly under the bar ' + partly);
+    assert(!r.aim, 'back at the top the aim goes again ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
+  });
+}
+for (const [w, h] of [[390, 844], [360, 707]]) {
+  await test(`review on a ${w}x${h} phone: a target card keeps its aim under the interactive, above Check`, async () => {
+    const app = await openReview(w, h, { card: 'i1_c4' });
+    await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+    await app.page.waitForTimeout(800);
+    const r = await reviewRects(app);
+    assert(r.aim && r.aim.top >= r.frame.bottom && r.aim.bottom <= r.btn.top, 'the aim sits under the interactive, above Check ' + JSON.stringify({ aim: r.aim, frame: r.frame, btn: r.btn }));
+  });
+}
 
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} layout tests passed`);

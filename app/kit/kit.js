@@ -1607,7 +1607,9 @@
     run();
     relayout();
     var results = runChecks();
-    post({ type: 'ready', checks: results });
+    // beside: a K.stage here puts its controls beside the visual in a wide frame, so the host can
+    // give the page that width; without one, a wider frame only adds empty space.
+    post({ type: 'ready', checks: results, beside: stages.some(function (s) { return !s.el.classList.contains('k-stacked'); }) });
     sendHeight();
     [60, 250, 800, 2000].forEach(function (ms) { setTimeout(sendHeight, ms); });
     anims.forEach(function (a) { if (a.autoplay) a.api.play(); });

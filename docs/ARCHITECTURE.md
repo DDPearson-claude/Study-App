@@ -34,7 +34,7 @@ app/
   kit/KIT.md           the kit API, quoted whole in build and repair prompts
   kit/examples/*.html  exemplar bodies, each tagged <!-- kind: … --> (prompt anchors + tests)
 tools/build.mjs        app/ -> dist/my-university.html   (--out path; --only 32,50 for partial builds)
-tools/harness/         claude-stub.js (runtime stand-in), page.mjs (Playwright helper)
+tools/harness/         claude-stub.js (runtime stand-in), page.mjs (Playwright helper), png.mjs (reads screenshots)
 tools/eval/            the real prompts, validators and self-test, run outside the page (RUNNER.md)
 tests/                 *.test.mjs (node --test), e2e/*.spec.mjs (run.mjs builds, then runs each), fixtures/
 ```
@@ -378,7 +378,8 @@ helpers    K.el K.svg K.labels K.fmt K.near K.clamp K.lerp K.linspace K.round K.
 ```
 Messages (`postMessage`, each with `src:'kit'`; a reply carries its request's `rid`):
 ```
-kit -> host  {type:'height', px}  {type:'ready', checks:[{label, ok, source?, error?}]}  {type:'error', message}
+kit -> host  {type:'height', px}  {type:'ready', checks:[{label, ok, source?, error?}], beside}  {type:'error', message}
+             (beside: a K.stage sets its controls beside the visual in a wide frame)
              {type:'change', params, outputs}   (250 ms after Dan changes something)
 host -> kit  selftest {throwaway?}   -> {type:'report', report}
              get                     -> {type:'state', params, outputs, moved}
@@ -551,7 +552,7 @@ with Dan's note as feedback.
 `32-sandbox.js` (kit host)
 ```
 U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme}) (throws {code:'too_large'})
-U.sandbox.mount(container, {html, title, onReady(checks), onError(msg), onChange({params, outputs}), minHeight = 320, loading}) ->
+U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), minHeight = 320, loading}) ->
    { el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t?), destroy() }
    ready is null if K.ready() has not come after 12 s; follows the app's theme and text size;
    a frame that navigates away is stopped; one removed from the page is destroyed.
@@ -667,7 +668,14 @@ boot read fails.
   Tab screens all start at the wide screens' left edge, so headings do not move when Dan
   switches tabs. When `#view` is at least 900 px wide a review card keeps the question and
   answers on the left with Check under them and shows the feedback beside them; a target card
-  gives its interactive the full width and docks the goal and Check under it.
+  keeps its interactive in that column with the goal, hint and Check (then the feedback) beside
+  it, held under the review bar, so they never cover its controls; the feedback lets go only when
+  it cannot fit below the bar, and a panel never starts under the bar. Only an interactive whose
+  K.stage goes side by side (the kit's `ready` says `beside`) gets the full width, with the goal
+  and Check docked under it. Either way the short aim beside Check shows only once most of the
+  goal sentence's number has gone under the bar (or off the screen), so the instruction never
+  shows twice at once, and it comes in under Check (in the docked bar, beside it), so Check
+  never moves.
 - Learn at least 900 px wide puts the reviews row (or, on first run, the welcome) beside the ask.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;

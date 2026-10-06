@@ -306,9 +306,10 @@
 /* ---------- laptop review: use the width ----------
    The question and answers keep a column on the left, Check follows the answers, and the
    feedback appears beside them, so the question, Dan's answer and the feedback share one
-   screen. A target card gives its interactive the full width (K.stage then puts the controls
-   beside the picture) and docks the goal and Check under it. These follow the width the review
-   actually gets, so a narrow laptop window keeps the phone shapes. */
+   screen. A target card keeps its interactive in that column with the goal and Check beside it;
+   only an interactive whose K.stage puts the controls beside the picture (.qc-wide, which the
+   kit reports) gets the full width, with the goal and Check docked under it. These follow the
+   width the review actually gets, so a narrow laptop window keeps the phone shapes. */
 :root[data-layout="laptop"] .view[data-screen="review"] { max-width: 1120px; }
 @container view (min-width: 900px) {
   /* The last row soaks up the card's spare height, so a tall panel beside never spreads the
@@ -322,22 +323,34 @@
   /* The panel lines up with the question, beside the answers it marks. */
   .qc-review .qc-foot.qc-foot-fb { grid-column: 2; grid-row: 2 / -1; padding-top: 0; }
 
-  .qc-review.qc-type-target > .qc-body { grid-column: 1 / -1; }
-  .qc-review.qc-type-target > .qc-foot {
-    grid-column: 1 / -1; align-self: end; position: sticky; bottom: 0; z-index: 4;
+  /* Target card: the goal, the hint and Check (then the feedback) sit beside the interactive,
+     held just under the review bar (60 px) while Dan scrolls a tall interactive, so they never
+     cover a control or the readout he is aiming at. They let go (reveal() in 41-cards.js) only
+     when the panel cannot fit below the bar. The hint restates the goal, and the aim shows only
+     once the goal's number has left the screen (.qc-goal-away), so it never shows twice. It comes
+     in under Check, so showing it never moves the button. */
+  .qc-review.qc-type-target > .qc-foot { position: sticky; top: 76px; bottom: auto; grid-column: 2; grid-row: 2 / -1; padding: 0; }
+  .qc-review.qc-type-target > .qc-foot > .qc-hint:not([hidden]) + .qc-aim,
+  .qc-review.qc-type-target:not(.qc-goal-away) > .qc-foot > .qc-aim { display: none; }
+  .qc-review.qc-type-target:not(.qc-wide) > .qc-foot > .qc-aim { order: 1; }
+  .qc-review.qc-type-target > .qc-foot.qc-unstick { position: static; }
+
+  /* A K.stage that goes side by side gets the full width, and the goal and Check dock in one row
+     under it: the aim (once the goal's number has left the screen) or, after a miss, the hint
+     beside the button, so the bar stays low. */
+  .qc-review.qc-wide > .qc-body { grid-column: 1 / -1; }
+  .qc-review.qc-wide > .qc-foot {
+    grid-column: 1 / -1; grid-row: auto; align-self: end; top: auto; bottom: 0; z-index: 4;
     padding: 18px 0 16px; background: linear-gradient(to bottom, transparent, var(--bg) 20px);
   }
-  /* One row: the goal (or, after a miss, the hint, which restates it) beside the button, so the
-     bar never grows over the controls Dan is about to move. */
-  .qc-review.qc-type-target > .qc-foot:not(.qc-foot-fb) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); align-items: center; gap: 10px 24px; }
-  .qc-review.qc-type-target > .qc-foot > .qc-hint, .qc-review.qc-type-target > .qc-foot > .qc-aim { grid-column: 1; grid-row: 1; margin: 0; }
-  .qc-review.qc-type-target > .qc-foot > .qc-aim { justify-self: end; text-align: right; }
-  .qc-review.qc-type-target > .qc-foot > .qc-hint:not([hidden]) + .qc-aim { display: none; }
-  .qc-review.qc-type-target > .qc-foot > .btn { grid-column: 2; }
+  .qc-review.qc-wide > .qc-foot:not(.qc-foot-fb) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 340px); align-items: center; gap: 10px 24px; }
+  .qc-review.qc-wide > .qc-foot > .qc-hint, .qc-review.qc-wide > .qc-foot > .qc-aim { grid-column: 1; grid-row: 1; margin: 0; }
+  .qc-review.qc-wide > .qc-foot > .qc-aim { justify-self: end; text-align: right; }
+  .qc-review.qc-wide > .qc-foot > .btn { grid-column: 2; }
   /* After Check: the panel docks where the button was, a reading width wide. */
-  .qc-review.qc-type-target > .qc-foot.qc-foot-fb { grid-column: 1 / -1; grid-row: auto; padding: 8px 0 20px; background: none; }
-  .qc-review.qc-type-target > .qc-foot.qc-unstick { position: static; }
-  .qc-review.qc-type-target .qc-fb { width: 100%; max-width: 720px; margin-inline: auto; }
+  .qc-review.qc-wide > .qc-foot.qc-foot-fb { padding: 8px 0 20px; background: none; }
+  .qc-review.qc-wide > .qc-foot.qc-unstick { position: static; }
+  .qc-review.qc-wide .qc-fb { width: 100%; max-width: 720px; margin-inline: auto; }
 }
 :root[data-layout="laptop"] .td-actions { flex-direction: row; }
 :root[data-layout="laptop"] .td-actions .btn { flex: 1; }

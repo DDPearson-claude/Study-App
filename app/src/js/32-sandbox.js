@@ -186,9 +186,11 @@ U.sandbox = (function () {
   }
 
   // ---------- mount ----------
-  // mount(container, {html, title, onReady(checks), onError(msg), onChange(state), minHeight, loading})
+  // mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange(state), minHeight, loading})
   //   -> {el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label), inputs(), reach(spec), theme(t), destroy()}
   // ready resolves with the kit's check results, or null if K.ready() never arrives (12 s).
+  // onReady's beside is true when the page has a K.stage that sets its controls beside the visual
+  // in a wide frame: only then does the interactive gain from more than a reading column.
   // onChange({params, outputs}) follows Dan's changes (debounced). onError(msg) carries the frame's
   // own text: log it, never show it. loading:false hides the built-in loading line, for callers
   // that draw their own cover.
@@ -230,7 +232,7 @@ U.sandbox = (function () {
         readyCount++;
         reveal();
         settle(d.checks || []);
-        if (o.onReady) try { o.onReady(d.checks || []); } catch (e) { console.error(e); }
+        if (o.onReady) try { o.onReady(d.checks || [], { beside: d.beside === true }); } catch (e) { console.error(e); }
       } else if (d.type === 'error') {
         report(d.message);
       } else if (d.type === 'change') {
