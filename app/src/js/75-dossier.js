@@ -221,7 +221,8 @@
     var done = N > 0 && bound.length >= N;
     var finished = done ? bound.reduce(function (m, c) { return String(c.learned) > m ? String(c.learned) : m; }, '') : null;
     return { book: book, base: base, N: N, chapters: chapters, bound: bound, byId: byId, works: works, gloss: gloss, hasBack: hasBack, leaves: leaves,
-      done: done, finished: finished, no: book.no || 0 };
+      // A kept dossier whose course was deleted can never gain a chapter: closed, not in progress.
+      done: done, finished: finished, closed: !done && !!book.kept, no: book.no || 0 };
   }
 
   // =====================================================================================
@@ -539,6 +540,7 @@
   function tabs(M, cur) {
     var items = [h('li', null, h('a', { href: M.base + '/contents', 'aria-current': cur === 'contents' ? 'page' : null, class: 'tab-ico' }, icon('list'), vh('Contents')))];
     M.chapters.forEach(function (c) {
+      if (M.closed && !c.learned) return;
       items.push(h('li', null, c.learned
         ? h('a', { href: c.href, 'aria-current': cur === c.idea.id ? 'page' : null }, c.rn, vh(', chapter ' + c.n + ': ' + c.idea.title))
         : h('span', { class: 'off' }, c.rn, vh(', chapter ' + c.n + ': not yet written'))));
@@ -644,11 +646,11 @@
         h('div', { class: 'jcover', style: '--cloth:' + clothOf(no), on: { click: function (e) { if (!(e.target.closest && e.target.closest('a, button'))) U.go(M.base + '/contents'); } } },
           h('span', { class: 'deboss', 'aria-hidden': 'true' }),
           h('span', { class: 'jc-top', 'aria-hidden': 'true' }, 'Field Dossier', h('small', null, 'My University')),
-          h('span', { class: 'jc-label' }, tape('l'), tape('r'), M.done ? null : icon('clip', 'pclip'),
+          h('span', { class: 'jc-label' }, tape('l'), tape('r'), M.done || M.closed ? null : icon('clip', 'pclip'),
             h('span', { class: 'jc-no' }, (no ? 'No. ' + no + ' · ' : '') + 'Course'),
             h('h1', { class: 'jc-title', tabindex: '-1' }, b.title),
             h('dl', { class: 'jc-rows' }, rows.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); })),
-            M.done ? stamp('done', 'Complete', null) : h('span', { class: 'jc-prog' }, squares(n, M.N), h('span', null, 'Still being written · ' + n + ' of ' + M.N + ' chapters'))),
+            M.done ? stamp('done', 'Complete', null) : h('span', { class: 'jc-prog' }, squares(n, M.N), h('span', null, (M.closed ? 'Kept from a deleted course · ' : 'Still being written · ') + n + ' of ' + M.N + ' chapters'))),
           h('span', { class: 'strap', 'aria-hidden': 'true' }),
           h('span', { class: 'jc-ribbon' + (M.done ? ' done' : ''), 'aria-hidden': 'true' })),
         h('div', { class: 'cover-actions' },
@@ -683,7 +685,7 @@
           h('span', { class: 'tb' },
             h('span', { class: 't' }, vh('Chapter ' + c.n + ': '), c.idea.title),
             h('span', { class: 'l' }, c.idea.oneLine),
-            h('span', { class: 'm' }, c.learned ? 'Learned ' + shortDate(c.learned) : 'Not yet written', c.hasPlate ? ' · Plate ' + c.rn : ''))];
+            h('span', { class: 'm' }, c.learned ? 'Learned ' + shortDate(c.learned) : M.closed ? 'Not written: the course was deleted' : 'Not yet written', c.hasPlate ? ' · Plate ' + c.rn : ''))];
         return h('li', { class: c.learned ? '' : 'unwritten' }, c.learned ? h('a', { href: c.href }, inner) : h('div', null, inner));
       })),
       M.hasBack ? h('p', { class: 'toc-back' }, h('a', { href: M.base + '/glossary' }, 'Glossary'), h('a', { href: M.base + '/bibliography' }, 'Bibliography')) : null,
@@ -991,13 +993,13 @@
         h('a', { class: 'book-link', href: '#/book/' + encodeURIComponent(d.tid) },
           h('span', { class: 'cloth', style: '--cloth:' + clothOf(d.no) },
             h('span', { class: 'ribbon' + (d.done ? ' done' : '') }),
-            h('span', { class: 'lbl' }, d.done ? null : icon('clip', 'pclip'),
+            h('span', { class: 'lbl' }, d.done || d.closed ? null : icon('clip', 'pclip'),
               d.no ? h('span', { class: 'lbl-no' }, 'No. ' + d.no) : null,
               h('span', { class: 'lbl-t' }, d.title))),
           h('span', { class: 'plank', 'aria-hidden': 'true' }),
           h('span', { class: 'meta' }, d.done
             ? [h('span', { class: 'st done' }, icon('check'), 'Finished ' + day(d.finished, { day: 'numeric', month: 'short' })), h('span', { class: 'ms' }, total + (total === 1 ? ' chapter' : ' chapters'))]
-            : [squares(n, total), h('span', { class: 'st' }, n + ' of ' + total + ' chapters')])));
+            : [squares(n, total), h('span', { class: 'st' }, n + ' of ' + total + ' chapters' + (d.closed ? ' · kept' : ''))])));
     }
     function group(id, title, list) {
       if (!list.length) return null;
@@ -1014,17 +1016,18 @@
         var have = chaptersOf(d), ideas = arr(d.ideas).filter(isObj), n = countOf(d);
         var done = ideas.length > 0 && n >= ideas.length;
         var fin = done ? ideas.reduce(function (m, i) { var x = String(have[i.id].doneAt || ''); return x > m ? x : m; }, '') : null;
-        return { tid: d.__id, title: d.title, count: n, total: ideas.length, done: done, finished: fin, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0 };
+        return { tid: d.__id, title: d.title, count: n, total: ideas.length, done: done, closed: !done && !live[d.__id], finished: fin, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0 };
       }).filter(function (d) { return d.count > 0; });
       var done = shown.filter(function (d) { return d.done; }).sort(function (a, b) { return a.finished < b.finished ? 1 : -1; });
-      var going = shown.filter(function (d) { return !d.done; }).sort(function (a, b) { return a.started < b.started ? 1 : -1; });
+      var going = shown.filter(function (d) { return !d.done && !d.closed; }).sort(function (a, b) { return a.started < b.started ? 1 : -1; });
+      var kept = shown.filter(function (d) { return d.closed; }).sort(function (a, b) { return a.started < b.started ? 1 : -1; });
       U.clear(groups);
       if (!shown.length) {
         groups.appendChild(U.rt.savedLate() && U.views && U.views.savedLate ? U.views.savedLate('your dossiers')
           : h('p', { class: 'lib-empty' }, h('strong', null, 'No dossiers yet'), 'When you finish an idea in a course, its first chapter is bound here.'));
         return;
       }
-      U.append(groups, [group('sh-done', 'Finished', done), group('sh-going', 'Still being written', going)]);
+      U.append(groups, [group('sh-done', 'Finished', done), group('sh-going', 'Still being written', going), group('sh-kept', 'Kept from deleted courses', kept)]);
       fill();
     }
     function read() {
@@ -1210,7 +1213,7 @@
       b.oneBreath ? [h('p', { class: 'k' }, 'In one breath'), xRich(b.oneBreath, null)] : null,
       h('dl', { class: 'facts' }, facts.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); }))));
     x.appendChild(h('nav', { 'aria-label': 'Contents' }, h('h2', null, 'Contents'), h('ol', null, M.chapters.map(function (c) {
-      return h('li', null, c.learned ? h('a', { href: '#ch-' + c.n }, c.idea.title) : c.idea.title, ' — ', h('span', { class: 'small' }, c.learned ? 'Learned ' + shortDate(c.learned) : 'Not yet written'));
+      return h('li', null, c.learned ? h('a', { href: '#ch-' + c.n }, c.idea.title) : c.idea.title, ' — ', h('span', { class: 'small' }, c.learned ? 'Learned ' + shortDate(c.learned) : M.closed ? 'Not written' : 'Not yet written'));
     }))));
     M.bound.forEach(function (c) { x.appendChild(exportChapter(M, c)); });
     if (M.gloss.length) x.appendChild(h('section', { id: 'glossary' }, h('h2', null, 'Glossary'), h('dl', { class: 'gloss' }, M.gloss.map(function (g) {

@@ -328,7 +328,7 @@ async function walk(width, dark) {
     ok(reserved >= 560, `height reserved while the interactive loads (${Math.round(reserved)}px)`);
     if (width < 700) await shot(app, `${tag}-2a-play-loading`);
     await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
-    ok((await play.locator('.lsn-selfcheck').textContent()).includes('2/2 checks'), 'self-check footer shows 2/2 checks');
+    ok((await play.locator('.lsn-selfcheck').textContent()).includes('Interactive self-tested: 2 of 2 checks pass'), 'self-check footer says the interactive tested itself (not his score)');
     await page.waitForTimeout(1000);
     const settledH = await play.locator('.lsn-panel').evaluate((el) => el.getBoundingClientRect().height);
     console.log(`  interactive: reserved ${Math.round(reserved)}px, settled ${Math.round(settledH)}px`);
@@ -477,7 +477,7 @@ async function walk(width, dark) {
     ok(progress.ideas.i1.checks.c1.correct === false && progress.ideas.i1.checks.c3.correct === true, 'check results saved');
     ok((await done.locator('.lsn-next h3').textContent()) === 'Gravity’s part', 'where next names the next idea');
     const lines = await done.locator('.lsn-done-text > span').allTextContents();
-    ok(lines.length === 2 && lines[0] === '2 of 3 checks right.' && /in your Book/.test(lines[1]), 'done says how it went and where his work went, on two short lines: ' + JSON.stringify(lines));
+    ok(lines.length === 2 && lines[0] === '2 of 3 checks right.' && /in your Library, under In your own words/.test(lines[1]), 'done says how it went and where his work went, on two short lines: ' + JSON.stringify(lines));
     ok(await page.locator('.lsn-step.is-all').count() === 5, 'progress bar turns green when done');
     ok(await page.locator('.lsn-steps-label').textContent() === 'Idea learned', 'the bar says "Idea learned" at the end');
     t = await T(app);

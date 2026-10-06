@@ -324,8 +324,17 @@ await test('delete a course and keep its dossier (the default); or delete the do
   await go(app, '#/book');
   await app.page.waitForSelector('.lib-dossiers .slot:not(.filler)', { timeout: 15000 });
   assert((await text(app, '.lib-dossiers .book-link')).includes('Why pendulums keep time'), 'on the shelf');
+  // Its course is gone, so it can never gain a chapter: never "still being written".
+  const shelfText = await text(app, '.lib-dossiers');
+  assert(/Kept from deleted courses/.test(shelfText) && !/Still being written/.test(shelfText), 'a kept dossier sits on its own shelf: ' + shelfText.replace(/\s+/g, ' ').slice(0, 200));
+  eq(await app.page.locator('.lib-dossiers .pclip').count(), 0, 'no paper clip on a closed dossier');
   await app.page.locator('.lib-dossiers .book-link').first().click();
   await app.page.waitForSelector('.jc-title');
+  const coverText = await text(app, '.jc-label');
+  assert(/Kept from a deleted course/.test(coverText) && !/Still being written/.test(coverText), 'the cover says it was kept: ' + coverText.replace(/\s+/g, ' '));
+  await go(app, '#/book/pendulums/contents');
+  await app.page.waitForSelector('.d-tabs');
+  eq(await app.page.locator('.d-tabs .off').count(), 0, 'no greyed tabs for chapters that can never be written');
   await go(app, '#/book/pendulums/i3');
   await app.page.waitForSelector('.d-card');
   eq(await focusedH1(app), 'Small swings and big swings', 'a kept dossier opens with no course behind it');

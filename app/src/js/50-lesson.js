@@ -963,7 +963,7 @@
       var n = checks.length, ok = checks.filter(function (c) { return c && c.ok; }).length;
       if (!n) return;
       meta.appendChild(U.h('p', { class: 'lsn-selfcheck', title: 'The interactive tested itself against answers worked out by hand' },
-        U.icon('tick'), U.h('span', { class: 'visually-hidden' }, 'Self-test: '), ok + '/' + n + ' checks'));
+        U.icon('tick'), 'Interactive self-tested: ' + ok + ' of ' + n + ' checks pass'));
       if (ok < n) {
         meta.appendChild(U.h('p', { class: 'lsn-selfwarn callout remember' },
           (n - ok) + ' of its ' + n + ' self-checks did not pass, so treat its exact numbers with some care. The pattern it shows should still hold.'));
@@ -1369,7 +1369,7 @@
         U.h('p', { class: 'lsn-done-text' },
           all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
           U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
-            : says.length ? 'Your words are in your Book, and your answers will come back in review.' : 'Your answers will come back in review.')),
+            : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
         nx
           ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
             nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
