@@ -248,3 +248,26 @@ test('ARCHITECTURE.md grades recall cards the way 41-cards.js does', () => {
   assert.equal(said('not-yet'), U.cards.verdictGrade({ verdict: 'not-yet' }));
   assert.ok(!/got-it = Easy/.test(doc), 'no leftover "got-it = Easy"');
 });
+
+// ---------- audit 51: one time for the same reviews ----------
+// Learn's reviews row and Today give the same "About N minutes": U.review.outlook (Learn's source)
+// carries Today's own estimate, from each card's type, for the session Today would start.
+test('Learn and Today share one estimate for the same reviews (per card type)', async () => {
+  const day = '2026-10-06';
+  const due = (id, iid, type) => card(id, iid, { type, s: { due: day, stability: 3, difficulty: 5, reps: 1, lapses: 0, last: '2026-10-03' }, hist: [] });
+  const cards = {
+    i1_c1: due('i1_c1', 'i1', 'choice'), i2_c1: due('i2_c1', 'i2', 'choice'), i3_c3: due('i3_c3', 'i3', 'target'),
+    i4_c1: due('i4_c1', 'i4', 'order'), i5_c1: due('i5_c1', 'i5', 'estimate'), i6_say: due('i6_say', 'i6', 'recall'),
+  };
+  const { U, at } = load({ cards: { tA: { cards } } });
+  at(new Date(2026, 9, 6, 12, 0));
+  const o = await U.review.outlook();
+  assert.equal(o.size, 6);
+  // 25 + 25 + 60 + 40 + 30 + 90 s = 4.5 minutes: "About 5 minutes" on both screens (Learn used to
+  // say 3, at 25 s a card whatever its type).
+  assert.equal(o.minutes, 5);
+  // Nothing waiting: no time to give.
+  const none = load({ cards: { tA: { cards: { i1_c1: card('i1_c1', 'i1', { s: { due: '2026-10-09', stability: 3, difficulty: 5, reps: 1, lapses: 0, last: day }, hist: [] }) } } } });
+  none.at(new Date(2026, 9, 6, 12, 0));
+  assert.equal((await none.U.review.outlook()).minutes, 0);
+});
