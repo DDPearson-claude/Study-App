@@ -51,6 +51,8 @@ if (build.status !== 0) process.exit(build.status || 1);
 
 const fx = (name) => JSON.parse(readFileSync(join(ROOT, 'tests', 'fixtures', 'lesson-ui-' + name + '.json'), 'utf8'));
 const TOPIC = fx('topic'), PENDULUM = fx('pendulum'), CLOCKS = fx('clocks'), SMALL = fx('small-swings');
+// "Put it into practice" for a lesson written in a test (the write-lesson validator asks for one).
+const PRACTICE = { text: '- Time 10 swings and divide by 10.\n- Change only the length, then time again.\n\n**Rule of thumb:** four times the length, twice the swing time.\n\n**Common mistakes:** timing a single swing; changing the weight as well as the length.' };
 const UID = 'u_stubuser0000000000000000';
 const PROGRESS = `data/users/${UID}/profile/progress/pendulums`;
 const CARDS = `data/users/${UID}/profile/cards/pendulums`;
@@ -1520,6 +1522,7 @@ async function relearnFails() {
   function freshLesson(n) {
     const l = JSON.parse(JSON.stringify(PENDULUM.lesson).replace(/\s?\[\^\d+\]/g, ''));
     l.iid = 'i1'; l.sources = []; l.interactive = null; l.checks = l.checks.filter((c) => c.type !== 'target');
+    l.practice = l.practice || PRACTICE; // every new lesson has one (the validator asks for it)
     l.predict.q = l.predict.q.replace(/\?$/, '') + ` (fresh ${n})?`;
     return l;
   }
@@ -1736,6 +1739,7 @@ async function todayFlag() {
   const writes = [];
   const fresh = JSON.parse(JSON.stringify(PENDULUM.lesson).replace(/\s?\[\^\d+\]/g, ''));
   fresh.iid = 'i1'; fresh.sources = []; fresh.interactive = null; fresh.checks = fresh.checks.filter((c) => c.type !== 'target');
+  fresh.practice = fresh.practice || PRACTICE;
   fresh.predict.q = 'FRESH: ' + fresh.predict.q;
   const firstUser = (input) => (typeof input === 'string' ? input : ((input || []).find((t) => t.role === 'user') || {}).content || '');
   const app = await openApp({

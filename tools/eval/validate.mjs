@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 // Validates a model reply with the app's own validators.
+//   node tools/eval/validate.mjs intake  reply.json       the intake questions (TASK: intake); also prints
+//     them as the app keeps them (U.prompts.cleanIntake: an "Other" option folded into other: true)
 //   node tools/eval/validate.mjs plan    reply.json
-//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json --topic topic.json]
+//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json --topic topic.json] [--mode study|read]
+//     --mode: the course's mode (default the topic's "mode", else study): a read lesson needs no
+//     predict, say or checks; practice is required in both
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
 //   node tools/eval/validate.mjs verify  reply.json --lesson lesson.json [--out lesson.verified.json]
 //     the fact-check's reply (TASK: verify-lesson) against the lesson it checked (the lesson JSON or a
@@ -36,7 +40,7 @@ if (!U.parseJson) {
 }
 const kind = process.argv[2];
 const text = readFileSync(process.argv[3], 'utf8');
-let problems, warnings = [], verified = null;
+let problems, warnings = [], verified = null, kept = null;
 try {
   const opts = {};
   if (kind === 'verify') {
@@ -52,6 +56,7 @@ try {
     const idea = topic && (topic.ideas || []).find((i) => i.id === opts.iid);
     // The idea's kind: no target-check advice for a kind write-lesson offers none (history, structure, concept).
     if (idea) opts.kind = idea.kind;
+    if (arg('mode') || (topic && topic.mode)) opts.mode = arg('mode') || topic.mode;
     if (arg('sources')) {
       if (!topic) console.error('warning: no --topic, so the sources are numbered without the notes borrowed from other ideas; pass --topic as for the prompt.');
       const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps, topic && topic.ideas);
@@ -63,6 +68,7 @@ try {
   problems = got.problems || [];
   // The advice for the reply the app would keep (its warnings ride on the validator's list).
   if (got.value !== undefined) warnings = Array.from(U.validate[kind](got.value, opts).warnings || []);
+  if (kind === 'intake' && got.value !== undefined) kept = U.prompts.cleanIntake(got.value);
   if (kind === 'verify' && got.value !== undefined) {
     const r = U.verify.apply(opts.lesson, got.value);
     verified = { applied: r.applied, notes: r.notes };
@@ -72,5 +78,5 @@ try {
 } catch (e) {
   problems = ['could not parse: ' + (e.message || e)];
 }
-console.log(JSON.stringify({ ok: problems.length === 0, problems, soft: Array.from(problems.soft || []), warnings, ...(verified ? JSON.parse(JSON.stringify(verified)) : {}) }, null, 2));
+console.log(JSON.stringify({ ok: problems.length === 0, problems, soft: Array.from(problems.soft || []), warnings, ...(verified ? JSON.parse(JSON.stringify(verified)) : {}), ...(kept ? { questions: JSON.parse(JSON.stringify(kept.questions)) } : {}) }, null, 2));
 process.exit(problems.length ? 1 : 0);

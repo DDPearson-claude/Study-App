@@ -255,6 +255,9 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
 ```
 { id, title, query, createdAt, updatedAt, plannedAt?, status:'planning'|'ready'|'failed', error,
   hook, oneBreath, level:'new'|'some'|'solid', hue,              // hue = U.hash(title) % 360
+  mode?:'study'|'read',                                          // absent: study (below)
+  intake?:{ questions:[{ id, q, options:[2-5 strings], multi: bool, other: bool }],
+            answers:{ [id]:{ picked:[option strings], other: string|null } } } | null,
   ideas:[{ id:'i1', title, oneLine, deps:[earlier ids], kind, known?:true }],
   calibration:[{ id, iid?, q, options:[3-4], answer, why }],     // exactly 2
   research:{ status:'none'|'running'|'done'|'unavailable'|'failed', at, sources, dropped?, error?,
@@ -282,6 +285,17 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   // hook is a statement (not ending in "?").
 kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
 ```
+`mode` is how Dan wants the course: `'study'` (teach and test: the default, and what a topic without
+the field means) or `'read'` ("just teach me": the reading and the interactive only; no guess first,
+no say-it-back, no quick checks, no review cards). He chooses it beside the level when he starts the
+topic and can change it later on the topic page (`U.store.topic.update(tid, {mode})`); it applies to
+lessons written after the switch, a Learn it again rewrite included: each lesson records the mode it
+was written for (`lesson.mode`, section 5), and the lesson screen goes by that, not by the topic.
+`intake` is the few questions Claude asked about what he typed before planning (`U.gen.intake`,
+section 7) with his answers, saved at creation (`U.prompts.cleanIntake`: ids q1…, an "Other" option
+folded into `other: true`, only listed options picked, one unless `multi`, his own words at most 300
+characters); `null` when he skipped them. The plan and every lesson prompt read the answered ones as
+"WHAT DAN TOLD US HE WANTS" (data, not instructions); none answered, no block.
 `topics/{tid}/lessons/{iid}`
 ```
 { status:'writing'|'building'|'ready'|'failed', updatedAt, startedAt,
@@ -433,11 +447,13 @@ Lesson = {
   } | null,                                      // null only when nothing can be manipulated
   explain: { text },                             // <= 170 words, U.rich syntax, no links or HTML
   analogy: { text, breaks } | null,
-  say: { prompt, rubric:[2-3], model },
-  checks:[2-3 Check],                            // ids unique
+  practice: { text },                            // "Put it into practice": <= 160 words, U.rich syntax
+  say: { prompt, rubric:[2-3], model } | null,   // null in a read lesson
+  checks:[2-3 Check],                            // ids unique; [] in a read lesson
   sources:[Source],                              // final: 1..n in order of first citation, all cited
   confidence:'settled'|'simplified'|'contested',
-  contested: { views:[2+ { label, text }] } | null
+  contested: { views:[2+ { label, text }] } | null,
+  mode: 'study'|'read'                           // the topic's mode it was written for (stamped by 31-generate)
 }
 Control = { id, label, min, max, step, value, unit }  numeric: min < max, 0 < step <= max - min,
                                                       min <= value <= max, unit <= 10 chars ('' for none)
@@ -453,6 +469,21 @@ Check =
     // control: a numeric control with >= 3 settings; output: an outputs id. Graded on the
     // lesson's interactive, every other control at its opening value. tolerance > 0 throughout.
 ```
+- `practice.text` ("Put it into practice"), in both modes: steps in order or a checklist (a block of
+  "- " lines), a rule of thumb or two, one worked example with real numbers or a real case, and the
+  common mistakes, the other blocks opened by a bold label ("**Worked example:**"); for an idea that
+  is not a skill (history, a concept), how to apply it: what to look for, how to check a claim, how
+  to use it in a decision. The same truth rules as the explanation (its numbers by THE NUMBER RULE,
+  sourced ones footnoted, nothing invented; where safety matters, the safe way first; money, health
+  and law: how to work it out or check it, never what to choose). Required of every new lesson (a
+  hard problem when missing; its length soft); a lesson written before version 9 has none, and
+  the screens then show nothing. The dossier prints it.
+- Mode (`U.validate.lesson(o, {mode})`, default the lesson's own `mode`, else study): a read lesson
+  has `predict: null`, `say: null`, `checks: []` and no target checks, everything else as usual;
+  the validator asks nothing of those three (a reply that has them is judged without them, with a
+  warning, and `finaliseLesson` drops them before the sources are renumbered, so a source only they
+  cited goes too). A study lesson keeps every part. The lesson screen shows a lesson read-style when
+  its `lesson.mode` is "read" (whatever the topic says now), study-style otherwise.
 - No interactive, no target check. An interactive with outputs and a numeric control but no
   target check is only a warning: the writer adds one only when reaching the value needs the idea.
   Given the idea's `kind`, the warning goes only to the kinds write-lesson offers target checks to
@@ -484,14 +515,17 @@ be printed in the title, hook, oneBreath or an idea's title or oneLine, which Da
 questions. Reported only when a word match is reliable: the whole right option, 3+ words, word for
 word; or every word only the right option has, at least 2, within 15 words of one field);
 `research` {sources, topic:{notes}, ideas:{[iid]:{notes}}},
-a note citing at least one source unless contested; `grade` {met (one per rubric point), verdict
+a note citing at least one source unless contested; `intake` {questions: 2-4 {id, q (soft: <= 15
+words, and not about his time or about tests, which the app and his mode settle), options: 2-5
+distinct (soft: <= 8 words each), multi: bool, other: bool}} (an "Other" option is only a warning:
+cleanIntake folds it into `other: true`); `grade` {met (one per rubric point), verdict
 (got-it = all met, partly = some, not-yet = none), nailed, followUp ('' only when got-it), model?};
 `verify` (the fact-check, `U.validate.verify(o, {lesson, sources})` in `34-verify.js`) {issues: at
 most 12 {path, problem (<= 300 chars), severity 'fix'|'note', now (the whole new text of that
 field, required for a fix)}}. A fix's path names one string field the lesson has: `predict.reveal`,
 `explain.text`, `analogy.text`, `analogy.breaks`, `interactive.whatAmILookingAt`,
 `interactive.ignores`, `say.model`, `say.rubric[i]`, `checks[i].q`, `checks[i].why`,
-`checks[i].options[j]`, `checks[i].misconception[j]` (keyed by the option's index),
+`checks[i].options[j]`, `checks[i].misconception[j]` (keyed by the option's index), `practice.text`,
 `checks[i].items[j]`, `contested.views[i].text`. Frozen (a fix there is a hard problem whose
 message says why and asks for a note): `predict.q` and `predict.options` (Dan may already have
 answered them), the rest of the interactive spec (it is built from it), check ids, types, answers,
@@ -502,7 +536,10 @@ each problem it has that the lesson as written did not is a problem of the reply
 lesson's problem is soft (a field made too long), hard otherwise (a [^n] to no source, an uncited
 source, a web address, two options the same).
 
-Review cards come only from what Dan answered: each check he answered becomes a card of the
+Review cards come only from what Dan answered, so a read lesson (no checks, no say-it-back) never
+makes one: `addFromLesson` finds nothing to make from it (it would still remove that idea's cards
+from an earlier, study-mode round; whether finishing a read lesson calls it at all is the lesson
+screen's choice, 50-lesson.js). Each check he answered becomes a card of the
 same type; his say-it-back becomes `{ type:'recall', spec:{ prompt, rubric, model, mine } }`.
 Finishing a re-learned lesson replaces that idea's cards: an unchanged question keeps its
 schedule, a changed one starts afresh, one the lesson no longer has is removed. Once they are
@@ -672,10 +709,22 @@ frames cap at 4000). A lesson keeps an interactive only after it passes (section
 `30-prompts.js` owns the plan, research, lesson, grade and tutor prompts and every validator;
 `33-interactive.js` the build and repair prompts; `34-verify.js` the fact-check's prompt,
 validator and patcher (below). Each JSON call passes its validator as `schema`.
-Tiers: plan-topic quick; build/repair-interactive complex; the rest default (verify-lesson too).
+Tiers: intake and plan-topic quick; build/repair-interactive complex; the rest default (verify-lesson too).
+
+The intake prompt (`U.prompts.intake(query, {level, mode})`, TASK: intake) reads what Dan typed and
+asks for the 2-4 questions whose answers would most change how the course is built: what he wants it
+for (practical use, curiosity, a decision, a job), which angle or part of a broad field, what he
+already knows or has done, how hands-on or conceptual, a specific situation he has in mind; each
+with 2-5 short options in his terms, whether several can be picked, and whether he may type his
+own. Never what the level or mode settle, his time, or anything that would fit any topic. The plan
+prompt states the mode ("HOW HE WANTS TO LEARN IT") and, given answers, shapes the course by them
+(the angle, examples from his situation, the practical weight; never what is true, still from first
+principles). For a read course the voice block says he is taught, not tested.
 
 The write-lesson prompt gives the writer THE COURSE (title, the hook as the puzzle the course
-answers, level, oneBreath, every idea as "id title — one line [kind]"), this idea, `prior`, the
+answers, level, oneBreath, every idea as "id title — one line [kind]"), this idea, `prior`, Dan's
+intake answers (the same short block as the plan's: his context for the examples, the worked
+example and the angle), the
 calibration questions with their right answers and whys (Dan has seen them: the predict and checks
 build on them and never repeat them), `known`, the lesson's research and `avoid`/`feedback`. Its
 rules are written once each, with at most one short example each, every example from outside the
@@ -685,9 +734,15 @@ them out of every prompt, so an eval on those topics stays fair): per
 part (predict, interactive, explain, analogy, say, checks, confidence), then NAMES AND TERMS,
 CLAIMS THAT STAY TRUE and THE NUMBER RULE (these two are `U.prompts.truthRules({sources,
 history})`, so anything that later checks a lesson against them reads the same words), SOURCES
-and a closing checklist of what the writer can verify at the end. From WRITING EACH PART to the
-end of the prompt that is about 2,600-2,840 words (a test caps it at 2,850, history ideas with
-research among its cases). Some rules go only where they apply: the interactive's form by the
+and a closing checklist of what the writer can verify at the end. Every lesson has a practice
+part ("Put it into practice", section 5): its truth rules are folded into CLAIMS THAT STAY TRUE and
+THE NUMBER RULE ("every number in your explanation, practice and on the interactive"). In read mode
+(`opts.mode`, default `topic.mode`) the prompt has no predict, say or checks parts, no calibration
+block and no target checks, asks for `"predict": null, "say": null, "checks": []`, and its claim
+rule speaks of the explanation and practice read again in his dossier (`truthRules({read: true})`).
+From WRITING EACH PART to the end of the prompt that is about 2,700-2,935 words in study mode (a test
+caps it at 2,950, history ideas with research among its cases; version 9's practice part added about
+80) and about 1,900-2,050 in read mode (capped at 2,150). Some rules go only where they apply: the interactive's form by the
 idea's kind (a labelled sketch map for a history or structure idea); date windows, period names
 and timelines that run forwards (years BC counted as years after the first date, or a stepper of
 dates in time order) to every lesson of a course with a history idea; to a history idea, its own
@@ -748,9 +803,15 @@ passes `topic.ideas` to `lessonResearch`, so the app's prompt, its allowed sourc
 renumbering all agree; `tools/eval/validate.mjs` does the same, given `--topic`.
 
 Pipelines (`31-generate.js`):
-1. `createTopic(query, {level, onCreated(tid)})` writes `topics/{tid}` (planning), calls
+0. `intake(query, {level, mode, signal})` -> `{questions}`: one quick call (TASK: intake, schema
+   `U.validate.intake`, the usual one repair), tidied by `U.prompts.cleanIntake`; nothing is stored
+   (the screen passes his answers to createTopic). Rejects `{code, message}` like U.ask, in the
+   app's words ("Claude's questions did not pass the app's own checks…"); an empty query rejects
+   `invalid` without a call.
+1. `createTopic(query, {level, mode, intake, onCreated(tid)})` writes `topics/{tid}` (planning, with
+   `mode`, 'study' unless 'read', and `intake`, cleaned, or null), calls
    `onCreated` (Learn opens the topic to watch the plan form), then plans with `known` (up to 60
-   ideas finished in other topics). Ready: plan fields (a title over 120 characters, possible now
+   ideas finished in other topics) and the topic's mode and intake (replan reads them again). Ready: plan fields (a title over 120 characters, possible now
    that lengths are soft, is shortened at a word) and `plannedAt`; research starts in the
    background and the first idea not marked known is written (foreground). A failed plan sets
    status failed with a readable `error`; `replan(tid)` tries again.
@@ -777,11 +838,13 @@ Pipelines (`31-generate.js`):
    retry an unavailable one, or one that did not finish (failed with reason 'error', or `running`
    older than 8 min) up to 3 runs in a row (`tries`), never one that finished confirming no
    source: Dan's "Check the sources again" runs that); write the
-   lesson with this lesson's research, `known`, `prior` (`priorSummary` of earlier lessons),
+   lesson for the topic's mode as it is now (read from the topic as the writing starts, so a switch
+   reaches every lesson written after it), with this lesson's research, `known`, `prior` (`priorSummary` of earlier lessons),
    `avoid` and `feedback`; a reply that still fails the checks after U.ask's repair (`invalid`
    or `bad_json`) is written once more from scratch: a fresh call with the same prompt (and its
    own repair), status line "Having another go at writing this lesson…"; any other error keeps
-   its handling below. Keep only citations of checked sources, renumbered 1..n; save
+   its handling below. Stamp `lesson.mode` (a read lesson's predict, say and checks dropped first);
+   keep only citations of checked sources, renumbered 1..n; save
    (`building`, `verified: null`); then the fact-check and the interactive's build start side by
    side (below); once both are over, save `ready` with the checked text and `verified`, and the
    interactive or, without it, a `note`. A lesson with no interactive is checked, then saved
@@ -830,8 +893,11 @@ lesson JSON with its numbered sources and quotes, the research notes the writer 
 one line; default: those after this idea), Dan's level, `truthRules` (the writer's own CLAIMS THAT
 STAY TRUE and THE NUMBER RULE) and what to check: general claims true across the interactive's
 whole range, in everyday life and after every later idea; dates read correctly; numbers by the
-number rule; one defensible right answer per check, its wrong options really wrong; nothing beyond
-what the cited quotes support unless worded as a picture or a hedge; the parts agreeing. No tools;
+number rule; one defensible right answer per check, its wrong options really wrong (only when the
+lesson has checks); the practice: every step works and is safe as written, the worked example's
+arithmetic right, its real figures sourced or textbook-certain, its common mistakes real; nothing
+beyond what the cited quotes support unless worded as a picture or a hedge; the parts agreeing. A
+read lesson gets the read voice and claim rules. No tools;
 tier default; its schema is `U.validate.verify` (section 5), with the usual one repair.
 `U.verify.apply(lesson, reply) -> {lesson, applied, notes}` rewrites each fixed field (once; a
 refused or empty fix, or a note, is recorded in `notes`). In `write()` it starts with the build:
@@ -1061,9 +1127,12 @@ U.interactive.advice(report, lesson) -> ['Advice: …']   the kit's warnings (so
 ```
 `30-prompts.js`, `31-generate.js`, `34-verify.js`
 ```
-U.prompts.planTopic(query, {level, known:[{title, topic}]})                     TASK: plan-topic
+U.prompts.intake(query, {level, mode})                                           TASK: intake
+U.prompts.cleanIntake(intake | reply) -> {questions, answers} | null             (section 4)
+U.prompts.planTopic(query, {level, mode, intake, known:[{title, topic}]})        TASK: plan-topic
 U.prompts.research(topic, {ideas})                                               TASK: research
-U.prompts.writeLesson(topic, idea, {research, known, avoid, feedback, prior})    TASK: write-lesson
+U.prompts.writeLesson(topic, idea, {research, known, avoid, feedback, prior, mode})  TASK: write-lesson
+   (mode default topic.mode; topic.intake is read from the topic)
 U.prompts.grade(say, answer, {attempt, previous:{text, followUp}, title})        TASK: grade
 U.prompts.tutor(context) -> preamble (the pipeline adds the turns)              TASK: tutor
 U.prompts.lessonResearch(research, iid, deps?, ideas?) -> {notes, sources} | null   numbered 1..k for one lesson (section 7)
@@ -1072,10 +1141,12 @@ U.prompts.verifyLesson(topic, idea, lesson, {research, later, level})           
 U.validate.verify(reply, {lesson, sources}) -> [problems] (.soft)   U.verify.apply(lesson, reply) -> {lesson, applied, notes}
 U.verify.pathProblem(path, lesson, fix) -> string | null   U.verify.PATCHABLE   U.verify.MAX_ISSUES (12)
 U.prompts.copyHost(url) -> why a source URL is a copy or a test server (section 7), or ''
-U.prompts.urlKey(url) / words(text) / footnotes(obj) / VOICE / KINDS / NUMBER_KINDS
-U.validate.plan(o) / .lesson(o, {iid, sources, final, kind}) / .grade(o, {rubric, attempt}) / .research(o, {ideas}) -> [problems]
+U.prompts.urlKey(url) / words(text) / footnotes(obj) / VOICE / voice(mode) / modeOf(m) ('read' | 'study') / KINDS / NUMBER_KINDS
+U.prompts.truthRules({sources, history, read})
+U.validate.plan(o) / .lesson(o, {iid, sources, final, kind, mode}) / .grade(o, {rubric, attempt}) / .research(o, {ideas}) / .intake(o) -> [problems]
    problems.soft: the length problems among them (section 5);  U.validate.hard(problems);  U.validate.allowed(max)
-U.gen.createTopic / replan / research / ensureLesson / relearn / grade / tutor / status / knownIdeas   (section 7)
+U.gen.intake(query, {level, mode, signal}) -> Promise<{questions}>   (section 7)
+U.gen.createTopic(query, {level, mode, intake, onCreated}) / replan / research / ensureLesson / relearn / grade / tutor / status / knownIdeas   (section 7)
 U.gen.demote(tid, iid, {signal?}) -> bool   a foreground job Dan left becomes background work (aborting signal cancels it)
 ```
 `41-cards.js`, `60-today.js`

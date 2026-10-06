@@ -2,8 +2,10 @@
 // Prints the exact prompt the app would send for one generation step, so evals can run the
 // app's real prompts through Claude outside the page.
 //
-//   node tools/eval/prompts.mjs plan-topic   --query "how tides work" [--level new]
+//   node tools/eval/prompts.mjs intake       --query "how tides work" [--level new] [--mode study|read]
+//   node tools/eval/prompts.mjs plan-topic   --query "how tides work" [--level new] [--mode study|read] [--intake intake.json]
 //   node tools/eval/prompts.mjs write-lesson --topic topic.json --idea i2 [--research research.json] [--prior i1.lesson.json,...]
+//                                            [--mode study|read] [--intake intake.json]
 //   node tools/eval/prompts.mjs verify-lesson --topic topic.json --idea i2 --lesson lesson.json [--research research.json]
 //   node tools/eval/prompts.mjs build-interactive --topic topic.json --idea i2 --lesson lesson.json
 //   node tools/eval/prompts.mjs repair-interactive --topic t.json --idea i2 --lesson l.json --html body.html --report report.json
@@ -11,7 +13,9 @@
 //   node tools/eval/prompts.mjs verdict --lesson lesson.json --html body.html --report a1-report.json [--app tests/out/kit.html]
 //
 // topic.json is the plan plus the topic's "query" and "level" (as the app stores it); --level
-// fills in a missing level. --prior takes the earlier lessons of the topic (in order) and passes
+// fills in a missing level. --mode and --intake stand in for the topic's own "mode" and "intake"
+// (as createTopic stores them): intake.json is {questions, answers} (answers {id: {picked, other}}),
+// or an intake reply alone (questions, nothing answered: no block), as U.prompts.cleanIntake reads it. --prior takes the earlier lessons of the topic (in order) and passes
 // them through U.prompts.priorSummary, exactly as the app does. `verify-lesson` is the fact-check
 // the app runs on a written lesson (34-verify.js); --lesson takes the lesson JSON or a saved lesson
 // doc ({status, lesson, …}), and --research the same research as write-lesson. `verdict` adds to a render.mjs
@@ -78,6 +82,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const U = loadPrompts();
   const step = process.argv[2];
   const topic = json('topic');
+  if (topic && arg('mode')) topic.mode = arg('mode');
+  if (topic && arg('intake')) topic.intake = json('intake');
   if (topic && !topic.level) {
     if (arg('level')) topic.level = arg('level');
     else if (step === 'write-lesson' || step === 'build-interactive') console.error('warning: topic.json has no "level", so the prompt says NEW. Keep "level" in topic.json (or pass --level).');
@@ -86,7 +92,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const prior = arg('prior') ? U.prompts.priorSummary(arg('prior').split(',').filter(Boolean).map((p) => JSON.parse(readFileSync(p.trim(), 'utf8')))) : [];
   let out;
   switch (step) {
-    case 'plan-topic': out = U.prompts.planTopic(arg('query'), { level: arg('level', 'new'), known: [] }); break;
+    case 'intake': out = U.prompts.intake(arg('query'), { level: arg('level', 'new'), mode: arg('mode', 'study') }); break;
+    case 'plan-topic': out = U.prompts.planTopic(arg('query'), { level: arg('level', 'new'), mode: arg('mode', 'study'), intake: json('intake'), known: [] }); break;
     case 'research': out = U.prompts.research(topic, { ideas: topic.ideas }); break;
     case 'write-lesson': out = U.prompts.writeLesson(topic, idea, { research: json('research'), known: [], prior }); break;
     case 'verify-lesson': out = U.prompts.verifyLesson(topic, idea, lessonOf(json('lesson')), { research: json('research') }); break;
