@@ -1395,12 +1395,23 @@ test('lesson state: a busy doc this tab left with no job here (a reload killed i
   assert.equal(S(other), 'preparing', 'while it is fresh');
   assert.equal(A({ status: 'ready', lesson: { iid: 'i2' }, by: mine.by }), false, 'a whole lesson is never abandoned');
   assert.equal(A({ status: 'writing', updatedAt: now }), false, 'a doc that names no tab is not this tab\'s');
-  // A duplicated tab that kept this tab's id (U.tab.shared(), 00-core.js): its work may be live in
-  // the other tab, so nothing held by the id is taken for dead.
-  U._tabShared = true;
-  assert.equal(A(mine), false, 'the id is shared with another open tab: not abandoned');
-  assert.equal(S(mine), 'preparing', 'so it reads as being prepared while it is fresh');
-  U._tabShared = false;
+});
+
+// A page that turns out to be a copy of another open tab takes a fresh tab id a moment after it
+// loads (00-core.js): the jobs it starts from then on are named, and hold the lease, by that id.
+test('lesson jobs are named by the tab id when they start, not when the page loaded', async () => {
+  const app = await boot({ handlers: handlers() });
+  const { U } = app;
+  const leases = leaseTable();
+  U.gen._leaseDb(leases);
+  await app.seed('topics/t1', PLAN_JET);
+  const old = U.tab();
+  U._tab = 'tFresh';
+  const d = await U.gen.ensureLesson('t1', 'i1');
+  assert.equal(d.by.tab, 'tFresh', 'named by the new id (was ' + old + ')');
+  assert.equal(d.by.holder, U.device() + '/tFresh');
+  assert.equal(leases.held['topics/t1/lessons/i1'].holder, U.device() + '/tFresh', 'and the lease is held by it');
+  assert.equal(U.store.lesson.abandoned({ ...plain(d), status: 'writing' }), true, 'the store tells this tab\'s leftovers by the same id');
 });
 
 // Learn it again across devices: the rewrite stamps the request's token on the doc it writes,
@@ -1420,6 +1431,88 @@ test('relearn stamps its request token on the doc; a rewrite picked up part-way 
   assert.equal(again.request, 'rqB', 'the job that finished it kept the token');
   const plainDoc = await U.gen.relearn('t1', 'i1');
   assert.equal(plainDoc.request, null, 'a rewrite with no request names none');
+});
+
+// v8 (L5): a rewrite writes only for its own request, and never twice for one. Two screens of
+// Dan's, on two devices: the other device holds the lease while it writes.
+test('a rewrite never writes over a lesson stamped since it began with a newer request, nor twice for its own', async () => {
+  const path = 'topics/t1/lessons/i1';
+  const by = { ...PHONE };
+  for (const how of ['newer', 'same']) {
+    const app = await boot({ handlers: handlers() });
+    const { U } = app;
+    const leases = leaseTable();
+    U.gen._leaseDb(leases);
+    await app.seed('topics/t1', PLAN_JET);
+    await app.seed(path, { status: 'ready', updatedAt: new Date().toISOString(), lesson: L_JET1, interactive: null, sourced: true, request: null, by });
+    // The phone holds the lease: this rewrite (request rqA) waits for it.
+    leases.held[path] = { holder: PHONE.holder, until: Date.now() + 500 };
+    const p = U.gen.relearn('t1', 'i1', { request: 'rqA' });
+    await tick(60);
+    assert.equal(U.gen.status('t1').lessons.i1, 'waiting', how + ': waiting for the lease');
+    // Meanwhile the phone writes: for a newer request (Rebuild there), or for this same request
+    // (its screen asked for it too, and claimed first).
+    const stamp = how === 'newer' ? 'rqB' : 'rqA';
+    await app.seed(path, { status: 'writing', updatedAt: new Date().toISOString(), lesson: null, request: stamp, by });
+    await tick(60);
+    await app.seed(path, { status: 'ready', updatedAt: new Date().toISOString(), lesson: L_JET2, interactive: null, sourced: true, request: stamp, by });
+    const d = await p;
+    assert.equal(app.count('write-lesson'), 0, how + ': nothing written here once the lease was free');
+    assert.equal(d.request, stamp, how + ': the phone\'s lesson comes back');
+    assert.equal(d.lesson.title, L_JET2.title);
+    const now = await app.get(path);
+    assert.equal(now.request, stamp, how + ': and stands');
+    assert.equal(now.lesson.title, L_JET2.title);
+  }
+  // Left part-way for this request (the phone's job died): finished here, keeping the token.
+  const app = await boot({ handlers: handlers() });
+  const { U } = app;
+  const leases = leaseTable();
+  U.gen._leaseDb(leases);
+  await app.seed('topics/t1', PLAN_JET);
+  await app.seed(path, { status: 'building', updatedAt: new Date().toISOString(), lesson: L_JET2, interactive: null, sourced: true, request: 'rqA', feedback: 'a note', by });
+  leases.held[path] = { holder: PHONE.holder, until: Date.now() + 300 };
+  const d = await U.gen.relearn('t1', 'i1', { request: 'rqA', feedback: 'a note' });
+  assert.equal(app.count('write-lesson'), 0, 'its text is not written again');
+  assert.equal(d.status, 'ready');
+  assert.equal(d.request, 'rqA');
+  assert.equal(d.lesson.title, L_JET2.title);
+});
+
+test('a rewrite whose request moved on is cancelled by its signal: waiting, it never starts; running, it stops and puts the doc back', async () => {
+  const path = 'topics/t1/lessons/i1';
+  // 1. Waiting for the lesson Dan was waiting for: it never starts.
+  let release;
+  let app = await boot({ handlers: handlers({ 'write-lesson': (input) => new Promise((r) => { release = () => r(handlers()['write-lesson'](input)); }) }) });
+  await app.seed('topics/t1', PLAN_JET);
+  const first = app.U.gen.ensureLesson('t1', 'i1', {});
+  await until(() => release);
+  const ctl = new AbortController();
+  const again = app.U.gen.relearn('t1', 'i1', { request: 'rqA', signal: ctl.signal });
+  ctl.abort();
+  release();
+  assert.equal((await first).status, 'ready', 'the lesson Dan was waiting for finishes');
+  await assert.rejects(again, (e) => e.code === 'cancelled', 'the rewrite is cancelled');
+  await tick(30);
+  assert.equal(app.count('write-lesson'), 1, 'and never asked Claude');
+  assert.equal((await app.get(path)).request, null);
+  // 2. Running: it stops at once and the old lesson is put back.
+  release = null;
+  app = await boot({ handlers: handlers({ 'write-lesson': () => new Promise((r) => { release = r; }) }) });
+  await app.seed('topics/t1', PLAN_JET);
+  await app.seed(path, { status: 'ready', updatedAt: new Date().toISOString(), lesson: L_JET1, interactive: null, sourced: true });
+  const ctl2 = new AbortController();
+  const running = app.U.gen.relearn('t1', 'i1', { request: 'rqA', signal: ctl2.signal });
+  await until(() => release);
+  assert.equal((await app.get(path)).status, 'writing');
+  ctl2.abort();
+  await assert.rejects(running, (e) => e.code === 'cancelled');
+  await until(async () => ((await app.get(path)) || {}).status === 'ready');
+  const back = await app.get(path);
+  assert.equal(back.lesson.title, L_JET1.title, 'the old lesson is back');
+  assert.ok(!back.request, 'unstamped');
+  // 3. Already aborted: rejected at once.
+  await assert.rejects(app.U.gen.relearn('t1', 'i1', { request: 'rqA', signal: ctl2.signal }), (e) => e.code === 'cancelled');
 });
 
 // Final fixes F4: the resume path (a building doc finished later) says each step once, and its

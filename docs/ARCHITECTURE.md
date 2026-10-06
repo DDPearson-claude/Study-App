@@ -68,9 +68,11 @@ U.append / U.clear / U.svg (static app markup only) / U.icon(name, cls?)   U.id(
 U.tab()   this tab's id (sessionStorage mu.tab: kept through a reload, never shared by two open tabs).
     "Duplicate tab" copies sessionStorage: a page that finds mu.tab.open set at load (an open page of
     this tab, or the copy of one; cleared on pagehide, so a reload keeps the id) takes a fresh id,
-    decided at once (the generator names its jobs as it loads). Each page also says hello on the
-    BroadcastChannel 'mu.tab'; a page of another tab with the same id answers, and both then report
-    U.tab.shared() true (U.store.lesson.abandoned is then never true for that id)
+    decided at once. A copy made while the mark was missing (the page was in the back-forward
+    cache) is caught a moment later: each page says hello on the BroadcastChannel 'mu.tab' with its
+    id and when it took it (on load, and on coming back from that cache); of two open pages with
+    one id, the one that took it later takes a fresh id (the other answers a hello). Lesson jobs
+    read the id as they start, and keep it (section 7)
 U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
     keyed lists: maps keyed by U.key() (time first), or old arrays read as L000, L001…; oldest first
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
@@ -170,7 +172,7 @@ U.store.topics.watch(fn, onError) -> stop   fn(topic docs, newest updatedAt firs
 U.store.topic.get / watch(tid, fn, onError) / create(doc) / update(tid, patch) / remove(tid) -> {leftovers}
 U.store.lesson.get / watch / set(tid, iid, doc) / update(tid, iid, patch, {quiet?}) / remove(tid, iid) / list(tid)
 U.store.lesson.state(doc, live?) -> 'ready'|'preparing'|'failed'|'none'    (section 4; live: U.gen.status's word for it)
-U.store.lesson.abandoned(doc, live?) -> bool   writing/building, by.tab is U.tab() (not shared), no job of this page on it (section 4)
+U.store.lesson.abandoned(doc, live?) -> bool   writing/building, by.tab is U.tab(), no job of this page on it (section 4)
 U.store.research.get(tid, key) / set(tid, key, doc)
 U.store.progress.get(tid) / watch(tid, fn, onError) / patch(tid, patch) / all() -> {tid: doc}       private
 U.store.cards.get(tid) / patch(tid, patch) / update(tid, cardId, fn(card) -> fields|null) / all() / dropOrphan(tid)
@@ -271,7 +273,7 @@ doc means: `ready`; `preparing` (this page's job is on it, by `live`, else a wri
 touched within the last 4 minutes, which a running job's 45 s heartbeat keeps fresh, and not
 abandoned); `failed`; `none` (nothing yet, or work that stopped: opening the lesson prepares it).
 `U.store.lesson.abandoned(doc, live)`: a writing/building doc held by this tab (`by.tab` is
-`U.tab()`, an id no other open tab answers to) with no job of this page on it. Its job died with an earlier load of the tab (a reload)
+`U.tab()`, an id no other open tab holds) with no job of this page on it. Its job died with an earlier load of the tab (a reload)
 or ended without saving, so nobody is working on it however fresh it looks; the generator does not
 wait for it either. The screens that follow the next idea start such a prefetch again (section 7).
 `topics/{tid}/research/{key}`   key `'topic'` (always written) or an idea id (when it has notes):
@@ -492,10 +494,17 @@ Pipelines (`31-generate.js`):
    with priority background, and aborting `signal` cancels it until a foreground caller joins.
    A cancelled job stops waiting at once (for research, Claude, the interactive's build, another
    device) and leaves the doc as the rules below say.
-4. `relearn(tid, iid, {onStatus, feedback, request})` always writes a new lesson, avoiding up to 3
+4. `relearn(tid, iid, {onStatus, feedback, request, signal})` writes a new lesson, avoiding up to 3
    earlier interactive briefs; `feedback` (Dan's note, up to 1000 characters) is put to the writer;
    `request` (his request's token) is stamped on the doc as `request`, and a job that picks a
-   rewrite up part-way (ensureLesson's takeover) keeps the doc's token. It
+   rewrite up part-way (ensureLesson's takeover) keeps the doc's token. Holding the lease, it reads
+   the doc once more before writing: work stamped with its own request (another screen with the
+   same request got there first) is not done twice (a whole lesson comes back as it is; one being
+   written is waited for, or finished if its writer stopped, as ensureLesson's takeover does), and
+   work stamped since the rewrite began with another request (a newer one, from another device) is
+   never written over: the rewrite gives the lesson up to it, as a job that lost it does (released
+   lease, `superseded`, waits for that work). Aborting `signal` cancels it: a call still waiting
+   for another job never starts, a running one stops as a cancelled job does. It
    never joins a job running for that lesson (a first writing, an interactive still building,
    another relearn). A foreground one (Dan is waiting for it) finishes first; a background one (a
    prefetch, or a lesson he left while it was being written: `demote`) is cancelled (queued calls
@@ -513,7 +522,7 @@ Pipelines (`31-generate.js`):
    `U.emit('gen', {tid, iid, kind:'plan'|'research'|'lesson', status, text})`.
 
 One writer per lesson, across devices and tabs. The holder is `device/tab` (localStorage
-`mu.device`, sessionStorage `mu.tab`), named in the doc's `by`. A job claims the db's lease on
+`mu.device`, sessionStorage `mu.tab`, read as the job starts and kept by it), named in the doc's `by`. A job claims the db's lease on
 the lesson doc (`ref.acquire({holder, ttlMs: 90000})`) and renews it every 45 s with a heartbeat
 that also touches `updatedAt`. Before each write it renews the lease and checks `by.holder`;
 if someone else has it, the job stops (`superseded`) and watches that work instead. Not
@@ -559,7 +568,15 @@ re-reads progress first and starts the round only while his request is still the
 round it was asked in: another device that opened the fresh lesson first has begun the round
 (this screen opens it in that round), and a newer request (Rebuild elsewhere) is followed instead;
 two devices that read at the same moment are settled by the store (section 3: the first start of a
-round stands). A rewrite that fails leaves the idea as it was and still marked to be learned again
+round stands). A screen writes only for the request it opened (Rebuild) or took up when it loaded.
+When the request moves on elsewhere (the progress watch, read again once the screen's own request
+has landed, shows a newer one; or a lesson for another request comes back), its own work stops
+(the rewrite is cancelled by its `signal`, a takeover demoted and cancelled) and it follows: the
+card says the fresh lesson is being written on the other device and opens here when ready, and
+the watch opens it when it is whole. If that try fails there (the doc marked failed, or put back
+as it was) the card says so with Try again, which opens the screen afresh, so the request is then
+taken up here. A round begun on another device while the card waits stops this screen's work too,
+and the screen opens on that round. A rewrite that fails leaves the idea as it was and still marked to be learned again
 (Today keeps offering it); opening it again tries the rewrite again with his note, the card's
 first line saying so ("Trying again for the fresh lesson you asked for[, with your note]"). Work
 on the fresh lesson that has begun is finished, not begun again: whole, it opens as the new round
@@ -571,7 +588,9 @@ began); only answers of the round on screen count towards it. During the checks,
 the settings of the interactive Dan is using: a target question's own copy (its card's `mount`)
 while it is the question on screen, else Play's. "What am I looking at?" shows a control's value
 from the frame only as a number or one of the lesson's own option names (an option value the
-frame reports is mapped to its label through `inputs()`), never other text from the frame.
+frame reports is mapped to its label through `inputs()`, and shown only when that label is one of
+the lesson's names, never by its place in the frame's list), never other text from the frame;
+anything else leaves the starting value alone.
 
 Screen readers and keyboards: results are said in one polite live region (`.lsn-said`: what happens
 after "I've had a play", "Reading your answer…", the verdict with what he nailed, "Here is a model
@@ -738,9 +757,16 @@ U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}
    A reply streams in place (finished paragraphs drawn once; only the one still coming is drawn
    again) and a new question adds its own messages. The conversation is not a live region: one
-   status line says "Claude is answering…", then the finished reply once. The chips wrap
-   (is-wrapped) where they fit on two rows and the conversation keeps 45% of the sheet, and always
-   with a mouse; else, and while the keyboard is up (is-cramped), one sideways row that fades
+   status line says "Claude is answering…", then the finished reply once (plain words; a list said
+   as sentences, never its "- " markers). Try again on a reply that failed moves focus to that reply
+   on a touch screen (the input would bring the keyboard up while it streams in), else to the input.
+   The chips wrap (is-wrapped), every one whole. Under a conversation on a touch screen with the
+   keyboard down, all of them while that leaves the conversation 45% of the sheet below its title
+   (read as if scrolled to the top: at 0.47 and more the screenshots show his question and about
+   five lines of the reply, at 0.44 four, at 0.42 three and a half); else the last ones are left out
+   (the most useful first: Explain it differently, Give me an example; one at least) while they
+   take more than one row. With a mouse, all of them. Only while the keyboard is up (is-cramped):
+   one sideways row of them that fades at the edge it runs on past
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile
 U.settings.prefs / apply(prefs) / set(key, value) / fromProfile(prefs) / readLocal() / backup() / open()
 U.boot.study   visible, recently touched time (TICK 15 s, IDLE 2 min), logged with U.logStudy in 2-minute chunks;

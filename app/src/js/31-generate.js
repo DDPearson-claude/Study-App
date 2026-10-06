@@ -38,9 +38,10 @@
   var PAGE = U.id('p');
   // Ids that outlive a reload: this device (localStorage) and this tab (sessionStorage, so two
   // tabs of one browser never mistake each other's live work for their own leftovers). The same
-  // ids the store uses to tell this tab's leftovers (00-core.js).
-  var DEVICE = U.device(), TAB = U.tab();
-  var HOLDER = DEVICE + '/' + TAB;
+  // ids the store uses to tell this tab's leftovers (00-core.js). The tab's id is read as each job
+  // starts (a page that turns out to be a copy of another open tab takes a fresh id a moment
+  // after it loads), and a job keeps the one it started with: its holder (device/tab).
+  var DEVICE = U.device();
 
   var jobs = {};        // 'tid/iid' -> lesson job (de-duplicates work in this page)
   var plans = {};       // tid -> planning promise
@@ -514,7 +515,7 @@
 
   function newJob(tid, iid, opts) {
     var job = {
-      tid: tid, iid: iid, key: tid + '/' + iid, subs: [], text: '', hb: null, promise: null, ref: null, lost: false,
+      tid: tid, iid: iid, key: tid + '/' + iid, subs: [], text: '', hb: null, promise: null, ref: null, lost: false, by: who(),
       background: !!opts.background, ctrl: typeof AbortController === 'function' ? new AbortController() : null,
     };
     join(job, opts);
@@ -615,7 +616,7 @@
   function claim(job, ttl) {
     var ref = job.ref || leaseRef(job);
     if (!ref) return Promise.resolve({ acquired: true, none: true });
-    return Promise.resolve().then(function () { return ref.acquire({ holder: HOLDER, ttlMs: ttl || CFG.LEASE_MS }); }).then(function (r) {
+    return Promise.resolve().then(function () { return ref.acquire({ holder: job.by.holder, ttlMs: ttl || CFG.LEASE_MS }); }).then(function (r) {
       r = r && typeof r === 'object' ? r : { acquired: true };
       if (r.acquired) job.ref = ref;
       return r;
@@ -625,7 +626,7 @@
   function release(job) {
     var ref = job.ref;
     job.ref = null;
-    if (ref) Promise.resolve().then(function () { return ref.acquire({ holder: HOLDER, ttlMs: 1000 }); }).catch(noop);
+    if (ref) Promise.resolve().then(function () { return ref.acquire({ holder: job.by.holder, ttlMs: 1000 }); }).catch(noop);
   }
   // Is this lesson still ours: the lease (renewed here) and the doc's `by`?
   function mine(job) {
@@ -634,7 +635,7 @@
       if (!r.acquired) throw superseded(job);
       return U.store.lesson.get(job.tid, job.iid);
     }).then(function (doc) {
-      if (doc && doc.by && doc.by.holder && doc.by.holder !== HOLDER) throw superseded(job);
+      if (doc && doc.by && doc.by.holder && doc.by.holder !== job.by.holder) throw superseded(job);
     });
   }
   // Before each write: still wanted, and still ours.
@@ -712,6 +713,10 @@
 
   function relearn(tid, iid, opts) {
     opts = opts || {};
+    // Aborting opts.signal cancels the rewrite (its request moved on): one still waiting here
+    // never starts, and a running one stops as a cancelled job does (stopped()).
+    var sig = opts.signal;
+    if (sig && sig.aborted) return Promise.reject({ code: 'cancelled', message: 'This lesson was not needed after all.' });
     // Never join a job already running for this lesson (the first writing, an interactive still
     // building, another Rebuild): it would hand back that lesson as the "fresh" one, and Dan's
     // note would never reach the writer. A job Dan is waiting for (foreground) finishes first,
@@ -728,15 +733,29 @@
     }
     var job = newJob(tid, iid, {});
     subscribe(job, opts.onStatus);
+    if (sig && typeof sig.addEventListener === 'function') sig.addEventListener('abort', function () { job.background = true; cancel(job); });
     var feedback = isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null;
+    var request = isStr(opts.request) ? opts.request : null;
     job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
       var avoid = [], brief = doc && ((doc.interactive && doc.interactive.brief) || (doc.lesson && doc.lesson.interactive && doc.lesson.interactive.brief));
       if (isStr(brief)) avoid.push(brief);
       [].concat((doc && doc.avoid) || []).forEach(function (a) { if (isStr(a) && avoid.indexOf(a) < 0) avoid.push(a); });
+      // Holding the lease, the doc is read once more before it is written over. Work stamped
+      // with this request (another screen of his asked for it too, and got there first) is not
+      // done twice: a lesson whole or still being written for it is taken as it is (takeOver
+      // returns it, waits for its writer, or finishes what a writer left). Work stamped since
+      // this rewrite began with another request (a newer one, asked on another device) is never
+      // written over: the rewrite gives the lesson up to it, as a job that lost it does.
+      function claimed(now) {
+        var stamp = now && isStr(now.request) ? now.request : null;
+        if (stamp && stamp === request && (busy(now) || (now.status === 'ready' && now.lesson))) return takeOver(job, now, 0);
+        if (stamp && stamp !== request && stamp !== (doc && doc.request)) { release(job); return stopped(job, superseded(job), 'none', doc, 'write lessons'); }
+        return write(job, { avoid: avoid.slice(0, 3), feedback: feedback, request: request, prev: doc });
+      }
       // A ready lesson does not count as done here: wait out another holder, then write.
       return (function attempt(round) {
         return claim(job).then(function (r) {
-          if (r.acquired) return write(job, { avoid: avoid.slice(0, 3), feedback: feedback, request: opts.request, prev: doc });
+          if (r.acquired) return U.store.lesson.get(tid, iid).then(claimed);
           if (round >= CFG.LEASE_ROUNDS) throw { code: 'busy', message: 'Another device is preparing this lesson. Try again in a minute.' };
           progress(job, 'Your other device is working on this lesson. Waiting for it…', 'waiting');
           return unlessCancelled(job, U.sleep(untilExpiry(r))).then(function () { return attempt(round + 1); });
@@ -773,7 +792,8 @@
     }
     return patch;
   }
-  function who() { return { device: DEVICE, tab: TAB, page: PAGE, holder: HOLDER }; }
+  // Who is writing: this device, tab and page load (holder = device/tab), as a job started now.
+  function who() { var tab = U.tab(); return { device: DEVICE, tab: tab, page: PAGE, holder: DEVICE + '/' + tab }; }
   // The "This looks wrong" notes on any of these docs, as one keyed map (the newest 30), or null.
   function flagsOf(docs) {
     var all = {}, out = {};
@@ -841,7 +861,7 @@
       return U.store.lesson.get(tid, iid).catch(function () { return null; }).then(function (now) {
         return U.store.lesson.set(tid, iid, {
           status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
-          by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, request: isStr(o.request) ? o.request : null, startedAt: U.now(),
+          by: U.clone(job.by), avoid: avoid.length ? avoid : null, feedback: feedback, request: isStr(o.request) ? o.request : null, startedAt: U.now(),
           flags: flagsOf([o.prev, now]),
         });
       });
@@ -912,7 +932,7 @@
       return Promise.resolve().then(function () {
         stillWanted(job);
         if (!U.rt || !U.rt.sample) throw { code: 'not_granted', message: 'Claude is not available in this view.' };
-        return U.store.lesson.update(tid, iid, { status: 'building', by: who(), error: null });
+        return U.store.lesson.update(tid, iid, { status: 'building', by: U.clone(job.by), error: null });
       }).then(function (r) {
         goneIfNull(r);
         stage = 'building';

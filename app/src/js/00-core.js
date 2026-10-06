@@ -114,12 +114,14 @@ U.device = function () {
 // second frame of the app in one tab) and takes a fresh id. This is decided at once, because the
 // generator names its jobs with the id as it loads. (A tab whose page died without pagehide, a
 // crash, also takes a fresh id: the work that page left is then waited out like another tab's.)
-// As a second check, each page says hello on the BroadcastChannel 'mu.tab' with its id; a page of
-// another tab with the same id answers, and both then hold it as shared (U.tab.shared()), so
-// neither ever takes the other's live work for work of its own that a reload killed.
+// A copy made while the mark was missing (the page was in the back-forward cache) is caught a
+// moment later: each page says hello on the BroadcastChannel 'mu.tab' with its id and when it took
+// it (on load, and on coming back from that cache); of two open pages with one id, the one that
+// took it later is the newcomer and takes a fresh id (the other answers a hello, so a newcomer
+// hears of it either way). Lesson jobs read the id when they start, so the newcomer's are its own.
 U.tab = function () {
   if (U._tab) return U._tab;
-  var OPEN = 'mu.tab.open', me = U.id('g');
+  var OPEN = 'mu.tab.open', me = U.id('g'), since = Date.now();
   try {
     var v = sessionStorage.getItem('mu.tab');
     if (!v || sessionStorage.getItem(OPEN)) { v = U.id('t'); sessionStorage.setItem('mu.tab', v); }
@@ -127,27 +129,28 @@ U.tab = function () {
     U._tab = v;
   } catch (e) { U._tab = U.id('t'); return U._tab; }
   var bc = null;
-  function hello() { try { if (bc) bc.postMessage({ type: 'hello', tab: U._tab, page: me }); } catch (e) { /* fine */ } }
+  function say(type) { try { if (bc) bc.postMessage({ type: type, tab: U._tab, page: me, since: since }); } catch (e) { /* fine */ } }
   try {
     if (typeof BroadcastChannel === 'function') {
       bc = new BroadcastChannel('mu.tab');
       bc.onmessage = function (e) {
         var d = (e && e.data) || {};
         if (d.tab !== U._tab || d.page === me) return;
-        U._tabShared = true;
-        if (d.type === 'hello') try { bc.postMessage({ type: 'mine', tab: U._tab, page: me }); } catch (x) { /* fine */ }
+        // Another open page has this id. The one that took it first keeps it (a tie goes by page).
+        if (+d.since < since || (+d.since === since && String(d.page) < me)) {
+          U._tab = U.id('t'); since = Date.now();
+          try { sessionStorage.setItem('mu.tab', U._tab); } catch (x) { /* fine */ }
+        } else if (d.type === 'hello') say('mine');
       };
     }
   } catch (e) { bc = null; }
   if (typeof window !== 'undefined' && window.addEventListener) {
     window.addEventListener('pagehide', function () { try { if (sessionStorage.getItem(OPEN) === me) sessionStorage.removeItem(OPEN); } catch (e) { /* fine */ } });
-    window.addEventListener('pageshow', function (e) { if (!e || !e.persisted) return; try { sessionStorage.setItem(OPEN, me); } catch (x) { /* fine */ } hello(); });
+    window.addEventListener('pageshow', function (e) { if (!e || !e.persisted) return; try { sessionStorage.setItem(OPEN, me); } catch (x) { /* fine */ } say('hello'); });
   }
-  hello();
+  say('hello');
   return U._tab;
 };
-// True once a page of another tab has answered with this tab's id (see U.tab).
-U.tab.shared = function () { return !!U._tabShared; };
 try { if (typeof sessionStorage !== 'undefined') U.tab(); } catch (e) { /* no storage (node evals) */ }
 // ---------- keyed lists ----------
 // Lists that two devices can add to at once are stored as maps keyed by U.key() (a merge keeps

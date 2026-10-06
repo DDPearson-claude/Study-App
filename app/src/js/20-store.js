@@ -721,10 +721,10 @@ U.store = (function () {
     // A writing/building doc held by this tab (by.tab is U.tab()) with no job of this page on it
     // (live: U.gen.status's word for it, if any): its job died with an earlier load of the tab (a
     // reload) or ended without saving. Nobody is working on it, however fresh its updatedAt, and
-    // the generator does not wait for it (31-generate.js). Never while another open tab has
-    // answered to this tab's id (U.tab.shared(): a duplicated tab): the job may be that tab's.
+    // the generator does not wait for it (31-generate.js). (No other open tab has this tab's id:
+    // a duplicated tab takes one of its own, 00-core.js.)
     abandoned: function (doc, live) {
-      return busyLesson(doc) && !jobOn(live) && !!doc.by && !!doc.by.tab && doc.by.tab === U.tab() && !(U.tab.shared && U.tab.shared());
+      return busyLesson(doc) && !jobOn(live) && !!doc.by && !!doc.by.tab && doc.by.tab === U.tab();
     },
     // Deletes one lesson doc (a job putting back a doc it created). Queued behind pending writes.
     remove: function (tid, iid) {

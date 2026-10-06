@@ -25,13 +25,17 @@
 // (grade-after-rebuild), Ask Claude told a target check's own settings (tutor-target), a named
 // control's value only in the lesson's words (notes-choice), focus never under the lesson bar
 // (focus-under-bar), Ask Claude streaming in place (tutor-stream), the cheer staying with its
-// screen (cheer).
+// screen (cheer). After the v8 check: a newer request from another device followed, never written
+// here (relearn-newer-elsewhere), a body's own option labels never named by place
+// (notes-choice-foreign), Try again focusing the reply on a touch phone and a list said as
+// sentences (tutor-retry), and the chips measured in the app's own font (tutor-chips).
 // Screenshots: tests/out/lesson-*.png.
 //
 // Usage: node tests/e2e/lesson.spec.mjs [scenario-filter]     exits non-zero on any failure
 import { spawnSync } from 'node:child_process';
-import { readFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { openApp, taskOf, ROOT } from '../../tools/harness/page.mjs';
 
 const OUT = join(ROOT, 'tests', 'out');
@@ -87,30 +91,41 @@ function installFakes(cfg) {
     // text while its interactive is built, then the whole new lesson), stamped with when the job
     // claimed it (startedAt, by a clock cfg.skewMs off: another device's) and the request's token
     // (request). cfg.foreign: the doc it writes carries another request's token (another device
-    // rewriting it too). T.relearnSeen records what the screen showed at each step.
+    // rewriting it too). T.relearnSeen records what the screen showed at each step. Aborting
+    // o.signal cancels it before its next write, as the real one stops (rec.cancelled).
     relearn: cfg.relearnDoc ? function (tid, iid, o) {
-      T.relearn.push({ tid: tid, iid: iid, feedback: (o && o.feedback) || null, request: (o && o.request) || null });
+      var rec = { tid: tid, iid: iid, feedback: (o && o.feedback) || null, request: (o && o.request) || null, signal: !!(o && o.signal), cancelled: false };
+      T.relearn.push(rec);
       T.relearnSeen = T.relearnSeen || [];
       function seen(step) { T.relearnSeen.push({ step: step, stages: document.querySelectorAll('.lsn-stage, .lsn-past').length, prep: !!document.querySelector('.lsn-prep'), text: document.querySelector('.lsn').textContent }); }
+      function wanted() { if (o && o.signal && o.signal.aborted) { rec.cancelled = true; throw { code: 'cancelled', message: 'This lesson was not needed after all.' }; } }
       var d = JSON.parse(JSON.stringify(cfg.relearnDoc)), started = new Date(Date.now() + (cfg.skewMs || 0)).toISOString();
       var request = cfg.foreign ? 'rqOther' + T.relearn.length : (o && o.request) || null;
       d.lesson.predict.q = d.lesson.predict.q + ' (take ' + T.relearn.length + ')';
       d.startedAt = started; d.request = request;
-      return U.store.lesson.set(tid, iid, { status: 'writing', lesson: null, interactive: null, sourced: false, startedAt: started, request: request, updatedAt: U.now() }).then(function () {
-        return U.sleep(300);
+      return Promise.resolve().then(function () {
+        wanted();
+        return U.store.lesson.set(tid, iid, { status: 'writing', lesson: null, interactive: null, sourced: false, startedAt: started, request: request, updatedAt: U.now() });
       }).then(function () {
+        return U.sleep(cfg.relearnMs || 300);
+      }).then(function () {
+        wanted();
         seen('writing');
         return U.store.lesson.set(tid, iid, { status: 'building', lesson: d.lesson, interactive: null, sourced: true, startedAt: started, request: request });
       }).then(function () {
-        return U.sleep(400);
+        return U.sleep(cfg.relearnMs || 400);
       }).then(function () {
+        wanted();
         seen('building');
         return U.store.lesson.set(tid, iid, d).then(function () { return U.store.lesson.get(tid, iid); });
       });
     } : undefined,
+    // cfg.tutorFailFirst: the first question gets no answer (an outage); cfg.tutorReplies: the
+    // replies, in order, instead of the usual two.
     tutor: function (messages, context, o) {
       T.tutor.push({ messages: messages.map(function (m) { return { role: m.role, content: m.content }; }), state: context.state || null, iid: context.iid || null, hasLesson: !!context.lesson });
-      var reply = T.tutor.length === 1
+      if (cfg.tutorFailFirst && T.tutor.length === 1) return U.sleep(200).then(function () { throw { code: 'unavailable', message: 'The connection dropped.' }; });
+      var reply = cfg.tutorReplies ? cfg.tutorReplies[(T.tutor.length - (cfg.tutorFailFirst ? 2 : 1)) % cfg.tutorReplies.length] : T.tutor.length === 1
         ? 'Good question. The pull of gravity speeds the bob up, but a longer string gives it further to go along its arc. Those two effects together give the **square root**.\n\nSo at **' + (context.state && context.state.params ? context.state.params.L : '?') + ' m** the swing takes about ' + (context.state && context.state.outputs && context.state.outputs.T ? context.state.outputs.T.toFixed(2) : '?') + ' s.[^2]'
         : 'A playground swing with long chains swings slowly; a short one on a toddler swing goes back and forth much faster.';
       var parts = reply.match(/[\s\S]{1,14}/g), acc = '';
@@ -212,18 +227,59 @@ function tutorState(page) {
   });
 }
 
-// How the chips would sit wrapped (as 51-tutor.js measures them): the rows they take, and the
-// share of the sheet the conversation keeps between the sheet's title and the dock.
-function wrapPlan(page) {
-  return page.evaluate(() => {
+// How the first n chips would sit wrapped (as 51-tutor.js measures them; n defaults to all that
+// may show: the two starters before any answer): the rows they take, and the share of the sheet
+// the conversation keeps between the sheet's title and the dock, as if scrolled to the top.
+function wrapPlan(page, n) {
+  return page.evaluate((n) => {
     const sh = document.querySelector('.tutor-sheet'), was = sh.classList.contains('is-wrapped');
+    const all = [...sh.querySelectorAll('.tutor-dock .chip')], hid = all.map((c) => c.hidden);
+    const may = sh.classList.contains('is-empty') ? 2 : all.length;
+    all.forEach((c, i) => { c.hidden = i >= Math.min(n || may, may); });
     sh.classList.add('is-wrapped');
-    const shown = [...sh.querySelectorAll('.tutor-dock .chip')].filter((c) => !c.hidden);
+    const shown = all.filter((c) => !c.hidden);
     const rows = new Set(shown.map((c) => Math.round(c.getBoundingClientRect().top))).size;
     const head = sh.querySelector('.sheet-head').getBoundingClientRect(), dock = sh.querySelector('.tutor-dock').getBoundingClientRect();
-    const share = (dock.top - head.bottom) / sh.getBoundingClientRect().height;
+    const share = (dock.top - head.bottom - sh.scrollTop) / sh.getBoundingClientRect().height;
+    all.forEach((c, i) => { c.hidden = hid[i]; });
     sh.classList.toggle('is-wrapped', was);
-    return { rows, share: Math.round(share * 100) / 100 };
+    return { n: shown.length, rows, share: Math.round(share * 1000) / 1000 };
+  }, n || 0);
+}
+// What 51-tutor.js should show under a conversation on a touch phone, keyboard down: every chip
+// while that leaves the conversation 45% of the sheet; else fewer (the first ones), while they
+// take more than one row and crowd it, one at least.
+async function chipsWanted(page) {
+  let n = (await wrapPlan(page)).n;
+  for (let p = await wrapPlan(page, n); n > 1 && p.rows > 1 && p.share < 0.45; p = await wrapPlan(page, n)) n--;
+  return n;
+}
+// The app's own sans, Plus Jakarta Sans, fetched once from Google Fonts into tests/out/fonts (the
+// harness blocks the fonts host, so pages paint in the fallback font), so the chips are measured
+// in the font Dan sees. null when it cannot be fetched: the checks then run in the fallback font.
+let fontFile;
+function realFontFile() {
+  if (fontFile !== undefined) return fontFile;
+  const dir = join(OUT, 'fonts'), file = join(dir, 'plus-jakarta-sans-latin.woff2');
+  if (!existsSync(file)) {
+    mkdirSync(dir, { recursive: true });
+    const css = spawnSync('curl', ['-sS', '-m', '20', '-A', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+      'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap'], { encoding: 'utf8' });
+    const latin = String(css.stdout || '').split('/* latin */')[1] || '';
+    const url = (latin.match(/url\((https:[^)]+\.woff2)\)/) || [])[1];
+    if (url) spawnSync('curl', ['-sS', '-m', '30', '-o', file, url]);
+  }
+  fontFile = existsSync(file) && statSync(file).size > 10000 ? file : null;
+  if (!fontFile) console.log('  (Plus Jakarta Sans could not be fetched: measuring in the fallback font)');
+  return fontFile;
+}
+async function useRealFont(page) {
+  const file = realFontFile();
+  if (!file) return false;
+  await page.addStyleTag({ content: `@font-face { font-family: 'Plus Jakarta Sans'; font-style: normal; font-weight: 500 800; src: url(${pathToFileURL(file).href}) format('woff2'); }` });
+  return page.evaluate(async () => {
+    await Promise.all(['500', '600', '700', '800'].map((w) => document.fonts.load(w + ' 16px "Plus Jakarta Sans"')));
+    return document.fonts.check('600 16px "Plus Jakarta Sans"');
   });
 }
 
@@ -726,16 +782,21 @@ async function textSizes() {
 }
 
 // ---------- scenario: Ask Claude's chips with the keyboard up, on a phone and on a laptop ----------
-// With the keyboard up on a phone (the input focused in a 360 x 400 viewport, at XL), the two
-// starters go back on one sideways row so the welcome above them stays whole; with it down they
-// wrap, both whole. Under a conversation every chip is whole on a laptop at every Text size (they
-// wrap); on a phone the sideways row fades at the edge it runs on past, until scrolled to its end,
-// and so it does with Laptop pinned on a phone, whose dialog is phone-wide (keyboard up and down).
+// Measured in the app's own font (Plus Jakarta Sans, fetched from Google Fonts). With the keyboard
+// up on a phone (the input focused in a 360 x 400 viewport, at XL), the two starters go back on
+// one sideways row so the welcome above them stays whole, fading at the edge it runs on past;
+// with it down they wrap, both whole. Under a conversation every chip is whole on a laptop at every
+// Text size (they wrap). On a phone with the keyboard down the chips always wrap, every one whole:
+// all of them while the conversation keeps 45% of the sheet, else fewer (never a sideways row cut
+// mid-word); so too with Laptop pinned on a phone, whose dialog is phone-wide. The keyboard up
+// under a conversation: one sideways row again.
 async function tutorChips() {
   current = 'tutor chips';
   console.log('\n' + current);
   const app = await open({ width: 360, height: 707, size: 'xl', hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM }, reduced: true });
   const { page } = app;
+  const font = await useRealFont(page);
+  ok(font || !realFontFile(), 'the app\'s own font is in use where it could be fetched (' + (font ? 'Plus Jakarta Sans' : 'fallback') + ')');
   const view = async (w, h, size) => {
     await page.setViewportSize({ width: w, height: h });
     if (size) await page.evaluate((sz) => { document.documentElement.dataset.size = sz; }, size);
@@ -770,50 +831,63 @@ async function tutorChips() {
         if (size === 'xl') await shot(app, `tutor-${w}-xl-chips`);
       }
     }
-    // Under a conversation on a phone, keyboard down: the chips wrap wherever they fit on two rows
-    // and leave the conversation room (at least 45% of the sheet); otherwise (three rows at a large
-    // text size on a narrow phone) they run on one sideways row that fades at the edge it runs past.
-    // With the app's own font all three fit on two rows on a 360 px phone at M; this machine's
-    // fallback font is wider, so here 390 px at M is the phone where they must wrap.
-    let wrapped = 0, sideways = 0;
-    for (const [w, h] of [[360, 707], [390, 844]]) {
-      for (const size of ['m', 'xl']) {
+    // Under a conversation on a phone, keyboard down: the chips wrap, every one whole, never a
+    // sideways row. All three while the conversation keeps 45% of the sheet; otherwise fewer (the
+    // first ones, at least one), never one cut mid-word (NEXT.md 13; v8 check L8).
+    const shown = (t) => t.chips.split('|').length;
+    for (const [w, h] of [[360, 707], [375, 667], [390, 844], [412, 915]]) {
+      for (const size of ['m', 'l', 'xl']) {
         t = await view(w, h, size);
-        const plan = await wrapPlan(page), fits = plan.rows <= 2 && plan.share >= 0.45;
-        if (fits) { wrapped++; ok(t.rows === plan.rows && t.whole && !t.scrolls && !t.fade && !t.mask, `${w}x${h} ${size}: the chips fit on ${plan.rows} rows leaving the conversation ${plan.share} of the sheet, so they wrap, every one whole (${JSON.stringify(t)})`); }
-        else { sideways++; ok(t.rows === 1 && t.scrolls && t.fade === 'more-right' && t.mask, `${w}x${h} ${size}: wrapped they would take ${plan.rows} rows (conversation ${plan.share} of the sheet), so they run on one sideways row that fades at its edge (${JSON.stringify(t)})`); }
-        if (w === 390 && size === 'm') ok(fits && t.rows === 2, '390x844 M: wrapped on two rows (' + JSON.stringify(plan) + ')');
-        if (size === 'm') await shot(app, `tutor-${w}-m-chips`);
+        const all = await wrapPlan(page), want = await chipsWanted(page), mine = await wrapPlan(page, shown(t));
+        ok(!t.cramped && t.whole && !t.scrolls && !t.fade && !t.mask && shown(t) === want && t.rows === mine.rows,
+          `${w}x${h} ${size}, keyboard down: ${want === 3 ? 'all three chips wrap' : want + ' of the chips show, wrapped,'} on ${t.rows} row(s), every one whole (all three would take ${all.rows} rows and leave the conversation ${all.share} of the sheet; as shown it keeps ${mine.share}) (${JSON.stringify(t)})`);
+        if (want < 3) ok(mine.share >= 0.45 || shown(t) === 1 || mine.rows === 1, `${w}x${h} ${size}: fewer chips leave the conversation room (${mine.share})`);
+        if (font && ((w === 360 && h === 707 && size !== 'm') || (w === 375 && size === 'xl'))) await shot(app, `tutor-${w}x${h}-${size}-chips`);
+        if (size === 'm' && (w === 360 || w === 390)) await shot(app, `tutor-${w}-m-chips`);
       }
     }
-    await view(360, 707, 'xl');
-    await shot(app, 'tutor-360-xl-chips');
-    if (sideways) {
-      await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = el.scrollWidth; });
-      await page.waitForTimeout(200);
-      t = await tutorState(page);
-      ok(t.fade === 'more-left' && t.mask, `scrolled to its end, the row fades only at the left edge (${JSON.stringify(t)})`);
+    if (font) {
+      // The cases the check found cut, in the app's font: 360x707 at L and XL wrap all three
+      // (the conversation keeps 0.47-0.48); 375x667 at XL shows the first two.
+      t = await view(360, 707, 'l');
+      ok(shown(t) === 3 && t.rows === 3 && t.whole, '360x707 L, app font: all three chips wrapped on three rows, whole (' + JSON.stringify(t) + ')');
+      t = await view(360, 707, 'xl');
+      ok(shown(t) === 3 && t.whole, '360x707 XL, app font: all three chips whole (' + JSON.stringify(t) + ')');
+      t = await view(375, 667, 'xl');
+      ok(t.chips === 'Explain it differently|Give me an example' && t.whole && !t.scrolls, '375x667 XL, app font: the two most useful chips, whole (' + JSON.stringify(t) + ')');
     }
-    // The keyboard comes up under a conversation: back to one sideways row.
+    // A conversation scrolled on (the title gone): the choice stays.
+    t = await view(360, 707, 'xl');
+    const before = t.chips;
+    await page.evaluate(() => { const sh = document.querySelector('.tutor-sheet'); sh.scrollTop = sh.scrollHeight; window.dispatchEvent(new Event('resize')); });
+    await page.waitForTimeout(300);
+    t = await tutorState(page);
+    ok(t.chips === before && t.whole, 'scrolled down the conversation, the same chips show (' + before + ')');
+    // The keyboard comes up under a conversation: back to one sideways row, every chip in it.
     await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = 0; });
     await page.locator('.tutor-input').focus();
     t = await view(390, 400, 'm');
-    ok(t.cramped && t.rows === 1 && t.scrolls, `390x400 M, keyboard up under a conversation: one sideways row (${JSON.stringify(t)})`);
+    ok(t.cramped && t.rows === 1 && t.scrolls && shown(t) === 3, `390x400 M, keyboard up under a conversation: one sideways row of all three (${JSON.stringify(t)})`);
+    await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = el.scrollWidth; });
+    await page.waitForTimeout(200);
+    t = await tutorState(page);
+    ok(t.fade === 'more-left' && t.mask, `scrolled to its end, the row fades only at the left edge (${JSON.stringify(t)})`);
+    await page.locator('.tutor-chips').evaluate((el) => { el.scrollLeft = 0; });
     await page.locator('.tutor-input').blur();
     t = await view(390, 844, 'm');
-    ok(!t.cramped && t.rows === 2 && !t.scrolls, `keyboard down again: wrapped again (${JSON.stringify(t)})`);
+    ok(!t.cramped && t.rows === 2 && !t.scrolls && shown(t) === 3, `keyboard down again: wrapped again (${JSON.stringify(t)})`);
 
-    // Laptop pinned on a phone: a phone-wide dialog, so the same choice as on the phone layout,
-    // and the dock no taller than there.
-    for (const [w, h, size] of [[390, 844, 'm'], [360, 707, 'xl'], [390, 844, 'xl']]) {
-      await page.evaluate(() => U.layout.set('auto'));
-      const phone = await view(w, h, size);
+    // Laptop pinned on a phone: a dialog about as wide as the phone, so the same rule as on the
+    // phone layout (it is a touch screen): wrapped, every chip whole, as many as leave the
+    // conversation room.
+    for (const [w, h, size] of [[390, 844, 'm'], [360, 707, 'xl'], [375, 667, 'xl'], [390, 844, 'xl']]) {
       await page.evaluate(() => U.layout.set('laptop'));
       t = await view(w, h, size);
-      const plan = await wrapPlan(page), fits = plan.rows <= 2 && plan.share >= 0.45;
-      ok(t.layout === 'laptop' && (fits ? t.rows === plan.rows && t.whole && !t.scrolls : t.rows === 1 && t.scrolls && t.fade === 'more-right' && t.mask) && t.dockH <= phone.dockH + 2,
-        `Laptop pinned at ${w}x${h} ${size}: ${fits ? 'wrapped, every chip whole' : 'one sideways row that fades at its edge'}, the dock no taller than on the phone layout (${phone.dockH}px) (${JSON.stringify(t)})`);
+      const want = await chipsWanted(page), mine = await wrapPlan(page, shown(t));
+      ok(t.layout === 'laptop' && shown(t) === want && t.whole && !t.scrolls && !t.mask && (mine.share >= 0.45 || shown(t) === 1 || mine.rows === 1),
+        `Laptop pinned at ${w}x${h} ${size}: ${shown(t)} chips wrapped on ${t.rows} row(s), every one whole, the conversation keeping ${mine.share} of the dialog (${JSON.stringify(t)})`);
       if (w === 390 && size === 'm') await shot(app, 'tutor-pinned-laptop-390-m-chips');
+      if (w === 375) await shot(app, 'tutor-pinned-laptop-375x667-xl-chips');
     }
     await page.locator('.tutor-input').focus();
     t = await view(360, 400, 'xl');   // the keyboard comes up
@@ -1775,6 +1849,78 @@ async function relearnOtherFirst() {
   await app.close();
 }
 
+// L5: a newer request opened on another device while this screen's rewrite runs. This screen
+// writes only for the request it took up when it loaded: its own rewrite stops, and it follows
+// the newer one, opening the fresh lesson written there; if the try there fails, Try again takes
+// the request up here.
+async function relearnNewerElsewhere() {
+  const at = '2026-09-01T10:00:00.000Z', asked = new Date(Date.now() - 30000).toISOString();
+  const ip = { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'Galileo', at }, checks: { c1: { correct: false, at } } };
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i5')]: CLOCKS,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i5', ideas: { i5: { ...ip, relearn: true, relearnId: 'rqA', relearnAt: asked } } } };
+  const rqB = () => ({ updatedAt: new Date().toISOString(), lastIdea: 'i5', ideas: { i5: { ...ip, relearn: true, relearnId: 'rqB', relearnAt: new Date().toISOString(), relearnNote: 'phone note' } } });
+  const phoneLesson = () => { const d = JSON.parse(JSON.stringify(CLOCKS)); d.lesson.predict.q = 'PHONE: ' + d.lesson.predict.q; return { ...d, request: 'rqB' }; };
+  const by = { device: 'dOther', tab: 'tOther', page: 'pOther', holder: 'dOther/tOther' };
+  for (const ending of ['arrives', 'fails']) {
+    current = 'relearn-newer-elsewhere ' + ending + ' 360-light';
+    console.log('\n' + current);
+    const app = await open({ width: 360, hash: '#/t/pendulums/i5', seed, cfg: { relearnDoc: CLOCKS, relearnMs: 600 } });
+    const { page } = app;
+    const prep = page.locator('.lsn-prep');
+    try {
+      await prep.waitFor();
+      await page.waitForFunction(() => window.__T.relearn.length === 1);
+      // Rebuild on the other device, with a note: a newer request.
+      await app.seed(PROGRESS, rqB());
+      await page.waitForFunction(() => /being written there/.test((document.querySelector('.lsn-prep') || {}).textContent || '') || window.__T.relearn.length > 1, null, { timeout: 8000 });
+      await page.waitForTimeout(1800);
+      let t = await T(app);
+      ok(t.relearn.length === 1 && t.relearn[0].request === 'rqA', 'this screen wrote only for its own request, never the other device\'s: ' + JSON.stringify(t.relearn.map((r) => [r.request, r.feedback])));
+      ok(t.relearn[0].signal && t.relearn[0].cancelled, 'and its own rewrite was stopped (cancelled)');
+      const left = await doc(app, LESSON('i5'));
+      ok(!(left.request === 'rqA' && left.status === 'ready'), 'it finished no lesson for its old request: ' + JSON.stringify({ status: left.status, request: left.request }));
+      ok(await prep.count() === 1 && /It opens here as soon as it is ready/.test(await prep.textContent()) && await page.locator('.lsn-stage, .lsn-past').count() === 0, 'the card says the fresh lesson is being written on the other device, and opens here');
+      if (await prep.count() === 0) throw new Error('the card is gone');
+      if (ending === 'arrives') {
+        await shot(app, 'relearn-newer-elsewhere');
+        await app.seed(LESSON('i5'), { status: 'writing', lesson: null, interactive: null, sourced: false, request: 'rqB', updatedAt: new Date().toISOString(), by });
+        await page.waitForTimeout(300);
+        await app.seed(LESSON('i5'), { ...phoneLesson(), by });
+        await page.locator('.lsn-stage[data-stage="predict"] .lsn-h').waitFor({ timeout: 15000 });
+        ok(/^PHONE: /.test(await page.locator('.lsn-stage[data-stage="predict"] .lsn-h').textContent()), 'the fresh lesson written there opens here');
+        await page.waitForTimeout(800);
+        const p = (await doc(app, PROGRESS)).ideas.i5;
+        t = await T(app);
+        ok(p.round === 1 && p.relearn === false && !p.relearnId && p.stage === 'predict', 'as the new round: ' + JSON.stringify({ round: p.round, relearn: p.relearn, stage: p.stage }));
+        ok(t.relearn.length === 1, 'still nothing written here for the other device\'s request (' + t.relearn.length + ')');
+      } else {
+        // The try there fails: said here, with Try again, which takes the request up here.
+        await app.seed(LESSON('i5'), { status: 'writing', lesson: null, interactive: null, sourced: false, request: 'rqB', updatedAt: new Date().toISOString(), by });
+        await page.waitForTimeout(300);
+        await app.seed(LESSON('i5'), { ...CLOCKS, request: 'rqA-old' });   // put back as it was
+        const err = page.locator('.lsn-prep-err');
+        await err.waitFor({ state: 'visible', timeout: 8000 });
+        ok(/stopped before the fresh lesson was finished/.test(await err.textContent()), 'a try that stopped on the other device is said: ' + (await err.textContent()).trim());
+        await shot(app, 'relearn-newer-elsewhere-stopped');
+        t = await T(app);
+        ok(t.relearn.length === 1, 'still nothing written here for it');
+        await err.getByRole('button', { name: 'Try again' }).click();
+        await page.locator('.lsn-stage[data-stage="predict"] .lsn-h').waitFor({ timeout: 15000 });
+        t = await T(app);
+        ok(t.relearn.length === 2 && t.relearn[1].request === 'rqB' && t.relearn[1].feedback === 'phone note', 'Try again: the request is taken up here, with the note from the other device: ' + JSON.stringify(t.relearn.map((r) => [r.request, r.feedback])));
+        await page.waitForTimeout(800);
+        const p = (await doc(app, PROGRESS)).ideas.i5;
+        ok(p.round === 1 && p.relearn === false, 'and its lesson opens as the new round');
+      }
+    } catch (e) {
+      ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+      await shot(app, 'relearn-newer-elsewhere-error').catch(() => {});
+    }
+    ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+    await app.close();
+  }
+}
+
 // L4 (audit 34): a say-it-back grade that lands after a new round began stays with the old round.
 async function gradeAfterRebuild() {
   current = 'grade-after-rebuild 360-light';
@@ -1879,6 +2025,35 @@ async function notesChoice() {
   }
   ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
   await app.close();
+
+  // A body whose labels are not the lesson's names, listing its options in another order: its
+  // value is never named by its place in the list (that would say Earth for Luna); the starting
+  // value stands alone.
+  current = 'notes-choice-foreign 360-light';
+  console.log('\n' + current);
+  const F = JSON.parse(JSON.stringify(L));
+  F.interactive.html = PENDULUM.interactive.html.replace("document.getElementById('pd-ctl').append(len.el, per.el);",
+    "var pl = K.choice({ id: 'planet', label: 'Planet', options: [{ value: 'm', label: 'Luna' }, { value: 'e', label: 'Terra' }], value: 0 });\n" +
+    "document.getElementById('pd-ctl').append(len.el, pl.el, per.el);");
+  const app2 = await open({ width: 360, height: 707, hash: '#/t/pendulums/i1', seed: { ...seed, [LESSON('i1')]: F }, reduced: true });
+  const planet2 = () => app2.page.locator('.lsn-num', { hasText: 'Planet' });
+  try {
+    const play = app2.page.locator('.lsn-stage[data-stage="play"]');
+    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    const disc = play.locator('.lsn-disc', { hasText: 'What am I looking at?' });
+    const now = async () => { await disc.locator('summary').click(); await app2.page.waitForTimeout(1200); const n = planet2().locator('.lsn-num-now'); const r = { hidden: await n.isHidden(), text: await n.textContent(), start: await planet2().locator('.lsn-num-val').textContent() }; await disc.locator('summary').click(); return r; };
+    let r = await now();
+    ok(r.hidden && r.start === 'Earth', 'the frame starts on Luna, which is not one of the lesson\'s names: the starting value stands alone (' + JSON.stringify(r) + ')');
+    await app2.page.frameLocator('.lsn-play iframe').getByRole('radio', { name: 'Terra' }).click();
+    r = await now();
+    ok(r.hidden && !/Moon/.test(r.text), 'Terra, second in its list: never "now Moon" (' + JSON.stringify(r) + ')');
+    ok(!/Luna|Terra/.test(await disc.textContent()), 'and never the frame\'s own words');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app2, 'notes-choice-foreign-error').catch(() => {});
+  }
+  ok(app2.errors.length === 0, 'no page errors' + (app2.errors.length ? ': ' + app2.errors.join(' | ') : ''));
+  await app2.close();
 }
 
 // L4 (audit 48): a focused element never hides under the sticky lesson bar.
@@ -1958,6 +2133,44 @@ async function tutorStream() {
   await app.close();
 }
 
+// Ask Claude's Try again: on a touch phone focus goes to the answer being asked for again, never
+// the input (that would bring the keyboard up and squash the sheet while it streams in); with a
+// mouse and keyboard, to the input. The reply is said once, a list as plain sentences.
+async function tutorRetry() {
+  const LIST = 'Three things set the swing:\n\n- the length of the string\n- *gravity* where you are,\n- not the **weight** of the bob\n\nThat is why[^1] clocks use it.';
+  for (const [width, height] of [[360, 707], [1366, 768]]) {
+    current = `tutor-retry ${width}-light`;
+    console.log('\n' + current);
+    const app = await open({ width, height, hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM }, reduced: true, cfg: { tutorFailFirst: true, tutorReplies: [LIST] } });
+    const { page } = app;
+    try {
+      await page.locator('.lsn-ask').waitFor({ timeout: 15000 });
+      await page.locator('.lsn-ask').click();
+      await page.locator('.tutor-sheet').waitFor();
+      await page.locator('.tutor-dock .chip').first().click();
+      const again = page.locator('.tutor-msg.bot').getByRole('button', { name: 'Try again' });
+      await again.waitFor({ timeout: 8000 });
+      await again.click();
+      await page.waitForTimeout(100);
+      const f = await page.evaluate(() => { const a = document.activeElement; return { input: a.classList.contains('tutor-input'), msg: a.classList.contains('tutor-msg') && a.classList.contains('bot'), tag: a.tagName }; });
+      const touch = await page.evaluate(() => matchMedia('(pointer: coarse)').matches);
+      if (touch) ok(f.msg && !f.input, 'a touch phone: Try again moves focus to the answer being asked for again, not the input (no keyboard): ' + JSON.stringify(f));
+      else ok(f.input, 'with a mouse: Try again moves focus to the input for the next question: ' + JSON.stringify(f));
+      await page.waitForFunction(() => /clocks use it/.test(document.querySelector('.tutor-sheet [role="status"]').textContent), null, { timeout: 8000 });
+      const said = await page.locator('.tutor-sheet [role="status"]').textContent();
+      ok(said === 'Three things set the swing: the length of the string. gravity where you are. not the weight of the bob. That is why clocks use it.',
+        'the reply is said once, its list as plain sentences, no "- " markers: ' + JSON.stringify(said));
+      ok(await page.locator('.tutor-msg.bot ul li').count() === 3, 'and shown as a list');
+      if (touch) await shot(app, 'tutor-retry-360');
+    } catch (e) {
+      ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+      await shot(app, 'tutor-retry-error').catch(() => {});
+    }
+    ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+    await app.close();
+  }
+}
+
 // L7: the "Idea learned" cheer stays with its screen.
 async function cheerStays() {
   current = 'cheer 360-light';
@@ -2015,11 +2228,13 @@ const scenarios = [
   ['today-flag', todayFlag],
   ['relearn-skew', relearnSkew],
   ['relearn-other-first', relearnOtherFirst],
+  ['relearn-newer-elsewhere', relearnNewerElsewhere],
   ['grade-after-rebuild', gradeAfterRebuild],
   ['tutor-target', tutorTarget],
   ['notes-choice', notesChoice],
   ['focus-under-bar', focusUnderBar],
   ['tutor-stream', tutorStream],
+  ['tutor-retry', tutorRetry],
   ['cheer', cheerStays],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();

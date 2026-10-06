@@ -310,6 +310,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tutor-msg.me { align-self: flex-end; max-width: 88%; padding: 10px 15px; border-radius: 18px 18px 6px 18px; background: var(--sunk); }
 .tutor-msg.me p { font-size: 1rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
 .tutor-msg.bot { max-width: 100%; }
+.tutor-msg.bot:focus { outline: none; }
 .tutor-text { font: 400 1.0625rem/1.7 var(--serif); color: var(--ink); overflow-wrap: anywhere; }
 .tutor-text p + p, .tutor-text ul { margin-top: .7em; }
 .tutor-text ul { padding-left: 1.2em; }
@@ -330,13 +331,11 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 }
 .tutor-chips.more-left { --fade-l: transparent; }
 .tutor-chips.more-right { --fade-r: transparent; }
-/* The chips wrap, so every one is whole, wherever they fit on two rows and leave the conversation
-   room (is-wrapped, set by 51-tutor.js, which measures them wrapped), and always with a mouse:
-   before the first question, in a laptop's dialog, and under a conversation in a phone-wide sheet
-   at most text sizes. The
-   one-line sideways row is for chips that would take three rows or crowd the conversation, and
-   for the chips while the keyboard is up on a short screen (is-cramped), so the welcome or the
-   conversation above them stays readable. */
+/* The chips wrap, so every one is whole (is-wrapped, set by 51-tutor.js): before the first
+   question, in a laptop's dialog, and under a conversation, where on a phone fewer of them show
+   if all of them would crowd it (51-tutor.js measures them wrapped). The one-line sideways row is
+   only for the chips while the keyboard is up on a short screen (is-cramped), so the welcome or
+   the conversation above them stays readable. */
 .tutor-sheet.is-wrapped .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
 .tutor-sheet.is-wrapped .tutor-chips .chip { flex: 0 1 auto; }
 .tutor-chips .chip[disabled] { opacity: .5; cursor: default; }

@@ -29,7 +29,8 @@ function browser() {
     }
     close() { open.delete(this); }
   }
-  return { BC, closeAll: (page) => page.channels.forEach((c) => c.close()) };
+  // A page in the back-forward cache is frozen: its channels hear nothing until it comes back.
+  return { BC, closeAll: (page) => page.channels.forEach((c) => c.close()), freeze: (page) => page.channels.forEach((c) => open.delete(c)), thaw: (page) => page.channels.forEach((c) => open.add(c)) };
 }
 function page(store, br) {
   const win = new EventTarget(), channels = [];
@@ -63,23 +64,41 @@ test('"Duplicate tab" gets an id of its own; the tab it was copied from keeps it
   assert.equal(copy.getItem('mu.tab'), b.U.tab(), 'and keeps it for its own reloads');
   assert.equal(a.U.tab(), id, 'the original keeps its id');
   await sleep(20);
-  assert.ok(!a.U.tab.shared() && !b.U.tab.shared(), 'no two open tabs share an id');
+  assert.notEqual(a.U.tab(), b.U.tab(), 'no two open tabs share an id');
+  assert.equal(a.U.tab(), id, 'and the hello changes neither');
   // The duplicate reloads: it keeps its own new id.
   b.hide();
   assert.equal(page(copy, br).U.tab(), b.U.tab());
 });
 
-test('a copy made while the open mark was missing is still caught: both pages hold the id as shared', async () => {
+test('a copy made while the open mark was missing takes a fresh id once the hello is answered', async () => {
   const br = browser();
   const a = page(session(), br);
   const id = a.U.tab();
   a.hide();                                  // e.g. the page was in the back-forward cache when copied
   const copy = a.store.copy();
   a.show();                                  // and came back
+  await sleep(5);
   const c = page(copy, br);
   assert.equal(c.U.tab(), id, 'the copy could not tell at once');
   await sleep(20);
-  assert.ok(c.U.tab.shared() && a.U.tab.shared(), 'the hello was answered: both know the id is shared');
+  assert.notEqual(c.U.tab(), id, 'the newcomer takes a fresh id');
+  assert.equal(copy.getItem('mu.tab'), c.U.tab(), 'and keeps it for its own reloads');
+  assert.equal(a.U.tab(), id, 'the tab it was copied from keeps its id');
+  // The other way round: the copy is open first, then the page comes back from the cache and
+  // says hello. The page that has held the id longer keeps it.
+  const br2 = browser();
+  const a2 = page(session(), br2);
+  const id2 = a2.U.tab();
+  a2.hide(); br2.freeze(a2);
+  await sleep(5);
+  const c2 = page(a2.store.copy(), br2);
+  await sleep(20);
+  assert.equal(c2.U.tab(), id2, 'alone, the copy keeps the id');
+  br2.thaw(a2); a2.show();
+  await sleep(20);
+  assert.equal(a2.U.tab(), id2, 'the page that took the id first keeps it');
+  assert.notEqual(c2.U.tab(), id2, 'the copy takes a fresh one');
 });
 
 test('without session storage every page has an id of its own', () => {

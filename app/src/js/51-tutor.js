@@ -11,14 +11,21 @@
 // A reply streams in place: the paragraphs it has finished are drawn once, and only the one still
 // coming is drawn again as text arrives; a new question adds its own messages and leaves the
 // conversation above as it is. The conversation is not a live region (it would be read out again
-// at every change): one status line says "Claude is answering…" and then the whole reply, once.
-// The chips wrap onto two rows when they fit there and leave the conversation room; otherwise, and
-// while the keyboard is up, they run on one sideways row that fades at the edge it runs past.
+// at every change): one status line says "Claude is answering…" and then the whole reply, once
+// (a list said as sentences).
+// The chips wrap, every one whole. Under a conversation on a touch screen they wrap while they
+// leave it ROOM of the sheet; where they would not, fewer show (the most useful first, at least
+// one) rather than any being cut. Only while the keyboard is up do they run on one sideways row
+// that fades at the edge it runs past.
 (function () {
-  var CHIPS = ['Explain it differently', 'Give me an example', 'Are you sure?'];
+  var CHIPS = ['Explain it differently', 'Give me an example', 'Are you sure?'];   // most useful first
   var STARTERS = 2;     // the chips that make sense before any answer ("Are you sure?" needs one)
   var SHORT = 500;      // a viewport shorter than this (px) with the input focused: the keyboard is up
-  var ROOM = 0.45;      // wrapped chips must leave the conversation at least this share of the sheet
+  // The share of the sheet the conversation keeps under wrapped chips (below the sheet's title,
+  // read as if scrolled to the top). From screenshots with the app's font at 320-412 px and every
+  // Text size: at 0.47 or more it shows his question and about five lines of the reply; at 0.44
+  // four; at 0.42 three and a half; at 0.35 two, too few to read on with.
+  var ROOM = 0.45;
   var KEEP = 20;
   var threads = {};     // 'tid/iid' -> [{role, content, pending?, error?}]
   var view = null;      // the open sheet: {key, refresh(msg), close()}
@@ -26,6 +33,16 @@
 
   function media(q) { return !!(window.matchMedia && window.matchMedia(q).matches); }
   function clip(text, n) { var t = String(text || '').replace(/\s+/g, ' ').trim(); return t.length > n ? t.slice(0, n - 1) + '…' : t; }
+  // A reply as it is said once on the status line: plain words (U.plain), and a list (U.rich's
+  // "- " lines) said as sentences, each item ending with a full stop, never with its markers.
+  function spoken(text) {
+    return String(text || '').replace(/\r/g, '').split('\n').map(function (l) {
+      var item = /^\s*[-•]\s+/.test(l);
+      l = U.plain(l.replace(/^\s*[-•]\s+/, '')).trim();
+      if (item && l) l = l.replace(/[,;]$/, '') + (/[.!?…:]$/.test(l) ? '' : '.');
+      return l;
+    }).join(' ').replace(/\s+/g, ' ').trim();
+  }
 
   // Streaming callbacks may hand over the whole text so far ({text}) or just the new piece.
   function streamed(cur, t) {
@@ -150,7 +167,7 @@
     function announce(text) {
       clearTimeout(sayTimer);
       voice.textContent = '';
-      text = U.plain(String(text || '')).replace(/\s+/g, ' ').trim();
+      text = spoken(text);
       if (text) sayTimer = setTimeout(function () { voice.textContent = text; }, 80);
     }
 
@@ -163,27 +180,32 @@
     // empty conversation also makes the sheet only as tall as it needs to be (50-lesson.css).
     function sync() {
       sendBtn.disabled = !!msgs.busy || !input.value.trim();
-      chips.querySelectorAll('.chip').forEach(function (c, i) { c.disabled = !!msgs.busy; c.hidden = !msgs.length && i >= STARTERS; });
+      chips.querySelectorAll('.chip').forEach(function (c) { c.disabled = !!msgs.busy; });
       if (sheet) sheet.el.classList.toggle('is-empty', !msgs.length);
       fit();
     }
-    // Wrapped, the chips take as many rows as they need: they wrap (is-wrapped, 50-lesson.css)
-    // when that is two rows at most and the conversation keeps at least ROOM of the sheet, and
-    // never while the keyboard is up (is-cramped). Measured wrapped every time, so the choice
-    // depends only on the sheet's size and the text size, never on the last choice.
+    // The chips wrap (is-wrapped, 50-lesson.css), as many rows as they need, except while the
+    // keyboard is up (is-cramped: one sideways row). Under a conversation on a touch screen, the
+    // last of them are left out while they take more than one row and do not leave the
+    // conversation ROOM of the sheet (one always shows). With a mouse every chip shows. Worked
+    // out afresh each time, from all of them, so the choice depends only on the sheet's size and
+    // the text size.
     function fit() {
       if (!sheet) return;
       var el = sheet.el;
-      el.classList.add('is-wrapped');
-      var shown = Array.prototype.filter.call(chips.querySelectorAll('.chip'), function (c) { return !c.hidden; });
-      var rows = {};
-      shown.forEach(function (c) { rows[Math.round(c.offsetTop)] = true; });
-      var head = el.querySelector('.sheet-head'), sr = el.getBoundingClientRect(), dr = dock.getBoundingClientRect();
-      var talk = dr.top - (head ? head.getBoundingClientRect().bottom : sr.top);
-      // With a mouse, always wrapped: a sideways row is hard to scroll without a touch screen.
-      var wrap = !el.classList.contains('is-cramped') && (!touch || (Object.keys(rows).length <= 2 && (!msgs.length || talk >= ROOM * sr.height)));
+      var shown = Array.prototype.filter.call(chips.querySelectorAll('.chip'), function (c, i) { c.hidden = !msgs.length && i >= STARTERS; return !c.hidden; });
+      var wrap = !el.classList.contains('is-cramped');
       el.classList.toggle('is-wrapped', wrap);
+      if (wrap && touch && msgs.length) for (var n = shown.length; n > 1 && rows(shown.slice(0, n)) > 1 && room() < ROOM; n--) shown[n - 1].hidden = true;
       edges();
+    }
+    function rows(list) { var tops = {}; list.forEach(function (c) { tops[Math.round(c.offsetTop)] = true; }); return Object.keys(tops).length; }
+    // The share of the sheet the conversation has above the dock, below the sheet's title, as if
+    // scrolled to the top (so reading on never changes the choice).
+    function room() {
+      var el = sheet.el, head = el.querySelector('.sheet-head'), sr = el.getBoundingClientRect();
+      var top = head ? head.getBoundingClientRect().bottom + el.scrollTop : sr.top;
+      return sr.height > 0 ? (dock.getBoundingClientRect().top - top) / sr.height : 1;
     }
     // A sideways row of chips that runs on past the sheet's edge fades out there (50-lesson.css).
     function edges() {
@@ -316,8 +338,13 @@
       if (el) fill(el, m, true);
       sync();
       announce('Claude is answering…');
-      // The Try again pressed has gone: focus stays in the conversation's box for the next question.
-      try { input.focus({ preventScroll: true }); } catch (e) { /* fine */ }
+      // The Try again pressed has gone. On a touch screen focus goes to the answer being asked for
+      // again (the box for the next question would bring the keyboard up and squash the sheet
+      // while it streams in); with a keyboard, to that box.
+      try {
+        if (touch && el) { el.setAttribute('tabindex', '-1'); el.focus({ preventScroll: true }); }
+        else input.focus({ preventScroll: true });
+      } catch (e) { /* fine */ }
       ask(key, msgs, m, context);
     }
 
