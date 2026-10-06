@@ -1183,7 +1183,11 @@ await test('whole lessons: after a reload, the next idea\'s prefetch is started 
   async function start(by) {
     const calls = [];
     const app = await openApp({ width: 360, height: 707, file: FULL, config: { db: db(by) },
-      sample: (input) => { calls.push({ task: taskOf(input), text: typeof input === 'string' ? input : JSON.stringify(input) }); return new Promise(() => {}); } });
+      sample: (input) => {
+        calls.push({ task: taskOf(input), text: typeof input === 'string' ? input : JSON.stringify(input) });
+        // The fact-check answers (a background job's calls run one at a time); the rest stay pending.
+        return taskOf(input) === 'verify-lesson' ? { issues: [] } : new Promise(() => {});
+      } });
     current.apps.push(app);
     // The tab's id outlives a reload (sessionStorage): this page is the reloaded tab.
     await app.page.addInitScript(() => { try { sessionStorage.setItem('mu.tab', 'tReloaded'); } catch (e) { /* fine */ } });
@@ -1208,8 +1212,9 @@ await test('whole lessons: after a reload, the next idea\'s prefetch is started 
   await app.page.waitForFunction(() => /Idea 2 is being prepared…/.test((document.querySelector('.ccard-status') || {}).textContent || ''), null, { timeout: 15000 });
   await app.page.waitForTimeout(800);
   eq(await app.page.evaluate((t) => (U.gen.status(t).lessons || {}).i2, tid), 'building', 'a job of this page is on idea 2');
-  eq(calls.map((c) => c.task).join(','), 'build-interactive', 'the written lesson is kept: only its interactive is built again');
-  assert(/Gravity’s part/.test(calls[0].text), 'for idea 2');
+  // (A lesson saved before its fact-check ran is checked beside the build: contract V.)
+  eq(calls.map((c) => c.task).sort().join(','), 'build-interactive,verify-lesson', 'the written lesson is kept: only its interactive is built again, and the lesson checked');
+  assert(/Gravity’s part/.test(calls.find((c) => c.task === 'build-interactive').text), 'for idea 2');
   const lying = await app.page.evaluate(() => window.__claims.filter((c) => !c.live || !/^(writing|waiting|building)$/.test(c.live)));
   eq(lying.length, 0, 'Learn never says "being prepared" while nothing prepares it');
   await shot(app, 'whole-learn-after-reload-360-light', { full: false });
@@ -1220,7 +1225,8 @@ await test('whole lessons: after a reload, the next idea\'s prefetch is started 
   eq(await text(app, '.pnode.is-current .pnode-prep'), 'Being prepared…', 'the path marks idea 2');
   await app.page.waitForTimeout(800);
   eq(await count(app, '.pnode-prep'), 1, 'only idea 2 is marked');
-  eq(calls.length, 1, 'no second start, and idea 3 (also left by this tab) is not started: ' + calls.map((c) => c.task).join(','));
+  eq(calls.filter((c) => c.task === 'build-interactive').length, 1, 'no second start, and idea 3 (also left by this tab) is not started: ' + calls.map((c) => c.task).join(','));
+  eq(calls.length, 2, 'nothing else either (the check and the build of idea 2): ' + calls.map((c) => c.task).join(','));
   eq(await app.page.evaluate(() => window.__claims.filter((c) => !c.live).length), 0, 'the topic page never claims it either');
   await shot(app, 'whole-topic-after-reload-360-light', { full: false });
 
@@ -1474,6 +1480,27 @@ await test('views check 1: the Library says what research found, never that less
     assert(look.note < look.status && look.color === look.muted, 'a quiet line: ' + JSON.stringify(look));
     await app.page.locator('.tp-lib').scrollIntoViewIfNeeded();
     await shot(app, `check1-library-${tag(w, dark)}`, { full: false });
+  }
+});
+
+// The Library says lessons were checked against the sources only as far as their docs say so
+// (doc.verified.status 'done', with sources: contract V): every whole lesson, or how many.
+await test('views check 1b: the Library claims a fact-check only where every whole lesson had one, else says how many', async () => {
+  const L = (iid, verified, sources = 1) => ({ status: 'ready', updatedAt: new Date().toISOString(), interactive: null, note: 'No interactive.', verified,
+    lesson: { iid, title: 'Lesson ' + iid, sources: Array.from({ length: sources }, (_, k) => ({ n: k + 1, title: 'S', url: 'https://example.org/' + k, quote: 'q' })) } });
+  const done = { status: 'done', at: new Date().toISOString(), applied: [], notes: [] };
+  const lessons = (docs) => Object.fromEntries(docs.map((d) => ['topics/how-tides-work-ab12/lessons/' + d.lesson.iid, d]));
+  const cases = [
+    ['some checked', lessons([L('i1', done), L('i2', { ...done, status: 'failed' })]), LIB_NOTE + ' 1 of the 2 lessons written so far was checked against them.'],
+    ['all checked', lessons([L('i1', done), L('i2', done)]), 'Each lesson is checked against them before it opens.'],
+    ['checked without sources does not count', lessons([L('i1', done, 0)]), LIB_NOTE],
+  ];
+  for (const [name, extra, want] of cases) {
+    const app = await open({ width: 360, db: seedDb({ extra }), hash: '#/t/how-tides-work-ab12' });
+    await app.page.waitForSelector('.tp-lib .lib-note');
+    await app.page.waitForFunction((w) => document.querySelector('.tp-lib .lib-note').textContent === w, want, { timeout: 5000 }).catch(() => {});
+    eq(await text(app, '.tp-lib .lib-note'), want, name);
+    await app.close();
   }
 });
 

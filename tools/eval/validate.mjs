@@ -3,6 +3,11 @@
 //   node tools/eval/validate.mjs plan    reply.json
 //   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json --topic topic.json]
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
+//   node tools/eval/validate.mjs verify  reply.json --lesson lesson.json [--out lesson.verified.json]
+//     the fact-check's reply (TASK: verify-lesson) against the lesson it checked (the lesson JSON or a
+//     saved lesson doc); also prints what U.verify.apply would change (applied) and record (notes),
+//     and with --out writes the lesson with every fix applied (what the app saves), unless a hard
+//     problem is left (the app would then save the lesson as written, verified.status 'failed').
 // Prints {ok, problems, soft, warnings} and exits 1 when there are problems. soft: the length
 // problems and the word-matching judgements among them (a plan's calibration answer printed on
 // its page; a lesson's check answer printed in its text, a right option echoing its wording or
@@ -16,7 +21,8 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
-import { loadPrompts } from './prompts.mjs';
+import { writeFileSync } from 'node:fs';
+import { loadPrompts, lessonOf } from './prompts.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 function arg(name, dflt) { const i = process.argv.indexOf('--' + name); return i > 0 ? process.argv[i + 1] : dflt; }
@@ -30,9 +36,13 @@ if (!U.parseJson) {
 }
 const kind = process.argv[2];
 const text = readFileSync(process.argv[3], 'utf8');
-let problems, warnings = [];
+let problems, warnings = [], verified = null;
 try {
   const opts = {};
+  if (kind === 'verify') {
+    if (!arg('lesson')) throw new Error('verify needs --lesson (the lesson it checked)');
+    opts.lesson = lessonOf(JSON.parse(readFileSync(arg('lesson'), 'utf8')));
+  }
   if (kind === 'lesson') {
     opts.iid = arg('iid');
     // The lesson's own sources, numbered from 1 for this idea, as the write-lesson prompt numbers
@@ -51,8 +61,14 @@ try {
   problems = got.problems || [];
   // The advice for the reply the app would keep (its warnings ride on the validator's list).
   if (got.value !== undefined) warnings = Array.from(U.validate[kind](got.value, opts).warnings || []);
+  if (kind === 'verify' && got.value !== undefined) {
+    const r = U.verify.apply(opts.lesson, got.value);
+    verified = { applied: r.applied, notes: r.notes };
+    // Only a reply the app would keep (after its one repair it accepts one whose problems are all soft).
+    if (arg('out') && !U.validate.hard(problems).length) writeFileSync(arg('out'), JSON.stringify(r.lesson, null, 2) + '\n');
+  }
 } catch (e) {
   problems = ['could not parse: ' + (e.message || e)];
 }
-console.log(JSON.stringify({ ok: problems.length === 0, problems, soft: Array.from(problems.soft || []), warnings }, null, 2));
+console.log(JSON.stringify({ ok: problems.length === 0, problems, soft: Array.from(problems.soft || []), warnings, ...(verified ? JSON.parse(JSON.stringify(verified)) : {}) }, null, 2));
 process.exit(problems.length ? 1 : 0);

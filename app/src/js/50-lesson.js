@@ -105,11 +105,18 @@
   }
   function stepName(stage) { return 'Step ' + (STEPS.indexOf(stage) + 1) + ' of ' + STEPS.length + ': ' + LABEL[stage]; }
   // The interactive's build brief follows a template ("The one thing you should see is X when you
-  // Y"); Dan sees it as a friendly instruction instead.
-  function friendlyBrief(text) {
+  // Y"); Dan sees it as a friendly instruction instead. Its first half is what to look for, which
+  // is the predict's answer, so before the reveal he sees only what to do: "Try this: Y." (or
+  // nothing, for a brief without that half); after it, "Watch for X when you Y."
+  function friendlyBrief(text, revealed) {
     var t = String(text || '').replace(/\s+/g, ' ').trim();
-    var m = t.match(/^the one thing (?:you should|to) see is\s+(.+)$/i);
-    if (m) t = 'Watch for ' + m[1];
+    if (!revealed) {
+      var act = t.match(/^the one thing (?:you should|to) see is\s+(.+?)\s+(?:when|as|if|while|once) you\s+(.+)$/i);
+      t = act ? 'Try this: ' + act[2].replace(/[.!?\s]+$/, '') : '';
+    } else {
+      var m = t.match(/^the one thing (?:you should|to) see is\s+(.+)$/i);
+      if (m) t = 'Watch for ' + m[1];
+    }
     if (t && !/[.!?]$/.test(t)) t += '.';
     return t;
   }
@@ -307,6 +314,15 @@
     // leaves the lesson whole without it (doc.note says why).
     function builtIt() { var it = st.doc && st.doc.interactive; return it && it.html ? it : null; }
     function sources() { return (st.lesson && Array.isArray(st.lesson.sources)) ? st.lesson.sources : []; }
+    // What the fact-check did (doc.verified, 31-generate.js), in one quiet line; nothing when the
+    // lesson was not checked (the check failed, was skipped, or the lesson predates it).
+    function checkedLine(nSources) {
+      var v = st.doc && st.doc.verified;
+      if (!v || v.status !== 'done') return '';
+      if (!nSources) return 'Checked for consistency (no sources were available).';
+      var n = Array.isArray(v.applied) ? v.applied.length : 0;
+      return 'Checked against its sources' + (n ? ': ' + n + (n === 1 ? ' correction' : ' corrections') + ' made.' : '.');
+    }
     function sourceOf(n) { return sources().filter(function (s) { return Number(s.n) === Number(n); })[0] || null; }
     var fn = { footnotes: { has: function (n) { return !!sourceOf(n); }, open: function (n) { sourceSheet(sourceOf(n)); } } };
     function fnButton(n) {
@@ -868,7 +884,7 @@
       var built = builtIt(), has = !!built, played = !live;
       var title = has ? (built.title || (spec && spec.title) || 'What happens') : 'What happens';
       U.append(box, [live ? eyebrow('Play') : null, heading(title)]);
-      var brief = has && spec && spec.brief ? U.h('p', { class: 'lsn-lede' }, friendlyBrief(spec.brief)) : null;
+      var brief = has && spec && spec.brief ? U.h('p', { class: 'lsn-lede' }) : null;
       var stage = U.h('div', { class: 'lsn-play' });
       var notes = U.h('div', { class: 'lsn-discs' });
       var after = U.h('div', { class: 'lsn-after' });
@@ -879,6 +895,8 @@
       if (spec && has) drawNotes(notes, spec, m);
       function drawAfter() {
         U.clear(after);
+        // Before the reveal only what to do; the whole sentence once the answer is out.
+        if (brief) { brief.textContent = friendlyBrief(spec.brief, played); brief.hidden = !brief.textContent; }
         var acting = live && !st.closed.play;
         if (played || !has) {
           // Without an interactive, Play is headed "What happens": the answer is not titled again.
@@ -1040,8 +1058,11 @@
     function renderExplain(box, live) {
       var l = st.lesson || {}, ex = l.explain || {};
       U.append(box, [live ? eyebrow('Explain') : null, heading('What\'s going on'), U.h('div', { class: 'reading lsn-reading' }, U.rich(ex.text || '', fn))]);
+      var src = sources(), checked = checkedLine(src.length);
       if (st.doc && st.doc.sourced === false) {
         box.appendChild(U.h('p', { class: 'lsn-quiet' }, U.h('strong', null, 'Not yet source-checked. '), 'Claude wrote this from what it already knows; no live sources were checked for this idea.'));
+        // Checked all the same, for consistency: said just under that note.
+        if (checked && !src.length) { box.appendChild(U.h('p', { class: 'lsn-checked' }, checked)); checked = ''; }
       } else if (l.confidence === 'simplified') {
         box.appendChild(U.h('p', { class: 'lsn-quiet' }, U.h('strong', null, 'Simplified. '), 'The full picture has more to it. This is the part that matters for now.'));
       }
@@ -1059,14 +1080,13 @@
             return U.h('div', { class: 'lsn-view' }, U.h('h3', null, String(v.label || 'One view')), richBox(v.text, 'lsn-view-text', fn));
           })) : null));
       }
-      var src = sources();
       if (src.length) {
-        box.appendChild(U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
+        box.appendChild(U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', [U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
           return U.h('li', null, U.h('button', { class: 'lsn-source-btn', type: 'button', on: { click: function () { sourceSheet(s); } } },
             U.h('span', { class: 'lsn-source-n' }, String(s.n)),
             U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
-        })))));
-      }
+        })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null])));
+      } else if (checked) box.appendChild(U.h('p', { class: 'lsn-checked' }, checked));
       if (live) box.appendChild(go(btn('Continue', function () { complete('explain'); }, 'lsn-main')));
     }
 

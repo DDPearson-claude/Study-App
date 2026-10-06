@@ -6,7 +6,7 @@
 // The fake sample routes on the prompt's "TASK: <name>" line and answers with fixture JSON.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -54,7 +54,7 @@ function loadPure() {
   const ctx = { console, setTimeout, clearTimeout, Promise, Date, Math, JSON };
   ctx.window = ctx;
   vm.createContext(ctx);
-  for (const f of ['00-core.js', '30-prompts.js']) vm.runInContext(src(f), ctx, { filename: f });
+  for (const f of ['00-core.js', '30-prompts.js', '34-verify.js']) vm.runInContext(src(f), ctx, { filename: f });
   return ctx.U;
 }
 
@@ -121,7 +121,7 @@ async function boot({ handlers = {}, research = false, build = okBuild } = {}) {
   };
   ctx.claude = { use: (name) => Promise.resolve(name === 'sample' ? sample : null) };
   vm.createContext(ctx);
-  for (const f of ['00-core.js', '10-runtime.js', '20-store.js', '30-prompts.js', '31-generate.js']) vm.runInContext(src(f), ctx, { filename: f });
+  for (const f of ['00-core.js', '10-runtime.js', '20-store.js', '30-prompts.js', '31-generate.js', '34-verify.js']) vm.runInContext(src(f), ctx, { filename: f });
   const U = ctx.U;
   await U.rt.ready;
   assert.equal(U.rt.db, null, 'tests run on U.memdb');
@@ -155,6 +155,8 @@ function handlers(extra = {}) {
       const base = iid === 'i2' ? L_JET2 : { ...clone(L_JET1), iid };
       return /No checked sources are available/.test(text) ? unsourced(base) : base;
     },
+    // The fact-check finds nothing to change unless a test says otherwise.
+    'verify-lesson': () => ({ issues: [] }),
     ...extra,
   };
 }
@@ -1530,9 +1532,14 @@ test('resuming a lesson left at "building": one line per step, and the last says
     assert.equal(doc.status, 'ready');
     assert.equal(app.count('write-lesson'), 0, 'the written lesson is kept');
     assert.ok(!lines.some((t) => /Finishing the interactive for this lesson/.test(t)), 'no line of its own on top of the build\'s "Building the interactive…": ' + JSON.stringify(lines));
-    assert.equal(lines[0], 'Building the interactive…', 'the build\'s own lines come first');
+    assert.equal(lines[0], 'Checking the lesson against its sources…', 'a lesson saved before its check is checked now: ' + JSON.stringify(lines));
+    assert.equal(lines[1], 'Building the interactive…', 'then the build\'s own lines');
+    assert.equal(doc.verified.status, 'done', 'the resumed lesson was checked');
+    assert.equal(app.count('verify-lesson'), 1);
     assert.equal(lines[lines.length - 1], 'Ready.');
-    assert.equal(lines[lines.length - 2], ok ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'the last step says what really happened: ' + JSON.stringify(lines));
+    // (The check may still be going when the build is over: then one line says the app waits for it.)
+    const steps = lines.filter((x) => !/^Still checking/.test(x));
+    assert.equal(steps[steps.length - 2], ok ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'the last step says what really happened: ' + JSON.stringify(lines));
     assert.equal(!!(doc.interactive && doc.interactive.html), ok);
     if (!ok) assert.match(doc.note, /could not be built/);
   }
@@ -2095,4 +2102,219 @@ test('research that finished but confirmed no source is not re-run by every less
   await failing.U.gen.ensureLesson('t1', 'i1');
   assert.equal(fails, 4, 'under it, re-run');
   assert.equal((await failing.get('topics/t1')).research.tries, 2);
+});
+
+// =========================================================================================
+// The fact-check step, verify-lesson (contract V: 34-verify.js and write() in 31-generate.js)
+// =========================================================================================
+test('verify prompt: its task line, the lesson, the research the writer had, the later ideas, his level and the claim rules', () => {
+  const U = loadPure();
+  const topic = { ...clone(PLAN_JET), level: 'some' };
+  const p = U.prompts.verifyLesson(topic, topic.ideas[1], L_JET2, { research: RESEARCH_JET });
+  assert.ok(p.startsWith('TASK: verify-lesson\n'));
+  assert.ok(p.includes(JSON.stringify(L_JET2.checks[2].why)) && p.includes(JSON.stringify(L_JET2.sources[0].quote)), 'the lesson JSON with its numbered sources and quotes');
+  const lr = U.prompts.lessonResearch(RESEARCH_JET, 'i2', topic.ideas[1].deps, topic.ideas);
+  assert.ok(p.includes('[R1] ' + lr.sources[0].title) && p.includes(lr.notes[0].claim), 'the research notes the writer had, numbered apart from the lesson\'s [^n]');
+  assert.ok(topic.ideas.slice(2).every((i) => p.includes(i.title) && p.includes(i.oneLine)), 'every later idea, title and one line');
+  assert.ok(!p.includes('- i1 ' + topic.ideas[0].title), 'earlier ideas are not listed as later');
+  assert.ok(p.includes('KNOWS A LITTLE'), 'his level');
+  assert.ok(p.includes(U.prompts.truthRules({ sources: true, history: false })), 'the same claim and number rules the writer read');
+  for (const rule of [/whole range/, /after every later idea/, /range is uncertainty about when/, /THE NUMBER RULE/, /exactly one defensible right answer/, /beyond what the research and the cited quotes support/, /no tools/]) assert.match(p, rule);
+  for (const path of ['predict.reveal', 'checks[i].options[j]', 'contested.views[i].text']) assert.ok(p.includes(path), 'names the patchable field ' + path);
+  assert.match(p, /Frozen: predict\.q and predict\.options/);
+  assert.equal(p.match(/^TASK:/gm).length, 1);
+  const last = U.prompts.verifyLesson(topic, topic.ideas[topic.ideas.length - 1], unsourced(L_JET1), {});
+  assert.ok(last.includes('This is the last idea in the course.') && last.includes('No checked sources were available'));
+});
+
+test('verify apply: a fix rewrites each kind of text field; frozen paths, missing fields and notes are only recorded', () => {
+  const U = loadPure();
+  const L = clone(L_ROME1);
+  const fixes = [
+    'predict.reveal', 'explain.text', 'analogy.text', 'analogy.breaks', 'interactive.whatAmILookingAt', 'interactive.ignores',
+    'say.model', 'say.rubric[1]', 'checks[1].q', 'checks[1].why', 'checks[1].options[2]', 'checks[1].misconception[1]', 'contested.views[0].text',
+  ];
+  const reply = { issues: fixes.map((path, k) => ({ path, problem: 'Problem ' + k + '.', severity: 'fix', now: 'Corrected text ' + k + '.' })) };
+  const r = plain(U.verify.apply(L, reply));
+  assert.deepEqual(r.applied.map((x) => x.path), fixes.slice(0, 12), 'at most 12 issues are read');
+  assert.equal(r.lesson.predict.reveal, 'Corrected text 0.');
+  assert.equal(r.lesson.say.rubric[1], 'Corrected text 7.');
+  assert.equal(r.lesson.checks[1].options[2], 'Corrected text 10.');
+  assert.equal(r.lesson.checks[1].misconception['1'], 'Corrected text 11.', 'a misconception is keyed by its option index');
+  assert.deepEqual(L, L_ROME1, 'the lesson passed in is untouched');
+  // An order check's item, and the contested view (the 13th issue above was cut).
+  const items = plain(U.verify.apply(L_ROME4, { issues: [{ path: 'checks[0].items[1]', problem: 'p', severity: 'fix', now: 'Another tribune blocks the law' }] }));
+  assert.equal(items.lesson.checks[0].items[1], 'Another tribune blocks the law');
+  const view = plain(U.verify.apply(L, { issues: [{ path: 'contested.views[0].text', problem: 'p', severity: 'fix', now: 'View text.' }] }));
+  assert.equal(view.lesson.contested.views[0].text, 'View text.');
+  // Frozen parts, a field the lesson does not have, a second fix to one field, a fix that changes
+  // nothing and a note: recorded, never applied.
+  const frozen = ['predict.q', 'predict.options[0]', 'interactive.brief', 'interactive.controls[0].label', 'checks[0].target', 'checks[1].answer', 'checks[9].q'];
+  const r2 = plain(U.verify.apply(L_JET1, { issues: frozen.map((path) => ({ path, problem: 'no', severity: 'fix', now: '42' }))
+    .concat([{ path: 'sources[0].quote', problem: 'no', severity: 'fix', now: 'a quote' },
+      { path: 'explain.text', problem: 'first', severity: 'fix', now: 'One.' }, { path: 'explain.text', problem: 'second', severity: 'fix', now: 'Two.' },
+      { path: 'say.model', problem: 'same', severity: 'fix', now: L_JET1.say.model },
+      { path: 'predict.q', problem: 'Answerable from the title.', severity: 'note' }]) }));
+  assert.deepEqual(r2.applied, [{ path: 'explain.text', problem: 'first' }]);
+  assert.equal(r2.lesson.explain.text, 'One.');
+  assert.deepEqual({ ...r2.lesson, explain: L_JET1.explain }, L_JET1, 'nothing else changed');
+  assert.equal(r2.notes.length, frozen.length + 4, 'every refused fix and the note are recorded');
+  assert.deepEqual(r2.notes[r2.notes.length - 1], { path: 'predict.q', problem: 'Answerable from the title.' });
+});
+
+test('verify validation: well formed, patchable paths, at most 12, and the patched lesson still passes the lesson checks', () => {
+  const U = loadPure();
+  const L = clone(L_JET2);
+  const v = (reply) => plain(U.validate.verify(reply, { lesson: L }));
+  assert.deepEqual(v({ issues: [] }), []);
+  assert.deepEqual(v({ issues: [
+    { path: 'checks[2].why', problem: 'Says always; only in this model.', severity: 'fix', now: 'In this model, twice the air at the same speed added gives twice the push.' },
+    { path: 'predict.q', problem: 'The title answers it.', severity: 'note' },
+    { path: 'interactive.numbers[0].value', problem: 'A rounded figure.', severity: 'note' },
+  ] }), [], 'a fix and notes (notes may name frozen parts)');
+  const cases = [
+    ['not an object', [], /one JSON object/],
+    ['no list', { issues: 'none' }, /issues must be a list/],
+    ['13 issues', { issues: Array.from({ length: 13 }, () => ({ path: 'predict.q', problem: 'p', severity: 'note' })) }, /at most 12/],
+    ['a frozen path', { issues: [{ path: 'predict.q', problem: 'p', severity: 'fix', now: 'x' }] }, /predict\.q cannot be changed \(Dan may already have answered it\): make this a "note"/],
+    ['a check answer', { issues: [{ path: 'checks[2].answer', problem: 'p', severity: 'fix', now: '1' }] }, /cannot be changed/],
+    ['the interactive spec', { issues: [{ path: 'interactive.brief', problem: 'p', severity: 'fix', now: 'x' }] }, /the interactive is built from it/],
+    ['sources', { issues: [{ path: 'sources[0].quote', problem: 'p', severity: 'fix', now: 'x' }] }, /cannot be changed/],
+    ['a field it does not have', { issues: [{ path: 'checks[5].why', problem: 'p', severity: 'fix', now: 'x' }] }, /no checks\[5\]\.why/],
+    ['not a path', { issues: [{ path: 'the explanation', problem: 'p', severity: 'fix', now: 'x' }] }, /not a field path/],
+    ['a fix with no text', { issues: [{ path: 'explain.text', problem: 'p', severity: 'fix' }] }, /"now" must be the whole corrected text/],
+    ['a bad severity', { issues: [{ path: 'explain.text', problem: 'p', severity: 'major', now: 'x' }] }, /severity must be "fix" or "note"/],
+    ['no problem', { issues: [{ path: 'explain.text', severity: 'note' }] }, /problem must say what is wrong/],
+    ['two fixes to one field', { issues: [{ path: 'say.model', problem: 'p', severity: 'fix', now: 'A.' }, { path: 'say.model', problem: 'q', severity: 'fix', now: 'B.' }] }, /fixes say\.model again/],
+    ['a patch that breaks the lesson: a footnote to no source', { issues: [{ path: 'explain.text', problem: 'p', severity: 'fix', now: L.explain.text + ' Also this.[^7]' }] }, /With your fixes applied, the lesson breaks one of its rules: .*\[\^7\]/],
+    ['a patch that breaks the lesson: a web address', { issues: [{ path: 'checks[2].why', problem: 'p', severity: 'fix', now: 'See https://example.org/thrust.' }] }, /breaks one of its rules: checks\[2\]\.why contains a web address/],
+    ['a patch that breaks the lesson: two options the same', { issues: [{ path: 'checks[2].options[0]', problem: 'p', severity: 'fix', now: L.checks[2].options[1] }] }, /breaks one of its rules/],
+  ];
+  for (const [name, reply, expect] of cases) {
+    const problems = v(reply);
+    assert.ok(problems.some((p) => expect.test(p)), name + ': ' + JSON.stringify(problems));
+    assert.ok(U.validate.hard(U.validate.verify(reply, { lesson: L })).length > 0, name + ' is a hard problem');
+  }
+  // A patch that only makes a field too long is soft, like the writer's own length limits.
+  const long = U.validate.verify({ issues: [{ path: 'explain.text', problem: 'p', severity: 'fix', now: 'word '.repeat(240).trim() + '.[^1]' }] }, { lesson: L });
+  assert.ok(long.length === 1 && long.soft.length === 1 && /240 words/.test(long[0]), JSON.stringify(plain(long)));
+  // Problems the lesson already had are not the verifier's.
+  const already = clone(L); already.explain.text = 'word '.repeat(240).trim();
+  assert.deepEqual(plain(U.validate.verify({ issues: [{ path: 'say.model', problem: 'p', severity: 'fix', now: 'A different model answer.' }] }, { lesson: already })), []);
+});
+
+test('the fact-check and the interactive build run side by side; the lesson is saved whole only when both are over', async () => {
+  let releaseVerify, releaseBuild;
+  const vGate = new Promise((r) => { releaseVerify = r; }), bGate = new Promise((r) => { releaseBuild = r; });
+  const started = [];
+  let builtFrom = null;
+  const NEW_WHY = 'In this model, twice the air at the same speed added gives twice the push.';
+  const app = await boot({
+    handlers: handlers({ 'verify-lesson': async () => {
+      started.push('verify');
+      await vGate;
+      return { issues: [{ path: 'checks[2].why', problem: 'Says it always doubles; that holds only at the same speed added.', severity: 'fix', now: NEW_WHY },
+        { path: 'predict.q', problem: 'The title nearly answers it.', severity: 'note' }] };
+    } }),
+    build: async (t, i, l, o) => { started.push('build'); builtFrom = clone(l); await bGate; return okBuild(t, i, l, o); },
+  });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const lines = [];
+  const p = U.gen.ensureLesson('t1', 'i2', { onStatus: (t) => lines.push(t) });
+  await until(() => started.length === 2);
+  assert.deepEqual(started.slice().sort(), ['build', 'verify'], 'both started before either finished');
+  assert.equal((await app.get('topics/t1/lessons/i2')).status, 'building');
+  releaseBuild();
+  await until(() => lines.includes('Interactive tested and ready.'));
+  await tick(30);
+  assert.equal((await app.get('topics/t1/lessons/i2')).status, 'building', 'the build alone does not make the lesson whole');
+  assert.equal(lines[lines.length - 1], 'Still checking the lesson for consistency…');
+  releaseVerify();
+  const doc = await p;
+  assert.equal(doc.status, 'ready');
+  assert.deepEqual(app.statuses, ['i2:writing', 'i2:building', 'i2:ready']);
+  assert.equal(doc.lesson.checks[2].why, NEW_WHY, 'the corrected text is saved');
+  assert.equal(builtFrom.checks[2].why, L_JET2.checks[2].why, 'the build used the lesson as written');
+  assert.ok(doc.interactive && doc.interactive.html, 'with its interactive');
+  assert.equal(doc.verified.status, 'done');
+  assert.ok(Date.parse(doc.verified.at) > 0);
+  assert.deepEqual(doc.verified.applied, [{ path: 'checks[2].why', problem: 'Says it always doubles; that holds only at the same speed added.' }]);
+  assert.deepEqual(doc.verified.notes.map((n) => n.path), ['', 'predict.q'], 'no sources: a note says so, then the verifier\'s note');
+  assert.match(doc.verified.notes[0].problem, /No sources were available/);
+  assert.ok(lines.indexOf('Checking the lesson for consistency…') >= 0 && lines.indexOf('Checking the lesson for consistency…') < lines.indexOf('Building your interactive…'), JSON.stringify(lines));
+  const call = app.calls.find((c) => c.task === 'verify-lesson');
+  assert.deepEqual(call.tools, [], 'the verifier gets no tools');
+  assert.equal(call.tier, 'default');
+});
+
+test('a fact-check that fails never blocks the lesson: saved as written, verified failed', async () => {
+  const hows = {
+    error: () => { throw new Error('boom'); },
+    'rate limit': () => { throw { code: 'rate_limited', message: 'Slow down.' }; },
+    timeout: () => new Promise(() => {}),
+    'invalid twice': () => ({ issues: [{ path: 'predict.q', problem: 'p', severity: 'fix', now: 'A new question?' }] }),
+  };
+  for (const [how, fn] of Object.entries(hows)) {
+    const app = await boot({ handlers: handlers({ 'verify-lesson': fn }) });
+    const { U } = app;
+    if (how === 'timeout') U.gen._cfg.VERIFY_MS = 80;
+    await app.seed('topics/t1', PLAN_JET);
+    const doc = await U.gen.ensureLesson('t1', 'i2');
+    assert.equal(doc.status, 'ready', how);
+    assert.equal(doc.verified.status, 'failed', how);
+    assert.deepEqual([doc.verified.applied, doc.verified.notes], [[], []], how);
+    assert.equal(doc.lesson.predict.q, L_JET2.predict.q, how + ': the lesson as written');
+    assert.ok(doc.interactive && doc.interactive.html, how + ': with its interactive');
+    assert.deepEqual(app.statuses, ['i2:writing', 'i2:building', 'i2:ready'], how);
+    if (how === 'invalid twice') assert.equal(app.count('verify-lesson'), 2, 'one repair round, then the lesson goes on');
+  }
+});
+
+test('a lesson with no interactive is checked before it is saved; relearn checks the fresh lesson; a prefetch checks in the background', async () => {
+  const plainLesson = (iid) => { const l = unsourced({ ...clone(L_JET1), iid }); l.interactive = null; l.checks = l.checks.filter((c) => c.type !== 'target'); return l; };
+  let n = 0;
+  const app = await boot({ handlers: handlers({
+    'write-lesson': (input) => plainLesson(ideaOf(input)),
+    'verify-lesson': () => ({ issues: [{ path: 'say.model', problem: 'Too absolute.', severity: 'fix', now: 'Take ' + (++n) + ': the engine throws air back, so the air pushes it forward.' }] }),
+  }) });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const doc = await U.gen.ensureLesson('t1', 'i1');
+  assert.deepEqual(app.statuses, ['i1:writing', 'i1:ready']);
+  assert.equal(doc.interactive, null);
+  assert.equal(doc.verified.status, 'done');
+  assert.match(doc.lesson.say.model, /^Take 1:/);
+  const fresh = await U.gen.relearn('t1', 'i1');
+  assert.equal(app.count('verify-lesson'), 2, 'relearn verifies too');
+  assert.equal(fresh.verified.status, 'done');
+  assert.match(fresh.lesson.say.model, /^Take 2:/);
+  // A prefetch's check yields to Dan's calls like its other calls.
+  const seen = [];
+  const ask = U.ask;
+  U.ask = (input, o) => { seen.push({ task: taskOf(input), priority: o && o.priority }); return ask(input, o); };
+  await U.gen.ensureLesson('t1', 'i3', { background: true });
+  U.ask = ask;
+  assert.deepEqual(seen.filter((x) => x.task === 'verify-lesson'), [{ task: 'verify-lesson', priority: 'background' }], JSON.stringify(seen));
+});
+
+test('the eval tools print the verify prompt for a saved lesson and validate, apply and write a verify reply', () => {
+  const run = (args) => spawnSync(process.execPath, args, { cwd: root, encoding: 'utf8' });
+  const out = join(root, 'tests', 'out');
+  mkdirSync(out, { recursive: true });
+  const docPath = join(out, 'verify-doc.json'), replyPath = join(out, 'verify-reply.txt'), patched = join(out, 'verify-patched.json');
+  writeFileSync(docPath, JSON.stringify({ status: 'ready', lesson: L_JET2, interactive: null }));
+  const p = run([join(root, 'tools', 'eval', 'prompts.mjs'), 'verify-lesson', '--topic', 'tests/fixtures/plan-jet-engines.json', '--idea', 'i2', '--lesson', docPath, '--research', 'tests/fixtures/research-jet-engines.json']);
+  assert.equal(p.status, 0, p.stderr);
+  assert.ok(p.stdout.startsWith('TASK: verify-lesson\n') && p.stdout.includes(JSON.stringify(L_JET2.checks[2].why)));
+  writeFileSync(replyPath, 'Here you go:\n' + JSON.stringify({ issues: [{ path: 'checks[2].why', problem: 'Too broad.', severity: 'fix', now: 'In this model, twice the air gives twice the push.' }] }));
+  const v = run([join(root, 'tools', 'eval', 'validate.mjs'), 'verify', replyPath, '--lesson', docPath, '--out', patched]);
+  assert.equal(v.status, 0, v.stdout + v.stderr);
+  const res = JSON.parse(v.stdout);
+  assert.deepEqual(res.applied, [{ path: 'checks[2].why', problem: 'Too broad.' }]);
+  assert.equal(JSON.parse(readFileSync(patched, 'utf8')).checks[2].why, 'In this model, twice the air gives twice the push.');
+  writeFileSync(replyPath, JSON.stringify({ issues: [{ path: 'predict.q', problem: 'p', severity: 'fix', now: 'x' }] }));
+  const bad = run([join(root, 'tools', 'eval', 'validate.mjs'), 'verify', replyPath, '--lesson', docPath]);
+  assert.equal(bad.status, 1);
+  assert.match(JSON.parse(bad.stdout).problems.join(' '), /predict\.q cannot be changed/);
 });

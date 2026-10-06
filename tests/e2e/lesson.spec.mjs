@@ -28,7 +28,10 @@
 // screen (cheer). After the v8 check: a newer request from another device followed, never written
 // here (relearn-newer-elsewhere), a body's own option labels never named by place
 // (notes-choice-foreign), Try again focusing the reply on a touch phone and a list said as
-// sentences (tutor-retry), and the chips measured in the app's own font (tutor-chips).
+// sentences (tutor-retry), and the chips measured in the app's own font (tutor-chips). Contract V
+// and Q: the fact-check's quiet line in the Sources panel (checked-line; walk), a target check in
+// quiz mode, its readout hidden until Check (quiz), and the lede before play saying only
+// "Try this: …", the whole "Watch for …" sentence after the reveal (walk).
 // Screenshots: tests/out/lesson-*.png.
 //
 // Usage: node tests/e2e/lesson.spec.mjs [scenario-filter]     exits non-zero on any failure
@@ -292,7 +295,9 @@ async function walk(width, dark) {
     { met: [true, false, false], verdict: 'partly', nailed: 'You have the main point: a longer string means a slower swing.', followUp: 'How much slower? If the string is four times as long, what happens to the swing time?' },
     { met: [true, true, false], verdict: 'partly', nailed: 'Yes: four times as long only doubles the time, because it goes with the square root.', followUp: 'Why does the size of the swing hardly matter?' },
   ] };
-  const app = await open({ width, dark, hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM }, cfg, reduced: width > 700 });
+  // Checked against its sources, with one correction made (doc.verified, 31-generate.js).
+  const checkedDoc = { ...PENDULUM, verified: { status: 'done', at: '2026-10-05T09:05:00.000Z', applied: [{ path: 'explain.text', problem: 'Said always; true only for small swings.' }], notes: [] } };
+  const app = await open({ width, dark, hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: checkedDoc }, cfg, reduced: width > 700 });
   const { page } = app;
   try {
     // Predict
@@ -316,6 +321,9 @@ async function walk(width, dark) {
     const play = page.locator('.lsn-stage[data-stage="play"]');
     await play.locator('iframe').waitFor();
     ok(await page.locator('.lsn-one').isVisible() && /length, not on how far/.test(await page.locator('.lsn-one').textContent()), 'the one line shows once he has guessed');
+    // Before play only what to do (the brief's first half is the predict's answer).
+    const lede = await play.locator('.lsn-lede').textContent();
+    ok(lede === 'Try this: drag the length slider.', 'before play the lede says only what to do: ' + lede);
     const reserved = await play.locator('.lsn-panel').evaluate((el) => el.getBoundingClientRect().height);
     ok(reserved >= 560, `height reserved while the interactive loads (${Math.round(reserved)}px)`);
     if (width < 700) await shot(app, `${tag}-2a-play-loading`);
@@ -371,6 +379,8 @@ async function walk(width, dark) {
     await page.getByRole('button', { name: 'I\'ve had a play' }).click();
     await play.locator('.lsn-reveal').waitFor();
     ok((await play.locator('.lsn-reveal-guess').textContent()).includes('It takes twice as long'), 'reveal sits next to his guess');
+    const full = await play.locator('.lsn-lede').textContent();
+    ok(full === 'Watch for the swing time growing more slowly than the length when you drag the length slider.', 'after the reveal the whole sentence: ' + full);
     await shot(app, `${tag}-4-reveal`);
     await play.getByRole('button', { name: 'Continue' }).click();
 
@@ -380,6 +390,8 @@ async function walk(width, dark) {
     ok(await ex.locator('mark.term').count() === 2, 'key terms highlighted');
     ok(await ex.locator('.lsn-reading .fn').count() === 2, 'footnote buttons for known sources');
     ok(await ex.locator('.lsn-quiet').count() === 0, 'no "not source-checked" note on a sourced lesson');
+    await ex.locator('summary', { hasText: 'Sources (2)' }).click();
+    ok(await ex.locator('.lsn-disc .lsn-checked').textContent() === 'Checked against its sources: 1 correction made.', 'the sources panel says what the fact-check did, in one quiet line');
     const paras = await ex.locator('.lsn-reading p').evaluateAll((ps) => ps.map((p) => {
       const cs = getComputedStyle(p), fn = p.querySelector('.fn'), hit = fn && getComputedStyle(fn, '::after');
       return { fn: !!fn, lines: p.getBoundingClientRect().height / parseFloat(cs.lineHeight), em: p.getBoundingClientRect().width / parseFloat(cs.fontSize),
@@ -966,6 +978,7 @@ async function plain(width, dark) {
     ok((await ex.locator('.lsn-flag').textContent()) === 'Experts disagree', 'red "Experts disagree" label');
     ok(await ex.locator('.lsn-view').count() === 2, 'both views side by side');
     ok((await ex.locator('.lsn-quiet').textContent()).includes('Not yet source-checked'), 'quiet not-source-checked note');
+    ok(await ex.locator('.lsn-checked').count() === 0, 'no line about a fact-check that never ran');
     await shot(app, `plain-${tag}-3-explain`);
     await ex.getByRole('button', { name: 'Continue' }).click();
     const say = page.locator('.lsn-stage[data-stage="say"]');
@@ -1249,6 +1262,7 @@ async function fullApp() {
     width: 360, height: 707, file: FULL,
     config: { db: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM } },
     sample: (input) => {
+      if (taskOf(input) === 'verify-lesson') return { issues: [] }; // the fact-check finds nothing to change
       const t = taskOf(input);
       tasks.push(t);
       if (t === 'grade') return { met: [true, false, false], verdict: 'partly', nailed: 'You have the main point.', followUp: 'How much slower is it?' };
@@ -1324,6 +1338,7 @@ async function failedLesson(width, height, dark) {
     width, height, dark, file: FULL,
     config: { db: { 'topics/pendulums': TOPIC, [`data/users/${UID}/profile`]: { prefs: { theme: dark ? 'dark' : 'light', size: 'm', easy: false, cap: 15, light: false }, days: {} } } },
     sample: async (input) => {
+      if (taskOf(input) === 'verify-lesson') return { issues: [] }; // the fact-check finds nothing to change
       const t = taskOf(input);
       tasks.push(t);
       await new Promise((r) => setTimeout(r, 300));
@@ -1435,6 +1450,7 @@ async function resumeNotBuilt() {
     width: 390, height: 844, file: FULL,
     config: { db: { 'topics/pendulums': TOPIC, [LESSON('i3')]: building, [LESSON('i4')]: i4 } },
     sample: async (input) => {
+      if (taskOf(input) === 'verify-lesson') return { issues: [] }; // the fact-check finds nothing to change
       const t = taskOf(input);
       tasks.push(t);
       if (t === 'build-interactive' || t === 'repair-interactive') { await new Promise((r) => setTimeout(r, 300)); return BAD; }
@@ -1459,7 +1475,7 @@ async function resumeNotBuilt() {
     await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor({ timeout: 90000 });
     const lines = await page.evaluate(() => window.__lines.map((r) => r.text));
     const at = (re) => lines.findIndex((t) => re.test(t));
-    ok(lines[0] === 'The lesson text is written' && lines[1] === 'Building the interactive', 'the text is written, then the build\'s own first line: ' + JSON.stringify(lines));
+    ok(lines[0] === 'The lesson text is written' && lines[1] === 'Checking the lesson against its sources' && lines[2] === 'Building the interactive', 'the text is written, then the fact-check (it never ran for this lesson), then the build\'s own first line: ' + JSON.stringify(lines));
     ok(at(/Finishing the interactive for this lesson/) < 0, 'no second line for the same step');
     ok(new Set(lines).size === lines.length, 'no line twice');
     const last = at(/try 3 of 3/), fin = at(/^Finishing without the interactive$/);
@@ -1514,6 +1530,7 @@ async function relearnFails() {
     config: { db: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM, [LESSON('i2')]: i2, [CARDS]: slippingCards(at),
       [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'x', at }, checks: { c1: { correct: true, at } } } } } } },
     sample: async (input) => {
+      if (taskOf(input) === 'verify-lesson') return { issues: [] }; // the fact-check finds nothing to change
       const text = firstUser(input);
       if (taskOf(input) === 'write-lesson' && /^Idea i1:/m.test(text)) {
         ctl.writes.push(text);
@@ -1726,6 +1743,7 @@ async function todayFlag() {
     config: { db: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM,
       [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'x', at }, checks: { c1: { correct: true, at } }, relearn: true } } } } },
     sample: async (input) => {
+      if (taskOf(input) === 'verify-lesson') return { issues: [] }; // the fact-check finds nothing to change
       if (taskOf(input) === 'write-lesson' && /^Idea i1:/m.test(firstUser(input))) { writes.push(1); await new Promise((r) => setTimeout(r, 300)); return fresh; }
       return new Promise(() => {});
     },
@@ -2192,6 +2210,117 @@ async function cheerStays() {
   await app.close();
 }
 
+// ---------- scenario: the fact-check's quiet line (doc.verified, contract V) ----------
+async function checkedLine() {
+  current = 'checked-line 360-light';
+  console.log('\n' + current);
+  const at = new Date().toISOString();
+  const fix = (n) => Array.from({ length: n }, (_, k) => ({ path: 'checks[' + k + '].why', problem: 'p' + k }));
+  const cases = [
+    ['three corrections', { status: 'done', at, applied: fix(3), notes: [] }, true, 'Checked against its sources: 3 corrections made.'],
+    ['nothing to correct', { status: 'done', at, applied: [], notes: [{ path: 'predict.q', problem: 'A note.' }] }, true, 'Checked against its sources.'],
+    ['no sources', { status: 'done', at, applied: fix(1), notes: [{ path: '', problem: 'No sources were available.' }] }, false, 'Checked for consistency (no sources were available).'],
+    ['the check failed', { status: 'failed', at, applied: [], notes: [] }, true, null],
+    ['never checked', null, true, null],
+  ];
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums', seed: { 'topics/pendulums': TOPIC }, reduced: true });
+  const { page } = app;
+  try {
+    for (const [name, verified, sourced, want] of cases) {
+      const d = JSON.parse(JSON.stringify(PENDULUM));
+      if (verified) d.verified = verified; else delete d.verified;
+      if (!sourced) {
+        d.sourced = false;
+        d.lesson = JSON.parse(JSON.stringify(d.lesson).replace(/\s?\[\^\d+\]/g, ''));
+        d.lesson.sources = [];
+      }
+      await page.evaluate(({ d, at, lesson, progress }) => {
+        window.__CLAUDE_STUB__.seed(lesson, d);
+        window.__CLAUDE_STUB__.seed(progress, { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'explain', startedAt: at, predict: { answer: 'x', at } } } });
+        location.hash = '#/t/pendulums';
+      }, { d, at, lesson: LESSON('i1'), progress: PROGRESS });
+      await page.waitForTimeout(150);
+      await page.evaluate(() => { location.hash = '#/t/pendulums/i1'; });
+      const ex = page.locator('.lsn-stage[data-stage="explain"]');
+      await ex.locator('.lsn-reading').waitFor();
+      if (sourced) await ex.locator('summary', { hasText: 'Sources (' }).click();
+      const lines = await ex.locator('.lsn-checked').allTextContents();
+      ok(want ? lines.length === 1 && lines[0] === want : lines.length === 0, name + ': ' + (want || 'no line') + ' (' + JSON.stringify(lines) + ')');
+      if (want && sourced) ok(await ex.locator('.lsn-disc .lsn-checked').count() === 1, name + ': inside the sources panel');
+      if (want) {
+        const look = await ex.locator('.lsn-checked').evaluate((el) => {
+          const probe = document.body.appendChild(Object.assign(document.createElement('span'), { style: 'color: var(--muted)' }));
+          const r = { color: getComputedStyle(el).color, muted: getComputedStyle(probe).color, size: parseFloat(getComputedStyle(el).fontSize) };
+          probe.remove();
+          return r;
+        });
+        ok(look.color === look.muted && look.size < 15, name + ': a quiet line (muted, small): ' + JSON.stringify(look));
+      }
+      if (name === 'three corrections') await shot(app, 'checked-line');
+    }
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'checked-line-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: a target check in quiz mode (contract Q) ----------
+// The readout he aims at shows "?" and the .say line is hidden while he answers; Check reveals
+// them, and grading reads the real output.
+async function quizTarget() {
+  current = 'quiz 390-light';
+  console.log('\n' + current);
+  const L = JSON.parse(JSON.stringify(PENDULUM));
+  L.lesson.interactive.outputs = [{ id: 'T', label: 'Time for one swing', unit: 's', decimals: 2 }];
+  L.lesson.checks.unshift({ id: 'c4', type: 'target', q: 'Make one swing take 3 s.', control: 'L', output: 'T', target: 3, tolerance: 0.05, why: 'T = 2π√(L/g), so about 2.24 m.' });
+  L.interactive.html = L.interactive.html.replace('<div id="pd-plot"', '<p class="say" id="pd-say">One swing takes about two seconds.</p><div id="pd-plot"');
+  const at = new Date().toISOString();
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i1')]: L,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'checks', startedAt: at, predict: { answer: 'x', at } } } } };
+  const app = await open({ width: 390, height: 844, hash: '#/t/pendulums/i1', seed, reduced: true });
+  const { page } = app;
+  try {
+    await page.waitForFunction(() => { const q = document.querySelector('.lsn-check .qc-type-target'); return q && q.mount; }, null, { timeout: 15000 });
+    await page.evaluate(async () => { await document.querySelector('.lsn-check .qc-type-target').mount.ready; });
+    const frame = page.frameLocator('.lsn-check .qc-type-target iframe');
+    const readout = frame.locator('.k-readout[data-id="T"] .k-readout-value');
+    const hidden = async () => ({
+      value: (await readout.textContent()).trim(),
+      label: await frame.locator('.k-readout[data-id="T"]').evaluate((el) => (el.querySelector('[aria-label]') || el).getAttribute('aria-label') || ''),
+      say: await frame.locator('#pd-say').evaluate((el) => getComputedStyle(el).visibility),
+      plot: await frame.locator('#pd-plot').evaluate((el) => el.textContent),
+    });
+    await readout.waitFor();
+    let q = await hidden();
+    ok(q.value === '?', 'the readout he aims at shows "?" while he answers: ' + q.value);
+    ok(/hidden until you check/i.test(q.label), 'and says why to a screen reader: ' + q.label);
+    ok(q.say === 'hidden', 'the .say line is hidden while he answers (' + q.say + ')');
+    ok(!/\d\.\d\d\s*s/.test(q.plot), 'the plot gives no value label for that output: ' + q.plot.slice(0, 80));
+    // He moves the control: still hidden; the host still reads the real output.
+    await page.evaluate(async () => { await document.querySelector('.lsn-check .qc-type-target').mount.set('L', 2.25); });
+    await page.waitForTimeout(300);
+    q = await hidden();
+    ok(q.value === '?' && q.say === 'hidden', 'moving the control keeps it hidden: ' + JSON.stringify(q));
+    const real = await page.evaluate(async () => (await document.querySelector('.lsn-check .qc-type-target').mount.get()).outputs.T);
+    ok(Math.abs(real - 3.009) < 0.01, 'the host still gets the real output (' + real + ')');
+    await shot(app, 'quiz-hidden');
+    await page.locator('.lsn-check .qc-primary').click();
+    await page.locator('.lsn-check .qc-fb').waitFor();
+    ok(await page.locator('.lsn-check .qc-fb.is-right').count() === 1, 'graded right from the real output');
+    await frame.locator('.k-readout[data-id="T"] .k-readout-value').filter({ hasText: /\d/ }).waitFor({ timeout: 5000 });
+    q = await hidden();
+    ok(/^3\.01/.test(q.value) && q.say === 'visible', 'Check reveals the readout and the .say line: ' + JSON.stringify(q));
+    await shot(app, 'quiz-revealed');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'quiz-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 const scenarios = [
   ['walk-360-light', () => walk(360, false)],
   ['walk-360-dark', () => walk(360, true)],
@@ -2236,6 +2365,8 @@ const scenarios = [
   ['tutor-stream', tutorStream],
   ['tutor-retry', tutorRetry],
   ['cheer', cheerStays],
+  ['checked-line', checkedLine],
+  ['quiz', quizTarget],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();
 
