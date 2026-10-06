@@ -14,12 +14,18 @@
 // Stages only move forward, and a guess or check result saved first (anywhere) is never
 // overwritten. "Go through it again" records its run separately (ideas[iid].replays).
 //
-// Learn it again: '#/t/:tid/:iid/again' (Today's link), or progress.ideas[iid].relearn set, or
-// "Rebuild this lesson" in the "This looks wrong" sheet. U.gen.relearn writes a fresh lesson with a
-// different interactive. The request stays open on progress (relearn, relearnAt, relearnNote)
-// until that lesson is whole; only then does the idea start a new round (stage back to predict,
-// check results and guess for the new lesson cleared, the old ones kept under ideas[iid].past).
+// Learn it again: '#/t/:tid/:iid/again' (Today's link, while the idea is still slipping), or
+// "Rebuild this lesson" in the "This looks wrong" sheet. Today's flag on its own (relearn: true)
+// never rebuilds a lesson Dan opens to read. U.gen.relearn writes a fresh lesson with a different
+// interactive. His request stays open on progress (relearn, relearnId, relearnAt, relearnNote)
+// until that lesson is whole: the doc the rewrite writes carries the request's token (request ===
+// relearnId), so every device knows the fresh lesson without comparing clocks. Only then does the
+// idea start a new round (stage back to predict, check results and guess for the new lesson
+// cleared, the old ones kept under ideas[iid].past), once, whichever device gets there first.
 // A rewrite that fails is tried again the next time the idea is opened.
+//
+// Screen readers: results (a say-it-back verdict, what happens, the next question) are said in one
+// polite live region, and focus moves to what has just appeared, never left on a removed button.
 //
 // Public: U.lesson.sourceSheet(source) opens a source (title, exact quote, link) in a sheet.
 (function () {
@@ -31,6 +37,9 @@
   // for the interactive ("for example …"), never findings; dates are plain facts.
   var NUMBER_KIND = { control: 'you set this', computed: 'worked out from the rule', constant: 'a fixed value', assumed: 'an example value', date: null };
   var WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five'];
+  // Rewrites one screen starts on its own for one request of Dan's (the first, and one more when
+  // the doc that came back is not the fresh one): more need his Try again.
+  var MAX_REWRITES = 2;
   var drafts = {}; // unsent say-it-back text for this page session, by 'tid/iid'
   // Background work: once a lesson is whole, the next open idea is prepared in full (written, its
   // interactive built and tested) as background work, and a lesson Dan leaves while it is being
@@ -65,13 +74,25 @@
       U.h('summary', null, U.h('span', null, title), U.h('span', { class: 'lsn-chev', 'aria-hidden': 'true' }, U.icon('back'))),
       U.h('div', { class: 'lsn-disc-body' }, content));
   }
+  // Scroll a new stage (or question) into view; focus goes to its heading (a stage's .lsn-h, a
+  // check card's question .qc-q), so a keyboard or screen reader carries on from there.
   function bring(el, block) {
     if (!el || !el.isConnected) return;
     requestAnimationFrame(function () {
       el.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: block || 'start' });
-      var h = block === 'nearest' ? null : el.querySelector('.lsn-h');
-      if (h) try { h.focus({ preventScroll: true }); } catch (e) {}
+      var h = block === 'nearest' ? null : el.querySelector('.lsn-h, .qc-q');
+      if (h) land(h);
     });
+  }
+  // Focus something that has just appeared (a heading, a verdict, a callout): it takes focus
+  // without becoming a Tab stop, and the page does not jump for it.
+  function land(el) {
+    if (!el || !el.isConnected) return;
+    if (!/^(A|BUTTON|INPUT|TEXTAREA|SELECT|SUMMARY)$/.test(el.tagName) && !el.hasAttribute('tabindex')) {
+      el.setAttribute('tabindex', '-1');
+      el.classList.add('lsn-land');
+    }
+    try { el.focus({ preventScroll: true }); } catch (e) { /* fine */ }
   }
   function order(stage) { var i = STAGES.indexOf(stage); return i < 0 ? 0 : i; }
   // A lesson is shown only when it is whole (U.store.lesson.state, docs/ARCHITECTURE.md 4).
@@ -118,10 +139,14 @@
       topic: null, idea: null, index: -1, progress: { ideas: {} }, ip: { say: {} },
       doc: null, lesson: null, ready: false, begun: false, replay: null, again: false, feedback: null,
       guess: null, gen: 0, stage: 'predict', sections: {}, closed: {}, mounts: [], liveMount: null, cards: [],
-      stops: [], prep: null, pending: null, seen: null, asked: null, nextStop: null, openedAt: Date.now(), dead: false, gone: false,
+      stops: [], prep: null, pending: null, seen: null, asked: null, askRound: 0, askSaved: null, rewrites: 0, opening: -1,
+      nextStop: null, openedAt: Date.now(), dead: false, gone: false,
     };
     function alive() { return !st.dead && ctx.alive(); }
     function round() { return Number(st.ip.round) || 0; }
+    // Dan's own open Learn it again request (Today's link or Rebuild). Today's flag alone (relearn
+    // with no token: the idea was slipping when Today looked) is a suggestion, not a request.
+    function requestOpen() { return !!(st.ip.relearn && (st.ip.relearnId || st.ip.relearnAt)); }
 
     // ---- frame: sticky bar, heading, stages, footer ----
     var stepBtns = STEPS.map(function (s) {
@@ -147,9 +172,24 @@
     // under the link (flagKept), where Dan is looking when the sheet closes.
     var flagKept = U.h('p', { class: 'lsn-flag-kept', role: 'status' });
     var foot = U.h('footer', { class: 'lsn-foot', hidden: true }, linkBtn('This looks wrong', flagSheet, 'lsn-flag-link'), flagKept);
-    var root = U.h('div', { class: 'lsn' }, bar, U.h('header', { class: 'lsn-head' }, eb, h1, one), notice, flow, prepSlot, foot);
+    // The one place results are said to a screen reader (politely, as they come).
+    var voice = U.h('p', { class: 'visually-hidden lsn-said', role: 'status' });
+    var root = U.h('div', { class: 'lsn' }, bar, U.h('header', { class: 'lsn-head' }, eb, h1, one), notice, flow, prepSlot, foot, voice);
     ctx.view.appendChild(root);
     paintBar();
+    var sayTimer = 0;
+    function announce(text) {
+      clearTimeout(sayTimer);
+      voice.textContent = '';
+      text = U.plain(String(text || '')).replace(/\s+/g, ' ').trim();
+      // Set a moment later, so the same words twice in a row are still said twice.
+      if (text) sayTimer = setTimeout(function () { if (alive()) voice.textContent = text; }, 80);
+    }
+    // Focus is lost: on the page itself, or on something removed or hidden (a button that went).
+    function focusLost() {
+      var a = document.activeElement;
+      return !a || a === document.body || !a.isConnected || (root.contains(a) && a.offsetParent === null);
+    }
 
     // ---- load ----
     var loaded = false;
@@ -159,7 +199,7 @@
       notice.hidden = false;
     }, 8000);
     U.rt.ready.then(function () {
-      return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid)]);
+      return Promise.all([U.store.topic.get(tid), U.store.progress.get(tid), U.store.lesson.get(tid, iid), params.again ? stillSlipping() : null]);
     }).then(function (r) {
       loaded = true;
       if (!alive()) return;
@@ -175,13 +215,24 @@
       fillHead();
       watchProgress();
       watchTopic();
-      // Learn it again: Today's link, or the flag Today set on progress.
-      var again = !!params.again || !!st.ip.relearn;
+      // Learn it again only when Dan chose it and it is current: his own request still open, or
+      // Today's link to an idea that is still slipping. A link that is stale (the idea was learned
+      // again since, perhaps on another device) and Today's flag on its own open the lesson as it is.
+      var again = requestOpen() || (!!params.again && r[3] !== false);
       if (params.again) try { history.replaceState(null, '', '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid)); } catch (e) { /* fine */ }
       if (again && U.gen && typeof U.gen.relearn === 'function') return startRelearn({ doc: doc });
       if (whole(doc)) show(doc);
       else prepare(doc);
     }).catch(function (e) { loaded = true; if (alive()) fatal(e); });
+
+    // Is this idea still one Today offers to learn again? true / false, or null when that cannot
+    // be told here (no review module, or the cards could not be read): then his tap stands.
+    function stillSlipping() {
+      if (!U.review || typeof U.review.slipping !== 'function') return Promise.resolve(null);
+      return Promise.resolve().then(function () { return U.review.slipping(); }).then(function (list) {
+        return Array.isArray(list) ? list.some(function (g) { return g && g.tid === tid && g.iid === iid; }) : null;
+      }, function () { return null; });
+    }
 
     function normalise(ip) {
       ip = ip || {};
@@ -203,7 +254,10 @@
       Object.keys(rc).forEach(function (k) { if (rc[k]) cks[k] = U.clone(rc[k]); });
       var says = st.ip.say || (st.ip.say = {}), rs = U.keyed(r.say);
       Object.keys(rs).forEach(function (k) { says[k] = rs[k]; });
-      st.ip.relearn = !!r.relearn;
+      // A request is only ever opened or replaced within a round (the round that begins closes
+      // it), so a snapshot from before this screen's own request landed never closes it here.
+      if (r.relearn) st.ip.relearn = true;
+      if (r.relearn && r.relearnId) ['relearnId', 'relearnAt', 'relearnNote'].forEach(function (k) { st.ip[k] = r[k] == null ? null : r[k]; });
       if (r.againAt) st.ip.againAt = r.againAt;
       return null;
     }
@@ -272,28 +326,42 @@
     }
     // The lesson may be finished elsewhere (another device, or a job this page joined): open it
     // the moment the doc is whole. While relearning, the old (ready) doc is not the new lesson:
-    // only a lesson begun since he asked counts (fresh: the rewrite's own, wherever it ran).
+    // only the lesson written for his request counts (fresh: it carries the request's token,
+    // wherever it was written).
     function watchLesson() {
       st.watching = true;
       st.stops.push(U.store.lesson.watch(tid, iid, function (d) {
         st.seen = d;
         if (!alive() || st.ready || !whole(d) || (st.again && !fresh(d))) return;
-        settled(st.gen, d);
+        var gen = st.gen;
+        Promise.resolve().then(function () { return settled(gen, d); }).catch(failed(gen, tryAgain));
       }));
     }
     // Only the latest request counts (a Rebuild can start while an earlier one is still running).
     function settled(gen, d) {
-      if (!alive() || gen !== st.gen || st.ready) return;
+      if (!alive() || gen !== st.gen || st.ready || st.opening === gen) return;
       if (!whole(d)) throw { message: (d && d.error) || 'The lesson could not be written.' };
-      if (st.again) {
-        // The old lesson came back (a try elsewhere was put back after it failed): it is never
-        // the new round, so the fresh one is written.
-        if (!fresh(d)) return rewrite(d, true);
-        newRound();
-      }
+      if (!st.again) return opened(d);
+      // The old lesson came back (a try elsewhere was put back after it failed, or another
+      // request's lesson): it is never the new round. The fresh one, if the watch has seen it, or
+      // a rewrite.
+      if (!fresh(d)) return rewrite(fresh(st.seen) ? st.seen : d, true);
+      st.opening = gen;
+      return newRound().then(function (res) {
+        if (st.opening === gen) st.opening = -1;
+        if (!alive() || gen !== st.gen || st.ready) return;
+        // A newer request (Rebuild on another device) is open now: its lesson is the one to open.
+        if (res === 'other') return rewrite(fresh(st.seen) ? st.seen : d, true);
+        opened(d);
+      }, function (e) { if (st.opening === gen) st.opening = -1; throw e; });
+    }
+    function opened(d) {
       st.again = false;
+      var wasPrep = !!st.prep;
       if (st.prep) { st.prep.finish(); st.prep = null; }
       show(d);
+      // Focus was on the card (its Try again, say): it carries on at the lesson's first stage.
+      if (wasPrep && focusLost()) { var h = flow.querySelector('.lsn-stage .lsn-h'); if (h) land(h); }
     }
     // Leaving keeps the work going (cleanup demotes it); a failure offers Try again.
     function track(p) {
@@ -303,6 +371,12 @@
     }
     function failed(gen, retry) {
       return function (e) { if (alive() && gen === st.gen && !st.ready && st.prep) st.prep.fail(e, retry); };
+    }
+    // Dan's Try again on the card: the fresh lesson he asked for, or this lesson, once more.
+    function tryAgain() {
+      st.rewrites = 0;
+      if (st.again) rewrite(st.seen, true); else ensure(st.seen);
+      if (st.prep && focusLost()) land(st.prep.el.querySelector('.lsn-prep-head'));
     }
     function ensure(doc) {
       // A doc that already has its text says so first; the job's own lines follow.
@@ -314,7 +388,7 @@
         // A foreground call: if this lesson was being prepared in the background, U.gen promotes
         // its queued calls (they share the lesson's gate key) so they run at once.
         return track(U.gen.ensureLesson(tid, iid, { onStatus: function (t, meta) { if (alive() && !st.ready && st.prep) st.prep.line(t, meta); } }));
-      }).then(function (d) { settled(gen, d); }).catch(failed(gen, function () { ensure(st.seen); }));
+      }).then(function (d) { return settled(gen, d); }).catch(failed(gen, tryAgain));
     }
     // The preparation card: what is happening now, step by step (writing, building the
     // interactive, testing it, fixing what the test found), and that Dan need not wait here.
@@ -333,30 +407,38 @@
         function n(t) { return String(t || '').toLowerCase().replace(/\b(your|the|this|a|an)\b/g, '').replace(/[.…!\s]+/g, ' ').trim(); }
         return n(a) === n(b);
       }
-      // Finish a line as 'done' or 'failed': one state only, so it never shows a tick and a cross
-      // together. A finished line loses its trailing "…".
+      // Finish a line as 'done', 'missed' or 'failed': one state only, so it never shows a tick
+      // and a cross together. A finished line loses its trailing "…". 'missed': the step ended
+      // without success but the work went on (a test that found problems, a repair that did not
+      // pass): a quiet dash, never a tick; 'failed' is the step the whole job stopped at.
       function mark(li, state) {
         li.classList.toggle('is-done', state === 'done');
+        li.classList.toggle('is-missed', state === 'missed');
         li.classList.toggle('is-failed', state === 'failed');
         var t = li.querySelector('.lsn-prep-text');
         if (t) t.textContent = t.textContent.replace(/\s*(…|\.\.\.)$/, '');
+        var sr = li.querySelector('.lsn-prep-sr');
+        if (sr) sr.textContent = state === 'missed' ? ' (did not work out)' : '';
       }
+      // How the step before a new line ended: the build's next repair, or finishing without the
+      // interactive, means it did not work out (U.interactive.build's and U.gen's own lines).
+      function endOf(next) { return /^(fixing what the test found|finishing without the interactive)/i.test(next) ? 'missed' : 'done'; }
       // meta (from U.gen): failed -> said once, by fail(), never as a step; redo -> the step in
       // progress is being done again, so its own line says so instead of a new one.
       function line(text, meta) {
         meta = meta || {};
         text = String(text || '').trim();
         if (!text || meta.failed) return;
-        if (meta.redo && last && !last.classList.contains('is-done') && !last.classList.contains('is-failed')) {
+        if (meta.redo && last && !/\bis-(done|missed|failed)\b/.test(last.className)) {
           last.dataset.text = text;
           last.querySelector('.lsn-prep-text').textContent = text;
           return;
         }
         if ((last && same(last.dataset.text, text)) || same(head.textContent, text)) return;
-        if (last) mark(last, 'done');
+        if (last) mark(last, endOf(text));
         last = U.h('li', { dataset: { text: text } },
           U.h('span', { class: 'lsn-prep-mark', 'aria-hidden': 'true' }, U.h('i'), U.icon('tick', 'lsn-prep-ok'), U.icon('close', 'lsn-prep-x')),
-          U.h('span', { class: 'lsn-prep-text' }, text));
+          U.h('span', { class: 'lsn-prep-text' }, text), U.h('span', { class: 'visually-hidden lsn-prep-sr' }));
         lines.appendChild(last);
       }
       return {
@@ -404,23 +486,24 @@
 
     // ---- Learn it again ----
     // A fresh lesson with a different interactive. Asking opens a request on progress (relearn:
-    // true; relearnAt: when its rewrite began; relearnNote: his "This looks wrong" note) that
-    // stays open until the fresh lesson is whole: only then does the idea start its new round
-    // (newRound). A rewrite that fails, or that a reload cuts off, leaves the idea marked to be
-    // learned again (Today keeps offering it), and opening the idea tries again, with his note,
-    // and says so. The old lesson is never shown as the new round.
+    // true; relearnId: its token; relearnAt: when he asked; relearnNote: his "This looks wrong"
+    // note) that stays open until the fresh lesson is whole: only then does the idea start its
+    // new round (newRound). The rewrite stamps the doc it writes with the token (doc.request), so
+    // the fresh lesson is known on any device, whatever its clock says. A rewrite that fails, or
+    // that a reload cuts off, leaves the idea marked to be learned again (Today keeps offering
+    // it), and opening the idea tries again, with his note, and says so. The old lesson is never
+    // shown as the new round.
     //   opts.feedback: a new note (Rebuild);  opts.doc: the lesson doc as the screen read it
     function startRelearn(opts) {
       opts = opts || {};
       var doc = 'doc' in opts ? opts.doc : st.seen;
-      var open = !!(st.ip.relearn && st.ip.relearnAt);
-      if (opts.feedback || !open) {
-        var ask = { relearn: true, relearnAt: U.now(), relearnNote: opts.feedback || null };
-        Object.assign(st.ip, ask);
-        saveIdea(ask);
-      }
+      var open = requestOpen(), ask = null;
+      if (opts.feedback || !open) ask = { relearn: true, relearnId: U.id('rq'), relearnAt: U.now(), relearnNote: opts.feedback || null };
+      else if (!st.ip.relearnId) ask = { relearnId: U.id('rq') };   // a request opened before requests had tokens
+      if (ask) { Object.assign(st.ip, ask); st.askSaved = saveIdea(ask); }
       // The old lesson goes from the screen at once; the new one appears only when it is whole.
-      st.again = true; st.gen++; st.asked = st.ip.relearnAt; st.feedback = st.ip.relearnNote || null; st.replay = null; st.guess = null;
+      st.again = true; st.gen++; st.asked = st.ip.relearnId; st.askRound = round(); st.rewrites = 0;
+      st.feedback = st.ip.relearnNote || null; st.replay = null; st.guess = null;
       st.ready = false; st.begun = false; st.lesson = null; st.doc = null;
       foot.hidden = true;
       U.clear(flagKept);
@@ -434,15 +517,18 @@
       paintBar();
       if (!st.watching) watchLesson();
       try { window.scrollTo(0, 0); } catch (e) { /* fine */ }
+      // Rebuild was pressed in a sheet over the lesson that has just gone: carry on at the title.
+      if (focusLost()) land(h1);
       rewrite(doc, open && !opts.feedback);
     }
-    // Begun since he asked (a job stamps startedAt when it claims the doc): the fresh lesson.
-    function fresh(doc) { return !!doc && !!st.asked && String(doc.startedAt || '') >= st.asked; }
+    // Written for this request (the rewrite stamps its token on the doc): the fresh lesson.
+    function fresh(doc) { return !!doc && !!st.asked && doc.request === st.asked; }
     // Work on the fresh lesson that has begun is finished, never begun again: whole, it opens now
     // (its rewrite finished while he was away); writing or building, or cut off part-way, U.gen
-    // joins its job, waits for the device on it, or picks it up (its claim carries his note and
-    // the briefs to avoid). Anything else (the old lesson, put back after a failed try) is
-    // rewritten. retry: an earlier try did not finish, and the card says so.
+    // joins its job, waits for the device on it, or picks it up (its claim carries his note, the
+    // briefs to avoid and the token). Anything else (the old lesson, put back after a failed try)
+    // is rewritten, at most MAX_REWRITES times before Dan says so again. retry: an earlier try
+    // did not finish, and the card says so.
     function rewrite(doc, retry) {
       var gen = st.gen, job;
       if (fresh(doc) && whole(doc)) return settled(gen, doc);
@@ -450,25 +536,50 @@
         st.prep.start(doc.status === 'building' && doc.lesson ? 'The fresh lesson\'s text is written' : 'Carrying on with the fresh lesson you asked for');
         job = function (o) { return U.gen.ensureLesson(tid, iid, o); };
       } else {
+        if (st.rewrites >= MAX_REWRITES) {
+          // Each lesson that came back was not the one asked for: another device is rewriting it
+          // too, or its request has moved on. Never a loop of rewrites: Dan decides.
+          st.prep.start('Writing the fresh lesson you asked for');
+          st.prep.fail({ message: 'It kept changing while the fresh one was being written, perhaps on your other device. Try again in a moment.' }, tryAgain);
+          return;
+        }
+        st.rewrites++;
         st.prep.start(retry ? 'Trying again for the fresh lesson you asked for' + (st.feedback ? ', with your note' : '')
           : 'Asking Claude for a new way into this idea, with a different interactive');
-        job = function (o) { if (st.feedback) o.feedback = st.feedback; return U.gen.relearn(tid, iid, o); };
+        job = function (o) { o.request = st.asked; if (st.feedback) o.feedback = st.feedback; return U.gen.relearn(tid, iid, o); };
       }
       Promise.resolve().then(function () {
         return track(job({ onStatus: function (t, meta) { if (alive() && !st.ready && st.prep) st.prep.line(t, meta); } }));
-      }).then(function (d) { settled(gen, d); }).catch(failed(gen, function () { rewrite(st.seen, true); }));
+      }).then(function (d) { return settled(gen, d); }).catch(failed(gen, tryAgain));
     }
     // The fresh lesson is whole and about to open: the idea starts its new round (stage back to
     // Predict, guess and check results cleared, the old round kept under past) and the request
-    // is closed.
+    // is closed. Read, then written: only while this request is still the open one in the round
+    // it was asked in. Resolves 'started'; 'moved' when another device opened the fresh lesson
+    // first and began the round there (that round is the one on screen now); 'other' when a newer
+    // request is open (a Rebuild on another device), which this screen now waits for instead.
+    // Two devices that read at the same moment both write; the store keeps the first start of a
+    // round (20-store.js).
     function newRound() {
-      // Another device opened this fresh lesson first and started the round there.
-      if (!st.ip.relearn && st.asked && String(st.ip.againAt || '') >= st.asked) return;
-      var now = U.now(), prev = round(), past = {};
-      past[prev] = { stage: st.ip.stage || null, predict: st.ip.predict || null, checks: st.ip.checks || null, doneAt: st.ip.doneAt || null, at: now };
-      var fields = { round: prev + 1, stage: 'predict', startedAt: now, againAt: now, relearn: false, relearnAt: null, relearnNote: null, predict: null, checks: null, doneAt: null, past: past };
-      st.ip = normalise(Object.assign({}, st.ip, U.clone(fields)));
-      saveIdea(fields);
+      var prev = st.askRound, want = st.asked;
+      return Promise.resolve(st.askSaved).then(function () { return U.store.progress.get(tid); }).then(function (p) {
+        return ((p && p.ideas) || {})[iid] || {};
+      }, function () { return st.ip; }).then(function (cur) {
+        // The round has moved on since he asked (the request was asked in round prev).
+        if ((Number(cur.round) || 0) !== prev || round() !== prev) { adopt(cur); return 'moved'; }
+        // (A request with no token yet there is this screen's own, still on its way.)
+        if (cur.relearn && cur.relearnId && cur.relearnId !== want) {
+          adopt(cur);
+          st.asked = cur.relearnId; st.feedback = cur.relearnNote || null; st.rewrites = 0;
+          return 'other';
+        }
+        var now = U.now(), past = {}, was = Object.assign({}, st.ip, cur);
+        past[prev] = { stage: was.stage || null, predict: was.predict || null, checks: was.checks || null, doneAt: was.doneAt || null, at: now };
+        var fields = { round: prev + 1, stage: 'predict', startedAt: now, againAt: now, relearn: false, relearnId: null, relearnAt: null, relearnNote: null, predict: null, checks: null, doneAt: null, past: past };
+        st.ip = normalise(Object.assign({}, st.ip, U.clone(fields)));
+        saveIdea(fields);
+        return 'started';
+      });
     }
 
     // ---- stage machinery ----
@@ -583,9 +694,9 @@
     // ---- saving progress ----
     // Every write names the round it belongs to, so a screen still showing an older lesson can't
     // write over the new one (the store drops it).
-    function saveIdea(fields) {
+    function saveIdea(fields, r) {
       if (st.gone) return Promise.resolve(null);
-      fields.round = round();
+      fields.round = r != null ? r : round();
       var p = { lastIdea: iid, ideas: {} };
       p.ideas[iid] = fields;
       return U.store.progress.patch(tid, p).catch(function () { /* the store already told Dan */ });
@@ -644,7 +755,8 @@
       }
     }
     // noAnswer: his guess only, without "What happens" (Play is not finished yet).
-    function guessAndReveal(noAnswer) {
+    // titled false: the reveal goes without its "What happens" eyebrow (Play is headed so already).
+    function guessAndReveal(noAnswer, titled) {
       var p = (st.lesson && st.lesson.predict) || {};
       var gr = guessOf(), g = gr && gr.answer;
       var said = g != null && g !== '';
@@ -654,7 +766,7 @@
         U.h('div', { class: 'lsn-reveal-guess' + (right ? ' is-right' : '') }, eyebrow('Your guess'),
           said ? U.inline(U.h('p'), String(g)) : U.h('p', { class: 'muted' }, 'You skipped the guess.'),
           right ? U.h('p', { class: 'lsn-called' }, U.icon('tick'), 'You called it.') : null),
-        p.reveal && !noAnswer ? U.h('div', { class: 'lsn-reveal-answer callout remember' }, eyebrow('What happens'), richBox(p.reveal, 'lsn-reveal-text', fn)) : null);
+        p.reveal && !noAnswer ? U.h('div', { class: 'lsn-reveal-answer callout remember' }, titled === false ? null : eyebrow('What happens'), richBox(p.reveal, 'lsn-reveal-text', fn)) : null);
     }
 
     // ---- 2. Play ----
@@ -679,10 +791,19 @@
         U.clear(after);
         var acting = live && !st.closed.play;
         if (played || !has) {
-          after.appendChild(guessAndReveal());
+          // Without an interactive, Play is headed "What happens": the answer is not titled again.
+          after.appendChild(guessAndReveal(false, has));
           if (acting) after.appendChild(go(btn('Continue', function () { complete('play'); }, 'lsn-main')));
         } else if (acting) {
-          after.appendChild(go(btn('I\'ve had a play', function () { played = true; drawAfter(); bring(after, 'nearest'); }, 'lsn-main')));
+          after.appendChild(go(btn('I\'ve had a play', function () {
+            played = true;
+            drawAfter();
+            // The button has gone: focus goes to what appeared (the answer), which is also said.
+            var reveal = (st.lesson && st.lesson.predict && st.lesson.predict.reveal) || '';
+            land(after.querySelector('.lsn-reveal-answer') || after.querySelector('.lsn-reveal-guess'));
+            if (reveal) announce('What happens: ' + reveal);
+            bring(after, 'nearest');
+          }, 'lsn-main')));
         }
       }
       drawAfter();
@@ -748,6 +869,23 @@
         U.h('p', { class: 'lsn-none-head' }, 'No interactive for this one'),
         U.h('p', { class: 'muted' }, why + ' What happens is just below.'));
     }
+    function named(c) { return !!c && Array.isArray(c.options) && c.options.length > 0; }
+    // The lesson's own name for a named control's value from the frame, or null. raw: the index
+    // the lesson uses, or an option's name; else (info: the frame's report of that control, its
+    // option values and labels) the option whose value it is, by its label when that is one of
+    // the lesson's names, else by its place when the frame has the lesson's options in order.
+    function optionName(c, raw, info) {
+      var names = c.options.map(String);
+      if (typeof raw === 'number' && Number.isInteger(raw) && raw >= 0 && raw < names.length) return names[raw];
+      if (typeof raw === 'string' && names.indexOf(raw) >= 0) return raw;
+      if (raw == null || !info || !Array.isArray(info.options)) return null;
+      var at = -1;
+      info.options.forEach(function (v, i) { if (at < 0 && (v === raw || String(v) === String(raw))) at = i; });
+      if (at < 0) return null;
+      var label = Array.isArray(info.labels) ? String(info.labels[at]) : null;
+      if (label != null && names.indexOf(label) >= 0) return label;
+      return info.options.length === names.length ? names[at] : null;
+    }
     // "What am I looking at?": the numbers behind the interactive. Values Dan sets are read from
     // the interactive when the panel opens, so they match what it shows; the rest are labelled as
     // the values it starts from.
@@ -768,33 +906,38 @@
             var now = c ? U.h('span', { class: 'lsn-num-now', hidden: true }) : null;
             if (now) live.push({ el: now, c: c });
             var val = String(n.value == null ? '' : n.value);
-            var named = c && Array.isArray(c.options) && c.options.length ? c.options.map(String) : null;
+            var choices = named(c) ? c.options.map(String) : null;
             return U.h('div', { class: 'lsn-num' },
               U.h('dt', null, String(n.label)),
               U.h('dd', null, U.h('span', { class: 'lsn-num-val' }, n.kind === 'assumed' && !/^for example/i.test(val) ? 'for example ' + val : val), now,
                 NUMBER_KIND[n.kind] ? U.h('span', { class: 'lsn-num-kind' }, NUMBER_KIND[n.kind] + (n.kind === 'computed' && mount ? ', from its starting values' : '')) : null,
                 n.source != null && sourceOf(n.source) ? fnButton(n.source) : null),
-              named ? U.h('dd', { class: 'lsn-num-options' }, 'Choices: ' + named.join(' · ')) : null);
+              choices ? U.h('dd', { class: 'lsn-num-options' }, 'Choices: ' + choices.join(' · ')) : null);
           })) : null]);
         if (live.length && mount && typeof mount.get === 'function') {
           d.addEventListener('toggle', function () {
             if (!d.open) return;
-            Promise.race([Promise.resolve().then(function () { return mount.get(); }), U.sleep(1500).then(function () { return null; })]).then(function (s) {
-              var params = s && s.params || {};
-              live.forEach(function (x) {
-                var raw = params[x.c.id], text = null;
-                if (Array.isArray(x.c.options) && x.c.options.length) {
-                  // A named control: its value is the chosen option (or its index).
-                  text = typeof raw === 'number' && x.c.options[raw] != null ? String(x.c.options[raw]) : (typeof raw === 'string' && raw ? raw : null);
-                } else {
-                  var v = Number(raw);
-                  if (raw != null && raw !== '' && isFinite(v)) text = (Math.round(v * 1000) / 1000).toLocaleString() + (x.c.unit ? ' ' + x.c.unit : '');
-                }
-                if (text == null) return;
-                x.el.textContent = 'now ' + text;
-                x.el.hidden = false;
+            function ask(fn) { return Promise.race([Promise.resolve().then(fn), U.sleep(1500).then(function () { return null; })]).catch(function () { return null; }); }
+            ask(function () { return mount.get(); }).then(function (s) {
+              var params = (s && s.params) || {};
+              // Values from the frame are only ever shown in the lesson's own words: a number, or
+              // one of the lesson's option names. Any other value of a named control (the kit
+              // gives the chosen option's value, which a body may set to anything) is looked up
+              // among the options the interactive reports, and shown as the lesson's option there.
+              var odd = live.some(function (x) { return named(x.c) && optionName(x.c, params[x.c.id], null) == null && params[x.c.id] != null; });
+              return (odd && typeof mount.inputs === 'function' ? ask(function () { return mount.inputs(); }) : Promise.resolve(null)).then(function (inp) {
+                var info = {};
+                ((inp && inp.inputs) || []).forEach(function (x) { if (x && x.id) info[x.id] = x; });
+                live.forEach(function (x) {
+                  var raw = params[x.c.id], text = null;
+                  if (named(x.c)) text = optionName(x.c, raw, info[x.c.id]);
+                  else if (typeof raw === 'number' && isFinite(raw)) text = (Math.round(raw * 1000) / 1000).toLocaleString() + (x.c.unit ? ' ' + x.c.unit : '');
+                  if (text == null) return;
+                  x.el.textContent = 'now ' + text;
+                  x.el.hidden = false;
+                });
               });
-            }, function () { /* the interactive did not answer: the starting values stay */ });
+            }).catch(function () { /* the interactive did not answer: the starting values stay */ });
           });
         }
         notes.appendChild(d);
@@ -870,17 +1013,25 @@
       compose.hidden = attempts.length > 0;
       if (attempts.length) next();
 
+      // The screen this answer was given on: once a new round has begun (Rebuild, or Learn it
+      // again on another device) the old answer is filed under its own round and never shown as
+      // an answer to the new lesson's question.
+      function here(r0) { return alive() && r0 === round() && box.isConnected; }
       function submit() {
         var text = ta.value.trim();
         if (!text || busy) return;
         busy = true;
+        var r0 = round();
         U.clear(slot);
         var no = attempts.length + 1;
         var view = attemptView(text, no);
-        var wait = U.h('div', { class: 'lsn-grading', role: 'status' }, U.h('p', null, 'Reading your answer…'), U.h('div', { class: 'working', 'aria-hidden': 'true' }));
+        var wait = U.h('div', { class: 'lsn-grading' }, U.h('p', null, 'Reading your answer…'), U.h('div', { class: 'working', 'aria-hidden': 'true' }));
         view.appendChild(wait);
         log.appendChild(view);
         compose.hidden = true;
+        // The button has gone with the box: focus waits on the answer being read.
+        land(wait.firstChild);
+        announce('Reading your answer…');
         bring(view, 'nearest');
         Promise.resolve().then(function () {
           if (!U.gen || typeof U.gen.grade !== 'function') throw { message: 'Checking answers is not available in this view.' };
@@ -892,39 +1043,50 @@
           var rec = { text: text, at: U.now(), verdict: g.verdict || 'not-yet', met: rubric.map(function (r, i) { return !!(g.met && g.met[i]); }), nailed: String(g.nailed || ''), followUp: String(g.followUp || '') };
           if (typeof g.model === 'string' && g.model.trim()) rec.model = g.model.trim();
           // Saved even if Dan has left the lesson while it was being graded.
-          record(rec);
-          if (!alive()) return;
+          record(rec, r0);
+          if (!here(r0)) return;
           wait.remove();
-          view.appendChild(gradeView(rec, no, true));
+          var graded = gradeView(rec, no, true);
+          view.appendChild(graded);
           next();
+          land(graded.querySelector('.lsn-verdict'));
+          announce((VERDICT[rec.verdict] || 'Checked') + '. ' + rec.nailed);
           bring(view.lastChild, 'nearest');
         }).catch(function (e) {
           busy = false;
-          if (!alive()) return;
+          if (!here(r0)) return;
           view.remove();
           compose.hidden = false;
+          var again = btn('Try again', submit, 'small');
           slot.appendChild(U.h('div', { class: 'notice bad' }, U.h('div', { class: 'stack-sm' },
             U.h('p', null, U.h('strong', null, 'Your answer could not be checked just now. '), U.errText(e)),
-            U.h('div', { class: 'row' }, btn('Try again', submit, 'small'),
+            U.h('div', { class: 'row' }, again,
               linkBtn('Save it without checking', function () {
                 U.clear(slot);
                 var rec = { text: text, at: U.now(), verdict: null, met: [] };
-                record(rec);
+                record(rec, r0);
+                if (!here(r0)) return;
                 log.appendChild(attemptView(text, attempts.length));
                 compose.hidden = true;
-                reveal();
+                reveal(true);
               })))));
+          land(again);
+          announce('Your answer could not be checked just now. ' + U.errText(e));
         });
       }
-      // Each attempt is its own entry (keyed), so answers given on two devices are both kept.
-      function record(rec) {
-        rec.round = round();
+      // Each attempt is its own entry (keyed), so answers given on two devices are both kept. r0:
+      // the round it was given in; saved under it whatever round has begun since (the Book keeps
+      // his words), but only an answer in the round on screen counts towards it.
+      function record(rec, r0) {
+        rec.round = r0;
         var k = U.key(), patch = {};
-        attempts.push(rec);
-        st.ip.say[k] = rec;
+        if (r0 === round()) {
+          attempts.push(rec);
+          st.ip.say[k] = rec;
+        }
         patch[k] = rec;
         delete drafts[key];
-        saveIdea({ say: patch });
+        saveIdea({ say: patch }, r0);
       }
       function next() {
         var last = attempts[attempts.length - 1];
@@ -938,14 +1100,20 @@
               ta.focus();
               bring(compose, 'nearest');
             }, 'lsn-main'),
-            linkBtn('Show me a model answer', reveal)));
+            linkBtn('Show me a model answer', function () { reveal(true); })));
         } else reveal();
       }
-      function reveal() {
+      // tapped: Dan asked for it (the link he pressed has gone): focus goes to the model answer,
+      // or to Continue when there is none.
+      function reveal(tapped) {
         var last = attempts[attempts.length - 1];
         U.clear(after);
         if (modelOf(last)) after.appendChild(modelAnswer(last, !last || last.verdict !== 'got-it'));
         if (!st.closed.say) after.appendChild(go(btn('Continue', function () { complete('say'); }, 'lsn-main')));
+        if (!tapped) return;
+        var model = after.querySelector('.lsn-model');
+        land(model || after.querySelector('.btn'));
+        if (model) announce('Here is a model answer.');
       }
       function attemptView(text, no) {
         return U.h('div', { class: 'lsn-attempt' },
@@ -1049,7 +1217,8 @@
         }
         st.cards.push(el);
         host.appendChild(el);
-        if (scroll) bring(host);
+        // The next question: focus goes to it (bring), and its number is said.
+        if (scroll) { bring(host); announce('Question ' + (k + 1) + ' of ' + all.length + '.'); }
       }
     }
 
@@ -1136,9 +1305,18 @@
     }
 
     // ---- Ask Claude, flagging, errors ----
+    // The interactive Dan is using now: during the checks, a target question's own copy (its
+    // card exposes its mount) while that question is the one on screen; else Play's.
+    function mountInUse() {
+      if (st.begun && st.stage === 'checks') {
+        var card = st.cards[st.cards.length - 1];
+        if (card && card.mount && typeof card.mount.get === 'function') return card.mount;
+      }
+      return st.liveMount;
+    }
     function openTutor() {
       if (!U.tutor || typeof U.tutor.open !== 'function') { U.toast('Ask Claude is not available in this view.'); return; }
-      var m = st.liveMount;
+      var m = mountInUse();
       U.tutor.open({
         tid: tid, iid: iid, topic: st.topic, idea: st.idea, lesson: st.lesson, lessonDoc: st.doc, stage: st.begun ? st.stage : null,
         getState: m && typeof m.get === 'function' ? function () { return m.get(); } : null,

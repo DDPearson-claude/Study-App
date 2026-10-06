@@ -54,7 +54,8 @@ and `"@@BUILD@@"` (date + short git sha) are required; `"@@KIT_MD@@"` and `"@@KI
   first line is `TASK: <name>`.
 - Browser storage is per device and always inside try: localStorage `mu-prefs` (prefs mirror),
   `mu-layout`, `mu.device` (device id), `mu.minutes` (today's study minutes on this device, shared
-  by its tabs), `mu.outbox.<uid>.<page>` (held writes to private docs); sessionStorage `mu.tab` (tab id).
+  by its tabs), `mu.outbox.<uid>.<page>` (held writes to private docs); sessionStorage `mu.tab` (tab id)
+  and `mu.tab.open` (the page of this tab that is open now).
 
 ### Core API (`00-core.js`)
 ```
@@ -64,7 +65,12 @@ U.rich(text, {footnotes?:{has(n), open(n)}}) -> DocumentFragment   blank lines s
     block of "- " lines is a list; **bold**, *italic*, [[term]] -> mark.term, [^n] -> button.fn
     (dropped when has(n) is false), `code`. No links, no raw HTML.   U.inline(el, text, opts); U.plain(text)
 U.append / U.clear / U.svg (static app markup only) / U.icon(name, cls?)   U.id(prefix)   U.key()   U.device()
-U.tab()   this tab's id (sessionStorage mu.tab: kept through a reload, never shared by two tabs)
+U.tab()   this tab's id (sessionStorage mu.tab: kept through a reload, never shared by two open tabs).
+    "Duplicate tab" copies sessionStorage: a page that finds mu.tab.open set at load (an open page of
+    this tab, or the copy of one; cleared on pagehide, so a reload keeps the id) takes a fresh id,
+    decided at once (the generator names its jobs as it loads). Each page also says hello on the
+    BroadcastChannel 'mu.tab'; a page of another tab with the same id answers, and both then report
+    U.tab.shared() true (U.store.lesson.abandoned is then never true for that id)
 U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
     keyed lists: maps keyed by U.key() (time first), or old arrays read as L000, L001…; oldest first
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
@@ -74,7 +80,7 @@ U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, ask-soft, interac
 U.toast(text, {kind:'info'|'good'|'bad', ms})   the same text again extends the one shown. While a phone's
     bottom sheet is open: at the top, the newest only, cut to the whole lines that fit above the
     sheet's heading (U._fitToasts; a cut one opens on a tap), so its title and Close stay in view
-U.errText(e) -> one plain sentence (db errors never blame Claude)   U.fail(view, e)   U.haptic   U.cheer(text?)
+U.errText(e) -> one plain sentence (db errors never blame Claude)   U.fail(view, e)   U.haptic   U.cheer(text?) (gone on the next route)
 U.sheet({title, body, actions:[{label, kind, onClick(api)}], onClose, autofocus, key}) -> {el, key, focus(), close({quiet})}
     modal: #app is inert behind it, Tab stays in the top sheet, Escape closes, focus returns on
     close; the same key (default: the title) brings the open one forward. U.closeSheets() on every route.
@@ -164,7 +170,7 @@ U.store.topics.watch(fn, onError) -> stop   fn(topic docs, newest updatedAt firs
 U.store.topic.get / watch(tid, fn, onError) / create(doc) / update(tid, patch) / remove(tid) -> {leftovers}
 U.store.lesson.get / watch / set(tid, iid, doc) / update(tid, iid, patch, {quiet?}) / remove(tid, iid) / list(tid)
 U.store.lesson.state(doc, live?) -> 'ready'|'preparing'|'failed'|'none'    (section 4; live: U.gen.status's word for it)
-U.store.lesson.abandoned(doc, live?) -> bool   writing/building, by.tab is U.tab(), no job of this page on it (section 4)
+U.store.lesson.abandoned(doc, live?) -> bool   writing/building, by.tab is U.tab() (not shared), no job of this page on it (section 4)
 U.store.research.get(tid, key) / set(tid, key, doc)
 U.store.progress.get(tid) / watch(tid, fn, onError) / patch(tid, patch) / all() -> {tid: doc}       private
 U.store.cards.get(tid) / patch(tid, patch) / update(tid, cardId, fn(card) -> fields|null) / all() / dropOrphan(tid)
@@ -210,7 +216,9 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   then deletes its lessons, research, progress and cards. `lesson.remove` deletes one lesson doc.
 - Progress rules, applied to the doc as it is when the write lands: within a round, stage only
   moves forward and `predict`, `startedAt`, `doneAt` and each `checks[id]` keep their first
-  value; a write tagged with an older round loses its round fields (say entries still land);
+  value; a write tagged with an older round loses its round fields (say entries still land); a
+  write that begins a round (it carries `againAt`) lands only on the round before it: one tagged
+  with the round the doc is already in (another device began it first) loses its round fields;
   `cardsRound` never goes back. `profile.patch` stamps `prefsAt[key]` for each setting it writes.
   The first keyed write over an old array list converts it in place.
 - Subscriptions call `onError(e, {retrying})`: on `unavailable` (the platform's dead bridge) they
@@ -250,6 +258,7 @@ kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
   interactive:{ html, title, brief, selftest: Report, attempts } | null,
   note: string|null,                             // why there is no interactive
   avoid:[brief]|null, feedback: string|null,      // Learn it again: briefs to avoid, Dan's note
+  request: string|null,                           // the Learn it again request it was written for
   error, errorCode?, errorDetail?,                // when failed
   flags:{ [key]:{ note, at, stage } } }           // "This looks wrong", newest 30; kept when the
                                                   // lesson is rewritten or a stopped job puts it back
@@ -262,7 +271,7 @@ doc means: `ready`; `preparing` (this page's job is on it, by `live`, else a wri
 touched within the last 4 minutes, which a running job's 45 s heartbeat keeps fresh, and not
 abandoned); `failed`; `none` (nothing yet, or work that stopped: opening the lesson prepares it).
 `U.store.lesson.abandoned(doc, live)`: a writing/building doc held by this tab (`by.tab` is
-`U.tab()`) with no job of this page on it. Its job died with an earlier load of the tab (a reload)
+`U.tab()`, an id no other open tab answers to) with no job of this page on it. Its job died with an earlier load of the tab (a reload)
 or ended without saving, so nobody is working on it however fresh it looks; the generator does not
 wait for it either. The screens that follow the next idea start such a prefetch again (section 7).
 `topics/{tid}/research/{key}`   key `'topic'` (always written) or an idea id (when it has notes):
@@ -292,12 +301,14 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     past:{ [round]:{ stage, predict, checks, doneAt, at } },   // earlier rounds
     replays:{ [key]:{ at, predict, checks } },                 // "Go through it again" runs
     cardsRound?,                                               // the round whose review cards were made
-    againAt?, relearn?, relearnAt?, relearnNote?, known? } } }
+    againAt?, relearn?, relearnId?, relearnAt?, relearnNote?, known? } } }
 ```
-`relearn: true` is an open Learn it again request (set by Today, or by the lesson screen when Dan
-asks): opening the idea writes the fresh lesson. `relearnAt` is when the screen began its rewrite
-and `relearnNote` his "This looks wrong" note for the writer. The request stays open, and the
-round unchanged, until the fresh lesson is whole; the round that begins then clears all three
+`relearn: true` alone is Today's suggestion (the idea was slipping when Today looked): it never
+rebuilds a lesson by itself. With `relearnId` it is Dan's open Learn it again request (Today's link
+followed while the idea is slipping, or Rebuild): `relearnId` is its token, which the rewrite stamps
+on the lesson doc it writes (`request`), `relearnAt` when he asked and `relearnNote` his "This looks
+wrong" note for the writer. Opening the idea writes the fresh lesson. The request stays open, and
+the round unchanged, until the fresh lesson is whole; the round that begins then clears them all
 (section 7). `known` is read alongside the plan's `known`, but nothing writes it at present.
 
 `profile/cards/{tid}`
@@ -481,8 +492,10 @@ Pipelines (`31-generate.js`):
    with priority background, and aborting `signal` cancels it until a foreground caller joins.
    A cancelled job stops waiting at once (for research, Claude, the interactive's build, another
    device) and leaves the doc as the rules below say.
-4. `relearn(tid, iid, {onStatus, feedback})` always writes a new lesson, avoiding up to 3 earlier
-   interactive briefs; `feedback` (Dan's note, up to 1000 characters) is put to the writer. It
+4. `relearn(tid, iid, {onStatus, feedback, request})` always writes a new lesson, avoiding up to 3
+   earlier interactive briefs; `feedback` (Dan's note, up to 1000 characters) is put to the writer;
+   `request` (his request's token) is stamped on the doc as `request`, and a job that picks a
+   rewrite up part-way (ensureLesson's takeover) keeps the doc's token. It
    never joins a job running for that lesson (a first writing, an interactive still building,
    another relearn). A foreground one (Dan is waiting for it) finishes first; a background one (a
    prefetch, or a lesson he left while it was being written: `demote`) is cancelled (queued calls
@@ -529,27 +542,54 @@ note ("This usually takes a few minutes. You can leave this screen; it keeps goi
 is open."). Never Predict or any lesson text. It switches to the whole lesson when its job settles
 or when the watched doc turns whole (another device finished it), resuming at the saved stage.
 The idea counts as started (`startedAt`, `stage`, `lastIdea`) only once the whole lesson is on
-screen. A failure shows Try again on the card. Learn it again (and Rebuild) takes the old lesson
-off the screen at once and shows the card until a fresh lesson is whole: one begun since he asked
-(its `startedAt`, stamped when a job claims the doc, is not before `relearnAt`). The old ready doc
-is never adopted from the watch, nor from a job that hands it back; a fresh one finished elsewhere
-is. The request (`relearn`, `relearnAt`, `relearnNote` on progress) stays open until then; only
-when the fresh lesson opens does the idea start its new round (round + 1, stage predict, guess and
-checks cleared, the old round under `past`, `againAt` now, the request cleared). A rewrite that
-fails leaves the idea as it was and still marked to be learned again (Today keeps offering it);
-opening it again tries the rewrite again with his note, the card's first line saying so ("Trying
-again for the fresh lesson you asked for[, with your note]"). Work on the fresh lesson that has
-begun is finished, not begun again: whole, it opens as the new round (its rewrite finished while
-he was away); writing or building (or cut off by a reload) it goes through `ensureLesson`, whose
-claim carries his note and the briefs to avoid.
+screen. A failure shows Try again on the card. Learn it again happens only when Dan chose it and it
+is current: his own open request (`relearnId` on progress), or Today's link (`/again`) followed
+while the idea is still slipping (`U.review.slipping()`; when that cannot be told, his tap stands).
+Today's flag alone, or a stale link, opens the lesson as it is. Learn it again (and Rebuild) takes
+the old lesson off the screen at once and shows the card until a fresh lesson is whole: the one
+written for his request (the doc's `request` is the progress's `relearnId`), never decided by
+comparing two devices' clocks. The old ready doc is never adopted from the watch, nor from a job
+that hands it back; a fresh one finished elsewhere is. One screen starts at most two rewrites of
+its own for a request (a doc that comes back for another request, say another device rewriting it
+too, is rewritten once more); then the card says so with Try again, which Dan must press. The
+request (`relearn`, `relearnId`, `relearnAt`, `relearnNote` on progress) stays open until then;
+only when the fresh lesson opens does the idea start its new round (round + 1, stage predict, guess
+and checks cleared, the old round under `past`, `againAt` now, the request cleared). The screen
+re-reads progress first and starts the round only while his request is still the open one in the
+round it was asked in: another device that opened the fresh lesson first has begun the round
+(this screen opens it in that round), and a newer request (Rebuild elsewhere) is followed instead;
+two devices that read at the same moment are settled by the store (section 3: the first start of a
+round stands). A rewrite that fails leaves the idea as it was and still marked to be learned again
+(Today keeps offering it); opening it again tries the rewrite again with his note, the card's
+first line saying so ("Trying again for the fresh lesson you asked for[, with your note]"). Work
+on the fresh lesson that has begun is finished, not begun again: whole, it opens as the new round
+(its rewrite finished while he was away); writing or building (or cut off by a reload) it goes
+through `ensureLesson`, whose claim carries his note, the briefs to avoid and the token.
+
+A say-it-back answer is filed under the round it was given in (the grade may land after a new round
+began); only answers of the round on screen count towards it. During the checks, Ask Claude is told
+the settings of the interactive Dan is using: a target question's own copy (its card's `mount`)
+while it is the question on screen, else Play's. "What am I looking at?" shows a control's value
+from the frame only as a number or one of the lesson's own option names (an option value the
+frame reports is mapped to its label through `inputs()`), never other text from the frame.
+
+Screen readers and keyboards: results are said in one polite live region (`.lsn-said`: what happens
+after "I've had a play", "Reading your answer…", the verdict with what he nailed, "Here is a model
+answer.", "Question n of m."), and focus moves to what has just appeared (the answer, the verdict,
+the model answer, the next question's heading, the next item to place on an order card, Continue
+carrying the verdict on a checked card), never left on a removed button. In a lesson the page's
+scroll padding reserves the sticky lesson bar, so a focused element never sits under it.
 
 The steps on the card are one line each. A doc with its text starts with "The lesson text is
 written" and the build's own lines follow (resuming adds no line of its own); both a fresh write
 and a resume end the build with the line for what really happened, "Interactive tested and
-ready." or "Finishing without the interactive…". A lesson whole without its interactive (none
-planned, or one that never passed its tests) is played by what was built: Predict asks for a
-guess without "before you play", and Play is headed "What happens", never with the title of an
-interactive that is not there.
+ready." or "Finishing without the interactive…". A step that did not work out (a test that found
+problems, a repair that did not pass: the next line is a repair or "Finishing without the
+interactive") ends with a quiet dash, never a tick; the step a failed job stopped at gets the red
+cross. A lesson whole without its interactive (none planned, or one that never passed its tests) is
+played by what was built: Predict asks for a guess without "before you play", and Play is headed
+"What happens" (said once: the answer under it has no second "What happens" over it), never with
+the title of an interactive that is not there.
 
 Prefetch: once a lesson is whole, the next open idea is ensured with `background: true`: written,
 its interactive built and tested, and saved `ready`, all as background work. Leaving a lesson
@@ -618,10 +658,11 @@ Learn it again: an idea with two or more Again grades in 30 days is slipping, co
 since it was last learned and since its latest round began (`againAt`). Until Dan finishes a new
 round, the old round's cards stay in review with their old `learnedAt`; the lapses that started
 the round never count again, so one more Again does not flag a half-done round. Today lists a
-slipping idea (link `#/t/:tid/:iid/again`) and sets `relearn: true` on its progress. The lesson
-then calls `U.gen.relearn`, and starts a new round once the fresh lesson is whole (section 7);
-until then the idea stays flagged and listed. "This looks wrong" offers the same rebuild, with
-Dan's note as feedback.
+slipping idea (link `#/t/:tid/:iid/again`) and sets `relearn: true` on its progress (a suggestion:
+it rebuilds nothing by itself). Following the link while the idea is still slipping opens Dan's
+request; the lesson then calls `U.gen.relearn`, and starts a new round once the fresh lesson is
+whole (section 7); until then the idea stays flagged and listed. "This looks wrong" offers the same
+rebuild, with Dan's note as feedback.
 
 ## 9. Module APIs (cross-file contract)
 
@@ -667,7 +708,10 @@ U.gen.demote(tid, iid, {signal?}) -> bool   a foreground job Dan left becomes ba
 `41-cards.js`, `60-today.js`
 ```
 U.cards.render(card, {mode:'lesson'|'review', lesson?, onDone(result)}) -> Element with destroy()
-   card {id, type, spec, s?}; lesson: the lesson doc (a target card mounts its interactive)
+   card {id, type, spec, s?}; lesson: the lesson doc (a target card mounts its interactive; its
+   element's `mount` is that U.sandbox.mount api). Focus never drops to the page: an answer moves it
+   to Continue (aria-describedby: the verdict), an order card to the next item to place (then
+   Check), a recall card to its panel's heading
    result {correct, grade, answer, ms, auto?, verdict?, skipped?, pending?: Promise<{grade, correct, verdict}>}
 U.cards.types / interactiveOf(doc) / controlOf(doc, id) / outputOf(doc, id) / verdictGrade(gradeResult)
    a target card names its readout and unit from outputOf ("make Time for one swing read 3 s")
@@ -692,6 +736,11 @@ U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), sum
    prepared…" / "Idea n is ready." (ready only when not started) | null
 U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}
+   A reply streams in place (finished paragraphs drawn once; only the one still coming is drawn
+   again) and a new question adds its own messages. The conversation is not a live region: one
+   status line says "Claude is answering…", then the finished reply once. The chips wrap
+   (is-wrapped) where they fit on two rows and the conversation keeps 45% of the sheet, and always
+   with a mouse; else, and while the keyboard is up (is-cramped), one sideways row that fades
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile
 U.settings.prefs / apply(prefs) / set(key, value) / fromProfile(prefs) / readLocal() / backup() / open()
 U.boot.study   visible, recently touched time (TICK 15 s, IDLE 2 min), logged with U.logStudy in 2-minute chunks;
@@ -713,7 +762,7 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/                     learn    tab learn    70-learn.js
 #/t/:tid               topic    tab learn    71-topic.js
 #/t/:tid/:iid          lesson   focus        50-lesson.js
-#/t/:tid/:iid/again    lesson   focus        Learn it again; the address becomes #/t/:tid/:iid
+#/t/:tid/:iid/again    lesson   focus        Learn it again (while the idea is slipping); the address becomes #/t/:tid/:iid
 #/today                today    tab today    60-today.js
 #/review               review   focus        60-today.js
 #/review/more          review   focus        one batch beyond the daily cap
@@ -728,11 +777,12 @@ topics started here are not source-checked); "Not connected." with the steps to 
   sends every in-app `<a href="#/…">` click through `U.go`.
 - Params must pass `U.validId`, else "This page is not here" (`U.notHere`, screen `none`). An
   unknown address or a bad %-escape goes to `#/` without a history entry.
-- On every route: the old cleanup runs, sheets close, `#view` is cleared and gets `data-screen`
+- On every route: the old cleanup runs, sheets close, a cheer still showing goes, `#view` is cleared and gets `data-screen`
   (opts.screen, else from the pattern: learn, topic, lesson, today, review, map, book);
   `html.focus` hides the top bar and tabs; the tab gets `aria-current`; the title is
   `opts.title · My University` until the view calls `U.setTitle`; the page scrolls to the top
-  and focus moves to the screen's h1 once it is drawn (unless Dan has focused something else).
+  and focus moves to the screen's h1 once it is drawn (unless Dan has focused something else), and
+  along to a new h1 when the screen draws its heading again within a few seconds.
 - Tabs Learn / Today / Map / Book (`#tabs`, Today's badge `#today-badge`) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.
 

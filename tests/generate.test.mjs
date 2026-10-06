@@ -1395,6 +1395,31 @@ test('lesson state: a busy doc this tab left with no job here (a reload killed i
   assert.equal(S(other), 'preparing', 'while it is fresh');
   assert.equal(A({ status: 'ready', lesson: { iid: 'i2' }, by: mine.by }), false, 'a whole lesson is never abandoned');
   assert.equal(A({ status: 'writing', updatedAt: now }), false, 'a doc that names no tab is not this tab\'s');
+  // A duplicated tab that kept this tab's id (U.tab.shared(), 00-core.js): its work may be live in
+  // the other tab, so nothing held by the id is taken for dead.
+  U._tabShared = true;
+  assert.equal(A(mine), false, 'the id is shared with another open tab: not abandoned');
+  assert.equal(S(mine), 'preparing', 'so it reads as being prepared while it is fresh');
+  U._tabShared = false;
+});
+
+// Learn it again across devices: the rewrite stamps the request's token on the doc it writes,
+// and a job that picks a rewrite up part-way keeps it, so any device knows the fresh lesson.
+test('relearn stamps its request token on the doc; a rewrite picked up part-way keeps it', async () => {
+  const app = await boot({ handlers: handlers() });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  await U.gen.ensureLesson('t1', 'i1');
+  const doc = await U.gen.relearn('t1', 'i1', { request: 'rqA' });
+  assert.equal(doc.request, 'rqA', 'the fresh lesson carries the token');
+  // Cut off while writing (another device's rewrite, its job gone): picked up with the token.
+  await app.seed('topics/t1/lessons/i1', { status: 'writing', updatedAt: '2026-01-01T00:00:00.000Z', startedAt: '2026-01-01T00:00:00.000Z', lesson: null, request: 'rqB', feedback: 'a note',
+    by: { device: 'dOther', tab: 'tOther', page: 'p1', holder: 'dOther/tOther' } });
+  const again = await U.gen.ensureLesson('t1', 'i1');
+  assert.equal(again.status, 'ready');
+  assert.equal(again.request, 'rqB', 'the job that finished it kept the token');
+  const plainDoc = await U.gen.relearn('t1', 'i1');
+  assert.equal(plainDoc.request, null, 'a rewrite with no request names none');
 });
 
 // Final fixes F4: the resume path (a building doc finished later) says each step once, and its

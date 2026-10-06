@@ -456,6 +456,31 @@ test('finishing an idea records the round its cards were made for; that record n
   assert.equal(srv.get(PROG1).ideas.i1.cardsRound, 2);
 });
 
+// Learn it again on two devices: both open the fresh lesson at the same moment and both start
+// the new round. The first start stands (with what Dan has done in it since); the second, late,
+// loses its round fields, so his guess is not wiped and the round does not move twice.
+test('two devices starting the same new round: the first start stands, the second changes nothing', async () => {
+  const open = finished({ relearn: true, relearnId: 'rqA', relearnAt: '2026-10-05T10:00:00.000Z' });
+  const srv = await topicWith({ i1: open }, {});
+  const A = await page(srv), B = await page(srv);
+  const start = (at) => ({ ideas: { i1: { round: 1, stage: 'predict', startedAt: at, againAt: at, relearn: false, relearnId: null, relearnAt: null, relearnNote: null,
+    predict: null, checks: null, doneAt: null, past: { 0: { stage: 'done', at } } } } });
+  await A.U.store.progress.patch('t1', start('2026-10-05T10:05:00.000Z'));
+  await A.U.store.progress.patch('t1', { ideas: { i1: { round: 1, predict: { answer: 'Huygens', at: '2026-10-05T10:05:30.000Z' }, stage: 'play' } } });
+  await B.U.store.progress.patch('t1', start('2026-10-05T10:05:01.000Z'));   // read the doc before A's start landed
+  await sleep(50);
+  const i1 = srv.get(PROG1).ideas.i1;
+  assert.equal(i1.round, 1, 'one new round, not two');
+  assert.equal(i1.againAt, '2026-10-05T10:05:00.000Z', 'the first start stands');
+  assert.equal(i1.predict && i1.predict.answer, 'Huygens', 'his guess in the round is kept');
+  assert.equal(i1.stage, 'play', 'and how far he has got');
+  assert.ok(!i1.relearn && !i1.relearnId, 'the request is closed');
+  // The same start sent again (a resend) is not a second start.
+  await A.U.store.progress.patch('t1', { ideas: { i1: { round: 1, againAt: '2026-10-05T10:05:00.000Z', relearn: false } } });
+  await sleep(50);
+  assert.equal(srv.get(PROG1).ideas.i1.predict.answer, 'Huygens');
+});
+
 test('making missing cards never resets a schedule, never makes a card twice, and never uses a rewritten lesson', async () => {
   const reviewed = (id, q, learnedAt) => ({ id, tid: 't1', iid: id.split('_')[0], type: 'choice', spec: { ...CHECKS[0], id: id.split('_')[1], q }, createdAt: '2026-09-01T10:00:00.000Z', learnedAt,
     s: { due: '2026-11-01', stability: 25, difficulty: 5, reps: 3, lapses: 0, last: '2026-10-02' }, hist: [{ at: '2026-09-10T10:00:00.000Z', grade: 3, ok: true }, { at: '2026-09-20T10:00:00.000Z', grade: 3, ok: true }, { at: '2026-10-02T10:00:00.000Z', grade: 4, ok: true }] });

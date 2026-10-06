@@ -7,10 +7,18 @@
 // Questions Dan types are saved to progress.questions ({[key]: {q, iid, at}}, the newest 20 kept;
 // older docs hold an array, see 20-store.js) so the Book can show what he wondered about; the quick
 // chips are not saved.
+//
+// A reply streams in place: the paragraphs it has finished are drawn once, and only the one still
+// coming is drawn again as text arrives; a new question adds its own messages and leaves the
+// conversation above as it is. The conversation is not a live region (it would be read out again
+// at every change): one status line says "Claude is answering…" and then the whole reply, once.
+// The chips wrap onto two rows when they fit there and leave the conversation room; otherwise, and
+// while the keyboard is up, they run on one sideways row that fades at the edge it runs past.
 (function () {
   var CHIPS = ['Explain it differently', 'Give me an example', 'Are you sure?'];
   var STARTERS = 2;     // the chips that make sense before any answer ("Are you sure?" needs one)
   var SHORT = 500;      // a viewport shorter than this (px) with the input focused: the keyboard is up
+  var ROOM = 0.45;      // wrapped chips must leave the conversation at least this share of the sheet
   var KEEP = 20;
   var threads = {};     // 'tid/iid' -> [{role, content, pending?, error?}]
   var view = null;      // the open sheet: {key, refresh(msg), close()}
@@ -123,7 +131,8 @@
       open: function (n) { U.lesson.sourceSheet(sourceOf(n)); },
     } };
 
-    var log = U.h('div', { class: 'tutor-log', role: 'log', 'aria-live': 'polite' });
+    var log = U.h('div', { class: 'tutor-log' });
+    var voice = U.h('p', { class: 'visually-hidden', role: 'status' });
     var els = new Map();
     var input = U.h('textarea', { class: 'textarea tutor-input', rows: 1, maxlength: 2000, 'aria-label': 'Your question', placeholder: 'Type your question', enterkeyhint: 'send' });
     var sendBtn = U.h('button', { class: 'tutor-send', type: 'button', 'aria-label': 'Send', disabled: true, on: { click: function () { send(input.value, false); } } }, U.icon('arrow'));
@@ -133,13 +142,20 @@
     var seeing = lesson
       ? (context.getState ? 'Claude can see this lesson and where your controls are set.' : 'Claude can see this lesson.')
       : 'Claude can see the plan for this topic.';
+    var dock = U.h('div', { class: 'tutor-dock' }, chips, U.h('div', { class: 'tutor-compose' }, input, sendBtn));
     var body = U.h('div', { class: 'tutor' },
       U.h('p', { class: 'tutor-about' }, seeing),
-      log,
-      U.h('div', { class: 'tutor-dock' }, chips, U.h('div', { class: 'tutor-compose' }, input, sendBtn)));
+      log, voice, dock);
+    var sayTimer = 0;
+    function announce(text) {
+      clearTimeout(sayTimer);
+      voice.textContent = '';
+      text = U.plain(String(text || '')).replace(/\s+/g, ' ').trim();
+      if (text) sayTimer = setTimeout(function () { voice.textContent = text; }, 80);
+    }
 
     function autosize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight + 3, 160) + 'px'; }
-    input.addEventListener('input', function () { autosize(); sync(); });
+    input.addEventListener('input', function () { autosize(); sendBtn.disabled = !!msgs.busy || !input.value.trim(); });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value, false); }
     });
@@ -149,6 +165,24 @@
       sendBtn.disabled = !!msgs.busy || !input.value.trim();
       chips.querySelectorAll('.chip').forEach(function (c, i) { c.disabled = !!msgs.busy; c.hidden = !msgs.length && i >= STARTERS; });
       if (sheet) sheet.el.classList.toggle('is-empty', !msgs.length);
+      fit();
+    }
+    // Wrapped, the chips take as many rows as they need: they wrap (is-wrapped, 50-lesson.css)
+    // when that is two rows at most and the conversation keeps at least ROOM of the sheet, and
+    // never while the keyboard is up (is-cramped). Measured wrapped every time, so the choice
+    // depends only on the sheet's size and the text size, never on the last choice.
+    function fit() {
+      if (!sheet) return;
+      var el = sheet.el;
+      el.classList.add('is-wrapped');
+      var shown = Array.prototype.filter.call(chips.querySelectorAll('.chip'), function (c) { return !c.hidden; });
+      var rows = {};
+      shown.forEach(function (c) { rows[Math.round(c.offsetTop)] = true; });
+      var head = el.querySelector('.sheet-head'), sr = el.getBoundingClientRect(), dr = dock.getBoundingClientRect();
+      var talk = dr.top - (head ? head.getBoundingClientRect().bottom : sr.top);
+      // With a mouse, always wrapped: a sideways row is hard to scroll without a touch screen.
+      var wrap = !el.classList.contains('is-cramped') && (!touch || (Object.keys(rows).length <= 2 && (!msgs.length || talk >= ROOM * sr.height)));
+      el.classList.toggle('is-wrapped', wrap);
       edges();
     }
     // A sideways row of chips that runs on past the sheet's edge fades out there (50-lesson.css).
@@ -166,7 +200,7 @@
     function cramped() {
       var h = Math.min(window.innerHeight || Infinity, vv && vv.height || Infinity);
       if (sheet) sheet.el.classList.toggle('is-cramped', touch && document.activeElement === input && h < SHORT);
-      edges();
+      fit();
     }
 
     function msgEl(m, i) {
@@ -177,33 +211,84 @@
     }
     function fill(el, m, last) {
       U.clear(el);
+      el._text = null;
       if (m.pending && !m.content) {
-        el.appendChild(U.h('div', { class: 'tutor-wait', role: 'status' }, U.h('span', null, 'Thinking'), U.h('div', { class: 'working', 'aria-hidden': 'true' })));
+        el.appendChild(U.h('div', { class: 'tutor-wait' }, U.h('span', null, 'Thinking'), U.h('div', { class: 'working', 'aria-hidden': 'true' })));
       } else if (m.error) {
         el.appendChild(U.h('div', { class: 'notice bad' }, U.h('div', { class: 'stack-sm' },
           U.h('p', null, U.h('strong', null, 'No answer this time. '), m.error),
           last ? U.h('div', null, U.h('button', { class: 'btn small secondary', type: 'button', on: { click: function () { retry(m); } } }, 'Try again')) : null)));
       } else {
-        el.appendChild(U.h('div', { class: 'tutor-text' }, U.rich(m.content, fn)));
+        stream(el, m.content);
       }
+    }
+    // The reply so far, drawn incrementally (U.rich's blocks are split by blank lines): blocks the
+    // text has moved past are final and drawn once; only the last, still growing, is drawn again.
+    // Text that is not the drawn text carried on (a reply replaced as a whole) is drawn afresh.
+    function stream(el, text) {
+      text = String(text || '').replace(/\r/g, '');
+      var t = el._text;
+      if (!t || text.indexOf(t.drawn) !== 0) {
+        U.clear(el);
+        t = el._text = { box: U.h('div', { class: 'tutor-text' }), drawn: '', at: 0, tail: [] };
+        el.appendChild(t.box);
+      }
+      if (text === t.drawn) return;
+      t.tail.forEach(function (n) { n.remove(); });
+      t.tail = [];
+      var rest = text.slice(t.at), re = /\n{2,}/g, m, from = 0;
+      while ((m = re.exec(rest))) {
+        t.box.appendChild(U.rich(rest.slice(from, m.index), fn));
+        from = m.index + m[0].length;
+      }
+      t.at += from;
+      var frag = U.rich(rest.slice(from), fn);
+      t.tail = Array.prototype.slice.call(frag.childNodes);
+      t.box.appendChild(frag);
+      t.drawn = text;
     }
     function draw() {
       U.clear(log); els.clear();
-      if (!msgs.length) {
-        log.appendChild(U.h('div', { class: 'tutor-empty' },
-          U.h('p', { class: 'tutor-empty-head' }, 'Stuck, curious or not convinced?'),
-          U.h('p', null, 'Ask anything about “' + clip(about, 60) + '”. No question is too small.')));
-      }
+      if (!msgs.length) log.appendChild(emptyEl());
       msgs.forEach(function (m, i) { var el = msgEl(m, i); els.set(m, el); log.appendChild(el); });
+      sync();
+    }
+    function emptyEl() {
+      return U.h('div', { class: 'tutor-empty' },
+        U.h('p', { class: 'tutor-empty-head' }, 'Stuck, curious or not convinced?'),
+        U.h('p', null, 'Ask anything about “' + clip(about, 60) + '”. No question is too small.'));
+    }
+    // New messages join the end of the conversation; what is above them stays as it is (a turn
+    // that failed loses its Try again, which only the last turn offers).
+    function add(list) {
+      var empty = log.querySelector('.tutor-empty');
+      if (empty) empty.remove();
+      msgs.forEach(function (m, i) {
+        var el = els.get(m);
+        if (el && m.error && list.indexOf(m) < 0 && el.querySelector('.btn')) fill(el, m, i === msgs.length - 1);
+      });
+      list.forEach(function (m) { var el = msgEl(m, msgs.indexOf(m)); els.set(m, el); log.appendChild(el); });
       sync();
     }
     var frame = 0;
     function refresh(m, finished) {
       var el = els.get(m);
       if (!el) { draw(); toBottom(false); return; }
-      if (finished) { fill(el, m, msgs[msgs.length - 1] === m); sync(); toBottom(false); return; }
+      if (finished) {
+        cancelAnimationFrame(frame); frame = 0;
+        if (m.error || !el._text) fill(el, m, msgs[msgs.length - 1] === m);
+        else stream(el, m.content);
+        sync(); toBottom(false);
+        announce(m.error ? 'No answer this time. ' + m.error : m.content);
+        return;
+      }
       if (frame) return;
-      frame = requestAnimationFrame(function () { frame = 0; fill(el, m, msgs[msgs.length - 1] === m); toBottom(false); });
+      frame = requestAnimationFrame(function () {
+        frame = 0;
+        if (m.pending && !m.content) return;
+        if (!el._text) fill(el, m, msgs[msgs.length - 1] === m); else stream(el, m.content);
+        toBottom(false);
+      });
     }
     function toBottom(force) {
       var box = sheet.el;
@@ -213,19 +298,26 @@
       text = String(text || '').trim();
       if (!text || msgs.busy) return;
       if (!chip) { input.value = ''; autosize(); saveQuestion(tid, iid, text); }
-      msgs.push({ role: 'user', content: text });
+      var mine = { role: 'user', content: text };
       var reply = { role: 'assistant', content: '', pending: true };
-      msgs.push(reply);
+      msgs.push(mine, reply);
       msgs.busy = true;
-      draw();
+      add([mine, reply]);
       chips.scrollLeft = 0;
       toBottom(true);
+      announce('Claude is answering…');
       ask(key, msgs, reply, context);
     }
     function retry(m) {
       if (msgs.busy) return;
       m.error = null; m.content = ''; m.pending = true;
-      draw();
+      msgs.busy = true;
+      var el = els.get(m);
+      if (el) fill(el, m, true);
+      sync();
+      announce('Claude is answering…');
+      // The Try again pressed has gone: focus stays in the conversation's box for the next question.
+      try { input.focus({ preventScroll: true }); } catch (e) { /* fine */ }
       ask(key, msgs, m, context);
     }
 
@@ -241,6 +333,8 @@
         window.removeEventListener('resize', cramped);
         if (vv) vv.removeEventListener('resize', cramped);
         if (ro) ro.disconnect();
+        cancelAnimationFrame(fitting);
+        clearTimeout(sayTimer);
       },
     });
     sheet.el.classList.add('tutor-sheet');
@@ -250,8 +344,15 @@
     window.addEventListener('resize', cramped);
     if (vv) vv.addEventListener('resize', cramped);
     chips.addEventListener('scroll', edges, { passive: true });
-    // The row changes size with the text size and the layout too.
-    if (window.ResizeObserver) { ro = new ResizeObserver(function () { edges(); }); ro.observe(chips); }
+    // The row changes size with the text size and the layout too, and the room the conversation
+    // has with the sheet's (a reply arriving, the window resized).
+    // (Looked at in the next frame: changing the layout from inside the observer's own callback
+    // would only make it report again.)
+    var fitting = 0;
+    if (window.ResizeObserver) {
+      ro = new ResizeObserver(function () { if (!fitting) fitting = requestAnimationFrame(function () { fitting = 0; fit(); }); });
+      ro.observe(chips); ro.observe(sheet.el);
+    }
     draw();
     requestAnimationFrame(function () { toBottom(true); });
     return sheet;

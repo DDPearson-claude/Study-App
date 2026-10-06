@@ -5,9 +5,10 @@
 //   U.gen.research(tid) -> Promise<result|null>      (re)runs source research; never rejects
 //   U.gen.ensureLesson(tid, iid, {onStatus(text), background, signal}) -> Promise<lessonDoc>
 //       background: a prefetch (yields to Dan's calls; aborting signal cancels it)
-//   U.gen.relearn(tid, iid, {onStatus, feedback}) -> Promise<lessonDoc>   new lesson, different
+//   U.gen.relearn(tid, iid, {onStatus, feedback, request}) -> Promise<lessonDoc>   new lesson, different
 //       interactive; feedback = Dan's "This looks wrong" note (up to 1000 characters), which the
-//       writer is asked to address
+//       writer is asked to address; request = his request's token, stamped on the doc it writes
+//       (and kept by a job that picks the rewrite up), so any device knows the fresh lesson
 //   U.gen.grade(say, answer, attempt, {previous, title}) -> Promise<{met, verdict, nailed, followUp, model?}>
 //   U.gen.tutor(messages, context, {onText(textSoFar), signal}) -> Promise<string>
 //   U.gen.status(tid) -> {planning, research, lessons:{iid: status}}   this page's live work
@@ -686,7 +687,7 @@
         });
       }
       if (doc && doc.status === 'building' && doc.lesson) return resume(job, doc);
-      return write(job, { avoid: doc && doc.avoid, feedback: doc && doc.feedback, prev: doc });
+      return write(job, { avoid: doc && doc.avoid, feedback: doc && doc.feedback, request: doc && doc.request, prev: doc });
     });
   }
 
@@ -735,7 +736,7 @@
       // A ready lesson does not count as done here: wait out another holder, then write.
       return (function attempt(round) {
         return claim(job).then(function (r) {
-          if (r.acquired) return write(job, { avoid: avoid.slice(0, 3), feedback: feedback, prev: doc });
+          if (r.acquired) return write(job, { avoid: avoid.slice(0, 3), feedback: feedback, request: opts.request, prev: doc });
           if (round >= CFG.LEASE_ROUNDS) throw { code: 'busy', message: 'Another device is preparing this lesson. Try again in a minute.' };
           progress(job, 'Your other device is working on this lesson. Waiting for it…', 'waiting');
           return unlessCancelled(job, U.sleep(untilExpiry(r))).then(function () { return attempt(round + 1); });
@@ -840,7 +841,7 @@
       return U.store.lesson.get(tid, iid).catch(function () { return null; }).then(function (now) {
         return U.store.lesson.set(tid, iid, {
           status: 'writing', error: null, lesson: null, interactive: null, sourced: false,
-          by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, startedAt: U.now(),
+          by: who(), avoid: avoid.length ? avoid : null, feedback: feedback, request: isStr(o.request) ? o.request : null, startedAt: U.now(),
           flags: flagsOf([o.prev, now]),
         });
       });
