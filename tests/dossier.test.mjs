@@ -141,7 +141,7 @@ test('practice is sorted into the journal\'s parts by fixed rules, word for word
   // A paragraph with no label carries on the labelled part before it; bold words that are not a
   // part's name are text, not a label.
   assert.deepEqual(kinds('**Worked example:** a 2 m swing.\n\nSo it takes about 2.8 s.\n\n**Length sets the beat.** Keep it in mind.'), [
-    'example:Worked example=a 2 m swing.|So it takes about 2.8 s.|**Length sets the beat.** Keep it in mind.',
+    'example:Worked example=A 2 m swing.|So it takes about 2.8 s.|**Length sets the beat.** Keep it in mind.',
   ]);
   assert.deepEqual(kinds('Just one plain paragraph.'), ['prose=Just one plain paragraph.']);
   assert.deepEqual(kinds(''), []);

@@ -253,9 +253,9 @@ await test('reader on a phone: cover, contents, the three leaves of a chapter, f
   eq(await app.page.locator('.d-check li').count(), 2, 'the steps as an ink checklist');
   eq((await app.page.locator('.d-check .d-step-n').allTextContents()).join(), '1,2', 'numbered');
   eq(await app.page.locator('.d-check .d-box').count(), 2, 'each with its box');
-  assert((await text(app, '.d-rules')).includes('four times the length, twice the time'), 'the rule of thumb on a taped card');
+  assert((await text(app, '.d-rules')).includes('Four times the length, twice the time'), 'the rule of thumb on a taped card, a sentence with a capital');
   eq(await app.page.locator('.d-rules .tape').count(), 2, 'taped');
-  assert(/Worked example[\s\S]*a 1 m pendulum/.test(await text(app, '.d-example')), 'the worked example as a field note');
+  assert(/Worked example[\s\S]*A 1 m pendulum/.test(await text(app, '.d-example')), 'the worked example as a field note');
   assert(/Common mistakes[\s\S]*reaction time/.test(await text(app, '.d-mistakes')), 'the common mistakes');
   const red = await app.page.evaluate(() => [getComputedStyle(document.querySelector('.d-mistakes')).color, getComputedStyle(document.querySelector('.dos')).getPropertyValue('--j-red').trim()]);
   eq(red[0], 'rgb(150, 42, 34)', 'in red ink (' + red[1] + ')');
@@ -458,7 +458,7 @@ await test('save a copy: the whole dossier as one HTML file, styles inline, font
   assert(h.startsWith('<!doctype html>') && h.includes('<style>') && /fonts\.googleapis\.com\/css2\?family=Literata/.test(h), 'a page with its styles and a fonts link');
   assert(/"Courier New", ?monospace/.test(h) && /Georgia/.test(h), 'with fallbacks');
   assert(!/<script/i.test(h) && !/\son[a-z]+=/i.test(h) && !/<iframe/i.test(h), 'no scripts, handlers or frames');
-  for (const t of ['What sets the beat', 'Small swings and big swings', 'From pendulums to clocks', 'Put it into practice', 'Rule of thumb', 'Worked example', 'Common mistakes', 'four times the length, twice the time', 'Glossary', 'Bibliography', 'The live plate plays']) assert(h.includes(t), 'contains ' + t);
+  for (const t of ['What sets the beat', 'Small swings and big swings', 'From pendulums to clocks', 'Put it into practice', 'Rule of thumb', 'Worked example', 'Common mistakes', 'Four times the length, twice the time', 'Glossary', 'Bibliography', 'The live plate plays']) assert(h.includes(t), 'contains ' + t);
   eq((h.match(/Put it into practice/g) || []).length, 1, 'practice only where the chapter has it (one of the three)');
   await noTests(app, 'the saved copy', h.replace(/&#39;|&rsquo;/g, '’').replace(/&quot;/g, '"'));
   assert(!h.includes(DAN), 'none of Dan\'s words: ' + (h.match(/DANWORDS[-\w]*/g) || []).join(', '));
