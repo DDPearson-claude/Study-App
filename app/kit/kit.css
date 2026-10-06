@@ -67,7 +67,7 @@ html.k-testing .k-after-move { animation: none; }
 @keyframes k-fade { from { opacity: 0; } to { opacity: 1; } }
 /* Quiz mode (the host's 'quiz'): Dan is answering a target check, so the sentence that would
    give the reading away is hidden, its space kept. */
-html.k-quiz .say, html.k-quiz .say *, html.k-quiz .k-veiled { visibility: hidden !important; }
+html.k-quiz .say, html.k-quiz .say * { visibility: hidden !important; }
 
 /* Custom figures that span the column are capped and centred on wide screens (kit.js sets
    --k-fig-max from the viewBox), so their text never balloons on desktop. */
@@ -254,9 +254,11 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
 
 .k-anim { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 
-/* K.drag: the page never scrolls under a finger that is dragging, and a small handle gets a 44 px
+/* K.drag: the page never scrolls under a finger that is dragging (an <svg> holding a handle gets
+   k-drag-root: Chromium ignores touch-action on SVG shapes), and a small handle gets a 44 px
    target (an invisible circle in a drawing, kit.js; this box for an HTML element). */
-.k-drag, .k-drag-hit { touch-action: none; cursor: grab; }
+.k-drag, .k-drag-hit, .k-drag-root { touch-action: none; }
+.k-drag, .k-drag-hit { cursor: grab; }
 .k-drag:active, .k-drag-hit:active { cursor: grabbing; }
 .k-drag-small::before { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
 

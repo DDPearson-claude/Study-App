@@ -205,7 +205,7 @@ U.interactive = (function () {
         (kitHas('k-after-move') ? ' (the kit reference shows how: k-after-move, K.moved).' : ': reveal it once any control differs from its opening value.') +
         ' The opening view still looks alive: the picture, its labels and the opening state are drawn, and the lead line says what to try.',
       '- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.',
-      '- Mark the brief\'s one quantity on the picture itself, labelled with its value (a bracket between the two heights reading "2.4 m").',
+      '- Mark the brief\'s one quantity on the picture itself, labelled with its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).',
       '- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).',
       '- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.',
       '- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.',
@@ -320,7 +320,8 @@ U.interactive = (function () {
         '- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.',
         '- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.',
         '- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot\'s axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.',
-        '- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it.',
+        '- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.',
+        '- A readout\'s value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.',
         '- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.',
         '- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.',
         '- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.',

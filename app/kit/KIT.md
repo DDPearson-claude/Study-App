@@ -2,7 +2,7 @@
 
 You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
 with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
-laptop, with the global `K` and a calm light and dark stylesheet. No network or storage: no web
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
 addresses, `fetch`, `localStorage`, `alert` or `prompt`.
 
 ## Page shape that works
@@ -10,7 +10,7 @@ addresses, `fetch`, `localStorage`, `alert` or `prompt`.
 2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
    pair on one phone screen. A choice that re-sorts the picture may sit above it.
 3. `<p class="say">`: one sentence that changes with the state. Then `<div class="k-readouts">`,
-   only for numbers the drawing does not already label. On a laptop both join the controls.
+   only for numbers the drawing does not already label.
 4. Secondary figures and anything that grows go below.
 5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
    sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
@@ -53,8 +53,8 @@ check names. `choice`: 2-8 short named options; `value` is an option's value or 
 index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
 content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
 the thing itself: `toValue` gets the pointer in the drawing's viewBox units (px from `el`'s
-top-left for HTML) and returns the control's value. The slider follows it (and serves the
-keyboard); the first touch counts as his move.
+top-left for HTML) and returns the control's value. The slider follows it; the first touch
+counts as his move.
 
 ## Outputs
 ```
@@ -62,6 +62,8 @@ K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, 
 ```
 Use one rounding everywhere a number appears: give `decimals` to match the lesson text, and
 build the `.say` sentence with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
 ```
 K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
 ```
@@ -158,18 +160,18 @@ Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note
 - Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
   slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
   drawing. Checks assert order and structure facts.
-- A timeline runs forward: a slider over the years (or days) since the first date, its `fmt`
-  showing the date (never numbers that fall as he moves right, as BC years do), or a stepper of
-  named events in order. Each dated event appears as he reaches its date.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
 
 ## The self-test
-Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, sets each
-control to five values, reveals the after-move parts, presses every `K.button`, plays every
-`K.anim` for 3 seconds, tries each `K.drag`, and looks again at Text size XL and in the other theme.
-It fails on an exception, NaN or undefined on the page, an update over 150 ms, sideways
-overflow, text cut off or over other text, SVG text under 11 px on a phone, a line or arrowhead
-through a label, text under 3:1 contrast with what is behind it, a colour name, a blank hole
-until a move, or no `K.ready()`.
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
 
 ## Example
 ```html
@@ -188,7 +190,7 @@ until a move, or no `K.ready()`.
   const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
   K.model((p) => ({ T: period(p.L) }));
   K.update((p, o) => {
-    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, label: K.fmt(o.T, { decimals: 2 }) + ' s', guides: true }] });
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
     document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
       : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
   });

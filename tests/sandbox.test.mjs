@@ -250,3 +250,11 @@ test('reach() passes the output\'s decimals to the kit (null when not given)', (
   assert.deepEqual(P.sent(m.frame, 'reach').map((r) => r.decimals), [2, null, 1]);
   m.destroy();
 });
+
+test('reach(): every error result says exact: false, as the contract lists it', async () => {
+  const P = fakePage();
+  const big = await P.U.sandbox.reach('x'.repeat(P.U.sandbox.MAX_BYTES + 1), { control: 'L', output: 'T', target: 2, tolerance: 0 });
+  assert.equal(big.reachable, false);
+  assert.equal(big.exact, false);
+  assert.match(big.error, /too large/);
+});

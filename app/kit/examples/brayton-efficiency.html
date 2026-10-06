@@ -3,7 +3,6 @@
   .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
   .split .work { background: var(--k-accent2); transition: width .2s ease; }
   .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
-  .split-key b { color: var(--k-ink); font-variant-numeric: tabular-nums; }
   .nowrap { white-space: nowrap; }
 </style>
 
@@ -17,7 +16,7 @@
 <div>
   <span class="k-label">Of every 100 units of heat from the fuel</span>
   <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
-  <div class="split-key"><span><b id="w">0</b> become work</span><span><b id="x">0</b> leave in the hot exhaust</span></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
 </div>
 
 <p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
@@ -45,12 +44,10 @@
   K.update((p, o) => {
     plot.draw({
       series: [{ fn: pct, label: 'Ideal efficiency' }],
-      marks: [{ x: p.r, y: o.eff, label: o.eff.toFixed(1) + '%', guides: true }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
     });
     document.getElementById('work').style.width = o.eff + '%';
-    document.getElementById('w').textContent = o.eff.toFixed(1);
-    document.getElementById('x').textContent = (100 - o.eff).toFixed(1);
-    document.getElementById('split').setAttribute('aria-label', o.eff.toFixed(1) + ' of every 100 units become work');
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
 
     let s;
     if (p.r === 1) {

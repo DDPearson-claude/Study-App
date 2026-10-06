@@ -296,7 +296,9 @@
       else { var p = +v.toPrecision(sig); s = group(p, Math.max(0, Math.min(12, decimalsOf(p)))); }
     } else s = autoText(v);
     s = s.replace(/^-/, '−');
-    if (o.sign && v > 0) s = '+' + s;
+    // −0 (and a tiny negative rounded to nothing) is 0: no sign.
+    if (!/[1-9]/.test(s)) s = s.replace(/^−/, '');
+    else if (o.sign && v > 0) s = '+' + s;
     if (o.percent) s += '%';
     return (o.prefix || '') + s + unitText(o.unit);
   }
@@ -422,7 +424,6 @@
       try { updates[i](p, out); } catch (e) { fault('K.update', e); }
     }
     if (drags.length) syncDrags();
-    if (quiz || document.querySelector('.k-veiled')) veilLabels();
     if (readyCalled) figures();
     heightSoon();
   }
@@ -498,10 +499,11 @@
   // ---------- quiz mode ----------
   // While Dan answers a target check on this page (the host's 'quiz' message, or K_QUIZ in the
   // srcdoc so it holds from the first paint), the output it asks about stays hidden and he steers
-  // by the picture and the rule: its readout shows "?" (labelled for screen readers), every .say
-  // line is hidden (visibility, so nothing moves), plot and bar labels giving its value are left
-  // out, and SVG text in the body's own drawing that gives it is hidden (k-veiled). The model runs as usual: state and change messages carry the real outputs, which
-  // the app grades. {type:'quiz', hide:null} or 'reveal' ends it. The self-test runs with it off.
+  // by the picture and the rule: its readout shows "?" (labelled for screen readers) and every .say
+  // line is hidden (visibility, so nothing moves). Nothing else is touched: the page must not print
+  // that value anywhere else (KIT.md says so, and the self-test fails a page that does: echoes).
+  // The model runs as usual: state and change messages carry the real outputs, which the app
+  // grades. {type:'quiz', hide:null} or 'reveal' ends it. The self-test runs with it off.
   var testingNow = false, quizHeld = null, HIDDEN = 'Hidden until you check your answer';
   function setQuiz(id) {
     id = typeof id === 'string' && id ? id : typeof id === 'number' ? String(id) : null;
@@ -513,61 +515,6 @@
     quiz = id;
     document.documentElement.classList.toggle('k-quiz', !!quiz);
     readoutList.forEach(function (r) { if (r.value !== undefined) r.set(r.value); });
-    plots.forEach(function (p) { if (p.drawn) p.redraw(); });
-    barList.forEach(function (b) { b.redraw(); });
-    if (everRun) run(); else veilLabels();
-  }
-  // A label in the body's own drawing that gives the hidden value away is hidden too (k-veiled:
-  // visibility, so nothing moves). Run after every update while a quiz is on.
-  function veilLabels() {
-    if (!document.body) return;
-    Array.prototype.forEach.call(document.body.querySelectorAll(quiz ? 'svg text' : 'svg text.k-veiled'), function (t) {
-      t.classList.toggle('k-veiled', !!quiz && veiled(t.textContent));
-    });
-  }
-  function quizValue() {
-    if (!quiz) return undefined;
-    if (lastOutputs && Object.prototype.hasOwnProperty.call(lastOutputs, quiz)) return lastOutputs[quiz];
-    return readouts[quiz] ? readouts[quiz].value : undefined;
-  }
-  function nearQuiz(x) {
-    var v = quizValue();
-    return isNum(v) && isNum(x) && Math.abs(x - v) <= 1e-9 * Math.max(1, Math.abs(v));
-  }
-  // Does this text give the hidden value away: a number in it that reads as that value at the
-  // number's own rounding ('2.01 s', '1,234', '−3', '45%', '2.5 × 10⁶', '1.2 million'), or the
-  // value itself, as whole words, when it is a word?
-  var WORD_CH = /[\p{L}\p{N}]/u;
-  var NUM_IN = /([−-])?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:\s*×\s*10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+))?\s*(%|thousand|million|billion|trillion|k(?![a-z]))?/gi;
-  var SCALE = { '%': 0.01, k: 1e3, thousand: 1e3, million: 1e6, billion: 1e9, trillion: 1e12 };
-  function veiled(text) {
-    var v = quizValue();
-    if (v == null || text == null || text === '') return false;
-    text = String(text);
-    if (typeof v !== 'number') {
-      var w = String(v).trim().toLowerCase(), t = text.toLowerCase(), at = w ? t.indexOf(w) : -1;
-      for (; at >= 0; at = t.indexOf(w, at + 1)) {
-        if (!WORD_CH.test(t.charAt(at - 1)) && !WORD_CH.test(t.charAt(at + w.length))) return true;
-      }
-      return false;
-    }
-    if (!isFinite(v)) return false;
-    var m;
-    NUM_IN.lastIndex = 0;
-    while ((m = NUM_IN.exec(text))) {
-      var dp = m[3] ? m[3].length : 0, x = +(m[2].replace(/,/g, '') + (m[3] ? '.' + m[3] : '')), tol = 0.5 * Math.pow(10, -dp);
-      if (m[4]) {
-        var e = +m[4].split('').map(function (ch) { for (var k in SUP) if (SUP[k] === ch) return k; return ''; }).join('');
-        x *= Math.pow(10, e); tol *= Math.pow(10, e);
-      }
-      // A hyphen may be a dash between two numbers ('2-3'), so it is read both ways.
-      var signs = m[1] === '−' ? [-1] : m[1] === '-' ? [-1, 1] : [1], scales = [1];
-      if (m[5]) scales.push(SCALE[m[5].toLowerCase()] || 1);
-      for (var i = 0; i < signs.length; i++) for (var j = 0; j < scales.length; j++) {
-        if (Math.abs(signs[i] * x * scales[j] - v) <= tol * scales[j] + Math.abs(v) * 1e-9) return true;
-      }
-    }
-    return false;
   }
 
   // ---------- controls ----------
@@ -681,6 +628,14 @@
       snaps.forEach(function (s) { if (out2.indexOf(s) < 0) out2.push(s); });
       return out2.sort(function (a, b) { return a - b; });
     };
+    // The settings strictly between two (at most 4000), so reach() can look closer than values().
+    c.between = function (a, b) {
+      var lo = Math.min(a, b), hi = Math.max(a, b), out2 = [];
+      if (log && !step) { for (var p = toPos(lo) + 1; p < toPos(hi) && out2.length < 4000; p++) out2.push(snap(fromPos(p))); }
+      else for (var k = Math.floor((lo - min) / step) + 1; min + k * step < hi && out2.length < 4000; k++) out2.push(snap(min + k * step));
+      return out2.filter(function (v) { return v > lo && v < hi; });
+    };
+    c.settle = settle;
     c.info = function () {
       var i = { id: c.id, kind: 'control', label: o.label || c.id, min: min, max: max, step: step || null, log: log, value: value };
       if (snaps.length) i.snap = snaps.slice();
@@ -938,7 +893,7 @@
     el.classList.add('k-drag');
     d.listen(el);
     drags.push(d);
-    syncDrag(d);
+    syncDrags();
     return { el: el };
   };
   // Keeps a small handle's 44 px target centred on it (it moves as the body redraws it). An HTML
@@ -965,13 +920,24 @@
     d.hit.removeAttribute('display');
     if (d.hit.parentNode !== parent || el.nextSibling !== d.hit) parent.insertBefore(d.hit, el.nextSibling);
   }
-  function syncDrags() { for (var i = 0; i < drags.length; i++) try { syncDrag(drags[i]); } catch (e) { /* layout only */ } }
+  // Chromium ignores touch-action on SVG shapes, so a drawing that holds a live handle gets
+  // touch-action: none on its <svg> (k-drag-root): a finger on the handle moves it all the way
+  // instead of scrolling the page (and cancelling the drag). It goes once no handle is left in it.
+  function syncDrags() {
+    var live = [];
+    drags.forEach(function (d) {
+      if (d.root && d.el !== d.root && d.el.isConnected && live.indexOf(d.root) < 0) live.push(d.root);
+      try { syncDrag(d); } catch (e) { /* layout only */ }
+    });
+    drags.forEach(function (d) { if (d.root && d.el !== d.root) d.root.classList.toggle('k-drag-root', live.indexOf(d.root) >= 0); });
+  }
   // The self-test asks each toValue about the drawing's corners and centre: it must give a value
   // the control can take there (a slider fits a number to its range itself).
   function dragProblems() {
     drags.forEach(function (d) {
       var c = byId[d.control];
       if (!c) { problem(d.who + ' moves control "' + d.control + '", which does not exist: use the id of one of your controls'); return; }
+      if (!d.el.isConnected) addUnique(warnings, d.who + ' left the page when the drawing was redrawn, so dragging does nothing now: create the dragged element once, outside K.update, and move it there by setting its attributes (cx, x, transform)');
       var w, h, x0 = 0, y0 = 0, vb = d.root && d.root.viewBox && d.root.viewBox.baseVal;
       if (vb && vb.width) { x0 = vb.x; y0 = vb.y; w = vb.width; h = vb.height; }
       else { var r = (d.root || d.el).getBoundingClientRect(); w = r.width; h = r.height; }
@@ -1413,7 +1379,7 @@
         ctx.fillStyle = col; ctx.fill();
         ctx.lineWidth = 2.5; ctx.strokeStyle = c.bg; ctx.stroke();
         placed.push({ x: px - rad - 2, y: py - rad - 2, w: 2 * rad + 4, h: 2 * rad + 4 });
-        if (m.label && !veiled(m.label)) shown.push({ px: px, py: py, text: String(m.label) });
+        if (m.label) shown.push({ px: px, py: py, text: String(m.label) });
       });
 
       // 6. Labels, each in the first free spot near its thing: clear of the axes and their labels
@@ -1462,7 +1428,7 @@
       }
       // Reference line labels sit beside their line, never across it.
       refLines.forEach(function (l) {
-        if (!l.label || veiled(l.label)) return;
+        if (!l.label) return;
         var text = String(l.label);
         if (isNum(l.x)) {
           var x = sx(l.x);
@@ -1474,7 +1440,7 @@
       });
       // Shade labels: inside the band where it is wide enough (widest first), else just beside it.
       shades.forEach(function (d) {
-        if (!d || !d.sh.label || veiled(d.sh.label)) return;
+        if (!d || !d.sh.label) return;
         var spots = d.pts.filter(function (p) { return ok(p[1]) && ok(p[2]); })
           .map(function (p) { return { x: sx(p[0]), y: (sy(p[1]) + sy(p[2])) / 2, gap: Math.abs(sy(p[1]) - sy(p[2])) }; })
           .sort(function (a, b) { return b.gap - a.gap; });
@@ -1490,7 +1456,7 @@
       });
       // Region labels: inside the band, at a corner.
       regions.forEach(function (r) {
-        if (!r.label || veiled(r.label)) return;
+        if (!r.label) return;
         var text = String(r.label);
         if (isNum(r.x0) || isNum(r.x1)) {
           var a = Math.min(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max)), b = Math.max(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max));
@@ -1511,14 +1477,11 @@
       while (legend.firstChild) legend.removeChild(legend.firstChild);
       var labelled = data.filter(function (d) { return d.label; });
       if (labelled.length > 1 || cur.legend === true) labelled.forEach(function (d) {
-        legend.appendChild(K.el('span', { class: 'k-key' }, K.el('i', { class: d.s.dash ? 'dash' : '', style: { color: d.color } }), veiled(d.label) ? '?' : d.label));
+        legend.appendChild(K.el('span', { class: 'k-key' }, K.el('i', { class: d.s.dash ? 'dash' : '', style: { color: d.color } }), d.label));
       });
-      // The text alternative leaves out the hidden value too (quiz mode).
-      var alt = cur.label && !veiled(cur.label) ? cur.label : ((Y.label || 'y') + ' against ' + (X.label || 'x'));
-      shades.forEach(function (d) { if (d && d.sh.label && !veiled(d.sh.label)) alt += '. Shaded: ' + d.sh.label; });
-      marks.forEach(function (m) {
-        if (m.label && !veiled(m.label)) alt += '. ' + m.label + (nearQuiz(m.x) || nearQuiz(m.y) ? '' : ' at ' + fmt(m.x) + ', ' + fmt(m.y));
-      });
+      var alt = cur.label || ((Y.label || 'y') + ' against ' + (X.label || 'x'));
+      shades.forEach(function (d) { if (d && d.sh.label) alt += '. Shaded: ' + d.sh.label; });
+      marks.forEach(function (m) { if (m.label) alt += '. ' + m.label + ' at ' + fmt(m.x) + ', ' + fmt(m.y); });
       canvas.setAttribute('aria-label', alt);
     }
 
@@ -1575,11 +1538,7 @@
         row.querySelector('span').textContent = it.label || '';
         var d = opt.dp != null ? { dp: opt.dp } : opt.decimals != null ? { dp: opt.decimals } : null;
         var text = ok ? (opt.fmt ? String(opt.fmt(it.value)) : (opt.prefix || '') + fmt(it.value, d) + unitText(opt.unit)) : '—';
-        // Quiz mode: no value label for the hidden output.
-        var b = row.querySelector('b'), hide = ok && (nearQuiz(it.value) || veiled(text));
-        b.textContent = hide ? '?' : text;
-        if (hide) { b.setAttribute('role', 'img'); b.setAttribute('aria-label', HIDDEN); }
-        else if (b.hasAttribute('role')) { b.removeAttribute('role'); b.removeAttribute('aria-label'); }
+        row.querySelector('b').textContent = text;
         var fill = row.querySelector('i');
         fill.style.width = (ok ? clamp(it.value / top, 0, 1) * 100 : 0).toFixed(2) + '%';
         fill.style.background = K.color(it.color || 'accent2');
@@ -1676,6 +1635,7 @@
   function segMeets(s, g) { return g.quad ? segInQuad(s, g.quad) : segHits(s[0], s[1], s[2], s[3], g); }
   function boxMeets(r, g) { return g.quad ? quadsMeet(g.quad, [[r.x, r.y], [r.x + r.w, r.y], [r.x + r.w, r.y + r.h], [r.x, r.y + r.h]]) : overlap(r, g); }
   // Elements to keep labels off: an element, a selector, or a list of them; a group gives its shapes.
+  var crowdedLabels = new WeakSet();   // <text>s K.labels could not place clear of everything
   function avoidList(v) {
     var out = [];
     (function add(x) {
@@ -1698,7 +1658,9 @@
   // in the drawing), off the lines and shapes in avoid (elements, a selector or a list; a line or
   // path by its course, a filled shape by its box) and inside the drawing's edges: it tries the
   // spot you gave, then just above, below, right and left. Call it in K.update with the same group
-  // each time; it replaces that group's labels.
+  // each time; it replaces that group's labels. A label with no clear spot is noted (crowdedLabels):
+  // if the self-test then finds it on a line or a label, it says once that there are more labels
+  // than room, with fixes the body can make, rather than per label.
   K.labels = function (into, items, o) {
     o = o || {};
     var g = resolve(into, 'K.labels');
@@ -1750,6 +1712,7 @@
         var cost = hit * 1000 + Math.hypot(x - b.left, y - b.top) / scale + i * 0.5;
         if (cost < bestCost) { bestCost = cost; best = [x - b.left, y - b.top]; }
       });
+      if (bestCost >= 1000) crowdedLabels.add(t);
       if (best[0] || best[1]) {
         t.setAttribute('x', +it.x + best[0] / scale);
         t.setAttribute('y', +it.y + best[1] / scale);
@@ -2356,29 +2319,39 @@
       }
       var cx = b.left + b.width / 2, cy = b.top + b.height / 2;
       if (quad) { cx = (quad[0][0] + quad[2][0]) / 2; cy = (quad[0][1] + quad[2][1]) / 2; }
+      // Its own halo: a stroke of its own, painted under the letters (paint-order: stroke), at
+      // least 2 px wide; whether it is the colour behind it is read below.
+      var po = String(ts.paintOrder || 'normal'), ps = po.indexOf('stroke'), pf = po.indexOf('fill');
+      var halo = ps >= 0 && (pf < 0 || ps < pf) && stroked(t) && (parseFloat(ts.strokeWidth) || 0) * sc >= 2 ? rgbaOf(ts.stroke) : null;
       boxes.push({ x: b.left, y: b.top, w: b.width, h: b.height, text: txt, key: key, quad: quad, el: t, cx: cx, cy: cy, ts: ts,
-        glyph: quad ? { quad: quad } : glyphRect(b), near: quad ? { x: b.left, y: b.top, w: b.width, h: b.height } : glyphRect(b), cover: [] });
+        glyph: quad ? { quad: quad } : glyphRect(b), near: quad ? { x: b.left, y: b.top, w: b.width, h: b.height } : glyphRect(b), cover: [],
+        halo: halo && halo[3] * num(ts.strokeOpacity, 1) > 0.9 ? halo : null, crowded: crowdedLabels.has(t) });
     });
     if (!boxes.length) return;
+    // Labels K.labels could not place clear (more labels than room): one fault for the drawing,
+    // with a fix the body can make, instead of one per label telling it to use avoid.
+    var crowdedHit = false, all = out;
+    out = { push: function (x) { if (x.crowded) { if (!x.warn) crowdedHit = true; return; } all.push(x); } };
+    var crowdOf = function () { for (var k = 0; k < arguments.length; k++) if (arguments[k].crowded) return true; return false; };
     for (var i = 0; i < boxes.length; i++) for (var j = i + 1; j < boxes.length; j++) {
       var p1 = boxes[i], p2 = boxes[j];
       var ix = Math.min(p1.x + p1.w, p2.x + p2.w) - Math.max(p1.x, p2.x), iy = Math.min(p1.y + p1.h, p2.y + p2.h) - Math.max(p1.y, p2.y);
       // Two labels on one row with almost no space between them read as one ("ignores itignores it").
       if (!p1.quad && !p2.quad && p1.text !== p2.text && iy > 0.5 * Math.min(p1.h, p2.h) && ix > -4 && ix <= 2) {
-        out.push({ warn: true, key: 'crowd|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are ' + (ix >= 0 ? 'touching' : 'only ' + Math.round(-ix) + ' px apart') + ' on one row, so they read as one: leave at least 4 px between them, or label only what differs' });
+        out.push({ warn: true, crowded: crowdOf(p1, p2), key: 'crowd|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are ' + (ix >= 0 ? 'touching' : 'only ' + Math.round(-ix) + ' px apart') + ' on one row, so they read as one: leave at least 4 px between them, or label only what differs' });
       }
       if (ix <= 0 || iy <= 0) continue;
       // Turned text (diagonal timeline years): its upright box is much bigger than the words, so
       // the words' own boxes are compared, a little inside their edges as below.
       if (p1.quad || p2.quad) {
         if (p1.text === p2.text && Math.abs(p1.x - p2.x) < 1 && Math.abs(p1.y - p2.y) < 1) continue;
-        if (quadsMeet(p1.quad || uprightQuad(p1), p2.quad || uprightQuad(p2))) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+        if (quadsMeet(p1.quad || uprightQuad(p1), p2.quad || uprightQuad(p2))) out.push({ crowded: crowdOf(p1, p2), key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
         continue;
       }
       var area = ix * iy, small = Math.min(p1.w * p1.h, p2.w * p2.h);
       if (p1.text === p2.text && area > 0.9 * small) continue;   // the same text drawn twice (a halo)
       // Any real overlap reads as a collision ("germ arrivesame germ returns"), even a few letters.
-      if (ix > 2 && iy > 0.35 * Math.min(p1.h, p2.h) && area > 0.03 * small) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+      if (ix > 2 && iy > 0.35 * Math.min(p1.h, p2.h) && area > 0.03 * small) out.push({ crowded: crowdOf(p1, p2), key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
     }
     // The drawing's shapes, as painted: what lies behind each label, and the lines that cross one.
     var shapes = [];
@@ -2410,13 +2383,14 @@
         } catch (e) { hit = null; }
         if (!hit) return;
         col = overOf(hit.c, hit.a, col); under++;
-        if (hit.a > 0.9) bx.cover.push(sh.el);
+        if (hit.a > 0.9 && covers(sh.r, bx.near)) bx.cover.push(sh.el);
       });
+      if (bx.halo && contrastOf(overOf(bx.halo, 1, col), col) >= 1.5) bx.halo = null;
       var f = rgbaOf(bx.ts.fill), alpha = f ? f[3] * num(bx.ts.fillOpacity, 1) * opacityTo(bx.el) : 0;
       if (!f || alpha < 0.05) return;   // no plain fill (an outline, a gradient): nothing to measure
       var worst = Infinity;
       (under || !onPage ? [col] : [page, panelBg]).forEach(function (bg) { worst = Math.min(worst, contrastOf(overOf(f, Math.min(1, alpha), bg), bg)); });
-      if (worst < 3 - 1e-6) out.push({ key: 'contrast|' + bx.key, msg: 'SVG text "' + snippet(bx.text) + '" is hard to read: ' + Math.floor(worst * 10) / 10 + ':1 contrast with ' + (under ? 'the shape behind it' : 'the page') + ' (it needs 3:1). Draw text in ink, muted, accent2, accent, warn or good (on-accent2 on a navy shape), with var(--k-…) or K.color in K.update, so it follows the theme' });
+      if (worst < 3 - 1e-6) out.push({ crowded: bx.crowded, key: 'contrast|' + bx.key, msg: 'SVG text "' + snippet(bx.text) + '" is hard to read: ' + Math.floor(worst * 10) / 10 + ':1 contrast with ' + (under ? 'the shape behind it' : 'the page') + ' (it needs 3:1). Draw text in ink, muted, accent2, accent, warn or good (on-accent2 on a navy shape), with var(--k-…) or K.color in K.update, so it follows the theme' });
     });
     // Lines through a label: a stroked line, path or outline whose course crosses its letters, or
     // an arrowhead on them. Not faint guides (a halo keeps the label readable over those), not a
@@ -2428,19 +2402,26 @@
       if (sh.stroke && (/^(line|polyline|path)$/i.test(sh.el.tagName) || !sh.fill) && contrastOf(overOf(sh.stroke.c, sh.stroke.a, page), page) >= 1.5) {
         var pad = sh.stroke.w / 2 + 2, rr = { x: sh.r.left - pad, y: sh.r.top - pad, w: sh.r.width + 2 * pad, h: sh.r.height + 2 * pad };
         boxes.forEach(function (bx) {
-          if (!overlap(rr, bx.near) || sh.stroke.w >= bx.h * 0.6 || hidden(bx, sh.el)) return;
+          if (!overlap(rr, bx.near) || sh.stroke.w >= bx.h * 0.6 || hidden(bx, sh.el) || bx.halo) return;
           segs = segs || outlineSegs(sh.el);
           for (var k = 0; k < segs.length; k++) {
-            if (segMeets(segs[k], bx.glyph)) { out.push({ key: 'cross|' + bx.key + '|' + pathOf(sh.el), msg: 'SVG text "' + snippet(bx.text) + '" has a line through it (' + describeEl(sh.el) + '): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it' }); break; }
+            if (segMeets(segs[k], bx.glyph)) { out.push({ crowded: bx.crowded, key: 'cross|' + bx.key + '|' + pathOf(sh.el), msg: 'SVG text "' + snippet(bx.text) + '" has a line through it (' + describeEl(sh.el) + '): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it' }); break; }
           }
         });
       }
       if (!marked) return;
       var heads = arrowheads(sh.el, segs || outlineSegs(sh.el), sh.cs);
       boxes.forEach(function (bx) {
-        if (!hidden(bx, sh.el) && heads.some(function (hd) { return boxMeets(hd, bx.glyph); })) out.push({ key: 'head|' + bx.key + '|' + pathOf(sh.el), msg: 'SVG text "' + snippet(bx.text) + '" sits on an arrowhead (' + describeEl(sh.el) + '): move the label clear of the arrow\'s tip' });
+        if (!hidden(bx, sh.el) && heads.some(function (hd) { return boxMeets(hd, bx.glyph); })) out.push({ crowded: bx.crowded, key: 'head|' + bx.key + '|' + pathOf(sh.el), msg: 'SVG text "' + snippet(bx.text) + '" sits on an arrowhead (' + describeEl(sh.el) + '): move the label clear of the arrow\'s tip' });
       });
     });
+    if (crowdedHit) all.push({ key: 'crowded|' + pathOf(svg), msg: 'K.labels has more labels than room in ' + describeEl(svg) + ': some still sit on a line, a shape or another label, ' +
+      'so avoid cannot be honoured. Label fewer things (only what differs), or move the labels into a key under the drawing, or a list beside it in HTML' });
+  }
+  // Does a shape's box cover most (80%) of a label's? Only then is it the label's backing (a pill).
+  function covers(r, g) {
+    var ix = Math.min(r.right, g.x + g.w) - Math.max(r.left, g.x), iy = Math.min(r.bottom, g.y + g.h) - Math.max(r.top, g.y);
+    return ix > 0 && iy > 0 && ix * iy >= 0.8 * g.w * g.h;
   }
   // The corners (page px) of a turned SVG text's own box, trimmed as the upright test allows (1 px
   // along the line, 17.5% of its height at top and bottom), or null when the text is not turned.
@@ -2509,6 +2490,65 @@
     return meant(w) ? null : w;
   }
   function seen(el) { return !!el.getClientRects().length && getComputedStyle(el).visibility === 'visible'; }
+  // ---------- echoes: an output with a readout, printed again elsewhere ----------
+  // While Dan answers a check the app hides only that readout and the .say lines (quiz mode), so
+  // a label, a bar, a plot label or an aria-label printing the same value gives the answer away.
+  // A place counts only when it shows the readout's text (as the tile rounds it) at two or more
+  // different values in the sweep: a fixed reference label ("2.00 s") or an axis tick matches one
+  // value at most. A setting where a control or another output reads the same (Dan's own push,
+  // while the grip equals it) does not count, nor does zero.
+  function holdsNum(s, t) {
+    for (var at = s.indexOf(t); at >= 0; at = s.indexOf(t, at + 1)) {
+      if (/[\p{L}\p{N}.,−-]/u.test(s.charAt(at - 1))) continue;
+      var a = s.charAt(at + t.length);
+      if (/\d/.test(a) || /[.,]/.test(a) && /\d/.test(s.charAt(at + t.length + 1))) continue;
+      return true;
+    }
+    return false;
+  }
+  function echoPlaces() {
+    var out = [], byEl = new Map(), boxes = controls.map(function (c) { return c.el; }).filter(Boolean);
+    var off = function (el) { return !!el.closest('.k-readout, .say, script, style, noscript, template, textarea') || boxes.some(function (b) { return b.contains(el); }); };
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    for (var n = walker.nextNode(); n; n = walker.nextNode()) {
+      var el = n.parentElement;
+      if (el && /\S/.test(n.nodeValue) && !off(el)) byEl.set(el, (byEl.get(el) || '') + n.nodeValue);
+    }
+    byEl.forEach(function (text, el) { if (seen(el)) out.push({ key: 'text|' + pathOf(el), text: text, where: 'the text "' + snippet(el.textContent) + '" (' + describeEl(el) + ')' }); });
+    Array.prototype.forEach.call(document.body.querySelectorAll('[aria-label]'), function (el) {
+      if (off(el) || !el.getClientRects().length || plots.some(function (p) { return p.canvas === el; })) return;
+      out.push({ key: 'aria|' + pathOf(el), text: el.getAttribute('aria-label'), where: 'the aria-label of ' + describeEl(el) + ' ("' + snippet(el.getAttribute('aria-label')) + '")' });
+    });
+    plots.forEach(function (p, i) {
+      if (p.el.isConnected) (p.labels || []).forEach(function (l, j) { out.push({ key: 'plot|' + i + '|' + j, text: l.text, where: 'the plot label "' + snippet(l.text) + '"' }); });
+    });
+    return out;
+  }
+  function echoNow(rec, ctxText) {
+    var outs = lastOutputs || {}, places = null;
+    readoutList.forEach(function (r) {
+      if (!r.el.isConnected || !Object.prototype.hasOwnProperty.call(outs, r.id) || !isNum(outs[r.id])) return;
+      var t = r.format(outs[r.id]);
+      if (!/[1-9]/.test(t)) return;
+      var others = controls.map(function (c) { return c.get(); });
+      Object.keys(outs).forEach(function (k) { if (k !== r.id) others.push(outs[k]); });
+      if (others.some(function (x) { return isNum(x) && r.format(x) === t; })) return;
+      places = places || echoPlaces();
+      places.forEach(function (pl) {
+        if (!holdsNum(String(pl.text), t)) return;
+        var key = r.id + '|' + pl.key, e = rec.seen[key];
+        if (!e) { e = rec.seen[key] = { id: r.id, where: pl.where, values: [], at: ctxText }; rec.order.push(key); }
+        if (e.values.indexOf(t) < 0) e.values.push(t);
+      });
+    });
+  }
+  function echoProblems(rec) {
+    return rec.order.filter(function (k) { return rec.seen[k].values.length > 1; }).slice(0, 4).map(function (k) {
+      var e = rec.seen[k];
+      return 'output "' + e.id + '" has a readout, and ' + e.where + ' prints its value too: while Dan answers a check on it, the app hides only the readout and the .say line, ' +
+        'so this gives the answer away. Show that value in its readout alone (no label or aria-label repeating it)';
+    });
+  }
   // -> [{key, msg}]
   function shownBadNow() {
     var out = [];
@@ -2536,7 +2576,24 @@
   // Colours written on a drawing that the theme can't follow or the browser can't paint: a colour
   // name (fill="white" vanishes on the dark page), a var() the kit does not define (it paints
   // nothing, or black), a url(#…) to nothing, or a typo. -> [{key, msg}]
-  var PAINT_OK = /^(none|transparent|currentcolor|inherit|context-fill|context-stroke)$/i;
+  var PAINT_OK = /^(none|transparent|currentcolor|inherit|initial|unset|context-fill|context-stroke)$/i;
+  // A colour the canvas can't read but the page can compute (color-mix() over the kit's
+  // variables): on a probe inside a box of a sentinel colour, a value the browser can't compute
+  // falls back to inheriting the sentinel.
+  var probe = null;
+  function computesAsColour(v) {
+    try {
+      if (!probe) { probe = K.el('span', { style: 'display:none', 'aria-hidden': 'true' }, K.el('span')); probe.style.color = 'rgb(1, 2, 3)'; }
+      var inner = probe.firstChild;
+      inner.style.color = '';
+      inner.style.color = v;
+      if (!inner.style.color) return false;
+      document.body.appendChild(probe);
+      var got = getComputedStyle(inner).color;
+      probe.remove();
+      return !!got && got.replace(/\s/g, '') !== 'rgb(1,2,3)';
+    } catch (e) { return false; }
+  }
   function paintFault(v) {
     v = String(v).trim();
     if (!v || PAINT_OK.test(v)) return null;
@@ -2548,7 +2605,7 @@
       return m[2] ? paintFault(m[2]) : 'uses ' + m[1] + ', which is not a kit colour, so it paints nothing';
     }
     if (/^[a-z]+$/i.test(v)) return rgbaOf(v) ? 'is a colour name, which does not follow the theme' : 'is not a colour';
-    return rgbaOf(v) ? null : 'is not a colour';
+    return rgbaOf(v) || computesAsColour(v) ? null : 'is not a colour';
   }
   function paintNow() {
     var out = [];
@@ -2642,6 +2699,7 @@
   async function sweep(throwaway) {
     var s = { seen: Object.create(null), order: [], ctx: '' }, overflow = null;
     var clip = { seen: Object.create(null), order: [] }, shown = { seen: Object.create(null), order: [] }, crowd = { seen: Object.create(null), order: [] };
+    var echo = { seen: Object.create(null), order: [] };
     var dup = [];
     var breathe = slicer(25);
     sink = s;
@@ -2663,6 +2721,7 @@
       note(cut.filter(function (x) { return !x.warn; }), clip, ctxText);
       note(cut.filter(function (x) { return x.warn; }), crowd, ctxText);
       note(shownBadNow().concat(paintNow()), shown, ctxText);
+      echoNow(echo, ctxText);
     }
     // A switch, button or slider that starts a K.anim which has its own Play button: two controls
     // for one action (advice). Throwaway frames only, where the animations start out paused.
@@ -2778,7 +2837,8 @@
     }
     function atText(e) { return ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; }
     var problems = s.order.map(function (m) { return m + atText(s.seen[m]); })
-      .concat(shown.order.slice(0, 8).map(function (key) { return shown.seen[key].msg + atText(shown.seen[key]); }));
+      .concat(shown.order.slice(0, 8).map(function (key) { return shown.seen[key].msg + atText(shown.seen[key]); }))
+      .concat(echoProblems(echo));
     var clipped = clip.order.slice(0, 12).map(function (key) { return clip.seen[key].msg + atText(clip.seen[key]); });
     var advice = crowd.order.slice(0, 3).map(function (key) { return crowd.seen[key].msg + atText(crowd.seen[key]); }).concat(dup);
     return { problems: problems, overflow: overflow, seen: s.seen, clipped: clipped, advice: advice };
@@ -2846,37 +2906,55 @@
     return report;
   }
   // Does some setting of one control bring an output to a target? Tries every setting the control
-  // can take (all options of a choice), others staying where they are. Runs in short slices.
+  // can take (all options of a choice; up to 2001 spread over a slider's range), others staying
+  // where they are, then looks closer on a slider: the setting at the target itself, and every
+  // step between two tried settings whose outputs fall either side of the target (or next to the
+  // closest one), so a fine slider (0-5000 in ones, 0-100 in hundredths) is judged on its own steps.
   // exact: some setting shows the target exactly, at d.decimals when given (the lesson's rounding),
-  // else as the output's readout shows it (else the default rounding).
+  // else as the output's readout shows it (else the default rounding); −0 shows as 0. Runs in slices.
   // -> {reachable, exact, best:{value, output}, tried}
+  function plainZero(t) { t = String(t); return /[1-9]/.test(t) ? t : t.replace(/[−-]/g, ''); }
   async function reach(d) {
     var c = byId[d.control];
     if (!c) return { reachable: false, exact: false, best: null, error: 'No control "' + d.control + '"', tried: 0 };
     var target = +d.target, tol = Math.abs(+d.tolerance || 0), key = String(d.output);
     var dp = d.decimals != null && d.decimals !== '' && isNum(+d.decimals) && +d.decimals >= 0 ? clamp(Math.round(+d.decimals), 0, 12) : null;
-    var shows = dp != null ? function (x) { return fmt(x, { dp: dp }); } : readouts[key] ? readouts[key].format : function (x) { return fmt(x); };
+    var shown = dp != null ? function (x) { return fmt(x, { dp: dp }); } : readouts[key] ? readouts[key].format : function (x) { return fmt(x); };
+    var shows = function (x) { return plainZero(shown(x)); };
     var aim = isNum(target) ? shows(target) : null, exact = false;
-    var vals = c.values(), init = c.get(), base = K.params(), best = null, breathe = slicer(25);
+    var init = c.get(), base = K.params(), best = null, breathe = slicer(25), tried = 0;
     var fromModel = false;
     try { fromModel = !!modelFn && Object.prototype.hasOwnProperty.call(modelFn(base) || {}, key); } catch (e) {}
     var saved = sink;
+    async function at(v) {
+      var out;
+      sink = { seen: Object.create(null), order: [], ctx: 'reach' };
+      if (fromModel) {
+        var p = Object.assign({}, base); p[c.id] = v;
+        try { out = (modelFn(p) || {})[key]; } catch (e) { out = NaN; }
+      } else { c.set(v, true); run(); out = stateOutputs()[key]; }
+      sink = saved;
+      out = +out; tried++;
+      if (isNum(out)) {
+        var diff = Math.abs(out - target);
+        if (!best || diff < best.diff) best = { value: v, output: out, diff: diff };
+        if (!exact && aim !== null && shows(out) === aim) exact = true;
+      }
+      await breathe();
+      return out;
+    }
     try {
-      for (var i = 0; i < vals.length; i++) {
-        var v = vals[i], out;
-        sink = { seen: Object.create(null), order: [], ctx: 'reach' };
-        if (fromModel) {
-          var p = Object.assign({}, base); p[c.id] = v;
-          try { out = (modelFn(p) || {})[key]; } catch (e) { out = NaN; }
-        } else { c.set(v, true); run(); out = stateOutputs()[key]; }
-        sink = saved;
-        out = +out;
-        if (isNum(out)) {
-          var diff = Math.abs(out - target);
-          if (!best || diff < best.diff) best = { value: v, output: out, diff: diff };
-          if (!exact && aim !== null && shows(out) === aim) exact = true;
+      var vals = c.values(), outs = [];
+      for (var i = 0; i < vals.length; i++) outs.push(await at(vals[i]));
+      if (c.between && isNum(target)) {
+        var more = [], near = vals.indexOf(best ? best.value : NaN);
+        // The target's own step (a slider whose output is its own value, or close to it).
+        if (c.settle && target >= c.min && target <= c.max && vals.indexOf(c.settle(target)) < 0) more.push(c.settle(target));
+        for (var k = 0; k + 1 < vals.length && more.length < 20000; k++) {
+          var a = outs[k] - target, b = outs[k + 1] - target;
+          if (isNum(a) && isNum(b) && (a <= 0) !== (b <= 0) || k === near || k + 1 === near) more = more.concat(c.between(vals[k], vals[k + 1]));
         }
-        await breathe();
+        for (var j = 0; j < more.length; j++) await at(more[j]);
       }
     } finally {
       sink = saved;
@@ -2886,7 +2964,7 @@
       reachable: !!best && best.diff <= tol + Math.abs(target) * 1e-9 + 1e-12,
       exact: exact,
       best: best ? { value: best.value, output: best.output } : null,
-      tried: vals.length,
+      tried: tried,
     };
   }
 

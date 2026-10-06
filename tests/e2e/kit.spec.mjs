@@ -141,8 +141,9 @@ expect('prompts.mjs repair-interactive runs', p3.status === 0, p3.stderr);
 expect('repair prompt starts with TASK and lists the problems and the failing body',
   p3.stdout.startsWith('TASK: repair-interactive\n') && p3.stdout.includes('- Error: K.ready() was never called') &&
   p3.stdout.includes('- Check failed: "x"') && p3.stdout.includes('Missing output "eff"') && p3.stdout.includes('<p>hi</p>'));
-expect('repair prompt says how to fix the new failures (small text, lines through labels, contrast, colour names, a blank hole)',
-  ['SVG text too small on a phone: font-size 13-16', 'pass that line in avoid', 'Text hard to read (contrast) or a colour name', 'A blank hole before Dan moves'].every((t) => p3.stdout.includes(t)));
+expect('repair prompt says how to fix the new failures (small text, lines through labels, more labels than room, a readout\'s value elsewhere, contrast, colour names, a blank hole)',
+  ['SVG text too small on a phone: font-size 13-16', 'pass that line in avoid', 'Text hard to read (contrast) or a colour name', 'A blank hole before Dan moves',
+    'More labels than room (K.labels says avoid cannot be honoured): label fewer things', 'show the number in the readout alone'].every((t) => p3.stdout.includes(t)));
 expect('repair prompt uses no example from the run-2 eval topics', !/vaccin|antibod|headphone|noise.cancel|rainbow|refracti|bronze|copper/i.test(p3.stdout));
 
 // ---------- bodies used below ----------
@@ -932,6 +933,31 @@ section('legibility, colour, timing and actions (eval run 2)');
   r = await test(draw('<defs><linearGradient id="gr"><stop offset="0" stop-color="var(--k-fill1)"/></linearGradient></defs><rect x="10" y="10" width="40" height="40" fill="var(--k-fill1)" stroke="currentColor"/>' +
     '<rect x="60" y="10" width="40" height="40" fill="url(#gr)"/><circle id="dot" cx="150" cy="30" r="10" fill="none" stroke="transparent"/>', "K.update(() => { K.$('#dot').style.fill = K.color('cat1', 0.5); });"), phone);
   expect('roles, currentColor, none, transparent, a real gradient and K.color values pass', r.ok, all(r));
+  // Skeptic round 2: color-mix() over the kit's colours, initial and unset are colours (read through
+  // computed style); a color-mix() of a variable the kit lacks is not.
+  r = await test(draw('<rect x="10" y="10" width="40" height="40" fill="color-mix(in srgb, var(--k-accent2) 40%, transparent)"/>' +
+    '<rect x="60" y="10" width="40" height="40" fill="initial" stroke="unset"/><circle cx="150" cy="30" r="10" style="fill: color-mix(in srgb, var(--k-warn), var(--k-bg))"/>'), phone);
+  expect('color-mix() over kit colours, initial and unset pass as colours', r.ok, all(r));
+  r = await test(draw('<rect x="10" y="10" width="40" height="40" fill="color-mix(in srgb, var(--k-nope) 40%, transparent)"/>'), phone);
+  expect('...a color-mix() of a variable the kit does not define still fails', !r.ok && has(r.sweep.problems, /fill "color-mix\(in srgb, var\(--k-nope\) 40%, t…": it is not a colour/), r.sweep);
+  // A label with its own halo in the colour behind it (paint-order: stroke) over a line passes; a
+  // coloured outline does not; a tiny dot under a label is no backing pill.
+  r = await test(draw(flat + '<text x="170" y="105" text-anchor="middle" font-size="14" stroke="var(--k-bg)" stroke-width="4" paint-order="stroke" stroke-linejoin="round">40°</text>'), phone);
+  expect('a label with its own page-coloured halo (paint-order: stroke) over a line passes', r.ok, all(r));
+  r = await test(draw(flat + '<text x="170" y="105" text-anchor="middle" font-size="14" stroke="var(--k-accent)" stroke-width="4" paint-order="stroke">40°</text>'), phone);
+  expect('...a coloured outline is no halo: the line through it still fails', !r.ok && has(r.clipped, /SVG text "40°" has a line through it/), r.clipped);
+  r = await test(draw(flat + '<circle cx="170" cy="100" r="3" fill="var(--k-accent2)"/><text x="170" y="105" text-anchor="middle" font-size="14">a label</text>'), phone);
+  expect('a small dot under a label is not its backing pill: the line through the label still fails', !r.ok && has(r.clipped, /SVG text "a label" has a line through it \(<line>\)/), r.clipped);
+  // K.labels with more labels than room (a five-event timeline with every stem in avoid): one
+  // fault for the drawing with a fix the body can make, never "use K.labels with avoid" again.
+  r = await test(draw('<g id="stems"></g><line x1="10" y1="150" x2="330" y2="150" stroke="var(--k-strong)" stroke-width="2"/><g id="ev"></g>',
+    "const E = [[1897, 'NUWSS founded'], [1903, 'WSPU forms'], [1913, 'Cat and Mouse Act'], [1918, 'Some women vote'], [1928, 'Equal franchise']];\n" +
+    "K.update(() => { const g = K.$('#stems'); g.textContent = ''; const x = (y) => 20 + (y - 1895) * 300 / 35;\n" +
+    "  E.forEach((e) => g.appendChild(K.svg('line', { x1: x(e[0]), y1: 150, x2: x(e[0]), y2: 40, stroke: 'var(--k-accent2)', 'stroke-width': 2 })));\n" +
+    "  K.labels('#ev', E.map((e, i) => ({ x: x(e[0]), y: 60 + (i % 2) * 40, text: e[0] + ' ' + e[1] })), { avoid: '#stems line' }); });", { h: 170 }), phone);
+  expect('K.labels that cannot honour avoid: one fault for the drawing (fewer labels, a key, or a list beside it), no per-label "K.labels with avoid" advice',
+    !r.ok && r.clipped.filter((m) => /^K\.labels has more labels than room in <svg#d[.\w-]*>: .*Label fewer things .*a key under the drawing, or a list beside it/.test(m)).length === 1 &&
+    !has(r.clipped, /K\.labels with avoid/), r.clipped);
 
   // Animations play 3 s of their own time (12): a fault after 2.4 s is caught.
   r = await test(body(plain + "\nlet tt = 0; const sp = K.readout({ id: 'speed', label: 'Speed', into: '#o' });\nK.anim({ label: 'Go', into: '#c', step: (dt) => { tt += dt; sp.set(tt > 2.4 ? NaN : tt); } });"), phone);
@@ -961,6 +987,9 @@ section('legibility, colour, timing and actions (eval run 2)');
   expect('...one naming a control that does not exist fails', !r.ok && has(r.sweep.problems, /K\.drag on <circle#knob> moves control "zz", which does not exist/), r.sweep);
   r = await test(knob("K.drag('#knob', { control: 'a', toValue: (x) => x / 340 });\nK.update((p) => K.$('#knob').setAttribute('cx', 20 + p.a * 300));"), phone);
   expect('...and a good one passes (its 44 px target adds nothing the test minds)', r.ok, all(r));
+  r = await test(knob("K.update((p) => { K.$('#d').innerHTML = '<circle id=\"knob\" cx=\"' + (20 + p.a * 300) + '\" cy=\"100\" r=\"10\" fill=\"var(--k-accent2)\"/>'; });\nK.drag('#knob', { control: 'a', toValue: (x) => x / 340 });"), phone);
+  expect('a K.drag whose element K.update redraws (the binding is lost) gets a warning with the fix',
+    has(r.warnings, /K\.drag on <circle#knob> left the page when the drawing was redrawn, so dragging does nothing now: create the dragged element once, outside K\.update/), r.warnings);
 
   // A word readout tile never splits its longest word, even one shown only later (at XL on a phone).
   r = await test('<div class="k-controls" id="c"></div><div class="k-readouts" id="o"></div><script>\n' +
@@ -1130,7 +1159,9 @@ section('dragging, holding, snapping and laying out (eval run 2)');
   const labRep = await app.page.evaluate(() => window.dm.selftest());
   expect('K.labels sets 13 units by default (size when given) and keeps a label off the line in avoid, so it passes', lab.size === '13' && lab.sized === '15' && lab.clear && labRep.ok, { lab, clipped: labRep.clipped });
 
-  // Quiz mode: an SVG label in the body's drawing that gives the hidden value away is hidden too.
+  // Quiz mode hides only the readout and the .say lines: never a label in the body's drawing, even
+  // one that reads as the hidden value (skeptic round 2: reference labels, axis ticks and Dan's own
+  // input vanished when a number matched). Printing the value there is the body's fault (echoes).
   const qb = '<svg viewBox="0 0 340 80" width="100%" role="img" aria-label="x"><text id="v" x="20" y="30" font-size="14"></text><text id="n" x="20" y="60" font-size="14">a label</text></svg>' +
     '<div class="k-controls" id="c"></div><script>\n' + "K.control({ id: 'a', label: 'A', min: 0, max: 10, step: 1, value: 4, into: '#c' });\nK.model((p) => ({ y: p.a * 3 }));\n" +
     "K.update((p, o) => { K.$('#v').textContent = o.y + ' m'; });\nK.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
@@ -1142,8 +1173,44 @@ section('dragging, holding, snapping and laying out (eval run 2)');
   await app.page.evaluate(() => window.dm.reveal());
   await app.page.waitForTimeout(100);
   const q3 = await vis();
-  expect('quiz mode hides a drawing label that reads as the hidden value (12 m, then 15 m), not the others, until the reveal',
-    q1.v === 'hidden' && q1.n === 'visible' && q2.v === 'hidden' && q2.text === '15 m' && q3.v === 'visible', { q1, q2, q3 });
+  expect('quiz mode never hides the drawing\'s own labels, even one reading as the hidden value (12 m, then 15 m)',
+    q1.v === 'visible' && q1.n === 'visible' && q2.v === 'visible' && q2.text === '15 m' && q3.v === 'visible', { q1, q2, q3 });
+  // push-a-box with a check on the grip: Dan's own "push 60 N" stays, though the grip equals it.
+  fr = await mount(box, { quiz: { hide: 'grip' } });
+  await app.page.evaluate(() => window.dm.set('push', 60));
+  const own = await fr.evaluate(() => [...document.querySelectorAll('#labels text')].map((t) => [t.textContent, getComputedStyle(t).visibility]));
+  expect('...and Dan\'s own input stays in view (push-a-box, quiz on the grip at a 60 N push)', own.some(([t, v]) => t === 'push 60 N' && v === 'visible') && own.every(([, v]) => v === 'visible'), own);
+
+  // K.drag by touch (skeptic round 2): Chromium ignores touch-action on SVG shapes, so the <svg> that
+  // holds a live handle gets it (k-drag-root). Real touch events (CDP, as a phone sends them): a
+  // 60 px drag moves the push the whole way, and a drag upward from the handle scrolls nothing.
+  fr = await mount(box);
+  await app.page.evaluate(() => { const t = document.body.appendChild(document.createElement('div')); t.id = 'tall'; t.style.height = '3000px'; window.scrollTo(0, 0); });
+  const cdp = await app.page.context().newCDPSession(app.page);
+  const touchDrag = async (x0, y0, dx, dy) => {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x0, y: y0 }] });
+    for (let i = 1; i <= 12; i++) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x0 + dx * i / 12, y: y0 + dy * i / 12 }] });
+      await app.page.waitForTimeout(16);
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await app.page.waitForTimeout(300);
+  };
+  const tr0 = await fr.evaluate(() => ({ push: K.params().push, ta: getComputedStyle(K.$('#scene')).touchAction, unit: K.$('#scene').getBoundingClientRect().width / 340 }));
+  let hb = await (await fr.$('#hand')).boundingBox();
+  await touchDrag(hb.x + hb.width / 2, hb.y + hb.height / 2, -60, 0);
+  const tr1 = await fr.evaluate(() => K.params().push);
+  hb = await (await fr.$('#hand')).boundingBox();
+  await touchDrag(hb.x + hb.width / 2, hb.y + hb.height / 2, 0, -150);
+  const tr2 = { push: await fr.evaluate(() => K.params().push), scroll: await app.page.evaluate(() => window.scrollY) };
+  const want = tr0.push + 60 / tr0.unit / 0.75;
+  expect('K.drag by touch: the drawing holding the handle has touch-action none, a 60 px drag moves the push all the way, and an upward drag scrolls nothing',
+    tr0.ta === 'none' && Math.abs(tr1 - want) <= 3 && tr2.push === tr1 && tr2.scroll === 0, { tr0, tr1, want: Math.round(want), tr2 });
+  await app.page.evaluate(() => { document.getElementById('tall').remove(); window.scrollTo(0, 0); });
+
+  // K.fmt and −0 (skeptic round 2): a value that rounds to nothing prints without a sign.
+  const zeros = await fr.evaluate(() => [K.fmt(-0), K.fmt(-0.001, { decimals: 2 }), K.fmt(-0.001, { decimals: 2, sign: true }), K.fmt(0.001, { decimals: 2, sign: true }), K.fmt(-1.5), K.fmt(2, { sign: true })]);
+  expect('K.fmt prints −0 and tiny negatives as 0 (no sign), and real ones as before', JSON.stringify(zeros) === JSON.stringify(['0', '0.00', '0.00', '0.00', '−1.50', '+2']), zeros);
 
   expect('no page errors in the drag and layout tests', !app.errors.length, app.errors);
   await app.close();
@@ -1277,19 +1344,23 @@ section('quiz mode');
   const app = await openApp({ width: 360, height: 800, file: PAGE });
   await app.page.goto(app.url('#/'));
   await app.page.evaluate(() => U.rt.ready);
+  // A pendulum page with a fixed reference (a 2.00 s line, a "Seconds pendulum" mark, a bar of 2 s)
+  // and a ruler with ticks 1, 2, 3: none of them is the hidden output, so none ever hides.
   const quizBody = '<div id="plot"></div><div class="k-controls" id="controls"></div><div class="k-readouts" id="outs"></div><div id="bars"></div>\n' +
+    '<svg viewBox="0 0 340 60" width="100%" role="img" aria-label="A ruler of swing times"><g id="ticks"></g><text id="ref" x="110" y="50" font-size="14">seconds pendulum: 2 s</text></svg>\n' +
     '<p class="say" id="say"></p>\n<script>\n' +
     'const period = (L) => 2 * Math.PI * Math.sqrt(L / 9.81);\n' +
-    "K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', into: '#controls' });\n" +
+    "K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [0.994], into: '#controls' });\n" +
     "K.stage('#plot', '#controls');\n" +
     "K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });\n" +
     "K.readout({ id: 'f', label: 'Swings a minute', decimals: 0, into: '#outs' });\n" +
     "const plot = window.__plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });\n" +
     "const bars = K.bars('#bars', { unit: 's', decimals: 2 });\n" +
+    "[1, 2, 3].forEach((t) => K.$('#ticks').appendChild(K.svg('text', { x: 20 + t * 40, y: 20, 'font-size': 14 }, String(t))));\n" +
     'K.model((p) => ({ T: period(p.L), f: 60 / period(p.L) }));\n' +
     'K.update((p, o) => {\n' +
-    "  plot.draw({ series: [{ fn: period }], lines: [{ y: o.T, label: 'now ' + K.fmt(o.T, { decimals: 2 }) + ' s' }], marks: [{ x: p.L, y: o.T, label: K.fmt(o.T, { decimals: 2 }) + ' s', guides: true }, { x: 0.994, y: 2, label: 'Seconds pendulum' }] });\n" +
-    "  bars.draw([{ label: 'This string', value: o.T }, { label: 'A seconds pendulum', value: 2 }]);\n" +
+    "  plot.draw({ series: [{ fn: period }], lines: [{ y: 2, label: '2.00 s' }], marks: [{ x: p.L, y: o.T, guides: true }, { x: 0.994, y: 2, label: 'Seconds pendulum' }] });\n" +
+    "  bars.draw([{ label: 'A seconds pendulum', value: 2 }]);\n" +
     "  if (!window.__first) window.__first = document.querySelector('[data-id=\"T\"] .k-readout-value').textContent;\n" +
     "  document.getElementById('say').textContent = 'Each swing takes ' + K.fmt(o.T, { decimals: 2 }) + ' s.';\n" +
     '});\n' +
@@ -1314,19 +1385,22 @@ section('quiz mode');
       T: val('T').textContent, role: val('T').getAttribute('role'), aria: val('T').getAttribute('aria-label'), f: val('f').textContent,
       say: getComputedStyle(say).visibility, sayH: say.getBoundingClientRect().height, sayText: say.textContent,
       labels: window.__plot.labels.map((l) => l.text), alt: window.__plot.canvas.getAttribute('aria-label'),
-      bars: bs.map((b) => b.textContent), barAria: bs.map((b) => b.getAttribute('aria-label')), first: window.__first,
+      bars: bs.map((b) => b.textContent), barRole: bs.map((b) => b.getAttribute('role')), first: window.__first,
+      svg: [...document.querySelectorAll('svg text')].map((t) => t.textContent + ':' + getComputedStyle(t).visibility),
     };
   });
   let st = await look();
   expect('quiz: the hidden readout shows "?" from the first paint, labelled for screen readers; the other readout shows',
     st.T === '?' && st.first === '?' && st.role === 'img' && st.aria === 'Hidden until you check your answer' && st.f === '30', st);
   expect('quiz: the .say line is hidden, its space kept', st.say === 'hidden' && st.sayH > 10 && /2\.01/.test(st.sayText), st);
-  expect('quiz: plot labels and the plot\'s text alternative leave out the value; other labels stay',
-    !st.labels.some((t) => /2\.01/.test(t)) && st.labels.includes('Seconds pendulum') && !/2\.01/.test(st.alt) && /Seconds pendulum/.test(st.alt), st);
-  expect('quiz: the bar for that output shows "?", another bar its value', st.bars[0] === '?' && st.barAria[0] === 'Hidden until you check your answer' && st.bars[1] === '2.00 s', st);
-  const real = await app.page.evaluate(async () => { const s = await __q.m.set('L', 2); await new Promise((r) => setTimeout(r, 400)); return { T: s.outputs.T, change: __q.changes.length }; });
+  // The skeptic's case: with T at 2.00 s (the natural target) every fixed reference that reads 2
+  // stays: the 2.00 s line's label, the mark's label, the bar, the SVG label and its ticks.
+  const real = await app.page.evaluate(async () => { const s = await __q.m.set('L', 0.994); await new Promise((r) => setTimeout(r, 400)); return { T: s.outputs.T, change: __q.changes.length }; });
   st = await look();
-  expect('quiz: get/set and change messages still carry the real outputs', near(real.T, 2.837, 0.001) && st.T === '?' && !st.labels.some((t) => /2\.84/.test(t)) && st.bars[0] === '?', { real, st });
+  expect('quiz: get/set and change messages still carry the real outputs', near(real.T, 2, 0.001) && st.T === '?', { real, st });
+  expect('quiz: nothing but the readout and .say is hidden, even references that read as the value (2.00 s line, bar, ticks, an SVG label, the plot\'s text alternative)',
+    st.labels.includes('2.00 s') && st.labels.includes('Seconds pendulum') && st.bars[0] === '2.00 s' && st.barRole[0] === null &&
+    JSON.stringify(st.svg) === JSON.stringify(['1:visible', '2:visible', '3:visible', 'seconds pendulum: 2 s:visible']) && /Seconds pendulum at 0\.994, 2/.test(st.alt), st);
   // A self-test on the mounted frame runs with the quiz off and puts it back.
   const rep = await app.page.evaluate(() => __q.m.selftest());
   st = await look();
@@ -1334,44 +1408,39 @@ section('quiz mode');
   await app.page.evaluate(() => __q.m.reveal());
   await app.page.waitForTimeout(300);
   st = await look();
-  expect('reveal(): everything shows again', st.T === '2.84 s' && st.role === null && st.say === 'visible' && st.labels.includes('2.84 s') && st.labels.includes('now 2.84 s') && st.bars[0] === '2.84 s' && /2\.84/.test(st.alt), st);
+  expect('reveal(): everything shows again', st.T === '2.00 s' && st.role === null && st.say === 'visible', st);
   // Moved in the page, the frame loads the kit again: after a reveal it stays revealed; with a quiz on, it is hidden again.
   await app.page.evaluate(async () => { __q.b.appendChild(__q.m.el); await new Promise((r) => setTimeout(r, 1500)); });
   st = await look();
   expect('a frame moved after reveal() loads again with nothing hidden', st.T === '2.01 s' && st.say === 'visible', st);
   await app.page.evaluate(async () => { __q.m.quiz('T'); await new Promise((r) => setTimeout(r, 300)); __q.a.appendChild(__q.m.el); await new Promise((r) => setTimeout(r, 1500)); });
   st = await look();
-  expect('quiz(id) hides it again, and a reload keeps it hidden (the host sends the quiz after every ready)', st.T === '?' && st.say === 'hidden' && st.bars[0] === '?', st);
+  expect('quiz(id) hides it again, and a reload keeps it hidden (the host sends the quiz after every ready)', st.T === '?' && st.say === 'hidden' && st.bars[0] === '2.00 s', st);
   await app.page.evaluate(async () => { __q.m.quiz(null); await new Promise((r) => setTimeout(r, 300)); });
   st = await look();
   expect('quiz(null) ends it too', st.T === '2.01 s' && st.say === 'visible', st);
   const qerr = await app.page.evaluate(() => { const e = __q.errors.slice(); __q.m.destroy(); return e; });
   expect('no frame errors in quiz mode', !qerr.length, qerr);
-  // Which labels give the value away: a number that reads as it at its own rounding, or the word itself.
-  const marks = (labels) => JSON.stringify(labels.map((label, i) => ({ x: i + 1, y: 2, label })));
-  const altOf = async (model, hide, labels) => {
-    const html = '<div id="p"></div><script>\n' + model + "\nconst plot = K.plot('#p', { x: { min: 0, max: 8 }, y: { min: 0, max: 4 } });\n" +
-      'K.update(() => plot.draw({ marks: ' + marks(labels) + ' }));\n' + "K.check('a', () => true); K.ready();\n</script>";
-    const out = await app.page.evaluate(async ([h, id]) => {
-      const m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html: h, quiz: { hide: id } });
-      await m.ready;
-      await new Promise((r) => setTimeout(r, 200));
-      window.__alt = m;
-      return null;
-    }, [html, hide]);
-    void out;
-    const fr = await (await app.page.evaluateHandle(() => __alt.frame)).asElement().contentFrame();
-    const alt = await fr.evaluate(() => document.querySelector('canvas').getAttribute('aria-label'));
-    await app.page.evaluate(() => __alt.destroy());
-    return alt;
-  };
-  const alt1 = await altOf('K.model(() => ({ share: 0.452, n: 1234567 }));', 'share', ['45.2%', '45%', '0.452', 'about 0.5', '46%', 'Seconds']);
-  expect('quiz: a label reading as the value at its own rounding is left out (45.2%, 45%, 0.452, about 0.5); 46% and words stay',
-    !/45\.2%|45%|0\.452|about 0\.5/.test(alt1) && /46%/.test(alt1) && /Seconds/.test(alt1), alt1);
-  const alt2 = await altOf("K.model(() => ({ n: 1234567 }));", 'n', ['1.23 million', '1,234,567', '1.2 × 10⁶', '1.25 million', 'Town']);
-  expect('quiz: large values in words, digit groups and powers of ten are caught too', !/1\.23 million|1,234,567|1\.2 × 10⁶/.test(alt2) && /1\.25 million/.test(alt2) && /Town/.test(alt2), alt2);
-  const alt3 = await altOf("K.model(() => ({ dir: 'north' }));", 'dir', ['Heading north', 'Northern route', 'South']);
-  expect('quiz: a word output is hidden only as a whole word', !/Heading north/.test(alt3) && /Northern route/.test(alt3) && /South/.test(alt3), alt3);
+
+  // So the self-test fails a page that prints a readout's value anywhere else (echoes): a label, an
+  // aria-label or a plot label that follows it. A fixed reference or an axis tick that matches it at
+  // one setting, and Dan's own input while the output equals it, are not echoes.
+  const qtest = (html) => app.page.evaluate((h) => U.sandbox.test(h, { widths: [340] }), html);
+  const echo = (svg, js) => body(plain + '\n' + js, { html: '<div id="p"></div><svg viewBox="0 0 340 60" width="100%" role="img" aria-label="x">' + svg + '</svg>' });
+  const said = (r, re) => (r.sweep.problems || []).some((m) => re.test(m));
+  let er = await qtest(echo('<text id="t" x="20" y="30" font-size="14"></text>', "K.update((p, o) => { K.$('#t').textContent = 'covered ' + K.fmt(o.y) + ' m'; });"));
+  expect('echo: an SVG label that prints the readout\'s value fails, naming it and the fix',
+    !er.ok && said(er, /^output "y" has a readout, and the text "covered [^"]+" \(<text#t[.\w-]*>\) prints its value too: while Dan answers a check on it, the app hides only the readout and the \.say line, so this gives the answer away\. Show that value in its readout alone/), er.sweep);
+  er = await qtest(echo('', "K.update((p, o) => K.$('svg').setAttribute('aria-label', 'Y is now ' + K.fmt(o.y)));"));
+  expect('echo: ...so does an aria-label that follows it', !er.ok && said(er, /output "y" has a readout, and the aria-label of <svg[.\w-]*> \("Y is now [^"]+"\) prints its value too/), er.sweep);
+  er = await qtest(echo('', "const pl = K.plot('#p', { x: { min: 0, max: 1 }, y: { min: 0, max: 2 } });\nK.update((p, o) => pl.draw({ series: [{ fn: (x) => 2 * x }], marks: [{ x: p.a, y: o.y, label: 'Y ' + K.fmt(o.y) }] }));"));
+  expect('echo: ...and a plot label that follows it', !er.ok && said(er, /output "y" has a readout, and the plot label "Y [^"]+" prints its value too/), er.sweep);
+  er = await qtest(echo('<text x="20" y="30" font-size="14">limit 2</text><text x="120" y="30" font-size="14">0</text><text x="160" y="30" font-size="14">1</text><text x="200" y="30" font-size="14">2</text><text x="240" y="30" font-size="14">1.6x</text>', ''));
+  expect('echo: fixed labels and ticks that match the value at one setting each pass', er.ok, er.sweep);
+  er = await qtest(body("K.model((p) => ({ y: Math.min(p.a, 0.6) }));\nK.update((p) => { K.$('#t').textContent = 'your push ' + K.fmt(p.a); });", { html: '<svg viewBox="0 0 340 60" width="100%" role="img" aria-label="x"><text id="t" x="20" y="30" font-size="14"></text></svg>' }));
+  expect('echo: Dan\'s own input, equal to the output up to a limit, is not an echo', er.ok, er.sweep);
+  er = await qtest(echo('<text x="20" y="30" font-size="14">id 0x3fa1b2c</text>', "K.update((p, o) => { K.$('svg text').textContent = 'id 0x3fa' + K.fmt(o.y) + 'b2c'; });"));
+  expect('echo: digits inside a code or word are not the value', er.ok, er.sweep);
 
   // reach().exact: does some step of the control show the target exactly?
   const dp0 = body("K.model((p) => ({ y: p.a * 2 }));").replace("K.readout({ id: 'y', label: 'Y', into: '#o' });", "K.readout({ id: 'y', label: 'Y', decimals: 0, into: '#o' });");
@@ -1386,6 +1455,25 @@ section('quiz mode');
   expect('reach().exact: reachable within tolerance, but no step shows it exactly', ex.between.reachable && ex.between.exact === false, ex.between);
   expect('reach().exact: at 0 decimals, 1.6 shows as the target 1.5 does ("2")', ex.coarse.exact === true, ex.coarse);
   expect('reach().exact: without decimals, as the page\'s readout rounds it', ex.asShown.exact === false && ex.readout.exact === true, { asShown: ex.asShown, readout: ex.readout });
+  // Fine sliders (skeptic round 2): reach() looks at the target's own step and at every step between
+  // two tried settings on either side of the target, so 0-5000 in ones and 0-100 in hundredths are
+  // judged on their own steps; −0 counts as 0 for exact.
+  const fine = (ctl, model) => '<div class="k-controls" id="c"></div><script>\n' + ctl + '\n' + model + "\nK.check('one', () => true);\nK.ready();\n</script>";
+  const rf = await app.page.evaluate(async ([a, b, c, d]) => ({
+    ones: await U.sandbox.reach(a, { control: 'n', output: 'y', target: 2468, tolerance: 0 }),
+    own: await U.sandbox.reach(d, { control: 'n', output: 'y', target: 1234, tolerance: 0 }),
+    hundredths: await U.sandbox.reach(b, { control: 'p', output: 'y', target: 99.99, tolerance: 0.005, decimals: 2 }),
+    zero: await U.sandbox.reach(c, { control: 'a', output: 'y', target: 0, tolerance: 0, decimals: 2 }),
+  }), [
+    fine("K.control({ id: 'n', label: 'N', min: 0, max: 5000, step: 1, value: 10, into: '#c' });", 'K.model((p) => ({ y: 2 * p.n }));'),
+    fine("K.control({ id: 'p', label: 'P', min: 0, max: 100, step: 0.01, value: 10, into: '#c' });", 'K.model((p) => ({ y: 3 * p.p }));'),
+    fine("K.control({ id: 'a', label: 'A', min: 0, max: 1, step: 0.1, value: 0.5, into: '#c' });", 'K.model((p) => ({ y: -p.a * 0.001 }));'),
+    fine("K.control({ id: 'n', label: 'N', min: 0, max: 5000, step: 1, value: 10, into: '#c' });", 'K.model((p) => ({ y: p.n }));'),
+  ]);
+  expect('reach(): a slider of 5,000 steps reaches 2 × 1234 exactly (the step between two tried ones)', rf.ones.reachable && rf.ones.exact && rf.ones.best.value === 1234, rf.ones);
+  expect('reach(): ...and the target\'s own step (output = the control)', rf.own.reachable && rf.own.exact && rf.own.best.value === 1234, rf.own);
+  expect('reach(): a slider in hundredths reaches 3 × 33.33 = 99.99', rf.hundredths.reachable && rf.hundredths.exact && rf.hundredths.best.value === 33.33, rf.hundredths);
+  expect('reach(): an output of −0 shows the target 0 exactly', rf.zero.reachable && rf.zero.exact === true, rf.zero);
   expect('no page errors in the quiz tests', !app.errors.length, app.errors);
   await app.close();
 }
