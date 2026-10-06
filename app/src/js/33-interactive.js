@@ -19,7 +19,12 @@ U.interactive = (function () {
     structure: ['structure', 'process', 'concept'],
     concept: ['concept', 'structure', 'process'],
   };
-  var LEVEL = { new: 'Dan is new to this topic.', some: 'Dan knows a little about this topic.', solid: 'Dan is already fairly solid on this topic.' };
+  // His level sets the maths the page may show (caption, labels, .say).
+  var LEVEL = {
+    new: 'Dan is new to this topic. On the page (caption, labels, .say), say every rule in words; no formula beyond simple arithmetic (no cos, square roots, powers, logs or |…|).',
+    some: 'Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.',
+    solid: 'Dan is already fairly solid on this topic.',
+  };
   var MAX_ATTEMPTS = 3; // the first build plus two repairs
 
   function str(v) { return v == null ? '' : String(v).trim(); }
@@ -137,13 +142,14 @@ U.interactive = (function () {
     if (spec.ignores) out.push('What the model leaves out (the app shows this in its own panel; do not repeat it on the page): ' + str(spec.ignores));
     var controls = (spec.controls || []).filter(function (c) { return c && c.id; });
     if (controls.length) {
-      out.push('Controls (use these ids, ranges and opening values exactly):');
+      out.push('Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider\'s snap):');
       controls.forEach(function (c) { out.push(controlLine(c)); });
     } else out.push('No controls were specified: choose the one that best shows the idea.');
     var outs = (spec.outputs || []).filter(function (o) { return o && o.id; });
     if (outs.length) {
-      out.push('Outputs (return each from K.model under exactly this key, and show it with K.readout using the same id' +
-        (outs.some(isDp) ? ' and the decimals given, which is how the explanation rounds it' : '') + '):');
+      out.push('Outputs (return each from K.model under exactly this key, and show it once: as a K.readout with the same id' +
+        (outs.some(isDp) ? ' and the decimals given, which is how the explanation rounds it,' : '') +
+        ' or as a label on the drawing when the drawing already shows it, never both. Target checks read K.model, not the tile):');
       outs.forEach(function (o) {
         out.push('- id "' + str(o.id) + '": ' + str(o.label) + (o.unit ? ' (' + str(o.unit) + ')' : '') + (isDp(o) ? ', decimals: ' + o.decimals : ''));
       });
@@ -178,7 +184,8 @@ U.interactive = (function () {
       return '## Sources\nThis lesson has no checked sources, so the page contains no web addresses at all: its K.check entries are known-answer checks with no {source}, ' +
         'and the caption cites nothing. Use only textbook-standard rules, values and facts you are certain of. The app rejects any web address.';
     }
-    return '## Sources\nThe only web addresses this page may contain, each only as a K.check {source} (the caption names a source in words); the app rejects any other:\n' + src.map(function (s) {
+    return '## Sources\nThe only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source\'s quote says ' +
+      '(a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:\n' + src.map(function (s) {
       return '[' + s.n + '] ' + clip(s.title, 120) + ' (' + str(s.url) + ')' + (s.quote ? ': "' + clip(s.quote, 240) + '"' : '');
     }).join('\n');
   }
@@ -188,14 +195,21 @@ U.interactive = (function () {
     '- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.',
   ].join('\n');
   // What this lesson asks of the page beyond the kit reference's general rules (which cover
-  // captions, rounding, colour words, extremes, checks and sound). Hiding the answer falls back
-  // to a plain instruction when this build's KIT.md does not document k-after-move.
+  // captions, rounding, colour words, extremes, checks, labels, timing and sound): how the
+  // picture answers to this lesson's brief and explanation. Hiding the answer falls back to a
+  // plain instruction when this build's KIT.md does not document k-after-move.
   function rulesSection() {
     return [
       '## Rules for this page',
       '- Dan answers his prediction by moving away from the opening state, so whatever gives the answer away stays hidden until his first move' +
         (kitHas('k-after-move') ? ' (the kit reference shows how: k-after-move, K.moved).' : ': reveal it once any control differs from its opening value.') +
         ' The opening view still looks alive: the picture, its labels and the opening state are drawn, and the lead line says what to try.',
+      '- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.',
+      '- Mark the brief\'s one quantity on the picture itself, labelled with its value (a bracket between the two heights reading "2.4 m").',
+      '- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).',
+      '- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.',
+      '- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.',
+      '- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.',
       '- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding). Show assumed values as examples ("for example, £1,000").',
       '- Any example cases you choose are fair and representative, never picked to exaggerate the effect.',
       '- Money, health and law: show how it works, never advice, and never a guaranteed outcome.',
@@ -268,10 +282,27 @@ U.interactive = (function () {
     (report.unreachable || []).forEach(function (x) { out.push(reachProblem(x)); });
     return out;
   }
+  // A check cited to a source should restate what that source's quote says: one whose numbers
+  // are nowhere in the quote is most likely a result of the page's own rule.
+  function numbersIn(text) { return (String(text || '').match(/\d[\d,]*(?:\.\d+)?/g) || []).map(function (n) { return n.replace(/,/g, ''); }); }
+  function sourceAdvice(report, lesson) {
+    var src = sourceList(lesson), out = [];
+    ((report && report.checks) || []).forEach(function (c) {
+      if (!c || !c.source) return;
+      var s = src.filter(function (x) { return urlKey(x.url) === urlKey(c.source); })[0], nums = numbersIn(c.label);
+      if (!s || !s.quote || !nums.length) return;
+      var quoted = numbersIn(s.quote);
+      if (!nums.some(function (n) { return quoted.indexOf(n) >= 0; })) {
+        out.push('The check "' + clip(c.label, 120) + '" cites [' + s.n + '], but none of its numbers is in that source\'s quote: give a source only to a check that restates the quote; a result of your own rule takes none.');
+      }
+    });
+    return out;
+  }
   // The kit's warnings, minus advice to cite a source when the lesson has none to cite.
   function advice(report, lesson) {
     var sourced = sourceList(lesson).length > 0;
-    return ((report && report.warnings) || []).filter(function (w) { return sourced || !/source/i.test(w); }).map(function (w) { return 'Advice: ' + w; });
+    return ((report && report.warnings) || []).filter(function (w) { return sourced || !/source/i.test(w); }).concat(sourceAdvice(report, lesson))
+      .map(function (w) { return 'Advice: ' + w; });
   }
 
   // TASK: repair-interactive
@@ -289,6 +320,9 @@ U.interactive = (function () {
         '- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.',
         '- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.',
         '- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot\'s axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.',
+        '- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it.',
+        '- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.',
+        '- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.',
         '- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.',
         '- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.',
         '- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.',
@@ -402,6 +436,6 @@ U.interactive = (function () {
 
   return {
     prompt: prompt, repairPrompt: repairPrompt, extract: extract, build: build, problems: problems,
-    exampleFor: exampleFor, requiredIds: requiredIds, foreignUrls: foreignUrls, stripUrls: stripUrls, unreachable: unreachable,
+    exampleFor: exampleFor, requiredIds: requiredIds, foreignUrls: foreignUrls, stripUrls: stripUrls, unreachable: unreachable, advice: advice,
   };
 })();

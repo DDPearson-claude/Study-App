@@ -48,6 +48,15 @@ const examples = readdirSync(exDir).filter((f) => f.endsWith('.html')).sort().ma
 });
 expect('exemplars declare their kind on line 1', examples.length >= 3 && examples.every((e) => e.kind), examples.map((e) => e.name + ':' + e.kind));
 expect('exemplars cover every idea kind but skill', ['quantity', 'process', 'mechanism', 'structure', 'history', 'concept'].every((k) => examples.some((e) => e.kind === k)), examples.map((e) => e.kind));
+// Panel change 3 (i): compound growth is a quantity page; the mechanism exemplar has Dan cause
+// the effect with his own hand (K.drag), its motion started by that push (K.anim with no Play button).
+const mech = examples.find((e) => e.kind === 'mechanism');
+expect('compound-growth is tagged quantity, and the mechanism exemplar is a hands-on one (K.drag, K.anim({ button: false }), a setting where nothing happens)',
+  examples.find((e) => e.name === 'compound-growth').kind === 'quantity' && examples.filter((e) => e.kind === 'mechanism').length === 1 &&
+  /K\.drag\(/.test(mech.body) && /K\.anim\(\{ button: false/.test(mech.body) && /stays put/.test(mech.body), examples.map((e) => e.name + ':' + e.kind));
+// Panel change 14 (b): one short caption sentence, no formula restated, nothing it leaves out.
+const captions = examples.concat([{ name: 'KIT.md example', body: (kitMd.match(/```html\n([\s\S]*?)```/) || [])[1] || '' }]).map((e) => [e.name, ((e.body.match(/<p class="caption">([\s\S]*?)<\/p>/) || [])[1] || '').replace(/<[^>]+>/g, '')]);
+expect('every exemplar caption (and the KIT.md example\'s) is one sentence of at most 20 words', captions.every(([, c]) => c && c.split(/\s+/).length <= 20 && !/\.\s+[A-Z]/.test(c.trim().replace(/\.$/, ''))), captions);
 // Every CSS variable a body could see (kit.css :root) is documented, and every one the exemplars use exists.
 const kitCss = readFileSync(join(ROOT, 'app', 'kit', 'kit.css'), 'utf8');
 const rootVars = [...((kitCss.match(/:root\s*\{([\s\S]*?)\}/) || [])[1] || '').matchAll(/--k-([a-z0-9-]+)\s*:/g)].map((m) => m[1]).filter((v) => v !== 'fs' && v !== 'mono');
@@ -55,10 +64,20 @@ const undocumented = rootVars.filter((v) => !kitMd.includes('`' + v + '`') && !k
 expect('KIT.md documents every kit CSS variable', !undocumented.length, undocumented);
 const used = [...new Set(examples.concat([{ body: kitMd }]).flatMap((e) => [...e.body.matchAll(/var\(--k-([a-z0-9-]+)\)/g)].map((m) => m[1])))];
 expect('the exemplars use only variables the kit defines', used.every((v) => rootVars.includes(v)), used.filter((v) => !rootVars.includes(v)));
+const kitFlat = kitMd.replace(/\s+/g, ' ');
 expect('KIT.md documents the new APIs and rules',
   ['k-after-move', 'K.afterMove', 'K.moved', 'afterMove: true', 'K.button', 'K.sound.tone', 'K.labels', 'K.stage', '`shade`', 'between', 'decimals', '`cat1`', 'amber-line', 'fill2'].every((w) => kitMd.includes(w)) &&
-  /source` may ONLY be a URL from the lesson's own/.test(kitMd) && /Never describe colours by lightness/.test(kitMd) && /at most two short sentences/.test(kitMd) &&
-  /conditionally/.test(kitMd));
+  /source` may ONLY be a URL from the lesson's own sources, and only on a check whose label restates what that source's quote says/.test(kitFlat) &&
+  /Never describe colours by lightness/.test(kitFlat) && /conditionally/.test(kitFlat));
+// Eval run 2 (panel changes 3, 7, 12, 14, 17, 19, 21): the rules the builder needs, in KIT.md.
+expect('KIT.md carries the run-2 rules: legible labels, K.drag, snap, one control per action, 3-second answers, a short caption, timelines that run forward',
+  ['K.drag(el, {control, toValue(x, y)})', 'snap?', '{avoid?}', 'Text 13-16 units, never under 12', 'pass `button: false` and call `play()` from that control',
+    'within about 3 seconds of his first move', 'one short sentence, at most 20 words', 'A timeline runs forward', 'use `K.stepper` only when every step changes the drawing',
+    'draw Y so Dan can watch it', 'swatch line dash', 'never gets another thing\'s colour'].every((w) => kitFlat.includes(w)),
+  ['K.drag(el, {control, toValue(x, y)})', 'snap?', '{avoid?}', 'Text 13-16 units, never under 12', 'pass `button: false` and call `play()` from that control',
+    'within about 3 seconds of his first move', 'one short sentence, at most 20 words', 'A timeline runs forward', 'use `K.stepper` only when every step changes the drawing',
+    'draw Y so Dan can watch it', 'swatch line dash', 'never gets another thing\'s colour'].filter((w) => !kitFlat.includes(w)));
+expect('KIT.md and the exemplars use no example from the run-2 eval topics', !/vaccin|antibod|headphone|noise.cancel|rainbow|refracti|bronze|\btin\b|copper/i.test(kitMd + examples.map((e) => e.body).join('')));
 const kitExample = (kitMd.match(/```html\n([\s\S]*?)```/) || [])[1] || '';
 expect('KIT.md contains a complete example', /K\.ready\(\)/.test(kitExample));
 const pageHtml = readFileSync(PAGE, 'utf8');
@@ -73,6 +92,7 @@ const topic = {
   ideas: [
     { id: 'i1', title: 'Squeezing the air pays off', oneLine: 'More squeeze, more work from the same heat', deps: [], kind: 'quantity' },
     { id: 'i2', title: 'How a new engine gets approved', oneLine: 'The steps to certification', deps: ['i1'], kind: 'history' },
+    { id: 'i3', title: 'Why the blades turn', oneLine: 'Hot gas pushes on them', deps: ['i1'], kind: 'mechanism' },
   ],
 };
 const lesson = {
@@ -105,11 +125,25 @@ expect('build prompt ends with the output format', /## Output\nReturn ONLY the b
 const p2 = cli(['build-interactive', '--topic', join(fx, 'topic.json'), '--idea', 'i2', '--lesson', join(fx, 'lesson.json')]);
 const nearest = examples.some((e) => e.kind === 'history') ? 'history' : 'process';
 expect('a history idea gets the ' + nearest + ' exemplar', p2.status === 0 && p2.stdout.includes('kind: ' + nearest + ' -->'), p2.stderr);
+// Eval run 2 (panel changes 11, 14, 18, 19, 21): the build prompt's rules for this lesson.
+expect('build prompt: a NEW learner gets rules in words, no formula beyond arithmetic',
+  p1.stdout.includes('Dan is new to this topic. On the page (caption, labels, .say), say every rule in words; no formula beyond simple arithmetic (no cos, square roots, powers, logs'), p1.stdout.slice(0, 600));
+expect('build prompt: snap for named settings, sources only on checks that restate their quote (outputs: tests/interactive.test.mjs)',
+  p1.stdout.includes("add it to that slider's snap") && p1.stdout.includes("on a check whose label restates what that source's quote says"));
+expect('build prompt: picture rules (draw the cause, mark the quantity, bands on the right axis, comparisons alike, reference lines keyed, only what the lesson names)',
+  ['Draw the cause the explanation gives, not only its effect', "Mark the brief's one quantity on the picture itself", 'inputs across x, outputs across y',
+    'Draw every comparison the explanation makes the same way', 'Give each reference line its own look', 'Draw only what the brief, the rule or the explanation names'].every((t) => p1.stdout.includes(t)));
+expect('build and repair prompts use no example from the run-2 eval topics', !/vaccin|antibod|headphone|noise.cancel|rainbow|refracti|bronze|copper/i.test(p1.stdout + p2.stdout));
+const p4 = cli(['build-interactive', '--topic', join(fx, 'topic.json'), '--idea', 'i3', '--lesson', join(fx, 'lesson.json')]);
+expect('a mechanism idea gets the hands-on mechanism exemplar (K.drag, a motion with no Play button)', p4.status === 0 && p4.stdout.includes('kind: mechanism -->') && p4.stdout.includes("K.drag('#hand'") && !p4.stdout.includes('Compound interest'), p4.stderr);
 const p3 = cli(['repair-interactive', '--topic', join(fx, 'topic.json'), '--idea', 'i1', '--lesson', join(fx, 'lesson.json'), '--html', join(fx, 'body.html'), '--report', join(fx, 'report.json')]);
 expect('prompts.mjs repair-interactive runs', p3.status === 0, p3.stderr);
 expect('repair prompt starts with TASK and lists the problems and the failing body',
   p3.stdout.startsWith('TASK: repair-interactive\n') && p3.stdout.includes('- Error: K.ready() was never called') &&
   p3.stdout.includes('- Check failed: "x"') && p3.stdout.includes('Missing output "eff"') && p3.stdout.includes('<p>hi</p>'));
+expect('repair prompt says how to fix the new failures (small text, lines through labels, contrast, colour names, a blank hole)',
+  ['SVG text too small on a phone: font-size 13-16', 'pass that line in avoid', 'Text hard to read (contrast) or a colour name', 'A blank hole before Dan moves'].every((t) => p3.stdout.includes(t)));
+expect('repair prompt uses no example from the run-2 eval topics', !/vaccin|antibod|headphone|noise.cancel|rainbow|refracti|bronze|copper/i.test(p3.stdout));
 
 // ---------- bodies used below ----------
 // A tiny body with one slider, one readout and three passing checks; pieces can be swapped out.
@@ -262,7 +296,7 @@ section('self-test catches broken bodies');
   const fine = body(plain + "\nconst rr = K.readout({ id: 'words', label: 'Pattern', into: '#o' }); K.update(() => rr.set('181 for every 120'));",
     { html: '<div class="panel" style="overflow:hidden;border-radius:12px"><p>Rounded panel with ordinary wrapping text that is long enough to wrap onto several lines.</p></div>' +
       '<svg viewBox="0 0 200 60" width="100%" role="img" aria-label="x"><text x="0" y="12" font-size="12">top-left label</text><text x="200" y="58" text-anchor="end" font-size="12">bottom-right label</text>' +
-      '<text x="100" y="35" text-anchor="middle" font-size="12" stroke="white" stroke-width="3">halo</text><text x="100" y="35" text-anchor="middle" font-size="12">halo</text></svg>' +
+      '<text x="100" y="35" text-anchor="middle" font-size="12" stroke="var(--k-bg)" stroke-width="3">halo</text><text x="100" y="35" text-anchor="middle" font-size="12">halo</text></svg>' +
       '<p class="caption" style="white-space:nowrap;overflow:hidden">short caption</p><button class="k-btn">A button</button><div class="k-bar-track" style="width:200px"><i style="width:50%"></i></div>' });
   r = await test(fine);
   expect('ordinary bodies (panels, edge labels, halos, long readout text) are not flagged', r.ok && !r.clipped.length, { clipped: r.clipped, errors: r.errors, sweep: r.sweep.problems });
@@ -362,7 +396,7 @@ section('self-test catches broken bodies');
   expect('an axis title far too long for a phone is reported', !r.ok && JSON.stringify(r).includes('is too long for a phone'), r);
   r = await test(body(plain + "\nK.check('kebab colour', () => K.color('amber-line') === K.color('amberLine') && /^#/.test(K.color('amber-line')));\nconst bad = K.color('purpleish');"));
   expect('K.color accepts amber-line and amberLine alike', r.checks.some((c) => c.label === 'kebab colour' && c.ok), r.checks);
-  expect('...and warns about a colour role that does not exist', has(r.warnings, /K\.color\('purpleish'\) is not a colour role/), r.warnings);
+  expect('...and a colour role that does not exist fails the self-test (panel change 7), naming the roles there are', !r.ok && has(r.sweep.problems, /K\.color\('purpleish'\) is not a colour role, so it was drawn as 'accent2': use one of .*cat1/), r.sweep);
   r = await test(body(plain + "\nK.anim({ step: () => {}, button: false, into: '#c' });\nK.check('no anim button', () => !document.querySelector('.k-anim'));"));
   expect('K.anim with button: false adds no button', r.ok && r.checks.find((c) => c.label === 'no anim button').ok, r);
   r = await test(body(plain + "\nK.button({ label: 'Hum', into: '#c', press: () => K.sound.hold(NaN) });"));
@@ -370,7 +404,9 @@ section('self-test catches broken bodies');
   r = await test(body(plain + "\nK.button({ label: 'Hum', into: '#c', press: () => { const h = K.sound.hold(100); h.set({ gain: 0.5 }); } });"));
   expect('a held 100 Hz hum warns that a phone speaker cannot play it', r.ok && has(r.warnings, /below what a phone speaker can make/), r.warnings);
   r = await test(body(plain, { html: '<div class="k-after-move" style="height:300px">the answer</div>' }));
-  expect('a big after-move block gets advice', has(r.warnings, /large blank space/), r.warnings);
+  expect('a big after-move block fails as an error, so the repair fixes the blank hole (panel change 18)', !r.ok && has(r.errors, /large blank space/) && !has(r.warnings, /large blank space/), r);
+  r = await test(body(plain, { html: '<div class="k-after-move" style="height:60px">the answer</div>' }));
+  expect('...while a small hidden answer passes', r.ok, r);
 
   // Plot shading needs a real edge.
   r = await test(body(plain + "\nconst ps = K.plot(K.el('div'), { x: { min: 0, max: 1 }, y: { min: 0, max: 2 } }); document.body.appendChild(ps.el);\nK.update(() => ps.draw({ series: [{ fn: (x) => x, label: 'low' }], shade: [{ between: ['low', 'high'] }] }));"));
@@ -613,12 +649,27 @@ section('the kit in a live frame');
       same(cl.band, cl.fill3, 3) && cl.band[3] > 60 && cl.alpha === 'rgba(' + cl.fill2.join(', ') + ', 0.3)', cl);
   }
   const colourRep = await host(() => window.m.selftest());
-  expect('...and the colour word gets advice to use a role', colourRep.warnings.some((w) => /K\.color\('navy'\) is not a colour role, so it was drawn as 'accent2'/.test(w)), colourRep.warnings);
+  expect('...and the colour word fails the self-test, telling the repair to use a role', !colourRep.ok && colourRep.sweep.problems.some((w) => /K\.color\('navy'\) is not a colour role, so it was drawn as 'accent2'/.test(w)), colourRep.sweep);
 
   await app.page.evaluate(() => { document.documentElement.dataset.muTheme = 'light'; });
   await app.page.waitForTimeout(300);
   const palL = await fr.evaluate(() => ({ fill2: getComputedStyle(document.documentElement).getPropertyValue('--k-fill2').trim(), amberLine: K.theme.c.amberLine, dark: K.theme.dark }));
   expect('light mode keeps calm fills and a strong amber line', !palL.dark && palL.fill2 === '#F8D47A' && palL.amberLine === '#B7791F', palL);
+  // Every role meant for lines and text stands 3:1 off the page and the panel in both themes, so
+  // labels in them pass the self-test's contrast check (light cat2 and cat4 were a little pale).
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const lum = (p) => { const v = p.map((x) => { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2]; };
+  const con = (a, b) => { const x = lum(hex(a)), y = lum(hex(b)); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const palettes = { light: kitJs.match(/var LIGHT = \{([\s\S]*?)\};/)[1], dark: kitJs.match(/var DARK = \{([\s\S]*?)\};/)[1] };
+  const weak = [];
+  for (const [name, src] of Object.entries(palettes)) {
+    const P = Object.fromEntries([...src.matchAll(/(\w+): '(#[0-9A-Fa-f]{6})'/g)].map((m) => [m[1], m[2]]));
+    for (const k of ['ink', 'muted', 'accent', 'accent2', 'warn', 'good', 'amberLine', 'cat1', 'cat2', 'cat3', 'cat4']) {
+      const c = Math.min(con(P[k], P.bg), con(P[k], P.panel));
+      if (c < 3) weak.push(name + ' ' + k + ' ' + c.toFixed(2));
+    }
+  }
+  expect('every line and text role is at least 3:1 against the page and the panel, light and dark', !weak.length, weak);
 
   // Plots: shading between lines, labels clear of lines.
   const plotBody = '<div id="pl"></div><div class="k-controls" id="c"></div><script>\n' +
@@ -798,6 +849,304 @@ section('the kit in a live frame');
   expect('reach(): works on a mounted frame too', reach.mounted.reachable && reach.mounted.best.value === 0.7, reach.mounted);
   expect('no page errors in the live-frame tests', !wide.errors.length, wide.errors);
   await wide.close();
+}
+
+// ---------- eval run 2: what Dan can read, timing, one control per action (panel 7, 12, 17, 18) ----------
+section('legibility, colour, timing and actions (eval run 2)');
+{
+  const app = await openApp({ width: 360, height: 800, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  const test = (html, o) => app.page.evaluate(([h, opts]) => U.sandbox.test(h, opts), [html, o || {}]);
+  const has = (list, re) => (list || []).some((m) => re.test(m));
+  const all = (r) => [].concat(r.errors || [], r.clipped || [], (r.sweep && r.sweep.problems) || []);
+  // A drawing about 340 units wide (as KIT.md asks) with one control.
+  const draw = (svg, js = '', o = {}) => '<svg id="d" viewBox="0 0 ' + (o.w || 340) + ' ' + (o.h || 200) + '" width="100%" role="img" aria-label="drawing">' + svg + '</svg>' +
+    '<div class="k-controls" id="c"></div><script>\n' + "K.control({ id: 'a', label: 'A', min: 0, max: 1, step: 0.5, value: 0.5, into: '#c' });\n" + js +
+    "\nK.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  const phone = { widths: [340] };
+
+  // Text size on a phone (7 c): under 11 CSS px in the 340 px frame fails, saying what to use.
+  let r = await test(draw('<text x="20" y="40" font-size="10">tiny label</text>'), phone);
+  expect('SVG text 10 units high in a 340-wide drawing fails on a phone (about 9 px), naming the size to use',
+    !r.ok && has(r.clipped, /SVG text "tiny label" shows at 9\.\d px on a phone, too small to read: give it a font-size of at least 13/), r.clipped);
+  r = await test(draw('<text x="20" y="40" font-size="14">a label</text>', '', { w: 600 }), phone);
+  expect('...and so does 14-unit text in a 600-wide drawing (shown at half size)', !r.ok && has(r.clipped, /SVG text "a label" shows at 7\.\d px on a phone/), r.clipped);
+  r = await test(draw('<text x="20" y="40" font-size="10">tiny label</text>'), { widths: [720] });
+  expect('...but the phone rule is for the phone: at 720 px the same drawing is bigger and passes', r.ok, all(r));
+  r = await test(draw('<text x="20" y="40" font-size="13">label</text><text x="20" y="70" font-size="12">smallest allowed</text>'), phone);
+  expect('13-unit and 12-unit text in a 340-wide drawing pass on a phone', r.ok, all(r));
+
+  // Lines and arrowheads through labels (7 c), and the lines that are fine.
+  const flat = '<line x1="0" y1="100" x2="340" y2="100" stroke="var(--k-accent2)" stroke-width="2"/>';
+  r = await test(draw(flat + '<text x="170" y="105" text-anchor="middle" font-size="14">40°</text>'), phone);
+  expect('a line through a label fails, naming the line', !r.ok && has(r.clipped, /SVG text "40°" has a line through it \(<line>\): move the label off the line \(K\.labels with avoid/), r.clipped);
+  r = await test(draw('<path d="M10 150 C 100 20, 240 20, 330 150" fill="none" stroke="var(--k-accent)" stroke-width="2.5" stroke-dasharray="6 4"/><text x="170" y="57" text-anchor="middle" font-size="14">the beam</text>'), phone);
+  expect('...a dashed curve through one too', !r.ok && has(r.clipped, /SVG text "the beam" has a line through it \(<path>\)/), r.clipped);
+  r = await test(draw(flat + '<text x="170" y="92" text-anchor="middle" font-size="14">40°</text><text x="170" y="117" text-anchor="middle" font-size="14">below it</text>'), phone);
+  expect('labels just above and just below a line pass', r.ok, all(r));
+  r = await test(draw('<line x1="0" y1="100" x2="340" y2="100" stroke="var(--k-line)" stroke-width="1"/><text x="170" y="105" text-anchor="middle" font-size="14">over a gridline</text>'), phone);
+  expect('a faint gridline (--k-line) behind a label passes: its halo keeps it readable', r.ok, all(r));
+  r = await test(draw(flat + '<rect x="140" y="88" width="60" height="22" rx="6" fill="var(--k-bg)"/><text x="170" y="104" text-anchor="middle" font-size="14">40°</text>'), phone);
+  expect('a label on its own backing pill, painted over the line, passes', r.ok, all(r));
+  r = await test(draw('<path d="M60 160 M200 40 L300 40" fill="none" stroke="var(--k-ink)" stroke-width="2"/><text x="120" y="104" font-size="14">between</text>'), phone);
+  expect('two parts of one path (M … M …) are never joined into a line through what lies between', r.ok, all(r));
+  const head = '<defs><marker id="ah" viewBox="0 0 10 10" refX="0" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--k-ink)"/></marker></defs>' +
+    '<line x1="200" y1="180" x2="200" y2="130" stroke="var(--k-ink)" stroke-width="2" marker-end="url(#ah)"/>';
+  r = await test(draw(head + '<text x="200" y="124" text-anchor="middle" font-size="14">runs out first</text>'), phone);
+  expect('a label sitting on an arrowhead (marker-end) fails', !r.ok && has(r.clipped, /SVG text "runs out first" sits on an arrowhead \(<line>\)/), r.clipped);
+  r = await test(draw(head + '<text x="200" y="104" text-anchor="middle" font-size="14">runs out first</text>'), phone);
+  expect('...the same label clear of the tip passes', r.ok, all(r));
+
+  // Contrast (7 c): 3:1 against what is behind the text, in both themes.
+  r = await test(draw('<text x="20" y="40" font-size="14" fill="var(--k-fill2)">pale words</text>'), phone);
+  expect('text in a fill colour on the page fails for contrast', !r.ok && has(r.clipped, /SVG text "pale words" is hard to read: 1\.\d:1 contrast with the page \(it needs 3:1\)/), r.clipped);
+  r = await test(draw('<text x="20" y="40" font-size="14" fill="var(--k-ink)" opacity="0.3">faded words</text>'), phone);
+  expect('...and so does ink faded to 30%', !r.ok && has(r.clipped, /SVG text "faded words" is hard to read/), r.clipped);
+  r = await test(draw('<rect x="10" y="20" width="200" height="40" rx="8" fill="var(--k-accent2)"/><text x="20" y="46" font-size="14" fill="var(--k-on-accent2)">on the navy box</text>' +
+    '<rect x="10" y="80" width="200" height="40" fill="var(--k-fill2)"/><text x="20" y="106" font-size="14">ink on amber</text>' +
+    '<text x="20" y="150" font-size="14" fill="var(--k-cat2)">orange series</text><text x="200" y="150" font-size="14" fill="var(--k-cat4)">aqua series</text>'), { widths: [340, 720] });
+  expect('text on a box is measured against the box (on-accent2 on navy, ink on amber), and cat2 / cat4 labels pass', r.ok, all(r));
+  const fixed = (when) => draw('<text id="t" x="20" y="40" font-size="14">navy label</text>', when === 'load'
+    ? "const NAVY = K.color('accent2'); K.$('#t').setAttribute('fill', NAVY);"
+    : "K.update(() => K.$('#t').setAttribute('fill', K.color('accent2')));");
+  r = await test(fixed('load'), phone);
+  expect('a colour fixed once at load fails in the other theme (navy on the dark page)', !r.ok && has(r.clipped, /SVG text "navy label" is hard to read: 1\.\d:1 contrast with the page .*\(at the opening state, in the dark theme\)/), r.clipped);
+  r = await test(fixed('update'), phone);
+  expect('...the same colour set in K.update follows the theme and passes', r.ok, all(r));
+
+  // Labels that run together on one row (7 c): advice, not a failure.
+  const width = await app.page.evaluate(() => { const c = document.createElement('canvas').getContext('2d'); c.font = '14px system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'; return c.measureText('grabs it').width; });
+  const rowAt = (gap) => draw('<text x="20" y="60" font-size="14">grabs it</text><text x="' + (20 + width + gap).toFixed(1) + '" y="60" font-size="14">lets it go</text>');
+  r = await test(rowAt(1.5), phone);
+  expect('two labels a pixel or two apart on one row get advice (they read as one), without failing', r.ok && has(r.warnings, /SVG labels "grabs it" and "lets it go" are (only \d px apart|touching) on one row/), r);
+  r = await test(rowAt(14), phone);
+  expect('...and none when they have room', r.ok && !has(r.warnings, /on one row/), r.warnings);
+
+  // Fills and strokes the theme can't follow or the browser can't paint (7 c): errors.
+  r = await test(draw('<rect x="10" y="10" width="40" height="40" fill="white"/><line x1="0" y1="80" x2="100" y2="80" stroke="var(--k-navy)"/>' +
+    '<rect x="60" y="10" width="40" height="40" fill="url(#nothing)"/><circle cx="150" cy="30" r="10" fill="#12"/>'), phone);
+  expect('a colour name, an unknown var(--k-…), a url(#…) to nothing and a typo all fail',
+    !r.ok && has(r.sweep.problems, /an SVG <rect> has fill "white": it is a colour name, which does not follow the theme/) && has(r.sweep.problems, /has stroke "var\(--k-navy\)": it uses --k-navy, which is not a kit colour/) &&
+    has(r.sweep.problems, /fill "url\(#nothing\)": it points to #nothing, which is not on the page/) && has(r.sweep.problems, /fill "#12": it is not a colour/), r.sweep);
+  r = await test(draw('<defs><linearGradient id="gr"><stop offset="0" stop-color="var(--k-fill1)"/></linearGradient></defs><rect x="10" y="10" width="40" height="40" fill="var(--k-fill1)" stroke="currentColor"/>' +
+    '<rect x="60" y="10" width="40" height="40" fill="url(#gr)"/><circle id="dot" cx="150" cy="30" r="10" fill="none" stroke="transparent"/>', "K.update(() => { K.$('#dot').style.fill = K.color('cat1', 0.5); });"), phone);
+  expect('roles, currentColor, none, transparent, a real gradient and K.color values pass', r.ok, all(r));
+
+  // Animations play 3 s of their own time (12): a fault after 2.4 s is caught.
+  r = await test(body(plain + "\nlet tt = 0; const sp = K.readout({ id: 'speed', label: 'Speed', into: '#o' });\nK.anim({ label: 'Go', into: '#c', step: (dt) => { tt += dt; sp.set(tt > 2.4 ? NaN : tt); } });"), phone);
+  expect('the self-test plays each K.anim for 3 s: NaN after 2.4 s is caught', !r.ok && has(r.sweep.problems, /readout "speed" was given NaN \(at playing "Go"/), r.sweep);
+
+  // One control per action (17): a switch, a button or the motion itself already starting what a Play button plays.
+  const dup = (how, button) => '<div class="k-controls" id="c"></div><script>\n' +
+    "const on = K.toggle({ id: 'on', label: 'Speaker on', into: '#c' });\n" +
+    "const run = K.anim({ label: 'Run', into: '#c'" + (button ? '' : ', button: false') + ", step: () => { " + (how === 'flip' ? "on.set(true);" : '') + " } });\n" +
+    (how === 'switch' ? "K.update((p) => { if (p.on) run.play(); else run.pause(); });\n" : '') +
+    (how === 'button' ? "K.button({ label: 'Send it', into: '#c', press: () => run.play() });\n" : '') +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  r = await test(dup('switch', true), phone);
+  expect('a switch that starts a motion with its own Play button gets advice to use button: false', r.ok && has(r.warnings, /The switch "on" already starts the motion that "Run" plays: use K\.anim\(\{button: false\}\)/), r.warnings);
+  r = await test(dup('button', true), phone);
+  expect('...so does a button that starts it', has(r.warnings, /The button "Send it" already starts the motion that "Run" plays/), r.warnings);
+  r = await test(dup('flip', true), phone);
+  expect('...and a Play button whose motion flips the switch', has(r.warnings, /Playing "Run" flips the switch "on": the switch already starts this motion/), r.warnings);
+  r = await test(dup('switch', false), phone);
+  expect('...but none with button: false (one control per action)', r.ok && !has(r.warnings, /already starts|flips the switch/), r.warnings);
+
+  // K.drag in the self-test: its toValue is asked about the drawing's corners.
+  const knob = (js) => draw('<circle id="knob" cx="170" cy="100" r="10" fill="var(--k-accent2)"/>', js);
+  r = await test(knob("K.drag('#knob', { control: 'a', toValue: (x) => (x - 170) / 0 * 0 });"), phone);
+  expect('a K.drag whose toValue gives NaN fails, saying where', !r.ok && has(r.sweep.problems, /K\.drag on <circle#knob>: toValue\(170, 100\) gave NaN, so a drag there does nothing/), r.sweep);
+  r = await test(knob("K.drag('#knob', { control: 'zz', toValue: (x) => x / 340 });"), phone);
+  expect('...one naming a control that does not exist fails', !r.ok && has(r.sweep.problems, /K\.drag on <circle#knob> moves control "zz", which does not exist/), r.sweep);
+  r = await test(knob("K.drag('#knob', { control: 'a', toValue: (x) => x / 340 });\nK.update((p) => K.$('#knob').setAttribute('cx', 20 + p.a * 300));"), phone);
+  expect('...and a good one passes (its 44 px target adds nothing the test minds)', r.ok, all(r));
+
+  // A word readout tile never splits its longest word, even one shown only later (at XL on a phone).
+  r = await test('<div class="k-controls" id="c"></div><div class="k-readouts" id="o"></div><script>\n' +
+    "K.control({ id: 'a', label: 'Where', min: 0, max: 1, step: 1, value: 0, into: '#c' });\n" +
+    "K.readout({ id: 'p', label: 'Here', into: '#o' }); K.readout({ id: 'q', label: 'Next', into: '#o' }); K.readout({ id: 'z', label: 'Then', into: '#o' });\n" +
+    "K.model((p) => ({ p: p.a ? 'Pulmonary artery' : 'Lungs', q: 'Heart', z: 'Body' }));\nK.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>", { widths: [338] });
+  expect('a word readout widens to fit a long word it shows later, at XL on a phone, so no word splits', r.ok && !r.clipped.length, r.clipped);
+
+  // Realistic drawings a model writes (labels near lines, arrows, boxes, a timeline, a bar chart):
+  // they pass at phone, tablet and laptop widths and at XL, with no advice.
+  const realistic = {
+    'forces on a crate (arrows with markers, labels beside them, a ground line, a gridline)': draw(
+      '<defs><marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--k-accent2)"/></marker></defs>' +
+      '<line x1="0" y1="60" x2="340" y2="60" stroke="var(--k-line)"/><line x1="10" y1="150" x2="330" y2="150" stroke="var(--k-strong)" stroke-width="2"/>' +
+      '<rect x="140" y="100" width="70" height="50" rx="4" fill="var(--k-fill1)" stroke="var(--k-accent2)" stroke-width="2"/><text x="175" y="130" text-anchor="middle" font-size="14">crate</text>' +
+      '<line id="pushl" x1="40" y1="125" x2="136" y2="125" stroke="var(--k-accent2)" stroke-width="3" marker-end="url(#tip)"/><g id="lab"></g>' +
+      '<line x1="175" y1="154" x2="175" y2="190" stroke="var(--k-warn)" stroke-width="3" marker-end="url(#tip)"/><text x="183" y="186" font-size="13" fill="var(--k-warn)">weight</text>',
+      "K.update((p) => { K.$('#pushl').setAttribute('x1', 136 - 40 - p.a * 50); K.labels('#lab', [{ x: 88, y: 118, text: 'push ' + Math.round(10 + p.a * 20) + ' N' }], { avoid: '#pushl' }); });", { h: 200 }),
+    'a pivot with an angle arc, its label inside the wedge': draw(
+      '<line x1="60" y1="160" x2="300" y2="160" stroke="var(--k-muted)" stroke-width="2"/><line id="arm" x1="60" y1="160" x2="280" y2="60" stroke="var(--k-accent2)" stroke-width="3"/>' +
+      '<path id="arc" fill="none" stroke="var(--k-amber-line)" stroke-width="2"/><g id="al"></g><circle cx="60" cy="160" r="5" fill="var(--k-ink)"/>',
+      "K.update((p) => { const deg = 15 + p.a * 40, t = deg * Math.PI / 180, R = 70; K.$('#arm').setAttribute('x2', 60 + 240 * Math.cos(t)); K.$('#arm').setAttribute('y2', 160 - 240 * Math.sin(t));\n" +
+      "  K.$('#arc').setAttribute('d', 'M' + (60 + R) + ' 160A' + R + ' ' + R + ' 0 0 0 ' + (60 + R * Math.cos(t)) + ' ' + (160 - R * Math.sin(t)));\n" +
+      "  K.labels('#al', [{ x: 60 + (R + 26) * Math.cos(t / 2), y: 160 - (R + 26) * Math.sin(t / 2) + 5, text: Math.round(deg) + '°' }], { avoid: ['#arm', '#arc'] }); });"),
+    'a timeline: axis, ticks, years under them, dated events over them': draw(
+      '<line x1="20" y1="100" x2="320" y2="100" stroke="var(--k-strong)" stroke-width="2"/><g id="tl"></g>',
+      "const Y = [1800, 1850, 1900, 1950, 2000], E = [[1825, 'first railway'], [1903, 'first flight'], [1969, 'Moon landing']];\n" +
+      "K.update((p) => { const g = K.$('#tl'); g.textContent = ''; const x = (y) => 20 + (y - 1800) * 300 / 200;\n" +
+      "  Y.forEach((y) => { g.appendChild(K.svg('line', { x1: x(y), y1: 100, x2: x(y), y2: 107, stroke: 'var(--k-strong)', 'stroke-width': 2 })); g.appendChild(K.svg('text', { x: x(y), y: 124, 'text-anchor': y === 1800 ? 'start' : y === 2000 ? 'end' : 'middle', 'font-size': 13, fill: 'var(--k-muted)' }, String(y))); });\n" +
+      "  E.filter((e) => e[0] <= 1850 + p.a * 150).forEach((e, i) => { g.appendChild(K.svg('circle', { cx: x(e[0]), cy: 100, r: 5, fill: 'var(--k-accent2)' })); g.appendChild(K.svg('text', { x: x(e[0]), y: 84 - i * 22, 'text-anchor': 'middle', 'font-size': 13 }, e[1])); }); });"),
+    'a bar chart in SVG: values inside navy bars, names under the axis, a dashed reference line': draw(
+      '<g id="bars"></g><line x1="20" y1="170" x2="320" y2="170" stroke="var(--k-strong)" stroke-width="2"/><line x1="20" y1="70" x2="320" y2="70" stroke="var(--k-muted)" stroke-dasharray="4 4"/>' +
+      '<text x="320" y="62" text-anchor="end" font-size="13" fill="var(--k-muted)">the target</text>',
+      "K.update((p) => { const g = K.$('#bars'); g.textContent = ''; [['Ann', 60], ['Bea', 90 + p.a * 20], ['Cy', 75]].forEach(([n, v], i) => { const x = 40 + i * 95, h = v;\n" +
+      "  g.appendChild(K.svg('rect', { x, y: 170 - h, width: 70, height: h, rx: 4, fill: 'var(--k-accent2)' })); g.appendChild(K.svg('text', { x: x + 35, y: 170 - h + 24, 'text-anchor': 'middle', 'font-size': 14, fill: 'var(--k-on-accent2)' }, String(Math.round(v))));\n" +
+      "  g.appendChild(K.svg('text', { x: x + 35, y: 190, 'text-anchor': 'middle', 'font-size': 13 }, n)); }); });", { h: 200 }),
+  };
+  for (const [name, html] of Object.entries(realistic)) {
+    for (const size of [16, 20]) {
+      r = await app.page.evaluate(([h, sz]) => U.sandbox.test(h, { widths: [340, 720, 1040], theme: Object.assign(U.sandbox.theme(), { size: sz }) }), [html, size]);
+      expect('realistic drawing passes at ' + (size === 20 ? 'XL' : 'M') + ', with no advice: ' + name, r.ok && !(r.warnings || []).length, all(r).concat(r.warnings || []));
+    }
+  }
+  expect('no page errors in the legibility tests', !app.errors.length, app.errors);
+  app.errors.splice(0);
+  await app.close();
+}
+
+// ---------- K.drag, held − / +, snap, afterMove plots, the stage's say column, K.labels avoid, quiz labels ----------
+section('dragging, holding, snapping and laying out (eval run 2)');
+{
+  const app = await openApp({ width: 360, height: 900, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  const mount = async (html, o = {}) => {
+    await app.page.evaluate(async ([h, opts]) => {
+      if (window.dm) window.dm.destroy();
+      const box = document.getElementById('dragbox') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'dragbox' }));
+      box.style.cssText = 'width:' + (opts.width || 340) + 'px;margin:0';
+      document.getElementById('app').style.display = 'none';
+      window.dm = U.sandbox.mount(box, Object.assign({ html: h }, opts.quiz ? { quiz: opts.quiz } : {}));
+      await window.dm.ready;
+      await new Promise((r) => setTimeout(r, 300));
+    }, [html, o]);
+    return app.page.frames().filter((f) => f !== app.page.mainFrame() && !f.isDetached() && f.url() === 'about:srcdoc').pop();
+  };
+  const box = examples.find((e) => e.name === 'push-a-box').body;
+
+  // K.drag: Dan drags the handle; the slider follows, the page reveals, the target is 44 px.
+  let fr = await mount(box);
+  let st = await fr.evaluate(() => {
+    const hit = document.querySelector('.k-drag-hit'), hb = hit && hit.getBoundingClientRect();
+    return { moved: K.moved, push: K.params().push, hit: hb ? Math.round(hb.width) : 0, touch: hit && getComputedStyle(hit).touchAction, handTouch: getComputedStyle(K.$('#hand')).touchAction,
+      grip: getComputedStyle(K.$('#grip')).visibility };
+  });
+  expect('K.drag gives a small handle a 44 px target that the page does not scroll under', st.hit >= 43 && st.hit <= 45 && st.touch === 'none' && st.handTouch === 'none' && !st.moved && st.grip === 'hidden', st);
+  const hand = await (await fr.$('#hand')).boundingBox();
+  await app.page.mouse.move(hand.x + hand.width / 2, hand.y + hand.height / 2);
+  await app.page.mouse.down();
+  await app.page.mouse.move(hand.x + hand.width / 2 - 40, hand.y + hand.height / 2 + 30, { steps: 8 });   // off the handle: pointer capture keeps the drag
+  await app.page.mouse.move(hand.x + hand.width / 2 - 70, hand.y + hand.height / 2 + 30, { steps: 8 });
+  await app.page.mouse.up();
+  await app.page.waitForTimeout(300);
+  st = await fr.evaluate(() => ({ moved: K.moved, push: K.params().push, slider: +K.$('#k-push').value, out: K.$('output').textContent, grip: getComputedStyle(K.$('#grip')).visibility,
+    handX: +K.$('#hand').getAttribute('cx') }));
+  const host = await app.page.evaluate(() => window.dm.get());
+  expect('dragging the handle 70 px left pushes harder: the slider and its value follow, the host hears it, and the hidden answer shows',
+    st.moved && st.push > 40 && st.push < 160 && st.slider === st.push && st.out === st.push + ' N' && host.params.push === st.push && st.grip === 'visible', { st, host });
+  await fr.focus('#k-push');
+  await app.page.keyboard.press('ArrowRight');
+  await app.page.waitForTimeout(150);
+  const kb = await fr.evaluate(() => ({ push: K.params().push, handX: +K.$('#hand').getAttribute('cx') }));
+  expect('...and the keyboard reaches the same thing through the slider (the handle moves with it)', kb.push === st.push + 1 && kb.handX < st.handX, { kb, st });
+
+  // snap: a drag of the slider near a snap value lands on it exactly, shown with its decimals.
+  const snapped = await fr.evaluate(() => {
+    const input = K.$('#k-push'), at = (v) => { input.value = String(v); input.dispatchEvent(new Event('input', { bubbles: true })); return { v: K.params().push, out: K.$('output').textContent }; };
+    return { near: at(97), far: at(93), above: at(102) };
+  });
+  expect('snap: a slider dragged within 2% of the range of 98.1 lands on it ("98.1 N"); further away it keeps its own steps',
+    snapped.near.v === 98.1 && snapped.near.out === '98.1 N' && snapped.far.v === 93 && snapped.above.v === 102, snapped);
+  const reach = await app.page.evaluate(() => window.dm.reach({ control: 'push', output: 'grip', target: 98.1, tolerance: 0 }));
+  expect('...and reach() can land on the snap value (a check may name it)', reach.reachable && reach.best.value === 98.1, reach);
+
+  // − / +: held down they repeat; a click or a key press is one step.
+  await app.page.evaluate(() => window.dm.set('push', 40));
+  const plus = await (await fr.$('.k-nudge[aria-label^="More"]')).boundingBox();
+  await app.page.mouse.click(plus.x + plus.width / 2, plus.y + plus.height / 2);
+  await app.page.waitForTimeout(150);
+  const one = await fr.evaluate(() => K.params().push);
+  await app.page.mouse.move(plus.x + plus.width / 2, plus.y + plus.height / 2);
+  await app.page.mouse.down();
+  await app.page.waitForTimeout(1000);
+  await app.page.mouse.up();
+  const held = await fr.evaluate(() => K.params().push);
+  await app.page.waitForTimeout(300);
+  const after = await fr.evaluate(() => K.params().push);
+  await fr.focus('.k-nudge[aria-label^="More"]');
+  await app.page.keyboard.press('Enter');
+  await app.page.waitForTimeout(150);
+  const key = await fr.evaluate(() => K.params().push);
+  expect('+ clicked is one step; held for a second it keeps going (and stops when let go); Enter is one step',
+    one === 41 && held - one >= 5 && after === held && key === held + 1, { one, held, after, key });
+
+  // K.plot afterMove: the axes are there from the start, the curve only after a move.
+  const pb = '<div id="pl"></div><div class="k-controls" id="c"></div><script>\n' +
+    "K.control({ id: 'a', label: 'A', min: 0, max: 1, step: 0.5, value: 0.5, into: '#c' });\nconst pl = K.plot('#pl', { x: { min: 0, max: 10 }, y: { min: 0, max: 10 } });\n" +
+    "K.update((p) => pl.draw({ series: [{ fn: () => 2, label: 'shown' }, { fn: () => 7, label: 'answer', color: 'warn', width: 5, afterMove: true }], marks: [{ x: 5, y: 7, color: 'warn', afterMove: true }] }));\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  fr = await mount(pb);
+  const px = () => fr.evaluate(() => { const api = K.$('#pl').__kplot, cv = api.canvas, c2 = cv.getContext('2d'), dpr = cv.width / cv.clientWidth;
+    const at = (x, y) => [...c2.getImageData(Math.round(api.x(x) * dpr), Math.round(api.y(y) * dpr), 1, 1).data];
+    const w = getComputedStyle(document.documentElement).getPropertyValue('--k-warn'); return { answer: at(2, 7), shown: at(2, 2), warn: w.trim(), keys: [...document.querySelectorAll('.k-key')].map((k) => k.textContent) }; });
+  const isWarn = (c) => c[0] > 120 && c[1] < 90 && c[2] < 90;
+  const pBefore = await px();
+  const plotRep = await app.page.evaluate(() => window.dm.selftest());
+  const pTest = await px();
+  await app.page.evaluate(() => window.dm.set('a', 1));
+  await app.page.waitForTimeout(150);
+  const pAfter = await px();
+  expect('a plot series with afterMove: true is not drawn (nor in the key) until Dan moves, then it is; the self-test checks it and hides it again',
+    !isWarn(pBefore.answer) && pBefore.shown[3] > 0 && !pBefore.keys.includes('answer') && plotRep.ok && !isWarn(pTest.answer) && isWarn(pAfter.answer) && pAfter.keys.join() === 'shown,answer', { pBefore, pAfter, ok: plotRep.ok });
+
+  // K.stage: beside the visual (a laptop frame) the say line and readouts join the controls' column.
+  for (const [w, want] of [[1048, 'side'], [360, 'after']]) {
+    fr = await mount(examples.find((e) => e.name === 'brayton-efficiency').body, { width: w });
+    const where = await fr.evaluate(() => {
+      const say = document.querySelector('.say'), outs = document.querySelector('.k-readouts'), st = document.querySelector('.k-stage'), side = st.querySelector('.k-side');
+      return { say: side.contains(say) ? 'side' : st.nextElementSibling === say || st.nextElementSibling === outs ? 'after' : 'elsewhere', outs: side.contains(outs), order: [...side.children].map((c) => c.className.split(' ')[0]) };
+    });
+    expect('K.stage at ' + w + ' px: the say line and readouts sit ' + (want === 'side' ? 'under the controls, beside the visual' : 'after the stage, under the visual'),
+      where.say === want && where.outs === (want === 'side'), where);
+  }
+  const back = await app.page.evaluate(async () => { document.getElementById('dragbox').style.width = '360px'; await new Promise((r) => setTimeout(r, 400)); return null; })
+    .then(() => app.page.frames().filter((f) => f !== app.page.mainFrame() && !f.isDetached()).pop().evaluate(() => {
+      const say = document.querySelector('.say'), st = document.querySelector('.k-stage');
+      return { inSide: st.querySelector('.k-side').contains(say) };
+    }));
+  expect('...and they go back under the stage when the frame narrows', back.inSide === false, back);
+
+  // K.labels: 13 units unless told otherwise, and kept off the lines in avoid.
+  fr = await mount('<svg id="sv" viewBox="0 0 340 120" width="100%" role="img" aria-label="x"><line id="ln" x1="0" y1="60" x2="340" y2="60" stroke="var(--k-ink)" stroke-width="2"/><g id="lg"></g><g id="lg2"></g></svg><div class="k-controls" id="c"></div><script>\n' +
+    "K.control({ id: 'a', label: 'A', min: 0, max: 1, step: 0.5, value: 0.5, into: '#c' });\nK.update(() => { K.labels('#lg', [{ x: 170, y: 65, text: 'on the line' }], { avoid: '#ln' }); K.labels('#lg2', [{ x: 60, y: 20, text: 'sized', size: 15 }]); });\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>");
+  const lab = await fr.evaluate(() => { const t = K.$('#lg text'), b = t.getBoundingClientRect(), l = K.$('#ln').getBoundingClientRect();
+    return { size: t.getAttribute('font-size'), sized: K.$('#lg2 text').getAttribute('font-size'), clear: b.bottom - b.height * 0.22 <= l.top || b.top + b.height * 0.2 >= l.bottom }; });
+  const labRep = await app.page.evaluate(() => window.dm.selftest());
+  expect('K.labels sets 13 units by default (size when given) and keeps a label off the line in avoid, so it passes', lab.size === '13' && lab.sized === '15' && lab.clear && labRep.ok, { lab, clipped: labRep.clipped });
+
+  // Quiz mode: an SVG label in the body's drawing that gives the hidden value away is hidden too.
+  const qb = '<svg viewBox="0 0 340 80" width="100%" role="img" aria-label="x"><text id="v" x="20" y="30" font-size="14"></text><text id="n" x="20" y="60" font-size="14">a label</text></svg>' +
+    '<div class="k-controls" id="c"></div><script>\n' + "K.control({ id: 'a', label: 'A', min: 0, max: 10, step: 1, value: 4, into: '#c' });\nK.model((p) => ({ y: p.a * 3 }));\n" +
+    "K.update((p, o) => { K.$('#v').textContent = o.y + ' m'; });\nK.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  fr = await mount(qb, { quiz: { hide: 'y' } });
+  const vis = () => fr.evaluate(() => ({ v: getComputedStyle(K.$('#v')).visibility, n: getComputedStyle(K.$('#n')).visibility, text: K.$('#v').textContent }));
+  const q1 = await vis();
+  await app.page.evaluate(() => window.dm.set('a', 5));
+  const q2 = await vis();
+  await app.page.evaluate(() => window.dm.reveal());
+  await app.page.waitForTimeout(100);
+  const q3 = await vis();
+  expect('quiz mode hides a drawing label that reads as the hidden value (12 m, then 15 m), not the others, until the reveal',
+    q1.v === 'hidden' && q1.n === 'visible' && q2.v === 'hidden' && q2.text === '15 m' && q3.v === 'visible', { q1, q2, q3 });
+
+  expect('no page errors in the drag and layout tests', !app.errors.length, app.errors);
+  await app.close();
 }
 
 // ---------- a frame that stops being the kit is removed (audit 3, #22 residual) ----------

@@ -131,7 +131,7 @@
     strong: '#B9B1A3', accent: '#0F6B66', accent2: '#17324D', onAccent2: '#F7F5F0', warn: '#9F3038',
     good: '#2E7D4F', amber: '#FFF1CC',
     hl: '#FBE29A', amberLine: '#B7791F', fill1: '#D6E0EB', fill2: '#F8D47A', fill3: '#CFE8E4',
-    cat1: '#2A78D6', cat2: '#EB6834', cat3: '#C2418A', cat4: '#1BAF7A',
+    cat1: '#2A78D6', cat2: '#E66633', cat3: '#C2418A', cat4: '#19A070',
   };
   var DARK = {
     bg: '#1A2029', panel: '#12161C', sunk: '#232A35', ink: '#E7E4DD', muted: '#A9B1BC', line: '#2C3440',
@@ -142,11 +142,12 @@
   };
   var KIT_ROLES = ['hl', 'amberLine', 'fill1', 'fill2', 'fill3', 'cat1', 'cat2', 'cat3', 'cat4'];
   var FILL_ROLES = ['fill1', 'fill2', 'fill3', 'hl', 'amber', 'panel', 'sunk'];
-  var hostMute = false;
+  var hostMute = false, themeArg = null;
   K.theme = { dark: false, size: 16, c: {} };
   function cssName(k) { return '--k-' + k.replace(/[A-Z]/g, function (m) { return '-' + m.toLowerCase(); }); }
   function applyTheme(t) {
     t = t && typeof t === 'object' ? t : {};
+    themeArg = t;
     var dark = !!t.dark, base = dark ? DARK : LIGHT, src = t.c || {};
     K.theme.dark = dark;
     K.theme.size = clamp(+t.size || 16, 14, 24);
@@ -183,6 +184,13 @@
     } catch (e) {}
     return null;
   }
+  // WCAG contrast of two [r, g, b] colours (1 to 21), and a see-through colour laid over another.
+  function lumOf(p) {
+    var v = [p[0], p[1], p[2]].map(function (x) { x /= 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4); });
+    return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  }
+  function contrastOf(a, b) { var x = lumOf(a), y = lumOf(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+  function overOf(top, alpha, under) { return [0, 1, 2].map(function (i) { return top[i] * alpha + under[i] * (1 - alpha); }); }
   // The palette role a name means: 'accent2', 'amber-line' or 'amberLine', or 'var(--k-warn)'
   // (the CSS form KIT.md gives) -> the role's key in K.theme.c, else null.
   function roleKey(name) {
@@ -196,8 +204,8 @@
   var WORD_ROLES = { navy: 'accent2', blue: 'accent2', teal: 'accent', red: 'warn', green: 'good', black: 'ink', white: 'bg', gray: 'muted', grey: 'muted' };
   // A palette role ('accent2', 'fill2', 'cat1', 'var(--k-warn)', ...) or a CSS colour such as
   // '#2A78D6' or 'rgb(...)'; with alpha, an rgba() of it. A colour word or anything else the
-  // canvas can't draw with warns and falls back to a role, so a plot line, its legend key and a
-  // fill always agree and follow the theme.
+  // canvas can't draw with is drawn as a role (so a plot line, its legend key and a fill still
+  // agree and follow the theme) and fails the self-test, so a repair names a real role.
   K.color = function (name, alpha) {
     var key = roleKey(name), c;
     if (key) c = K.theme.c[key];
@@ -208,7 +216,7 @@
       var word = /^[a-z]+$/i.test(text) && !/^(none|transparent|currentcolor)$/i.test(text);
       if (word || !rgbaOf(text) && !/^(none|transparent|currentcolor)$/i.test(text)) {
         var fall = WORD_ROLES[text.toLowerCase()] || 'accent2';
-        addUnique(warnings, 'K.color(\'' + name + '\') is not a colour role, so it was drawn as \'' + fall + '\': use one of ' + Object.keys(K.theme.c).join(', ') + '.', 8);
+        problem('K.color(\'' + name + '\') is not a colour role, so it was drawn as \'' + fall + '\': use one of ' + Object.keys(K.theme.c).join(', '));
         c = K.theme.c[fall];
       } else c = text;
     }
@@ -357,7 +365,7 @@
   // Every control registers itself; K.params() is {id: value}. A change runs: model(params) ->
   // outputs; readouts whose id matches an output key update themselves; then each K.update fn.
   var controls = [], byId = Object.create(null), readouts = Object.create(null), readoutList = [], plots = [], barList = [], anims = [], checks = [];
-  var actions = [], stages = [];
+  var actions = [], stages = [], drags = [];
   var modelFn = null, updates = [], lastOutputs = {}, readyCalled = false, everRun = false;
   var sink = null;          // during the self-test sweep: where problems go, with the current setting
   var liveProblems = [];    // problems seen outside the sweep (e.g. a NaN while Dan plays)
@@ -413,6 +421,8 @@
     for (var i = 0; i < updates.length; i++) {
       try { updates[i](p, out); } catch (e) { fault('K.update', e); }
     }
+    if (drags.length) syncDrags();
+    if (quiz || document.querySelector('.k-veiled')) veilLabels();
     if (readyCalled) figures();
     heightSoon();
   }
@@ -471,6 +481,7 @@
     if (moved) return;
     moved = true;
     setMovedClass(true);
+    laterPlots();
     afterMoveFns.slice().forEach(function (fn) { try { fn(); } catch (e) { fault('K.afterMove', e); } });
   }
   Object.defineProperty(K, 'moved', { get: function () { return moved || sweepReveal; }, enumerable: true });
@@ -481,13 +492,15 @@
     return K;
   };
   K.reveal = function () { markMoved(); changed(); return K; };
+  // Plots with afterMove parts draw them now (one drawn once, outside K.update, too).
+  function laterPlots() { plots.forEach(function (p) { if (p.drawn && p.later) p.redraw(); }); }
 
   // ---------- quiz mode ----------
   // While Dan answers a target check on this page (the host's 'quiz' message, or K_QUIZ in the
   // srcdoc so it holds from the first paint), the output it asks about stays hidden and he steers
   // by the picture and the rule: its readout shows "?" (labelled for screen readers), every .say
-  // line is hidden (visibility, so nothing moves) and plot and bar labels giving its value are
-  // left out. The model runs as usual: state and change messages carry the real outputs, which
+  // line is hidden (visibility, so nothing moves), plot and bar labels giving its value are left
+  // out, and SVG text in the body's own drawing that gives it is hidden (k-veiled). The model runs as usual: state and change messages carry the real outputs, which
   // the app grades. {type:'quiz', hide:null} or 'reveal' ends it. The self-test runs with it off.
   var testingNow = false, quizHeld = null, HIDDEN = 'Hidden until you check your answer';
   function setQuiz(id) {
@@ -502,7 +515,15 @@
     readoutList.forEach(function (r) { if (r.value !== undefined) r.set(r.value); });
     plots.forEach(function (p) { if (p.drawn) p.redraw(); });
     barList.forEach(function (b) { b.redraw(); });
-    if (everRun) run();
+    if (everRun) run(); else veilLabels();
+  }
+  // A label in the body's own drawing that gives the hidden value away is hidden too (k-veiled:
+  // visibility, so nothing moves). Run after every update while a quiz is on.
+  function veilLabels() {
+    if (!document.body) return;
+    Array.prototype.forEach.call(document.body.querySelectorAll(quiz ? 'svg text' : 'svg text.k-veiled'), function (t) {
+      t.classList.toggle('k-veiled', !!quiz && veiled(t.textContent));
+    });
   }
   function quizValue() {
     if (!quiz) return undefined;
@@ -556,7 +577,9 @@
     return [K.el('div', { class: 'k-field-head' }, lab, right || null), hint ? K.el('span', { class: 'k-hint' }, hint) : null];
   }
 
-  // K.control({id, label, min, max, step, value, unit, prefix, fmt, log, hint, into}) -> {el, get, set}
+  // K.control({id, label, min, max, step, value, unit, prefix, fmt, log, snap, hint, into}) -> {el, get, set}
+  // snap: values a drag lands on exactly when it comes within 2% of the range of one (the setting
+  // a prediction or a check names), so Dan can hit 50% on a phone without fifty taps.
   K.control = function (o) {
     o = o || {};
     var min = num(o.min, 0), max = num(o.max, 100), log = !!o.log;
@@ -566,7 +589,10 @@
     var step = num(o.step, 0) > 0 ? +o.step : (log ? 0 : niceStep((max - min) / 100));
     var dp = Math.max(decimalsOf(step), decimalsOf(min));
     var N = 1000; // log sliders run over N positions
-    var numText = function (v) { return (o.prefix || '') + (log && !o.step ? fmt(v, { sig: 3 }) : fmt(v, { dp: dp })); };
+    var snaps = (Array.isArray(o.snap) ? o.snap : o.snap != null ? [o.snap] : []).map(Number).filter(function (s) { return isNum(s) && s >= min && s <= max; })
+      .map(function (s) { return +s.toPrecision(12); });   // 0.5 × 20 × 9.81 is 98.10000000000001: shown and set as 98.1
+    // A snap value between two steps shows its own decimals (98.1 on a slider of whole numbers).
+    var numText = function (v) { return (o.prefix || '') + (log && !o.step ? fmt(v, { sig: 3 }) : fmt(v, { dp: snaps.indexOf(v) >= 0 ? Math.max(dp, decimalsOf(v)) : dp })); };
     var show = function (v) { return o.fmt ? String(o.fmt(v)) : numText(v) + unitText(o.unit); };
     // A long unit ("per second") is shown once, on the right-hand end of the scale.
     var longUnit = !o.fmt && o.unit && (/\s/.test(String(o.unit).trim()) || String(o.unit).trim().length > 4);
@@ -575,6 +601,16 @@
       if (log && !step) return clamp(+v.toPrecision(3), min, max);
       return clamp(+(min + Math.round((v - min) / step) * step).toFixed(Math.min(dp, 12)), min, max);
     }
+    // A dragged value within 2% of the range of a snap value lands on it (the nearest one).
+    function toward(v) {
+      var best = v, gap = Infinity;
+      snaps.forEach(function (s) {
+        var d = log ? Math.abs(Math.log(v / s)) / Math.log(max / min) : Math.abs(v - s) / (max - min);
+        if (d <= 0.02 && d < gap) { gap = d; best = s; }
+      });
+      return best;
+    }
+    function settle(v) { var n = num(v, NaN); return snaps.indexOf(n) >= 0 ? n : snap(v); }
     function toPos(v) { return log ? Math.round(N * Math.log(v / min) / Math.log(max / min)) : v; }
     function fromPos(p) { return log ? min * Math.pow(max / min, p / N) : p; }
     var value = snap(o.value == null ? min : o.value);
@@ -609,12 +645,25 @@
       if (!log || value === before) value = snap(value + dir * (step || value * 0.05));
       paint(); changed();
     }
-    input.addEventListener('input', function () { markMoved(); value = snap(fromPos(+input.value)); paint(); changed(); });
-    minus.addEventListener('click', function () { markMoved(); nudge(-1); });
-    plus.addEventListener('click', function () { markMoved(); nudge(1); });
+    input.addEventListener('input', function () { markMoved(); value = toward(snap(fromPos(+input.value))); paint(); changed(); });
+    // − / +: a press moves one step; held down, they keep going (after 400 ms, every 80 ms) until
+    // let go or the end of the range. A click with no pointer behind it (Enter, Space) is one step.
+    [[minus, -1], [plus, 1]].forEach(function (b) {
+      var btn = b[0], dir = b[1], timer = 0;
+      function stop() { clearTimeout(timer); timer = 0; }
+      function again(ms) { timer = setTimeout(function () { if (btn.disabled) { stop(); return; } nudge(dir); again(80); }, ms); }
+      btn.addEventListener('pointerdown', function (ev) {
+        if (ev.button > 0 || btn.disabled) return;
+        markMoved(); nudge(dir); stop(); again(400);
+      });
+      ['pointerup', 'pointercancel', 'pointerleave', 'blur'].forEach(function (e) { btn.addEventListener(e, stop); });
+      btn.addEventListener('click', function (ev) { if (ev.detail === 0) { markMoved(); nudge(dir); } });
+      btn.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
+    });
     c.el = el; c.input = input;
     c.get = function () { return value; };
-    c.set = function (v, silent) { value = snap(v); paint(); if (!silent) changed(); return c; };
+    c.set = function (v, silent) { value = settle(v); paint(); if (!silent) changed(); return c; };
+    c.drag = function (v) { value = toward(snap(v)); paint(); changed(); return c; };
     c.accepts = function (v) { return isNum(num(v, NaN)); };
     c.sweep = function () {
       var vals = [0, 0.25, 0.5, 0.75, 1].map(function (t) { return snap(log ? min * Math.pow(max / min, t) : min + t * (max - min)); });
@@ -628,9 +677,15 @@
         var t = k / count, v = log ? snap(min * Math.pow(max / min, t)) : snap(min + t * (max - min));
         if (!out2.length || out2[out2.length - 1] !== v) out2.push(v);
       }
-      return out2;
+      // The snap values are settings too (one may sit between two steps).
+      snaps.forEach(function (s) { if (out2.indexOf(s) < 0) out2.push(s); });
+      return out2.sort(function (a, b) { return a - b; });
     };
-    c.info = function () { return { id: c.id, kind: 'control', label: o.label || c.id, min: min, max: max, step: step || null, log: log, value: value }; };
+    c.info = function () {
+      var i = { id: c.id, kind: 'control', label: o.label || c.id, min: min, max: max, step: step || null, log: log, value: value };
+      if (snaps.length) i.snap = snaps.slice();
+      return i;
+    };
     c.describe = show;
     // Layout at the current width: the live value keeps a steady width (no jumping as it
     // changes), and the end labels never wrap or collide.
@@ -825,6 +880,111 @@
     return a;
   };
 
+  // ---------- dragging the drawing ----------
+  // K.drag(el, {control, toValue(x, y)}) -> {el}
+  // Dan moves a part of the drawing with his finger (a handle, the thing itself, or the whole
+  // drawing), and that moves a control: toValue gets the pointer in the drawing's own units (the
+  // <svg>'s viewBox; px from el's top-left for an HTML element) and returns the control's new
+  // value, which a slider fits to its range and step (and onto a snap value near it). The slider
+  // moves with it, so the keyboard reaches the same thing through the slider, and the first touch
+  // counts as Dan's move (K.reveal()). The page does not scroll under his finger while he drags,
+  // and a handle smaller than a fingertip gets an invisible 44 px target around it.
+  K.drag = function (target, o) {
+    o = o || {};
+    var el = resolve(target, 'K.drag');
+    if (!el) throw new Error('K.drag needs an element');
+    if (typeof o.toValue !== 'function') throw new Error('K.drag needs toValue(x, y)');
+    var cid = o.control && typeof o.control === 'object' ? o.control.id : o.control;
+    if (cid == null || cid === '') throw new Error('K.drag needs control: the id of the control it moves');
+    var root = el instanceof SVGElement ? el : null;
+    while (root && root.ownerSVGElement) root = root.ownerSVGElement;
+    var d = { el: el, root: root, control: String(cid), toValue: o.toValue, hit: null, who: 'K.drag on ' + describeEl(el) };
+    // A point on the screen -> the drawing's units.
+    d.at = function (cx, cy) {
+      if (root) {
+        var m = root.getScreenCTM();
+        if (!m) return null;
+        var q = new DOMPoint(cx, cy).matrixTransform(m.inverse());
+        return { x: q.x, y: q.y };
+      }
+      var r = el.getBoundingClientRect();
+      return { x: cx - r.left, y: cy - r.top };
+    };
+    var active = null;
+    function moveTo(ev) {
+      var c = byId[d.control];
+      if (!c) { fail(d.who + ' moves control "' + d.control + '", which does not exist: use the id of one of your controls.'); return; }
+      var q = d.at(ev.clientX, ev.clientY), v;
+      if (!q) return;
+      try { v = o.toValue(q.x, q.y); } catch (e) { fault(d.who + ': toValue', e); return; }
+      if (v == null || typeof v === 'number' && !isFinite(v) || c.accepts && !c.accepts(v)) return;
+      if (c.drag) c.drag(v); else c.set(v);
+    }
+    function down(ev) {
+      if (ev.button > 0) return;
+      active = ev.pointerId;
+      try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch (e) { /* the drag still follows inside the target */ }
+      ev.preventDefault();
+      K.reveal();
+      moveTo(ev);
+    }
+    function move(ev) { if (active === ev.pointerId) { ev.preventDefault(); moveTo(ev); } }
+    function up(ev) { if (active === ev.pointerId) active = null; }
+    d.listen = function (node) {
+      node.addEventListener('pointerdown', down);
+      node.addEventListener('pointermove', move);
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function (e) { node.addEventListener(e, up); });
+    };
+    el.classList.add('k-drag');
+    d.listen(el);
+    drags.push(d);
+    syncDrag(d);
+    return { el: el };
+  };
+  // Keeps a small handle's 44 px target centred on it (it moves as the body redraws it). An HTML
+  // element gets its target from kit.css (k-drag-small); a whole drawing is target enough.
+  function syncDrag(d) {
+    var el = d.el;
+    if (!el.isConnected) return;
+    var b = el.getBoundingClientRect();
+    if (!(el instanceof SVGElement)) {
+      var small = b.width < 44 || b.height < 44;
+      el.classList.toggle('k-drag-small', small);
+      if (small && !el.style.position && getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      return;
+    }
+    if (el === d.root) return;
+    var big = b.width >= 44 && b.height >= 44, parent = el.parentNode;
+    if (big || !b.width && !b.height || !parent || !parent.getScreenCTM) { if (d.hit) d.hit.setAttribute('display', 'none'); return; }
+    var m = parent.getScreenCTM();
+    if (!m) return;
+    var q = new DOMPoint(b.left + b.width / 2, b.top + b.height / 2).matrixTransform(m.inverse()), r = 22 / ctmScale(m);
+    if (!isNum(q.x) || !isNum(q.y) || !isNum(r)) return;
+    if (!d.hit) { d.hit = K.svg('circle', { class: 'k-drag-hit', fill: 'transparent', 'aria-hidden': 'true' }); d.listen(d.hit); }
+    d.hit.setAttribute('cx', +q.x.toFixed(2)); d.hit.setAttribute('cy', +q.y.toFixed(2)); d.hit.setAttribute('r', +r.toFixed(2));
+    d.hit.removeAttribute('display');
+    if (d.hit.parentNode !== parent || el.nextSibling !== d.hit) parent.insertBefore(d.hit, el.nextSibling);
+  }
+  function syncDrags() { for (var i = 0; i < drags.length; i++) try { syncDrag(drags[i]); } catch (e) { /* layout only */ } }
+  // The self-test asks each toValue about the drawing's corners and centre: it must give a value
+  // the control can take there (a slider fits a number to its range itself).
+  function dragProblems() {
+    drags.forEach(function (d) {
+      var c = byId[d.control];
+      if (!c) { problem(d.who + ' moves control "' + d.control + '", which does not exist: use the id of one of your controls'); return; }
+      var w, h, x0 = 0, y0 = 0, vb = d.root && d.root.viewBox && d.root.viewBox.baseVal;
+      if (vb && vb.width) { x0 = vb.x; y0 = vb.y; w = vb.width; h = vb.height; }
+      else { var r = (d.root || d.el).getBoundingClientRect(); w = r.width; h = r.height; }
+      [[0.5, 0.5], [0, 0], [1, 0], [0, 1], [1, 1]].some(function (f) {
+        var x = +(x0 + f[0] * w).toFixed(2), y = +(y0 + f[1] * h).toFixed(2), v;
+        try { v = d.toValue(x, y); } catch (e) { problem(d.who + ': toValue(' + x + ', ' + y + ') threw ' + errText(e) + stackLine(e)); return true; }
+        var bad = v == null || typeof v === 'number' && !isFinite(v) || c.accepts && !c.accepts(v);
+        if (bad) problem(d.who + ': toValue(' + x + ', ' + y + ') gave ' + (typeof v === 'number' ? (isNaN(v) ? 'NaN' : 'Infinity') : String(v)) + ', so a drag there does nothing: return a value control "' + d.control + '" can take (a slider clamps a number to its range)');
+        return bad;
+      });
+    });
+  }
+
   // ---------- readouts ----------
   // K.readout({id, label, unit, prefix, dp | decimals, sig, fmt, big, hint, afterMove, into}) -> {el, set(v), get(), text()}
   // A readout whose id matches a key of the model's outputs updates itself on every change.
@@ -852,7 +1012,19 @@
       var px = parseFloat(getComputedStyle(val).fontSize), least = typeof r.value === 'number' ? 0.55 : 0.75;
       val.style.fontSize = Math.max(px * least, Math.floor(px * w / need * 10) / 10) + 'px';
     }
-    r.set = function (v) { setValue(v); fit(); return r; };
+    // A word value's tile widens to fit the widest word it has shown, at the smallest size fit()
+    // gives words, so no word splits (a tile sized for its label alone can be too narrow).
+    var widest = 0, lastWords = '';
+    function wordRoom(v) {
+      if (typeof v !== 'string' || v + '|' + K.theme.size === lastWords || !val.isConnected) return;
+      lastWords = v + '|' + K.theme.size;
+      var keep = val.style.fontSize;
+      val.style.fontSize = '';
+      var f = fontOf(val), w = v.split(/\s+/).reduce(function (m, t) { return Math.max(m, textWidth(t, f)); }, 0) * 0.75;
+      val.style.fontSize = keep;
+      if (w > widest + 0.5) { widest = w; r.layout(); }
+    }
+    r.set = function (v) { setValue(v); wordRoom(v); fit(); return r; };
     // The number as this readout shows it (without the unit).
     function numText(v) { return o.fmt ? String(o.fmt(v)) : (o.prefix || '') + fmt(v, dp != null ? { dp: dp } : o.sig ? { sig: o.sig } : null); }
     r.format = function (v) { try { return typeof v === 'number' ? numText(v) : String(v); } catch (e) { return fmt(v); } };
@@ -886,7 +1058,7 @@
     r.layout = function () {
       var font = fontOf(lab), w = textWidth(o.label || id, font);
       var word = String(o.label || id).split(/\s+/).reduce(function (m, t) { return Math.max(m, textWidth(t, font)); }, 0);
-      el.style.flexBasis = 'min(100%, ' + Math.max(132, Math.ceil(w / 1.8 + 34), Math.ceil(word + 30)) + 'px)';
+      el.style.flexBasis = 'min(100%, ' + Math.max(132, Math.ceil(w / 1.8 + 34), Math.ceil(word + 30), Math.ceil(widest + 30)) + 'px)';
       fit();
     };
     readouts[id] = r;
@@ -1004,7 +1176,7 @@
       pts.forEach(function (p) { if (!bad && !(isNum(p[0]) && isNum(p[1]))) bad = p; });
       if (bad && !s.gaps) problem('plot "' + name + '": series "' + label + '" has ' + (isNaN(bad[1]) || isNaN(bad[0]) ? 'NaN' : 'Infinity') + ' at x = ' + fmt(bad[0]));
       var role = s.color || SERIES_COLORS[i % SERIES_COLORS.length];
-      return { s: s, pts: pts, label: s.label, role: role, color: K.color(role) };
+      return { s: s, i: i, pts: pts, label: s.label, role: role, color: K.color(role) };
     }
     // A shade's edge: a series label, a function of x, or a constant y.
     function edgeFn(ref) {
@@ -1071,6 +1243,14 @@
       var data = (cur.series || []).map(function (s, i) { return sample(s, i, X, n); });
       var shades = (cur.shade || []).map(function (sh) { return sampleShade(sh || {}, X, Math.round(n / 2)); });
       if (!(Y.max > Y.min) || Y.log && !(Y.min > 0)) fitY(Y, data, cur.marks, shades);
+      // afterMove: a series, mark, shade, region or line drawn only once Dan has moved something.
+      // The axes (fitted to everything, so they never jump) and the rest are there from the start.
+      var later = function (x) { return !!(x && x.afterMove) && !K.moved; };
+      api.later = [].concat(cur.series || [], cur.marks || [], cur.shade || [], cur.regions || [], cur.lines || []).some(function (x) { return x && x.afterMove; });
+      data = data.filter(function (d) { return !later(d.s); });
+      shades = shades.filter(function (d) { return !d || !later(d.sh); });
+      var regions = (cur.regions || []).filter(function (r) { return !later(r); }), refLines = (cur.lines || []).filter(function (l) { return !later(l); });
+      var marks = (cur.marks || []).filter(function (m) { return !later(m); });
       var tickFont = '12.5px ' + FONT, labelFont = '600 13px ' + FONT;
 
       // Space for tick labels, then the plotting box.
@@ -1099,7 +1279,7 @@
       // 1. Areas, under everything: regions, shading between lines, filled series.
       ctx.save();
       ctx.beginPath(); ctx.rect(box.x, box.y - 1, box.w, box.h + 2); ctx.clip();
-      (cur.regions || []).forEach(function (r) {
+      regions.forEach(function (r) {
         ctx.fillStyle = bandColor(r.color || 'fill2');
         if (isNum(r.x0) || isNum(r.x1)) {
           var a = sx(isNum(r.x0) ? r.x0 : X.min), b = sx(isNum(r.x1) ? r.x1 : X.max);
@@ -1156,7 +1336,7 @@
       var segs = [];   // screen segments labels should keep off: [x1, y1, x2, y2]
       ctx.save();
       ctx.beginPath(); ctx.rect(box.x, box.y - 1, box.w, box.h + 2); ctx.clip();
-      (cur.lines || []).forEach(function (l) {
+      refLines.forEach(function (l) {
         ctx.strokeStyle = K.color(l.color || 'muted');
         ctx.setLineDash([4, 4]); ctx.lineWidth = 1.5;
         ctx.beginPath();
@@ -1167,7 +1347,7 @@
       data.forEach(function (d, i) {
         var s = d.s;
         ctx.strokeStyle = d.color; ctx.fillStyle = d.color;
-        ctx.lineWidth = num(s.width, i === 0 ? 2.75 : 2.25);
+        ctx.lineWidth = num(s.width, d.i === 0 ? 2.75 : 2.25);
         ctx.lineJoin = 'round'; ctx.lineCap = 'round';
         ctx.setLineDash(s.dash ? [7, 6] : []);
         if (s.dots) {
@@ -1219,7 +1399,7 @@
       // 5. Marks: a dot with a ring and optional guides to the axes.
       var placed = [], shown = [];
       api.labels = [];   // where each label went (canvas px), for tests and after()
-      (cur.marks || []).forEach(function (m) {
+      marks.forEach(function (m) {
         if (!isNum(m.x) || !isNum(m.y)) { problem('plot "' + name + '": mark "' + (m.label || '') + '" has a non-finite position'); return; }
         var px = sx(m.x), py = sy(m.y), col = K.color(m.color || 'accent2'), rad = num(m.r, 6.5);
         if (px < box.x - 1 || px > box.x + box.w + 1 || py < box.y - 1 || py > box.y + box.h + 1) return;
@@ -1281,7 +1461,7 @@
         ctx.fillStyle = color; ctx.fillText(text, r.x + 4, r.y + bh / 2 + 0.5);
       }
       // Reference line labels sit beside their line, never across it.
-      (cur.lines || []).forEach(function (l) {
+      refLines.forEach(function (l) {
         if (!l.label || veiled(l.label)) return;
         var text = String(l.label);
         if (isNum(l.x)) {
@@ -1309,7 +1489,7 @@
         }, c.ink, 0.7);
       });
       // Region labels: inside the band, at a corner.
-      (cur.regions || []).forEach(function (r) {
+      regions.forEach(function (r) {
         if (!r.label || veiled(r.label)) return;
         var text = String(r.label);
         if (isNum(r.x0) || isNum(r.x1)) {
@@ -1336,7 +1516,7 @@
       // The text alternative leaves out the hidden value too (quiz mode).
       var alt = cur.label && !veiled(cur.label) ? cur.label : ((Y.label || 'y') + ' against ' + (X.label || 'x'));
       shades.forEach(function (d) { if (d && d.sh.label && !veiled(d.sh.label)) alt += '. Shaded: ' + d.sh.label; });
-      (cur.marks || []).forEach(function (m) {
+      marks.forEach(function (m) {
         if (m.label && !veiled(m.label)) alt += '. ' + m.label + (nearQuiz(m.x) || nearQuiz(m.y) ? '' : ' at ' + fmt(m.x) + ', ' + fmt(m.y));
       });
       canvas.setAttribute('aria-label', alt);
@@ -1413,12 +1593,112 @@
     return api;
   };
 
+  // ---------- SVG geometry (K.labels and the self-test) ----------
+  // Shapes are compared on screen (page px). A text's glyph box is its box with the empty space
+  // above the letters and below the baseline trimmed off, so a label sitting just over or under a
+  // line is fine and one the line strikes through is not.
+  var GEOM = 'line, polyline, polygon, path, rect, circle, ellipse';
+  var NOT_DRAWN = 'defs, marker, clipPath, mask, pattern, symbol';
+  function ctmScale(m) { return Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) || 1; }
+  function glyphRect(b) { return { x: b.left + 1, y: b.top + b.height * 0.2, w: Math.max(0, b.width - 2), h: b.height * 0.58 }; }
+  // The outline of a shape as screen segments [x1, y1, x2, y2], sampled along its length (curves
+  // every 3 px). A jump between two subpaths (M … M …) is never joined up: on one unbroken path two
+  // points a step apart along it are never further apart than that step. Kept until the shape or
+  // where it sits changes.
+  var outlineCache = new WeakMap();
+  function outlineSegs(el) {
+    var m = el.getScreenCTM && el.getScreenCTM();
+    if (!m) return [];
+    var tag = el.tagName.toLowerCase();
+    var sig = [m.a, m.b, m.c, m.d, m.e, m.f].join(',') + '|' + ['d', 'points', 'x', 'y', 'width', 'height', 'x1', 'y1', 'x2', 'y2', 'cx', 'cy', 'r', 'rx', 'ry']
+      .map(function (a) { return el.getAttribute(a); }).join('|');
+    var known = outlineCache.get(el);
+    if (known && known.sig === sig) return known.segs;
+    var out = [];
+    function P(x, y) { return [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f]; }
+    try {
+      if (tag === 'line') {
+        out.push(P(el.x1.baseVal.value, el.y1.baseVal.value).concat(P(el.x2.baseVal.value, el.y2.baseVal.value)));
+      } else if (tag === 'polyline' || tag === 'polygon') {
+        var pts = Array.prototype.map.call(el.points, function (q) { return P(q.x, q.y); });
+        if (tag === 'polygon' && pts.length > 2) pts.push(pts[0]);
+        for (var i = 1; i < pts.length; i++) out.push(pts[i - 1].concat(pts[i]));
+      } else {
+        var L = el.getTotalLength();
+        if (L > 0) {
+          var n = clamp(Math.ceil(L * ctmScale(m) / 3), 2, 400), stepL = L / n, prev = null;
+          for (var k = 0; k <= n; k++) {
+            var q = el.getPointAtLength(Math.min(L, k * stepL));
+            if (prev && Math.hypot(q.x - prev.x, q.y - prev.y) <= stepL * 1.05 + 1e-6) out.push(P(prev.x, prev.y).concat(P(q.x, q.y)));
+            prev = { x: q.x, y: q.y };
+          }
+        }
+      }
+    } catch (e) { out = []; }
+    outlineCache.set(el, { sig: sig, segs: out });
+    return out;
+  }
+  // Where a shape's arrowheads (marker-start, marker-end) sit, as screen boxes: a square the size of
+  // the marker along the line, placed as its refX puts it (tip on the end point, or beyond it).
+  function arrowheads(el, segs, cs) {
+    var out = [];
+    if (!segs.length) return out;
+    [['markerEnd', segs[segs.length - 1], 1], ['markerStart', segs[0], -1]].forEach(function (k) {
+      var ref = cs[k[0]], id = ref && ref !== 'none' && /url\(\s*["']?#([^"')]+)/.exec(ref);
+      var mk = id && document.getElementById(id[1]);
+      if (!mk || mk.tagName.toLowerCase() !== 'marker') return;
+      var s = k[1], at = k[2] > 0 ? [s[2], s[3]] : [s[0], s[1]], dx = s[2] - s[0], dy = s[3] - s[1], len0 = Math.hypot(dx, dy) || 1;
+      var orient = mk.getAttribute('orient') || '';
+      var dir = k[2] > 0 || orient !== 'auto-start-reverse' ? 1 : -1, ux = dx / len0 * dir, uy = dy / len0 * dir;
+      var mw = num(mk.getAttribute('markerWidth'), 3), mh = num(mk.getAttribute('markerHeight'), 3);
+      var units = mk.getAttribute('markerUnits') === 'userSpaceOnUse' ? 1 : (parseFloat(cs.strokeWidth) || 1);
+      var sc = ctmScale(el.getScreenCTM()) * units, vb = mk.viewBox && mk.viewBox.baseVal, refX = num(mk.getAttribute('refX'), 0);
+      var f = vb && vb.width ? (refX - vb.x) / vb.width : refX / mw, len = mw * sc, side = Math.max(len, mh * sc) * 0.8;
+      var cx = at[0] + ux * len * (0.5 - f), cy = at[1] + uy * len * (0.5 - f);
+      out.push({ x: cx - side / 2, y: cy - side / 2, w: side, h: side });
+    });
+    return out;
+  }
+  // Does a segment cross a box, or a turned text's four corners?
+  function segInQuad(s, Q) {
+    function inside(x, y) {
+      var sign = 0;
+      for (var i = 0; i < 4; i++) {
+        var a = Q[i], b = Q[(i + 1) % 4], c = (b[0] - a[0]) * (y - a[1]) - (b[1] - a[1]) * (x - a[0]);
+        if (c !== 0) { if (sign && (c > 0) !== (sign > 0)) return false; sign = c; }
+      }
+      return true;
+    }
+    if (inside(s[0], s[1]) || inside(s[2], s[3])) return true;
+    for (var i = 0; i < 4; i++) if (segsCross(s[0], s[1], s[2], s[3], Q[i][0], Q[i][1], Q[(i + 1) % 4][0], Q[(i + 1) % 4][1])) return true;
+    return false;
+  }
+  function segMeets(s, g) { return g.quad ? segInQuad(s, g.quad) : segHits(s[0], s[1], s[2], s[3], g); }
+  function boxMeets(r, g) { return g.quad ? quadsMeet(g.quad, [[r.x, r.y], [r.x + r.w, r.y], [r.x + r.w, r.y + r.h], [r.x, r.y + r.h]]) : overlap(r, g); }
+  // Elements to keep labels off: an element, a selector, or a list of them; a group gives its shapes.
+  function avoidList(v) {
+    var out = [];
+    (function add(x) {
+      if (x == null || x === false) return;
+      if (typeof x === 'string') { Array.prototype.forEach.call(document.querySelectorAll(x), add); return; }
+      if (x.nodeType === 1) {
+        if (x.matches(GEOM) || /^text$/i.test(x.tagName)) out.push(x);
+        else Array.prototype.forEach.call(x.querySelectorAll(GEOM + ', text'), function (e) { out.push(e); });
+        return;
+      }
+      if (typeof x.length === 'number') Array.prototype.forEach.call(x, add);
+    })(v);
+    return out;
+  }
+
   // ---------- SVG labels ----------
-  // K.labels(svg | g, [{x, y, text, anchor, class, size, color}], {gap}) -> [<text>]
-  // Puts text labels on a drawing (in its viewBox units) and nudges each one off the labels
-  // already there (its own and any other <text> in the drawing) and inside the drawing's edges:
-  // it tries the spot you gave, then just above, below, right and left. Call it in K.update
-  // with the same group each time; it replaces that group's labels.
+  // K.labels(svg | g, [{x, y, text, anchor, class, size, color}], {gap, size, avoid}) -> [<text>]
+  // Puts text labels on a drawing (in its viewBox units, 13 units high unless size or a class
+  // says otherwise) and nudges each one off the labels already there (its own and any other <text>
+  // in the drawing), off the lines and shapes in avoid (elements, a selector or a list; a line or
+  // path by its course, a filled shape by its box) and inside the drawing's edges: it tries the
+  // spot you gave, then just above, below, right and left. Call it in K.update with the same group
+  // each time; it replaces that group's labels.
   K.labels = function (into, items, o) {
     o = o || {};
     var g = resolve(into, 'K.labels');
@@ -1433,15 +1713,25 @@
     if (!svg) return [];
     var sr = svg.getBoundingClientRect(), vb = svg.viewBox && svg.viewBox.baseVal;
     var scale = vb && vb.width && sr.width ? sr.width / vb.width : 1;
-    var gap = num(o.gap, 2) * scale;
-    var taken = [];
+    var gap = num(o.gap, 2) * scale, size = num(o.size, 13);
+    var taken = [], lines = [], blocks = [];
     Array.prototype.forEach.call(svg.querySelectorAll('text'), function (t) {
       var b = t.getBoundingClientRect();
       if (b.width && !g.contains(t)) taken.push({ x: b.left, y: b.top, w: b.width, h: b.height });
     });
+    avoidList(o.avoid).forEach(function (el) {
+      if (g.contains(el)) return;
+      var cs = getComputedStyle(el), f = rgbaOf(cs.fill), b = el.getBoundingClientRect();
+      if (/^text$/i.test(el.tagName)) { if (b.width) blocks.push({ x: b.left, y: b.top, w: b.width, h: b.height }); return; }
+      var segs = cs.stroke !== 'none' || /^(line|polyline)$/i.test(el.tagName) ? outlineSegs(el) : [];
+      // A shape with a fill is a solid block; an unfilled one (a line, an arc, an outline) only its course.
+      if (f && f[3] > 0 && !/^(line|polyline)$/i.test(el.tagName)) { if (b.width || b.height) blocks.push({ x: b.left, y: b.top, w: b.width, h: b.height }); }
+      else lines = lines.concat(segs);
+      blocks = blocks.concat(arrowheads(el, segs, cs));
+    });
     return (items || []).map(function (it) {
       var t = K.svg('text', {
-        x: it.x, y: it.y, 'text-anchor': it.anchor || 'middle', class: it.class || null, 'font-size': it.size || null,
+        x: it.x, y: it.y, 'text-anchor': it.anchor || 'middle', class: it.class || null, 'font-size': num(it.size, size),
         fill: it.color ? K.color(it.color) : null, 'dominant-baseline': it.baseline || null,
       }, String(it.text == null ? '' : it.text));
       g.appendChild(t);
@@ -1453,8 +1743,10 @@
         [w / 2 + gap, h + gap], [-(w / 2 + gap), h + gap], [0, -2 * (h + gap)], [0, 2 * (h + gap)], [w + gap, 0], [-(w + gap), 0]].forEach(function (d, i) {
         var x = clamp(b.left + d[0], sr.left + 1, Math.max(sr.left + 1, sr.right - w - 1)), y = clamp(b.top + d[1], sr.top + 1, Math.max(sr.top + 1, sr.bottom - h - 1));
         var r = { x: x, y: y, w: w, h: h };
-        var hit = 0;
+        var hit = 0, glyph = glyphRect({ left: x, top: y, width: w, height: h });
         taken.forEach(function (q) { if (overlap({ x: r.x + 1, y: r.y + 1, w: w - 2, h: h - 2 }, q)) hit++; });
+        blocks.forEach(function (q) { if (overlap(glyph, { x: q.x - gap, y: q.y - gap, w: q.w + 2 * gap, h: q.h + 2 * gap })) hit++; });
+        for (var s = 0; s < lines.length; s++) if (segHits(lines[s][0], lines[s][1], lines[s][2], lines[s][3], glyph)) { hit++; break; }
         var cost = hit * 1000 + Math.hypot(x - b.left, y - b.top) / scale + i * 0.5;
         if (cost < bestCost) { bestCost = cost; best = [x - b.left, y - b.top]; }
       });
@@ -1471,18 +1763,34 @@
   // K.stage(visual, controls, {max, beside}) -> {el}. Puts the controls right under the main
   // visual and, on a phone, shrinks the visual so the pair fits in about max px (600) of height:
   // Dan can see the picture while his thumb is on the slider. In a wide frame (a laptop) the
-  // controls sit beside the visual instead, unless beside is false. Secondary figures go below.
+  // controls sit beside the visual instead, unless beside is false, and the .say line and
+  // .k-readouts that come right after the stage join them in that column, so the sentence that
+  // changes is next to the slider he is moving. Secondary figures go below.
   K.stage = function (visual, ctrls, o) {
     o = o || {};
     var v = resolve(visual, 'K.stage'), c = resolve(ctrls, 'K.stage');
-    var st = K.el('div', { class: 'k-stage' + (o.beside === false ? ' k-stacked' : '') });
+    var st = K.el('div', { class: 'k-stage' + (o.beside === false ? ' k-stacked' : '') }), side = K.el('div', { class: 'k-side' });
     v.parentNode.insertBefore(st, v);
     st.appendChild(v);
-    st.appendChild(c);
+    st.appendChild(side);
+    side.appendChild(c);
+    var follow = [];
+    for (var n = st.nextElementSibling; n; n = n.nextElementSibling) {
+      if (/^(script|style)$/i.test(n.tagName)) continue;
+      if (n.classList.contains('say') || n.classList.contains('k-readouts')) follow.push(n); else break;
+    }
     stageFill(v); stageFill(c);
-    stages.push({ el: st, visual: v, controls: c, max: num(o.max, 600) });
+    stages.push({ el: st, visual: v, controls: c, side: side, follow: follow, joined: false, max: num(o.max, 600) });
     return { el: st };
   };
+  // Beside the visual, the say line and readouts sit under the controls; stacked, back after the stage.
+  function stageFollowers(s) {
+    var beside = !s.el.classList.contains('k-stacked') && !!window.matchMedia && matchMedia('(min-width: 860px)').matches;
+    if (!s.follow.length || beside === s.joined) return;
+    if (beside) s.follow.forEach(function (f) { s.side.appendChild(f); });
+    else { var after = s.el; s.follow.forEach(function (f) { after.parentNode.insertBefore(f, after.nextSibling); after = f; }); }
+    s.joined = beside;
+  }
   // Beside each other (a wide frame) the two sides are grid items, and one centred with auto
   // margins shrinks to its narrowest content: a grid of tiles to one column. A side that is a grid,
   // or has a max-width, gets k-fill and fills its column up to that max-width, as on a phone
@@ -1503,6 +1811,7 @@
   }
   function fitStage(s) {
     if (!s.el.isConnected) return;
+    stageFollowers(s);
     stageFill(s.visual); stageFill(s.controls);   // the body's own styles may change with the width
     var f = stageFigure(s);
     if (!f) return;
@@ -1585,6 +1894,15 @@
   }
   function halosSoon() { if (!haloRaf) haloRaf = (window.requestAnimationFrame || setTimeout)(halos); }
 
+  // A new theme, and everything drawn with its colours drawn again.
+  function retheme(t) {
+    applyTheme(t);
+    plots.forEach(function (p) { p.redraw(); });
+    barList.forEach(function (b) { b.redraw(); });
+    if (everRun) run();
+    if (readyCalled) relayout();
+  }
+
   // ---------- layout ----------
   // The text size in px (the self-test's XL pass): the root, so every rem size, and the body
   // follow --k-fs, and the layout is redone for it.
@@ -1601,6 +1919,7 @@
     controls.forEach(function (c) { if (c.fit) try { c.fit(); } catch (e) {} });
     readoutList.forEach(function (r) { try { r.layout(); } catch (e) {} });
     stages.forEach(function (s) { try { fitStage(s); } catch (e) {} });
+    syncDrags();
     try { halos(); } catch (e) {}
     heightSoon();
   }
@@ -1633,6 +1952,7 @@
       last = ts; t += dt;
       var r;
       try { r = o.step(dt, t); } catch (e) { api.pause(); fault('K.anim step', e); return; }
+      if (drags.length) syncDrags();
       if (r === false) { api.pause(); return; }
       if (watching() && now() - beat >= CHANGE_MAX) { beat = now(); sendChange(); }   // Dan is watching it
       raf = requestAnimationFrame(frame);
@@ -1910,9 +2230,8 @@
   }
   // Text a person can't fully read at this width: cut off by its own or an ancestor's overflow
   // (hidden, clip, or a text-overflow ellipsis), a no-wrap line spilling out of its box, a word
-  // split across two lines, text off the left edge, SVG text outside its drawing, and SVG labels
-  // printed over each other.
-  // -> [{key, msg}]
+  // split across two lines, text off the left edge, and SVG text Dan can't read (svgNow).
+  // -> [{key, msg, warn?}]   warn: advice, not a fault
   function clippedNow() {
     var out = [], styles = new Map(), hidden = new Map();
     if (!document.body) return out;
@@ -1984,50 +2303,144 @@
         }
       }
     }
-    // SVG text: inside the drawing's visible box, and not printed over another label.
+    var phone = document.documentElement.clientWidth < PHONE, page = rgbaOf(K.theme.c.bg) || [255, 255, 255, 1], panelBg = rgbaOf(K.theme.c.panel) || page;
     Array.prototype.forEach.call(document.body.querySelectorAll('svg'), function (svg) {
       if (svg.ownerSVGElement || svg.closest('button')) return;
-      var sr = svg.getBoundingClientRect();
-      if (!sr.width || !sr.height) return;
-      var ss = st(svg), clips = ss.overflow !== 'visible';
-      var boxes = [];
-      Array.prototype.forEach.call(svg.querySelectorAll('text'), function (t) {
-        var txt = (t.textContent || '').trim();
-        if (!txt) return;
-        var ts = st(t);
-        if (ts.visibility !== 'visible' || ts.display === 'none') return;
-        for (var p = t; p && p !== svg; p = p.parentNode) if (p.nodeType === 1 && (+st(p).opacity === 0 || st(p).display === 'none')) return;
-        var b = t.getBoundingClientRect();
-        if (!b.width || !b.height) return;
-        var tol = Math.max(1.5, b.height * 0.12), key = pathOf(t);
-        if (clips) {
-          var sides = [];
-          if (b.left < sr.left - 1.5) sides.push('left by ' + Math.ceil(sr.left - b.left) + 'px');
-          if (b.right > sr.right + 1.5) sides.push('right by ' + Math.ceil(b.right - sr.right) + 'px');
-          if (b.top < sr.top - tol) sides.push('top by ' + Math.ceil(sr.top - b.top) + 'px');
-          if (b.bottom > sr.bottom + tol) sides.push('bottom by ' + Math.ceil(b.bottom - sr.bottom) + 'px');
-          if (sides.length) out.push({ key: 'svgout|' + key, msg: 'SVG text "' + snippet(txt) + '" runs outside its drawing (' + sides.join(', ') + ')' });
-        }
-        boxes.push({ x: b.left, y: b.top, w: b.width, h: b.height, text: txt, key: key, quad: turnedQuad(t) });
-      });
-      for (var i = 0; i < boxes.length; i++) for (var j = i + 1; j < boxes.length; j++) {
-        var p1 = boxes[i], p2 = boxes[j];
-        var ix = Math.min(p1.x + p1.w, p2.x + p2.w) - Math.max(p1.x, p2.x), iy = Math.min(p1.y + p1.h, p2.y + p2.h) - Math.max(p1.y, p2.y);
-        if (ix <= 0 || iy <= 0) continue;
-        // Turned text (diagonal timeline years): its upright box is much bigger than the words, so
-        // the words' own boxes are compared, a little inside their edges as below.
-        if (p1.quad || p2.quad) {
-          if (p1.text === p2.text && Math.abs(p1.x - p2.x) < 1 && Math.abs(p1.y - p2.y) < 1) continue;
-          if (quadsMeet(p1.quad || uprightQuad(p1), p2.quad || uprightQuad(p2))) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
-          continue;
-        }
-        var area = ix * iy, small = Math.min(p1.w * p1.h, p2.w * p2.h);
-        if (p1.text === p2.text && area > 0.9 * small) continue;   // the same text drawn twice (a halo)
-        // Any real overlap reads as a collision ("germ arrivesame germ returns"), even a few letters.
-        if (ix > 2 && iy > 0.35 * Math.min(p1.h, p2.h) && area > 0.03 * small) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
-      }
+      svgNow(svg, st, out, phone, page, panelBg);
     });
     return out;
+  }
+  // SVG text Dan can't read: outside the drawing's visible box, too small on a phone, printed over
+  // another label (or so close to one on its row that the two read as one: advice, warn: true),
+  // struck through by a line or sitting on an arrowhead, or too close in colour to what is behind
+  // it (3:1 at least: against the page and the panel colour both, when it sits on the page).
+  var TEXT_MIN = 11;   // px on a phone; a 340-wide drawing shows at about 0.9x there
+  function svgNow(svg, st, out, phone, page, panelBg) {
+    var sr = svg.getBoundingClientRect();
+    if (!sr.width || !sr.height) return;
+    var ss = st(svg), clips = ss.overflow !== 'visible';
+    var boxes = [];
+    function opacityTo(el) {
+      var o = 1;
+      for (var p = el; p && p !== svg.parentNode; p = p.parentNode) if (p.nodeType === 1) o *= num(st(p).opacity, 1);
+      return o;
+    }
+    Array.prototype.forEach.call(svg.querySelectorAll('text'), function (t) {
+      var txt = (t.textContent || '').trim();
+      if (!txt) return;
+      var ts = st(t);
+      if (ts.visibility !== 'visible' || ts.display === 'none') return;
+      for (var p = t; p && p !== svg; p = p.parentNode) if (p.nodeType === 1 && (+st(p).opacity === 0 || st(p).display === 'none')) return;
+      var b = t.getBoundingClientRect();
+      if (!b.width || !b.height) return;
+      var tol = Math.max(1.5, b.height * 0.12), key = pathOf(t);
+      if (clips) {
+        var sides = [];
+        if (b.left < sr.left - 1.5) sides.push('left by ' + Math.ceil(sr.left - b.left) + 'px');
+        if (b.right > sr.right + 1.5) sides.push('right by ' + Math.ceil(b.right - sr.right) + 'px');
+        if (b.top < sr.top - tol) sides.push('top by ' + Math.ceil(sr.top - b.top) + 'px');
+        if (b.bottom > sr.bottom + tol) sides.push('bottom by ' + Math.ceil(b.bottom - sr.bottom) + 'px');
+        if (sides.length) out.push({ key: 'svgout|' + key, msg: 'SVG text "' + snippet(txt) + '" runs outside its drawing (' + sides.join(', ') + ')' });
+      }
+      var quad = turnedQuad(t), m = t.getScreenCTM(), sc = m ? ctmScale(m) : 1;
+      // Its smallest letters (a tspan may be smaller), as shown on a phone.
+      if (phone) {
+        var least = Infinity;
+        [t].concat(Array.prototype.slice.call(t.querySelectorAll('tspan, textPath'))).forEach(function (x) {
+          if (x !== t && !(x.textContent || '').trim()) return;
+          var fs = parseFloat(st(x).fontSize);
+          if (fs > 0 && fs < least) least = fs;
+        });
+        var px = least * sc;
+        if (isFinite(px) && px < TEXT_MIN - 0.25) out.push({ key: 'small|' + key, msg: 'SVG text "' + snippet(txt) + '" shows at ' + Math.round(px * 10) / 10 + ' px on a phone, too small to read: give it a font-size of at least ' + Math.ceil(TEXT_MIN / sc) + ' (13-16 in a drawing about 340 wide)' });
+      }
+      var cx = b.left + b.width / 2, cy = b.top + b.height / 2;
+      if (quad) { cx = (quad[0][0] + quad[2][0]) / 2; cy = (quad[0][1] + quad[2][1]) / 2; }
+      boxes.push({ x: b.left, y: b.top, w: b.width, h: b.height, text: txt, key: key, quad: quad, el: t, cx: cx, cy: cy, ts: ts,
+        glyph: quad ? { quad: quad } : glyphRect(b), near: quad ? { x: b.left, y: b.top, w: b.width, h: b.height } : glyphRect(b), cover: [] });
+    });
+    if (!boxes.length) return;
+    for (var i = 0; i < boxes.length; i++) for (var j = i + 1; j < boxes.length; j++) {
+      var p1 = boxes[i], p2 = boxes[j];
+      var ix = Math.min(p1.x + p1.w, p2.x + p2.w) - Math.max(p1.x, p2.x), iy = Math.min(p1.y + p1.h, p2.y + p2.h) - Math.max(p1.y, p2.y);
+      // Two labels on one row with almost no space between them read as one ("ignores itignores it").
+      if (!p1.quad && !p2.quad && p1.text !== p2.text && iy > 0.5 * Math.min(p1.h, p2.h) && ix > -4 && ix <= 2) {
+        out.push({ warn: true, key: 'crowd|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are ' + (ix >= 0 ? 'touching' : 'only ' + Math.round(-ix) + ' px apart') + ' on one row, so they read as one: leave at least 4 px between them, or label only what differs' });
+      }
+      if (ix <= 0 || iy <= 0) continue;
+      // Turned text (diagonal timeline years): its upright box is much bigger than the words, so
+      // the words' own boxes are compared, a little inside their edges as below.
+      if (p1.quad || p2.quad) {
+        if (p1.text === p2.text && Math.abs(p1.x - p2.x) < 1 && Math.abs(p1.y - p2.y) < 1) continue;
+        if (quadsMeet(p1.quad || uprightQuad(p1), p2.quad || uprightQuad(p2))) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+        continue;
+      }
+      var area = ix * iy, small = Math.min(p1.w * p1.h, p2.w * p2.h);
+      if (p1.text === p2.text && area > 0.9 * small) continue;   // the same text drawn twice (a halo)
+      // Any real overlap reads as a collision ("germ arrivesame germ returns"), even a few letters.
+      if (ix > 2 && iy > 0.35 * Math.min(p1.h, p2.h) && area > 0.03 * small) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+    }
+    // The drawing's shapes, as painted: what lies behind each label, and the lines that cross one.
+    var shapes = [];
+    Array.prototype.forEach.call(svg.querySelectorAll(GEOM), function (el) {
+      if (el.closest(NOT_DRAWN) || el.classList.contains('k-drag-hit')) return;
+      var cs = st(el);
+      if (cs.visibility !== 'visible' || cs.display === 'none') return;
+      for (var p = el.parentNode; p && p !== svg; p = p.parentNode) if (p.nodeType === 1 && st(p).display === 'none') return;
+      var op = opacityTo(el), r = el.getBoundingClientRect();
+      if (op < 0.05 || !r.width && !r.height) return;
+      var m = el.getScreenCTM(), fill = rgbaOf(cs.fill), stroke = rgbaOf(cs.stroke), sw = (parseFloat(cs.strokeWidth) || 0) * (m ? ctmScale(m) : 1);
+      var fa = fill ? fill[3] * num(cs.fillOpacity, 1) * op : 0, sa = stroke ? stroke[3] * num(cs.strokeOpacity, 1) * op : 0;
+      shapes.push({ el: el, cs: cs, r: r, m: m, fill: fa > 0.02 ? { c: fill, a: Math.min(1, fa) } : null, stroke: sa > 0.02 && sw > 0 ? { c: stroke, a: Math.min(1, sa), w: sw } : null });
+    });
+    // The colour behind the drawing: the nearest box with a background of its own (else the page).
+    var base = page;
+    for (var a = svg.parentElement; a; a = a.parentElement) { var bc = rgbaOf(st(a).backgroundColor); if (bc && bc[3] > 0.5) { base = bc; break; } }
+    var same = function (x, y) { return Math.abs(x[0] - y[0]) + Math.abs(x[1] - y[1]) + Math.abs(x[2] - y[2]) < 6; };
+    var onPage = same(base, page) || same(base, panelBg);
+    boxes.forEach(function (bx) {
+      var col = base.slice(0, 3), under = 0;
+      shapes.forEach(function (sh) {
+        if (!(sh.el.compareDocumentPosition(bx.el) & 4) || !sh.m) return;   // painted after the text: not behind it
+        if (bx.cx < sh.r.left - 1 || bx.cx > sh.r.right + 1 || bx.cy < sh.r.top - 1 || bx.cy > sh.r.bottom + 1) return;
+        var q = new DOMPoint(bx.cx, bx.cy).matrixTransform(sh.m.inverse()), hit = null;
+        try {
+          if (sh.fill && sh.el.isPointInFill(q)) hit = sh.fill;
+          else if (sh.stroke && sh.stroke.w >= bx.h * 0.6 && sh.el.isPointInStroke(q)) hit = sh.stroke;   // a band it sits on
+        } catch (e) { hit = null; }
+        if (!hit) return;
+        col = overOf(hit.c, hit.a, col); under++;
+        if (hit.a > 0.9) bx.cover.push(sh.el);
+      });
+      var f = rgbaOf(bx.ts.fill), alpha = f ? f[3] * num(bx.ts.fillOpacity, 1) * opacityTo(bx.el) : 0;
+      if (!f || alpha < 0.05) return;   // no plain fill (an outline, a gradient): nothing to measure
+      var worst = Infinity;
+      (under || !onPage ? [col] : [page, panelBg]).forEach(function (bg) { worst = Math.min(worst, contrastOf(overOf(f, Math.min(1, alpha), bg), bg)); });
+      if (worst < 3 - 1e-6) out.push({ key: 'contrast|' + bx.key, msg: 'SVG text "' + snippet(bx.text) + '" is hard to read: ' + Math.floor(worst * 10) / 10 + ':1 contrast with ' + (under ? 'the shape behind it' : 'the page') + ' (it needs 3:1). Draw text in ink, muted, accent2, accent, warn or good (on-accent2 on a navy shape), with var(--k-…) or K.color in K.update, so it follows the theme' });
+    });
+    // Lines through a label: a stroked line, path or outline whose course crosses its letters, or
+    // an arrowhead on them. Not faint guides (a halo keeps the label readable over those), not a
+    // band thick enough to be what the text sits on, and not a line hidden under a solid shape
+    // painted between it and the label (a label's own backing pill).
+    var hidden = function (bx, el) { return bx.cover.some(function (cv) { return !!(el.compareDocumentPosition(cv) & 4); }); };
+    shapes.forEach(function (sh) {
+      var marked = sh.cs.markerEnd !== 'none' || sh.cs.markerStart !== 'none', segs = null;
+      if (sh.stroke && (/^(line|polyline|path)$/i.test(sh.el.tagName) || !sh.fill) && contrastOf(overOf(sh.stroke.c, sh.stroke.a, page), page) >= 1.5) {
+        var pad = sh.stroke.w / 2 + 2, rr = { x: sh.r.left - pad, y: sh.r.top - pad, w: sh.r.width + 2 * pad, h: sh.r.height + 2 * pad };
+        boxes.forEach(function (bx) {
+          if (!overlap(rr, bx.near) || sh.stroke.w >= bx.h * 0.6 || hidden(bx, sh.el)) return;
+          segs = segs || outlineSegs(sh.el);
+          for (var k = 0; k < segs.length; k++) {
+            if (segMeets(segs[k], bx.glyph)) { out.push({ key: 'cross|' + bx.key + '|' + pathOf(sh.el), msg: 'SVG text "' + snippet(bx.text) + '" has a line through it (' + describeEl(sh.el) + '): move the label off the line (K.labels with avoid: [that line]) or stop the line short of it' }); break; }
+          }
+        });
+      }
+      if (!marked) return;
+      var heads = arrowheads(sh.el, segs || outlineSegs(sh.el), sh.cs);
+      boxes.forEach(function (bx) {
+        if (!hidden(bx, sh.el) && heads.some(function (hd) { return boxMeets(hd, bx.glyph); })) out.push({ key: 'head|' + bx.key + '|' + pathOf(sh.el), msg: 'SVG text "' + snippet(bx.text) + '" sits on an arrowhead (' + describeEl(sh.el) + '): move the label clear of the arrow\'s tip' });
+      });
+    });
   }
   // The corners (page px) of a turned SVG text's own box, trimmed as the upright test allows (1 px
   // along the line, 17.5% of its height at top and bottom), or null when the text is not turned.
@@ -2120,6 +2533,37 @@
     });
     return out;
   }
+  // Colours written on a drawing that the theme can't follow or the browser can't paint: a colour
+  // name (fill="white" vanishes on the dark page), a var() the kit does not define (it paints
+  // nothing, or black), a url(#…) to nothing, or a typo. -> [{key, msg}]
+  var PAINT_OK = /^(none|transparent|currentcolor|inherit|context-fill|context-stroke)$/i;
+  function paintFault(v) {
+    v = String(v).trim();
+    if (!v || PAINT_OK.test(v)) return null;
+    var u = /^url\(\s*["']?#([^"')\s]+)["']?\s*\)\s*(.*)$/i.exec(v);
+    if (u) return document.getElementById(u[1]) ? (u[2] ? paintFault(u[2]) : null) : 'points to #' + u[1] + ', which is not on the page';
+    var m = /^var\(\s*(--[\w-]+)\s*(?:,\s*(.*))?\)$/.exec(v);
+    if (m) {
+      if (getComputedStyle(document.documentElement).getPropertyValue(m[1]).trim()) return null;
+      return m[2] ? paintFault(m[2]) : 'uses ' + m[1] + ', which is not a kit colour, so it paints nothing';
+    }
+    if (/^[a-z]+$/i.test(v)) return rgbaOf(v) ? 'is a colour name, which does not follow the theme' : 'is not a colour';
+    return rgbaOf(v) ? null : 'is not a colour';
+  }
+  function paintNow() {
+    var out = [];
+    if (!document.body) return out;
+    Array.prototype.forEach.call(document.body.querySelectorAll('svg *'), function (el) {
+      if (el.closest('button')) return;
+      ['fill', 'stroke'].forEach(function (k) {
+        [el.getAttribute(k), el.style && el.style.getPropertyValue(k)].forEach(function (v) {
+          var why = v && paintFault(v);
+          if (why) out.push({ key: 'paint|' + pathOf(el) + '|' + k, msg: 'an SVG ' + describeEl(el) + ' has ' + k + ' "' + snippet(v) + '": it ' + why + '. Use a role as var(--k-…) or K.color(role): ink, muted, accent2, accent, warn, good, amber-line, fill1-fill3, cat1-cat4 (on-accent2 for text on navy)' });
+        });
+      });
+    });
+    return out;
+  }
   function scanExternal() {
     var bad = [];
     var nodes = document.querySelectorAll('script[src], link[href], img[src], iframe, object, embed, video[src], audio[src], source[src]');
@@ -2197,7 +2641,8 @@
   // overflow and cut-off text at each setting; then restore the opening state.
   async function sweep(throwaway) {
     var s = { seen: Object.create(null), order: [], ctx: '' }, overflow = null;
-    var clip = { seen: Object.create(null), order: [] }, shown = { seen: Object.create(null), order: [] };
+    var clip = { seen: Object.create(null), order: [] }, shown = { seen: Object.create(null), order: [] }, crowd = { seen: Object.create(null), order: [] };
+    var dup = [];
     var breathe = slicer(25);
     sink = s;
     document.documentElement.classList.add('k-testing');   // no fade-ins while it looks
@@ -2214,8 +2659,20 @@
     }
     function look(ctxText) {
       if (!overflow) { var o = overflowNow(); if (o) overflow = o + ' (at ' + ctxText + ')'; }
-      note(clippedNow(), clip, ctxText);
-      note(shownBadNow(), shown, ctxText);
+      var cut = clippedNow();
+      note(cut.filter(function (x) { return !x.warn; }), clip, ctxText);
+      note(cut.filter(function (x) { return x.warn; }), crowd, ctxText);
+      note(shownBadNow().concat(paintNow()), shown, ctxText);
+    }
+    // A switch, button or slider that starts a K.anim which has its own Play button: two controls
+    // for one action (advice). Throwaway frames only, where the animations start out paused.
+    var played = anims.filter(function (a) { return a.o.button !== false; });
+    function startedBy(who) {
+      played.forEach(function (a) {
+        if (!a.api.playing()) return;
+        addUnique(dup, who + ' already starts the motion that "' + a.label + '" plays: use K.anim({button: false}) and call play() from that control, so one control does one thing.', 4);
+        a.api.pause();
+      });
     }
     // Sound from an update (K.update or the model) plays again on every change: dozens of tones
     // stacking up during a drag, or a fresh 20-second hum each time. Watched while the controls
@@ -2238,14 +2695,20 @@
       if (!moved) {
         sweepReveal = true;
         setMovedClass(true);
+        laterPlots();
         if (throwaway) afterMoveFns.forEach(function (fn) { s.ctx = 'K.afterMove'; try { fn(); } catch (e) { fault('K.afterMove', e); } });
         await step('the opening state, after a move');
       }
       for (var i = 0; i < controls.length; i++) {
         var c = controls[i], vals = c.sweep();
-        for (var j = 0; j < vals.length; j++) { c.set(vals[j], true); await step(c.id + ' = ' + c.describe(vals[j])); }
+        for (var j = 0; j < vals.length; j++) {
+          c.set(vals[j], true); await step(c.id + ' = ' + c.describe(vals[j]));
+          if (throwaway) startedBy(c.kind === 'toggle' ? 'The switch "' + c.id + '"' : 'Moving "' + c.id + '"');
+        }
         c.set(init[i], true);
       }
+      s.ctx = 'K.drag';
+      dragProblems();
       if (controls.length > 1) {
         controls.forEach(function (c) { var v = c.sweep(); c.set(v[0], true); });
         await step('every control at its lowest');
@@ -2273,11 +2736,14 @@
           s.ctx = 'pressing "' + actions[b].label + '"';
           actions[b].run();
           await step('after pressing "' + actions[b].label + '"');
+          startedBy('The button "' + actions[b].label + '"');
         }
       }
+      // Each animation plays for 3 seconds of its own time (90 frames).
       for (var a = 0; a < anims.length; a++) {
         var an = anims[a], where = 'playing "' + an.label + '"', t = 0;
-        for (var k = 1; k <= 60; k++) {
+        var flips = controls.map(function (c) { return c.kind === 'toggle' ? c.get() : null; });
+        for (var k = 1; k <= 90; k++) {
           t += 1 / 30;
           s.ctx = where;
           var r;
@@ -2287,11 +2753,24 @@
           if (r === false) break;
         }
         an.api.reset();
+        if (throwaway && an.o.button !== false) controls.forEach(function (c, n) {
+          if (flips[n] !== null && c.get() !== flips[n]) addUnique(dup, 'Playing "' + an.label + '" flips the switch "' + c.id + '": the switch already starts this motion, so use K.anim({button: false}) and call play() from the switch.', 4);
+        });
+        controls.forEach(function (c, n) { c.set(init[n], true); });
+      }
+      // Once more in the other theme (light <-> dark): colours set once at load, or written as
+      // fixed values, stop matching the page there. Throwaway frames only.
+      if (throwaway) {
+        var keep = themeArg, other = !K.theme.dark;
+        s.ctx = 'the ' + (other ? 'dark' : 'light') + ' theme';
+        retheme({ dark: other, size: K.theme.size, mute: hostMute });
+        try { await step('the opening state, in the ' + (other ? 'dark' : 'light') + ' theme'); }
+        finally { retheme(keep); }
       }
     } finally {
       controls.forEach(function (c, k) { c.set(init[k], true); });
       sweepReveal = false;
-      if (!moved) setMovedClass(false);
+      if (!moved) { setMovedClass(false); laterPlots(); }
       document.documentElement.classList.remove('k-testing');
       s.ctx = 'restoring the opening state';
       run();
@@ -2301,7 +2780,8 @@
     var problems = s.order.map(function (m) { return m + atText(s.seen[m]); })
       .concat(shown.order.slice(0, 8).map(function (key) { return shown.seen[key].msg + atText(shown.seen[key]); }));
     var clipped = clip.order.slice(0, 12).map(function (key) { return clip.seen[key].msg + atText(clip.seen[key]); });
-    return { problems: problems, overflow: overflow, seen: s.seen, clipped: clipped };
+    var advice = crowd.order.slice(0, 3).map(function (key) { return crowd.seen[key].msg + atText(crowd.seen[key]); }).concat(dup);
+    return { problems: problems, overflow: overflow, seen: s.seen, clipped: clipped, advice: advice };
   }
   var testing = null;
   function selftest(opt) {
@@ -2351,9 +2831,11 @@
     if (!controls.length && !actions.length && !anims.length) report.warnings.push('No K.control / K.choice / K.toggle / K.stepper / K.button: the self-test could not exercise the model.');
     var advice = phoneAdvice();
     if (advice) report.warnings.push(advice);
+    // A blank hole in the opening screen is a fault the repair must fix, not advice.
     var hole = afterMoveAdvice();
-    if (hole) report.warnings.push(hole);
+    if (hole) report.errors.push(hole);
     labelSkips.forEach(function (m) { report.warnings.push(m); });
+    sw.advice.forEach(function (m) { report.warnings.push(m); });
     if (opt.throwaway && !audio.calls) {
       var src = Array.prototype.map.call(document.body.querySelectorAll('script'), function (x) { return x.textContent; }).join('\n');
       if (/K\.sound\.(tone|chord)\s*\(/.test(src)) report.warnings.push('K.sound is used but no K.button press played anything: play sound from a K.button\'s press so the self-test (and Dan) can reach it.');
@@ -2501,10 +2983,7 @@
       Promise.resolve().then(function () { return reach(d); }).then(function (res) { post({ type: 'reach', rid: rid, result: res }); },
         function (e) { post({ type: 'reach', rid: rid, result: { reachable: false, exact: false, best: null, error: errText(e), tried: 0 } }); });
     } else if (d.type === 'theme') {
-      applyTheme(d.theme);
-      plots.forEach(function (p) { p.redraw(); });
-      if (everRun) run();
-      if (readyCalled) relayout();
+      retheme(d.theme);
     }
   }, true);
 })();

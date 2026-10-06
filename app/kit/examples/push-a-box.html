@@ -1,0 +1,113 @@
+<!-- kind: mechanism -->
+<style>
+  .push .floor { stroke: var(--k-strong); stroke-width: 2; }
+  .push .tick { stroke: var(--k-line); stroke-width: 2; }
+  .push .box { fill: var(--k-panel); stroke: var(--k-muted); stroke-width: 2; }
+  .push .mass { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .push .yours { stroke: var(--k-accent2); fill: var(--k-accent2); stroke-width: 4; }
+  .push .grip { stroke: var(--k-accent); fill: var(--k-accent); stroke-width: 4; }
+  .push .most { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .push .hand { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .push .lab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .push .lab.limit { fill: var(--k-muted); }
+</style>
+
+<p class="lead">Drag the round handle (or the slider) to push the box harder, and watch how hard the floor pushes back.</p>
+
+<svg class="push" id="scene" viewBox="0 0 340 170" role="img" aria-label="">
+  <g id="ticks"></g>
+  <line class="floor" x1="0" y1="100" x2="340" y2="100"/>
+  <rect class="box" id="box" x="150" y="40" width="80" height="60" rx="6"/>
+  <text class="mass" x="190" y="75" text-anchor="middle">20 kg</text>
+  <g id="yours"></g>
+  <line class="most" id="most" y1="122" y2="122" x2="232"/>
+  <g class="k-after-move" id="grip"></g>
+  <circle class="hand" id="hand" cy="70" r="10"/>
+  <g id="labels"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Example numbers: a 20 kg box on a floor that can grip it with at most half its weight.</p>
+
+<script>
+  // Source [1] of the lesson: static friction matches the push, up to a limit.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
+  const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
+  const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  const S = 0.75;                              // drawing units per newton, the same for both arrows
+  const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
+  // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
+  const accel = (push) => (push - MOST) / M;
+
+  // The cause Dan controls: his push, by dragging the handle or the slider (they move together).
+  // A drag near the limit lands on it exactly (snap).
+  const push = K.control({ id: 'push', label: 'Your push', min: 0, max: 160, step: 1, value: 40, unit: 'N', snap: [MOST], into: '#controls' });
+  K.stage('#scene', '#controls');
+  const handX = (f) => 136 - f * S;
+  K.drag('#hand', { control: 'push', toValue: (x) => (136 - x) / S });   // its first touch reveals, like a slider move
+
+  // The pure model, for a box that starts at rest: the floor pushes back as hard as the push, up to its limit.
+  K.model((p) => ({ grip: Math.min(p.push, MOST), slides: p.push > MOST ? 'yes' : 'no' }));
+
+  // The box's own state while it slides. The motion runs whenever the push beats the grip, and
+  // stops when the box stands still again: no Play button, the push is what starts it.
+  let speed = 0, slid = 0;
+  const slide = K.anim({ button: false, step: (dt) => {
+    speed = Math.max(0, speed + accel(push.get()) * dt);
+    slid += speed * dt;
+    draw(K.params(), K.outputs());
+    return speed > 0 || push.get() > MOST;
+  } });
+
+  const svg = document.getElementById('scene');
+  // A straight arrow from x1 to x2 at height y: a line and a filled head.
+  function arrow(g, x1, x2, y, cls) {
+    g.textContent = '';
+    const dir = x2 > x1 ? 1 : -1;
+    if (Math.abs(x2 - x1) < 12) return null;
+    const line = K.svg('line', { class: cls, x1, y1: y, x2: x2 - dir * 9, y2: y });
+    g.append(line, K.svg('path', { class: cls, d: `M${x2} ${y}l${-dir * 11} -7v14z` }));
+    return line;
+  }
+  document.getElementById('most').setAttribute('x1', 232 - MOST * S);
+
+  function draw(p, o) {
+    // The floor's marks drift back while the box slides (the view follows the box).
+    const off = (slid * 40) % 20, ticks = document.getElementById('ticks');
+    ticks.textContent = '';
+    for (let x = 10 - off; x < 350; x += 20) ticks.appendChild(K.svg('line', { class: 'tick', x1: x, y1: 101, x2: x - 8, y2: 111 }));
+    const hx = handX(p.push), grip = speed > 0 ? MOST : o.grip;
+    document.getElementById('hand').setAttribute('cx', hx);
+    const yours = arrow(document.getElementById('yours'), hx + 10, 148, 70, 'yours');
+    const gripLine = arrow(document.getElementById('grip'), 232, 232 - grip * S, 122, 'grip');
+    // Labels move with their arrows; K.labels keeps them off the arrows, the box and the limit line.
+    K.labels('#labels', [
+      { x: (hx + 148) / 2, y: 56, text: p.push ? 'push ' + N(p.push) : 'no push', class: 'lab' },
+      { x: 152, y: 126, text: 'grip limit ' + N(MOST), anchor: 'end', class: 'lab limit' },
+    ].concat(K.moved && grip ? [{ x: 232 - grip * S / 2, y: 148, text: 'floor\'s grip ' + N(grip), class: 'lab' }] : []),
+      { avoid: [yours, gripLine, '#most', '#box', '#hand'].filter(Boolean) });
+    svg.setAttribute('aria-label', 'A 20 kg box on a floor, pushed with ' + N(p.push) + (K.moved ? '; the floor grips back with ' + N(grip) + (speed > 0 ? ', and the box is sliding.' : ', and the box stays put.') : '.'));
+
+    let text;
+    if (!K.moved) text = 'The hand pushes with ' + N(p.push) + ' and the box stays put. How hard is the floor pushing back? Make your guess, then drag the handle.';
+    else if (p.push > MOST) text = 'The push (' + N(p.push) + ') is more than the floor can grip with (' + N(MOST) + '), so the box slides and keeps speeding up: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (speed > 0) text = 'The push is less than the grip again, so the grip slows the sliding box down: ' + K.fmt(speed, { decimals: 1 }) + ' m/s now.';
+    else if (p.push === 0) text = 'No push, so the floor pushes back with nothing: its grip only ever answers a push.';
+    else text = 'The floor pushes back with exactly ' + N(o.grip) + ', as hard as the hand pushes, so the box stays put. It can grip with up to ' + N(MOST) + '.';
+    document.getElementById('say').textContent = text;
+  }
+  K.update((p, o) => {
+    if (p.push > MOST && !slide.playing()) slide.play();
+    draw(p, o);
+  });
+
+  // Known answers, worked by hand, and the rule as the source states it.
+  K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
+  K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
+  K.check('Just past it (100 N) the box slides, and the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
+  K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
+    [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });
+
+  K.ready();
+</script>

@@ -11,7 +11,7 @@
   --k-line: #DED8CC; --k-strong: #B9B1A3; --k-accent: #0F6B66; --k-accent2: #17324D; --k-on-accent2: #F7F5F0;
   --k-warn: #9F3038; --k-good: #2E7D4F; --k-amber: #FFF1CC;
   --k-hl: #FBE29A; --k-amber-line: #B7791F; --k-fill1: #D6E0EB; --k-fill2: #F8D47A; --k-fill3: #CFE8E4;
-  --k-cat1: #2A78D6; --k-cat2: #EB6834; --k-cat3: #C2418A; --k-cat4: #1BAF7A;
+  --k-cat1: #2A78D6; --k-cat2: #E66633; --k-cat3: #C2418A; --k-cat4: #19A070;
   --k-fs: 16px;
   --k-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --k-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -67,7 +67,7 @@ html.k-testing .k-after-move { animation: none; }
 @keyframes k-fade { from { opacity: 0; } to { opacity: 1; } }
 /* Quiz mode (the host's 'quiz'): Dan is answering a target check, so the sentence that would
    give the reading away is hidden, its space kept. */
-html.k-quiz .say, html.k-quiz .say * { visibility: hidden !important; }
+html.k-quiz .say, html.k-quiz .say *, html.k-quiz .k-veiled { visibility: hidden !important; }
 
 /* Custom figures that span the column are capped and centred on wide screens (kit.js sets
    --k-fig-max from the viewBox), so their text never balloons on desktop. */
@@ -77,6 +77,8 @@ svg.k-fig:not([preserveAspectRatio="none"]) { height: auto; }
 /* The main visual with its controls (K.stage): stacked on a phone; side by side in a wide frame
    (a laptop), so the picture changes right next to the control Dan is moving. */
 .k-stage > * + * { margin-top: 12px; }
+/* The controls' column; beside the visual it also takes the say line and readouts (kit.js). */
+.k-side > * + * { margin-top: 16px; }
 @media (min-width: 860px) {
   .k-stage:not(.k-stacked) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 36%); gap: 28px; align-items: center; }
   /* A plot on its own is capped, so a wide frame never shows a vast, empty grid. */
@@ -124,6 +126,9 @@ mark, .term {
 .key { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .9rem; color: var(--k-muted); }
 .key > span { display: inline-flex; align-items: center; gap: 7px; }
 .swatch { display: inline-block; flex: none; width: 14px; height: 14px; border-radius: 4px; background: var(--k-accent2); }
+/* A line in a key: <i class="swatch line dash" style="color:var(--k-muted)"></i> (its colour from color). */
+.swatch.line { width: 22px; height: 0; border-radius: 0; background: none; border-top: 3px solid currentColor; color: var(--k-accent2); }
+.swatch.line.dash { border-top-style: dashed; }
 
 table { width: 100%; border-collapse: collapse; font-size: .95em; font-variant-numeric: tabular-nums; }
 th { text-align: left; font: 700 12px/1.4 var(--k-font); letter-spacing: .06em; text-transform: uppercase; color: var(--k-accent); padding: 6px 8px; border-bottom: 1.5px solid var(--k-line); }
@@ -159,6 +164,7 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
   font: 600 20px/1 var(--k-font); cursor: pointer; touch-action: manipulation;
 }
 .k-nudge::after { content: ""; position: absolute; inset: -5px; }
+.k-nudge { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .k-nudge:disabled { opacity: .35; cursor: default; }
 .k-nudge svg { width: 16px; height: 16px; }
 
@@ -247,6 +253,12 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
 .k-bar-track i { display: block; height: 100%; border-radius: inherit; background: var(--k-accent2); transition: width .2s ease; }
 
 .k-anim { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
+/* K.drag: the page never scrolls under a finger that is dragging, and a small handle gets a 44 px
+   target (an invisible circle in a drawing, kit.js; this box for an HTML element). */
+.k-drag, .k-drag-hit { touch-action: none; cursor: grab; }
+.k-drag:active, .k-drag-hit:active { cursor: grabbing; }
+.k-drag-small::before { content: ""; position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
