@@ -20,7 +20,9 @@
 //       Writes tagged with an older round are dropped (say entries excepted). Also kept per idea:
 //       past {[round]: {predict, checks, doneAt, stage}} (earlier rounds), replays {[key]: {at,
 //       predict, checks}} ("Go through it again" runs, which never touch the originals),
-//       againAt (when the current round began) and relearn (Today asks for a new lesson).
+//       againAt (when the current round began) and the open Learn it again request: relearn
+//       (Today, or Dan, asks for a new lesson), relearnAt (when its rewrite began) and
+//       relearnNote (his "This looks wrong" note for the writer), cleared when the round begins.
 //   profile.days[day]         {[deviceId]: minutes, legacy?: minutes}   (older: a number). Each
 //       device writes only its own count; U.store.minutesOn(days[day]) sums either shape.
 //   Card.retired              true once a card cannot be used (skipped as unusable in review, or its
@@ -354,7 +356,7 @@ U.store = (function () {
     });
   }
   var STAGE = { predict: 0, play: 1, explain: 2, say: 3, checks: 4, done: 5 };
-  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'relearn', 'againAt', 'past'];
+  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'relearn', 'relearnAt', 'relearnNote', 'againAt', 'past'];
   function guardProgress(cur, body) {
     var bi = body.ideas, ci = (cur && cur.ideas) || {};
     if (!isObj(bi)) return;
@@ -676,6 +678,9 @@ U.store = (function () {
       });
     },
   };
+  function busyLesson(doc) { return !!doc && (doc.status === 'writing' || doc.status === 'building'); }
+  // This page's own job is on the lesson (U.gen.status: writing, waiting for another holder, building).
+  function jobOn(live) { return live === 'writing' || live === 'waiting' || live === 'building'; }
   S.lesson = {
     get: function (tid, iid) { return getDoc(S.paths.lesson(tid, iid)); },
     watch: function (tid, iid, fn, onError) { return watchDoc(S.paths.lesson(tid, iid), fn, onError); },
@@ -690,18 +695,28 @@ U.store = (function () {
     // ready with its lesson (the interactive built and tested, or a note saying why there is
     // none). 'preparing': a job is writing or building it, by `live` (this page's own status for
     // it, from U.gen.status) or, without one, a writing/building doc touched in the last
-    // BUSY_MS (a running job's heartbeat touches it every 45 s, 31-generate.js). 'failed', or
-    // 'none': nothing yet, or work that stopped (opening the lesson prepares it). A doc still
-    // writing or building is never a lesson to open or study.
+    // BUSY_MS (a running job's heartbeat touches it every 45 s, 31-generate.js) that this tab
+    // has not abandoned. 'failed', or 'none': nothing yet, or work that stopped (opening the
+    // lesson prepares it). A doc still writing or building is never a lesson to open or study.
     BUSY_MS: 4 * 60 * 1000,
     state: function (doc, live) {
-      var busy = !!doc && (doc.status === 'writing' || doc.status === 'building');
       if (doc && doc.status === 'ready' && doc.lesson) return 'ready';
-      if (live === 'writing' || live === 'waiting' || live === 'building') return 'preparing';
+      if (jobOn(live)) return 'preparing';
       if (doc && doc.status === 'failed') return 'failed';
       // This page's job stopped (live 'failed' or 'ready' with no ready doc): it left the doc.
-      if (busy && !live) { var t = Date.parse(doc.updatedAt || ''); if (isFinite(t) && Date.now() - t < S.lesson.BUSY_MS) return 'preparing'; }
+      // So did a job of this tab that a reload killed, however recently it touched the doc.
+      if (busyLesson(doc) && !live && !S.lesson.abandoned(doc, live)) {
+        var t = Date.parse(doc.updatedAt || '');
+        if (isFinite(t) && Date.now() - t < S.lesson.BUSY_MS) return 'preparing';
+      }
       return 'none';
+    },
+    // A writing/building doc held by this tab (by.tab is U.tab()) with no job of this page on it
+    // (live: U.gen.status's word for it, if any): its job died with an earlier load of the tab (a
+    // reload) or ended without saving. Nobody is working on it, however fresh its updatedAt, and
+    // the generator does not wait for it (31-generate.js).
+    abandoned: function (doc, live) {
+      return busyLesson(doc) && !jobOn(live) && !!doc.by && !!doc.by.tab && doc.by.tab === U.tab();
     },
     // Deletes one lesson doc (a job putting back a doc it created). Queued behind pending writes.
     remove: function (tid, iid) {

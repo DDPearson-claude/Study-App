@@ -176,8 +176,22 @@
     try { return U.gen && typeof U.gen.status === 'function' ? (((U.gen.status(tid) || {}).lessons) || {})[iid] : undefined; } catch (e) { return undefined; }
   };
   V.lessonBusy = function (tid, iid) { var l = V.lessonLive(tid, iid); return l === 'writing' || l === 'waiting' || l === 'building'; };
-  // Follows one idea's lesson at a time: its doc as it changes, this page's work on it ('gen'
-  // events), and a busy doc going quiet. onChange() when its state may have changed.
+  // A prefetch this tab began before the page was reloaded leaves its doc writing or building with
+  // nobody on it (U.store.lesson.abandoned): it is not being prepared. The idea followed below is
+  // the next one Dan will study, so its prefetch is started again in the background, once per
+  // page load, and it is ready when he gets there (U.gen joins or claims it under the lease
+  // rules). Never any other idea.
+  var restarted = {};
+  function restart(tid, iid, doc) {
+    var k = tid + '/' + iid;
+    if (restarted[k] || !U.gen || typeof U.gen.ensureLesson !== 'function') return;
+    if (!U.store.lesson.abandoned(doc, V.lessonLive(tid, iid))) return;
+    restarted[k] = true;
+    U.gen.ensureLesson(tid, iid, { background: true }).catch(function () { /* background work: opening the lesson prepares it */ });
+  }
+  // Follows one idea's lesson at a time (the next one Dan will study): its doc as it changes, this
+  // page's work on it ('gen' events), and a busy doc going quiet; a prefetch a reload killed is
+  // started again (restart). onChange() when its state may have changed.
   //   watch(tid, iid) switches to that idea (null: none);  state() -> 'ready'|'preparing'|'failed'|
   //   'none', or null before the doc has been read;  stop()
   V.lessonWatch = function (onChange) {
@@ -192,7 +206,7 @@
         if (!cur && !(tid && iid)) return;
         drop(); doc = null; read = false;
         cur = tid && iid ? { tid: tid, iid: iid } : null;
-        if (cur) stopDoc = U.store.lesson.watch(tid, iid, function (d) { doc = d; read = true; changed(); }, function () { /* say nothing about it */ });
+        if (cur) stopDoc = U.store.lesson.watch(tid, iid, function (d) { doc = d; read = true; restart(tid, iid, d); changed(); }, function () { /* say nothing about it */ });
       },
       state: function () {
         if (!cur) return null;

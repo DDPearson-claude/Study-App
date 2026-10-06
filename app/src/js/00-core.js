@@ -95,7 +95,7 @@ U.id = function (prefix) { return (prefix || 'x') + Date.now().toString(36).slic
 // A unique key for an entry in a keyed list (say attempts, questions, flags): time first, so keys
 // written on different devices never collide and sort roughly by when they were made.
 U.key = function () { return 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); };
-// This browser's id (shared with 31-generate.js through the same localStorage key).
+// This browser's id (localStorage 'mu.device'; 31-generate.js names lesson jobs with it).
 U.device = function () {
   if (U._device) return U._device;
   try {
@@ -104,6 +104,18 @@ U.device = function () {
     U._device = v;
   } catch (e) { U._device = U.id('d'); }
   return U._device;
+};
+// This tab's id (sessionStorage 'mu.tab'): it outlives a reload of the tab, and two tabs never
+// share one. Lesson jobs are named by device/tab (31-generate.js); a busy lesson doc this tab left
+// with no job of this page on it is work a reload killed (U.store.lesson.abandoned).
+U.tab = function () {
+  if (U._tab) return U._tab;
+  try {
+    var v = sessionStorage.getItem('mu.tab');
+    if (!v) { v = U.id('t'); sessionStorage.setItem('mu.tab', v); }
+    U._tab = v;
+  } catch (e) { U._tab = U.id('t'); }
+  return U._tab;
 };
 // ---------- keyed lists ----------
 // Lists that two devices can add to at once are stored as maps keyed by U.key() (a merge keeps

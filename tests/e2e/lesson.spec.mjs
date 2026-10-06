@@ -66,19 +66,20 @@ function installFakes(cfg) {
       return U.sleep(cfg.gradeMs || 350).then(function () { return r; });
     },
     // Learn it again: like the real one, the lesson doc is replaced (writing, then the new lesson's
-    // text while its interactive is built, then the whole new lesson). T.relearnSeen records what
-    // the screen showed at each step.
+    // text while its interactive is built, then the whole new lesson), stamped with when the job
+    // claimed it (startedAt). T.relearnSeen records what the screen showed at each step.
     relearn: cfg.relearnDoc ? function (tid, iid, o) {
       T.relearn.push({ tid: tid, iid: iid, feedback: (o && o.feedback) || null });
       T.relearnSeen = T.relearnSeen || [];
       function seen(step) { T.relearnSeen.push({ step: step, stages: document.querySelectorAll('.lsn-stage, .lsn-past').length, prep: !!document.querySelector('.lsn-prep'), text: document.querySelector('.lsn').textContent }); }
-      var d = JSON.parse(JSON.stringify(cfg.relearnDoc));
+      var d = JSON.parse(JSON.stringify(cfg.relearnDoc)), started = U.now();
       d.lesson.predict.q = d.lesson.predict.q + ' (take ' + T.relearn.length + ')';
-      return U.store.lesson.set(tid, iid, { status: 'writing', lesson: null, interactive: null, sourced: false, updatedAt: U.now() }).then(function () {
+      d.startedAt = started;
+      return U.store.lesson.set(tid, iid, { status: 'writing', lesson: null, interactive: null, sourced: false, startedAt: started, updatedAt: U.now() }).then(function () {
         return U.sleep(300);
       }).then(function () {
         seen('writing');
-        return U.store.lesson.set(tid, iid, { status: 'building', lesson: d.lesson, interactive: null, sourced: true });
+        return U.store.lesson.set(tid, iid, { status: 'building', lesson: d.lesson, interactive: null, sourced: true, startedAt: started });
       }).then(function () {
         return U.sleep(400);
       }).then(function () {
@@ -933,6 +934,8 @@ async function relearnScenario() {
     const seen1 = (await T(app)).relearnSeen;
     ok(seen1.length === 2 && seen1.every((x) => x.prep && x.stages === 0 && !/Galileo|pendulum clock/.test(x.text)), 'while the new lesson is written and while its interactive is built, only the card shows (never the old lesson, never the half-made new one): ' + JSON.stringify(seen1.map((x) => [x.step, x.prep, x.stages])));
     ok(await page.evaluate(() => location.hash) === '#/t/pendulums/i5', 'the address drops /again (a reload does not rebuild it again)');
+    // The new round begins as the fresh lesson opens (not before: a failed rewrite must not start it).
+    await page.waitForTimeout(500);
     let pr = await doc(app, PROGRESS);
     const i5 = pr.ideas.i5;
     ok(i5.round === 1 && i5.stage === 'predict' && !i5.checks && !i5.doneAt && !i5.predict && i5.relearn === false, 'a new round: stage, guess and check results reset, flag cleared');
@@ -970,6 +973,7 @@ async function relearnScenario() {
     const t2 = await T(app);
     ok(t2.relearn.length === 2 && t2.relearn[1].feedback === 'The date in the reveal looks wrong.', 'Rebuild passes his note to U.gen.relearn');
     ok(await page.locator('.lsn-flag-kept').textContent() === '', 'a rebuild shows no "note kept" line');
+    await page.waitForTimeout(500);
     pr = await doc(app, PROGRESS);
     ok(pr.ideas.i5.round === 2 && pr.ideas.i5.stage === 'predict', 'rebuilding starts another round');
   } catch (e) {
@@ -1166,16 +1170,22 @@ async function fullApp() {
 // repairs once, writes it again from scratch (with its own repair), then fails. The prep box
 // says so in one honest line per step: the step that failed has only a red cross, aligned
 // with the ticks, and the error never blames a "shape".
+// The complete build (real boot, store, U.gen, kit, cards), made once for the scenarios below.
 let fullBuilt = false;
-async function failedLesson(width, height, dark) {
-  current = `failed-lesson ${width}-${dark ? 'dark' : 'light'}`;
-  console.log('\n' + current);
+function fullBuild() {
   const FULL = join(OUT, 'lesson-failed.html');
   if (!fullBuilt) {
     const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--out', FULL], { stdio: 'inherit' });
-    if (b.status !== 0) { ok(false, 'full build failed'); return; }
+    if (b.status !== 0) { ok(false, 'full build failed'); return null; }
     fullBuilt = true;
   }
+  return FULL;
+}
+async function failedLesson(width, height, dark) {
+  current = `failed-lesson ${width}-${dark ? 'dark' : 'light'}`;
+  console.log('\n' + current);
+  const FULL = fullBuild();
+  if (!FULL) return;
   const tasks = [];
   const broken = JSON.parse(JSON.stringify(PENDULUM.lesson));
   broken.iid = 'i1';
@@ -1238,6 +1248,233 @@ async function failedLesson(width, height, dark) {
   await app.close();
 }
 
+// ---------- scenario: an interactive that never passed its tests (final fixes F3) ----------
+// The lesson planned one (lesson.interactive) but none was built: the lesson is whole without it,
+// with the note why. Predict and Play follow what was built: no "before you play", and Play is
+// not headed with the title of an interactive that is not there.
+async function notBuilt() {
+  current = 'not-built 360-light';
+  console.log('\n' + current);
+  const d = JSON.parse(JSON.stringify(SMALL));
+  d.interactive = null;
+  d.note = 'The interactive for this idea could not be built and tested this time, so this lesson carries on without it.';
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i3', seed: { 'topics/pendulums': TOPIC, [LESSON('i3')]: d } });
+  const { page } = app;
+  try {
+    const pred = page.locator('.lsn-stage[data-stage="predict"]');
+    await pred.locator('.option').first().waitFor();
+    const lede = await pred.locator('.lsn-lede').textContent();
+    ok(/^Have a guess first\./.test(lede) && !/play/i.test(lede), 'Predict promises nothing to play with: ' + lede);
+    await pred.locator('.option').nth(1).click();
+    await page.getByRole('button', { name: 'That\'s my guess' }).click();
+    const play = page.locator('.lsn-stage[data-stage="play"]');
+    await play.locator('.lsn-none').waitFor();
+    const head = await play.locator('.lsn-h').textContent();
+    ok(head === 'What happens', 'Play is not headed with the planned interactive\'s title: ' + head);
+    ok(!(await play.textContent()).includes(SMALL.lesson.interactive.title), 'that title appears nowhere in Play');
+    ok(await play.locator('.lsn-lede').count() === 0, 'no "Watch for…" line for an interactive that is not there');
+    ok(/did not pass its own tests/.test(await play.locator('.lsn-none').textContent()), 'it says why there is none');
+    ok(await play.locator('iframe').count() === 0, 'no frame');
+    await shot(app, 'not-built-play', true);
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'not-built-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: a lesson left at "building" is finished; its build never passes (final fixes F4, F3) ----------
+// The real generator picks up a lesson another device left part-way (text written, interactive
+// not built), and every build attempt fails its tests. The card says each step once (the screen's
+// "The lesson text is written", then the build's own lines) and its last step says what really
+// happened; the lesson then opens without the interactive, and says nothing of playing.
+async function resumeNotBuilt() {
+  current = 'resume-not-built 390-light';
+  console.log('\n' + current);
+  const FULL = fullBuild();
+  if (!FULL) return;
+  const old = new Date(Date.now() - 10 * 60000).toISOString();
+  const lesson = JSON.parse(JSON.stringify(SMALL.lesson));
+  const building = { status: 'building', updatedAt: old, startedAt: old, lesson, sourced: true, interactive: null, by: { device: 'dOther', tab: 'tOther', page: 'pOther', holder: 'dOther/tOther' } };
+  const i4 = JSON.parse(JSON.stringify(SMALL)); i4.lesson.iid = 'i4';
+  const BAD = '<p>Broken</p><script>K.check("always fails", function () { return false; }); K.ready();</script>';
+  const tasks = [];
+  const app = await openApp({
+    width: 390, height: 844, file: FULL,
+    config: { db: { 'topics/pendulums': TOPIC, [LESSON('i3')]: building, [LESSON('i4')]: i4 } },
+    sample: async (input) => {
+      const t = taskOf(input);
+      tasks.push(t);
+      if (t === 'build-interactive' || t === 'repair-interactive') { await new Promise((r) => setTimeout(r, 300)); return BAD; }
+      return new Promise(() => {});
+    },
+  });
+  // Every line the preparation card shows, in order, and how each one ended.
+  await app.page.addInitScript(() => {
+    const seen = window.__lines = [];
+    const note = () => document.querySelectorAll('.lsn-prep-lines li').forEach((li) => {
+      if (li.__rec == null) { li.__rec = seen.length; seen.push({}); }
+      const r = seen[li.__rec];
+      r.text = li.querySelector('.lsn-prep-text').textContent.replace(/\s*(…|\.\.\.)$/, '');
+      r.state = li.classList.contains('is-failed') ? 'failed' : li.classList.contains('is-done') ? 'done' : 'now';
+    });
+    new MutationObserver(note).observe(document, { subtree: true, childList: true, attributes: true, characterData: true });
+  });
+  const { page } = app;
+  try {
+    await page.goto(app.url('#/t/pendulums/i3'));
+    await page.locator('.lsn-prep').waitFor({ timeout: 15000 });
+    await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor({ timeout: 90000 });
+    const lines = await page.evaluate(() => window.__lines.map((r) => r.text));
+    const at = (re) => lines.findIndex((t) => re.test(t));
+    ok(lines[0] === 'The lesson text is written' && lines[1] === 'Building the interactive', 'the text is written, then the build\'s own first line: ' + JSON.stringify(lines));
+    ok(at(/Finishing the interactive for this lesson/) < 0, 'no second line for the same step');
+    ok(new Set(lines).size === lines.length, 'no line twice');
+    const last = at(/try 3 of 3/), fin = at(/^Finishing without the interactive$/);
+    ok(last > 0 && fin === last + 1, 'after the last try, the card says the lesson goes on without its interactive: ' + JSON.stringify(lines));
+    ok(lines.slice(fin + 1).every((t) => t === 'Ready.'), 'and nothing after that but "Ready."');
+    ok(tasks.filter((t) => t === 'write-lesson').length === 0 && tasks.filter((t) => t === 'build-interactive').length === 1 && tasks.filter((t) => t === 'repair-interactive').length === 2, 'only the interactive was built again, three tries: ' + tasks.join(', '));
+    const d = await doc(app, LESSON('i3'));
+    ok(d.status === 'ready' && !d.interactive && /could not be built/.test(d.note || ''), 'saved whole without it, with the note why');
+    ok(/^Have a guess first\./.test(await page.locator('.lsn-stage[data-stage="predict"] .lsn-lede').textContent()), 'Predict promises nothing to play with');
+    await page.locator('.lsn-stage[data-stage="predict"] .option').nth(1).click();
+    await page.getByRole('button', { name: 'That\'s my guess' }).click();
+    await page.locator('.lsn-stage[data-stage="play"] .lsn-none').waitFor();
+    ok(await page.locator('.lsn-stage[data-stage="play"] .lsn-h').textContent() === 'What happens', 'Play is headed "What happens", not the interactive\'s title');
+    await shot(app, 'resume-not-built', true);
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'resume-not-built-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: Learn it again whose rewrite fails (final fixes F2; audit round 3, 12) ----------
+// The real generator, with the model failing for a passing reason. The request stays open until a
+// fresh lesson is whole: a failed rewrite starts no new round and puts the old lesson back, the
+// idea stays done and marked to be learned again, and opening it again tries the rewrite again
+// (with his note), saying so, never showing the old lesson as the new round. A rewrite that
+// finishes while he is away opens as the new round, without being written again.
+async function relearnFails() {
+  current = 'relearn-fails 390-light';
+  console.log('\n' + current);
+  const FULL = fullBuild();
+  if (!FULL) return;
+  const at = '2026-10-04T18:00:00.000Z';
+  const i2 = JSON.parse(JSON.stringify(PENDULUM)); i2.lesson.iid = 'i2';
+  // The writer's reply once the model answers: a valid lesson (unsourced, nothing to build, so it
+  // is whole at once), numbered so the screen shows which one it is.
+  function freshLesson(n) {
+    const l = JSON.parse(JSON.stringify(PENDULUM.lesson).replace(/\s?\[\^\d+\]/g, ''));
+    l.iid = 'i1'; l.sources = []; l.interactive = null; l.checks = l.checks.filter((c) => c.type !== 'target');
+    l.predict.q = l.predict.q.replace(/\?$/, '') + ` (fresh ${n})?`;
+    return l;
+  }
+  const firstUser = (input) => (typeof input === 'string' ? input : ((input || []).find((t) => t.role === 'user') || {}).content || '');
+  const ctl = { failing: true, writes: [] };
+  const app = await openApp({
+    width: 390, height: 844, file: FULL,
+    config: { db: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM, [LESSON('i2')]: i2,
+      [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'x', at }, checks: { c1: { correct: true, at } } } } } } },
+    sample: async (input) => {
+      const text = firstUser(input);
+      if (taskOf(input) === 'write-lesson' && /^Idea i1:/m.test(text)) {
+        ctl.writes.push(text);
+        await new Promise((r) => setTimeout(r, 300));
+        if (ctl.failing) throw { code: 'unavailable', message: 'The connection dropped.' };
+        return freshLesson(ctl.writes.length);
+      }
+      return new Promise(() => {});
+    },
+  });
+  const { page } = app;
+  const idea = async () => (((await doc(app, PROGRESS)) || {}).ideas || {}).i1 || {};
+  const lines = () => page.locator('.lsn-prep-lines li .lsn-prep-text').allTextContents();
+  const err = page.locator('.lsn-prep-err');
+  const go = (hash) => page.evaluate((h) => { location.hash = h; }, hash);
+  const question = () => page.locator('.lsn-stage[data-stage="predict"] .lsn-h').textContent();
+  try {
+    await page.goto(app.url('#/t/pendulums/i1/again'));
+    await page.locator('.lsn-prep').waitFor({ timeout: 15000 });
+    await err.waitFor({ state: 'visible', timeout: 30000 });
+    await page.waitForTimeout(400);
+    let p = await idea();
+    ok(!p.round && p.stage === 'done' && p.doneAt === at && p.checks && p.checks.c1, 'a failed rewrite starts no new round: the idea is still done, its answers kept: ' + JSON.stringify(p));
+    ok(p.relearn === true && typeof p.relearnAt === 'string', 'and it stays marked to be learned again');
+    ok((await doc(app, LESSON('i1'))).lesson.predict.q === PENDULUM.lesson.predict.q, 'the old lesson is put back (a passing failure)');
+    ok(await page.locator('.lsn-stage, .lsn-past').count() === 0, 'and is not on screen');
+    await shot(app, 'relearn-fails-1-failed');
+    // Back to the topic: idea 1 is still done, so the header offers idea 2 (no "Continue" of a round that never began).
+    await err.getByRole('link', { name: 'Back to the topic' }).click();
+    await page.locator('.tp-cta').waitFor();
+    ok((await page.locator('.tp-cta').textContent()).startsWith('Start: Gravity'), 'the topic offers the next idea: ' + await page.locator('.tp-cta').textContent());
+    // Opening idea 1 again tries the rewrite again and says so; the old lesson never shows.
+    const n0 = ctl.writes.length;
+    await go('#/t/pendulums/i1');
+    await page.locator('.lsn-prep').waitFor();
+    ok(await page.locator('.lsn-stage, .lsn-past').count() === 0, 'reopened: only the preparation card, never the old lesson as the new round');
+    ok((await lines())[0] === 'Trying again for the fresh lesson you asked for', 'it says it is trying again: ' + JSON.stringify(await lines()));
+    await err.waitFor({ state: 'visible', timeout: 30000 });
+    ok(ctl.writes.length > n0, 'the rewrite was tried again');
+    ok(!(await idea()).round, 'still no new round');
+    await shot(app, 'relearn-fails-2-trying-again');
+    ctl.failing = false;
+    await err.getByRole('button', { name: 'Try again' }).click();
+    await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor({ timeout: 30000 });
+    ok(/\(fresh \d+\)/.test(await question()), 'the fresh lesson opens');
+    await page.waitForTimeout(600);
+    p = await idea();
+    ok(p.round === 1 && p.stage === 'predict' && !p.doneAt && p.relearn === false && !p.relearnAt, 'only now does the new round begin: ' + JSON.stringify(p));
+    ok(p.past && p.past[0] && p.past[0].stage === 'done' && p.past[0].checks && p.past[0].checks.c1, 'the first round is kept under past');
+    // Rebuild with a note, failing: the note waits with the request, and the next opening uses it.
+    ctl.failing = true;
+    const note = 'The reveal gives the wrong ratio.';
+    await page.locator('.lsn-flag-link').click();
+    await page.locator('.sheet textarea').fill(note);
+    await page.locator('.sheet .btn', { hasText: 'Rebuild this lesson' }).click();
+    await err.waitFor({ state: 'visible', timeout: 30000 });
+    await page.waitForTimeout(400);
+    p = await idea();
+    ok(p.round === 1 && p.relearn === true && p.relearnNote === note, 'a failed Rebuild keeps the request open, with his note: ' + JSON.stringify(p));
+    await go('#/t/pendulums');
+    await page.locator('.tp-cta').waitFor();
+    ctl.failing = false;
+    const n1 = ctl.writes.length;
+    await go('#/t/pendulums/i1');
+    await page.locator('.lsn-prep').waitFor();
+    ok((await lines())[0] === 'Trying again for the fresh lesson you asked for, with your note', 'it says so, and that his note goes too: ' + JSON.stringify(await lines()));
+    await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor({ timeout: 30000 });
+    ok(ctl.writes.length === n1 + 1 && ctl.writes[n1].includes(note), 'the writer gets his note');
+    await page.waitForTimeout(600);
+    p = await idea();
+    ok(p.round === 2 && p.relearn === false && !p.relearnNote, 'then the new round begins: ' + JSON.stringify(p));
+    // Learn it again, then straight back to the topic: it finishes in the background, and opens
+    // as the new round when he comes back, without being written again.
+    const n2 = ctl.writes.length;
+    await go('#/t/pendulums/i1/again');
+    await page.locator('.lsn-prep').waitFor();
+    await go('#/t/pendulums');
+    await page.waitForFunction((n) => { const d = window.__CLAUDE_STUB__.get('topics/pendulums/lessons/i1'); return !!d && d.status === 'ready' && d.lesson.predict.q.includes('(fresh ' + n + ')'); }, n2 + 1, { timeout: 30000 });
+    p = await idea();
+    ok(p.round === 2 && p.relearn === true, 'finished while he was away: the request is still open');
+    await go('#/t/pendulums/i1');
+    await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor({ timeout: 15000 });
+    ok((await question()).includes('(fresh ' + (n2 + 1) + ')'), 'coming back opens the fresh lesson');
+    await page.waitForTimeout(600);
+    p = await idea();
+    ok(ctl.writes.length === n2 + 1, 'without writing it again (' + (ctl.writes.length - n2) + ' writes)');
+    ok(p.round === 3 && p.relearn === false && p.stage === 'predict', 'as the new round: ' + JSON.stringify(p));
+    await shot(app, 'relearn-fails-3-fresh');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'relearn-fails-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 const scenarios = [
   ['walk-360-light', () => walk(360, false)],
   ['walk-360-dark', () => walk(360, true)],
@@ -1260,6 +1497,9 @@ const scenarios = [
   ['plain-1280-light', () => plain(1280, false)],
   ['two-devices', twoDevices],
   ['relearn', relearnScenario],
+  ['not-built', notBuilt],
+  ['resume-not-built', resumeNotBuilt],
+  ['relearn-fails', relearnFails],
   ['leave-while-grading', leaveWhileGrading],
   ['full-app', fullApp],
   ['failed-lesson-360-light', () => failedLesson(360, 707, false)],

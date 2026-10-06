@@ -7,7 +7,7 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { openApp, readJson, ROOT } from '../../tools/harness/page.mjs';
+import { openApp, readJson, taskOf, ROOT } from '../../tools/harness/page.mjs';
 
 const FILE = join(ROOT, 'tests', 'out', 'views.html');
 const SHOTS = join(ROOT, 'tests', 'out', 'views');
@@ -1144,6 +1144,78 @@ await test('whole lessons: Learn\'s continue card says whether its idea is being
   await app.seed(TIDES_I3, busyDoc('writing'));
   await app.page.waitForSelector('.ccard-status');
   eq(await text(app, '.ccard-status'), 'Idea 3 is being prepared…', 'started, being prepared again');
+});
+
+// Final fixes F1: a reload kills the next idea's background prefetch, leaving its doc 'building'
+// under this tab's name with nothing working on it. In the complete app (real store and U.gen,
+// only the model stubbed), Learn and the topic page never say "being prepared" while nothing
+// prepares it: the screens start that one prefetch again (it picks up the written lesson and
+// builds its interactive), and only then say it. Any other idea this tab left stays as it is;
+// another tab's fresh work is believed and left alone.
+await test('whole lessons: after a reload, the next idea\'s prefetch is started again, and only then is it "being prepared"', async () => {
+  const FULL = join(ROOT, 'tests', 'out', 'views-full.html');
+  const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--out', FULL], { stdio: 'inherit' });
+  assert(b.status === 0, 'full build failed');
+  const fx = (n) => readJson('tests/fixtures/lesson-ui-' + n + '.json');
+  const TOPIC = fx('topic'), PENDULUM = fx('pendulum'), SMALL = fx('small-swings');
+  const tid = 'pendulums', at = new Date(Date.now() - 86400000).toISOString(), now = new Date().toISOString();
+  const lessonDoc = (iid, base, by) => ({ status: 'building', updatedAt: now, startedAt: now, lesson: { ...JSON.parse(JSON.stringify(base.lesson)), iid }, sourced: true, interactive: null, by });
+  const db = (by) => ({
+    [`topics/${tid}`]: TOPIC,
+    [`topics/${tid}/lessons/i1`]: PENDULUM,
+    [`topics/${tid}/lessons/i2`]: lessonDoc('i2', PENDULUM, by),
+    [`topics/${tid}/lessons/i3`]: lessonDoc('i3', SMALL, by),
+    [`data/users/${UID}/profile/progress/${tid}`]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'x', at }, checks: {} } } },
+  });
+  async function start(by) {
+    const calls = [];
+    const app = await openApp({ width: 360, height: 707, file: FULL, config: { db: db(by) },
+      sample: (input) => { calls.push({ task: taskOf(input), text: typeof input === 'string' ? input : JSON.stringify(input) }); return new Promise(() => {}); } });
+    current.apps.push(app);
+    // The tab's id outlives a reload (sessionStorage): this page is the reloaded tab.
+    await app.page.addInitScript(() => { try { sessionStorage.setItem('mu.tab', 'tReloaded'); } catch (e) { /* fine */ } });
+    await app.page.goto(app.url('#/'));
+    await app.booted();
+    // From boot on: whenever the card says idea 2 is being prepared, is a job of this page on it?
+    await app.page.evaluate((tid) => {
+      window.__claims = [];
+      setInterval(() => {
+        const n = document.querySelector('.ccard-status, .tp-next-note');
+        if (!n || !/being prepared/.test(n.textContent)) return;
+        const l = (U.gen.status(tid).lessons || {}).i2;
+        window.__claims.push({ live: l || null, at: Date.now() });
+      }, 25);
+    }, tid);
+    return { app, calls };
+  }
+
+  // This tab's prefetch, killed by the reload: started again, once, for idea 2 only.
+  const mine = { device: 'dSame', tab: 'tReloaded', page: 'pBeforeReload', holder: 'dSame/tReloaded' };
+  const { app, calls } = await start(mine);
+  await app.page.waitForFunction(() => /Idea 2 is being prepared…/.test((document.querySelector('.ccard-status') || {}).textContent || ''), null, { timeout: 15000 });
+  await app.page.waitForTimeout(800);
+  eq(await app.page.evaluate((t) => (U.gen.status(t).lessons || {}).i2, tid), 'building', 'a job of this page is on idea 2');
+  eq(calls.map((c) => c.task).join(','), 'build-interactive', 'the written lesson is kept: only its interactive is built again');
+  assert(/Gravity’s part/.test(calls[0].text), 'for idea 2');
+  const lying = await app.page.evaluate(() => window.__claims.filter((c) => !c.live || !/^(writing|waiting|building)$/.test(c.live)));
+  eq(lying.length, 0, 'Learn never says "being prepared" while nothing prepares it');
+  await shot(app, 'whole-learn-after-reload-360-light', { full: false });
+  // The topic page agrees, and starts nothing more.
+  await app.page.evaluate(() => U.go('#/t/pendulums'));
+  await app.page.waitForSelector('.tp-next-note');
+  eq(await text(app, '.tp-next-note'), 'Idea 2 is being prepared…', 'topic header');
+  eq(await text(app, '.pnode.is-current .pnode-prep'), 'Being prepared…', 'the path marks idea 2');
+  await app.page.waitForTimeout(800);
+  eq(await count(app, '.pnode-prep'), 1, 'only idea 2 is marked');
+  eq(calls.length, 1, 'no second start, and idea 3 (also left by this tab) is not started: ' + calls.map((c) => c.task).join(','));
+  eq(await app.page.evaluate(() => window.__claims.filter((c) => !c.live).length), 0, 'the topic page never claims it either');
+  await shot(app, 'whole-topic-after-reload-360-light', { full: false });
+
+  // Another tab's (or device's) fresh work is believed, and left to it.
+  const other = await start({ device: 'dOther', tab: 'tOther', page: 'pOther', holder: 'dOther/tOther' });
+  await other.app.page.waitForFunction(() => /Idea 2 is being prepared…/.test((document.querySelector('.ccard-status') || {}).textContent || ''), null, { timeout: 15000 });
+  await other.app.page.waitForTimeout(1500);
+  eq(other.calls.length, 0, 'nothing started over another tab\'s work');
 });
 
 // ---------- summary ----------

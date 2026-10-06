@@ -64,6 +64,7 @@ U.rich(text, {footnotes?:{has(n), open(n)}}) -> DocumentFragment   blank lines s
     block of "- " lines is a list; **bold**, *italic*, [[term]] -> mark.term, [^n] -> button.fn
     (dropped when has(n) is false), `code`. No links, no raw HTML.   U.inline(el, text, opts); U.plain(text)
 U.append / U.clear / U.svg (static app markup only) / U.icon(name, cls?)   U.id(prefix)   U.key()   U.device()
+U.tab()   this tab's id (sessionStorage mu.tab: kept through a reload, never shared by two tabs)
 U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
     keyed lists: maps keyed by U.key() (time first), or old arrays read as L000, L001…; oldest first
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
@@ -163,6 +164,7 @@ U.store.topics.watch(fn, onError) -> stop   fn(topic docs, newest updatedAt firs
 U.store.topic.get / watch(tid, fn, onError) / create(doc) / update(tid, patch) / remove(tid) -> {leftovers}
 U.store.lesson.get / watch / set(tid, iid, doc) / update(tid, iid, patch, {quiet?}) / remove(tid, iid) / list(tid)
 U.store.lesson.state(doc, live?) -> 'ready'|'preparing'|'failed'|'none'    (section 4; live: U.gen.status's word for it)
+U.store.lesson.abandoned(doc, live?) -> bool   writing/building, by.tab is U.tab(), no job of this page on it (section 4)
 U.store.research.get(tid, key) / set(tid, key, doc)
 U.store.progress.get(tid) / watch(tid, fn, onError) / patch(tid, patch) / all() -> {tid: doc}       private
 U.store.cards.get(tid) / patch(tid, patch) / update(tid, cardId, fn(card) -> fields|null) / all() / dropOrphan(tid)
@@ -257,8 +259,12 @@ interactive built and tested, or none and the `note` saying why. `writing` and `
 internal (a job is writing the text, or building and testing the interactive): no screen opens or
 studies such a doc; they say it is being prepared. `U.store.lesson.state(doc, live)` says what a
 doc means: `ready`; `preparing` (this page's job is on it, by `live`, else a writing/building doc
-touched within the last 4 minutes, which a running job's 45 s heartbeat keeps fresh); `failed`;
-`none` (nothing yet, or work that stopped: opening the lesson prepares it).
+touched within the last 4 minutes, which a running job's 45 s heartbeat keeps fresh, and not
+abandoned); `failed`; `none` (nothing yet, or work that stopped: opening the lesson prepares it).
+`U.store.lesson.abandoned(doc, live)`: a writing/building doc held by this tab (`by.tab` is
+`U.tab()`) with no job of this page on it. Its job died with an earlier load of the tab (a reload)
+or ended without saving, so nobody is working on it however fresh it looks; the generator does not
+wait for it either. The screens that follow the next idea start such a prefetch again (section 7).
 `topics/{tid}/research/{key}`   key `'topic'` (always written) or an idea id (when it has notes):
 `{ notes:[{ claim, sourceIds:[n], contested? }], sources:[Source], at }`
 
@@ -286,10 +292,13 @@ only its own minutes, under the study day (`U.studyDay`). Layout is not a pref (
     past:{ [round]:{ stage, predict, checks, doneAt, at } },   // earlier rounds
     replays:{ [key]:{ at, predict, checks } },                 // "Go through it again" runs
     cardsRound?,                                               // the round whose review cards were made
-    againAt?, relearn?, known? } } }
+    againAt?, relearn?, relearnAt?, relearnNote?, known? } } }
 ```
-`relearn: true` (set by Today) makes the lesson screen start Learn it again. `known` is read
-alongside the plan's `known`, but nothing writes it at present.
+`relearn: true` is an open Learn it again request (set by Today, or by the lesson screen when Dan
+asks): opening the idea writes the fresh lesson. `relearnAt` is when the screen began its rewrite
+and `relearnNote` his "This looks wrong" note for the writer. The request stays open, and the
+round unchanged, until the fresh lesson is whole; the round that begins then clears all three
+(section 7). `known` is read alongside the plan's `known`, but nothing writes it at present.
 
 `profile/cards/{tid}`
 ```
@@ -521,8 +530,26 @@ is open."). Never Predict or any lesson text. It switches to the whole lesson wh
 or when the watched doc turns whole (another device finished it), resuming at the saved stage.
 The idea counts as started (`startedAt`, `stage`, `lastIdea`) only once the whole lesson is on
 screen. A failure shows Try again on the card. Learn it again (and Rebuild) takes the old lesson
-off the screen at once and shows the card until `relearn` settles with the new one; the old
-ready doc is never adopted from the watch meanwhile.
+off the screen at once and shows the card until a fresh lesson is whole: one begun since he asked
+(its `startedAt`, stamped when a job claims the doc, is not before `relearnAt`). The old ready doc
+is never adopted from the watch, nor from a job that hands it back; a fresh one finished elsewhere
+is. The request (`relearn`, `relearnAt`, `relearnNote` on progress) stays open until then; only
+when the fresh lesson opens does the idea start its new round (round + 1, stage predict, guess and
+checks cleared, the old round under `past`, `againAt` now, the request cleared). A rewrite that
+fails leaves the idea as it was and still marked to be learned again (Today keeps offering it);
+opening it again tries the rewrite again with his note, the card's first line saying so ("Trying
+again for the fresh lesson you asked for[, with your note]"). Work on the fresh lesson that has
+begun is finished, not begun again: whole, it opens as the new round (its rewrite finished while
+he was away); writing or building (or cut off by a reload) it goes through `ensureLesson`, whose
+claim carries his note and the briefs to avoid.
+
+The steps on the card are one line each. A doc with its text starts with "The lesson text is
+written" and the build's own lines follow (resuming adds no line of its own); both a fresh write
+and a resume end the build with the line for what really happened, "Interactive tested and
+ready." or "Finishing without the interactive…". A lesson whole without its interactive (none
+planned, or one that never passed its tests) is played by what was built: Predict asks for a
+guess without "before you play", and Play is headed "What happens", never with the title of an
+interactive that is not there.
 
 Prefetch: once a lesson is whole, the next open idea is ensured with `background: true`: written,
 its interactive built and tested, and saved `ready`, all as background work. Leaving a lesson
@@ -531,7 +558,11 @@ it. Both keep going while the app is open (they are not cancelled when Dan leave
 yield to his foreground calls; opening the lesson joins the job and promotes its queued calls
 (`U._gate.promote`). The finished screen ("Idea 2 is being prepared…" / "Idea 2 is ready."),
 Learn's continue card and the topic page (header line; "Being prepared…" on a path node) say
-which, from `U.store.lesson.state` over the watched doc and `U.gen.status`.
+which, from `U.store.lesson.state` over the watched doc and `U.gen.status`. A reload kills the
+prefetch and leaves its doc abandoned (section 4), which is not "being prepared": when Learn or
+the topic page finds the next idea Dan will study abandoned by this tab, it starts that prefetch
+again in the background (`ensureLesson(tid, iid, {background: true})`, which joins or claims
+under the lease rules), once per page load, and never any other idea (`V.lessonWatch`).
 
 ## 8. Review scheduling
 
@@ -588,8 +619,9 @@ since it was last learned and since its latest round began (`againAt`). Until Da
 round, the old round's cards stay in review with their old `learnedAt`; the lapses that started
 the round never count again, so one more Again does not flag a half-done round. Today lists a
 slipping idea (link `#/t/:tid/:iid/again`) and sets `relearn: true` on its progress. The lesson
-then calls `U.gen.relearn` and starts a new round. "This looks wrong" offers the same rebuild,
-with Dan's note as feedback.
+then calls `U.gen.relearn`, and starts a new round once the fresh lesson is whole (section 7);
+until then the idea stays flagged and listed. "This looks wrong" offers the same rebuild, with
+Dan's note as feedback.
 
 ## 9. Module APIs (cross-file contract)
 
@@ -655,7 +687,8 @@ U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), sum
    sourcesChecked(t) (done, sources >= 1), sourcesNone(t) (the check ran but kept no source; section 4),
    loadError(what, e, retrying), slowNote, savedLate(what) (U.rt.savedLate), extLink(url, label) (window.open, else copy the link), empty, back, day,
    lessonLive(tid, iid) (U.gen.status's word, if any), lessonBusy(tid, iid), lessonWatch(onChange) -> {watch(tid, iid),
-   state() -> lesson state | null before the doc is read, stop()}, lessonNote(state, n, started, cls) -> "Idea n is being
+   state() -> lesson state | null before the doc is read, stop()} (follows the next idea Dan will study; a prefetch
+   this tab abandoned is started again in the background, once per page load), lessonNote(state, n, started, cls) -> "Idea n is being
    prepared…" / "Idea n is ready." (ready only when not started) | null
 U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}

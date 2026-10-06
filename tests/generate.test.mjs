@@ -1375,6 +1375,50 @@ test('lesson state: only a ready doc with its lesson opens; writing and building
   assert.equal(S({ status: 'ready', lesson: { iid: 'i1' } }, 'building'), 'ready');
 });
 
+// Final fixes F1: after a reload, a prefetch this tab began is dead, however fresh its doc.
+test('lesson state: a busy doc this tab left with no job here (a reload killed it) is not being prepared', async () => {
+  const app = await boot({ handlers: handlers() });
+  const { U } = app;
+  const S = U.store.lesson.state, A = (d, l) => U.store.lesson.abandoned(d, l);
+  const now = new Date().toISOString();
+  // Left by this tab's job in an earlier load of the page (U.gen._who(): this device and tab).
+  const mine = { status: 'building', updatedAt: now, lesson: { iid: 'i2' }, by: { ...plain(U.gen._who()), page: 'an-earlier-load' } };
+  const other = { ...mine, by: { device: 'dOther', tab: 'tOther', page: 'p1', holder: 'dOther/tOther' } };
+  assert.equal(S(mine), 'none', 'not "being prepared" although touched a moment ago (opening it, or the next-idea screens, start it again)');
+  assert.equal(S({ ...mine, status: 'writing', lesson: null }), 'none', 'writing too');
+  assert.equal(A(mine), true, 'held by this tab, no job of this page on it: abandoned');
+  assert.equal(U.gen._who().tab, U.tab(), 'the generator and the store name this tab alike');
+  assert.equal(A(mine, 'building'), false, 'this page\'s job is on it: not abandoned');
+  assert.equal(S(mine, 'building'), 'preparing');
+  assert.equal(S(mine, 'waiting'), 'preparing');
+  assert.equal(A(other), false, 'another tab or device may be working on it');
+  assert.equal(S(other), 'preparing', 'while it is fresh');
+  assert.equal(A({ status: 'ready', lesson: { iid: 'i2' }, by: mine.by }), false, 'a whole lesson is never abandoned');
+  assert.equal(A({ status: 'writing', updatedAt: now }), false, 'a doc that names no tab is not this tab\'s');
+});
+
+// Final fixes F4: the resume path (a building doc finished later) says each step once, and its
+// last line says what really happened, as a fresh write does.
+test('resuming a lesson left at "building": one line per step, and the last says whether the interactive made it', async () => {
+  for (const ok of [true, false]) {
+    const app = await boot({ handlers: handlers(), build: ok ? (t, i, l, o) => { o.onStatus('Building the interactive…'); o.onStatus('Testing it at phone, tablet and laptop sizes…'); return okBuild(t, i, l, {}); }
+      : (t, i, l, o) => { o.onStatus('Building the interactive…'); o.onStatus('Testing it at phone, tablet and laptop sizes…'); o.onStatus('Fixing what the test found (try 2 of 3)…'); o.onStatus('Fixing what the test found (try 3 of 3)…'); return Promise.resolve(null); } });
+    const { U } = app;
+    await app.seed('topics/t1', PLAN_JET);
+    await app.seed('topics/t1/lessons/i2', { status: 'building', updatedAt: '2026-01-01T00:00:00.000Z', lesson: L_JET2, sourced: true, interactive: null, by: { device: 'dOther', tab: 'tOther', page: 'p1', holder: 'dOther/tOther' } });
+    const lines = [];
+    const doc = await U.gen.ensureLesson('t1', 'i2', { onStatus: (t) => lines.push(t) });
+    assert.equal(doc.status, 'ready');
+    assert.equal(app.count('write-lesson'), 0, 'the written lesson is kept');
+    assert.ok(!lines.some((t) => /Finishing the interactive for this lesson/.test(t)), 'no line of its own on top of the build\'s "Building the interactive…": ' + JSON.stringify(lines));
+    assert.equal(lines[0], 'Building the interactive…', 'the build\'s own lines come first');
+    assert.equal(lines[lines.length - 1], 'Ready.');
+    assert.equal(lines[lines.length - 2], ok ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'the last step says what really happened: ' + JSON.stringify(lines));
+    assert.equal(!!(doc.interactive && doc.interactive.html), ok);
+    if (!ok) assert.match(doc.note, /could not be built/);
+  }
+});
+
 test('a quiet lesson update that fails is neither toasted nor held: the caller says it once', async () => {
   const app = await boot({ handlers: handlers() });
   const { U } = app;

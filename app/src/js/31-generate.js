@@ -36,18 +36,9 @@
   var NO_INTERACTIVE = 'The interactive for this idea could not be built and tested this time, so this lesson carries on without it.';
   var PAGE = U.id('p');
   // Ids that outlive a reload: this device (localStorage) and this tab (sessionStorage, so two
-  // tabs of one browser never mistake each other's live work for their own leftovers).
-  function kept(store, key, prefix) {
-    try {
-      var st = store();
-      if (!st) return U.id(prefix);
-      var v = st.getItem(key);
-      if (!v) { v = U.id(prefix); st.setItem(key, v); }
-      return v;
-    } catch (e) { return U.id(prefix); }
-  }
-  var DEVICE = kept(function () { return typeof localStorage === 'undefined' ? null : localStorage; }, 'mu.device', 'd');
-  var TAB = kept(function () { return typeof sessionStorage === 'undefined' ? null : sessionStorage; }, 'mu.tab', 't');
+  // tabs of one browser never mistake each other's live work for their own leftovers). The same
+  // ids the store uses to tell this tab's leftovers (00-core.js).
+  var DEVICE = U.device(), TAB = U.tab();
   var HOLDER = DEVICE + '/' + TAB;
 
   var jobs = {};        // 'tid/iid' -> lesson job (de-duplicates work in this page)
@@ -656,8 +647,9 @@
   function stopBeat(job) { if (job.hb) { clearInterval(job.hb); job.hb = null; } }
   function busy(doc) { return doc && (doc.status === 'writing' || doc.status === 'building'); }
   // Left by this tab with no job running for it here (an earlier load of the page, or a job that
-  // ended without saving): that work died with the page, so there is nothing to wait for.
-  function abandoned(doc) { return !!(doc.by && doc.by.tab && doc.by.tab === TAB); }
+  // ended without saving): that work died with the page, so there is nothing to wait for. Only
+  // asked when no job of this page is on the lesson. The store's rule, so screens agree.
+  function abandoned(doc) { return U.store.lesson.abandoned(doc); }
   function untilExpiry(r) { var t = Date.parse((r && r.expiresAt) || ''); return Math.min(CFG.LEASE_MS, Math.max(300, isFinite(t) ? t - Date.now() + 200 : CFG.LEASE_MS)); }
 
   // ensureLesson(tid, iid, {onStatus, background, signal}): background marks a prefetch (its
@@ -889,10 +881,7 @@
           goneIfNull(r);
           stage = 'building';
           return buildInteractive(topic, idea, lesson, avoid, job);
-        }).then(function (built) {
-          progress(job, built ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'building');
-          return own(job).then(function () { return U.store.lesson.update(tid, iid, builtPatch(lesson, built)); });
-        });
+        }).then(function (built) { return saveBuilt(job, lesson, built); });
       });
     }).then(function (r) {
       goneIfNull(r);
@@ -902,11 +891,20 @@
     }).catch(function (e) { return stopped(job, e, stage, o.prev, 'write lessons'); });
   }
 
-  // Finish a lesson whose text was saved but whose interactive build never completed.
+  // The build is over: one line for what really happened (the interactive passed its tests, or
+  // the lesson goes on without it), then the doc is saved ready, with it or with the note why.
+  function saveBuilt(job, lesson, built) {
+    progress(job, built ? 'Interactive tested and ready.' : 'Finishing without the interactive…', 'building');
+    return own(job).then(function () { return U.store.lesson.update(job.tid, job.iid, builtPatch(lesson, built)); });
+  }
+
+  // Finish a lesson whose text was saved but whose interactive build never completed. The screen
+  // already says the text is written; the build's own lines say the rest ("Building the
+  // interactive…" first), so this step adds no line of its own.
   function resume(job, doc) {
     var tid = job.tid, iid = job.iid, stage = 'none';
     var avoid = [].concat(doc.avoid || []).filter(isStr);
-    progress(job, 'Finishing the interactive for this lesson…', 'building');
+    progress(job, '', 'building');
     return U.store.topic.get(tid).then(function (t) {
       var idea = t && (t.ideas || []).filter(function (i) { return i.id === iid; })[0];
       if (!idea) return write(job, { avoid: avoid, prev: doc });
@@ -919,9 +917,7 @@
         stage = 'building';
         beat(job);
         return buildInteractive(t, idea, doc.lesson, avoid, job);
-      }).then(function (built) {
-        return own(job).then(function () { return U.store.lesson.update(tid, iid, builtPatch(doc.lesson, built)); });
-      }).then(function (r) {
+      }).then(function (built) { return saveBuilt(job, doc.lesson, built); }).then(function (r) {
         goneIfNull(r);
         stopBeat(job);
         progress(job, 'Ready.', 'ready');
