@@ -332,6 +332,7 @@ Lesson = {
   predict: { q, options?:[2-4], reveal },        // reveal shown after play
   interactive: {
     brief,                                       // "The one thing you should see is ___ when you ___."
+                                                 // (the "when you" half never gives the answer away: section 7)
     title, controls:[1-2 Control],
     outputs?:[0-3 { id, label, unit?, decimals? }],   // label <= 30 chars, unit <= 10, decimals 0-6
     whatAmILookingAt,                            // <= 120 words: the rule in plain words
@@ -367,8 +368,11 @@ Check =
   output's decimals round it) or an estimate check's answer printed in `predict.reveal` or
   `explain.text` (digit groups read whole, "1,000"; a whole number under 10 counts only with its
   unit, the output's or the estimate's, straight after it: "2 sounds" is no answer to 2x); a
-  choice check's right option sharing 4+ consecutive words (two of them not little words) with
-  `explain.text`, `predict.reveal` or `say.model`; a right option of 4+ words over 1.5x the
+  choice check's right option sharing 4+ consecutive words with `explain.text`, `predict.reveal`
+  or `say.model` (two of them not little words, none part of a term the lesson marks [[like
+  this]], and not a run the question or a wrong option also holds: words the options share give
+  nothing away), whose repair asks to reword the outcome, keeping the lesson's names for things;
+  a right option of 4+ words over 1.5x the
   other options' average length in characters; a rubric point joining two ideas with ";"; a
   rubric point whose key words (2 or more) all appear in `say.prompt`; and, before renumbering
   (not `final`), a listed source nothing cites (with `final` that one is hard).
@@ -456,16 +460,60 @@ The write-lesson prompt gives the writer THE COURSE (title, the hook as the puzz
 answers, level, oneBreath, every idea as "id title — one line [kind]"), this idea, `prior`, the
 calibration questions with their right answers and whys (Dan has seen them: the predict and checks
 build on them and never repeat them), `known`, the lesson's research and `avoid`/`feedback`. Its
-rules are written once each: per part (predict, interactive, explain, analogy, say, checks,
-confidence), then NAMES AND TERMS, CLAIMS THAT STAY TRUE and THE NUMBER RULE (these two are
-`U.prompts.truthRules({sources, history})`, so anything that later checks a lesson against them
-reads the same words), SOURCES and a closing checklist. Some rules go only where they apply: the
-interactive's form by the idea's kind; date windows and period names to every lesson of a course
-with a history idea, and the "how we know" why and the timeline-axis check to a history idea; a
-neutral-wording rule when a later idea's title or one line says people argue; sound only when the
-topic or idea is about something heard; at most 2 new terms and 2 numbers for a NEW learner. The
-research prompt asks for causes before facts, a note under every idea whose claim it limits,
-quotes that keep their qualifiers and dates, and claims no stronger than their quotes.
+rules are written once each, with at most one short example each, every example from outside the
+subjects of the run-2 eval (vaccines, noise-cancelling headphones, rainbows, the Bronze Age
+collapse; `tests/prompts.test.mjs` keeps them out, so an eval on those topics stays fair): per
+part (predict, interactive, explain, analogy, say, checks, confidence), then NAMES AND TERMS,
+CLAIMS THAT STAY TRUE and THE NUMBER RULE (these two are `U.prompts.truthRules({sources,
+history})`, so anything that later checks a lesson against them reads the same words), SOURCES
+and a closing checklist of what the writer can verify at the end. From WRITING EACH PART to the
+end of the prompt that is about 2,600-2,800 words (a test caps it at 2,850). Some rules go only
+where they apply: the interactive's form by the idea's kind; date windows, period names and
+timelines that run forwards (years BC counted as years after the first date, or a stepper of
+dates in time order) to every lesson of a course with a history idea, and the "how we know" why,
+why it mattered then and the bunched-dates check to a history idea; the predict's debate rule and
+contested views from named scholars or peer-reviewed or university sources ("simplified" when
+fewer than two remain) to an idea that is itself argued about (its title or one line says so, or
+its own research has a contested note); target checks to kinds whose readout a real rule can
+compute (not history, structure or concept); the sentence linking the idea to the course's puzzle
+to the first and last ideas; a neutral-wording rule when a later idea's title or one line says
+people argue; sound only when the topic or idea is about something heard; at most 2 new terms
+and 2 numbers for a NEW learner; and, in a lesson with sources, the rule that a fact RESEARCH
+does not support appears only if a standard textbook states it, unfootnoted, as "textbooks add
+that …", and never as the only support for the predict's answer.
+
+The brief reads "The one thing you should see is ___ when you ___." The prompt is written for a
+lesson screen that shows Dan only "Try this: " and the "when you" half before he plays, and the
+whole sentence after the reveal, so that half names the action and never gives the answer away.
+(That screen is the lesson-screen group's change to `50-lesson.js`; until it lands, the screen
+shows the whole sentence before play as "Watch for …".) The explanation lists what it must do
+within 170 words (what playing shows, the why from something Dan has felt, the one line's claim,
+the takeaway) and what it adds only if words remain. Checks are three, one per side (the why, the
+limit, and a new case that compares amounts where the idea involves how much, how many or how
+long), two only when a third would repeat the predict or the say-it-back.
+
+The research prompt asks for causes before facts and spends its budget (8 searches, 4 fetches) in
+a stated order: causes, then the one-line claims, the principle and constants each interactive
+computes with, a history idea's dated events, and the rest. It files each claim under the idea
+that teaches it and under every other idea whose lesson needs it: a dated event under every
+history idea whose period it falls in, quoting how it was dated when the page says so; a fact that
+limits a claim under that idea. Quotes keep their qualifiers and dates; claims are no stronger
+than their quotes.
+
+`U.prompts.lessonResearch(research, iid, deps, ideas)` gives one lesson its notes and sources,
+numbered 1..k: the idea's own notes, then the notes it borrows from other ideas (marked "(from
+another idea in this course)" in the prompt), then those of the ideas it builds on (`deps`), then
+the topic's. It borrows only when it has the course's `ideas` and other ideas' notes (the full
+research reply, or stored docs with `others: {iid: doc}`): for a history idea, every note whose
+claim holds a date (a year with its era, a century, "c. 1450", a year after "in", "by", "from"…,
+"years ago"); for any idea, every note that names its id. Nearest ideas come first (the earlier of
+two as near), never a claim it already has, each with at least one source, at most 8 notes
+bringing at most 12 new sources. Borrowed sources are numbered after all the others, so the rest
+keep their numbers either way. Whatever numbers a lesson's sources passes the same research and
+ideas as writeLesson (which takes the course from the topic): `tools/eval/validate.mjs` does,
+given `--topic`. `31-generate.js` today loads only the topic's, the idea's and its deps' docs and
+calls it without the course, so in the app a dated event reaches a history lesson through the
+research prompt's filing alone, until both its calls pass `others` and the course.
 
 Pipelines (`31-generate.js`):
 1. `createTopic(query, {level, onCreated(tid)})` writes `topics/{tid}` (planning), calls
@@ -683,7 +731,7 @@ U.prompts.research(topic, {ideas})                                              
 U.prompts.writeLesson(topic, idea, {research, known, avoid, feedback, prior})    TASK: write-lesson
 U.prompts.grade(say, answer, {attempt, previous:{text, followUp}, title})        TASK: grade
 U.prompts.tutor(context) -> preamble (the pipeline adds the turns)              TASK: tutor
-U.prompts.lessonResearch(research, iid) -> {notes, sources} | null   sources numbered 1..k for one lesson
+U.prompts.lessonResearch(research, iid, deps?, ideas?) -> {notes, sources} | null   numbered 1..k for one lesson (section 7)
 U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
 U.prompts.urlKey(url) / words(text) / footnotes(obj) / VOICE / KINDS / NUMBER_KINDS
 U.validate.plan(o) / .lesson(o, {iid, sources, final}) / .grade(o, {rubric, attempt}) / .research(o, {ideas}) -> [problems]

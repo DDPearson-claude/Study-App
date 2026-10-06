@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Validates a model reply with the app's own validators.
 //   node tools/eval/validate.mjs plan    reply.json
-//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json]
+//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json --topic topic.json]
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
 // Prints {ok, problems, soft, warnings} and exits 1 when there are problems. soft: the length
 // problems and the word-matching judgements among them (a plan's calibration answer printed on
@@ -35,11 +35,16 @@ try {
   const opts = {};
   if (kind === 'lesson') {
     opts.iid = arg('iid');
-    // The lesson's own sources, numbered from 1 for this idea, as the app hands them over.
-    // --topic gives the idea's deps, whose research comes along as the app passes it.
+    // The lesson's own sources, numbered from 1 for this idea, as the write-lesson prompt numbers
+    // them. --topic gives the idea's deps, whose research comes along, and the course's ideas, so
+    // the notes it borrows from other ideas (U.prompts.lessonResearch) are numbered the same way.
     const topic = arg('topic') ? JSON.parse(readFileSync(arg('topic'), 'utf8')) : null;
     const idea = topic && (topic.ideas || []).find((i) => i.id === opts.iid);
-    if (arg('sources')) { const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps); opts.sources = lr && lr.sources.length ? lr.sources : null; }
+    if (arg('sources')) {
+      if (!topic) console.error('warning: no --topic, so the sources are numbered without the notes borrowed from other ideas; pass --topic as for the prompt.');
+      const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps, topic && topic.ideas);
+      opts.sources = lr && lr.sources.length ? lr.sources : null;
+    }
   }
   if (kind === 'grade') opts.attempt = Number(arg('attempt', '1'));
   const got = U.parseJson.pick(text, (o) => U.validate[kind](o, opts));

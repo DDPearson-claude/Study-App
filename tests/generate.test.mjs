@@ -562,9 +562,11 @@ test('prompt builders start with their TASK line, stay small and carry the key r
     'hypothetical check case', 'where it stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Write one only when reaching it needs the idea', '"contested": { "views"',
     '[1] Newton\'s Third Law of Motion — NASA Glenn Research Center — https://www.grc.nasa.gov/www/k-12/BGP/newton3.html', 'with "source": n when a source above states it',
     '<-- THIS LESSON', 'Teach only this idea', 'This is the first idea', 'Known idea number 3', '[[like this]]', 'UK English',
-    'changes something from the interactive\'s opening state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Write each number as its readout shows it', 'action buttons', 'which view he finds more convincing', 'never as something he did', 'never by its shade', 'FAIR EXAMPLES',
+    'changes something from the interactive\'s opening state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Write each number as its readout shows it', 'action buttons', 'never as something he did', 'never by its shade', 'nothing picked to exaggerate the effect',
     'Never invent probabilities', 'controls: one.', 'spoken to him as "you"', 'named: options', 'may start off', 'zero when zero is the real case', 'at most 120 words', 'label (at most 6 words)'])
     assert.ok(lesson.includes(s), 'write-lesson mentions ' + s);
+  assert.ok(!lesson.includes('which view he finds more convincing'), 'the debate rule only where the idea is debated');
+  assert.ok(U.prompts.writeLesson(PLAN_ROME, PLAN_ROME.ideas[4], {}).includes('which view he finds more convincing'), 'an idea historians argue about gets it');
   assert.ok(!lesson.includes('A FRESH ANGLE'));
   assert.ok(!lesson.includes('EARLIER LESSONS') && !lesson.includes('Builds on'), 'the first idea has nothing earlier to refer to');
   assert.ok(lesson.includes('QUESTIONS DAN ANSWERED') && lesson.includes(PLAN_JET.calibration[0].q), 'the first lesson sees the calibration questions');

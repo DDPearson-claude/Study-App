@@ -129,14 +129,15 @@ test('a right option sharing four words in a row with the explanation, reveal or
   const base = clone(L_JET2);
   base.checks[2].options = ['It doubles the push', 'It halves the push', 'Twice the air at half speed', 'It drops to a quarter'];
   assert.deepEqual(plain(check(base)), [], 'no echo yet');
-  for (const [field, set] of [
-    ['explain.text', (l) => { l.explain.text += ' Twice the air at half speed gives the same push.'; }],
-    ['predict.reveal', (l) => { l.predict.reveal += ' Twice the air at half speed ties.'; }],
-    ['say.model', (l) => { l.say.model += ' Twice the air at half speed is a tie.'; }],
+  for (const [field, set, own] of [
+    ['explain.text', (l) => { l.explain.text += ' Twice the air at half speed gives the same push.'; }, 'your explanation\'s'],
+    ['predict.reveal', (l) => { l.predict.reveal += ' Twice the air at half speed ties.'; }, 'your reveal\'s'],
+    ['say.model', (l) => { l.say.model += ' Twice the air at half speed is a tie.'; }, 'your model answer\'s'],
   ]) {
     const l = clone(base); set(l);
     const hits = found(check(l), /^checks\[2\]\.options\[2\] \(the right answer\) repeats/);
-    assert.deepEqual(hits, [`checks[2].options[2] (the right answer) repeats "twice the air at half speed" from ${field}, so Dan can pick it by recognising your wording: say it in other words, as an outcome he has to reason to.`]);
+    // The repair asks for other wording of the outcome, never other names for things (NAMES AND TERMS).
+    assert.deepEqual(hits, [`checks[2].options[2] (the right answer) repeats "twice the air at half speed" from ${field}, so Dan can pick it by recognising your wording: reword the outcome so it is not ${own} sentence, keeping the lesson's names for things.`]);
   }
   // Three words in a row, or four that are only little words, prove nothing.
   const three = clone(base); three.explain.text += ' Twice the air is a lot.';
@@ -145,6 +146,38 @@ test('a right option sharing four words in a row with the explanation, reveal or
   little.checks[2].options = ['It doubles the push', 'It halves the push', 'It is one of the same', 'It drops to a quarter'];
   little.explain.text += ' This is one of the same kind.';
   assert.deepEqual(plain(check(little)), []);
+});
+
+test('an echo the wrong options or the question also hold gives nothing away, and the lesson\'s [[terms]] are never an echo', () => {
+  // Words every option shares (the explanation states the rule in its general form) give nothing away.
+  const shared = clone(L_JET2);
+  shared.checks[2] = { id: 'c3', type: 'choice', q: 'Which engine pushes hardest?', answer: 0, why: 'Twice the speed doubles the push, half the air halves it.',
+    options: ['Half the gas hurled out twice as fast', 'Twice the gas hurled out twice as fast', 'Twice the gas hurled out half as fast'] };
+  shared.explain.text += ' Gas hurled out twice as fast doubles the push.';
+  assert.deepEqual(plain(check(shared)), [], 'the run is in a wrong option too');
+  // The same echo, when no wrong option shares it, still counts (and says what to change).
+  const own = clone(shared);
+  own.checks[2].options = ['Half the gas hurled out twice as fast', 'Twice the push from the same engine', 'The push stays just the same'];
+  assert.deepEqual(found(check(own), /^checks\[2\]/), ['checks[2].options[0] (the right answer) repeats "gas hurled out twice as fast" from explain.text, so Dan can pick it by recognising your wording: reword the outcome so it is not your explanation\'s sentence, keeping the lesson\'s names for things.']);
+  // A run the question already states gives nothing away either.
+  const asked = clone(own); asked.checks[2].q = 'Which engine has its gas hurled out twice as fast?';
+  assert.deepEqual(plain(check(asked)), []);
+  // A term the lesson marks [[like this]] is one name for one thing: it never makes a run.
+  const term = clone(L_JET2);
+  term.checks[2] = { id: 'c3', type: 'choice', q: 'Throw the air back faster. What happens?', answer: 1, why: 'More speed added, more push.',
+    options: ['It halves', 'The jet thrust grows', 'It stays the same', 'It drops to zero'] };
+  term.explain.text += ' Throw the air back faster and the jet thrust grows.';
+  assert.equal(found(check(term), /^checks\[2\]\.options\[1\] \(the right answer\) repeats "the jet thrust grows"/).length, 1, 'unmarked, the name counts');
+  term.explain.text = term.explain.text.replace('the jet thrust grows', 'the [[jet thrust]] grows');
+  assert.deepEqual(plain(check(term)), [], 'marked as a term, it does not');
+  // A plural of the term is the same name; the words beyond the name still count when they make a run.
+  const plural = clone(term); plural.checks[2].options[1] = 'The jet thrusts grow';
+  plural.explain.text += ' Push harder and the jet thrusts grow.';
+  assert.deepEqual(plain(check(plural)), [], 'the name in the plural');
+  const rest = clone(term);
+  rest.checks[2].options = ['It shrinks as the engine speeds up', 'Jet thrust climbs with every faster gust', 'It stays exactly where it was', 'It drops away to nothing at all'];
+  rest.explain.text += ' Jet thrust climbs with every faster gust.';
+  assert.deepEqual(found(check(rest), /^checks\[2\]/), ['checks[2].options[1] (the right answer) repeats "climbs with every faster gust" from explain.text, so Dan can pick it by recognising your wording: reword the outcome so it is not your explanation\'s sentence, keeping the lesson\'s names for things.'], 'the words beyond the name');
 });
 
 test('a right option over 1.5 times the others\' average length is a soft problem; short or even options are not', () => {
@@ -230,6 +263,9 @@ test('the eval validator prints the warnings beside the problems', () => {
 // =========================================================================================
 const lessonFor = (plan, iid, opts = {}) => U.prompts.writeLesson(plan, plan.ideas.find((i) => i.id === iid), opts);
 const count = (text, s) => text.split(s).length - 1;
+const rulesOf = (p) => p.slice(p.indexOf('WRITING EACH PART'));
+const wordsOf = (t) => t.split(/\s+/).filter(Boolean).length;
+const withKind = (plan, iid, kind) => ({ ...clone(plan), ideas: plan.ideas.map((i) => (i.id === iid ? { ...i, kind } : i)) });
 
 test('write-lesson: Dan has seen each calibration answer and why, so the predict and checks build on them', () => {
   const p = lessonFor({ ...PLAN_JET, level: 'new' }, 'i1', { research: RESEARCH_JET });
@@ -248,70 +284,123 @@ test('write-lesson: Dan has seen each calibration answer and why, so the predict
 
 test('write-lesson: the predict is not given away and aims where intuition fails', () => {
   const p = lessonFor(PLAN_JET, 'i1');
-  for (const s of ['Neither that screen nor this idea\'s title and one line, which he has read, may give the answer.',
-    'where intuition fails (how much, how soon, which way, an in-between setting, a changed condition, the case where nothing happens)',
-    'without stating the rule or the mechanism',
-    'If the title and question alone let him rule out every wrong option, or most adults would get it right, ask about another case.',
-    '(it gives the rule)',
-    'in the same terms and about the same length, with no reason attached to any',
-    'no straw men',
-    'When only a detail is debated (how long, how many), predict what the evidence settles and leave the debate to the reveal, so no option is right under one view and wrong under another.',
-    '- Neither the interactive\'s opening state, the idea\'s title and one line, nor the calibration answers already answer the predict.',
-    'Dan sees the "when you ___" half before he plays: it must not give the answer away.'])
+  for (const s of ['He has read this idea\'s title and one line and sees that screen, so none may give the answer',
+    'aim where intuition fails, at what they leave open (how much, how soon, which way, an in-between setting, the case where nothing happens), without stating the rule or mechanism',
+    'If most adults would get it right, ask about another case.',
+    '"How long does it take to boil?" (the screen shows it)',
+    'in the same terms and of about the same length, no reasons attached',
+    'no straw men such as "longer, because the water gets tired"',
+    'reading well whatever he chose',
+    '- None of the title, the one line, the opening screen and the calibration answers gives the predict\'s answer away.'])
     assert.ok(p.includes(s), s);
+  // The debate rule goes only to an idea that is itself argued about: its title or one line says
+  // so, or its own research flags a contested note.
+  const rule = 'If the idea itself is debated, ask which view he finds more convincing, naming no winner; if only a detail is (how long, how many), predict what the evidence settles.';
+  assert.ok(!p.includes('which view he finds more convincing'), 'not a debated idea');
+  assert.ok(lessonFor(PLAN_ROME, 'i5').includes(rule), 'historians still argue about how much Marius changed');
+  assert.ok(!lessonFor(PLAN_ROME, 'i4').includes(rule));
+  const flagged = clone(RESEARCH_JET); flagged.ideas.i1.notes.push({ claim: 'Who first explained it is disputed.', sourceIds: [1], contested: 'Two textbooks credit different people.' });
+  assert.ok(lessonFor(PLAN_JET, 'i1', { research: flagged }).includes(rule), 'its research flags a debate');
 });
 
-test('write-lesson: checks test reasoning; a target check is optional, quizzed with its readout hidden', () => {
-  const p = lessonFor(PLAN_JET, 'i1');
-  for (const s of ['the why; its limit, such as memory of measles doing nothing against chickenpox; a new case',
-    'not recall of a wording, a source\'s phrase or a number the lesson stated',
-    'At least two are set in a case the interactive did not show, and at least one asks him to compare or reason about amounts',
-    'A target check is answered on the interactive, so a lesson with one has three checks.',
-    'never a later idea',
+test('write-lesson: the brief\'s second half is all Dan sees before play, so it names the action, never the answer', () => {
+  const p = lessonFor(PLAN_JET, 'i2');
+  assert.ok(p.includes('- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. Before play the app shows only "Try this: " and your "when you" half (the whole sentence after the reveal), so that half names the action, never the answer.'));
+  assert.ok(!p.includes('Dan sees the "when you ___" half before he plays'), 'the old wording is gone');
+  assert.ok(lessonFor(PLAN_JET, 'i1').includes('caused by one action, naming the cause as well as the change.'), 'a mechanism names its cause');
+});
+
+test('write-lesson: three checks, one per side; amounts only where the idea has them; a target only where a readout can be real', () => {
+  const p = lessonFor(PLAN_JET, 'i2');
+  for (const s of ['checks (3; 2 only when a third would repeat the predict or the say-it-back)',
+    '- One per side: the why; the limit (where the rule stops holding: a lever lets you push less hard, but further); and a new case the interactive did not show, comparing amounts where the idea involves how much, how many or how long (a target check can be this one).',
+    'not recall of a wording or number', 'needs only this idea and those it builds on', 'makes sense alone weeks later',
     'if you cannot say who believes one, replace it',
-    'four words in a row of your explanation, reveal or model answer',
+    'four words in a row of your explanation, reveal or model answer (names for things aside)',
     'the question states no fact that rules an option out',
-    'Only for an order he could get wrong',
-    'no "it" or "then" pointing at another, never the interactive\'s own step names',
+    'only for an order he could get wrong', 'no "it" or "then", never the interactive\'s step names',
     'which he can reason his way to and the lesson never states',
-    'which hides that readout and the sentence under the picture while he answers',
-    'Write one only when reaching it needs the idea: a value the lesson never prints',
-    'some step of the control must show the target exactly at the readout\'s decimals (else ask for "about Z"); why names every setting that works'])
+    '- target: "Set X so that Y reaches Z" on this interactive',
+    'Write one only when reaching it needs the idea: a value the lesson never prints, ideally past a turning point.',
+    'some step must show the target exactly at the readout\'s decimals (else ask for "about Z"); why names every setting that works',
+    'each marked answer is right and each target reachable', '"type": "target"'])
     assert.ok(p.includes(s), s);
+  // Gone: the over-constrained third check, and a promise about the screen the app does not keep.
+  for (const s of ['At least two are set in a case', 'at least one asks him to compare or reason about amounts', 'hides that readout', 'so a lesson with one has three checks'])
+    assert.ok(!p.includes(s), 'gone: ' + s);
   assert.ok(!/Include one whenever|must have a target|include one check of type "target"/i.test(p), 'no rule left that forces a target check');
+  // History, structure and concept ideas have no readout a real rule computes: no target check at all.
+  for (const [plan, iid] of [[PLAN_ROME, 'i4'], [PLAN_ROME, 'i1'], [PLAN_ROME, 'i7']]) {
+    const q = lessonFor(plan, iid);
+    assert.ok(!q.includes('- target:') && !q.includes('"type": "target"') && !q.includes('target reachable') && !q.includes('target check'), plan.ideas.find((i) => i.id === iid).kind + ': no target');
+    assert.ok(q.includes('{ "id": "c1", "type": "choice"') && q.includes('{ "id": "c3", "type": "estimate"'), 'its check examples are numbered in order');
+  }
 });
 
-test('write-lesson: the interactive draws the cause, and its form follows the kind', () => {
+test('write-lesson: the interactive draws the cause, its form follows the kind, and a timeline runs forwards', () => {
   const kinds = {
     mechanism: ['with the cause drawn', 'set off by an action he performs', 'Include a setting where the cause does not produce the effect'],
-    quantity: ['also show the pile: send 50 or more evenly spaced cases through the rule'],
-    process: ['Draw the thing that carries the change', 'a stepper alone is a slideshow', 'controls: one. Add a second only if the idea cannot be seen without it (a switch for an earlier stage\'s cause counts)'],
-    history: ['a timeline he acts on, not a slideshow', 'A stepper only when every step changes the drawing.'],
+    quantity: ['also show the pile: 50 or more evenly spaced cases sent through the rule'],
+    process: ['drawing the thing that carries the change', 'a stepper alone is a slideshow', 'controls: one. Add a second only if the idea cannot be seen without it (a switch for an earlier stage\'s cause counts)'],
+    history: ['a timeline he moves through, not a slideshow: a numeric control in years after the first date ("Years after 500 BC") or a named stepper of dates in time order, each documented event appearing at its date', 'A stepper only when every step changes the drawing.'],
   };
   for (const [kind, says] of Object.entries(kinds)) {
-    const plan = clone(PLAN_JET); plan.ideas[1].kind = kind;
-    const p = lessonFor(plan, 'i2');
+    const p = lessonFor(withKind(PLAN_JET, 'i2', kind), 'i2');
     for (const s of says) assert.ok(p.includes(s), kind + ': ' + s);
   }
-  const p = lessonFor(PLAN_JET, 'i1');
-  for (const s of ['at the heart of the idea rather than a step towards it', 'for a mechanism, the cause as well as the effect', '(no cause) Good: "…the near edge of the beam slowing first',
-    'stay on the side of it the idea is about (past a turning point only when the turning point is the lesson)', 'labelled "sketch map"',
-    '- Every consequence your explanation states, and the cause its why names, can be seen on some setting of the interactive.'])
+  assert.ok(!lessonFor(PLAN_JET, 'i2').includes('he drags through the years'), 'no timeline the kit cannot build');
+  // A slider's numbers rise to the right: in a history course, years BC are counted forwards.
+  const bc = 'its numbers rise as it moves right (never a slider whose numbers fall, as years BC do: count years after the first date)';
+  assert.ok(lessonFor(PLAN_ROME, 'i4').includes(bc) && lessonFor(PLAN_ROME, 'i1').includes(bc), 'history course');
+  assert.ok(!lessonFor(PLAN_JET, 'i2').includes('years BC'), 'not elsewhere');
+  const p = lessonFor(PLAN_JET, 'i2');
+  for (const s of ['stay on the side of it the idea is about (past a turning point only when that is the lesson)', 'zero when zero is the real case',
+    '- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.'])
     assert.ok(p.includes(s), s);
+  assert.ok(!p.includes('Every consequence your explanation states'), 'the unfollowable check is gone');
+  assert.ok(!p.includes('sketch map') && lessonFor(PLAN_ROME, 'i1').includes('sketch map'), 'maps where places matter');
 });
 
-test('write-lesson: claims stay true on a review card, and the explanation gives the real why', () => {
+test('write-lesson: the explanation does what it must within 170 words; the rest only if words remain', () => {
+  const p = lessonFor(PLAN_JET, 'i2', { research: RESEARCH_JET });
+  for (const s of ['explain (at most 170 words; aim for about 150): within that, it must',
+    '- Open with what playing shows, in one or two sentences, as something he can do or check, never as something he did',
+    'never by its shade (dark mode swaps them)', 'from something he knows or has felt', 'naming what makes each step happen, his control\'s effect included',
+    'name what is physically different, so the reason does not equally fit the earlier case',
+    '- Teach every part of "What Dan should come away understanding" (with care where RESEARCH does not back it).',
+    'Name a teaching model (an ideal case) as one in a clause, with confidence "simplified"', '"One way to picture it: …"',
+    'footnoted when a source supports it and no wider than the places and period its sources describe'])
+    assert.ok(p.includes(s), s);
+  for (const s of ['and of the picture,', 'any part of the mechanism your analogy', 'Just before the takeaway, one sentence'])
+    assert.ok(!p.includes(s), 'no longer an obligation: ' + s);
+  // The puzzle sentence goes to the first and last ideas only, and only if words remain.
+  const puzzle = 'one sentence on the part this idea plays in answering the course\'s puzzle';
+  assert.ok(lessonFor(PLAN_JET, 'i1').includes('- Only if words remain, also: just before the takeaway, ' + puzzle + ', without teaching the next idea.'), 'first idea');
+  assert.ok(lessonFor(PLAN_JET, 'i6').includes('- Only if words remain, also: just before the takeaway, ' + puzzle + '.'), 'last idea');
+  assert.ok(!p.includes(puzzle) && !p.includes('Only if words remain'), 'a middle idea has neither');
+  const noHook = clone(PLAN_JET); delete noHook.hook;
+  assert.ok(!lessonFor(noHook, 'i1').includes(puzzle) && !lessonFor(noHook, 'i1').includes('Puzzle the course answers'), 'no puzzle, no puzzle sentence');
+  assert.ok(lessonFor(PLAN_JET, 'i1').includes('Puzzle the course answers: ' + PLAN_JET.hook + '\n'), 'the hook, as the puzzle');
+  // A history idea: why it mattered to people then is also optional; its why is how we know.
+  const rome4 = lessonFor(PLAN_ROME, 'i4');
+  assert.ok(rome4.includes('- Only if words remain, also: why it mattered to people then, from a source.'));
+  assert.ok(rome4.includes('For this history idea, the why is how we know: the evidence and how it was dated, as far as the quotes say'));
+  assert.ok(!lessonFor(PLAN_ROME, 'i1').includes('why it mattered to people then'), 'not for a structure idea');
+});
+
+test('write-lesson: claims stay true on a review card, zeros are literal, and an unsourced fact is labelled', () => {
   const p = lessonFor(PLAN_JET, 'i2', { research: RESEARCH_JET });
   for (const s of ['CLAIMS THAT STAY TRUE', 'return as review cards for months, without your ignores panel',
-    'Never call a belief wrong in general because it fails here', '(try both ends and the middle)', 'Words of time and size',
-    '"one type of receptor" never becomes "a single detector"', 'State each rule in the general form later ideas need',
-    'Never say a source lacks something',
-    'First what the picture would wrongly suggest', 'A condition the result needs (only at one spot) is not an omission: state it with the result.',
-    'The first step is something he already knows or has felt', 'make sure your reason does not equally describe the earlier case',
-    'If you use a teaching model (a rigid beam), say so in a clause and set confidence to "simplified"', '"One way to picture it: …"',
-    'footnoted when a source supports it and no wider than the places and period the sources describe',
-    'Put [^n] straight after the words its quote supports', 'so the footnote sits only on the supported part', 'shows real people acting on the rule'])
+    'Never call a belief wrong in general because it fails here', '(try both ends and the middle)',
+    'Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure\'s "instant" or "none" usually means "much quicker" or "very little"',
+    'Keep a note\'s or quote\'s qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat)',
+    'State each rule in the general form later ideas need', 'Never say a source lacks something', 'nothing picked to exaggerate the effect',
+    'first what the picture would wrongly suggest', 'A condition the result needs goes with the result, not here.',
+    'Put [^n] straight after the words its quote supports', 'split a sentence that adds reasoning the quote lacks', 'showing people acting on the rule',
+    '- A fact RESEARCH does not support appears only if a standard textbook states it: no footnote, said as "textbooks add that …", and never the only support for the predict\'s answer.'])
     assert.ok(p.includes(s), s);
+  assert.ok(!p.includes('is a constant only if no source says otherwise'), 'the zero loophole is closed');
+  assert.ok(!lessonFor(PLAN_ROME, 'i1').includes('textbooks add that'), 'an unsourced lesson is labelled as a whole');
   // The same rules, word for word, for anything that later checks a lesson against them.
   const rules = U.prompts.truthRules({ sources: true, history: false });
   assert.ok(rules.startsWith('CLAIMS THAT STAY TRUE\n') && rules.includes('\n\nTHE NUMBER RULE\n'));
@@ -321,43 +410,50 @@ test('write-lesson: claims stay true on a review card, and the explanation gives
 
 test('write-lesson: names, analogy, say-it-back and numbers', () => {
   const p = lessonFor(PLAN_JET, 'i2', { research: RESEARCH_JET });
-  for (const s of ['One name for each thing in every part', 'one verb for one event, and no word with two meanings', 'A term of two words ("pressure wave") comes only once both words are explained',
-    'not only its outcome', 'keep its mapping the same everywhere (which part is the key, which the lock)', 'in correct science',
-    'set out the situation without stating any rubric point', 'no ";" or "and" joining two claims', 'the last being the conclusion the prompt asks for',
-    'true of this idea but not equally of the one it builds on', 'never require a case it does not ask about',
-    '"near 85%", never "at 85%"', 'labelled with nothing its quote lacks', 'worded so he can tell it was chosen', 'faithful to every shape fact in RESEARCH',
+  for (const s of ['One name for each thing in every part', 'one verb for one event, no word with two meanings', 'a two-word term once both words are explained',
+    'meaning what RESEARCH says, not narrowed to this picture', 'a source\'s point in your own words, not its vocabulary',
+    'not only its outcome', 'keeps the same mapping', 'in correct science',
+    'setting out the situation without stating any rubric point', 'no ";" or "and" joining two claims', 'the last the conclusion the prompt asks for',
+    'true of this idea but not equally of the one it builds on',
+    'never a number, a method detail (unless how we know is the idea\'s point) or a name (unless the name is the idea)',
+    'with no case it does not ask about and no jargon ("soaks up" meets "absorbs")',
+    '"near 85%", never "at 85%"', 'labelled with nothing its quote lacks', 'worded as chosen', 'faithful to every shape fact in RESEARCH',
     'in metric units ("tonnes", not "tons")', 'When your model\'s result and a cited real value differ'])
     assert.ok(p.includes(s), s);
   // A new learner meets at most two new terms and two numbers; a learner who knows a little, three terms.
-  assert.ok(lessonFor({ ...PLAN_JET, level: 'new' }, 'i1').includes('at most 2 new terms') && lessonFor({ ...PLAN_JET, level: 'new' }, 'i1').includes('use at most two numbers'));
+  const fresh = lessonFor({ ...PLAN_JET, level: 'new' }, 'i1');
+  assert.ok(fresh.includes('at most 2 new terms') && fresh.includes('at most two numbers, ones the picture shows'));
   const some = lessonFor({ ...PLAN_JET, level: 'some' }, 'i1');
-  assert.ok(some.includes('at most 3 new terms') && !some.includes('use at most two numbers'));
+  assert.ok(some.includes('at most 3 new terms') && !some.includes('at most two numbers'));
   // No sources: no talk of quotes in the number rule.
   assert.ok(!lessonFor(PLAN_ROME, 'i1').includes('labelled with nothing its quote lacks'));
 });
 
-test('write-lesson: the course puzzle is in THE COURSE, and the lesson links to it', () => {
-  const p = lessonFor(PLAN_JET, 'i1');
-  assert.ok(p.includes('Puzzle the course answers: ' + PLAN_JET.hook + '\n'), 'the hook, as the puzzle');
-  assert.ok(p.includes('one sentence on the part this idea plays in answering the course\'s puzzle'));
-  assert.ok(p.includes('Ideas, in teaching order (id, title — one line, [kind]):'), 'the "one line" the rules name is defined');
-  const noHook = clone(PLAN_JET); delete noHook.hook;
-  assert.ok(!lessonFor(noHook, 'i1').includes('Puzzle the course answers'), 'no empty puzzle line');
+test('write-lesson: contested views come from scholars, and too few of them make it "simplified"', () => {
+  const debated = lessonFor(PLAN_ROME, 'i5');
+  for (const s of ['answering the same question, each from a named scholar or a peer-reviewed or university source, not an encyclopedia',
+    'If fewer than two such views remain, set "simplified" and say in one sentence what is still argued and by whom.'])
+    assert.ok(debated.includes(s), s);
+  const plain2 = lessonFor(PLAN_JET, 'i1');
+  assert.ok(plain2.includes('"contested": experts genuinely disagree about something central here') && plain2.includes('the interactive, rubric and checks take no side'));
+  assert.ok(!plain2.includes('If fewer than two such views remain'), 'only where the idea is argued about');
 });
 
 test('write-lesson: a later debated idea is described neutrally; history rules reach history courses only', () => {
   // Rome: i3 and i5 say historians argue. Lessons before them stay neutral; i7, after them all, need not.
-  assert.ok(lessonFor(PLAN_ROME, 'i1').includes('Where a later idea is a debate, describe its subject neutrally here and leave the verdict to that lesson'));
+  assert.ok(lessonFor(PLAN_ROME, 'i1').includes('Where a later idea is a debate, describe its subject neutrally here and leave the verdict to that lesson ("the extinction of the dinosaurs", not "the asteroid that wiped them out").'));
   assert.ok(!lessonFor(PLAN_ROME, 'i7').includes('Where a later idea is a debate'));
   assert.ok(!lessonFor(PLAN_JET, 'i1').includes('Where a later idea is a debate'), 'no debate in the jet course');
-  // History: date windows and period names for every lesson of a course with a history idea; the
-  // "how we know" why and the axis check for a history idea itself.
+  // History: date windows, period names and forward timelines for every lesson of a course with a
+  // history idea; the "how we know" why and the bunched-dates check for a history idea itself.
   const rome4 = lessonFor(PLAN_ROME, 'i4'), rome1 = lessonFor(PLAN_ROME, 'i1'), jet = lessonFor(PLAN_JET, 'i1');
-  for (const s of ['"sometime between 1200 and 1180 BC"', 'Say when a name is a modern label', 'also why it mattered to people then, from a source']) {
+  for (const s of ['"sometime between 520 and 510 BC"', 'Say when a name is a modern label (the Dark Ages)', 'count years after the first date']) {
     assert.ok(rome4.includes(s) && rome1.includes(s), 'history course: ' + s);
     assert.ok(!jet.includes(s), 'not in the jet course: ' + s);
   }
-  for (const s of ['For this history idea, the why is how we know', 'Placed on the axis you plan, your dates really show the change your brief names']) {
+  for (const s of ['For this history idea, the why is how we know',
+    '- Placed on your axis, the dates show the change your brief names. If they bunch, the brief, predict, takeaway and rubric follow what the dates show, and the explanation says in one sentence which part of the one line this lesson cannot yet show.',
+    'No date or span would surprise a specialist (drop a source number that would).']) {
     assert.ok(rome4.includes(s), 'history idea: ' + s);
     assert.ok(!rome1.includes(s), 'not a structure idea: ' + s);
   }
@@ -367,20 +463,62 @@ test('write-lesson: sound only for a topic or idea about something heard', () =>
   const rule = 'Sound only when hearing teaches what the picture cannot';
   assert.ok(!lessonFor(PLAN_JET, 'i1').includes(rule));
   assert.ok(!lessonFor({ ...PLAN_JET, title: 'How the heart pumps blood' }, 'i1').includes(rule), '"heart" is not "hear"');
-  const anc = clone(PLAN_JET); anc.title = 'How noise-cancelling headphones work';
-  assert.ok(lessonFor(anc, 'i1').includes(rule + ' (two pitches, a hum fading as waves cancel): one button starts a sound that keeps playing while he moves the control. If the picture is slowed down, say by how much.'));
+  const box = clone(PLAN_JET); box.title = 'How a music box plays a tune';
+  assert.ok(lessonFor(box, 'i1').includes(rule + ' (two notes beating): one button starts a sound that plays on while he moves the control. Say how much a slowed picture is slowed.'));
 });
 
 test('write-lesson: one place per rule, and no blank lines inside a section', () => {
-  const p = lessonFor(PLAN_ROME, 'i4', {});
-  for (const s of ['four words in a row', 'review cards', 'One name for each thing', 'sketch map', 'no straw men', 'Never invent probabilities', 'Keep a note\'s or quote\'s qualifiers',
-    'a stepper alone is a slideshow', 'at most 170 words;', 'Never say a source lacks', 'how we know', '"tonnes", not "tons"', 'the answer must not', 'where intuition fails'])
-    assert.ok(count(p, s) <= 1, s + ' is said once (' + count(p, s) + ')');
-  // Sections are separated by one blank line; a rule left out never leaves a hole inside one.
-  const sections = p.split('\n\n').map((b) => b.split('\n')[0]);
-  for (const h of ['predict', 'interactive', 'explain (at most 170 words; aim for about 150)', 'analogy (optional)', 'say (say it back)', 'checks (2-3)', 'confidence', 'CLAIMS THAT STAY TRUE', 'NAMES AND TERMS', 'THE NUMBER RULE', 'SOURCES', 'BEFORE YOU REPLY, CHECK'])
-    assert.ok(sections.includes(h), 'section ' + h + ' starts after a blank line');
-  assert.ok(!/\n\n- /.test(p.slice(p.indexOf('WRITING EACH PART'), p.indexOf('OUTPUT'))), 'no bullet starts a block on its own');
+  for (const p of [lessonFor(PLAN_ROME, 'i4', {}), lessonFor(PLAN_ROME, 'i5', {}), lessonFor(PLAN_JET, 'i1', { research: RESEARCH_JET })]) {
+    for (const s of ['four words in a row', 'review cards', 'One name for each thing', 'no straw men', 'Never invent probabilities', 'qualifiers',
+      'a stepper alone is a slideshow', 'at most 170 words;', 'Never say a source lacks', 'how we know is', '"tonnes", not "tons"', 'where intuition fails',
+      'Try this', 'textbooks add that', 'which view he finds', 'years BC', 'If they bunch', 'exaggerate', 'puzzle;', 'instant'])
+      assert.ok(count(p, s) <= 1, s + ' is said once (' + count(p, s) + ')');
+    // Sections are separated by one blank line; a rule left out never leaves a hole inside one.
+    const sections = p.split('\n\n').map((b) => b.split('\n')[0]);
+    for (const h of ['predict', 'interactive', 'explain (at most 170 words; aim for about 150): within that, it must', 'analogy (optional)', 'say (say it back)',
+      'checks (3; 2 only when a third would repeat the predict or the say-it-back)', 'confidence', 'CLAIMS THAT STAY TRUE', 'NAMES AND TERMS', 'THE NUMBER RULE', 'SOURCES', 'BEFORE YOU REPLY, CHECK'])
+      assert.ok(sections.includes(h), 'section ' + h + ' starts after a blank line');
+    assert.ok(!/\n\n- /.test(p.slice(p.indexOf('WRITING EACH PART'), p.indexOf('OUTPUT'))), 'no bullet starts a block on its own');
+  }
+});
+
+test('write-lesson: the rules stay short (they were 3,600 words; the eval asked for about 2,600)', () => {
+  // Words from WRITING EACH PART to the end of the prompt, as the eval counted them. Every rule
+  // that applies to the idea is in; the ones that do not (history, sound, debate, targets) are out.
+  for (const [plan, iid, opts] of [[PLAN_JET, 'i1', { research: RESEARCH_JET }], [PLAN_JET, 'i2', { research: RESEARCH_JET }], [{ ...PLAN_JET, level: 'new' }, 'i3', {}],
+    [PLAN_ROME, 'i1', {}], [PLAN_ROME, 'i4', {}], [PLAN_ROME, 'i5', {}], [PLAN_ROME, 'i7', {}]]) {
+    const n = wordsOf(rulesOf(lessonFor(plan, iid, opts)));
+    assert.ok(n <= 2850, plan.title + ' ' + iid + ': ' + n + ' words of rules');
+  }
+});
+
+// Examples in the prompts come from outside the subjects of the run-2 eval (vaccines, noise-cancelling
+// headphones, rainbows, the Bronze Age collapse), so the next eval on those topics is fair.
+const EVAL_SET = ['measles', 'chickenpox', 'memory cell', 'cells left', 'worn out', 'defender', 'lymphocyte', 'B cells', 'receptor', 'antibod', 'vaccin', 'germ',
+  'no lag', 'no wait', 'trained team', 'standby', 'lock and key', 'a lock', 'headphone', 'noise', 'squeez', 'squash', 'pressure wave', 'trough', 'two pitches', 'hum fading',
+  'rainbow', 'raindrop', 'torch', 'beam', 'refract', 'denser', 'prism', '42', 'line square to the surface',
+  'Sea Peoples', 'New Kingdom', 'Egypt', 'bronze', 'cargo', 'pottery', '1200', '1180', '1250', 'raider', 'city emptying'];
+test('prompts carry no examples lifted from the run-2 eval lessons', () => {
+  // A neutral course, so every word found comes from the prompt's own text.
+  const course = (kind, extra = {}) => ({
+    title: 'How kites stay up', hook: 'A kite has no engine. What keeps it in the sky?', oneBreath: 'Wind pushes on a tilted kite. The string holds it at an angle.', level: 'new',
+    ideas: ['mechanism', 'quantity', 'process', 'structure', kind, 'concept', 'skill'].map((k, i) => ({ id: 'i' + (i + 1), title: 'Idea ' + (i + 1) + ' about kites', oneLine: 'Kites fly when wind pushes them.', kind: k, deps: i ? ['i' + i] : [] })),
+    calibration: [{ id: 'c1', iid: 'i1', q: 'What lifts a kite?', options: ['Wind', 'Magic', 'String'], answer: 0, why: 'Wind pushes on it.' }, { id: 'c2', iid: 'i2', q: 'Longer string?', options: ['Higher', 'Lower', 'Same'], answer: 0, why: 'It can climb.' }],
+    ...extra,
+  });
+  const research = { sources: [{ n: 1, title: 'Kites — Example', url: 'https://example.org/kites', quote: 'Wind pushes on the kite.' }],
+    topic: { notes: [] }, ideas: { i1: { notes: [{ claim: 'Wind pushes on the kite.', sourceIds: [1], contested: 'Some argue about lift.' }] } } };
+  const prompts = [U.prompts.planTopic('kites', { level: 'new' }), U.prompts.research(course('history'), { ideas: course('history').ideas }),
+    U.prompts.grade({ prompt: 'Why does a kite fly?', rubric: ['Wind pushes it', 'The string holds it'], model: 'Wind pushes it up.' }, 'wind', { attempt: 2 }),
+    U.prompts.tutor({ topic: course('history'), idea: course('history').ideas[0], tools: true })];
+  for (const kind of ['history', 'mechanism']) {
+    for (const level of ['new', 'solid']) {
+      const t = course(kind, { level, title: kind === 'history' ? 'How kites spread, and the sound they make' : 'How kites stay up' });
+      t.ideas[6].title = 'Why people argue about the first kite';
+      for (const i of t.ideas) prompts.push(lessonFor(t, i.id, { research }), lessonFor(t, i.id, {}));
+    }
+  }
+  for (const p of prompts) for (const w of EVAL_SET) assert.ok(!p.toLowerCase().includes(w.toLowerCase()), 'eval phrase in a prompt: "' + w + '" in ' + p.split('\n')[0]);
 });
 
 test('prompt builders stay pure and start with their TASK line', () => {
@@ -398,34 +536,146 @@ test('prompt builders stay pure and start with their TASK line', () => {
 });
 
 // =========================================================================================
+// Research routing: lessonResearch lends a lesson the notes filed under other ideas
+// =========================================================================================
+const page = (n) => ({ n, title: 'Page ' + n, url: 'https://example.org/p' + n, quote: 'an exact quote number ' + n });
+const COURSE = [
+  { id: 'i1', kind: 'structure', deps: [] }, { id: 'i2', kind: 'history', deps: ['i1'] }, { id: 'i3', kind: 'process', deps: [] },
+  { id: 'i4', kind: 'history', deps: [] }, { id: 'i5', kind: 'concept', deps: [] }, { id: 'i6', kind: 'history', deps: [] },
+].map((i) => ({ ...i, title: 'Idea ' + i.id, oneLine: 'One line of ' + i.id }));
+const ROUTED = {
+  sources: Array.from({ length: 9 }, (_, i) => page(i + 1)),
+  topic: { notes: [{ claim: 'The town lies on a river.', sourceIds: [9] }] },
+  ideas: {
+    i1: { notes: [{ claim: 'The council met in the hall.', sourceIds: [1] }, { claim: 'The town wall was built in 1350 BC.', sourceIds: [2] }] },
+    i2: { notes: [{ claim: 'The mill was built in AD 1086.', sourceIds: [3] }] },
+    i3: { notes: [{ claim: 'Floods came every spring.', sourceIds: [4] }, { claim: 'The harbour silted up during the 14th century.', sourceIds: [5] },
+      { claim: 'The records cover only the town centre, which limits i2.', sourceIds: [6] }] },
+    i4: { notes: [{ claim: 'The bridge opened c. 1450.', sourceIds: [7] }] },
+    i5: { notes: [{ claim: 'Historians dispute a date of 1300 BC.', sourceIds: [], contested: 'Two schools disagree.' }] },
+    i6: { notes: [{ claim: 'The castle fell in 1644.', sourceIds: [8] }, { claim: 'The mill was built in AD 1086.', sourceIds: [3] }] },
+  },
+};
+const view = (lr) => plain(lr.notes).map((n) => [n.scope, n.claim, n.sourceIds]);
+
+test('lessonResearch: a history lesson borrows other ideas\' dated notes, nearest ideas first, after its own', () => {
+  const lr = U.prompts.lessonResearch(ROUTED, 'i2', ['i1'], COURSE);
+  assert.deepEqual(view(lr), [
+    ['idea', 'The mill was built in AD 1086.', [1]],
+    // i3 (next door): a dated note, and one that names i2; then i4; i5's only note has no source; i6's
+    // copy of i2's own note is not repeated. i1 is an idea i2 builds on: all its notes come as 'earlier'.
+    ['other', 'The harbour silted up during the 14th century.', [5]],
+    ['other', 'The records cover only the town centre, which limits i2.', [6]],
+    ['other', 'The bridge opened c. 1450.', [7]],
+    ['other', 'The castle fell in 1644.', [8]],
+    ['earlier', 'The council met in the hall.', [2]],
+    ['earlier', 'The town wall was built in 1350 BC.', [3]],
+    ['topic', 'The town lies on a river.', [4]],
+  ]);
+  // Borrowed sources are numbered after all the others, so those keep the numbers they have
+  // without the course (as 31-generate numbers them today, from the docs it loads).
+  const bare = U.prompts.lessonResearch(ROUTED, 'i2', ['i1']);
+  assert.deepEqual(view(bare).map((n) => n[0]), ['idea', 'earlier', 'earlier', 'topic'], 'without the course, nothing is borrowed');
+  assert.deepEqual(plain(lr.sources).slice(0, 4), plain(bare.sources));
+  assert.deepEqual(plain(lr.sources).slice(4).map((x) => x.url), ['https://example.org/p5', 'https://example.org/p6', 'https://example.org/p7', 'https://example.org/p8']);
+  // Ties go to the earlier idea: for i4, i3 comes before i5, i2 before i6.
+  assert.deepEqual(view(U.prompts.lessonResearch(ROUTED, 'i4', [], COURSE)).filter((n) => n[0] === 'other').map((n) => n[1]),
+    ['The harbour silted up during the 14th century.', 'The mill was built in AD 1086.', 'The castle fell in 1644.', 'The town wall was built in 1350 BC.']);
+});
+
+test('lessonResearch: any lesson borrows a note that names it; only a history lesson borrows dates', () => {
+  // i3 is a process idea: no dated notes come; i5 too, but a note naming i5 does.
+  assert.deepEqual(view(U.prompts.lessonResearch(ROUTED, 'i3', [], COURSE)).map((n) => n[0]), ['idea', 'idea', 'idea', 'topic']);
+  const named = clone(ROUTED); named.ideas.i1.notes.push({ claim: 'For i5: the hall was also a market (not i50).', sourceIds: [1] });
+  named.ideas.i6.notes.push({ claim: 'Mentions i50 only.', sourceIds: [8] });
+  assert.deepEqual(view(U.prompts.lessonResearch(named, 'i5', [], COURSE)).filter((n) => n[0] === 'other').map((n) => n[1]), ['For i5: the hall was also a market (not i50).']);
+  // What counts as a date: an era, a century, "c.", a year after "in" or "by", "years ago".
+  for (const claim of ['Founded in 753 BC.', 'Buried by AD 79.', 'Built in the 1950s.', 'In the 14th to 13th centuries BCE.', 'About 3,200 years ago.', 'Dated c.1177.', 'Rebuilt in 1815.']) {
+    const r = { sources: [page(1)], topic: { notes: [] }, ideas: { i1: { notes: [{ claim, sourceIds: [1] }] }, i2: { notes: [] } } };
+    assert.equal(U.prompts.lessonResearch(r, 'i2', [], COURSE).notes.length, 1, 'dated: ' + claim);
+  }
+  for (const claim of ['It weighs about 1500 kg.', 'Up to 1,000 people lived there.', 'The 12 gates opened at dawn.']) {
+    const r = { sources: [page(1)], topic: { notes: [] }, ideas: { i1: { notes: [{ claim, sourceIds: [1] }] }, i2: { notes: [] } } };
+    assert.equal(U.prompts.lessonResearch(r, 'i2', [], COURSE), null, 'not dated: ' + claim);
+  }
+});
+
+test('lessonResearch: borrowing is capped, and works on the stored docs too', () => {
+  // At most 8 borrowed notes, bringing at most 12 new sources between them.
+  const many = { sources: Array.from({ length: 40 }, (_, i) => page(i + 1)), topic: { notes: [] }, ideas: { i2: { notes: [] }, i6: { notes: [] } } };
+  for (let k = 0; k < 12; k++) many.ideas.i6.notes.push({ claim: 'Event ' + k + ' happened in AD ' + (1000 + k) + '.', sourceIds: [k + 1] });
+  const a = U.prompts.lessonResearch(many, 'i2', [], COURSE);
+  assert.equal(a.notes.length, 8);
+  const wide = clone(many);
+  wide.ideas.i6.notes = Array.from({ length: 8 }, (_, k) => ({ claim: 'Event ' + k + ' happened in AD ' + (1000 + k) + '.', sourceIds: [2 * k + 1, 2 * k + 2] }));
+  const b = U.prompts.lessonResearch(wide, 'i2', [], COURSE);
+  assert.equal(b.notes.length, 6, 'the seventh would bring a 13th and 14th source');
+  assert.equal(b.sources.length, 12);
+  // The pipeline's stored docs: the other ideas' docs come as `others`, keyed by idea id.
+  const docs = { idea: { notes: [{ claim: 'Own fact', sourceIds: [1] }], sources: [page(1)] }, earlier: [], topic: null,
+    others: { i4: { notes: [{ claim: 'The bridge opened c. 1450.', sourceIds: [1] }], sources: [{ ...page(7), n: 1 }] }, i3: { notes: [{ claim: 'Floods came every spring.', sourceIds: [1] }], sources: [page(4)] } } };
+  assert.deepEqual(view(U.prompts.lessonResearch(docs, 'i2', [], COURSE)), [['idea', 'Own fact', [1]], ['other', 'The bridge opened c. 1450.', [2]]]);
+  assert.deepEqual(view(U.prompts.lessonResearch(docs, 'i2', [])), [['idea', 'Own fact', [1]]], 'without the course, nothing is borrowed');
+});
+
+test('lessonResearch: the lesson prompt marks borrowed notes, and the eval validator numbers sources the same way', () => {
+  const topic = { title: 'A river town', oneBreath: 'A town grew by a river.', level: 'some', ideas: COURSE, calibration: [] };
+  const p = lessonFor(topic, 'i2', { research: ROUTED });
+  assert.ok(p.includes('- The bridge opened c. 1450. [7]  (from another idea in this course)'), 'marked, with its own number');
+  assert.ok(p.includes('[7] Page 7 — https://example.org/p7'));
+  // tools/eval/validate.mjs, given --topic, accepts a lesson citing a borrowed source by that number.
+  const dir = mkdtempSync(join(tmpdir(), 'mu-route-'));
+  const lr = U.prompts.lessonResearch(ROUTED, 'i2', ['i1'], COURSE);
+  const l = clone(L_JET2);
+  l.iid = 'i2';
+  l.sources = [clone(lr.sources[0]), clone(lr.sources[6])];
+  l.explain.text = l.explain.text.replace('[^1]', '[^1][^7]');
+  l.interactive.numbers.forEach((x) => { if (x.source != null) x.source = 1; });
+  writeFileSync(join(dir, 'reply.json'), JSON.stringify(l));
+  writeFileSync(join(dir, 'research.json'), JSON.stringify(ROUTED));
+  writeFileSync(join(dir, 'topic.json'), JSON.stringify(topic));
+  const run = (...extra) => spawnSync(process.execPath, [join(root, 'tools', 'eval', 'validate.mjs'), 'lesson', join(dir, 'reply.json'), '--iid', 'i2', '--sources', join(dir, 'research.json'), ...extra], { cwd: root, encoding: 'utf8' });
+  const r = run('--topic', join(dir, 'topic.json'));
+  if (r.status !== 0 && /33-interactive/.test(r.stderr)) return; // the eval loader also needs 33-interactive.js
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.equal(JSON.parse(r.stdout).ok, true);
+  const without = run();
+  assert.ok(/not one of the supplied research sources/.test(without.stdout) && /warning: no --topic/.test(without.stderr), 'without the course, [7] is not a source of this lesson');
+});
+
+// =========================================================================================
 // The research and plan prompts
 // =========================================================================================
-test('research: causes first, every one-line claim searched, qualifiers and dates kept, claims no stronger than quotes', () => {
+test('research: causes first, budget spent in order, dated events filed under every history idea that needs them', () => {
   const p = U.prompts.research(PLAN_ROME, { ideas: PLAN_ROME.ideas });
   for (const s of ['Ideas (id, title — one line, [kind]):',
-    'Search for every claim in each idea\'s one line, and for the basic principle each idea\'s interactive will compute',
+    'The budget will not cover everything below, so spend it in this order: what causes each idea\'s headline; the claim in each idea\'s one line; the principle and constants each interactive computes with; the dated events a history idea\'s timeline shows; then the rest.',
     'A claim you find no source for gets no note',
-    'write 1-6 claim notes (up to 8 for a history idea a timeline will show)',
+    'write 1-6 claim notes (up to 8 for a history idea)',
     '- what causes the idea\'s headline: what is physically different, step by step, from a page that explains it',
+    '(for "ice floats": how the molecules are packed in ice)',
     '- the conclusion in the one line\'s "so …";', '- why it mattered to people then, when a source says so;',
-    'quote one sentence that defines it (n = speed in vacuum ÷ speed in the material) as well as one that gives its value',
-    'dated events across the whole period, earliest to latest, from at least five places',
-    'also under every idea whose main claim it limits', 'named case (a ship, a site) and dated event more than one idea uses',
+    'quote one sentence that defines it (density = mass ÷ volume) as well as one that gives its value',
+    'dated events across its whole period, earliest to latest, from as many places as the budget allows (aim for five)',
+    'for each dated event, also quote how it was dated (a dated document, coins, tree rings, radiocarbon) when the page says so',
+    'File each claim under the idea that teaches it and under every other idea whose lesson needs it: a dated event under every history idea whose period it falls in, a fact that limits a claim under that idea.',
     'Keep in it any date, place or qualifier that limits the claim; never cut a sentence so it reads wider than it was.',
     'Prefer a page\'s general statement to its description of one figure.',
-    'A date range in brackets after a name (a period, a pottery phase, a reign) dates that name, not the event in the sentence',
-    '(125 years called "two centuries")', '(source\'s wording is loose: …)', 'add a quote that names and dates it',
+    'A date range in brackets after a name (a period, a dynasty, a reign) dates that name, not the event in the sentence',
+    '(60 years called "a century")', '(source\'s wording is loose: …)', 'add a quote that names and dates it',
     'prefer the excavators\' or a specialist\'s account to an encyclopedia summary',
-    'that the cited quotes actually support, and no more strongly', 'Name exactly what the quote names (B cells, not "lymphocytes")',
-    'Never add "only", "always", "all", "never", "no" or a stronger verb', 'State an absolute ("no lag") only when no page you were shown says something weaker'])
+    'that the cited quotes actually support, and no more strongly', 'Name exactly what the quote names (Atlantic hurricanes, not "storms")',
+    'Never add "only", "always", "all", "never", "no" or a stronger verb ("causes" for "is linked to")', 'State an absolute ("none", "instant") only when no page you were shown says something weaker'])
     assert.ok(p.includes(s), s);
+  // The old filing rule (only under ideas whose claim it limits) is gone.
+  assert.ok(!p.includes('also under every idea whose main claim it limits'));
   // Its contract is unchanged: every note cites a source unless contested (a claim without one is left out).
   assert.ok(!/note saying so|no source found/i.test(p));
 });
 
 test('plan: each one line is true as a textbook would put it; the adult, whole-field and calibration rules stay', () => {
   const p = U.prompts.planTopic('Maths', { level: 'new' });
-  assert.ok(p.includes('- oneLine: one sentence (at most 25 words) saying what he will understand, in plain words, true as stated and as a textbook would put it: hedged where reality is graded ("fits one shape, or ones very like it"), and naming the narrower kind when it covers only one kind ("B cells", not "your defenders"). Each lesson treats it as its learning goal.'));
+  assert.ok(p.includes('- oneLine: one sentence (at most 25 words) saying what he will understand, in plain words, true as stated and as a textbook would put it: hedged where reality is graded ("much slower", not "stops"), and naming the narrower kind when it covers only one kind ("flowering plants", not "plants"). Each lesson treats it as its learning goal.'));
   for (const s of ['NEW to this subject, not to life', 'A whole field ("Maths", "Physics", "History", "Music")', 'so the answer must not appear in the title, hook, oneBreath or any idea\'s title or oneLine'])
     assert.ok(p.includes(s), 'kept: ' + s);
 });
