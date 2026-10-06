@@ -105,18 +105,53 @@ U.device = function () {
   } catch (e) { U._device = U.id('d'); }
   return U._device;
 };
-// This tab's id (sessionStorage 'mu.tab'): it outlives a reload of the tab, and two tabs never
+// This tab's id (sessionStorage 'mu.tab'): it outlives a reload of the tab, and two open tabs never
 // share one. Lesson jobs are named by device/tab (31-generate.js); a busy lesson doc this tab left
 // with no job of this page on it is work a reload killed (U.store.lesson.abandoned).
+// "Duplicate tab" copies sessionStorage, so the copy would start with the other tab's id. While a
+// page of this tab is open, sessionStorage 'mu.tab.open' names it (cleared on pagehide, so a
+// reload keeps the id; set again on pageshow): a page that finds it set at load is a copy (or a
+// second frame of the app in one tab) and takes a fresh id. This is decided at once, because the
+// generator names its jobs with the id as it loads. (A tab whose page died without pagehide, a
+// crash, also takes a fresh id: the work that page left is then waited out like another tab's.)
+// A copy made while the mark was missing (the page was in the back-forward cache) is caught a
+// moment later: each page says hello on the BroadcastChannel 'mu.tab' with its id and when it took
+// it (on load, and on coming back from that cache); of two open pages with one id, the one that
+// took it later is the newcomer and takes a fresh id (the other answers a hello, so a newcomer
+// hears of it either way). Lesson jobs read the id when they start, so the newcomer's are its own.
 U.tab = function () {
   if (U._tab) return U._tab;
+  var OPEN = 'mu.tab.open', me = U.id('g'), since = Date.now();
   try {
     var v = sessionStorage.getItem('mu.tab');
-    if (!v) { v = U.id('t'); sessionStorage.setItem('mu.tab', v); }
+    if (!v || sessionStorage.getItem(OPEN)) { v = U.id('t'); sessionStorage.setItem('mu.tab', v); }
+    sessionStorage.setItem(OPEN, me);
     U._tab = v;
-  } catch (e) { U._tab = U.id('t'); }
+  } catch (e) { U._tab = U.id('t'); return U._tab; }
+  var bc = null;
+  function say(type) { try { if (bc) bc.postMessage({ type: type, tab: U._tab, page: me, since: since }); } catch (e) { /* fine */ } }
+  try {
+    if (typeof BroadcastChannel === 'function') {
+      bc = new BroadcastChannel('mu.tab');
+      bc.onmessage = function (e) {
+        var d = (e && e.data) || {};
+        if (d.tab !== U._tab || d.page === me) return;
+        // Another open page has this id. The one that took it first keeps it (a tie goes by page).
+        if (+d.since < since || (+d.since === since && String(d.page) < me)) {
+          U._tab = U.id('t'); since = Date.now();
+          try { sessionStorage.setItem('mu.tab', U._tab); } catch (x) { /* fine */ }
+        } else if (d.type === 'hello') say('mine');
+      };
+    }
+  } catch (e) { bc = null; }
+  if (typeof window !== 'undefined' && window.addEventListener) {
+    window.addEventListener('pagehide', function () { try { if (sessionStorage.getItem(OPEN) === me) sessionStorage.removeItem(OPEN); } catch (e) { /* fine */ } });
+    window.addEventListener('pageshow', function (e) { if (!e || !e.persisted) return; try { sessionStorage.setItem(OPEN, me); } catch (x) { /* fine */ } say('hello'); });
+  }
+  say('hello');
   return U._tab;
 };
+try { if (typeof sessionStorage !== 'undefined') U.tab(); } catch (e) { /* no storage (node evals) */ }
 // ---------- keyed lists ----------
 // Lists that two devices can add to at once are stored as maps keyed by U.key() (a merge keeps
 // both sides' entries). Older data stored them as arrays; these helpers read either shape.
@@ -286,6 +321,8 @@ U._route = function () {
   var view = document.getElementById('view');
   U.clear(view);
   U.closeSheets();
+  // A celebration belongs to the screen it was for: it never follows Dan to the next one.
+  Array.prototype.forEach.call(document.querySelectorAll('.cheer'), function (c) { c.remove(); });
   if (!r) { U._home(); return; }
   view.setAttribute('data-screen', bad ? 'none' : r.screen);
   U.focusMode(!!r.opts.focus);
@@ -303,21 +340,28 @@ U._route = function () {
 };
 // Move focus to the new screen's h1 once it exists (views may draw it after their data arrives),
 // unless Dan has already put focus somewhere else in the meantime.
+// A screen that draws its heading again a moment later (a header rebuilt when more of its data
+// arrives) takes the focus along to the new heading, for the same few seconds.
 U._focusScreen = function (view, seq, prevFocus) {
-  var mo = null, timer = null;
+  var mo = null, timer = null, landed = null;
   function stop() { if (mo) mo.disconnect(); mo = null; clearTimeout(timer); }
   function untouched() {
     var a = document.activeElement;
     return !a || a === document.body || a === view || a === prevFocus || !a.isConnected;
   }
   function attempt() {
-    if (seq !== U._routeSeq || !untouched()) { stop(); return true; }
+    if (seq !== U._routeSeq) { stop(); return true; }
+    if (landed && landed.isConnected) {
+      if (document.activeElement === landed) return false;   // still there: a redraw may yet replace it
+      stop(); return true;                                    // Dan has moved on
+    }
+    if (!untouched()) { stop(); return true; }
     var h = view.querySelector('h1');
     if (!h || h.querySelector('.skeleton')) return false;
     if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
     try { h.focus({ preventScroll: true }); } catch (e) { /* fine */ }
-    stop();
-    return true;
+    landed = h;
+    return false;
   }
   if (attempt()) return;
   if (window.MutationObserver) { mo = new MutationObserver(attempt); mo.observe(view, { childList: true, subtree: true }); }

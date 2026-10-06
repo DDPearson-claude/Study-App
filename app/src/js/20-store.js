@@ -20,9 +20,13 @@
 //       Writes tagged with an older round are dropped (say entries excepted). Also kept per idea:
 //       past {[round]: {predict, checks, doneAt, stage}} (earlier rounds), replays {[key]: {at,
 //       predict, checks}} ("Go through it again" runs, which never touch the originals),
-//       againAt (when the current round began) and the open Learn it again request: relearn
-//       (Today, or Dan, asks for a new lesson), relearnAt (when its rewrite began) and
-//       relearnNote (his "This looks wrong" note for the writer), cleared when the round begins.
+//       againAt (when the current round began) and Learn it again: relearn (true: Today's
+//       suggestion, or with relearnId Dan's open request for a new lesson), relearnId (the
+//       request's token: the rewrite stamps it on the lesson doc as `request`), relearnAt (when
+//       he asked) and relearnNote (his "This looks wrong" note for the writer), all cleared when
+//       the round begins. A write that begins a round (it carries againAt) lands only on the round
+//       before it: when the doc has already begun that round (another device opened the fresh
+//       lesson first), the late start loses its round fields.
 //   profile.days[day]         {[deviceId]: minutes, legacy?: minutes}   (older: a number). Each
 //       device writes only its own count; U.store.minutesOn(days[day]) sums either shape.
 //   Card.retired              true once a card cannot be used (skipped as unusable in review, or its
@@ -356,7 +360,7 @@ U.store = (function () {
     });
   }
   var STAGE = { predict: 0, play: 1, explain: 2, say: 3, checks: 4, done: 5 };
-  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'relearn', 'relearnAt', 'relearnNote', 'againAt', 'past'];
+  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past'];
   function guardProgress(cur, body) {
     var bi = body.ideas, ci = (cur && cur.ideas) || {};
     if (!isObj(bi)) return;
@@ -366,6 +370,9 @@ U.store = (function () {
       var cr = Number(c.round) || 0, br = b.round == null ? null : (Number(b.round) || 0);
       if (br != null && br > cr) return;           // Learn it again: a new round starts afresh
       if (br != null && br < cr) { ROUND_FIELDS.forEach(function (k) { delete b[k]; }); return; }
+      // A second start of the round the doc is in (two devices opened the same fresh lesson): the
+      // first one stands, with whatever Dan has done in it since.
+      if (b.againAt != null && String(b.againAt) !== String(c.againAt || '')) { ROUND_FIELDS.forEach(function (k) { delete b[k]; }); return; }
       if (b.stage != null && (STAGE[b.stage] || 0) < (STAGE[c.stage] || 0)) delete b.stage;
       if (b.predict != null && c.predict) delete b.predict;
       if (b.doneAt && c.doneAt) delete b.doneAt;
@@ -714,7 +721,8 @@ U.store = (function () {
     // A writing/building doc held by this tab (by.tab is U.tab()) with no job of this page on it
     // (live: U.gen.status's word for it, if any): its job died with an earlier load of the tab (a
     // reload) or ended without saving. Nobody is working on it, however fresh its updatedAt, and
-    // the generator does not wait for it (31-generate.js).
+    // the generator does not wait for it (31-generate.js). (No other open tab has this tab's id:
+    // a duplicated tab takes one of its own, 00-core.js.)
     abandoned: function (doc, live) {
       return busyLesson(doc) && !jobOn(live) && !!doc.by && !!doc.by.tab && doc.by.tab === U.tab();
     },

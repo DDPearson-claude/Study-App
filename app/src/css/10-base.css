@@ -12,7 +12,8 @@
 @media (prefers-color-scheme: dark) { :root[data-mu-theme="system"]:not([data-theme="light"]) { --on-red: #2A0E11; } }
 html {
   -webkit-text-size-adjust: 100%;
-  /* Focused or scrolled-to controls never land under the sticky top bar or the bottom tab bar. */
+  /* Focused or scrolled-to controls never land under the sticky top bar or the bottom tab bar
+     (nor under the lesson's own bar: 50-lesson.css). */
   scroll-padding-top: calc(var(--topbar-h) + 8px);
   scroll-padding-bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px));
 }
@@ -34,7 +35,7 @@ img, svg { max-width: 100%; }
 [hidden] { display: none !important; }
 :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
 /* Headings take focus when a screen or sheet opens (for screen readers); no ring for that. */
-h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus { outline: none; }
+h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
 
 /* ---------- app frame ---------- */
 .app { min-height: 100%; }

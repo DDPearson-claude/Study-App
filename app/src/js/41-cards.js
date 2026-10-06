@@ -12,7 +12,9 @@
 //            + auto (review, the grade the app picked), verdict (recall), skipped (card unusable),
 //            + pending: Promise<{grade, correct, verdict}> when a recall answer is still being graded
 //   The returned element has destroy(): call it when the card leaves the screen (stops a mounted
-//   interactive).
+//   interactive). A target card's element also has mount: its interactive (U.sandbox.mount's api).
+//   Focus never drops to the page: after an answer it goes to Continue (which carries the
+//   verdict), on an order card to the next item to place, on a recall card to the panel's heading.
 //
 // Flow on every card: answer -> a feedback panel slides up (green tick only when right; red plus
 // the misconception when a wrong option has one; always the why) -> Continue.
@@ -146,12 +148,12 @@
   // The panel that slides up after an answer.
   //   o = {correct, title, parts:[Element], grade (the auto grade in review, else null), result}
   function feedback(c, o) {
-    var right = o.correct === true, wrong = o.correct === false;
+    var right = o.correct === true, wrong = o.correct === false, titleId = U.id('qcfb');
     var panel = h('div', { class: 'qc-fb ' + (right ? 'is-right' : wrong ? 'is-wrong' : 'is-neutral'), role: 'status' });
     panel.appendChild(h('div', { class: 'qc-fb-head' },
       right ? h('span', { class: 'qc-fb-icon good', 'aria-hidden': 'true' }, U.icon('tick')) : null,
       wrong ? h('span', { class: 'qc-fb-icon bad', 'aria-hidden': 'true' }, U.icon('close')) : null,
-      h('h3', null, o.title)));
+      h('h3', { id: titleId }, o.title)));
     U.append(panel, o.parts);
 
     var chosen = o.grade;
@@ -175,7 +177,9 @@
       drawLine();
       panel.appendChild(h('div', { class: 'qc-grade' }, h('div', { class: 'qc-grade-row' }, line, change), picker.el));
     }
-    var cont = h('button', { class: 'btn wide qc-continue', type: 'button', on: { click: function () {
+    // Focus moves to Continue (show), which carries the verdict, so a screen reader says the
+    // result with it: a panel that arrives already filled is not reliably read as a live region.
+    var cont = h('button', { class: 'btn wide qc-continue', type: 'button', 'aria-describedby': titleId, on: { click: function () {
       var r = Object.assign({}, o.result);
       r.correct = o.correct;
       r.grade = c.mode === 'review' ? chosen : null;
@@ -301,7 +305,7 @@
     var seqList = h('ol', { class: 'qc-seq', 'aria-label': 'Your order' });
     var poolHead = label('Tap the one that comes first');
     var pool = h('div', { class: 'qc-pool', role: 'group', 'aria-label': 'Items left to place' });
-    var undo = h('button', { class: 'btn ghost small qc-undo', type: 'button', on: { click: function () { seq.pop(); draw(); } } }, 'Undo');
+    var undo = h('button', { class: 'btn ghost small qc-undo', type: 'button', on: { click: function () { seq.pop(); draw(); if (undo.disabled) refocus(); } } }, 'Undo');
     var check = primary('Check my order', function () {
       if (seq.length !== n || c.locked) return;
       c.locked = true;
@@ -338,19 +342,25 @@
       U.clear(seqList);
       seq.forEach(function (oi, pos) {
         seqList.appendChild(h('li', { class: 'qc-step' },
-          h('button', { class: 'qc-step-btn', type: 'button', 'aria-label': 'Remove: ' + U.plain(items[oi]), on: { click: function () { seq.splice(pos, 1); draw(); } } },
+          h('button', { class: 'qc-step-btn', type: 'button', 'aria-label': 'Remove: ' + U.plain(items[oi]), on: { click: function () { seq.splice(pos, 1); draw(); refocus(); } } },
             h('span', { class: 'qc-num' }, String(pos + 1)), inline('span', 'qc-step-text', items[oi]))));
       });
       if (seq.length < n) seqList.appendChild(h('li', { class: 'qc-slot', 'aria-hidden': 'true' }, h('span', { class: 'qc-num' }, String(seq.length + 1)), h('span', null, '')));
       U.clear(pool);
       idx.forEach(function (oi) {
         if (seq.indexOf(oi) >= 0) return;
-        pool.appendChild(h('button', { class: 'option qc-chip', type: 'button', on: { click: function () { if (!c.locked) { seq.push(oi); draw(); } } } }, inline('span', null, items[oi])));
+        pool.appendChild(h('button', { class: 'option qc-chip', type: 'button', on: { click: function () { if (!c.locked) { seq.push(oi); draw(); refocus(); } } } }, inline('span', null, items[oi])));
       });
       poolHead.textContent = seq.length ? 'Tap the one that comes next' : 'Tap the one that comes first';
       poolHead.hidden = pool.hidden = seq.length === n;
       undo.disabled = !seq.length;
       check.disabled = seq.length !== n;
+    }
+    // Drawing again replaces the button that was pressed: focus goes on to the next item to
+    // place, or to Check once every item is placed (never left on the page itself).
+    function refocus() {
+      var next = pool.hidden ? check : pool.querySelector('.qc-chip');
+      if (next && !next.disabled) try { next.focus({ preventScroll: true }); } catch (e) { /* fine */ }
     }
     c.body.appendChild(h('div', { class: 'qc-order' }, seqList, h('div', { class: 'qc-order-tools' }, undo), poolHead, pool));
     c.setFoot(check);
@@ -531,7 +541,9 @@
       unavailable(c, 'The interactive could not start, so this one is skipped.');
       return;
     }
-    c.cleanups.push(function () { if (api && api.destroy) api.destroy(); });
+    // The lesson tells Ask Claude where this copy's controls are set while it is on screen.
+    c.el.mount = api;
+    c.cleanups.push(function () { c.el.mount = null; if (api && api.destroy) api.destroy(); });
     Promise.resolve(api && api.ready).then(enable, enable);
     setTimeout(enable, 6000);
 
@@ -737,7 +749,10 @@
         });
       }
       refresh();
-      show(c, panel, null);
+      // The button pressed has gone with the box: focus goes to the panel's heading.
+      var head = panel.querySelector('.qc-fb-head h3');
+      head.setAttribute('tabindex', '-1');
+      show(c, panel, head);
     }
   }
 
