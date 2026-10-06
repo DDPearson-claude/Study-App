@@ -34,3 +34,39 @@ test('theme().size reads --fs in px too, and falls back to the default when it i
   assert.equal(boot({ rootPx: 20, fs: '' }).sandbox.theme().size, 16);
   assert.equal(boot({ rootPx: 20, fs: '1.125rem', scheme: 'dark' }).sandbox.theme().dark, true);
 });
+
+// merge() (audit 3, #43): a width whose page never ran (it timed out at 340 px on a slow phone)
+// has no ids and no checks. The merged report takes them from a width that ran, so the repair
+// prompt doesn't say that ids the page has are missing, or that checks it passed failed; the
+// timeout still fails it.
+test('merge() takes ids, inputs and checks from the widths whose page ran', () => {
+  const U = boot({ rootPx: 16, fs: '1.125rem' });
+  const own = (v) => JSON.parse(JSON.stringify(v));   // out of the vm's realm, to compare
+  const ran = (width) => ({ ok: true, errors: [], overflow: false, clipped: [], checks: [{ label: 'r = 10 gives 48.2%', ok: true, source: 'https://example.org/a' }],
+    sweep: { ok: true, problems: [] }, controls: ['r'], readouts: ['eff'], outputs: ['eff'], inputs: [{ id: 'r', kind: 'control' }], actions: ['Play'], ready: true, warnings: [], width });
+  const timedOut = { ok: false, errors: ['The self-test did not finish within 8 s.'], overflow: false, clipped: [], checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], ready: false, warnings: [], width: 340 };
+  const m = own(U.sandbox.merge([timedOut, ran(720), ran(1040)]));
+  assert.deepEqual([m.controls, m.readouts, m.outputs, m.actions], [['r'], ['eff'], ['eff'], ['Play']]);
+  assert.deepEqual(m.inputs.map((i) => i.id), ['r']);
+  assert.deepEqual(m.checks, [{ label: 'r = 10 gives 48.2%', ok: true, source: 'https://example.org/a' }]);
+  assert.equal(m.ok, false);
+  assert.deepEqual(m.errors, ['The self-test did not finish within 8 s. [at 340 px wide]']);
+  // A check that fails at a width that ran still fails the merge.
+  const bad = ran(1040);
+  bad.checks = [{ label: 'r = 10 gives 48.2%', ok: false, error: 'returned false' }];
+  const m2 = own(U.sandbox.merge([timedOut, ran(720), bad]));
+  assert.deepEqual(m2.checks[0].ok, false);
+  assert.equal(m2.checks[0].error, 'returned false');
+  // With no width that ran, the first report stands.
+  assert.deepEqual(own(U.sandbox.merge([timedOut, Object.assign({}, timedOut, { width: 720 })]).controls), []);
+});
+
+// Every frame gets its own token in its srcdoc (audit 3, #22): the kit signs its messages with it,
+// so a page the frame is navigated to (which can't know it) is not believed.
+test('srcdoc() puts the frame\'s token beside the theme, as inline-safe JSON', () => {
+  const U = boot({ rootPx: 16, fs: '1.125rem' });
+  const doc = U.sandbox.srcdoc('<p>x</p>', { token: 'abc</script>' });
+  assert.match(doc, /window\.K_TOKEN="abc\\u003c\/script>";<\/script><script>/);
+  assert.ok(doc.indexOf('K_TOKEN') < doc.indexOf('<p>x</p>'));
+  assert.match(U.sandbox.srcdoc('<p>x</p>'), /window\.K_TOKEN="";/);
+});

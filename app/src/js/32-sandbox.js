@@ -2,11 +2,14 @@
 // kit (app/kit), sizes each frame to its content, and self-tests bodies in hidden frames.
 // Contract: docs/ARCHITECTURE.md sections 6 and 9. The frame never gets allow-same-origin, so a
 // body cannot reach the app or its storage; a Content-Security-Policy (the first thing in every
-// srcdoc) blocks all network requests from it; messages are trusted only when they come from that
-// frame's own window. Error text that comes from a frame (onError, report errors) is for logs and
-// repair prompts only: the app shows fixed wording, never the frame's own words.
+// srcdoc) blocks the requests a page makes (fetch, images, styles, frames, forms), but not the frame
+// navigating itself away. So a frame that starts to leave its page is removed at once, and a
+// message is trusted only when it comes from that frame's own window and carries the frame's
+// token (a random value in its srcdoc that a page it was navigated to cannot know). Error text that
+// comes from a frame (onError, report errors) is for logs and repair prompts only: the app shows
+// fixed wording, never the frame's own words.
 //
-//   U.sandbox.srcdoc(body, {theme}) -> string
+//   U.sandbox.srcdoc(body, {theme, token}) -> string
 //   U.sandbox.mount(container, {html, title, onReady, onError, onChange, minHeight, loading}) ->
 //     { el, frame, ready, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t), destroy() }
 //       set() counts as a move (it reveals the body's .k-after-move parts), and takes a slider value,
@@ -64,6 +67,14 @@ U.sandbox = (function () {
   }
   // JSON that is safe inside an inline <script>.
   function inlineJson(v) { return JSON.stringify(v).replace(/</g, '\\u003c'); }
+  // A fresh random token for one frame (its kit signs every message with it).
+  function newToken() {
+    try {
+      var a = new Uint32Array(4);
+      crypto.getRandomValues(a);
+      return Array.prototype.map.call(a, function (x) { return x.toString(36); }).join('');
+    } catch (e) { return Math.random().toString(36).slice(2) + Date.now().toString(36) + Math.random().toString(36).slice(2); }
+  }
 
   // A timeout on a clock that only runs while the app is visible and awake: time with the page
   // hidden doesn't count, and nor does the gap when the device suspended it (a tick that arrives
@@ -85,8 +96,8 @@ U.sandbox = (function () {
   }
   function cancel(t) { if (t && t.cancel) t.cancel(); }
 
-  // The full document for one body: CSP first, then kit CSS, theme, kit JS, then the body.
-  // Throws {code:'too_large'}.
+  // The full document for one body: CSP first, then kit CSS, theme (and the frame's token), kit
+  // JS, then the body. Throws {code:'too_large'}.
   function srcdoc(body, o) {
     o = o || {};
     body = String(body || '');
@@ -98,7 +109,7 @@ U.sandbox = (function () {
       '<meta charset="utf-8">' +
       '<meta name="viewport" content="width=device-width, initial-scale=1">' +
       '<style>' + U.KIT_CSS + '</style>' +
-      '<script>window.K_THEME=' + inlineJson(o.theme || theme()) + ';window.K_BODY_LINE=@@LINE@@;</' + 'script>' +
+      '<script>window.K_THEME=' + inlineJson(o.theme || theme()) + ';window.K_BODY_LINE=@@LINE@@;window.K_TOKEN=' + inlineJson(String(o.token || '')) + ';</' + 'script>' +
       '<script>' + U.KIT_JS + '</' + 'script></head><body>\n';
     // Error line numbers are reported relative to the body (the kit counts from this line).
     var line = head.split('\n').length;
@@ -106,7 +117,8 @@ U.sandbox = (function () {
   }
 
   // ---------- messages ----------
-  // One window listener; each live frame registers a handler keyed by its contentWindow.
+  // One window listener; each live frame registers a handler keyed by its contentWindow. A message
+  // without the frame's token (from a page the frame was navigated to) is dropped.
   var live = [];
   var listening = false;
   function listen() {
@@ -116,7 +128,7 @@ U.sandbox = (function () {
       var d = ev.data;
       if (!d || typeof d !== 'object' || d.src !== 'kit' || !ev.source) return;
       for (var i = 0; i < live.length; i++) {
-        if (live[i].frame.contentWindow === ev.source) { live[i].handle(d); return; }
+        if (live[i].frame.contentWindow === ev.source) { if (d.tok === live[i].token) live[i].handle(d); return; }
       }
     });
   }
@@ -125,11 +137,13 @@ U.sandbox = (function () {
     live.slice().forEach(function (e) { if (e.gone && !e.frame.isConnected) e.gone(); });
   }
   // A frame's channel: request(type, data) -> Promise of the reply with the same rid.
-  // onGone (mounted frames only) runs when the frame is found detached from the page.
-  function channel(frame, onMessage, onGone) {
+  // token: the one in the frame's srcdoc. onGone (mounted frames only) runs when the frame is
+  // found detached from the page.
+  function channel(frame, token, onMessage, onGone) {
     var pending = {}, seq = 0;
     var entry = {
       frame: frame,
+      token: token,
       gone: onGone || null,
       handle: function (d) {
         if (d.rid && pending[d.rid]) {
@@ -209,7 +223,8 @@ U.sandbox = (function () {
     wrap.appendChild(loading);
     wrap.appendChild(frame);
 
-    var resolveReady, readyDone = false, revealTimer = 0, destroyed = false, seenErrors = [], loads = 0, readyCount = 0;
+    var resolveReady, readyDone = false, revealTimer = 0, destroyed = false, seenErrors = [], loads = 0, kitWindow = null;
+    var token = newToken();
     var ready = new Promise(function (r) { resolveReady = r; });
     function settle(v) { if (!readyDone) { readyDone = true; resolveReady(v); } }
     function reveal() {
@@ -222,14 +237,22 @@ U.sandbox = (function () {
       seenErrors.push(msg);
       if (o.onError) try { o.onError(String(msg || 'error')); } catch (e) { console.error(e); }
     }
+    // A body that navigates its frame away from the kit: the frame is removed at once, so the page
+    // it lands on (no CSP of its own) is never left in the lesson.
+    function leave() {
+      if (destroyed) return;
+      report('The interactive tried to leave its page, so it was stopped.');
+      api.destroy();
+    }
     prune();
-    var ch = channel(frame, function (d) {
-      if (d.type === 'height' && d.px > 0) {
+    var ch = channel(frame, token, function (d) {
+      if (d.type === 'leaving') {
+        leave();
+      } else if (d.type === 'height' && d.px > 0) {
         frame.style.height = Math.ceil(d.px) + 'px';
         // Reveal on ready; if the body never calls K.ready, show it shortly after it has drawn.
         if (!revealTimer) revealTimer = setTimeout(reveal, 900);
       } else if (d.type === 'ready') {
-        readyCount++;
         reveal();
         settle(d.checks || []);
         if (o.onReady) try { o.onReady(d.checks || [], { beside: d.beside === true }); } catch (e) { console.error(e); }
@@ -240,16 +263,14 @@ U.sandbox = (function () {
       }
     }, function () { api.destroy(); });
     var readyTimer = visibleTimeout(function () { settle(null); reveal(); }, 12000);
-    // A body that navigates its frame away from the kit is stopped there. (A frame that was moved
-    // in the page reloads the kit, which says ready again within moments.)
-    var awayTimer = null;
+    // The kit says when its page starts to leave ('leaving'); a second load in the same window is
+    // the backstop. A frame moved in the page gets a new window, which loads the kit afresh from
+    // the srcdoc, so that load is kept.
     frame.addEventListener('load', function () {
-      if (++loads < 2 || destroyed) return;
-      readyCount = 0;
-      cancel(awayTimer);
-      awayTimer = visibleTimeout(function () {
-        if (!readyCount && !destroyed) { report('The interactive tried to leave its page, so it was stopped.'); api.destroy(); }
-      }, 3000);
+      if (destroyed) return;
+      var w = frame.contentWindow;
+      if (++loads > 1 && w === kitWindow) { leave(); return; }
+      kitWindow = w;
     });
 
     // Follow the app's light/dark and text-size settings while mounted.
@@ -269,7 +290,7 @@ U.sandbox = (function () {
     try {
       var t0 = theme();
       lastTheme = JSON.stringify(t0);
-      frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0 }));
+      frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0, token: token }));
     } catch (e) {
       wrap.dataset.state = 'failed';
       U.clear(loading).appendChild(U.h('span', { class: 'small' }, 'This interactive could not be shown.'));
@@ -288,7 +309,7 @@ U.sandbox = (function () {
       destroy: function () {
         if (destroyed) return;
         destroyed = true;
-        cancel(readyTimer); clearTimeout(revealTimer); cancel(awayTimer);
+        cancel(readyTimer); clearTimeout(revealTimer);
         mo.disconnect();
         if (mq && mq.removeEventListener) mq.removeEventListener('change', onScheme);
         ch.close();
@@ -301,7 +322,8 @@ U.sandbox = (function () {
 
   // ---------- hidden frames ----------
   // A frame in the viewport (so the browser doesn't throttle it) but invisible and inert.
-  // onMessage gets the kit's unsolicited messages; returns {frame, ch, close}.
+  // onMessage gets the kit's unsolicited messages (a 'leaving' one means the body navigated the
+  // frame away: the caller stops waiting for it); returns {frame, ch, close}.
   function hiddenFrame(html, width, th, onMessage) {
     var frame = document.createElement('iframe');
     frame.setAttribute('sandbox', 'allow-scripts');
@@ -311,29 +333,33 @@ U.sandbox = (function () {
     frame.className = 'kit-test';
     frame.style.cssText = 'position:fixed;left:0;top:0;border:0;opacity:0;pointer-events:none;z-index:-1;' +
       'width:' + width + 'px;height:700px;max-width:none';
-    var ch = channel(frame, function (d) {
+    var token = newToken();
+    var ch = channel(frame, token, function (d) {
       if (d.type === 'height' && d.px > 0) frame.style.height = Math.min(4000, Math.ceil(d.px)) + 'px';
       if (onMessage) onMessage(d);
     });
-    frame.setAttribute('srcdoc', srcdoc(html, { theme: th }));
+    frame.setAttribute('srcdoc', srcdoc(html, { theme: th, token: token }));
     document.body.appendChild(frame);
     return { frame: frame, ch: ch, close: function () { ch.close(); frame.remove(); } };
   }
 
   // ---------- test ----------
+  var LEFT = 'The page navigated its frame away (a link it clicked, a location change or a refresh), so it was stopped: everything must stay on this page.';
   function failing(message, width) {
     return { ok: false, errors: [message], overflow: false, clipped: [], checks: [], sweep: { ok: false, problems: [] }, controls: [], readouts: [], ready: false, warnings: [], width: width };
   }
   // One hidden frame at one width -> the kit's Report (or a failing one on timeout).
   function testOne(html, width, timeout, th) {
     return new Promise(function (resolve) {
-      var finished = false, asked = false, graceTimer = null, hf = null, t0 = Date.now(), timer = null;
+      var finished = false, asked = false, graceTimer = null, hf = null, t0 = Date.now(), timer = null, leaving = null;
       function finish(report) {
         if (finished) return;
         finished = true;
-        cancel(timer); cancel(graceTimer);
+        cancel(timer); cancel(graceTimer); cancel(leaving);
         if (hf) hf.close();
         report.width = width;
+        // A page that started to leave fails, with whatever its self-test found before it went.
+        if (leaving && (report.errors || []).indexOf(LEFT) < 0) { report.ok = false; report.errors = (report.errors || []).concat(LEFT); }
         resolve(report);
       }
       function ask() {
@@ -348,7 +374,11 @@ U.sandbox = (function () {
       }
       timer = visibleTimeout(function () { if (!asked) finish(failing('The interactive did not load within ' + Math.round(timeout / 1000) + ' s.', width)); }, timeout);
       try {
-        hf = hiddenFrame(html, width, th, function (d) { if (d.type === 'ready') setTimeout(ask, 30); });
+        hf = hiddenFrame(html, width, th, function (d) {
+          if (d.type === 'ready') setTimeout(ask, 30);
+          // The body navigated the frame away: its report may still come before the page goes.
+          else if (d.type === 'leaving' && !leaving) leaving = visibleTimeout(function () { finish(failing(LEFT, width)); }, 1000);
+        });
       } catch (e) { return finish(failing(e.message || String(e), width)); }
       // After load, give a body that calls K.ready() late a moment, then test whatever is there.
       hf.frame.addEventListener('load', function () { graceTimer = visibleTimeout(ask, 1000); });
@@ -367,11 +397,15 @@ U.sandbox = (function () {
       });
       return order.map(function (m) { return seen[m].length < widths.length ? m + ' [at ' + seen[m].join(' and ') + ' px wide]' : m; });
     }
-    var first = reports[0];
+    // The ids, inputs and checks come from the widths whose page actually ran: one that timed out
+    // (or never loaded) has none, which would read as every id missing and every check failing.
+    // Its own error still fails the merged report.
+    var ran = reports.filter(function (r) { return r.ready || (r.controls && r.controls.length) || (r.checks && r.checks.length); });
+    var first = ran[0] || reports[0], judged = ran.length ? ran : reports;
     var checks = (first.checks || []).map(function (c, i) {
-      var out = { label: c.label, ok: reports.every(function (r) { return r.checks && r.checks[i] && r.checks[i].ok; }) };
+      var out = { label: c.label, ok: judged.every(function (r) { return r.checks && r.checks[i] && r.checks[i].ok; }) };
       if (c.source) out.source = c.source;
-      var err = reports.map(function (r) { return r.checks && r.checks[i] && r.checks[i].error; }).filter(Boolean)[0];
+      var err = judged.map(function (r) { return r.checks && r.checks[i] && r.checks[i].error; }).filter(Boolean)[0];
       if (err) out.error = err;
       return out;
     });
@@ -426,6 +460,7 @@ U.sandbox = (function () {
       timer = visibleTimeout(function () { finish({ reachable: false, best: null, tried: 0, error: 'The interactive did not load within ' + Math.round(timeout / 1000) + ' s.' }); }, timeout);
       try {
         hf = hiddenFrame(html, o.width || 340, o.theme || theme(), function (d) {
+          if (d.type === 'leaving') finish({ reachable: false, best: null, tried: 0, error: LEFT });
           if (d.type !== 'ready') return;
           requests(hf.ch).reach(spec).then(function (r) { finish(r || { reachable: false, best: null, tried: 0, error: 'no answer' }); },
             function (e) { finish({ reachable: false, best: null, tried: 0, error: (e && e.message) || 'no answer' }); });
