@@ -185,3 +185,69 @@ test('research tools: rate limits, failures and connector errors that arrive as 
   for (let i = 0; i < 4; i++) assert.match(await f2.execute({ urls: ['https://example.org/page-0'] }), /^Tool error \(tool_error\)/);
   assert.match(await f2.execute({ urls: ['https://example.org/page-0'] }), /^Tool error \(unavailable\)/);
 });
+
+// A schema's problems may name some as soft (length limits, 30-prompts.js): problems.soft.
+function problemsOf(hard, soft) { const l = [...hard, ...soft]; l.soft = soft.slice(); return l; }
+// replies: objects (sent as JSON), strings (sent as they are) or {code} errors, one per call.
+function scripted(replies) {
+  const seen = [];
+  const sample = (input) => {
+    seen.push(input);
+    const r = replies[seen.length - 1];
+    if (r && r.code) return Promise.reject(r);
+    return Promise.resolve({ text: typeof r === 'string' ? r : JSON.stringify(r) });
+  };
+  return { sample, seen };
+}
+// The test schema: a reply {soft, hard} has that many soft and hard problems.
+const schema = (d) => problemsOf(Array.from({ length: d.hard || 0 }, (_, i) => 'hard problem ' + i), Array.from({ length: d.soft || 0 }, (_, i) => 'text ' + i + ' is too long'));
+
+test('ask: soft problems get one repair, then the reply is accepted as it is; hard ones still fail', async () => {
+  // Soft only, then soft only after the repair: accepted, with a warning event, nothing thrown.
+  let s = scripted([{ id: 1, soft: 1 }, { id: 2, soft: 1 }]);
+  let U = boot({ sample: s.sample });
+  const events = [];
+  U.on('ask-soft', (d) => events.push(d));
+  const warn = console.warn; const warned = []; console.warn = (...a) => warned.push(a.join(' '));
+  try {
+    assert.equal((await U.ask('TASK: x', { json: true, schema, label: 'x' })).id, 2);
+  } finally { console.warn = warn; }
+  assert.equal(s.seen.length, 2, 'one repair');
+  assert.match(s.seen[1][2].content, /text 0 is too long/, 'the repair lists the soft problem, asking for a cut');
+  assert.equal(events.length, 1);
+  assert.equal(events[0].label, 'x');
+  assert.ok(warned.some((w) => /accepted with only length problems left/.test(w)));
+
+  // Hard, then soft only: accepted.
+  s = scripted([{ id: 1, hard: 1 }, { id: 2, soft: 2 }]);
+  U = boot({ sample: s.sample });
+  assert.equal((await U.ask('TASK: x', { json: true, schema })).id, 2);
+
+  // Soft only, then the repair breaks something: the first reply is kept.
+  s = scripted([{ id: 1, soft: 1 }, { id: 2, hard: 1 }]);
+  U = boot({ sample: s.sample });
+  assert.equal((await U.ask('TASK: x', { json: true, schema })).id, 1);
+  s = scripted([{ id: 1, soft: 1 }, 'Sorry, here is some prose.']);
+  U = boot({ sample: s.sample });
+  assert.equal((await U.ask('TASK: x', { json: true, schema })).id, 1, 'also when the repair is not JSON');
+
+  // Soft only, then the repair cannot be had (busy): the first reply stands. Cancelled is still cancelled.
+  s = scripted([{ id: 1, soft: 1 }, { code: 'rate_limited', message: 'busy' }]);
+  U = boot({ sample: s.sample });
+  assert.equal((await U.ask('TASK: x', { json: true, schema })).id, 1);
+  s = scripted([{ id: 1, soft: 1 }, { code: 'cancelled', message: 'Stopped.' }]);
+  U = boot({ sample: s.sample });
+  await assert.rejects(U.ask('TASK: x', { json: true, schema }), (e) => e.code === 'cancelled');
+
+  // Hard after the repair: rejects invalid, naming the hard problem first.
+  s = scripted([{ id: 1, hard: 1, soft: 1 }, { id: 2, hard: 1, soft: 1 }]);
+  U = boot({ sample: s.sample });
+  await assert.rejects(U.ask('TASK: x', { json: true, schema }), (e) => e.code === 'invalid' && /hard problem 0/.test(e.message) && !/too long/.test(e.message) && !/shape/.test(e.message));
+  assert.equal(s.seen.length, 2);
+
+  // A schema that marks nothing soft (plain arrays) behaves as before: one repair, then invalid.
+  s = scripted([{ id: 1 }, { id: 2 }]);
+  U = boot({ sample: s.sample });
+  await assert.rejects(U.ask('TASK: x', { json: true, schema: () => ['too long'] }), (e) => e.code === 'invalid');
+  assert.equal(s.seen.length, 2);
+});

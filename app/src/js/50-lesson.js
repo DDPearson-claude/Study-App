@@ -84,6 +84,7 @@
     });
   }
   function order(stage) { var i = STAGES.indexOf(stage); return i < 0 ? 0 : i; }
+  function stepName(stage) { return 'Step ' + (STEPS.indexOf(stage) + 1) + ' of ' + STEPS.length + ': ' + LABEL[stage]; }
   // The interactive's build brief follows a template ("The one thing you should see is X when you
   // Y"); Dan sees it as a friendly instruction instead.
   function friendlyBrief(text) {
@@ -128,9 +129,12 @@
 
     // ---- frame: sticky bar, heading, stages, footer ----
     var stepBtns = STEPS.map(function (s) {
-      return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, 'aria-label': LABEL[s], on: { click: function () { jumpTo(s); } } }, U.h('i'));
+      return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, 'aria-label': stepName(s), on: { click: function () { jumpTo(s); } } }, U.h('i'));
     });
-    var stepLabel = U.h('span', { class: 'lsn-steps-label', 'aria-hidden': 'true' }, LABEL.predict + ' · 1 of 5');
+    // The bar names the stage only: its five segments show how far along he is, and the eyebrow
+    // below already counts ideas ("Idea 1 of 6"), so a second "of N" would only confuse. Screen
+    // readers hear the count from each segment's label ("Step 1 of 5: Predict, current step").
+    var stepLabel = U.h('span', { class: 'lsn-steps-label', 'aria-hidden': 'true' }, LABEL.predict);
     var askBtn = U.h('button', { class: 'lsn-ask', type: 'button', 'aria-label': 'Ask Claude', on: { click: openTutor } },
       U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude')));
     var bar = U.h('div', { class: 'lsn-bar' },
@@ -288,7 +292,7 @@
         if (!U.gen || typeof U.gen.ensureLesson !== 'function') throw { message: 'The lesson writer is not loaded in this view.' };
         // A foreground call: if this lesson was being prefetched, U.gen promotes its queued
         // calls (they share the lesson's gate key) so they run at once.
-        var p = st.pending = U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
+        var p = st.pending = U.gen.ensureLesson(tid, iid, { onStatus: function (t, meta) { if (alive() && !st.ready) st.prep.line(t, meta); } });
         p.then(function () { if (st.pending === p) st.pending = null; }, function () { if (st.pending === p) st.pending = null; });
         return p;
       }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, ensure); });
@@ -307,15 +311,27 @@
         function n(t) { return String(t || '').toLowerCase().replace(/\b(your|the|this|a|an)\b/g, '').replace(/[.…!\s]+/g, ' ').trim(); }
         return n(a) === n(b);
       }
-      function tick(li) {
-        li.classList.add('is-done');
+      // Finish a line as 'done' or 'failed': one state only, so it never shows a tick and a cross
+      // together. A finished line loses its trailing "…".
+      function mark(li, state) {
+        li.classList.toggle('is-done', state === 'done');
+        li.classList.toggle('is-failed', state === 'failed');
         var t = li.querySelector('.lsn-prep-text');
         if (t) t.textContent = t.textContent.replace(/\s*(…|\.\.\.)$/, '');
       }
-      function line(text) {
+      // meta (from U.gen): failed -> said once, by fail(), never as a step; redo -> the step in
+      // progress is being done again, so its own line says so instead of a new one.
+      function line(text, meta) {
+        meta = meta || {};
         text = String(text || '').trim();
-        if (!text || (last && same(last.dataset.text, text)) || same(head.textContent, text)) return;
-        if (last) tick(last);
+        if (!text || meta.failed) return;
+        if (meta.redo && last && !last.classList.contains('is-done') && !last.classList.contains('is-failed')) {
+          last.dataset.text = text;
+          last.querySelector('.lsn-prep-text').textContent = text;
+          return;
+        }
+        if ((last && same(last.dataset.text, text)) || same(head.textContent, text)) return;
+        if (last) mark(last, 'done');
         last = U.h('li', { dataset: { text: text } },
           U.h('span', { class: 'lsn-prep-mark', 'aria-hidden': 'true' }, U.h('i'), U.icon('tick', 'lsn-prep-ok'), U.icon('close', 'lsn-prep-x')),
           U.h('span', { class: 'lsn-prep-text' }, text));
@@ -334,8 +350,10 @@
         fail: function (e, retry) {
           clearTimeout(timer); working.hidden = true; slow.hidden = true;
           var msg = U.errText(e);
+          // The error arrived as a line of its own (a caller without meta): drop it; the step
+          // before it is the one that failed, although the error line ticked it off.
           if (last && same(last.dataset.text, msg)) { var dup = last; last = dup.previousElementSibling; dup.remove(); }
-          if (last) last.classList.add('is-failed');
+          if (last) mark(last, 'failed');
           U.clear(err).appendChild(U.h('div', { class: 'notice bad' }, U.h('div', { class: 'stack-sm' },
             U.h('p', null, U.h('strong', null, 'This lesson could not be prepared. '), msg),
             U.h('div', { class: 'row' }, btn('Try again', retry, 'small'), U.h('a', { class: 'linkish', href: '#/t/' + encodeURIComponent(tid), on: { click: function () { toTopic(tid); } } }, 'Back to the topic')))));
@@ -393,7 +411,7 @@
       st.prep.start('Asking Claude for a new way into this idea, with a different interactive');
       var gen = st.gen;
       Promise.resolve().then(function () {
-        var o = { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } };
+        var o = { onStatus: function (t, meta) { if (alive() && !st.ready) st.prep.line(t, meta); } };
         if (st.feedback) o.feedback = st.feedback;
         return U.gen.relearn(tid, iid, o);
       }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, relearn); });
@@ -484,10 +502,10 @@
         var state = all ? 'done' : i < ci ? 'done' : i === ci ? 'now' : 'later';
         b.className = 'lsn-step is-' + state + (all ? ' is-all' : '');
         b.disabled = !st.sections[STEPS[i]];
-        b.setAttribute('aria-label', LABEL[STEPS[i]] + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
+        b.setAttribute('aria-label', stepName(STEPS[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? 'Idea learned' : LABEL[st.stage] + ' · ' + (ci + 1) + ' of 5';
+      stepLabel.textContent = all ? 'Idea learned' : LABEL[st.stage];
       bar.classList.toggle('is-all', all);
     }
     function jumpTo(stage) {

@@ -12,7 +12,9 @@
 //   U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
 //            what earlier lessons in a topic gave Dan (writeLesson's `prior`)
 //   U.validate.plan(o) / .lesson(o, {iid, sources, final}) / .grade(o, {rubric, attempt})
-//            / .research(o, {ideas}) -> [problem strings]  (empty when valid)
+//            / .research(o, {ideas}) -> [problem strings]  (empty when valid); the list's .soft
+//            names the length problems among them (soft limits: see "validators" below)
+//   U.validate.hard(problems) -> the problems that are not soft;  U.validate.allowed(max)
 (function () {
   'use strict';
   var U = window.U;
@@ -33,7 +35,7 @@
   var KINDS = ['mechanism', 'quantity', 'process', 'structure', 'history', 'concept', 'skill'];
   var NUMBER_KINDS = ['control', 'computed', 'constant', 'assumed', 'date'];
   var LEVELS = {
-    new: ['NEW to this. Start from everyday experience. No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
+    new: ['NEW to this subject\'s ideas, never new to everyday life: a curious, intelligent adult. Start from what he already knows, then go straight to what most adults have never understood; never teach what nearly every adult already knows (counting, adding, reading a clock, that things fall). No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
     some: ['KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.', 'Usually 6-7 ideas.'],
     solid: ['SOLID GROUNDING. He wants the real mechanism and the subtleties, including where experts disagree. Proper notation is fine.', 'Usually 7-8 ideas.'],
   };
@@ -95,13 +97,13 @@
         'Use these. Do not re-teach any of them as a full idea. Where the course builds on one, say so in the oneLine of the idea that uses it ("builds on air pressure from your weather topic"). Only if the course genuinely cannot work without a quick refresher, include it as an idea with "known": true.'),
       '',
       'WHAT TO PRODUCE',
-      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is vast ("physics"), choose the most foundational slice that fits 5-8 ideas and let the title say what it covers. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
+      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is a whole field ("Maths", "Physics", "History", "Music"), choose a coherent course of its big, surprising, foundational ideas that shows what the field is really about (for Maths, ideas like why some infinities are bigger than others, what a proof is, exponential growth, probability surprises: choose your own, do not copy these), and let the title and hook say that angle. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
       '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that the course will let him answer by the end. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
       '   Bad: "What is photosynthesis?" (a definition). Bad: "Plants are fascinating machines that feed the world." (a statement, and hype)',
       '   Good: "A tree never eats anything solid, yet it builds tonnes of wood. Where does all that wood come from?"',
       '3. oneBreath: the whole topic in 2-3 plain sentences (at most 75 words): the big picture he will hold onto when the details fade. No jargon he has not met.',
       '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5); never cram two things into one idea.',
-      '   - Idea 1 starts from something Dan can feel, see or already knows (a push on a skateboard, a queue at a shop), not from a definition or a parts list.',
+      '   - Idea 1 starts from something Dan can feel, see or already knows (a push on a skateboard, a queue at a shop), not from a definition or a parts list, and already teaches something most adults have never understood.',
       '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none). By the last idea, Dan can answer the hook.',
       '   - Each idea is ONE thing he can understand in five minutes, ideally by manipulating something.',
       '   - title: at most 7 words and says the idea itself, not a label. Bad: "Introduction", "Key concepts", "Background". Good: "Leaves build wood out of air", "Money works because everyone trusts it".',
@@ -115,8 +117,8 @@
       '       concept    an abstract idea, distinction or classification ("why a tomato counts as a fruit")',
       '       skill      a procedure he learns to do ("reading a nutrition label")',
       '   - If part of the topic is genuinely contested among experts, make that explicit in an idea\'s oneLine ("why historians still argue about…"). Do not invent controversy.',
-      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid). q: at most 30 words, answerable from everyday intuition or general knowledge, no jargon. 3-4 options; the wrong options are real, common misconceptions that people genuinely hold, not jokes. Vary which position is right. why (at most 50 words): the right answer, and why the tempting wrong one is wrong.',
-      '   Bad wrong option: "Magic". Good wrong option: "Heavier things fall faster".',
+      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid). q: at most 30 words, no jargon, answerable from everyday intuition, and one a thoughtful adult could genuinely get wrong. 3-4 options: exactly one is right; the wrong ones are real, common misconceptions that people genuinely hold, not jokes, and none says the same thing as the right one in other words or units. Vary which position is right. why (at most 50 words): the right answer, and why the tempting wrong one is wrong; anything it says about the other options must be true of every one of them.',
+      '   Bad question: "3 bowls and 5 plates: how many dishes?" (every adult knows). Bad options: "150 cm" beside "1 m 50 cm" (two right answers), "Magic" (a joke). Good wrong option: "Heavier things fall faster".',
       '',
       'ACCURACY',
       '- Use only well-established knowledge. The plan makes no claim you are not sure of.',
@@ -670,18 +672,32 @@
 
   // ==================================================================================
   // validators: human-readable problems, phrased so Claude can fix them on a retry
+  //
+  // Length limits are soft. A model cannot count words or characters exactly, so a limit on
+  // length (characters, words, sentences) is a target, never a reason to throw a reply away:
+  // up to about 15% over (at least one unit) is not reported at all; past that the problem is
+  // reported, so U.ask's one repair asks for a cut, and it is also listed in `problems.soft`.
+  // When only soft problems are left after the repair, U.ask accepts the reply as it is.
+  // Everything else stays hard: missing fields, wrong types, bad ids, unknown sources,
+  // unreachable targets, and counts of list items (2-3 checks, 5-8 ideas).
   // ==================================================================================
+  var SLACK = 0.15;
+  function allowed(max) { return max + Math.max(1, Math.floor(max * SLACK)); }
   function V() {
     var list = [];
-    return {
+    list.soft = [];
+    var v = {
       list: list,
-      add: function (p) { if (list.length < 40) list.push(p); },
-      str: function (v, path, max) {
-        if (!isStr(v)) { this.add(path + ' must be a non-empty string.'); return false; }
-        if (max && v.length > max) this.add(path + ' is ' + v.length + ' characters; keep it under ' + max + '.');
+      add: function (p, soft) { if (list.length < 40) { list.push(p); if (soft) list.soft.push(p); } },
+      // A length rule: n characters, words or sentences against the limit max.
+      long: function (n, max, p) { if (n > allowed(max)) v.add(p, true); },
+      str: function (x, path, max) {
+        if (!isStr(x)) { v.add(path + ' must be a non-empty string.'); return false; }
+        if (max) v.long(x.length, max, path + ' is ' + x.length + ' characters; keep it under ' + max + '.');
         return true;
       },
     };
+    return v;
   }
   function footnotesIn(o, skip, out) {
     out = out || [];
@@ -701,8 +717,8 @@
       else if (/^(what|who)\s+(is|are|was|were)\b/i.test(o.hook.trim()) && words(o.hook) < 9) v.add('hook "' + clip(o.hook, 80) + '" is a definition question; make it a puzzle that makes Dan want to know the answer.');
     }
     if (v.str(o.oneBreath, 'oneBreath', 700)) {
-      if (words(o.oneBreath) > 90) v.add('oneBreath has ' + words(o.oneBreath) + ' words; keep it to 2-3 sentences, at most 75 words.');
-      if (sentences(o.oneBreath) > 4) v.add('oneBreath has ' + sentences(o.oneBreath) + ' sentences; use 2-3.');
+      v.long(words(o.oneBreath), 90, 'oneBreath has ' + words(o.oneBreath) + ' words; keep it to 2-3 sentences, at most 75 words.');
+      v.long(sentences(o.oneBreath), 4, 'oneBreath has ' + sentences(o.oneBreath) + ' sentences; use 2-3.');
     }
     var ids = [];
     if (!Array.isArray(o.ideas)) v.add('ideas must be a list of 5-8 ideas.');
@@ -736,7 +752,11 @@
         else cids.push(c.id);
         v.str(c.q, p + '.q', 300);
         if (!Array.isArray(c.options) || c.options.length < 3 || c.options.length > 4 || !c.options.every(isStr)) v.add(p + '.options must be 3-4 non-empty strings.');
-        else if (!isInt(c.answer) || c.answer < 0 || c.answer >= c.options.length) v.add(p + '.answer must be an option index from 0 to ' + (c.options.length - 1) + '.');
+        else {
+          if (!isInt(c.answer) || c.answer < 0 || c.answer >= c.options.length) v.add(p + '.answer must be an option index from 0 to ' + (c.options.length - 1) + '.');
+          var seen = {};
+          c.options.forEach(function (x) { var key = one(x).toLowerCase(); if (seen[key]) v.add(p + ' has the option "' + clip(x, 40) + '" twice; exactly one option is right, so every option must be different.'); seen[key] = 1; });
+        }
         v.str(c.why, p + '.why', 400);
         if (c.iid != null && ids.indexOf(c.iid) < 0) v.add(p + '.iid "' + c.iid + '" is not one of the idea ids.');
       });
@@ -766,7 +786,7 @@
     if (opts.iid && o.iid !== opts.iid) v.add('iid must be "' + opts.iid + '".');
     else if (!opts.iid) v.str(o.iid, 'iid');
     v.str(o.title, 'title', 90);
-    function wordCap(t, path, max) { if (isStr(t) && words(t) > max) v.add(path + ' has ' + words(t) + ' words; keep it to at most ' + max + '.'); }
+    function wordCap(t, path, max) { if (isStr(t)) v.long(words(t), max, path + ' has ' + words(t) + ' words; keep it to at most ' + max + '.'); }
 
     // predict
     if (!isObj(o.predict)) v.add('predict is missing: give { q, options?, reveal }.');
@@ -807,7 +827,7 @@
             if (!isNum(c.value) || c.value < c.min || c.value > c.max) v.add(p + '.value must be a number between min (' + c.min + ') and max (' + c.max + ').');
           }
           if (typeof c.unit !== 'string') v.add(p + '.unit must be a string ("" if none).');
-          else if (c.unit.length > 10) v.add(p + '.unit "' + c.unit + '" is ' + c.unit.length + ' characters; keep units to at most 10 ("m/s", "%", "per year").');
+          else v.long(c.unit.length, 10, p + '.unit "' + c.unit + '" is ' + c.unit.length + ' characters; keep units to at most 10 ("m/s", "%", "per year").');
         });
         if (it.outputs != null) {
           if (!Array.isArray(it.outputs) || it.outputs.length > 3) v.add('interactive.outputs must be a list of at most 3 readouts ([] when no rule computes a number).');
@@ -817,9 +837,9 @@
             if (!isStr(r.id) || !CONTROL_ID.test(r.id)) v.add(p + '.id must be camelCase letters and digits.');
             else if (outs.indexOf(r.id) >= 0 || ctrl.indexOf(r.id) >= 0) v.add(p + '.id "' + r.id + '" clashes with another control or output id.');
             else outs.push(r.id);
-            if (v.str(r.label, p + '.label') && one(r.label).length > 30) v.add(p + '.label "' + clip(r.label, 50) + '" is ' + one(r.label).length + ' characters; readout labels are at most 30 ("Swing time", "Thrust").');
+            if (v.str(r.label, p + '.label')) v.long(one(r.label).length, 30, p + '.label "' + clip(r.label, 50) + '" is ' + one(r.label).length + ' characters; readout labels are at most 30 ("Swing time", "Thrust").');
             if (r.unit != null && typeof r.unit !== 'string') v.add(p + '.unit must be a string.');
-            else if (r.unit && r.unit.length > 10) v.add(p + '.unit "' + r.unit + '" is ' + r.unit.length + ' characters; keep units to at most 10.');
+            else if (r.unit) v.long(r.unit.length, 10, p + '.unit "' + r.unit + '" is ' + r.unit.length + ' characters; keep units to at most 10.');
             if (r.decimals != null && !(isInt(r.decimals) && r.decimals >= 0 && r.decimals <= 6)) v.add(p + '.decimals must be a whole number from 0 to 6, or left out.');
           });
         }
@@ -842,7 +862,7 @@
     if (!isObj(o.explain) || !isStr(o.explain.text)) v.add('explain.text is missing.');
     else {
       var w = words(o.explain.text);
-      if (w > 170) v.add('explain.text has ' + w + ' words; the limit is 170. Cut it, keeping what playing shows and the takeaway.');
+      v.long(w, 170, 'explain.text has ' + w + ' words; the limit is 170. Cut it, keeping what playing shows and the takeaway.');
       if (/https?:\/\/|<[a-z][^>]*>/i.test(o.explain.text)) v.add('explain.text must not contain links or HTML; cite with [^n].');
     }
     var link = linkIn(o, '', 'sources');
@@ -927,7 +947,7 @@
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
       if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be a full http(s) URL.');
-      if (v.str(x.quote, p + '.quote') && words(x.quote) > 40) v.add(p + '.quote has ' + words(x.quote) + ' words; quotes are at most 40.');
+      if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; quotes are at most 40.');
     });
     if (opts.sources === null && Array.isArray(o.sources) && o.sources.length) v.add('No research was supplied, so "sources" must be [] and the lesson must have no [^n] markers.');
     if (Array.isArray(opts.sources) && Array.isArray(o.sources)) o.sources.forEach(function (x, k) {
@@ -998,7 +1018,7 @@
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
       if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be the full http(s) URL you opened.');
-      if (v.str(x.quote, p + '.quote') && words(x.quote) > 40) v.add(p + '.quote has ' + words(x.quote) + ' words; copy at most 40 words.');
+      if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; copy at most 40 words.');
     });
     function notes(list, p) {
       if (!Array.isArray(list)) { v.add(p + ' must be a list of { claim, sourceIds }.'); return; }
@@ -1041,5 +1061,10 @@
     KINDS: KINDS,
     NUMBER_KINDS: NUMBER_KINDS,
   };
-  U.validate = { plan: vPlan, lesson: vLesson, grade: vGrade, research: vResearch };
+  // allowed(max): the most a length limit lets through unremarked. hard(problems): the problems
+  // that are not soft (an empty list means only length problems are left).
+  U.validate = {
+    plan: vPlan, lesson: vLesson, grade: vGrade, research: vResearch, SLACK: SLACK, allowed: allowed,
+    hard: function (problems) { var soft = (problems && problems.soft) || []; return (problems || []).filter(function (p) { return soft.indexOf(p) < 0; }); },
+  };
 })();

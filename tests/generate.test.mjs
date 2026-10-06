@@ -182,7 +182,7 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
   const U = loadPure();
   const lr2 = U.prompts.lessonResearch(RESEARCH_JET, 'i2');
   const cases = [
-    ['explain over 170 words', (l) => { l.explain.text = 'word '.repeat(171); }, /171 words/],
+    ['explain far over 170 words', (l) => { l.explain.text = 'word '.repeat(230); }, /230 words; the limit is 170/],
     ['footnote to a missing source', (l) => { l.explain.text += ' Also this.[^5]'; }, /\[\^5\]/],
     ['choice answer out of range', (l) => { l.checks[2].answer = 4; }, /answer must be an option index/],
     ['five options', (l) => { l.checks[2].options.push('It triples'); }, /2-4/],
@@ -203,7 +203,7 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
     ['bad control id', (l) => { l.interactive.controls[0].id = 'air flow'; }, /camelCase/],
     ['duplicate check ids', (l) => { l.checks[1].id = 'c1'; }, /used twice/],
     ['brief in the wrong form', (l) => { l.interactive.brief = 'Play with the sliders to learn about thrust.'; }, /The one thing you should see is/],
-    ['quote longer than 40 words', (l) => { l.sources[0].quote = 'word '.repeat(41).trim(); }, /at most 40/],
+    ['quote far longer than 40 words', (l) => { l.sources[0].quote = 'word '.repeat(60).trim(); }, /at most 40/],
     ['duplicate source numbers', (l) => { l.sources.push({ ...l.sources[0] }); }, /used twice/],
     ['outputs but no target check', (l) => { l.checks[0] = { id: 'c1', type: 'choice', q: 'Which?', options: ['a', 'b'], answer: 0, why: 'because' }; }, /one check of type "target"/],
     ['target tolerance of 0', (l) => { l.checks[0].tolerance = 0; }, /tolerance must be a number greater than 0/],
@@ -215,7 +215,7 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
     ['output label over 30 characters', (l) => { l.interactive.outputs[0].label = 'How hard the engine pushes the plane'; }, /outputs\[0\]\.label .* is 36 characters; readout labels are at most 30/],
     ['output decimals not a whole number', (l) => { l.interactive.outputs[0].decimals = 1.5; }, /decimals must be a whole number from 0 to 6/],
     ['unit over 10 characters', (l) => { l.interactive.controls[0].unit = 'kilograms per second'; }, /at most 10/],
-    ['whatAmILookingAt over 120 words', (l) => { l.interactive.whatAmILookingAt = 'word '.repeat(121); }, /whatAmILookingAt has 121 words/],
+    ['whatAmILookingAt far over 120 words', (l) => { l.interactive.whatAmILookingAt = 'word '.repeat(160); }, /whatAmILookingAt has 160 words/],
     ['unknown number kind', (l) => { l.interactive.numbers[0].kind = 'guess'; }, /"assumed" or "date"/],
     ['an assumed value with a source', (l) => { l.interactive.numbers[3].kind = 'assumed'; l.interactive.numbers[3].source = 1; }, /assumed example value/],
     ['a web address in a check', (l) => { l.checks[2].why += ' See https://example.org/thrust.'; }, /checks\[2\]\.why contains a web address/],
@@ -295,7 +295,7 @@ test('grade and research validators reject broken replies', () => {
   const ideas = PLAN_JET.ideas;
   const rcases = [
     ['note cites a missing source', (r) => { r.ideas.i1.notes[0].sourceIds = [42]; }, /not in sources/],
-    ['quote too long', (r) => { r.sources[0].quote = 'word '.repeat(41).trim(); }, /at most 40/],
+    ['quote far too long', (r) => { r.sources[0].quote = 'word '.repeat(60).trim(); }, /at most 40/],
     ['url not http', (r) => { r.sources[0].url = 'grc.nasa.gov/x'; }, /http/],
     ['unknown idea key', (r) => { r.ideas.i9 = { notes: [] }; }, /not one of the course idea ids/],
     ['unsourced note', (r) => { r.ideas.i2.notes[0].sourceIds = []; }, /cites no source/],
@@ -311,6 +311,161 @@ test('grade and research validators reject broken replies', () => {
   const contested = clone(RESEARCH_JET);
   contested.ideas.i4.notes.push({ claim: 'Experts disagree about X.', sourceIds: [], contested: 'Some say A, others B.' });
   assert.deepEqual(plain(U.validate.research(contested, { ideas })), [], 'an unsourced contested flag is allowed');
+});
+
+// Length limits are soft (models cannot count exactly): up to about 15% over is not reported;
+// far over is reported, and marked soft, so U.ask repairs once and then accepts the reply.
+const fill = {
+  chars: (n) => 'x'.repeat(n),
+  words: (n) => Array(n).fill('w').join(' '),
+  sentences: (n) => Array(n).fill('This is it.').join(' '),
+};
+// Every length rule in every validator: [name, limit, unit, set(obj, text)].
+const LENGTH_RULES = {
+  plan: [
+    ['title', 90, 'chars', (o, t) => { o.title = t; }],
+    ['hook', 320, 'chars', (o, t) => { o.hook = t.slice(1) + '?'; }],
+    ['oneBreath (characters)', 700, 'chars', (o, t) => { o.oneBreath = t; }],
+    ['oneBreath (words)', 90, 'words', (o, t) => { o.oneBreath = t; }],
+    ['oneBreath (sentences)', 4, 'sentences', (o, t) => { o.oneBreath = t; }],
+    ['ideas[0].title', 70, 'chars', (o, t) => { o.ideas[0].title = t; }],
+    ['ideas[0].oneLine', 260, 'chars', (o, t) => { o.ideas[0].oneLine = t; }],
+    ['calibration[0].q', 300, 'chars', (o, t) => { o.calibration[0].q = t; }],
+    ['calibration[0].why', 400, 'chars', (o, t) => { o.calibration[0].why = t; }],
+  ],
+  lesson: [
+    ['title', 90, 'chars', (o, t) => { o.title = t; }],
+    ['predict.q', 400, 'chars', (o, t) => { o.predict.q = t; }],
+    ['predict.reveal', 500, 'chars', (o, t) => { o.predict.reveal = t; }],
+    ['interactive.brief', 400, 'chars', (o, t) => { const a = 'The one thing you should see is ', b = ' when you slide it.'; o.interactive.brief = a + t.slice(a.length + b.length) + b; }],
+    ['interactive.title', 80, 'chars', (o, t) => { o.interactive.title = t; }],
+    ['control label (characters)', 80, 'chars', (o, t) => { o.interactive.controls[0].label = t; }],
+    ['control label (words)', 6, 'words', (o, t) => { o.interactive.controls[0].label = t; }],
+    ['control unit', 10, 'chars', (o, t) => { o.interactive.controls[0].unit = t; }],
+    ['output label', 30, 'chars', (o, t) => { o.interactive.outputs[0].label = t; }],
+    ['output unit', 10, 'chars', (o, t) => { o.interactive.outputs[0].unit = t; }],
+    ['whatAmILookingAt (characters)', 1500, 'chars', (o, t) => { o.interactive.whatAmILookingAt = t; }],
+    ['whatAmILookingAt (words)', 120, 'words', (o, t) => { o.interactive.whatAmILookingAt = t; }],
+    ['ignores', 600, 'chars', (o, t) => { o.interactive.ignores = t; }],
+    ['numbers[0].label', 140, 'chars', (o, t) => { o.interactive.numbers[0].label = t; }],
+    ['explain.text', 170, 'words', (o, t) => { o.explain.text = t; }],
+    ['analogy.text', 400, 'chars', (o, t) => { o.analogy = { text: t, breaks: 'It breaks here.' }; }],
+    ['analogy.breaks', 300, 'chars', (o, t) => { o.analogy = { text: 'Like this.', breaks: t }; }],
+    ['say.prompt', 300, 'chars', (o, t) => { o.say.prompt = t; }],
+    ['say.model', 600, 'chars', (o, t) => { o.say.model = t; }],
+    ['checks[0].q', 400, 'chars', (o, t) => { o.checks[0].q = t; }],
+    ['checks[0].why', 500, 'chars', (o, t) => { o.checks[0].why = t; }],
+    ['sources[0].title', 300, 'chars', (o, t) => { o.sources[0].title = t; }],
+    ['sources[0].quote', 40, 'words', (o, t) => { o.sources[0].quote = t; }],
+  ],
+  named: [
+    ['named option (words)', 6, 'words', (o, t) => { o.interactive.controls[0].options[0] = t; }],
+  ],
+  research: [
+    ['sources[0].title', 300, 'chars', (o, t) => { o.sources[0].title = t; }],
+    ['sources[0].quote', 40, 'words', (o, t) => { o.sources[0].quote = t; }],
+    ['topic.notes[0].claim', 500, 'chars', (o, t) => { o.topic.notes[0].claim = t; }],
+  ],
+};
+
+test('length limits are soft in every validator: a little over passes, far over is reported as soft', () => {
+  const U = loadPure();
+  const lr2 = U.prompts.lessonResearch(RESEARCH_JET, 'i2');
+  const runs = {
+    plan: [PLAN_JET, (o) => U.validate.plan(o)],
+    lesson: [L_JET2, (o) => U.validate.lesson(o, { iid: 'i2', sources: lr2.sources })],
+    named: [L_ROME4, (o) => U.validate.lesson(o, { iid: 'i4', sources: null })],
+    research: [RESEARCH_JET, (o) => U.validate.research(o, { ideas: PLAN_JET.ideas })],
+  };
+  assert.equal(U.validate.allowed(170), 195, '15% over 170 words');
+  assert.equal(U.validate.allowed(6), 7, 'at least one unit over a small limit');
+  for (const [kind, rules] of Object.entries(LENGTH_RULES)) {
+    const [base, check] = runs[kind];
+    for (const [name, max, unit, set] of rules) {
+      const near = clone(base);
+      set(near, fill[unit](Math.floor(max * 1.1)));
+      assert.deepEqual(plain(check(near)), [], `${kind} ${name}: 10% over ${max} ${unit} is not reported`);
+      const edge = clone(base);
+      set(edge, fill[unit](U.validate.allowed(max)));
+      assert.deepEqual(plain(check(edge)), [], `${kind} ${name}: up to the slack is not reported`);
+      const far = clone(base);
+      set(far, fill[unit](max * 2 + 5));
+      const problems = check(far);
+      assert.ok(problems.length >= 1, `${kind} ${name}: far over is reported`);
+      assert.deepEqual(plain(problems.soft), plain(problems), `${kind} ${name}: every length problem is soft: ${JSON.stringify(plain(problems))}`);
+      assert.deepEqual(plain(U.validate.hard(problems)), [], `${kind} ${name}: nothing hard`);
+    }
+  }
+  // grade has no length rules: a long answer is never a problem.
+  const g = U.validate.grade({ met: [true, false, true], verdict: 'partly', nailed: fill.words(400), followUp: fill.words(200) + '?' }, { rubric: 3, attempt: 1 });
+  assert.deepEqual(plain(g), []);
+  assert.deepEqual(plain(g.soft), []);
+});
+
+test('the Maths lesson: 171 words is fine, 230 is a soft problem, and structure stays hard', () => {
+  const U = loadPure();
+  const lr2 = U.prompts.lessonResearch(RESEARCH_JET, 'i2');
+  const v = (l) => U.validate.lesson(l, { iid: 'i2', sources: lr2.sources });
+  const words = (l, n) => { const w = U.prompts.words(l.explain.text); l.explain.text += ' more'.repeat(n - w); assert.equal(U.prompts.words(l.explain.text), n); return l; };
+  assert.deepEqual(plain(v(words(clone(L_JET2), 171))), [], '171 words: not reported at all');
+  assert.deepEqual(plain(v(words(clone(L_JET2), 195))), [], '195 words: within the slack');
+  const p230 = v(words(clone(L_JET2), 230));
+  assert.equal(p230.length, 1);
+  assert.match(p230[0], /230 words; the limit is 170/);
+  assert.deepEqual(plain(p230.soft), plain(p230), 'reported as soft');
+  // Structural problems (and counts of list items) are never soft, even beside a soft one.
+  const mixed = words(clone(L_JET2), 230);
+  mixed.checks = mixed.checks.slice(0, 1);
+  const pm = v(mixed);
+  assert.ok(pm.some((p) => /2-3 checks/.test(p)) && pm.soft.length === 1, JSON.stringify(plain(pm)));
+  assert.ok(plain(U.validate.hard(pm)).every((p) => !/words/.test(p)) && U.validate.hard(pm).some((p) => /2-3 checks/.test(p)), 'the check count is hard, the length soft');
+  const hardCases = [
+    ['a missing field', (l) => { delete l.say; }],
+    ['a bad control id', (l) => { l.interactive.controls[0].id = 'air flow'; }],
+    ['an unknown target control', (l) => { l.checks[0].control = 'nozzle'; }],
+    ['a citation of a missing source', (l) => { l.explain.text += ' Also this.[^5]'; }],
+    ['a wrong type', (l) => { l.interactive.controls[0].min = 'low'; }],
+    ['too many rubric points', (l) => { l.say.rubric.push('one more', 'and another'); }],
+    ['too many outputs', (l) => { l.interactive.outputs.push({ id: 'aa', label: 'a' }, { id: 'bb', label: 'b' }, { id: 'cc', label: 'c' }); }],
+  ];
+  for (const [name, mutate] of hardCases) {
+    const l = clone(L_JET2);
+    mutate(l);
+    const p = v(l);
+    assert.ok(p.length && U.validate.hard(p).length === p.length, name + ' is hard: ' + JSON.stringify(plain(p)));
+  }
+  const nine = clone(PLAN_JET);
+  for (let i = 7; i <= 9; i++) nine.ideas.push({ id: 'i' + i, title: 'x', oneLine: 'y', deps: [], kind: 'concept' });
+  assert.ok(U.validate.hard(U.validate.plan(nine)).some((p) => /5-8/.test(p)), 'the number of ideas is a count, not a length');
+  // A reply that is not an object carries no soft list: everything is hard.
+  assert.equal(U.validate.hard(U.validate.lesson('nope')).length, 1);
+});
+
+test('calibration options must all be different (trimmed, any case)', () => {
+  const U = loadPure();
+  const p = clone(PLAN_JET);
+  p.calibration[1].options = ['150 centimetres', ' 150 Centimetres ', '1 metre and 5 centimetres'];
+  const problems = U.validate.plan(p);
+  assert.ok(problems.some((x) => /calibration\[1\] has the option "150 Centimetres" twice/.test(x)), JSON.stringify(plain(problems)));
+  assert.equal(U.validate.hard(problems).length, problems.length, 'a duplicate option is hard');
+  // The same amount in different units cannot be told apart mechanically: the prompt forbids it.
+  const units = clone(PLAN_JET);
+  units.calibration[1].options = ['1 metre and 50 centimetres', '150 centimetres', '1 metre and 5 centimetres'];
+  assert.deepEqual(plain(U.validate.plan(units)), []);
+});
+
+test('the plan prompt treats Dan as an adult and a whole field as a course of its big ideas', () => {
+  const U = loadPure();
+  const p = U.prompts.planTopic('Maths', { level: 'new' });
+  assert.ok(p.startsWith('TASK: plan-topic\n'));
+  for (const s of ['never new to everyday life', 'curious, intelligent adult', 'never teach what nearly every adult already knows', 'counting, adding, reading a clock',
+    'a whole field ("Maths", "Physics", "History", "Music")', 'big, surprising, foundational ideas', 'why some infinities are bigger than others', 'do not copy these', 'title and hook say that angle',
+    'already teaches something most adults have never understood', 'a thoughtful adult could genuinely get wrong', 'exactly one is right', 'in other words or units', 'true of every one of them', '"3 bowls and 5 plates'])
+    assert.ok(p.includes(s), 'plan-topic says ' + s);
+  assert.ok(!p.includes('choose the most foundational slice'), 'the old vast-request rule is merged, not left beside the new one');
+  const lesson = U.prompts.writeLesson({ ...PLAN_JET, level: 'new' }, PLAN_JET.ideas[0], {});
+  assert.ok(lesson.includes('His level: NEW to this subject\'s ideas, never new to everyday life'), 'the lesson writer hears the same level');
+  assert.ok(lesson.includes('explain (at most 170 words; aim for about 150)') && lesson.includes('explain.text is at most 170 words'), 'the prompts still ask for the same limits');
 });
 
 // =========================================================================================
@@ -619,24 +774,120 @@ test('ensureLesson failure leaves a readable failed doc, and retry works', async
   const lines = [];
   await assert.rejects(U.gen.ensureLesson('t1', 'i1', { onStatus: (t) => lines.push(t) }), (e) => {
     assert.equal(e.code, 'invalid');
-    assert.match(e.message, /wrong shape.*Try again/);
+    assert.equal(e.message, 'Claude\'s lesson did not pass the app\'s own checks, so it was not saved. Try again; it usually works.');
     return true;
   });
-  assert.equal(app.count('write-lesson'), 2, 'one corrective retry');
+  assert.equal(app.count('write-lesson'), 4, 'one corrective retry, then one fresh write with its own');
   assert.ok(app.calls[1].retry, 'the retry carries the problems');
+  assert.ok(!app.calls[2].retry && app.calls[3].retry, 'the third call starts afresh');
   const doc = await app.get('topics/t1/lessons/i1');
   assert.equal(doc.status, 'failed');
   assert.match(doc.error, /Try again/);
   assert.equal(doc.errorCode, 'invalid');
   assert.ok(doc.errorDetail);
   assert.deepEqual(app.statuses, ['i1:writing', 'i1:failed']);
-  assert.ok(lines.includes('Writing your lesson…'));
+  assert.ok(lines.includes('Writing your lesson…') && lines.includes('Having another go at writing this lesson…'));
   assert.equal(U.gen.status('t1').lessons.i1, 'failed');
 
   good = true;
   const ok = await U.gen.ensureLesson('t1', 'i1');
   assert.equal(ok.status, 'ready');
   assert.equal(ok.error, null);
+});
+
+// The lesson Dan lost: its explanation was one word over 170.
+function explainOf(U, n) {
+  const l = unsourced(L_JET1);
+  const w = U.prompts.words(l.explain.text);
+  l.explain.text += ' more'.repeat(n - w);
+  assert.equal(U.prompts.words(l.explain.text), n);
+  return l;
+}
+
+test('a lesson one word over its explanation limit is saved without a repair', async () => {
+  const app = await boot({ handlers: handlers({ 'write-lesson': () => explainOf(app.U, 171) }) });
+  await app.seed('topics/t1', PLAN_JET);
+  const doc = await app.U.gen.ensureLesson('t1', 'i1');
+  assert.equal(doc.status, 'ready');
+  assert.equal(app.U.prompts.words(doc.lesson.explain.text), 171);
+  assert.equal(app.count('write-lesson'), 1, 'no repair round');
+});
+
+test('a far-too-long explanation gets one repair and is accepted although the repair is still long', async () => {
+  const app = await boot({ handlers: handlers({ 'write-lesson': (input, o, call) => explainOf(app.U, call.retry ? 200 : 230) }) });
+  await app.seed('topics/t1', PLAN_JET);
+  const asked = [];
+  app.U.on('ask-soft', (d) => asked.push(d));
+  const doc = await app.U.gen.ensureLesson('t1', 'i1');
+  assert.equal(app.count('write-lesson'), 2, 'one repair, no fresh write');
+  const fix = app.calls[1].input[app.calls[1].input.length - 1].content;
+  assert.match(fix, /explain\.text has 230 words; the limit is 170\. Cut it/, 'the repair asks for a cut');
+  assert.equal(doc.status, 'ready');
+  assert.equal(app.U.prompts.words(doc.lesson.explain.text), 200, 'the repaired reply is kept as it is');
+  assert.equal(asked.length, 1);
+  assert.equal(asked[0].label, 'write-lesson');
+  assert.match(asked[0].problems[0], /200 words/);
+  assert.ok(app.warnings.some((w) => /accepted with only length problems left/.test(String(w[0]))), 'a console warning, nothing Dan sees');
+});
+
+test('a lesson that fails the checks twice in a row is written a third time, afresh, and saved', async () => {
+  let n = 0;
+  const broken = () => { const l = unsourced(L_JET1); l.checks = l.checks.slice(0, 1); return l; };
+  const app = await boot({ handlers: handlers({ 'write-lesson': () => (++n <= 2 ? broken() : unsourced(L_JET1)) }) });
+  await app.seed('topics/t1', PLAN_JET);
+  const lines = [], metas = [];
+  const doc = await app.U.gen.ensureLesson('t1', 'i1', { onStatus: (t, m) => { lines.push(t); metas.push(plain(m || {})); } });
+  assert.equal(doc.status, 'ready');
+  assert.equal(app.count('write-lesson'), 3);
+  assert.ok(app.calls[1].retry && /2-3 checks/.test(app.calls[1].input[app.calls[1].input.length - 1].content), 'the repair names the structural problem');
+  assert.ok(!app.calls[2].retry && typeof app.calls[2].input === 'string', 'the third write is a fresh call, not another repair');
+  assert.equal(app.calls[2].input, app.calls[0].input, 'with the same prompt');
+  const i = lines.indexOf('Having another go at writing this lesson…');
+  assert.ok(i > lines.indexOf('Writing your lesson…'), JSON.stringify(lines));
+  assert.deepEqual(metas[i], { redo: true }, 'said as the same step, done again');
+  assert.equal(lines.filter((t) => /another go/.test(t)).length, 1, 'said once');
+  assert.deepEqual(app.statuses, ['i1:writing', 'i1:building', 'i1:ready']);
+});
+
+test('structural problems still fail after the repair; the job gives up after its fresh write', async () => {
+  const broken = () => { const l = unsourced(L_JET1); l.interactive.controls[0].id = 'air flow'; return l; };
+  const app = await boot({ handlers: handlers({ 'write-lesson': () => broken() }) });
+  await app.seed('topics/t1', PLAN_JET);
+  const metas = [];
+  await assert.rejects(app.U.gen.ensureLesson('t1', 'i1', { onStatus: (t, m) => metas.push([t, plain(m || {})]) }), (e) => {
+    assert.equal(e.code, 'invalid');
+    assert.doesNotMatch(e.message, /shape/);
+    return true;
+  });
+  assert.equal(app.count('write-lesson'), 4);
+  const doc = await app.get('topics/t1/lessons/i1');
+  assert.equal(doc.status, 'failed');
+  assert.match(doc.errorDetail, /camelCase/, 'the detail names the hard problem');
+  const last = metas[metas.length - 1];
+  assert.equal(last[0], doc.error);
+  assert.deepEqual(last[1], { failed: true }, 'the failure reaches onStatus marked as a failure, not as a step');
+});
+
+test('only a reply that fails the checks is written afresh: not rate limits, cancelled, no permission, outages or cut-offs', async () => {
+  for (const code of ['rate_limited', 'cancelled', 'not_granted', 'unavailable', 'truncated']) {
+    const app = await boot({ handlers: handlers({ 'write-lesson': () => { throw { code, message: code }; } }) });
+    app.U.sleep = () => Promise.resolve();
+    await app.seed('topics/t1', PLAN_JET);
+    await assert.rejects(app.U.gen.ensureLesson('t1', 'i1'), (e) => e.code === code);
+    // U.ask's own retries only: an outage once, a cut-off reply once with shorter fields.
+    assert.equal(app.count('write-lesson'), code === 'unavailable' || code === 'truncated' ? 2 : 1, code + ': no fresh write');
+  }
+});
+
+test('a plan whose only problems are lengths is saved after its repair; a long title is shortened at a word', async () => {
+  const long = 'How numbers describe surprising things about the world, from infinities that differ in size to coins that remember nothing at all';
+  const app = await boot({ handlers: handlers({ 'plan-topic': () => ({ ...planOnly(PLAN_JET), title: long }), 'write-lesson': () => new Promise(() => {}) }) });
+  const tid = await app.U.gen.createTopic('Maths', { level: 'new' });
+  assert.equal(app.count('plan-topic'), 2, 'one repair asking for a shorter title');
+  const t = await app.get('topics/' + tid);
+  assert.equal(t.status, 'ready');
+  assert.ok(long.length > 120 && t.title.length <= 120 && t.title.endsWith('…'), t.title);
+  assert.ok(long.startsWith(t.title.slice(0, -1)) && long[t.title.length - 1] === ' ', 'cut at a word: ' + t.title);
 });
 
 test('not_granted and plan failures tell Dan what to do; replan recovers', async () => {

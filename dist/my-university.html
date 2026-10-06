@@ -799,8 +799,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-prep-mark i { width: 9px; height: 9px; border-radius: 50%; background: var(--heading); animation: lsn-breathe 1.6s ease-in-out infinite; }
 .lsn-prep-mark svg { display: none; width: 17px; height: 17px; color: var(--teal); }
 .lsn-prep-lines li.is-done .lsn-prep-mark i, .lsn-prep-lines li.is-failed .lsn-prep-mark i { display: none; }
-.lsn-prep-lines li.is-done .lsn-prep-mark .lsn-prep-ok { display: block; }
-/* The step that failed: a red cross, never a tick. */
+.lsn-prep-lines li.is-done:not(.is-failed) .lsn-prep-mark .lsn-prep-ok { display: block; }
+/* The step that failed: a red cross in the ticks' place, never a tick as well. */
 .lsn-prep-lines li.is-failed { color: var(--red); }
 .lsn-prep-lines li.is-failed .lsn-prep-mark .lsn-prep-x { display: block; color: var(--red); }
 .lsn-prep-slow { color: var(--muted); font-size: .875rem; }
@@ -1412,7 +1412,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-05-44fc305";
+U.BUILD = "2026-10-06-092fb8d";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2003,7 +2003,12 @@ U._gate.promote = function (test) {
 
 // U.ask(input, {tier, onText, signal, tools, json, schema, cache, label, priority, key})
 //   json:true  -> resolves the parsed object
-//   schema(fn) -> returns [] or a list of problems; one corrective retry with the problems listed
+//   schema(fn) -> returns [] or a list of problems; one corrective retry with the problems listed.
+//              The list may name some of its problems as soft (problems.soft: length limits, see
+//              30-prompts.js). Soft problems get the repair too, but a reply whose only problems
+//              left after it are soft is accepted as it is (a console warning and
+//              U.emit('ask-soft', {label, problems}), nothing Dan sees). If the repair breaks
+//              something a soft-only first reply had right, the first reply is kept.
 //   priority   'foreground' (default) | 'background'; key: see the gate above
 // A transient 'upstream_error' or 'unavailable' is retried once after 1-3 s. 'rate_limited' is
 // never retried from here (retrying a rate limit only makes it last longer): it reaches the caller.
@@ -2034,19 +2039,40 @@ U.ask = function (input, opts) {
     });
   }
   if (!opts.json) return once(input, 0);
-  function check(text, tries) {
+  // Problems the schema did not mark soft (a parse error is never soft).
+  function hardOf(problems) {
+    var soft = Array.isArray(problems.soft) ? problems.soft : [];
+    return problems.filter(function (p) { return soft.indexOf(p) < 0; });
+  }
+  function lenient(data, problems) {
+    console.warn('ask' + (opts.label ? ' ' + opts.label : '') + ': accepted with only length problems left', problems.slice(0, 6));
+    U.emit('ask-soft', { label: opts.label, problems: problems.slice(0, 12) });
+    return data;
+  }
+  // first: the first reply, when its only problems were soft (kept if the repair is worse).
+  function check(text, tries, first) {
     var data, problems;
-    try { data = U.parseJson(text); problems = opts.schema ? opts.schema(data) : []; }
+    try { data = U.parseJson(text); problems = (opts.schema ? opts.schema(data) : null) || []; }
     catch (e) { problems = [e.message || 'Reply was not valid JSON.']; }
     if (!problems.length) return data;
-    if (tries >= 1) throw { code: 'invalid', message: 'Claude\'s answer did not have the right shape: ' + problems.slice(0, 3).join('; ') };
+    var hard = hardOf(problems);
+    if (tries >= 1) {
+      if (!hard.length) return lenient(data, problems);
+      if (first) return lenient(first.data, first.problems);
+      throw { code: 'invalid', message: 'Claude\'s reply did not pass the app\'s checks: ' + hard.slice(0, 3).join('; ') };
+    }
     var fix = [
       typeof input === 'string' ? { role: 'user', content: input } : null,
       { role: 'assistant', content: String(text).slice(0, 60000) },
       { role: 'user', content: 'Your reply had these problems:\n- ' + problems.slice(0, 12).join('\n- ') + '\nReply again with the complete corrected JSON only, no commentary.' },
     ];
     var turns = typeof input === 'string' ? fix.filter(Boolean) : input.concat(fix.slice(1));
-    return once(turns, 0).then(function (t2) { return check(t2, tries + 1); });
+    var keep = hard.length ? null : { data: data, problems: problems };
+    return once(turns, 0).then(function (t2) { return check(t2, tries + 1, keep); }, function (e) {
+      // The repair could not be had (busy, cut off): a first reply that was only too long stands.
+      if (keep && !(e && e.code === 'cancelled') && !(opts.signal && opts.signal.aborted)) return lenient(keep.data, keep.problems);
+      throw e;
+    });
   }
   return once(input, 0).then(function (t) { return check(t, 0); }, function (e) {
     // A truncated JSON reply gets one more go with a reminder to be concise.
@@ -2792,7 +2818,9 @@ U.logStudy = (function () {
 //   U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
 //            what earlier lessons in a topic gave Dan (writeLesson's `prior`)
 //   U.validate.plan(o) / .lesson(o, {iid, sources, final}) / .grade(o, {rubric, attempt})
-//            / .research(o, {ideas}) -> [problem strings]  (empty when valid)
+//            / .research(o, {ideas}) -> [problem strings]  (empty when valid); the list's .soft
+//            names the length problems among them (soft limits: see "validators" below)
+//   U.validate.hard(problems) -> the problems that are not soft;  U.validate.allowed(max)
 (function () {
   'use strict';
   var U = window.U;
@@ -2813,7 +2841,7 @@ U.logStudy = (function () {
   var KINDS = ['mechanism', 'quantity', 'process', 'structure', 'history', 'concept', 'skill'];
   var NUMBER_KINDS = ['control', 'computed', 'constant', 'assumed', 'date'];
   var LEVELS = {
-    new: ['NEW to this. Start from everyday experience. No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
+    new: ['NEW to this subject\'s ideas, never new to everyday life: a curious, intelligent adult. Start from what he already knows, then go straight to what most adults have never understood; never teach what nearly every adult already knows (counting, adding, reading a clock, that things fall). No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
     some: ['KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.', 'Usually 6-7 ideas.'],
     solid: ['SOLID GROUNDING. He wants the real mechanism and the subtleties, including where experts disagree. Proper notation is fine.', 'Usually 7-8 ideas.'],
   };
@@ -2875,13 +2903,13 @@ U.logStudy = (function () {
         'Use these. Do not re-teach any of them as a full idea. Where the course builds on one, say so in the oneLine of the idea that uses it ("builds on air pressure from your weather topic"). Only if the course genuinely cannot work without a quick refresher, include it as an idea with "known": true.'),
       '',
       'WHAT TO PRODUCE',
-      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is vast ("physics"), choose the most foundational slice that fits 5-8 ideas and let the title say what it covers. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
+      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is a whole field ("Maths", "Physics", "History", "Music"), choose a coherent course of its big, surprising, foundational ideas that shows what the field is really about (for Maths, ideas like why some infinities are bigger than others, what a proof is, exponential growth, probability surprises: choose your own, do not copy these), and let the title and hook say that angle. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
       '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that the course will let him answer by the end. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
       '   Bad: "What is photosynthesis?" (a definition). Bad: "Plants are fascinating machines that feed the world." (a statement, and hype)',
       '   Good: "A tree never eats anything solid, yet it builds tonnes of wood. Where does all that wood come from?"',
       '3. oneBreath: the whole topic in 2-3 plain sentences (at most 75 words): the big picture he will hold onto when the details fade. No jargon he has not met.',
       '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5); never cram two things into one idea.',
-      '   - Idea 1 starts from something Dan can feel, see or already knows (a push on a skateboard, a queue at a shop), not from a definition or a parts list.',
+      '   - Idea 1 starts from something Dan can feel, see or already knows (a push on a skateboard, a queue at a shop), not from a definition or a parts list, and already teaches something most adults have never understood.',
       '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none). By the last idea, Dan can answer the hook.',
       '   - Each idea is ONE thing he can understand in five minutes, ideally by manipulating something.',
       '   - title: at most 7 words and says the idea itself, not a label. Bad: "Introduction", "Key concepts", "Background". Good: "Leaves build wood out of air", "Money works because everyone trusts it".',
@@ -2895,8 +2923,8 @@ U.logStudy = (function () {
       '       concept    an abstract idea, distinction or classification ("why a tomato counts as a fruit")',
       '       skill      a procedure he learns to do ("reading a nutrition label")',
       '   - If part of the topic is genuinely contested among experts, make that explicit in an idea\'s oneLine ("why historians still argue about…"). Do not invent controversy.',
-      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid). q: at most 30 words, answerable from everyday intuition or general knowledge, no jargon. 3-4 options; the wrong options are real, common misconceptions that people genuinely hold, not jokes. Vary which position is right. why (at most 50 words): the right answer, and why the tempting wrong one is wrong.',
-      '   Bad wrong option: "Magic". Good wrong option: "Heavier things fall faster".',
+      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid). q: at most 30 words, no jargon, answerable from everyday intuition, and one a thoughtful adult could genuinely get wrong. 3-4 options: exactly one is right; the wrong ones are real, common misconceptions that people genuinely hold, not jokes, and none says the same thing as the right one in other words or units. Vary which position is right. why (at most 50 words): the right answer, and why the tempting wrong one is wrong; anything it says about the other options must be true of every one of them.',
+      '   Bad question: "3 bowls and 5 plates: how many dishes?" (every adult knows). Bad options: "150 cm" beside "1 m 50 cm" (two right answers), "Magic" (a joke). Good wrong option: "Heavier things fall faster".',
       '',
       'ACCURACY',
       '- Use only well-established knowledge. The plan makes no claim you are not sure of.',
@@ -3450,18 +3478,32 @@ U.logStudy = (function () {
 
   // ==================================================================================
   // validators: human-readable problems, phrased so Claude can fix them on a retry
+  //
+  // Length limits are soft. A model cannot count words or characters exactly, so a limit on
+  // length (characters, words, sentences) is a target, never a reason to throw a reply away:
+  // up to about 15% over (at least one unit) is not reported at all; past that the problem is
+  // reported, so U.ask's one repair asks for a cut, and it is also listed in `problems.soft`.
+  // When only soft problems are left after the repair, U.ask accepts the reply as it is.
+  // Everything else stays hard: missing fields, wrong types, bad ids, unknown sources,
+  // unreachable targets, and counts of list items (2-3 checks, 5-8 ideas).
   // ==================================================================================
+  var SLACK = 0.15;
+  function allowed(max) { return max + Math.max(1, Math.floor(max * SLACK)); }
   function V() {
     var list = [];
-    return {
+    list.soft = [];
+    var v = {
       list: list,
-      add: function (p) { if (list.length < 40) list.push(p); },
-      str: function (v, path, max) {
-        if (!isStr(v)) { this.add(path + ' must be a non-empty string.'); return false; }
-        if (max && v.length > max) this.add(path + ' is ' + v.length + ' characters; keep it under ' + max + '.');
+      add: function (p, soft) { if (list.length < 40) { list.push(p); if (soft) list.soft.push(p); } },
+      // A length rule: n characters, words or sentences against the limit max.
+      long: function (n, max, p) { if (n > allowed(max)) v.add(p, true); },
+      str: function (x, path, max) {
+        if (!isStr(x)) { v.add(path + ' must be a non-empty string.'); return false; }
+        if (max) v.long(x.length, max, path + ' is ' + x.length + ' characters; keep it under ' + max + '.');
         return true;
       },
     };
+    return v;
   }
   function footnotesIn(o, skip, out) {
     out = out || [];
@@ -3481,8 +3523,8 @@ U.logStudy = (function () {
       else if (/^(what|who)\s+(is|are|was|were)\b/i.test(o.hook.trim()) && words(o.hook) < 9) v.add('hook "' + clip(o.hook, 80) + '" is a definition question; make it a puzzle that makes Dan want to know the answer.');
     }
     if (v.str(o.oneBreath, 'oneBreath', 700)) {
-      if (words(o.oneBreath) > 90) v.add('oneBreath has ' + words(o.oneBreath) + ' words; keep it to 2-3 sentences, at most 75 words.');
-      if (sentences(o.oneBreath) > 4) v.add('oneBreath has ' + sentences(o.oneBreath) + ' sentences; use 2-3.');
+      v.long(words(o.oneBreath), 90, 'oneBreath has ' + words(o.oneBreath) + ' words; keep it to 2-3 sentences, at most 75 words.');
+      v.long(sentences(o.oneBreath), 4, 'oneBreath has ' + sentences(o.oneBreath) + ' sentences; use 2-3.');
     }
     var ids = [];
     if (!Array.isArray(o.ideas)) v.add('ideas must be a list of 5-8 ideas.');
@@ -3516,7 +3558,11 @@ U.logStudy = (function () {
         else cids.push(c.id);
         v.str(c.q, p + '.q', 300);
         if (!Array.isArray(c.options) || c.options.length < 3 || c.options.length > 4 || !c.options.every(isStr)) v.add(p + '.options must be 3-4 non-empty strings.');
-        else if (!isInt(c.answer) || c.answer < 0 || c.answer >= c.options.length) v.add(p + '.answer must be an option index from 0 to ' + (c.options.length - 1) + '.');
+        else {
+          if (!isInt(c.answer) || c.answer < 0 || c.answer >= c.options.length) v.add(p + '.answer must be an option index from 0 to ' + (c.options.length - 1) + '.');
+          var seen = {};
+          c.options.forEach(function (x) { var key = one(x).toLowerCase(); if (seen[key]) v.add(p + ' has the option "' + clip(x, 40) + '" twice; exactly one option is right, so every option must be different.'); seen[key] = 1; });
+        }
         v.str(c.why, p + '.why', 400);
         if (c.iid != null && ids.indexOf(c.iid) < 0) v.add(p + '.iid "' + c.iid + '" is not one of the idea ids.');
       });
@@ -3546,7 +3592,7 @@ U.logStudy = (function () {
     if (opts.iid && o.iid !== opts.iid) v.add('iid must be "' + opts.iid + '".');
     else if (!opts.iid) v.str(o.iid, 'iid');
     v.str(o.title, 'title', 90);
-    function wordCap(t, path, max) { if (isStr(t) && words(t) > max) v.add(path + ' has ' + words(t) + ' words; keep it to at most ' + max + '.'); }
+    function wordCap(t, path, max) { if (isStr(t)) v.long(words(t), max, path + ' has ' + words(t) + ' words; keep it to at most ' + max + '.'); }
 
     // predict
     if (!isObj(o.predict)) v.add('predict is missing: give { q, options?, reveal }.');
@@ -3587,7 +3633,7 @@ U.logStudy = (function () {
             if (!isNum(c.value) || c.value < c.min || c.value > c.max) v.add(p + '.value must be a number between min (' + c.min + ') and max (' + c.max + ').');
           }
           if (typeof c.unit !== 'string') v.add(p + '.unit must be a string ("" if none).');
-          else if (c.unit.length > 10) v.add(p + '.unit "' + c.unit + '" is ' + c.unit.length + ' characters; keep units to at most 10 ("m/s", "%", "per year").');
+          else v.long(c.unit.length, 10, p + '.unit "' + c.unit + '" is ' + c.unit.length + ' characters; keep units to at most 10 ("m/s", "%", "per year").');
         });
         if (it.outputs != null) {
           if (!Array.isArray(it.outputs) || it.outputs.length > 3) v.add('interactive.outputs must be a list of at most 3 readouts ([] when no rule computes a number).');
@@ -3597,9 +3643,9 @@ U.logStudy = (function () {
             if (!isStr(r.id) || !CONTROL_ID.test(r.id)) v.add(p + '.id must be camelCase letters and digits.');
             else if (outs.indexOf(r.id) >= 0 || ctrl.indexOf(r.id) >= 0) v.add(p + '.id "' + r.id + '" clashes with another control or output id.');
             else outs.push(r.id);
-            if (v.str(r.label, p + '.label') && one(r.label).length > 30) v.add(p + '.label "' + clip(r.label, 50) + '" is ' + one(r.label).length + ' characters; readout labels are at most 30 ("Swing time", "Thrust").');
+            if (v.str(r.label, p + '.label')) v.long(one(r.label).length, 30, p + '.label "' + clip(r.label, 50) + '" is ' + one(r.label).length + ' characters; readout labels are at most 30 ("Swing time", "Thrust").');
             if (r.unit != null && typeof r.unit !== 'string') v.add(p + '.unit must be a string.');
-            else if (r.unit && r.unit.length > 10) v.add(p + '.unit "' + r.unit + '" is ' + r.unit.length + ' characters; keep units to at most 10.');
+            else if (r.unit) v.long(r.unit.length, 10, p + '.unit "' + r.unit + '" is ' + r.unit.length + ' characters; keep units to at most 10.');
             if (r.decimals != null && !(isInt(r.decimals) && r.decimals >= 0 && r.decimals <= 6)) v.add(p + '.decimals must be a whole number from 0 to 6, or left out.');
           });
         }
@@ -3622,7 +3668,7 @@ U.logStudy = (function () {
     if (!isObj(o.explain) || !isStr(o.explain.text)) v.add('explain.text is missing.');
     else {
       var w = words(o.explain.text);
-      if (w > 170) v.add('explain.text has ' + w + ' words; the limit is 170. Cut it, keeping what playing shows and the takeaway.');
+      v.long(w, 170, 'explain.text has ' + w + ' words; the limit is 170. Cut it, keeping what playing shows and the takeaway.');
       if (/https?:\/\/|<[a-z][^>]*>/i.test(o.explain.text)) v.add('explain.text must not contain links or HTML; cite with [^n].');
     }
     var link = linkIn(o, '', 'sources');
@@ -3707,7 +3753,7 @@ U.logStudy = (function () {
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
       if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be a full http(s) URL.');
-      if (v.str(x.quote, p + '.quote') && words(x.quote) > 40) v.add(p + '.quote has ' + words(x.quote) + ' words; quotes are at most 40.');
+      if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; quotes are at most 40.');
     });
     if (opts.sources === null && Array.isArray(o.sources) && o.sources.length) v.add('No research was supplied, so "sources" must be [] and the lesson must have no [^n] markers.');
     if (Array.isArray(opts.sources) && Array.isArray(o.sources)) o.sources.forEach(function (x, k) {
@@ -3778,7 +3824,7 @@ U.logStudy = (function () {
       else ns.push(x.n);
       v.str(x.title, p + '.title', 300);
       if (!isStr(x.url) || !/^https?:\/\/\S+$/.test(x.url.trim())) v.add(p + '.url must be the full http(s) URL you opened.');
-      if (v.str(x.quote, p + '.quote') && words(x.quote) > 40) v.add(p + '.quote has ' + words(x.quote) + ' words; copy at most 40 words.');
+      if (v.str(x.quote, p + '.quote')) v.long(words(x.quote), 40, p + '.quote has ' + words(x.quote) + ' words; copy at most 40 words.');
     });
     function notes(list, p) {
       if (!Array.isArray(list)) { v.add(p + ' must be a list of { claim, sourceIds }.'); return; }
@@ -3821,7 +3867,12 @@ U.logStudy = (function () {
     KINDS: KINDS,
     NUMBER_KINDS: NUMBER_KINDS,
   };
-  U.validate = { plan: vPlan, lesson: vLesson, grade: vGrade, research: vResearch };
+  // allowed(max): the most a length limit lets through unremarked. hard(problems): the problems
+  // that are not soft (an empty list means only length problems are left).
+  U.validate = {
+    plan: vPlan, lesson: vLesson, grade: vGrade, research: vResearch, SLACK: SLACK, allowed: allowed,
+    hard: function (problems) { var soft = (problems && problems.soft) || []; return (problems || []).filter(function (p) { return soft.indexOf(p) < 0; }); },
+  };
 })();
 
 // ---- src/js/31-generate.js ----
@@ -3887,19 +3938,30 @@ U.logStudy = (function () {
   function isStr(x) { return typeof x === 'string' && x.trim().length > 0; }
   function age(iso) { var t = Date.parse(iso || ''); return isFinite(t) ? Date.now() - t : Infinity; }
   function fresh(iso) { return age(iso) < CFG.STALE_MS; }
-  function safe(fn, a) { try { fn(a); } catch (e) { console.error(e); } }
+  function safe(fn, a, b) { try { fn(a, b); } catch (e) { console.error(e); } }
 
   // ---------- live state for the UI ----------
   function liveOf(tid) { return (live[tid] = live[tid] || { planning: false, research: null, lessons: {} }); }
   function emit(tid, iid, kind, status, text) { U.emit('gen', { tid: tid, iid: iid || null, kind: kind, status: status, text: text || '' }); }
+  // Writing a lesson whose reply still fails the app's checks after U.ask's one repair gets one
+  // fresh go from scratch (a new call, not another repair) before the job gives up. Errors that
+  // say nothing about the lesson (rate limits, cancelled, no permission…) are not retried here.
+  var AGAIN = 'Having another go at writing this lesson…';
+  function rewritable(e) { return !!e && (e.code === 'invalid' || e.code === 'bad_json'); }
 
   // ---------- readable errors ----------
+  // What a reply that failed the app's checks would have saved, by what Claude was doing.
+  var CHECKED = { 'write lessons': 'lesson', 'plan topics': 'plan', 'check sources': 'research' };
   function friendly(e, doing) {
     var code = e && e.code;
     if (code === 'not_granted') return 'Claude needs your permission to ' + doing + '. Tap "Allow" when the app asks (or allow Claude for this app in its settings), then try again.';
     if (code === 'rate_limited') return 'Claude is busy right now. Wait a minute, then try again.';
     if (code === 'truncated') return 'Claude\'s answer was cut off before it finished. Try again; it usually works second time.';
-    if (code === 'invalid' || code === 'bad_json') return 'Claude\'s answer came back in the wrong shape, so nothing was saved. Try again.';
+    // Dan never sees the checks, so the message names what failed them, never a "shape".
+    if (code === 'invalid' || code === 'bad_json') {
+      return CHECKED[doing] ? 'Claude\'s ' + CHECKED[doing] + ' did not pass the app\'s own checks, so it was not saved. Try again; it usually works.'
+        : 'Claude\'s reply did not pass the app\'s own checks. Try again; it usually works.';
+    }
     if (code === 'not_found') return s(e.message) || 'That could not be found.';
     return U.errText(e);
   }
@@ -3968,9 +4030,16 @@ U.logStudy = (function () {
     }, function (e) { delete live[tid]; throw failure(e, 'save topics'); });
   }
 
+  // Length limits are soft (30-prompts.js), so a long title is shortened at a word, never mid-word.
+  function shorten(t, n) {
+    t = one(t);
+    if (t.length <= n) return t;
+    var c = t.slice(0, n - 1), sp = c.lastIndexOf(' ');
+    return (sp > n / 2 ? c.slice(0, sp) : c).replace(/[\s,;:.]+$/, '') + '…';
+  }
   function cleanPlan(p) {
     return {
-      title: one(p.title).slice(0, 90),
+      title: shorten(p.title, 120),
       hook: one(p.hook),
       oneBreath: one(p.oneBreath),
       ideas: p.ideas.map(function (i) {
@@ -4320,10 +4389,14 @@ U.logStudy = (function () {
   // A job already running here for this lesson, unless it was a cancelled prefetch.
   function running(tid, iid) { var job = jobs[tid + '/' + iid]; return job && !cancelled(job) ? job : null; }
 
-  function subscribe(job, fn) { if (typeof fn === 'function') { job.subs.push(fn); if (job.text) safe(fn, job.text); } }
-  function progress(job, text, status) {
+  // onStatus(text, meta): meta.redo -> the step on screen is being done again (say so in its
+  // line, do not tick it off); meta.failed -> the job failed (the caller's rejection says why).
+  // A caller who joins later first hears the latest line on its own.
+  function subscribe(job, fn) { if (typeof fn === 'function') { job.subs.push(fn); if (job.text) safe(fn, job.text, {}); } }
+  function progress(job, text, status, meta) {
     if (status) liveOf(job.tid).lessons[job.iid] = status;
-    if (text && text !== job.text) { job.text = text; job.subs.forEach(function (fn) { safe(fn, text); }); }
+    meta = meta || (status === 'failed' ? { failed: true } : {});
+    if (text && text !== job.text) { job.text = text; job.subs.forEach(function (fn) { safe(fn, text, meta); }); }
     emit(job.tid, job.iid, 'lesson', status || liveOf(job.tid).lessons[job.iid] || 'writing', text);
   }
   function settle(job) {
@@ -4555,10 +4628,20 @@ U.logStudy = (function () {
       var allowed = lr && lr.sources.length ? lr.sources : null;
       return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');
-        return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
-          tier: 'default', json: true, label: 'write-lesson',
-          schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
-        }));
+        function ask() {
+          return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
+            tier: 'default', json: true, label: 'write-lesson',
+            schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
+          }));
+        }
+        return ask().catch(function (e) {
+          if (!rewritable(e)) throw e;
+          console.warn('lesson ' + iid + ': writing it again from scratch after', e);
+          return own(job).then(function () {
+            progress(job, AGAIN, 'writing', { redo: true });
+            return ask();
+          });
+        });
       });
     }).then(function (raw) {
       var lesson = finaliseLesson(raw, iid, lr);
@@ -6533,6 +6616,7 @@ U.interactive = (function () {
     });
   }
   function order(stage) { var i = STAGES.indexOf(stage); return i < 0 ? 0 : i; }
+  function stepName(stage) { return 'Step ' + (STEPS.indexOf(stage) + 1) + ' of ' + STEPS.length + ': ' + LABEL[stage]; }
   // The interactive's build brief follows a template ("The one thing you should see is X when you
   // Y"); Dan sees it as a friendly instruction instead.
   function friendlyBrief(text) {
@@ -6577,9 +6661,12 @@ U.interactive = (function () {
 
     // ---- frame: sticky bar, heading, stages, footer ----
     var stepBtns = STEPS.map(function (s) {
-      return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, 'aria-label': LABEL[s], on: { click: function () { jumpTo(s); } } }, U.h('i'));
+      return U.h('button', { class: 'lsn-step', type: 'button', disabled: true, 'aria-label': stepName(s), on: { click: function () { jumpTo(s); } } }, U.h('i'));
     });
-    var stepLabel = U.h('span', { class: 'lsn-steps-label', 'aria-hidden': 'true' }, LABEL.predict + ' · 1 of 5');
+    // The bar names the stage only: its five segments show how far along he is, and the eyebrow
+    // below already counts ideas ("Idea 1 of 6"), so a second "of N" would only confuse. Screen
+    // readers hear the count from each segment's label ("Step 1 of 5: Predict, current step").
+    var stepLabel = U.h('span', { class: 'lsn-steps-label', 'aria-hidden': 'true' }, LABEL.predict);
     var askBtn = U.h('button', { class: 'lsn-ask', type: 'button', 'aria-label': 'Ask Claude', on: { click: openTutor } },
       U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude')));
     var bar = U.h('div', { class: 'lsn-bar' },
@@ -6737,7 +6824,7 @@ U.interactive = (function () {
         if (!U.gen || typeof U.gen.ensureLesson !== 'function') throw { message: 'The lesson writer is not loaded in this view.' };
         // A foreground call: if this lesson was being prefetched, U.gen promotes its queued
         // calls (they share the lesson's gate key) so they run at once.
-        var p = st.pending = U.gen.ensureLesson(tid, iid, { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } });
+        var p = st.pending = U.gen.ensureLesson(tid, iid, { onStatus: function (t, meta) { if (alive() && !st.ready) st.prep.line(t, meta); } });
         p.then(function () { if (st.pending === p) st.pending = null; }, function () { if (st.pending === p) st.pending = null; });
         return p;
       }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, ensure); });
@@ -6756,15 +6843,27 @@ U.interactive = (function () {
         function n(t) { return String(t || '').toLowerCase().replace(/\b(your|the|this|a|an)\b/g, '').replace(/[.…!\s]+/g, ' ').trim(); }
         return n(a) === n(b);
       }
-      function tick(li) {
-        li.classList.add('is-done');
+      // Finish a line as 'done' or 'failed': one state only, so it never shows a tick and a cross
+      // together. A finished line loses its trailing "…".
+      function mark(li, state) {
+        li.classList.toggle('is-done', state === 'done');
+        li.classList.toggle('is-failed', state === 'failed');
         var t = li.querySelector('.lsn-prep-text');
         if (t) t.textContent = t.textContent.replace(/\s*(…|\.\.\.)$/, '');
       }
-      function line(text) {
+      // meta (from U.gen): failed -> said once, by fail(), never as a step; redo -> the step in
+      // progress is being done again, so its own line says so instead of a new one.
+      function line(text, meta) {
+        meta = meta || {};
         text = String(text || '').trim();
-        if (!text || (last && same(last.dataset.text, text)) || same(head.textContent, text)) return;
-        if (last) tick(last);
+        if (!text || meta.failed) return;
+        if (meta.redo && last && !last.classList.contains('is-done') && !last.classList.contains('is-failed')) {
+          last.dataset.text = text;
+          last.querySelector('.lsn-prep-text').textContent = text;
+          return;
+        }
+        if ((last && same(last.dataset.text, text)) || same(head.textContent, text)) return;
+        if (last) mark(last, 'done');
         last = U.h('li', { dataset: { text: text } },
           U.h('span', { class: 'lsn-prep-mark', 'aria-hidden': 'true' }, U.h('i'), U.icon('tick', 'lsn-prep-ok'), U.icon('close', 'lsn-prep-x')),
           U.h('span', { class: 'lsn-prep-text' }, text));
@@ -6783,8 +6882,10 @@ U.interactive = (function () {
         fail: function (e, retry) {
           clearTimeout(timer); working.hidden = true; slow.hidden = true;
           var msg = U.errText(e);
+          // The error arrived as a line of its own (a caller without meta): drop it; the step
+          // before it is the one that failed, although the error line ticked it off.
           if (last && same(last.dataset.text, msg)) { var dup = last; last = dup.previousElementSibling; dup.remove(); }
-          if (last) last.classList.add('is-failed');
+          if (last) mark(last, 'failed');
           U.clear(err).appendChild(U.h('div', { class: 'notice bad' }, U.h('div', { class: 'stack-sm' },
             U.h('p', null, U.h('strong', null, 'This lesson could not be prepared. '), msg),
             U.h('div', { class: 'row' }, btn('Try again', retry, 'small'), U.h('a', { class: 'linkish', href: '#/t/' + encodeURIComponent(tid), on: { click: function () { toTopic(tid); } } }, 'Back to the topic')))));
@@ -6842,7 +6943,7 @@ U.interactive = (function () {
       st.prep.start('Asking Claude for a new way into this idea, with a different interactive');
       var gen = st.gen;
       Promise.resolve().then(function () {
-        var o = { onStatus: function (t) { if (alive() && !st.ready) st.prep.line(t); } };
+        var o = { onStatus: function (t, meta) { if (alive() && !st.ready) st.prep.line(t, meta); } };
         if (st.feedback) o.feedback = st.feedback;
         return U.gen.relearn(tid, iid, o);
       }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, relearn); });
@@ -6933,10 +7034,10 @@ U.interactive = (function () {
         var state = all ? 'done' : i < ci ? 'done' : i === ci ? 'now' : 'later';
         b.className = 'lsn-step is-' + state + (all ? ' is-all' : '');
         b.disabled = !st.sections[STEPS[i]];
-        b.setAttribute('aria-label', LABEL[STEPS[i]] + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
+        b.setAttribute('aria-label', stepName(STEPS[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? 'Idea learned' : LABEL[st.stage] + ' · ' + (ci + 1) + ' of 5';
+      stepLabel.textContent = all ? 'Idea learned' : LABEL[st.stage];
       bar.classList.toggle('is-all', all);
     }
     function jumpTo(stage) {

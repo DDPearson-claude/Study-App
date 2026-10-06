@@ -3,8 +3,10 @@
 //   node tools/eval/validate.mjs plan    reply.json
 //   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json]
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
-// Prints {ok, problems} and exits 1 when there are problems. Replies may contain prose or
-// fences around the JSON; they are parsed the way the app parses them (U.parseJson).
+// Prints {ok, problems, soft} and exits 1 when there are problems. soft: the length problems
+// among them (docs/ARCHITECTURE.md section 5); after its one repair the app accepts a reply whose
+// only problems are soft. Replies may contain prose or fences around the JSON; they are parsed
+// the way the app parses them (U.parseJson).
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,5 +42,5 @@ try {
 } catch (e) {
   problems = ['could not parse: ' + (e.message || e)];
 }
-console.log(JSON.stringify({ ok: problems.length === 0, problems }, null, 2));
+console.log(JSON.stringify({ ok: problems.length === 0, problems, soft: Array.from(problems.soft || []) }, null, 2));
 process.exit(problems.length ? 1 : 0);
