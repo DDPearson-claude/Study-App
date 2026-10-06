@@ -139,7 +139,12 @@ await test('auto: a laptop gets the laptop layout and uses the width', async () 
   await noSideways(app, 'lesson');
   await shot(app, 'laptop-lesson');
 
-  for (const [hash, ready, name] of [['#/book', '.view h1', 'book'], ['#/today', '.view h1', 'today']]) {
+  // The Library's shelves use the width (two shelves side by side); the Book keeps the column.
+  await go(app, '#/book', '.view h1');
+  const lib = await rect(app, '#view');
+  assert(lib.width > 720 && lib.width <= 1200, 'the Library uses the wide screens\' width: ' + lib.width);
+  await shot(app, 'laptop-library');
+  for (const [hash, ready, name] of [['#/book/words', '.view h1', 'book'], ['#/today', '.view h1', 'today']]) {
     await go(app, hash, ready);
     const v = await rect(app, '#view');
     assert(v.width <= 720, name + ' keeps the reading column: ' + v.width);

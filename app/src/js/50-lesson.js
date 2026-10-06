@@ -1347,6 +1347,8 @@
           Promise.resolve().then(function () { return U.review.addFromLesson(tid, iid, st.lesson, outcome(), { round: round() }); })
             .catch(function (e) { if (!(e && e.queued)) U.toast('Your review cards could not be saved: ' + U.errText(e), { kind: 'bad' }); });
         }
+        // The course's dossier binds this lesson as a chapter (75-dossier.js; never rejects).
+        if (first && U.dossier && !st.gone) U.dossier.bind(tid, iid, { doc: st.doc, doneAt: st.ip.doneAt });
       }
       if (live && st.replay) {
         // Going through it again is recorded on its own: the first guess and results stay as they were.

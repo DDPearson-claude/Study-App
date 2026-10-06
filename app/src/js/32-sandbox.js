@@ -12,7 +12,7 @@
 // finish loading), so the host pings every mounted frame and removes one that stops answering.
 //
 //   U.sandbox.srcdoc(body, {theme, token, quiz}) -> string
-//   U.sandbox.mount(container, {html, title, onReady, onError, onChange, minHeight, loading, quiz}) ->
+//   U.sandbox.mount(container, {html, title, onReady, onError, onChange, minHeight, loading, quiz, theme}) ->
 //     { el, frame, ready, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t),
 //       quiz(hide), reveal(), destroy() }
 //       set() counts as a move (it reveals the body's .k-after-move parts), and takes a slider value,
@@ -22,6 +22,7 @@
 //       quiz: {hide: '<output id>'} mounts it in quiz mode (a target check Dan is answering): the
 //       kit shows that readout as "?", hides the .say line and any plot or bar label giving its
 //       value; get() and onChange still carry the real outputs. reveal() (or quiz(null)) ends it.
+//       theme: a function returning the K_THEME to use (asked again on every theme or size change).
 //   U.sandbox.test(html, {widths:[340, 720, 1040], timeout:8000}) -> Promise<Report>   hidden, merged
 //   U.sandbox.reach(mounted | html, {control, output, target, tolerance, decimals?}) ->
 //       Promise<{reachable, exact, best:{value, output} | null, tried, error?}>
@@ -237,6 +238,9 @@ U.sandbox = (function () {
   var SILENT = 'The interactive stopped answering, so it was closed.';
   function mount(container, o) {
     o = o || {};
+    // o.theme: a function giving the K_THEME to use instead of the app's (the dossier's paper
+    // plates); it is asked again whenever the app's theme or text size changes.
+    var themeOf = typeof o.theme === 'function' ? o.theme : theme;
     var minHeight = Math.max(120, o.minHeight || 320);
     var wrap = U.h('div', { class: 'kit-frame', dataset: { state: 'loading' } });
     var frame = U.h('iframe', {
@@ -329,7 +333,7 @@ U.sandbox = (function () {
     function pushTheme() {
       if (destroyed) return;
       if (!wrap.isConnected) { api.destroy(); return; }
-      var t = theme(), key = JSON.stringify(t);
+      var t = themeOf(), key = JSON.stringify(t);
       if (key !== lastTheme) { lastTheme = key; ch.send('theme', { theme: t }); }
     }
     var mo = new MutationObserver(function () { setTimeout(pushTheme, 30); });
@@ -340,7 +344,7 @@ U.sandbox = (function () {
 
     var shown = true;
     try {
-      var t0 = theme();
+      var t0 = themeOf();
       lastTheme = JSON.stringify(t0);
       frame.setAttribute('srcdoc', srcdoc(o.html, { theme: t0, token: token, quiz: quiz }));
     } catch (e) {
@@ -360,7 +364,7 @@ U.sandbox = (function () {
       frame: frame,
       ready: ready,
       selftest: function () { return ch.request('selftest', null, 10000).then(function (d) { return d.report; }); },
-      theme: function (t) { ch.send('theme', { theme: t || theme() }); },
+      theme: function (t) { ch.send('theme', { theme: t || themeOf() }); },
       // quiz(output id | null): hide that output while Dan answers; null ends it. reveal(): end it.
       quiz: function (hide) { quiz = hide == null || hide === '' ? null : String(hide); quizUsed = true; sendQuiz(); return api; },
       reveal: function () { quiz = null; quizUsed = true; if (!destroyed) ch.send('reveal'); return api; },

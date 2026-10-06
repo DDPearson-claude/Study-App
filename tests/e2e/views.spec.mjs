@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Browser tests for the views: Learn (home), topic page, Map, Book, reading settings and boot.
+// Browser tests for the views: Learn (home), topic page, Map, Library and Book, reading settings and boot.
 // Builds a partial page with only these modules (plus core), fakes U.gen / U.review / U.tutor
 // and the lesson route where they are absent, and checks behaviour at 360 and 1280 px in light
 // and dark. Screenshots land in tests/out/views/. Exits non-zero on any failure.
@@ -15,7 +15,7 @@ const UID = 'u_stubuser0000000000000000';
 const SEED = readJson('tests/fixtures/views-seed.json');
 const FILTER = process.argv[2] || '';
 
-const built = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '70,71,72,73,74,99', '--out', FILE], { stdio: 'inherit' });
+const built = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--only', '70,71,72,73,74,75,99', '--out', FILE], { stdio: 'inherit' });
 if (built.status !== 0) process.exit(built.status || 1);
 mkdirSync(SHOTS, { recursive: true });
 
@@ -461,7 +461,7 @@ await test('map: empty state', async () => {
 
 await test('book: first and latest explanations, and export', async () => {
   for (const [w, dark] of WIDTHS) {
-    const app = await open({ width: w, dark, db: seedDb(), hash: '#/book' });
+    const app = await open({ width: w, dark, db: seedDb(), hash: '#/book/words' });
     await app.page.waitForSelector('.book-entry');
     eq(await count(app, '.book-topic'), 2, 'two topics with explanations');
     eq(await count(app, '.book-entry'), 3, 'three ideas explained');
@@ -491,7 +491,7 @@ await test('book: first and latest explanations, and export', async () => {
 
 await test('book: empty state', async () => {
   for (const [w, dark] of [[360, false], [1280, true]]) {
-    const app = await open({ width: w, dark, db: seedDb({ topics: ['minor-keys-ef56'] }), hash: '#/book' });
+    const app = await open({ width: w, dark, db: seedDb({ topics: ['minor-keys-ef56'] }), hash: '#/book/words' });
     await app.page.waitForSelector('.v-empty');
     eq(await app.page.locator('.book-actions').isVisible(), false, 'no export when empty');
     await shot(app, `book-empty-${tag(w, dark)}`);
@@ -921,7 +921,7 @@ await test('regressions: the Book reads keyed explanations and questions (and ol
   pr.ideas.i1.say = { kb: { text: 'Second explanation, from the phone.', at: '2026-10-02T08:00:00.000Z', verdict: 'got-it' }, ka: { text: 'First explanation.', at: '2026-09-01T08:00:00.000Z', verdict: 'partly' }, kx: null };
   pr.questions = { q2: { q: 'Newest question?', iid: 'i1', at: '2026-10-03T08:00:00.000Z' }, q1: { q: 'Older question?', iid: 'i1', at: '2026-09-03T08:00:00.000Z' } };
   db[`data/users/${UID}/profile/progress/how-tides-work-ab12`] = pr;
-  const app = await open({ db, hash: '#/book' });
+  const app = await open({ db, hash: '#/book/words' });
   await app.page.waitForSelector('.book-entry');
   const first = app.page.locator('.book-entry').first();
   assert((await first.locator('.is-first').innerText()).includes('First explanation.'), 'first by time');
@@ -1071,7 +1071,7 @@ await test('ux2: on a laptop every tab screen starts at the same left edge', asy
   const app = await open({ width: 1280, db: seedDb() });
   await app.page.waitForSelector('.tcard');
   const lefts = {};
-  for (const [hash, sel] of [['#/', '.ask h1'], ['#/today', '#fake-today'], ['#/map', '.map h1'], ['#/book', '.book h1']]) {
+  for (const [hash, sel] of [['#/', '.ask h1'], ['#/today', '#fake-today'], ['#/map', '.map h1'], ['#/book', '.lib-page h1']]) {
     await app.page.evaluate((h) => U.go(h), hash);
     await app.page.waitForSelector(sel);
     lefts[hash] = await app.page.evaluate((s) => Math.round(document.querySelector(s).getBoundingClientRect().left), sel);

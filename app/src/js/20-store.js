@@ -622,6 +622,9 @@ U.store = (function () {
       profile: function () { return priv('profile'); },
       progress: function (tid) { return priv('profile/progress/' + tid); },
       cards: function (tid) { return priv('profile/cards/' + tid); },
+      // A course's dossier (75-dossier.js): a small index doc, and one doc per bound chapter.
+      dossier: function (tid) { return priv('profile/dossiers/' + tid); },
+      chapter: function (tid, iid) { return priv('profile/dossiers/' + tid + '/chapters/' + iid); },
     },
     persistent: function () { return !!(U.rt.db && U.rt.uid); },
     isRemoved: function (tid) { return removed.has(tid); },
@@ -759,6 +762,33 @@ U.store = (function () {
         return Promise.all([S.paths.cards(tid), S.paths.progress(tid)].map(function (p) {
           return retrying(function () { return D(p).delete(); }).catch(function (e) { console.warn('could not tidy', p, e); });
         })).then(function () { return true; });
+      });
+    },
+  };
+  // Dossiers (75-dossier.js; docs/ARCHITECTURE.md section 4). Private, and kept apart from the
+  // topic: they outlive a deleted course when Dan keeps them. A chapter doc is written whole (set,
+  // never held in the outbox: it can be 200 KB, and binding it again later puts it right); the
+  // index is patched (held like any private patch). Neither needs the topic to exist.
+  S.dossier = {
+    get: function (tid) { return getDoc(S.paths.dossier(tid)); },
+    watch: function (tid, fn, onError) { return watchDoc(S.paths.dossier(tid), fn, onError); },
+    list: function () { return whenKnown(function () { return listColl(priv('profile/dossiers')); }); },
+    patch: function (tid, patch) { patch.updatedAt = U.now(); return whenKnown(function () { return patchDoc(S.paths.dossier(tid), patch); }); },
+    chapters: function (tid) { return whenKnown(function () { return listColl(priv('profile/dossiers/' + tid + '/chapters')); }); },
+    chapter: {
+      get: function (tid, iid) { return getDoc(S.paths.chapter(tid, iid)); },
+      set: function (tid, iid, data) { return whenKnown(function () { return setDoc(S.paths.chapter(tid, iid), data); }); },
+    },
+    // Deletes every chapter, then the index. Rejects when a doc could not go (each retried once).
+    remove: function (tid) {
+      return whenKnown(function () {
+        var path = S.paths.dossier(tid);
+        return listColl(priv('profile/dossiers/' + tid + '/chapters')).then(function (list) {
+          return Promise.all(list.map(function (d) { var p = S.paths.chapter(tid, d.__id); return run(p, function () { return D(p).delete(); }); }));
+        }).then(function () {
+          delete held[path]; landed(path); persist();
+          return run(path, function () { return D(path).delete(); });
+        }).catch(function (e) { throw tag(e); });
       });
     },
   };

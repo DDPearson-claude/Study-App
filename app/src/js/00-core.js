@@ -264,11 +264,13 @@ U.routes = {
     this.list.push({ re: re, keys: keys, handler: handler, opts: opts || {}, screen: (opts && opts.screen) || U.routes.screenOf(pattern) });
   },
   // The screen a route draws, set as #view[data-screen] so each screen can choose its width on
-  // a laptop: learn, topic, lesson, today, review, map, book (or opts.screen).
+  // a laptop: learn, topic, lesson, today, review, map, book (the Library and the Book in Dan's
+  // own words), dossier (a course's dossier: #/book/:tid and its pages), or opts.screen.
   screenOf: function (pattern) {
     var segs = String(pattern).replace(/^#\/?/, '').split('/').filter(Boolean);
     if (!segs.length) return 'learn';
     if (segs[0] === 't') return segs.length === 2 ? 'topic' : 'lesson';
+    if (segs[0] === 'book' && segs.length > 1 && segs[1] !== 'words') return 'dossier';
     return segs[0];
   },
 };

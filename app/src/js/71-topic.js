@@ -1,9 +1,10 @@
 // Topic page (#/t/:tid): the plan for one topic, live from the db. While Claude plans it shows
 // the question and gentle waiting lines; if planning failed it says why and offers Retry; once
 // ready it shows the hook, the idea "in one breath", an optional warm-up (never locks anything),
-// the path of ideas, the Library of research sources, Ask Claude, and Delete. The plan is written
-// before any research and never checked against it, so "in one breath", the hook and the warm-up's
-// answers say they are Claude's overview, and the Library says only what research found (each
+// the path of ideas, the research Sources, Ask Claude, the "Keep a dossier" option (75-dossier.js)
+// and Delete (which asks whether to keep the dossier). The plan is written before any research and
+// never checked against it, so "in one breath", the hook and the warm-up's
+// answers say they are Claude's overview, and Sources says only what research found (each
 // lesson says whether it drew on it), and that lessons were checked against it only as far as
 // their docs say so (doc.verified, 31-generate.js). A lesson opens only when it is whole, so the header says
 // whether the next idea's lesson is being prepared or ready, and the path marks any idea this
@@ -30,6 +31,7 @@
     var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null };
     var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
     var lib = { key: null, groups: null, checked: null, seq: 0 };
+    var dossier = null;   // the course's dossier index (75-dossier.js), for the option's link
     var avail = null;
     // A watch that stopped after the page loaded (its error), cleared by its next snapshot.
     var live = { topic: null, progress: null };
@@ -63,6 +65,7 @@
         if (!info.retrying) { live.progress = e; schedule(); }
       }),
     ];
+    if (U.dossier) stops.push(U.store.dossier.watch(tid, function (d) { dossier = d; schedule(); }, function () { /* the option still works without its link */ }));
     // The next idea's lesson (its doc), and this page's own work on any lesson of this topic.
     var lw = V.lessonWatch(schedule);
     stops.push(lw.stop, U.on('gen', function (g) {
@@ -306,15 +309,20 @@
     function del() {
       if (deleting) return;
       var title = V.asTitle(topic.title || topic.query) || 'this topic';
-      U.confirmSheet({
+      // With a dossier, the sheet also asks whether to keep it (kept by default): a kept dossier
+      // is bound in full while the lessons still exist, and opens later with no course behind it.
+      var ask = U.dossier ? U.dossier.confirmDelete(tid, title, progress) : U.confirmSheet({
         title: 'Delete this topic?',
         text: 'This removes “' + title + '”, its lessons, your answers and its review cards from all your devices. You cannot undo this.',
         confirm: 'Delete topic', danger: true,
-      }).then(function (yes) {
-        if (!yes || deleting) return;
+      }).then(function (yes) { return yes ? { keep: false } : null; });
+      ask.then(function (answer) {
+        if (!answer || deleting) return;
         deleting = true;
-        return U.store.topic.remove(tid).then(function (r) {
-          U.toast(r && r.leftovers ? 'Topic deleted. A few of its saved pieces could not be cleared yet; they are hidden and will be tidied up later.' : 'Topic deleted.');
+        var first = U.dossier && answer.keep ? U.dossier.keep(tid).catch(function (e) { console.warn('dossier: keep', e); }) : Promise.resolve();
+        return first.then(function () { return U.store.topic.remove(tid); }).then(function (r) {
+          if (U.dossier && !answer.keep) U.dossier.remove(tid).catch(function (e) { console.warn('dossier: remove', e); });
+          U.toast(r && r.leftovers ? 'Topic deleted. A few of its saved pieces could not be cleared yet; they are hidden and will be tidied up later.' : U.dossier && answer.keep ? 'Topic deleted. Its dossier stays in your Library.' : 'Topic deleted.');
           if (U.review && U.review.refreshBadge) try { U.review.refreshBadge(); } catch (e) { console.error(e); }
           if (ctx.alive()) U.go('#/');
         }, function (e) {
@@ -362,6 +370,7 @@
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
+        U.dossier ? ['dossier', sig(U.dossier.on(progress), U.dossier.countOf(dossier), ideas.length), function () { return U.dossier.option(tid, progress, dossier, ideas.length); }, 'rail'] : null,
         ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, lib.checked, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
           return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
@@ -598,7 +607,7 @@
           U.h('ol', { class: 'sources' }, g.sources.map(sourceItem)));
       });
       return U.h('section', { class: 'tp-lib', 'aria-labelledby': 'lib-h' },
-        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'lib-h' }, 'Library')),
+        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'lib-h' }, 'Sources')),
         status, groups);
     }
 
