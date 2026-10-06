@@ -159,10 +159,13 @@
     }
     // The keyboard is up on a phone: the input has focus in a short viewport. The starters then go
     // back on one sideways row, so the welcome above them stays readable (50-lesson.css).
+    // Only a touch screen has an on-screen keyboard: a short laptop window keeps its chips whole,
+    // since a mouse cannot easily scroll a sideways row.
     var vv = window.visualViewport;
+    var touch = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
     function cramped() {
       var h = Math.min(window.innerHeight || Infinity, vv && vv.height || Infinity);
-      if (sheet) sheet.el.classList.toggle('is-cramped', document.activeElement === input && h < SHORT);
+      if (sheet) sheet.el.classList.toggle('is-cramped', touch && document.activeElement === input && h < SHORT);
       edges();
     }
 

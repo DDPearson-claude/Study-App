@@ -11,6 +11,9 @@
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
 //   U.review.dueCount() -> Promise<number>     what today's session holds right now
+//   U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   dueCount, cards reviewed
+//       today, cards in all, and Today's words when nothing is waiting ("Done for today", its lead,
+//       "Next up: 2 cards tomorrow." or ''), for Learn's quiet line
 //   U.review.refreshBadge()                    #today-badge text + hidden
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
@@ -426,6 +429,10 @@
     mendCards: mendCards,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
+    // For Learn when nothing is waiting, from the same read as dueCount, in Today's words.
+    outlook: function () {
+      return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, head: w.head, lead: w.lead, next: w.next }; });
+    },
     refreshBadge: function () {
       changed();
       return U.review.dueCount().then(setBadge, function (e) { console.error('badge', e); return 0; });
@@ -436,6 +443,7 @@
     _interleave: interleave,
     _plan: plan,
     _hold: holding,
+    _clearWords: clearWords,
     _backCount: backCount,
   };
 
@@ -459,6 +467,39 @@
   function longDate(day) {
     var p = day.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  }
+  // "Next up: 2 cards tomorrow.", or ''. Cards the daily limit held back today are still due, so
+  // they are waiting tomorrow (with any due then); otherwise the soonest day cards come back. The
+  // count is what that day's review holds (its usual limit: a light day is for today only).
+  function nextUp(p) {
+    var held = Math.max(0, p.due.length - p.size);
+    var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
+    var nextDay = held ? U.addDays(p.day, 1) : upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
+    var nextN = Math.min(held + upcoming.filter(function (c) { return c.s.due === nextDay; }).length, capOf(Object.assign({}, p.prefs, { lightDay: '' }), {}));
+    return nextDay ? 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.' : '';
+  }
+  // The words for a day with nothing waiting: one set, for Today, a review with nothing to show
+  // and Learn's quiet line.
+  function clearWords(p) {
+    var w = p.done > 0 ? ['Done for today', 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.']
+      : !p.data.cards.length ? ['Nothing to review yet', 'When you finish a lesson, the questions you answered come back the next day, so they stick.']
+      : ['Nothing to review today', 'Everything you have learned is holding up for now.'];
+    return { head: w[0], lead: w[1], next: nextUp(p) };
+  }
+  // Nothing waiting, on Today and in a review with nothing to show: those words, and any cards the
+  // daily limit held back, offered without hurry. `first` is the main way on.
+  function clearBox(p, first) {
+    var w = clearWords(p), more = p.due.length;
+    var box = h('section', { class: 'td-clear' });
+    if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
+    box.appendChild(h('h1', { class: 'td-title' }, w.head));
+    box.appendChild(h('p', { class: 'td-lead' }, w.lead));
+    if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
+    var actions = h('div', { class: 'td-actions' }, first);
+    if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
+    box.appendChild(actions);
+    if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
+    return box;
   }
   function whenDay(day, today) {
     var n = U.daysBetween(today, day);
@@ -612,28 +653,9 @@
     }
 
     function drawClear(p) {
-      var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
-      var nextDay = upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
-      var nextN = upcoming.filter(function (c) { return c.s.due === nextDay; }).length;
-      var box = h('section', { class: 'td-clear' });
-      if (p.done > 0) {
-        box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
-        box.appendChild(h('h1', { class: 'td-title' }, 'Done for today'));
-        box.appendChild(h('p', { class: 'td-lead' }, 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.'));
-      } else {
-        box.appendChild(h('h1', { class: 'td-title' }, 'Nothing to review right now'));
-        box.appendChild(h('p', { class: 'td-lead' }, p.data.cards.length
-          ? 'Everything you have learned is holding up for now.'
-          : 'When you finish a lesson, the questions you answered come back here the next day, so they stick.'));
-      }
-      if (nextDay) box.appendChild(h('p', { class: 'muted' }, 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.'));
-      var actions = h('div', { class: 'td-actions' }, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
-      var more = p.due.length;
-      if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
-      box.appendChild(actions);
-      if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
+      var box = clearBox(p, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
       // When today's light day is what holds those cards back, its switch stays here to undo it.
-      if (more > 0 && !p.prefs.light && lightToday(p.prefs)) box.appendChild(lightRow(p, redraw));
+      if (p.due.length > 0 && !p.prefs.light && lightToday(p.prefs)) box.appendChild(lightRow(p, redraw));
       root.appendChild(box);
     }
   }
@@ -748,20 +770,14 @@
         if (U.boot && U.boot.study) return;
         U.logStudy(Math.max(1, Math.round(S.ms / 60000))).catch(function () {});
       }
+      // Nothing to show: what Today says (no cards yet, nothing due, done for today, or the cards
+      // the daily limit held back), with the way back to Today.
       function empty(p) {
         fill.style.width = '100%';
         count.textContent = '';
-        // Cards still due but today's limit already reached (a light day turned on after some
-        // reviews, or Today out of date): say so, with the way to do more, as Today does.
-        var more = p && !extra ? p.due.length : 0;
-        U.clear(stage).appendChild(h('div', { class: 'empty rv-empty' },
-          h('h2', null, more ? 'Done for today' : 'Nothing to review right now'),
-          h('p', null, more
-            ? 'You have reached today\'s limit of ' + plural(p.cap, 'card') + '. ' + plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'
-            : 'Everything you have learned is holding up for now.'),
-          h('div', { class: 'td-actions' },
-            more ? h('a', { class: 'btn', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more') : null,
-            h('a', { class: 'btn' + (more ? ' secondary' : ''), href: '#/today' }, 'Back to Today'))));
+        var box = clearBox(p, h('a', { class: 'btn wide', href: '#/today' }, 'Back to Today'));
+        box.classList.add('rv-empty');
+        U.clear(stage).appendChild(box);
       }
       function summary() {
         fill.style.width = '100%';

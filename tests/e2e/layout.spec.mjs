@@ -6,7 +6,10 @@
 // pinned phone layout on a laptop is a centred phone column with its tab bar and sheets inside
 // it; a pinned laptop layout on a phone keeps the top bar on one row; the laptop shapes (topic
 // grid, topic page columns, Map columns, a wide lesson interactive with a narrower text column);
-// and no screen ever scrolls sideways. Screenshots land in tests/out/layout/.
+// Learn at narrow laptop widths and every text size (the ask box's height, when Learn goes two
+// columns, the line shown beside the ask when nothing is due, the reviews row's width, the busy ask
+// wherever its form is narrow, the words Learn, Today and an empty review share); and no screen ever
+// scrolls sideways. Screenshots land in tests/out/layout/.
 // Usage: node tests/e2e/layout.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -56,9 +59,9 @@ function seedDb() {
 }
 
 // Opens the app at a size, optionally with a pinned layout already saved on this device.
-async function open(width, height, { layout = null, hash = '#/' } = {}) {
+async function open(width, height, { layout = null, hash = '#/', db = seedDb() } = {}) {
   const app = await openApp({
-    width, height, file: FILE, config: { db: seedDb() },
+    width, height, file: FILE, config: { db },
     sample: (input) => (taskOf(input) === 'tutor' ? 'Sure.' : new Promise(() => {})),
   });
   current.apps.push(app);
@@ -466,6 +469,310 @@ for (const [w, h] of [[390, 844], [360, 707]]) {
     assert(r.aim && r.aim.top >= r.frame.bottom && r.aim.bottom <= r.btn.top, 'the aim sits under the interactive, above Check ' + JSON.stringify({ aim: r.aim, frame: r.frame, btn: r.btn }));
   });
 }
+// ---------- Learn at narrow laptop widths (UX round 3) ----------
+// Reading settings saved in the db profile, so boot applies them (and emits 'prefs') while Learn draws.
+function withPrefs(db, prefs) { return { ...db, [`data/users/${UID}/profile`]: { prefs: { theme: 'light', size: 'm', easy: false, cap: 15, light: false, ...prefs } } }; }
+// Cards for one topic: `due` of them due today, `later` due in two days, `doneToday` reviewed
+// today (and due in four days).
+function withCards(db, { due = 0, later = 0, doneToday = 0 } = {}) {
+  const cards = {};
+  for (let i = 0; i < due + later + doneToday; i++) {
+    const id = 'i1_c' + i, at = new Date(Date.now() - 9 * 864e5).toISOString(), done = i >= due + later;
+    cards[id] = { id, tid: 'how-tides-work-ab12', iid: 'i1', type: 'choice', createdAt: at, learnedAt: at,
+      hist: [{ at, grade: 3, ok: true }].concat(done ? [{ at: new Date().toISOString(), grade: 3, ok: true }] : []),
+      spec: { id: 'c' + i, type: 'choice', q: 'How many high tides do most coasts get in a day?', options: ['One', 'Two'], answer: 1, why: 'Two bulges.' },
+      s: { due: localDay(i < due ? 0 : done ? 4 : 2), stability: 3, difficulty: 5, reps: 1, lapses: 0, last: localDay(done ? 0 : -9) } };
+  }
+  return { ...db, [`data/users/${UID}/profile/cards/how-tides-work-ab12`]: { cards } };
+}
+const askBox = (app) => app.page.evaluate(() => {
+  const r = (s) => { const b = document.querySelector(s).getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, width: b.width, height: b.height }; };
+  const learn = document.querySelector('.learn');
+  return { input: r('#ask-input'), go: r('.ask-go'), ask: r('.ask'), rem: parseFloat(getComputedStyle(document.documentElement).fontSize),
+    cols: getComputedStyle(learn).gridTemplateColumns.split(' ').filter((c) => /px$/.test(c)).length, size: document.documentElement.dataset.size };
+});
+const settle = (app) => app.page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 50)))));
+// An empty ask box is one line tall, level with its go button (which is one line tall at every size).
+async function oneLine(app, where) {
+  await settle(app);
+  const b = await askBox(app);
+  assert(Math.abs(b.input.height - b.go.height) < 1.5 && Math.abs(b.input.top - b.go.top) < 1.5,
+    `${where} (${b.size}): the empty box is one line, level with its button (box ${b.input.height} at ${b.input.top}, button ${b.go.height} at ${b.go.top})`);
+  return b;
+}
+
+await test('ux3: the ask box fits its words and placeholder after boot, a text size change and a resize', async () => {
+  // The boot 'prefs' event used to fit the box while Learn still had its first-run placeholder,
+  // and the box kept two lines once Dan's topics arrived (940-1024 px, every size but s).
+  for (const [w, size] of [[1024, 'xl'], [940, 'm'], [960, 'l']]) {
+    const app = await open(w, 768, { db: withCards(withPrefs(seedDb(), { size }), { due: 2 }) });
+    await app.page.locator('.tcard').first().waitFor();
+    await oneLine(app, `returning at ${w}`);
+    if (w !== 1024) continue;
+    for (const s of ['m', 'l', 'xl']) {
+      await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), s);
+      await oneLine(app, `text size changed at ${w}`);
+    }
+    for (const [vw, vh] of [[940, 768], [1366, 768], [960, 700]]) {
+      await app.page.setViewportSize({ width: vw, height: vh });
+      await oneLine(app, `resized to ${vw}`);
+    }
+    await app.page.fill('#ask-input', 'How do vaccines train the immune system to remember a virus it has never met before');
+    await settle(app);
+    const grown = await askBox(app);
+    assert(grown.input.height > grown.go.height + 10, 'a long question still grows the box: ' + grown.input.height);
+    await app.page.fill('#ask-input', '');
+    await oneLine(app, 'cleared');
+    // A width change that is not a window resize (here the Layout setting) fits the box again too.
+    await app.page.setViewportSize({ width: 1366, height: 768 });
+    await app.page.fill('#ask-input', 'How do tides work around a small island');
+    await oneLine(app, 'a short question on the laptop');
+    await app.page.evaluate(() => U.layout.set('phone'));
+    await settle(app);
+    const framed = await askBox(app);
+    assert(framed.input.width < 400 && framed.input.height > framed.go.height + 10, `in the phone column the question wraps and the box grows (${framed.input.width} wide, ${framed.input.height} tall)`);
+    await app.page.evaluate(() => U.layout.set('auto'));
+    await oneLine(app, 'back on the laptop');
+  }
+});
+
+await test('ux3: Learn goes two columns only when the ask keeps 35rem; the box stays wider than Start learning', async () => {
+  const db = withPrefs(Object.fromEntries(Object.entries(seedDb()).filter(([k]) => !k.startsWith('topics/'))), { size: 'xl' });
+  const app = await open(960, 768, { db });
+  await app.page.locator('.welcome').waitFor();
+  for (const [vw, size] of [[960, 'xl'], [1024, 'xl'], [1100, 'l'], [1366, 'xl'], [940, 'm'], [960, 'm'], [1366, 'm']]) {
+    await app.page.setViewportSize({ width: vw, height: 768 });
+    await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+    const b = await oneLine(app, `first run at ${vw}`);   // the placeholder fits on one line
+    const where = `${vw} px at ${size}`;
+    assert(b.input.width > b.go.width + 40, `${where}: the box (${b.input.width}) is wider than its button (${b.go.width})`);
+    if (b.cols === 2) {
+      assert(b.ask.width >= 35 * b.rem - 1, `${where}: beside the welcome the ask keeps 35rem (${b.ask.width} < ${35 * b.rem})`);
+      const welcome = await rect(app, '.welcome');
+      assert(welcome.left >= b.ask.right, `${where}: how it works sits beside the ask`);
+    }
+    await noSideways(app, where);
+    if (vw === 960 && size === 'xl') await shot(app, 'ux3-learn-first-960-xl');
+  }
+  // The checker's case: at 960 px and Extra large the ask now has the full width.
+  await app.page.setViewportSize({ width: 960, height: 768 });
+  await app.page.evaluate(() => U.settings.apply(Object.assign({}, U.settings.prefs, { size: 'xl' })));
+  await settle(app);
+  eq((await askBox(app)).cols, 0, 'one column at 960 px and Extra large');
+  await app.page.setViewportSize({ width: 1366, height: 768 });
+  await settle(app);
+  eq((await askBox(app)).cols, 2, 'two columns at 1366 px and Extra large');
+});
+
+await test('ux3: laptop Learn with nothing due says so quietly beside the ask; phones and one column do not', async () => {
+  const app = await open(1366, 768, { db: withCards(seedDb(), { later: 2 }) });
+  await app.page.locator('.today-row.is-quiet').waitFor();
+  const quiet = await rect(app, '.today-row.is-quiet'), ask = await rect(app, '.ask'), h1 = await rect(app, '.ask h1');
+  assert(quiet.left >= ask.right && quiet.top < h1.bottom, 'the line sits in the top-right, beside the ask ' + JSON.stringify({ quiet, ask }));
+  const words = await app.page.locator('.today-row.is-quiet').innerText();
+  assert(/Nothing to review today/.test(words) && /Next up: 2 cards (tomorrow|on )/.test(words), 'says nothing is due and when cards come back: ' + words);
+  eq(await app.page.locator('.learn-today a').count(), 0, 'a status, not a nudge to tap');
+  eq(await app.page.locator('.today-row:not(.is-quiet)').count(), 0, 'no reviews row');
+  await shot(app, 'ux3-learn-nothing-due-1366');
+  // Returning Learn keeps its two columns from 900 px of view (940 px wide); one column (the laptop
+  // layout at 910 px, so under 900 px of view) has no line.
+  await app.page.setViewportSize({ width: 940, height: 768 });
+  await settle(app);
+  const quiet940 = await rect(app, '.today-row.is-quiet'), ask940 = await rect(app, '.ask');
+  assert(quiet940.width > 0 && quiet940.left >= ask940.right, 'two columns at 940 px: the line beside the ask');
+  await app.page.setViewportSize({ width: 910, height: 768 });
+  await settle(app);
+  eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'one column at 910 px: no line');
+  await app.page.setViewportSize({ width: 390, height: 844 });
+  await settle(app);
+  eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'phone: no line, Continue stays near the top');
+
+  // No cards at all yet; and with reviews waiting the row that opens Today is back.
+  const fresh = await open(1366, 768);
+  await fresh.page.locator('.today-row.is-quiet').waitFor();
+  assert(/Nothing to review yet/.test(await fresh.page.locator('.today-row.is-quiet').innerText()), 'no cards yet');
+  const due = await open(1366, 768, { db: withCards(seedDb(), { due: 3, later: 1 }) });
+  await due.page.locator('a.today-row').waitFor();
+  eq(await due.page.locator('.today-row.is-quiet').count(), 0, 'reviews waiting: the usual row');
+  assert(/3 reviews ready/.test(await due.page.locator('a.today-row').innerText()), 'three ready');
+});
+
+// ---------- Learn follow-ups (UX round 3b) ----------
+const borderOf = (app, sel) => app.page.evaluate((s) => getComputedStyle(document.querySelector(s)).borderTopColor, sel);
+// How far the reviews row's arrow is from the end of its words. It measures the words' own line
+// boxes (each text node's client rects), not a Range over .today-text, whose children are blocks
+// as wide as the text column, so that ended by the arrow however far away the words stopped.
+// Words that wrap have used all the room the row has, so the ragged end of a wrapped line is not
+// a gap, as long as the text column runs right up to the arrow.
+const arrowGap = (app) => app.page.evaluate(() => {
+  const text = document.querySelector('a.today-row .today-text'), arrow = document.querySelector('a.today-row .today-go').getBoundingClientRect().left;
+  const walk = document.createTreeWalker(text, NodeFilter.SHOW_TEXT);
+  let right = -Infinity, wraps = false;
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    const r = document.createRange();
+    r.selectNodeContents(n);
+    const lines = [...r.getClientRects()].filter((b) => b.width > 0);
+    if (lines.length > 1) wraps = true;
+    for (const b of lines) right = Math.max(right, b.right);
+  }
+  const g = { gap: Math.round(arrow - right), wraps, column: Math.round(arrow - text.getBoundingClientRect().right) };
+  return { ...g, byLabel: g.gap < 40 || (g.wraps && g.column < 20) };
+});
+
+await test('ux3b: only the reviews link reacts to hover; the quiet line does not look tappable', async () => {
+  const app = await open(1366, 768, { db: withCards(seedDb(), { later: 2 }) });
+  await app.page.locator('.today-row.is-quiet').waitFor();
+  await app.page.mouse.move(5, 700);
+  const still = await borderOf(app, '.today-row.is-quiet');
+  await app.page.hover('.today-row.is-quiet');
+  await app.page.waitForTimeout(200);
+  eq(await borderOf(app, '.today-row.is-quiet'), still, 'the quiet line keeps its border under the pointer');
+  const due = await open(1366, 768, { db: withCards(seedDb(), { due: 2 }) });
+  await due.page.locator('a.today-row').waitFor();
+  await due.page.mouse.move(5, 700);
+  const rest = await borderOf(due, 'a.today-row');
+  await due.page.hover('a.today-row');
+  await due.page.waitForTimeout(200);
+  assert(await borderOf(due, 'a.today-row') !== rest, 'the reviews link still answers the pointer');
+});
+
+await test('ux3b: Learn, Today and a review with nothing to show say the same words, and count what the daily limit held back', async () => {
+  for (const [name, db, head, sub] of [
+    // The limit (15) is used up and 5 are still due: they wait for tomorrow (2 more come back in two days).
+    ['limit used up', withCards(seedDb(), { due: 5, later: 2, doneToday: 15 }), 'Done for today', /^Next up: 5 cards tomorrow\.$/],
+    ['done for today', withCards(seedDb(), { later: 2, doneToday: 3 }), 'Done for today', /^Next up: 2 cards on \S+\.$/],
+    ['nothing due', withCards(seedDb(), { later: 2 }), 'Nothing to review today', /^Next up: 2 cards on \S+\.$/],
+    ['no cards yet', seedDb(), 'Nothing to review yet', /^When you finish a lesson, the questions you answered come back the next day, so they stick\.$/],
+  ]) {
+    const app = await open(1366, 768, { db });
+    await app.page.locator('.today-row.is-quiet').waitFor();
+    const learn = await app.page.evaluate(() => [...document.querySelectorAll('.today-row.is-quiet .today-text > *')].map((e) => e.textContent));
+    eq(learn[0], head, `${name}: Learn's line`);
+    assert(sub.test(learn[1]), `${name}: Learn's line says "${learn[1]}"`);
+    const words = (sel) => app.page.evaluate((box) => {
+      const t = (s) => { const el = document.querySelector(box + ' ' + s); return el ? el.textContent : ''; };
+      return { head: t('.td-title'), lead: t('.td-lead'), next: t('.td-next'), more: t('.td-more-note') };
+    }, sel);
+    await go(app, '#/today', '.td-clear');
+    const today = await words('.td-clear');
+    eq(today.head, head, `${name}: Today's heading matches Learn`);
+    eq(today.next || today.lead, learn[1], `${name}: Today says what Learn says`);
+    if (name === 'limit used up') assert(/^5 more cards are due/.test(today.more), 'Today still offers the 5 waiting, without hurry: ' + today.more);
+    // The focus-mode review with nothing to show (an old link, Back after a session) says the same,
+    // never a third wording; with the limit used up, #/review/more still has the 5 waiting.
+    for (const hash of name === 'limit used up' ? ['#/review'] : ['#/review', '#/review/more']) {
+      await go(app, hash, '.rv-empty');
+      eq(JSON.stringify(await words('.rv-empty')), JSON.stringify(today), `${name}: ${hash} says what Today says`);
+      await noSideways(app, `${name}: ${hash}`);
+    }
+    if (name !== 'limit used up') continue;
+    // Side by side on a laptop, "Back to Today" and "Review 5 more" keep one line at every text size.
+    for (const size of ['m', 'xl']) {
+      await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+      await settle(app);
+      const lines = await app.page.evaluate(() => [...document.querySelectorAll('.rv-empty .td-actions .btn')].map((b) => {
+        const r = document.createRange();
+        r.selectNodeContents(b);
+        return new Set([...r.getClientRects()].filter((x) => x.width > 0).map((x) => Math.round(x.top))).size;
+      }));
+      eq(JSON.stringify(lines), '[1,1]', `${name} at ${size}: each button keeps its words on one line`);
+      await shot(app, 'ux3c-review-empty-limit-used-up-1366-' + size);
+    }
+  }
+});
+
+await test('ux3b: returning Learn keeps two columns from 900 px at every text size; the reviews row stays compact', async () => {
+  const app = await open(1024, 768, { db: withCards(withPrefs(seedDb(), { size: 'xl' }), { due: 2 }) });
+  await app.page.locator('a.today-row').waitFor();
+  for (const [vw, size] of [[940, 'xl'], [1024, 'xl'], [1190, 'xl'], [940, 'l'], [1075, 'l'], [940, 'm'], [959, 'm'], [1366, 'm'], [1366, 'xl']]) {
+    await app.page.setViewportSize({ width: vw, height: 768 });
+    await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+    const where = `${vw} px at ${size}`;
+    const b = await oneLine(app, `returning at ${vw}`);
+    eq(b.cols, 2, `${where}: two columns`);
+    const row = await rect(app, 'a.today-row'), ask = await rect(app, '.ask'), h1 = await rect(app, '.ask h1'), cont = await rect(app, '.ccard');
+    assert(row.left >= ask.right && row.top < h1.bottom, `${where}: the reviews row sits beside the ask ${JSON.stringify({ row, ask })}`);
+    assert(row.width <= 381, `${where}: the reviews row keeps its column (${row.width})`);
+    assert(cont.top < Math.max(ask.bottom, row.bottom) + 60, `${where}: Continue comes straight after (${cont.top} vs ${ask.bottom} / ${row.bottom})`);
+    const g = await arrowGap(app);
+    assert(g.byLabel, `${where}: the arrow sits by its label (${JSON.stringify(g)})`);
+    await noSideways(app, where);
+    if (vw === 1024) await shot(app, 'ux3b-learn-returning-1024-' + size);
+  }
+  // One column (the laptop layout under 900 px of view, a wide phone column, phones): the row is as
+  // wide as its words, so its arrow stays by its label.
+  for (const [vw, size] of [[910, 'm'], [910, 'xl'], [700, 'm'], [390, 'xl'], [360, 'm']]) {
+    await app.page.setViewportSize({ width: vw, height: 800 });
+    await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+    await settle(app);
+    const where = `one column, ${vw} px at ${size}`;
+    eq((await askBox(app)).cols, 0, where);
+    const g = await arrowGap(app);
+    assert(g.byLabel, `${where}: the arrow sits by its label (${JSON.stringify(g)})`);
+    await noSideways(app, where);
+  }
+});
+
+await test('ux3b: while Claude plans on a phone, Planning… takes its own row and the whole question shows', async () => {
+  for (const [w, h, size] of [[390, 844, 'xl'], [360, 707, 'm']]) {
+    const app = await open(w, h, { db: withPrefs(seedDb(), { size }) });
+    await app.page.locator('.tcard').first().waitFor();
+    await app.page.evaluate(() => { U.gen.createTopic = () => new Promise(() => {}); });
+    await app.page.fill('#ask-input', 'How do vaccines train the immune system to remember a virus it has never met before');
+    await app.page.click('.ask-go');
+    await app.page.locator('.ask-go.is-busy').waitFor();
+    await settle(app);
+    const where = `${w} px at ${size}`;
+    const input = await rect(app, '#ask-input'), btn = await rect(app, '.ask-go'), ask = await rect(app, '.ask');
+    assert(btn.top >= input.bottom - 1, `${where}: Planning… sits under the question (${btn.top} < ${input.bottom})`);
+    assert(input.width >= ask.width - 1, `${where}: the question keeps the full width (${input.width} of ${ask.width})`);
+    const sc = await app.page.evaluate(() => { const i = document.querySelector('#ask-input'); return { sh: i.scrollHeight, ch: i.clientHeight, top: i.scrollTop }; });
+    assert(sc.sh <= sc.ch + 1 && sc.top === 0, `${where}: the whole question shows (${sc.sh} > ${sc.ch})`);
+    await noSideways(app, where);
+    await shot(app, `ux3b-learn-busy-${w}-${size}`);
+  }
+});
+
+// ---------- Learn follow-ups (UX round 3c) ----------
+await test('ux3c: while Claude plans, Planning… takes its own row wherever the ask form is narrow, at every width', async () => {
+  // The checker's case: at 940 px and Extra large the returning ask's column is 480 px, and a long
+  // question beside the busy button grew into a 260 x 393 px box that pushed Continue off the screen.
+  // Under 36rem the form stacks; wider, the box keeps at least 24rem beside the button.
+  const Q = 'How do vaccines train the immune system to remember a virus it has never met before, and why do some need boosters while others last a lifetime of exposure';
+  const noTopics = Object.fromEntries(Object.entries(seedDb()).filter(([k]) => !k.startsWith('topics/')));
+  for (const [kind, db, cases] of [
+    ['returning', seedDb(), [[940, 'xl', true], [960, 'xl', true], [1024, 'xl', true], [940, 'm', true], [1024, 'm', true], [1190, 'xl', false], [1366, 'm', false], [1366, 'xl', false], [390, 'xl', true]]],
+    ['first run', noTopics, [[960, 'xl', false], [1366, 'xl', true], [1366, 'm', false], [700, 'xl', true], [360, 'm', true]]],
+  ]) {
+    const app = await open(cases[0][0], 768, { db: withPrefs(db, { size: cases[0][1] }) });
+    await app.page.locator(kind === 'returning' ? '.tcard' : '.welcome').first().waitFor();
+    await app.page.evaluate(() => { U.gen.createTopic = () => new Promise(() => {}); });
+    await app.page.fill('#ask-input', Q);
+    await app.page.click('.ask-go');
+    await app.page.locator('.ask-go.is-busy').waitFor();
+    for (const [vw, size, stack] of cases) {
+      await app.page.setViewportSize({ width: vw, height: 768 });
+      await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+      await settle(app);
+      const where = `${kind}, ${vw} px at ${size}`;
+      const b = await askBox(app), form = await rect(app, '.ask-form'), input = b.input, btn = b.go;
+      eq(form.width < 36 * b.rem, stack, `${where}: the form (${form.width} px) is narrow`);
+      if (vw === 940) eq(b.cols, 2, `${where}: two columns`);
+      if (stack) {
+        assert(btn.top >= input.top + input.height - 1, `${where}: Planning… sits under the question (${btn.top} < ${input.top + input.height})`);
+        assert(input.width >= form.width - 1 && btn.width >= form.width - 1, `${where}: the question and Planning… keep the form's width (${input.width}, ${btn.width} of ${form.width})`);
+        assert(input.height < input.width, `${where}: not a tall narrow box (${input.width} x ${input.height})`);
+      } else {
+        assert(btn.left >= input.right - 1, `${where}: Planning… stays beside the question`);
+        assert(input.width >= 24 * b.rem, `${where}: the box beside it keeps 24rem (${input.width})`);
+      }
+      const sc = await app.page.evaluate(() => { const i = document.querySelector('#ask-input'); return { sh: i.scrollHeight, ch: i.clientHeight, top: i.scrollTop }; });
+      assert(sc.sh <= sc.ch + 1 && sc.top === 0, `${where}: the whole question shows (${sc.sh} > ${sc.ch})`);
+      await noSideways(app, where);
+      if (vw === 940 && size === 'xl') await shot(app, 'ux3c-learn-busy-940-xl');
+    }
+  }
+});
 
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} layout tests passed`);

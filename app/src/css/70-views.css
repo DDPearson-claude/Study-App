@@ -80,6 +80,16 @@
 .learn.is-returning .ask-go:not(.is-busy) .ask-go-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .learn.is-returning .ask-go svg { width: 24px; height: 24px; }
 .learn.is-returning .ask h1 { font-size: clamp(1.6rem, 5.4vw, 2rem); font-size: clamp(1.6rem, 5.4cqi, 2rem); }
+/* While Claude plans, the button says "Planning…" and the box shows the whole question. Wherever
+   the form itself is narrow (under 36rem: a phone, or the ask's column on a narrower laptop),
+   "Planning…" takes its own row under the question, so the question keeps the full width and
+   stays readable instead of growing tall beside the button. The form is a size container, so this
+   follows its own width at every screen width and text size. */
+.ask-form { container: ask-form / inline-size; }
+.ask-form:has(> .ask-go.is-busy) { flex-wrap: wrap; }
+@container ask-form (max-width: 36rem) {
+  .ask-form > .ask-go.is-busy { flex: 1 0 100%; }
+}
 .learn-note:empty { display: none; }
 .v-load-error { align-items: center; }
 .v-slow { padding: 4px 2px 12px; }
@@ -117,11 +127,17 @@
   color: var(--ink); text-decoration: none;
 }
 .today-row:focus-visible { border-radius: var(--r); }
+/* As wide as its words (up to the column): on a wide single column the arrow stays by its label. */
+.learn-today > .today-row { width: fit-content; max-width: 100%; }
 .today-ico { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-tint); color: var(--teal); }
 .today-ico svg { width: 24px; height: 24px; }
 .today-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .today-text strong { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
 .today-go { width: 22px; height: 22px; color: var(--heading); flex: none; }
+/* Nothing waiting: a quiet line that only the two-column laptop Learn shows, beside the ask. */
+.learn-today.is-quiet { display: none; }
+.today-row.is-quiet { background: transparent; }
+.today-row.is-quiet .today-ico { background: var(--sunk); color: var(--muted); }
 
 /* Topic cards: compact rows on phones, a two-column grid of covers on wider screens */
 .tgrid { display: grid; gap: 12px; }
@@ -159,7 +175,7 @@
 }
 @media (hover: hover) {
   .ccard:hover, .tcard:hover:not(.is-skeleton) { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(23, 50, 77, .06), 0 14px 32px rgba(23, 50, 77, .10); }
-  .today-row:hover { border-color: var(--line-strong); }
+  a.today-row:hover { border-color: var(--line-strong); }
 }
 .ccard:active, .tcard:active { transform: translateY(1px); }
 
@@ -383,15 +399,18 @@
 .tp-top, .tp-cols, .tp-main, .tp-rail, .tp-end { display: flex; flex-direction: column; gap: 36px; }
 .tp-rail:empty { display: none; }
 @container view (min-width: 900px) {
-  /* Learn: the ask on the left and, beside it, the reviews waiting (or, the very first time,
-     how it all works), so the first screen has no empty corner; then a wide Continue card and
-     three columns of topics. */
-  .learn { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); gap: 40px; }
-  .learn, .learn.is-returning { column-gap: 48px; }
-  .learn > * { grid-column: 1 / -1; }
-  .learn > .ask { grid-column: 1; grid-row: 1; max-width: var(--measure); }
-  .learn > .learn-today { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
-  .learn > .learn-topics:has(> .welcome) { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  /* Learn: the ask keeps a reading width; a wide Continue card and three columns of topics. */
+  .learn { gap: 40px; }
+  .learn > .ask { max-width: var(--measure); }
+  /* Returning: the compact ask (a box and a round button) on the left and, beside it, the reviews
+     waiting (with nothing waiting, a quiet line saying when reviews come back), so the first screen
+     has no empty corner and Continue stays near the top. */
+  .learn.is-returning { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); column-gap: 48px; }
+  .learn.is-returning > * { grid-column: 1 / -1; }
+  .learn.is-returning > .ask { grid-column: 1; grid-row: 1; }
+  .learn.is-returning > .learn-today { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn.is-returning > .learn-today.is-quiet { display: block; }
+  .learn.is-returning > .learn-today > .today-row { width: auto; }
   .ccard { grid-template-columns: 46% 1fr; }
   .ccard-cover { min-height: 300px; }
   .ccard-body { padding: 32px 36px; gap: 10px; }
@@ -400,9 +419,6 @@
   .welcome { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
   .welcome-art { aspect-ratio: auto; height: 100%; min-height: 300px; }
   .welcome-body { padding: 32px 36px; }
-  .learn-topics:has(> .welcome) > .welcome { display: block; }
-  .learn-topics:has(> .welcome) .welcome-art { aspect-ratio: 16 / 7; height: auto; min-height: 0; }
-  .learn-topics:has(> .welcome) .welcome-body { padding: 22px 26px 26px; }
 
   /* Topic: the cover beside the header, above the rail; the path on the left; Ask Claude and
      the sources beside it. The planning and failed pages keep the same two columns. */
@@ -415,4 +431,18 @@
 
   /* Map: two topics side by side. */
   .map-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+}
+/* First run (and while topics load), once there is room for both: the full ask on the left and,
+   beside it, how it all works, so the first screen has no empty corner. The ask keeps at least
+   35rem, so its box stays wider than "Start learning" and the placeholder on one line; in rem, so
+   this holds at every text size (35 + 3 + 20 = 58rem). Narrower, it stays one column. */
+@container view (min-width: 58rem) {
+  .learn:not(.is-returning) { display: grid; grid-template-columns: minmax(35rem, 1fr) minmax(20rem, 23.75rem); column-gap: 3rem; }
+  .learn:not(.is-returning) > * { grid-column: 1 / -1; }
+  .learn:not(.is-returning) > .ask { grid-column: 1; grid-row: 1; }
+  .learn:not(.is-returning) > .learn-today, .learn > .learn-topics:has(> .welcome) { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn:not(.is-returning) > .learn-today > .today-row { width: auto; }
+  .learn-topics:has(> .welcome) > .welcome { display: block; }
+  .learn-topics:has(> .welcome) .welcome-art { aspect-ratio: 16 / 7; height: auto; min-height: 0; }
+  .learn-topics:has(> .welcome) .welcome-body { padding: 22px 26px 26px; }
 }

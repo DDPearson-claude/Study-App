@@ -56,7 +56,8 @@
     var d = decimals == null ? (Math.abs(v) >= 100 || Number.isInteger(v) ? 0 : Math.abs(v) >= 1 ? 2 : 3) : decimals;
     return Number(v.toFixed(d)).toLocaleString(undefined, { maximumFractionDigits: d });
   }
-  function withUnit(text, unit) { return unit ? text + ' ' + unit : text; }
+  // A no-break space: the number never ends a line with its unit on the next.
+  function withUnit(text, unit) { return unit ? text + '\u00a0' + unit : text; }
   function primary(text, onClick) { return h('button', { class: 'btn wide qc-primary', type: 'button', on: { click: onClick } }, text); }
   function richBlock(cls, text) { return h('div', { class: cls }, U.rich(String(text || ''))); }
   function why(text) { return text ? h('div', { class: 'qc-why' }, label('Why'), richBlock('qc-prose', text)) : null; }

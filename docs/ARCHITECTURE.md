@@ -605,6 +605,9 @@ U.review.addFromLesson(tid, iid, lesson, outcome, {round?, at?}) -> Promise<[car
 U.review.mendCards(force?) -> Promise<[{tid, iid}]>   never rejects; at most once a minute after a clean run
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
+U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   size = dueCount (same read); head, lead, next = Today's words
+    when nothing is waiting ("Done for today", ..., "Next up: 5 cards tomorrow." or ''); next counts cards the daily limit held back.
+    Today and a review with nothing to show (#/review, #/review/more) draw the same words (clearBox in 60-today.js)
 ```
 Views and app services
 ```
@@ -682,7 +685,16 @@ boot read fails.
   goal sentence's number has gone under the bar (or off the screen), so the instruction never
   shows twice at once, and it comes in under Check (in the docked bar, beside it), so Check
   never moves.
-- Learn at least 900 px wide puts the reviews row (or, on first run, the welcome) beside the ask.
+- Returning Learn with `#view` at least 900 px wide puts the reviews row (320-380 px) beside its
+  compact ask; with nothing waiting, a quiet line in Today's words from `U.review.outlook()` (done
+  for today or nothing to review, and when cards come back). One column hides the quiet line, and
+  the reviews row is as wide as its words there, so its arrow stays by its label. First-run Learn
+  goes two columns (the welcome beside the full ask) only when `#view` is at least 58rem wide (the
+  ask keeps 35rem, so the breakpoint follows the text size). The ask box fits its height to its
+  text or placeholder whenever its width, its placeholder or the text size changes; while Claude
+  plans it shows the whole question, and wherever the form itself is under 36rem wide (a phone,
+  or the ask's column on a narrower laptop; `.ask-form` is a size container named `ask-form`)
+  "Planning…" takes its own row under it, so the box never grows tall beside the button.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The

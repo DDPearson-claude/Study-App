@@ -270,6 +270,7 @@
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
     // A question can be long ("how vaccines train the immune system"), so the box wraps and grows
     // to three lines instead of scrolling sideways; Enter still asks (it never adds a new line).
+    // While Claude plans (the box is disabled) it shows the whole question.
     var input = U.h('textarea', {
       class: 'input ask-input', id: 'ask-input', rows: '1', autocomplete: 'off', autocapitalize: 'sentences',
       enterkeyhint: 'go', maxlength: '200', placeholder: 'Tides, black holes, jazz…',
@@ -278,14 +279,25 @@
       if (!input.isConnected) return;
       input.style.height = '';
       var cs = getComputedStyle(input), border = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
-      var max = Math.ceil((parseFloat(cs.lineHeight) || 26) * 3 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + border);
+      var max = input.disabled ? Infinity : Math.ceil((parseFloat(cs.lineHeight) || 26) * 3 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + border);
       var need = input.scrollHeight + border;
       if (need > input.offsetHeight) input.style.height = Math.min(need, max) + 'px';
       input.style.overflowY = need > max + 1 ? 'auto' : 'hidden';
     }
     input.addEventListener('input', fit);
-    window.addEventListener('resize', fit);
     var offPrefs = U.on('prefs', fit); // a new text size changes the line height
+    // The box's width follows the screen's shape (first run or returning, one column or two, the
+    // layout, a busy button), so it is fitted again whenever its width changes; on the next frame,
+    // so the height it sets is not a change made inside this observer.
+    var fitW = -1, fitRaf = 0;
+    var fitRo = window.ResizeObserver ? new ResizeObserver(function (entries) {
+      var w = entries[entries.length - 1].contentRect.width;
+      if (w === fitW) return;
+      fitW = w;
+      cancelAnimationFrame(fitRaf);
+      fitRaf = requestAnimationFrame(fit);
+    }) : null;
+    if (fitRo) fitRo.observe(input); else window.addEventListener('resize', fit);
     input.addEventListener('keydown', function (e) {
       if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
       e.preventDefault();
@@ -358,6 +370,8 @@
       goBtn.classList.toggle('is-busy', on);
       working.hidden = !on;
       exampleChips.concat(levelChips).forEach(function (c) { c.disabled = on; });
+      fit();
+      if (on) input.scrollTop = 0;
     }
 
     function submit() {
@@ -432,15 +446,28 @@
       U.clear(listBox).appendChild(V.loadError('Your topics', e, info.retrying));
     });
 
-    if (U.review && U.review.dueCount) {
-      Promise.resolve().then(function () { return U.review.dueCount(); }).then(function (n) {
-        if (ctx.alive()) renderToday(Number(n) || 0);
+    if (U.review && (U.review.outlook || U.review.dueCount)) {
+      Promise.resolve().then(function () {
+        return U.review.outlook ? U.review.outlook() : Promise.resolve(U.review.dueCount()).then(function (n) { return { size: n }; });
+      }).then(function (o) {
+        if (ctx.alive()) renderToday(o || {});
       }, function (e) { console.error(e); });
     }
 
-    function renderToday(n) {
+    // Reviews waiting: a row that opens Today. Nothing waiting: a quiet line in Today's words
+    // saying so and when cards come back, which only the two-column laptop Learn shows (beside the ask).
+    function renderToday(o) {
+      var n = Number(o.size) || 0;
       U.clear(todayBox);
-      if (n <= 0) return;
+      todayBox.classList.toggle('is-quiet', n <= 0);
+      if (n <= 0) {
+        if (!o.head) return;   // only a count to go on: say nothing
+        var sub = o.next || o.lead;
+        todayBox.appendChild(U.h('div', { class: 'today-row is-quiet' },
+          U.h('span', { class: 'today-ico' }, U.svg(CLOCK)),
+          U.h('span', { class: 'today-text' }, U.h('strong', null, o.head), sub ? U.h('span', { class: 'muted small' }, sub) : null)));
+        return;
+      }
       var mins = Math.max(1, Math.round(n * 25 / 60));
       todayBox.appendChild(U.h('a', { class: 'today-row', href: '#/today' },
         U.h('span', { class: 'today-ico' }, U.svg(CLOCK)),
@@ -476,7 +503,8 @@
       // While his saved work is still loading he is not a first-time visitor either.
       var late = !topics.length && U.rt.savedLate();
       page.classList.toggle('is-returning', topics.length > 0 || late);
-      input.placeholder = topics.length ? 'Type any topic…' : 'Tides, black holes, jazz…';
+      var ph = topics.length ? 'Type any topic…' : 'Tides, black holes, jazz…';
+      if (input.placeholder !== ph) { input.placeholder = ph; fit(); }   // the box was fitted to the old one
       if (shownFailed !== progressFailed) {
         shownFailed = progressFailed;
         U.clear(noteBox);
@@ -590,6 +618,6 @@
       }));
     }
 
-    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); offPrefs(); };
+    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
   }, { tab: 'learn', title: 'Learn' });
 })();

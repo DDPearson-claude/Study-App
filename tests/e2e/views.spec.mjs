@@ -151,7 +151,8 @@ await test('home: first run at 360 and 1280, light and dark', async () => {
     eq(await count(app, '.ask-levels [role=radio]'), 3, 'three levels');
     eq(await app.page.getAttribute('.ask-levels [data-level=new]', 'aria-checked'), 'true', 'New is the default level');
     eq(await count(app, '.ccard'), 0, 'no continue card on first run');
-    eq(await count(app, '.today-row'), 0, 'no Today row when nothing is due');
+    eq(await count(app, 'a.today-row'), 0, 'no Today row when nothing is due');
+    eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'first run: how it works, not the nothing-due line');
     eq(await app.page.getAttribute('html', 'data-mu-theme'), dark ? 'dark' : 'light', 'theme');
     if (w === 1280) {
       const r = await app.page.evaluate(() => { const a = document.querySelector('.ask').getBoundingClientRect(), b = document.querySelector('.welcome').getBoundingClientRect(); return { gap: b.left - a.right, dy: b.top - a.top }; });
