@@ -205,7 +205,6 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
     ['brief in the wrong form', (l) => { l.interactive.brief = 'Play with the sliders to learn about thrust.'; }, /The one thing you should see is/],
     ['quote far longer than 40 words', (l) => { l.sources[0].quote = 'word '.repeat(60).trim(); }, /at most 40/],
     ['duplicate source numbers', (l) => { l.sources.push({ ...l.sources[0] }); }, /used twice/],
-    ['outputs but no target check', (l) => { l.checks[0] = { id: 'c1', type: 'choice', q: 'Which?', options: ['a', 'b'], answer: 0, why: 'because' }; }, /one check of type "target"/],
     ['target tolerance of 0', (l) => { l.checks[0].tolerance = 0; }, /tolerance must be a number greater than 0/],
     ['target on a switch', (l) => { Object.assign(l.interactive.controls[1], { min: 0, max: 1, step: 1, value: 0 }); }, /needs a numeric control with at least three settings/],
     ['target on named options', (l) => { l.interactive.controls[1] = { id: 'speedAdded', label: 'Speed added', options: ['slow', 'fast'], value: 1 }; }, /switch or named options/],
@@ -348,7 +347,7 @@ const LENGTH_RULES = {
     ['whatAmILookingAt (words)', 120, 'words', (o, t) => { o.interactive.whatAmILookingAt = t; }],
     ['ignores', 600, 'chars', (o, t) => { o.interactive.ignores = t; }],
     ['numbers[0].label', 140, 'chars', (o, t) => { o.interactive.numbers[0].label = t; }],
-    ['explain.text', 170, 'words', (o, t) => { o.explain.text = t; }],
+    ['explain.text', 170, 'words', (o, t) => { o.explain.text = t + '[^1]'; }],
     ['analogy.text', 400, 'chars', (o, t) => { o.analogy = { text: t, breaks: 'It breaks here.' }; }],
     ['analogy.breaks', 300, 'chars', (o, t) => { o.analogy = { text: 'Like this.', breaks: t }; }],
     ['say.prompt', 300, 'chars', (o, t) => { o.say.prompt = t; }],
@@ -560,10 +559,10 @@ test('prompt builders start with their TASK line, stay small and carry the key r
 
   const lesson = prompts['write-lesson'];
   for (const s of ['at most 170 words', 'The one thing you should see is', 'whatAmILookingAt', 'ignores', 'THE NUMBER RULE', '- control:', '- computed:', '- constant:', '- assumed:', '- date:',
-    'hypothetical check case', 'where the comparison stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Include one whenever the interactive has outputs', '"contested": { "views"',
+    'hypothetical check case', 'where it stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Write one only when reaching it needs the idea', '"contested": { "views"',
     '[1] Newton\'s Third Law of Motion — NASA Glenn Research Center — https://www.grc.nasa.gov/www/k-12/BGP/newton3.html', 'with "source": n when a source above states it',
     '<-- THIS LESSON', 'Teach only this idea', 'This is the first idea', 'Known idea number 3', '[[like this]]', 'UK English',
-    'moving away from that state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Round each number in your explanation the way its readout shows it', 'action buttons', 'a Play button that sounds what the picture shows', 'which view he finds more convincing', 'never as something he did', 'never by its shade', 'FAIR EXAMPLES',
+    'changes something from the interactive\'s opening state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Write each number as its readout shows it', 'action buttons', 'which view he finds more convincing', 'never as something he did', 'never by its shade', 'FAIR EXAMPLES',
     'Never invent probabilities', 'controls: one.', 'spoken to him as "you"', 'named: options', 'may start off', 'zero when zero is the real case', 'at most 120 words', 'label (at most 6 words)'])
     assert.ok(lesson.includes(s), 'write-lesson mentions ' + s);
   assert.ok(!lesson.includes('A FRESH ANGLE'));

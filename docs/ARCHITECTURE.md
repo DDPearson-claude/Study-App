@@ -318,11 +318,13 @@ cannot count words or characters exactly, so a limit on length (characters, word
 the "<= n chars/words" below) never throws a reply away: up to `U.validate.allowed(max)` (max +
 15%, at least one unit: 170 words -> 195, 6 words -> 7) is not reported at all; past it the
 problem is reported and listed in `problems.soft`, so U.ask's one repair asks for a cut and then
-accepts the reply (section 3, Runtime). One check made by word matching is soft for the same
-reason: a plan calibration question whose right answer is already printed above it on the topic
-page (below). Everything else is hard: missing fields, wrong types, bad or duplicate ids, unknown
-sources, unreachable targets, web addresses, and counts of list items (2-3 checks, 5-8 ideas,
-1-2 controls). The prompts still ask for the same limits.
+accepts the reply (section 3, Runtime). Judgements made by matching words or numbers are soft for
+the same reason (a match can be a coincidence): a plan calibration question whose right answer is
+already printed above it on the topic page, and the lesson judgements below. Everything else is
+hard: missing fields, wrong types, bad or duplicate ids, unknown sources, unreachable targets, web
+addresses, and counts of list items (2-3 checks, 5-8 ideas, 1-2 controls). The prompts still ask
+for the same limits. `problems.warnings` holds advice that is never a problem (no repair, nothing
+thrown away; `tools/eval/validate.mjs` prints it).
 
 ```
 Lesson = {
@@ -358,8 +360,18 @@ Check =
     // control: a numeric control with >= 3 settings; output: an outputs id. Graded on the
     // lesson's interactive, every other control at its opening value. tolerance > 0 throughout.
 ```
-- An interactive with outputs and a numeric control must have a target check; no interactive,
-  no target check. A misconception belongs to a wrong option and speaks to Dan as "you".
+- No interactive, no target check. An interactive with outputs and a numeric control but no
+  target check is only a warning: the writer adds one only when reaching the value needs the idea.
+  A misconception belongs to a wrong option and speaks to Dan as "you".
+- Soft lesson judgements, each message saying what to change: a target check's target (as its
+  output's decimals round it) or an estimate check's answer printed in `predict.reveal` or
+  `explain.text` (digit groups read whole, "1,000"; a whole number under 10 counts only with its
+  unit, the output's or the estimate's, straight after it: "2 sounds" is no answer to 2x); a
+  choice check's right option sharing 4+ consecutive words (two of them not little words) with
+  `explain.text`, `predict.reveal` or `say.model`; a right option of 4+ words over 1.5x the
+  other options' average length in characters; a rubric point joining two ideas with ";"; a
+  rubric point whose key words (2 or more) all appear in `say.prompt`; and, before renumbering
+  (not `final`), a listed source nothing cites (with `final` that one is hard).
 - No web address anywhere but `sources`. With `sources: null` (no research) the list is `[]`
   with no `[^n]`; given a list, each source's n and url must match it. Every `[^n]` and
   `numbers[].source` names a listed source.
@@ -439,6 +451,21 @@ frames cap at 4000). A lesson keeps an interactive only after it passes (section
 `30-prompts.js` owns the plan, research, lesson, grade and tutor prompts and every validator;
 `33-interactive.js` the build and repair prompts. Each JSON call passes its validator as `schema`.
 Tiers: plan-topic quick; build/repair-interactive complex; the rest default.
+
+The write-lesson prompt gives the writer THE COURSE (title, the hook as the puzzle the course
+answers, level, oneBreath, every idea as "id title — one line [kind]"), this idea, `prior`, the
+calibration questions with their right answers and whys (Dan has seen them: the predict and checks
+build on them and never repeat them), `known`, the lesson's research and `avoid`/`feedback`. Its
+rules are written once each: per part (predict, interactive, explain, analogy, say, checks,
+confidence), then NAMES AND TERMS, CLAIMS THAT STAY TRUE and THE NUMBER RULE (these two are
+`U.prompts.truthRules({sources, history})`, so anything that later checks a lesson against them
+reads the same words), SOURCES and a closing checklist. Some rules go only where they apply: the
+interactive's form by the idea's kind; date windows and period names to every lesson of a course
+with a history idea, and the "how we know" why and the timeline-axis check to a history idea; a
+neutral-wording rule when a later idea's title or one line says people argue; sound only when the
+topic or idea is about something heard; at most 2 new terms and 2 numbers for a NEW learner. The
+research prompt asks for causes before facts, a note under every idea whose claim it limits,
+quotes that keep their qualifiers and dates, and claims no stronger than their quotes.
 
 Pipelines (`31-generate.js`):
 1. `createTopic(query, {level, onCreated(tid)})` writes `topics/{tid}` (planning), calls
