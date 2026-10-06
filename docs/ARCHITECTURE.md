@@ -420,8 +420,9 @@ controls   K.control K.choice K.toggle K.stepper K.button         each {id, labe
            K.control's snap: [values]: a drag within 2% of the range of one lands on it exactly (set and reach
            take it too; shown with its own decimals); − / + repeat while held (a click with no pointer, one step)
 drag       K.drag(el, {control, toValue(x, y)}): the pointer in the drawing's viewBox units (px from el's top-left
-           for HTML) -> the control's value (a slider fits it to range, step and snap). touch-action none,
-           pointer capture, a 44 px target (an invisible k-drag-hit circle beside a small SVG handle, kept on
+           for HTML) -> the control's value (a slider fits it to range, step and snap). touch-action none
+           (on the element, and on the <svg> holding a live handle, k-drag-root: Chromium ignores it on SVG
+           shapes, so a touch drag would scroll the page and cancel), pointer capture, a 44 px target (an invisible k-drag-hit circle beside a small SVG handle, kept on
            it after every update and frame; k-drag-small for HTML), the slider follows (the keyboard's way in),
            and the first touch calls K.reveal()
 outputs    K.readout({id, …, decimals?, afterMove?})  K.plot(target, opts)  K.bars(target, opts)  K.anim({step, …, button?})
@@ -436,6 +437,7 @@ layout     K.stage(visual, controls, {max = 600, beside}): controls under the vi
            beside the visual, the .say and .k-readouts that follow the stage move into it (and back when
            the frame narrows)
 helpers    K.el K.svg K.labels K.fmt K.near K.clamp K.lerp K.linspace K.round K.color(role, alpha?)  K.theme {dark, size, c}
+           K.fmt prints −0 and a negative that rounds to nothing as 0 (no sign).
            K.color takes a role, its var(--k-…) form or a CSS colour; a colour word ('navy') or one the
            canvas can't draw is drawn as a role and fails the self-test. K.choice reads a number as the
            index when every option is a string ('1', '2', '4'). K.labels(group, items, {size = 13, avoid}):
@@ -459,8 +461,12 @@ host -> kit  ping                    -> {type:'pong'}         the heartbeat
              press {label?}          -> state | error       a K.button, else a K.anim's Play; counts as a move
              inputs                  -> {type:'inputs', inputs:[{id, kind, label, value, …}], actions:[labels]}
              reach {control, output, target, tolerance, decimals?} -> {type:'reach', result:{reachable, exact, best:{value, output}|null, tried, error?}}
-                 exact: some setting shows the target exactly at `decimals` (the lesson output's), else as the
-                 output's readout rounds it (else the default rounding)
+                 every setting of a choice; up to 2001 spread over a slider, then a closer look: the step at the
+                 target itself and every step between two tried settings whose outputs fall either side of the
+                 target (or next to the closest one), so fine sliders (0-5000 in ones) are judged on their own
+                 steps. exact: some setting shows the target exactly at `decimals` (the lesson output's), else as
+                 the output's readout rounds it (else the default rounding); −0 shows as 0. Every error result
+                 (the kit's or the host's: too large, did not load, the page left) has exact: false
              theme {theme}           (no reply)
 Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label, ok, source?, error?}],
            sweep:{ ok, problems:[] }, controls:[ids], readouts:[ids], outputs:[model keys],
@@ -476,10 +482,15 @@ boxes, not their upright bounding boxes. SVG text (svgNow) is also clipped when 
 under 11 CSS px (0.25 px allowed) in a frame under 560 px wide, has a stroked line, path or
 outline through its letters (its box less the top 20% and bottom 22%; not faint strokes under
 1.5:1 against the page, not a band at least 0.6 of its height, not a line hidden under a solid
-shape painted between it and the text), sits on a marker-start / marker-end arrowhead, or has
+shape painted between it and the text that covers at least 80% of the label, a backing pill, never a
+small dot; not text with its own halo: a stroke painted under its letters (paint-order: stroke), at
+least 2 px wide, within 1.5:1 of the colour behind it), sits on a marker-start / marker-end arrowhead, or has
 under 3:1 contrast with what is behind its centre (the shapes painted before it there,
 composited over the drawing's background; on the page, against both --k-bg and --k-panel).
-Labels on one row under 4 px apart are advice (warnings). The self-test (KIT.md, "The
+Labels K.labels could not place clear of everything (more labels than room, avoid cannot be honoured)
+give one fault per drawing instead of one per label ("K.labels has more labels than room in <svg>…: label
+fewer things, or a key under the drawing, or a list beside it"). Labels on one row under 4 px apart are
+advice (warnings). The self-test (KIT.md, "The
 self-test") also sweeps every control, reveals the after-move parts, steps every `K.anim` for 3 s
 (90 frames of 1/30 s) and, in a throwaway frame, presses every `K.button`, sweeps the controls
 again at Text size XL (20 px) and looks once more in the other theme (light <-> dark, the kit's
@@ -487,11 +498,18 @@ own palette). Sweep problems include: a model output that is NaN or Infinity; `K
 non-number (it shows "—"); NaN, Infinity, undefined or "[object" in visible text, an aria-label or
 an SVG shape's numbers (words the body wrote itself, in its HTML or a quoted string, are not
 faults); an unknown K.color role; an SVG fill or stroke (attribute or inline style) that is a
-colour name, a var() the kit does not define, a url(#…) to nothing or not a colour; `K.sound`
+colour name, a var() the kit does not define, a url(#…) to nothing or not a colour (initial, unset and
+a value the page computes as a colour, such as color-mix() over the kit's variables, pass);
+an echo: an output with a readout whose value (as the tile rounds it, not zero) one place prints
+too, a text, an aria-label or a plot label, at two or more different values in the sweep (a fixed
+reference or an axis tick matches one value at most; a setting where a control or another output
+reads the same, Dan's own push while the grip equals it, does not count; digits inside a word or
+code are not the value); `K.sound`
 played from an update while the controls are swept; no control or button in view when the page
 opens (all inside `.k-after-move` or a hidden box); a `K.anim` whose Play button is not on the
 page; a K.drag naming no control, or whose toValue at the drawing's centre or corners throws or
-gives a value its control cannot take. Errors include a `.k-after-move` block over 180 px tall (a
+gives a value its control cannot take. A K.drag whose element left the page (the body redrew it in
+K.update, so the binding is lost) is a warning that says to create it once and move it. Errors include a `.k-after-move` block over 180 px tall (a
 blank hole). Warnings (throwaway frames) include a switch, slider or button that starts a K.anim
 which has its own Play button, and a Play button whose motion flips a switch.
 A body that navigates its test frame away fails ("navigated its frame away"), keeping what its
@@ -505,15 +523,12 @@ the value never shows, and after every `ready` (a frame moved in the page loads 
 host posts `{type:'quiz', hide}` with the current state; `{type:'quiz', hide:null}` or
 `{type:'reveal'}` ends it (`api.quiz(null)`, `api.reveal()`; `api.quiz(id)` starts one later). In
 it the kit shows that output's readout as "?" (role img, aria-label "Hidden until you check your
-answer"; `readout.text()` gives "?"), hides every `.say` element (`html.k-quiz .say`: visibility,
-so nothing jumps), K.plot (mark, line, shade and region labels, legend keys, the text
-alternative) and K.bars (a bar whose value is the output) draw no label giving the value, and SVG
-text in the body's own drawing that gives it is hidden (class k-veiled, after every update): one
-with a number that reads as the output's value at the number's own rounding ('2.01 s', '1,234',
-'45%', '2.5 × 10⁶', '1.2 million'), or a word output as a whole word. `state` and `change`
+answer"; `readout.text()` gives "?") and hides every `.say` element (`html.k-quiz .say`: visibility,
+so nothing jumps). Nothing else is hidden, ever: no matching of numbers elsewhere, so reference
+labels, axis ticks, bars and Dan's own input stay. KIT.md tells the body never to repeat a readout's
+value elsewhere, and the self-test fails a page that does (an echo, above). `state` and `change`
 messages still carry the real outputs (the app grades with them). The self-test runs with quiz
-mode off (a quiz that arrives meanwhile waits for its end); test frames never have one. KIT.md
-does not mention it: a body need do nothing.
+mode off (a quiz that arrives meanwhile waits for its end); test frames never have one.
 
 Height: the kit posts the body's height, including content that spills out of a fixed-height
 box (`body.scrollHeight`), capped at 6000 px; the host sizes the frame to it (hidden test

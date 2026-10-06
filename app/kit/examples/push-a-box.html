@@ -27,13 +27,15 @@
 </svg>
 <div class="k-controls" id="controls"></div>
 <p class="say" id="say"></p>
-<p class="caption">Example numbers: a 20 kg box on a floor that can grip it with at most half its weight.</p>
+<p class="caption">Example numbers: the floor grips with up to half the box's weight, kept while sliding (simplified: usually a little less).</p>
 
 <script>
   // Source [1] of the lesson: static friction matches the push, up to a limit.
   const SOURCE = 'https://en.wikipedia.org/wiki/Friction';
   const M = 20, G = 9.81, GRIP = 0.5;          // the example box and floor (assumed values)
   const MOST = GRIP * M * G;                   // the most the floor can grip with: 98.1 N
+  // A simplification, said in the caption: the grip stays at MOST while the box slides (real
+  // sliding friction is usually a little lower than the most a floor grips a box at rest).
   const S = 0.75;                              // drawing units per newton, the same for both arrows
   const N = (f) => K.fmt(f, { decimals: Number.isInteger(f) ? 0 : 1 }) + ' N';
   // Sliding, what is left of the push after the grip speeds the box up (a negative one slows it).
@@ -104,7 +106,7 @@
   // Known answers, worked by hand, and the rule as the source states it.
   K.check('A 40 N push: the floor pushes back with exactly 40 N, and the box stays put', () => K.at({ push: 40 }).grip === 40 && K.at({ push: 40 }).slides === 'no');
   K.check('The most grip is half the weight: 0.5 × 20 kg × 9.81 m/s² = 98.1 N', () => K.near(MOST, 98.1, 1e-9));
-  K.check('Just past it (100 N) the box slides, and the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
+  K.check('Just past it (100 N) the box slides; in this simplified model the grip stays at 98.1 N', () => { const o = K.at({ push: 100 }); return o.slides === 'yes' && K.near(o.grip, 98.1, 1e-9); });
   K.check('Pushing 20 N more than the grip speeds the 20 kg box up by 1 m/s every second', () => K.near(accel(MOST + 20), 1, 1e-9));
   K.check('Static friction matches the push, up to a most of μ × the weight pressing down', () =>
     [0, 30, 60, 98, 98.1, 120, 160].every((f) => K.near(K.at({ push: f }).grip, Math.min(f, GRIP * M * G), 1e-9)), { source: SOURCE });

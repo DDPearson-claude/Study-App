@@ -504,26 +504,26 @@ U.sandbox = (function () {
     }, Promise.resolve()).then(function () { return merge(reports); });
   }
 
-  // reach(mounted | html, {control, output, target, tolerance}) -> Promise<{reachable, best, tried, error?}>
+  // reach(mounted | html, {control, output, target, tolerance, decimals?}) -> Promise<{reachable, exact, best, tried, error?}> (an error result has exact: false)
   function reach(target, spec, o) {
     o = o || {};
     if (target && typeof target === 'object' && typeof target.reach === 'function') return target.reach(spec);
     var html = String(target || '');
     var big = tooBig(html);
-    if (big) return Promise.resolve({ reachable: false, best: null, tried: 0, error: big });
+    if (big) return Promise.resolve({ reachable: false, exact: false, best: null, tried: 0, error: big });
     var timeout = o.timeout || 8000;
     return new Promise(function (resolve) {
       var hf = null, done = false, timer = null;
       function finish(r) { if (done) return; done = true; cancel(timer); if (hf) hf.close(); resolve(r); }
-      timer = visibleTimeout(function () { finish({ reachable: false, best: null, tried: 0, error: 'The interactive did not load within ' + Math.round(timeout / 1000) + ' s.' }); }, timeout);
+      timer = visibleTimeout(function () { finish({ reachable: false, exact: false, best: null, tried: 0, error: 'The interactive did not load within ' + Math.round(timeout / 1000) + ' s.' }); }, timeout);
       try {
         hf = hiddenFrame(html, o.width || 340, o.theme || theme(), function (d) {
-          if (d.type === 'leaving') finish({ reachable: false, best: null, tried: 0, error: LEFT });
+          if (d.type === 'leaving') finish({ reachable: false, exact: false, best: null, tried: 0, error: LEFT });
           if (d.type !== 'ready') return;
-          requests(hf.ch).reach(spec).then(function (r) { finish(r || { reachable: false, best: null, tried: 0, error: 'no answer' }); },
-            function (e) { finish({ reachable: false, best: null, tried: 0, error: (e && e.message) || 'no answer' }); });
+          requests(hf.ch).reach(spec).then(function (r) { finish(r || { reachable: false, exact: false, best: null, tried: 0, error: 'no answer' }); },
+            function (e) { finish({ reachable: false, exact: false, best: null, tried: 0, error: (e && e.message) || 'no answer' }); });
         });
-      } catch (e) { finish({ reachable: false, best: null, tried: 0, error: e.message || String(e) }); }
+      } catch (e) { finish({ reachable: false, exact: false, best: null, tried: 0, error: e.message || String(e) }); }
     });
   }
 
