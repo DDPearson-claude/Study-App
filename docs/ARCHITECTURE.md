@@ -67,7 +67,7 @@ U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
     keyed lists: maps keyed by U.key() (time first), or old arrays read as L000, L001…; oldest first
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
 U.today(d?) 'YYYY-MM-DD' local   U.addDays   U.daysBetween   U.now() ISO   U.when(iso)   U.clone   U.sleep   U.shuffle
-U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, interactive-test, layout, prefs, booted
+U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, ask-soft, interactive-test, layout, prefs, booted
 U.toast(text, {kind:'info'|'good'|'bad', ms})   the same text again extends the one shown
 U.errText(e) -> one plain sentence (db errors never blame Claude)   U.fail(view, e)   U.haptic   U.cheer(text?)
 U.sheet({title, body, actions:[{label, kind, onClick(api)}], onClose, autofocus, key}) -> {el, key, focus(), close({quiet})}
@@ -85,10 +85,14 @@ U.parseJson(text) -> value   first JSON object/array, tolerating fences and pros
 U.ask(input, opts) -> Promise<string | parsed JSON>        input: a string or [{role, content}]
   opts   tier 'quick'|'default'|'complex' (default 'default'), onText, signal, tools, images,
          cache (only when true), label (U.emit('ask', {label, tier, ms, chars, truncated})),
-         json, schema(data) -> [problems], priority 'foreground'|'background', key
+         json, schema(data) -> [problems] (problems.soft: the soft ones), priority 'foreground'|'background', key
   json   a parse error or schema problem gets ONE corrective turn listing the problems, then
-         rejects {code:'invalid'}. A truncated JSON reply gets one more go asking for shorter
-         fields (no schema retry after it); truncated text is returned as it is.
+         rejects {code:'invalid'}. Soft problems (length limits, section 5) get that turn too, but
+         a reply whose only problems left after it are soft is accepted as it is (console.warn and
+         U.emit('ask-soft', {label, problems}); nothing on screen). If the repair fails (a hard
+         problem, or the call itself) after a first reply that had only soft problems, that first
+         reply is kept (a cancelled call still rejects). A truncated JSON reply gets one more go
+         asking for shorter fields (no schema retry after it); truncated text is returned as it is.
   retry  'upstream_error' or 'unavailable': once, after 1-3 s. 'rate_limited': never.
   reject {code:'not_granted'} without sample; {code:'cancelled'} when a queued call's signal aborts
 U._gate  foreground calls go straight to sample. Background calls run one at a time, only while
@@ -215,6 +219,16 @@ review); learning the idea again clears it.
 ## 5. Lesson JSON (what generation writes, what the player plays)
 
 `U.validate.lesson(o, {iid, sources, final})` in `30-prompts.js` is the truth; in short:
+
+**Length limits are soft** (every validator: plan, research, lesson; grade has none). A model
+cannot count words or characters exactly, so a limit on length (characters, words, sentences:
+the "<= n chars/words" below) never throws a reply away: up to `U.validate.allowed(max)` (max +
+15%, at least one unit: 170 words -> 195, 6 words -> 7) is not reported at all; past it the
+problem is reported and listed in `problems.soft`, so U.ask's one repair asks for a cut and then
+accepts the reply (section 3, Runtime). Everything else is hard: missing fields, wrong types,
+bad or duplicate ids, unknown sources, unreachable targets, web addresses, and counts of list
+items (2-3 checks, 5-8 ideas, 1-2 controls). The prompts still ask for the same limits.
+
 ```
 Lesson = {
   iid, title,                                    // title <= 90 chars
@@ -257,7 +271,7 @@ Check =
 
 The other replies: `plan` {title, hook (a puzzle question ending "?"), oneBreath, ideas: 5-8
 {id 'i1'…, title, oneLine, deps (earlier ids only), kind, known?}, calibration: exactly 2 {id,
-iid?, q, options: 3-4, answer, why}}; `research` {sources, topic:{notes}, ideas:{[iid]:{notes}}},
+iid?, q, options: 3-4 distinct (trimmed, any case), answer, why}}; `research` {sources, topic:{notes}, ideas:{[iid]:{notes}}},
 a note citing at least one source unless contested; `grade` {met (one per rubric point), verdict
 (got-it = all met, partly = some, not-yet = none), nailed, followUp ('' only when got-it), model?}.
 
@@ -318,7 +332,8 @@ Tiers: plan-topic quick; build/repair-interactive complex; the rest default.
 Pipelines (`31-generate.js`):
 1. `createTopic(query, {level, onCreated(tid)})` writes `topics/{tid}` (planning), calls
    `onCreated` (Learn opens the topic to watch the plan form), then plans with `known` (up to 60
-   ideas finished in other topics). Ready: plan fields and `plannedAt`; research starts in the
+   ideas finished in other topics). Ready: plan fields (a title over 120 characters, possible now
+   that lengths are soft, is shortened at a word) and `plannedAt`; research starts in the
    background and the first idea not marked known is written (foreground). A failed plan sets
    status failed with a readable `error`; `replan(tid)` tries again.
 2. `research(tid)` never rejects and joins a run already going. No connector: `unavailable`.
@@ -334,8 +349,14 @@ Pipelines (`31-generate.js`):
    from its start, 15 s for the topic's first lesson; start it if there is none, retry a failed
    or unavailable one older than 10 min, ignore a `running` one older than 8 min); write the
    lesson with this lesson's research, `known`, `prior` (`priorSummary` of earlier lessons),
-   `avoid` and `feedback`; keep only citations of checked sources, renumbered 1..n; save
+   `avoid` and `feedback`; a reply that still fails the checks after U.ask's repair (`invalid`
+   or `bad_json`) is written once more from scratch: a fresh call with the same prompt (and its
+   own repair), status line "Having another go at writing this lesson…"; any other error keeps
+   its handling below. Keep only citations of checked sources, renumbered 1..n; save
    (`building`); build the interactive; save `ready` with it, or without it and a `note`.
+   `onStatus(text, meta)`: `meta.redo` means the step in progress is being done again (the
+   lesson screen rewrites that line instead of ticking it off); `meta.failed` carries the
+   failure text (the screen shows it once, under the step that failed, never as a step).
    Target checks the page cannot reach are dropped. `background` marks a prefetch: its calls go
    with priority background, and aborting `signal` cancels it until a foreground caller joins.
 4. `relearn(tid, iid, {onStatus, feedback})` always writes a new lesson, avoiding up to 3 earlier
@@ -441,6 +462,7 @@ U.prompts.lessonResearch(research, iid) -> {notes, sources} | null   sources num
 U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
 U.prompts.urlKey(url) / words(text) / footnotes(obj) / VOICE / KINDS / NUMBER_KINDS
 U.validate.plan(o) / .lesson(o, {iid, sources, final}) / .grade(o, {rubric, attempt}) / .research(o, {ideas}) -> [problems]
+   problems.soft: the length problems among them (section 5);  U.validate.hard(problems);  U.validate.allowed(max)
 U.gen.createTopic / replan / research / ensureLesson / relearn / grade / tutor / status / knownIdeas   (section 7)
 ```
 `41-cards.js`, `60-today.js`

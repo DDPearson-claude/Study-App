@@ -55,6 +55,22 @@ export async function openApp(opts = {}) {
   }, Object.entries(tools).flatMap(([s, t]) => Object.keys(t).map((k) => [s, k])));
 
   const base = pathToFileURL(file).href;
+  // Under heavy machine load, page.goto has occasionally resolved before the app's script ran
+  // ("U is not defined" in the next evaluate). After a goto to the app, wait until the app's
+  // global exists; if it never comes, load the page once more, saying so.
+  const goto = page.goto.bind(page);
+  page.goto = async (url, o) => {
+    const res = await goto(url, o);
+    if (!String(url).startsWith(base)) return res;
+    // Every page the specs open is built from the app's core, which defines the global U.
+    const up = () => page.waitForFunction(() => typeof window.U !== 'undefined', null, { timeout: 30000 });
+    try { await up(); } catch (e) {
+      console.warn('harness: the app had not started 30 s after goto; loading it again');
+      await goto(url, o);
+      await up();
+    }
+    return res;
+  };
   return {
     browser, context, page, errors,
     url: (hash = '#/') => base + hash,

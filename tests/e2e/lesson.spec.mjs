@@ -178,6 +178,8 @@ async function walk(width, dark) {
     const eb = await eyebrowOf(page);
     ok(eb.lines === 1 && eb.count && (width < 700 || eb.topic), `eyebrow is one line with the count${width < 700 ? '' : ' and the topic name'} (${JSON.stringify(eb)})`);
     ok(await page.locator('.lsn-step.is-now').count() === 1, 'one current step in the progress bar');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Predict', 'the bar names the stage, without a second "of N" beside the eyebrow\'s');
+    ok(await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 1 of 5: Predict, current step', 'the current segment tells a screen reader "Step 1 of 5: Predict"');
     const sure = page.getByRole('button', { name: 'That\'s my guess' });
     ok(await sure.isDisabled(), 'guess button waits for a choice');
     await noOverflow(app);
@@ -338,6 +340,7 @@ async function walk(width, dark) {
     const lines = await done.locator('.lsn-done-text > span').allTextContents();
     ok(lines.length === 2 && lines[0] === '2 of 3 checks right.' && /in your Book/.test(lines[1]), 'done says how it went and where his work went, on two short lines: ' + JSON.stringify(lines));
     ok(await page.locator('.lsn-step.is-all').count() === 5, 'progress bar turns green when done');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Idea learned', 'the bar says "Idea learned" at the end');
     t = await T(app);
     ok(t.ensure.some((e) => e.iid === 'i2'), 'next idea prefetched');
     await shot(app, `${tag}-8-done`);
@@ -425,6 +428,7 @@ async function retry() {
     const again = page.locator('.lsn-prep-err').getByRole('button', { name: 'Try again' });
     await again.waitFor();
     ok((await page.locator('.lsn-prep-err').textContent()).includes('could not be reached'), 'plain-English error');
+    ok(await page.locator('.lsn-prep-lines li.is-failed').count() === 1 && await page.locator('.lsn-prep-lines li.is-failed.is-done').count() === 0, 'one failed step, never ticked as well');
     await shot(app, 'retry-1-error');
     await again.click();
     await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor();
@@ -760,6 +764,82 @@ async function fullApp() {
   await app.close();
 }
 
+// ---------- scenario: the real generator gives up on a lesson that never passes its checks ----------
+// Every write-lesson reply breaks the lesson's structure (one check, not 2-3). The real U.gen
+// repairs once, writes it again from scratch (with its own repair), then fails. The prep box
+// says so in one honest line per step: the step that failed has only a red cross, aligned
+// with the ticks, and the error never blames a "shape".
+let fullBuilt = false;
+async function failedLesson(width, height, dark) {
+  current = `failed-lesson ${width}-${dark ? 'dark' : 'light'}`;
+  console.log('\n' + current);
+  const FULL = join(OUT, 'lesson-failed.html');
+  if (!fullBuilt) {
+    const b = spawnSync(process.execPath, [join(ROOT, 'tools', 'build.mjs'), '--out', FULL], { stdio: 'inherit' });
+    if (b.status !== 0) { ok(false, 'full build failed'); return; }
+    fullBuilt = true;
+  }
+  const tasks = [];
+  const broken = JSON.parse(JSON.stringify(PENDULUM.lesson));
+  broken.iid = 'i1';
+  broken.checks = broken.checks.slice(0, 1);
+  const app = await openApp({
+    width, height, dark, file: FULL,
+    config: { db: { 'topics/pendulums': TOPIC, [`data/users/${UID}/profile`]: { prefs: { theme: dark ? 'dark' : 'light', size: 'm', easy: false, cap: 15, light: false }, days: {} } } },
+    sample: async (input) => {
+      const t = taskOf(input);
+      tasks.push(t);
+      await new Promise((r) => setTimeout(r, 300));
+      if (t === 'write-lesson') return broken;
+      return new Promise(() => {});
+    },
+  });
+  const { page } = app;
+  const tag = `${width}-${dark ? 'dark' : 'light'}`;
+  try {
+    await page.goto(app.url('#/t/pendulums/i1'));
+    await page.locator('.lsn-prep').waitFor({ timeout: 15000 });
+    await page.waitForFunction((d) => document.documentElement.dataset.muTheme === (d ? 'dark' : 'light'), dark);
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Predict', 'the bar names the stage only (no second "of N")');
+    ok(await page.locator('.lsn-step').first().getAttribute('aria-label') === 'Step 1 of 5: Predict, current step', 'screen readers still hear "Step 1 of 5: Predict"');
+    ok((await page.locator('.lsn-eb').textContent()).includes('Idea 1 of 5'), 'the eyebrow keeps its count');
+    await page.waitForFunction(() => /Having another go/.test(document.querySelector('.lsn-prep-lines').textContent) || !document.querySelector('.lsn-prep-err').hidden, null, { timeout: 20000 });
+    ok(/Having another go/.test(await page.locator('.lsn-prep-lines').textContent()), 'says it is having another go while it writes the lesson again');
+    await shot(app, `failed-${tag}-1-again`);
+    await page.locator('.lsn-prep-err').waitFor({ timeout: 20000 });
+    const lines = await page.$$eval('.lsn-prep-lines li', (els) => els.map((li) => {
+      const vis = (sel) => { const e = li.querySelector(sel); return !!e && getComputedStyle(e).display !== 'none'; };
+      const box = (sel) => { const e = li.querySelector(sel); if (!e || getComputedStyle(e).display === 'none') return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+      const t = li.querySelector('.lsn-prep-text').getBoundingClientRect();
+      return { text: li.textContent.trim(), done: li.classList.contains('is-done'), failed: li.classList.contains('is-failed'), tick: vis('.lsn-prep-ok'), cross: vis('.lsn-prep-x'), dot: vis('.lsn-prep-mark i'), mark: box('.lsn-prep-ok') || box('.lsn-prep-x'), textTop: t.top };
+    }));
+    const texts = lines.map((l) => l.text.replace(/…$/, ''));
+    ok(new Set(texts).size === texts.length, 'no duplicate step lines: ' + JSON.stringify(texts));
+    ok(lines.every((l) => !(l.done && l.failed)), 'no line is both done and failed');
+    const failed = lines.filter((l) => l.failed);
+    ok(failed.length === 1 && failed[0].cross && !failed[0].tick && !failed[0].dot, 'the failed step shows only a red cross: ' + JSON.stringify(failed));
+    ok(failed.length === 1 && /^Having another go at writing this lesson/.test(failed[0].text), 'the step that failed is the fresh go at writing: ' + JSON.stringify(failed[0] && failed[0].text));
+    ok(texts.filter((t) => /writing this lesson|Writing your lesson/.test(t)).length === 1, 'the fresh go replaces "Writing your lesson" in one line');
+    const done = lines.filter((l) => l.done);
+    ok(done.length >= 1 && done.every((l) => l.tick && !l.cross), 'earlier steps keep their ticks');
+    if (failed.length === 1 && done.length && failed[0].mark && done[0].mark) {
+      ok(Math.abs(failed[0].mark.x - done[0].mark.x) <= 1, `the cross sits in the ticks' column (${failed[0].mark.x} vs ${done[0].mark.x})`);
+      ok(failed[0].mark.y - failed[0].textTop < 16, 'the cross is level with the first line of its text');
+    }
+    const err = await page.locator('.lsn-prep-err').textContent();
+    ok(err.includes('Claude\'s lesson did not pass the app\'s own checks, so it was not saved. Try again; it usually works.'), 'plain error: ' + err);
+    ok(!/shape/i.test(err), 'the error never blames a "shape"');
+    ok(tasks.filter((t) => t === 'write-lesson').length === 4, 'one repair, then one fresh write with its own repair (' + tasks.join(', ') + ')');
+    await noOverflow(app);
+    await shot(app, `failed-${tag}-2-failed`);
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, `failed-${tag}-error`).catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 const scenarios = [
   ['walk-360-light', () => walk(360, false)],
   ['walk-360-dark', () => walk(360, true)],
@@ -776,6 +856,11 @@ const scenarios = [
   ['relearn', relearnScenario],
   ['leave-while-grading', leaveWhileGrading],
   ['full-app', fullApp],
+  ['failed-lesson-360-light', () => failedLesson(360, 707, false)],
+  ['failed-lesson-360-dark', () => failedLesson(360, 707, true)],
+  ['failed-lesson-390-light', () => failedLesson(390, 844, false)],
+  ['failed-lesson-390-dark', () => failedLesson(390, 844, true)],
+  ['failed-lesson-1366-light', () => failedLesson(1366, 768, false)],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();
 

@@ -60,19 +60,30 @@
   function isStr(x) { return typeof x === 'string' && x.trim().length > 0; }
   function age(iso) { var t = Date.parse(iso || ''); return isFinite(t) ? Date.now() - t : Infinity; }
   function fresh(iso) { return age(iso) < CFG.STALE_MS; }
-  function safe(fn, a) { try { fn(a); } catch (e) { console.error(e); } }
+  function safe(fn, a, b) { try { fn(a, b); } catch (e) { console.error(e); } }
 
   // ---------- live state for the UI ----------
   function liveOf(tid) { return (live[tid] = live[tid] || { planning: false, research: null, lessons: {} }); }
   function emit(tid, iid, kind, status, text) { U.emit('gen', { tid: tid, iid: iid || null, kind: kind, status: status, text: text || '' }); }
+  // Writing a lesson whose reply still fails the app's checks after U.ask's one repair gets one
+  // fresh go from scratch (a new call, not another repair) before the job gives up. Errors that
+  // say nothing about the lesson (rate limits, cancelled, no permission…) are not retried here.
+  var AGAIN = 'Having another go at writing this lesson…';
+  function rewritable(e) { return !!e && (e.code === 'invalid' || e.code === 'bad_json'); }
 
   // ---------- readable errors ----------
+  // What a reply that failed the app's checks would have saved, by what Claude was doing.
+  var CHECKED = { 'write lessons': 'lesson', 'plan topics': 'plan', 'check sources': 'research' };
   function friendly(e, doing) {
     var code = e && e.code;
     if (code === 'not_granted') return 'Claude needs your permission to ' + doing + '. Tap "Allow" when the app asks (or allow Claude for this app in its settings), then try again.';
     if (code === 'rate_limited') return 'Claude is busy right now. Wait a minute, then try again.';
     if (code === 'truncated') return 'Claude\'s answer was cut off before it finished. Try again; it usually works second time.';
-    if (code === 'invalid' || code === 'bad_json') return 'Claude\'s answer came back in the wrong shape, so nothing was saved. Try again.';
+    // Dan never sees the checks, so the message names what failed them, never a "shape".
+    if (code === 'invalid' || code === 'bad_json') {
+      return CHECKED[doing] ? 'Claude\'s ' + CHECKED[doing] + ' did not pass the app\'s own checks, so it was not saved. Try again; it usually works.'
+        : 'Claude\'s reply did not pass the app\'s own checks. Try again; it usually works.';
+    }
     if (code === 'not_found') return s(e.message) || 'That could not be found.';
     return U.errText(e);
   }
@@ -141,9 +152,16 @@
     }, function (e) { delete live[tid]; throw failure(e, 'save topics'); });
   }
 
+  // Length limits are soft (30-prompts.js), so a long title is shortened at a word, never mid-word.
+  function shorten(t, n) {
+    t = one(t);
+    if (t.length <= n) return t;
+    var c = t.slice(0, n - 1), sp = c.lastIndexOf(' ');
+    return (sp > n / 2 ? c.slice(0, sp) : c).replace(/[\s,;:.]+$/, '') + '…';
+  }
   function cleanPlan(p) {
     return {
-      title: one(p.title).slice(0, 90),
+      title: shorten(p.title, 120),
       hook: one(p.hook),
       oneBreath: one(p.oneBreath),
       ideas: p.ideas.map(function (i) {
@@ -493,10 +511,14 @@
   // A job already running here for this lesson, unless it was a cancelled prefetch.
   function running(tid, iid) { var job = jobs[tid + '/' + iid]; return job && !cancelled(job) ? job : null; }
 
-  function subscribe(job, fn) { if (typeof fn === 'function') { job.subs.push(fn); if (job.text) safe(fn, job.text); } }
-  function progress(job, text, status) {
+  // onStatus(text, meta): meta.redo -> the step on screen is being done again (say so in its
+  // line, do not tick it off); meta.failed -> the job failed (the caller's rejection says why).
+  // A caller who joins later first hears the latest line on its own.
+  function subscribe(job, fn) { if (typeof fn === 'function') { job.subs.push(fn); if (job.text) safe(fn, job.text, {}); } }
+  function progress(job, text, status, meta) {
     if (status) liveOf(job.tid).lessons[job.iid] = status;
-    if (text && text !== job.text) { job.text = text; job.subs.forEach(function (fn) { safe(fn, text); }); }
+    meta = meta || (status === 'failed' ? { failed: true } : {});
+    if (text && text !== job.text) { job.text = text; job.subs.forEach(function (fn) { safe(fn, text, meta); }); }
     emit(job.tid, job.iid, 'lesson', status || liveOf(job.tid).lessons[job.iid] || 'writing', text);
   }
   function settle(job) {
@@ -728,10 +750,20 @@
       var allowed = lr && lr.sources.length ? lr.sources : null;
       return Promise.all([knownIdeas(tid), priorLessons(tid, topic, idea)]).then(function (r) {
         progress(job, allowed ? 'Writing your lesson from ' + allowed.length + ' checked source' + (allowed.length === 1 ? '' : 's') + '…' : 'Writing your lesson…', 'writing');
-        return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
-          tier: 'default', json: true, label: 'write-lesson',
-          schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
-        }));
+        function ask() {
+          return U.ask(U.prompts.writeLesson(topic, idea, { research: rsrch, known: r[0], avoid: avoid, feedback: feedback, prior: r[1] }), askOpts(job, {
+            tier: 'default', json: true, label: 'write-lesson',
+            schema: function (x) { return U.validate.lesson(x, { iid: iid, sources: allowed }); },
+          }));
+        }
+        return ask().catch(function (e) {
+          if (!rewritable(e)) throw e;
+          console.warn('lesson ' + iid + ': writing it again from scratch after', e);
+          return own(job).then(function () {
+            progress(job, AGAIN, 'writing', { redo: true });
+            return ask();
+          });
+        });
       });
     }).then(function (raw) {
       var lesson = finaliseLesson(raw, iid, lr);

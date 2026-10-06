@@ -102,7 +102,12 @@ U._gate.promote = function (test) {
 
 // U.ask(input, {tier, onText, signal, tools, json, schema, cache, label, priority, key})
 //   json:true  -> resolves the parsed object
-//   schema(fn) -> returns [] or a list of problems; one corrective retry with the problems listed
+//   schema(fn) -> returns [] or a list of problems; one corrective retry with the problems listed.
+//              The list may name some of its problems as soft (problems.soft: length limits, see
+//              30-prompts.js). Soft problems get the repair too, but a reply whose only problems
+//              left after it are soft is accepted as it is (a console warning and
+//              U.emit('ask-soft', {label, problems}), nothing Dan sees). If the repair breaks
+//              something a soft-only first reply had right, the first reply is kept.
 //   priority   'foreground' (default) | 'background'; key: see the gate above
 // A transient 'upstream_error' or 'unavailable' is retried once after 1-3 s. 'rate_limited' is
 // never retried from here (retrying a rate limit only makes it last longer): it reaches the caller.
@@ -133,19 +138,41 @@ U.ask = function (input, opts) {
     });
   }
   if (!opts.json) return once(input, 0);
-  function check(text, tries) {
+  // Problems the schema did not mark soft (a parse error is never soft).
+  function hardOf(problems) {
+    var soft = Array.isArray(problems.soft) ? problems.soft : [];
+    return problems.filter(function (p) { return soft.indexOf(p) < 0; });
+  }
+  function lenient(data, problems) {
+    console.warn('ask' + (opts.label ? ' ' + opts.label : '') + ': accepted with only length problems left', problems.slice(0, 6));
+    U.emit('ask-soft', { label: opts.label, problems: problems.slice(0, 12) });
+    return data;
+  }
+  // first: the first reply, when its only problems were soft (kept if the repair is worse).
+  function check(text, tries, first) {
     var data, problems;
-    try { data = U.parseJson(text); problems = opts.schema ? opts.schema(data) : []; }
+    try { data = U.parseJson(text); problems = (opts.schema ? opts.schema(data) : null) || []; }
     catch (e) { problems = [e.message || 'Reply was not valid JSON.']; }
     if (!problems.length) return data;
-    if (tries >= 1) throw { code: 'invalid', message: 'Claude\'s answer did not have the right shape: ' + problems.slice(0, 3).join('; ') };
+    var hard = hardOf(problems);
+    if (tries >= 1) {
+      if (!hard.length) return lenient(data, problems);
+      if (first) return lenient(first.data, first.problems);
+      throw { code: 'invalid', message: 'Claude\'s reply did not pass the app\'s checks: ' + hard.slice(0, 3).join('; ') };
+    }
     var fix = [
       typeof input === 'string' ? { role: 'user', content: input } : null,
       { role: 'assistant', content: String(text).slice(0, 60000) },
-      { role: 'user', content: 'Your reply had these problems:\n- ' + problems.slice(0, 12).join('\n- ') + '\nReply again with the complete corrected JSON only, no commentary.' },
+      // Hard problems first, so a cut-down list never leaves out the ones that must be fixed.
+      { role: 'user', content: 'Your reply had these problems:\n- ' + hard.concat(problems.filter(function (p) { return hard.indexOf(p) < 0; })).slice(0, 12).join('\n- ') + '\nReply again with the complete corrected JSON only, no commentary.' },
     ];
     var turns = typeof input === 'string' ? fix.filter(Boolean) : input.concat(fix.slice(1));
-    return once(turns, 0).then(function (t2) { return check(t2, tries + 1); });
+    var keep = hard.length ? null : { data: data, problems: problems };
+    return once(turns, 0).then(function (t2) { return check(t2, tries + 1, keep); }, function (e) {
+      // The repair could not be had (busy, cut off): a first reply that was only too long stands.
+      if (keep && !(e && e.code === 'cancelled') && !(opts.signal && opts.signal.aborted)) return lenient(keep.data, keep.problems);
+      throw e;
+    });
   }
   return once(input, 0).then(function (t) { return check(t, 0); }, function (e) {
     // A truncated JSON reply gets one more go with a reminder to be concise.
