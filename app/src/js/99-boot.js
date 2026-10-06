@@ -26,11 +26,21 @@
         Promise.resolve().then(function () { return U.logStudy(study.CHUNK / 60000); }).catch(function (e) { console.error('logStudy', e); });
       }
     },
+    // Playing with an interactive counts too: its taps and drags happen inside the sandboxed frame
+    // and never reach this document, but the kit reports each change Dan makes ({src:'kit',
+    // type:'change'}). Only frames on screen count (.kit-iframe), never the hidden self-test frames.
+    fromKit: function (e) {
+      var d = e.data;
+      if (!d || typeof d !== 'object' || d.src !== 'kit' || d.type !== 'change' || !e.source) return;
+      var frames = document.querySelectorAll('iframe.kit-iframe');
+      for (var i = 0; i < frames.length; i++) if (frames[i].contentWindow === e.source) { study.poke(); return; }
+    },
     start: function () {
       if (study.timer) return;
       ['pointerdown', 'keydown', 'wheel', 'touchstart', 'input', 'scroll'].forEach(function (evt) {
         document.addEventListener(evt, study.poke, { passive: true, capture: true });
       });
+      window.addEventListener('message', study.fromKit);
       document.addEventListener('visibilitychange', function () {
         study.lastTick = Date.now();
         if (document.visibilityState === 'visible') study.poke();
@@ -42,20 +52,27 @@
 
   // ---------- reading settings ----------
   // The db profile is the durable copy. On a first visit (no profile yet) the per-device copy
-  // in localStorage wins and is saved to the profile.
+  // in localStorage wins and is saved to the profile. A setting Dan changed while the app was
+  // opening wins over the profile's (its own save is on the way).
   function loadPrefs() {
     if (!U.settings) return Promise.resolve();
+    var S = U.settings;
     return U.store.getDoc(U.store.paths.profile()).then(function (doc) {
-      if (doc && doc.prefs) U.settings.apply(doc.prefs);
+      if (doc && doc.prefs) S.apply(Object.assign({}, doc.prefs, S._picked));
       else {
-        var local = U.settings.readLocal();
-        U.settings.apply(local || {});
-        if (local) {
-          U.settings._localAt = Date.now(); // the profile snapshot may arrive before this write
-          U.store.profile.patch({ prefs: U.settings.prefs }).catch(function () {});
+        var local = S.readLocal();
+        S.apply(Object.assign({}, local || {}, S._picked));
+        if (local || Object.keys(S._picked).length) {
+          S._localAt = Date.now(); // the profile snapshot may arrive before this write
+          U.store.profile.patch({ prefs: S.prefs }).catch(function () {});
         }
       }
-      B.stopProfile = U.store.profile.watch(function (p) { U.settings.fromProfile(p && p.prefs); });
+    }).catch(function (e) {
+      console.warn('prefs', e);   // the device's copy stays (U.settings starts from it)
+    }).then(function () {
+      // Changes from Dan's other devices. Started even when the read failed, so the profile still
+      // arrives once the db answers; a profile that does not exist yet says nothing.
+      B.stopProfile = U.store.watchDoc(U.store.paths.profile(), function (d) { if (d && d.prefs) S.fromProfile(d.prefs); });
     });
   }
 
@@ -139,12 +156,18 @@
       document.addEventListener('click', function (e) {
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         var a = e.target && e.target.closest ? e.target.closest('a[href^="#/"]') : null;
-        if (!a || a.target) return;
+        // The attribute, not .target: an SVG <a> (a Map dot) has an SVGAnimatedString there, which
+        // is always truthy, so testing the property let every dot past the router.
+        if (!a || a.hasAttribute('target')) return;
         e.preventDefault();
         U.go(a.getAttribute('href'));
       }, true);
       U._route();
       refreshBadge();
+      // Review cards for ideas finished while the cards could not be saved (and the app closed
+      // before they were): made now. A moment after opening, once the first screen is drawn and
+      // what earlier pages left on this device has gone out.
+      if (U.review && U.review.mendCards) setTimeout(function () { U.review.mendCards(); }, 1500);
       study.start();
       B.ready = true;
       U.emit('booted');

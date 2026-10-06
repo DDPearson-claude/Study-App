@@ -1015,9 +1015,10 @@
         if (first) f.doneAt = st.ip.doneAt = U.now();
         st.ip.stage = 'done';
         saveIdea(f);
-        // Review cards come from the first time through (or a fresh round of Learn it again).
+        // Review cards come from the first time through (or a fresh round of Learn it again). The
+        // round is recorded with them, so cards lost with a closed app are made at the next open.
         if (first && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
-          Promise.resolve().then(function () { return U.review.addFromLesson(tid, iid, st.lesson, outcome()); })
+          Promise.resolve().then(function () { return U.review.addFromLesson(tid, iid, st.lesson, outcome(), { round: round() }); })
             .catch(function (e) { if (!(e && e.queued)) U.toast('Your review cards could not be saved: ' + U.errText(e), { kind: 'bad' }); });
         }
       }

@@ -20,13 +20,20 @@
     return o;
   }
 
-  var S = (U.settings = {
-    prefs: clean(),
-    _localAt: 0,
+  // The device's copy (localStorage 'mu-prefs'), which head.html painted before anything else.
+  function readLocal() {
+    try { var s = JSON.parse(localStorage.getItem('mu-prefs') || 'null'); return s && typeof s === 'object' ? s : null; } catch (e) { return null; }
+  }
 
-    readLocal: function () {
-      try { var s = JSON.parse(localStorage.getItem('mu-prefs') || 'null'); return s && typeof s === 'object' ? s : null; } catch (e) { return null; }
-    },
+  var S = (U.settings = {
+    // Starts as the device's copy, what is already on screen: until the profile arrives (or for the
+    // whole visit, if it cannot be read) the sheet shows that, and one change keeps the others.
+    prefs: clean(readLocal()),
+    _localAt: 0,
+    _saving: 0,      // local changes still on their way to the profile
+    _picked: {},     // keys Dan changed in this visit: they win over the profile read at boot
+
+    readLocal: readLocal,
 
     // Apply prefs to the page now and mirror them for the next first paint.
     apply: function (prefs) {
@@ -40,25 +47,29 @@
       return p;
     },
 
-    // Change one pref: apply instantly, then save to the profile.
+    // Change one pref: apply instantly, then save to the profile (the store holds the write until
+    // the runtime knows Dan's user id, when the app is still opening).
     set: function (key, value) {
       var next = Object.assign({}, S.prefs);
       next[key] = value;
       S.apply(next);
+      S._picked[key] = S.prefs[key];
       S._localAt = Date.now();
+      S._saving++;
       var patch = { prefs: {} };
       patch.prefs[key] = S.prefs[key];
-      var saved = U.store.profile.patch(patch).catch(function () { /* the store already told Dan */ });
+      var saved = U.store.profile.patch(patch).catch(function () { /* the store already told Dan */ })
+        .then(function () { S._saving--; S._localAt = Date.now(); });
       if ((key === 'cap' || key === 'light') && U.review && U.review.refreshBadge) {
         saved.then(function () { try { U.review.refreshBadge(); } catch (e) { console.error(e); } });
       }
       return saved;
     },
 
-    // Prefs that arrive from the db (another device). Ignored briefly after a local change so a
-    // slower snapshot cannot undo what Dan just picked.
+    // Prefs that arrive from the db (another device). Ignored while a local change is being saved
+    // and briefly after, so a slower snapshot cannot undo what Dan just picked.
     fromProfile: function (prefs) {
-      if (Date.now() - S._localAt < 3000 || !prefs) return;
+      if (S._saving > 0 || Date.now() - S._localAt < 3000 || !prefs) return;
       var p = clean(prefs), cur = S.prefs;
       if (p.theme !== cur.theme || p.size !== cur.size || p.easy !== cur.easy || p.cap !== cur.cap || p.light !== cur.light || p.lightDay !== cur.lightDay) S.apply(p);
     },
@@ -98,7 +109,8 @@
       if (S._sheet && S._sheet.el.isConnected) return S._sheet; // already open
       var p = S.prefs;
 
-      // A row of radio buttons that behaves like a segmented control.
+      // A row of radio buttons that behaves like a segmented control, and like radios for the
+      // keyboard (U.radios): one Tab stop, the arrow keys move the choice.
       function seg(label, opts, value, onPick, cls) {
         var btns = opts.map(function (o) {
           return U.h('button', { class: 'seg-btn', type: 'button', role: 'radio', 'aria-checked': String(o.value === value), 'aria-label': o.aria || null, dataset: { v: String(o.value) }, on: { click: function () {
@@ -106,7 +118,7 @@
             onPick(o.value);
           } } }, o.label);
         });
-        return U.h('div', { class: 'seg' + (cls ? ' ' + cls : ''), role: 'radiogroup', 'aria-label': label }, btns);
+        return U.radios(U.h('div', { class: 'seg' + (cls ? ' ' + cls : ''), role: 'radiogroup', 'aria-label': label }, btns));
       }
       function toggle(title, text, checked, onChange, name) {
         var id = U.id('sw');
