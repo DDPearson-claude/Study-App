@@ -4,7 +4,8 @@
 //   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json]
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
 // Prints {ok, problems} and exits 1 when there are problems. Replies may contain prose or
-// fences around the JSON; they are parsed the way the app parses them (U.parseJson).
+// fences around the JSON; the answer is picked the way the app picks it (U.parseJson.pick: the
+// last JSON value in the reply that passes the validator).
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -23,9 +24,8 @@ if (!U.parseJson) {
 }
 const kind = process.argv[2];
 const text = readFileSync(process.argv[3], 'utf8');
-let obj, problems;
+let problems;
 try {
-  obj = U.parseJson(text);
   const opts = {};
   if (kind === 'lesson') {
     opts.iid = arg('iid');
@@ -36,7 +36,7 @@ try {
     if (arg('sources')) { const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps); opts.sources = lr && lr.sources.length ? lr.sources : null; }
   }
   if (kind === 'grade') opts.attempt = Number(arg('attempt', '1'));
-  problems = U.validate[kind](obj, opts);
+  problems = U.parseJson.pick(text, (o) => U.validate[kind](o, opts)).problems || [];
 } catch (e) {
   problems = ['could not parse: ' + (e.message || e)];
 }

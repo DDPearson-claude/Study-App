@@ -83,19 +83,34 @@ U.rt.ready -> Promise<U.rt>   each claude.use(name) is waited for 10 s; db, user
     saved work) up to 30 s, and boot says so after 10 s. One that answers later is still taken up:
     its name waits in U.rt.late, then U.emit('rt-late', name) (the store forgets what it learned
     about topics from memory; boot redraws the screen, reloads prefs and the badge, and its notice
-    says "Your saved work has not loaded yet…" until then, never "open this in the Claude app")
+    says "Your saved work has not loaded yet…" until then, never "open this in the Claude app").
+    A null for db or user inside the viewer (the page is framed, or the null took 5 s or more: a
+    host that did not answer) is asked again after 1, 2, 4… s (at most 30 s apart), within the
+    30 s wait and then quietly for the rest of the visit, its name in U.rt.late meanwhile. A quick
+    null on a page of its own is believed (U.rt.NULL_SLOW_MS, AGAIN_MAX_MS)
 U.rt.db, .user, .sample, .mcp, .downloads, .permissions, .uid (null when absent), .inViewer, .late;  U.rt.has(name)
+U.rt.savedLate() -> db, user or uid still in U.rt.late: screens show "Your saved work is still loading"
+    (V.savedLate) where they would show a first visit, an empty Map or Book, or "not here any more"
 U.rt.toolsOk() -> Promise<boolean>   sample can run page tools here: sample.limits() has `tools` (no
     limits(): yes until a call rejects tools_unavailable, which U.ask records for the visit)
 U.parseJson(text) -> value   the last complete JSON object in the text (an array only when there is
     none): with tools the reply holds every round, narration first; fences and prose are tolerated.
-    A piece of a bigger span that will not parse never counts, and such a span after the answer
-    means the answer is broken: throws {code:'bad_json'}
+    A piece of a broken value never counts, and a bigger broken span after the answer means the
+    answer is broken: throws {code:'bad_json'}
+U.parseJson.candidates(text) -> {list:[{v, at, to, array}], broken:[[from, to]], tried, whole}
+    every complete top-level value in order. Pieces are left out: values inside a bracketed span
+    that closes but will not parse, and members (after ':' or ',') of a value that never closes
+    where the text so far reads as JSON (an answer missing its last '}'). Narration that reads as
+    no JSON ("I will use {objective here") hides nothing
+U.parseJson.pick(text, schema) -> {value} | {problems}   the last candidate with no schema problems;
+    else the biggest candidate's problems, or bad_json's own words when there is no candidate or a
+    broken span is bigger than any (U.ask's json check)
 U.ask(input, opts) -> Promise<string | parsed JSON>        input: a string or [{role, content}]
   opts   tier 'quick'|'default'|'complex' (default 'default'), onText, signal, tools, images,
          cache (only when true), label (U.emit('ask', {label, tier, ms, chars, truncated})),
          json, schema(data) -> [problems], priority 'foreground'|'background', key
-  json   a parse error or schema problem gets ONE corrective turn listing the problems, then
+  json   the answer is U.parseJson.pick(text, schema): an object in the narration before or after it
+         ("I used {…}") costs nothing. A parse error or schema problem gets ONE corrective turn listing the problems, then
          rejects {code:'invalid'}. A truncated JSON reply gets one more go asking for shorter
          fields (no schema retry after it); truncated text is returned as it is.
   retry  'upstream_error' or 'unavailable': once, after 1-3 s. 'rate_limited': never. Each call to
@@ -116,10 +131,10 @@ U.research.tools(log?, {allow?}) -> Promise<[{name, description, inputSchema, ex
       web_search {objective, search_queries:[2-3 short queries]}    web_fetch {urls:[<= 20], objective?, full_content?}
     execute never throws; it adds session_id: SESSION when missing and calls log({tool, input}).
     web_fetch opens only the results[].url pages web_search returned in this same tools() set, or
-    opts.allow. Each entry of urls is parsed with URL (http(s), no user name or password) and
-    compared without fragment, trailing slash or host case; the connector gets those parsed
-    addresses and only objective, search_queries, full_content, allow_live_fetch and session_id,
-    never the model's own text. One entry not allowed refuses the call. Problems come back as
+    opts.allow. Each entry of urls is parsed with URL (http(s), no user name or password), its
+    fragment dropped, and compared without trailing slash or host case; the connector gets those
+    parsed addresses (never a fragment) and only objective, search_queries, full_content,
+    allow_live_fetch and session_id, never the model's own text. One entry not allowed refuses the call. Problems come back as
     text: "Tool error (bad_request): …" (no address), "Tool error (refused): …" (not allowed),
     "Tool error (<code>): <message>. …" (the call failed).
     budget (opts.budget, default 10 searches and 6 fetches) counts per call to Claude: the list's
@@ -175,8 +190,12 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   hook, oneBreath, level:'new'|'some'|'solid', hue,              // hue = U.hash(title) % 360
   ideas:[{ id:'i1', title, oneLine, deps:[earlier ids], kind, known?:true }],
   calibration:[{ id, iid?, q, options:[3-4], answer, why }],     // exactly 2
-  research:{ status:'none'|'running'|'done'|'unavailable'|'failed', at, sources, dropped?, error? } }
-  // done only with sources >= 1: a run that kept none is failed ("No source could be confirmed…").
+  research:{ status:'none'|'running'|'done'|'unavailable'|'failed', at, sources, dropped?, error?,
+             reason?:'none_confirmed'|'error'|null, tries? } }
+  // done only with sources >= 1: a run that kept none is failed ("No source could be confirmed…")
+  // with reason 'none_confirmed' (it finished: lessons never re-run it, and the Library says no
+  // source could be confirmed); 'error': it did not.
+  // tries: runs in a row that did not finish (failed, or 'running' left by a page that went away).
   // unavailable: no connector, or this view cannot run page tools (U.rt.toolsOk).
 kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
 ```
@@ -345,25 +364,36 @@ Pipelines (`31-generate.js`):
    `unavailable`. Otherwise `running`, then one background call whose tools record every result
    that is not a tool error ("Tool error (…)" texts never count, so a refused URL is no evidence).
    The prompt sets a budget of 8 searches and 4 fetches (not enforced in code). A source survives
-   only if its URL is a page the tools returned and its quote is on that page: every part of it
-   between ellipses, however short, in the quote's order, each as whole words; text not in the
-   results shape is checked as a whole. Notes keep only surviving sources (or are contested). A
-   run that keeps no source is `failed` ("No source could be confirmed…"), never `done`.
+   only if its URL is a page the tools returned and its quote is on that page: one text the tools
+   returned for it (one excerpt, one full text, a title; a page searched and then fetched is held
+   twice) holds every part of the quote between ellipses, however short, in the quote's order,
+   each as whole words, except that the quote may start or end part-way through a word (between
+   letters, in a part with whole words too). Numbers stay whole: digit groups join ("1,481", or
+   with a thin or no-break space, is "1481") and a decimal point stays inside ("343.2"), on both
+   sides. Text not in the results shape is one text. Notes keep only surviving sources (or are
+   contested). A run that keeps no source is `failed` ("No source could be confirmed…", reason
+   'none_confirmed'), never `done`.
 3. `ensureLesson(tid, iid, {onStatus, background, signal})`: one job per lesson in the page
    (later callers join it). A ready doc comes back as it is; a `building` doc with a lesson only
    needs its interactive; otherwise: claim the doc (`writing`); wait for research (at most 120 s
-   from its start, 15 s for the topic's first lesson; start it if there is none, retry a failed
-   or unavailable one older than 10 min, ignore a `running` one older than 8 min); write the
+   from its start, 15 s for the topic's first lesson; start it if there is none; after 10 min
+   retry an unavailable one, or one that did not finish (failed with reason 'error', or `running`
+   older than 8 min) up to 3 runs in a row (`tries`), never one that finished confirming no
+   source: Dan's "Check the sources again" runs that); write the
    lesson with this lesson's research, `known`, `prior` (`priorSummary` of earlier lessons),
    `avoid` and `feedback`; keep only citations of checked sources, renumbered 1..n; save
    (`building`); build the interactive; save `ready` with it, or without it and a `note`.
    Target checks the page cannot reach are dropped. `background` marks a prefetch: its calls go
    with priority background, and aborting `signal` cancels it until a foreground caller joins.
+   A cancelled job stops waiting at once (for research, Claude, the interactive's build, another
+   device) and leaves the doc as the rules below say.
 4. `relearn(tid, iid, {onStatus, feedback})` always writes a new lesson, avoiding up to 3 earlier
    interactive briefs; `feedback` (Dan's note, up to 1000 characters) is put to the writer. It
    never joins a job running for that lesson (a first writing, an interactive still building,
-   another relearn): it waits for that job to finish, then writes. A rewrite keeps the doc's
-   `flags`.
+   another relearn). A foreground one (Dan is waiting for it) finishes first; a background one (a
+   prefetch, or a lesson he left while it was being written: `demote`) is cancelled (queued calls
+   drop, running ones stop) and the rewrite starts as soon as it has put the doc back (a fresh
+   claim undone, a written lesson left resumable). A rewrite keeps the doc's `flags`.
 5. `grade(say, answer, attempt, {previous, title}) -> {met, verdict, nailed, followUp, model?}`.
    A blank answer is not-yet without asking Claude. Attempt 1 never shows the model answer;
    from attempt 2 a miss carries `model` (the lesson's own when Claude gives none).
@@ -483,7 +513,7 @@ Views and app services
 ```
 U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
    planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 5 min),
-   loadError(what, e, retrying), slowNote, extLink(url, label) (window.open, else copy the link), empty, back, day
+   loadError(what, e, retrying), slowNote, savedLate(what) (U.rt.savedLate), extLink(url, label) (window.open, else copy the link), empty, back, day
 U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile

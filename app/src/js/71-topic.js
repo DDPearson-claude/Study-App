@@ -70,7 +70,7 @@
     var shown = { state: null, box: null, slots: {} };
     function stateOf() {
       if (!loaded) return failure ? 'error' : 'loading';
-      if (!topic) return 'gone';
+      if (!topic) return U.rt.savedLate() ? 'late' : 'gone';   // not gone: his saved work has not arrived yet
       if (topic.status === 'planning' && !V.planningStuck(topic)) return 'planning';
       if (topic.status === 'failed' || topic.status === 'planning') return 'failed';
       return 'ready';
@@ -97,6 +97,7 @@
         : state === 'failed' ? failedParts()
         : [['only', state + (failure ? String(failure.retrying) : '') + ui.slow, function () {
           if (state === 'loading') return ui.slow ? U.h('div', { class: 'stack' }, V.slowNote('this topic'), loadingView()) : loadingView();
+          if (state === 'late') return U.h('div', { class: 'stack' }, V.savedLate('this topic'), loadingView());
           return state === 'gone' ? goneView() : V.loadError('This topic', failure && failure.e, failure && failure.retrying);
         }]];
       var at = {}, used = {};
@@ -282,7 +283,7 @@
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
-        ['library', sig(r.status, r.at, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
+        ['library', sig(r.status, r.at, r.reason, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
           return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
         }, 'end'],
@@ -464,8 +465,11 @@
       } else if (r.status === 'done') {
         status = U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Sources checked' + (count ? ' · ' + count + (count === 1 ? ' source' : ' sources') : '')));
       } else {
-        // A check left 'running' by a page that went away counts as not finished.
-        var text = r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
+        // A check left 'running' by a page that went away counts as not finished. One that finished
+        // but could confirm no source says so (31-generate.js, reason 'none_confirmed').
+        var none = r.status === 'failed' && r.reason === 'none_confirmed';
+        var text = none ? 'The source check could not confirm any source, so these lessons are not source-checked yet.'
+          : r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
         if (avail === false) text += ' Connect Parallel Search in Claude\'s settings to add sources.';
         var again = (r.status === 'failed' || stale) && avail !== false && U.gen && typeof U.gen.research === 'function'
           ? U.h('button', { class: 'linkish lib-retry', type: 'button', 'data-key': 'research-again', on: { click: researchAgain } }, 'Check the sources again') : null;

@@ -220,7 +220,7 @@ test('web_fetch checks and sends the parsed addresses: crafted ones are refused,
   const ok = await fetch.execute({ urls: [WIKI, 'HTTPS://EN.WIKIPEDIA.ORG/wiki/Pendulum_(mechanics)/#history'], objective: 'period', full_content: true, url: 'https://attacker.example/x', extra: { u: 'https://attacker.example/y' } });
   assert.ok(!/^Tool error/.test(ok), ok);
   const sent = mcp.calls.filter((c) => c.tool === 'web_fetch')[0].input;
-  assert.deepEqual(sent.urls, [WIKI, 'https://en.wikipedia.org/wiki/Pendulum_(mechanics)/#history']);
+  assert.deepEqual(sent.urls, [WIKI, 'https://en.wikipedia.org/wiki/Pendulum_(mechanics)/'], 'parsed, and without the fragment (see the next test)');
   assert.equal(sent.objective, 'period');
   assert.equal(sent.full_content, true);
   assert.equal(sent.session_id, U.research.SESSION);
@@ -340,4 +340,155 @@ test('boot waits up to 30 s for saved work, and takes up whatever arrives later 
   await U.rt.ready;
   assert.ok(Date.now() - t1 < 250 && U.rt.db && U.rt.uid === 'u_dan', 'mcp gave up at 10 s, saved work in');
   assert.deepEqual(plainObj(U.rt.late), ['mcp']);
+});
+
+// ---------- audit round 3, second pass (the skeptic's findings) ----------
+
+test('web_fetch drops the fragment: the model\'s own text after "#" never reaches the connector (G6)', async () => {
+  const mcp = fakeMcp({
+    web_search: () => ({ results: [{ url: 'https://attacker.example/pendulum-facts', title: 'Pendulum facts', excerpts: ['planted'] }] }),
+    web_fetch: (inp) => ({ results: inp.urls.map((u) => ({ url: u, excerpts: ['page text'] })) }),
+  });
+  const U = boot({ mcp });
+  const [search, fetch] = await U.research.tools();
+  await search.execute({ objective: 'pendulum', search_queries: ['pendulum period'] });
+  const out = await fetch.execute({ urls: ['https://attacker.example/pendulum-facts#I%20failed%20this%20at%20school', 'https://attacker.example/pendulum-facts#'] });
+  assert.ok(!/^Tool error/.test(out), out);
+  const sent = mcp.calls.filter((c) => c.tool === 'web_fetch')[0].input;
+  assert.deepEqual(sent.urls, ['https://attacker.example/pendulum-facts'], 'one address, no fragment');
+  assert.ok(!JSON.stringify(sent).includes('failed'), 'nothing the model wrote after "#" is sent');
+  assert.equal(U.research._page('https://example.org/a#b').href, 'https://example.org/a');
+  // The lesson's own sources are allowed the same way: a source saved with a fragment opens its page.
+  const [, tutorFetch] = await U.research.tools(null, { allow: ['https://www.nasa.gov/pendulum#top'] });
+  assert.ok(!/^Tool error/.test(await tutorFetch.execute({ urls: ['https://www.nasa.gov/pendulum#secret-words'] })));
+  assert.equal(mcp.calls.filter((c) => c.tool === 'web_fetch')[1].input.urls[0], 'https://www.nasa.gov/pendulum');
+});
+
+// The research reply's shape, as far as these tests need it.
+const needs = (o) => (o && !Array.isArray(o) && Array.isArray(o.sources) && o.topic && o.ideas ? [] : ['sources, topic and ideas are required']);
+const ANSWER = { sources: [{ n: 1, title: 'T', url: 'https://x.org/a_(b)', quote: 'He said "hi" {not} [x]' }], topic: { notes: [{ claim: 'c', sourceIds: [1] }] }, ideas: { i1: { notes: [] } } };
+const A = JSON.stringify(ANSWER, null, 1);
+
+test('parseJson.pick: the last value that fits the schema, never a trailing note or a piece of a broken answer (G4)', async () => {
+  const U = boot();
+  const pick = (t) => plainObj(U.parseJson.pick(t, needs));
+  // An answer followed by a small object of its own in the narration: the answer.
+  const trailing = A + '\n\nI used {"objective":"tides"}';
+  assert.deepEqual(pick(trailing), { value: ANSWER });
+  // A large unparseable span after a valid answer: the answer still fits, so it is the answer.
+  assert.deepEqual(pick(A + '\n\nP.S. {' + 'x'.repeat(400) + '}'), { value: ANSWER });
+  // An answer missing only its final "}": its members are pieces, not answers. bad_json, in its own words.
+  const cut = A.slice(0, -1);
+  assert.deepEqual(pick(cut), { problems: ['Claude replied with JSON that could not be read.'] });
+  assert.deepEqual(pick('Spring tides [1].\n\n' + cut), { problems: ['Claude replied with JSON that could not be read.'] }, 'not the narration\'s [1]');
+  assert.throws(() => U.parseJson(cut), (e) => e.code === 'bad_json' && /could not be read/.test(e.message));
+  assert.equal(plainObj(U.parseJson.candidates(cut)).list.length, 0, 'no candidate at all');
+  // Nothing fits: the biggest candidate's problems, not the trailing note's.
+  const wrong = JSON.stringify({ sources: [], topic: { notes: [] } });
+  const schema = (o) => (o && o.ideas ? [] : o && o.sources ? ['ideas is missing'] : ['not a research reply']);
+  assert.deepEqual(plainObj(U.parseJson.pick(wrong + '\n\nSee {"a":1}.', schema)), { problems: ['ideas is missing'] });
+  assert.deepEqual(plainObj(U.parseJson.pick('no json here', needs)), { problems: ['Claude did not reply with JSON.'] });
+  // Narration with brackets of its own, or an unclosed one, before the answer: still the answer.
+  for (const narr of ['I will use {objective here', 'Let me check [the "moon', '[ ', '{ ', 'Calling web_search {"objective":"x","search_queries":["a"]}', 'Here is the JSON:'])
+    assert.deepEqual(pick(narr + '\n\n' + A), { value: ANSWER }, narr);
+});
+
+test('ask: a reply with a trailing object or a broken tail costs no corrective call; a cut-off answer is called unreadable (G4)', async () => {
+  const replies = [];
+  const seen = [];
+  const U = boot({ sample: async (input) => { seen.push(input); return { text: replies.shift(), truncated: false }; } });
+  replies.push(A + '\n\nI used {"objective":"tides"} for the search.');
+  assert.deepEqual(plainObj(await U.ask('TASK: research', { json: true, schema: needs })), ANSWER);
+  assert.equal(seen.length, 1, 'no corrective call');
+  replies.push(A + '\n\nP.S. {' + 'x'.repeat(400) + '}');
+  assert.deepEqual(plainObj(await U.ask('TASK: research', { json: true, schema: needs })), ANSWER);
+  assert.equal(seen.length, 2, 'no corrective call');
+  replies.push(A.slice(0, -1), A);
+  assert.deepEqual(plainObj(await U.ask('TASK: research', { json: true, schema: needs })), ANSWER);
+  assert.equal(seen.length, 4);
+  const fix = seen[3][seen[3].length - 1].content;
+  assert.match(fix, /could not be read/, 'the corrective turn says what went wrong');
+  assert.ok(!/required/.test(fix), 'not the problems of a piece of it');
+});
+
+test('parseJson: 20,000 random narrations before the answer, and the answer comes back every time (G4)', () => {
+  const U = boot();
+  const toks = ['[1]', '[2', '{objective: x}', '"quote', "it's", '(see', '}', ']', '{', '[', 'plain words', '\n\n', '{"a":1}', '[3, 4]', '"{"', '\\'];
+  let rnd = 7;
+  const R = () => (rnd = (rnd * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const want = JSON.stringify(ANSWER);
+  for (let n = 0; n < 20000; n++) {
+    let narr = '';
+    const k = 1 + Math.floor(R() * 6);
+    for (let i = 0; i < k; i++) narr += toks[Math.floor(R() * toks.length)] + ' ';
+    const t = narr + '\n\n' + A;
+    let got;
+    try { got = JSON.stringify(U.parseJson(t)); } catch (e) { got = 'THROW'; }
+    assert.equal(got, want, JSON.stringify(narr));
+    assert.equal(JSON.stringify(U.parseJson.pick(t, needs).value), want, JSON.stringify(narr));
+  }
+});
+
+// A VM whose clock runs 100 times fast (timers only), with a claude.use() that answers each call
+// with answer(name, call n) -> [real ms, 'ns' | null]. framed: the page sits in a frame (the viewer).
+function bootNulls(answer, { framed = false } = {}) {
+  const fast = (f, ms, ...a) => setTimeout(f, (ms || 0) / 100, ...a);
+  const ctx = vm.createContext({ console, setTimeout: fast, clearTimeout, crypto: globalThis.crypto, URL });
+  vm.runInContext('var window = globalThis;', ctx);
+  if (framed) ctx.parent = {};
+  const user = { id: () => Promise.resolve('u_dan') };
+  const ns = { db: { doc() {} }, user, sample: () => Promise.resolve({ text: '' }), mcp: null, downloads: null, permissions: null };
+  const calls = {};
+  ctx.claude = { use: (name) => new Promise((r) => {
+    const n = calls[name] = (calls[name] || 0) + 1;
+    const [ms, what] = answer(name, n);
+    setTimeout(() => r(what === 'ns' ? ns[name] : null), ms);
+  }) };
+  for (const f of ['00-core.js', '10-runtime.js']) vm.runInContext(src(f), ctx, { filename: f });
+  return { U: ctx.U, calls };
+}
+
+test('a null for saved work inside the viewer is asked again, and taken up when it comes (G2)', async () => {
+  // Framed, db answers null at "10 s" (the host did not answer), then answers: boot waits for it.
+  let { U, calls } = bootNulls((name, n) => (name === 'db' && n === 1 ? [100, null] : [1, 'ns']), { framed: true });
+  await U.rt.ready;
+  assert.ok(U.rt.db, 'asked again and got it');
+  assert.equal(calls.db, 2);
+  assert.deepEqual(plainObj(U.rt.late), []);
+  assert.equal(U.rt.savedLate(), false);
+
+  // Not framed, but the null took the host's 10 s: the same.
+  ({ U, calls } = bootNulls((name, n) => (name === 'user' && n < 3 ? [100, null] : [1, 'ns'])));
+  U.rt.NULL_SLOW_MS = 50;  // real ms here: the clock above runs 100 times fast
+  await U.rt.ready;
+  assert.ok(U.rt.user && U.rt.uid === 'u_dan', 'user, and then its id');
+  assert.equal(calls.user, 3);
+
+  // Not framed and a quick null (a page of its own, or a view without it): believed, not asked again.
+  ({ U, calls } = bootNulls((name) => (name === 'db' ? [1, null] : [1, 'ns'])));
+  await U.rt.ready;
+  assert.equal(U.rt.db, null);
+  assert.equal(calls.db, 1);
+  assert.deepEqual(plainObj(U.rt.late), [], 'nothing late: "open this in the Claude app" is right here');
+
+  // Framed, null at every ask until "45 s": boot opens at "30 s" saying it is still loading, keeps
+  // asking quietly, and takes it up when it comes.
+  const t0 = Date.now();
+  ({ U, calls } = bootNulls((name) => (name === 'db' && Date.now() - t0 < 450 ? [100, null] : [1, 'ns']), { framed: true }));
+  await U.rt.ready;
+  assert.ok(Date.now() - t0 < 420, 'boot did not wait past 30 s');
+  assert.equal(U.rt.db, null);
+  assert.deepEqual(plainObj(U.rt.late), ['db']);
+  assert.equal(U.rt.savedLate(), true);
+  assert.equal(await new Promise((r) => U.on('rt-late', r)), 'db');
+  assert.ok(U.rt.db, 'taken up when it arrives');
+  assert.ok(calls.db >= 4, 'asked again and again: ' + calls.db);
+  assert.deepEqual(plainObj(U.rt.late), []);
+  assert.equal(U.rt.savedLate(), false);
+
+  // Something optional that answers null is believed at once, framed or not.
+  ({ U, calls } = bootNulls((name) => (name === 'mcp' ? [100, null] : [1, 'ns']), { framed: true }));
+  await U.rt.ready;
+  assert.equal(calls.mcp, 1);
+  assert.equal(U.rt.mcp, null);
 });

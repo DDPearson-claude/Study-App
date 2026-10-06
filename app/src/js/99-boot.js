@@ -60,12 +60,11 @@
   }
 
   // ---------- one-line notice when nothing will be kept ----------
-  // Two cases, said plainly: saved work still on its way (U.rt.late), or none in this view.
-  function savedLate() { return (U.rt.late || []).some(function (n) { return n === 'db' || n === 'user' || n === 'uid'; }); }
+  // Two cases, said plainly: saved work still on its way (U.rt.savedLate), or none in this view.
   function persistNotice() {
     var old = document.getElementById('persist-notice');
     if (U.store.persistent()) { if (old) old.remove(); return; }
-    var kind = savedLate() ? 'late' : 'none';
+    var kind = U.rt.savedLate() ? 'late' : 'none';
     if (old) { if (old.getAttribute('data-kind') === kind) return; old.remove(); }
     if (kind === 'none') try { if (sessionStorage.getItem('mu-notice-persist') === '1') return; } catch (e) { /* fine */ }
     var view = document.getElementById('view');

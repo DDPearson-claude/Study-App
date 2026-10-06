@@ -658,6 +658,77 @@ await test('boot: slow saved work is waited for, said plainly, and shown when it
   eq(await notice(app), null);
 });
 
+// The skeptic's second pass, G2: claude.d.ts says a framed page whose host never answers gets
+// null from use() after 10 s, and a null can be asked again. The page clock is faked.
+await test('boot: saved work that answers null (a host that did not answer) is asked again, never shown as wiped (G2)', async () => {
+  // claude.use(name) resolves null after 10 s for its first `nulls` asks, then answers.
+  async function nullApp(name, nulls) {
+    const app = await openApp({ width: 360, height: 707, file: FILE, config: { db: seedDb() } });
+    current.apps.push(app);
+    await app.page.addInitScript(installFakes, { review: true, tutor: true, gen: 'fast', bands: SEED.bands, due: 4 });
+    await app.page.clock.install();
+    await app.page.addInitScript(([n, k]) => {
+      const real = window.claude;
+      let asked = 0;
+      window.__asked = () => asked;
+      window.claude = { use: (x) => (x === n && ++asked <= k ? new Promise((r) => setTimeout(() => r(null), 10000)) : real.use(x)) };
+    }, [name, nulls]);
+    await app.page.goto(app.url('#/'));
+    return app;
+  }
+  const notice = (app) => app.page.evaluate(() => { const n = document.getElementById('persist-notice'); return n ? n.textContent : null; });
+
+  // One null, then the db: boot asks again a second later and opens on Dan's own topics.
+  let app = await nullApp('db', 1);
+  await app.page.clock.runFor(10500);
+  eq(await app.page.evaluate(() => !!(window.U && U.boot && U.boot.ready)), false, 'still waiting for it');
+  await app.page.clock.runFor(1000);
+  await app.page.waitForFunction(() => U.boot.ready === true);
+  await app.page.waitForSelector('.ccard');
+  eq(await app.page.evaluate(() => window.__asked()), 2, 'asked again');
+  eq(await count(app, '.welcome'), 0, 'never the first-run screen');
+  eq(await notice(app), null, 'no notice');
+
+  // Null at every ask for 30 s: the app opens saying the saved work is still loading (not "open
+  // this in the Claude app", not the first-run welcome, not "this topic is not here"), and shows it
+  // when a later ask gets it.
+  app = await nullApp('db', 3);
+  await app.page.clock.runFor(30500);
+  await app.page.waitForFunction(() => U.boot.ready === true);
+  assert(/Your saved work has not loaded yet/.test(await notice(app)), 'plain notice: ' + await notice(app));
+  eq(await count(app, '.welcome'), 0, 'not the first-run welcome');
+  assert((await text(app, '.learn-topics')).includes('Your saved work is still loading'), 'says the topics are still loading');
+  await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
+  await app.page.waitForSelector('.v-saved-late');
+  assert(!(await text(app, '#view')).includes('not here any more'), 'a topic is not called deleted');
+  await app.page.evaluate(() => U.go('#/map'));
+  await app.page.waitForSelector('.v-saved-late');
+  eq(await count(app, '.v-empty'), 0, 'nor is the map called empty');
+  await app.page.evaluate(() => U.go('#/'));
+  await app.page.clock.runFor(8000);
+  await app.page.waitForSelector('.ccard');
+  eq(await app.page.evaluate(() => U.store.persistent()), true, 'the real db is in use');
+  eq(await app.page.evaluate(() => window.__asked()), 4, 'asked until it answered');
+  eq(await notice(app), null, 'the notice goes');
+  await app.page.waitForFunction(() => /Your saved work has loaded/.test(document.getElementById('toasts').textContent));
+  eq(await count(app, '.tcard'), Object.keys(SEED.topics).length, 'every topic is back');
+
+  // The user capability the same way: progress joins the topics when it arrives.
+  app = await nullApp('user', 3);
+  await app.page.clock.runFor(30500);
+  await app.page.waitForFunction(() => U.boot.ready === true);
+  assert(/Your saved work has not loaded yet/.test(await notice(app)), 'notice while progress is missing');
+  await app.page.clock.runFor(8000);
+  await app.page.waitForFunction(() => /2 of 6 done/.test((document.querySelector('.ccard') || {}).textContent || ''));
+  eq(await app.page.evaluate(() => U.rt.uid), UID);
+  eq(await notice(app), null);
+
+  // A quick null on a page of its own (no viewer around it) is the answer: no waiting, the plain advice.
+  app = await open({ deny: ['db'] });
+  await app.page.waitForSelector('#persist-notice');
+  eq(await text(app, '#persist-notice'), 'Open this in the Claude app to keep your progress.', 'notice text');
+});
+
 // ---------- regressions (docs/review/correctness.md, ux.md, performance.md) ----------
 const ago = (ms) => new Date(Date.now() - ms).toISOString();
 
@@ -691,6 +762,16 @@ await test('regressions: research left running by a closed page counts as not ch
   await app.page.waitForFunction(() => /Checking sources/.test(document.querySelector('.lib-status').textContent));
   await app.page.goto(app.url('#/'));
   await app.page.waitForSelector('.tcard');
+});
+
+await test('regressions: research that finished but confirmed no source says so, with a retry (G3)', async () => {
+  const db = seedDb();
+  db['topics/minor-keys-ef56'] = { ...db['topics/minor-keys-ef56'], research: { status: 'failed', at: ago(60e3), sources: 0, dropped: 6, reason: 'none_confirmed', error: 'No source could be confirmed against the pages the search returned.' } };
+  const app = await open({ db, hash: '#/t/minor-keys-ef56', tools: { 'Parallel Search': { web_search: () => ({ results: [] }), web_fetch: () => ({}) } } });
+  await app.page.waitForSelector('.lib-retry');
+  const said = await text(app, '.lib-status');
+  assert(said.includes('could not confirm any source') && !said.includes('did not finish'), said);
+  assert(!(await text(app, '#view')).includes('Sources checked'), 'never "Sources checked"');
 });
 
 await test('regressions: a dead subscription shows an error with Try again, never the first-run screen', async () => {

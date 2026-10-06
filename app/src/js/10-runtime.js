@@ -1,33 +1,57 @@
 // Runtime capabilities: db, user, sample, mcp, downloads, permissions.
 // Everything degrades gracefully: a missing capability resolves null and features hide.
 U.rt = { db: null, user: null, sample: null, mcp: null, downloads: null, permissions: null, uid: null, inViewer: false,
-  TIMEOUT_MS: 10000, DATA_WAIT_MS: 30000, late: [] };
+  TIMEOUT_MS: 10000, DATA_WAIT_MS: 30000, NULL_SLOW_MS: 5000, AGAIN_MAX_MS: 30000, late: [] };
 U.rt.has = function (name) { return !!U.rt[name]; };
+// Dan's saved work (db, user or user.id()) is still on its way: what the app shows may be
+// missing his topics and progress, which arrive with U.emit('rt-late', name).
+U.rt.savedLate = function () { return U.rt.late.some(function (n) { return n === 'db' || n === 'user' || n === 'uid'; }); };
 // Boot waits for each capability, but not for ever. Most get 10 s: a feature that is slow to
 // arrive can light up later. Dan's saved work is different: db and user (and user.id()) decide
 // where everything is read and written, and opening without them shows an empty app and keeps
 // nothing he does, so those get up to 30 s (boot says plainly that they are slow). Whatever
 // answers after its wait is still taken up when it comes: its name sits in U.rt.late until then,
 // and U.emit('rt-late', name) follows (boot then reloads the screen from the saved work).
+//
+// A null for db or user inside the viewer is not believed at once either. Framed by a host that
+// does not answer, use() resolves null after 10 s (claude.d.ts), and a null has no stable promise
+// identity, so use() can be asked again: it is, after 1, 2, 4, 8… s (at most 30 s apart), within
+// the 30 s wait and then quietly for as long as the page is open, and the name waits in
+// U.rt.late meanwhile (boot says the saved work is still loading, never "open this in the Claude
+// app"). Inside the viewer means framed, or the null took 5 s or more to come (only a host that
+// did not answer is that slow). A quick null on a page of its own (served by the platform at its
+// own address, where every use() is null) is the answer: there is no saved work to wait for.
 U.rt.ready = (function () {
   var claude = window.claude;
   if (!claude || typeof claude.use !== 'function') return Promise.resolve(U.rt);
   U.rt.inViewer = true;
+  var framed = false;
+  try { framed = !!window.parent && window.parent !== window; } catch (e) { framed = true; }
   var deadline = Date.now() + U.rt.DATA_WAIT_MS;
   function drop(name) { U.rt.late = U.rt.late.filter(function (n) { return n !== name; }); }
   // call() -> a value (null when it fails); take(value, late) stores it. Resolves once the value
-  // is in, or after ms with name added to U.rt.late.
-  function wait(name, call, ms, take) {
+  // is in, or after ms with name added to U.rt.late. again(took ms, n) -> ms before asking again
+  // after the nth null, or -1 to take the null as the answer.
+  function wait(name, call, ms, take, again) {
     return new Promise(function (resolve) {
-      var late = false;
+      var late = false, nulls = 0;
       var timer = setTimeout(function () { late = true; U.rt.late.push(name); resolve(); }, Math.max(0, ms));
-      Promise.resolve().then(call).catch(function () { return null; }).then(function (v) {
-        if (!late) { clearTimeout(timer); take(v, false); resolve(); return; }
-        take(v, true);
-        drop(name);
-        U.emit('rt-late', name);
-      });
+      (function ask() {
+        var asked = Date.now();
+        Promise.resolve().then(call).catch(function () { return null; }).then(function (v) {
+          var delay = v == null && again ? again(Date.now() - asked, nulls++) : -1;
+          if (delay >= 0) { setTimeout(ask, delay); return; }
+          if (!late) { clearTimeout(timer); take(v, false); resolve(); return; }
+          take(v, true);
+          drop(name);
+          U.emit('rt-late', name);
+        });
+      })();
     });
+  }
+  function again(took, n) {
+    if (!n && !framed && took < U.rt.NULL_SLOW_MS) return -1;
+    return Math.min(U.rt.AGAIN_MAX_MS, 1000 * Math.pow(2, Math.min(n, 5)));
   }
   // The user's id, asked once the user capability is here. Without one, private data falls back
   // to the in-memory store and boot shows the "keep your progress" notice.
@@ -37,7 +61,7 @@ U.rt.ready = (function () {
   }
   function use(name) {
     var saved = name === 'db' || name === 'user';
-    return wait(name, function () { return claude.use(name); }, saved ? U.rt.DATA_WAIT_MS : U.rt.TIMEOUT_MS, function (ns, late) {
+    return wait(name, function () { return claude.use(name); }, saved ? Math.max(0, deadline - Date.now()) : U.rt.TIMEOUT_MS, function (ns, late) {
       U.rt[name] = ns || null;
       // A user capability that came after boot: its id is still needed (the app is open by now,
       // so it is waited for without a limit). 'uid' joins U.rt.late before 'user' leaves it.
@@ -49,7 +73,7 @@ U.rt.ready = (function () {
           U.emit('rt-late', 'uid');
         });
       }
-    });
+    }, saved ? again : null);
   }
   var user = use('user').then(function () { return askId(U.rt.user, Math.max(3000, deadline - Date.now())); });
   return Promise.all([use('db'), user, use('sample'), use('mcp'), use('downloads'), use('permissions')]).then(function () { return U.rt; });
@@ -80,9 +104,31 @@ U.TIERS = { quick: 'quick', default: 'default', complex: 'complex' };
 // each '{' or '[' is tried in turn, and a value that parses is stepped over whole. A value inside
 // a bigger bracketed span that would not parse is a piece of a broken reply, never the answer;
 // and a bigger span after the answer that would not parse means the answer itself was broken.
+// Without a schema that is the best guess there is; U.ask, which has one, picks among
+// U.parseJson.candidates instead (U.parseJson.pick).
 U.parseJson = function (text) {
+  var c = U.parseJson.candidates(text);
+  if (c.whole) return c.list[0].v;
+  var obj = null, arr = null;
+  c.list.forEach(function (x) { if (x.array) arr = x; else obj = x; });
+  var best = obj || arr;
+  if (best && !c.broken.some(function (b) { return b[0] > best.to && b[1] - b[0] > best.to - best.at; })) return best.v;
+  throw U.parseJson.unread(c);
+};
+U.parseJson.unread = function (c) {
+  return c.tried ? { code: 'bad_json', message: 'Claude replied with JSON that could not be read.' } : { code: 'bad_json', message: 'Claude did not reply with JSON.' };
+};
+// Every complete JSON value at the top level of the text, in order -> {list:[{v, at, to, array}],
+// broken:[[from, to]], tried, whole}. whole: the text (fences aside) is one JSON value.
+// Pieces of a broken reply are left out of list: a value inside a bracketed span that closes but
+// will not parse ('{"a":[1],}'), and a member of a value that never closes, i.e. a value that
+// follows ':' or ',' where the text since that unclosed bracket still reads as JSON
+// ('{"sources":[…],"ideas":{"i1":…}' with its last '}' missing). Such spans are listed in broken.
+// An unclosed bracket in narration ("I will use {objective here") reads as no JSON, so the
+// answer after it still counts.
+U.parseJson.candidates = function (text) {
   var t = String(text || '').trim().replace(/^```(?:json|JSON)?\s*/, '').replace(/```\s*$/, '').trim();
-  try { return JSON.parse(t); } catch (e) {}
+  try { return { list: [{ v: JSON.parse(t), at: 0, to: t.length - 1, array: t[0] === '[' }], broken: [], tried: true, whole: true }; } catch (e) {}
   // Where the bracketed value starting at t[start] closes, or -1.
   function end(start) {
     var open = t[start], close = open === '{' ? '}' : ']', depth = 0, inStr = false, esc = false;
@@ -95,21 +141,57 @@ U.parseJson = function (text) {
     }
     return -1;
   }
-  var obj = null, arr = null, tried = false, broken = [];
+  // Does the value starting at `at` follow ':' or ',' (a member's place)?
+  function placed(at) {
+    var k = at - 1;
+    while (k >= 0 && /\s/.test(t[k])) k--;
+    return t[k] === ':' || t[k] === ',';
+  }
+  // Is the value starting at `at` (placed) a member of the unclosed value starting at `from`? The
+  // text between reads as JSON so far: it parses once a value and the missing brackets are added.
+  function member(from, at) {
+    var p = t.slice(from, at).replace(/\s+$/, '');
+    var stack = [], inStr = false, esc = false;
+    for (var i = 0; i < p.length; i++) {
+      var ch = p[i];
+      if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; continue; }
+      if (ch === '"') inStr = true;
+      else if (ch === '{' || ch === '[') stack.push(ch === '{' ? '}' : ']');
+      else if (ch === '}' || ch === ']') { if (stack.pop() !== ch) return false; }
+    }
+    if (inStr || !stack.length) return false;
+    try { JSON.parse(p + ' 0' + stack.reverse().join('')); return true; } catch (e) { return false; }
+  }
+  var list = [], tried = false, broken = [], open = [];
   for (var i = 0; i < t.length; i++) {
     var ch = t[i];
     if (ch !== '{' && ch !== '[') continue;
     tried = true;
     var j = end(i), v;
-    if (j < 0) continue;
+    if (j < 0) { open.push({ at: i, piece: false }); continue; }
     try { v = JSON.parse(t.slice(i, j + 1)); } catch (e) { broken.push([i, j]); continue; }
-    var piece = broken.some(function (b) { return b[0] < i && j < b[1]; });
-    if (!piece) { if (ch === '{') obj = { v: v, at: i, to: j }; else arr = { v: v, at: i, to: j }; }
+    var at = i, piece = broken.some(function (b) { return b[0] < at && j < b[1]; });
+    if (open.length && placed(at)) open.forEach(function (o) { if (member(o.at, at)) piece = o.piece = true; });
+    if (!piece) list.push({ v: v, at: i, to: j, array: ch === '[' });
     i = j;
   }
-  var best = obj || arr;
-  if (best && !broken.some(function (b) { return b[0] > best.to && b[1] - b[0] > best.to - best.at; })) return best.v;
-  throw tried ? { code: 'bad_json', message: 'Claude replied with JSON that could not be read.' } : { code: 'bad_json', message: 'Claude did not reply with JSON.' };
+  open.forEach(function (o) { if (o.piece) broken.push([o.at, t.length - 1]); });
+  return { list: list, broken: broken, tried: tried, whole: false };
+};
+// The answer that fits: the last candidate whose schema(value) has no problems -> {value}; else
+// {problems}: the problems of the biggest candidate, unless a span that will not parse is bigger
+// still (the answer itself is what broke) or there is no candidate at all: then bad_json's own words.
+U.parseJson.pick = function (text, schema) {
+  var c = U.parseJson.candidates(text), biggest = null;
+  for (var k = c.list.length - 1; k >= 0; k--) {
+    // A validator that trips over a value of the wrong shape (narration's "[1]") just rejects it.
+    var x = c.list[k], problems;
+    try { problems = schema ? schema(x.v) || [] : []; } catch (e) { problems = [(e && e.message) || 'Reply did not have the right shape.']; }
+    if (!problems.length) return { value: x.v };
+    if (!biggest || x.to - x.at > biggest.to - biggest.at) biggest = { at: x.at, to: x.to, problems: problems };
+  }
+  var worse = biggest && c.broken.some(function (b) { return b[1] - b[0] > biggest.to - biggest.at; });
+  return { problems: biggest && !worse ? biggest.problems : [U.parseJson.unread(c).message] };
 };
 
 // ---------- priority gate ----------
@@ -205,10 +287,18 @@ U.ask = function (input, opts) {
     });
   }
   if (!opts.json) return once(input, 0);
+  // The reply's answer is the last JSON value in it that fits the schema: narration from tool
+  // rounds can hold objects of its own, before the answer or after it ("I used {…}"). When none
+  // fits, the corrective turn names the problems of the biggest one, or says the JSON could not
+  // be read when that is what went wrong (U.parseJson.pick).
   function check(text, tries) {
     var data, problems;
-    try { data = U.parseJson(text); problems = opts.schema ? opts.schema(data) : []; }
-    catch (e) { problems = [e.message || 'Reply was not valid JSON.']; }
+    if (opts.schema) {
+      var got = U.parseJson.pick(text, opts.schema);
+      data = got.value; problems = got.problems || [];
+    } else {
+      try { data = U.parseJson(text); problems = []; } catch (e) { problems = [e.message || 'Reply was not valid JSON.']; }
+    }
     if (!problems.length) return data;
     if (tries >= 1) throw { code: 'invalid', message: 'Claude\'s answer did not have the right shape: ' + problems.slice(0, 3).join('; ') };
     var fix = [
@@ -357,13 +447,16 @@ U.research = {
   // One web address, read the way the connector will read it: the browser's own URL parser, so
   // the address that is checked is the very address that is sent ("…/page)?q=…" or "…\\?q=…" is
   // a different page, and "https://en.wikipedia.org/wiki/Pendulum_(mechanics)" keeps its ")").
-  // Only http(s), with no user name or password. -> {href (what is sent), key (_norm, for
+  // Only http(s), with no user name or password. The fragment is dropped: it never names another
+  // page, and it is text the model chose ("…/pendulum-facts#I%20failed%20this"), so it is neither
+  // sent to the connector nor part of what is allowed. -> {href (what is sent), key (_norm, for
   // comparing)} or null.
   _page: function (u) {
     if (typeof u !== 'string' || !u.trim()) return null;
     var x;
     try { x = new URL(u.trim()); } catch (e) { return null; }
     if ((x.protocol !== 'https:' && x.protocol !== 'http:') || x.username || x.password || !x.hostname) return null;
+    x.hash = '';
     var key = U.research._norm(x.href);
     return key ? { href: x.href, key: key } : null;
   },
