@@ -1,7 +1,9 @@
 // Topic page (#/t/:tid): the plan for one topic, live from the db. While Claude plans it shows
 // the question and gentle waiting lines; if planning failed it says why and offers Retry; once
 // ready it shows the hook, the idea "in one breath", an optional warm-up (never locks anything),
-// the path of ideas, the Library of research sources, Ask Claude, and Delete.
+// the path of ideas, the Library of research sources, Ask Claude, and Delete. A lesson opens only
+// when it is whole, so the header says whether the next idea's lesson is being prepared or ready,
+// and the path marks any idea this page is preparing.
 // Contract: docs/ARCHITECTURE.md sections 4 (topics, progress, research) and 9.
 (function () {
   'use strict';
@@ -45,6 +47,9 @@
       }),
       U.store.progress.watch(tid, function (p) { progress = p || { ideas: {} }; schedule(); }),
     ];
+    // The next idea's lesson (its doc), and this page's own work on any lesson of this topic.
+    var lw = V.lessonWatch(schedule);
+    stops.push(lw.stop, U.on('gen', function (g) { if (g && g.kind === 'lesson' && g.tid === tid) schedule(); }));
     U.research.available().then(function (a) { avail = !!a; schedule(); }, function () { avail = false; schedule(); });
 
     var timer = setInterval(function () {
@@ -261,15 +266,17 @@
       var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known]; });
       var cal = progress.calibration || {};
       var r = topic.research || {};
+      lw.watch(tid, s.current && !s.allDone ? s.current.id : null);
+      var next = lw.state(), busy = ideas.map(function (i) { return V.lessonBusy(tid, i.id) || (s.current && i.id === s.current.id && next === 'preparing'); });
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.started, s.allDone), function () { return head(s); }, 'top'],
+        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
         topic.oneBreath ? ['breath', sig(topic.oneBreath), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
             U.h('p', { class: 'eyebrow' }, 'In one breath'),
             U.h('div', { class: 'reading' }, U.rich(topic.oneBreath)));
         }] : null,
         ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
-        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea), function () {
+        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy), function () {
           var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
             U.h('div', { class: 'row' },
               s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
@@ -278,7 +285,7 @@
           return U.h('section', { class: 'tp-path-sec', 'aria-labelledby': 'path-h' },
             U.h('div', { class: 'section-head' }, U.h('h2', { id: 'path-h' }, 'Your path'), prog ? null : U.h('span', { class: 'muted small' }, 'Take them in order, or start anywhere')),
             prog,
-            U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s); })));
+            U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s, busy[i]); })));
         }],
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
@@ -290,12 +297,13 @@
       ];
     }
 
-    function head(s) {
+    function head(s, next) {
       // The next step, right at the top: no scrolling past the warm-up to find it.
       var cta = s.current && !s.allDone
         ? U.h('a', { class: 'btn tp-cta', 'data-key': 'cta', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(s.current.id) },
           U.h('span', { class: 'tp-cta-text' }, (s.started ? 'Continue: ' : 'Start: ') + s.current.title), U.icon('arrow'))
         : null;
+      var note = cta ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
       // On a laptop the cover sits beside the title (above the rail), not across the page, so
       // the path starts on the first screen.
       return U.h('header', { class: 'tp-head' },
@@ -306,10 +314,11 @@
             U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
-            cta)));
+            cta, note)));
     }
 
-    function pathNode(idea, i, ideas, s) {
+    // preparing: its lesson is being written or built (it opens on the preparation card).
+    function pathNode(idea, i, ideas, s, preparing) {
       var st = (progress.ideas && progress.ideas[idea.id]) || {};
       var done = st.stage === 'done';
       var current = s.current && s.current.id === idea.id;
@@ -332,6 +341,7 @@
             U.h('span', { class: 'pnode-kicker' }, kicker),
             U.h('span', { class: 'pnode-title' }, idea.title),
             idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
+            preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
             deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
             current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start this idea', U.icon('arrow')) : null)));

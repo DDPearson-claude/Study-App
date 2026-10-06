@@ -132,7 +132,7 @@ async function boot({ handlers = {}, research = false, build = okBuild } = {}) {
   const statuses = [];
   const set = U.store.lesson.set, upd = U.store.lesson.update;
   U.store.lesson.set = (tid, iid, d) => { if (d && d.status) statuses.push(iid + ':' + d.status); return set(tid, iid, d); };
-  U.store.lesson.update = (tid, iid, p) => { if (p && p.status) statuses.push(iid + ':' + p.status); return upd(tid, iid, p); };
+  U.store.lesson.update = (tid, iid, p, o) => { if (p && p.status) statuses.push(iid + ':' + p.status); return upd(tid, iid, p, o); };
   const seed = (path, data) => U.memdb.doc(path).set(clone(data));
   const get = async (path) => { const s = await U.memdb.doc(path).get(); return s.exists ? plain(s.data()) : null; };
   return { U, calls, statuses, warnings, seed, get, count: (task) => calls.filter((c) => c.task === task).length };
@@ -1269,6 +1269,66 @@ test('a lesson Dan leaves while it is being written yields, and stops when he le
   release();
   await assert.rejects(p, (e) => e.code === 'cancelled');
   assert.equal(await app.get('topics/t1/lessons/i2'), null, 'the stopped lesson left nothing behind');
+});
+
+test('a prefetch prepares the whole lesson in the background: written, its interactive built and tested, saved ready', async () => {
+  const builds = [];
+  const app = await boot({ handlers: handlers(), build: (t, i, l, o) => { builds.push({ iid: i.id, priority: typeof o.priority === 'function' ? o.priority() : o.priority }); return okBuild(t, i, l, o); } });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const doc = await U.gen.ensureLesson('t1', 'i2', { background: true });
+  assert.equal(doc.status, 'ready', 'saved ready, so it opens whole');
+  assert.ok(doc.interactive && doc.interactive.html && doc.interactive.selftest, 'with its interactive built and tested');
+  assert.deepEqual(builds, [{ iid: 'i2', priority: 'background' }], 'the build ran as background work too');
+  assert.deepEqual(app.statuses, ['i2:writing', 'i2:building', 'i2:ready']);
+});
+
+test('a lesson Dan leaves while it is being prepared carries on in the background to a whole lesson', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const app = await boot({ handlers: handlers({ 'write-lesson': async (input) => { await gate; return { ...unsourced(L_JET1), iid: ideaOf(input) }; } }) });
+  const { U } = app;
+  await app.seed('topics/t1', PLAN_JET);
+  const p = U.gen.ensureLesson('t1', 'i2', {});
+  await until(() => app.count('write-lesson') === 1);
+  assert.equal(U.gen.demote('t1', 'i2', {}), true, 'leaving demotes it (no signal: it is never cancelled)');
+  release();
+  const doc = await p;
+  assert.equal(doc.status, 'ready');
+  assert.ok(doc.interactive && doc.interactive.html, 'whole, with its interactive');
+});
+
+test('lesson state: only a ready doc with its lesson opens; writing and building are being prepared while fresh', async () => {
+  const app = await boot({ handlers: handlers() });
+  const S = app.U.store.lesson.state;
+  const now = new Date().toISOString(), old = '2026-01-01T00:00:00.000Z';
+  assert.equal(S(null), 'none');
+  assert.equal(S({ status: 'ready', lesson: { iid: 'i1' } }), 'ready');
+  assert.equal(S({ status: 'ready', lesson: null }), 'none', 'ready without a lesson is not a lesson');
+  assert.equal(S({ status: 'writing', updatedAt: now }), 'preparing');
+  assert.equal(S({ status: 'building', updatedAt: now, lesson: { iid: 'i1' } }), 'preparing', 'text written, interactive still building: not openable');
+  assert.equal(S({ status: 'building', updatedAt: old, lesson: { iid: 'i1' } }), 'none', 'work that went silent is not being prepared');
+  assert.equal(S(null, 'writing'), 'preparing', 'this page\'s own job counts before its doc is written');
+  assert.equal(S({ status: 'building', updatedAt: now }, 'failed'), 'none', 'this page\'s job stopped: the doc it left is not being prepared');
+  assert.equal(S({ status: 'failed', error: 'x' }), 'failed');
+  assert.equal(S({ status: 'ready', lesson: { iid: 'i1' } }, 'building'), 'ready');
+});
+
+test('a quiet lesson update that fails is neither toasted nor held: the caller says it once', async () => {
+  const app = await boot({ handlers: handlers() });
+  const { U } = app;
+  const toasts = [];
+  U.toast = (t) => toasts.push(t);
+  await app.seed('topics/t1', PLAN_JET);
+  await app.seed('topics/t1/lessons/i1', { status: 'ready', lesson: L_JET1 });
+  const real = U.memdb.doc;
+  U.memdb.doc = (p) => { const r = real(p); return /lessons/.test(p) ? { ...r, get: r.get, set: r.set, update: () => Promise.reject({ code: 'unavailable', message: 'down' }) } : r; };
+  await assert.rejects(U.store.lesson.update('t1', 'i1', { flags: { k1: { note: 'x' } } }, { quiet: true }), (e) => e.code === 'unavailable' && !e.queued);
+  assert.deepEqual(toasts, [], 'no toast');
+  assert.equal(U.store.waiting(), 0, 'nothing held for a resend (he still has his words)');
+  await assert.rejects(U.store.lesson.update('t1', 'i1', { flags: { k2: { note: 'y' } } }), (e) => e.code === 'unavailable');
+  assert.equal(toasts.length, 1, 'an ordinary update still tells Dan');
+  U.memdb.doc = real;
 });
 
 test('grade: rubric-based, model answer withheld on attempt 1 and given on attempt 2', async () => {

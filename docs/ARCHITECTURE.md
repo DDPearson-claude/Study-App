@@ -161,7 +161,8 @@ U.research.tools(log?, {allow?}) -> Promise<[{name, description, inputSchema, ex
 U.store.paths.topic(tid) / lesson(tid, iid) / research(tid, key) / profile() / progress(tid) / cards(tid)
 U.store.topics.watch(fn, onError) -> stop   fn(topic docs, newest updatedAt first);  .list()
 U.store.topic.get / watch(tid, fn, onError) / create(doc) / update(tid, patch) / remove(tid) -> {leftovers}
-U.store.lesson.get / watch / set(tid, iid, doc) / update(tid, iid, patch) / remove(tid, iid) / list(tid)
+U.store.lesson.get / watch / set(tid, iid, doc) / update(tid, iid, patch, {quiet?}) / remove(tid, iid) / list(tid)
+U.store.lesson.state(doc, live?) -> 'ready'|'preparing'|'failed'|'none'    (section 4; live: U.gen.status's word for it)
 U.store.research.get(tid, key) / set(tid, key, doc)
 U.store.progress.get(tid) / watch(tid, fn, onError) / patch(tid, patch) / all() -> {tid: doc}       private
 U.store.cards.get(tid) / patch(tid, patch) / update(tid, cardId, fn(card) -> fields|null) / all() / dropOrphan(tid)
@@ -198,6 +199,8 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
 - Private writes (`profile.patch`, `progress.patch`, `cards.patch/update`) asked for before
   `U.rt.ready` wait for it (their path names the uid), and for the outbox takeover above, so the
   older patches go out under them.
+- `lesson.update(…, {quiet: true})` (the "This looks wrong" note): a failure is neither held nor
+  toasted; the caller says it once and keeps what Dan typed for another go.
 - Shared docs (topics, lessons, research) are created only by `set`, and `lesson.set` and
   `research.set` only while the topic exists; a patch to a missing one is dropped (resolves
   `null`). Private docs are created on first patch; progress and cards only while the topic exists.
@@ -246,6 +249,13 @@ kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
   flags:{ [key]:{ note, at, stage } } }           // "This looks wrong", newest 30; kept when the
                                                   // lesson is rewritten or a stopped job puts it back
 ```
+A lesson is whole, and only then shown to Dan, when it is `ready` with its `lesson`: its
+interactive built and tested, or none and the `note` saying why. `writing` and `building` are
+internal (a job is writing the text, or building and testing the interactive): no screen opens or
+studies such a doc; they say it is being prepared. `U.store.lesson.state(doc, live)` says what a
+doc means: `ready`; `preparing` (this page's job is on it, by `live`, else a writing/building doc
+touched within the last 4 minutes, which a running job's 45 s heartbeat keeps fresh); `failed`;
+`none` (nothing yet, or work that stopped: opening the lesson prepares it).
 `topics/{tid}/research/{key}`   key `'topic'` (always written) or an idea id (when it has notes):
 `{ notes:[{ claim, sourceIds:[n], contested? }], sources:[Source], at }`
 
@@ -491,9 +501,26 @@ target checks that moving one control cannot reach (`unreachable`, via `U.sandbo
 Failures go back in a repair prompt, at most twice. After the last repair, a page that passes
 its own self-test is still kept, with stray addresses stripped and unreachable targets reported.
 
-Prefetch (`50-lesson.js`): once a lesson is ready, the next open idea is ensured with
-`background: true`; leaving the topic aborts it. Opening a prefetched lesson joins its job, and
-the lesson screen promotes its queued calls with `U._gate.promote`.
+The lesson screen (`50-lesson.js`) opens a lesson only when it is whole (section 4). Until then
+it shows only the preparation card: the eyebrow, the title, the idea's one line, the job's
+`onStatus` lines as steps (writing, building the interactive, testing it, fixing what the test
+found; a doc that already has its text starts with "The lesson text is written"), and a calm
+note ("This usually takes a few minutes. You can leave this screen; it keeps going while the app
+is open."). Never Predict or any lesson text. It switches to the whole lesson when its job settles
+or when the watched doc turns whole (another device finished it), resuming at the saved stage.
+The idea counts as started (`startedAt`, `stage`, `lastIdea`) only once the whole lesson is on
+screen. A failure shows Try again on the card. Learn it again (and Rebuild) takes the old lesson
+off the screen at once and shows the card until `relearn` settles with the new one; the old
+ready doc is never adopted from the watch meanwhile.
+
+Prefetch: once a lesson is whole, the next open idea is ensured with `background: true`: written,
+its interactive built and tested, and saved `ready`, all as background work. Leaving a lesson
+that is still being prepared demotes its job (`U.gen.demote(tid, iid)`) rather than cancelling
+it. Both keep going while the app is open (they are not cancelled when Dan leaves the topic) and
+yield to his foreground calls; opening the lesson joins the job and promotes its queued calls
+(`U._gate.promote`). The finished screen ("Idea 2 is being prepared…" / "Idea 2 is ready."),
+Learn's continue card and the topic page (header line; "Being prepared…" on a path node) say
+which, from `U.store.lesson.state` over the watched doc and `U.gen.status`.
 
 ## 8. Review scheduling
 
@@ -592,6 +619,7 @@ U.prompts.urlKey(url) / words(text) / footnotes(obj) / VOICE / KINDS / NUMBER_KI
 U.validate.plan(o) / .lesson(o, {iid, sources, final}) / .grade(o, {rubric, attempt}) / .research(o, {ideas}) -> [problems]
    problems.soft: the length problems among them (section 5);  U.validate.hard(problems);  U.validate.allowed(max)
 U.gen.createTopic / replan / research / ensureLesson / relearn / grade / tutor / status / knownIdeas   (section 7)
+U.gen.demote(tid, iid, {signal?}) -> bool   a foreground job Dan left becomes background work (aborting signal cancels it)
 ```
 `41-cards.js`, `60-today.js`
 ```
@@ -613,7 +641,10 @@ Views and app services
 ```
 U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
    planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 5 min),
-   loadError(what, e, retrying), slowNote, savedLate(what) (U.rt.savedLate), extLink(url, label) (window.open, else copy the link), empty, back, day
+   loadError(what, e, retrying), slowNote, savedLate(what) (U.rt.savedLate), extLink(url, label) (window.open, else copy the link), empty, back, day,
+   lessonLive(tid, iid) (U.gen.status's word, if any), lessonBusy(tid, iid), lessonWatch(onChange) -> {watch(tid, iid),
+   state() -> lesson state | null before the doc is read, stop()}, lessonNote(state, n, started, cls) -> "Idea n is being
+   prepared…" / "Idea n is ready." (ready only when not started) | null
 U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile
