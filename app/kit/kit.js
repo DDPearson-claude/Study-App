@@ -30,6 +30,10 @@
   // with no prototype, so a setter a body adds to Object.prototype never sees the token.
   var TOKEN = typeof window.K_TOKEN === 'string' ? window.K_TOKEN : '';
   try { delete window.K_TOKEN; } catch (e) { window.K_TOKEN = undefined; }
+  // Quiz mode from the start (the host's 'quiz' message follows ready): see "quiz mode" below.
+  var quiz = typeof window.K_QUIZ === 'string' && window.K_QUIZ ? window.K_QUIZ : null;
+  try { delete window.K_QUIZ; } catch (e) { window.K_QUIZ = undefined; }
+  if (quiz) document.documentElement.classList.add('k-quiz');
   Array.prototype.slice.call(document.getElementsByTagName('script')).forEach(function (s) {
     if (s !== document.currentScript && /K_TOKEN/.test(s.textContent || '')) s.remove();
   });
@@ -49,6 +53,13 @@
   function leaving() { if (hosted) try { host.postMessage(LEAVING, '*'); } catch (e) { /* host gone */ } }
   window.addEventListener('beforeunload', leaving, true);
   window.addEventListener('pagehide', leaving, true);
+  // document.open() throws the page away without leaving it, and erases those listeners (and the
+  // kit's own): the root element it replaces is seen here, so the host still hears at once. (The
+  // host's heartbeat catches anything that silences the kit some other way.)
+  // Read through getters captured now, so a body can't redefine what the check sees.
+  var DOC = document, ROOT = document.documentElement, apply = Reflect.apply;
+  var parentOf = Object.getOwnPropertyDescriptor(Node.prototype, 'parentNode').get;
+  if (window.MutationObserver) new MutationObserver(function () { if (apply(parentOf, ROOT, []) !== DOC) leaving(); }).observe(document, { childList: true });
 
   // ---------- errors ----------
   // `errors` are real faults (they fail the self-test); `warnings` are advice for a repair.
@@ -345,7 +356,7 @@
   // ---------- registry and the update pipeline ----------
   // Every control registers itself; K.params() is {id: value}. A change runs: model(params) ->
   // outputs; readouts whose id matches an output key update themselves; then each K.update fn.
-  var controls = [], byId = Object.create(null), readouts = Object.create(null), readoutList = [], plots = [], anims = [], checks = [];
+  var controls = [], byId = Object.create(null), readouts = Object.create(null), readoutList = [], plots = [], barList = [], anims = [], checks = [];
   var actions = [], stages = [];
   var modelFn = null, updates = [], lastOutputs = {}, readyCalled = false, everRun = false;
   var sink = null;          // during the self-test sweep: where problems go, with the current setting
@@ -470,6 +481,73 @@
     return K;
   };
   K.reveal = function () { markMoved(); changed(); return K; };
+
+  // ---------- quiz mode ----------
+  // While Dan answers a target check on this page (the host's 'quiz' message, or K_QUIZ in the
+  // srcdoc so it holds from the first paint), the output it asks about stays hidden and he steers
+  // by the picture and the rule: its readout shows "?" (labelled for screen readers), every .say
+  // line is hidden (visibility, so nothing moves) and plot and bar labels giving its value are
+  // left out. The model runs as usual: state and change messages carry the real outputs, which
+  // the app grades. {type:'quiz', hide:null} or 'reveal' ends it. The self-test runs with it off.
+  var testingNow = false, quizHeld = null, HIDDEN = 'Hidden until you check your answer';
+  function setQuiz(id) {
+    id = typeof id === 'string' && id ? id : typeof id === 'number' ? String(id) : null;
+    if (testingNow) { quizHeld = id; return; }
+    applyQuiz(id);
+  }
+  function applyQuiz(id) {
+    if (id === quiz) return;
+    quiz = id;
+    document.documentElement.classList.toggle('k-quiz', !!quiz);
+    readoutList.forEach(function (r) { if (r.value !== undefined) r.set(r.value); });
+    plots.forEach(function (p) { if (p.drawn) p.redraw(); });
+    barList.forEach(function (b) { b.redraw(); });
+    if (everRun) run();
+  }
+  function quizValue() {
+    if (!quiz) return undefined;
+    if (lastOutputs && Object.prototype.hasOwnProperty.call(lastOutputs, quiz)) return lastOutputs[quiz];
+    return readouts[quiz] ? readouts[quiz].value : undefined;
+  }
+  function nearQuiz(x) {
+    var v = quizValue();
+    return isNum(v) && isNum(x) && Math.abs(x - v) <= 1e-9 * Math.max(1, Math.abs(v));
+  }
+  // Does this text give the hidden value away: a number in it that reads as that value at the
+  // number's own rounding ('2.01 s', '1,234', '−3', '45%', '2.5 × 10⁶', '1.2 million'), or the
+  // value itself, as whole words, when it is a word?
+  var WORD_CH = /[\p{L}\p{N}]/u;
+  var NUM_IN = /([−-])?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:\s*×\s*10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+))?\s*(%|thousand|million|billion|trillion|k(?![a-z]))?/gi;
+  var SCALE = { '%': 0.01, k: 1e3, thousand: 1e3, million: 1e6, billion: 1e9, trillion: 1e12 };
+  function veiled(text) {
+    var v = quizValue();
+    if (v == null || text == null || text === '') return false;
+    text = String(text);
+    if (typeof v !== 'number') {
+      var w = String(v).trim().toLowerCase(), t = text.toLowerCase(), at = w ? t.indexOf(w) : -1;
+      for (; at >= 0; at = t.indexOf(w, at + 1)) {
+        if (!WORD_CH.test(t.charAt(at - 1)) && !WORD_CH.test(t.charAt(at + w.length))) return true;
+      }
+      return false;
+    }
+    if (!isFinite(v)) return false;
+    var m;
+    NUM_IN.lastIndex = 0;
+    while ((m = NUM_IN.exec(text))) {
+      var dp = m[3] ? m[3].length : 0, x = +(m[2].replace(/,/g, '') + (m[3] ? '.' + m[3] : '')), tol = 0.5 * Math.pow(10, -dp);
+      if (m[4]) {
+        var e = +m[4].split('').map(function (ch) { for (var k in SUP) if (SUP[k] === ch) return k; return ''; }).join('');
+        x *= Math.pow(10, e); tol *= Math.pow(10, e);
+      }
+      // A hyphen may be a dash between two numbers ('2-3'), so it is read both ways.
+      var signs = m[1] === '−' ? [-1] : m[1] === '-' ? [-1, 1] : [1], scales = [1];
+      if (m[5]) scales.push(SCALE[m[5].toLowerCase()] || 1);
+      for (var i = 0; i < signs.length; i++) for (var j = 0; j < scales.length; j++) {
+        if (Math.abs(signs[i] * x * scales[j] - v) <= tol * scales[j] + Math.abs(v) * 1e-9) return true;
+      }
+    }
+    return false;
+  }
 
   // ---------- controls ----------
   // Label (and live value on the right), then an optional one-line hint across the full width.
@@ -775,20 +853,25 @@
       val.style.fontSize = Math.max(px * least, Math.floor(px * w / need * 10) / 10) + 'px';
     }
     r.set = function (v) { setValue(v); fit(); return r; };
+    // The number as this readout shows it (without the unit).
+    function numText(v) { return o.fmt ? String(o.fmt(v)) : (o.prefix || '') + fmt(v, dp != null ? { dp: dp } : o.sig ? { sig: o.sig } : null); }
+    r.format = function (v) { try { return typeof v === 'number' ? numText(v) : String(v); } catch (e) { return fmt(v); } };
     function setValue(v) {
       r.value = v;
       while (val.firstChild) val.removeChild(val.firstChild);
       // afterMove: a "?" until Dan first moves something, so it can't answer his prediction.
-      var wait = !!o.afterMove && !K.moved;
+      // Quiz mode: a "?" while he answers a target check on this output.
+      var hide = quiz !== null && quiz === id, wait = hide || !!o.afterMove && !K.moved;
       val.classList.toggle('k-wait', wait);
+      if (hide) { val.setAttribute('role', 'img'); val.setAttribute('aria-label', HIDDEN); }
+      else if (val.hasAttribute('role')) { val.removeAttribute('role'); val.removeAttribute('aria-label'); }
       if (typeof v === 'number') {
-        if (!isFinite(v)) { val.textContent = '—'; problem('readout "' + id + '" was given ' + (isNaN(v) ? 'NaN' : 'Infinity')); return; }
+        if (!isFinite(v)) { val.textContent = hide ? '?' : '—'; problem('readout "' + id + '" was given ' + (isNaN(v) ? 'NaN' : 'Infinity')); return; }
         if (wait) { val.textContent = '?'; return; }
-        if (o.fmt) { val.appendChild(K.el('span', { class: 'k-num' }, String(o.fmt(v)))); return; }
-        val.appendChild(K.el('span', { class: 'k-num' }, (o.prefix || '') + fmt(v, dp != null ? { dp: dp } : o.sig ? { sig: o.sig } : null)));
-        if (o.unit) val.appendChild(K.el('span', { class: 'k-readout-unit' }, unitText(o.unit)));
+        val.appendChild(K.el('span', { class: 'k-num' }, numText(v)));
+        if (o.unit && !o.fmt) val.appendChild(K.el('span', { class: 'k-readout-unit' }, unitText(o.unit)));
       } else if (v == null) {
-        val.textContent = '—';
+        val.textContent = hide ? '?' : '—';
         problem('readout "' + id + '" was given ' + v);
       } else {
         var shown = String(v);
@@ -1150,7 +1233,7 @@
         ctx.fillStyle = col; ctx.fill();
         ctx.lineWidth = 2.5; ctx.strokeStyle = c.bg; ctx.stroke();
         placed.push({ x: px - rad - 2, y: py - rad - 2, w: 2 * rad + 4, h: 2 * rad + 4 });
-        if (m.label) shown.push({ px: px, py: py, text: String(m.label) });
+        if (m.label && !veiled(m.label)) shown.push({ px: px, py: py, text: String(m.label) });
       });
 
       // 6. Labels, each in the first free spot near its thing: clear of the axes and their labels
@@ -1199,7 +1282,7 @@
       }
       // Reference line labels sit beside their line, never across it.
       (cur.lines || []).forEach(function (l) {
-        if (!l.label) return;
+        if (!l.label || veiled(l.label)) return;
         var text = String(l.label);
         if (isNum(l.x)) {
           var x = sx(l.x);
@@ -1211,7 +1294,7 @@
       });
       // Shade labels: inside the band where it is wide enough (widest first), else just beside it.
       shades.forEach(function (d) {
-        if (!d || !d.sh.label) return;
+        if (!d || !d.sh.label || veiled(d.sh.label)) return;
         var spots = d.pts.filter(function (p) { return ok(p[1]) && ok(p[2]); })
           .map(function (p) { return { x: sx(p[0]), y: (sy(p[1]) + sy(p[2])) / 2, gap: Math.abs(sy(p[1]) - sy(p[2])) }; })
           .sort(function (a, b) { return b.gap - a.gap; });
@@ -1227,7 +1310,7 @@
       });
       // Region labels: inside the band, at a corner.
       (cur.regions || []).forEach(function (r) {
-        if (!r.label) return;
+        if (!r.label || veiled(r.label)) return;
         var text = String(r.label);
         if (isNum(r.x0) || isNum(r.x1)) {
           var a = Math.min(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max)), b = Math.max(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max));
@@ -1248,17 +1331,20 @@
       while (legend.firstChild) legend.removeChild(legend.firstChild);
       var labelled = data.filter(function (d) { return d.label; });
       if (labelled.length > 1 || cur.legend === true) labelled.forEach(function (d) {
-        legend.appendChild(K.el('span', { class: 'k-key' }, K.el('i', { class: d.s.dash ? 'dash' : '', style: { color: d.color } }), d.label));
+        legend.appendChild(K.el('span', { class: 'k-key' }, K.el('i', { class: d.s.dash ? 'dash' : '', style: { color: d.color } }), veiled(d.label) ? '?' : d.label));
       });
-      var alt = cur.label || ((Y.label || 'y') + ' against ' + (X.label || 'x'));
-      shades.forEach(function (d) { if (d && d.sh.label) alt += '. Shaded: ' + d.sh.label; });
-      (cur.marks || []).forEach(function (m) { if (m.label) alt += '. ' + m.label + ' at ' + fmt(m.x) + ', ' + fmt(m.y); });
+      // The text alternative leaves out the hidden value too (quiz mode).
+      var alt = cur.label && !veiled(cur.label) ? cur.label : ((Y.label || 'y') + ' against ' + (X.label || 'x'));
+      shades.forEach(function (d) { if (d && d.sh.label && !veiled(d.sh.label)) alt += '. Shaded: ' + d.sh.label; });
+      (cur.marks || []).forEach(function (m) {
+        if (m.label && !veiled(m.label)) alt += '. ' + m.label + (nearQuiz(m.x) || nearQuiz(m.y) ? '' : ' at ' + fmt(m.x) + ', ' + fmt(m.y));
+      });
       canvas.setAttribute('aria-label', alt);
     }
 
     api.draw = function (next) {
       cur = next ? Object.assign({}, base, next) : cur;
-      try { render(); } catch (e) { fault('plot "' + name + '"', e); }
+      try { render(); api.drawn = true; } catch (e) { fault('plot "' + name + '"', e); }
       heightSoon();
       return api;
     };
@@ -1290,8 +1376,9 @@
     var root = target ? resolve(target, 'K.bars') : K.el('div');
     if (!target && o.into) place(root, o.into, 'K.bars');
     root.classList.add('k-bars');
-    var api = { el: root };
+    var api = { el: root }, last = null;
     api.draw = function (items, next) {
+      last = [items, next];
       var opt = Object.assign({}, o, next || {});
       items = items || [];
       var top = num(opt.max, 0);
@@ -1307,7 +1394,12 @@
         if (!ok) problem('bars: "' + (it.label || i) + '" has a non-finite value');
         row.querySelector('span').textContent = it.label || '';
         var d = opt.dp != null ? { dp: opt.dp } : opt.decimals != null ? { dp: opt.decimals } : null;
-        row.querySelector('b').textContent = ok ? (opt.fmt ? String(opt.fmt(it.value)) : (opt.prefix || '') + fmt(it.value, d) + unitText(opt.unit)) : '—';
+        var text = ok ? (opt.fmt ? String(opt.fmt(it.value)) : (opt.prefix || '') + fmt(it.value, d) + unitText(opt.unit)) : '—';
+        // Quiz mode: no value label for the hidden output.
+        var b = row.querySelector('b'), hide = ok && (nearQuiz(it.value) || veiled(text));
+        b.textContent = hide ? '?' : text;
+        if (hide) { b.setAttribute('role', 'img'); b.setAttribute('aria-label', HIDDEN); }
+        else if (b.hasAttribute('role')) { b.removeAttribute('role'); b.removeAttribute('aria-label'); }
         var fill = row.querySelector('i');
         fill.style.width = (ok ? clamp(it.value / top, 0, 1) * 100 : 0).toFixed(2) + '%';
         fill.style.background = K.color(it.color || 'accent2');
@@ -1315,6 +1407,8 @@
       heightSoon();
       return api;
     };
+    api.redraw = function () { return last ? api.draw(last[0], last[1]) : api; };
+    barList.push(api);
     if (o.items) api.draw(o.items);
     return api;
   };
@@ -2215,7 +2309,14 @@
     testing = selftestNow(opt || {}).then(function (r) { testing = null; return r; }, function (e) { testing = null; throw e; });
     return testing;
   }
+  // Quiz mode is a screen for Dan, never what the self-test judges: it is off while the test runs
+  // (a quiz that arrives meanwhile waits for the end).
   async function selftestNow(opt) {
+    quizHeld = quiz; testingNow = true; applyQuiz(null);
+    try { return await selftestRun(opt); }
+    finally { testingNow = false; var q = quizHeld; quizHeld = null; applyQuiz(q); }
+  }
+  async function selftestRun(opt) {
     var t0 = now();
     scanExternal();
     if (!readyCalled) addUnique(errors, 'K.ready() was never called: call it once at the end of the script.');
@@ -2264,11 +2365,16 @@
   }
   // Does some setting of one control bring an output to a target? Tries every setting the control
   // can take (all options of a choice), others staying where they are. Runs in short slices.
-  // -> {reachable, best:{value, output}, tried}
+  // exact: some setting shows the target exactly, at d.decimals when given (the lesson's rounding),
+  // else as the output's readout shows it (else the default rounding).
+  // -> {reachable, exact, best:{value, output}, tried}
   async function reach(d) {
     var c = byId[d.control];
-    if (!c) return { reachable: false, best: null, error: 'No control "' + d.control + '"', tried: 0 };
+    if (!c) return { reachable: false, exact: false, best: null, error: 'No control "' + d.control + '"', tried: 0 };
     var target = +d.target, tol = Math.abs(+d.tolerance || 0), key = String(d.output);
+    var dp = d.decimals != null && d.decimals !== '' && isNum(+d.decimals) && +d.decimals >= 0 ? clamp(Math.round(+d.decimals), 0, 12) : null;
+    var shows = dp != null ? function (x) { return fmt(x, { dp: dp }); } : readouts[key] ? readouts[key].format : function (x) { return fmt(x); };
+    var aim = isNum(target) ? shows(target) : null, exact = false;
     var vals = c.values(), init = c.get(), base = K.params(), best = null, breathe = slicer(25);
     var fromModel = false;
     try { fromModel = !!modelFn && Object.prototype.hasOwnProperty.call(modelFn(base) || {}, key); } catch (e) {}
@@ -2286,6 +2392,7 @@
         if (isNum(out)) {
           var diff = Math.abs(out - target);
           if (!best || diff < best.diff) best = { value: v, output: out, diff: diff };
+          if (!exact && aim !== null && shows(out) === aim) exact = true;
         }
         await breathe();
       }
@@ -2295,6 +2402,7 @@
     }
     return {
       reachable: !!best && best.diff <= tol + Math.abs(target) * 1e-9 + 1e-12,
+      exact: exact,
       best: best ? { value: best.value, output: best.output } : null,
       tried: vals.length,
     };
@@ -2347,13 +2455,21 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
   // ---------- host requests ----------
+  // A capture listener added before the body runs, so a body's own message listener can't
+  // swallow the host's requests (the host removes a frame that stops answering its pings).
   window.addEventListener('message', function (ev) {
     if (!hosted || ev.source !== host) return;
     var d = ev.data;
     if (!d || typeof d !== 'object' || typeof d.type !== 'string') return;
     var rid = d.rid;
     function state() { post({ type: 'state', rid: rid, params: K.params(), outputs: stateOutputs(), moved: moved }); }
-    if (d.type === 'selftest') {
+    if (d.type === 'ping') {
+      post({ type: 'pong', rid: rid });
+    } else if (d.type === 'quiz') {
+      setQuiz(d.hide);
+    } else if (d.type === 'reveal') {
+      setQuiz(null);
+    } else if (d.type === 'selftest') {
       Promise.resolve().then(function () { return selftest({ throwaway: !!d.throwaway }); }).then(function (report) {
         post({ type: 'report', rid: rid, report: report });
       }, function (e) {
@@ -2383,12 +2499,12 @@
       post({ type: 'inputs', rid: rid, inputs: controls.map(function (x) { return x.info(); }), actions: actions.map(function (x) { return x.label; }).concat(anims.map(function (x) { return x.label; })) });
     } else if (d.type === 'reach') {
       Promise.resolve().then(function () { return reach(d); }).then(function (res) { post({ type: 'reach', rid: rid, result: res }); },
-        function (e) { post({ type: 'reach', rid: rid, result: { reachable: false, best: null, error: errText(e), tried: 0 } }); });
+        function (e) { post({ type: 'reach', rid: rid, result: { reachable: false, exact: false, best: null, error: errText(e), tried: 0 } }); });
     } else if (d.type === 'theme') {
       applyTheme(d.theme);
       plots.forEach(function (p) { p.redraw(); });
       if (everRun) run();
       if (readyCalled) relayout();
     }
-  });
+  }, true);
 })();

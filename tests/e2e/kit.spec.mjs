@@ -9,6 +9,8 @@ import { movedValue } from '../../tools/eval/render.mjs';
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const OUT = join(ROOT, 'tests', 'out');
 const PAGE = join(OUT, 'kit.html');
@@ -796,6 +798,247 @@ section('the kit in a live frame');
   expect('reach(): works on a mounted frame too', reach.mounted.reachable && reach.mounted.best.value === 0.7, reach.mounted);
   expect('no page errors in the live-frame tests', !wide.errors.length, wide.errors);
   await wide.close();
+}
+
+// ---------- a frame that stops being the kit is removed (audit 3, #22 residual) ----------
+section('a frame that stops being the kit');
+{
+  const app = await openApp({ width: 360, height: 800, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  // The skeptic's reproduction: with no press at all, a timer calls document.open() (which erases
+  // the kit's beforeunload / pagehide listeners, so no 'leaving' came) and sends the frame to a page
+  // whose load event never fires (so no second load either). It stayed in the lesson, taking
+  // keystrokes. Also: the same after redefining the getters a check might read, and
+  // document.write() after load (an implicit open) with no navigation at all.
+  let served = 0;
+  await app.context.route('https://remote.example/**', (q) => {
+    if (/hang/.test(q.request().url())) return;   // never answered: the landing page never finishes loading
+    served++;
+    q.fulfill({ contentType: 'text/html', body: '<!doctype html><body><h1>remote content</h1><input id="field"><img src="https://remote.example/hang"><script>' +
+      "addEventListener('message', (e) => { if (e.data && e.data.type === 'ping') parent.postMessage({ src: 'kit', type: 'pong', rid: e.data.rid }, '*'); });" + '</' + 'script></body>' });
+  });
+  const later = (js) => body(plain + '\nsetTimeout(function () { ' + js + ' }, 1200);');
+  const attacks = {
+    'document.open(), then a page that never loads': later("document.open(); window['loc' + 'ation'].href = 'https://remote.example/land?v=1&d=' + K.params().a;"),
+    '...after redefining documentElement and parentNode': later("const r = document.documentElement; Object.defineProperty(Document.prototype, 'documentElement', { get() { return r; } }); Object.defineProperty(Node.prototype, 'parentNode', { get() { return document; } }); document.open(); window['loc' + 'ation'].href = 'https://remote.example/land?v=2';"),
+    'document.write() after load': later("document.write('<p>replaced</p>');"),
+  };
+  await app.page.evaluate(async (list) => {
+    window.__att = {};
+    await Promise.all(Object.entries(list).map(async ([name, html]) => {
+      const a = window.__att[name] = { errors: [] };
+      a.m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => a.errors.push(e) });
+      await a.m.ready;
+    }));
+  }, attacks);
+  const state = () => app.page.evaluate(() => Object.fromEntries(Object.entries(window.__att).map(([k, a]) => [k, { mounted: a.m.el.isConnected || a.m.frame.isConnected, errors: a.errors }])));
+  await app.page.waitForTimeout(2600);
+  const soon = await state();
+  const remote = () => app.page.frames().filter((f) => !f.isDetached() && f.url().startsWith('https://remote.example/')).map((f) => f.url());
+  for (const name of Object.keys(attacks)) {
+    expect('a body that throws its page away with ' + name + ' is removed at once (by 2.6 s)', !soon[name].mounted && soon[name].errors.some((e) => /tried to leave its page/.test(e)), soon[name]);
+  }
+  await app.page.waitForTimeout(4000);
+  // (The navigation's request may still go out, as the policy cannot stop it; the frame is gone first.)
+  expect('...no page it was sent to is left in the frame, and none comes back', !remote().length && Object.values(await state()).every((a) => !a.mounted), { remote: remote(), served });
+  // The page still works: an honest frame mounted now is kept, and answers.
+  const honest = await app.page.evaluate(async (html) => {
+    const errs = [];
+    const m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => errs.push(e) });
+    await m.ready;
+    await new Promise((r) => setTimeout(r, 7000));
+    const got = await m.get().then((s) => s.outputs.y, (e) => e.code);
+    const out = { mounted: m.el.isConnected, got, errs };
+    m.destroy();
+    return out;
+  }, body(plain));
+  expect('an honest frame is kept through its heartbeats (7 s) and answers', honest.mounted && honest.got === 1 && !honest.errs.length, honest);
+  app.errors.splice(0);
+  await app.close();
+}
+
+// The heartbeat itself, where it matters: a frame in its own process (as on a laptop), whose page
+// can freeze while the app's own clock keeps running. Each page gets its own browser context, so a
+// frozen frame never shares a process with another test's frame.
+section('the heartbeat, frames in their own process');
+{
+  const browser = await chromium.launch({ args: ['--site-per-process', '--enable-features=IsolateSandboxedIframes'] });
+  const open = async () => {
+    const page = await (await browser.newContext({ viewport: { width: 400, height: 900 } })).newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await page.goto(pathToFileURL(PAGE).href + '#/');
+    await page.waitForFunction(() => window.U && U.sandbox, null, { timeout: 60000 });
+    return { page, errors };
+  };
+  // A slow but honest page: a button that computes for 3 s (pressed twice), then an animation whose
+  // every frame takes 250 ms. It answers between its tasks, so it is kept.
+  const slow = await open();
+  const slowBody = body(plain + "\nK.button({ label: 'Work', into: '#c', press: () => { const t = Date.now(); while (Date.now() - t < 3000) {} } });\n" +
+    "K.anim({ label: 'Play', into: '#c', step: () => { const t = Date.now(); while (Date.now() - t < 250) {} } });");
+  const kept = await slow.page.evaluate(async (html) => {
+    const errs = [];
+    const m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => errs.push(e) });
+    await m.ready;
+    let ticks = 0;
+    const iv = setInterval(() => ticks++, 100);
+    await m.press('Work');
+    const during = ticks;   // the app's clock ran while the frame computed: they are separate processes
+    await new Promise((r) => setTimeout(r, 1000));
+    await m.press('Work');
+    await m.press('Play');
+    await new Promise((r) => setTimeout(r, 6000));
+    clearInterval(iv);
+    const got = await m.get().then((s) => s.outputs.y, (e) => e.code);
+    const out = { during, mounted: m.el.isConnected, got, errs };
+    m.destroy();
+    return out;
+  }, slowBody);
+  expect('(the frame runs in its own process here: the app\'s clock ran while it computed)', kept.during >= 20, kept);
+  expect('a slow but honest page (3 s computations, 250 ms animation frames) is kept and answers', kept.mounted && kept.got === 1 && !kept.errs.length, kept);
+  // A page frozen for good after it started, and one frozen before the kit ever spoke.
+  const frozen = await open(), early = await open();
+  const freezeBody = body(plain + "\nK.button({ label: 'Freeze', into: '#c', press: () => { for (;;) {} } });");
+  await frozen.page.evaluate(async (html) => {
+    const f = window.__f = { errors: [] };
+    f.m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => f.errors.push(e) });
+    await f.m.ready;
+    f.m.press('Freeze').catch(() => {});
+    f.t0 = Date.now();
+    f.gone = new Promise((res) => { const iv = setInterval(() => { if (!f.m.el.isConnected) { clearInterval(iv); res(Date.now() - f.t0); } }, 50); setTimeout(() => res(null), 9000); });
+  }, freezeBody);
+  await early.page.evaluate((html) => {
+    const f = window.__f = { errors: [], shown: false };
+    f.m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => f.errors.push(e) });
+    f.t0 = Date.now();
+    f.gone = new Promise((res) => { const iv = setInterval(() => { if (f.m.el.dataset.state === 'live') f.shown = true; if (!f.m.el.isConnected) { clearInterval(iv); res(Date.now() - f.t0); } }, 50); setTimeout(() => res(null), 16000); });
+  }, '<p>never</p><script>for (;;) {}</script>');
+  const fr = await frozen.page.evaluate(async () => ({ after: await __f.gone, errors: __f.errors }));
+  expect('a frame that stops answering is closed after 4-6 s of silence, as "stopped answering"', fr.after !== null && fr.after >= 3000 && fr.after <= 7500 && fr.errors.some((e) => /stopped answering/.test(e)), fr);
+  const er = await early.page.evaluate(async () => ({ after: await __f.gone, shown: __f.shown, errors: __f.errors }));
+  expect('a frame that never says anything is closed at 12 s and never shown', er.after !== null && er.after >= 11000 && er.after <= 15500 && !er.shown && er.errors.some((e) => /stopped answering/.test(e)), er);
+  expect('no page errors in the heartbeat tests', !slow.errors.length && !frozen.errors.length && !early.errors.length, [slow.errors, frozen.errors, early.errors]);
+  await browser.close();
+}
+
+// ---------- quiz mode (contract Q) and reach().exact ----------
+section('quiz mode');
+{
+  const app = await openApp({ width: 360, height: 800, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  const quizBody = '<div id="plot"></div><div class="k-controls" id="controls"></div><div class="k-readouts" id="outs"></div><div id="bars"></div>\n' +
+    '<p class="say" id="say"></p>\n<script>\n' +
+    'const period = (L) => 2 * Math.PI * Math.sqrt(L / 9.81);\n' +
+    "K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', into: '#controls' });\n" +
+    "K.stage('#plot', '#controls');\n" +
+    "K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });\n" +
+    "K.readout({ id: 'f', label: 'Swings a minute', decimals: 0, into: '#outs' });\n" +
+    "const plot = window.__plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });\n" +
+    "const bars = K.bars('#bars', { unit: 's', decimals: 2 });\n" +
+    'K.model((p) => ({ T: period(p.L), f: 60 / period(p.L) }));\n' +
+    'K.update((p, o) => {\n' +
+    "  plot.draw({ series: [{ fn: period }], lines: [{ y: o.T, label: 'now ' + K.fmt(o.T, { decimals: 2 }) + ' s' }], marks: [{ x: p.L, y: o.T, label: K.fmt(o.T, { decimals: 2 }) + ' s', guides: true }, { x: 0.994, y: 2, label: 'Seconds pendulum' }] });\n" +
+    "  bars.draw([{ label: 'This string', value: o.T }, { label: 'A seconds pendulum', value: 2 }]);\n" +
+    "  if (!window.__first) window.__first = document.querySelector('[data-id=\"T\"] .k-readout-value').textContent;\n" +
+    "  document.getElementById('say').textContent = 'Each swing takes ' + K.fmt(o.T, { decimals: 2 }) + ' s.';\n" +
+    '});\n' +
+    "K.check('No length, no swing', () => K.near(period(0), 0));\n" +
+    "K.check('A 0.994 m string swings in 2 s', () => K.near(period(0.994), 2, 0.002));\n" +
+    "K.check('Four times the length doubles it', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));\n" +
+    'K.ready();\n</script>';
+  const r0 = await app.page.evaluate((h) => U.sandbox.test(h, { widths: [340] }), quizBody);
+  expect('the quiz test body passes its self-test (test frames never have a quiz)', r0.ok, r0);
+  await app.page.evaluate(async (html) => {
+    const q = window.__q = { changes: [], errors: [] };
+    q.a = document.body.appendChild(document.createElement('div'));
+    q.b = document.body.appendChild(document.createElement('div'));
+    q.m = U.sandbox.mount(q.a, { html, quiz: { hide: 'T' }, onChange: (s) => q.changes.push(s), onError: (e) => q.errors.push(e) });
+    await q.m.ready;
+  }, quizBody);
+  const frameOf = async () => (await (await app.page.evaluateHandle(() => __q.m.frame)).asElement().contentFrame());
+  const look = async () => (await frameOf()).evaluate(() => {
+    const val = (id) => document.querySelector('[data-id="' + id + '"] .k-readout-value');
+    const say = document.getElementById('say'), bs = [...document.querySelectorAll('.k-bar b')];
+    return {
+      T: val('T').textContent, role: val('T').getAttribute('role'), aria: val('T').getAttribute('aria-label'), f: val('f').textContent,
+      say: getComputedStyle(say).visibility, sayH: say.getBoundingClientRect().height, sayText: say.textContent,
+      labels: window.__plot.labels.map((l) => l.text), alt: window.__plot.canvas.getAttribute('aria-label'),
+      bars: bs.map((b) => b.textContent), barAria: bs.map((b) => b.getAttribute('aria-label')), first: window.__first,
+    };
+  });
+  let st = await look();
+  expect('quiz: the hidden readout shows "?" from the first paint, labelled for screen readers; the other readout shows',
+    st.T === '?' && st.first === '?' && st.role === 'img' && st.aria === 'Hidden until you check your answer' && st.f === '30', st);
+  expect('quiz: the .say line is hidden, its space kept', st.say === 'hidden' && st.sayH > 10 && /2\.01/.test(st.sayText), st);
+  expect('quiz: plot labels and the plot\'s text alternative leave out the value; other labels stay',
+    !st.labels.some((t) => /2\.01/.test(t)) && st.labels.includes('Seconds pendulum') && !/2\.01/.test(st.alt) && /Seconds pendulum/.test(st.alt), st);
+  expect('quiz: the bar for that output shows "?", another bar its value', st.bars[0] === '?' && st.barAria[0] === 'Hidden until you check your answer' && st.bars[1] === '2.00 s', st);
+  const real = await app.page.evaluate(async () => { const s = await __q.m.set('L', 2); await new Promise((r) => setTimeout(r, 400)); return { T: s.outputs.T, change: __q.changes.length }; });
+  st = await look();
+  expect('quiz: get/set and change messages still carry the real outputs', near(real.T, 2.837, 0.001) && st.T === '?' && !st.labels.some((t) => /2\.84/.test(t)) && st.bars[0] === '?', { real, st });
+  // A self-test on the mounted frame runs with the quiz off and puts it back.
+  const rep = await app.page.evaluate(() => __q.m.selftest());
+  st = await look();
+  expect('quiz: the self-test never runs in quiz mode (it passes), and the quiz is back after it', rep.ok && st.T === '?' && st.say === 'hidden', { ok: rep.ok, errors: rep.errors, sweep: rep.sweep, st });
+  await app.page.evaluate(() => __q.m.reveal());
+  await app.page.waitForTimeout(300);
+  st = await look();
+  expect('reveal(): everything shows again', st.T === '2.84 s' && st.role === null && st.say === 'visible' && st.labels.includes('2.84 s') && st.labels.includes('now 2.84 s') && st.bars[0] === '2.84 s' && /2\.84/.test(st.alt), st);
+  // Moved in the page, the frame loads the kit again: after a reveal it stays revealed; with a quiz on, it is hidden again.
+  await app.page.evaluate(async () => { __q.b.appendChild(__q.m.el); await new Promise((r) => setTimeout(r, 1500)); });
+  st = await look();
+  expect('a frame moved after reveal() loads again with nothing hidden', st.T === '2.01 s' && st.say === 'visible', st);
+  await app.page.evaluate(async () => { __q.m.quiz('T'); await new Promise((r) => setTimeout(r, 300)); __q.a.appendChild(__q.m.el); await new Promise((r) => setTimeout(r, 1500)); });
+  st = await look();
+  expect('quiz(id) hides it again, and a reload keeps it hidden (the host sends the quiz after every ready)', st.T === '?' && st.say === 'hidden' && st.bars[0] === '?', st);
+  await app.page.evaluate(async () => { __q.m.quiz(null); await new Promise((r) => setTimeout(r, 300)); });
+  st = await look();
+  expect('quiz(null) ends it too', st.T === '2.01 s' && st.say === 'visible', st);
+  const qerr = await app.page.evaluate(() => { const e = __q.errors.slice(); __q.m.destroy(); return e; });
+  expect('no frame errors in quiz mode', !qerr.length, qerr);
+  // Which labels give the value away: a number that reads as it at its own rounding, or the word itself.
+  const marks = (labels) => JSON.stringify(labels.map((label, i) => ({ x: i + 1, y: 2, label })));
+  const altOf = async (model, hide, labels) => {
+    const html = '<div id="p"></div><script>\n' + model + "\nconst plot = K.plot('#p', { x: { min: 0, max: 8 }, y: { min: 0, max: 4 } });\n" +
+      'K.update(() => plot.draw({ marks: ' + marks(labels) + ' }));\n' + "K.check('a', () => true); K.ready();\n</script>";
+    const out = await app.page.evaluate(async ([h, id]) => {
+      const m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html: h, quiz: { hide: id } });
+      await m.ready;
+      await new Promise((r) => setTimeout(r, 200));
+      window.__alt = m;
+      return null;
+    }, [html, hide]);
+    void out;
+    const fr = await (await app.page.evaluateHandle(() => __alt.frame)).asElement().contentFrame();
+    const alt = await fr.evaluate(() => document.querySelector('canvas').getAttribute('aria-label'));
+    await app.page.evaluate(() => __alt.destroy());
+    return alt;
+  };
+  const alt1 = await altOf('K.model(() => ({ share: 0.452, n: 1234567 }));', 'share', ['45.2%', '45%', '0.452', 'about 0.5', '46%', 'Seconds']);
+  expect('quiz: a label reading as the value at its own rounding is left out (45.2%, 45%, 0.452, about 0.5); 46% and words stay',
+    !/45\.2%|45%|0\.452|about 0\.5/.test(alt1) && /46%/.test(alt1) && /Seconds/.test(alt1), alt1);
+  const alt2 = await altOf("K.model(() => ({ n: 1234567 }));", 'n', ['1.23 million', '1,234,567', '1.2 × 10⁶', '1.25 million', 'Town']);
+  expect('quiz: large values in words, digit groups and powers of ten are caught too', !/1\.23 million|1,234,567|1\.2 × 10⁶/.test(alt2) && /1\.25 million/.test(alt2) && /Town/.test(alt2), alt2);
+  const alt3 = await altOf("K.model(() => ({ dir: 'north' }));", 'dir', ['Heading north', 'Northern route', 'South']);
+  expect('quiz: a word output is hidden only as a whole word', !/Heading north/.test(alt3) && /Northern route/.test(alt3) && /South/.test(alt3), alt3);
+
+  // reach().exact: does some step of the control show the target exactly?
+  const dp0 = body("K.model((p) => ({ y: p.a * 2 }));").replace("K.readout({ id: 'y', label: 'Y', into: '#o' });", "K.readout({ id: 'y', label: 'Y', decimals: 0, into: '#o' });");
+  const ex = await app.page.evaluate(async ([b, b0]) => ({
+    shown: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.4, tolerance: 0.05, decimals: 1 }),
+    between: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1, decimals: 1 }),
+    coarse: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1, decimals: 0 }),
+    asShown: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1 }),
+    readout: await U.sandbox.reach(b0, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1 }),
+  }), [body(plain), dp0]);
+  expect('reach().exact: a step shows the target exactly at the decimals given', ex.shown.reachable && ex.shown.exact === true, ex.shown);
+  expect('reach().exact: reachable within tolerance, but no step shows it exactly', ex.between.reachable && ex.between.exact === false, ex.between);
+  expect('reach().exact: at 0 decimals, 1.6 shows as the target 1.5 does ("2")', ex.coarse.exact === true, ex.coarse);
+  expect('reach().exact: without decimals, as the page\'s readout rounds it', ex.asShown.exact === false && ex.readout.exact === true, { asShown: ex.asShown, readout: ex.readout });
+  expect('no page errors in the quiz tests', !app.errors.length, app.errors);
+  await app.close();
 }
 
 // ---------- the exemplars and the KIT.md example pass, with zero page errors ----------
