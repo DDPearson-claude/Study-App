@@ -21,6 +21,7 @@
   --floor: #6c7b4f;
   --chip: #2b2d42;
   --chip-ink: #ffffff;
+  --pencil: #9aa0ad;
   --font-hand: 'Patrick Hand', 'Comic Sans MS', 'Segoe Print', cursive;
   --font-ui: 'Nunito', 'Segoe UI', system-ui, sans-serif;
 }
@@ -28,14 +29,14 @@
   :root:not([data-theme="light"]) {
     --paper: #1f2a28; --grid: rgba(220, 235, 225, 0.07); --ink: #f1efe6; --ink-soft: #a9b3ad;
     --accent: #ffb347; --tray: #2a3734; --tray-edge: rgba(241, 239, 230, 0.14); --shadow: rgba(0, 0, 0, 0.45);
-    --bubble: #f1efe6; --bubble-ink: #1f2a28; --floor: #b7c9a0; --chip: #f1efe6; --chip-ink: #1f2a28;
+    --bubble: #f1efe6; --bubble-ink: #1f2a28; --floor: #b7c9a0; --chip: #f1efe6; --chip-ink: #1f2a28; --pencil: #7d8694;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #1f2a28; --grid: rgba(220, 235, 225, 0.07); --ink: #f1efe6; --ink-soft: #a9b3ad;
   --accent: #ffb347; --tray: #2a3734; --tray-edge: rgba(241, 239, 230, 0.14); --shadow: rgba(0, 0, 0, 0.45);
-  --bubble: #f1efe6; --bubble-ink: #1f2a28; --floor: #b7c9a0; --chip: #f1efe6; --chip-ink: #1f2a28;
+  --bubble: #f1efe6; --bubble-ink: #1f2a28; --floor: #b7c9a0; --chip: #f1efe6; --chip-ink: #1f2a28; --pencil: #7d8694;
   color-scheme: dark;
 }
 html, body { height: 100%; }
@@ -111,11 +112,11 @@ button.danger.on { background: var(--accent); border-color: var(--accent); color
 #picker button b { font-weight: 700; }
 #picker button.on { font-weight: 700; }
 
-#help {
+#help, .modal {
   position: absolute; inset: 0; z-index: 10; display: none; align-items: center; justify-content: center;
   background: color-mix(in srgb, var(--paper) 70%, transparent); padding: 16px;
 }
-#help.open { display: flex; align-items: safe center; }
+#help.open, .modal.open { display: flex; align-items: safe center; }
 .card {
   background: var(--tray); border: 1.5px solid var(--tray-edge); border-radius: 18px; box-shadow: 0 16px 48px var(--shadow);
   padding: 22px 24px; max-width: 420px; width: 100%; min-width: 0; box-sizing: border-box; max-height: calc(100% - 32px); overflow-y: auto;
@@ -171,6 +172,27 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
 .thumb canvas { width: 60px; height: 60px; }
 .thumb span { font: 400 14px/1.1 var(--font-hand); color: var(--ink); text-align: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pad-empty { font-size: 14px; color: var(--ink-soft); padding: 20px; text-align: center; }
+#hud { position: absolute; top: calc(8px + env(safe-area-inset-top, 0px)); left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 16px; pointer-events: none; z-index: 4; flex-wrap: wrap; }
+#hud > * { pointer-events: auto; }
+#hud .pill { display: inline-flex; align-items: center; gap: 8px; background: var(--tray); border: 1.5px solid var(--tray-edge); border-radius: 999px; padding: 4px 6px 4px 12px; box-shadow: 0 4px 14px var(--shadow); }
+#hud .name { font: 400 20px/1 var(--font-hand); }
+#hud .ink { font: 700 12px/1 var(--font-ui); letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-soft); display: inline-flex; align-items: center; gap: 8px; }
+#hud .bar { width: 90px; height: 8px; border-radius: 4px; background: var(--grid); overflow: hidden; }
+#hud .bar b { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width 300ms; }
+#hud button { padding: 6px 10px; min-height: 30px; }
+#margin { position: absolute; left: 16px; top: calc(56px + env(safe-area-inset-top, 0px)); max-width: min(340px, calc(100% - 32px)); font: 400 19px/1.25 var(--font-hand); color: var(--ink-soft); pointer-events: none; opacity: 0; transition: opacity 400ms; z-index: 3; }
+#margin.show { opacity: 1; }
+#margin::before { content: ''; position: absolute; left: -10px; top: 2px; bottom: 2px; width: 2px; background: var(--accent); opacity: 0.5; }
+#pagesel .card { max-width: 560px; }
+#pagelist { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 14px; }
+#pagelist button { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; border-color: var(--tray-edge); padding: 10px 12px; text-align: left; }
+#pagelist button b { font: 400 18px/1.1 var(--font-hand); }
+#pagelist button small { font-size: 12px; color: var(--ink-soft); font-weight: 500; }
+#pagelist button.done { border-color: var(--accent); }
+#pagewin .card { text-align: center; }
+#pagewin .stars { font-size: 34px; letter-spacing: 6px; color: var(--accent); margin: 6px 0 10px; }
+#pagewin .row { justify-content: center; }
+#brand.pages { display: none; }
 @media (max-width: 520px) {
   #brand { font-size: 22px; }
   #brand small { display: none; }
@@ -185,11 +207,32 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
   <canvas id="world" aria-label="Drawing world. Draw with your finger or mouse."></canvas>
   <div id="labels"></div>
   <div id="brand">Doodle Life <small>draw it, it lives</small></div>
+  <div id="hud" hidden>
+    <span class="pill"><span class="name" id="hud-name">Page 1</span><button id="hud-pages" type="button" title="All pages">📖</button></span>
+    <span class="pill"><span class="ink">Ink <i class="bar"><b id="ink-bar"></b></i><span id="ink-text">6/6</span></span><button id="hud-reset" type="button" title="Reset this page (R)">↺</button></span>
+  </div>
+  <div id="margin" aria-live="polite"></div>
+  <div id="pagesel" class="modal" role="dialog" aria-modal="true" aria-labelledby="pagesel-title">
+    <div class="card">
+      <h1 id="pagesel-title">Pages</h1>
+      <p>Each page is a puzzle. He walks to the exit by himself, gets stuck, and says what he needs. Draw it into the page, or press ✨ Make and hand him something. Ink is limited.</p>
+      <div id="pagelist"></div>
+      <div class="row"><button id="pagesel-sandbox" type="button">🎨 Back to the sandbox</button><button id="pagesel-close" type="button" class="primary">Close</button></div>
+    </div>
+  </div>
+  <div id="pagewin" class="modal" role="dialog" aria-modal="true" aria-labelledby="pagewin-title">
+    <div class="card">
+      <h1 id="pagewin-title">Page complete</h1>
+      <div class="stars" id="pagewin-stars">★★★</div>
+      <p id="pagewin-text">He made it.</p>
+      <div class="row"><button id="pagewin-replay" type="button">↺ Again</button><button id="pagewin-next" type="button" class="primary">Next page →</button></div>
+    </div>
+  </div>
   <div id="toast" role="status" aria-live="polite"></div>
   <div id="picker" role="menu"></div>
 
   <div id="tray" role="toolbar" aria-label="Tools">
-    <div class="group"><button id="pad-open" title="Open the scratch pad (P)">✨ <span>Make</span></button></div>
+    <div class="group"><button id="pages-open" title="Puzzle pages">📖 <span class="label-text">Pages</span></button><button id="pad-open" title="Open the scratch pad (P)">✨ <span>Make</span></button></div>
     <div class="sep"></div>
     <div class="group" id="tools">
       <button id="tool-draw" class="on" data-tool="draw" title="Draw (D)">✏️ <span class="label-text">Draw</span></button>
@@ -255,6 +298,7 @@ button.primary { background: var(--accent); color: #fff; border-color: var(--acc
         <li><b>Sun, cloud, bird</b> up in the sky stay there. Clouds rain. Birds fly.</li>
       </ul>
       <p>Guessed wrong? Tap the label that pops up over a new doodle to change it. Use ✋ Grab to pick things up and throw them. Press ✨ Make to draw an item on the scratch pad, or pick one from the Library and see what he does with it.</p>
+      <p><b>📖 Pages</b> are puzzles: he walks to the exit on his own, gets stuck and says what he needs. Draw it, or hand him something. Thick pen is heavy, thin pen is light, and ink is limited.</p>
       <div class="row"><button class="primary" id="help-close">Start drawing</button></div>
     </div>
   </div>
@@ -281,7 +325,7 @@ const GRAVITY = 1500;
 const LIFE_DELAY = 900;          // ms of quiet before a drawing comes alive
 const SKY_FRAC = 0.42;           // drawings whose bottom is above this stay in the sky
 
-const world = { entities: [], order: [], particles: [], pending: null, time: 0, nextId: 1, theme: {} };
+const world = { entities: [], order: [], particles: [], pending: null, time: 0, nextId: 1, theme: {}, version: 0, page: null };
 // Doodle DSL: a compact, hand-drawn-looking vector format for catalog doodles.
 // A doodle lives in a 100x100 box (x right, y down). It is scaled into the world by `scale`
 // (its height as a fraction of the stick man's height).
@@ -368,7 +412,7 @@ const DoodleDSL = (function () {
 const CATALOG = [{"id":"gerald","name":"Gerald the Teapot","cat":"characters","type":"creature","scale":0.75,"legY":0.64,"head":[25,13,50,50],"tags":["silly","container"],"say":"Gerald. Charmed. Everything in me is tea except the monocle, and I have my doubts about that.","strokes":[{"c":"#2a8c7c","w":5,"f":"#9fe3d6","d":[["E",50,44,25,20]]},{"c":"#2a8c7c","w":5,"f":"#9fe3d6","d":[["A",50,26,13,195,345]]},{"c":"#2a8c7c","w":4,"f":"#2a8c7c","d":[["C",50,10,3.5]]},{"c":"#2a8c7c","w":5,"f":"#9fe3d6","d":[["Q",73,52,95,52,94,22],["L",94,22,86,26],["Q",86,26,87,40,73,38]]},{"c":"#2a8c7c","w":5,"d":[["A",24,44,12,70,290]]},{"c":"ink","w":4,"d":[["C",42,40,3]]},{"c":"ink","w":4,"d":[["C",59,40,3]]},{"c":"#c9962b","w":3,"d":[["C",59,40,7.5]]},{"c":"#c9962b","w":2.5,"d":[["Q",65,45,74,52,70,62]]},{"c":"ink","w":3,"d":[["A",50,47,7,25,155]]},{"c":"ink","w":5,"d":[["L",42,63,38,95,30,95,46,95]]},{"c":"ink","w":5,"d":[["L",58,63,62,95,70,95,54,95]]}]},{"id":"spike-cactus","name":"Spike the Cactus","cat":"characters","type":"creature","scale":0.95,"legY":0.66,"head":[33,6,34,42],"tags":["silly","plant","sharp"],"say":"Spike here. I haven't had a drink since March and honestly I've never felt better.","strokes":[{"c":"#2f8f4e","w":5,"f":"#7fd38a","d":[["L",36,50,18,50,18,30],["A",24,30,6,180,360],["L",30,30,30,40,36,40]]},{"c":"#2f8f4e","w":5,"f":"#7fd38a","d":[["L",64,50,82,50,82,30],["A",76,30,6,360,180],["L",70,30,70,40,64,40]]},{"c":"#2f8f4e","w":5,"f":"#7fd38a","d":[["L",36,66,36,20],["A",50,20,14,180,360],["L",64,20,64,66,36,66]]},{"c":"ink","w":3,"d":[["L",40,54,45,58]]},{"c":"ink","w":3,"d":[["L",60,58,55,62]]},{"c":"ink","w":3,"d":[["L",22,40,16,36]]},{"c":"ink","w":3,"d":[["L",78,42,84,38]]},{"c":"ink","w":6,"d":[["L",36,26,44,26,44,30,36,30]]},{"c":"ink","w":6,"d":[["L",56,26,64,26,64,30,56,30]]},{"c":"ink","w":3,"d":[["L",47,27,53,27]]},{"c":"ink","w":3,"d":[["Q",44,44,50,48,56,43]]},{"c":"ink","w":5,"d":[["L",43,66,40,95,32,95,48,95]]},{"c":"ink","w":5,"d":[["L",57,66,60,95,68,95,52,95]]}]},{"id":"gloop-blob","name":"Gloop the Blob","cat":"characters","type":"creature","scale":0.8,"legY":0.74,"head":[22,8,60,50],"tags":["silly","soft"],"say":"I'm Gloop. Three eyes, and I still walked into that door.","strokes":[{"c":"#6f42c1","w":5,"f":"#b48ce8","d":[["B",20,50,10,30,26,8,40,18],["B",40,18,46,4,64,2,72,16],["B",72,16,92,22,94,50,84,62],["B",84,62,80,78,50,80,36,74],["B",36,74,18,72,14,60,20,50]]},{"c":"ink","w":3,"f":"#ffffff","d":[["C",35,38,8]]},{"c":"ink","w":3,"f":"#ffffff","d":[["C",58,29,10]]},{"c":"ink","w":3,"f":"#ffffff","d":[["C",75,46,6]]},{"c":"ink","w":3,"d":[["C",37,39,1.3]]},{"c":"ink","w":3,"d":[["C",60,30,1.6]]},{"c":"ink","w":3,"d":[["C",76,47,1.1]]},{"c":"ink","w":4,"d":[["Q",40,56,52,66,66,58]]},{"c":"ink","w":5,"d":[["L",40,71,36,95,28,95,44,95]]},{"c":"ink","w":5,"d":[["L",60,71,64,95,72,95,56,95]]}]},{"id":"wisp-ghost","name":"Wisp the Ghost","cat":"characters","type":"creature","scale":1,"legY":0.6,"head":[22,4,56,52],"tags":["silly","soft","light"],"say":"Wisp. Been dead for ages, still can't find a matching pair.","strokes":[{"c":"ink","w":5,"f":"#ffffff","d":[["L",22,56,22,32],["A",50,32,28,180,360],["L",78,32,78,56],["Q",78,56,69,72,59,56],["Q",59,56,50,72,41,56],["Q",41,56,31,72,22,56]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",40,32,5,7]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",60,32,5,7]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",50,47,4.5,6.5]]},{"c":"ink","w":5,"d":[["L",40,60,39,76]]},{"c":"ink","w":5,"d":[["L",60,60,61,76]]},{"c":"#d94a3d","w":4,"f":"#f28b82","d":[["L",45,70,45,90],["Q",45,90,45,97,38,97],["L",38,97,22,97],["Q",22,97,14,97,16,89],["L",16,89,33,86,33,70,45,70]]},{"c":"ink","w":3,"d":[["L",33,74,45,74]]},{"c":"ink","w":3,"d":[["L",33,79,45,79]]},{"c":"ink","w":3,"d":[["L",33,84,45,84]]},{"c":"#2f9e5b","w":4,"f":"#8fd9a8","d":[["L",55,70,55,90],["Q",55,90,55,97,62,97],["L",62,97,78,97],["Q",78,97,86,97,84,89],["L",84,89,67,86,67,70,55,70]]},{"c":"ink","w":3,"d":[["L",55,74,67,74]]},{"c":"ink","w":3,"d":[["C",61,80,1.5]]},{"c":"ink","w":3,"d":[["C",61,88,1.5]]},{"c":"ink","w":3,"d":[["C",76,93,1.5]]}]},{"id":"unit-7-robot","name":"Unit 7","cat":"characters","type":"creature","scale":1,"legY":0.73,"head":[28,2,44,42],"tags":["silly","heavy","shiny"],"say":"I am Unit 7. I run on two batteries and a sense of purpose, mostly the batteries.","strokes":[{"c":"ink","w":5,"f":"#c3ccd6","d":[["L",30,14,70,14,70,42,30,42,30,14]]},{"c":"ink","w":4,"d":[["L",50,14,50,5]]},{"c":"#e8452f","w":4,"f":"#e8452f","d":[["C",50,4,3]]},{"c":"#2fb5d2","w":4,"f":"#2fb5d2","d":[["L",37,22,45,22,45,30,37,30,37,22]]},{"c":"#2fb5d2","w":4,"f":"#2fb5d2","d":[["L",55,22,63,22,63,30,55,30,55,22]]},{"c":"ink","w":3,"d":[["L",38,36,42,33,46,36,50,33,54,36,58,33,62,36]]},{"c":"ink","w":5,"f":"#c3ccd6","d":[["L",24,46,76,46,76,70,24,70,24,46]]},{"c":"#e8452f","w":4,"f":"#e8452f","d":[["C",36,56,3]]},{"c":"#3cb34a","w":4,"f":"#3cb34a","d":[["C",46,56,3]]},{"c":"ink","w":3,"d":[["C",63,58,6]]},{"c":"ink","w":4,"d":[["L",24,52,10,52,10,64,5,68,10,64,15,68]]},{"c":"ink","w":4,"d":[["L",76,52,90,52,90,64,85,68,90,64,95,68]]},{"c":"ink","w":5,"d":[["L",36,70,36,95,28,95,46,95]]},{"c":"ink","w":5,"d":[["L",64,70,64,95,56,95,74,95]]}]},{"id":"lord-crumb-toast","name":"Lord Crumb","cat":"characters","type":"creature","scale":0.8,"legY":0.75,"head":[24,3,52,60],"tags":["silly","soft"],"say":"Lord Crumb. I was bread, then I was warm, and now I am royalty.","strokes":[{"c":"#8a5a3c","w":5,"f":"#f0c27b","d":[["L",24,72,24,30],["A",37,30,13,180,360],["A",63,30,13,180,360],["L",76,30,76,72,24,72]]},{"c":"#d9a01a","w":4,"f":"#f5d35a","d":[["L",54,19,52,6,58,12,63,3,68,12,74,6,72,19,54,19]]},{"c":"ink","w":4,"d":[["C",40,44,2.5]]},{"c":"ink","w":4,"d":[["C",58,44,2.5]]},{"c":"ink","w":4,"d":[["Q",36,56,44,47,50,54],["Q",50,54,56,47,64,56]]},{"c":"ink","w":3,"d":[["L",46,62,54,62]]},{"c":"ink","w":5,"d":[["L",40,72,38,95,30,95,46,95]]},{"c":"ink","w":5,"d":[["L",60,72,62,95,70,95,54,95]]}]},{"id":"house-snail","name":"Shelby the House Snail","cat":"characters","type":"creature","scale":0.7,"legY":0.76,"head":[64,8,34,50],"tags":["silly","animal","shelter"],"say":"I am Shelby. I never leave the house, because it never leaves me.","strokes":[{"c":"#8a6a3c","w":5,"f":"#d9b36b","d":[["Q",3,72,10,58,22,58],["L",22,58,66,58],["Q",66,58,67,32,82,32],["Q",82,32,98,32,97,56],["Q",97,56,96,76,84,76],["L",84,76,14,76],["Q",14,76,6,76,3,72]]},{"c":"#b5651d","w":5,"f":"#f0c27a","d":[["L",14,58,14,32,56,32,56,58]]},{"c":"#c23b1e","w":5,"f":"#e8542f","d":[["L",8,34,35,10,48,21.5,48,12,54,12,54,27,62,34,8,34]]},{"c":"#3f8ae0","w":4,"f":"#9cc3f0","d":[["L",19,38,29,38,29,47,19,47,19,38]]},{"c":"#8a5a3c","w":4,"f":"#8a5a3c","d":[["A",41,58,7,180,360]]},{"c":"#8a6a3c","w":4,"d":[["L",78,34,72,17]]},{"c":"#8a6a3c","w":4,"d":[["L",89,33,91,15]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",72,13,4]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",91,11,4]]},{"c":"ink","w":3,"d":[["A",84,50,6,20,160]]},{"c":"ink","w":5,"d":[["L",26,76,22,95,12,97]]},{"c":"ink","w":5,"d":[["L",60,76,64,95,74,97]]}]},{"id":"mushroom-man","name":"Morris the Mushroom","cat":"characters","type":"creature","scale":0.9,"legY":0.75,"head":[6,13,88,63],"tags":["silly","plant","soft"],"say":"I am Morris. I came up overnight and I have opinions about damp.","strokes":[{"c":"#c23b1e","w":5,"f":"#e8542f","d":[["B",6,48,6,2,94,2,94,48],["L",94,48,6,48]]},{"c":"#c23b1e","w":4,"f":"#ffffff","d":[["C",30,31,6]]},{"c":"#c23b1e","w":4,"f":"#ffffff","d":[["C",52,23,5]]},{"c":"#c23b1e","w":4,"f":"#ffffff","d":[["C",72,33,6]]},{"c":"#b08a5a","w":5,"f":"#f3e3c3","d":[["L",34,48,30,76,70,76,66,48]]},{"c":"ink","w":4,"d":[["C",42,57,3]]},{"c":"ink","w":4,"d":[["C",58,57,3]]},{"c":"ink","w":3,"d":[["A",50,64,7,20,160]]},{"c":"ink","w":4,"d":[["L",31,60,12,70]]},{"c":"ink","w":4,"d":[["L",69,60,88,70]]},{"c":"ink","w":5,"d":[["L",38,76,36,95,26,97]]},{"c":"ink","w":5,"d":[["L",62,76,64,95,74,97]]}]},{"id":"grumpy-raincloud","name":"Nigel the Raincloud","cat":"characters","type":"creature","scale":0.9,"legY":0.58,"head":[8,10,84,52],"tags":["silly","soft","light"],"say":"I am Nigel. I follow people about. It is not personal, it is weather.","strokes":[{"c":"#5b6b85","w":5,"f":"#b8c4d4","d":[["B",14,58,3,46,6,24,24,28],["B",24,28,24,6,50,8,52,22],["B",52,22,58,2,86,8,80,30],["B",80,30,97,30,97,56,84,58],["Q",84,58,50,66,14,58]]},{"c":"ink","w":4,"d":[["L",31,35,44,42]]},{"c":"ink","w":4,"d":[["L",69,35,56,42]]},{"c":"ink","w":4,"d":[["C",40,47,3]]},{"c":"ink","w":4,"d":[["C",60,47,3]]},{"c":"ink","w":4,"d":[["A",50,60,7,200,340]]},{"c":"#3f8ae0","w":4,"d":[["L",36,67,33,77]]},{"c":"#3f8ae0","w":4,"d":[["L",50,70,47,80]]},{"c":"#3f8ae0","w":4,"d":[["L",64,67,61,77]]},{"c":"ink","w":5,"d":[["L",30,60,26,94,14,96]]},{"c":"ink","w":5,"d":[["L",70,60,74,94,86,96]]}]},{"id":"potato-king","name":"King Spud","cat":"characters","type":"creature","scale":0.8,"legY":0.75,"head":[4,3,92,72],"tags":["silly","heavy"],"say":"I am King Spud the First. Kneel, or at least crouch a bit.","strokes":[{"c":"#8a6a3c","w":5,"f":"#c9a05a","d":[["B",6,50,2,34,18,20,32,26],["B",32,26,42,16,56,18,64,26],["B",64,26,78,18,98,30,94,46],["B",94,46,99,62,90,78,72,74],["B",72,74,60,82,48,70,38,76],["B",38,76,22,84,1,66,6,50]]},{"c":"#4e8a2e","w":4,"d":[["Q",14,34,2,28,7,14]]},{"c":"#4e8a2e","w":4,"f":"#7cc24a","d":[["E",8,11,4.5,3.5]]},{"c":"#4e8a2e","w":4,"d":[["Q",90,36,99,30,95,14]]},{"c":"#4e8a2e","w":4,"f":"#7cc24a","d":[["E",94,11,4.5,3.5]]},{"c":"#4e8a2e","w":4,"d":[["Q",94,60,99,74,86,78]]},{"c":"#c9881a","w":5,"f":"#f2c13b","d":[["L",36,27,33,5,44,16,50,2,56,16,67,5,64,27,36,27]]},{"c":"ink","w":4,"d":[["C",41,42,3]]},{"c":"ink","w":4,"d":[["C",59,41,3]]},{"c":"ink","w":4,"d":[["Q",36,53,44,47,50,53],["Q",50,53,56,47,64,53]]},{"c":"ink","w":3,"d":[["Q",42,60,52,67,62,58]]},{"c":"#7a5a30","w":3,"d":[["Q",20,52,24,56,20,60]]},{"c":"#7a5a30","w":3,"d":[["Q",78,58,82,62,78,66]]},{"c":"#7a5a30","w":3,"d":[["Q",26,32,30,36,26,40]]},{"c":"ink","w":5,"d":[["L",38,75,34,95,24,97]]},{"c":"ink","w":5,"d":[["L",62,75,66,95,76,97]]}]},{"id":"three-legged-octopus","name":"Trevor the Octopus","cat":"characters","type":"creature","scale":0.85,"legY":0.67,"head":[16,8,68,56],"tags":["silly","animal","soft"],"say":"I am Trevor. I have three legs, which is plenty, thank you.","strokes":[{"c":"#7b3fa0","w":5,"f":"#c58bd8","d":[["E",50,36,34,28]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",38,34,7]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",62,34,7]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",40,36,2.5]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",64,36,2.5]]},{"c":"ink","w":3,"d":[["A",50,48,8,20,160]]},{"c":"#c23b1e","w":4,"f":"#e8542f","d":[["L",50,62,36,55,36,69,50,62,64,55,64,69,50,62]]},{"c":"#7b3fa0","w":6,"d":[["Q",30,60,14,74,28,84],["Q",28,84,42,94,22,97]]},{"c":"#7b3fa0","w":6,"d":[["Q",50,70,40,82,52,90],["Q",52,90,62,97,46,97]]},{"c":"#7b3fa0","w":6,"d":[["Q",70,60,86,74,72,84],["Q",72,84,58,94,78,97]]}]},{"id":"sir-toast","name":"Sir Toast","cat":"characters","type":"creature","scale":0.75,"legY":0.76,"head":[16,10,68,52],"tags":["silly","light"],"say":"I am Sir Toast. I was bread once, but I have moved on.","strokes":[{"c":"#a0632a","w":6,"f":"#e8c28a","d":[["L",16,70,16,32],["B",16,32,12,8,38,2,50,16],["B",50,16,62,2,88,8,84,32],["L",84,32,84,70],["Q",84,70,84,76,78,76],["L",78,76,22,76],["Q",22,76,16,76,16,70]]},{"c":"#c9881a","w":4,"f":"#f5d547","d":[["L",22,22,38,18,42,28,26,32,22,22]]},{"c":"ink","w":4,"d":[["C",37,42,3]]},{"c":"ink","w":4,"d":[["C",62,42,3]]},{"c":"ink","w":3,"d":[["C",62,42,7]]},{"c":"ink","w":3,"d":[["L",67,47,72,58]]},{"c":"ink","w":3,"d":[["A",50,52,9,20,160]]},{"c":"ink","w":4,"d":[["L",16,54,5,64]]},{"c":"ink","w":4,"d":[["L",84,54,95,64]]},{"c":"ink","w":5,"d":[["L",36,76,32,95,22,97]]},{"c":"ink","w":5,"d":[["L",64,76,68,95,78,97]]}]},{"id":"banana","name":"Banana","cat":"food","type":"thing","scale":0.25,"tags":["food","silly","soft","light"],"say":"A banana. I asked for a sword. This at least has the curve.","strokes":[{"c":"#d9a520","w":5,"f":"#f7cf2e","d":[["B",14,14,0,60,40,100,88,80],["B",88,80,60,70,34,46,14,14]]},{"c":"#c48f12","w":3,"d":[["B",18,20,10,56,38,86,82,76]]},{"c":"#6b4423","w":7,"d":[["L",15,14,22,3]]},{"c":"#6b4423","w":6,"d":[["L",86,78,94,88]]}]},{"id":"pizza-slice","name":"Pizza slice","cat":"food","type":"thing","scale":0.35,"tags":["food","soft","light","silly"],"say":"Pizza. Finally, a triangle I can get behind.","strokes":[{"c":"#e0a030","w":5,"f":"#f7d35a","d":[["Q",8,26,50,18,92,26],["L",92,26,50,96,8,26]]},{"c":"#b5712f","w":6,"f":"#d9a05b","d":[["Q",8,26,50,0,92,26],["Q",92,26,50,18,8,26]]},{"c":"#b8281f","w":4,"f":"#e0392b","d":[["C",36,40,8]]},{"c":"#b8281f","w":4,"f":"#e0392b","d":[["C",64,44,8]]},{"c":"#b8281f","w":4,"f":"#e0392b","d":[["C",50,64,7]]}]},{"id":"cheese-wedge","name":"Cheese wedge","cat":"food","type":"thing","scale":0.3,"tags":["food","soft","silly"],"say":"Cheese. With holes. So it has already been through a fight.","strokes":[{"c":"#d9962a","w":5,"f":"#f2b934","d":[["L",6,40,96,30,96,70,6,80,6,40]]},{"c":"#d9962a","w":5,"f":"#fbe27a","d":[["L",6,40,64,10,96,30,6,40]]},{"c":"#b57a18","w":4,"f":"#c98a1e","d":[["C",30,60,8]]},{"c":"#b57a18","w":4,"f":"#c98a1e","d":[["C",66,52,6]]},{"c":"#b57a18","w":4,"f":"#c98a1e","d":[["C",84,62,4]]},{"c":"#b57a18","w":4,"f":"#c98a1e","d":[["C",50,68,4]]},{"c":"#b57a18","w":4,"f":"#c98a1e","d":[["E",60,24,6,4]]}]},{"id":"carrot","name":"Carrot","cat":"food","type":"thing","scale":0.35,"tags":["food","wield","silly","plant"],"say":"A carrot. Pointy end out. That counts as a sword where I come from.","strokes":[{"c":"#d9661a","w":5,"f":"#f58a2b","d":[["L",36,34,50,96,64,34],["Q",64,34,50,24,36,34]]},{"c":"#c2520e","w":3,"d":[["L",42,50,56,52]]},{"c":"#c2520e","w":3,"d":[["L",45,66,55,68]]},{"c":"#3f9a3a","w":4,"f":"#6cc24a","d":[["Q",48,28,26,26,22,6],["Q",22,6,42,12,48,28]]},{"c":"#3f9a3a","w":4,"f":"#6cc24a","d":[["Q",50,28,42,14,50,2],["Q",50,2,58,14,50,28]]},{"c":"#3f9a3a","w":4,"f":"#6cc24a","d":[["Q",52,28,74,26,78,6],["Q",78,6,58,12,52,28]]}]},{"id":"birthday-cake","name":"Birthday cake","cat":"food","type":"thing","scale":0.45,"tags":["food","soft","fragile","silly"],"say":"A birthday cake. It is not my birthday. I am going to eat it anyway.","strokes":[{"c":"#c2607f","w":5,"f":"#f4a9c8","d":[["L",12,50,88,50,88,92,12,92,12,50]]},{"c":"#c2607f","w":4,"f":"#fff5f8","d":[["L",12,50,88,50,88,60],["Q",88,60,84,72,78,60],["Q",78,60,72,76,66,60],["Q",66,60,60,70,54,60],["Q",54,60,48,78,42,60],["Q",42,60,36,70,30,60],["Q",30,60,24,76,18,60],["Q",18,60,15,68,12,60],["L",12,60,12,50]]},{"c":"#2f7fd6","w":5,"d":[["L",30,48,30,26]]},{"c":"#e0392b","w":5,"d":[["L",50,48,50,22]]},{"c":"#3fa34d","w":5,"d":[["L",70,48,70,26]]},{"c":"#e08a0e","w":4,"f":"#ffc21a","d":[["Q",30,24,23,14,30,6],["Q",30,6,37,14,30,24]]},{"c":"#e08a0e","w":4,"f":"#ffc21a","d":[["Q",50,20,43,10,50,2],["Q",50,2,57,10,50,20]]},{"c":"#e08a0e","w":4,"f":"#ffc21a","d":[["Q",70,24,63,14,70,6],["Q",70,6,77,14,70,24]]},{"c":"ink","w":4,"d":[["L",4,94,96,94]]}]},{"id":"lollipop","name":"Lollipop","cat":"food","type":"thing","scale":0.4,"tags":["food","wield","silly","toy"],"say":"A lollipop. The weapon of a tiny, sticky warrior.","strokes":[{"c":"#d6336c","w":5,"f":"#ff6fa5","d":[["C",50,34,30]]},{"c":"#b0204f","w":4,"d":[["A",50,34,20,180,360],["A",52,34,18,0,180],["A",48,34,14,180,360],["A",52,34,10,0,180],["A",48,34,6,180,360],["A",51,34,3,0,180]]},{"c":"ink","w":4,"f":"#f1f1f1","d":[["L",45,64,45,98,55,98,55,64]]}]},{"id":"hot-dog","name":"Hot dog","cat":"food","type":"thing","scale":0.3,"tags":["food","soft","silly"],"say":"A hot dog. Neither hot nor a dog. I have questions.","strokes":[{"c":"#b5712f","w":5,"f":"#e8b56e","d":[["Q",12,52,8,22,32,24],["L",32,24,68,24],["Q",68,24,92,22,88,52],["L",88,52,12,52]]},{"c":"#a8382a","w":5,"f":"#e0573f","d":[["A",18,52,16,180,270],["L",18,36,82,36],["A",82,52,16,270,360],["L",98,52,2,52]]},{"c":"#f5c400","w":5,"d":[["L",20,49,28,41,36,49,44,41,52,49,60,41,68,49,76,41,82,47]]},{"c":"#b5712f","w":5,"f":"#e8b56e","d":[["L",10,53,90,53],["Q",90,53,94,86,70,86],["L",70,86,30,86],["Q",30,86,6,86,10,53]]}]},{"id":"ice-cream-cone","name":"Ice cream cone","cat":"food","type":"thing","scale":0.4,"tags":["food","soft","fragile","silly","wield"],"say":"Ice cream. It is melting, so this is more of a timed challenge.","strokes":[{"c":"#b5712f","w":5,"f":"#e8b56e","d":[["L",24,54,76,54,50,98,24,54]]},{"c":"#b5712f","w":3,"d":[["L",30,62,60,78]]},{"c":"#b5712f","w":3,"d":[["L",42,82,54,90]]},{"c":"#b5712f","w":3,"d":[["L",70,62,40,78]]},{"c":"#b5712f","w":3,"d":[["L",58,82,46,90]]},{"c":"#d6336c","w":5,"f":"#ffb3c6","d":[["C",50,32,22]]},{"c":"#d6336c","w":4,"f":"#ffb3c6","d":[["Q",38,52,36,66,42,66],["Q",42,66,46,58,44,52]]},{"c":"#b8281f","w":4,"f":"#e0392b","d":[["C",56,10,6]]},{"c":"#3f9a3a","w":3,"d":[["L",58,5,64,1]]}]},{"id":"apple","name":"Apple","cat":"food","type":"ball","scale":0.22,"tags":["food","bounce","light"],"say":"An apple. Keeps the doctor away. Does nothing for dragons.","strokes":[{"c":"#b8281f","w":5,"f":"#e8402f","d":[["B",50,30,34,8,4,22,10,56],["B",10,56,14,86,36,100,50,90],["B",50,90,64,100,86,86,90,56],["B",90,56,96,22,66,8,50,30]]},{"c":"#8a5a3c","w":5,"d":[["L",50,30,52,8]]},{"c":"#3f9a3a","w":4,"f":"#6cc24a","d":[["Q",52,16,62,2,78,8],["Q",78,8,66,24,52,16]]}]},{"id":"fish","name":"Fish","cat":"food","type":"thing","scale":0.3,"tags":["food","animal","silly","wield","soft"],"say":"A fish. Slap first, ask questions later.","strokes":[{"c":"#d9661a","w":5,"f":"#f8a93a","d":[["L",72,44,96,26,90,52,96,78,72,60]]},{"c":"#d9661a","w":5,"f":"#f8a93a","d":[["L",32,32,42,12,56,33]]},{"c":"#d9661a","w":5,"f":"#f8a93a","d":[["E",42,52,34,22]]},{"c":"#d9661a","w":3,"d":[["A",32,52,14,-50,50]]},{"c":"#d9661a","w":3,"d":[["A",52,42,7,20,160]]},{"c":"#d9661a","w":3,"d":[["A",60,56,7,20,160]]},{"c":"#d9661a","w":3,"d":[["A",46,60,7,20,160]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",22,46,5]]},{"c":"ink","w":4,"d":[["C",23,46,1.5]]},{"c":"ink","w":3,"d":[["Q",9,54,13,61,17,55]]}]},{"id":"chicken-drumstick","name":"Chicken drumstick","cat":"food","type":"thing","scale":0.3,"tags":["food","wield","silly"],"say":"A drumstick. Not the musical kind. I checked.","strokes":[{"c":"ink","w":6,"d":[["L",60,64,84,86]]},{"c":"ink","w":4,"f":"#fdfbf4","d":[["C",91,82,6]]},{"c":"ink","w":4,"f":"#fdfbf4","d":[["C",82,92,6]]},{"c":"#a8632a","w":5,"f":"#e0953a","d":[["B",62,64,70,30,50,4,30,8],["B",30,8,0,14,2,60,34,70],["Q",34,70,50,70,62,64]]},{"c":"#a8632a","w":3,"d":[["L",22,30,27,35]]},{"c":"#a8632a","w":3,"d":[["L",40,20,45,25]]},{"c":"#a8632a","w":3,"d":[["L",26,50,31,55]]}]},{"id":"donut","name":"Donut","cat":"food","type":"ball","scale":0.3,"tags":["food","bounce","soft","silly"],"say":"A donut. I would fight for this. I will not fight with it, though.","strokes":[{"c":"#b5712f","w":5,"f":"#e8b56e","d":[["C",50,50,44]]},{"c":"#d6336c","w":4,"f":"#ff6fa5","d":[["Q",86,50,91,67,76,76],["Q",76,76,67,91,50,86],["Q",50,86,33,91,24,76],["Q",24,76,9,67,14,50],["Q",14,50,9,33,24,24],["Q",24,24,33,9,50,14],["Q",50,14,67,9,76,24],["Q",76,24,91,33,86,50]]},{"c":"#b5712f","w":5,"d":[["C",50,50,13]]},{"c":"#2f7fd6","w":3,"d":[["L",30,40,36,34]]},{"c":"#3fa34d","w":3,"d":[["L",62,30,68,34]]},{"c":"#f2a93b","w":3,"d":[["L",70,60,74,66]]},{"c":"#2f7fd6","w":3,"d":[["L",36,66,30,70]]},{"c":"#3fa34d","w":3,"d":[["L",56,72,62,74]]},{"c":"#f2a93b","w":3,"d":[["L",26,52,20,50]]}]},{"id":"fried-egg","name":"Fried egg","cat":"food","type":"thing","scale":0.25,"tags":["food","soft","fragile","silly"],"say":"A fried egg. Sunny side up. The only sunny thing about today.","strokes":[{"c":"ink","w":4,"f":"#ffffff","d":[["Q",20,30,36,6,58,16],["Q",58,16,80,8,90,30],["Q",90,30,100,50,86,62],["Q",86,62,96,86,66,88],["Q",66,88,44,98,30,82],["Q",30,82,2,80,10,56],["Q",10,56,0,36,20,30]]},{"c":"#e08a0e","w":5,"f":"#ffc21a","d":[["C",48,50,20]]},{"c":"#e08a0e","w":3,"d":[["A",48,50,12,195,250]]}]},{"id":"watermelon-slice","name":"Watermelon slice","cat":"food","type":"thing","scale":0.3,"tags":["food","soft","silly"],"say":"Watermelon. Mostly water. Much like my plan.","strokes":[{"c":"#2f7d32","w":6,"f":"#5cb85c","d":[["A",50,26,48,0,180],["L",2,26,98,26]]},{"c":"#d63a2f","w":5,"f":"#f05545","d":[["A",50,26,38,0,180],["L",12,26,88,26]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",36,40,3,5]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",54,46,3,5]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",68,36,3,5]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",46,56,3,5]]}]},{"id":"burger","name":"Burger","cat":"food","type":"thing","scale":0.35,"tags":["food","soft","silly"],"say":"A burger. Six layers of not-a-sword.","strokes":[{"c":"#b5712f","w":5,"f":"#e8b56e","d":[["A",50,42,40,180,360],["L",90,42,10,42]]},{"c":"#b5712f","w":3,"d":[["L",36,24,40,22]]},{"c":"#b5712f","w":3,"d":[["L",52,16,56,16]]},{"c":"#b5712f","w":3,"d":[["L",66,26,70,24]]},{"c":"#2f7d32","w":4,"f":"#7ed957","d":[["L",6,44,94,44,90,54,82,48,74,56,66,48,58,56,50,48,42,56,34,48,26,56,18,48,10,54,6,44]]},{"c":"#e08a0e","w":4,"f":"#ffc21a","d":[["L",10,56,90,56,90,62,10,62,10,56]]},{"c":"ink","w":5,"f":"#8a5a3c","d":[["L",12,64,88,64],["Q",88,64,94,70,88,76],["L",88,76,12,76],["Q",12,76,6,70,12,64]]},{"c":"#b5712f","w":5,"f":"#e8b56e","d":[["L",8,78,92,78],["Q",92,78,92,96,76,96],["L",76,96,24,96],["Q",24,96,8,96,8,78]]}]},{"id":"broccoli","name":"Broccoli","cat":"food","type":"thing","scale":0.35,"tags":["food","plant","wield","silly"],"say":"Broccoli. I asked for a sword and got a small tree. Fine.","strokes":[{"c":"#5a9e3a","w":5,"f":"#c5e1a5","d":[["L",38,58,30,98,70,98,62,58,38,58]]},{"c":"#5a9e3a","w":3,"d":[["L",44,92,38,62]]},{"c":"#5a9e3a","w":3,"d":[["L",50,94,50,60]]},{"c":"#5a9e3a","w":3,"d":[["L",56,92,62,62]]},{"c":"#2f7d32","w":5,"f":"#5cb85c","d":[["A",16,46,12,150,300],["A",34,28,14,190,320],["A",54,18,13,200,350],["A",72,30,13,230,370],["A",86,48,11,250,400],["L",94,55,76,60,24,60,6,52]]},{"c":"#2f7d32","w":3,"d":[["A",34,28,14,30,150]]},{"c":"#2f7d32","w":3,"d":[["A",54,18,13,30,150]]},{"c":"#2f7d32","w":3,"d":[["A",72,30,13,30,150]]},{"c":"#2f7d32","w":3,"d":[["A",16,46,12,30,120]]},{"c":"#2f7d32","w":3,"d":[["A",86,48,11,70,160]]},{"c":"#2f7d32","w":3,"d":[["C",26,40,2.5]]},{"c":"#2f7d32","w":3,"d":[["C",44,30,2.5]]},{"c":"#2f7d32","w":3,"d":[["C",58,36,2.5]]},{"c":"#2f7d32","w":3,"d":[["C",66,16,2.5]]},{"c":"#2f7d32","w":3,"d":[["C",80,42,2.5]]},{"c":"#2f7d32","w":3,"d":[["C",36,50,2.5]]}]},{"id":"armchair","name":"Armchair","cat":"furniture","type":"thing","scale":0.95,"tags":["sit","soft","heavy"],"say":"An armchair. I will sit in it and have opinions.","strokes":[{"c":"#b5342a","w":5,"f":"#e05a4a","d":[["L",24,60,24,26],["B",24,26,24,2,76,2,76,26],["L",76,26,76,60,24,60]]},{"c":"#b5342a","w":5,"f":"#f3a08f","d":[["L",30,82,30,66],["Q",30,66,50,58,70,66],["L",70,66,70,82,30,82]]},{"c":"#b5342a","w":5,"f":"#e05a4a","d":[["L",2,82,2,50],["Q",2,50,2,44,8,44],["L",8,44,24,44],["Q",24,44,30,44,30,50],["L",30,50,30,82]]},{"c":"#b5342a","w":5,"f":"#e05a4a","d":[["L",98,82,98,50],["Q",98,50,98,44,92,44],["L",92,44,76,44],["Q",76,44,70,44,70,50],["L",70,50,70,82]]},{"c":"#b5342a","w":5,"f":"#e05a4a","d":[["L",2,82,98,82,98,92,2,92,2,82]]},{"c":"#5a3a2a","w":5,"d":[["L",12,92,12,98]]},{"c":"#5a3a2a","w":5,"d":[["L",88,92,88,98]]}]},{"id":"stool","name":"Stool","cat":"furniture","type":"thing","scale":0.38,"tags":["sit","light","wield"],"say":"A stool. Three legs. That's one more than me, and I'm the wobbly one.","strokes":[{"c":"#8a5a3c","w":5,"f":"#b07a44","d":[["L",12,24,12,40],["Q",12,40,50,54,88,40],["L",88,40,88,24]]},{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["E",50,24,38,12]]},{"c":"#8a5a3c","w":8,"d":[["L",24,46,8,96]]},{"c":"#8a5a3c","w":8,"d":[["L",50,52,52,96]]},{"c":"#8a5a3c","w":8,"d":[["L",76,46,92,96]]},{"c":"#8a5a3c","w":4,"d":[["Q",15,74,50,84,87,74]]}]},{"id":"park-bench","name":"Park bench","cat":"furniture","type":"thing","scale":0.5,"tags":["sit","heavy"],"say":"A park bench. I will sit here and judge the pigeons.","strokes":[{"c":"#8a5a3c","w":4,"f":"#d9a35a","d":[["L",10,12,90,12,90,22,10,22,10,12]]},{"c":"#8a5a3c","w":4,"f":"#d9a35a","d":[["L",10,28,90,28,90,38,10,38,10,28]]},{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",6,50,94,50,94,62,6,62,6,50]]},{"c":"#8a5a3c","w":4,"d":[["L",8,68,92,68]]},{"c":"ink","w":6,"d":[["L",14,6,14,90],["Q",14,90,14,98,6,96]]},{"c":"ink","w":6,"d":[["L",86,6,86,90],["Q",86,90,86,98,94,96]]}]},{"id":"table","name":"Table","cat":"furniture","type":"thing","scale":0.5,"tags":["heavy"],"say":"A table. Something to put things on. I own no things.","strokes":[{"c":"#a07050","w":4,"d":[["L",26,42,26,88]]},{"c":"#a07050","w":4,"d":[["L",74,42,74,88]]},{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",4,30,96,30,96,42,4,42,4,30]]},{"c":"#8a5a3c","w":6,"d":[["L",14,42,12,96]]},{"c":"#8a5a3c","w":6,"d":[["L",86,42,88,96]]}]},{"id":"bed","name":"Bed","cat":"furniture","type":"thing","scale":0.6,"tags":["sit","soft","heavy"],"say":"A bed. Somewhere to lie awake in comfort.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",4,90,4,24],["Q",4,24,4,16,9,16],["Q",9,16,14,16,14,24],["L",14,24,14,90]]},{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",86,90,86,52],["Q",86,52,86,46,91,46],["Q",91,46,96,46,96,52],["L",96,52,96,90]]},{"c":"ink","w":5,"f":"#f5f0e0","d":[["L",14,58,86,58,86,76,14,76,14,58]]},{"c":"#2b5fa6","w":5,"f":"#3f8ae0","d":[["L",42,76,42,58],["Q",42,58,44,52,50,52],["L",50,52,86,52,86,76,42,76]]},{"c":"ink","w":4,"f":"#ffffff","d":[["E",28,51,13,7]]},{"c":"ink","w":5,"d":[["L",9,90,9,96]]},{"c":"ink","w":5,"d":[["L",91,90,91,96]]}]},{"id":"bookshelf","name":"Bookshelf","cat":"furniture","type":"thing","scale":1.15,"tags":["heavy","climb","container"],"say":"A bookshelf. I can't read, but I can lean on knowledge.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",12,4,88,4,88,96,12,96,12,4]]},{"c":"#8a5a3c","w":4,"d":[["L",12,34,88,34]]},{"c":"#8a5a3c","w":4,"d":[["L",12,64,88,64]]},{"c":"#8e2a22","w":3,"f":"#e05a4a","d":[["L",16,34,16,10,24,10,24,34,34,34,34,14,42,14,42,34,58,34,58,8,68,8,68,34]]},{"c":"#2b5fa6","w":3,"f":"#3f8ae0","d":[["L",25,34,25,12,33,12,33,34,43,34,43,16,52,16,52,34,69,34,69,12,80,12,80,34]]},{"c":"#2f7a3e","w":3,"f":"#5cb85c","d":[["L",16,64,16,40,26,40,26,64,40,64,40,38,48,38,48,64,66,64,66,42,74,42,74,64]]},{"c":"#c9961a","w":3,"f":"#f5d547","d":[["L",27,64,27,44,39,44,39,64,49,64,49,36,58,36,58,64,75,64,75,40,84,40,84,64]]},{"c":"#6a3d9a","w":3,"f":"#9b6fcf","d":[["L",16,95,16,70,24,70,24,95,36,95,36,68,46,68,46,95,60,95,60,72,70,72,70,95]]},{"c":"#c45a1a","w":3,"f":"#f28c3b","d":[["L",25,95,25,74,35,74,35,95,47,95,47,66,59,66,59,95,71,95,71,70,84,70,84,95]]}]},{"id":"wooden-crate","name":"Wooden crate","cat":"furniture","type":"thing","scale":0.45,"tags":["container","heavy","junk"],"say":"A crate. It's a box, but it has been places.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",8,8,92,8,92,92,8,92,8,8]]},{"c":"#8a5a3c","w":4,"d":[["L",18,18,82,18,82,82,18,82,18,18]]},{"c":"#8a5a3c","w":5,"d":[["L",18,18,82,82]]},{"c":"#8a5a3c","w":5,"d":[["L",82,18,18,82]]},{"c":"#8a5a3c","w":3,"d":[["L",8,36,18,36]]},{"c":"#8a5a3c","w":3,"d":[["L",82,64,92,64]]}]},{"id":"barrel","name":"Barrel","cat":"furniture","type":"thing","scale":0.5,"tags":["container","heavy","sit"],"say":"A barrel. I'm told I'll be over one eventually.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",22,12,78,12],["B",78,12,94,40,94,60,78,88],["L",78,88,22,88],["B",22,88,6,60,6,40,22,12]]},{"c":"#8a5a3c","w":3,"d":[["Q",38,14,34,50,38,86]]},{"c":"#8a5a3c","w":3,"d":[["Q",62,14,66,50,62,86]]},{"c":"#8a5a3c","w":5,"f":"#c89a5a","d":[["E",50,12,28,7]]},{"c":"#555b6b","w":5,"d":[["Q",11,32,50,42,89,32]]},{"c":"#555b6b","w":5,"d":[["Q",11,66,50,76,89,66]]}]},{"id":"door","name":"Door in a frame","cat":"furniture","type":"thing","scale":1.15,"tags":["heavy","silly","climb"],"say":"A door. It leads nowhere, which is where I was going anyway.","strokes":[{"c":"#2b5fa6","w":5,"f":"#3f8ae0","d":[["L",24,98,24,10,76,10,76,98,24,98]]},{"c":"#2b5fa6","w":3,"d":[["L",30,18,64,18,64,46,30,46,30,18]]},{"c":"#2b5fa6","w":3,"d":[["L",30,56,64,56,64,90,30,90,30,56]]},{"c":"#c9961a","w":4,"f":"#f5c531","d":[["C",70,54,4]]},{"c":"#8a5a3c","w":7,"d":[["L",16,98,16,2,84,2,84,98]]}]},{"id":"signpost","name":"Signpost","cat":"furniture","type":"thing","scale":0.7,"tags":["wield","silly","tool"],"say":"A signpost. Directions at last. Both of them wrong.","strokes":[{"c":"#8a5a3c","w":8,"d":[["L",50,14,50,96]]},{"c":"ink","w":4,"f":"#f5efd6","d":[["L",28,6,78,6,92,18,78,30,28,30,28,6]]},{"c":"ink","w":4,"f":"#f5efd6","d":[["L",72,38,22,38,8,50,22,62,72,62,72,38]]},{"c":"#555b6b","w":3,"d":[["Z",36,12,30,12]]},{"c":"#555b6b","w":3,"d":[["Z",30,44,30,12]]}]},{"id":"treasure-chest","name":"Treasure chest","cat":"furniture","type":"thing","scale":0.45,"tags":["container","heavy","shiny","sit"],"say":"A treasure chest. Locked. The treasure is probably socks.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",8,48,92,48,92,90,8,90,8,48]]},{"c":"#8a5a3c","w":5,"f":"#c89a5a","d":[["L",8,48,8,38],["B",8,38,8,6,92,6,92,38],["L",92,38,92,48,8,48]]},{"c":"#555b6b","w":5,"d":[["L",26,90,26,20]]},{"c":"#555b6b","w":5,"d":[["L",74,90,74,20]]},{"c":"#c9961a","w":4,"f":"#f5c531","d":[["L",41,42,59,42,59,56],["Q",59,56,50,68,41,56],["L",41,56,41,42]]},{"c":"ink","w":3,"d":[["C",50,51,2.5]]}]},{"id":"trampoline","name":"Trampoline","cat":"furniture","type":"thing","scale":0.4,"tags":["bounce","play","toy","sit"],"say":"A trampoline. At last, a way to fall upwards.","strokes":[{"c":"ink","w":5,"d":[["L",12,50,4,96]]},{"c":"ink","w":5,"d":[["L",30,58,28,96]]},{"c":"ink","w":5,"d":[["L",70,58,72,96]]},{"c":"ink","w":5,"d":[["L",88,50,96,96]]},{"c":"ink","w":5,"d":[["E",50,40,46,20]]},{"c":"#555b6b","w":3,"d":[["L",94,40,85,42.4,91.3,46.3,80.7,47,83.7,51.9,72.8,50.7,72,56,62.1,53.2,57.6,58.2,50,54,42.4,58.2,37.9,53.2,28,56,27.2,50.7,16.3,51.9,19.3,47,8.7,46.3,15,42.4,6,40,15,37.6,8.7,33.7,19.3,33,16.3,28.1,27.2,29.3,28,24,37.9,26.8,42.4,21.8,50,26,57.6,21.8,62.1,26.8,72,24,72.8,29.3,83.7,28.1,80.7,33,91.3,33.7,85,37.6,94,40]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["E",50,40,34,13]]},{"c":"#555b6b","w":3,"d":[["E",50,40,22,7]]},{"c":"ink","w":3,"d":[["L",38,16,33,6]]},{"c":"ink","w":3,"d":[["L",50,14,50,3]]},{"c":"ink","w":3,"d":[["L",62,16,67,6]]}]},{"id":"wardrobe","name":"Wardrobe","cat":"furniture","type":"thing","scale":1.2,"tags":["heavy","container","climb","shelter"],"say":"A wardrobe. I checked. No lions, no witches, one moth.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",14,8,86,8,86,90,14,90,14,8]]},{"c":"#8a5a3c","w":5,"f":"#b07a44","d":[["L",10,2,90,2,90,8,10,8,10,2]]},{"c":"#8a5a3c","w":4,"d":[["L",50,8,50,90]]},{"c":"#8a5a3c","w":3,"d":[["L",20,16,40,16,40,82,20,82,20,16]]},{"c":"#8a5a3c","w":3,"d":[["L",60,16,80,16,80,82,60,82,60,16]]},{"c":"#c9961a","w":3,"f":"#f5c531","d":[["C",44,50,3]]},{"c":"#c9961a","w":3,"f":"#f5c531","d":[["C",56,50,3]]},{"c":"#8a5a3c","w":5,"d":[["L",18,90,18,97]]},{"c":"#8a5a3c","w":5,"d":[["L",82,90,82,97]]}]},{"id":"upright-piano","name":"Upright piano","cat":"furniture","type":"thing","scale":0.95,"tags":["play","instrument","heavy"],"say":"A piano. I know one song. It goes: plink.","strokes":[{"c":"ink","w":5,"f":"#2b1b14","d":[["L",8,10,92,10,92,64,8,64,8,10]]},{"c":"ink","w":5,"f":"#2b1b14","d":[["L",4,4,96,4,96,10,4,10,4,4]]},{"c":"ink","w":3,"f":"#ffffff","d":[["L",36,18,64,18,64,40,36,40,36,18]]},{"c":"#8a93a3","w":2,"d":[["Z",40,22,20,12]]},{"c":"ink","w":4,"f":"#ffffff","d":[["L",2,62,98,62,98,78,2,78,2,62]]},{"c":"#2b2d42","w":5,"d":[["L",12,62,12,71,12,62,18,62,18,71,18,62,30,62,30,71,30,62,36,62,36,71,36,62,42,62,42,71,42,62,54,62,54,71,54,62,60,62,60,71,60,62,72,62,72,71,72,62,78,62,78,71,78,62,84,62,84,71,84,62]]},{"c":"ink","w":5,"d":[["L",12,78,12,96]]},{"c":"ink","w":5,"d":[["L",88,78,88,96]]},{"c":"#c9961a","w":5,"d":[["L",43,88,43,96]]},{"c":"#c9961a","w":5,"d":[["L",57,88,57,96]]}]},{"id":"rocking-chair","name":"Rocking chair","cat":"furniture","type":"thing","scale":0.6,"tags":["sit","heavy"],"say":"A rocking chair. For when sitting still is too much effort.","strokes":[{"c":"ink","w":5,"d":[["A",50,26,70,62,118]]},{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",24,58,12,8,22,6,34,58,24,58]]},{"c":"#8a5a3c","w":4,"f":"#d9a35a","d":[["C",17,6,4]]},{"c":"#8a5a3c","w":5,"f":"#d9a35a","d":[["L",22,56,80,56,80,64,22,64,22,56]]},{"c":"#8a5a3c","w":5,"d":[["L",26,34,76,36]]},{"c":"#8a5a3c","w":4,"d":[["L",74,36,74,56]]},{"c":"#8a5a3c","w":5,"d":[["L",28,64,26,88]]},{"c":"#8a5a3c","w":5,"d":[["L",76,64,78,88]]}]},{"id":"toilet","name":"Toilet","cat":"furniture","type":"thing","scale":0.5,"tags":["sit","container","silly","fragile"],"say":"A toilet. Sitting is my one skill, so this is a big day.","strokes":[{"c":"ink","w":5,"f":"#eef1f5","d":[["L",8,46,8,8,30,8,30,46]]},{"c":"ink","w":5,"d":[["L",4,8,34,8]]},{"c":"#8a93a3","w":4,"d":[["L",30,16,38,16]]},{"c":"ink","w":5,"f":"#eef1f5","d":[["L",34,48,34,60],["Q",34,60,36,78,52,80],["L",52,80,52,96,84,96,84,80],["Q",84,80,92,70,88,48],["L",88,48,34,48]]},{"c":"ink","w":5,"f":"#eef1f5","d":[["L",28,42,90,42,90,48,28,48,28,42]]}]},{"id":"teapot","name":"Teapot","cat":"kitchen","type":"thing","scale":0.32,"tags":["container","fragile","wield","silly"],"say":"A teapot. I'll put the kettle on. Wait. That's a different item.","strokes":[{"c":"#b5452a","w":5,"f":"#e8542f","d":[["Q",72,48,90,46,94,24],["L",94,24,84,22],["Q",84,22,82,42,68,60]]},{"c":"#b5452a","w":6,"d":[["A",24,58,14,100,260]]},{"c":"#b5452a","w":5,"f":"#e8542f","d":[["E",46,60,28,22]]},{"c":"#b5452a","w":5,"f":"#e8542f","d":[["Q",30,40,46,24,62,40],["L",62,40,30,40]]},{"c":"#b5452a","w":4,"d":[["C",46,29,3]]},{"c":"#8a93a3","w":3,"d":[["B",90,20,82,14,98,10,90,2]]}]},{"id":"kettle","name":"Kettle","cat":"kitchen","type":"thing","scale":0.32,"tags":["container","wield","shiny"],"say":"A kettle. I'll whistle when I'm ready. I am never ready.","strokes":[{"c":"ink","w":5,"f":"#c9d1dc","d":[["L",12,88,78,88],["B",78,88,84,54,68,40,45,40],["B",45,40,22,40,6,54,12,88]]},{"c":"ink","w":5,"f":"#c9d1dc","d":[["Q",78,74,97,68,96,38],["L",96,38,87,32],["Q",87,32,88,50,68,50]]},{"c":"ink","w":6,"d":[["A",45,40,22,180,360]]},{"c":"ink","w":4,"f":"#8a93a3","d":[["E",45,40,13,4]]},{"c":"ink","w":4,"d":[["C",45,33,3.5]]},{"c":"#8a93a3","w":3,"d":[["B",92,26,84,20,98,14,90,4]]}]},{"id":"frying-pan","name":"Frying pan","cat":"kitchen","type":"thing","scale":0.35,"tags":["wield","weapon","tool","heavy","container"],"say":"A frying pan. Flat, heavy, and a very good argument.","strokes":[{"c":"ink","w":4,"f":"#3a3f4b","d":[["L",69,45,96,37,98,45,70,56,69,45]]},{"c":"ink","w":5,"f":"#555b6b","d":[["C",40,52,32]]},{"c":"ink","w":3,"d":[["C",40,52,24]]},{"c":"ink","w":3,"f":"#ffffff","d":[["E",38,52,15,12]]},{"c":"#d4931a","w":4,"f":"#f5c531","d":[["C",41,51,6]]}]},{"id":"fork","name":"Fork","cat":"kitchen","type":"thing","scale":0.3,"tags":["wield","sharp","tool","light","silly"],"say":"A fork. One prong more than a trident. Checkmate, Neptune.","strokes":[{"c":"ink","w":5,"f":"#c9d1dc","d":[["L",30,38,36,50,45,54,45,92],["Q",45,92,50,99,55,92],["L",55,92,55,54,64,50,70,38,30,38]]},{"c":"ink","w":5,"d":[["L",31,38,31,6]]},{"c":"ink","w":5,"d":[["L",44,38,44,4]]},{"c":"ink","w":5,"d":[["L",56,38,56,4]]},{"c":"ink","w":5,"d":[["L",69,38,69,6]]}]},{"id":"mug","name":"Mug","cat":"kitchen","type":"thing","scale":0.22,"tags":["container","wield","fragile","light"],"say":"A mug. It's empty, which is the most honest thing here.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["L",24,30,24,86],["Q",24,86,24,92,30,92],["L",30,92,64,92],["Q",64,92,70,92,70,86],["L",70,86,70,30,24,30]]},{"c":"ink","w":4,"f":"#6b3e26","d":[["E",47,30,23,5]]},{"c":"ink","w":6,"d":[["A",72,60,16,270,450]]},{"c":"#8a93a3","w":3,"d":[["B",38,22,30,14,46,10,38,2]]},{"c":"#8a93a3","w":3,"d":[["B",56,22,48,14,64,10,56,2]]}]},{"id":"toaster","name":"Toaster","cat":"kitchen","type":"thing","scale":0.3,"tags":["container","shiny","silly"],"say":"A toaster. It pops, I jump. We have a system.","strokes":[{"c":"#8a5a3c","w":4,"f":"#d9a35a","d":[["L",22,46,22,18],["Q",22,18,20,6,30,8],["Q",30,8,35,2,40,8],["Q",40,8,50,6,48,18],["L",48,18,48,46]]},{"c":"#8a5a3c","w":4,"f":"#d9a35a","d":[["L",52,46,52,18],["Q",52,18,50,6,60,8],["Q",60,8,65,2,70,8],["Q",70,8,80,6,78,18],["L",78,18,78,46]]},{"c":"ink","w":5,"f":"#c9d1dc","d":[["L",8,50,8,86],["Q",8,86,8,92,14,92],["L",14,92,86,92],["Q",86,92,92,92,92,86],["L",92,86,92,50],["Q",92,50,50,40,8,50]]},{"c":"ink","w":6,"d":[["L",92,64,98,64]]},{"c":"ink","w":4,"d":[["C",50,72,5]]}]},{"id":"plunger","name":"Plunger","cat":"kitchen","type":"thing","scale":0.5,"tags":["wield","tool","weapon","soft","silly"],"say":"A plunger. It is a sword for people with different priorities.","strokes":[{"c":"#9c6238","w":4,"f":"#c89a5a","d":[["L",46,2,54,2,54,58,46,58,46,2]]},{"c":"#b5342a","w":5,"f":"#c0392b","d":[["L",24,94,76,94],["B",76,94,84,74,68,66,60,56],["L",60,56,40,56],["B",40,56,32,66,16,74,24,94]]},{"c":"#b5342a","w":4,"d":[["E",50,94,26,4]]}]},{"id":"broom","name":"Broom","cat":"kitchen","type":"thing","scale":0.85,"tags":["wield","tool","ride","silly"],"say":"A broom. Either I sweep up or I fly. Let's find out which.","strokes":[{"c":"#9c6238","w":7,"d":[["L",50,2,50,60]]},{"c":"ink","w":4,"f":"#e8542f","d":[["L",38,58,62,58,62,68,38,68,38,58]]},{"c":"#b8862c","w":4,"f":"#e8c070","d":[["L",40,68,60,68,82,92,76,88,70,95,64,89,58,96,52,89,46,96,40,89,34,95,28,88,18,92,40,68]]},{"c":"#b8862c","w":3,"d":[["L",44,72,36,90]]},{"c":"#b8862c","w":3,"d":[["L",50,72,50,92]]},{"c":"#b8862c","w":3,"d":[["L",56,72,64,90]]}]},{"id":"bathtub","name":"Bathtub","cat":"kitchen","type":"thing","scale":0.6,"tags":["sit","container","heavy"],"say":"A bathtub. I'll get in and think about my life. Standard procedure.","strokes":[{"c":"#7a8291","w":6,"d":[["L",84,42,84,16,74,16,74,24]]},{"c":"ink","w":5,"f":"#dfe6ee","d":[["L",4,42,96,42],["Q",96,42,98,84,72,88],["L",72,88,28,88],["Q",28,88,2,84,4,42]]},{"c":"#3f8ae0","w":4,"d":[["Q",10,50,18,46,26,50],["Q",26,50,34,54,42,50],["Q",42,50,50,46,58,50],["Q",58,50,66,54,74,50],["Q",74,50,82,46,90,50]]},{"c":"#3f8ae0","w":3,"d":[["C",40,36,5]]},{"c":"#3f8ae0","w":3,"d":[["C",52,31,4]]},{"c":"ink","w":5,"d":[["L",24,88,20,98]]},{"c":"ink","w":5,"d":[["L",76,88,80,98]]}]},{"id":"toilet-roll","name":"Toilet roll","cat":"kitchen","type":"thing","scale":0.2,"tags":["soft","light","silly","junk"],"say":"A toilet roll. For emergencies. I have a lot of those.","strokes":[{"c":"ink","w":4,"f":"#f0f2f5","d":[["L",74,52,93,54,93,96,75,96,75,76]]},{"c":"ink","w":5,"f":"#f0f2f5","d":[["L",22,30,22,74],["A",48,74,26,180,0],["L",74,74,74,30]]},{"c":"ink","w":5,"f":"#ffffff","d":[["E",48,30,26,10]]},{"c":"ink","w":4,"f":"#b08a6a","d":[["E",48,30,9,4]]}]},{"id":"candle","name":"Candle","cat":"kitchen","type":"thing","scale":0.3,"tags":["wield","light","fragile"],"say":"A candle. I'll hold it up and wait for a cave to appear.","strokes":[{"c":"#8a6a1c","w":4,"f":"#d9b84a","d":[["E",50,93,30,6]]},{"c":"ink","w":5,"f":"#fbe9b8","d":[["L",36,44,36,92,64,92,64,44],["Q",64,44,61,58,58,44],["Q",58,44,55,50,52,44],["Q",52,44,47,60,42,44],["Q",42,44,40,50,36,44]]},{"c":"ink","w":4,"d":[["L",50,44,50,34]]},{"c":"#e8542f","w":4,"f":"#f5a623","d":[["Q",50,4,70,24,50,34],["Q",50,34,30,24,50,4]]},{"c":"#f2a93b","w":3,"f":"#f5d547","d":[["Q",50,18,58,26,50,32],["Q",50,32,42,26,50,18]]}]},{"id":"desk-lamp","name":"Desk lamp","cat":"kitchen","type":"thing","scale":0.45,"tags":["wield","shiny","fragile","tool"],"say":"A desk lamp. Now I can see exactly how bad things are.","strokes":[{"c":"ink","w":5,"f":"#3a3f4b","d":[["E",26,92,24,6]]},{"c":"ink","w":5,"d":[["L",26,88,14,52]]},{"c":"ink","w":5,"d":[["L",14,52,54,22]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",14,52,4]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",55,22,3]]},{"c":"ink","w":5,"f":"#e8542f","d":[["L",52,28,60,20,86,33,62,55,52,28]]},{"c":"#d4931a","w":4,"f":"#f5d547","d":[["C",74,44,6]]},{"c":"#f2a93b","w":4,"d":[["L",82,54,94,68]]},{"c":"#f2a93b","w":4,"d":[["L",90,42,100,46]]},{"c":"#f2a93b","w":4,"d":[["L",68,62,70,78]]}]},{"id":"alarm-clock","name":"Alarm clock","cat":"kitchen","type":"thing","scale":0.28,"tags":["play","fragile","silly","shiny"],"say":"An alarm clock. It rings, I panic, nothing changes.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["A",27,25,12,145,325]]},{"c":"ink","w":5,"f":"#e8542f","d":[["A",73,25,12,215,395]]},{"c":"ink","w":4,"d":[["L",50,26,50,14]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",50,11,3]]},{"c":"ink","w":5,"d":[["L",36,88,28,98]]},{"c":"ink","w":5,"d":[["L",64,88,72,98]]},{"c":"ink","w":5,"f":"#3f8ae0","d":[["C",50,58,34]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",50,58,26]]},{"c":"ink","w":4,"d":[["L",50,38,50,58,66,66]]},{"c":"ink","w":3,"d":[["A",27,25,19,170,230]]},{"c":"ink","w":3,"d":[["A",73,25,19,310,370]]}]},{"id":"hairdryer","name":"Hairdryer","cat":"kitchen","type":"thing","scale":0.3,"tags":["wield","tool","weapon","silly"],"say":"A hairdryer. I have no hair. I will dry out of principle.","strokes":[{"c":"ink","w":5,"f":"#3f8ae0","d":[["L",24,36,48,32,48,58,24,54,24,36]]},{"c":"ink","w":5,"f":"#3f8ae0","d":[["L",54,62,68,62,80,96,66,98,54,62]]},{"c":"ink","w":5,"f":"#3f8ae0","d":[["L",46,28,78,28],["A",78,45,17,270,450],["L",78,62,46,62,46,28]]},{"c":"ink","w":3,"d":[["C",78,45,10]]},{"c":"ink","w":3,"d":[["C",78,45,4]]},{"c":"#e8542f","w":5,"d":[["L",62,72,66,82]]},{"c":"#3f8ae0","w":3,"d":[["Q",21,37,16,32,12,37],["Q",12,37,7,42,2,37]]},{"c":"#3f8ae0","w":3,"d":[["Q",21,45,16,40,12,45],["Q",12,45,7,50,2,45]]},{"c":"#3f8ae0","w":3,"d":[["Q",21,53,16,48,12,53],["Q",12,53,7,58,2,53]]}]},{"id":"rolling-pin","name":"Rolling pin","cat":"kitchen","type":"thing","scale":0.3,"tags":["wield","weapon","tool","heavy"],"say":"A rolling pin. Traditionally for pastry. Also for intruders.","strokes":[{"c":"#9c6238","w":4,"f":"#9c6238","d":[["L",6,65,10,75,26,67,22,58,6,65]]},{"c":"#9c6238","w":4,"f":"#9c6238","d":[["L",90,25,94,35,78,42,74,33,90,25]]},{"c":"#9c6238","w":5,"f":"#d9a35a","d":[["L",19,50,30,74,81,50,70,26,19,50]]},{"c":"#9c6238","w":2,"d":[["L",27,53,67,34]]}]},{"id":"whisk","name":"Whisk","cat":"kitchen","type":"thing","scale":0.32,"tags":["wield","tool","light","silly"],"say":"A whisk. I will beat things. Gently. Until fluffy.","strokes":[{"c":"ink","w":4,"f":"#e8542f","d":[["L",44,2,56,2,56,40,44,40,44,2]]},{"c":"#6e7787","w":3,"d":[["E",50,68,8,28]]},{"c":"#6e7787","w":3,"d":[["E",50,68,18,28]]},{"c":"#6e7787","w":3,"d":[["E",50,68,27,27]]}]},{"id":"acoustic-guitar","name":"Acoustic guitar","cat":"music","type":"thing","scale":0.75,"tags":["wield","play","instrument"],"say":"A guitar. I know three chords and all of them are this one.","strokes":[{"c":"#5a3a24","w":4,"f":"#8a5a3c","d":[["L",45,44,45,12,55,12,55,44]]},{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["B",50,42,26,42,24,64,36,66],["B",36,66,14,68,14,98,50,98],["B",50,98,86,98,86,68,64,66],["B",64,66,76,64,74,42,50,42]]},{"c":"#5a3a24","w":4,"f":"#5a3a24","d":[["L",42,12,42,2,58,2,58,12]]},{"c":"#5a3a24","w":3,"d":[["L",42,5,36,5]]},{"c":"#5a3a24","w":3,"d":[["L",42,9,36,9]]},{"c":"#5a3a24","w":3,"d":[["L",58,5,64,5]]},{"c":"#5a3a24","w":3,"d":[["L",58,9,64,9]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",50,58,8]]},{"c":"#6b7280","w":2,"d":[["L",47,12,47,84,50,84,50,12,53,12,53,84]]},{"c":"ink","w":5,"d":[["L",38,84,62,84]]}]},{"id":"trumpet","name":"Trumpet","cat":"music","type":"thing","scale":0.3,"tags":["wield","play","instrument","shiny"],"say":"A trumpet. The neighbours will finally learn my name.","strokes":[{"c":"#d4a017","w":8,"d":[["L",8,52,72,52]]},{"c":"#d4a017","w":5,"d":[["B",30,56,26,84,74,84,70,56]]},{"c":"#a3780a","w":3,"f":"#f2c13b","d":[["L",39,28,45,28,45,56,39,56,39,28]]},{"c":"#a3780a","w":3,"f":"#f2c13b","d":[["L",47,28,53,28,53,56,47,56,47,28]]},{"c":"#a3780a","w":3,"f":"#f2c13b","d":[["L",55,28,61,28,61,56,55,56,55,28]]},{"c":"#a3780a","w":5,"f":"#f2c13b","d":[["L",72,44,72,44],["B",72,44,84,42,92,34,98,24],["L",98,24,98,80],["B",98,80,92,70,84,62,72,60],["L",72,60,72,44]]},{"c":"#6b7280","w":4,"f":"#c9d1dc","d":[["L",9,47,2,45,2,59,9,57,9,47]]}]},{"id":"drum","name":"Drum","cat":"music","type":"thing","scale":0.4,"tags":["play","instrument","sit","toy"],"say":"A drum. Nobody asked, but everyone will hear.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["L",10,28,10,72],["B",10,72,10,88,90,88,90,72],["L",90,72,90,28]]},{"c":"ink","w":3,"d":[["L",10,34,30,80,50,34,70,80,90,34]]},{"c":"ink","w":5,"f":"#f3e9d2","d":[["E",50,28,40,12]]},{"c":"#8a5a3c","w":4,"d":[["L",24,8,56,32]]},{"c":"#8a5a3c","w":4,"d":[["L",76,8,44,32]]},{"c":"#8a5a3c","w":4,"f":"#d9a066","d":[["C",22,6,3.5]]},{"c":"#8a5a3c","w":4,"f":"#d9a066","d":[["C",78,6,3.5]]}]},{"id":"maracas","name":"Maracas","cat":"music","type":"thing","scale":0.3,"tags":["wield","play","instrument","toy","silly","light"],"say":"Maracas. For when a fight needs a rhythm section.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["L",55.1,52.9,62.2,56.5,45.9,87.4,39.6,84.3,55.1,52.9]]},{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["L",37.8,56.5,44.9,52.9,60.4,84.3,54.1,87.4,37.8,56.5]]},{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["C",40.9,89.4,5.5]]},{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["C",59.1,89.4,5.5]]},{"c":"#c23b1e","w":5,"f":"#e8542f","d":[["B",19.1,11,29.8,5.6,38.8,10,43.3,18.9],["B",43.3,18.9,49.7,31.4,48,43.4,45.3,49.3],["L",45.3,49.3,34.7,54.7],["B",34.7,54.7,28.4,53.4,17.6,47.7,11.3,35.2],["B",11.3,35.2,6.7,26.3,8.4,16.5,19.1,11]]},{"c":"#c9881a","w":5,"f":"#f2c13b","d":[["B",80.9,11,70.2,5.6,61.2,10,56.7,18.9],["B",56.7,18.9,50.3,31.4,52,43.4,54.7,49.3],["L",54.7,49.3,65.3,54.7],["B",65.3,54.7,71.6,53.4,82.4,47.7,88.7,35.2],["B",88.7,35.2,93.3,26.3,91.6,16.5,80.9,11]]},{"c":"#5a3a24","w":6,"d":[["L",32.9,57.9,48.9,49.7]]},{"c":"#5a3a24","w":6,"d":[["L",51.1,49.7,67.1,57.9]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["C",21,28,2.5]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["C",35.4,29.7,2.5]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["C",22.7,18.1,2.5]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["C",68.3,22.5,2.5]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["C",75.3,35.1,2.5]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["C",77.3,18.1,2.5]]},{"c":"ink","w":3,"d":[["A",27.3,27.1,26,160,200]]},{"c":"ink","w":3,"d":[["A",72.7,27.1,26,-20,20]]},{"c":"ink","w":3,"d":[["L",44,4,50,1,56,4]]}]},{"id":"magic-wand","name":"Magic wand","cat":"magic","type":"thing","scale":0.35,"tags":["wield","magic","light","shiny","silly"],"say":"A magic wand. I waved it. Nothing happened. Classic.","strokes":[{"c":"ink","w":7,"d":[["L",6,94,62,38]]},{"c":"#9aa3b2","w":7,"d":[["L",62,38,72,28]]},{"c":"#e0a800","w":4,"f":"#f7d64a","d":[["L",84,1,87.7,10.9,98.3,11.4,90,17.9,92.8,28.1,84,22.3,75.2,28.1,78,17.9,69.7,11.4,80.3,10.9,84,1]]},{"c":"#e0a800","w":3,"d":[["L",54,16,60,22]]},{"c":"#e0a800","w":3,"d":[["L",92,42,88,36]]},{"c":"#e0a800","w":3,"d":[["L",56,4,60,10]]}]},{"id":"potion-bottle","name":"Potion bottle","cat":"magic","type":"thing","scale":0.3,"tags":["food","magic","fragile","shiny","silly"],"say":"A potion. The label says drink me, which is exactly what a trap would say.","strokes":[{"c":"ink","w":5,"f":"#cfe8ff","d":[["L",42,14,42,37],["A",50,66,30,255,-75],["L",58,37,58,14,42,14]]},{"c":"#5a3a24","w":4,"f":"#8a5a3c","d":[["L",40,14,60,14,60,4,40,4,40,14]]},{"c":"#3a9c3a","w":3,"f":"#5fe05f","d":[["A",50,66,25,-20,200],["L",26.5,57.4,73.5,57.4]]},{"c":"#3a9c3a","w":3,"d":[["C",44,68,3]]},{"c":"#3a9c3a","w":3,"d":[["C",57,76,2.5]]},{"c":"#3a9c3a","w":3,"d":[["C",51,48,2.5]]}]},{"id":"crystal-ball","name":"Crystal ball","cat":"magic","type":"ball","scale":0.3,"tags":["magic","shiny","fragile","silly"],"say":"A crystal ball. I see a future where I drop this.","strokes":[{"c":"#5a3a24","w":5,"f":"#8a5a3c","d":[["L",24,98,32,80,68,80,76,98,24,98]]},{"c":"#5b6fb5","w":5,"f":"#b9c8f5","d":[["C",50,44,38]]},{"c":"#8fa3e6","w":5,"d":[["A",50,44,28,195,245]]},{"c":"#7b4fc9","w":3,"f":"#ffffff","d":[["L",62,22,64.5,27.5,70,30,64.5,32.5,62,38,59.5,32.5,54,30,59.5,27.5,62,22]]},{"c":"#7b4fc9","w":3,"f":"#ffffff","d":[["L",38,51,39.6,54.4,43,56,39.6,57.6,38,61,36.4,57.6,33,56,36.4,54.4,38,51]]},{"c":"#e0a800","w":3,"f":"#f7d64a","d":[["L",10,10,12,14,16,16,12,18,10,22,8,18,4,16,8,14,10,10]]},{"c":"#e0a800","w":3,"f":"#f7d64a","d":[["L",91,4,92.6,7.4,96,9,92.6,10.6,91,14,89.4,10.6,86,9,89.4,7.4,91,4]]}]},{"id":"top-hat","name":"Top hat","cat":"clothing","type":"thing","scale":0.3,"tags":["hat","silly"],"say":"A top hat. I am now at least forty percent more distinguished.","strokes":[{"c":"ink","w":5,"f":"#2b2d42","d":[["L",4,72,96,72],["B",96,72,96,88,4,88,4,72]]},{"c":"ink","w":5,"f":"#2b2d42","d":[["L",24,72,24,6,76,6,76,72]]},{"c":"#c23b1e","w":7,"d":[["L",24,62,76,62]]},{"c":"#6b7280","w":3,"d":[["L",32,16,32,50]]}]},{"id":"crown","name":"Crown","cat":"clothing","type":"thing","scale":0.25,"tags":["hat","shiny","silly"],"say":"A crown. I hereby decree a nap.","strokes":[{"c":"#c9881a","w":5,"f":"#f7d64a","d":[["L",10,90,10,22,30,52,50,10,70,52,90,22,90,90,10,90]]},{"c":"#c9881a","w":4,"d":[["L",10,68,90,68]]},{"c":"#c23b1e","w":3,"f":"#e8542f","d":[["C",10,22,5]]},{"c":"#c23b1e","w":3,"f":"#e8542f","d":[["C",50,10,5]]},{"c":"#c23b1e","w":3,"f":"#e8542f","d":[["C",90,22,5]]},{"c":"#2c5fa8","w":3,"f":"#3f8ae0","d":[["C",30,79,4.5]]},{"c":"#2a7a2a","w":3,"f":"#3a9c3a","d":[["C",50,79,4.5]]},{"c":"#2c5fa8","w":3,"f":"#3f8ae0","d":[["C",70,79,4.5]]}]},{"id":"umbrella","name":"Umbrella","cat":"clothing","type":"thing","scale":0.8,"tags":["wield","shelter","light","silly"],"say":"An umbrella. Indoors. I accept the curse.","strokes":[{"c":"#c23b1e","w":5,"f":"#e8542f","d":[["Q",4,42,10,2,50,2],["Q",50,2,90,2,96,42],["Q",96,42,84.5,54,73,42],["Q",73,42,61.5,54,50,42],["Q",50,42,38.5,54,27,42],["Q",27,42,15.5,54,4,42]]},{"c":"ink","w":3,"d":[["L",27,42,50,4,73,42]]},{"c":"#8a5a3c","w":5,"d":[["L",50,42,50,84],["A",60,84,10,180,0]]}]},{"id":"wellington-boot","name":"Wellington boot","cat":"clothing","type":"thing","scale":0.35,"tags":["silly","soft","container","junk"],"say":"One wellington boot. Half of my puddle problems are solved.","strokes":[{"c":"ink","w":5,"f":"#3f8a3f","d":[["L",30,6,62,6,62,54],["Q",62,54,66,68,80,70],["B",80,70,96,72,97,88,88,90],["L",88,90,30,90,30,6]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["L",28,90,91,90,91,97,28,97,28,90]]},{"c":"#2a6a2a","w":4,"d":[["L",30,13,62,13]]},{"c":"#7fcf7f","w":3,"d":[["L",36,20,36,52]]}]},{"id":"cowboy-hat","name":"Cowboy hat","cat":"clothing","type":"thing","scale":0.28,"tags":["hat","silly"],"say":"A cowboy hat. Yee, and I cannot stress this enough, haw.","strokes":[{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["L",24,62,28,20],["Q",28,20,50,34,72,20],["L",72,20,76,62]]},{"c":"#8a5a3c","w":3,"d":[["L",50,32,50,54]]},{"c":"#6b3a1e","w":5,"d":[["L",25,56,75,56]]},{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["L",8,36,2,40],["B",2,40,6,80,94,80,98,40],["L",98,40,92,36],["B",92,36,84,66,16,66,8,36]]}]},{"id":"wizard-hat","name":"Wizard hat","cat":"magic","type":"thing","scale":0.45,"tags":["hat","magic","silly"],"say":"A wizard hat. I feel the power. It may be the hat.","strokes":[{"c":"#5a3fb5","w":5,"f":"#8e7ae0","d":[["L",26,76,26,76],["B",26,76,36,46,40,20,60,4],["B",60,4,56,20,66,46,74,76],["L",74,76,26,76]]},{"c":"#e0a800","w":3,"f":"#f7d64a","d":[["L",52,41,54.2,46.9,60.6,47.2,55.6,51.2,57.3,57.3,52,53.8,46.7,57.3,48.4,51.2,43.4,47.2,49.8,46.9,52,41]]},{"c":"#e0a800","w":3,"d":[["C",41,64,2]]},{"c":"#e0a800","w":3,"d":[["C",62,66,2]]},{"c":"#e0a800","w":3,"d":[["C",55,30,2]]},{"c":"#5a3fb5","w":5,"f":"#8e7ae0","d":[["E",50,78,46,10]]}]},{"id":"sunglasses","name":"Sunglasses","cat":"clothing","type":"thing","scale":0.2,"tags":["hat","shiny","silly","light"],"say":"Sunglasses. Now nobody can see me not blinking.","strokes":[{"c":"ink","w":5,"f":"#2b2d42","d":[["E",27,50,20,17]]},{"c":"ink","w":5,"f":"#2b2d42","d":[["E",73,50,20,17]]},{"c":"ink","w":4,"d":[["Z",14,40,26,20]]},{"c":"ink","w":4,"d":[["Z",60,40,26,20]]},{"c":"ink","w":5,"d":[["A",50,50,6,180,360]]},{"c":"ink","w":4,"d":[["L",7,46,1,38]]},{"c":"ink","w":4,"d":[["L",93,46,99,38]]},{"c":"#9aa3b2","w":3,"d":[["L",16,44,22,38]]},{"c":"#9aa3b2","w":3,"d":[["L",62,44,68,38]]}]},{"id":"tambourine","name":"Tambourine","cat":"music","type":"thing","scale":0.3,"tags":["wield","play","instrument","toy","light"],"say":"A tambourine. Every band needs someone they cannot fire.","strokes":[{"c":"#5a3a24","w":5,"f":"#5a3a24","d":[["L",6,44,6,58],["B",6,58,6,70.2,25.7,80,50,80],["B",50,80,74.3,80,94,70.2,94,58],["L",94,58,94,44]]},{"c":"#8a5a3c","w":5,"f":"#d9a066","d":[["E",50,44,44,22]]},{"c":"#8a5a3c","w":3,"f":"#fff4e0","d":[["E",50,44,35,15]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",18,68,3.2,6]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",26,68,3.2,6]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",36,72.4,3.2,6]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",44,72.4,3.2,6]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",56,72.4,3.2,6]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",64,72.4,3.2,6]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",74,68,3.2,6]]},{"c":"#374151","w":3,"f":"#f3f4f6","d":[["E",82,68,3.2,6]]},{"c":"ink","w":3,"d":[["L",12,20,5,12]]},{"c":"ink","w":3,"d":[["L",7,32,0,30]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",84,20,4.5]]},{"c":"ink","w":4,"d":[["L",88.5,20,88.5,3],["Q",88.5,3,97,5,95,14]]}]},{"id":"cauldron","name":"Cauldron","cat":"magic","type":"thing","scale":0.45,"tags":["container","magic","heavy","silly"],"say":"A cauldron. Something is bubbling and it was not me.","strokes":[{"c":"ink","w":5,"f":"#2b2d42","d":[["L",10,32,10,32],["B",10,32,2,70,30,90,50,90],["B",50,90,70,90,98,70,90,32]]},{"c":"ink","w":5,"f":"#5fe05f","d":[["E",50,32,40,10]]},{"c":"ink","w":5,"d":[["L",26,88,20,98]]},{"c":"ink","w":5,"d":[["L",50,90,50,98]]},{"c":"ink","w":5,"d":[["L",74,88,80,98]]},{"c":"#3a9c3a","w":3,"f":"#5fe05f","d":[["C",36,16,4]]},{"c":"#3a9c3a","w":3,"f":"#5fe05f","d":[["C",58,12,5]]},{"c":"#3a9c3a","w":3,"f":"#5fe05f","d":[["C",48,5,3]]}]},{"id":"cactus","name":"Cactus","cat":"nature","type":"thing","scale":0.6,"tags":["plant","sharp","silly"],"say":"A cactus. Hugging is off the table, then.","strokes":[{"c":"#3a9b5c","w":5,"f":"#5cc07a","d":[["Q",42,18,50,2,58,18],["L",58,18,58,78,42,78,42,18]]},{"c":"#3a9b5c","w":5,"f":"#5cc07a","d":[["L",58,34,72,34,72,22],["Q",72,22,78,10,84,22],["L",84,22,84,46,58,46,58,34]]},{"c":"#3a9b5c","w":5,"f":"#5cc07a","d":[["L",42,44,28,44,28,32],["Q",28,32,22,20,16,32],["L",16,32,16,56,42,56,42,44]]},{"c":"ink","w":3,"d":[["L",42,28,35,25]]},{"c":"ink","w":3,"d":[["L",42,66,35,64]]},{"c":"ink","w":3,"d":[["L",58,62,65,60]]},{"c":"ink","w":3,"d":[["L",84,32,91,30]]},{"c":"ink","w":3,"d":[["L",16,44,9,42]]},{"c":"ink","w":5,"f":"#c9703a","d":[["L",30,78,70,78,70,85,30,85,30,78]]},{"c":"ink","w":5,"f":"#c9703a","d":[["L",34,85,66,85,62,97,38,97,34,85]]}]},{"id":"flower-in-pot","name":"Flower in a pot","cat":"nature","type":"thing","scale":0.35,"tags":["plant","fragile","light","wield","soft"],"say":"A flower in a pot. I shall water it with my tears. There are plenty.","strokes":[{"c":"#3a9b5c","w":5,"d":[["L",50,72,50,36]]},{"c":"#3a9b5c","w":4,"f":"#5cc07a","d":[["Q",50,58,34,56,28,42],["Q",28,42,44,42,50,58]]},{"c":"#d94f8a","w":4,"f":"#f08cb4","d":[["C",50,12,8]]},{"c":"#d94f8a","w":4,"f":"#f08cb4","d":[["C",62,19,8]]},{"c":"#d94f8a","w":4,"f":"#f08cb4","d":[["C",62,33,8]]},{"c":"#d94f8a","w":4,"f":"#f08cb4","d":[["C",50,40,8]]},{"c":"#d94f8a","w":4,"f":"#f08cb4","d":[["C",38,33,8]]},{"c":"#d94f8a","w":4,"f":"#f08cb4","d":[["C",38,19,8]]},{"c":"ink","w":4,"f":"#f2c13b","d":[["C",50,26,7]]},{"c":"ink","w":5,"f":"#c9703a","d":[["L",26,70,74,70,74,78,26,78,26,70]]},{"c":"ink","w":5,"f":"#c9703a","d":[["L",31,78,69,78,63,97,37,97,31,78]]}]},{"id":"mushroom","name":"Mushroom","cat":"nature","type":"thing","scale":0.3,"tags":["food","plant","silly"],"say":"A mushroom. Either lunch or a very short story.","strokes":[{"c":"ink","w":5,"f":"#f0e2c4","d":[["L",38,54,35,92],["Q",35,92,50,99,65,92],["L",65,92,62,54,38,54]]},{"c":"ink","w":5,"f":"#e8542f","d":[["B",6,54,6,4,94,4,94,54],["L",94,54,6,54]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",32,36,7]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",56,22,6]]},{"c":"ink","w":4,"f":"#ffffff","d":[["C",70,42,5]]}]},{"id":"log","name":"Log","cat":"nature","type":"thing","scale":0.35,"tags":["heavy","sit","plant","junk"],"say":"A log. Finally, someone on my level of conversation.","strokes":[{"c":"ink","w":5,"f":"#b07a3a","d":[["L",20,30,88,30],["Q",88,30,96,50,88,70],["L",88,70,20,70]]},{"c":"ink","w":5,"f":"#d9b382","d":[["E",20,50,12,20]]},{"c":"#9c6238","w":4,"d":[["E",20,50,7,12]]},{"c":"#9c6238","w":4,"d":[["E",20,50,2,4]]},{"c":"#9c6238","w":3,"d":[["L",38,42,60,42]]},{"c":"#9c6238","w":3,"d":[["L",52,58,78,58]]},{"c":"ink","w":5,"f":"#b07a3a","d":[["L",60,30,58,16,70,18,70,30]]}]},{"id":"boulder","name":"Boulder","cat":"nature","type":"thing","scale":0.8,"tags":["heavy","sit","climb"],"say":"A boulder. I shall push it uphill forever. It is a classic.","strokes":[{"c":"ink","w":6,"f":"#8a93a3","d":[["L",2,72,8,50],["Q",8,50,16,36,36,34],["L",36,34,60,30],["Q",60,30,88,34,95,54],["L",95,54,98,68],["Q",98,68,92,90,70,94],["L",70,94,30,94],["Q",30,94,2,92,2,72]]},{"c":"ink","w":3,"d":[["L",38,48,50,62,44,80]]},{"c":"ink","w":3,"d":[["L",68,38,78,54,74,64]]},{"c":"ink","w":3,"d":[["L",20,60,26,70]]}]},{"id":"bicycle","name":"Bicycle","cat":"vehicles","type":"thing","scale":0.8,"tags":["ride","sit","shiny","heavy"],"say":"A bicycle. Two wheels, no plan, and I never learned.","strokes":[{"c":"ink","w":5,"d":[["C",26,66,25]]},{"c":"ink","w":5,"d":[["C",74,66,25]]},{"c":"ink","w":3,"d":[["L",26,41,26,91,26,66,1,66,51,66]]},{"c":"ink","w":3,"d":[["L",74,41,74,91,74,66,49,66,99,66]]},{"c":"ink","w":4,"d":[["C",26,66,3]]},{"c":"ink","w":4,"d":[["C",74,66,3]]},{"c":"#e8542f","w":5,"d":[["L",26,66,42,40,68,40,74,66]]},{"c":"#e8542f","w":5,"d":[["L",42,40,48,70,68,40]]},{"c":"#e8542f","w":5,"d":[["L",26,66,48,70]]},{"c":"ink","w":5,"d":[["C",48,70,5]]},{"c":"ink","w":6,"d":[["L",42,40,41,32,33,31,51,31]]},{"c":"ink","w":5,"d":[["L",68,40,67,30,80,27]]}]},{"id":"rocket","name":"Rocket","cat":"vehicles","type":"thing","scale":1,"tags":["ride","climb","shiny","silly"],"say":"A rocket. At last, a way to leave this level with dignity.","strokes":[{"c":"#f2a93b","w":5,"f":"#f2c13b","d":[["L",38,74,42,88,48,80,50,97,54,82,58,90,62,74]]},{"c":"ink","w":5,"f":"#dfe4ec","d":[["L",34,26,34,72,66,72,66,26,34,26]]},{"c":"ink","w":5,"f":"#e8542f","d":[["Q",34,26,40,8,50,3],["Q",50,3,60,8,66,26],["L",66,26,34,26]]},{"c":"ink","w":5,"f":"#e8542f","d":[["L",34,54,18,82,34,76,34,54]]},{"c":"ink","w":5,"f":"#e8542f","d":[["L",66,54,82,82,66,76,66,54]]},{"c":"ink","w":5,"f":"#7cc5f0","d":[["C",50,42,8]]}]},{"id":"rowing-boat","name":"Rowing boat","cat":"vehicles","type":"thing","scale":0.55,"tags":["ride","sit","container","shelter"],"say":"A rowing boat. On dry land. This is the most me thing that has ever happened.","strokes":[{"c":"ink","w":5,"f":"#b07a3a","d":[["Q",8,36,50,34,94,24],["Q",94,24,92,58,72,66],["Q",72,66,50,70,28,66],["Q",28,66,6,60,8,36]]},{"c":"#9c6238","w":3,"d":[["Q",16,48,50,48,86,42]]},{"c":"#9c6238","w":4,"d":[["L",54,17,14,76]]},{"c":"ink","w":4,"f":"#b07a3a","d":[["L",10.9,74.1,17.7,78.5,9.1,91.9,2.3,87.5,10.9,74.1]]},{"c":"#3f8ae0","w":4,"d":[["Q",24,78,33,70,42,78],["Q",42,78,51,86,60,78],["Q",60,78,69,70,78,78],["Q",78,78,87,86,96,78]]},{"c":"#3f8ae0","w":4,"d":[["Q",20,91,29,83,38,91],["Q",38,91,47,99,56,91],["Q",56,91,65,83,74,91]]}]},{"id":"toy-car","name":"Toy car","cat":"vehicles","type":"thing","scale":0.3,"tags":["toy","play","wield","ride","silly"],"say":"A toy car. Vroom. I said it out loud and I am not sorry.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["L",6,72,6,54,24,54,36,32,70,32,82,54,94,54,94,72,6,72]]},{"c":"ink","w":4,"f":"#7cc5f0","d":[["L",28,54,38,38,50,38,50,54,28,54]]},{"c":"ink","w":4,"f":"#7cc5f0","d":[["L",54,54,54,38,66,38,76,54,54,54]]},{"c":"ink","w":5,"f":"#5b6472","d":[["C",26,74,12]]},{"c":"ink","w":5,"f":"#5b6472","d":[["C",74,74,12]]},{"c":"ink","w":4,"d":[["C",26,74,4]]},{"c":"ink","w":4,"d":[["C",74,74,4]]},{"c":"#f2a93b","w":4,"f":"#f2c13b","d":[["C",90,61,3]]}]},{"id":"tyre","name":"Tyre","cat":"vehicles","type":"ball","scale":0.45,"tags":["bounce","ride","heavy","junk"],"say":"A tyre. Somewhere, a car is having a worse day than me.","strokes":[{"c":"#6b7280","w":9,"d":[["C",50,50,40]]},{"c":"#6b7280","w":9,"d":[["C",50,50,33]]},{"c":"#6b7280","w":9,"d":[["C",50,50,26]]},{"c":"ink","w":6,"d":[["C",50,50,45]]},{"c":"ink","w":6,"d":[["C",50,50,21]]},{"c":"#f4f5f7","w":3,"d":[["L",87,50,78,57.5,82,68.5,70.5,70.5,68.5,82,57.5,78,50,87,42.5,78,31.5,82,29.5,70.5,18,68.5,22,57.5,13,50,22,42.5,18,31.5,29.5,29.5,31.5,18,42.5,22,50,13,57.5,22,68.5,18,70.5,29.5,82,31.5,78,42.5,87,50]]}]},{"id":"bone","name":"Bone","cat":"nature","type":"thing","scale":0.3,"tags":["wield","weapon","silly","animal"],"say":"A bone. Not one of mine. I checked. Twice.","strokes":[{"c":"ink","w":5,"f":"#f4ead6","d":[["L",34.1,40,65.9,40],["A",80,35,15,160.5,450],["A",80,65,15,270,559.5],["L",65.9,60,34.1,60],["A",20,65,15,340.5,630],["A",20,35,15,90,379.5]]},{"c":"ink","w":3,"d":[["L",42,50,58,50]]}]},{"id":"feather","name":"Feather","cat":"nature","type":"thing","scale":0.45,"tags":["light","soft","wield","silly"],"say":"A feather. I shall tickle my enemies into submission.","strokes":[{"c":"#3f8ae0","w":4,"f":"#9cc3f0","d":[["Q",26,72,24,56,33,46],["L",33,46,40,48,36,40],["Q",36,40,40,30,50,26],["L",50,26,57,29,53,22],["Q",53,22,64,12,84,8],["Q",84,8,82,24,73,36],["L",73,36,67,33,69,44],["Q",69,44,66,52,56,55],["L",56,55,49.5,52,50,62],["Q",50,62,44,72,26,72]]},{"c":"ink","w":4,"d":[["Q",12,96,44,48,84,8]]},{"c":"#3f8ae0","w":2.5,"d":[["L",32,68,27,57]]},{"c":"#3f8ae0","w":2.5,"d":[["L",32,68,43,71]]},{"c":"#3f8ae0","w":2.5,"d":[["L",46,50,41,39]]},{"c":"#3f8ae0","w":2.5,"d":[["L",46,50,57,53]]},{"c":"#3f8ae0","w":2.5,"d":[["L",61,33,56,22]]},{"c":"#3f8ae0","w":2.5,"d":[["L",61,33,72,36]]},{"c":"#3f8ae0","w":3,"d":[["L",24,77,17,74]]},{"c":"#3f8ae0","w":3,"d":[["L",22,83,15,85]]}]},{"id":"traffic-cone","name":"Traffic cone","cat":"odd","type":"thing","scale":0.45,"tags":["hat","silly","wield"],"say":"A traffic cone. Now I am a hazard, officially.","strokes":[{"c":"ink","w":5,"f":"#f0761f","d":[["L",40,8,60,8,80,84,20,84,40,8]]},{"c":"ink","w":4,"f":"#ffffff","d":[["L",31.6,40,68.4,40,72.1,54,27.9,54,31.6,40]]},{"c":"ink","w":4,"f":"#ffffff","d":[["L",25.8,62,74.2,62,76.8,72,23.2,72,25.8,62]]},{"c":"ink","w":5,"f":"#f0761f","d":[["L",6,84,94,84,94,94,6,94,6,84]]}]},{"id":"anchor","name":"Anchor","cat":"vehicles","type":"thing","scale":0.55,"tags":["heavy","wield","weapon","shiny"],"say":"An anchor. Good. I was feeling far too mobile.","strokes":[{"c":"ink","w":5,"d":[["C",50,12,8]]},{"c":"ink","w":6,"d":[["L",50,20,50,89]]},{"c":"ink","w":6,"d":[["L",26,32,74,32]]},{"c":"ink","w":6,"d":[["B",12,62,12,98,88,98,88,62]]},{"c":"ink","w":4,"f":"#8a93a3","d":[["L",12,60,3,76,24,72,12,60]]},{"c":"ink","w":4,"f":"#8a93a3","d":[["L",88,60,97,76,76,72,88,60]]}]},{"id":"horseshoe-magnet","name":"Horseshoe magnet","cat":"odd","type":"thing","scale":0.35,"tags":["wield","magic","shiny","silly"],"say":"A magnet. Everyone will be drawn to me. Mostly forks.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["L",10,14,10,50],["A",50,50,40,180,0],["L",90,50,90,14,68,14,68,50],["A",50,50,18,0,180],["L",32,50,32,14,10,14]]},{"c":"ink","w":5,"f":"#c9d1dc","d":[["L",10,14,32,14,32,28,10,28,10,14]]},{"c":"ink","w":5,"f":"#c9d1dc","d":[["L",68,14,90,14,90,28,68,28,68,14]]},{"c":"ink","w":3,"d":[["L",16,9,13,3]]},{"c":"ink","w":3,"d":[["L",26,9,29,3]]},{"c":"ink","w":3,"d":[["L",74,9,71,3]]},{"c":"ink","w":3,"d":[["L",84,9,87,3]]}]},{"id":"coil-spring","name":"Coil spring","cat":"odd","type":"thing","scale":0.4,"tags":["bounce","toy","silly","shiny","wield"],"say":"A spring. I have a bad feeling about my ankles.","strokes":[{"c":"ink","w":7,"d":[["L",20,6,80,6]]},{"c":"#4b5563","w":5,"d":[["L",78,14,22,32]]},{"c":"#4b5563","w":5,"d":[["L",78,34,22,52]]},{"c":"#4b5563","w":5,"d":[["L",78,54,22,72]]},{"c":"#4b5563","w":5,"d":[["L",78,74,22,88]]},{"c":"ink","w":6,"d":[["Q",22,12,50,30,78,14]]},{"c":"ink","w":6,"d":[["Q",22,32,50,50,78,34]]},{"c":"ink","w":6,"d":[["Q",22,52,50,70,78,54]]},{"c":"ink","w":6,"d":[["Q",22,72,50,90,78,74]]},{"c":"ink","w":7,"d":[["L",20,94,80,94]]}]},{"id":"pine-tree","name":"Pine tree","cat":"nature","type":"thing","scale":1.4,"tags":["plant","climb","heavy","shelter"],"say":"A tree. I shall stand under it and reconsider my choices.","strokes":[{"c":"ink","w":5,"f":"#9c6238","d":[["L",42,82,42,97,58,97,58,82,42,82]]},{"c":"#3a9b5c","w":5,"f":"#5cc07a","d":[["L",50,44,12,84,88,84,50,44]]},{"c":"#3a9b5c","w":5,"f":"#5cc07a","d":[["L",50,20,22,58,78,58,50,20]]},{"c":"#3a9b5c","w":5,"f":"#5cc07a","d":[["L",50,2,30,34,70,34,50,2]]}]},{"id":"unicycle","name":"Unicycle","cat":"vehicles","type":"thing","scale":0.65,"tags":["ride","sit","silly","shiny"],"say":"A unicycle. Half a bicycle. All of the falling over.","strokes":[{"c":"ink","w":6,"d":[["C",50,64,32]]},{"c":"ink","w":3,"d":[["C",50,64,26]]},{"c":"ink","w":3,"d":[["L",50,38,50,90,50,64,24,64,76,64]]},{"c":"ink","w":5,"f":"#5b6472","d":[["C",50,64,5]]},{"c":"#e8542f","w":5,"d":[["L",41,64,41,30,59,30,59,64]]},{"c":"#e8542f","w":5,"d":[["L",50,30,50,16]]},{"c":"ink","w":5,"f":"#3b4048","d":[["L",20,15,20,15],["Q",20,15,42,4,68,6],["Q",68,6,84,8,82,16],["Q",82,16,70,21,50,19],["L",50,19,20,15]]},{"c":"ink","w":4,"d":[["L",30,61,70,67]]},{"c":"ink","w":6,"d":[["L",23,61,37,61]]},{"c":"ink","w":6,"d":[["L",63,67,77,67]]}]},{"id":"hammer","name":"Hammer","cat":"tools","type":"thing","scale":0.4,"tags":["wield","tool","weapon","heavy"],"say":"A hammer. Everything looks like a nail now. Including me.","strokes":[{"c":"#9c6238","w":4,"f":"#b07a3a","d":[["L",45,30,45,96,55,96,55,30,45,30]]},{"c":"ink","w":5,"f":"#8a93a3","d":[["L",36,8,84,8,84,32,36,32,36,8]]},{"c":"ink","w":5,"f":"#8a93a3","d":[["L",36,10,28,10],["Q",28,10,8,12,6,36],["L",6,36,12,36],["Q",12,36,18,22,30,28],["L",30,28,36,30]]}]},{"id":"hand-saw","name":"Hand saw","cat":"tools","type":"thing","scale":0.45,"tags":["wield","tool","sharp"],"say":"A saw. I will cut to the chase. And then the chase in half.","strokes":[{"c":"ink","w":4,"f":"#c9d1dc","d":[["L",26,28,96,36,96,50,93,58,90,51,87,59,84,52,81,60,78,53,75,61,72,54,69,62,66,55,63,63,60,56,57,64,54,57,51,65,48,58,45,66,42,59,39,67,36,60,33,68,30,61,27,69,26,28]]},{"c":"#9c6238","w":5,"f":"#c89a5a","d":[["L",28,26,12,22],["Q",12,22,2,24,4,36],["L",4,36,4,62],["Q",4,62,2,74,12,72],["L",12,72,28,70,28,26]]},{"c":"#9c6238","w":4,"d":[["E",15,48,5,10]]}]},{"id":"wrench","name":"Wrench","cat":"tools","type":"thing","scale":0.4,"tags":["wield","tool","heavy","shiny"],"say":"A wrench. I have no bolts. I have only ambition.","strokes":[{"c":"ink","w":5,"f":"#c9d1dc","d":[["A",50,24,18,295,605],["L",42.4,7.7,42,26,58,26,57.6,7.7]]},{"c":"ink","w":5,"f":"#c9d1dc","d":[["L",44,40,44,80,56,80,56,40,44,40]]},{"c":"ink","w":5,"f":"#c9d1dc","d":[["C",50,84,13]]},{"c":"ink","w":4,"d":[["C",50,84,5]]}]},{"id":"ladder","name":"Ladder","cat":"tools","type":"thing","scale":1.5,"tags":["climb","tool","heavy"],"say":"A ladder. At last, my career can go somewhere. Up, mostly.","strokes":[{"c":"#9c6238","w":6,"d":[["L",32,4,28,96]]},{"c":"#9c6238","w":6,"d":[["L",68,4,72,96]]},{"c":"#9c6238","w":6,"d":[["L",31,18,69,18]]},{"c":"#9c6238","w":6,"d":[["L",31,34,69,34]]},{"c":"#9c6238","w":6,"d":[["L",30,50,70,50]]},{"c":"#9c6238","w":6,"d":[["L",29,66,71,66]]},{"c":"#9c6238","w":6,"d":[["L",29,82,71,82]]}]},{"id":"screwdriver","name":"Screwdriver","cat":"tools","type":"thing","scale":0.32,"tags":["wield","tool","light","sharp"],"say":"A screwdriver. Flat head. We have that in common.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["L",33,10,38,46,62,46,67,10],["Q",67,10,50,2,33,10]]},{"c":"ink","w":5,"f":"#5b6472","d":[["L",41,46,59,46,59,53,41,53,41,46]]},{"c":"#7a8291","w":5,"d":[["L",50,53,50,78]]},{"c":"ink","w":4,"f":"#c9d1dc","d":[["L",46,76,54,76,64,97,36,97,46,76]]}]},{"id":"pickaxe","name":"Pickaxe","cat":"tools","type":"thing","scale":0.65,"tags":["wield","tool","weapon","sharp","heavy"],"say":"A pickaxe. I am told the diamonds are downwards.","strokes":[{"c":"#9c6238","w":7,"d":[["L",50,18,50,96]]},{"c":"ink","w":5,"f":"#8a93a3","d":[["Q",4,40,50,6,96,40],["Q",96,40,50,28,4,40]]}]},{"id":"shovel","name":"Shovel","cat":"tools","type":"thing","scale":0.75,"tags":["wield","tool","heavy"],"say":"A shovel. Time to dig myself out of this. Or deeper in.","strokes":[{"c":"#9c6238","w":5,"d":[["L",50,18,36,18,36,6,64,6,64,18,50,18]]},{"c":"#9c6238","w":6,"d":[["L",50,18,50,58]]},{"c":"ink","w":5,"f":"#c9d1dc","d":[["L",32,56,68,56,68,74],["Q",68,74,60,94,50,96],["Q",50,96,40,94,32,74],["L",32,74,32,56]]},{"c":"ink","w":3,"d":[["L",50,60,50,88]]}]},{"id":"bucket","name":"Bucket","cat":"tools","type":"thing","scale":0.35,"tags":["container","tool","wield","hat"],"say":"A bucket. Is it a hat? I am going to say it is a hat.","strokes":[{"c":"ink","w":5,"f":"#a9b4c4","d":[["L",16,38,26,94,74,94,84,38,16,38]]},{"c":"ink","w":5,"f":"#a9b4c4","d":[["E",50,38,34,8]]},{"c":"ink","w":5,"d":[["A",50,38,34,195,345]]},{"c":"ink","w":3,"d":[["L",22,64,78,64]]}]},{"id":"coil-of-rope","name":"Coil of rope","cat":"tools","type":"thing","scale":0.3,"tags":["tool","climb","soft","wield","light"],"say":"Rope. I know one knot, and it is the kind that stays forever.","strokes":[{"c":"#b07a3a","w":6,"d":[["E",50,54,40,36]]},{"c":"#b07a3a","w":6,"d":[["E",50,48,32,30]]},{"c":"#b07a3a","w":6,"d":[["E",50,42,24,24]]},{"c":"#b07a3a","w":6,"d":[["E",50,36,15,18]]},{"c":"#9c6238","w":4,"f":"#8a5a3c","d":[["L",41,12,59,12,59,26,41,26,41,12]]},{"c":"#b07a3a","w":6,"d":[["Q",86,70,98,80,92,96]]},{"c":"#b07a3a","w":4,"d":[["L",90,94,96,98]]},{"c":"#8a5a3c","w":3,"d":[["L",18,70,24,66]]},{"c":"#8a5a3c","w":3,"d":[["L",26,80,32,75]]},{"c":"#8a5a3c","w":3,"d":[["L",40,89,44,83]]},{"c":"#8a5a3c","w":3,"d":[["L",58,90,60,83]]},{"c":"#8a5a3c","w":3,"d":[["L",74,82,70,76]]},{"c":"#8a5a3c","w":3,"d":[["L",84,68,78,64]]}]},{"id":"axe","name":"Axe","cat":"tools","type":"thing","scale":0.6,"tags":["wield","tool","weapon","sharp","heavy"],"say":"An axe. I have some pointed questions for that tree.","strokes":[{"c":"#9c6238","w":7,"d":[["L",50,8,50,96]]},{"c":"ink","w":5,"f":"#8a93a3","d":[["L",42,14,62,14],["Q",62,14,88,2,94,10],["Q",94,10,102,32,94,54],["Q",94,54,88,60,62,48],["L",62,48,42,48,42,14]]}]},{"id":"power-drill","name":"Power drill","cat":"tools","type":"thing","scale":0.35,"tags":["wield","tool","play","shiny"],"say":"A power drill. This is not a drill. It is, though. It really is.","strokes":[{"c":"ink","w":5,"f":"#2a9d8f","d":[["L",18,24,74,24,74,50,18,50],["Q",18,50,8,37,18,24]]},{"c":"ink","w":5,"f":"#5b6472","d":[["L",74,29,88,29,88,45,74,45,74,29]]},{"c":"#5b6472","w":4,"d":[["L",88,37,98,37]]},{"c":"ink","w":5,"f":"#2a9d8f","d":[["L",32,50,28,86,50,86,52,50]]},{"c":"ink","w":4,"d":[["L",54,54,58,54,58,62]]},{"c":"ink","w":5,"f":"#5b6472","d":[["L",22,86,58,86,58,96,22,96,22,86]]}]},{"id":"tape-measure","name":"Tape measure","cat":"tools","type":"thing","scale":0.22,"tags":["wield","tool","light","shiny"],"say":"A tape measure. Good. I have always wanted to know exactly how short I am.","strokes":[{"c":"ink","w":5,"f":"#f2c13b","d":[["L",16,14,48,14],["Q",48,14,60,14,60,26],["L",60,26,60,74],["Q",60,74,60,86,48,86],["L",48,86,16,86],["Q",16,86,4,86,4,74],["L",4,74,4,26],["Q",4,26,4,14,16,14]]},{"c":"ink","w":4,"d":[["C",32,50,14]]},{"c":"ink","w":4,"d":[["C",32,50,3]]},{"c":"ink","w":4,"f":"#ffffff","d":[["L",58,60,93,60,93,74,58,74]]},{"c":"ink","w":5,"d":[["L",96,53,96,81]]},{"c":"ink","w":3,"d":[["L",66,60,66,68]]},{"c":"ink","w":3,"d":[["L",73,60,73,65]]},{"c":"ink","w":3,"d":[["L",80,60,80,68]]},{"c":"ink","w":3,"d":[["L",87,60,87,65]]}]},{"id":"toolbox","name":"Toolbox","cat":"tools","type":"thing","scale":0.4,"tags":["container","tool","heavy","sit"],"say":"A toolbox. Heavy, and full of things I cannot name.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["L",8,46,92,46,92,90,8,90,8,46]]},{"c":"ink","w":5,"f":"#e8542f","d":[["L",8,46,14,32,86,32,92,46]]},{"c":"ink","w":5,"d":[["L",36,32,36,24],["Q",36,24,50,18,64,24],["L",64,24,64,32]]},{"c":"ink","w":4,"f":"#5b6472","d":[["L",44,42,56,42,56,54,44,54,44,42]]}]},{"id":"paint-roller","name":"Paint roller","cat":"tools","type":"thing","scale":0.45,"tags":["wield","tool","silly"],"say":"A paint roller. I will make the problem a nicer colour.","strokes":[{"c":"ink","w":5,"f":"#3f8ae0","d":[["L",14,8,78,8],["Q",78,8,86,20,78,32],["L",78,32,14,32],["Q",14,32,6,20,14,8]]},{"c":"#5b6472","w":4,"d":[["L",82,20,94,20,94,46,50,46,50,58]]},{"c":"ink","w":5,"f":"#f2a93b","d":[["L",42,58,58,58,58,96,42,96,42,58]]},{"c":"#3f8ae0","w":5,"d":[["L",28,32,28,44]]},{"c":"#3f8ae0","w":4,"f":"#3f8ae0","d":[["C",28,47,4]]},{"c":"#3f8ae0","w":4,"d":[["L",62,32,62,40]]}]},{"id":"hard-hat","name":"Hard hat","cat":"tools","type":"thing","scale":0.3,"tags":["hat","tool"],"say":"A hard hat. Now the sky can fall on me responsibly.","strokes":[{"c":"ink","w":5,"f":"#f2c13b","d":[["A",40,60,34,180,360],["L",74,60,6,60]]},{"c":"#f2c13b","w":4,"d":[["Z",15,40,50,17]]},{"c":"ink","w":5,"f":"#f2c13b","d":[["L",4,58,72,58],["Q",72,58,102,58,97,72],["L",97,72,4,72,4,58]]},{"c":"ink","w":4,"d":[["A",40,60,24,200,340]]}]},{"id":"wheelbarrow","name":"Wheelbarrow","cat":"tools","type":"thing","scale":0.6,"tags":["ride","sit","container","tool","heavy"],"say":"A wheelbarrow. One wheel. Half a bike, twice the dignity.","strokes":[{"c":"ink","w":5,"f":"#3a9b5c","d":[["L",18,34,92,34,80,68,34,68,18,34]]},{"c":"#9c6238","w":6,"d":[["L",88,38,98,30]]},{"c":"ink","w":5,"d":[["L",42,68,36,76]]},{"c":"ink","w":5,"f":"#8a93a3","d":[["C",30,84,12]]},{"c":"ink","w":4,"d":[["C",30,84,3]]},{"c":"ink","w":5,"d":[["L",74,68,74,94,64,94]]}]},{"id":"rubber-duck","name":"Rubber duck","cat":"toys","type":"thing","scale":0.22,"tags":["toy","light","silly","soft"],"say":"A rubber duck. At least one of us is ready for bath time.","strokes":[{"c":"#c9881a","w":5,"f":"#f7d64a","d":[["B",26,45,4,62,12,90,44,90],["L",44,90,68,90],["B",68,90,86,90,96,76,94,62],["L",94,62,98,42,84,52],["Q",84,52,70,46,46,44],["L",46,44,26,45]]},{"c":"#c9881a","w":5,"f":"#f7d64a","d":[["C",35,30,19]]},{"c":"#c9641a","w":4,"f":"#f28a2e","d":[["L",17,30,2,37,17,42,17,30]]},{"c":"ink","w":4,"d":[["C",31,25,2.5]]},{"c":"#c9881a","w":4,"d":[["Q",36,62,62,54,66,72],["Q",66,72,52,78,36,62]]}]},{"id":"kite","name":"Kite","cat":"toys","type":"thing","scale":0.7,"tags":["wield","light","toy","silly"],"say":"A kite. Ideal for the great indoors.","strokes":[{"c":"ink","w":5,"f":"#e8542f","d":[["L",50,4,20,30,50,76,50,4]]},{"c":"ink","w":5,"f":"#3f8ae0","d":[["L",50,4,80,30,50,76,50,4]]},{"c":"#8a5a3c","w":4,"d":[["L",20,30,80,30]]},{"c":"ink","w":3,"d":[["B",50,76,34,86,66,90,50,99]]},{"c":"#e8542f","w":3.5,"d":[["L",42,81,50,87,50,81,42,87,42,81]]},{"c":"#3f8ae0","w":3.5,"d":[["L",50,89,58,95,58,89,50,95,50,89]]}]},{"id":"yo-yo","name":"Yo-yo","cat":"toys","type":"thing","scale":0.18,"tags":["wield","toy","light","silly"],"say":"A yo-yo. Up, down, up, down. Like my career.","strokes":[{"c":"#6b7280","w":3,"d":[["Q",51,34,45,22,50,12]]},{"c":"#6b7280","w":3,"d":[["C",50,7,5]]},{"c":"ink","w":5,"f":"#c23b1e","d":[["C",60,64,30]]},{"c":"ink","w":5,"f":"#e8542f","d":[["C",42,64,30]]},{"c":"#f5b5a6","w":3,"d":[["A",42,64,22,200,245]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",42,64,6]]}]},{"id":"skateboard","name":"Skateboard","cat":"toys","type":"thing","scale":0.5,"tags":["ride","toy","silly"],"say":"A skateboard. I have no knees to scrape. Excellent.","strokes":[{"c":"ink","w":5,"f":"#5b8def","d":[["Q",6,22,12,40,26,40],["L",26,40,74,40],["Q",74,40,88,40,94,22],["L",94,22,99,28],["Q",99,28,92,51,74,51],["L",74,51,26,51],["Q",26,51,8,51,1,28],["L",1,28,6,22]]},{"c":"#2b2d42","w":3,"d":[["L",30,45.5,70,45.5]]},{"c":"#6b7280","w":7,"d":[["L",28,51,28,64]]},{"c":"#6b7280","w":7,"d":[["L",72,51,72,64]]},{"c":"ink","w":5,"f":"#e8542f","d":[["C",28,77,13]]},{"c":"ink","w":5,"f":"#e8542f","d":[["C",72,77,13]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",28,77,4]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",72,77,4]]}]},{"id":"football","name":"Football","cat":"toys","type":"ball","scale":0.25,"tags":["bounce","toy","light"],"say":"A football. I will kick it. It will not come back. We both know this.","strokes":[{"c":"ink","w":5,"f":"#ffffff","d":[["C",50,50,44]]},{"c":"ink","w":5,"f":"#2b2d42","d":[["L",50,36,63.3,45.7,58.2,61.3,41.8,61.3,36.7,45.7,50,36]]},{"c":"ink","w":5,"d":[["Z",43,42,14,16]]},{"c":"ink","w":4,"d":[["L",50,36,50,21,25.3,16,50,21,74.7,16]]},{"c":"ink","w":4,"d":[["L",63.3,45.7,77.6,41,74.7,16,77.6,41,89.9,63]]},{"c":"ink","w":4,"d":[["L",58.2,61.3,67,73.5,89.9,63,67,73.5,50,92]]},{"c":"ink","w":4,"d":[["L",41.8,61.3,33,73.5,50,92,33,73.5,10.1,63]]},{"c":"ink","w":4,"d":[["L",36.7,45.7,22.4,41,10.1,63,22.4,41,25.3,16]]}]},{"id":"basketball","name":"Basketball","cat":"toys","type":"ball","scale":0.28,"tags":["bounce","toy"],"say":"A basketball. Tall, thin, all legs. Still cannot dunk.","strokes":[{"c":"#d9641f","w":6,"f":"#f28a2e","d":[["C",50,50,44]]},{"c":"ink","w":4,"d":[["L",50,6,50,94]]},{"c":"ink","w":4,"d":[["L",6,50,94,50]]},{"c":"ink","w":4,"d":[["Q",25,14,46,50,25,86]]},{"c":"ink","w":4,"d":[["Q",75,14,54,50,75,86]]}]},{"id":"tennis-racket","name":"Tennis racket","cat":"toys","type":"thing","scale":0.55,"tags":["wield","toy","light"],"say":"A tennis racket. In tennis, love means zero. I relate.","strokes":[{"c":"#8a93a3","w":2.5,"d":[["L",37,9,37,59]]},{"c":"#8a93a3","w":2.5,"d":[["L",50,5,50,63]]},{"c":"#8a93a3","w":2.5,"d":[["L",63,9,63,59]]},{"c":"#8a93a3","w":2.5,"d":[["L",26,22,74,22]]},{"c":"#8a93a3","w":2.5,"d":[["L",24,34,76,34]]},{"c":"#8a93a3","w":2.5,"d":[["L",26,46,74,46]]},{"c":"ink","w":6,"d":[["E",50,34,27,31]]},{"c":"ink","w":4,"d":[["L",40,63,46,76,54,76,60,63]]},{"c":"ink","w":4,"f":"#8a5a3c","d":[["L",46,76,46,97,54,97,54,76,46,76]]}]},{"id":"baseball-bat","name":"Baseball bat","cat":"toys","type":"thing","scale":0.6,"tags":["wield","weapon","toy","heavy"],"say":"A baseball bat. Finally, a sport I follow: hit thing, run away.","strokes":[{"c":"#8a5a3c","w":5,"f":"#c89a5a","d":[["L",4.9,85.2,15.1,94.8,19.2,90.5,18.4,87,50.8,53,71.6,38.3,92.3,16.6],["Q",92.3,16.6,92,4,79.3,4.2],["L",79.3,4.2,58.6,25.9,45,47.4,12.6,81.4,9,80.9,4.9,85.2]]},{"c":"#6b4226","w":2.5,"d":[["L",62,36,80,18]]}]},{"id":"bowling-ball","name":"Bowling ball","cat":"toys","type":"ball","scale":0.28,"tags":["heavy","toy","shiny"],"say":"A bowling ball. Three holes. Zero fingers. We will manage.","strokes":[{"c":"ink","w":5,"f":"#6b4fc4","d":[["C",50,50,44]]},{"c":"ink","w":5,"f":"#2b2d42","d":[["C",40,36,4.5]]},{"c":"ink","w":5,"f":"#2b2d42","d":[["C",58,32,4.5]]},{"c":"ink","w":5,"f":"#2b2d42","d":[["C",52,52,4.5]]},{"c":"#9f8ae0","w":3,"d":[["A",50,50,34,195,240]]}]},{"id":"bowling-pin","name":"Bowling pin","cat":"toys","type":"thing","scale":0.4,"tags":["wield","toy","light","silly"],"say":"A bowling pin. It stands there, and then it does not. Relatable.","strokes":[{"c":"ink","w":5,"f":"#ffffff","d":[["B",50,4,60,4,60,22,54,30],["B",54,30,50,40,72,52,70,70],["B",70,70,69,84,64,92,62,96],["L",62,96,38,96],["B",38,96,36,92,31,84,30,70],["B",30,70,28,52,50,40,46,30],["B",46,30,40,22,40,4,50,4]]},{"c":"#e8542f","w":3.5,"d":[["L",45,36,55,36]]},{"c":"#e8542f","w":3.5,"d":[["L",43,42,57,42]]}]},{"id":"dice","name":"Dice","cat":"toys","type":"thing","scale":0.18,"tags":["toy","light","silly"],"say":"Dice. I rolled a one. Of course I rolled a one.","strokes":[{"c":"ink","w":5,"f":"#ffffff","d":[["L",50,6,90,22,50,38,10,22,50,6]]},{"c":"ink","w":5,"f":"#9aa3b2","d":[["L",10,22,50,38,50,86,10,70,10,22]]},{"c":"ink","w":5,"f":"#d5dbe6","d":[["L",50,38,90,22,90,70,50,86,50,38]]},{"c":"ink","w":4,"d":[["C",50,22,3.5]]},{"c":"ink","w":4,"d":[["C",23,43,3.5]]},{"c":"ink","w":4,"d":[["C",37,65,3.5]]},{"c":"ink","w":4,"d":[["C",60,46,3.5]]},{"c":"ink","w":4,"d":[["C",70,54,3.5]]},{"c":"ink","w":4,"d":[["C",80,62,3.5]]}]},{"id":"pogo-stick","name":"Pogo stick","cat":"toys","type":"thing","scale":0.85,"tags":["ride","bounce","toy","silly"],"say":"A pogo stick. Boing. Boing. Regret. Boing.","strokes":[{"c":"#e8542f","w":5,"d":[["L",50,8,50,90]]},{"c":"#6b7280","w":5,"d":[["L",14,8,86,8]]},{"c":"ink","w":9,"d":[["L",14,8,30,8]]},{"c":"ink","w":9,"d":[["L",70,8,86,8]]},{"c":"ink","w":5,"d":[["L",50,28,30,33,70,40,30,47,70,54,30,61,70,68,50,72]]},{"c":"ink","w":8,"d":[["L",16,78,84,78]]},{"c":"#6b7280","w":4,"d":[["L",22,82,36,82]]},{"c":"#6b7280","w":4,"d":[["L",64,82,78,82]]},{"c":"ink","w":5,"f":"#2b2d42","d":[["E",50,93,9,4]]}]},{"id":"balloon","name":"Balloon on a string","cat":"toys","type":"thing","scale":0.55,"tags":["light","toy","fragile","silly","wield"],"say":"A balloon. It will go up. I will not. Story of my life.","strokes":[{"c":"#c23b1e","w":5,"f":"#e8542f","d":[["E",50,34,28,32]]},{"c":"#c23b1e","w":4,"f":"#e8542f","d":[["L",45,71,50,65,55,71,45,71]]},{"c":"#6b7280","w":3,"d":[["B",50,71,34,80,66,90,48,99]]},{"c":"#f5b5a6","w":4,"d":[["A",50,34,20,205,245]]}]},{"id":"teddy-bear","name":"Teddy bear","cat":"toys","type":"thing","scale":0.4,"tags":["soft","toy","silly"],"say":"A teddy bear. Soft, round and loyal. I am one of those.","strokes":[{"c":"#8a5a3c","w":4,"f":"#b07a3a","d":[["C",34,14,8]]},{"c":"#8a5a3c","w":4,"f":"#b07a3a","d":[["C",66,14,8]]},{"c":"#8a5a3c","w":5,"f":"#b07a3a","d":[["C",50,30,20]]},{"c":"#8a5a3c","w":5,"f":"#b07a3a","d":[["C",50,70,24]]},{"c":"#8a5a3c","w":4,"f":"#b07a3a","d":[["E",22,64,9,14]]},{"c":"#8a5a3c","w":4,"f":"#b07a3a","d":[["E",78,64,9,14]]},{"c":"#8a5a3c","w":4,"f":"#b07a3a","d":[["E",36,92,11,7]]},{"c":"#8a5a3c","w":4,"f":"#b07a3a","d":[["E",64,92,11,7]]},{"c":"#8a5a3c","w":3,"f":"#e8c9a0","d":[["E",50,37,9,6]]},{"c":"ink","w":4,"d":[["C",50,35,2.5]]},{"c":"ink","w":4,"d":[["C",43,26,2]]},{"c":"ink","w":4,"d":[["C",57,26,2]]}]},{"id":"spinning-top","name":"Spinning top","cat":"toys","type":"thing","scale":0.18,"tags":["toy","light","silly"],"say":"A spinning top. Goes nowhere, very fast. We should talk.","strokes":[{"c":"#8a5a3c","w":7,"d":[["L",50,8,50,28]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",50,7,5]]},{"c":"ink","w":5,"f":"#e8542f","d":[["B",14,46,14,22,86,22,86,46],["L",86,46,50,96,14,46]]},{"c":"ink","w":4,"d":[["L",14,46,86,46]]},{"c":"#3f8ae0","w":4,"d":[["L",26,62,74,62]]},{"c":"#3f8ae0","w":4,"d":[["L",36,76,64,76]]}]},{"id":"jack-in-the-box","name":"Jack-in-the-box","cat":"toys","type":"thing","scale":0.45,"tags":["toy","silly","container","play"],"say":"A jack-in-the-box. Something will pop out. It will not be courage.","strokes":[{"c":"ink","w":5,"f":"#3f8ae0","d":[["L",18,66,76,66,76,97,18,97,18,66]]},{"c":"ink","w":4,"f":"#3f8ae0","d":[["L",76,66,88,40,97,44,85,70,76,66]]},{"c":"ink","w":4,"d":[["L",18,80,7,80,7,70]]},{"c":"ink","w":4,"f":"#2b2d42","d":[["C",7,67,3.5]]},{"c":"ink","w":4.5,"d":[["L",50,66,32,61,68,55,32,49,68,43,50,39]]},{"c":"ink","w":4,"f":"#f5d0a0","d":[["C",50,30,12]]},{"c":"ink","w":4,"f":"#e8542f","d":[["Q",38,22,30,6,22,8],["Q",22,8,38,10,50,14],["Q",50,14,62,10,78,8],["Q",78,8,70,6,62,22],["L",62,22,38,22]]},{"c":"#3f8ae0","w":4,"d":[["C",21,8,3]]},{"c":"#3f8ae0","w":4,"d":[["C",79,8,3]]},{"c":"ink","w":4,"d":[["C",45,28,2]]},{"c":"ink","w":4,"d":[["C",55,28,2]]},{"c":"ink","w":3,"d":[["A",50,31,6,20,160]]}]},{"id":"sword","name":"Sword","cat":"weapons","type":"thing","scale":0.6,"tags":["wield","weapon","sharp","shiny"],"say":"A sword. I shall hold it by the not-sharp end, I think.","strokes":[{"c":"#7c8696","w":5,"f":"#d5dbe4","d":[["L",50,4,41,18,42,58,58,58,59,18,50,4]]},{"c":"#7c8696","w":3,"d":[["L",50,16,50,52]]},{"c":"#c08a2c","w":7,"d":[["L",28,61,72,61]]},{"c":"#6b4a2e","w":6,"d":[["L",50,64,50,86]]},{"c":"#c08a2c","w":5,"f":"#f2c13b","d":[["C",50,92,5]]}]},{"id":"shield","name":"Shield","cat":"weapons","type":"thing","scale":0.55,"tags":["wield","weapon","heavy","shiny"],"say":"A shield. Excellent for hiding behind, which is my whole strategy.","strokes":[{"c":"#b5341c","w":6,"f":"#e8542f","d":[["L",18,10,82,10],["B",82,10,86,50,72,82,50,94],["B",50,94,28,82,14,50,18,10]]},{"c":"#f2a93b","w":6,"d":[["L",50,20,50,82]]},{"c":"#f2a93b","w":6,"d":[["L",26,40,74,40]]}]},{"id":"bow","name":"Bow","cat":"weapons","type":"thing","scale":0.75,"tags":["wield","weapon","light"],"say":"A bow. No arrows. I'll just twang it at them menacingly.","strokes":[{"c":"#8a5a3c","w":7,"d":[["B",34,6,104,30,104,70,34,94]]},{"c":"ink","w":3,"d":[["L",34,6,34,94]]},{"c":"#5a3a22","w":9,"d":[["L",86,42,86,58]]},{"c":"#8a5a3c","w":4,"d":[["L",30,4,38,8]]},{"c":"#8a5a3c","w":4,"d":[["L",30,96,38,92]]}]},{"id":"arrow","name":"Arrow","cat":"weapons","type":"thing","scale":0.45,"tags":["wield","weapon","sharp","light"],"say":"An arrow. Just the one. So I get one go at this, then.","strokes":[{"c":"#8a5a3c","w":4,"d":[["L",12,88,80,20]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",94,6,85,28,72,15,94,6]]},{"c":"#b5341c","w":3,"f":"#e8542f","d":[["L",17.7,82.3,11.3,75.9,28.3,67.5,30.4,69.6,17.7,82.3]]},{"c":"#b5341c","w":3,"f":"#e8542f","d":[["L",17.7,82.3,24.1,88.7,32.5,71.7,30.4,69.6,17.7,82.3]]},{"c":"ink","w":3,"d":[["L",9,85,15,91]]}]},{"id":"dagger","name":"Dagger","cat":"weapons","type":"thing","scale":0.35,"tags":["wield","weapon","sharp","shiny","light"],"say":"A dagger. A sword for people with commitment issues.","strokes":[{"c":"#555b66","w":5,"f":"#d5dbe4","d":[["L",55.8,37.5,90,90,37.5,55.8,55.8,37.5]]},{"c":"#555b66","w":3,"d":[["L",48.8,48.8,84.1,84.1]]},{"c":"#c08a2c","w":7,"d":[["L",32.5,56.5,56.5,32.5]]},{"c":"#6b4a2e","w":9,"d":[["L",21.2,21.2,41.7,41.7]]},{"c":"#c08a2c","w":3,"d":[["L",23.3,30.4,30.4,23.3]]},{"c":"#c08a2c","w":3,"d":[["L",29,36,36,29]]},{"c":"#c08a2c","w":3,"d":[["L",34.6,41.7,41.7,34.6]]},{"c":"#c08a2c","w":5,"f":"#f2c13b","d":[["C",16.9,16.9,7]]}]},{"id":"spear","name":"Spear","cat":"weapons","type":"thing","scale":0.85,"tags":["wield","weapon","sharp"],"say":"A spear. It's a stick with a point, which is more than I have.","strokes":[{"c":"#8a5a3c","w":5,"d":[["L",6,94,72,28]]},{"c":"#7c8696","w":5,"f":"#d5dbe4","d":[["Q",96,4,96,26,72,28],["Q",72,28,74,4,96,4]]},{"c":"#b5341c","w":3,"d":[["L",65,29,71,35]]},{"c":"#b5341c","w":3,"d":[["L",61,33,67,39]]}]},{"id":"trident","name":"Trident","cat":"weapons","type":"thing","scale":0.85,"tags":["wield","weapon","sharp","silly"],"say":"A trident. Is the enemy a fish? Nobody tells me anything.","strokes":[{"c":"#6b4a2e","w":6,"d":[["L",50,98,50,44]]},{"c":"#c08a2c","w":6,"d":[["L",26,10,26,30],["Q",26,30,26,44,50,44],["Q",50,44,74,44,74,30],["L",74,30,74,10]]},{"c":"#c08a2c","w":6,"d":[["L",50,44,50,8]]},{"c":"#c08a2c","w":4,"f":"#f2c13b","d":[["L",21,18,26,4,31,18,21,18]]},{"c":"#c08a2c","w":4,"f":"#f2c13b","d":[["L",45,14,50,2,55,14,45,14]]},{"c":"#c08a2c","w":4,"f":"#f2c13b","d":[["L",69,18,74,4,79,18,69,18]]}]},{"id":"boomerang","name":"Boomerang","cat":"weapons","type":"thing","scale":0.3,"tags":["wield","weapon","toy","light","silly"],"say":"A boomerang. So even when I miss, it comes back to hit me.","strokes":[{"c":"#8a5a3c","w":5,"f":"#e0b070","d":[["L",4.3,60.3,46,18],["Q",46,18,50,14,54,18],["L",54,18,95.7,60.3],["Q",95.7,60.3,94.2,70.2,84.3,71.7],["L",84.3,71.7,54,42],["Q",54,42,50,38,46,42],["L",46,42,15.7,71.7],["Q",15.7,71.7,5.8,70.2,4.3,60.3]]},{"c":"ink","w":3,"d":[["A",50,56,36,38,58]]},{"c":"ink","w":3,"d":[["A",50,56,36,76,104]]},{"c":"ink","w":3,"d":[["A",50,56,36,122,142]]},{"c":"ink","w":3,"d":[["L",14,78,22,84,13,88]]}]},{"id":"slingshot","name":"Slingshot","cat":"weapons","type":"thing","scale":0.35,"tags":["wield","weapon","toy","silly"],"say":"A slingshot. I'm going to need a much smaller enemy.","strokes":[{"c":"#8a5a3c","w":8,"d":[["Q",24,14,30,50,50,56],["Q",50,56,70,50,76,14]]},{"c":"#8a5a3c","w":8,"d":[["L",50,56,50,96]]},{"c":"#c0392b","w":3,"d":[["Q",24,14,50,56,76,14]]},{"c":"ink","w":3,"f":"#2b2d42","d":[["E",50,35,8,5]]},{"c":"ink","w":3,"d":[["L",44,76,56,78]]},{"c":"ink","w":3,"d":[["L",44,84,56,86]]}]},{"id":"knight-helmet","name":"Knight Helmet","cat":"weapons","type":"thing","scale":0.3,"tags":["hat","heavy","shiny","silly"],"say":"A knight helmet. I can't see a thing. So this is what bravery feels like.","strokes":[{"c":"#7c8696","w":5,"f":"#d5dbe4","d":[["L",22,92,78,92,78,46],["A",50,46,28,0,-180],["L",22,46,22,92]]},{"c":"ink","w":5,"d":[["L",26,54,74,54]]},{"c":"ink","w":5,"d":[["L",50,54,50,74]]},{"c":"ink","w":3,"d":[["C",36,72,1.5]]},{"c":"ink","w":3,"d":[["C",64,72,1.5]]},{"c":"ink","w":3,"d":[["C",36,80,1.5]]},{"c":"ink","w":3,"d":[["C",64,80,1.5]]},{"c":"#e8432f","w":6,"d":[["B",50,18,46,2,66,2,84,10]]},{"c":"#e8432f","w":5,"d":[["B",50,18,50,6,70,4,90,20]]}]},{"id":"jousting-lance","name":"Jousting Lance","cat":"weapons","type":"thing","scale":0.85,"tags":["wield","weapon","sharp","heavy","silly"],"say":"A jousting lance. Does anyone have a horse? A large dog? Anything?","strokes":[{"c":"#a0522d","w":5,"f":"#f5d547","d":[["L",37.7,73.1,97,6,26.7,61.5,37.7,73.1]]},{"c":"#c0392b","w":5,"d":[["L",46,63.8,38.6,51.6]]},{"c":"#c0392b","w":5,"d":[["L",54.8,54.1,48.7,43.3]]},{"c":"#c0392b","w":4,"d":[["L",63.6,44.5,58.8,35.1]]},{"c":"#c0392b","w":4,"d":[["L",72.4,34.9,68.9,26.8]]},{"c":"#c0392b","w":3,"d":[["L",81.2,25.3,79,18.6]]},{"c":"#555b66","w":5,"f":"#b8c0cc","d":[["L",26.1,81.2,17.9,72.5,17.1,51.3],["Q",17.1,51.3,39.4,60.4,47.3,83.3],["L",47.3,83.3,26.1,81.2]]},{"c":"#6b4a2e","w":8,"d":[["L",6,92,22,76.9]]},{"c":"#b5341c","w":4,"f":"#e8542f","d":[["L",80.6,19.5,87.1,13.3,72.8,5.5,80.6,19.5]]}]},{"id":"spiked-mace","name":"Spiked Mace","cat":"weapons","type":"thing","scale":0.5,"tags":["wield","weapon","sharp","heavy"],"say":"A spiked mace. It's heavy, it's spiky, and now it's my problem.","strokes":[{"c":"#6b4a2e","w":6,"d":[["L",50,52,50,96]]},{"c":"#6b4a2e","w":6,"d":[["L",44,96,56,96]]},{"c":"#555b66","w":5,"f":"#8a93a3","d":[["C",50,34,18]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",46.6,19.4,50,5,53.4,19.4,46.6,19.4]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",58,21.3,70.5,13.5,62.7,26.1,58,21.3]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",64.6,30.6,79,34,64.6,37.4,64.6,30.6]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",62.7,42,70.5,54.5,58,46.7,62.7,42]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",42,46.7,29.5,54.5,37.3,42,42,46.7]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",35.4,37.4,21,34,35.4,30.6,35.4,37.4]]},{"c":"#555b66","w":4,"f":"#8a93a3","d":[["L",37.3,26,29.5,13.5,42,21.3,37.3,26]]}]},{"id":"boxing-glove","name":"Boxing Glove","cat":"weapons","type":"thing","scale":0.3,"tags":["wield","weapon","soft","silly","toy"],"say":"One boxing glove. So I'll be hitting things from the left only.","strokes":[{"c":"#b52a1a","w":5,"f":"#e8432f","d":[["L",20,70,20,36],["B",20,36,20,6,74,6,74,36],["L",74,36,74,70,20,70]]},{"c":"#b52a1a","w":5,"f":"#e8432f","d":[["C",79,52,13]]},{"c":"#b52a1a","w":5,"f":"#f3e7c7","d":[["L",22,72,20,94,76,94,74,72,22,72]]},{"c":"ink","w":3,"d":[["L",48,76,48,90]]},{"c":"ink","w":3,"d":[["L",43,79,53,79]]},{"c":"ink","w":3,"d":[["L",43,86,53,86]]}]},{"id":"water-pistol","name":"Water Pistol","cat":"weapons","type":"thing","scale":0.3,"tags":["wield","weapon","toy","silly","container"],"say":"A water pistol. My enemies shall be lightly moistened.","strokes":[{"c":"#2e6fc0","w":5,"f":"#4ea3f0","d":[["E",40,22,20,12]]},{"c":"#d8601a","w":5,"f":"#ff8c2e","d":[["L",8,32,84,32,84,52,48,52,44,92,22,92,28,52,8,52,8,32]]},{"c":"ink","w":4,"d":[["L",84,37,93,37,93,47,84,47]]},{"c":"ink","w":4,"d":[["A",60,54,6,180,0]]},{"c":"#2e6fc0","w":3,"d":[["L",95,39,99,36]]},{"c":"#2e6fc0","w":3,"d":[["L",95,45,99,48]]}]},{"id":"bomb","name":"Bomb","cat":"weapons","type":"ball","scale":0.3,"tags":["bounce","weapon","heavy","silly"],"say":"A bomb. I'll just hold it until the hissing stops. That seems right.","strokes":[{"c":"#2b2d42","w":5,"f":"#3a3a3a","d":[["C",46,60,34]]},{"c":"#555b66","w":5,"f":"#8a93a3","d":[["L",62,30,70,20,78,28,70,38,62,30]]},{"c":"#8a5a3c","w":4,"d":[["B",74,24,80,12,86,18,88,10]]},{"c":"#f2a93b","w":3,"f":"#ffd23b","d":[["L",88,2,90,6,96,8,90,10,88,15,86,10,81,8,86,6,88,2]]}]},{"id":"battle-axe","name":"Battle Axe","cat":"weapons","type":"thing","scale":0.6,"tags":["wield","weapon","sharp","heavy"],"say":"A battle axe. Two blades, so I can miss in both directions.","strokes":[{"c":"#555b66","w":5,"f":"#b8c0cc","d":[["Q",52,18,72,24,90,10],["Q",90,10,98,40,90,70],["Q",90,70,72,56,52,62],["L",52,62,52,18]]},{"c":"#555b66","w":5,"f":"#b8c0cc","d":[["Q",48,18,28,24,10,10],["Q",10,10,2,40,10,70],["Q",10,70,28,56,48,62],["L",48,62,48,18]]},{"c":"#6b4a2e","w":6,"d":[["L",50,96,50,8]]},{"c":"#8a5a3c","w":3,"d":[["L",44,80,56,82]]},{"c":"#8a5a3c","w":3,"d":[["L",44,88,56,90]]}]}];
 
 function readTheme() {
-  world.theme = { ink: cssVar('--ink'), floor: cssVar('--floor'), bubble: cssVar('--bubble'), bubbleInk: cssVar('--bubble-ink'), accent: cssVar('--accent'), paper: cssVar('--paper') };
+  world.theme = { ink: cssVar('--ink'), pencil: cssVar('--pencil') || '#9aa0ad', floor: cssVar('--floor'), bubble: cssVar('--bubble'), bubbleInk: cssVar('--bubble-ink'), accent: cssVar('--accent'), paper: cssVar('--paper') };
 }
 
 // ---------------------------------------------------------------- stroke geometry
@@ -493,16 +537,17 @@ function rasterize(strokes, w, h, scale) {
   const g = c.getContext('2d'); g.scale(scale, scale);
   g.lineCap = 'round'; g.lineJoin = 'round';
   for (const s of strokes) {
-    g.strokeStyle = s.color === 'ink' ? world.theme.ink : s.color; g.lineWidth = s.size;
+    g.strokeStyle = inkColor(s.color); g.lineWidth = s.size;
     g.beginPath();
     if (s.pts.length === 1) { g.arc(s.pts[0].x, s.pts[0].y, s.size / 2, 0, Math.PI * 2); g.fillStyle = g.strokeStyle; g.fill(); continue; }
     g.moveTo(s.pts[0].x, s.pts[0].y);
     for (let i = 1; i < s.pts.length; i++) g.lineTo(s.pts[i].x, s.pts[i].y);
-    if (s.fill) { g.save(); g.globalAlpha = 0.3; g.fillStyle = s.fill; g.fill(); g.restore(); }
+    if (s.fill) { g.save(); g.globalAlpha = 0.3; g.fillStyle = inkColor(s.fill); g.fill(); g.restore(); }
     g.stroke();
   }
   return c;
 }
+function inkColor(c) { return c === 'ink' ? world.theme.ink : c === 'pencil' ? world.theme.pencil : c; }
 function buildMask(strokes, w, h) {
   const c = rasterize(strokes, w, h, 1);
   const data = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
@@ -531,7 +576,7 @@ function findShelves(mask) {
 function makeEntity(worldStrokes, forcedType, opts = {}) {
   const e = buildEntity(worldStrokes, forcedType, opts);
   if (!e) return null;
-  world.entities.push(e); world.order.push(e);
+  world.entities.push(e); world.order.push(e); world.version++;
   if (e.catalog && e.ai && e.catalog.say) sayText(e, e.catalog.say, 3.4);
   return e;
 }
@@ -550,8 +595,9 @@ function buildEntity(worldStrokes, forcedType, opts = {}) {
     born: world.time, onGround: false, support: null, held: null, angle: 0, squash: 1, bob: 0,
     static: type === 'platform' || type === 'decor',
     head: cls.head, mass: clamp((w * h) / 4000, 0.4, 8), restitution: 0.1, friction: 0.82, label: null, labelUntil: 0,
-    sitter: null, lastKick: 0, hits: 0, alive: true, labelText: null, catalog: opts.catalog || null, tilt: 0,
+    sitter: null, lastKick: 0, hits: 0, alive: true, labelText: null, catalog: opts.catalog || null, tilt: 0, tags: opts.tags || null,
   };
+  e.material = materialOf(local);
   if (type === 'ball') { e.mass = 0.6; e.restitution = 0.62; e.friction = 0.995; e.r = Math.max(w, h) / 2; }
   if (type === 'creature') {
     if (!e.head) e.head = { x: w * 0.3, y: 0, w: w * 0.4, h: h * 0.25 };
@@ -561,6 +607,7 @@ function buildEntity(worldStrokes, forcedType, opts = {}) {
     e.ai = { state: 'idle', timer: rand(0.4, 1.6), target: null, goalX: null, memory: new Map(), stuck: 0, lastX: x, bubble: null, bubbleUntil: 0, carrying: null, seat: null, mood: 0, jumpCooldown: 0, fleeUntil: 0 };
     e.mass = 1.2; e.restitution = 0; e.friction = 0.7;
   }
+  if (type !== 'creature') { e.mass *= e.material === 'thick' ? 2.2 : e.material === 'thin' ? 0.5 : 1; if (hasTag(e, 'heavy')) e.mass *= 2.2; if (hasTag(e, 'light')) e.mass *= 0.5; }
   if (type === 'bird') { e.static = true; e.fly = { t: rand(0, 10), baseY: y + h / 2, vx: rand(40, 80) * (Math.random() < 0.5 ? -1 : 1), perchUntil: 0, perch: null }; }
   if (type === 'decor') { e.rain = e.sub === 'cloud' ? rand(0, 6) : -1; }
   rebuildSprite(e);
@@ -569,6 +616,7 @@ function buildEntity(worldStrokes, forcedType, opts = {}) {
   if (type === 'decor') e.labelText = e.sub === 'cloud' ? 'cloud' : (e.sub === 'sun' ? 'sun' : 'sky');
   if (type === 'creature' && e.sub === 'animal') e.labelText = 'critter';
   if (e.catalog) { e.labelText = e.catalog.name; e.forced = type; }
+  if (opts.label) e.labelText = opts.label;
   e.quiet = !!opts.quiet;
   e.dryUntil = opts.quiet || opts.catalog ? 0 : world.time + 1.5;   // the ink dries before it drops, so a figure drawn in parts stays assembled
   e.labelUntil = world.time + (opts.quiet ? 0 : 3.2);
@@ -596,6 +644,7 @@ function spawnCatalog(entry) {
   const ws = d.strokes.map((s) => ({ color: s.color, size: s.size, fill: s.fill, pts: s.pts.map((p) => ({ x: at.x + p.x, y: at.y + p.y })) }));
   const e = makeEntity(ws, entry.type, { catalog: entry });
   if (!e) return null;
+  if (!playerMade(e)) return null;
   burst(cx(e), e.y + e.h / 2, 12, 'spark'); dirty = true; noticed(e);
   return e;
 }
@@ -635,7 +684,7 @@ function removeEntity(e, poof) {
   if (e.held && e.held !== 'pointer') { const c = e.held; if (c.ai.carrying === e) c.ai.carrying = null; if (c.ai.hat === e) c.ai.hat = null; e.held = null; }
   if (e.sitter) { e.sitter.ai.state = 'idle'; e.sitter.ai.seat = null; e.sitter = null; }
   world.entities = world.entities.filter((o) => o !== e);
-  world.order = world.order.filter((o) => o !== e);
+  world.order = world.order.filter((o) => o !== e); world.version++;
   if (e.labelNode) { e.labelNode.remove(); e.labelNode = null; }
   for (const o of world.entities) { if (o.ai && o.ai.target === e) { o.ai.target = null; o.ai.state = 'idle'; o.ai.timer = 0.3; } if (o.support === e) o.support = null; if (o.ai && o.ai.seat === e) { o.ai.seat = null; o.ai.state = 'idle'; } }
   if (poof) burst(e.x + e.w / 2, e.y + e.h / 2, 14, 'poof');
@@ -696,10 +745,14 @@ function resolvePlatform(e, p, prevBottom) {
   if (sy === null) return;
   if (e.vy >= 0 && prevBottom <= sy + Math.max(12, e.h * 0.15) && feet >= sy) { land(e, sy, p); ballSlope(e, p); return; }
   if (e.wasGround && e.vy >= 0 && Math.abs(feet - sy) <= stepUp) { e.y = sy - e.h; e.vy = 0; e.onGround = true; e.support = p; ballSlope(e, p); return; }
-  // the body is beside the platform's ink: treat it as a wall
-  if (feet > sy + stepUp && p.h > e.h * 0.3 && e.y < p.y + p.h - 2) {
-    e.x = e.px; if (e.type === 'ball') e.vx = -e.vx * Math.max(0.3, e.restitution); else e.vx = 0;
-    if (e.ai) e.ai.blocked = true;
+  // a fixture's ink at the body's leading edge sits inside the body: a wall (drawn lines are one-way: walk under, jump up through)
+  if (p.fixture && (e.vx !== 0 || e.x !== e.px)) {
+    const lead = (e.x - e.px || e.vx) > 0 ? e.x + e.w - 1 : e.x + 1;
+    const s = colSpan(p, lead);
+    if (s && s[1] > e.y + e.h * 0.15 && s[0] < feet - stepUp) {
+      e.x = e.px; if (e.type === 'ball') e.vx = -e.vx * Math.max(0.3, e.restitution); else e.vx = 0;
+      if (e.ai) e.ai.blocked = true;
+    }
   }
 }
 function ballSlope(e, p) {
@@ -744,7 +797,7 @@ function resolvePair(a, b) {
   }
 }
 function physics(dt) {
-  const platforms = world.entities.filter((e) => e.type === 'platform');
+  const platforms = world.entities.filter((e) => e.type === 'platform' && !e.passable);
   const bodies = world.entities.filter(isFree);
   for (const e of bodies) {
     e.px = e.x; e.wasGround = e.onGround;
@@ -757,11 +810,11 @@ function physics(dt) {
     e.onGround = false; e.support = null;
     if (e.x < 0) { e.x = 0; e.vx = e.type === 'ball' ? -e.vx * e.restitution : 0; if (e.ai) e.ai.blocked = true; }
     if (e.x + e.w > W) { e.x = W - e.w; e.vx = e.type === 'ball' ? -e.vx * e.restitution : 0; if (e.ai) e.ai.blocked = true; }
-    if (e.y + e.h >= floorY) land(e, floorY, null);
+    const fy = floorAt(e); if (e.y + e.h >= fy) land(e, fy, null);
     for (const p of platforms) resolvePlatform(e, p, prevBottom);
   }
   for (let i = 0; i < bodies.length; i++) for (let j = i + 1; j < bodies.length; j++) resolvePair(bodies[i], bodies[j]);
-  for (const e of bodies) { if (e.y + e.h > floorY) { e.y = floorY - e.h; e.onGround = true; } }
+  for (const e of bodies) { const fy = floorAt(e); if (e.y + e.h > fy) { e.y = fy - e.h; e.onGround = true; } }
   // things that are carried or sat on follow their owner
   for (const e of world.entities) {
     if (e.held && e.held !== 'pointer') {
@@ -810,7 +863,7 @@ const cx = (e) => e.x + e.w / 2;
 const feet = (e) => e.y + e.h;
 function say(e, key, dur) { if (!e.ai) return; e.ai.bubble = pick(SAY[key]); e.ai.bubbleUntil = world.time + (dur || 1.8); }
 function sayText(e, text, dur) { if (!e.ai) return; e.ai.bubble = text; e.ai.bubbleUntil = world.time + (dur || 2.4); }
-function hasTag(t, tag) { return !!(t && t.catalog && t.catalog.tags && t.catalog.tags.includes(tag)); }
+function hasTag(t, tag) { if (!t) return false; const tags = (t.catalog && t.catalog.tags) || t.tags; return !!(tags && tags.includes(tag)); }
 function liftable(t, e) { return t.type === 'thing' && !t.sitter && !t.held && t.w <= 1.15 * e.h && t.h <= 0.9 * e.h; }
 function tableShelf(t, item) { const s = t.shelves[0]; return s && s.y <= t.h * 0.2 && s.w >= item.w * 0.8 ? s : null; }
 function doJump(e, mul) { if (!e.onGround) return false; e.vy = -e.jumpV * (mul || 1); e.onGround = false; e.support = null; e.ai.jumpCooldown = 1.1; e.squash = 1.3; puff(cx(e), feet(e), 2); return true; }
@@ -846,6 +899,7 @@ function decide(e) {
       if (top < feet(e) - e.h * 0.4 && top > feet(e) - e.h * 2.1 && t.w > e.w * 0.8 && e.support !== t) opts.push({ t, act: 'climb', w: 0.8 * dp });
     } else if (t.type === 'decor') opts.push({ t, act: 'look', w: 0.45 * dp });
   }
+  if (world.page) for (const p of world.page.plates) if (!p.plate.pressed && !p.held) opts.push({ t: p, act: 'hold', w: 4 });
   opts.push({ t: null, act: 'wander', w: 1.4 }, { t: null, act: 'sleep', w: 0.22 }, { t: null, act: 'jump', w: 0.35 });
   let total = opts.reduce((s, o) => s + o.w, 0), r = Math.random() * total, chosen = opts[opts.length - 1];
   for (const o of opts) { r -= o.w; if (r <= 0) { chosen = o; break; } }
@@ -889,6 +943,7 @@ function arrive(e) {
       remember(e, t); if (t.ai) remember(t, e); break;
     }
     case 'look': say(e, 'wow'); ai.state = 'act'; ai.timer = 1.6; ai.pose = 'look'; remember(e, t); break;
+    case 'hold': ai.state = 'hold'; e.vx = 0; sayText(e, pick(["I'll hold it", 'got it. go.', 'standing here now']), 2.4); note(pick(NOTES.held), 4); break;
     case 'climb': say(e, 'climb'); ai.state = 'act'; ai.timer = 1.6; ai.pose = 'cheer'; remember(e, t); break;
     default: toIdle(e);
   }
@@ -917,6 +972,7 @@ function standUp(e) {
 }
 function updateCreature(e, dt) {
   const ai = e.ai;
+  if (e.hero && world.page) return updateHero(e, dt);
   if (e.dryUntil && world.time < e.dryUntil) { e.vx = 0; return; }
   ai.timer -= dt; ai.jumpCooldown -= dt;
   if (ai.replyAt && world.time >= ai.replyAt) { say(e, ai.replyKey); ai.replyAt = 0; }
@@ -929,6 +985,10 @@ function updateCreature(e, dt) {
       if (!t || !t.alive || (t.held && t.held !== e) || (ai.act === 'sit' && t.sitter) || (ai.act === 'greet' && (t.held || t.ai.state === 'sleep'))) { toIdle(e, 0.3); break; }
       if (ai.timer <= 0 || handleStuck(e, dt)) { giveUp(e); break; }
       const dx = cx(t) - cx(e), reach = e.w / 2 + t.w / 2 + 6;
+      if (ai.act === 'hold') {
+        if (Math.abs(dx) < Math.max(6, t.w * 0.25) && Math.abs(feet(t) - feet(e)) < 0.5 * e.h) arrive(e); else { walkTo(e, cx(t)); if (ai.blocked && e.onGround && ai.jumpCooldown <= 0) doJump(e, 0.9); }
+        break;
+      }
       if (ai.act === 'climb') {
         if (e.support === t) { arrive(e); break; }
         const near = Math.abs(dx) < t.w / 2 + e.w * 0.6;
@@ -989,8 +1049,10 @@ function updateCreature(e, dt) {
     case 'knocked': e.vx *= Math.pow(0.05, dt); if (ai.timer <= 0) toIdle(e, 0.4); break;
     case 'flee': e.vx = ai.fleeDir * e.speed * 1.4; e.facing = ai.fleeDir; if (ai.blocked && e.onGround) doJump(e); if (ai.timer <= 0) toIdle(e, 0.3); break;
     case 'held': e.vx = 0; break;
+    case 'hold': e.vx = 0; if (!ai.target || !ai.target.alive) toIdle(e); else if (Math.random() < 0.004) sayText(e, pick(['still here', 'holding', 'take your time']), 1.6); break;
     case 'airborne': if (e.onGround) { toIdle(e, 0.6); } break;
   }
+  if (world.page && e.onGround && Math.abs(e.vx) > 1 && !standableAt(cx(e) + e.facing * (e.w * 0.55 + 6), feet(e))) { e.vx = 0; if (ai.state === 'wander') toIdle(e); }
   // walk animation
   const moving = Math.abs(e.vx) > 1 && e.onGround && ai.state !== 'sit';
   if (moving) { e.legPhase = (e.legPhase || 0) + Math.abs(e.vx) / Math.max(20, e.h * 0.9) * 7 * dt; e.bob = Math.abs(Math.sin(e.legPhase)) * e.h * 0.03; } else { e.bob = lerp(e.bob || 0, 0, 0.2); }
@@ -1057,11 +1119,15 @@ let floorSprite = null;
 function buildFloor() {
   const c = document.createElement('canvas'); c.width = Math.ceil(W * DPR); c.height = Math.ceil(30 * DPR);
   const g = c.getContext('2d'); g.scale(DPR, DPR); g.strokeStyle = world.theme.floor; g.lineCap = 'round'; g.lineWidth = 3.5;
-  g.beginPath(); g.moveTo(0, 20);
-  for (let x = 0; x <= W; x += 18) g.lineTo(x, 20 + Math.sin(x * 0.07) * 1.2 + rand(-0.8, 0.8));
-  g.stroke();
-  g.lineWidth = 2;
-  for (let x = 8; x < W; x += rand(14, 34)) { const hgt = rand(4, 9); g.beginPath(); g.moveTo(x, 20); g.lineTo(x + rand(-3, 3), 20 - hgt); g.stroke(); }
+  const segs = world.page ? world.page.floorPx : [[0, W]];
+  for (const [x0, x1] of segs) {
+    g.beginPath(); g.moveTo(x0, 20);
+    for (let x = x0; x <= x1; x += 18) g.lineTo(Math.min(x, x1), 20 + Math.sin(x * 0.07) * 1.2 + rand(-0.8, 0.8));
+    g.lineTo(x1, 20); g.stroke();
+    g.lineWidth = 2;
+    for (let x = x0 + 8; x < x1 - 4; x += rand(14, 34)) { const hgt = rand(4, 9); g.beginPath(); g.moveTo(x, 20); g.lineTo(x + rand(-3, 3), 20 - hgt); g.stroke(); }
+    g.lineWidth = 3.5;
+  }
   floorSprite = c;
 }
 function drawEntity(e) {
@@ -1128,7 +1194,7 @@ function drawBubble(e) {
 function drawThought(e) {
   const ai = e.ai;
   if (ai.bubble && world.time < ai.bubbleUntil) return;
-  if (!['seek', 'push', 'follow', 'carry'].includes(ai.state)) return;
+  if (!['seek', 'push', 'follow', 'carry', 'fetch', 'deliver'].includes(ai.state)) return;
   const t = ai.state === 'carry' ? (ai.carryGoal && ai.carryGoal.t) : ai.target;
   if (!t || !t.alive || !t.sprite || world.time - (ai.decidedAt || 0) < 0.15) return;
   const bw = 34, bh = 30, bx = clamp(cx(e) + e.facing * (e.w * 0.5 + 14), bw / 2 + 4, W - bw / 2 - 4), by = e.y - e.bob - 10;
@@ -1154,6 +1220,7 @@ function render() {
   ctx.clearRect(0, 0, W, H);
   for (const e of world.entities) if (e.type === 'decor' && e.sub === 'sun') drawGlow(e);
   ctx.drawImage(floorSprite, 0, floorY - 20, W, 30);
+  drawPage();
   const layer = (e) => e.type === 'platform' || e.type === 'decor' ? 0 : (e.type === 'creature' ? 2 : 1);
   const sorted = world.order.slice().sort((a, b) => layer(a) - layer(b));
   for (const e of sorted) if (!e.held || e.held === 'pointer') drawEntity(e);
@@ -1199,7 +1266,9 @@ function worldStrokesOf(e) { return e.strokes.map((s) => ({ color: s.color, size
 function retype(e, type) {
   if (e.type === type) return;
   const ws = worldStrokesOf(e); removeEntity(e, false);
+  const prevCost = e.inkCost, wasDrawn = e.drawn;
   const n = makeEntity(ws, type, { catalog: e.catalog ? { ...e.catalog, type } : null }); n.forced = type; n.vx = 0; n.vy = 0;
+  if (wasDrawn) { n.drawn = true; n.inkCost = prevCost; world.version++; }
   if (type === 'decor' || type === 'platform') { /* stays where it is */ }
   burst(cx(n), n.y + n.h / 2, 10, 'spark'); toast('Now a ' + TYPES[type].name); dirty = true;
 }
@@ -1230,6 +1299,7 @@ function finalizePending() {
   if (Math.max(pd.bb.x1 - pd.bb.x0, pd.bb.y1 - pd.bb.y0) < 10) { burst((pd.bb.x0 + pd.bb.x1) / 2, (pd.bb.y0 + pd.bb.y1) / 2, 4, 'poof'); return; }
   const e = makeEntity(pd.strokes, null);
   if (!e) return;
+  if (!playerMade(e)) return;
   burst(cx(e), e.y + e.h / 2, 12, 'spark'); dirty = true; noticed(e);
 }
 function noticed(e) {
@@ -1245,15 +1315,15 @@ function addStroke(s) {
   const bb = bboxOf(s.pts);
   // a detail added to a doodle that just came alive joins it (eyes on a face, a hat on a head)
   for (const e of world.order) {
-    if (!e.alive || world.time - e.born > 6 || e.type === 'bird' || e.type === 'platform' || e.held) continue;
+    if (!e.alive || world.time - e.born > 6 || e.type === 'bird' || e.type === 'platform' || e.held || e.fixture || e.hero) continue;
     const inside = bb.x0 >= e.x - 10 && bb.x1 <= e.x + e.w + 10 && bb.y0 >= e.y - 10 && bb.y1 <= e.y + e.h + 10 && bb.w * bb.h < 0.7 * e.w * e.h;
     const nearBox = (p) => p.x >= e.x - 12 && p.x <= e.x + e.w + 12 && p.y >= e.y - 12 && p.y <= e.y + e.h + 12;
     const touches = world.time - e.born < 6 && bb.w * bb.h < 3 * e.w * e.h && s.pts.some((p, i) => (i % 3 === 0 || i === s.pts.length - 1) && nearBox(p));
     if (inside || touches) {
       const ws = worldStrokesOf(e);
       if (e.type === 'creature' && e.facing < 0) { const m = cx(e); s = { color: s.color, size: s.size, pts: s.pts.map((p) => ({ x: 2 * m - p.x, y: p.y })) }; }
-      ws.push(s); const forced = e.forced || null; removeEntity(e, false);
-      const n = makeEntity(ws, forced, { catalog: e.catalog }); if (n) { n.forced = forced; } dirty = true; return;
+      ws.push(s); const forced = e.forced || null, prevCost = e.inkCost || 0; removeEntity(e, false);
+      const n = makeEntity(ws, forced, { catalog: e.catalog }); if (n) { n.forced = forced; if (world.page) playerMade(n, prevCost || 0.001); } dirty = true; return;
     }
   }
   if (world.pending) {
@@ -1289,8 +1359,8 @@ canvas.addEventListener('pointerdown', (ev) => {
   ev.preventDefault(); activePointer = ev.pointerId; canvas.setPointerCapture(ev.pointerId);
   const p = pos(ev); downAt = p; tapChip = chipAt(p); tapEntity = null;
   if (tool === 'draw') { stroke = { pts: [p], color, size }; if (world.pending) world.pending.last = world.time + 99; }
-  else if (tool === 'move') { const e = hitTest(p); tapEntity = e; if (e) grab(e, p); }
-  else if (tool === 'erase') { const e = hitTest(p); if (e) { removeEntity(e, true); dirty = true; } else if (world.pending) { world.pending = null; } }
+  else if (tool === 'move') { const e = hitTest(p); if (e && world.page && (e.hero || e.fixture)) { if (e.hero) say(e, 'hey', 1); return; } tapEntity = e; if (e) grab(e, p); }
+  else if (tool === 'erase') { const e = hitTest(p); if (e && (!world.page || e.drawn)) { refundInk(e); removeEntity(e, true); dirty = true; } else if (world.pending) { world.pending = null; } }
 });
 canvas.addEventListener('pointermove', (ev) => {
   if (ev.pointerId !== activePointer) return;
@@ -1301,14 +1371,14 @@ canvas.addEventListener('pointermove', (ev) => {
     drag.vx = lerp(drag.vx, (p.x - drag.lx) / dt, 0.4); drag.vy = lerp(drag.vy, (p.y - drag.ly) / dt, 0.4);
     drag.lx = p.x; drag.ly = p.y; drag.lt = t;
     drag.e.x = p.x - drag.ox; drag.e.y = p.y - drag.oy;
-  } else if (tool === 'erase') { const e = hitTest(p); if (e) { removeEntity(e, true); dirty = true; } }
+  } else if (tool === 'erase') { const e = hitTest(p); if (e && (!world.page || e.drawn)) { refundInk(e); removeEntity(e, true); dirty = true; } }
 });
 function endPointer(ev) {
   if (ev.pointerId !== activePointer) return;
   activePointer = null;
   const p = pos(ev), tapped = downAt && dist(downAt, p) < 6;
   if (tapped && tapChip && tapChip.alive) { stroke = null; if (drag) cancelDrag(); openPicker(tapChip); tapChip = null; return; }
-  if (tapped && tool === 'move' && tapEntity && tapEntity.alive) { cancelDrag(); if (tapEntity.ai) toIdle(tapEntity, 0.3); openPicker(tapEntity); tapEntity = null; return; }
+  if (tapped && tool === 'move' && tapEntity && tapEntity.alive && !tapEntity.fixture && !tapEntity.hero) { cancelDrag(); if (tapEntity.ai) toIdle(tapEntity, 0.3); openPicker(tapEntity); tapEntity = null; return; }
   if (stroke) { const s = stroke; stroke = null; addStroke(s); }
   if (drag) { if (now() - drag.lt > 80) { drag.vx = 0; drag.vy = 0; } release(); }
 }
@@ -1331,12 +1401,13 @@ function undo() {
   if (stroke) return;
   if (drag) release();
   if (world.pending) { world.pending.strokes.pop(); if (!world.pending.strokes.length) world.pending = null; return; }
-  const e = world.order[world.order.length - 1]; if (e) { removeEntity(e, true); dirty = true; toast('Undid ' + e.labelText); }
+  const e = world.page ? world.order.slice().reverse().find((o) => o.drawn) : world.order[world.order.length - 1]; if (e) { refundInk(e); removeEntity(e, true); dirty = true; toast('Undid ' + e.labelText); }
 }
 $('#undo').addEventListener('click', undo);
 let clearArmed = 0;
 const clearBtn = $('#clear');
 clearBtn.addEventListener('click', () => {
+  if (world.page) { resetPage(); return; }
   if (now() - clearArmed < 2500) { if (drag) release(); for (const e of world.entities.slice()) removeEntity(e, true); world.pending = null; clearArmed = 0; clearBtn.classList.remove('on'); clearBtn.innerHTML = '🗑 <span class="label-text">Clear</span>'; dirty = true; toast('Fresh page'); return; }
   clearArmed = now(); clearBtn.classList.add('on'); clearBtn.innerHTML = '🗑 <span class="label-text">Really?</span>';
   setTimeout(() => { if (now() - clearArmed >= 2400) { clearBtn.classList.remove('on'); clearBtn.innerHTML = '🗑 <span class="label-text">Clear</span>'; } }, 2600);
@@ -1351,8 +1422,9 @@ document.addEventListener('keydown', (ev) => {
   const k = ev.key.toLowerCase();
   if (padOpen()) { if (k === 'escape') closePad(); else if (k === 'z' && padTab === 'draw') { padStrokes.pop(); renderPad(); padGuess(); } return; }
   if (k === 'p') { openPad('draw'); return; }
+  if (k === 'r' && world.page) { resetPage(); return; }
   if (k === 'd') setTool('draw'); else if (k === 'm') setTool('move'); else if (k === 'e') setTool('erase');
-  else if (k === 'z') undo(); else if (k === '?') helpEl.classList.add('open'); else if (k === 'escape') { helpEl.classList.remove('open'); closePicker(); }
+  else if (k === 'z') undo(); else if (k === '?') helpEl.classList.add('open'); else if (k === 'escape') { helpEl.classList.remove('open'); closePicker(); pageselEl.classList.remove('open'); pagewinEl.classList.remove('open'); }
 });
 let toastT = 0;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1600); }
@@ -1364,10 +1436,8 @@ function linePts(points) { const out = []; for (let i = 1; i < points.length; i+
 function S(pts, c, s) { return { pts, color: c || 'ink', size: s || 5 }; }
 function seedWorld() {
   const gy = floorY, ink = 'ink';
-  const px = W * 0.3, hs = Math.min(140, H * 0.22), r = hs * 0.14;
-  const head = circlePts(px, gy - hs + r + 2, r);
-  const neck = gy - hs + 2 * r + 2, hip = gy - hs * 0.42;
-  const man = [S(head), S(linePts([{ x: px, y: neck }, { x: px, y: hip }])), S(linePts([{ x: px - hs * 0.22, y: neck + hs * 0.25 }, { x: px, y: neck + hs * 0.1 }, { x: px + hs * 0.22, y: neck + hs * 0.28 }])), S(linePts([{ x: px - hs * 0.17, y: gy }, { x: px, y: hip }, { x: px + hs * 0.17, y: gy }]))];
+  const px = W * 0.3, hs = Math.min(140, H * 0.22);
+  const man = stickManStrokes(px, gy, hs);
   const guy = makeEntity(man, 'creature', { quiet: true });
   const br = Math.max(20, hs * 0.16), bx = W * 0.58;
   const ball = makeEntity([S(circlePts(bx, gy - br - 2, br), '#e8542f', 5)], 'ball', { quiet: true });
@@ -1399,7 +1469,7 @@ function restoreWorld(d) {
   }
   return d.entities.length > 0;
 }
-function save(force) { if (!dirty && !force) return; dirty = false; try { localStorage.setItem('dl-world', JSON.stringify(serializeWorld())); } catch (e) {} }
+function save(force) { if (world.page) return; if (!dirty && !force) return; dirty = false; try { localStorage.setItem('dl-world', JSON.stringify(serializeWorld())); } catch (e) {} }
 window.addEventListener('pagehide', () => save(true));
 document.addEventListener('visibilitychange', () => { if (document.hidden) save(true); });
 
@@ -1448,7 +1518,8 @@ function padWorldStrokes(at) {
 function padGuess() {
   const g = $('#pad-guess');
   if (!padStrokes.length) { g.textContent = 'nothing yet'; return; }
-  const e = buildEntity(padWorldStrokes({ x: W / 2, y: floorY }), padOverride, { quiet: true });
+  const sp = PAD_SPECIAL[padOverride];
+  const e = buildEntity(padWorldStrokes({ x: W / 2, y: floorY }), sp ? sp.type : padOverride, { quiet: true, tags: sp && sp.tags, label: sp && sp.label });
   g.textContent = e ? e.labelText : '?';
 }
 function padPos(ev) { const r = padCanvas.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; }
@@ -1466,11 +1537,13 @@ $('#pad-make').addEventListener('click', () => {
   if (!padStrokes.length) { toast('Draw something first'); return; }
   const bb = padBBox(), sc = padScale();
   const at = placeBeside(bb.w * sc, bb.h * sc > refHeight() * 0.9);
-  const e = makeEntity(padWorldStrokes(at), padOverride);
-  if (e) { burst(cx(e), e.y + e.h / 2, 12, 'spark'); dirty = true; toast('Made a ' + e.labelText); }
+  const e = padBuild(padWorldStrokes(at), padOverride, false);
+  if (e && playerMade(e)) { burst(cx(e), e.y + e.h / 2, 12, 'spark'); dirty = true; toast('Made a ' + e.labelText); noticed(e); }
   padStrokes = []; closePad();
 });
-const PAD_TYPES = [['', 'Auto'], ['creature', 'Creature'], ['ball', 'Ball'], ['thing', 'Thing'], ['platform', 'Ground']];
+const PAD_TYPES = [['', 'Auto'], ['creature', 'Creature'], ['ball', 'Ball'], ['thing', 'Thing'], ['weapon', 'Weapon'], ['shelter', 'Shelter'], ['platform', 'Ground']];
+const PAD_SPECIAL = { weapon: { type: 'thing', tags: ['wield', 'weapon'], label: 'weapon' }, shelter: { type: 'thing', tags: ['shelter'], label: 'shelter' } };
+function padBuild(ws, override, quiet) { const sp = PAD_SPECIAL[override]; return sp ? makeEntity(ws, sp.type, { tags: sp.tags, label: sp.label, quiet }) : makeEntity(ws, override, quiet ? { quiet } : undefined); }
 const padTypeEl = $('#pad-type');
 PAD_TYPES.forEach(([v, label], i) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = label; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', i === 0 ? 'true' : 'false'); if (i === 0) b.classList.add('on'); b.addEventListener('click', () => { padOverride = v || null; padTypeEl.querySelectorAll('button').forEach((x) => { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b ? 'true' : 'false'); }); padGuess(); }); padTypeEl.appendChild(b); });
 const padColorsEl = $('#pad-colors'), padSizesEl = $('#pad-sizes');
@@ -1512,15 +1585,415 @@ function drawThumb(c, entry, px) {
   }
 }
 
+// ---------------------------------------------------------------- pages: the puzzle mode
+const U = 110;      // the hero's height in px; page geometry is measured in U (heights) and fractions of the width
+const COL = 8;      // planner column width in px
+const PAGES = [
+  { id: 1, name: 'A Gap', ink: 6, par: 3, intro: 'a gap. he has never been good with gaps.', floor: [[0, 0.40], [0.56, 1]], spawn: 0.10, exit: 0.90 },
+  { id: 2, name: 'Up', ink: 8, par: 4, intro: 'the exit is up there. he is down here.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, exitY: 1.9, fixtures: [{ k: 'wall', x: 0.62, w: 0.38, h: 1.9 }] },
+  { id: 3, name: 'Heavy', ink: 10, par: 5, intro: 'a plate and a door. the plate wants weight. he weighs very little.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'plate', id: 'p', x: 0.44, need: 1.2 }, { k: 'door', x: 0.70, h: 1.7, by: 'p' }] },
+  { id: 4, name: 'Drizzle', ink: 7, par: 4, intro: 'a cloud. he refuses to get wet. it is a whole thing.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'cloud', x0: 0.36, x1: 0.64, y: 2.7 }] },
+  { id: 5, name: 'The Guard', ink: 8, par: 3, intro: 'something is in the way. it has teeth. he needs a sword. you have a pad.', floor: [[0, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'guard', x: 0.62 }] },
+  { id: 6, name: 'Half the Answer', ink: 4, par: 3, intro: 'a wide gap, and ink for half a bridge. the page holds the other half.', floor: [[0, 0.28], [0.74, 1]], spawn: 0.08, exit: 0.92, fixtures: [{ k: 'stone', x: 0.44, w: 0.12, y: 0 }] },
+  { id: 7, name: 'Paper Burns', ink: 12, par: 7, intro: 'a gap, a plate, a laser. lasers burn paper. thick ink is braver.', floor: [[0, 0.26], [0.40, 1]], spawn: 0.06, exit: 0.93, fixtures: [{ k: 'plate', id: 'p', x: 0.55, need: 1.2 }, { k: 'laser', x: 0.78, h: 1.9, by: 'p' }] },
+  { id: 8, name: 'The Whole Page', ink: 16, par: 10, intro: 'everything at once. he believes in you. he has no choice.', floor: [[0, 0.20], [0.33, 1]], spawn: 0.05, exit: 0.95, exitY: 1.6, fixtures: [{ k: 'cloud', x0: 0.40, x1: 0.56, y: 2.7 }, { k: 'plate', id: 'p', x: 0.48, need: 1.2 }, { k: 'door', x: 0.66, h: 1.7, by: 'p' }, { k: 'wall', x: 0.80, w: 0.20, h: 1.6 }] },
+];
+const NEEDS = {
+  gap: ['gap. no.', 'I need a bridge', 'that is a long way down'],
+  ledge: ["can't reach", 'too high', 'I need a way up'],
+  locked: ['locked. the plate wants weight', 'something heavy on the plate', 'the door says no'],
+  rain: ['I will not get wet', 'I need a roof', 'rain. absolutely not'],
+  guard: ['that thing wants a fight', 'I need something pointy', 'it has teeth. I have hands'],
+  laser: ['that is a laser. no.', 'the plate turns it off, probably', 'I am made of paper'],
+};
+const NOTES = {
+  birth: { platform: ['a line. structural. he approves.', 'ground where there was none.'], seat: ['a chair. the page did not ask for a chair.', 'a seat. he is not tired.'], item: ['a {name}. we will see.', 'a {name}. bold.'], block: ['a block. heavy intentions.', 'a {name}. it has presence.'], ball: ['a ball. this is not a ball page.', 'a ball. it will roll somewhere unhelpful.'], creature: ['company. he looks relieved.', 'a second opinion has arrived.'], decor: ['weather. bold.'], bird: ['a bird. birds are not load-bearing.'] },
+  noink: ['not enough ink for that.', 'the pen is nearly dry.'],
+  fell: ['he fell. he has been redrawn.', 'the pit remains undefeated. he has been redrawn.'],
+  zapped: ['the laser won. he has been redrawn.'],
+  burned: ['the {name} was paper. the laser disagreed with it.'],
+  lost: ['the {name} is in the pit now. it is the pit\'s {name}.'],
+  light: ['the plate wants more than that.', 'not heavy enough. thicker ink weighs more.'],
+  heavy: ['the plate is pleased. the door is open.', 'weight accepted.'],
+  guardWin: ['the guard reconsidered.', 'the guard has left to think about its choices.'],
+  guardLose: ['the guard remains.', 'the guard was not impressed.'],
+  held: ['someone is holding the plate. teamwork.'],
+  win: ['page complete. {ink} ink. not bad.', 'he made it. the page is turned.'],
+};
+let progress = {}; try { progress = JSON.parse(localStorage.getItem('dl-pages') || '{}') || {}; } catch (e) {}
+function saveProgress() { try { localStorage.setItem('dl-pages', JSON.stringify(progress)); } catch (e) {} }
+const PEN = (pts, w, f) => ({ pts, color: 'pencil', size: w || 4, fill: f ? 'pencil' : null });
+function rectPts(x, y, w, h) { return [{ x, y }, { x: x + w, y }, { x: x + w, y: y + h }, { x, y: y + h }, { x, y }, { x: x + 3, y }]; }
+function floorAtX(x) { const pg = world.page; if (!pg) return floorY; for (const s of pg.floorPx) if (x >= s[0] && x <= s[1]) return floorY; return Infinity; }
+function floorAt(e) { return floorAtX(cx(e)); }
+function pitAt(x) { const pg = world.page; if (!pg) return null; return pg.pits.find((p) => x >= p[0] && x <= p[1]) || null; }
+function stickManStrokes(px, gy, hs, color) {
+  const r = hs * 0.14, S = (pts) => ({ pts, color: color || 'ink', size: 5 });
+  const neck = gy - hs + 2 * r + 2, hip = gy - hs * 0.42;
+  return [S(circlePts(px, gy - hs + r + 2, r)), S(linePts([{ x: px, y: neck }, { x: px, y: hip }])), S(linePts([{ x: px - hs * 0.22, y: neck + hs * 0.25 }, { x: px, y: neck + hs * 0.1 }, { x: px + hs * 0.22, y: neck + hs * 0.28 }])), S(linePts([{ x: px - hs * 0.17, y: gy }, { x: px, y: hip }, { x: px + hs * 0.17, y: gy }]))];
+}
+function fixtureEntity(strokes, def, extra) {
+  const e = makeEntity(strokes, 'platform', { quiet: true }); if (!e) return null;
+  e.fixture = def; e.static = true; e.labelText = def.k; Object.assign(e, extra || {});
+  return e;
+}
+function buildFixture(pg, def) {
+  const fy = floorY;
+  if (def.k === 'wall') {
+    const x = def.x * W, w = def.w * W, h = def.h * U, strokes = [PEN(rectPts(x, fy - h, w, h), 4, true)];
+    for (let hx = x - h + 14; hx < x + w; hx += 22) { const x0 = Math.max(x, hx), x1 = Math.min(x + w, hx + h); if (x1 - x0 < 6) continue; strokes.push(PEN([{ x: x0, y: fy - (x0 - hx) }, { x: x1, y: fy - (x1 - hx) }], 2)); }
+    return fixtureEntity(strokes, def);
+  }
+  if (def.k === 'stone') { const x = def.x * W, w = def.w * W, y = fy - def.y * U; return fixtureEntity([PEN(rectPts(x, y, w, 12), 4, true), PEN([{ x: x + 8, y: y + 6 }, { x: x + w - 8, y: y + 6 }], 2)], def); }
+  if (def.k === 'plate') {
+    const w = Math.max(60, 0.07 * W), x = def.x * W - w / 2, h = 9;
+    const e = fixtureEntity([PEN(rectPts(x, fy - h, w, h), 4, true), PEN([{ x: x + w / 2 - 6, y: fy - h - 2 }, { x: x + w / 2, y: fy - h - 9 }, { x: x + w / 2 + 6, y: fy - h - 2 }], 3)], def, { plate: { id: def.id, need: def.need, pressed: false } });
+    pg.plates.push(e); return e;
+  }
+  if (def.k === 'door') {
+    const w = Math.max(34, 0.045 * W), x = def.x * W - w / 2, h = def.h * U;
+    const closed = [PEN(rectPts(x, fy - h, w, h), 4, true), PEN([{ x: x + w * 0.72, y: fy - h * 0.5 }, { x: x + w * 0.72 + 0.5, y: fy - h * 0.5 + 0.5 }], 7), PEN([{ x: x + 6, y: fy - h + 6 }, { x: x + w - 6, y: fy - 6 }], 2), PEN([{ x: x + w - 6, y: fy - h + 6 }, { x: x + 6, y: fy - 6 }], 2)];
+    const open = [PEN([{ x, y: fy }, { x, y: fy - h }, { x: x + w, y: fy - h }, { x: x + w, y: fy }], 4), PEN([{ x: x + 4, y: fy - h + 4 }, { x: x + w * 0.3, y: fy - h * 0.55 }, { x: x + 4, y: fy - 4 }], 3)];
+    const e = fixtureEntity(closed, def, { door: { by: def.by, open: false, closedStrokes: closed, openStrokes: open } });
+    pg.doors.push(e); return e;
+  }
+  if (def.k === 'guard') {
+    const x = def.x * W, h = 1.25 * U, w = 0.95 * U, top = fy - h, pts = [];
+    for (let i = 0; i <= 40; i++) { const a = Math.PI + (i / 40) * Math.PI; const bump = 1 + 0.12 * Math.sin(i * 1.7); pts.push({ x: x + Math.cos(a) * w / 2 * bump, y: fy - h * 0.55 + Math.sin(a) * h * 0.55 * bump }); }
+    pts.push({ x: x + w / 2, y: fy }, { x: x - w / 2, y: fy }, { x: x - w / 2, y: fy - h * 0.55 }, { x: x - w / 2 + 3, y: fy - h * 0.55 });
+    const strokes = [PEN(pts, 5, true), PEN(circlePts(x - w * 0.2, top + h * 0.35, 7, 14), 3), PEN(circlePts(x + w * 0.2, top + h * 0.35, 7, 14), 3), PEN([{ x: x - w * 0.3, y: top + h * 0.2 }, { x: x - w * 0.1, y: top + h * 0.28 }], 3), PEN([{ x: x + w * 0.3, y: top + h * 0.2 }, { x: x + w * 0.1, y: top + h * 0.28 }], 3)];
+    const teeth = []; for (let i = 0; i <= 6; i++) teeth.push({ x: x - w * 0.3 + (i / 6) * w * 0.6, y: top + h * 0.62 + (i % 2 ? 12 : 0) }); strokes.push(PEN(teeth, 3));
+    const e = fixtureEntity(strokes, def, { guard: { alive: true } }); pg.guard = e; return e;
+  }
+  if (def.k === 'cloud') { pg.clouds.push({ x0: def.x0 * W, x1: def.x1 * W, y: fy - def.y * U, t: 0 }); return null; }
+  if (def.k === 'laser') { pg.lasers.push({ x: def.x * W, h: def.h * U, by: def.by, on: true }); return null; }
+  return null;
+}
+function loadPage(def, keep) {
+  const kept = keep && world.page ? world.entities.filter((e) => e.drawn && e.alive) : [];
+  for (const e of world.entities.slice()) if (!kept.includes(e)) removeEntity(e, false);
+  world.particles = []; world.pending = null;
+  const pg = { def, id: def.id, ink: def.ink, used: 0, falls: 0, won: false, won_at: 0, plates: [], doors: [], clouds: [], lasers: [], guard: null, pulse: null, pulseT: 0, started: world.time };
+  if (keep && world.page) { pg.ink = world.page.ink; pg.used = world.page.used; pg.falls = world.page.falls; }
+  pg.floorPx = def.floor.map((s) => [s[0] * W, s[1] * W]);
+  pg.pits = []; for (let i = 1; i < pg.floorPx.length; i++) pg.pits.push([pg.floorPx[i - 1][1], pg.floorPx[i][0]]);
+  pg.exitX = def.exit * W; pg.exitY = floorY - (def.exitY || 0) * U; pg.spawnX = def.spawn * W;
+  world.page = pg; world.version++;
+  for (const f of def.fixtures || []) buildFixture(pg, f);
+  const hero = makeEntity(stickManStrokes(pg.spawnX, floorY, U), 'creature', { quiet: true });
+  hero.hero = true; hero.labelText = 'him'; hero.ai.state = 'go'; hero.ai.seen = new Set(); hero.facing = 1; pg.hero = hero;
+  buildFloor(); updateHud(); note(def.intro, 6); $('#hud-name').textContent = 'Page ' + def.id + ' · ' + def.name;
+  canvas.dispatchEvent(new Event('pagechange'));
+}
+function enterPages(id) {
+  if (!world.page) { save(true); }
+  const def = PAGES.find((p) => p.id === id) || PAGES[0];
+  $('#hud').hidden = false; $('#brand').classList.add('pages'); $('#tray').classList.add('pages');
+  world.page = { def, floorPx: [], pits: [], plates: [], doors: [], clouds: [], lasers: [], hero: null }; resize();
+  loadPage(def, false);
+}
+function leavePages() {
+  if (!world.page) return;
+  for (const e of world.entities.slice()) removeEntity(e, false);
+  world.page = null; world.particles = []; $('#hud').hidden = true; $('#brand').classList.remove('pages'); $('#tray').classList.remove('pages'); resize();
+  let restored = false; try { const raw = localStorage.getItem('dl-world'); if (raw) restored = restoreWorld(JSON.parse(raw)); } catch (e) { restored = false; }
+  if (!restored) seedWorld();
+  buildFloor(); hideNote();
+}
+function resetPage() { if (!world.page) return; const def = world.page.def; loadPage(def, false); toast('Page reset'); }
+function inkCost(e) { return Math.max(0.5, Math.round((e.mask.ink / 420) * 2) / 2); }
+function materialOf(strokes) { const mx = Math.max(...strokes.map((s) => s.size)); return mx >= 8 ? 'thick' : mx <= 3 ? 'thin' : 'paper'; }
+function playerMade(e, prevCost) {
+  const pg = world.page; if (!pg || !e) return true;
+  const cost = inkCost(e), delta = cost - (prevCost || 0);
+  if (delta > pg.ink + 0.01 && !prevCost) { removeEntity(e, true); note(pick(NOTES.noink), 3); toast('Not enough ink'); return false; }
+  pg.ink = Math.max(0, pg.ink - delta); pg.used += Math.max(0, delta); e.drawn = true; e.inkCost = cost; world.version++;
+  if (!prevCost) { const key = e.type === 'thing' ? e.labelText : e.type; const lines = NOTES.birth[key] || NOTES.birth.item; note(pick(lines).replace(/\{name\}/g, (e.catalog ? e.catalog.name.toLowerCase() : e.labelText)), 4); }
+  updateHud(); return true;
+}
+function refundInk(e) { const pg = world.page; if (!pg || !e.drawn) return; pg.ink = Math.min(pg.def.ink, pg.ink + (e.inkCost || 0)); pg.used = Math.max(0, pg.used - (e.inkCost || 0)); updateHud(); }
+function updateHud() { const pg = world.page; if (!pg) return; $('#ink-bar').style.width = Math.round(100 * pg.ink / pg.def.ink) + '%'; $('#ink-text').textContent = (Math.round(pg.ink * 2) / 2) + '/' + pg.def.ink; }
+let noteT = 0;
+function note(text, secs) { const m = $('#margin'); m.textContent = text; m.classList.add('show'); clearTimeout(noteT); noteT = setTimeout(() => m.classList.remove('show'), (secs || 4) * 1000); }
+function hideNote() { $('#margin').classList.remove('show'); }
+
+// ---------------- hazards, plates, doors, win
+function plateMass(p) { let m = 0; for (const e of world.entities) { if (e === p || !e.alive || e.static || e.held === 'pointer') continue; if (e.held) continue; if (e.x + e.w * 0.35 < p.x || e.x + e.w * 0.65 > p.x + p.w) continue; if (Math.abs(feet(e) - p.y) < 6) m += e.mass; } return m; }
+function setDoor(d, open) {
+  if (d.door.open === open) return; d.door.open = open; d.passable = open; d.strokes = open ? d.door.openStrokes : d.door.closedStrokes; rebuildSprite(d); world.version++;
+}
+function respawnHero(reason) {
+  const pg = world.page, h = pg.hero; if (!h || !h.alive) return;
+  pg.falls++; h.x = pg.spawnX - h.w / 2; h.y = floorY - h.h; h.vx = 0; h.vy = 0; h.onGround = true; h.ai.state = 'go'; h.ai.plan = null; h.ai.planT = 0; h.facing = 1; h.squash = 0.7;
+  say(h, 'oof', 1.5); note(pick(NOTES[reason] || NOTES.fell), 4); burst(cx(h), h.y + h.h / 2, 10, 'poof');
+}
+function fellOut(e) {
+  const pg = world.page;
+  if (e.hero) { respawnHero('fell'); return; }
+  const name = e.catalog ? e.catalog.name.toLowerCase() : e.labelText;
+  if (e.held && e.held.hero) { e.held.ai.carrying = null; }
+  removeEntity(e, false); if (pg && e.drawn) note(pick(NOTES.lost).replace(/\{name\}/g, name), 4);
+}
+function updatePage(dt) {
+  const pg = world.page; if (!pg) return;
+  // plates and doors
+  for (const p of pg.plates) { const was = p.plate.pressed; p.plate.pressed = plateMass(p) >= p.plate.need - 1e-6; if (p.plate.pressed !== was) { for (const d of pg.doors) if (d.door.by === p.plate.id) setDoor(d, p.plate.pressed); for (const l of pg.lasers) if (l.by === p.plate.id) l.on = !p.plate.pressed; world.version++; } }
+  // rain
+  for (const c of pg.clouds) { c.t += dt; for (let i = 0; i < 2; i++) world.particles.push({ x: rand(c.x0, c.x1), y: c.y + 10, vx: 0, vy: rand(60, 110), life: 6, age: 0, kind: 'rain', size: 2 }); }
+  // lasers
+  for (const l of pg.lasers) {
+    if (!l.on) continue;
+    for (const e of world.entities.slice()) {
+      if (!e.alive || e.static || e.held === 'pointer') continue;
+      if (e.x < l.x && e.x + e.w > l.x && feet(e) > floorY - l.h && e.y < floorY) {
+        if (e.hero) { respawnHero('zapped'); continue; }
+        if (e.material === 'thick' || hasTag(e, 'heavy')) continue;
+        const name = e.catalog ? e.catalog.name.toLowerCase() : (e.labelText || 'doodle');
+        if (e.held && e.held.ai) { e.held.ai.carrying = null; }
+        removeEntity(e, true); note(pick(NOTES.burned).replace(/\{name\}/g, name), 4); l.flash = world.time;
+      }
+    }
+  }
+  // fall out of the page
+  for (const e of world.entities.slice()) if (e.alive && !e.static && e.y > H + 40) fellOut(e);
+  // win
+  const h = pg.hero;
+  if (h && h.alive && !pg.won && Math.abs(cx(h) - pg.exitX) < 0.3 * U && Math.abs(feet(h) - pg.exitY) < 0.45 * U) winPage();
+  if (pg.pulse && world.time > pg.pulseT) pg.pulse = null;
+}
+function winPage() {
+  const pg = world.page; pg.won = true; pg.won_at = world.time; const h = pg.hero; h.vx = 0; h.ai.state = 'act'; h.ai.timer = 99; h.ai.pose = 'cheer';
+  say(h, 'climb', 3); burst(cx(h), h.y, 24, 'spark');
+  const stars = 1 + (pg.used <= pg.def.par ? 1 : 0) + (pg.falls === 0 ? 1 : 0);
+  progress[pg.id] = Math.max(progress[pg.id] || 0, stars); saveProgress();
+  note(pick(NOTES.win).replace('{ink}', Math.round(pg.used * 2) / 2), 6);
+  setTimeout(() => { $('#pagewin-stars').textContent = '★★★'.slice(0, stars) + '☆☆☆'.slice(0, 3 - stars); $('#pagewin-text').textContent = 'Ink used: ' + (Math.round(pg.used * 2) / 2) + ' of ' + pg.def.ink + ' (par ' + pg.def.par + ')' + (pg.falls ? ', redrawn ' + pg.falls + ' time' + (pg.falls > 1 ? 's' : '') : ', never fell') + '.'; $('#pagewin-next').hidden = !PAGES.find((p) => p.id === pg.id + 1); $('#pagewin').classList.add('open'); }, 1400);
+}
+
+// ---------------- the hero's planner
+function solidsFor(h) { return world.entities.filter((e) => e.alive && e !== h && !e.held && !e.passable && e.mask && (e.type === 'platform' || e.type === 'thing')); }
+function colSpan(e, x) { const lx = localX(e, x); if (lx < 0 || lx >= e.mask.cw) return null; const t = e.mask.top[lx]; return t < 0 ? null : [e.y + t, e.y + e.mask.bottom[lx]]; }
+function roofAt(sol, x, y) { for (const e of sol) { const s = colSpan(e, x); if (s && s[1] <= y - 0.9 * U && s[1] >= y - 3.2 * U) return true; } return false; }
+function heroSheltered(h) { const it = h.ai.carrying; return !!(it && hasTag(it, 'shelter')); }
+function onPlate(t) { const pg = world.page; return !!(pg && pg.plates.some((p) => t.x + t.w * 0.35 >= p.x && t.x + t.w * 0.65 <= p.x + p.w && Math.abs(feet(t) - p.y) < 8)); }
+function standableAt(x, y) { if (floorAtX(x) < Infinity && Math.abs(floorY - y) < 0.35 * U) return true; for (const e of world.entities) { if (!e.alive || e.held || e.passable || !e.mask || (e.type !== 'platform' && e.type !== 'thing')) continue; const s = colSpan(e, x); if (s && Math.abs(s[0] - y) < 0.35 * U) return true; } return false; }
+function planPath(h) {
+  const pg = world.page, sol = solidsFor(h), nCols = Math.ceil(W / COL);
+  const exitCol = Math.floor(pg.exitX / COL), exitY = pg.exitY, colX = (c) => c * COL + COL / 2;
+  const surf = new Array(nCols);
+  for (let c = 0; c < nCols; c++) { const x = colX(c), list = []; const fy = floorAtX(x); if (fy < Infinity) list.push({ y: fy, e: null }); for (const e of sol) { const s = colSpan(e, x); if (s && s[0] > floorY - 4.5 * U) list.push({ y: s[0], e }); } surf[c] = list; }
+  const sheltered = heroSheltered(h);
+  const blockedAt = (c, y) => { const x = colX(c); for (const e of sol) { if (!e.fixture && e.type !== 'thing') continue; const s = colSpan(e, x); if (s && s[0] < y - 3 && s[1] > y - 0.9 * U) return e; } return null; };
+  const hazardAt = (c, y) => { const x = colX(c); for (const l of pg.lasers) if (l.on && Math.abs(x - l.x) < COL) return { k: 'laser', obj: l }; if (!sheltered) for (const r of pg.clouds) if (x >= r.x0 && x <= r.x1 && !roofAt(sol, x, y)) return { k: 'rain', obj: r }; return null; };
+  const c0 = clamp(Math.floor(cx(h) / COL), 0, nCols - 1), fy0 = feet(h);
+  let i0 = -1, bestD = 1e9; surf[c0].forEach((s, i) => { const d = Math.abs(s.y - fy0); if (d < bestD) { bestD = d; i0 = i; } });
+  const dir0 = Math.sign(pg.exitX - cx(h)) || 1;
+  if (i0 < 0 || bestD > 0.6 * U) return { path: null, need: null, frontierX: cx(h), dir: dir0, blocker: null };
+  const key = (c, i) => c * 32 + i, prev = new Map(), dist = new Map(), buckets = [[[c0, i0]]]; prev.set(key(c0, i0), null); dist.set(key(c0, i0), 0);
+  let goal = null, frontier = [c0, i0], fdist = Math.abs(c0 - exitCol);
+  const relax = (c, i, from, jump, cost) => { const k = key(c, i); if (dist.has(k) && dist.get(k) <= cost) return; dist.set(k, cost); prev.set(k, { from, jump }); (buckets[cost] = buckets[cost] || []).push([c, i]); const d = Math.abs(c - exitCol); if (d < fdist) { fdist = d; frontier = [c, i]; } };
+  const maxDc = Math.ceil(1.4 * U / COL);
+  const oneWay = (s) => s.e && !s.e.fixture && s.e.type === 'platform';
+  for (let cost = 0; cost < buckets.length && !goal; cost++) {
+    const bucket = buckets[cost]; if (!bucket) continue;
+    for (const [c, i] of bucket) {
+      if (dist.get(key(c, i)) !== cost) continue;
+      const y = surf[c][i].y;
+      if (Math.abs(c - exitCol) <= 1 && Math.abs(y - exitY) < 0.45 * U) { goal = [c, i]; break; }
+      for (const dc of [-1, 1]) { const nc = c + dc; if (nc < 0 || nc >= nCols) continue; surf[nc].forEach((s, j) => { if (Math.abs(s.y - y) <= 0.3 * U && !blockedAt(nc, s.y) && !hazardAt(nc, s.y)) relax(nc, j, [c, i], false, cost + 1); }); }
+      for (let dc = -maxDc; dc <= maxDc; dc++) {
+        const nc = c + dc; if (nc < 0 || nc >= nCols) continue; const dx = Math.abs(dc) * COL;
+        surf[nc].forEach((s, j) => {
+          const dy = s.y - y; if (dc === 0 && dy >= -3) return;
+          const through = dy < 0 && oneWay(s) && dx <= 0.5 * U;      // jump up through a drawn line onto it
+          const reach = dy < -0.3 * U ? 0.7 * U : 0.85 * U + clamp(dy, 0, 2 * U) * 0.35;
+          if (!through && (dx > reach || dy < -1.05 * U)) return; if (through && dy < -1.0 * U) return;
+          if (blockedAt(nc, s.y) || hazardAt(nc, s.y)) return;
+          relax(nc, j, [c, i], true, cost + 6 + Math.abs(dc));
+        });
+      }
+    }
+  }
+  if (goal) { const path = []; let k = goal; while (k) { const node = surf[k[0]][k[1]], p = prev.get(key(k[0], k[1])); path.push({ x: colX(k[0]), y: node.y, jump: !!(p && p.jump) }); k = p ? p.from : null; } path.reverse(); return { path, need: null }; }
+  const [fc, fi] = frontier, fy = surf[fc][fi].y, dir = Math.sign(exitCol - fc) || dir0, nc = clamp(fc + dir, 0, nCols - 1);
+  let need = 'gap', blocker = null;
+  const hz = hazardAt(nc, fy), b = blockedAt(nc, fy);
+  if (hz) { need = hz.k; blocker = hz.obj; }
+  else if (b) { need = b.fixture ? (b.fixture.k === 'door' ? 'locked' : b.fixture.k === 'guard' ? 'guard' : 'ledge') : 'ledge'; blocker = b; }
+  else { const up = surf[nc].find((s) => s.y < fy - 0.3 * U); if (up) { need = 'ledge'; blocker = up.e; } else if (Math.abs(fc - exitCol) <= 1 && exitY < fy - 0.3 * U) { need = 'ledge'; blocker = null; } else { need = 'gap'; blocker = pitAt(colX(nc)) || pitAt(colX(fc)); } }
+  return { path: null, need, frontierX: colX(fc), frontierY: fy, dir, blocker };
+}
+function followPath(h, path) {
+  const ai = h.ai;
+  while (path.length > 1 && Math.abs(path[0].x - cx(h)) < 7 && Math.abs(path[0].y - feet(h)) < 0.35 * U) path.shift();
+  const n = path[0]; if (!n) return;
+  const dx = n.x - cx(h), dy = n.y - feet(h);
+  if (n.jump && Math.abs(dy) > 0.2 * U || n.jump && pitAt(cx(h) + Math.sign(dx) * 10)) {
+    if (Math.abs(dx) > 4) h.facing = dx >= 0 ? 1 : -1;
+    h.vx = dy < -0.2 * U && Math.abs(dx) < 0.3 * U ? clamp(dx * 4, -h.speed, h.speed) : h.facing * h.speed;
+    if (h.onGround && ai.jumpCooldown <= 0) { const mul = dy < 0 ? clamp(Math.sqrt((-dy + 0.3 * U) / (1.15 * U)), 0.6, 1) : 0.75; doJump(h, mul); }
+    return;
+  }
+  walkTo(h, n.x);
+  if (ai.blocked && h.onGround && ai.jumpCooldown <= 0 && Math.abs(dy) < 0.3 * U) doJump(h, 0.8);
+}
+function nearestItem(h, pred, maxD) {
+  let best = null, bd = maxD || 1e9;
+  for (const t of world.entities) { if (!t.alive || t.held || t.type !== 'thing' || !liftable(t, h) || !(t.drawn || t.catalog) || onPlate(t)) continue; if (pred && !pred(t)) continue; const d = Math.abs(cx(t) - cx(h)); if (d < bd && Math.abs(feet(t) - feet(h)) < 1.2 * U) { bd = d; best = t; } }
+  return best;
+}
+function heroPickup(h, t) {
+  const ai = h.ai; t.held = h; ai.carrying = t; t.vx = t.vy = 0; if (hasTag(t, 'wield')) t.wield = true;
+  if (hasTag(t, 'hat')) { t.wearing = true; ai.hat = t; ai.carrying = null; }
+  ai.seen.add(t.id);
+  if (t.catalog && t.catalog.say) sayText(h, t.catalog.say, 3.4); else sayText(h, pick(['a ' + t.labelText + '. okay.', 'a ' + t.labelText + '. I have ideas.', 'this will do. probably.']), 2.2);
+  ai.state = 'act'; ai.timer = 1.2; ai.pose = null; world.version++;
+}
+function heroDrop(h) { const it = h.ai.carrying; if (!it) return; it.held = null; it.wield = false; it.tilt = 0; h.ai.carrying = null; it.x = cx(h) + h.facing * (h.w * 0.5 + 4) - (h.facing > 0 ? 0 : it.w); it.y = feet(h) - it.h - 2; it.vx = h.facing * 30; it.vy = -40; world.version++; }
+function updateHero(h, dt) {
+  const ai = h.ai, pg = world.page;
+  ai.timer -= dt; ai.jumpCooldown -= dt;
+  if (ai.replyAt && world.time >= ai.replyAt) { say(h, ai.replyKey); ai.replyAt = 0; }
+  const moving = () => { const m = Math.abs(h.vx) > 1 && h.onGround; if (m) { h.legPhase = (h.legPhase || 0) + Math.abs(h.vx) / Math.max(20, h.h * 0.9) * 7 * dt; h.bob = Math.abs(Math.sin(h.legPhase)) * h.h * 0.03; } else h.bob = lerp(h.bob || 0, 0, 0.2); };
+  if (pg.won) { h.vx = 0; moving(); return; }
+  switch (ai.state) {
+    case 'held': h.vx = 0; return;
+    case 'airborne': if (h.onGround) ai.state = 'go'; moving(); return;
+    case 'knocked': h.vx *= Math.pow(0.05, dt); if (ai.timer <= 0) ai.state = 'go'; moving(); return;
+    case 'act': h.vx = 0; if (ai.timer <= 0) { ai.pose = null; ai.state = 'go'; } moving(); return;
+    case 'fetch': {
+      const t = ai.target;
+      if (!t || !t.alive || t.held) { ai.state = 'go'; break; }
+      const dx = cx(t) - cx(h), reach = h.w / 2 + t.w / 2 + 6;
+      if (Math.abs(dx) <= reach && Math.abs(feet(t) - feet(h)) < h.h) { h.facing = dx >= 0 ? 1 : -1; h.vx = 0; heroPickup(h, t); ai.target = null; break; }
+      walkTo(h, cx(t) - Math.sign(dx) * (reach - 10));
+      if (ai.blocked && h.onGround && ai.jumpCooldown <= 0) doJump(h, 0.9);
+      if (ai.timer <= 0) { ai.state = 'go'; ai.seen.add(t.id); }
+      break;
+    }
+    case 'deliver': {
+      const it = ai.carrying, p = ai.target;
+      if (!it || !p || !p.alive) { ai.state = 'go'; break; }
+      const px = p.x + p.w / 2, dx = px - cx(h);
+      if (Math.abs(dx) <= h.w * 0.5 + 4 && Math.abs(feet(h) - p.y) < 0.5 * U) {
+        h.facing = dx >= 0 ? 1 : -1; h.vx = 0;
+        it.held = null; it.wield = false; it.tilt = 0; ai.carrying = null; it.x = px - it.w / 2; it.y = p.y - it.h; it.vx = 0; it.vy = 0; it.onGround = true; world.version++;
+        const ok = plateMass(p) >= p.plate.need - 1e-6;
+        sayText(h, ok ? pick(['that should do it', 'heavy enough', 'there.']) : pick(['not heavy enough', 'it wants more', 'too light. thicker ink?']), 2.2);
+        note(pick(ok ? NOTES.heavy : NOTES.light), 4);
+        ai.state = 'act'; ai.timer = 1.2; ai.target = null; break;
+      }
+      walkTo(h, px); if (ai.blocked && h.onGround && ai.jumpCooldown <= 0) doJump(h, 0.9);
+      if (ai.timer <= 0) { heroDrop(h); ai.state = 'go'; }
+      break;
+    }
+    case 'fight': {
+      const g = pg.guard;
+      if (!g || !g.alive) { ai.state = 'go'; break; }
+      const dx = cx(g) - cx(h), reach = h.w / 2 + g.w / 2 + 10;
+      if (Math.abs(dx) <= reach) {
+        h.facing = dx >= 0 ? 1 : -1; h.vx = 0; ai.pose = 'kick';
+        if (!ai.fightAt) { ai.fightAt = world.time; sayText(h, pick(['have at you', 'en garde', 'this is for the page']), 1.6); }
+        if (world.time - ai.fightAt > 0.9) { burst(cx(g), g.y + g.h / 2, 20, 'poof'); removeEntity(g, false); pg.guard = null; note(pick(NOTES.guardWin), 4); ai.pose = null; ai.fightAt = 0; ai.state = 'act'; ai.timer = 0.8; }
+        break;
+      }
+      walkTo(h, cx(g) - Math.sign(dx) * (reach - 8)); break;
+    }
+    default: { // 'go'
+      ai.state = 'go';
+      // things handed to him or lying nearby that he has not inspected yet
+      const fresh = nearestItem(h, (t) => !ai.seen.has(t.id), 2.2 * U);
+      if (fresh && !ai.carrying) { ai.state = 'fetch'; ai.target = fresh; ai.timer = 6; break; }
+      ai.planT = (ai.planT || 0) - dt;
+      if (!ai.plan || ai.planT <= 0 || ai.worldVer !== world.version) { ai.planT = 0.35; ai.worldVer = world.version; ai.plan = planPath(h); }
+      const plan = ai.plan;
+      if (plan.path) { followPath(h, plan.path); ai.need = null; break; }
+      // blocked: can what he carries help?
+      if (plan.need === 'guard' && ai.carrying && (hasTag(ai.carrying, 'wield') || hasTag(ai.carrying, 'play'))) { ai.state = 'fight'; ai.fightAt = 0; break; }
+      if (plan.need === 'locked') {
+        const plate = pg.plates.find((p) => !p.plate.pressed);
+        if (plate && ai.carrying) { ai.state = 'deliver'; ai.target = plate; ai.timer = 12; break; }
+        if (plate && !ai.carrying) { const it = nearestItem(h, null, 1e9); if (it) { ai.state = 'fetch'; ai.target = it; ai.timer = 10; break; } }
+      }
+      if (plan.need === 'guard' && ai.carrying && !ai.joked) { ai.joked = ai.carrying.id; const it = ai.carrying; sayText(h, it.catalog && it.catalog.say ? it.catalog.say : 'this is a ' + it.labelText + '. it is not a sword.', 3.2); note(pick(NOTES.guardLose), 4); ai.state = 'act'; ai.timer = 2.2; break; }
+      const fx = plan.frontierX;
+      if (plan.need && Math.abs(fx - cx(h)) > 10 && !ai.blocked) { walkTo(h, fx); }
+      else { h.vx = 0; h.facing = plan.dir; if (plan.need && (ai.need !== plan.need || world.time > ai.needSaidAt + 7)) { ai.need = plan.need; ai.needSaidAt = world.time; sayText(h, pick(NEEDS[plan.need]), 2.6); } pg.pulse = plan.blocker || plan.need; pg.pulseT = world.time + 0.5; }
+    }
+  }
+  moving();
+}
+
+// ---------------- page rendering
+function drawPage() {
+  const pg = world.page; if (!pg) return;
+  ctx.save(); ctx.strokeStyle = world.theme.pencil; ctx.fillStyle = world.theme.pencil; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const p of pg.pits) {
+    ctx.lineWidth = 3; ctx.globalAlpha = 0.7;
+    ctx.beginPath(); ctx.moveTo(p[0], floorY); ctx.lineTo(p[0] + 4, H); ctx.moveTo(p[1], floorY); ctx.lineTo(p[1] - 4, H); ctx.stroke();
+    ctx.globalAlpha = 0.12; ctx.fillRect(p[0], floorY, p[1] - p[0], H - floorY); ctx.globalAlpha = 1;
+  }
+  // exit arch
+  const ex = pg.exitX, ey = pg.exitY, aw = 0.5 * U, ah = 1.15 * U;
+  ctx.lineWidth = 4; ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.moveTo(ex - aw / 2, ey); ctx.lineTo(ex - aw / 2, ey - ah + aw / 2); ctx.arc(ex, ey - ah + aw / 2, aw / 2, Math.PI, 0); ctx.lineTo(ex + aw / 2, ey); ctx.stroke();
+  ctx.font = '18px ' + FONT_HAND; ctx.textAlign = 'center'; ctx.fillText('exit', ex, ey - ah - 8);
+  // clouds
+  for (const c of pg.clouds) {
+    const w = c.x1 - c.x0, cy = c.y; ctx.lineWidth = 4; ctx.globalAlpha = 0.85; ctx.beginPath();
+    for (let i = 0; i <= 5; i++) { const bx = c.x0 + (i / 5) * w, r = w / 9 + (i % 2) * 6; ctx.arc(bx, cy - r * 0.6, r, Math.PI, 0); }
+    ctx.lineTo(c.x1, cy + 2); ctx.lineTo(c.x0, cy + 2); ctx.closePath(); ctx.globalAlpha = 0.25; ctx.fill(); ctx.globalAlpha = 0.85; ctx.stroke();
+  }
+  // lasers
+  for (const l of pg.lasers) {
+    const top = floorY - l.h; ctx.globalAlpha = 1; ctx.fillStyle = world.theme.pencil; ctx.fillRect(l.x - 7, top - 10, 14, 12); ctx.fillRect(l.x - 7, floorY - 4, 14, 4);
+    if (l.on) { ctx.strokeStyle = '#e8322f'; ctx.lineWidth = world.time - (l.flash || -9) < 0.3 ? 5 : 2.5; ctx.globalAlpha = 0.75 + Math.sin(world.time * 14) * 0.2; ctx.setLineDash([10, 6]); ctx.beginPath(); ctx.moveTo(l.x, top); ctx.lineTo(l.x, floorY); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = world.theme.pencil; }
+  }
+  // pressed plates glow
+  for (const p of pg.plates) if (p.plate.pressed) { ctx.globalAlpha = 0.35; ctx.fillStyle = world.theme.accent; ctx.fillRect(p.x, p.y - 4, p.w, p.h + 4); }
+  // pulse on the blocker
+  if (pg.pulse) {
+    const a = 0.25 + 0.2 * Math.sin(world.time * 6); ctx.globalAlpha = a; ctx.strokeStyle = world.theme.accent; ctx.lineWidth = 6; ctx.setLineDash([12, 8]);
+    const b = pg.pulse; ctx.beginPath();
+    if (b.x !== undefined && b.w !== undefined) ctx.rect(b.x - 8, b.y - 8, b.w + 16, b.h + 16);
+    else if (Array.isArray(b)) ctx.rect(b[0], floorY - 10, b[1] - b[0], 20);
+    else if (b.x0 !== undefined) ctx.rect(b.x0, b.y - 50, b.x1 - b.x0, 60);
+    else if (b.h !== undefined) ctx.rect(b.x - 12, floorY - b.h, 24, b.h);
+    ctx.stroke(); ctx.setLineDash([]);
+  }
+  ctx.restore();
+}
+
+// ---------------- page UI
+const pageselEl = $('#pagesel'), pagewinEl = $('#pagewin');
+function openPagesel() {
+  const list = $('#pagelist'); list.innerHTML = '';
+  for (const p of PAGES) {
+    const b = document.createElement('button'); b.type = 'button'; const st = progress[p.id] || 0; if (st) b.classList.add('done');
+    b.innerHTML = '<b>' + p.id + '. ' + p.name + '</b><small>' + (st ? '★'.repeat(st) + '☆'.repeat(3 - st) : 'ink ' + p.ink + ' · par ' + p.par) + '</small>';
+    b.addEventListener('click', () => { pageselEl.classList.remove('open'); pagewinEl.classList.remove('open'); enterPages(p.id); });
+    list.appendChild(b);
+  }
+  pageselEl.classList.add('open');
+}
+$('#pages-open').addEventListener('click', openPagesel);
+$('#hud-pages').addEventListener('click', openPagesel);
+$('#pagesel-close').addEventListener('click', () => pageselEl.classList.remove('open'));
+$('#pagesel-sandbox').addEventListener('click', () => { pageselEl.classList.remove('open'); leavePages(); toast('Back in the sandbox'); });
+$('#hud-reset').addEventListener('click', resetPage);
+$('#pagewin-replay').addEventListener('click', () => { pagewinEl.classList.remove('open'); resetPage(); });
+$('#pagewin-next').addEventListener('click', () => { pagewinEl.classList.remove('open'); const pg = world.page; const nx = PAGES.find((p) => p.id === pg.id + 1); if (nx) enterPages(nx.id); });
+pageselEl.addEventListener('pointerdown', (ev) => { if (ev.target === pageselEl) pageselEl.classList.remove('open'); });
+
 // ---------------------------------------------------------------- main loop
 function resize() {
   const oldFloor = floorY, oldDPR = DPR;
   DPR = Math.min(2, window.devicePixelRatio || 1); W = canvas.clientWidth; H = canvas.clientHeight;
   canvas.width = Math.ceil(W * DPR); canvas.height = Math.ceil(H * DPR); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  floorY = H - FLOOR_H - $('#tray').offsetHeight;
+  floorY = H - (world.page ? 74 : FLOOR_H) - $('#tray').offsetHeight;
   if (oldFloor && floorY !== oldFloor) for (const e of world.entities) { if (e.type !== 'decor' && e.type !== 'bird') e.y += floorY - oldFloor; }
   for (const e of world.entities) { if (e.x + e.w > W) e.x = Math.max(0, W - e.w); if (e.y + e.h > floorY && e.type !== 'decor') e.y = floorY - e.h; if (oldDPR !== DPR) rebuildSprite(e); }
   buildFloor();
+  if (world.page && world.page.hero && oldFloor && oldFloor !== floorY) loadPage(world.page.def, true);
   if (padOpen() && padTab === 'draw') { sizePad(); renderPad(); }
 }
 function rethemed() { readTheme(); for (const e of world.entities) rebuildSprite(e); buildFloor(); libBuilt = false; if (padOpen()) { if (padTab === 'draw') renderPad(); else buildLibrary(); } }
@@ -1533,6 +2006,7 @@ function frame(t) {
   updateEntities(dt);
   for (const e of world.entities) if (e.ai) e.ai.blocked = false;
   physics(dt / 2); physics(dt / 2);
+  updatePage(dt);
   updateParticles(dt);
   if (drag && drag.e.ai) { drag.e.vx = 0; }
   render();
@@ -1553,7 +2027,7 @@ function start(hot) {
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) window.claude.hot.snapshot(() => ({ world: serializeWorld() }));
   requestAnimationFrame((t) => { last = t; frame(t); });
 }
-window.__dl = { world, makeEntity, removeEntity, addStroke: (s) => addStroke(s), finalize: () => finalizePending(), seatFor, liftable };
+window.__dl = { world, makeEntity, removeEntity, addStroke: (s) => addStroke(s), finalize: () => finalizePending(), seatFor, liftable, planPath: (h) => planPath(h), enterPages, leavePages, resetPage, playerMade, PAGES, CATALOG, spawn: (id) => spawnCatalog(CATALOG.find((c) => c.id === id)), colSpan: (e, x) => colSpan(e, x), floorY: () => floorY };
 const hot = window.claude && window.claude.hot;
 if (hot && hot.ready) hot.ready(start); else start(hot && hot.data ? hot.data : {});
 })();
