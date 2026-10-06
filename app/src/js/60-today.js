@@ -342,12 +342,28 @@
     var nextN = Math.min(held + upcoming.filter(function (c) { return c.s.due === nextDay; }).length, capOf(Object.assign({}, p.prefs, { lightDay: '' }), {}));
     return nextDay ? 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.' : '';
   }
-  // The words for a day with nothing waiting: one set, for Today and for Learn's quiet line.
+  // The words for a day with nothing waiting: one set, for Today, a review with nothing to show
+  // and Learn's quiet line.
   function clearWords(p) {
     var w = p.done > 0 ? ['Done for today', 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.']
       : !p.data.cards.length ? ['Nothing to review yet', 'When you finish a lesson, the questions you answered come back the next day, so they stick.']
       : ['Nothing to review today', 'Everything you have learned is holding up for now.'];
     return { head: w[0], lead: w[1], next: nextUp(p) };
+  }
+  // Nothing waiting, on Today and in a review with nothing to show: those words, and any cards the
+  // daily limit held back, offered without hurry. `first` is the main way on.
+  function clearBox(p, first) {
+    var w = clearWords(p), more = p.due.length;
+    var box = h('section', { class: 'td-clear' });
+    if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
+    box.appendChild(h('h1', { class: 'td-title' }, w.head));
+    box.appendChild(h('p', { class: 'td-lead' }, w.lead));
+    if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
+    var actions = h('div', { class: 'td-actions' }, first);
+    if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
+    box.appendChild(actions);
+    if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
+    return box;
   }
   function whenDay(day, today) {
     var n = U.daysBetween(today, day);
@@ -478,18 +494,7 @@
     }
 
     function drawClear(p) {
-      var w = clearWords(p);
-      var box = h('section', { class: 'td-clear' });
-      if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
-      box.appendChild(h('h1', { class: 'td-title' }, w.head));
-      box.appendChild(h('p', { class: 'td-lead' }, w.lead));
-      if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
-      var actions = h('div', { class: 'td-actions' }, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
-      var more = p.due.length;
-      if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
-      box.appendChild(actions);
-      if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
-      root.appendChild(box);
+      root.appendChild(clearBox(p, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new')));
     }
   }
 
@@ -506,16 +511,17 @@
       root.append(h('div', { class: 'rv-top' }, close, bar, count), where, stage);
       ctx.view.appendChild(root);
 
-      var S = { queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
+      var S = { plan: null, queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
 
       plan(extra ? { extra: true, cap: MORE } : {}).then(function (p) {
+        S.plan = p;
         S.queue = p.queue;
         return topicsFor(uniq(p.queue.map(function (c) { return c.tid; })));
       }).then(function (topics) {
         if (!ctx.alive()) return;
         S.topics = topics;
         bar.setAttribute('aria-valuemax', String(S.queue.length));
-        if (!S.queue.length) return empty();
+        if (!S.queue.length) return empty(S.plan);
         showCard();
       }).catch(function (e) {
         if (!ctx.alive()) return;
@@ -592,13 +598,14 @@
         if (U.boot && U.boot.study) return;
         U.logStudy(Math.max(1, Math.round(S.ms / 60000))).catch(function () {});
       }
-      function empty() {
+      // Nothing to show: what Today says (no cards yet, nothing due, done for today, or the cards
+      // the daily limit held back), with the way back to Today.
+      function empty(p) {
         fill.style.width = '100%';
         count.textContent = '';
-        U.clear(stage).appendChild(h('div', { class: 'empty rv-empty' },
-          h('h2', null, 'Nothing to review right now'),
-          h('p', null, 'Everything you have learned is holding up for now.'),
-          h('div', { class: 'td-actions' }, h('a', { class: 'btn', href: '#/today' }, 'Back to Today'))));
+        var box = clearBox(p, h('a', { class: 'btn wide', href: '#/today' }, 'Back to Today'));
+        box.classList.add('rv-empty');
+        U.clear(stage).appendChild(box);
       }
       function summary() {
         fill.style.width = '100%';

@@ -454,7 +454,8 @@ U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>   outcome
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
 U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   size = dueCount (same read); head, lead, next = Today's words
-    when nothing is waiting ("Done for today", ..., "Next up: 5 cards tomorrow." or ''); next counts cards the daily limit held back
+    when nothing is waiting ("Done for today", ..., "Next up: 5 cards tomorrow." or ''); next counts cards the daily limit held back.
+    Today and a review with nothing to show (#/review, #/review/more) draw the same words (clearBox in 60-today.js)
 ```
 Views and app services
 ```
@@ -528,7 +529,9 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   goes two columns (the welcome beside the full ask) only when `#view` is at least 58rem wide (the
   ask keeps 35rem, so the breakpoint follows the text size). The ask box fits its height to its
   text or placeholder whenever its width, its placeholder or the text size changes; while Claude
-  plans it shows the whole question, and on a phone "Planning…" takes its own row under it.
+  plans it shows the whole question, and wherever the form itself is under 36rem wide (a phone,
+  or the ask's column on a narrower laptop; `.ask-form` is a size container named `ask-form`)
+  "Planning…" takes its own row under it, so the box never grows tall beside the button.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The

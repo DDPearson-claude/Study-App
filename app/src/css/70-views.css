@@ -80,11 +80,15 @@
 .learn.is-returning .ask-go:not(.is-busy) .ask-go-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .learn.is-returning .ask-go svg { width: 24px; height: 24px; }
 .learn.is-returning .ask h1 { font-size: clamp(1.6rem, 5.4vw, 2rem); font-size: clamp(1.6rem, 5.4cqi, 2rem); }
-/* While Claude plans, the button says "Planning…"; on a phone it takes its own row under the
-   question (as on the first run), so the question keeps the full width and stays readable. */
-@container view (max-width: 567px) {
-  .learn.is-returning .ask-form:has(> .ask-go.is-busy) { flex-direction: column; align-items: stretch; }
-  .learn.is-returning .ask-form:has(> .ask-go.is-busy) > .ask-input { flex: none; }
+/* While Claude plans, the button says "Planning…" and the box shows the whole question. Wherever
+   the form itself is narrow (under 36rem: a phone, or the ask's column on a narrower laptop),
+   "Planning…" takes its own row under the question, so the question keeps the full width and
+   stays readable instead of growing tall beside the button. The form is a size container, so this
+   follows its own width at every screen width and text size. */
+.ask-form { container: ask-form / inline-size; }
+.ask-form:has(> .ask-go.is-busy) { flex-wrap: wrap; }
+@container ask-form (max-width: 36rem) {
+  .ask-form > .ask-go.is-busy { flex: 1 0 100%; }
 }
 .learn-note:empty { display: none; }
 .v-load-error { align-items: center; }

@@ -661,7 +661,8 @@ mark.term {
 .td-clear .td-lead { max-width: 28em; }
 .td-done-mark { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--green); color: var(--surface); margin-bottom: 4px; }
 .td-done-mark svg { width: 34px; height: 34px; }
-.td-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; margin: 8px auto 0; }
+/* In rem, so two buttons side by side keep their words on one line at every text size. */
+.td-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 26rem; margin: 8px auto 0; }
 .td-more-note { max-width: 26em; }
 
 .td-relearn { display: flex; flex-direction: column; gap: 8px; }
@@ -1154,11 +1155,15 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .learn.is-returning .ask-go:not(.is-busy) .ask-go-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .learn.is-returning .ask-go svg { width: 24px; height: 24px; }
 .learn.is-returning .ask h1 { font-size: clamp(1.6rem, 5.4vw, 2rem); font-size: clamp(1.6rem, 5.4cqi, 2rem); }
-/* While Claude plans, the button says "Planning…"; on a phone it takes its own row under the
-   question (as on the first run), so the question keeps the full width and stays readable. */
-@container view (max-width: 567px) {
-  .learn.is-returning .ask-form:has(> .ask-go.is-busy) { flex-direction: column; align-items: stretch; }
-  .learn.is-returning .ask-form:has(> .ask-go.is-busy) > .ask-input { flex: none; }
+/* While Claude plans, the button says "Planning…" and the box shows the whole question. Wherever
+   the form itself is narrow (under 36rem: a phone, or the ask's column on a narrower laptop),
+   "Planning…" takes its own row under the question, so the question keeps the full width and
+   stays readable instead of growing tall beside the button. The form is a size container, so this
+   follows its own width at every screen width and text size. */
+.ask-form { container: ask-form / inline-size; }
+.ask-form:has(> .ask-go.is-busy) { flex-wrap: wrap; }
+@container ask-form (max-width: 36rem) {
+  .ask-form > .ask-go.is-busy { flex: 1 0 100%; }
 }
 .learn-note:empty { display: none; }
 .v-load-error { align-items: center; }
@@ -1541,7 +1546,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-d9d1167";
+U.BUILD = "2026-10-06-1f2cc90";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -8336,12 +8341,28 @@ U.interactive = (function () {
     var nextN = Math.min(held + upcoming.filter(function (c) { return c.s.due === nextDay; }).length, capOf(Object.assign({}, p.prefs, { lightDay: '' }), {}));
     return nextDay ? 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.' : '';
   }
-  // The words for a day with nothing waiting: one set, for Today and for Learn's quiet line.
+  // The words for a day with nothing waiting: one set, for Today, a review with nothing to show
+  // and Learn's quiet line.
   function clearWords(p) {
     var w = p.done > 0 ? ['Done for today', 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.']
       : !p.data.cards.length ? ['Nothing to review yet', 'When you finish a lesson, the questions you answered come back the next day, so they stick.']
       : ['Nothing to review today', 'Everything you have learned is holding up for now.'];
     return { head: w[0], lead: w[1], next: nextUp(p) };
+  }
+  // Nothing waiting, on Today and in a review with nothing to show: those words, and any cards the
+  // daily limit held back, offered without hurry. `first` is the main way on.
+  function clearBox(p, first) {
+    var w = clearWords(p), more = p.due.length;
+    var box = h('section', { class: 'td-clear' });
+    if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
+    box.appendChild(h('h1', { class: 'td-title' }, w.head));
+    box.appendChild(h('p', { class: 'td-lead' }, w.lead));
+    if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
+    var actions = h('div', { class: 'td-actions' }, first);
+    if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
+    box.appendChild(actions);
+    if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
+    return box;
   }
   function whenDay(day, today) {
     var n = U.daysBetween(today, day);
@@ -8472,18 +8493,7 @@ U.interactive = (function () {
     }
 
     function drawClear(p) {
-      var w = clearWords(p);
-      var box = h('section', { class: 'td-clear' });
-      if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
-      box.appendChild(h('h1', { class: 'td-title' }, w.head));
-      box.appendChild(h('p', { class: 'td-lead' }, w.lead));
-      if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
-      var actions = h('div', { class: 'td-actions' }, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
-      var more = p.due.length;
-      if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
-      box.appendChild(actions);
-      if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
-      root.appendChild(box);
+      root.appendChild(clearBox(p, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new')));
     }
   }
 
@@ -8500,16 +8510,17 @@ U.interactive = (function () {
       root.append(h('div', { class: 'rv-top' }, close, bar, count), where, stage);
       ctx.view.appendChild(root);
 
-      var S = { queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
+      var S = { plan: null, queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
 
       plan(extra ? { extra: true, cap: MORE } : {}).then(function (p) {
+        S.plan = p;
         S.queue = p.queue;
         return topicsFor(uniq(p.queue.map(function (c) { return c.tid; })));
       }).then(function (topics) {
         if (!ctx.alive()) return;
         S.topics = topics;
         bar.setAttribute('aria-valuemax', String(S.queue.length));
-        if (!S.queue.length) return empty();
+        if (!S.queue.length) return empty(S.plan);
         showCard();
       }).catch(function (e) {
         if (!ctx.alive()) return;
@@ -8586,13 +8597,14 @@ U.interactive = (function () {
         if (U.boot && U.boot.study) return;
         U.logStudy(Math.max(1, Math.round(S.ms / 60000))).catch(function () {});
       }
-      function empty() {
+      // Nothing to show: what Today says (no cards yet, nothing due, done for today, or the cards
+      // the daily limit held back), with the way back to Today.
+      function empty(p) {
         fill.style.width = '100%';
         count.textContent = '';
-        U.clear(stage).appendChild(h('div', { class: 'empty rv-empty' },
-          h('h2', null, 'Nothing to review right now'),
-          h('p', null, 'Everything you have learned is holding up for now.'),
-          h('div', { class: 'td-actions' }, h('a', { class: 'btn', href: '#/today' }, 'Back to Today'))));
+        var box = clearBox(p, h('a', { class: 'btn wide', href: '#/today' }, 'Back to Today'));
+        box.classList.add('rv-empty');
+        U.clear(stage).appendChild(box);
       }
       function summary() {
         fill.style.width = '100%';
