@@ -2214,7 +2214,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-d0be85f";
+U.BUILD = "2026-10-06-8b891d0";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -3820,7 +3820,7 @@ U.store = (function () {
     });
   }
   var STAGE = { predict: 0, play: 1, explain: 2, say: 3, checks: 4, done: 5 };
-  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past'];
+  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'how', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past'];
   function guardProgress(cur, body) {
     var bi = body.ideas, ci = (cur && cur.ideas) || {};
     if (!isObj(bi)) return;
@@ -9526,7 +9526,17 @@ U.interactive = (function () {
 
     // ---- frame: sticky bar, heading, stages, footer ----
     // A read lesson (lesson.mode 'read') is shown read-style, whatever the topic's mode is now.
-    function reading() { return !!(st.lesson && st.lesson.mode === 'read'); }
+    // A read lesson always reads. A lesson written to teach and test reads too when Dan switched the
+    // course to Just teach me before he began this round (it is often prepared in the background
+    // before he switches): its questions are simply not shown. Once he begins a round, how he began
+    // it (ip.how) decides for the rest of it.
+    function reading() {
+      if (!st.lesson) return false;
+      if (st.lesson.mode === 'read') return true;
+      if (st.ip.how) return st.ip.how === 'read';
+      if (st.ip.startedAt) return false;
+      return !!(st.topic && st.topic.mode === 'read');
+    }
     function stagesNow() { return reading() ? READ_STAGES : STAGES; }
     function stepsNow() { return reading() ? READ_STEPS : STEPS; }
     function labelOf(stage) { return (reading() && READ_LABEL[stage]) || LABEL[stage]; }
@@ -9640,6 +9650,7 @@ U.interactive = (function () {
       if (order(r.stage) > order(st.ip.stage)) st.ip.stage = r.stage;
       if (r.doneAt) st.ip.doneAt = r.doneAt;
       if (r.startedAt && !st.ip.startedAt) st.ip.startedAt = r.startedAt;
+      if (r.how && !st.ip.how) st.ip.how = r.how;
       if (r.predict) st.ip.predict = U.clone(r.predict);
       // In place: the checks on screen hold these objects. What the db has was saved first, so it wins.
       var cks = st.ip.checks || (st.ip.checks = {}), rc = r.checks && typeof r.checks === 'object' ? r.checks : {};
@@ -10080,6 +10091,7 @@ U.interactive = (function () {
       // The idea counts as started only once its whole lesson is on screen.
       if (!st.replay) {
         var first = {};
+        if (!st.ip.how) first.how = st.ip.how = reading() ? 'read' : 'study';
         if (!st.ip.startedAt) first.startedAt = st.ip.startedAt = U.now();
         if (!st.ip.stage) first.stage = st.ip.stage = start;
         saveIdea(first);
@@ -13567,7 +13579,17 @@ U.interactive = (function () {
       // moved focus), and focus stays on the option by its key.
       Array.prototype.forEach.call(root.querySelectorAll('.tp-modes [role="radio"]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.mode === m)); });
       schedule();
-      U.store.topic.update(tid, { mode: m }).then(null, function () {
+      U.store.topic.update(tid, { mode: m }).then(function () {
+        // Back to Teach and test me: an idea not begun yet whose lesson was written to read has no
+        // questions, so it is written again (with them) when it is next opened or prepared.
+        if (m !== 'study') return;
+        return U.store.lesson.list(tid).then(function (docs) {
+          (docs || []).forEach(function (d) {
+            var p = ((progress && progress.ideas) || {})[d.__id] || {};
+            if (d && d.lesson && d.lesson.mode === 'read' && !p.startedAt) U.store.lesson.remove(tid, d.__id).catch(function () { /* left as it is */ });
+          });
+        }, function () { /* left as they are */ });
+      }, function () {
         // The store has told Dan; the switch shows what is saved.
         if (ui.mode === m) ui.mode = was || null;
         if (ctx.alive()) schedule();
@@ -14631,7 +14653,8 @@ U.interactive = (function () {
       if (!lines.length) return;
       var lead = leadOf(lines[0]), own = lead || carry;
       carry = null;
-      if (lead) { lines[0] = lead.rest; if (!lines[0]) lines.shift(); }
+      // The label becomes the heading, so the words after it start the part: a capital, as a sentence.
+      if (lead) { lines[0] = lead.rest.replace(/^([^A-Za-z]*)([a-z])/, function (m, a, b) { return a + b.toUpperCase(); }); if (!lines[0]) lines.shift(); }
       if (!lines.length) { carry = lead; return; }   // a label on its own: it names the next block
       var ps = [], items = [], ordered = false;
       lines.forEach(function (l) {

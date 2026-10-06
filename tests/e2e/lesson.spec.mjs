@@ -2340,6 +2340,27 @@ function readLesson({ reveal }) {
   d.lesson.practice = { text: PRACTICE_TEXT };
   return d;
 }
+// The course switched to Just teach me after an idea was prepared to teach and test (often in the
+// background): opening it before beginning shows it read-style, and how he began is kept.
+async function switchedToRead() {
+  current = 'switched-to-read 390-light';
+  console.log('\n' + current);
+  const seed = { 'topics/pendulums': { ...TOPIC, mode: 'read' }, [LESSON('i2')]: CLOCKS };
+  const app = await open({ width: 390, dark: false, hash: '#/t/pendulums/i2', seed, reduced: true });
+  const { page } = app;
+  try {
+    await page.locator('.lsn-stage[data-stage="play"]').waitFor();
+    ok(await page.locator('.lsn-stage[data-stage="predict"], .lsn-past[data-stage="predict"]').count() === 0, 'no guess first, though the lesson was written to test');
+    ok(await page.locator('.lsn-step').count() === 2 && await page.locator('.lsn-steps-label').textContent() === 'Explore', 'two steps: Explore, Read');
+    await page.waitForTimeout(500);
+    const pr = (await doc(app, PROGRESS)).ideas.i2;
+    ok(pr && pr.how === 'read', 'how he began this round is kept: ' + JSON.stringify(pr && pr.how));
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
 async function readScenario(width, dark, withReveal) {
   const tag = `${width}-${dark ? 'dark' : 'light'}`;
   current = 'read-lesson ' + tag + (withReveal ? ' (with what happens)' : '');
@@ -2489,6 +2510,7 @@ const scenarios = [
   ['checked-line', checkedLine],
   ['quiz', quizTarget],
   ['read-lesson-360-light', () => readScenario(360, false, false)],
+  ['switched-to-read', () => switchedToRead()],
   ['read-lesson-1280-dark', () => readScenario(1280, true, true)],
   ['practice-study', practiceStudy],
 ];

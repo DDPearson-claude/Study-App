@@ -468,7 +468,17 @@
       // moved focus), and focus stays on the option by its key.
       Array.prototype.forEach.call(root.querySelectorAll('.tp-modes [role="radio"]'), function (b) { b.setAttribute('aria-checked', String(b.dataset.mode === m)); });
       schedule();
-      U.store.topic.update(tid, { mode: m }).then(null, function () {
+      U.store.topic.update(tid, { mode: m }).then(function () {
+        // Back to Teach and test me: an idea not begun yet whose lesson was written to read has no
+        // questions, so it is written again (with them) when it is next opened or prepared.
+        if (m !== 'study') return;
+        return U.store.lesson.list(tid).then(function (docs) {
+          (docs || []).forEach(function (d) {
+            var p = ((progress && progress.ideas) || {})[d.__id] || {};
+            if (d && d.lesson && d.lesson.mode === 'read' && !p.startedAt) U.store.lesson.remove(tid, d.__id).catch(function () { /* left as it is */ });
+          });
+        }, function () { /* left as they are */ });
+      }, function () {
         // The store has told Dan; the switch shows what is saved.
         if (ui.mode === m) ui.mode = was || null;
         if (ctx.alive()) schedule();

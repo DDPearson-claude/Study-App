@@ -195,7 +195,8 @@
       if (!lines.length) return;
       var lead = leadOf(lines[0]), own = lead || carry;
       carry = null;
-      if (lead) { lines[0] = lead.rest; if (!lines[0]) lines.shift(); }
+      // The label becomes the heading, so the words after it start the part: a capital, as a sentence.
+      if (lead) { lines[0] = lead.rest.replace(/^([^A-Za-z]*)([a-z])/, function (m, a, b) { return a + b.toUpperCase(); }); if (!lines[0]) lines.shift(); }
       if (!lines.length) { carry = lead; return; }   // a label on its own: it names the next block
       var ps = [], items = [], ordered = false;
       lines.forEach(function (l) {

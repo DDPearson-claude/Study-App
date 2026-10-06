@@ -167,7 +167,17 @@
 
     // ---- frame: sticky bar, heading, stages, footer ----
     // A read lesson (lesson.mode 'read') is shown read-style, whatever the topic's mode is now.
-    function reading() { return !!(st.lesson && st.lesson.mode === 'read'); }
+    // A read lesson always reads. A lesson written to teach and test reads too when Dan switched the
+    // course to Just teach me before he began this round (it is often prepared in the background
+    // before he switches): its questions are simply not shown. Once he begins a round, how he began
+    // it (ip.how) decides for the rest of it.
+    function reading() {
+      if (!st.lesson) return false;
+      if (st.lesson.mode === 'read') return true;
+      if (st.ip.how) return st.ip.how === 'read';
+      if (st.ip.startedAt) return false;
+      return !!(st.topic && st.topic.mode === 'read');
+    }
     function stagesNow() { return reading() ? READ_STAGES : STAGES; }
     function stepsNow() { return reading() ? READ_STEPS : STEPS; }
     function labelOf(stage) { return (reading() && READ_LABEL[stage]) || LABEL[stage]; }
@@ -281,6 +291,7 @@
       if (order(r.stage) > order(st.ip.stage)) st.ip.stage = r.stage;
       if (r.doneAt) st.ip.doneAt = r.doneAt;
       if (r.startedAt && !st.ip.startedAt) st.ip.startedAt = r.startedAt;
+      if (r.how && !st.ip.how) st.ip.how = r.how;
       if (r.predict) st.ip.predict = U.clone(r.predict);
       // In place: the checks on screen hold these objects. What the db has was saved first, so it wins.
       var cks = st.ip.checks || (st.ip.checks = {}), rc = r.checks && typeof r.checks === 'object' ? r.checks : {};
@@ -721,6 +732,7 @@
       // The idea counts as started only once its whole lesson is on screen.
       if (!st.replay) {
         var first = {};
+        if (!st.ip.how) first.how = st.ip.how = reading() ? 'read' : 'study';
         if (!st.ip.startedAt) first.startedAt = st.ip.startedAt = U.now();
         if (!st.ip.stage) first.stage = st.ip.stage = start;
         saveIdea(first);

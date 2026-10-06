@@ -360,7 +360,7 @@ U.store = (function () {
     });
   }
   var STAGE = { predict: 0, play: 1, explain: 2, say: 3, checks: 4, done: 5 };
-  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past'];
+  var ROUND_FIELDS = ['round', 'stage', 'predict', 'checks', 'doneAt', 'startedAt', 'how', 'relearn', 'relearnId', 'relearnAt', 'relearnNote', 'againAt', 'past'];
   function guardProgress(cur, body) {
     var bi = body.ideas, ci = (cur && cur.ideas) || {};
     if (!isObj(bi)) return;

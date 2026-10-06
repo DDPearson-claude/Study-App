@@ -124,8 +124,8 @@ test('practice is sorted into the journal\'s parts by fixed rules, word for word
   const kinds = (t) => plain(U.dossier.practiceParts(t)).map((p) => p.kind + (p.label ? ':' + p.label : '') + '=' + p.paras.concat(p.items).join('|'));
   assert.deepEqual(kinds(PRACTICE), [
     'steps:Steps=Measure from the pivot to the middle of the bob.|Time ten swings and divide by ten.',
-    'rules:Rule of thumb=four times the length, twice the time.',
-    'example:Worked example=a 1 m pendulum swings in about 2 s[^1], so a 4 m one takes about 4 s.',
+    'rules:Rule of thumb=Four times the length, twice the time.',
+    'example:Worked example=A 1 m pendulum swings in about 2 s[^1], so a 4 m one takes about 4 s.',
     'mistakes:Common mistakes=Timing a single swing: your reaction time swamps it.|Measuring to the top of the bob.',
   ], 'labelled parts, on their own line or before their text');
   assert.equal(plain(U.dossier.practiceParts(PRACTICE))[0].ordered, true, 'numbered steps stay numbered');
