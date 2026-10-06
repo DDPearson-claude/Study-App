@@ -34,7 +34,7 @@ app/
   kit/KIT.md           the kit API, quoted whole in build and repair prompts
   kit/examples/*.html  exemplar bodies, each tagged <!-- kind: … --> (prompt anchors + tests)
 tools/build.mjs        app/ -> dist/my-university.html   (--out path; --only 32,50 for partial builds)
-tools/harness/         claude-stub.js (runtime stand-in), page.mjs (Playwright helper)
+tools/harness/         claude-stub.js (runtime stand-in), page.mjs (Playwright helper), png.mjs (reads screenshots)
 tools/eval/            the real prompts, validators and self-test, run outside the page (RUNNER.md)
 tests/                 *.test.mjs (node --test), e2e/*.spec.mjs (run.mjs builds, then runs each), fixtures/
 ```
@@ -523,8 +523,10 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   it, held under the review bar, so they never cover its controls; the feedback lets go only when
   it cannot fit below the bar, and a panel never starts under the bar. Only an interactive whose
   K.stage goes side by side (the kit's `ready` says `beside`) gets the full width, with the goal
-  and Check docked under it. Either way the short aim beside Check shows only while the goal
-  sentence's number is off the screen, so the instruction never shows twice at once.
+  and Check docked under it. Either way the short aim beside Check shows only once most of the
+  goal sentence's number has gone under the bar (or off the screen), so the instruction never
+  shows twice at once, and it comes in under Check (in the docked bar, beside it), so Check
+  never moves.
 - Learn at least 900 px wide puts the reviews row (or, on first run, the welcome) beside the ask.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;

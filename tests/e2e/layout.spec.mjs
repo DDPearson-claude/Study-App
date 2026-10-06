@@ -12,6 +12,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { openApp, readJson, taskOf, ROOT } from '../../tools/harness/page.mjs';
+import { readPng } from '../../tools/harness/png.mjs';
 
 const FILE = join(ROOT, 'tests', 'out', 'layout.html');
 const SHOTS = join(ROOT, 'tests', 'out', 'layout');
@@ -380,31 +381,80 @@ await test('laptop review 960x700 xl: a target panel too tall to hold under the 
   assert(onScreen(r.done, r) && onScreen(r.grades, r) && onScreen(r.cont, r), 'after Change, Done, the grades and Continue are on screen ' + JSON.stringify({ done: r.done, grades: r.grades, cont: r.cont, vh: r.vh }));
 });
 
-// The aim beside Check repeats the goal sentence: on a laptop it shows only while the goal's
-// number is off the screen, never beside it, and never leaves Dan without the number. A phone
-// keeps it under the interactive, above Check.
-for (const [w, h, size] of [[1366, 768, 'm'], [1366, 768, 'xl'], [960, 700, 'xl']]) {
-  await test(`laptop review ${w}x${h} at ${size}: the target card's aim never shows beside its goal sentence`, async () => {
-    const app = await openReview(w, h, { card: 'i1_c4', size });
+// The aim beside Check repeats the goal sentence: on a laptop it shows only once the goal's
+// number can no longer be read, never beside a number Dan can still read, and never leaves him
+// without it. It comes in under Check (in the docked bar, beside it), so Check never moves. What
+// can be read is measured on the screen, not with the card's own rule (which compares boxes): the
+// share of the number's ink, found in a screenshot at the top, still drawn where the number now
+// is, every 2 px through the band where it passes under the bar, down and back up. A phone keeps
+// the aim under the interactive, above Check.
+const frames = (app) => app.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
+const dist = (d, i, e, j) => Math.abs(d[i] - e[j]) + Math.abs(d[i + 1] - e[j + 1]) + Math.abs(d[i + 2] - e[j + 2]);
+// The goal's number as drawn now (whole css px): its box and which of its pixels are ink.
+async function numberInk(app) {
+  const n = await rect(app, '.rv-stage .qc-goal-num'), x = Math.floor(n.left), y = Math.floor(n.top);
+  const box = { x, y, width: Math.ceil(n.right) - x, height: Math.ceil(n.bottom) - y };
+  const img = readPng(await app.page.screenshot({ clip: box })), ink = [];
+  for (let i = 0; i < img.width * img.height * img.channels; i += img.channels) if (dist(img.data, i, img.data, 0) > 90) ink.push(i);
+  return { box, img, ink, k: img.width / box.width, sy: await app.page.evaluate(() => scrollY) };
+}
+// The share of that ink still drawn in the same place now that the page has scrolled.
+async function inkShown(app, g) {
+  const sy = await app.page.evaluate(() => scrollY), top = g.box.y - (sy - g.sy), from = Math.max(0, top);
+  if (from >= top + g.box.height) return 0;
+  const img = readPng(await app.page.screenshot({ clip: { x: g.box.x, y: from, width: g.box.width, height: top + g.box.height - from } }));
+  const skip = Math.round((from - top) * g.k) * g.img.width * g.img.channels;
+  return g.ink.filter((i) => i >= skip && dist(img.data, i - skip, g.img.data, i) <= 60).length / g.ink.length;
+}
+// Whether showing or hiding the aim would move Check (the class the card's watcher sets, flipped
+// and put back before anything paints).
+const aimMovesCheck = (app) => app.page.evaluate(() => {
+  const card = document.querySelector('.rv-stage .qc'), at = () => { const b = card.querySelector('.qc-primary').getBoundingClientRect(); return [b.left, b.top, b.width, b.height].join(); };
+  const a = at(); card.classList.toggle('qc-goal-away'); const b = at(); card.classList.toggle('qc-goal-away');
+  return a !== b;
+});
+for (const [w, h, size, dark, html] of [[1366, 768, 'm', false], [1366, 768, 'xl', false], [960, 700, 'xl', true], [1366, 768, 'xl', false, STAGED]]) {
+  await test(`laptop review ${w}x${h} at ${size}${dark ? ' dark' : ''}${html ? ', K.stage' : ''}: the target card's aim shows only once the goal's number cannot be read, and Check never moves`, async () => {
+    const app = await openReview(w, h, { card: 'i1_c4', size, dark, html });
     await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
     await app.page.waitForTimeout(800);
-    const seen = (r) => onScreen(r.num, r) && r.goal.bottom <= r.vh + 1;
-    const frames = () => app.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
     let r = await reviewRects(app);
-    assert(seen(r) && !r.aim, 'with the goal sentence on screen the aim is not shown ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
-    // Every 15 px down to well past the goal, through the band where its first line is under the bar.
-    for (let y = 15; y <= 420; y += 15) {
+    assert(!!r.wide === !!html, 'the expected layout ' + JSON.stringify({ wide: r.wide }));
+    assert(onScreen(r.num, r) && !r.aim, 'with the goal sentence on screen the aim is not shown ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
+    const g = await numberInk(app);
+    assert(g.ink.length > 20 && (await inkShown(app, g)) === 1, 'the number is found on the screen ' + g.ink.length);
+    // Where the number's box passes under the bar once the bar has stuck.
+    const band = g.box.y + g.box.height - r.bar.height;
+    const down = [];
+    for (let y = 0; y < band - 36; y += 15) down.push(y);
+    for (let y = Math.max(0, band - 36); y <= band + 16; y += 2) down.push(y);
+    for (let y = band + 30; y < 420; y += 15) down.push(y);
+    down.push(420);
+    const up = [];
+    for (let y = band + 15; y >= band - 37; y -= 2) up.push(y);
+    let prev = null, partly = 0;
+    for (const y of [...down, ...up, 0]) {
       await app.page.evaluate((v) => window.scrollTo(0, v), y);
-      await frames();
+      await frames(app);
       r = await reviewRects(app);
-      assert(!(seen(r) && r.aim) && (seen(r) || onScreen(r.aim, r)), `scrolled to ${y} px, the instruction shows once ` + JSON.stringify({ num: r.num, goal: r.goal, aim: r.aim, bar: r.bar.bottom }));
+      const sy = await app.page.evaluate(() => scrollY), shown = await inkShown(app, g), at = `scrolled to ${sy} px with ${Math.round(shown * 100)}% of the number showing`;
+      if (shown > 0 && shown < 1) partly++;
+      assert(!r.aim || shown < 0.5, `${at}, the aim shows beside a number Dan can still read ` + JSON.stringify({ num: r.num, bar: r.bar.bottom, aim: r.aim }));
+      assert(shown > 0 || onScreen(r.aim, r), `${at}, the number is gone and the aim is not on screen ` + JSON.stringify({ num: r.num, bar: r.bar.bottom, aim: r.aim }));
+      assert(!(await aimMovesCheck(app)), `${at}, showing or hiding the aim moves Check ` + JSON.stringify({ btn: r.btn }));
+      // Scrolling, Check moves with the page or stays put (held under the bar or docked), never against it.
+      if (prev) {
+        const moved = r.btn.top - prev.btn, by = sy - prev.sy;
+        assert(by >= 0 ? moved <= 0.5 && moved >= -by - 0.5 : moved >= -0.5 && moved <= -by + 0.5, `${at}, Check jumps by ${moved} px for a scroll of ${by} px`);
+      }
+      prev = { btn: r.btn.top, sy };
+      if (y === 420) {
+        assert(shown === 0 && onScreen(r.aim, r) && (html ? r.aim.right <= r.btn.left : r.aim.top >= r.btn.bottom), 'with the goal sentence gone, the aim shows ' + (html ? 'beside' : 'under') + ' Check ' + JSON.stringify({ aim: r.aim, btn: r.btn }));
+        await shot(app, `review-laptop-target-${w}-${size}${html ? '-stage' : ''}-aim`);
+      }
     }
-    assert(!seen(r) && onScreen(r.aim, r) && r.aim.bottom <= r.btn.top, 'with the goal sentence gone, the aim shows above Check ' + JSON.stringify({ aim: r.aim, btn: r.btn }));
-    await shot(app, `review-laptop-target-${w}-${size}-aim`);
-    await app.page.evaluate(() => window.scrollTo(0, 0));
-    await app.page.waitForTimeout(250);
-    r = await reviewRects(app);
-    assert(seen(r) && !r.aim, 'back at the top the aim goes again ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
+    assert(partly >= 4, 'the sweep went through the band where the number is partly under the bar ' + partly);
+    assert(!r.aim, 'back at the top the aim goes again ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
   });
 }
 for (const [w, h] of [[390, 844], [360, 707]]) {

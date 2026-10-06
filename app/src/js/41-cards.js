@@ -488,7 +488,8 @@
     // The goal again beside the button: the interactive can be taller than the screen. In a laptop
     // review the button sits beside the goal sentence (or docks under the interactive on the same
     // screen), so there the aim shows only once the goal's number has left the screen
-    // (.qc-goal-away, 40-review.css): the same instruction never shows twice at once.
+    // (.qc-goal-away, 40-review.css, which brings it in under Check): the same instruction never
+    // shows twice at once.
     var aim = h('p', { class: 'qc-aim muted small' }, name ? name + ': aim for ' : 'Aim for ', h('strong', null, amount(goal)), within);
     c.setFoot([hintBox, aim, btn]);
     if (c.mode === 'review') watchGoal();
@@ -498,7 +499,10 @@
         raf = 0;
         if (!goalLine.isConnected) return;
         var bar = document.querySelector('.rv-top'), n = goalNum.getBoundingClientRect();
-        var on = n.top >= (bar ? bar.getBoundingClientRect().bottom : 0) - 1 && goalLine.getBoundingClientRect().bottom <= window.innerHeight + 1;
+        // The number has left only once most of it is under the bar: with just its top edge
+        // covered it still reads. (Its box runs below the digits, so under 40% of the box showing
+        // is about a third of the digits.)
+        var on = n.bottom - (bar ? bar.getBoundingClientRect().bottom : 0) > n.height * 0.4 && goalLine.getBoundingClientRect().bottom <= window.innerHeight + 1;
         c.el.classList.toggle('qc-goal-away', !on);
       }
       function soon() { if (!raf) raf = requestAnimationFrame(seen); }

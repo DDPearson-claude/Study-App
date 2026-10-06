@@ -325,10 +325,12 @@
      held just under the review bar (60 px) while Dan scrolls a tall interactive, so they never
      cover a control or the readout he is aiming at. They let go (reveal() in 41-cards.js) only
      when the panel cannot fit below the bar. The hint restates the goal, and the aim shows only
-     once the goal's number has left the screen (.qc-goal-away), so it never shows twice. */
+     once the goal's number has left the screen (.qc-goal-away), so it never shows twice. It comes
+     in under Check, so showing it never moves the button. */
   .qc-review.qc-type-target > .qc-foot { position: sticky; top: 76px; bottom: auto; grid-column: 2; grid-row: 2 / -1; padding: 0; }
   .qc-review.qc-type-target > .qc-foot > .qc-hint:not([hidden]) + .qc-aim,
   .qc-review.qc-type-target:not(.qc-goal-away) > .qc-foot > .qc-aim { display: none; }
+  .qc-review.qc-type-target:not(.qc-wide) > .qc-foot > .qc-aim { order: 1; }
   .qc-review.qc-type-target > .qc-foot.qc-unstick { position: static; }
 
   /* A K.stage that goes side by side gets the full width, and the goal and Check dock in one row

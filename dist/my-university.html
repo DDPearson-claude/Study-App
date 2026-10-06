@@ -743,10 +743,12 @@ mark.term {
      held just under the review bar (60 px) while Dan scrolls a tall interactive, so they never
      cover a control or the readout he is aiming at. They let go (reveal() in 41-cards.js) only
      when the panel cannot fit below the bar. The hint restates the goal, and the aim shows only
-     once the goal's number has left the screen (.qc-goal-away), so it never shows twice. */
+     once the goal's number has left the screen (.qc-goal-away), so it never shows twice. It comes
+     in under Check, so showing it never moves the button. */
   .qc-review.qc-type-target > .qc-foot { position: sticky; top: 76px; bottom: auto; grid-column: 2; grid-row: 2 / -1; padding: 0; }
   .qc-review.qc-type-target > .qc-foot > .qc-hint:not([hidden]) + .qc-aim,
   .qc-review.qc-type-target:not(.qc-goal-away) > .qc-foot > .qc-aim { display: none; }
+  .qc-review.qc-type-target:not(.qc-wide) > .qc-foot > .qc-aim { order: 1; }
   .qc-review.qc-type-target > .qc-foot.qc-unstick { position: static; }
 
   /* A K.stage that goes side by side gets the full width, and the goal and Check dock in one row
@@ -1526,7 +1528,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-029e779";
+U.BUILD = "2026-10-06-403887e";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -6377,7 +6379,8 @@ U.interactive = (function () {
     // The goal again beside the button: the interactive can be taller than the screen. In a laptop
     // review the button sits beside the goal sentence (or docks under the interactive on the same
     // screen), so there the aim shows only once the goal's number has left the screen
-    // (.qc-goal-away, 40-review.css): the same instruction never shows twice at once.
+    // (.qc-goal-away, 40-review.css, which brings it in under Check): the same instruction never
+    // shows twice at once.
     var aim = h('p', { class: 'qc-aim muted small' }, name ? name + ': aim for ' : 'Aim for ', h('strong', null, amount(goal)), within);
     c.setFoot([hintBox, aim, btn]);
     if (c.mode === 'review') watchGoal();
@@ -6387,7 +6390,10 @@ U.interactive = (function () {
         raf = 0;
         if (!goalLine.isConnected) return;
         var bar = document.querySelector('.rv-top'), n = goalNum.getBoundingClientRect();
-        var on = n.top >= (bar ? bar.getBoundingClientRect().bottom : 0) - 1 && goalLine.getBoundingClientRect().bottom <= window.innerHeight + 1;
+        // The number has left only once most of it is under the bar: with just its top edge
+        // covered it still reads. (Its box runs below the digits, so under 40% of the box showing
+        // is about a third of the digits.)
+        var on = n.bottom - (bar ? bar.getBoundingClientRect().bottom : 0) > n.height * 0.4 && goalLine.getBoundingClientRect().bottom <= window.innerHeight + 1;
         c.el.classList.toggle('qc-goal-away', !on);
       }
       function soon() { if (!raf) raf = requestAnimationFrame(seen); }
