@@ -233,11 +233,11 @@ const CARDS = {
   i1_c4: { id: 'c4', type: 'target', q: 'Set the string length so one swing takes 3 seconds.', control: 'L', output: 'T', target: 3, tolerance: 0.05, why: 'T = 2π√(L/g), so 3 s needs about 2.24 m.' },
 };
 const STAGED = PENDULUM.interactive.html.replace('K.check(', 'K.stage(\'.pd\', \'#pd-ctl\');\nK.check(');
-async function openReview(width, height, { card, size = 'm', dark = false, html = null }) {
-  const db = seedDb();
+async function openReview(width, height, { card, size = 'm', dark = false, html = null, why = null }) {
+  const db = seedDb(), spec = why ? { ...CARDS[card], why } : CARDS[card];
   if (html) db['topics/pendulums/lessons/i1'] = { ...PENDULUM, interactive: { ...PENDULUM.interactive, html } };
   db[`data/users/${UID}/profile`] = { prefs: { theme: dark ? 'dark' : 'light', size, easy: false, cap: 15, light: false }, days: {}, createdAt: new Date().toISOString() };
-  db[`data/users/${UID}/profile/cards/pendulums`] = { cards: { [card]: { id: card, tid: 'pendulums', iid: 'i1', type: CARDS[card].type, spec: CARDS[card],
+  db[`data/users/${UID}/profile/cards/pendulums`] = { cards: { [card]: { id: card, tid: 'pendulums', iid: 'i1', type: spec.type, spec,
     createdAt: new Date().toISOString(), s: { due: localDay(-2), stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: localDay(-9) }, hist: [] } } };
   const app = await openApp({ width, height, dark, file: FILE, config: { db }, sample: () => new Promise(() => {}) });
   current.apps.push(app);
@@ -247,13 +247,14 @@ async function openReview(width, height, { card, size = 'm', dark = false, html 
   await app.page.locator('.rv-stage > .qc').waitFor({ timeout: 15000 });
   return app;
 }
-// Viewport rects of the review bar, the card parts and (for target cards) the slider and the
-// readout inside the interactive.
+// Viewport rects of the review bar, the card parts (null when not shown) and (for target cards)
+// the slider and the readout inside the interactive.
 async function reviewRects(app) {
   const r = await app.page.evaluate(() => {
-    const box = (s) => { const e = document.querySelector(s); if (!e || e.hidden) return null; const b = e.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width }; };
+    const box = (s) => { const e = document.querySelector(s); if (!e || e.hidden || !e.getClientRects().length) return null; const b = e.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height }; };
     return { vh: innerHeight, bar: box('.rv-top'), q: box('.rv-stage .qc-q'), grades: box('.rv-stage .qc-grades'), cont: box('.rv-stage .qc-continue'), frame: box('.qc-stage iframe'),
-      hint: box('.qc-hint'), btn: box('.qc-primary'), wide: document.querySelector('.rv-stage .qc').classList.contains('qc-wide') };
+      hint: box('.qc-hint'), btn: box('.qc-primary'), wide: document.querySelector('.rv-stage .qc').classList.contains('qc-wide'),
+      goal: box('.rv-stage .qc-goal'), num: box('.rv-stage .qc-goal-num'), aim: box('.rv-stage .qc-aim'), fb: box('.rv-stage .qc-fb'), head: box('.rv-stage .qc-fb-head'), answer: box('.rv-stage .qc-fb .qc-answer'), done: box('.rv-stage .qc-change') };
   });
   if (r.frame) {
     const inner = await app.page.frameLocator('.qc-stage iframe').locator('body').evaluate(() => {
@@ -317,6 +318,7 @@ await test('laptop review: a target card whose interactive has a K.stage gets th
   await app.page.waitForTimeout(1200);
   let r = await reviewRects(app);
   assert(r.wide && r.frame.width >= 1000, 'the kit reports the stage and the interactive gets the width ' + JSON.stringify({ wide: r.wide, frame: r.frame.width }));
+  assert(onScreen(r.num, r) && !r.aim, 'the docked bar does not repeat the goal sentence on screen ' + JSON.stringify({ num: r.num, aim: r.aim }));
   await app.page.locator('.qc-primary').click();
   await app.page.locator('.qc-hint:not([hidden])').waitFor();
   await app.page.waitForTimeout(500);
@@ -326,6 +328,94 @@ await test('laptop review: a target card whose interactive has a K.stage gets th
   }
   await shot(app, 'review-laptop-target-stage');
 });
+
+// The feedback beside a target card is held under the bar (top 76 px). Dan presses Check again
+// while scrolled down to the readout (or presses it, then scrolls down), then Change: a panel
+// that fits below the bar stays held there whole (heading, answer line, Done, grades, Continue)
+// and never drops back to the question's row above the screen; one too tall for that starts just
+// under the bar, and Change brings its grades and Continue on screen.
+const WHY4 = 'T = 2π√(L/g), so a 3 s swing needs a string about 2.24 m long. The swing time grows with the square root of the length, not with the length itself. That is why doubling the time needs four times the string, not twice as much. Gravity sets the scale: on the Moon, where the pull is about a sixth as strong, the same string would swing about two and a half times more slowly.';
+const WHY_HUGE = [WHY4, WHY4, WHY4].join('\n\n');
+// A first miss (the hint), then Check again: scrolled down by `by` before it ('scrolled') or
+// just after it ('then').
+async function checkTwice(app, by, when = 'scrolled') {
+  const scroll = async () => { await app.page.evaluate((y) => window.scrollBy(0, y), by); await app.page.waitForTimeout(400); };
+  await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+  await app.page.waitForTimeout(1200);
+  await app.page.locator('.qc-primary').click();
+  await app.page.locator('.qc-hint:not([hidden])').waitFor();
+  if (when === 'scrolled') await scroll();
+  await app.page.locator('.qc-primary').click();
+  await app.page.locator('.qc-fb.is-wrong').waitFor();
+  await app.page.waitForTimeout(900);
+  if (when === 'then') await scroll();
+  return reviewRects(app);
+}
+const offScreen = (r) => ['fb', 'head', 'answer', 'done', 'cont'].filter((k) => !onScreen(r[k], r));
+for (const [w, h, size, dark, by, why] of [[1366, 768, 'm', false, 400], [1366, 768, 'xl', false, 400], [960, 700, 'xl', true, 400], [960, 700, 'xl', true, 200], [1366, 768, 'm', false, 300, WHY4]]) {
+  for (const when of ['scrolled', 'then']) {
+    const how = when === 'scrolled' ? `scrolled ${by} px, Check again and Change` : `Check again, scroll ${by} px and Change`;
+    await test(`laptop review ${w}x${h} ${size}${dark ? ' dark' : ''}${why ? ', a long why' : ''}: ${how}; the target card's whole panel stays on screen`, async () => {
+      const app = await openReview(w, h, { card: 'i1_c4', size, dark, why });
+      let r = await checkTwice(app, by, when);
+      assert(!r.wide, 'the pendulum keeps the column layout');
+      assert(!offScreen(r).length, 'after Check again the whole panel is on screen, under the bar; off: ' + offScreen(r).join(', ') + ' ' + JSON.stringify({ fb: r.fb, bar: r.bar.bottom, vh: r.vh }));
+      if (when === 'scrolled') await shot(app, `review-laptop-target-${w}-${size}-${by}${why ? '-why' : ''}-check`);
+      await app.page.locator('.qc-change').click();
+      await app.page.waitForTimeout(900);
+      r = await reviewRects(app);
+      assert(!offScreen(r).length && onScreen(r.grades, r), 'after Change the whole panel and its grades are on screen; off: ' + offScreen(r).join(', ') + ' ' + JSON.stringify({ fb: r.fb, grades: r.grades, bar: r.bar.bottom, vh: r.vh }));
+      if (when === 'scrolled') await shot(app, `review-laptop-target-${w}-${size}-${by}${why ? '-why' : ''}-change`);
+    });
+  }
+}
+await test('laptop review 960x700 xl: a target panel too tall to hold under the bar starts just under it, and Change shows its grades and Continue', async () => {
+  const app = await openReview(960, 700, { card: 'i1_c4', size: 'xl', why: WHY_HUGE });
+  let r = await checkTwice(app, 400);
+  assert(r.fb.height > r.vh - 76, 'the panel is taller than the room under the bar ' + r.fb.height);
+  assert(onScreen(r.head, r) && r.fb.top >= r.bar.bottom - 1 && r.fb.top <= r.bar.bottom + 24, 'the panel starts just under the bar ' + JSON.stringify({ fb: r.fb, head: r.head, bar: r.bar.bottom }));
+  await app.page.locator('.qc-change').click();
+  await app.page.waitForTimeout(900);
+  r = await reviewRects(app);
+  assert(onScreen(r.done, r) && onScreen(r.grades, r) && onScreen(r.cont, r), 'after Change, Done, the grades and Continue are on screen ' + JSON.stringify({ done: r.done, grades: r.grades, cont: r.cont, vh: r.vh }));
+});
+
+// The aim beside Check repeats the goal sentence: on a laptop it shows only while the goal's
+// number is off the screen, never beside it, and never leaves Dan without the number. A phone
+// keeps it under the interactive, above Check.
+for (const [w, h, size] of [[1366, 768, 'm'], [1366, 768, 'xl'], [960, 700, 'xl']]) {
+  await test(`laptop review ${w}x${h} at ${size}: the target card's aim never shows beside its goal sentence`, async () => {
+    const app = await openReview(w, h, { card: 'i1_c4', size });
+    await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+    await app.page.waitForTimeout(800);
+    const seen = (r) => onScreen(r.num, r) && r.goal.bottom <= r.vh + 1;
+    const frames = () => app.page.evaluate(() => new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok))));
+    let r = await reviewRects(app);
+    assert(seen(r) && !r.aim, 'with the goal sentence on screen the aim is not shown ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
+    // Every 15 px down to well past the goal, through the band where its first line is under the bar.
+    for (let y = 15; y <= 420; y += 15) {
+      await app.page.evaluate((v) => window.scrollTo(0, v), y);
+      await frames();
+      r = await reviewRects(app);
+      assert(!(seen(r) && r.aim) && (seen(r) || onScreen(r.aim, r)), `scrolled to ${y} px, the instruction shows once ` + JSON.stringify({ num: r.num, goal: r.goal, aim: r.aim, bar: r.bar.bottom }));
+    }
+    assert(!seen(r) && onScreen(r.aim, r) && r.aim.bottom <= r.btn.top, 'with the goal sentence gone, the aim shows above Check ' + JSON.stringify({ aim: r.aim, btn: r.btn }));
+    await shot(app, `review-laptop-target-${w}-${size}-aim`);
+    await app.page.evaluate(() => window.scrollTo(0, 0));
+    await app.page.waitForTimeout(250);
+    r = await reviewRects(app);
+    assert(seen(r) && !r.aim, 'back at the top the aim goes again ' + JSON.stringify({ goal: r.goal, aim: r.aim }));
+  });
+}
+for (const [w, h] of [[390, 844], [360, 707]]) {
+  await test(`review on a ${w}x${h} phone: a target card keeps its aim under the interactive, above Check`, async () => {
+    const app = await openReview(w, h, { card: 'i1_c4' });
+    await app.page.waitForFunction(() => !document.querySelector('.qc-primary').disabled, null, { timeout: 15000 });
+    await app.page.waitForTimeout(800);
+    const r = await reviewRects(app);
+    assert(r.aim && r.aim.top >= r.frame.bottom && r.aim.bottom <= r.btn.top, 'the aim sits under the interactive, above Check ' + JSON.stringify({ aim: r.aim, frame: r.frame, btn: r.btn }));
+  });
+}
 
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length}/${results.length} layout tests passed`);

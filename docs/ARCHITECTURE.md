@@ -520,9 +520,11 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   switches tabs. When `#view` is at least 900 px wide a review card keeps the question and
   answers on the left with Check under them and shows the feedback beside them; a target card
   keeps its interactive in that column with the goal, hint and Check (then the feedback) beside
-  it, held under the review bar, so they never cover its controls. Only an interactive whose
+  it, held under the review bar, so they never cover its controls; the feedback lets go only when
+  it cannot fit below the bar, and a panel never starts under the bar. Only an interactive whose
   K.stage goes side by side (the kit's `ready` says `beside`) gets the full width, with the goal
-  and Check docked under it.
+  and Check docked under it. Either way the short aim beside Check shows only while the goal
+  sentence's number is off the screen, so the instruction never shows twice at once.
 - Learn at least 900 px wide puts the reviews row (or, on first run, the welcome) beside the ask.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
