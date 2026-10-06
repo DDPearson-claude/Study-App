@@ -79,14 +79,16 @@ U.interactive = (function () {
   }
 
   // Target checks the page can't satisfy by moving their control alone (U.sandbox.reach, when the
-  // host has it) -> [{id, q, control, output, target, tolerance, best}]
+  // host has it, at the decimals the lesson gives that output) -> [{id, q, control, output, target, tolerance, best}]
   function unreachable(html, lesson) {
     var S = U.sandbox, list = targetChecks(lesson), out = [];
     if (!html || !S || typeof S.reach !== 'function' || !list.length) return Promise.resolve(out);
+    var outs = ((lesson && lesson.interactive) || {}).outputs || [];
+    function decimalsOf(id) { var o = outs.filter(function (x) { return x && str(x.id) === id; })[0]; return o && isDp(o) ? o.decimals : null; }
     return list.reduce(function (p, c) {
       return p.then(function () {
         return Promise.resolve().then(function () {
-          return S.reach(html, { control: str(c.control), output: str(c.output), target: Number(c.target), tolerance: Math.abs(Number(c.tolerance)) || 0 });
+          return S.reach(html, { control: str(c.control), output: str(c.output), target: Number(c.target), tolerance: Math.abs(Number(c.tolerance)) || 0, decimals: decimalsOf(str(c.output)) });
         }).then(function (r) {
           // A page that could not be asked at all (load trouble) tells us nothing about the target.
           if (r && r.error && !r.tried) console.warn('target reach could not be checked', r.error);

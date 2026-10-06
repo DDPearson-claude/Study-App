@@ -1,9 +1,9 @@
 # The house kit
 
 You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
-with `K.ready()`. It runs in a sandboxed iframe on Dan's Android phone (about 340 px wide, touch)
-and his laptop (about 1000 px), with the global `K` and a calm stylesheet for light and dark. No
-network or storage: web addresses are blocked; no `fetch`, `localStorage`, `alert` or `prompt`.
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop (about 1000 px), with the global `K` and a calm light and dark stylesheet. No network or
+storage: no web addresses, `fetch`, `localStorage`, `alert` or `prompt`.
 
 ## Page shape that works
 1. `<p class="lead">`: one short line telling Dan what to do. The app shows the title; don't repeat it.
@@ -15,10 +15,10 @@ network or storage: web addresses are blocked; no `fetch`, `localStorage`, `aler
    app shows what the model leaves out.
 
 ## Keep the answer hidden until Dan moves
-Dan predicts before he plays, so the opening screen must not answer the prediction. Open on a
-setting it is not about, and hide whatever gives the answer away until he first moves something:
+Dan predicts before he plays, so the opening screen must not answer it. Open on a setting it is
+not about, and hide whatever gives the answer away until his first move:
 - class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
-  Hide the answer, not the figure: a hidden plot leaves a blank hole; hide its line or mark.
+  Hide the answer (a line, a mark), not the controls or a whole figure (a blank hole).
 - `K.readout({..., afterMove: true})`: shows "?" until then.
 - `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
 - `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your own handlers (a drag).
@@ -46,10 +46,10 @@ K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
 ```
 `control` is a big slider with − / + buttons. Keep `unit` short ('s', 'km/h', '%'); `prefix` for
 '£'; `fmt(v)` returns the whole text; `log: true` spans decades. `choice` is 2-8 short named
-options; `value` is an option's value or its 0-based index (as lesson controls with `options`
-give it); `params[id]` is the chosen value. `stepper` walks a process with Back / Next (value =
-step index; `compact: true` when your diagram shows the content). `button` is an action (Shout,
-Clear): use it, not plain buttons, so the self-test presses it.
+options; `value` is an option's value or its 0-based index (with options '1', '2', '4', a number
+is the index); `params[id]` is the chosen value. `stepper` walks a process with Back / Next (the
+value is the step index; `compact: true` when your diagram shows the content). `button` is an
+action (Shout, Clear): use it, not plain buttons, so the self-test presses it.
 
 ## Outputs
 ```
@@ -57,8 +57,8 @@ K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, 
 ```
 Use one rounding everywhere a number appears: give `decimals` to match the lesson text, and
 build the `.say` sentence with `K.fmt(v, {decimals})` or `readout.text()`. Without it, whole
-numbers stay whole, 100 and over round to whole numbers, others keep 3 significant figures
-(2.50, 12.3). Labels under 30 characters. NaN and Infinity fail.
+numbers stay whole, 100 and over round to whole, others keep 3 significant figures (2.50, 12.3).
+Labels under 30 characters.
 ```
 K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
 ```
@@ -79,8 +79,8 @@ K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      it
 K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
 ```
 `anim` adds a Play button (text `label`; `button: false` when your own control calls `play()`
-and `pause()`); `reset` adds Reset. In `step` advance your state (`dt`
-in seconds) and redraw; return `false` to stop. To drive a slider, keep the exact value yourself
+and `pause()`); `reset` adds Reset. In `step` advance your state (`dt` in seconds) and redraw;
+return `false` to stop. To drive a slider, keep the exact value yourself
 (the slider moves in whole steps):
 ```js
 let exact = null;
@@ -92,16 +92,15 @@ K.anim({ label: 'Play', into: '#controls', step: (dt) => {
 ```
 
 ## Sound
-For sound or music, let Dan hear it:
 ```
 K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
 K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
 ```
 `dur` in seconds (default 1, at most 10); `hz` 20 to 20,000; `type` 'sine', 'triangle', 'square'
-or 'sawtooth'. It is quiet and plays only after Dan presses something: call it from a `K.button`;
-show what is sounding. `hold` keeps a tone going (up to `max` seconds, default 20) while `set()`
-follows a slider: a hum that fades as two waves line up. Phone speakers can't play below about
-150 Hz: use 200 to 2,000 Hz for anything Dan must hear, and say so when the real sound is lower.
+or 'sawtooth'. It is quiet and plays only after Dan presses something: call it from a `K.button`,
+never `K.update`; show what is sounding. `hold` keeps a tone going (up to `max` seconds, default
+20) while `set()` follows a slider. Phone speakers can't play below about 150 Hz: use 200 to
+2,000 Hz for anything Dan must hear, and say so when the real sound is lower.
 ```js
 K.button({ label: 'Hear the chord', into: '#controls', press: () => K.sound.chord([261.63, 329.63, 392.0], { dur: 1.5 }) });
 ```
@@ -116,16 +115,14 @@ K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234
 K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
 ```
 Give an `<svg>` a viewBox about 340 wide, `width="100%"`, text 11-14 units, `role="img"` and an
-`aria-label` that follows the state; on desktop the kit centres and caps it (600 px, 1.45 × the
-viewBox) so text stays a sensible size. `K.labels` places labels in a `<g>` (viewBox units),
-nudging each off other text and inside the drawing: use it for labels that move. `K.stage` joins
-the visual and its controls: fitted to 600 px tall on a phone, side by side on a laptop, a
-max-width visual filling its column, a centred fixed-size one keeping its size (`beside: false`
-stacks them).
+`aria-label` that follows the state; on desktop the kit centres and caps it. `K.labels` places
+labels in a `<g>` (viewBox units), nudging each off other text and inside the drawing: use it for
+labels that move. `K.stage` joins the visual and its controls: at most 600 px tall on a phone,
+side by side on a laptop (`beside: false` stacks them).
 
 ## Colour
-Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')`
-(`K.color('accent2', 0.3)` is see-through); never hard-code colours.
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (either works
+anywhere; `K.color('accent2', 0.3)` is see-through); never hard-code colours or colour names.
 - Lines and text: `ink`, `muted` (secondary text, comparisons), `accent2` (navy: the main thing,
   controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
   only), `good` (green: "done" only), `amber-line` (amber lines or markers that must stand out).
@@ -149,32 +146,32 @@ SVG text that crosses lines gets a thin page-coloured halo by itself (`k-nohalo`
 - Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
   information, tap targets at least 44 px.
 - Text grows with Dan's Text size (a quarter bigger at XL). Size tiles and grid columns in rem
-  (`minmax(6rem, 1fr)`), so they reflow to fewer columns and no word splits across two lines.
+  (`minmax(6rem, 1fr)`), so they reflow and no word splits across two lines.
 - Every number shown is a control, computed by the rule shown, a constant from the lesson, an
   assumed value shown as "for example", or a date from the lesson. Never invent data, rates or chances.
 - The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
   extremes ("none of the 100", not "0 of the 100"). Never claim Dan did something ("When you
   slid it to 20"); describe the state, or write conditionally ("Push it past 20 and…").
 - 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
-  always last), and at least one answer from outside your formula (a worked example, an everyday
-  case, a value from the lesson's sources). `source` may ONLY be a URL from the lesson's own
-  sources; if it has none, omit `source`. Never cite from memory. Compare numbers with
-  `K.near(a, b, tol)`: a tolerance of about a millionth of the size for exact rules, wider (a
-  thousandth) where square roots or small steps meet rounding.
-- Ids that lesson checks use must exist.
-- Each update well under 150 ms; `K.anim` for motion, never endless timers.
+  always last), and at least one answer from outside your formula (a worked example or a value
+  from the lesson's sources). `source` may ONLY be a URL from the lesson's own sources; if it has
+  none, omit `source`. Never cite from memory. Compare numbers with `K.near(a, b, tol)`: tolerance
+  about a millionth of the size for exact rules, a thousandth where square roots or small steps
+  meet rounding.
+- `K.anim` for motion, never endless timers.
 - No `vh` units, `position: fixed` or `height: 100%` (the frame grows to fit you).
 - Ideas without numbers (mechanism, process, structure, history, concept) use `K.stepper`, `K.choice`, a
   timeline slider or a sorter with an HTML or SVG diagram; checks assert order and structure facts.
 
 ## The self-test
-Before Dan sees it, the app loads your body at 340, 720 and 1040 px wide, runs every check, sets each
-control to five values from min to max (every option of a choice), reveals the after-move parts,
-presses every `K.button` and plays every `K.anim` for 60 frames, then sweeps again at Text size XL.
-It fails on an exception, NaN or Infinity, a list or object output, an update over 150 ms, sideways
-overflow, text cut off at any of those settings (hidden overflow, an ellipsis, a word split across
-two lines, SVG text outside its drawing or over another label), a control not on the page, or no `K.ready()`. It warns when the first control sits over a
-phone screen below the main figure.
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, sets each
+control to five values (every option of a choice), reveals the after-move parts, presses every
+`K.button`, plays every `K.anim`, and sweeps again at Text size XL.
+It fails on an exception, NaN, Infinity or undefined anywhere on the page, a list or object
+output, an update over 150 ms, sound from `K.update`, sideways overflow, text cut off at any of
+those settings (hidden overflow, an ellipsis, a word split across two lines, SVG text outside its
+drawing or over another label), a control not on the page, none in view at the start, a `K.anim`
+without `into`, or no `K.ready()`. It warns when the first control sits over a phone screen below the main figure.
 
 ## Example
 ```html
@@ -198,7 +195,7 @@ phone screen below the main figure.
       : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
   });
   K.check('No length, no swing time', () => K.near(period(0), 0));
-  // This lesson's sources include the seconds-pendulum page; with no sources, keep the check and drop source.
+  // Only because this lesson cites this page; with no sources, keep the check and drop source.
   K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
     { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
   K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));

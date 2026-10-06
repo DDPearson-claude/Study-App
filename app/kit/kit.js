@@ -21,13 +21,45 @@
   var BODY_LINE = +window.K_BODY_LINE || 0; // srcdoc line where the body starts (for error lines)
   var host = window.parent;                // captured now, so a body can't redirect it
   var hosted = !!host && host !== window;
+  var create = Object.create, keysOf = Object.keys;   // captured before a body could replace them
 
   // ---------- host messaging ----------
+  // Every message carries this frame's token: a random value the host put in the srcdoc. The kit
+  // takes it and removes the script that held it before the body runs, so a page the frame is
+  // navigated to can't know it, and the host refuses its messages. Messages are built on objects
+  // with no prototype, so a setter a body adds to Object.prototype never sees the token.
+  var TOKEN = typeof window.K_TOKEN === 'string' ? window.K_TOKEN : '';
+  try { delete window.K_TOKEN; } catch (e) { window.K_TOKEN = undefined; }
+  // Quiz mode from the start (the host's 'quiz' message follows ready): see "quiz mode" below.
+  var quiz = typeof window.K_QUIZ === 'string' && window.K_QUIZ ? window.K_QUIZ : null;
+  try { delete window.K_QUIZ; } catch (e) { window.K_QUIZ = undefined; }
+  if (quiz) document.documentElement.classList.add('k-quiz');
+  Array.prototype.slice.call(document.getElementsByTagName('script')).forEach(function (s) {
+    if (s !== document.currentScript && /K_TOKEN/.test(s.textContent || '')) s.remove();
+  });
   function post(msg) {
     if (!hosted) return;
-    msg.src = 'kit';
-    try { host.postMessage(msg, '*'); } catch (e) { /* host gone */ }
+    var out = create(null), k = keysOf(msg);
+    for (var i = 0; i < k.length; i++) out[k[i]] = msg[k[i]];
+    out.src = 'kit'; out.tok = TOKEN;
+    try { host.postMessage(out, '*'); } catch (e) { /* host gone */ }
   }
+  // A body that navigates its frame away (a link it clicks, location, a refresh) can't be stopped
+  // from in here, so the host hears about it the moment the page starts to leave and removes the
+  // frame. Built now and sent from capture listeners added before the body's, so a body can't
+  // swallow it.
+  var LEAVING = create(null);
+  LEAVING.src = 'kit'; LEAVING.type = 'leaving'; LEAVING.tok = TOKEN;
+  function leaving() { if (hosted) try { host.postMessage(LEAVING, '*'); } catch (e) { /* host gone */ } }
+  window.addEventListener('beforeunload', leaving, true);
+  window.addEventListener('pagehide', leaving, true);
+  // document.open() throws the page away without leaving it, and erases those listeners (and the
+  // kit's own): the root element it replaces is seen here, so the host still hears at once. (The
+  // host's heartbeat catches anything that silences the kit some other way.)
+  // Read through getters captured now, so a body can't redefine what the check sees.
+  var DOC = document, ROOT = document.documentElement, apply = Reflect.apply;
+  var parentOf = Object.getOwnPropertyDescriptor(Node.prototype, 'parentNode').get;
+  if (window.MutationObserver) new MutationObserver(function () { if (apply(parentOf, ROOT, []) !== DOC) leaving(); }).observe(document, { childList: true });
 
   // ---------- errors ----------
   // `errors` are real faults (they fail the self-test); `warnings` are advice for a repair.
@@ -129,7 +161,9 @@
     root.setAttribute('data-theme', dark ? 'dark' : 'light');
   }
   applyTheme(window.K_THEME);
-  // Colour parsing (any CSS colour the canvas understands) for K.color(name, alpha).
+  // Colour parsing (any CSS colour the canvas understands) for K.color(name, alpha) and halos.
+  // -> [r, g, b, a], or null for anything the canvas can't paint with ('none', 'var(...)', a typo):
+  // a canvas keeps its old colour when given one it rejects, so two different old colours tell.
   var cc = null;
   function rgbaOf(col) {
     var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(col);
@@ -141,23 +175,42 @@
       if (!cc) cc = document.createElement('canvas').getContext('2d');
       cc.fillStyle = '#000'; cc.fillStyle = col;
       var s = String(cc.fillStyle);
+      cc.fillStyle = '#fff'; cc.fillStyle = col;
+      if (String(cc.fillStyle) !== s) return null;
       if (s.charAt(0) === '#') return rgbaOf(s);
       var n = s.match(/[\d.]+/g);
       if (n && n.length >= 3) return [+n[0], +n[1], +n[2], n.length > 3 ? +n[3] : 1];
     } catch (e) {}
     return null;
   }
-  // A palette role ('accent2', 'fill2', 'cat1', ...) or any CSS colour; with alpha, an rgba() of it.
+  // The palette role a name means: 'accent2', 'amber-line' or 'amberLine', or 'var(--k-warn)'
+  // (the CSS form KIT.md gives) -> the role's key in K.theme.c, else null.
+  function roleKey(name) {
+    if (typeof name !== 'string') return null;
+    var v = /^var\(\s*--k-([a-z0-9-]+)\s*\)$/i.exec(name.trim());
+    var key = (v ? v[1] : name.trim()).replace(/-([a-z0-9])/g, function (_, ch) { return ch.toUpperCase(); });
+    return K.theme.c[key] ? key : null;
+  }
+  // Colour words a body may write for roles (KIT.md describes roles by them): drawn as that role,
+  // so they still follow the theme (navy is invisible on the dark page).
+  var WORD_ROLES = { navy: 'accent2', blue: 'accent2', teal: 'accent', red: 'warn', green: 'good', black: 'ink', white: 'bg', gray: 'muted', grey: 'muted' };
+  // A palette role ('accent2', 'fill2', 'cat1', 'var(--k-warn)', ...) or a CSS colour such as
+  // '#2A78D6' or 'rgb(...)'; with alpha, an rgba() of it. A colour word or anything else the
+  // canvas can't draw with warns and falls back to a role, so a plot line, its legend key and a
+  // fill always agree and follow the theme.
   K.color = function (name, alpha) {
-    // 'amber-line' and 'amberLine' are the same role; an unknown bare word warns and falls back.
-    var key = typeof name === 'string' ? name.replace(/-([a-z0-9])/g, function (_, ch) { return ch.toUpperCase(); }) : name;
-    var c = K.theme.c[key];
-    if (!c) {
-      c = name || K.theme.c.accent2;
-      if (typeof name === 'string' && /^[a-z][a-zA-Z0-9-]*$/.test(name) && window.CSS && CSS.supports && !CSS.supports('color', name)) {
-        addUnique(warnings, 'K.color(\'' + name + '\') is not a colour role, so it drew nothing: use one of ' + Object.keys(K.theme.c).join(', ') + '.', 8);
-        c = K.theme.c.accent2;
-      }
+    var key = roleKey(name), c;
+    if (key) c = K.theme.c[key];
+    else if (name == null || name === '') c = K.theme.c.accent2;
+    else {
+      var text = String(name).trim(), v = /^var\(\s*(--[\w-]+)\s*(?:,\s*([^)]*))?\)$/.exec(text);
+      if (v) text = getComputedStyle(document.documentElement).getPropertyValue(v[1]).trim() || (v[2] || '').trim();
+      var word = /^[a-z]+$/i.test(text) && !/^(none|transparent|currentcolor)$/i.test(text);
+      if (word || !rgbaOf(text) && !/^(none|transparent|currentcolor)$/i.test(text)) {
+        var fall = WORD_ROLES[text.toLowerCase()] || 'accent2';
+        addUnique(warnings, 'K.color(\'' + name + '\') is not a colour role, so it was drawn as \'' + fall + '\': use one of ' + Object.keys(K.theme.c).join(', ') + '.', 8);
+        c = K.theme.c[fall];
+      } else c = text;
     }
     if (alpha == null || !isNum(+alpha)) return c;
     var p = rgbaOf(c);
@@ -209,15 +262,22 @@
     if (p >= 100) return group(v, 0);
     return group(v, clamp(2 - Math.floor(Math.log10(p)), 0, 12));
   }
-  // K.fmt(v, {dp | decimals, sig, unit, prefix, percent, sign, compact}) -> readable text. Non-finite -> '—'.
+  // K.fmt(v, {dp | decimals, sig, unit, prefix, percent, sign, compact}) -> readable text. A value
+  // that is not a finite number shows as '—', and from a body that is a problem: the self-test
+  // fails on it, as it would on NaN in a readout ('It lands — m away' hides a broken formula).
   K.fmt = function (v, o) {
+    if (!isNum(v)) problem('K.fmt was given ' + (typeof v === 'number' ? (isNaN(v) ? 'NaN' : 'Infinity') : v == null ? String(v) : typeof v + ' "' + String(v).slice(0, 20) + '"') + ', so it showed "—"');
+    return fmt(v, o);
+  };
+  // The kit's own formatting: the same, without the report (it checks its values itself).
+  function fmt(v, o) {
     o = typeof o === 'number' ? { dp: o } : (o || {});
     if (!isNum(v)) return '—';
     if (o.percent) v = v * 100;
     var a = Math.abs(v), s, dp = o.dp != null ? o.dp : o.decimals;
     if (o.compact && a >= 1e4) {
       var units = [[1e12, ' trillion'], [1e9, ' billion'], [1e6, ' million'], [1e3, 'k']];
-      for (var i = 0; i < units.length; i++) if (a >= units[i][0]) { s = K.fmt(v / units[i][0], { sig: o.sig || 3 }) + units[i][1]; break; }
+      for (var i = 0; i < units.length; i++) if (a >= units[i][0]) { s = fmt(v / units[i][0], { sig: o.sig || 3 }) + units[i][1]; break; }
     } else if (dp != null) {
       s = group(v, clamp(dp | 0, 0, 12));
     } else if (o.sig) {
@@ -231,7 +291,7 @@
     if (o.sign && v > 0) s = '+' + s;
     if (o.percent) s += '%';
     return (o.prefix || '') + s + unitText(o.unit);
-  };
+  }
   function unitText(unit) {
     if (!unit) return '';
     return /^[%°′″:×/]/.test(unit) ? unit : ' ' + unit;
@@ -296,7 +356,7 @@
   // ---------- registry and the update pipeline ----------
   // Every control registers itself; K.params() is {id: value}. A change runs: model(params) ->
   // outputs; readouts whose id matches an output key update themselves; then each K.update fn.
-  var controls = [], byId = Object.create(null), readouts = Object.create(null), readoutList = [], plots = [], anims = [], checks = [];
+  var controls = [], byId = Object.create(null), readouts = Object.create(null), readoutList = [], plots = [], barList = [], anims = [], checks = [];
   var actions = [], stages = [];
   var modelFn = null, updates = [], lastOutputs = {}, readyCalled = false, everRun = false;
   var sink = null;          // during the self-test sweep: where problems go, with the current setting
@@ -337,6 +397,8 @@
     Object.keys(out).forEach(function (k) {
       var v = out[k];
       if (v != null && typeof v === 'object') problem('the model returned an ' + (Array.isArray(v) ? 'array' : 'object') + ' for "' + k + '": outputs must be numbers or short strings (keep lists in your own variables)');
+      // Shown or not, a broken formula here ends up in the say sentence or a label.
+      else if (typeof v === 'number' && !isFinite(v)) problem('the model returned ' + (isNaN(v) ? 'NaN' : 'Infinity') + ' for "' + k + '"');
     });
   }
   function run() {
@@ -357,8 +419,14 @@
   K.refresh = function () { run(); return K; };
 
   // User changes are coalesced to one run per frame (with a timer fallback for throttled frames),
-  // and the host hears about them (debounced) for checks graded through the kit.
-  var pending = false, changeTimer = 0;
+  // and the host hears about them: 250 ms after the last one, and at least every 2 s while they
+  // keep coming (a long drag, a slider an animation drives) or an animation Dan started plays, so
+  // the app knows he is busy with the page (its study minutes). Only while Dan has touched the
+  // page in the last 5 minutes: an animation left running on its own is not Dan studying.
+  var pending = false, changeTimer = 0, changeSince = 0, touched = 0;
+  var CHANGE_MS = 250, CHANGE_MAX = 2000, WATCH_MS = 5 * 60 * 1000;
+  ['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(function (ev) { document.addEventListener(ev, function () { touched = now(); }, true); });
+  function watching() { return !!touched && now() - touched < WATCH_MS; }
   function changed() {
     if (!pending) {
       pending = true;
@@ -367,8 +435,19 @@
       if (window.requestAnimationFrame) requestAnimationFrame(go);
       setTimeout(go, 60);
     }
+    tellHost();
+  }
+  function sendChange() {
     clearTimeout(changeTimer);
-    changeTimer = setTimeout(function () { post({ type: 'change', params: K.params(), outputs: stateOutputs() }); }, 250);
+    changeTimer = 0; changeSince = 0;
+    post({ type: 'change', params: K.params(), outputs: stateOutputs() });
+  }
+  function tellHost() {
+    var t = now();
+    if (!changeSince) changeSince = t;
+    clearTimeout(changeTimer);
+    if (t - changeSince >= CHANGE_MAX && watching()) sendChange();
+    else changeTimer = setTimeout(sendChange, CHANGE_MS);
   }
   function stateOutputs() {
     var o = {};
@@ -403,6 +482,73 @@
   };
   K.reveal = function () { markMoved(); changed(); return K; };
 
+  // ---------- quiz mode ----------
+  // While Dan answers a target check on this page (the host's 'quiz' message, or K_QUIZ in the
+  // srcdoc so it holds from the first paint), the output it asks about stays hidden and he steers
+  // by the picture and the rule: its readout shows "?" (labelled for screen readers), every .say
+  // line is hidden (visibility, so nothing moves) and plot and bar labels giving its value are
+  // left out. The model runs as usual: state and change messages carry the real outputs, which
+  // the app grades. {type:'quiz', hide:null} or 'reveal' ends it. The self-test runs with it off.
+  var testingNow = false, quizHeld = null, HIDDEN = 'Hidden until you check your answer';
+  function setQuiz(id) {
+    id = typeof id === 'string' && id ? id : typeof id === 'number' ? String(id) : null;
+    if (testingNow) { quizHeld = id; return; }
+    applyQuiz(id);
+  }
+  function applyQuiz(id) {
+    if (id === quiz) return;
+    quiz = id;
+    document.documentElement.classList.toggle('k-quiz', !!quiz);
+    readoutList.forEach(function (r) { if (r.value !== undefined) r.set(r.value); });
+    plots.forEach(function (p) { if (p.drawn) p.redraw(); });
+    barList.forEach(function (b) { b.redraw(); });
+    if (everRun) run();
+  }
+  function quizValue() {
+    if (!quiz) return undefined;
+    if (lastOutputs && Object.prototype.hasOwnProperty.call(lastOutputs, quiz)) return lastOutputs[quiz];
+    return readouts[quiz] ? readouts[quiz].value : undefined;
+  }
+  function nearQuiz(x) {
+    var v = quizValue();
+    return isNum(v) && isNum(x) && Math.abs(x - v) <= 1e-9 * Math.max(1, Math.abs(v));
+  }
+  // Does this text give the hidden value away: a number in it that reads as that value at the
+  // number's own rounding ('2.01 s', '1,234', '−3', '45%', '2.5 × 10⁶', '1.2 million'), or the
+  // value itself, as whole words, when it is a word?
+  var WORD_CH = /[\p{L}\p{N}]/u;
+  var NUM_IN = /([−-])?(\d{1,3}(?:,\d{3})+|\d+)(?:\.(\d+))?(?:\s*×\s*10([⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+))?\s*(%|thousand|million|billion|trillion|k(?![a-z]))?/gi;
+  var SCALE = { '%': 0.01, k: 1e3, thousand: 1e3, million: 1e6, billion: 1e9, trillion: 1e12 };
+  function veiled(text) {
+    var v = quizValue();
+    if (v == null || text == null || text === '') return false;
+    text = String(text);
+    if (typeof v !== 'number') {
+      var w = String(v).trim().toLowerCase(), t = text.toLowerCase(), at = w ? t.indexOf(w) : -1;
+      for (; at >= 0; at = t.indexOf(w, at + 1)) {
+        if (!WORD_CH.test(t.charAt(at - 1)) && !WORD_CH.test(t.charAt(at + w.length))) return true;
+      }
+      return false;
+    }
+    if (!isFinite(v)) return false;
+    var m;
+    NUM_IN.lastIndex = 0;
+    while ((m = NUM_IN.exec(text))) {
+      var dp = m[3] ? m[3].length : 0, x = +(m[2].replace(/,/g, '') + (m[3] ? '.' + m[3] : '')), tol = 0.5 * Math.pow(10, -dp);
+      if (m[4]) {
+        var e = +m[4].split('').map(function (ch) { for (var k in SUP) if (SUP[k] === ch) return k; return ''; }).join('');
+        x *= Math.pow(10, e); tol *= Math.pow(10, e);
+      }
+      // A hyphen may be a dash between two numbers ('2-3'), so it is read both ways.
+      var signs = m[1] === '−' ? [-1] : m[1] === '-' ? [-1, 1] : [1], scales = [1];
+      if (m[5]) scales.push(SCALE[m[5].toLowerCase()] || 1);
+      for (var i = 0; i < signs.length; i++) for (var j = 0; j < scales.length; j++) {
+        if (Math.abs(signs[i] * x * scales[j] - v) <= tol * scales[j] + Math.abs(v) * 1e-9) return true;
+      }
+    }
+    return false;
+  }
+
   // ---------- controls ----------
   // Label (and live value on the right), then an optional one-line hint across the full width.
   function fieldHead(id, label, hint, right) {
@@ -420,7 +566,7 @@
     var step = num(o.step, 0) > 0 ? +o.step : (log ? 0 : niceStep((max - min) / 100));
     var dp = Math.max(decimalsOf(step), decimalsOf(min));
     var N = 1000; // log sliders run over N positions
-    var numText = function (v) { return (o.prefix || '') + (log && !o.step ? K.fmt(v, { sig: 3 }) : K.fmt(v, { dp: dp })); };
+    var numText = function (v) { return (o.prefix || '') + (log && !o.step ? fmt(v, { sig: 3 }) : fmt(v, { dp: dp })); };
     var show = function (v) { return o.fmt ? String(o.fmt(v)) : numText(v) + unitText(o.unit); };
     // A long unit ("per second") is shown once, on the right-hand end of the scale.
     var longUnit = !o.fmt && o.unit && (/\s/.test(String(o.unit).trim()) || String(o.unit).trim().length > 4);
@@ -512,14 +658,18 @@
     });
   }
   // K.choice({id, label, options:[value | {value, label}], value, hint, into}) -> {el, get, set}
-  // value (and host set) takes an option's value, its label, or its 0-based index.
+  // value (and host set) takes an option's value, its label, or its 0-based index. A number is the
+  // index when every option is a string, as a lesson gives it: options '1', '2', '4', '8' with
+  // value 1 open on '2'.
   K.choice = function (o) {
     o = o || {};
     var opts = normOptions(o.options);
     var who = 'K.choice "' + (o.id || '') + '"';
     if (opts.length < 2) throw new Error(who + ': needs at least two options');
+    var named = opts.every(function (x) { return typeof x.value === 'string'; });
     function find(v) {
       var i;
+      if (named && typeof v === 'number' && Number.isInteger(v) && v >= 0 && v < opts.length) return opts[v];
       for (i = 0; i < opts.length; i++) if (opts[i].value === v) return opts[i];
       for (i = 0; i < opts.length; i++) if (String(opts[i].value) === String(v)) return opts[i];
       for (i = 0; i < opts.length; i++) if (opts[i].label === String(v)) return opts[i];
@@ -703,20 +853,25 @@
       val.style.fontSize = Math.max(px * least, Math.floor(px * w / need * 10) / 10) + 'px';
     }
     r.set = function (v) { setValue(v); fit(); return r; };
+    // The number as this readout shows it (without the unit).
+    function numText(v) { return o.fmt ? String(o.fmt(v)) : (o.prefix || '') + fmt(v, dp != null ? { dp: dp } : o.sig ? { sig: o.sig } : null); }
+    r.format = function (v) { try { return typeof v === 'number' ? numText(v) : String(v); } catch (e) { return fmt(v); } };
     function setValue(v) {
       r.value = v;
       while (val.firstChild) val.removeChild(val.firstChild);
       // afterMove: a "?" until Dan first moves something, so it can't answer his prediction.
-      var wait = !!o.afterMove && !K.moved;
+      // Quiz mode: a "?" while he answers a target check on this output.
+      var hide = quiz !== null && quiz === id, wait = hide || !!o.afterMove && !K.moved;
       val.classList.toggle('k-wait', wait);
+      if (hide) { val.setAttribute('role', 'img'); val.setAttribute('aria-label', HIDDEN); }
+      else if (val.hasAttribute('role')) { val.removeAttribute('role'); val.removeAttribute('aria-label'); }
       if (typeof v === 'number') {
-        if (!isFinite(v)) { val.textContent = '—'; problem('readout "' + id + '" was given ' + (isNaN(v) ? 'NaN' : 'Infinity')); return; }
+        if (!isFinite(v)) { val.textContent = hide ? '?' : '—'; problem('readout "' + id + '" was given ' + (isNaN(v) ? 'NaN' : 'Infinity')); return; }
         if (wait) { val.textContent = '?'; return; }
-        if (o.fmt) { val.appendChild(K.el('span', { class: 'k-num' }, String(o.fmt(v)))); return; }
-        val.appendChild(K.el('span', { class: 'k-num' }, (o.prefix || '') + K.fmt(v, dp != null ? { dp: dp } : o.sig ? { sig: o.sig } : null)));
-        if (o.unit) val.appendChild(K.el('span', { class: 'k-readout-unit' }, unitText(o.unit)));
+        val.appendChild(K.el('span', { class: 'k-num' }, numText(v)));
+        if (o.unit && !o.fmt) val.appendChild(K.el('span', { class: 'k-readout-unit' }, unitText(o.unit)));
       } else if (v == null) {
-        val.textContent = '—';
+        val.textContent = hide ? '?' : '—';
         problem('readout "' + id + '" was given ' + v);
       } else {
         var shown = String(v);
@@ -751,8 +906,8 @@
   var SERIES_COLORS = ['accent2', 'accent', 'muted', 'ink'];
   function compact(v) {
     var a = Math.abs(v), u = [[1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'k']];
-    for (var i = 0; i < u.length; i++) if (a >= u[i][0]) return K.fmt(v / u[i][0], { sig: 3 }) + u[i][1];
-    return K.fmt(v, { sig: 3 });
+    for (var i = 0; i < u.length; i++) if (a >= u[i][0]) return fmt(v / u[i][0], { sig: 3 }) + u[i][1];
+    return fmt(v, { sig: 3 });
   }
   function axisTicks(A, count) {
     if (Array.isArray(A.ticks)) {
@@ -776,7 +931,7 @@
   }
   function tickText(A, v) {
     if (A.fmt) return String(A.fmt(v));
-    var s = Math.abs(v) >= 1e4 ? compact(v) : A.log || !A.step ? K.fmt(v, { sig: 3 }) : K.fmt(v, { dp: Math.min(6, decimalsOf(A.step)) });
+    var s = Math.abs(v) >= 1e4 ? compact(v) : A.log || !A.step ? fmt(v, { sig: 3 }) : fmt(v, { dp: Math.min(6, decimalsOf(A.step)) });
     return (A.prefix || '') + s + unitText(A.unit);
   }
   function overlap(a, b) { return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h; }
@@ -847,7 +1002,7 @@
         pts = s.points.map(function (p) { return Array.isArray(p) ? [p[0], p[1]] : [p && p.x, p && p.y]; });
       }
       pts.forEach(function (p) { if (!bad && !(isNum(p[0]) && isNum(p[1]))) bad = p; });
-      if (bad && !s.gaps) problem('plot "' + name + '": series "' + label + '" has ' + (isNaN(bad[1]) || isNaN(bad[0]) ? 'NaN' : 'Infinity') + ' at x = ' + K.fmt(bad[0]));
+      if (bad && !s.gaps) problem('plot "' + name + '": series "' + label + '" has ' + (isNaN(bad[1]) || isNaN(bad[0]) ? 'NaN' : 'Infinity') + ' at x = ' + fmt(bad[0]));
       var role = s.color || SERIES_COLORS[i % SERIES_COLORS.length];
       return { s: s, pts: pts, label: s.label, role: role, color: K.color(role) };
     }
@@ -938,7 +1093,7 @@
       geom = { box: box, X: X, Y: Y };
       api.x = sx; api.y = sy; api.box = box;
       var areaAlpha = dark ? 0.3 : 0.16, bandAlpha = dark ? 0.85 : 0.55;
-      function bandColor(role) { return FILL_ROLES.indexOf(role) >= 0 ? K.color(role, bandAlpha) : K.color(role, areaAlpha + 0.04); }
+      function bandColor(role) { var k = roleKey(role); return k && FILL_ROLES.indexOf(k) >= 0 ? K.color(k, bandAlpha) : K.color(role, areaAlpha + 0.04); }
       var ok = function (v) { return isNum(v) && (!Y.log || v > 0); };
 
       // 1. Areas, under everything: regions, shading between lines, filled series.
@@ -1078,7 +1233,7 @@
         ctx.fillStyle = col; ctx.fill();
         ctx.lineWidth = 2.5; ctx.strokeStyle = c.bg; ctx.stroke();
         placed.push({ x: px - rad - 2, y: py - rad - 2, w: 2 * rad + 4, h: 2 * rad + 4 });
-        if (m.label) shown.push({ px: px, py: py, text: String(m.label) });
+        if (m.label && !veiled(m.label)) shown.push({ px: px, py: py, text: String(m.label) });
       });
 
       // 6. Labels, each in the first free spot near its thing: clear of the axes and their labels
@@ -1127,7 +1282,7 @@
       }
       // Reference line labels sit beside their line, never across it.
       (cur.lines || []).forEach(function (l) {
-        if (!l.label) return;
+        if (!l.label || veiled(l.label)) return;
         var text = String(l.label);
         if (isNum(l.x)) {
           var x = sx(l.x);
@@ -1139,7 +1294,7 @@
       });
       // Shade labels: inside the band where it is wide enough (widest first), else just beside it.
       shades.forEach(function (d) {
-        if (!d || !d.sh.label) return;
+        if (!d || !d.sh.label || veiled(d.sh.label)) return;
         var spots = d.pts.filter(function (p) { return ok(p[1]) && ok(p[2]); })
           .map(function (p) { return { x: sx(p[0]), y: (sy(p[1]) + sy(p[2])) / 2, gap: Math.abs(sy(p[1]) - sy(p[2])) }; })
           .sort(function (a, b) { return b.gap - a.gap; });
@@ -1155,7 +1310,7 @@
       });
       // Region labels: inside the band, at a corner.
       (cur.regions || []).forEach(function (r) {
-        if (!r.label) return;
+        if (!r.label || veiled(r.label)) return;
         var text = String(r.label);
         if (isNum(r.x0) || isNum(r.x1)) {
           var a = Math.min(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max)), b = Math.max(sx(isNum(r.x0) ? r.x0 : X.min), sx(isNum(r.x1) ? r.x1 : X.max));
@@ -1176,17 +1331,20 @@
       while (legend.firstChild) legend.removeChild(legend.firstChild);
       var labelled = data.filter(function (d) { return d.label; });
       if (labelled.length > 1 || cur.legend === true) labelled.forEach(function (d) {
-        legend.appendChild(K.el('span', { class: 'k-key' }, K.el('i', { class: d.s.dash ? 'dash' : '', style: { color: d.color } }), d.label));
+        legend.appendChild(K.el('span', { class: 'k-key' }, K.el('i', { class: d.s.dash ? 'dash' : '', style: { color: d.color } }), veiled(d.label) ? '?' : d.label));
       });
-      var alt = cur.label || ((Y.label || 'y') + ' against ' + (X.label || 'x'));
-      shades.forEach(function (d) { if (d && d.sh.label) alt += '. Shaded: ' + d.sh.label; });
-      (cur.marks || []).forEach(function (m) { if (m.label) alt += '. ' + m.label + ' at ' + K.fmt(m.x) + ', ' + K.fmt(m.y); });
+      // The text alternative leaves out the hidden value too (quiz mode).
+      var alt = cur.label && !veiled(cur.label) ? cur.label : ((Y.label || 'y') + ' against ' + (X.label || 'x'));
+      shades.forEach(function (d) { if (d && d.sh.label && !veiled(d.sh.label)) alt += '. Shaded: ' + d.sh.label; });
+      (cur.marks || []).forEach(function (m) {
+        if (m.label && !veiled(m.label)) alt += '. ' + m.label + (nearQuiz(m.x) || nearQuiz(m.y) ? '' : ' at ' + fmt(m.x) + ', ' + fmt(m.y));
+      });
       canvas.setAttribute('aria-label', alt);
     }
 
     api.draw = function (next) {
       cur = next ? Object.assign({}, base, next) : cur;
-      try { render(); } catch (e) { fault('plot "' + name + '"', e); }
+      try { render(); api.drawn = true; } catch (e) { fault('plot "' + name + '"', e); }
       heightSoon();
       return api;
     };
@@ -1218,8 +1376,9 @@
     var root = target ? resolve(target, 'K.bars') : K.el('div');
     if (!target && o.into) place(root, o.into, 'K.bars');
     root.classList.add('k-bars');
-    var api = { el: root };
+    var api = { el: root }, last = null;
     api.draw = function (items, next) {
+      last = [items, next];
       var opt = Object.assign({}, o, next || {});
       items = items || [];
       var top = num(opt.max, 0);
@@ -1235,7 +1394,12 @@
         if (!ok) problem('bars: "' + (it.label || i) + '" has a non-finite value');
         row.querySelector('span').textContent = it.label || '';
         var d = opt.dp != null ? { dp: opt.dp } : opt.decimals != null ? { dp: opt.decimals } : null;
-        row.querySelector('b').textContent = ok ? (opt.fmt ? String(opt.fmt(it.value)) : (opt.prefix || '') + K.fmt(it.value, d) + unitText(opt.unit)) : '—';
+        var text = ok ? (opt.fmt ? String(opt.fmt(it.value)) : (opt.prefix || '') + fmt(it.value, d) + unitText(opt.unit)) : '—';
+        // Quiz mode: no value label for the hidden output.
+        var b = row.querySelector('b'), hide = ok && (nearQuiz(it.value) || veiled(text));
+        b.textContent = hide ? '?' : text;
+        if (hide) { b.setAttribute('role', 'img'); b.setAttribute('aria-label', HIDDEN); }
+        else if (b.hasAttribute('role')) { b.removeAttribute('role'); b.removeAttribute('aria-label'); }
         var fill = row.querySelector('i');
         fill.style.width = (ok ? clamp(it.value / top, 0, 1) * 100 : 0).toFixed(2) + '%';
         fill.style.background = K.color(it.color || 'accent2');
@@ -1243,6 +1407,8 @@
       heightSoon();
       return api;
     };
+    api.redraw = function () { return last ? api.draw(last[0], last[1]) : api; };
+    barList.push(api);
     if (o.items) api.draw(o.items);
     return api;
   };
@@ -1341,7 +1507,10 @@
     var f = stageFigure(s);
     if (!f) return;
     if (f.plot) { if (f.plot.maxHeight) { f.plot.maxHeight = 0; f.plot.redraw(); } }
-    else f.el.style.maxHeight = '';
+    else {
+      f.el.style.maxHeight = '';
+      if (s.width != null) { f.el.style.width = s.width; s.width = null; }
+    }
     if (document.documentElement.clientWidth >= PHONE) return;
     var extra = s.el.getBoundingClientRect().height - s.max;
     if (extra <= 0) return;
@@ -1349,7 +1518,11 @@
       f.plot.maxHeight = Math.max(180, f.plot.canvas.getBoundingClientRect().height - extra);
       f.plot.redraw();
     } else {
-      f.el.style.maxHeight = Math.max(180, f.el.getBoundingClientRect().height - extra) + 'px';
+      var r = f.el.getBoundingClientRect(), h = Math.max(180, r.height - extra);
+      f.el.style.maxHeight = h + 'px';
+      // A bitmap (a canvas) keeps its shape: with the height capped, its width shrinks to match
+      // (an SVG keeps its own by letterboxing). The body's own inline width is back at the next fit.
+      if (/^canvas$/i.test(f.el.tagName) && r.height > h) { s.width = f.el.style.width; f.el.style.width = (h * r.width / r.height).toFixed(1) + 'px'; }
     }
   }
 
@@ -1381,13 +1554,28 @@
   // SVG text drawn in a colour that stands out from the page gets a thin halo of the page colour
   // (class k-halo), so a label stays readable where it crosses a line or a shape. Text in a colour
   // close to the page's (white on a navy box) gets none; .k-nohalo on the text or a parent opts out.
-  var haloBg = null, haloRaf = 0;
+  // Text with a stroke of its own (outlined lettering, a hand-made halo) keeps it, and so does text
+  // whose fill is not a plain colour ('none', a gradient): the halo would paint over the stroke.
+  var haloBg = null, haloRaf = 0, ownStroke = new WeakMap();
+  // Does the text have a stroke of its own? Read without the halo (whose stroke would answer), and
+  // remembered until its stroke, style or class attributes change.
+  function stroked(t) {
+    var sig = (t.getAttribute('stroke') || '') + '|' + (t.getAttribute('style') || '') + '|' + (t.getAttribute('class') || '').replace(/\bk-halo\b/, '');
+    var known = ownStroke.get(t);
+    if (known && known.sig === sig) return known.on;
+    var had = t.classList.contains('k-halo');
+    if (had) t.classList.remove('k-halo');
+    var s = getComputedStyle(t).stroke, on = !!s && s !== 'none';
+    if (had) t.classList.add('k-halo');
+    ownStroke.set(t, { sig: sig, on: on });
+    return on;
+  }
   function haloOne(t) {
     if (t.closest('.k-nohalo')) { t.classList.remove('k-halo'); return; }
+    if (!haloBg) return;
     var f = rgbaOf(getComputedStyle(t).fill);
-    if (!f || !haloBg) return;
-    var d = Math.abs(f[0] - haloBg[0]) + Math.abs(f[1] - haloBg[1]) + Math.abs(f[2] - haloBg[2]);
-    t.classList.toggle('k-halo', d > 160 && f[3] > 0.5);
+    t.classList.toggle('k-halo', !!f && f[3] > 0.5 && !stroked(t) &&
+      Math.abs(f[0] - haloBg[0]) + Math.abs(f[1] - haloBg[1]) + Math.abs(f[2] - haloBg[2]) > 160);
   }
   function halos() {
     haloRaf = 0;
@@ -1428,7 +1616,7 @@
     o = o || {};
     if (typeof o.step !== 'function') throw new Error('K.anim needs step(dt, t)');
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var playing = false, t = 0, last = 0, raf = 0;
+    var playing = false, t = 0, last = 0, raf = 0, beat = 0;
     var label = o.label || 'Play';
     var btn = o.button === false ? null : K.el('button', { type: 'button', class: 'k-btn', 'aria-pressed': 'false' });
     var resetBtn = o.reset ? K.el('button', { type: 'button', class: 'k-btn secondary' }, 'Reset') : null;
@@ -1446,18 +1634,20 @@
       var r;
       try { r = o.step(dt, t); } catch (e) { api.pause(); fault('K.anim step', e); return; }
       if (r === false) { api.pause(); return; }
+      if (watching() && now() - beat >= CHANGE_MAX) { beat = now(); sendChange(); }   // Dan is watching it
       raf = requestAnimationFrame(frame);
     }
     var api = {
       el: el,
       playing: function () { return playing; },
-      play: function () { if (playing) return api; playing = true; last = 0; raf = requestAnimationFrame(frame); paint(); return api; },
+      play: function () { if (playing) return api; playing = true; last = 0; beat = now(); raf = requestAnimationFrame(frame); paint(); return api; },
       pause: function () { playing = false; cancelAnimationFrame(raf); paint(); return api; },
       toggle: function () { return playing ? api.pause() : api.play(); },
       reset: function () { api.pause(); t = 0; if (o.reset) { try { o.reset(); } catch (e) { fault('K.anim reset', e); } } return api; },
       time: function () { return t; },
     };
-    if (btn) btn.addEventListener('click', function () { markMoved(); api.toggle(); });
+    // Play and Pause are Dan doing something: the host hears at once.
+    if (btn) btn.addEventListener('click', function () { markMoved(); api.toggle(); changed(); sendChange(); });
     if (resetBtn) resetBtn.addEventListener('click', function () { api.reset(); changed(); });
     document.addEventListener('visibilitychange', function () { if (document.hidden) api.pause(); });
     anims.push({ o: o, api: api, label: label, autoplay: !!o.autoplay && !reduce });
@@ -1619,7 +1809,7 @@
       try {
         var v = c.fn();
         r.ok = v === true;
-        if (!r.ok) r.error = 'returned ' + (typeof v === 'number' ? K.fmt(v, { sig: 6 }) : String(v)).slice(0, 60);
+        if (!r.ok) r.error = 'returned ' + (typeof v === 'number' ? fmt(v, { sig: 6 }) : String(v)).slice(0, 60);
       } catch (e) { r.error = errText(e) + stackLine(e); }
       return r;
     });
@@ -1628,6 +1818,7 @@
   K.ready = function () {
     if (readyCalled) return K;
     readyCalled = true;
+    noteOwnText();
     run();
     relayout();
     var results = runChecks();
@@ -1723,9 +1914,22 @@
   // printed over each other.
   // -> [{key, msg}]
   function clippedNow() {
-    var out = [], styles = new Map();
+    var out = [], styles = new Map(), hidden = new Map();
     if (!document.body) return out;
     function st(el) { var s = styles.get(el); if (!s) { s = getComputedStyle(el); styles.set(el, s); } return s; }
+    // Text kept for screen readers only (the usual visually-hidden box: 1 x 1 px with its overflow
+    // hidden, clip: rect(0 0 0 0) or clip-path: inset(50%)) is cut off on purpose.
+    function srOnly(el) {
+      if (hidden.has(el)) return hidden.get(el);
+      var on = false;
+      for (var a = el; a && a !== document.body && !on; a = a.parentElement) {
+        var as = st(a);
+        if (/^rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)$/.test(as.clip) || /^inset\(50%\)$/.test(as.clipPath)) on = true;
+        else if (/hidden|clip/.test(as.overflowX + as.overflowY)) { var r = a.getBoundingClientRect(); on = r.width <= 1 && r.height <= 1; }
+      }
+      hidden.set(el, on);
+      return on;
+    }
     var range = document.createRange();
     var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     var seenEl = new Set();
@@ -1734,7 +1938,7 @@
       var el = n.parentElement;
       if (!el || seenEl.has(el) || el.closest('script, style, svg, noscript, template, textarea, select')) continue;
       var es = st(el);
-      if (es.visibility !== 'visible' || es.display === 'none' || +es.opacity === 0) continue;
+      if (es.visibility !== 'visible' || es.display === 'none' || +es.opacity === 0 || srOnly(el)) continue;
       range.selectNodeContents(n);
       var b = range.getBoundingClientRect();
       if (!b.width || !b.height) continue;
@@ -1804,16 +2008,114 @@
           if (b.bottom > sr.bottom + tol) sides.push('bottom by ' + Math.ceil(b.bottom - sr.bottom) + 'px');
           if (sides.length) out.push({ key: 'svgout|' + key, msg: 'SVG text "' + snippet(txt) + '" runs outside its drawing (' + sides.join(', ') + ')' });
         }
-        boxes.push({ x: b.left, y: b.top, w: b.width, h: b.height, text: txt, key: key });
+        boxes.push({ x: b.left, y: b.top, w: b.width, h: b.height, text: txt, key: key, quad: turnedQuad(t) });
       });
       for (var i = 0; i < boxes.length; i++) for (var j = i + 1; j < boxes.length; j++) {
         var p1 = boxes[i], p2 = boxes[j];
         var ix = Math.min(p1.x + p1.w, p2.x + p2.w) - Math.max(p1.x, p2.x), iy = Math.min(p1.y + p1.h, p2.y + p2.h) - Math.max(p1.y, p2.y);
         if (ix <= 0 || iy <= 0) continue;
+        // Turned text (diagonal timeline years): its upright box is much bigger than the words, so
+        // the words' own boxes are compared, a little inside their edges as below.
+        if (p1.quad || p2.quad) {
+          if (p1.text === p2.text && Math.abs(p1.x - p2.x) < 1 && Math.abs(p1.y - p2.y) < 1) continue;
+          if (quadsMeet(p1.quad || uprightQuad(p1), p2.quad || uprightQuad(p2))) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+          continue;
+        }
         var area = ix * iy, small = Math.min(p1.w * p1.h, p2.w * p2.h);
         if (p1.text === p2.text && area > 0.9 * small) continue;   // the same text drawn twice (a halo)
         // Any real overlap reads as a collision ("germ arrivesame germ returns"), even a few letters.
         if (ix > 2 && iy > 0.35 * Math.min(p1.h, p2.h) && area > 0.03 * small) out.push({ key: 'overlap|' + p1.key + '|' + p2.key, msg: 'SVG labels "' + snippet(p1.text) + '" and "' + snippet(p2.text) + '" are printed over each other' });
+      }
+    });
+    return out;
+  }
+  // The corners (page px) of a turned SVG text's own box, trimmed as the upright test allows (1 px
+  // along the line, 17.5% of its height at top and bottom), or null when the text is not turned.
+  function turnedQuad(t) {
+    var m = t.getScreenCTM && t.getScreenCTM();
+    if (!m || Math.abs(m.b) < 1e-6 && Math.abs(m.c) < 1e-6) return null;
+    var bb = t.getBBox(), dx = 1 / (Math.hypot(m.a, m.b) || 1), dy = bb.height * 0.175;
+    var x0 = bb.x + dx, x1 = bb.x + bb.width - dx, y0 = bb.y + dy, y1 = bb.y + bb.height - dy;
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]].map(function (p) { return [m.a * p[0] + m.c * p[1] + m.e, m.b * p[0] + m.d * p[1] + m.f]; });
+  }
+  function uprightQuad(b) {
+    var x0 = b.x + 1, x1 = b.x + b.w - 1, y0 = b.y + b.h * 0.175, y1 = b.y + b.h * 0.825;
+    return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
+  }
+  // Do two convex four-sided shapes overlap? (No edge direction separates them.)
+  function quadsMeet(P, Q) {
+    for (var k = 0; k < 2; k++) {
+      var A = k ? Q : P;
+      for (var i = 0; i < 4; i++) {
+        var nx = A[(i + 1) % 4][1] - A[i][1], ny = A[i][0] - A[(i + 1) % 4][0];
+        var lo1 = Infinity, hi1 = -Infinity, lo2 = Infinity, hi2 = -Infinity;
+        P.forEach(function (v) { var d = v[0] * nx + v[1] * ny; lo1 = Math.min(lo1, d); hi1 = Math.max(hi1, d); });
+        Q.forEach(function (v) { var d = v[0] * nx + v[1] * ny; lo2 = Math.min(lo2, d); hi2 = Math.max(hi2, d); });
+        if (hi1 <= lo2 || hi2 <= lo1) return false;
+      }
+    }
+    return true;
+  }
+  // A broken value on show: NaN, Infinity, undefined or "[object Object]" in the text Dan reads
+  // (the say sentence, any label, SVG text, an aria-label), or in a drawing's numbers (cx="NaN"
+  // draws nothing). Readouts, K.fmt and plots check their own values; this catches the rest. Words
+  // the body writes itself, in its HTML or in a quoted string ("undefined at zero"), are not faults.
+  var BAD_SHOWN = /\bNaN\b|\bundefined\b|\[object\b|(?:^|[^A-Za-z])-?Infinity\b/;
+  var GEOMETRY = ['x', 'y', 'cx', 'cy', 'r', 'rx', 'ry', 'x1', 'y1', 'x2', 'y2', 'dx', 'dy', 'width', 'height', 'd', 'points', 'transform', 'offset'];
+  var ownText = '', ownScriptText = null;
+  function textOf(after) {
+    var out = [], walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    for (var n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (after && !(after.compareDocumentPosition(n) & 4)) continue;
+      if (!n.parentElement || n.parentElement.closest('script, style, noscript, template')) continue;
+      out.push(n.nodeValue);
+    }
+    return out.join(' ');
+  }
+  // At K.ready, before the first update: the page's own text so far, and (once parsed) the text
+  // after the script that called it.
+  function noteOwnText() {
+    if (!document.body) return;
+    ownText = textOf(null);
+    var me = document.currentScript;
+    if (me && document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { ownText += ' ' + textOf(me); });
+  }
+  function meant(word) {
+    if (word === '[object') return false;
+    if (ownScriptText == null) {
+      var src = Array.prototype.map.call(document.body.querySelectorAll('script'), function (x) { return x.textContent; }).join('\n');
+      ownScriptText = (src.match(/(["'`])(?:\\.|(?!\1)[^\\\n])*\1/g) || []).join(' ');
+    }
+    var re = new RegExp('\\b' + word + '\\b');
+    return re.test(ownText) || re.test(ownScriptText);
+  }
+  function badWord(text) {
+    var m = BAD_SHOWN.exec(text);
+    if (!m) return null;
+    var w = m[0].replace(/^[^A-Za-z[]*-?/, '');
+    return meant(w) ? null : w;
+  }
+  function seen(el) { return !!el.getClientRects().length && getComputedStyle(el).visibility === 'visible'; }
+  // -> [{key, msg}]
+  function shownBadNow() {
+    var out = [];
+    if (!document.body) return out;
+    var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    for (var n = walker.nextNode(); n; n = walker.nextNode()) {
+      var el = n.parentElement, w = BAD_SHOWN.test(n.nodeValue) && el && !el.closest('script, style, noscript, template, textarea') && badWord(n.nodeValue);
+      if (!w || !seen(el)) continue;
+      out.push({ key: 'shown|' + pathOf(el) + '|' + w, msg: 'the page shows ' + w + ': "' + snippet(el.textContent) + '" (in ' + describeEl(el) + ')' });
+    }
+    Array.prototype.forEach.call(document.body.querySelectorAll('[aria-label], svg *'), function (el) {
+      var label = el.getAttribute('aria-label'), w = label && BAD_SHOWN.test(label) && badWord(label);
+      if (w) out.push({ key: 'label|' + pathOf(el) + '|' + w, msg: 'the aria-label of ' + describeEl(el) + ' reads ' + w + ': "' + snippet(label) + '"' });
+      if (!el.ownerSVGElement) return;
+      for (var i = 0; i < GEOMETRY.length; i++) {
+        var v = el.getAttribute(GEOMETRY[i]);
+        if (v && /NaN|Infinity|undefined|\[object/.test(v)) {
+          out.push({ key: 'attr|' + pathOf(el) + '|' + GEOMETRY[i], msg: 'an SVG ' + describeEl(el) + ' has ' + GEOMETRY[i] + '="' + snippet(v) + '", so it is not drawn' });
+          break;
+        }
       }
     });
     return out;
@@ -1838,11 +2140,21 @@
     var leave = src.match(/(?:\b(?:window|document|self|top|parent)\.|(?<![\w$.]|\b(?:const|let|var)\s+))location\s*(?:\.\s*(?:href|assign|replace|search|hash|pathname|host|hostname)\b\s*(?:=(?!=)|\()|=(?!=))|\bcreateElement\s*\(\s*['"`](?:iframe|frame|object|embed)\b|\bRTCPeerConnection\b|\bsendBeacon\b|\bWebSocket\b|\bEventSource\b|\bXMLHttpRequest\b|\bimportScripts\b/);
     if (leave) addUnique(errors, 'The page may not navigate, open connections or make frames (found "' + leave[0].slice(0, 40) + '"). Everything stays on this page.');
   }
+  // Runs after the sweep has hidden the after-move parts again, so it sees the opening screen.
   function attachedProblems(list) {
     controls.forEach(function (c) { if (c.el && !c.el.isConnected) list.push('control "' + c.id + '" was created but never added to the page (pass into: or append control.el)'); });
     readoutList.forEach(function (r) { if (!r.el.isConnected) list.push('readout "' + r.id + '" was created but never added to the page'); });
     plots.forEach(function (p, i) { if (!p.el.isConnected) list.push('plot ' + (i + 1) + ' is not on the page'); });
     actions.forEach(function (a) { if (!a.el.isConnected) list.push('button "' + a.label + '" was created but never added to the page'); });
+    anims.forEach(function (a) { if (a.api.el.firstChild && !a.api.el.isConnected) list.push('K.anim "' + a.label + '" has no into:, so its Play button is not on the page'); });
+    // Something Dan can move or press must be in view when the page opens: a control inside
+    // .k-after-move (or a hidden box) can't be seen, tapped or focused, so nothing ever reveals.
+    var parts = controls.map(function (c) { return { el: c.el, name: 'control "' + c.id + '"' }; })
+      .concat(actions.map(function (a) { return { el: a.el, name: 'button "' + a.label + '"' }; }))
+      .concat(anims.filter(function (a) { return a.api.el.firstChild; }).map(function (a) { return { el: a.api.el, name: 'the "' + a.label + '" button' }; }))
+      .filter(function (x) { return x.el && x.el.isConnected; });
+    var reachable = parts.filter(function (x) { return x.el.getClientRects().length && getComputedStyle(x.el).visibility === 'visible'; });
+    if (parts.length && !reachable.length) list.push('Dan cannot reach any control when the page opens: ' + parts.slice(0, 3).map(function (x) { return x.name; }).join(', ') + (parts.length > 1 ? ' are' : ' is') + ' hidden (inside .k-after-move or a hidden box). Keep the controls in view from the start; hide only the answer');
   }
   // A big part hidden until Dan moves leaves a blank hole in the opening screen.
   function afterMoveAdvice() {
@@ -1885,27 +2197,37 @@
   // overflow and cut-off text at each setting; then restore the opening state.
   async function sweep(throwaway) {
     var s = { seen: Object.create(null), order: [], ctx: '' }, overflow = null;
-    var clip = { seen: Object.create(null), order: [] };
+    var clip = { seen: Object.create(null), order: [] }, shown = { seen: Object.create(null), order: [] };
     var breathe = slicer(25);
     sink = s;
     document.documentElement.classList.add('k-testing');   // no fade-ins while it looks
     var init = controls.map(function (c) { return c.get(); });
     // In a throwaway test frame nothing should move things between steps.
     if (throwaway) anims.forEach(function (a) { a.api.pause(); });
-    function look(ctxText) {
-      if (!overflow) { var o = overflowNow(); if (o) overflow = o + ' (at ' + ctxText + ')'; }
-      clippedNow().forEach(function (it) {
-        var e = clip.seen[it.key];
+    function note(list, into, ctxText) {
+      list.forEach(function (it) {
+        var e = into.seen[it.key];
         if (e) { e.n++; return; }
-        clip.seen[it.key] = { msg: it.msg, at: ctxText, n: 1 };
-        clip.order.push(it.key);
+        into.seen[it.key] = { msg: it.msg, at: ctxText, n: 1 };
+        into.order.push(it.key);
       });
     }
+    function look(ctxText) {
+      if (!overflow) { var o = overflowNow(); if (o) overflow = o + ' (at ' + ctxText + ')'; }
+      note(clippedNow(), clip, ctxText);
+      note(shownBadNow(), shown, ctxText);
+    }
+    // Sound from an update (K.update or the model) plays again on every change: dozens of tones
+    // stacking up during a drag, or a fresh 20-second hum each time. Watched while the controls
+    // are swept; buttons and animations may play sound.
+    var hearUpdates = true;
     async function step(ctxText) {
       s.ctx = ctxText;
+      var calls = audio.calls;
       var t0 = now(); run(); var dt = now() - t0;
       if (dt > SLOW_MS) { t0 = now(); run(); dt = Math.min(dt, now() - t0); }
       if (dt > SLOW_MS) problem('an update took ' + Math.round(dt) + ' ms (keep each under ' + SLOW_MS + ' ms)');
+      if (hearUpdates && audio.calls > calls) problem('K.sound played from K.update, which runs on every change (a drag would stack up dozens of tones): play sound only from a K.button press; to follow a slider, start K.sound.hold from a button and call its set() in K.update');
       await breathe();
       s.ctx = ctxText;
       look(ctxText);
@@ -1945,6 +2267,7 @@
           }
         } finally { setTextSize(size0); }
       }
+      hearUpdates = false;
       if (throwaway) {
         for (var b = 0; b < actions.length; b++) {
           s.ctx = 'pressing "' + actions[b].label + '"';
@@ -1974,8 +2297,10 @@
       run();
       sink = null;
     }
-    var problems = s.order.map(function (m) { var e = s.seen[m]; return m + ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; });
-    var clipped = clip.order.slice(0, 12).map(function (key) { var e = clip.seen[key]; return e.msg + ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; });
+    function atText(e) { return ' (at ' + e.at + (e.n > 1 ? ', and ' + (e.n - 1) + ' more setting' + (e.n > 2 ? 's' : '') : '') + ')'; }
+    var problems = s.order.map(function (m) { return m + atText(s.seen[m]); })
+      .concat(shown.order.slice(0, 8).map(function (key) { return shown.seen[key].msg + atText(shown.seen[key]); }));
+    var clipped = clip.order.slice(0, 12).map(function (key) { return clip.seen[key].msg + atText(clip.seen[key]); });
     return { problems: problems, overflow: overflow, seen: s.seen, clipped: clipped };
   }
   var testing = null;
@@ -1984,7 +2309,14 @@
     testing = selftestNow(opt || {}).then(function (r) { testing = null; return r; }, function (e) { testing = null; throw e; });
     return testing;
   }
+  // Quiz mode is a screen for Dan, never what the self-test judges: it is off while the test runs
+  // (a quiz that arrives meanwhile waits for the end).
   async function selftestNow(opt) {
+    quizHeld = quiz; testingNow = true; applyQuiz(null);
+    try { return await selftestRun(opt); }
+    finally { testingNow = false; var q = quizHeld; quizHeld = null; applyQuiz(q); }
+  }
+  async function selftestRun(opt) {
     var t0 = now();
     scanExternal();
     if (!readyCalled) addUnique(errors, 'K.ready() was never called: call it once at the end of the script.');
@@ -2033,11 +2365,16 @@
   }
   // Does some setting of one control bring an output to a target? Tries every setting the control
   // can take (all options of a choice), others staying where they are. Runs in short slices.
-  // -> {reachable, best:{value, output}, tried}
+  // exact: some setting shows the target exactly, at d.decimals when given (the lesson's rounding),
+  // else as the output's readout shows it (else the default rounding).
+  // -> {reachable, exact, best:{value, output}, tried}
   async function reach(d) {
     var c = byId[d.control];
-    if (!c) return { reachable: false, best: null, error: 'No control "' + d.control + '"', tried: 0 };
+    if (!c) return { reachable: false, exact: false, best: null, error: 'No control "' + d.control + '"', tried: 0 };
     var target = +d.target, tol = Math.abs(+d.tolerance || 0), key = String(d.output);
+    var dp = d.decimals != null && d.decimals !== '' && isNum(+d.decimals) && +d.decimals >= 0 ? clamp(Math.round(+d.decimals), 0, 12) : null;
+    var shows = dp != null ? function (x) { return fmt(x, { dp: dp }); } : readouts[key] ? readouts[key].format : function (x) { return fmt(x); };
+    var aim = isNum(target) ? shows(target) : null, exact = false;
     var vals = c.values(), init = c.get(), base = K.params(), best = null, breathe = slicer(25);
     var fromModel = false;
     try { fromModel = !!modelFn && Object.prototype.hasOwnProperty.call(modelFn(base) || {}, key); } catch (e) {}
@@ -2055,6 +2392,7 @@
         if (isNum(out)) {
           var diff = Math.abs(out - target);
           if (!best || diff < best.diff) best = { value: v, output: out, diff: diff };
+          if (!exact && aim !== null && shows(out) === aim) exact = true;
         }
         await breathe();
       }
@@ -2064,6 +2402,7 @@
     }
     return {
       reachable: !!best && best.diff <= tol + Math.abs(target) * 1e-9 + 1e-12,
+      exact: exact,
       best: best ? { value: best.value, output: best.output } : null,
       tried: vals.length,
     };
@@ -2116,13 +2455,21 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 
   // ---------- host requests ----------
+  // A capture listener added before the body runs, so a body's own message listener can't
+  // swallow the host's requests (the host removes a frame that stops answering its pings).
   window.addEventListener('message', function (ev) {
     if (!hosted || ev.source !== host) return;
     var d = ev.data;
     if (!d || typeof d !== 'object' || typeof d.type !== 'string') return;
     var rid = d.rid;
     function state() { post({ type: 'state', rid: rid, params: K.params(), outputs: stateOutputs(), moved: moved }); }
-    if (d.type === 'selftest') {
+    if (d.type === 'ping') {
+      post({ type: 'pong', rid: rid });
+    } else if (d.type === 'quiz') {
+      setQuiz(d.hide);
+    } else if (d.type === 'reveal') {
+      setQuiz(null);
+    } else if (d.type === 'selftest') {
       Promise.resolve().then(function () { return selftest({ throwaway: !!d.throwaway }); }).then(function (report) {
         post({ type: 'report', rid: rid, report: report });
       }, function (e) {
@@ -2152,12 +2499,12 @@
       post({ type: 'inputs', rid: rid, inputs: controls.map(function (x) { return x.info(); }), actions: actions.map(function (x) { return x.label; }).concat(anims.map(function (x) { return x.label; })) });
     } else if (d.type === 'reach') {
       Promise.resolve().then(function () { return reach(d); }).then(function (res) { post({ type: 'reach', rid: rid, result: res }); },
-        function (e) { post({ type: 'reach', rid: rid, result: { reachable: false, best: null, error: errText(e), tried: 0 } }); });
+        function (e) { post({ type: 'reach', rid: rid, result: { reachable: false, exact: false, best: null, error: errText(e), tried: 0 } }); });
     } else if (d.type === 'theme') {
       applyTheme(d.theme);
       plots.forEach(function (p) { p.redraw(); });
       if (everRun) run();
       if (readyCalled) relayout();
     }
-  });
+  }, true);
 })();

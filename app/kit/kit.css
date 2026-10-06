@@ -65,6 +65,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 html.k-moved .k-after-move { visibility: visible; animation: k-fade .35s ease both; }
 html.k-testing .k-after-move { animation: none; }
 @keyframes k-fade { from { opacity: 0; } to { opacity: 1; } }
+/* Quiz mode (the host's 'quiz'): Dan is answering a target check, so the sentence that would
+   give the reading away is hidden, its space kept. */
+html.k-quiz .say, html.k-quiz .say * { visibility: hidden !important; }
 
 /* Custom figures that span the column are capped and centred on wide screens (kit.js sets
    --k-fig-max from the viewBox), so their text never balloons on desktop. */
@@ -92,8 +95,9 @@ svg.k-fig:not([preserveAspectRatio="none"]) { height: auto; }
 /* A drawing's default ink follows the theme (text and shapes with no fill of their own would
    otherwise be black, unreadable in dark mode); any fill you set wins. */
 :where(svg:not([fill])) { fill: var(--k-ink); color: var(--k-ink); }
-/* SVG labels that cross lines and shapes keep a thin halo of the page colour (kit.js picks them). */
-svg text.k-halo { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: 3px; stroke-linejoin: round; }
+/* SVG labels that cross lines and shapes keep a thin halo of the page colour (kit.js picks them:
+   never text with a stroke of its own). Sized to the text, so a small drawing's labels keep it thin. */
+svg text.k-halo { paint-order: stroke fill; stroke: var(--k-bg); stroke-width: .25em; stroke-linejoin: round; }
 
 /* Small teal label (eyebrow) and amber highlighter for key terms. */
 .k-label, .label { display: block; font: 700 12px/1.4 var(--k-font); letter-spacing: .08em; text-transform: uppercase; color: var(--k-accent); }
@@ -185,7 +189,7 @@ td { padding: 8px; border-bottom: 1px solid var(--k-line); vertical-align: top; 
 /* Segmented choice: one row when the options fit, otherwise a tidy stacked list. */
 .k-seg { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; padding: 4px; border-radius: 13px; background: var(--k-sunk); }
 .k-seg button {
-  flex: 1 1 auto; min-height: 40px; padding: 8px 12px; border: 0; border-radius: 10px; cursor: pointer;
+  flex: 1 1 auto; min-height: 44px; padding: 8px 12px; border: 0; border-radius: 10px; cursor: pointer;
   background: transparent; color: var(--k-ink); font: 600 15px/1.25 var(--k-font); touch-action: manipulation;
 }
 .k-seg.stack { display: grid; grid-template-columns: 1fr; }

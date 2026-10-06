@@ -438,12 +438,32 @@ stored answers, learned at `doneAt`, exactly as finishing would have made them.
 
 The model writes only the body (HTML, optional `<style>`, one inline `<script>` ending with
 `K.ready()`, at most 150 KB). `U.sandbox.srcdoc` puts the CSP first in `<head>`, then charset,
-viewport, the kit CSS, `window.K_THEME` and `window.K_BODY_LINE` (for error line numbers) and
-the kit JS; the body follows in `<body>`. CSP: `default-src 'none'; script-src 'unsafe-inline';
+viewport, the kit CSS, `window.K_THEME`, `window.K_BODY_LINE` (for error line numbers),
+`window.K_TOKEN` (the frame's random token) and `window.K_QUIZ` (the output quiz mode hides, or
+null), and the kit JS; the body follows in `<body>`. CSP: `default-src 'none'; script-src 'unsafe-inline';
 style-src 'unsafe-inline'; img-src data:; font-src data:; media-src data:; connect-src 'none';
 form-action 'none'; base-uri 'none'`. The frame is `sandbox="allow-scripts"` (never
-`allow-same-origin`). The host trusts a message only from that frame's own window; the kit only
-from the parent it captured at load. The API (full reference in `app/kit/KIT.md`):
+`allow-same-origin`). The CSP stops the requests a page makes, not the frame navigating itself
+away (a link it makes and clicks): that request still goes out, but the page it lands on is never
+used. The kit takes the token and removes the script that held it before the body runs, and signs
+every message with it (built on objects with no prototype, so a body's setters never see it). The
+host trusts a message only from that frame's own window and with its token, so neither the body
+nor a page the frame was navigated to can speak for the kit. When the page starts to leave
+(`beforeunload` / `pagehide`, capture listeners added before the body's) the kit posts `leaving`
+and the host removes the frame at once; a second `load` in the same window does the same (a frame
+moved in the page gets a new window, which loads the kit afresh, and is kept). `document.open()`
+(or `document.write()` after load) erases those listeners, so the kit also watches the document's
+root element (a MutationObserver reading getters captured at load) and posts `leaving` when it is
+replaced. The backstop is the heartbeat: the host pings each mounted frame every 2 s (`PING_MS`),
+and anything the kit says with the token counts as an answer. A frame that has answered and then
+misses 2 pings in a row (`MISSES`: 4-6 s of silence) is no longer the kit and is removed, onError
+"stopped answering", like one that leaves; one that has never said anything is removed at 12 s
+(`FIRST_MS`, the wait for K.ready) and never shown. The clock is `visibleTimeout`'s (time with the
+app hidden does not count). A page busy with a long computation answers between its tasks (and a
+frame that shares the app's thread stops the app's clock with it), so only a page frozen for
+seconds is taken out. The kit's message listener is a capture listener added before the body's, so
+a body's own listener cannot swallow the host's requests. The kit trusts only the parent it
+captured at load. The API (full reference in `app/kit/KIT.md`):
 ```
 pipeline   K.model(fn) K.update(fn) K.at(over) K.params() K.outputs() K.refresh() K.check(label, fn, {source?}) K.ready()
 controls   K.control K.choice K.toggle K.stepper K.button         each {id, label, …, into}; ids = the lesson's
@@ -455,18 +475,29 @@ layout     K.stage(visual, controls, {max = 600, beside}): controls under the vi
            a side that is a grid or has a max-width filling its column up to it (k-fill), a
            fixed-size drawing the body centres keeping its size
 helpers    K.el K.svg K.labels K.fmt K.near K.clamp K.lerp K.linspace K.round K.color(role, alpha?)  K.theme {dark, size, c}
+           K.color takes a role, its var(--k-…) form or a CSS colour; a colour word ('navy') or one the
+           canvas can't draw is drawn as a role, with advice. K.choice reads a number as the index when
+           every option is a string ('1', '2', '4').
 ```
-Messages (`postMessage`, each with `src:'kit'`; a reply carries its request's `rid`):
+Messages (`postMessage`, each with `src:'kit'`; a reply carries its request's `rid`; kit -> host
+messages also carry `tok`, the frame's token):
 ```
 kit -> host  {type:'height', px}  {type:'ready', checks:[{label, ok, source?, error?}], beside}  {type:'error', message}
              (beside: a K.stage sets its controls beside the visual in a wide frame)
-             {type:'change', params, outputs}   (250 ms after Dan changes something)
-host -> kit  selftest {throwaway?}   -> {type:'report', report}
+             {type:'change', params, outputs}   250 ms after Dan changes something; at once on Play / Pause;
+                 at least every 2 s while changes keep coming (a drag, a slider an animation drives) or an
+                 animation plays, as long as Dan touched the page in the last 5 min (U.boot.study)
+             {type:'leaving'}   the page is navigating away (or was replaced): the host removes the frame
+host -> kit  ping                    -> {type:'pong'}         the heartbeat
+             quiz {hide}  reveal     (no reply)               quiz mode, below
+             selftest {throwaway?}   -> {type:'report', report}
              get                     -> {type:'state', params, outputs, moved}
              set {id, value}         -> state | error       counts as a move
              press {label?}          -> state | error       a K.button, else a K.anim's Play; counts as a move
              inputs                  -> {type:'inputs', inputs:[{id, kind, label, value, …}], actions:[labels]}
-             reach {control, output, target, tolerance} -> {type:'reach', result:{reachable, best:{value, output}|null, tried, error?}}
+             reach {control, output, target, tolerance, decimals?} -> {type:'reach', result:{reachable, exact, best:{value, output}|null, tried, error?}}
+                 exact: some setting shows the target exactly at `decimals` (the lesson output's), else as the
+                 output's readout rounds it (else the default rounding)
              theme {theme}           (no reply)
 Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label, ok, source?, error?}],
            sweep:{ ok, problems:[] }, controls:[ids], readouts:[ids], outputs:[model keys],
@@ -476,9 +507,35 @@ Report = { ok, errors:[], overflow, overflowDetail?, clipped:[], checks:[{label,
 `K.ready()` called. A word split across two lines counts as clipped; words come from
 `Intl.Segmenter`, and scripts that wrap between characters (Chinese, Japanese), a soft hyphen,
 and text the body lets break anywhere (`hyphens: auto`, `word-break: break-all`,
-`overflow-wrap: anywhere`) are ordinary breaks. The self-test (KIT.md, "The self-test") also
+`overflow-wrap: anywhere`) are ordinary breaks, and so is text kept for screen readers (a 1 x 1 px
+box, `clip: rect(0 0 0 0)`, `clip-path: inset(50%)`); turned SVG labels are compared by their own
+boxes, not their upright bounding boxes. The self-test (KIT.md, "The self-test") also
 sweeps every control, reveals the after-move parts, steps every `K.anim` and, in a throwaway
-frame, presses every `K.button` and sweeps the controls again at Text size XL (20 px).
+frame, presses every `K.button` and sweeps the controls again at Text size XL (20 px). Sweep
+problems include: a model output that is NaN or Infinity; `K.fmt` given a non-number (it shows
+"—"); NaN, Infinity, undefined or "[object" in visible text, an aria-label or an SVG shape's
+numbers (words the body wrote itself, in its HTML or a quoted string, are not faults); `K.sound`
+played from an update while the controls are swept; no control or button in view when the page
+opens (all inside `.k-after-move` or a hidden box); a `K.anim` whose Play button is not on the page.
+A body that navigates its test frame away fails ("navigated its frame away"), keeping what its
+self-test found if the report arrives first. On a phone a staged canvas whose height is capped
+keeps its shape (its width shrinks with it). SVG halos (`k-halo`, .25em of the page colour) skip
+text with a stroke of its own or a fill that is not a plain colour.
+
+Quiz mode (contract Q), while Dan answers a target check on the interactive:
+`U.sandbox.mount(container, {…, quiz: {hide: '<output id>'}})`. The srcdoc opens in it (`K_QUIZ`), so
+the value never shows, and after every `ready` (a frame moved in the page loads the kit again) the
+host posts `{type:'quiz', hide}` with the current state; `{type:'quiz', hide:null}` or
+`{type:'reveal'}` ends it (`api.quiz(null)`, `api.reveal()`; `api.quiz(id)` starts one later). In
+it the kit shows that output's readout as "?" (role img, aria-label "Hidden until you check your
+answer"; `readout.text()` gives "?"), hides every `.say` element (`html.k-quiz .say`: visibility,
+so nothing jumps), and K.plot (mark, line, shade and region labels, legend keys, the text
+alternative) and K.bars (a bar whose value is the output) draw no label giving the value: one
+with a number that reads as the output's value at the number's own rounding ('2.01 s', '1,234',
+'45%', '2.5 × 10⁶', '1.2 million'), or a word output as a whole word. `state` and `change`
+messages still carry the real outputs (the app grades with them). The self-test runs with quiz
+mode off (a quiz that arrives meanwhile waits for its end); test frames never have one. KIT.md
+does not mention it: a body need do nothing.
 
 Height: the kit posts the body's height, including content that spills out of a fixed-height
 box (`body.scrollHeight`), capped at 6000 px; the host sizes the frame to it (hidden test
@@ -633,7 +690,8 @@ Interactive build (`U.interactive.build`): the prompt carries the idea, the less
 controls, outputs, numbers, target checks, explanation and sources, KIT.md and the nearest
 exemplar by kind. Each body is self-tested at 340, 720 and 1040 px and checked against the
 lesson: ids its checks need (`missing`), web addresses other than its sources (`foreign`), and
-target checks that moving one control cannot reach (`unreachable`, via `U.sandbox.reach`).
+target checks that moving one control cannot reach (`unreachable`, via `U.sandbox.reach` at the
+decimals the lesson gives that output).
 Failures go back in a repair prompt, at most twice. After the last repair, a page that passes
 its own self-test is still kept, with stray addresses stripped and unreachable targets reported.
 Its status lines: "Building the interactive…", "Testing it at phone, tablet and laptop sizes…",
@@ -783,15 +841,20 @@ rebuild, with Dan's note as feedback.
 
 `32-sandbox.js` (kit host)
 ```
-U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme}) (throws {code:'too_large'})
-U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), minHeight = 320, loading}) ->
-   { el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t?), destroy() }
+U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme, token, quiz}) (throws {code:'too_large'})
+U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), minHeight = 320, loading,
+                            quiz: {hide: output id}}) ->
+   { el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t?),
+     quiz(id | null), reveal(), destroy() }
    ready is null if K.ready() has not come after 12 s; follows the app's theme and text size;
-   a frame that navigates away is stopped; one removed from the page is destroyed.
-U.sandbox.test(html, {widths = [340, 720], timeout = 8000, theme}) -> Promise<Report>   hidden frames, one width
+   a frame that starts to navigate away (or throws its page away) is removed at once and its later messages
+   refused; one that stops answering the heartbeat is removed too (section 6); one removed from the page is
+   destroyed. quiz / reveal: quiz mode (section 6).
+U.sandbox.test(html, {widths = [340, 720, 1040], timeout = 8000, theme}) -> Promise<Report>   hidden frames, one width
    at a time, merged: a message seen at only some widths ends " [at 340 and 720 px wide]", a check
-   passes only at every width, + widths:[{width, ok}]
-U.sandbox.reach(mounted | html, {control, output, target, tolerance}) -> Promise<{reachable, best, tried, error?}>
+   passes only at every width whose page ran, ids / inputs / actions come from the first width that
+   ran (one that timed out has none, and its error still fails the report), + widths:[{width, ok}]
+U.sandbox.reach(mounted | html, {control, output, target, tolerance, decimals?}) -> Promise<{reachable, exact, best, tried, error?}>
 U.sandbox.theme() -> {dark, size, c:{bg, panel, sunk, ink, muted, line, strong, accent, accent2, onAccent2, warn, good, amber}}
 U.sandbox.visibleTimeout(fn, ms) -> {cancel()}   time with the page hidden does not count
 ```
