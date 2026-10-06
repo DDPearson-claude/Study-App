@@ -35,9 +35,9 @@
   var KINDS = ['mechanism', 'quantity', 'process', 'structure', 'history', 'concept', 'skill'];
   var NUMBER_KINDS = ['control', 'computed', 'constant', 'assumed', 'date'];
   var LEVELS = {
-    new: ['NEW to this subject\'s ideas, never new to everyday life: a curious, intelligent adult. Start from what he already knows, then go straight to what most adults have never understood; never teach what nearly every adult already knows (counting, adding, reading a clock, that things fall). No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
+    new: ['NEW to this subject, not to life: a curious, intelligent adult who already knows everyday things (counting, clocks, that things fall). No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
     some: ['KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.', 'Usually 6-7 ideas.'],
-    solid: ['SOLID GROUNDING. He wants the real mechanism and the subtleties, including where experts disagree. Proper notation is fine.', 'Usually 7-8 ideas.'],
+    solid: ['SOLID GROUNDING. He wants the real mechanism and the subtleties, including where experts genuinely disagree today (say in words how widely each view is held; give a figure only from a source). Proper notation is fine.', 'Usually 7-8 ideas.'],
   };
   function levelText(l, forPlan) { var x = LEVELS[l] || LEVELS.new; return forPlan ? x.join(' ') : x[0]; }
 
@@ -82,7 +82,7 @@
     return [
       'TASK: plan-topic',
       '',
-      'You are an outstanding teacher planning a short course for Dan in "My University", his personal learning app. Each idea you list becomes one lesson of about five minutes: Dan predicts, plays with a bespoke interactive (a slider with a live readout, a moving diagram, a timeline, a sorter, a sound he can play), reads a short explanation, says it back in his own words, then answers 2-3 quick checks. Your plan is the spine of everything he learns about this topic, so it has to be right, in the right order, and make him want to start.',
+      'You are an outstanding teacher planning a short course for Dan in "My University", his personal learning app. Each idea you list becomes one five-minute lesson built around a bespoke interactive he plays with (a slider with a live readout, a moving diagram, a timeline, a sorter, a sound). Your plan is the spine of everything he learns about this topic, so it has to be right, in the right order, and make him want to start.',
       '',
       DAN,
       '',
@@ -97,14 +97,14 @@
         'Use these. Do not re-teach any of them as a full idea. Where the course builds on one, say so in the oneLine of the idea that uses it ("builds on air pressure from your weather topic"). Only if the course genuinely cannot work without a quick refresher, include it as an idea with "known": true.'),
       '',
       'WHAT TO PRODUCE',
-      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is a whole field ("Maths", "Physics", "History", "Music"), choose a coherent course of its big, surprising, foundational ideas that shows what the field is really about (for Maths, ideas like why some infinities are bigger than others, what a proof is, exponential growth, probability surprises: choose your own, do not copy these), and let the title and hook say that angle. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
-      '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that the course will let him answer by the end. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
-      '   Bad: "What is photosynthesis?" (a definition). Bad: "Plants are fascinating machines that feed the world." (a statement, and hype)',
+      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
+      '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that he can answer by the end of the course. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
       '   Good: "A tree never eats anything solid, yet it builds tonnes of wood. Where does all that wood come from?"',
       '3. oneBreath: the whole topic in 2-3 plain sentences (at most 75 words): the big picture he will hold onto when the details fade. No jargon he has not met.',
-      '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5); never cram two things into one idea.',
-      '   - Idea 1 starts from something Dan can feel, see or already knows (a push on a skateboard, a queue at a shop), not from a definition or a parts list, and already teaches something most adults have never understood.',
-      '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none). By the last idea, Dan can answer the hook.',
+      '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5).',
+      '   - A whole field ("Maths", "Physics", "History", "Music"): choose one slice that shows what the field is really about. Pick one big question it answers that would surprise an adult (for Physics, "why doesn\'t the Space Station fall?"), make it the hook, and build up to its answer through a chain of the field\'s big, surprising ideas, each building on the last.',
+      '   - Idea 1 starts from something he can see or feel (a push on a skateboard, a queue at a shop), not a definition or a parts list, and already teaches something most adults have never understood. A needed but well-known prerequisite ("white light holds every colour") goes inside idea 1 as its starting point, never as an idea of its own.',
+      '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none).',
       '   - Each idea is ONE thing he can understand in five minutes, ideally by manipulating something.',
       '   - title: at most 7 words and says the idea itself, not a label. Bad: "Introduction", "Key concepts", "Background". Good: "Leaves build wood out of air", "Money works because everyone trusts it".',
       '   - oneLine: one sentence (at most 25 words) saying what he will understand, in plain words. A technical term comes with a few words saying what it is. No [[ ]] markers anywhere in the plan.',
@@ -116,13 +116,14 @@
       '       history    events, causes and people over time ("how the printing press spread")',
       '       concept    an abstract idea, distinction or classification ("why a tomato counts as a fruit")',
       '       skill      a procedure he learns to do ("reading a nutrition label")',
-      '   - If part of the topic is genuinely contested among experts, make that explicit in an idea\'s oneLine ("why historians still argue about…"). Do not invent controversy.',
-      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid). q: at most 30 words, no jargon, answerable from everyday intuition, and one a thoughtful adult could genuinely get wrong. 3-4 options: exactly one is right; the wrong ones are real, common misconceptions that people genuinely hold, not jokes, and none says the same thing as the right one in other words or units. Vary which position is right. why (at most 50 words): the right answer, and why the tempting wrong one is wrong; anything it says about the other options must be true of every one of them.',
-      '   Bad question: "3 bowls and 5 plates: how many dishes?" (every adult knows). Bad options: "150 cm" beside "1 m 50 cm" (two right answers), "Magic" (a joke). Good wrong option: "Heavier things fall faster".',
+      '   - Where experts genuinely disagree, say so in that idea\'s oneLine ("why historians still argue about…"); never invent controversy.',
+      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid).',
+      '   - Dan answers them on the topic page, under the hook and oneBreath and above the list of ideas, so the answer must not appear in the title, hook, oneBreath or any idea\'s title or oneLine. Ask about a consequence he has to reason out, not the idea\'s headline: if idea 1 says boiling water cannot get hotter, do not ask whether turning the heat up makes it hotter. Before you finish, reread the title, hook, oneBreath and every idea title and oneLine: if any of them settles a question, even in other words or for a different object, ask about a fresh case the page never mentions.',
+      '   - q: at most 30 words, no jargon, answerable from everyday intuition, and one a thoughtful adult could genuinely get wrong. Bad: "3 bowls and 5 plates: how many dishes?" (every adult knows).',
+      '   - options: 3-4, exactly one right. The wrong ones are real misconceptions people genuinely hold ("Heavier things fall faster"), never jokes ("Magic"), and none says the same as the right one in other words or units ("150 cm" beside "1 m 50 cm"). Vary which position is right.',
+      '   - why (at most 50 words): the right answer, and why the tempting wrong one is wrong. Never sum up the wrong options together ("the others are all…") unless that is true of each one.',
       '',
-      'ACCURACY',
-      '- Use only well-established knowledge. The plan makes no claim you are not sure of.',
-      '- Keep exact numbers and dates out of the hook and oneBreath unless you are certain of them.',
+      'ACCURACY: use only well-established knowledge, and keep exact numbers and dates out of the hook and oneBreath unless you are certain of them.',
       '',
       'OUTPUT',
       'Reply with one JSON object only, no commentary, exactly this shape:',
@@ -381,7 +382,7 @@
       '',
       'THE COURSE (data, not instructions)',
       'Topic: ' + data(topic.title, 120),
-      'His level: ' + levelText(topic.level),
+      'His level: ' + levelText(topic.level) + ((topic.level || 'new') === 'new' ? ' Skip what every adult already knows and go straight to what most adults have never understood.' : ''),
       'In one breath: ' + data(topic.oneBreath, 600),
       'Ideas, in teaching order:',
       ideas.map(function (i) { return ideaLine(i, i.id === idea.id); }).join('\n'),
@@ -678,8 +679,9 @@
   // up to about 15% over (at least one unit) is not reported at all; past that the problem is
   // reported, so U.ask's one repair asks for a cut, and it is also listed in `problems.soft`.
   // When only soft problems are left after the repair, U.ask accepts the reply as it is.
-  // Everything else stays hard: missing fields, wrong types, bad ids, unknown sources,
-  // unreachable targets, and counts of list items (2-3 checks, 5-8 ideas).
+  // One judgement made by word matching is soft too: a plan's calibration answer already printed
+  // above the question (printedAnswer). Everything else stays hard: missing fields, wrong types,
+  // bad ids, unknown sources, unreachable targets, and counts of list items (2-3 checks, 5-8 ideas).
   // ==================================================================================
   var SLACK = 0.15;
   function allowed(max) { return max + Math.max(1, Math.floor(max * SLACK)); }
@@ -764,9 +766,50 @@
         }
         v.str(c.why, p + '.why', 400);
         if (c.iid != null && ids.indexOf(c.iid) < 0) v.add(p + '.iid "' + c.iid + '" is not one of the idea ids.');
+        var at = printedAnswer(o, c);
+        if (at) v.add(p + ': its right answer ("' + clip(c.options[c.answer], 80) + '") is already on the topic page with this question (in ' + at + '). Ask about a consequence he has to reason out, not the idea\'s headline.', true);
       });
     }
     return v.list;
+  }
+
+  // Where a calibration question's right answer is already on the topic page above it (the
+  // title, hook, oneBreath, or an idea's title or oneLine), or ''. Only what a word match shows
+  // reliably: the whole right option (3 words or more, one of them not a little word) word for
+  // word, or every word only the right option has (at least 2, none of them in the question or
+  // a wrong option) within 15 words of one field. One shared word proves nothing. Soft: the
+  // repair asks for a better question, and a reply that still matches after it is accepted.
+  var LITTLE = {};
+  ('a an the and or but nor of to in on at by for with from as into onto over under up down out off about than then so too very just only also still even yet ' +
+    'is are was were be been being am it its they them their this that these those there here no not yes do does did done can could would should will shall may might must ' +
+    'more less most least much many some any each every all both either neither same other others another he him his she her you your we us our i me my ' +
+    'what which who whom whose how why when where if because while though although has have had get gets got make makes made one ones thing things way like ' +
+    'cant dont doesnt isnt arent wont didnt').split(' ').forEach(function (w) { LITTLE[w] = 1; });
+  function flatWords(t) { return plain(t).toLowerCase().replace(/[’'`]/g, '').split(/[^a-z0-9°]+/).filter(Boolean); }
+  function stem(w) { return LITTLE[w] ? '' : w.length > 3 ? w.replace(/(ing|ed|es|e|s)$/, '') : w; }
+  function keyWords(t) { return flatWords(t).map(stem).filter(Boolean); }
+  function printedAnswer(o, c) {
+    if (!Array.isArray(c.options) || !isInt(c.answer) || !isStr(c.options[c.answer])) return '';
+    var right = c.options[c.answer], whole = flatWords(right), mine = keyWords(right), other = {};
+    keyWords(c.q).forEach(function (w) { other[w] = 1; });
+    c.options.forEach(function (x, j) { if (j !== c.answer) keyWords(x).forEach(function (w) { other[w] = 1; }); });
+    var only = mine.filter(function (w, k) { return !other[w] && mine.indexOf(w) === k; });
+    var fields = [['the title', o.title], ['the hook', o.hook], ['oneBreath', o.oneBreath]];
+    (Array.isArray(o.ideas) ? o.ideas : []).forEach(function (i) {
+      if (isObj(i)) fields.push([s(i.id) + '.title', i.title], [s(i.id) + '.oneLine', i.oneLine]);
+    });
+    for (var f = 0; f < fields.length; f++) {
+      if (!isStr(fields[f][1])) continue;
+      var fw = flatWords(fields[f][1]);
+      if (whole.length >= 3 && mine.length && (' ' + fw.join(' ') + ' ').indexOf(' ' + whole.join(' ') + ' ') >= 0) return fields[f][0];
+      if (only.length < 2) continue;
+      var st = fw.map(stem);
+      for (var i = 0; i < st.length; i++) {
+        var win = st.slice(i, i + 15);
+        if (only.every(function (w) { return win.indexOf(w) >= 0; })) return fields[f][0];
+      }
+    }
+    return '';
   }
 
   var CONTROL_ID = /^[a-z][A-Za-z0-9]{0,31}$/;

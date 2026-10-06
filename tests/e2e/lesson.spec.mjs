@@ -444,12 +444,16 @@ async function preparing() {
     // The lesson text is written and saved; the interactive is still being built and tested.
     const building = { status: 'building', updatedAt: new Date().toISOString(), lesson: SMALL.lesson, interactive: null, sourced: true };
     await app.seed(LESSON('i3'), building);
-    await page.evaluate(() => { const o = window.__T.prep.o; o.onStatus('Building your interactive…'); o.onStatus('Testing it on a phone-sized screen…'); o.onStatus('Fixing something the test found…'); });
+    // The builder's own lines (33-interactive.js): one per attempt, none repeated.
+    await page.evaluate(() => { const o = window.__T.prep.o; ['Building your interactive…', 'Testing it at phone, tablet and laptop sizes…', 'Fixing what the test found (try\u00a02\u00a0of\u00a03)…', 'Fixing what the test found (try\u00a03\u00a0of\u00a03)…'].forEach((t) => o.onStatus(t)); });
     await page.waitForTimeout(400);
     const text = await onlyPrep(page, 'building');
     ok(!text.includes('twice as far') && !text.includes('period'), 'none of the lesson\'s text shows while its interactive is built');
     const lines = await page.locator('.lsn-prep-lines li').allTextContents();
-    ok(lines.some((l) => /Building your interactive/.test(l)) && lines.some((l) => /Testing it/.test(l)) && /Fixing something the test found/.test(lines[lines.length - 1]), 'honest steps: building, testing, fixing what the test found: ' + JSON.stringify(lines));
+    const prepLines = await page.locator('.lsn-prep-lines li .lsn-prep-text').allTextContents();
+    ok(new Set(prepLines).size === prepLines.length, 'no preparation line twice: ' + JSON.stringify(prepLines));
+    ok(prepLines.slice(-2).join(' | ') === 'Fixing what the test found (try\u00a02\u00a0of\u00a03) | Fixing what the test found (try\u00a03\u00a0of\u00a03)…', 'one line per build attempt: ' + JSON.stringify(prepLines));
+    ok(lines.some((l) => /Building your interactive/.test(l)) && lines.some((l) => /Testing it/.test(l)) && /Fixing what the test found/.test(lines[lines.length - 1]), 'honest steps: building, testing, fixing what the test found: ' + JSON.stringify(lines));
     await shot(app, 'prep-2-building');
     // Whole: the lesson replaces the card, starting at Predict; the one line waits for his guess.
     await app.seed(LESSON('i3'), SMALL);

@@ -234,6 +234,15 @@
     if (!r || r.status !== 'running' || live(t.id).research === 'running') return false;
     return V.age(r.at) > V.RESEARCH_STALE_MS;
   };
+  // "Sources checked" only when the check kept at least one source.
+  V.sourcesChecked = function (t) { var r = (t && t.research) || {}; return r.status === 'done' && r.sources > 0; };
+  // The check ran but confirmed no source: stored as done with 0 sources by older versions, and
+  // as failed with this reason since (31-generate.js). Not "did not finish": it did.
+  V.NO_SOURCES = /^No source could be confirmed/;
+  V.sourcesNone = function (t) {
+    var r = (t && t.research) || {};
+    return (r.status === 'done' && !(r.sources > 0)) || (r.status === 'failed' && (r.reason === 'none_confirmed' || V.NO_SOURCES.test(String(r.error || ''))));
+  };
 
   // A calm error state for a screen whose data could not be loaded (never an empty screen).
   //   retrying: the store is reconnecting by itself; otherwise Try again re-opens the screen.
@@ -633,7 +642,7 @@
       var s = V.summary(t, progress[t.id]);
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
       var r = t.research || {};
-      var badge = r.status === 'done' ? U.h('span', { class: 'src-badge' }, 'Sources checked')
+      var badge = V.sourcesChecked(t) ? U.h('span', { class: 'src-badge' }, 'Sources checked')
         : r.status === 'running' && !V.researchStale(t) ? U.h('span', { class: 'src-badge is-quiet' }, 'Checking sources…') : null;
       return U.h('a', { class: 'tcard' + (s.allDone ? ' is-done' : ''), href: href },
         U.h('div', { class: 'tcard-cover' }, V.cover(t)),

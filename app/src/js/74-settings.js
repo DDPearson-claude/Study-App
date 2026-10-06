@@ -131,13 +131,23 @@
       }
 
       var research = U.h('div', { class: 'set-research' }, U.h('p', { class: 'muted' }, 'Checking…'));
+      // Connected is not enough: a view that cannot run page tools (U.rt.toolsOk, 10-runtime.js)
+      // cannot use the connector, so topics started here are not source-checked. A runtime that
+      // cannot tell is given the benefit of the doubt, as U.rt.toolsOk itself does.
+      function toolsHere() {
+        if (!U.rt || typeof U.rt.toolsOk !== 'function') return Promise.resolve(true);
+        return Promise.resolve().then(function () { return U.rt.toolsOk(); }).then(function (x) { return x !== false; }, function () { return true; });
+      }
       function checkResearch(fresh) {
         if (fresh && U.research.reset) U.research.reset();
         U.clear(research).appendChild(U.h('p', { class: 'muted' }, 'Checking…'));
-        U.research.available().then(function (ok) {
+        Promise.all([U.research.available(), toolsHere()]).then(function (r) {
+          var ok = r[0];
           U.clear(research);
-          if (ok) {
+          if (ok && r[1]) {
             research.appendChild(U.h('p', { class: 'set-ok' }, U.icon('tick'), U.h('span', null, U.h('strong', null, 'Connected. '), 'New topics are checked against real sources, with quotes you can open.')));
+          } else if (ok) {
+            research.appendChild(U.h('p', { class: 'set-here' }, U.h('strong', null, 'Connected, but this view cannot use it. '), 'New topics started here are not source-checked, and their lessons say so.'));
           } else {
             research.appendChild(U.h('p', null, U.h('strong', null, 'Not connected. '), 'Lessons still work, but they are marked as not source-checked.'));
             research.appendChild(U.h('ol', { class: 'set-steps small' },

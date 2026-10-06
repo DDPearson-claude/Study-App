@@ -360,10 +360,12 @@ U.interactive = (function () {
       var priority = typeof o.priority === 'function' ? o.priority() : o.priority;
       return U.ask(text, { tier: 'complex', label: label, signal: o.signal, priority: priority, key: o.key });
     }
+    // One line per attempt, never the same line twice: the first build is written, then tested
+    // (at 340, 720 and 1040 px); each repair is one line that covers fixing and testing again.
     function check(reply) {
       attempts++;
       html = extract(reply);
-      status(attempts === 1 ? 'Testing it on a phone-sized screen…' : 'Testing the fix…');
+      if (attempts === 1) status('Testing it at phone, tablet and laptop sizes…');
       return testBody(html, lesson);
     }
     function result(report) {
@@ -373,7 +375,8 @@ U.interactive = (function () {
       U.emit('interactive-test', { idea: idea && idea.id, attempt: attempts, ok: report.ok, problems: report.ok ? [] : problems(report, lesson).slice(0, 6) });
       if (report.ok) return result(report);
       if (attempts < MAX_ATTEMPTS) {
-        status('Fixing something the test found…');
+        // No-break spaces keep "(try 2 of 3)" whole when a narrow screen wraps the line.
+        status('Fixing what the test found (try\u00a0' + (attempts + 1) + '\u00a0of\u00a0' + MAX_ATTEMPTS + ')…');
         return ask(repairPrompt(topic, idea, lesson, html, report), 'repair-interactive').then(check).then(next);
       }
       return salvage(report);

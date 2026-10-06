@@ -290,7 +290,7 @@
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
-        ['library', sig(r.status, r.at, r.reason, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
+        ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
           return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
         }, 'end'],
@@ -470,18 +470,18 @@
       var r = topic.research || {};
       var count = (lib.groups || []).reduce(function (n, g) { return n + g.sources.length; }, 0);
       var status, stale = V.researchStale(topic);
+      var none = V.sourcesNone(topic) && !count;
       if (ui.researching || (r.status === 'running' && !stale)) {
         status = U.h('div', { class: 'lib-status is-running' }, U.h('span', null, 'Checking sources…'), U.h('div', { class: 'working' }));
-      } else if (r.status === 'done') {
+      } else if (r.status === 'done' && !none) {
         status = U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Sources checked' + (count ? ' · ' + count + (count === 1 ? ' source' : ' sources') : '')));
       } else {
-        // A check left 'running' by a page that went away counts as not finished. One that finished
-        // but could confirm no source says so (31-generate.js, reason 'none_confirmed').
-        var none = r.status === 'failed' && r.reason === 'none_confirmed';
-        var text = none ? 'The source check could not confirm any source, so these lessons are not source-checked yet.'
+        // A check left 'running' by a page that went away counts as not finished; one that ran
+        // but could not confirm any source says so, since it did finish.
+        var text = none ? 'The source check ran but could not confirm a single source, so these lessons are not source-checked.'
           : r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
         if (avail === false) text += ' Connect Parallel Search in Claude\'s settings to add sources.';
-        var again = (r.status === 'failed' || stale) && avail !== false && U.gen && typeof U.gen.research === 'function'
+        var again = (r.status === 'failed' || stale || none) && avail !== false && U.gen && typeof U.gen.research === 'function'
           ? U.h('button', { class: 'linkish lib-retry', type: 'button', 'data-key': 'research-again', on: { click: researchAgain } }, 'Check the sources again') : null;
         status = U.h('div', { class: 'lib-status is-none' }, U.h('p', null, text), again);
       }
