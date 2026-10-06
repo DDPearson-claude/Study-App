@@ -395,7 +395,11 @@ async function preparing() {
     await page.getByRole('button', { name: 'That\'s my guess' }).click();
     const play = page.locator('.lsn-stage[data-stage="play"]');
     await play.locator('.lsn-panel.is-waiting .lsn-prep').waitFor();
-    await page.evaluate(() => window.__T.prep.o.onStatus('Testing it at phone and desktop widths'));
+    // The builder's own lines (33-interactive.js): one per attempt, none repeated.
+    await page.evaluate(() => { const o = window.__T.prep.o; ['Testing it at phone, tablet and laptop sizes…', 'Fixing what the test found (try\u00a02\u00a0of\u00a03)…', 'Fixing what the test found (try\u00a03\u00a0of\u00a03)…'].forEach((t) => o.onStatus(t)); });
+    const prepLines = await play.locator('.lsn-prep-lines li .lsn-prep-text').allTextContents();
+    ok(new Set(prepLines).size === prepLines.length, 'no preparation line twice: ' + JSON.stringify(prepLines));
+    ok(prepLines.slice(-3).join(' | ') === 'Testing it at phone, tablet and laptop sizes | Fixing what the test found (try\u00a02\u00a0of\u00a03) | Fixing what the test found (try\u00a03\u00a0of\u00a03)…', 'one line per build attempt: ' + JSON.stringify(prepLines));
     ok(await play.getByRole('button', { name: /read on while it builds/ }).count() === 1, 'can read on while it builds');
     await shot(app, 'prep-3-play-waiting');
     // Ready

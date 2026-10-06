@@ -462,18 +462,66 @@ test('calibration options must all be different (trimmed, any case)', () => {
   assert.deepEqual(plain(U.validate.plan(units)), []);
 });
 
-test('the plan prompt treats Dan as an adult and a whole field as a course of its big ideas', () => {
+test('the plan prompt: an adult beginner, a whole field as one slice building to a big question, one place per rule', () => {
   const U = loadPure();
   const p = U.prompts.planTopic('Maths', { level: 'new' });
   assert.ok(p.startsWith('TASK: plan-topic\n'));
-  for (const s of ['never new to everyday life', 'curious, intelligent adult', 'never teach what nearly every adult already knows', 'counting, adding, reading a clock',
-    'a whole field ("Maths", "Physics", "History", "Music")', 'big, surprising, foundational ideas', 'why some infinities are bigger than others', 'do not copy these', 'title and hook say that angle',
-    'already teaches something most adults have never understood', 'a thoughtful adult could genuinely get wrong', 'exactly one is right', 'in other words or units', 'true of every one of them', '"3 bowls and 5 plates'])
+  for (const s of [
+    'HIS LEVEL: NEW to this subject, not to life: a curious, intelligent adult who already knows everyday things (counting, clocks, that things fall). No maths beyond simple arithmetic; any rule is said in words first. Usually 5-6 ideas.',
+    '- A whole field ("Maths", "Physics", "History", "Music"): choose one slice that shows what the field is really about.',
+    'Pick one big question it answers that would surprise an adult (for Physics, "why doesn\'t the Space Station fall?"), make it the hook',
+    'a chain of the field\'s big, surprising ideas, each building on the last',
+    'already teaches something most adults have never understood',
+    'A needed but well-known prerequisite ("white light holds every colour") goes inside idea 1 as its starting point, never as an idea of its own.',
+    'Dan answers them on the topic page, under the hook and oneBreath and above the list of ideas, so the answer must not appear in the title, hook, oneBreath or any idea\'s title or oneLine.',
+    'Ask about a consequence he has to reason out, not the idea\'s headline: if idea 1 says boiling water cannot get hotter, do not ask whether turning the heat up makes it hotter.',
+    'a thoughtful adult could genuinely get wrong', 'exactly one right', 'in other words or units', '"3 bowls and 5 plates',
+    'Never sum up the wrong options together ("the others are all…") unless that is true of each one.'])
     assert.ok(p.includes(s), 'plan-topic says ' + s);
-  assert.ok(!p.includes('choose the most foundational slice'), 'the old vast-request rule is merged, not left beside the new one');
+  for (const s of ['why some infinities are bigger than others', 'do not copy these', 'choose your own', 'choose the most foundational slice', 'true of every one of them',
+    'never teach what nearly every adult already knows', 'title and hook say that angle'])
+    assert.ok(!p.includes(s), 'plan-topic no longer says ' + s);
+  const at = (x) => p.indexOf(x);
+  assert.ok(at('A whole field') > at('4. ideas:') && at('A whole field') < at('5. calibration:') && at('1. title:') < at('4. ideas:'), 'the whole-field pattern is in the ideas rule, not the title rule');
+  assert.ok(!p.slice(at('1. title:'), at('2. hook:')).includes('field'), 'the title rule says nothing about fields');
+  for (const s of ['A whole field', 'white light holds every colour', 'must not appear in', 'Vary which position is right', 'answer the hook', 'well-established knowledge', 'genuinely disagree, say so'])
+    assert.ok(p.split(s).length <= 2, s + ' is said once');
+  assert.ok(/^   - q: at most 30 words/m.test(p) && /^   - options: 3-4, exactly one right/m.test(p) && /^   - why \(at most 50 words\)/m.test(p), 'the calibration rule is split into short bullets');
+  const solid = U.prompts.planTopic('Maths', { level: 'solid' });
+  assert.ok(solid.includes('including where experts genuinely disagree today (and say how widely each view is held)'), 'solid level');
   const lesson = U.prompts.writeLesson({ ...PLAN_JET, level: 'new' }, PLAN_JET.ideas[0], {});
-  assert.ok(lesson.includes('His level: NEW to this subject\'s ideas, never new to everyday life'), 'the lesson writer hears the same level');
+  assert.ok(lesson.includes('His level: NEW to this subject, not to life: a curious, intelligent adult who already knows everyday things (counting, clocks, that things fall). No maths beyond simple arithmetic; any rule is said in words first.\n'), 'the lesson writer hears the same level, without the plan\'s idea count');
   assert.ok(lesson.includes('explain (at most 170 words; aim for about 150)') && lesson.includes('explain.text is at most 170 words'), 'the prompts still ask for the same limits');
+});
+
+test('a calibration answer already printed above the question is a soft problem; one shared word is not', () => {
+  const U = loadPure();
+  const problemsOf = (mutate) => { const p = clone(PLAN_JET); mutate(p); const pr = U.validate.plan(p); return { all: plain(pr), soft: plain(pr.soft || []), hard: plain(U.validate.hard(pr)) }; };
+  // Every word only the right option has, close together in one field (the oneBreath here).
+  let r = problemsOf((p) => { p.calibration[0].q = 'How does a jet engine push a plane forwards?'; p.calibration[0].options = ['It pushes against the air behind the plane', 'It throws air backwards, and the air pushes it forwards', 'Its hot exhaust lifts it like a balloon']; });
+  assert.equal(r.all.length, 1, JSON.stringify(r.all));
+  assert.match(r.all[0], /^calibration\[0\]: its right answer \("It throws air backwards, and the air pushes it forwards"\) is already printed in oneBreath, which Dan reads above this question\. Ask about a consequence he has to reason out, not the idea's headline\.$/);
+  assert.deepEqual(r.soft, r.all, 'soft: a word match is a judgement, so a repair is asked for but never throws the plan away');
+  assert.deepEqual(r.hard, []);
+  // The whole right option, word for word (the judge's "More than 180°" in idea 1's oneLine).
+  r = problemsOf((p) => { p.ideas[0].oneLine = 'On a globe, a triangle drawn with the straightest lines has angles adding up to more than 180°.'; p.calibration[0] = { id: 'c1', iid: 'i1', q: 'Draw a triangle on a globe. What do its angles add up to?', options: ['Exactly 180°', 'More than 180°', 'Less than 180°'], answer: 1, why: 'More.' }; });
+  assert.ok(r.all.length === 1 && /calibration\[0\].*"More than 180°".*printed in i1\.oneLine/.test(r.all[0]), JSON.stringify(r.all));
+  // An idea's title and the hook count too.
+  r = problemsOf((p) => { p.ideas[1].title = 'Two consuls, one year each'; p.calibration[1] = { id: 'c2', iid: 'i2', q: 'Who held the top power in Rome?', options: ['A king, elected for life', 'Two consuls, each elected for one year', 'The Senate'], answer: 1, why: 'Two consuls.' }; });
+  assert.ok(r.all.length === 1 && /calibration\[1\].*printed in i2\.title/.test(r.all[0]), JSON.stringify(r.all));
+  r = problemsOf((p) => { p.hook = 'Its two leaders could block each other so neither could rule alone. So how did one man end up in charge?'; p.calibration[1] = { id: 'c2', iid: 'i2', q: 'Why have two leaders?', options: ['To split the work', 'So each could block the other and neither could rule alone', 'In case one died'], answer: 1, why: 'Blocking.' }; });
+  assert.ok(r.all.length === 1 && /printed in the hook/.test(r.all[0]), JSON.stringify(r.all));
+  // Not reliable, so never reported: one shared word ("They land together" beside "fall together";
+  // "Black" in the hook), words the question or a wrong option also has, and words far apart.
+  const quiet = [
+    (p) => { p.ideas[2].title = 'Heavy and light things fall together'; p.calibration[1] = { id: 'c2', iid: 'i3', q: 'On the Moon, a hammer and a feather are dropped together. Which lands first?', options: ['The hammer', 'They land together', 'The feather'], answer: 1, why: 'Together.' }; },
+    (p) => { p.hook = 'Air is see-through and space is black. So why is the sky blue?'; p.calibration[1] = { id: 'c2', iid: 'i3', q: 'On the Moon in sunshine, what colour is the sky?', options: ['Black', 'Pale blue', 'Blue'], answer: 0, why: 'Black.' }; },
+    (p) => { p.calibration[0].q = 'What happens when a jet engine runs?'; p.calibration[0].options = ['It throws air backwards but is not pushed at all', 'It throws air backwards and is pushed forwards', 'It pulls the air towards it']; p.calibration[0].answer = 1; },
+    (p) => { p.oneBreath = 'Squeezing comes before burning fuel. A fan at the front moves a great deal of extra air for very little fuel, turbines spin the shaft, and in the end the air pushes back.'; p.calibration[1] = { id: 'c2', iid: 'i3', q: 'What does a jet engine do first?', options: ['Burning fuel', 'Squeezing the air first so it pushes back', 'Spinning a fan'], answer: 1, why: 'Squeeze.' }; },
+  ];
+  for (const m of quiet) { r = problemsOf(m); assert.deepEqual(r.all, [], JSON.stringify(r.all)); }
+  assert.deepEqual(plain(U.validate.plan(PLAN_JET)), [], 'the fixtures ask about consequences');
+  assert.deepEqual(plain(U.validate.plan(PLAN_ROME)), []);
 });
 
 // =========================================================================================
@@ -896,6 +944,19 @@ test('a plan whose only problems are lengths is saved after its repair; a long t
   assert.equal(t.status, 'ready');
   assert.ok(long.length > 120 && t.title.length <= 120 && t.title.endsWith('…'), t.title);
   assert.ok(long.startsWith(t.title.slice(0, -1)) && long[t.title.length - 1] === ' ', 'cut at a word: ' + t.title);
+});
+
+test('a plan whose calibration answer is printed above it gets one repair, and is saved even if it still is', async () => {
+  const leaky = clone(planOnly(PLAN_JET));
+  leaky.calibration[0] = { ...leaky.calibration[0], q: 'How does a jet engine push a plane forwards?', options: ['It pushes against the air behind it', 'It throws air backwards, and the air pushes it forwards', 'Its hot exhaust lifts it'], answer: 1 };
+  const app = await boot({ handlers: handlers({ 'plan-topic': () => leaky, 'write-lesson': () => new Promise(() => {}) }) });
+  const tid = await app.U.gen.createTopic('how jet engines work', { level: 'new' });
+  assert.equal(app.count('plan-topic'), 2, 'one repair asking for a better question');
+  const repair = app.calls.filter((c) => c.task === 'plan-topic')[1].input;
+  assert.ok(JSON.stringify(repair).includes('is already printed in oneBreath'), 'the repair says where the answer is printed');
+  const t = await app.get('topics/' + tid);
+  assert.equal(t.status, 'ready');
+  assert.equal(t.calibration[0].options[1], 'It throws air backwards, and the air pushes it forwards', 'a soft problem never throws the plan away');
 });
 
 test('not_granted and plan failures tell Dan what to do; replan recovers', async () => {
@@ -1424,6 +1485,23 @@ test('build: an unlisted web address is sent back for repair, and stripped as a 
   b = builder({ replies: [page('BROKEN'), page('BROKEN'), page('BROKEN')] });
   assert.equal(await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2), null, 'a page that never passes its self-test is dropped');
   assert.equal(b.asked.length, 3);
+});
+
+test('build: each attempt is one honest status line, and no line comes twice', async () => {
+  const lines = [];
+  const onStatus = (t) => lines.push(t);
+  let b = builder({ replies: [page('BROKEN'), page('BROKEN'), page('BROKEN')] });
+  assert.equal(await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2, { onStatus }), null);
+  assert.deepEqual(lines, ['Building the interactive…', 'Testing it at phone, tablet and laptop sizes…', 'Fixing what the test found (try\u00a02\u00a0of\u00a03)…', 'Fixing what the test found (try\u00a03\u00a0of\u00a03)…']);
+  assert.equal(new Set(lines).size, lines.length, 'no line twice');
+  lines.length = 0;
+  b = builder({ replies: [page('BROKEN'), page()] });
+  await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2, { onStatus });
+  assert.deepEqual(lines, ['Building the interactive…', 'Testing it at phone, tablet and laptop sizes…', 'Fixing what the test found (try\u00a02\u00a0of\u00a03)…'], 'one repair, one line');
+  lines.length = 0;
+  b = builder({ replies: [page()] });
+  await b.U.interactive.build(JET_TOPIC, PLAN_JET.ideas[1], L_JET2, { onStatus });
+  assert.deepEqual(lines, ['Building the interactive…', 'Testing it at phone, tablet and laptop sizes…'], 'a page that passes first time');
 });
 
 test('build: target checks must be reachable, read from model outputs, and are checked only when the host can', async () => {

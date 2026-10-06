@@ -639,6 +639,59 @@ await test('regressions: research left running by a closed page counts as not ch
   await app.page.waitForSelector('.tcard');
 });
 
+await test('regressions: "Sources checked" only when a source was kept; a check that confirmed none says so plainly', async () => {
+  const db = seedDb();
+  // Stored as done with 0 sources (before a run that kept none counted as failed), and failed
+  // with the reason the source check gives now.
+  db['topics/minor-keys-ef56'] = { ...db['topics/minor-keys-ef56'], research: { status: 'done', at: ago(60e3), sources: 0, dropped: 2, error: null } };
+  db['topics/index-funds-cd34'] = { ...db['topics/index-funds-cd34'], research: { status: 'failed', at: ago(60e3), sources: 0, dropped: 3, error: 'No source could be confirmed against the pages the search returned.' } };
+  const NONE = 'The source check ran but could not confirm a single source, so these lessons are not source-checked.';
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, db, tools: { 'Parallel Search': { web_search: () => ({ results: [] }), web_fetch: () => ({}) } } });
+    await app.page.waitForSelector('.tcard');
+    eq(await app.page.locator('.tcard .src-badge:not(.is-quiet)').count(), 1, 'one Sources checked badge: only the topic that kept sources');
+    eq(await app.page.locator('.tcard[href="#/t/how-tides-work-ab12"] .src-badge').count(), 1, 'the topic with 4 sources keeps its badge');
+    eq(await app.page.locator('.tcard[href="#/t/minor-keys-ef56"] .src-badge').count(), 0, 'done with 0 sources: no badge');
+    eq(await app.page.locator('.tcard[href="#/t/index-funds-cd34"] .src-badge').count(), 0, 'confirmed none: no badge');
+    for (const tid of ['minor-keys-ef56', 'index-funds-cd34']) {
+      await app.page.goto(app.url('#/t/' + tid));
+      await app.page.waitForSelector('.path');
+      await app.page.waitForFunction(() => /could not confirm/.test(document.querySelector('.lib-status').textContent));
+      const lib = await text(app, '.lib-status');
+      assert(lib.includes(NONE), tid + ': says plainly that nothing was confirmed: ' + lib);
+      assert(!/Sources checked|did not finish/.test(lib), tid + ': neither "Sources checked" nor "did not finish": ' + lib);
+      eq(await count(app, '.lib-retry'), 1, tid + ': offers to check again');
+      await app.page.locator('.tp-lib').scrollIntoViewIfNeeded();
+      await shot(app, `topic-sources-none-${tid.split('-')[0]}-${tag(w, dark)}`, { full: w > 700 });
+    }
+    // The topic with kept sources is unchanged.
+    await app.page.goto(app.url('#/t/how-tides-work-ab12'));
+    await app.page.waitForSelector('.path');
+    await app.page.waitForFunction(() => /Sources checked · 4 sources/.test(document.querySelector('.lib-status').textContent));
+  }
+});
+
+await test('settings: connected, but on a view that cannot run page tools it says new topics are not source-checked here', async () => {
+  const connected = { 'Parallel Search': { web_search: () => ({ results: [] }), web_fetch: () => ({}) } };
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, tools: connected });
+    await app.page.evaluate(() => { U.rt.toolsOk = () => Promise.resolve(false); });
+    await app.page.click('#settings-btn');
+    await app.page.waitForFunction(() => /Connected, but this view cannot use it/.test(document.querySelector('.set-research').textContent));
+    const t = await text(app, '.set-research');
+    assert(t.includes('Connected, but this view cannot use it. New topics started here are not source-checked, and their lessons say so.'), t);
+    assert(!t.includes('New topics are checked against real sources'), 'never claims sources are checked here');
+    eq(await count(app, '.set-research .set-ok'), 0, 'no tick: nothing is checked here');
+    await app.page.locator('.set-research').scrollIntoViewIfNeeded();
+    await shot(app, `settings-research-no-tools-${tag(w, dark)}`, { full: false });
+    await app.page.keyboard.press('Escape');
+    // Where page tools run (or the runtime cannot tell), it is simply connected.
+    await app.page.evaluate(() => { U.rt.toolsOk = () => Promise.resolve(true); });
+    await app.page.click('#settings-btn');
+    await app.page.waitForFunction(() => /Connected\. New topics are checked against real sources/.test(document.querySelector('.set-research').textContent));
+  }
+});
+
 await test('regressions: a dead subscription shows an error with Try again, never the first-run screen', async () => {
   const app = await open({ db: seedDb() });
   await app.page.waitForSelector('.tcard');

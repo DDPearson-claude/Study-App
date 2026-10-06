@@ -1515,7 +1515,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-3f4602a";
+U.BUILD = "2026-10-06-8491aa7";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2945,9 +2945,9 @@ U.logStudy = (function () {
   var KINDS = ['mechanism', 'quantity', 'process', 'structure', 'history', 'concept', 'skill'];
   var NUMBER_KINDS = ['control', 'computed', 'constant', 'assumed', 'date'];
   var LEVELS = {
-    new: ['NEW to this subject\'s ideas, never new to everyday life: a curious, intelligent adult. Start from what he already knows, then go straight to what most adults have never understood; never teach what nearly every adult already knows (counting, adding, reading a clock, that things fall). No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
+    new: ['NEW to this subject, not to life: a curious, intelligent adult who already knows everyday things (counting, clocks, that things fall). No maths beyond simple arithmetic; any rule is said in words first.', 'Usually 5-6 ideas.'],
     some: ['KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.', 'Usually 6-7 ideas.'],
-    solid: ['SOLID GROUNDING. He wants the real mechanism and the subtleties, including where experts disagree. Proper notation is fine.', 'Usually 7-8 ideas.'],
+    solid: ['SOLID GROUNDING. He wants the real mechanism and the subtleties, including where experts genuinely disagree today (and say how widely each view is held). Proper notation is fine.', 'Usually 7-8 ideas.'],
   };
   function levelText(l, forPlan) { var x = LEVELS[l] || LEVELS.new; return forPlan ? x.join(' ') : x[0]; }
 
@@ -2992,7 +2992,7 @@ U.logStudy = (function () {
     return [
       'TASK: plan-topic',
       '',
-      'You are an outstanding teacher planning a short course for Dan in "My University", his personal learning app. Each idea you list becomes one lesson of about five minutes: Dan predicts, plays with a bespoke interactive (a slider with a live readout, a moving diagram, a timeline, a sorter, a sound he can play), reads a short explanation, says it back in his own words, then answers 2-3 quick checks. Your plan is the spine of everything he learns about this topic, so it has to be right, in the right order, and make him want to start.',
+      'You are an outstanding teacher planning a short course for Dan in "My University", his personal learning app. Each idea you list becomes one five-minute lesson built around a bespoke interactive he plays with (a slider with a live readout, a moving diagram, a timeline, a sorter, a sound). Your plan is the spine of everything he learns about this topic, so it has to be right, in the right order, and make him want to start.',
       '',
       DAN,
       '',
@@ -3007,14 +3007,14 @@ U.logStudy = (function () {
         'Use these. Do not re-teach any of them as a full idea. Where the course builds on one, say so in the oneLine of the idea that uses it ("builds on air pressure from your weather topic"). Only if the course genuinely cannot work without a quick refresher, include it as an idea with "known": true.'),
       '',
       'WHAT TO PRODUCE',
-      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is a whole field ("Maths", "Physics", "History", "Music"), choose a coherent course of its big, surprising, foundational ideas that shows what the field is really about (for Maths, ideas like why some infinities are bigger than others, what a proof is, exponential growth, probability surprises: choose your own, do not copy these), and let the title and hook say that angle. If it is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
-      '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that the course will let him answer by the end. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
-      '   Bad: "What is photosynthesis?" (a definition). Bad: "Plants are fascinating machines that feed the world." (a statement, and hype)',
+      '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
+      '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that the last idea lets him answer. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
       '   Good: "A tree never eats anything solid, yet it builds tonnes of wood. Where does all that wood come from?"',
       '3. oneBreath: the whole topic in 2-3 plain sentences (at most 75 words): the big picture he will hold onto when the details fade. No jargon he has not met.',
-      '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5); never cram two things into one idea.',
-      '   - Idea 1 starts from something Dan can feel, see or already knows (a push on a skateboard, a queue at a shop), not from a definition or a parts list, and already teaches something most adults have never understood.',
-      '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none). By the last idea, Dan can answer the hook.',
+      '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5).',
+      '   - A whole field ("Maths", "Physics", "History", "Music"): choose one slice that shows what the field is really about. Pick one big question it answers that would surprise an adult (for Physics, "why doesn\'t the Space Station fall?"), make it the hook, and build up to its answer through a chain of the field\'s big, surprising ideas, each building on the last.',
+      '   - Idea 1 starts from something he can see or feel (a push on a skateboard, a queue at a shop), not a definition or a parts list, and already teaches something most adults have never understood. A needed but well-known prerequisite ("white light holds every colour") goes inside idea 1 as its starting point, never as an idea of its own.',
+      '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none).',
       '   - Each idea is ONE thing he can understand in five minutes, ideally by manipulating something.',
       '   - title: at most 7 words and says the idea itself, not a label. Bad: "Introduction", "Key concepts", "Background". Good: "Leaves build wood out of air", "Money works because everyone trusts it".',
       '   - oneLine: one sentence (at most 25 words) saying what he will understand, in plain words. A technical term comes with a few words saying what it is. No [[ ]] markers anywhere in the plan.',
@@ -3026,13 +3026,14 @@ U.logStudy = (function () {
       '       history    events, causes and people over time ("how the printing press spread")',
       '       concept    an abstract idea, distinction or classification ("why a tomato counts as a fruit")',
       '       skill      a procedure he learns to do ("reading a nutrition label")',
-      '   - If part of the topic is genuinely contested among experts, make that explicit in an idea\'s oneLine ("why historians still argue about…"). Do not invent controversy.',
-      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid). q: at most 30 words, no jargon, answerable from everyday intuition, and one a thoughtful adult could genuinely get wrong. 3-4 options: exactly one is right; the wrong ones are real, common misconceptions that people genuinely hold, not jokes, and none says the same thing as the right one in other words or units. Vary which position is right. why (at most 50 words): the right answer, and why the tempting wrong one is wrong; anything it says about the other options must be true of every one of them.',
-      '   Bad question: "3 bowls and 5 plates: how many dishes?" (every adult knows). Bad options: "150 cm" beside "1 m 50 cm" (two right answers), "Magic" (a joke). Good wrong option: "Heavier things fall faster".',
+      '   - Where experts genuinely disagree, say so in that idea\'s oneLine ("why historians still argue about…"); never invent controversy.',
+      '5. calibration: exactly 2 quick questions that show where Dan is starting from, each probing one of the first three ideas (set iid).',
+      '   - Dan answers them on the topic page, under the hook and oneBreath and above the list of ideas, so the answer must not appear in the title, hook, oneBreath or any idea\'s title or oneLine. Ask about a consequence he has to reason out, not the idea\'s headline: if idea 1 says boiling water cannot get hotter, do not ask whether turning the heat up makes it hotter.',
+      '   - q: at most 30 words, no jargon, answerable from everyday intuition, and one a thoughtful adult could genuinely get wrong. Bad: "3 bowls and 5 plates: how many dishes?" (every adult knows).',
+      '   - options: 3-4, exactly one right. The wrong ones are real misconceptions people genuinely hold ("Heavier things fall faster"), never jokes ("Magic"), and none says the same as the right one in other words or units ("150 cm" beside "1 m 50 cm"). Vary which position is right.',
+      '   - why (at most 50 words): the right answer, and why the tempting wrong one is wrong. Never sum up the wrong options together ("the others are all…") unless that is true of each one.',
       '',
-      'ACCURACY',
-      '- Use only well-established knowledge. The plan makes no claim you are not sure of.',
-      '- Keep exact numbers and dates out of the hook and oneBreath unless you are certain of them.',
+      'ACCURACY: use only well-established knowledge, and keep exact numbers and dates out of the hook and oneBreath unless you are certain of them.',
       '',
       'OUTPUT',
       'Reply with one JSON object only, no commentary, exactly this shape:',
@@ -3588,8 +3589,9 @@ U.logStudy = (function () {
   // up to about 15% over (at least one unit) is not reported at all; past that the problem is
   // reported, so U.ask's one repair asks for a cut, and it is also listed in `problems.soft`.
   // When only soft problems are left after the repair, U.ask accepts the reply as it is.
-  // Everything else stays hard: missing fields, wrong types, bad ids, unknown sources,
-  // unreachable targets, and counts of list items (2-3 checks, 5-8 ideas).
+  // One judgement made by word matching is soft too: a plan's calibration answer already printed
+  // above the question (printedAnswer). Everything else stays hard: missing fields, wrong types,
+  // bad ids, unknown sources, unreachable targets, and counts of list items (2-3 checks, 5-8 ideas).
   // ==================================================================================
   var SLACK = 0.15;
   function allowed(max) { return max + Math.max(1, Math.floor(max * SLACK)); }
@@ -3674,9 +3676,50 @@ U.logStudy = (function () {
         }
         v.str(c.why, p + '.why', 400);
         if (c.iid != null && ids.indexOf(c.iid) < 0) v.add(p + '.iid "' + c.iid + '" is not one of the idea ids.');
+        var at = printedAnswer(o, c);
+        if (at) v.add(p + ': its right answer ("' + clip(c.options[c.answer], 80) + '") is already printed in ' + at + ', which Dan reads above this question. Ask about a consequence he has to reason out, not the idea\'s headline.', true);
       });
     }
     return v.list;
+  }
+
+  // Where a calibration question's right answer is already on the topic page above it (the
+  // title, hook, oneBreath, or an idea's title or oneLine), or ''. Only what a word match shows
+  // reliably: the whole right option (3 words or more, one of them not a little word) word for
+  // word, or every word only the right option has (at least 2, none of them in the question or
+  // a wrong option) within 15 words of one field. One shared word proves nothing. Soft: the
+  // repair asks for a better question, and a reply that still matches after it is accepted.
+  var LITTLE = {};
+  ('a an the and or but nor of to in on at by for with from as into onto over under up down out off about than then so too very just only also still even yet ' +
+    'is are was were be been being am it its they them their this that these those there here no not yes do does did done can could would should will shall may might must ' +
+    'more less most least much many some any each every all both either neither same other others another he him his she her you your we us our i me my ' +
+    'what which who whom whose how why when where if because while though although has have had get gets got make makes made one ones thing things way like ' +
+    'cant dont doesnt isnt arent wont didnt').split(' ').forEach(function (w) { LITTLE[w] = 1; });
+  function flatWords(t) { return plain(t).toLowerCase().replace(/[’'`]/g, '').split(/[^a-z0-9°]+/).filter(Boolean); }
+  function stem(w) { return LITTLE[w] ? '' : w.length > 3 ? w.replace(/(ing|ed|es|e|s)$/, '') : w; }
+  function keyWords(t) { return flatWords(t).map(stem).filter(Boolean); }
+  function printedAnswer(o, c) {
+    if (!Array.isArray(c.options) || !isInt(c.answer) || !isStr(c.options[c.answer])) return '';
+    var right = c.options[c.answer], whole = flatWords(right), mine = keyWords(right), other = {};
+    keyWords(c.q).forEach(function (w) { other[w] = 1; });
+    c.options.forEach(function (x, j) { if (j !== c.answer) keyWords(x).forEach(function (w) { other[w] = 1; }); });
+    var only = mine.filter(function (w, k) { return !other[w] && mine.indexOf(w) === k; });
+    var fields = [['the title', o.title], ['the hook', o.hook], ['oneBreath', o.oneBreath]];
+    (Array.isArray(o.ideas) ? o.ideas : []).forEach(function (i) {
+      if (isObj(i)) fields.push([s(i.id) + '.title', i.title], [s(i.id) + '.oneLine', i.oneLine]);
+    });
+    for (var f = 0; f < fields.length; f++) {
+      if (!isStr(fields[f][1])) continue;
+      var fw = flatWords(fields[f][1]);
+      if (whole.length >= 3 && mine.length && (' ' + fw.join(' ') + ' ').indexOf(' ' + whole.join(' ') + ' ') >= 0) return fields[f][0];
+      if (only.length < 2) continue;
+      var st = fw.map(stem);
+      for (var i = 0; i < st.length; i++) {
+        var win = st.slice(i, i + 15);
+        if (only.every(function (w) { return win.indexOf(w) >= 0; })) return fields[f][0];
+      }
+    }
+    return '';
   }
 
   var CONTROL_ID = /^[a-z][A-Za-z0-9]{0,31}$/;
@@ -5800,10 +5843,12 @@ U.interactive = (function () {
       var priority = typeof o.priority === 'function' ? o.priority() : o.priority;
       return U.ask(text, { tier: 'complex', label: label, signal: o.signal, priority: priority, key: o.key });
     }
+    // One line per attempt, never the same line twice: the first build is written, then tested
+    // (at 340, 720 and 1040 px); each repair is one line that covers fixing and testing again.
     function check(reply) {
       attempts++;
       html = extract(reply);
-      status(attempts === 1 ? 'Testing it on a phone-sized screen…' : 'Testing the fix…');
+      if (attempts === 1) status('Testing it at phone, tablet and laptop sizes…');
       return testBody(html, lesson);
     }
     function result(report) {
@@ -5813,7 +5858,8 @@ U.interactive = (function () {
       U.emit('interactive-test', { idea: idea && idea.id, attempt: attempts, ok: report.ok, problems: report.ok ? [] : problems(report, lesson).slice(0, 6) });
       if (report.ok) return result(report);
       if (attempts < MAX_ATTEMPTS) {
-        status('Fixing something the test found…');
+        // No-break spaces keep "(try 2 of 3)" whole when a narrow screen wraps the line.
+        status('Fixing what the test found (try\u00a0' + (attempts + 1) + '\u00a0of\u00a0' + MAX_ATTEMPTS + ')…');
         return ask(repairPrompt(topic, idea, lesson, html, report), 'repair-interactive').then(check).then(next);
       }
       return salvage(report);
@@ -8925,6 +8971,15 @@ U.interactive = (function () {
     if (!r || r.status !== 'running' || live(t.id).research === 'running') return false;
     return V.age(r.at) > V.RESEARCH_STALE_MS;
   };
+  // "Sources checked" only when the check kept at least one source.
+  V.sourcesChecked = function (t) { var r = (t && t.research) || {}; return r.status === 'done' && r.sources > 0; };
+  // The check ran but confirmed no source: stored as done with 0 sources by older versions, and
+  // as failed with this reason since (31-generate.js). Not "did not finish": it did.
+  V.NO_SOURCES = /^No source could be confirmed/;
+  V.sourcesNone = function (t) {
+    var r = (t && t.research) || {};
+    return (r.status === 'done' && !(r.sources > 0)) || (r.status === 'failed' && V.NO_SOURCES.test(String(r.error || '')));
+  };
 
   // A calm error state for a screen whose data could not be loaded (never an empty screen).
   //   retrying: the store is reconnecting by itself; otherwise Try again re-opens the screen.
@@ -9275,7 +9330,7 @@ U.interactive = (function () {
       var s = V.summary(t, progress[t.id]);
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
       var r = t.research || {};
-      var badge = r.status === 'done' ? U.h('span', { class: 'src-badge' }, 'Sources checked')
+      var badge = V.sourcesChecked(t) ? U.h('span', { class: 'src-badge' }, 'Sources checked')
         : r.status === 'running' && !V.researchStale(t) ? U.h('span', { class: 'src-badge is-quiet' }, 'Checking sources…') : null;
       return U.h('a', { class: 'tcard' + (s.allDone ? ' is-done' : ''), href: href },
         U.h('div', { class: 'tcard-cover' }, V.cover(t)),
@@ -9598,7 +9653,7 @@ U.interactive = (function () {
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
         }, 'rail'] : null,
-        ['library', sig(r.status, r.at, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
+        ['library', sig(r.status, r.at, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
         ['foot', 'foot', function () {
           return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
         }, 'end'],
@@ -9775,15 +9830,18 @@ U.interactive = (function () {
       var r = topic.research || {};
       var count = (lib.groups || []).reduce(function (n, g) { return n + g.sources.length; }, 0);
       var status, stale = V.researchStale(topic);
+      var none = V.sourcesNone(topic) && !count;
       if (ui.researching || (r.status === 'running' && !stale)) {
         status = U.h('div', { class: 'lib-status is-running' }, U.h('span', null, 'Checking sources…'), U.h('div', { class: 'working' }));
-      } else if (r.status === 'done') {
+      } else if (r.status === 'done' && !none) {
         status = U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Sources checked' + (count ? ' · ' + count + (count === 1 ? ' source' : ' sources') : '')));
       } else {
-        // A check left 'running' by a page that went away counts as not finished.
-        var text = r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
+        // A check left 'running' by a page that went away counts as not finished; one that ran
+        // but could not confirm any source says so, since it did finish.
+        var text = none ? 'The source check ran but could not confirm a single source, so these lessons are not source-checked.'
+          : r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
         if (avail === false) text += ' Connect Parallel Search in Claude\'s settings to add sources.';
-        var again = (r.status === 'failed' || stale) && avail !== false && U.gen && typeof U.gen.research === 'function'
+        var again = (r.status === 'failed' || stale || none) && avail !== false && U.gen && typeof U.gen.research === 'function'
           ? U.h('button', { class: 'linkish lib-retry', type: 'button', 'data-key': 'research-again', on: { click: researchAgain } }, 'Check the sources again') : null;
         status = U.h('div', { class: 'lib-status is-none' }, U.h('p', null, text), again);
       }
@@ -10336,13 +10394,23 @@ U.interactive = (function () {
       }
 
       var research = U.h('div', { class: 'set-research' }, U.h('p', { class: 'muted' }, 'Checking…'));
+      // Connected is not enough: a view that cannot run page tools (U.rt.toolsOk, 10-runtime.js)
+      // cannot use the connector, so topics started here are not source-checked. A runtime that
+      // cannot tell is given the benefit of the doubt, as U.rt.toolsOk itself does.
+      function toolsHere() {
+        if (!U.rt || typeof U.rt.toolsOk !== 'function') return Promise.resolve(true);
+        return Promise.resolve().then(function () { return U.rt.toolsOk(); }).then(function (x) { return x !== false; }, function () { return true; });
+      }
       function checkResearch(fresh) {
         if (fresh && U.research.reset) U.research.reset();
         U.clear(research).appendChild(U.h('p', { class: 'muted' }, 'Checking…'));
-        U.research.available().then(function (ok) {
+        Promise.all([U.research.available(), toolsHere()]).then(function (r) {
+          var ok = r[0];
           U.clear(research);
-          if (ok) {
+          if (ok && r[1]) {
             research.appendChild(U.h('p', { class: 'set-ok' }, U.icon('tick'), U.h('span', null, U.h('strong', null, 'Connected. '), 'New topics are checked against real sources, with quotes you can open.')));
+          } else if (ok) {
+            research.appendChild(U.h('p', { class: 'set-here' }, U.h('strong', null, 'Connected, but this view cannot use it. '), 'New topics started here are not source-checked, and their lessons say so.'));
           } else {
             research.appendChild(U.h('p', null, U.h('strong', null, 'Not connected. '), 'Lessons still work, but they are marked as not source-checked.'));
             research.appendChild(U.h('ol', { class: 'set-steps small' },

@@ -164,6 +164,9 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   ideas:[{ id:'i1', title, oneLine, deps:[earlier ids], kind, known?:true }],
   calibration:[{ id, iid?, q, options:[3-4], answer, why }],     // exactly 2
   research:{ status:'none'|'running'|'done'|'unavailable'|'failed', at, sources, dropped?, error? } }
+  // On screen "Sources checked" needs done with sources >= 1 (U.views.sourcesChecked). A run that
+  // kept none (done with 0 sources, stored before such runs counted as failed, or failed with
+  // "No source could be confirmed…") reads "ran but could not confirm a single source" (sourcesNone).
 kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
 ```
 `topics/{tid}/lessons/{iid}`
@@ -225,9 +228,11 @@ cannot count words or characters exactly, so a limit on length (characters, word
 the "<= n chars/words" below) never throws a reply away: up to `U.validate.allowed(max)` (max +
 15%, at least one unit: 170 words -> 195, 6 words -> 7) is not reported at all; past it the
 problem is reported and listed in `problems.soft`, so U.ask's one repair asks for a cut and then
-accepts the reply (section 3, Runtime). Everything else is hard: missing fields, wrong types,
-bad or duplicate ids, unknown sources, unreachable targets, web addresses, and counts of list
-items (2-3 checks, 5-8 ideas, 1-2 controls). The prompts still ask for the same limits.
+accepts the reply (section 3, Runtime). One check made by word matching is soft for the same
+reason: a plan calibration question whose right answer is already printed above it on the topic
+page (below). Everything else is hard: missing fields, wrong types, bad or duplicate ids, unknown
+sources, unreachable targets, web addresses, and counts of list items (2-3 checks, 5-8 ideas,
+1-2 controls). The prompts still ask for the same limits.
 
 ```
 Lesson = {
@@ -271,7 +276,11 @@ Check =
 
 The other replies: `plan` {title, hook (a puzzle question ending "?"), oneBreath, ideas: 5-8
 {id 'i1'…, title, oneLine, deps (earlier ids only), kind, known?}, calibration: exactly 2 {id,
-iid?, q, options: 3-4 distinct (trimmed, any case), answer, why}}; `research` {sources, topic:{notes}, ideas:{[iid]:{notes}}},
+iid?, q, options: 3-4 distinct (trimmed, any case), answer, why}} (soft: the right answer must not
+be printed in the title, hook, oneBreath or an idea's title or oneLine, which Dan reads above the
+questions. Reported only when a word match is reliable: the whole right option, 3+ words, word for
+word; or every word only the right option has, at least 2, within 15 words of one field);
+`research` {sources, topic:{notes}, ideas:{[iid]:{notes}}},
 a note citing at least one source unless contested; `grade` {met (one per rubric point), verdict
 (got-it = all met, partly = some, not-yet = none), nailed, followUp ('' only when got-it), model?}.
 
@@ -390,6 +399,8 @@ lesson: ids its checks need (`missing`), web addresses other than its sources (`
 target checks that moving one control cannot reach (`unreachable`, via `U.sandbox.reach`).
 Failures go back in a repair prompt, at most twice. After the last repair, a page that passes
 its own self-test is still kept, with stray addresses stripped and unreachable targets reported.
+Its status lines: "Building the interactive…", "Testing it at phone, tablet and laptop sizes…",
+then one line per repair, "Fixing what the test found (try 2 of 3)…" (never the same line twice).
 
 Prefetch (`50-lesson.js`): once a lesson is ready, the next open idea is ensured with
 `background: true`; leaving the topic aborts it. Opening a prefetched lesson joins its job, and
@@ -480,6 +491,7 @@ Views and app services
 ```
 U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
    planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 5 min),
+   sourcesChecked(t) (done, sources >= 1), sourcesNone(t) (the check ran but kept no source; section 4),
    loadError(what, e, retrying), slowNote, extLink(url, label) (window.open, else copy the link), empty, back, day
 U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}
@@ -490,6 +502,9 @@ U.boot.study   visible, recently touched time (TICK 15 s, IDLE 2 min), logged wi
 `apply` sets `html[data-mu-theme]`, `[data-size]`, `[data-easy]`, mirrors to `mu-prefs` and
 emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device) is ignored for
 3 s after a local change. At boot the profile's prefs win; with none, the local copy is saved.
+Settings' Research line: "Connected." (U.research.available() and, where the runtime has it,
+U.rt.toolsOk()); "Connected, but this view cannot use it." when page tools do not run here (new
+topics started here are not source-checked); "Not connected." with the steps to connect.
 
 ## 10. Navigation
 

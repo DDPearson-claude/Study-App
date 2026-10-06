@@ -4,8 +4,8 @@
 //   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json]
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
 // Prints {ok, problems, soft} and exits 1 when there are problems. soft: the length problems
-// among them (docs/ARCHITECTURE.md section 5); after its one repair the app accepts a reply whose
-// only problems are soft. Replies may contain prose or fences around the JSON; they are parsed
+// (and a plan's calibration answer printed above its question) among them (docs/ARCHITECTURE.md
+// section 5); after its one repair the app accepts a reply whose only problems are soft. Replies may contain prose or fences around the JSON; they are parsed
 // the way the app parses them (U.parseJson).
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
