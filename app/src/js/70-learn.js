@@ -270,13 +270,27 @@
   V.savedLate = function (what) {
     return U.h('p', { class: 'v-slow v-saved-late muted small', role: 'status' }, 'Your saved work is still loading, so ' + what + ' may not show yet. ' + (/s$/.test(what) ? 'They appear' : 'It appears') + ' here as soon as it arrives.');
   };
-  V.loadError = function (what, e, retrying) {
+  //   opts.lead: the words before the reason ('' for none, when a heading already says it).
+  V.loadError = function (what, e, retrying, opts) {
+    var lead = retrying ? 'Reconnecting… ' : opts && typeof opts.lead === 'string' ? opts.lead : what + ' could not be loaded just now. ';
     return U.h('div', { class: 'notice v-load-error' + (retrying ? '' : ' bad'), role: 'status' },
       U.h('div', { class: 'stack-sm' },
-        U.h('p', null, U.h('strong', null, retrying ? 'Reconnecting… ' : what + ' could not be loaded just now. '),
+        U.h('p', null, lead ? U.h('strong', null, lead) : null,
           retrying ? 'The connection to your saved work dropped for a moment.' : U.errText(e)),
         retrying ? U.h('div', { class: 'working', 'aria-hidden': 'true' })
           : U.h('div', null, U.h('button', { class: 'btn small secondary', type: 'button', on: { click: function () { U._route(); } } }, 'Try again'))));
+  };
+  // A screen that already shows its data, when a live watch of it stops (onError with retrying
+  // false). A dead bridge ('unavailable') only parks the watch: the store tries again every 30 s
+  // and at once when the app comes back (20-store.js), so the screen keeps what it shows and says
+  // calmly that it may be out of date, with nothing to press. Any other error ended the watch for
+  // good: it says so, with Try again. The screen clears either one when the next snapshot comes.
+  V.parked = function (e) { return !!(e && e.code === 'unavailable'); };
+  V.liveError = function (what, e) {
+    if (!V.parked(e)) return V.loadError(what, e, false, { lead: what + ' stopped updating. ' });
+    return U.h('div', { class: 'notice v-reconnect', role: 'status' },
+      U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }),
+      U.h('p', null, U.h('strong', null, 'Reconnecting… '), 'The connection to your saved work dropped, so what you see may be out of date. It updates by itself once the connection is back.'));
   };
 
   // A short local date: "12 Sept", with the year when it is not this year.
@@ -307,11 +321,11 @@
     return U.h('a', { class: 'backlink', href: href }, U.icon('back'), U.h('span', null, label));
   };
 
-  // A friendly empty state with an optional action.
+  // A friendly empty state with an optional action. o.h1: its title is the screen's heading.
   V.empty = function (o) {
     return U.h('div', { class: 'v-empty' },
       o.art || null,
-      U.h('h2', null, o.title),
+      U.h(o.h1 ? 'h1' : 'h2', { class: 'v-empty-h' }, o.title),
       U.h('p', { class: 'muted' }, o.text),
       o.action ? U.h('a', { class: 'btn', href: o.action.href }, o.action.label, U.icon('arrow')) : null);
   };
@@ -396,7 +410,8 @@
       U.h('h1', { id: 'ask-h' }, 'What do you want to learn?'),
       U.h('p', { class: 'ask-sub muted' }, 'Type anything you are curious about. Claude maps it into a few clear ideas, each with something to play with.'),
       U.h('div', { class: 'ask-row ask-level-row' }, U.h('span', { class: 'ask-label', id: 'lvl-l' }, 'How well do you know it?'),
-        U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips)),
+        // Radios for the keyboard too (U.radios): one Tab stop, the arrow keys move the choice.
+        U.radios(U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips))),
       form, working,
       U.h('div', { class: 'ask-row ask-try' }, U.h('span', { class: 'ask-label', id: 'try-l' }, 'Or try one'),
         U.h('div', { class: 'chips', role: 'group', 'aria-labelledby': 'try-l' }, exampleChips)));
@@ -404,9 +419,11 @@
     var continueBox = U.h('div', { class: 'learn-continue' });
     var todayBox = U.h('div', { class: 'learn-today' });
     var noteBox = U.h('div', { class: 'learn-note' });
+    // The topics watch stopping after they were shown (V.liveError); cleared by its next snapshot.
+    var liveBox = U.h('div', { class: 'learn-note learn-live' });
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
     // Reviews waiting come first: today's study is one tap away.
-    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, noteBox, listBox);
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -491,6 +508,7 @@
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
       topics = list || [];
+      U.clear(liveBox);   // the watch is live again (a parked one answers by itself)
       progSig = {};
       if (firstTime) { loadProgress(progressP); return; }
       // Topic changes from another device: progress is re-read at most every 10 s; in between
@@ -501,8 +519,9 @@
     }, function (e, info) {
       if (!ctx.alive()) return;
       if (topics !== null) {
-        // Keep showing what is there; say so only once the store has given up reconnecting.
-        if (!info.retrying) { U.clear(noteBox).appendChild(V.loadError('Your topics', e, false)); }
+        // Keep showing what is there; say so only once the quick tries are over (the watch is
+        // parked and comes back by itself, or it has ended).
+        if (!info.retrying) U.clear(liveBox).appendChild(V.liveError('Your topics', e));
         return;
       }
       shownKey = null; contSig = null;
@@ -532,12 +551,14 @@
           U.h('span', { class: 'today-text' }, U.h('strong', null, o.head), sub ? U.h('span', { class: 'muted small' }, sub) : null)));
         return;
       }
-      var mins = Math.max(1, Math.round(n * 25 / 60));
+      // Today's own estimate for these cards (U.review.outlook: per card type), so both screens
+      // give one number.
+      var mins = Number(o.minutes) > 0 ? Math.round(o.minutes) : 0;
       todayBox.appendChild(U.h('a', { class: 'today-row', href: '#/today' },
         U.h('span', { class: 'today-ico' }, U.svg(CLOCK)),
         U.h('span', { class: 'today-text' },
           U.h('strong', null, n === 1 ? '1 review ready' : n + ' reviews ready'),
-          U.h('span', { class: 'muted small' }, 'About ' + mins + (mins === 1 ? ' minute' : ' minutes') + ' to keep what you have learned fresh.')),
+          U.h('span', { class: 'muted small' }, mins ? 'About ' + mins + (mins === 1 ? ' minute' : ' minutes') + ' to keep what you have learned fresh.' : 'They keep what you have learned fresh.')),
         U.icon('arrow', 'today-go')));
     }
 

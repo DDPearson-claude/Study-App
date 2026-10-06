@@ -732,6 +732,34 @@ async function lightAfterReviews() {
   await app.close();
 }
 
+// NEXT.md 10: the line saying where a card comes from wraps on a phone instead of ending in "…",
+// so the topic and the idea stay readable at every text size.
+async function whereWraps() {
+  const tag = 'where line';
+  console.log(`\n== ${tag}: wraps on a phone`);
+  const db = auditDb({ i1_c1: choiceCard('i1_c1', 'i1', TODAY) });
+  db['topics/tA'] = { ...db['topics/tA'], title: 'Why pendulums keep time', ideas: [{ id: 'i1', title: 'What sets the time of one swing, and what does not' }] };
+  for (const size of ['m', 'xl']) {
+    for (const [width, theme] of [[360, 'light'], [390, 'dark']]) {
+      const app = await openApp({ file: OUT, width, height: width === 360 ? 707 : 844, dark: theme === 'dark', config: { db } });
+      const { page } = app;
+      await page.goto(app.url('#/review'));
+      await page.evaluate(setup, theme);
+      await page.evaluate((s) => { document.documentElement.dataset.size = s; }, size);
+      await page.waitForSelector('.rv-stage > .qc');
+      const r = await page.evaluate(() => {
+        const w = document.querySelector('.rv-where'), cs = getComputedStyle(w);
+        return { text: w.textContent, cut: w.scrollWidth > w.clientWidth + 1 || cs.textOverflow === 'ellipsis', lines: Math.round(w.getBoundingClientRect().height / parseFloat(cs.lineHeight)), right: w.getBoundingClientRect().right, vw: innerWidth };
+      });
+      check(r.text === 'Why pendulums keep time · What sets the time of one swing, and what does not', `${tag} ${width}-${theme}-${size}: names the topic and the idea (${r.text})`);
+      check(!r.cut && r.lines >= 2 && r.right <= r.vw - 16, `${tag} ${width}-${theme}-${size}: wraps, nothing cut (${JSON.stringify(r)})`);
+      await page.screenshot({ path: join(ROOT, 'tests', 'out', `review-where-${width}-${theme}-${size}.png`) });
+      check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+      await app.close();
+    }
+  }
+}
+
 // ONLY=360-light node tests/e2e/review.spec.mjs runs a single combination while iterating.
 const RUNS = [{ width: 360, theme: 'light', full: true }, { width: 360, theme: 'dark' }, { width: 1280, theme: 'light' }, { width: 1280, theme: 'dark' }]
   .filter((r) => !process.env.ONLY || process.env.ONLY === `${r.width}-${r.theme}`);
@@ -743,6 +771,7 @@ try {
     await pendingRecall();
     await pendingRace();
     await lightAfterReviews();
+    await whereWraps();
   }
 } catch (e) {
   failures.push('crashed: ' + (e.stack || e));

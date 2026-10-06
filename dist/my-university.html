@@ -712,7 +712,9 @@ mark.term {
 .rv-close svg { width: 20px; height: 20px; }
 .rv-bar { flex: 1; }
 .rv-count { flex: none; min-width: 3.5em; text-align: right; font: 700 .8125rem/1 var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; }
-.rv-where { min-height: 20px; margin: 4px 0 -4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 .875rem/1.4 var(--sans); color: var(--muted); }
+/* Where the card comes from ("Why pendulums keep time · What sets the swing"): it wraps, so the
+   topic and the idea stay readable on a phone at every text size. */
+.rv-where { min-height: 20px; margin: 4px 0 -4px; overflow-wrap: break-word; font: 600 .875rem/1.4 var(--sans); color: var(--muted); }
 .rv-stage { flex: 1; display: flex; flex-direction: column; padding-top: 4px; }
 .rv-stage > .qc { flex: 1; }
 .rv-loading { height: 220px; margin-top: 40px; opacity: .6; }
@@ -1153,6 +1155,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .v-empty { display: grid; justify-items: center; gap: 12px; text-align: center; padding: 36px 8px 24px; }
 .v-empty p { max-width: 30em; color: var(--muted); }
 .v-empty .btn { margin-top: 8px; }
+.v-empty h1 { font-size: 1.3rem; font-weight: 700; }
 .v-empty-art { display: grid; place-items: center; margin-bottom: 6px; }
 .book-empty-art { width: 84px; height: 84px; border-radius: 50%; background: var(--teal-tint); color: var(--teal); }
 .book-empty-art svg { width: 40px; height: 40px; }
@@ -1229,6 +1232,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .v-load-error { align-items: center; }
 .v-slow { padding: 4px 2px 12px; }
 .v-load-error .working { max-width: 200px; margin-top: 4px; }
+/* A live watch parked by a dead bridge: calm (no red), a breathing dot, nothing to press. */
+.v-reconnect .v-dot { margin-top: .5em; }
 @container view (min-width: 568px) {
   .ask-form { flex-direction: row; align-items: flex-end; }
   .ask-form .ask-input { flex: 1; min-width: 0; }
@@ -1343,6 +1348,16 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tp-hook { margin-top: 6px; max-width: 30em; font: 500 calc(var(--fs) * 1.22)/1.45 var(--serif); color: var(--heading); }
 .tp-breath .eyebrow { color: color-mix(in srgb, var(--ink) 70%, var(--amber)); margin-bottom: 6px; }
 .tp-breath .reading { line-height: 1.7; }
+/* "Claude's overview… not checked against sources": the plan's own words, said quietly. */
+.tp-overview-note { max-width: 36em; font: 500 .8125rem/1.45 var(--sans); color: var(--muted); }
+.tp-breath .tp-overview-note { margin-top: 10px; }
+/* Above the page while a live watch has stopped (V.liveError); empty otherwise. */
+.tp-conn { margin-bottom: 20px; }
+.tp-conn > .notice, .tp-state > .notice { max-width: var(--measure); }
+.tp-conn:empty { display: none; }
+/* Missing, or could not be loaded. */
+.tp-state { display: flex; flex-direction: column; gap: 14px; }
+.tp-state-h { font-size: 1.3rem; font-weight: 700; }
 .tp-progress { display: grid; gap: 8px; margin: -4px 0 14px; font-size: .9375rem; }
 /* The next step, right in the header. */
 .tp-cta.btn { align-self: flex-start; max-width: 100%; margin-top: 10px; }
@@ -1402,7 +1417,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tp-lib .section-head { margin-bottom: 10px; }
 .lib-status { display: flex; align-items: center; gap: 8px; font-size: .9375rem; line-height: 1.5; color: var(--muted); }
 .lib-status svg { width: 18px; height: 18px; flex: none; }
-.lib-status.is-done { color: var(--teal); font-weight: 700; }
+.lib-status.is-done { align-items: flex-start; color: var(--teal); font-weight: 700; }
+.lib-status.is-done svg { margin-top: calc((1.5em - 18px) / 2); }   /* by the first line when it wraps */
 .lib-status.is-running { display: grid; gap: 10px; }
 .lib-status.is-none { display: grid; gap: 4px; }
 .lib-retry.linkish { justify-self: start; }
@@ -1615,7 +1631,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-2ce9f92";
+U.BUILD = "2026-10-06-d656813";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -9156,9 +9172,10 @@ U.interactive = (function () {
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
 //   U.review.dueCount() -> Promise<number>     what today's session holds right now
-//   U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   dueCount, cards reviewed
-//       today, cards in all, and Today's words when nothing is waiting ("Done for today", its lead,
-//       "Next up: 2 cards tomorrow." or ''), for Learn's quiet line
+//   U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   dueCount, cards
+//       reviewed today, cards in all, Today's time for today's session ("About 5 minutes", from each
+//       card's type; 0 when nothing is waiting), and Today's words when nothing is waiting ("Done for
+//       today", its lead, "Next up: 2 cards tomorrow." or ''), for Learn's reviews row and quiet line
 //   U.review.refreshBadge()                    #today-badge text + hidden
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
@@ -9574,9 +9591,10 @@ U.interactive = (function () {
     mendCards: mendCards,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
-    // For Learn when nothing is waiting, from the same read as dueCount, in Today's words.
+    // For Learn, from the same read as dueCount: Today's time for the session (so the two screens
+    // never disagree) and, when nothing is waiting, Today's words.
     outlook: function () {
-      return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, head: w.head, lead: w.lead, next: w.next }; });
+      return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, minutes: p.size ? minutesFor(p.queue) : 0, head: w.head, lead: w.lead, next: w.next }; });
     },
     refreshBadge: function () {
       changed();
@@ -10270,13 +10288,27 @@ U.interactive = (function () {
   V.savedLate = function (what) {
     return U.h('p', { class: 'v-slow v-saved-late muted small', role: 'status' }, 'Your saved work is still loading, so ' + what + ' may not show yet. ' + (/s$/.test(what) ? 'They appear' : 'It appears') + ' here as soon as it arrives.');
   };
-  V.loadError = function (what, e, retrying) {
+  //   opts.lead: the words before the reason ('' for none, when a heading already says it).
+  V.loadError = function (what, e, retrying, opts) {
+    var lead = retrying ? 'Reconnecting… ' : opts && typeof opts.lead === 'string' ? opts.lead : what + ' could not be loaded just now. ';
     return U.h('div', { class: 'notice v-load-error' + (retrying ? '' : ' bad'), role: 'status' },
       U.h('div', { class: 'stack-sm' },
-        U.h('p', null, U.h('strong', null, retrying ? 'Reconnecting… ' : what + ' could not be loaded just now. '),
+        U.h('p', null, lead ? U.h('strong', null, lead) : null,
           retrying ? 'The connection to your saved work dropped for a moment.' : U.errText(e)),
         retrying ? U.h('div', { class: 'working', 'aria-hidden': 'true' })
           : U.h('div', null, U.h('button', { class: 'btn small secondary', type: 'button', on: { click: function () { U._route(); } } }, 'Try again'))));
+  };
+  // A screen that already shows its data, when a live watch of it stops (onError with retrying
+  // false). A dead bridge ('unavailable') only parks the watch: the store tries again every 30 s
+  // and at once when the app comes back (20-store.js), so the screen keeps what it shows and says
+  // calmly that it may be out of date, with nothing to press. Any other error ended the watch for
+  // good: it says so, with Try again. The screen clears either one when the next snapshot comes.
+  V.parked = function (e) { return !!(e && e.code === 'unavailable'); };
+  V.liveError = function (what, e) {
+    if (!V.parked(e)) return V.loadError(what, e, false, { lead: what + ' stopped updating. ' });
+    return U.h('div', { class: 'notice v-reconnect', role: 'status' },
+      U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }),
+      U.h('p', null, U.h('strong', null, 'Reconnecting… '), 'The connection to your saved work dropped, so what you see may be out of date. It updates by itself once the connection is back.'));
   };
 
   // A short local date: "12 Sept", with the year when it is not this year.
@@ -10307,11 +10339,11 @@ U.interactive = (function () {
     return U.h('a', { class: 'backlink', href: href }, U.icon('back'), U.h('span', null, label));
   };
 
-  // A friendly empty state with an optional action.
+  // A friendly empty state with an optional action. o.h1: its title is the screen's heading.
   V.empty = function (o) {
     return U.h('div', { class: 'v-empty' },
       o.art || null,
-      U.h('h2', null, o.title),
+      U.h(o.h1 ? 'h1' : 'h2', { class: 'v-empty-h' }, o.title),
       U.h('p', { class: 'muted' }, o.text),
       o.action ? U.h('a', { class: 'btn', href: o.action.href }, o.action.label, U.icon('arrow')) : null);
   };
@@ -10396,7 +10428,8 @@ U.interactive = (function () {
       U.h('h1', { id: 'ask-h' }, 'What do you want to learn?'),
       U.h('p', { class: 'ask-sub muted' }, 'Type anything you are curious about. Claude maps it into a few clear ideas, each with something to play with.'),
       U.h('div', { class: 'ask-row ask-level-row' }, U.h('span', { class: 'ask-label', id: 'lvl-l' }, 'How well do you know it?'),
-        U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips)),
+        // Radios for the keyboard too (U.radios): one Tab stop, the arrow keys move the choice.
+        U.radios(U.h('div', { class: 'seg ask-levels', role: 'radiogroup', 'aria-labelledby': 'lvl-l' }, levelChips))),
       form, working,
       U.h('div', { class: 'ask-row ask-try' }, U.h('span', { class: 'ask-label', id: 'try-l' }, 'Or try one'),
         U.h('div', { class: 'chips', role: 'group', 'aria-labelledby': 'try-l' }, exampleChips)));
@@ -10404,9 +10437,11 @@ U.interactive = (function () {
     var continueBox = U.h('div', { class: 'learn-continue' });
     var todayBox = U.h('div', { class: 'learn-today' });
     var noteBox = U.h('div', { class: 'learn-note' });
+    // The topics watch stopping after they were shown (V.liveError); cleared by its next snapshot.
+    var liveBox = U.h('div', { class: 'learn-note learn-live' });
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
     // Reviews waiting come first: today's study is one tap away.
-    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, noteBox, listBox);
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -10491,6 +10526,7 @@ U.interactive = (function () {
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
       topics = list || [];
+      U.clear(liveBox);   // the watch is live again (a parked one answers by itself)
       progSig = {};
       if (firstTime) { loadProgress(progressP); return; }
       // Topic changes from another device: progress is re-read at most every 10 s; in between
@@ -10501,8 +10537,9 @@ U.interactive = (function () {
     }, function (e, info) {
       if (!ctx.alive()) return;
       if (topics !== null) {
-        // Keep showing what is there; say so only once the store has given up reconnecting.
-        if (!info.retrying) { U.clear(noteBox).appendChild(V.loadError('Your topics', e, false)); }
+        // Keep showing what is there; say so only once the quick tries are over (the watch is
+        // parked and comes back by itself, or it has ended).
+        if (!info.retrying) U.clear(liveBox).appendChild(V.liveError('Your topics', e));
         return;
       }
       shownKey = null; contSig = null;
@@ -10532,12 +10569,14 @@ U.interactive = (function () {
           U.h('span', { class: 'today-text' }, U.h('strong', null, o.head), sub ? U.h('span', { class: 'muted small' }, sub) : null)));
         return;
       }
-      var mins = Math.max(1, Math.round(n * 25 / 60));
+      // Today's own estimate for these cards (U.review.outlook: per card type), so both screens
+      // give one number.
+      var mins = Number(o.minutes) > 0 ? Math.round(o.minutes) : 0;
       todayBox.appendChild(U.h('a', { class: 'today-row', href: '#/today' },
         U.h('span', { class: 'today-ico' }, U.svg(CLOCK)),
         U.h('span', { class: 'today-text' },
           U.h('strong', null, n === 1 ? '1 review ready' : n + ' reviews ready'),
-          U.h('span', { class: 'muted small' }, 'About ' + mins + (mins === 1 ? ' minute' : ' minutes') + ' to keep what you have learned fresh.')),
+          U.h('span', { class: 'muted small' }, mins ? 'About ' + mins + (mins === 1 ? ' minute' : ' minutes') + ' to keep what you have learned fresh.' : 'They keep what you have learned fresh.')),
         U.icon('arrow', 'today-go')));
     }
 
@@ -10698,9 +10737,13 @@ U.interactive = (function () {
 // Topic page (#/t/:tid): the plan for one topic, live from the db. While Claude plans it shows
 // the question and gentle waiting lines; if planning failed it says why and offers Retry; once
 // ready it shows the hook, the idea "in one breath", an optional warm-up (never locks anything),
-// the path of ideas, the Library of research sources, Ask Claude, and Delete. A lesson opens only
-// when it is whole, so the header says whether the next idea's lesson is being prepared or ready,
-// and the path marks any idea this page is preparing.
+// the path of ideas, the Library of research sources, Ask Claude, and Delete. The plan is written
+// before any research and never checked against it, so "in one breath", the hook and the warm-up's
+// answers say they are Claude's overview, and the Library speaks only for the lessons. A lesson
+// opens only when it is whole, so the header says whether the next idea's lesson is being prepared
+// or ready, and the path marks any idea this page is preparing. Every state has its own h1 and
+// title (a missing topic, one that could not be loaded); a live watch that stops once the page
+// has loaded is said above it (reconnecting, or stopped), until its next snapshot.
 // Contract: docs/ARCHITECTURE.md sections 4 (topics, progress, research) and 9.
 (function () {
   'use strict';
@@ -10721,6 +10764,9 @@ U.interactive = (function () {
     var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
     var lib = { key: null, groups: null };
     var avail = null;
+    // A watch that stopped after the page loaded (its error), cleared by its next snapshot.
+    var live = { topic: null, progress: null };
+    var connBox = U.h('div', { class: 'tp-conn' });
     var root = U.h('div', { class: 'tp' });
     ctx.view.appendChild(root);
     root.appendChild(loadingView());
@@ -10733,16 +10779,20 @@ U.interactive = (function () {
 
     var stops = [
       U.store.topic.watch(tid, function (t) {
-        topic = t; loaded = true; failure = null;
+        topic = t; loaded = true; failure = null; live.topic = null;
         if (t) U.setTitle(t.title || V.asTitle(t.query));
         if (t && t.status === 'ready') loadLibrary();
         schedule();
       }, function (e, info) {
-        if (loaded) return;                    // keep showing the page it has
+        // Once loaded, the page keeps what it shows; after the quick tries it says the watch has
+        // stopped (parked: reconnecting by itself; or ended), above the page (V.liveError).
+        if (loaded) { if (!info.retrying) { live.topic = e; schedule(); } return; }
         failure = { e: e, retrying: info.retrying };
         schedule();
       }),
-      U.store.progress.watch(tid, function (p) { progress = p || { ideas: {} }; schedule(); }),
+      U.store.progress.watch(tid, function (p) { progress = p || { ideas: {} }; live.progress = null; schedule(); }, function (e, info) {
+        if (!info.retrying) { live.progress = e; schedule(); }
+      }),
     ];
     // The next idea's lesson (its doc), and this page's own work on any lesson of this topic.
     var lw = V.lessonWatch(schedule);
@@ -10769,7 +10819,7 @@ U.interactive = (function () {
     // ---------- rendering ----------
     // Only the parts whose data changed are rebuilt (a progress write elsewhere must not rebuild
     // the whole page under Dan's thumb or a screen reader's cursor); focus stays where it was.
-    var shown = { state: null, box: null, slots: {} };
+    var shown = { state: null, box: null, slots: {}, h1: null, live: '' };
     function stateOf() {
       if (!loaded) return failure ? 'error' : 'loading';
       if (!topic) return U.rt.savedLate() ? 'late' : 'gone';   // not gone: his saved work has not arrived yet
@@ -10780,7 +10830,8 @@ U.interactive = (function () {
     function render() {
       var state = stateOf();
       armStuck();
-      var key = document.activeElement && root.contains(document.activeElement) ? document.activeElement.getAttribute('data-key') : null;
+      var focusIn = !!(document.activeElement && root.contains(document.activeElement));
+      var key = focusIn ? document.activeElement.getAttribute('data-key') : null;
       if (state !== shown.state) {
         shown.state = state; shown.slots = {};
         shown.box = U.h('div', { class: state === 'ready' ? 'tp-ready' : state === 'planning' ? 'tp-planning' : state === 'failed' ? 'tp-failed' : 'tp-other' });
@@ -10792,7 +10843,8 @@ U.interactive = (function () {
           shown.regions = { top: U.h('div', { class: 'tp-top' }), main: U.h('div', { class: 'tp-main' }), rail: U.h('div', { class: 'tp-rail' }), end: U.h('div', { class: 'tp-end' }) };
           U.append(shown.box, [shown.regions.top, U.h('div', { class: 'tp-cols' }, shown.regions.main, shown.regions.rail), shown.regions.end]);
         }
-        U.clear(root).appendChild(shown.box);
+        U.clear(root);
+        U.append(root, [connBox, shown.box]);
       }
       var parts = state === 'ready' ? readyParts()
         : state === 'planning' ? planningParts()
@@ -10800,7 +10852,7 @@ U.interactive = (function () {
         : [['only', state + (failure ? String(failure.retrying) : '') + ui.slow, function () {
           if (state === 'loading') return ui.slow ? U.h('div', { class: 'stack' }, V.slowNote('this topic'), loadingView()) : loadingView();
           if (state === 'late') return U.h('div', { class: 'stack' }, V.savedLate('this topic'), loadingView());
-          return state === 'gone' ? goneView() : V.loadError('This topic', failure && failure.e, failure && failure.retrying);
+          return state === 'gone' ? goneView() : errorView();
         }]];
       var at = {}, used = {};
       parts.forEach(function (p) {
@@ -10826,7 +10878,29 @@ U.interactive = (function () {
         var el = root.querySelector('[data-key="' + key + '"]');
         if (el) try { el.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
       }
+      liveNote();
+      // The heading takes focus when the screen's first one appears (also after U._focusScreen has
+      // stopped waiting: a topic slower than 6 s, a missing one, one that could not be loaded), and
+      // when what had focus here was taken away (the topic deleted elsewhere, planning finished).
+      // Never while Dan's focus is anywhere else.
+      var h1 = root.querySelector('h1'), first = !!h1 && !shown.h1;
+      shown.h1 = h1;
+      if (h1 && (first || focusIn) && focusLost()) {
+        if (!h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
+        try { h1.focus({ preventScroll: true }); } catch (e) { /* ignore */ }
+      }
       if (state === 'ready' && !ui.scrolled) arrived();
+    }
+    function focusLost() { var a = document.activeElement; return !a || a === document.body || !a.isConnected; }
+    // A watch that stopped once the page had loaded: reconnecting by itself, or ended (Try again).
+    // The one that needs Dan comes first; cleared when every watch is live again.
+    function liveNote() {
+      var e = loaded ? [live.topic, live.progress].filter(Boolean).sort(function (a, b) { return V.parked(a) - V.parked(b); })[0] : null;
+      var s = e ? (V.parked(e) ? 'parked' : 'ended ' + (e.code || '')) : '';
+      if (s === shown.live) return;
+      shown.live = s;
+      U.clear(connBox);
+      if (e) connBox.appendChild(V.liveError('This page', e));
     }
     // Back from a lesson: bring the idea to do next into view instead of the top of the page.
     function arrived() {
@@ -10853,9 +10927,19 @@ U.interactive = (function () {
           U.h('div', { class: 'skeleton sk-line short' })));
     }
 
+    // Not here, or could not be loaded: each has a heading of its own (focus goes there) and says
+    // so in the title. While the store is still trying (reconnecting), it is not an error yet.
     function goneView() {
-      return U.h('div', null, V.back('#/', 'All topics'),
-        V.empty({ title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Back to Learn' } }));
+      U.setTitle('Topic not found');
+      return U.h('div', { class: 'tp-state' }, V.back('#/', 'All topics'),
+        V.empty({ h1: true, title: 'This topic is not here any more', text: 'It may have been deleted on another device.', action: { href: '#/', label: 'Back to Learn' } }));
+    }
+    function errorView() {
+      var retrying = !!(failure && failure.retrying);
+      if (!retrying) U.setTitle('Topic could not be loaded');
+      return U.h('div', { class: 'tp-state' }, V.back('#/', 'All topics'),
+        retrying ? null : U.h('h1', { class: 'tp-state-h' }, 'This topic could not be loaded'),
+        V.loadError('This topic', failure && failure.e, retrying, { lead: '' }));
     }
 
     // The planning and failed pages share the ready page's header shape: on a laptop the cover
@@ -10966,11 +11050,13 @@ U.interactive = (function () {
       lw.watch(tid, s.current && !s.allDone ? s.current.id : null);
       var next = lw.state(), busy = ideas.map(function (i) { return V.lessonBusy(tid, i.id) || (s.current && i.id === s.current.id && next === 'preparing'); });
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
-        topic.oneBreath ? ['breath', sig(topic.oneBreath), function () {
+        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
+        // Written with the plan, before any research, and never checked: said in calm small words.
+        topic.oneBreath ? ['breath', sig(topic.oneBreath, !!topic.hook), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
             U.h('p', { class: 'eyebrow' }, 'In one breath'),
-            U.h('div', { class: 'reading' }, U.rich(topic.oneBreath)));
+            U.h('div', { class: 'reading' }, U.rich(topic.oneBreath)),
+            U.h('p', { class: 'tp-overview-note' }, (topic.hook ? 'This summary and the question above are' : 'This summary is') + ' Claude\'s overview from what it already knows, not checked against sources.'));
         }] : null,
         ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
         ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy), function () {
@@ -11011,6 +11097,8 @@ U.interactive = (function () {
             U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
+            // No summary to say it under (older plans): the question says it itself.
+            topic.hook && !topic.oneBreath ? U.h('p', { class: 'tp-overview-note' }, 'Claude\'s overview from what it already knows, not checked against sources.') : null,
             cta, note)));
     }
 
@@ -11104,6 +11192,8 @@ U.interactive = (function () {
         revealing ? U.h('div', { class: 'tp-warm-why', role: 'status' },
           U.h('p', { class: 'tp-warm-verdict' }, picked === q.answer ? 'Right.' : 'Not quite. The answer is “' + U.plain(q.options[q.answer] || '') + '”.'),
           q.why ? U.h('div', { class: 'muted' }, U.rich(q.why)) : null,
+          // The plan's answer, never checked against sources (the lessons are where they come in).
+          U.h('p', { class: 'tp-overview-note' }, 'Claude\'s answer from what it already knows, not checked against sources.'),
           U.h('button', { class: 'btn small', type: 'button', 'data-key': 'warm-next', on: { click: function () { ui.reveal = null; render(); } } }, isLast ? 'Done' : 'Next question'))
           : U.h('div', { class: 'tp-warm-go' }, U.h('button', { class: 'btn small tp-warm-check', type: 'button', 'data-key': 'warm-check', disabled: chosen == null, on: { click: function () { if (chosen != null) pick(q, chosen); } } }, 'Check')));
     }
@@ -11171,7 +11261,8 @@ U.interactive = (function () {
       if (ui.researching || (r.status === 'running' && !stale)) {
         status = U.h('div', { class: 'lib-status is-running' }, U.h('span', null, 'Checking sources…'), U.h('div', { class: 'working' }));
       } else if (r.status === 'done' && !none) {
-        status = U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Sources checked' + (count ? ' · ' + count + (count === 1 ? ' source' : ' sources') : '')));
+        // The check covers the lessons, not the plan's overview above (which says so itself).
+        status = U.h('p', { class: 'lib-status is-done' }, U.icon('tick'), U.h('span', null, 'Lessons checked against ' + (count ? count + (count === 1 ? ' source' : ' sources') : 'sources')));
       } else {
         // A check left 'running' by a page that went away counts as not finished; one that ran
         // but could not confirm any source says so, since it did finish.

@@ -218,6 +218,10 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   (`WATCH_PARK_MS`) and at once on `online`, when the page shows again, or after a write succeeds;
   the next snapshot carries on as normal. A try refused for any other reason (permission_denied,
   say) is reported, even after parking, and ends it. Views show an error with Try again, never "empty".
+  A screen that has already shown its data keeps it: on `retrying:false` it says so above it
+  (`V.liveError`): a parked watch (`unavailable`) a calm "Reconnecting…" with nothing to press, one
+  that ended "… stopped updating" with Try again; its next snapshot clears it (Learn's topics, and
+  the topic page's topic and progress watches).
   `cards.update` reads the card inside the write queue and never recreates one that is gone.
 
 ## 4. Data model
@@ -240,6 +244,11 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   // On screen "Sources checked" needs done with sources >= 1 (U.views.sourcesChecked). A run that
   // kept none (done with 0 sources, stored before such runs counted as failed, or failed with
   // reason 'none_confirmed') reads "ran but could not confirm a single source" (sourcesNone).
+  // The check covers the lessons only: the topic page's Library says "Lessons checked against N
+  // sources". hook, oneBreath and calibration (answer, why) come from plan-topic, before any
+  // research, and are never checked, so the topic page says under "In one breath" (or under the
+  // hook, when there is no oneBreath) and under a revealed warm-up answer, in small muted words,
+  // that they are Claude's overview (answer) from what it already knows, not checked against sources.
 kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
 ```
 `topics/{tid}/lessons/{iid}`
@@ -676,16 +685,22 @@ U.review.addFromLesson(tid, iid, lesson, outcome, {round?, at?}) -> Promise<[car
 U.review.mendCards(force?) -> Promise<[{tid, iid}]>   never rejects; at most once a minute after a clean run
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
-U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   size = dueCount (same read); head, lead, next = Today's words
+U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   size = dueCount (same read); minutes = Today's
+    "About N minutes" for that session (per card type; 0 when nothing waits), which Learn's reviews row shows too;
+    head, lead, next = Today's words
     when nothing is waiting ("Done for today", ..., "Next up: 5 cards tomorrow." or ''); next counts cards the daily limit held back.
     Today and a review with nothing to show (#/review, #/review/more) draw the same words (clearBox in 60-today.js)
 ```
 Views and app services
 ```
 U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
-   planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 5 min),
+   planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 8 min),
    sourcesChecked(t) (done, sources >= 1), sourcesNone(t) (the check ran but kept no source; section 4),
-   loadError(what, e, retrying), slowNote, savedLate(what) (U.rt.savedLate), extLink(url, label) (window.open, else copy the link), empty, back, day,
+   loadError(what, e, retrying, {lead?}) (lead: the words before the reason, '' under a heading of its own),
+   parked(e) (a watch the store parks: code 'unavailable'), liveError(what, e) (a loaded screen's watch stopped:
+   "Reconnecting…", or "<what> stopped updating" with Try again), slowNote, savedLate(what) (U.rt.savedLate),
+   extLink(url, label, cls) (a real link the viewer opens in a new tab; plain text unless http(s)),
+   empty({title, text, action, art, h1}), back, day,
    lessonLive(tid, iid) (U.gen.status's word, if any), lessonBusy(tid, iid), lessonWatch(onChange) -> {watch(tid, iid),
    state() -> lesson state | null before the doc is read, stop()} (follows the next idea Dan will study; a prefetch
    this tab abandoned is started again in the background, once per page load), lessonNote(state, n, started, cls) -> "Idea n is being
@@ -733,6 +748,11 @@ topics started here are not source-checked); "Not connected." with the steps to 
   `html.focus` hides the top bar and tabs; the tab gets `aria-current`; the title is
   `opts.title · My University` until the view calls `U.setTitle`; the page scrolls to the top
   and focus moves to the screen's h1 once it is drawn (unless Dan has focused something else).
+  `U._focusScreen` waits up to 6 s for it; the topic page also moves focus to its first h1 when it
+  comes later, and to the new h1 when what had focus there was taken away. Each of its states has
+  an h1 and a title: "This topic is not here any more" (Topic not found) and "This topic could not
+  be loaded" (Topic could not be loaded; while the store is still reconnecting it is not an error yet).
+- Learn's level choice (New to it, Know a bit, Know it well) is a radio group (`U.radios`), like Settings'.
 - Tabs Learn / Today / Map / Book (`#tabs`, Today's badge `#today-badge`) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.
 

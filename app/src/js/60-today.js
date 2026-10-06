@@ -11,9 +11,10 @@
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
 //   U.review.dueCount() -> Promise<number>     what today's session holds right now
-//   U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   dueCount, cards reviewed
-//       today, cards in all, and Today's words when nothing is waiting ("Done for today", its lead,
-//       "Next up: 2 cards tomorrow." or ''), for Learn's quiet line
+//   U.review.outlook() -> Promise<{size, done, cards, minutes, head, lead, next}>   dueCount, cards
+//       reviewed today, cards in all, Today's time for today's session ("About 5 minutes", from each
+//       card's type; 0 when nothing is waiting), and Today's words when nothing is waiting ("Done for
+//       today", its lead, "Next up: 2 cards tomorrow." or ''), for Learn's reviews row and quiet line
 //   U.review.refreshBadge()                    #today-badge text + hidden
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
@@ -429,9 +430,10 @@
     mendCards: mendCards,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
-    // For Learn when nothing is waiting, from the same read as dueCount, in Today's words.
+    // For Learn, from the same read as dueCount: Today's time for the session (so the two screens
+    // never disagree) and, when nothing is waiting, Today's words.
     outlook: function () {
-      return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, head: w.head, lead: w.lead, next: w.next }; });
+      return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, minutes: p.size ? minutesFor(p.queue) : 0, head: w.head, lead: w.lead, next: w.next }; });
     },
     refreshBadge: function () {
       changed();
