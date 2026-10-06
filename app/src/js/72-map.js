@@ -130,7 +130,7 @@
       });
     }, function (e, info) {
       if (!ctx.alive() || topics !== null) return;
-      U.clear(body).appendChild(V.loadError('Your map', e, info.retrying));
+      U.clear(body).appendChild(V.loadError('Your map', e, V.reconnecting(e, info)));
     });
 
     // An idea Dan has finished counts as learned even before its first review (its cards say

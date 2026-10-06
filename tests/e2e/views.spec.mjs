@@ -110,7 +110,7 @@ async function open({ width = 360, dark = false, db = {}, fakes = {}, tools = {}
   const app = await openApp({ width, height: width < 700 ? 707 : 900, dark, file: FILE, config: { db }, tools, deny });
   current.apps.push(app);
   await app.page.addInitScript(installFakes, { review: true, tutor: true, gen: 'fast', bands: SEED.bands, due: 4, ...fakes });
-  if (init) await app.page.addInitScript(init);
+  for (const f of [].concat(init || [])) await app.page.addInitScript(f);   // in order
   const p = prefs || (dark ? { theme: 'dark' } : null);
   if (p) await app.page.addInitScript((v) => { try { if (!sessionStorage.getItem('__prefsSet')) { localStorage.setItem('mu-prefs', JSON.stringify(v)); sessionStorage.setItem('__prefsSet', '1'); } } catch (e) {} }, p);
   await app.page.goto(app.url(hash));
@@ -238,7 +238,7 @@ await test('home: continue card, Today row and topic cards', async () => {
     eq(await count(app, '.tcard'), 4, 'four topic cards');
     eq(await count(app, '.tcard.is-planning'), 1, 'planning card');
     assert((await text(app, '.tcard.is-done')).includes('All 5 ideas done'), 'finished topic');
-    eq(await app.page.locator('.tcard .src-badge:not(.is-quiet)').count(), 1, 'one Sources checked badge');
+    eq(await app.page.locator('.tcard .src-badge:not(.is-quiet)').count(), 1, 'one Sources found badge');
     await shot(app, `home-topics-${tag(w, dark)}`);
     if (w === 360 && !dark) {
       // Returning on a phone: a compact ask; the level choice appears once Dan starts typing.
@@ -280,7 +280,7 @@ await test('topic: ready page with hook, path and library (no warm-up once start
     eq(await text(app, '.pnode.is-current .pnode-btn'), 'Continue', 'Continue on a started idea');
     assert((await text(app, '.pnode:nth-child(5)')).includes('You may already know this'), 'known idea');
     assert((await text(app, '.pnode:nth-child(6) .pnode-deps')).includes('“Earth turns under the bulges” and “Spring and neap tides”'), 'deps as words');
-    eq(await text(app, '.lib-status'), 'Lessons checked against 4 sources', 'research status: it speaks for the lessons');
+    eq(await text(app, '.lib-status'), 'Research found 4 sources', 'research status: what research found');
     eq(await count(app, '.src'), 4, 'four sources');
     assert((await text(app, '.lib-group-h')).includes('Spring and neap tides'), 'per-idea sources');
     eq(await count(app, '.tp-warm, .tp-warm-again'), 0, 'no warm-up once Dan has started');
@@ -778,10 +778,10 @@ await test('regressions: research that finished but confirmed no source says so,
   await app.page.waitForSelector('.lib-retry');
   const said = await text(app, '.lib-status');
   assert(said.includes('could not confirm a single source') && !said.includes('did not finish'), said);
-  assert(!(await text(app, '#view')).includes('Sources checked'), 'never "Sources checked"');
+  assert(!/Sources checked|Research found/.test(await text(app, '#view')), 'never "Sources checked" or "Research found"');
 });
 
-await test('regressions: "Sources checked" only when a source was kept; a check that confirmed none says so plainly', async () => {
+await test('regressions: "Sources found" only when a source was kept; a check that confirmed none says so plainly', async () => {
   const db = seedDb();
   // Stored as done with 0 sources (before a run that kept none counted as failed), and failed
   // with the reason the source check gives now.
@@ -791,7 +791,7 @@ await test('regressions: "Sources checked" only when a source was kept; a check 
   for (const [w, dark] of [[360, false], [1280, true]]) {
     const app = await open({ width: w, dark, db, tools: { 'Parallel Search': { web_search: () => ({ results: [] }), web_fetch: () => ({}) } } });
     await app.page.waitForSelector('.tcard');
-    eq(await app.page.locator('.tcard .src-badge:not(.is-quiet)').count(), 1, 'one Sources checked badge: only the topic that kept sources');
+    eq(await app.page.locator('.tcard .src-badge:not(.is-quiet)').count(), 1, 'one Sources found badge: only the topic that kept sources');
     eq(await app.page.locator('.tcard[href="#/t/how-tides-work-ab12"] .src-badge').count(), 1, 'the topic with 4 sources keeps its badge');
     eq(await app.page.locator('.tcard[href="#/t/minor-keys-ef56"] .src-badge').count(), 0, 'done with 0 sources: no badge');
     eq(await app.page.locator('.tcard[href="#/t/index-funds-cd34"] .src-badge').count(), 0, 'confirmed none: no badge');
@@ -801,7 +801,7 @@ await test('regressions: "Sources checked" only when a source was kept; a check 
       await app.page.waitForFunction(() => /could not confirm/.test(document.querySelector('.lib-status').textContent));
       const lib = await text(app, '.lib-status');
       assert(lib.includes(NONE), tid + ': says plainly that nothing was confirmed: ' + lib);
-      assert(!/Sources checked|did not finish/.test(lib), tid + ': neither "Sources checked" nor "did not finish": ' + lib);
+      assert(!/Sources checked|Research found|did not finish/.test(lib), tid + ': neither "Research found" nor "did not finish": ' + lib);
       eq(await count(app, '.lib-retry'), 1, tid + ': offers to check again');
       await app.page.locator('.tp-lib').scrollIntoViewIfNeeded();
       await shot(app, `topic-sources-none-${tid.split('-')[0]}-${tag(w, dark)}`, { full: w > 700 });
@@ -809,7 +809,7 @@ await test('regressions: "Sources checked" only when a source was kept; a check 
     // The topic with kept sources is unchanged.
     await app.page.goto(app.url('#/t/how-tides-work-ab12'));
     await app.page.waitForSelector('.path');
-    await app.page.waitForFunction(() => /Lessons checked against 4 sources/.test(document.querySelector('.lib-status').textContent));
+    await app.page.waitForFunction(() => /Research found 4 sources/.test(document.querySelector('.lib-status').textContent));
   }
 });
 
@@ -844,15 +844,22 @@ await test('regressions: a dead subscription shows an error with Try again, neve
       if (k === 'orderBy' || k === 'where' || k === 'limit') return (...a) => dying(t[k](...a), code);
       const v = t[k]; return typeof v === 'function' ? v.bind(t) : v;
     } });
-    U.rt.db = { doc: (p) => dying(real.doc(p), 'revoked'), collection: (p) => dying(real.collection(p), 'unavailable') };
+    window.__listCode = 'unavailable';   // the topics list: a dead bridge first, refused later
+    U.rt.db = { doc: (p) => dying(real.doc(p), 'revoked'), collection: (p) => new Proxy({}, { get(t, k) { return dying(real.collection(p), window.__listCode)[k]; } }) };
   });
   await app.page.evaluate(() => U.go('#/map'));
   await app.page.evaluate(() => U.go('#/'));
   await app.page.waitForSelector('.learn-topics .v-load-error');
   assert(!/starts here/.test(await text(app, '.learn-topics')), 'not the welcome');
   assert(/Reconnecting/.test(await text(app, '.learn-topics')), 'says it is reconnecting first');
+  // A dead bridge: parked after the quick tries, so it still says "Reconnecting…" (it loads by itself).
+  await app.page.waitForTimeout(4500);
+  assert(/^Reconnecting/.test(await text(app, '.learn-topics')) && !(await count(app, '.learn-topics .btn')), 'parked: still reconnecting, nothing to press: ' + await text(app, '.learn-topics'));
+  // Refused: an error, with Try again.
+  await app.page.evaluate(() => { window.__listCode = 'revoked'; U.go('#/'); });
   await app.page.waitForFunction(() => /could not be loaded/.test(document.querySelector('.learn-topics').textContent), null, { timeout: 8000 });
   eq(await count(app, '.learn-topics .btn >> text=Try again'), 1, 'then Try again');
+  assert(!/starts here/.test(await text(app, '.learn-topics')), 'not the welcome');
   await shot(app, 'regress-learn-dead-subscription-360-light');
   await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
   await app.page.waitForSelector('.tp .v-load-error');
@@ -1248,7 +1255,7 @@ const focusedOn = (app, sel) => app.page.evaluate((q) => !!document.activeElemen
 
 // Audit 24: the plan (hook, "in one breath", the warm-up's answers) is written before research
 // and never checked. It says so, calmly, and the Library's tick speaks only for the lessons.
-await test('audit 24: the plan\'s overview says it is Claude\'s and not source-checked; the Library speaks for the lessons', async () => {
+await test('audit 24: the plan\'s overview says it is Claude\'s and not source-checked; the Library says what research found', async () => {
   const OVERVIEW = 'This summary and the question above are Claude\'s overview from what it already knows, not checked against sources.';
   const db = seedDb();
   db['topics/index-funds-cd34'] = { ...db['topics/index-funds-cd34'], oneBreath: '' };   // an older plan with no summary
@@ -1256,8 +1263,8 @@ await test('audit 24: the plan\'s overview says it is Claude\'s and not source-c
     const app = await open({ width: w, dark, db, hash: '#/t/how-tides-work-ab12' });
     await app.page.waitForSelector('.src');
     eq(await text(app, '.tp-breath .tp-overview-note'), OVERVIEW, 'In one breath and the hook are labelled as Claude\'s overview');
-    eq(await text(app, '.lib-status'), 'Lessons checked against 4 sources', 'the tick speaks for the lessons');
-    assert(!/Sources checked/i.test(await text(app, '#view')), 'no bare "Sources checked" beside the overview');
+    eq(await text(app, '.lib-status'), 'Research found 4 sources', 'the tick says what research found');
+    assert(!/Sources checked|checked against \d/i.test(await text(app, '#view')), 'no claim that the sources checked anything, beside the overview');
     // Calm: smaller than the summary, in the muted colour, never a warning.
     const look = await app.page.evaluate(() => {
       const n = document.querySelector('.tp-breath .tp-overview-note'), probe = document.body.appendChild(Object.assign(document.createElement('span'), { style: 'color: var(--muted)' }));
@@ -1267,7 +1274,7 @@ await test('audit 24: the plan\'s overview says it is Claude\'s and not source-c
     });
     assert(look.note < look.body && look.color === look.muted && !look.warn, `a quiet note (${JSON.stringify(look)})`);
     if (w === 1280) {
-      // The rail sits beside the summary: its line names the lessons, not the page.
+      // The rail sits beside the summary: its line says what research found, nothing more.
       const r = await app.page.evaluate(() => { const a = document.querySelector('.tp-breath').getBoundingClientRect(), b = document.querySelector('.lib-status').getBoundingClientRect(); return { beside: b.left > a.right }; });
       assert(r.beside, 'the Library is beside the summary on a laptop');
     }
@@ -1404,7 +1411,8 @@ await test('finding 7: a parked watch says "Reconnecting…" over the page it ke
     await app.page.waitForSelector('.tp-planning');
     await app.page.evaluate(() => { U.store.WATCH_PARK_MS = 1500; window.__bridge.drop(); });
     await app.page.waitForSelector('.tp-conn .v-reconnect', { timeout: 10000 });
-    assert(/^Reconnecting… The connection to your saved work dropped, so what you see may be out of date\./.test(await text(app, '.tp-conn')), 'says it is reconnecting: ' + await text(app, '.tp-conn'));
+    assert(/^Reconnecting…/.test(await text(app, '.tp-conn .v-pill')), 'says it is reconnecting: ' + await text(app, '.tp-conn'));
+    assert((await app.page.textContent('.tp-conn .v-pill')).includes('so what you see may be out of date. It updates by itself once the connection is back.'), 'a screen reader hears why');
     eq(await count(app, '.tp-conn .btn, .tp-conn .notice.bad'), 0, 'calm, and nothing to press: it reconnects by itself');
     eq(await count(app, '.tp-planning'), 1, 'the page it had stays');
     await shot(app, `finding7-topic-reconnecting-${tag(w, dark)}`, { full: false });
@@ -1435,6 +1443,167 @@ await test('finding 7: a parked watch says "Reconnecting…" over the page it ke
     eq(await count(app, '.tp-conn .btn >> text=Try again'), 1, 'Try again');
     eq(await count(app, '.path'), 1, 'still showing the page');
   }
+});
+
+// ---------- the views check (its report: tests/out/check-views; problems 1-5) ----------
+
+const LIB_NOTE = 'Each lesson lists the sources it drew on, or says it was written without them.';
+const CLAIMS = /checked against \d|lessons? (were |was |are )?checked|sources checked/i;
+
+// 1. Nothing checks a lesson against the sources yet, and the first lesson is usually written
+// before research finishes (unsourced). The Library says only what research found, and that each
+// lesson says which it is; Learn's badge uses the same words.
+await test('views check 1: the Library says what research found, never that lessons were checked; Learn\'s badge says the same', async () => {
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, db: seedDb() });
+    await app.page.waitForSelector('.tcard');
+    eq(await text(app, '.tcard[href="#/t/how-tides-work-ab12"] .src-badge'), 'Sources found', 'Learn\'s badge: what research found');
+    assert(!CLAIMS.test(await text(app, '.learn-topics')), 'no "checked" claim on Learn: ' + await text(app, '.learn-topics'));
+    await app.page.click('.tcard[href="#/t/how-tides-work-ab12"]');
+    await app.page.waitForSelector('.src');
+    eq(await text(app, '.lib-status'), 'Research found 4 sources', 'the Library: what research found');
+    eq(await text(app, '.tp-lib .lib-note'), LIB_NOTE, 'and that each lesson says whether it drew on them');
+    assert(!CLAIMS.test(await text(app, '#view')), 'no claim that lessons were checked: ' + await text(app, '.tp-lib'));
+    // Quiet: the muted colour, smaller than the status.
+    const look = await app.page.evaluate(() => {
+      const n = document.querySelector('.tp-lib .lib-note'), probe = document.body.appendChild(Object.assign(document.createElement('span'), { style: 'color: var(--muted)' }));
+      const r = { note: parseFloat(getComputedStyle(n).fontSize), status: parseFloat(getComputedStyle(document.querySelector('.lib-status')).fontSize), color: getComputedStyle(n).color, muted: getComputedStyle(probe).color };
+      probe.remove();
+      return r;
+    });
+    assert(look.note < look.status && look.color === look.muted, 'a quiet line: ' + JSON.stringify(look));
+    await app.page.locator('.tp-lib').scrollIntoViewIfNeeded();
+    await shot(app, `check1-library-${tag(w, dark)}`, { full: false });
+  }
+});
+
+// 2. Older plans can have a statement as the hook: the note under "In one breath" names it as such.
+await test('views check 2: the overview note calls a statement hook "the line above", a question "the question above"', async () => {
+  const db = seedDb();
+  db['topics/minor-keys-ef56'] = { ...db['topics/minor-keys-ef56'], hook: 'A weight on a string kept the world on time for 300 years.' };
+  const app = await open({ db, hash: '#/t/minor-keys-ef56' });
+  await app.page.waitForSelector('.tp-breath');
+  eq(await text(app, '.tp-breath .tp-overview-note'), 'This summary and the line above are Claude\'s overview from what it already knows, not checked against sources.', 'a statement');
+  // The hook changes on another device: the note follows it.
+  await app.seed('topics/minor-keys-ef56', { ...db['topics/minor-keys-ef56'], hook: 'Why does one note change the **mood**?”', updatedAt: new Date().toISOString() });
+  await app.page.waitForFunction(() => /question above/.test(document.querySelector('.tp-breath .tp-overview-note').textContent), null, { timeout: 5000 });
+  await app.page.evaluate(() => U.go('#/t/how-tides-work-ab12'));
+  await app.page.waitForSelector('.tp-breath');
+  eq(await text(app, '.tp-breath .tp-overview-note'), 'This summary and the question above are Claude\'s overview from what it already knows, not checked against sources.', 'a question');
+});
+
+// 3. The bridge down for longer than the quick tries when a screen opens: the store keeps trying
+// (parked) and the screen fills in by itself, so it says "Reconnecting…" calmly. Only a refusal
+// is an error, with its heading, its title and Try again.
+await test('views check 3: a watch parked before the screen has loaded says "Reconnecting…" calmly (topic page, Learn); a refusal is still an error', async () => {
+  const down = () => { window.__bridge.down = true; };
+  const calm = async (app, sel, what) => {
+    await app.page.waitForSelector(sel + ' .v-load-error', { timeout: 10000 });
+    await app.page.waitForTimeout(4500);   // past the quick tries (0.4 + 0.8 + 1.6 s): parked
+    const t = await text(app, sel);
+    assert(/^Reconnecting…/.test(await text(app, sel + ' .v-load-error')), what + ' says it is reconnecting: ' + t);
+    assert(!/could not be loaded/.test(t), what + ' is not "could not be loaded": ' + t);
+    eq(await count(app, `${sel} .notice.bad, ${sel} .btn`), 0, what + ': calm, and nothing to press');
+  };
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, db: seedDb(), hash: '#/t/how-tides-work-ab12', init: [deadBridge, down] });
+    await calm(app, '#view', 'the topic page');
+    eq(await count(app, '#view h1'), 0, 'no "could not be loaded" heading');
+    eq(await app.page.title(), 'Topic · My University', 'the title does not call it an error');
+    await shot(app, `check3-topic-parked-before-load-${tag(w, dark)}`, { full: false });
+    await app.page.evaluate(() => { window.__bridge.down = false; window.dispatchEvent(new Event('online')); });
+    await app.page.waitForSelector('.tp-title', { timeout: 8000 });
+    await app.page.waitForFunction(() => document.activeElement && document.activeElement.matches('.tp-title'), null, { timeout: 3000 });
+    // Learn's first load, the same way.
+    await app.page.evaluate(() => { window.__bridge.down = true; U.go('#/'); });
+    await calm(app, '.learn-topics', 'Learn');
+    await shot(app, `check3-learn-parked-before-load-${tag(w, dark)}`, { full: false });
+    await app.page.evaluate(() => { window.__bridge.down = false; window.dispatchEvent(new Event('online')); });
+    await app.page.waitForSelector('.tcard', { timeout: 8000 });
+  }
+  // Refused: the topic page's error, with its heading and title; Learn's, with Try again.
+  const app = await open({ db: seedDb(), hash: '#/t/how-tides-work-ab12', init: [deadBridge, () => { window.__bridge.down = true; window.__bridge.code = 'permission_denied'; }] });
+  await app.page.waitForSelector('.tp-state-h');
+  eq(await text(app, '#view h1'), 'This topic could not be loaded', 'a refusal is an error');
+  eq(await count(app, '#view .notice.bad .btn >> text=Try again'), 1, 'with Try again');
+  eq(await app.page.title(), 'Topic could not be loaded · My University', 'and its title');
+  await app.page.evaluate(() => U.go('#/'));
+  await app.page.waitForSelector('.learn-topics .v-load-error.bad');
+  eq(await count(app, '.learn-topics .btn >> text=Try again'), 1, 'Learn: Try again');
+});
+
+// 4. A watch parked once the topic page has loaded: a small "Reconnecting…" that floats under the
+// top bar wherever Dan has scrolled, takes no room (WebKit, which the iPhone app uses, has no
+// scroll anchoring, so anything inserted above would move the page under his thumb), and lets
+// taps through.
+await test('views check 4: the topic page\'s "Reconnecting…" floats in view wherever Dan is and moves nothing', async () => {
+  for (const [w, dark] of [[360, false], [390, false], [1280, true]]) {
+    const app = await open({ width: w, dark, db: seedDb(), hash: '#/t/how-tides-work-ab12', init: deadBridge });
+    await app.page.waitForSelector('.path');
+    await app.page.evaluate(() => { document.documentElement.style.overflowAnchor = 'none'; U.store.WATCH_PARK_MS = 60000; });   // as WebKit
+    const where = () => app.page.evaluate(() => {
+      const r = (q) => { const b = document.querySelector(q); if (!b) return null; const x = b.getBoundingClientRect(); return { top: Math.round(x.top), bottom: Math.round(x.bottom), left: Math.round(x.left), right: Math.round(x.right) }; };
+      const pill = document.querySelector('.tp-conn .v-reconnect');
+      return { y: Math.round(scrollY), page: r('.tp-ready'), path: r('.path'), back: r('.tp-head .backlink'), pill: r('.tp-conn .v-reconnect'), bar: Math.round(document.getElementById('topbar').getBoundingClientRect().bottom), vh: innerHeight, vw: innerWidth, pe: pill && getComputedStyle(pill).pointerEvents };
+    });
+    const overlaps = (a, b) => a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    for (const at of ['top', 'path']) {
+      if (at === 'path') await app.page.evaluate(() => document.querySelector('.path .pnode:last-child').scrollIntoView({ block: 'end' }));
+      else await app.page.evaluate(() => window.scrollTo(0, 0));
+      await app.page.waitForTimeout(200);
+      const before = await where();
+      await app.page.evaluate(() => window.__bridge.drop());
+      await app.page.waitForSelector('.tp-conn .v-reconnect', { timeout: 10000 });
+      await app.page.waitForTimeout(400);
+      const after = await where();
+      const tagAt = `${w}-${at}: `;
+      eq(after.y, before.y, tagAt + 'the page did not scroll');
+      eq(JSON.stringify([after.page, after.path]), JSON.stringify([before.page, before.path]), tagAt + 'nothing moved');
+      assert(after.pill.top >= after.bar && after.pill.bottom <= after.vh && after.pill.left >= 0 && after.pill.right <= after.vw, tagAt + 'in view, under the top bar: ' + JSON.stringify(after));
+      assert(!overlaps(after.pill, after.back), tagAt + 'not over the back link: ' + JSON.stringify(after));
+      eq(after.pe, 'none', tagAt + 'taps go through it');
+      assert(/^Reconnecting…/.test(await text(app, '.tp-conn')), tagAt + 'says it is reconnecting: ' + await text(app, '.tp-conn'));
+      eq(await count(app, '.tp-conn .btn, .tp-conn .notice.bad'), 0, tagAt + 'calm, nothing to press');
+      await shot(app, `check4-topic-parked-${at}-${tag(w, dark)}`, { full: false });
+      await app.page.evaluate(() => { window.__bridge.down = false; window.dispatchEvent(new Event('online')); });
+      await app.page.waitForFunction(() => !document.querySelector('.tp-conn').children.length, null, { timeout: 8000 });
+      eq(JSON.stringify((await where()).path), JSON.stringify(before.path), tagAt + 'nothing moves when it goes');
+    }
+  }
+});
+
+// 5. The warm-up's Next question, Done, Skip (and "Try the warm-up questions") replace the
+// button that had focus: focus goes to what replaced it, never to the page's title.
+await test('views check 5: after the warm-up\'s Next question, Done or Skip, focus goes to what comes next', async () => {
+  const on = (app, sel) => app.page.evaluate((q) => { const a = document.activeElement; return a && a.matches(q) ? (a.textContent || '').trim() : 'focus on ' + (a ? a.tagName + '.' + a.className : 'nothing'); }, sel);
+  const app = await open({ db: seedDb(), hash: '#/t/minor-keys-ef56' });
+  await app.page.waitForSelector('.tp-warm');
+  await app.page.click('.tp-warm .option >> text=The middle note');
+  await app.page.click('.tp-warm-check');
+  await app.page.waitForSelector('.tp-warm-why');
+  assert(await focusedOn(app, '[data-key="warm-next"]'), 'Next question has focus');
+  await app.page.keyboard.press('Enter');
+  eq(await on(app, '.tp-warm-q'), 'Do people everywhere hear minor keys as sad?', 'the next question has focus');
+  await app.page.keyboard.press('Tab');
+  assert(await focusedOn(app, '.tp-warm .option'), 'Tab goes on to its answers');
+  await app.page.keyboard.press('Enter');
+  await app.page.click('.tp-warm-check');
+  await app.page.waitForSelector('.tp-warm-why');
+  await app.page.keyboard.press('Enter');   // Done
+  await app.page.waitForSelector('.tp-warm-done');
+  assert((await on(app, '.tp-warm-done')).includes('1 of 2 right'), 'the summary that replaced it has focus: ' + await on(app, '.tp-warm-done'));
+  // Skip, then bring the questions back.
+  const b = await open({ db: seedDb(), hash: '#/t/minor-keys-ef56' });
+  await b.page.waitForSelector('.tp-skip');
+  await b.page.focus('.tp-skip');
+  await b.page.keyboard.press('Enter');
+  await b.page.waitForSelector('.tp-warm-again');
+  eq(await on(b, '.tp-warm-again'), 'Try the 2 warm-up questions', 'what replaced the warm-up has focus');
+  await b.page.keyboard.press('Tab');
+  assert(await focusedOn(b, '.tp-warm-again button'), 'Tab reaches its button');
+  await b.page.keyboard.press('Enter');
+  await b.page.waitForSelector('.tp-warm-q');
+  eq(await on(b, '.tp-warm-q'), 'What changes between a major chord and a minor chord?', 'the first question has focus again');
 });
 
 // ---------- summary ----------

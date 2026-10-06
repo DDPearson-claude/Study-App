@@ -217,11 +217,17 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   resubscribe 3 times quickly, then report `retrying:false` once and keep trying every 30 s
   (`WATCH_PARK_MS`) and at once on `online`, when the page shows again, or after a write succeeds;
   the next snapshot carries on as normal. A try refused for any other reason (permission_denied,
-  say) is reported, even after parking, and ends it. Views show an error with Try again, never "empty".
-  A screen that has already shown its data keeps it: on `retrying:false` it says so above it
-  (`V.liveError`): a parked watch (`unavailable`) a calm "Reconnecting…" with nothing to press, one
-  that ended "… stopped updating" with Try again; its next snapshot clears it (Learn's topics, and
-  the topic page's topic and progress watches).
+  say) is reported, even after parking, and ends it. A screen drawn from a watch with nothing to
+  show yet (Learn's topics, the topic page, the Map) says "Reconnecting…" (calm, nothing to press)
+  while the store makes its quick tries and once it has parked the watch
+  (`V.reconnecting(e, info)`): it fills in by itself. Only a refusal is an error, with Try again
+  (the topic page's has its own h1 and title); never "empty". A screen that has
+  already shown its data keeps it: on `retrying:false` it says so: a parked watch (`unavailable`) a
+  calm "Reconnecting…" with nothing to press, one that ended "… stopped updating" with Try again
+  above it (`V.liveError`); its next snapshot clears it (Learn's topics, and the topic page's topic
+  and progress watches). On the topic page, a long page Dan may be far down, "Reconnecting…" is a
+  pill (`V.reconnectPill`) that floats under the top bar wherever he has scrolled and takes no room,
+  so nothing moves (WebKit has no scroll anchoring); taps go through it.
   `cards.update` reads the card inside the write queue and never recreates one that is gone.
 
 ## 4. Data model
@@ -241,14 +247,20 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   // source could be confirmed); 'error': it did not.
   // tries: runs in a row that did not finish (failed, or 'running' left by a page that went away).
   // unavailable: no connector, or this view cannot run page tools (U.rt.toolsOk).
-  // On screen "Sources checked" needs done with sources >= 1 (U.views.sourcesChecked). A run that
-  // kept none (done with 0 sources, stored before such runs counted as failed, or failed with
-  // reason 'none_confirmed') reads "ran but could not confirm a single source" (sourcesNone).
-  // The check covers the lessons only: the topic page's Library says "Lessons checked against N
-  // sources". hook, oneBreath and calibration (answer, why) come from plan-topic, before any
-  // research, and are never checked, so the topic page says under "In one breath" (or under the
-  // hook, when there is no oneBreath) and under a revealed warm-up answer, in small muted words,
-  // that they are Claude's overview (answer) from what it already knows, not checked against sources.
+  // On screen "Sources found" (Learn's card) and "Research found N sources" (the topic page's
+  // Library) need done with sources >= 1 (U.views.sourcesChecked). A run that kept none (done
+  // with 0 sources, stored before such runs counted as failed, or failed with reason
+  // 'none_confirmed') reads "ran but could not confirm a single source" (sourcesNone).
+  // Nothing checks a lesson against these sources: lessons are written from them, and the first
+  // one often before research finishes (unsourced, FIRST_RESEARCH_WAIT_MS). So the Library claims
+  // nothing for the lessons beyond "Each lesson lists the sources it drew on, or says it was
+  // written without them" (the lesson's Sources, or its "Not yet source-checked" note).
+  // hook, oneBreath and calibration (answer, why) come from plan-topic, before any research, and
+  // are never checked, so the topic page says under "In one breath" (or under the hook, when there
+  // is no oneBreath) and under a revealed warm-up answer, in small muted words, that they are
+  // Claude's overview (answer) from what it already knows, not checked against sources. Under "In
+  // one breath" it names the hook "the question above", or "the line above" when an older plan's
+  // hook is a statement (not ending in "?").
 kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
 ```
 `topics/{tid}/lessons/{iid}`
@@ -695,10 +707,12 @@ Views and app services
 ```
 U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), summary(topic, progress) -> {total, done, current, index, started, allDone, touched},
    planningStuck(t) (planning, silent 90 s, not running here), researchStale(t) ('running' over 8 min),
-   sourcesChecked(t) (done, sources >= 1), sourcesNone(t) (the check ran but kept no source; section 4),
+   sourcesChecked(t) (done, sources >= 1: "Sources found"), sourcesNone(t) (the check ran but kept no source; section 4),
    loadError(what, e, retrying, {lead?}) (lead: the words before the reason, '' under a heading of its own),
-   parked(e) (a watch the store parks: code 'unavailable'), liveError(what, e) (a loaded screen's watch stopped:
-   "Reconnecting…", or "<what> stopped updating" with Try again), slowNote, savedLate(what) (U.rt.savedLate),
+   parked(e) (a watch the store parks: code 'unavailable'), reconnecting(e, info) (a watch with nothing shown yet is
+   still coming back: info.retrying, or parked; loadError's retrying form), liveError(what, e) (a loaded screen's watch
+   stopped: "Reconnecting…", or "<what> stopped updating" with Try again), reconnectPill() (the topic page's floating
+   "Reconnecting…"), slowNote, savedLate(what) (U.rt.savedLate),
    extLink(url, label, cls) (a real link the viewer opens in a new tab; plain text unless http(s)),
    empty({title, text, action, art, h1}), back, day,
    lessonLive(tid, iid) (U.gen.status's word, if any), lessonBusy(tid, iid), lessonWatch(onChange) -> {watch(tid, iid),
@@ -751,7 +765,10 @@ topics started here are not source-checked); "Not connected." with the steps to 
   `U._focusScreen` waits up to 6 s for it; the topic page also moves focus to its first h1 when it
   comes later, and to the new h1 when what had focus there was taken away. Each of its states has
   an h1 and a title: "This topic is not here any more" (Topic not found) and "This topic could not
-  be loaded" (Topic could not be loaded; while the store is still reconnecting it is not an error yet).
+  be loaded" (Topic could not be loaded; only a refusal: while the store is reconnecting, parked
+  included, it says "Reconnecting…" calmly and fills in by itself). When the warm-up's Next
+  question, Done, Skip or "Try the warm-up questions" takes away the button that had focus, focus
+  goes to what replaced it (the next question, the summary, the "Try" line), not to the h1.
 - Learn's level choice (New to it, Know a bit, Know it well) is a radio group (`U.radios`), like Settings'.
 - Tabs Learn / Today / Map / Book (`#tabs`, Today's badge `#today-badge`) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.

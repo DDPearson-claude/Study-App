@@ -211,13 +211,25 @@
 .tp-hook { margin-top: 6px; max-width: 30em; font: 500 calc(var(--fs) * 1.22)/1.45 var(--serif); color: var(--heading); }
 .tp-breath .eyebrow { color: color-mix(in srgb, var(--ink) 70%, var(--amber)); margin-bottom: 6px; }
 .tp-breath .reading { line-height: 1.7; }
-/* "Claude's overview… not checked against sources": the plan's own words, said quietly. */
-.tp-overview-note { max-width: 36em; font: 500 .8125rem/1.45 var(--sans); color: var(--muted); }
+/* "Claude's overview… not checked against sources": the plan's own words, said quietly; and the
+   Library's line on what the lessons did with what research found. */
+.tp-overview-note, .lib-note { max-width: 36em; font: 500 .8125rem/1.45 var(--sans); color: var(--muted); }
 .tp-breath .tp-overview-note { margin-top: 10px; }
-/* Above the page while a live watch has stopped (V.liveError); empty otherwise. */
+/* Above the page while a live watch has stopped for good (V.liveError, Try again); empty otherwise. */
 .tp-conn { margin-bottom: 20px; }
 .tp-conn > .notice, .tp-state > .notice { max-width: var(--measure); }
 .tp-conn:empty { display: none; }
+/* Reconnecting (a parked watch, V.reconnectPill): a pill that floats under the top bar wherever
+   Dan has scrolled. Its box takes no room (no height, sticky in the page), so nothing moves; at the
+   top of the page the pill sits at the right of the back link's row. Taps go through it. */
+.tp-conn.is-floating { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--topbar-h) + 8px); z-index: 5; height: 0; margin: 0; pointer-events: none; }
+.tp-conn.is-floating > .v-pill { position: absolute; top: 4px; right: 0; }
+.v-pill {
+  display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 7px 14px 7px 10px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow);
+  font: 700 .8125rem/1.3 var(--sans); color: var(--heading); white-space: nowrap; pointer-events: none; animation: mu-rise .25s ease-out;
+}
+.v-pill.v-reconnect .v-dot { margin: 0; }
 /* Missing, or could not be loaded. */
 .tp-state { display: flex; flex-direction: column; gap: 14px; }
 .tp-state-h { font-size: 1.3rem; font-weight: 700; }
@@ -275,6 +287,8 @@
 .tp-warm-go { display: flex; margin-top: 4px; }
 .tp-warm-done { display: flex; flex-direction: column; gap: 4px; padding: 14px 18px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); }
 .tp-warm-again { margin: -16px 0 -8px; }
+/* Focus lands on these when they replace the warm-up step Dan just finished (no ring, as headings). */
+.tp-warm-q[tabindex="-1"]:focus, .tp-warm-done[tabindex="-1"]:focus, .tp-warm-again[tabindex="-1"]:focus { outline: none; }
 
 /* Library */
 .tp-lib .section-head { margin-bottom: 10px; }
@@ -282,6 +296,7 @@
 .lib-status svg { width: 18px; height: 18px; flex: none; }
 .lib-status.is-done { align-items: flex-start; color: var(--teal); font-weight: 700; }
 .lib-status.is-done svg { margin-top: calc((1.5em - 18px) / 2); }   /* by the first line when it wraps */
+.lib-note { margin: 4px 0 0 26px; }   /* under the status's words, past the tick */
 .lib-status.is-running { display: grid; gap: 10px; }
 .lib-status.is-none { display: grid; gap: 4px; }
 .lib-retry.linkish { justify-self: start; }
