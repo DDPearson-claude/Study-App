@@ -251,7 +251,7 @@ async function runSession({ width, theme, full }) {
       await page.waitForSelector('.qc-fb.is-right');
       await fbView();
       const fb = await page.locator('.qc-fb').innerText();
-      check(/Anything from 313 m\/s to 373 m\/s counts/.test(fb), `${tag}: estimate shows the tolerance after`);
+      check(/Anything from 313\sm\/s to 373\sm\/s counts/.test(fb), `${tag}: estimate shows the tolerance after`);
       check(await page.locator('.qc-band:not([hidden])').count() === 1, `${tag}: estimate draws the accepted band`);
       await page.locator('.qc-change').click();
       await page.locator('.qc-grades .qc-g2').click();
@@ -259,13 +259,13 @@ async function runSession({ width, theme, full }) {
     } else if (key === 'tA/i2_c3') {                            // target: miss, hint, then hit
       await page.waitForSelector('.fake-kit');
       const goal = await page.locator('.qc-goal').innerText();
-      check(/Use the Air temperature control to make Speed of sound read 350 m\/s \(give or take 2 m\/s\)/.test(goal), `${tag}: target goal names the readout and its unit (${goal})`);
-      check(/Speed of sound: aim for 350 m\/s/.test(await page.locator('.qc-aim').innerText()), `${tag}: the goal beside the button has the unit too`);
+      check(/Use the Air temperature control to make Speed of sound read 350\sm\/s \(give or take 2\sm\/s\)/.test(goal), `${tag}: target goal names the readout and its unit (${goal})`);
+      check(/Speed of sound: aim for 350\sm\/s/.test(await page.locator('.qc-aim').innerText()), `${tag}: the goal beside the button has the unit too`);
       await page.waitForFunction(() => !document.querySelector('.qc-primary').disabled);
       await page.locator('.qc-primary').click();
       await page.waitForSelector('.qc-hint:not([hidden])');
       const hint = await page.locator('.qc-hint').innerText();
-      check(/Speed of sound reads 343 m\/s and you are aiming for 350 m\/s/.test(hint) && /higher/.test(hint), `${tag}: target miss gives one hint, with units (${hint.replace(/\n/g, ' ')})`);
+      check(/Speed of sound reads 343\sm\/s and you are aiming for 350\sm\/s/.test(hint) && /higher/.test(hint), `${tag}: target miss gives one hint, with units (${hint.replace(/\n/g, ' ')})`);
       await page.waitForTimeout(350);
       await vshot(name + '-hint');
       await page.evaluate(() => { const r = document.querySelector('.fake-kit-range'); r.value = '32'; r.dispatchEvent(new Event('input', { bubbles: true })); });
@@ -723,7 +723,7 @@ async function lightAfterReviews() {
   await page.goto(app.url('#/review'));
   await page.waitForSelector('.rv-empty');
   const empty = await page.locator('.rv-empty').innerText();
-  check(/reached today's limit of 5 cards/.test(empty) && /8 more cards are due/.test(empty) && !/holding up/.test(empty), `${tag}: #/review says the limit is reached (${empty.replace(/\n/g, ' | ')})`);
+  check(/Done for today/.test(empty) && /8 more cards are due/.test(empty) && !/holding up/.test(empty), `${tag}: #/review says it is done for today, with Today's words, and the cards still due (${empty.replace(/\n/g, ' | ')})`);
   check(await page.locator('.rv-empty a[href="#/review/more"]').count() === 1, `${tag}: #/review offers Review 5 more`);
   await page.locator('.rv-empty a[href="#/review/more"]').click();
   await page.waitForSelector('.rv-stage > .qc');
