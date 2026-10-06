@@ -864,9 +864,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 
 /* ---------- preparing ---------- */
 .lsn-prep { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
-.lsn-flow:not(:empty) + .lsn-prep-slot .lsn-prep { margin-top: 40px; }
-.lsn-panel .lsn-prep { margin: 0; padding: 0; border: 0; background: none; }
 .lsn-prep-head { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
+.lsn-prep-calm { color: var(--muted); font-size: .9375rem; line-height: 1.5; margin-top: -6px; }
 .lsn-prep-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .lsn-prep-lines li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .9688rem; line-height: 1.45; }
 .lsn-prep-lines li.is-done { color: var(--muted); }
@@ -885,7 +884,6 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-play { display: flex; flex-direction: column; gap: 10px; }
 @container view (max-width: 527px) { .lsn-play > .lsn-panel { margin-inline: -6px; } }
 .lsn-panel { position: relative; }
-.lsn-panel.is-waiting { min-height: 240px; padding: 20px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
 .lsn-panel-foot { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-inline: 4px; }
 .lsn-panel-foot:empty { display: none; }
 .lsn-selfcheck { display: inline-flex; align-items: center; gap: 6px; font: 600 .8125rem/1.3 var(--sans); color: var(--muted); }
@@ -1012,6 +1010,11 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-next { align-self: stretch; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 20px; text-align: left; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); }
 .lsn-next h3 { font-size: 1.15rem; }
 .lsn-next .lsn-go { margin-top: 10px; }
+/* Whether the next lesson is still being prepared or ready (a breathing dot, or a tick). */
+.lsn-next-status { display: flex; align-items: center; gap: 8px; font: 600 .9375rem/1.4 var(--sans); color: var(--muted); }
+.lsn-next-status:empty { display: none; }
+.lsn-next-status .lsn-prep-mark { width: 20px; height: auto; }
+.lsn-next-status svg { width: 17px; height: 17px; color: var(--teal); }
 .lsn-again { margin-top: -4px; }
 
 /* ---------- footer ---------- */
@@ -1174,6 +1177,12 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .ccard-body { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 20px; }
 .ccard-title { font-size: 1.45rem; }
 .ccard-next { font: 600 1rem/1.45 var(--sans); color: var(--ink); }
+/* Whether the next lesson is being prepared (a breathing navy dot) or ready (a teal tick):
+   Learn's continue card, the topic page's header and its path. */
+.v-lesson-note { display: flex; align-items: center; gap: 8px; font: 600 .9375rem/1.4 var(--sans); color: var(--muted); }
+.v-lesson-note svg { flex: none; width: 17px; height: 17px; color: var(--teal); }
+.v-dot { flex: none; width: 9px; height: 9px; margin: 0 4px; border-radius: 50%; background: var(--heading); animation: v-breathe 1.6s ease-in-out infinite; }
+@keyframes v-breathe { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
 .ccard-progress { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .ccard-progress .bar { flex: 1; }
 .ccard-btn.btn { margin-top: 10px; width: 100%; }
@@ -1264,6 +1273,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 /* The next step, right in the header. */
 .tp-cta.btn { align-self: flex-start; max-width: 100%; margin-top: 10px; }
 .tp-cta-text { min-width: 0; text-align: left; overflow-wrap: anywhere; }
+.tp-next-note { margin-top: 2px; }
 .tp-cta.btn { justify-content: space-between; }
 @container view (max-width: 527px) { .tp-cta.btn { align-self: stretch; } }
 .tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; --tp-gap: 14px; }
@@ -1297,6 +1307,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .pnode-line { font-size: .9375rem; line-height: 1.5; color: var(--muted); }
 .pnode-known { align-self: flex-start; margin-top: 4px; padding: 3px 10px; border-radius: 999px; background: var(--teal-tint); color: var(--teal); font: 700 .7812rem/1.5 var(--sans); }
 .pnode-deps { font-size: .8438rem; line-height: 1.45; color: var(--muted); }
+.pnode-prep { display: flex; align-items: center; gap: 6px; font: 600 .875rem/1.4 var(--sans); color: var(--muted); }
+.pnode-prep .v-dot { margin: 0 2px 0 0; }
 .pnode-btn.btn { align-self: flex-start; margin-top: 12px; }
 @media (hover: hover) { .pnode:not(.is-current) .pnode-link:hover .pnode-body { background: var(--surface); } }
 
@@ -1515,7 +1527,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-3f4602a";
+U.BUILD = "2026-10-06-8491aa7";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2551,14 +2563,15 @@ U.store = (function () {
     arm();
   }
   // A write failed after its retry. keep(): hold it for a resend (returns false when it cannot be
-  // held). Rejects with e.queued set when the write will be resent.
-  function failed(e, keep) {
+  // held). Rejects with e.queued set when the write will be resent. quiet: the caller tells Dan
+  // itself and keeps what he typed for another go, so the store neither holds it nor toasts.
+  function failed(e, keep, quiet) {
     tag(e);
-    var kept = !!keep && resendable(e) && keep() !== false;
+    var kept = !quiet && !!keep && resendable(e) && keep() !== false;
     if (kept && e && typeof e === 'object') try { e.queued = true; } catch (x) { /* frozen */ }
-    console.error('db write failed', e);
+    (quiet ? console.warn : console.error)('db write failed', e);
     if (kept) noteOutage();
-    else U.toast(e && e.code === 'quota_exceeded' ? U.errText(e) : 'Could not save just now: ' + U.errText(e), { kind: 'bad' });
+    else if (!quiet) U.toast(e && e.code === 'quota_exceeded' ? U.errText(e) : 'Could not save just now: ' + U.errText(e), { kind: 'bad' });
     throw e;
   }
   // For work made of several steps (a read, then writes): run `job` again once the db answers,
@@ -2682,13 +2695,15 @@ U.store = (function () {
     });
   }
   var latest = {};    // path -> the newest patch not yet being written
-  function patchDoc(path, patch) {
+  // opts.quiet (see failed): only when every patch merged into the write asked for it.
+  function patchDoc(path, patch, opts) {
     if (gone(path)) return Promise.resolve(null);
+    var loud = !(opts && opts.quiet);
     var p = pending[path];
-    if (p) { deepMerge(p.patch, patch); return p.promise; }
+    if (p) { deepMerge(p.patch, patch); p.loud = p.loud || loud; return p.promise; }
     var base = held[path];
     delete held[path];
-    p = pending[path] = latest[path] = { patch: base ? deepMerge(base, U.clone(patch)) : U.clone(patch), started: false };
+    p = pending[path] = latest[path] = { patch: base ? deepMerge(base, U.clone(patch)) : U.clone(patch), started: false, loud: loud || !!base };
     p.promise = U.sleep(120).then(function () {
       delete pending[path];
       if (gone(path)) return null;
@@ -2700,7 +2715,7 @@ U.store = (function () {
         var n = latest[path];
         if (n && !n.started) n.patch = deepMerge(U.clone(p.patch), n.patch);   // goes out with the newer one
         else held[path] = held[path] ? deepMerge(U.clone(p.patch), held[path]) : U.clone(p.patch);
-      });
+      }, !p.loud);
     });
     return p.promise;
   }
@@ -2834,7 +2849,25 @@ U.store = (function () {
       data.updatedAt = U.now();
       return getDoc(S.paths.topic(tid)).then(function (t) { noteTopic(tid, !!t); return t ? setDoc(S.paths.lesson(tid, iid), data) : null; });
     },
-    update: function (tid, iid, patch) { patch.updatedAt = U.now(); return patchDoc(S.paths.lesson(tid, iid), patch); },
+    // opts.quiet: a failure is the caller's to tell (no toast) and is not held for a resend.
+    update: function (tid, iid, patch, opts) { patch.updatedAt = U.now(); return patchDoc(S.paths.lesson(tid, iid), patch, opts); },
+    // What a lesson doc means for Dan. A lesson opens only when it is whole: 'ready' is status
+    // ready with its lesson (the interactive built and tested, or a note saying why there is
+    // none). 'preparing': a job is writing or building it, by `live` (this page's own status for
+    // it, from U.gen.status) or, without one, a writing/building doc touched in the last
+    // BUSY_MS (a running job's heartbeat touches it every 45 s, 31-generate.js). 'failed', or
+    // 'none': nothing yet, or work that stopped (opening the lesson prepares it). A doc still
+    // writing or building is never a lesson to open or study.
+    BUSY_MS: 4 * 60 * 1000,
+    state: function (doc, live) {
+      var busy = !!doc && (doc.status === 'writing' || doc.status === 'building');
+      if (doc && doc.status === 'ready' && doc.lesson) return 'ready';
+      if (live === 'writing' || live === 'waiting' || live === 'building') return 'preparing';
+      if (doc && doc.status === 'failed') return 'failed';
+      // This page's job stopped (live 'failed' or 'ready' with no ready doc): it left the doc.
+      if (busy && !live) { var t = Date.parse(doc.updatedAt || ''); if (isFinite(t) && Date.now() - t < S.lesson.BUSY_MS) return 'preparing'; }
+      return 'none';
+    },
     // Deletes one lesson doc (a job putting back a doc it created). Queued behind pending writes.
     remove: function (tid, iid) {
       var path = S.paths.lesson(tid, iid);
@@ -4470,8 +4503,9 @@ U.logStudy = (function () {
   }
   function cancel(job) { if (job.background && job.ctrl && !job.ctrl.signal.aborted) job.ctrl.abort(); }
   // Dan left a lesson that is still being written: it carries on as background work (it yields to
-  // whatever he opens next) and stops when opts.signal aborts (he leaves the topic), exactly like a
-  // prefetch. Opening it again makes it foreground once more. -> true if a job was demoted.
+  // whatever he opens next), like a prefetch, and stops only if opts.signal aborts (the lesson
+  // screen passes none: it keeps going while the app is open). Opening it again makes it
+  // foreground once more. -> true if a job was demoted.
   function demote(tid, iid, opts) {
     var job = running(tid, iid);
     if (!job || job.background) return false;
@@ -6687,10 +6721,11 @@ U.interactive = (function () {
 // Lesson screen, route #/t/:tid/:iid (focus mode). Teaches one idea in five stages:
 //   Predict -> Play (the sandboxed interactive) -> Explain -> Say it back (graded) -> Check.
 //
-// Reads topics/{tid} and topics/{tid}/lessons/{iid}. When the lesson is not ready it asks
-// U.gen.ensureLesson to write it and shows calm, specific progress lines; the predict question
-// appears as soon as it is written, so Dan can guess while the interactive is still being built.
-// Progress is saved to his private progress doc as he goes (stage, prediction, every say-it-back
+// Reads topics/{tid} and topics/{tid}/lessons/{iid}. A lesson opens only when it is whole: status
+// ready, with its interactive built and tested (or ready without one, and the honest note why).
+// Until then the screen shows only the preparation card (the eyebrow, the title, the idea's one
+// line, honest steps of what is happening now and a calm note) while U.gen.ensureLesson writes
+// it, builds its interactive and tests it; never Predict or any lesson text. Progress is saved to his private progress doc as he goes (stage, prediction, every say-it-back
 // attempt, check results, doneAt), so reopening resumes where he left off with earlier stages
 // collapsed but reviewable. Contract: docs/ARCHITECTURE.md sections 4, 5 and 9; the progress
 // shapes (rounds, keyed say entries, replays) are described at the top of 20-store.js.
@@ -6715,24 +6750,11 @@ U.interactive = (function () {
   var NUMBER_KIND = { control: 'you set this', computed: 'worked out from the rule', constant: 'a fixed value', assumed: 'an example value', date: null };
   var WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five'];
   var drafts = {}; // unsent say-it-back text for this page session, by 'tid/iid'
-  // Prefetches of the next idea. Each keeps running while Dan stays in its topic (the topic page
-  // or another of its lessons, where he is likely to open it next) and is cancelled once he
-  // leaves the topic. A prefetch Dan opens becomes his foreground lesson: U.gen promotes its queued
-  // model calls by the lesson's gate key.
-  var prefetches = [];
-  function inTopic(tid) {
-    var base = '#/t/' + encodeURIComponent(tid), h = U.currentHash();
-    return h === base || h.indexOf(base + '/') === 0;
-  }
-  function sweepPrefetches() {
-    prefetches = prefetches.filter(function (p) {
-      if (p.done) return false;
-      if (inTopic(p.tid)) return true;
-      try { p.ctrl.abort(); } catch (e) { /* fine */ }
-      return false;
-    });
-  }
-  if (typeof window !== 'undefined' && window.addEventListener) window.addEventListener('hashchange', sweepPrefetches);
+  // Background work: once a lesson is whole, the next open idea is prepared in full (written, its
+  // interactive built and tested) as background work, and a lesson Dan leaves while it is being
+  // prepared carries on the same way (U.gen.demote). Both keep going while the app is open,
+  // yielding to whatever Dan is doing; opening one makes it foreground again (U.gen promotes its
+  // queued model calls by the lesson's gate key).
 
   // ---------- small helpers ----------
   function media(q) { return !!(window.matchMedia && window.matchMedia(q).matches); }
@@ -6770,6 +6792,12 @@ U.interactive = (function () {
     });
   }
   function order(stage) { var i = STAGES.indexOf(stage); return i < 0 ? 0 : i; }
+  // A lesson is shown only when it is whole (U.store.lesson.state, docs/ARCHITECTURE.md 4).
+  function whole(doc) { return !!doc && doc.status === 'ready' && !!doc.lesson; }
+  // This page's own generation status for a lesson (U.gen.status), when the generator is loaded.
+  function liveOf(tid, iid) {
+    try { return U.gen && typeof U.gen.status === 'function' ? (((U.gen.status(tid) || {}).lessons) || {})[iid] : undefined; } catch (e) { return undefined; }
+  }
   function stepName(stage) { return 'Step ' + (STEPS.indexOf(stage) + 1) + ' of ' + STEPS.length + ': ' + LABEL[stage]; }
   // The interactive's build brief follows a template ("The one thing you should see is X when you
   // Y"); Dan sees it as a friendly instruction instead.
@@ -6808,7 +6836,7 @@ U.interactive = (function () {
       topic: null, idea: null, index: -1, progress: { ideas: {} }, ip: { say: {} },
       doc: null, lesson: null, ready: false, begun: false, replay: null, again: false, feedback: null,
       guess: null, gen: 0, stage: 'predict', sections: {}, closed: {}, mounts: [], liveMount: null, cards: [],
-      stops: [], waiters: [], prep: null, openedAt: Date.now(), dead: false, gone: false,
+      stops: [], prep: null, pending: null, seen: null, nextStop: null, openedAt: Date.now(), dead: false, gone: false,
     };
     function alive() { return !st.dead && ctx.alive(); }
     function round() { return Number(st.ip.round) || 0; }
@@ -6820,7 +6848,7 @@ U.interactive = (function () {
     // The bar names the stage only: its five segments show how far along he is, and the eyebrow
     // below already counts ideas ("Idea 1 of 6"), so a second "of N" would only confuse. Screen
     // readers hear the count from each segment's label ("Step 1 of 5: Predict, current step").
-    var stepLabel = U.h('span', { class: 'lsn-steps-label', 'aria-hidden': 'true' }, LABEL.predict);
+    var stepLabel = U.h('span', { class: 'lsn-steps-label', 'aria-hidden': 'true' });
     var askBtn = U.h('button', { class: 'lsn-ask', type: 'button', 'aria-label': 'Ask Claude', on: { click: openTutor } },
       U.icon('chat'), U.h('span', null, 'Ask', U.h('span', { class: 'lsn-wide' }, ' Claude')));
     var bar = U.h('div', { class: 'lsn-bar' },
@@ -6869,13 +6897,8 @@ U.interactive = (function () {
       var again = !!params.again || !!st.ip.relearn;
       if (params.again) try { history.replaceState(null, '', '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid)); } catch (e) { /* fine */ }
       if (again && U.gen && typeof U.gen.relearn === 'function') return startRelearn({});
-      var first = {};
-      if (!st.ip.startedAt) first.startedAt = st.ip.startedAt = U.now();
-      if (!st.ip.stage) first.stage = st.ip.stage = 'predict';
-      saveIdea(first);
-      if (doc && doc.status === 'ready' && doc.lesson) {
-        setDoc(doc); st.ready = true; begin(); prefetchNext();
-      } else prepare(doc);
+      if (whole(doc)) show(doc);
+      else prepare(doc);
     }).catch(function (e) { loaded = true; if (alive()) fatal(e); });
 
     function normalise(ip) {
@@ -6931,8 +6954,14 @@ U.interactive = (function () {
       eb.classList.add('is-filled');
       h1.textContent = st.idea.title || (st.lesson && st.lesson.title) || 'This idea';
       one.textContent = st.idea.oneLine || '';
-      one.hidden = !st.idea.oneLine;
+      paintOne();
       U.setTitle(st.idea.title || st.topic.title);
+    }
+    // The idea's one line often gives the answer away, so it stays hidden while Predict asks its
+    // question, and shows once he has answered or skipped it (and on the preparation card).
+    function paintOne() {
+      var asking = st.begun && st.stage === 'predict' && !st.closed.predict;
+      one.hidden = !(st.idea && st.idea.oneLine) || asking;
     }
     function setDoc(doc) { st.doc = doc; st.lesson = doc.lesson; foot.hidden = !st.lesson; }
     function sources() { return (st.lesson && Array.isArray(st.lesson.sources)) ? st.lesson.sources : []; }
@@ -6942,58 +6971,69 @@ U.interactive = (function () {
       return U.h('button', { class: 'fn', type: 'button', 'aria-label': 'Source ' + n, on: { click: function () { sourceSheet(sourceOf(n)); } } }, String(n));
     }
 
-    // ---- preparing: ensureLesson with progress lines; predict shows as soon as it is written ----
+    // ---- the whole lesson, or the preparation card until it is whole ----
+    function show(doc) {
+      setDoc(doc); st.ready = true;
+      begin();
+      prefetchNext();
+    }
     function prepare(doc) {
       st.prep = makePrep();
       prepSlot.appendChild(st.prep.el);
-      if (doc && doc.lesson) haveLesson(doc);
+      paintBar();
       watchLesson();
-      ensure();
+      ensure(doc);
     }
-    // The lesson text arrives before its interactive: let Dan start on Predict meanwhile. While
-    // relearning, the old (ready) lesson is ignored: only the new one, still building, counts.
+    // The lesson may be finished elsewhere (another device, or a job this page joined): open it
+    // the moment the doc is whole. While relearning, the old (ready) doc is not the new lesson:
+    // only the relearn job's own result counts.
     function watchLesson() {
+      st.watching = true;
       st.stops.push(U.store.lesson.watch(tid, iid, function (d) {
-        if (!alive() || st.ready || !d || !d.lesson || st.lesson) return;
-        if (st.again && d.status !== 'building') return;
-        haveLesson(d);
+        st.seen = d;
+        if (!alive() || st.ready || st.again || !whole(d)) return;
+        settled(st.gen, d);
       }));
-    }
-    function haveLesson(doc) {
-      setDoc(doc);
-      st.prep.title('Building the interactive');
-      if (!st.begun && order(st.ip.stage) === 0) begin();
     }
     // Only the latest request counts (a Rebuild can start while an earlier one is still running).
     function settled(gen, d) {
-      if (!alive() || gen !== st.gen) return;
-      if (!d || !d.lesson || d.status === 'failed') throw { message: (d && d.error) || 'The lesson could not be written.' };
-      setDoc(d); st.ready = true; st.again = false;
-      st.prep.finish();
-      var waiting = st.waiters.splice(0);
-      waiting.forEach(function (f) { f(); });
-      if (!st.begun) begin();
-      prefetchNext();
+      if (!alive() || gen !== st.gen || st.ready) return;
+      if (!whole(d)) throw { message: (d && d.error) || 'The lesson could not be written.' };
+      st.again = false;
+      if (st.prep) { st.prep.finish(); st.prep = null; }
+      show(d);
     }
-    function ensure() {
-      st.prep.start(st.lesson ? 'Asking Claude to finish the interactive' : 'Asking Claude to write this lesson');
+    // Leaving keeps the work going (cleanup demotes it); a failure offers Try again.
+    function track(p) {
+      st.pending = p;
+      p.then(function () { if (st.pending === p) st.pending = null; }, function () { if (st.pending === p) st.pending = null; });
+      return p;
+    }
+    function failed(gen, retry) {
+      return function (e) { if (alive() && gen === st.gen && !st.ready && st.prep) st.prep.fail(e, retry); };
+    }
+    function ensure(doc) {
+      // A doc that already has its text says so first; the job's own lines follow.
+      var written = doc && doc.lesson && doc.status === 'building';
+      st.prep.start(written ? 'The lesson text is written' : 'Asking Claude to write this lesson');
       var gen = st.gen;
       Promise.resolve().then(function () {
         if (!U.gen || typeof U.gen.ensureLesson !== 'function') throw { message: 'The lesson writer is not loaded in this view.' };
-        // A foreground call: if this lesson was being prefetched, U.gen promotes its queued
-        // calls (they share the lesson's gate key) so they run at once.
-        var p = st.pending = U.gen.ensureLesson(tid, iid, { onStatus: function (t, meta) { if (alive() && !st.ready) st.prep.line(t, meta); } });
-        p.then(function () { if (st.pending === p) st.pending = null; }, function () { if (st.pending === p) st.pending = null; });
-        return p;
-      }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, ensure); });
+        // A foreground call: if this lesson was being prepared in the background, U.gen promotes
+        // its queued calls (they share the lesson's gate key) so they run at once.
+        return track(U.gen.ensureLesson(tid, iid, { onStatus: function (t, meta) { if (alive() && !st.ready && st.prep) st.prep.line(t, meta); } }));
+      }).then(function (d) { settled(gen, d); }).catch(failed(gen, function () { ensure(st.seen); }));
     }
+    // The preparation card: what is happening now, step by step (writing, building the
+    // interactive, testing it, fixing what the test found), and that Dan need not wait here.
     function makePrep() {
       var head = U.h('p', { class: 'lsn-prep-head' }, 'Getting this idea ready');
+      var calm = U.h('p', { class: 'lsn-prep-calm' }, 'This usually takes a few minutes. You can leave this screen; it keeps going while the app is open.');
       var lines = U.h('ol', { class: 'lsn-prep-lines' });
       var working = U.h('div', { class: 'working', 'aria-hidden': 'true' });
       var slow = U.h('p', { class: 'lsn-prep-slow', hidden: true }, 'Still going. The interactive takes longest: it tests itself before you see it, so you never get a broken one.');
       var err = U.h('div', { class: 'lsn-prep-err', hidden: true });
-      var el = U.h('div', { class: 'lsn-prep', role: 'status', 'aria-live': 'polite' }, head, lines, working, slow, err);
+      var el = U.h('div', { class: 'lsn-prep', role: 'status', 'aria-live': 'polite' }, head, calm, lines, working, slow, err);
       var last = null, timer = null;
       // Lines that say the same thing ("Building your interactive…" / "Building the interactive")
       // are shown once.
@@ -7031,14 +7071,14 @@ U.interactive = (function () {
         el: el, line: line,
         title: function (t) { head.textContent = t; },
         start: function (first) {
-          err.hidden = true; slow.hidden = true; working.hidden = false; U.clear(lines); last = null;
+          err.hidden = true; slow.hidden = true; calm.hidden = false; working.hidden = false; U.clear(lines); last = null;
           line(first);
           clearTimeout(timer);
           timer = setTimeout(function () { slow.hidden = false; }, 40000);
         },
         // The step that failed gets a red cross (never a tick), and the error is said once, below.
         fail: function (e, retry) {
-          clearTimeout(timer); working.hidden = true; slow.hidden = true;
+          clearTimeout(timer); working.hidden = true; slow.hidden = true; calm.hidden = true;
           var msg = U.errText(e);
           // The error arrived as a line of its own (a caller without meta): drop it; the step
           // before it is the one that failed, although the error line ticked it off.
@@ -7053,17 +7093,14 @@ U.interactive = (function () {
         stop: function () { clearTimeout(timer); },
       };
     }
+    // Once this lesson is whole, the next open idea is prepared whole in the background.
     function prefetchNext() {
       var nx = nextIdea();
       if (!nx || !U.gen || typeof U.gen.ensureLesson !== 'function') return;
-      var ctrl = typeof AbortController === 'function' ? new AbortController() : { signal: undefined, abort: function () {} };
-      var entry = { tid: tid, ctrl: ctrl, done: false };
-      prefetches.push(entry);
       U.store.lesson.get(tid, nx.id).then(function (d) {
-        if (d && d.status === 'ready') return null;
-        if (!inTopic(tid)) return null;
-        return U.gen.ensureLesson(tid, nx.id, { background: true, signal: ctrl.signal });
-      }).catch(function () { /* background work: the next lesson retries when opened */ }).then(function () { entry.done = true; });
+        if (whole(d)) return null;
+        return U.gen.ensureLesson(tid, nx.id, { background: true });
+      }).catch(function () { /* background work: the next lesson tries again when opened */ });
     }
     function nextIdea() {
       var ideas = (st.topic && st.topic.ideas) || [], prog = (st.progress && st.progress.ideas) || {};
@@ -7083,29 +7120,31 @@ U.interactive = (function () {
       var fields = { round: prev + 1, stage: 'predict', startedAt: now, againAt: now, relearn: false, predict: null, checks: null, doneAt: null, past: past };
       st.ip = normalise(Object.assign({}, st.ip, U.clone(fields)));
       saveIdea(fields);
+      // The old lesson goes from the screen at once; the new one appears only when it is whole.
       st.again = true; st.gen++; st.feedback = opts.feedback || null; st.replay = null; st.guess = null;
       st.ready = false; st.begun = false; st.lesson = null; st.doc = null;
       foot.hidden = true;
       U.clear(flagKept);
       destroyLive();
-      U.clear(flow); st.sections = {}; st.closed = {}; st.stage = 'predict'; st.waiters = [];
-      paintBar();
+      stopNext();
+      U.clear(flow); st.sections = {}; st.closed = {}; st.stage = 'predict';
       if (st.prep) st.prep.finish();
       st.prep = makePrep();
       st.prep.title('Writing a fresh lesson');
       prepSlot.appendChild(st.prep.el);
-      watchLesson();
+      paintBar();
+      if (!st.watching) watchLesson();
       relearn();
-      bring(st.prep.el, 'nearest');
+      try { window.scrollTo(0, 0); } catch (e) { /* fine */ }
     }
     function relearn() {
       st.prep.start('Asking Claude for a new way into this idea, with a different interactive');
       var gen = st.gen;
       Promise.resolve().then(function () {
-        var o = { onStatus: function (t, meta) { if (alive() && !st.ready) st.prep.line(t, meta); } };
+        var o = { onStatus: function (t, meta) { if (alive() && !st.ready && st.prep) st.prep.line(t, meta); } };
         if (st.feedback) o.feedback = st.feedback;
-        return U.gen.relearn(tid, iid, o);
-      }).then(function (d) { settled(gen, d); }).catch(function (e) { if (alive() && gen === st.gen) st.prep.fail(e, relearn); });
+        return track(U.gen.relearn(tid, iid, o));
+      }).then(function (d) { settled(gen, d); }).catch(failed(gen, relearn));
     }
 
     // ---- stage machinery ----
@@ -7113,7 +7152,15 @@ U.interactive = (function () {
 
     function begin() {
       st.begun = true;
+      // The idea counts as started only once its whole lesson is on screen.
+      if (!st.replay) {
+        var first = {};
+        if (!st.ip.startedAt) first.startedAt = st.ip.startedAt = U.now();
+        if (!st.ip.stage) first.stage = st.ip.stage = 'predict';
+        saveIdea(first);
+      }
       destroyLive();
+      stopNext();
       U.clear(flow); st.sections = {}; st.closed = {};
       var cur = st.replay ? 'predict' : (st.ip.stage || 'predict');
       var ci = STAGES.indexOf(cur);
@@ -7189,16 +7236,18 @@ U.interactive = (function () {
       else addLive(next, true);
     }
     function paintBar() {
-      var ci = STAGES.indexOf(st.stage), all = st.stage === 'done';
+      // Before the lesson is on screen no step is current (and the label says it is being prepared).
+      var ci = st.begun ? STAGES.indexOf(st.stage) : -1, all = st.begun && st.stage === 'done';
       stepBtns.forEach(function (b, i) {
-        var state = all ? 'done' : i < ci ? 'done' : i === ci ? 'now' : 'later';
+        var state = all ? 'done' : ci < 0 ? 'later' : i < ci ? 'done' : i === ci ? 'now' : 'later';
         b.className = 'lsn-step is-' + state + (all ? ' is-all' : '');
         b.disabled = !st.sections[STEPS[i]];
         b.setAttribute('aria-label', stepName(STEPS[i]) + (state === 'done' ? ', done' : state === 'now' ? ', current step' : ''));
         if (state === 'now') b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
       });
-      stepLabel.textContent = all ? 'Idea learned' : LABEL[st.stage];
+      stepLabel.textContent = all ? 'Idea learned' : st.begun ? LABEL[st.stage] : st.prep ? 'Getting ready' : '';
       bar.classList.toggle('is-all', all);
+      paintOne();
     }
     function jumpTo(stage) {
       var el = st.sections[stage];
@@ -7232,7 +7281,8 @@ U.interactive = (function () {
       var p = (st.lesson && st.lesson.predict) || {};
       var options = Array.isArray(p.options) && p.options.length ? p.options : null;
       U.append(box, [live ? eyebrow('Predict') : null, heading(p.q || 'What do you think will happen?', true)]);
-      if (!live) { box.appendChild(guessAndReveal()); return; }
+      // Collapsed (a resumed lesson): "What happens" waits until Play is finished, as it does live.
+      if (!live) { box.appendChild(guessAndReveal(!st.closed.play)); return; }
       var playable = !!(st.lesson && st.lesson.interactive);
       box.appendChild(U.h('p', { class: 'lsn-lede' }, (playable ? 'Have a guess before you play.' : 'Have a guess first.') + ' Being wrong first is fine: it helps the answer stick.'));
       var choice = null, list = null, input = null;
@@ -7269,7 +7319,8 @@ U.interactive = (function () {
         complete('predict');
       }
     }
-    function guessAndReveal() {
+    // noAnswer: his guess only, without "What happens" (Play is not finished yet).
+    function guessAndReveal(noAnswer) {
       var p = (st.lesson && st.lesson.predict) || {};
       var gr = guessOf(), g = gr && gr.answer;
       var said = g != null && g !== '';
@@ -7279,7 +7330,7 @@ U.interactive = (function () {
         U.h('div', { class: 'lsn-reveal-guess' + (right ? ' is-right' : '') }, eyebrow('Your guess'),
           said ? U.inline(U.h('p'), String(g)) : U.h('p', { class: 'muted' }, 'You skipped the guess.'),
           right ? U.h('p', { class: 'lsn-called' }, U.icon('tick'), 'You called it.') : null),
-        p.reveal ? U.h('div', { class: 'lsn-reveal-answer callout remember' }, eyebrow('What happens'), richBox(p.reveal, 'lsn-reveal-text', fn)) : null);
+        p.reveal && !noAnswer ? U.h('div', { class: 'lsn-reveal-answer callout remember' }, eyebrow('What happens'), richBox(p.reveal, 'lsn-reveal-text', fn)) : null);
     }
 
     // ---- 2. Play ----
@@ -7294,38 +7345,25 @@ U.interactive = (function () {
       var notes = U.h('div', { class: 'lsn-discs' });
       var after = U.h('div', { class: 'lsn-after' });
       U.append(box, [brief, stage, notes, after]);
-      var has = null, played = !live;
-
-      function draw() {
-        U.clear(stage); U.clear(notes);
-        if (!st.ready) {
-          has = null;
-          stage.appendChild(U.h('div', { class: 'lsn-panel is-waiting' }, st.prep.el));
-          st.waiters.push(function () { if (alive()) { built = st.doc.interactive; draw(); drawAfter(); } });
-          return;
-        }
-        built = st.doc.interactive;
-        has = !!(built && built.html);
-        if (brief) brief.hidden = !has;
-        if (!has && !spec) head.textContent = 'What happens';
-        var m = null;
-        if (has) m = mountPanel(stage, built, title);
-        else stage.appendChild(noInteractive(spec));
-        if (spec && has) drawNotes(notes, spec, m);
-      }
+      // The lesson is whole by now: its interactive is built and tested, or there is none.
+      var has = !!(built && built.html), played = !live;
+      if (brief) brief.hidden = !has;
+      if (!has && !spec) head.textContent = 'What happens';
+      var m = null;
+      if (has) m = mountPanel(stage, built, title);
+      else stage.appendChild(noInteractive(spec));
+      if (spec && has) drawNotes(notes, spec, m);
       function drawAfter() {
         U.clear(after);
         var acting = live && !st.closed.play;
-        if (played || has === false) {
+        if (played || !has) {
           after.appendChild(guessAndReveal());
           if (acting) after.appendChild(go(btn('Continue', function () { complete('play'); }, 'lsn-main')));
-        } else if (has === true) {
-          if (acting) after.appendChild(go(btn('I\'ve had a play', function () { played = true; drawAfter(); bring(after, 'nearest'); }, 'lsn-main')));
         } else if (acting) {
-          after.appendChild(go(linkBtn('Don\'t wait: read on while it builds', function () { played = true; drawAfter(); })));
+          after.appendChild(go(btn('I\'ve had a play', function () { played = true; drawAfter(); bring(after, 'nearest'); }, 'lsn-main')));
         }
       }
-      draw(); drawAfter();
+      drawAfter();
     }
     // The kit host draws the card and its own loading line. The frame starts at the reserved height
     // (the height this device last measured for this interactive at this width, else a typical
@@ -7730,6 +7768,7 @@ U.interactive = (function () {
         nx
           ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
             nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
+            nextStatus(nx),
             go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
               U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
           : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
@@ -7745,49 +7784,98 @@ U.interactive = (function () {
       if (first) setTimeout(function () { if (alive()) U.cheer(); }, reducedMotion() ? 0 : 450);
     }
 
+    // "Idea 2 is being prepared…" / "Idea 2 is ready.": the next lesson's doc as it changes, and
+    // this page's own work on it. Nothing is said until the doc has been read (no flicker), and
+    // nothing when no lesson exists yet: opening it prepares it.
+    function stopNext() { if (st.nextStop) { st.nextStop(); st.nextStop = null; } }
+    function nextStatus(nx) {
+      stopNext();
+      var el = U.h('p', { class: 'lsn-next-status', role: 'status' });
+      var n = 'Idea ' + ((st.topic.ideas || []).indexOf(nx) + 1), doc, read = false, shown = null;
+      function paint() {
+        if (!read || !alive()) return;
+        var s = U.store.lesson.state(doc, liveOf(tid, nx.id));
+        var now = s === 'ready' || s === 'preparing' ? s : null;
+        if (now === shown) return;
+        shown = now;
+        U.clear(el);
+        if (now === 'preparing') U.append(el, [U.h('span', { class: 'lsn-prep-mark', 'aria-hidden': 'true' }, U.h('i')), n + ' is being prepared…']);
+        else if (now === 'ready') U.append(el, [U.icon('tick'), n + ' is ready.']);
+      }
+      var offs = [
+        U.store.lesson.watch(tid, nx.id, function (d) { doc = d; read = true; paint(); }, function () { /* say nothing */ }),
+        U.on('gen', function (g) { if (g && g.kind === 'lesson' && g.tid === tid && g.iid === nx.id) paint(); }),
+      ];
+      // A busy doc whose job went quiet stops counting as being prepared after a while.
+      var timer = setInterval(paint, 30000);
+      st.nextStop = function () { clearInterval(timer); offs.forEach(function (f) { try { f(); } catch (e) { /* fine */ } }); };
+      return el;
+    }
+
     // ---- Ask Claude, flagging, errors ----
     function openTutor() {
       if (!U.tutor || typeof U.tutor.open !== 'function') { U.toast('Ask Claude is not available in this view.'); return; }
       var m = st.liveMount;
       U.tutor.open({
-        tid: tid, iid: iid, topic: st.topic, idea: st.idea, lesson: st.lesson, lessonDoc: st.doc, stage: st.stage,
+        tid: tid, iid: iid, topic: st.topic, idea: st.idea, lesson: st.lesson, lessonDoc: st.doc, stage: st.begun ? st.stage : null,
         getState: m && typeof m.get === 'function' ? function () { return m.get(); } : null,
       });
     }
     // "This looks wrong": the note is kept with the lesson (newest 30), and Dan can have Claude
-    // rebuild the lesson with the note in mind (a new round, like Learn it again).
+    // rebuild the lesson with the note in mind (a new round, like Learn it again). The save is
+    // quiet in the store: this sheet says what went wrong, once, and keeps his words.
     function saveFlag(note) {
       return U.store.lesson.get(tid, iid).then(function (d) {
         if (!d) throw { message: 'There is no lesson saved yet to attach it to.' };
         var list = U.entries(d.flags), patch = { flags: Array.isArray(d.flags) ? U.keyed(d.flags) : {} };
         patch.flags[U.key()] = { note: note.slice(0, 1000), at: U.now(), stage: st.stage };
         list.slice(0, Math.max(0, list.length - 29)).forEach(function (e) { patch.flags[e.key] = null; });
-        return U.store.lesson.update(tid, iid, patch);
+        return U.store.lesson.update(tid, iid, patch, { quiet: true });
       });
     }
     function flagSheet() {
       if (!st.lesson) return;
       var canRebuild = !!(U.gen && typeof U.gen.relearn === 'function') && !st.gone;
       var ta = U.h('textarea', { class: 'textarea', rows: 3, maxlength: 1000, 'aria-label': 'What looks wrong', placeholder: 'For example: the slider makes the swing faster, but the text says slower' });
+      var problem = U.h('div', { class: 'lsn-flag-err', role: 'alert' });
+      var saving = false, open = true;
+      // The sheet stays open until the note is saved; if it is not, it says why (once, here) and
+      // keeps his words for another go. A rebuild starts only once the note is safe.
       function send(rebuild) {
         return function (api) {
           var note = ta.value.trim();
           if (!note) { ta.focus(); return; }
-          api.close();
-          // The thanks goes under the link, not in a toast: a toast would sit over the next stage
-          // for seconds and take its taps.
+          if (saving) return;
+          saving = true;
+          U.clear(problem);
+          var buttons = Array.prototype.slice.call(api.el.querySelectorAll('.sheet-actions .btn'));
+          buttons.forEach(function (b) { b.disabled = true; });
+          ta.readOnly = true;
           saveFlag(note).then(function () {
-            if (!rebuild && alive()) U.append(U.clear(flagKept), [U.icon('tick'), 'Thanks. Your note is kept with this lesson.']);
-          }, function (e) { if (!(e && e.queued)) U.toast('That could not be saved: ' + U.errText(e), { kind: 'bad' }); });
-          if (rebuild && alive()) startRelearn({ feedback: note });
+            saving = false;
+            if (open) api.close();
+            // The thanks goes under the link, not in a toast: a toast would sit over the next
+            // stage for seconds and take its taps.
+            if (!alive()) return;
+            if (rebuild) startRelearn({ feedback: note });
+            else U.append(U.clear(flagKept), [U.icon('tick'), 'Thanks. Your note is kept with this lesson.']);
+          }, function (e) {
+            saving = false;
+            buttons.forEach(function (b) { b.disabled = false; });
+            ta.readOnly = false;
+            var why = U.errText(e);
+            if (open) { U.clear(problem).appendChild(U.h('p', { class: 'notice bad' }, U.h('span', null, U.h('strong', null, 'Your note is not saved yet. '), why))); ta.focus(); }
+            else U.toast('Your note was not saved. ' + why, { kind: 'bad' });
+          });
         };
       }
       U.sheet({
         title: 'What looks wrong?',
+        onClose: function () { open = false; },
         body: U.h('div', { class: 'stack-sm' },
           U.h('p', { class: 'muted' }, 'Say what seems off and where. Your note is kept with this lesson.' +
             (canRebuild ? ' You can also have Claude rebuild the lesson with your note in mind: it writes a new version of this idea and starts it from the beginning.' : '')),
-          ta),
+          ta, problem),
         actions: [
           { label: 'Cancel', kind: 'secondary' },
           { label: 'Keep my note', kind: canRebuild ? 'secondary' : 'primary', onClick: send(false) },
@@ -7814,18 +7902,11 @@ U.interactive = (function () {
 
     return function cleanup() {
       st.dead = true;
-      // Still being written: it carries on in the background like a prefetch, so it never holds
-      // up what Dan opens next, and stops if he leaves the topic.
-      if (st.pending && U.gen && typeof U.gen.demote === 'function') {
-        var ctrl = typeof AbortController === 'function' ? new AbortController() : null;
-        if (ctrl && U.gen.demote(tid, iid, { signal: ctrl.signal })) {
-          var entry = { tid: tid, ctrl: ctrl, done: false };
-          prefetches.push(entry);
-          st.pending.then(function () { entry.done = true; }, function () { entry.done = true; });
-          sweepPrefetches();
-        }
-      }
+      // Still being prepared: it carries on as background work (it yields to whatever Dan opens
+      // next) while the app is open, so the lesson is whole when he comes back. Never cancelled.
+      if (st.pending && U.gen && typeof U.gen.demote === 'function') U.gen.demote(tid, iid, {});
       clearTimeout(slowTimer);
+      stopNext();
       destroyLive();
       st.stops.splice(0).forEach(function (f) { try { f(); } catch (e) {} });
       if (st.prep) st.prep.stop();
@@ -8900,6 +8981,47 @@ U.interactive = (function () {
       touched: (progress && progress.updatedAt) || (topic && topic.createdAt) || '',
     };
   };
+  // ---------- lessons being prepared ----------
+  // A lesson opens only when it is whole (U.store.lesson.state, docs/ARCHITECTURE.md 4), so the
+  // screens say honestly whether the next one is still being prepared or ready.
+  // V.lessonLive(tid, iid): this page's own work on it (U.gen.status), if any.
+  V.lessonLive = function (tid, iid) {
+    try { return U.gen && typeof U.gen.status === 'function' ? (((U.gen.status(tid) || {}).lessons) || {})[iid] : undefined; } catch (e) { return undefined; }
+  };
+  V.lessonBusy = function (tid, iid) { var l = V.lessonLive(tid, iid); return l === 'writing' || l === 'waiting' || l === 'building'; };
+  // Follows one idea's lesson at a time: its doc as it changes, this page's work on it ('gen'
+  // events), and a busy doc going quiet. onChange() when its state may have changed.
+  //   watch(tid, iid) switches to that idea (null: none);  state() -> 'ready'|'preparing'|'failed'|
+  //   'none', or null before the doc has been read;  stop()
+  V.lessonWatch = function (onChange) {
+    var cur = null, doc = null, read = false, stopDoc = null;
+    function changed() { try { onChange(); } catch (e) { console.error(e); } }
+    var off = U.on('gen', function (g) { if (cur && g && g.kind === 'lesson' && g.tid === cur.tid && g.iid === cur.iid) changed(); });
+    var timer = setInterval(function () { if (cur && read) changed(); }, 30000);
+    function drop() { if (stopDoc) try { stopDoc(); } catch (e) { /* gone */ } stopDoc = null; }
+    return {
+      watch: function (tid, iid) {
+        if (cur && cur.tid === tid && cur.iid === iid) return;
+        if (!cur && !(tid && iid)) return;
+        drop(); doc = null; read = false;
+        cur = tid && iid ? { tid: tid, iid: iid } : null;
+        if (cur) stopDoc = U.store.lesson.watch(tid, iid, function (d) { doc = d; read = true; changed(); }, function () { /* say nothing about it */ });
+      },
+      state: function () {
+        if (!cur) return null;
+        var live = V.lessonLive(cur.tid, cur.iid);
+        return read || live ? U.store.lesson.state(doc, live) : null;
+      },
+      stop: function () { drop(); cur = null; off(); clearInterval(timer); },
+    };
+  };
+  // "Idea 2 is being prepared…" / "Idea 2 is ready." (null: say nothing). started: he has begun
+  // it, so only a lesson being prepared again (Learn it again) is worth a word.
+  V.lessonNote = function (state, n, started, cls) {
+    if (state === 'preparing') return U.h('p', { class: 'v-lesson-note is-preparing ' + (cls || ''), role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Idea ' + n + ' is being prepared…');
+    if (state === 'ready' && !started) return U.h('p', { class: 'v-lesson-note is-ready ' + (cls || ''), role: 'status' }, U.icon('tick'), 'Idea ' + n + ' is ready.');
+    return null;
+  };
   V.isDone = function (progress, iid) { var s = progress && progress.ideas && progress.ideas[iid]; return !!(s && s.stage === 'done'); };
 
   // Work left behind by a page that went away (reloaded, killed in the background, republished).
@@ -9153,7 +9275,7 @@ U.interactive = (function () {
         if (!info.retrying) { U.clear(noteBox).appendChild(V.loadError('Your topics', e, false)); }
         return;
       }
-      shownKey = null;
+      shownKey = null; contSig = null;
       U.clear(continueBox);
       U.clear(listBox).appendChild(V.loadError('Your topics', e, info.retrying));
     });
@@ -9206,9 +9328,8 @@ U.interactive = (function () {
         U.clear(noteBox);
         if (progressFailed) noteBox.appendChild(V.loadError('Your progress', progressFailed, false));
       }
-      if (!topics.length) { U.clear(continueBox); U.clear(listBox); grid = head = null; listBox.appendChild(welcome()); return; }
-      var best = continuePick(), cs = best ? best.t.id + '|' + sigOf(best.t) : '';
-      if (cs !== contSig) { contSig = cs; U.clear(continueBox); if (best) continueBox.appendChild(continueCard(best)); }
+      if (!topics.length) { contSig = null; U.clear(continueBox); U.clear(listBox); grid = head = null; listBox.appendChild(welcome()); return; }
+      paintContinue();
       if (!grid || !grid.isConnected) {
         U.clear(listBox);
         head = U.h('span', { class: 'muted small' });
@@ -9227,6 +9348,14 @@ U.interactive = (function () {
     }
     var cards = {};
 
+    // The continue card, with whether its idea's lesson is being prepared or ready.
+    var lw = V.lessonWatch(function () { if (ctx.alive()) paintContinue(); });
+    function paintContinue() {
+      var best = topics && topics.length ? continuePick() : null;
+      lw.watch(best && best.t.id, best && best.s.current.id);
+      var cs = best ? best.t.id + '|' + sigOf(best.t) + '|' + lw.state() : '';
+      if (cs !== contSig) { contSig = cs; U.clear(continueBox); if (best) continueBox.appendChild(continueCard(best, lw.state())); }
+    }
     function continuePick() {
       var best = null;
       topics.forEach(function (t) {
@@ -9237,7 +9366,7 @@ U.interactive = (function () {
       });
       return best;
     }
-    function continueCard(best) {
+    function continueCard(best, lesson) {
       var t = best.t, s = best.s, begun = s.started || s.done > 0;
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
       return U.h('a', { class: 'ccard', href: '#/t/' + encodeURIComponent(t.id) + '/' + encodeURIComponent(s.current.id), 'aria-label': (begun ? 'Continue ' : 'Start ') + t.title + ': ' + s.current.title },
@@ -9246,6 +9375,7 @@ U.interactive = (function () {
           U.h('p', { class: 'eyebrow' }, begun ? 'Continue where you left off' : 'Ready when you are'),
           U.h('h2', { class: 'ccard-title' }, t.title),
           U.h('p', { class: 'ccard-next' }, U.h('span', { class: 'muted' }, 'Idea ' + (s.index + 1) + ' of ' + s.total + ' · '), s.current.title),
+          V.lessonNote(lesson, s.index + 1, s.started, 'ccard-status'),
           U.h('div', { class: 'ccard-progress' },
             U.h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(s.total), 'aria-valuenow': String(s.done), 'aria-label': s.done + ' of ' + s.total + ' ideas done' }, U.h('i', { style: { width: pct + '%' } })),
             U.h('span', { class: 'muted small' }, s.done + ' of ' + s.total + ' done')),
@@ -9309,7 +9439,7 @@ U.interactive = (function () {
       }));
     }
 
-    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); offPrefs(); };
+    return function () { stop(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); offPrefs(); };
   }, { tab: 'learn', title: 'Learn' });
 })();
 
@@ -9317,7 +9447,9 @@ U.interactive = (function () {
 // Topic page (#/t/:tid): the plan for one topic, live from the db. While Claude plans it shows
 // the question and gentle waiting lines; if planning failed it says why and offers Retry; once
 // ready it shows the hook, the idea "in one breath", an optional warm-up (never locks anything),
-// the path of ideas, the Library of research sources, Ask Claude, and Delete.
+// the path of ideas, the Library of research sources, Ask Claude, and Delete. A lesson opens only
+// when it is whole, so the header says whether the next idea's lesson is being prepared or ready,
+// and the path marks any idea this page is preparing.
 // Contract: docs/ARCHITECTURE.md sections 4 (topics, progress, research) and 9.
 (function () {
   'use strict';
@@ -9361,6 +9493,9 @@ U.interactive = (function () {
       }),
       U.store.progress.watch(tid, function (p) { progress = p || { ideas: {} }; schedule(); }),
     ];
+    // The next idea's lesson (its doc), and this page's own work on any lesson of this topic.
+    var lw = V.lessonWatch(schedule);
+    stops.push(lw.stop, U.on('gen', function (g) { if (g && g.kind === 'lesson' && g.tid === tid) schedule(); }));
     U.research.available().then(function (a) { avail = !!a; schedule(); }, function () { avail = false; schedule(); });
 
     var timer = setInterval(function () {
@@ -9576,15 +9711,17 @@ U.interactive = (function () {
       var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known]; });
       var cal = progress.calibration || {};
       var r = topic.research || {};
+      lw.watch(tid, s.current && !s.allDone ? s.current.id : null);
+      var next = lw.state(), busy = ideas.map(function (i) { return V.lessonBusy(tid, i.id) || (s.current && i.id === s.current.id && next === 'preparing'); });
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.started, s.allDone), function () { return head(s); }, 'top'],
+        ['head', sig(topic.title, topic.query, topic.hook, topic.hue, s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
         topic.oneBreath ? ['breath', sig(topic.oneBreath), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
             U.h('p', { class: 'eyebrow' }, 'In one breath'),
             U.h('div', { class: 'reading' }, U.rich(topic.oneBreath)));
         }] : null,
         ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
-        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea), function () {
+        ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy), function () {
           var prog = (s.done > 0 || s.started) ? U.h('div', { class: 'tp-progress' },
             U.h('div', { class: 'row' },
               s.allDone ? U.h('span', { class: 'done-note' }, U.icon('tick'), 'All ' + s.total + ' ideas done')
@@ -9593,7 +9730,7 @@ U.interactive = (function () {
           return U.h('section', { class: 'tp-path-sec', 'aria-labelledby': 'path-h' },
             U.h('div', { class: 'section-head' }, U.h('h2', { id: 'path-h' }, 'Your path'), prog ? null : U.h('span', { class: 'muted small' }, 'Take them in order, or start anywhere')),
             prog,
-            U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s); })));
+            U.h('ol', { class: 'path' }, ideas.map(function (idea, i) { return pathNode(idea, i, ideas, s, busy[i]); })));
         }],
         U.tutor && U.tutor.open ? ['ask', 'ask', function () {
           return U.h('button', { class: 'btn secondary wide tp-ask', type: 'button', 'data-key': 'ask', on: { click: function () { U.tutor.open({ topic: topic, tid: tid }); } } }, U.icon('chat'), 'Ask Claude about this topic');
@@ -9605,12 +9742,13 @@ U.interactive = (function () {
       ];
     }
 
-    function head(s) {
+    function head(s, next) {
       // The next step, right at the top: no scrolling past the warm-up to find it.
       var cta = s.current && !s.allDone
         ? U.h('a', { class: 'btn tp-cta', 'data-key': 'cta', href: '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(s.current.id) },
           U.h('span', { class: 'tp-cta-text' }, (s.started ? 'Continue: ' : 'Start: ') + s.current.title), U.icon('arrow'))
         : null;
+      var note = cta ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
       // On a laptop the cover sits beside the title (above the rail), not across the page, so
       // the path starts on the first screen.
       return U.h('header', { class: 'tp-head' },
@@ -9621,10 +9759,11 @@ U.interactive = (function () {
             U.h('p', { class: 'eyebrow' }, s.total + (s.total === 1 ? ' idea' : ' ideas')),
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
-            cta)));
+            cta, note)));
     }
 
-    function pathNode(idea, i, ideas, s) {
+    // preparing: its lesson is being written or built (it opens on the preparation card).
+    function pathNode(idea, i, ideas, s, preparing) {
       var st = (progress.ideas && progress.ideas[idea.id]) || {};
       var done = st.stage === 'done';
       var current = s.current && s.current.id === idea.id;
@@ -9647,6 +9786,7 @@ U.interactive = (function () {
             U.h('span', { class: 'pnode-kicker' }, kicker),
             U.h('span', { class: 'pnode-title' }, idea.title),
             idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
+            preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
             deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
             current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start this idea', U.icon('arrow')) : null)));

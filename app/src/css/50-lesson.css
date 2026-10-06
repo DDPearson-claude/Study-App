@@ -103,9 +103,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 
 /* ---------- preparing ---------- */
 .lsn-prep { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
-.lsn-flow:not(:empty) + .lsn-prep-slot .lsn-prep { margin-top: 40px; }
-.lsn-panel .lsn-prep { margin: 0; padding: 0; border: 0; background: none; }
 .lsn-prep-head { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
+.lsn-prep-calm { color: var(--muted); font-size: .9375rem; line-height: 1.5; margin-top: -6px; }
 .lsn-prep-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .lsn-prep-lines li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .9688rem; line-height: 1.45; }
 .lsn-prep-lines li.is-done { color: var(--muted); }
@@ -124,7 +123,6 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-play { display: flex; flex-direction: column; gap: 10px; }
 @container view (max-width: 527px) { .lsn-play > .lsn-panel { margin-inline: -6px; } }
 .lsn-panel { position: relative; }
-.lsn-panel.is-waiting { min-height: 240px; padding: 20px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
 .lsn-panel-foot { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-inline: 4px; }
 .lsn-panel-foot:empty { display: none; }
 .lsn-selfcheck { display: inline-flex; align-items: center; gap: 6px; font: 600 .8125rem/1.3 var(--sans); color: var(--muted); }
@@ -251,6 +249,11 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .lsn-next { align-self: stretch; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 20px; text-align: left; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); }
 .lsn-next h3 { font-size: 1.15rem; }
 .lsn-next .lsn-go { margin-top: 10px; }
+/* Whether the next lesson is still being prepared or ready (a breathing dot, or a tick). */
+.lsn-next-status { display: flex; align-items: center; gap: 8px; font: 600 .9375rem/1.4 var(--sans); color: var(--muted); }
+.lsn-next-status:empty { display: none; }
+.lsn-next-status .lsn-prep-mark { width: 20px; height: auto; }
+.lsn-next-status svg { width: 17px; height: 17px; color: var(--teal); }
 .lsn-again { margin-top: -4px; }
 
 /* ---------- footer ---------- */

@@ -888,6 +888,75 @@ await test('ux2: the laptop layout on a narrow screen says its tabs are icons on
   assert(!/icons only/.test(await text(app, '.set-layout-note')), 'no such note for the phone layout');
 });
 
+// ---------- whole lessons: say whether the next one is being prepared or ready ----------
+// A lesson opens only when it is whole, so Learn and the topic page tell Dan whether the next
+// idea's lesson is still being prepared or ready (from its doc, and this page's own work on it).
+function nextUp() {
+  const p = JSON.parse(JSON.stringify(SEED.progress['how-tides-work-ab12']));
+  delete p.ideas.i3; p.lastIdea = 'i2'; p.updatedAt = new Date().toISOString();
+  return { [`data/users/${UID}/profile/progress/how-tides-work-ab12`]: p };
+}
+const TIDES_I3 = 'topics/how-tides-work-ab12/lessons/i3';
+const busyDoc = (status, at = new Date().toISOString()) => ({ status, updatedAt: at, lesson: status === 'building' ? { iid: 'i3', title: 'Two bulges' } : null, interactive: null });
+const readyDoc = () => ({ status: 'ready', updatedAt: new Date().toISOString(), lesson: { iid: 'i3', title: 'Two bulges' }, interactive: null, note: 'No interactive.' });
+
+await test('whole lessons: the topic page says whether the next idea is being prepared or ready', async () => {
+  for (const [w, dark, size] of [[360, false, null], [390, false, 'xl'], [960, true, null], [1366, false, null], [1280, true, null]]) {
+    const app = await open({ width: w, dark, db: seedDb({ extra: { ...nextUp(), [TIDES_I3]: busyDoc('writing') } }), hash: '#/t/how-tides-work-ab12', prefs: size ? { size, theme: dark ? 'dark' : 'light' } : null });
+    await app.page.waitForSelector('.pnode.is-current');
+    await app.page.waitForSelector('.tp-next-note');
+    eq(await text(app, '.tp-next-note'), 'Idea 3 is being prepared…', 'header: being prepared (writing)');
+    assert((await text(app, '.tp-cta')).startsWith('Start: Two bulges'), 'the header still offers it');
+    eq(await text(app, '.pnode.is-current .pnode-prep'), 'Being prepared…', 'the path marks it');
+    await app.seed(TIDES_I3, busyDoc('building'));
+    await app.page.waitForTimeout(250);
+    eq(await text(app, '.tp-next-note'), 'Idea 3 is being prepared…', 'still being prepared while its interactive is built');
+    await shot(app, `whole-topic-preparing-${tag(w, dark)}${size ? '-' + size : ''}`, { full: false });
+    await app.page.evaluate(() => document.querySelector('.pnode.is-current').scrollIntoView({ block: 'center' }));
+    await shot(app, `whole-topic-preparing-path-${tag(w, dark)}${size ? '-' + size : ''}`, { full: false });
+    await app.page.evaluate(() => window.scrollTo(0, 0));
+    await app.seed(TIDES_I3, readyDoc());
+    await app.page.waitForFunction(() => /Idea 3 is ready\./.test(document.querySelector('.tp-next-note') && document.querySelector('.tp-next-note').textContent));
+    eq(await count(app, '.pnode-prep'), 0, 'no idea marked once it is ready');
+    await shot(app, `whole-topic-ready-${tag(w, dark)}${size ? '-' + size : ''}`, { full: false });
+    if (w === 360) {
+      // Work that stopped long ago is not "being prepared": opening the idea prepares it.
+      await app.seed(TIDES_I3, busyDoc('building', '2026-01-01T00:00:00.000Z'));
+      await app.page.waitForFunction(() => !document.querySelector('.tp-next-note'));
+      // This page's own work on another idea (Learn it again of a finished one) marks it at once.
+      await app.page.evaluate(() => { U.gen.status = () => ({ lessons: { i1: 'building' } }); U.emit('gen', { tid: 'how-tides-work-ab12', iid: 'i1', kind: 'lesson', status: 'building', text: '' }); });
+      await app.page.waitForSelector('.pnode:nth-child(1) .pnode-prep');
+      eq(await count(app, '.pnode-prep'), 1, 'only that idea is marked');
+      await app.page.evaluate(() => { U.gen.status = () => ({ lessons: { i1: 'ready' } }); U.emit('gen', { tid: 'how-tides-work-ab12', iid: 'i1', kind: 'lesson', status: 'ready', text: '' }); });
+      await app.page.waitForFunction(() => !document.querySelector('.pnode-prep'));
+    }
+  }
+});
+
+await test('whole lessons: Learn\'s continue card says whether its idea is being prepared or ready', async () => {
+  for (const [w, dark] of [[360, false], [1280, true]]) {
+    const app = await open({ width: w, dark, db: seedDb({ extra: { ...nextUp(), [TIDES_I3]: busyDoc('building') } }) });
+    await app.page.waitForSelector('.ccard');
+    await app.page.waitForSelector('.ccard-status');
+    eq(await text(app, '.ccard-status'), 'Idea 3 is being prepared…', 'continue card: being prepared');
+    assert((await text(app, '.ccard-next')).includes('Idea 3 of 6'), 'the next idea is named');
+    await app.page.evaluate(() => document.querySelector('.ccard').scrollIntoView({ block: 'center' }));
+    await shot(app, `whole-learn-preparing-${tag(w, dark)}`, { full: false });
+    await app.seed(TIDES_I3, readyDoc());
+    await app.page.waitForFunction(() => /Idea 3 is ready\./.test(document.querySelector('.ccard-status') && document.querySelector('.ccard-status').textContent));
+    await app.page.evaluate(() => document.querySelector('.ccard').scrollIntoView({ block: 'center' }));
+    await shot(app, `whole-learn-ready-${tag(w, dark)}`, { full: false });
+  }
+  // A started idea whose lesson is whole needs no word; one being prepared again does.
+  const app = await open({ db: seedDb({ extra: { 'topics/how-tides-work-ab12/lessons/i3': readyDoc() } }) });
+  await app.page.waitForSelector('.ccard');
+  await app.page.waitForTimeout(300);
+  eq(await count(app, '.ccard-status'), 0, 'started and ready: nothing to say');
+  await app.seed(TIDES_I3, busyDoc('writing'));
+  await app.page.waitForSelector('.ccard-status');
+  eq(await text(app, '.ccard-status'), 'Idea 3 is being prepared…', 'started, being prepared again');
+});
+
 // ---------- summary ----------
 const failed = results.filter((r) => !r.ok);
 console.log(`\n${results.length - failed.length} passed, ${failed.length} failed. Screenshots: tests/out/views/`);

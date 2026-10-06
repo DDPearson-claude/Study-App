@@ -168,6 +168,47 @@
       touched: (progress && progress.updatedAt) || (topic && topic.createdAt) || '',
     };
   };
+  // ---------- lessons being prepared ----------
+  // A lesson opens only when it is whole (U.store.lesson.state, docs/ARCHITECTURE.md 4), so the
+  // screens say honestly whether the next one is still being prepared or ready.
+  // V.lessonLive(tid, iid): this page's own work on it (U.gen.status), if any.
+  V.lessonLive = function (tid, iid) {
+    try { return U.gen && typeof U.gen.status === 'function' ? (((U.gen.status(tid) || {}).lessons) || {})[iid] : undefined; } catch (e) { return undefined; }
+  };
+  V.lessonBusy = function (tid, iid) { var l = V.lessonLive(tid, iid); return l === 'writing' || l === 'waiting' || l === 'building'; };
+  // Follows one idea's lesson at a time: its doc as it changes, this page's work on it ('gen'
+  // events), and a busy doc going quiet. onChange() when its state may have changed.
+  //   watch(tid, iid) switches to that idea (null: none);  state() -> 'ready'|'preparing'|'failed'|
+  //   'none', or null before the doc has been read;  stop()
+  V.lessonWatch = function (onChange) {
+    var cur = null, doc = null, read = false, stopDoc = null;
+    function changed() { try { onChange(); } catch (e) { console.error(e); } }
+    var off = U.on('gen', function (g) { if (cur && g && g.kind === 'lesson' && g.tid === cur.tid && g.iid === cur.iid) changed(); });
+    var timer = setInterval(function () { if (cur && read) changed(); }, 30000);
+    function drop() { if (stopDoc) try { stopDoc(); } catch (e) { /* gone */ } stopDoc = null; }
+    return {
+      watch: function (tid, iid) {
+        if (cur && cur.tid === tid && cur.iid === iid) return;
+        if (!cur && !(tid && iid)) return;
+        drop(); doc = null; read = false;
+        cur = tid && iid ? { tid: tid, iid: iid } : null;
+        if (cur) stopDoc = U.store.lesson.watch(tid, iid, function (d) { doc = d; read = true; changed(); }, function () { /* say nothing about it */ });
+      },
+      state: function () {
+        if (!cur) return null;
+        var live = V.lessonLive(cur.tid, cur.iid);
+        return read || live ? U.store.lesson.state(doc, live) : null;
+      },
+      stop: function () { drop(); cur = null; off(); clearInterval(timer); },
+    };
+  };
+  // "Idea 2 is being prepared…" / "Idea 2 is ready." (null: say nothing). started: he has begun
+  // it, so only a lesson being prepared again (Learn it again) is worth a word.
+  V.lessonNote = function (state, n, started, cls) {
+    if (state === 'preparing') return U.h('p', { class: 'v-lesson-note is-preparing ' + (cls || ''), role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Idea ' + n + ' is being prepared…');
+    if (state === 'ready' && !started) return U.h('p', { class: 'v-lesson-note is-ready ' + (cls || ''), role: 'status' }, U.icon('tick'), 'Idea ' + n + ' is ready.');
+    return null;
+  };
   V.isDone = function (progress, iid) { var s = progress && progress.ideas && progress.ideas[iid]; return !!(s && s.stage === 'done'); };
 
   // Work left behind by a page that went away (reloaded, killed in the background, republished).
@@ -421,7 +462,7 @@
         if (!info.retrying) { U.clear(noteBox).appendChild(V.loadError('Your topics', e, false)); }
         return;
       }
-      shownKey = null;
+      shownKey = null; contSig = null;
       U.clear(continueBox);
       U.clear(listBox).appendChild(V.loadError('Your topics', e, info.retrying));
     });
@@ -474,9 +515,8 @@
         U.clear(noteBox);
         if (progressFailed) noteBox.appendChild(V.loadError('Your progress', progressFailed, false));
       }
-      if (!topics.length) { U.clear(continueBox); U.clear(listBox); grid = head = null; listBox.appendChild(welcome()); return; }
-      var best = continuePick(), cs = best ? best.t.id + '|' + sigOf(best.t) : '';
-      if (cs !== contSig) { contSig = cs; U.clear(continueBox); if (best) continueBox.appendChild(continueCard(best)); }
+      if (!topics.length) { contSig = null; U.clear(continueBox); U.clear(listBox); grid = head = null; listBox.appendChild(welcome()); return; }
+      paintContinue();
       if (!grid || !grid.isConnected) {
         U.clear(listBox);
         head = U.h('span', { class: 'muted small' });
@@ -495,6 +535,14 @@
     }
     var cards = {};
 
+    // The continue card, with whether its idea's lesson is being prepared or ready.
+    var lw = V.lessonWatch(function () { if (ctx.alive()) paintContinue(); });
+    function paintContinue() {
+      var best = topics && topics.length ? continuePick() : null;
+      lw.watch(best && best.t.id, best && best.s.current.id);
+      var cs = best ? best.t.id + '|' + sigOf(best.t) + '|' + lw.state() : '';
+      if (cs !== contSig) { contSig = cs; U.clear(continueBox); if (best) continueBox.appendChild(continueCard(best, lw.state())); }
+    }
     function continuePick() {
       var best = null;
       topics.forEach(function (t) {
@@ -505,7 +553,7 @@
       });
       return best;
     }
-    function continueCard(best) {
+    function continueCard(best, lesson) {
       var t = best.t, s = best.s, begun = s.started || s.done > 0;
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
       return U.h('a', { class: 'ccard', href: '#/t/' + encodeURIComponent(t.id) + '/' + encodeURIComponent(s.current.id), 'aria-label': (begun ? 'Continue ' : 'Start ') + t.title + ': ' + s.current.title },
@@ -514,6 +562,7 @@
           U.h('p', { class: 'eyebrow' }, begun ? 'Continue where you left off' : 'Ready when you are'),
           U.h('h2', { class: 'ccard-title' }, t.title),
           U.h('p', { class: 'ccard-next' }, U.h('span', { class: 'muted' }, 'Idea ' + (s.index + 1) + ' of ' + s.total + ' · '), s.current.title),
+          V.lessonNote(lesson, s.index + 1, s.started, 'ccard-status'),
           U.h('div', { class: 'ccard-progress' },
             U.h('div', { class: 'bar', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(s.total), 'aria-valuenow': String(s.done), 'aria-label': s.done + ' of ' + s.total + ' ideas done' }, U.h('i', { style: { width: pct + '%' } })),
             U.h('span', { class: 'muted small' }, s.done + ' of ' + s.total + ' done')),
@@ -577,6 +626,6 @@
       }));
     }
 
-    return function () { stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); offPrefs(); };
+    return function () { stop(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); offPrefs(); };
   }, { tab: 'learn', title: 'Learn' });
 })();

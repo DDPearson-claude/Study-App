@@ -100,6 +100,12 @@
 .ccard-body { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 20px; }
 .ccard-title { font-size: 1.45rem; }
 .ccard-next { font: 600 1rem/1.45 var(--sans); color: var(--ink); }
+/* Whether the next lesson is being prepared (a breathing navy dot) or ready (a teal tick):
+   Learn's continue card, the topic page's header and its path. */
+.v-lesson-note { display: flex; align-items: center; gap: 8px; font: 600 .9375rem/1.4 var(--sans); color: var(--muted); }
+.v-lesson-note svg { flex: none; width: 17px; height: 17px; color: var(--teal); }
+.v-dot { flex: none; width: 9px; height: 9px; margin: 0 4px; border-radius: 50%; background: var(--heading); animation: v-breathe 1.6s ease-in-out infinite; }
+@keyframes v-breathe { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
 .ccard-progress { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .ccard-progress .bar { flex: 1; }
 .ccard-btn.btn { margin-top: 10px; width: 100%; }
@@ -190,6 +196,7 @@
 /* The next step, right in the header. */
 .tp-cta.btn { align-self: flex-start; max-width: 100%; margin-top: 10px; }
 .tp-cta-text { min-width: 0; text-align: left; overflow-wrap: anywhere; }
+.tp-next-note { margin-top: 2px; }
 .tp-cta.btn { justify-content: space-between; }
 @container view (max-width: 527px) { .tp-cta.btn { align-self: stretch; } }
 .tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; --tp-gap: 14px; }
@@ -223,6 +230,8 @@
 .pnode-line { font-size: .9375rem; line-height: 1.5; color: var(--muted); }
 .pnode-known { align-self: flex-start; margin-top: 4px; padding: 3px 10px; border-radius: 999px; background: var(--teal-tint); color: var(--teal); font: 700 .7812rem/1.5 var(--sans); }
 .pnode-deps { font-size: .8438rem; line-height: 1.45; color: var(--muted); }
+.pnode-prep { display: flex; align-items: center; gap: 6px; font: 600 .875rem/1.4 var(--sans); color: var(--muted); }
+.pnode-prep .v-dot { margin: 0 2px 0 0; }
 .pnode-btn.btn { align-self: flex-start; margin-top: 12px; }
 @media (hover: hover) { .pnode:not(.is-current) .pnode-link:hover .pnode-body { background: var(--surface); } }
 

@@ -483,8 +483,9 @@
   }
   function cancel(job) { if (job.background && job.ctrl && !job.ctrl.signal.aborted) job.ctrl.abort(); }
   // Dan left a lesson that is still being written: it carries on as background work (it yields to
-  // whatever he opens next) and stops when opts.signal aborts (he leaves the topic), exactly like a
-  // prefetch. Opening it again makes it foreground once more. -> true if a job was demoted.
+  // whatever he opens next), like a prefetch, and stops only if opts.signal aborts (the lesson
+  // screen passes none: it keeps going while the app is open). Opening it again makes it
+  // foreground once more. -> true if a job was demoted.
   function demote(tid, iid, opts) {
     var job = running(tid, iid);
     if (!job || job.background) return false;

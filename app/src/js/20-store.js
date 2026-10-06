@@ -147,14 +147,15 @@ U.store = (function () {
     arm();
   }
   // A write failed after its retry. keep(): hold it for a resend (returns false when it cannot be
-  // held). Rejects with e.queued set when the write will be resent.
-  function failed(e, keep) {
+  // held). Rejects with e.queued set when the write will be resent. quiet: the caller tells Dan
+  // itself and keeps what he typed for another go, so the store neither holds it nor toasts.
+  function failed(e, keep, quiet) {
     tag(e);
-    var kept = !!keep && resendable(e) && keep() !== false;
+    var kept = !quiet && !!keep && resendable(e) && keep() !== false;
     if (kept && e && typeof e === 'object') try { e.queued = true; } catch (x) { /* frozen */ }
-    console.error('db write failed', e);
+    (quiet ? console.warn : console.error)('db write failed', e);
     if (kept) noteOutage();
-    else U.toast(e && e.code === 'quota_exceeded' ? U.errText(e) : 'Could not save just now: ' + U.errText(e), { kind: 'bad' });
+    else if (!quiet) U.toast(e && e.code === 'quota_exceeded' ? U.errText(e) : 'Could not save just now: ' + U.errText(e), { kind: 'bad' });
     throw e;
   }
   // For work made of several steps (a read, then writes): run `job` again once the db answers,
@@ -278,13 +279,15 @@ U.store = (function () {
     });
   }
   var latest = {};    // path -> the newest patch not yet being written
-  function patchDoc(path, patch) {
+  // opts.quiet (see failed): only when every patch merged into the write asked for it.
+  function patchDoc(path, patch, opts) {
     if (gone(path)) return Promise.resolve(null);
+    var loud = !(opts && opts.quiet);
     var p = pending[path];
-    if (p) { deepMerge(p.patch, patch); return p.promise; }
+    if (p) { deepMerge(p.patch, patch); p.loud = p.loud || loud; return p.promise; }
     var base = held[path];
     delete held[path];
-    p = pending[path] = latest[path] = { patch: base ? deepMerge(base, U.clone(patch)) : U.clone(patch), started: false };
+    p = pending[path] = latest[path] = { patch: base ? deepMerge(base, U.clone(patch)) : U.clone(patch), started: false, loud: loud || !!base };
     p.promise = U.sleep(120).then(function () {
       delete pending[path];
       if (gone(path)) return null;
@@ -296,7 +299,7 @@ U.store = (function () {
         var n = latest[path];
         if (n && !n.started) n.patch = deepMerge(U.clone(p.patch), n.patch);   // goes out with the newer one
         else held[path] = held[path] ? deepMerge(U.clone(p.patch), held[path]) : U.clone(p.patch);
-      });
+      }, !p.loud);
     });
     return p.promise;
   }
@@ -430,7 +433,25 @@ U.store = (function () {
       data.updatedAt = U.now();
       return getDoc(S.paths.topic(tid)).then(function (t) { noteTopic(tid, !!t); return t ? setDoc(S.paths.lesson(tid, iid), data) : null; });
     },
-    update: function (tid, iid, patch) { patch.updatedAt = U.now(); return patchDoc(S.paths.lesson(tid, iid), patch); },
+    // opts.quiet: a failure is the caller's to tell (no toast) and is not held for a resend.
+    update: function (tid, iid, patch, opts) { patch.updatedAt = U.now(); return patchDoc(S.paths.lesson(tid, iid), patch, opts); },
+    // What a lesson doc means for Dan. A lesson opens only when it is whole: 'ready' is status
+    // ready with its lesson (the interactive built and tested, or a note saying why there is
+    // none). 'preparing': a job is writing or building it, by `live` (this page's own status for
+    // it, from U.gen.status) or, without one, a writing/building doc touched in the last
+    // BUSY_MS (a running job's heartbeat touches it every 45 s, 31-generate.js). 'failed', or
+    // 'none': nothing yet, or work that stopped (opening the lesson prepares it). A doc still
+    // writing or building is never a lesson to open or study.
+    BUSY_MS: 4 * 60 * 1000,
+    state: function (doc, live) {
+      var busy = !!doc && (doc.status === 'writing' || doc.status === 'building');
+      if (doc && doc.status === 'ready' && doc.lesson) return 'ready';
+      if (live === 'writing' || live === 'waiting' || live === 'building') return 'preparing';
+      if (doc && doc.status === 'failed') return 'failed';
+      // This page's job stopped (live 'failed' or 'ready' with no ready doc): it left the doc.
+      if (busy && !live) { var t = Date.parse(doc.updatedAt || ''); if (isFinite(t) && Date.now() - t < S.lesson.BUSY_MS) return 'preparing'; }
+      return 'none';
+    },
     // Deletes one lesson doc (a job putting back a doc it created). Queued behind pending writes.
     remove: function (tid, iid) {
       var path = S.paths.lesson(tid, iid);

@@ -10,8 +10,10 @@
 //
 // Scenarios: the whole lesson at 360 and 1280 px in light and dark (progress writes, grade calls,
 // addFromLesson, Ask Claude with the interactive's state, footnote sheet, "This looks wrong",
-// revisiting a finished idea), preparing (ensureLesson pending with onStatus lines, predict while
-// the interactive builds, prefetch of the next idea), an error with Retry, resuming mid-lesson,
+// revisiting a finished idea), preparing (only the preparation card while the lesson is written
+// and while its interactive is built and tested, then the whole lesson; the next idea prepared in
+// the background and its status on the finished screen), a lesson finished on another device,
+// resuming after a reload mid-build, an error with Retry, resuming mid-lesson,
 // the no-interactive path (contested, not source-checked), and Text size XL on a phone (headings,
 // eyebrow, the interactive's own text size). Screenshots: tests/out/lesson-*.png.
 //
@@ -51,7 +53,7 @@ function installFakes(cfg) {
   }
   U.gen = {
     ensureLesson: function (tid, iid, o) {
-      T.ensure.push({ tid: tid, iid: iid, status: !!(o && o.onStatus) });
+      T.ensure.push({ tid: tid, iid: iid, status: !!(o && o.onStatus), background: !!(o && o.background) });
       if (T.pending[iid]) return T.pending[iid](o || {});
       return U.store.lesson.get(tid, iid).then(function (d) { return d && d.status === 'ready' ? d : new Promise(function () {}); });
     },
@@ -60,14 +62,24 @@ function installFakes(cfg) {
       var r = T.gradeReplies.shift() || { met: [true, false, false], verdict: 'partly', nailed: 'You have the main point.', followUp: 'What happens if you make it four times as long?' };
       return U.sleep(cfg.gradeMs || 350).then(function () { return r; });
     },
-    // Learn it again: like the real one, the lesson doc is replaced (writing, then the new lesson).
+    // Learn it again: like the real one, the lesson doc is replaced (writing, then the new lesson's
+    // text while its interactive is built, then the whole new lesson). T.relearnSeen records what
+    // the screen showed at each step.
     relearn: cfg.relearnDoc ? function (tid, iid, o) {
       T.relearn.push({ tid: tid, iid: iid, feedback: (o && o.feedback) || null });
-      return U.store.lesson.set(tid, iid, { status: 'writing', lesson: null, interactive: null, sourced: false }).then(function () {
+      T.relearnSeen = T.relearnSeen || [];
+      function seen(step) { T.relearnSeen.push({ step: step, stages: document.querySelectorAll('.lsn-stage, .lsn-past').length, prep: !!document.querySelector('.lsn-prep'), text: document.querySelector('.lsn').textContent }); }
+      var d = JSON.parse(JSON.stringify(cfg.relearnDoc));
+      d.lesson.predict.q = d.lesson.predict.q + ' (take ' + T.relearn.length + ')';
+      return U.store.lesson.set(tid, iid, { status: 'writing', lesson: null, interactive: null, sourced: false, updatedAt: U.now() }).then(function () {
         return U.sleep(300);
       }).then(function () {
-        var d = JSON.parse(JSON.stringify(cfg.relearnDoc));
-        d.lesson.predict.q = d.lesson.predict.q + ' (take ' + T.relearn.length + ')';
+        seen('writing');
+        return U.store.lesson.set(tid, iid, { status: 'building', lesson: d.lesson, interactive: null, sourced: true });
+      }).then(function () {
+        return U.sleep(400);
+      }).then(function () {
+        seen('building');
         return U.store.lesson.set(tid, iid, d).then(function () { return U.store.lesson.get(tid, iid); });
       });
     } : undefined,
@@ -180,6 +192,7 @@ async function walk(width, dark) {
     ok(await page.locator('.lsn-step.is-now').count() === 1, 'one current step in the progress bar');
     ok(await page.locator('.lsn-steps-label').textContent() === 'Predict', 'the bar names the stage, without a second "of N" beside the eyebrow\'s');
     ok(await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 1 of 5: Predict, current step', 'the current segment tells a screen reader "Step 1 of 5: Predict"');
+    ok(!(await page.locator('.lsn-one').isVisible()), 'the idea\'s one line is hidden while Predict asks (it gives the answer away)');
     const sure = page.getByRole('button', { name: 'That\'s my guess' });
     ok(await sure.isDisabled(), 'guess button waits for a choice');
     await noOverflow(app);
@@ -190,6 +203,7 @@ async function walk(width, dark) {
     // Play
     const play = page.locator('.lsn-stage[data-stage="play"]');
     await play.locator('iframe').waitFor();
+    ok(await page.locator('.lsn-one').isVisible() && /length, not on how far/.test(await page.locator('.lsn-one').textContent()), 'the one line shows once he has guessed');
     const reserved = await play.locator('.lsn-panel').evaluate((el) => el.getBoundingClientRect().height);
     ok(reserved >= 560, `height reserved while the interactive loads (${Math.round(reserved)}px)`);
     if (width < 700) await shot(app, `${tag}-2a-play-loading`);
@@ -372,6 +386,23 @@ async function walk(width, dark) {
 }
 
 // ---------- scenario: preparing (ensureLesson pending) ----------
+// A lesson opens only when it is whole. While it is written, and while its interactive is built
+// and tested, the screen shows only the preparation card: eyebrow, title, the idea's one line,
+// honest steps and a calm note. Never Predict or any lesson text.
+async function onlyPrep(page, what) {
+  const s = await page.evaluate(() => ({
+    stages: document.querySelectorAll('.lsn-stage, .lsn-past').length,
+    options: document.querySelectorAll('.option').length,
+    foot: !document.querySelector('.lsn-foot').hidden,
+    label: document.querySelector('.lsn-steps-label').textContent,
+    now: document.querySelectorAll('.lsn-step.is-now').length,
+    text: document.querySelector('.lsn').textContent,
+  }));
+  ok(s.stages === 0 && s.options === 0, `${what}: no Predict and no lesson stages (${s.stages} stages, ${s.options} options)`);
+  ok(!s.foot, `${what}: no "This looks wrong" before there is a lesson to flag`);
+  ok(s.label === 'Getting ready' && s.now === 0, `${what}: the bar says it is getting ready, with no current step (${s.label}, ${s.now})`);
+  return s.text;
+}
 async function preparing() {
   current = 'preparing 360-light';
   console.log('\n' + current);
@@ -380,37 +411,128 @@ async function preparing() {
   try {
     await page.locator('.lsn-prep').waitFor();
     ok(await page.locator('.lsn-title').textContent() === 'Small swings and big swings', 'title shows while preparing');
-    await page.evaluate(() => { const o = window.__T.prep.o; o.onStatus('Reading 4 sources about pendulums'); o.onStatus('Writing the lesson'); });
+    ok((await page.locator('.lsn-eb').textContent()).includes('Idea 3 of 5'), 'the eyebrow shows while preparing');
+    ok(await page.locator('.lsn-one').isVisible(), 'the idea\'s one line shows on the preparation card (there is no question yet)');
+    ok(/This usually takes a few minutes\. You can leave this screen; it keeps going while the app is open\./.test(await page.locator('.lsn-prep-calm').textContent()), 'a calm note: how long, and that he can leave');
+    await page.evaluate(() => { const o = window.__T.prep.o; o.onStatus('Checking sources for this idea…'); o.onStatus('Writing your lesson from 4 checked sources…'); });
     ok(await page.locator('.lsn-prep-lines li').count() === 3, 'progress lines appear one per status');
     ok(await page.locator('.lsn-prep-lines li.is-done').count() === 2, 'earlier lines are ticked off');
+    await onlyPrep(page, 'writing');
+    let pr = await doc(app, PROGRESS);
+    ok(!(pr && pr.ideas && pr.ideas.i3), 'opening a lesson that is not ready does not count as starting it');
     await shot(app, 'prep-1-writing');
-    // The lesson is written; the interactive is still building -> predict shows now.
+    // The lesson text is written and saved; the interactive is still being built and tested.
     const building = { status: 'building', updatedAt: new Date().toISOString(), lesson: SMALL.lesson, interactive: null, sourced: true };
     await app.seed(LESSON('i3'), building);
-    await page.evaluate(() => window.__T.prep.o.onStatus('Building the interactive'));
+    await page.evaluate(() => { const o = window.__T.prep.o; o.onStatus('Building your interactive…'); o.onStatus('Testing it on a phone-sized screen…'); o.onStatus('Fixing something the test found…'); });
+    await page.waitForTimeout(400);
+    const text = await onlyPrep(page, 'building');
+    ok(!text.includes('twice as far') && !text.includes('period'), 'none of the lesson\'s text shows while its interactive is built');
+    const lines = await page.locator('.lsn-prep-lines li').allTextContents();
+    ok(lines.some((l) => /Building your interactive/.test(l)) && lines.some((l) => /Testing it/.test(l)) && /Fixing something the test found/.test(lines[lines.length - 1]), 'honest steps: building, testing, fixing what the test found: ' + JSON.stringify(lines));
+    await shot(app, 'prep-2-building');
+    // Whole: the lesson replaces the card, starting at Predict; the one line waits for his guess.
+    await app.seed(LESSON('i3'), SMALL);
+    await page.evaluate((d) => window.__T.prep.res(d), SMALL);
     await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor();
-    ok(await page.locator('.lsn-prep-head').textContent() === 'Building the interactive', 'prep heading follows the work');
-    await shot(app, 'prep-2-predict-while-building');
+    ok(await page.locator('.lsn-prep').count() === 0, 'the preparation card goes once the lesson is whole');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Predict' && await page.locator('.lsn-step.is-now').count() === 1, 'the bar starts at Predict');
+    ok(!(await page.locator('.lsn-one').isVisible()), 'the one line is hidden while Predict asks (it would give the answer away)');
+    await page.waitForTimeout(400);
+    pr = await doc(app, PROGRESS);
+    ok(pr && pr.ideas && pr.ideas.i3 && pr.ideas.i3.startedAt && pr.ideas.i3.stage === 'predict', 'the idea is started once the whole lesson is on screen');
+    await shot(app, 'prep-3-whole');
     await page.locator('.lsn-stage[data-stage="predict"] .option').nth(1).click();
     await page.getByRole('button', { name: 'That\'s my guess' }).click();
     const play = page.locator('.lsn-stage[data-stage="play"]');
-    await play.locator('.lsn-panel.is-waiting .lsn-prep').waitFor();
-    await page.evaluate(() => window.__T.prep.o.onStatus('Testing it at phone and desktop widths'));
-    ok(await play.getByRole('button', { name: /read on while it builds/ }).count() === 1, 'can read on while it builds');
-    await shot(app, 'prep-3-play-waiting');
-    // Ready
-    await app.seed(LESSON('i3'), SMALL);
-    await page.evaluate((d) => window.__T.prep.res(d), SMALL);
     await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
-    ok(await page.locator('.lsn-prep').count() === 0, 'progress lines go once ready');
-    ok(await play.getByRole('button', { name: 'I\'ve had a play' }).count() === 1, 'play button appears once ready');
+    ok(await page.locator('.lsn-one').isVisible(), 'the one line shows once he has guessed');
+    ok(await play.getByRole('button', { name: 'I\'ve had a play' }).count() === 1, 'the interactive is there at once: no waiting inside the lesson');
+    ok(await play.getByRole('button', { name: /read on while it builds/ }).count() === 0, 'no "read on while it builds" any more');
     const t = await T(app);
-    ok(t.ensure[0].iid === 'i3' && t.ensure[0].status, 'ensureLesson called with onStatus');
-    ok(t.ensure.some((e) => e.iid === 'i4'), 'next idea (i4) prefetched once ready');
-    await shot(app, 'prep-4-ready');
+    ok(t.ensure[0].iid === 'i3' && t.ensure[0].status && !t.ensure[0].background, 'ensureLesson called in the foreground with onStatus');
+    ok(t.ensure.some((e) => e.iid === 'i4' && e.background), 'the next idea (i4) is prepared in the background once this one is whole');
   } catch (e) {
     ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
     await shot(app, 'prep-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: finished on another device while this one shows the card ----------
+async function preparedElsewhere(width, dark) {
+  const tag = `${width}-${dark ? 'dark' : 'light'}`;
+  current = 'prepared-elsewhere ' + tag;
+  console.log('\n' + current);
+  const writing = { status: 'writing', updatedAt: new Date().toISOString(), lesson: null, interactive: null, by: { device: 'other', tab: 'other', holder: 'other/other' } };
+  const app = await open({ width, dark, hash: '#/t/pendulums/i3', seed: { 'topics/pendulums': TOPIC, [LESSON('i3')]: writing }, cfg: { pending: ['i3'] } });
+  const { page } = app;
+  try {
+    await page.locator('.lsn-prep').waitFor();
+    await page.evaluate(() => window.__T.prep.o.onStatus('Your other device is preparing this lesson. Waiting for it…'));
+    await onlyPrep(page, 'writing elsewhere');
+    await noOverflow(app);
+    await shot(app, `prep-elsewhere-${tag}-1`);
+    // The other device saves the whole lesson: it opens here at once, although this page's own
+    // ensureLesson has not settled.
+    await app.seed(LESSON('i3'), SMALL);
+    await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor({ timeout: 5000 });
+    ok(await page.locator('.lsn-prep').count() === 0, 'the card goes the moment the doc is whole');
+    await page.evaluate((d) => window.__T.prep.res(d), SMALL);
+    await page.waitForTimeout(300);
+    ok(await page.locator('.lsn-stage[data-stage="predict"]').count() === 1, 'the job settling afterwards draws nothing twice');
+    await shot(app, `prep-elsewhere-${tag}-2-whole`);
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, `prep-elsewhere-${tag}-error`).catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: reopened (or reloaded) while the interactive is still being built ----------
+// Audit round 3, findings 13 and 35. Progress saved past Predict on an unfinished lesson (older
+// app versions let him read on) used to leave only a prep box and no way on. Now the screen shows
+// the card until the lesson is whole, then resumes at his stage; a passing failure offers Try
+// again, never a partial lesson. A collapsed Predict keeps "What happens" until Play is done.
+async function resumeBuilding() {
+  current = 'resume-building 360-light';
+  console.log('\n' + current);
+  const at = '2026-10-04T18:00:00.000Z';
+  const building = { status: 'building', updatedAt: new Date().toISOString(), lesson: SMALL.lesson, interactive: null, sourced: true, by: { device: 'd', tab: 'gone', holder: 'd/gone' } };
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i3')]: building,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i3', ideas: { i3: { stage: 'play', startedAt: at, predict: { answer: 'It takes twice as long', at } } } } };
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i3', seed, cfg: { pending: ['i3'] } });
+  const { page } = app;
+  try {
+    await page.locator('.lsn-prep').waitFor();
+    ok(/The lesson text is written/.test(await page.locator('.lsn-prep-lines').textContent()), 'the card says the text is already written');
+    await page.evaluate(() => window.__T.prep.o.onStatus('Finishing the interactive for this lesson…'));
+    await onlyPrep(page, 'reopened mid-build');
+    await shot(app, 'resume-building-1');
+    // A passing failure: Try again, and still nothing of the lesson.
+    await page.evaluate(() => window.__T.prep.rej({ code: 'unavailable', message: 'offline' }));
+    await page.locator('.lsn-prep-err').getByRole('button', { name: 'Try again' }).waitFor();
+    await onlyPrep(page, 'after a passing failure');
+    await shot(app, 'resume-building-2-failed');
+    await page.locator('.lsn-prep-err').getByRole('button', { name: 'Try again' }).click();
+    await page.waitForFunction(() => window.__T.ensure.filter((e) => e.iid === 'i3').length === 2);
+    await app.seed(LESSON('i3'), SMALL);
+    await page.evaluate((d) => window.__T.prep.res(d), SMALL);
+    // Whole: it resumes where he was (Play), with Predict collapsed above.
+    const play = page.locator('.lsn-stage[data-stage="play"]');
+    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    ok(await page.locator('.lsn-past[data-stage="predict"]').count() === 1 && await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 2 of 5: Play, current step', 'resumes at Play with Predict collapsed');
+    await page.locator('.lsn-past[data-stage="predict"] summary').click();
+    await page.locator('.lsn-past[data-stage="predict"] .lsn-reveal-guess').waitFor();
+    ok(await page.locator('.lsn-past[data-stage="predict"] .lsn-reveal-answer').count() === 0, 'the collapsed Predict shows his guess but not "What happens" before he has played');
+    await shot(app, 'resume-building-3-whole');
+    await play.getByRole('button', { name: 'I\'ve had a play' }).click();
+    ok(await play.locator('.lsn-reveal-answer').count() === 1, '"What happens" comes after the play, as live');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'resume-building-error').catch(() => {});
   }
   ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
   await app.close();
@@ -636,6 +758,8 @@ async function relearnScenario() {
     await shot(app, 'relearn-1-writing');
     await page.locator('.lsn-stage[data-stage="predict"] input').waitFor();
     ok(/take 1/.test(await page.locator('.lsn-stage[data-stage="predict"] .lsn-h').textContent()), 'the fresh lesson is the one shown');
+    const seen1 = (await T(app)).relearnSeen;
+    ok(seen1.length === 2 && seen1.every((x) => x.prep && x.stages === 0 && !/Galileo|pendulum clock/.test(x.text)), 'while the new lesson is written and while its interactive is built, only the card shows (never the old lesson, never the half-made new one): ' + JSON.stringify(seen1.map((x) => [x.step, x.prep, x.stages])));
     ok(await page.evaluate(() => location.hash) === '#/t/pendulums/i5', 'the address drops /again (a reload does not rebuild it again)');
     let pr = await doc(app, PROGRESS);
     const i5 = pr.ideas.i5;
@@ -667,7 +791,10 @@ async function relearnScenario() {
     await page.locator('.sheet textarea').fill('The date in the reveal looks wrong.');
     await shot(app, 'relearn-2-flag-sheet');
     await page.locator('.sheet .btn', { hasText: 'Rebuild this lesson' }).click();
+    await page.locator('.lsn-prep').waitFor();
+    ok(await page.locator('.lsn-stage, .lsn-past, .lsn-done').count() === 0 && !(await page.locator('.lsn-foot').isVisible()), 'Rebuild takes the old lesson off the screen at once: only the card');
     await page.locator('.lsn-stage[data-stage="predict"] input').waitFor();
+    ok(/take 2/.test(await page.locator('.lsn-stage[data-stage="predict"] .lsn-h').textContent()), 'then the rebuilt lesson, whole');
     const t2 = await T(app);
     ok(t2.relearn.length === 2 && t2.relearn[1].feedback === 'The date in the reveal looks wrong.', 'Rebuild passes his note to U.gen.relearn');
     ok(await page.locator('.lsn-flag-kept').textContent() === '', 'a rebuild shows no "note kept" line');
@@ -676,6 +803,104 @@ async function relearnScenario() {
   } catch (e) {
     ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
     await shot(app, 'relearn-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: the finished screen says whether the next idea is ready ----------
+async function nextStatus(width, height, dark) {
+  const tag = `${width}-${dark ? 'dark' : 'light'}`;
+  current = 'next-status ' + tag;
+  console.log('\n' + current);
+  const at = '2026-10-04T18:00:00.000Z';
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM,
+    [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'done', startedAt: at, doneAt: at, predict: { answer: 'x', at }, checks: { c1: { correct: true, at } } } } } };
+  const app = await open({ width, height, dark, hash: '#/t/pendulums/i1', seed, reduced: true });
+  const { page } = app;
+  const status = () => page.locator('.lsn-next-status').textContent();
+  try {
+    await page.locator('.lsn-done .lsn-next').waitFor();
+    await page.waitForTimeout(300);
+    ok(await status() === '', 'nothing is said while no lesson exists for the next idea');
+    const t = await T(app);
+    ok(t.ensure.some((e) => e.iid === 'i2' && e.background), 'the next idea is prepared in the background');
+    await app.seed(LESSON('i2'), { status: 'writing', updatedAt: new Date().toISOString(), lesson: null, interactive: null });
+    await page.waitForFunction(() => /Idea 2 is being prepared…/.test(document.querySelector('.lsn-next-status').textContent));
+    await app.seed(LESSON('i2'), { status: 'building', updatedAt: new Date().toISOString(), lesson: SMALL.lesson, interactive: null });
+    await page.waitForTimeout(300);
+    ok(await status() === 'Idea 2 is being prepared…', 'still being prepared while its interactive is built: ' + await status());
+    await page.evaluate(() => document.querySelector('.lsn-next').scrollIntoView({ block: 'center' }));
+    await shot(app, `next-${tag}-1-preparing`);
+    const i2 = JSON.parse(JSON.stringify(SMALL)); i2.lesson.iid = 'i2';
+    await app.seed(LESSON('i2'), i2);
+    await page.waitForFunction(() => /Idea 2 is ready\./.test(document.querySelector('.lsn-next-status').textContent));
+    await page.evaluate(() => document.querySelector('.lsn-next').scrollIntoView({ block: 'center' }));
+    await shot(app, `next-${tag}-2-ready`);
+    await noOverflow(app);
+    // A doc whose job went silent long ago is not "being prepared" (opening it prepares it).
+    await app.seed(LESSON('i2'), { status: 'building', updatedAt: '2026-01-01T00:00:00.000Z', lesson: SMALL.lesson, interactive: null });
+    await page.waitForFunction(() => document.querySelector('.lsn-next-status').textContent === '');
+    // This page's own job (U.gen.status) counts at once, before its doc is written.
+    await page.evaluate(() => { U.gen.status = () => ({ lessons: { i2: 'writing' } }); U.emit('gen', { tid: 'pendulums', iid: 'i2', kind: 'lesson', status: 'writing', text: '' }); });
+    await page.waitForFunction(() => /Idea 2 is being prepared…/.test(document.querySelector('.lsn-next-status').textContent));
+    ok(true, 'this page\'s own work on the next idea counts as being prepared');
+    if (width < 700 && !dark) {
+      // Go through it again: Predict asks again, so the one line hides until he skips it.
+      await page.getByRole('button', { name: 'Go through it again' }).click();
+      await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor();
+      ok(!(await page.locator('.lsn-one').isVisible()), 'going through it again: the one line hides while Predict asks');
+      await page.locator('.lsn-stage[data-stage="predict"]').getByRole('button', { name: 'Skip' }).click();
+      await page.locator('.lsn-stage[data-stage="play"]').waitFor();
+      ok(await page.locator('.lsn-one').isVisible(), 'and shows once he skips the guess');
+    }
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, `next-${tag}-error`).catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- scenario: "This looks wrong" during a bridge outage ----------
+// The save fails: the sheet stays open with his words, says so once (no toast on top), and the
+// note saves when he tries again.
+async function flagOutage() {
+  current = 'flag-outage 360-light';
+  console.log('\n' + current);
+  const at = new Date().toISOString();
+  const seed = { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM, [PROGRESS]: { updatedAt: at, lastIdea: 'i1', ideas: { i1: { stage: 'explain', startedAt: at, predict: { answer: 'x', at } } } } };
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i1', seed, reduced: true });
+  const { page } = app;
+  try {
+    await page.locator('.lsn-stage[data-stage="explain"]').waitFor();
+    await page.evaluate(() => {
+      window.__down = true;
+      const real = U.rt.db;
+      const down = (ref, p) => (/\/lessons\//.test(p) ? Object.assign({}, ref, { update: (...a) => (window.__down ? Promise.reject({ code: 'unavailable', message: 'The bridge is down.' }) : ref.update(...a)) }) : ref);
+      U.rt.db = Object.assign({}, real, { doc: (p) => down(real.doc(p), p) });
+    });
+    await page.locator('.lsn-flag-link').click();
+    const note = 'The analogy says the opposite of the interactive.';
+    await page.locator('.sheet textarea').fill(note);
+    await page.locator('.sheet .btn', { hasText: 'Keep my note' }).click();
+    await page.locator('.sheet .lsn-flag-err .notice').waitFor({ timeout: 8000 });
+    await page.waitForTimeout(400);
+    ok(await page.locator('.sheet').count() === 1 && await page.locator('.sheet textarea').inputValue() === note, 'the sheet stays open with his words');
+    ok(/Your note is not saved yet\./.test(await page.locator('.sheet .lsn-flag-err').textContent()), 'it says so in the sheet: ' + await page.locator('.sheet .lsn-flag-err').textContent());
+    ok(await page.locator('#toasts .toast').count() === 0, 'and only there: no toasts (' + await page.locator('#toasts').textContent() + ')');
+    ok(await page.locator('.sheet .btn', { hasText: 'Keep my note' }).isEnabled(), 'he can try again');
+    await shot(app, 'flag-outage-1');
+    await page.evaluate(() => { window.__down = false; });
+    await page.locator('.sheet .btn', { hasText: 'Keep my note' }).click();
+    await page.locator('.sheet').waitFor({ state: 'detached' });
+    ok(/kept with this lesson/.test(await page.locator('.lsn-flag-kept').textContent()), 'saved on the second go, with thanks under the link');
+    const d = await doc(app, LESSON('i1'));
+    const flags = vals(d.flags);
+    ok(flags.length === 1 && flags[0].note === note, 'saved once: ' + JSON.stringify(flags.map((f) => f.note)));
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'flag-outage-error').catch(() => {});
   }
   ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
   await app.close();
@@ -800,8 +1025,9 @@ async function failedLesson(width, height, dark) {
     await page.goto(app.url('#/t/pendulums/i1'));
     await page.locator('.lsn-prep').waitFor({ timeout: 15000 });
     await page.waitForFunction((d) => document.documentElement.dataset.muTheme === (d ? 'dark' : 'light'), dark);
-    ok(await page.locator('.lsn-steps-label').textContent() === 'Predict', 'the bar names the stage only (no second "of N")');
-    ok(await page.locator('.lsn-step').first().getAttribute('aria-label') === 'Step 1 of 5: Predict, current step', 'screen readers still hear "Step 1 of 5: Predict"');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Getting ready', 'while preparing, the bar says so (no step is current, and no second "of N")');
+    ok(await page.locator('.lsn-step').first().getAttribute('aria-label') === 'Step 1 of 5: Predict' && await page.locator('.lsn-step[aria-current]').count() === 0, 'screen readers hear the steps, none of them current yet');
+    ok(await page.locator('.lsn-stage').count() === 0, 'nothing of the lesson while it is being written');
     ok((await page.locator('.lsn-eb').textContent()).includes('Idea 1 of 5'), 'the eyebrow keeps its count');
     await page.waitForFunction(() => /Having another go/.test(document.querySelector('.lsn-prep-lines').textContent) || !document.querySelector('.lsn-prep-err').hidden, null, { timeout: 20000 });
     ok(/Having another go/.test(await page.locator('.lsn-prep-lines').textContent()), 'says it is having another go while it writes the lesson again');
@@ -846,6 +1072,12 @@ const scenarios = [
   ['walk-1280-light', () => walk(1280, false)],
   ['walk-1280-dark', () => walk(1280, true)],
   ['preparing', preparing],
+  ['prepared-elsewhere-390-dark', () => preparedElsewhere(390, true)],
+  ['prepared-elsewhere-1366-light', () => preparedElsewhere(1366, false)],
+  ['resume-building', resumeBuilding],
+  ['next-status-360-light', () => nextStatus(360, 707, false)],
+  ['next-status-960-dark', () => nextStatus(960, 860, true)],
+  ['flag-outage', flagOutage],
   ['retry', retry],
   ['xl-390', xl],
   ['resume-360-light', () => resume(360, false)],
