@@ -359,12 +359,56 @@ U.toast = function (text, opts) {
   if (!box) return;
   var ms = opts.ms || (opts.kind === 'bad' ? 6000 : 3200);
   var cls = 'toast' + (opts.kind ? ' ' + opts.kind : '');
-  var same = Array.prototype.filter.call(box.children, function (t) { return t.textContent === String(text) && t.className === cls; })[0];
-  if (same) { clearTimeout(same._t); same._t = setTimeout(function () { same.remove(); }, ms); return; }
-  var t = U.h('div', { class: cls }, text);
+  var same = Array.prototype.filter.call(box.children, function (t) { return t.textContent === String(text) && t.className.replace(/ is-(cut|open)/g, '') === cls; })[0];
+  if (same) { clearTimeout(same._t); same._t = setTimeout(same._drop, ms); return; }
+  // The words sit in their own block: that is what gets cut to lines above a sheet (a flex item
+  // cannot be cut itself).
+  var t = U.h('div', { class: cls }, U.h('span', { class: 'toast-text' }, text));
+  t._drop = function () { t.remove(); U._fitToasts(); };   // an older toast may show again
+  // A toast cut short above an open sheet (U._fitToasts) shows the rest on a tap, and stays
+  // up a while longer to be read; another tap folds it again.
+  t.addEventListener('click', function () {
+    if (!t.classList.contains('is-cut') && !t.classList.contains('is-open')) return;
+    t.classList.toggle('is-open');
+    clearTimeout(t._t); t._t = setTimeout(t._drop, Math.max(ms, 6000));
+  });
   box.appendChild(t);
-  t._t = setTimeout(function () { t.remove(); }, ms);
+  t._t = setTimeout(t._drop, ms);
+  U._fitToasts();
 };
+// While a bottom sheet is open on a phone, toasts sit at the top of the screen (10-base.css):
+// above the scrim, where the sheet does not reach. They may run down over the sheet's rounded top
+// and grip, never onto its heading or Close: the newest toast shows as many whole lines as fit
+// there (--toast-lines) and is marked is-cut when that is not all of it.
+U._fitToasts = function () {
+  if (typeof document === 'undefined') return;
+  var box = document.getElementById('toasts'), d = document.documentElement;
+  if (!box || !d) return;
+  var top = U._sheets[U._sheets.length - 1], phone = d.getAttribute('data-layout') !== 'laptop';
+  var list = Array.prototype.slice.call(box.children);
+  if (!top || !phone || !d.classList.contains('sheet-open')) {
+    box.style.removeProperty('--toast-lines');
+    list.forEach(function (t) { t.classList.remove('is-cut', 'is-open'); });
+    return;
+  }
+  var t = list[list.length - 1];
+  if (!t) return;
+  // Where the heading rests (its layout box: the sheet's opening slide is a transform, not counted).
+  var sheet = top.el, head = sheet.querySelector('.sheet-head');
+  var view = window.innerHeight;
+  var limit = view - sheet.offsetHeight + (head ? head.offsetTop : 0) - 6;
+  var cs = getComputedStyle(t), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.4 || 20, words = t.firstChild || t;
+  var room = limit - box.getBoundingClientRect().top - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+  box.style.setProperty('--toast-lines', String(Math.max(1, Math.floor(room / lh))));
+  list.forEach(function (x) { if (x !== t) x.classList.remove('is-cut'); });
+  t.classList.toggle('is-cut', !t.classList.contains('is-open') && words.scrollHeight > words.clientHeight + 1);
+};
+(function () {
+  if (typeof window === 'undefined' || !window.addEventListener) return;
+  window.addEventListener('resize', function () { U._fitToasts(); });
+  U.on('prefs', function () { setTimeout(U._fitToasts, 0); });     // text size changed in Settings
+  U.on('layout', function () { U._fitToasts(); });
+})();
 // Plain words for an error. Errors from saved data (tagged where:'db' by the store) never blame Claude.
 U.errText = function (e) {
   var code = e && e.code;
@@ -400,7 +444,7 @@ U._sheets = [];
 U._syncSheets = function () {
   var open = U._sheets.length > 0, app = document.getElementById('app');
   document.documentElement.classList.toggle('sheet-open', open);
-  if (app) { if (open) app.setAttribute('inert', ''); else app.removeAttribute('inert'); }
+  if (app) { if (open) app.setAttribute('inert', ''); else app.removeAttribute('inert'); }  U._fitToasts();
 };
 U.closeSheets = function () {
   U._sheets.slice().reverse().forEach(function (api) { try { api.close({ quiet: true }); } catch (e) { console.error(e); } });
@@ -478,6 +522,7 @@ U.sheet = function (o) {
       if (closed) return;
       closed = true;
       scrim.remove(); box.remove(); document.removeEventListener('keydown', onKey);
+      if (resized) resized.disconnect();
       U._sheets = U._sheets.filter(function (s) { return s !== api; });
       U._syncSheets();
       if (o.onClose) try { o.onClose(); } catch (e) { console.error(e); }
@@ -489,6 +534,9 @@ U.sheet = function (o) {
   root.appendChild(scrim); root.appendChild(box);
   U._sheets.push(api);
   U._syncSheets();
+  // A sheet that grows or shrinks (an answer arriving) moves its heading: refit any toast above it.
+  var resized = typeof ResizeObserver === 'function' ? new ResizeObserver(function () { if (top()) U._fitToasts(); }) : null;
+  if (resized) resized.observe(box);
   setTimeout(function () { if (!closed && top() && !box.contains(document.activeElement)) api.focus(); }, 60);
   return api;
 };

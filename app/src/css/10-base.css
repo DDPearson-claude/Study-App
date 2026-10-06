@@ -237,11 +237,18 @@ mark.term {
 /* ---------- toasts ---------- */
 /* Above the scrim and sheets (70, 71): a result that arrives while a sheet is open ("Backup saved",
    a saving problem) must be seen. A phone's bottom sheet covers the place toasts sit, so while one
-   is open they move to the top of the screen, and never take a tap meant for the sheet. */
+   is open they move to the top of the screen, above the sheet's heading: only the newest, cut to
+   the whole lines that fit there (--toast-lines, set by U._fitToasts), so the sheet's title and
+   Close stay in view at any text size. A cut one (is-cut) opens in full on a tap; otherwise
+   toasts never take a tap meant for the sheet. */
 .toasts { position: fixed; left: 0; right: 0; bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px)); z-index: 75; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 16px; }
 .toast { max-width: 520px; padding: 12px 18px; border-radius: 14px; background: var(--heading); color: var(--on-heading); font: 600 .9375rem/1.4 var(--sans); box-shadow: var(--shadow); pointer-events: auto; animation: mu-rise .25s ease-out; }
 :root.sheet-open:not([data-layout="laptop"]) .toasts { bottom: auto; top: calc(12px + env(safe-area-inset-top, 0px)); }
+.toast-text { display: block; }
+:root.sheet-open:not([data-layout="laptop"]) .toast:not(.is-open) .toast-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--toast-lines, 2); line-clamp: var(--toast-lines, 2); overflow: hidden; }
+:root.sheet-open:not([data-layout="laptop"]) .toast:not(:last-child) { display: none; }
 :root.sheet-open .toast { pointer-events: none; }
+:root.sheet-open .toast.is-cut, :root.sheet-open .toast.is-open { pointer-events: auto; cursor: pointer; }
 .toast.good { background: var(--green); color: var(--on-green); }
 .toast.bad { background: var(--red); color: var(--on-red); }
 @keyframes mu-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }

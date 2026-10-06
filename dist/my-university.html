@@ -342,11 +342,18 @@ mark.term {
 /* ---------- toasts ---------- */
 /* Above the scrim and sheets (70, 71): a result that arrives while a sheet is open ("Backup saved",
    a saving problem) must be seen. A phone's bottom sheet covers the place toasts sit, so while one
-   is open they move to the top of the screen, and never take a tap meant for the sheet. */
+   is open they move to the top of the screen, above the sheet's heading: only the newest, cut to
+   the whole lines that fit there (--toast-lines, set by U._fitToasts), so the sheet's title and
+   Close stay in view at any text size. A cut one (is-cut) opens in full on a tap; otherwise
+   toasts never take a tap meant for the sheet. */
 .toasts { position: fixed; left: 0; right: 0; bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px)); z-index: 75; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 16px; }
 .toast { max-width: 520px; padding: 12px 18px; border-radius: 14px; background: var(--heading); color: var(--on-heading); font: 600 .9375rem/1.4 var(--sans); box-shadow: var(--shadow); pointer-events: auto; animation: mu-rise .25s ease-out; }
 :root.sheet-open:not([data-layout="laptop"]) .toasts { bottom: auto; top: calc(12px + env(safe-area-inset-top, 0px)); }
+.toast-text { display: block; }
+:root.sheet-open:not([data-layout="laptop"]) .toast:not(.is-open) .toast-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--toast-lines, 2); line-clamp: var(--toast-lines, 2); overflow: hidden; }
+:root.sheet-open:not([data-layout="laptop"]) .toast:not(:last-child) { display: none; }
 :root.sheet-open .toast { pointer-events: none; }
+:root.sheet-open .toast.is-cut, :root.sheet-open .toast.is-open { pointer-events: auto; cursor: pointer; }
 .toast.good { background: var(--green); color: var(--on-green); }
 .toast.bad { background: var(--red); color: var(--on-red); }
 @keyframes mu-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
@@ -1520,7 +1527,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-3f4602a";
+U.BUILD = "2026-10-06-2c8150e";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -1879,12 +1886,56 @@ U.toast = function (text, opts) {
   if (!box) return;
   var ms = opts.ms || (opts.kind === 'bad' ? 6000 : 3200);
   var cls = 'toast' + (opts.kind ? ' ' + opts.kind : '');
-  var same = Array.prototype.filter.call(box.children, function (t) { return t.textContent === String(text) && t.className === cls; })[0];
-  if (same) { clearTimeout(same._t); same._t = setTimeout(function () { same.remove(); }, ms); return; }
-  var t = U.h('div', { class: cls }, text);
+  var same = Array.prototype.filter.call(box.children, function (t) { return t.textContent === String(text) && t.className.replace(/ is-(cut|open)/g, '') === cls; })[0];
+  if (same) { clearTimeout(same._t); same._t = setTimeout(same._drop, ms); return; }
+  // The words sit in their own block: that is what gets cut to lines above a sheet (a flex item
+  // cannot be cut itself).
+  var t = U.h('div', { class: cls }, U.h('span', { class: 'toast-text' }, text));
+  t._drop = function () { t.remove(); U._fitToasts(); };   // an older toast may show again
+  // A toast cut short above an open sheet (U._fitToasts) shows the rest on a tap, and stays
+  // up a while longer to be read; another tap folds it again.
+  t.addEventListener('click', function () {
+    if (!t.classList.contains('is-cut') && !t.classList.contains('is-open')) return;
+    t.classList.toggle('is-open');
+    clearTimeout(t._t); t._t = setTimeout(t._drop, Math.max(ms, 6000));
+  });
   box.appendChild(t);
-  t._t = setTimeout(function () { t.remove(); }, ms);
+  t._t = setTimeout(t._drop, ms);
+  U._fitToasts();
 };
+// While a bottom sheet is open on a phone, toasts sit at the top of the screen (10-base.css):
+// above the scrim, where the sheet does not reach. They may run down over the sheet's rounded top
+// and grip, never onto its heading or Close: the newest toast shows as many whole lines as fit
+// there (--toast-lines) and is marked is-cut when that is not all of it.
+U._fitToasts = function () {
+  if (typeof document === 'undefined') return;
+  var box = document.getElementById('toasts'), d = document.documentElement;
+  if (!box || !d) return;
+  var top = U._sheets[U._sheets.length - 1], phone = d.getAttribute('data-layout') !== 'laptop';
+  var list = Array.prototype.slice.call(box.children);
+  if (!top || !phone || !d.classList.contains('sheet-open')) {
+    box.style.removeProperty('--toast-lines');
+    list.forEach(function (t) { t.classList.remove('is-cut', 'is-open'); });
+    return;
+  }
+  var t = list[list.length - 1];
+  if (!t) return;
+  // Where the heading rests (its layout box: the sheet's opening slide is a transform, not counted).
+  var sheet = top.el, head = sheet.querySelector('.sheet-head');
+  var view = window.innerHeight;
+  var limit = view - sheet.offsetHeight + (head ? head.offsetTop : 0) - 6;
+  var cs = getComputedStyle(t), lh = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.4 || 20, words = t.firstChild || t;
+  var room = limit - box.getBoundingClientRect().top - (parseFloat(cs.paddingTop) || 0) - (parseFloat(cs.paddingBottom) || 0);
+  box.style.setProperty('--toast-lines', String(Math.max(1, Math.floor(room / lh))));
+  list.forEach(function (x) { if (x !== t) x.classList.remove('is-cut'); });
+  t.classList.toggle('is-cut', !t.classList.contains('is-open') && words.scrollHeight > words.clientHeight + 1);
+};
+(function () {
+  if (typeof window === 'undefined' || !window.addEventListener) return;
+  window.addEventListener('resize', function () { U._fitToasts(); });
+  U.on('prefs', function () { setTimeout(U._fitToasts, 0); });     // text size changed in Settings
+  U.on('layout', function () { U._fitToasts(); });
+})();
 // Plain words for an error. Errors from saved data (tagged where:'db' by the store) never blame Claude.
 U.errText = function (e) {
   var code = e && e.code;
@@ -1920,7 +1971,7 @@ U._sheets = [];
 U._syncSheets = function () {
   var open = U._sheets.length > 0, app = document.getElementById('app');
   document.documentElement.classList.toggle('sheet-open', open);
-  if (app) { if (open) app.setAttribute('inert', ''); else app.removeAttribute('inert'); }
+  if (app) { if (open) app.setAttribute('inert', ''); else app.removeAttribute('inert'); }  U._fitToasts();
 };
 U.closeSheets = function () {
   U._sheets.slice().reverse().forEach(function (api) { try { api.close({ quiet: true }); } catch (e) { console.error(e); } });
@@ -1998,6 +2049,7 @@ U.sheet = function (o) {
       if (closed) return;
       closed = true;
       scrim.remove(); box.remove(); document.removeEventListener('keydown', onKey);
+      if (resized) resized.disconnect();
       U._sheets = U._sheets.filter(function (s) { return s !== api; });
       U._syncSheets();
       if (o.onClose) try { o.onClose(); } catch (e) { console.error(e); }
@@ -2009,6 +2061,9 @@ U.sheet = function (o) {
   root.appendChild(scrim); root.appendChild(box);
   U._sheets.push(api);
   U._syncSheets();
+  // A sheet that grows or shrinks (an answer arriving) moves its heading: refit any toast above it.
+  var resized = typeof ResizeObserver === 'function' ? new ResizeObserver(function () { if (top()) U._fitToasts(); }) : null;
+  if (resized) resized.observe(box);
   setTimeout(function () { if (!closed && top() && !box.contains(document.activeElement)) api.focus(); }, 60);
   return api;
 };
@@ -2545,12 +2600,15 @@ U.store = (function () {
   // again" here) has rewritten since, bringing back the old text beside the new interactive.
   // Held patches to Dan's private docs (progress, cards, profile) are also kept on this device
   // (localStorage 'mu.outbox.<uid>.<page>') until they land, and if this page closes first, the
-  // next page to open sends them.
+  // next page to open sends them. By then Dan may have used another device, so such a patch is
+  // first compared with the doc as it is (sendOld), and one older than RESTORE_MAX_MS is dropped.
   // Patches to shared docs and multi-step jobs (`later`) live only as long as the page: by the
   // next visit another device may have rewritten what an old patch would overwrite.
   var held = {}, later = [], outage = false, since = 0, flushTimer = null;
   var carrying = {};   // path -> the write now resending a held patch (kept on the device until it lands)
+  var heldSince = {};  // path -> when the oldest write now held for it was asked for
   var PAGE = U.id('p'), OUTBOX = 'mu.outbox.', LOCK = 'mu.page.';
+  var RESTORE_MAX_MS = 14 * 24 * 3600 * 1000;
   function waiting() { return Object.keys(held).length + later.length; }
   function holdable(path) { return !/^topics\/[^/]+\/lessons\//.test(path); }
   function ownPriv(path) { return !!U.rt.uid && path.indexOf('data/users/' + U.rt.uid + '/') === 0; }
@@ -2574,39 +2632,81 @@ U.store = (function () {
       return o;
     }, function () { return null; });
   }
-  // Mirrors what waits for Dan's private docs onto the device (nothing without the db).
+  // Mirrors what waits for Dan's private docs onto the device (nothing without the db), with the
+  // time the oldest part of each was asked for (`since`), so a page that sends it later can tell
+  // what has changed since.
   function persist() {
-    var key = outboxKey(), docs = {}, n = 0;
+    var key = outboxKey(), docs = {}, times = {}, n = 0;
     if (!key) return;
     Object.keys(carrying).forEach(function (p) { if (ownPriv(p)) { docs[p] = carrying[p].patch; n++; } });
     Object.keys(held).forEach(function (p) { if (ownPriv(p)) { docs[p] = docs[p] ? deepMerge(U.clone(docs[p]), held[p]) : held[p]; n++; } });
-    try { if (n) localStorage.setItem(key, JSON.stringify({ at: U.now(), docs: docs })); else localStorage.removeItem(key); } catch (e) { /* storage blocked: this page's copy only */ }
+    Object.keys(docs).forEach(function (p) { times[p] = heldSince[p] || U.now(); });
+    try { if (n) localStorage.setItem(key, JSON.stringify({ at: U.now(), since: times, docs: docs })); else localStorage.removeItem(key); } catch (e) { /* storage blocked: this page's copy only */ }
   }
+  function landed(path) { if (!held[path] && !carrying[path]) delete heldSince[path]; }
   // Once the runtime is known, takes over what earlier pages of this user left on the device
-  // (closed before their writes landed) and sends it. Private writes of this page wait until this
-  // is done (whenKnown below), so what it restores is older than all of them.
+  // (closed before their writes landed) and sends it, oldest first. Each doc goes through sendOld,
+  // queued in that doc's write queue before any private write of this page (those wait for this,
+  // whenKnown below), so this page's own newer writes land after it. A copy stays on the device
+  // until its write lands; one that cannot be sent yet is tried again when the db answers.
+  var taking = {}, untaken = false;
   function restore() {
     var key = outboxKey(), mine = OUTBOX + U.rt.uid + '.', found = [];
     if (!key) return null;
     try {
-      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(mine) === 0 && k !== key) found.push(k); }
+      for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); if (k && k.indexOf(mine) === 0 && k !== key && !taking[k]) found.push(k); }
     } catch (e) { return null; }
     if (!found.length) return null;
     return openPages().then(function (open) {
+      var list = [];
       found.forEach(function (k) {
-        if (open && open[k.slice(mine.length)]) return;   // a tab still open sends its own
+        if (taking[k] || (open && open[k.slice(mine.length)])) return;   // a tab still open sends its own
         var saved = null;
-        try { saved = JSON.parse(localStorage.getItem(k) || 'null'); localStorage.removeItem(k); } catch (e) { /* unreadable: dropped */ }
-        var docs = saved && isObj(saved.docs) ? saved.docs : {};
-        Object.keys(docs).forEach(function (p) {
-          if (!ownPriv(p) || !isObj(docs[p])) return;
-          var n = latest[p];   // a newer write of this page not yet sent: goes out with it, under it
-          if (n && !n.started) { n.patch = deepMerge(U.clone(docs[p]), n.patch); carrying[p] = n; }
-          else held[p] = held[p] ? deepMerge(U.clone(docs[p]), held[p]) : U.clone(docs[p]);
-        });
+        try { saved = JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { /* unreadable: dropped below */ }
+        var age = saved && typeof saved.at === 'string' ? Date.now() - Date.parse(saved.at) : NaN;
+        // Weeks old: what it held has been redone or overtaken by now, and sending it would undo that.
+        if (!saved || !isObj(saved.docs) || !(age <= RESTORE_MAX_MS)) { stash(k, null); return; }
+        list.push({ key: k, saved: saved });
       });
-      persist();
-      if (waiting()) flush();
+      list.sort(function (a, b) { return a.saved.at < b.saved.at ? -1 : a.saved.at > b.saved.at ? 1 : 0; });
+      list.forEach(take);
+    });
+  }
+  function stash(k, saved) {
+    try { if (saved && Object.keys(saved.docs).length) localStorage.setItem(k, JSON.stringify(saved)); else localStorage.removeItem(k); } catch (e) { /* storage blocked */ }
+  }
+  function take(item) {
+    var k = item.key, saved = item.saved, times = isObj(saved.since) ? saved.since : {};
+    var paths = Object.keys(saved.docs).filter(function (p) { return ownPriv(p) && isObj(saved.docs[p]); });
+    Object.keys(saved.docs).forEach(function (p) { if (paths.indexOf(p) < 0) delete saved.docs[p]; });
+    if (!paths.length) { stash(k, null); return; }
+    taking[k] = true;
+    var left = paths.length;
+    paths.forEach(function (p) {
+      sendOld(p, saved.docs[p], String(times[p] || saved.at)).then(function () { return true; }, function (e) {
+        console.warn('outbox', p, e);
+        if (!resendable(e)) return true;   // refused: it never will be written
+        untaken = true;                      // the db is not answering: try again once it does
+        return false;
+      }).then(function (done) {
+        if (done) { delete saved.docs[p]; stash(k, saved); }
+        if (--left === 0) delete taking[k];
+      });
+    });
+  }
+  // Writes an old patch (left by a page that closed before it landed) inside the doc's write
+  // queue, keeping only what is not older than the doc as it is now (fresher). `at` is when the
+  // oldest part of it was asked for.
+  function sendOld(path, patch, at) {
+    if (gone(path)) return Promise.resolve(null);
+    return run(path, function () {
+      var ref = D(path);
+      return ref.get().then(function (s) {
+        var cur = s.exists ? s.data() || {} : null;
+        var body = cur ? fresher(path, cur, U.clone(patch), at) : U.clone(patch);
+        if (!body || !Object.keys(body).length) return null;
+        return cur ? ref.update(prepare(path, cur, body)) : create(path, ref, body);
+      });
     });
   }
   function arm() {
@@ -2616,7 +2716,7 @@ U.store = (function () {
   function flush() {
     clearTimeout(flushTimer); flushTimer = null;
     Object.keys(held).forEach(function (path) {
-      if (gone(path)) { delete held[path]; persist(); return; }   // its topic was deleted in this page
+      if (gone(path)) { delete held[path]; landed(path); persist(); return; }   // its topic was deleted in this page
       if (!pending[path]) patchDoc(path, {}).catch(function () { /* held again */ });
     });
     later.splice(0).forEach(function (t) { Promise.resolve().then(t).catch(function () { /* queued again by itself */ }); });
@@ -2625,10 +2725,17 @@ U.store = (function () {
     if (outage) { outage = false; U.toast('Saving works again. What you did meanwhile is saved.', { kind: 'good' }); }
     if (waiting()) setTimeout(flush, 0);
     wake();   // the bridge answers again: subscriptions it ended can start again
+    retake();
+  }
+  // What earlier pages left that could not be sent when it was taken over: try again.
+  function retake() {
+    if (!untaken || !opened) return;
+    untaken = false;
+    Promise.resolve().then(restore).catch(function (e) { console.warn('outbox', e); });
   }
   if (typeof window !== 'undefined' && window.addEventListener) {
-    window.addEventListener('online', function () { if (waiting()) flush(); wake(); });
-    if (typeof document !== 'undefined') document.addEventListener('visibilitychange', function () { if (!document.hidden) { if (waiting()) flush(); wake(); } });
+    window.addEventListener('online', function () { if (waiting()) flush(); wake(); retake(); });
+    if (typeof document !== 'undefined') document.addEventListener('visibilitychange', function () { if (!document.hidden) { if (waiting()) flush(); wake(); retake(); } });
   }
   function noteOutage() {
     if (!outage) {
@@ -2733,6 +2840,11 @@ U.store = (function () {
       if (b.startedAt && c.startedAt) delete b.startedAt;
       if (isObj(b.checks) && isObj(c.checks)) Object.keys(b.checks).forEach(function (k) { if (c.checks[k]) delete b.checks[k]; });
     });
+    // The round whose review cards were made only moves forward (a late write cannot unmake it).
+    Object.keys(bi).forEach(function (iid) {
+      var b = bi[iid], c = ci[iid];
+      if (isObj(b) && isObj(c) && b.cardsRound != null && c.cardsRound != null && Number(b.cardsRound) < Number(c.cardsRound)) delete b.cardsRound;
+    });
   }
   function prepare(path, cur, body) {
     upgradeLists(cur, body);
@@ -2740,11 +2852,85 @@ U.store = (function () {
     return body;
   }
 
+  // ---- an old patch against the doc as it is now ----
+  // A patch left on the device by a page that closed before it landed may be days old, and Dan may
+  // have used another device since. fresher() keeps only the parts not older than what the doc
+  // holds now (null when nothing is left). `at` is when the oldest part of the patch was asked for.
+  //   cards     a card learned again or reviewed since stays as it is (a card patch with no time
+  //             of its own loses to one with more reviews); a missing card is made only whole,
+  //             and not when its idea has been learned again since
+  //   profile   a setting changed since stays (prefsAt: when each was set); a day's study minutes
+  //             keep the larger count (a device's count for a day only grows)
+  //   progress  the write-time rules above keep each round's first answers; on top, an idea that
+  //             began a new round since loses this patch's round fields, and plain fields
+  //             (lastIdea, calibration answers) written since stay
+  function after(a, b) { return String(a || '') > String(b || ''); }
+  function fresher(path, cur, patch, at) {
+    if (/\/profile\/cards\/[^/]+$/.test(path)) return freshCards(cur, patch, at);
+    if (/\/profile\/progress\/[^/]+$/.test(path)) return freshProgress(cur, patch, at);
+    if (/\/profile$/.test(path)) return freshProfile(cur, patch, at);
+    return patch;
+  }
+  function touchedAt(c) {   // the last time a card was learned or reviewed
+    var t = String(c.learnedAt || c.createdAt || '');
+    U.list(c.hist).forEach(function (e) { if (after(e.at, t)) t = String(e.at); });
+    return t;
+  }
+  function reviewsOf(c) { return Math.max(U.list(c && c.hist).length, Number(c && c.s && c.s.reps) || 0); }
+  function freshCards(cur, patch, at) {
+    var have = isObj(cur.cards) ? cur.cards : {}, out = {}, learned = {};
+    Object.keys(have).forEach(function (id) { var c = have[id]; if (isObj(c) && c.iid && after(c.learnedAt, learned[c.iid])) learned[c.iid] = String(c.learnedAt); });
+    Object.keys(isObj(patch.cards) ? patch.cards : {}).forEach(function (id) {
+      var pv = patch.cards[id], cv = have[id], own = isObj(pv) ? pv.learnedAt || pv.createdAt : null;
+      // Not there: a whole card is made, unless its idea has been learned again since (a lesson
+      // that may not ask this question any more).
+      if (!isObj(cv)) { if (isObj(pv) && pv.type && !after(learned[pv.iid], own || at)) out[id] = pv; return; }
+      if (after(touchedAt(cv), own || at)) return;
+      if (!own && isObj(pv) && (pv.s || pv.hist) && reviewsOf(cv) > reviewsOf(pv)) return;
+      out[id] = pv;
+    });
+    return Object.keys(out).length ? { cards: out } : null;
+  }
+  function freshProfile(cur, patch, at) {
+    var body = {}, curAt = isObj(cur.prefsAt) ? cur.prefsAt : {}, ownAt = isObj(patch.prefsAt) ? patch.prefsAt : {};
+    if (isObj(patch.prefs)) Object.keys(patch.prefs).forEach(function (k) {
+      var t = ownAt[k] || at;
+      if (after(curAt[k], t)) return;
+      (body.prefs = body.prefs || {})[k] = patch.prefs[k];
+      (body.prefsAt = body.prefsAt || {})[k] = t;
+    });
+    if (isObj(patch.days)) Object.keys(patch.days).forEach(function (day) {
+      var rec = patch.days[day], now = isObj(cur.days) ? cur.days[day] : null;
+      if (!isObj(rec)) return;
+      Object.keys(rec).forEach(function (dev) {
+        if (isObj(now) && Number(now[dev]) >= Number(rec[dev])) return;
+        body.days = body.days || {};
+        (body.days[day] = body.days[day] || {})[dev] = rec[dev];
+      });
+    });
+    Object.keys(patch).forEach(function (k) { if (k !== 'prefs' && k !== 'prefsAt' && k !== 'days' && !(k in cur)) body[k] = patch[k]; });
+    return Object.keys(body).length ? body : null;
+  }
+  function freshProgress(cur, patch, at) {
+    var body = patch, have = isObj(cur.ideas) ? cur.ideas : {};
+    if (after(cur.updatedAt, at)) {
+      ['lastIdea', 'calibrationSkipped', 'updatedAt'].forEach(function (k) { delete body[k]; });
+      if (isObj(body.calibration) && isObj(cur.calibration)) Object.keys(body.calibration).forEach(function (q) { if (cur.calibration[q] != null) delete body.calibration[q]; });
+    }
+    Object.keys(isObj(body.ideas) ? body.ideas : {}).forEach(function (iid) {
+      var b = body.ideas[iid], c = have[iid];
+      if (!isObj(b) || !isObj(c)) return;
+      if (b.round == null && after(c.againAt, at)) ROUND_FIELDS.forEach(function (k) { delete b[k]; });
+      if (isObj(b.past) && isObj(c.past)) Object.keys(b.past).forEach(function (r) { if (c.past[r]) delete b.past[r]; });
+    });
+    return body;
+  }
+
   function setDoc(path, data) {
     if (gone(path)) return Promise.resolve(null);
     var tid = privTid(path);
     // A whole new document supersedes any older patch still waiting to be sent for it.
-    if (held[path]) { delete held[path]; persist(); }
+    if (held[path]) { delete held[path]; landed(path); persist(); }
     return run(path, function () {
       return (tid ? topicExists(tid) : Promise.resolve(true)).then(function (ok) {
         if (!ok) return null;
@@ -2779,7 +2965,7 @@ U.store = (function () {
     if (p) { deepMerge(p.patch, patch); if (carrying[path] === p) persist(); return p.promise; }
     var base = held[path];
     delete held[path];
-    p = pending[path] = latest[path] = { patch: base ? deepMerge(base, U.clone(patch)) : U.clone(patch), started: false };
+    p = pending[path] = latest[path] = { patch: base ? deepMerge(base, U.clone(patch)) : U.clone(patch), started: false, at: U.now() };
     if (base) carrying[path] = p;
     p.promise = U.sleep(120).then(function () {
       delete pending[path];
@@ -2787,13 +2973,14 @@ U.store = (function () {
       return run(path, function () { p.started = true; return writePatch(path, U.clone(p.patch)); });
     }).then(function (r) {
       if (latest[path] === p) delete latest[path];
-      if (carrying[path] === p) { delete carrying[path]; persist(); }
+      if (carrying[path] === p) { delete carrying[path]; landed(path); persist(); }
       return r;
     }, function (e) {
       if (latest[path] === p) delete latest[path];
       if (carrying[path] === p) { delete carrying[path]; persist(); }
       return failed(e, function () {
         if (gone(path) || !holdable(path)) return false;
+        if (!heldSince[path]) heldSince[path] = p.at;
         var n = latest[path];
         if (n && !n.started) { n.patch = deepMerge(U.clone(p.patch), n.patch); carrying[path] = n; }   // goes out with the newer one
         else held[path] = held[path] ? deepMerge(U.clone(p.patch), held[path]) : U.clone(p.patch);
@@ -2830,7 +3017,8 @@ U.store = (function () {
   // fresh subscription is the only way back. So after the quick tries, one that died that way is
   // parked, not dropped: it tries again every WATCH_PARK_MS, and at once when the device comes
   // online or to the foreground or a write succeeds (wake()). The view hears retrying:false once;
-  // the next snapshot brings it back to life.
+  // the next snapshot brings it back to life. A try that fails for another reason (permission
+  // denied, say) ends the subscription for good, so the view hears that too, even after parking.
   var parked = [];
   function wake() { parked.splice(0).forEach(function (revive) { revive(); }); }
   function subscribe(source, onNext, onError) {
@@ -2844,7 +3032,8 @@ U.store = (function () {
       console.warn('watch failed', e && (e.code || e.message), e);
       quit();
       var again = transient(e) && tries < 3;
-      if (onError && !told) try { onError(e, { retrying: again }); } catch (x) { console.error(x); }
+      // `told`: the view already knows the bridge is down; only a failure that ends it is news.
+      if (onError && (!told || !transient(e))) try { onError(e, { retrying: again }); } catch (x) { console.error(x); }
       if (again) { tries++; timer = setTimeout(start, S.WATCH_RETRY_MS * Math.pow(2, tries - 1) + Math.random() * 300); return; }
       told = true;
       if (transient(e)) { unpark(); parked.push(revive); timer = setTimeout(revive, S.WATCH_PARK_MS); }
@@ -3001,7 +3190,15 @@ U.store = (function () {
     defaults: function () { return { prefs: { size: 'm', easy: false, theme: 'light', cap: 15, light: false }, days: {}, createdAt: U.now() }; },
     get: function () { return getDoc(S.paths.profile()).then(function (d) { return d ? deepMerge(S.profile.defaults(), d) : S.profile.defaults(); }); },
     watch: function (fn, onError) { return watchDoc(S.paths.profile(), function (d) { fn(d ? deepMerge(S.profile.defaults(), d) : S.profile.defaults()); }, onError); },
-    patch: function (patch) { return whenKnown(function () { return patchDoc(S.paths.profile(), patch); }); },
+    // Each setting written carries the time it was set (prefsAt[key]), so an older write sent late
+    // (from a page that closed before it landed) can tell it is older and leave it be.
+    patch: function (patch) {
+      if (isObj(patch.prefs)) {
+        var now = U.now(), at = patch.prefsAt = isObj(patch.prefsAt) ? patch.prefsAt : {};
+        Object.keys(patch.prefs).forEach(function (k) { if (!at[k]) at[k] = now; });
+      }
+      return whenKnown(function () { return patchDoc(S.paths.profile(), patch); });
+    },
   };
   return S;
 })();
@@ -7764,9 +7961,10 @@ U.interactive = (function () {
         if (first) f.doneAt = st.ip.doneAt = U.now();
         st.ip.stage = 'done';
         saveIdea(f);
-        // Review cards come from the first time through (or a fresh round of Learn it again).
+        // Review cards come from the first time through (or a fresh round of Learn it again). The
+        // round is recorded with them, so cards lost with a closed app are made at the next open.
         if (first && U.review && typeof U.review.addFromLesson === 'function' && !st.gone) {
-          Promise.resolve().then(function () { return U.review.addFromLesson(tid, iid, st.lesson, outcome()); })
+          Promise.resolve().then(function () { return U.review.addFromLesson(tid, iid, st.lesson, outcome(), { round: round() }); })
             .catch(function (e) { if (!(e && e.queued)) U.toast('Your review cards could not be saved: ' + U.errText(e), { kind: 'bad' }); });
         }
       }
@@ -8139,10 +8337,12 @@ U.interactive = (function () {
 // Spaced review: the card store, today's queue, the Today tab and the review session
 // (docs/ARCHITECTURE.md sections 4, 8, 9, 10).
 //
-//   U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>
+//   U.review.addFromLesson(tid, iid, lesson, outcome, {round, at}) -> Promise<[cardId]>
 //       outcome = {checks:{[checkId]:{correct}}, say:{text, verdict}}. Each check Dan answered becomes
 //       a card of the same type; his say-it-back answer becomes a 'recall' card. Re-learning an idea
-//       replaces its cards (unchanged questions keep their schedule).
+//       replaces its cards (unchanged questions keep their schedule). Records cardsRound = round.
+//   U.review.mendCards() -> Promise<[{tid, iid}]>   cards for ideas finished while they could not
+//       be saved (at boot and when Today opens)
 //   U.review.queue({cap, light, extra}) -> Promise<[card]>   due today or overdue, most overdue first,
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
@@ -8346,10 +8546,17 @@ U.interactive = (function () {
     return JSON.stringify(a) === JSON.stringify(b);
   }
 
-  function addFromLesson(tid, iid, lesson, outcome) {
+  // opts.round: the round Dan finished; once the cards are saved it is recorded on the idea's
+  // progress (cardsRound), so mendCards can tell an idea whose cards were never made.
+  // opts.at: when he finished it (mendCards making them later), else now.
+  var making = {};   // 'tid/iid' -> true while this page is making that idea's cards
+  function addFromLesson(tid, iid, lesson, outcome, opts) {
     lesson = lesson || {};
     outcome = outcome || {};
-    var now = U.now(), day = U.today(), made = {};
+    opts = opts || {};
+    var now = opts.at || U.now(), day = U.today(), made = {}, mk = tid + '/' + iid;
+    making[mk] = (making[mk] || 0) + 1;
+    function done() { if (!--making[mk]) delete making[mk]; }
     (lesson.checks || []).forEach(function (ch) {
       if (!ch || !ch.id || !TYPES[ch.type]) return;
       if (!outcome.checks || !outcome.checks[ch.id]) return;     // only what Dan actually answered
@@ -8386,14 +8593,91 @@ U.interactive = (function () {
       changed();
       return Object.keys(patch.cards).length ? U.store.cards.patch(tid, patch) : null;
     }).then(function () {
+      done();
       U.review.refreshBadge();
-      return Object.keys(made);
+      if (typeof opts.round !== 'number') return Object.keys(made);
+      // Made for this round. A failure here is harmless: mendCards finds the cards and records it.
+      var mark = { ideas: {} };
+      mark.ideas[iid] = { cardsRound: opts.round };
+      return U.store.progress.patch(tid, mark).catch(function () {}).then(function () { return Object.keys(made); });
     }, function (e) {
+      done();
       // The cards could not be read (or written) just now: the whole step runs again once the
-      // db answers (it is safe to repeat: only this idea's cards are patched).
+      // db answers (it is safe to repeat: only this idea's cards are patched). If the page closes
+      // first, mendCards makes them the next time the app opens.
       if (e && e.queued) throw e;
-      throw U.store.retryLater(e, function () { return addFromLesson(tid, iid, lesson, outcome); });
+      throw U.store.retryLater(e, function () { return addFromLesson(tid, iid, lesson, outcome, opts); });
     });
+  }
+
+  // ---------- cards that were never made ----------
+  // Finishing an idea saves its progress ('done'), then its review cards. If the cards could not
+  // be saved and the app closed before they were, the idea would never come back in review. So
+  // each idea's progress records the round its cards were made for (cardsRound), and at boot and
+  // when Today opens, an idea done in a round with no cards made gets them now: from the lesson as
+  // stored and Dan's answers as stored, as finishing it would have made them. It is safe to run
+  // again and again: cards made for that round already (learned at or after he finished) are only
+  // recorded; otherwise addFromLesson keeps the schedule of every card whose question is the same.
+  var mending = null, mendedAt = 0, MEND_EVERY = 60000;
+  function outcomeOf(idea, doc) {
+    var lesson = doc.lesson || {}, hasIt = !!(doc.interactive && doc.interactive.html), res = idea.checks || {}, checks = {};
+    (lesson.checks || []).forEach(function (c) {
+      if (!c || !c.id || (c.type === 'target' && !hasIt)) return;   // as the lesson screen offers them
+      var r = res[c.id];
+      if (r && typeof r === 'object' && !r.skipped) checks[c.id] = { correct: !!r.correct };
+    });
+    var round = Number(idea.round) || 0;
+    var says = U.list(idea.say).filter(function (a) { return (Number(a.round) || 0) === round; }), last = says[says.length - 1];
+    return { checks: checks, say: last && last.text ? { text: last.text, verdict: last.verdict || null } : null };
+  }
+  function mendOne(t, cards) {
+    var since = String(t.idea.doneAt || ''), mark = { ideas: {} };
+    mark.ideas[t.iid] = { cardsRound: t.round };
+    var made = Object.keys(cards).some(function (id) {
+      var c = cards[id];
+      return c && typeof c === 'object' && c.iid === t.iid && c.type && String(c.learnedAt || c.createdAt || '') >= since;
+    });
+    if (made) return U.store.progress.patch(t.tid, mark).then(function () { return null; });
+    return U.store.lesson.get(t.tid, t.iid).then(function (doc) {
+      // Nothing to make them from yet (the lesson is being written again): the next run will.
+      if (!doc || !doc.lesson || (doc.status !== 'ready' && doc.status !== 'building')) return null;
+      // Rewritten since he finished: these are not the questions he answered.
+      if (doc.startedAt && since && String(doc.startedAt) > since) return null;
+      if (making[t.tid + '/' + t.iid]) return null;
+      return addFromLesson(t.tid, t.iid, doc.lesson, outcomeOf(t.idea, doc), { round: t.round, at: since || null })
+        .then(function () { return { tid: t.tid, iid: t.iid }; });
+    });
+  }
+  // -> Promise<[{tid, iid}]> the ideas whose cards were made now. Never rejects. Runs at most
+  // once a minute after one that went through (force: run anyway), and never twice at once.
+  function mendCards(force) {
+    if (mending) return mending;
+    if (!force && Date.now() - mendedAt < MEND_EVERY) return Promise.resolve([]);
+    var out = [], ok = true;
+    mending = Promise.all([U.store.progress.all(), U.store.cards.all()]).then(function (r) {
+      var todo = [];
+      Object.keys(r[0]).forEach(function (tid) {
+        var ideas = (r[0][tid] && r[0][tid].ideas) || {};
+        Object.keys(ideas).forEach(function (iid) {
+          var idea = ideas[iid], round = Number(idea && idea.round) || 0;
+          if (!idea || typeof idea !== 'object' || idea.stage !== 'done' || making[tid + '/' + iid]) return;
+          if (idea.cardsRound != null && Number(idea.cardsRound) >= round) return;
+          todo.push({ tid: tid, iid: iid, idea: idea, round: round });
+        });
+      });
+      if (!todo.length) return null;
+      return U.store.topicsExist(uniq(todo.map(function (t) { return t.tid; }))).then(function (exists) {
+        // One idea at a time: a handful of small writes, not a burst at boot.
+        return todo.filter(function (t) { return exists[t.tid] !== false; }).reduce(function (chain, t) {
+          return chain.then(function () { return mendOne(t, (r[1][t.tid] && r[1][t.tid].cards) || {}); })
+            .then(function (x) { if (x) out.push(x); }, function (e) { ok = false; console.warn('mend cards', t.tid, t.iid, e); });
+        }, Promise.resolve());
+      });
+    }).then(function () { if (ok) mendedAt = Date.now(); return out; }, function (e) {
+      console.warn('mend cards', e);
+      return out;
+    }).then(function (x) { mending = null; if (x.length) U.review.refreshBadge(); return x; });
+    return mending;
   }
 
   function ideaBands() {
@@ -8427,6 +8711,7 @@ U.interactive = (function () {
   }
   U.review = {
     addFromLesson: addFromLesson,
+    mendCards: mendCards,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
     refreshBadge: function () {
@@ -8535,6 +8820,9 @@ U.interactive = (function () {
     var root = h('div', { class: 'td' });
     ctx.view.appendChild(root);
     root.appendChild(h('div', { class: 'td-loading' }, h('div', { class: 'skeleton', style: { height: '28px', width: '60%' } }), h('div', { class: 'skeleton', style: { height: '180px' } })));
+    // Cards an idea finished earlier never got (the app closed before they were saved). Made ones
+    // first come due tomorrow, so today's list need not wait for this.
+    mendCards();
 
     planShared().then(function (p) {
       var tids = uniq(p.data.cards.map(function (c) { return c.tid; }));
@@ -10628,6 +10916,10 @@ U.interactive = (function () {
       if (U.review && U.review.refreshBadge) {
         Promise.resolve().then(function () { return U.review.refreshBadge(); }).catch(function (e) { console.error('badge', e); });
       }
+      // Review cards for ideas finished while the cards could not be saved (and the app closed
+      // before they were): made now. A moment after opening, once the first screen is drawn and
+      // what earlier pages left on this device has gone out.
+      if (U.review && U.review.mendCards) setTimeout(function () { U.review.mendCards(); }, 1500);
       study.start();
       B.ready = true;
       U.emit('booted');

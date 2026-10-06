@@ -109,6 +109,44 @@ for (const [width, height, layout] of [[360, 760, 'phone'], [1280, 800, 'laptop'
   });
 }
 
+// On a small phone at the largest text size a long toast would cover the sheet's heading and
+// Close for its whole 6-8 s: it is cut to the lines that fit above the heading, and opens on a tap.
+for (const [width, height] of [[360, 640], [390, 844]]) {
+  await test(`toasts: above a sheet at extra large text, a long toast leaves the sheet's Close in view (${width}x${height})`, async () => {
+    const app = await open({ width, height, local: { size: 'xl', theme: 'light' } });
+    await app.page.waitForFunction(() => U.boot && U.boot.ready);
+    await app.page.click('#settings-btn');
+    await app.page.locator('.sheet').waitFor();
+    await sleep(400);   // the sheet has slid in
+    const LONG = 'Your work could not be saved just now. It will be saved as soon as the connection is back, so keep the app open until then.';
+    await app.page.evaluate((t) => { U.toast('An older note.', { ms: 20000 }); U.toast(t, { kind: 'bad', ms: 20000 }); }, LONG);
+    await sleep(350);
+    const look = () => app.page.evaluate(() => {
+      const shown = Array.from(document.querySelectorAll('.toast')).filter((t) => getComputedStyle(t).display !== 'none');
+      const t = shown[shown.length - 1], r = t.getBoundingClientRect(), w = t.querySelector('.toast-text');
+      const close = document.querySelector('.sheet [aria-label="Close"]').getBoundingClientRect(), h2 = document.querySelector('.sheet h2').getBoundingClientRect();
+      return { shown: shown.length, bottom: r.bottom, closeTop: close.top, headTop: h2.top, cls: t.className, whole: w.scrollHeight <= w.clientHeight + 1, pe: getComputedStyle(t).pointerEvents };
+    });
+    const a = await look();
+    eq(a.shown, 1, 'only the newest toast shows above the sheet');
+    assert(a.bottom <= a.closeTop && a.bottom <= a.headTop, 'the toast stops above the sheet\'s heading and Close ' + JSON.stringify(a));
+    if (width === 360) {
+      assert(/is-cut/.test(a.cls) && !a.whole, 'cut to the lines that fit ' + JSON.stringify(a));
+      eq(a.pe, 'auto', 'a cut toast takes a tap');
+      await app.page.locator('.toast.is-cut').click();
+      const b = await look();
+      assert(/is-open/.test(b.cls) && b.whole, 'a tap shows all of it ' + JSON.stringify(b));
+      await app.page.locator('.toast.is-open').click();
+      const c = await look();
+      assert(!/is-open/.test(c.cls) && c.bottom <= c.closeTop, 'another tap folds it again ' + JSON.stringify(c));
+    }
+    await app.page.keyboard.press('Escape');
+    await sleep(100);
+    const d = await app.page.evaluate(() => { const ts = document.querySelectorAll('.toast'); const t = ts[ts.length - 1], w = t.querySelector('.toast-text'); return { n: ts.length, bottom: t.getBoundingClientRect().bottom, vh: innerHeight, whole: w.scrollHeight <= w.clientHeight + 1, cls: t.className }; });
+    assert(d.n === 2 && d.bottom > d.vh / 2 && d.whole && !/is-cut/.test(d.cls), 'with the sheet closed, both toasts sit at the bottom, whole ' + JSON.stringify(d));
+  });
+}
+
 // ---------- in-app links ----------
 await test('Map idea dots route in the app even where the viewer cancels link clicks', async () => {
   const app = await open({

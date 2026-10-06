@@ -130,6 +130,10 @@
       if (U.review && U.review.refreshBadge) {
         Promise.resolve().then(function () { return U.review.refreshBadge(); }).catch(function (e) { console.error('badge', e); });
       }
+      // Review cards for ideas finished while the cards could not be saved (and the app closed
+      // before they were): made now. A moment after opening, once the first screen is drawn and
+      // what earlier pages left on this device has gone out.
+      if (U.review && U.review.mendCards) setTimeout(function () { U.review.mendCards(); }, 1500);
       study.start();
       B.ready = true;
       U.emit('booted');

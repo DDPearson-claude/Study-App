@@ -1,10 +1,12 @@
 // Spaced review: the card store, today's queue, the Today tab and the review session
 // (docs/ARCHITECTURE.md sections 4, 8, 9, 10).
 //
-//   U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>
+//   U.review.addFromLesson(tid, iid, lesson, outcome, {round, at}) -> Promise<[cardId]>
 //       outcome = {checks:{[checkId]:{correct}}, say:{text, verdict}}. Each check Dan answered becomes
 //       a card of the same type; his say-it-back answer becomes a 'recall' card. Re-learning an idea
-//       replaces its cards (unchanged questions keep their schedule).
+//       replaces its cards (unchanged questions keep their schedule). Records cardsRound = round.
+//   U.review.mendCards() -> Promise<[{tid, iid}]>   cards for ideas finished while they could not
+//       be saved (at boot and when Today opens)
 //   U.review.queue({cap, light, extra}) -> Promise<[card]>   due today or overdue, most overdue first,
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
@@ -208,10 +210,17 @@
     return JSON.stringify(a) === JSON.stringify(b);
   }
 
-  function addFromLesson(tid, iid, lesson, outcome) {
+  // opts.round: the round Dan finished; once the cards are saved it is recorded on the idea's
+  // progress (cardsRound), so mendCards can tell an idea whose cards were never made.
+  // opts.at: when he finished it (mendCards making them later), else now.
+  var making = {};   // 'tid/iid' -> true while this page is making that idea's cards
+  function addFromLesson(tid, iid, lesson, outcome, opts) {
     lesson = lesson || {};
     outcome = outcome || {};
-    var now = U.now(), day = U.today(), made = {};
+    opts = opts || {};
+    var now = opts.at || U.now(), day = U.today(), made = {}, mk = tid + '/' + iid;
+    making[mk] = (making[mk] || 0) + 1;
+    function done() { if (!--making[mk]) delete making[mk]; }
     (lesson.checks || []).forEach(function (ch) {
       if (!ch || !ch.id || !TYPES[ch.type]) return;
       if (!outcome.checks || !outcome.checks[ch.id]) return;     // only what Dan actually answered
@@ -248,14 +257,91 @@
       changed();
       return Object.keys(patch.cards).length ? U.store.cards.patch(tid, patch) : null;
     }).then(function () {
+      done();
       U.review.refreshBadge();
-      return Object.keys(made);
+      if (typeof opts.round !== 'number') return Object.keys(made);
+      // Made for this round. A failure here is harmless: mendCards finds the cards and records it.
+      var mark = { ideas: {} };
+      mark.ideas[iid] = { cardsRound: opts.round };
+      return U.store.progress.patch(tid, mark).catch(function () {}).then(function () { return Object.keys(made); });
     }, function (e) {
+      done();
       // The cards could not be read (or written) just now: the whole step runs again once the
-      // db answers (it is safe to repeat: only this idea's cards are patched).
+      // db answers (it is safe to repeat: only this idea's cards are patched). If the page closes
+      // first, mendCards makes them the next time the app opens.
       if (e && e.queued) throw e;
-      throw U.store.retryLater(e, function () { return addFromLesson(tid, iid, lesson, outcome); });
+      throw U.store.retryLater(e, function () { return addFromLesson(tid, iid, lesson, outcome, opts); });
     });
+  }
+
+  // ---------- cards that were never made ----------
+  // Finishing an idea saves its progress ('done'), then its review cards. If the cards could not
+  // be saved and the app closed before they were, the idea would never come back in review. So
+  // each idea's progress records the round its cards were made for (cardsRound), and at boot and
+  // when Today opens, an idea done in a round with no cards made gets them now: from the lesson as
+  // stored and Dan's answers as stored, as finishing it would have made them. It is safe to run
+  // again and again: cards made for that round already (learned at or after he finished) are only
+  // recorded; otherwise addFromLesson keeps the schedule of every card whose question is the same.
+  var mending = null, mendedAt = 0, MEND_EVERY = 60000;
+  function outcomeOf(idea, doc) {
+    var lesson = doc.lesson || {}, hasIt = !!(doc.interactive && doc.interactive.html), res = idea.checks || {}, checks = {};
+    (lesson.checks || []).forEach(function (c) {
+      if (!c || !c.id || (c.type === 'target' && !hasIt)) return;   // as the lesson screen offers them
+      var r = res[c.id];
+      if (r && typeof r === 'object' && !r.skipped) checks[c.id] = { correct: !!r.correct };
+    });
+    var round = Number(idea.round) || 0;
+    var says = U.list(idea.say).filter(function (a) { return (Number(a.round) || 0) === round; }), last = says[says.length - 1];
+    return { checks: checks, say: last && last.text ? { text: last.text, verdict: last.verdict || null } : null };
+  }
+  function mendOne(t, cards) {
+    var since = String(t.idea.doneAt || ''), mark = { ideas: {} };
+    mark.ideas[t.iid] = { cardsRound: t.round };
+    var made = Object.keys(cards).some(function (id) {
+      var c = cards[id];
+      return c && typeof c === 'object' && c.iid === t.iid && c.type && String(c.learnedAt || c.createdAt || '') >= since;
+    });
+    if (made) return U.store.progress.patch(t.tid, mark).then(function () { return null; });
+    return U.store.lesson.get(t.tid, t.iid).then(function (doc) {
+      // Nothing to make them from yet (the lesson is being written again): the next run will.
+      if (!doc || !doc.lesson || (doc.status !== 'ready' && doc.status !== 'building')) return null;
+      // Rewritten since he finished: these are not the questions he answered.
+      if (doc.startedAt && since && String(doc.startedAt) > since) return null;
+      if (making[t.tid + '/' + t.iid]) return null;
+      return addFromLesson(t.tid, t.iid, doc.lesson, outcomeOf(t.idea, doc), { round: t.round, at: since || null })
+        .then(function () { return { tid: t.tid, iid: t.iid }; });
+    });
+  }
+  // -> Promise<[{tid, iid}]> the ideas whose cards were made now. Never rejects. Runs at most
+  // once a minute after one that went through (force: run anyway), and never twice at once.
+  function mendCards(force) {
+    if (mending) return mending;
+    if (!force && Date.now() - mendedAt < MEND_EVERY) return Promise.resolve([]);
+    var out = [], ok = true;
+    mending = Promise.all([U.store.progress.all(), U.store.cards.all()]).then(function (r) {
+      var todo = [];
+      Object.keys(r[0]).forEach(function (tid) {
+        var ideas = (r[0][tid] && r[0][tid].ideas) || {};
+        Object.keys(ideas).forEach(function (iid) {
+          var idea = ideas[iid], round = Number(idea && idea.round) || 0;
+          if (!idea || typeof idea !== 'object' || idea.stage !== 'done' || making[tid + '/' + iid]) return;
+          if (idea.cardsRound != null && Number(idea.cardsRound) >= round) return;
+          todo.push({ tid: tid, iid: iid, idea: idea, round: round });
+        });
+      });
+      if (!todo.length) return null;
+      return U.store.topicsExist(uniq(todo.map(function (t) { return t.tid; }))).then(function (exists) {
+        // One idea at a time: a handful of small writes, not a burst at boot.
+        return todo.filter(function (t) { return exists[t.tid] !== false; }).reduce(function (chain, t) {
+          return chain.then(function () { return mendOne(t, (r[1][t.tid] && r[1][t.tid].cards) || {}); })
+            .then(function (x) { if (x) out.push(x); }, function (e) { ok = false; console.warn('mend cards', t.tid, t.iid, e); });
+        }, Promise.resolve());
+      });
+    }).then(function () { if (ok) mendedAt = Date.now(); return out; }, function (e) {
+      console.warn('mend cards', e);
+      return out;
+    }).then(function (x) { mending = null; if (x.length) U.review.refreshBadge(); return x; });
+    return mending;
   }
 
   function ideaBands() {
@@ -289,6 +375,7 @@
   }
   U.review = {
     addFromLesson: addFromLesson,
+    mendCards: mendCards,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
     refreshBadge: function () {
@@ -397,6 +484,9 @@
     var root = h('div', { class: 'td' });
     ctx.view.appendChild(root);
     root.appendChild(h('div', { class: 'td-loading' }, h('div', { class: 'skeleton', style: { height: '28px', width: '60%' } }), h('div', { class: 'skeleton', style: { height: '180px' } })));
+    // Cards an idea finished earlier never got (the app closed before they were saved). Made ones
+    // first come due tomorrow, so today's list need not wait for this.
+    mendCards();
 
     planShared().then(function (p) {
       var tids = uniq(p.data.cards.map(function (c) { return c.tid; }));

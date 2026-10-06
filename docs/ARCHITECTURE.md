@@ -69,7 +69,9 @@ U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
 U.today(d?) 'YYYY-MM-DD' local   U.addDays   U.daysBetween   U.now() ISO   U.when(iso)   U.clone   U.sleep   U.shuffle
 U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, interactive-test, layout, prefs, booted
-U.toast(text, {kind:'info'|'good'|'bad', ms})   the same text again extends the one shown
+U.toast(text, {kind:'info'|'good'|'bad', ms})   the same text again extends the one shown. While a phone's
+    bottom sheet is open: at the top, the newest only, cut to the whole lines that fit above the
+    sheet's heading (U._fitToasts; a cut one opens on a tap), so its title and Close stay in view
 U.errText(e) -> one plain sentence (db errors never blame Claude)   U.fail(view, e)   U.haptic   U.cheer(text?)
 U.sheet({title, body, actions:[{label, kind, onClick(api)}], onClose, autofocus, key}) -> {el, key, focus(), close({quiet})}
     modal: #app is inert behind it, Tab stays in the top sheet, Escape closes, focus returns on
@@ -142,11 +144,19 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   saving works. Db errors carry `e.where = 'db'`. Not held: lesson docs (the lesson job owns its
   retries under the lease; a late patch could land on a lesson rewritten since), and a `setDoc`
   drops a patch held for the same doc. Held patches to Dan's private docs are also kept in
-  localStorage `mu.outbox.<uid>.<page>` until they land; the next page of that user takes over
-  and sends those of pages that have closed, once the runtime is ready (or when the db or uid
-  answers late, `rt-late`). Each page holds the Web Lock `mu.page.<page>` while open, so a tab
-  still open keeps its own (without Web Locks, every page's are taken over). Shared-doc patches
-  and `retryLater` jobs live only with the page.
+  localStorage `mu.outbox.<uid>.<page>` (`{at, since:{path: when its oldest part was asked},
+  docs}`) until they land; the next page of that user takes over and sends those of pages that
+  have closed, once the runtime is ready (or when the db or uid answers late, `rt-late`). Each
+  page holds the Web Lock `mu.page.<page>` while open, so a tab still open keeps its own (without
+  Web Locks, every page's are taken over). One taken over is read against the doc inside its
+  write queue and only what is not older than the doc goes: a card learned or reviewed since
+  stays (a card with no time of its own: the one with more reviews), a missing card is made only
+  whole and not when its idea was learned again since; a setting changed since stays
+  (`prefsAt`); a day's minutes keep the larger count; progress keeps the write-time rules, and an
+  idea that began a new round since (`againAt`) loses the patch's round fields. One saved over
+  14 days ago is dropped; one the db cannot take yet stays on the device and is tried again when
+  a write succeeds, on `online` or when the page shows. Shared-doc patches and `retryLater` jobs
+  live only with the page.
 - Private writes (`profile.patch`, `progress.patch`, `cards.patch/update`) asked for before
   `U.rt.ready` wait for it (their path names the uid), and for the outbox takeover above, so the
   older patches go out under them.
@@ -157,12 +167,14 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
   then deletes its lessons, research, progress and cards. `lesson.remove` deletes one lesson doc.
 - Progress rules, applied to the doc as it is when the write lands: within a round, stage only
   moves forward and `predict`, `startedAt`, `doneAt` and each `checks[id]` keep their first
-  value; a write tagged with an older round loses its round fields (say entries still land).
+  value; a write tagged with an older round loses its round fields (say entries still land);
+  `cardsRound` never goes back. `profile.patch` stamps `prefsAt[key]` for each setting it writes.
   The first keyed write over an old array list converts it in place.
 - Subscriptions call `onError(e, {retrying})`: on `unavailable` (the platform's dead bridge) they
   resubscribe 3 times quickly, then report `retrying:false` once and keep trying every 30 s
   (`WATCH_PARK_MS`) and at once on `online`, when the page shows again, or after a write succeeds;
-  the next snapshot carries on as normal. Views show an error with Try again, never "empty".
+  the next snapshot carries on as normal. A try refused for any other reason (permission_denied,
+  say) is reported, even after parking, and ends it. Views show an error with Try again, never "empty".
   `cards.update` reads the card inside the write queue and never recreates one that is gone.
 
 ## 4. Data model
@@ -195,6 +207,7 @@ kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
 Private, under `data/users/{uid}/`:
 ```
 profile   { prefs:{ theme:'light'|'dark'|'system', size:'s'|'m'|'l'|'xl', easy, cap:10|15|20|30, light, lightDay? },
+            prefsAt:{ [key]: iso },                                // when each setting was last written
             days:{ 'YYYY-MM-DD': { [deviceId]: minutes, legacy?: minutes } },   // older days: a number
             createdAt }
 ```
@@ -214,6 +227,7 @@ its own minutes. Layout is not a pref (section 11).
     checks:{ [checkId]:{ correct, at } },
     past:{ [round]:{ stage, predict, checks, doneAt, at } },   // earlier rounds
     replays:{ [key]:{ at, predict, checks } },                 // "Go through it again" runs
+    cardsRound?,                                               // the round whose review cards were made
     againAt?, relearn?, known? } } }
 ```
 `relearn: true` (set by Today) makes the lesson screen start Learn it again. `known` is read
@@ -280,7 +294,12 @@ a note citing at least one source unless contested; `grade` {met (one per rubric
 Review cards come only from what Dan answered: each check he answered becomes a card of the
 same type; his say-it-back becomes `{ type:'recall', spec:{ prompt, rubric, model, mine } }`.
 Finishing a re-learned lesson replaces that idea's cards: an unchanged question keeps its
-schedule, a changed one starts afresh, one the lesson no longer has is removed.
+schedule, a changed one starts afresh, one the lesson no longer has is removed. Once they are
+saved, the round is recorded (`cardsRound`). At boot (1.5 s in) and when Today opens,
+`U.review.mendCards` finds ideas done in a round whose cards were never made (the app closed
+before they were saved): cards learned at or after `doneAt` are only recorded; otherwise they are
+made from the lesson as stored (`ready` or `building`, not rewritten since `doneAt`) and Dan's
+stored answers, learned at `doneAt`, exactly as finishing would have made them.
 
 ## 6. The interactive kit (in-iframe)
 
@@ -466,7 +485,9 @@ U.cards.render(card, {mode:'lesson'|'review', lesson?, onDone(result)}) -> Eleme
    result {correct, grade, answer, ms, auto?, verdict?, skipped?, pending?: Promise<{grade, correct, verdict}>}
 U.cards.types / interactiveOf(doc) / controlOf(doc, id) / outputOf(doc, id) / verdictGrade(gradeResult)
    a target card names its readout and unit from outputOf ("make Time for one swing read 3 s")
-U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>   outcome {checks:{id:{correct}}, say:{text, verdict}}
+U.review.addFromLesson(tid, iid, lesson, outcome, {round?, at?}) -> Promise<[cardId]>   outcome {checks:{id:{correct}}, say:{text, verdict}};
+   round: recorded as cardsRound once saved; at: when he finished (else now)
+U.review.mendCards(force?) -> Promise<[{tid, iid}]>   never rejects; at most once a minute after a clean run
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
 ```
