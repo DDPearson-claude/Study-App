@@ -632,6 +632,56 @@ async function pendingRecall() {
   await app.close();
 }
 
+// #30, the race: on a slow connection Today's read of the cards begins as Dan closes the review,
+// the grade lands while that read is on its way, and the read answers with the card still due.
+// Today must not offer it again. The reads are held until the answer is in the db, so the race
+// happens every time however loaded the machine is.
+async function pendingRace() {
+  const tag = 'audit #30 race';
+  console.log(`\n== ${tag}: the grade lands while Today's plan is being read`);
+  const recall = { id: 'i1_say', tid: 'tA', iid: 'i1', type: 'recall', createdAt: isoDaysAgo(20), learnedAt: isoDaysAgo(20),
+    spec: SPECS['tB/i1_say'], s: { due: TODAY, stability: 3.2, difficulty: 5.4, reps: 1, lapses: 0, last: addDays(TODAY, -7) }, hist: [{ at: isoDaysAgo(7), grade: 3, ok: true }] };
+  const app = await openApp({ file: OUT, width: 360, height: 707, config: { db: auditDb({ i1_say: recall }) } });
+  const { page } = app;
+  await page.goto(app.url('#/today'));
+  await page.evaluate(setup, 'light');
+  await page.evaluate(() => {
+    // Claude's grade arrives when the test says; so do the cards, once window.__slow is set: each
+    // read answers with what was stored when it began.
+    const gate = new Promise((r) => { window.__releaseGrade = r; });
+    U.gen.grade = () => gate.then(() => ({ met: [true, true, true], verdict: 'got-it', nailed: false, followUp: '' }));
+    const all = U.store.cards.all, held = [];
+    U.store.cards.all = function () {
+      return all.call(U.store.cards).then((v) => (window.__slow ? new Promise((r) => held.push(() => r(v))) : v));
+    };
+    window.__answerReads = () => { window.__slow = false; held.splice(0).forEach((f) => f()); };
+  });
+  await page.waitForSelector('.td-plan');
+  await page.locator('.td-start').click();
+  await page.waitForSelector('.qc-recall-input');
+  await page.locator('.qc-recall-input').fill('Yeast eat the sugar in flour and give off gas, and gluten traps it.');
+  await page.locator('.qc-primary').click();
+  await page.locator('.qc-continue').click();
+  await page.waitForSelector('.rv-wait');
+  await page.evaluate(() => { window.__slow = true; });
+  await page.locator('.rv-close').click();
+  await page.waitForSelector('.td-loading');                      // Today's read is on its way
+  await page.evaluate(() => window.__releaseGrade());
+  const landed = async () => ((await app.stub())[P('profile/cards/tA')].cards.i1_say.hist || []).length === 2;
+  for (let i = 0; i < 100 && !(await landed()); i++) await page.waitForTimeout(100);
+  check(await landed(), `${tag}: the answer is saved while Today's read is still on its way`);
+  check(await page.locator('.td-loading').count() === 1, `${tag}: Today is still waiting for its read`);
+  await page.evaluate(() => window.__answerReads());
+  await page.waitForSelector('.td-clear, .td-plan');
+  await page.waitForTimeout(300);
+  const today = await page.locator('.td').innerText();
+  check(/Done for today/.test(today) && /reviewed 1 card today/.test(today) && !/to revisit/.test(today),
+    `${tag}: Today does not offer the card just saved (${today.split('\n').slice(0, 3).join(' | ')})`);
+  check(await badgeOf(page) === 0 && await page.evaluate(() => U.review.dueCount()) === 0, `${tag}: the badge and a new session agree`);
+  check(app.errors.length === 0, `${tag}: no page errors ${app.errors.join(' | ')}`);
+  await app.close();
+}
+
 // #31 Light day turned on after 6 reviews (cap 5) with 8 more due: "Done for today" with
 // "Review 5 more", not "0 cards to revisit"; the switch stays to undo it; #/review says the limit
 // is reached instead of "holding up".
@@ -691,6 +741,7 @@ try {
   if (!process.env.ONLY || process.env.ONLY === 'audit3') {
     await targetNotReady();
     await pendingRecall();
+    await pendingRace();
     await lightAfterReviews();
   }
 } catch (e) {

@@ -111,7 +111,7 @@ async function open({ width = 360, dark = false, db = {}, fakes = {}, tools = {}
   const p = prefs || (dark ? { theme: 'dark' } : null);
   if (p) await app.page.addInitScript((v) => { try { if (!sessionStorage.getItem('__prefsSet')) { localStorage.setItem('mu-prefs', JSON.stringify(v)); sessionStorage.setItem('__prefsSet', '1'); } } catch (e) {} }, p);
   await app.page.goto(app.url(hash));
-  await app.page.waitForFunction(() => window.U && U.boot && U.boot.ready === true);
+  await app.booted();
   // A stand-in lesson screen and Today screen so navigation can be checked.
   await app.page.evaluate(() => {
     if (!U.routes.list.some((r) => r.re.test('#/t/a/b'))) U.routes.add('#/t/:tid/:iid', (p, ctx) => { ctx.view.appendChild(U.h('h1', { id: 'fake-lesson' }, 'Lesson ' + p.iid)); }, { tab: 'learn', focus: true });
@@ -540,7 +540,7 @@ await test('settings: changes apply at once, save, and survive a reload', async 
   // Reload: the stub db starts empty, so prefs come back from localStorage (first paint) and
   // are adopted into the new profile.
   await app.page.reload();
-  await app.page.waitForFunction(() => window.U && U.boot && U.boot.ready === true);
+  await app.booted();
   eq(await app.page.getAttribute('html', 'data-mu-theme'), 'dark', 'dark kept after reload');
   eq(await app.page.getAttribute('html', 'data-size'), 'xl', 'size kept after reload');
   eq(await app.page.getAttribute('html', 'data-easy'), '1', 'easy kept after reload');
@@ -581,7 +581,7 @@ await test('boot: notice when progress cannot be kept; dismiss sticks for the se
   await app.page.click('.boot-notice-x');
   eq(await count(app, '#persist-notice'), 0, 'dismissed');
   await app.page.reload();
-  await app.page.waitForFunction(() => window.U && U.boot && U.boot.ready === true);
+  await app.booted();
   eq(await count(app, '#persist-notice'), 0, 'stays dismissed');
   const app2 = await open({});
   eq(await count(app2, '#persist-notice'), 0, 'no notice with the db');

@@ -168,6 +168,69 @@ test('an idea never learned again is slipping after two Agains in 30 days', asyn
   assert.deepEqual(list.map((g) => [g.iid, g.lapses]), [['i1', 2]], 'the Again 35 days ago no longer counts');
 });
 
+// ---------- finding 30: an answer that lands while a plan's read is on its way ----------
+// One card due today. Every read of the cards answers with what was stored when the read began,
+// but only when the test lets it (a slow connection). save() writes the answer as the session does.
+function racing() {
+  const now = new Date(2026, 9, 6, 12, 0);
+  const t = load({ cards: { tA: { cards: {
+    i1_say: card('i1_say', 'i1', { s: { due: '2026-10-06', stability: 3, difficulty: 5, reps: 1, lapses: 0, last: '2026-10-02' }, hist: [{ at: iso(new Date(+now - 4 * 864e5)), grade: 3, ok: true }] }),
+  } } } });
+  t.at(now);
+  const read = t.U.store.cards.all, waiting = [];
+  t.U.store.cards.all = () => { const snap = read(); return new Promise((r) => waiting.push(() => r(snap))); };
+  t.answerReads = () => waiting.splice(0).forEach((f) => f());
+  t.save = () => {
+    const c = t.docs.cards.tA.cards.i1_say;
+    c.hist.push({ at: iso(now), grade: 3, ok: true });
+    c.s = { ...c.s, due: '2026-10-09', last: '2026-10-06', reps: 2 };
+  };
+  t.card = { tid: 'tA', id: 'i1_say' };
+  t.job = () => { let ok, no; const p = new Promise((a, b) => { ok = a; no = b; }); return { p, ok, no }; };
+  return t;
+}
+const counts = (p) => ({ size: p.size, done: p.done });
+
+test('a grade that lands while Today\'s plan is being read does not bring its card back', async () => {
+  // Dan closes the review with a recall still being graded: Today's read begins, the grade lands,
+  // then the read answers with the card as it was (still due, no answer today).
+  const t = racing(), job = t.job();
+  const held = t.U.review._hold(t.card, job.p);
+  const reading = t.U.review._plan({});
+  t.save(); job.ok({}); await held;
+  t.answerReads();
+  const p = await reading;
+  assert.deepEqual(counts(p), { size: 0, done: 1 }, 'left out and counted as reviewed, as while it was on its way');
+  // The Light day switch plans again from that same read: still left out.
+  assert.deepEqual(counts(await t.U.review._plan({ light: true }, p.data)), { size: 0, done: 1 });
+  // A read that begins after it landed sees the answer itself, and counts it once.
+  const again = t.U.review._plan({});
+  t.answerReads();
+  assert.deepEqual(counts(await again), { size: 0, done: 1 });
+});
+
+test('an answer given and saved after a plan\'s read began is not offered by that plan', async () => {
+  const t = racing(), job = t.job();
+  const reading = t.U.review._plan({});
+  const held = t.U.review._hold(t.card, job.p);
+  t.save(); job.ok({}); await held;
+  t.answerReads();
+  assert.deepEqual(counts(await reading), { size: 0, done: 1 });
+});
+
+test('an answer still on its way, or one whose save failed, is counted as it stands', async () => {
+  const t = racing(), job = t.job();
+  const held = t.U.review._hold(t.card, job.p);
+  const reading = t.U.review._plan({});
+  t.answerReads();
+  assert.deepEqual(counts(await reading), { size: 0, done: 1 }, 'still on its way: left out, counted as reviewed');
+  // The save fails while the next read is on its way: nothing was written, so the card is due.
+  const next = t.U.review._plan({});
+  job.no(new Error('offline')); await held.catch(() => {});
+  t.answerReads();
+  assert.deepEqual(counts(await next), { size: 1, done: 0 }, 'a failed save leaves the card due');
+});
+
 // ---------- finding 33: the contract says what the code does ----------
 test('ARCHITECTURE.md grades recall cards the way 41-cards.js does', () => {
   const { U } = load();

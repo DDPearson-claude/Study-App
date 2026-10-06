@@ -129,22 +129,30 @@
   // Claude's grade before it is saved, and Dan may close the review meanwhile. Until one lands,
   // plans leave its card out and count it as reviewed today, so Today, the badge and a new session
   // never offer a card he has just answered.
-  var saving = {};
+  // A read of the cards can also miss an answer that lands while the read is on its way (on a slow
+  // connection Today's read begins as the session closes, the grade lands, and the read answers
+  // with the card still due). So every save that lands gets the next number (savedAt), every read
+  // notes the number when it begins (its data.mark), and a card saved after its read began is
+  // treated as still on its way. A save that failed wrote nothing, so no read can have missed it.
+  var saving = {}, savedAt = {}, saves = 0;
   function holding(card, job) {
     var k = card.tid + '/' + card.id;
     saving[k] = (saving[k] || 0) + 1;
-    function landed() { if (--saving[k] <= 0) delete saving[k]; changed(); }
-    return job.then(function (v) { landed(); return v; }, function (e) { landed(); throw e; });
+    function landed(ok) { if (--saving[k] <= 0) delete saving[k]; if (ok) savedAt[k] = ++saves; changed(); }
+    return job.then(function (v) { landed(true); return v; }, function (e) { landed(false); throw e; });
   }
+  // Whether a read of the cards that began at `mark` may not show this card's latest answer.
+  function onItsWay(c, mark) { var k = c.tid + '/' + c.id; return !!saving[k] || savedAt[k] > mark; }
 
   // Everything Today and a session need, from one read of the cards and the profile.
   function plan(opts, data) {
     opts = opts || {};
-    var load = data ? Promise.resolve(data) : Promise.all([loadCards(), U.store.profile.get()]).then(function (r) { return { cards: r[0], profile: r[1] || {} }; });
+    var mark = saves;
+    var load = data ? Promise.resolve(data) : Promise.all([loadCards(), U.store.profile.get()]).then(function (r) { return { cards: r[0], profile: r[1] || {}, mark: mark }; });
     return load.then(function (d) {
-      var day = U.studyDay(), prefs = d.profile.prefs || {}, held = 0;
+      var day = U.studyDay(), prefs = d.profile.prefs || {}, held = 0, since = d.mark != null ? d.mark : mark;
       var due = d.cards.filter(function (c) {
-        if (!saving[c.tid + '/' + c.id]) return isDue(c, day);
+        if (!onItsWay(c, since)) return isDue(c, day);
         // Counted once: by the answer on its way, or (if it has just landed) by its history entry.
         if (!hist(c).some(function (e) { return dayOf(e.at) === day; })) held++;
         return false;
@@ -340,6 +348,7 @@
     slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.studyDay()); }); },
     _interleave: interleave,
     _plan: plan,
+    _hold: holding,
     _backCount: backCount,
   };
 

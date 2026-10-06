@@ -407,7 +407,9 @@ them back), and `#/review` says the limit is reached instead of "holding up".
 An answer still on its way to the db (a recall card waits up to 30 s for Claude's grade before it
 is saved) is left out of every plan and counted as reviewed today until it lands, so Today, the
 badge and a new session never offer it again; closing a session recounts the badge once its saves
-have landed or failed.
+have landed or failed. A plan whose read of the cards began before such an answer landed treats it
+the same way (that read may not show it yet), including a plan made again from the same read (the
+Light day switch); a save that failed wrote nothing, so the card is simply due.
 
 A target card plays on its idea's interactive. When the lesson doc is not 'ready' the session
 drops the card and saves why, so Today and the badge stop counting it: a lesson being written
