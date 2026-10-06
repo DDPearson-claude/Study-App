@@ -264,6 +264,7 @@
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
     // A question can be long ("how vaccines train the immune system"), so the box wraps and grows
     // to three lines instead of scrolling sideways; Enter still asks (it never adds a new line).
+    // While Claude plans (the box is disabled) it shows the whole question.
     var input = U.h('textarea', {
       class: 'input ask-input', id: 'ask-input', rows: '1', autocomplete: 'off', autocapitalize: 'sentences',
       enterkeyhint: 'go', maxlength: '200', placeholder: 'Tides, black holes, jazz…',
@@ -272,7 +273,7 @@
       if (!input.isConnected) return;
       input.style.height = '';
       var cs = getComputedStyle(input), border = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
-      var max = Math.ceil((parseFloat(cs.lineHeight) || 26) * 3 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + border);
+      var max = input.disabled ? Infinity : Math.ceil((parseFloat(cs.lineHeight) || 26) * 3 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + border);
       var need = input.scrollHeight + border;
       if (need > input.offsetHeight) input.style.height = Math.min(need, max) + 'px';
       input.style.overflowY = need > max + 1 ? 'auto' : 'hidden';
@@ -363,6 +364,8 @@
       goBtn.classList.toggle('is-busy', on);
       working.hidden = !on;
       exampleChips.concat(levelChips).forEach(function (c) { c.disabled = on; });
+      fit();
+      if (on) input.scrollTop = 0;
     }
 
     function submit() {
@@ -445,19 +448,18 @@
       }, function (e) { console.error(e); });
     }
 
-    // Reviews waiting: a row that opens Today. Nothing waiting: a quiet line saying so and when
-    // cards come back, which only the two-column laptop Learn shows (beside the ask).
+    // Reviews waiting: a row that opens Today. Nothing waiting: a quiet line in Today's words
+    // saying so and when cards come back, which only the two-column laptop Learn shows (beside the ask).
     function renderToday(o) {
       var n = Number(o.size) || 0;
       U.clear(todayBox);
       todayBox.classList.toggle('is-quiet', n <= 0);
       if (n <= 0) {
-        var head = o.done > 0 ? 'Done for today' : o.cards === 0 ? 'Nothing to review yet' : 'Nothing to review today';
-        var sub = o.next || (o.done > 0 ? '' : o.cards === 0 ? 'When you finish an idea, the questions you answered come back the next day, so they stick.'
-          : o.cards > 0 ? 'Everything you have learned is holding up for now.' : '');
+        if (!o.head) return;   // only a count to go on: say nothing
+        var sub = o.next || o.lead;
         todayBox.appendChild(U.h('div', { class: 'today-row is-quiet' },
           U.h('span', { class: 'today-ico' }, U.svg(CLOCK)),
-          U.h('span', { class: 'today-text' }, U.h('strong', null, head), sub ? U.h('span', { class: 'muted small' }, sub) : null)));
+          U.h('span', { class: 'today-text' }, U.h('strong', null, o.head), sub ? U.h('span', { class: 'muted small' }, sub) : null)));
         return;
       }
       var mins = Math.max(1, Math.round(n * 25 / 60));

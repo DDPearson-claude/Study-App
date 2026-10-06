@@ -9,8 +9,9 @@
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
 //   U.review.dueCount() -> Promise<number>     what today's session holds right now
-//   U.review.outlook() -> Promise<{size, done, cards, next}>   dueCount, cards reviewed today, cards
-//       in all, and "Next up: 2 cards tomorrow." (or '') for Learn when nothing is waiting
+//   U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   dueCount, cards reviewed
+//       today, cards in all, and Today's words when nothing is waiting ("Done for today", its lead,
+//       "Next up: 2 cards tomorrow." or ''), for Learn's quiet line
 //   U.review.refreshBadge()                    #today-badge text + hidden
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses}]>   ideas forgotten 2+ times in 30 days
@@ -293,8 +294,10 @@
     addFromLesson: addFromLesson,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
-    // For Learn when nothing is waiting, from the same read as dueCount.
-    outlook: function () { return planShared().then(function (p) { return { size: p.size, done: p.done, cards: p.data.cards.length, next: nextUp(p) }; }); },
+    // For Learn when nothing is waiting, from the same read as dueCount, in Today's words.
+    outlook: function () {
+      return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, head: w.head, lead: w.lead, next: w.next }; });
+    },
     refreshBadge: function () {
       changed();
       return U.review.dueCount().then(setBadge, function (e) { console.error('badge', e); return 0; });
@@ -304,6 +307,7 @@
     slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.today()); }); },
     _interleave: interleave,
     _plan: plan,
+    _clearWords: clearWords,
     _backCount: backCount,
   };
 
@@ -328,12 +332,22 @@
     var p = day.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   }
-  // "Next up: 2 cards tomorrow." for the soonest day cards come back after today, or ''.
+  // "Next up: 2 cards tomorrow.", or ''. Cards the daily limit held back today are still due, so
+  // they are waiting tomorrow (with any due then); otherwise the soonest day cards come back. The
+  // count is what that day's review holds (its usual limit: a light day is for today only).
   function nextUp(p) {
+    var held = Math.max(0, p.due.length - p.size);
     var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
-    var nextDay = upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
-    var nextN = upcoming.filter(function (c) { return c.s.due === nextDay; }).length;
+    var nextDay = held ? U.addDays(p.day, 1) : upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
+    var nextN = Math.min(held + upcoming.filter(function (c) { return c.s.due === nextDay; }).length, capOf(Object.assign({}, p.prefs, { lightDay: '' }), {}));
     return nextDay ? 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.' : '';
+  }
+  // The words for a day with nothing waiting: one set, for Today and for Learn's quiet line.
+  function clearWords(p) {
+    var w = p.done > 0 ? ['Done for today', 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.']
+      : !p.data.cards.length ? ['Nothing to review yet', 'When you finish a lesson, the questions you answered come back the next day, so they stick.']
+      : ['Nothing to review today', 'Everything you have learned is holding up for now.'];
+    return { head: w[0], lead: w[1], next: nextUp(p) };
   }
   function whenDay(day, today) {
     var n = U.daysBetween(today, day);
@@ -464,19 +478,12 @@
     }
 
     function drawClear(p) {
-      var next = nextUp(p);
+      var w = clearWords(p);
       var box = h('section', { class: 'td-clear' });
-      if (p.done > 0) {
-        box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
-        box.appendChild(h('h1', { class: 'td-title' }, 'Done for today'));
-        box.appendChild(h('p', { class: 'td-lead' }, 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.'));
-      } else {
-        box.appendChild(h('h1', { class: 'td-title' }, 'Nothing to review right now'));
-        box.appendChild(h('p', { class: 'td-lead' }, p.data.cards.length
-          ? 'Everything you have learned is holding up for now.'
-          : 'When you finish a lesson, the questions you answered come back here the next day, so they stick.'));
-      }
-      if (next) box.appendChild(h('p', { class: 'muted' }, next));
+      if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
+      box.appendChild(h('h1', { class: 'td-title' }, w.head));
+      box.appendChild(h('p', { class: 'td-lead' }, w.lead));
+      if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
       var actions = h('div', { class: 'td-actions' }, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
       var more = p.due.length;
       if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));

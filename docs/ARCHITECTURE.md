@@ -453,7 +453,8 @@ U.cards.types / interactiveOf(doc) / controlOf(doc, id) / outputOf(doc, id) / ve
 U.review.addFromLesson(tid, iid, lesson, outcome) -> Promise<[cardId]>   outcome {checks:{id:{correct}}, say:{text, verdict}}
 U.review.queue({cap, light, extra}) -> Promise<[card]>;  dueCount() -> Promise<n>;  refreshBadge();  setBadge(n)
 U.review.ideaBands() -> Promise<{tid:{iid: band}}>;  slipping() -> Promise<[{tid, iid, lapses, last}]>
-U.review.outlook() -> Promise<{size, done, cards, next}>   size = dueCount (same read); next = "Next up: 2 cards tomorrow." or ''
+U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   size = dueCount (same read); head, lead, next = Today's words
+    when nothing is waiting ("Done for today", ..., "Next up: 5 cards tomorrow." or ''); next counts cards the daily limit held back
 ```
 Views and app services
 ```
@@ -520,11 +521,14 @@ emits `prefs`; `set` saves one key to the profile; `fromProfile` (another device
   switches tabs. When `#view` is at least 900 px wide a review card keeps the question and
   answers on the left with Check under them and shows the feedback beside them; a target card
   gives its interactive the full width and docks the goal and Check under it.
-- Learn with `#view` at least 58rem wide (the ask keeps 35rem, so the breakpoint follows the
-  text size) puts the reviews row beside the ask: on first run the welcome, with nothing waiting
-  a quiet line from `U.review.outlook()` (done for today or nothing to review, and when cards
-  come back). Narrower, Learn is one column and the quiet line is hidden. The ask box fits its
-  height to its text or placeholder whenever its width, its placeholder or the text size changes.
+- Returning Learn with `#view` at least 900 px wide puts the reviews row (320-380 px) beside its
+  compact ask; with nothing waiting, a quiet line in Today's words from `U.review.outlook()` (done
+  for today or nothing to review, and when cards come back). One column hides the quiet line, and
+  the reviews row is as wide as its words there, so its arrow stays by its label. First-run Learn
+  goes two columns (the welcome beside the full ask) only when `#view` is at least 58rem wide (the
+  ask keeps 35rem, so the breakpoint follows the text size). The ask box fits its height to its
+  text or placeholder whenever its width, its placeholder or the text size changes; while Claude
+  plans it shows the whole question, and on a phone "Planning…" takes its own row under it.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
   `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The

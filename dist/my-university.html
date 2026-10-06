@@ -1154,6 +1154,12 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .learn.is-returning .ask-go:not(.is-busy) .ask-go-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .learn.is-returning .ask-go svg { width: 24px; height: 24px; }
 .learn.is-returning .ask h1 { font-size: clamp(1.6rem, 5.4vw, 2rem); font-size: clamp(1.6rem, 5.4cqi, 2rem); }
+/* While Claude plans, the button says "Planning…"; on a phone it takes its own row under the
+   question (as on the first run), so the question keeps the full width and stays readable. */
+@container view (max-width: 567px) {
+  .learn.is-returning .ask-form:has(> .ask-go.is-busy) { flex-direction: column; align-items: stretch; }
+  .learn.is-returning .ask-form:has(> .ask-go.is-busy) > .ask-input { flex: none; }
+}
 .learn-note:empty { display: none; }
 .v-load-error { align-items: center; }
 .v-slow { padding: 4px 2px 12px; }
@@ -1191,6 +1197,8 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
   color: var(--ink); text-decoration: none;
 }
 .today-row:focus-visible { border-radius: var(--r); }
+/* As wide as its words (up to the column): on a wide single column the arrow stays by its label. */
+.learn-today > .today-row { width: fit-content; max-width: 100%; }
 .today-ico { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-tint); color: var(--teal); }
 .today-ico svg { width: 24px; height: 24px; }
 .today-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -1237,7 +1245,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 }
 @media (hover: hover) {
   .ccard:hover, .tcard:hover:not(.is-skeleton) { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(23, 50, 77, .06), 0 14px 32px rgba(23, 50, 77, .10); }
-  .today-row:hover { border-color: var(--line-strong); }
+  a.today-row:hover { border-color: var(--line-strong); }
 }
 .ccard:active, .tcard:active { transform: translateY(1px); }
 
@@ -1464,6 +1472,15 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
   /* Learn: the ask keeps a reading width; a wide Continue card and three columns of topics. */
   .learn { gap: 40px; }
   .learn > .ask { max-width: var(--measure); }
+  /* Returning: the compact ask (a box and a round button) on the left and, beside it, the reviews
+     waiting (with nothing waiting, a quiet line saying when reviews come back), so the first screen
+     has no empty corner and Continue stays near the top. */
+  .learn.is-returning { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); column-gap: 48px; }
+  .learn.is-returning > * { grid-column: 1 / -1; }
+  .learn.is-returning > .ask { grid-column: 1; grid-row: 1; }
+  .learn.is-returning > .learn-today { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn.is-returning > .learn-today.is-quiet { display: block; }
+  .learn.is-returning > .learn-today > .today-row { width: auto; }
   .ccard { grid-template-columns: 46% 1fr; }
   .ccard-cover { min-height: 300px; }
   .ccard-body { padding: 32px 36px; gap: 10px; }
@@ -1485,19 +1502,16 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
   /* Map: two topics side by side. */
   .map-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
 }
-/* Learn, once there is room for both: the ask on the left and, beside it, the reviews waiting (the
-   very first time, how it all works; with nothing waiting, a quiet line saying when reviews come
-   back), so the first screen has no empty corner. The ask keeps at least 35rem, so its box stays
-   wider than "Start learning" and the placeholder on one line; in rem, so this holds at every
-   text size (35 + 3 + 20 = 58rem). Narrower, Learn stays one column. */
+/* First run (and while topics load), once there is room for both: the full ask on the left and,
+   beside it, how it all works, so the first screen has no empty corner. The ask keeps at least
+   35rem, so its box stays wider than "Start learning" and the placeholder on one line; in rem, so
+   this holds at every text size (35 + 3 + 20 = 58rem). Narrower, it stays one column. */
 @container view (min-width: 58rem) {
-  .learn { display: grid; grid-template-columns: minmax(35rem, 1fr) minmax(20rem, 23.75rem); }
-  .learn, .learn.is-returning { column-gap: 3rem; }
-  .learn > * { grid-column: 1 / -1; }
-  .learn > .ask { grid-column: 1; grid-row: 1; }
-  .learn > .learn-today { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
-  .learn.is-returning > .learn-today.is-quiet { display: block; }
-  .learn > .learn-topics:has(> .welcome) { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn:not(.is-returning) { display: grid; grid-template-columns: minmax(35rem, 1fr) minmax(20rem, 23.75rem); column-gap: 3rem; }
+  .learn:not(.is-returning) > * { grid-column: 1 / -1; }
+  .learn:not(.is-returning) > .ask { grid-column: 1; grid-row: 1; }
+  .learn:not(.is-returning) > .learn-today, .learn > .learn-topics:has(> .welcome) { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn:not(.is-returning) > .learn-today > .today-row { width: auto; }
   .learn-topics:has(> .welcome) > .welcome { display: block; }
   .learn-topics:has(> .welcome) .welcome-art { aspect-ratio: 16 / 7; height: auto; min-height: 0; }
   .learn-topics:has(> .welcome) .welcome-body { padding: 22px 26px 26px; }
@@ -1527,7 +1541,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-05-3f4602a";
+U.BUILD = "2026-10-06-d9d1167";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -7989,8 +8003,9 @@ U.interactive = (function () {
 //       interleaved so one idea never shows twice in a row and topics alternate. The daily cap
 //       counts cards already reviewed today, unless `extra` (a "keep going" batch).
 //   U.review.dueCount() -> Promise<number>     what today's session holds right now
-//   U.review.outlook() -> Promise<{size, done, cards, next}>   dueCount, cards reviewed today, cards
-//       in all, and "Next up: 2 cards tomorrow." (or '') for Learn when nothing is waiting
+//   U.review.outlook() -> Promise<{size, done, cards, head, lead, next}>   dueCount, cards reviewed
+//       today, cards in all, and Today's words when nothing is waiting ("Done for today", its lead,
+//       "Next up: 2 cards tomorrow." or ''), for Learn's quiet line
 //   U.review.refreshBadge()                    #today-badge text + hidden
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
 //   U.review.slipping() -> Promise<[{tid, iid, lapses}]>   ideas forgotten 2+ times in 30 days
@@ -8273,8 +8288,10 @@ U.interactive = (function () {
     addFromLesson: addFromLesson,
     queue: function (opts) { return plan(opts).then(function (p) { return p.queue; }); },
     dueCount: function () { return planShared().then(function (p) { return p.size; }); },
-    // For Learn when nothing is waiting, from the same read as dueCount.
-    outlook: function () { return planShared().then(function (p) { return { size: p.size, done: p.done, cards: p.data.cards.length, next: nextUp(p) }; }); },
+    // For Learn when nothing is waiting, from the same read as dueCount, in Today's words.
+    outlook: function () {
+      return planShared().then(function (p) { var w = clearWords(p); return { size: p.size, done: p.done, cards: p.data.cards.length, head: w.head, lead: w.lead, next: w.next }; });
+    },
     refreshBadge: function () {
       changed();
       return U.review.dueCount().then(setBadge, function (e) { console.error('badge', e); return 0; });
@@ -8284,6 +8301,7 @@ U.interactive = (function () {
     slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.today()); }); },
     _interleave: interleave,
     _plan: plan,
+    _clearWords: clearWords,
     _backCount: backCount,
   };
 
@@ -8308,12 +8326,22 @@ U.interactive = (function () {
     var p = day.split('-').map(Number);
     return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   }
-  // "Next up: 2 cards tomorrow." for the soonest day cards come back after today, or ''.
+  // "Next up: 2 cards tomorrow.", or ''. Cards the daily limit held back today are still due, so
+  // they are waiting tomorrow (with any due then); otherwise the soonest day cards come back. The
+  // count is what that day's review holds (its usual limit: a light day is for today only).
   function nextUp(p) {
+    var held = Math.max(0, p.due.length - p.size);
     var upcoming = p.data.cards.filter(function (c) { return !c.retired && c.s && c.s.due > p.day; });
-    var nextDay = upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
-    var nextN = upcoming.filter(function (c) { return c.s.due === nextDay; }).length;
+    var nextDay = held ? U.addDays(p.day, 1) : upcoming.reduce(function (m, c) { return !m || c.s.due < m ? c.s.due : m; }, null);
+    var nextN = Math.min(held + upcoming.filter(function (c) { return c.s.due === nextDay; }).length, capOf(Object.assign({}, p.prefs, { lightDay: '' }), {}));
     return nextDay ? 'Next up: ' + plural(nextN, 'card') + ' ' + whenDay(nextDay, p.day) + '.' : '';
+  }
+  // The words for a day with nothing waiting: one set, for Today and for Learn's quiet line.
+  function clearWords(p) {
+    var w = p.done > 0 ? ['Done for today', 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.']
+      : !p.data.cards.length ? ['Nothing to review yet', 'When you finish a lesson, the questions you answered come back the next day, so they stick.']
+      : ['Nothing to review today', 'Everything you have learned is holding up for now.'];
+    return { head: w[0], lead: w[1], next: nextUp(p) };
   }
   function whenDay(day, today) {
     var n = U.daysBetween(today, day);
@@ -8444,19 +8472,12 @@ U.interactive = (function () {
     }
 
     function drawClear(p) {
-      var next = nextUp(p);
+      var w = clearWords(p);
       var box = h('section', { class: 'td-clear' });
-      if (p.done > 0) {
-        box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
-        box.appendChild(h('h1', { class: 'td-title' }, 'Done for today'));
-        box.appendChild(h('p', { class: 'td-lead' }, 'You reviewed ' + plural(p.done, 'card') + ' today. That is what keeps it all fresh.'));
-      } else {
-        box.appendChild(h('h1', { class: 'td-title' }, 'Nothing to review right now'));
-        box.appendChild(h('p', { class: 'td-lead' }, p.data.cards.length
-          ? 'Everything you have learned is holding up for now.'
-          : 'When you finish a lesson, the questions you answered come back here the next day, so they stick.'));
-      }
-      if (next) box.appendChild(h('p', { class: 'muted' }, next));
+      if (p.done > 0) box.appendChild(h('div', { class: 'td-done-mark', 'aria-hidden': 'true' }, U.icon('tick')));
+      box.appendChild(h('h1', { class: 'td-title' }, w.head));
+      box.appendChild(h('p', { class: 'td-lead' }, w.lead));
+      if (w.next) box.appendChild(h('p', { class: 'muted td-next' }, w.next));
       var actions = h('div', { class: 'td-actions' }, h('a', { class: 'btn wide', href: '#/' }, 'Learn something new'));
       var more = p.due.length;
       if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
@@ -8910,6 +8931,7 @@ U.interactive = (function () {
     var eyebrow = U.h('p', { class: 'eyebrow' }, V.greeting());
     // A question can be long ("how vaccines train the immune system"), so the box wraps and grows
     // to three lines instead of scrolling sideways; Enter still asks (it never adds a new line).
+    // While Claude plans (the box is disabled) it shows the whole question.
     var input = U.h('textarea', {
       class: 'input ask-input', id: 'ask-input', rows: '1', autocomplete: 'off', autocapitalize: 'sentences',
       enterkeyhint: 'go', maxlength: '200', placeholder: 'Tides, black holes, jazz…',
@@ -8918,7 +8940,7 @@ U.interactive = (function () {
       if (!input.isConnected) return;
       input.style.height = '';
       var cs = getComputedStyle(input), border = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderBottomWidth);
-      var max = Math.ceil((parseFloat(cs.lineHeight) || 26) * 3 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + border);
+      var max = input.disabled ? Infinity : Math.ceil((parseFloat(cs.lineHeight) || 26) * 3 + parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + border);
       var need = input.scrollHeight + border;
       if (need > input.offsetHeight) input.style.height = Math.min(need, max) + 'px';
       input.style.overflowY = need > max + 1 ? 'auto' : 'hidden';
@@ -9009,6 +9031,8 @@ U.interactive = (function () {
       goBtn.classList.toggle('is-busy', on);
       working.hidden = !on;
       exampleChips.concat(levelChips).forEach(function (c) { c.disabled = on; });
+      fit();
+      if (on) input.scrollTop = 0;
     }
 
     function submit() {
@@ -9091,19 +9115,18 @@ U.interactive = (function () {
       }, function (e) { console.error(e); });
     }
 
-    // Reviews waiting: a row that opens Today. Nothing waiting: a quiet line saying so and when
-    // cards come back, which only the two-column laptop Learn shows (beside the ask).
+    // Reviews waiting: a row that opens Today. Nothing waiting: a quiet line in Today's words
+    // saying so and when cards come back, which only the two-column laptop Learn shows (beside the ask).
     function renderToday(o) {
       var n = Number(o.size) || 0;
       U.clear(todayBox);
       todayBox.classList.toggle('is-quiet', n <= 0);
       if (n <= 0) {
-        var head = o.done > 0 ? 'Done for today' : o.cards === 0 ? 'Nothing to review yet' : 'Nothing to review today';
-        var sub = o.next || (o.done > 0 ? '' : o.cards === 0 ? 'When you finish an idea, the questions you answered come back the next day, so they stick.'
-          : o.cards > 0 ? 'Everything you have learned is holding up for now.' : '');
+        if (!o.head) return;   // only a count to go on: say nothing
+        var sub = o.next || o.lead;
         todayBox.appendChild(U.h('div', { class: 'today-row is-quiet' },
           U.h('span', { class: 'today-ico' }, U.svg(CLOCK)),
-          U.h('span', { class: 'today-text' }, U.h('strong', null, head), sub ? U.h('span', { class: 'muted small' }, sub) : null)));
+          U.h('span', { class: 'today-text' }, U.h('strong', null, o.head), sub ? U.h('span', { class: 'muted small' }, sub) : null)));
         return;
       }
       var mins = Math.max(1, Math.round(n * 25 / 60));

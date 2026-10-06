@@ -7,7 +7,8 @@
 // it; a pinned laptop layout on a phone keeps the top bar on one row; the laptop shapes (topic
 // grid, topic page columns, Map columns, a wide lesson interactive with a narrower text column);
 // Learn at narrow laptop widths and every text size (the ask box's height, when Learn goes two
-// columns, the line shown beside the ask when nothing is due); and no screen ever scrolls sideways. Screenshots land in tests/out/layout/.
+// columns, the line shown beside the ask when nothing is due, the reviews row's width, the busy ask
+// on a phone, Learn and Today's shared words); and no screen ever scrolls sideways. Screenshots land in tests/out/layout/.
 // Usage: node tests/e2e/layout.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -229,14 +230,16 @@ await test('in-app links route even when something else cancels link clicks', as
 const localDay = (n = 0) => { const d = new Date(); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 // Reading settings saved in the db profile, so boot applies them (and emits 'prefs') while Learn draws.
 function withPrefs(db, prefs) { return { ...db, [`data/users/${UID}/profile`]: { prefs: { theme: 'light', size: 'm', easy: false, cap: 15, light: false, ...prefs } } }; }
-// Cards for one topic: `due` of them due today, `later` due in two days.
-function withCards(db, { due = 0, later = 0 } = {}) {
+// Cards for one topic: `due` of them due today, `later` due in two days, `doneToday` reviewed
+// today (and due in four days).
+function withCards(db, { due = 0, later = 0, doneToday = 0 } = {}) {
   const cards = {};
-  for (let i = 0; i < due + later; i++) {
-    const id = 'i1_c' + i, at = new Date(Date.now() - 9 * 864e5).toISOString();
-    cards[id] = { id, tid: 'how-tides-work-ab12', iid: 'i1', type: 'choice', createdAt: at, learnedAt: at, hist: [{ at, grade: 3, ok: true }],
+  for (let i = 0; i < due + later + doneToday; i++) {
+    const id = 'i1_c' + i, at = new Date(Date.now() - 9 * 864e5).toISOString(), done = i >= due + later;
+    cards[id] = { id, tid: 'how-tides-work-ab12', iid: 'i1', type: 'choice', createdAt: at, learnedAt: at,
+      hist: [{ at, grade: 3, ok: true }].concat(done ? [{ at: new Date().toISOString(), grade: 3, ok: true }] : []),
       spec: { id: 'c' + i, type: 'choice', q: 'How many high tides do most coasts get in a day?', options: ['One', 'Two'], answer: 1, why: 'Two bulges.' },
-      s: { due: localDay(i < due ? 0 : 2), stability: 3, difficulty: 5, reps: 1, lapses: 0, last: localDay(-9) } };
+      s: { due: localDay(i < due ? 0 : done ? 4 : 2), stability: 3, difficulty: 5, reps: 1, lapses: 0, last: localDay(done ? 0 : -9) } };
   }
   return { ...db, [`data/users/${UID}/profile/cards/how-tides-work-ab12`]: { cards } };
 }
@@ -329,9 +332,15 @@ await test('ux3: laptop Learn with nothing due says so quietly beside the ask; p
   eq(await app.page.locator('.learn-today a').count(), 0, 'a status, not a nudge to tap');
   eq(await app.page.locator('.today-row:not(.is-quiet)').count(), 0, 'no reviews row');
   await shot(app, 'ux3-learn-nothing-due-1366');
+  // Returning Learn keeps its two columns from 900 px of view (940 px wide); one column (the laptop
+  // layout at 910 px, so under 900 px of view) has no line.
   await app.page.setViewportSize({ width: 940, height: 768 });
   await frames(app);
-  eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'one column at 940 px: no line');
+  const quiet940 = await rect(app, '.today-row.is-quiet'), ask940 = await rect(app, '.ask');
+  assert(quiet940.width > 0 && quiet940.left >= ask940.right, 'two columns at 940 px: the line beside the ask');
+  await app.page.setViewportSize({ width: 910, height: 768 });
+  await frames(app);
+  eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'one column at 910 px: no line');
   await app.page.setViewportSize({ width: 390, height: 844 });
   await frames(app);
   eq(await app.page.locator('.today-row.is-quiet').isVisible(), false, 'phone: no line, Continue stays near the top');
@@ -344,6 +353,106 @@ await test('ux3: laptop Learn with nothing due says so quietly beside the ask; p
   await due.page.locator('a.today-row').waitFor();
   eq(await due.page.locator('.today-row.is-quiet').count(), 0, 'reviews waiting: the usual row');
   assert(/3 reviews ready/.test(await due.page.locator('a.today-row').innerText()), 'three ready');
+});
+
+// ---------- Learn follow-ups (UX round 3b) ----------
+const borderOf = (app, sel) => app.page.evaluate((s) => getComputedStyle(document.querySelector(s)).borderTopColor, sel);
+// From the end of the reviews row's words to its arrow.
+const arrowGap = (app) => app.page.evaluate(() => {
+  const r = document.createRange();
+  r.selectNodeContents(document.querySelector('a.today-row .today-text'));
+  return document.querySelector('a.today-row .today-go').getBoundingClientRect().left - r.getBoundingClientRect().right;
+});
+
+await test('ux3b: only the reviews link reacts to hover; the quiet line does not look tappable', async () => {
+  const app = await open(1366, 768, { db: withCards(seedDb(), { later: 2 }) });
+  await app.page.locator('.today-row.is-quiet').waitFor();
+  await app.page.mouse.move(5, 700);
+  const still = await borderOf(app, '.today-row.is-quiet');
+  await app.page.hover('.today-row.is-quiet');
+  await app.page.waitForTimeout(200);
+  eq(await borderOf(app, '.today-row.is-quiet'), still, 'the quiet line keeps its border under the pointer');
+  const due = await open(1366, 768, { db: withCards(seedDb(), { due: 2 }) });
+  await due.page.locator('a.today-row').waitFor();
+  await due.page.mouse.move(5, 700);
+  const rest = await borderOf(due, 'a.today-row');
+  await due.page.hover('a.today-row');
+  await due.page.waitForTimeout(200);
+  assert(await borderOf(due, 'a.today-row') !== rest, 'the reviews link still answers the pointer');
+});
+
+await test('ux3b: Learn and Today say the same words when nothing is waiting, and count what the daily limit held back', async () => {
+  for (const [name, db, head, sub] of [
+    // The limit (15) is used up and 5 are still due: they wait for tomorrow (2 more come back in two days).
+    ['limit used up', withCards(seedDb(), { due: 5, later: 2, doneToday: 15 }), 'Done for today', /^Next up: 5 cards tomorrow\.$/],
+    ['nothing due', withCards(seedDb(), { later: 2 }), 'Nothing to review today', /^Next up: 2 cards on \S+\.$/],
+    ['no cards yet', seedDb(), 'Nothing to review yet', /^When you finish a lesson, the questions you answered come back the next day, so they stick\.$/],
+  ]) {
+    const app = await open(1366, 768, { db });
+    await app.page.locator('.today-row.is-quiet').waitFor();
+    const learn = await app.page.evaluate(() => [...document.querySelectorAll('.today-row.is-quiet .today-text > *')].map((e) => e.textContent));
+    eq(learn[0], head, `${name}: Learn's line`);
+    assert(sub.test(learn[1]), `${name}: Learn's line says "${learn[1]}"`);
+    await go(app, '#/today', '.td-clear');
+    const today = await app.page.evaluate(() => {
+      const t = (s) => { const el = document.querySelector(s); return el ? el.textContent : ''; };
+      return { head: t('.td-title'), lead: t('.td-lead'), next: t('.td-next'), more: t('.td-more-note') };
+    });
+    eq(today.head, head, `${name}: Today's heading matches Learn`);
+    eq(today.next || today.lead, learn[1], `${name}: Today says what Learn says`);
+    if (name === 'limit used up') assert(/^5 more cards are due/.test(today.more), 'Today still offers the 5 waiting, without hurry: ' + today.more);
+  }
+});
+
+await test('ux3b: returning Learn keeps two columns from 900 px at every text size; the reviews row stays compact', async () => {
+  const app = await open(1024, 768, { db: withCards(withPrefs(seedDb(), { size: 'xl' }), { due: 2 }) });
+  await app.page.locator('a.today-row').waitFor();
+  for (const [vw, size] of [[940, 'xl'], [1024, 'xl'], [1190, 'xl'], [940, 'l'], [1075, 'l'], [940, 'm'], [959, 'm'], [1366, 'm'], [1366, 'xl']]) {
+    await app.page.setViewportSize({ width: vw, height: 768 });
+    await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+    const where = `${vw} px at ${size}`;
+    const b = await oneLine(app, `returning at ${vw}`);
+    eq(b.cols, 2, `${where}: two columns`);
+    const row = await rect(app, 'a.today-row'), ask = await rect(app, '.ask'), h1 = await rect(app, '.ask h1'), cont = await rect(app, '.ccard');
+    assert(row.left >= ask.right && row.top < h1.bottom, `${where}: the reviews row sits beside the ask ${JSON.stringify({ row, ask })}`);
+    assert(row.width <= 381, `${where}: the reviews row keeps its column (${row.width})`);
+    assert(cont.top < Math.max(ask.bottom, row.bottom) + 60, `${where}: Continue comes straight after (${cont.top} vs ${ask.bottom} / ${row.bottom})`);
+    assert(await arrowGap(app) < 40, `${where}: the arrow sits by its label`);
+    await noSideways(app, where);
+    if (vw === 1024) await shot(app, 'ux3b-learn-returning-1024-' + size);
+  }
+  // One column (the laptop layout under 900 px of view, a wide phone column, phones): the row is as
+  // wide as its words, so its arrow stays by its label.
+  for (const [vw, size] of [[910, 'm'], [910, 'xl'], [700, 'm'], [390, 'xl'], [360, 'm']]) {
+    await app.page.setViewportSize({ width: vw, height: 800 });
+    await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+    await frames(app);
+    const where = `one column, ${vw} px at ${size}`;
+    eq((await askBox(app)).cols, 0, where);
+    const gap = await arrowGap(app);
+    assert(gap < 40, `${where}: the arrow sits by its label (${gap} px away)`);
+    await noSideways(app, where);
+  }
+});
+
+await test('ux3b: while Claude plans on a phone, Planning… takes its own row and the whole question shows', async () => {
+  for (const [w, h, size] of [[390, 844, 'xl'], [360, 707, 'm']]) {
+    const app = await open(w, h, { db: withPrefs(seedDb(), { size }) });
+    await app.page.locator('.tcard').first().waitFor();
+    await app.page.evaluate(() => { U.gen.createTopic = () => new Promise(() => {}); });
+    await app.page.fill('#ask-input', 'How do vaccines train the immune system to remember a virus it has never met before');
+    await app.page.click('.ask-go');
+    await app.page.locator('.ask-go.is-busy').waitFor();
+    await frames(app);
+    const where = `${w} px at ${size}`;
+    const input = await rect(app, '#ask-input'), btn = await rect(app, '.ask-go'), ask = await rect(app, '.ask');
+    assert(btn.top >= input.bottom - 1, `${where}: Planning… sits under the question (${btn.top} < ${input.bottom})`);
+    assert(input.width >= ask.width - 1, `${where}: the question keeps the full width (${input.width} of ${ask.width})`);
+    const sc = await app.page.evaluate(() => { const i = document.querySelector('#ask-input'); return { sh: i.scrollHeight, ch: i.clientHeight, top: i.scrollTop }; });
+    assert(sc.sh <= sc.ch + 1 && sc.top === 0, `${where}: the whole question shows (${sc.sh} > ${sc.ch})`);
+    await noSideways(app, where);
+    await shot(app, `ux3b-learn-busy-${w}-${size}`);
+  }
 });
 
 const failed = results.filter((r) => !r.ok);
