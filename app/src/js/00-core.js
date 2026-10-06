@@ -134,6 +134,10 @@ U.pad = function (n) { return (n < 10 ? '0' : '') + n; };
 U.today = function (d) { d = d || new Date(); return d.getFullYear() + '-' + U.pad(d.getMonth() + 1) + '-' + U.pad(d.getDate()); };
 U.addDays = function (day, n) { var p = day.split('-').map(Number); var d = new Date(p[0], p[1] - 1, p[2] + n); return U.today(d); };
 U.daysBetween = function (a, b) { var pa = a.split('-').map(Number), pb = b.split('-').map(Number); return Math.round((Date.UTC(pb[0], pb[1] - 1, pb[2]) - Date.UTC(pa[0], pa[1] - 1, pa[2])) / 864e5); };
+// The study day (of a Date or ISO time, default now): U.today, but turning over at 4 am instead of
+// midnight, so late-night study still belongs to that evening and a card answered at 23:55 is not
+// due again five minutes later. Spaced review counts every day this way (section 8).
+U.studyDay = function (d) { d = d ? new Date(d) : new Date(); return d.getHours() < 4 ? U.addDays(U.today(d), -1) : U.today(d); };
 U.now = function () { return new Date().toISOString(); };
 U.hash = function (str) { var h = 2166136261; str = String(str); for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 U.clone = function (o) { return o == null ? o : JSON.parse(JSON.stringify(o)); };

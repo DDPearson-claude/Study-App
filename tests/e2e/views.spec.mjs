@@ -598,7 +598,7 @@ await test('boot: study minutes count only while in use', async () => {
     await new Promise((r) => setTimeout(r, 400));
     return (await U.store.profile.get()).days;
   });
-  const today = days[await app.page.evaluate(() => U.today())];
+  const today = days[await app.page.evaluate(() => U.studyDay())];   // minutes are kept by study day
   eq(typeof today === 'object' ? Object.values(today).reduce((a, n) => a + n, 0) : today, 2, 'two minutes logged, idle time ignored');
   eq(Object.keys(today).length, 1, 'kept under this device\'s own key');
 });

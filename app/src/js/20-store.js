@@ -482,7 +482,7 @@ U.store = (function () {
 U.logStudy = (function () {
   var chain = Promise.resolve(), mine = {};
   return function (minutes) {
-    var day = U.today(), dev = U.device();
+    var day = U.studyDay(), dev = U.device();   // the review's day: minutes after midnight count for the evening
     var job = chain.then(function () {
       return (mine[day] == null ? U.store.profile.get() : Promise.resolve(null)).then(function (p) {
         var rec = {};

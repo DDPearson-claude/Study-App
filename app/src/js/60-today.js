@@ -11,7 +11,8 @@
 //   U.review.dueCount() -> Promise<number>     what today's session holds right now
 //   U.review.refreshBadge()                    #today-badge text + hidden
 //   U.review.ideaBands() -> Promise<{tid:{iid: band}}>
-//   U.review.slipping() -> Promise<[{tid, iid, lapses}]>   ideas forgotten 2+ times in 30 days
+//   U.review.slipping() -> Promise<[{tid, iid, lapses, last}]>   ideas forgotten 2+ times in 30 days
+//       (only Agains since the idea was last learned and since its latest round began)
 //
 // Routes: '#/today' (tab), '#/review' and '#/review/more' (focus mode, one card per screen).
 // Cards live one doc per topic at data/users/{uid}/profile/cards/{tid} as {cards:{[id]: Card}}.
@@ -62,7 +63,9 @@
       }, function () { return flatten(all); });
     });
   }
-  function dayOf(iso) { return iso ? U.today(new Date(iso)) : null; }
+  // Every day in review is a study day (U.studyDay, turning over at 4 am): due dates, the cap,
+  // light days, the week strip and slipping all agree on when one day ends.
+  function dayOf(iso) { return iso ? U.studyDay(iso) : null; }
   function isDue(c, day) { return !c.retired && !!(c.s && c.s.due) && c.s.due <= day; }
   function hist(c) { return Array.isArray(c.hist) ? c.hist : U.list(c.hist); }
   function reviewedOn(cards, day) {
@@ -76,7 +79,7 @@
     return light ? Math.min(cap, LIGHT_CAP) : cap;
   }
   // 'Light days' in settings is a lasting mode; the switch on Today sets a light day for today only.
-  function lightToday(prefs) { return !!prefs.light || prefs.lightDay === U.today(); }
+  function lightToday(prefs) { return !!prefs.light || prefs.lightDay === U.studyDay(); }
   function ideaKey(c) { return c.tid + '/' + c.iid; }
 
   // Most overdue first; then the most faded; then a stable shuffle.
@@ -121,19 +124,39 @@
     return p;
   }
   function changed() { shared = null; }
+
+  // Answers still on their way to the db, by 'tid/cardId': a recall answer waits up to 30 s for
+  // Claude's grade before it is saved, and Dan may close the review meanwhile. Until one lands,
+  // plans leave its card out and count it as reviewed today, so Today, the badge and a new session
+  // never offer a card he has just answered.
+  var saving = {};
+  function holding(card, job) {
+    var k = card.tid + '/' + card.id;
+    saving[k] = (saving[k] || 0) + 1;
+    function landed() { if (--saving[k] <= 0) delete saving[k]; changed(); }
+    return job.then(function (v) { landed(); return v; }, function (e) { landed(); throw e; });
+  }
+
   // Everything Today and a session need, from one read of the cards and the profile.
   function plan(opts, data) {
     opts = opts || {};
     var load = data ? Promise.resolve(data) : Promise.all([loadCards(), U.store.profile.get()]).then(function (r) { return { cards: r[0], profile: r[1] || {} }; });
     return load.then(function (d) {
-      var day = U.today(), prefs = d.profile.prefs || {};
-      var due = d.cards.filter(function (c) { return isDue(c, day); }).sort(byPriority(day));
-      var cap = capOf(prefs, opts), done = reviewedOn(d.cards, day);
+      var day = U.studyDay(), prefs = d.profile.prefs || {}, held = 0;
+      var due = d.cards.filter(function (c) {
+        if (!saving[c.tid + '/' + c.id]) return isDue(c, day);
+        // Counted once: by the answer on its way, or (if it has just landed) by its history entry.
+        if (!hist(c).some(function (e) { return dayOf(e.at) === day; })) held++;
+        return false;
+      }).sort(byPriority(day));
+      var cap = capOf(prefs, opts), done = reviewedOn(d.cards, day) + held;
       var size = Math.min(due.length, opts.extra ? cap : Math.max(0, cap - done));
       return { data: d, day: day, prefs: prefs, due: due, cap: cap, done: done, size: size, queue: interleave(due.slice(0, size)) };
     });
   }
 
+  // The Agains (their times) on each idea's cards in the last 30 days, since its lesson was last
+  // finished; only ideas with enough of them to be slipping.
   function slippingIn(cards, day) {
     var since = U.addDays(day, -LAPSE_DAYS), groups = {};
     cards.forEach(function (c) {
@@ -142,16 +165,16 @@
         if (e.grade !== 1 || !e.at || dayOf(e.at) <= since) return;
         if (c.learnedAt && e.at < c.learnedAt) return;
         var k = ideaKey(c);
-        groups[k] = groups[k] || { tid: c.tid, iid: c.iid, lapses: 0, last: '' };
-        groups[k].lapses++;
-        if (e.at > groups[k].last) groups[k].last = e.at;
+        (groups[k] = groups[k] || { tid: c.tid, iid: c.iid, ats: [] }).ats.push(e.at);
       });
     });
-    return Object.keys(groups).map(function (k) { return groups[k]; }).filter(function (g) { return g.lapses >= LAPSE_LIMIT; });
+    return Object.keys(groups).map(function (k) { return groups[k]; }).filter(function (g) { return g.ats.length >= LAPSE_LIMIT; });
   }
-  // The slipping ideas still worth offering: one Dan is already re-learning (a fresh round began
-  // after those lapses) is left out. The rest are flagged on progress (relearn: true) so the lesson
-  // screen rebuilds them with a different interactive.
+  // The slipping ideas still worth offering, as {tid, iid, lapses, last}. Only Agains since the
+  // idea's latest round began (againAt) count: until Dan finishes a Learn it again, the old round's
+  // cards stay in review with their old learnedAt, and the lapses that started the round (plus one
+  // more) must not flag it again and throw the half-done round away. The rest are flagged on
+  // progress (relearn: true) so the lesson screen rebuilds them with a different interactive.
   function slippingNow(cards, day) {
     var list = slippingIn(cards, day);
     if (!list.length) return Promise.resolve([]);
@@ -159,10 +182,11 @@
     return Promise.all(tids.map(function (tid) {
       return U.store.progress.get(tid).then(function (p) { prog[tid] = p; }, function () { prog[tid] = null; });
     })).then(function () {
-      var out = list.filter(function (g) {
-        var idea = prog[g.tid] && prog[g.tid].ideas && prog[g.tid].ideas[g.iid];
-        return !(idea && idea.againAt && idea.againAt >= g.last);
-      });
+      var out = list.map(function (g) {
+        var idea = prog[g.tid] && prog[g.tid].ideas && prog[g.tid].ideas[g.iid], from = idea && idea.againAt;
+        var ats = g.ats.filter(function (at) { return !from || at > from; }).sort();
+        return { tid: g.tid, iid: g.iid, lapses: ats.length, last: ats[ats.length - 1] || '' };
+      }).filter(function (g) { return g.lapses >= LAPSE_LIMIT; });
       out.forEach(function (g) {
         var idea = prog[g.tid] && prog[g.tid].ideas && prog[g.tid].ideas[g.iid];
         if (idea && idea.relearn) return;
@@ -189,7 +213,7 @@
     return out.slice(-HIST_MAX);
   }
   function save(card, grade, ok) {
-    var day = U.today(), entry = { at: U.now(), grade: grade, ok: !!ok };
+    var day = U.studyDay(), entry = { at: U.now(), grade: grade, ok: !!ok };
     changed();
     return U.store.cards.update(card.tid, card.id, function (fresh) {
       var before = hist(fresh);
@@ -199,7 +223,23 @@
   }
   function retire(card) {
     changed();
-    return U.store.cards.update(card.tid, card.id, function () { return { retired: true }; }).catch(function () {});
+    return U.store.cards.update(card.tid, card.id, function () { return { retired: true }; }).then(changed, function () {});
+  }
+  // Put a card off to the next study day without grading it (no history entry, its memory state
+  // as it was): it cannot be shown today. A card already due later than that is left alone.
+  function postpone(card) {
+    var next = U.addDays(U.studyDay(), 1);
+    changed();
+    return U.store.cards.update(card.tid, card.id, function (fresh) {
+      return fresh.s && fresh.s.due && fresh.s.due < next ? { s: Object.assign({}, fresh.s, { due: next }) } : null;
+    }).then(changed, function () {});
+  }
+  // A lesson being written at this moment: its job refreshes the doc every 45 s, and 31-generate.js
+  // treats one silent for 4 minutes as abandoned (CFG.STALE_MS).
+  var WRITING_MS = 4 * 60 * 1000;
+  function writingNow(doc) {
+    var t = Date.parse(doc.updatedAt || '');
+    return doc.status === 'writing' && isFinite(t) && Date.now() - t < WRITING_MS;
   }
 
   function sameQuestion(a, b, type) {
@@ -211,7 +251,7 @@
   function addFromLesson(tid, iid, lesson, outcome) {
     lesson = lesson || {};
     outcome = outcome || {};
-    var now = U.now(), day = U.today(), made = {};
+    var now = U.now(), day = U.studyDay(), made = {};
     (lesson.checks || []).forEach(function (ch) {
       if (!ch || !ch.id || !TYPES[ch.type]) return;
       if (!outcome.checks || !outcome.checks[ch.id]) return;     // only what Dan actually answered
@@ -261,7 +301,7 @@
   function ideaBands() {
     var RANK = { new: 0, fragile: 1, growing: 2, strong: 3 }, NAMES = ['new', 'fragile', 'growing', 'strong'];
     return loadCards().then(function (cards) {
-      var day = U.today(), groups = {}, out = {};
+      var day = U.studyDay(), groups = {}, out = {};
       cards.forEach(function (c) {
         if (c.retired || !c.iid) return;
         var t = groups[c.tid] = groups[c.tid] || {};
@@ -297,7 +337,7 @@
     },
     setBadge: setBadge,
     ideaBands: ideaBands,
-    slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.today()); }); },
+    slipping: function () { return loadCards().then(function (cards) { return slippingNow(cards, U.studyDay()); }); },
     _interleave: interleave,
     _plan: plan,
     _backCount: backCount,
@@ -398,32 +438,61 @@
     ctx.view.appendChild(root);
     root.appendChild(h('div', { class: 'td-loading' }, h('div', { class: 'skeleton', style: { height: '28px', width: '60%' } }), h('div', { class: 'skeleton', style: { height: '180px' } })));
 
+    var topics = {}, slipping = [];
     planShared().then(function (p) {
       var tids = uniq(p.data.cards.map(function (c) { return c.tid; }));
       return Promise.all([topicsFor(tids), slippingNow(p.data.cards, p.day)]).then(function (r) { return { p: p, topics: r[0], slipping: r[1] }; });
     }).then(function (r) {
       if (!ctx.alive()) return;
-      draw(r.p, r.topics, r.slipping);
+      topics = r.topics;
+      slipping = r.slipping;
+      draw(r.p);
     }).catch(function (e) {
       if (!ctx.alive()) return;
       console.error(e);
       U.clear(root).appendChild(errorBox('Today\'s review could not be loaded. ', e));
     });
 
-    function draw(p, topics, slipping) {
+    function draw(p) {
       U.clear(root);
       root.appendChild(h('p', { class: 'eyebrow td-date' }, longDate(p.day)));
-      if (p.size > 0) drawDue(p, topics);
+      if (p.size > 0) drawDue(p);
       else drawClear(p);
       U.append(root, relearnBlock(slipping, topics));
       root.appendChild(weekStrip(p.data.profile.days, p.day, p.data.cards));
     }
+    // The whole screen again after the Light day switch changed which state it is in; focus goes
+    // to the switch drawn in its place (else the heading), so Dan's place (and a screen reader's)
+    // is kept.
+    function redraw(q) {
+      draw(q);
+      var to = root.querySelector('.td-light .switch') || root.querySelector('h1');
+      if (to && to.tagName === 'H1') to.setAttribute('tabindex', '-1');
+      if (to) try { to.focus({ preventScroll: true }); } catch (e) { /* fine */ }
+    }
 
-    function drawDue(p, topics) {
-      var names = uniq(p.queue.map(function (c) { return c.tid; })).map(function (tid) { return topicTitle(topics, tid); });
-      var count = h('span', { class: 'td-count-n' }), minutes = h('span');
+    // The Light day switch: today only (the lasting "Light days" setting shows it on and locked).
+    // onPlan(q) gets the plan with the new cap.
+    function lightRow(p, onPlan) {
       var lasting = !!p.prefs.light;
       var light = h('input', { class: 'switch', type: 'checkbox', role: 'switch', checked: lightToday(p.prefs), disabled: lasting, 'aria-describedby': 'td-light-note' });
+      light.addEventListener('change', function () {
+        var on = light.checked, day = on ? U.studyDay() : '';
+        p.data.profile.prefs = Object.assign({}, p.data.profile.prefs, { lightDay: day });
+        if (U.settings && U.settings.prefs) U.settings.prefs.lightDay = day;
+        U.store.profile.patch({ prefs: { lightDay: day } }).catch(function () {});
+        changed();
+        plan({ light: on }, p.data).then(function (q) { if (ctx.alive()) onPlan(q); });
+        setTimeout(function () { U.review.refreshBadge(); }, 400);
+      });
+      return h('label', { class: 'td-light' },
+        h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, lasting ? 'Light days are on in settings: ' + LIGHT_CAP + ' cards a day, the most overdue first.' : 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
+        light);
+    }
+
+    function drawDue(p) {
+      var names = uniq(p.queue.map(function (c) { return c.tid; })).map(function (tid) { return topicTitle(topics, tid); });
+      var count = h('span', { class: 'td-count-n' }), minutes = h('span');
       var start = h('button', { class: 'btn wide td-start', type: 'button', on: { click: function () { U.go('#/review'); } } }, 'Start review', U.icon('arrow'));
       var countWord = h('span', { class: 'td-count-word' });
       function update(q) {
@@ -431,23 +500,14 @@
         countWord.textContent = q.size === 1 ? 'card to revisit' : 'cards to revisit';
         minutes.textContent = 'About ' + plural(minutesFor(q.queue), 'minute');
       }
-      light.addEventListener('change', function () {
-        var on = light.checked, day = on ? U.today() : '';
-        p.data.profile.prefs = Object.assign({}, p.data.profile.prefs, { lightDay: day });
-        if (U.settings && U.settings.prefs) U.settings.prefs.lightDay = day;
-        U.store.profile.patch({ prefs: { lightDay: day } }).catch(function () {});
-        changed();
-        plan({ light: on }, p.data).then(update);
-        setTimeout(function () { U.review.refreshBadge(); }, 400);
-      });
       root.appendChild(h('h1', { class: 'td-title' }, 'Today\'s review'));
       root.appendChild(h('p', { class: 'td-lead' }, 'A few things you learned are ready to come back. Remembering them now is what makes them stick.'));
       root.appendChild(h('section', { class: 'card td-plan', 'aria-label': 'Today\'s plan' },
         h('p', { class: 'td-count' }, count, ' ', countWord),
         h('p', { class: 'td-meta muted' }, minutes, names.length ? ' · from ' + names.slice(0, 3).join(', ') + (names.length > 3 ? ' and more' : '') : ''),
-        h('label', { class: 'td-light' },
-          h('span', { class: 'td-light-text' }, h('strong', null, 'Light day'), h('span', { class: 'muted small', id: 'td-light-note' }, lasting ? 'Light days are on in settings: ' + LIGHT_CAP + ' cards a day, the most overdue first.' : 'Just ' + LIGHT_CAP + ' cards today, the most overdue first.')),
-          light),
+        // A light day can leave nothing for today (Dan has already reviewed 5 or more): then the
+        // screen says so, as after a session, instead of "0 cards to revisit".
+        lightRow(p, function (q) { if (q.size > 0) update(q); else redraw(q); }),
         start));
       update(p);
     }
@@ -473,6 +533,8 @@
       if (more > 0) actions.appendChild(h('a', { class: 'btn wide secondary', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more'));
       box.appendChild(actions);
       if (more > 0) box.appendChild(h('p', { class: 'muted small td-more-note' }, plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'));
+      // When today's light day is what holds those cards back, its switch stays here to undo it.
+      if (more > 0 && !p.prefs.light && lightToday(p.prefs)) box.appendChild(lightRow(p, redraw));
       root.appendChild(box);
     }
   }
@@ -490,16 +552,17 @@
       root.append(h('div', { class: 'rv-top' }, close, bar, count), where, stage);
       ctx.view.appendChild(root);
 
-      var S = { queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
+      var S = { plan: null, queue: [], i: 0, topics: {}, results: [], saves: [], ms: 0, el: null, logged: false };
 
       plan(extra ? { extra: true, cap: MORE } : {}).then(function (p) {
+        S.plan = p;
         S.queue = p.queue;
         return topicsFor(uniq(p.queue.map(function (c) { return c.tid; })));
       }).then(function (topics) {
         if (!ctx.alive()) return;
         S.topics = topics;
         bar.setAttribute('aria-valuemax', String(S.queue.length));
-        if (!S.queue.length) return empty();
+        if (!S.queue.length) return empty(S.plan);
         showCard();
       }).catch(function (e) {
         if (!ctx.alive()) return;
@@ -513,11 +576,20 @@
         bar.setAttribute('aria-valuenow', String(S.i));
         count.textContent = Math.min(S.i + 1, n) + ' of ' + n;
       }
+      // A target card plays on its idea's interactive, which is gone while the lesson is rebuilt
+      // (Learn it again, "This looks wrong"). What happens to one that cannot be shown is saved, so
+      // Today and the badge stop counting a card no session can show:
+      //   'tomorrow'  the lesson is being written right now, and a write that fails for a passing
+      //               reason puts the old lesson back: the card waits a day;
+      //   'retire'    building a new interactive, failed, or a rebuild left part-way: the
+      //               interactive it was made for will not come back (finishing the new lesson
+      //               makes the idea's cards afresh), as for a card whose control has gone;
+      //   'later'     the lesson could not be read just now: still due, for the next session.
       function lessonFor(card) {
         if (card.type !== 'target') return Promise.resolve({ use: 'ok', doc: null });
         return U.store.lesson.get(card.tid, card.iid).then(function (doc) {
           if (!doc) return { use: 'retire' };
-          if (doc.status && doc.status !== 'ready') return { use: 'later' };
+          if (doc.status && doc.status !== 'ready') return { use: writingNow(doc) ? 'tomorrow' : 'retire' };
           if (!U.cards.interactiveOf(doc)) return { use: 'retire' };
           var lj = doc.lesson || {}, ctl = lj.interactive && lj.interactive.controls;
           if (Array.isArray(ctl) && ctl.length && !U.cards.controlOf(doc, card.spec && card.spec.control)) return { use: 'retire' };
@@ -537,7 +609,8 @@
           if (!ctx.alive()) return;
           if (l.use !== 'ok') {
             // Not usable (its interactive was rebuilt or is mid-build): drop it from this session.
-            if (l.use === 'retire') retire(card);
+            if (l.use === 'retire') S.saves.push(retire(card));
+            else if (l.use === 'tomorrow') S.saves.push(postpone(card));
             S.queue.splice(S.i, 1);
             bar.setAttribute('aria-valuemax', String(S.queue.length));
             return showCard();
@@ -555,14 +628,14 @@
         S.ms += r.ms || 0;
         // Skipped as unusable (an interactive that gives no reading, a card that cannot be shown):
         // retire it, so it does not head every session from now on.
-        if (r.skipped) retire(card);
+        if (r.skipped) S.saves.push(retire(card));
         else {
           var rec = { card: card, grade: r.grade, correct: r.correct };
           S.results.push(rec);
           var job = r.pending
             ? r.pending.then(function (x) { rec.grade = x.grade; rec.correct = x.correct; return save(card, x.grade, x.correct == null ? x.grade > 1 : x.correct); })
             : save(card, r.grade || 3, r.correct == null ? (r.grade || 3) > 1 : r.correct);
-          S.saves.push(job.catch(function (e) { console.error('save failed', e); }));
+          S.saves.push(holding(card, job).catch(function (e) { console.error('save failed', e); }));
         }
         S.i++;
         // The badge follows the session itself (no re-read of every card after each answer).
@@ -576,13 +649,20 @@
         if (U.boot && U.boot.study) return;
         U.logStudy(Math.max(1, Math.round(S.ms / 60000))).catch(function () {});
       }
-      function empty() {
+      function empty(p) {
         fill.style.width = '100%';
         count.textContent = '';
+        // Cards still due but today's limit already reached (a light day turned on after some
+        // reviews, or Today out of date): say so, with the way to do more, as Today does.
+        var more = p && !extra ? p.due.length : 0;
         U.clear(stage).appendChild(h('div', { class: 'empty rv-empty' },
-          h('h2', null, 'Nothing to review right now'),
-          h('p', null, 'Everything you have learned is holding up for now.'),
-          h('div', { class: 'td-actions' }, h('a', { class: 'btn', href: '#/today' }, 'Back to Today'))));
+          h('h2', null, more ? 'Done for today' : 'Nothing to review right now'),
+          h('p', null, more
+            ? 'You have reached today\'s limit of ' + plural(p.cap, 'card') + '. ' + plural(more, 'more card is', 'more cards are') + ' due. There is no rush: they wait for you.'
+            : 'Everything you have learned is holding up for now.'),
+          h('div', { class: 'td-actions' },
+            more ? h('a', { class: 'btn', href: '#/review/more' }, 'Review ' + Math.min(MORE, more) + ' more') : null,
+            h('a', { class: 'btn' + (more ? ' secondary' : ''), href: '#/today' }, 'Back to Today'))));
       }
       function summary() {
         fill.style.width = '100%';
@@ -597,7 +677,7 @@
         var all = Promise.all(S.saves);
         var limit = new Promise(function (r) { setTimeout(r, 32000); });
         Promise.race([all, limit]).then(function () { changed(); return loadCards(); }).then(function (cards) {
-          return slippingNow(cards, U.today());
+          return slippingNow(cards, U.studyDay());
         }).then(function (slipping) {
           var missing = uniq(slipping.map(function (g) { return g.tid; })).filter(function (tid) { return !(tid in S.topics); });
           return topicsFor(missing).then(function (more) { Object.assign(S.topics, more); return slipping; });
@@ -638,6 +718,9 @@
         if (S.el && S.el.destroy) S.el.destroy();
         logTime();
         U.review.refreshBadge();
+        // An answer still being saved (a recall waiting for Claude's grade) is left out of that
+        // count; count again once this session's saves have landed, or failed.
+        if (Object.keys(saving).length) Promise.all(S.saves).then(function () { U.review.refreshBadge(); });
       };
     };
   }
