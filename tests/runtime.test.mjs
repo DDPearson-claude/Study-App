@@ -202,6 +202,19 @@ function scripted(replies) {
 // The test schema: a reply {soft, hard} has that many soft and hard problems.
 const schema = (d) => problemsOf(Array.from({ length: d.hard || 0 }, (_, i) => 'hard problem ' + i), Array.from({ length: d.soft || 0 }, (_, i) => 'text ' + i + ' is too long'));
 
+test('ask: the repair message lists hard problems before soft ones, even past twelve', async () => {
+  const s = scripted([{ id: 1, soft: 20, hard: 1 }, { id: 2 }]);
+  const U = boot({ sample: s.sample });
+  // A validator that reports the long text first, as vLesson does when the lengths come earlier.
+  const softFirst = (d) => { const l = schema(d); const out = [...l.soft, ...l.filter((p) => !l.soft.includes(p))]; out.soft = l.soft; return out; };
+  assert.equal((await U.ask('TASK: x', { json: true, schema: softFirst })).id, 2);
+  const repair = s.seen[1];
+  const last = Array.isArray(repair) ? repair[repair.length - 1].content : String(repair);
+  const lines = last.split('\n').filter((l) => l.startsWith('- '));
+  assert.equal(lines.length, 12, 'twelve problems listed');
+  assert.equal(lines[0], '- hard problem 0', 'the hard problem comes first: ' + lines.slice(0, 2).join(' | '));
+});
+
 test('ask: soft problems get one repair, then the reply is accepted as it is; hard ones still fail', async () => {
   // Soft only, then soft only after the repair: accepted, with a warning event, nothing thrown.
   let s = scripted([{ id: 1, soft: 1 }, { id: 2, soft: 1 }]);

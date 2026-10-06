@@ -688,7 +688,12 @@
     list.soft = [];
     var v = {
       list: list,
-      add: function (p, soft) { if (list.length < 40) { list.push(p); if (soft) list.soft.push(p); } },
+      // Soft problems stop at 40 so a repair prompt stays readable. A hard one is always kept:
+      // a reply full of long text must never hide a structural problem behind the cap.
+      add: function (p, soft) {
+        if (soft) { if (list.length < 40) { list.push(p); list.soft.push(p); } }
+        else if (list.length < 200) list.push(p);
+      },
       // A length rule: n characters, words or sentences against the limit max.
       long: function (n, max, p) { if (n > allowed(max)) v.add(p, true); },
       str: function (x, path, max) {

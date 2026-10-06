@@ -1412,7 +1412,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-06-092fb8d";
+U.BUILD = "2026-10-06-9a0f58f";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2064,7 +2064,8 @@ U.ask = function (input, opts) {
     var fix = [
       typeof input === 'string' ? { role: 'user', content: input } : null,
       { role: 'assistant', content: String(text).slice(0, 60000) },
-      { role: 'user', content: 'Your reply had these problems:\n- ' + problems.slice(0, 12).join('\n- ') + '\nReply again with the complete corrected JSON only, no commentary.' },
+      // Hard problems first, so a cut-down list never leaves out the ones that must be fixed.
+      { role: 'user', content: 'Your reply had these problems:\n- ' + hard.concat(problems.filter(function (p) { return hard.indexOf(p) < 0; })).slice(0, 12).join('\n- ') + '\nReply again with the complete corrected JSON only, no commentary.' },
     ];
     var turns = typeof input === 'string' ? fix.filter(Boolean) : input.concat(fix.slice(1));
     var keep = hard.length ? null : { data: data, problems: problems };
@@ -3494,7 +3495,12 @@ U.logStudy = (function () {
     list.soft = [];
     var v = {
       list: list,
-      add: function (p, soft) { if (list.length < 40) { list.push(p); if (soft) list.soft.push(p); } },
+      // Soft problems stop at 40 so a repair prompt stays readable. A hard one is always kept:
+      // a reply full of long text must never hide a structural problem behind the cap.
+      add: function (p, soft) {
+        if (soft) { if (list.length < 40) { list.push(p); list.soft.push(p); } }
+        else if (list.length < 200) list.push(p);
+      },
       // A length rule: n characters, words or sentences against the limit max.
       long: function (n, max, p) { if (n > allowed(max)) v.add(p, true); },
       str: function (x, path, max) {

@@ -163,7 +163,8 @@ U.ask = function (input, opts) {
     var fix = [
       typeof input === 'string' ? { role: 'user', content: input } : null,
       { role: 'assistant', content: String(text).slice(0, 60000) },
-      { role: 'user', content: 'Your reply had these problems:\n- ' + problems.slice(0, 12).join('\n- ') + '\nReply again with the complete corrected JSON only, no commentary.' },
+      // Hard problems first, so a cut-down list never leaves out the ones that must be fixed.
+      { role: 'user', content: 'Your reply had these problems:\n- ' + hard.concat(problems.filter(function (p) { return hard.indexOf(p) < 0; })).slice(0, 12).join('\n- ') + '\nReply again with the complete corrected JSON only, no commentary.' },
     ];
     var turns = typeof input === 'string' ? fix.filter(Boolean) : input.concat(fix.slice(1));
     var keep = hard.length ? null : { data: data, problems: problems };

@@ -437,6 +437,14 @@ test('the Maths lesson: 171 words is fine, 230 is a soft problem, and structure 
   const nine = clone(PLAN_JET);
   for (let i = 7; i <= 9; i++) nine.ideas.push({ id: 'i' + i, title: 'x', oneLine: 'y', deps: [], kind: 'concept' });
   assert.ok(U.validate.hard(U.validate.plan(nine)).some((p) => /5-8/.test(p)), 'the number of ideas is a count, not a length');
+  // The 40-problem cap applies to soft problems only: a reply full of over-long text can never
+  // push a structural problem off the end of the list.
+  const crowded = clone(L_JET2);
+  crowded.interactive.numbers = Array.from({ length: 45 }, (_, i) => ({ label: 'x'.repeat(200) + i, value: i, kind: 'assumed' }));
+  crowded.checks = crowded.checks.slice(0, 1);
+  const pc = v(crowded);
+  assert.ok(pc.soft.length >= 40, 'the long labels fill the soft list: ' + pc.soft.length);
+  assert.ok(U.validate.hard(pc).some((p) => /2-3 checks/.test(p)), 'the check count survives the cap: ' + JSON.stringify(plain(U.validate.hard(pc))));
   // A reply that is not an object carries no soft list: everything is hard.
   assert.equal(U.validate.hard(U.validate.lesson('nope')).length, 1);
 });
