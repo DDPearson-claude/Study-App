@@ -15,7 +15,7 @@ Everything happens inside it:
 | Live research with real sources | In the page | `mcp` connector "Parallel Search" (`web_search`, `web_fetch`) passed to `sample` as tools. Optional: without it lessons are labelled "not yet source-checked" |
 | Run interactives safely | In the page | `<iframe sandbox="allow-scripts" srcdoc>` + the house kit (`app/kit`) |
 | Remember everything | In the page | `db` (+ `user` for the private subtree) |
-| Book and backup exports | In the page | `downloads` |
+| Book, dossier and backup exports | In the page | `downloads` |
 | Build, test, audit the app | Claude Code (this repo) | Playwright + the runtime stub in `tools/harness` |
 
 Verified on Dan's Android phone (Claude app, 360×707 @3x): db, user private subtree, sample
@@ -168,6 +168,7 @@ U.research.tools(log?, {allow?}) -> Promise<[{name, description, inputSchema, ex
 ### Store (`20-store.js`)
 ```
 U.store.paths.topic(tid) / lesson(tid, iid) / research(tid, key) / profile() / progress(tid) / cards(tid)
+    / dossier(tid) / chapter(tid, iid)
 U.store.topics.watch(fn, onError) -> stop   fn(topic docs, newest updatedAt first);  .list()
 U.store.topic.get / watch(tid, fn, onError) / create(doc) / update(tid, patch) / remove(tid) -> {leftovers}
 U.store.lesson.get / watch / set(tid, iid, doc) / update(tid, iid, patch, {quiet?}) / remove(tid, iid) / list(tid)
@@ -177,6 +178,8 @@ U.store.research.get(tid, key) / set(tid, key, doc)
 U.store.progress.get(tid) / watch(tid, fn, onError) / patch(tid, patch) / all() -> {tid: doc}       private
 U.store.cards.get(tid) / patch(tid, patch) / update(tid, cardId, fn(card) -> fields|null) / all() / dropOrphan(tid)
 U.store.profile.defaults() / get() / watch(fn, onError) / patch(patch)          defaults merged in
+U.store.dossier.get(tid) / watch(tid, fn, onError) / list() / patch(tid, patch) / chapters(tid) -> [doc]
+    / chapter.get(tid, iid) / chapter.set(tid, iid, doc) / remove(tid)          private (section 4, Dossiers)
 U.store.getDoc / setDoc / patchDoc / watchDoc(path, …)    persistent() (db and uid present)
 U.store.isRemoved(tid) / topicExists(tid, fresh?) / topicsExist([tid]) -> {tid: bool}
 U.store.replacing(old, neu) -> patch (keys only in old become null);  minutesOn(days[day]);  waiting / flush / retryLater(e, job)
@@ -214,6 +217,10 @@ U.memdb   in-memory db, same surface: used without the db capability, and for pr
 - Shared docs (topics, lessons, research) are created only by `set`, and `lesson.set` and
   `research.set` only while the topic exists; a patch to a missing one is dropped (resolves
   `null`). Private docs are created on first patch; progress and cards only while the topic exists.
+- Dossier docs (section 4) are private and never tied to the topic's existence: a chapter is
+  written whole with `chapter.set` (never held in the outbox: it can be 200 KB, and binding it again
+  puts it right), the index with `dossier.patch` (held like any private patch). `topic.remove`
+  leaves them: deleting a course asks first whether to keep its dossier (71-topic.js).
 - `topic.remove` deletes `topics/{tid}`, marks the tid removed (later writes for it are dropped),
   then deletes its lessons, research, progress and cards. `lesson.remove` deletes one lesson doc.
 - Progress rules, applied to the doc as it is when the write lands: within a round, stage only
@@ -253,16 +260,16 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   research:{ status:'none'|'running'|'done'|'unavailable'|'failed', at, sources, dropped?, error?,
              reason?:'none_confirmed'|'error'|null, tries? } }
   // done only with sources >= 1: a run that kept none is failed ("No source could be confirmed…")
-  // with reason 'none_confirmed' (it finished: lessons never re-run it, and the Library says no
+  // with reason 'none_confirmed' (it finished: lessons never re-run it, and Sources says no
   // source could be confirmed); 'error': it did not.
   // tries: runs in a row that did not finish (failed, or 'running' left by a page that went away).
   // unavailable: no connector, or this view cannot run page tools (U.rt.toolsOk).
   // On screen "Sources found" (Learn's card) and "Research found N sources" (the topic page's
-  // Library) need done with sources >= 1 (U.views.sourcesChecked). A run that kept none (done
+  // Sources) need done with sources >= 1 (U.views.sourcesChecked). A run that kept none (done
   // with 0 sources, stored before such runs counted as failed, or failed with reason
   // 'none_confirmed') reads "ran but could not confirm a single source" (sourcesNone).
   // Nothing checks a lesson against these sources: lessons are written from them, and the first
-  // one often before research finishes (unsourced, FIRST_RESEARCH_WAIT_MS). So the Library claims
+  // one often before research finishes (unsourced, FIRST_RESEARCH_WAIT_MS). So Sources claims
   // nothing for the lessons beyond "Each lesson lists the sources it drew on, or says it was
   // written without them" (the lesson's Sources, or its "Not yet source-checked" note).
   // hook, oneBreath and calibration (answer, why) come from plan-topic, before any research, and
@@ -342,6 +349,52 @@ Card = { id, tid, iid, type:'choice'|'order'|'estimate'|'target'|'recall', spec,
 ```
 `hist` keeps the newest 40. `retired`: unusable (its interactive is gone, or it was skipped in
 review); learning the idea again clears it.
+
+**Dossiers** (75-dossier.js). A course "keeps a dossier" unless Dan turns it off on its topic page:
+`progress.dossier === false` (absent or true: on; private, so turning it on or off never moves the
+course in Learn's list). Each idea he finishes is bound as a chapter: a snapshot of the lesson's own
+content when he finishes it, taken again (a new edition) when he learns it again. Nothing he wrote,
+chose or scored is ever read into a dossier: not `topic.query`, `progress.ideas[iid]` beyond
+`startedAt`, `doneAt` and `stage`, `progress.questions` or `calibration`, a lesson doc's `feedback`,
+`request` or `flags`, the lesson's `predict` or `say`, or any card.
+`profile/dossiers/{tid}` (the index, small)
+```
+{ v:1, tid, title, hook, oneBreath, ideas:[{ id, title, oneLine, deps, kind }],     // the plan, as course content
+  research:{ sources:[{ title, url, quotes:[<= 4] }], ideas:{ [iid]: [source index] } },   // for the bibliography
+  startedAt,                                  // earliest progress startedAt ("Begun")
+  chapters:{ [iid]:{ doneAt, edition, plate: bool, title } }, count, total,
+  finishedAt,                                 // the last chapter's doneAt once every idea is bound, else null
+  createdAt, updatedAt, kept?, keptAt? }      // kept: the course was deleted and its dossier kept
+```
+`profile/dossiers/{tid}/chapters/{iid}` (one per chapter, under 240 KB of JSON)
+```
+{ v:1, tid, iid, title, oneLine, kind, deps, doneAt, edition, boundAt, sourced,
+  lesson:{ title, explain, analogy, interactive:{ title, brief, whatAmILookingAt, ignores, numbers, controls, outputs } | null,
+           checks (with answers, whys and misconceptions), sources, confidence, contested },
+  plate: the interactive's html | null, plateNote: string | null }   // a plate that would not fit is left out, with the note
+```
+Bound only from a `ready` lesson doc. `U.dossier.bind` runs when an idea is finished (50-lesson.js,
+the first time through or a new round). Ideas finished before dossiers existed, or bound while the
+save failed, are bound from the stored lesson docs (backfill, `U.dossier.sync`) the first time in a
+page load that the Library or that dossier opens, one after another, only for courses that keep a
+dossier, skipping an idea whose Learn it again request is open (its doc may be the fresh lesson).
+The count, finished date and shelf come from `chapters`. Deleting a course asks whether to keep its
+dossier (kept by default; the plain confirmation when it has none): kept, everything finished is
+bound first and the index marked `kept`; otherwise the dossier docs are removed after the course.
+A kept dossier opens with no course behind it.
+What the pages print is derived by fixed rules (`U.dossier.model` and the page builders), so nothing
+is invented: the field note is the explanation's closing all-bold paragraph (taken out of the
+explanation); the clipping is the first quoted source cited after its opening paragraph; "Where it
+breaks" is `analogy.breaks`; "Look for" is the brief without "The one thing you should see is"; the
+circled number is the first cited constant the explanation does not already quote; Compare is the
+plan's `deps` and the ideas that build on this one (links only to bound chapters); How certain is
+`confidence` said once (or "Not yet source-checked" for an unsourced lesson); the glossary is each
+`[[term]]` with the sentence that introduces it (with the one before when it opens "This/That/
+These/It/Such"); the bibliography is one entry per address across the research and the bound
+lessons, title split on " — " into work and publisher, with the chapters resting on it. Field tests
+print each check with its right answer, why and the lesson's misconceptions as "Trap:", never what
+Dan chose; a target check only where the plate exists. The kind sketches mark the idea's kind,
+never the topic.
 
 ## 5. Lesson JSON (what generation writes, what the player plays)
 
@@ -438,7 +491,10 @@ stored answers, learned at `doneAt`, exactly as finishing would have made them.
 
 The model writes only the body (HTML, optional `<style>`, one inline `<script>` ending with
 `K.ready()`, at most 150 KB). `U.sandbox.srcdoc` puts the CSP first in `<head>`, then charset,
-viewport, the kit CSS, `window.K_THEME`, `window.K_BODY_LINE` (for error line numbers),
+viewport, the kit CSS, `window.K_THEME` (`{dark, size, c:{palette}, roles?}`: `roles`, host-written
+and never model-written, replaces the kit's own data roles hl, amberLine and fill1-3, as the
+dossier's ink-on-paper plates do; without it the kit keeps its tuned roles; cat1-4 are always the
+kit's), `window.K_BODY_LINE` (for error line numbers),
 `window.K_TOKEN` (the frame's random token) and `window.K_QUIZ` (the output quiz mode hides, or
 null), and the kit JS; the body follows in `<body>`. CSP: `default-src 'none'; script-src 'unsafe-inline';
 style-src 'unsafe-inline'; img-src data:; font-src data:; media-src data:; connect-src 'none';
@@ -843,13 +899,14 @@ rebuild, with Dan's note as feedback.
 ```
 U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme, token, quiz}) (throws {code:'too_large'})
 U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), minHeight = 320, loading,
-                            quiz: {hide: output id}}) ->
+                            quiz: {hide: output id}, theme: () => K_THEME}) ->
    { el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t?),
      quiz(id | null), reveal(), destroy() }
    ready is null if K.ready() has not come after 12 s; follows the app's theme and text size;
    a frame that starts to navigate away (or throws its page away) is removed at once and its later messages
    refused; one that stops answering the heartbeat is removed too (section 6); one removed from the page is
-   destroyed. quiz / reveal: quiz mode (section 6).
+   destroyed. quiz / reveal: quiz mode (section 6). theme: a function giving the K_THEME to use instead of
+   the app's (the dossier's ink-on-paper plates), asked again on every theme or text-size change.
 U.sandbox.test(html, {widths = [340, 720, 1040], timeout = 8000, theme}) -> Promise<Report>   hidden frames, one width
    at a time, merged: a message seen at only some widths ends " [at 340 and 720 px wide]", a check
    passes only at every width whose page ran, ids / inputs / actions come from the first width that
@@ -935,6 +992,19 @@ U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
    take more than one row. With a mouse, all of them. Only while the keyboard is up (is-cramped):
    one sideways row of them that fades at the edge it runs on past
 U.book.collect(topics, progressByTid) / toMarkdown(book) / toJson(book)      exported with U.saveFile
+U.dossier (75-dossier.js)   the course dossier (section 4, Dossiers; routes and pages: section 10)
+   pure: chapterFrom(topic, iid, lessonDoc, doneAt, prevEntry) -> chapter | null;  researchFrom({key: researchDoc});
+     indexFrom(topic, progress, prevIndex, research, {iid, info}?) -> index patch;  model(book) -> what every page prints
+     (chapters, bound, glossary, works, leaves = the page order, done, finished);  due(topic, progress, index) -> [iid];
+     countOf(index);  bytes(s);  LIMIT (240 KB);  PLATE_NOTE;  INK (the plate's K_THEME palettes and roles)
+   on(progress) -> keeps a dossier;  bind(tid, iid, {doc, doneAt, topic?, progress?}) -> Promise<chapter | null> (never rejects);
+   sync(tid, {force, topic, progress, index}) -> Promise<n bound> (once per page load per course);  setOn(tid, bool);
+   keep(tid) (bind what is finished, mark kept);  remove(tid);  load(tid) -> book | null
+   shelf(box, ctx) -> cleanup (the Library's Dossiers section);  option(tid, progress, index, total) -> the topic page's
+   "Keep a dossier";  confirmDelete(tid, title, progress) -> Promise<{keep} | null>;  fonts() (the hand-lettered fonts:
+   a second Google Fonts link, added the first time the Library or a dossier is drawn);  inkTheme()
+   exportHtml(model) -> one self-contained HTML file (styles inline, fonts by link with fallbacks, the plate as
+   static text, no scripts);  save(model) -> U.saveFile('dossier-<slug>-<day>.html', …, 'text/html')
 U.settings.prefs / apply(prefs) / set(key, value) / fromProfile(prefs) / readLocal() / backup() / open()
 U.boot.study   visible, recently touched time (TICK 15 s, IDLE 2 min), logged with U.logStudy in 2-minute chunks;
    a kit 'change' from an interactive on screen (iframe.kit-iframe, not a hidden test frame) counts as a touch
@@ -960,8 +1030,20 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/review               review   focus        60-today.js
 #/review/more          review   focus        one batch beyond the daily cap
 #/map                  map      tab map      72-map.js
-#/book                 book     tab book     73-book.js
+#/book                 book     tab book     73-book.js   the Library: the dossiers' shelves (75-dossier.js), then "In your own words"
+#/book/words           book     tab book     73-book.js   the Book (Dan's own words), linked from the Library
+#/book/:tid            dossier  focus        75-dossier.js   a dossier's cover; its pages, in reading order:
+#/book/:tid/contents                                         title page | contents
+#/book/:tid/:iid                                             a chapter's idea | explanation and analogy
+#/book/:tid/:iid/plate                                       the plate (asleep until Tap to play) | its notes; /plate/play: awake
+#/book/:tid/:iid/tests                                       field tests | sources
+#/book/:tid/glossary   (and /bibliography: the same leaf, at the bibliography on a phone)
 ```
+- A dossier page is one leaf: two pages side by side when the book is at least 55rem wide, else
+  one after the other. An unbound chapter's address shows the contents; a dossier with none bound
+  still has a cover and contents. The turn links, the desk arrows (1100 px and up, aria-hidden)
+  and the arrow keys (not inside the plate, a form control, details, a sheet or a source card)
+  go through the page order (`model().leaves`). Topic ids are `slug-xxxxx`, so `words` is never one.
 - `U.routes.add(pattern, handler, {focus, tab, title, screen})`; `handler(params, ctx)` draws
   into `ctx.view` and may return a cleanup (or a promise of one); `ctx.alive()` is false once
   Dan has moved on. `U.go(hash)` navigates (the same hash draws again).
@@ -971,7 +1053,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
 - Params must pass `U.validId`, else "This page is not here" (`U.notHere`, screen `none`). An
   unknown address or a bad %-escape goes to `#/` without a history entry.
 - On every route: the old cleanup runs, sheets close, a cheer still showing goes, `#view` is cleared and gets `data-screen`
-  (opts.screen, else from the pattern: learn, topic, lesson, today, review, map, book);
+  (opts.screen, else from the pattern: learn, topic, lesson, today, review, map, book, dossier for
+  `#/book/:tid…` but not `#/book/words`);
   `html.focus` hides the top bar and tabs; the tab gets `aria-current`; the title is
   `opts.title · My University` until the view calls `U.setTitle`; the page scrolls to the top
   and focus moves to the screen's h1 once it is drawn (unless Dan has focused something else), and
@@ -984,7 +1067,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
   question, Done, Skip or "Try the warm-up questions" takes away the button that had focus, focus
   goes to what replaced it (the next question, the summary, the "Try" line), not to the h1.
 - Learn's level choice (New to it, Know a bit, Know it well) is a radio group (`U.radios`), like Settings'.
-- Tabs Learn / Today / Map / Book (`#tabs`, Today's badge `#today-badge`) sit at the bottom in
+- Tabs Learn / Today / Map / Library (`#tabs`, Today's badge `#today-badge`; the Library tab is
+  `data-tab="book"`) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.
 
 ## 11. Layout
@@ -1001,8 +1085,10 @@ topics started here are not source-checked); "Not connected." with the steps to 
   screen lays out by the width it actually gets (a framed phone column gets phone shapes).
   Shell rules key off `data-layout`: tabs docked at the bottom or in the top bar, sheets as
   bottom sheets (swipe down to close) or centred dialogs (up to 620 px).
-- Laptop widths by `#view[data-screen]`: Learn, the topic page and the Map run up to `--wide`
-  (1200 px); the lesson and the review up to 1120 px, with reading text capped at `--measure`
+- Laptop widths by `#view[data-screen]`: Learn, the topic page, the Map and the Library (its two
+  shelves side by side from 900 px) run up to `--wide` (1200 px); a dossier page takes the whole
+  window (no column, no padding) under its own sticky leather bar, the book a size container
+  ("book") inside it, so a phone pinned on a wide window gets the phone shapes; the lesson and the review up to 1120 px, with reading text capped at `--measure`
   (44rem) and the interactive full width; every other screen keeps the 720 px column (`--col`).
   Tab screens all start at the wide screens' left edge, so headings do not move when Dan
   switches tabs. When `#view` is at least 900 px wide a review card keeps the question and
@@ -1026,7 +1112,7 @@ topics started here are not source-checked); "Not connected." with the steps to 
   or the ask's column on a narrower laptop; `.ask-form` is a size container named `ask-form`)
   "Planning…" takes its own row under it, so the box never grows tall beside the button.
 - The topic page's ready state has regions `top` (header), `main` (in one breath, warm-up, path),
-  `rail` (Ask Claude, sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
+  `rail` (Ask Claude, the dossier option, Sources) and `end` (Delete) in `71-topic.js`. They stack in that order;
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The
   header, and the planning and failed pages, put the cover in a `.tp-split` with the words: above
   them on a phone, beside them (in the rail's column) at 900 px and up.

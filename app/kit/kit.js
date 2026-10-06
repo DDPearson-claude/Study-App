@@ -148,6 +148,9 @@
   function applyTheme(t) {
     t = t && typeof t === 'object' ? t : {};
     var dark = !!t.dark, base = dark ? DARK : LIGHT, src = t.c || {};
+    // roles: host-written replacements for the kit's own data roles (the dossier's ink-on-paper
+    // plates); never model-written. Without them the kit keeps its tuned roles.
+    if (t.roles && typeof t.roles === 'object') { base = Object.assign({}, base); KIT_ROLES.forEach(function (k) { if (typeof t.roles[k] === 'string' && t.roles[k]) base[k] = t.roles[k]; }); }
     K.theme.dark = dark;
     K.theme.size = clamp(+t.size || 16, 14, 24);
     hostMute = !!t.mute;

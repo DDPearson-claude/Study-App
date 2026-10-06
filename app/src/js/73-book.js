@@ -1,4 +1,6 @@
-// Book (#/book): Dan's own words. For every idea he has explained back ("say it back" in a
+// The Library tab (#/book): the course dossiers' shelves first (75-dossier.js draws them), then
+// "In your own words", a link to the Book.
+// Book (#/book/words): Dan's own words. For every idea he has explained back ("say it back" in a
 // lesson), it shows his first explanation and his latest, with dates, so he can see how his
 // understanding grew, plus the questions he asked Claude. Exports as Markdown or JSON.
 // Reads progress.ideas[iid].say and progress.questions, each either a keyed map
@@ -94,6 +96,25 @@
   }
 
   U.routes.add('#/book', function (params, ctx) {
+    var body = U.h('div', { class: 'dos lib-body' });
+    ctx.view.appendChild(U.h('div', { class: 'lib-page' },
+      U.h('header', { class: 'page-head' },
+        U.h('p', { class: 'eyebrow' }, 'Library'),
+        U.h('h1', null, 'Your library')),
+      body));
+    var slot = U.h('div', { class: 'lib-dossiers' });
+    body.appendChild(slot);
+    var stop = U.dossier && typeof U.dossier.shelf === 'function' ? U.dossier.shelf(slot, ctx) : null;
+    body.appendChild(U.h('section', { class: 'lib-sec', 'aria-labelledby': 'own-h' },
+      U.h('h2', { id: 'own-h' }, 'In your own words'),
+      U.h('a', { class: 'own', href: '#/book/words' },
+        U.h('span', { class: 'own-ico' }, U.icon('book')),
+        U.h('span', null, U.h('b', null, 'Your Book'), U.h('span', null, 'Your own explanations of each idea, first and latest, and the questions you asked.')),
+        U.h('span', { class: 'chev' }, U.icon('arrow')))));
+    return stop || undefined;
+  }, { tab: 'book', title: 'Library' });
+
+  U.routes.add('#/book/words', function (params, ctx) {
     var book = [];
     // Export lives quietly at the end, after his words.
     var actions = U.h('section', { class: 'book-actions', hidden: true, 'aria-labelledby': 'book-save-h' },
@@ -108,8 +129,9 @@
         } } }, 'Save a full copy')));
     var body = U.h('div', { class: 'book-body' }, U.h('div', { class: 'skeleton book-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'book' },
+      V.back('#/book', 'Library'),
       U.h('header', { class: 'page-head' },
-        U.h('p', { class: 'eyebrow' }, 'Book'),
+        U.h('p', { class: 'eyebrow' }, 'Your Book'),
         U.h('h1', null, 'In your own words'),
         U.h('p', { class: 'muted' }, 'Every idea you have explained back. Your first try and your latest sit together, so you can see how far you have come.')),
       body, actions));
@@ -141,7 +163,7 @@
     }, function (e) {
       if (ctx.alive()) U.clear(body).appendChild(V.loadError('Your Book', e, false));
     });
-  }, { tab: 'book', title: 'Book' });
+  }, { tab: 'book', title: 'In your own words' });
 
   U.book = { collect: collect, toMarkdown: toMarkdown, toJson: toJson };
 })();
