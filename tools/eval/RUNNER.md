@@ -5,6 +5,9 @@ inside the page. Your job is to answer them **exactly as that in-page Claude wou
 app's own validators and self-tests on what you produced, and report honestly.
 
 Inputs (given to you): QUERY, LEVEL (new|some|solid), SLUG, RUN (e.g. run1), RESEARCH (live|none).
+QUERY should be a fresh topic: not one an earlier eval used (`EVAL_SET` in `tests/prompts.test.mjs`
+keeps their words out of the prompts: vaccines, noise-cancelling headphones, rainbows, the Bronze
+Age collapse, the seasons, tides), and not a test fixture's (jet engines, the Roman Republic).
 Work in `/home/user/Study-App`. Output dir: `D=tests/out/eval-$RUN/$SLUG` (create it).
 Do not edit any file outside `$D`. Do not commit.
 

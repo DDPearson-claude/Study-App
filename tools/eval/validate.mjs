@@ -9,7 +9,7 @@
 // standing out by length, a rubric point its prompt gives away, an uncited source: see
 // docs/ARCHITECTURE.md section 5); after its one repair the app accepts a reply whose only
 // problems are soft. warnings: advice that is never a problem (a lesson whose interactive could
-// carry a target check but has none). Replies may
+// carry a target check but has none; with --topic, only for a kind that can have one). Replies may
 // contain prose or fences around the JSON; the answer is picked the way the app picks it
 // (U.parseJson.pick: the last JSON value in the reply that passes the validator).
 import { readFileSync } from 'node:fs';
@@ -40,6 +40,8 @@ try {
     // the notes it borrows from other ideas (U.prompts.lessonResearch) are numbered the same way.
     const topic = arg('topic') ? JSON.parse(readFileSync(arg('topic'), 'utf8')) : null;
     const idea = topic && (topic.ideas || []).find((i) => i.id === opts.iid);
+    // The idea's kind: no target-check advice for a kind write-lesson offers none (history, structure, concept).
+    if (idea) opts.kind = idea.kind;
     if (arg('sources')) {
       if (!topic) console.error('warning: no --topic, so the sources are numbered without the notes borrowed from other ideas; pass --topic as for the prompt.');
       const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps, topic && topic.ideas);

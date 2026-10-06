@@ -10,6 +10,7 @@
 //   U.prompts.lessonResearch(research, iid, deps?, ideas?) -> {notes, sources} | null   per-lesson numbering;
 //     deps: the ideas this one builds on, whose notes come along (after the idea's own); ideas: the
 //     course's ideas, so it can borrow other ideas' dated notes (history) and notes naming this id
+//   U.prompts.copyHost(url) -> why a source URL is a copy or a test server, not the publisher's page, or ''
 //   U.prompts.priorSummary(lessons) -> [{iid, title, terms, analogy, brief, numbers, asked}]
 //            what earlier lessons in a topic gave Dan (writeLesson's `prior`)
 //   U.prompts.truthRules({sources, history}) -> the CLAIMS THAT STAY TRUE and THE NUMBER RULE text
@@ -50,7 +51,7 @@
     'WHO YOU ARE TEACHING',
     '- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.',
     '- He learns best by doing and seeing: interactives, diagrams, graphs, charts, simulations. Words come after he has played, and point at what he saw.',
-    '- Warm, plain UK English (colour, metre, centre), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.',
+    '- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.',
     '- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious.',
     '- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.',
     '- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.',
@@ -107,7 +108,7 @@
       '3. oneBreath: the whole topic in 2-3 plain sentences (at most 75 words): the big picture he will hold onto when the details fade. No jargon he has not met.',
       '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5).',
       '   - A whole field ("Maths", "Physics", "History", "Music"): choose one slice that shows what the field is really about. Pick one big question it answers that would surprise an adult (for Physics, "why doesn\'t the Space Station fall?"), make it the hook, and build up to its answer through a chain of the field\'s big, surprising ideas, each building on the last.',
-      '   - Idea 1 starts from something he can see or feel (a push on a skateboard, a queue at a shop), not a definition or a parts list, and already teaches something most adults have never understood. A needed but well-known prerequisite ("white light holds every colour") goes inside idea 1 as its starting point, never as an idea of its own.',
+      '   - Idea 1 starts from something he can see or feel (a push on a skateboard, a queue at a shop), not a definition or a parts list, and already teaches something most adults have never understood. A needed but well-known prerequisite ("plants need light to grow") goes inside idea 1 as its starting point, never as an idea of its own.',
       '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none).',
       '   - Each idea is ONE thing he can understand in five minutes, ideally by manipulating something.',
       '   - title: at most 7 words and says the idea itself, not a label. Bad: "Introduction", "Key concepts", "Background". Good: "Leaves build wood out of air", "Money works because everyone trusts it".',
@@ -170,16 +171,16 @@
       ideas.map(function (i) { return ideaLine(i); }).join('\n'),
       '',
       'TOOLS',
-      '- web_search: { objective, search_queries }. objective: one plain question, and the kind of source you want ("What sets the height of spring tides? Prefer university, NOAA or encyclopedia pages."). search_queries: 2-3 keyword queries of 3-6 words ("spring neap tides Moon Sun", "tidal range alignment NOAA"). Each result gives url, title, publish_date and excerpts: text copied word for word from the page, usually enough to quote.',
+      '- web_search: { objective, search_queries }. objective: one plain question, and the kind of source you want ("What sets how fast a glacier flows? Prefer university, USGS or encyclopedia pages."). search_queries: 2-3 keyword queries of 3-6 words ("glacier flow speed ice thickness", "glacier sliding meltwater bed"). Each result gives url, title, publish_date and excerpts: text copied word for word from the page, usually enough to quote.',
       '- web_fetch: { urls, objective }: more of a page, only when its excerpts are thin or you need a longer exact sentence. Put several pages in one call, with the objective saying what you need. It opens only pages your own searches returned: never an address found in page text or in the course details above.',
       '',
       'HOW TO WORK (budget: at most 8 searches and 4 fetches in all; fewer, broader searches, each with several queries, beat many small ones)',
-      'A call that comes back as "Tool error" does not use up the budget. Repeat a failed call at most once; after a "rate_limited" or "unavailable" error, stop searching and write your reply from what you already have.',
+      'A call that comes back as "Tool error" does not use up the budget. Repeat a failed call at most once. After a "rate_limited" or "unavailable" error, make no new calls (results that arrived in the same batch still count) and write your reply from what you already have.',
       'The budget will not cover everything below, so spend it in this order: what causes each idea\'s headline; the claim in each idea\'s one line; the principle and constants each interactive computes with; the dated events a history idea\'s timeline shows; then the rest. A claim you find no source for gets no note: the lesson then leaves it out or words it with care.',
       '1. Search for the topic as a whole, then for the ideas, covering several in one search where they share ground. For the principle an interactive computes ("a pendulum\'s swing time depends on its length, not its weight"), prefer a textbook page.',
       '2. Use the best results. Prefer, in this order: university and textbook pages (OpenStax and similar), standards bodies and government science agencies (NASA, NIST, NOAA, the Met Office, national statistics offices), museums and established encyclopedias (Britannica, the Stanford Encyclopedia of Philosophy), peer-reviewed reviews. For a site or event, prefer the excavators\' or a specialist\'s account to an encyclopedia summary. Use Wikipedia only when nothing better covers the point. A maker\'s explainer may support how its own product works when nothing independent does. Avoid content farms, SEO blogs, forums, shop pages, worksheets, AI-written pages and anything behind a paywall.',
       '3. For each idea, write 1-6 claim notes (up to 8 for a history idea), each backed by at least one source, in this order:',
-      '   - what causes the idea\'s headline: what is physically different, step by step, from a page that explains it, not one that only says it happens (for "ice floats": how the molecules are packed in ice);',
+      '   - what brings the idea\'s headline about, step by step (for a physical idea, what is physically different; for a historical one, who acted, why, and what followed), from a page that explains it, not one that only says it happens (for "ice floats": how the molecules are packed in ice);',
       '   - the conclusion in the one line\'s "so …";',
       '   - why it mattered to people then, when a source says so;',
       '   - the facts and numbers. For every constant an interactive computes with, quote one sentence that defines it (density = mass ÷ volume) as well as one that gives its value. For a history idea about timing or order, give dated events across its whole period, earliest to latest, from as many places as the budget allows (aim for five); for each dated event, also quote how it was dated (a dated document, coins, tree rings, radiocarbon) when the page says so.',
@@ -188,14 +189,14 @@
       '   Numbers that differ between good sources (a range, a convention, a rounding) are not contested: give the spread in the claim ("150 to 200 years; one survey says about 250") and cite each. When a reputable page oversimplifies or contradicts the mainstream account, cite the fuller source and say so in the claim.',
       '',
       'SOURCES AND QUOTES',
-      '- Each entry in "sources" is ONE exact quote from ONE page your tools returned: one unbroken run of at most 40 words, copied character for character from that page\'s excerpts or fetched text. Part of a sentence is fine when it reads sensibly on its own. No paraphrase, no stitched fragments, no added words or brackets of your own, no ellipses; choose a run without reference markers ("[12]"). If the words you need were not in the text you were shown, do not quote them.',
+      '- Each entry in "sources" is ONE exact quote from ONE page your tools returned: one unbroken run of at most 40 words, copied character for character from that page\'s excerpts or fetched text. An excerpt ending in "…" was cut short: quote only words before the cut, or fetch the page. Part of a sentence is fine when it reads sensibly on its own. No paraphrase, no stitched fragments, no added words or brackets of your own, no ellipses; choose a run without reference markers ("[12]"). If the words you need were not in the text you were shown, do not quote them.',
       '- Dan reads the quote, so choose clean passages: skip text with broken spacing ("water , the"), words split across lines, missing symbols, table rows, or maths markup ("$x^2$", "[latex]…[/latex]"). If the only passage for a point is damaged, find another source.',
-      '- Pick a quote that supports the claim citing it on its own, read cold by someone who has not seen the page. Keep in it any date, place or qualifier that limits the claim; never cut a sentence so it reads wider than it was. Prefer a page\'s general statement to its description of one figure. When a quote describes a case without naming it ("the battle"), add a quote that names and dates it.',
+      '- Pick a quote that supports the claim citing it on its own, read cold by someone who has not seen the page. Keep in it any date, place or qualifier that limits the claim; never cut a sentence so it reads wider than it was. Prefer a page\'s general statement to its description of one figure, and where you can, a quote showing people acting on the rule (a mill built where the river falls fastest). When a quote describes a case without naming it ("the battle"), add a quote that names and dates it.',
       '- A date range in brackets after a name (a period, a dynasty, a reign) dates that name, not the event in the sentence; if it is not clear which, do not use the number. Leave out a quote whose numbers and words disagree (60 years called "a century"). A date given as "years before present" (before AD 1950): quote that definition too, so the lesson can say it as a year BC or AD.',
       '- Avoid quotes that state a known misconception as fact ("heavier things fall faster"); if none better exists, word the claim correctly and add "(source\'s wording is loose: …)".',
       '- If one page supports several claims with different sentences, add one entry per quote (same url and title, different n).',
       '- url: the page\'s exact URL as the tool gave it, from the original publisher, never a copy, mirror or file-sharing upload. An abstract the tools returned may be quoted; never cite what is behind a paywall that you did not see.',
-      '- title: the page\'s title as the tool gave it, plus the publisher, e.g. "Tides and Water Levels — NOAA Ocean Service". A title cut short stays cut short: never complete or improve a title from memory.',
+      '- title: the page\'s title as the tool gave it, plus the publisher, e.g. "How Glaciers Move — USGS". A title cut short stays cut short: never complete or improve a title from memory.',
       '- n: 1, 2, 3, … in order.',
       '- Never cite a page your tools did not return. Never quote from memory. Never invent or "fix up" a URL. Sources whose URL and quote cannot be matched to what the tools returned are deleted automatically, together with any note that relies only on them.',
       '- If you find nothing trustworthy for an idea, give it an empty notes list rather than guessing.',
@@ -223,17 +224,39 @@
   // single {notes, sources} doc. deps (ids of the ideas this one builds on) adds their notes as
   // 'earlier'. ideas (the course's ideas in teaching order) lets it borrow notes filed under the
   // other ideas (scope 'other', listed straight after the idea's own): for a history idea every
-  // note whose claim holds a date, for any idea every note that names its id; nearest ideas first,
-  // at most BORROW.notes notes bringing at most BORROW.sources new sources, never a claim it
-  // already has. Without ideas nothing is borrowed. Borrowed notes' sources are numbered after all
-  // the others, so the rest keep their numbers either way; a caller that numbers a lesson's sources
-  // (31-generate, tools/eval/validate.mjs) passes the same research and ideas as writeLesson does.
+  // note whose claim names a year inside the idea's own period (from the first to the last year
+  // its title, one line and own notes name; none named, no dates are borrowed), for any idea
+  // every note that names its id. Never a contested note, a claim it already has, or a note whose
+  // sources it already cites; nearest ideas first, at most BORROW.notes notes bringing at most
+  // BORROW.sources new sources. Without ideas nothing is borrowed. Borrowed notes' sources are
+  // numbered after all the others, so the rest keep their numbers either way; a caller that
+  // numbers a lesson's sources (31-generate, tools/eval/validate.mjs) passes the same research
+  // and ideas as writeLesson does.
   // ==================================================================================
-  var BORROW = { notes: 8, sources: 12 };
-  // A claim that holds a date: a year with its era ("1177 BC", "AD 79", "1440-1450 CE"), a
-  // century ("14th to 13th centuries"), "c. 1450", a year after "in", "by", "from"… ("in 1815",
-  // "in the 1950s"), or "3,200 years ago".
-  var DATED = /\b\d{1,4}(?:\s*[–-]\s*\d{1,4})?\s*(?:BC|BCE|AD|CE|BP)\b|\b(?:AD|CE)\s*\d{1,4}\b|\b\d{1,2}(?:st|nd|rd|th)(?:\s*(?:[–-]|to|and|or)\s*\d{1,2}(?:st|nd|rd|th))?\s+centur(?:y|ies)\b|(?:\b(?:in|since|until|till|by|from|before|after|around|circa)\s+|\b(?:c|ca)\.\s*)(?:the\s+)?(?:1\d{3}|20\d{2})s?\b|\b\d[\d,]*\s+years\s+(?:ago|before\s+present)\b/i;
+  var BORROW = { notes: 4, sources: 6 };
+  // The years a text names, as numbers (BC below zero): a year with its era ("133 BC", "AD 79",
+  // "1440-1450 CE", "3000 BP"), a century (both its ends: "the 14th century", "14th to 13th
+  // centuries BCE"), "c. 1450", a year after "in", "by", "from"… ("in 1815"; "in the 1950s" is
+  // 1950-1959), or "3,200 years ago" (counted from 2000; "before present" from 1950).
+  function yearsIn(t) {
+    var x = s(t), out = [], m;
+    var era = /\b(\d{1,4})(?:\s*[–-]\s*(\d{1,4}))?\s*(BC|BCE|AD|CE|BP)\b/gi, lead = /\b(?:AD|CE)\s*(\d{1,4})\b/g;
+    var cent = /\b(\d{1,2})(?:st|nd|rd|th)(?:\s*(?:[–-]|to|and|or)\s*(\d{1,2})(?:st|nd|rd|th))?\s+centur(?:y|ies)(\s+(?:BC|BCE)\b)?/gi;
+    var after = /(?:\b(?:in|since|until|till|by|from|before|after|around|circa)\s+|\b(?:c|ca)\.\s*)(?:the\s+)?(1\d{3}|20\d{2})(s?)\b(?!\s*(?:BC|BCE|BP|AD|CE)\b)/gi;
+    var ago = /\b(\d[\d,]*)\s+years\s+(ago|before\s+present)\b/gi;
+    while ((m = era.exec(x))) {
+      var e = m[3].toUpperCase();
+      [m[1], m[2]].forEach(function (n) { if (n) out.push(e === 'BP' ? 1950 - Number(n) : e.charAt(0) === 'B' ? -Number(n) : Number(n)); });
+    }
+    while ((m = lead.exec(x))) out.push(Number(m[1]));
+    while ((m = cent.exec(x))) {
+      var bc = !!m[3];
+      [m[1], m[2]].forEach(function (c) { if (c) { c = Number(c); out.push(bc ? -100 * c : 100 * c - 99, bc ? 99 - 100 * c : 100 * c); } });
+    }
+    while ((m = after.exec(x))) out.push(Number(m[1]), Number(m[1]) + (m[2] ? 9 : 0));
+    while ((m = ago.exec(x))) out.push((/ago/i.test(m[2]) ? 2000 : 1950) - Number(m[1].replace(/,/g, '')));
+    return out;
+  }
   function lessonResearch(r, iid, deps, ideas) {
     if (!isObj(r)) return null;
     var docs = [], others = [];
@@ -293,29 +316,47 @@
     return { notes: notes, sources: sources };
   }
   // The notes a lesson borrows from other ideas (see lessonResearch), nearest ideas first (the
-  // earlier of two as near), each with at least one source, within BORROW.
+  // earlier of two as near), each bringing at least one source the lesson does not cite yet,
+  // within BORROW. have: the lesson's own, earlier and topic notes.
   function borrow(others, iid, course, have, look, take) {
     if (!others.length) return [];
     var ids = course.map(function (i) { return i.id; });
     var me = course.filter(function (i) { return i.id === iid; })[0];
-    var history = !!me && me.kind === 'history';
     var names = new RegExp('(^|[^A-Za-z0-9_])' + iid.replace(/[^A-Za-z0-9_]/g, '\\$&') + '(?![A-Za-z0-9_])');
+    // A history idea's own period: the first to the last year its title, one line and own notes name.
+    var years = [];
+    if (me && me.kind === 'history') [me.title, me.oneLine].concat(have.filter(function (n) { return n.scope === 'idea'; }).map(function (n) { return n.claim; })).forEach(function (t) { years = years.concat(yearsIn(t)); });
+    var lo = Math.min.apply(null, years), hi = Math.max.apply(null, years);
+    function inPeriod(t) { return years.length > 0 && yearsIn(t).some(function (y) { return y >= lo && y <= hi; }); }
     function pos(k) { var i = ids.indexOf(k); return i >= 0 ? i : (/^i\d+$/.test(k) ? Number(k.slice(1)) - 1 : 1e6); }
     var here = pos(iid), seen = {}, out = [], fresh = 0;
     have.forEach(function (n) { seen[one(n.claim).toLowerCase()] = 1; });
     others.slice().sort(function (a, b) { return Math.abs(pos(a.iid) - here) - Math.abs(pos(b.iid) - here) || pos(a.iid) - pos(b.iid); }).forEach(function (d) {
       (Array.isArray(d.notes) ? d.notes : []).forEach(function (note) {
-        if (out.length >= BORROW.notes || !note || !isStr(note.claim)) return;
-        var text = one(note.claim) + ' ' + one(note.contested), key = one(note.claim).toLowerCase();
-        if (seen[key] || !((history && DATED.test(text)) || names.test(text))) return;
+        if (out.length >= BORROW.notes || !note || !isStr(note.claim) || isStr(note.contested)) return;
+        var text = one(note.claim), key = text.toLowerCase();
+        if (seen[key] || !(names.test(text) || inPeriod(text))) return;
         var l = look(note, d.sources);
-        if (!l.srcs.length || fresh + l.fresh > BORROW.sources) return;
+        if (!l.fresh || fresh + l.fresh > BORROW.sources) return;
         seen[key] = 1;
         fresh += l.fresh;
         out.push(take(note, l.srcs));
       });
     });
     return out;
+  }
+  // Why a URL is not its publisher's own page, or '': a copy (a web archive, a cache or a
+  // translation proxy, a file-sharing upload) or a test server (a host label "qa", "dev",
+  // "staging"…, alone or hyphenated: "mendel-qa.dev-ext.…"). The research filter drops these.
+  var COPY_HOST = /(^|\.)(archive\.org|archive\.(ph|is|today|li|md|vn)|webcache\.googleusercontent\.com|translate\.goog|scribd\.com|studocu\.com|coursehero\.com|docplayer\.net|pdfcoffee\.com|dokumen\.pub)$/;
+  var TEST_LABEL = { qa: 1, dev: 1, staging: 1, stage: 1, stg: 1, preprod: 1, uat: 1, sandbox: 1, test: 1 };
+  function copyHost(u) {
+    var m = /^https?:\/\/(?:[^@\/?#]*@)?([^\/?#:]+)/i.exec(s(u).trim());
+    if (!m) return '';
+    var host = m[1].toLowerCase().replace(/\.$/, '');
+    if (COPY_HOST.test(host)) return 'a copy of the page, not its publisher\'s own';
+    var labels = host.split('.').slice(0, -1);
+    return labels.some(function (l) { return l.split('-').some(function (w) { return TEST_LABEL[w]; }); }) ? 'a test server, not the published site' : '';
   }
   function urlKey(u) {
     return s(u).trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\d?\./, '').replace(/#.*$/, '').replace(/\/+$/, '');
@@ -327,7 +368,7 @@
   // The interactive's form follows the idea's kind.
   var KIND_PLAY = {
     mechanism: 'a moving diagram he drives himself, with the cause drawn: what your explanation\'s "because" says happens on the picture (heat creeping along a spoon), set off by an action he performs (a button, a drag), not a switch he flips and watches. Include a setting where the cause does not produce the effect, so he sees both sides of the rule.',
-    quantity: 'a slider for the input, a live readout of the result and a plot of the result against that input, so he sees the shape of the rule (doubling, square law, levelling off); bars or dots for a result that jumps in whole steps. If the idea is that things pile up or spread out (heights in a crowd), also show the pile: 50 or more evenly spaced cases sent through the rule, counted in bands.',
+    quantity: 'a slider for the input, a live readout of the result and a plot of the result against that input, so he sees the shape of the rule (doubling, square law, levelling off); bars or dots for a result that jumps in whole steps. If the idea is about how many cases fall at each value (heights in a crowd), also show the pile: 50 or more evenly spaced cases sent through the rule, counted in bands.',
     process: 'a stepper through the stages (or Play), the picture changing at each and drawing the thing that carries the change (the bubbles trapped in rising dough), not only its effect. If an earlier stage changes a later one, add a switch for that cause beside the stepper: a stepper alone is a slideshow.',
     structure: 'a labelled diagram of the parts: he switches a part off, or picks one by name, and sees what depends on it.',
     history: 'a timeline he moves through, not a slideshow: a numeric control in years after the first date ("Years after 500 BC") or a named stepper of dates in time order, each documented event appearing at its date; or he picks a cause or view by name and sees, beside the documented dates, a labelled sketch of the pattern it expects. A stepper only when every step changes the drawing.',
@@ -406,7 +447,7 @@
       return lines.join('\n');
     }
     var out = ['RESEARCH: the only sources you may cite (cite as [^n] with these numbers)',
-      'The course plan was written before this research. A detail in the plan that these notes do not back (a specific event, number or claim) stays out of the lesson, or is said with care ("probably", "some historians think").'];
+      'The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.'];
     lr.sources.forEach(function (src) {
       out.push('[' + src.n + '] ' + data(src.title, 160) + ' — ' + data(src.url, 300));
       out.push('    "' + data(src.quote, 400) + '"');
@@ -446,7 +487,7 @@
       '- constant: a fixed real-world value: ' + (o.sources ? 'with "source": n when a source above states it, otherwise ' : '') + 'a textbook-standard value you are certain of, presented as one' + (o.sources ? ', labelled with nothing its quote lacks' : '') + '; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;',
       '- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve\'s shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;',
       '- date: a historical date or documented fact' + (o.sources ? ', with "source": n when a source above states it' : '') + '.' + (o.history
-        ? ' A date range is uncertainty about when one event happened, not how long it took ("sometime between 520 and 510 BC"): overlapping ranges are no evidence that events were spread out, and what truly lasted (a forest cleared over a century) is never a point. Say how a date was found only if a quote says so, give years before present as BC or AD, and say when two sources\' dates do not fit together.' : ''),
+        ? ' A date range is when one event happened, not how long it took; what truly lasted (a forest cleared over a century) is never a point. Give years before present as BC or AD, and say when two sources\' dates do not fit together.' : ''),
       'Numbers in a hypothetical check case and in tempting wrong options are fine; no other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model\'s result and a cited real value differ, say why in one clause and use the real value in explain, checks and whys.',
     ].join('\n');
   }
@@ -485,12 +526,11 @@
     var debated = (idx >= 0 ? ideas.slice(idx + 1) : []).some(function (i) { return i && DEBATE.test(s(i.title) + ' ' + s(i.oneLine)); });
     // This idea is itself argued about (its title or one line says so, or its research flags it).
     var debatedHere = DEBATE.test(s(idea.title) + ' ' + s(idea.oneLine)) || !!(lr && lr.notes.some(function (n) { return n.scope === 'idea' && n.contested; }));
-    // Kinds whose interactive can have a readout a real rule computes, so target checks are possible.
-    var readouts = ['history', 'structure', 'concept'].indexOf(kind) < 0;
+    var readouts = readoutKind(kind);
     var first = idx <= 0, last = idx >= 0 && idx === ideas.length - 1;
     var extra = [];
     if ((first || last) && isStr(topic.hook)) extra.push('just before the takeaway, one sentence on the part this idea plays in answering the course\'s puzzle' + (last ? '' : ', without teaching the next idea'));
-    if (kind === 'history') extra.push('why it mattered to people then, from a source');
+    if (kind === 'history') extra.push('one sentence on why it mattered to people then, from a source');
     var checkTypes = [
       '{ "id": "cN", "type": "choice", "q": "…", "options": ["…", "…", "…"], "answer": 1, "misconception": { "0": "…", "2": "…" }, "why": "…" }',
       readouts ? '{ "id": "cN", "type": "target", "q": "…", "control": "speed", "output": "result", "target": 50, "tolerance": 1, "why": "…" }' : null,
@@ -555,35 +595,36 @@
       '',
       'predict',
       '- q (at most 40 words): what happens when Dan changes something from the interactive\'s opening state. He has read this idea\'s title and one line and sees that screen, so none may give the answer: aim where intuition fails, at what they leave open (how much, how soon, which way, an in-between setting, the case where nothing happens), without stating the rule or mechanism. If most adults would get it right, ask about another case.',
-      '  With a half-full kettle on screen, ask "Fill it to the top: how much longer will it take to boil?", not "How long does it take to boil?" (the screen shows it).',
+      '  With a half-full kettle on screen, ask "Fill it to the top: how much longer to boil?", not "How long does it take to boil?" (the screen shows it).',
       '- options: 2-4 outcomes (at most 12 words each) in the same terms and of about the same length, no reasons attached, each one a thoughtful adult might pick, the common intuition among them (no straw men such as "longer, because the water gets tired"). Leave them out only when a free guess works better.',
       '- reveal (at most 50 words): what happens and why the tempting answer tempts (and where it holds, if anywhere), reading well whatever he chose.',
+      kind === 'history' ? '- For this history idea, ask which pattern the dates will show (sooner or later, bunched or spread, before or after a named event), reasoned from the course so far, never a bare date.' : null,
       debatedHere ? '- If the idea itself is debated, ask which view he finds more convincing, naming no winner; if only a detail is (how long, how many), predict what the evidence settles.' : null,
       '',
       'interactive',
       '- Its form, for a ' + kind + ' idea: ' + KIND_PLAY[kind],
-      sound ? '- Sound only when hearing teaches what the picture cannot (two notes beating): one button starts a sound that plays on while he moves the control. Say how much a slowed picture is slowed.' : null,
+      sound ? '- Sound only when hearing teaches what the picture cannot (a string\'s note rising as it is tightened): one button starts a sound that plays on while he moves the control. Say how much a slowed picture is slowed.' : null,
       '- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.',
       '- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action' + (kind === 'mechanism' ? ', naming the cause as well as the change' : '') + '. It drives the build. Before play the app shows only "Try this: " and your "when you" half (the whole sentence after the reveal), so that half names the action, never the answer.',
       '- title: at most 6 words.',
       '- controls: ' + (oneControl ? 'one. Add a second only if the idea cannot be seen without it' + (kind === 'process' ? ' (a switch for an earlier stage\'s cause counts)' : '') : '1-2; a second only when it shows something the first cannot') +
         '. Each has an id (camelCase) and a label (at most 6 words), and is either',
-      '    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none)' + (history ? '; its numbers rise as it moves right (never a slider whose numbers fall, as years BC do: count years after the first date)' : '') + '; an on/off switch is min 0, max 1, step 1 and may start off; or',
+      '    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none)' + (history && kind !== 'history' ? '; its numbers rise as it moves right (for years BC, count years after the first date)' : '') + '; an on/off switch is min 0, max 1, step 1 and may start off; or',
       '    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option\'s 0-based index).',
-      '  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).' + (history || kind === 'structure' ? ' A map is a labelled "sketch map": true relative positions, no invented distances.' : ''),
+      '  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).' + (kind === 'history' || kind === 'structure' ? ' A map is a labelled "sketch map": true relative positions, no invented distances.' : ''),
       '- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.',
-      '- whatAmILookingAt (at most 120 words; aim for about 100), shown as "What am I looking at?": the rule the model follows, in plain words built from steps he can see, then any short equation (each symbol named)' + (isNew ? '; for this new learner, simple arithmetic only' : '') + '. Describe the rule, not an animation, naming each part the picture needs (reference lines, axes).',
+      '- whatAmILookingAt (at most 120 words; aim for about 100), shown as "What am I looking at?": the rule the model follows, in plain words built from steps he can see, then any short equation (each symbol named)' + (isNew ? '; for this new learner, simple arithmetic only' + (readouts ? ': say a rule that needs more in words, with two values the picture shows ("four times the length, twice the swing time")' : '') : '') + '. Describe the rule, not an animation, naming each part the picture needs (reference lines, axes).',
       '- ignores (at most 50 words), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.',
       '- numbers: every number it shows (each control\'s opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind' + (hasSources ? ', source where cited' : '') + ' }: see THE NUMBER RULE.',
       '- "interactive": null only when nothing at all can be played with (rare)' + (readouts ? '; then no target check' : '') + '.',
       '',
-      'explain (at most 170 words; aim for about 150): within that, it must',
+      'explain (at most 170 words; aim for 140): within that, it must',
       '- Open with what playing shows, in one or two sentences, as something he can do or check, never as something he did ("Slide it to 20 and the line doubles", not "When you slid…"), naming parts of the picture as your brief and controls do, never by its shade (dark mode swaps them).',
-      '- Give the why a specialist accepts at this level, one step per sentence, from something he knows or has felt (a full shopping trolley is harder to stop), naming what makes each step happen, his control\'s effect included. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.' +
-        (kind === 'history' ? ' For this history idea, the why is how we know: the evidence and how it was dated, as far as the quotes say, so why a date is a window and what the pattern rules in or out.' : ''),
-      '- Teach every part of "What Dan should come away understanding" (with care where RESEARCH does not back it). Name a teaching model (an ideal case) as one in a clause, with confidence "simplified"; offer a why RESEARCH does not support as "One way to picture it: …".' + (isNew ? ' For this new learner, at most two numbers, ones the picture shows.' : ''),
+      kind === 'history' ? '- Give the why: for this history idea, the chain the sources give, one step per sentence: who acted, why, and what that led to. Add how we know (the evidence, how it was dated) only where a quote says so.'
+        : '- Give the why a specialist accepts at this level, one step per sentence, from something he knows or has felt (a full shopping trolley is harder to stop), naming what makes each step happen, his control\'s effect included. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.',
+      '- Teach every part of "What Dan should come away understanding". Name a teaching model (an ideal case) as one in a clause, with confidence "simplified".' + (isNew ? ' For this new learner, at most two numbers, ones the picture shows.' : ''),
       '- Close with a one-sentence takeaway, ' + (hasSources ? 'footnoted when a source supports it and ' : '') + 'no wider than the places and period its sources describe (unsourced, than the steps above).',
-      extra.length ? '- Only if words remain, also: ' + extra.join('; ') + '.' : null,
+      extra.length ? '- Only if the rest came to under 140 words, also: ' + extra.join('; ') + '.' : null,
       '- 2-4 short paragraphs split by a blank line ("\\n\\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).',
       '',
       'analogy (optional)',
@@ -596,12 +637,12 @@
       '- model (at most 60 words): 2-3 sentences meeting every point, sounding like a person, not a textbook.',
       '',
       'checks (3; 2 only when a third would repeat the predict or the say-it-back)',
-      '- One per side: the why; the limit (where the rule stops holding: a lever lets you push less hard, but further); and a new case the interactive did not show, comparing amounts where the idea involves how much, how many or how long' + (readouts ? ' (a target check can be this one)' : '') + '.',
+      '- One per side: the why; the limit: a case the rule does not cover, or only partly (a lever lets you push less hard, but further' + (kind === 'history' ? '; for history, what the cause did not do or where the pattern breaks' : '') + '); and a new case the interactive did not show, comparing amounts where the idea involves how much, how many or how long' + (readouts ? ' (a target check can be this one)' : '') + '.',
       '- Each tests understanding, not recall of a wording or number; needs only this idea and those it builds on, with every step of its answer in your explanation or on the interactive; and makes sense alone weeks later. q and why (the right answer explained from the idea): at most 50 words each.',
       '- choice: 3-4 options (2 only for a genuine either-or), at most 12 words each, about the same length. Wrong options are misconceptions real people hold or near misses, in the same terms (if you cannot say who believes one, replace it). The right option never repeats the takeaway or four words in a row of your explanation, reveal or model answer (names for things aside); the question states no fact that rules an option out; vary the right answer\'s position. misconception: per wrong option index, one warm sentence to Dan as "you": why it tempts and why it is wrong.',
       '- order: 3-6 items (at most 10 words each) in the CORRECT order, only for an order he could get wrong. Each item stands alone (no "it" or "then", never the interactive\'s step names); if the wording or the picture\'s left to right gives the order away, write a choice check.',
-      '- estimate: a number he sets on a slider, which he can reason his way to and the lesson never states; min < answer < max; tolerance > 0; unit; "log": true when the range spans over 100x (then min > 0).',
-      readouts ? '- target: "Set X so that Y reaches Z" on this interactive; control: a numeric control with 3+ settings; output: an output id; target; tolerance > 0. Write one only when reaching it needs the idea: a value the lesson never prints, ideally past a turning point. With the other controls at their opening values, some step must show the target exactly at the readout\'s decimals (else ask for "about Z"); why names every setting that works.' : null,
+      '- estimate: a number he sets on a slider, which he can reason his way to and the lesson never states; min < answer < max; "log": true when the range spans over 100x (then min > 0).',
+      readouts ? '- target: "Set X so that Y reaches Z" on this interactive; control: a numeric control with 3+ settings; output: an output id. Write one only when reaching it needs the idea: a value the lesson never prints, ideally past a turning point. With the other controls at their opening values, some step must show the target exactly at the readout\'s decimals (else ask for "about Z"); why names every setting that works.' : null,
       '',
       'confidence',
       '- "settled": mainstream and uncontroversial at this level.',
@@ -620,8 +661,8 @@
       '',
       'SOURCES',
       hasSources ? [
-        '- Put [^n] straight after the words its quote supports, using only the numbers under RESEARCH; split a sentence that adds reasoning the quote lacks. Every fact or number a source covers gets its footnote. Prefer a quote showing people acting on the rule (a mill built where the river falls fastest).',
-        '- A fact RESEARCH does not support appears only if a standard textbook states it: no footnote, said as "textbooks add that …", and never the only support for the predict\'s answer.',
+        '- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Every fact or number a source covers gets its footnote.',
+        '- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted, never the only support for the predict\'s answer); a picture of why only as "One way to picture it: …"; any other plan detail stays out.',
         '- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.',
       ].join('\n') : '- No footnotes: there are no checked sources for this lesson. "sources": [], no [^n] markers and no "source" fields, and no web addresses anywhere in the lesson.',
       '',
@@ -630,7 +671,7 @@
       '- None of the title, the one line, the opening screen and the calibration answers gives the predict\'s answer away.',
       '- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.',
       '- You worked out every check\'s answer yourself: each marked answer is right' + (readouts ? ' and each target reachable' : '') + '.',
-      kind === 'history' ? '- Placed on your axis, the dates show the change your brief names. If they bunch, the brief, predict, takeaway and rubric follow what the dates show, and the explanation says in one sentence which part of the one line this lesson cannot yet show. No date or span would surprise a specialist (drop a source number that would).' : null,
+      kind === 'history' ? '- Placed on your axis, the dates show the change your brief names (overlapping date ranges are no evidence that events were spread out). If they bunch, the brief, predict, takeaway and rubric follow what the dates show, and the explanation says in one sentence which part of the one line this lesson cannot yet show. No date or span would surprise a specialist: leave out any sourced date a specialist would doubt.' : null,
       hasSources ? '- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".' : '- There are no [^n] markers and "sources" is [].',
       '',
       'OUTPUT',
@@ -965,7 +1006,11 @@
     }
     return '';
   }
-  // opts: {iid, sources: [allowed lesson sources] | null (no research) | undefined (don't care), final}
+  // Kinds whose interactive can have a readout a real rule computes, so a target check is possible
+  // (write-lesson offers target checks only to these; the validator advises one only for these).
+  function readoutKind(kind) { return ['history', 'structure', 'concept'].indexOf(kind) < 0; }
+  // opts: {iid, sources: [allowed lesson sources] | null (no research) | undefined (don't care), final,
+  //        kind: the idea's kind (no target-check advice for a kind write-lesson gives none)}
   function vLesson(o, opts) {
     opts = opts || {};
     var v = V();
@@ -1121,7 +1166,7 @@
         if (!isNum(c.tolerance) || !(c.tolerance > 0)) v.add(p + '.tolerance must be a number greater than 0.');
       } else v.add(p + '.type must be "choice", "order", "estimate" or "target".');
     });
-    if (isObj(it) && outs.length && Object.keys(slider).length && !targets && Array.isArray(o.checks)) v.warn('The interactive has outputs and a numeric control but no target check. That is fine unless reaching some value on it needs the idea; then a target check is worth adding.');
+    if (isObj(it) && outs.length && Object.keys(slider).length && !targets && Array.isArray(o.checks) && readoutKind(opts.kind)) v.warn('The interactive has outputs and a numeric control but no target check. That is fine unless reaching some value on it needs the idea; then a target check is worth adding.');
     lessonEchoes(o, v, isObj(it) ? it : null);
 
     // sources and footnotes
@@ -1206,19 +1251,33 @@
   // text b and that could give the answer away, or '': at least two of its words are not little
   // words ("one of the most" proves nothing), none is part of a term the lesson marks [[like
   // this]] (one name for each thing is a rule, not an echo), and no text in `skip` (the question,
-  // the wrong options) holds the same run (words the options share give nothing away).
+  // the wrong options) holds the same run (words the options share give nothing away). When a
+  // skip text holds the run's start or end (two or more words that are not little words), only
+  // the rest is returned, widened to the shortest run that still meets those rules, so the repair
+  // rewords the words that give the answer away.
   function sharedRun(a, b, skip, terms) {
-    var x = flatWords(a), y = ' ' + flatWords(b).join(' ') + ' ', best = [];
+    var x = flatWords(a), y = ' ' + flatWords(b).join(' ') + ' ', bi = 0, bj = 0;
     var off = termMask(x, terms);
     var not = (skip || []).filter(isStr).map(function (t) { return ' ' + flatWords(t).join(' ') + ' '; });
+    function big(run) { return run.filter(function (w) { return !LITTLE[w]; }).length; }
+    function held(run) { var at = ' ' + run.join(' ') + ' '; return not.some(function (t) { return t.indexOf(at) >= 0; }); }
+    function telling(run) { return run.length >= 4 && big(run) >= 2 && !held(run); }
     for (var i = 0; i + 4 <= x.length; i++) {
-      for (var j = x.length; j >= i + 4 && j - i > best.length; j--) {
-        var run = x.slice(i, j), at = ' ' + run.join(' ') + ' ';
-        if (off.slice(i, j).some(Boolean) || run.filter(function (w) { return !LITTLE[w]; }).length < 2) continue;
-        if (y.indexOf(at) >= 0 && !not.some(function (t) { return t.indexOf(at) >= 0; })) { best = run; break; }
+      for (var j = x.length; j >= i + 4 && j - i > bj - bi; j--) {
+        if (off.slice(i, j).some(Boolean) || !telling(x.slice(i, j))) continue;
+        if (y.indexOf(' ' + x.slice(i, j).join(' ') + ' ') >= 0) { bi = i; bj = j; break; }
       }
     }
-    return best.join(' ');
+    var m = bj - bi, p = 0, q = 0;
+    if (!m) return '';
+    while (p < m && held(x.slice(bi, bi + p + 1))) p++;
+    while (q < m && held(x.slice(bj - q - 1, bj))) q++;
+    if (big(x.slice(bi, bi + p)) < 2) p = 0;
+    if (big(x.slice(bj - q, bj)) < 2) q = 0;
+    if ((!p && !q) || p + q >= m) return x.slice(bi, bj).join(' ');
+    var lo = bi + p, hi = bj - q;
+    while (!telling(x.slice(lo, hi)) && (lo > bi || hi < bj)) { if (lo > bi) lo--; else hi++; }
+    return x.slice(lo, hi).join(' ');
   }
   // Which words of x (flatWords) belong to one of the terms (a plural "s" or "es" aside).
   function termMask(x, terms) {
@@ -1354,6 +1413,7 @@
     tutor: tutor,
     lessonResearch: lessonResearch,
     urlKey: urlKey,
+    copyHost: copyHost,
     words: words,
     priorSummary: priorSummary,
     footnotes: function (o) { return footnotesIn(o, 'sources'); },

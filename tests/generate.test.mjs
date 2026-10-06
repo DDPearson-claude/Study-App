@@ -471,7 +471,7 @@ test('the plan prompt: an adult beginner, a whole field as one slice building to
     'Pick one big question it answers that would surprise an adult (for Physics, "why doesn\'t the Space Station fall?"), make it the hook',
     'a chain of the field\'s big, surprising ideas, each building on the last',
     'already teaches something most adults have never understood',
-    'A needed but well-known prerequisite ("white light holds every colour") goes inside idea 1 as its starting point, never as an idea of its own.',
+    'A needed but well-known prerequisite ("plants need light to grow") goes inside idea 1 as its starting point, never as an idea of its own.',
     'Dan answers them on the topic page, under the hook and oneBreath and above the list of ideas, so the answer must not appear in the title, hook, oneBreath or any idea\'s title or oneLine.',
     'Ask about a consequence he has to reason out, not the idea\'s headline: if idea 1 says boiling water cannot get hotter, do not ask whether turning the heat up makes it hotter.',
     'a thoughtful adult could genuinely get wrong', 'exactly one right', 'in other words or units', '"3 bowls and 5 plates',
@@ -483,14 +483,14 @@ test('the plan prompt: an adult beginner, a whole field as one slice building to
   const at = (x) => p.indexOf(x);
   assert.ok(at('A whole field') > at('4. ideas:') && at('A whole field') < at('5. calibration:') && at('1. title:') < at('4. ideas:'), 'the whole-field pattern is in the ideas rule, not the title rule');
   assert.ok(!p.slice(at('1. title:'), at('2. hook:')).includes('field'), 'the title rule says nothing about fields');
-  for (const s of ['A whole field', 'white light holds every colour', 'must not appear in', 'Vary which position is right', 'answer the hook', 'well-established knowledge', 'genuinely disagree, say so'])
+  for (const s of ['A whole field', 'plants need light to grow', 'must not appear in', 'Vary which position is right', 'answer the hook', 'well-established knowledge', 'genuinely disagree, say so'])
     assert.ok(p.split(s).length <= 2, s + ' is said once');
   assert.ok(/^   - q: at most 30 words/m.test(p) && /^   - options: 3-4, exactly one right/m.test(p) && /^   - why \(at most 50 words\)/m.test(p), 'the calibration rule is split into short bullets');
   const solid = U.prompts.planTopic('Maths', { level: 'solid' });
   assert.ok(solid.includes('including where experts genuinely disagree today (say in words how widely each view is held; give a figure only from a source)'), 'solid level');
   const lesson = U.prompts.writeLesson({ ...PLAN_JET, level: 'new' }, PLAN_JET.ideas[0], {});
   assert.ok(lesson.includes('His level: NEW to this subject, not to life: a curious, intelligent adult who already knows everyday things (counting, clocks, that things fall). No maths beyond simple arithmetic; any rule is said in words first. Skip what every adult already knows and go straight to what most adults have never understood.\n'), 'the lesson writer hears the same level (and to skip the obvious), without the plan\'s idea count');
-  assert.ok(lesson.includes('explain (at most 170 words; aim for about 150)') && lesson.includes('explain.text is at most 170 words'), 'the prompts still ask for the same limits');
+  assert.ok(lesson.includes('explain (at most 170 words; aim for 140)') && lesson.includes('explain.text is at most 170 words'), 'the prompts still ask for the same limits');
 });
 
 test('a calibration answer already printed above the question is a soft problem; one shared word is not', () => {
@@ -772,6 +772,42 @@ test('lesson research brings the notes of the ideas this one builds on', () => {
   const topic = { ...PLAN_JET, ideas: PLAN_JET.ideas.map((i) => (i.id === 'i2' ? { ...i, deps: ['i1'] } : i)) };
   const prompt = U.prompts.writeLesson(topic, topic.ideas.find((i) => i.id === 'i2'), { research: r });
   assert.ok(prompt.includes('Earlier fact') && prompt.includes('(from an idea this one builds on)'), 'the lesson prompt shows them');
+});
+
+test('the app lends a history lesson the dated notes other ideas hold for its period, and keeps its citations of them', async () => {
+  const src = (n, host) => ({ n, title: 'Page ' + n, url: 'https://' + host + '/p' + n, quote: 'an exact quote number ' + n });
+  let prompt = '';
+  // The writer cites its own source [1] and the borrowed one [2], as the prompt numbers them.
+  const lesson = clone(L_ROME4);
+  lesson.explain.text += ' Tiberius was tribune in 133 BC.[^1] Gaius followed in 123 BC.[^2]';
+  lesson.sources = [{ ...src(1, 'own.org'), n: 1 }, { ...src(5, 'other.org'), n: 2 }];
+  const app = await boot({ handlers: handlers({ 'write-lesson': (input) => { prompt = firstUser(input); return lesson; } }) });
+  const { U } = app;
+  await app.seed('topics/t1', { ...clone(PLAN_ROME), id: 't1', research: { status: 'done', at: new Date().toISOString(), sources: 4 } });
+  await app.seed('topics/t1/research/i4', { notes: [{ claim: 'Tiberius Gracchus was tribune in 133 BC.', sourceIds: [1] }], sources: [src(1, 'own.org')] });
+  await app.seed('topics/t1/research/i6', { sources: [src(5, 'other.org'), src(6, 'other.org'), src(7, 'other.org')], notes: [
+    { claim: 'Gaius Gracchus was tribune in 123 BC.', sourceIds: [5] },
+    { claim: 'Marius reformed the army in 107 BC.', sourceIds: [6] },
+    { claim: 'Historians argue about 125 BC.', sourceIds: [7], contested: 'Two schools disagree.' }] });
+  const doc = await U.gen.ensureLesson('t1', 'i4');
+  assert.ok(prompt.includes('- Gaius Gracchus was tribune in 123 BC. [2]  (from another idea in this course)'), 'a dated note inside 133-123 BC is lent, numbered after the lesson\'s own');
+  assert.ok(!prompt.includes('107 BC') && !prompt.includes('125 BC'), 'not one outside the period, nor another idea\'s contested note');
+  assert.equal(doc.status, 'ready');
+  assert.deepEqual(plain(doc.lesson.sources).map((x) => x.url), ['https://own.org/p1', 'https://other.org/p5'], 'the citation of the borrowed source is a checked source');
+});
+
+test('the source filter drops copies and test servers, whatever the page said', async () => {
+  const { U } = await boot();
+  const quote = 'The Gracchi were tribunes.';
+  const keep = (url) => {
+    const c = U.gen._corpus();
+    c.add(JSON.stringify({ results: [{ url, title: 'Gracchi', excerpts: [quote] }] }));
+    const r = U.gen._filterResearch({ sources: [{ n: 1, title: 'Gracchi', url, quote }], topic: { notes: [{ claim: 'x', sourceIds: [1] }] }, ideas: {} }, c, []);
+    return r.kept === 1 ? '' : r.dropped[0].why;
+  };
+  assert.equal(keep('https://www.britannica.com/biography/Tiberius-Sempronius-Gracchus'), '');
+  assert.match(keep('https://mendel-qa.dev-ext.britannica.com/biography/Tiberius-Sempronius-Gracchus'), /test server/);
+  assert.match(keep('https://web.archive.org/web/2020/https://www.britannica.com/biography/Tiberius-Sempronius-Gracchus'), /copy/);
 });
 
 test('source checking: corpus matching and lesson renumbering', async () => {
