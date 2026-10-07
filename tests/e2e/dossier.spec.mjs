@@ -132,7 +132,7 @@ await test('option: every course keeps a dossier unless Dan turns it off on its 
   await app.page.waitForFunction((p) => { const d = window.__CLAUDE_STUB__.get(p); return d && d.dossier === false; }, `data/users/${UID}/profile/progress/pendulums`);
   await app.page.waitForFunction(() => /Off: no chapters/.test(document.querySelector('.tp-dos').textContent));
   eq(await app.page.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-key')), 'dossier-switch', 'focus stays on the switch');
-  await go(app, '#/book');
+  await go(app, '#/library/dossiers');
   await app.page.waitForSelector('.lib-empty');
   eq(await app.page.locator('.lib-dossiers .slot').count(), 0, 'off: no dossier on the shelf');
   eq(await doc(app, DOS('pendulums')), null, 'and nothing bound');
@@ -146,13 +146,13 @@ await test('option: every course keeps a dossier unless Dan turns it off on its 
 
 await test('library: dossiers first (finished, then still being written), then "In your own words"', async () => {
   for (const [w, dark] of [[390, false], [1366, true]]) {
-    const app = await open({ width: w, dark, hash: '#/book' });
+    const app = await open({ width: w, dark, hash: '#/library/dossiers' });
     await app.page.waitForSelector('.lib-dossiers .slot:not(.filler)', { timeout: 20000 });
     await app.page.waitForFunction(() => document.querySelectorAll('.lib-dossiers .slot:not(.filler)').length === 2, null, { timeout: 20000 });
     eq(await app.page.locator('#tabs .tab[data-tab="book"]').innerText(), 'Library', 'the tab is "Library"');
     eq(await app.page.getAttribute('#tabs .tab[data-tab="book"]', 'aria-current'), 'page', 'and is current');
-    eq(await focusedH1(app), 'Your library', 'heading takes focus');
-    eq(await app.page.title(), 'Library · My University', 'title');
+    eq(await focusedH1(app), 'Dossiers', 'heading takes focus');
+    eq(await app.page.title(), 'Dossiers · My University', 'title');
     const groups = await app.page.locator('.lib-dossiers .group h3').allInnerTexts();
     assert(/^Finished\s*1$/.test(groups[0]) && /^Still being written\s*1$/.test(groups[1]), 'finished first: ' + JSON.stringify(groups));
     const fin = await app.page.locator('#sh-done ~ .shelf .book-link').first().innerText();
@@ -331,7 +331,7 @@ await test('release-check nits: page-turn labels whole on a phone, the stamp cle
   }
   await shot(xl, 'stamp-xl-360');
   // On a laptop a lone book's caption stands under its book, not at the shelf's far left.
-  const lib = await open({ width: 1366, height: 900, hash: '#/book' });
+  const lib = await open({ width: 1366, height: 900, hash: '#/library/dossiers' });
   await lib.page.waitForFunction(() => document.querySelectorAll('.lib-dossiers .slot:not(.filler)').length === 2, null, { timeout: 20000 });
   // Where the caption's words start, against the book's left edge.
   const off = await lib.page.$$eval('.lib-dossiers .slot:not(.filler)', (ss) => ss.map((sl) => {
@@ -411,7 +411,7 @@ await test('delete a course and keep its dossier (the default); or delete the do
   eq(await doc(app, 'topics/pendulums'), null, 'the course is gone');
   const idx = await doc(app, DOS('pendulums'));
   assert(idx && idx.kept === true && Object.keys(idx.chapters).length === 3, 'its dossier is kept, every finished idea bound first: ' + JSON.stringify(idx && Object.keys(idx.chapters || {})));
-  await go(app, '#/book');
+  await go(app, '#/library/dossiers');
   await app.page.waitForSelector('.lib-dossiers .slot:not(.filler)', { timeout: 15000 });
   assert((await text(app, '.lib-dossiers .book-link')).includes('Why pendulums keep time'), 'on the shelf');
   // Its course is gone, so it can never gain a chapter: never "still being written".

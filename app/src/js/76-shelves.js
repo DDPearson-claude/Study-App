@@ -4,7 +4,7 @@
 // 20-store.js S.shelves), so Claude's build sessions fill them in without a new version of the
 // app: a course with a tid opens that topic; one without says it is not built yet.
 //
-//   U.shelves.mount(box, ctx) -> stop     Learn's "Ready-made courses" section (nothing when none)
+//   #/library/courses                      the Library's Ready-made courses: every shelf (Maths…)
 //   #/shelf/:sid                           a shelf: its folders
 //   #/shelf/:sid/:fid                      a folder: its courses, in order
 (function () {
@@ -38,21 +38,27 @@
   }
   function loadError(box, what, e) { U.clear(box).appendChild(V && V.loadError ? V.loadError(what, e, false) : U.h('p', { class: 'muted' }, what + ' could not be loaded just now.')); }
 
-  // ---------- Learn's section ----------
-  function mount(box, ctx) {
+  // ---------- the Library's Ready-made courses ----------
+  U.routes.add('#/library/courses', function (params, ctx) {
+    var box = U.h('div', { class: 'shelf-grid' }, U.h('div', { class: 'skeleton', style: 'height:96px;border-radius:18px' }));
+    ctx.view.appendChild(U.h('div', { class: 'shelf-page' },
+      V.back('#/book', 'Library'),
+      U.h('header', { class: 'page-head' },
+        U.h('p', { class: 'eyebrow' }, 'Library'),
+        U.h('h1', null, 'Ready-made courses'),
+        U.h('p', { class: 'muted' }, 'Whole courses, built in full, to browse at your leisure.')),
+      box));
     return U.store.shelves.watch(function (list) {
       if (!ctx.alive()) return;
       var shelves = order(list.filter(function (s) { return U.validId(s.__id) && str(s.title) && folders(s).length; }));
       U.clear(box);
-      if (!shelves.length) return;
-      box.appendChild(U.h('section', { class: 'shelves', 'aria-labelledby': 'shelves-h' },
-        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'shelves-h' }, 'Ready-made courses')),
-        U.h('div', { class: 'shelf-grid' }, shelves.map(function (s) {
-          var f = folders(s);
-          return card('#/shelf/' + encodeURIComponent(s.__id), str(s.title), str(s.blurb), (f.length === 1 ? '1 folder' : f.length + ' folders') + ' · ' + counts(allCourses(s)));
-        }))));
-    }, function () { /* Learn works without its shelves */ });
-  }
+      if (!shelves.length) { box.appendChild(U.h('p', { class: 'muted' }, 'None yet.')); return; }
+      shelves.forEach(function (s) {
+        var f = folders(s);
+        box.appendChild(card('#/shelf/' + encodeURIComponent(s.__id), str(s.title), str(s.blurb), (f.length === 1 ? '1 folder' : f.length + ' folders') + ' · ' + counts(allCourses(s))));
+      });
+    }, function (e) { if (ctx.alive()) loadError(box, 'Ready-made courses', e); });
+  }, { tab: 'book', title: 'Ready-made courses' });
 
   // ---------- a shelf, and one of its folders ----------
   function page(params, ctx) {
@@ -62,13 +68,13 @@
     U.store.shelves.get(sid).then(function (shelf) {
       if (!ctx.alive()) return;
       if (!shelf || !folders(shelf).length) {
-        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/', label: 'Back to Learn' } }));
+        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/library/courses', label: 'Ready-made courses' } }));
         return;
       }
       var title = str(shelf.title);
       if (!fid) {
         U.setTitle(title);
-        U.clear(box).append(V.back('#/', 'Learn'),
+        U.clear(box).append(V.back('#/library/courses', 'Ready-made courses'),
           U.h('header', { class: 'page-head' },
             U.h('p', { class: 'eyebrow' }, 'Ready-made courses'),
             U.h('h1', { tabindex: '-1' }, title),
@@ -104,8 +110,8 @@
         })));
     }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
   }
-  U.routes.add('#/shelf/:sid', page, { tab: 'learn', title: 'Ready-made courses' });
-  U.routes.add('#/shelf/:sid/:fid', page, { tab: 'learn', title: 'Ready-made courses' });
+  U.routes.add('#/shelf/:sid', page, { tab: 'book', title: 'Ready-made courses' });
+  U.routes.add('#/shelf/:sid/:fid', page, { tab: 'book', title: 'Ready-made courses' });
 
-  U.shelves = { mount: mount };
+  U.shelves = {};
 })();

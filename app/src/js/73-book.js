@@ -95,12 +95,40 @@
       })));
   }
 
+  // The Library opens on two choices (Dan, 7 Oct): his Dossiers, and Ready-made courses.
+  function choice(href, title, text, meta, cls) {
+    return U.h('a', { class: 'lib-choice ' + cls, href: href },
+      U.h('span', { class: 'lib-choice-ico', 'aria-hidden': 'true' }, U.icon(cls === 'is-courses' ? 'folder' : 'book')),
+      U.h('span', { class: 'lib-choice-body' }, U.h('span', { class: 'lib-choice-t' }, title), U.h('span', { class: 'lib-choice-x' }, text), meta),
+      U.icon('arrow', 'lib-choice-go'));
+  }
   U.routes.add('#/book', function (params, ctx) {
-    var body = U.h('div', { class: 'dos lib-body' });
-    ctx.view.appendChild(U.h('div', { class: 'lib-page' },
+    var dosMeta = U.h('span', { class: 'lib-choice-m' }), courseMeta = U.h('span', { class: 'lib-choice-m' });
+    ctx.view.appendChild(U.h('div', { class: 'lib-page lib-home' },
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Library'),
         U.h('h1', null, 'Your library')),
+      U.h('div', { class: 'lib-choices' },
+        choice('#/library/dossiers', 'Dossiers', 'Your course books: every idea you finish, bound as a chapter, and your own words.', dosMeta, 'is-dossiers'),
+        choice('#/library/courses', 'Ready-made courses', 'Whole courses, built in full, to browse at your leisure.', courseMeta, 'is-courses'))));
+    // Counts are a nicety: the choices work without them.
+    if (U.store.dossier && U.store.dossier.list) U.store.dossier.list().then(function (l) {
+      var n = (l || []).filter(function (d) { return d && d.chapters && Object.keys(d.chapters).length; }).length;
+      if (ctx.alive() && n) dosMeta.textContent = n === 1 ? '1 dossier' : n + ' dossiers';
+    }, function () {});
+    if (U.store.shelves) U.store.shelves.list().then(function (l) {
+      var names = (l || []).map(function (x) { return x && typeof x.title === 'string' ? x.title.trim() : ''; }).filter(Boolean);
+      if (ctx.alive() && names.length) courseMeta.textContent = names.join(' · ');
+    }, function () {});
+  }, { tab: 'book', title: 'Library' });
+
+  U.routes.add('#/library/dossiers', function (params, ctx) {
+    var body = U.h('div', { class: 'dos lib-body' });
+    ctx.view.appendChild(U.h('div', { class: 'lib-page' },
+      V.back('#/book', 'Library'),
+      U.h('header', { class: 'page-head' },
+        U.h('p', { class: 'eyebrow' }, 'Library'),
+        U.h('h1', null, 'Dossiers')),
       body));
     var slot = U.h('div', { class: 'lib-dossiers' });
     body.appendChild(slot);
@@ -112,7 +140,7 @@
         U.h('span', null, U.h('b', null, 'Your Book'), U.h('span', null, 'Your own explanations of each idea, first and latest, and the questions you asked.')),
         U.h('span', { class: 'chev' }, U.icon('arrow')))));
     return stop || undefined;
-  }, { tab: 'book', title: 'Library' });
+  }, { tab: 'book', title: 'Dossiers' });
 
   U.routes.add('#/book/words', function (params, ctx) {
     var book = [];
@@ -129,7 +157,7 @@
         } } }, 'Save a full copy')));
     var body = U.h('div', { class: 'book-body' }, U.h('div', { class: 'skeleton book-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'book' },
-      V.back('#/book', 'Library'),
+      V.back('#/library/dossiers', 'Dossiers'),
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Your Book'),
         U.h('h1', null, 'In your own words'),
