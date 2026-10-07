@@ -37,3 +37,13 @@ Version 10: course pictures through Dan's Hugging Face connector (Claude MCP, Z-
 10. Course pictures in the live viewer: confirm on Dan's phone that the data-URL pictures show
     inside the covers (the artifact's image policy was not testable here; the drawn cover stays
     underneath if they do not).
+
+## Saturday (Dan's credits reset): build every ready-made Maths course
+Dan: "Generate absolutely every single one of these as an entire course I can actively browse at
+my leisure, fully built end to end as an off-the-shelf course." The shelf is the db doc
+shelves/maths (first version in docs/shelves-maths.json): 6 folders, 39 courses, each with a
+title and a one-line blurb. For each course: plan it, research it, write and build every lesson
+(the v12 rules: overall explanation, the key concept, the interactive, what cements it, a recap;
+no word limits; his background as an electrician), save the topic and its lessons to the db as
+'ready' (mode 'read' unless he says otherwise), then set that course's `tid` in shelves/maths so
+it shows "Ready to browse". Order: folder by folder, as listed.
