@@ -2245,7 +2245,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-07-97eb5e3";
+U.BUILD = "2026-10-07-220be86";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -4585,7 +4585,7 @@ U.logStudy = (function () {
       '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
       '2. hook: ONE puzzle question (at most 40 words) that makes him want to know the answer, and that he can answer by the end of the course. Concrete and a little surprising. At most one short scene-setting sentence may come first; it ends with the question. Never a definition question ("What is X?"), never just a statement.',
       '   Good: "A tree never eats anything solid, yet it builds tonnes of wood. Where does all that wood come from?"',
-      '3. oneBreath: the whole topic in 2-3 plain sentences (at most 75 words): the big picture he will hold onto when the details fade. No jargon he has not met.',
+      '3. oneBreath: the whole topic in a few plain sentences: the big picture he will hold onto when the details fade. No jargon he has not met.',
       '4. ideas: 5-8 ideas in teaching order, from first principles. Use more than usual for his level when the story needs them (a century of history will not fit in 5).',
       '   - A whole field ("Maths", "Physics", "History", "Music"): choose one slice that shows what the field is really about. Pick one big question it answers that would surprise an adult (for Physics, "why doesn\'t the Space Station fall?"), make it the hook, and build up to its answer through a chain of the field\'s big, surprising ideas, each building on the last.',
       '   - Idea 1 starts from something he can see or feel (a push on a skateboard, a queue at a shop), not a definition or a parts list, and already teaches something most adults have never understood. A needed but well-known prerequisite ("plants need light to grow") goes inside idea 1 as its starting point, never as an idea of its own.',
@@ -5087,7 +5087,7 @@ U.logStudy = (function () {
       read ? null : '- q (at most 40 words): what happens when Dan changes something from the interactive\'s opening state. He has read this idea\'s title and one line and sees that screen, so none may give the answer: aim where intuition fails, at what they leave open (how much, how soon, which way, an in-between setting, the case where nothing happens), without stating the rule or mechanism. If most adults would get it right, ask about another case.',
       read ? null : '  With a half-full kettle on screen, ask "Fill it to the top: how much longer to boil?", not "How long does it take to boil?" (the screen shows it).',
       read ? null : '- options: 2-4 outcomes (at most 12 words each) in the same terms and of about the same length, no reasons attached, each one a thoughtful adult might pick, the common intuition among them (no straw men such as "longer, because the water gets tired"). Leave them out only when a free guess works better.',
-      read ? null : '- reveal (at most 50 words): what happens and why the tempting answer tempts (and where it holds, if anywhere), reading well whatever he chose.',
+      read ? null : '- reveal (a few sentences): what happens and why the tempting answer tempts (and where it holds, if anywhere), reading well whatever he chose.',
       kind === 'history' && !read ? '- For this history idea, ask which pattern the dates will show (sooner or later, bunched or spread, before or after a named event), reasoned from the course so far, never a bare date.' : null,
       debatedHere && !read ? '- If the idea itself is debated, ask which view he finds more convincing, naming no winner; if only a detail is (how long, how many), predict what the evidence settles.' : null,
       read ? null : '',
@@ -5103,25 +5103,25 @@ U.logStudy = (function () {
       '    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option\'s 0-based index).',
       '  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).' + (kind === 'history' || kind === 'structure' ? ' A map is a labelled "sketch map": true relative positions, no invented distances.' : ''),
       '- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.',
-      '- whatAmILookingAt (at most ' + (read ? '160 words; aim for about 130' : '120 words; aim for about 100') + '), shown ' + (read ? 'open above the interactive as "What you\'re looking at"' : 'under it as "What am I looking at?"') + ': first name each thing drawn ("Water from a 5 m drop hits a wheel\'s blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn' + (isNew ? '; for this new learner, simple arithmetic only' + (readouts ? ': say a rule that needs more in words, with two values the picture shows ("four times the length, twice the swing time")' : '') : '') + '.',
-      '- ignores (at most 50 words), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.',
+      '- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown ' + (read ? 'open above the interactive as "What you\'re looking at"' : 'under it as "What am I looking at?"') + ': first name each thing drawn ("Water from a 5 m drop hits a wheel\'s blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn' + (isNew ? '; for this new learner, simple arithmetic only' + (readouts ? ': say a rule that needs more in words, with two values the picture shows ("four times the length, twice the swing time")' : '') : '') + '.',
+      '- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.',
       '- numbers: every number it shows (each control\'s opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind' + (hasSources ? ', source where cited' : '') + ' }: see THE NUMBER RULE.',
       '- "interactive": null only when nothing at all can be played with (rare)' + (targets ? '; then no target check' : '') + '.',
       '',
-      'explain (at most 170 words; aim for 140): within that, it must',
+      'explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must',
       '- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).',
       kind === 'history' ? '- Give the why: for this history idea, the chain the sources give, one step per sentence: who acted, why, and what that led to. Add how we know (the evidence, how it was dated) only where a quote says so.'
         : '- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.',
       '- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.' + (isNew ? ' For this new learner, at most two numbers, ones the picture shows.' : ''),
       '- Close with a one-sentence takeaway, ' + (hasSources ? 'footnoted when a source supports it and ' : '') + 'no wider than the places and period its sources describe (unsourced, than the steps above).',
-      extra.length ? '- Only if the rest came to under 140 words, also: ' + extra.join('; ') + '.' : null,
+      extra.length ? '- Also: ' + extra.join('; ') + '.' : null,
       '- 2-4 short paragraphs split by a blank line ("\\n\\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).',
       '',
       'analogy (optional)',
-      '- text (at most 45 words): a comparison to something Dan knows that reproduces the lesson\'s main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.',
-      '- breaks (at most 30 words): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.',
+      '- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson\'s main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.',
+      '- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.',
       '',
-      'practice (at most 160 words; aim for 120)',
+      'practice (as long as it needs to be usable, and no longer)',
       '- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.',
       '- Where safety matters, the safe way comes first.',
       '',
@@ -5161,7 +5161,6 @@ U.logStudy = (function () {
       ].join('\n') : '- No footnotes: there are no checked sources for this lesson. "sources": [], no [^n] markers and no "source" fields, and no web addresses anywhere in the lesson.',
       '',
       'BEFORE YOU REPLY, CHECK',
-      '- explain.text is at most 170 words.',
       read ? null : '- None of the title, the one line, the opening screen and the calibration answers gives the predict\'s answer away.',
       '- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.',
       read ? null : '- You worked out every check\'s answer yourself: each marked answer is right' + (targets ? ' and each target reachable' : '') + '.',
@@ -5431,10 +5430,7 @@ U.logStudy = (function () {
       if (!/\?["'”’)]?\s*$/.test(o.hook.trim())) v.add('hook must be a puzzle question ending with "?", not a statement.');
       else if (/^(what|who)\s+(is|are|was|were)\b/i.test(o.hook.trim()) && words(o.hook) < 9) v.add('hook "' + clip(o.hook, 80) + '" is a definition question; make it a puzzle that makes Dan want to know the answer.');
     }
-    if (v.str(o.oneBreath, 'oneBreath', 700)) {
-      v.long(words(o.oneBreath), 90, 'oneBreath has ' + words(o.oneBreath) + ' words; keep it to 2-3 sentences, at most 75 words.');
-      v.long(sentences(o.oneBreath), 4, 'oneBreath has ' + sentences(o.oneBreath) + ' sentences; use 2-3.');
-    }
+    v.str(o.oneBreath, 'oneBreath', 3000);
     var ids = [];
     if (!Array.isArray(o.ideas)) v.add('ideas must be a list of 5-8 ideas.');
     else {
@@ -5566,7 +5562,7 @@ U.logStudy = (function () {
     else if (!isObj(o.predict)) v.add('predict is missing: give { q, options?, reveal }.');
     else {
       v.str(o.predict.q, 'predict.q', 400);
-      v.str(o.predict.reveal, 'predict.reveal', 500);
+      v.str(o.predict.reveal, 'predict.reveal', 3000);
       if (o.predict.options != null && (!Array.isArray(o.predict.options) || o.predict.options.length < 2 || o.predict.options.length > 4 || !o.predict.options.every(isStr))) v.add('predict.options must be 2-4 non-empty strings, or left out.');
     }
 
@@ -5617,8 +5613,9 @@ U.logStudy = (function () {
             if (r.decimals != null && !(isInt(r.decimals) && r.decimals >= 0 && r.decimals <= 6)) v.add(p + '.decimals must be a whole number from 0 to 6, or left out.');
           });
         }
-        if (v.str(it.whatAmILookingAt, 'interactive.whatAmILookingAt', 1500)) wordCap(it.whatAmILookingAt, 'interactive.whatAmILookingAt', read ? 160 : 120);
-        v.str(it.ignores, 'interactive.ignores', 600);
+        // No word limit on teaching text (Dan, 7 Oct): only a bound against a runaway reply.
+        v.str(it.whatAmILookingAt, 'interactive.whatAmILookingAt', 12000);
+        v.str(it.ignores, 'interactive.ignores', 3000);
         if (!Array.isArray(it.numbers)) v.add('interactive.numbers must list every number the interactive shows, each { label, value, kind }.');
         else it.numbers.forEach(function (n, k) {
           var p = 'interactive.numbers[' + k + ']';
@@ -5635,22 +5632,20 @@ U.logStudy = (function () {
     // explain, analogy, say
     if (!isObj(o.explain) || !isStr(o.explain.text)) v.add('explain.text is missing.');
     else {
-      var w = words(o.explain.text);
-      v.long(w, 170, 'explain.text has ' + w + ' words; the limit is 170. Cut it, keeping the opening idea, the why and the takeaway.');
+      if (o.explain.text.length > 20000) v.add('explain.text is far too long; teach the idea, not everything around it.');
       if (/https?:\/\/|<[a-z][^>]*>/i.test(o.explain.text)) v.add('explain.text must not contain links or HTML; cite with [^n].');
     }
     // practice: "Put it into practice", in both modes
     if (!isObj(o.practice) || !isStr(o.practice.text)) v.add('practice is missing: give { "text": … }, a short "Put it into practice" for this idea: steps or a checklist, a rule of thumb, one worked example and the common mistakes.');
     else {
-      var pw = words(o.practice.text);
-      v.long(pw, 160, 'practice.text has ' + pw + ' words; the limit is 160. Cut it, keeping the steps and the worked example.');
+      if (o.practice.text.length > 12000) v.add('practice.text is far too long; keep what he would use.');
       if (/<[a-z][^>]*>/i.test(o.practice.text)) v.add('practice.text must not contain HTML; use "- " lines for steps and **bold** for a label.');
     }
     var link = linkIn(o, '', 'sources');
     if (link && link !== 'explain.text') v.add(link + ' contains a web address. Web addresses never go in a lesson: ' + (opts.sources === null ? 'there are no sources for this lesson, so leave it out.' : 'cite a listed source with [^n] instead.'));
     if (o.analogy != null) {
       if (!isObj(o.analogy)) v.add('analogy must be { text, breaks } or null.');
-      else { v.str(o.analogy.text, 'analogy.text', 400); v.str(o.analogy.breaks, 'analogy.breaks', 300); }
+      else { v.str(o.analogy.text, 'analogy.text', 3000); v.str(o.analogy.breaks, 'analogy.breaks', 2000); }
     }
     if (read) { /* none */ }
     else if (!isObj(o.say)) v.add('say is missing: give { prompt, rubric, model }.');
@@ -8532,7 +8527,7 @@ U.interactive = (function () {
       '',
       'HOW TO REPORT',
       '- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).',
-      '- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice and length (within a few words), and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".',
+      '- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".',
       '- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.',
       '- Fields you may fix (i and j count from 0): ' + PATCHABLE.map(function (p) { return p.replace('[#]', '[i]').replace('[#]', '[j]'); }).join(', ') + '.',
       '- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive\'s brief, title, controls, outputs and numbers (it is built from them); every check\'s id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.',

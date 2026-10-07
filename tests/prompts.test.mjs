@@ -407,7 +407,7 @@ test('write-lesson: the interactive draws the cause, its form follows the kind, 
 
 test('write-lesson: the explanation aims for 140 words within 170; the rest only if it came to under 140', () => {
   const p = lessonFor(PLAN_JET, 'i2', { research: RESEARCH_JET });
-  for (const s of ['explain (at most 170 words; aim for 140): within that, it must',
+  for (const s of ['explain (as long as he needs to understand it, and no longer',
     '- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most.',
     'never by its shade (dark mode swaps them)', 'from something he knows or has felt', 'state in words the rule the interactive computes and show from it why the result behaves as it does',
     'name what is physically different, so the reason does not equally fit the earlier case',
@@ -418,17 +418,17 @@ test('write-lesson: the explanation aims for 140 words within 170; the rest only
     assert.ok(!p.includes(s), 'no longer an obligation: ' + s);
   // The puzzle sentence goes to the first and last ideas only, and only if the rest came to under 140 words.
   const puzzle = 'one sentence on the part this idea plays in answering the course\'s puzzle';
-  assert.ok(lessonFor(PLAN_JET, 'i1').includes('- Only if the rest came to under 140 words, also: just before the takeaway, ' + puzzle + ', without teaching the next idea.'), 'first idea');
-  assert.ok(lessonFor(PLAN_JET, 'i6').includes('- Only if the rest came to under 140 words, also: just before the takeaway, ' + puzzle + '.'), 'last idea');
-  assert.ok(!p.includes(puzzle) && !p.includes('Only if the rest came to'), 'a middle idea has neither');
+  assert.ok(lessonFor(PLAN_JET, 'i1').includes('- Also: just before the takeaway, ' + puzzle + ', without teaching the next idea.'), 'first idea');
+  assert.ok(lessonFor(PLAN_JET, 'i6').includes('- Also: just before the takeaway, ' + puzzle + '.'), 'last idea');
+  assert.ok(!p.includes(puzzle), 'a middle idea has none');
   const noHook = clone(PLAN_JET); delete noHook.hook;
   assert.ok(!lessonFor(noHook, 'i1').includes(puzzle) && !lessonFor(noHook, 'i1').includes('Puzzle the course answers'), 'no puzzle, no puzzle sentence');
   assert.ok(lessonFor(PLAN_JET, 'i1').includes('Puzzle the course answers: ' + PLAN_JET.hook + '\n'), 'the hook, as the puzzle');
   // A history idea: why it mattered to people then is also optional. Its why is the chain the
   // sources give (political history has no dating evidence to explain), inside the same budget.
   const rome4 = lessonFor(PLAN_ROME, 'i4');
-  assert.ok(rome4.includes('- Only if the rest came to under 140 words, also: one sentence on why it mattered to people then, from a source.'));
-  assert.ok(rome4.includes('explain (at most 170 words; aim for 140): within that, it must\n- Open with the overall explanation'));
+  assert.ok(rome4.includes('- Also: one sentence on why it mattered to people then, from a source.'));
+  assert.ok(rome4.includes('teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must\n- Open with the overall explanation'));
   assert.ok(rome4.includes('\n- Give the why: for this history idea, the chain the sources give, one step per sentence: who acted, why, and what that led to. Add how we know (the evidence, how it was dated) only where a quote says so.\n'));
   for (const s of ['the why is how we know', 'Give the why a specialist accepts', 'name what is physically different'])
     assert.ok(!rome4.includes(s), 'not for a history idea: ' + s);
@@ -530,7 +530,7 @@ test('write-lesson: one place per rule, and no blank lines inside a section', ()
       assert.ok(count(p, s) <= 1, s + ' is said once (' + count(p, s) + ')');
     // Sections are separated by one blank line; a rule left out never leaves a hole inside one.
     const sections = p.split('\n\n').map((b) => b.split('\n')[0]);
-    for (const h of ['predict', 'interactive', 'explain (at most 170 words; aim for 140): within that, it must', 'analogy (optional)', 'say (say it back)',
+    for (const h of ['predict', 'interactive', 'explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must', 'analogy (optional)', 'say (say it back)',
       'checks (3; 2 only when a third would repeat the predict or the say-it-back)', 'confidence', 'CLAIMS THAT STAY TRUE', 'NAMES AND TERMS', 'THE NUMBER RULE', 'SOURCES', 'BEFORE YOU REPLY, CHECK'])
       assert.ok(sections.includes(h), 'section ' + h + ' starts after a blank line');
     assert.ok(!/\n\n- /.test(p.slice(p.indexOf('WRITING EACH PART'), p.indexOf('OUTPUT'))), 'no bullet starts a block on its own');
@@ -553,7 +553,7 @@ test('write-lesson: the rules stay short (they were 3,600 words; the eval asked 
     const n = wordsOf(rulesOf(lessonFor(plan, iid, opts)));
     // 3050 (7 Oct): the rules that make an explanation clear to Dan (the idea first, the rule in
     // words, his own trade for comparisons) earn their words.
-    assert.ok(n <= 3050, plan.title + ' ' + iid + ': ' + n + ' words of rules');
+    assert.ok(n <= 3100, plan.title + ' ' + iid + ': ' + n + ' words of rules');
     const r = wordsOf(rulesOf(lessonFor({ ...plan, mode: 'read' }, iid, opts)));
     assert.ok(r <= 2150 && r < n - 600, plan.title + ' ' + iid + ' (read): ' + r + ' words of rules against ' + n);
   }
@@ -916,7 +916,7 @@ test('write-lesson in read mode: no predict, say-it-back or checks to write; pra
     assert.ok(study.includes(s), 'study: ' + s);
   // Practice, in both.
   for (const p of [read, study]) {
-    for (const s of ['practice (at most 160 words; aim for 120)\n- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes.',
+    for (const s of ['practice (as long as it needs to be usable, and no longer)\n- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes.',
       'Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.',
       'Where safety matters, the safe way comes first.', 'Every number in your explanation, practice and on the interactive has one of these kinds',
       '"practice": { "text": "…" },', 'His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.',
@@ -942,7 +942,7 @@ test('lesson validator: practice is required (its length soft); a read lesson ne
   const noPractice = clone(L_JET2); delete noPractice.practice;
   assert.ok(U.validate.hard(check(noPractice)).some((p) => /^practice is missing: give \{ "text": … \}/.test(p)));
   const long = clone(L_JET2); long.practice.text = 'word '.repeat(200).trim();
-  assert.deepEqual(found(check(long), /^practice\.text has 200 words; the limit is 160/).length, 1);
+  assert.ok(!plain(check(long)).some((x) => /practice\.text/.test(x)), 'no word limit on practice (7 Oct)');
   assert.deepEqual(plain(U.validate.hard(check(long))), []);
   const near = clone(L_JET2); near.practice.text = 'word '.repeat(175).trim();
   assert.deepEqual(plain(check(near)), [], 'within the slack, nothing to say');

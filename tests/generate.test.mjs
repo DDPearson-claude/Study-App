@@ -184,7 +184,6 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
   const U = loadPure();
   const lr2 = U.prompts.lessonResearch(RESEARCH_JET, 'i2');
   const cases = [
-    ['explain far over 170 words', (l) => { l.explain.text = 'word '.repeat(230); }, /230 words; the limit is 170/],
     ['footnote to a missing source', (l) => { l.explain.text += ' Also this.[^5]'; }, /\[\^5\]/],
     ['choice answer out of range', (l) => { l.checks[2].answer = 4; }, /answer must be an option index/],
     ['five options', (l) => { l.checks[2].options.push('It triples'); }, /2-4/],
@@ -216,7 +215,6 @@ test('lesson validator rejects broken lessons, with readable reasons', () => {
     ['output label over 30 characters', (l) => { l.interactive.outputs[0].label = 'How hard the engine pushes the plane'; }, /outputs\[0\]\.label .* is 36 characters; readout labels are at most 30/],
     ['output decimals not a whole number', (l) => { l.interactive.outputs[0].decimals = 1.5; }, /decimals must be a whole number from 0 to 6/],
     ['unit over 10 characters', (l) => { l.interactive.controls[0].unit = 'kilograms per second'; }, /at most 10/],
-    ['whatAmILookingAt far over 120 words', (l) => { l.interactive.whatAmILookingAt = 'word '.repeat(160); }, /whatAmILookingAt has 160 words/],
     ['unknown number kind', (l) => { l.interactive.numbers[0].kind = 'guess'; }, /"assumed" or "date"/],
     ['an assumed value with a source', (l) => { l.interactive.numbers[3].kind = 'assumed'; l.interactive.numbers[3].source = 1; }, /assumed example value/],
     ['a web address in a check', (l) => { l.checks[2].why += ' See https://example.org/thrust.'; }, /checks\[2\]\.why contains a web address/],
@@ -266,7 +264,6 @@ test('plan validator rejects broken plans', () => {
     ['one calibration question', (p) => { p.calibration = p.calibration.slice(0, 1); }, /exactly 2/],
     ['calibration with two options', (p) => { p.calibration[1].options = ['a', 'b']; }, /3-4/],
     ['calibration probes an unknown idea', (p) => { p.calibration[0].iid = 'i42'; }, /not one of the idea ids/],
-    ['oneBreath rambles', (p) => { p.oneBreath = 'One. Two. Three. Four. Five. Six.'.replace(/(\w+)\./g, '$1 is a sentence.'); }, /sentences/],
     ['missing title', (p) => { delete p.title; }, /title must be/],
   ];
   for (const [name, mutate, expect] of cases) {
@@ -326,9 +323,6 @@ const LENGTH_RULES = {
   plan: [
     ['title', 90, 'chars', (o, t) => { o.title = t; }],
     ['hook', 320, 'chars', (o, t) => { o.hook = t.slice(1) + '?'; }],
-    ['oneBreath (characters)', 700, 'chars', (o, t) => { o.oneBreath = t; }],
-    ['oneBreath (words)', 90, 'words', (o, t) => { o.oneBreath = t; }],
-    ['oneBreath (sentences)', 4, 'sentences', (o, t) => { o.oneBreath = t; }],
     ['ideas[0].title', 70, 'chars', (o, t) => { o.ideas[0].title = t; }],
     ['ideas[0].oneLine', 260, 'chars', (o, t) => { o.ideas[0].oneLine = t; }],
     ['calibration[0].q', 300, 'chars', (o, t) => { o.calibration[0].q = t; }],
@@ -337,7 +331,6 @@ const LENGTH_RULES = {
   lesson: [
     ['title', 90, 'chars', (o, t) => { o.title = t; }],
     ['predict.q', 400, 'chars', (o, t) => { o.predict.q = t; }],
-    ['predict.reveal', 500, 'chars', (o, t) => { o.predict.reveal = t; }],
     ['interactive.brief', 400, 'chars', (o, t) => { const a = 'The one thing you should see is ', b = ' when you slide it.'; o.interactive.brief = a + t.slice(a.length + b.length) + b; }],
     ['interactive.title', 80, 'chars', (o, t) => { o.interactive.title = t; }],
     ['control label (characters)', 80, 'chars', (o, t) => { o.interactive.controls[0].label = t; }],
@@ -345,13 +338,7 @@ const LENGTH_RULES = {
     ['control unit', 10, 'chars', (o, t) => { o.interactive.controls[0].unit = t; }],
     ['output label', 30, 'chars', (o, t) => { o.interactive.outputs[0].label = t; }],
     ['output unit', 10, 'chars', (o, t) => { o.interactive.outputs[0].unit = t; }],
-    ['whatAmILookingAt (characters)', 1500, 'chars', (o, t) => { o.interactive.whatAmILookingAt = t; }],
-    ['whatAmILookingAt (words)', 120, 'words', (o, t) => { o.interactive.whatAmILookingAt = t; }],
-    ['ignores', 600, 'chars', (o, t) => { o.interactive.ignores = t; }],
     ['numbers[0].label', 140, 'chars', (o, t) => { o.interactive.numbers[0].label = t; }],
-    ['explain.text', 170, 'words', (o, t) => { o.explain.text = t + '[^1]'; }],
-    ['analogy.text', 400, 'chars', (o, t) => { o.analogy = { text: t, breaks: 'It breaks here.' }; }],
-    ['analogy.breaks', 300, 'chars', (o, t) => { o.analogy = { text: 'Like this.', breaks: t }; }],
     ['say.prompt', 300, 'chars', (o, t) => { o.say.prompt = t; }],
     ['say.model', 600, 'chars', (o, t) => { o.say.model = t; }],
     ['checks[0].q', 400, 'chars', (o, t) => { o.checks[0].q = t; }],
@@ -403,23 +390,18 @@ test('length limits are soft in every validator: a little over passes, far over 
   assert.deepEqual(plain(g.soft), []);
 });
 
-test('the Maths lesson: 171 words is fine, 230 is a soft problem, and structure stays hard', () => {
+test('no word limit on the explanation (Dan, 7 Oct): 230 or 600 words is fine, and structure stays hard', () => {
   const U = loadPure();
   const lr2 = U.prompts.lessonResearch(RESEARCH_JET, 'i2');
   const v = (l) => U.validate.lesson(l, { iid: 'i2', sources: lr2.sources });
   const words = (l, n) => { const w = U.prompts.words(l.explain.text); l.explain.text += ' more'.repeat(n - w); assert.equal(U.prompts.words(l.explain.text), n); return l; };
-  assert.deepEqual(plain(v(words(clone(L_JET2), 171))), [], '171 words: not reported at all');
-  assert.deepEqual(plain(v(words(clone(L_JET2), 195))), [], '195 words: within the slack');
-  const p230 = v(words(clone(L_JET2), 230));
-  assert.equal(p230.length, 1);
-  assert.match(p230[0], /230 words; the limit is 170/);
-  assert.deepEqual(plain(p230.soft), plain(p230), 'reported as soft');
-  // Structural problems (and counts of list items) are never soft, even beside a soft one.
+  assert.deepEqual(plain(v(words(clone(L_JET2), 230))), [], '230 words: not reported');
+  assert.deepEqual(plain(v(words(clone(L_JET2), 600))), [], '600 words: not reported');
+  // Structural problems (and counts of list items) are never soft.
   const mixed = words(clone(L_JET2), 230);
   mixed.checks = mixed.checks.slice(0, 1);
   const pm = v(mixed);
-  assert.ok(pm.some((p) => /2-3 checks/.test(p)) && pm.soft.length === 1, JSON.stringify(plain(pm)));
-  assert.ok(plain(U.validate.hard(pm)).every((p) => !/words/.test(p)) && U.validate.hard(pm).some((p) => /2-3 checks/.test(p)), 'the check count is hard, the length soft');
+  assert.ok(U.validate.hard(pm).some((p) => /2-3 checks/.test(p)) && !plain(pm).some((p) => /words/.test(p)), 'the check count is hard; the length is no problem');
   const hardCases = [
     ['a missing field', (l) => { delete l.say; }],
     ['a bad control id', (l) => { l.interactive.controls[0].id = 'air flow'; }],
@@ -492,7 +474,7 @@ test('the plan prompt: an adult beginner, a whole field as one slice building to
   assert.ok(solid.includes('including where experts genuinely disagree today (say in words how widely each view is held; give a figure only from a source)'), 'solid level');
   const lesson = U.prompts.writeLesson({ ...PLAN_JET, level: 'new' }, PLAN_JET.ideas[0], {});
   assert.ok(lesson.includes('His level: NEW to this subject, not to life: a curious, intelligent adult who already knows everyday things (counting, clocks, that things fall). No maths beyond simple arithmetic; any rule is said in words first. Skip what every adult already knows and go straight to what most adults have never understood.\n'), 'the lesson writer hears the same level (and to skip the obvious), without the plan\'s idea count');
-  assert.ok(lesson.includes('explain (at most 170 words; aim for 140)') && lesson.includes('explain.text is at most 170 words'), 'the prompts still ask for the same limits');
+  assert.ok(lesson.includes('no word limit') && !/explain \(at most \d+ words/.test(lesson), 'no word limit on the explanation (Dan, 7 Oct)');
 });
 
 test('a calibration answer already printed above the question is a soft problem; one shared word is not', () => {
@@ -560,12 +542,12 @@ test('prompt builders start with their TASK line, stay small and carry the key r
     assert.ok(research.includes(s), 'research mentions ' + s);
 
   const lesson = prompts['write-lesson'];
-  for (const s of ['at most 170 words', 'The one thing you should see is', 'whatAmILookingAt', 'ignores', 'THE NUMBER RULE', '- control:', '- computed:', '- constant:', '- assumed:', '- date:',
+  for (const s of ['no word limit', 'The one thing you should see is', 'whatAmILookingAt', 'ignores', 'THE NUMBER RULE', '- control:', '- computed:', '- constant:', '- assumed:', '- date:',
     'hypothetical check case', 'where it stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Write one only when reaching it needs the idea', '"contested": { "views"',
     '[1] Newton\'s Third Law of Motion — NASA Glenn Research Center — https://www.grc.nasa.gov/www/k-12/BGP/newton3.html', 'with "source": n when a source above states it',
     '<-- THIS LESSON', 'Teach only this idea', 'This is the first idea', 'Known idea number 3', '[[like this]]', 'UK English',
     'changes something from the interactive\'s opening state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Write each number as its readout shows it', 'action buttons', 'he could repeat to a friend', 'never by its shade', 'nothing picked to exaggerate the effect',
-    'Never invent probabilities', 'controls: one.', 'spoken to him as "you"', 'named: options', 'may start off', 'zero when zero is the real case', 'at most 120 words', 'label (at most 6 words)'])
+    'Never invent probabilities', 'controls: one.', 'spoken to him as "you"', 'named: options', 'may start off', 'zero when zero is the real case', 'as long as he needs to understand it', 'label (at most 6 words)'])
     assert.ok(lesson.includes(s), 'write-lesson mentions ' + s);
   assert.ok(!lesson.includes('which view he finds more convincing'), 'the debate rule only where the idea is debated');
   assert.ok(U.prompts.writeLesson(PLAN_ROME, PLAN_ROME.ideas[4], {}).includes('which view he finds more convincing'), 'an idea historians argue about gets it');
@@ -909,21 +891,16 @@ test('a lesson one word over its explanation limit is saved without a repair', a
   assert.equal(app.count('write-lesson'), 1, 'no repair round');
 });
 
-test('a far-too-long explanation gets one repair and is accepted although the repair is still long', async () => {
-  const app = await boot({ handlers: handlers({ 'write-lesson': (input, o, call) => explainOf(app.U, call.retry ? 200 : 230) }) });
+test('a long explanation needs no repair (no word limit, Dan 7 Oct)', async () => {
+  const app = await boot({ handlers: handlers({ 'write-lesson': () => explainOf(app.U, 400) }) });
   await app.seed('topics/t1', PLAN_JET);
   const asked = [];
   app.U.on('ask-soft', (d) => asked.push(d));
   const doc = await app.U.gen.ensureLesson('t1', 'i1');
-  assert.equal(app.count('write-lesson'), 2, 'one repair, no fresh write');
-  const fix = app.calls[1].input[app.calls[1].input.length - 1].content;
-  assert.match(fix, /explain\.text has 230 words; the limit is 170\. Cut it/, 'the repair asks for a cut');
+  assert.equal(app.count('write-lesson'), 1, 'written once, no repair');
   assert.equal(doc.status, 'ready');
-  assert.equal(app.U.prompts.words(doc.lesson.explain.text), 200, 'the repaired reply is kept as it is');
-  assert.equal(asked.length, 1);
-  assert.equal(asked[0].label, 'write-lesson');
-  assert.match(asked[0].problems[0], /200 words/);
-  assert.ok(app.warnings.some((w) => /accepted with only length problems left/.test(String(w[0]))), 'a console warning, nothing Dan sees');
+  assert.equal(app.U.prompts.words(doc.lesson.explain.text), 400, 'kept whole');
+  assert.equal(asked.length, 0);
 });
 
 test('a lesson that fails the checks twice in a row is written a third time, afresh, and saved', async () => {
@@ -2233,8 +2210,9 @@ test('verify validation: well formed, patchable paths, at most 12, and the patch
     assert.ok(U.validate.hard(U.validate.verify(reply, { lesson: L })).length > 0, name + ' is a hard problem');
   }
   // A patch that only makes a field too long is soft, like the writer's own length limits.
+  // No word limit on the explanation (7 Oct): a long fix is not a problem.
   const long = U.validate.verify({ issues: [{ path: 'explain.text', problem: 'p', severity: 'fix', now: 'word '.repeat(240).trim() + '.[^1]' }] }, { lesson: L });
-  assert.ok(long.length === 1 && long.soft.length === 1 && /240 words/.test(long[0]), JSON.stringify(plain(long)));
+  assert.deepEqual(plain(long), [], JSON.stringify(plain(long)));
   // Problems the lesson already had are not the verifier's.
   const already = clone(L); already.explain.text = 'word '.repeat(240).trim();
   assert.deepEqual(plain(U.validate.verify({ issues: [{ path: 'say.model', problem: 'p', severity: 'fix', now: 'A different model answer.' }] }, { lesson: already })), []);
@@ -2490,7 +2468,7 @@ test('the fact-check can correct the practice, and checks it like the explanatio
   assert.deepEqual(r.applied, [{ path: 'practice.text', problem: 'The model ignores the fuel\'s own mass.' }]);
   // A fix that makes it far too long is a soft problem of the reply; one with a stray footnote, hard.
   const long = U.validate.verify({ issues: [{ path: 'practice.text', problem: 'x', severity: 'fix', now: 'word '.repeat(220).trim() }] }, { lesson: L });
-  assert.ok(plain(long.soft).some((x) => /practice\.text has 220 words/.test(x)));
+  assert.ok(!plain(long).some((x) => /practice\.text/.test(x)), 'no word limit on practice (7 Oct)');
   const cite = U.validate.verify({ issues: [{ path: 'practice.text', problem: 'x', severity: 'fix', now: now + ' [^4]' }] }, { lesson: L });
   assert.ok(U.validate.hard(cite).some((x) => /\[\^4\]/.test(x)));
   // A lesson written before practice existed: nothing new is wrong with it; there is no field to fix, but a note may say so.
