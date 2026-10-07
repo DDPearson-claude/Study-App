@@ -1,5 +1,5 @@
 // Settings: U.settings.open() shows a sheet with appearance, text size, easier reading,
-// daily reviews, research status, a full backup and the build id. Every change applies at once,
+// daily reviews, research status, course pictures, a full backup and the build id. Every change applies at once,
 // is mirrored to localStorage 'mu-prefs' (read before first paint by head.html) and saved to the
 // profile in the db (docs/ARCHITECTURE.md section 4: profile.prefs).
 (function () {
@@ -17,6 +17,8 @@
     if (['s', 'm', 'l', 'xl'].indexOf(o.size) < 0) o.size = d.size;
     o.easy = !!o.easy; o.light = !!o.light;
     o.cap = Number(o.cap) || d.cap;
+    // Course pictures (35-art.js): true or false once Dan has said; not asked yet otherwise.
+    if (typeof o.pictures !== 'boolean') delete o.pictures;
     return o;
   }
 
@@ -32,6 +34,7 @@
     _localAt: 0,
     _saving: 0,      // local changes still on their way to the profile
     _picked: {},     // keys Dan changed in this visit: they win over the profile read at boot
+    loaded: false,   // the profile has been read at boot (or could not be): prefs are his, not the device's guess
 
     readLocal: readLocal,
 
@@ -71,7 +74,7 @@
     fromProfile: function (prefs) {
       if (S._saving > 0 || Date.now() - S._localAt < 3000 || !prefs) return;
       var p = clean(prefs), cur = S.prefs;
-      if (p.theme !== cur.theme || p.size !== cur.size || p.easy !== cur.easy || p.cap !== cur.cap || p.light !== cur.light || p.lightDay !== cur.lightDay) S.apply(p);
+      if (p.theme !== cur.theme || p.size !== cur.size || p.easy !== cur.easy || p.cap !== cur.cap || p.light !== cur.light || p.lightDay !== cur.lightDay || p.pictures !== cur.pictures) S.apply(p);
     },
 
     // Everything Dan has, as one JSON document.
@@ -160,6 +163,50 @@
       }
       checkResearch(false);
 
+      // Course pictures (35-art.js): on or off, and whether the Hugging Face connector is here.
+      var pictures = null;
+      if (U.art) {
+        var artStatus = U.h('div', { class: 'set-art-status' });
+        var checkArt = function () {
+          U.clear(artStatus);
+          if (!U.art.wanted()) return;
+          artStatus.appendChild(U.h('p', { class: 'muted' }, 'Checking…'));
+          var perms = U.rt && U.rt.permissions;
+          var allowed = perms ? Promise.resolve().then(function () { return perms.state('mcp:' + U.art.SERVER); }).catch(function () { return 'unavailable'; }) : Promise.resolve('prompt');
+          Promise.all([U.art.available(), allowed]).then(function (r) {
+            U.clear(artStatus);
+            if (!U.art.wanted()) return;
+            if (r[0] && r[1] === 'denied') {
+              artStatus.appendChild(U.h('p', null, U.h('strong', null, 'Not allowed for this app. '), 'Allow Claude MCP in this app\'s permissions, and pictures are drawn again.'));
+              if (perms && perms.manage) artStatus.appendChild(U.h('button', { class: 'linkish', type: 'button', on: { click: function () {
+                Promise.resolve().then(function () { return perms.manage(); }).then(function () { U.art.reset(); checkArt(); }, function () { U.toast('Open this app\'s Permissions menu in Claude to allow Claude MCP.'); });
+              } } }, 'Open permissions'));
+            } else if (r[0]) {
+              artStatus.appendChild(U.h('p', { class: 'set-ok' }, U.icon('tick'), U.h('span', null, U.h('strong', null, 'Connected. '), 'New courses get a picture once they are planned.')));
+            } else {
+              artStatus.appendChild(U.h('p', null, U.h('strong', null, 'Not connected. '), 'Courses keep their plain covers until it is.'));
+              artStatus.appendChild(U.h('ol', { class: 'set-steps small' },
+                U.h('li', null, 'In Claude, open Settings, then Connectors.'),
+                U.h('li', null, 'Connect Claude MCP (your Hugging Face connector).'),
+                U.h('li', null, 'Come back here and check again.')));
+              artStatus.appendChild(U.h('button', { class: 'linkish', type: 'button', on: { click: function () { U.art.reset(); checkArt(); } } }, 'Check again'));
+            }
+          }, function () { U.clear(artStatus).appendChild(U.h('p', { class: 'muted' }, 'Could not check just now.')); });
+        };
+        pictures = group('Course pictures', [
+          toggle('Draw a picture for each course', 'Claude describes a scene and an image model (' + U.art.MODEL + ') draws it in the style of a field journal, through your Hugging Face connector. Decoration only.', U.art.wanted(), function (v) {
+            (v ? U.art.turnOn() : Promise.resolve(U.art.turnOff())).then(function (r) {
+              if (r === 'denied') { U.toast('No pictures: the Hugging Face connector was not allowed.'); var sw = body.querySelector('input[name="pictures"]'); if (sw) sw.checked = false; }
+              checkArt();
+              // Every course without a picture yet (Learn queues them too, whenever it opens).
+              if (r === 'on') return U.store.topics.list().then(function (l) { U.art.want(l); });
+            }).catch(function (e) { console.warn('art: turn on', e); });
+          }, 'pictures'),
+          artStatus,
+        ]);
+        checkArt();
+      }
+
       var backupBtn = U.h('button', { class: 'btn secondary small', type: 'button', on: { click: function () {
         backupBtn.disabled = true; backupBtn.textContent = 'Preparing…';
         S.backup().then(function (data) {
@@ -204,6 +251,7 @@
           toggle('Light days', 'Just 5 reviews a day until you turn this off. For busy or tired weeks.', p.light, function (v) { S.set('light', v); }, 'light'),
         ], 'The most reviews Today will offer in one day.'),
         group('Research', research),
+        pictures,
         group('Backup', backupBtn, 'Save a copy of everything: topics, lessons, sources, your answers, review cards and settings.'),
         U.h('p', { class: 'set-build muted small' }, 'Build ' + U.BUILD));
 

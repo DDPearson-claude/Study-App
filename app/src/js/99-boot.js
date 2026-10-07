@@ -70,6 +70,9 @@
     }).catch(function (e) {
       console.warn('prefs', e);   // the device's copy stays (U.settings starts from it)
     }).then(function () {
+      // Settled: a choice only the profile knows (course pictures, 35-art.js) can now be asked about.
+      S.loaded = true;
+      U.emit('prefs', S.prefs);
       // Changes from Dan's other devices. Started even when the read failed, so the profile still
       // arrives once the db answers; a profile that does not exist yet says nothing.
       B.stopProfile = U.store.watchDoc(U.store.paths.profile(), function (d) { if (d && d.prefs) S.fromProfile(d.prefs); });

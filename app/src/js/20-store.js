@@ -625,6 +625,9 @@ U.store = (function () {
       // A course's dossier (75-dossier.js): a small index doc, and one doc per bound chapter.
       dossier: function (tid) { return priv('profile/dossiers/' + tid); },
       chapter: function (tid, iid) { return priv('profile/dossiers/' + tid + '/chapters/' + iid); },
+      // A course's cover picture (35-art.js): shared like the topic, but its own doc, so the topic
+      // list stays small and a kept dossier keeps its picture after the course is deleted.
+      art: function (tid) { return 'art/' + tid; },
     },
     persistent: function () { return !!(U.rt.db && U.rt.uid); },
     isRemoved: function (tid) { return removed.has(tid); },
@@ -791,6 +794,28 @@ U.store = (function () {
         }).catch(function (e) { throw tag(e); });
       });
     },
+  };
+  // Cover pictures (35-art.js). fn(map tid -> art doc) for the whole collection. A picture is
+  // decoration, so its writes are quiet: never held for a resend and never a toast (the screen
+  // that asked for one says what happened); set resolves null, writing nothing, once the course
+  // is gone, so a picture finished late never lands beside a deleted course.
+  S.art = {
+    watch: function (fn, onError) {
+      return subscribe(function () { return C('art'); }, function (q) {
+        var all = {};
+        q.docs.forEach(function (d) { var x = d.data(); if (x) all[d.id] = x; });
+        fn(all);
+      }, onError);
+    },
+    get: function (tid) { return getDoc(S.paths.art(tid)); },
+    set: function (tid, data) {
+      var path = S.paths.art(tid);
+      data.updatedAt = U.now();
+      return run(path, function () {
+        return topicExists(tid, true).then(function (ok) { return ok && !removed.has(tid) ? D(path).set(data).then(function () { return data; }) : null; });
+      }).catch(function (e) { return failed(e, null, true); });
+    },
+    remove: function (tid) { var path = S.paths.art(tid); return run(path, function () { return D(path).delete(); }).catch(function (e) { return failed(e, null, true); }); },
   };
   S.profile = {
     defaults: function () { return { prefs: { size: 'm', easy: false, theme: 'light', cap: 15, light: false }, days: {}, createdAt: U.now() }; },

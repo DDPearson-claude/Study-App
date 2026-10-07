@@ -78,7 +78,7 @@ U.entries(v) -> [{key, value}]   U.list(v) -> [value]   U.keyed(v) -> map
 U.validId(s) (one safe db path segment)   U.slug(text) (<= 40 chars)   U.hash(str) (FNV-1a)
 U.studyDay(d? Date|ISO) 'YYYY-MM-DD'   like U.today, but the day turns over at 4 am: every day in review (section 8)
 U.today(d?) 'YYYY-MM-DD' local   U.addDays   U.daysBetween   U.now() ISO   U.when(iso)   U.clone   U.sleep   U.shuffle
-U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, ask-soft, interactive-test, layout, prefs, booted, rt-late
+U.on(evt, fn) -> off   U.emit(evt, data)     events: gen, ask, ask-soft, interactive-test, layout, prefs, booted, rt-late, art
 U.toast(text, {kind:'info'|'good'|'bad', ms})   the same text again extends the one shown. While a phone's
     bottom sheet is open: at the top, the newest only, cut to the whole lines that fit above the
     sheet's heading (U._fitToasts; a cut one opens on a tap), so its title and Close stay in view
@@ -357,7 +357,7 @@ wait for it either. The screens that follow the next idea start such a prefetch 
 
 Private, under `data/users/{uid}/`:
 ```
-profile   { prefs:{ theme:'light'|'dark'|'system', size:'s'|'m'|'l'|'xl', easy, cap:10|15|20|30, light, lightDay? },
+profile   { prefs:{ theme:'light'|'dark'|'system', size:'s'|'m'|'l'|'xl', easy, cap:10|15|20|30, light, lightDay?, pictures? },
             prefsAt:{ [key]: iso },                                // when each setting was last written
             days:{ 'YYYY-MM-DD': { [deviceId]: minutes, legacy?: minutes } },   // study days; older days: a number
             createdAt }
@@ -462,6 +462,31 @@ the steps as an ink checklist, the rules of thumb on a taped card, the worked ex
 note and the common mistakes in red ink. A chapter without practice (bound before lessons had it)
 ends with its sources on a page of their own. The kind sketches mark the idea's kind, never the
 topic.
+
+**Course pictures** (35-art.js, version 10). `prefs.pictures`: absent until Dan answers Learn's
+one-time question (asked below his topics once the profile has been read, only when the connector
+is there), then true or false (Settings changes it). `art/{tid}` (shared, like the topic; its own
+doc so the topics list stays small and a kept dossier keeps its picture):
+```
+{ status:'making'|'ready'|'failed', src: 'data:image/webp|jpeg;base64,…' (800x450, under 190,000 characters),
+  scene, model:'Z-Image Turbo', seed, at, by?: the page drawing it (while making), code?: why it failed, updatedAt }
+```
+How one is drawn: a quick Claude call (`TASK: cover-picture`, U.prompts.coverPicture / U.validate.cover:
+6-35 words of real things to look at, never writing, diagrams, maps or famous faces) writes the
+scene; the page calls the viewer's connector **Claude MCP** (Dan's Hugging Face connector, with the
+Space mcp-tools/Z-Image-Turbo as `gr1_z_image_turbo_generate`) with the scene plus the house style
+(U.art.prompt: field-journal ink and watercolour, no text), `resolution '1280x720 ( 16:9 )'`,
+`steps 8`, `random_seed true`; the reply's image block (or, failing that, its image link) is
+cropped and re-encoded on a canvas to WebP (JPEG where the browser cannot write WebP). Only when
+`prefs.pictures === true`: Learn queues every planned course without one (and the topic page its
+own), one at a time, the scene call in the background lane; a failed one waits a day before it is
+tried by itself again; a refused or missing connector stops the queue for the visit. "Draw a new
+one" on the topic page redraws in the foreground and keeps the old picture until the new one is
+saved. Writes are quiet (never held, never a toast); nothing is written once the course is gone.
+Shown inside every V.cover svg (`image.cv-art`, a little dimmer in dark mode) and as the dossier's
+frontispiece on its title page, unless `prefs.pictures === false`; the topic page says it was drawn
+by an image model, for decoration only. Deleting a course deletes its picture unless its dossier is
+kept.
 
 ## 5. Lesson JSON (what generation writes, what the player plays)
 
@@ -1196,6 +1221,18 @@ U.validate.plan(o) / .lesson(o, {iid, sources, final, kind, mode}) / .grade(o, {
 U.gen.intake(query, {level, mode, signal}) -> Promise<{questions}>   (section 7)
 U.gen.createTopic(query, {level, mode, intake, onCreated}) / replan / research / ensureLesson / relearn / grade / tutor / status / knownIdeas   (section 7)
 U.gen.demote(tid, iid, {signal?}) -> bool   a foreground job Dan left becomes background work (aborting signal cancels it)
+```
+
+`35-art.js` (course pictures; data and flow in section 4)
+```
+U.art.shown()  wanted()  asked()   prefs.pictures !== false / === true / is a boolean
+U.art.available() -> Promise<bool> (Claude MCP lists gr1_z_image_turbo_generate; cached, reset())
+U.art.turnOn() -> Promise<'on'|'denied'> (asks for mcp:Claude MCP now)   turnOff()
+U.art.doc(tid)  src(tid) (data URL when shown and ready)  state(tid) -> 'ready'|'making'|'queued'|'failed'|'none'
+U.art.paint(svg, tid)  (V.cover calls it: the picture now and whenever it changes)
+U.art.want(topics)  (queues planned courses without one)   make(tid, {force}) -> Promise<'ready'|'busy'|'off'|'unavailable'|'gone'>
+U.art.remove(tid)   prompt(scene)   fromResult(result) -> {data, mime} | {url} | null   seedOf(result)   why(doc)
+emits 'art' {tid};  U.store.art.watch(fn(map))  get(tid)  set(tid, doc) (quiet; null once the course is gone)  remove(tid)
 ```
 `41-cards.js`, `60-today.js`
 ```

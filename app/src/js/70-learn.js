@@ -145,7 +145,28 @@
     var compose = COMPOSE[seed % COMPOSE.length];
     svg.setAttribute('data-motif', compose.name);
     compose(svg, V.rand(seed));
+    // The course's own picture, when it has one (35-art.js), drawn over the motif.
+    if (U.art && topic && topic.id) U.art.paint(svg, topic.id);
     return svg;
+  };
+  // Asked once on Learn, when he has a course and the Hugging Face connector is here (35-art.js).
+  V.artInvite = function (done) {
+    function answer(yes) {
+      return function () {
+        btns.forEach(function (b) { b.disabled = true; });
+        (yes ? U.art.turnOn() : Promise.resolve(U.art.turnOff())).then(function (r) {
+          if (r === 'denied') U.toast('No pictures: the Hugging Face connector was not allowed. You can turn them on in Settings.');
+          else if (!yes) U.toast('No pictures. You can turn them on in Settings.');
+          done();
+        }, function () { done(); });
+      };
+    }
+    var btns = [U.h('button', { class: 'btn small', type: 'button', on: { click: answer(true) } }, 'Draw the pictures'),
+      U.h('button', { class: 'btn secondary small', type: 'button', on: { click: answer(false) } }, 'No thanks')];
+    return U.h('section', { class: 'art-invite', 'aria-labelledby': 'art-inv-h' },
+      U.h('h2', { id: 'art-inv-h', class: 'art-invite-h' }, 'Pictures for your courses'),
+      U.h('p', { class: 'muted small' }, 'Claude can have a picture drawn for each course, in the style of a field journal, by an image model on your Hugging Face connector. They are decoration only.'),
+      U.h('div', { class: 'row art-invite-btns' }, btns));
   };
 
   // Where Dan stands in a topic: ideas done, the idea to do next, whether it is under way.
@@ -398,7 +419,7 @@
       input.style.overflowY = need > max + 1 ? 'auto' : 'hidden';
     }
     input.addEventListener('input', fit);
-    var offPrefs = U.on('prefs', fit); // a new text size changes the line height
+    var offPrefs = U.on('prefs', function () { fit(); paintInvite(); }); // a new text size changes the line height; pictures said yes or no
     // The box's width follows the screen's shape (first run or returning, one column or two, the
     // layout, a busy button), so it is fitted again whenever its width changes; on the next frame,
     // so the height it sets is not a change made inside this observer.
@@ -472,8 +493,9 @@
     // The topics watch stopping after they were shown (V.liveError); cleared by its next snapshot.
     var liveBox = U.h('div', { class: 'learn-note learn-live' });
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
+    var artBox = U.h('div', { class: 'learn-art' });
     // Reviews waiting come first: today's study is one tap away.
-    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox);
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, artBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -656,9 +678,24 @@
         render();
       });
     }
+    // Course pictures (35-art.js): the ones still to draw are queued, and the first time he has a
+    // course, he is asked once whether he wants them (below his topics, never in the way).
+    var invited = false;
+    function paintInvite() {
+      var ask = !!U.art && !!(U.settings && U.settings.loaded) && !U.art.asked() && (topics || []).some(function (t) { return t && t.status === 'ready'; });
+      if (!ask) { if (invited) { U.clear(artBox); invited = false; } return; }
+      if (invited) return;
+      invited = true;
+      U.art.available().then(function (ok) {
+        if (!ctx.alive() || !invited) return;
+        if (!ok || U.art.asked()) { invited = false; return; }
+        U.clear(artBox).appendChild(V.artInvite(function () { if (ctx.alive()) U.clear(artBox); }));
+      });
+    }
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
       topics = list || [];
+      if (U.art) { U.art.want(topics); paintInvite(); }
       U.clear(liveBox);   // the watch is live again (a parked one answers by itself)
       progSig = {};
       if (firstTime) { loadProgress(progressP); return; }

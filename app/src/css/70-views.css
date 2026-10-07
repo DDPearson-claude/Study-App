@@ -49,6 +49,13 @@
 .cover .cv-soft { opacity: .55; }
 .cover .cv-ring { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 52%) 40%, var(--surface)); stroke-width: 2; }
 .cover .cv-line { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 48%) 55%, var(--surface)); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: .1 7; }
+/* Course pictures (35-art.js): the course's own picture over the motif; a little dimmer in dark mode. */
+.cover .cv-art { pointer-events: none; }
+.cover .cv-art.cv-new { animation: cv-in .6s ease both; }
+@keyframes cv-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cover .cv-art.cv-new { animation: none; } }
+:root[data-mu-theme="dark"] .cover .cv-art, :root[data-mu-theme="system"][data-theme="dark"] .cover .cv-art { opacity: .86; }
+@media (prefers-color-scheme: dark) { :root[data-mu-theme="system"]:not([data-theme="light"]) .cover .cv-art { opacity: .86; } }
 
 /* ---------- Learn ---------- */
 .learn { display: flex; flex-direction: column; gap: 36px; }
@@ -261,7 +268,14 @@
 @container view (max-width: 527px) { .tp-cta.btn { align-self: stretch; } }
 .tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; --tp-gap: 14px; }
 .tp-ask { margin-top: -8px; }
-.tp-foot { display: flex; justify-content: center; padding-top: 12px; border-top: 1px solid var(--line); }
+.tp-foot { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.tp-art { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 0 4px; margin: 0; text-align: center; }
+.tp-art .linkish { font-size: inherit; }
+.learn-art:empty { display: none; }
+.art-invite { margin-top: 20px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.art-invite-h { margin: 0 0 4px; font-size: 1.05rem; }
+.art-invite p { margin: 0; }
+.art-invite-btns { gap: 10px; margin-top: 12px; }
 .tp-delete.linkish { color: var(--red); text-decoration-color: color-mix(in srgb, var(--red) 40%, transparent); }
 
 /* The path of ideas */

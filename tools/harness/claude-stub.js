@@ -241,7 +241,7 @@
         later(function () {
           var h = toolHandlers[server] && toolHandlers[server][tool];
           if (!h) return rej(err('not_in_manifest', server + '/' + tool + ' has no stub handler'));
-          Promise.resolve().then(function () { return h(clone(input)); }).then(function (payload) { res({ payload: payload, content: [] }); }, function (e) { rej(e && e.code ? e : err('tool_error', String(e))); });
+          Promise.resolve().then(function () { return h(clone(input)); }).then(function (payload) { res(payload && payload.__result ? payload.__result : { payload: payload, content: [] }); }, function (e) { rej(e && e.code ? e : err('tool_error', String(e))); });
         });
       });
     },

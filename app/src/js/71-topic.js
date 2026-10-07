@@ -71,6 +71,8 @@
     if (U.dossier) stops.push(U.store.dossier.watch(tid, function (d) { dossier = d; schedule(); }, function () { /* the option still works without its link */ }));
     // The next idea's lesson (its doc), and this page's own work on any lesson of this topic.
     var lw = V.lessonWatch(schedule);
+    // This course's cover picture changing (35-art.js): drawn, being drawn, failed.
+    stops.push(U.on('art', function (a) { if (a && a.tid === tid) schedule(); }));
     stops.push(lw.stop, U.on('gen', function (g) {
       if (!g || g.kind !== 'lesson' || g.tid !== tid) return;
       if (g.status === 'ready' && lib.key) loadChecked();
@@ -325,6 +327,8 @@
         var first = U.dossier && answer.keep ? U.dossier.keep(tid).catch(function (e) { console.warn('dossier: keep', e); }) : Promise.resolve();
         return first.then(function () { return U.store.topic.remove(tid); }).then(function (r) {
           if (U.dossier && !answer.keep) U.dossier.remove(tid).catch(function (e) { console.warn('dossier: remove', e); });
+          // The cover picture goes with the course, unless its kept dossier still shows it.
+          if (U.art && !(U.dossier && answer.keep)) U.art.remove(tid).catch(function (e) { console.warn('art: remove', e); });
           U.toast(r && r.leftovers ? 'Topic deleted. A few of its saved pieces could not be cleared yet; they are hidden and will be tidied up later.' : U.dossier && answer.keep ? 'Topic deleted. Its dossier stays in your Library.' : 'Topic deleted.');
           if (U.review && U.review.refreshBadge) try { U.review.refreshBadge(); } catch (e) { console.error(e); }
           if (ctx.alive()) U.go('#/');
@@ -340,6 +344,7 @@
 
     function readyParts() {
       var ideas = Array.isArray(topic.ideas) ? topic.ideas : [];
+      if (U.art) U.art.want([topic]);   // its cover picture, if it has none yet
       var s = V.summary(topic, progress);
       var pi = progress.ideas || {};
       var ideaState = ideas.map(function (i) { var p = pi[i.id] || {}; return [i.id, i.title, i.oneLine, i.deps, i.known, p.stage, p.doneAt, p.known, V.isRead(progress, i.id)]; });
@@ -376,8 +381,8 @@
         ['mode', sig(V.modeOf(topic), topic.intake, ui.mode), modeSection, 'rail'],
         U.dossier ? ['dossier', sig(U.dossier.on(progress), U.dossier.countOf(dossier), ideas.length), function () { return U.dossier.option(tid, progress, dossier, ideas.length); }, 'rail'] : null,
         ['library', sig(r.status, r.at, r.reason, r.sources, r.error, V.researchStale(topic), avail, ui.researching, lib.groups, lib.checked, ideas.map(function (i) { return [i.id, i.title]; })), function () { return library(ideas); }, 'rail'],
-        ['foot', 'foot', function () {
-          return U.h('div', { class: 'tp-foot' }, U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
+        ['foot', sig(artSig()), function () {
+          return U.h('div', { class: 'tp-foot' }, picture(), U.h('button', { class: 'linkish tp-delete', type: 'button', 'data-key': 'delete', on: { click: del } }, 'Delete this topic'));
         }, 'end'],
       ];
     }
@@ -402,6 +407,26 @@
             // No summary to say it under (older plans): the question says it itself.
             topic.hook && !topic.oneBreath ? U.h('p', { class: 'tp-overview-note' }, 'Claude\'s overview from what it already knows, not checked against sources.') : null,
             cta, note)));
+    }
+
+    // ---------- the cover picture (35-art.js) ----------
+    // Said plainly to be drawn by an image model, for decoration, with a way to draw another.
+    function artSig() { return U.art ? [U.art.wanted(), U.art.state(tid), !!U.art.src(tid), (U.art.doc(tid) || {}).code || null] : null; }
+    function picture() {
+      if (!U.art || !U.art.wanted()) return null;
+      var st = U.art.state(tid), d = U.art.doc(tid);
+      function again(label) { return U.h('button', { class: 'linkish tp-art-btn', type: 'button', 'data-key': 'art', on: { click: redraw } }, label); }
+      if (st === 'making' || st === 'queued') return U.h('p', { class: 'muted small tp-art', role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Drawing a cover picture for this course…');
+      if (st === 'failed') return U.h('p', { class: 'muted small tp-art', role: 'status' }, 'The cover picture could not be drawn: ' + U.art.why(d) + ' ', again('Try again'));
+      if (st === 'ready') return U.h('p', { class: 'muted small tp-art' }, 'The cover picture was drawn by an image model, for decoration only. ', again('Draw a new one'));
+      return null;
+    }
+    function redraw() {
+      U.art.make(tid, { force: true }).then(function (r) {
+        if (r === 'unavailable') U.toast('The Hugging Face connector (Claude MCP) is not connected here, so no picture can be drawn.', { kind: 'bad' });
+        else if (r === 'busy') U.toast('A picture for this course is already being drawn.');
+      }, function () { /* the line below the path says what happened */ });
+      schedule();
     }
 
     // preparing: its lesson is being written or built (it opens on the preparation card).

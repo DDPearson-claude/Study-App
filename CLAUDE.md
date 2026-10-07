@@ -33,4 +33,4 @@ changing code; it is the contract between modules.
 ## Publishing
 The live app is a private claude.ai artifact: https://claude.ai/artifact/XV69hX3x3kQfSUuCgyED2d
 Publish `dist/my-university.html` with the Artifact tool, keeping that URL (see `docs/DEPLOY.md`). Capabilities: db, user, sample, downloads,
-mcp (Parallel Search: web_search, web_fetch).
+mcp (Parallel Search: web_search, web_fetch; Claude MCP: gr1_z_image_turbo_generate, for course pictures).

@@ -25,7 +25,10 @@ Capabilities (full declaration):
   "user": { "scopes": ["profile"] },
   "sample": {},
   "downloads": true,
-  "mcp": { "servers": [ { "server": "Parallel Search", "tools": ["web_search", "web_fetch"] } ] }
+  "mcp": { "servers": [
+    { "server": "Parallel Search", "tools": ["web_search", "web_fetch"] },
+    { "server": "Claude MCP", "tools": ["gr1_z_image_turbo_generate"] }
+  ] }
 }
 ```
 - `db` + `user`: topics and lessons (shared docs) and Dan's private progress, cards and profile
@@ -34,6 +37,9 @@ Capabilities (full declaration):
 - `sample`: Claude in the page, on Dan's usage (planning, lessons, interactives, grading, tutor).
 - `mcp` Parallel Search: live research with real pages. Optional; the app labels content
   "not yet source-checked" when it is not connected.
+- `mcp` Claude MCP: Dan's Hugging Face connector (its Space mcp-tools/Z-Image-Turbo), for the course
+  pictures (version 10). Optional; courses keep their drawn covers without it. The official
+  "Hugging Face" connector cannot run Spaces (it is set up with gradio=none), so it is not used.
 - `downloads`: Book and backup exports.
 
 ## Live artifact
