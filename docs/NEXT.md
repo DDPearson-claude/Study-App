@@ -41,8 +41,14 @@ Version 10: course pictures through Dan's Hugging Face connector (Claude MCP, Z-
 ## Saturday (Dan's credits reset): build every ready-made Maths course
 Dan: "Generate absolutely every single one of these as an entire course I can actively browse at
 my leisure, fully built end to end as an off-the-shelf course." The shelf is the db doc
-shelves/maths (first version in docs/shelves-maths.json): 6 folders, 39 courses, each with a
-title and a one-line blurb. For each course: plan it, research it, write and build every lesson
+shelves/maths (docs/shelves-maths.json): 7 folders, 58 courses, each with a title and a one-line
+blurb. The first version (7 Oct) had 6 folders and 39 courses; later that day Dan asked for every
+Brilliant course to be listed, so the shelf gained Brilliant's remaining maths courses, an Everyday
+maths folder, and three more shelves alongside it: shelves/science (docs/shelves-science.json),
+shelves/computer-science (docs/shelves-computer-science.json) and shelves/data-analysis
+(docs/shelves-data-analysis.json). Each course's `from` field names the Brilliant course it mirrors
+and says "(retired)" when Brilliant no longer offers it. Dan decides which of these to build and
+when; the Saturday order below is for the Maths shelf. For each course: plan it, research it, write and build every lesson
 (the v12 rules: overall explanation, the key concept, the interactive, what cements it, a recap;
 no word limits; his background as an electrician), save the topic and its lessons to the db as
 'ready' (mode 'read' unless he says otherwise), then set that course's `tid` in shelves/maths so
