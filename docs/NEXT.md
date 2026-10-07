@@ -6,6 +6,10 @@ Library, chapters bound as ideas finish, kept on delete, save a copy), the fact-
 changes (de-overfit, research routing), the kit audit (sandbox heartbeat, legibility, K.drag,
 a hands-on mechanism exemplar, history timelines) and the v8 lesson-screen and views fixes.
 
+Version 9 (published 7 Oct 2026, commit e935fae): "Just teach me" courses, the intake questions,
+"Put it into practice", and dossiers without test questions.
+Version 10: course pictures through Dan's Hugging Face connector (Claude MCP, Z-Image Turbo).
+
 ## Measure first
 1. Eval round 3 with the three-judge panel on fresh topics with live research (tools/eval/
    RUNNER.md, now with the verify-lesson step a2). Compare with run 2's overall 3.13; the two
@@ -27,3 +31,9 @@ a hands-on mechanism exemplar, history timelines) and the v8 lesson-screen and v
    paragraph with dashes.
 8. Prompt craft: the write-lesson rules are about a third longer than before the panel; trim
    further once eval round 3 shows which rules earn their place.
+9. Course pictures: the 'making' claim is a fresh read then a set, not an atomic lock (db
+   `acquire`); two devices that take the same new course in the same second can each draw it
+   (the later picture wins). Rare, and costs one extra picture.
+10. Course pictures in the live viewer: confirm on Dan's phone that the data-URL pictures show
+    inside the covers (the artifact's image policy was not testable here; the drawn cover stays
+    underneath if they do not).
