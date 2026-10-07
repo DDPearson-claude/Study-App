@@ -354,7 +354,7 @@
     function checkedLine(nSources) {
       var v = st.doc && st.doc.verified;
       if (!v || v.status !== 'done') return '';
-      if (!nSources) return 'Checked for consistency (no sources were available).';
+      if (!nSources) return '';   // the app's own check, not news to Dan ("Not yet source-checked" says what matters)
       var n = Array.isArray(v.applied) ? v.applied.length : 0;
       return 'Checked against its sources' + (n ? ': ' + n + (n === 1 ? ' correction' : ' corrections') + ' made.' : '.');
     }
@@ -933,10 +933,16 @@
       var title = has ? (built.title || (spec && spec.title) || 'What happens') : reading() && !revealText ? 'Before you read' : 'What happens';
       U.append(box, [live ? eyebrow(labelOf('play')) : null, heading(title)]);
       var brief = has && spec && spec.brief ? U.h('p', { class: 'lsn-lede' }) : null;
+      // Taught, not tested (Dan, 7 Oct: he must know what he is looking at and why): with no guess
+      // to protect, what the picture is comes first, open, and what to watch for is said in full.
+      var orient = has && spec && spec.whatAmILookingAt && reading()
+        ? U.h('section', { class: 'lsn-orient', 'aria-label': 'What you\'re looking at' },
+          U.h('p', { class: 'eyebrow' }, 'What you\'re looking at'), richBox(spec.whatAmILookingAt, 'lsn-orient-text', fn))
+        : null;
       var stage = U.h('div', { class: 'lsn-play' });
       var notes = U.h('div', { class: 'lsn-discs' });
       var after = U.h('div', { class: 'lsn-after' });
-      U.append(box, [brief, stage, notes, after]);
+      U.append(box, [orient, brief, stage, notes, after]);
       var m = null;
       if (has) m = mountPanel(stage, built, title);
       else stage.appendChild(noInteractive(spec, !reading() || !!revealText));
@@ -944,7 +950,7 @@
       function drawAfter() {
         U.clear(after);
         // Before the reveal only what to do; the whole sentence once the answer is out.
-        if (brief) { brief.textContent = friendlyBrief(spec.brief, played); brief.hidden = !brief.textContent; }
+        if (brief) { brief.textContent = friendlyBrief(spec.brief, played || reading()); brief.hidden = !brief.textContent; }
         var acting = live && !st.closed.play;
         if (played || !has) {
           // Without an interactive, Play is headed "What happens": the answer is not titled again.
@@ -1058,9 +1064,11 @@
         return controls.filter(function (c) { return c && (norm(c.label) === l || norm(c.id) === l); })[0] || null;
       }
       var live = [];
-      if (spec.whatAmILookingAt || nums.length) {
-        var d = disc('What am I looking at?', [
-          spec.whatAmILookingAt ? richBox(spec.whatAmILookingAt, 'lsn-disc-text', fn) : null,
+      var open = reading();   // read lessons show what the picture is above it (renderPlay)
+      if (open) nums = nums.filter(function (n) { return n.kind === 'constant' || n.kind === 'assumed' || n.kind === 'date'; });
+      if ((spec.whatAmILookingAt && !open) || nums.length) {
+        var d = disc(open ? 'The numbers it uses' : 'What am I looking at?', [
+          spec.whatAmILookingAt && !open ? richBox(spec.whatAmILookingAt, 'lsn-disc-text', fn) : null,
           nums.length ? U.h('dl', { class: 'lsn-nums' }, nums.map(function (n) {
             var c = n.kind === 'control' ? controlFor(n) : null;
             var now = c ? U.h('span', { class: 'lsn-num-now', hidden: true }) : null;

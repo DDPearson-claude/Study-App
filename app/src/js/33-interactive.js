@@ -138,7 +138,7 @@ U.interactive = (function () {
     var spec = (lesson && lesson.interactive) || {}, out = ['## What the interactive must show'];
     if (spec.brief) out.push('Brief: ' + str(spec.brief));
     if (spec.title) out.push('Title (the app shows it above the frame, so do not repeat it): ' + str(spec.title));
-    if (spec.whatAmILookingAt) out.push('The rule (the app also shows it beside the page, under "What am I looking at?"): ' + str(spec.whatAmILookingAt));
+    if (spec.whatAmILookingAt) out.push('The rule (the app shows it just above the frame, under "What you\'re looking at"): ' + str(spec.whatAmILookingAt));
     if (spec.ignores) out.push('What the model leaves out (the app shows this in its own panel; do not repeat it on the page): ' + str(spec.ignores));
     var controls = (spec.controls || []).filter(function (c) { return c && c.id; });
     if (controls.length) {
@@ -158,7 +158,7 @@ U.interactive = (function () {
     }
     var nums = (spec.numbers || []).filter(function (n) { return n && n.label; });
     if (nums.length) {
-      out.push('Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, shown as "for example"; date = a historical date or fact):');
+      out.push('Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):');
       nums.forEach(function (n) { out.push(numberLine(n)); });
     }
     targetChecks(lesson).forEach(function (c) {
@@ -198,19 +198,24 @@ U.interactive = (function () {
   // captions, rounding, colour words, extremes, checks, labels, timing and sound): how the
   // picture answers to this lesson's brief and explanation. Hiding the answer falls back to a
   // plain instruction when this build's KIT.md does not document k-after-move.
-  function rulesSection() {
+  function rulesSection(lesson) {
+    var guess = !!(lesson && lesson.predict && lesson.predict.q);
     return [
       '## Rules for this page',
-      '- Dan answers his prediction by moving away from the opening state, so whatever gives the answer away stays hidden until his first move' +
+      guess ? '- Dan answers his prediction by moving away from the opening state, so whatever gives the answer away stays hidden until his first move' +
         (kitHas('k-after-move') ? ' (the kit reference shows how: k-after-move, K.moved).' : ': reveal it once any control differs from its opening value.') +
-        ' The opening view still looks alive: the picture, its labels and the opening state are drawn, and the lead line says what to try.',
+        ' The opening view still looks alive: the picture, its labels and the opening state are drawn.'
+        : '- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.',
+      '- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.',
+      '- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.',
+      '- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you\'re looking at", or is left off.',
       '- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.',
-      '- Mark the brief\'s one quantity on the picture itself, labelled with its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).',
+      '- Mark the brief\'s one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).',
       '- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).',
       '- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.',
       '- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.',
       '- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.',
-      '- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding). Show assumed values as examples ("for example, £1,000").',
+      '- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).',
       '- Any example cases you choose are fair and representative, never picked to exaggerate the effect.',
       '- Money, health and law: show how it works, never advice, and never a guaranteed outcome.',
     ].join('\n');
@@ -235,7 +240,7 @@ U.interactive = (function () {
       explainSection(lesson),
       sourcesSection(lesson),
       DAN,
-      rulesSection(),
+      rulesSection(lesson),
       kitSection(),
     ];
     if (ex) {
@@ -334,7 +339,7 @@ U.interactive = (function () {
         '- A target out of reach: make the model follow the lesson\'s rule with the lesson\'s ranges and opening values, so moving that one control brings the output to the target.',
       ].join('\n'),
       sourcesSection(lesson),
-      rulesSection(),
+      rulesSection(lesson),
       kitSection(),
       '## The body that failed\n' + String(html || '(empty reply)'),
       outputSection(true),

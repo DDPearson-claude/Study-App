@@ -2228,7 +2228,8 @@ async function checkedLine() {
   const cases = [
     ['three corrections', { status: 'done', at, applied: fix(3), notes: [] }, true, 'Checked against its sources: 3 corrections made.'],
     ['nothing to correct', { status: 'done', at, applied: [], notes: [{ path: 'predict.q', problem: 'A note.' }] }, true, 'Checked against its sources.'],
-    ['no sources', { status: 'done', at, applied: fix(1), notes: [{ path: '', problem: 'No sources were available.' }] }, false, 'Checked for consistency (no sources were available).'],
+    // No sources: no line (7 Oct); "Not yet source-checked" says what matters.
+    ['no sources', { status: 'done', at, applied: fix(1), notes: [{ path: '', problem: 'No sources were available.' }] }, false, null],
     ['the check failed', { status: 'failed', at, applied: [], notes: [] }, true, null],
     ['never checked', null, true, null],
   ];
@@ -2382,12 +2383,17 @@ async function readScenario(width, dark, withReveal) {
     ok(await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 1 of 2: Explore, current step', 'and says so to a screen reader');
     ok(await play.locator('.eyebrow').first().textContent() === 'Explore', 'the stage is Explore');
     ok(await page.locator('.lsn-one').isVisible(), 'the idea\'s one line shows from the start (no guess to give away)');
-    ok(await play.locator('.lsn-lede').textContent() === 'Try this: drag the length slider.', 'the "Try this" lede before playing');
+    // Taught, not tested (7 Oct): what the picture is, open above it, and what to watch for, in full.
+    ok(/^Watch for /.test(await play.locator('.lsn-lede').textContent()), 'the whole "Watch for" sentence before playing');
+    const orient = play.locator('.lsn-orient');
+    ok(await orient.isVisible() && (await orient.textContent()).startsWith('What you\'re looking at'), '"What you\'re looking at" shows open');
+    ok(await page.evaluate(() => { const o = document.querySelector('.lsn-orient'), f = document.querySelector('.lsn-stage[data-stage="play"] iframe'); return !!(o && f && o.getBoundingClientRect().top < f.getBoundingClientRect().top); }), 'above the interactive');
+    ok(await play.locator('summary', { hasText: 'What am I looking at?' }).count() === 0, 'and is not folded away again below');
     await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     await noOverflow(app);
     await shot(app, `read-${tag}-1-explore`);
     await page.getByRole('button', { name: 'I\'ve had a play' }).click();
-    ok(/^Watch for /.test(await play.locator('.lsn-lede').textContent()), 'then the whole sentence');
+    ok(/^Watch for /.test(await play.locator('.lsn-lede').textContent()), 'and still the whole sentence');
     ok(await play.locator('.lsn-reveal-guess').count() === 0, 'no "Your guess"');
     ok(await play.locator('.lsn-reveal-answer').count() === (withReveal ? 1 : 0), withReveal ? 'what happens, when the lesson says' : 'nothing to reveal when it does not');
     await play.getByRole('button', { name: 'Continue' }).click();

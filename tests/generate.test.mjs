@@ -564,7 +564,7 @@ test('prompt builders start with their TASK line, stay small and carry the key r
     'hypothetical check case', 'where it stops being true', 'rubric: 2-3 points', 'misconception', 'target', 'Write one only when reaching it needs the idea', '"contested": { "views"',
     '[1] Newton\'s Third Law of Motion — NASA Glenn Research Center — https://www.grc.nasa.gov/www/k-12/BGP/newton3.html', 'with "source": n when a source above states it',
     '<-- THIS LESSON', 'Teach only this idea', 'This is the first idea', 'Known idea number 3', '[[like this]]', 'UK English',
-    'changes something from the interactive\'s opening state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Write each number as its readout shows it', 'action buttons', 'never as something he did', 'never by its shade', 'nothing picked to exaggerate the effect',
+    'changes something from the interactive\'s opening state', 'kettle', 'label (at most 30 characters)', 'decimals (optional', 'Write each number as its readout shows it', 'action buttons', 'he could repeat to a friend', 'never by its shade', 'nothing picked to exaggerate the effect',
     'Never invent probabilities', 'controls: one.', 'spoken to him as "you"', 'named: options', 'may start off', 'zero when zero is the real case', 'at most 120 words', 'label (at most 6 words)'])
     assert.ok(lesson.includes(s), 'write-lesson mentions ' + s);
   assert.ok(!lesson.includes('which view he finds more convincing'), 'the debate rule only where the idea is debated');
@@ -1691,7 +1691,7 @@ test('build prompt: one source rule, the opening state, number kinds, wording an
   assert.ok(bare.includes('the page contains no web addresses at all') && bare.includes('known-answer checks with no {source}'), 'no sources: no URLs anywhere');
   assert.ok(!/standard reference you would trust|encyclopedia/.test(bare), 'never asks for a URL from memory');
   for (const s of ['Dan answers his prediction by moving away from the opening state', 'k-after-move, K.moved', 'The opening view still looks alive',
-    'the same rounding', 'shown as "for example"', 'fair and representative', 'never advice', 'do not repeat it on the page',
+    'the same rounding', 'said once as an example', 'fair and representative', 'never advice', 'do not repeat it on the page',
     'use these ids, ranges and opening values exactly', 'reads "thrust"', 'and the decimals given, which is how the explanation rounds it', '- id "thrust": Thrust (kN), decimals: 0', 'moving "speedAdded" alone can reach the target', 'Dan\'s prediction, made before playing: "' + L_JET2.predict.q])
     assert.ok(bare.includes(s), 'build prompt mentions ' + s);
   const sourced = U.interactive.prompt(JET_TOPIC, PLAN_JET.ideas[1], L_JET2);

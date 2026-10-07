@@ -56,9 +56,9 @@
   var DAN_LINES = [
     'WHO YOU ARE TEACHING',
     '- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.',
-    '- He learns best by doing and seeing: interactives, diagrams, graphs, charts, simulations. Words come after he has played, and point at what he saw.',
+    '- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.',
     '- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.',
-    '- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious.',
+    '- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.',
     '- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.',
     '- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.',
     '- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.',
@@ -202,10 +202,12 @@
       'HIS LEVEL: ' + levelText(opts.level, true),
       'HOW HE WANTS TO LEARN IT: ' + MODE_WORDS[mode] + (mode === 'read' ? ' Choose ideas that are a pleasure to read and play with, each still building on the last.' : ''),
       '',
-      intakeBlock(opts.intake, 'Shape the course by these answers: the angle or part of the field he chose, examples from his own situation where he gave one, and as much practical weight as his aim needs (doing it, deciding, or understanding it). They choose what to teach and how, never what is true, and the course still starts from first principles.'),
+      intakeBlock(opts.intake, 'Shape the course by these answers: the angle or part of the field he chose, examples from his own situation where he gave one, and as much practical weight as his aim needs (doing it, deciding, or understanding it). They choose what to teach and how, never what is true, and the course still starts from what he already knows.'),
       '',
       knownBlock(known, 'IDEAS DAN HAS ALREADY LEARNED IN OTHER TOPICS',
         'Use these. Do not re-teach any of them as a full idea. Where the course builds on one, say so in the oneLine of the idea that uses it ("builds on air pressure from your weather topic"). Only if the course genuinely cannot work without a quick refresher, include it as an idea with "known": true.'),
+      '',
+      'WHO HE IS: what he says about himself above (a job, a trade, a qualification, something he has done) is ground he already has. No idea teaches it, and no oneLine explains it; the course builds on it by name and uses it for comparisons (an electrician already knows volts, amps, watts and resistance). His level is about this subject outside what he says he knows.',
       '',
       'WHAT TO PRODUCE',
       '1. title: what this course covers, in Dan\'s terms, at most 8 words ("How glaciers carve valleys", "Why bread rises"). If the request is ambiguous ("Mercury"), take the most likely meaning and make the title unambiguous.',
@@ -218,7 +220,7 @@
       '   - Each idea needs only the ideas before it. deps lists the earlier ids it truly needs ([] when it needs none).',
       '   - Each idea is ONE thing he can understand in five minutes, ideally by manipulating something.',
       '   - title: at most 7 words and says the idea itself, not a label. Bad: "Introduction", "Key concepts", "Background". Good: "Leaves build wood out of air", "Money works because everyone trusts it".',
-      '   - oneLine: one sentence (at most 25 words) saying what he will understand, in plain words, true as stated and as a textbook would put it: hedged where reality is graded ("much slower", not "stops"), and naming the narrower kind when it covers only one kind ("flowering plants", not "plants"). Each lesson treats it as its learning goal. A technical term comes with a few words saying what it is. No [[ ]] markers anywhere in the plan.',
+      '   - oneLine: one sentence (at most 25 words) making ONE claim (a second claim is a second idea) and saying what he will understand, in plain words, true as stated and as a textbook would put it: hedged where reality is graded ("much slower", not "stops"), and naming the narrower kind when it covers only one kind ("flowering plants", not "plants"). Each lesson treats it as its learning goal. A technical term comes with a few words saying what it is. No [[ ]] markers anywhere in the plan.',
       '   - kind: how the idea can be played with (this decides the interactive):',
       '       mechanism  a chain of cause and effect he can poke ("a thermostat switching the heating on")',
       '       quantity   a relationship between numbers he can slide ("braking distance grows with the square of speed")',
@@ -657,7 +659,7 @@
       read ? 'He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].' : null,
       read ? null : '1. predict: before playing, he commits to a guess about what will happen when he changes something. Committing first makes the answer stick.',
       (read ? '1' : '2') + '. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.' + (read ? '' : ' Then your predict reveal is shown.'),
-      (read ? '2' : '3') + '. explain: he reads your explanation of what playing showed.',
+      (read ? '2' : '3') + '. explain: straight after the interactive, he reads why it works. It must make sense on its own and make the picture make sense.',
       (read ? '3' : '4') + '. analogy (optional): a comparison to something he knows, plus where it breaks.',
       (read ? '4' : '5') + '. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.',
       read ? null : '6. say: he explains the idea back in his own words; Claude grades it against your rubric.',
@@ -670,6 +672,7 @@
       isStr(topic.hook) ? 'Puzzle the course answers: ' + data(topic.hook, 320) : null,
       'His level: ' + levelText(topic.level) + (isNew ? ' Skip what every adult already knows and go straight to what most adults have never understood.' : ''),
       'In one breath: ' + data(topic.oneBreath, 600),
+      isStr(topic.query) ? 'What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): ' + data(topic.query, 300) : null,
       'Ideas, in teaching order (id, title — one line, [kind]):',
       ideas.map(function (i) { return ideaLine(i, i.id === idea.id); }).join('\n'),
       'Teach only this idea; the others get their own lessons. ' +
@@ -719,7 +722,7 @@
       '- Its form, for a ' + kind + ' idea: ' + KIND_PLAY[kind],
       sound ? '- Sound only when hearing teaches what the picture cannot (a string\'s note rising as it is tightened): one button starts a sound that plays on while he moves the control. Say how much a slowed picture is slowed.' : null,
       '- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.',
-      '- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action' + (kind === 'mechanism' ? ', naming the cause as well as the change' : '') + '. It drives the build. Before play the app shows only "Try this: " and your "when you" half (the whole sentence ' + (read ? 'afterwards' : 'after the reveal') + '), so that half names the action, never the answer.',
+      '- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action' + (kind === 'mechanism' ? ', naming the cause as well as the change' : '') + '. It drives the build. ' + (read ? 'The app shows the whole sentence above the interactive, as what to watch for.' : 'Before play the app shows only "Try this: " and your "when you" half (the whole sentence after the reveal), so that half names the action, never the answer.'),
       '- title: at most 6 words.',
       '- controls: ' + (oneControl ? 'one. Add a second only if the idea cannot be seen without it' + (kind === 'process' ? ' (a switch for an earlier stage\'s cause counts)' : '') : '1-2; a second only when it shows something the first cannot') +
         '. Each has an id (camelCase) and a label (at most 6 words), and is either',
@@ -727,22 +730,22 @@
       '    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option\'s 0-based index).',
       '  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).' + (kind === 'history' || kind === 'structure' ? ' A map is a labelled "sketch map": true relative positions, no invented distances.' : ''),
       '- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.',
-      '- whatAmILookingAt (at most 120 words; aim for about 100), shown as "What am I looking at?": the rule the model follows, in plain words built from steps he can see, then any short equation (each symbol named)' + (isNew ? '; for this new learner, simple arithmetic only' + (readouts ? ': say a rule that needs more in words, with two values the picture shows ("four times the length, twice the swing time")' : '') : '') + '. Describe the rule, not an animation, naming each part the picture needs (reference lines, axes).',
+      '- whatAmILookingAt (at most 120 words; aim for about 100), shown open above the interactive as "What you\'re looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel\'s blades"), then the rule in words, step by step from what he can see, then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn' + (isNew ? '; for this new learner, simple arithmetic only' + (readouts ? ': say a rule that needs more in words, with two values the picture shows ("four times the length, twice the swing time")' : '') : '') + '.',
       '- ignores (at most 50 words), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.',
       '- numbers: every number it shows (each control\'s opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind' + (hasSources ? ', source where cited' : '') + ' }: see THE NUMBER RULE.',
       '- "interactive": null only when nothing at all can be played with (rare)' + (targets ? '; then no target check' : '') + '.',
       '',
       'explain (at most 170 words; aim for 140): within that, it must',
-      '- Open with what playing shows, in one or two sentences, as something he can do or check, never as something he did ("Slide it to 20 and the line doubles", not "When you slid…"), naming parts of the picture as your brief and controls do, never by its shade (dark mode swaps them).',
+      '- Open with the idea in one plain sentence he could repeat to a friend, not a list of results. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).',
       kind === 'history' ? '- Give the why: for this history idea, the chain the sources give, one step per sentence: who acted, why, and what that led to. Add how we know (the evidence, how it was dated) only where a quote says so.'
-        : '- Give the why a specialist accepts at this level, one step per sentence, from something he knows or has felt (a full shopping trolley is harder to stop), naming what makes each step happen, his control\'s effect included. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.',
-      '- Teach every part of "What Dan should come away understanding". Name a teaching model (an ideal case) as one in a clause, with confidence "simplified".' + (isNew ? ' For this new learner, at most two numbers, ones the picture shows.' : ''),
+        : '- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does (why zero at both ends, why it peaks where it does). Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.',
+      '- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.' + (isNew ? ' For this new learner, at most two numbers, ones the picture shows.' : ''),
       '- Close with a one-sentence takeaway, ' + (hasSources ? 'footnoted when a source supports it and ' : '') + 'no wider than the places and period its sources describe (unsourced, than the steps above).',
       extra.length ? '- Only if the rest came to under 140 words, also: ' + extra.join('; ') + '.' : null,
       '- 2-4 short paragraphs split by a blank line ("\\n\\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).',
       '',
       'analogy (optional)',
-      '- text (at most 45 words): a comparison to everyday life or an idea Dan knows that matches how it works, not only its outcome; prefer the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.',
+      '- text (at most 45 words): a comparison to something Dan knows that reproduces the lesson\'s main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.',
       '- breaks (at most 30 words): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.',
       '',
       'practice (at most 160 words; aim for 120)',
@@ -1069,7 +1072,7 @@
         if (!isStr(i.id) || !/^i\d{1,2}$/.test(i.id)) v.add(p + '.id must look like "i' + (k + 1) + '".');
         else if (ids.indexOf(i.id) >= 0) v.add(p + '.id "' + i.id + '" is used twice; ids must be unique.');
         v.str(i.title, p + '.title', 70);
-        v.str(i.oneLine, p + '.oneLine', 260);
+        if (v.str(i.oneLine, p + '.oneLine', 260)) v.long(words(i.oneLine), 25, p + '.oneLine has ' + words(i.oneLine) + ' words; one claim in at most 25 (a second claim is a second idea).');
         if (KINDS.indexOf(i.kind) < 0) v.add(p + '.kind must be one of ' + KINDS.join(', ') + '.');
         if (!Array.isArray(i.deps)) v.add(p + '.deps must be a list of earlier idea ids ([] for none).');
         else i.deps.forEach(function (d) {
@@ -1260,7 +1263,7 @@
     if (!isObj(o.explain) || !isStr(o.explain.text)) v.add('explain.text is missing.');
     else {
       var w = words(o.explain.text);
-      v.long(w, 170, 'explain.text has ' + w + ' words; the limit is 170. Cut it, keeping what playing shows and the takeaway.');
+      v.long(w, 170, 'explain.text has ' + w + ' words; the limit is 170. Cut it, keeping the opening idea, the why and the takeaway.');
       if (/https?:\/\/|<[a-z][^>]*>/i.test(o.explain.text)) v.add('explain.text must not contain links or HTML; cite with [^n].');
     }
     // practice: "Put it into practice", in both modes

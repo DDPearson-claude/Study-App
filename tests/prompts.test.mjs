@@ -408,10 +408,10 @@ test('write-lesson: the interactive draws the cause, its form follows the kind, 
 test('write-lesson: the explanation aims for 140 words within 170; the rest only if it came to under 140', () => {
   const p = lessonFor(PLAN_JET, 'i2', { research: RESEARCH_JET });
   for (const s of ['explain (at most 170 words; aim for 140): within that, it must',
-    '- Open with what playing shows, in one or two sentences, as something he can do or check, never as something he did',
-    'never by its shade (dark mode swaps them)', 'from something he knows or has felt', 'naming what makes each step happen, his control\'s effect included',
+    '- Open with the idea in one plain sentence he could repeat to a friend, not a list of results.',
+    'never by its shade (dark mode swaps them)', 'from something he knows or has felt', 'state in words the rule the interactive computes and show from it why the result behaves as it does',
     'name what is physically different, so the reason does not equally fit the earlier case',
-    '- Teach every part of "What Dan should come away understanding". Name a teaching model (an ideal case) as one in a clause, with confidence "simplified".',
+    '- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea.',
     'footnoted when a source supports it and no wider than the places and period its sources describe'])
     assert.ok(p.includes(s), s);
   for (const s of ['and of the picture,', 'any part of the mechanism your analogy', 'Just before the takeaway, one sentence', 'Only if words remain', 'aim for about 150'])
@@ -428,7 +428,7 @@ test('write-lesson: the explanation aims for 140 words within 170; the rest only
   // sources give (political history has no dating evidence to explain), inside the same budget.
   const rome4 = lessonFor(PLAN_ROME, 'i4');
   assert.ok(rome4.includes('- Only if the rest came to under 140 words, also: one sentence on why it mattered to people then, from a source.'));
-  assert.ok(rome4.includes('explain (at most 170 words; aim for 140): within that, it must\n- Open with what playing shows'));
+  assert.ok(rome4.includes('explain (at most 170 words; aim for 140): within that, it must\n- Open with the idea in one plain sentence'));
   assert.ok(rome4.includes('\n- Give the why: for this history idea, the chain the sources give, one step per sentence: who acted, why, and what that led to. Add how we know (the evidence, how it was dated) only where a quote says so.\n'));
   for (const s of ['the why is how we know', 'Give the why a specialist accepts', 'name what is physically different'])
     assert.ok(!rome4.includes(s), 'not for a history idea: ' + s);
@@ -465,7 +465,7 @@ test('write-lesson: names, analogy, say-it-back and numbers', () => {
   const p = lessonFor(PLAN_JET, 'i2', { research: RESEARCH_JET });
   for (const s of ['One name for each thing in every part', 'one verb for one event, no word with two meanings', 'a two-word term once both words are explained',
     'meaning what RESEARCH says, not narrowed to this picture', 'a source\'s point in your own words, not its vocabulary',
-    'not only its outcome', 'keeps the same mapping', 'in correct science',
+    'not only its cause or outcome', 'keeps the same mapping', 'in correct science',
     'setting out the situation without stating any rubric point', 'no ";" or "and" joining two claims', 'the last the conclusion the prompt asks for',
     'true of this idea but not equally of the one it builds on',
     'never a number, a method detail (unless how we know is the idea\'s point) or a name (unless the name is the idea)',
@@ -551,7 +551,9 @@ test('write-lesson: the rules stay short (they were 3,600 words; the eval asked 
     [PLAN_ROME, 'i1', {}], [PLAN_ROME, 'i4', {}], [PLAN_ROME, 'i5', {}], [PLAN_ROME, 'i7', {}],
     ...['new', 'some', 'solid'].flatMap((level) => ['i3', 'i4', 'i5', 'i7'].map((iid) => [{ ...PLAN_ROME, level }, iid, { research }]))]) {
     const n = wordsOf(rulesOf(lessonFor(plan, iid, opts)));
-    assert.ok(n <= 2950, plan.title + ' ' + iid + ': ' + n + ' words of rules');
+    // 3050 (7 Oct): the rules that make an explanation clear to Dan (the idea first, the rule in
+    // words, his own trade for comparisons) earn their words.
+    assert.ok(n <= 3050, plan.title + ' ' + iid + ': ' + n + ' words of rules');
     const r = wordsOf(rulesOf(lessonFor({ ...plan, mode: 'read' }, iid, opts)));
     assert.ok(r <= 2150 && r < n - 600, plan.title + ' ' + iid + ' (read): ' + r + ' words of rules against ' + n);
   }
@@ -767,7 +769,7 @@ test('research: causes first, budget spent in order, dated events filed under ev
 
 test('plan: each one line is true as a textbook would put it; the adult, whole-field and calibration rules stay', () => {
   const p = U.prompts.planTopic('Maths', { level: 'new' });
-  assert.ok(p.includes('- oneLine: one sentence (at most 25 words) saying what he will understand, in plain words, true as stated and as a textbook would put it: hedged where reality is graded ("much slower", not "stops"), and naming the narrower kind when it covers only one kind ("flowering plants", not "plants"). Each lesson treats it as its learning goal.'));
+  assert.ok(p.includes('- oneLine: one sentence (at most 25 words) making ONE claim (a second claim is a second idea) and saying what he will understand, in plain words, true as stated and as a textbook would put it: hedged where reality is graded ("much slower", not "stops"), and naming the narrower kind when it covers only one kind ("flowering plants", not "plants"). Each lesson treats it as its learning goal.'));
   for (const s of ['NEW to this subject, not to life', 'A whole field ("Maths", "Physics", "History", "Music")', 'so the answer must not appear in the title, hook, oneBreath or any idea\'s title or oneLine',
     'A needed but well-known prerequisite ("plants need light to grow") goes inside idea 1'])
     assert.ok(p.includes(s), 'kept: ' + s);
@@ -883,7 +885,7 @@ test('plan-topic: his answers shape the course as data; his mode is stated; noth
     'Shape the course by these answers: the angle or part of the field he chose, examples from his own situation where he gave one, and as much practical weight as his aim needs';
   assert.ok(p.includes(block), 'answered questions only, with his own words');
   assert.ok(!p.includes('Have you flown one before?'), 'an unanswered question is left out');
-  assert.ok(p.includes('never what is true, and the course still starts from first principles'));
+  assert.ok(p.includes('never what is true, and the course still starts from what he already knows'));
   assert.ok(p.includes('HOW HE WANTS TO LEARN IT: just taught: he reads each lesson and plays its interactive, with no tests and no review. Choose ideas that are a pleasure to read and play with'));
   assert.ok(p.includes('- Taught, not tested:') && !p.includes('- Learning that sticks:'), 'the voice says he is not tested');
   const study = U.prompts.planTopic('kites', { level: 'new' });

@@ -6,10 +6,12 @@ laptop, with the global `K` and the kit's stylesheet. No network or storage: no 
 addresses, `fetch`, `localStorage`, `alert` or `prompt`.
 
 ## Page shape that works
-1. `<p class="lead">`: one short line telling Dan what to do. The app shows the title; don't repeat it.
+1. `<p class="lead">`: one short line saying what is drawn ("Water from a 5 m drop hits a wheel's
+   blades"); the app gives the action. The app shows the title; don't repeat it.
 2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
    pair on one phone screen. A choice that re-sorts the picture may sit above it.
-3. `<p class="say">`: one sentence that changes with the state. Then `<div class="k-readouts">`,
+3. `<p class="say">`: one sentence that changes with the state and says why, in plain words ("Held
+   still: the water pushes hard, but nothing moves, so no power"). Then `<div class="k-readouts">`,
    only for numbers the drawing does not already label.
 4. Secondary figures and anything that grows go below.
 5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
@@ -147,7 +149,7 @@ Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note
   information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
   1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
 - Every number shown is a control, computed by the rule shown, a constant from the lesson, an
-  assumed value shown as "for example", or a date from the lesson. Never invent data, rates or chances.
+  assumed value said once as an example in the lead or a caption, or a date from the lesson. Never invent data, rates or chances.
 - The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
   extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
   describe the state, or write conditionally ("Push it past 20 and…").
