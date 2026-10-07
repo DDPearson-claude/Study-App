@@ -717,7 +717,7 @@
   // with a kept dossier after its course is deleted; said to be drawn by an image model.
   // Opened straight from a link, the pictures may still be on their way: the plate waits, hidden,
   // and appears when this course's picture arrives.
-  function frontispiece(tid) {
+  function frontispiece(S, tid) {
     if (!U.art || !tid || !U.art.shown()) return null;
     var img = h('img', { alt: '', width: String(U.art.W), height: String(U.art.H), decoding: 'async' });
     var fig = h('figure', { class: 'd-front', hidden: true }, tape('l'), tape('r'), img, h('figcaption', null, 'Plate drawn for this course by an image model'));
@@ -728,11 +728,10 @@
       img.src = src; fig.hidden = false;
       return true;
     }
-    if (!show()) off = U.on('art', function (a) {
-      if (!a || a.tid !== tid) return;
-      if (show() || (!fig.isConnected && fig.dataset.seen)) { off(); off = null; }
-      if (fig.isConnected) fig.dataset.seen = '1';
-    });
+    if (!show()) {
+      off = U.on('art', function (a) { if (a && a.tid === tid && show() && off) { off(); off = null; } });
+      S.offs.push(function () { if (off) { off(); off = null; } });   // the page closing ends the wait
+    }
     return fig;
   }
 
@@ -747,7 +746,7 @@
       runhead('Field dossier', M.no ? 'No. ' + M.no : 'My University'),
       h('p', { class: 'kicker' }, 'A course in ' + M.N + ' ideas'),
       h('h1', { class: 'd-tp-title', tabindex: '-1' }, b.title),
-      frontispiece(b.tid),
+      frontispiece(S, b.tid),
       b.hook ? h('section', { class: 'hook' }, h('h2', { class: 'label' }, 'The question it set out to answer'), h('p', { class: 'hook-q' }, b.hook)) : null,
       b.oneBreath ? h('section', { class: 'breath' }, h('h2', { class: 'label' }, 'In one breath'), h('div', { class: 'prose' }, rich(b.oneBreath, null))) : null,
       h('dl', { class: 'facts' }, tape('c'), facts.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); })),

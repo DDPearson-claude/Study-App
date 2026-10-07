@@ -93,11 +93,19 @@ test('finding the picture in a tool result', () => {
 test('the seed, and what Dan is told when a picture could not be drawn', () => {
   assert.equal(U.art.seedOf({ content: [{ type: 'text', text: 'The seed used for generation was553645' }] }), 553645);
   assert.equal(U.art.seedOf({ content: [] }), null);
-  assert.match(U.art.why({ code: 'not_in_manifest' }), /not allowed for this app/);
-  assert.match(U.art.why({ code: 'server_not_connected' }), /Claude MCP\) is not connected/);
+  // Never from the picture's own data: base64 can spell "seed" before the real line.
+  const img = { type: 'image', data: 'AAAAseedAAAA2AAAA' + 'B'.repeat(300), mimeType: 'image/webp' };
+  assert.equal(U.art.seedOf({ content: [img, { type: 'text', text: 'Image URL: https://x.hf.space/a.webp' }, { type: 'text', text: 'The seed used for generation was553645' }] }), 553645);
+  assert.equal(U.art.seedOf({ content: [img] }), null);
+  assert.match(U.art.why({ code: 'not_in_manifest' }), /not allowed for this app\. Settings shows how to allow it/);
+  assert.match(U.art.why({ code: 'server_not_connected' }), /Claude MCP, your Hugging Face connector, is not connected/);
   assert.match(U.art.why({ code: 'timeout' }), /did not answer in time/);
   assert.match(U.art.why({ code: 'no_image' }), /no picture that could be used/);
   assert.match(U.art.why({ code: 'tool_error' }), /something went wrong/);
+  assert.equal(U.art.why({ code: 'tool_error', detail: '  GPU   quota exceeded ' }), 'the image model said “GPU quota exceeded”');
+  assert.match(U.art.why({ code: 'upstream_error' }), /did not answer in time/);
+  assert.match(U.art.why({ code: 'approval_required' }), /organisation's settings/);
+  assert.match(U.art.why({ code: 'selection_required' }), /more than one connector/);
   assert.match(U.art.why(null), /something went wrong/);
 });
 

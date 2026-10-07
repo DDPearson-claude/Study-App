@@ -477,16 +477,25 @@ scene; the page calls the viewer's connector **Claude MCP** (Dan's Hugging Face 
 Space mcp-tools/Z-Image-Turbo as `gr1_z_image_turbo_generate`) with the scene plus the house style
 (U.art.prompt: field-journal ink and watercolour, no text), `resolution '1280x720 ( 16:9 )'`,
 `steps 8`, `random_seed true`; the reply's image block (or, failing that, its image link) is
-cropped and re-encoded on a canvas to WebP (JPEG where the browser cannot write WebP). Only when
-`prefs.pictures === true`: Learn queues every planned course without one (and the topic page its
-own), one at a time, the scene call in the background lane; a failed one waits a day before it is
-tried by itself again; a refused or missing connector stops the queue for the visit. "Draw a new
-one" on the topic page redraws in the foreground and keeps the old picture until the new one is
-saved. Writes are quiet (never held, never a toast); nothing is written once the course is gone.
-Shown inside every V.cover svg (`image.cv-art`, a little dimmer in dark mode) and as the dossier's
-frontispiece on its title page, unless `prefs.pictures === false`; the topic page says it was drawn
-by an image model, for decoration only. Deleting a course deletes its picture unless its dossier is
-kept.
+cropped and re-encoded on a canvas to WebP (JPEG where the browser cannot write WebP).
+Consent first: "Draw the pictures" (Learn) or the Settings switch asks for `mcp:Claude MCP` before
+anything is turned on; granted, `prefs.pictures` becomes true; refused, false (only if he had not
+answered before), and Settings shows "Not allowed for this app" with Open permissions whatever the
+switch says; closed without choosing, nothing changes. Unattended drawing runs only while that
+grant reads `granted` (an unattended call never opens the prompt): Learn queues every planned
+course without a picture (and the topic page its own), one at a time, the scene call in the
+background lane; the claim (`making`, a 4-minute lease, read fresh first) is written after the
+scene, just before the image call (120 s limit). A failure is recorded with the old picture kept
+(`code`, and the model's own words as `detail` for a tool error); anything but a bad picture stops
+the queue for the visit; a failed course waits a day before it is tried by itself again, or until
+Settings' Open permissions / Check again (refusals before then are due again). "Draw a new one"
+on the topic page redraws in the foreground (a second tap joins the first) and keeps the old
+picture until the new one is saved. Writes are quiet (never held, never a toast, never red);
+nothing is written once the course is gone. The pictures are read once the app has booted (when
+shown), so covers and the plate have them before they are drawn. Shown inside every V.cover svg
+(`image.cv-art`, a little dimmer in dark mode) and as the dossier's frontispiece on its title
+page, unless `prefs.pictures === false`; the topic page says it was drawn by an image model, for
+decoration only. Deleting a course deletes its picture unless its dossier is kept.
 
 ## 5. Lesson JSON (what generation writes, what the player plays)
 
@@ -1227,7 +1236,7 @@ U.gen.demote(tid, iid, {signal?}) -> bool   a foreground job Dan left becomes ba
 ```
 U.art.shown()  wanted()  asked()   prefs.pictures !== false / === true / is a boolean
 U.art.available() -> Promise<bool> (Claude MCP lists gr1_z_image_turbo_generate; cached, reset())
-U.art.turnOn() -> Promise<'on'|'denied'> (asks for mcp:Claude MCP now)   turnOff()
+U.art.consent() -> Promise<grant state>   turnOn() -> Promise<'on'|'denied'|'undecided'|'unavailable'> (asks first)   turnOff()   loaded()
 U.art.doc(tid)  src(tid) (data URL when shown and ready)  state(tid) -> 'ready'|'making'|'queued'|'failed'|'none'
 U.art.paint(svg, tid)  (V.cover calls it: the picture now and whenever it changes)
 U.art.want(topics)  (queues planned courses without one)   make(tid, {force}) -> Promise<'ready'|'busy'|'off'|'unavailable'|'gone'>

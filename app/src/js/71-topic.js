@@ -416,14 +416,16 @@
       if (!U.art || !U.art.wanted()) return null;
       var st = U.art.state(tid), d = U.art.doc(tid);
       function again(label) { return U.h('button', { class: 'linkish tp-art-btn', type: 'button', 'data-key': 'art', on: { click: redraw } }, label); }
-      if (st === 'making' || st === 'queued') return U.h('p', { class: 'muted small tp-art', role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Drawing a cover picture for this course…');
+      // Keyed like the buttons, so focus stays here when the line changes under it.
+      if (st === 'making' || st === 'queued') return U.h('p', { class: 'muted small tp-art', role: 'status', tabindex: '-1', 'data-key': 'art' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Drawing a cover picture for this course…');
       if (st === 'failed') return U.h('p', { class: 'muted small tp-art', role: 'status' }, 'The cover picture could not be drawn: ' + U.art.why(d) + ' ', again('Try again'));
       if (st === 'ready') return U.h('p', { class: 'muted small tp-art' }, 'The cover picture was drawn by an image model, for decoration only. ', again('Draw a new one'));
       return null;
     }
     function redraw() {
+      // A picture is decoration: what happened is said calmly, never in red.
       U.art.make(tid, { force: true }).then(function (r) {
-        if (r === 'unavailable') U.toast('The Hugging Face connector (Claude MCP) is not connected here, so no picture can be drawn.', { kind: 'bad' });
+        if (r === 'unavailable') U.toast('Claude MCP, your Hugging Face connector, is not connected here, so no picture can be drawn.');
         else if (r === 'busy') U.toast('A picture for this course is already being drawn.');
       }, function () { /* the line below the path says what happened */ });
       schedule();

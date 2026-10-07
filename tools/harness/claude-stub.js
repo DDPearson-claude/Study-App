@@ -253,7 +253,31 @@
     save: function (o) { calls.push({ kind: 'download', filename: o && o.filename, size: o && o.data && (o.data.length || o.data.size) }); return Promise.resolve({ saved: true }); },
   });
 
-  var namespaces = { db: db, user: user, sample: sample, mcp: mcp, downloads: downloads };
+  // permissions (built in on the platform) only when a test asks for it: cfg.permissions =
+  // { states: {name: state}, answer: {name: state after request}, delayMs }. request() waits delayMs
+  // (Dan reading the dialog) and records itself in calls.
+  var permissions = cfg.permissions ? (function (P) {
+    var states = Object.assign({}, P.states || {});
+    return Object.freeze({
+      state: function (name) { return Promise.resolve(name ? (states[name] || 'unavailable') : Object.assign({}, states)); },
+      request: function (names) {
+        calls.push({ kind: 'permissions', names: names });
+        return new Promise(function (res) {
+          setTimeout(function () {
+            var out = {};
+            (names || Object.keys(states)).forEach(function (n) {
+              if (states[n] === 'prompt' && P.answer && P.answer[n]) states[n] = P.answer[n];
+              out[n] = states[n] || 'unavailable';
+            });
+            res(out);
+          }, P.delayMs || 0);
+        });
+      },
+      manage: function () { calls.push({ kind: 'permissions-manage' }); if (P.afterManage) Object.assign(states, P.afterManage); return Promise.resolve(); },
+    });
+  })(cfg.permissions) : null;
+
+  var namespaces = { db: db, user: user, sample: sample, mcp: mcp, downloads: downloads, permissions: permissions };
   window.claude = Object.freeze({
     use: function (name) {
       return new Promise(function (res) {

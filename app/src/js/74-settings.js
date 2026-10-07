@@ -167,21 +167,30 @@
       var pictures = null;
       if (U.art) {
         var artStatus = U.h('div', { class: 'set-art-status' });
+        // Every course still without a picture (Learn queues them too, whenever it opens).
+        var queueAll = function () { U.store.topics.list().then(function (l) { U.art.want(l); }, function () { /* Learn queues them */ }); };
         var checkArt = function () {
           U.clear(artStatus);
-          if (!U.art.wanted()) return;
-          artStatus.appendChild(U.h('p', { class: 'muted' }, 'Checking…'));
           var perms = U.rt && U.rt.permissions;
-          var allowed = perms ? Promise.resolve().then(function () { return perms.state('mcp:' + U.art.SERVER); }).catch(function () { return 'unavailable'; }) : Promise.resolve('prompt');
-          Promise.all([U.art.available(), allowed]).then(function (r) {
+          artStatus.appendChild(U.h('p', { class: 'muted' }, 'Checking…'));
+          Promise.all([U.art.available(), U.art.consent()]).then(function (r) {
             U.clear(artStatus);
-            if (!U.art.wanted()) return;
+            // Refused for this app: shown whether or not pictures are on, since that is the one
+            // place that can put it right (the switch alone cannot: a refusal is not asked again).
             if (r[0] && r[1] === 'denied') {
-              artStatus.appendChild(U.h('p', null, U.h('strong', null, 'Not allowed for this app. '), 'Allow Claude MCP in this app\'s permissions, and pictures are drawn again.'));
+              artStatus.appendChild(U.h('p', null, U.h('strong', null, 'Not allowed for this app. '), 'Allow Claude MCP in this app\'s permissions, then pictures can be drawn.'));
               if (perms && perms.manage) artStatus.appendChild(U.h('button', { class: 'linkish', type: 'button', on: { click: function () {
-                Promise.resolve().then(function () { return perms.manage(); }).then(function () { U.art.reset(); checkArt(); }, function () { U.toast('Open this app\'s Permissions menu in Claude to allow Claude MCP.'); });
+                Promise.resolve().then(function () { return perms.manage(); }).then(function () {
+                  U.art.reset();
+                  return U.art.consent().then(function (st) {
+                    if (st === 'granted') return U.art.turnOn().then(function (x) { if (x === 'on') { var sw = body.querySelector('input[name="pictures"]'); if (sw) sw.checked = true; queueAll(); } });
+                  });
+                }, function () { U.toast('Open this app\'s Permissions menu in Claude and allow Claude MCP.'); }).then(checkArt);
               } } }, 'Open permissions'));
-            } else if (r[0]) {
+              return;
+            }
+            if (!U.art.wanted()) return;
+            if (r[0]) {
               artStatus.appendChild(U.h('p', { class: 'set-ok' }, U.icon('tick'), U.h('span', null, U.h('strong', null, 'Connected. '), 'New courses get a picture once they are planned.')));
             } else {
               artStatus.appendChild(U.h('p', null, U.h('strong', null, 'Not connected. '), 'Courses keep their plain covers until it is.'));
@@ -189,17 +198,19 @@
                 U.h('li', null, 'In Claude, open Settings, then Connectors.'),
                 U.h('li', null, 'Connect Claude MCP (your Hugging Face connector).'),
                 U.h('li', null, 'Come back here and check again.')));
-              artStatus.appendChild(U.h('button', { class: 'linkish', type: 'button', on: { click: function () { U.art.reset(); checkArt(); } } }, 'Check again'));
+              artStatus.appendChild(U.h('button', { class: 'linkish', type: 'button', on: { click: function () { U.art.reset(); checkArt(); queueAll(); } } }, 'Check again'));
             }
           }, function () { U.clear(artStatus).appendChild(U.h('p', { class: 'muted' }, 'Could not check just now.')); });
         };
         pictures = group('Course pictures', [
           toggle('Draw a picture for each course', 'Claude describes a scene and an image model (' + U.art.MODEL + ') draws it in the style of a field journal, through your Hugging Face connector. Decoration only.', U.art.wanted(), function (v) {
-            (v ? U.art.turnOn() : Promise.resolve(U.art.turnOff())).then(function (r) {
-              if (r === 'denied') { U.toast('No pictures: the Hugging Face connector was not allowed.'); var sw = body.querySelector('input[name="pictures"]'); if (sw) sw.checked = false; }
+            (v ? U.art.turnOn() : Promise.resolve((U.art.turnOff(), 'off'))).then(function (r) {
+              // Not turned on (refused, closed without choosing, or not usable here): the switch
+              // goes back, and the status below says why and what to do.
+              if (v && r !== 'on') { var sw = body.querySelector('input[name="pictures"]'); if (sw) sw.checked = false; }
+              if (r === 'unavailable') U.toast('Claude MCP cannot be used from here.');
               checkArt();
-              // Every course without a picture yet (Learn queues them too, whenever it opens).
-              if (r === 'on') return U.store.topics.list().then(function (l) { U.art.want(l); });
+              if (r === 'on') queueAll();
             }).catch(function (e) { console.warn('art: turn on', e); });
           }, 'pictures'),
           artStatus,

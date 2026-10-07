@@ -150,15 +150,22 @@
     return svg;
   };
   // Asked once on Learn, when he has a course and the Hugging Face connector is here (35-art.js).
+  // done(note): his answer, said back in one line (the card's place, so focus has somewhere to go);
+  // null when he closed the connector's prompt without choosing (the card stays, to answer later).
   V.artInvite = function (done) {
+    var NOTES = {
+      on: 'Pictures are on. Each course\'s picture appears here once it is drawn.',
+      off: 'No pictures. You can turn them on in Settings.',
+      denied: 'No pictures: Claude MCP was not allowed for this app. Settings shows how to allow it.',
+      unavailable: 'Claude MCP cannot be used from here, so there are no pictures for now.',
+    };
     function answer(yes) {
       return function () {
         btns.forEach(function (b) { b.disabled = true; });
-        (yes ? U.art.turnOn() : Promise.resolve(U.art.turnOff())).then(function (r) {
-          if (r === 'denied') U.toast('No pictures: the Hugging Face connector was not allowed. You can turn them on in Settings.');
-          else if (!yes) U.toast('No pictures. You can turn them on in Settings.');
-          done();
-        }, function () { done(); });
+        (yes ? U.art.turnOn() : Promise.resolve((U.art.turnOff(), 'off'))).then(function (r) {
+          if (r === 'undecided') { btns.forEach(function (b) { b.disabled = false; }); return done(null); }
+          done(NOTES[r] || NOTES.unavailable);
+        }, function () { done(NOTES.unavailable); });
       };
     }
     var btns = [U.h('button', { class: 'btn small', type: 'button', on: { click: answer(true) } }, 'Draw the pictures'),
@@ -680,16 +687,25 @@
     }
     // Course pictures (35-art.js): the ones still to draw are queued, and the first time he has a
     // course, he is asked once whether he wants them (below his topics, never in the way).
-    var invited = false;
+    // invite: null (none shown) | 'asking' (the card is up) | 'answered' (his answer, said back).
+    var invite = null;
     function paintInvite() {
+      if (invite === 'answered') return;
       var ask = !!U.art && !!(U.settings && U.settings.loaded) && !U.art.asked() && (topics || []).some(function (t) { return t && t.status === 'ready'; });
-      if (!ask) { if (invited) { U.clear(artBox); invited = false; } return; }
-      if (invited) return;
-      invited = true;
+      if (!ask) { if (invite) { U.clear(artBox); invite = null; } return; }
+      if (invite) return;
+      invite = 'asking';
       U.art.available().then(function (ok) {
-        if (!ctx.alive() || !invited) return;
-        if (!ok || U.art.asked()) { invited = false; return; }
-        U.clear(artBox).appendChild(V.artInvite(function () { if (ctx.alive()) U.clear(artBox); }));
+        if (!ctx.alive() || invite !== 'asking') return;
+        if (!ok || U.art.asked()) { invite = null; return; }
+        U.clear(artBox).appendChild(V.artInvite(function (note) {
+          if (!note || !ctx.alive()) return;
+          var had = artBox.contains(document.activeElement);
+          invite = 'answered';
+          var p = U.h('p', { class: 'muted small art-note', tabindex: '-1', role: 'status' }, note);
+          U.clear(artBox).appendChild(p);
+          if (had || document.activeElement === document.body) p.focus();
+        }));
       });
     }
     var stop = U.store.topics.watch(function (list) {

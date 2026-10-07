@@ -107,8 +107,8 @@ function sample(input) {
   throw new Error('unexpected sample task ' + task);
 }
 
-async function open({ width = 390, height = 844, dark = false, db = seedDb(), hash = '#/', tools = {} } = {}) {
-  const app = await openApp({ width, height, dark, file: FILE, config: { db }, sample, tools });
+async function open({ width = 390, height = 844, dark = false, db = seedDb(), hash = '#/', tools = {}, permissions = null } = {}) {
+  const app = await openApp({ width, height, dark, file: FILE, config: permissions ? { db, permissions } : { db }, sample, tools });
   current.apps.push(app);
   await app.page.goto(app.url(hash));
   await app.booted();
@@ -212,7 +212,7 @@ await test('topic page: drawing again keeps the old picture until the new one is
   await b.page.locator('.tp-art-btn', { hasText: 'Draw a new one' }).click();
   await b.page.waitForFunction(() => /could not be drawn/.test((document.querySelector('.tp-art') || {}).textContent || ''), null, { timeout: 15000 });
   const line = await b.page.locator('.tp-art').innerText();
-  assert(/something went wrong on the way/.test(line) && /Try again/.test(line), 'why, and Try again: ' + line);
+  assert(/the image model said “GPU quota exceeded”/.test(line) && /Try again/.test(line), 'why, in the model\'s words, and Try again: ' + line);
   const d = await doc(b, 'art/' + TIDS[2]);
   assert(d.status === 'failed' && d.code === 'tool_error' && d.src === old, 'recorded, old picture kept: ' + JSON.stringify({ ...d, src: d.src.slice(0, 22) }));
   eq((await covers(b, '.tp-banner'))[0], old, 'still shown');
@@ -308,6 +308,74 @@ await test('deleting a course takes its picture, unless its kept dossier still s
   await b.page.waitForFunction(() => !window.__CLAUDE_STUB__.get('art/pendulums'), null, { timeout: 20000 });
   assert(await doc(b, 'art/' + TIDS[0]), 'other courses keep theirs');
   eq(con.calls.length, 0, 'no picture drawn: every course already had one');
+});
+
+const PERM = 'mcp:Claude MCP';
+const permsCalls = (app) => app.page.evaluate(() => window.__CLAUDE_STUB__.calls.filter((c) => c.kind === 'permissions').length);
+
+await test('consent first: nothing is drawn while the connector\'s prompt is open; once allowed, it is', async () => {
+  const con = connector();
+  const app = await open({ tools: con.tools, permissions: { states: { [PERM]: 'prompt' }, answer: { [PERM]: 'granted' }, delayMs: 2500 } });
+  await app.page.locator('.art-invite button', { hasText: 'Draw the pictures' }).focus();
+  await app.page.keyboard.press('Enter');
+  await app.page.waitForTimeout(1800);
+  eq(con.calls.length, 0, 'no call while he is still reading the prompt');
+  eq(await app.page.evaluate(() => U.settings.prefs.pictures), undefined, 'not on until he allows it');
+  await ready(app, TIDS.length);
+  eq(await permsCalls(app), 1, 'asked once');
+  const note = await app.page.evaluate(() => [document.activeElement.className, document.activeElement.textContent]);
+  assert(/art-note/.test(note[0]) && /Pictures are on/.test(note[1]), 'his answer said back, with focus on it: ' + note);
+});
+
+await test('refused: no pictures, said back; Settings shows "Not allowed" and Open permissions puts it right', async () => {
+  const con = connector();
+  const app = await open({ width: 1280, height: 900, tools: con.tools, permissions: { states: { [PERM]: 'prompt' }, answer: { [PERM]: 'denied' }, afterManage: { [PERM]: 'granted' } } });
+  await app.page.locator('.art-invite button', { hasText: 'Draw the pictures' }).click();
+  await app.page.waitForSelector('.art-note');
+  assert(/not allowed for this app\. Settings shows how to allow it/.test(await app.page.locator('.art-note').innerText()), 'said back');
+  await app.page.waitForFunction((p) => { const d = window.__CLAUDE_STUB__.get(p); return d && d.prefs && d.prefs.pictures === false; }, `data/users/${UID}/profile`, { timeout: 10000 });
+  eq(con.calls.length, 0, 'nothing drawn');
+  await app.page.evaluate(() => U.settings.open());
+  await app.page.waitForFunction(() => /Not allowed for this app/.test((document.querySelector('.set-art-status') || {}).textContent || ''), null, { timeout: 10000 });
+  await shot(app, 'settings-denied-1280');
+  await app.page.locator('.set-art-status button', { hasText: 'Open permissions' }).click();
+  await ready(app, TIDS.length);
+  eq(await app.page.isChecked('input[name=pictures]'), true, 'the switch is on');
+  await app.page.waitForFunction(() => /Connected/.test((document.querySelector('.set-art-status') || {}).textContent || ''), null, { timeout: 10000 });
+});
+
+await test('closed without choosing: nothing changes and the card stays to answer later', async () => {
+  const con = connector();
+  const app = await open({ tools: con.tools, permissions: { states: { [PERM]: 'prompt' } } });
+  await app.page.locator('.art-invite button', { hasText: 'Draw the pictures' }).click();
+  await app.page.waitForTimeout(800);
+  eq(await app.page.locator('.art-invite button:not([disabled])').count(), 2, 'the card is still there to answer');
+  eq(await app.page.evaluate(() => U.settings.prefs.pictures), undefined, 'still not asked');
+  eq(con.calls.length, 0, 'nothing drawn');
+});
+
+await test('unattended drawing never asks: pictures on, but the connector not yet allowed here', async () => {
+  const con = connector();
+  const app = await open({ db: seedDb({ prefs: { pictures: true } }), tools: con.tools, permissions: { states: { [PERM]: 'prompt' } } });
+  await app.page.waitForSelector('.tgrid .tcard');
+  await app.page.waitForTimeout(2500);
+  eq(con.calls.length, 0, 'no unattended call that would open the prompt');
+  eq(await permsCalls(app), 0, 'and no request either');
+});
+
+await test('a double tap on "Draw a new one" draws once; focus stays in the foot', async () => {
+  const con = connector({ ms: 1000 });
+  const db = seedDb({ prefs: { pictures: true }, extra: Object.fromEntries(TIDS.map((t) => ['art/' + t, artDoc(t)])) });
+  const app = await open({ hash: '#/t/' + TIDS[0], db, tools: con.tools });
+  const btn = app.page.locator('.tp-art-btn', { hasText: 'Draw a new one' });
+  await btn.focus();
+  await app.page.keyboard.press('Enter');
+  await app.page.keyboard.press('Enter');
+  await app.page.waitForFunction(() => /Drawing a cover picture/.test((document.querySelector('.tp-art') || {}).textContent || ''));
+  eq(await app.page.evaluate(() => !!(document.activeElement && document.activeElement.closest('.tp-foot'))), true, 'focus stays in the foot while it draws');
+  await app.page.waitForFunction(() => /Draw a new one/.test((document.querySelector('.tp-art') || {}).textContent || ''), null, { timeout: 20000 });
+  eq(con.calls.length, 1, 'one draw for two taps');
+  eq(await app.page.evaluate(() => !!(document.activeElement && document.activeElement.closest('.tp-foot'))), true, 'and after');
 });
 
 console.log('\n' + results.map((r) => `${r.ok ? 'PASS' : 'FAIL'}  ${r.name}`).join('\n'));
