@@ -1,0 +1,299 @@
+*, *::before, *::after { box-sizing: border-box; }
+/* Text size (Settings) scales the whole app: every font size below is in rem. The reading size
+   --fs stays 1.125rem at every setting, so it scales with the rest instead of on its own. */
+:root { font-size: 100%; }
+:root[data-size="s"] { font-size: 93.75%; }
+:root[data-size="l"] { font-size: 112.5%; }
+:root[data-size="xl"] { font-size: 125%; }
+:root, :root[data-size] { --fs: 1.125rem; --tabbar-h: calc(48px + 1rem); }
+/* Text on red fills (Delete, error toasts): white in light, near-black on the light dark-mode red. */
+:root { --on-red: #FFFFFF; }
+:root[data-mu-theme="dark"], :root[data-mu-theme="system"][data-theme="dark"] { --on-red: #2A0E11; }
+@media (prefers-color-scheme: dark) { :root[data-mu-theme="system"]:not([data-theme="light"]) { --on-red: #2A0E11; } }
+html {
+  -webkit-text-size-adjust: 100%;
+  /* Focused or scrolled-to controls never land under the sticky top bar or the bottom tab bar
+     (nor under the lesson's own bar: 50-lesson.css). */
+  scroll-padding-top: calc(var(--topbar-h) + 8px);
+  scroll-padding-bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px));
+}
+html.sheet-open body { overflow: hidden; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 1rem/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+:root[data-easy="1"] body { letter-spacing: .02em; word-spacing: .1em; }
+h1, h2, h3 { font-family: var(--sans); color: var(--heading); line-height: 1.22; letter-spacing: -.015em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(1.7rem, 5.4vw, 2.2rem); font-size: clamp(1.7rem, 5.4cqi, 2.2rem); font-weight: 800; }
+h2 { font-size: 1.3rem; font-weight: 700; }
+h3 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--heading); }
+button, input, textarea, select { font: inherit; color: inherit; }
+img, svg { max-width: 100%; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 6px; }
+/* Headings take focus when a screen or sheet opens (for screen readers); no ring for that. */
+h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
+
+/* ---------- app frame ---------- */
+.app { min-height: 100%; }
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  display: flex; align-items: center; gap: 12px;
+  height: var(--topbar-h); padding-inline: max(16px, calc((100% - var(--shell)) / 2));
+  border-bottom: 1px solid var(--line);
+}
+/* The frosted glass lives on a pseudo-element: a backdrop-filter on .topbar itself would become
+   the containing block for the fixed bottom tab bar (which sits inside the header). */
+.topbar::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: color-mix(in srgb, var(--bg) 96%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
+}
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--heading); min-height: 44px; }
+.brand-mark { width: 28px; height: 28px; color: var(--teal); flex: none; }
+.brand-name { font: 800 1.0625rem/1 var(--sans); letter-spacing: -.02em; }
+.icon-btn {
+  display: inline-grid; place-items: center; min-width: 44px; min-height: 44px; padding: 0 10px;
+  border: 1.5px solid var(--line-strong); border-radius: 999px; background: transparent; color: var(--heading); cursor: pointer;
+}
+.settings-btn { margin-left: auto; }
+.aa { font: 600 1.0625rem/1 var(--serif); }
+
+/* The view is a size container: screens lay themselves out by the width they actually get
+   (@container view), so a phone column pinned on a laptop really gets the phone layout. */
+.view { display: block; max-width: var(--col); margin: 0 auto; padding: 20px 16px calc(var(--tabbar-h) + 40px + env(safe-area-inset-bottom, 0px)); outline: none; container: view / inline-size; }
+/* Focus mode (lessons, reviews): no app chrome, just the screen's own close + progress bar. */
+:root.focus { --topbar-h: 0px; --tabbar-h: 0px; }
+.focus .topbar { display: none; }
+.focus .view { padding-bottom: 48px; }
+
+/* tabs: bottom bar on phones, inline on wide screens */
+.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+  display: flex; justify-content: space-around;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface); border-top: 1px solid var(--line);
+}
+.tab {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 64px; min-height: 48px; padding: 6px 10px; border-radius: 14px;
+  color: var(--muted); text-decoration: none; font: 700 .75rem/1.2 var(--sans);
+}
+.tab svg { width: 24px; height: 24px; }
+.tab[aria-current="page"] { color: var(--heading); }
+.tab[aria-current="page"]::before { content: ""; position: absolute; top: -7px; left: 28%; right: 28%; height: 3px; border-radius: 0 0 3px 3px; background: var(--heading); }
+.tab-badge {
+  min-width: 1.5em; height: 1.5em; padding: 0 5px; border-radius: .75em;
+  background: var(--heading); color: var(--on-heading); font: 800 .75rem/1.5 var(--sans); text-align: center;
+}
+/* Bottom tabs: the badge sits on the icon's top-right corner, measured from the icon (the tab's
+   centre) and sized in px like the icon, so at large text sizes it never covers the clock. */
+:root:not([data-layout="laptop"]) .tab-badge {
+  position: absolute; top: -1px; left: calc(50% + 8px); min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px;
+  font-size: 12px; line-height: 20px; box-shadow: 0 0 0 2px var(--surface);
+}
+.focus .tabs { display: none; }
+:root[data-layout="laptop"] { --shell: var(--wide); }
+:root[data-layout="laptop"], :root[data-layout="laptop"][data-size] { --tabbar-h: 0px; }
+:root[data-layout="laptop"] .tabs { position: static; flex: 1; justify-content: center; gap: 4px; padding: 0; background: none; border: 0; }
+:root[data-layout="laptop"] .tab { flex-direction: row; gap: 8px; min-height: 44px; font-size: .875rem; }
+:root[data-layout="laptop"] .tab svg { width: 20px; height: 20px; }
+:root[data-layout="laptop"] .tab[aria-current="page"] { background: var(--sunk); }
+:root[data-layout="laptop"] .tab[aria-current="page"]::before { display: none; }
+:root[data-layout="laptop"] .settings-btn { margin-left: 0; }
+:root[data-layout="laptop"] .view { padding-bottom: 64px; }
+/* Every tab screen starts at the same left edge (the wide screens' edge, under the brand), so a
+   heading stays put when Dan switches tabs; column screens (Today, Book) leave the room on the right. */
+:root[data-layout="laptop"]:not(.focus) .view { margin-left: max(0px, calc((100% - var(--wide)) / 2)); margin-right: auto; }
+/* Each screen's width on a laptop: reading screens keep the column; these use the room. */
+:root[data-layout="laptop"] .view[data-screen="learn"],
+:root[data-layout="laptop"] .view[data-screen="topic"],
+:root[data-layout="laptop"] .view[data-screen="map"] { max-width: var(--wide); }
+:root[data-layout="laptop"] .view[data-screen="lesson"] { max-width: 1120px; }
+/* The laptop layout pinned on a narrow window: the top bar keeps to one row. */
+@media (max-width: 699px) { :root[data-layout="laptop"] .brand-name { display: none; } }
+@media (max-width: 539px) {
+  :root[data-layout="laptop"] .topbar { gap: 4px; }
+  :root[data-layout="laptop"] .tabs { gap: 0; }
+  :root[data-layout="laptop"] .tab { min-width: 44px; padding: 6px 8px; }
+  :root[data-layout="laptop"] .tab > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* The phone layout pinned on a wide window: a centred phone column; the rest stays quiet. */
+:root.framed body { background: var(--sunk); }
+:root.framed .app { max-width: var(--frame); min-height: 100vh; margin: 0 auto; background: var(--bg); box-shadow: 0 0 0 1px var(--line), 0 12px 40px rgba(23, 50, 77, .08); }
+:root.framed .tabs, :root.framed .sheet, :root.framed .toasts { left: calc(50% - var(--frame) / 2); right: calc(50% - var(--frame) / 2); }
+
+/* ---------- type helpers ---------- */
+.eyebrow { font: 700 .75rem/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+.reading { font-family: var(--serif); font-size: var(--fs); line-height: 1.8; color: var(--ink); }
+.reading p { max-width: 36em; }
+.reading p + p { margin-top: 1.1em; }
+mark.term {
+  color: inherit; font-weight: 600; padding: 0 .12em; margin: 0 -.04em; border-radius: 3px;
+  background: linear-gradient(180deg, transparent 50%, var(--hl) 50%, var(--hl) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+/* A footnote badge sized to the text, raised by relative positioning (top) rather than
+   vertical-align, which would make its line taller than the others. */
+.fn {
+  position: relative; top: -.4em; display: inline-grid; place-items: center; min-width: 1.6em; height: 1.6em; padding: 0 .35em; margin: 0 2px;
+  border: 0; border-radius: 6px; background: var(--teal-tint); color: var(--teal);
+  font: 700 .75rem/1 var(--sans); vertical-align: baseline; cursor: pointer;
+}
+/* The tap target is larger than the badge: at least 44 px square, centred on it. */
+.fn::after { content: ""; position: absolute; left: 50%; top: 50%; width: max(100%, 44px); height: 44px; transform: translate(-50%, -50%); }
+.reading code, code { font-family: var(--mono); font-size: .88em; background: var(--sunk); padding: .1em .35em; border-radius: 6px; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- layout helpers ---------- */
+.stack { display: flex; flex-direction: column; gap: var(--gap); }
+.stack-sm { display: flex; flex-direction: column; gap: 8px; }
+.stack-lg { display: flex; flex-direction: column; gap: 32px; }
+.row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.row > .grow { flex: 1; min-width: 0; }
+.spacer { flex: 1; }
+
+/* ---------- surfaces ---------- */
+.card { background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 20px; }
+.card-quiet { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; }
+.callout { border-radius: var(--r); padding: 16px 18px; }
+.callout.remember { background: var(--amber); }
+.callout.warn { background: var(--red-tint); }
+.callout.warn .eyebrow { color: var(--red); }
+.callout.note { border: 1.5px dashed var(--line-strong); }
+
+/* ---------- buttons (chunky, pressable) ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 12px 22px; border-radius: 16px; border: 0; cursor: pointer;
+  font: 700 1rem/1.2 var(--sans); text-decoration: none; text-align: center;
+  background: var(--heading); color: var(--on-heading);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--heading) 70%, #000);
+  transition: transform .06s ease, box-shadow .06s ease;
+}
+.btn:active:not([disabled]) { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in srgb, var(--heading) 70%, #000); }
+.btn[disabled] { opacity: .5; cursor: default; }
+.btn.secondary { background: var(--surface); color: var(--heading); border: 1.5px solid var(--line-strong); box-shadow: 0 3px 0 var(--line); }
+.btn.ghost { background: transparent; color: var(--heading); box-shadow: none; min-height: 44px; padding: 8px 12px; }
+.btn.good { background: var(--green); color: var(--on-green); box-shadow: 0 3px 0 color-mix(in srgb, var(--green) 65%, #000); }
+.btn.danger { background: var(--red); color: var(--on-red); box-shadow: 0 3px 0 color-mix(in srgb, var(--red) 65%, #000); }
+.btn.wide { width: 100%; }
+.btn svg { flex: none; width: 20px; height: 20px; }
+.btn.small { min-height: 44px; padding: 8px 16px; font-size: .9375rem; border-radius: 14px; }
+.linkish { background: none; border: 0; padding: 8px 0; min-height: 44px; color: var(--heading); font: 700 .9375rem/1.3 var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+/* ---------- inputs ---------- */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { font: 700 .875rem/1.3 var(--sans); color: var(--heading); }
+.input, .textarea {
+  width: 100%; min-height: 52px; padding: 13px 16px; border-radius: 16px;
+  border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--ink);
+  font: 400 1.0625rem/1.45 var(--sans);
+}
+.textarea { resize: vertical; min-height: 110px; }
+.input:focus, .textarea:focus { outline: none; border-color: var(--heading); box-shadow: 0 0 0 3px color-mix(in srgb, var(--heading) 18%, transparent); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  min-height: 44px; padding: 8px 14px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--heading); font: 600 .875rem/1.3 var(--sans);
+}
+.chip[aria-pressed="true"] { background: var(--heading); color: var(--on-heading); border-color: var(--heading); }
+
+/* ---------- options (answers) ---------- */
+.options { display: grid; gap: 10px; }
+.option {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  min-height: 56px; padding: 14px 18px; border-radius: 16px;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  font: 600 1rem/1.4 var(--sans); box-shadow: 0 2px 0 var(--line);
+}
+.option:active:not([disabled]) { transform: translateY(1px); box-shadow: none; }
+/* Answers you pick from carry a radio dot; the picked one fills it and tints the whole option. */
+.option[aria-pressed] { position: relative; padding-left: 50px; }
+.option[aria-pressed]::before {
+  content: ""; position: absolute; left: 18px; top: 50%; width: 20px; height: 20px; margin-top: -10px;
+  border-radius: 50%; border: 2px solid var(--line-strong); background: var(--surface); box-sizing: border-box;
+}
+.option[aria-pressed="true"] { border-color: var(--heading); box-shadow: inset 0 0 0 1px var(--heading); background: color-mix(in srgb, var(--heading) 8%, var(--surface)); }
+.option[aria-pressed="true"]::before { border-color: var(--heading); background: radial-gradient(circle, var(--heading) 0 4.5px, var(--surface) 5px); }
+.option.correct { border-color: var(--green); background: var(--green-tint); box-shadow: none; }
+.option.wrong { border-color: var(--red); background: var(--red-tint); box-shadow: none; }
+.option.correct::before { border-color: var(--green); background: radial-gradient(circle, var(--green) 0 4.5px, var(--surface) 5px); }
+.option.wrong::before { border-color: var(--red); background: radial-gradient(circle, var(--red) 0 4.5px, var(--surface) 5px); }
+.option[disabled] { cursor: default; }
+
+/* ---------- progress ---------- */
+.bar { height: 8px; border-radius: 999px; background: var(--sunk); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: inherit; background: var(--heading); transition: width .4s ease; }
+.working { height: 4px; border-radius: 4px; background: linear-gradient(90deg, var(--sunk) 0%, var(--heading) 50%, var(--sunk) 100%); background-size: 200% 100%; animation: mu-work 1.3s linear infinite; }
+@keyframes mu-work { from { background-position: 200% 0; } to { background-position: 0 0; } }
+.skeleton { border-radius: 10px; background: linear-gradient(90deg, var(--sunk), color-mix(in srgb, var(--sunk) 50%, var(--surface)), var(--sunk)); background-size: 200% 100%; animation: mu-work 1.6s linear infinite; }
+
+/* ---------- toasts ---------- */
+/* Above the scrim and sheets (70, 71): a result that arrives while a sheet is open ("Backup saved",
+   a saving problem) must be seen. A phone's bottom sheet covers the place toasts sit, so while one
+   is open they move to the top of the screen, above the sheet's heading: only the newest, cut to
+   the whole lines that fit there (--toast-lines, set by U._fitToasts), so the sheet's title and
+   Close stay in view at any text size. A cut one (is-cut) opens in full on a tap; otherwise
+   toasts never take a tap meant for the sheet. */
+.toasts { position: fixed; left: 0; right: 0; bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px)); z-index: 75; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 16px; }
+.toast { max-width: 520px; padding: 12px 18px; border-radius: 14px; background: var(--heading); color: var(--on-heading); font: 600 .9375rem/1.4 var(--sans); box-shadow: var(--shadow); pointer-events: auto; animation: mu-rise .25s ease-out; }
+:root.sheet-open:not([data-layout="laptop"]) .toasts { bottom: auto; top: calc(12px + env(safe-area-inset-top, 0px)); }
+.toast-text { display: block; }
+:root.sheet-open:not([data-layout="laptop"]) .toast:not(.is-open) .toast-text { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--toast-lines, 2); line-clamp: var(--toast-lines, 2); overflow: hidden; }
+:root.sheet-open:not([data-layout="laptop"]) .toast:not(:last-child) { display: none; }
+:root.sheet-open .toast { pointer-events: none; }
+:root.sheet-open .toast.is-cut, :root.sheet-open .toast.is-open { pointer-events: auto; cursor: pointer; }
+.toast.good { background: var(--green); color: var(--on-green); }
+.toast.bad { background: var(--red); color: var(--on-red); }
+@keyframes mu-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- sheets ---------- */
+.scrim { position: fixed; inset: 0; z-index: 70; background: var(--scrim); animation: mu-fade .2s ease-out; }
+@keyframes mu-fade { from { opacity: 0; } to { opacity: 1; } }
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 71; max-height: min(88vh, 860px); overflow: auto; overscroll-behavior: contain;
+  background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: 0 -12px 34px rgba(0, 0, 0, .16);
+  padding: 8px 20px calc(20px + env(safe-area-inset-bottom, 0px)); animation: mu-up .28s cubic-bezier(.2, .9, .3, 1);
+}
+@keyframes mu-up { from { transform: translateY(40%); opacity: .4; } to { transform: none; opacity: 1; } }
+.sheet-in { max-width: var(--col); margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+/* Swipe down on the grip or the heading to close (phones). */
+.sheet-grip { width: 40px; height: 5px; border-radius: 3px; background: var(--line-strong); margin: 4px auto 6px; touch-action: none; position: relative; }
+.sheet-grip::after { content: ""; position: absolute; inset: -14px -40px; }
+.sheet-head { display: flex; align-items: center; gap: 12px; touch-action: pan-x; }
+.sheet-head h2 { flex: 1; font-size: 1.15rem; }
+.sheet-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+/* More below (a sheet that sets has-more while it can scroll further, like Settings): the
+   bottom edge fades out, so a row cut in half reads as "there is more", not as the end.
+   A sticky box stops at the sheet's padding, so bottom gives that padding back to reach the edge. */
+.sheet.has-more::after {
+  content: ""; position: sticky; bottom: calc(-20px - env(safe-area-inset-bottom, 0px)); display: block; height: 56px; margin-top: -56px; pointer-events: none;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--surface) 0%, transparent), var(--surface));
+}
+:root[data-layout="laptop"] .sheet-grip { display: none; }
+:root[data-layout="laptop"] .sheet { left: 50%; right: auto; bottom: auto; top: 50%; width: min(620px, calc(100vw - 32px)); transform: translate(-50%, -50%); border-radius: 24px; animation: mu-fade .2s ease-out; }
+
+/* ---------- celebration (shared) ---------- */
+.cheer { position: fixed; left: 50%; top: 38%; z-index: 80; display: grid; justify-items: center; gap: 10px; transform: translate(-50%, -50%); pointer-events: none; }
+.cheer-bubble { width: 76px; height: 76px; border-radius: 50%; background: var(--green); color: var(--on-green); display: grid; place-items: center; box-shadow: 0 10px 30px rgba(46, 125, 79, .35); animation: mu-pop 1.6s cubic-bezier(.2, .9, .3, 1.2) forwards; }
+.cheer-bubble svg { width: 40px; height: 40px; }
+.cheer-text { padding: 8px 16px; border-radius: 999px; background: var(--green); color: var(--on-green); font: 700 .9375rem/1.3 var(--sans); animation: mu-pop 1.6s cubic-bezier(.2, .9, .3, 1.2) forwards; }
+@keyframes mu-pop { 0% { opacity: 0; transform: scale(.6); } 18% { opacity: 1; transform: scale(1.06); } 28% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px); } }
+
+/* ---------- empty / error states ---------- */
+.empty { text-align: center; padding: 40px 12px; color: var(--muted); }
+.empty h1, .empty h2 { margin-bottom: 6px; font-size: 1.3rem; }
+.not-here-go { margin-top: 16px; }
+.notice { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); font-size: .9375rem; }
+.notice.bad { border-color: color-mix(in srgb, var(--red) 40%, var(--line)); background: var(--red-tint); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
+}

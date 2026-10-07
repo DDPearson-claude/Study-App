@@ -1,0 +1,140 @@
+{
+  "iid": "i2",
+  "title": "Thrust: air per second times speed added",
+  "predict": {
+    "q": "Engine A throws 100 kg of air out of its back every second, 400 m/s faster than it came in. Engine B throws 400 kg a second, only 100 m/s faster. Which pushes harder?",
+    "options": [
+      "Engine A: faster air pushes harder",
+      "Engine B: more air pushes harder",
+      "They push exactly the same"
+    ],
+    "reveal": "They push the same. Thrust is the air thrown back each second times how much faster it leaves, and 100 × 400 is the same as 400 × 100. Most people bet on the faster jet."
+  },
+  "interactive": {
+    "brief": "The one thing you should see is the thrust doubling when you double either the air thrown back each second or how much faster it leaves.",
+    "title": "What sets an engine's push",
+    "controls": [
+      {
+        "id": "airFlow",
+        "label": "Air thrown back each second",
+        "min": 10,
+        "max": 1000,
+        "step": 10,
+        "value": 100,
+        "unit": "kg/s"
+      },
+      {
+        "id": "speedAdded",
+        "label": "How much faster the air leaves",
+        "min": 0,
+        "max": 600,
+        "step": 10,
+        "value": 400,
+        "unit": "m/s"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "thrust",
+        "label": "Thrust",
+        "unit": "kN",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "Thrust = air thrown back each second × how much faster it leaves than it arrived. In symbols: F = ṁ × (v_out − v_in), where ṁ is the mass of air per second. 1 kg/s sped up by 1 m/s gives 1 newton; the readout shows kilonewtons (1 kN = 1,000 N). The graph shows thrust against the speed added, at the air flow you have set.",
+    "ignores": "The small extra mass of the burned fuel, any push from a pressure difference at the nozzle, and the fact that real exhaust doesn't all leave at one speed.",
+    "numbers": [
+      {
+        "label": "Air thrown back each second (kg/s)",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "How much faster the air leaves (m/s)",
+        "value": 400,
+        "kind": "control"
+      },
+      {
+        "label": "Thrust at the start (kN)",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Newtons in a kilonewton",
+        "value": 1000,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Move either slider and the thrust follows it: double the air and the push doubles; double the extra speed and it doubles again.\n\nThat's Newton's push-back, counted second by second. Each second the engine grabs some air and throws it out of the back faster than it arrived. The push it gets is the mass of air thrown each second times the extra speed it gave that air:[^1]\n\n**thrust = air per second × speed added**\n\nEngineers call the air per second the [[mass flow]]. One kilogram of air sped up by one metre per second, every second, gives one [[newton]] of push.\n\nThat's why the two engines in the puzzle tie: 100 kg/s sped up by 400 m/s and 400 kg/s sped up by 100 m/s both make 40,000 newtons.\n\nSo a designer has a choice: throw a little air very fast, or a lot of air more gently. Which one saves fuel is a story for later."
+  },
+  "analogy": {
+    "text": "Think of bailing a rowing boat with a bucket, flinging the water out behind you. Big bucketfuls tossed gently or small ones flung hard can give the boat the same shove.",
+    "breaks": "A bucket throws water in separate splashes, so the shoves come in jerks. An engine throws a smooth, unbroken stream of air, so its push is steady."
+  },
+  "practice": {
+    "text": "- Find how much air goes through each second, in kilograms.\n- Find how much faster it leaves than it arrived, in metres per second.\n- Multiply the two: that is the push in newtons.\n\n**Rule of thumb:** double either one and the push doubles.\n\n**Worked example:** say an engine takes in 100 kg of air each second and speeds it up by 300 m/s. Its push is 100 × 300 = 30,000 newtons, or 30 kN.\n\n**Common mistakes:** using the speed the air leaves at instead of the speed added; forgetting that a lot of air thrown slowly can push as hard as a little thrown fast."
+  },
+  "say": {
+    "prompt": "In your own words: what two things decide how hard a jet engine pushes, and how do they combine?",
+    "rubric": [
+      "How much air it throws back each second",
+      "How much faster the air leaves than it arrived",
+      "Multiply them: lots of slow air can match a little fast air"
+    ],
+    "model": "It depends on how much air the engine throws back each second and how much it speeds that air up. Multiply the two and you get the thrust, so a lot of air sped up a little can push just as hard as a little air sped up a lot."
+  },
+  "checks": [
+    {
+      "id": "c1",
+      "type": "target",
+      "q": "Keep the air flow at 100 kg/s. Set how much faster the air leaves so the engine makes 50 kN of thrust.",
+      "control": "speedAdded",
+      "output": "thrust",
+      "target": 50,
+      "tolerance": 1,
+      "why": "Thrust = 100 kg/s × speed added, so 50,000 N needs 500 m/s: 100 × 500 = 50,000 N, which is 50 kN."
+    },
+    {
+      "id": "c2",
+      "type": "estimate",
+      "q": "An engine throws 250 kg of air back each second, 200 m/s faster than it arrived. How much thrust does it make?",
+      "min": 0,
+      "max": 200,
+      "answer": 50,
+      "tolerance": 5,
+      "unit": "kN",
+      "log": false,
+      "why": "250 kg/s × 200 m/s = 50,000 newtons, which is 50 kN."
+    },
+    {
+      "id": "c3",
+      "type": "choice",
+      "q": "A designer doubles the air an engine throws back each second, but halves how much she speeds it up. What happens to the thrust?",
+      "options": [
+        "It doubles",
+        "It halves",
+        "It stays the same",
+        "It drops to a quarter"
+      ],
+      "answer": 2,
+      "misconception": {
+        "0": "You've counted the extra air, but the speed added was halved too.",
+        "1": "You've counted the slower jet, but there is twice as much air.",
+        "3": "It's easy to halve twice, but doubling the air cancels out halving the speed."
+      },
+      "why": "Thrust is air per second × speed added: twice the air at half the speed gives 2 × ½ = 1, the same push."
+    }
+  ],
+  "sources": [
+    {
+      "n": 1,
+      "title": "General Thrust Equation — NASA Glenn Research Center",
+      "url": "https://www.grc.nasa.gov/www/k-12/BGP/thrsteq.html",
+      "quote": "Thrust F is equal to the exit mass flow rate times the exit velocity minus the free stream mass flow rate times the free stream velocity"
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

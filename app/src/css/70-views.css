@@ -1,0 +1,568 @@
+/* Views: Learn (home), topic page, Map, Book, reading settings and the boot notice.
+   Calm by design: generous space, soft cards, colour only for meaning (navy = progress and
+   controls, green = finished, red = warnings, teal = small labels, amber = highlights).
+   Built only on the tokens in 00-tokens.css, so light, dark and text sizes all follow. */
+
+/* ---------- shared ---------- */
+.backlink {
+  display: inline-flex; align-items: center; gap: 4px; align-self: flex-start;
+  min-height: 44px; margin-left: -8px; padding: 0 10px 0 4px; border-radius: 12px;
+  color: var(--heading); font: 700 .9375rem/1 var(--sans); text-decoration: none;
+}
+.backlink svg { width: 22px; height: 22px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.section-head h2 { font-size: 1.25rem; }
+.page-head { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 28px; }
+.page-head h1 { font-size: clamp(1.8rem, 6.6vw, 2.4rem); font-size: clamp(1.8rem, 6.6cqi, 2.4rem); }
+.page-head > p.muted { font-size: 1.0625rem; max-width: 34em; }
+.v-empty { display: grid; justify-items: center; gap: 12px; text-align: center; padding: 36px 8px 24px; }
+.v-empty p { max-width: 30em; color: var(--muted); }
+.v-empty .btn { margin-top: 8px; }
+.v-empty h1 { font-size: 1.3rem; font-weight: 700; }
+.v-empty-art { display: grid; place-items: center; margin-bottom: 6px; }
+.book-empty-art { width: 84px; height: 84px; border-radius: 50%; background: var(--teal-tint); color: var(--teal); }
+.book-empty-art svg { width: 40px; height: 40px; }
+.sk-line { height: 14px; margin: 6px 0; }
+.sk-line.short { width: 55%; }
+.sk-line.tall { height: 34px; width: 80%; }
+/* Segmented control: one choice from a few (level, theme, text size, review cap). */
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; padding: 4px; border-radius: 16px; background: var(--sunk); }
+.seg-btn {
+  min-height: 44px; padding: 8px 6px; border: 0; border-radius: 12px; background: transparent; cursor: pointer;
+  color: var(--heading); font: 700 .9062rem/1.2 var(--sans);
+}
+.seg-btn[aria-checked="true"] { background: var(--heading); color: var(--on-heading); box-shadow: 0 2px 0 color-mix(in srgb, var(--heading) 70%, #000); }
+/* Icons inside buttons in these views (the base .btn leaves svg unsized). */
+.learn .btn svg, .tp .btn svg, .v-empty .btn svg { flex: none; width: 20px; height: 20px; }
+.done-note { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-weight: 700; }
+.done-note svg { width: 18px; height: 18px; }
+.bar.is-complete > i { background: var(--green); }
+
+/* ---------- generated covers ---------- */
+.cover { display: block; width: 100%; height: 100%; }
+.cover .cv-bg { fill: color-mix(in oklab, hsl(var(--h) 40% 62%) 15%, var(--surface)); }
+.cover .cv-1 { fill: color-mix(in oklab, hsl(var(--h) 40% 60%) 28%, var(--surface)); }
+.cover .cv-2 { fill: color-mix(in oklab, hsl(var(--h) 38% 55%) 46%, var(--surface)); }
+.cover .cv-3 { fill: color-mix(in oklab, hsl(var(--h) 36% 44%) 68%, var(--surface)); }
+.cover .cv-4 { fill: var(--heading); }
+.cover .cv-sun { fill: color-mix(in oklab, #F2C75C 70%, var(--surface)); }
+.cover .cv-soft { opacity: .55; }
+.cover .cv-ring { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 52%) 40%, var(--surface)); stroke-width: 2; }
+.cover .cv-line { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 48%) 55%, var(--surface)); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: .1 7; }
+/* Course pictures (35-art.js): the course's own picture over the motif; a little dimmer in dark mode. */
+.cover .cv-art { pointer-events: none; }
+.cover .cv-art.cv-new { animation: cv-in .6s ease both; }
+@keyframes cv-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .cover .cv-art.cv-new { animation: none; } }
+:root[data-mu-theme="dark"] .cover .cv-art, :root[data-mu-theme="system"][data-theme="dark"] .cover .cv-art { opacity: .86; }
+@media (prefers-color-scheme: dark) { :root[data-mu-theme="system"]:not([data-theme="light"]) .cover .cv-art { opacity: .86; } }
+
+/* ---------- Learn ---------- */
+.learn { display: flex; flex-direction: column; gap: 36px; }
+.learn-continue:empty, .learn-today:empty { display: none; }
+.ask { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.ask h1 { font-size: clamp(2rem, 7.4vw, 2.7rem); font-size: clamp(2rem, 7.4cqi, 2.7rem); letter-spacing: -.025em; }
+.ask-sub { font-size: 1.0625rem; max-width: 32em; }
+.ask-form { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; --ask-h: max(60px, calc(1.125rem * 1.45 + 35px)); }
+/* A textarea (rows=1) that 70-learn.js grows to three lines; one line is --ask-h tall. */
+.ask-input.input { display: block; min-height: var(--ask-h); padding: 16px 18px; border-radius: 18px; font-size: 1.125rem; box-shadow: var(--shadow); border-color: var(--line); resize: none; overflow-y: hidden; }
+.ask-input.input:focus { border-color: var(--heading); }
+.ask-input::placeholder { color: color-mix(in srgb, var(--muted) 80%, transparent); }
+.ask-go.btn { min-height: var(--ask-h); border-radius: 18px; font-size: 1.0625rem; white-space: nowrap; }
+.ask-levels { max-width: 440px; }
+.ask-levels .seg-btn { font-size: .875rem; }
+.ask-working { display: grid; gap: 10px; padding: 2px 4px; }
+/* The level and the mode, side by side where they fit (each a radio group, U.radios). */
+.ask-choices { display: flex; flex-wrap: wrap; gap: 6px 28px; margin-top: 8px; }
+.ask-choices > .ask-row { flex: 1 1 260px; max-width: 440px; margin-top: 0; }
+.ask-modes .seg-btn { font-size: .875rem; }
+.ask-mode-note { margin-top: -2px; }
+/* The intake: a few questions about what Dan wants from the topic, in place under his question. */
+.intake { display: grid; gap: 14px; padding: 18px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.intake-h { font-size: 1.25rem; }
+.intake-sub { margin-top: -8px; font-size: .9375rem; }
+.intake-qs { display: grid; gap: 20px; margin: 0; padding: 0; list-style: none; }
+.intake-q { display: grid; gap: 8px; }
+.intake-q-text { font: 700 1rem/1.45 var(--sans); color: var(--heading); }
+.intake-hint { margin-top: -6px; }
+.intake-chip { max-width: 100%; text-align: left; overflow-wrap: anywhere; }
+.intake-chip[aria-checked="true"] { background: var(--heading); color: var(--on-heading); border-color: var(--heading); }
+.intake-other.input { max-width: 440px; padding: 10px 14px; font-size: 1rem; }
+.intake-go { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; }
+.intake-plan svg { width: 20px; height: 20px; }
+.learn.is-returning.is-asking .ask-level-row { display: none; }
+.ask-row { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.ask-label { font: 700 .8125rem/1.3 var(--sans); color: var(--muted); }
+.chip-soft { border-color: var(--line); color: var(--ink); font-weight: 500; }
+.chip[disabled] { opacity: .55; cursor: default; }
+/* Returning (any width): a compact ask, input and a round go button on one line, so reviews and
+   Continue sit on the first screen. The level choice appears below it once Dan starts typing. */
+.learn.is-returning { gap: 28px; }
+.learn.is-returning .ask-sub, .learn.is-returning .ask-try { display: none; }
+.learn.is-returning:not(.is-typing) .ask-level-row { display: none; }
+.learn.is-returning .ask-level-row { order: 1; }
+.learn.is-returning .ask-form { flex-direction: row; align-items: flex-end; }
+.learn.is-returning .ask-input { flex: 1; min-width: 0; }
+.learn.is-returning .ask-go:not(.is-busy) { flex: none; width: 60px; padding: 0; }
+.learn.is-returning .ask-go:not(.is-busy) .ask-go-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.learn.is-returning .ask-go svg { width: 24px; height: 24px; }
+.learn.is-returning .ask h1 { font-size: clamp(1.6rem, 5.4vw, 2rem); font-size: clamp(1.6rem, 5.4cqi, 2rem); }
+/* While Claude plans, the button says "Planning…" and the box shows the whole question. Wherever
+   the form itself is narrow (under 36rem: a phone, or the ask's column on a narrower laptop),
+   "Planning…" takes its own row under the question, so the question keeps the full width and
+   stays readable instead of growing tall beside the button. The form is a size container, so this
+   follows its own width at every screen width and text size. */
+.ask-form { container: ask-form / inline-size; }
+.ask-form:has(> .ask-go.is-busy) { flex-wrap: wrap; }
+@container ask-form (max-width: 36rem) {
+  .ask-form > .ask-go.is-busy { flex: 1 0 100%; }
+}
+.learn-note:empty { display: none; }
+.v-load-error { align-items: center; }
+.v-slow { padding: 4px 2px 12px; }
+.v-load-error .working { max-width: 200px; margin-top: 4px; }
+/* A live watch parked by a dead bridge: calm (no red), a breathing dot, nothing to press. */
+.v-reconnect .v-dot { margin-top: .5em; }
+@container view (min-width: 568px) {
+  .ask-form { flex-direction: row; align-items: flex-end; }
+  .ask-form .ask-input { flex: 1; min-width: 0; }
+  .ask-form .ask-go { flex: none; padding-inline: 26px; }
+}
+
+/* Continue: the one big card */
+.ccard {
+  display: grid; overflow: hidden; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow);
+  color: var(--ink); text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
+}
+.ccard:focus-visible { border-radius: var(--r-lg); }
+.ccard-cover { aspect-ratio: 16 / 5.4; overflow: hidden; background: var(--sunk); }
+.ccard-body { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px 20px; }
+.ccard-title { font-size: 1.45rem; }
+.ccard-next { font: 600 1rem/1.45 var(--sans); color: var(--ink); }
+/* Whether the next lesson is being prepared (a breathing navy dot) or ready (a teal tick):
+   Learn's continue card, the topic page's header and its path. */
+.v-lesson-note { display: flex; align-items: center; gap: 8px; font: 600 .9375rem/1.4 var(--sans); color: var(--muted); }
+.v-lesson-note svg { flex: none; width: 17px; height: 17px; color: var(--teal); }
+.v-dot { flex: none; width: 9px; height: 9px; margin: 0 4px; border-radius: 50%; background: var(--heading); animation: v-breathe 1.6s ease-in-out infinite; }
+@keyframes v-breathe { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
+.ccard-progress { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.ccard-progress .bar { flex: 1; }
+.ccard-btn.btn { margin-top: 10px; width: 100%; }
+@container view (min-width: 608px) {
+  .ccard { grid-template-columns: 40% 1fr; }
+  .ccard-cover { aspect-ratio: auto; min-height: 250px; }
+  .ccard-body { padding: 24px 26px; justify-content: center; }
+  .ccard-btn.btn { width: auto; align-self: flex-start; }
+}
+
+/* Today row */
+.today-row {
+  display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 14px 18px;
+  border-radius: var(--r); background: var(--surface); border: 1px solid var(--line);
+  color: var(--ink); text-decoration: none;
+}
+.today-row:focus-visible { border-radius: var(--r); }
+/* As wide as its words (up to the column): on a wide single column the arrow stays by its label. */
+.learn-today > .today-row { width: fit-content; max-width: 100%; }
+.today-ico { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--teal-tint); color: var(--teal); }
+.today-ico svg { width: 24px; height: 24px; }
+.today-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.today-text strong { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
+.today-go { width: 22px; height: 22px; color: var(--heading); flex: none; }
+/* Nothing waiting: a quiet line that only the two-column laptop Learn shows, beside the ask. */
+.learn-today.is-quiet { display: none; }
+.today-row.is-quiet { background: transparent; }
+.today-row.is-quiet .today-ico { background: var(--sunk); color: var(--muted); }
+
+/* Topic cards: compact rows on phones, a two-column grid of covers on wider screens */
+.tgrid { display: grid; gap: 12px; }
+.tcard {
+  display: flex; align-items: center; gap: 14px; padding: 10px; overflow: hidden;
+  border-radius: 20px; background: var(--surface); box-shadow: var(--shadow);
+  color: var(--ink); text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
+}
+.tcard:focus-visible { border-radius: 20px; }
+.tcard-cover { position: relative; flex: none; width: 84px; height: 84px; border-radius: 14px; overflow: hidden; background: var(--sunk); }
+.tcard-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; padding: 2px 6px 2px 0; }
+.tcard-title {
+  font: 700 1.0312rem/1.3 var(--sans); color: var(--heading);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.tcard-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: .875rem; line-height: 1.35; }
+.tcard .bar { height: 6px; }
+.tcard-warn { color: var(--red); font-weight: 600; }
+.src-badge { display: inline-flex; padding: 2px 8px; border-radius: 999px; background: var(--teal-tint); color: var(--teal); font: 700 .75rem/1.5 var(--sans); }
+.src-badge.is-quiet { background: transparent; padding: 0; color: var(--muted); font-weight: 600; }
+.tcard-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(100deg, transparent 25%, color-mix(in srgb, var(--surface) 60%, transparent) 50%, transparent 75%);
+  background-size: 220% 100%; animation: mu-work 1.8s linear infinite;
+}
+.tcard.is-planning .tcard-title { color: var(--ink); }
+.tcard.is-skeleton { box-shadow: none; background: transparent; }
+.tcard.is-skeleton .tcard-body { gap: 4px; }
+@container view (min-width: 528px) {
+  .tgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  .tcard { flex-direction: column; align-items: stretch; gap: 0; padding: 0; border-radius: 22px; }
+  .tcard:focus-visible { border-radius: 22px; }
+  .tcard-cover { width: auto; height: auto; aspect-ratio: 16 / 9; border-radius: 0; }
+  .tcard-body { padding: 14px 18px 18px; gap: 8px; }
+}
+@media (hover: hover) {
+  .ccard:hover, .tcard:hover:not(.is-skeleton) { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(23, 50, 77, .06), 0 14px 32px rgba(23, 50, 77, .10); }
+  a.today-row:hover { border-color: var(--line-strong); }
+}
+.ccard:active, .tcard:active { transform: translateY(1px); }
+
+/* First-run welcome */
+.welcome { overflow: hidden; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); }
+.welcome-art { aspect-ratio: 16 / 6; overflow: hidden; }
+.welcome-body { padding: 20px 22px 24px; }
+.welcome-steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 16px; }
+.welcome-steps li { display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start; font-size: 1rem; line-height: 1.5; }
+.welcome-steps strong { color: var(--heading); }
+.step-n { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--teal-tint); color: var(--teal); font: 800 .9375rem/1 var(--sans); }
+
+/* ---------- Topic page ---------- */
+.tp-ready, .tp-planning, .tp-failed { display: flex; flex-direction: column; }
+.tp-ready { gap: 36px; }
+.tp-planning, .tp-failed { gap: 14px; }
+.tp-head { display: flex; flex-direction: column; gap: 10px; }
+/* The cover and the words under it (ready, planning and failed pages alike); side by side on a laptop. */
+.tp-split, .tp-split-main { display: flex; flex-direction: column; gap: var(--tp-gap, 10px); }
+.tp-banner { position: relative; aspect-ratio: 2.3 / 1; overflow: hidden; border-radius: 22px; margin: 2px 0 10px; background: var(--sunk); }
+.tp-sk-banner { aspect-ratio: 2.3 / 1; border-radius: 22px; }
+@container view (min-width: 608px) { .tp-banner, .tp-sk-banner { aspect-ratio: 3.4 / 1; } }
+.tp-title { font-size: clamp(1.85rem, 6.8vw, 2.5rem); font-size: clamp(1.85rem, 6.8cqi, 2.5rem); letter-spacing: -.025em; }
+.tp-hook { margin-top: 6px; max-width: 30em; font: 500 calc(var(--fs) * 1.22)/1.45 var(--serif); color: var(--heading); }
+.tp-breath .eyebrow { color: color-mix(in srgb, var(--ink) 70%, var(--amber)); margin-bottom: 6px; }
+.tp-breath .reading { line-height: 1.7; }
+/* "Claude's overview… not checked against sources": the plan's own words, said quietly; and the
+   Library's line on what the lessons did with what research found. */
+.tp-overview-note, .lib-note { max-width: 36em; font: 500 .8125rem/1.45 var(--sans); color: var(--muted); }
+.tp-breath .tp-overview-note { margin-top: 10px; }
+/* Above the page while a live watch has stopped for good (V.liveError, Try again); empty otherwise. */
+.tp-conn { margin-bottom: 20px; }
+.tp-conn > .notice, .tp-state > .notice { max-width: var(--measure); }
+.tp-conn:empty { display: none; }
+/* Reconnecting (a parked watch, V.reconnectPill): a pill that floats under the top bar wherever
+   Dan has scrolled. Its box takes no room (no height, sticky in the page), so nothing moves; at the
+   top of the page the pill sits at the right of the back link's row. Taps go through it. */
+.tp-conn.is-floating { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--topbar-h) + 8px); z-index: 5; height: 0; margin: 0; pointer-events: none; }
+.tp-conn.is-floating > .v-pill { position: absolute; top: 4px; right: 0; }
+.v-pill {
+  display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 7px 14px 7px 10px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow);
+  font: 700 .8125rem/1.3 var(--sans); color: var(--heading); white-space: nowrap; pointer-events: none; animation: mu-rise .25s ease-out;
+}
+.v-pill.v-reconnect .v-dot { margin: 0; }
+/* Missing, or could not be loaded. */
+.tp-state { display: flex; flex-direction: column; gap: 14px; }
+.tp-state-h { font-size: 1.3rem; font-weight: 700; }
+.tp-progress { display: grid; gap: 8px; margin: -4px 0 14px; font-size: .9375rem; }
+/* The next step, right in the header. */
+.tp-cta.btn { align-self: flex-start; max-width: 100%; margin-top: 10px; }
+.tp-cta-text { min-width: 0; text-align: left; overflow-wrap: anywhere; }
+.tp-next-note { margin-top: 2px; }
+.tp-cta.btn { justify-content: space-between; }
+@container view (max-width: 527px) { .tp-cta.btn { align-self: stretch; } }
+.tp-planning-in, .tp-failed-in { display: flex; flex-direction: column; gap: 14px; --tp-gap: 14px; }
+.tp-ask { margin-top: -8px; }
+.tp-foot { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.tp-art { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 0 4px; margin: 0; text-align: center; }
+.tp-art .linkish { font-size: inherit; }
+.learn-art:empty { display: none; }
+.art-invite { margin-top: 20px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.art-invite-h { margin: 0 0 4px; font-size: 1.05rem; }
+.art-invite p { margin: 0; }
+.art-invite-btns { gap: 10px; margin-top: 12px; }
+.art-note { margin: 20px 0 0; }
+.art-note:focus { outline: none; }
+.art-note:focus-visible { outline: 2px solid var(--heading); outline-offset: 4px; border-radius: 6px; }
+.tp-delete.linkish { color: var(--red); text-decoration-color: color-mix(in srgb, var(--red) 40%, transparent); }
+
+/* The path of ideas */
+.path { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.pnode { position: relative; }
+.pnode::before { content: ""; position: absolute; left: 21px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.pnode:first-child::before { top: 30px; }
+.pnode:last-child::before { bottom: auto; height: 30px; }
+.pnode:only-child::before { display: none; }
+.pnode.is-done::before { background: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.pnode-link { display: grid; grid-template-columns: 44px 1fr; gap: 14px; padding: 6px 0; color: var(--ink); text-decoration: none; border-radius: 18px; }
+.pnode-link:focus-visible { border-radius: 18px; }
+.pnode-mark {
+  position: relative; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; margin-top: 8px;
+  border-radius: 50%; background: var(--bg); border: 2px solid var(--line-strong); color: var(--muted); font: 800 1rem/1 var(--sans);
+}
+.pnode-mark svg { width: 22px; height: 22px; }
+.is-done .pnode-mark { background: var(--green); border-color: var(--green); color: var(--on-green); }
+.is-current .pnode-mark { background: var(--heading); border-color: var(--heading); color: var(--on-heading); box-shadow: 0 0 0 6px color-mix(in srgb, var(--heading) 14%, transparent); }
+.pnode-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 12px 16px 14px; border-radius: 18px; transition: background .15s ease; }
+.is-current .pnode-body { background: var(--surface); box-shadow: var(--shadow); padding: 16px 18px 18px; margin: 6px 0; }
+.pnode-kicker { font: 700 .75rem/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+.is-done .pnode-kicker { color: var(--green); }
+.is-current .pnode-kicker { color: var(--heading); }
+.pnode-title { font: 700 1.0938rem/1.32 var(--sans); color: var(--heading); }
+.pnode-line { font-size: .9375rem; line-height: 1.5; color: var(--muted); }
+.pnode-known { align-self: flex-start; margin-top: 4px; padding: 3px 10px; border-radius: 999px; background: var(--teal-tint); color: var(--teal); font: 700 .7812rem/1.5 var(--sans); }
+.pnode-deps { font-size: .8438rem; line-height: 1.45; color: var(--muted); }
+.pnode-prep { display: flex; align-items: center; gap: 6px; font: 600 .875rem/1.4 var(--sans); color: var(--muted); }
+.pnode-prep .v-dot { margin: 0 2px 0 0; }
+.pnode-btn.btn { align-self: flex-start; margin-top: 12px; }
+@media (hover: hover) { .pnode:not(.is-current) .pnode-link:hover .pnode-body { background: var(--surface); } }
+
+/* Warm-up */
+.tp-warm { display: flex; flex-direction: column; gap: 10px; }
+.tp-warm-top { gap: 8px; }
+.tp-warm-top .eyebrow { margin: 0; }
+.tp-skip.linkish { padding: 8px 4px; color: var(--muted); }
+.tp-warm-q { margin: 6px 0 6px; font: 700 1.125rem/1.4 var(--sans); color: var(--heading); }
+.tp-warm-why { display: grid; gap: 10px; justify-items: start; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+.tp-warm-verdict { font-weight: 700; color: var(--heading); }
+.tp-warm-go { display: flex; margin-top: 4px; }
+.tp-warm-done { display: flex; flex-direction: column; gap: 4px; padding: 14px 18px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); }
+.tp-warm-again { margin: -16px 0 -8px; }
+/* Focus lands on these when they replace the warm-up step Dan just finished (no ring, as headings). */
+.tp-warm-q[tabindex="-1"]:focus, .tp-warm-done[tabindex="-1"]:focus, .tp-warm-again[tabindex="-1"]:focus { outline: none; }
+
+/* Library */
+.tp-lib .section-head { margin-bottom: 10px; }
+.lib-status { display: flex; align-items: center; gap: 8px; font-size: .9375rem; line-height: 1.5; color: var(--muted); }
+.lib-status svg { width: 18px; height: 18px; flex: none; }
+.lib-status.is-done { align-items: flex-start; color: var(--teal); font-weight: 700; }
+.lib-status.is-done svg { margin-top: calc((1.5em - 18px) / 2); }   /* by the first line when it wraps */
+.lib-note { margin: 4px 0 0 26px; }   /* under the status's words, past the tick */
+.lib-status.is-running { display: grid; gap: 10px; }
+.lib-status.is-none { display: grid; gap: 4px; }
+.lib-retry.linkish { justify-self: start; }
+.lib-group-h { margin: 22px 0 0; font: 700 .9375rem/1.4 var(--sans); color: var(--heading); }
+.sources { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 12px; }
+.src { display: grid; gap: 4px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); }
+/* The padding makes a 44 px tap target; the negative margin gives the space back, and position
+   keeps the link's padding above the line under it. */
+.src-title, .book-idea a { position: relative; padding-block: 12px; margin-block: -12px; }
+.src-title { justify-self: start; font: 700 1rem/1.35 var(--sans); color: var(--heading); text-decoration: underline; text-decoration-color: var(--line-strong); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.src-site { font: 600 .8125rem/1.4 var(--sans); color: var(--teal); }
+.src-quote { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--hl); font: italic 400 .9375rem/1.6 var(--serif); color: var(--ink); }
+
+/* Planning and failed */
+.tp-banner.is-quiet { aspect-ratio: 4 / 1; }
+.tp-banner.is-quiet .cover { opacity: .6; filter: saturate(.6); }
+.tp-wait { display: grid; gap: 14px; margin: 8px 0 16px; }
+.tp-wait-line { min-height: 3.2em; font: italic 400 calc(var(--fs) * 1.05)/1.6 var(--serif); color: var(--ink); }
+.tp-wait-line.is-in { animation: mu-rise .6s ease-out; }
+.tp-wait-note { max-width: 32em; }
+/* The shape of the path to come, drawn in --line so it shows on the page (--sunk nearly vanished). */
+.tp-sk-path .skeleton { background-image: linear-gradient(90deg, var(--line), color-mix(in srgb, var(--line) 45%, var(--surface)), var(--line)); }
+.tp-sk-path { display: grid; gap: 22px; }
+.tp-sk-node { display: grid; grid-template-columns: 44px 1fr; gap: 14px; align-items: center; }
+.tp-sk-dot { width: 44px; height: 44px; border-radius: 50%; }
+.tp-sk-text { display: grid; gap: 2px; }
+.tp-failed-actions { margin-top: 6px; }
+
+/* ---------- Map ---------- */
+.map-legend {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; margin-bottom: 18px;
+  padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); font-size: .875rem; line-height: 1.35;
+}
+@container view (min-width: 608px) { .map-legend { grid-template-columns: repeat(4, auto); justify-content: space-between; } }
+.map-legend-item { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.map-legend-item strong { color: var(--heading); }
+.map-legend-text { display: grid; }
+.map-legend-text .muted { font-size: .8125rem; }
+.map-key { flex: none; overflow: visible; }
+.map-list { display: grid; gap: 18px; }
+.map-topic { padding: 16px 12px 10px; }
+.map-topic-head { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 6px; color: var(--ink); text-decoration: none; border-radius: 14px; }
+.map-topic-head:focus-visible { border-radius: 14px; }
+.map-thumb, .book-thumb { flex: none; width: 48px; height: 48px; border-radius: 14px; overflow: hidden; }
+.map-topic-text, .book-topic-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.map-topic-text h2, .book-topic-text h2 { font-size: 1.1rem; }
+.map-topic-go { flex: none; width: 20px; height: 20px; color: var(--muted); }
+.map-svg-box { margin-top: 10px; min-height: 120px; }
+.map-svg { display: block; overflow: visible; }
+.map-trail { fill: none; stroke: var(--line-strong); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: .1 9; }
+.map-node { cursor: pointer; outline: none; }
+.map-hit { fill: transparent; transition: fill .15s ease; }
+.map-node:focus-visible .map-hit { fill: var(--sunk); stroke: var(--teal); stroke-width: 2.5; }
+@media (hover: hover) { .map-node:hover .map-hit { fill: var(--sunk); } }
+.map-halo { fill: var(--surface); }
+.map-dot { stroke-width: 2.5; }
+.map-dot.is-new { fill: var(--surface); stroke: var(--muted); }
+.map-dot.is-fragile { fill: #EDC25A; stroke: #A87B12; }
+.map-dot.is-growing { fill: var(--teal); stroke: var(--teal); }
+.map-dot.is-strong { fill: var(--heading); stroke: var(--heading); }
+/* Read, not reviewed: finished (green ring), with no strength to show. */
+.map-dot.is-read { fill: var(--green-tint); stroke: var(--green); }
+@container view (min-width: 608px) { .map-legend.has-read { grid-template-columns: repeat(5, auto); } }
+.map-label { font: 600 .875rem var(--sans); fill: var(--ink); }
+.map-sk { height: 260px; border-radius: var(--r-lg); }
+
+/* ---------- Book ---------- */
+.book-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line); }
+.book-actions h2 { font-size: 1.1rem; }
+.book-save { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 6px; max-width: 440px; }
+.book-body { display: grid; gap: 40px; }
+.book-topic { display: grid; gap: 14px; }
+.book-topic-head { display: flex; align-items: center; gap: 12px; min-height: 52px; color: var(--ink); text-decoration: none; border-radius: 14px; }
+.book-topic-head:focus-visible { border-radius: 14px; }
+.book-entry { display: grid; gap: 16px; padding: 20px 20px 22px; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow); }
+.book-idea { font-size: 1.08rem; }
+.book-idea a { display: inline-block; color: var(--heading); text-decoration: none; }
+.book-words { display: grid; gap: 6px; }
+.book-when { font: 700 .75rem/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.book-date { font-weight: 600; letter-spacing: 0; text-transform: none; font-size: .8125rem; }
+.book-text { font: 400 var(--fs)/1.7 var(--serif); color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.book-words.is-first .book-text { color: color-mix(in srgb, var(--ink) 78%, var(--surface)); }
+.book-words.is-latest { padding-top: 16px; border-top: 1px dashed var(--line-strong); }
+.book-words.is-latest .book-when { color: var(--teal); }
+.book-count { margin-top: -4px; }
+.book-sk { height: 220px; border-radius: var(--r-lg); }
+.book-qs { display: grid; gap: 10px; padding: 4px 4px 0; }
+.book-qs-h { font: 700 .75rem/1.4 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+.book-q-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.book-q-list li { padding-left: 14px; border-left: 3px solid var(--line); }
+.book-q { font: 400 calc(var(--fs) * .92)/1.55 var(--serif); color: var(--ink); overflow-wrap: anywhere; }
+
+/* ---------- Reading settings ---------- */
+.set { display: grid; gap: 20px; padding-bottom: 4px; }
+.set-group { display: grid; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+.set-group:first-child { padding-top: 0; border-top: 0; }
+.set-h { font: 700 .9375rem/1.3 var(--sans); color: var(--heading); }
+.set-note { margin-top: -6px; }
+.seg-aa { font-family: var(--serif); font-weight: 600; line-height: 1; }
+.seg-aa-0 { font-size: .875rem; } .seg-aa-1 { font-size: 1.0625rem; } .seg-aa-2 { font-size: 1.25rem; } .seg-aa-3 { font-size: 1.5rem; }
+.seg-size .seg-btn { min-height: 52px; }
+.set-preview { margin: 2px 0 0; padding: 12px 16px; border-radius: 14px; border: 1px dashed var(--line-strong); }
+.set-switch { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 56px; cursor: pointer; }
+.set-switch-text { display: grid; gap: 2px; }
+.set-switch-text strong { color: var(--heading); font-size: 1rem; }
+/* The one on/off switch (Settings, and Today's "Light day"). Off is an outlined, sunken track
+   with a grey knob on the left; on is a filled navy track with a light knob on the right, so the
+   two never look alike in either theme. */
+.switch {
+  -webkit-appearance: none; appearance: none; position: relative; flex: none; width: 52px; height: 32px; margin: 0;
+  border-radius: 999px; background: var(--sunk); box-shadow: inset 0 0 0 2px var(--muted); cursor: pointer; transition: background .2s ease;
+}
+.switch::after {
+  content: ""; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--muted); box-shadow: 0 1px 3px rgba(0, 0, 0, .25); transition: transform .2s ease;
+}
+.switch:checked { background: var(--heading); box-shadow: none; }
+.switch:checked::after { transform: translateX(20px); background: var(--on-heading); }
+.switch:disabled { opacity: .55; cursor: default; }
+.switch:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; border-radius: 999px; }
+.set-research { display: grid; gap: 8px; font-size: .9375rem; line-height: 1.5; }
+.set-ok { display: flex; align-items: flex-start; gap: 8px; color: var(--ink); }
+.set-ok svg { flex: none; width: 20px; height: 20px; margin-top: 1px; color: var(--teal); }
+.set-research .linkish { justify-self: start; }
+.set-steps { margin: 0; padding-left: 22px; display: grid; gap: 4px; color: var(--muted); }
+.set-group > .btn { justify-self: start; }
+.set-build { text-align: center; padding-top: 6px; }
+
+/* ---------- Boot ---------- */
+.boot-notice { max-width: var(--col); margin: 12px auto 0; padding: 0 16px; }
+.boot-notice-in { display: flex; align-items: center; gap: 8px; padding: 2px 2px 2px 14px; border-radius: 14px; background: var(--amber); color: var(--ink); font: 600 .875rem/1.4 var(--sans); }
+.boot-notice-in > span { flex: 1; min-width: 0; padding: 8px 0; }
+.boot-notice-x { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); cursor: pointer; }
+.boot-notice-x svg { width: 18px; height: 18px; }
+.boot-opening { display: grid; gap: 14px; max-width: 280px; margin: 0 auto; padding: 72px 8px; text-align: center; }
+
+/* ---------- laptop ----------
+   Learn, the topic page and the Map use the width (the view is up to --wide on a laptop); the
+   ask, the hook and anything you read keep a comfortable line length. These rules follow the
+   width the screen actually gets, so a narrow laptop window falls back to the phone shapes. */
+.tp-top, .tp-cols, .tp-main, .tp-rail, .tp-end { display: flex; flex-direction: column; gap: 36px; }
+.tp-rail:empty { display: none; }
+@container view (min-width: 900px) {
+  /* Learn: the ask keeps a reading width; a wide Continue card and three columns of topics. */
+  .learn { gap: 40px; }
+  .learn > .ask { max-width: var(--measure); }
+  /* Returning: the compact ask (a box and a round button) on the left and, beside it, the reviews
+     waiting (with nothing waiting, a quiet line saying when reviews come back), so the first screen
+     has no empty corner and Continue stays near the top. */
+  .learn.is-returning { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); column-gap: 48px; }
+  .learn.is-returning > * { grid-column: 1 / -1; }
+  .learn.is-returning > .ask { grid-column: 1; grid-row: 1; }
+  .learn.is-returning > .learn-today { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn.is-returning > .learn-today.is-quiet { display: block; }
+  .learn.is-returning > .learn-today > .today-row { width: auto; }
+  .ccard { grid-template-columns: 46% 1fr; }
+  .ccard-cover { min-height: 300px; }
+  .ccard-body { padding: 32px 36px; gap: 10px; }
+  .ccard-title { font-size: 1.75rem; }
+  .tgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+  .welcome { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; }
+  .welcome-art { aspect-ratio: auto; height: 100%; min-height: 300px; }
+  .welcome-body { padding: 32px 36px; }
+
+  /* Topic: the cover beside the header, above the rail; the path on the left; Ask Claude and
+     the sources beside it. The planning and failed pages keep the same two columns. */
+  .tp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); column-gap: 56px; align-items: start; }
+  .tp-split > .tp-banner, .tp-split > .tp-sk-banner { grid-column: 2; grid-row: 1; aspect-ratio: 16 / 9; margin: 0; }
+  .tp-split-main { grid-column: 1; grid-row: 1; }
+  .tp-split-main > * { max-width: var(--measure); }
+  .tp-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 360px); gap: 56px; align-items: start; }
+  .tp-ask { margin-top: 0; }
+
+  /* Map: two topics side by side. */
+  .map-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; align-items: start; }
+}
+/* First run (and while topics load), once there is room for both: the full ask on the left and,
+   beside it, how it all works, so the first screen has no empty corner. The ask keeps at least
+   35rem, so its box stays wider than "Start learning" and the placeholder on one line; in rem, so
+   this holds at every text size (35 + 3 + 20 = 58rem). Narrower, it stays one column. */
+@container view (min-width: 58rem) {
+  .learn:not(.is-returning) { display: grid; grid-template-columns: minmax(35rem, 1fr) minmax(20rem, 23.75rem); column-gap: 3rem; }
+  .learn:not(.is-returning) > * { grid-column: 1 / -1; }
+  .learn:not(.is-returning) > .ask { grid-column: 1; grid-row: 1; }
+  .learn:not(.is-returning) > .learn-today, .learn > .learn-topics:has(> .welcome) { grid-column: 2; grid-row: 1; align-self: start; padding-top: 8px; }
+  .learn:not(.is-returning) > .learn-today > .today-row { width: auto; }
+  .learn-topics:has(> .welcome) > .welcome { display: block; }
+  .learn-topics:has(> .welcome) .welcome-art { aspect-ratio: 16 / 7; height: auto; min-height: 0; }
+  .learn-topics:has(> .welcome) .welcome-body { padding: 22px 26px 26px; }
+}
+
+/* The topic page's "How you are learning this": the mode (a radio group, like Learn's) and what
+   Dan told Claude when he started the topic. */
+.tp-mode { display: grid; gap: 10px; }
+.tp-modes .seg-btn { font-size: .875rem; }
+.tp-mode-note, .tp-mode-applies { line-height: 1.5; }
+.tp-mode-applies { margin-top: -6px; }
+.tp-told { margin-top: 6px; padding: 14px 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.tp-told-h { font-size: 1rem; }
+.tp-told-list { display: grid; gap: 10px; margin: 8px 0 0; }
+.tp-told-row dt { font: 600 .875rem/1.45 var(--sans); color: var(--muted); }
+.tp-told-row dd { margin: 2px 0 0; font: 400 .9375rem/1.5 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
+/* Ready-made courses (76-shelves.js): folders on Learn, a shelf's folders, a folder's courses. */
+.learn-shelves:empty { display: none; }
+.shelves { margin-top: 28px; }
+.shelf-grid { display: grid; gap: 12px; }
+@container view (min-width: 608px) { .shelf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } }
+.shelf-card, .shelf-course { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
+.shelf-ico { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--sunk); color: var(--heading); }
+.shelf-ico svg { width: 24px; height: 24px; }
+.shelf-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.shelf-title { font-weight: 700; color: var(--heading); font-size: 1.05rem; }
+.shelf-blurb { color: var(--ink); line-height: 1.45; }
+.shelf-meta { color: var(--muted); font-size: .875rem; }
+.shelf-ready { color: var(--teal); font-size: .875rem; font-weight: 600; }
+.shelf-go { flex: none; width: 20px; height: 20px; color: var(--muted); }
+.shelf-courses { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.shelf-n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--line-strong); color: var(--muted); font-weight: 700; font-size: .9rem; }
+.shelf-courses .is-built .shelf-n { border-color: var(--heading); color: var(--heading); }
+/* The Library's two choices (73-book.js). */
+.lib-choices { display: grid; gap: 14px; }
+@container view (min-width: 608px) { .lib-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
+.lib-choice { display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; box-shadow: var(--shadow); }
+.lib-choice:hover { border-color: var(--line-strong); }
+.lib-choice-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--sunk); color: var(--heading); }
+.lib-choice-ico svg { width: 28px; height: 28px; }
+.lib-choice-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.lib-choice-t { font-weight: 800; font-size: 1.2rem; color: var(--heading); }
+.lib-choice-x { line-height: 1.45; }
+.lib-choice-m { color: var(--muted); font-size: .875rem; }
+.lib-choice-m:empty { display: none; }
+.lib-choice-go { flex: none; width: 22px; height: 22px; color: var(--muted); }

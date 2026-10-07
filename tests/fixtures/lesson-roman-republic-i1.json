@@ -1,0 +1,163 @@
+{
+  "iid": "i1",
+  "title": "Power that expires: two consuls, one year",
+  "predict": {
+    "q": "Start with no wait between terms, then add Rome's ten-year wait. How much of a 30-year public life could one man now spend in charge?",
+    "options": [
+      "Still nearly all of it",
+      "About half",
+      "About a third",
+      "About a tenth"
+    ],
+    "reveal": "About a tenth: three single years out of thirty. People often guess higher, but a short term plus a long wait meant no one stayed at the top long enough to become a king."
+  },
+  "interactive": {
+    "brief": "The one thing you should see is one man's share of top power shrinking towards a tenth when you lengthen the wait before he can serve again.",
+    "title": "How long could one man rule?",
+    "controls": [
+      {
+        "id": "termYears",
+        "label": "Length of one term",
+        "min": 1,
+        "max": 10,
+        "step": 1,
+        "value": 1,
+        "unit": "years"
+      },
+      {
+        "id": "gapYears",
+        "label": "Wait before serving again",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "value": 0,
+        "unit": "years"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "yearsInPower",
+        "label": "Years one man holds top power",
+        "unit": "years",
+        "decimals": 0
+      },
+      {
+        "id": "sharePct",
+        "label": "Share of his public life",
+        "unit": "%",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "A man starts his first term at the beginning of a 30-year public life. After each term he must sit out the wait before he can serve again. Terms he can fit in = 1 + the whole number of times (term + wait) goes into (30 − term). Years in power = terms × term length, and his share = years in power ÷ 30.",
+    "ignores": "Real careers varied, Rome sometimes waived the rule in emergencies, and the model leaves out the second safeguard: a colleague with equal power who could block you.",
+    "numbers": [
+      {
+        "label": "Length of one term (years)",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Wait before serving again (years)",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Years of public life in this model",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rome's wait between consulships, from 342 BC (years)",
+        "value": 10,
+        "kind": "date"
+      },
+      {
+        "label": "Years in power at the start",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Share of his public life at the start",
+        "value": "100%",
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Set the wait to ten years and a man with one-year terms is in charge for just 3 years out of 30. Shorten the wait or stretch the term, and his share climbs back towards a king's.\n\nThat was the point. Having thrown out their last king, the Romans handed supreme power not to one man but to two, called [[consuls]], elected for one year only. Each consul could block the other, so neither could rule alone. When his year ended he was an ordinary citizen again, and could be put on trial for what he had done in office.\n\nLater, a law also made a man wait ten years before he could be consul again, a rule Rome bent in emergencies.\n\n**Shared power, and power that runs out:** almost every Roman office worked this way. The Republic's later story is largely about ambitious men finding ways round both.\n\nHow this system first took shape is less certain than the Romans' own story suggests."
+  },
+  "analogy": {
+    "text": "Like a shared bank account that needs both signatures on every payment, and closes itself after a year.",
+    "breaks": "A closed account is finished. An ex-consul kept his prestige and usually sat in the Senate for life, so his influence carried on."
+  },
+  "practice": {
+    "text": "To judge how much power any office gives, ask three questions.\n\n- How long does one person hold it?\n- How many share it, and can one block the other?\n- How long must a holder wait before holding it again?\n\n**Rule of thumb:** short terms, shared posts and a wait between terms all shrink one person's share of power.\n\n**Worked example:** say a club lets its chair serve two years, then sit out two. Over 20 years one person can be chair for at most 10 of them: half the time.\n\n**Common mistakes:** looking only at how long a term lasts and forgetting the wait between terms; assuming a shared post means shared power when one holder can block the other."
+  },
+  "say": {
+    "prompt": "In your own words: how did Rome's top job make it hard for anyone to become a king?",
+    "rubric": [
+      "Power was shared between two consuls who could block each other",
+      "Power ran out: one-year terms, with a wait before serving again",
+      "So no one held enough power for long enough to rule alone"
+    ],
+    "model": "Rome gave its top power to two consuls at once, and each could block the other. They only served for a year, and later had to wait years before serving again. So no single man ever held enough power, for long enough, to make himself king."
+  },
+  "checks": [
+    {
+      "id": "c1",
+      "type": "target",
+      "q": "Keep the term at one year. Set the wait so that one man could hold top power for 5 years of his 30.",
+      "control": "gapYears",
+      "output": "yearsInPower",
+      "target": 5,
+      "tolerance": 0.4,
+      "why": "With one-year terms, a 5- or 6-year wait fits five terms into 30 years (with a 5-year wait he serves in years 1, 7, 13, 19 and 25). Longer waits squeeze him down to four, then three."
+    },
+    {
+      "id": "c2",
+      "type": "choice",
+      "q": "Gaius Marius was elected consul five years in a row, from 104 to 100 BC. Why would that have worried many Romans?",
+      "options": [
+        "It broke the safeguard that top power must run out and pass on",
+        "Consuls were meant to be chosen by the Senate, not elected",
+        "Only men from Rome's oldest families were allowed to be consul"
+      ],
+      "answer": 0,
+      "misconception": {
+        "1": "You might expect the Senate to pick them, but citizens elected consuls in an assembly; the Senate advised.",
+        "2": "It's a common belief, but men from ordinary (plebeian) families could be consul from the 4th century BC, and Marius was the first of his family to reach the office."
+      },
+      "why": "Yearly terms and the wait before serving again were meant to stop anyone holding top power for long. Five years running was exactly what the rules were designed to prevent."
+    },
+    {
+      "id": "c3",
+      "type": "choice",
+      "q": "Which modern rule works most like the safeguards on Rome's consuls?",
+      "options": [
+        "A president limited to two terms",
+        "A monarch who reigns for life",
+        "A judge appointed for life"
+      ],
+      "answer": 0,
+      "misconception": {
+        "1": "Not quite: a lifelong reign is exactly what the consulship was built to prevent.",
+        "2": "It's tempting, but life appointments protect judges from pressure; they are the opposite of power that runs out."
+      },
+      "why": "Term limits make power run out and pass to someone else: the same safeguard as Rome's yearly consuls and the wait before serving again."
+    }
+  ],
+  "sources": [],
+  "confidence": "contested",
+  "contested": {
+    "views": [
+      {
+        "label": "The Roman story",
+        "text": "Roman writers such as Livy, writing nearly 500 years later, say the last king was expelled in 509 BC and two consuls took over straight away."
+      },
+      {
+        "label": "Many modern historians",
+        "text": "The kings were probably gone by about 500 BC, but the details are partly legend. Some think the paired, yearly consulship took its classic form only gradually, perhaps not until the 4th century BC."
+      }
+    ]
+  }
+}

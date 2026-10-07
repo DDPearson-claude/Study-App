@@ -1,0 +1,149 @@
+{
+  "iid": "i1",
+  "title": "Throw something back, get pushed forward",
+  "predict": {
+    "q": "You're standing still on a skateboard, holding a heavy ball. You throw it hard, straight backwards. What happens to you?",
+    "options": [
+      "Nothing: there's nothing behind you to push against",
+      "You roll forwards",
+      "You roll backwards, after the ball"
+    ],
+    "reveal": "You roll forwards. Many people expect nothing to happen because there's no wall behind you, but the ball itself is what you push against: shove it back and it shoves you forward."
+  },
+  "interactive": {
+    "brief": "The one thing you should see is the skater rolling forwards faster when you throw a heavier ball or throw it harder.",
+    "title": "Throw a ball off a skateboard",
+    "controls": [
+      {
+        "id": "ballMass",
+        "label": "Mass of the ball",
+        "min": 0.5,
+        "max": 10,
+        "step": 0.5,
+        "value": 2,
+        "unit": "kg"
+      },
+      {
+        "id": "throwSpeed",
+        "label": "How fast you throw it backwards",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "value": 10,
+        "unit": "m/s"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "skaterSpeed",
+        "label": "Your speed forwards",
+        "unit": "m/s"
+      }
+    ],
+    "whatAmILookingAt": "The push on the ball and the push on you are equal and opposite, so the 'oomph' (mass × speed) the ball gets backwards equals the oomph you get forwards. Your speed = ball's mass × throw speed ÷ your mass. In symbols: v = m × u ÷ M, with M = 70 kg for you and the board.",
+    "ignores": "Friction in the wheels, air resistance, and a small correction for the fact that you start rolling while you are still throwing.",
+    "numbers": [
+      {
+        "label": "Mass of the ball (kg)",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Throw speed (m/s)",
+        "value": 10,
+        "kind": "control"
+      },
+      {
+        "label": "You plus the skateboard",
+        "value": "70 kg",
+        "kind": "assumed"
+      },
+      {
+        "label": "Your speed forwards at the start (m/s)",
+        "value": 0.29,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Throw the ball and you roll the other way; a heavier ball or a harder throw sends you off faster.\n\nHere's why. To get the ball moving backwards, your arms have to push on it. And a push never comes alone: the ball pushes back on you, just as hard, in the opposite direction. That's [[Newton's third law]]: for every action there is an equal and opposite reaction.[^1]\n\nNotice what you didn't need: no wall, nothing behind you to push against. The thing you pushed on was the ball you threw.\n\nA jet engine plays exactly this trick, with air instead of a ball. It grabs air and flings it out of the back, and the air shoves the engine, and the plane bolted to it, forwards.[^2] That forward shove is called [[thrust]].\n\nSo the secret of a jet engine isn't pushing against the sky. **It's throwing something backwards.**"
+  },
+  "analogy": {
+    "text": "It's like the kick of a garden hose: turn the tap up and the nozzle pushes back into your hand, because water is being thrown out of the front of it.",
+    "breaks": "The hose's water arrives already pushed along by the mains. A jet engine has to grab still air and speed it up itself, and that's what the fuel is for."
+  },
+  "practice": {
+    "text": "- Find what is being thrown, and which way it goes.\n- The thrower is pushed the opposite way, just as hard.\n- Ask what lets the thrower move: wheels, water, ice.\n\n**Rule of thumb:** to see which way something will be pushed, look at what it throws out and point the other way.\n\n**Worked example:** say you step from a small rowing boat onto a jetty. Your legs push you forwards and the boat backwards, so the boat drifts off and your step comes up short. Hold the jetty or tie the boat first.\n\n**Common mistakes:** thinking a rocket needs air or ground behind it to push on; forgetting that whatever is thrown is pushed just as hard as the thrower."
+  },
+  "say": {
+    "prompt": "In your own words: how can a jet engine push a plane forwards when there's nothing solid behind it to push against?",
+    "rubric": [
+      "It throws air (or gas) out of the back",
+      "That air pushes back on the engine, just as hard, forwards",
+      "Nothing solid is needed: the thrown air is what it pushes on"
+    ],
+    "model": "The engine throws air out of its back. Pushing that air backwards means the air pushes the engine forwards just as hard, so the plane moves. It doesn't need a wall or the ground: the air it throws is the thing it pushes against."
+  },
+  "checks": [
+    {
+      "id": "c1",
+      "type": "choice",
+      "q": "A rocket fires its engine in deep space, where there is no air at all. What happens?",
+      "options": [
+        "Nothing: with no air outside, there's nothing to push against",
+        "It speeds up: the gas it throws back pushes it forwards",
+        "It only moves if it's near a planet it can push off",
+        "It drifts backwards, following its own exhaust"
+      ],
+      "answer": 1,
+      "misconception": {
+        "0": "It's tempting to think the push comes from the air outside, but it comes from the gas the rocket throws out, so no outside air is needed.",
+        "2": "You might expect an engine to need something solid to push off, but a rocket pushes on its own exhaust, wherever it is.",
+        "3": "It can feel as if you'd follow what you throw, but throwing something backwards pushes you the opposite way."
+      },
+      "why": "A rocket carries everything it burns and throws the hot gas out of the back, and that gas pushes the rocket forwards. It needs no air outside to push against."
+    },
+    {
+      "id": "c2",
+      "type": "target",
+      "q": "Keep the throw at 10 m/s. Choose a ball heavy enough that you roll away at 1 m/s.",
+      "control": "ballMass",
+      "output": "skaterSpeed",
+      "target": 1,
+      "tolerance": 0.05,
+      "why": "Your speed is ball mass × throw speed ÷ 70 kg. At 10 m/s you need a 7 kg ball: 7 × 10 ÷ 70 = 1 m/s."
+    },
+    {
+      "id": "c3",
+      "type": "choice",
+      "q": "Which of these moves forwards in the same way a jet engine does?",
+      "options": [
+        "A squid squirting water out behind it to dart away",
+        "A sailing boat being pushed along by the wind",
+        "A car whose tyres grip and push on the road"
+      ],
+      "answer": 0,
+      "misconception": {
+        "1": "Close, but here the wind pushes the boat from outside; the boat throws nothing backwards.",
+        "2": "It's a fair guess, but tyres push on the ground, the very thing a jet engine doesn't need."
+      },
+      "why": "A squid throws water backwards and the water pushes it forwards: a push from what it throws, just like a jet engine with air."
+    }
+  ],
+  "sources": [
+    {
+      "n": 1,
+      "title": "Newton's Third Law of Motion — NASA Glenn Research Center",
+      "url": "https://www.grc.nasa.gov/www/k-12/BGP/newton3.html",
+      "quote": "for every action (force) in nature there is an equal and opposite reaction"
+    },
+    {
+      "n": 2,
+      "title": "How Does a Jet Engine Work? — NASA Glenn Research Center",
+      "url": "https://www.grc.nasa.gov/www/k-12/UEET/StudentSite/engines.html",
+      "quote": "As the jets of gas shoot backward, the engine and the aircraft are thrust forward."
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
