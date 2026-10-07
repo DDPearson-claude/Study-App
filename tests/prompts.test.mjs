@@ -408,7 +408,7 @@ test('write-lesson: the interactive draws the cause, its form follows the kind, 
 test('write-lesson: the explanation aims for 140 words within 170; the rest only if it came to under 140', () => {
   const p = lessonFor(PLAN_JET, 'i2', { research: RESEARCH_JET });
   for (const s of ['explain (at most 170 words; aim for 140): within that, it must',
-    '- Open with the idea in one plain sentence he could repeat to a friend, not a list of results.',
+    '- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most.',
     'never by its shade (dark mode swaps them)', 'from something he knows or has felt', 'state in words the rule the interactive computes and show from it why the result behaves as it does',
     'name what is physically different, so the reason does not equally fit the earlier case',
     '- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea.',
@@ -428,7 +428,7 @@ test('write-lesson: the explanation aims for 140 words within 170; the rest only
   // sources give (political history has no dating evidence to explain), inside the same budget.
   const rome4 = lessonFor(PLAN_ROME, 'i4');
   assert.ok(rome4.includes('- Only if the rest came to under 140 words, also: one sentence on why it mattered to people then, from a source.'));
-  assert.ok(rome4.includes('explain (at most 170 words; aim for 140): within that, it must\n- Open with the idea in one plain sentence'));
+  assert.ok(rome4.includes('explain (at most 170 words; aim for 140): within that, it must\n- Open with the overall explanation'));
   assert.ok(rome4.includes('\n- Give the why: for this history idea, the chain the sources give, one step per sentence: who acted, why, and what that led to. Add how we know (the evidence, how it was dated) only where a quote says so.\n'));
   for (const s of ['the why is how we know', 'Give the why a specialist accepts', 'name what is physically different'])
     assert.ok(!rome4.includes(s), 'not for a history idea: ' + s);
@@ -906,7 +906,7 @@ test('write-lesson in read mode: no predict, say-it-back or checks to write; pra
   for (const s of ['\npredict\n', '- reveal (at most 50 words)', 'say (say it back)', '- rubric:', 'checks (3;', '- choice:', '- target:', 'QUESTIONS DAN ANSWERED',
     'Then your predict reveal is shown.', 'gives the predict\'s answer away', 'every check\'s answer yourself', 'return as review cards', 'hypothetical check case', '"type": "choice"'])
     assert.ok(!read.includes(s), 'read mode has no ' + s);
-  for (const s of ['"predict": null,', '"say": null,\n  "checks": [],', '1. interactive: he plays', '4. practice: "Put it into practice"',
+  for (const s of ['"predict": null,', '"say": null,\n  "checks": [],', '2. interactive: he plays', '4. practice: "Put it into practice"',
     'the interactive takes no side', 'The explanation and practice are read again for months in his dossier, without your ignores panel', 'use the real value in explain and practice.',
     '- Taught, not tested:'])
     assert.ok(read.includes(s), 'read mode: ' + s);

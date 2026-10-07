@@ -40,7 +40,9 @@
   var STEPS = STAGES.slice(0, 5);
   var LABEL = { predict: 'Predict', play: 'Play', explain: 'Explain', say: 'Say it back', checks: 'Check', done: 'Done' };
   // A read lesson (lesson.mode 'read'): the same stage names in progress, fewer of them, read-style labels.
-  var READ_STAGES = ['play', 'explain', 'done'];
+  // The idea and its why come first, then the interactive to see it work (Dan, 7 Oct: meeting the
+  // picture first, its sentences assumed an idea he had not read yet).
+  var READ_STAGES = ['explain', 'play', 'done'];
   var READ_STEPS = READ_STAGES.slice(0, 2);
   var READ_LABEL = { play: 'Explore', explain: 'Read', done: 'Done' };
   var VERDICT = { 'got-it': 'You\'ve got it', partly: 'Partly there', 'not-yet': 'Not there yet' };
@@ -105,7 +107,7 @@
     }
     try { el.focus({ preventScroll: true }); } catch (e) { /* fine */ }
   }
-  function order(stage) { var i = STAGES.indexOf(stage); return i < 0 ? 0 : i; }
+  function order(stage, list) { var i = (list || STAGES).indexOf(stage); return i < 0 ? 0 : i; }
   // A lesson is shown only when it is whole (U.store.lesson.state, docs/ARCHITECTURE.md 4).
   function whole(doc) { return !!doc && doc.status === 'ready' && !!doc.lesson; }
   // This page's own generation status for a lesson (U.gen.status), when the generator is loaded.
@@ -288,7 +290,7 @@
       var r = remote || {}, rr = Number(r.round) || 0, lr = round();
       if (rr < lr) return null;
       if (rr > lr) { st.ip = normalise(U.clone(r)); return 'round'; }
-      if (order(r.stage) > order(st.ip.stage)) st.ip.stage = r.stage;
+      if (order(r.stage, stagesNow()) > order(st.ip.stage, stagesNow())) st.ip.stage = r.stage;
       if (r.doneAt) st.ip.doneAt = r.doneAt;
       if (r.startedAt && !st.ip.startedAt) st.ip.startedAt = r.startedAt;
       if (r.how && !st.ip.how) st.ip.how = r.how;
@@ -813,7 +815,7 @@
       }
       var next = after(stage);
       // The saved stage only ever moves forward (another device may already be further on).
-      if (!st.replay && order(next) > order(st.ip.stage)) { st.ip.stage = next; saveIdea({ stage: next }); }
+      if (!st.replay && order(next, stagesNow()) > order(st.ip.stage, stagesNow())) { st.ip.stage = next; saveIdea({ stage: next }); }
       if (next === 'done') addDone(true);
       else addLive(next, true);
     }
@@ -930,7 +932,7 @@
       var spec = (st.lesson && st.lesson.interactive) || null;
       var built = builtIt(), has = !!built, played = !live;
       var revealText = (st.lesson && st.lesson.predict && st.lesson.predict.reveal) || '';
-      var title = has ? (built.title || (spec && spec.title) || 'What happens') : reading() && !revealText ? 'Before you read' : 'What happens';
+      var title = has ? (built.title || (spec && spec.title) || 'What happens') : reading() && !revealText ? 'Putting it to use' : 'What happens';
       U.append(box, [live ? eyebrow(labelOf('play')) : null, heading(title)]);
       var brief = has && spec && spec.brief ? U.h('p', { class: 'lsn-lede' }) : null;
       // Taught, not tested (Dan, 7 Oct: he must know what he is looking at and why): with no guess
@@ -941,11 +943,18 @@
         : null;
       var stage = U.h('div', { class: 'lsn-play' });
       var notes = U.h('div', { class: 'lsn-discs' });
+      var more = U.h('div', { class: 'lsn-more' });
       var after = U.h('div', { class: 'lsn-after' });
-      U.append(box, [orient, brief, stage, notes, after]);
+      U.append(box, [orient, brief, stage, notes, more, after]);
+      if (reading()) {
+        var an = analogyBox(), srcs = sources(), tk = takeaway(st.lesson && st.lesson.explain && st.lesson.explain.text);
+        if (an) more.appendChild(an);
+        moreBox(more, srcs, checkedLine(srcs.length));
+        if (tk.recap) more.appendChild(U.h('section', { class: 'lsn-recap', 'aria-label': 'In short' }, eyebrow('In short'), U.h('p', { class: 'lsn-recap-text' }, U.inline(U.h('span'), tk.recap, fn))));
+      }
       var m = null;
       if (has) m = mountPanel(stage, built, title);
-      else stage.appendChild(noInteractive(spec, !reading() || !!revealText));
+      else stage.appendChild(noInteractive(spec, !reading() || revealText ? true : null));
       if (spec && has) drawNotes(notes, spec, m);
       function drawAfter() {
         U.clear(after);
@@ -958,6 +967,9 @@
           var shown = guessAndReveal(false, has);
           if (shown) after.appendChild(shown);
           if (acting) after.appendChild(go(btn('Continue', function () { complete('play'); }, 'lsn-main')));
+        } else if (acting && reading() && !revealText) {
+          // A read lesson with nothing left to show: one tap ends it.
+          after.appendChild(go(btn('Finish this idea', function () { complete('play'); }, 'lsn-main')));
         } else if (acting) {
           after.appendChild(go(btn('I\'ve had a play', function () {
             played = true;
@@ -1033,7 +1045,7 @@
         : 'This idea is about how things fit together rather than numbers you can change, so there is nothing to play with.';
       return U.h('div', { class: 'lsn-none' },
         U.h('p', { class: 'lsn-none-head' }, 'No interactive for this one'),
-        U.h('p', { class: 'muted' }, why + (below === false ? ' The reading comes next.' : ' What happens is just below.')));
+        U.h('p', { class: 'muted' }, why + (below ? ' What happens is just below.' : '')));
     }
     function named(c) { return !!c && Array.isArray(c.options) && c.options.length > 0; }
     // The lesson's own name for a named control's value from the frame, or null. raw: the index
@@ -1115,9 +1127,25 @@
     }
 
     // ---- 3. Explain ----
+    // A read lesson flows the way Dan asked (7 Oct): the overall explanation and the one concept
+    // that matters (Read), then the interactive to see it work, then what cements it (the
+    // comparison, Put it into practice) and last a recap: the explanation's closing bold takeaway,
+    // moved to the end.
+    function takeaway(text) {
+      var ps = String(text || '').split(/\n{2,}/), last = (ps[ps.length - 1] || '').trim();
+      return ps.length > 1 && /^\*\*[^*]+\*\*$/.test(last) ? { body: ps.slice(0, -1).join('\n\n'), recap: last.replace(/^\*\*|\*\*$/g, '') } : { body: String(text || ''), recap: '' };
+    }
+    function analogyBox() {
+      var l = st.lesson || {};
+      if (!(l.analogy && l.analogy.text)) return null;
+      return U.h('div', { class: 'lsn-analogy' },
+        eyebrow('Think of it like this'), richBox(l.analogy.text, 'lsn-analogy-text', fn),
+        l.analogy.breaks ? U.h('div', { class: 'lsn-breaks' }, eyebrow('Where it breaks'), richBox(l.analogy.breaks, null, fn)) : null);
+    }
     function renderExplain(box, live) {
       var l = st.lesson || {}, ex = l.explain || {};
-      U.append(box, [live ? eyebrow(labelOf('explain')) : null, heading('What\'s going on'), U.h('div', { class: 'reading lsn-reading' }, U.rich(ex.text || '', fn))]);
+      var text = reading() ? takeaway(ex.text).body : (ex.text || '');
+      U.append(box, [live ? eyebrow(labelOf('explain')) : null, heading('What\'s going on'), U.h('div', { class: 'reading lsn-reading' }, U.rich(text, fn))]);
       var src = sources(), checked = checkedLine(src.length);
       if (st.doc && st.doc.sourced === false) {
         box.appendChild(U.h('p', { class: 'lsn-quiet' }, U.h('strong', null, 'Not yet source-checked. '), 'Claude wrote this from what it already knows; no live sources were checked for this idea.'));
@@ -1126,11 +1154,7 @@
       } else if (l.confidence === 'simplified') {
         box.appendChild(U.h('p', { class: 'lsn-quiet' }, U.h('strong', null, 'Simplified. '), 'The full picture has more to it. This is the part that matters for now.'));
       }
-      if (l.analogy && l.analogy.text) {
-        box.appendChild(U.h('div', { class: 'lsn-analogy' },
-          eyebrow('Think of it like this'), richBox(l.analogy.text, 'lsn-analogy-text', fn),
-          l.analogy.breaks ? U.h('div', { class: 'lsn-breaks' }, eyebrow('Where it breaks'), richBox(l.analogy.breaks, null, fn)) : null));
-      }
+      if (!reading()) { var an = analogyBox(); if (an) box.appendChild(an); }
       var views = l.contested && Array.isArray(l.contested.views) ? l.contested.views.filter(function (v) { return v && v.text; }) : [];
       if (l.confidence === 'contested' || views.length) {
         box.appendChild(U.h('div', { class: 'lsn-contest' },
@@ -1140,6 +1164,12 @@
             return U.h('div', { class: 'lsn-view' }, U.h('h3', null, String(v.label || 'One view')), richBox(v.text, 'lsn-view-text', fn));
           })) : null));
       }
+      if (!reading()) moreBox(box, src, checked);
+      if (live) box.appendChild(go(btn(reading() ? 'See it work' : 'Continue', function () { complete('explain'); }, 'lsn-main')));
+    }
+    // "Put it into practice" and the sources: after the explanation, or in a read lesson (whose
+    // explanation comes first) after the interactive.
+    function moreBox(box, src, checked) {
       var practice = practiceBox();
       if (practice) box.appendChild(practice);
       if (src.length) {
@@ -1149,7 +1179,6 @@
             U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
         })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null])));
       } else if (checked) box.appendChild(U.h('p', { class: 'lsn-checked' }, checked));
-      if (live) box.appendChild(go(btn(reading() ? 'Done reading' : 'Continue', function () { complete('explain'); }, 'lsn-main')));
     }
     // "Put it into practice" (lesson.practice): how to use the idea, in the lesson's own words (an
     // older lesson has none, and shows nothing). Paragraphs, "- " lists and numbered "1. " steps.

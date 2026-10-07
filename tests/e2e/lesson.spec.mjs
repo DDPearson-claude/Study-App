@@ -2340,6 +2340,7 @@ function readLesson({ reveal }) {
   d.lesson.say = null;
   d.lesson.checks = [];
   d.lesson.practice = { text: PRACTICE_TEXT };
+  d.lesson.explain.text += '\n\n**RECAP-LINE: a pendulum\'s length sets its beat.**';
   return d;
 }
 // The course switched to Just teach me after an idea was prepared to teach and test (often in the
@@ -2351,9 +2352,9 @@ async function switchedToRead() {
   const app = await open({ width: 390, dark: false, hash: '#/t/pendulums/i2', seed, reduced: true });
   const { page } = app;
   try {
-    await page.locator('.lsn-stage[data-stage="play"]').waitFor();
+    await page.locator('.lsn-stage[data-stage="explain"]').waitFor();
     ok(await page.locator('.lsn-stage[data-stage="predict"], .lsn-past[data-stage="predict"]').count() === 0, 'no guess first, though the lesson was written to test');
-    ok(await page.locator('.lsn-step').count() === 2 && await page.locator('.lsn-steps-label').textContent() === 'Explore', 'two steps: Explore, Read');
+    ok(await page.locator('.lsn-step').count() === 2 && await page.locator('.lsn-steps-label').textContent() === 'Read', 'two steps: Read, then Explore');
     await page.waitForTimeout(500);
     const pr = (await doc(app, PROGRESS)).ideas.i2;
     ok(pr && pr.how === 'read', 'how he began this round is kept: ' + JSON.stringify(pr && pr.how));
@@ -2375,15 +2376,24 @@ async function readScenario(width, dark, withReveal) {
   const app = await open({ width, dark, hash: '#/t/pendulums/i1', seed, reduced: true });
   const { page } = app;
   try {
-    const play = page.locator('.lsn-stage[data-stage="play"]');
-    await play.locator('iframe').waitFor();
+    // Dan's flow (7 Oct): the overall explanation and the key concept first, then the interactive,
+    // then what cements it (the comparison, Put it into practice, sources) and a recap last.
+    const read = page.locator('.lsn-stage[data-stage="explain"]');
+    await read.locator('.lsn-reading').waitFor();
     ok(await page.locator('.lsn-stage[data-stage="predict"], .lsn-past[data-stage="predict"]').count() === 0, 'no guess first');
     ok(await page.locator('.lsn-step').count() === 2, 'two steps in the bar');
-    ok(await page.locator('.lsn-steps-label').textContent() === 'Explore', 'the bar names it Explore');
-    ok(await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 1 of 2: Explore, current step', 'and says so to a screen reader');
-    ok(await play.locator('.eyebrow').first().textContent() === 'Explore', 'the stage is Explore');
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Read', 'the bar starts at Read');
+    ok(await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 1 of 2: Read, current step', 'and says so to a screen reader');
+    ok(await read.locator('.eyebrow').first().textContent() === 'Read', 'the stage is Read');
     ok(await page.locator('.lsn-one').isVisible(), 'the idea\'s one line shows from the start (no guess to give away)');
-    // Taught, not tested (7 Oct): what the picture is, open above it, and what to watch for, in full.
+    ok(await read.locator('.lsn-analogy, .lsn-practice').count() === 0, 'the comparison and the practice wait until after the interactive');
+    ok(!(await read.textContent()).includes('RECAP-LINE'), 'the closing takeaway is kept for the recap');
+    await shot(app, `read-${tag}-1-read`);
+    await read.getByRole('button', { name: 'See it work' }).click();
+    const play = page.locator('.lsn-stage[data-stage="play"]');
+    await play.locator('iframe').waitFor();
+    ok(await page.locator('.lsn-steps-label').textContent() === 'Explore', 'then Explore');
+    // Taught, not tested: what the picture is, open above it, and what to watch for, in full.
     ok(/^Watch for /.test(await play.locator('.lsn-lede').textContent()), 'the whole "Watch for" sentence before playing');
     const orient = play.locator('.lsn-orient');
     ok(await orient.isVisible() && (await orient.textContent()).startsWith('What you\'re looking at'), '"What you\'re looking at" shows open');
@@ -2391,24 +2401,23 @@ async function readScenario(width, dark, withReveal) {
     ok(await play.locator('summary', { hasText: 'What am I looking at?' }).count() === 0, 'and is not folded away again below');
     await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     await noOverflow(app);
-    await shot(app, `read-${tag}-1-explore`);
-    await page.getByRole('button', { name: 'I\'ve had a play' }).click();
-    ok(/^Watch for /.test(await play.locator('.lsn-lede').textContent()), 'and still the whole sentence');
-    ok(await play.locator('.lsn-reveal-guess').count() === 0, 'no "Your guess"');
-    ok(await play.locator('.lsn-reveal-answer').count() === (withReveal ? 1 : 0), withReveal ? 'what happens, when the lesson says' : 'nothing to reveal when it does not');
-    await play.getByRole('button', { name: 'Continue' }).click();
-    const read = page.locator('.lsn-stage[data-stage="explain"]');
-    await read.locator('.lsn-practice').waitFor();
-    ok(await read.locator('.eyebrow').first().textContent() === 'Read', 'the stage is Read');
-    ok(await page.locator('.lsn-steps-label').textContent() === 'Read', 'and the bar says so');
-    const order = await read.evaluate((el) => ['.lsn-reading', '.lsn-analogy', '.lsn-practice', '.lsn-discs'].map((q) => { const x = el.querySelector(q); return x ? [...el.querySelectorAll('*')].indexOf(x) : -1; }));
-    ok(order.every((v, i) => v >= 0 && (i === 0 || v > order[i - 1])), 'explanation, analogy, Put it into practice, then sources: ' + order);
-    ok(await read.locator('.lsn-practice ol > li').count() === 2 && await read.locator('.lsn-practice ul > li').count() === 2, 'its steps numbered and its mistakes listed');
-    ok(await read.locator('.lsn-practice button.fn').count() === 1, 'with its footnote');
-    ok((await read.locator('.lsn-practice').innerText()).includes('four times the length, twice the time'), 'in the lesson\'s own words');
-    await read.locator('.lsn-practice').scrollIntoViewIfNeeded();
-    await shot(app, `read-${tag}-2-practice`);
-    await read.getByRole('button', { name: 'Done reading' }).click();
+    await shot(app, `read-${tag}-2-explore`);
+    const order = await play.evaluate((el) => ['iframe', '.lsn-analogy', '.lsn-practice', '.lsn-recap'].map((q) => { const x = el.querySelector(q); return x ? [...el.querySelectorAll('*')].indexOf(x) : -1; }));
+    ok(order.every((v, i) => v >= 0 && (i === 0 || v > order[i - 1])), 'interactive, comparison, Put it into practice, then the recap: ' + order);
+    ok(await play.locator('.lsn-practice ol > li').count() === 2 && await play.locator('.lsn-practice ul > li').count() === 2, 'its steps numbered and its mistakes listed');
+    ok((await play.locator('.lsn-practice').innerText()).includes('four times the length, twice the time'), 'in the lesson\'s own words');
+    ok((await play.locator('.lsn-recap').innerText()).includes('RECAP-LINE: a pendulum\'s length sets its beat.'), 'the recap is the takeaway');
+    await play.locator('.lsn-recap').scrollIntoViewIfNeeded();
+    await shot(app, `read-${tag}-3-recap`);
+    if (withReveal) {
+      await page.getByRole('button', { name: 'I\'ve had a play' }).click();
+      ok(await play.locator('.lsn-reveal-guess').count() === 0, 'no "Your guess"');
+      ok(await play.locator('.lsn-reveal-answer').count() === 1, 'what happens, when the lesson says');
+      await play.getByRole('button', { name: 'Continue' }).click();
+    } else {
+      ok(await play.getByRole('button', { name: 'I\'ve had a play' }).count() === 0, 'nothing to reveal: no "I\'ve had a play"');
+      await play.getByRole('button', { name: 'Finish this idea' }).click();
+    }
     await page.locator('.lsn-done').waitFor();
     ok(await page.locator('.lsn-stage[data-stage="say"], .lsn-stage[data-stage="checks"]').count() === 0, 'no say-it-back and no quick checks');
     ok(await page.locator('.lsn-done .lsn-h').textContent() === 'Idea read', 'the idea is read');
@@ -2425,7 +2434,7 @@ async function readScenario(width, dark, withReveal) {
     // Coming back: the two stages collapsed, the idea read.
     await page.evaluate(() => U._route());
     await page.locator('.lsn-done').waitFor();
-    ok((await page.locator('.lsn-past .lsn-past-label').allTextContents()).join() === 'Explore,Read', 'reopened: Explore and Read collapsed');
+    ok((await page.locator('.lsn-past .lsn-past-label').allTextContents()).join() === 'Read,Explore', 'reopened: Read and Explore collapsed');
     ok(await page.locator('.lsn-done .lsn-h').textContent() === 'You\'ve read this idea', 'and it says he has read it');
   } catch (e) {
     ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
