@@ -817,6 +817,17 @@ U.store = (function () {
     },
     remove: function (tid) { var path = S.paths.art(tid); return run(path, function () { return D(path).delete(); }).catch(function (e) { return failed(e, null, true); }); },
   };
+  // Ready-made courses (76-shelves.js): shelves/{sid}, shared, each a folder of folders of
+  // courses ({folders:[{id, title, blurb, courses:[{id, title, blurb, tid}]}]}); a course's tid
+  // names its topic once it has been built. Written by Claude's build sessions, read here.
+  S.shelves = {
+    watch: function (fn, onError) {
+      return subscribe(function () { return C('shelves'); }, function (q) {
+        fn(q.docs.map(function (d) { var x = U.clone(d.data()) || {}; x.__id = d.id; return x; }));
+      }, onError);
+    },
+    get: function (sid) { return getDoc('shelves/' + sid); },
+  };
   S.profile = {
     defaults: function () { return { prefs: { size: 'm', easy: false, theme: 'light', cap: 15, light: false }, days: {}, createdAt: U.now() }; },
     get: function () { return getDoc(S.paths.profile()).then(function (d) { return d ? deepMerge(S.profile.defaults(), d) : S.profile.defaults(); }); },

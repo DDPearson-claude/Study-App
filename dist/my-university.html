@@ -1700,6 +1700,24 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 .tp-told-list { display: grid; gap: 10px; margin: 8px 0 0; }
 .tp-told-row dt { font: 600 .875rem/1.45 var(--sans); color: var(--muted); }
 .tp-told-row dd { margin: 2px 0 0; font: 400 .9375rem/1.5 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
+/* Ready-made courses (76-shelves.js): folders on Learn, a shelf's folders, a folder's courses. */
+.learn-shelves:empty { display: none; }
+.shelves { margin-top: 28px; }
+.shelf-grid { display: grid; gap: 12px; }
+@container view (min-width: 608px) { .shelf-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; } }
+.shelf-card, .shelf-course { display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; }
+a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
+.shelf-ico { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: var(--sunk); color: var(--heading); }
+.shelf-ico svg { width: 24px; height: 24px; }
+.shelf-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.shelf-title { font-weight: 700; color: var(--heading); font-size: 1.05rem; }
+.shelf-blurb { color: var(--ink); line-height: 1.45; }
+.shelf-meta { color: var(--muted); font-size: .875rem; }
+.shelf-ready { color: var(--teal); font-size: .875rem; font-weight: 600; }
+.shelf-go { flex: none; width: 20px; height: 20px; color: var(--muted); }
+.shelf-courses { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.shelf-n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--line-strong); color: var(--muted); font-weight: 700; font-size: .9rem; }
+.shelf-courses .is-built .shelf-n { border-color: var(--heading); color: var(--heading); }
 
 /* src/css/75-dossier.css */
 /* The course dossier (75-dossier.js): a naturalist's field journal.
@@ -2245,7 +2263,7 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-07-220be86";
+U.BUILD = "2026-10-07-ac760c8";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -2288,6 +2306,7 @@ U.icons = {
   arrow: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13m-5-5.5L18.5 12 13 17.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   spark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 13.9 9l5.6 1.9-5.6 1.9L12 18.5l-1.9-5.7-5.6-1.9L10.1 9 12 3.5Z" fill="currentColor"/></svg>',
   chat: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 18.5V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H8.5L5 18.5Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+  folder: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-10Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   book: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10.3 5.2 7.8 4.5 4 4.5v13c3.8 0 6.3.7 8 2m0-13c1.7-1.3 4.2-2 8-2v13c-3.8 0-6.3.7-8 2m0-13v13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 U.icon = function (name, cls) { var s = U.svg(U.icons[name]); if (cls) s.setAttribute('class', cls); return s; };
@@ -4307,6 +4326,17 @@ U.store = (function () {
       }).catch(function (e) { return failed(e, null, true); });
     },
     remove: function (tid) { var path = S.paths.art(tid); return run(path, function () { return D(path).delete(); }).catch(function (e) { return failed(e, null, true); }); },
+  };
+  // Ready-made courses (76-shelves.js): shelves/{sid}, shared, each a folder of folders of
+  // courses ({folders:[{id, title, blurb, courses:[{id, title, blurb, tid}]}]}); a course's tid
+  // names its topic once it has been built. Written by Claude's build sessions, read here.
+  S.shelves = {
+    watch: function (fn, onError) {
+      return subscribe(function () { return C('shelves'); }, function (q) {
+        fn(q.docs.map(function (d) { var x = U.clone(d.data()) || {}; x.__id = d.id; return x; }));
+      }, onError);
+    },
+    get: function (sid) { return getDoc('shelves/' + sid); },
   };
   S.profile = {
     defaults: function () { return { prefs: { size: 'm', easy: false, theme: 'light', cap: 15, light: false }, days: {}, createdAt: U.now() }; },
@@ -13314,8 +13344,10 @@ U.interactive = (function () {
     var liveBox = U.h('div', { class: 'learn-note learn-live' });
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
     var artBox = U.h('div', { class: 'learn-art' });
+    // Ready-made courses (76-shelves.js): folders of courses Claude builds in full.
+    var shelfBox = U.h('div', { class: 'learn-shelves' });
     // Reviews waiting come first: today's study is one tap away.
-    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, artBox);
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, shelfBox, artBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -13521,6 +13553,7 @@ U.interactive = (function () {
         }));
       });
     }
+    var stopShelves = U.shelves && U.store.shelves ? U.shelves.mount(shelfBox, ctx) : null;
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
       topics = list || [];
@@ -13728,7 +13761,7 @@ U.interactive = (function () {
       }));
     }
 
-    return function () { stop(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
+    return function () { stop(); if (stopShelves) stopShelves(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
   }, { tab: 'learn', title: 'Learn' });
 })();
 
@@ -16487,6 +16520,119 @@ U.interactive = (function () {
     on: on, bind: bind, sync: sync, keep: keep, remove: remove, setOn: setOn, load: load,
     fonts: fonts, shelf: shelf, option: option, confirmDelete: confirmDelete, exportHtml: exportHtml, save: save, inkTheme: inkTheme,
   };
+})();
+
+// ---- src/js/76-shelves.js ----
+// Ready-made courses: shelves of folders of courses (Dan, 7 Oct: "In the learn category, create
+// a folder called Maths. Inside that folder are 6 folders… Inside that folder are the courses that
+// make up that folder's entire content"). The shelves live in the db (shared docs shelves/{sid},
+// 20-store.js S.shelves), so Claude's build sessions fill them in without a new version of the
+// app: a course with a tid opens that topic; one without says it is not built yet.
+//
+//   U.shelves.mount(box, ctx) -> stop     Learn's "Ready-made courses" section (nothing when none)
+//   #/shelf/:sid                           a shelf: its folders
+//   #/shelf/:sid/:fid                      a folder: its courses, in order
+(function () {
+  'use strict';
+  var U = window.U, V = U.views;
+  function arr(x) { return Array.isArray(x) ? x : []; }
+  function isObj(x) { return !!x && typeof x === 'object' && !Array.isArray(x); }
+  function str(x) { return typeof x === 'string' ? x.trim() : ''; }
+  // Only what can be shown and linked to safely: ids the router accepts, plain text.
+  function folders(shelf) {
+    return arr(shelf && shelf.folders).filter(function (f) { return isObj(f) && U.validId(f.id) && str(f.title); });
+  }
+  function courses(folder) {
+    return arr(folder && folder.courses).filter(function (c) { return isObj(c) && str(c.title); });
+  }
+  function built(c) { return U.validId(c.tid) ? c.tid : null; }
+  function counts(list) {
+    var n = list.length, b = list.filter(built).length;
+    return (n === 1 ? '1 course' : n + ' courses') + ' · ' + (b === 0 ? 'none built yet' : b === n ? 'all built' : b + ' built');
+  }
+  function allCourses(shelf) { return folders(shelf).reduce(function (a, f) { return a.concat(courses(f)); }, []); }
+  function order(list) { return list.slice().sort(function (a, b) { return (Number(a.order) || 99) - (Number(b.order) || 99) || String(a.title).localeCompare(String(b.title)); }); }
+  function card(href, title, blurb, meta) {
+    return U.h('a', { class: 'shelf-card', href: href },
+      U.h('span', { class: 'shelf-ico', 'aria-hidden': 'true' }, U.icon('folder')),
+      U.h('span', { class: 'shelf-body' },
+        U.h('span', { class: 'shelf-title' }, title),
+        blurb ? U.h('span', { class: 'shelf-blurb' }, blurb) : null,
+        U.h('span', { class: 'shelf-meta' }, meta)),
+      U.icon('arrow', 'shelf-go'));
+  }
+  function loadError(box, what, e) { U.clear(box).appendChild(V && V.loadError ? V.loadError(what, e, false) : U.h('p', { class: 'muted' }, what + ' could not be loaded just now.')); }
+
+  // ---------- Learn's section ----------
+  function mount(box, ctx) {
+    return U.store.shelves.watch(function (list) {
+      if (!ctx.alive()) return;
+      var shelves = order(list.filter(function (s) { return U.validId(s.__id) && str(s.title) && folders(s).length; }));
+      U.clear(box);
+      if (!shelves.length) return;
+      box.appendChild(U.h('section', { class: 'shelves', 'aria-labelledby': 'shelves-h' },
+        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'shelves-h' }, 'Ready-made courses')),
+        U.h('div', { class: 'shelf-grid' }, shelves.map(function (s) {
+          var f = folders(s);
+          return card('#/shelf/' + encodeURIComponent(s.__id), str(s.title), str(s.blurb), (f.length === 1 ? '1 folder' : f.length + ' folders') + ' · ' + counts(allCourses(s)));
+        }))));
+    }, function () { /* Learn works without its shelves */ });
+  }
+
+  // ---------- a shelf, and one of its folders ----------
+  function page(params, ctx) {
+    var sid = params.sid, fid = params.fid || null;
+    var box = U.h('div', { class: 'shelf-page' }, U.h('div', { class: 'skeleton', style: 'height:220px;border-radius:18px' }));
+    ctx.view.appendChild(box);
+    U.store.shelves.get(sid).then(function (shelf) {
+      if (!ctx.alive()) return;
+      if (!shelf || !folders(shelf).length) {
+        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/', label: 'Back to Learn' } }));
+        return;
+      }
+      var title = str(shelf.title);
+      if (!fid) {
+        U.setTitle(title);
+        U.clear(box).append(V.back('#/', 'Learn'),
+          U.h('header', { class: 'page-head' },
+            U.h('p', { class: 'eyebrow' }, 'Ready-made courses'),
+            U.h('h1', { tabindex: '-1' }, title),
+            str(shelf.blurb) ? U.h('p', { class: 'muted' }, str(shelf.blurb)) : null),
+          U.h('div', { class: 'shelf-grid' }, folders(shelf).map(function (f) {
+            return card('#/shelf/' + encodeURIComponent(sid) + '/' + encodeURIComponent(f.id), str(f.title), str(f.blurb), counts(courses(f)));
+          })));
+        return;
+      }
+      var folder = folders(shelf).filter(function (f) { return f.id === fid; })[0];
+      if (!folder) {
+        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'This folder is not in ' + title + ' any more.', action: { href: '#/shelf/' + encodeURIComponent(sid), label: 'Back to ' + title } }));
+        return;
+      }
+      U.setTitle(str(folder.title) + ' · ' + title);
+      U.clear(box).append(V.back('#/shelf/' + encodeURIComponent(sid), title),
+        U.h('header', { class: 'page-head' },
+          U.h('p', { class: 'eyebrow' }, title),
+          U.h('h1', { tabindex: '-1' }, str(folder.title)),
+          str(folder.blurb) ? U.h('p', { class: 'muted' }, str(folder.blurb)) : null,
+          U.h('p', { class: 'muted small' }, counts(courses(folder)))),
+        U.h('ol', { class: 'shelf-courses' }, courses(folder).map(function (c, i) {
+          var tid = built(c);
+          var inner = [
+            U.h('span', { class: 'shelf-n', 'aria-hidden': 'true' }, String(i + 1)),
+            U.h('span', { class: 'shelf-body' },
+              U.h('span', { class: 'shelf-title' }, str(c.title)),
+              str(c.blurb) ? U.h('span', { class: 'shelf-blurb' }, str(c.blurb)) : null,
+              tid ? U.h('span', { class: 'shelf-ready' }, 'Ready to browse') : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
+            tid ? U.icon('arrow', 'shelf-go') : null];
+          return U.h('li', { class: tid ? 'is-built' : 'is-waiting' },
+            tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid) }, inner) : U.h('div', { class: 'shelf-course' }, inner));
+        })));
+    }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
+  }
+  U.routes.add('#/shelf/:sid', page, { tab: 'learn', title: 'Ready-made courses' });
+  U.routes.add('#/shelf/:sid/:fid', page, { tab: 'learn', title: 'Ready-made courses' });
+
+  U.shelves = { mount: mount };
 })();
 
 // ---- src/js/99-boot.js ----
