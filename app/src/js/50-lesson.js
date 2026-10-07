@@ -983,10 +983,10 @@
       function settle(checks) {
         if (settled || !alive()) return;
         settled = true;
-        // The badge comes from the self-test the app ran itself before saving the lesson, never
-        // from what the frame reports about itself.
+        // What the self-test the app ran before saving the lesson found (never what the frame
+        // reports about itself). Dan is told only when something did not pass.
         void checks;
-        selfChecks(meta, (built.selftest && built.selftest.checks) || []);
+        selfChecks(holder, meta, (built.selftest && built.selftest.checks) || []);
         setTimeout(function () {
           var hgt = m && m.frame && m.frame.isConnected ? Math.round(m.frame.getBoundingClientRect().height) : 0;
           if (hgt > 120) try { localStorage.setItem(hkey, String(hgt)); } catch (e) {}
@@ -1009,14 +1009,15 @@
       Promise.resolve(m && m.ready).then(function (checks) { settle(Array.isArray(checks) ? checks : null); }, function () { settle(null); });
       return m;
     }
-    function selfChecks(meta, checks) {
+    // The self-test is the app's own quality check, not part of the lesson (Dan, 7 Oct: "I don't
+    // need to know that 5 of 5 checks passed"): nothing is shown when it passed. The result stays
+    // on the holder (data-selftest "ok/n") for the tests.
+    function selfChecks(holder, meta, checks) {
       var n = checks.length, ok = checks.filter(function (c) { return c && c.ok; }).length;
-      if (!n) return;
-      meta.appendChild(U.h('p', { class: 'lsn-selfcheck', title: 'The interactive tested itself against answers worked out by hand' },
-        U.icon('tick'), 'Interactive self-tested: ' + ok + ' of ' + n + ' checks pass'));
-      if (ok < n) {
+      holder.setAttribute('data-selftest', ok + '/' + n);
+      if (n && ok < n) {
         meta.appendChild(U.h('p', { class: 'lsn-selfwarn callout remember' },
-          (n - ok) + ' of its ' + n + ' self-checks did not pass, so treat its exact numbers with some care. The pattern it shows should still hold.'));
+          'Some of this interactive\'s exact numbers may be a little off. The pattern it shows still holds.'));
       }
     }
     // below: what happens is shown just below (a read lesson may have nothing to reveal).

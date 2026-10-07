@@ -333,8 +333,9 @@ async function walk(width, dark) {
     const reserved = await play.locator('.lsn-panel').evaluate((el) => el.getBoundingClientRect().height);
     ok(reserved >= 560, `height reserved while the interactive loads (${Math.round(reserved)}px)`);
     if (width < 700) await shot(app, `${tag}-2a-play-loading`);
-    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
-    ok((await play.locator('.lsn-selfcheck').textContent()).includes('Interactive self-tested: 2 of 2 checks pass'), 'self-check footer says the interactive tested itself (not his score)');
+    await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
+    ok(await play.locator('[data-selftest]').getAttribute('data-selftest') === '2/2', 'the self-test result is kept for the app');
+    ok(!/self-tested|checks pass/i.test(await play.textContent()), 'and never shown to Dan when it passed (7 Oct)');
     await page.waitForTimeout(1000);
     const settledH = await play.locator('.lsn-panel').evaluate((el) => el.getBoundingClientRect().height);
     console.log(`  interactive: reserved ${Math.round(reserved)}px, settled ${Math.round(settledH)}px`);
@@ -580,7 +581,7 @@ async function preparing() {
     await page.locator('.lsn-stage[data-stage="predict"] .option').nth(1).click();
     await page.getByRole('button', { name: 'That\'s my guess' }).click();
     const play = page.locator('.lsn-stage[data-stage="play"]');
-    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     ok(await page.locator('.lsn-one').isVisible(), 'the one line shows once he has guessed');
     ok(await play.getByRole('button', { name: 'I\'ve had a play' }).count() === 1, 'the interactive is there at once: no waiting inside the lesson');
     ok(await play.getByRole('button', { name: /read on while it builds/ }).count() === 0, 'no "read on while it builds" any more');
@@ -657,7 +658,7 @@ async function resumeBuilding() {
     await page.evaluate((d) => window.__T.prep.res(d), SMALL);
     // Whole: it resumes where he was (Play), with Predict collapsed above.
     const play = page.locator('.lsn-stage[data-stage="play"]');
-    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     ok(await page.locator('.lsn-past[data-stage="predict"]').count() === 1 && await page.locator('.lsn-step.is-now').getAttribute('aria-label') === 'Step 2 of 5: Play, current step', 'resumes at Play with Predict collapsed');
     await page.locator('.lsn-past[data-stage="predict"] summary').click();
     await page.locator('.lsn-past[data-stage="predict"] .lsn-reveal-guess').waitFor();
@@ -725,7 +726,7 @@ async function xl() {
     await pred.locator('.option').first().click();
     await page.getByRole('button', { name: 'That\'s my guess' }).click();
     const play = page.locator('.lsn-stage[data-stage="play"]');
-    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     const inner = await page.frameLocator('.lsn-panel iframe').locator('body').evaluate((b) => ({ body: getComputedStyle(b).fontSize, root: getComputedStyle(document.documentElement).fontSize, size: K.theme.size }));
     ok(inner.size === 20 && inner.body === '20px' && inner.root === '20px', 'the interactive follows Text size XL (' + JSON.stringify(inner) + ')');
     await page.evaluate(() => { const p = document.querySelector('.lsn-stage[data-stage="play"]'); window.scrollTo(0, p.getBoundingClientRect().top + scrollY - 70); });
@@ -945,7 +946,7 @@ async function resume(width, dark) {
     await page.evaluate(() => window.scrollTo(0, 0));
     await shot(app, `resume-${tag}-1`);
     await page.locator('.lsn-past[data-stage="play"] summary').click();
-    await page.locator('.lsn-past[data-stage="play"] .lsn-selfcheck').waitFor({ timeout: 15000 });
+    await page.locator('.lsn-past[data-stage="play"] [data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     ok(await page.locator('.lsn-past[data-stage="play"] .lsn-reveal').count() === 1, 'reopened play shows the reveal');
     await shot(app, `resume-${tag}-2-reopened`);
     // the progress bar jumps to a stage
@@ -1282,7 +1283,7 @@ async function fullApp() {
     await page.locator('.lsn-stage[data-stage="predict"] .option').first().waitFor({ timeout: 15000 });
     await page.locator('.option').nth(1).click();
     await page.getByRole('button', { name: 'That\'s my guess' }).click();
-    await page.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await page.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     await page.locator('.lsn-ask').click();
     await page.locator('.tutor-input').fill('Why does length matter?');
     await page.locator('.tutor-input').press('Enter');
@@ -1998,7 +1999,7 @@ async function tutorTarget() {
   try {
     // Play reopened, so its interactive is on the page too (its length stays at 1 m).
     await page.locator('.lsn-past[data-stage="play"] summary').click();
-    await page.locator('.lsn-past[data-stage="play"] .lsn-selfcheck').waitFor({ timeout: 15000 });
+    await page.locator('.lsn-past[data-stage="play"] [data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     await page.waitForFunction(() => { const q = document.querySelector('.lsn-check .qc-type-target'); return q && q.mount; }, null, { timeout: 15000 });
     await page.evaluate(async () => { const m = document.querySelector('.lsn-check .qc-type-target').mount; await m.ready; await m.set('L', 2.2); });
     await page.locator('.lsn-ask').click();
@@ -2033,7 +2034,7 @@ async function notesChoice() {
   const planet = () => page.locator('.lsn-num', { hasText: 'Planet' }).locator('.lsn-num-now');
   try {
     const play = page.locator('.lsn-stage[data-stage="play"]');
-    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     const disc = play.locator('.lsn-disc', { hasText: 'What am I looking at?' });
     await disc.locator('summary').click();
     await page.waitForTimeout(1200);
@@ -2065,7 +2066,7 @@ async function notesChoice() {
   const planet2 = () => app2.page.locator('.lsn-num', { hasText: 'Planet' });
   try {
     const play = app2.page.locator('.lsn-stage[data-stage="play"]');
-    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     const disc = play.locator('.lsn-disc', { hasText: 'What am I looking at?' });
     const now = async () => { await disc.locator('summary').click(); await app2.page.waitForTimeout(1200); const n = planet2().locator('.lsn-num-now'); const r = { hidden: await n.isHidden(), text: await n.textContent(), start: await planet2().locator('.lsn-num-val').textContent() }; await disc.locator('summary').click(); return r; };
     let r = await now();
@@ -2382,7 +2383,7 @@ async function readScenario(width, dark, withReveal) {
     ok(await play.locator('.eyebrow').first().textContent() === 'Explore', 'the stage is Explore');
     ok(await page.locator('.lsn-one').isVisible(), 'the idea\'s one line shows from the start (no guess to give away)');
     ok(await play.locator('.lsn-lede').textContent() === 'Try this: drag the length slider.', 'the "Try this" lede before playing');
-    await play.locator('.lsn-selfcheck').waitFor({ timeout: 15000 });
+    await play.locator('[data-selftest]').waitFor({ state: 'attached', timeout: 15000 });
     await noOverflow(app);
     await shot(app, `read-${tag}-1-explore`);
     await page.getByRole('button', { name: 'I\'ve had a play' }).click();
