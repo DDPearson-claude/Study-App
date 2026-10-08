@@ -53,3 +53,12 @@ when; the Saturday order below is for the Maths shelf. For each course: plan it,
 no word limits; his background as an electrician), save the topic and its lessons to the db as
 'ready' (mode 'read' unless he says otherwise), then set that course's `tid` in shelves/maths so
 it shows "Ready to browse". Order: folder by folder, as listed.
+
+## Paused (8 Oct): how to teach the pre-built courses
+Dan: the off-the-shelf courses need not follow the organic lesson flow. Research only, no course
+writing yet: how Brilliant structures and teaches a lesson; what the learning science says about
+ordering explanation, examples, interactives, practice and review for adult self-study on a phone;
+how Khan Academy, Math Academy, Duolingo, the Open University and MOOCs structure courses;
+Gagne, Merrill, 4C/ID, Rosenshine and UK electrical training; and the app's own current flow and
+limits, for contrast. Five researchers were started and stopped before writing notes when Dan
+paused for tokens. Pick up on Saturday: redo the research and write one report into docs/research/.
