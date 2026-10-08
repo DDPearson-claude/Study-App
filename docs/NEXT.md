@@ -54,11 +54,14 @@ no word limits; his background as an electrician), save the topic and its lesson
 'ready' (mode 'read' unless he says otherwise), then set that course's `tid` in shelves/maths so
 it shows "Ready to browse". Order: folder by folder, as listed.
 
-## Paused (8 Oct): how to teach the pre-built courses
+## Research (8 Oct): how to teach the pre-built courses
 Dan: the off-the-shelf courses need not follow the organic lesson flow. Research only, no course
 writing yet: how Brilliant structures and teaches a lesson; what the learning science says about
 ordering explanation, examples, interactives, practice and review for adult self-study on a phone;
 how Khan Academy, Math Academy, Duolingo, the Open University and MOOCs structure courses;
 Gagne, Merrill, 4C/ID, Rosenshine and UK electrical training; and the app's own current flow and
-limits, for contrast. Five researchers were started and stopped before writing notes when Dan
-paused for tokens. Pick up on Saturday: redo the research and write one report into docs/research/.
+limits, for contrast. Done 8 Oct: the report is docs/research/how-to-teach-pre-built-courses.md
+(its notes in docs/research/pre-built-courses-notes/). Its recommendation, for Dan to accept or
+change: levelled courses of short explain-first lessons (orient, one skippable prediction, named
+rule with a worked example, a goal-wrapped interactive, faded practice feeding review, say it back,
+recap), with a mixed closed-book Level Review after every 4-8 lessons. Nothing is built from it yet.
