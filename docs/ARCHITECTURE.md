@@ -418,7 +418,7 @@ review); learning the idea again clears it.
 `progress.dossier === false` (absent or true: on; private, so turning it on or off never moves the
 course in Learn's list). Each idea he finishes is bound as a chapter: a snapshot of the lesson's own
 content when he finishes it, taken again (a new edition) when he learns it again. It is a
-teach-you-how book (v9): the explanation, analogy, key facts card, plate, "Put it into practice" and
+teach-you-how book (v9): the explanation, analogy, plate, "Put it into practice" and
 sources, and never a test question, answer or trap (the snapshot no longer keeps checks; older
 chapter docs that still hold them are never printed). Nothing he wrote, chose or scored is ever
 read into a dossier: not `topic.query`, `progress.ideas[iid]` beyond
@@ -450,26 +450,95 @@ dossier (kept by default; the plain confirmation when it has none): kept, everyt
 bound first and the index marked `kept`; otherwise the dossier docs are removed after the course.
 A kept dossier opens with no course behind it.
 What the pages print is derived by fixed rules (`U.dossier.model` and the page builders), so nothing
-is invented: the field note is the explanation's closing all-bold paragraph (taken out of the
-explanation); the clipping is the first quoted source cited after its opening paragraph; "Where it
-breaks" is `analogy.breaks`; "Look for" is the brief without "The one thing you should see is"; the
-circled number is the first cited constant the explanation does not already quote; Compare is the
+is invented: the field note (the Key idea tile) is the explanation's closing all-bold paragraph
+(taken out of the explanation); the clipping is the first quoted source cited after its opening
+paragraph; "Where it breaks" is `analogy.breaks`; "Look for" is the brief without "The one thing you
+should see is"; "A number from the sources" is the first cited constant the explanation does not
+already quote; Compare is the
 plan's `deps` and the ideas that build on this one (links only to bound chapters); How certain is
 `confidence` said once (or "Not yet source-checked" for an unsourced lesson); the glossary is each
 `[[term]]` with the sentence that introduces it (with the one before when it opens "This/That/
 These/It/Such"); the bibliography is one entry per address across the research and the bound
 lessons, title split on " — " into work and publisher, with the chapters resting on it. "Put it into
-practice" is `lesson.practice.text` sorted by `U.dossier.practiceParts` into the journal's parts,
+practice" is `lesson.practice.text` sorted by `U.dossier.practiceParts` into the practice page's parts,
 word for word: a part is named by its own lead label (on a line of its own, "**Label**", "## Label",
 or before its text, "Label:" / "**Label:**"), the label's words saying which part ("mistake",
 "pitfall", "avoid"… the common mistakes; "rule" the rules of thumb; "example", "worked" the worked
 example; "step", "how to", "checklist"… the steps); with no label, the first list is the steps, a
 paragraph that opens by naming its part ("For example, …", "A common mistake …") is that part,
-and any other block carries on the labelled part before it, else is plain prose. The page prints
-the steps as an ink checklist, the rules of thumb on a taped card, the worked example as a field
-note and the common mistakes in red ink. A chapter without practice (bound before lessons had it)
-ends with its sources on a page of their own. The kind sketches mark the idea's kind, never the
-topic.
+and any other block carries on the labelled part before it, else is plain prose. A chapter without
+practice (bound before lessons had it) ends with its sources on a page of their own. The title is
+always `topic.title` (the index's `title`), never `topic.query`; the focus bar's mono path names the
+course by the title's words (`U.slug(title)`), never the query either.
+
+The pages (the field guide, design 3, Dan's choice on 10 Oct; `docs/design/dossier-field-guide/`)
+are D4 tiles in the app's own tokens (section 12): two columns with a 10 px gap and 16 px gutters
+on a phone, four columns from 55rem (`#view`) up to `--wide`, half tiles going across where the
+page is under 18.5rem for its words (a phone at the larger text sizes). Tiles: white (headline
+tiles, the chapters grid, finished dossiers; the page's first tile carries `--shadow`), grey
+(`--sunk`, reading panels), emphasis (2 px `--edge`, a hard 3 px shadow: the key idea, the rule of
+thumb), ink (`--heading`: progress only, the Bound tile), warning (`--red`: where it breaks, each
+mistake) and dashed (chapters not yet written, kept dossiers). Labels are `--mono` in capitals,
+the idea's kind `--cond` in `--teal`, everything else Barlow (`--sans`); Easier reading turns all
+of it to Atkinson. The page builders, in reading order (`model().leaves`):
+- **At a glance** (`#/book/:tid`; the cover and the contents in one): the title tile ("Dossier 01 ·
+  A course in 8 ideas", the title as h1), the course picture (when pictures are on, said to be
+  drawn by an image model), Bound (ink: a ring and n/N; finished: "Finished", the date and a green
+  ring; kept: "Kept from a deleted course") beside Begun (the date, the year and the number of
+  sources), the chapters grid (a cell per idea: a bound one links, with an ink tick; an unbound one
+  is dashed, not a link, and says "not yet written" to a screen reader), the question it set out to
+  answer (`hook`), In one breath, Keep a copy (Save a copy), then the glossary and bibliography as
+  two small tiles. A finished dossier's date sits beside a smaller ring, sized to the tile, and the
+  ring and the stats go one above the other only where they do not fit side by side, so the date
+  never runs out of the ink. From 55rem, in the same order: Bound over Begun beside the picture,
+  the chapters four a row, then the question beside In one breath.
+- **A chapter** (`#/book/:tid/:iid`), top to bottom: the header (the numeral in its box, "Chapter
+  II of VIII" and the kind, the idea title as h1), Key idea (the field note; none, no tile), the
+  plate (grey: "Plate II" and its title as the plate's h2, and Tap to play, over the lesson's
+  interactive in a flat `--surface` well, asleep until played, then "Look for"; a plate too big to
+  keep shows its note), What's going on (the explanation with key terms and source chips, the
+  clipping after the paragraph that cites it), Think of it like beside Where it breaks (the analogy
+  across when it has no breaks), Compare (the small labels "Builds on" and "Comes back in", then a
+  row per chapter as in the bibliography, its numeral and title, a link only when bound; one link
+  to a line, so no tap lands on a neighbour) beside How certain (three pills, this chapter's filled),
+  then the plate's notes (A number from the sources and What you're looking at and What this model
+  leaves out, two short ones side by side), The numbers on this plate (n), then the contested views
+  (a tile each, two to a row). Every tile's label is its h2. The plate's height is held from the
+  first paint, as a lesson's panel is: the height this device last measured for that plate at that
+  width (`localStorage` `mu-dos-h:{tid}:{iid}`, plus `:wide`/`:laptop`), else 720 px, so what
+  follows barely moves when it arrives; a look, never written to the dossier.
+  From 55rem the header and key idea run across, the plate and the explanation take three of the
+  four columns and the analogy, Where it breaks, Compare and How certain stack beside them; the
+  notes and the views follow across the four columns, two to a tile.
+- **Put it into practice** (`/:iid/practice`): a heading with no tile ("Chapter II · title"), the
+  parts as tiles (`practiceParts`): the steps as a numbered ink checklist in a white tile, the rule
+  of thumb in the emphasis tile (its first sentence large, the rest smaller, word for word; the
+  first sentence is 34 px up to 26 characters, then steps down to 26 px up to 70 and 21 px beyond,
+  so a long one stays a few lines), the
+  worked example and any other prose in grey, the common mistakes as one warning tile each, two to
+  a row (an odd last one across; a part written as paragraphs, one tile across), then Sources: a
+  grey tile per source, two to a row, with its number chip, the publisher (the title split on
+  " — "), the quote and the host, opening in a new tab.
+- **Glossary and bibliography** (`/glossary`, `/bibliography`): a grey tile per term (the term
+  highlighted, its sentence, "First met in chapter …") and per bibliography entry (the chapters
+  resting on it as a row each, its numeral and title, its quotes collapsible); with no key terms the
+  page is the bibliography alone. Opened at `/bibliography`, the path and the page bar say
+  "bibliography" (the same page of the book).
+Links Dan taps on their own (a source's host, a chapter in the bibliography, "First met in …",
+Compare's chapters, the page bar) keep a 44 px target, and no target covers another link or the
+words before it: two links never share a line of running text (a target stretched into the lines
+around it would cover its neighbours, so Compare's chapters are rows), and "First met in …" reaches
+only into the space above it, never over the definition.
+Every dossier page has D4's focus bar (an outlined back button one level up: a chapter to At a
+glance, its practice to the chapter, At a glance to the Library; the mono path, the course's part
+giving way first, cut at a whole character so its ellipsis meets the next slash; Aa) and the
+floating page bar (section 10). Save a copy writes the same tiles as one static page, in the same
+order. The Library's Dossiers (`#/library/dossiers`): a lead tile for the dossier most recently
+bound that is still being written (its ring, and a bar per idea: bound ones filled ink, the rest
+dashed, numerals under them in `--muted`; over 10 ideas, narrower bars with no numerals in
+balanced rows of up to 12, read left to right; the bars go below the ring where they do not fit
+beside it), then half tiles (being written, finished, kept) and "In your own words"; a load error
+shows the app's error panel on its own, not inside a tile.
 
 **Course pictures** (35-art.js, version 10). `prefs.pictures`: absent until Dan answers Learn's
 one-time question (asked below his topics once the profile has been read, only when the connector
@@ -500,9 +569,9 @@ Settings' Open permissions / Check again (refusals before then are due again). "
 on the topic page redraws in the foreground (a second tap joins the first) and keeps the old
 picture until the new one is saved. Writes are quiet (never held, never a toast, never red);
 nothing is written once the course is gone. The pictures are read once the app has booted (when
-shown), so covers and the plate have them before they are drawn. Shown inside every V.cover svg
-(`image.cv-art`, a little dimmer in dark mode) and as the dossier's frontispiece on its title
-page, unless `prefs.pictures === false`; the topic page says it was drawn by an image model, for
+shown), so covers and the dossier's picture tile have them before they are drawn. Shown inside
+every V.cover svg (`image.cv-art`, a little dimmer in dark mode) and as a tile on the dossier's At a
+glance page (said to be drawn by an image model), unless `prefs.pictures === false`; the topic page says it was drawn by an image model, for
 decoration only. Deleting a course deletes its picture unless its dossier is kept.
 
 ## 5. Lesson JSON (what generation writes, what the player plays)
@@ -651,8 +720,9 @@ stored answers, learned at `doneAt`, exactly as finishing would have made them.
 The model writes only the body (HTML, optional `<style>`, one inline `<script>` ending with
 `K.ready()`, at most 150 KB). `U.sandbox.srcdoc` puts the CSP first in `<head>`, then charset,
 viewport, the kit CSS, `window.K_THEME` (`{dark, size, c:{palette}, roles?}`: `roles`, host-written
-and never model-written, replaces the kit's own data roles hl, amberLine and fill1-3, as the
-dossier's ink-on-paper plates do; without it the kit keeps its tuned roles; cat1-4 are always the
+and never model-written, replaces the kit's own data roles hl, amberLine and fill1-3, for a host
+with a palette of its own (none today: the dossier's plates take the app's theme); without it the
+kit keeps its tuned roles; cat1-4 are always the
 kit's), `window.K_BODY_LINE` (for error line numbers),
 `window.K_TOKEN` (the frame's random token) and `window.K_QUIZ` (the output quiz mode hides, or
 null), and the kit JS; the body follows in `<body>`. CSP: `default-src 'none'; script-src 'unsafe-inline';
@@ -1208,7 +1278,8 @@ U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg)
    a frame that starts to navigate away (or throws its page away) is removed at once and its later messages
    refused; one that stops answering the heartbeat is removed too (section 6); one removed from the page is
    destroyed. quiz / reveal: quiz mode (section 6). theme: a function giving the K_THEME to use instead of
-   the app's (the dossier's ink-on-paper plates), asked again on every theme or text-size change.
+   the app's (none today: the dossier's plates take the app's, like a lesson), asked again on every theme
+   or text-size change.
 U.sandbox.test(html, {widths = [340, 720, 1040], timeout = 8000, theme}) -> Promise<Report>   hidden frames, one width
    at a time, merged: a message seen at only some widths ends " [at 340 and 720 px wide]", a check
    passes only at every width whose page ran, ids / inputs / actions come from the first width that
@@ -1328,16 +1399,17 @@ U.dossier (75-dossier.js)   the course dossier (section 4, Dossiers; routes and 
    pure: chapterFrom(topic, iid, lessonDoc, doneAt, prevEntry) -> chapter | null;  researchFrom({key: researchDoc});
      practiceParts(text) -> [{kind: 'steps'|'rules'|'example'|'mistakes'|'prose', label, paras, items, ordered}];
      indexFrom(topic, progress, prevIndex, research, {iid, info}?) -> index patch;  model(book) -> what every page prints
-     (chapters, bound, glossary, works, leaves = the page order, done, finished);  due(topic, progress, index) -> [iid];
-     countOf(index);  bytes(s);  LIMIT (240 KB);  PLATE_NOTE;  INK (the plate's K_THEME palettes and roles)
+     (chapters, bound, glossary, works, leaves = the page order: [{id, href, k, t, part?, n?, rn?, p?, at?}]
+     glance, then iid:chapter and iid:practice per bound chapter, then back; done, finished);  due(topic, progress, index) -> [iid];
+     countOf(index);  bytes(s);  LIMIT (240 KB);  PLATE_NOTE
    on(progress) -> keeps a dossier;  bind(tid, iid, {doc, doneAt, topic?, progress?}) -> Promise<chapter | null> (never rejects);
    sync(tid, {force, topic, progress, index}) -> Promise<n bound> (once per page load per course);  setOn(tid, bool);
    keep(tid) (bind what is finished, mark kept);  remove(tid);  load(tid) -> book | null
-   shelf(box, ctx) -> cleanup (the Library's Dossiers section);  option(tid, progress, index, total) -> the topic page's
-   "Keep a dossier";  confirmDelete(tid, title, progress) -> Promise<{keep} | null>;  fonts() (the hand-lettered fonts:
-   a second Google Fonts link, added the first time the Library or a dossier is drawn);  inkTheme()
-   exportHtml(model) -> one self-contained HTML file (styles inline, fonts by link with fallbacks, the plate as
-   static text, no scripts);  save(model) -> U.saveFile('dossier-<slug>-<day>.html', …, 'text/html')
+   shelf(box, ctx, {after}) -> cleanup (the Library's Dossiers: its tiles, ending with `after`);  ownTile(href) ->
+   the "In your own words" tile;  option(tid, progress, index, total) -> the topic page's "Keep a dossier";
+   confirmDelete(tid, title, progress) -> Promise<{keep} | null>;
+   exportHtml(model) -> one self-contained HTML file in the same tiles (styles inline, light and dark, Barlow by link
+   with system fallbacks, the plate as static text, no scripts);  save(model) -> U.saveFile('dossier-<slug>-<day>.html', …, 'text/html')
 U.settings.prefs / apply(prefs) / set(key, value) / fromProfile(prefs) / readLocal() / backup() / open()
 U.boot.study   visible, recently touched time (TICK 15 s, IDLE 2 min), logged with U.logStudy in 2-minute chunks;
    a kit 'change' from an interactive on screen (iframe.kit-iframe, not a hidden test frame) counts as a touch
@@ -1363,21 +1435,35 @@ topics started here are not source-checked); "Not connected." with the steps to 
 #/review               review   focus        60-today.js
 #/review/more          review   focus        one batch beyond the daily cap
 #/map                  map      tab map      72-map.js
-#/book                 book     tab book     73-book.js   the Library: the dossiers' shelves (75-dossier.js), then "In your own words"
+#/book                 book     tab book     73-book.js   the Library: two choices, Dossiers and Ready-made courses
+#/library/dossiers     library  tab book     73-book.js   the dossiers as tiles (75-dossier.js), then "In your own words"
+#/library/courses      library  tab book     76-shelves.js   Ready-made courses (and #/shelf/:sid, #/shelf/:sid/:fid)
 #/book/words           book     tab book     73-book.js   the Book (Dan's own words), linked from the Library
-#/book/:tid            dossier  focus        75-dossier.js   a dossier's cover; its pages, in reading order:
-#/book/:tid/contents                                         title page | contents
-#/book/:tid/:iid                                             a chapter's idea | explanation and analogy
-#/book/:tid/:iid/plate                                       the plate (asleep until Tap to play) | its notes; /plate/play: awake
-#/book/:tid/:iid/practice                                    put it into practice | sources (sources alone without practice;
-                                                             /tests, its older address, opens the same leaf)
-#/book/:tid/glossary   (and /bibliography: the same leaf, at the bibliography on a phone)
+#/book/:tid            dossier  focus        75-dossier.js   a dossier's pages, in reading order: At a glance (cover and contents)
+#/book/:tid/:iid                                             a chapter, with its plate (asleep until Tap to play)
+#/book/:tid/:iid/practice                                    put it into practice and its sources (sources alone without practice;
+                                                             /tests, its older address, opens the same page)
+#/book/:tid/glossary   (and /bibliography: the same page, at the bibliography)
+#/book/:tid/contents   older addresses: At a glance at its chapters grid;
+#/book/:tid/:iid/plate   the chapter page at its plate (/plate/play: the plate awake)
 ```
-- A dossier page is one leaf: two pages side by side when the book is at least 55rem wide, else
-  one after the other. An unbound chapter's address shows the contents; a dossier with none bound
-  still has a cover and contents. The turn links, the desk arrows (1100 px and up, aria-hidden)
-  and the arrow keys (not inside the plate, a form control, details, a sheet or a source card)
-  go through the page order (`model().leaves`). Topic ids are `slug-xxxxx`, so `words` is never one.
+- A dossier page is one page of tiles (section 4, Dossiers): a chapter is two page turns, the
+  chapter (the plate on it) and its practice. An unbound chapter's address shows At a glance at its
+  chapters; a dossier with none bound still has At a glance. The old addresses keep their hash and
+  draw the page they now belong to. The page bar floats at the bottom in the D4 tab bar's frame
+  (62 px, 2 px `--edge`, radius 16 px; centred, at most 34rem, from 40rem): the previous page on
+  the left (a chevron and its name: "Contents", "Chapter II", "Practice", another chapter's practice
+  by its numeral alone, "Ch. I", the rest of its name said to a screen reader), where he is in mono
+  in the middle ("at a glance", "II · 1 of 2" over one `--step` segment per page of the chapter,
+  "glossary", or "bibliography" when opened there), the next page on the right as the ink button.
+  Where he is is never cut: when the bar is narrow " · 1 of 2" drops away whole and the numeral
+  stays, a page's name may take two lines, and a bar under 17rem (a small phone at XL) shows the
+  previous page by its chevron alone (still 44 px, its name still said). The
+  book starts and ends at the Library (the bar's first back and last next). The page bar and the
+  arrow keys (not inside the plate, a form control, details, a sheet or a source card; the Library
+  is not a page, so they stop at either end) go through the page order (`model().leaves`); the
+  reader says which page it shows (`.dos.reader[data-leaf]`). Topic ids are `slug-xxxxx`, so
+  `words` is never one.
 - `U.routes.add(pattern, handler, {focus, tab, title, screen})`; `handler(params, ctx)` draws
   into `ctx.view` and may return a cleanup (or a promise of one); `ctx.alive()` is false once
   Dan has moved on. `U.go(hash)` navigates (the same hash draws again).
@@ -1387,8 +1473,8 @@ topics started here are not source-checked); "Not connected." with the steps to 
 - Params must pass `U.validId`, else "This page is not here" (`U.notHere`, screen `none`). An
   unknown address or a bad %-escape goes to `#/` without a history entry.
 - On every route: the old cleanup runs, sheets close, a cheer still showing goes, `#view` is cleared and gets `data-screen`
-  (opts.screen, else from the pattern: learn, topic, lesson, today, review, map, book, dossier for
-  `#/book/:tid…` but not `#/book/words`);
+  (opts.screen, else from the pattern: learn, topic, lesson, today, review, map, book, library
+  (`#/library/…`), shelf, dossier for `#/book/:tid…` but not `#/book/words`);
   `html.focus` hides the top bar and tabs; the tab gets `aria-current`; the title is
   `opts.title · My University` until the view calls `U.setTitle`; the page scrolls to the top
   and focus moves to the screen's h1 once it is drawn (unless Dan has focused something else), and
@@ -1433,10 +1519,11 @@ topics started here are not source-checked); "Not connected." with the steps to 
   screen lays out by the width it actually gets (a framed phone column gets phone shapes).
   Shell rules key off `data-layout`: tabs docked at the bottom or in the top bar, sheets as
   bottom sheets (swipe down to close) or centred dialogs (up to 620 px).
-- Laptop widths by `#view[data-screen]`: Learn, the topic page, the Map and the Library (its two
-  shelves side by side from 900 px) run up to `--wide` (1200 px); a dossier page takes the whole
-  window (no column, no padding) under its own sticky leather bar, the book a size container
-  ("book") inside it, so a phone pinned on a wide window gets the phone shapes; the lesson and the review up to 1120 px, with reading text capped at `--measure`
+- Laptop widths by `#view[data-screen]`: Learn, the topic page, the Map and the Library (book and
+  library: its dossiers four tiles a row from 38rem, the lead one two wide) run up to `--wide`
+  (1200 px); a dossier page takes the whole window (no column, no padding) with its focus bar and
+  tiles up to `--wide` inside it, laid out by `@container view` (so a phone pinned on a wide window
+  gets the phone shapes); the lesson and the review up to 1120 px, with reading text capped at `--measure`
   (44rem) and the interactive full width; every other screen keeps the 720 px column (`--col`).
   Tab screens all start at the wide screens' left edge, so headings do not move when Dan
   switches tabs. When `#view` is at least 900 px wide a review card keeps the question and
@@ -1468,15 +1555,18 @@ topics started here are not source-checked); "Not connected." with the steps to 
 ## 12. D4: Claude's notes (the look Dan chose on 10 Oct)
 
 Dan chose design D4 from the redesign canvas: a calm dashboard look in which Claude's words arrive
-as comment cards. Two parts, both additive (no screen's markup or behaviour was taken away):
+as comment cards. Two parts, both additive (no screen's markup or behaviour was taken away), and then the dossier:
 
 - **The look**, `app/src/css/80-d4.css`, loaded last. It restates the tokens of `00-tokens.css` for
   light and dark (a dotted canvas, near-black ink for headings, controls and progress, grey panels
   `--sunk` for what Dan reads, white cards outlined in `--edge` for what he acts on) and adds its own:
   `--edge`, `--dot`, `--due`/`--due-ink`/`--due-tint` (what is due, chart marks), `--step` (the
-  lesson's segmented progress), `--pin` (Claude's avatar), `--cond` (Barlow Semi Condensed, labels)
+  lesson's segmented progress), `--pin` (Claude's avatar), `--green-on-heading` (green on an ink
+  tile, which is light in dark mode: `--green` in light, #2E7D4F in dark, 4.3:1 there), `--bar-off`
+  (the dashed outline of a bar not yet filled: `--line-strong`, `--muted` in dark), `--cond` (Barlow Semi Condensed, labels)
   and `--mono` (JetBrains Mono, where he is: the lesson's eyebrow, the review's line). `--sans` and
-  `--serif` are Barlow; the dossier keeps Literata (`.dos` restores `--serif`) and its own palette.
+  `--serif` are Barlow, the dossier's included (Literata is no longer loaded): the dossier is drawn
+  in the same tokens, as tiles (section 4, Dossiers; `75-dossier.css`).
   Easier reading still sets Atkinson everywhere, labels and mono included. Colour keeps its meaning:
   ink = controls and progress, green = right and finished, red = mistakes and warnings, teal = small
   labels, amber = key terms, "remember this" and what is due. The phone's tabs float in an outlined
@@ -1487,6 +1577,11 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   edge), not opacity, so the canvas's dots never show through. `.note` (a note card) never applies
   to the lessons' own `callout note` notices. The kit's palette is unchanged (accent2 = `--heading`,
   now ink), so interactives match without a rebuild.
+- **The dossier** (design 3, "the field guide", chosen on 10 Oct; `docs/design/dossier-field-guide/`)
+  took the same look in place of its field journal (cloth covers, tape, stamps, ring stains,
+  hand-lettered fonts, Literata, its own ink palette for the plates): tiles in the token names
+  above, D4's focus bar, a floating page bar in the tab bar's frame, and the plates in the app's kit
+  theme like a lesson's. Its data and derivation rules did not change (section 4, Dossiers).
 - **Claude's notes**, `app/src/js/52-notes.js` (`U.notes`): `avatar(who)`, `byline(who, context)`,
   `card({who, context, title, text, body, actions})`, `list({title, id, notes})` and
   `reply({chips, placeholder, label, onAsk(text, chip)})`. `who` is honest: `'claude'` only for words

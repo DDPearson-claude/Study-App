@@ -1,15 +1,15 @@
-// The course dossier (docs/ARCHITECTURE.md sections 4, 9 and 10): a course bound as a naturalist's
-// field journal, a teach-you-how book. Each idea Dan finishes in a course that keeps one (the topic
-// page's "Keep a dossier", on by default: progress.dossier !== false) is bound as a chapter: a
-// snapshot of the lesson's own teaching, taken when he finishes it (50-lesson.js calls
-// U.dossier.bind) and taken again when he learns it again (the newest edition). Ideas finished
-// before dossiers existed are bound from the stored lesson docs the first time the Library or the
-// dossier opens (sync).
+// The course dossier (docs/ARCHITECTURE.md sections 4, 9, 10 and 12): a course bound as a field
+// guide, a teach-you-how book drawn in D4's tiles (design 3, Dan's choice on 10 Oct). Each idea
+// Dan finishes in a course that keeps one (the topic page's "Keep a dossier", on by default:
+// progress.dossier !== false) is bound as a chapter: a snapshot of the lesson's own teaching, taken
+// when he finishes it (50-lesson.js calls U.dossier.bind) and taken again when he learns it again
+// (the newest edition). Ideas finished before dossiers existed are bound from the stored lesson docs
+// the first time the Library or the dossier opens (sync).
 //
 // Only the course's teaching is printed, never anything Dan wrote, chose or scored, and never a
 // test: no say-it-back, no predict, no questions, answers or results, no "This looks wrong" notes,
-// not even the words he typed to start the course (topic.query). What it keeps is what he could
-// pick up and use: the explanation, the analogy, the key facts card, the plate, "Put it into
+// not even the words he typed to start the course (topic.query; the title is topic.title). What
+// it keeps is what he could pick up and use: the explanation, the analogy, the plate, "Put it into
 // practice" (lesson.practice) and the sources. The only things about him are dates (begun,
 // finished, learned on) and how many chapters are bound. Model text goes in through U.h / U.rich
 // / U.inline as text; the plate (the lesson's interactive) runs only in the sandboxed kit frame.
@@ -18,10 +18,12 @@
 // profile/dossiers/{tid}/chapters/{iid} (one doc per chapter, under LIMIT bytes: a plate that
 // would not fit is left out with a note). A dossier outlives its course when Dan keeps it.
 //
-// Routes (the Library itself is #/book in 73-book.js):
-//   #/book/:tid  cover · /contents · /:iid (the idea) · /:iid/plate (/play: awake)
-//   · /:iid/practice (put it into practice | sources; /tests, an older address, opens it too)
-//   · /glossary · /bibliography (the same leaf, at the bibliography)
+// Pages, in reading order (model().leaves; the Library itself is #/library/dossiers in 73-book.js):
+//   #/book/:tid  at a glance (the cover and contents in one; /contents, an older address, opens it
+//   at the chapters) · per bound chapter: /:iid the chapter, with its plate (/plate, older: at the
+//   plate; /plate/play: awake) and /:iid/practice put it into practice and its sources (/tests, an
+//   older address, opens it too) · /glossary and the bibliography (/bibliography: the same page, at
+//   the bibliography).
 //
 // Pure parts (chapterFrom, researchFrom, indexFrom, practiceParts, model) touch no DOM, so Node
 // tests run them.
@@ -36,16 +38,6 @@
     contested: 'Experts disagree. The main views are set side by side.',
   };
   var UNSOURCED = 'Not yet source-checked: Claude wrote this from what it already knows.';
-  var CLOTH = ['#36324F', '#2F4536', '#5A2B24', '#2E3F52', '#4A2D40', '#5E4126'];
-  var FONTS = 'https://fonts.googleapis.com/css2?family=Walter+Turncoat&family=Patrick+Hand&family=Patrick+Hand+SC&family=Permanent+Marker&family=Special+Elite&display=swap';
-  // The plate in ink on paper: the kit's palette and its data roles (K_THEME.roles), for 32-sandbox.js.
-  var INK = {
-    light: { c: { bg: '#F8F1E0', panel: '#EFE6CF', sunk: '#E4D8BC', ink: '#2B2119', muted: '#5A4936', line: '#D3C4A2', strong: '#A08B63', accent: '#1B5B55', accent2: '#1F3A5C', onAccent2: '#F8F1E0', warn: '#962A22', good: '#2B6639', amber: '#F3E3B0' },
-      roles: { hl: '#F1D488', amberLine: '#8A5A12', fill1: '#D8DCD8', fill2: '#EDCF83', fill3: '#D2DFD3' } },
-    dark: { c: { bg: '#2E2820', panel: '#272119', sunk: '#3A3228', ink: '#EAE0CC', muted: '#C4B59B', line: '#4A4034', strong: '#6E604D', accent: '#8CD0C5', accent2: '#AFC6E3', onAccent2: '#1E1A15', warn: '#F2A79D', good: '#97D5A8', amber: '#4A3A1A' },
-      roles: { hl: '#6A5320', amberLine: '#E2B458', fill1: '#3A4048', fill2: '#7A5E22', fill3: '#2F4441' } },
-  };
-
   // =====================================================================================
   // SNAPSHOT (pure): what a chapter and the index keep, from course content only
   // =====================================================================================
@@ -157,8 +149,7 @@
   function roman(n) { var r = ''; [[10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']].forEach(function (p) { while (n >= p[0]) { r += p[1]; n -= p[0]; } }); return r; }
   function paras(t) { return str(t).replace(/\r/g, '').split(/\n{2,}/).map(function (s) { return s.trim(); }).filter(Boolean); }
   function splitTitle(t) { var p = str(t).split(' — '); return { title: p[0].trim(), pub: (p[1] || '').trim() }; }
-  function termsOf(L) { var out = [], re = /\[\[([^\]]+)\]\]/g, m, t = str(L && L.explain && L.explain.text); while ((m = re.exec(t))) if (out.indexOf(m[1]) < 0) out.push(m[1]); return out; }
-  // "Put it into practice" (lesson.practice.text, U.rich text) sorted into the journal's parts by
+  // "Put it into practice" (lesson.practice.text, U.rich text) sorted into the practice page's parts by
   // fixed rules, word for word (nothing reworded or added): a part is named by its own lead label,
   // on a line of its own or before its text ("**Steps**", "Rule of thumb:", "**Worked example:**",
   // "## Common mistakes"); the label's words say which part it is (PRACTICE). A list with no label
@@ -196,7 +187,9 @@
       var lead = leadOf(lines[0]), own = lead || carry;
       carry = null;
       // The label becomes the heading, so the words after it start the part: a capital, as a sentence.
-      if (lead) { lines[0] = lead.rest.replace(/^([^A-Za-z]*)([a-z])/, function (m, a, b) { return a + b.toUpperCase(); }); if (!lines[0]) lines.shift(); }
+      // Only a lower-case letter is raised, with nothing but punctuation or markup before it: a
+      // number stops it ("2400 mm" never becomes "2400 Mm"; "2.3 kW" keeps its unit).
+      if (lead) { lines[0] = lead.rest.replace(/^([^\p{L}\p{N}]*)(\p{Ll})/u, function (m, a, b) { return a + b.toUpperCase(); }); if (!lines[0]) lines.shift(); }
       if (!lines.length) { carry = lead; return; }   // a label on its own: it names the next block
       var ps = [], items = [], ordered = false;
       lines.forEach(function (l) {
@@ -264,15 +257,17 @@
     });
     gloss.sort(function (a, b) { return a.term.localeCompare(b.term); });
     var hasBack = gloss.length > 0 || works.length > 0;
-    // The reading order, for page turns: cover, contents, each bound chapter's leaves, back matter.
-    var leaves = [{ id: 'cover', href: base, k: 'Cover' }, { id: 'contents', href: base + '/contents', k: 'Contents' }];
+    // The reading order, for page turns: at a glance (the cover and contents in one), each bound
+    // chapter's two pages (the chapter with its plate; put it into practice and its sources), then
+    // the back matter. k: the page bar's name for it; t: its full name; n, rn, p: its chapter and
+    // which of the chapter's two pages it is; at: what the page bar says on it.
+    var leaves = [{ id: 'glance', href: base, k: 'Contents', t: 'At a glance', at: 'at a glance' }];
     bound.forEach(function (c) {
-      leaves.push({ id: c.idea.id + ':1', href: c.href, k: 'Chapter ' + c.rn, t: c.idea.title });
-      if (c.hasPlate) leaves.push({ id: c.idea.id + ':2', href: c.href + '/plate', k: 'Plate ' + c.rn, t: c.lesson.interactive.title });
-      leaves.push(c.practice ? { id: c.idea.id + ':3', href: c.href + '/practice', k: 'Put it into practice', t: 'and sources, chapter ' + c.rn }
-        : { id: c.idea.id + ':3', href: c.href + '/practice', k: 'Sources', t: 'chapter ' + c.rn });
+      leaves.push({ id: c.idea.id + ':chapter', href: c.href, k: 'Chapter ' + c.rn, t: 'Chapter ' + c.rn + ': ' + c.idea.title, part: 'chapter', n: c.n, rn: c.rn, p: 1 });
+      leaves.push({ id: c.idea.id + ':practice', href: c.href + '/practice', k: c.practice ? 'Practice' : 'Sources',
+        t: (c.practice ? 'Put it into practice and sources, chapter ' : 'Sources, chapter ') + c.rn, part: 'practice', n: c.n, rn: c.rn, p: 2 });
     });
-    if (hasBack) leaves.push({ id: 'back', href: base + '/glossary', k: 'Glossary', t: 'and bibliography' });
+    if (hasBack) leaves.push({ id: 'back', href: base + '/glossary', k: gloss.length ? 'Glossary' : 'Bibliography', t: 'Glossary and bibliography', at: gloss.length ? 'glossary' : 'bibliography' });
     var done = N > 0 && bound.length >= N;
     var finished = done ? bound.reduce(function (m, c) { return String(c.learned) > m ? String(c.learned) : m; }, '') : null;
     return { book: book, base: base, N: N, chapters: chapters, bound: bound, byId: byId, works: works, gloss: gloss, hasBack: hasBack, leaves: leaves,
@@ -406,26 +401,75 @@
   }
 
   // =====================================================================================
+  // A CHAPTER'S DERIVED PARTS (pure; the pages and the saved copy share these fixed rules)
+  // =====================================================================================
+  function cap(s) { s = str(s); return s.charAt(0).toUpperCase() + s.slice(1); }
+  function fmtNum(v, unit) { return String(v) + (unit ? (/^[°%′″]/.test(unit) ? '' : ' ') + unit : ''); }
+  // The explanation's paragraphs, with its closing all-bold paragraph taken out as the field note
+  // (the Key idea tile; never printed twice).
+  function explainParts(L) {
+    var ps = paras(L && L.explain && L.explain.text), note = null;
+    if (ps.length > 1 && /^\*\*[^*]+\*\*$/.test(ps[ps.length - 1])) note = ps.pop().replace(/^\*\*|\*\*$/g, '');
+    return { ps: ps, note: note };
+  }
+  // The clipping: the first quoted source cited after the opening paragraph, clipped in after the
+  // paragraph that cites it. by: {n: source}. -> {at: paragraph index, src} | null
+  function clipOf(ps, by) {
+    for (var i = ps.length > 1 ? 1 : 0; i < ps.length; i++) {
+      var re = /\[\^(\d+)\]/g, m;
+      while ((m = re.exec(ps[i]))) if (by[m[1]] && by[m[1]].quote) return { at: i, src: by[m[1]] };
+    }
+    return null;
+  }
+  // "Look for": the brief without "The one thing you should see is", word for word ('' for none).
+  function lookFor(it) {
+    var look = str(it && it.brief).replace(/^\s*The one thing (you should|to) see is\s*/i, '').replace(/\.?\s*$/, '.');
+    return look.length > 1 ? look.charAt(0).toLowerCase() + look.slice(1) : '';
+  }
+  // A number from the sources: the first cited constant the explanation does not already quote
+  // (else the first cited constant). -> {value, label, source} | null
+  function numberOf(it, L, by) {
+    var cited = arr(it && it.numbers).filter(function (x) { return x.kind === 'constant' && x.source && by[x.source]; });
+    var nm = cited.filter(function (x) { return str(L && L.explain && L.explain.text).indexOf(String(x.value)) < 0; })[0] || cited[0];
+    if (!nm) return null;
+    var lab = String(nm.label), unit = '', um = lab.match(/\s*\(([^)]{1,14})\)\s*$/);
+    if (um) { unit = um[1]; lab = lab.slice(0, um.index); }
+    if (!/^[a-zA-Z°%]{1,4}$/.test(unit)) unit = '';
+    return { value: fmtNum(nm.value, unit), label: cap(lab), source: nm.source };
+  }
+  // Compare: the plan's deps, and the ideas that build on this one.
+  function compareOf(M, c) {
+    return { deps: arr(c.idea.deps).map(function (d) { return M.byId[d]; }).filter(Boolean),
+      later: M.chapters.filter(function (x) { return arr(x.idea.deps).indexOf(c.idea.id) >= 0; }) };
+  }
+  // How certain: confidence said once, or "Not yet source-checked" for an unsourced lesson.
+  function certainOf(c) {
+    var conf = CERTAIN[c.lesson.confidence] ? c.lesson.confidence : 'settled';
+    return { conf: conf, why: c.doc && c.doc.sourced === false ? UNSOURCED : CERTAIN[conf] };
+  }
+  function viewsOf(L) { return L && L.contested && Array.isArray(L.contested.views) ? L.contested.views.filter(function (v) { return v && v.text; }) : []; }
+  // The rule of thumb's first sentence (printed large) and the rest, word for word.
+  function firstSentence(t) {
+    var m = /^([\s\S]*?[.!?](?:\[\^\d+\])*["”’)]?)(\s+[\s\S]*)?$/.exec(str(t));
+    return m && m[2] && m[2].trim() ? { lead: m[1], rest: m[2].trim() } : { lead: str(t), rest: '' };
+  }
+  function leadSize(t) { var n = U.plain(t).length; return n <= 26 ? 'is-short' : n <= 70 ? 'is-mid' : 'is-long'; }
+  var PART_LABEL = { steps: 'Steps', rules: 'Rules of thumb', example: 'Worked example', mistakes: 'Common mistakes' };
+  function partLabel(p) { return p.label || PART_LABEL[p.kind] || ''; }
+
+  // =====================================================================================
   // DRAWING HELPERS (DOM from here on)
   // =====================================================================================
   var I = {
-    back: '<svg viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    next: '<svg viewBox="0 0 24 24"><path d="M9 5.5 15.5 12 9 18.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    list: '<svg viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M4.2 6.5h.6M4.2 12h.6M4.2 17.5h.6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>',
-    nib: '<svg viewBox="0 0 34 34"><path d="M24.6 4.2 29.8 9.4 15.9 23.6 10.2 24.1 10.6 18.3Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M10.4 24 4.6 29.6M14.1 19.9l3.2-3.1M21.6 7.3l5.1 5.1" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="17.6" cy="16.5" r="1.4" fill="currentColor"/></svg>',
-    warn: '<svg viewBox="0 0 34 34"><path d="M16.6 4.4C17.4 4 18 4.6 18.5 5.5l11.6 21.4c.5 1 .1 2-1.1 2.1-7.7.3-15.6.4-23.2 0-1.2-.1-1.6-1.1-1-2.1L15.3 5.5c.3-.5.7-.9 1.3-1.1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M17.1 12.2c-.2 2.9-.1 6 .2 8.6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="17.3" cy="24.6" r="1.5" fill="currentColor"/></svg>',
-    arrow: '<svg viewBox="0 0 40 30"><path d="M3 4c3 11 12 18 30 19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M27 17.5l7 5.6-7.6 4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    xref: '<svg viewBox="0 0 40 30"><path d="M36 26C30 12 19 5 5 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M11 1 4.5 6l6.6 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    box: '<svg viewBox="0 0 22 22"><path d="M2.6 3.1c5.6-.5 11.2-.4 16.6-.1.3 5.4.4 10.8 0 16.1-5.5.4-11 .4-16.4.1-.4-5.3-.5-10.8-.2-16.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
-    tick: '<svg viewBox="0 0 22 22"><path d="M2.6 3.1c5.6-.5 11.2-.4 16.6-.1.3 5.4.4 10.8 0 16.1-5.5.4-11 .4-16.4.1-.4-5.3-.5-10.8-.2-16.1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity=".7"/><path d="M5.2 11.4c1.6 1.4 3 3 4.1 4.8 2.6-5.1 6-9.4 10.6-13.4" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    ring: '<svg viewBox="0 0 100 60" preserveAspectRatio="none"><path d="M54 4C80 3 97 14 96 30 95 47 74 57 48 56 22 55 4 45 5 29 6 14 26 5 46 6c6 0 12 1 18 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>',
-    out: '<svg viewBox="0 0 12 12"><path d="M4.5 2.5h5v5M9.5 2.5 3 9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    hand: '<svg viewBox="0 0 24 24"><path d="M8.6 12.4V5.6c0-1 .8-1.7 1.7-1.7s1.6.7 1.6 1.7v5.2m0-1.3c0-.9.7-1.6 1.6-1.6s1.6.7 1.6 1.6v1.4m0-.6c0-.9.7-1.5 1.6-1.5s1.5.7 1.5 1.5v1.2m0-.2c0-.8.6-1.4 1.4-1.4s1.4.6 1.4 1.4v3.9c0 3.8-2.6 6.5-6.4 6.5h-1.2c-2.2 0-3.7-.9-5-2.6l-3-4.1c-.6-.8-.4-1.8.3-2.3.8-.5 1.7-.3 2.3.4l1.2 1.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    check: '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M4.6 8.3 7 10.5l4.4-4.8" fill="none" stroke="var(--on-green, #fff)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    clip: '<svg viewBox="0 0 22 56"><path d="M15 15v26a5 5 0 0 1-10 0V9a3.6 3.6 0 0 1 7.2 0v30a1.6 1.6 0 0 1-3.2 0V15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-    splat: '<svg viewBox="0 0 150 120"><path d="M38 30c9-6 22-4 27 4 6 9 18 4 22 12 3 7-6 11-4 18 2 8-7 13-15 10-8-3-12 5-21 2-9-4-6-12-13-16-8-5-8-14-3-20 3-4 3-7 7-10Z" fill="currentColor"/><circle cx="96" cy="22" r="4.5" fill="currentColor"/><circle cx="108" cy="40" r="2.6" fill="currentColor"/><circle cx="20" cy="70" r="3.4" fill="currentColor"/><circle cx="74" cy="92" r="2.2" fill="currentColor"/><circle cx="12" cy="20" r="2" fill="currentColor"/><path d="M84 54c8 2 16 6 24 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
-    stain: '<svg viewBox="0 0 220 220"><g filter="url(#dos-wobble)"><circle cx="110" cy="110" r="84" fill="currentColor" opacity=".3"/><circle cx="110" cy="110" r="86" fill="none" stroke="currentColor" stroke-width="6" opacity=".8"/><circle cx="112" cy="108" r="80" fill="none" stroke="currentColor" stroke-width="2" opacity=".55"/></g></svg>',
+    back: '<svg viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    next: '<svg viewBox="0 0 24 24"><path d="m9.5 5.5 6.5 6.5-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    play: '<svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5L8 5.5Z" fill="currentColor"/></svg>',
+    tick: '<svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    cross: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
+    out: '<svg viewBox="0 0 24 24"><path d="M14 5h5v5M19 5l-8 8M17 14v4a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     chev: '<svg viewBox="0 0 16 16"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    save: '<svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    pen: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 8l3 3" stroke="currentColor" stroke-width="1.8"/></svg>',
   };
   // Static, app-written SVG only (never model text).
   function svg(markup, cls) {
@@ -436,75 +480,37 @@
   }
   function icon(n, cls) { return svg(I[n], cls); }
   function vh(t) { return h('span', { class: 'vh' }, t); }
-  function cap(s) { s = str(s); return s.charAt(0).toUpperCase() + s.slice(1); }
   function hostOf(url) { try { return new URL(url).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
   function safeUrl(url) { return /^https?:\/\//i.test(str(url)) ? str(url) : null; }
   function day(iso, o) { var d = new Date(iso); return iso && !isNaN(d) ? d.toLocaleDateString('en-GB', o) : ''; }
   function longDate(iso) { return day(iso, { day: 'numeric', month: 'long', year: 'numeric' }); }
   function shortDate(iso) { return day(iso, { day: 'numeric', month: 'short', year: 'numeric' }); }
-  function fmtNum(v, unit) { return String(v) + (unit ? (/^[°%′″]/.test(unit) ? '' : ' ') + unit : ''); }
+  function dayMonth(iso) { return day(iso, { day: 'numeric', month: 'short' }); }
+  function yearOf(iso) { return day(iso, { year: 'numeric' }); }
   function unquote(q) { return '“' + str(q).trim().replace(/^["“]|["”]$/g, '') + '”'; }
   function reduced() { return !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches); }
-  function clothOf(no) { return CLOTH[((no || 1) - 1) % CLOTH.length]; }
+  function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  // A dossier's number as the tiles print it: "Dossier 01".
+  function dossierNo(no) { return no ? 'Dossier ' + U.pad(no) : 'Dossier'; }
+  // Where he is, in the focus bar's mono path: the course by its title's words (never the query).
+  function slugOf(book) { return U.slug(book.title); }
 
-  // The hand-lettered fonts: a second Google Fonts link, added the first time a dossier or the
-  // Library is drawn (never at boot). Fallbacks paint first (display=swap).
-  var fontsAdded = false;
-  function fonts() {
-    if (fontsAdded || typeof document === 'undefined') return;
-    fontsAdded = true;
-    var l = document.createElement('link');
-    l.rel = 'stylesheet'; l.href = FONTS; l.setAttribute('data-dossier-fonts', '');
-    document.head.appendChild(l);
+  // A tile (75-dossier.css): kind white | grey | em (emphasis) | ink | warn | dashed; o.span
+  // full (both columns) | half; the page's first tile carries the shadow (t-first).
+  function tile(tag, kind, o, kids) {
+    o = o || {};
+    var a = Object.assign({}, o.attrs || {});
+    a.class = 't t-' + kind + (o.span ? ' t-' + o.span : '') + (o.cls ? ' ' + o.cls : '');
+    return h(tag, a, kids);
   }
-  // Torn paper edges: four seeded 160 px strips used as mask layers (75-dossier.css, .page::before),
-  // and the filter that wobbles drawn stains. Made once, on the first dossier drawn.
-  var furnished = false;
-  function furnish() {
-    if (furnished) return;
-    furnished = true;
-    var root = document.documentElement, r = 11;
-    function rnd() { r = (r * 16807) % 2147483647; return r / 2147483647; }
-    function strip(vertical, amp, flip) {
-      var L = 160, D = 8, pts = [], t = 0, d;
-      while (t < L) { pts.push([t, D - 1 - rnd() * amp - (rnd() < .08 ? 1.6 : 0)]); t += 4 + rnd() * 6; }
-      pts.push([L, pts[0][1]]);
-      if (vertical) d = 'M0 0' + pts.map(function (p) { return 'L' + p[1].toFixed(1) + ' ' + p[0].toFixed(1); }).join('') + 'L0 ' + L + 'Z';
-      else d = 'M0 0' + pts.map(function (p) { return 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join('') + 'L' + L + ' 0Z';
-      var w = vertical ? D : L, hh = vertical ? L : D;
-      var tr = flip === 'x' ? " transform='translate(" + w + " 0) scale(-1 1)'" : flip === 'y' ? " transform='translate(0 " + hh + ") scale(1 -1)'" : '';
-      return 'url("data:image/svg+xml,' + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='" + w + "' height='" + hh + "'><path" + tr + " d='" + d + "'/></svg>") + '")';
-    }
-    var r0 = r;
-    root.style.setProperty('--tear-r', strip(true, 4.5)); r = r0;
-    root.style.setProperty('--tear-l', strip(true, 4.5, 'x'));
-    var r1 = r;
-    root.style.setProperty('--tear-b', strip(false, 4)); r = r1;
-    root.style.setProperty('--tear-t', strip(false, 4, 'y'));
-    var defs = U.svg('<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><filter id="dos-wobble" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>');
-    document.body.appendChild(defs);
-  }
-  // A margin sketch for each kind of idea: it says the kind, never the topic (seeded wobble).
-  function sketch(kind, seed) {
-    var r = seed || 1;
-    function rnd() { r = (r * 16807) % 2147483647; return r / 2147483647; }
-    function j(v, a) { return +(v + (rnd() - .5) * 2 * (a == null ? 1.1 : a)).toFixed(1); }
-    function ln(x1, y1, x2, y2) { return 'M' + j(x1) + ' ' + j(y1) + 'Q' + j((x1 + x2) / 2, 1.6) + ' ' + j((y1 + y2) / 2, 1.6) + ' ' + j(x2) + ' ' + j(y2); }
-    function circ(cx, cy, rad, over) { var n = 14, d = '', a0 = rnd() * 6.28; for (var i = 0; i <= n * (1 + (over == null ? .12 : over)); i++) { var a = a0 + i / n * 6.283, rr = rad * (1 + (rnd() - .5) * .06); d += (i ? 'L' : 'M') + (cx + Math.cos(a) * rr).toFixed(1) + ' ' + (cy + Math.sin(a) * rr).toFixed(1); } return d; }
-    function gear(cx, cy, rad, teeth, dep) { var d = '', n = teeth * 4; for (var i = 0; i <= n; i++) { var a = i / n * 6.283, o = i % 4 === 1 || i % 4 === 2, rr = (o ? rad + dep : rad) * (1 + (rnd() - .5) * .05); d += (i ? 'L' : 'M') + (cx + Math.cos(a) * rr).toFixed(1) + ' ' + (cy + Math.sin(a) * rr).toFixed(1); } return d + circ(cx, cy, rad * .35, .05); }
-    function hatch(x, y, w, hh, s) { var d = ''; for (var t = 0; t < w + hh; t += s) d += ln(x + Math.min(t, w), y + Math.max(0, t - w), x + Math.max(0, t - hh), y + Math.min(t, hh)); return d; }
-    var P = [];
-    if (kind === 'mechanism') P.push(gear(32, 48, 17, 9, 5), gear(61, 25, 10, 7, 4), ln(8, 74, 74, 72));
-    else if (kind === 'quantity') {
-      P.push('M' + j(10) + ' ' + j(52) + 'A30 30 0 0 1 ' + j(70) + ' ' + j(52), ln(10, 52, 70, 52), ln(40, 52, 58, 30), circ(40, 52, 3, 0));
-      for (var k = 0; k <= 6; k++) { var a = Math.PI + k / 6 * Math.PI; P.push(ln(40 + Math.cos(a) * 30, 52 + Math.sin(a) * 30, 40 + Math.cos(a) * 25, 52 + Math.sin(a) * 25)); }
-      P.push(ln(8, 66, 74, 66)); for (var t = 12; t < 74; t += 8) P.push(ln(t, 66, t, t % 16 ? 70 : 72));
-    } else if (kind === 'process') P.push(circ(40, 16, 8), circ(64, 56, 8), circ(16, 56, 8), ln(47, 22, 59, 46), ln(56, 59, 25, 59), ln(19, 47, 33, 22), ln(54, 43, 59, 46), ln(59, 46, 61, 40), ln(28, 55, 25, 59), ln(25, 59, 29, 63));
-    else if (kind === 'structure') P.push(ln(20, 30, 46, 18), ln(46, 18, 70, 30), ln(70, 30, 44, 42), ln(44, 42, 20, 30), ln(20, 30, 20, 62), ln(44, 42, 44, 74), ln(70, 30, 70, 62), ln(20, 62, 44, 74), ln(44, 74, 70, 62), hatch(46, 44, 22, 26, 5));
-    else if (kind === 'history') P.push(ln(22, 10, 58, 10), ln(22, 70, 58, 70), 'M' + j(26) + ' 12C' + j(26) + ' 32 ' + j(54) + ' 32 ' + j(54) + ' 12', 'M' + j(26) + ' 68C' + j(26) + ' 48 ' + j(54) + ' 48 ' + j(54) + ' 68', ln(40, 38, 40, 58), hatch(30, 58, 20, 10, 3.5));
-    else P.push('M' + j(30) + ' 52C' + j(18) + ' 42 ' + j(16) + ' 18 ' + j(40) + ' 12C' + j(64) + ' 18 ' + j(62) + ' 42 ' + j(50) + ' 52', ln(30, 52, 50, 52), ln(31, 58, 49, 58), ln(33, 64, 47, 64), ln(8, 14, 16, 18), ln(72, 14, 64, 18));
-    var d = P.join('');
-    return '<svg viewBox="0 0 80 80"><path d="' + d + '" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="' + d + '" fill="none" stroke="currentColor" stroke-width=".8" stroke-linecap="round" opacity=".45" transform="translate(1.2 .9) rotate(.6 40 40)"/></svg>';
+  function label(text, cls) { return h('p', { class: 't-label' + (cls ? ' ' + cls : '') }, text); }
+  function heading(id, text, cls) { return h('h2', { class: 't-label' + (cls ? ' ' + cls : ''), id: id }, text); }
+  // A ring: n of N, ink on a track (the CSS colours .tr and .fl). Static numbers only.
+  function ring(n, N, size, w, cls) {
+    var r = (size - w) / 2, c = 2 * Math.PI * r, f = N ? Math.max(0, Math.min(1, n / N)) : 0, m = size / 2;
+    var circle = '<circle cx="' + m + '" cy="' + m + '" r="' + r + '" fill="none" stroke-width="' + w + '"';
+    return svg('<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '">' + circle + ' class="tr"/>' +
+      (f > 0 ? circle + ' class="fl" stroke-linecap="round" stroke-dasharray="' + (f * c).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 ' + m + ' ' + m + ')"/>' : '') + '</svg>', 'ring' + (cls ? ' ' + cls : ''));
   }
 
   // Lesson rich text, with footnote chips that open a source card in place (fx.open(n, chip)) and
@@ -534,13 +540,14 @@
   function sourcesOf(L) { var by = {}; arr(L && L.sources).forEach(function (s) { by[s.n] = s; }); return by; }
 
   // =====================================================================================
-  // THE READER: one leaf (two pages) per route, in reading order
+  // THE READER: one page of tiles per route, in reading order, with the page bar
   // =====================================================================================
+  var LIBRARY = '#/library/dossiers';
   function reader(kind) {
     return function (params, ctx) {
       var tid = params.tid, iid = params.iid || null;
-      fonts(); furnish();
-      var root = h('div', { class: 'dos reader' }, h('header', { class: 'r-bar' }, h('a', { class: 'r-btn', href: '#/library/dossiers' }, icon('back'), h('span', null, 'Dossiers'))));
+      var root = h('div', { class: 'dos reader' }, topBar({ href: LIBRARY, label: 'the Library' }, [{ t: 'library' }]),
+        h('div', { class: 'dos-page' }, h('div', { class: 't-full skeleton dos-sk' })));
       ctx.view.appendChild(root);
       var S = { root: root, ctx: ctx, plates: [], io: null, pop: null, popFrom: null, offs: [] };
       load(tid).then(function (book) {
@@ -553,7 +560,7 @@
         if (!ctx.alive()) return;
         console.warn('dossier: load', e);
         var V = U.views;
-        root.appendChild(h('div', { class: 'd-loaderr' }, V && V.loadError ? V.loadError('This dossier', e, false) : h('p', null, U.errText(e))));
+        U.clear(root.querySelector('.dos-page')).appendChild(V && V.loadError ? h('div', { class: 't-full' }, V.loadError('This dossier', e, false)) : tile('p', 'grey', { span: 'full' }, U.errText(e)));
       });
       return function () {
         closePop(S, false);
@@ -563,83 +570,89 @@
       };
     };
   }
+  // Old addresses keep working: /contents is At a glance at its chapters, /plate (and /plate/play,
+  // awake) the chapter page at its plate. An unbound chapter's address shows At a glance.
   function draw(S, M, kind, iid) {
     var c = iid ? M.byId[iid] : null;
-    if (kind === 'cover') return cover(S, M);
-    if (kind === 'back' || kind === 'biblio') return M.hasBack ? backMatter(S, M, kind) : contents(S, M);
-    if (kind === 'contents' || !c || !c.learned) return contents(S, M);
-    if (kind === 'practice') return chapterPractice(S, M, c);
-    if ((kind === 'plate' || kind === 'play') && c.hasPlate) return chapterPlate(S, M, c, kind === 'play');
-    return chapterIdea(S, M, c);
+    if (kind === 'back' || kind === 'biblio') return M.hasBack ? backMatter(S, M, kind) : glance(S, M, null);
+    if (kind === 'glance' || kind === 'contents' || !c || !c.learned) return glance(S, M, kind === 'glance' ? null : 'chapters');
+    if (kind === 'practice') return practicePage(S, M, c);
+    return chapterPage(S, M, c, kind === 'plate' || kind === 'play' ? kind : null);
   }
 
-  // ---------- page furniture ----------
-  function tape(cls) { return h('span', { class: 'tape ' + (cls || ''), 'aria-hidden': 'true' }); }
-  function deco(name, cls) { return h('span', { class: 'deco ' + cls, 'aria-hidden': 'true' }, icon(name)); }
-  function runhead() { return h('p', { class: 'runhead', 'aria-hidden': 'true' }, Array.prototype.slice.call(arguments).map(function (t) { return h('span', null, t); })); }
-  function squares(done, total) { var out = []; for (var k = 0; k < total; k++) out.push(h('i', { class: k < done ? 'on' : '' })); return h('span', { class: 'sq', 'aria-hidden': 'true' }, out); }
-  function stamp(cls, big, small, label) {
-    return h('p', { class: 'stamp ' + cls }, h('span', { 'aria-hidden': label ? 'true' : null }, big), small ? h('small', { 'aria-hidden': label ? 'true' : null }, small) : null, label ? vh(label) : null);
-  }
-  function bar(S, head) {
-    var b = h('header', { class: 'r-bar' },
-      h('a', { class: 'r-btn', href: '#/library/dossiers' }, icon('back'), h('span', null, 'Dossiers')),
-      h('p', { class: 'r-head' }, head),
-      h('button', { class: 'r-btn r-aa', type: 'button', 'aria-label': 'Reading settings', on: { click: function () { if (U.settings && U.settings.open) U.settings.open(); } } }, 'Aa'));
-    return b;
-  }
-  function tabs(M, cur) {
-    var items = [h('li', null, h('a', { href: M.base + '/contents', 'aria-current': cur === 'contents' ? 'page' : null, class: 'tab-ico' }, icon('list'), vh('Contents')))];
-    M.chapters.forEach(function (c) {
-      if (M.closed && !c.learned) return;
-      items.push(h('li', null, c.learned
-        ? h('a', { href: c.href, 'aria-current': cur === c.idea.id ? 'page' : null }, c.rn, vh(', chapter ' + c.n + ': ' + c.idea.title))
-        : h('span', { class: 'off' }, c.rn, vh(', chapter ' + c.n + ': not yet written'))));
-    });
-    if (M.hasBack) items.push(h('li', null, h('a', { href: M.base + '/glossary', 'aria-current': cur === 'back' ? 'page' : null }, 'A–Z', vh(': glossary and bibliography'))));
-    return h('nav', { class: 'd-tabs', 'aria-label': 'Chapters' }, h('ol', null, items));
+  // ---------- the focus bar, the page bar, the arrow keys ----------
+  // D4's focus bar: back one level up, where he is (a mono path), and the reading settings.
+  // The course's part of the path gives way first; --rest (the other parts' characters) lets the
+  // CSS cut it at a whole character, so its ellipsis meets the next slash with no gap.
+  function topBar(up, path) {
+    var where = h('p', { class: 'dos-path' }, path.map(function (p, k) { return h('span', { class: p.cls || null }, (k ? '/' : '') + p.t); }));
+    where.style.setProperty('--rest', String(path.reduce(function (n, p, k) { return p.cls === 'fit' ? n : n + (k ? 1 : 0) + p.t.length; }, 0)));
+    return h('header', { class: 'dos-bar' },
+      h('a', { class: 'dos-sq dos-up', href: up.href, 'aria-label': 'Back to ' + up.label }, icon('back')),
+      where,
+      h('button', { class: 'dos-sq dos-aa', type: 'button', 'aria-label': 'Reading settings', on: { click: function () { if (U.settings && U.settings.open) U.settings.open(); } } }, 'Aa'));
   }
   function turnLinks(M, leafId) {
     var k = -1; M.leaves.forEach(function (l, i) { if (l.id === leafId) k = i; });
-    return { prev: k > 0 ? M.leaves[k - 1] : null, next: k >= 0 ? M.leaves[k + 1] || null : null };
+    return { at: M.leaves[k] || null, prev: k > 0 ? M.leaves[k - 1] : null, next: k >= 0 ? M.leaves[k + 1] || null : null };
   }
-  function turnNav(t) {
-    function a(l, dir) {
-      return h('a', { class: dir, href: l.href, rel: dir }, dir === 'prev' ? icon('back') : null,
-        h('span', { class: 'tw' }, h('span', { class: 'tk' }, (dir === 'prev' ? 'Back: ' : 'Next: ') + l.k), l.t ? h('span', { class: 'tt' }, l.t) : null),
-        dir === 'next' ? icon('next') : null);
+  // A neighbouring page's name in the page bar: short. Another chapter's practice shows its
+  // numeral alone ("Ch. I"), the rest of its name (" practice") said only to a screen reader, so
+  // the name still holds what is seen. A chapter's numeral never wraps away from its word.
+  // -> {shown, more}
+  function barName(l, cur) {
+    if (l.part === 'practice' && (!cur || cur.n !== l.n)) return { shown: 'Ch.\u00a0' + l.rn, more: ' ' + l.k.toLowerCase() };
+    return { shown: l.k.replace(/^(Chapter|Ch\.) /, '$1\u00a0'), more: '' };
+  }
+  // The page bar (it replaces the turn links and the desk arrows): the previous page, where he is
+  // (a step segment per page of the chapter), and the next page as the ink button. The book starts
+  // and ends at the Library. Where the bar is narrow, the position keeps its numeral whole: " · 2
+  // of 2" drops away as one piece (75-dossier.css), never cut to "I…". o.at: what the middle says
+  // instead of the leaf's own words (the back matter opened at the bibliography).
+  function pageBar(M, t, o) {
+    var cur = t.at, lib = { href: LIBRARY, k: 'Library' };
+    function link(l, dir) {
+      var leaf = l !== lib, name = leaf ? barName(l, cur) : { shown: l.k, more: '' };
+      return h('a', { class: 'pb-' + dir + (leaf ? ' is-leaf' : ''), href: l.href, rel: leaf ? dir : null },
+        dir === 'prev' ? icon('back') : null, vh(dir === 'prev' ? 'Previous page: ' : 'Next page: '),
+        h('span', { class: 'pb-name' }, name.shown), name.more ? vh(name.more) : null, dir === 'next' ? icon('next') : null);
     }
-    return h('nav', { class: 'turn', 'aria-label': 'Turn the page' }, t.prev ? a(t.prev, 'prev') : h('span'), t.next ? a(t.next, 'next') : null);
+    var at = !cur ? [] : cur.n ? [h('span', { class: 'pb-pos', 'aria-hidden': 'true' }, h('span', { class: 'pb-rn' }, cur.rn), h('span', { class: 'pb-of' }, ' · ' + cur.p + ' of 2')),
+      vh('Chapter ' + cur.rn + ', page ' + cur.p + ' of 2'),
+      h('span', { class: 'pb-steps', 'aria-hidden': 'true' }, [1, 2].map(function (k) { return h('i', { class: k <= cur.p ? 'on' : null }); }))]
+      : [h('span', { class: 'pb-word' }, (o && o.at) || cur.at)];
+    return h('nav', { class: 'dos-pagebar', 'aria-label': 'Turn the page' }, link(t.prev || lib, 'prev'), h('p', { class: 'pb-at' }, at), link(t.next || lib, 'next'));
   }
-  // The laptop's page-turn arrows on the desk (the turn links and the arrow keys do the same).
-  function sideArrows(t) {
-    return h('div', { class: 'sides', 'aria-hidden': 'true' },
-      t.prev ? h('a', { class: 'side-a prev', href: t.prev.href, tabindex: '-1', title: t.prev.k }, icon('back')) : null,
-      t.next ? h('a', { class: 'side-a next', href: t.next.href, tabindex: '-1', title: t.next.k + (t.next.t ? ' · ' + t.next.t : '') }, icon('next')) : null);
-  }
-  // The arrow keys turn pages, except in the plate, a form control, details, a sheet or a source card.
+  // The arrow keys turn pages through model().leaves, except in the plate, a form control,
+  // details, a sheet or a source card.
   function keys(S) {
     function onKey(e) {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented || S.pop || (U._sheets && U._sheets.length)) return;
       var t = e.target;
       if (t && t.closest && t.closest('input, textarea, select, [contenteditable], iframe, details, [role="radio"], [role="slider"]')) return;
-      var a = e.key === 'ArrowRight' ? S.root.querySelector('.turn .next') : e.key === 'ArrowLeft' ? S.root.querySelector('.turn .prev') : null;
+      var a = e.key === 'ArrowRight' ? S.root.querySelector('.dos-pagebar .pb-next.is-leaf') : e.key === 'ArrowLeft' ? S.root.querySelector('.dos-pagebar .pb-prev.is-leaf') : null;
       if (a) { e.preventDefault(); U.go(a.getAttribute('href')); }
     }
     document.addEventListener('keydown', onKey);
     S.offs.push(function () { document.removeEventListener('keydown', onKey); });
   }
-  function leaf(S, M, o) {
-    var t = turnLinks(M, o.leaf);
-    // One page alone (a chapter's sources, without practice) stands as a single right-hand page.
-    var spread = h('article', { class: 'spread enter' + (o.left ? '' : ' single') }, o.left, o.right);
+  // One page: the focus bar, its tiles, the page bar. o: {leaf, up: {href, label}, path, cls, kids, at?}
+  function pageOf(S, M, o) {
+    var page = h('div', { class: 'dos-page enter ' + o.cls }, o.kids);
     U.clear(S.root);
-    U.append(S.root, [bar(S, M.book.title), tabs(M, o.tab), h('div', { class: 'd-book' }, spread, turnNav(t)), sideArrows(t)]);
+    S.root.setAttribute('data-leaf', o.leaf);   // which page of model().leaves this is
+    U.append(S.root, [topBar(o.up, o.path), page, pageBar(M, turnLinks(M, o.leaf), { at: o.at })]);
     keys(S);
     startPlates(S);
-    return spread;
+    return page;
   }
-  function page(side, label, kids) { return h('section', { class: 'page page-' + side, 'aria-label': label }, kids); }
+  function scrollTo(el, then) {
+    requestAnimationFrame(function () {
+      if (!el || !el.isConnected) return;
+      el.scrollIntoView({ block: 'start', behavior: 'auto' });
+      if (then) then();
+    });
+  }
 
   // ---------- footnotes: a source card that opens in place ----------
   function closePop(S, refocus) {
@@ -681,46 +694,74 @@
     return fx;
   }
 
-  // ---------- cover: the closed field book ----------
-  function cover(S, M) {
-    var b = M.book, no = M.no, n = M.bound.length;
+  // ---------- at a glance: the cover and the contents in one ----------
+  function glance(S, M, at) {
+    var b = M.book, n = M.bound.length;
     U.setTitle(b.title + ' · Dossier');
-    var rows = [['Begun', shortDate(b.startedAt) || '—']];
-    if (M.done) rows.push(['Finished', shortDate(M.finished)]);
-    rows.push(['Ideas', String(M.N)]);
-    if (M.works.length) rows.push(['Sources', String(M.works.length)]);
-    var first = M.bound[0], t = turnLinks(M, 'cover');
-    var saveBtn = h('button', { class: 'd-btn d-ghost d-save', type: 'button', on: { click: function () { save(M, saveBtn); } } }, 'Save a copy');
-    U.clear(S.root);
-    U.append(S.root, [
-      bar(S, no ? 'Dossier No. ' + no : 'Dossier'),
-      h('div', { class: 'cover-stage enter' },
-        h('div', { class: 'jcover', style: '--cloth:' + clothOf(no), on: { click: function (e) { if (!(e.target.closest && e.target.closest('a, button'))) U.go(M.base + '/contents'); } } },
-          h('span', { class: 'deboss', 'aria-hidden': 'true' }),
-          h('span', { class: 'jc-top', 'aria-hidden': 'true' }, 'Field Dossier', h('small', null, 'My University')),
-          h('span', { class: 'jc-label' }, tape('l'), tape('r'), M.done || M.closed ? null : icon('clip', 'pclip'),
-            h('span', { class: 'jc-no' }, (no ? 'No. ' + no + ' · ' : '') + 'Course'),
-            h('h1', { class: 'jc-title', tabindex: '-1' }, b.title),
-            h('dl', { class: 'jc-rows' }, rows.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); })),
-            M.done ? stamp('done', 'Complete', null) : h('span', { class: 'jc-prog' }, squares(n, M.N), h('span', null, (M.closed ? 'Kept from a deleted course · ' : 'Still being written · ') + n + ' of ' + M.N + ' chapters'))),
-          h('span', { class: 'strap', 'aria-hidden': 'true' }),
-          h('span', { class: 'jc-ribbon' + (M.done ? ' done' : ''), 'aria-hidden': 'true' })),
-        h('div', { class: 'cover-actions' },
-          h('a', { class: 'd-btn', href: M.base + '/contents' }, 'Open the dossier'),
-          first ? h('a', { class: 'd-btn d-ghost', href: first.href }, 'Chapter ' + first.rn) : null,
-          n ? saveBtn : null)),
-      sideArrows(t)]);
-    keys(S);
+    var kids = [
+      tile('section', 'white', { span: 'full', cls: 't-first g-title', attrs: { 'aria-labelledby': 'g-h1' } },
+        [label((M.no ? dossierNo(M.no) + ' · ' : '') + 'A course in ' + plural(M.N, 'idea', 'ideas')), h('h1', { class: 'g-h1', id: 'g-h1', tabindex: '-1' }, b.title)]),
+      frontispiece(S, b.tid),
+      boundTile(M),
+      begunTile(M),
+      chaptersTile(M),
+      b.hook ? tile('section', 'grey', { span: 'full', cls: 'g-hook', attrs: { 'aria-labelledby': 'g-hook-h' } }, [heading('g-hook-h', 'The question it set out to answer'), inl(h('p', { class: 'g-hook-q' }), b.hook, null)]) : null,
+      b.oneBreath ? tile('section', 'grey', { span: 'full', cls: 'g-breath', attrs: { 'aria-labelledby': 'g-breath-h' } }, [heading('g-breath-h', 'In one breath'), h('div', { class: 't-prose' }, rich(b.oneBreath, null))]) : null,
+    ];
+    if (n) {
+      var saveBtn = h('button', { class: 'dos-btn-out d-save', type: 'button', on: { click: function () { save(M, saveBtn); } } }, icon('save'), h('span', null, 'Save a copy'));
+      kids.push(tile('section', 'grey', { span: 'full', cls: 'g-save', attrs: { 'aria-labelledby': 'g-save-h' } },
+        [heading('g-save-h', 'Keep a copy'), h('p', { class: 'g-save-t' }, 'Every chapter bound so far, as one web page to keep or print.'), saveBtn]));
+    }
+    var more = [];
+    if (M.gloss.length) more.push(['Glossary', '/glossary', plural(M.gloss.length, 'key term', 'key terms')]);
+    if (M.works.length) more.push(['Bibliography', '/bibliography', plural(M.works.length, 'source', 'sources')]);
+    more.forEach(function (x) {
+      kids.push(tile('a', 'grey', { span: more.length === 1 ? 'full' : 'half', cls: 'g-more', attrs: { href: M.base + x[1] } },
+        [h('span', { class: 't-label' }, x[0]), h('span', { class: 'g-more-n' }, x[2]), h('span', { class: 't-open' }, 'Open', icon('next'))]));
+    });
+    pageOf(S, M, { leaf: 'glance', up: { href: LIBRARY, label: 'the Library' }, path: [{ t: 'library' }, { t: slugOf(b), cls: 'fit' }], cls: 'dos-glance', kids: kids });
+    if (at === 'chapters') scrollTo(document.getElementById('chapters'));
   }
-
-  // The course's cover picture (35-art.js), taped in facing the title like a frontispiece. Kept
-  // with a kept dossier after its course is deleted; said to be drawn by an image model.
-  // Opened straight from a link, the pictures may still be on their way: the plate waits, hidden,
-  // and appears when this course's picture arrives.
+  // Bound: progress, so the ink tile (a green ring once finished). Said once to a screen reader.
+  function boundTile(M) {
+    var n = M.bound.length, kept = !!M.book.kept;
+    var say = (M.done ? 'Finished on ' + longDate(M.finished) + ': all ' + plural(M.N, 'chapter', 'chapters') + ' bound.' : n + ' of ' + plural(M.N, 'chapter', 'chapters') + ' bound.') + (kept ? ' Kept from a deleted course.' : '');
+    return tile('section', 'ink', { span: 'half', cls: 'g-bound' + (M.done ? ' is-done' : '') }, [vh(say),
+      h('span', { class: 'g-bound-in', 'aria-hidden': 'true' }, ring(n, M.N, 54, 7, M.done ? 'is-done' : null),
+        h('span', { class: 'g-stat' },
+          h('span', { class: 't-label' }, M.done ? 'Finished' : 'Bound'),
+          M.done ? h('span', { class: 'g-big' }, dayMonth(M.finished)) : h('span', { class: 'g-big' }, String(n), h('small', null, '/' + M.N)),
+          h('span', { class: 'g-small' }, M.done ? yearOf(M.finished) : 'chapters'))),
+      kept ? h('span', { class: 'g-kept', 'aria-hidden': 'true' }, 'Kept from a deleted course') : null]);
+  }
+  function begunTile(M) {
+    var s = M.book.startedAt, w = M.works.length;
+    return tile('section', 'grey', { span: 'half', cls: 'g-begun' }, [
+      h('span', { class: 't-label' }, 'Begun'),
+      h('span', { class: 'g-big' }, s ? dayMonth(s) : '—'),
+      h('span', { class: 'g-small g-mono' }, [s ? yearOf(s) : '', w ? plural(w, 'source', 'sources') : ''].filter(Boolean).join(' · '))]);
+  }
+  // One cell per idea: a bound chapter is a link with an ink tick; an unbound one is dashed and
+  // says so to a screen reader.
+  function chaptersTile(M) {
+    return tile('section', 'white', { span: 'full', cls: 'g-chapters', attrs: { id: 'chapters', 'aria-labelledby': 'g-ch-h' } }, [
+      h('h2', { class: 't-label g-ch-h', id: 'g-ch-h' }, h('span', null, 'Chapters'),
+        M.bound.length && M.bound.length < M.N ? h('span', { class: 'g-ch-hint', 'aria-hidden': 'true' }, 'tap a bound one to read it') : null),
+      h('ol', { class: 'g-grid' }, M.chapters.map(function (c) {
+        var inner = [h('span', { class: 'g-cell-top', 'aria-hidden': 'true' }, h('span', null, c.rn), c.learned ? h('span', { class: 'g-tick' }, icon('tick')) : null),
+          h('span', { class: 'g-cell-t' }, vh('Chapter ' + c.n + ': '), c.idea.title,
+            vh(c.learned ? ', learned ' + longDate(c.learned) : M.closed ? ', not written: the course was deleted' : ', not yet written'))];
+        return h('li', { class: c.learned ? 'is-bound' : 'is-unbound' }, c.learned ? h('a', { class: 'g-cell', href: c.href }, inner) : h('span', { class: 'g-cell' }, inner));
+      }))]);
+  }
+  // The course's picture (35-art.js), a tile after the title, said to be drawn by an image model.
+  // Kept with a kept dossier after its course is deleted. Opened straight from a link, the pictures
+  // may still be on their way: the tile waits, hidden, and appears when this course's arrives.
   function frontispiece(S, tid) {
     if (!U.art || !tid || !U.art.shown()) return null;
     var img = h('img', { alt: '', width: String(U.art.W), height: String(U.art.H), decoding: 'async' });
-    var fig = h('figure', { class: 'd-front', hidden: true }, tape('l'), tape('r'), img, h('figcaption', null, 'Plate drawn for this course by an image model'));
+    var fig = tile('figure', 'white', { span: 'full', cls: 'd-front', attrs: { hidden: true } }, [img, h('figcaption', null, 'Picture drawn for this course by an image model')]);
     var off = null;
     function show() {
       var src = U.art.src(tid);
@@ -735,181 +776,148 @@
     return fig;
   }
 
-  // ---------- contents: title page | contents ----------
-  function contents(S, M) {
-    var b = M.book;
-    U.setTitle('Contents · ' + b.title);
-    var facts = [['Begun', longDate(b.startedAt) || '—'], M.done ? ['Finished', longDate(M.finished)] : ['Bound', M.bound.length + ' of ' + M.N + ' chapters'], ['Ideas', String(M.N)]];
-    if (M.works.length) facts.push(['Sources', String(M.works.length)]);
-    var left = page('l', 'Title page', [
-      deco('splat', 'splat'),
-      runhead('Field dossier', M.no ? 'No. ' + M.no : 'My University'),
-      h('p', { class: 'kicker' }, 'A course in ' + M.N + ' ideas'),
-      h('h1', { class: 'd-tp-title', tabindex: '-1' }, b.title),
-      frontispiece(S, b.tid),
-      b.hook ? h('section', { class: 'hook' }, h('h2', { class: 'label' }, 'The question it set out to answer'), h('p', { class: 'hook-q' }, b.hook)) : null,
-      b.oneBreath ? h('section', { class: 'breath' }, h('h2', { class: 'label' }, 'In one breath'), h('div', { class: 'prose' }, rich(b.oneBreath, null))) : null,
-      h('dl', { class: 'facts' }, tape('c'), facts.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); })),
-    ]);
-    var right = page('r', 'Contents', [
-      runhead(b.title),
-      h('h2', { class: 'hh' }, 'Contents'),
-      h('ol', { class: 'toc' }, M.chapters.map(function (c) {
-        var inner = [
-          h('span', { class: 'n', 'aria-hidden': 'true' }, c.rn),
-          h('span', { class: 'tb' },
-            h('span', { class: 't' }, vh('Chapter ' + c.n + ': '), c.idea.title),
-            h('span', { class: 'l' }, c.idea.oneLine),
-            h('span', { class: 'm' }, c.learned ? 'Learned ' + shortDate(c.learned) : M.closed ? 'Not written: the course was deleted' : 'Not yet written', c.hasPlate ? ' · Plate ' + c.rn : ''))];
-        return h('li', { class: c.learned ? '' : 'unwritten' }, c.learned ? h('a', { href: c.href }, inner) : h('div', null, inner));
-      })),
-      M.hasBack ? h('p', { class: 'toc-back' }, h('a', { href: M.base + '/glossary' }, 'Glossary'), h('a', { href: M.base + '/bibliography' }, 'Bibliography')) : null,
-      deco('stain', 'ring'),
-    ]);
-    leaf(S, M, { leaf: 'contents', tab: 'contents', left: left, right: right });
-  }
-
-  // ---------- chapter, leaf 1: the idea | the explanation and the analogy ----------
-  function chapterHead(M, c, title) {
-    var idea = c.idea, deps = arr(idea.deps).map(function (d) { return M.byId[d]; }).filter(Boolean);
-    var later = M.chapters.filter(function (x) { return arr(x.idea.deps).indexOf(idea.id) >= 0; });
-    function link(x) { return x.learned ? h('a', { href: x.href }, 'ch. ' + x.rn, vh(': ' + x.idea.title)) : h('span', null, 'ch. ' + x.rn); }
-    function list(xs) { var out = []; xs.forEach(function (x, k) { if (k) out.push(k === xs.length - 1 ? ' and ' : ', '); out.push(link(x)); }); return out; }
-    var xref = deps.length || later.length ? h('aside', { class: 'side xref', 'aria-label': 'Compare' },
-      h('span', { class: 'side-k' }, icon('xref'), 'Compare'),
-      deps.length ? h('span', { class: 'side-t' }, 'Builds on ', list(deps), '.') : null,
-      later.length ? h('span', { class: 'side-t' }, 'Comes back in ', list(later), '.') : null) : null;
-    return [
-      h('header', { class: 'ch-head' },
-        h('span', { class: 'sketch', 'aria-hidden': 'true' }, svg(sketch(idea.kind, U.hash(M.book.tid + idea.id) % 2147483646 + 1))),
-        h('p', { class: 'kicker' }, 'Chapter ' + c.rn + ' of ' + roman(M.N) + (idea.kind ? ' · ' + cap(idea.kind) : '')),
-        h('h1', { class: 'ch-title', tabindex: '-1' }, title || idea.title),
-        h('p', { class: 'ch-line' }, idea.oneLine)),
-      xref];
-  }
-  function card(M, c) {
-    var L = c.lesson, kt = termsOf(L), name = kt[0] || c.idea.title, rows = [];
-    if (kt[0]) rows.push(['Idea', c.idea.title]);
-    rows.push(['Course', M.book.title]);
-    if (kt.length) rows.push(['Key terms', kt.join(', ')]);
-    var conf = CERTAIN[L.confidence] ? L.confidence : 'settled';
-    var cert = h('div', { class: 'cert-row' }, h('dt', null, 'How certain'),
-      h('dd', null, h('span', { class: 'cert' }, ['settled', 'simplified', 'contested'].map(function (k) {
-        return k === conf ? h('span', { class: 'on' }, k, icon('ring'), vh(' (this one)')) : h('span', { class: 'off' }, k);
-      })), h('span', { class: 'cert-why' }, c.doc && c.doc.sourced === false ? UNSOURCED : CERTAIN[conf])));
-    return h('section', { class: 'd-card', 'aria-label': 'Index card' }, tape('l'), tape('r'),
-      h('div', { class: 'card-top' }, h('p', { class: 'card-k' }, kt[0] ? 'Known as:' : 'Idea:'),
-        stamp('done', 'Chapter complete', shortDate(c.learned), 'Chapter complete, learned on ' + longDate(c.learned))),
-      h('p', { class: 'card-name' + (name.length > 18 ? ' long' : '') }, name),
-      h('dl', null, rows.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); }), cert));
-  }
-  function chapterIdea(S, M, c) {
+  // ---------- a chapter: one page of tiles, with its plate ----------
+  function chapterPage(S, M, c, at) {
     var L = c.lesson, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/practice');
     U.setTitle('Chapter ' + c.rn + ' · ' + idea.title);
-    // The closing all-bold paragraph becomes the field note (not printed twice); the first quoted
-    // source cited after the opening paragraph is clipped in after the paragraph that cites it.
-    var ps = paras(L.explain.text), noteText = null;
-    if (ps.length > 1 && /^\*\*[^*]+\*\*$/.test(ps[ps.length - 1])) noteText = ps.pop().replace(/^\*\*|\*\*$/g, '');
-    var clipAt = -1, clip = null;
-    for (var i = ps.length > 1 ? 1 : 0; i < ps.length && !clip; i++) {
-      var re = /\[\^(\d+)\]/g, m;
-      while ((m = re.exec(ps[i])) && !clip) if (fx.by[m[1]] && fx.by[m[1]].quote) { clipAt = i; clip = fx.by[m[1]]; }
-    }
-    var prose = h('div', { class: 'prose' });
-    ps.forEach(function (p, k) {
+    var ex = explainParts(L), clip = clipOf(ex.ps, fx.by), views = viewsOf(L), main = [], side = [];
+    var kids = [
+      tile('header', 'white', { span: 'full', cls: 't-first c-head' }, [
+        h('span', { class: 'c-num n' + Math.min(c.rn.length, 4), 'aria-hidden': 'true' }, c.rn),
+        h('span', { class: 'c-head-t' },
+          h('span', { class: 't-label c-of', 'aria-hidden': 'true' }, h('span', null, 'Chapter ' + c.rn + ' of ' + roman(M.N)), idea.kind ? h('span', { class: 'c-kind' }, idea.kind) : null),
+          vh('Chapter ' + c.n + ' of ' + M.N + (idea.kind ? ', ' + idea.kind : '') + ':'),
+          h('h1', { class: 'c-h1', tabindex: '-1' }, idea.title))]),
+      // The field note: the explanation's closing all-bold paragraph. None, no tile.
+      ex.note ? tile('section', 'em', { span: 'full', cls: 'c-key', attrs: { 'aria-labelledby': sid + '-key' } }, [heading(sid + '-key', 'Key idea'), inl(h('p', { class: 'c-key-t' }), ex.note, fx)]) : null,
+    ];
+    if (c.hasPlate) main.push(plateTile(S, M, c, fx));
+    var prose = h('div', { class: 't-prose c-prose' });
+    ex.ps.forEach(function (p, k) {
       U.append(prose, rich(p, fx));
-      if (k === clipAt) {
-        var ct = splitTitle(clip.title);
-        prose.appendChild(h('figure', { class: 'clip' }, tape('c'), h('blockquote', null, unquote(clip.quote)),
-          inl(h('figcaption'), (ct.pub || ct.title) + ' [^' + clip.n + ']', fx)));
+      if (clip && k === clip.at) {
+        var ct = splitTitle(clip.src.title);
+        prose.appendChild(h('figure', { class: 'c-clip' }, h('blockquote', null, unquote(clip.src.quote)),
+          inl(h('figcaption'), (ct.pub || ct.title) + ' [^' + clip.src.n + ']', fx)));
       }
     });
-    var views = L.contested && Array.isArray(L.contested.views) ? L.contested.views.filter(function (v) { return v && v.text; }) : [];
-    var field = noteText ? h('aside', { class: 'd-note d-field', 'aria-label': 'Field note' }, icon('nib', 'note-ico'),
-      h('div', null, h('p', { class: 'note-k' }, 'Field note'), inl(h('p', { class: 'note-t' }), noteText, fx))) : null;
-    var explain = h('section', { class: 'explain', 'aria-labelledby': sid + '-ex' },
-      h('h2', { class: 'hh', id: sid + '-ex' }, 'What’s going on'), prose,
-      views.length ? h('div', { class: 'd-views' }, views.map(function (v) { return h('div', { class: 'd-view' }, h('h3', null, v.label || 'One view'), rich(v.text, fx)); })) : null);
-    var analogy = L.analogy && L.analogy.text ? h('section', { class: 'analogy', 'aria-labelledby': sid + '-an' },
-      h('h2', { class: 'hh', id: sid + '-an' }, 'Think of it like this'),
-      h('div', { class: 'prose' }, rich(L.analogy.text, fx)),
-      L.analogy.breaks ? h('aside', { class: 'd-note d-warn', 'aria-label': 'Where it breaks' }, icon('warn', 'note-ico'),
-        h('div', null, h('p', { class: 'note-k' }, 'Where it breaks'), inl(h('p', { class: 'note-t' }), L.analogy.breaks, fx))) : null) : null;
-    var left = page('l', 'Chapter ' + c.n + ', the idea', [deco('splat', 'splat'), runhead(M.book.title)].concat(chapterHead(M, c), [card(M, c), field]));
-    var right = page('r', 'Chapter ' + c.n + ', the explanation', [runhead('Chapter ' + c.rn, idea.title), explain, analogy, deco('stain', 'ring')]);
-    leaf(S, M, { leaf: idea.id + ':1', tab: idea.id, left: left, right: right });
-  }
-
-  // ---------- chapter, leaf 2: the plate | its notes ----------
-  function chapterPlate(S, M, c, play) {
-    var L = c.lesson, it = L.interactive, idea = c.idea, sid = 'c' + c.n, fx = popFx(S, L, c.href + '/practice');
-    U.setTitle('Plate ' + c.rn + ' · ' + it.title);
-    // A number from the sources: the first cited constant the explanation does not already quote
-    // (else the first cited constant), circled in the margin.
-    var cited = arr(it.numbers).filter(function (x) { return x.kind === 'constant' && x.source && fx.by[x.source]; });
-    var nm = cited.filter(function (x) { return L.explain.text.indexOf(String(x.value)) < 0; })[0] || cited[0];
-    var numNote = null;
-    if (nm) {
-      var lab = String(nm.label), unit = '', um = lab.match(/\s*\(([^)]{1,14})\)\s*$/);
-      if (um) { unit = um[1]; lab = lab.slice(0, um.index); }
-      if (!/^[a-zA-Z°%]{1,4}$/.test(unit)) unit = '';
-      numNote = h('aside', { class: 'side num', 'aria-label': 'A number from the sources' },
-        h('span', { class: 'num-v' }, icon('ring'), fmtNum(nm.value, unit)),
-        h('span', { class: 'side-t' }, cap(lab)),
-        inl(h('span', { class: 'side-src' }, 'Source '), '[^' + nm.source + ']', fx));
+    main.push(tile('section', 'grey', { span: 'full', cls: 'c-explain', attrs: { 'aria-labelledby': sid + '-ex' } }, [heading(sid + '-ex', 'What’s going on'), prose]));
+    // The contested views come last, a tile each, two to a row (an odd last one across).
+    var viewTiles = views.map(function (v, k) {
+      return tile('section', 'grey', { span: views.length % 2 && k === views.length - 1 ? 'full' : 'half', cls: 'c-view', attrs: { 'aria-labelledby': sid + '-v' + k } },
+        [heading(sid + '-v' + k, v.label || 'One view'), h('div', { class: 't-prose t-small' }, rich(v.text, fx))]);
+    });
+    var A = L.analogy && L.analogy.text ? L.analogy : null;
+    if (A) {
+      side.push(tile('section', 'grey', { span: A.breaks ? 'half' : 'full', cls: 'c-analogy', attrs: { 'aria-labelledby': sid + '-an' } },
+        [heading(sid + '-an', 'Think of it like'), h('div', { class: 't-prose t-small' }, rich(A.text, fx))]));
+      if (A.breaks) side.push(tile('aside', 'warn', { span: 'half', cls: 'c-breaks', attrs: { 'aria-labelledby': sid + '-br' } },
+        [heading(sid + '-br', 'Where it breaks'), inl(h('p', { class: 't-small' }), A.breaks, fx)]));
     }
-    var look = str(it.brief).replace(/^\s*The one thing (you should|to) see is\s*/i, '').replace(/\.?\s*$/, '.');
-    var figure;
+    var cmp = compareOf(M, c), cert = certainOf(c), hasCmp = cmp.deps.length > 0 || cmp.later.length > 0;
+    // Compare: "Builds on" and "Comes back in", a row per chapter as in the bibliography (its
+    // numeral and title; a link, 44 px tall, only when bound), so no two links share a line.
+    function rows(id, label, xs) {
+      return xs.length ? [h('p', { class: 'b-ch-h', id: id }, label), h('ul', { class: 'b-ch', 'aria-labelledby': id }, xs.map(function (x) {
+        var inner = [h('span', { class: 'b-ch-n' }, x.rn), vh(' · '), h('span', { class: 'b-ch-t' }, x.idea.title)];
+        return h('li', null, x.learned ? h('a', { href: x.href }, inner)
+          : h('span', { class: 'b-ch-off' }, inner, vh(M.closed ? ', not written: the course was deleted' : ', not yet written')));
+      }))] : null;
+    }
+    if (hasCmp) side.push(tile('aside', 'grey', { span: 'half', cls: 'c-compare', attrs: { 'aria-labelledby': sid + '-cm' } }, [heading(sid + '-cm', 'Compare'),
+      rows(sid + '-cmd', 'Builds on', cmp.deps), rows(sid + '-cml', 'Comes back in', cmp.later)]));
+    side.push(tile('section', 'grey', { span: hasCmp ? 'half' : 'full', cls: 'c-certain', attrs: { 'aria-labelledby': sid + '-ce' } }, [heading(sid + '-ce', 'How certain'),
+      h('p', { class: 'c-pills' }, ['settled', 'simplified', 'contested'].map(function (k) { return k === cert.conf ? h('span', { class: 'on' }, k, vh(' (this one)')) : h('span', null, k); })),
+      h('p', { class: 't-small c-why' }, cert.why)]));
+    kids.push(h('div', { class: 'c-main' }, main), h('div', { class: 'c-side' }, side));
+    kids = kids.concat(plateNotes(c, fx), viewTiles);
+    pageOf(S, M, { leaf: idea.id + ':chapter', up: { href: M.base, label: 'Contents' }, path: [{ t: slugOf(M.book), cls: 'fit' }, { t: 'ch-' + c.rn.toLowerCase() }], cls: 'dos-chapter', kids: kids });
+    var pl = S.plates[0];
+    if (at && c.hasPlate) scrollTo(document.getElementById(sid + '-plate'), at === 'play' && pl ? function () { togglePlate(pl, false, true); } : null);
+  }
+  // The plate: the lesson's own interactive in a well, asleep until Tap to play. A plate too big
+  // to keep shows its note instead.
+  function plateTile(S, M, c, fx) {
+    var it = c.lesson.interactive, sid = 'c' + c.n, look = lookFor(it), kids;
+    // The plate's name is a heading (moving by headings finds it); Tap to play stays outside it.
+    var name = h('h2', { class: 'c-plate-name', id: sid + '-pl' }, h('span', { class: 't-label' }, 'Plate ' + c.rn), vh(': '), h('span', { class: 'c-plate-t' }, it.title));
     if (c.doc.plate) {
-      var wake = h('button', { class: 'wake', type: 'button', 'aria-pressed': 'false' }, icon('hand'), h('span', null, 'Tap to play'));
+      var wake = h('button', { class: 'wake', type: 'button', 'aria-pressed': 'false' }, icon('play', 'w-play'), icon('tick', 'w-done'), h('span', null, 'Tap to play'));
       var frameWrap = h('div', { class: 'frame', inert: '' });
       var tap = h('span', { class: 'cover-tap', 'aria-hidden': 'true' });
-      var mount = h('div', { class: 'mount d-wide', 'data-awake': 'false' }, frameWrap, tap,
-        ['tl', 'tr', 'bl', 'br'].map(function (k) { return h('i', { class: 'corner ' + k, 'aria-hidden': 'true' }); }));
-      var p = { mount: mount, frameWrap: frameWrap, wake: wake, html: c.doc.plate, title: it.title, play: play };
+      var mount = h('div', { class: 'mount', 'data-awake': 'false' }, frameWrap, tap);
+      var p = { mount: mount, frameWrap: frameWrap, wake: wake, html: c.doc.plate, title: it.title, key: 'mu-dos-h:' + M.book.tid + ':' + c.idea.id };
       wake.addEventListener('click', function () { togglePlate(p, true); });
       tap.addEventListener('click', function () { togglePlate(p, false, true); });
       S.plates.push(p);
-      figure = h('figure', { class: 'plate', id: sid + '-plate' }, h('div', { class: 'wake-row d-wide' }, wake), mount, h('figcaption', { class: 'vh' }, 'Plate ' + c.rn + ': ' + it.title));
+      kids = [h('figcaption', { class: 'c-plate-cap' }, name, wake), mount];
     } else {
-      figure = h('figure', { class: 'plate', id: sid + '-plate' }, h('p', { class: 'plate-gone' }, c.doc.plateNote || PLATE_NOTE));
+      kids = [h('figcaption', { class: 'c-plate-cap' }, name), h('p', { class: 'c-plate-gone' }, c.doc.plateNote || PLATE_NOTE)];
     }
-    var left = page('l', 'Plate ' + c.n, [deco('splat', 'splat'), runhead(M.book.title),
-      h('header', { class: 'ch-head' },
-        h('h1', { class: 'plate-cap', tabindex: '-1' }, h('span', { class: 'plate-no' }, 'Plate ' + c.rn), ' ', h('span', { class: 'plate-t' }, it.title))),
-      look.length > 1 ? h('p', { class: 'd-note d-look' }, icon('arrow', 'look-ico'), h('span', null, h('b', null, 'Look for '), look.charAt(0).toLowerCase() + look.slice(1))) : null,
-      figure]);
-    var right = page('r', 'Plate ' + c.n + ', notes', [runhead('Chapter ' + c.rn, 'The plate'),
-      numNote,
-      it.whatAmILookingAt ? h('section', { class: 'pn' }, h('h2', { class: 'hh' }, 'What you’re looking at'), h('div', { class: 'prose d-small' }, rich(it.whatAmILookingAt, fx))) : null,
-      it.ignores ? h('section', { class: 'pn leaves' }, h('h2', { class: 'label' }, 'What this model leaves out'), rich(it.ignores, fx)) : null,
-      arr(it.numbers).length ? h('details', { class: 'numbers' }, h('summary', null, icon('chev'), 'The numbers on this plate (' + it.numbers.length + ')'),
-        h('ul', null, it.numbers.map(function (x) {
-          return h('li', null, h('span', { class: 'nk' }, x.kind === 'constant' ? 'cited' : x.kind === 'control' ? 'setting' : 'worked out'), h('span', { class: 'nl' }, x.label),
-            inl(h('span', { class: 'nv' }, String(x.value)), x.source && fx.by[x.source] ? '[^' + x.source + ']' : '', fx));
-        }))) : null,
-      deco('stain', 'ring')]);
-    leaf(S, M, { leaf: idea.id + ':2', tab: idea.id, left: left, right: right });
-    if (play && S.plates[0]) requestAnimationFrame(function () {
-      var pl = S.plates[0];
-      if (!pl.mount.isConnected) return;
-      pl.mount.closest('.plate').scrollIntoView({ block: 'start', behavior: 'auto' });
-      togglePlate(pl, false, true);
+    if (look) kids.push(h('p', { class: 'c-look' }, h('b', null, 'Look for '), look));
+    return tile('figure', 'grey', { span: 'full', cls: 'c-plate', attrs: { id: sid + '-plate', 'aria-labelledby': sid + '-pl' } }, kids);
+  }
+  // The plate's notes, which used to face it: a number from the sources, what you're looking at,
+  // what the model leaves out (side by side while short), and the numbers on the plate.
+  function plateNotes(c, fx) {
+    var it = c.hasPlate ? c.lesson.interactive : null, sid = 'c' + c.n, out = [];
+    if (!it) return out;
+    var nm = numberOf(it, c.lesson, fx.by), small = [];
+    if (nm) small.push({ short: true, el: function (span) {
+      return tile('aside', 'grey', { span: span, cls: 'c-number', attrs: { 'aria-labelledby': sid + '-nm' } }, [heading(sid + '-nm', 'A number from the sources'),
+        h('p', { class: 'c-num-v' }, nm.value), h('p', { class: 't-small' }, nm.label), inl(h('p', { class: 'c-num-src' }, 'Source '), '[^' + nm.source + ']', fx)]);
+    } });
+    [['whatAmILookingAt', 'What you’re looking at', 'c-looking'], ['ignores', 'What this model leaves out', 'c-leaves']].forEach(function (x, k) {
+      if (!it[x[0]]) return;
+      small.push({ short: U.plain(it[x[0]]).length < 240, el: function (span) {
+        return tile('section', 'grey', { span: span, cls: x[2], attrs: { 'aria-labelledby': sid + '-pn' + k } }, [heading(sid + '-pn' + k, x[1]), h('div', { class: 't-prose t-small' }, rich(it[x[0]], fx))]);
+      } });
     });
+    // Two short notes side by side; a long one, or one left over, across the page.
+    for (var i = 0; i < small.length; i++) {
+      var pair = small[i].short && small[i + 1] && small[i + 1].short;
+      out.push(small[i].el(pair ? 'half' : 'full'));
+      if (pair) out.push(small[++i].el('half'));
+    }
+    if (arr(it.numbers).length) out.push(tile('details', 'grey', { span: 'full', cls: 'c-numbers' }, [
+      h('summary', null, icon('chev'), 'The numbers on this plate (' + it.numbers.length + ')'),
+      h('ul', null, it.numbers.map(function (x) {
+        return h('li', null, h('span', { class: 'nk' }, x.kind === 'constant' ? 'cited' : x.kind === 'control' ? 'setting' : 'worked out'), h('span', { class: 'nl' }, x.label),
+          inl(h('span', { class: 'nv' }, String(x.value)), x.source && fx.by[x.source] ? '[^' + x.source + ']' : '', fx));
+      }))]));
+    return out;
   }
 
   // ---------- plates: the lesson's own interactive, asleep until "Tap to play" ----------
-  // Drawn (U.sandbox.mount, in ink on paper) when it comes within 900 px of the screen, but inert
-  // with the frame out of the Tab order and a cover over it, so a thumb scrolling past never moves
-  // a slider. The first tap only wakes it.
-  function inkTheme() {
-    var t = U.sandbox.theme(), p = INK[t.dark ? 'dark' : 'light'];
-    return { dark: !!t.dark, size: t.size, c: Object.assign({}, p.c), roles: Object.assign({}, p.roles) };
+  // Drawn (U.sandbox.mount, in the app's D4 kit theme like a lesson) when it comes within 900 px
+  // of the screen, but inert with the frame out of the Tab order and a cover over it, so a thumb
+  // scrolling past never moves a slider. The first tap only wakes it.
+  // Its height is held from the first paint, as a lesson's panel is (50-lesson.js mountPanel): the
+  // height this device last measured for this plate at this width, else a typical one (the
+  // Fractions plates run 500 to 1,200 px on a phone), so what follows it barely moves when it
+  // arrives. Only this device's browser keeps it (a look, not data: never the chapter doc).
+  function plateReserve(p) {
+    var w = p.mount.getBoundingClientRect().width || window.innerWidth;
+    var size = w >= 860 ? 'laptop' : w >= 560 ? 'wide' : 'phone';
+    p.hkey = p.key + (size === 'phone' ? '' : ':' + size);
+    var r = 720;
+    try { r = Number(localStorage.getItem(p.hkey)) || r; } catch (e) { /* none kept */ }
+    return r;
   }
+  function holdPlate(p) { p.reserve = plateReserve(p); p.frameWrap.style.minHeight = p.reserve + 'px'; }
   function mountPlate(p) {
     if (p.api) return;
-    p.api = U.sandbox.mount(p.frameWrap, { html: p.html, title: 'Plate: ' + p.title + ' (interactive)', minHeight: 320, theme: inkTheme });
+    if (!p.reserve) holdPlate(p);
+    p.api = U.sandbox.mount(p.frameWrap, { html: p.html, title: 'Plate: ' + p.title + ' (interactive)', minHeight: p.reserve });
+    // The frame itself now holds the height; from here it follows the plate (the kit's own easing).
+    p.frameWrap.style.minHeight = '';
     if (p.api.frame) p.api.frame.tabIndex = p.mount.getAttribute('data-awake') === 'true' ? 0 : -1;
+    Promise.resolve(p.api.ready).then(function () {
+      setTimeout(function () {
+        var f = p.api && p.api.frame, hgt = f && f.isConnected ? Math.round(f.getBoundingClientRect().height) : 0;
+        if (hgt > 120) try { localStorage.setItem(p.hkey, String(hgt)); } catch (e) { /* not kept */ }
+      }, 900);
+    }, function () {});
   }
   function togglePlate(p, viaButton, forceOn) {
     var awake = forceOn ? true : p.mount.getAttribute('data-awake') !== 'true';
@@ -923,6 +931,7 @@
   }
   function startPlates(S) {
     if (!S.plates.length) return;
+    S.plates.forEach(holdPlate);
     if (typeof IntersectionObserver !== 'function') { S.plates.forEach(mountPlate); return; }
     S.io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
@@ -935,136 +944,140 @@
     S.plates.forEach(function (p) { S.io.observe(p.mount); });
   }
 
-  // ---------- chapter, leaf 3: put it into practice | sources ----------
-  // The practice page in the journal's hands (practiceParts): the steps as an ink checklist, the
-  // rules of thumb on a taped card, the worked example as a field note and the common mistakes in
-  // red ink. A chapter without practice (bound before lessons had it) has the sources page alone.
-  function chapterPractice(S, M, c) {
-    var L = c.lesson, idea = c.idea, sid = 'c' + c.n;
+  // ---------- put it into practice, and the sources ----------
+  // The practice parts (practiceParts) as tiles: the steps as a numbered ink checklist, the rule of
+  // thumb in the emphasis tile (its first sentence large), the worked example in a grey panel and
+  // each common mistake in a warning tile. A chapter without practice (bound before lessons had it)
+  // has its sources on a page of their own.
+  function practicePage(S, M, c) {
+    var L = c.lesson, idea = c.idea, sid = 'c' + c.n, srcs = arr(L.sources);
     U.setTitle((c.practice ? 'Chapter ' + c.rn + ', put it into practice · ' : 'Chapter ' + c.rn + ' sources · ') + idea.title);
     var fx = { by: sourcesOf(L), open: function (n) {
       var el = document.getElementById(sid + '-s' + n);
       if (el) { el.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }); el.focus({ preventScroll: true }); }
     } };
-    var left = c.practice ? page('l', 'Chapter ' + c.n + ', put it into practice', [
-      deco('splat', 'splat'), runhead(M.book.title),
-      h('header', { class: 'ch-head' },
-        h('p', { class: 'kicker' }, 'Chapter ' + c.rn + ' · ' + idea.title),
-        h('h1', { class: 'ch-title', tabindex: '-1' }, 'Put it into practice'),
-        h('p', { class: 'sub' }, 'How to use this idea, from the lesson.')),
-    ].concat(c.practice.map(function (p) { return practicePart(p, fx); }))) : null;
-    var right = page('r', 'Chapter ' + c.n + ', sources', [
-      runhead('Chapter ' + c.rn, idea.title),
-      h('section', { class: 'sources', 'aria-labelledby': sid + '-so' },
-        h(c.practice ? 'h2' : 'h1', { class: 'hh', id: sid + '-so', tabindex: c.practice ? null : '-1' }, 'Sources'),
-        arr(L.sources).length ? h('p', { class: 'sub' }, 'The pages this chapter rests on, with the words it quoted.')
-          : h('p', { class: 'sub' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'),
-        h('ol', { class: 'evidence' }, arr(L.sources).map(function (s) {
-          var t = splitTitle(s.title), url = safeUrl(s.url);
-          return h('li', { class: 'ev', id: sid + '-s' + s.n, tabindex: '-1' }, tape('c'),
-            h('p', { class: 'ev-n' }, icon('ring'), vh('Source '), String(s.n)),
-            h('p', { class: 'ev-t' }, t.title, t.pub ? h('span', { class: 'pub' }, t.pub) : null),
-            s.quote ? h('blockquote', null, unquote(s.quote)) : null,
-            url ? h('a', { class: 'ev-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null);
-        }))),
-      deco('stain', 'ring'),
-    ]);
-    leaf(S, M, { leaf: idea.id + ':3', tab: idea.id, left: left, right: right });
+    var kids = [h('header', { class: 't-bare t-full p-head' }, h('p', { class: 't-label' }, 'Chapter ' + c.rn + ' · ' + idea.title),
+      h('h1', { class: 'p-h1', id: sid + '-ph', tabindex: '-1' }, c.practice ? 'Put it into practice' : 'Sources'))];
+    if (c.practice) c.practice.forEach(function (p, k) { kids.push(practicePart(p, fx, sid + '-p' + k)); });
+    kids.push(h('section', { class: 't-bare t-full p-sources', 'aria-labelledby': c.practice ? sid + '-so' : sid + '-ph' },
+      c.practice ? heading(sid + '-so', 'Sources', 'p-sec') : null,
+      srcs.length ? h('ol', { class: 'p-src-grid' + (srcs.length % 2 ? ' is-odd' : '') }, srcs.map(function (s) { return sourceTile(sid, s); }))
+        : tile('p', 'grey', { cls: 'p-none' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.')));
+    pageOf(S, M, { leaf: idea.id + ':practice', up: { href: c.href, label: 'Chapter ' + c.rn }, path: [{ t: slugOf(M.book), cls: 'fit' }, { t: 'ch-' + c.rn.toLowerCase() }, { t: c.practice ? 'practice' : 'sources' }], cls: 'dos-practice', kids: kids });
   }
-  var PART_LABEL = { steps: 'Steps', rules: 'Rules of thumb', example: 'Worked example', mistakes: 'Common mistakes' };
-  function partLabel(p) { return p.label || PART_LABEL[p.kind] || ''; }
+  function sourceTile(sid, s) {
+    var t = splitTitle(s.title), url = safeUrl(s.url);
+    return h('li', { class: 't t-grey p-src', id: sid + '-s' + s.n, tabindex: '-1' },
+      h('p', { class: 'p-src-top' }, h('span', { class: 'p-chip' }, vh('Source '), String(s.n)), h('span', { class: 'p-src-name' }, t.pub || t.title)),
+      t.pub ? h('p', { class: 'p-src-work' }, t.title) : null,
+      s.quote ? h('blockquote', { class: 'p-src-q' }, unquote(s.quote)) : null,
+      url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null);
+  }
   // One part of the practice page, in the lesson's own words.
-  function practicePart(p, fx) {
-    var paras = p.paras.map(function (t) { return inl(h('p'), t, fx); });
+  function practicePart(p, fx, id) {
+    var lab = partLabel(p), paras = p.paras.map(function (t) { return inl(h('p'), t, fx); });
+    var list = p.items.length ? h('ul', { class: 'p-items' }, p.items.map(function (t) { return inl(h('li'), t, fx); })) : null;
     if (p.kind === 'steps') {
-      return h('section', { class: 'd-steps', 'aria-label': partLabel(p) }, h('h2', { class: 'hh' }, partLabel(p)), paras.length ? h('div', { class: 'prose' }, paras) : null,
-        p.items.length ? h(p.ordered || !paras.length ? 'ol' : 'ul', { class: 'd-check' }, p.items.map(function (t, k) {
-          return h('li', null, icon('box', 'd-box'), h('span', { class: 'd-step-n', 'aria-hidden': 'true' }, String(k + 1)), inl(h('span', { class: 'd-step-t' }), t, fx));
-        })) : null);
+      return tile('section', 'white', { span: 'full', cls: 'p-steps', attrs: { 'aria-labelledby': id } }, [heading(id, lab), paras.length ? h('div', { class: 't-prose' }, paras) : null,
+        p.items.length ? h(p.ordered || !paras.length ? 'ol' : 'ul', { class: 'p-check' }, p.items.map(function (t, k) {
+          return h('li', null, h('span', { class: 'p-step-n', 'aria-hidden': 'true' }, String(k + 1)), inl(h('span', { class: 'p-step-t' }), t, fx));
+        })) : null]);
     }
-    var list = p.items.length ? h('ul', { class: 'd-items' }, p.items.map(function (t) { return inl(h('li'), t, fx); })) : null;
     if (p.kind === 'rules') {
-      return h('section', { class: 'd-card d-rules', 'aria-label': partLabel(p) }, tape('l'), tape('r'), h('p', { class: 'card-k' }, partLabel(p)), paras, list);
+      var first = p.paras.length ? firstSentence(p.paras[0]) : null, rest = [];
+      if (first && first.rest) rest.push(inl(h('p'), first.rest, fx));
+      p.paras.slice(1).forEach(function (t) { rest.push(inl(h('p'), t, fx)); });
+      return tile('section', 'em', { span: 'full', cls: 'p-rules', attrs: { 'aria-labelledby': id } }, [heading(id, lab),
+        first ? inl(h('p', { class: 'p-rule-lead ' + leadSize(first.lead) }), first.lead, fx) : null,
+        rest.length || list ? h('div', { class: 'p-rule-rest' }, rest, list) : null]);
     }
-    if (p.kind === 'example') {
-      return h('aside', { class: 'd-note d-field d-example', 'aria-label': partLabel(p) }, icon('nib', 'note-ico'),
-        h('div', null, h('p', { class: 'note-k' }, partLabel(p)), h('div', { class: 'note-t' }, paras, list)));
-    }
+    if (p.kind === 'example') return tile('section', 'grey', { span: 'full', cls: 'p-example', attrs: { 'aria-labelledby': id } }, [heading(id, lab), h('div', { class: 't-prose' }, paras, list)]);
     if (p.kind === 'mistakes') {
-      return h('aside', { class: 'd-note d-warn d-mistakes', 'aria-label': partLabel(p) }, icon('warn', 'note-ico'),
-        h('div', null, h('p', { class: 'note-k' }, partLabel(p)), h('div', { class: 'note-t' }, paras, list)));
+      // One warning tile per mistake, two to a row (an odd last one across); written as
+      // paragraphs, one tile across the page.
+      var cells = [];
+      if (paras.length) cells.push(h('li', { class: 't t-warn p-mis is-wide' }, icon('cross', 'p-x'), h('div', { class: 't-prose' }, paras)));
+      p.items.forEach(function (t) { cells.push(h('li', { class: 't t-warn p-mis' }, icon('cross', 'p-x'), inl(h('p'), t, fx))); });
+      return h('section', { class: 't-bare t-full p-mistakes', 'aria-labelledby': id }, heading(id, lab, 'p-sec is-red'),
+        h('ul', { class: 'p-mis-grid' + (p.items.length % 2 ? ' is-odd' : '') }, cells));
     }
-    return h('div', { class: 'prose' }, paras, list);
+    return tile('section', 'grey', { span: 'full', cls: 'p-other', attrs: lab ? { 'aria-labelledby': id } : null }, [lab ? heading(id, lab) : null, h('div', { class: 't-prose' }, paras, list)]);
   }
 
-  // ---------- back matter: glossary | bibliography ----------
+  // ---------- the glossary and the bibliography ----------
   function backMatter(S, M, which) {
-    var b = M.book;
-    U.setTitle((which === 'biblio' ? 'Bibliography' : 'Glossary') + ' · ' + b.title);
-    var left = page('l', 'Glossary', [deco('splat', 'splat'), runhead(b.title),
-      h('h1', { class: 'hh big', tabindex: '-1', id: 'glossary' }, 'Glossary'),
-      M.gloss.length ? h('p', { class: 'sub' }, 'Every key term the chapters introduce, in the words that introduced it.') : h('p', { class: 'sub' }, 'No key terms yet.'),
-      h('dl', { class: 'gloss' }, M.gloss.map(function (g) {
-        return h('div', null, h('dt', null, h('mark', { class: 'term' }, g.term)),
-          h('dd', null, inl(h('p', { class: 'gd' }), g.text, null), h('p', { class: 'gc' }, 'First met in ', h('a', { href: g.ch.href }, 'chapter ' + g.ch.rn + ', ' + g.ch.idea.title))));
-      }))]);
-    var right = page('r', 'Bibliography', [runhead('Back matter'),
-      h('h2', { class: 'hh big', id: 'bibliography', tabindex: '-1' }, 'Bibliography'),
-      h('p', { class: 'sub' }, M.works.length ? 'Every page the course’s research kept, with the chapters that rest on it. Open an entry to read the words it quoted.' : 'No sources were kept for this course.'),
-      h('ol', { class: 'biblio' }, M.works.map(function (w) {
-        var url = safeUrl(w.url);
-        return h('li', null,
-          h('p', { class: 'bw' }, w.pub ? h('span', { class: 'pub' }, w.pub + '. ') : null, h('cite', null, w.title), '. ',
-            url ? h('a', { class: 'dom', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), vh(' (opens a new tab)')) : null),
-          w.ch.length ? h('p', { class: 'bc' }, 'Chapters ', w.ch.map(function (n, k) { var ch = M.chapters[n - 1]; return [k ? ', ' : '', ch && ch.learned ? h('a', { href: ch.href }, roman(n), vh(': ' + ch.idea.title)) : roman(n)]; })) : null,
-          w.quotes.length ? h('details', { class: 'bq' }, h('summary', null, icon('chev'), w.quotes.length === 1 ? 'The passage it quoted' : 'The ' + w.quotes.length + ' passages it quoted'),
-            w.quotes.map(function (q) { return h('blockquote', null, unquote(q)); })) : null);
-      }))]);
-    var sp = leaf(S, M, { leaf: 'back', tab: 'back', left: left, right: right });
-    if (which === 'biblio') requestAnimationFrame(function () {
-      var el = document.getElementById('bibliography');
-      if (el && getComputedStyle(sp).gridTemplateColumns.split(' ').length < 2) el.scrollIntoView({ block: 'start', behavior: 'auto' });
-    });
+    var b = M.book, g = M.gloss.length > 0;
+    U.setTitle((which === 'biblio' || !g ? 'Bibliography' : 'Glossary') + ' · ' + b.title);
+    var kids = [];
+    if (g) {
+      kids.push(h('header', { class: 't-bare t-full p-head' }, h('p', { class: 't-label' }, b.title),
+        h('h1', { class: 'p-h1', tabindex: '-1', id: 'glossary' }, 'Glossary'),
+        h('p', { class: 'p-sub' }, 'Every key term the chapters introduce, in the words that introduced it.')));
+      kids.push(h('dl', { class: 't-bare t-full b-gloss' }, M.gloss.map(function (x) {
+        return h('div', { class: 't t-grey b-term' }, h('dt', null, h('mark', { class: 'term' }, x.term)),
+          h('dd', null, inl(h('p', { class: 'b-def' }), x.text, null), h('p', { class: 'b-first' }, 'First met in ', h('a', { href: x.ch.href }, 'chapter ' + x.ch.rn + ', ' + x.ch.idea.title))));
+      })));
+    }
+    // With no key terms the page is the bibliography alone, headed by it.
+    kids.push(h('header', { class: 't-bare t-full p-head' + (g ? ' b-head' : '') }, g ? null : h('p', { class: 't-label' }, b.title),
+      h(g ? 'h2' : 'h1', { class: g ? 'p-h2' : 'p-h1', id: 'bibliography', tabindex: '-1' }, 'Bibliography'),
+      h('p', { class: 'p-sub' }, M.works.length ? 'Every page the course’s research kept, with the chapters that rest on it. Open an entry to read the words it quoted.' : 'No sources were kept for this course.')));
+    if (M.works.length) kids.push(h('ol', { class: 't-bare t-full b-biblio' }, M.works.map(function (w, k) {
+      var url = safeUrl(w.url);
+      return h('li', { class: 't t-grey b-work' },
+        h('p', { class: 'b-w' }, w.pub ? h('span', { class: 'b-pub' }, w.pub) : null, h('cite', null, w.title)),
+        url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null,
+        // The chapters that rest on it, a row each (its numeral and title; a 44 px tap target).
+        w.ch.length ? h('p', { class: 'b-ch-h', id: 'b-ch-' + k }, w.ch.length === 1 ? 'Chapter' : 'Chapters') : null,
+        w.ch.length ? h('ul', { class: 'b-ch', 'aria-labelledby': 'b-ch-' + k }, w.ch.map(function (n) {
+          var ch = M.chapters[n - 1], t = ch ? ch.idea.title : '';
+          var inner = [h('span', { class: 'b-ch-n' }, roman(n)), vh(' · '), h('span', { class: 'b-ch-t' }, t)];
+          return h('li', null, ch && ch.learned ? h('a', { href: ch.href }, inner) : h('span', { class: 'b-ch-off' }, inner));
+        })) : null,
+        w.quotes.length ? h('details', { class: 'b-q' }, h('summary', null, icon('chev'), w.quotes.length === 1 ? 'The passage it quoted' : 'The ' + w.quotes.length + ' passages it quoted'),
+          w.quotes.map(function (q) { return h('blockquote', null, unquote(q)); })) : null);
+    })));
+    // Opened at the bibliography, the path and the page bar say so (the same page of the book).
+    var where = g && which !== 'biblio' ? 'glossary' : 'bibliography';
+    pageOf(S, M, { leaf: 'back', up: { href: M.base, label: 'Contents' }, path: [{ t: slugOf(b), cls: 'fit' }, { t: where }], cls: 'dos-back', kids: kids, at: where });
+    if (which === 'biblio' && g) scrollTo(document.getElementById('bibliography'));
   }
 
   // =====================================================================================
-  // THE LIBRARY'S SHELVES (73-book.js draws the Library around them)
+  // THE LIBRARY'S DOSSIERS (73-book.js draws the page around them)
   // =====================================================================================
-  function shelf(box, ctx) {
-    fonts();
-    var groups = h('div', { class: 'groups' }, h('div', { class: 'skeleton dos-sk', style: 'height:180px;border-radius:16px' }));
-    var sec = h('section', { class: 'lib-sec', 'aria-labelledby': 'dos-h' },
-      h('h2', { id: 'dos-h' }, 'Dossiers'),
-      h('p', { class: 'lede' }, 'Every idea you finish in a course is bound into its dossier as a chapter, ready to reread whenever you like.'),
-      groups);
-    box.appendChild(sec);
-    var ro = null;
-    function fill() {
-      Array.prototype.forEach.call(sec.querySelectorAll('.shelf'), function (ul) {
-        Array.prototype.forEach.call(ul.querySelectorAll('.filler'), function (f) { f.remove(); });
-        var cols = getComputedStyle(ul).gridTemplateColumns.split(' ').filter(Boolean).length || 1, n = ul.children.length % cols;
-        for (var i = 0; n && i < cols - n; i++) ul.appendChild(h('li', { class: 'slot filler', 'aria-hidden': 'true' }, h('span', { class: 'book-link' }, h('span', { class: 'cloth gap' }), h('span', { class: 'plank' }))));
-      });
+  // The lead tile is the dossier most recently bound that is still being written; then the rest
+  // as half tiles: still being written, finished, kept. o.after: a tile to end the grid with
+  // ("In your own words").
+  function shelf(box, ctx, o) {
+    o = o || {};
+    var grid = h('ul', { class: 'dl-grid', 'aria-label': 'Dossiers' }, h('li', { class: 'dl-span' }, h('div', { class: 'skeleton dl-sk' })));
+    box.appendChild(grid);
+    function bars(d) {
+      // Many ideas: balanced rows of up to 12 (16 ideas: two rows of 8), read left to right.
+      var N = d.ideas.length, many = N > 10, rows = Math.max(2, Math.ceil(N / 12));
+      var el = h('span', { class: 'dl-bars' + (many ? ' is-many' : '') }, d.ideas.map(function (i, k) {
+        return h('span', { class: 'dl-bar' + (d.have[i.id] ? ' on' : '') }, h('i'), many ? null : h('b', null, roman(k + 1)));
+      }));
+      if (many) el.style.setProperty('--cols', String(Math.ceil(N / rows)));
+      return el;
     }
-    function slot(d) {
-      var n = d.count, total = d.total;
-      return h('li', { class: 'slot' },
-        h('a', { class: 'book-link', href: '#/book/' + encodeURIComponent(d.tid) },
-          h('span', { class: 'cloth', style: '--cloth:' + clothOf(d.no) },
-            h('span', { class: 'ribbon' + (d.done ? ' done' : '') }),
-            h('span', { class: 'lbl' }, d.done || d.closed ? null : icon('clip', 'pclip'),
-              d.no ? h('span', { class: 'lbl-no' }, 'No. ' + d.no) : null,
-              h('span', { class: 'lbl-t' }, d.title))),
-          h('span', { class: 'plank', 'aria-hidden': 'true' }),
-          h('span', { class: 'meta' }, d.done
-            ? [h('span', { class: 'st done' }, icon('check'), 'Finished ' + day(d.finished, { day: 'numeric', month: 'short' })), h('span', { class: 'ms' }, total + (total === 1 ? ' chapter' : ' chapters'))]
-            : [squares(n, total), h('span', { class: 'st' }, n + ' of ' + total + ' chapters' + (d.closed ? ' · kept' : ''))])));
+    function lead(d) {
+      return h('li', { class: 'dl-span' }, h('a', { class: 't t-white t-first dl-tile dl-lead', href: '#/book/' + encodeURIComponent(d.tid) },
+        h('span', { class: 'dl-top' }, h('span', { class: 't-label' }, dossierNo(d.no)), h('span', { class: 'dl-state' }, 'still being written')),
+        h('span', { class: 'dl-title' }, d.title),
+        vh(d.count + ' of ' + plural(d.total, 'chapter', 'chapters') + ' bound.'),
+        h('span', { class: 'dl-prog', 'aria-hidden': 'true' },
+          h('span', { class: 'dl-ring' }, ring(d.count, d.total, 72, 8), h('span', { class: 'dl-ring-n' }, d.count + '/' + d.total)), bars(d)),
+        h('span', { class: 'dl-foot' }, h('span', { class: 'dl-when' }, d.lastRn ? 'ch. ' + d.lastRn + ' bound ' + dayMonth(d.last) : ''),
+          h('span', { class: 't-open' }, 'Open', icon('next')))));
     }
-    function group(id, title, list) {
-      if (!list.length) return null;
-      return h('section', { class: 'group', style: '--n:' + list.length, 'aria-labelledby': id },
-        h('h3', { id: id }, title, h('span', { class: 'count' }, String(list.length))),
-        h('ul', { class: 'shelf', style: '--n:' + list.length }, list.map(slot)));
+    function half(d, kind) {
+      var foot = kind === 'done' ? h('span', { class: 'dl-fin' }, h('span', { class: 'dl-check', 'aria-hidden': 'true' }, icon('tick')), 'Finished ' + dayMonth(d.finished))
+        : kind === 'kept' ? h('span', { class: 'dl-meta' }, d.count + ' of ' + d.total, vh(' chapters'), ' · course deleted')
+        : h('span', { class: 'dl-row' }, ring(d.count, d.total, 34, 5), h('span', { class: 'dl-meta' }, d.count + ' of ' + d.total, vh(' chapters bound, still being written')));
+      return h('li', null, h('a', { class: 't ' + (kind === 'done' ? 't-white' : kind === 'kept' ? 't-dashed' : 't-grey') + ' dl-tile dl-' + kind, href: '#/book/' + encodeURIComponent(d.tid) },
+        h('span', { class: 't-label' }, dossierNo(d.no) + (kind === 'kept' ? ' · kept' : '')), h('span', { class: 'dl-name' }, d.title), foot));
     }
     function render(list, topics, progressAll, nos) {
       var live = {}; arr(topics).forEach(function (t) { if (t && t.id) live[t.id] = true; });
@@ -1073,21 +1086,27 @@
         return !live[d.__id] || on((progressAll || {})[d.__id]);   // a kept dossier, or a course that keeps one
       }).map(function (d) {
         var have = chaptersOf(d), ideas = arr(d.ideas).filter(isObj), n = countOf(d);
-        var done = ideas.length > 0 && n >= ideas.length;
-        var fin = done ? ideas.reduce(function (m, i) { var x = String(have[i.id].doneAt || ''); return x > m ? x : m; }, '') : null;
-        return { tid: d.__id, title: d.title, count: n, total: ideas.length, done: done, closed: !done && !live[d.__id], finished: fin, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0 };
+        var done = ideas.length > 0 && n >= ideas.length, last = '', lastRn = '';
+        ideas.forEach(function (i, k) { var x = isObj(have[i.id]) ? String(have[i.id].doneAt || '') : ''; if (x && x > last) { last = x; lastRn = roman(k + 1); } });
+        return { tid: d.__id, title: d.title, ideas: ideas, have: have, count: n, total: ideas.length, done: done, closed: !done && !live[d.__id],
+          finished: done ? last : null, last: last, lastRn: lastRn, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0 };
       }).filter(function (d) { return d.count > 0; });
+      var going = shown.filter(function (d) { return !d.done && !d.closed; }).sort(function (a, b) { return a.last < b.last ? 1 : a.last > b.last ? -1 : 0; });
       var done = shown.filter(function (d) { return d.done; }).sort(function (a, b) { return a.finished < b.finished ? 1 : -1; });
-      var going = shown.filter(function (d) { return !d.done && !d.closed; }).sort(function (a, b) { return a.started < b.started ? 1 : -1; });
       var kept = shown.filter(function (d) { return d.closed; }).sort(function (a, b) { return a.started < b.started ? 1 : -1; });
-      U.clear(groups);
+      var items = [];
       if (!shown.length) {
-        groups.appendChild(U.rt.savedLate() && U.views && U.views.savedLate ? U.views.savedLate('your dossiers')
-          : h('p', { class: 'lib-empty' }, h('strong', null, 'No dossiers yet'), 'When you finish an idea in a course, its first chapter is bound here.'));
-        return;
+        items.push(h('li', { class: 'dl-span' }, U.rt.savedLate() && U.views && U.views.savedLate ? U.views.savedLate('your dossiers')
+          : tile('p', 'grey', { cls: 'lib-empty' }, [h('strong', null, 'No dossiers yet'), h('span', null, 'When you finish an idea in a course, its first chapter is bound here.')])));
+      } else {
+        if (going.length) items.push(lead(going[0]));
+        going.slice(1).forEach(function (d) { items.push(half(d, 'going')); });
+        done.forEach(function (d) { items.push(half(d, 'done')); });
+        kept.forEach(function (d) { items.push(half(d, 'kept')); });
       }
-      U.append(groups, [group('sh-done', 'Finished', done), group('sh-going', 'Still being written', going), group('sh-kept', 'Kept from deleted courses', kept)]);
-      fill();
+      if (o.after) items.push(h('li', null, o.after));
+      U.clear(grid);
+      U.append(grid, items);
     }
     function read() {
       numbersP = null;
@@ -1096,7 +1115,6 @@
     read().then(function (r) {
       if (!ctx.alive()) return;
       render(r[0], r[1], r[2], r[3]);
-      if (typeof ResizeObserver === 'function') { ro = new ResizeObserver(function () { if (ctx.alive()) fill(); }); ro.observe(sec); }
       // Backfill: chapters finished before dossiers existed (or missed), once per page load.
       return syncAll(r[1], r[2], r[0]).then(function (n) {
         if (!n || !ctx.alive()) return;
@@ -1105,9 +1123,15 @@
     }).catch(function (e) {
       if (!ctx.alive()) return;
       console.warn('dossier: shelf', e);
-      U.clear(groups).appendChild(U.views && U.views.loadError ? U.views.loadError('Your dossiers', e, false) : h('p', null, U.errText(e)));
+      U.clear(grid).appendChild(h('li', { class: 'dl-span' }, U.views && U.views.loadError ? U.views.loadError('Your dossiers', e, false) : tile('p', 'grey', null, U.errText(e))));
+      if (o.after) grid.appendChild(h('li', null, o.after));
     });
-    return function () { if (ro) ro.disconnect(); };
+    return function () {};
+  }
+  // "In your own words", as a tile for the Library's grid (73-book.js).
+  function ownTile(href) {
+    return h('a', { class: 't t-grey dl-tile dl-own own', href: href },
+      icon('pen', 'dl-own-ico'), h('span', { class: 'dl-name' }, 'In your own words'), h('span', { class: 't-open' }, 'Open', icon('next')));
   }
 
   // =====================================================================================
@@ -1168,29 +1192,39 @@
     });
   }
 
+
   // =====================================================================================
-  // SAVE A COPY: the whole dossier as one HTML file (styles inline, fonts by link, no scripts)
+  // SAVE A COPY: the whole dossier as one HTML file in the same tiles (styles inline, fonts by
+  // link with fallbacks, the plate as static text, no scripts)
   // =====================================================================================
-  var EXPORT_FONTS = 'https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,400;0,600;1,400&family=Patrick+Hand&family=Patrick+Hand+SC&family=Permanent+Marker&family=Special+Elite&family=Walter+Turncoat&display=swap';
+  var EXPORT_FONTS = 'https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Barlow+Semi+Condensed:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap';
   var EXPORT_CSS = [
-    ':root{--paper:#F1E7D0;--card:#FBF5E6;--ink:#2B2119;--ink2:#5A4936;--navy:#1F3A5C;--teal:#1B5B55;--red:#962A22;--green:#235C33;--hl:rgba(237,185,64,.5);',
-    '--serif:"Literata",Georgia,"Times New Roman",serif;--title:"Walter Turncoat","Patrick Hand SC","Comic Sans MS",cursive;--caps:"Patrick Hand SC","Patrick Hand","Comic Sans MS",cursive;',
-    '--hand:"Patrick Hand","Comic Sans MS",cursive;--marker:"Permanent Marker","Patrick Hand SC",cursive;--typed:"Special Elite","Courier New",monospace}',
-    '*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;background:#D5CDBF;color:var(--ink);font:400 1.125rem/1.7 var(--serif)}',
-    '.x{max-width:46rem;margin:0 auto;padding:16px}.x>section,.x>header,.x>nav{margin:0 0 16px;padding:28px 22px 34px;background:var(--paper);box-shadow:0 1px 2px rgba(60,40,15,.2),0 12px 24px -16px rgba(60,40,15,.5)}',
-    'h1,h2,h3{font-family:var(--title);font-weight:400;line-height:1.15;margin:0 0 .5em}h1{font-size:2.2rem}h2{font-size:1.8rem}h3{font-size:1.35rem;margin-top:1.4em}',
-    'p,ul,ol,dl,blockquote,figure{margin:0 0 .8em}a{color:var(--navy)}.k{font:.8rem/1.4 var(--typed);letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin:0 0 .4em}',
-    '.line{font-style:italic;color:var(--ink2)}.hook{font:1.3rem/1.45 var(--hand)}dl.facts div,dl.card div{display:flex;gap:.6em;border-bottom:1px solid rgba(70,120,175,.3)}dt{font-family:var(--caps);color:var(--ink2);min-width:6em}dd{margin:0;font-family:var(--typed)}',
-    '.card{background:var(--card);padding:12px 16px;margin:1em 0}.name{font:1.6rem/1.15 var(--marker);text-transform:uppercase;margin:.2em 0}.stamp{display:inline-block;border:2px solid var(--green);color:var(--green);padding:2px 8px;font:.8rem/1.3 var(--typed);letter-spacing:.1em;text-transform:uppercase}',
-    'mark.term{background:var(--hl);color:inherit;font-weight:600;padding:0 .1em}sup.fn{font:700 .7em/1 sans-serif}sup.fn a{color:var(--teal);text-decoration:none}',
-    '.note{font:1.15rem/1.45 var(--hand);margin:1em 0}.note b{font-family:var(--caps);font-weight:400;color:var(--teal)}.warn,.warn b{color:var(--red)}',
-    '.clip,blockquote{font:1rem/1.6 var(--typed)}.clip{background:#F7EFDC;padding:14px 16px;margin:1.4em 4%}.clip figcaption{font:.78rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}',
-    '.views div{border:1.5px dashed rgba(150,42,34,.5);border-radius:6px;padding:10px 12px;margin:0 0 .8em}.plate{border:1.5px dashed rgba(43,33,25,.35);border-radius:6px;padding:14px 16px;margin:1em 0}',
-    '.practice{border-top:1.5px dashed rgba(43,33,25,.28);padding-top:.6em}.steps li{margin:0 0 .4em}.steps li::marker{font-family:var(--marker)}.rules{background:var(--card);padding:10px 16px;margin:1em 0;font-family:var(--hand)}',
-    '.rules b,.ex b,.mis b{display:block;font-family:var(--caps);font-weight:400;color:var(--teal)}.ex{font:1.1rem/1.45 var(--hand);margin:1em 0}.mis{font:1.1rem/1.45 var(--hand);color:var(--red);margin:1em 0}.mis b{color:var(--red)}',
-    '.src{font-size:1rem}.src .pub{font:.82rem/1.4 var(--typed);text-transform:uppercase;color:var(--ink2)}.dom{font:.82rem var(--typed);color:var(--teal)}',
-    '.gloss dt{font:1.3rem/1.2 var(--title);color:var(--ink)}.gloss dd{margin:0 0 1em}.gc,.bc{font:.8rem/1.5 var(--typed);color:var(--ink2)}.small{font-size:.95rem;color:var(--ink2)}',
-    '@media print{body{background:#fff}.x>section,.x>header,.x>nav{box-shadow:none;break-inside:auto}}',
+    ':root{--bg:#FAFAF8;--surface:#FFFFFF;--sunk:#F2F3F4;--ink:#1D1F22;--muted:#5F6670;--teal:#0B6A70;--teal-tint:#E1F1F1;--hl:#F8DC8A;--red:#9F3038;--green:#2E7D4F;',
+    '--line:#E1E4E7;--line-strong:#A9AFB6;--edge:#1D1F22;--dot:#D9D9D4;--on-ink:#FFFFFF;',
+    '--sans:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--cond:"Barlow Semi Condensed","Barlow",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}',
+    '@media (prefers-color-scheme:dark){:root{--bg:#141619;--surface:#1D2024;--sunk:#24282D;--ink:#ECEDEE;--muted:#A3A9B1;--teal:#6CC7BD;--teal-tint:#173030;--hl:rgba(240,185,58,.34);--red:#F2A6AC;--green:#6FCB94;--line:#33373D;--line-strong:#5A6068;--edge:#D7D9DC;--dot:#2A2E33;--on-ink:#141619}}',
+    '*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}',
+    'body{margin:0;background:var(--bg) radial-gradient(var(--dot) 1px,transparent 1.3px) 0 0/16px 16px;color:var(--ink);font:400 1rem/1.5 var(--sans)}',
+    '.x{max-width:46rem;margin:0 auto;padding:16px 16px 40px}.g{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0 0 28px}',
+    '.t{min-width:0;padding:12px 14px;border-radius:6px;background:var(--sunk);overflow-wrap:break-word}.full{grid-column:1/-1}.mono a{word-break:break-all}',
+    '.w{background:var(--surface);border:1.5px solid var(--edge);border-radius:16px}.em{background:var(--surface);border:2px solid var(--edge);border-radius:16px;box-shadow:3px 3px 0 var(--edge)}',
+    '.ink{background:var(--ink);color:var(--bg);border-radius:16px}.warn{background:var(--surface);border:1.5px solid var(--red);border-radius:16px;color:var(--red)}',
+    '.k{margin:0 0 6px;font:500 .66rem/1.3 var(--mono);text-transform:uppercase;color:var(--muted)}.ink .k{color:inherit;opacity:.75}.red,.warn .k{color:var(--red)}',
+    '.kind{margin-left:8px;font:600 .7rem/1 var(--cond);letter-spacing:.09em;color:var(--teal)}',
+    'h1,h2,h3{margin:0;line-height:1.1;letter-spacing:-.01em}h1{font-size:2.1rem}h2{font-size:1.25rem}h3{font-size:1rem}h2.part{grid-column:1/-1;margin:14px 2px 0;font-size:1.6rem}',
+    'p,ul,ol,dl,blockquote,figure{margin:0 0 .6em}.t>:last-child,.t>div>:last-child{margin-bottom:0}a{color:inherit}',
+    'mark.term{color:inherit;font-weight:600;background:linear-gradient(180deg,transparent 50%,var(--hl) 50%,var(--hl) 92%,transparent 92%)}',
+    'sup.fn{font:600 .7em/1 var(--cond)}sup.fn a{padding:1px 4px;border-radius:4px;background:var(--teal-tint);color:var(--teal);text-decoration:none}',
+    '.big{font-size:1.9rem;font-weight:700;line-height:1}.key{font-size:1.125rem;font-weight:600;line-height:1.35}.lead{font-size:1.6rem;font-weight:700;line-height:1.1;letter-spacing:-.02em}',
+    '.small{font-size:.875rem}.mono{font:500 .75rem/1.4 var(--mono);color:var(--muted)}.ink .mono{color:inherit;opacity:.75}',
+    '.clip{margin:.6em 0;padding:10px 12px;border-radius:8px;background:var(--surface)}.clip blockquote{margin:0 0 4px}',
+    '.pills span{display:inline-block;margin:0 4px 4px 0;padding:2px 10px;border:1.5px solid var(--line-strong);border-radius:99px;font-size:.85rem}.pills .on{background:var(--ink);color:var(--bg);border-color:var(--ink)}',
+    '.toc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:0;list-style:none}.toc li{padding:8px 9px;border:1.5px dashed var(--line-strong);border-radius:10px;color:var(--muted)}',
+    '.toc li.on{border:1.5px solid var(--edge);color:var(--ink);font-weight:600}.toc .mono{display:block}',
+    '.mis::before{content:"\\2715  ";font-weight:700}.steps{padding-left:1.4em}.steps li{margin:0 0 .4em}.steps li::marker{font-weight:700}',
+    'blockquote{font-style:italic;color:var(--muted)}.chip{display:inline-block;min-width:20px;margin-right:6px;border-radius:4px;background:var(--teal-tint);color:var(--teal);text-align:center;font:600 .75rem/20px var(--cond)}',
+    '.num{font-size:1.6rem;font-weight:700}.nums{padding-left:1.1em}',
+    '@media (max-width:24rem){.g>.t{grid-column:1/-1}}@media print{body{background:#fff}.t{break-inside:avoid}}',
   ].join('\n');
   function exportFx(sid, L) {
     return { by: sourcesOf(L), open: function () {}, sid: sid };
@@ -1205,118 +1239,146 @@
   }
   function xRich(text, fx) { var d = h('div'); d.appendChild(U.rich(text, fnOpts(fx))); asLinks(d, fx); return Array.prototype.slice.call(d.childNodes); }
   function xInl(el, text, fx) { return asLinks(U.inline(el, text, fnOpts(fx)), fx); }
+  function xk(text, cls) { return h('p', { class: 'k' + (cls ? ' ' + cls : '') }, text); }
+  // Tiles laid two to a row: an odd last one runs across.
+  function halves(list) { return list.map(function (t, k) { if (list.length % 2 && k === list.length - 1) t.classList.add('full'); return t; }); }
   function exportChapter(M, c) {
-    var L = c.lesson, it = L.interactive, sid = 'c' + c.n, fx = exportFx(sid, L), kt = termsOf(L);
-    var conf = CERTAIN[L.confidence] ? L.confidence : 'settled';
-    var ps = paras(L.explain.text), noteText = null;
-    if (ps.length > 1 && /^\*\*[^*]+\*\*$/.test(ps[ps.length - 1])) noteText = ps.pop().replace(/^\*\*|\*\*$/g, '');
+    var L = c.lesson, it = L.interactive, sid = 'c' + c.n, fx = exportFx(sid, L);
+    var ex = explainParts(L), clip = clipOf(ex.ps, fx.by), cert = certainOf(c), cmp = compareOf(M, c), views = viewsOf(L);
     var out = [
-      h('p', { class: 'k' }, 'Chapter ' + c.rn + ' of ' + roman(M.N) + (c.idea.kind ? ' · ' + cap(c.idea.kind) : '')),
-      h('h2', null, c.idea.title),
-      h('p', { class: 'line' }, c.idea.oneLine),
-      h('div', { class: 'card' },
-        h('p', { class: 'k' }, kt[0] ? 'Known as' : 'Idea'), h('p', { class: 'name' }, kt[0] || c.idea.title),
-        h('p', null, h('span', { class: 'stamp' }, 'Chapter complete · ' + shortDate(c.learned))),
-        h('dl', { class: 'card' }, kt.length ? h('div', null, h('dt', null, 'Key terms'), h('dd', null, kt.join(', '))) : null,
-          h('div', null, h('dt', null, 'How certain'), h('dd', null, conf + ' — ' + (c.doc.sourced === false ? UNSOURCED : CERTAIN[conf]))))),
-      h('h3', null, 'What’s going on'),
-    ].concat(ps.map(function (p) { return xRich(p, fx); }));
-    if (noteText) out.push(xInl(h('p', { class: 'note' }, h('b', null, 'Field note: ')), noteText, fx));
-    var views = L.contested && Array.isArray(L.contested.views) ? L.contested.views.filter(function (v) { return v && v.text; }) : [];
-    if (views.length) out.push(h('div', { class: 'views' }, views.map(function (v) { return h('div', null, h('p', null, h('b', null, v.label || 'One view')), xRich(v.text, fx)); })));
-    if (L.analogy && L.analogy.text) {
-      out.push(h('h3', null, 'Think of it like this'), xRich(L.analogy.text, fx));
-      if (L.analogy.breaks) out.push(xInl(h('p', { class: 'note warn' }, h('b', null, 'Where it breaks: ')), L.analogy.breaks, fx));
-    }
+      h('div', { class: 't w full' }, xk(['Chapter ' + c.rn + ' of ' + roman(M.N), c.idea.kind ? h('span', { class: 'kind' }, c.idea.kind) : null]),
+        h('h2', null, c.idea.title), h('p', { class: 'mono' }, 'Learned ' + shortDate(c.learned))),
+      ex.note ? h('div', { class: 't em full' }, xk('Key idea'), xInl(h('p', { class: 'key' }), ex.note, fx)) : null,
+    ];
     if (c.hasPlate) {
-      var look = str(it.brief).replace(/^\s*The one thing (you should|to) see is\s*/i, '').replace(/\.?\s*$/, '.');
-      out.push(h('div', { class: 'plate' },
-        h('h3', null, 'Plate ' + c.rn + ': ' + it.title),
-        look.length > 1 ? h('p', { class: 'note' }, h('b', null, 'Look for '), look.charAt(0).toLowerCase() + look.slice(1)) : null,
+      var look = lookFor(it);
+      out.push(h('div', { class: 't full' }, xk('Plate ' + c.rn), h('h3', null, it.title),
         h('p', { class: 'small' }, c.doc.plate ? 'The live plate plays in the dossier in My University.' : (c.doc.plateNote || PLATE_NOTE)),
-        it.whatAmILookingAt ? [h('p', null, h('b', null, 'What you’re looking at')), xRich(it.whatAmILookingAt, fx)] : null,
-        it.ignores ? [h('p', null, h('b', null, 'What this model leaves out')), xRich(it.ignores, fx)] : null,
-        arr(it.numbers).length ? h('ul', { class: 'small' }, it.numbers.map(function (x) {
-          return xInl(h('li'), x.label + ': ' + x.value + ' (' + (x.kind === 'constant' ? 'cited' : x.kind === 'control' ? 'setting' : 'worked out') + ')' + (x.source && fx.by[x.source] ? ' [^' + x.source + ']' : ''), fx);
-        })) : null));
+        look ? h('p', null, h('b', null, 'Look for '), look) : null));
     }
-    if (c.practice) out.push(h('div', { class: 'practice' }, h('h3', null, 'Put it into practice'), c.practice.map(function (p) { return exportPart(p, fx); })));
-    out.push(h('h3', null, 'Sources'), arr(L.sources).length ? h('ol', { class: 'src' }, arr(L.sources).map(function (s) {
+    var exp = h('div', { class: 't full' }, xk('What’s going on'));
+    ex.ps.forEach(function (p, k) {
+      U.append(exp, xRich(p, fx));
+      if (clip && k === clip.at) {
+        var ct = splitTitle(clip.src.title);
+        exp.appendChild(h('figure', { class: 'clip' }, h('blockquote', null, unquote(clip.src.quote)), xInl(h('figcaption', { class: 'mono' }), (ct.pub || ct.title) + ' [^' + clip.src.n + ']', fx)));
+      }
+    });
+    out.push(exp);
+    var side = [];
+    if (L.analogy && L.analogy.text) {
+      side.push(h('div', { class: 't' }, xk('Think of it like'), xRich(L.analogy.text, fx)));
+      if (L.analogy.breaks) side.push(xInl(h('div', { class: 't warn' }, xk('Where it breaks')), L.analogy.breaks, fx));
+    }
+    out = out.concat(halves(side));
+    function list(xs) { return xs.map(function (x) { return 'ch. ' + x.rn; }).join(', ').replace(/, ([^,]*)$/, ' and $1'); }
+    var cc = [];
+    if (cmp.deps.length || cmp.later.length) cc.push(h('div', { class: 't' }, xk('Compare'), h('p', { class: 'small' }, (cmp.deps.length ? 'Builds on ' + list(cmp.deps) + '. ' : '') + (cmp.later.length ? 'Comes back in ' + list(cmp.later) + '.' : ''))));
+    cc.push(h('div', { class: 't' }, xk('How certain'), h('p', { class: 'pills' }, ['settled', 'simplified', 'contested'].map(function (k) { return h('span', { class: k === cert.conf ? 'on' : null }, k); })), h('p', { class: 'small' }, cert.why)));
+    out = out.concat(halves(cc));
+    if (c.hasPlate) {
+      var nm = numberOf(it, L, fx.by), notes = [];
+      if (nm) notes.push(xInl(h('div', { class: 't' }, xk('A number from the sources'), h('p', { class: 'num' }, nm.value), h('p', { class: 'small' }, nm.label), 'Source '), '[^' + nm.source + ']', fx));
+      if (it.whatAmILookingAt) notes.push(h('div', { class: 't' }, xk('What you’re looking at'), xRich(it.whatAmILookingAt, fx)));
+      if (it.ignores) notes.push(h('div', { class: 't' }, xk('What this model leaves out'), xRich(it.ignores, fx)));
+      out = out.concat(halves(notes));
+      if (arr(it.numbers).length) out.push(h('div', { class: 't full' }, xk('The numbers on this plate (' + it.numbers.length + ')'), h('ul', { class: 'nums small' }, it.numbers.map(function (x) {
+        return xInl(h('li'), x.label + ': ' + x.value + ' (' + (x.kind === 'constant' ? 'cited' : x.kind === 'control' ? 'setting' : 'worked out') + ')' + (x.source && fx.by[x.source] ? ' [^' + x.source + ']' : ''), fx);
+      }))));
+    }
+    // The contested views, last, as on the page.
+    out = out.concat(halves(views.map(function (v) { return h('div', { class: 't' }, xk(v.label || 'One view'), xRich(v.text, fx)); })));
+    if (c.practice) {
+      out.push(h('h2', { class: 'part' }, 'Put it into practice'));
+      c.practice.forEach(function (p) { out = out.concat(exportPart(p, fx)); });
+    }
+    out.push(xk('Sources', 'full'));
+    out.push(arr(L.sources).length ? halves(arr(L.sources).map(function (s) {
       var t = splitTitle(s.title), url = safeUrl(s.url);
-      return h('li', { id: sid + '-s' + s.n }, h('p', null, h('b', null, t.title), t.pub ? h('span', { class: 'pub' }, ' · ' + t.pub) : null),
-        s.quote ? h('blockquote', null, unquote(s.quote)) : null, url ? h('p', null, h('a', { class: 'dom', href: url }, url)) : null);
-    })) : h('p', { class: 'small' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'));
-    return h('section', { id: 'ch-' + c.n }, out);
+      return h('div', { class: 't', id: sid + '-s' + s.n }, h('p', null, h('span', { class: 'chip' }, String(s.n)), h('b', null, t.pub || t.title)),
+        t.pub ? h('p', { class: 'small' }, t.title) : null, s.quote ? h('blockquote', { class: 'small' }, unquote(s.quote)) : null,
+        url ? h('p', { class: 'mono' }, h('a', { href: url }, url)) : null);
+    })) : h('p', { class: 't full small' }, c.doc.sourced === false ? UNSOURCED : 'This chapter lists no sources.'));
+    return h('section', { id: 'ch-' + c.n, class: 'g' }, out);
   }
-  // One part of "Put it into practice", in the saved copy's plain style.
+  // One part of "Put it into practice", as the page's tiles.
   function exportPart(p, fx) {
-    var paras = p.paras.map(function (t) { return xInl(h('p'), t, fx); });
+    var lab = partLabel(p), paras = p.paras.map(function (t) { return xInl(h('p'), t, fx); });
     var list = p.items.length ? h(p.kind === 'steps' && (p.ordered || !paras.length) ? 'ol' : 'ul', { class: p.kind === 'steps' ? 'steps' : null }, p.items.map(function (t) { return xInl(h('li'), t, fx); })) : null;
-    var label = h('b', null, partLabel(p));
-    if (p.kind === 'steps') return [h('p', null, label), paras, list];
-    if (p.kind === 'rules') return h('div', { class: 'rules' }, label, paras, list);
-    if (p.kind === 'example') return h('div', { class: 'ex' }, label, paras, list);
-    if (p.kind === 'mistakes') return h('div', { class: 'mis' }, label, paras, list);
-    return [paras, list];
+    if (p.kind === 'steps') return [h('div', { class: 't w full' }, xk(lab), paras, list)];
+    if (p.kind === 'rules') {
+      var first = p.paras.length ? firstSentence(p.paras[0]) : null;
+      return [h('div', { class: 't em full' }, xk(lab), first ? xInl(h('p', { class: 'lead' }), first.lead, fx) : null,
+        first && first.rest ? xInl(h('p', { class: 'key' }), first.rest, fx) : null, p.paras.slice(1).map(function (t) { return xInl(h('p', { class: 'key' }), t, fx); }), list)];
+    }
+    if (p.kind === 'example') return [h('div', { class: 't full' }, xk(lab), paras, list)];
+    if (p.kind === 'mistakes') {
+      return [xk(lab, 'full red'), paras.length ? h('div', { class: 't warn full mis' }, paras) : null]
+        .concat(halves(p.items.map(function (t) { return xInl(h('div', { class: 't warn mis' }), t, fx); })));
+    }
+    return [h('div', { class: 't full' }, lab ? xk(lab) : null, paras, list)];
   }
   function exportHtml(M) {
-    var b = M.book, x = h('div', { class: 'x' });
-    var facts = [['Begun', longDate(b.startedAt) || '—'], M.done ? ['Finished', longDate(M.finished)] : ['Bound', M.bound.length + ' of ' + M.N + ' chapters'], ['Ideas', String(M.N)]];
-    if (M.works.length) facts.push(['Sources', String(M.works.length)]);
-    x.appendChild(h('header', null,
-      h('p', { class: 'k' }, 'Field Dossier · My University' + (M.no ? ' · No. ' + M.no : '')),
-      h('h1', null, b.title),
-      b.hook ? [h('p', { class: 'k' }, 'The question it set out to answer'), h('p', { class: 'hook' }, b.hook)] : null,
-      b.oneBreath ? [h('p', { class: 'k' }, 'In one breath'), xRich(b.oneBreath, null)] : null,
-      h('dl', { class: 'facts' }, facts.map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); }))));
-    x.appendChild(h('nav', { 'aria-label': 'Contents' }, h('h2', null, 'Contents'), h('ol', null, M.chapters.map(function (c) {
-      return h('li', null, c.learned ? h('a', { href: '#ch-' + c.n }, c.idea.title) : c.idea.title, ' — ', h('span', { class: 'small' }, c.learned ? 'Learned ' + shortDate(c.learned) : M.closed ? 'Not written' : 'Not yet written'));
-    }))));
+    var b = M.book, x = h('div', { class: 'x' }), n = M.bound.length, s = b.startedAt, w = M.works.length;
+    x.appendChild(h('header', { class: 'g' },
+      h('div', { class: 't w full' }, xk((M.no ? dossierNo(M.no) + ' · ' : '') + 'A course in ' + plural(M.N, 'idea', 'ideas') + ' · My University'), h('h1', null, b.title)),
+      h('div', { class: 't ink' }, xk(M.done ? 'Finished' : 'Bound'), h('p', { class: 'big' }, M.done ? dayMonth(M.finished) : n + '/' + M.N),
+        h('p', { class: 'mono' }, M.done ? yearOf(M.finished) + ' · ' + plural(M.N, 'chapter', 'chapters') : 'chapters'), b.kept ? h('p', { class: 'small' }, 'Kept from a deleted course') : null),
+      h('div', { class: 't' }, xk('Begun'), h('p', { class: 'big' }, s ? dayMonth(s) : '—'), h('p', { class: 'mono' }, [s ? yearOf(s) : '', w ? plural(w, 'source', 'sources') : ''].filter(Boolean).join(' · '))),
+      h('nav', { class: 't w full', 'aria-label': 'Contents' }, xk('Chapters'), h('ol', { class: 'toc' }, M.chapters.map(function (c) {
+        return h('li', { class: c.learned ? 'on' : null }, h('span', { class: 'mono' }, c.rn), c.learned ? h('a', { href: '#ch-' + c.n }, c.idea.title) : c.idea.title,
+          c.learned ? null : h('span', { class: 'mono' }, M.closed ? 'not written' : 'not yet written'));
+      }))),
+      b.hook ? xInl(h('div', { class: 't full' }, xk('The question it set out to answer')), b.hook, null) : null,
+      b.oneBreath ? h('div', { class: 't full' }, xk('In one breath'), xRich(b.oneBreath, null)) : null));
     M.bound.forEach(function (c) { x.appendChild(exportChapter(M, c)); });
-    if (M.gloss.length) x.appendChild(h('section', { id: 'glossary' }, h('h2', null, 'Glossary'), h('dl', { class: 'gloss' }, M.gloss.map(function (g) {
-      return [h('dt', null, h('mark', { class: 'term' }, g.term)), h('dd', null, xInl(h('p'), g.text, null), h('p', { class: 'gc' }, 'First met in ', h('a', { href: '#ch-' + g.ch.n }, 'chapter ' + g.ch.rn + ', ' + g.ch.idea.title)))];
-    }))));
-    if (M.works.length) x.appendChild(h('section', { id: 'bibliography' }, h('h2', null, 'Bibliography'), h('ol', null, M.works.map(function (w) {
-      var url = safeUrl(w.url);
-      return h('li', null, h('p', null, w.pub ? h('b', null, w.pub + '. ') : null, h('cite', null, w.title), '. ', url ? h('a', { class: 'dom', href: url }, hostOf(url)) : null),
-        w.ch.length ? h('p', { class: 'bc' }, 'Chapters ' + w.ch.map(roman).join(', ')) : null,
-        w.quotes.map(function (q) { return h('blockquote', null, unquote(q)); }));
-    }))));
-    var title = h('title', null, b.title + ' · Field Dossier');
+    if (M.gloss.length) x.appendChild(h('section', { id: 'glossary', class: 'g' }, h('h2', { class: 'part' }, 'Glossary'), M.gloss.map(function (g) {
+      return h('div', { class: 't full' }, h('p', null, h('mark', { class: 'term' }, g.term)), xInl(h('p'), g.text, null),
+        h('p', { class: 'mono' }, 'First met in ', h('a', { href: '#ch-' + g.ch.n }, 'chapter ' + g.ch.rn + ', ' + g.ch.idea.title)));
+    })));
+    if (w) x.appendChild(h('section', { id: 'bibliography', class: 'g' }, h('h2', { class: 'part' }, 'Bibliography'), M.works.map(function (wk) {
+      var url = safeUrl(wk.url);
+      return h('div', { class: 't full' }, h('p', null, wk.pub ? h('b', null, wk.pub + '. ') : null, h('cite', null, wk.title), url ? ['. ', h('a', { class: 'mono', href: url }, hostOf(url))] : null),
+        wk.ch.length ? h('p', { class: 'mono' }, (wk.ch.length === 1 ? 'Chapter ' : 'Chapters ') + wk.ch.map(roman).join(', ')) : null,
+        wk.quotes.map(function (q) { return h('blockquote', { class: 'small' }, unquote(q)); }));
+    })));
+    var title = h('title', null, b.title + ' · Dossier · My University');
     return '<!doctype html>\n<html lang="en-GB">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' + title.outerHTML + '\n' +
       '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link rel="stylesheet" href="' + EXPORT_FONTS.replace(/&/g, '&amp;') + '">\n' +
       '<style>\n' + EXPORT_CSS + '\n</style>\n</head>\n<body>\n' + x.outerHTML + '\n</body>\n</html>\n';
   }
   function save(M, btn) {
-    if (btn) { btn.disabled = true; btn.textContent = 'Preparing…'; }
+    var lab = btn ? btn.querySelector('span') || btn : null;
+    if (btn) { btn.disabled = true; lab.textContent = 'Preparing…'; }
     var name = 'dossier-' + U.slug(M.book.title) + '-' + U.today() + '.html';
     return Promise.resolve().then(function () { return U.saveFile(name, exportHtml(M), 'text/html'); }).then(function (ok) {
       if (ok) U.toast('Dossier saved.', { kind: 'good' });
       return ok;
     }, function (e) { U.toast('Could not save the dossier: ' + U.errText(e), { kind: 'bad' }); return false; }).then(function (ok) {
-      if (btn) { btn.disabled = false; btn.textContent = 'Save a copy'; }
+      if (btn) { btn.disabled = false; lab.textContent = 'Save a copy'; }
       return ok;
     });
   }
 
   // =====================================================================================
-  // ROUTES (the Library's #/book and the Book's #/book/words are 73-book.js's, registered first)
+  // ROUTES (the Library's #/book and #/library/dossiers, and the Book's #/book/words, are
+  // 73-book.js's, registered first)
   // =====================================================================================
   var R = { focus: true, tab: 'book', title: 'Dossier' };
-  U.routes.add('#/book/:tid', reader('cover'), R);
-  U.routes.add('#/book/:tid/contents', reader('contents'), R);
+  U.routes.add('#/book/:tid', reader('glance'), R);
+  U.routes.add('#/book/:tid/contents', reader('contents'), R);              // older: at a glance, at its chapters
   U.routes.add('#/book/:tid/glossary', reader('back'), R);
   U.routes.add('#/book/:tid/bibliography', reader('biblio'), R);
-  U.routes.add('#/book/:tid/:iid', reader('idea'), R);
-  U.routes.add('#/book/:tid/:iid/plate', reader('plate'), R);
-  U.routes.add('#/book/:tid/:iid/plate/play', reader('play'), R);
+  U.routes.add('#/book/:tid/:iid', reader('chapter'), R);
+  U.routes.add('#/book/:tid/:iid/plate', reader('plate'), R);               // older: the chapter, at its plate
+  U.routes.add('#/book/:tid/:iid/plate/play', reader('play'), R);           // and the plate awake
   U.routes.add('#/book/:tid/:iid/practice', reader('practice'), R);
-  U.routes.add('#/book/:tid/:iid/tests', reader('practice'), R);   // its older address
+  U.routes.add('#/book/:tid/:iid/tests', reader('practice'), R);            // its older address
 
   U.dossier = {
-    LIMIT: LIMIT, PLATE_NOTE: PLATE_NOTE, INK: INK,
+    LIMIT: LIMIT, PLATE_NOTE: PLATE_NOTE,
     chapterFrom: chapterFrom, researchFrom: researchFrom, indexFrom: indexFrom, practiceParts: practiceParts, model: model, due: due, countOf: countOf, bytes: bytes,
     on: on, bind: bind, sync: sync, keep: keep, remove: remove, setOn: setOn, load: load,
-    fonts: fonts, shelf: shelf, option: option, confirmDelete: confirmDelete, exportHtml: exportHtml, save: save, inkTheme: inkTheme,
+    shelf: shelf, ownTile: ownTile, option: option, confirmDelete: confirmDelete, exportHtml: exportHtml, save: save,
   };
 })();

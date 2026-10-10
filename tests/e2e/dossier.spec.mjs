@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 // Browser tests for the course dossier (75-dossier.js) on the complete build, with only the model
-// stubbed: the topic page's "Keep a dossier" option; the Library (dossiers first, finished and
-// still being written, then "In your own words"); the reader on a phone and on a laptop (cover,
-// contents, a chapter's three leaves with the plate asleep until Tap to play and drawn in ink,
-// "Put it into practice" and sources, glossary and bibliography; page turns, footnotes, Easy
-// reading at XL, dark, reduced motion, no sideways scroll); deleting a course and keeping (or not)
-// its dossier; saving it as one HTML file; and finishing an idea in a lesson binding its chapter.
-// Nothing Dan wrote is ever shown, and (v9) no test question anywhere: the dossier is a book to
-// learn from. Older chapters, bound before lessons had practice, end with their sources alone.
+// stubbed: the topic page's "Keep a dossier" option; the Library's dossiers as D4 tiles (the one
+// still being written leads, then finished and kept ones, then "In your own words"); the reader
+// (design 3, the field guide) on a phone and on a laptop: At a glance (the cover and contents in
+// one), a chapter's two pages (the chapter with its plate asleep until Tap to play, in the app's
+// kit theme; put it into practice and its sources), glossary and bibliography; the floating page
+// bar and the arrow keys through model().leaves; the old addresses (/contents, /plate, /plate/play);
+// footnotes, Easy reading at XL, dark, reduced motion, no sideways scroll; deleting a course and
+// keeping (or not) its dossier; saving it as one HTML file in the same tiles; and finishing an idea
+// in a lesson binding its chapter. The title is topic.title, never the query. Nothing Dan wrote is
+// ever shown, and (v9) no test question anywhere: the dossier is a book to learn from. Older
+// chapters, bound before lessons had practice, end with their sources alone.
 // Screenshots land in tests/out/dossier/. Exits non-zero on any failure.
 // Usage: node tests/e2e/dossier.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
@@ -72,7 +75,8 @@ function seed({ option, finished = true } = {}) {
   const pend = fx('topic');
   const db = {
     'topics/pendulums': { ...pend, query: DAN + '-query' },
-    'topics/pendulums/lessons/i1': lesson(fx('pendulum'), 'i1', PRACTICE),
+    // Chapter I closes its explanation with an all-bold paragraph: the key idea.
+    'topics/pendulums/lessons/i1': (() => { const d = lesson(fx('pendulum'), 'i1', PRACTICE); d.lesson.explain.text += '\n\n**Length sets the beat.**'; return d; })(),
     'topics/pendulums/lessons/i3': lesson(fx('small-swings'), 'i3'),
     'topics/pendulums/lessons/i5': lesson(fx('clocks'), 'i5'),
     'topics/pendulums/research/topic': { notes: [], sources: fx('pendulum').lesson.sources.concat([{ n: 9, title: 'Pendulum clocks — Science Museum', url: 'https://www.sciencemuseum.org.uk/pendulum', quote: 'Huygens built the first pendulum clock in 1656.' }]), at: at('09', '01') },
@@ -121,6 +125,38 @@ async function focusedH1(app) {
 }
 async function shot(app, name, full = false) { await app.page.waitForTimeout(300); await app.page.screenshot({ path: join(SHOTS, name + '.png'), fullPage: full }); }
 
+// The page bar's links and where it says he is.
+async function bar(app) {
+  return app.page.evaluate(() => {
+    const b = document.querySelector('.dos-pagebar'), a = (s) => b.querySelector(s);
+    // (a chapter's numeral is held to its word by a no-break space)
+    return { prev: a('.pb-prev .pb-name').textContent.replace(/\u00a0/g, ' '), prevHref: a('.pb-prev').getAttribute('href'), at: a('.pb-at').textContent,
+      next: a('.pb-next .pb-name').textContent.replace(/\u00a0/g, ' '), nextHref: a('.pb-next').getAttribute('href'), steps: [...b.querySelectorAll('.pb-steps i')].map((i) => i.className === 'on' ? 1 : 0).join('') };
+  });
+}
+// The page bar's middle: '' when what it shows is whole, else what is cut. A chapter's position:
+// the numeral fully inside, " · n of 2" either fully inside on the same line or dropped whole onto
+// the hidden line, and never an ellipsis. A page's name ("at a glance"): inside, not cut.
+async function middleCut(app) {
+  return app.page.evaluate(() => {
+    const at = document.querySelector('.dos-pagebar .pb-at'), ar = at.getBoundingClientRect();
+    const box = (e) => { const r = document.createRange(); r.selectNodeContents(e); return r.getBoundingClientRect(); };
+    const inside = (e) => { const r = box(e); return r.left >= ar.left - .5 && r.right <= ar.right + .5; };
+    const rn = at.querySelector('.pb-rn'), of = at.querySelector('.pb-of'), word = at.querySelector('.pb-word');
+    if ([...at.querySelectorAll('*')].concat(at).some((e) => getComputedStyle(e).textOverflow === 'ellipsis')) return 'an ellipsis';
+    if (rn) {
+      if (!inside(rn)) return 'the numeral ' + rn.textContent;
+      const line = at.querySelector('.pb-pos').getBoundingClientRect();
+      // (the span's own box says which line it is on; its glyphs reach a little above it)
+      if (of.getBoundingClientRect().top < line.bottom - 1 && !inside(of)) return 'the page ' + of.textContent;
+      return '';
+    }
+    return word && (!inside(word) || word.scrollWidth > word.clientWidth + 1) ? 'the name ' + word.textContent : '';
+  });
+}
+// A token's computed colour, for comparing with a tile's.
+const token = (app, name) => app.page.evaluate((n) => { const d = document.createElement('div'); d.style.color = 'var(' + n + ')'; document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; }, name);
+
 // =========================================================================================
 await test('option: every course keeps a dossier unless Dan turns it off on its page', async () => {
   const app = await open({ hash: '#/t/pendulums', db: seed({ finished: false }) });
@@ -134,7 +170,8 @@ await test('option: every course keeps a dossier unless Dan turns it off on its 
   eq(await app.page.evaluate(() => document.activeElement && document.activeElement.getAttribute('data-key')), 'dossier-switch', 'focus stays on the switch');
   await go(app, '#/library/dossiers');
   await app.page.waitForSelector('.lib-empty');
-  eq(await app.page.locator('.lib-dossiers .slot').count(), 0, 'off: no dossier on the shelf');
+  eq(await app.page.locator('.lib-dossiers .dl-tile:not(.dl-own)').count(), 0, 'off: no dossier in the Library');
+  eq(await app.page.locator('.lib-dossiers .dl-grid > li:last-child a.own').count(), 1, '"In your own words" still ends the grid');
   eq(await doc(app, DOS('pendulums')), null, 'and nothing bound');
   await go(app, '#/t/pendulums');
   await app.page.locator('.tp-dos .set-switch').click();
@@ -144,27 +181,34 @@ await test('option: every course keeps a dossier unless Dan turns it off on its 
   await shot(app, 'option-390');
 });
 
-await test('library: dossiers first (finished, then still being written), then "In your own words"', async () => {
+await test('library: the dossier being written leads, then finished ones, then "In your own words", in D4 tiles', async () => {
   for (const [w, dark] of [[390, false], [1366, true]]) {
     const app = await open({ width: w, dark, hash: '#/library/dossiers' });
-    await app.page.waitForSelector('.lib-dossiers .slot:not(.filler)', { timeout: 20000 });
-    await app.page.waitForFunction(() => document.querySelectorAll('.lib-dossiers .slot:not(.filler)').length === 2, null, { timeout: 20000 });
+    await app.page.waitForFunction(() => document.querySelectorAll('.lib-dossiers .dl-tile:not(.dl-own)').length === 2, null, { timeout: 20000 });
     eq(await app.page.locator('#tabs .tab[data-tab="book"]').innerText(), 'Library', 'the tab is "Library"');
     eq(await app.page.getAttribute('#tabs .tab[data-tab="book"]', 'aria-current'), 'page', 'and is current');
     eq(await focusedH1(app), 'Dossiers', 'heading takes focus');
     eq(await app.page.title(), 'Dossiers · My University', 'title');
-    const groups = await app.page.locator('.lib-dossiers .group h3').allInnerTexts();
-    assert(/^Finished\s*1$/.test(groups[0]) && /^Still being written\s*1$/.test(groups[1]), 'finished first: ' + JSON.stringify(groups));
-    const fin = await app.page.locator('#sh-done ~ .shelf .book-link').first().innerText();
-    assert(/How clocks count time/.test(fin) && /Finished 21 Aug/.test(fin) && /2 chapters/.test(fin), 'a finished dossier: ' + fin);
-    const going = await app.page.locator('#sh-going ~ .shelf .book-link').first().innerText();
-    assert(/Why pendulums keep time/.test(going) && /3 of 5 chapters/.test(going), 'still being written: ' + going);
-    eq(await app.page.locator('#sh-going ~ .shelf .sq i.on').count(), 3, 'three squares filled');
-    eq(await app.page.locator('#sh-done ~ .shelf .pclip').count(), 0, 'no paper clip on a finished one');
-    const nos = await app.page.locator('.lib-dossiers .lbl-no').allInnerTexts();
-    assert(nos.map((s) => s.trim()).sort().join() === 'NO. 1,NO. 2' || nos.map((s) => s.trim().toUpperCase()).sort().join() === 'NO. 1,NO. 2', 'numbered by when each course was begun: ' + nos);
-    const fonts = await app.page.evaluate(() => [...document.querySelectorAll('link[data-dossier-fonts]')].map((l) => l.href));
-    assert(fonts.length === 1 && /Walter\+Turncoat/.test(fonts[0]) && /display=swap/.test(fonts[0]), 'the hand-lettered fonts are linked once, lazily: ' + fonts);
+    // The lead tile: the dossier most recently bound that is still being written.
+    const lead = await app.page.locator('.dl-lead').textContent();
+    assert(/Why pendulums keep time/.test(lead) && /still being written/.test(lead) && /3\/5/.test(lead), 'the lead tile: ' + lead);
+    assert(/ch\. V bound 9 Sept?/.test(lead), 'with its newest chapter: ' + lead);
+    eq(await app.page.locator('.dl-lead .dl-bar').count(), 5, 'a bar per idea');
+    eq(await app.page.locator('.dl-lead .dl-bar.on').count(), 3, 'three bound');
+    eq(await app.page.getAttribute('.dl-lead', 'href'), '#/book/pendulums', 'it opens the dossier');
+    // Then the finished one: a white tile with a green check.
+    const order = await app.page.$$eval('.lib-dossiers .dl-tile', (ts) => ts.map((t) => t.className.replace(/.*\bdl-(lead|going|done|kept|own)\b.*/, '$1')));
+    eq(order.join(), 'lead,done,own', 'lead, finished, then In your own words');
+    const fin = await app.page.locator('.dl-done').textContent();
+    assert(/How clocks count time/.test(fin) && /Finished 21 Aug/.test(fin), 'a finished dossier: ' + fin);
+    eq(await app.page.locator('.dl-done .dl-check').count(), 1, 'its green check');
+    eq(await app.page.$eval('.dl-done .dl-check', (e) => getComputedStyle(e).backgroundColor), await token(app, '--green'), 'green: finished only');
+    eq(await app.page.$eval('.dl-done', (e) => getComputedStyle(e).borderTopColor), await token(app, '--edge'), 'the tile is outlined in --edge');
+    eq(await app.page.$eval('.dl-lead .dl-bar.on i', (e) => getComputedStyle(e).backgroundColor), await token(app, '--heading'), 'progress in ink');
+    const nos = await app.page.$$eval('.lib-dossiers .dl-tile .t-label', (l) => l.map((e) => e.textContent.trim()));
+    assert(nos.includes('Dossier 01') && nos.includes('Dossier 02'), 'numbered by when each course was begun: ' + nos);
+    eq(await app.page.evaluate(() => document.querySelectorAll('link[data-dossier-fonts]').length), 0, 'no hand-lettered fonts any more');
+    eq(await app.page.evaluate(() => [...document.querySelectorAll('link[rel=stylesheet]')].some((l) => /Literata/.test(l.href))), false, 'nor Literata');
     await noSideways(app, `library ${w}`);
     await noDan(app, 'library');
     await shot(app, `library-${w}${dark ? '-dark' : ''}`, true);
@@ -176,43 +220,57 @@ await test('library: dossiers first (finished, then still being written), then "
       eq(await app.page.getAttribute('#tabs .tab[data-tab="book"]', 'aria-current'), 'page', 'still under the Library tab');
       await app.page.locator('.book .backlink').click();
       await app.page.waitForSelector('.lib-page h1');
+    } else {
+      const g = await app.page.$$eval('.dl-grid > li', (ls) => ls.map((l) => Math.round(l.getBoundingClientRect().width)));
+      assert(g[0] > g[1] * 1.6, 'on a laptop the lead tile spans two columns: ' + g);
     }
   }
 });
 
-await test('reader on a phone: cover, contents, the three leaves of a chapter, footnotes, the plate asleep until played', async () => {
+await test('reader on a phone: at a glance, a chapter with its plate asleep until played, practice and sources, the page bar', async () => {
   const app = await open({ width: 390, hash: '#/book/pendulums' });
-  await app.page.waitForSelector('.jcover .jc-title');
-  eq(await focusedH1(app), 'Why pendulums keep time', 'the cover\'s h1 takes focus');
+  await app.page.waitForSelector('.g-h1');
+  eq(await focusedH1(app), 'Why pendulums keep time', 'at a glance: the course title is the h1');
+  eq(await app.page.evaluate(() => document.title), 'Why pendulums keep time · Dossier · My University', 'and the page title');
   eq(await app.page.evaluate(() => document.getElementById('view').dataset.screen), 'dossier', 'its own screen');
-  eq(await app.page.evaluate(() => document.documentElement.classList.contains('focus')), true, 'no app chrome: the leather bar instead');
-  await app.page.waitForFunction(() => /3 of 5 chapters/.test(document.querySelector('.jc-prog') && document.querySelector('.jc-prog').textContent), null, { timeout: 15000 });
-  await noSideways(app, 'cover');
-  await shot(app, 'cover-390');
-  await app.page.locator('.cover-actions a', { hasText: 'Open the dossier' }).click();
-  await app.page.waitForSelector('.toc');
-  eq(await focusedH1(app), 'Why pendulums keep time', 'contents: the title page\'s h1');
-  eq(await app.page.locator('.toc li').count(), 5, 'every idea listed');
-  eq(await app.page.locator('.toc li.unwritten').count(), 2, 'two not yet written');
-  assert(/not yet written/i.test(await app.page.locator('.toc li.unwritten').first().innerText()), 'said so');
-  eq(await app.page.locator('.toc li.unwritten a').count(), 0, 'and not links');
-  eq(await app.page.locator('.d-tabs .off').count(), 2, 'their tabs are not links either');
-  await shot(app, 'contents-390', true);
-  // Chapter I, the idea.
-  await app.page.locator('.toc a').first().click();
-  await app.page.waitForSelector('.d-card');
+  eq(await app.page.evaluate(() => document.documentElement.classList.contains('focus')), true, 'no app chrome: D4\'s focus bar instead');
+  eq(await app.page.getAttribute('.dos-bar .dos-up', 'href'), '#/library/dossiers', 'back goes to the Library');
+  assert(/^library\/why-pendulums-keep-time$/.test(await app.page.locator('.dos-path').textContent()), 'where he is, by the title\'s words: ' + await app.page.locator('.dos-path').textContent());
+  await app.page.waitForFunction(() => /3 of 5 chapters bound/.test(document.querySelector('.g-bound') && document.querySelector('.g-bound').textContent), null, { timeout: 15000 });
+  eq(await app.page.$eval('.g-bound', (e) => getComputedStyle(e).backgroundColor), await token(app, '--heading'), 'the Bound tile is ink: progress');
+  assert(/Begun\s*2 Sept?\s*2026 · \d+ sources/.test(await app.page.locator('.g-begun').textContent()), 'begun: ' + await app.page.locator('.g-begun').textContent());
+  eq(await app.page.locator('.g-grid li').count(), 5, 'a cell per idea');
+  eq(await app.page.locator('.g-grid li.is-unbound').count(), 2, 'two not yet written');
+  assert(/not yet written/.test(await app.page.locator('.g-grid li.is-unbound').first().textContent()), 'said so to a screen reader');
+  eq(await app.page.locator('.g-grid li.is-unbound a').count(), 0, 'and not links');
+  eq(await app.page.locator('.g-grid li.is-bound a').count(), 3, 'the bound ones are');
+  assert(/A weight on a string kept the world on time/.test(await app.page.locator('.g-hook').textContent()), 'the question it set out to answer');
+  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Library', prevHref: '#/library/dossiers', at: 'at a glance', next: 'Chapter I', nextHref: '#/book/pendulums/i1', steps: '' }), 'the page bar');
+  await noSideways(app, 'at a glance');
+  await noDan(app, 'at a glance');
+  await shot(app, 'glance-390', true);
+  // Chapter I: one page, the plate on it.
+  await app.page.locator('.g-grid li.is-bound a').first().click();
+  await app.page.waitForSelector('.c-head');
   eq(await focusedH1(app), 'What sets the beat', 'chapter h1');
   eq(await app.page.locator('h1').count(), 1, 'one h1 per page');
-  eq(await text(app, '.card-name'), 'PERIOD', 'Known as: the first key term');
-  eq(await app.page.locator('.stamp .vh').first().textContent(), 'Chapter complete, learned on 3 September 2026', 'the stamp says when, to a screen reader');
-  eq(await app.page.locator('.cert .on').textContent(), 'settled (this one)', 'how certain: the circled word, said once');
-  eq(await app.page.locator('.d-tabs a[aria-current="page"]').textContent(), 'I, chapter 1: What sets the beat', 'chapter tab current, named in full');
-  const tabTops = await app.page.$$eval('.d-tabs li', (l) => new Set(l.map((x) => Math.round(x.getBoundingClientRect().top))).size);
-  eq(tabTops, 1, 'chapter tabs in one row');
+  assert(/Chapter I of V/.test(await app.page.locator('.c-of').textContent()) && /quantity/.test(await app.page.locator('.c-of').textContent()), 'its place and kind');
+  eq(await app.page.locator('.c-key .c-key-t').textContent(), 'Length sets the beat.', 'the key idea: the explanation\'s closing all-bold paragraph');
+  assert(!(await app.page.locator('.c-explain').textContent()).includes('Length sets the beat.'), 'taken out of the explanation, not printed twice');
+  eq(await app.page.locator('.c-pills .on').textContent(), 'settled (this one)', 'how certain: the filled pill, said once');
+  eq(await app.page.locator('.c-compare a').count(), 2, 'Compare links only to bound chapters (III and V)');
+  eq(JSON.stringify(await app.page.$$eval('.c-compare .b-ch-off', (l) => l.map((e) => e.textContent))), JSON.stringify(['II · Gravity’s part, not yet written', 'IV · Energy back and forth, not yet written']), 'and shows the unbound ones as muted rows that are not links');
+  // Top to bottom: header, key idea, plate, what's going on, then the analogy beside where it breaks.
+  const tops = await app.page.evaluate(() => ['.c-head', '.c-key', '.c-plate', '.c-explain', '.c-analogy', '.c-breaks', '.c-compare', '.c-certain'].map((s) => Math.round(document.querySelector(s).getBoundingClientRect().top)));
+  assert(tops[0] < tops[1] && tops[1] < tops[2] && tops[2] < tops[3] && tops[3] < tops[4] && tops[4] === tops[5] && tops[5] < tops[6] && tops[6] === tops[7], 'the tiles in order, two pairs side by side: ' + tops);
+  eq(await app.page.$eval('.c-breaks', (e) => getComputedStyle(e).borderTopColor), await token(app, '--red'), 'where it breaks: a warning tile');
+  eq(await app.page.$eval('.c-key', (e) => getComputedStyle(e).boxShadow.includes('3px 3px 0px')), true, 'the key idea: the emphasis tile\'s hard shadow');
+  assert(/^the swing time/.test(await app.page.locator('.c-look').textContent().then((t) => t.replace(/^Look for /, ''))), 'Look for: the brief, word for word');
+  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Contents', prevHref: '#/book/pendulums', at: 'I · 1 of 2Chapter I, page 1 of 2', next: 'Practice', nextHref: '#/book/pendulums/i1/practice', steps: '10' }), 'the page bar: page 1 of 2');
   await noSideways(app, 'chapter');
   await noDan(app, 'chapter');
   // A footnote chip opens its source in place; Escape closes it and focus returns.
-  const chip = app.page.locator('.explain button.fn').first();
+  const chip = app.page.locator('.c-explain button.fn').first();
   await chip.scrollIntoViewIfNeeded();
   await app.page.waitForTimeout(500);
   await chip.click();
@@ -222,10 +280,8 @@ await test('reader on a phone: cover, contents, the three leaves of a chapter, f
   await app.page.waitForSelector('.fn-pop', { state: 'detached' });
   eq(await app.page.evaluate(() => document.activeElement.classList.contains('fn')), true, 'focus back on the chip');
   await shot(app, 'chapter-390', true);
-  // Next: Plate I, asleep until Tap to play.
-  await app.page.locator('.turn .next').click();
-  await app.page.waitForSelector('.mount');
-  eq(await focusedH1(app), 'Plate I Length and swing time', 'the plate\'s h1');
+  // The plate, asleep until Tap to play.
+  await app.page.locator('.c-plate').scrollIntoViewIfNeeded();
   eq(await app.page.getAttribute('.mount', 'data-awake'), 'false', 'asleep');
   eq(await app.page.locator('.mount .frame[inert]').count(), 1, 'inert while asleep');
   await app.page.waitForSelector('.mount iframe.kit-iframe', { state: 'attached', timeout: 15000 });
@@ -234,78 +290,111 @@ await test('reader on a phone: cover, contents, the three leaves of a chapter, f
   await app.page.locator('.wake').click();
   eq(await app.page.getAttribute('.mount', 'data-awake'), 'true', 'awake');
   eq(await app.page.locator('.mount .frame[inert]').count(), 0, 'no longer inert');
-  eq(await text(app, '.wake'), 'Done', 'the tab reads Done');
+  eq(await text(app, '.wake'), 'Done', 'the button reads Done');
   eq(await app.page.getAttribute('.wake', 'aria-pressed'), 'true', 'pressed');
-  // Drawn in ink on paper: the kit's page and its data roles (K_THEME.roles).
+  // In the D4 kit theme, like a lesson: the app's own palette, not the old ink on paper.
   const frame = app.page.frames().find((f) => f !== app.page.mainFrame());
   await frame.waitForFunction(() => window.K && document.documentElement.style.getPropertyValue('--k-bg'), null, { timeout: 15000 });
-  const ink = await frame.evaluate(() => ['--k-bg', '--k-ink', '--k-fill1', '--k-hl'].map((k) => document.documentElement.style.getPropertyValue(k).trim().toUpperCase()));
-  eq(ink.join(), '#F8F1E0,#2B2119,#D8DCD8,#F1D488', 'ink-on-paper theme with its roles');
+  const kit = await frame.evaluate(() => ['--k-bg', '--k-ink'].map((k) => document.documentElement.style.getPropertyValue(k).trim().toUpperCase()));
+  const app4 = await app.page.evaluate(() => { const t = U.sandbox.theme(); return [t.c.bg, t.c.ink].map((v) => v.toUpperCase()); });
+  eq(kit.join(), app4.join(), 'the kit theme is the app\'s (U.sandbox.theme)');
+  assert(!kit.includes('#F8F1E0'), 'not the old ink palette');
   await shot(app, 'plate-390');
   await app.page.locator('.wake').click();
   eq(await app.page.getAttribute('.mount', 'data-awake'), 'false', 'Done puts it back to sleep');
   // Next: put it into practice, and the sources.
-  assert(/Put it into practice/.test(await text(app, '.turn .next')), 'the page turn names it: ' + await text(app, '.turn .next'));
-  await app.page.locator('.turn .next').click();
-  await app.page.waitForSelector('.d-steps');
+  await app.page.locator('.dos-pagebar .pb-next').click();
+  await app.page.waitForSelector('.p-steps');
   eq(await focusedH1(app), 'Put it into practice', 'its h1');
   eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i1/practice', 'its address');
-  eq(await app.page.locator('.d-check li').count(), 2, 'the steps as an ink checklist');
-  eq((await app.page.locator('.d-check .d-step-n').allTextContents()).join(), '1,2', 'numbered');
-  eq(await app.page.locator('.d-check .d-box').count(), 2, 'each with its box');
-  assert((await text(app, '.d-rules')).includes('Four times the length, twice the time'), 'the rule of thumb on a taped card, a sentence with a capital');
-  eq(await app.page.locator('.d-rules .tape').count(), 2, 'taped');
-  assert(/Worked example[\s\S]*A 1 m pendulum/.test(await text(app, '.d-example')), 'the worked example as a field note');
-  assert(/Common mistakes[\s\S]*reaction time/.test(await text(app, '.d-mistakes')), 'the common mistakes');
-  const red = await app.page.evaluate(() => [getComputedStyle(document.querySelector('.d-mistakes')).color, getComputedStyle(document.querySelector('.dos')).getPropertyValue('--j-red').trim()]);
-  eq(red[0], 'rgb(150, 42, 34)', 'in red ink (' + red[1] + ')');
-  eq(await app.page.locator('.d-check button.fn').count(), 1, 'with its footnote');
-  eq(await app.page.locator('.ev').count(), 2, 'the chapter\'s sources');
+  eq(await app.page.locator('.p-check li').count(), 2, 'the steps as a numbered ink checklist');
+  eq((await app.page.locator('.p-check .p-step-n').allTextContents()).join(), '1,2', 'numbered');
+  eq(await app.page.locator('.p-rules .p-rule-lead').textContent(), 'Four times the length, twice the time.', 'the rule of thumb: its first sentence large, a sentence with a capital');
+  assert(/Worked example[\s\S]*A 1 m pendulum/i.test(await app.page.locator('.p-example').textContent()), 'the worked example in a grey panel');
+  eq(await app.page.locator('.p-mis').count(), 2, 'a warning tile per common mistake');
+  assert(/reaction time/.test(await app.page.locator('.p-mis').first().textContent()), 'in the lesson\'s words');
+  eq(await app.page.$eval('.p-mis', (e) => getComputedStyle(e).color), await token(app, '--red'), 'in red');
+  eq(await app.page.locator('.p-check button.fn').count(), 1, 'with its footnote');
+  eq(await app.page.locator('.p-src').count(), 2, 'the chapter\'s sources, one tile each');
+  eq(await app.page.locator('.p-src a[target="_blank"]').count(), 2, 'each linking out in a new tab');
+  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Chapter I', prevHref: '#/book/pendulums/i1', at: 'I · 2 of 2Chapter I, page 2 of 2', next: 'Chapter III', nextHref: '#/book/pendulums/i3', steps: '11' }), 'the page bar: page 2 of 2, then the next bound chapter');
   await noDan(app, 'practice');
   await noTests(app, 'practice');
   await noSideways(app, 'practice');
   await shot(app, 'practice-390', true);
+  // The page bar stays put at the bottom, and the last tile scrolls clear of it.
+  await app.page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await app.page.waitForTimeout(200);
+  const pb = await app.page.evaluate(() => { const b = document.querySelector('.dos-pagebar').getBoundingClientRect(), t = [...document.querySelectorAll('.dos-page > *')].pop().getBoundingClientRect(); return { bottom: Math.round(innerHeight - b.bottom), barTop: b.top, lastBottom: t.bottom }; });
+  assert(pb.bottom >= 12 && pb.bottom <= 16 && pb.lastBottom <= pb.barTop, 'the bar floats 14 px up and covers nothing at the end: ' + JSON.stringify(pb));
+  // From chapter III's page the bar names the previous page by its chapter.
+  await go(app, '#/book/pendulums/i3');
+  await app.page.waitForSelector('.c-head');
+  eq((await bar(app)).prev, 'Ch. I', 'another chapter\'s practice, by its numeral alone');
+  assert(/Previous page: Ch\. I practice/.test((await app.page.locator('.pb-prev').textContent()).replace(/\u00a0/g, ' ')), 'its whole name still said to a screen reader');
   // An older chapter (bound before lessons had practice): its sources alone.
   await go(app, '#/book/pendulums/i3/practice');
-  await app.page.waitForSelector('.spread.single .evidence');
+  await app.page.waitForSelector('.p-sources .p-src');
   eq(await focusedH1(app), 'Sources', 'a page of its own, headed Sources');
-  eq(await app.page.locator('.spread > .page').count(), 1, 'one page');
-  eq(await app.page.locator('.d-steps, .d-rules').count(), 0, 'no practice to show');
+  eq(await app.page.locator('.p-steps, .p-rules, .p-mis').count(), 0, 'no practice to show');
+  eq((await bar(app)).at.slice(0, 11), 'III · 2 of ', 'still the chapter\'s second page');
   await noTests(app, 'older chapter');
   await go(app, '#/book/pendulums/i3/tests');
-  await app.page.waitForSelector('.spread.single .evidence');
-  assert(true, 'its older address opens the same leaf');
+  await app.page.waitForSelector('.p-sources .p-src');
   // The glossary and bibliography.
   await go(app, '#/book/pendulums/bibliography');
-  await app.page.waitForSelector('.biblio');
-  const terms = await app.page.locator('.gloss dt').allInnerTexts();
+  await app.page.waitForSelector('.b-biblio');
+  const terms = await app.page.locator('.b-gloss dt').allInnerTexts();
   assert(terms.includes('period') && terms.includes('gravity'), 'glossary terms: ' + terms);
-  assert((await app.page.locator('.biblio').innerText()).includes('Science Museum'), 'the research\'s sources in the bibliography');
+  eq(await app.page.locator('.b-term').count(), terms.length, 'a grey tile per term');
+  assert((await app.page.locator('.b-biblio').innerText()).includes('Science Museum'), 'the research\'s sources in the bibliography');
   const biblioTop = await app.page.evaluate(() => document.getElementById('bibliography').getBoundingClientRect().top);
-  assert(biblioTop < 300, 'on a phone #/…/bibliography opens at the bibliography (' + biblioTop + ')');
+  assert(biblioTop < 300, '#/…/bibliography opens at the bibliography (' + biblioTop + ')');
+  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Ch. V', prevHref: '#/book/pendulums/i5/practice', at: 'bibliography', next: 'Library', nextHref: '#/library/dossiers', steps: '' }), 'the book ends at the Library; opened at the bibliography, the bar says so');
+  assert(/\/bibliography$/.test(await app.page.locator('.dos-path').textContent()), 'and so does the path');
   await noSideways(app, 'back matter');
   await noTests(app, 'back matter');
-  // Every page turn and the contents and tabs: no test anywhere in the book.
+  // Every page, and the older addresses: no test anywhere in the book.
   for (const h of ['#/book/pendulums', '#/book/pendulums/contents', '#/book/pendulums/i1', '#/book/pendulums/i1/plate', '#/book/pendulums/i5/practice']) {
     await go(app, h);
-    await app.page.waitForSelector('.turn, .cover-actions');
+    await app.page.waitForSelector('.dos-pagebar');
     await app.page.waitForTimeout(200);
     await noTests(app, h);
   }
 });
 
-await test('release-check nits: page-turn labels whole on a phone, the stamp clear of the key term at XL, a lone book\'s caption under it', async () => {
-  // The turn labels never break inside a word (the bibliography's back link was cut mid-word).
+await test('old addresses keep working: /contents, /plate, /plate/play and an unbound chapter', async () => {
+  const app = await open({ width: 390, hash: '#/book/pendulums/contents' });
+  await app.page.waitForSelector('.g-grid');
+  eq(await focusedH1(app), 'Why pendulums keep time', '/contents opens At a glance');
+  await app.page.waitForFunction(() => scrollY > 0 && Math.abs(document.getElementById('chapters').getBoundingClientRect().top) < 120, null, { timeout: 5000 });
+  eq((await bar(app)).at, 'at a glance', 'the same page');
+  await go(app, '#/book/pendulums/i1/plate');
+  await app.page.waitForSelector('.c-plate .mount');
+  eq(await focusedH1(app), 'What sets the beat', '/plate opens the chapter page');
+  await app.page.waitForFunction(() => Math.abs(document.querySelector('.c-plate').getBoundingClientRect().top) < 40, null, { timeout: 5000 });
+  eq(await app.page.getAttribute('.mount', 'data-awake'), 'false', 'at the plate, asleep');
+  eq((await bar(app)).at.slice(0, 9), 'I · 1 of ', 'on the chapter\'s first page');
+  await go(app, '#/book/pendulums/i1/plate/play');
+  await app.page.waitForFunction(() => document.querySelector('.mount') && document.querySelector('.mount').getAttribute('data-awake') === 'true', null, { timeout: 5000 });
+  assert(Math.abs(await app.page.$eval('.c-plate', (e) => e.getBoundingClientRect().top)) < 40, '/plate/play: at the plate, awake');
+  await go(app, '#/book/pendulums/i2');
+  await app.page.waitForSelector('.g-grid');
+  eq(await focusedH1(app), 'Why pendulums keep time', 'an unbound chapter\'s address shows At a glance');
+  await shot(app, 'old-unbound-390');
+});
+
+await test('release-check nits: page-bar names whole on a phone, half tiles across at XL, numerals in their box', async () => {
+  // The page bar's names never break inside a word, nor overlap where he is.
   for (const w of [360, 390]) {
     const app = await open({ width: w, height: 760, hash: '#/book/pendulums/bibliography' });
-    await app.page.waitForSelector('.biblio', { timeout: 20000 });
-    for (const h of ['#/book/pendulums/bibliography', '#/book/pendulums/i5/practice', '#/book/pendulums/i1/practice', '#/book/pendulums/i1/plate']) {
+    await app.page.waitForSelector('.b-biblio', { timeout: 20000 });
+    for (const h of ['#/book/pendulums/bibliography', '#/book/pendulums/i5/practice', '#/book/pendulums/i1/practice', '#/book/pendulums/i3', '#/book/pendulums']) {
       await go(app, h);
-      await app.page.waitForSelector('.turn a');
+      await app.page.waitForSelector('.dos-pagebar .pb-name');
       await app.page.waitForTimeout(150);
-      const cut = await app.page.$$eval('.turn a .tk, .turn a .tt', (els) => els.filter((e) => {
+      const cut = await app.page.$$eval('.dos-pagebar .pb-name', (els) => els.filter((e) => {
         if (e.scrollWidth > e.clientWidth + 1) return true;
-        // A word split across lines: some word of it wider than the line, or a break inside a word.
         const r = document.createRange(), t = e.firstChild;
         if (!t || t.nodeType !== 3) return false;
         const words = t.textContent.split(/(\s+)/); let at = 0;
@@ -315,86 +404,228 @@ await test('release-check nits: page-turn labels whole on a phone, the stamp cle
         }
         return false;
       }).map((e) => e.textContent));
-      assert(!cut.length, `${w} ${h}: page-turn labels cut or broken mid-word: ` + cut.join(' | '));
+      assert(!cut.length, `${w} ${h}: page-bar names cut or broken mid-word: ` + cut.join(' | '));
+      const clash = await app.page.evaluate(() => { const r = (s) => document.querySelector('.dos-pagebar ' + s).getBoundingClientRect(); return r('.pb-prev').right <= r('.pb-at').left + 1 && r('.pb-at').right <= r('.pb-next').left + 1; });
+      assert(clash, `${w} ${h}: the page bar's parts overlap`);
+      eq(await middleCut(app), '', `${w} ${h}: the middle label whole`);
     }
-    await shot(app, 'turn-labels-' + w);
+    await shot(app, 'pagebar-' + w);
   }
-  // At XL the "Chapter complete" stamp keeps clear of the key term below it.
+  // Where he is is never cut: at the larger text sizes " · 2 of 2" drops away whole and the numeral
+  // stays (never "I…"); a narrow bar keeps the previous page's chevron, its name said, 44 px wide.
+  for (const [size, easy] of [['m', false], ['l', false], ['xl', false], ['xl', true]]) {
+    const app = await open({ width: 360, height: 707, size, easy, hash: '#/book/pendulums/i3/practice' });
+    await app.page.waitForSelector('.p-sources .p-src', { timeout: 20000 });
+    for (const h of ['#/book/pendulums/i3/practice', '#/book/pendulums/i1', '#/book/pendulums/i5', '#/book/pendulums', '#/book/pendulums/bibliography']) {
+      await go(app, h);
+      await app.page.waitForSelector('.dos-pagebar .pb-at');
+      await app.page.waitForTimeout(150);
+      eq(await middleCut(app), '', `360 ${size}${easy ? ' easy' : ''} ${h}: the position or the page's name whole`);
+      const prev = await app.page.evaluate(() => { const a = document.querySelector('.dos-pagebar .pb-prev'); return { w: a.getBoundingClientRect().width, said: /^Previous page: \S/.test(a.textContent) }; });
+      assert(prev.w >= 44 && prev.said, `360 ${size} ${h}: the previous page keeps a 44 px target and its name: ` + JSON.stringify(prev));
+    }
+    await shot(app, `pagebar-360-${size}${easy ? '-easy' : ''}`);
+  }
+  // At XL on a small phone the half tiles go across, so their words keep a sensible measure.
   const xl = await open({ width: 360, height: 707, size: 'xl', hash: '#/book/pendulums/i1' });
-  await xl.page.waitForSelector('.d-card', { timeout: 20000 });
+  await xl.page.waitForSelector('.c-analogy', { timeout: 20000 });
+  const g = await xl.page.evaluate(() => { const a = document.querySelector('.c-analogy').getBoundingClientRect(), b = document.querySelector('.c-breaks').getBoundingClientRect(); return { aw: a.width, bt: b.top, ab: a.bottom }; });
+  assert(g.aw > 300 && g.bt >= g.ab, 'analogy and where it breaks one above the other at XL: ' + JSON.stringify(g));
   for (const h of ['#/book/pendulums/i1', '#/book/pendulums/i3', '#/book/pendulums/i5']) {
     await go(xl, h);
-    await xl.page.waitForSelector('.d-card .stamp');
-    // Measured with the card held straight (it is taped in at a slight angle); the stamp keeps its own turn.
-    const g = await xl.page.evaluate(() => { const c = document.querySelector('.d-card'); c.style.transform = 'none'; const s = c.querySelector('.stamp').getBoundingClientRect(), n = c.querySelector('.card-name').getBoundingClientRect(); c.style.transform = ''; return { stamp: Math.round(s.bottom * 10) / 10, name: Math.round(n.top * 10) / 10 }; });
-    assert(g.stamp <= g.name - 2, `${h} at XL: the stamp touches the key term (${JSON.stringify(g)})`);
+    await xl.page.waitForSelector('.c-num');
+    const fits = await xl.page.$eval('.c-num', (e) => e.scrollWidth <= e.clientWidth + 1);
+    eq(fits, true, h + ': the numeral fits its box at XL');
+    await noSideways(xl, h + ' xl');
   }
-  await shot(xl, 'stamp-xl-360');
-  // On a laptop a lone book's caption stands under its book, not at the shelf's far left.
-  const lib = await open({ width: 1366, height: 900, hash: '#/library/dossiers' });
-  await lib.page.waitForFunction(() => document.querySelectorAll('.lib-dossiers .slot:not(.filler)').length === 2, null, { timeout: 20000 });
-  // Where the caption's words start, against the book's left edge.
-  const off = await lib.page.$$eval('.lib-dossiers .slot:not(.filler)', (ss) => ss.map((sl) => {
-    const c = sl.querySelector('.cloth').getBoundingClientRect(), r = document.createRange();
-    r.selectNodeContents(sl.querySelector('.meta'));
-    return Math.round(Math.abs(r.getBoundingClientRect().left - c.left));
+  await shot(xl, 'chapter-xl-360');
+});
+
+await test('at a glance, finished: the Bound tile\'s date stays inside the ink on a phone at every text size', async () => {
+  // Measured against the tile's content edge, not its border: white on the page, text in the
+  // padding or past the edge would vanish. The harness has no web fonts, so the wider fallback
+  // font makes this the stricter check.
+  for (const [m, d] of [['06', '28'], ['09', '21'], ['09', '30']]) {
+    const db = seed();
+    const pr = db[`data/users/${UID}/profile/progress/clocks-ab12`].ideas;
+    pr.i1 = { stage: 'done', startedAt: at('06', '01'), doneAt: at('06', '02') };
+    pr.i2 = { stage: 'done', startedAt: at('06', '03'), doneAt: at(m, d) };
+    const app = await open({ width: 360, height: 760, db, hash: '#/book/clocks-ab12' });
+    await app.page.waitForSelector('.g-bound.is-done', { timeout: 20000 });
+    for (const [w, size, easy] of [[360, 'm', false], [390, 'm', false], [390, 'l', false], [412, 'xl', false], [360, 'm', true]]) {
+      await app.page.setViewportSize({ width: w, height: 760 });
+      await app.page.evaluate((o) => U.settings.apply(Object.assign({}, U.settings.prefs, o)), { size, easy });
+      await app.page.waitForTimeout(200);
+      const r = await app.page.evaluate(() => {
+        const t = document.querySelector('.g-bound'), s = t.querySelector('.g-stat'), big = t.querySelector('.g-big');
+        const g = document.createRange(); g.selectNodeContents(big);
+        return { text: big.textContent, tile: t.scrollWidth - t.clientWidth, stat: s.scrollWidth - s.clientWidth, past: Math.round((g.getBoundingClientRect().right - (t.getBoundingClientRect().right - parseFloat(getComputedStyle(t).paddingRight))) * 10) / 10 };
+      });
+      assert(r.tile <= 0 && r.stat <= 0 && r.past <= 0.5, `${m}-${d} at ${w} ${size}${easy ? ' easy' : ''}: the date inside the tile: ` + JSON.stringify(r));
+    }
+    if (m === '09' && d === '30') {
+      await app.page.setViewportSize({ width: 360, height: 760 });
+      await app.page.evaluate(() => U.settings.apply(Object.assign({}, U.settings.prefs, { size: 'm', easy: false })));
+      await shot(app, 'glance-finished-360');
+      // Dark: the ink tile is light, so the finished ring takes the green that holds 3:1 on it.
+      await app.page.evaluate(() => U.settings.apply(Object.assign({}, U.settings.prefs, { theme: 'dark' })));
+      await app.page.waitForTimeout(200);
+      eq(await app.page.$eval('.g-bound .ring .fl', (e) => getComputedStyle(e).stroke), 'rgb(46, 125, 79)', 'dark: the finished ring on the ink tile is the darker green');
+      await shot(app, 'glance-finished-360-dark');
+    }
+  }
+});
+
+await test('a chapter\'s order and outline: contested views last, the plate a heading, held at its height; links Dan taps on their own are 44 px', async () => {
+  const app = await open({ width: 390, hash: '#/book/pendulums/i5' });
+  await app.page.waitForSelector('.c-view', { timeout: 20000 });
+  // The brief's order: ... Compare beside How certain, the plate's notes, then the contested views.
+  const v = await app.page.evaluate(() => { const c = document.querySelector('.c-certain'), vs = [...document.querySelectorAll('.c-view')]; return { n: vs.length, after: vs.every((x) => c.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING), below: vs[0].getBoundingClientRect().top > c.getBoundingClientRect().bottom }; });
+  assert(v.n === 2 && v.after && v.below, 'the contested views come after How certain: ' + JSON.stringify(v));
+  // The plate has a heading of its own, so moving by headings finds it; Tap to play is not in it.
+  await go(app, '#/book/pendulums/i1');
+  await app.page.waitForSelector('.c-plate .mount');
+  const hs = await app.page.$$eval('h2', (l) => l.map((e) => e.textContent));
+  assert(hs.some((t) => /^Plate I\b/.test(t)) && hs.indexOf(hs.find((t) => /^Plate I\b/.test(t))) < hs.indexOf('What’s going on'), 'the chapter\'s h2s: ' + hs.join(' | '));
+  eq(await app.page.evaluate(() => { const f = document.querySelector('.c-plate'); return document.getElementById(f.getAttribute('aria-labelledby')).textContent; }), 'Plate I: Length and swing time', 'the plate is named by its heading, not by Tap to play');
+  // A flat well: none of the kit host's own card.
+  eq(await app.page.$eval('.mount .kit-frame', (e) => { const c = getComputedStyle(e); return c.borderTopWidth + ' ' + c.boxShadow; }), '0px none', 'the plate sits in a flat well');
+  // Its height is held from the first paint: what this device measured last time.
+  await app.page.waitForFunction(() => Number(localStorage.getItem('mu-dos-h:pendulums:i1')) > 120, null, { timeout: 20000 });
+  const kept = await app.page.evaluate(() => Number(localStorage.getItem('mu-dos-h:pendulums:i1')));
+  await go(app, '#/book/pendulums');
+  await app.page.waitForSelector('.g-grid');
+  await app.page.evaluate(() => U.go('#/book/pendulums/i1'));
+  const first = await app.page.waitForFunction(() => { const w = document.querySelector('.c-plate .mount .frame'); if (!w) return null; const f = w.querySelector('iframe'); return parseFloat(f ? f.style.height : w.style.minHeight); });
+  const held = await first.jsonValue();
+  assert(Math.abs(held - kept) <= 2, `the plate starts at the height it had last time (${held} vs ${kept})`);
+  assert(!(await app.page.evaluate(() => JSON.stringify(Object.keys(window.__CLAUDE_STUB__.dump()).filter((p) => p.includes('/dossiers/')).map((p) => window.__CLAUDE_STUB__.get(p))))).includes('mu-dos-h'), 'a look, never written to the dossier');
+  // Links tapped on their own: 44 px tall.
+  for (const [h, sel] of [['#/book/pendulums/i1', '.c-compare a'], ['#/book/pendulums/i1/practice', '.p-src-u'], ['#/book/pendulums/glossary', '.b-first a'], ['#/book/pendulums/glossary', '.b-ch a'], ['#/book/pendulums/glossary', '.b-work .p-src-u']]) {
+    await go(app, h);
+    await app.page.waitForSelector(sel);
+    const small = await app.page.$$eval(sel, (l) => l.map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height), e.textContent.slice(0, 20)]; }).filter((x) => x[1] < 44 || x[0] < 24));
+    assert(!small.length, `${h} ${sel}: tap targets under 44 px: ` + JSON.stringify(small));
+  }
+  // The practice tiles are headings too.
+  await go(app, '#/book/pendulums/i1/practice');
+  await app.page.waitForSelector('.p-rules');
+  const ph = await app.page.$$eval('h2', (l) => l.map((e) => e.textContent));
+  assert(['Steps', 'Rule of thumb', 'Worked example', 'Common mistakes', 'Sources'].every((t) => ph.includes(t)), 'the practice page\'s h2s: ' + ph.join(' | '));
+  await noSideways(app, 'practice');
+});
+
+await test('Compare on a phone: a row per chapter, and each link takes a tap on its own words (and "First met in" none of the definition\'s)', async () => {
+  // Every idea bound, so chapter I comes back in four linked chapters (II to V), and chapter III
+  // both builds on one and comes back in one.
+  const db = seed();
+  db['topics/pendulums/lessons/i2'] = lesson(fx('small-swings'), 'i2');
+  db['topics/pendulums/lessons/i4'] = lesson(fx('clocks'), 'i4');
+  Object.assign(db[`data/users/${UID}/profile/progress/pendulums`].ideas, { i2: { stage: 'done', startedAt: at('09', '10'), doneAt: at('09', '11') }, i4: { stage: 'done', startedAt: at('09', '12'), doneAt: at('09', '13') } });
+  const app = await open({ db, hash: '#/library/dossiers' });
+  // (opening binds what is finished; all five chapters before the reader)
+  await app.page.waitForFunction((p) => Object.keys(window.__CLAUDE_STUB__.dump()).filter((k) => k.startsWith(p)).length === 5, DOS('pendulums', '/chapters/'), { timeout: 30000 });
+  // Where a tap on the middle of a link's words lands, for each link (the tile in view first).
+  const taps = () => app.page.evaluate(() => {
+    document.querySelector('.c-compare').scrollIntoView({ block: 'center', behavior: 'instant' });
+    return [...document.querySelectorAll('.c-compare a')].map((a) => {
+      const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.textContent.trim() && !n.parentElement.closest('.vh') ? 1 : 3) }).nextNode();
+      const r = document.createRange(); r.selectNodeContents(w); const b = r.getBoundingClientRect();
+      const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+      return { text: a.textContent, ok: !!hit && hit.closest('a') === a, hit: hit ? (hit.closest('a') || hit).textContent.slice(0, 40) : null };
+    });
+  });
+  for (const [hash, n, labels] of [['#/book/pendulums/i1', 4, ['Comes back in']], ['#/book/pendulums/i3', 2, ['Builds on', 'Comes back in']]]) {
+    await go(app, hash);
+    await app.page.waitForFunction((k) => document.querySelectorAll('.c-compare a').length === k, n, { timeout: 20000 });
+    eq(JSON.stringify(await app.page.$$eval('.c-compare .b-ch-h', (l) => l.map((e) => e.textContent))), JSON.stringify(labels), hash + ': the small labels');
+    // A row each: its numeral and the chapter's title, one link to a line.
+    const rows = await app.page.$$eval('.c-compare .b-ch a', (l) => l.map((a) => a.textContent));
+    assert(rows.length === n && rows.every((t) => /^[IVX]+ · \S/.test(t)), hash + ': a row per chapter, numeral and title: ' + JSON.stringify(rows));
+    const lines = await app.page.$$eval('.c-compare a', (l) => l.map((a) => Math.round(a.getBoundingClientRect().top)));
+    eq(new Set(lines).size, lines.length, hash + ': no two links on one line');
+    const t = await taps();
+    assert(t.every((x) => x.ok), hash + ': a tap on a link\'s words opens that link: ' + JSON.stringify(t.filter((x) => !x.ok)));
+  }
+  assert(!(await app.page.locator('.c-compare').innerText()).includes('Gravity’s part'), 'chapter III\'s Compare names only its own neighbours');
+  await shot(app, 'compare-390');
+  // The tapped row opens its chapter.
+  await go(app, '#/book/pendulums/i1');
+  await app.page.waitForFunction(() => document.querySelectorAll('.c-compare a').length === 4, null, { timeout: 20000 });
+  await app.page.locator('.c-compare a', { hasText: 'Gravity’s part' }).click();
+  await app.page.waitForFunction(() => location.hash === '#/book/pendulums/i2');
+  eq(await focusedH1(app), 'Gravity’s part', 'chapter II opens');
+  // "First met in …": its 44 px target stays off the definition's last line.
+  await go(app, '#/book/pendulums/glossary');
+  await app.page.waitForSelector('.b-first a');
+  const stolen = await app.page.evaluate(() => [...document.querySelectorAll('.b-term')].map((t) => {
+    t.scrollIntoView({ block: 'center', behavior: 'instant' });
+    const a = t.querySelector('.b-first a'), d = t.querySelector('.b-def').getBoundingClientRect(), y = d.bottom - 3;
+    let n = 0;
+    for (let x = d.left + 2; x < d.right; x += 4) { const e = document.elementFromPoint(x, y); if (e && e.closest('a') === a) n++; }
+    return n;
   }));
-  assert(off.every((d) => d <= 12), 'each caption starts under its book (px from the book\'s edge): ' + off);
-  await shot(lib, 'library-lone-1366');
+  assert(stolen.length && stolen.every((n) => n === 0), 'a tap on a definition\'s last line stays on the words: ' + stolen);
 });
 
 await test('reader on a phone at XL with Easy reading, and dark with reduced motion', async () => {
   const a = await open({ width: 360, height: 707, size: 'xl', easy: true, hash: '#/book/pendulums/i1' });
-  await a.page.waitForSelector('.d-card', { timeout: 20000 });
+  await a.page.waitForSelector('.c-explain', { timeout: 20000 });
   await noSideways(a, 'xl easy');
-  eq(await a.page.$$eval('.d-tabs li', (l) => new Set(l.map((x) => Math.round(x.getBoundingClientRect().top))).size), 1, 'tabs keep one row at XL');
-  const inCard = await a.page.evaluate(() => { const c = document.querySelector('.d-card').getBoundingClientRect(), st = document.querySelector('.d-card .stamp').getBoundingClientRect(); return st.right <= c.right && st.left >= c.left; });
-  eq(inCard, true, 'the stamp stays on the index card at XL');
-  const fam = await a.page.evaluate(() => [getComputedStyle(document.querySelector('.note-t, .cert-why')).fontFamily, getComputedStyle(document.querySelector('.prose p')).fontFamily, getComputedStyle(document.querySelector('.ch-title')).fontFamily]);
-  assert(/Atkinson/.test(fam[0]) && /Atkinson/.test(fam[1]), 'Easy reading: notes and reading text in Atkinson Hyperlegible: ' + fam);
-  assert(/Walter Turncoat/.test(fam[2]), 'the big lettered title keeps its hand: ' + fam[2]);
-  const fs = await a.page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.prose p')).fontSize));
-  eq(fs, 22.5, 'reading text follows the app\'s Text size (1.125rem at XL)');
+  const fam = await a.page.evaluate(() => ['.c-explain .t-prose p', '.c-h1', '.c-explain .t-label', '.c-kind'].map((s) => getComputedStyle(document.querySelector(s)).fontFamily));
+  assert(fam.every((f) => /^"?Atkinson Hyperlegible/.test(f)), 'Easy reading: Atkinson everywhere, labels and mono included: ' + fam.join(' | '));
+  const fs = await a.page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('.c-explain .t-prose p')).fontSize));
+  eq(fs, 21.25, 'reading text follows the app\'s Text size (1.0625rem at XL)');
   await shot(a, 'chapter-360-xl-easy', true);
   const b = await open({ width: 390, dark: true, reduced: true, hash: '#/book/pendulums/i1' });
-  await b.page.waitForSelector('.d-card', { timeout: 20000 });
-  const d = await b.page.evaluate(() => [getComputedStyle(document.querySelector('.dos')).getPropertyValue('--paper').trim(), getComputedStyle(document.querySelector('.spread')).animationName]);
-  eq(d[0], '#2A241D', 'lamp-lit paper in dark');
-  eq(d[1], 'none', 'no settle animation under reduced motion');
+  await b.page.waitForSelector('.c-explain', { timeout: 20000 });
+  const d = await b.page.evaluate(() => [getComputedStyle(document.querySelector('.c-head')).backgroundColor, getComputedStyle(document.querySelector('.c-explain')).backgroundColor, getComputedStyle(document.querySelector('.dos-page')).animationName]);
+  eq(d[0], await token(b, '--surface'), 'dark: the white tiles are the dark surface');
+  eq(d[0], 'rgb(29, 32, 36)', 'D4\'s dark --surface');
+  eq(d[1], await token(b, '--sunk'), 'and the grey ones --sunk');
+  eq(d[2], 'none', 'no settle animation under reduced motion');
   await shot(b, 'chapter-390-dark');
 });
 
-await test('reader on a laptop: a two-page spread, page turns by arrow keys and desk arrows', async () => {
+await test('reader on a laptop: one wider tile page, the plate beside its notes, the arrow keys follow the page order', async () => {
   const app = await open({ width: 1366, height: 900, hash: '#/book/pendulums/i1' });
-  await app.page.waitForSelector('.d-card', { timeout: 20000 });
-  const pages = await app.page.$$eval('.spread > .page', (ps) => ps.map((p) => { const r = p.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top), Math.round(r.width)]; }));
-  assert(pages.length === 2 && pages[0][1] === pages[1][1] && pages[1][0] > pages[0][0] + 300, 'left and right pages side by side: ' + JSON.stringify(pages));
-  eq(await app.page.locator('.sides .side-a').count(), 2, 'desk arrows');
-  eq(await app.page.getAttribute('.sides', 'aria-hidden'), 'true', 'which repeat the turn links');
-  // The Compare note sits in the outer margin column, beside the text, not over it.
-  const xref = await app.page.evaluate(() => { const x = document.querySelector('.side.xref').getBoundingClientRect(), c = document.querySelector('.d-card').getBoundingClientRect(); return x.right <= c.left + 1; });
-  eq(xref, true, 'Compare in the margin');
+  await app.page.waitForSelector('.c-plate', { timeout: 20000 });
+  eq(await app.page.$eval('.dos-page', (e) => getComputedStyle(e).gridTemplateColumns.split(' ').length), 4, 'four columns');
+  const w = await app.page.$eval('.dos-page', (e) => e.getBoundingClientRect().width);
+  assert(w <= 1200 + 1, 'up to --wide: ' + w);
+  const side = await app.page.evaluate(() => { const p = document.querySelector('.c-plate').getBoundingClientRect(), a = document.querySelector('.c-analogy').getBoundingClientRect(), c = document.querySelector('.c-certain').getBoundingClientRect(); return { beside: a.left >= p.right, stacked: c.top > a.top && Math.abs(c.left - a.left) < 2, top: Math.abs(a.top - p.top) < 2 }; });
+  assert(side.beside && side.stacked && side.top, 'the analogy, where it breaks, Compare and How certain stack beside the plate: ' + JSON.stringify(side));
+  const head = await app.page.evaluate(() => [document.querySelector('.c-head'), document.querySelector('.c-key')].map((e) => Math.round(e.getBoundingClientRect().width)));
+  assert(head[0] === head[1] && head[0] > w - 60, 'the header and key idea run across: ' + head);
+  eq(await app.page.locator('.sides, .turn').count(), 0, 'no desk arrows or turn links: the page bar instead');
+  const pbw = await app.page.$eval('.dos-pagebar', (e) => e.getBoundingClientRect().width);
+  assert(pbw <= 34 * 16 + 1, 'the page bar keeps its size: ' + pbw);
   await noSideways(app, 'laptop chapter');
   await shot(app, 'chapter-1366');
-  await app.page.keyboard.press('ArrowRight');
-  await app.page.waitForSelector('.mount');
-  eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i1/plate', 'ArrowRight: the next leaf');
-  await app.page.keyboard.press('ArrowRight');
-  await app.page.waitForSelector('.d-steps');
-  const pp = await app.page.$$eval('.spread > .page', (ps) => ps.map((p) => Math.round(p.getBoundingClientRect().top)));
-  assert(pp.length === 2 && pp[0] === pp[1], 'put it into practice | sources, side by side');
+  // Each turn waits for that page to be drawn (the reader says which leaf it shows) before the next key.
+  async function turn(key, leaf) {
+    await app.page.keyboard.press(key);
+    await app.page.waitForSelector(`.dos.reader[data-leaf="${leaf}"] .dos-pagebar`, { timeout: 10000 });
+  }
+  await turn('ArrowRight', 'i1:practice');
+  eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i1/practice', 'ArrowRight: the next page');
+  await app.page.waitForSelector('.p-steps');
   await shot(app, 'practice-1366');
+  await turn('ArrowRight', 'i3:chapter');
+  eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i3', 'then the next bound chapter');
+  await turn('ArrowLeft', 'i1:practice');
+  await turn('ArrowLeft', 'i1:chapter');
+  await turn('ArrowLeft', 'glance');
+  eq(await app.page.evaluate(() => location.hash), '#/book/pendulums', 'back to At a glance');
+  await app.page.waitForSelector('.g-grid');
+  eq(await app.page.$eval('.g-grid', (e) => getComputedStyle(e).gridTemplateColumns.split(' ').length), 4, 'at a glance: four chapters a row');
   await app.page.keyboard.press('ArrowLeft');
-  await app.page.waitForSelector('.mount');
-  eq(await app.page.evaluate(() => location.hash), '#/book/pendulums/i1/plate', 'ArrowLeft: back');
-  await shot(app, 'plate-1366');
-  await go(app, '#/book/pendulums/i1/plate/play');
-  await app.page.waitForFunction(() => document.querySelector('.mount') && document.querySelector('.mount').getAttribute('data-awake') === 'true');
-  // The circled number from the sources, in the margin.
+  await app.page.waitForTimeout(300);
+  eq(await app.page.evaluate(() => location.hash), '#/book/pendulums', 'ArrowLeft on the first page stays: the Library is not a page of the book');
+  await shot(app, 'glance-1366');
   await go(app, '#/book/pendulums/glossary');
-  await app.page.waitForSelector('.gloss');
-  const cols = await app.page.$$eval('.spread > .page', (ps) => ps.map((p) => Math.round(p.getBoundingClientRect().top)));
-  eq(cols[0], cols[1], 'glossary | bibliography side by side');
+  await app.page.waitForSelector('.b-gloss');
+  assert(await app.page.$eval('.b-gloss', (e) => getComputedStyle(e).gridTemplateColumns.split(' ').length >= 2), 'glossary tiles side by side');
   await shot(app, 'glossary-1366');
 });
 
@@ -412,26 +643,25 @@ await test('delete a course and keep its dossier (the default); or delete the do
   const idx = await doc(app, DOS('pendulums'));
   assert(idx && idx.kept === true && Object.keys(idx.chapters).length === 3, 'its dossier is kept, every finished idea bound first: ' + JSON.stringify(idx && Object.keys(idx.chapters || {})));
   await go(app, '#/library/dossiers');
-  await app.page.waitForSelector('.lib-dossiers .slot:not(.filler)', { timeout: 15000 });
-  assert((await text(app, '.lib-dossiers .book-link')).includes('Why pendulums keep time'), 'on the shelf');
+  await app.page.waitForSelector('.lib-dossiers .dl-kept', { timeout: 15000 });
   // Its course is gone, so it can never gain a chapter: never "still being written".
-  const shelfText = await text(app, '.lib-dossiers');
-  assert(/Kept from deleted courses/.test(shelfText) && !/Still being written/.test(shelfText), 'a kept dossier sits on its own shelf: ' + shelfText.replace(/\s+/g, ' ').slice(0, 200));
-  eq(await app.page.locator('.lib-dossiers .pclip').count(), 0, 'no paper clip on a closed dossier');
-  await app.page.locator('.lib-dossiers .book-link').first().click();
-  await app.page.waitForSelector('.jc-title');
-  const coverText = await text(app, '.jc-label');
-  assert(/Kept from a deleted course/.test(coverText) && !/Still being written/.test(coverText), 'the cover says it was kept: ' + coverText.replace(/\s+/g, ' '));
-  await go(app, '#/book/pendulums/contents');
-  await app.page.waitForSelector('.d-tabs');
-  eq(await app.page.locator('.d-tabs .off').count(), 0, 'no greyed tabs for chapters that can never be written');
+  const kept = await app.page.locator('.lib-dossiers .dl-kept').textContent();
+  assert(/Why pendulums keep time/.test(kept) && /Dossier 01 · kept/.test(kept) && /3 of 5 chapters · course deleted/.test(kept), 'a kept dossier\'s tile: ' + kept);
+  eq(await app.page.locator('.lib-dossiers .dl-lead').count(), 0, 'and it never leads as still being written');
+  eq(await app.page.$eval('.dl-kept', (e) => getComputedStyle(e).borderTopStyle), 'dashed', 'dashed');
+  await shot(app, 'library-kept-390');
+  await app.page.locator('.lib-dossiers .dl-kept').click();
+  await app.page.waitForSelector('.g-h1');
+  const glanceText = await app.page.locator('.g-bound').textContent();
+  assert(/Kept from a deleted course/.test(glanceText) && !/Still being written/i.test(await app.page.locator('.dos-page').textContent()), 'at a glance says it was kept: ' + glanceText);
+  assert(/not written: the course was deleted/.test(await app.page.locator('.g-grid .is-unbound').first().textContent()), 'its unwritten chapters say why');
   await go(app, '#/book/pendulums/i3');
-  await app.page.waitForSelector('.d-card');
+  await app.page.waitForSelector('.c-head');
   eq(await focusedH1(app), 'Small swings and big swings', 'a kept dossier opens with no course behind it');
   await noDan(app, 'kept');
   // The other choice: the dossier goes too.
   const b = await open({ hash: '#/book/pendulums', db: seed({ finished: false }) });
-  await b.page.waitForSelector('.jc-title');
+  await b.page.waitForSelector('.g-h1');
   await b.page.waitForFunction((p) => { const d = window.__CLAUDE_STUB__.get(p); return d && d.chapters && Object.keys(d.chapters).length === 3; }, DOS('pendulums'), { timeout: 15000 });
   await go(b, '#/t/pendulums');
   await b.page.locator('.tp-delete').click();
@@ -443,9 +673,9 @@ await test('delete a course and keep its dossier (the default); or delete the do
   eq(left.length, 0, 'no dossier docs left: ' + left);
 });
 
-await test('save a copy: the whole dossier as one HTML file, styles inline, fonts by link, no scripts', async () => {
+await test('save a copy: the whole dossier as one HTML file in the same tiles, styles inline, fonts by link, no scripts', async () => {
   const app = await open({ hash: '#/book/pendulums' });
-  await app.page.waitForFunction(() => /3 of 5 chapters/.test((document.querySelector('.jc-prog') || {}).textContent || ''), null, { timeout: 20000 });
+  await app.page.waitForFunction(() => /3 of 5 chapters bound/.test((document.querySelector('.g-bound') || {}).textContent || ''), null, { timeout: 20000 });
   await app.page.evaluate(() => { const f = U.saveFile; window.__saved = []; U.saveFile = function (n, t, ty) { window.__saved.push({ n, t, ty }); return f.apply(this, arguments); }; });
   await app.page.locator('.d-save').click();
   await app.page.waitForFunction(() => window.__saved.length === 1);
@@ -454,11 +684,14 @@ await test('save a copy: the whole dossier as one HTML file, styles inline, font
   eq(s.ty, 'text/html', 'type');
   const dl = (await app.calls()).filter((c) => c.kind === 'download');
   eq(dl.length, 1, 'through the downloads capability');
+  await app.page.waitForFunction(() => /Save a copy/.test(document.querySelector('.d-save').textContent) && !document.querySelector('.d-save').disabled);
   const h = s.t;
-  assert(h.startsWith('<!doctype html>') && h.includes('<style>') && /fonts\.googleapis\.com\/css2\?family=Literata/.test(h), 'a page with its styles and a fonts link');
-  assert(/"Courier New", ?monospace/.test(h) && /Georgia/.test(h), 'with fallbacks');
+  assert(h.startsWith('<!doctype html>') && h.includes('<style>') && /fonts\.googleapis\.com\/css2\?family=Barlow/.test(h), 'a page with its styles and a fonts link');
+  assert(!/Literata|Walter|Patrick|Special\+Elite/.test(h), 'none of the old fonts');
+  assert(/system-ui/.test(h) && /monospace/.test(h), 'with fallbacks');
+  assert(/class="t w full"/.test(h) && /class="t em full"/.test(h) && /class="t warn( mis)?"/.test(h) && /class="t ink"/.test(h), 'in the same tiles: white, emphasis, warning, ink');
   assert(!/<script/i.test(h) && !/\son[a-z]+=/i.test(h) && !/<iframe/i.test(h), 'no scripts, handlers or frames');
-  for (const t of ['What sets the beat', 'Small swings and big swings', 'From pendulums to clocks', 'Put it into practice', 'Rule of thumb', 'Worked example', 'Common mistakes', 'Four times the length, twice the time', 'Glossary', 'Bibliography', 'The live plate plays']) assert(h.includes(t), 'contains ' + t);
+  for (const t of ['What sets the beat', 'Small swings and big swings', 'From pendulums to clocks', 'Key idea', 'Length sets the beat.', 'Put it into practice', 'Rule of thumb', 'Worked example', 'Common mistakes', 'Four times the length, twice the time', 'Glossary', 'Bibliography', 'The live plate plays']) assert(h.includes(t), 'contains ' + t);
   eq((h.match(/Put it into practice/g) || []).length, 1, 'practice only where the chapter has it (one of the three)');
   await noTests(app, 'the saved copy', h.replace(/&#39;|&rsquo;/g, '’').replace(/&quot;/g, '"'));
   assert(!h.includes(DAN), 'none of Dan\'s words: ' + (h.match(/DANWORDS[-\w]*/g) || []).join(', '));
@@ -466,7 +699,7 @@ await test('save a copy: the whole dossier as one HTML file, styles inline, font
   const p2 = await app.context.newPage();
   await p2.route('**/*', (r) => r.abort());
   await p2.setContent(h);
-  eq(await p2.locator('h1').innerText(), 'Why pendulums keep time', 'opens as a page');
+  eq(await p2.locator('h1').innerText(), 'Why pendulums keep time', 'opens as a page, titled by the course');
   eq(await p2.locator('section[id^="ch-"]').count(), 3, 'one section per bound chapter');
   await p2.close();
 });

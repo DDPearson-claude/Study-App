@@ -2,11 +2,12 @@
 // runtime stub's db (tools/harness/claude-stub.js), in a VM page with no DOM. Checks: a chapter
 // keeps only the lesson's own teaching (nothing Dan wrote, chose or scored, not even his query,
 // and no test question: v9 keeps "Put it into practice" instead); practice sorted into the
-// journal's parts by fixed rules, word for word; a
+// practice page's parts by fixed rules, word for word; a
 // plate too big for one doc is left out with a note; Learn it again binds the newest edition;
 // ideas finished before dossiers existed are bound from the stored lessons (backfill), only where
 // the course keeps one; the index; keep and remove; the model's glossary, bibliography and page
-// order; and the router's screen for dossier pages.
+// order (at a glance, two pages per chapter, the back matter); and the router's screen for dossier
+// pages, old addresses included.
 // Run: node --test tests/*.test.mjs
 import test, { beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -119,7 +120,7 @@ test('a chapter keeps only the lesson\'s own teaching: nothing Dan wrote, chose 
   assert.equal(await t.U.dossier.sync('pendulums'), 0, 'a second backfill in the same page load does nothing');
 });
 
-test('practice is sorted into the journal\'s parts by fixed rules, word for word', async () => {
+test('practice is sorted into the practice page\'s parts by fixed rules, word for word', async () => {
   const { U } = await page();
   const kinds = (t) => plain(U.dossier.practiceParts(t)).map((p) => p.kind + (p.label ? ':' + p.label : '') + '=' + p.paras.concat(p.items).join('|'));
   assert.deepEqual(kinds(PRACTICE), [
@@ -143,6 +144,11 @@ test('practice is sorted into the journal\'s parts by fixed rules, word for word
   assert.deepEqual(kinds('**Worked example:** a 2 m swing.\n\nSo it takes about 2.8 s.\n\n**Length sets the beat.** Keep it in mind.'), [
     'example:Worked example=A 2 m swing.|So it takes about 2.8 s.|**Length sets the beat.** Keep it in mind.',
   ]);
+  // The words after a label start with a capital only where they start with a lower-case letter:
+  // a number stops it, so a unit is never changed ("2400 mm" is not "2400 Mm").
+  assert.deepEqual(kinds('**Worked example:** 2400 mm of trunking in equal bays.'), ['example:Worked example=2400 mm of trunking in equal bays.']);
+  assert.deepEqual(kinds('**Rule of thumb:** 2.3 kW is 2300 W.'), ['rules:Rule of thumb=2.3 kW is 2300 W.']);
+  assert.deepEqual(kinds('**Rule of thumb:** *a* third is less than a half.'), ['rules:Rule of thumb=*A* third is less than a half.'], 'markup before the first letter is fine');
   assert.deepEqual(kinds('Just one plain paragraph.'), ['prose=Just one plain paragraph.']);
   assert.deepEqual(kinds(''), []);
   // Every word of the text is printed somewhere (nothing dropped but the labels themselves).
@@ -232,6 +238,7 @@ test('keeping a dossier binds what is finished and marks it kept; removing delet
   assert.ok(t.get(P('dossiers/pendulums/chapters/i1')), 'the dossier outlives the course');
   const book = await t.U.dossier.load('pendulums');
   assert.ok(book && book.kept && book.chapters.i1, 'and opens with no course behind it');
+  assert.equal(book.title, 'Why pendulums keep time', 'its title is the course\'s title, never the query');
   await t.U.dossier.remove('pendulums');
   assert.deepEqual(dossierDocs(t), [], 'removed: index and chapters');
   assert.equal(await t.U.dossier.load('pendulums'), null, 'nothing left to open');
@@ -252,21 +259,32 @@ test('the model: glossary from the bound chapters, bibliography by address, and 
   assert.equal(museum.pub, 'Science Museum'); assert.equal(museum.title, 'Pendulum clocks');
   assert.deepEqual(plain(museum.ch), [1], 'research notes of the idea point to its chapter');
   assert.equal(M.works.filter((w) => w.url === L.sources[0].url).length, 1, 'one entry per address');
-  assert.deepEqual(plain(M.leaves.map((l) => l.id)), ['cover', 'contents', 'i1:1', 'i1:2', 'i1:3', 'back']);
+  // The page order (the field guide, design 3): at a glance (the cover and contents in one), then
+  // each bound chapter's two pages, the chapter with its plate and put it into practice with its
+  // sources, then the back matter. Unbound chapters have no pages.
+  assert.deepEqual(plain(M.leaves.map((l) => l.id)), ['glance', 'i1:chapter', 'i1:practice', 'back']);
+  assert.deepEqual(plain(M.leaves.map((l) => l.href)), ['#/book/pendulums', '#/book/pendulums/i1', '#/book/pendulums/i1/practice', '#/book/pendulums/glossary']);
+  assert.deepEqual(plain(M.leaves.map((l) => l.k)), ['Contents', 'Chapter I', 'Sources', 'Glossary'], 'the page bar\'s names (a chapter without practice: its sources)');
+  assert.deepEqual(plain(M.leaves.filter((l) => l.n).map((l) => l.rn + ' ' + l.p)), ['I 1', 'I 2'], 'a chapter is two page turns');
+  assert.ok(!M.leaves.some((l) => /plate|cover/i.test(l.href)), 'no plate or cover page of its own: the plate is on the chapter page');
   assert.equal(M.bound.length, 1); assert.equal(M.done, false);
   assert.equal(M.chapters[1].learned, null, 'chapter II not yet written');
+  // Two bound chapters: four chapter pages in order, between at a glance and the back matter.
+  const M3 = U.dossier.model({ tid: 'pendulums', title: 'T', ideas, chapters: { i1: ch, i3: ch } });
+  assert.deepEqual(plain(M3.leaves.map((l) => l.id)), ['glance', 'i1:chapter', 'i1:practice', 'i3:chapter', 'i3:practice', 'back']);
+  assert.deepEqual(plain(M3.leaves.slice(3, 5).map((l) => l.rn)), ['III', 'III'], 'numbered by the idea\'s place in the course');
   // A chapter bound before lessons had practice (and with the checks older snapshots kept): its
   // last leaf is its sources alone, and no page turn, label or part of the model names a test.
   const old = { ...ch, lesson: { ...L, checks: plain(fx('pendulum').lesson.checks) } };
   const M1 = U.dossier.model({ tid: 'pendulums', title: 'T', ideas, chapters: { i1: old } });
-  const last = M1.leaves.find((l) => l.id === 'i1:3');
-  assert.equal(last.k + ' / ' + last.t, 'Sources / chapter I', 'an older chapter\'s last leaf: its sources');
+  const last = M1.leaves.find((l) => l.id === 'i1:practice');
+  assert.equal(last.k + ' / ' + last.t, 'Sources / Sources, chapter I', 'an older chapter\'s last leaf: its sources');
   assert.equal(last.href, '#/book/pendulums/i1/practice');
   assert.equal(M1.chapters[0].practice, null);
   // With practice: the practice leaf, its parts ready to print.
   const M2 = U.dossier.model({ tid: 'pendulums', title: 'T', ideas, chapters: { i1: { ...ch, lesson: { ...L, practice: { text: PRACTICE } } } } });
-  const pl = M2.leaves.find((l) => l.id === 'i1:3');
-  assert.equal(pl.k + ' / ' + pl.t, 'Put it into practice / and sources, chapter I');
+  const pl = M2.leaves.find((l) => l.id === 'i1:practice');
+  assert.equal(pl.k + ' / ' + pl.t, 'Practice / Put it into practice and sources, chapter I');
   assert.deepEqual(plain(M2.chapters[0].practice.map((p) => p.kind)), ['steps', 'rules', 'example', 'mistakes']);
   for (const m of [M1, M2]) assert.ok(!/test/i.test(JSON.stringify(m.leaves)), 'no "test" in any page turn: ' + JSON.stringify(m.leaves));
 });
@@ -280,4 +298,5 @@ test('the router: a dossier\'s pages are their own screen; the Library and the B
   assert.equal(hit('#/book/pendulums/i1/practice'), 'dossier');
   assert.equal(hit('#/book/pendulums/i1/tests'), 'dossier', 'the older address still opens the same leaf');
   assert.equal(hit('#/book/pendulums/glossary'), 'dossier');
+  for (const h of ['#/book/pendulums/contents', '#/book/pendulums/i1/plate', '#/book/pendulums/i1/plate/play', '#/book/pendulums/bibliography']) assert.equal(hit(h), 'dossier', 'an older address still opens: ' + h);
 });
