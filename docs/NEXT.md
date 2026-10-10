@@ -77,3 +77,11 @@ one builder with three attempts) is the standard, about 2.2M tokens for the eigh
 "far far far too much writing": every lesson cut to the minimal level (explanation 50-90 words,
 practice at most 60, panel at most 35), interactives unchanged; the long versions are kept as
 iN.lesson.verified.long.json. Each course now picks a writing level first (RUNBOOK section 0).
+
+### Fractions v2 (10 Oct, evening)
+Dan asked for the course to be rebuilt around what he will use: docs/courses/maths/fractions/brief.md
+(8 skills-first lessons, every one a steps lesson). Live in the db: the new plan (topic version 2,
+research topic and i1-i8 version 2), lesson i1 (version 7) and i2 (version 3); lessons i3-i8 were
+deleted, so the app shows them as Coming soon and never writes them itself (readyMade). Build each
+of i3-i8 with one builder agent modelled on i1/i2, run `assemble.mjs docs --partial`, then batch-set
+the new lesson (no if_version: it is a create) plus anything else changed, pinned to the versions above.
