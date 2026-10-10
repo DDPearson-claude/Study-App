@@ -35,26 +35,41 @@ $D/out/                     assemble.mjs docs: the db documents and manifest.jso
 $D/tid.txt                  the topic id, made once
 ```
 
-## 0. Choose the course's writing level and picture (before planning)
-Dan (10 Oct): "distinguish between topics that require lots of writing and ones that don't.
-Fractions requires minimalist writing and should mostly depend on interactive and visuals."
-Pick one level per course and give it to every writer; the interactive carries the teaching in the
-first two.
-- **Minimal** (visual, procedural maths: fractions, percentages, negative numbers, the coordinate
-  plane, equations, most of Foundational maths and Algebra): explanation 50-90 words (the idea in a
-  line, the rule in one or two sentences with the picture's numbers, the misconception in one
-  sentence, a bold takeaway of at most 20 words); "What you're looking at" at most 35 words; what
-  the model ignores at most 20; analogy only if one sentence truly helps; practice at most 60 words
-  (rule of thumb, a short worked example, two mistakes).
-- **Standard** (maths where the why takes a paragraph: calculus, vectors, probability, logic):
-  explanation 150-250 words, practice about 120, panel about 60.
-- **Full** (causal science, technology, history, AI, where an adult needs the mechanism explained:
-  circuits, how AI works, the physics courses): as long as the idea needs and no longer; Dan's 7 Oct
-  note that 120 words was too little was about these.
-Picture: for anything part-of-a-whole, a shape cut into equal parts with the parts shaded, as
-Brilliant draws it, with a number line beside it only where position is the point. No tape
-measures as the frame. `tools/course/patch_text.py` cuts a built lesson's words without touching
-its interactive.
+## 0. The course brief (before anything is planned or built)
+Dan set this process (10 Oct). Answer it in a short brief, saved as `$D/brief.md`, and agree it
+with him before planning. It is cheap; building the wrong course is not.
+
+1. **What is the overall topic?** One paragraph: what it covers and where its edges are.
+2. **What is actually useful to teach?** The skills Dan will use at work and in life, in the order
+   they build on each other. Concepts only where a skill needs them, folded into the first lesson.
+   (Fractions: what a fraction is, equivalents, simplifying, comparing, adding and taking away,
+   mixed numbers, multiplying, dividing.)
+3. **Can it be taught mostly visually, through interaction?** This sets the lesson format and how
+   much writing there is.
+   - **Yes** (most maths, logic, data): steps lessons (`format: 'steps'`). Each lesson is one
+     sequence of SHOW screens (one to three plain sentences and a picture that demonstrates, often
+     animated) and DO screens (a puzzle with Check, a one-line hint when wrong, Why?, Continue),
+     alternating so he is shown and then does it, ending with two or three mixed puzzles. About 12
+     screens. Minimal writing: short whole sentences, no colons chaining clauses.
+   - **Partly** (calculus, probability, vectors): steps lessons whose SHOW screens carry a little
+     more explanation, up to a short paragraph.
+   - **No** (how things work, science mechanisms, history, AI): reading lessons with a mechanism
+     interactive, written as long as the idea needs and no longer.
+   Pictures: anything part-of-a-whole is a shape cut into equal parts with the parts shaded, as
+   Brilliant draws it, with a number line beside it only where position is the point.
+4. **What else (Claude's additions):**
+   - **Benchmark.** Look up Brilliant's course on the topic (its levels and lesson order) and any
+     other strong course; follow the progression and add what it lacks that Dan needs (Brilliant's
+     Fractions has no dividing).
+   - **Starting point.** What Dan already knows, from his trade and earlier courses, so nothing is
+     taught twice; examples from the job where they fit naturally, never forced.
+   - **The mistakes to catch.** The common misconceptions for each skill, each one caught by at
+     least one DO screen with its own hint.
+   - **Where it is used.** One real use per skill, which the examples draw on.
+   - **Size and cost.** Lessons, screens per lesson and a rough token estimate, agreed first.
+   - **Pilot first.** Build lesson 1, Dan tries it on his phone, then build the rest.
+
+`tools/course/patch_text.py` cuts a built reading lesson's words without touching its interactive.
 
 ## 1. Plan (once per course)
 ```
