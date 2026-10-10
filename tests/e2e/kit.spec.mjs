@@ -198,6 +198,10 @@ section('self-test catches broken bodies');
     "  return half && e.style.opacity === '' && e.style.transform === '' && K.SOFT === 0.6 && K.arrive(0.9, 1) === 0 && K.near(K.arrive(1.3, 1), 0.5, 1e-9) && K.arrive(1.6, 1) === 1 &&\n" +
     "    K.arrive(Infinity, 5) === 1 && K.arrive(2, 1, 0) === 1 && K.ease(0) === 0 && K.ease(1) === 1 && K.ease(0.25) < 0.25; });"));
   expect('soft motion: K.arrive fades a part in over K.SOFT with K.ease, K.fade applies it, a finished picture is whole', r.ok, r.checks);
+  r = await test(body(plain + "\nK.check('hidden, then shown', () => { const a = K.anim({ button: false, step: () => true }); a.play();\n" +
+    "  const hide = (v) => { Object.defineProperty(document, 'hidden', { configurable: true, get: () => v }); document.dispatchEvent(new Event('visibilitychange')); };\n" +
+    "  hide(true); const off = !a.playing(); hide(false); const on = a.playing(); a.pause(); hide(true); hide(false); const stays = !a.playing(); delete document.hidden; return off && on && stays; });"));
+  expect('an animation the page\'s hiding paused carries on when it is shown again; one paused on purpose stays paused', r.ok, r.checks);
   r = await test(body(plain, { noReady: true }));
   expect('missing K.ready() fails', !r.ok && !r.ready && has(r.errors, /K\.ready\(\) was never called/), r);
   r = await test(body(plain, { noChecks: true }));

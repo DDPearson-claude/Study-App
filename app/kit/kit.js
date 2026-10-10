@@ -1917,8 +1917,9 @@
   // step advances your own state (dt in seconds, at most 0.05) and redraws; it may set a control
   // (control.set(v) reruns the pipeline). Return false from step to stop (e.g. the echo is home).
   // reset (optional) adds a Reset button. Never autoplays when the viewer prefers reduced motion;
-  // pauses when the page is hidden. Pressing Play counts as Dan moving something. button: false
-  // leaves out the Play button when the page's own control starts and stops it (play/pause).
+  // pauses while the page is hidden and carries on when it is shown again. Pressing Play counts as
+  // Dan moving something. button: false leaves out the Play button when the page's own control
+  // starts and stops it (play/pause).
   K.anim = function (o) {
     o = o || {};
     if (typeof o.step !== 'function') throw new Error('K.anim needs step(dt, t)');
@@ -1957,7 +1958,13 @@
     // Play and Pause are Dan doing something: the host hears at once.
     if (btn) btn.addEventListener('click', function () { markMoved(); api.toggle(); changed(); sendChange(); });
     if (resetBtn) resetBtn.addEventListener('click', function () { api.reset(); changed(); });
-    document.addEventListener('visibilitychange', function () { if (document.hidden) api.pause(); });
+    // Hidden, it pauses; shown again, a motion the hiding stopped carries on from where it was (a
+    // demonstration left half-faded would otherwise stay that way).
+    var hidPaused = false;
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { if (playing) { hidPaused = true; api.pause(); } }
+      else if (hidPaused) { hidPaused = false; api.play(); }
+    });
     anims.push({ o: o, api: api, label: label, autoplay: !!o.autoplay && !reduce });
     paint();
     if (btn || resetBtn) place(el, o.into, 'K.anim');
