@@ -73,5 +73,7 @@ course files are in docs/courses/maths/fractions/. Two decisions from Dan that b
 the main picture of a fraction (and of any part-of-a-whole idea) is a shape cut into equal parts with
 the parts shaded, as Brilliant draws it, with a number line beside it only where position is the
 point; and the lean pipeline (one writer who drafts, critiques and rewrites, one fresh fact-checker,
-one builder with three attempts) is the standard, about 2.2M tokens for the eight lessons. Dan is
-reviewing the course; nothing else is built yet.
+one builder with three attempts) is the standard, about 2.2M tokens for the eight lessons. Then (10 Oct) Dan:
+"far far far too much writing": every lesson cut to the minimal level (explanation 50-90 words,
+practice at most 60, panel at most 35), interactives unchanged; the long versions are kept as
+iN.lesson.verified.long.json. Each course now picks a writing level first (RUNBOOK section 0).

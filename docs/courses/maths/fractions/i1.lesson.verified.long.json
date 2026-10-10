@@ -1,0 +1,211 @@
+{
+  "iid": "i1",
+  "title": "One number, one place on the line",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is one more quarter of the bar shade in and the mark on the line beneath step one quarter along, carrying past 1 into the second bar, when you add a quarter to the count.",
+    "title": "Count quarters, mark the line",
+    "controls": [
+      {
+        "id": "quarters",
+        "label": "Quarters counted from zero",
+        "min": 0,
+        "max": 8,
+        "step": 1,
+        "value": 3,
+        "unit": "quarters"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "position",
+        "label": "Place on the line",
+        "unit": "",
+        "decimals": 2
+      },
+      {
+        "id": "wholeBars",
+        "label": "Whole bars filled",
+        "unit": "",
+        "decimals": 0
+      },
+      {
+        "id": "quartersPast",
+        "label": "Quarters past the whole bars",
+        "unit": "quarters",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "Two bars side by side, each one whole, each cut by three cuts into four equal pieces. The slider sets how many of those pieces are counted from the left end of the first bar, and the counted pieces are shaded as one run: the first bar fills first, then the count carries on into the second. Beneath the bars runs a number line from 0 to 2, with 0, 1 and 2 under the ends of the bars and a short tick at every quarter. A mark sits on the line exactly under where the shaded run ends, with a label naming that place as a fraction, and past 1 as a mixed number too: 3/4 at 3 pieces, 7/4 = 1 3/4 at 7, and 4/4 = 1 at 4, so a whole number is a fraction's place as well.\n\nThe rule is counting. Each piece is a quarter because four of them make one whole, which is what the 4 on the bottom of a fraction says, and every piece is the same size, so each piece you add shades the same amount and moves the mark the same quarter step. Counting 3 pieces shades three of the first bar's four pieces and puts the mark at 3 × ¼ = ¾, so 'Place on the line' reads 0.75. Counting 7 pieces fills the first bar, which uses 4 of them, and shades 3 of the second, so the mark sits at 1.75: 'Whole bars filled' counts the complete bars, each a set of 4 quarters, and 'Quarters past the whole bars' is what is left of the count after those sets, here 1 and 3. A bar is one whole of anything: call it one inch and 3 pieces is the 3/4 mark on your tape, 0.75 inches along; call it a metre and the same shaded run is 750 mm.\n\nAs an equation: place = count ÷ 4, where count is the quarters you set and 4 is how many quarters make one whole; whole bars filled is the number of complete fours in the count, and quarters past the whole bars is count − 4 × whole bars filled.",
+    "ignores": "The bars are cut only into quarters and the line is ticked only at quarters, so it looks as though those are the only places a fraction can sit; a fraction can land between them (eighths, sixteenths, thirds), which later ideas use. Two bars are drawn, but the counting can carry on past any whole number. The shaded run and the mark end exactly on a cut; a real cut, or a printed line on a tape, has a width.",
+    "numbers": [
+      {
+        "label": "Quarters counted at the start",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Quarters in one whole (what quarter means)",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "Size of one piece, one whole ÷ 4",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Whole bars drawn (chosen)",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Place on the line at the start",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Whole bars filled at the start",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Quarters past the whole bars at the start",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Place on the line with 0 quarters",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Place on the line with 4 quarters",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Place on the line with 7 quarters",
+        "value": 1.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Whole bars filled with 7 quarters",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Quarters past the whole bars with 7 quarters",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Place on the line with 8 quarters",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Five eighths as a decimal, 5 ÷ 8",
+        "value": 0.625,
+        "kind": "computed"
+      },
+      {
+        "label": "One and three-eighths as a decimal, 11 ÷ 8",
+        "value": 1.375,
+        "kind": "computed"
+      },
+      {
+        "label": "One metre in millimetres",
+        "value": 1000,
+        "kind": "constant"
+      },
+      {
+        "label": "A quarter of a metre, 1000 ÷ 4, mm",
+        "value": 250,
+        "kind": "computed"
+      },
+      {
+        "label": "Three quarters of a metre, 3 × 250, mm",
+        "value": 750,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Three-quarters is one number. On the inch edge of your tape it has a mark of its own, and you would not read that mark as 'a 3 and a 4'. Written as 3/4, though, a fraction looks like two whole numbers stuck together, and that look misleads. A fraction is one number with its own place on a ruled line,[^1] and its two numerals are the instructions for finding that place.\n\nThe instructions read from the bottom up. The bottom number says how many equal pieces make one whole,[^2] so it names the size of piece: a 4 cuts the whole into four equal pieces,[^3] quarters. The top number says how many of those pieces you have,[^4] counted from zero. **To find a fraction's place: read the bottom to choose the piece, count that many pieces from zero, and where the count ends is the number.**[^5] For 3/4 the pieces are quarters and you count three: in the picture three of the first bar's four pieces shade in, and the mark on the line beneath stops at the third quarter tick, 3 × ¼ = ¾, which is 0.75. There is nothing else to find: the two numerals have done their work, and what is left is one place.\n\nThe two-numbers habit fails as soon as you lean on it. Take 5/8 and 3/4. As pairs of whole numbers, 5/8 has the bigger top and the bigger bottom, so it looks the longer. By the rule, 5/8 is eighths, five of them, and an eighth is half a quarter, since eight of them make the whole that four quarters make; so five eighths is two and a half quarters, 0.625, short of the three quarters that 3/4 counts, and on a tape the 5/8 mark sits before the 3/4 mark. 'Both numbers are bigger' told you nothing about the length; how to compare any two fractions properly is a later idea.\n\nThe same habit makes a fraction feel as if it must stop short of a whole, and pages written for young children say so: fractions represent more than 0 but less than 1.[^6] That holds for the fractions a child meets first, but the counting rule has no stop in it. Set the picture to 7 quarters: four fill the first bar and three shade the second, so the mark rests at 1.75. That place is 7/4, one number whose top is as big as its bottom or bigger, which textbooks call an [[improper fraction]]; written as the whole bars filled and the quarters past them, 1 3/4, it is a [[mixed number]].[^7] The 1 and the 3/4 are not a pair of numbers either: 1 3/4 means one whole and three-quarters more, the way 1.75 means one and a bit, which is why the mixed form shows the size at a glance, a little under 2. What the bar stands for is up to you: the whole can be a shape, a length, a number or a set of objects,[^8] an inch or a metre of cable. Three-quarters of an inch and three-quarters of a metre are the same number, 3/4, of different wholes, so they are different lengths, and comparing two fractions is only valid when both refer to the same whole.[^9] For the course's puzzle this is the first step: three-quarters of a metre is not a sum waiting to be done but one length, 750 mm (a metre is 1000 mm, a quarter of it is 250 mm, and three of them is 750), a length you can lay off along a cable like any other.\n\n**A fraction is one number with one place on the line: the bottom names the piece, the top counts the pieces from zero, and where the count ends is the number, whether it stops short of 1 or carries on past it.[^1][^5]**"
+  },
+  "analogy": {
+    "text": "Your clamp meter reading 0.75 A: two digits, one current. You never read it as 'a 7 and a 5', because the digits are instructions for one place on the scale: seven tenths of an amp, then five hundredths more. A fraction is the same arrangement written differently: 3/4 says 'quarters, count three', and 1 3/4 says 'one whole, then three quarters more', each one place on the line, just as 1.75 A is.",
+    "breaks": "A decimal fixes the piece sizes: the first digit after the point is tenths, the next hundredths. A fraction chooses its own piece with the bottom number, which is why one place can carry several fraction names (a later idea), and textbooks add that a third has no decimal that ends, so a meter showing 0.333 A is giving a rounded stand-in for a third of an amp, while 1/3 names the place exactly."
+  },
+  "practice": {
+    "text": "Reading any fraction as a place on the line:\n- Bottom number first: it says how many equal pieces make one whole, so it names the piece (4 means quarters, 8 eighths, 16 sixteenths).\n- Top number: count that many pieces from 0, and keep counting past 1 if the count reaches it.\n- For a mixed number, go to the whole number first, then count the fraction's pieces on from there.\n- Check what the whole is before you trust the fraction: a quarter of an inch and a quarter of a drum are both a quarter, of different wholes.\n\n**Rule of thumb:** bottom names the piece, top counts the pieces. Top smaller than bottom: short of 1. Top equal to bottom: exactly 1. Top bigger: past 1. The last two are both improper fractions, so an improper fraction is 1 or more.\n\n**Worked example:** say a drawing puts a hole centre at 1 3/8 inches from an edge. The bottom is 8, so the pieces are eighths: on your tape, the mark midway between two quarter marks. Go to the 1 inch mark, then count three eighths past it: 1 1/8, 1 2/8, 1 3/8. As one count from 0, the whole inch is 8 eighths and 3 more makes 11, so 1 3/8 and 11/8 are the same place, 11 ÷ 8 = 1.375 inches along. Which name you reach for depends on the job: the improper fraction is the form used for multiplying and dividing, while the mixed number may be preferred for adding and taking away,[^10] and it shows the size at a glance.\n\n**Common mistakes:**\n- Reading 1 3/4 as three separate numbers: it is one whole and three-quarters more, one place a little under 2.\n- Judging a length by the top number alone: five of something beats three of something only when the pieces are the same size, and the bottom number tells you whether they are.\n- Assuming a fraction must be less than 1: 7/4 is past 1, and still one number.\n- Mixing wholes: compare two fractions only when both are of the same whole.[^9]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+      "url": "https://thecorestandards.org/Math/Content/NF",
+      "quote": "Understand a fraction as a number on the number line; represent fractions on a number line diagram."
+    },
+    {
+      "n": 2,
+      "title": "Fraction",
+      "url": "https://en.wikipedia.org/wiki/Fraction",
+      "quote": "the denominator indicates how many of those parts make up a unit or a whole."
+    },
+    {
+      "n": 3,
+      "title": "Breaking down fractions - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zjxpp4j",
+      "quote": "The denominator below the line shows how many equal parts there are in total and so what to divide the whole into."
+    },
+    {
+      "n": 4,
+      "title": "Breaking down fractions - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zjxpp4j",
+      "quote": "The numerator is the number above the line in a fraction and shows how many parts we have out of the whole."
+    },
+    {
+      "n": 5,
+      "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+      "url": "https://thecorestandards.org/Math/Content/NF",
+      "quote": "Recognize that the resulting interval has size a / b and that its endpoint locates the number a / b on the number line."
+    },
+    {
+      "n": 6,
+      "title": "What are fractions? - KS2 Maths - Resources for Year 3 - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zd8mt39",
+      "quote": "Fractions represent more than 0 but less than 1."
+    },
+    {
+      "n": 7,
+      "title": "Mixed numbers, proper and improper fractions explained",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zyxsf82",
+      "quote": "An improper fraction written as an integer with a fraction is called a mixed number."
+    },
+    {
+      "n": 8,
+      "title": "What are fractions? - KS1 Maths resources for Year 2 - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zq2yfrd",
+      "quote": "The whole can be a shape, a length, a number or a set of objects."
+    },
+    {
+      "n": 9,
+      "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+      "url": "https://thecorestandards.org/Math/Content/NF",
+      "quote": "Recognize that comparisons are valid only when the two fractions refer to the same whole."
+    },
+    {
+      "n": 10,
+      "title": "Mixed numbers, proper and improper fractions explained",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zyxsf82",
+      "quote": "Improper fractions are used when multiplying and dividing. Mixed numbers may be preferred for adding and subtracting."
+    }
+  ]
+}
