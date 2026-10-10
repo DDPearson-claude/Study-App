@@ -259,6 +259,7 @@ await test('reader on a phone: at a glance, a chapter with its plate asleep unti
   assert(!(await app.page.locator('.c-explain').textContent()).includes('Length sets the beat.'), 'taken out of the explanation, not printed twice');
   eq(await app.page.locator('.c-pills .on').textContent(), 'settled (this one)', 'how certain: the filled pill, said once');
   eq(await app.page.locator('.c-compare a').count(), 2, 'Compare links only to bound chapters (III and V)');
+  eq(JSON.stringify(await app.page.$$eval('.c-compare .b-ch-off', (l) => l.map((e) => e.textContent))), JSON.stringify(['II · Gravity’s part, not yet written', 'IV · Energy back and forth, not yet written']), 'and shows the unbound ones as muted rows that are not links');
   // Top to bottom: header, key idea, plate, what's going on, then the analogy beside where it breaks.
   const tops = await app.page.evaluate(() => ['.c-head', '.c-key', '.c-plate', '.c-explain', '.c-analogy', '.c-breaks', '.c-compare', '.c-certain'].map((s) => Math.round(document.querySelector(s).getBoundingClientRect().top)));
   assert(tops[0] < tops[1] && tops[1] < tops[2] && tops[2] < tops[3] && tops[3] < tops[4] && tops[4] === tops[5] && tops[5] < tops[6] && tops[6] === tops[7], 'the tiles in order, two pairs side by side: ' + tops);
@@ -512,6 +513,59 @@ await test('a chapter\'s order and outline: contested views last, the plate a he
   const ph = await app.page.$$eval('h2', (l) => l.map((e) => e.textContent));
   assert(['Steps', 'Rule of thumb', 'Worked example', 'Common mistakes', 'Sources'].every((t) => ph.includes(t)), 'the practice page\'s h2s: ' + ph.join(' | '));
   await noSideways(app, 'practice');
+});
+
+await test('Compare on a phone: a row per chapter, and each link takes a tap on its own words (and "First met in" none of the definition\'s)', async () => {
+  // Every idea bound, so chapter I comes back in four linked chapters (II to V), and chapter III
+  // both builds on one and comes back in one.
+  const db = seed();
+  db['topics/pendulums/lessons/i2'] = lesson(fx('small-swings'), 'i2');
+  db['topics/pendulums/lessons/i4'] = lesson(fx('clocks'), 'i4');
+  Object.assign(db[`data/users/${UID}/profile/progress/pendulums`].ideas, { i2: { stage: 'done', startedAt: at('09', '10'), doneAt: at('09', '11') }, i4: { stage: 'done', startedAt: at('09', '12'), doneAt: at('09', '13') } });
+  const app = await open({ db, hash: '#/library/dossiers' });
+  // (opening binds what is finished; all five chapters before the reader)
+  await app.page.waitForFunction((p) => Object.keys(window.__CLAUDE_STUB__.dump()).filter((k) => k.startsWith(p)).length === 5, DOS('pendulums', '/chapters/'), { timeout: 30000 });
+  // Where a tap on the middle of a link's words lands, for each link (the tile in view first).
+  const taps = () => app.page.evaluate(() => {
+    document.querySelector('.c-compare').scrollIntoView({ block: 'center', behavior: 'instant' });
+    return [...document.querySelectorAll('.c-compare a')].map((a) => {
+      const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.textContent.trim() && !n.parentElement.closest('.vh') ? 1 : 3) }).nextNode();
+      const r = document.createRange(); r.selectNodeContents(w); const b = r.getBoundingClientRect();
+      const hit = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+      return { text: a.textContent, ok: !!hit && hit.closest('a') === a, hit: hit ? (hit.closest('a') || hit).textContent.slice(0, 40) : null };
+    });
+  });
+  for (const [hash, n, labels] of [['#/book/pendulums/i1', 4, ['Comes back in']], ['#/book/pendulums/i3', 2, ['Builds on', 'Comes back in']]]) {
+    await go(app, hash);
+    await app.page.waitForFunction((k) => document.querySelectorAll('.c-compare a').length === k, n, { timeout: 20000 });
+    eq(JSON.stringify(await app.page.$$eval('.c-compare .b-ch-h', (l) => l.map((e) => e.textContent))), JSON.stringify(labels), hash + ': the small labels');
+    // A row each: its numeral and the chapter's title, one link to a line.
+    const rows = await app.page.$$eval('.c-compare .b-ch a', (l) => l.map((a) => a.textContent));
+    assert(rows.length === n && rows.every((t) => /^[IVX]+ · \S/.test(t)), hash + ': a row per chapter, numeral and title: ' + JSON.stringify(rows));
+    const lines = await app.page.$$eval('.c-compare a', (l) => l.map((a) => Math.round(a.getBoundingClientRect().top)));
+    eq(new Set(lines).size, lines.length, hash + ': no two links on one line');
+    const t = await taps();
+    assert(t.every((x) => x.ok), hash + ': a tap on a link\'s words opens that link: ' + JSON.stringify(t.filter((x) => !x.ok)));
+  }
+  assert(!(await app.page.locator('.c-compare').innerText()).includes('Gravity’s part'), 'chapter III\'s Compare names only its own neighbours');
+  await shot(app, 'compare-390');
+  // The tapped row opens its chapter.
+  await go(app, '#/book/pendulums/i1');
+  await app.page.waitForFunction(() => document.querySelectorAll('.c-compare a').length === 4, null, { timeout: 20000 });
+  await app.page.locator('.c-compare a', { hasText: 'Gravity’s part' }).click();
+  await app.page.waitForFunction(() => location.hash === '#/book/pendulums/i2');
+  eq(await focusedH1(app), 'Gravity’s part', 'chapter II opens');
+  // "First met in …": its 44 px target stays off the definition's last line.
+  await go(app, '#/book/pendulums/glossary');
+  await app.page.waitForSelector('.b-first a');
+  const stolen = await app.page.evaluate(() => [...document.querySelectorAll('.b-term')].map((t) => {
+    t.scrollIntoView({ block: 'center', behavior: 'instant' });
+    const a = t.querySelector('.b-first a'), d = t.querySelector('.b-def').getBoundingClientRect(), y = d.bottom - 3;
+    let n = 0;
+    for (let x = d.left + 2; x < d.right; x += 4) { const e = document.elementFromPoint(x, y); if (e && e.closest('a') === a) n++; }
+    return n;
+  }));
+  assert(stolen.length && stolen.every((n) => n === 0), 'a tap on a definition\'s last line stays on the words: ' + stolen);
 });
 
 await test('reader on a phone at XL with Easy reading, and dark with reduced motion', async () => {

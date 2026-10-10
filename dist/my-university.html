@@ -1958,11 +1958,9 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .dos .c-clip { margin-top: .8em; padding: 10px 12px; border-radius: 10px; background: var(--surface); }
 .dos .c-clip blockquote { font-size: .9375rem; line-height: 1.45; font-style: italic; }
 .dos .c-clip figcaption { margin-top: 6px; font: 500 .65625rem/1.6 var(--mono); text-transform: uppercase; color: var(--muted); }
-.dos .c-compare a { color: inherit; font-weight: 600; text-underline-offset: 2px; }
-/* A chapter reference never breaks ("ch. V"); a link's tap target reaches 44 px into the line's
-   space without moving the text. */
-.dos .c-compare :is(a, .c-ref) { white-space: nowrap; }
-.dos .c-compare a { display: inline-block; padding-block: 13px; margin-block: -13px; }
+/* Compare's chapters are rows, as the bibliography's (section 8): one link to a line, 44 px tall. */
+.dos .c-compare .b-ch-h { margin-top: 2px; }
+.dos .c-compare .b-ch + .b-ch-h { margin-top: 8px; }
 .dos .c-pills { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 8px; }
 .dos .c-pills span { padding: 3px 8px; border: 1.5px solid var(--line-strong); border-radius: 99px; font: 600 .75rem/1.1 var(--cond); letter-spacing: .02em; color: var(--muted); }
 .dos .c-pills .on { background: var(--heading); border-color: var(--heading); color: var(--on-heading); }
@@ -2048,7 +2046,10 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .dos .b-term dt { font: 700 1.125rem/1.25 var(--sans); }
 .dos .b-def { margin-top: 6px; font-size: .9375rem; line-height: 1.5; }
 .dos .b-first, .dos .b-ch-h { margin-top: 6px; font: 500 .6875rem/1.6 var(--mono); color: var(--muted); }
-.dos .b-first a { display: inline-block; padding-block: 15px; margin-block: -15px; color: var(--ink); text-underline-offset: 2px; }
+/* "First met in …": its link's 44 px target reaches into the space above and the tile's padding
+   below, never over the definition's last line. */
+.dos .b-first { margin-top: 14px; }
+.dos .b-first a { display: inline-block; padding-block: 13.5px; margin-block: -13.5px; color: var(--ink); text-underline-offset: 2px; }
 /* The chapters that rest on an entry: a row each, its numeral and title, 44 px tall. */
 .dos .b-ch { margin: 0; }
 .dos .b-ch li + li { border-top: 1px solid var(--line); }
@@ -2534,7 +2535,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-10-cb31ee4";
+U.BUILD = "2026-10-10-e375d6f";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -16728,10 +16729,17 @@ U.interactive = (function () {
         [heading(sid + '-br', 'Where it breaks'), inl(h('p', { class: 't-small' }), A.breaks, fx)]));
     }
     var cmp = compareOf(M, c), cert = certainOf(c), hasCmp = cmp.deps.length > 0 || cmp.later.length > 0;
-    function link(x) { return x.learned ? h('a', { href: x.href }, 'ch.\u00a0' + x.rn, vh(': ' + x.idea.title)) : h('span', { class: 'c-ref' }, 'ch.\u00a0' + x.rn); }
-    function list(xs) { var out = []; xs.forEach(function (x, k) { if (k) out.push(k === xs.length - 1 ? ' and ' : ', '); out.push(link(x)); }); return out; }
+    // Compare: "Builds on" and "Comes back in", a row per chapter as in the bibliography (its
+    // numeral and title; a link, 44 px tall, only when bound), so no two links share a line.
+    function rows(id, label, xs) {
+      return xs.length ? [h('p', { class: 'b-ch-h', id: id }, label), h('ul', { class: 'b-ch', 'aria-labelledby': id }, xs.map(function (x) {
+        var inner = [h('span', { class: 'b-ch-n' }, x.rn), vh(' · '), h('span', { class: 'b-ch-t' }, x.idea.title)];
+        return h('li', null, x.learned ? h('a', { href: x.href }, inner)
+          : h('span', { class: 'b-ch-off' }, inner, vh(M.closed ? ', not written: the course was deleted' : ', not yet written')));
+      }))] : null;
+    }
     if (hasCmp) side.push(tile('aside', 'grey', { span: 'half', cls: 'c-compare', attrs: { 'aria-labelledby': sid + '-cm' } }, [heading(sid + '-cm', 'Compare'),
-      h('p', { class: 't-small' }, cmp.deps.length ? ['Builds on ', list(cmp.deps), '. '] : null, cmp.later.length ? ['Comes back in ', list(cmp.later), '.'] : null)]));
+      rows(sid + '-cmd', 'Builds on', cmp.deps), rows(sid + '-cml', 'Comes back in', cmp.later)]));
     side.push(tile('section', 'grey', { span: hasCmp ? 'half' : 'full', cls: 'c-certain', attrs: { 'aria-labelledby': sid + '-ce' } }, [heading(sid + '-ce', 'How certain'),
       h('p', { class: 'c-pills' }, ['settled', 'simplified', 'contested'].map(function (k) { return k === cert.conf ? h('span', { class: 'on' }, k, vh(' (this one)')) : h('span', null, k); })),
       h('p', { class: 't-small c-why' }, cert.why)]));

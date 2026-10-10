@@ -191,11 +191,9 @@
 .dos .c-clip { margin-top: .8em; padding: 10px 12px; border-radius: 10px; background: var(--surface); }
 .dos .c-clip blockquote { font-size: .9375rem; line-height: 1.45; font-style: italic; }
 .dos .c-clip figcaption { margin-top: 6px; font: 500 .65625rem/1.6 var(--mono); text-transform: uppercase; color: var(--muted); }
-.dos .c-compare a { color: inherit; font-weight: 600; text-underline-offset: 2px; }
-/* A chapter reference never breaks ("ch. V"); a link's tap target reaches 44 px into the line's
-   space without moving the text. */
-.dos .c-compare :is(a, .c-ref) { white-space: nowrap; }
-.dos .c-compare a { display: inline-block; padding-block: 13px; margin-block: -13px; }
+/* Compare's chapters are rows, as the bibliography's (section 8): one link to a line, 44 px tall. */
+.dos .c-compare .b-ch-h { margin-top: 2px; }
+.dos .c-compare .b-ch + .b-ch-h { margin-top: 8px; }
 .dos .c-pills { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 8px; }
 .dos .c-pills span { padding: 3px 8px; border: 1.5px solid var(--line-strong); border-radius: 99px; font: 600 .75rem/1.1 var(--cond); letter-spacing: .02em; color: var(--muted); }
 .dos .c-pills .on { background: var(--heading); border-color: var(--heading); color: var(--on-heading); }
@@ -281,7 +279,10 @@
 .dos .b-term dt { font: 700 1.125rem/1.25 var(--sans); }
 .dos .b-def { margin-top: 6px; font-size: .9375rem; line-height: 1.5; }
 .dos .b-first, .dos .b-ch-h { margin-top: 6px; font: 500 .6875rem/1.6 var(--mono); color: var(--muted); }
-.dos .b-first a { display: inline-block; padding-block: 15px; margin-block: -15px; color: var(--ink); text-underline-offset: 2px; }
+/* "First met in …": its link's 44 px target reaches into the space above and the tile's padding
+   below, never over the definition's last line. */
+.dos .b-first { margin-top: 14px; }
+.dos .b-first a { display: inline-block; padding-block: 13.5px; margin-block: -13.5px; color: var(--ink); text-underline-offset: 2px; }
 /* The chapters that rest on an entry: a row each, its numeral and title, 44 px tall. */
 .dos .b-ch { margin: 0; }
 .dos .b-ch li + li { border-top: 1px solid var(--line); }

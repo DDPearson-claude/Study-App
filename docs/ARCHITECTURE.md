@@ -498,7 +498,9 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
   interactive in a flat `--surface` well, asleep until played, then "Look for"; a plate too big to
   keep shows its note), What's going on (the explanation with key terms and source chips, the
   clipping after the paragraph that cites it), Think of it like beside Where it breaks (the analogy
-  across when it has no breaks), Compare beside How certain (three pills, this chapter's filled),
+  across when it has no breaks), Compare (the small labels "Builds on" and "Comes back in", then a
+  row per chapter as in the bibliography, its numeral and title, a link only when bound; one link
+  to a line, so no tap lands on a neighbour) beside How certain (three pills, this chapter's filled),
   then the plate's notes (A number from the sources and What you're looking at and What this model
   leaves out, two short ones side by side), The numbers on this plate (n), then the contested views
   (a tile each, two to a row). Every tile's label is its h2. The plate's height is held from the
@@ -523,7 +525,10 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
   page is the bibliography alone. Opened at `/bibliography`, the path and the page bar say
   "bibliography" (the same page of the book).
 Links Dan taps on their own (a source's host, a chapter in the bibliography, "First met in …",
-Compare's chapters, the page bar) keep a 44 px target; a chapter reference never breaks ("ch. V").
+Compare's chapters, the page bar) keep a 44 px target, and no target covers another link or the
+words before it: two links never share a line of running text (a target stretched into the lines
+around it would cover its neighbours, so Compare's chapters are rows), and "First met in …" reaches
+only into the space above it, never over the definition.
 Every dossier page has D4's focus bar (an outlined back button one level up: a chapter to At a
 glance, its practice to the chapter, At a glance to the Library; the mono path, the course's part
 giving way first, cut at a whole character so its ellipsis meets the next slash; Aa) and the

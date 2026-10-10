@@ -815,10 +815,17 @@
         [heading(sid + '-br', 'Where it breaks'), inl(h('p', { class: 't-small' }), A.breaks, fx)]));
     }
     var cmp = compareOf(M, c), cert = certainOf(c), hasCmp = cmp.deps.length > 0 || cmp.later.length > 0;
-    function link(x) { return x.learned ? h('a', { href: x.href }, 'ch.\u00a0' + x.rn, vh(': ' + x.idea.title)) : h('span', { class: 'c-ref' }, 'ch.\u00a0' + x.rn); }
-    function list(xs) { var out = []; xs.forEach(function (x, k) { if (k) out.push(k === xs.length - 1 ? ' and ' : ', '); out.push(link(x)); }); return out; }
+    // Compare: "Builds on" and "Comes back in", a row per chapter as in the bibliography (its
+    // numeral and title; a link, 44 px tall, only when bound), so no two links share a line.
+    function rows(id, label, xs) {
+      return xs.length ? [h('p', { class: 'b-ch-h', id: id }, label), h('ul', { class: 'b-ch', 'aria-labelledby': id }, xs.map(function (x) {
+        var inner = [h('span', { class: 'b-ch-n' }, x.rn), vh(' · '), h('span', { class: 'b-ch-t' }, x.idea.title)];
+        return h('li', null, x.learned ? h('a', { href: x.href }, inner)
+          : h('span', { class: 'b-ch-off' }, inner, vh(M.closed ? ', not written: the course was deleted' : ', not yet written')));
+      }))] : null;
+    }
     if (hasCmp) side.push(tile('aside', 'grey', { span: 'half', cls: 'c-compare', attrs: { 'aria-labelledby': sid + '-cm' } }, [heading(sid + '-cm', 'Compare'),
-      h('p', { class: 't-small' }, cmp.deps.length ? ['Builds on ', list(cmp.deps), '. '] : null, cmp.later.length ? ['Comes back in ', list(cmp.later), '.'] : null)]));
+      rows(sid + '-cmd', 'Builds on', cmp.deps), rows(sid + '-cml', 'Comes back in', cmp.later)]));
     side.push(tile('section', 'grey', { span: hasCmp ? 'half' : 'full', cls: 'c-certain', attrs: { 'aria-labelledby': sid + '-ce' } }, [heading(sid + '-ce', 'How certain'),
       h('p', { class: 'c-pills' }, ['settled', 'simplified', 'contested'].map(function (k) { return k === cert.conf ? h('span', { class: 'on' }, k, vh(' (this one)')) : h('span', null, k); })),
       h('p', { class: 't-small c-why' }, cert.why)]));
