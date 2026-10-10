@@ -45,6 +45,12 @@
   var READ_STAGES = ['explain', 'play', 'done'];
   var READ_STEPS = READ_STAGES.slice(0, 2);
   var READ_LABEL = { play: 'Explore', explain: 'Read', done: 'Done' };
+  // A steps lesson (lesson.format 'steps', read only): its interactive IS the lesson (explanation
+  // screens and puzzles in one kit page that calls K.complete() at its end), so the screen shows
+  // the title, the frame and, once it is finished, the done section. Without a frame to show it
+  // reads like any read lesson (section 5).
+  var STEPS_STAGES = ['play', 'done'];
+  var STEPS_LABEL = { play: 'Lesson', done: 'Done' };
   var VERDICT = { 'got-it': 'You\'ve got it', partly: 'Partly there', 'not-yet': 'Not there yet' };
   // How each number in "What am I looking at?" is labelled. Assumed values are examples chosen
   // for the interactive ("for example …"), never findings; dates are plain facts.
@@ -180,9 +186,10 @@
       if (st.ip.startedAt) return false;
       return !!(st.topic && st.topic.mode === 'read');
     }
-    function stagesNow() { return reading() ? READ_STAGES : STAGES; }
-    function stepsNow() { return reading() ? READ_STEPS : STEPS; }
-    function labelOf(stage) { return (reading() && READ_LABEL[stage]) || LABEL[stage]; }
+    function stepsLesson() { return reading() && st.lesson.format === 'steps' && !st.noSteps && !!builtIt(); }
+    function stagesNow() { return stepsLesson() ? STEPS_STAGES : reading() ? READ_STAGES : STAGES; }
+    function stepsNow() { return stepsLesson() ? STEPS_STAGES.slice(0, 1) : reading() ? READ_STEPS : STEPS; }
+    function labelOf(stage) { return (stepsLesson() && STEPS_LABEL[stage]) || (reading() && READ_LABEL[stage]) || LABEL[stage]; }
     function stepName(stage) { var list = stepsNow(); return 'Step ' + (list.indexOf(stage) + 1) + ' of ' + list.length + ': ' + labelOf(stage); }
     // The stage after this one in this lesson's flow.
     function after(stage) { var list = stagesNow(), i = list.indexOf(stage); return list[i + 1] || 'done'; }
@@ -742,7 +749,7 @@
       destroyLive();
       stopNext();
       drawSteps();
-      U.clear(flow); st.sections = {}; st.closed = {};
+      U.clear(flow); st.sections = {}; st.closed = {}; st.finishPlay = null;
       var cur = st.replay ? start : (st.ip.stage || start);
       // A read lesson has no guess, say-it-back or checks: a stage saved as one of those (an older
       // lesson's) opens at the nearest of its own.
@@ -933,6 +940,14 @@
       var built = builtIt(), has = !!built, played = !live;
       var revealText = (st.lesson && st.lesson.predict && st.lesson.predict.reveal) || '';
       var title = has ? (built.title || (spec && spec.title) || 'What happens') : reading() && !revealText ? 'Putting it to use' : 'What happens';
+      if (stepsLesson()) {
+        // The frame is the whole lesson: nothing around it, and no finish control (K.complete()).
+        var whole = U.h('div', { class: 'lsn-play lsn-steps-play' });
+        box.appendChild(whole);
+        if (live) st.finishPlay = function () { complete('play'); };
+        mountPanel(whole, built, title);
+        return;
+      }
       U.append(box, [live ? eyebrow(labelOf('play')) : null, heading(title)]);
       var brief = has && spec && spec.brief ? U.h('p', { class: 'lsn-lede' }) : null;
       // Taught, not tested (Dan, 7 Oct: he must know what he is looking at and why): with no guess
@@ -983,6 +998,8 @@
         }
       }
       drawAfter();
+      // The interactive says Dan finished it (K.complete()): as the finish control would.
+      if (live) st.finishPlay = function () { played = true; drawAfter(); complete('play'); };
     }
     // The kit host draws the card and its own loading line. The frame starts at the reserved height
     // (the height this device last measured for this interactive at this width, else a typical
@@ -1015,12 +1032,14 @@
         warned = true;
         // Fixed wording: text from inside the frame never appears in the app's own interface.
         console.warn('interactive problem:', e && (e.message || e));
-        meta.appendChild(U.h('p', { class: 'lsn-selfwarn callout warn' }, 'The interactive hit a problem. You can carry on; the explanation below does not depend on it.'));
+        meta.appendChild(U.h('p', { class: 'lsn-selfwarn callout warn' }, stepsLesson() ? 'The interactive hit a problem.' : 'The interactive hit a problem. You can carry on; the explanation below does not depend on it.'));
+        // A steps lesson whose frame could not be shown or was closed: it reads as a read lesson.
+        if (stepsLesson()) setTimeout(function () { if (alive() && stepsLesson() && st.stage === 'play' && (!m || !m.el || !m.el.isConnected)) unSteps(); });
       }
       if (!U.sandbox || typeof U.sandbox.mount !== 'function') { trouble({ message: 'the interactive player is not loaded in this view' }); return null; }
       var m = null;
       try {
-        m = U.sandbox.mount(panel, { html: built.html, title: title, minHeight: reserve, onError: function (msg) { trouble({ message: msg }); } });
+        m = U.sandbox.mount(panel, { html: built.html, title: title, minHeight: reserve, onError: function (msg) { trouble({ message: msg }); }, onComplete: finished });
       } catch (e) { trouble(e); return null; }
       st.mounts.push(m);
       st.liveMount = m;
@@ -1172,13 +1191,8 @@
     function moreBox(box, src, checked) {
       var practice = practiceBox();
       if (practice) box.appendChild(practice);
-      if (src.length) {
-        box.appendChild(U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', [U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
-          return U.h('li', null, U.h('button', { class: 'lsn-source-btn', type: 'button', on: { click: function () { sourceSheet(s); } } },
-            U.h('span', { class: 'lsn-source-n' }, String(s.n)),
-            U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
-        })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null])));
-      } else if (checked) box.appendChild(U.h('p', { class: 'lsn-checked' }, checked));
+      if (src.length) box.appendChild(sourcesDisc(src, checked));
+      else if (checked) box.appendChild(U.h('p', { class: 'lsn-checked' }, checked));
     }
     // "Put it into practice" (lesson.practice): how to use the idea, in the lesson's own words (an
     // older lesson has none, and shows nothing). Paragraphs, "- " lists and numbered "1. " steps.
@@ -1447,6 +1461,47 @@
       }
     }
 
+    // ---- Finished from the interactive (K.complete()) ----
+    // A read lesson only (a study lesson ignores it). Not finished in this run: it finishes as its
+    // own finish control would (the done section, progress, the dossier). Already finished: the
+    // done section comes back into view and the celebration plays again.
+    function finished() {
+      if (!alive() || !st.begun || !reading()) return;
+      var now = Date.now();
+      if (now - (st.partyAt || 0) < 2500) return;   // one celebration at a time
+      if (st.stage === 'done' && st.sections.done) {
+        st.partyAt = now;
+        st.sections.done.classList.add('is-fresh');
+        bring(st.sections.done);
+        setTimeout(function () { if (alive()) U.celebrate('Lesson complete', st.sections.done.querySelector('.lsn-done-mark')); }, reducedMotion() ? 0 : 450);
+      } else if (st.stage === 'play' && !st.closed.play && st.finishPlay) {
+        st.partyAt = now;
+        st.fromFrame = true;
+        st.finishPlay();
+      }
+    }
+    // A steps lesson with no frame after all: the usual read layout, the explanation open.
+    function unSteps() {
+      st.noSteps = true;
+      begin();
+      var ex = st.sections.explain;
+      if (ex && ex.tagName === 'DETAILS') ex.open = true;
+    }
+    // "Sources (n)", collapsed; the fact-check's line inside it.
+    function sourcesDisc(src, checked) {
+      return U.h('div', { class: 'lsn-discs' }, disc('Sources (' + src.length + ')', [U.h('ol', { class: 'lsn-sources' }, src.map(function (s) {
+        return U.h('li', null, U.h('button', { class: 'lsn-source-btn', type: 'button', on: { click: function () { sourceSheet(s); } } },
+          U.h('span', { class: 'lsn-source-n' }, String(s.n)),
+          U.h('span', { class: 'lsn-source-t' }, String(s.title || hostOf(s.url) || 'Source'), U.h('span', { class: 'lsn-source-host' }, hostOf(s.url)))));
+      })), checked ? U.h('p', { class: 'lsn-checked' }, checked) : null]));
+    }
+    // A steps lesson's sources, in its done section (the frame holds everything else).
+    function stepsSources() {
+      var src = sources(), checked = checkedLine(src.length);
+      if (st.doc && st.doc.sourced === false) return U.h('p', { class: 'lsn-quiet' }, U.h('strong', null, 'Not yet source-checked. '), 'Claude wrote this from what it already knows; no live sources were checked for this idea.');
+      return src.length ? sourcesDisc(src, checked) : checked ? U.h('p', { class: 'lsn-checked' }, checked) : null;
+    }
+
     // ---- Done ----
     function addDone(live) {
       var first = live && !st.replay && !st.ip.doneAt, read = reading();
@@ -1479,32 +1534,52 @@
       var says = attemptsNow();
       var nx = nextIdea();
       var topicHref = '#/t/' + encodeURIComponent(tid);
-      var sec = U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': read ? 'Idea read' : 'Idea learned' },
-        U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
-        heading(live ? (st.replay ? (read ? 'Read through again' : 'Gone through again') : read ? 'Idea read' : 'Idea learned') : read ? 'You\'ve read this idea' : 'You\'ve learned this idea'),
-        // Two short centred lines (how it went; where his work went), not one long ragged paragraph.
-        read ? U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.'))
-          : U.h('p', { class: 'lsn-done-text' },
+      // Celebrated: the first time through, and whenever the interactive says it was finished.
+      var party = first || (live && !!st.fromFrame);
+      st.fromFrame = false;
+      var again = function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); };
+      var sec = read
+        // A read lesson: "Lesson complete", then on to the next lesson or start this one again.
+        ? U.h('section', { class: 'lsn-stage lsn-done' + (party ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea read' },
+          U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
+          heading('Lesson complete'),
+          // A steps lesson was done, not read: no "just for reading" line under its heading.
+          stepsLesson() ? null : U.h('p', { class: 'lsn-done-text' }, U.h('span', null, 'This one was just for reading, so nothing comes back in review.')),
+          nx
+            ? U.h('div', { class: 'lsn-next' }, eyebrow('Next'), U.h('h3', null, String(nx.title || 'The next idea')), nextStatus(nx),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Next lesson', U.icon('arrow')),
+                btn('Start again', again, 'secondary')))
+            : U.h('div', { class: 'lsn-next' }, U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'),
+                btn('Start again', again, 'secondary'))),
+          nx ? U.h('p', { class: 'lsn-again' }, U.h('a', { class: 'linkish', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')) : null,
+          stepsLesson() ? stepsSources() : null)
+        // A study lesson: how it went, and where his work went.
+        : U.h('section', { class: 'lsn-stage lsn-done' + (first ? ' is-fresh' : ''), dataset: { stage: 'done' }, 'aria-label': 'Idea learned' },
+          U.h('div', { class: 'lsn-done-mark', 'aria-hidden': 'true' }, U.icon('tick')),
+          heading(live ? (st.replay ? 'Gone through again' : 'Idea learned') : 'You\'ve learned this idea'),
+          // Two short centred lines (how it went; where his work went), not one long ragged paragraph.
+          U.h('p', { class: 'lsn-done-text' },
             all.length ? U.h('span', { class: 'lsn-done-score' }, right === all.length ? (all.length === 1 ? 'You got the check right.' : 'All ' + all.length + ' checks right.') : right + ' of ' + all.length + ' checks right.') : null,
             U.h('span', null, live && st.replay ? 'Your first answers stay as they were; this run is noted separately.'
               : says.length ? 'Your words are in your Library, under In your own words, and your answers will come back in review.' : 'Your answers will come back in review.')),
-        nx
-          ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
-            nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
-            nextStatus(nx),
-            go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
-              U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
-          : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
-            U.h('p', { class: 'muted' }, read ? 'You have been through every idea here.' : 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
-            go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
-        U.h('p', { class: 'lsn-again' }, linkBtn(read ? 'Read it again' : 'Go through it again', function () { st.replay = { predict: null, checks: {} }; begin(); bring(flow); })));
+          nx
+            ? U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, String(nx.title || 'The next idea')),
+              nx.oneLine ? U.h('p', { class: 'muted' }, String(nx.oneLine)) : null,
+              nextStatus(nx),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref + '/' + encodeURIComponent(nx.id) }, 'Start this idea', U.icon('arrow')),
+                U.h('a', { class: 'btn secondary', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic')))
+            : U.h('div', { class: 'lsn-next' }, eyebrow('Where next?'), U.h('h3', null, 'That was the last idea in ' + (st.topic.title || 'this topic')),
+              U.h('p', { class: 'muted' }, 'Every idea here is learned. Your review cards will bring them back a little before you would forget them.'),
+              go(U.h('a', { class: 'btn lsn-main', href: topicHref, on: { click: function () { toTopic(tid); } } }, 'Back to topic'))),
+          U.h('p', { class: 'lsn-again' }, linkBtn('Go through it again', again)));
       flow.appendChild(sec);
       st.sections.done = sec;
       paintBar();
       if (live) bring(sec);
-      // First time only: the celebration pops exactly where the done mark sits (the section is
-      // scrolled so the mark is at the cheer's spot), then fades into it.
-      if (first) setTimeout(function () { if (alive()) U.cheer(); }, reducedMotion() ? 0 : 450);
+      // The celebration pops exactly where the done mark sits (the section is scrolled so the mark
+      // is at the cheer's spot), then fades into it. U.celebrate follows the mark itself.
+      if (party) setTimeout(function () { if (alive()) { if (read) U.celebrate('Lesson complete', sec.querySelector('.lsn-done-mark')); else U.cheer(); } }, reducedMotion() ? 0 : 450);
     }
 
     // "Idea 2 is being prepared…" / "Idea 2 is ready.": the next lesson's doc as it changes, and

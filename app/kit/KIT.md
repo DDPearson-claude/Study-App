@@ -6,7 +6,7 @@ laptop, with the global `K` and the kit's stylesheet. No network or storage: no 
 addresses, `fetch`, `localStorage`, `alert` or `prompt`.
 
 ## Page shape that works
-1. `<p class="lead">`: one short line saying what is drawn (the app adds the title and action).
+1. `<p class="lead">`: one line saying what is drawn (the app adds the title and action).
 2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
    pair on one phone screen. A choice that re-sorts the picture may sit above it.
 3. `<p class="say">`: one sentence that changes with the state and says why. Then
@@ -23,7 +23,7 @@ gives the answer away until his first move:
   Hide the answer, not the controls or a whole figure (a blank hole fails the test).
 - `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
 - `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
-- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your own handlers.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
 
 ## The pipeline
 Controls register themselves; their values form `params` = `{id: value}`.
@@ -32,7 +32,8 @@ K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, 
 K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
 K.at(over)         -> outputs of the model at those params (others take each control's starting value)
 K.check(label, fn, {source?})   fn() must return exactly true
-K.ready()          call once, last: draws the opening state, runs the checks, tells the app
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
 K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
 ```
 A readout whose id is an output key updates itself.

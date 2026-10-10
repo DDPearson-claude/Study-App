@@ -1165,6 +1165,7 @@
   //        kind: the idea's kind (no target-check advice for a kind write-lesson gives none),
   //        mode: 'study' (predict, say and 2-3 checks required) or 'read' (just taught: they are
   //        left out, and dropped when the reply has them); default the lesson's own mode, else study}
+  // format: 'steps' (read lessons only) or absent.
   // practice {text} is required in both modes (an older lesson without it is only ever checked
   // against itself: U.validate.verify reports what a fix breaks, not what was missing).
   function vLesson(o, opts) {
@@ -1180,6 +1181,9 @@
       copy.predict = null; copy.say = null; copy.checks = [];
       o = copy;
     }
+    // format 'steps': the interactive is the whole lesson (read lessons only; absent: the usual layout).
+    if (o.format != null && o.format !== 'steps') v.add('format must be "steps" or left out.');
+    else if (o.format === 'steps' && !read) v.add('format "steps" is for a read lesson only: leave it out of a study lesson.');
     if (opts.iid && o.iid !== opts.iid) v.add('iid must be "' + opts.iid + '".');
     else if (!opts.iid) v.str(o.iid, 'iid');
     v.str(o.title, 'title', 90);

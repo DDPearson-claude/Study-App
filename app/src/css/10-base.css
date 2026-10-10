@@ -286,6 +286,31 @@ mark.term {
 .cheer-bubble svg { width: 40px; height: 40px; }
 .cheer-text { padding: 8px 16px; border-radius: 999px; background: var(--green); color: var(--on-green); font: 700 .9375rem/1.3 var(--sans); animation: mu-pop 1.6s cubic-bezier(.2, .9, .3, 1.2) forwards; }
 @keyframes mu-pop { 0% { opacity: 0; transform: scale(.6); } 18% { opacity: 1; transform: scale(1.06); } 28% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-8px); } }
+/* U.celebrate: a completed lesson. A point (the done tick, or 38% down) with the tick centred on
+   it: the bubble scales in with a ring pulse, 16 fraction pieces fly out and fade (1.2 s), the
+   words hold above it about 2 s, then all of it fades. */
+.cheer.celebrate { display: block; width: 0; height: 0; transform: none; animation: cel-out 3.2s linear forwards; }
+.cel-burst { position: absolute; left: -38px; top: -38px; width: 76px; height: 76px; display: grid; place-items: center; }
+.cel-bubble { position: relative; z-index: 1; animation: cel-in .45s cubic-bezier(.2, .9, .3, 1.35) both; }
+.cel-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid var(--green); opacity: 0; animation: cel-ring .9s .12s ease-out both; }
+.cel-piece { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 2px; opacity: 0;
+  animation: cel-fly 1.2s calc(.12s + var(--delay, 0ms)) cubic-bezier(.15, .7, .3, 1) both; }
+.cel-piece.is-half { height: 6px; margin-top: -3px; }
+.cel-green { background: var(--green); }
+.cel-navy { background: var(--heading); }
+.cel-amber { background: #E8B53A; }   /* the amber of the key-term highlighter, solid enough for both themes */
+.cel-text { position: absolute; left: 0; bottom: 52px; white-space: nowrap; transform: translateX(-50%); box-shadow: 0 6px 18px color-mix(in srgb, var(--green) 30%, transparent);
+  animation: cel-text .35s .3s ease-out both; }
+@keyframes cel-in { 0% { opacity: 0; transform: scale(.3); } 70% { opacity: 1; transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes cel-ring { 0% { opacity: .7; transform: scale(1); } 100% { opacity: 0; transform: scale(2.3); } }
+@keyframes cel-fly { 0% { opacity: 1; transform: translate(0, 0) rotate(0) scale(.6); } 70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1); } }
+@keyframes cel-text { 0% { opacity: 0; translate: 0 6px; } 100% { opacity: 1; translate: 0 0; } }
+@keyframes cel-out { 0%, 86% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .cel-ring, .cel-piece { display: none; }
+  .cheer.celebrate, .cel-bubble, .cel-text { animation: none; }
+}
 
 /* ---------- empty / error states ---------- */
 .empty { text-align: center; padding: 40px 12px; color: var(--muted); }

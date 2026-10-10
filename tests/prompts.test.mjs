@@ -963,6 +963,10 @@ test('lesson validator: practice is required (its length soft); a read lesson ne
   assert.ok(U.validate.hard(asRead({ ...bare, practice: undefined })).some((p) => /^practice is missing/.test(p)), 'practice still required');
   // The lesson's own mode is read when the caller gives none (the fact-check's validation).
   assert.deepEqual(plain(U.validate.lesson({ ...bare, mode: 'read' }, { iid: 'i2', sources: LR2.sources })), []);
+  // format 'steps' (the interactive is the whole lesson): a read lesson only.
+  assert.deepEqual(plain(asRead({ ...bare, format: 'steps' })), []);
+  assert.ok(U.validate.hard(asRead({ ...bare, format: 'cards' })).some((p) => /^format must be "steps"/.test(p)));
+  assert.ok(U.validate.hard(U.validate.lesson({ ...clone(L_JET2), format: 'steps' }, { iid: 'i2', sources: LR2.sources })).some((p) => /^format "steps" is for a read lesson only/.test(p)));
   // Study (the default): all three are still required.
   const p = plain(U.validate.lesson(bare, { iid: 'i2', sources: LR2.sources }));
   for (const re of [/^predict is missing/, /^say is missing/, /^checks must have 2-3 checks/]) assert.ok(p.some((x) => re.test(x)), String(re));

@@ -3,7 +3,7 @@
  * and no access to the app. A model-written body uses the global K to build themed controls,
  * readouts, plots, buttons and sound, declares a pure model, known-answer checks, and calls K.ready().
  * The kit talks to the host (app/src/js/32-sandbox.js) with postMessage, every message tagged
- * src:'kit': height, ready, error, change, and replies to selftest / get / set / press / inputs /
+ * src:'kit': height, ready, error, change, complete, and replies to selftest / get / set / press / inputs /
  * reach / theme.
  * This file is inlined into a <script> element, so it never contains a closing script tag or an
  * HTML comment opener. */
@@ -2114,6 +2114,12 @@
     sendHeight();
     [60, 250, 800, 2000].forEach(function (ms) { setTimeout(sendHeight, ms); });
     anims.forEach(function (a) { if (a.autoplay) a.api.play(); });
+    return K;
+  };
+  // Call when Dan has finished the page (its last puzzle solved): the app marks the lesson done
+  // and celebrates. Safe to call more than once (the app celebrates again).
+  K.complete = function () {
+    post({ type: 'complete' });
     return K;
   };
 

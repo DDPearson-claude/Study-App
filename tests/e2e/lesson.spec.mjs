@@ -2420,10 +2420,11 @@ async function readScenario(width, dark, withReveal) {
     }
     await page.locator('.lsn-done').waitFor();
     ok(await page.locator('.lsn-stage[data-stage="say"], .lsn-stage[data-stage="checks"]').count() === 0, 'no say-it-back and no quick checks');
-    ok(await page.locator('.lsn-done .lsn-h').textContent() === 'Idea read', 'the idea is read');
+    ok(await page.locator('.lsn-done .lsn-h').textContent() === 'Lesson complete', 'the lesson is complete');
     ok(/just for reading/.test(await page.locator('.lsn-done-text').textContent()), 'and nothing comes back in review');
     ok(await page.locator('.lsn-steps-label').textContent() === 'Idea read', 'the bar says Idea read');
-    ok(await page.locator('.lsn-next a', { hasText: 'Start this idea' }).count() === 1, 'the next idea is offered as usual');
+    ok(await page.locator('.lsn-next a', { hasText: 'Next lesson' }).count() === 1 && await page.locator('.lsn-next button', { hasText: 'Start again' }).count() === 1, 'Next lesson, or Start again');
+    ok(await page.locator('.lsn-again a', { hasText: 'Back to topic' }).count() === 1, 'and Back to topic, quietly');
     await page.waitForTimeout(500);
     const t = await T(app), pr = (await doc(app, PROGRESS)).ideas.i1;
     ok(t.add.length === 0, 'no review cards are made');
@@ -2435,7 +2436,7 @@ async function readScenario(width, dark, withReveal) {
     await page.evaluate(() => U._route());
     await page.locator('.lsn-done').waitFor();
     ok((await page.locator('.lsn-past .lsn-past-label').allTextContents()).join() === 'Read,Explore', 'reopened: Read and Explore collapsed');
-    ok(await page.locator('.lsn-done .lsn-h').textContent() === 'You\'ve read this idea', 'and it says he has read it');
+    ok(await page.locator('.lsn-done .lsn-h').textContent() === 'Lesson complete', 'and it says the lesson is complete');
   } catch (e) {
     ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
     await shot(app, 'read-error').catch(() => {});
@@ -2474,6 +2475,53 @@ async function practiceStudy() {
     ok(await page.locator('.lsn-practice').count() === 0, 'an older lesson without it shows nothing');
   } catch (e) {
     ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
+// ---------- a steps lesson: the interactive is the whole lesson, and says when it is finished ----------
+const STEPS_BODY = '<p class="say">Two halves make a whole.</p><div id="fin"></div><script>' +
+  'K.button({ label: "Finish", into: document.getElementById("fin"), press: function () { K.complete(); } }); K.ready();</script>';
+async function stepsScenario() {
+  current = 'steps-lesson 360-light';
+  console.log('\n' + current);
+  const d = readLesson({ reveal: false });
+  d.lesson.format = 'steps';
+  d.interactive.html = STEPS_BODY;
+  const seed = { 'topics/pendulums': { ...TOPIC, mode: 'read' }, [LESSON('i1')]: d, [LESSON('i2')]: CLOCKS };
+  const app = await open({ width: 360, dark: false, hash: '#/t/pendulums/i1', seed });
+  const { page } = app;
+  try {
+    const frame = page.frameLocator('.lsn-steps-play iframe');
+    await frame.getByRole('button', { name: 'Finish' }).waitFor({ timeout: 15000 });
+    ok(await page.locator('.lsn-title').isVisible(), 'the title header');
+    ok(await page.locator('.lsn-stage[data-stage="explain"], .lsn-past[data-stage="explain"]').count() === 0, 'no explanation stage');
+    ok(await page.locator('.lsn-orient, .lsn-lede, .lsn-analogy, .lsn-practice, .lsn-recap, .lsn-flow .lsn-go').count() === 0, 'nothing but the frame: no orient, brief, comparison, practice, recap or finish control');
+    await noOverflow(app);
+    await frame.getByRole('button', { name: 'Finish' }).click();
+    await page.locator('.cheer.celebrate .cel-piece').first().waitFor({ state: 'attached' });
+    await page.waitForTimeout(650);
+    await page.screenshot({ path: join(OUT, 'lesson-steps-celebrate-360.png') });
+    ok(await page.locator('.lsn-done .lsn-h').textContent() === 'Lesson complete', 'K.complete(): Lesson complete');
+    ok(await page.locator('.cheer.celebrate .cheer-text').textContent() === 'Lesson complete', 'celebrated');
+    ok(await page.locator('.lsn-next a', { hasText: 'Next lesson' }).getAttribute('href') === '#/t/pendulums/i2', 'Next lesson goes to the next idea');
+    ok(await page.locator('.lsn-next button', { hasText: 'Start again' }).count() === 1, 'and Start again');
+    ok(/^Sources \(\d+\)$/.test((await page.locator('.lsn-done summary').textContent()).trim()), 'the sources, collapsed, in the done section');
+    await page.waitForTimeout(500);
+    const pr = (await doc(app, PROGRESS)).ideas.i1;
+    ok(pr.stage === 'done' && !!pr.doneAt && pr.readRound === 0, 'saved as done: ' + JSON.stringify(pr));
+    // Finished again from the frame: the celebration plays again.
+    await page.locator('.cheer.celebrate').waitFor({ state: 'detached', timeout: 6000 });
+    await frame.getByRole('button', { name: 'Finish' }).click();
+    await page.locator('.cheer.celebrate').waitFor({ state: 'attached', timeout: 3000 });
+    ok(await page.locator('.lsn-done').count() === 1, 'once more, with one done section');
+    await page.locator('.lsn-next button', { hasText: 'Start again' }).click();
+    await page.frameLocator('.lsn-stage[data-stage="play"] .lsn-steps-play iframe').getByRole('button', { name: 'Finish' }).waitFor({ timeout: 15000 });
+    ok(await page.locator('.lsn-done').count() === 0, 'Start again: the lesson from the top');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'steps-error').catch(() => {});
   }
   ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
   await app.close();
@@ -2529,6 +2577,7 @@ const scenarios = [
   ['switched-to-read', () => switchedToRead()],
   ['read-lesson-1280-dark', () => readScenario(1280, true, true)],
   ['practice-study', practiceStudy],
+  ['steps-lesson', stepsScenario],
 ];
 for (const [name, run] of scenarios) if (name.includes(filter)) await run();
 

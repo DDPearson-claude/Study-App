@@ -239,6 +239,22 @@ test('quiz: the output is in the srcdoc, posted after ready and after every late
   assert.equal(P.sent(n.frame, 'quiz').length, 0);
 });
 
+test('complete: K.complete() reaches onComplete, every time; a forged one does not', () => {
+  const P = fakePage();
+  let n = 0;
+  const m = P.U.sandbox.mount(P.box(), { html: BODY, onComplete: () => { n++; } });
+  P.wait(300); P.kit(m.frame, { type: 'ready', checks: [] });
+  P.kit(m.frame, { type: 'complete' });
+  P.kit(m.frame, { type: 'complete' });
+  assert.equal(n, 2);
+  P.kit(m.frame, { type: 'complete', tok: 'forged' });
+  assert.equal(n, 2, 'without the frame\'s token it is not heard');
+  // A mount without onComplete ignores it.
+  const q = P.U.sandbox.mount(P.box(), { html: BODY });
+  P.wait(300); P.kit(q.frame, { type: 'complete' });
+  assert.ok(q.el.isConnected);
+});
+
 test('reach() passes the output\'s decimals to the kit (null when not given)', () => {
   const P = fakePage();
   const m = P.U.sandbox.mount(P.box(), { html: BODY });

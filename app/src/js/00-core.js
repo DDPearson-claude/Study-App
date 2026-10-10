@@ -633,3 +633,41 @@ U.cheer = function (text) {
   U.haptic([10, 40, 18]);
   setTimeout(function () { c.remove(); }, 1700);
 };
+// A lesson completed: the tick scales in with a ring pulse, a burst of small squares and
+// half-squares (like fraction pieces) flies out and fades, and the words hold about 2 s above it.
+// at: an element to sit on (the done section's tick, which it follows while the page scrolls);
+// else 38% down the screen. Colour by meaning: the tick green (finished), pieces green, navy and
+// amber. Said once to a screen reader (its own polite live region). Reduced motion: the tick and
+// the words, nothing moves.
+U.celebrate = function (text, at) {
+  Array.prototype.forEach.call(document.querySelectorAll('.cheer.celebrate'), function (c) { c.remove(); });
+  var pieces = [], N = 16, kinds = ['cel-green', 'cel-navy', 'cel-amber'];
+  for (var i = 0; i < N; i++) {
+    var a = (i / N) * Math.PI * 2 + (i % 2 ? 0.18 : -0.12), d = 78 + (i * 37 % 5) * 13;
+    var p = U.h('span', { class: 'cel-piece ' + kinds[i % 3] + (i % 2 ? ' is-half' : '') });
+    p.style.setProperty('--dx', Math.round(Math.cos(a) * d) + 'px');
+    p.style.setProperty('--dy', Math.round(Math.sin(a) * d) + 'px');
+    p.style.setProperty('--rot', ((i * 47) % 300 - 150) + 'deg');
+    p.style.setProperty('--delay', (i % 4) * 25 + 'ms');
+    pieces.push(p);
+  }
+  var said = U.h('p', { class: 'visually-hidden', role: 'status', 'aria-live': 'polite' });
+  var c = U.h('div', { class: 'cheer celebrate' },
+    U.h('div', { class: 'cel-burst', 'aria-hidden': 'true' },
+      U.h('span', { class: 'cel-ring' }), pieces, U.h('div', { class: 'cheer-bubble cel-bubble' }, U.icon('tick'))),
+    text ? U.h('p', { class: 'cheer-text cel-text', 'aria-hidden': 'true' }, text) : null,
+    said);
+  var end = Date.now() + 3300;
+  function place() {
+    if (!c.isConnected || !at || !at.isConnected) return;
+    var r = at.getBoundingClientRect();
+    if (r.width) { c.style.left = (r.left + r.width / 2) + 'px'; c.style.top = (r.top + r.height / 2) + 'px'; }
+    if (Date.now() < end && window.requestAnimationFrame) requestAnimationFrame(place);
+  }
+  document.body.appendChild(c);
+  place();
+  U.haptic([20, 60, 20, 60, 80]);
+  // Set a moment after the region exists, so it is announced (once).
+  if (text) setTimeout(function () { said.textContent = text; }, 120);
+  setTimeout(function () { c.remove(); }, 3300);
+};

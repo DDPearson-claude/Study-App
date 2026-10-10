@@ -12,7 +12,7 @@
 // finish loading), so the host pings every mounted frame and removes one that stops answering.
 //
 //   U.sandbox.srcdoc(body, {theme, token, quiz}) -> string
-//   U.sandbox.mount(container, {html, title, onReady, onError, onChange, minHeight, loading, quiz, theme}) ->
+//   U.sandbox.mount(container, {html, title, onReady, onError, onChange, onComplete, minHeight, loading, quiz, theme}) ->
 //     { el, frame, ready, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t),
 //       quiz(hide), reveal(), destroy() }
 //       set() counts as a move (it reveals the body's .k-after-move parts), and takes a slider value,
@@ -216,7 +216,7 @@ U.sandbox = (function () {
   }
 
   // ---------- mount ----------
-  // mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange(state), minHeight, loading, quiz})
+  // mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange(state), onComplete(), minHeight, loading, quiz})
   //   -> {el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label), inputs(), reach(spec), theme(t),
   //       quiz(hide), reveal(), destroy()}
   // ready resolves with the kit's check results, or null if K.ready() never arrives (12 s).
@@ -224,7 +224,8 @@ U.sandbox = (function () {
   // in a wide frame: only then does the interactive gain from more than a reading column.
   // onChange({params, outputs}) follows Dan's changes (debounced). onError(msg) carries the frame's
   // own text: log it, never show it. loading:false hides the built-in loading line, for callers
-  // that draw their own cover. quiz: {hide: output id} (section 6, "Quiz mode").
+  // that draw their own cover. quiz: {hide: output id} (section 6, "Quiz mode"). onComplete()
+  // follows the page's K.complete() (Dan finished its puzzles); it may come more than once.
   //
   // Heartbeat: every PING_MS the host pings the frame, and anything the kit says (a pong, a
   // height, a change), signed with the frame's token, counts as an answer. A frame that has
@@ -297,6 +298,8 @@ U.sandbox = (function () {
         report(d.message);
       } else if (d.type === 'change') {
         if (o.onChange) try { o.onChange({ params: d.params, outputs: d.outputs }); } catch (e) { console.error(e); }
+      } else if (d.type === 'complete') {
+        if (o.onComplete) try { o.onComplete(); } catch (e) { console.error(e); }
       }
     }, function () { api.destroy(); });
     // A frame that has said nothing at all by now is not the kit: it is removed, never shown.

@@ -537,7 +537,8 @@ Lesson = {
   mode: 'study'|'read',                          // v9: the mode it was written for (read: no predict, say, checks)
   confidence:'settled'|'simplified'|'contested',
   contested: { views:[2+ { label, text }] } | null,
-  mode: 'study'|'read'                           // the topic's mode it was written for (stamped by 31-generate)
+  mode: 'study'|'read',                          // the topic's mode it was written for (stamped by 31-generate)
+  format?: 'steps'                               // read lessons only (rejected on a study lesson); absent: the usual layout
 }
 Control = { id, label, min, max, step, value, unit }  numeric: min < max, 0 < step <= max - min,
                                                       min <= value <= max, unit <= 10 chars ('' for none)
@@ -553,6 +554,12 @@ Check =
     // control: a numeric control with >= 3 settings; output: an outputs id. Graded on the
     // lesson's interactive, every other control at its opening value. tolerance > 0 throughout.
 ```
+- `format: 'steps'` (a read lesson only): the interactive IS the lesson, a sequence of explanation
+  screens and puzzles in one kit page that calls `K.complete()` at its end. The lesson screen shows
+  only the title, the frame full width, and (on `K.complete()`) the done section, with the sources
+  in a collapsed "Sources (n)" there; explain, practice and sources stay in the JSON so the dossier
+  and Library bind the chapter as before. With no frame to show (no interactive, a build note) it
+  falls back to the usual read layout (section 10).
 - `practice.text` ("Put it into practice"), in both modes: steps in order or a checklist (a block of
   "- " lines), a rule of thumb or two, one worked example with real numbers or a real case, and the
   common mistakes, the other blocks opened by a bold label ("**Worked example:**"); for an idea that
@@ -703,6 +710,8 @@ kit -> host  {type:'height', px}  {type:'ready', checks:[{label, ok, source?, er
                  at least every 2 s while changes keep coming (a drag, a slider an animation drives) or an
                  animation plays, as long as Dan touched the page in the last 5 min (U.boot.study)
              {type:'leaving'}   the page is navigating away (or was replaced): the host removes the frame
+             {type:'complete'}  K.complete(): Dan finished the page (its last puzzle); the lesson screen
+                 finishes a read lesson and celebrates (section 10); other frames ignore it
 host -> kit  ping                    -> {type:'pong'}         the heartbeat
              quiz {hide}  reveal     (no reply)               quiz mode, below
              selftest {throwaway?}   -> {type:'report', report}
@@ -1178,7 +1187,7 @@ rebuild, with Dan's note as feedback.
 `32-sandbox.js` (kit host)
 ```
 U.KIT_JS, U.KIT_CSS (build placeholders);  U.sandbox.MAX_BYTES (150 KB), CSP, srcdoc(body, {theme, token, quiz}) (throws {code:'too_large'})
-U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), minHeight = 320, loading,
+U.sandbox.mount(container, {html, title, onReady(checks, {beside}), onError(msg), onChange({params, outputs}), onComplete(), minHeight = 320, loading,
                             quiz: {hide: output id}, theme: () => K_THEME}) ->
    { el, frame, ready: Promise<checks|null>, selftest(), get(), set(id, value), press(label?), inputs(), reach(spec), theme(t?),
      quiz(id | null), reveal(), destroy() }
@@ -1379,7 +1388,16 @@ topics started here are not source-checked); "Not connected." with the steps to 
 - Lesson stages (v9): a study lesson Predict, Play, Explain (with "Put it into practice" after the
   analogy), Say it back, Check; a read lesson Explore (the interactive, "Try this", then what
   happens if the lesson says), Read (explanation, analogy, practice, sources; "Done reading"),
-  finished as "Idea read". The step bar has a segment per step (five or two).
+  finished as "Idea read". The step bar has a segment per step (five or two). A read lesson's done
+  section says "Lesson complete", with "Next lesson" (or "Back to topic" on the last idea) and
+  "Start again" (a separate replay run), and celebrates with `U.celebrate` (00-core.js: the tick,
+  a ring pulse and a burst of fraction pieces, haptic [20, 60, 20, 60, 80], said once; reduced
+  motion: no movement) the first time and whenever the interactive calls `K.complete()`. That
+  call (U.sandbox.mount's onComplete) finishes a read lesson's Explore exactly as its own finish
+  control does; when the done section is already showing it scrolls there and celebrates again;
+  a study lesson ignores it. A steps lesson (`format: 'steps'`, section 5) has one step, Lesson:
+  the frame alone, full width, then the done section with its sources in "Sources (n)"; if its
+  frame cannot be shown, or is closed, it opens as an ordinary read lesson.
 - Tabs Learn / Today / Map / Library (`#tabs`, Today's badge `#today-badge`; the Library tab is
   `data-tab="book"`) sit at the bottom in
   the phone layout and in the top bar in the laptop layout. The Aa button opens `U.settings.open()`.
