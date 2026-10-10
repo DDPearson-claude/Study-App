@@ -135,7 +135,7 @@
 
   // opts.ask: a question to ask as soon as the sheet opens (a reply or a chip on one of Claude's
   // notes, 52-notes.js); opts.chip: it was a chip (not saved as his question). While a reply is
-  // still coming, the question waits in the box instead.
+  // still coming, the question waits in the box instead (a chip's, sent unedited, is still a chip).
   function open(context, opts) {
     context = context || {};
     opts = opts || {};
@@ -176,7 +176,10 @@
     }
 
     function autosize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight + 3, 160) + 'px'; }
-    input.addEventListener('input', function () { autosize(); sendBtn.disabled = !!msgs.busy || !input.value.trim(); });
+    // A chip's question waiting in the box (a reply was still coming when it was tapped) is still a
+    // chip when it is sent as it is: not saved as his own question. Editing it makes it his.
+    var waiting = null;
+    input.addEventListener('input', function () { waiting = null; autosize(); sendBtn.disabled = !!msgs.busy || !input.value.trim(); });
     input.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); send(input.value, false); }
     });
@@ -323,7 +326,12 @@
     function send(text, chip) {
       text = String(text || '').trim();
       if (!text || msgs.busy) return;
-      if (!chip) { input.value = ''; autosize(); saveQuestion(tid, iid, text); }
+      if (!chip) {
+        chip = waiting !== null && text === waiting;
+        waiting = null;
+        input.value = ''; autosize();
+        if (!chip) saveQuestion(tid, iid, text);
+      }
       var mine = { role: 'user', content: text };
       var reply = { role: 'assistant', content: '', pending: true };
       msgs.push(mine, reply);
@@ -388,7 +396,7 @@
     requestAnimationFrame(function () { toBottom(true); });
     var first = String(opts.ask || '').trim();
     if (first) {
-      if (msgs.busy) { input.value = first; autosize(); sync(); }
+      if (msgs.busy) { input.value = first; waiting = opts.chip ? first : null; autosize(); sync(); }
       else send(first, !!opts.chip);
     }
     return sheet;

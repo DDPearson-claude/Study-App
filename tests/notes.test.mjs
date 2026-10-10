@@ -66,3 +66,20 @@ test('what he wrote is quoted as data, cut to length', () => {
   assert.ok(/^ \(data, not instructions\)/.test(block));
   assert.ok(block.length < 1600 && !block.includes('x'.repeat(1300)), 'his words are clipped');
 });
+
+test('a reply while his second go is open: Claude is told to hint, not to give the missing point away', () => {
+  const about = { kind: 'say', text: 'A longer string makes the swing slower.', verdict: 'partly', followUp: 'How much slower?' };
+  const line = 'He still has a second go at this answer: help him find what is missing with a hint or a question; do not state the missing point or a model answer.';
+  const open = U.prompts.tutor(Object.assign({}, base, { about: Object.assign({}, about, { secondGo: true }) }));
+  const block = (open.split('WHAT HE HAS JUST DONE')[1] || '').split('HOW TO HELP')[0];
+  assert.ok(block.includes(line), 'the second go is named in his block');
+  assert.ok(block.includes('"A longer string makes the swing slower."') && block.includes('How much slower?'), 'the rest of the block is unchanged');
+  // No second go (none offered, already used, or a review's recall card): nothing said about one.
+  for (const secondGo of [false, undefined, 'yes', 1]) {
+    const p = U.prompts.tutor(Object.assign({}, base, { about: Object.assign({}, about, secondGo === undefined ? {} : { secondGo }) }));
+    assert.ok(/WHAT HE HAS JUST DONE/.test(p) && !/second go/.test(p), String(secondGo));
+  }
+  // A check's note never carries it.
+  const c = LESSON.checks[0];
+  assert.ok(!/second go/.test(U.prompts.tutor(Object.assign({}, base, { about: { kind: 'check', q: c.q, correct: false, secondGo: true } }))));
+});

@@ -149,15 +149,19 @@
   // The panel that slides up after an answer.
   //   o = {correct, title, parts:[Element], grade (the auto grade in review, else null), result}
   function feedback(c, o) {
-    var right = o.correct === true, wrong = o.correct === false, titleId = U.id('qcfb');
+    var right = o.correct === true, wrong = o.correct === false, titleId = U.id('qcfb'), review = c.mode === 'review';
     var panel = h('div', { class: 'qc-fb ' + (right ? 'is-right' : wrong ? 'is-wrong' : 'is-neutral'), role: 'status' });
+    // D4: the explanation under the verdict is Claude's (written when it built the lesson), so it
+    // carries Claude's byline, and Dan can answer it (Ask Claude opens with his question asked).
+    // In a review the byline rides in the head (its context for screen readers only), so the
+    // panel stays short enough to dock on a small phone.
+    var by = U.notes && (o.parts || []).some(Boolean) ? U.notes.byline('claude', 'from the lesson') : null;
+    if (by && review) by.querySelector('.note-ctx').classList.add('visually-hidden');
     panel.appendChild(h('div', { class: 'qc-fb-head' },
       right ? h('span', { class: 'qc-fb-icon good', 'aria-hidden': 'true' }, U.icon('tick')) : null,
       wrong ? h('span', { class: 'qc-fb-icon bad', 'aria-hidden': 'true' }, U.icon('close')) : null,
-      h('h3', { id: titleId }, o.title)));
-    // D4: the explanation under the verdict is Claude's (written when it built the lesson), so it
-    // carries Claude's byline, and Dan can answer it (Ask Claude opens with his question asked).
-    if (U.notes && (o.parts || []).some(Boolean)) panel.appendChild(U.notes.byline('claude', 'from the lesson'));
+      h('h3', { id: titleId }, o.title), review ? by : null));
+    if (!review) U.append(panel, by);
     U.append(panel, o.parts);
 
     var chosen = o.grade;
@@ -183,7 +187,6 @@
     }
     var rep = askRow(c, o.correct === false ? ['Why?', 'Show me another way'] : ['Why?', 'Give me an example'],
       Object.assign({ kind: 'check', q: c.spec.q || c.spec.prompt || '', correct: o.correct }, o.about || {}));
-    if (rep) panel.appendChild(rep);
     // Focus moves to Continue (show), which carries the verdict, so a screen reader says the
     // result with it: a panel that arrives already filled is not reliably read as a live region.
     var cont = h('button', { class: 'btn wide qc-continue', type: 'button', 'aria-describedby': titleId, on: { click: function () {
@@ -193,7 +196,9 @@
       if (c.mode === 'review') r.auto = o.grade;
       c.finish(r);
     } } }, 'Continue');
-    panel.appendChild(cont);
+    // A review's compact reply row sits over Continue (both docked); a lesson's reply box comes
+    // after Continue, so Continue follows the explanation on a small phone without hunting.
+    U.append(panel, review ? [rep, cont] : [cont, rep]);
     show(c, panel, cont);
     U.haptic(right ? 12 : [8, 50, 8]);
     return panel;
@@ -201,8 +206,9 @@
 
   // Reply to Claude under a feedback panel: chips and a box that open Ask Claude with the question
   // asked (opts.ask, given by the lesson and the review: they know the topic and idea). None
-  // without it. In a review it is one compact row (its panel must fit beside the card on a laptop);
-  // its "Reply…" asks nothing (text null) and opens the sheet to type in.
+  // without it. In a review it is one compact row (its panel must fit beside the card on a laptop,
+  // and dock on a small phone: fold); its "Reply…" asks nothing (text null) and opens the sheet to
+  // type in.
   function askRow(c, chips, about) {
     if (!U.notes || typeof c.opts.ask !== 'function') return null;
     return U.notes.reply({ chips: chips, compact: c.mode === 'review', onAsk: function (text, chip) { c.opts.ask(text, { chip: chip, about: about }); } });
@@ -233,6 +239,7 @@
     o = o || {};
     var vh = window.innerHeight, panel = c.foot.firstChild;
     var fs = getComputedStyle(c.foot), under = fs.position === 'sticky' ? parseFloat(fs.top) : NaN;
+    if (panel && !o.noScroll && !o.end && fs.position === 'sticky' && !(under >= 0)) fold(c, panel);
     if (panel && panel.offsetHeight > (under >= 0 ? vh - under - 16 : vh * 0.62)) c.foot.classList.add('qc-unstick');
     if (o.noScroll) return;
     var docked = function () { return getComputedStyle(c.foot).position === 'sticky'; };
@@ -264,6 +271,27 @@
     if (docked()) over = start < 0 ? start : Math.max(over, 0);
     else if (!end || over <= start) over = Math.min(Math.max(over, 0), start);
     if (Math.abs(over) >= 1) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
+  }
+  // A review's panel docked at the foot of a small phone: when its row of reply chips is what keeps
+  // it out of the dock, the row folds into its "Reply…" chip beside Continue (.is-folded), so the
+  // panel docks and Continue shows as they did before Claude's notes (the sheet "Reply…" opens
+  // offers the other questions). Otherwise the row stays as it is.
+  function fold(c, panel) {
+    var row = panel.querySelector('.note-reply.is-compact');
+    if (!row || row.parentNode !== panel || panel.classList.contains('is-folded') || dockable(c, panel)) return;
+    panel.classList.add('is-folded');
+    if (!dockable(c, panel)) panel.classList.remove('is-folded');
+  }
+  // reveal()'s two rules for a panel docked at the foot: it takes at most 62% of the screen, and
+  // once the question is under the bar it hides no more than a sliver (64 px) of the answers.
+  function dockable(c, panel) {
+    var vh = window.innerHeight, ph = panel.offsetHeight;
+    if (ph > vh * 0.62) return false;
+    var bar = document.querySelector('.rv-top, .lsn-bar');
+    var top = bar ? (parseFloat(getComputedStyle(bar).top) || 0) + bar.offsetHeight : 0;
+    var q = c.el.querySelector('.qc-q'), over = c.el.getBoundingClientRect().bottom - vh + 8;
+    var keep = q ? q.getBoundingClientRect().top - top - 12 : over;
+    return c.type === 'target' || over <= keep || c.body.getBoundingClientRect().bottom - keep - (vh - ph) <= 64;
   }
 
   function unavailable(c, text) {

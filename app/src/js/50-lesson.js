@@ -1265,6 +1265,9 @@
       var after = U.h('div', { class: 'lsn-after' });
       U.append(box, [slot, compose, after]);
       var busy = false;
+      // Whether "Have another go" is on offer (next() offers it; reveal() takes it away): while it
+      // is, a reply to Claude's grade asks for a hint, not the missing point (gradeView).
+      var goAgain = false;
       compose.hidden = attempts.length > 0;
       if (attempts.length) next();
 
@@ -1346,6 +1349,7 @@
       function next() {
         var last = attempts[attempts.length - 1];
         if (last && last.verdict && last.verdict !== 'got-it' && attempts.length < 2) {
+          goAgain = true;
           U.clear(after).appendChild(go(
             btn('Have another go', function () {
               U.clear(after);
@@ -1362,6 +1366,7 @@
       // or to Continue when there is none.
       function reveal(tapped) {
         var last = attempts[attempts.length - 1];
+        goAgain = false;
         U.clear(after);
         if (modelOf(last)) after.appendChild(modelAnswer(last, !last || last.verdict !== 'got-it'));
         if (!st.closed.say) after.appendChild(go(btn('Continue', function () { complete('say'); }, 'lsn-main')));
@@ -1375,9 +1380,12 @@
           U.h('div', { class: 'lsn-bubble' }, U.h('p', { class: 'lsn-bubble-label' }, no > 1 ? 'Your second go' : 'Your answer'), U.h('p', { class: 'lsn-bubble-text' }, text)));
       }
       // Claude's grade is its note on his words (D4): its byline, and on the answer just graded a
-      // way to answer back (Ask Claude opens with his question and what he wrote).
+      // way to answer back (Ask Claude opens with his question and what he wrote). While his second
+      // go is open, its chip asks for a hint and Claude is told not to give the missing point away
+      // (about.secondGo, 30-prompts.js).
       function gradeView(a, no, withFollow) {
         var met = rubric.filter(function (r, i) { return a.met && a.met[i]; });
+        var second = !!a.verdict && a.verdict !== 'got-it' && no < 2;
         return U.h('div', { class: 'lsn-grade' },
           U.notes ? U.notes.byline('claude', 'on your answer') : null,
           U.h('p', { class: 'lsn-verdict' }, VERDICT[a.verdict] || 'Checked'),
@@ -1388,8 +1396,8 @@
           withFollow && a.followUp && a.verdict !== 'got-it' && no < 2
             ? U.h('div', { class: 'lsn-follow' }, eyebrow('One thing to add'), richBox(a.followUp)) : null,
           withFollow && U.notes ? U.notes.reply({
-            chips: a.verdict === 'got-it' ? ['Give me an example', 'Go a bit deeper'] : ['What did I miss?', 'Give me an example'],
-            onAsk: function (text, chip) { openTutor(text, { chip: chip, about: { kind: 'say', text: a.text, verdict: a.verdict, followUp: a.followUp || '' } }); },
+            chips: a.verdict === 'got-it' ? ['Give me an example', 'Go a bit deeper'] : [second ? 'Give me a hint' : 'What did I miss?', 'Give me an example'],
+            onAsk: function (text, chip) { openTutor(text, { chip: chip, about: { kind: 'say', text: a.text, verdict: a.verdict, followUp: a.followUp || '', secondGo: second && goAgain } }); },
           }) : null);
       }
       // The grader may word a model answer for his second miss; otherwise the lesson's own.

@@ -852,18 +852,24 @@
       (topics || []).forEach(function (t) {
         var ideas = (progress[t.id] && progress[t.id].ideas) || {};
         Object.keys(ideas).forEach(function (iid) {
-          var said = U.entries(ideas[iid] && ideas[iid].say).map(function (e) { return e.value; })
-            .filter(function (a) { return a && a.verdict && (a.followUp || a.nailed); });
+          // Only what he said in the idea's current round (a Learn it again starts a fresh one).
+          var ip = ideas[iid] || {}, round = Number(ip.round) || 0;
+          var mine = U.entries(ip.say).map(function (e) { return e.value; })
+            .filter(function (a) { return a && (Number(a.round) || 0) === round; });
+          var said = mine.filter(function (a) { return a.verdict && (a.followUp || a.nailed); });
           var a = said[said.length - 1];
           var idea = (t.ideas || []).filter(function (i) { return i.id === iid; })[0];
           if (!a || !idea) return;
           var text = a.verdict !== 'got-it' && a.followUp ? a.followUp : a.nailed || a.followUp;
-          found.push({ t: t, idea: idea, at: String(a.at || ''), text: String(text), verdict: a.verdict });
+          // "Have another go" only where the lesson offers one: he is still on Say it back, with
+          // one answer this round, checked and not there yet (50-lesson.js allows a second go).
+          var again = ip.stage === 'say' && mine.length === 1 && !!mine[0].verdict && mine[0].verdict !== 'got-it';
+          found.push({ t: t, idea: idea, at: String(a.at || ''), text: String(text), again: again });
         });
       });
       found.sort(function (x, y) { return x.at < y.at ? 1 : x.at > y.at ? -1 : 0; });
       found = found.slice(0, 3);
-      var sig = found.map(function (f) { return f.t.id + '/' + f.idea.id + '|' + f.at; }).join(',');
+      var sig = found.map(function (f) { return f.t.id + '/' + f.idea.id + '|' + f.at + (f.again ? '|again' : ''); }).join(',');
       if (sig === notesSig) return;
       notesSig = sig;
       U.clear(notesBox);
@@ -872,7 +878,7 @@
         return U.notes.card({
           who: 'claude', context: 'on ' + f.idea.title,
           text: f.text,
-          actions: [{ label: f.verdict === 'got-it' ? 'Open the lesson' : 'Have another go', href: '#/t/' + encodeURIComponent(f.t.id) + '/' + encodeURIComponent(f.idea.id) }],
+          actions: [{ label: f.again ? 'Have another go' : 'Open the lesson', href: '#/t/' + encodeURIComponent(f.t.id) + '/' + encodeURIComponent(f.idea.id) }],
         });
       }) }));
     }

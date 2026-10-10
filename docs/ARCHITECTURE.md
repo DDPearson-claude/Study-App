@@ -1480,29 +1480,52 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   Easier reading still sets Atkinson everywhere, labels and mono included. Colour keeps its meaning:
   ink = controls and progress, green = right and finished, red = mistakes and warnings, teal = small
   labels, amber = key terms, "remember this" and what is due. The phone's tabs float in an outlined
-  bar (`--tabbar-h` includes its gap); the open tab is an ink pill. The kit's palette is unchanged
-  (accent2 = `--heading`, now ink), so interactives match without a rebuild.
+  bar (`--tabbar-h` includes its gap; focus mode, which hides the tabs, keeps it 0); the open tab is
+  an ink pill. The lesson bar's segments are `--step`, and green once the lesson is finished
+  (`.is-all`); the step he is on reads at 3:1 against its unfilled part. Reply chips and note links
+  are 44 px targets. Answers left out once one is marked step back by colour (muted words, faded
+  edge), not opacity, so the canvas's dots never show through. `.note` (a note card) never applies
+  to the lessons' own `callout note` notices. The kit's palette is unchanged (accent2 = `--heading`,
+  now ink), so interactives match without a rebuild.
 - **Claude's notes**, `app/src/js/52-notes.js` (`U.notes`): `avatar(who)`, `byline(who, context)`,
   `card({who, context, title, text, body, actions})`, `list({title, id, notes})` and
   `reply({chips, placeholder, label, onAsk(text, chip)})`. `who` is honest: `'claude'` only for words
   Claude wrote; the app's own notices carry the app's mark. Text Claude wrote goes through `U.rich`.
   Where they appear:
   - check and review feedback (41-cards.js): Claude's byline ("from the lesson": the explanation it
-    wrote when it built the lesson) over the parts, and a reply row before Continue when the screen
-    passes `ask` (chips: Why?, Show me another way / Give me an example). A recall card's grade
+    wrote when it built the lesson) and a reply row when the screen passes `ask` (chips: Why?, Show
+    me another way / Give me an example). In a lesson the byline sits over the parts and the reply
+    box comes after Continue (so Continue follows the explanation on a small phone). In a review the
+    byline rides at the end of the panel's head (its context for screen readers only) and the
+    compact row (chips and "Reply…") sits over Continue; on a small phone, when that row is what
+    keeps the panel out of the dock (reveal()'s rules: at most 62% of the screen, at most 64 px of
+    the answers hidden), it folds into its "Reply…" chip beside Continue (`.is-folded`, `fold()`),
+    so the panel docks and Continue shows where it did before the notes. A recall card's grade
     carries the byline "on your answer" and its reply row once graded. Focus still goes to Continue.
   - the say-it-back grade (50-lesson.js): the byline over the verdict, and on the answer just
     graded a reply row (What did I miss?, Give me an example; or Give me an example, Go a bit deeper
-    when he got it). The verdict's text and focus are unchanged.
+    when he got it). While his second go is open (a first answer not yet got-it) the first chip is
+    "Give me a hint", and a reply sent while "Have another go" is on offer carries
+    `about.secondGo: true`: the tutor prompt then says he still has a second go, so Claude helps him
+    find what is missing with a hint or a question and does not state the missing point or a model
+    answer. Once he has asked for the model answer (or used his second go) nothing is held back. The
+    verdict's text and focus are unchanged.
   - a reply opens Ask Claude (`U.tutor.open(context, {ask, chip})`) with `context.about`, so Claude
     knows what he has just done. A typed reply is his own question (saved to progress.questions like
-    any he types there); a chip is not.
-  - Learn (70-learn.js): "Claude's notes" under Continue: for each idea he has said back, Claude's
-    latest words on it (the follow-up question when he was not there yet, else what he nailed), newest
-    first, at most three, each opening its lesson ("Have another go" / "Open the lesson"). Ready-made
-    courses stay off Learn as before. None: nothing shown.
+    any he types there); a chip is not, even when it waited in the box because a reply was still
+    coming (sent unedited it is still a chip; edited, it is his).
+  - Learn (70-learn.js): "Claude's notes" under Continue: for each idea he has said back in its
+    current round (say entries whose `round` is the idea's `round`; a Learn it again starts afresh),
+    Claude's latest words on it (the follow-up question when he was not there yet, else what he
+    nailed), newest first, at most three, each opening its lesson. Its link says "Have another go"
+    only where the lesson offers one: the idea's stage is `say` and that round holds exactly one
+    answer, graded and not got-it; otherwise "Open the lesson". Ready-made courses stay off Learn as
+    before. None: nothing shown.
   - Today (60-today.js): "Claude's notes on what is due": the same notes for the ideas in today's
-    session (read from progress after the screen is drawn), at most three. None: nothing shown.
+    session, at most three. The progress of every topic with a card due is read with the rest of the
+    screen (beside the topics and the slipping ideas), so the notes are part of the first paint and
+    nothing below them moves; the Light day switch redraws them from the same reads. None: nothing
+    shown.
   A steps lesson (`format: 'steps'`) keeps its puzzles' own Check and Why? inside the frame; Ask
   Claude in the lesson bar is its way to talk to Claude.
 

@@ -8,8 +8,13 @@
 // grid, topic page columns, Map columns, a wide lesson interactive with a narrower text column);
 // Learn at narrow laptop widths and every text size (the ask box's height, when Learn goes two
 // columns, the line shown beside the ask when nothing is due, the reviews row's width, the busy ask
-// wherever its form is narrow, the words Learn, Today and an empty review share); and no screen ever
-// scrolls sideways. Screenshots land in tests/out/layout/.
+// wherever its form is narrow, the words Learn, Today and an empty review share); no screen ever
+// scrolls sideways; and D4 (80-d4.css, Claude's notes in 52-notes.js), which the lesson, review and
+// views specs leave out of their pages: a finished lesson's green bar, focus mode's missing tab bar,
+// Continue on screen after a review answer on small phones, 44 px reply chips and note links,
+// replies reaching Ask Claude (with what he has just done; typed ones saved, chips not, a chip
+// waiting in the box included), the second go's hint, Learn's and Today's notes, the byline at
+// Extra large, the callout notices and the dimmed answers. Screenshots land in tests/out/layout/.
 // Usage: node tests/e2e/layout.spec.mjs [filter]
 import { spawnSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
@@ -778,6 +783,257 @@ await test('ux3c: while Claude plans, Planning… takes its own row wherever the
       if (vw === 940 && size === 'xl') await shot(app, 'ux3c-learn-busy-940-xl');
     }
   }
+});
+
+// ---------- D4: the look (80-d4.css) and Claude's notes (52-notes.js) on this full page ----------
+const PROG = (tid) => `data/users/${UID}/profile/progress/${tid}`;
+const withProgress = (db, tid, doc) => ({ ...db, [PROG(tid)]: doc });
+// His first say-it-back answer to the pendulum lesson, graded "partly", in round 0.
+const SAID = { text: 'Longer is slower.', at: '2026-10-01T10:10:00.000Z', verdict: 'partly', met: [true, false, false], nailed: 'You saw that a longer string swings more slowly.', followUp: 'How much slower is a string four times as long?', round: 0 };
+const atStage = (stage, more = {}) => withProgress(seedDb(), 'pendulums', { ideas: { i1: { stage, round: 0, startedAt: '2026-10-01T10:00:00.000Z', ...more } } });
+// A colour as the page computes it (rgb()), for comparing with a token.
+const tokenColor = (app, name) => app.page.evaluate((n) => { const e = document.createElement('i'); e.style.color = `var(${n})`; document.body.appendChild(e); const c = getComputedStyle(e).color; e.remove(); return c; }, name);
+const sampled = async (app) => (await app.calls()).filter((c) => c.kind === 'sample')
+  .map((c) => (Array.isArray(c.input) ? c.input.map((t) => (typeof t.content === 'string' ? t.content : JSON.stringify(t.content))).join('\n\n') : String(c.input)));
+// The n-th question sent to Ask Claude (its whole request), once it has gone ('' if it never does).
+async function tutorAsked(app, n = 1) {
+  for (let i = 0; i < 100; i++) {
+    const asked = (await sampled(app)).filter((t) => /TASK: tutor/.test(t));
+    if (asked.length >= n) return asked[n - 1];
+    await app.page.waitForTimeout(100);
+  }
+  return '';
+}
+// The sRGB colours in a computed colour string (rgb() or color(srgb …)), as 0-255 triples.
+function colours(css) {
+  const out = [];
+  for (const m of css.matchAll(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)|color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)/g)) out.push(m[1] ? [+m[1], +m[2], +m[3]] : [m[4] * 255, m[5] * 255, m[6] * 255]);
+  return out;
+}
+function contrast(a, b) {
+  const lum = (c) => { const [r, g, bl] = c.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * bl; };
+  const x = lum(a), y = lum(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
+await test('d4: a finished lesson\'s bar turns green under "Idea learned"; the step he is on reads at 3:1', async () => {
+  const app = await open(390, 844, { hash: '#/t/pendulums/i1', db: atStage('done', { doneAt: '2026-10-01T10:20:00.000Z' }) });
+  await app.page.locator('.lsn-bar.is-all').waitFor({ timeout: 15000 });
+  await app.page.waitForTimeout(600);   // the segments' colour fades in (.35 s)
+  const green = await tokenColor(app, '--green');
+  const segs = await app.page.$$eval('.lsn-step > i', (l) => l.map((i) => getComputedStyle(i).backgroundColor));
+  assert(segs.length > 1 && segs.every((c) => c === green), `every segment is green (${green}): ${segs.join(', ')}`);
+  assert(/Idea (learned|read)/.test(await app.page.textContent('.lsn-steps-label')), 'the label says so');
+  const now = await open(390, 844, { hash: '#/t/pendulums/i1', db: atStage('checks') });
+  await now.page.locator('.lsn-step.is-now').waitFor({ timeout: 15000 });
+  const [filled, rest] = colours(await now.page.$eval('.lsn-step.is-now > i', (i) => getComputedStyle(i).backgroundImage)).filter((c, i, l) => i === 0 || String(c) !== String(l[0]));
+  assert(filled && rest && contrast(filled, rest) >= 3, `the current step's filled part against its unfilled part is at least 3:1 (${filled && rest && contrast(filled, rest).toFixed(2)})`);
+});
+
+await test('d4: focus mode (a lesson, a review) makes no room for the hidden tabs on a phone; the tabs keep theirs elsewhere', async () => {
+  const room = (app) => app.page.evaluate(() => ({ focus: document.documentElement.classList.contains('focus'), tabbar: getComputedStyle(document.documentElement).getPropertyValue('--tabbar-h').trim(), toasts: getComputedStyle(document.querySelector('.toasts')).bottom, pad: getComputedStyle(document.documentElement).scrollPaddingBottom }));
+  const phone = await open(360, 640, { hash: '#/t/pendulums/i1' });
+  await phone.page.locator('.lsn-stage').first().waitFor({ timeout: 15000 });
+  let r = await room(phone);
+  assert(r.focus && r.tabbar === '0px' && r.toasts === '16px' && r.pad === '16px', 'a lesson on a phone: ' + JSON.stringify(r));
+  await go(phone, '#/review', '.view h1, .rv-stage');
+  r = await room(phone);
+  assert(r.focus && r.toasts === '16px', 'a review on a phone: ' + JSON.stringify(r));
+  await go(phone, '#/', '.tcard');
+  r = await room(phone);
+  assert(!r.focus && r.toasts === '104px' && r.pad === '104px', 'Learn on a phone keeps room for the floating tabs: ' + JSON.stringify(r));
+  const laptop = await open(1280, 800, { hash: '#/t/pendulums/i1' });
+  await laptop.page.locator('.lsn-stage').first().waitFor({ timeout: 15000 });
+  r = await room(laptop);
+  assert(r.focus && r.toasts === '16px', 'a lesson on a laptop: ' + JSON.stringify(r));
+  await go(laptop, '#/', '.tcard');
+  r = await room(laptop);
+  assert(!r.focus && r.toasts === '16px', 'Learn on a laptop (tabs in the top bar): ' + JSON.stringify(r));
+});
+
+// Right answers, wrong ones and (at 390 x 844) the wrong one with a common mix-up. A wrong answer
+// at 360 x 640 never docked on this card, before D4 too (its panel needs 311 px; the dock leaves
+// it 281): its panel joins the flow under the answers, as it did.
+for (const [w, h, picks] of [[360, 640, ['4 s']], [360, 707, ['4 s', '16 s']], [390, 844, ['4 s', '16 s', '8 s']]]) {
+  await test(`d4: review on a ${w}x${h} phone: Continue is on screen right after answering (${picks.join(', ')})`, async () => {
+    for (const pick of picks) {
+      const app = await openReview(w, h, { card: 'i1_c1' });
+      await app.page.locator('.qc-opt', { hasText: pick }).click();
+      await app.page.locator('.qc-primary').click();
+      await app.page.locator('.qc-fb').waitFor();
+      await app.page.waitForTimeout(800);
+      const r = await reviewRects(app);
+      assert(onScreen(r.cont, r), `${pick}: Continue is on screen ${JSON.stringify({ cont: r.cont, fb: r.fb, vh: r.vh })}`);
+      assert(r.q.top >= r.bar.bottom - 1, `${pick}: the question starts below the bar`);
+      const reply = await app.page.$$eval('.rv-stage .qc-fb .note-chip', (l) => l.filter((b) => b.getClientRects().length).map((b) => b.textContent));
+      assert(reply.some((t) => /Reply/.test(t)), `${pick}: a way to reply to Claude stays (${reply.join(', ')})`);
+      if (w === 360 && h === 640) await shot(app, `d4-review-${w}x${h}-${pick.replace(/\W/g, '')}`);
+      await app.close();
+    }
+  });
+}
+
+await test('d4: reply chips and note links are 44 px targets; a chip asks Claude with what he has just done', async () => {
+  // A review with room for its row of chips.
+  const app = await openReview(390, 844, { card: 'i1_c1' });
+  await app.page.locator('.qc-opt', { hasText: '4 s' }).click();
+  await app.page.locator('.qc-primary').click();
+  await app.page.locator('.qc-fb .note-chip').first().waitFor();
+  await app.page.waitForTimeout(500);
+  const chips = await app.page.$$eval('.qc-fb .note-chip', (l) => l.map((b) => ({ t: b.textContent, h: b.getBoundingClientRect().height })));
+  assert(chips.length === 3 && chips.every((c) => c.h >= 44), 'review chips: ' + JSON.stringify(chips));
+  eq(await app.page.$eval('.option.qc-dim', (o) => getComputedStyle(o).opacity), '1', 'dimmed answers fade by colour, not opacity (the dots stay behind them)');
+  eq(await app.page.$eval('.option.qc-dim', (o) => getComputedStyle(o).color), await tokenColor(app, '--muted'), 'dimmed answers in muted ink');
+  await app.page.locator('.qc-fb .note-chip', { hasText: 'Why?' }).click();
+  const asked = await tutorAsked(app, 1);
+  assert(/WHAT HE HAS JUST DONE/.test(asked) && asked.includes('He chose "4 s"') && /Why\?/.test(asked), 'the tutor request says what he has just done and asks the chip\'s question');
+
+  // A lesson's check: chips, the reply box, then (after Continue) nothing in the way.
+  const lsn = await open(360, 640, { hash: '#/t/pendulums/i1', db: atStage('checks', { say: { k1: SAID } }) });
+  await lsn.page.locator('.lsn-stage[data-stage="checks"] .qc-opt').first().waitFor({ timeout: 15000 });
+  await lsn.page.locator('.lsn-stage[data-stage="checks"] .qc-opt', { hasText: '8 s' }).click();
+  await lsn.page.locator('.lsn-stage[data-stage="checks"] .qc-primary').click();
+  await lsn.page.locator('.qc-fb .note-reply').waitFor();
+  const order = await lsn.page.$eval('.qc-fb', (p) => [...p.children].map((c) => c.classList.contains('qc-continue') ? 'continue' : c.classList.contains('note-reply') ? 'reply' : '').filter(Boolean));
+  eq(order.join(','), 'continue,reply', 'in a lesson Continue comes straight after the explanation, the reply box after it');
+  const sizes = await lsn.page.$$eval('.qc-fb .note-chip, .qc-fb .note-send, .qc-fb .note-input', (l) => l.map((b) => Math.round(b.getBoundingClientRect().height)));
+  assert(sizes.length === 4 && sizes.every((x) => x >= 44), 'lesson chips, box and send are 44 px: ' + sizes);
+  await lsn.page.locator('.qc-fb .note-chip', { hasText: 'Why?' }).click();
+  const q1 = await tutorAsked(lsn, 1);
+  await lsn.page.locator('.tutor-msg.bot').first().waitFor({ timeout: 10000 });
+  assert(/WHAT HE HAS JUST DONE/.test(q1) && q1.includes('He chose "8 s"') && /he got it wrong/.test(q1), 'the lesson check\'s chip says what he has just done');
+  await lsn.page.keyboard.press('Escape');
+  await lsn.page.locator('.tutor-sheet').waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
+  await lsn.page.fill('.qc-fb .note-input', 'Why does the square root come in?');
+  await lsn.page.press('.qc-fb .note-input', 'Enter');
+  await lsn.page.waitForFunction(() => document.querySelectorAll('.tutor-msg.bot').length >= 2 && !document.querySelector('.tutor-msg.bot.pending, .tutor-msg.pending'), null, { timeout: 10000 }).catch(() => {});
+  await lsn.page.waitForTimeout(1500);
+  const qs = Object.values(((await lsn.stub())[PROG('pendulums')] || {}).questions || {}).map((x) => x.q);
+  assert(qs.includes('Why does the square root come in?'), 'a typed reply is saved as his question: ' + JSON.stringify(qs));
+  assert(!qs.includes('Why?'), 'a chip is not: ' + JSON.stringify(qs));
+
+  // Learn's notes: their links are 44 px too.
+  const learn = await open(390, 844, { db: withProgress(seedDb(), 'pendulums', { ideas: { i2: { stage: 'say', round: 0, say: { k: { ...SAID } } } } }) });
+  await learn.page.locator('.learn-notes .note-act').first().waitFor({ timeout: 15000 });
+  const acts = await learn.page.$$eval('.note-act', (l) => l.map((a) => a.getBoundingClientRect().height));
+  assert(acts.length && acts.every((x) => x >= 44), 'note links: ' + acts);
+});
+
+await test('d4: say it back: while his second go is open the chip asks for a hint and Claude is told not to give it away', async () => {
+  const app = await open(390, 844, { hash: '#/t/pendulums/i1', db: atStage('say', { say: { k1: SAID } }) });
+  await app.page.locator('.lsn-grade .note-chip').first().waitFor({ timeout: 15000 });
+  eq((await app.page.$$eval('.lsn-grade .note-chip', (l) => l.map((b) => b.textContent))).join(', '), 'Give me a hint, Give me an example', 'the chips');
+  assert(await app.page.locator('.lsn-after .btn', { hasText: 'Have another go' }).count() === 1, 'his second go is on offer');
+  await app.page.locator('.lsn-grade .note-chip', { hasText: 'Give me a hint' }).click();
+  let asked = await tutorAsked(app, 1);
+  await app.page.locator('.tutor-msg.bot').first().waitFor({ timeout: 10000 });
+  assert(/He still has a second go at this answer/.test(asked) && /do not state the missing point/.test(asked), 'Claude is told he still has a second go');
+  // Once he has asked for the model answer, the second go is gone from the screen: no holding back.
+  await app.page.keyboard.press('Escape');
+  await app.page.waitForTimeout(400);
+  await app.page.locator('.lsn-after', { hasText: 'Show me a model answer' }).locator('button, a').filter({ hasText: 'Show me a model answer' }).click();
+  await app.page.locator('.lsn-model').waitFor();
+  await app.page.locator('.lsn-grade .note-chip', { hasText: 'Give me an example' }).click();
+  asked = await tutorAsked(app, 2);
+  assert(/WHAT HE HAS JUST DONE/.test(asked) && !/second go/.test(asked), 'after the model answer nothing is held back');
+});
+
+await test('d4: a chip tapped while Claude is still answering waits in the box and, sent as it is, is not saved as his question', async () => {
+  let release = null, n = 0;
+  const app = await openApp({ width: 390, height: 844, file: FILE, config: { db: atStage('say', { say: { k1: SAID } }) },
+    sample: (input) => (taskOf(input) !== 'tutor' ? new Promise(() => {}) : ++n === 1 ? new Promise((r) => { release = () => r('Here is a hint.'); }) : 'Sure.') });
+  current.apps.push(app);
+  await app.page.goto(app.url('#/t/pendulums/i1'));
+  await app.page.evaluate(() => U.rt.ready);
+  const chip = app.page.locator('.lsn-grade .note-chip');
+  await chip.first().waitFor({ timeout: 15000 });
+  await chip.first().click();
+  await app.page.locator('.tutor-msg.bot').first().waitFor();
+  await app.page.keyboard.press('Escape');
+  await app.page.waitForTimeout(400);
+  await chip.nth(1).click();
+  await app.page.locator('.tutor-input').waitFor();
+  eq(await app.page.inputValue('.tutor-input'), 'Give me an example', 'the chip waits in the box');
+  release();
+  await app.page.waitForFunction(() => !document.querySelector('.tutor-send').disabled, null, { timeout: 10000 });
+  await app.page.click('.tutor-send');
+  await app.page.waitForFunction(() => document.querySelectorAll('.tutor-msg.bot').length >= 2, null, { timeout: 10000 });
+  await app.page.waitForTimeout(1200);
+  eq(n, 2, 'both questions went to Claude');
+  const qs = Object.values(((await app.stub())[PROG('pendulums')] || {}).questions || {}).map((x) => x.q);
+  assert(!qs.includes('Give me an example'), 'the chip is not saved as his question: ' + JSON.stringify(qs));
+  // Edited first, it is his own words.
+  await app.page.fill('.tutor-input', 'Give me an example with a swing');
+  await app.page.click('.tutor-send');
+  await app.page.waitForTimeout(1500);
+  const qs2 = Object.values(((await app.stub())[PROG('pendulums')] || {}).questions || {}).map((x) => x.q);
+  assert(qs2.includes('Give me an example with a swing'), 'a typed question is saved: ' + JSON.stringify(qs2));
+});
+
+await test('d4: Learn\'s notes: only this round\'s words, and "Have another go" only where the lesson offers one', async () => {
+  const s = (k, round, verdict, at) => [k, { text: 'words ' + k, at, verdict, met: [], nailed: 'nailed ' + k, followUp: 'follow ' + k, round }];
+  const ideas = {
+    i1: { stage: 'explain', round: 1, say: Object.fromEntries([s('a', 0, 'partly', '2026-10-05T10:00:00.000Z')]) },   // an old round's words
+    i2: { stage: 'say', round: 0, say: Object.fromEntries([s('b', 0, 'not-yet', '2026-10-02T10:00:00.000Z')]) },     // a second go waits
+    i3: { stage: 'say', round: 0, say: Object.fromEntries([s('c', 0, 'not-yet', '2026-10-03T10:00:00.000Z'), s('d', 0, 'partly', '2026-10-03T10:05:00.000Z')]) },  // both goes used
+    i4: { stage: 'checks', round: 0, say: Object.fromEntries([s('e', 0, 'partly', '2026-10-04T10:00:00.000Z')]) },   // moved on
+  };
+  const app = await open(390, 844, { db: withProgress(seedDb(), 'pendulums', { ideas }) });
+  await app.page.locator('.learn-notes .note').first().waitFor({ timeout: 15000 });
+  const notes = await app.page.$$eval('.learn-notes .note', (l) => l.map((n) => n.querySelector('.note-text').textContent + ' | ' + n.querySelector('.note-act').textContent));
+  eq(notes.join(' / '), 'follow e | Open the lesson / follow d | Open the lesson / follow b | Have another go', 'the notes and their links');
+});
+
+await test('d4: the note byline at Large and Extra large keeps one row; a long context wraps in its own column', async () => {
+  const long = { ...SAID, at: '2026-10-02T10:00:00.000Z' };
+  const app = await open(360, 800, { db: withPrefs(withProgress(seedDb(), 'pendulums', { ideas: { i3: { stage: 'checks', round: 0, say: { k: long } } } }), { size: 'xl' }) });
+  await app.page.locator('.learn-notes .note-by').first().waitFor({ timeout: 15000 });
+  for (const size of ['l', 'xl']) {
+    await app.page.evaluate((v) => U.settings.apply(Object.assign({}, U.settings.prefs, { size: v })), size);
+    await app.page.waitForTimeout(300);
+    const b = await app.page.$eval('.learn-notes .note-by', (by) => {
+      const r = (s) => by.querySelector(s).getBoundingClientRect();
+      const ctx = by.querySelector('.note-ctx');
+      return { av: r('.note-av'), name: r('.note-name'), ctx: r('.note-ctx'), lines: Math.round(ctx.getBoundingClientRect().height / parseFloat(getComputedStyle(ctx).lineHeight)) };
+    });
+    assert(b.ctx.left >= b.name.right && b.ctx.top < b.av.bottom, `${size}: the context stays beside the name ${JSON.stringify(b)}`);
+    if (size === 'xl') { assert(b.lines >= 2, `${size}: a long context wraps (${b.lines} lines)`); await shot(app, 'd4-learn-notes-xl'); }
+  }
+});
+
+await test('d4: Today\'s notes on what is due are part of the first paint; nothing below them moves', async () => {
+  const db = withProgress(withCards(seedDb(), { due: 3 }), 'how-tides-work-ab12', { ...SEED.progress['how-tides-work-ab12'], ideas: { ...SEED.progress['how-tides-work-ab12'].ideas, i1: { stage: 'done', round: 0, say: { k: { ...SAID } } } } });
+  const app = await openApp({ width: 390, height: 844, file: FILE, config: { db }, sample: () => new Promise(() => {}) });
+  current.apps.push(app);
+  await app.page.addInitScript(() => {
+    window.__first = null;
+    new MutationObserver(() => {
+      if (window.__first || !document.querySelector('.td-title')) return;
+      const w = document.querySelector('.td-week');
+      window.__first = { notes: !!document.querySelector('.td .notes'), week: w ? w.getBoundingClientRect().top + scrollY : null };
+    }).observe(document, { childList: true, subtree: true });
+  });
+  await app.page.goto(app.url('#/today'));
+  await app.page.evaluate(() => U.rt.ready);
+  await app.page.locator('.td-title').waitFor({ timeout: 15000 });
+  await app.page.waitForTimeout(1500);
+  const r = await app.page.evaluate(() => ({ first: window.__first, notes: [...document.querySelectorAll('.td .note-text')].map((n) => n.textContent), week: document.querySelector('.td-week').getBoundingClientRect().top + scrollY }));
+  assert(r.first && r.first.notes, 'the notes are there when the screen first appears ' + JSON.stringify(r));
+  assert(Math.abs(r.first.week - r.week) < 1, `nothing below moves (${r.first.week} then ${r.week})`);
+  eq(r.notes.join(' / '), SAID.followUp, 'Claude\'s follow-up on the idea due');
+});
+
+await test('d4: the lessons\' "callout note" notices keep the callout look (not a note card\'s)', async () => {
+  const app = await open(390, 844, { hash: '#/t/pendulums/i1' });
+  await app.page.locator('.lsn-stage').first().waitFor({ timeout: 15000 });
+  const r = await app.page.evaluate(() => {
+    const p = U.h('p', { class: 'callout note' }, 'The quick checks are not loaded in this view, so they are skipped this time.');
+    document.querySelector('.lsn-stage').appendChild(p);
+    const cs = getComputedStyle(p), out = { padding: cs.padding, display: cs.display, border: cs.borderTopStyle };
+    p.remove();
+    return out;
+  });
+  eq(JSON.stringify(r), JSON.stringify({ padding: '16px 18px', display: 'block', border: 'dashed' }), 'the notice');
 });
 
 const failed = results.filter((r) => !r.ok);

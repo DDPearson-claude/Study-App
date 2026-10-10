@@ -534,6 +534,13 @@
       return out;
     }, function () { tids.forEach(function (tid) { out[tid] = null; }); return out; });
   }
+  // Dan's progress on these topics (null where a doc cannot be read), for Claude's notes on Today.
+  function progressFor(tids) {
+    var out = {};
+    return Promise.all(tids.map(function (tid) {
+      return U.store.progress.get(tid).then(function (d) { out[tid] = d; }, function () { out[tid] = null; });
+    })).then(function () { return out; });
+  }
   function ideaTitle(topics, tid, iid) {
     var t = topics[tid], ideas = (t && t.ideas) || [];
     for (var i = 0; i < ideas.length; i++) if (ideas[i].id === iid) return ideas[i].title;
@@ -595,14 +602,18 @@
     // first come due tomorrow, so today's list need not wait for this.
     mendCards();
 
-    var topics = {}, slipping = [];
+    // Claude's notes are read with the rest (the progress of every topic with a card due: the Light
+    // day switch only ever shortens or restores that list), so they are part of the first paint.
+    var topics = {}, slipping = [], progress = {};
     planShared().then(function (p) {
       var tids = uniq(p.data.cards.map(function (c) { return c.tid; }));
-      return Promise.all([topicsFor(tids), slippingNow(p.data.cards, p.day)]).then(function (r) { return { p: p, topics: r[0], slipping: r[1] }; });
+      var dueTids = U.notes ? uniq(p.due.map(function (c) { return c.tid; })) : [];
+      return Promise.all([topicsFor(tids), slippingNow(p.data.cards, p.day), progressFor(dueTids)]).then(function (r) { return { p: p, topics: r[0], slipping: r[1], progress: r[2] }; });
     }).then(function (r) {
       if (!ctx.alive()) return;
       topics = r.topics;
       slipping = r.slipping;
+      progress = r.progress;
       draw(r.p);
     }).catch(function (e) {
       if (!ctx.alive()) return;
@@ -671,29 +682,24 @@
 
     // Claude's notes on what is due (D4): for each idea in today's session, what Claude last said
     // about the words Dan used for it (its say-it-back grade): the follow-up question when he was
-    // not there yet, else what he nailed. Read after the screen is drawn; nothing when there is none.
+    // not there yet, else what he nailed. Drawn with the screen (the progress was read with the
+    // plan), so nothing below moves once it has appeared; nothing when there is none.
     function drawNotes(p) {
-      var slot = h('div', { class: 'td-notes' });
-      root.appendChild(slot);
       if (!U.notes) return;
-      var seen = {}, due = [];
-      p.queue.forEach(function (c) { var k = c.tid + '/' + c.iid; if (!seen[k]) { seen[k] = true; due.push(c); } });
-      var tids = uniq(due.map(function (c) { return c.tid; }));
-      Promise.all(tids.map(function (tid) { return U.store.progress.get(tid).catch(function () { return null; }); })).then(function (docs) {
-        if (!ctx.alive() || !slot.isConnected) return;
-        var byTid = {};
-        tids.forEach(function (tid, i) { byTid[tid] = docs[i]; });
-        var notes = [];
-        due.forEach(function (c) {
-          var ip = byTid[c.tid] && byTid[c.tid].ideas && byTid[c.tid].ideas[c.iid];
-          var said = U.entries(ip && ip.say).map(function (e) { return e.value; }).filter(function (a) { return a && a.verdict && (a.followUp || a.nailed); });
-          var a = said[said.length - 1];
-          if (!a || notes.length >= 3) return;
-          notes.push(U.notes.card({ who: 'claude', context: 'on ' + ideaTitle(topics, c.tid, c.iid),
-            text: a.verdict !== 'got-it' && a.followUp ? a.followUp : a.nailed || a.followUp }));
-        });
-        U.append(slot, U.notes.list({ title: 'Claude\'s notes on what is due', id: 'td-notes-h', notes: notes }));
+      var seen = {}, notes = [];
+      p.queue.forEach(function (c) {
+        var k = c.tid + '/' + c.iid;
+        if (seen[k] || notes.length >= 3) return;
+        seen[k] = true;
+        var doc = progress[c.tid], ip = doc && doc.ideas && doc.ideas[c.iid];
+        var said = U.entries(ip && ip.say).map(function (e) { return e.value; }).filter(function (a) { return a && a.verdict && (a.followUp || a.nailed); });
+        var a = said[said.length - 1];
+        if (!a) return;
+        notes.push(U.notes.card({ who: 'claude', context: 'on ' + ideaTitle(topics, c.tid, c.iid),
+          text: a.verdict !== 'got-it' && a.followUp ? a.followUp : a.nailed || a.followUp }));
       });
+      var list = U.notes.list({ title: 'Claude\'s notes on what is due', id: 'td-notes-h', notes: notes });
+      if (list) root.appendChild(h('div', { class: 'td-notes' }, list));
     }
 
     function drawClear(p) {
