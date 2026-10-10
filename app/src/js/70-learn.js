@@ -501,6 +501,8 @@
         U.h('div', { class: 'chips', role: 'group', 'aria-labelledby': 'try-l' }, exampleChips)));
 
     var continueBox = U.h('div', { class: 'learn-continue' });
+    // Claude's notes (D4): what Claude last said about Dan's own words (the say-it-back grades).
+    var notesBox = U.h('div', { class: 'learn-notes' });
     var todayBox = U.h('div', { class: 'learn-today' });
     var noteBox = U.h('div', { class: 'learn-note' });
     // The topics watch stopping after they were shown (V.liveError); cleared by its next snapshot.
@@ -508,7 +510,7 @@
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
     var artBox = U.h('div', { class: 'learn-art' });
     // Reviews waiting come first: today's study is one tap away.
-    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, artBox);
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, notesBox, liveBox, noteBox, listBox, artBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -807,6 +809,7 @@
         U.clear(noteBox);
         if (progressFailed) noteBox.appendChild(V.loadError('Your progress', progressFailed, false));
       }
+      paintNotes();
       if (!topics.length) {
         contSig = null; U.clear(continueBox); U.clear(listBox); grid = head = null;
         if (late) listBox.append(V.savedLate('your topics'), skeletonCards());
@@ -839,6 +842,39 @@
       lw.watch(best && best.t.id, best && best.s.current.id);
       var cs = best ? best.t.id + '|' + sigOf(best.t) + '|' + lw.state() : '';
       if (cs !== contSig) { contSig = cs; U.clear(continueBox); if (best) continueBox.appendChild(continueCard(best, lw.state())); }
+    }
+    // Claude's latest note on each idea he explained in his own words: its follow-up question
+    // when he was not there yet, else what he nailed. Newest first, at most three; each opens its
+    // lesson. Only Claude's own words, so only ideas he has said back (study lessons).
+    var notesSig = null;
+    function paintNotes() {
+      var found = [];
+      (topics || []).forEach(function (t) {
+        var ideas = (progress[t.id] && progress[t.id].ideas) || {};
+        Object.keys(ideas).forEach(function (iid) {
+          var said = U.entries(ideas[iid] && ideas[iid].say).map(function (e) { return e.value; })
+            .filter(function (a) { return a && a.verdict && (a.followUp || a.nailed); });
+          var a = said[said.length - 1];
+          var idea = (t.ideas || []).filter(function (i) { return i.id === iid; })[0];
+          if (!a || !idea) return;
+          var text = a.verdict !== 'got-it' && a.followUp ? a.followUp : a.nailed || a.followUp;
+          found.push({ t: t, idea: idea, at: String(a.at || ''), text: String(text), verdict: a.verdict });
+        });
+      });
+      found.sort(function (x, y) { return x.at < y.at ? 1 : x.at > y.at ? -1 : 0; });
+      found = found.slice(0, 3);
+      var sig = found.map(function (f) { return f.t.id + '/' + f.idea.id + '|' + f.at; }).join(',');
+      if (sig === notesSig) return;
+      notesSig = sig;
+      U.clear(notesBox);
+      if (!found.length || !U.notes) return;
+      notesBox.appendChild(U.notes.list({ title: 'Claude\'s notes', id: 'learn-notes-h', notes: found.map(function (f) {
+        return U.notes.card({
+          who: 'claude', context: 'on ' + f.idea.title,
+          text: f.text,
+          actions: [{ label: f.verdict === 'got-it' ? 'Open the lesson' : 'Have another go', href: '#/t/' + encodeURIComponent(f.t.id) + '/' + encodeURIComponent(f.idea.id) }],
+        });
+      }) }));
     }
     function continuePick() {
       var best = null;

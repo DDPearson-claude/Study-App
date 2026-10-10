@@ -155,6 +155,9 @@
       right ? h('span', { class: 'qc-fb-icon good', 'aria-hidden': 'true' }, U.icon('tick')) : null,
       wrong ? h('span', { class: 'qc-fb-icon bad', 'aria-hidden': 'true' }, U.icon('close')) : null,
       h('h3', { id: titleId }, o.title)));
+    // D4: the explanation under the verdict is Claude's (written when it built the lesson), so it
+    // carries Claude's byline, and Dan can answer it (Ask Claude opens with his question asked).
+    if (U.notes && (o.parts || []).some(Boolean)) panel.appendChild(U.notes.byline('claude', 'from the lesson'));
     U.append(panel, o.parts);
 
     var chosen = o.grade;
@@ -178,6 +181,9 @@
       drawLine();
       panel.appendChild(h('div', { class: 'qc-grade' }, h('div', { class: 'qc-grade-row' }, line, change), picker.el));
     }
+    var rep = askRow(c, o.correct === false ? ['Why?', 'Show me another way'] : ['Why?', 'Give me an example'],
+      Object.assign({ kind: 'check', q: c.spec.q || c.spec.prompt || '', correct: o.correct }, o.about || {}));
+    if (rep) panel.appendChild(rep);
     // Focus moves to Continue (show), which carries the verdict, so a screen reader says the
     // result with it: a panel that arrives already filled is not reliably read as a live region.
     var cont = h('button', { class: 'btn wide qc-continue', type: 'button', 'aria-describedby': titleId, on: { click: function () {
@@ -191,6 +197,14 @@
     show(c, panel, cont);
     U.haptic(right ? 12 : [8, 50, 8]);
     return panel;
+  }
+
+  // Reply to Claude under a feedback panel: chips and a box that open Ask Claude with the question
+  // asked (opts.ask, given by the lesson and the review: they know the topic and idea). None
+  // without it.
+  function askRow(c, chips, about) {
+    if (!U.notes || typeof c.opts.ask !== 'function') return null;
+    return U.notes.reply({ chips: chips, onAsk: function (text, chip) { c.opts.ask(text, { chip: chip, about: about }); } });
   }
 
   // Put a panel in the foot, slide it up and bring it into view.
@@ -282,6 +296,7 @@
       feedback(c, {
         correct: correct, title: correct ? RIGHT[U.hash(c.card.id) % RIGHT.length] : 'Not quite',
         parts: parts, grade: autoGrade(c, correct), result: { answer: picked },
+        about: { picked: options[picked], answer: options[answer] },
       });
     });
     check.disabled = true;
@@ -645,11 +660,12 @@
 
       var points = rubric.map(function (p) { return h('li', { class: 'qc-point' }, h('span', { class: 'qc-dot', 'aria-hidden': 'true' }), inline('span', null, p)); });
       var status = h('div', { class: 'qc-claude', role: 'status' });
+      var replySlot = h('div', { class: 'qc-reply-slot' });
       var panel = h('div', { class: 'qc-fb is-neutral qc-fb-recall' },
         h('div', { class: 'qc-fb-head' }, h('h3', null, 'Compare with a model answer')),
         richBlock('qc-model qc-prose', s.model),
         points.length ? h('div', { class: 'qc-rubric' }, label('A good answer covers'), h('ul', { class: 'qc-points' }, points)) : null,
-        status,
+        status, replySlot,
         c.mode === 'review' && s.mine ? h('details', { class: 'qc-mine' },
           h('summary', null, h('span', null, 'What you wrote when you learned it'), h('span', { class: 'qc-chev', 'aria-hidden': 'true' }, U.icon('back'))),
           h('p', null, String(s.mine))) : null);
@@ -670,7 +686,12 @@
         U.clear(status);
         if (graded) {
           var v = VERDICT[graded.verdict] || VERDICT.partly;
+          if (U.notes) status.appendChild(U.notes.byline('claude', 'on your answer'));
           status.appendChild(h('p', { class: 'qc-verdict ' + v.cls }, v.cls === 'good' ? U.icon('tick') : null, v.text));
+          if (!replySlot.firstChild) {
+            var rep = askRow(c, ['What did I miss?', 'Give me an example'], { kind: 'say', text: answer, verdict: graded.verdict, followUp: graded.followUp || '' });
+            if (rep) replySlot.appendChild(rep);
+          }
           // The answer box is locked by now, so Claude's follow-up question is something to mull
           // over (the model answer above usually settles it), not a prompt to type again.
           if (graded.followUp) status.appendChild(h('div', { class: 'qc-follow' }, label('Something to think over'), richBlock('qc-prose', graded.followUp)));

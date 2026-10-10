@@ -1209,9 +1209,9 @@
     ]).then(function (r) {
       var topic = r[0] || c.topic || {};
       var idea = c.idea || (topic.ideas || []).filter(function (i) { return i.id === iid; })[0] || {};
-      return { topic: topic, idea: idea, lesson: r[1], research: r[2], stage: c.stage || null, state: c.state || null };
+      return { topic: topic, idea: idea, lesson: r[1], research: r[2], stage: c.stage || null, state: c.state || null, about: c.about || null };
     }, function () {
-      return { topic: c.topic || {}, idea: c.idea || {}, lesson: c.lesson || null, research: null, stage: c.stage || null, state: c.state || null };
+      return { topic: c.topic || {}, idea: c.idea || {}, lesson: c.lesson || null, research: null, stage: c.stage || null, state: c.state || null, about: c.about || null };
     });
   }
   // Conversation turns for sample: the preamble rides on the first user turn; turns alternate.

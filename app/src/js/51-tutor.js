@@ -133,8 +133,12 @@
   }
   function notify(key, msg, finished) { if (view && view.key === key) view.refresh(msg, finished); }
 
-  function open(context) {
+  // opts.ask: a question to ask as soon as the sheet opens (a reply or a chip on one of Claude's
+  // notes, 52-notes.js); opts.chip: it was a chip (not saved as his question). While a reply is
+  // still coming, the question waits in the box instead.
+  function open(context, opts) {
     context = context || {};
+    opts = opts || {};
     if (view) view.close();
     var topic = context.topic || {}, lesson = context.lesson || null;
     var tid = context.tid || topic.id || '', iid = context.iid || '';
@@ -382,6 +386,11 @@
     }
     draw();
     requestAnimationFrame(function () { toBottom(true); });
+    var first = String(opts.ask || '').trim();
+    if (first) {
+      if (msgs.busy) { input.value = first; autosize(); sync(); }
+      else send(first, !!opts.chip);
+    }
     return sheet;
   }
 

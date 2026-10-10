@@ -613,7 +613,7 @@
     function draw(p) {
       U.clear(root);
       root.appendChild(h('p', { class: 'eyebrow td-date' }, longDate(p.day)));
-      if (p.size > 0) drawDue(p);
+      if (p.size > 0) { drawDue(p); drawNotes(p); }
       else drawClear(p);
       U.append(root, relearnBlock(slipping, topics));
       root.appendChild(weekStrip(p.data.profile.days, p.day, p.data.cards));
@@ -667,6 +667,33 @@
         lightRow(p, function (q) { if (q.size > 0) update(q); else redraw(q); }),
         start));
       update(p);
+    }
+
+    // Claude's notes on what is due (D4): for each idea in today's session, what Claude last said
+    // about the words Dan used for it (its say-it-back grade): the follow-up question when he was
+    // not there yet, else what he nailed. Read after the screen is drawn; nothing when there is none.
+    function drawNotes(p) {
+      var slot = h('div', { class: 'td-notes' });
+      root.appendChild(slot);
+      if (!U.notes) return;
+      var seen = {}, due = [];
+      p.queue.forEach(function (c) { var k = c.tid + '/' + c.iid; if (!seen[k]) { seen[k] = true; due.push(c); } });
+      var tids = uniq(due.map(function (c) { return c.tid; }));
+      Promise.all(tids.map(function (tid) { return U.store.progress.get(tid).catch(function () { return null; }); })).then(function (docs) {
+        if (!ctx.alive() || !slot.isConnected) return;
+        var byTid = {};
+        tids.forEach(function (tid, i) { byTid[tid] = docs[i]; });
+        var notes = [];
+        due.forEach(function (c) {
+          var ip = byTid[c.tid] && byTid[c.tid].ideas && byTid[c.tid].ideas[c.iid];
+          var said = U.entries(ip && ip.say).map(function (e) { return e.value; }).filter(function (a) { return a && a.verdict && (a.followUp || a.nailed); });
+          var a = said[said.length - 1];
+          if (!a || notes.length >= 3) return;
+          notes.push(U.notes.card({ who: 'claude', context: 'on ' + ideaTitle(topics, c.tid, c.iid),
+            text: a.verdict !== 'got-it' && a.followUp ? a.followUp : a.nailed || a.followUp }));
+        });
+        U.append(slot, U.notes.list({ title: 'Claude\'s notes on what is due', id: 'td-notes-h', notes: notes }));
+      });
     }
 
     function drawClear(p) {
@@ -754,13 +781,20 @@
             return showCard();
           }
           where.textContent = topicTitle(S.topics, card.tid) + ' · ' + ideaTitle(S.topics, card.tid, card.iid);
-          var el = U.cards.render(card, { mode: 'review', lesson: l.doc, onDone: function (r) { answered(card, r); } });
+          var el = U.cards.render(card, { mode: 'review', lesson: l.doc, ask: function (text, o) { askAbout(card, text, o); }, onDone: function (r) { answered(card, r); } });
           S.el = el;
           U.clear(stage).appendChild(el);
           window.scrollTo(0, 0);
           var q = el.querySelector('.qc-q');
           if (q) { q.setAttribute('tabindex', '-1'); try { q.focus({ preventScroll: true }); } catch (e) {} }
         });
+      }
+      // A reply to Claude's note on an answer (D4): Ask Claude about this card's idea, opened with
+      // the question asked and what he has just done.
+      function askAbout(card, text, o) {
+        if (!U.tutor || typeof U.tutor.open !== 'function') { U.toast('Ask Claude is not available in this view.'); return; }
+        o = o || {};
+        U.tutor.open({ tid: card.tid, iid: card.iid, topic: S.topics[card.tid] || null, stage: 'review', about: o.about || null }, { ask: text, chip: !!o.chip });
       }
       function answered(card, r) {
         S.ms += r.ms || 0;

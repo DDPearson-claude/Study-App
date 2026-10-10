@@ -12,7 +12,8 @@ changing code; it is the contract between modules.
 - Learn by doing: every idea that can be manipulated gets an interactive. A visual earns its place by teaching.
 - Learning that sticks: predict, play, explain, say it back, quick checks, spaced review of what he answered.
 - Calm reading: narrow column, generous space, key terms highlighted in amber, colour only for meaning
-  (navy = progress/controls, green = finished only, red = warnings/mistakes, teal = small labels).
+  (ink = progress/controls, green = finished only, red = warnings/mistakes, teal = small labels,
+  amber = what is due). The look is D4, "Claude's notes" (Dan's choice, 10 Oct): docs/ARCHITECTURE.md section 12.
 - Light mode by default; dark mode and text size live in reading settings. Phone first (360 px), desktop equally good.
 - Nothing ever gets in the way: today's study is one tap away; no guilt mechanics.
 

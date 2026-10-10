@@ -28,7 +28,7 @@ starting Claude Code sessions from the page (`create_session` is blocked by poli
 app/
   src/head.html        <title>, meta, non-blocking web fonts, the pre-paint script (prefs, layout)
   src/body.html        shell: #app (top bar, #tabs, #view), #toasts, #sheets
-  src/css/*.css        concatenated in filename order
+  src/css/*.css        concatenated in filename order; 80-d4.css (the D4 look, section 12) comes last
   src/js/*.js          concatenated in filename order into one <script>, "use strict"
   kit/kit.js kit.css   the in-iframe house kit, inlined into the app as strings
   kit/KIT.md           the kit API, quoted whole in build and repair prompts
@@ -977,7 +977,10 @@ Pipelines (`31-generate.js`):
 5. `grade(say, answer, attempt, {previous, title}) -> {met, verdict, nailed, followUp, model?}`.
    A blank answer is not-yet without asking Claude. Attempt 1 never shows the model answer;
    from attempt 2 a miss carries `model` (the lesson's own when Claude gives none).
-6. `tutor(messages, context, {onText(textSoFar), signal}) -> string`: the context is filled in
+6. `tutor(messages, context, {onText(textSoFar), signal}) -> string`: `context.about` (D4, section 12)
+   says what Dan has just done when he asks from one of Claude's notes (`{kind:'check', q, correct,
+   picked?, answer?}` or `{kind:'say', text, verdict, followUp}`); the prompt then adds a "WHAT HE HAS
+   JUST DONE" block (he has seen that result, so explaining that check's answer is fine). The context is filled in
    (topic, idea, lesson, research), the last 16 turns go, and `web_fetch` may also open the
    lesson's and the research's sources. Tools go only where the connector is there and
    `U.rt.toolsOk()`; a `tools_unavailable` rejection asks again without them (the no-tools prompt).
@@ -1264,7 +1267,9 @@ emits 'art' {tid};  U.store.art.watch(fn(map))  get(tid)  set(tid, doc) (quiet; 
 ```
 `41-cards.js`, `60-today.js`
 ```
-U.cards.render(card, {mode:'lesson'|'review', lesson?, onDone(result)}) -> Element with destroy()
+U.cards.render(card, {mode:'lesson'|'review', lesson?, ask?(text, {chip, about}), onDone(result)}) -> Element with destroy()
+   ask (D4): given, every feedback panel carries Claude's byline and a reply row (chips and "Reply to
+   Claude…"); the lesson opens Ask Claude with it, the review too (about that card's idea)
    card {id, type, spec, s?}; lesson: the lesson doc (a target card mounts its interactive in quiz
    mode, quiz: {hide: spec.output}, and calls its reveal() when Check is pressed; its element's
    `mount` is that U.sandbox.mount api). Focus never drops to the page: an answer moves it
@@ -1302,8 +1307,10 @@ U.views (70-learn.js)   cover (six motifs, svg[data-motif]), asTitle(query), sum
    state() -> lesson state | null before the doc is read, stop()} (follows the next idea Dan will study; a prefetch
    this tab abandoned is started again in the background, once per page load), lessonNote(state, n, started, cls) -> "Idea n is being
    prepared…" / "Idea n is ready." (ready only when not started) | null
-U.lesson.sourceSheet(source)    U.tutor.open(context) / thread(tid, iid)
-   context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?}
+U.lesson.sourceSheet(source)    U.tutor.open(context, {ask?, chip?}?) / thread(tid, iid)
+   context {topic, tid?, iid?, idea?, lesson?, lessonDoc?, stage?, getState?, about?}
+   ask: a question asked as soon as the sheet opens (a reply to one of Claude's notes); chip: it was
+   a chip, not saved as his question. While a reply is still coming it waits in the box instead.
    A reply streams in place (finished paragraphs drawn once; only the one still coming is drawn
    again) and a new question adds its own messages. The conversation is not a live region: one
    status line says "Claude is answering…", then the finished reply once (plain words; a list said
@@ -1457,3 +1464,45 @@ topics started here are not source-checked); "Not connected." with the steps to 
   when `#view` is at least 900 px wide, main and rail sit side by side (rail 300-360 px). The
   header, and the planning and failed pages, put the cover in a `.tp-split` with the words: above
   them on a phone, beside them (in the rail's column) at 900 px and up.
+
+## 12. D4: Claude's notes (the look Dan chose on 10 Oct)
+
+Dan chose design D4 from the redesign canvas: a calm dashboard look in which Claude's words arrive
+as comment cards. Two parts, both additive (no screen's markup or behaviour was taken away):
+
+- **The look**, `app/src/css/80-d4.css`, loaded last. It restates the tokens of `00-tokens.css` for
+  light and dark (a dotted canvas, near-black ink for headings, controls and progress, grey panels
+  `--sunk` for what Dan reads, white cards outlined in `--edge` for what he acts on) and adds its own:
+  `--edge`, `--dot`, `--due`/`--due-ink`/`--due-tint` (what is due, chart marks), `--step` (the
+  lesson's segmented progress), `--pin` (Claude's avatar), `--cond` (Barlow Semi Condensed, labels)
+  and `--mono` (JetBrains Mono, where he is: the lesson's eyebrow, the review's line). `--sans` and
+  `--serif` are Barlow; the dossier keeps Literata (`.dos` restores `--serif`) and its own palette.
+  Easier reading still sets Atkinson everywhere, labels and mono included. Colour keeps its meaning:
+  ink = controls and progress, green = right and finished, red = mistakes and warnings, teal = small
+  labels, amber = key terms, "remember this" and what is due. The phone's tabs float in an outlined
+  bar (`--tabbar-h` includes its gap); the open tab is an ink pill. The kit's palette is unchanged
+  (accent2 = `--heading`, now ink), so interactives match without a rebuild.
+- **Claude's notes**, `app/src/js/52-notes.js` (`U.notes`): `avatar(who)`, `byline(who, context)`,
+  `card({who, context, title, text, body, actions})`, `list({title, id, notes})` and
+  `reply({chips, placeholder, label, onAsk(text, chip)})`. `who` is honest: `'claude'` only for words
+  Claude wrote; the app's own notices carry the app's mark. Text Claude wrote goes through `U.rich`.
+  Where they appear:
+  - check and review feedback (41-cards.js): Claude's byline ("from the lesson": the explanation it
+    wrote when it built the lesson) over the parts, and a reply row before Continue when the screen
+    passes `ask` (chips: Why?, Show me another way / Give me an example). A recall card's grade
+    carries the byline "on your answer" and its reply row once graded. Focus still goes to Continue.
+  - the say-it-back grade (50-lesson.js): the byline over the verdict, and on the answer just
+    graded a reply row (What did I miss?, Give me an example; or Give me an example, Go a bit deeper
+    when he got it). The verdict's text and focus are unchanged.
+  - a reply opens Ask Claude (`U.tutor.open(context, {ask, chip})`) with `context.about`, so Claude
+    knows what he has just done. A typed reply is his own question (saved to progress.questions like
+    any he types there); a chip is not.
+  - Learn (70-learn.js): "Claude's notes" under Continue: for each idea he has said back, Claude's
+    latest words on it (the follow-up question when he was not there yet, else what he nailed), newest
+    first, at most three, each opening its lesson ("Have another go" / "Open the lesson"). Ready-made
+    courses stay off Learn as before. None: nothing shown.
+  - Today (60-today.js): "Claude's notes on what is due": the same notes for the ideas in today's
+    session (read from progress after the screen is drawn), at most three. None: nothing shown.
+  A steps lesson (`format: 'steps'`) keeps its puzzles' own Check and Why? inside the frame; Ask
+  Claude in the lesson bar is its way to talk to Claude.
+

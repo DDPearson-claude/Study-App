@@ -1374,16 +1374,23 @@
         return U.h('div', { class: 'lsn-attempt' },
           U.h('div', { class: 'lsn-bubble' }, U.h('p', { class: 'lsn-bubble-label' }, no > 1 ? 'Your second go' : 'Your answer'), U.h('p', { class: 'lsn-bubble-text' }, text)));
       }
+      // Claude's grade is its note on his words (D4): its byline, and on the answer just graded a
+      // way to answer back (Ask Claude opens with his question and what he wrote).
       function gradeView(a, no, withFollow) {
         var met = rubric.filter(function (r, i) { return a.met && a.met[i]; });
         return U.h('div', { class: 'lsn-grade' },
+          U.notes ? U.notes.byline('claude', 'on your answer') : null,
           U.h('p', { class: 'lsn-verdict' }, VERDICT[a.verdict] || 'Checked'),
           a.nailed ? richBox(a.nailed, 'lsn-nailed') : null,
           met.length ? U.h('ul', { class: 'lsn-met', 'aria-label': 'What you nailed' }, met.map(function (r) {
             return U.h('li', null, U.icon('tick', 'lsn-tick'), U.inline(U.h('span'), String(r)));
           })) : null,
           withFollow && a.followUp && a.verdict !== 'got-it' && no < 2
-            ? U.h('div', { class: 'lsn-follow' }, eyebrow('One thing to add'), richBox(a.followUp)) : null);
+            ? U.h('div', { class: 'lsn-follow' }, eyebrow('One thing to add'), richBox(a.followUp)) : null,
+          withFollow && U.notes ? U.notes.reply({
+            chips: a.verdict === 'got-it' ? ['Give me an example', 'Go a bit deeper'] : ['What did I miss?', 'Give me an example'],
+            onAsk: function (text, chip) { openTutor(text, { chip: chip, about: { kind: 'say', text: a.text, verdict: a.verdict, followUp: a.followUp || '' } }); },
+          }) : null);
       }
       // The grader may word a model answer for his second miss; otherwise the lesson's own.
       function modelOf(a) { return (a && a.model) || say.model || ''; }
@@ -1445,7 +1452,7 @@
         list.appendChild(host);
         var once = false, el;
         try {
-          el = U.cards.render({ id: c.id, tid: tid, iid: iid, type: c.type, spec: c }, { mode: 'lesson', lesson: st.doc, onDone: function (r) {
+          el = U.cards.render({ id: c.id, tid: tid, iid: iid, type: c.type, spec: c }, { mode: 'lesson', lesson: st.doc, ask: openTutor, onDone: function (r) {
             if (once || !alive()) return;
             once = true;
             r = r || {};
@@ -1639,13 +1646,17 @@
       }
       return st.liveMount;
     }
-    function openTutor() {
+    // ask: a question to ask at once (a reply to one of Claude's notes); o: {chip, about} (what he
+    // has just done, for Claude). From the bar's button it is the click event, and nothing is asked.
+    function openTutor(ask, o) {
       if (!U.tutor || typeof U.tutor.open !== 'function') { U.toast('Ask Claude is not available in this view.'); return; }
       var m = mountInUse();
+      o = typeof ask === 'string' && o ? o : {};
       U.tutor.open({
         tid: tid, iid: iid, topic: st.topic, idea: st.idea, lesson: st.lesson, lessonDoc: st.doc, stage: st.begun ? st.stage : null,
         getState: m && typeof m.get === 'function' ? function () { return m.get(); } : null,
-      });
+        about: o.about || null,
+      }, typeof ask === 'string' ? { ask: ask, chip: !!o.chip } : null);
     }
     // "This looks wrong": the note is kept with the lesson (newest 30), and Dan can have Claude
     // rebuild the lesson with the note in mind (a new round, like Learn it again). The save is
