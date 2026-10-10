@@ -933,6 +933,10 @@ details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
 /* ---------- preparing ---------- */
 .lsn-prep { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
 .lsn-prep-head { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
+/* A ready-made course's lesson not built yet: a calm note, no working dots. */
+.lsn-soon { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
+.lsn-soon p { margin: 0; }
+.lsn-soon-h { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
 .lsn-prep-calm { color: var(--muted); font-size: .9375rem; line-height: 1.5; margin-top: -6px; }
 .lsn-prep-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .lsn-prep-lines li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .9688rem; line-height: 1.45; }
@@ -1739,6 +1743,7 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .shelf-blurb { color: var(--ink); line-height: 1.45; }
 .shelf-meta { color: var(--muted); font-size: .875rem; }
 .shelf-ready { color: var(--teal); font-size: .875rem; font-weight: 600; }
+.shelf-ready.is-done { color: var(--green); }
 .shelf-go { flex: none; width: 20px; height: 20px; color: var(--muted); }
 .shelf-courses { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .shelf-n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--line-strong); color: var(--muted); font-weight: 700; font-size: .9rem; }
@@ -2301,7 +2306,7 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-10-7695291";
+U.BUILD = "2026-10-10-4d3d9fb";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -6163,6 +6168,8 @@ U.logStudy = (function () {
 //   U.gen.grade(say, answer, attempt, {previous, title}) -> Promise<{met, verdict, nailed, followUp, model?}>
 //   U.gen.tutor(messages, context, {onText(textSoFar), signal}) -> Promise<string>
 //   U.gen.status(tid) -> {planning, research, lessons:{iid: status}}   this page's live work
+// A ready-made course (topic.readyMade) is never written here: ensureLesson and relearn reject
+// {code:'coming_soon'} for a lesson of one that is not ready, and research resolves null untouched.
 // Progress is also broadcast as U.emit('gen', {tid, iid, kind, status, text}).
 //
 // Lesson docs move writing -> building -> ready (or failed, with a readable `error`). Once written,
@@ -6212,6 +6219,15 @@ U.logStudy = (function () {
   function safe(fn, a, b) { try { fn(a, b); } catch (e) { console.error(e); } }
 
   // ---------- live state for the UI ----------
+  // Ready-made courses (topic.readyMade, docs/ARCHITECTURE.md section 4) are built in Claude
+  // Code, never here: no lesson of theirs is written, prefetched, rewritten or researched in the
+  // page. madeCourse(tid) -> Promise<bool>, from the topic doc (a yes is kept for the visit).
+  var made = {};
+  function madeCourse(tid) {
+    if (made[tid]) return Promise.resolve(true);
+    return U.store.topic.get(tid).then(function (t) { if (t && t.readyMade) made[tid] = true; return !!made[tid]; });
+  }
+  function comingSoon() { return { code: 'coming_soon', message: 'This lesson is still being built. It will appear here when it\'s ready.' }; }
   function liveOf(tid) { return (live[tid] = live[tid] || { planning: false, research: null, lessons: {} }); }
   function emit(tid, iid, kind, status, text) { U.emit('gen', { tid: tid, iid: iid || null, kind: kind, status: status, text: text || '' }); }
   // Writing a lesson whose reply still fails the app's checks after U.ask's one repair gets one
@@ -6574,7 +6590,8 @@ U.logStudy = (function () {
       emit(tid, null, 'research', 'unavailable', '');
       return U.store.topic.update(tid, { research: { status: 'unavailable', at: U.now(), sources: 0, reason: null } }).then(function () { return null; });
     }
-    var p = Promise.resolve().then(function () {
+    var p = Promise.resolve().then(function () { return madeCourse(tid); }).then(function (isMade) {
+      if (isMade) throw { code: 'ready_made' };   // nothing is researched or written for it here
       return Promise.all([U.research.available(), U.rt.toolsOk ? U.rt.toolsOk() : true]);
     }).then(function (ok) {
       if (!ok[0] || !ok[1]) return unavailable();
@@ -6605,6 +6622,7 @@ U.logStudy = (function () {
       emit(tid, null, 'research', 'done', res.kept + ' sources checked');
       return U.store.topic.update(tid, { research: { status: 'done', at: U.now(), sources: res.kept, dropped: res.dropped.length, error: null, reason: null, tries: 0 } }).then(function () { return res; });
     }).catch(function (e) {
+      if (e && e.code === 'ready_made') return null;
       if (e && e.code === 'tools_unavailable') return unavailable().catch(noop).then(function () { return null; });
       console.warn('research failed', e);
       L.research = 'failed';
@@ -6773,7 +6791,12 @@ U.logStudy = (function () {
     job.promise.then(function (doc) {
       liveOf(job.tid).lessons[job.iid] = (doc && doc.status) || 'ready';
       done();
-    }, function () { liveOf(job.tid).lessons[job.iid] = 'failed'; done(); });
+    }, function (e) {
+      // A ready-made course's lesson not built yet is not a failure here: there is no work.
+      if (e && e.code === 'coming_soon') delete liveOf(job.tid).lessons[job.iid];
+      else liveOf(job.tid).lessons[job.iid] = 'failed';
+      done();
+    });
     return job.promise;
   }
 
@@ -6839,7 +6862,10 @@ U.logStudy = (function () {
     job = newJob(tid, iid, opts);
     job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
       if (doc && doc.status === 'ready' && doc.lesson) return doc;
-      return takeOver(job, doc, 0);
+      return madeCourse(tid).then(function (isMade) {
+        if (isMade) throw comingSoon();
+        return takeOver(job, doc, 0);
+      });
     });
     return settle(job);
   }
@@ -6911,7 +6937,10 @@ U.logStudy = (function () {
     if (sig && typeof sig.addEventListener === 'function') sig.addEventListener('abort', function () { job.background = true; cancel(job); });
     var feedback = isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null;
     var request = isStr(opts.request) ? opts.request : null;
-    job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
+    job.promise = madeCourse(tid).then(function (isMade) {
+      if (isMade) throw comingSoon();   // Learn it again and Rebuild never write one here
+      return U.store.lesson.get(tid, iid);
+    }).then(function (doc) {
       var avoid = [], brief = doc && ((doc.interactive && doc.interactive.brief) || (doc.lesson && doc.lesson.interactive && doc.lesson.interactive.brief));
       if (isStr(brief)) avoid.push(brief);
       [].concat((doc && doc.avoid) || []).forEach(function (a) { if (isStr(a) && avoid.indexOf(a) < 0) avoid.push(a); });
@@ -7468,11 +7497,25 @@ U.sandbox = (function () {
   // Kit palette name -> app token. The interactive sits on a card, so its page is --surface.
   var TOKENS = { bg: '--surface', panel: '--bg', sunk: '--sunk', ink: '--ink', muted: '--muted', line: '--line', strong: '--line-strong', accent: '--teal', accent2: '--heading', onAccent2: '--on-heading', warn: '--red', good: '--green', amber: '--amber' };
 
+  // Whether the app is showing its dark palette, by the same rule as 00-tokens.css: Dark chosen,
+  // or Match system with the viewer dark (data-theme="dark" from the host page, else the OS
+  // setting unless the host says light). Not the computed color-scheme: the Claude app's webview
+  // reports the phone's dark scheme there even when the app is light, and the kit then painted
+  // its dark highlighter on a light card.
+  function isDark() {
+    var d = document.documentElement, attr = function (n) { return d.getAttribute ? d.getAttribute(n) : null; };
+    var mu = attr('data-mu-theme'), host = attr('data-theme');
+    if (mu === 'dark') return true;
+    if (mu !== 'system') return false;
+    if (host === 'dark') return true;
+    if (host === 'light') return false;
+    try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { return false; }
+  }
+
   // The app's current palette for the kit: {dark, size, c:{bg, panel, ..., amber}}.
   function theme() {
     var cs = getComputedStyle(document.documentElement);
-    var scheme = (cs.getPropertyValue('color-scheme') || '').trim();
-    var dark = scheme === 'dark';
+    var dark = isDark();
     var base = FALLBACK[dark ? 'dark' : 'light'], c = {};
     Object.keys(TOKENS).forEach(function (k) { c[k] = cs.getPropertyValue(TOKENS[k]).trim() || base[k]; });
     // Reading size (Aa setting): the app's 18px default maps to the kit's 16px, so L and XL give 18
@@ -7953,7 +7996,7 @@ U.sandbox = (function () {
     });
   }
 
-  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach, visibleTimeout: visibleTimeout };
+  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, isDark: isDark, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach, visibleTimeout: visibleTimeout };
 })();
 
 // ---- src/js/33-interactive.js ----
@@ -10278,8 +10321,12 @@ U.interactive = (function () {
       // again since, perhaps on another device) and Today's flag on its own open the lesson as it is.
       var again = requestOpen() || (!!params.again && r[3] !== false);
       if (params.again) try { history.replaceState(null, '', '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid)); } catch (e) { /* fine */ }
-      if (again && U.gen && typeof U.gen.relearn === 'function') return startRelearn({ doc: doc });
+      // A ready-made course (topic.readyMade) is built in Claude Code: never rewritten or written
+      // here. Its lesson not built yet says it is coming soon, and opens once it is whole.
+      var made = !!topic.readyMade;
+      if (again && !made && U.gen && typeof U.gen.relearn === 'function') return startRelearn({ doc: doc });
       if (whole(doc)) show(doc);
+      else if (made) comingSoon();
       else prepare(doc);
     }).catch(function (e) { loaded = true; if (alive()) fatal(e); });
 
@@ -10391,6 +10438,18 @@ U.interactive = (function () {
       paintBar();
       watchLesson();
       ensure(doc);
+    }
+    function comingSoon() {
+      var box = U.h('div', { class: 'lsn-soon', role: 'status' },
+        U.h('p', { class: 'lsn-soon-h' }, 'Coming soon'),
+        U.h('p', { class: 'muted' }, 'This lesson is still being built. It will appear here when it\'s ready.'),
+        U.h('p', null, U.h('a', { class: 'linkish', href: '#/t/' + encodeURIComponent(tid), on: { click: function () { toTopic(tid); } } }, 'Back to the topic')));
+      prepSlot.appendChild(box);
+      st.stops.push(U.store.lesson.watch(tid, iid, function (d) {
+        if (!alive() || st.ready || !whole(d)) return;
+        box.remove();
+        show(d);
+      }, function () { /* the note stays */ }));
     }
     // The lesson may be finished elsewhere (another device, or a job this page joined): open it
     // the moment the doc is whole. While relearning, the old (ready) doc is not the new lesson:
@@ -10555,7 +10614,7 @@ U.interactive = (function () {
     // Once this lesson is whole, the next open idea is prepared whole in the background.
     function prefetchNext() {
       var nx = nextIdea();
-      if (!nx || !U.gen || typeof U.gen.ensureLesson !== 'function') return;
+      if (!nx || (st.topic && st.topic.readyMade) || !U.gen || typeof U.gen.ensureLesson !== 'function') return;
       U.store.lesson.get(tid, nx.id).then(function (d) {
         if (whole(d)) return null;
         return U.gen.ensureLesson(tid, nx.id, { background: true });
@@ -11599,12 +11658,15 @@ U.interactive = (function () {
       function paint() {
         if (!read || !alive()) return;
         var s = U.store.lesson.state(doc, liveOf(tid, nx.id));
-        var now = s === 'ready' || s === 'preparing' ? s : null;
+        // A ready-made course's next lesson not built yet: coming soon (never prepared here).
+        if (st.topic && st.topic.readyMade && s !== 'ready') s = 'soon';
+        var now = s === 'ready' || s === 'preparing' || s === 'soon' ? s : null;
         if (now === shown) return;
         shown = now;
         U.clear(el);
         if (now === 'preparing') U.append(el, [U.h('span', { class: 'lsn-prep-mark', 'aria-hidden': 'true' }, U.h('i')), n + ' is being prepared…']);
         else if (now === 'ready') U.append(el, [U.icon('tick'), n + ' is ready.']);
+        else if (now === 'soon') el.textContent = n + ' is coming soon.';
       }
       var offs = [
         U.store.lesson.watch(tid, nx.id, function (d) { doc = d; read = true; paint(); }, function () { /* say nothing */ }),
@@ -11648,7 +11710,7 @@ U.interactive = (function () {
     }
     function flagSheet() {
       if (!st.lesson) return;
-      var canRebuild = !!(U.gen && typeof U.gen.relearn === 'function') && !st.gone;
+      var canRebuild = !!(U.gen && typeof U.gen.relearn === 'function') && !st.gone && !(st.topic && st.topic.readyMade);
       var ta = U.h('textarea', { class: 'textarea', rows: 3, maxlength: 1000, 'aria-label': 'What looks wrong', placeholder: 'For example: the slider makes the swing faster, but the text says slower' });
       var problem = U.h('div', { class: 'lsn-flag-err', role: 'alert' });
       var saving = false, open = true;
@@ -12676,6 +12738,9 @@ U.interactive = (function () {
   function uniq(list) { return list.filter(function (x, i) { return list.indexOf(x) === i; }); }
 
   function relearnBlock(list, topics) {
+    // A ready-made course's lessons are never rewritten in the page (topic.readyMade), so it
+    // offers no Learn it again.
+    list = list.filter(function (g) { return !(topics[g.tid] && topics[g.tid].readyMade); });
     if (!list.length) return null;
     return h('section', { class: 'card-quiet td-relearn', 'aria-label': 'Ideas to learn again' },
       h('p', { class: 'eyebrow' }, 'Worth another look'),
@@ -13248,11 +13313,17 @@ U.interactive = (function () {
   };
   // "Idea 2 is being prepared…" / "Idea 2 is ready." (null: say nothing). started: he has begun
   // it, so only a lesson being prepared again (Learn it again) is worth a word.
+  // 'soon' (V.soonState): a ready-made course's lesson not built yet.
   V.lessonNote = function (state, n, started, cls) {
+    if (state === 'soon') return U.h('p', { class: 'v-lesson-note is-soon ' + (cls || ''), role: 'status' }, 'Idea ' + n + ' is coming soon.');
     if (state === 'preparing') return U.h('p', { class: 'v-lesson-note is-preparing ' + (cls || ''), role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Idea ' + n + ' is being prepared…');
     if (state === 'ready' && !started) return U.h('p', { class: 'v-lesson-note is-ready ' + (cls || ''), role: 'status' }, U.icon('tick'), 'Idea ' + n + ' is ready.');
     return null;
   };
+  // A ready-made course (topic.readyMade) is built in Claude Code, never here, so its lesson that
+  // is not ready is "coming soon", never "being prepared": state 'soon' once the doc has been
+  // read (null before), else the lesson state as it is.
+  V.soonState = function (topic, state) { return topic && topic.readyMade && state && state !== 'ready' ? 'soon' : state; };
   V.isDone = function (progress, iid) { var s = progress && progress.ideas && progress.ideas[iid]; return !!(s && s.stage === 'done'); };
   // How Dan learns a topic (topic.mode): 'study' (teach and test: the default, and what a topic
   // without the field means) or 'read' (just teach: reading and the interactive, no questions and
@@ -13712,8 +13783,10 @@ U.interactive = (function () {
     }
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
-      topics = list || [];
-      if (U.art) { U.art.want(topics); paintInvite(); }
+      // Ready-made courses (topic.readyMade) live in their shelf's folder (76-shelves.js), not
+      // here: he resumes them from there, so they are left out of his list and Continue.
+      topics = (list || []).filter(function (t) { return t && !t.readyMade; });
+      if (U.art) { U.art.want(list || []); paintInvite(); }
       U.clear(liveBox);   // the watch is live again (a parked one answers by itself)
       progSig = {};
       if (firstTime) { loadProgress(progressP); return; }
@@ -14275,7 +14348,12 @@ U.interactive = (function () {
       var cal = progress.calibration || {};
       var r = topic.research || {};
       lw.watch(tid, s.current && !s.allDone ? s.current.id : null);
-      var next = lw.state(), busy = ideas.map(function (i) { return V.lessonBusy(tid, i.id) || (s.current && i.id === s.current.id && next === 'preparing'); });
+      // A ready-made course's lessons are never prepared here: the next one not built yet is
+      // "Coming soon" (V.soonState).
+      var next = V.soonState(topic, lw.state()), busy = ideas.map(function (i) {
+        if (s.current && i.id === s.current.id && next === 'soon') return 'soon';
+        return !topic.readyMade && (V.lessonBusy(tid, i.id) || (s.current && i.id === s.current.id && next === 'preparing'));
+      });
       // The hook is a question in newer plans; older ones may have a statement.
       var hookIs = !topic.hook ? '' : /\?["'”’)]?\s*$/.test(U.plain(topic.hook).trim()) ? 'question' : 'line';
       return [
@@ -14320,8 +14398,10 @@ U.interactive = (function () {
       var note = cta ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
       // On a laptop the cover sits beside the title (above the rail), not across the page, so
       // the path starts on the first screen.
+      // A ready-made course is reached from its shelf (Learn leaves it out), so back goes there.
+      var shelfId = topic.readyMade && topic.readyMade.shelf;
       return U.h('header', { class: 'tp-head' },
-        V.back('#/', 'All topics'),
+        U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'Ready-made courses') : V.back('#/', 'All topics'),
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
@@ -14355,7 +14435,8 @@ U.interactive = (function () {
       schedule();
     }
 
-    // preparing: its lesson is being written or built (it opens on the preparation card).
+    // preparing: its lesson is being written or built (it opens on the preparation card); 'soon':
+    // a ready-made course's lesson not built yet.
     function pathNode(idea, i, ideas, s, preparing) {
       var st = (progress.ideas && progress.ideas[idea.id]) || {};
       var done = st.stage === 'done';
@@ -14380,7 +14461,8 @@ U.interactive = (function () {
             U.h('span', { class: 'pnode-kicker' }, kicker),
             U.h('span', { class: 'pnode-title' }, idea.title),
             idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
-            preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
+            preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
+              : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
             deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
             current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start this idea', U.icon('arrow')) : null)));
@@ -14608,7 +14690,8 @@ U.interactive = (function () {
         var text = none ? 'The source check ran but could not confirm a single source, so these lessons are not source-checked.'
           : r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
         if (avail === false) text += ' Connect Parallel Search in Claude\'s settings to add sources.';
-        var again = (r.status === 'failed' || stale || none) && avail !== false && U.gen && typeof U.gen.research === 'function'
+        // Never for a ready-made course: its research is done in Claude Code, not here.
+        var again = (r.status === 'failed' || stale || none) && avail !== false && !topic.readyMade && U.gen && typeof U.gen.research === 'function'
           ? U.h('button', { class: 'linkish lib-retry', type: 'button', 'data-key': 'research-again', on: { click: researchAgain } }, 'Check the sources again') : null;
         status = U.h('div', { class: 'lib-status is-none' }, U.h('p', null, text), again);
       }
@@ -16745,6 +16828,22 @@ U.interactive = (function () {
         U.h('span', { class: 'shelf-meta' }, meta)),
       U.icon('arrow', 'shelf-go'));
   }
+  // Where Dan is in a built course ("Lesson 2 of 8", "Finished"), read once from his progress
+  // and the topic's ideas. Not started, or either read fails: "Ready to browse". Ready-made
+  // courses are resumed from here; Learn leaves them out (70-learn.js).
+  function whereNow(tid, ctx) {
+    var el = U.h('span', { class: 'shelf-ready' }, 'Ready to browse');
+    Promise.all([U.store.topic.get(tid), U.store.progress.get(tid)]).then(function (r) {
+      var ideas = r[0] && Array.isArray(r[0].ideas) ? r[0].ideas : [], pi = (r[1] && r[1].ideas) || {};
+      if (!ctx.alive() || !ideas.length) return;
+      var done = ideas.filter(function (i) { return i && pi[i.id] && pi[i.id].stage === 'done'; }).length;
+      var started = done > 0 || ideas.some(function (i) { return i && pi[i.id] && pi[i.id].stage; });
+      if (!started) return;
+      if (done >= ideas.length) { el.textContent = 'Finished'; el.classList.add('is-done'); }
+      else el.textContent = 'Lesson ' + (done + 1) + ' of ' + ideas.length;
+    }).catch(function () { /* stays "Ready to browse" */ });
+    return el;
+  }
   function loadError(box, what, e) { U.clear(box).appendChild(V && V.loadError ? V.loadError(what, e, false) : U.h('p', { class: 'muted' }, what + ' could not be loaded just now.')); }
 
   // ---------- the Library's Ready-made courses ----------
@@ -16812,7 +16911,7 @@ U.interactive = (function () {
             U.h('span', { class: 'shelf-body' },
               U.h('span', { class: 'shelf-title' }, str(c.title)),
               str(c.blurb) ? U.h('span', { class: 'shelf-blurb' }, str(c.blurb)) : null,
-              tid ? U.h('span', { class: 'shelf-ready' }, 'Ready to browse') : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
+              tid ? whereNow(tid, ctx) : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
             tid ? U.icon('arrow', 'shelf-go') : null];
           return U.h('li', { class: tid ? 'is-built' : 'is-waiting' },
             tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid) }, inner) : U.h('div', { class: 'shelf-course' }, inner));

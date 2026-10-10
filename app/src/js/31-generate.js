@@ -18,6 +18,8 @@
 //   U.gen.grade(say, answer, attempt, {previous, title}) -> Promise<{met, verdict, nailed, followUp, model?}>
 //   U.gen.tutor(messages, context, {onText(textSoFar), signal}) -> Promise<string>
 //   U.gen.status(tid) -> {planning, research, lessons:{iid: status}}   this page's live work
+// A ready-made course (topic.readyMade) is never written here: ensureLesson and relearn reject
+// {code:'coming_soon'} for a lesson of one that is not ready, and research resolves null untouched.
 // Progress is also broadcast as U.emit('gen', {tid, iid, kind, status, text}).
 //
 // Lesson docs move writing -> building -> ready (or failed, with a readable `error`). Once written,
@@ -67,6 +69,15 @@
   function safe(fn, a, b) { try { fn(a, b); } catch (e) { console.error(e); } }
 
   // ---------- live state for the UI ----------
+  // Ready-made courses (topic.readyMade, docs/ARCHITECTURE.md section 4) are built in Claude
+  // Code, never here: no lesson of theirs is written, prefetched, rewritten or researched in the
+  // page. madeCourse(tid) -> Promise<bool>, from the topic doc (a yes is kept for the visit).
+  var made = {};
+  function madeCourse(tid) {
+    if (made[tid]) return Promise.resolve(true);
+    return U.store.topic.get(tid).then(function (t) { if (t && t.readyMade) made[tid] = true; return !!made[tid]; });
+  }
+  function comingSoon() { return { code: 'coming_soon', message: 'This lesson is still being built. It will appear here when it\'s ready.' }; }
   function liveOf(tid) { return (live[tid] = live[tid] || { planning: false, research: null, lessons: {} }); }
   function emit(tid, iid, kind, status, text) { U.emit('gen', { tid: tid, iid: iid || null, kind: kind, status: status, text: text || '' }); }
   // Writing a lesson whose reply still fails the app's checks after U.ask's one repair gets one
@@ -429,7 +440,8 @@
       emit(tid, null, 'research', 'unavailable', '');
       return U.store.topic.update(tid, { research: { status: 'unavailable', at: U.now(), sources: 0, reason: null } }).then(function () { return null; });
     }
-    var p = Promise.resolve().then(function () {
+    var p = Promise.resolve().then(function () { return madeCourse(tid); }).then(function (isMade) {
+      if (isMade) throw { code: 'ready_made' };   // nothing is researched or written for it here
       return Promise.all([U.research.available(), U.rt.toolsOk ? U.rt.toolsOk() : true]);
     }).then(function (ok) {
       if (!ok[0] || !ok[1]) return unavailable();
@@ -460,6 +472,7 @@
       emit(tid, null, 'research', 'done', res.kept + ' sources checked');
       return U.store.topic.update(tid, { research: { status: 'done', at: U.now(), sources: res.kept, dropped: res.dropped.length, error: null, reason: null, tries: 0 } }).then(function () { return res; });
     }).catch(function (e) {
+      if (e && e.code === 'ready_made') return null;
       if (e && e.code === 'tools_unavailable') return unavailable().catch(noop).then(function () { return null; });
       console.warn('research failed', e);
       L.research = 'failed';
@@ -628,7 +641,12 @@
     job.promise.then(function (doc) {
       liveOf(job.tid).lessons[job.iid] = (doc && doc.status) || 'ready';
       done();
-    }, function () { liveOf(job.tid).lessons[job.iid] = 'failed'; done(); });
+    }, function (e) {
+      // A ready-made course's lesson not built yet is not a failure here: there is no work.
+      if (e && e.code === 'coming_soon') delete liveOf(job.tid).lessons[job.iid];
+      else liveOf(job.tid).lessons[job.iid] = 'failed';
+      done();
+    });
     return job.promise;
   }
 
@@ -694,7 +712,10 @@
     job = newJob(tid, iid, opts);
     job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
       if (doc && doc.status === 'ready' && doc.lesson) return doc;
-      return takeOver(job, doc, 0);
+      return madeCourse(tid).then(function (isMade) {
+        if (isMade) throw comingSoon();
+        return takeOver(job, doc, 0);
+      });
     });
     return settle(job);
   }
@@ -766,7 +787,10 @@
     if (sig && typeof sig.addEventListener === 'function') sig.addEventListener('abort', function () { job.background = true; cancel(job); });
     var feedback = isStr(opts.feedback) ? s(opts.feedback).trim().slice(0, 1000) : null;
     var request = isStr(opts.request) ? opts.request : null;
-    job.promise = U.store.lesson.get(tid, iid).then(function (doc) {
+    job.promise = madeCourse(tid).then(function (isMade) {
+      if (isMade) throw comingSoon();   // Learn it again and Rebuild never write one here
+      return U.store.lesson.get(tid, iid);
+    }).then(function (doc) {
       var avoid = [], brief = doc && ((doc.interactive && doc.interactive.brief) || (doc.lesson && doc.lesson.interactive && doc.lesson.interactive.brief));
       if (isStr(brief)) avoid.push(brief);
       [].concat((doc && doc.avoid) || []).forEach(function (a) { if (isStr(a) && avoid.indexOf(a) < 0) avoid.push(a); });

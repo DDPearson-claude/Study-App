@@ -36,6 +36,22 @@
         U.h('span', { class: 'shelf-meta' }, meta)),
       U.icon('arrow', 'shelf-go'));
   }
+  // Where Dan is in a built course ("Lesson 2 of 8", "Finished"), read once from his progress
+  // and the topic's ideas. Not started, or either read fails: "Ready to browse". Ready-made
+  // courses are resumed from here; Learn leaves them out (70-learn.js).
+  function whereNow(tid, ctx) {
+    var el = U.h('span', { class: 'shelf-ready' }, 'Ready to browse');
+    Promise.all([U.store.topic.get(tid), U.store.progress.get(tid)]).then(function (r) {
+      var ideas = r[0] && Array.isArray(r[0].ideas) ? r[0].ideas : [], pi = (r[1] && r[1].ideas) || {};
+      if (!ctx.alive() || !ideas.length) return;
+      var done = ideas.filter(function (i) { return i && pi[i.id] && pi[i.id].stage === 'done'; }).length;
+      var started = done > 0 || ideas.some(function (i) { return i && pi[i.id] && pi[i.id].stage; });
+      if (!started) return;
+      if (done >= ideas.length) { el.textContent = 'Finished'; el.classList.add('is-done'); }
+      else el.textContent = 'Lesson ' + (done + 1) + ' of ' + ideas.length;
+    }).catch(function () { /* stays "Ready to browse" */ });
+    return el;
+  }
   function loadError(box, what, e) { U.clear(box).appendChild(V && V.loadError ? V.loadError(what, e, false) : U.h('p', { class: 'muted' }, what + ' could not be loaded just now.')); }
 
   // ---------- the Library's Ready-made courses ----------
@@ -103,7 +119,7 @@
             U.h('span', { class: 'shelf-body' },
               U.h('span', { class: 'shelf-title' }, str(c.title)),
               str(c.blurb) ? U.h('span', { class: 'shelf-blurb' }, str(c.blurb)) : null,
-              tid ? U.h('span', { class: 'shelf-ready' }, 'Ready to browse') : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
+              tid ? whereNow(tid, ctx) : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
             tid ? U.icon('arrow', 'shelf-go') : null];
           return U.h('li', { class: tid ? 'is-built' : 'is-waiting' },
             tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid) }, inner) : U.h('div', { class: 'shelf-course' }, inner));

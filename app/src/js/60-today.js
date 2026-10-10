@@ -543,6 +543,9 @@
   function uniq(list) { return list.filter(function (x, i) { return list.indexOf(x) === i; }); }
 
   function relearnBlock(list, topics) {
+    // A ready-made course's lessons are never rewritten in the page (topic.readyMade), so it
+    // offers no Learn it again.
+    list = list.filter(function (g) { return !(topics[g.tid] && topics[g.tid].readyMade); });
     if (!list.length) return null;
     return h('section', { class: 'card-quiet td-relearn', 'aria-label': 'Ideas to learn again' },
       h('p', { class: 'eyebrow' }, 'Worth another look'),

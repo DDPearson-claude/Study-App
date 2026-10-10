@@ -261,7 +261,8 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   ideas:[{ id:'i1', title, oneLine, deps:[earlier ids], kind, known?:true }],
   calibration:[{ id, iid?, q, options:[3-4], answer, why }],     // exactly 2
   research:{ status:'none'|'running'|'done'|'unavailable'|'failed', at, sources, dropped?, error?,
-             reason?:'none_confirmed'|'error'|null, tries? } }
+             reason?:'none_confirmed'|'error'|null, tries? },
+  readyMade?:{ shelf, course } }                                 // a ready-made course (below)
   // done only with sources >= 1: a run that kept none is failed ("No source could be confirmed…")
   // with reason 'none_confirmed' (it finished: lessons never re-run it, and Sources says no
   // source could be confirmed); 'error': it did not.
@@ -291,6 +292,13 @@ no say-it-back, no quick checks, no review cards). He chooses it beside the leve
 topic and can change it later on the topic page (`U.store.topic.update(tid, {mode})`); it applies to
 lessons written after the switch, a Learn it again rewrite included: each lesson records the mode it
 was written for (`lesson.mode`, section 5), and the lesson screen goes by that, not by the topic.
+`readyMade` marks a topic built as a ready-made course (shelves, 76-shelves.js): `shelf` is the
+shelf id (`shelves/{shelf}`) and `course` the course id within it. Its plan and lessons are built
+in Claude Code, never in the page: `U.gen.ensureLesson` refuses to write, prefetch, rewrite or
+research one (section 7), the lesson screen shows "Coming soon" for a lesson whose doc is missing
+or not ready, and the topic page hides Learn it again and Rebuild. Learn leaves these topics out
+of its list and Continue; he resumes them from the shelf's folder page, which shows where he is
+("Lesson 2 of 8", "Finished") from his progress. Absent on every topic he made himself.
 `intake` is the few questions Claude asked about what he typed before planning (`U.gen.intake`,
 section 7) with his answers, saved at creation (`U.prompts.cleanIntake`: ids q1…, an "Other" option
 folded into `other: true`, only listed options picked, one unless `multi`, his own words at most 300
@@ -923,7 +931,9 @@ Pipelines (`31-generate.js`):
    contested). A run that keeps no source is `failed` ("No source could be confirmed…", reason
    'none_confirmed'), never `done`.
 3. `ensureLesson(tid, iid, {onStatus, background, signal})`: one job per lesson in the page
-   (later callers join it). A ready doc comes back as it is; a `building` doc with a lesson only
+   (later callers join it). A ready doc comes back as it is; for a ready-made course
+   (`topic.readyMade`, section 4) anything else rejects `{code:'coming_soon'}` with nothing written
+   and no status left behind (so does `relearn`, and `research` resolves null untouched); a `building` doc with a lesson only
    needs its interactive; otherwise: claim the doc (`writing`); wait for research (at most 120 s
    from its start, 15 s for the topic's first lesson; start it if there is none; after 10 min
    retry an unavailable one, or one that did not finish (failed with reason 'error', or `running`

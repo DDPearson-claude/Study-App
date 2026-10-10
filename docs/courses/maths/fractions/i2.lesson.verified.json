@@ -1,150 +1,64 @@
 {
   "iid": "i2",
-  "title": "Four pieces are not four quarters",
+  "title": "Equivalent fractions",
+  "format": "steps",
   "predict": null,
   "interactive": {
-    "brief": "The one thing you should see is the four copies under the bar miss the 1000 mm mark and the label stop saying 1/4, while the bar still shows four pieces, when you slide the first piece off 250 mm.",
-    "title": "Cut a metre into four",
+    "brief": "The one thing you should see is the shaded amount stay the same while its name changes when you cut every piece into smaller pieces.",
+    "title": "Equivalent fractions",
     "controls": [
       {
-        "id": "firstPiece",
-        "label": "Length of the first piece",
-        "min": 100,
-        "max": 400,
-        "step": 50,
-        "value": 250,
-        "unit": "mm"
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
       }
     ],
-    "outputs": [
-      {
-        "id": "fitFirst",
-        "label": "Pieces this size in a metre",
-        "unit": "",
-        "decimals": 2
-      },
-      {
-        "id": "otherPiece",
-        "label": "Each of the other three pieces",
-        "unit": "mm",
-        "decimals": 0
-      },
-      {
-        "id": "fitOthers",
-        "label": "Pieces their size in a metre",
-        "unit": "",
-        "decimals": 2
-      }
-    ],
-    "whatAmILookingAt": "A metre, 1000 mm, cut into four pieces. The slider sets the first piece; the other three share the rest. Below, four copies of it test its name. Pieces that fit = 1000 ÷ length.",
-    "ignores": "The other three stay equal only so one slider works; real cuts can be any lengths.",
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens, some showing an idea and the rest asking you to try it.",
+    "ignores": "Only fractions less than 1 appear here.",
     "numbers": [
       {
-        "label": "Length of the whole, one metre of cable, mm (chosen)",
-        "value": 1000,
-        "kind": "assumed"
-      },
-      {
-        "label": "Pieces the metre is cut into (chosen)",
-        "value": 4,
-        "kind": "assumed"
-      },
-      {
-        "label": "Copies in the test row, four quarters to a whole",
-        "value": 4,
+        "label": "Three quarters, also 6/8, in steps 1, 4, 6 and 10",
+        "value": 0.75,
         "kind": "constant"
       },
       {
-        "label": "Length of the first piece at the start, mm",
-        "value": 250,
-        "kind": "control"
+        "label": "One quarter, also 2/8, in step 2",
+        "value": 0.25,
+        "kind": "constant"
       },
       {
-        "label": "Pieces this size in a metre at the start, 1000 ÷ 250",
-        "value": 4,
-        "kind": "computed"
+        "label": "Two thirds, also 6/9, in steps 3, 8 and 12",
+        "value": 0.6666666666666666,
+        "kind": "constant"
       },
       {
-        "label": "Other three pieces at the start, mm, (1000 − 250) ÷ 3",
-        "value": 250,
-        "kind": "computed"
+        "label": "Three fifths, also 6/10, in step 5",
+        "value": 0.6,
+        "kind": "constant"
       },
       {
-        "label": "Pieces their size in a metre at the start",
-        "value": 4,
-        "kind": "computed"
+        "label": "One half, also 2/4, 4/8, 3/6 and 5/10, in steps 7, 9 and 12",
+        "value": 0.5,
+        "kind": "constant"
       },
       {
-        "label": "Where the four copies end at the start, mm, 4 × 250",
-        "value": 1000,
-        "kind": "computed"
-      },
-      {
-        "label": "Pieces this size in a metre at 200 mm, label 1/5",
-        "value": 5,
-        "kind": "computed"
-      },
-      {
-        "label": "Where the four copies end at 200 mm, mm, 4 × 200",
-        "value": 800,
-        "kind": "computed"
-      },
-      {
-        "label": "Other three pieces at 200 mm, mm (rounded)",
-        "value": 267,
-        "kind": "computed"
-      },
-      {
-        "label": "Pieces their size in a metre at 200 mm, 3000 ÷ 800",
-        "value": 3.75,
-        "kind": "computed"
-      },
-      {
-        "label": "Pieces this size in a metre at 100 mm, label 1/10",
-        "value": 10,
-        "kind": "computed"
-      },
-      {
-        "label": "Other three pieces at 100 mm, mm",
-        "value": 300,
-        "kind": "computed"
-      },
-      {
-        "label": "Pieces their size in a metre at 100 mm (rounded)",
-        "value": 3.33,
-        "kind": "computed"
-      },
-      {
-        "label": "Pieces this size in a metre at 400 mm",
-        "value": 2.5,
-        "kind": "computed"
-      },
-      {
-        "label": "Where the four copies end at 400 mm, mm, 4 × 400",
-        "value": 1600,
-        "kind": "computed"
-      },
-      {
-        "label": "Other three pieces at 400 mm, mm",
-        "value": 200,
-        "kind": "computed"
-      },
-      {
-        "label": "Pieces their size in a metre at 400 mm, honest fifths",
-        "value": 5,
-        "kind": "computed"
+        "label": "A 3/8 inch drill bit, also 6/16 inch, in step 11",
+        "value": 0.375,
+        "kind": "constant"
       }
     ]
   },
   "explain": {
-    "text": "Four pieces are only quarters if they are equal.[^1] A piece is a quarter when four of its size make the whole:[^2] at 250 mm, 1000 ÷ 250 = 4.\n\nSlide to 200 mm. Still one of four pieces, but 1000 ÷ 200 = 5: a fifth. Four copies stop at 800 mm.\n\nThe trap: cut a metre 100, 300, 300, 300 and call two pieces half. You hold 400 or 600 mm, not 500.\n\n**Count how many of the piece fit the whole, not the pieces you see.**"
+    "text": "Cut every piece of a bar in two and you have twice as many pieces, so the same amount takes twice as many of them.[^1] That is why 3/4 and 6/8 shade exactly the same amount. They are equivalent fractions: different names for one amount.\n\nSo you can multiply the top and the bottom by the same number, or divide both by the same number, and the fraction keeps its value.[^2] Dividing down as far as it goes is called simplifying, so 6/8 simplifies to 3/4. Equivalent fractions are the same number, so they sit at the same point on the number line.[^3]\n\n**Multiply or divide the top and bottom by the same number, and the fraction keeps its size.**"
   },
-  "analogy": {
-    "text": "Three phases don't make each a third of the load; equal loads do. With 30 kW in total, a 20 kW phase is no third.",
-    "breaks": "A board's total load changes through the day; a cut metre of cable stays put."
-  },
+  "analogy": null,
   "practice": {
-    "text": "**Rule of thumb:** whole ÷ piece. Fits 5 times? It is 1/5.\n\n**Worked example:** a 50 m drum cut into 20, 10, 10 and 10 m runs. 50 ÷ 10 = 5, so each 10 m run is 1/5. No quarters.\n\n**Common mistakes**\n- Reading the bottom as pieces you can see.\n- Judging equal by eye, not measuring."
+    "text": "**Rule of thumb:** Whatever you do to the bottom, do to the top. Multiply or divide, never add or take away.\n\n**Worked example:** A 3/8 inch drill bit, and a gauge marked in sixteenths. An eighth is two sixteenths, so multiply the top and the bottom by 2 and look for 6/16.\n\n**Common mistakes**\n- Adding the same number to the top and bottom. 3/4 is not the same as 4/5.\n- Simplifying by taking away. 6/9 simplifies to 2/3, not 3/6."
   },
   "say": null,
   "checks": [],
@@ -154,15 +68,21 @@
   "sources": [
     {
       "n": 1,
-      "title": "What are fractions? - KS1 Maths resources for Year 2 - BBC Bitesize",
-      "url": "https://www.bbc.co.uk/bitesize/articles/zq2yfrd",
-      "quote": "Fractions are always divided into equal parts."
+      "title": "Equivalent fractions (video) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/v/equivalent-amount-of-pizza",
+      "quote": "Going from 4 slices to 8 slices, I cut every slice, I turned every slice into 2 more slices, so I had twice as many slices."
     },
     {
       "n": 2,
-      "title": "Fraction",
-      "url": "https://en.wikipedia.org/wiki/Fraction",
-      "quote": "the denominator indicates how many of those parts make up a unit or a whole."
+      "title": "Equivalent Fractions",
+      "url": "https://mathsisfun.com/equivalent_fractions.html",
+      "quote": "Because when we multiply or divide both the top and bottom by the same number, the fraction keeps its value"
+    },
+    {
+      "n": 3,
+      "title": "Visualizing equivalent fractions review (article) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-review",
+      "quote": "Numbers are equivalent when they are located at the same point on the number line."
     }
   ]
 }

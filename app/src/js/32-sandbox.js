@@ -49,11 +49,25 @@ U.sandbox = (function () {
   // Kit palette name -> app token. The interactive sits on a card, so its page is --surface.
   var TOKENS = { bg: '--surface', panel: '--bg', sunk: '--sunk', ink: '--ink', muted: '--muted', line: '--line', strong: '--line-strong', accent: '--teal', accent2: '--heading', onAccent2: '--on-heading', warn: '--red', good: '--green', amber: '--amber' };
 
+  // Whether the app is showing its dark palette, by the same rule as 00-tokens.css: Dark chosen,
+  // or Match system with the viewer dark (data-theme="dark" from the host page, else the OS
+  // setting unless the host says light). Not the computed color-scheme: the Claude app's webview
+  // reports the phone's dark scheme there even when the app is light, and the kit then painted
+  // its dark highlighter on a light card.
+  function isDark() {
+    var d = document.documentElement, attr = function (n) { return d.getAttribute ? d.getAttribute(n) : null; };
+    var mu = attr('data-mu-theme'), host = attr('data-theme');
+    if (mu === 'dark') return true;
+    if (mu !== 'system') return false;
+    if (host === 'dark') return true;
+    if (host === 'light') return false;
+    try { return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); } catch (e) { return false; }
+  }
+
   // The app's current palette for the kit: {dark, size, c:{bg, panel, ..., amber}}.
   function theme() {
     var cs = getComputedStyle(document.documentElement);
-    var scheme = (cs.getPropertyValue('color-scheme') || '').trim();
-    var dark = scheme === 'dark';
+    var dark = isDark();
     var base = FALLBACK[dark ? 'dark' : 'light'], c = {};
     Object.keys(TOKENS).forEach(function (k) { c[k] = cs.getPropertyValue(TOKENS[k]).trim() || base[k]; });
     // Reading size (Aa setting): the app's 18px default maps to the kit's 16px, so L and XL give 18
@@ -534,5 +548,5 @@ U.sandbox = (function () {
     });
   }
 
-  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach, visibleTimeout: visibleTimeout };
+  return { MAX_BYTES: MAX_BYTES, CSP: CSP, theme: theme, isDark: isDark, srcdoc: srcdoc, mount: mount, test: test, merge: merge, reach: reach, visibleTimeout: visibleTimeout };
 })();

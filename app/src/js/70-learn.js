@@ -246,11 +246,17 @@
   };
   // "Idea 2 is being prepared…" / "Idea 2 is ready." (null: say nothing). started: he has begun
   // it, so only a lesson being prepared again (Learn it again) is worth a word.
+  // 'soon' (V.soonState): a ready-made course's lesson not built yet.
   V.lessonNote = function (state, n, started, cls) {
+    if (state === 'soon') return U.h('p', { class: 'v-lesson-note is-soon ' + (cls || ''), role: 'status' }, 'Idea ' + n + ' is coming soon.');
     if (state === 'preparing') return U.h('p', { class: 'v-lesson-note is-preparing ' + (cls || ''), role: 'status' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Idea ' + n + ' is being prepared…');
     if (state === 'ready' && !started) return U.h('p', { class: 'v-lesson-note is-ready ' + (cls || ''), role: 'status' }, U.icon('tick'), 'Idea ' + n + ' is ready.');
     return null;
   };
+  // A ready-made course (topic.readyMade) is built in Claude Code, never here, so its lesson that
+  // is not ready is "coming soon", never "being prepared": state 'soon' once the doc has been
+  // read (null before), else the lesson state as it is.
+  V.soonState = function (topic, state) { return topic && topic.readyMade && state && state !== 'ready' ? 'soon' : state; };
   V.isDone = function (progress, iid) { var s = progress && progress.ideas && progress.ideas[iid]; return !!(s && s.stage === 'done'); };
   // How Dan learns a topic (topic.mode): 'study' (teach and test: the default, and what a topic
   // without the field means) or 'read' (just teach: reading and the interactive, no questions and
@@ -710,8 +716,10 @@
     }
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
-      topics = list || [];
-      if (U.art) { U.art.want(topics); paintInvite(); }
+      // Ready-made courses (topic.readyMade) live in their shelf's folder (76-shelves.js), not
+      // here: he resumes them from there, so they are left out of his list and Continue.
+      topics = (list || []).filter(function (t) { return t && !t.readyMade; });
+      if (U.art) { U.art.want(list || []); paintInvite(); }
       U.clear(liveBox);   // the watch is live again (a parked one answers by itself)
       progSig = {};
       if (firstTime) { loadProgress(progressP); return; }

@@ -2,7 +2,9 @@
 // Browser test for ready-made courses (76-shelves.js): the Library opens on two choices, Dossiers
 // and Ready-made courses; Ready-made courses lists each shelf (Maths), the shelf
 // shows its folders, a folder lists its courses in order, built ones open their topic, the rest
-// say they are not built yet. No shelves: no section. Screenshots: tests/out/shelves/.
+// say they are not built yet. No shelves: no section. A built course (topic.readyMade) stays out
+// of Learn's list and Continue, and its row says where Dan is ("Lesson 3 of 6"). Screenshots:
+// tests/out/shelves/.
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -33,11 +35,18 @@ async function open(db, width = 360) {
 }
 const base = {};
 for (const tid of Object.keys(SEED.topics)) base['topics/' + tid] = SEED.topics[tid];
+// Fractions is a ready-made course built as the tides topic: 2 of its 6 ideas done.
+const UID = 'u_stubuser0000000000000000';
+const MADE = { ...base, 'topics/how-tides-work-ab12': { ...SEED.topics['how-tides-work-ab12'], readyMade: { shelf: 'maths', course: 'fractions' } } };
+for (const [tid, v] of Object.entries(SEED.progress)) MADE[`data/users/${UID}/profile/progress/${tid}`] = v;
 
-let app = await open({ ...base, 'shelves/maths': SHELF });
+let app = await open({ ...MADE, 'shelves/maths': SHELF });
 const { page } = app;
 await page.waitForSelector('.tgrid .tcard');
 ok((await page.locator('.shelf-card').count()) === 0, 'Learn has no ready-made courses (they live in the Library)');
+await page.waitForTimeout(600);
+const learnLinks = await page.locator('.learn a[href^="#/t/"]').evaluateAll((as) => as.map((a) => a.getAttribute('href')));
+ok(learnLinks.length > 0 && !learnLinks.some((h) => h.includes('how-tides-work-ab12')), 'a built ready-made course is not in Learn\'s topics or Continue (' + learnLinks.join(' ') + ')');
 await page.evaluate(() => U.go('#/book'));
 await page.waitForSelector('.lib-choice');
 ok((await page.locator('.lib-choice').count()) === 2, 'the Library opens on two choices');
@@ -60,6 +69,8 @@ await page.waitForSelector('.shelf-courses');
 ok((await page.locator('.shelf-page h1').textContent()) === 'Foundational maths', 'the folder page');
 ok((await page.locator('.shelf-courses li').count()) === 2, 'its courses');
 ok((await page.locator('.shelf-courses li.is-built a').getAttribute('href')) === '#/t/how-tides-work-ab12', 'a built course opens its topic');
+await page.waitForFunction(() => /Lesson 3 of 6/.test((document.querySelector('.shelf-courses li.is-built .shelf-ready') || {}).textContent || ''), null, { timeout: 5000 }).catch(() => {});
+ok((await page.locator('.shelf-courses li.is-built .shelf-ready').textContent()) === 'Lesson 3 of 6', 'a started course says where he is (' + (await page.locator('.shelf-courses li.is-built .shelf-ready').textContent()) + ')');
 ok(/Not built yet/.test(await page.locator('.shelf-courses li.is-waiting').innerText()) && (await page.locator('.shelf-courses li.is-waiting a').count()) === 0, 'one not built yet says so and is not a link');
 await page.screenshot({ path: join(SHOTS, 'folder-360.png'), fullPage: true });
 ok((await page.locator('.backlink').getAttribute('href')) === '#/shelf/maths', 'back to Maths');

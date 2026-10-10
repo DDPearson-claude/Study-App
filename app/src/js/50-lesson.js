@@ -272,8 +272,12 @@
       // again since, perhaps on another device) and Today's flag on its own open the lesson as it is.
       var again = requestOpen() || (!!params.again && r[3] !== false);
       if (params.again) try { history.replaceState(null, '', '#/t/' + encodeURIComponent(tid) + '/' + encodeURIComponent(iid)); } catch (e) { /* fine */ }
-      if (again && U.gen && typeof U.gen.relearn === 'function') return startRelearn({ doc: doc });
+      // A ready-made course (topic.readyMade) is built in Claude Code: never rewritten or written
+      // here. Its lesson not built yet says it is coming soon, and opens once it is whole.
+      var made = !!topic.readyMade;
+      if (again && !made && U.gen && typeof U.gen.relearn === 'function') return startRelearn({ doc: doc });
       if (whole(doc)) show(doc);
+      else if (made) comingSoon();
       else prepare(doc);
     }).catch(function (e) { loaded = true; if (alive()) fatal(e); });
 
@@ -385,6 +389,18 @@
       paintBar();
       watchLesson();
       ensure(doc);
+    }
+    function comingSoon() {
+      var box = U.h('div', { class: 'lsn-soon', role: 'status' },
+        U.h('p', { class: 'lsn-soon-h' }, 'Coming soon'),
+        U.h('p', { class: 'muted' }, 'This lesson is still being built. It will appear here when it\'s ready.'),
+        U.h('p', null, U.h('a', { class: 'linkish', href: '#/t/' + encodeURIComponent(tid), on: { click: function () { toTopic(tid); } } }, 'Back to the topic')));
+      prepSlot.appendChild(box);
+      st.stops.push(U.store.lesson.watch(tid, iid, function (d) {
+        if (!alive() || st.ready || !whole(d)) return;
+        box.remove();
+        show(d);
+      }, function () { /* the note stays */ }));
     }
     // The lesson may be finished elsewhere (another device, or a job this page joined): open it
     // the moment the doc is whole. While relearning, the old (ready) doc is not the new lesson:
@@ -549,7 +565,7 @@
     // Once this lesson is whole, the next open idea is prepared whole in the background.
     function prefetchNext() {
       var nx = nextIdea();
-      if (!nx || !U.gen || typeof U.gen.ensureLesson !== 'function') return;
+      if (!nx || (st.topic && st.topic.readyMade) || !U.gen || typeof U.gen.ensureLesson !== 'function') return;
       U.store.lesson.get(tid, nx.id).then(function (d) {
         if (whole(d)) return null;
         return U.gen.ensureLesson(tid, nx.id, { background: true });
@@ -1593,12 +1609,15 @@
       function paint() {
         if (!read || !alive()) return;
         var s = U.store.lesson.state(doc, liveOf(tid, nx.id));
-        var now = s === 'ready' || s === 'preparing' ? s : null;
+        // A ready-made course's next lesson not built yet: coming soon (never prepared here).
+        if (st.topic && st.topic.readyMade && s !== 'ready') s = 'soon';
+        var now = s === 'ready' || s === 'preparing' || s === 'soon' ? s : null;
         if (now === shown) return;
         shown = now;
         U.clear(el);
         if (now === 'preparing') U.append(el, [U.h('span', { class: 'lsn-prep-mark', 'aria-hidden': 'true' }, U.h('i')), n + ' is being prepared…']);
         else if (now === 'ready') U.append(el, [U.icon('tick'), n + ' is ready.']);
+        else if (now === 'soon') el.textContent = n + ' is coming soon.';
       }
       var offs = [
         U.store.lesson.watch(tid, nx.id, function (d) { doc = d; read = true; paint(); }, function () { /* say nothing */ }),
@@ -1642,7 +1661,7 @@
     }
     function flagSheet() {
       if (!st.lesson) return;
-      var canRebuild = !!(U.gen && typeof U.gen.relearn === 'function') && !st.gone;
+      var canRebuild = !!(U.gen && typeof U.gen.relearn === 'function') && !st.gone && !(st.topic && st.topic.readyMade);
       var ta = U.h('textarea', { class: 'textarea', rows: 3, maxlength: 1000, 'aria-label': 'What looks wrong', placeholder: 'For example: the slider makes the swing faster, but the text says slower' });
       var problem = U.h('div', { class: 'lsn-flag-err', role: 'alert' });
       var saving = false, open = true;

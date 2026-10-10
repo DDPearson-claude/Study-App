@@ -14,10 +14,14 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (f) => readFileSync(join(root, 'app', 'src', 'js', f), 'utf8');
 
 // rootPx: the root font size the Text size setting gives (10-base.css); fs: --fs as written.
-function boot({ rootPx, fs, scheme = 'light' }) {
+// attrs: the root's data-mu-theme / data-theme; osDark: what prefers-color-scheme: dark answers;
+// scheme: the computed color-scheme (which the Claude app's webview reports from the phone).
+function boot({ rootPx, fs, scheme = 'light', attrs = {}, osDark = false }) {
   const vars = { '--fs': fs, 'color-scheme': scheme };
   const style = { fontSize: rootPx + 'px', getPropertyValue: (n) => (n in vars ? vars[n] : '') };
-  const ctx = vm.createContext({ console, setTimeout, clearTimeout, document: { documentElement: {} }, getComputedStyle: () => style });
+  const documentElement = { getAttribute: (n) => (n in attrs ? attrs[n] : null) };
+  const matchMedia = (q) => ({ matches: /prefers-color-scheme:\s*dark/.test(q) ? osDark : false });
+  const ctx = vm.createContext({ console, setTimeout, clearTimeout, matchMedia, document: { documentElement }, getComputedStyle: () => style });
   vm.runInContext('var window = globalThis;', ctx);
   for (const f of ['00-core.js', '32-sandbox.js']) vm.runInContext(src(f), ctx, { filename: f });
   return ctx.U;
@@ -32,7 +36,21 @@ test('theme().size follows Text size: 16, 18 and 20 px at M, L and XL', () => {
 test('theme().size reads --fs in px too, and falls back to the default when it is missing', () => {
   assert.equal(boot({ rootPx: 16, fs: ' 22px' }).sandbox.theme().size, 20);
   assert.equal(boot({ rootPx: 20, fs: '' }).sandbox.theme().size, 16);
-  assert.equal(boot({ rootPx: 20, fs: '1.125rem', scheme: 'dark' }).sandbox.theme().dark, true);
+  assert.equal(boot({ rootPx: 20, fs: '1.125rem', scheme: 'dark', attrs: { 'data-mu-theme': 'dark' } }).sandbox.theme().dark, true);
+});
+
+test('theme().dark follows the app\'s own theme, not the computed color-scheme or the OS', () => {
+  const dark = (attrs, more = {}) => boot({ rootPx: 16, fs: '1.125rem', attrs, ...more }).sandbox.theme().dark;
+  // Dan's phone: the Claude app's webview says dark everywhere, the app is Light -> light highlighter.
+  assert.equal(dark({ 'data-mu-theme': 'light' }, { scheme: 'dark', osDark: true }), false);
+  assert.equal(dark({ 'data-mu-theme': 'light', 'data-theme': 'dark' }, { scheme: 'dark', osDark: true }), false);
+  assert.equal(dark({}, { scheme: 'dark', osDark: true }), false);
+  assert.equal(dark({ 'data-mu-theme': 'dark' }), true);
+  // Match system: the host page's data-theme wins, else the OS setting (as 00-tokens.css).
+  assert.equal(dark({ 'data-mu-theme': 'system', 'data-theme': 'dark' }), true);
+  assert.equal(dark({ 'data-mu-theme': 'system', 'data-theme': 'light' }, { osDark: true }), false);
+  assert.equal(dark({ 'data-mu-theme': 'system' }, { osDark: true }), true);
+  assert.equal(dark({ 'data-mu-theme': 'system' }, { scheme: 'dark' }), false);
 });
 
 // merge() (audit 3, #43): a width whose page never ran (it timed out at 340 px on a slow phone)

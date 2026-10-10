@@ -1139,6 +1139,24 @@ test('relearn writes a new lesson that avoids the old interactive', async () => 
   assert.equal(avoidSeen, L_JET1.interactive.brief);
 });
 
+test('a ready-made course is never written in the page: no lesson, prefetch, rewrite or research', async () => {
+  const app = await boot({ handlers: handlers(), research: true });
+  const { U } = app;
+  const topic = { ...PLAN_JET, research: { status: 'none' }, readyMade: { shelf: 'maths', course: 'fractions' } };
+  await app.seed('topics/t1', topic);
+  await app.seed('topics/t1/lessons/i2', { status: 'ready', updatedAt: new Date().toISOString(), lesson: unsourced(L_JET2) });
+  const soon = (p) => p.then(() => 'resolved', (e) => e && e.code);
+  assert.equal(await soon(U.gen.ensureLesson('t1', 'i1')), 'coming_soon');
+  assert.equal(await soon(U.gen.ensureLesson('t1', 'i1', { background: true })), 'coming_soon');
+  assert.equal(await soon(U.gen.relearn('t1', 'i2', { feedback: 'Try again' })), 'coming_soon');
+  assert.equal((await U.gen.ensureLesson('t1', 'i2')).status, 'ready', 'a lesson built in Claude Code opens as usual');
+  assert.equal(await U.gen.research('t1'), null);
+  assert.equal(app.calls.length, 0, 'no model call at all');
+  assert.equal(await app.get('topics/t1/lessons/i1'), null, 'no lesson doc written');
+  assert.equal((await app.get('topics/t1')).research.status, 'none', 'research left as it was');
+  assert.equal(U.gen.status('t1').lessons.i1, undefined, 'not reported as failed');
+});
+
 test('known ideas from other topics reach the planner and the lesson writer', async () => {
   const app = await boot({ handlers: handlers() });
   const { U } = app;

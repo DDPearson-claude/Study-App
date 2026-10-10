@@ -1316,6 +1316,49 @@ async function fullApp() {
   await app.close();
 }
 
+// ---------- scenario: a ready-made course's lesson not built yet ----------
+// topic.readyMade: its lessons are built in Claude Code, never in the page. With no lesson doc the
+// real app shows "Coming soon" with a way back, asks the model for nothing (no write-lesson, no
+// research) and writes no lesson doc; the topic page says "Coming soon", never "being prepared".
+async function readyMade() {
+  current = 'ready-made 360-light';
+  console.log('\n' + current);
+  const FULL = fullBuild();
+  if (!FULL) return;
+  const tasks = [];
+  const app = await openApp({
+    width: 360, height: 707, file: FULL,
+    config: { db: { 'topics/pendulums': { ...TOPIC, readyMade: { shelf: 'maths', course: 'pendulums' } } } },
+    sample: (input) => { tasks.push(taskOf(input)); return new Promise(() => {}); },
+  });
+  const { page } = app;
+  try {
+    await page.goto(app.url('#/t/pendulums/i1'));
+    await page.locator('.lsn-soon').waitFor({ timeout: 15000 });
+    const text = await page.locator('.lsn-soon').innerText();
+    ok(/Coming soon/.test(text) && /still being built\. It will appear here when it's ready\./.test(text), 'the lesson says it is coming soon');
+    ok(await page.locator('.lsn-soon a').getAttribute('href') === '#/t/pendulums', 'with a link back to the topic');
+    ok(await page.locator('.lsn-prep').count() === 0, 'no preparation card');
+    await shot(app, 'ready-made-lesson');
+    await page.waitForTimeout(1500);
+    await page.goto(app.url('#/t/pendulums'));
+    await page.locator('.pnode.is-current').waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => /Coming soon/.test((document.querySelector('.pnode.is-current .pnode-prep') || {}).textContent || ''), null, { timeout: 5000 }).catch(() => {});
+    ok(/Coming soon/.test(await page.locator('.pnode.is-current').innerText()), 'the topic\'s path says Coming soon for it');
+    ok(!/being prepared/i.test(await page.locator('.tp-path-sec').innerText()) && !/being prepared/i.test(await page.locator('.tp-head').innerText()), 'never "being prepared"');
+    await page.waitForTimeout(800);
+    const dump = await app.stub();
+    ok(!dump[LESSON('i1')], 'no lesson doc written');
+    ok(!tasks.includes('write-lesson') && !tasks.includes('research'), 'no write-lesson or research call (' + (tasks.join(', ') || 'none') + ')');
+    await shot(app, 'ready-made-topic');
+  } catch (e) {
+    ok(false, 'threw: ' + (e.message || e).split('\n')[0]);
+    await shot(app, 'ready-made-error').catch(() => {});
+  }
+  ok(app.errors.length === 0, 'no page errors' + (app.errors.length ? ': ' + app.errors.join(' | ') : ''));
+  await app.close();
+}
+
 // ---------- scenario: the real generator gives up on a lesson that never passes its checks ----------
 // Every write-lesson reply breaks the lesson's structure (one check, not 2-3). The real U.gen
 // repairs once, writes it again from scratch (with its own repair), then fails. The prep box
@@ -2554,6 +2597,7 @@ const scenarios = [
   ['relearn-fails', relearnFails],
   ['leave-while-grading', leaveWhileGrading],
   ['full-app', fullApp],
+  ['ready-made', readyMade],
   ['failed-lesson-360-light', () => failedLesson(360, 707, false)],
   ['failed-lesson-360-dark', () => failedLesson(360, 707, true)],
   ['failed-lesson-390-light', () => failedLesson(390, 844, false)],

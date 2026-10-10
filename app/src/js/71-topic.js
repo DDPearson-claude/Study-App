@@ -351,7 +351,12 @@
       var cal = progress.calibration || {};
       var r = topic.research || {};
       lw.watch(tid, s.current && !s.allDone ? s.current.id : null);
-      var next = lw.state(), busy = ideas.map(function (i) { return V.lessonBusy(tid, i.id) || (s.current && i.id === s.current.id && next === 'preparing'); });
+      // A ready-made course's lessons are never prepared here: the next one not built yet is
+      // "Coming soon" (V.soonState).
+      var next = V.soonState(topic, lw.state()), busy = ideas.map(function (i) {
+        if (s.current && i.id === s.current.id && next === 'soon') return 'soon';
+        return !topic.readyMade && (V.lessonBusy(tid, i.id) || (s.current && i.id === s.current.id && next === 'preparing'));
+      });
       // The hook is a question in newer plans; older ones may have a statement.
       var hookIs = !topic.hook ? '' : /\?["'”’)]?\s*$/.test(U.plain(topic.hook).trim()) ? 'question' : 'line';
       return [
@@ -396,8 +401,10 @@
       var note = cta ? V.lessonNote(next, s.index + 1, s.started, 'tp-next-note') : null;
       // On a laptop the cover sits beside the title (above the rail), not across the page, so
       // the path starts on the first screen.
+      // A ready-made course is reached from its shelf (Learn leaves it out), so back goes there.
+      var shelfId = topic.readyMade && topic.readyMade.shelf;
       return U.h('header', { class: 'tp-head' },
-        V.back('#/', 'All topics'),
+        U.validId(shelfId) ? V.back('#/shelf/' + encodeURIComponent(shelfId), 'Ready-made courses') : V.back('#/', 'All topics'),
         U.h('div', { class: 'tp-split' },
           U.h('div', { class: 'tp-banner' }, V.cover(topic)),
           U.h('div', { class: 'tp-split-main' },
@@ -431,7 +438,8 @@
       schedule();
     }
 
-    // preparing: its lesson is being written or built (it opens on the preparation card).
+    // preparing: its lesson is being written or built (it opens on the preparation card); 'soon':
+    // a ready-made course's lesson not built yet.
     function pathNode(idea, i, ideas, s, preparing) {
       var st = (progress.ideas && progress.ideas[idea.id]) || {};
       var done = st.stage === 'done';
@@ -456,7 +464,8 @@
             U.h('span', { class: 'pnode-kicker' }, kicker),
             U.h('span', { class: 'pnode-title' }, idea.title),
             idea.oneLine ? U.h('span', { class: 'pnode-line' }, U.plain(idea.oneLine)) : null,
-            preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
+            preparing === 'soon' ? U.h('span', { class: 'pnode-prep is-soon' }, 'Coming soon')
+              : preparing ? U.h('span', { class: 'pnode-prep' }, U.h('span', { class: 'v-dot', 'aria-hidden': 'true' }), 'Being prepared…') : null,
             mayKnow(idea, st) && !done ? U.h('span', { class: 'pnode-known' }, 'You may already know this') : null,
             deps.length ? U.h('span', { class: 'pnode-deps' }, 'Builds on ' + deps.map(function (t) { return '“' + t + '”'; }).join(' and ')) : null,
             current ? U.h('span', { class: 'btn small pnode-btn' }, s.started ? 'Continue' : 'Start this idea', U.icon('arrow')) : null)));
@@ -684,7 +693,8 @@
         var text = none ? 'The source check ran but could not confirm a single source, so these lessons are not source-checked.'
           : r.status === 'failed' || stale ? 'The source check did not finish, so these lessons are not source-checked yet.' : 'Not source-checked yet.';
         if (avail === false) text += ' Connect Parallel Search in Claude\'s settings to add sources.';
-        var again = (r.status === 'failed' || stale || none) && avail !== false && U.gen && typeof U.gen.research === 'function'
+        // Never for a ready-made course: its research is done in Claude Code, not here.
+        var again = (r.status === 'failed' || stale || none) && avail !== false && !topic.readyMade && U.gen && typeof U.gen.research === 'function'
           ? U.h('button', { class: 'linkish lib-retry', type: 'button', 'data-key': 'research-again', on: { click: researchAgain } }, 'Check the sources again') : null;
         status = U.h('div', { class: 'lib-status is-none' }, U.h('p', null, text), again);
       }

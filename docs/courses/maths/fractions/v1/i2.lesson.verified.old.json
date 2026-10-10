@@ -1,0 +1,168 @@
+{
+  "iid": "i2",
+  "title": "Four pieces are not four quarters",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the four copies under the bar miss the 1000 mm mark and the label stop saying 1/4, while the bar still shows four pieces, when you slide the first piece off 250 mm.",
+    "title": "Cut a metre into four",
+    "controls": [
+      {
+        "id": "firstPiece",
+        "label": "Length of the first piece",
+        "min": 100,
+        "max": 400,
+        "step": 50,
+        "value": 250,
+        "unit": "mm"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "fitFirst",
+        "label": "Pieces this size in a metre",
+        "unit": "",
+        "decimals": 2
+      },
+      {
+        "id": "otherPiece",
+        "label": "Each of the other three pieces",
+        "unit": "mm",
+        "decimals": 0
+      },
+      {
+        "id": "fitOthers",
+        "label": "Pieces their size in a metre",
+        "unit": "",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "A metre, 1000 mm, cut into four pieces. The slider sets the first piece; the other three share the rest. Below, four copies of it test its name. Pieces that fit = 1000 ÷ length.",
+    "ignores": "The other three stay equal only so one slider works; real cuts can be any lengths.",
+    "numbers": [
+      {
+        "label": "Length of the whole, one metre of cable, mm (chosen)",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pieces the metre is cut into (chosen)",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Copies in the test row, four quarters to a whole",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "Length of the first piece at the start, mm",
+        "value": 250,
+        "kind": "control"
+      },
+      {
+        "label": "Pieces this size in a metre at the start, 1000 ÷ 250",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Other three pieces at the start, mm, (1000 − 250) ÷ 3",
+        "value": 250,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces their size in a metre at the start",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Where the four copies end at the start, mm, 4 × 250",
+        "value": 1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces this size in a metre at 200 mm, label 1/5",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Where the four copies end at 200 mm, mm, 4 × 200",
+        "value": 800,
+        "kind": "computed"
+      },
+      {
+        "label": "Other three pieces at 200 mm, mm (rounded)",
+        "value": 267,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces their size in a metre at 200 mm, 3000 ÷ 800",
+        "value": 3.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces this size in a metre at 100 mm, label 1/10",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Other three pieces at 100 mm, mm",
+        "value": 300,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces their size in a metre at 100 mm (rounded)",
+        "value": 3.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces this size in a metre at 400 mm",
+        "value": 2.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Where the four copies end at 400 mm, mm, 4 × 400",
+        "value": 1600,
+        "kind": "computed"
+      },
+      {
+        "label": "Other three pieces at 400 mm, mm",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces their size in a metre at 400 mm, honest fifths",
+        "value": 5,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Four pieces are only quarters if they are equal.[^1] A piece is a quarter when four of its size make the whole:[^2] at 250 mm, 1000 ÷ 250 = 4.\n\nSlide to 200 mm. Still one of four pieces, but 1000 ÷ 200 = 5: a fifth. Four copies stop at 800 mm.\n\nThe trap: cut a metre 100, 300, 300, 300 and call two pieces half. You hold 400 or 600 mm, not 500.\n\n**Count how many of the piece fit the whole, not the pieces you see.**"
+  },
+  "analogy": {
+    "text": "Three phases don't make each a third of the load; equal loads do. With 30 kW in total, a 20 kW phase is no third.",
+    "breaks": "A board's total load changes through the day; a cut metre of cable stays put."
+  },
+  "practice": {
+    "text": "**Rule of thumb:** whole ÷ piece. Fits 5 times? It is 1/5.\n\n**Worked example:** a 50 m drum cut into 20, 10, 10 and 10 m runs. 50 ÷ 10 = 5, so each 10 m run is 1/5. No quarters.\n\n**Common mistakes**\n- Reading the bottom as pieces you can see.\n- Judging equal by eye, not measuring."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "What are fractions? - KS1 Maths resources for Year 2 - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zq2yfrd",
+      "quote": "Fractions are always divided into equal parts."
+    },
+    {
+      "n": 2,
+      "title": "Fraction",
+      "url": "https://en.wikipedia.org/wiki/Fraction",
+      "quote": "the denominator indicates how many of those parts make up a unit or a whole."
+    }
+  ]
+}
