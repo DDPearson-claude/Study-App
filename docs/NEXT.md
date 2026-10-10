@@ -85,3 +85,9 @@ research topic and i1-i8 version 2), lesson i1 (version 7) and i2 (version 3); l
 deleted, so the app shows them as Coming soon and never writes them itself (readyMade). Build each
 of i3-i8 with one builder agent modelled on i1/i2, run `assemble.mjs docs --partial`, then batch-set
 the new lesson (no if_version: it is a create) plus anything else changed, pinned to the versions above.
+
+### Release (10 Oct, night): D4, Claude's notes, soft motion, Fractions lessons 1-3
+Published as version 17 of the live artifact. Live db: lessons i1 (version 8), i2 (version 4) and
+i3 (version 1); the topic and research docs are unchanged (topic version 2, research version 2).
+Lessons i4-i8 are still to build (Coming soon). The field-guide dossier (design 3) is being built in
+the worktree /home/user/wt-dossier on branch dossier-field-guide and is not in this release.
