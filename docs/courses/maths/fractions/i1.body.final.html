@@ -1,211 +1,329 @@
-<!-- kind: quantity -->
+<!-- kind: concept -->
 <style>
-  .bars .whole { fill: var(--k-panel); }
-  .bars .run { fill: var(--k-accent2); transition: width .2s ease; }
-  .bars .cut { stroke: var(--k-strong); stroke-width: 1.5; }
-  .bars .cut.in { stroke: var(--k-bg); stroke-width: 2; }
-  .bars .split { stroke: var(--k-strong); stroke-width: 3.5; }
-  .bars .edge { fill: none; stroke: var(--k-strong); stroke-width: 2; }
-  .bars .keyt { font: 13px var(--k-font); fill: var(--k-ink); }
-  .bars .keysw { fill: var(--k-accent2); }
-  .bars .keysw.empty { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
-  .bars .wlab { font: 600 13px var(--k-font); fill: var(--k-accent); }
-  .bars .wlab.full { fill: var(--k-accent2); }
-  .bars .axis { stroke: var(--k-ink); stroke-width: 2; }
-  .bars .tick { stroke: var(--k-ink); stroke-width: 1.5; }
-  .bars .tick.big { stroke-width: 2; }
-  .bars .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
-  .bars .guide { stroke: var(--k-accent2); stroke-width: 2; }
-  .bars .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
-  .bars .nm { font: 800 17px var(--k-font); fill: var(--k-accent2); }
-  .bars .fr { font: 700 14px var(--k-font); fill: var(--k-accent2); }
-  .bars .fbar { stroke: var(--k-accent2); stroke-width: 1.5; }
-  .bars .hit { fill: var(--k-bg); fill-opacity: 0; }
-  .bars .tap { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; font-weight: 700; margin: 0 .1em; font-size: .9em; }
+  .fr .n { border-bottom: 2px solid currentColor; padding: 0 .18em; }
+  .fr .d { padding: 0 .18em; }
+  .scene { display: block; width: 100%; }
+  .scene .pc { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; cursor: pointer; transition: fill .15s ease; }
+  .scene .pc.on { fill: var(--k-accent2); }
+  .scene .pc.locked { cursor: default; }
+  .scene .pc:focus { outline: none; }
+  .scene .pc:focus-visible, .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 4; }
+  .scene .edge { fill: none; stroke: var(--k-strong); stroke-width: 2.5; }
+  .scene .blank { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2.5; }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .num { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .fbar { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.locked { cursor: default; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .hop { fill: none; stroke: var(--k-accent); stroke-width: 2; }
+  .scene .mlab { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .mbar { stroke: var(--k-accent2); stroke-width: 1.5; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
 </style>
 
-<p class="lead">Two bars, each one whole cut into 4 equal pieces, over a line from 0 to 2: the counted pieces shade in as one run, and the mark on the line sits under the run's end.</p>
+<p class="lead">Shapes and a number line, one small puzzle at a time.</p>
 
-<svg class="bars" id="scene" viewBox="0 0 340 172" width="100%" role="img" aria-label="">
-  <g id="key">
-    <rect class="keysw" x="20" y="3" width="12" height="12" rx="2"/>
-    <text class="keyt" x="36" y="13">counted, 1/4 of a bar each</text>
-    <rect class="keysw empty" x="208" y="3" width="12" height="12" rx="2"/>
-    <text class="keyt" x="224" y="13">not counted</text>
-  </g>
-  <text class="wlab" id="wlab0" x="95" y="33" text-anchor="middle"></text>
-  <text class="wlab" id="wlab1" x="245" y="33" text-anchor="middle"></text>
-  <rect class="whole" x="20" y="38" width="300" height="44"/>
-  <rect class="run" id="run" x="20" y="38" width="0" height="44"/>
-  <g id="cuts"></g>
-  <line class="split" x1="170" y1="38" x2="170" y2="82"/>
-  <rect class="edge" x="20" y="38" width="150" height="44"/>
-  <rect class="edge" x="170" y="38" width="150" height="44"/>
-  <g id="taps"></g>
-  <line class="axis" x1="12" y1="104" x2="328" y2="104"/>
-  <g id="ticks"></g>
-  <g id="mark">
-    <rect class="hit" x="-24" y="86" width="48" height="86"/>
-    <line class="guide" x1="0" y1="82" x2="0" y2="104"/>
-    <circle class="dot" cx="0" cy="104" r="6"/>
-    <g id="name"></g>
-  </g>
-</svg>
-<div class="k-controls" id="controls"></div>
-<p class="say" id="say"></p>
-<div class="k-readouts" id="outs"></div>
-<p class="caption">Bottom names the piece, top counts the pieces from zero; where the count ends is the number.</p>
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <p class="k-label count" id="count"></p>
+  <p class="task" id="task"></p>
+  <svg class="scene" id="scene" viewBox="0 0 340 80" width="100%" role="img" aria-label=""></svg>
+  <div class="row picks" id="picks"></div>
+  <div class="row acts" id="acts"></div>
+  <p class="fb" id="fb" aria-live="polite"></p>
+  <div class="note why" id="why" hidden></div>
+  <div class="row nav" id="nav"></div>
+  <div class="panel done" id="done" hidden>
+    <p>All six puzzles done.</p>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+</div>
+
+<p class="caption">Every bar and square here is one whole.</p>
 
 <script>
-  // Four quarters make one whole: that is what "quarter" means, and what the 4 under the line says.
-  const PER_BAR = 4;
-  const SOURCE = 'https://thecorestandards.org/Math/Content/NF';   // [5]: the interval's endpoint locates a/b
-  // The drawing: the 0 end at x = 20, one bar = 150 units, so one quarter piece = 37.5 units.
-  const X0 = 20, BAR = 150, Q = BAR / PER_BAR;
-  const xAt = (n) => X0 + n * Q;              // the right edge of the n-th counted piece
-  const lineX = (v) => X0 + v * BAR;          // where the number v sits on the line
-  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+  // ---------- the six puzzles ----------
+  const STEPS = [
+    { name: 'Colour three quarters', kind: 'bar', bars: 1, per: 4, want: 3,
+      task: 'Colour 3/4 of the bar.',
+      why: 'The bottom number, 4, cuts the bar into four equal pieces. The top number, 3, says to colour three of them.',
+      hint: 'Not quite. Count the shaded pieces.', empty: 'Tap a piece to colour it.' },
+    { name: 'Colour half the square', kind: 'square',
+      task: 'Colour 1/2 of the square.',
+      why: 'Half means half the space, not half the pieces. The big piece is half on its own, and so are the two small ones together.',
+      hint: 'Not quite. Compare the space, not the number of pieces.', empty: 'Tap a piece to colour it.' },
+    { name: 'Find 3/4 on the line', kind: 'line', wholes: 1, want: 3,
+      task: 'Tap where 3/4 goes on the line.',
+      why: 'Count three quarter-steps from 0. Where you stop is the number 3/4.',
+      hint: 'Not quite. Count the quarter-steps from 0.', empty: 'Tap the line to place a mark.' },
+    { name: 'Which is bigger?', kind: 'compare',
+      task: 'Which is bigger: 5/8 or 3/4?',
+      why: 'Bigger numbers don\'t make a bigger fraction. Five eighths is a little less than three quarters.',
+      hint: 'Not quite. Compare the space each one fills.', empty: 'Tap one of the two answers.' },
+    { name: 'Colour seven quarters', kind: 'bar', bars: 2, per: 4, want: 7,
+      task: 'Colour 7/4.',
+      why: 'Four quarters fill one whole bar. Three more go into the next, so 7/4 is one whole and three quarters, written 1 3/4.',
+      hint: 'Not quite. Count the shaded pieces.', empty: 'Tap a piece to colour it.' },
+    { name: 'Find 7/4 on the line', kind: 'line', wholes: 2, want: 7,
+      task: 'Tap where 7/4 goes on the line.',
+      why: 'Seven quarter-steps from 0 takes you past 1 and three steps more.',
+      hint: 'Not quite. Count the quarter-steps from 0.', empty: 'Tap the line to place a mark.' },
+  ];
+  const FINISH = 'The bottom number names the piece. The top number counts the pieces.';
+  // The square: a top half in one piece, and a bottom half cut into two equal quarters.
+  const SQUARE = [0.5, 0.25, 0.25];
+  // Drawing sizes, in viewBox units (340 wide): a line from 0 at x = 20 to its end at x = 320.
+  const L0 = 20, LW = 300;
+  const tickX = (wholes, k) => L0 + (k / (4 * wholes)) * LW;     // the k-th quarter tick on a 0..wholes line
 
-  const quarters = K.control({
-    id: 'quarters', label: 'Quarters counted from zero', hint: 'Or drag the mark, or tap a piece to count up to it',
-    min: 0, max: 8, step: 1, value: 3, fmt: (v) => plural(v, 'quarter'), into: '#controls',
-  });
-  K.stage('#scene', '#controls');
-  // Dan can move the mark itself along the line: the slider follows it.
-  K.drag('#mark', { control: 'quarters', toValue: (x) => Math.round((x - X0) / Q) });
-
-  K.readout({ id: 'position', label: 'Place on the line', decimals: 2, big: true, into: '#outs' });
-  K.readout({ id: 'wholeBars', label: 'Whole bars filled', decimals: 0, into: '#outs' });
-  K.readout({ id: 'quartersPast', label: 'Quarters past the whole bars', decimals: 0, fmt: (v) => plural(v, 'quarter'), into: '#outs' });
-
-  // The rule is plain counting: place = count ÷ 4; whole bars = complete fours; quarters past = what is left.
-  K.model((p) => {
-    const n = Math.round(p.quarters);
-    const whole = Math.floor(n / PER_BAR);
-    return { position: n / PER_BAR, wholeBars: whole, quartersPast: n - PER_BAR * whole };
-  });
-
-  // Drawn once: the cuts in the bars, a tap target on every piece, and the line's ticks (0, 1, 2 under the bar ends).
-  const cuts = document.getElementById('cuts'), cutEls = [];
-  for (let i = 1; i < 2 * PER_BAR; i++) {
-    if (i === PER_BAR) continue;   // the boundary between the bars is drawn heavier, in the markup
-    cutEls[i] = cuts.appendChild(K.svg('line', { class: 'cut', x1: xAt(i), y1: 38, x2: xAt(i), y2: 82 }));
+  // ---------- answers (pure, so the checks can test them) ----------
+  const count = (on) => on.filter(Boolean).length;
+  const area = (on) => on.reduce((s, v, i) => s + (v ? SQUARE[i] : 0), 0);
+  function blank(i) {
+    const d = STEPS[i];
+    const n = d.kind === 'bar' ? d.bars * d.per : d.kind === 'square' ? 3 : 0;
+    return { on: new Array(n).fill(false), mark: null, pick: null, res: null, why: false, shown: false };
   }
-  const taps = document.getElementById('taps');
-  for (let i = 0; i < 2 * PER_BAR; i++) {
-    taps.appendChild(K.svg('rect', { class: 'tap', x: xAt(i), y: 38, width: Q, height: 44, on: { click: () => { quarters.set(i + 1); K.reveal(); } } }));
+  function isEmpty(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'bar' || d.kind === 'square') return count(st.on) === 0;
+    if (d.kind === 'line') return st.mark == null;
+    return st.pick == null;
   }
-  const ticks = document.getElementById('ticks');
-  for (let i = 0; i <= 2 * PER_BAR; i++) {
-    const x = xAt(i), big = i % PER_BAR === 0;
-    ticks.appendChild(K.svg('line', { class: 'tick' + (big ? ' big' : ''), x1: x, y1: big ? 96 : 99, x2: x, y2: big ? 112 : 109 }));
-    if (big) ticks.appendChild(K.svg('text', { class: 'num', x: x, y: 128, 'text-anchor': 'middle' }, String(i / PER_BAR)));
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'bar') return count(st.on) === d.want;
+    if (d.kind === 'square') return K.near(area(st.on), 0.5, 1e-9);
+    if (d.kind === 'line') return st.mark === d.want;
+    return st.pick === 'b';     // 3/4
   }
 
-  // The place's name as plain text (for the checks): a fraction; a whole number where the count lands on one; past 1 a mixed number too.
-  function nameOf(n) {
-    const whole = Math.floor(n / PER_BAR), more = n - PER_BAR * whole;
-    if (more === 0) return n + '/' + PER_BAR + ' = ' + whole;
-    if (whole === 0) return n + '/' + PER_BAR;
-    return n + '/' + PER_BAR + ' = ' + whole + ' ' + more + '/' + PER_BAR;
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false;
+
+  // ---------- text with stacked fractions (built with K.el, never innerHTML) ----------
+  function frac(t, b) {
+    return K.el('span', { class: 'fr', role: 'img', 'aria-label': t + '/' + b },
+      K.el('span', { class: 'n', 'aria-hidden': 'true' }, t), K.el('span', { class: 'd', 'aria-hidden': 'true' }, b));
   }
-  // The same name typeset under the mark: each fraction stacked, top over bottom, so a mixed number's whole and fraction never run together.
-  const FW = 17, GAP = 5;
-  function stack(g, x, top, bottom) {
-    g.appendChild(K.svg('text', { class: 'fr', x: x + FW / 2, y: 146, 'text-anchor': 'middle' }, String(top)));
-    g.appendChild(K.svg('line', { class: 'fbar', x1: x + 1, y1: 150, x2: x + FW - 1, y2: 150 }));
-    g.appendChild(K.svg('text', { class: 'fr', x: x + FW / 2, y: 164, 'text-anchor': 'middle' }, String(bottom)));
-    return x + FW;
-  }
-  function typeset(n, mx) {
-    const g = document.getElementById('name');
-    g.textContent = '';
-    const whole = Math.floor(n / PER_BAR), more = n - PER_BAR * whole;
-    const eq = more === 0 || whole > 0;                 // "= whole" follows the fraction on a whole number, or past 1
-    const width = FW + (eq ? GAP + 24 : 0) + (eq && more > 0 ? GAP + FW : 0);
-    // Centred on the mark, but kept inside the drawing at either end.
-    let x = -width / 2;
-    x = Math.max(4 - mx, Math.min(336 - mx - width, x));
-    x = stack(g, x, n, PER_BAR);
-    if (eq) {
-      g.appendChild(K.svg('text', { class: 'nm', x: x + GAP, y: 157 }, '= ' + whole));
-      x += GAP + 24;
-      if (more > 0) stack(g, x + GAP, more, PER_BAR);
+  function write(el, text) {
+    el.textContent = '';
+    const re = /(\d+)\/(\d+)/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(frac(m[1], m[2]));
+      at = m.index + m[0].length;
     }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A stacked fraction drawn in the SVG, centred on x, its bar at y.
+  function svgFrac(g, x, y, t, b, cls, barCls) {
+    g.appendChild(K.svg('text', { class: cls, x: x, y: y - 5, 'text-anchor': 'middle' }, String(t)));
+    g.appendChild(K.svg('line', { class: barCls, x1: x - 9, y1: y, x2: x + 9, y2: y }));
+    g.appendChild(K.svg('text', { class: cls, x: x, y: y + 16, 'text-anchor': 'middle' }, String(b)));
   }
 
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Puzzle', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const acts = document.getElementById('acts'), nav = document.getElementById('nav'), picks = document.getElementById('picks');
+  const at = () => stepper.get();
+  const changed = () => { S[at()].res = null; };
+
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => { const st = S[at()]; st.why = !st.why; } });
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), st = S[i];
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (STEPS[i].kind === 'compare') st.shown = true;      // the bars appear once he has answered
+  } });
+  acts.insertBefore(checkBtn.el, whyBtn.el);
+  const pickA = K.button({ label: '5/8', secondary: true, into: '#picks', press: () => { if (S[3].res !== 'right') { S[3].pick = 'a'; changed(); } } });
+  const pickB = K.button({ label: '3/4', secondary: true, into: '#picks', press: () => { if (S[3].res !== 'right') { S[3].pick = 'b'; changed(); } } });
+  [[pickA, '5', '8'], [pickB, '3', '4']].forEach(([b, t, d]) => { b.el.textContent = ''; b.el.appendChild(frac(t, d)); });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    if (at() < STEPS.length - 1) stepper.set(at() + 1, true);
+    else finished = true;
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; stepper.set(0, true);
+  } });
+
+  // ---------- drawing ----------
   const svg = document.getElementById('scene');
-  function draw(p, o) {
-    const n = Math.round(p.quarters), mx = xAt(n), whole = o.wholeBars, more = o.quartersPast;
-    // The run of counted pieces from the left end; the cuts inside it show as slits.
-    document.getElementById('run').setAttribute('width', mx - X0);
-    cutEls.forEach((el, i) => { if (el) el.setAttribute('class', 'cut' + (i < n ? ' in' : '')); });
-    // Above each bar: what it is, and when its 4 pieces are all counted, what that makes.
-    [0, 1].forEach((k) => {
-      const full = whole > k, el = document.getElementById('wlab' + k);
-      el.textContent = full ? '4 quarters = 1 whole' : 'one whole';
-      el.setAttribute('class', 'wlab' + (full ? ' full' : ''));
-    });
-    // The mark, on the line under where the run ends, with the place's name beneath it.
-    document.getElementById('mark').setAttribute('transform', 'translate(' + mx + ' 0)');
-    typeset(n, mx);
-
-    let where;
-    if (n === 0) where = 'rests on 0';
-    else if (n < PER_BAR) where = 'sits short of 1';
-    else if (n === PER_BAR) where = 'sits on 1';
-    else if (n < 2 * PER_BAR) where = 'sits past 1';
-    else where = 'sits on 2';
-    svg.setAttribute('aria-label', 'Two bars, each one whole cut into four equal pieces, over a number line from 0 to 2. ' +
-      plural(n, 'piece') + ' counted from the left end are shaded as one run, and the mark on the line ' + where + ', under the run\'s end.');
-
-    const pos = K.fmt(o.position, { decimals: 2 });
-    let s;
-    if (n === 0) {
-      s = 'No quarters are counted, so no piece is shaded and the mark rests on 0: 0/4 is the same place as 0.';
-    } else if (n < PER_BAR) {
-      s = plural(n, 'quarter') + ' counted from the left end shade' + (n === 1 ? 's' : '') + ' ' + n + ' of the first bar\'s 4 pieces, so the mark sits at ' +
-        pos + ', short of 1: ' + n + '/4 is one number with one place on the line.';
-    } else if (n === PER_BAR) {
-      s = '4 quarters counted from the left end fill the first bar with none left over, so the mark lands on 1: 4/4 is the same place as the whole number 1.';
-    } else if (n < 2 * PER_BAR) {
-      s = n + ' quarters counted from the left end: 4 fill the first bar and ' + more + ' more shade' + (more === 1 ? 's' : '') + ' the second, so the mark sits at ' +
-        pos + ', past 1: ' + n + '/4 is one place, and as a mixed number it is 1 whole and ' + more + '/4.';
-    } else {
-      s = '8 quarters counted from the left end fill both bars, so the mark lands on 2: 8/4 is the same place as the whole number 2.';
+  function piece(attrs, i, st, locked) {
+    const r = K.svg('rect', Object.assign({ class: 'pc' + (st.on[i] ? ' on' : '') + (locked ? ' locked' : ''), tabindex: locked ? -1 : 0, role: 'button',
+      'aria-pressed': st.on[i] ? 'true' : 'false', 'aria-label': 'Piece ' + (i + 1) }, attrs));
+    if (!locked) {
+      const flip = () => { st.on[i] = !st.on[i]; changed(); K.reveal(); K.refresh(); };
+      r.addEventListener('click', flip);
+      r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
     }
-    document.getElementById('say').textContent = s;
+    return r;
   }
-  K.update(draw);
-
-  // Known answers, counted by hand.
-  K.check('3 quarters from zero: the mark at 0.75, no whole bar filled, 3 quarters past; of a bar called one metre (1000 mm) that run is 750 mm', () => {
-    const o = K.at({ quarters: 3 });
-    return K.near(o.position, 0.75, 1e-9) && o.wholeBars === 0 && o.quartersPast === 3 && K.near(o.position * 1000, 750, 1e-9) && nameOf(3) === '3/4';
-  });
-  K.check('4 quarters fill the first bar exactly: the mark on 1, 4/4 = 1, with no quarters past it', () => {
-    const o = K.at({ quarters: 4 });
-    return K.near(o.position, 1, 1e-9) && o.wholeBars === 1 && o.quartersPast === 0 && nameOf(4) === '4/4 = 1';
-  });
-  K.check('7 quarters fill one bar and 3 of the second: the mark at 1.75, 7/4 = 1 3/4', () => {
-    const o = K.at({ quarters: 7 });
-    return K.near(o.position, 1.75, 1e-9) && o.wholeBars === 1 && o.quartersPast === 3 && nameOf(7) === '7/4 = 1 3/4';
-  });
-  K.check('Each quarter added moves the mark the same 0.25 step, from 0 at no quarters to 2 at 8, and a drag to a cut counts the pieces up to it', () => {
-    for (let n = 0; n < 2 * PER_BAR; n++) {
-      if (!K.near(K.at({ quarters: n + 1 }).position - K.at({ quarters: n }).position, 0.25, 1e-9)) return false;
-      if (Math.round((xAt(n) - X0) / Q) !== n) return false;
+  function drawBars(d, st, locked) {
+    const H = 56, GAP = 18, W = LW / d.per;
+    svg.setAttribute('viewBox', '0 0 340 ' + (d.bars * H + (d.bars - 1) * GAP + 8));
+    for (let b = 0; b < d.bars; b++) {
+      const y = 4 + b * (H + GAP);
+      for (let k = 0; k < d.per; k++) svg.appendChild(piece({ x: L0 + k * W, y: y, width: W, height: H }, b * d.per + k, st, locked));
+      svg.appendChild(K.svg('rect', { class: 'edge', x: L0, y: y, width: LW, height: H }));
     }
-    return K.near(K.at({ quarters: 0 }).position, 0, 1e-9) && K.near(K.at({ quarters: 8 }).position, 2, 1e-9) && nameOf(0) === '0/4 = 0' && nameOf(8) === '8/4 = 2';
+    const n = count(st.on), total = d.bars * d.per;
+    return (d.bars === 1 ? 'A bar' : 'Two bars, one above the other, each') + ' cut into ' + d.per + ' equal pieces. ' + n + ' of the ' + total + ' pieces are coloured.';
+  }
+  function drawSquare(st, locked) {
+    svg.setAttribute('viewBox', '0 0 340 216');
+    const x = 70, y = 6, s = 204;
+    svg.appendChild(piece({ x: x, y: y, width: s, height: s / 2 }, 0, st, locked));
+    svg.appendChild(piece({ x: x, y: y + s / 2, width: s / 2, height: s / 2 }, 1, st, locked));
+    svg.appendChild(piece({ x: x + s / 2, y: y + s / 2, width: s / 2, height: s / 2 }, 2, st, locked));
+    svg.appendChild(K.svg('rect', { class: 'edge', x: x, y: y, width: s, height: s }));
+    return 'A square cut into one wide top piece and two small bottom pieces. ' + count(st.on) + ' of the 3 pieces are coloured.';
+  }
+  function drawLine(d, st, locked, right) {
+    svg.setAttribute('viewBox', '0 0 340 124');
+    const Y = 76, n = 4 * d.wholes, step = LW / n;
+    // Hops from 0 to the mark, once it is right: one arc per quarter-step.
+    if (right) {
+      for (let k = 0; k < st.mark; k++) {
+        const a = tickX(d.wholes, k), b = tickX(d.wholes, k + 1);
+        svg.appendChild(K.svg('path', { class: 'hop', d: 'M' + (a + 2) + ' ' + (Y - 4) + ' Q' + ((a + b) / 2) + ' ' + (Y - 26) + ' ' + (b - 2) + ' ' + (Y - 4) }));
+      }
+    }
+    svg.appendChild(K.svg('line', { class: 'axis', x1: L0, y1: Y, x2: L0 + LW, y2: Y }));
+    for (let k = 0; k <= n; k++) {
+      const x = tickX(d.wholes, k), whole = k % 4 === 0;
+      svg.appendChild(K.svg('line', { class: 'tick', x1: x, y1: whole ? Y - 12 : Y - 8, x2: x, y2: whole ? Y + 12 : Y + 8 }));
+      if (whole) svg.appendChild(K.svg('text', { class: 'num', x: x, y: Y + 34, 'text-anchor': 'middle' }, String(k / 4)));
+    }
+    if (st.mark != null) {
+      const x = tickX(d.wholes, st.mark);
+      svg.appendChild(K.svg('circle', { class: 'dot', cx: x, cy: Y, r: 9 }));
+      if (right) svgFrac(svg, Math.max(16, Math.min(324, x)), 26, d.want, 4, 'mlab', 'mbar');
+    }
+    // Tap targets: a tall strip around every tick (the nearest tick takes the tap).
+    for (let k = 0; k <= n; k++) {
+      const x = tickX(d.wholes, k);
+      const r = K.svg('rect', { class: 'hit' + (locked ? ' locked' : ''), x: x - step / 2, y: Y - 44, width: step, height: 88, tabindex: locked ? -1 : 0, role: 'button',
+        'aria-label': 'Tick ' + k + ' of ' + n });
+      if (!locked) {
+        const put = () => { st.mark = k; changed(); K.reveal(); K.refresh(); };
+        r.addEventListener('click', put);
+        r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); put(); } });
+      }
+      svg.appendChild(r);
+    }
+    return 'A number line from 0 to ' + d.wholes + ' with a tick at every quarter. ' +
+      (st.mark == null ? 'No mark yet.' : 'The mark is on tick ' + st.mark + ' of ' + n + '.');
+  }
+  function drawCompare(st) {
+    svg.setAttribute('viewBox', '0 0 340 132');
+    const X = 56, W = 264, H = 46, rows = [{ t: 5, b: 8, y: 6 }, { t: 3, b: 4, y: 78 }];
+    rows.forEach((r) => {
+      svgFrac(svg, 26, r.y + H / 2 + 2, r.t, r.b, 'lab', 'fbar');
+      svg.appendChild(K.svg('rect', { class: 'blank', x: X, y: r.y, width: W, height: H }));
+      if (!st.shown) return;
+      const w = W / r.b;
+      for (let k = 0; k < r.b; k++) svg.appendChild(K.svg('rect', { class: 'pc locked' + (k < r.t ? ' on' : ''), x: X + k * w, y: r.y, width: w, height: H }));
+      svg.appendChild(K.svg('rect', { class: 'edge', x: X, y: r.y, width: W, height: H }));
+    });
+    return st.shown ? 'Two bars of the same length. The top one is cut into 8 pieces with 5 coloured; the bottom one into 4 pieces with 3 coloured.'
+      : 'Two empty bars of the same length, one for 5/8 and one for 3/4.';
+  }
+
+  const el = (id) => document.getElementById(id);
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    const right = st.res === 'right';
+    el('count').textContent = 'Puzzle ' + (i + 1) + ' of ' + STEPS.length;
+    write(el('task'), d.task);
+    svg.textContent = '';
+    let aria;
+    if (d.kind === 'bar') aria = drawBars(d, st, right);
+    else if (d.kind === 'square') aria = drawSquare(st, right);
+    else if (d.kind === 'line') aria = drawLine(d, st, right, right);
+    else aria = drawCompare(st);
+    svg.setAttribute('aria-label', aria);
+
+    picks.hidden = d.kind !== 'compare';
+    pickA.el.setAttribute('aria-pressed', st.pick === 'a' ? 'true' : 'false');
+    pickB.el.setAttribute('aria-pressed', st.pick === 'b' ? 'true' : 'false');
+
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    fb.textContent = right ? 'That\'s it.' : st.res === 'wrong' ? d.hint : st.res === 'empty' ? d.empty : '';
+
+    const why = el('why');
+    why.hidden = !st.why;
+    write(why, d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = !right || finished;
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+
+    const done = el('done');
+    done.hidden = !finished;
   });
-  K.check('The shaded run is as long as the fraction says, and its end point is where that number sits on the line', () => {
-    for (let n = 0; n <= 2 * PER_BAR; n++) {
-      const o = K.at({ quarters: n });
-      if (!K.near((xAt(n) - X0) / BAR, o.position, 1e-9)) return false;   // the run's length, in bars, is the number n/4
-      if (!K.near(xAt(n), lineX(o.position), 1e-9)) return false;          // and the mark stands on the line at that number
+
+  // ---------- known answers, worked out by hand ----------
+  K.check('Puzzle 1: any three of the four pieces is 3/4 of the bar; none, two or all four is not', () => {
+    for (let m = 0; m < 16; m++) {
+      const st = blank(0);
+      st.on = [0, 1, 2, 3].map((k) => !!(m & (1 << k)));
+      if (isRight(0, st) !== (count(st.on) === 3)) return false;
     }
     return true;
-  }, { source: SOURCE });
+  });
+  K.check('Puzzle 2: the wide piece alone is half the square, and so are the two small ones together; one small piece, or the wide one with a small one, is not', () => {
+    const t = (on) => isRight(1, Object.assign(blank(1), { on: on }));
+    return K.near(SQUARE[0] + SQUARE[1] + SQUARE[2], 1, 1e-12) && t([true, false, false]) && t([false, true, true]) &&
+      !t([false, true, false]) && !t([false, false, true]) && !t([true, true, false]) && !t([true, true, true]);
+  });
+  K.check('Puzzles 3 and 6: 3/4 is the third quarter tick, three quarters of the way from 0 to 1; 7/4 is the seventh, three ticks past 1', () => {
+    const one = (tickX(1, 4) - L0), two = (tickX(2, 8) - L0) / 2;
+    return K.near((tickX(1, 3) - L0) / one, 0.75, 1e-9) && K.near((tickX(2, 7) - L0) / two, 1.75, 1e-9) &&
+      K.near(tickX(2, 7) - tickX(2, 4), 3 * (tickX(2, 1) - tickX(2, 0)), 1e-9) &&
+      isRight(2, Object.assign(blank(2), { mark: 3 })) && !isRight(2, Object.assign(blank(2), { mark: 4 })) &&
+      isRight(5, Object.assign(blank(5), { mark: 7 })) && !isRight(5, Object.assign(blank(5), { mark: 3 }));
+  });
+  K.check('Puzzle 4: 5/8 is less than 3/4 (0.625 against 0.75), so five of eight pieces fill less of the same bar than three of four', () =>
+    5 / 8 < 3 / 4 && K.near(5 / 8, 0.625, 1e-12) && K.near(3 / 4, 0.75, 1e-12) && 5 * (264 / 8) < 3 * (264 / 4) &&
+    isRight(3, Object.assign(blank(3), { pick: 'b' })) && !isRight(3, Object.assign(blank(3), { pick: 'a' })));
+  K.check('Puzzle 5: seven quarters fill one bar of four and three pieces of the next, so 7/4 is 1 3/4; four or eight pieces is not 7/4', () => {
+    const t = (n) => isRight(4, Object.assign(blank(4), { on: new Array(8).fill(false).map((v, k) => k < n) }));
+    return t(7) && !t(4) && !t(8) && !t(6) && K.near(7 / 4, 1 + 3 / 4, 1e-12) && Math.floor(7 / 4) === 1 && 7 - 4 * Math.floor(7 / 4) === 3;
+  });
 
   K.ready();
 </script>
