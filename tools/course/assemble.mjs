@@ -8,7 +8,10 @@
 //       of first citation against the idea's own research numbering, read mode's predict/say/checks
 //       dropped, mode stamped) and writes <dir>/i3.lesson.final.json. Prints the validator's result.
 //
-//   node tools/course/assemble.mjs docs --dir build/maths/fractions [--tid fractions-ab12c]
+//   node tools/course/assemble.mjs docs --dir build/maths/fractions [--tid fractions-ab12c] [--partial]
+//       --partial: lessons not built yet are left out (listed as missing) instead of failing; the app
+//       shows them as Coming soon for a ready-made topic. <dir>/shelf.json ({shelf, course}) marks
+//       the topic readyMade.
 //       Reads topic.json, research.json and, for every idea, <iid>.lesson.verified.json (else
 //       .lesson.final.json), <iid>.verify.result.json, <iid>.body.final.html, <iid>.verdict.final.json
 //       and <iid>.attempts.txt, and writes <dir>/out/: topic.json, research-topic.json,
@@ -102,11 +105,11 @@ if (cmd === 'docs') {
   }
 
   // The lesson docs, whole: ready, with the checked lesson and the tested interactive (or the note).
-  const summary = [];
+  const summary = [], missing = [];
   ids.forEach((iid) => {
     const idea = topic.ideas.find((i) => i.id === iid);
     const vf = join(dir, iid + '.lesson.verified.json'), ff = join(dir, iid + '.lesson.final.json');
-    if (!existsSync(vf) && !existsSync(ff)) { problems.push(iid + ': no lesson (expected ' + vf + ' or ' + ff + ')'); return; }
+    if (!existsSync(vf) && !existsSync(ff)) { if (process.argv.includes('--partial')) { missing.push(iid); return; } problems.push(iid + ': no lesson (expected ' + vf + ' or ' + ff + ')'); return; }
     const lesson = lessonOf(read(existsSync(vf) ? vf : ff));
     const lr = research ? U.prompts.lessonResearch(research, iid, idea.deps, topic.ideas) : null;
     const v = U.validate.lesson(lesson, { iid, sources: lr && lr.sources.length ? lr.sources : null, final: true, mode, kind: idea.kind });
@@ -150,6 +153,7 @@ if (cmd === 'docs') {
     status: 'ready', error: null, hook: plan.hook, oneBreath: plan.oneBreath,
     level: topic.level || 'new', hue: U.hash(plan.title) % 360, mode, intake: topic.intake || null,
     ideas: plan.ideas, calibration: plan.calibration,
+    readyMade: existsSync(join(dir, 'shelf.json')) ? read(join(dir, 'shelf.json')) : undefined,
     research: research
       ? { status: 'done', at: now, sources: allSources.length, dropped: 0, error: null, reason: null, tries: 0 }
       : { status: 'failed', at: now, sources: 0, error: null, reason: 'none_confirmed', tries: 1 },
@@ -159,7 +163,7 @@ if (cmd === 'docs') {
   writeFileSync(join(out, 'topic.json'), JSON.stringify(topicDoc, null, 1) + '\n');
   manifest.unshift({ collection: 'topics', doc_id: tid, file: join(out, 'topic.json') });
   writeFileSync(join(out, 'manifest.json'), JSON.stringify({ tid, docs: manifest }, null, 2) + '\n');
-  console.log(JSON.stringify({ ok: problems.length === 0, tid, problems, docs: manifest.length, lessons: summary }, null, 2));
+  console.log(JSON.stringify({ ok: problems.length === 0, tid, problems, missing, docs: manifest.length, lessons: summary }, null, 2));
   process.exit(problems.length ? 1 : 0);
 }
 
