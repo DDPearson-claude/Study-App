@@ -6,7 +6,7 @@ laptop, with the global `K` and the kit's stylesheet. No network or storage: no 
 addresses, `fetch`, `localStorage`, `alert` or `prompt`.
 
 ## Page shape that works
-1. `<p class="lead">`: one line saying what is drawn (the app adds the title and action).
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
 2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
    pair on one phone screen. A choice that re-sorts the picture may sit above it.
 3. `<p class="say">`: one sentence that changes with the state and says why. Then
@@ -53,16 +53,15 @@ K.drag(el, {control, toValue(x, y)}) -> {el}
 check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
 index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
 content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
-the thing itself: `toValue` gets the pointer in the drawing's viewBox units (px from `el`'s
-top-left for HTML) and returns the control's value. The slider follows it; the first touch
-counts as his move.
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
 
 ## Outputs
 ```
 K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
 ```
-Use one rounding everywhere a number appears: give `decimals` to match the lesson text, and
-build the `.say` sentence with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
 While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
 never repeat a readout's value elsewhere (a label, an aria-label).
 ```
@@ -105,6 +104,7 @@ K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<t
 K.stage(visual, controls, {max?, beside?}) -> {el}
 K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
 K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
 ```
 Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
 follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
@@ -133,7 +133,7 @@ Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` 
 - Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
 
 Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
-changes them. Name the thing, or use a key.
+changes them.
 
 Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
 `warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
@@ -141,9 +141,9 @@ Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note
 <span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
 
 ## Rules for a great interactive
-- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move: what
-  must travel or build up arrives in 2-3 s (add a K.check that it does). Transitions under 400
-  ms. Include something Dan causes and a case that surprises. One or two controls, three at most.
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
 - Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
   information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
   1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
@@ -157,7 +157,9 @@ Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note
   lesson's own sources, and only on a check whose label restates what that source's quote says;
   a result of your rule, or a fact about your drawing, takes none. Compare numbers with
   `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
-- `K.anim` for motion, never timers. No `vh` units, `position: fixed` or `height: 100%`.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
 - Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
   slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
   drawing. Checks assert order and structure facts.

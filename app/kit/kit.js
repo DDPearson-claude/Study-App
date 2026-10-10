@@ -236,6 +236,28 @@
   function now() { return window.performance && performance.now ? performance.now() : Date.now(); }
   K.clamp = clamp;
   K.lerp = function (a, b, t) { return a + (b - a) * t; };
+  // Soft motion, one house style so every demonstration moves alike: unhurried, nothing popping in.
+  // K.ease(p) eases 0..1 gently in and out (for something travelling or growing). K.arrive(T, t0,
+  // dur?) is how far a part due at t0 seconds has arrived at time T: 0 before t0, rising softly to
+  // 1 over dur (K.SOFT seconds); the finished picture (T = Infinity, how reduced motion opens it)
+  // is 1. K.fade(el, a, rise?) shows el at arrival a: faded in, and risen `rise` units into place.
+  K.SOFT = 0.6;
+  K.ease = function (p) { p = clamp(num(p, 0), 0, 1); return (1 - Math.cos(Math.PI * p)) / 2; };
+  K.arrive = function (T, t0, dur) {
+    if (T === Infinity) return 1;
+    if (!isNum(T)) return 0;
+    var d = num(dur, K.SOFT), s = num(t0, 0);
+    if (d <= 0) return T >= s ? 1 : 0;
+    return K.ease((T - s) / d);
+  };
+  K.fade = function (el, a, rise) {
+    if (!el || !el.style) return el;
+    a = clamp(num(a, 1), 0, 1);
+    var r = num(rise, 6);
+    el.style.opacity = a >= 1 ? '' : a.toFixed(3);
+    el.style.transform = a >= 1 || !r ? '' : 'translate(0px, ' + ((1 - a) * r).toFixed(2) + 'px)';
+    return el;
+  };
   K.linspace = function (a, b, n) { var out = []; n = Math.max(2, n | 0); for (var i = 0; i < n; i++) out.push(a + (b - a) * i / (n - 1)); return out; };
   // True when a and b agree within tol (absolute); default tolerance is a tiny relative one.
   K.near = function (a, b, tol) {

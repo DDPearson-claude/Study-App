@@ -194,6 +194,10 @@ section('self-test catches broken bodies');
   expect('a failing check fails the test', !r.ok && wrong && !wrong.ok && wrong.error === 'returned false', r.checks);
   r = await test(body(plain + "\nK.check('truthy is not true', () => 1);"));
   expect('a check must return exactly true', !r.ok && r.checks.some((c) => !c.ok && /returned 1/.test(c.error || '')), r.checks);
+  r = await test(body(plain + "\nK.check('soft motion', () => { const e = K.el('span'); K.fade(e, 0.5); const half = e.style.opacity === '0.5' && e.style.transform === 'translate(0px, 3px)'; K.fade(e, 1);\n" +
+    "  return half && e.style.opacity === '' && e.style.transform === '' && K.SOFT === 0.6 && K.arrive(0.9, 1) === 0 && K.near(K.arrive(1.3, 1), 0.5, 1e-9) && K.arrive(1.6, 1) === 1 &&\n" +
+    "    K.arrive(Infinity, 5) === 1 && K.arrive(2, 1, 0) === 1 && K.ease(0) === 0 && K.ease(1) === 1 && K.ease(0.25) < 0.25; });"));
+  expect('soft motion: K.arrive fades a part in over K.SOFT with K.ease, K.fade applies it, a finished picture is whole', r.ok, r.checks);
   r = await test(body(plain, { noReady: true }));
   expect('missing K.ready() fails', !r.ok && !r.ready && has(r.errors, /K\.ready\(\) was never called/), r);
   r = await test(body(plain, { noChecks: true }));
