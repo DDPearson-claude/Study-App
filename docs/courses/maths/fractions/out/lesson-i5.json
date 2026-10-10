@@ -1,0 +1,378 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-10T16:42:45.538Z",
+ "startedAt": "2026-10-10T16:42:45.538Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "Match the piece, then the tops decide",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the top number of 3/8 turn from 3 to 6 while its shaded run stays put, so the tops, 6 against 5, agree with the runs, when you count both in sixteenths.",
+   "title": "Count both in one piece",
+   "controls": [
+    {
+     "id": "countIn",
+     "label": "Piece both are counted in",
+     "options": [
+      "Each in its own piece",
+      "Sixteenths",
+      "Thirty-seconds",
+      "Sixty-fourths"
+     ],
+     "value": 0
+    }
+   ],
+   "outputs": [
+    {
+     "id": "topFirst",
+     "label": "3/8 counted in the piece",
+     "unit": "pieces",
+     "decimals": 0
+    },
+    {
+     "id": "topSecond",
+     "label": "5/16 counted in the piece",
+     "unit": "pieces",
+     "decimals": 0
+    },
+    {
+     "id": "gap",
+     "label": "Gap between the marks",
+     "unit": "inch",
+     "decimals": 4
+    }
+   ],
+   "whatAmILookingAt": "Two bars of the same length, one above the other with their left ends in line, each one whole: call each an inch, as the last lesson did, so the two fractions are of the same whole. The upper bar is cut into eight equal pieces with the first three shaded as one run, labelled 3/8: the 3/8 bit. The lower bar is cut into sixteen equal pieces with the first five shaded, labelled 5/16. Beneath both runs one number line, 0 under the left ends and 1 under the right, with a mark under the end of each run, labelled 3/8 and 5/16. The stepper chooses the piece both bars are counted in. At the opening setting, each in its own piece, nothing is renamed and the readouts give 3 and 5, each fraction's own top number. Step to sixteenths and cuts appear inside every eighth of the upper bar, its label changes to 6/16 and its readout to 6, while its run and its mark stay where they were; the lower bar is already in sixteenths, so it does not change. At thirty-seconds both bars gain cuts and read 12/32 and 10/32; at sixty-fourths, 24/64 and 20/64. The third readout is the gap between the two marks, 0.0625 of an inch at every setting.\n\nThe rule is the last lesson's renaming, done to both fractions with one piece in mind. The new piece must measure each run exactly, so the chosen bottom number has to be a whole number of times the old one: 16 ÷ 8 = 2, so each eighth is cut into 2 sixteenths and the upper top becomes 3 × 2 = 6; 16 ÷ 16 = 1, so the lower bar is cut into 1, which is no cut, and its top stays 5 × 1 = 5. In general each readout is that bar's own top number × (chosen bottom ÷ its own bottom): at thirty-seconds, 3 × 4 = 12 and 5 × 2 = 10; at sixty-fourths, 3 × 8 = 24 and 5 × 4 = 20. Neither mark moves, because each renaming cuts every piece into the same number of smaller pieces and multiplies the count by that same number, as the last lesson showed: 3/8 is 3 × 0.125 = 0.375 of the whole and 5/16 is 5 × 0.0625 = 0.3125 at every setting, so the gap is 0.375 − 0.3125 = 0.0625, one sixteenth of the inch. Once both bars are counted in one piece the tops can be read against each other: 6 against 5, 12 against 10, 24 against 20, the bigger top on the longer run every time, and the gap between the marks spans 1 piece at sixteenths, 2 at thirty-seconds and 4 at sixty-fourths, the same length each time.",
+   "ignores": "The bars answer the question before the counting does: the 3/8 run is visibly the longer from the start. The renaming is how you get that answer from the two names alone, with no bars drawn, which is the case at the drill box. The stepper offers only pieces that measure both runs exactly, so it never shows the choice going wrong: counted in eighths, the 5/16 run would end halfway through a piece, with no whole number to read, and tenths measure neither. Both bars are one inch, so this is a comparison of two fractions of the same whole; 3/8 of a metre against 5/16 of an inch is a comparison of lengths these bars do not show. Cuts and marks are drawn with no width, so the runs end on exact places; a real drill bit is made to a tolerance and a tape's marks have a width. Two fixed drill sizes are drawn; the same steps compare any pair of fractions of one whole.",
+   "numbers": [
+    {
+     "label": "Bars drawn, one per fraction (chosen)",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length of each bar, one inch, the same whole (chosen)",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Top number of the first drill, 3/8 (chosen)",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Eighths in one whole (what eighth means)",
+     "value": 8,
+     "kind": "constant"
+    },
+    {
+     "label": "Top number of the second drill, 5/16 (chosen)",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sixteenths in one whole (what sixteenth means)",
+     "value": 16,
+     "kind": "constant"
+    },
+    {
+     "label": "Piece both are counted in at the start",
+     "value": "Each in its own piece",
+     "kind": "control"
+    },
+    {
+     "label": "Size of one eighth, 1 ÷ 8, of the whole",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Place of 3/8 on the line, 3 × 0.125",
+     "value": 0.375,
+     "kind": "computed"
+    },
+    {
+     "label": "Size of one sixteenth, 1 ÷ 16, of the whole",
+     "value": 0.0625,
+     "kind": "computed"
+    },
+    {
+     "label": "Place of 5/16 on the line, 5 × 0.0625",
+     "value": 0.3125,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap between the marks, 0.375 − 0.3125, of an inch",
+     "value": 0.0625,
+     "kind": "computed"
+    },
+    {
+     "label": "Sixteenths in each eighth, 16 ÷ 8",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "3/8 counted in sixteenths, 3 × 2",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Sixteenths in each sixteenth, 16 ÷ 16",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "5/16 counted in sixteenths, 5 × 1",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap in sixteenths, 6 − 5",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Thirty-seconds in one whole (what thirty-second means)",
+     "value": 32,
+     "kind": "constant"
+    },
+    {
+     "label": "Thirty-seconds in each eighth, 32 ÷ 8",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "3/8 counted in thirty-seconds, 3 × 4",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Thirty-seconds in each sixteenth, 32 ÷ 16",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "5/16 counted in thirty-seconds, 5 × 2",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap in thirty-seconds, 12 − 10",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Sixty-fourths in one whole (what sixty-fourth means)",
+     "value": 64,
+     "kind": "constant"
+    },
+    {
+     "label": "Sixty-fourths in each eighth, 64 ÷ 8",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "3/8 counted in sixty-fourths, 3 × 8",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Sixty-fourths in each sixteenth, 64 ÷ 16",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "5/16 counted in sixty-fourths, 5 × 4",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Gap in sixty-fourths, 24 − 20",
+     "value": 4,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Which drill bit is the bigger, 3/8 or 5/16? Read as pairs of whole numbers, 5 beats 3 and 16 beats 8, and neither comparison settles anything, because the two fractions are counted in different pieces: eighths of an inch against sixteenths of it. Give both fractions the same piece and the question becomes a plain count: the top numbers then count pieces of one size, and the bigger count is the bigger bit. Remember from the lesson before last that a sixteenth is half an eighth, because sixteen of them make the same inch that eight eighths make, and from the last lesson that cutting every piece into the same number of smaller pieces renames a fraction without moving it? Those two facts are the whole method.\n\nCounting compares like with like. Three drums against five drums is a fair comparison; three metres against five millimetres is not, until both are in one unit. A fraction's top number is a count and its bottom names what is being counted, so two tops can be compared only when the two bottoms match; a bottom number that two fractions share is what textbooks call a [[common denominator]], denominator being the bottom number's long name from the second lesson. **To compare two fractions of the same whole, rename both in one piece that measures each exactly, and then the bigger top is the bigger fraction.**[^1] Sixteenths measure both of these bits: 16 ÷ 8 = 2 comes out whole, so each eighth is two sixteenths and 3/8 is 3 × 2 = 6 sixteenths, 6/16, the renaming from the last lesson, which keeps the fraction's value;[^2] and 16 ÷ 16 = 1, so 5/16 is already counted in sixteenths. Six sixteenths against five: 3/8 is the bigger bit, by one sixteenth of an inch. The line beneath the bars agrees: 3/8 sits at 3 × 0.125 = 0.375 and 5/16 at 5 × 0.0625 = 0.3125, and 0.375 − 0.3125 = 0.0625 is one sixteenth. The tops can be trusted now and not before for two reasons. The renaming moved neither mark, because the piece shrank by exactly the factor the count grew, so 6/16 sits at the same point on the line as 3/8 and is the same number;[^3] and once both runs are built from pieces of one size, the run with more pieces is the longer, as surely as six tails of one length laid end to end outrun five.\n\nWhy sixteenths and not eighths? An eighth does not measure 5/16 exactly: 8 ÷ 16 is not a whole number, so the 5/16 run would end halfway through an eighth, with no whole count to read. A piece measures a fraction exactly when the fraction's bottom goes into the new bottom a whole number of times, and sixteenths are the coarsest piece that both 8 and 16 go into. Finer ones work too, which is what the stepper shows: at thirty-seconds the bars read 12/32 against 10/32, at sixty-fourths 24/64 against 20/64, the same order and the same gap each time, because the renaming never moves a mark. When no shared piece is obvious, multiplying the two bottoms gives one that both go into,[^4] and renaming each fraction by the other's bottom keeps both values:[^5] 8 × 16 = 128, so 48/128 against 40/128, correct, only finer than it needs to be. Matching the piece is one of several ways to compare fractions,[^6] and it is the one to keep because it works for any pair of the same whole.\n\nThe habit that fails here is the whole-number habit from the last two lessons: people who study how fractions are learned list judging a fraction by its whole numbers, taking 1/5 as more than 1/2 because 5 is more than 2, among the common errors,[^7] and by it 5/16 looks the bigger bit, since both its numbers are bigger. On the bars it is the shorter run: its 5 counts sixteenths, each half an eighth, so five of them make two and a half eighths, short of the three that 3/8 counts. The bigger-bottom rule from the lesson before last does not rescue the comparison either: it is the test for fractions whose tops match,[^8] and 3 and 5 do not. So comparing the tops needs matching bottoms, comparing the bottoms needs matching tops, and for a pair like 3/8 and 5/16, where neither matches, renaming is what makes the bottoms match. One check comes before all of it: comparing fractions is only valid when both refer to the same whole,[^9] so 3/8 of an inch against 5/16 of an inch is a fair question and 3/8 of an inch against 5/16 of a metre is not, however the pieces are matched.\n\n**To compare two fractions of one whole, rename both in a piece that measures each exactly, and then the bigger top is the bigger fraction: in sixteenths 3/8 is 6 against 5/16's 5, so it is the bigger bit.[^1][^9]**"
+  },
+  "analogy": {
+   "text": "Say a control circuit carries a 500 mA fuse and a plug carries a 3 A fuse. As bare numbers 500 beats 3, but a milliamp and an amp are different-sized pieces of current, a thousand milliamps to the amp, so the two counts are not comparable as they stand. Put both in milliamps, 3 × 1000 = 3000 against 500, and the bigger count is the bigger fuse. That is the lesson's move: one piece first, then the counts decide.",
+   "breaks": "With units the piece is fixed by the prefix, a thousand for milli, so there is no piece to choose; with fractions you choose the piece, and it has to measure both exactly, which is the check 16 ÷ 8 = 2 does. And units let you go the other way, 0.5 A against 3 A, because a decimal can count half an amp; a fraction renamed needs a whole count, so a coarser piece that leaves half a piece over is no use."
+  },
+  "practice": {
+   "text": "Deciding which of two fractions is bigger (drill sizes, spanner sizes, shares of an hour):\n- Check both are fractions of the same whole: the same inch, the same hour, the same drum. If not, stop: the comparison is not valid.\n- Bottoms already the same? The bigger top is the bigger fraction. Done.\n- Tops already the same? The bigger bottom is the smaller fraction, from the lesson before last. Done.\n- Otherwise choose a piece that measures both: try the bigger bottom first, and check that the smaller bottom goes into it a whole number of times (16 ÷ 8 = 2: yes). If it does not, multiply the two bottoms together; that piece measures both every time.\n- Rename each fraction into that piece: multiply its top and its bottom by the number its bottom needs to reach the chosen one.\n- Now compare the tops. The difference between them is how much bigger, counted in the chosen piece.\n\n**Rule of thumb:** same piece first, then the tops. The bigger bottom as the trial piece; the two bottoms multiplied as the piece that never fails.\n\n**Worked example:** a drawing calls for a clearance hole no bigger than 3/8 inch, and the bit in your hand is stamped 11/32. Same whole, an inch. Bottoms differ, tops differ. Try the bigger bottom: 32 ÷ 8 = 4, whole, so thirty-seconds measure both. 3/8 is 3 × 4 = 12 thirty-seconds, 12/32; 11/32 is already there. 11 is less than 12, so the 11/32 bit is the smaller, by one thirty-second of an inch: it is within the limit. For a pair where neither bottom goes into the other, say 2/3 of an hour against 3/4 of an hour, multiply the bottoms: 3 × 4 = 12, twelfths. 2/3 is 2 × 4 = 8 twelfths and 3/4 is 3 × 3 = 9 twelfths, so three-quarters of an hour is the longer, by one twelfth of an hour, which is 60 ÷ 12 = 5 minutes.\n\n**Common mistakes:**\n- Comparing the tops while the bottoms differ: 5/16 taken as bigger than 3/8 because 5 beats 3. The 5 counts smaller pieces. Match the piece first.\n- Using bigger-bottom-means-smaller when the tops differ. It settles 3/8 against 3/16, where both tops are 3; it does not settle 3/8 against 5/16.\n- Choosing a piece that measures only one of them: eighths for 3/8 and 5/16 leave 5/16 at two and a half eighths, no whole count. Go finer, to a piece both bottoms go into.\n- Renaming by adding: 3/8 made into 11/16 by adding 8 to top and bottom has moved, from 0.375 to 0.6875. Multiply top and bottom by the same number, as the last lesson showed.\n- Renaming only the bottom: 3/8 written as 3/16 is a different, shorter length. The top is multiplied by the same number as the bottom.\n- Comparing across wholes: 3/8 of an inch against 5/16 of a metre is not a comparison of fractions at all; put both lengths in one unit and compare the lengths.\n- Treating the renamed fraction as a bigger one: 6/16 is 3/8, the same length; it has more pieces because they are smaller."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Equivalent fractions and comparing fractions: FAQ (article) | Khan Academy",
+    "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-and-comparing-fractions-faq-4",
+    "quote": "To use a common denominator, you can find equivalent fractions for both fractions so that they both have the same denominator."
+   },
+   {
+    "n": 2,
+    "title": "Equivalent Fractions",
+    "url": "https://mathsisfun.com/equivalent_fractions.html",
+    "quote": "Because when we multiply or divide both the top and bottom by the same number, the fraction keeps its value"
+   },
+   {
+    "n": 3,
+    "title": "Visualizing equivalent fractions review (article) | Khan Academy",
+    "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-review",
+    "quote": "Numbers are equivalent when they are located at the same point on the number line."
+   },
+   {
+    "n": 4,
+    "title": "Common denomination: more adding and subtracting | NCETM",
+    "url": "https://www.ncetm.org.uk/classroom-resources/primm-308-common-denomination-more-adding-and-subtracting",
+    "quote": "To add and subtract non-related fractions, the product of the two denominators provides a common denominator."
+   },
+   {
+    "n": 5,
+    "title": "Common Denominator",
+    "url": "https://www.mathsisfun.com/numbers/common-denominator.html",
+    "quote": "We multiplied the top and bottom of each fraction by the denominator of the other: this keeps the value of the fraction the same!"
+   },
+   {
+    "n": 6,
+    "title": "Common denomination: more adding and subtracting | NCETM",
+    "url": "https://www.ncetm.org.uk/classroom-resources/primm-308-common-denomination-more-adding-and-subtracting",
+    "quote": "Converting to common denominators is one of several methods that can be used to compare fractions."
+   },
+   {
+    "n": 7,
+    "title": "Does Initial Learning about the Meaning of Fractions Present Similar Challenges for Students with and without Adequate Whole-Number Skill? - PMC",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139",
+    "quote": "common misconceptions and errors include viewing numerators and denominators as independent numbers, comparing fraction magnitudes based on whole-number knowledge (e.g., 1/5 > 1/2 because 5 > 2)"
+   },
+   {
+    "n": 8,
+    "title": "Learn about ordering fractions – KS3 Maths – BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zcfrcmn",
+    "quote": "When fractions have the same numerators, the denominators are compared. The greater the denominator, the smaller the fraction."
+   },
+   {
+    "n": 9,
+    "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+    "url": "https://thecorestandards.org/Math/Content/NF",
+    "quote": "Recognize that comparisons are valid only when the two fractions refer to the same whole."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  .cp .run { fill: var(--k-accent2); }\n  .cp .rest { fill: var(--k-panel); }\n  .cp .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }\n  .cp .cutown { stroke: var(--k-ink); stroke-width: 2; }\n  .cp .cutown.onrun { stroke: var(--k-on-accent2); }\n  .cp .cutnew { stroke: var(--k-muted); stroke-width: 1; animation: cp-in .3s ease; }\n  .cp .cutnew.onrun { stroke: var(--k-on-accent2); stroke-opacity: .75; }\n  .cp .keyt { font: 13px var(--k-font); fill: var(--k-ink); }\n  .cp .name { font: 16px var(--k-font); fill: var(--k-ink); }\n  .cp .name .top { font: 800 20px var(--k-font); fill: var(--k-accent2); }\n  .cp .tag { font: 13px var(--k-font); fill: var(--k-accent); }\n  .cp .drop { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }\n  .cp .dot { fill: var(--k-accent2); }\n  .cp .marklab { font: 600 13px var(--k-font); fill: var(--k-accent2); }\n  .cp .line { stroke: var(--k-ink); stroke-width: 1.5; }\n  .cp .tickend { stroke: var(--k-ink); stroke-width: 1.5; }\n  .cp .tick { stroke: var(--k-muted); stroke-width: 1; animation: cp-in .3s ease; }\n  .cp .end { font: 14px var(--k-font); fill: var(--k-ink); }\n  .cp .gapb { stroke: var(--k-ink); stroke-width: 1.2; fill: none; }\n  .cp .gapt { font: 13px var(--k-font); fill: var(--k-ink); }\n  @keyframes cp-in { from { opacity: 0; } to { opacity: 1; } }\n</style>\n\n<p class=\"lead\">Two bars, each one inch: the 3/8 bit's run above the 5/16 bit's, left ends in line, with one number line beneath marking where each run ends.</p>\n\n<svg class=\"cp\" id=\"scene\" viewBox=\"0 0 340 230\" width=\"100%\" role=\"img\" aria-label=\"\">\n  <g id=\"key\">\n    <rect class=\"run\" x=\"20\" y=\"4\" width=\"12\" height=\"12\" rx=\"2\"/>\n    <text class=\"keyt\" x=\"37\" y=\"14\">shaded run</text>\n    <rect class=\"rest\" x=\"125\" y=\"4\" width=\"12\" height=\"12\" rx=\"2\"/>\n    <rect class=\"edge\" x=\"125\" y=\"4\" width=\"12\" height=\"12\" rx=\"2\"/>\n    <text class=\"keyt\" x=\"142\" y=\"14\">the rest of the inch</text>\n    <line class=\"cutown\" x1=\"20\" y1=\"29\" x2=\"32\" y2=\"29\"/>\n    <text class=\"keyt\" x=\"37\" y=\"33\">its own cuts</text>\n    <line class=\"cutnew\" x1=\"170\" y1=\"29\" x2=\"182\" y2=\"29\"/>\n    <text class=\"keyt\" x=\"187\" y=\"33\">cuts the stepper adds</text>\n  </g>\n  <text class=\"name\" id=\"name1\" x=\"20\" y=\"60\"><tspan class=\"top\" id=\"top1\"></tspan><tspan id=\"bot1\"></tspan></text>\n  <text class=\"tag\" x=\"320\" y=\"60\" text-anchor=\"end\">the 3/8 bit</text>\n  <g id=\"bar1\"></g>\n  <text class=\"name\" id=\"name2\" x=\"20\" y=\"122\"><tspan class=\"top\" id=\"top2\"></tspan><tspan id=\"bot2\"></tspan></text>\n  <text class=\"tag\" x=\"320\" y=\"122\" text-anchor=\"end\">the 5/16 bit</text>\n  <g id=\"bar2\"></g>\n  <g id=\"scale\"></g>\n  <g id=\"marks\">\n    <line class=\"drop\" id=\"drop1\" y1=\"98\" y2=\"192\"/>\n    <line class=\"drop\" id=\"drop2\" y1=\"160\" y2=\"192\"/>\n    <circle class=\"dot\" id=\"dot1\" cy=\"192\" r=\"4\"/>\n    <circle class=\"dot\" id=\"dot2\" cy=\"192\" r=\"4\"/>\n    <text class=\"marklab\" id=\"lab1\" y=\"186\">3/8</text>\n    <text class=\"marklab\" id=\"lab2\" y=\"186\" text-anchor=\"end\">5/16</text>\n    <path class=\"gapb\" id=\"gapb\"/>\n    <text class=\"gapt\" id=\"gapt\" y=\"222\" text-anchor=\"middle\">gap</text>\n  </g>\n</svg>\n<div class=\"k-controls\" id=\"controls\"></div>\n<p class=\"say\" id=\"say\"></p>\n<div class=\"k-readouts\" id=\"outs\"></div>\n<p class=\"caption\">Rename both in one piece that measures each exactly, then the bigger top is the bigger fraction.</p>\n\n<script>\n  // The two drill sizes: 3/8 (3 of 8 eighths) and 5/16 (5 of 16 sixteenths), each of one inch.\n  const TOP1 = 3, BOT1 = 8, TOP2 = 5, BOT2 = 16;\n  // The piece both bars are counted in, per stepper setting: 0 is each in its own piece.\n  const PIECES = [0, 16, 32, 64];\n  const PLURAL = ['its own piece', 'sixteenths', 'thirty-seconds', 'sixty-fourths'];\n  const SINGULAR = ['', 'sixteenth', 'thirty-second', 'sixty-fourth'];\n  const SRC_HABIT = 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139';   // [7]\n\n  // The drawing: 0 at x = 20, 1 (the inch) at x = 320.\n  const X0 = 20, X1 = 320, W = X1 - X0;\n  const xAt = (f) => X0 + f * W;\n  const BAR_H = 34, BAR1_Y = 64, BAR2_Y = 126, LINE_Y = 192;\n\n  // The rule: the chosen bottom ÷ a bar's own bottom is how many pieces each of its pieces is cut into,\n  // and its top is multiplied by the same number. Each run's place on the line is top ÷ bottom, unchanged.\n  const bottomAt = (i, own) => (i === 0 ? own : PIECES[i]);\n  const topAt = (i, top, own) => top * (bottomAt(i, own) / own);\n  const place1 = TOP1 / BOT1, place2 = TOP2 / BOT2;\n\n  K.stepper({ id: 'countIn', label: 'Piece both are counted in', steps: ['Each in its own piece', 'Sixteenths', 'Thirty-seconds', 'Sixty-fourths'], value: 0, compact: true, into: '#controls' });\n  K.stage('#scene', '#controls');\n  // The two tops are the names on the drawing (each over its run); only the gap needs a readout.\n  K.readout({ id: 'gap', label: 'Gap between the marks', unit: 'inch', decimals: 4, into: '#outs' });\n\n  K.model((p) => {\n    const i = p.countIn;\n    return {\n      topFirst: topAt(i, TOP1, BOT1),\n      bottomFirst: bottomAt(i, BOT1),\n      topSecond: topAt(i, TOP2, BOT2),\n      bottomSecond: bottomAt(i, BOT2),\n      gap: place1 - place2,\n    };\n  });\n\n  // The marks never move: each sits under the end of its run.\n  const xEnd1 = xAt(place1), xEnd2 = xAt(place2);\n  [['drop1', xEnd1], ['drop2', xEnd2]].forEach(([id, x]) => { const e = document.getElementById(id); e.setAttribute('x1', x); e.setAttribute('x2', x); });\n  document.getElementById('dot1').setAttribute('cx', xEnd1);\n  document.getElementById('dot2').setAttribute('cx', xEnd2);\n  document.getElementById('lab1').setAttribute('x', xEnd1 + 7);\n  document.getElementById('lab2').setAttribute('x', xEnd2 - 7);\n  document.getElementById('gapb').setAttribute('d', 'M' + xEnd2 + ' 201 V 207 H ' + xEnd1 + ' V 201');\n  document.getElementById('gapt').setAttribute('x', (xEnd1 + xEnd2) / 2);\n\n  // One bar: the shaded run, the rest, its own cuts, then the cuts the stepper adds inside every own piece.\n  function drawBar(g, y, runEnd, own, whole, shaded) {\n    const k = whole / own, pieceW = W / whole;\n    g.textContent = '';\n    g.appendChild(K.svg('rect', { class: 'rest', x: X0, y, width: W, height: BAR_H, rx: 2 }));\n    g.appendChild(K.svg('rect', { class: 'run', x: X0, y, width: runEnd - X0, height: BAR_H, rx: 2 }));\n    for (let i = 1; i < whole; i++) {\n      const x = X0 + i * pieceW, onRun = i < shaded, old = i % k === 0;\n      g.appendChild(K.svg('line', { class: (old ? 'cutown' : 'cutnew') + (onRun ? ' onrun' : ''), x1: x, y1: y, x2: x, y2: y + BAR_H }));\n    }\n    g.appendChild(K.svg('rect', { class: 'edge', x: X0, y, width: W, height: BAR_H, rx: 2 }));\n  }\n\n  const scale = document.getElementById('scale');\n  const svg = document.getElementById('scene');\n  function draw(p, o) {\n    const i = p.countIn, N = PIECES[i];\n    drawBar(document.getElementById('bar1'), BAR1_Y, xEnd1, BOT1, o.bottomFirst, o.topFirst);\n    drawBar(document.getElementById('bar2'), BAR2_Y, xEnd2, BOT2, o.bottomSecond, o.topSecond);\n\n    // Each bar's name: the top counts its shaded pieces, the bottom the pieces in the inch.\n    document.getElementById('top1').textContent = String(o.topFirst);\n    document.getElementById('bot1').textContent = '/' + o.bottomFirst;\n    document.getElementById('top2').textContent = String(o.topSecond);\n    document.getElementById('bot2').textContent = '/' + o.bottomSecond;\n\n    // The number line: 0 to 1, a tick at every chosen piece once both bars share one.\n    scale.textContent = '';\n    scale.appendChild(K.svg('line', { class: 'line', x1: X0, y1: LINE_Y, x2: X1, y2: LINE_Y }));\n    if (N) for (let j = 1; j < N; j++) scale.appendChild(K.svg('line', { class: 'tick', x1: xAt(j / N), y1: LINE_Y, x2: xAt(j / N), y2: LINE_Y + 6 }));\n    [X0, X1].forEach((x) => scale.appendChild(K.svg('line', { class: 'tickend', x1: x, y1: LINE_Y, x2: x, y2: LINE_Y + 8 })));\n    scale.appendChild(K.svg('text', { class: 'end', x: X0, y: LINE_Y + 30, 'text-anchor': 'start' }, '0'));\n    scale.appendChild(K.svg('text', { class: 'end', x: X1, y: LINE_Y + 30, 'text-anchor': 'end' }, '1, the inch'));\n\n    const k1 = o.bottomFirst / BOT1, k2 = o.bottomSecond / BOT2, gapPieces = o.topFirst - o.topSecond;\n    svg.setAttribute('aria-label', 'Two bars of one inch each. The upper, the 3/8 bit, is cut into ' + o.bottomFirst + ' equal pieces with ' + o.topFirst +\n      ' shaded as one run, named ' + o.topFirst + '/' + o.bottomFirst + '; the lower, the 5/16 bit, is cut into ' + o.bottomSecond + ' with ' + o.topSecond +\n      ' shaded, named ' + o.topSecond + '/' + o.bottomSecond + '. On the line beneath, from 0 to 1, a mark sits under the end of each run, the upper run\\'s mark further along' +\n      (N ? ', ' + gapPieces + ' ' + (gapPieces === 1 ? SINGULAR[i] : PLURAL[i]) + ' past the lower.' : '.'));\n\n    // The sentence: the cause (the piece chosen), the renaming, then the tops read against each other.\n    let s;\n    if (i === 0) {\n      s = 'Each bar is counted in its own piece: the 3/8 bit is 3 eighths and the 5/16 bit is 5 sixteenths, each run ending at its mark on the line. ' +\n        'As whole numbers 5 beats 3, but the tops count pieces of different sizes, so they settle nothing yet.';\n      if (!K.moved) s += ' Count both in sixteenths and the upper top changes while its run stays put.';\n    } else {\n      s = 'Both bars are counted in ' + PLURAL[i] + ': ' + N + ' ÷ 8 = ' + k1 + ', so each eighth is cut into ' + k1 + ' and the 3/8 bit is 3 × ' + k1 + ' = ' + o.topFirst +\n        ' of them, ' + o.topFirst + '/' + N + ', with its run and its mark exactly where they were; ' +\n        (k2 === 1 ? '16 ÷ 16 = 1, so the 5/16 bit is cut no further and stays 5 × 1 = 5. '\n          : N + ' ÷ 16 = ' + k2 + ', so the 5/16 bit is 5 × ' + k2 + ' = ' + o.topSecond + ', ' + o.topSecond + '/' + N + '. ') +\n        o.topFirst + ' against ' + o.topSecond + ': the 3/8 bit is the bigger, by the ' + gapPieces + ' ' + (gapPieces === 1 ? SINGULAR[i] : PLURAL[i]) +\n        ' between the marks' + (i === 1 ? '.' : ', the same gap as before.');\n    }\n    document.getElementById('say').textContent = s;\n  }\n  K.update(draw);\n\n  // Known answers, worked out by hand from the rule.\n  K.check('Each in its own piece: the tops are 3 and 5, the runs end at 3 × 0.125 = 0.375 and 5 × 0.0625 = 0.3125, a gap of 0.0625', () => {\n    const o = K.at({ countIn: 0 });\n    return o.topFirst === 3 && o.bottomFirst === 8 && o.topSecond === 5 && o.bottomSecond === 16 &&\n      K.near(3 * 0.125, 0.375, 1e-9) && K.near(5 * 0.0625, 0.3125, 1e-9) && K.near(o.gap, 0.0625, 1e-9);\n  });\n  K.check('In sixteenths both fractions share one bottom: 16 ÷ 8 = 2 makes 3/8 into 3 × 2 = 6, 6/16, and 16 ÷ 16 = 1 leaves 5/16 as 5', () => {\n    const o = K.at({ countIn: 1 });\n    return o.topFirst === 6 && o.bottomFirst === 16 && o.topSecond === 5 && o.bottomSecond === 16;\n  });\n  K.check('Thirty-seconds read 12/32 against 10/32; sixty-fourths 24/64 against 20/64', () => {\n    const a = K.at({ countIn: 2 }), b = K.at({ countIn: 3 });\n    return a.topFirst === 12 && a.topSecond === 10 && a.bottomFirst === 32 && a.bottomSecond === 32 &&\n      b.topFirst === 24 && b.topSecond === 20 && b.bottomFirst === 64 && b.bottomSecond === 64;\n  });\n  K.check('Every renaming sits at the same point on the line, so it is the same number: 0.375 for the 3/8 bit and 0.3125 for the 5/16 bit at every setting', () => {\n    for (let i = 0; i < PIECES.length; i++) {\n      const o = K.at({ countIn: i });\n      if (!K.near(o.topFirst / o.bottomFirst, 0.375, 1e-9) || !K.near(o.topSecond / o.bottomSecond, 0.3125, 1e-9) || !K.near(o.gap, 0.0625, 1e-9)) return false;\n    }\n    return true;\n  });\n  K.check('Once both are counted in one piece the bigger top is the longer run, and the gap spans 1, 2 then 4 pieces: 0.0625 of the inch each time', () => {\n    const spans = [1, 2, 4];\n    for (let i = 1; i < PIECES.length; i++) {\n      const o = K.at({ countIn: i });\n      if (!(o.topFirst > o.topSecond) || o.topFirst - o.topSecond !== spans[i - 1] || !K.near((o.topFirst - o.topSecond) / PIECES[i], 0.0625, 1e-9)) return false;\n    }\n    return true;\n  });\n  K.check('Comparing by whole numbers, 5 beats 3, is the common error: 5 sixteenths are 5 × 0.0625 ÷ 0.125 = 2.5 eighths, short of 3', () =>\n    5 > 3 && K.near((5 * 0.0625) / 0.125, 2.5, 1e-9) && 2.5 < 3, { source: SRC_HABIT });\n\n  K.ready();\n</script>\n",
+  "title": "Count both in one piece",
+  "brief": "The one thing you should see is the top number of 3/8 turn from 3 to 6 while its shaded run stays put, so the tops, 6 against 5, agree with the runs, when you count both in sixteenths.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Each in its own piece: the tops are 3 and 5, the runs end at 3 × 0.125 = 0.375 and 5 × 0.0625 = 0.3125, a gap of 0.0625",
+     "ok": true
+    },
+    {
+     "label": "In sixteenths both fractions share one bottom: 16 ÷ 8 = 2 makes 3/8 into 3 × 2 = 6, 6/16, and 16 ÷ 16 = 1 leaves 5/16 as 5",
+     "ok": true
+    },
+    {
+     "label": "Thirty-seconds read 12/32 against 10/32; sixty-fourths 24/64 against 20/64",
+     "ok": true
+    },
+    {
+     "label": "Every renaming sits at the same point on the line, so it is the same number: 0.375 for the 3/8 bit and 0.3125 for the 5/16 bit at every setting",
+     "ok": true
+    },
+    {
+     "label": "Once both are counted in one piece the bigger top is the longer run, and the gap spans 1, 2 then 4 pieces: 0.0625 of the inch each time",
+     "ok": true
+    },
+    {
+     "label": "Comparing by whole numbers, 5 beats 3, is the common error: 5 sixteenths are 5 × 0.0625 ÷ 0.125 = 2.5 eighths, short of 3",
+     "ok": true,
+     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "countIn"
+   ],
+   "readouts": [
+    "gap"
+   ],
+   "outputs": [
+    "topFirst",
+    "bottomFirst",
+    "topSecond",
+    "bottomSecond",
+    "gap"
+   ],
+   "inputs": [
+    {
+     "id": "countIn",
+     "kind": "stepper",
+     "label": "Piece both are counted in",
+     "min": 0,
+     "max": 3,
+     "step": 1,
+     "steps": [
+      "Each in its own piece",
+      "Sixteenths",
+      "Thirty-seconds",
+      "Sixty-fourths"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-10T16:42:45.538Z",
+  "applied": [],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

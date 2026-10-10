@@ -65,3 +65,13 @@ limits, for contrast. Done 8 Oct: the report is docs/research/how-to-teach-pre-b
 change: levelled courses of short explain-first lessons (orient, one skippable prediction, named
 rule with a worked example, a goal-wrapped interactive, faded practice feeding review, say it back,
 recap), with a mixed closed-book Level Review after every 4-8 lessons. Nothing is built from it yet.
+
+## Built (10 Oct): Fractions, the first ready-made course
+shelves/maths course `fractions` -> topic `fractions-2c5b7`: 8 lessons, each fact-checked, each with a
+tested interactive, mode read. Built with tools/course/RUNBOOK.md and tools/course/assemble.mjs; the
+course files are in docs/courses/maths/fractions/. Two decisions from Dan that bind every later course:
+the main picture of a fraction (and of any part-of-a-whole idea) is a shape cut into equal parts with
+the parts shaded, as Brilliant draws it, with a number line beside it only where position is the
+point; and the lean pipeline (one writer who drafts, critiques and rewrites, one fresh fact-checker,
+one builder with three attempts) is the standard, about 2.2M tokens for the eight lessons. Dan is
+reviewing the course; nothing else is built yet.

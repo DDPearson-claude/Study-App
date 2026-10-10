@@ -1,0 +1,318 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-10T16:42:45.538Z",
+ "startedAt": "2026-10-10T16:42:45.538Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "One number, one place on the line",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is one more quarter of the bar shade in and the mark on the line beneath step one quarter along, carrying past 1 into the second bar, when you add a quarter to the count.",
+   "title": "Count quarters, mark the line",
+   "controls": [
+    {
+     "id": "quarters",
+     "label": "Quarters counted from zero",
+     "min": 0,
+     "max": 8,
+     "step": 1,
+     "value": 3,
+     "unit": "quarters"
+    }
+   ],
+   "outputs": [
+    {
+     "id": "position",
+     "label": "Place on the line",
+     "unit": "",
+     "decimals": 2
+    },
+    {
+     "id": "wholeBars",
+     "label": "Whole bars filled",
+     "unit": "",
+     "decimals": 0
+    },
+    {
+     "id": "quartersPast",
+     "label": "Quarters past the whole bars",
+     "unit": "quarters",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "Two bars side by side, each one whole, each cut by three cuts into four equal pieces. The slider sets how many of those pieces are counted from the left end of the first bar, and the counted pieces are shaded as one run: the first bar fills first, then the count carries on into the second. Beneath the bars runs a number line from 0 to 2, with 0, 1 and 2 under the ends of the bars and a short tick at every quarter. A mark sits on the line exactly under where the shaded run ends, with a label naming that place as a fraction, and past 1 as a mixed number too: 3/4 at 3 pieces, 7/4 = 1 3/4 at 7, and 4/4 = 1 at 4, so a whole number is a fraction's place as well.\n\nThe rule is counting. Each piece is a quarter because four of them make one whole, which is what the 4 on the bottom of a fraction says, and every piece is the same size, so each piece you add shades the same amount and moves the mark the same quarter step. Counting 3 pieces shades three of the first bar's four pieces and puts the mark at 3 × ¼ = ¾, so 'Place on the line' reads 0.75. Counting 7 pieces fills the first bar, which uses 4 of them, and shades 3 of the second, so the mark sits at 1.75: 'Whole bars filled' counts the complete bars, each a set of 4 quarters, and 'Quarters past the whole bars' is what is left of the count after those sets, here 1 and 3. A bar is one whole of anything: call it one inch and 3 pieces is the 3/4 mark on your tape, 0.75 inches along; call it a metre and the same shaded run is 750 mm.\n\nAs an equation: place = count ÷ 4, where count is the quarters you set and 4 is how many quarters make one whole; whole bars filled is the number of complete fours in the count, and quarters past the whole bars is count − 4 × whole bars filled.",
+   "ignores": "The bars are cut only into quarters and the line is ticked only at quarters, so it looks as though those are the only places a fraction can sit; a fraction can land between them (eighths, sixteenths, thirds), which later ideas use. Two bars are drawn, but the counting can carry on past any whole number. The shaded run and the mark end exactly on a cut; a real cut, or a printed line on a tape, has a width.",
+   "numbers": [
+    {
+     "label": "Quarters counted at the start",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Quarters in one whole (what quarter means)",
+     "value": 4,
+     "kind": "constant"
+    },
+    {
+     "label": "Size of one piece, one whole ÷ 4",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Whole bars drawn (chosen)",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Place on the line at the start",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Whole bars filled at the start",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarters past the whole bars at the start",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Place on the line with 0 quarters",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Place on the line with 4 quarters",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Place on the line with 7 quarters",
+     "value": 1.75,
+     "kind": "computed"
+    },
+    {
+     "label": "Whole bars filled with 7 quarters",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarters past the whole bars with 7 quarters",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Place on the line with 8 quarters",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Five eighths as a decimal, 5 ÷ 8",
+     "value": 0.625,
+     "kind": "computed"
+    },
+    {
+     "label": "One and three-eighths as a decimal, 11 ÷ 8",
+     "value": 1.375,
+     "kind": "computed"
+    },
+    {
+     "label": "One metre in millimetres",
+     "value": 1000,
+     "kind": "constant"
+    },
+    {
+     "label": "A quarter of a metre, 1000 ÷ 4, mm",
+     "value": 250,
+     "kind": "computed"
+    },
+    {
+     "label": "Three quarters of a metre, 3 × 250, mm",
+     "value": 750,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Three-quarters is one number. On the inch edge of your tape it has a mark of its own, and you would not read that mark as 'a 3 and a 4'. Written as 3/4, though, a fraction looks like two whole numbers stuck together, and that look misleads. A fraction is one number with its own place on a ruled line,[^1] and its two numerals are the instructions for finding that place.\n\nThe instructions read from the bottom up. The bottom number says how many equal pieces make one whole,[^2] so it names the size of piece: a 4 cuts the whole into four equal pieces,[^3] quarters. The top number says how many of those pieces you have,[^4] counted from zero. **To find a fraction's place: read the bottom to choose the piece, count that many pieces from zero, and where the count ends is the number.**[^5] For 3/4 the pieces are quarters and you count three: in the picture three of the first bar's four pieces shade in, and the mark on the line beneath stops at the third quarter tick, 3 × ¼ = ¾, which is 0.75. There is nothing else to find: the two numerals have done their work, and what is left is one place.\n\nThe two-numbers habit fails as soon as you lean on it. Take 5/8 and 3/4. As pairs of whole numbers, 5/8 has the bigger top and the bigger bottom, so it looks the longer. By the rule, 5/8 is eighths, five of them, and an eighth is half a quarter, since eight of them make the whole that four quarters make; so five eighths is two and a half quarters, 0.625, short of the three quarters that 3/4 counts, and on a tape the 5/8 mark sits before the 3/4 mark. 'Both numbers are bigger' told you nothing about the length; how to compare any two fractions properly is a later idea.\n\nThe same habit makes a fraction feel as if it must stop short of a whole, and pages written for young children say so: fractions represent more than 0 but less than 1.[^6] That holds for the fractions a child meets first, but the counting rule has no stop in it. Set the picture to 7 quarters: four fill the first bar and three shade the second, so the mark rests at 1.75. That place is 7/4, one number whose top is as big as its bottom or bigger, which textbooks call an [[improper fraction]]; written as the whole bars filled and the quarters past them, 1 3/4, it is a [[mixed number]].[^7] The 1 and the 3/4 are not a pair of numbers either: 1 3/4 means one whole and three-quarters more, the way 1.75 means one and a bit, which is why the mixed form shows the size at a glance, a little under 2. What the bar stands for is up to you: the whole can be a shape, a length, a number or a set of objects,[^8] an inch or a metre of cable. Three-quarters of an inch and three-quarters of a metre are the same number, 3/4, of different wholes, so they are different lengths, and comparing two fractions is only valid when both refer to the same whole.[^9] For the course's puzzle this is the first step: three-quarters of a metre is not a sum waiting to be done but one length, 750 mm (a metre is 1000 mm, a quarter of it is 250 mm, and three of them is 750), a length you can lay off along a cable like any other.\n\n**A fraction is one number with one place on the line: the bottom names the piece, the top counts the pieces from zero, and where the count ends is the number, whether it stops short of 1 or carries on past it.[^1][^5]**"
+  },
+  "analogy": {
+   "text": "Your clamp meter reading 0.75 A: two digits, one current. You never read it as 'a 7 and a 5', because the digits are instructions for one place on the scale: seven tenths of an amp, then five hundredths more. A fraction is the same arrangement written differently: 3/4 says 'quarters, count three', and 1 3/4 says 'one whole, then three quarters more', each one place on the line, just as 1.75 A is.",
+   "breaks": "A decimal fixes the piece sizes: the first digit after the point is tenths, the next hundredths. A fraction chooses its own piece with the bottom number, which is why one place can carry several fraction names (a later idea), and textbooks add that a third has no decimal that ends, so a meter showing 0.333 A is giving a rounded stand-in for a third of an amp, while 1/3 names the place exactly."
+  },
+  "practice": {
+   "text": "Reading any fraction as a place on the line:\n- Bottom number first: it says how many equal pieces make one whole, so it names the piece (4 means quarters, 8 eighths, 16 sixteenths).\n- Top number: count that many pieces from 0, and keep counting past 1 if the count reaches it.\n- For a mixed number, go to the whole number first, then count the fraction's pieces on from there.\n- Check what the whole is before you trust the fraction: a quarter of an inch and a quarter of a drum are both a quarter, of different wholes.\n\n**Rule of thumb:** bottom names the piece, top counts the pieces. Top smaller than bottom: short of 1. Top equal to bottom: exactly 1. Top bigger: past 1. The last two are both improper fractions, so an improper fraction is 1 or more.\n\n**Worked example:** say a drawing puts a hole centre at 1 3/8 inches from an edge. The bottom is 8, so the pieces are eighths: on your tape, the mark midway between two quarter marks. Go to the 1 inch mark, then count three eighths past it: 1 1/8, 1 2/8, 1 3/8. As one count from 0, the whole inch is 8 eighths and 3 more makes 11, so 1 3/8 and 11/8 are the same place, 11 ÷ 8 = 1.375 inches along. Which name you reach for depends on the job: the improper fraction is the form used for multiplying and dividing, while the mixed number may be preferred for adding and taking away,[^10] and it shows the size at a glance.\n\n**Common mistakes:**\n- Reading 1 3/4 as three separate numbers: it is one whole and three-quarters more, one place a little under 2.\n- Judging a length by the top number alone: five of something beats three of something only when the pieces are the same size, and the bottom number tells you whether they are.\n- Assuming a fraction must be less than 1: 7/4 is past 1, and still one number.\n- Mixing wholes: compare two fractions only when both are of the same whole.[^9]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+    "url": "https://thecorestandards.org/Math/Content/NF",
+    "quote": "Understand a fraction as a number on the number line; represent fractions on a number line diagram."
+   },
+   {
+    "n": 2,
+    "title": "Fraction",
+    "url": "https://en.wikipedia.org/wiki/Fraction",
+    "quote": "the denominator indicates how many of those parts make up a unit or a whole."
+   },
+   {
+    "n": 3,
+    "title": "Breaking down fractions - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zjxpp4j",
+    "quote": "The denominator below the line shows how many equal parts there are in total and so what to divide the whole into."
+   },
+   {
+    "n": 4,
+    "title": "Breaking down fractions - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zjxpp4j",
+    "quote": "The numerator is the number above the line in a fraction and shows how many parts we have out of the whole."
+   },
+   {
+    "n": 5,
+    "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+    "url": "https://thecorestandards.org/Math/Content/NF",
+    "quote": "Recognize that the resulting interval has size a / b and that its endpoint locates the number a / b on the number line."
+   },
+   {
+    "n": 6,
+    "title": "What are fractions? - KS2 Maths - Resources for Year 3 - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zd8mt39",
+    "quote": "Fractions represent more than 0 but less than 1."
+   },
+   {
+    "n": 7,
+    "title": "Mixed numbers, proper and improper fractions explained",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zyxsf82",
+    "quote": "An improper fraction written as an integer with a fraction is called a mixed number."
+   },
+   {
+    "n": 8,
+    "title": "What are fractions? - KS1 Maths resources for Year 2 - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zq2yfrd",
+    "quote": "The whole can be a shape, a length, a number or a set of objects."
+   },
+   {
+    "n": 9,
+    "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+    "url": "https://thecorestandards.org/Math/Content/NF",
+    "quote": "Recognize that comparisons are valid only when the two fractions refer to the same whole."
+   },
+   {
+    "n": 10,
+    "title": "Mixed numbers, proper and improper fractions explained",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zyxsf82",
+    "quote": "Improper fractions are used when multiplying and dividing. Mixed numbers may be preferred for adding and subtracting."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  .bars .whole { fill: var(--k-panel); }\n  .bars .run { fill: var(--k-accent2); transition: width .2s ease; }\n  .bars .cut { stroke: var(--k-strong); stroke-width: 1.5; }\n  .bars .cut.in { stroke: var(--k-bg); stroke-width: 2; }\n  .bars .split { stroke: var(--k-strong); stroke-width: 3.5; }\n  .bars .edge { fill: none; stroke: var(--k-strong); stroke-width: 2; }\n  .bars .keyt { font: 13px var(--k-font); fill: var(--k-ink); }\n  .bars .keysw { fill: var(--k-accent2); }\n  .bars .keysw.empty { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .bars .wlab { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .bars .wlab.full { fill: var(--k-accent2); }\n  .bars .axis { stroke: var(--k-ink); stroke-width: 2; }\n  .bars .tick { stroke: var(--k-ink); stroke-width: 1.5; }\n  .bars .tick.big { stroke-width: 2; }\n  .bars .num { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .bars .guide { stroke: var(--k-accent2); stroke-width: 2; }\n  .bars .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .bars .nm { font: 800 17px var(--k-font); fill: var(--k-accent2); }\n  .bars .fr { font: 700 14px var(--k-font); fill: var(--k-accent2); }\n  .bars .fbar { stroke: var(--k-accent2); stroke-width: 1.5; }\n  .bars .hit { fill: var(--k-bg); fill-opacity: 0; }\n  .bars .tap { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }\n</style>\n\n<p class=\"lead\">Two bars, each one whole cut into 4 equal pieces, over a line from 0 to 2: the counted pieces shade in as one run, and the mark on the line sits under the run's end.</p>\n\n<svg class=\"bars\" id=\"scene\" viewBox=\"0 0 340 172\" width=\"100%\" role=\"img\" aria-label=\"\">\n  <g id=\"key\">\n    <rect class=\"keysw\" x=\"20\" y=\"3\" width=\"12\" height=\"12\" rx=\"2\"/>\n    <text class=\"keyt\" x=\"36\" y=\"13\">counted, 1/4 of a bar each</text>\n    <rect class=\"keysw empty\" x=\"208\" y=\"3\" width=\"12\" height=\"12\" rx=\"2\"/>\n    <text class=\"keyt\" x=\"224\" y=\"13\">not counted</text>\n  </g>\n  <text class=\"wlab\" id=\"wlab0\" x=\"95\" y=\"33\" text-anchor=\"middle\"></text>\n  <text class=\"wlab\" id=\"wlab1\" x=\"245\" y=\"33\" text-anchor=\"middle\"></text>\n  <rect class=\"whole\" x=\"20\" y=\"38\" width=\"300\" height=\"44\"/>\n  <rect class=\"run\" id=\"run\" x=\"20\" y=\"38\" width=\"0\" height=\"44\"/>\n  <g id=\"cuts\"></g>\n  <line class=\"split\" x1=\"170\" y1=\"38\" x2=\"170\" y2=\"82\"/>\n  <rect class=\"edge\" x=\"20\" y=\"38\" width=\"150\" height=\"44\"/>\n  <rect class=\"edge\" x=\"170\" y=\"38\" width=\"150\" height=\"44\"/>\n  <g id=\"taps\"></g>\n  <line class=\"axis\" x1=\"12\" y1=\"104\" x2=\"328\" y2=\"104\"/>\n  <g id=\"ticks\"></g>\n  <g id=\"mark\">\n    <rect class=\"hit\" x=\"-24\" y=\"86\" width=\"48\" height=\"86\"/>\n    <line class=\"guide\" x1=\"0\" y1=\"82\" x2=\"0\" y2=\"104\"/>\n    <circle class=\"dot\" cx=\"0\" cy=\"104\" r=\"6\"/>\n    <g id=\"name\"></g>\n  </g>\n</svg>\n<div class=\"k-controls\" id=\"controls\"></div>\n<p class=\"say\" id=\"say\"></p>\n<div class=\"k-readouts\" id=\"outs\"></div>\n<p class=\"caption\">Bottom names the piece, top counts the pieces from zero; where the count ends is the number.</p>\n\n<script>\n  // Four quarters make one whole: that is what \"quarter\" means, and what the 4 under the line says.\n  const PER_BAR = 4;\n  const SOURCE = 'https://thecorestandards.org/Math/Content/NF';   // [5]: the interval's endpoint locates a/b\n  // The drawing: the 0 end at x = 20, one bar = 150 units, so one quarter piece = 37.5 units.\n  const X0 = 20, BAR = 150, Q = BAR / PER_BAR;\n  const xAt = (n) => X0 + n * Q;              // the right edge of the n-th counted piece\n  const lineX = (v) => X0 + v * BAR;          // where the number v sits on the line\n  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');\n\n  const quarters = K.control({\n    id: 'quarters', label: 'Quarters counted from zero', hint: 'Or drag the mark, or tap a piece to count up to it',\n    min: 0, max: 8, step: 1, value: 3, fmt: (v) => plural(v, 'quarter'), into: '#controls',\n  });\n  K.stage('#scene', '#controls');\n  // Dan can move the mark itself along the line: the slider follows it.\n  K.drag('#mark', { control: 'quarters', toValue: (x) => Math.round((x - X0) / Q) });\n\n  K.readout({ id: 'position', label: 'Place on the line', decimals: 2, big: true, into: '#outs' });\n  K.readout({ id: 'wholeBars', label: 'Whole bars filled', decimals: 0, into: '#outs' });\n  K.readout({ id: 'quartersPast', label: 'Quarters past the whole bars', decimals: 0, fmt: (v) => plural(v, 'quarter'), into: '#outs' });\n\n  // The rule is plain counting: place = count ÷ 4; whole bars = complete fours; quarters past = what is left.\n  K.model((p) => {\n    const n = Math.round(p.quarters);\n    const whole = Math.floor(n / PER_BAR);\n    return { position: n / PER_BAR, wholeBars: whole, quartersPast: n - PER_BAR * whole };\n  });\n\n  // Drawn once: the cuts in the bars, a tap target on every piece, and the line's ticks (0, 1, 2 under the bar ends).\n  const cuts = document.getElementById('cuts'), cutEls = [];\n  for (let i = 1; i < 2 * PER_BAR; i++) {\n    if (i === PER_BAR) continue;   // the boundary between the bars is drawn heavier, in the markup\n    cutEls[i] = cuts.appendChild(K.svg('line', { class: 'cut', x1: xAt(i), y1: 38, x2: xAt(i), y2: 82 }));\n  }\n  const taps = document.getElementById('taps');\n  for (let i = 0; i < 2 * PER_BAR; i++) {\n    taps.appendChild(K.svg('rect', { class: 'tap', x: xAt(i), y: 38, width: Q, height: 44, on: { click: () => { quarters.set(i + 1); K.reveal(); } } }));\n  }\n  const ticks = document.getElementById('ticks');\n  for (let i = 0; i <= 2 * PER_BAR; i++) {\n    const x = xAt(i), big = i % PER_BAR === 0;\n    ticks.appendChild(K.svg('line', { class: 'tick' + (big ? ' big' : ''), x1: x, y1: big ? 96 : 99, x2: x, y2: big ? 112 : 109 }));\n    if (big) ticks.appendChild(K.svg('text', { class: 'num', x: x, y: 128, 'text-anchor': 'middle' }, String(i / PER_BAR)));\n  }\n\n  // The place's name as plain text (for the checks): a fraction; a whole number where the count lands on one; past 1 a mixed number too.\n  function nameOf(n) {\n    const whole = Math.floor(n / PER_BAR), more = n - PER_BAR * whole;\n    if (more === 0) return n + '/' + PER_BAR + ' = ' + whole;\n    if (whole === 0) return n + '/' + PER_BAR;\n    return n + '/' + PER_BAR + ' = ' + whole + ' ' + more + '/' + PER_BAR;\n  }\n  // The same name typeset under the mark: each fraction stacked, top over bottom, so a mixed number's whole and fraction never run together.\n  const FW = 17, GAP = 5;\n  function stack(g, x, top, bottom) {\n    g.appendChild(K.svg('text', { class: 'fr', x: x + FW / 2, y: 146, 'text-anchor': 'middle' }, String(top)));\n    g.appendChild(K.svg('line', { class: 'fbar', x1: x + 1, y1: 150, x2: x + FW - 1, y2: 150 }));\n    g.appendChild(K.svg('text', { class: 'fr', x: x + FW / 2, y: 164, 'text-anchor': 'middle' }, String(bottom)));\n    return x + FW;\n  }\n  function typeset(n, mx) {\n    const g = document.getElementById('name');\n    g.textContent = '';\n    const whole = Math.floor(n / PER_BAR), more = n - PER_BAR * whole;\n    const eq = more === 0 || whole > 0;                 // \"= whole\" follows the fraction on a whole number, or past 1\n    const width = FW + (eq ? GAP + 24 : 0) + (eq && more > 0 ? GAP + FW : 0);\n    // Centred on the mark, but kept inside the drawing at either end.\n    let x = -width / 2;\n    x = Math.max(4 - mx, Math.min(336 - mx - width, x));\n    x = stack(g, x, n, PER_BAR);\n    if (eq) {\n      g.appendChild(K.svg('text', { class: 'nm', x: x + GAP, y: 157 }, '= ' + whole));\n      x += GAP + 24;\n      if (more > 0) stack(g, x + GAP, more, PER_BAR);\n    }\n  }\n\n  const svg = document.getElementById('scene');\n  function draw(p, o) {\n    const n = Math.round(p.quarters), mx = xAt(n), whole = o.wholeBars, more = o.quartersPast;\n    // The run of counted pieces from the left end; the cuts inside it show as slits.\n    document.getElementById('run').setAttribute('width', mx - X0);\n    cutEls.forEach((el, i) => { if (el) el.setAttribute('class', 'cut' + (i < n ? ' in' : '')); });\n    // Above each bar: what it is, and when its 4 pieces are all counted, what that makes.\n    [0, 1].forEach((k) => {\n      const full = whole > k, el = document.getElementById('wlab' + k);\n      el.textContent = full ? '4 quarters = 1 whole' : 'one whole';\n      el.setAttribute('class', 'wlab' + (full ? ' full' : ''));\n    });\n    // The mark, on the line under where the run ends, with the place's name beneath it.\n    document.getElementById('mark').setAttribute('transform', 'translate(' + mx + ' 0)');\n    typeset(n, mx);\n\n    let where;\n    if (n === 0) where = 'rests on 0';\n    else if (n < PER_BAR) where = 'sits short of 1';\n    else if (n === PER_BAR) where = 'sits on 1';\n    else if (n < 2 * PER_BAR) where = 'sits past 1';\n    else where = 'sits on 2';\n    svg.setAttribute('aria-label', 'Two bars, each one whole cut into four equal pieces, over a number line from 0 to 2. ' +\n      plural(n, 'piece') + ' counted from the left end are shaded as one run, and the mark on the line ' + where + ', under the run\\'s end.');\n\n    const pos = K.fmt(o.position, { decimals: 2 });\n    let s;\n    if (n === 0) {\n      s = 'No quarters are counted, so no piece is shaded and the mark rests on 0: 0/4 is the same place as 0.';\n    } else if (n < PER_BAR) {\n      s = plural(n, 'quarter') + ' counted from the left end shade' + (n === 1 ? 's' : '') + ' ' + n + ' of the first bar\\'s 4 pieces, so the mark sits at ' +\n        pos + ', short of 1: ' + n + '/4 is one number with one place on the line.';\n    } else if (n === PER_BAR) {\n      s = '4 quarters counted from the left end fill the first bar with none left over, so the mark lands on 1: 4/4 is the same place as the whole number 1.';\n    } else if (n < 2 * PER_BAR) {\n      s = n + ' quarters counted from the left end: 4 fill the first bar and ' + more + ' more shade' + (more === 1 ? 's' : '') + ' the second, so the mark sits at ' +\n        pos + ', past 1: ' + n + '/4 is one place, and as a mixed number it is 1 whole and ' + more + '/4.';\n    } else {\n      s = '8 quarters counted from the left end fill both bars, so the mark lands on 2: 8/4 is the same place as the whole number 2.';\n    }\n    document.getElementById('say').textContent = s;\n  }\n  K.update(draw);\n\n  // Known answers, counted by hand.\n  K.check('3 quarters from zero: the mark at 0.75, no whole bar filled, 3 quarters past; of a bar called one metre (1000 mm) that run is 750 mm', () => {\n    const o = K.at({ quarters: 3 });\n    return K.near(o.position, 0.75, 1e-9) && o.wholeBars === 0 && o.quartersPast === 3 && K.near(o.position * 1000, 750, 1e-9) && nameOf(3) === '3/4';\n  });\n  K.check('4 quarters fill the first bar exactly: the mark on 1, 4/4 = 1, with no quarters past it', () => {\n    const o = K.at({ quarters: 4 });\n    return K.near(o.position, 1, 1e-9) && o.wholeBars === 1 && o.quartersPast === 0 && nameOf(4) === '4/4 = 1';\n  });\n  K.check('7 quarters fill one bar and 3 of the second: the mark at 1.75, 7/4 = 1 3/4', () => {\n    const o = K.at({ quarters: 7 });\n    return K.near(o.position, 1.75, 1e-9) && o.wholeBars === 1 && o.quartersPast === 3 && nameOf(7) === '7/4 = 1 3/4';\n  });\n  K.check('Each quarter added moves the mark the same 0.25 step, from 0 at no quarters to 2 at 8, and a drag to a cut counts the pieces up to it', () => {\n    for (let n = 0; n < 2 * PER_BAR; n++) {\n      if (!K.near(K.at({ quarters: n + 1 }).position - K.at({ quarters: n }).position, 0.25, 1e-9)) return false;\n      if (Math.round((xAt(n) - X0) / Q) !== n) return false;\n    }\n    return K.near(K.at({ quarters: 0 }).position, 0, 1e-9) && K.near(K.at({ quarters: 8 }).position, 2, 1e-9) && nameOf(0) === '0/4 = 0' && nameOf(8) === '8/4 = 2';\n  });\n  K.check('The shaded run is as long as the fraction says, and its end point is where that number sits on the line', () => {\n    for (let n = 0; n <= 2 * PER_BAR; n++) {\n      const o = K.at({ quarters: n });\n      if (!K.near((xAt(n) - X0) / BAR, o.position, 1e-9)) return false;   // the run's length, in bars, is the number n/4\n      if (!K.near(xAt(n), lineX(o.position), 1e-9)) return false;          // and the mark stands on the line at that number\n    }\n    return true;\n  }, { source: SOURCE });\n\n  K.ready();\n</script>",
+  "title": "Count quarters, mark the line",
+  "brief": "The one thing you should see is one more quarter of the bar shade in and the mark on the line beneath step one quarter along, carrying past 1 into the second bar, when you add a quarter to the count.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "3 quarters from zero: the mark at 0.75, no whole bar filled, 3 quarters past; of a bar called one metre (1000 mm) that run is 750 mm",
+     "ok": true
+    },
+    {
+     "label": "4 quarters fill the first bar exactly: the mark on 1, 4/4 = 1, with no quarters past it",
+     "ok": true
+    },
+    {
+     "label": "7 quarters fill one bar and 3 of the second: the mark at 1.75, 7/4 = 1 3/4",
+     "ok": true
+    },
+    {
+     "label": "Each quarter added moves the mark the same 0.25 step, from 0 at no quarters to 2 at 8, and a drag to a cut counts the pieces up to it",
+     "ok": true
+    },
+    {
+     "label": "The shaded run is as long as the fraction says, and its end point is where that number sits on the line",
+     "ok": true,
+     "source": "https://thecorestandards.org/Math/Content/NF"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "quarters"
+   ],
+   "readouts": [
+    "position",
+    "wholeBars",
+    "quartersPast"
+   ],
+   "outputs": [
+    "position",
+    "wholeBars",
+    "quartersPast"
+   ],
+   "inputs": [
+    {
+     "id": "quarters",
+     "kind": "control",
+     "label": "Quarters counted from zero",
+     "min": 0,
+     "max": 8,
+     "step": 1,
+     "log": false,
+     "value": 3
+    }
+   ],
+   "actions": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-10T16:42:45.538Z",
+  "applied": [],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

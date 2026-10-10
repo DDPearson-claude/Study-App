@@ -1,0 +1,201 @@
+<!-- kind: skill -->
+<style>
+  .cp .run { fill: var(--k-accent2); }
+  .cp .rest { fill: var(--k-panel); }
+  .cp .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .cp .cutown { stroke: var(--k-ink); stroke-width: 2; }
+  .cp .cutown.onrun { stroke: var(--k-on-accent2); }
+  .cp .cutnew { stroke: var(--k-muted); stroke-width: 1; animation: cp-in .3s ease; }
+  .cp .cutnew.onrun { stroke: var(--k-on-accent2); stroke-opacity: .75; }
+  .cp .keyt { font: 13px var(--k-font); fill: var(--k-ink); }
+  .cp .name { font: 16px var(--k-font); fill: var(--k-ink); }
+  .cp .name .top { font: 800 20px var(--k-font); fill: var(--k-accent2); }
+  .cp .tag { font: 13px var(--k-font); fill: var(--k-accent); }
+  .cp .drop { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+  .cp .dot { fill: var(--k-accent2); }
+  .cp .marklab { font: 600 13px var(--k-font); fill: var(--k-accent2); }
+  .cp .line { stroke: var(--k-ink); stroke-width: 1.5; }
+  .cp .tickend { stroke: var(--k-ink); stroke-width: 1.5; }
+  .cp .tick { stroke: var(--k-muted); stroke-width: 1; animation: cp-in .3s ease; }
+  .cp .end { font: 14px var(--k-font); fill: var(--k-ink); }
+  .cp .gapb { stroke: var(--k-ink); stroke-width: 1.2; fill: none; }
+  .cp .gapt { font: 13px var(--k-font); fill: var(--k-ink); }
+  @keyframes cp-in { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+<p class="lead">Two bars, each one inch: the 3/8 bit's run above the 5/16 bit's, left ends in line, with one number line beneath marking where each run ends.</p>
+
+<svg class="cp" id="scene" viewBox="0 0 340 230" width="100%" role="img" aria-label="">
+  <g id="key">
+    <rect class="run" x="20" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="37" y="14">shaded run</text>
+    <rect class="rest" x="125" y="4" width="12" height="12" rx="2"/>
+    <rect class="edge" x="125" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="142" y="14">the rest of the inch</text>
+    <line class="cutown" x1="20" y1="29" x2="32" y2="29"/>
+    <text class="keyt" x="37" y="33">its own cuts</text>
+    <line class="cutnew" x1="170" y1="29" x2="182" y2="29"/>
+    <text class="keyt" x="187" y="33">cuts the stepper adds</text>
+  </g>
+  <text class="name" id="name1" x="20" y="60"><tspan class="top" id="top1"></tspan><tspan id="bot1"></tspan></text>
+  <text class="tag" x="320" y="60" text-anchor="end">the 3/8 bit</text>
+  <g id="bar1"></g>
+  <text class="name" id="name2" x="20" y="122"><tspan class="top" id="top2"></tspan><tspan id="bot2"></tspan></text>
+  <text class="tag" x="320" y="122" text-anchor="end">the 5/16 bit</text>
+  <g id="bar2"></g>
+  <g id="scale"></g>
+  <g id="marks">
+    <line class="drop" id="drop1" y1="98" y2="192"/>
+    <line class="drop" id="drop2" y1="160" y2="192"/>
+    <circle class="dot" id="dot1" cy="192" r="4"/>
+    <circle class="dot" id="dot2" cy="192" r="4"/>
+    <text class="marklab" id="lab1" y="186">3/8</text>
+    <text class="marklab" id="lab2" y="186" text-anchor="end">5/16</text>
+    <path class="gapb" id="gapb"/>
+    <text class="gapt" id="gapt" y="222" text-anchor="middle">gap</text>
+  </g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Rename both in one piece that measures each exactly, then the bigger top is the bigger fraction.</p>
+
+<script>
+  // The two drill sizes: 3/8 (3 of 8 eighths) and 5/16 (5 of 16 sixteenths), each of one inch.
+  const TOP1 = 3, BOT1 = 8, TOP2 = 5, BOT2 = 16;
+  // The piece both bars are counted in, per stepper setting: 0 is each in its own piece.
+  const PIECES = [0, 16, 32, 64];
+  const PLURAL = ['its own piece', 'sixteenths', 'thirty-seconds', 'sixty-fourths'];
+  const SINGULAR = ['', 'sixteenth', 'thirty-second', 'sixty-fourth'];
+  const SRC_HABIT = 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139';   // [7]
+
+  // The drawing: 0 at x = 20, 1 (the inch) at x = 320.
+  const X0 = 20, X1 = 320, W = X1 - X0;
+  const xAt = (f) => X0 + f * W;
+  const BAR_H = 34, BAR1_Y = 64, BAR2_Y = 126, LINE_Y = 192;
+
+  // The rule: the chosen bottom ÷ a bar's own bottom is how many pieces each of its pieces is cut into,
+  // and its top is multiplied by the same number. Each run's place on the line is top ÷ bottom, unchanged.
+  const bottomAt = (i, own) => (i === 0 ? own : PIECES[i]);
+  const topAt = (i, top, own) => top * (bottomAt(i, own) / own);
+  const place1 = TOP1 / BOT1, place2 = TOP2 / BOT2;
+
+  K.stepper({ id: 'countIn', label: 'Piece both are counted in', steps: ['Each in its own piece', 'Sixteenths', 'Thirty-seconds', 'Sixty-fourths'], value: 0, compact: true, into: '#controls' });
+  K.stage('#scene', '#controls');
+  // The two tops are the names on the drawing (each over its run); only the gap needs a readout.
+  K.readout({ id: 'gap', label: 'Gap between the marks', unit: 'inch', decimals: 4, into: '#outs' });
+
+  K.model((p) => {
+    const i = p.countIn;
+    return {
+      topFirst: topAt(i, TOP1, BOT1),
+      bottomFirst: bottomAt(i, BOT1),
+      topSecond: topAt(i, TOP2, BOT2),
+      bottomSecond: bottomAt(i, BOT2),
+      gap: place1 - place2,
+    };
+  });
+
+  // The marks never move: each sits under the end of its run.
+  const xEnd1 = xAt(place1), xEnd2 = xAt(place2);
+  [['drop1', xEnd1], ['drop2', xEnd2]].forEach(([id, x]) => { const e = document.getElementById(id); e.setAttribute('x1', x); e.setAttribute('x2', x); });
+  document.getElementById('dot1').setAttribute('cx', xEnd1);
+  document.getElementById('dot2').setAttribute('cx', xEnd2);
+  document.getElementById('lab1').setAttribute('x', xEnd1 + 7);
+  document.getElementById('lab2').setAttribute('x', xEnd2 - 7);
+  document.getElementById('gapb').setAttribute('d', 'M' + xEnd2 + ' 201 V 207 H ' + xEnd1 + ' V 201');
+  document.getElementById('gapt').setAttribute('x', (xEnd1 + xEnd2) / 2);
+
+  // One bar: the shaded run, the rest, its own cuts, then the cuts the stepper adds inside every own piece.
+  function drawBar(g, y, runEnd, own, whole, shaded) {
+    const k = whole / own, pieceW = W / whole;
+    g.textContent = '';
+    g.appendChild(K.svg('rect', { class: 'rest', x: X0, y, width: W, height: BAR_H, rx: 2 }));
+    g.appendChild(K.svg('rect', { class: 'run', x: X0, y, width: runEnd - X0, height: BAR_H, rx: 2 }));
+    for (let i = 1; i < whole; i++) {
+      const x = X0 + i * pieceW, onRun = i < shaded, old = i % k === 0;
+      g.appendChild(K.svg('line', { class: (old ? 'cutown' : 'cutnew') + (onRun ? ' onrun' : ''), x1: x, y1: y, x2: x, y2: y + BAR_H }));
+    }
+    g.appendChild(K.svg('rect', { class: 'edge', x: X0, y, width: W, height: BAR_H, rx: 2 }));
+  }
+
+  const scale = document.getElementById('scale');
+  const svg = document.getElementById('scene');
+  function draw(p, o) {
+    const i = p.countIn, N = PIECES[i];
+    drawBar(document.getElementById('bar1'), BAR1_Y, xEnd1, BOT1, o.bottomFirst, o.topFirst);
+    drawBar(document.getElementById('bar2'), BAR2_Y, xEnd2, BOT2, o.bottomSecond, o.topSecond);
+
+    // Each bar's name: the top counts its shaded pieces, the bottom the pieces in the inch.
+    document.getElementById('top1').textContent = String(o.topFirst);
+    document.getElementById('bot1').textContent = '/' + o.bottomFirst;
+    document.getElementById('top2').textContent = String(o.topSecond);
+    document.getElementById('bot2').textContent = '/' + o.bottomSecond;
+
+    // The number line: 0 to 1, a tick at every chosen piece once both bars share one.
+    scale.textContent = '';
+    scale.appendChild(K.svg('line', { class: 'line', x1: X0, y1: LINE_Y, x2: X1, y2: LINE_Y }));
+    if (N) for (let j = 1; j < N; j++) scale.appendChild(K.svg('line', { class: 'tick', x1: xAt(j / N), y1: LINE_Y, x2: xAt(j / N), y2: LINE_Y + 6 }));
+    [X0, X1].forEach((x) => scale.appendChild(K.svg('line', { class: 'tickend', x1: x, y1: LINE_Y, x2: x, y2: LINE_Y + 8 })));
+    scale.appendChild(K.svg('text', { class: 'end', x: X0, y: LINE_Y + 30, 'text-anchor': 'start' }, '0'));
+    scale.appendChild(K.svg('text', { class: 'end', x: X1, y: LINE_Y + 30, 'text-anchor': 'end' }, '1, the inch'));
+
+    const k1 = o.bottomFirst / BOT1, k2 = o.bottomSecond / BOT2, gapPieces = o.topFirst - o.topSecond;
+    svg.setAttribute('aria-label', 'Two bars of one inch each. The upper, the 3/8 bit, is cut into ' + o.bottomFirst + ' equal pieces with ' + o.topFirst +
+      ' shaded as one run, named ' + o.topFirst + '/' + o.bottomFirst + '; the lower, the 5/16 bit, is cut into ' + o.bottomSecond + ' with ' + o.topSecond +
+      ' shaded, named ' + o.topSecond + '/' + o.bottomSecond + '. On the line beneath, from 0 to 1, a mark sits under the end of each run, the upper run\'s mark further along' +
+      (N ? ', ' + gapPieces + ' ' + (gapPieces === 1 ? SINGULAR[i] : PLURAL[i]) + ' past the lower.' : '.'));
+
+    // The sentence: the cause (the piece chosen), the renaming, then the tops read against each other.
+    let s;
+    if (i === 0) {
+      s = 'Each bar is counted in its own piece: the 3/8 bit is 3 eighths and the 5/16 bit is 5 sixteenths, each run ending at its mark on the line. ' +
+        'As whole numbers 5 beats 3, but the tops count pieces of different sizes, so they settle nothing yet.';
+      if (!K.moved) s += ' Count both in sixteenths and the upper top changes while its run stays put.';
+    } else {
+      s = 'Both bars are counted in ' + PLURAL[i] + ': ' + N + ' ÷ 8 = ' + k1 + ', so each eighth is cut into ' + k1 + ' and the 3/8 bit is 3 × ' + k1 + ' = ' + o.topFirst +
+        ' of them, ' + o.topFirst + '/' + N + ', with its run and its mark exactly where they were; ' +
+        (k2 === 1 ? '16 ÷ 16 = 1, so the 5/16 bit is cut no further and stays 5 × 1 = 5. '
+          : N + ' ÷ 16 = ' + k2 + ', so the 5/16 bit is 5 × ' + k2 + ' = ' + o.topSecond + ', ' + o.topSecond + '/' + N + '. ') +
+        o.topFirst + ' against ' + o.topSecond + ': the 3/8 bit is the bigger, by the ' + gapPieces + ' ' + (gapPieces === 1 ? SINGULAR[i] : PLURAL[i]) +
+        ' between the marks' + (i === 1 ? '.' : ', the same gap as before.');
+    }
+    document.getElementById('say').textContent = s;
+  }
+  K.update(draw);
+
+  // Known answers, worked out by hand from the rule.
+  K.check('Each in its own piece: the tops are 3 and 5, the runs end at 3 × 0.125 = 0.375 and 5 × 0.0625 = 0.3125, a gap of 0.0625', () => {
+    const o = K.at({ countIn: 0 });
+    return o.topFirst === 3 && o.bottomFirst === 8 && o.topSecond === 5 && o.bottomSecond === 16 &&
+      K.near(3 * 0.125, 0.375, 1e-9) && K.near(5 * 0.0625, 0.3125, 1e-9) && K.near(o.gap, 0.0625, 1e-9);
+  });
+  K.check('In sixteenths both fractions share one bottom: 16 ÷ 8 = 2 makes 3/8 into 3 × 2 = 6, 6/16, and 16 ÷ 16 = 1 leaves 5/16 as 5', () => {
+    const o = K.at({ countIn: 1 });
+    return o.topFirst === 6 && o.bottomFirst === 16 && o.topSecond === 5 && o.bottomSecond === 16;
+  });
+  K.check('Thirty-seconds read 12/32 against 10/32; sixty-fourths 24/64 against 20/64', () => {
+    const a = K.at({ countIn: 2 }), b = K.at({ countIn: 3 });
+    return a.topFirst === 12 && a.topSecond === 10 && a.bottomFirst === 32 && a.bottomSecond === 32 &&
+      b.topFirst === 24 && b.topSecond === 20 && b.bottomFirst === 64 && b.bottomSecond === 64;
+  });
+  K.check('Every renaming sits at the same point on the line, so it is the same number: 0.375 for the 3/8 bit and 0.3125 for the 5/16 bit at every setting', () => {
+    for (let i = 0; i < PIECES.length; i++) {
+      const o = K.at({ countIn: i });
+      if (!K.near(o.topFirst / o.bottomFirst, 0.375, 1e-9) || !K.near(o.topSecond / o.bottomSecond, 0.3125, 1e-9) || !K.near(o.gap, 0.0625, 1e-9)) return false;
+    }
+    return true;
+  });
+  K.check('Once both are counted in one piece the bigger top is the longer run, and the gap spans 1, 2 then 4 pieces: 0.0625 of the inch each time', () => {
+    const spans = [1, 2, 4];
+    for (let i = 1; i < PIECES.length; i++) {
+      const o = K.at({ countIn: i });
+      if (!(o.topFirst > o.topSecond) || o.topFirst - o.topSecond !== spans[i - 1] || !K.near((o.topFirst - o.topSecond) / PIECES[i], 0.0625, 1e-9)) return false;
+    }
+    return true;
+  });
+  K.check('Comparing by whole numbers, 5 beats 3, is the common error: 5 sixteenths are 5 × 0.0625 ÷ 0.125 = 2.5 eighths, short of 3', () =>
+    5 > 3 && K.near((5 * 0.0625) / 0.125, 2.5, 1e-9) && 2.5 < 3, { source: SRC_HABIT });
+
+  K.ready();
+</script>

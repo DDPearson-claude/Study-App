@@ -1,0 +1,439 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-10T16:42:45.538Z",
+ "startedAt": "2026-10-10T16:42:45.538Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i6",
+  "title": "Same piece first, then the tops add",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the 1/2 run gain a cut and read 2/4, so the two counts, 2 and 3, add to the 5 quarters the joined run shows, when you count both in quarters.",
+   "title": "Count both, then add",
+   "controls": [
+    {
+     "id": "countIn",
+     "label": "Piece both are counted in",
+     "options": [
+      "Each in its own piece",
+      "Quarters",
+      "Eighths",
+      "Twelfths"
+     ],
+     "value": 0
+    },
+    {
+     "id": "doWhat",
+     "label": "Add or take away",
+     "options": [
+      "Add",
+      "Take away"
+     ],
+     "value": 0
+    }
+   ],
+   "outputs": [
+    {
+     "id": "halfCount",
+     "label": "1/2 counted in the piece",
+     "unit": "pieces",
+     "decimals": 0
+    },
+    {
+     "id": "threeQuarterCount",
+     "label": "3/4 counted in the piece",
+     "unit": "pieces",
+     "decimals": 0
+    },
+    {
+     "id": "resultMinutes",
+     "label": "Result in minutes",
+     "unit": "min",
+     "decimals": 0
+    }
+   ],
+   "whatAmILookingAt": "Two bars end to end, each one whole hour, with a number line beneath: 0 under the left end of the first bar, 1 where the bars meet and 2 under the right end of the second. Two runs are shaded on them: the half-hour run, labelled 1/2, and the three-quarter-hour run, labelled 3/4. With Add chosen, the 1/2 run starts at the left end and the 3/4 run starts where it stops, so the joined run ends a quarter of the way into the second bar, and a mark on the line sits under that end. With Take away chosen, the 3/4 run starts at the left end and the 1/2 run is drawn over its right-hand end as the part taken off, so what is left runs shaded from the left end, and the mark sits under where that ends. Under the bars is a line of working. At the opening setting, each in its own piece, the bars have no cuts of their own and each run shows only its own: the 1/2 run is one piece and the 3/4 run three; the first two readouts give 1 and 3, each fraction's own top number; the working reads 1 half + 3 quarters: pieces differ, no count; and the mark is labelled in minutes only, 75 for the sum or 15 for what is left, because there is no one piece to count the joined run in. Step to quarters and both bars are cut into quarters: a cut appears inside the 1/2 run, its label changes to 2/4 and its readout to 2, while the 3/4 run is already in quarters and keeps 3; the working reads 2 + 3 = 5 quarters, or 3 − 2 = 1 quarter, and the mark is labelled 5/4 h or 1/4 h. At eighths the runs read 4/8 and 6/8, the working 4 + 6 = 10 or 6 − 4 = 2; at twelfths, 6/12 and 9/12, 6 + 9 = 15 or 9 − 6 = 3. Neither run changes length at any setting, and the mark stays put.\n\nThe rule is the renaming from the last two lessons, done to both fractions with one piece in mind. Each readout is that fraction's own top × (chosen bottom ÷ its own bottom), and the chosen bottom has to be a whole number of times the old one so that the new piece measures the run exactly: in quarters, 1 × (4 ÷ 2) = 2 and 3 × (4 ÷ 4) = 3; in eighths, 1 × 4 = 4 and 3 × 2 = 6; in twelfths, 1 × 6 = 6 and 3 × 3 = 9. Once both runs are counted in one piece, the joined run is made of that piece too, so the tops add, or take away, and the bottom stays: 2 + 3 = 5 quarters, 3 − 2 = 1 quarter. The third readout is the result in minutes, which needs no chosen piece: half an hour is 60 ÷ 2 = 30 minutes and three-quarters is 3 × (60 ÷ 4) = 45, so the sum is 30 + 45 = 75 and what is left is 45 − 30 = 15 at every setting, and the counted result agrees, a quarter being 15 minutes and 5 × 15 = 75. The mark sits at 1.25 hours for the sum and 0.25 for what is left at every setting, because renaming moves neither run.",
+   "ignores": "The bars answer the sum before the counting does: the joined run visibly ends an hour and a quarter along. The counting is how you get that answer from the two names alone, with no bars drawn. The stepper offers only pieces that measure both runs exactly, so it never shows the choice going wrong: counted in halves, the 3/4 run would end halfway through a piece, with no whole number to read, and sixths, the piece the common wrong answer 4/6 names, measure the half but not the three-quarters. Both runs are of the same hour; half an hour and three-quarters of a metre have no joined run, and the bars do not show that case. Taking away is drawn from the right-hand end of the 3/4 run; the same quarter is left whichever part of the run is taken. Cuts and marks are drawn with no width, so the runs end on exact places, which a clock hand or a tape's printed line does not. Two fixed lengths of time are drawn; the same steps add or take away any pair of fractions of one whole, and finer pieces that both bottoms go into, sixteenths or twentieths, keep working; fifths or tenths would not.",
+   "numbers": [
+    {
+     "label": "Whole bars drawn, one hour each (chosen)",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Length of each bar, one hour, the same whole (chosen)",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Top number of the first time, 1/2 (chosen)",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Halves in one whole (what half means)",
+     "value": 2,
+     "kind": "constant"
+    },
+    {
+     "label": "Top number of the second time, 3/4 (chosen)",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Quarters in one whole (what quarter means)",
+     "value": 4,
+     "kind": "constant"
+    },
+    {
+     "label": "Piece both are counted in at the start",
+     "value": "Each in its own piece",
+     "kind": "control"
+    },
+    {
+     "label": "Add or take away at the start",
+     "value": "Add",
+     "kind": "control"
+    },
+    {
+     "label": "Minutes in one hour",
+     "value": 60,
+     "kind": "constant"
+    },
+    {
+     "label": "Half an hour in minutes, 60 ÷ 2",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "A quarter of an hour in minutes, 60 ÷ 4",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Three-quarters of an hour in minutes, 3 × 15",
+     "value": 45,
+     "kind": "computed"
+    },
+    {
+     "label": "Sum in minutes, 30 + 45",
+     "value": 75,
+     "kind": "computed"
+    },
+    {
+     "label": "What is left in minutes, 45 − 30",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarters in each half, 4 ÷ 2",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "1/2 counted in quarters, 1 × 2",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Quarters in each quarter, 4 ÷ 4",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "3/4 counted in quarters, 3 × 1",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Sum in quarters, 2 + 3",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "What is left in quarters, 3 − 2",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Size of one quarter, 1 ÷ 4, of the hour",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Place of the sum on the line, 5 × 0.25, hours",
+     "value": 1.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Place of what is left on the line, 1 × 0.25, hours",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Eighths in one whole (what eighth means)",
+     "value": 8,
+     "kind": "constant"
+    },
+    {
+     "label": "1/2 counted in eighths, 1 × (8 ÷ 2)",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "3/4 counted in eighths, 3 × (8 ÷ 4)",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Sum in eighths, 4 + 6",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "What is left in eighths, 6 − 4",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Twelfths in one whole (what twelfth means)",
+     "value": 12,
+     "kind": "constant"
+    },
+    {
+     "label": "1/2 counted in twelfths, 1 × (12 ÷ 2)",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "3/4 counted in twelfths, 3 × (12 ÷ 4)",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Sum in twelfths, 6 + 9",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "What is left in twelfths, 9 − 6",
+     "value": 3,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Half an hour plus three-quarters of an hour is an hour and a quarter, and written as fractions, 1/2 + 3/4, the sum comes out only once both are counted in quarters: then the tops add, and nothing else does. Remember from the lesson before last that cutting every piece into the same number of smaller pieces renames a fraction without moving it, and from the last lesson that two fractions are compared by giving them a common denominator first? Adding and taking away ask for the same first move, and then one more: count.\n\nA fraction's top number is a count and its bottom names what is being counted, so two tops can be added only when they count the same piece. Three quarters and two quarters are five quarters, the way three drums and two drums are five drums; putting a half and three quarters together as 4 counts nothing, because a half is not a quarter. **To add or take away two fractions of the same whole, put both in one piece that measures each exactly, renaming one of them or both, then add or take away the tops and keep that bottom.**[^1][^2][^3] The bottom stays because it is not an amount but the name of the piece: five quarters are still quarters, as five drums are still drums.\n\nQuarters measure both of these: 4 ÷ 2 = 2 comes out whole, so each half is two quarters and 1/2 is 1 × 2 = 2 quarters, 2/4, the renaming that keeps the fraction's value;[^4] and 4 ÷ 4 = 1, so 3/4 is already in quarters. Now count: 2 + 3 = 5 quarters, 5/4.[^5] Four of them fill the first hour and one is left, so 5/4 is 1 1/4, the improper fraction and the mixed number from the first lesson, one place: on the bars the joined run ends a quarter of the way into the second hour, and the line beneath marks 1.25. The clock agrees: a quarter of an hour is 60 ÷ 4 = 15 minutes, and 5 × 15 = 75, the 30 + 45 you would have added anyway. Taking away is the same count run backwards: three-quarters of an hour less half an hour is 3/4 − 2/4, and 3 − 2 = 1 quarter, 1/4 of an hour, 15 minutes, the bottom unchanged.[^3] On the bars the half's length comes off the end of the three-quarter run and one quarter is left.\n\nThe habit that fails here is the whole-number habit from the earlier lessons, treating the top and the bottom as two separate numbers,[^6] and adding each pair: 1/2 + 3/4 = 4/6. Check it against the bars. A sixth of an hour is 60 ÷ 6 = 10 minutes, so 4/6 is 40 minutes: less than the three-quarters of an hour you started with, before the half was even added. It goes wrong twice. The 4 added a count of halves to a count of quarters, pieces of different sizes, so it counts nothing; and the 6 names a piece, sixths, that neither fraction was cut into, when the answer should be counted in the piece you matched them in, quarters. Adding the tops without matching first fails on its own too: 1 + 3 = 4 of some piece would be 4 quarters, a whole hour, or 4 halves, two hours, and the sum is neither.\n\nWhich piece? The last lesson's test: a piece measures a fraction exactly when the fraction's bottom goes into the new bottom a whole number of times, so try the bigger bottom first, 4 here, and check that the smaller goes into it. When neither bottom goes into the other, say thirds and quarters, multiplying the two bottoms gives a piece both go into,[^7] and renaming each fraction by the other's bottom keeps both values.[^8] Any piece both go into works, which is what the stepper shows: in eighths, 4/8 + 6/8 = 10/8; in twelfths, 6/12 + 9/12 = 15/12; the same joined run and the same mark every time, since fractions at the same point on the line are the same number,[^9] only counted finer than it needs to be. Minutes are such a piece, sixtieths of an hour: 30/60 + 45/60 = 75/60, so whenever you add minutes on a job sheet you are adding fractions in a matched piece. One check comes before all of it, the one comparing needs too, where the two fractions must refer to the same whole:[^10] half an hour and three-quarters of the same hour add; half an hour and three-quarters of a metre have no joined run.\n\n**Tops count and bottoms name the piece, so two fractions of one whole add or take away only once both are counted in a piece that measures each exactly, and then only the tops add or take away while the bottom stays: 1/2 + 3/4 is 2/4 + 3/4 = 5/4, an hour and a quarter.[^1][^2][^3]**"
+  },
+  "analogy": {
+   "text": "Say a run of cable needs a 750 mm tail joined to a 1.5 m length. You would never write 750 + 1.5 = 751.5: the 750 counts millimetres and the 1.5 counts metres, different-sized pieces of length, so the two counts do not add as they stand. Put both in millimetres, 1.5 × 1000 = 1500, and the counts add, 750 + 1500 = 2250 mm; the unit is not added, since the answer is in millimetres and nothing else. That is the lesson's move: one piece first, then the tops add, and the bottom, the piece's name, stays.",
+   "breaks": "With metric units the finer one measures the coarser every time, a metre being exactly 1000 millimetres, so there is no check to make and no choice; with fractions you choose the piece and must check it measures both exactly, 4 ÷ 2 = 2. And 2250 mm is left as it is, while 5/4 of an hour is read back as 1 1/4, because the whole, the hour, is a size you want to see."
+  },
+  "practice": {
+   "text": "Adding or taking away two fractions (hours on a job sheet, lengths on a drawing, shares of a load):\n- Check both are fractions of the same whole: the same hour, the same inch. If not, put both lengths or times in one unit and add those instead.\n- Bottoms already the same? Add or take away the tops; the bottom stays. Done.\n- Otherwise choose a piece that measures both: try the bigger bottom, and check that the smaller goes into it a whole number of times (4 ÷ 2 = 2: yes). If it does not, multiply the two bottoms together; that piece measures both every time.\n- Rename each fraction into that piece: multiply its top and its bottom by the number its bottom needs to reach the chosen one.\n- Add or take away the tops. Keep the bottom.\n- If the top has reached the bottom or passed it, read the answer as a mixed number: 5/4 is 1 1/4. If a number goes into both top and bottom, divide both by it: 10/8 is 5/4.\n- Check it against something you can count: 5 quarters of an hour is 5 × 15 = 75 minutes.\n\n**Rule of thumb:** same piece first; then tops add and bottoms stay. The answer's bottom is the piece you chose and nothing else: if it is the two bottoms added together (2 + 4 = 6), you have added the bottoms.\n\n**Worked example:** a job sheet shows 1 3/4 hours for the first visit and 2 1/2 for the second. Wholes first: 1 + 2 = 3. The fractions, 3/4 and 1/2, are the lesson's pair: 4 ÷ 2 = 2, so 1/2 is 2/4, and 3/4 + 2/4 = 5/4 = 1 1/4. Altogether 3 + 1 1/4 = 4 1/4 hours, 4 hours 15 minutes. Taking away: a 2 m length has had 3/4 m cut off for a tail, so what is left is 2 − 3/4. Two whole metres are 2 × 4 = 8 quarters, so 2 is 8/4, and 8/4 − 3/4 = 5/4 m, 1 1/4 m, 1250 mm; the check in millimetres, 2000 − 750 = 1250, agrees.\n\n**Common mistakes:**\n- Adding the bottoms: 1/2 + 3/4 as 4/6, which is 40 minutes, shorter than the 3/4 you started with. The bottom is a name, not a count.\n- Adding the tops before matching: 1 + 3 = 4 counts a half with quarters. Match the piece first.\n- Renaming only the bottom: 1/2 written as 1/4 has halved the time. Multiply the top by the same number.\n- Choosing a piece that measures only one of them: halves for 3/4 leave one and a half halves, no whole count. Go finer, to a piece both bottoms go into.\n- Reading 5/4 as a mistake: a top bigger than the bottom means the sum passed one whole; read it as 1 1/4.\n- Adding across wholes: half an hour and three-quarters of a metre do not add; only fractions of one whole do.\n- Taking away the wrong way round: 3/4 − 1/2 is what is left of three-quarters after half is taken, 1/4; 1/2 − 3/4 comes out below zero, so check which is being taken from which."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Adding and subtracting fractions - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z9n4k7h",
+    "quote": "When you're adding and subtracting fractions with different denominators, you need to change one, and sometimes both, of the fractions so that they have the same denominator."
+   },
+   {
+    "n": 2,
+    "title": "Adding and subtracting fractions - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z9n4k7h",
+    "quote": "When the denominators are the same you can just add the numerators."
+   },
+   {
+    "n": 3,
+    "title": "How to subtract fractions - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z4rhsrd",
+    "quote": "To find the difference between fractions with the same denominator, subtract the numerators. The denominator remains the same."
+   },
+   {
+    "n": 4,
+    "title": "Equivalent fractions (video) | Khan Academy",
+    "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/v/equivalent-amount-of-pizza",
+    "quote": "If I multiply the numerator and the denominator by the same number, then I'm not changing what that fraction represents."
+   },
+   {
+    "n": 5,
+    "title": "Common Denominator",
+    "url": "https://www.mathsisfun.com/numbers/common-denominator.html",
+    "quote": "Then we can add the top numbers and keep the denominator the same."
+   },
+   {
+    "n": 6,
+    "title": "Does Initial Learning about the Meaning of Fractions Present Similar Challenges for Students with and without Adequate Whole-Number Skill? - PMC",
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139",
+    "quote": "common misconceptions and errors include viewing numerators and denominators as independent numbers, comparing fraction magnitudes based on whole-number knowledge (e.g., 1/5 > 1/2 because 5 > 2)"
+   },
+   {
+    "n": 7,
+    "title": "Common denomination: more adding and subtracting | NCETM",
+    "url": "https://www.ncetm.org.uk/classroom-resources/primm-308-common-denomination-more-adding-and-subtracting",
+    "quote": "To add and subtract non-related fractions, the product of the two denominators provides a common denominator."
+   },
+   {
+    "n": 8,
+    "title": "Common Denominator",
+    "url": "https://www.mathsisfun.com/numbers/common-denominator.html",
+    "quote": "We multiplied the top and bottom of each fraction by the denominator of the other: this keeps the value of the fraction the same!"
+   },
+   {
+    "n": 9,
+    "title": "Visualizing equivalent fractions review (article) | Khan Academy",
+    "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-review",
+    "quote": "Numbers are equivalent when they are located at the same point on the number line."
+   },
+   {
+    "n": 10,
+    "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+    "url": "https://thecorestandards.org/Math/Content/NF",
+    "quote": "Recognize that comparisons are valid only when the two fractions refer to the same whole."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  .ad .rest { fill: var(--k-panel); }\n  .ad .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }\n  .ad .split { stroke: var(--k-strong); stroke-width: 3.5; }\n  .ad .half { fill: var(--k-accent2); }\n  .ad .tq { fill: var(--k-accent); }\n  .ad .hatch { fill: url(#ad-hatch); }\n  .ad .cutown { stroke: var(--k-ink); stroke-width: 2; }\n  .ad .cutown.onrun { stroke: var(--k-on-accent2); }\n  .ad .cutnew { stroke: var(--k-muted); stroke-width: 1; animation: ad-in .3s ease; }\n  .ad .cutnew.onrun { stroke: var(--k-on-accent2); stroke-opacity: .8; }\n  .ad .keyt { font: 13px var(--k-font); fill: var(--k-ink); }\n  .ad .name { font: 16px var(--k-font); fill: var(--k-ink); }\n  .ad .name .top { font: 800 20px var(--k-font); fill: var(--k-accent2); }\n  .ad .name .off { font: 13px var(--k-font); fill: var(--k-muted); }\n  .ad .drop { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }\n  .ad .dot { fill: var(--k-accent2); }\n  .ad .marklab { font: 600 14px var(--k-font); fill: var(--k-accent2); }\n  .ad .minlab { font: 600 13px var(--k-font); fill: var(--k-accent2); }\n  .ad .line { stroke: var(--k-ink); stroke-width: 1.5; }\n  .ad .tickend { stroke: var(--k-ink); stroke-width: 1.5; }\n  .ad .tick { stroke: var(--k-muted); stroke-width: 1; animation: ad-in .3s ease; }\n  .ad .end { font: 14px var(--k-font); fill: var(--k-ink); }\n  .ad .work { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .ad .why { font: 13px var(--k-font); fill: var(--k-muted); }\n  @keyframes ad-in { from { opacity: 0; } to { opacity: 1; } }\n</style>\n\n<p class=\"lead\">Two bars end to end, one hour each, with half an hour and three-quarters of an hour shaded on them as two runs, and a line from 0 to 2 beneath marking where the result ends.</p>\n\n<svg class=\"ad\" id=\"scene\" viewBox=\"0 0 340 238\" width=\"100%\" role=\"img\" aria-label=\"\">\n  <defs>\n    <pattern id=\"ad-hatch\" patternUnits=\"userSpaceOnUse\" width=\"7\" height=\"7\" patternTransform=\"rotate(45)\">\n      <line x1=\"0\" y1=\"0\" x2=\"0\" y2=\"7\" stroke=\"var(--k-on-accent2)\" stroke-width=\"1.6\" stroke-opacity=\".85\"/>\n    </pattern>\n  </defs>\n  <g id=\"key\">\n    <rect class=\"half\" x=\"20\" y=\"4\" width=\"12\" height=\"12\" rx=\"2\"/>\n    <text class=\"keyt\" x=\"37\" y=\"14\">half-hour run</text>\n    <rect class=\"tq\" x=\"140\" y=\"4\" width=\"12\" height=\"12\" rx=\"2\"/>\n    <text class=\"keyt\" x=\"157\" y=\"14\">three-quarter-hour run</text>\n    <g id=\"keyoff\">\n      <rect class=\"half\" x=\"20\" y=\"23\" width=\"12\" height=\"12\" rx=\"2\"/>\n      <rect class=\"hatch\" x=\"20\" y=\"23\" width=\"12\" height=\"12\" rx=\"2\"/>\n      <text class=\"keyt\" x=\"37\" y=\"33\">taken off</text>\n    </g>\n    <line class=\"cutnew\" x1=\"140\" y1=\"29\" x2=\"152\" y2=\"29\"/>\n    <text class=\"keyt\" x=\"157\" y=\"33\">cuts the stepper adds</text>\n  </g>\n  <g id=\"bars\"></g>\n  <g id=\"names\"></g>\n  <g id=\"scale\"></g>\n  <g id=\"mark\"></g>\n  <g id=\"working\"></g>\n</svg>\n<div class=\"k-controls\" id=\"controls\"></div>\n<p class=\"say\" id=\"say\"></p>\n<p class=\"caption\">Rename both in one piece that measures each exactly; then the tops add or take away and the bottom stays.</p>\n\n<script>\n  // The two times: 1/2 of an hour (1 of 2 halves) and 3/4 of an hour (3 of 4 quarters), 60 minutes in the hour.\n  const HALF_TOP = 1, HALF_BOT = 2, TQ_TOP = 3, TQ_BOT = 4, MIN = 60;\n  // The piece both runs are counted in, per stepper setting: 0 is each in its own piece.\n  const PIECES = [0, 4, 8, 12];\n  const PLURAL = ['its own piece', 'quarters', 'eighths', 'twelfths'];\n  const SINGULAR = ['', 'quarter', 'eighth', 'twelfth'];\n  const SRC_ADD = 'https://www.bbc.co.uk/bitesize/articles/z9n4k7h';            // [2]\n  const SRC_TAKE = 'https://www.bbc.co.uk/bitesize/articles/z4rhsrd';           // [3]\n  const SRC_HABIT = 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139';         // [6]\n\n  // The drawing: 0 at x = 20, 1 (the bars meet) at x = 170, 2 at x = 320.\n  const X0 = 20, X1 = 320, W = X1 - X0, HOUR = W / 2;\n  const xAt = (h) => X0 + h * HOUR;\n  const BAR_Y = 66, BAR_H = 34, LINE_Y = 160, NAME_Y = 58, UNDER_Y = 118, WORK_Y = 212, WHY_Y = 230;\n\n  // Each run's length in hours is top ÷ bottom; its minutes are top × (60 ÷ bottom). Neither changes with the piece.\n  const halfLen = HALF_TOP / HALF_BOT, tqLen = TQ_TOP / TQ_BOT;\n  const halfMin = HALF_TOP * (MIN / HALF_BOT), tqMin = TQ_TOP * (MIN / TQ_BOT);\n  // The rule: counted in a piece whose bottom is a whole number of times its own, a fraction's top is multiplied by that number.\n  const countOf = (top, own, chosen) => top * (chosen / own);\n\n  K.stepper({ id: 'countIn', label: 'Piece both are counted in', steps: ['Each in its own piece', 'Quarters', 'Eighths', 'Twelfths'], value: 0, compact: true, into: '#controls' });\n  K.choice({ id: 'doWhat', label: 'Add or take away', options: ['Add', 'Take away'], value: 0, into: '#controls' });\n  K.stage('#scene', '#controls');\n\n  K.model((p) => {\n    const N = PIECES[p.countIn], add = p.doWhat === 'Add';\n    const h = N ? countOf(HALF_TOP, HALF_BOT, N) : HALF_TOP;\n    const q = N ? countOf(TQ_TOP, TQ_BOT, N) : TQ_TOP;\n    return {\n      halfCount: h,\n      threeQuarterCount: q,\n      bottom: N,\n      resultCount: N ? (add ? h + q : q - h) : 0,\n      resultMinutes: add ? halfMin + tqMin : tqMin - halfMin,\n      place: add ? halfLen + tqLen : tqLen - halfLen,\n    };\n  });\n\n  const svg = document.getElementById('scene');\n  const g = (id) => { const e = document.getElementById(id); e.textContent = ''; return e; };\n  const text = (cls, x, y, anchor, ...kids) => K.svg('text', { class: cls, x, y, 'text-anchor': anchor }, ...kids);\n\n  function draw(p, o) {\n    const i = p.countIn, N = PIECES[i], add = p.doWhat === 'Add';\n    // Where each run lies, in hours: added, the half first and the three-quarters from where it stops;\n    // taken away, the three-quarters from 0 with the half laid over its right-hand end.\n    const half = add ? [0, halfLen] : [tqLen - halfLen, tqLen];\n    const tq = add ? [halfLen, halfLen + tqLen] : [0, tqLen];\n    const inside = (h) => (h > half[0] && h < half[1]) || (h > tq[0] && h < tq[1]);\n    // The three-quarter run's own quarter cuts, where the half run does not cover them.\n    const own = [1, 2].map((k) => tq[0] + k / TQ_BOT).filter((h) => !K.near(h, 1, 1e-9) && !(!add && h > half[0] && h < half[1]));\n\n    const bars = g('bars');\n    bars.appendChild(K.svg('rect', { class: 'rest', x: X0, y: BAR_Y, width: W, height: BAR_H, rx: 2 }));\n    bars.appendChild(K.svg('rect', { class: 'tq', x: xAt(tq[0]), y: BAR_Y, width: xAt(tq[1]) - xAt(tq[0]), height: BAR_H }));\n    bars.appendChild(K.svg('rect', { class: 'half', x: xAt(half[0]), y: BAR_Y, width: xAt(half[1]) - xAt(half[0]), height: BAR_H }));\n    // The key names the hatch only while something is hatched.\n    document.getElementById('keyoff').style.display = add ? 'none' : '';\n    if (!add) bars.appendChild(K.svg('rect', { class: 'hatch', x: xAt(half[0]), y: BAR_Y, width: xAt(half[1]) - xAt(half[0]), height: BAR_H }));\n    const cut = (h, cls) => bars.appendChild(K.svg('line', { class: cls + (inside(h) ? ' onrun' : ''), x1: xAt(h), y1: BAR_Y, x2: xAt(h), y2: BAR_Y + BAR_H }));\n    own.forEach((h) => cut(h, 'cutown'));\n    if (N) for (let j = 1; j < 2 * N; j++) {\n      const h = j / N;\n      if (j === N || own.some((x) => K.near(x, h, 1e-9))) continue;\n      cut(h, 'cutnew');\n    }\n    bars.appendChild(K.svg('line', { class: 'split', x1: xAt(1), y1: BAR_Y, x2: xAt(1), y2: BAR_Y + BAR_H }));\n    bars.appendChild(K.svg('rect', { class: 'edge', x: X0, y: BAR_Y, width: HOUR, height: BAR_H, rx: 2 }));\n    bars.appendChild(K.svg('rect', { class: 'edge', x: xAt(1), y: BAR_Y, width: HOUR, height: BAR_H, rx: 2 }));\n\n    // Each run's name: the top counts its pieces, the bottom names the piece. Taken away, the half's name sits under the bar.\n    const hb = N || HALF_BOT, qb = N || TQ_BOT;\n    const names = g('names');\n    names.appendChild(text('name', xAt((tq[0] + tq[1]) / 2), NAME_Y, 'middle', K.svg('tspan', { class: 'top' }, String(o.threeQuarterCount)), '/' + qb));\n    if (add) names.appendChild(text('name', xAt((half[0] + half[1]) / 2), NAME_Y, 'middle', K.svg('tspan', { class: 'top' }, String(o.halfCount)), '/' + hb));\n    else names.appendChild(text('name', xAt(half[0]) + 10, UNDER_Y, 'start', K.svg('tspan', { class: 'top' }, String(o.halfCount)), '/' + hb, K.svg('tspan', { class: 'off', dx: 6 }, 'taken off')));\n\n    // The number line: 0 to 2, a tick at every chosen piece once both runs share one.\n    const scale = g('scale');\n    scale.appendChild(K.svg('line', { class: 'line', x1: X0, y1: LINE_Y, x2: X1, y2: LINE_Y }));\n    if (N) for (let j = 1; j < 2 * N; j++) if (j !== N) scale.appendChild(K.svg('line', { class: 'tick', x1: xAt(j / N), y1: LINE_Y, x2: xAt(j / N), y2: LINE_Y + 5 }));\n    [0, 1, 2].forEach((h) => {\n      scale.appendChild(K.svg('line', { class: 'tickend', x1: xAt(h), y1: LINE_Y, x2: xAt(h), y2: LINE_Y + 8 }));\n      scale.appendChild(text('end', xAt(h), LINE_Y + 24, 'middle', String(h)));\n    });\n\n    // The mark under where the result ends: named in the chosen piece once there is one, and in minutes always.\n    const xm = xAt(o.place);\n    const mark = g('mark');\n    mark.appendChild(K.svg('line', { class: 'drop', x1: xm, y1: BAR_Y + BAR_H, x2: xm, y2: N ? 132 : LINE_Y - 5 }));\n    if (N) mark.appendChild(text('marklab', xm, 150, 'middle', o.resultCount + '/' + N + ' h'));\n    mark.appendChild(K.svg('circle', { class: 'dot', cx: xm, cy: LINE_Y, r: 4.5 }));\n    mark.appendChild(text('minlab', xm, LINE_Y + 24, 'middle', o.resultMinutes + ' min'));\n\n    // The line of working under the bars.\n    const work = g('working');\n    const unit = (n) => (n === 1 ? SINGULAR[i] : PLURAL[i]);\n    let line1, line2;\n    if (!N) {\n      line1 = add ? '1 half + 3 quarters' : '3 quarters − 1 half';\n      line2 = 'pieces differ: no count';\n    } else {\n      line1 = add ? o.halfCount + ' + ' + o.threeQuarterCount + ' = ' + o.resultCount + ' ' + unit(o.resultCount)\n        : o.threeQuarterCount + ' − ' + o.halfCount + ' = ' + o.resultCount + ' ' + unit(o.resultCount);\n      line2 = add ? 'same piece: tops add, bottom stays' : 'same piece: tops take away, bottom stays';\n    }\n    work.appendChild(text('work', 170, WORK_Y, 'middle', line1));\n    work.appendChild(text('why', 170, WHY_Y, 'middle', line2));\n\n    svg.setAttribute('aria-label', 'Two bars of one hour each over a line from 0 to 2. ' +\n      (add ? 'The half-hour run starts at the left end and the three-quarter-hour run starts where it stops, so the joined run ends a quarter of the way into the second bar'\n        : 'The three-quarter-hour run starts at the left end and the half-hour run is laid over its right-hand end as the part taken off, so what is left ends a quarter of the way along the first bar') +\n      ', with a mark on the line under that end reading ' + o.resultMinutes + ' minutes' +\n      (N ? ' and ' + o.resultCount + '/' + N + ' of an hour. Both bars are cut into ' + PLURAL[i] + ': the half-hour run is named ' + o.halfCount + '/' + N + ' and the three-quarter-hour run ' + o.threeQuarterCount + '/' + N + '.'\n        : '. The bars have no cuts; the half-hour run is one piece, named 1/2, and the three-quarter-hour run three, named 3/4.'));\n\n    // The sentence: the cause (the piece chosen), the renaming, then the count.\n    let s;\n    if (!N) {\n      s = add ? 'The half-hour run and the three-quarter-hour run lie end to end, so the joined run ends a quarter of the way into the second hour, at 75 minutes. Their tops, 1 and 3, count pieces of different sizes, a half and a quarter, so there is no count to add yet.'\n        : 'The half-hour run comes off the right-hand end of the three-quarter-hour run, so what is left ends a quarter of the way along the first hour, at 15 minutes. Their tops, 3 and 1, count pieces of different sizes, a quarter and a half, so there is no count to take away yet.';\n      if (!K.moved) s += ' Count both in quarters and the half-hour run gains a cut.';\n    } else {\n      const k1 = N / HALF_BOT, k2 = N / TQ_BOT;\n      s = 'Both runs are counted in ' + PLURAL[i] + ': ' + N + ' ÷ 2 = ' + k1 + ', so the half is cut into ' + k1 + ' and the half-hour run reads 1 × ' + k1 + ' = ' + o.halfCount + ' ' + PLURAL[i] + ', ' + o.halfCount + '/' + N + ', its length unchanged; ' +\n        (k2 === 1 ? '4 ÷ 4 = 1, so the three-quarter-hour run is cut no further and stays 3 × 1 = 3. '\n          : N + ' ÷ 4 = ' + k2 + ', so each quarter is cut into ' + k2 + ' and the three-quarter-hour run reads 3 × ' + k2 + ' = ' + o.threeQuarterCount + ', ' + o.threeQuarterCount + '/' + N + '. ') +\n        'Both count the same piece now, so ' +\n        (add ? 'the tops add and the bottom stays: ' + o.halfCount + ' + ' + o.threeQuarterCount + ' = ' + o.resultCount + ' ' + PLURAL[i] + ', ' + o.resultCount + '/' + N + ' of an hour, the mark the joined run already reached'\n          : 'the tops take away and the bottom stays: ' + o.threeQuarterCount + ' − ' + o.halfCount + ' = ' + o.resultCount + ' ' + unit(o.resultCount) + ', ' + o.resultCount + '/' + N + ' of an hour, the mark under what is left') +\n        (i === 1 ? (add ? '; a quarter is 60 ÷ 4 = 15 minutes, and 5 × 15 = 75.' : '; a quarter is 60 ÷ 4 = 15 minutes.') : ', the same mark as in quarters: ' + o.resultMinutes + ' minutes.');\n    }\n    document.getElementById('say').textContent = s;\n  }\n  K.update(draw);\n\n  // Known answers, worked out by hand from the rule.\n  K.check('Each in its own piece: the tops stay 1 and 3 with no shared bottom, and the minutes need no piece: 30 + 45 = 75 added, 45 − 30 = 15 taken away', () => {\n    const a = K.at({ countIn: 0, doWhat: 'Add' }), t = K.at({ countIn: 0, doWhat: 'Take away' });\n    return a.halfCount === 1 && a.threeQuarterCount === 3 && a.bottom === 0 && t.halfCount === 1 && t.threeQuarterCount === 3 &&\n      K.near(halfMin, 30, 1e-9) && K.near(tqMin, 45, 1e-9) && a.resultMinutes === 75 && t.resultMinutes === 15;\n  });\n  K.check('Once both are counted in one piece, the tops add and the bottom stays', () => {\n    const want = [[2, 3, 5], [4, 6, 10], [6, 9, 15]];\n    for (let i = 1; i <= 3; i++) {\n      const o = K.at({ countIn: i, doWhat: 'Add' }), w = want[i - 1];\n      if (o.halfCount !== w[0] || o.threeQuarterCount !== w[1] || o.resultCount !== w[2] || o.resultCount !== o.halfCount + o.threeQuarterCount || o.bottom !== PIECES[i]) return false;\n    }\n    return true;\n  }, { source: SRC_ADD });\n  K.check('With the same bottom, the tops take away and the bottom stays the same', () => {\n    const want = [[2, 3, 1], [4, 6, 2], [6, 9, 3]];\n    for (let i = 1; i <= 3; i++) {\n      const o = K.at({ countIn: i, doWhat: 'Take away' }), w = want[i - 1];\n      if (o.halfCount !== w[0] || o.threeQuarterCount !== w[1] || o.resultCount !== w[2] || o.resultCount !== o.threeQuarterCount - o.halfCount || o.bottom !== PIECES[i]) return false;\n    }\n    return true;\n  }, { source: SRC_TAKE });\n  K.check('In quarters, 4 ÷ 2 = 2 makes 1/2 into 1 × 2 = 2, 2/4, and 4 ÷ 4 = 1 leaves 3/4 as 3; 5 quarters are 5 × 15 = 75 minutes and 1 quarter is 15', () => {\n    const o = K.at({ countIn: 1, doWhat: 'Add' });\n    return K.near(4 / 2, 2, 1e-9) && o.halfCount === 1 * 2 && K.near(4 / 4, 1, 1e-9) && o.threeQuarterCount === 3 * 1 &&\n      K.near(5 * (60 / 4), 75, 1e-9) && o.resultMinutes === 75 && K.at({ countIn: 1, doWhat: 'Take away' }).resultMinutes === 15;\n  });\n  K.check('Renaming moves neither run: the joined run ends at 5 × 0.25 = 1.25 hours and what is left at 1 × 0.25 = 0.25 at every setting, 75 and 15 minutes', () => {\n    for (let i = 0; i <= 3; i++) {\n      const a = K.at({ countIn: i, doWhat: 'Add' }), t = K.at({ countIn: i, doWhat: 'Take away' });\n      if (!K.near(a.place, 1.25, 1e-9) || !K.near(t.place, 0.25, 1e-9) || a.resultMinutes !== 75 || t.resultMinutes !== 15) return false;\n      if (i && (!K.near(a.resultCount / a.bottom, 1.25, 1e-9) || !K.near(t.resultCount / t.bottom, 0.25, 1e-9))) return false;\n    }\n    return K.near(5 * 0.25, 1.25, 1e-9) && K.near(1 * 0.25, 0.25, 1e-9);\n  });\n  K.check('Treating top and bottom as separate numbers, 1/2 + 3/4 = 4/6, gives 4 × 10 = 40 minutes, less than the 45 of the three-quarters alone', () =>\n    K.near(60 / 6, 10, 1e-9) && K.near(4 * 10, 40, 1e-9) && 40 < tqMin && 40 < K.at({ countIn: 1, doWhat: 'Add' }).resultMinutes, { source: SRC_HABIT });\n\n  K.ready();\n</script>\n",
+  "title": "Count both, then add",
+  "brief": "The one thing you should see is the 1/2 run gain a cut and read 2/4, so the two counts, 2 and 3, add to the 5 quarters the joined run shows, when you count both in quarters.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Each in its own piece: the tops stay 1 and 3 with no shared bottom, and the minutes need no piece: 30 + 45 = 75 added, 45 − 30 = 15 taken away",
+     "ok": true
+    },
+    {
+     "label": "Once both are counted in one piece, the tops add and the bottom stays",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/z9n4k7h"
+    },
+    {
+     "label": "With the same bottom, the tops take away and the bottom stays the same",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/z4rhsrd"
+    },
+    {
+     "label": "In quarters, 4 ÷ 2 = 2 makes 1/2 into 1 × 2 = 2, 2/4, and 4 ÷ 4 = 1 leaves 3/4 as 3; 5 quarters are 5 × 15 = 75 minutes and 1 quarter is 15",
+     "ok": true
+    },
+    {
+     "label": "Renaming moves neither run: the joined run ends at 5 × 0.25 = 1.25 hours and what is left at 1 × 0.25 = 0.25 at every setting, 75 and 15 minutes",
+     "ok": true
+    },
+    {
+     "label": "Treating top and bottom as separate numbers, 1/2 + 3/4 = 4/6, gives 4 × 10 = 40 minutes, less than the 45 of the three-quarters alone",
+     "ok": true,
+     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139"
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "countIn",
+    "doWhat"
+   ],
+   "readouts": [],
+   "outputs": [
+    "halfCount",
+    "threeQuarterCount",
+    "bottom",
+    "resultCount",
+    "resultMinutes",
+    "place"
+   ],
+   "inputs": [
+    {
+     "id": "countIn",
+     "kind": "stepper",
+     "label": "Piece both are counted in",
+     "min": 0,
+     "max": 3,
+     "step": 1,
+     "steps": [
+      "Each in its own piece",
+      "Quarters",
+      "Eighths",
+      "Twelfths"
+     ],
+     "value": 0
+    },
+    {
+     "id": "doWhat",
+     "kind": "choice",
+     "label": "Add or take away",
+     "options": [
+      "Add",
+      "Take away"
+     ],
+     "labels": [
+      "Add",
+      "Take away"
+     ],
+     "value": "Add",
+     "index": 0
+    }
+   ],
+   "actions": [],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-10T16:42:45.538Z",
+  "applied": [
+   {
+    "path": "interactive.ignores",
+    "problem": "\"Pieces finer than twelfths keep working\" is false in general: fifths, sixths, tenths and any piece 4 does not go into leave 3/4 with no whole count; only finer pieces both bottoms go into work."
+   },
+   {
+    "path": "explain.text",
+    "problem": "Two over-general claims: \"not four of anything\" is literally false (any amount is four of its own quarter), and \"the piece should not change at all\" contradicts the lesson, which changes the half into quarters; the piece that must not change is the matched one."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

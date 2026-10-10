@@ -1,0 +1,170 @@
+<!-- kind: quantity -->
+<style>
+  .rn .run { fill: var(--k-accent2); }
+  .rn .rest { fill: var(--k-panel); }
+  .rn .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .rn .cut8 { stroke: var(--k-ink); stroke-width: 2; }
+  .rn .cut8.onrun { stroke: var(--k-on-accent2); }
+  .rn .cutnew { stroke: var(--k-muted); stroke-width: 1; animation: rn-in .3s ease; }
+  .rn .cutnew.onrun { stroke: var(--k-on-accent2); stroke-opacity: .75; }
+  .rn .keyt { font: 13px var(--k-font); fill: var(--k-ink); }
+  .rn .num { font: 800 18px var(--k-font); fill: var(--k-accent2); }
+  .rn .vinc { stroke: var(--k-accent2); stroke-width: 2; }
+  .rn .tag { font: 13px var(--k-font); fill: var(--k-accent); }
+  .rn .marklab { font: 600 13px var(--k-font); fill: var(--k-accent2); }
+  .rn .drop { stroke: var(--k-accent2); stroke-width: 2; }
+  .rn .dot { fill: var(--k-accent2); }
+  .rn .line { stroke: var(--k-ink); stroke-width: 1.5; }
+  .rn .tick8 { stroke: var(--k-ink); stroke-width: 1.5; }
+  .rn .ticknew { stroke: var(--k-muted); stroke-width: 1; animation: rn-in .3s ease; }
+  .rn .end { font: 14px var(--k-font); fill: var(--k-ink); }
+  @keyframes rn-in { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+<p class="lead">One bar is one whole, cut into 8 equal pieces with the 3 at the left end shaded as one run; the line beneath runs from 0 to 1 and marks where the run ends.</p>
+
+<svg class="rn" id="scene" viewBox="0 0 340 204" width="100%" role="img" aria-label="">
+  <g id="key">
+    <rect class="run" x="20" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="37" y="14">shaded run</text>
+    <rect class="rest" x="125" y="4" width="12" height="12" rx="2"/>
+    <rect class="edge" x="125" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="142" y="14">the rest of the whole</text>
+    <line class="cut8" x1="20" y1="29" x2="32" y2="29"/>
+    <text class="keyt" x="37" y="33">cuts into eighths</text>
+    <line class="cutnew" x1="170" y1="29" x2="182" y2="29"/>
+    <text class="keyt" x="187" y="33">cuts the slider adds</text>
+  </g>
+  <g id="name">
+    <text class="num" id="top" x="76" y="64" text-anchor="middle"></text>
+    <line class="vinc" x1="60" y1="70" x2="92" y2="70"/>
+    <text class="num" id="bottom" x="76" y="88" text-anchor="middle"></text>
+    <text class="tag" x="100" y="64">pieces shaded</text>
+    <text class="tag" x="100" y="88">equal pieces in the whole</text>
+  </g>
+  <g id="bar"></g>
+  <g id="mark">
+    <line class="drop" id="drop" y1="134" y2="158"/>
+    <circle class="dot" id="dot" cy="158" r="5"/>
+    <text class="marklab" id="marklab" y="151">where the run ends</text>
+  </g>
+  <g id="scale"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">The place is pieces shaded ÷ pieces in the whole: the slider multiplies both, so it cancels out.</p>
+
+<script>
+  // The whole: one bar of 8 eighths, the first 3 shaded. The slider cuts every eighth into 1 to 4 equal pieces.
+  const EIGHTHS = 8, SHADED = 3, MAX = 4;
+  const SRC_CUT = 'https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/v/equivalent-amount-of-pizza';   // [1], [3]
+  const SRC_LINE = 'https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-review';   // [2]
+  // The drawing: 0 at x = 20, 1 (the whole) at x = 320.
+  const X0 = 20, X1 = 320, W = X1 - X0;
+  const xAt = (f) => X0 + f * W;
+  const BAR_Y = 100, BAR_H = 34, LINE_Y = 158;
+
+  // The rule: cutting every eighth into n multiplies both counts by n; the place is their ratio.
+  const wholeOf = (n) => EIGHTHS * n;
+  const shadedOf = (n) => SHADED * n;
+  const placeOf = (n) => shadedOf(n) / wholeOf(n);
+  const nameOf = (n) => shadedOf(n) + '/' + wholeOf(n);
+  // One piece's size, written as the explanation writes it: 0.125, 0.0625, 0.03125 (exact), else left in words.
+  const sizeTxt = (pieces) => { const s = 1 / pieces; return Number.isInteger(s * 100000) ? String(s) : null; };
+
+  K.control({ id: 'cutsPerEighth', label: 'Pieces each eighth is cut into', hint: 'Every piece is cut alike, shaded or not', min: 1, max: MAX, step: 1, value: 1, unit: 'pieces', into: '#controls' });
+  K.stage('#scene', '#controls');
+  K.readout({ id: 'place', label: 'Place on the line', decimals: 3, big: true, into: '#outs' });
+
+  K.model((p) => ({
+    piecesInWhole: wholeOf(p.cutsPerEighth),
+    piecesShaded: shadedOf(p.cutsPerEighth),
+    place: placeOf(p.cutsPerEighth),
+  }));
+
+  // The number line's ends and the mark, drawn once: the run's end never moves.
+  const xEnd = xAt(SHADED / EIGHTHS);
+  const scale = document.getElementById('scale');
+  const fixed = K.svg('g');
+  fixed.appendChild(K.svg('line', { class: 'line', x1: X0, y1: LINE_Y, x2: X1, y2: LINE_Y }));
+  fixed.appendChild(K.svg('text', { class: 'end', x: X0, y: LINE_Y + 28, 'text-anchor': 'start' }, '0'));
+  fixed.appendChild(K.svg('text', { class: 'end', x: X1, y: LINE_Y + 28, 'text-anchor': 'end' }, '1, the whole'));
+  const ticks = K.svg('g');
+  document.getElementById('drop').setAttribute('x1', xEnd);
+  document.getElementById('drop').setAttribute('x2', xEnd);
+  document.getElementById('dot').setAttribute('cx', xEnd);
+  document.getElementById('marklab').setAttribute('x', xEnd + 10);
+
+  const svg = document.getElementById('scene');
+  function draw(p, o) {
+    const n = p.cutsPerEighth, whole = o.piecesInWhole, shaded = o.piecesShaded, name = nameOf(n);
+    const pieceW = W / whole;
+
+    // The bar: the shaded run, the rest, the seven cuts into eighths, then the cuts the slider adds inside every eighth.
+    const bar = document.getElementById('bar');
+    bar.textContent = '';
+    bar.appendChild(K.svg('rect', { class: 'rest', x: X0, y: BAR_Y, width: W, height: BAR_H, rx: 2 }));
+    bar.appendChild(K.svg('rect', { class: 'run', x: X0, y: BAR_Y, width: xEnd - X0, height: BAR_H, rx: 2 }));
+    for (let i = 1; i < whole; i++) {
+      const x = X0 + i * pieceW, onRun = i < shaded, old = i % n === 0;
+      bar.appendChild(K.svg('line', { class: (old ? 'cut8' : 'cutnew') + (onRun ? ' onrun' : ''), x1: x, y1: BAR_Y, x2: x, y2: BAR_Y + BAR_H }));
+    }
+    bar.appendChild(K.svg('rect', { class: 'edge', x: X0, y: BAR_Y, width: W, height: BAR_H, rx: 2 }));
+
+    // The name above the run: the top counts the shaded pieces, the bottom the equal pieces in the whole.
+    document.getElementById('top').textContent = String(shaded);
+    document.getElementById('bottom').textContent = String(whole);
+
+    // The number line: a tick at every cut, taller at the eighths; the mark stays where it is.
+    scale.textContent = '';
+    scale.appendChild(fixed);
+    ticks.textContent = '';
+    for (let i = 0; i <= whole; i++) {
+      const x = X0 + i * pieceW, old = i % n === 0;
+      ticks.appendChild(K.svg('line', { class: old ? 'tick8' : 'ticknew', x1: x, y1: LINE_Y, x2: x, y2: LINE_Y + (old ? 10 : 6) }));
+    }
+    scale.appendChild(ticks);
+
+    svg.setAttribute('aria-label', 'One whole bar cut into ' + whole + ' equal pieces, ' + shaded + ' of them shaded as one run from the left end, named ' + name +
+      '; on the line beneath, from 0 to 1, a mark sits under the end of the run' + (n === 1 ? '.' : ', exactly where it was before the cuts.'));
+
+    // The sentence: the cause (every eighth cut into n), then the counts, then the place.
+    let s;
+    if (n === 1) {
+      s = 'Nothing is cut yet: 8 equal pieces in the whole, the 3 at the left end shaded, so the run is named 3/8 and ends at 3 × 0.125 = 0.375 of the whole, where the mark sits.';
+      if (!K.moved) s += ' Cut every eighth into 2 and the name changes while the run and the mark stay put.';
+    } else {
+      const size = sizeTxt(whole);
+      s = 'Every eighth is cut into ' + n + ', the shaded ones too, so the whole has 8 × ' + n + ' = ' + whole + ' pieces' +
+        (size ? ' of 1 ÷ ' + whole + ' = ' + size + ' each' : ', each a third of an eighth') + ', and 3 × ' + n + ' = ' + shaded + ' of them are shaded: ' +
+        (size ? shaded + ' × ' + size : shaded + ' ÷ ' + whole) + ' = 0.375. The run and the mark are exactly where they were, so 3/8 and ' + name + ' are the same number' +
+        (n === MAX ? ', the finest name this slider gives it.' : '.');
+    }
+    document.getElementById('say').textContent = s;
+  }
+  K.update(draw);
+
+  // Known answers, worked out by hand from the rule.
+  K.check('Uncut: 8 pieces in the whole, 3 shaded, named 3/8, and the place is 3 ÷ 8 = 0.375', () => {
+    const o = K.at({ cutsPerEighth: 1 });
+    return o.piecesInWhole === 8 && o.piecesShaded === 3 && nameOf(1) === '3/8' && K.near(o.place, 0.375, 1e-9);
+  });
+  K.check('Cutting every piece into 2 gives twice as many pieces: 8 × 2 = 16 in the whole and 3 × 2 = 6 shaded, 6/16', () => {
+    const o = K.at({ cutsPerEighth: 2 });
+    return o.piecesInWhole === 16 && o.piecesShaded === 6 && nameOf(2) === '6/16' && K.near(6 * (1 / 16), 0.375, 1e-9);
+  }, { source: SRC_CUT });
+  K.check('At 3 per eighth: 24 pieces, 9 shaded, 9/24; at 4: 32 pieces of 1 ÷ 32 = 0.03125, 12 shaded, 12 × 0.03125 = 0.375', () => {
+    const a = K.at({ cutsPerEighth: 3 }), b = K.at({ cutsPerEighth: 4 });
+    return a.piecesInWhole === 24 && a.piecesShaded === 9 && nameOf(3) === '9/24' &&
+      b.piecesInWhole === 32 && b.piecesShaded === 12 && K.near(1 / 32, 0.03125, 1e-9) && K.near(12 * 0.03125, 0.375, 1e-9);
+  });
+  K.check('Multiplying the top and the bottom by the same number leaves the fraction at the same point on the line at every setting', () => {
+    for (let n = 1; n <= MAX; n++) if (!K.near(K.at({ cutsPerEighth: n }).place, 0.375, 1e-9)) return false;
+    return true;
+  }, { source: SRC_LINE });
+  K.check('Adding 1 to the top and the bottom instead, 3/8 to 4/9, would move the mark: 4 ÷ 9 is about 0.444, not 0.375', () =>
+    K.near(4 / 9, 0.444, 0.001) && !K.near(4 / 9, placeOf(1), 0.01) && 4 / 9 > placeOf(1));
+
+  K.ready();
+</script>

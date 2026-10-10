@@ -1,0 +1,238 @@
+<!-- kind: skill -->
+<style>
+  .ad .rest { fill: var(--k-panel); }
+  .ad .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .ad .split { stroke: var(--k-strong); stroke-width: 3.5; }
+  .ad .half { fill: var(--k-accent2); }
+  .ad .tq { fill: var(--k-accent); }
+  .ad .hatch { fill: url(#ad-hatch); }
+  .ad .cutown { stroke: var(--k-ink); stroke-width: 2; }
+  .ad .cutown.onrun { stroke: var(--k-on-accent2); }
+  .ad .cutnew { stroke: var(--k-muted); stroke-width: 1; animation: ad-in .3s ease; }
+  .ad .cutnew.onrun { stroke: var(--k-on-accent2); stroke-opacity: .8; }
+  .ad .keyt { font: 13px var(--k-font); fill: var(--k-ink); }
+  .ad .name { font: 16px var(--k-font); fill: var(--k-ink); }
+  .ad .name .top { font: 800 20px var(--k-font); fill: var(--k-accent2); }
+  .ad .name .off { font: 13px var(--k-font); fill: var(--k-muted); }
+  .ad .drop { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+  .ad .dot { fill: var(--k-accent2); }
+  .ad .marklab { font: 600 14px var(--k-font); fill: var(--k-accent2); }
+  .ad .minlab { font: 600 13px var(--k-font); fill: var(--k-accent2); }
+  .ad .line { stroke: var(--k-ink); stroke-width: 1.5; }
+  .ad .tickend { stroke: var(--k-ink); stroke-width: 1.5; }
+  .ad .tick { stroke: var(--k-muted); stroke-width: 1; animation: ad-in .3s ease; }
+  .ad .end { font: 14px var(--k-font); fill: var(--k-ink); }
+  .ad .work { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .ad .why { font: 13px var(--k-font); fill: var(--k-muted); }
+  @keyframes ad-in { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+<p class="lead">Two bars end to end, one hour each, with half an hour and three-quarters of an hour shaded on them as two runs, and a line from 0 to 2 beneath marking where the result ends.</p>
+
+<svg class="ad" id="scene" viewBox="0 0 340 238" width="100%" role="img" aria-label="">
+  <defs>
+    <pattern id="ad-hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--k-on-accent2)" stroke-width="1.6" stroke-opacity=".85"/>
+    </pattern>
+  </defs>
+  <g id="key">
+    <rect class="half" x="20" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="37" y="14">half-hour run</text>
+    <rect class="tq" x="140" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="157" y="14">three-quarter-hour run</text>
+    <g id="keyoff">
+      <rect class="half" x="20" y="23" width="12" height="12" rx="2"/>
+      <rect class="hatch" x="20" y="23" width="12" height="12" rx="2"/>
+      <text class="keyt" x="37" y="33">taken off</text>
+    </g>
+    <line class="cutnew" x1="140" y1="29" x2="152" y2="29"/>
+    <text class="keyt" x="157" y="33">cuts the stepper adds</text>
+  </g>
+  <g id="bars"></g>
+  <g id="names"></g>
+  <g id="scale"></g>
+  <g id="mark"></g>
+  <g id="working"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<p class="caption">Rename both in one piece that measures each exactly; then the tops add or take away and the bottom stays.</p>
+
+<script>
+  // The two times: 1/2 of an hour (1 of 2 halves) and 3/4 of an hour (3 of 4 quarters), 60 minutes in the hour.
+  const HALF_TOP = 1, HALF_BOT = 2, TQ_TOP = 3, TQ_BOT = 4, MIN = 60;
+  // The piece both runs are counted in, per stepper setting: 0 is each in its own piece.
+  const PIECES = [0, 4, 8, 12];
+  const PLURAL = ['its own piece', 'quarters', 'eighths', 'twelfths'];
+  const SINGULAR = ['', 'quarter', 'eighth', 'twelfth'];
+  const SRC_ADD = 'https://www.bbc.co.uk/bitesize/articles/z9n4k7h';            // [2]
+  const SRC_TAKE = 'https://www.bbc.co.uk/bitesize/articles/z4rhsrd';           // [3]
+  const SRC_HABIT = 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139';         // [6]
+
+  // The drawing: 0 at x = 20, 1 (the bars meet) at x = 170, 2 at x = 320.
+  const X0 = 20, X1 = 320, W = X1 - X0, HOUR = W / 2;
+  const xAt = (h) => X0 + h * HOUR;
+  const BAR_Y = 66, BAR_H = 34, LINE_Y = 160, NAME_Y = 58, UNDER_Y = 118, WORK_Y = 212, WHY_Y = 230;
+
+  // Each run's length in hours is top ÷ bottom; its minutes are top × (60 ÷ bottom). Neither changes with the piece.
+  const halfLen = HALF_TOP / HALF_BOT, tqLen = TQ_TOP / TQ_BOT;
+  const halfMin = HALF_TOP * (MIN / HALF_BOT), tqMin = TQ_TOP * (MIN / TQ_BOT);
+  // The rule: counted in a piece whose bottom is a whole number of times its own, a fraction's top is multiplied by that number.
+  const countOf = (top, own, chosen) => top * (chosen / own);
+
+  K.stepper({ id: 'countIn', label: 'Piece both are counted in', steps: ['Each in its own piece', 'Quarters', 'Eighths', 'Twelfths'], value: 0, compact: true, into: '#controls' });
+  K.choice({ id: 'doWhat', label: 'Add or take away', options: ['Add', 'Take away'], value: 0, into: '#controls' });
+  K.stage('#scene', '#controls');
+
+  K.model((p) => {
+    const N = PIECES[p.countIn], add = p.doWhat === 'Add';
+    const h = N ? countOf(HALF_TOP, HALF_BOT, N) : HALF_TOP;
+    const q = N ? countOf(TQ_TOP, TQ_BOT, N) : TQ_TOP;
+    return {
+      halfCount: h,
+      threeQuarterCount: q,
+      bottom: N,
+      resultCount: N ? (add ? h + q : q - h) : 0,
+      resultMinutes: add ? halfMin + tqMin : tqMin - halfMin,
+      place: add ? halfLen + tqLen : tqLen - halfLen,
+    };
+  });
+
+  const svg = document.getElementById('scene');
+  const g = (id) => { const e = document.getElementById(id); e.textContent = ''; return e; };
+  const text = (cls, x, y, anchor, ...kids) => K.svg('text', { class: cls, x, y, 'text-anchor': anchor }, ...kids);
+
+  function draw(p, o) {
+    const i = p.countIn, N = PIECES[i], add = p.doWhat === 'Add';
+    // Where each run lies, in hours: added, the half first and the three-quarters from where it stops;
+    // taken away, the three-quarters from 0 with the half laid over its right-hand end.
+    const half = add ? [0, halfLen] : [tqLen - halfLen, tqLen];
+    const tq = add ? [halfLen, halfLen + tqLen] : [0, tqLen];
+    const inside = (h) => (h > half[0] && h < half[1]) || (h > tq[0] && h < tq[1]);
+    // The three-quarter run's own quarter cuts, where the half run does not cover them.
+    const own = [1, 2].map((k) => tq[0] + k / TQ_BOT).filter((h) => !K.near(h, 1, 1e-9) && !(!add && h > half[0] && h < half[1]));
+
+    const bars = g('bars');
+    bars.appendChild(K.svg('rect', { class: 'rest', x: X0, y: BAR_Y, width: W, height: BAR_H, rx: 2 }));
+    bars.appendChild(K.svg('rect', { class: 'tq', x: xAt(tq[0]), y: BAR_Y, width: xAt(tq[1]) - xAt(tq[0]), height: BAR_H }));
+    bars.appendChild(K.svg('rect', { class: 'half', x: xAt(half[0]), y: BAR_Y, width: xAt(half[1]) - xAt(half[0]), height: BAR_H }));
+    // The key names the hatch only while something is hatched.
+    document.getElementById('keyoff').style.display = add ? 'none' : '';
+    if (!add) bars.appendChild(K.svg('rect', { class: 'hatch', x: xAt(half[0]), y: BAR_Y, width: xAt(half[1]) - xAt(half[0]), height: BAR_H }));
+    const cut = (h, cls) => bars.appendChild(K.svg('line', { class: cls + (inside(h) ? ' onrun' : ''), x1: xAt(h), y1: BAR_Y, x2: xAt(h), y2: BAR_Y + BAR_H }));
+    own.forEach((h) => cut(h, 'cutown'));
+    if (N) for (let j = 1; j < 2 * N; j++) {
+      const h = j / N;
+      if (j === N || own.some((x) => K.near(x, h, 1e-9))) continue;
+      cut(h, 'cutnew');
+    }
+    bars.appendChild(K.svg('line', { class: 'split', x1: xAt(1), y1: BAR_Y, x2: xAt(1), y2: BAR_Y + BAR_H }));
+    bars.appendChild(K.svg('rect', { class: 'edge', x: X0, y: BAR_Y, width: HOUR, height: BAR_H, rx: 2 }));
+    bars.appendChild(K.svg('rect', { class: 'edge', x: xAt(1), y: BAR_Y, width: HOUR, height: BAR_H, rx: 2 }));
+
+    // Each run's name: the top counts its pieces, the bottom names the piece. Taken away, the half's name sits under the bar.
+    const hb = N || HALF_BOT, qb = N || TQ_BOT;
+    const names = g('names');
+    names.appendChild(text('name', xAt((tq[0] + tq[1]) / 2), NAME_Y, 'middle', K.svg('tspan', { class: 'top' }, String(o.threeQuarterCount)), '/' + qb));
+    if (add) names.appendChild(text('name', xAt((half[0] + half[1]) / 2), NAME_Y, 'middle', K.svg('tspan', { class: 'top' }, String(o.halfCount)), '/' + hb));
+    else names.appendChild(text('name', xAt(half[0]) + 10, UNDER_Y, 'start', K.svg('tspan', { class: 'top' }, String(o.halfCount)), '/' + hb, K.svg('tspan', { class: 'off', dx: 6 }, 'taken off')));
+
+    // The number line: 0 to 2, a tick at every chosen piece once both runs share one.
+    const scale = g('scale');
+    scale.appendChild(K.svg('line', { class: 'line', x1: X0, y1: LINE_Y, x2: X1, y2: LINE_Y }));
+    if (N) for (let j = 1; j < 2 * N; j++) if (j !== N) scale.appendChild(K.svg('line', { class: 'tick', x1: xAt(j / N), y1: LINE_Y, x2: xAt(j / N), y2: LINE_Y + 5 }));
+    [0, 1, 2].forEach((h) => {
+      scale.appendChild(K.svg('line', { class: 'tickend', x1: xAt(h), y1: LINE_Y, x2: xAt(h), y2: LINE_Y + 8 }));
+      scale.appendChild(text('end', xAt(h), LINE_Y + 24, 'middle', String(h)));
+    });
+
+    // The mark under where the result ends: named in the chosen piece once there is one, and in minutes always.
+    const xm = xAt(o.place);
+    const mark = g('mark');
+    mark.appendChild(K.svg('line', { class: 'drop', x1: xm, y1: BAR_Y + BAR_H, x2: xm, y2: N ? 132 : LINE_Y - 5 }));
+    if (N) mark.appendChild(text('marklab', xm, 150, 'middle', o.resultCount + '/' + N + ' h'));
+    mark.appendChild(K.svg('circle', { class: 'dot', cx: xm, cy: LINE_Y, r: 4.5 }));
+    mark.appendChild(text('minlab', xm, LINE_Y + 24, 'middle', o.resultMinutes + ' min'));
+
+    // The line of working under the bars.
+    const work = g('working');
+    const unit = (n) => (n === 1 ? SINGULAR[i] : PLURAL[i]);
+    let line1, line2;
+    if (!N) {
+      line1 = add ? '1 half + 3 quarters' : '3 quarters − 1 half';
+      line2 = 'pieces differ: no count';
+    } else {
+      line1 = add ? o.halfCount + ' + ' + o.threeQuarterCount + ' = ' + o.resultCount + ' ' + unit(o.resultCount)
+        : o.threeQuarterCount + ' − ' + o.halfCount + ' = ' + o.resultCount + ' ' + unit(o.resultCount);
+      line2 = add ? 'same piece: tops add, bottom stays' : 'same piece: tops take away, bottom stays';
+    }
+    work.appendChild(text('work', 170, WORK_Y, 'middle', line1));
+    work.appendChild(text('why', 170, WHY_Y, 'middle', line2));
+
+    svg.setAttribute('aria-label', 'Two bars of one hour each over a line from 0 to 2. ' +
+      (add ? 'The half-hour run starts at the left end and the three-quarter-hour run starts where it stops, so the joined run ends a quarter of the way into the second bar'
+        : 'The three-quarter-hour run starts at the left end and the half-hour run is laid over its right-hand end as the part taken off, so what is left ends a quarter of the way along the first bar') +
+      ', with a mark on the line under that end reading ' + o.resultMinutes + ' minutes' +
+      (N ? ' and ' + o.resultCount + '/' + N + ' of an hour. Both bars are cut into ' + PLURAL[i] + ': the half-hour run is named ' + o.halfCount + '/' + N + ' and the three-quarter-hour run ' + o.threeQuarterCount + '/' + N + '.'
+        : '. The bars have no cuts; the half-hour run is one piece, named 1/2, and the three-quarter-hour run three, named 3/4.'));
+
+    // The sentence: the cause (the piece chosen), the renaming, then the count.
+    let s;
+    if (!N) {
+      s = add ? 'The half-hour run and the three-quarter-hour run lie end to end, so the joined run ends a quarter of the way into the second hour, at 75 minutes. Their tops, 1 and 3, count pieces of different sizes, a half and a quarter, so there is no count to add yet.'
+        : 'The half-hour run comes off the right-hand end of the three-quarter-hour run, so what is left ends a quarter of the way along the first hour, at 15 minutes. Their tops, 3 and 1, count pieces of different sizes, a quarter and a half, so there is no count to take away yet.';
+      if (!K.moved) s += ' Count both in quarters and the half-hour run gains a cut.';
+    } else {
+      const k1 = N / HALF_BOT, k2 = N / TQ_BOT;
+      s = 'Both runs are counted in ' + PLURAL[i] + ': ' + N + ' ÷ 2 = ' + k1 + ', so the half is cut into ' + k1 + ' and the half-hour run reads 1 × ' + k1 + ' = ' + o.halfCount + ' ' + PLURAL[i] + ', ' + o.halfCount + '/' + N + ', its length unchanged; ' +
+        (k2 === 1 ? '4 ÷ 4 = 1, so the three-quarter-hour run is cut no further and stays 3 × 1 = 3. '
+          : N + ' ÷ 4 = ' + k2 + ', so each quarter is cut into ' + k2 + ' and the three-quarter-hour run reads 3 × ' + k2 + ' = ' + o.threeQuarterCount + ', ' + o.threeQuarterCount + '/' + N + '. ') +
+        'Both count the same piece now, so ' +
+        (add ? 'the tops add and the bottom stays: ' + o.halfCount + ' + ' + o.threeQuarterCount + ' = ' + o.resultCount + ' ' + PLURAL[i] + ', ' + o.resultCount + '/' + N + ' of an hour, the mark the joined run already reached'
+          : 'the tops take away and the bottom stays: ' + o.threeQuarterCount + ' − ' + o.halfCount + ' = ' + o.resultCount + ' ' + unit(o.resultCount) + ', ' + o.resultCount + '/' + N + ' of an hour, the mark under what is left') +
+        (i === 1 ? (add ? '; a quarter is 60 ÷ 4 = 15 minutes, and 5 × 15 = 75.' : '; a quarter is 60 ÷ 4 = 15 minutes.') : ', the same mark as in quarters: ' + o.resultMinutes + ' minutes.');
+    }
+    document.getElementById('say').textContent = s;
+  }
+  K.update(draw);
+
+  // Known answers, worked out by hand from the rule.
+  K.check('Each in its own piece: the tops stay 1 and 3 with no shared bottom, and the minutes need no piece: 30 + 45 = 75 added, 45 − 30 = 15 taken away', () => {
+    const a = K.at({ countIn: 0, doWhat: 'Add' }), t = K.at({ countIn: 0, doWhat: 'Take away' });
+    return a.halfCount === 1 && a.threeQuarterCount === 3 && a.bottom === 0 && t.halfCount === 1 && t.threeQuarterCount === 3 &&
+      K.near(halfMin, 30, 1e-9) && K.near(tqMin, 45, 1e-9) && a.resultMinutes === 75 && t.resultMinutes === 15;
+  });
+  K.check('Once both are counted in one piece, the tops add and the bottom stays', () => {
+    const want = [[2, 3, 5], [4, 6, 10], [6, 9, 15]];
+    for (let i = 1; i <= 3; i++) {
+      const o = K.at({ countIn: i, doWhat: 'Add' }), w = want[i - 1];
+      if (o.halfCount !== w[0] || o.threeQuarterCount !== w[1] || o.resultCount !== w[2] || o.resultCount !== o.halfCount + o.threeQuarterCount || o.bottom !== PIECES[i]) return false;
+    }
+    return true;
+  }, { source: SRC_ADD });
+  K.check('With the same bottom, the tops take away and the bottom stays the same', () => {
+    const want = [[2, 3, 1], [4, 6, 2], [6, 9, 3]];
+    for (let i = 1; i <= 3; i++) {
+      const o = K.at({ countIn: i, doWhat: 'Take away' }), w = want[i - 1];
+      if (o.halfCount !== w[0] || o.threeQuarterCount !== w[1] || o.resultCount !== w[2] || o.resultCount !== o.threeQuarterCount - o.halfCount || o.bottom !== PIECES[i]) return false;
+    }
+    return true;
+  }, { source: SRC_TAKE });
+  K.check('In quarters, 4 ÷ 2 = 2 makes 1/2 into 1 × 2 = 2, 2/4, and 4 ÷ 4 = 1 leaves 3/4 as 3; 5 quarters are 5 × 15 = 75 minutes and 1 quarter is 15', () => {
+    const o = K.at({ countIn: 1, doWhat: 'Add' });
+    return K.near(4 / 2, 2, 1e-9) && o.halfCount === 1 * 2 && K.near(4 / 4, 1, 1e-9) && o.threeQuarterCount === 3 * 1 &&
+      K.near(5 * (60 / 4), 75, 1e-9) && o.resultMinutes === 75 && K.at({ countIn: 1, doWhat: 'Take away' }).resultMinutes === 15;
+  });
+  K.check('Renaming moves neither run: the joined run ends at 5 × 0.25 = 1.25 hours and what is left at 1 × 0.25 = 0.25 at every setting, 75 and 15 minutes', () => {
+    for (let i = 0; i <= 3; i++) {
+      const a = K.at({ countIn: i, doWhat: 'Add' }), t = K.at({ countIn: i, doWhat: 'Take away' });
+      if (!K.near(a.place, 1.25, 1e-9) || !K.near(t.place, 0.25, 1e-9) || a.resultMinutes !== 75 || t.resultMinutes !== 15) return false;
+      if (i && (!K.near(a.resultCount / a.bottom, 1.25, 1e-9) || !K.near(t.resultCount / t.bottom, 0.25, 1e-9))) return false;
+    }
+    return K.near(5 * 0.25, 1.25, 1e-9) && K.near(1 * 0.25, 0.25, 1e-9);
+  });
+  K.check('Treating top and bottom as separate numbers, 1/2 + 3/4 = 4/6, gives 4 × 10 = 40 minutes, less than the 45 of the three-quarters alone', () =>
+    K.near(60 / 6, 10, 1e-9) && K.near(4 * 10, 40, 1e-9) && 40 < tqMin && 40 < K.at({ countIn: 1, doWhat: 'Add' }).resultMinutes, { source: SRC_HABIT });
+
+  K.ready();
+</script>

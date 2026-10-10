@@ -1,0 +1,108 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Each in its own piece: the tops stay 1 and 3 with no shared bottom, and the minutes need no piece: 30 + 45 = 75 added, 45 − 30 = 15 taken away",
+        "ok": true
+      },
+      {
+        "label": "Once both are counted in one piece, the tops add and the bottom stays",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/z9n4k7h"
+      },
+      {
+        "label": "With the same bottom, the tops take away and the bottom stays the same",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/z4rhsrd"
+      },
+      {
+        "label": "In quarters, 4 ÷ 2 = 2 makes 1/2 into 1 × 2 = 2, 2/4, and 4 ÷ 4 = 1 leaves 3/4 as 3; 5 quarters are 5 × 15 = 75 minutes and 1 quarter is 15",
+        "ok": true
+      },
+      {
+        "label": "Renaming moves neither run: the joined run ends at 5 × 0.25 = 1.25 hours and what is left at 1 × 0.25 = 0.25 at every setting, 75 and 15 minutes",
+        "ok": true
+      },
+      {
+        "label": "Treating top and bottom as separate numbers, 1/2 + 3/4 = 4/6, gives 4 × 10 = 40 minutes, less than the 45 of the three-quarters alone",
+        "ok": true,
+        "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "countIn",
+      "doWhat"
+    ],
+    "readouts": [],
+    "outputs": [
+      "halfCount",
+      "threeQuarterCount",
+      "bottom",
+      "resultCount",
+      "resultMinutes",
+      "place"
+    ],
+    "inputs": [
+      {
+        "id": "countIn",
+        "kind": "stepper",
+        "label": "Piece both are counted in",
+        "min": 0,
+        "max": 3,
+        "step": 1,
+        "steps": [
+          "Each in its own piece",
+          "Quarters",
+          "Eighths",
+          "Twelfths"
+        ],
+        "value": 0
+      },
+      {
+        "id": "doWhat",
+        "kind": "choice",
+        "label": "Add or take away",
+        "options": [
+          "Add",
+          "Take away"
+        ],
+        "labels": [
+          "Add",
+          "Take away"
+        ],
+        "value": "Add",
+        "index": 0
+      }
+    ],
+    "actions": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

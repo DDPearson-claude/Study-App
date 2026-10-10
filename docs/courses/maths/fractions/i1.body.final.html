@@ -1,0 +1,211 @@
+<!-- kind: quantity -->
+<style>
+  .bars .whole { fill: var(--k-panel); }
+  .bars .run { fill: var(--k-accent2); transition: width .2s ease; }
+  .bars .cut { stroke: var(--k-strong); stroke-width: 1.5; }
+  .bars .cut.in { stroke: var(--k-bg); stroke-width: 2; }
+  .bars .split { stroke: var(--k-strong); stroke-width: 3.5; }
+  .bars .edge { fill: none; stroke: var(--k-strong); stroke-width: 2; }
+  .bars .keyt { font: 13px var(--k-font); fill: var(--k-ink); }
+  .bars .keysw { fill: var(--k-accent2); }
+  .bars .keysw.empty { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .bars .wlab { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .bars .wlab.full { fill: var(--k-accent2); }
+  .bars .axis { stroke: var(--k-ink); stroke-width: 2; }
+  .bars .tick { stroke: var(--k-ink); stroke-width: 1.5; }
+  .bars .tick.big { stroke-width: 2; }
+  .bars .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .bars .guide { stroke: var(--k-accent2); stroke-width: 2; }
+  .bars .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .bars .nm { font: 800 17px var(--k-font); fill: var(--k-accent2); }
+  .bars .fr { font: 700 14px var(--k-font); fill: var(--k-accent2); }
+  .bars .fbar { stroke: var(--k-accent2); stroke-width: 1.5; }
+  .bars .hit { fill: var(--k-bg); fill-opacity: 0; }
+  .bars .tap { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+</style>
+
+<p class="lead">Two bars, each one whole cut into 4 equal pieces, over a line from 0 to 2: the counted pieces shade in as one run, and the mark on the line sits under the run's end.</p>
+
+<svg class="bars" id="scene" viewBox="0 0 340 172" width="100%" role="img" aria-label="">
+  <g id="key">
+    <rect class="keysw" x="20" y="3" width="12" height="12" rx="2"/>
+    <text class="keyt" x="36" y="13">counted, 1/4 of a bar each</text>
+    <rect class="keysw empty" x="208" y="3" width="12" height="12" rx="2"/>
+    <text class="keyt" x="224" y="13">not counted</text>
+  </g>
+  <text class="wlab" id="wlab0" x="95" y="33" text-anchor="middle"></text>
+  <text class="wlab" id="wlab1" x="245" y="33" text-anchor="middle"></text>
+  <rect class="whole" x="20" y="38" width="300" height="44"/>
+  <rect class="run" id="run" x="20" y="38" width="0" height="44"/>
+  <g id="cuts"></g>
+  <line class="split" x1="170" y1="38" x2="170" y2="82"/>
+  <rect class="edge" x="20" y="38" width="150" height="44"/>
+  <rect class="edge" x="170" y="38" width="150" height="44"/>
+  <g id="taps"></g>
+  <line class="axis" x1="12" y1="104" x2="328" y2="104"/>
+  <g id="ticks"></g>
+  <g id="mark">
+    <rect class="hit" x="-24" y="86" width="48" height="86"/>
+    <line class="guide" x1="0" y1="82" x2="0" y2="104"/>
+    <circle class="dot" cx="0" cy="104" r="6"/>
+    <g id="name"></g>
+  </g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Bottom names the piece, top counts the pieces from zero; where the count ends is the number.</p>
+
+<script>
+  // Four quarters make one whole: that is what "quarter" means, and what the 4 under the line says.
+  const PER_BAR = 4;
+  const SOURCE = 'https://thecorestandards.org/Math/Content/NF';   // [5]: the interval's endpoint locates a/b
+  // The drawing: the 0 end at x = 20, one bar = 150 units, so one quarter piece = 37.5 units.
+  const X0 = 20, BAR = 150, Q = BAR / PER_BAR;
+  const xAt = (n) => X0 + n * Q;              // the right edge of the n-th counted piece
+  const lineX = (v) => X0 + v * BAR;          // where the number v sits on the line
+  const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+
+  const quarters = K.control({
+    id: 'quarters', label: 'Quarters counted from zero', hint: 'Or drag the mark, or tap a piece to count up to it',
+    min: 0, max: 8, step: 1, value: 3, fmt: (v) => plural(v, 'quarter'), into: '#controls',
+  });
+  K.stage('#scene', '#controls');
+  // Dan can move the mark itself along the line: the slider follows it.
+  K.drag('#mark', { control: 'quarters', toValue: (x) => Math.round((x - X0) / Q) });
+
+  K.readout({ id: 'position', label: 'Place on the line', decimals: 2, big: true, into: '#outs' });
+  K.readout({ id: 'wholeBars', label: 'Whole bars filled', decimals: 0, into: '#outs' });
+  K.readout({ id: 'quartersPast', label: 'Quarters past the whole bars', decimals: 0, fmt: (v) => plural(v, 'quarter'), into: '#outs' });
+
+  // The rule is plain counting: place = count ÷ 4; whole bars = complete fours; quarters past = what is left.
+  K.model((p) => {
+    const n = Math.round(p.quarters);
+    const whole = Math.floor(n / PER_BAR);
+    return { position: n / PER_BAR, wholeBars: whole, quartersPast: n - PER_BAR * whole };
+  });
+
+  // Drawn once: the cuts in the bars, a tap target on every piece, and the line's ticks (0, 1, 2 under the bar ends).
+  const cuts = document.getElementById('cuts'), cutEls = [];
+  for (let i = 1; i < 2 * PER_BAR; i++) {
+    if (i === PER_BAR) continue;   // the boundary between the bars is drawn heavier, in the markup
+    cutEls[i] = cuts.appendChild(K.svg('line', { class: 'cut', x1: xAt(i), y1: 38, x2: xAt(i), y2: 82 }));
+  }
+  const taps = document.getElementById('taps');
+  for (let i = 0; i < 2 * PER_BAR; i++) {
+    taps.appendChild(K.svg('rect', { class: 'tap', x: xAt(i), y: 38, width: Q, height: 44, on: { click: () => { quarters.set(i + 1); K.reveal(); } } }));
+  }
+  const ticks = document.getElementById('ticks');
+  for (let i = 0; i <= 2 * PER_BAR; i++) {
+    const x = xAt(i), big = i % PER_BAR === 0;
+    ticks.appendChild(K.svg('line', { class: 'tick' + (big ? ' big' : ''), x1: x, y1: big ? 96 : 99, x2: x, y2: big ? 112 : 109 }));
+    if (big) ticks.appendChild(K.svg('text', { class: 'num', x: x, y: 128, 'text-anchor': 'middle' }, String(i / PER_BAR)));
+  }
+
+  // The place's name as plain text (for the checks): a fraction; a whole number where the count lands on one; past 1 a mixed number too.
+  function nameOf(n) {
+    const whole = Math.floor(n / PER_BAR), more = n - PER_BAR * whole;
+    if (more === 0) return n + '/' + PER_BAR + ' = ' + whole;
+    if (whole === 0) return n + '/' + PER_BAR;
+    return n + '/' + PER_BAR + ' = ' + whole + ' ' + more + '/' + PER_BAR;
+  }
+  // The same name typeset under the mark: each fraction stacked, top over bottom, so a mixed number's whole and fraction never run together.
+  const FW = 17, GAP = 5;
+  function stack(g, x, top, bottom) {
+    g.appendChild(K.svg('text', { class: 'fr', x: x + FW / 2, y: 146, 'text-anchor': 'middle' }, String(top)));
+    g.appendChild(K.svg('line', { class: 'fbar', x1: x + 1, y1: 150, x2: x + FW - 1, y2: 150 }));
+    g.appendChild(K.svg('text', { class: 'fr', x: x + FW / 2, y: 164, 'text-anchor': 'middle' }, String(bottom)));
+    return x + FW;
+  }
+  function typeset(n, mx) {
+    const g = document.getElementById('name');
+    g.textContent = '';
+    const whole = Math.floor(n / PER_BAR), more = n - PER_BAR * whole;
+    const eq = more === 0 || whole > 0;                 // "= whole" follows the fraction on a whole number, or past 1
+    const width = FW + (eq ? GAP + 24 : 0) + (eq && more > 0 ? GAP + FW : 0);
+    // Centred on the mark, but kept inside the drawing at either end.
+    let x = -width / 2;
+    x = Math.max(4 - mx, Math.min(336 - mx - width, x));
+    x = stack(g, x, n, PER_BAR);
+    if (eq) {
+      g.appendChild(K.svg('text', { class: 'nm', x: x + GAP, y: 157 }, '= ' + whole));
+      x += GAP + 24;
+      if (more > 0) stack(g, x + GAP, more, PER_BAR);
+    }
+  }
+
+  const svg = document.getElementById('scene');
+  function draw(p, o) {
+    const n = Math.round(p.quarters), mx = xAt(n), whole = o.wholeBars, more = o.quartersPast;
+    // The run of counted pieces from the left end; the cuts inside it show as slits.
+    document.getElementById('run').setAttribute('width', mx - X0);
+    cutEls.forEach((el, i) => { if (el) el.setAttribute('class', 'cut' + (i < n ? ' in' : '')); });
+    // Above each bar: what it is, and when its 4 pieces are all counted, what that makes.
+    [0, 1].forEach((k) => {
+      const full = whole > k, el = document.getElementById('wlab' + k);
+      el.textContent = full ? '4 quarters = 1 whole' : 'one whole';
+      el.setAttribute('class', 'wlab' + (full ? ' full' : ''));
+    });
+    // The mark, on the line under where the run ends, with the place's name beneath it.
+    document.getElementById('mark').setAttribute('transform', 'translate(' + mx + ' 0)');
+    typeset(n, mx);
+
+    let where;
+    if (n === 0) where = 'rests on 0';
+    else if (n < PER_BAR) where = 'sits short of 1';
+    else if (n === PER_BAR) where = 'sits on 1';
+    else if (n < 2 * PER_BAR) where = 'sits past 1';
+    else where = 'sits on 2';
+    svg.setAttribute('aria-label', 'Two bars, each one whole cut into four equal pieces, over a number line from 0 to 2. ' +
+      plural(n, 'piece') + ' counted from the left end are shaded as one run, and the mark on the line ' + where + ', under the run\'s end.');
+
+    const pos = K.fmt(o.position, { decimals: 2 });
+    let s;
+    if (n === 0) {
+      s = 'No quarters are counted, so no piece is shaded and the mark rests on 0: 0/4 is the same place as 0.';
+    } else if (n < PER_BAR) {
+      s = plural(n, 'quarter') + ' counted from the left end shade' + (n === 1 ? 's' : '') + ' ' + n + ' of the first bar\'s 4 pieces, so the mark sits at ' +
+        pos + ', short of 1: ' + n + '/4 is one number with one place on the line.';
+    } else if (n === PER_BAR) {
+      s = '4 quarters counted from the left end fill the first bar with none left over, so the mark lands on 1: 4/4 is the same place as the whole number 1.';
+    } else if (n < 2 * PER_BAR) {
+      s = n + ' quarters counted from the left end: 4 fill the first bar and ' + more + ' more shade' + (more === 1 ? 's' : '') + ' the second, so the mark sits at ' +
+        pos + ', past 1: ' + n + '/4 is one place, and as a mixed number it is 1 whole and ' + more + '/4.';
+    } else {
+      s = '8 quarters counted from the left end fill both bars, so the mark lands on 2: 8/4 is the same place as the whole number 2.';
+    }
+    document.getElementById('say').textContent = s;
+  }
+  K.update(draw);
+
+  // Known answers, counted by hand.
+  K.check('3 quarters from zero: the mark at 0.75, no whole bar filled, 3 quarters past; of a bar called one metre (1000 mm) that run is 750 mm', () => {
+    const o = K.at({ quarters: 3 });
+    return K.near(o.position, 0.75, 1e-9) && o.wholeBars === 0 && o.quartersPast === 3 && K.near(o.position * 1000, 750, 1e-9) && nameOf(3) === '3/4';
+  });
+  K.check('4 quarters fill the first bar exactly: the mark on 1, 4/4 = 1, with no quarters past it', () => {
+    const o = K.at({ quarters: 4 });
+    return K.near(o.position, 1, 1e-9) && o.wholeBars === 1 && o.quartersPast === 0 && nameOf(4) === '4/4 = 1';
+  });
+  K.check('7 quarters fill one bar and 3 of the second: the mark at 1.75, 7/4 = 1 3/4', () => {
+    const o = K.at({ quarters: 7 });
+    return K.near(o.position, 1.75, 1e-9) && o.wholeBars === 1 && o.quartersPast === 3 && nameOf(7) === '7/4 = 1 3/4';
+  });
+  K.check('Each quarter added moves the mark the same 0.25 step, from 0 at no quarters to 2 at 8, and a drag to a cut counts the pieces up to it', () => {
+    for (let n = 0; n < 2 * PER_BAR; n++) {
+      if (!K.near(K.at({ quarters: n + 1 }).position - K.at({ quarters: n }).position, 0.25, 1e-9)) return false;
+      if (Math.round((xAt(n) - X0) / Q) !== n) return false;
+    }
+    return K.near(K.at({ quarters: 0 }).position, 0, 1e-9) && K.near(K.at({ quarters: 8 }).position, 2, 1e-9) && nameOf(0) === '0/4 = 0' && nameOf(8) === '8/4 = 2';
+  });
+  K.check('The shaded run is as long as the fraction says, and its end point is where that number sits on the line', () => {
+    for (let n = 0; n <= 2 * PER_BAR; n++) {
+      const o = K.at({ quarters: n });
+      if (!K.near((xAt(n) - X0) / BAR, o.position, 1e-9)) return false;   // the run's length, in bars, is the number n/4
+      if (!K.near(xAt(n), lineX(o.position), 1e-9)) return false;          // and the mark stands on the line at that number
+    }
+    return true;
+  }, { source: SOURCE });
+
+  K.ready();
+</script>
