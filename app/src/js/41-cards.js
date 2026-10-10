@@ -201,10 +201,11 @@
 
   // Reply to Claude under a feedback panel: chips and a box that open Ask Claude with the question
   // asked (opts.ask, given by the lesson and the review: they know the topic and idea). None
-  // without it.
+  // without it. In a review it is one compact row (its panel must fit beside the card on a laptop);
+  // its "Reply…" asks nothing (text null) and opens the sheet to type in.
   function askRow(c, chips, about) {
     if (!U.notes || typeof c.opts.ask !== 'function') return null;
-    return U.notes.reply({ chips: chips, onAsk: function (text, chip) { c.opts.ask(text, { chip: chip, about: about }); } });
+    return U.notes.reply({ chips: chips, compact: c.mode === 'review', onAsk: function (text, chip) { c.opts.ask(text, { chip: chip, about: about }); } });
   }
 
   // Put a panel in the foot, slide it up and bring it into view.

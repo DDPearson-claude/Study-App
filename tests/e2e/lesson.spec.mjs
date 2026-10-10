@@ -263,32 +263,32 @@ async function chipsWanted(page) {
   for (let p = await wrapPlan(page, n); n > 1 && p.rows > 1 && p.share < 0.45; p = await wrapPlan(page, n)) n--;
   return n;
 }
-// The app's own sans, Plus Jakarta Sans, fetched once from Google Fonts into tests/out/fonts (the
+// The app's own sans, Barlow (D4), fetched once from Google Fonts into tests/out/fonts (the
 // harness blocks the fonts host, so pages paint in the fallback font), so the chips are measured
 // in the font Dan sees. null when it cannot be fetched: the checks then run in the fallback font.
 let fontFile;
 function realFontFile() {
   if (fontFile !== undefined) return fontFile;
-  const dir = join(OUT, 'fonts'), file = join(dir, 'plus-jakarta-sans-latin.woff2');
+  const dir = join(OUT, 'fonts'), file = join(dir, 'barlow-600-latin.woff2');
   if (!existsSync(file)) {
     mkdirSync(dir, { recursive: true });
     const css = spawnSync('curl', ['-sS', '-m', '20', '-A', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-      'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap'], { encoding: 'utf8' });
+      'https://fonts.googleapis.com/css2?family=Barlow:wght@600&display=swap'], { encoding: 'utf8' });
     const latin = String(css.stdout || '').split('/* latin */')[1] || '';
     const url = (latin.match(/url\((https:[^)]+\.woff2)\)/) || [])[1];
     if (url) spawnSync('curl', ['-sS', '-m', '30', '-o', file, url]);
   }
   fontFile = existsSync(file) && statSync(file).size > 10000 ? file : null;
-  if (!fontFile) console.log('  (Plus Jakarta Sans could not be fetched: measuring in the fallback font)');
+  if (!fontFile) console.log('  (Barlow could not be fetched: measuring in the fallback font)');
   return fontFile;
 }
 async function useRealFont(page) {
   const file = realFontFile();
   if (!file) return false;
-  await page.addStyleTag({ content: `@font-face { font-family: 'Plus Jakarta Sans'; font-style: normal; font-weight: 500 800; src: url(${pathToFileURL(file).href}) format('woff2'); }` });
+  await page.addStyleTag({ content: `@font-face { font-family: 'Barlow'; font-style: normal; font-weight: 400 700; src: url(${pathToFileURL(file).href}) format('woff2'); }` });
   return page.evaluate(async () => {
-    await Promise.all(['500', '600', '700', '800'].map((w) => document.fonts.load(w + ' 16px "Plus Jakarta Sans"')));
-    return document.fonts.check('600 16px "Plus Jakarta Sans"');
+    await Promise.all(['500', '600', '700'].map((w) => document.fonts.load(w + ' 16px "Barlow"')));
+    return document.fonts.check('600 16px "Barlow"');
   });
 }
 
@@ -801,7 +801,7 @@ async function textSizes() {
 }
 
 // ---------- scenario: Ask Claude's chips with the keyboard up, on a phone and on a laptop ----------
-// Measured in the app's own font (Plus Jakarta Sans, fetched from Google Fonts). With the keyboard
+// Measured in the app's own font (Barlow, fetched from Google Fonts). With the keyboard
 // up on a phone (the input focused in a 360 x 400 viewport, at XL), the two starters go back on
 // one sideways row so the welcome above them stays whole, fading at the edge it runs on past;
 // with it down they wrap, both whole. Under a conversation every chip is whole on a laptop at every
@@ -815,7 +815,7 @@ async function tutorChips() {
   const app = await open({ width: 360, height: 707, size: 'xl', hash: '#/t/pendulums/i1', seed: { 'topics/pendulums': TOPIC, [LESSON('i1')]: PENDULUM }, reduced: true });
   const { page } = app;
   const font = await useRealFont(page);
-  ok(font || !realFontFile(), 'the app\'s own font is in use where it could be fetched (' + (font ? 'Plus Jakarta Sans' : 'fallback') + ')');
+  ok(font || !realFontFile(), 'the app\'s own font is in use where it could be fetched (' + (font ? 'Barlow' : 'fallback') + ')');
   const view = async (w, h, size) => {
     await page.setViewportSize({ width: w, height: h });
     if (size) await page.evaluate((sz) => { document.documentElement.dataset.size = sz; }, size);

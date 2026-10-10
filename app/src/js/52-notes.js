@@ -4,10 +4,12 @@
 //
 //   U.notes.avatar(who)                      who: 'claude' | 'app'   -> span.note-av (decorative)
 //   U.notes.byline(who, context?)            -> div.note-by: avatar, "Claude" (or "My University"), context
-//   U.notes.reply({chips, placeholder, label, onAsk(text, chip)}) -> div.note-reply
+//   U.notes.reply({chips, placeholder, label, compact, onAsk(text, chip)}) -> div.note-reply
 //        chips Dan can tap (sent as they are) and a "Reply to Claude…" box; onAsk opens the Ask
 //        Claude sheet with that question asked (U.tutor.open(context, {ask, chip})). Typed
 //        replies are his own questions (saved like any he types there); chips are not.
+//        compact (a review, where the panel must stay short): one row, the chips and a "Reply…"
+//        chip in place of the box, which calls onAsk(null) (the sheet opens to type in).
 //   U.notes.card({who, context, title?, text?, body?, actions?, cls?}) -> article.note
 //        text: Claude-written words, drawn with U.rich (never as HTML); body: app-built nodes.
 //        actions: [{label, href} | {label, onClick}]
@@ -48,6 +50,11 @@
       onAsk(text, false);
     } } }, h('label', { class: 'visually-hidden', for: id }, o.label || 'Reply to Claude'), input, send);
     var chips = (o.chips || []).filter(Boolean);
+    if (o.compact) {
+      return h('div', { class: 'note-reply is-compact' }, h('div', { class: 'note-chips', role: 'group', 'aria-label': 'Ask Claude' },
+        chips.map(function (c) { return h('button', { class: 'chip note-chip', type: 'button', on: { click: function () { onAsk(c, true); } } }, c); }),
+        h('button', { class: 'chip note-chip note-chip-reply', type: 'button', on: { click: function () { onAsk(null, false); } } }, U.icon('chat'), 'Reply…')));
+    }
     return h('div', { class: 'note-reply' },
       chips.length ? h('div', { class: 'note-chips', role: 'group', 'aria-label': 'Ask Claude' }, chips.map(function (c) {
         return h('button', { class: 'chip note-chip', type: 'button', on: { click: function () { onAsk(c, true); } } }, c);
