@@ -1743,6 +1743,19 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .shelf-courses { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .shelf-n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--line-strong); color: var(--muted); font-weight: 700; font-size: .9rem; }
 .shelf-courses .is-built .shelf-n { border-color: var(--heading); color: var(--heading); }
+/* The Library's two choices (73-book.js). */
+.lib-choices { display: grid; gap: 14px; }
+@container view (min-width: 608px) { .lib-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
+.lib-choice { display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; box-shadow: var(--shadow); }
+.lib-choice:hover { border-color: var(--line-strong); }
+.lib-choice-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--sunk); color: var(--heading); }
+.lib-choice-ico svg { width: 28px; height: 28px; }
+.lib-choice-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.lib-choice-t { font-weight: 800; font-size: 1.2rem; color: var(--heading); }
+.lib-choice-x { line-height: 1.45; }
+.lib-choice-m { color: var(--muted); font-size: .875rem; }
+.lib-choice-m:empty { display: none; }
+.lib-choice-go { flex: none; width: 22px; height: 22px; color: var(--muted); }
 
 /* src/css/75-dossier.css */
 /* The course dossier (75-dossier.js): a naturalist's field journal.
@@ -2288,7 +2301,7 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-10-b9428c9";
+U.BUILD = "2026-10-10-7695291";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -4399,6 +4412,7 @@ U.store = (function () {
         fn(q.docs.map(function (d) { var x = U.clone(d.data()) || {}; x.__id = d.id; return x; }));
       }, onError);
     },
+    list: function () { return listColl('shelves'); },
     get: function (sid) { return getDoc('shelves/' + sid); },
   };
   S.profile = {
@@ -13489,10 +13503,8 @@ U.interactive = (function () {
     var liveBox = U.h('div', { class: 'learn-note learn-live' });
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
     var artBox = U.h('div', { class: 'learn-art' });
-    // Ready-made courses (76-shelves.js): folders of courses Claude builds in full.
-    var shelfBox = U.h('div', { class: 'learn-shelves' });
     // Reviews waiting come first: today's study is one tap away.
-    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, shelfBox, artBox);
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, artBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -13698,7 +13710,6 @@ U.interactive = (function () {
         }));
       });
     }
-    var stopShelves = U.shelves && U.store.shelves ? U.shelves.mount(shelfBox, ctx) : null;
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
       topics = list || [];
@@ -13906,7 +13917,7 @@ U.interactive = (function () {
       }));
     }
 
-    return function () { stop(); if (stopShelves) stopShelves(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
+    return function () { stop(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
   }, { tab: 'learn', title: 'Learn' });
 })();
 
@@ -14983,12 +14994,40 @@ U.interactive = (function () {
       })));
   }
 
+  // The Library opens on two choices (Dan, 7 Oct): his Dossiers, and Ready-made courses.
+  function choice(href, title, text, meta, cls) {
+    return U.h('a', { class: 'lib-choice ' + cls, href: href },
+      U.h('span', { class: 'lib-choice-ico', 'aria-hidden': 'true' }, U.icon(cls === 'is-courses' ? 'folder' : 'book')),
+      U.h('span', { class: 'lib-choice-body' }, U.h('span', { class: 'lib-choice-t' }, title), U.h('span', { class: 'lib-choice-x' }, text), meta),
+      U.icon('arrow', 'lib-choice-go'));
+  }
   U.routes.add('#/book', function (params, ctx) {
-    var body = U.h('div', { class: 'dos lib-body' });
-    ctx.view.appendChild(U.h('div', { class: 'lib-page' },
+    var dosMeta = U.h('span', { class: 'lib-choice-m' }), courseMeta = U.h('span', { class: 'lib-choice-m' });
+    ctx.view.appendChild(U.h('div', { class: 'lib-page lib-home' },
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Library'),
         U.h('h1', null, 'Your library')),
+      U.h('div', { class: 'lib-choices' },
+        choice('#/library/dossiers', 'Dossiers', 'Your course books: every idea you finish, bound as a chapter, and your own words.', dosMeta, 'is-dossiers'),
+        choice('#/library/courses', 'Ready-made courses', 'Whole courses, built in full, to browse at your leisure.', courseMeta, 'is-courses'))));
+    // Counts are a nicety: the choices work without them.
+    if (U.store.dossier && U.store.dossier.list) U.store.dossier.list().then(function (l) {
+      var n = (l || []).filter(function (d) { return d && d.chapters && Object.keys(d.chapters).length; }).length;
+      if (ctx.alive() && n) dosMeta.textContent = n === 1 ? '1 dossier' : n + ' dossiers';
+    }, function () {});
+    if (U.store.shelves) U.store.shelves.list().then(function (l) {
+      var names = (l || []).map(function (x) { return x && typeof x.title === 'string' ? x.title.trim() : ''; }).filter(Boolean);
+      if (ctx.alive() && names.length) courseMeta.textContent = names.join(' · ');
+    }, function () {});
+  }, { tab: 'book', title: 'Library' });
+
+  U.routes.add('#/library/dossiers', function (params, ctx) {
+    var body = U.h('div', { class: 'dos lib-body' });
+    ctx.view.appendChild(U.h('div', { class: 'lib-page' },
+      V.back('#/book', 'Library'),
+      U.h('header', { class: 'page-head' },
+        U.h('p', { class: 'eyebrow' }, 'Library'),
+        U.h('h1', null, 'Dossiers')),
       body));
     var slot = U.h('div', { class: 'lib-dossiers' });
     body.appendChild(slot);
@@ -15000,7 +15039,7 @@ U.interactive = (function () {
         U.h('span', null, U.h('b', null, 'Your Book'), U.h('span', null, 'Your own explanations of each idea, first and latest, and the questions you asked.')),
         U.h('span', { class: 'chev' }, U.icon('arrow')))));
     return stop || undefined;
-  }, { tab: 'book', title: 'Library' });
+  }, { tab: 'book', title: 'Dossiers' });
 
   U.routes.add('#/book/words', function (params, ctx) {
     var book = [];
@@ -15017,7 +15056,7 @@ U.interactive = (function () {
         } } }, 'Save a full copy')));
     var body = U.h('div', { class: 'book-body' }, U.h('div', { class: 'skeleton book-sk' }));
     ctx.view.appendChild(U.h('div', { class: 'book' },
-      V.back('#/book', 'Library'),
+      V.back('#/library/dossiers', 'Dossiers'),
       U.h('header', { class: 'page-head' },
         U.h('p', { class: 'eyebrow' }, 'Your Book'),
         U.h('h1', null, 'In your own words'),
@@ -15886,7 +15925,7 @@ U.interactive = (function () {
     return function (params, ctx) {
       var tid = params.tid, iid = params.iid || null;
       fonts(); furnish();
-      var root = h('div', { class: 'dos reader' }, h('header', { class: 'r-bar' }, h('a', { class: 'r-btn', href: '#/book' }, icon('back'), h('span', null, 'Library'))));
+      var root = h('div', { class: 'dos reader' }, h('header', { class: 'r-bar' }, h('a', { class: 'r-btn', href: '#/library/dossiers' }, icon('back'), h('span', null, 'Dossiers'))));
       ctx.view.appendChild(root);
       var S = { root: root, ctx: ctx, plates: [], io: null, pop: null, popFrom: null, offs: [] };
       load(tid).then(function (book) {
@@ -15929,7 +15968,7 @@ U.interactive = (function () {
   }
   function bar(S, head) {
     var b = h('header', { class: 'r-bar' },
-      h('a', { class: 'r-btn', href: '#/book' }, icon('back'), h('span', null, 'Library')),
+      h('a', { class: 'r-btn', href: '#/library/dossiers' }, icon('back'), h('span', null, 'Dossiers')),
       h('p', { class: 'r-head' }, head),
       h('button', { class: 'r-btn r-aa', type: 'button', 'aria-label': 'Reading settings', on: { click: function () { if (U.settings && U.settings.open) U.settings.open(); } } }, 'Aa'));
     return b;
@@ -16674,7 +16713,7 @@ U.interactive = (function () {
 // 20-store.js S.shelves), so Claude's build sessions fill them in without a new version of the
 // app: a course with a tid opens that topic; one without says it is not built yet.
 //
-//   U.shelves.mount(box, ctx) -> stop     Learn's "Ready-made courses" section (nothing when none)
+//   #/library/courses                      the Library's Ready-made courses: every shelf (Maths…)
 //   #/shelf/:sid                           a shelf: its folders
 //   #/shelf/:sid/:fid                      a folder: its courses, in order
 (function () {
@@ -16708,21 +16747,27 @@ U.interactive = (function () {
   }
   function loadError(box, what, e) { U.clear(box).appendChild(V && V.loadError ? V.loadError(what, e, false) : U.h('p', { class: 'muted' }, what + ' could not be loaded just now.')); }
 
-  // ---------- Learn's section ----------
-  function mount(box, ctx) {
+  // ---------- the Library's Ready-made courses ----------
+  U.routes.add('#/library/courses', function (params, ctx) {
+    var box = U.h('div', { class: 'shelf-grid' }, U.h('div', { class: 'skeleton', style: 'height:96px;border-radius:18px' }));
+    ctx.view.appendChild(U.h('div', { class: 'shelf-page' },
+      V.back('#/book', 'Library'),
+      U.h('header', { class: 'page-head' },
+        U.h('p', { class: 'eyebrow' }, 'Library'),
+        U.h('h1', null, 'Ready-made courses'),
+        U.h('p', { class: 'muted' }, 'Whole courses, built in full, to browse at your leisure.')),
+      box));
     return U.store.shelves.watch(function (list) {
       if (!ctx.alive()) return;
       var shelves = order(list.filter(function (s) { return U.validId(s.__id) && str(s.title) && folders(s).length; }));
       U.clear(box);
-      if (!shelves.length) return;
-      box.appendChild(U.h('section', { class: 'shelves', 'aria-labelledby': 'shelves-h' },
-        U.h('div', { class: 'section-head' }, U.h('h2', { id: 'shelves-h' }, 'Ready-made courses')),
-        U.h('div', { class: 'shelf-grid' }, shelves.map(function (s) {
-          var f = folders(s);
-          return card('#/shelf/' + encodeURIComponent(s.__id), str(s.title), str(s.blurb), (f.length === 1 ? '1 folder' : f.length + ' folders') + ' · ' + counts(allCourses(s)));
-        }))));
-    }, function () { /* Learn works without its shelves */ });
-  }
+      if (!shelves.length) { box.appendChild(U.h('p', { class: 'muted' }, 'None yet.')); return; }
+      shelves.forEach(function (s) {
+        var f = folders(s);
+        box.appendChild(card('#/shelf/' + encodeURIComponent(s.__id), str(s.title), str(s.blurb), (f.length === 1 ? '1 folder' : f.length + ' folders') + ' · ' + counts(allCourses(s))));
+      });
+    }, function (e) { if (ctx.alive()) loadError(box, 'Ready-made courses', e); });
+  }, { tab: 'book', title: 'Ready-made courses' });
 
   // ---------- a shelf, and one of its folders ----------
   function page(params, ctx) {
@@ -16732,13 +16777,13 @@ U.interactive = (function () {
     U.store.shelves.get(sid).then(function (shelf) {
       if (!ctx.alive()) return;
       if (!shelf || !folders(shelf).length) {
-        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/', label: 'Back to Learn' } }));
+        U.clear(box).appendChild(V.empty({ h1: true, title: 'Not here', text: 'These ready-made courses are not here any more.', action: { href: '#/library/courses', label: 'Ready-made courses' } }));
         return;
       }
       var title = str(shelf.title);
       if (!fid) {
         U.setTitle(title);
-        U.clear(box).append(V.back('#/', 'Learn'),
+        U.clear(box).append(V.back('#/library/courses', 'Ready-made courses'),
           U.h('header', { class: 'page-head' },
             U.h('p', { class: 'eyebrow' }, 'Ready-made courses'),
             U.h('h1', { tabindex: '-1' }, title),
@@ -16774,10 +16819,10 @@ U.interactive = (function () {
         })));
     }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
   }
-  U.routes.add('#/shelf/:sid', page, { tab: 'learn', title: 'Ready-made courses' });
-  U.routes.add('#/shelf/:sid/:fid', page, { tab: 'learn', title: 'Ready-made courses' });
+  U.routes.add('#/shelf/:sid', page, { tab: 'book', title: 'Ready-made courses' });
+  U.routes.add('#/shelf/:sid/:fid', page, { tab: 'book', title: 'Ready-made courses' });
 
-  U.shelves = { mount: mount };
+  U.shelves = {};
 })();
 
 // ---- src/js/99-boot.js ----

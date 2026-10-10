@@ -540,7 +540,7 @@
     return function (params, ctx) {
       var tid = params.tid, iid = params.iid || null;
       fonts(); furnish();
-      var root = h('div', { class: 'dos reader' }, h('header', { class: 'r-bar' }, h('a', { class: 'r-btn', href: '#/book' }, icon('back'), h('span', null, 'Library'))));
+      var root = h('div', { class: 'dos reader' }, h('header', { class: 'r-bar' }, h('a', { class: 'r-btn', href: '#/library/dossiers' }, icon('back'), h('span', null, 'Dossiers'))));
       ctx.view.appendChild(root);
       var S = { root: root, ctx: ctx, plates: [], io: null, pop: null, popFrom: null, offs: [] };
       load(tid).then(function (book) {
@@ -583,7 +583,7 @@
   }
   function bar(S, head) {
     var b = h('header', { class: 'r-bar' },
-      h('a', { class: 'r-btn', href: '#/book' }, icon('back'), h('span', null, 'Library')),
+      h('a', { class: 'r-btn', href: '#/library/dossiers' }, icon('back'), h('span', null, 'Dossiers')),
       h('p', { class: 'r-head' }, head),
       h('button', { class: 'r-btn r-aa', type: 'button', 'aria-label': 'Reading settings', on: { click: function () { if (U.settings && U.settings.open) U.settings.open(); } } }, 'Aa'));
     return b;

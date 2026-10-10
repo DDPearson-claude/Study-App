@@ -501,10 +501,8 @@
     var liveBox = U.h('div', { class: 'learn-note learn-live' });
     var listBox = U.h('section', { class: 'learn-topics', 'aria-label': 'Your topics' }, skeletonCards());
     var artBox = U.h('div', { class: 'learn-art' });
-    // Ready-made courses (76-shelves.js): folders of courses Claude builds in full.
-    var shelfBox = U.h('div', { class: 'learn-shelves' });
     // Reviews waiting come first: today's study is one tap away.
-    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, shelfBox, artBox);
+    var page = U.h('div', { class: 'learn' }, ask, todayBox, continueBox, liveBox, noteBox, listBox, artBox);
     ctx.view.appendChild(page);
 
     // Once Dan has topics, phones get a compact ask so Continue sits on the first screen; the
@@ -710,7 +708,6 @@
         }));
       });
     }
-    var stopShelves = U.shelves && U.store.shelves ? U.shelves.mount(shelfBox, ctx) : null;
     var stop = U.store.topics.watch(function (list) {
       var firstTime = topics === null;
       topics = list || [];
@@ -918,6 +915,6 @@
       }));
     }
 
-    return function () { stop(); if (stopShelves) stopShelves(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
+    return function () { stop(); lw.stop(); clearTimeout(stuckTimer); clearTimeout(refetch); clearTimeout(slowTimer); window.removeEventListener('resize', fit); if (fitRo) fitRo.disconnect(); cancelAnimationFrame(fitRaf); offPrefs(); };
   }, { tab: 'learn', title: 'Learn' });
 })();

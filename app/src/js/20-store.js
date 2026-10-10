@@ -826,6 +826,7 @@ U.store = (function () {
         fn(q.docs.map(function (d) { var x = U.clone(d.data()) || {}; x.__id = d.id; return x; }));
       }, onError);
     },
+    list: function () { return listColl('shelves'); },
     get: function (sid) { return getDoc('shelves/' + sid); },
   };
   S.profile = {

@@ -553,3 +553,16 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .shelf-courses { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .shelf-n { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--line-strong); color: var(--muted); font-weight: 700; font-size: .9rem; }
 .shelf-courses .is-built .shelf-n { border-color: var(--heading); color: var(--heading); }
+/* The Library's two choices (73-book.js). */
+.lib-choices { display: grid; gap: 14px; }
+@container view (min-width: 608px) { .lib-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; } }
+.lib-choice { display: flex; align-items: center; gap: 16px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); color: inherit; text-decoration: none; box-shadow: var(--shadow); }
+.lib-choice:hover { border-color: var(--line-strong); }
+.lib-choice-ico { flex: none; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: var(--sunk); color: var(--heading); }
+.lib-choice-ico svg { width: 28px; height: 28px; }
+.lib-choice-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+.lib-choice-t { font-weight: 800; font-size: 1.2rem; color: var(--heading); }
+.lib-choice-x { line-height: 1.45; }
+.lib-choice-m { color: var(--muted); font-size: .875rem; }
+.lib-choice-m:empty { display: none; }
+.lib-choice-go { flex: none; width: 22px; height: 22px; color: var(--muted); }
