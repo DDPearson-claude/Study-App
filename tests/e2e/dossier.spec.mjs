@@ -134,6 +134,26 @@ async function bar(app) {
       next: a('.pb-next .pb-name').textContent.replace(/\u00a0/g, ' '), nextHref: a('.pb-next').getAttribute('href'), steps: [...b.querySelectorAll('.pb-steps i')].map((i) => i.className === 'on' ? 1 : 0).join('') };
   });
 }
+// The page bar's middle: '' when what it shows is whole, else what is cut. A chapter's position:
+// the numeral fully inside, " · n of 2" either fully inside on the same line or dropped whole onto
+// the hidden line, and never an ellipsis. A page's name ("at a glance"): inside, not cut.
+async function middleCut(app) {
+  return app.page.evaluate(() => {
+    const at = document.querySelector('.dos-pagebar .pb-at'), ar = at.getBoundingClientRect();
+    const box = (e) => { const r = document.createRange(); r.selectNodeContents(e); return r.getBoundingClientRect(); };
+    const inside = (e) => { const r = box(e); return r.left >= ar.left - .5 && r.right <= ar.right + .5; };
+    const rn = at.querySelector('.pb-rn'), of = at.querySelector('.pb-of'), word = at.querySelector('.pb-word');
+    if ([...at.querySelectorAll('*')].concat(at).some((e) => getComputedStyle(e).textOverflow === 'ellipsis')) return 'an ellipsis';
+    if (rn) {
+      if (!inside(rn)) return 'the numeral ' + rn.textContent;
+      const line = at.querySelector('.pb-pos').getBoundingClientRect();
+      // (the span's own box says which line it is on; its glyphs reach a little above it)
+      if (of.getBoundingClientRect().top < line.bottom - 1 && !inside(of)) return 'the page ' + of.textContent;
+      return '';
+    }
+    return word && (!inside(word) || word.scrollWidth > word.clientWidth + 1) ? 'the name ' + word.textContent : '';
+  });
+}
 // A token's computed colour, for comparing with a tile's.
 const token = (app, name) => app.page.evaluate((n) => { const d = document.createElement('div'); d.style.color = 'var(' + n + ')'; document.body.appendChild(d); const c = getComputedStyle(d).color; d.remove(); return c; }, name);
 
@@ -309,7 +329,8 @@ await test('reader on a phone: at a glance, a chapter with its plate asleep unti
   // From chapter III's page the bar names the previous page by its chapter.
   await go(app, '#/book/pendulums/i3');
   await app.page.waitForSelector('.c-head');
-  eq((await bar(app)).prev, 'Ch. I practice', 'another chapter\'s practice, by its numeral');
+  eq((await bar(app)).prev, 'Ch. I', 'another chapter\'s practice, by its numeral alone');
+  assert(/Previous page: Ch\. I practice/.test((await app.page.locator('.pb-prev').textContent()).replace(/\u00a0/g, ' ')), 'its whole name still said to a screen reader');
   // An older chapter (bound before lessons had practice): its sources alone.
   await go(app, '#/book/pendulums/i3/practice');
   await app.page.waitForSelector('.p-sources .p-src');
@@ -328,7 +349,8 @@ await test('reader on a phone: at a glance, a chapter with its plate asleep unti
   assert((await app.page.locator('.b-biblio').innerText()).includes('Science Museum'), 'the research\'s sources in the bibliography');
   const biblioTop = await app.page.evaluate(() => document.getElementById('bibliography').getBoundingClientRect().top);
   assert(biblioTop < 300, '#/…/bibliography opens at the bibliography (' + biblioTop + ')');
-  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Ch. V sources', prevHref: '#/book/pendulums/i5/practice', at: 'glossary', next: 'Library', nextHref: '#/library/dossiers', steps: '' }), 'the book ends at the Library');
+  eq(JSON.stringify(await bar(app)), JSON.stringify({ prev: 'Ch. V', prevHref: '#/book/pendulums/i5/practice', at: 'bibliography', next: 'Library', nextHref: '#/library/dossiers', steps: '' }), 'the book ends at the Library; opened at the bibliography, the bar says so');
+  assert(/\/bibliography$/.test(await app.page.locator('.dos-path').textContent()), 'and so does the path');
   await noSideways(app, 'back matter');
   await noTests(app, 'back matter');
   // Every page, and the older addresses: no test anywhere in the book.
@@ -384,8 +406,24 @@ await test('release-check nits: page-bar names whole on a phone, half tiles acro
       assert(!cut.length, `${w} ${h}: page-bar names cut or broken mid-word: ` + cut.join(' | '));
       const clash = await app.page.evaluate(() => { const r = (s) => document.querySelector('.dos-pagebar ' + s).getBoundingClientRect(); return r('.pb-prev').right <= r('.pb-at').left + 1 && r('.pb-at').right <= r('.pb-next').left + 1; });
       assert(clash, `${w} ${h}: the page bar's parts overlap`);
+      eq(await middleCut(app), '', `${w} ${h}: the middle label whole`);
     }
     await shot(app, 'pagebar-' + w);
+  }
+  // Where he is is never cut: at the larger text sizes " · 2 of 2" drops away whole and the numeral
+  // stays (never "I…"); a narrow bar keeps the previous page's chevron, its name said, 44 px wide.
+  for (const [size, easy] of [['m', false], ['l', false], ['xl', false], ['xl', true]]) {
+    const app = await open({ width: 360, height: 707, size, easy, hash: '#/book/pendulums/i3/practice' });
+    await app.page.waitForSelector('.p-sources .p-src', { timeout: 20000 });
+    for (const h of ['#/book/pendulums/i3/practice', '#/book/pendulums/i1', '#/book/pendulums/i5', '#/book/pendulums', '#/book/pendulums/bibliography']) {
+      await go(app, h);
+      await app.page.waitForSelector('.dos-pagebar .pb-at');
+      await app.page.waitForTimeout(150);
+      eq(await middleCut(app), '', `360 ${size}${easy ? ' easy' : ''} ${h}: the position or the page's name whole`);
+      const prev = await app.page.evaluate(() => { const a = document.querySelector('.dos-pagebar .pb-prev'); return { w: a.getBoundingClientRect().width, said: /^Previous page: \S/.test(a.textContent) }; });
+      assert(prev.w >= 44 && prev.said, `360 ${size} ${h}: the previous page keeps a 44 px target and its name: ` + JSON.stringify(prev));
+    }
+    await shot(app, `pagebar-360-${size}${easy ? '-easy' : ''}`);
   }
   // At XL on a small phone the half tiles go across, so their words keep a sensible measure.
   const xl = await open({ width: 360, height: 707, size: 'xl', hash: '#/book/pendulums/i1' });
@@ -400,6 +438,80 @@ await test('release-check nits: page-bar names whole on a phone, half tiles acro
     await noSideways(xl, h + ' xl');
   }
   await shot(xl, 'chapter-xl-360');
+});
+
+await test('at a glance, finished: the Bound tile\'s date stays inside the ink on a phone at every text size', async () => {
+  // Measured against the tile's content edge, not its border: white on the page, text in the
+  // padding or past the edge would vanish. The harness has no web fonts, so the wider fallback
+  // font makes this the stricter check.
+  for (const [m, d] of [['06', '28'], ['09', '21'], ['09', '30']]) {
+    const db = seed();
+    const pr = db[`data/users/${UID}/profile/progress/clocks-ab12`].ideas;
+    pr.i1 = { stage: 'done', startedAt: at('06', '01'), doneAt: at('06', '02') };
+    pr.i2 = { stage: 'done', startedAt: at('06', '03'), doneAt: at(m, d) };
+    const app = await open({ width: 360, height: 760, db, hash: '#/book/clocks-ab12' });
+    await app.page.waitForSelector('.g-bound.is-done', { timeout: 20000 });
+    for (const [w, size, easy] of [[360, 'm', false], [390, 'm', false], [390, 'l', false], [412, 'xl', false], [360, 'm', true]]) {
+      await app.page.setViewportSize({ width: w, height: 760 });
+      await app.page.evaluate((o) => U.settings.apply(Object.assign({}, U.settings.prefs, o)), { size, easy });
+      await app.page.waitForTimeout(200);
+      const r = await app.page.evaluate(() => {
+        const t = document.querySelector('.g-bound'), s = t.querySelector('.g-stat'), big = t.querySelector('.g-big');
+        const g = document.createRange(); g.selectNodeContents(big);
+        return { text: big.textContent, tile: t.scrollWidth - t.clientWidth, stat: s.scrollWidth - s.clientWidth, past: Math.round((g.getBoundingClientRect().right - (t.getBoundingClientRect().right - parseFloat(getComputedStyle(t).paddingRight))) * 10) / 10 };
+      });
+      assert(r.tile <= 0 && r.stat <= 0 && r.past <= 0.5, `${m}-${d} at ${w} ${size}${easy ? ' easy' : ''}: the date inside the tile: ` + JSON.stringify(r));
+    }
+    if (m === '09' && d === '30') {
+      await app.page.setViewportSize({ width: 360, height: 760 });
+      await app.page.evaluate(() => U.settings.apply(Object.assign({}, U.settings.prefs, { size: 'm', easy: false })));
+      await shot(app, 'glance-finished-360');
+      // Dark: the ink tile is light, so the finished ring takes the green that holds 3:1 on it.
+      await app.page.evaluate(() => U.settings.apply(Object.assign({}, U.settings.prefs, { theme: 'dark' })));
+      await app.page.waitForTimeout(200);
+      eq(await app.page.$eval('.g-bound .ring .fl', (e) => getComputedStyle(e).stroke), 'rgb(46, 125, 79)', 'dark: the finished ring on the ink tile is the darker green');
+      await shot(app, 'glance-finished-360-dark');
+    }
+  }
+});
+
+await test('a chapter\'s order and outline: contested views last, the plate a heading, held at its height; links Dan taps on their own are 44 px', async () => {
+  const app = await open({ width: 390, hash: '#/book/pendulums/i5' });
+  await app.page.waitForSelector('.c-view', { timeout: 20000 });
+  // The brief's order: ... Compare beside How certain, the plate's notes, then the contested views.
+  const v = await app.page.evaluate(() => { const c = document.querySelector('.c-certain'), vs = [...document.querySelectorAll('.c-view')]; return { n: vs.length, after: vs.every((x) => c.compareDocumentPosition(x) & Node.DOCUMENT_POSITION_FOLLOWING), below: vs[0].getBoundingClientRect().top > c.getBoundingClientRect().bottom }; });
+  assert(v.n === 2 && v.after && v.below, 'the contested views come after How certain: ' + JSON.stringify(v));
+  // The plate has a heading of its own, so moving by headings finds it; Tap to play is not in it.
+  await go(app, '#/book/pendulums/i1');
+  await app.page.waitForSelector('.c-plate .mount');
+  const hs = await app.page.$$eval('h2', (l) => l.map((e) => e.textContent));
+  assert(hs.some((t) => /^Plate I\b/.test(t)) && hs.indexOf(hs.find((t) => /^Plate I\b/.test(t))) < hs.indexOf('What’s going on'), 'the chapter\'s h2s: ' + hs.join(' | '));
+  eq(await app.page.evaluate(() => { const f = document.querySelector('.c-plate'); return document.getElementById(f.getAttribute('aria-labelledby')).textContent; }), 'Plate I: Length and swing time', 'the plate is named by its heading, not by Tap to play');
+  // A flat well: none of the kit host's own card.
+  eq(await app.page.$eval('.mount .kit-frame', (e) => { const c = getComputedStyle(e); return c.borderTopWidth + ' ' + c.boxShadow; }), '0px none', 'the plate sits in a flat well');
+  // Its height is held from the first paint: what this device measured last time.
+  await app.page.waitForFunction(() => Number(localStorage.getItem('mu-dos-h:pendulums:i1')) > 120, null, { timeout: 20000 });
+  const kept = await app.page.evaluate(() => Number(localStorage.getItem('mu-dos-h:pendulums:i1')));
+  await go(app, '#/book/pendulums');
+  await app.page.waitForSelector('.g-grid');
+  await app.page.evaluate(() => U.go('#/book/pendulums/i1'));
+  const first = await app.page.waitForFunction(() => { const w = document.querySelector('.c-plate .mount .frame'); if (!w) return null; const f = w.querySelector('iframe'); return parseFloat(f ? f.style.height : w.style.minHeight); });
+  const held = await first.jsonValue();
+  assert(Math.abs(held - kept) <= 2, `the plate starts at the height it had last time (${held} vs ${kept})`);
+  assert(!(await app.page.evaluate(() => JSON.stringify(Object.keys(window.__CLAUDE_STUB__.dump()).filter((p) => p.includes('/dossiers/')).map((p) => window.__CLAUDE_STUB__.get(p))))).includes('mu-dos-h'), 'a look, never written to the dossier');
+  // Links tapped on their own: 44 px tall.
+  for (const [h, sel] of [['#/book/pendulums/i1', '.c-compare a'], ['#/book/pendulums/i1/practice', '.p-src-u'], ['#/book/pendulums/glossary', '.b-first a'], ['#/book/pendulums/glossary', '.b-ch a'], ['#/book/pendulums/glossary', '.b-work .p-src-u']]) {
+    await go(app, h);
+    await app.page.waitForSelector(sel);
+    const small = await app.page.$$eval(sel, (l) => l.map((e) => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height), e.textContent.slice(0, 20)]; }).filter((x) => x[1] < 44 || x[0] < 24));
+    assert(!small.length, `${h} ${sel}: tap targets under 44 px: ` + JSON.stringify(small));
+  }
+  // The practice tiles are headings too.
+  await go(app, '#/book/pendulums/i1/practice');
+  await app.page.waitForSelector('.p-rules');
+  const ph = await app.page.$$eval('h2', (l) => l.map((e) => e.textContent));
+  assert(['Steps', 'Rule of thumb', 'Worked example', 'Common mistakes', 'Sources'].every((t) => ph.includes(t)), 'the practice page\'s h2s: ' + ph.join(' | '));
+  await noSideways(app, 'practice');
 });
 
 await test('reader on a phone at XL with Easy reading, and dark with reduced motion', async () => {

@@ -187,7 +187,9 @@
       var lead = leadOf(lines[0]), own = lead || carry;
       carry = null;
       // The label becomes the heading, so the words after it start the part: a capital, as a sentence.
-      if (lead) { lines[0] = lead.rest.replace(/^([^A-Za-z]*)([a-z])/, function (m, a, b) { return a + b.toUpperCase(); }); if (!lines[0]) lines.shift(); }
+      // Only a lower-case letter is raised, with nothing but punctuation or markup before it: a
+      // number stops it ("2400 mm" never becomes "2400 Mm"; "2.3 kW" keeps its unit).
+      if (lead) { lines[0] = lead.rest.replace(/^([^\p{L}\p{N}]*)(\p{Ll})/u, function (m, a, b) { return a + b.toUpperCase(); }); if (!lines[0]) lines.shift(); }
       if (!lines.length) { carry = lead; return; }   // a label on its own: it names the next block
       var ps = [], items = [], ordered = false;
       lines.forEach(function (l) {
@@ -558,7 +560,7 @@
         if (!ctx.alive()) return;
         console.warn('dossier: load', e);
         var V = U.views;
-        U.clear(root.querySelector('.dos-page')).appendChild(h('div', { class: 't t-grey t-full d-loaderr' }, V && V.loadError ? V.loadError('This dossier', e, false) : h('p', null, U.errText(e))));
+        U.clear(root.querySelector('.dos-page')).appendChild(V && V.loadError ? h('div', { class: 't-full' }, V.loadError('This dossier', e, false)) : tile('p', 'grey', { span: 'full' }, U.errText(e)));
       });
       return function () {
         closePop(S, false);
@@ -580,33 +582,45 @@
 
   // ---------- the focus bar, the page bar, the arrow keys ----------
   // D4's focus bar: back one level up, where he is (a mono path), and the reading settings.
+  // The course's part of the path gives way first; --rest (the other parts' characters) lets the
+  // CSS cut it at a whole character, so its ellipsis meets the next slash with no gap.
   function topBar(up, path) {
+    var where = h('p', { class: 'dos-path' }, path.map(function (p, k) { return h('span', { class: p.cls || null }, (k ? '/' : '') + p.t); }));
+    where.style.setProperty('--rest', String(path.reduce(function (n, p, k) { return p.cls === 'fit' ? n : n + (k ? 1 : 0) + p.t.length; }, 0)));
     return h('header', { class: 'dos-bar' },
       h('a', { class: 'dos-sq dos-up', href: up.href, 'aria-label': 'Back to ' + up.label }, icon('back')),
-      h('p', { class: 'dos-path' }, path.map(function (p, k) { return h('span', { class: p.cls || null }, (k ? '/' : '') + p.t); })),
+      where,
       h('button', { class: 'dos-sq dos-aa', type: 'button', 'aria-label': 'Reading settings', on: { click: function () { if (U.settings && U.settings.open) U.settings.open(); } } }, 'Aa'));
   }
   function turnLinks(M, leafId) {
     var k = -1; M.leaves.forEach(function (l, i) { if (l.id === leafId) k = i; });
     return { at: M.leaves[k] || null, prev: k > 0 ? M.leaves[k - 1] : null, next: k >= 0 ? M.leaves[k + 1] || null : null };
   }
-  // A neighbouring page's name in the page bar: short, with the chapter's numeral when it is
-  // another chapter's practice ("Ch. I practice").
-  // A chapter's numeral never wraps away from its word.
-  function barName(l, cur) { return (l.part === 'practice' && (!cur || cur.n !== l.n) ? 'Ch. ' + l.rn + ' ' + l.k.toLowerCase() : l.k).replace(/^(Chapter|Ch\.) /, '$1\u00a0'); }
+  // A neighbouring page's name in the page bar: short. Another chapter's practice shows its
+  // numeral alone ("Ch. I"), the rest of its name (" practice") said only to a screen reader, so
+  // the name still holds what is seen. A chapter's numeral never wraps away from its word.
+  // -> {shown, more}
+  function barName(l, cur) {
+    if (l.part === 'practice' && (!cur || cur.n !== l.n)) return { shown: 'Ch.\u00a0' + l.rn, more: ' ' + l.k.toLowerCase() };
+    return { shown: l.k.replace(/^(Chapter|Ch\.) /, '$1\u00a0'), more: '' };
+  }
   // The page bar (it replaces the turn links and the desk arrows): the previous page, where he is
   // (a step segment per page of the chapter), and the next page as the ink button. The book starts
-  // and ends at the Library.
-  function pageBar(M, t) {
+  // and ends at the Library. Where the bar is narrow, the position keeps its numeral whole: " · 2
+  // of 2" drops away as one piece (75-dossier.css), never cut to "I…". o.at: what the middle says
+  // instead of the leaf's own words (the back matter opened at the bibliography).
+  function pageBar(M, t, o) {
     var cur = t.at, lib = { href: LIBRARY, k: 'Library' };
     function link(l, dir) {
-      var leaf = l !== lib;
+      var leaf = l !== lib, name = leaf ? barName(l, cur) : { shown: l.k, more: '' };
       return h('a', { class: 'pb-' + dir + (leaf ? ' is-leaf' : ''), href: l.href, rel: leaf ? dir : null },
         dir === 'prev' ? icon('back') : null, vh(dir === 'prev' ? 'Previous page: ' : 'Next page: '),
-        h('span', { class: 'pb-name' }, leaf ? barName(l, cur) : l.k), dir === 'next' ? icon('next') : null);
+        h('span', { class: 'pb-name' }, name.shown), name.more ? vh(name.more) : null, dir === 'next' ? icon('next') : null);
     }
-    var at = !cur ? [] : cur.n ? [h('span', { 'aria-hidden': 'true' }, cur.rn + ' · ' + cur.p + ' of 2'), vh('Chapter ' + cur.rn + ', page ' + cur.p + ' of 2'),
-      h('span', { class: 'pb-steps', 'aria-hidden': 'true' }, [1, 2].map(function (k) { return h('i', { class: k <= cur.p ? 'on' : null }); }))] : [cur.at];
+    var at = !cur ? [] : cur.n ? [h('span', { class: 'pb-pos', 'aria-hidden': 'true' }, h('span', { class: 'pb-rn' }, cur.rn), h('span', { class: 'pb-of' }, ' · ' + cur.p + ' of 2')),
+      vh('Chapter ' + cur.rn + ', page ' + cur.p + ' of 2'),
+      h('span', { class: 'pb-steps', 'aria-hidden': 'true' }, [1, 2].map(function (k) { return h('i', { class: k <= cur.p ? 'on' : null }); }))]
+      : [h('span', { class: 'pb-word' }, (o && o.at) || cur.at)];
     return h('nav', { class: 'dos-pagebar', 'aria-label': 'Turn the page' }, link(t.prev || lib, 'prev'), h('p', { class: 'pb-at' }, at), link(t.next || lib, 'next'));
   }
   // The arrow keys turn pages through model().leaves, except in the plate, a form control,
@@ -622,12 +636,12 @@
     document.addEventListener('keydown', onKey);
     S.offs.push(function () { document.removeEventListener('keydown', onKey); });
   }
-  // One page: the focus bar, its tiles, the page bar. o: {leaf, up: {href, label}, path, cls, kids}
+  // One page: the focus bar, its tiles, the page bar. o: {leaf, up: {href, label}, path, cls, kids, at?}
   function pageOf(S, M, o) {
     var page = h('div', { class: 'dos-page enter ' + o.cls }, o.kids);
     U.clear(S.root);
     S.root.setAttribute('data-leaf', o.leaf);   // which page of model().leaves this is
-    U.append(S.root, [topBar(o.up, o.path), page, pageBar(M, turnLinks(M, o.leaf))]);
+    U.append(S.root, [topBar(o.up, o.path), page, pageBar(M, turnLinks(M, o.leaf), { at: o.at })]);
     keys(S);
     startPlates(S);
     return page;
@@ -775,9 +789,9 @@
           vh('Chapter ' + c.n + ' of ' + M.N + (idea.kind ? ', ' + idea.kind : '') + ':'),
           h('h1', { class: 'c-h1', tabindex: '-1' }, idea.title))]),
       // The field note: the explanation's closing all-bold paragraph. None, no tile.
-      ex.note ? tile('section', 'em', { span: 'full', cls: 'c-key', attrs: { 'aria-label': 'Key idea' } }, [label('Key idea'), inl(h('p', { class: 'c-key-t' }), ex.note, fx)]) : null,
+      ex.note ? tile('section', 'em', { span: 'full', cls: 'c-key', attrs: { 'aria-labelledby': sid + '-key' } }, [heading(sid + '-key', 'Key idea'), inl(h('p', { class: 'c-key-t' }), ex.note, fx)]) : null,
     ];
-    if (c.hasPlate) main.push(plateTile(S, c, fx));
+    if (c.hasPlate) main.push(plateTile(S, M, c, fx));
     var prose = h('div', { class: 't-prose c-prose' });
     ex.ps.forEach(function (p, k) {
       U.append(prose, rich(p, fx));
@@ -788,9 +802,10 @@
       }
     });
     main.push(tile('section', 'grey', { span: 'full', cls: 'c-explain', attrs: { 'aria-labelledby': sid + '-ex' } }, [heading(sid + '-ex', 'What’s going on'), prose]));
-    views.forEach(function (v, k) {
-      main.push(tile('section', 'grey', { span: views.length % 2 && k === views.length - 1 ? 'full' : 'half', cls: 'c-view', attrs: { 'aria-labelledby': sid + '-v' + k } },
-        [heading(sid + '-v' + k, v.label || 'One view'), h('div', { class: 't-prose t-small' }, rich(v.text, fx))]));
+    // The contested views come last, a tile each, two to a row (an odd last one across).
+    var viewTiles = views.map(function (v, k) {
+      return tile('section', 'grey', { span: views.length % 2 && k === views.length - 1 ? 'full' : 'half', cls: 'c-view', attrs: { 'aria-labelledby': sid + '-v' + k } },
+        [heading(sid + '-v' + k, v.label || 'One view'), h('div', { class: 't-prose t-small' }, rich(v.text, fx))]);
     });
     var A = L.analogy && L.analogy.text ? L.analogy : null;
     if (A) {
@@ -800,7 +815,7 @@
         [heading(sid + '-br', 'Where it breaks'), inl(h('p', { class: 't-small' }), A.breaks, fx)]));
     }
     var cmp = compareOf(M, c), cert = certainOf(c), hasCmp = cmp.deps.length > 0 || cmp.later.length > 0;
-    function link(x) { return x.learned ? h('a', { href: x.href }, 'ch. ' + x.rn, vh(': ' + x.idea.title)) : h('span', null, 'ch. ' + x.rn); }
+    function link(x) { return x.learned ? h('a', { href: x.href }, 'ch.\u00a0' + x.rn, vh(': ' + x.idea.title)) : h('span', { class: 'c-ref' }, 'ch.\u00a0' + x.rn); }
     function list(xs) { var out = []; xs.forEach(function (x, k) { if (k) out.push(k === xs.length - 1 ? ' and ' : ', '); out.push(link(x)); }); return out; }
     if (hasCmp) side.push(tile('aside', 'grey', { span: 'half', cls: 'c-compare', attrs: { 'aria-labelledby': sid + '-cm' } }, [heading(sid + '-cm', 'Compare'),
       h('p', { class: 't-small' }, cmp.deps.length ? ['Builds on ', list(cmp.deps), '. '] : null, cmp.later.length ? ['Comes back in ', list(cmp.later), '.'] : null)]));
@@ -808,22 +823,23 @@
       h('p', { class: 'c-pills' }, ['settled', 'simplified', 'contested'].map(function (k) { return k === cert.conf ? h('span', { class: 'on' }, k, vh(' (this one)')) : h('span', null, k); })),
       h('p', { class: 't-small c-why' }, cert.why)]));
     kids.push(h('div', { class: 'c-main' }, main), h('div', { class: 'c-side' }, side));
-    kids = kids.concat(plateNotes(c, fx));
+    kids = kids.concat(plateNotes(c, fx), viewTiles);
     pageOf(S, M, { leaf: idea.id + ':chapter', up: { href: M.base, label: 'Contents' }, path: [{ t: slugOf(M.book), cls: 'fit' }, { t: 'ch-' + c.rn.toLowerCase() }], cls: 'dos-chapter', kids: kids });
     var pl = S.plates[0];
     if (at && c.hasPlate) scrollTo(document.getElementById(sid + '-plate'), at === 'play' && pl ? function () { togglePlate(pl, false, true); } : null);
   }
   // The plate: the lesson's own interactive in a well, asleep until Tap to play. A plate too big
   // to keep shows its note instead.
-  function plateTile(S, c, fx) {
+  function plateTile(S, M, c, fx) {
     var it = c.lesson.interactive, sid = 'c' + c.n, look = lookFor(it), kids;
-    var name = h('span', { class: 'c-plate-name' }, h('span', { class: 't-label' }, 'Plate ' + c.rn), h('span', { class: 'c-plate-t' }, it.title));
+    // The plate's name is a heading (moving by headings finds it); Tap to play stays outside it.
+    var name = h('h2', { class: 'c-plate-name', id: sid + '-pl' }, h('span', { class: 't-label' }, 'Plate ' + c.rn), vh(': '), h('span', { class: 'c-plate-t' }, it.title));
     if (c.doc.plate) {
       var wake = h('button', { class: 'wake', type: 'button', 'aria-pressed': 'false' }, icon('play', 'w-play'), icon('tick', 'w-done'), h('span', null, 'Tap to play'));
       var frameWrap = h('div', { class: 'frame', inert: '' });
       var tap = h('span', { class: 'cover-tap', 'aria-hidden': 'true' });
       var mount = h('div', { class: 'mount', 'data-awake': 'false' }, frameWrap, tap);
-      var p = { mount: mount, frameWrap: frameWrap, wake: wake, html: c.doc.plate, title: it.title };
+      var p = { mount: mount, frameWrap: frameWrap, wake: wake, html: c.doc.plate, title: it.title, key: 'mu-dos-h:' + M.book.tid + ':' + c.idea.id };
       wake.addEventListener('click', function () { togglePlate(p, true); });
       tap.addEventListener('click', function () { togglePlate(p, false, true); });
       S.plates.push(p);
@@ -832,7 +848,7 @@
       kids = [h('figcaption', { class: 'c-plate-cap' }, name), h('p', { class: 'c-plate-gone' }, c.doc.plateNote || PLATE_NOTE)];
     }
     if (look) kids.push(h('p', { class: 'c-look' }, h('b', null, 'Look for '), look));
-    return tile('figure', 'grey', { span: 'full', cls: 'c-plate', attrs: { id: sid + '-plate' } }, kids);
+    return tile('figure', 'grey', { span: 'full', cls: 'c-plate', attrs: { id: sid + '-plate', 'aria-labelledby': sid + '-pl' } }, kids);
   }
   // The plate's notes, which used to face it: a number from the sources, what you're looking at,
   // what the model leaves out (side by side while short), and the numbers on the plate.
@@ -841,7 +857,7 @@
     if (!it) return out;
     var nm = numberOf(it, c.lesson, fx.by), small = [];
     if (nm) small.push({ short: true, el: function (span) {
-      return tile('aside', 'grey', { span: span, cls: 'c-number', attrs: { 'aria-label': 'A number from the sources' } }, [label('A number from the sources'),
+      return tile('aside', 'grey', { span: span, cls: 'c-number', attrs: { 'aria-labelledby': sid + '-nm' } }, [heading(sid + '-nm', 'A number from the sources'),
         h('p', { class: 'c-num-v' }, nm.value), h('p', { class: 't-small' }, nm.label), inl(h('p', { class: 'c-num-src' }, 'Source '), '[^' + nm.source + ']', fx)]);
     } });
     [['whatAmILookingAt', 'What you’re looking at', 'c-looking'], ['ignores', 'What this model leaves out', 'c-leaves']].forEach(function (x, k) {
@@ -869,10 +885,32 @@
   // Drawn (U.sandbox.mount, in the app's D4 kit theme like a lesson) when it comes within 900 px
   // of the screen, but inert with the frame out of the Tab order and a cover over it, so a thumb
   // scrolling past never moves a slider. The first tap only wakes it.
+  // Its height is held from the first paint, as a lesson's panel is (50-lesson.js mountPanel): the
+  // height this device last measured for this plate at this width, else a typical one (the
+  // Fractions plates run 500 to 1,200 px on a phone), so what follows it barely moves when it
+  // arrives. Only this device's browser keeps it (a look, not data: never the chapter doc).
+  function plateReserve(p) {
+    var w = p.mount.getBoundingClientRect().width || window.innerWidth;
+    var size = w >= 860 ? 'laptop' : w >= 560 ? 'wide' : 'phone';
+    p.hkey = p.key + (size === 'phone' ? '' : ':' + size);
+    var r = 720;
+    try { r = Number(localStorage.getItem(p.hkey)) || r; } catch (e) { /* none kept */ }
+    return r;
+  }
+  function holdPlate(p) { p.reserve = plateReserve(p); p.frameWrap.style.minHeight = p.reserve + 'px'; }
   function mountPlate(p) {
     if (p.api) return;
-    p.api = U.sandbox.mount(p.frameWrap, { html: p.html, title: 'Plate: ' + p.title + ' (interactive)', minHeight: 320 });
+    if (!p.reserve) holdPlate(p);
+    p.api = U.sandbox.mount(p.frameWrap, { html: p.html, title: 'Plate: ' + p.title + ' (interactive)', minHeight: p.reserve });
+    // The frame itself now holds the height; from here it follows the plate (the kit's own easing).
+    p.frameWrap.style.minHeight = '';
     if (p.api.frame) p.api.frame.tabIndex = p.mount.getAttribute('data-awake') === 'true' ? 0 : -1;
+    Promise.resolve(p.api.ready).then(function () {
+      setTimeout(function () {
+        var f = p.api && p.api.frame, hgt = f && f.isConnected ? Math.round(f.getBoundingClientRect().height) : 0;
+        if (hgt > 120) try { localStorage.setItem(p.hkey, String(hgt)); } catch (e) { /* not kept */ }
+      }, 900);
+    }, function () {});
   }
   function togglePlate(p, viaButton, forceOn) {
     var awake = forceOn ? true : p.mount.getAttribute('data-awake') !== 'true';
@@ -886,6 +924,7 @@
   }
   function startPlates(S) {
     if (!S.plates.length) return;
+    S.plates.forEach(holdPlate);
     if (typeof IntersectionObserver !== 'function') { S.plates.forEach(mountPlate); return; }
     S.io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
@@ -941,11 +980,11 @@
       var first = p.paras.length ? firstSentence(p.paras[0]) : null, rest = [];
       if (first && first.rest) rest.push(inl(h('p'), first.rest, fx));
       p.paras.slice(1).forEach(function (t) { rest.push(inl(h('p'), t, fx)); });
-      return tile('section', 'em', { span: 'full', cls: 'p-rules', attrs: { 'aria-label': lab } }, [label(lab),
+      return tile('section', 'em', { span: 'full', cls: 'p-rules', attrs: { 'aria-labelledby': id } }, [heading(id, lab),
         first ? inl(h('p', { class: 'p-rule-lead ' + leadSize(first.lead) }), first.lead, fx) : null,
         rest.length || list ? h('div', { class: 'p-rule-rest' }, rest, list) : null]);
     }
-    if (p.kind === 'example') return tile('section', 'grey', { span: 'full', cls: 'p-example', attrs: { 'aria-label': lab } }, [label(lab), h('div', { class: 't-prose' }, paras, list)]);
+    if (p.kind === 'example') return tile('section', 'grey', { span: 'full', cls: 'p-example', attrs: { 'aria-labelledby': id } }, [heading(id, lab), h('div', { class: 't-prose' }, paras, list)]);
     if (p.kind === 'mistakes') {
       // One warning tile per mistake, two to a row (an odd last one across); written as
       // paragraphs, one tile across the page.
@@ -955,7 +994,7 @@
       return h('section', { class: 't-bare t-full p-mistakes', 'aria-labelledby': id }, heading(id, lab, 'p-sec is-red'),
         h('ul', { class: 'p-mis-grid' + (p.items.length % 2 ? ' is-odd' : '') }, cells));
     }
-    return tile('section', 'grey', { span: 'full', cls: 'p-other', attrs: lab ? { 'aria-label': lab } : null }, [lab ? label(lab) : null, h('div', { class: 't-prose' }, paras, list)]);
+    return tile('section', 'grey', { span: 'full', cls: 'p-other', attrs: lab ? { 'aria-labelledby': id } : null }, [lab ? heading(id, lab) : null, h('div', { class: 't-prose' }, paras, list)]);
   }
 
   // ---------- the glossary and the bibliography ----------
@@ -976,19 +1015,24 @@
     kids.push(h('header', { class: 't-bare t-full p-head' + (g ? ' b-head' : '') }, g ? null : h('p', { class: 't-label' }, b.title),
       h(g ? 'h2' : 'h1', { class: g ? 'p-h2' : 'p-h1', id: 'bibliography', tabindex: '-1' }, 'Bibliography'),
       h('p', { class: 'p-sub' }, M.works.length ? 'Every page the course’s research kept, with the chapters that rest on it. Open an entry to read the words it quoted.' : 'No sources were kept for this course.')));
-    if (M.works.length) kids.push(h('ol', { class: 't-bare t-full b-biblio' }, M.works.map(function (w) {
+    if (M.works.length) kids.push(h('ol', { class: 't-bare t-full b-biblio' }, M.works.map(function (w, k) {
       var url = safeUrl(w.url);
       return h('li', { class: 't t-grey b-work' },
         h('p', { class: 'b-w' }, w.pub ? h('span', { class: 'b-pub' }, w.pub) : null, h('cite', null, w.title)),
         url ? h('a', { class: 'p-src-u', href: url, target: '_blank', rel: 'noopener noreferrer' }, hostOf(url), icon('out'), vh(' (opens a new tab)')) : null,
-        w.ch.length ? h('p', { class: 'b-ch' }, w.ch.length === 1 ? 'Chapter ' : 'Chapters ', w.ch.map(function (n, k) {
-          var ch = M.chapters[n - 1];
-          return [k ? ', ' : '', ch && ch.learned ? h('a', { href: ch.href }, roman(n), vh(': ' + ch.idea.title)) : roman(n)];
+        // The chapters that rest on it, a row each (its numeral and title; a 44 px tap target).
+        w.ch.length ? h('p', { class: 'b-ch-h', id: 'b-ch-' + k }, w.ch.length === 1 ? 'Chapter' : 'Chapters') : null,
+        w.ch.length ? h('ul', { class: 'b-ch', 'aria-labelledby': 'b-ch-' + k }, w.ch.map(function (n) {
+          var ch = M.chapters[n - 1], t = ch ? ch.idea.title : '';
+          var inner = [h('span', { class: 'b-ch-n' }, roman(n)), vh(' · '), h('span', { class: 'b-ch-t' }, t)];
+          return h('li', null, ch && ch.learned ? h('a', { href: ch.href }, inner) : h('span', { class: 'b-ch-off' }, inner));
         })) : null,
         w.quotes.length ? h('details', { class: 'b-q' }, h('summary', null, icon('chev'), w.quotes.length === 1 ? 'The passage it quoted' : 'The ' + w.quotes.length + ' passages it quoted'),
           w.quotes.map(function (q) { return h('blockquote', null, unquote(q)); })) : null);
     })));
-    pageOf(S, M, { leaf: 'back', up: { href: M.base, label: 'Contents' }, path: [{ t: slugOf(b), cls: 'fit' }, { t: g ? 'glossary' : 'bibliography' }], cls: 'dos-back', kids: kids });
+    // Opened at the bibliography, the path and the page bar say so (the same page of the book).
+    var where = g && which !== 'biblio' ? 'glossary' : 'bibliography';
+    pageOf(S, M, { leaf: 'back', up: { href: M.base, label: 'Contents' }, path: [{ t: slugOf(b), cls: 'fit' }, { t: where }], cls: 'dos-back', kids: kids, at: where });
     if (which === 'biblio' && g) scrollTo(document.getElementById('bibliography'));
   }
 
@@ -1003,10 +1047,13 @@
     var grid = h('ul', { class: 'dl-grid', 'aria-label': 'Dossiers' }, h('li', { class: 'dl-span' }, h('div', { class: 'skeleton dl-sk' })));
     box.appendChild(grid);
     function bars(d) {
-      var many = d.ideas.length > 10;
-      return h('span', { class: 'dl-bars' + (many ? ' is-many' : '') }, d.ideas.map(function (i, k) {
+      // Many ideas: balanced rows of up to 12 (16 ideas: two rows of 8), read left to right.
+      var N = d.ideas.length, many = N > 10, rows = Math.max(2, Math.ceil(N / 12));
+      var el = h('span', { class: 'dl-bars' + (many ? ' is-many' : '') }, d.ideas.map(function (i, k) {
         return h('span', { class: 'dl-bar' + (d.have[i.id] ? ' on' : '') }, h('i'), many ? null : h('b', null, roman(k + 1)));
       }));
+      if (many) el.style.setProperty('--cols', String(Math.ceil(N / rows)));
+      return el;
     }
     function lead(d) {
       return h('li', { class: 'dl-span' }, h('a', { class: 't t-white t-first dl-tile dl-lead', href: '#/book/' + encodeURIComponent(d.tid) },
@@ -1069,7 +1116,7 @@
     }).catch(function (e) {
       if (!ctx.alive()) return;
       console.warn('dossier: shelf', e);
-      U.clear(grid).appendChild(h('li', { class: 'dl-span' }, tile('div', 'grey', null, U.views && U.views.loadError ? U.views.loadError('Your dossiers', e, false) : h('p', null, U.errText(e)))));
+      U.clear(grid).appendChild(h('li', { class: 'dl-span' }, U.views && U.views.loadError ? U.views.loadError('Your dossiers', e, false) : tile('p', 'grey', null, U.errText(e))));
       if (o.after) grid.appendChild(h('li', null, o.after));
     });
     return function () {};
@@ -1211,7 +1258,6 @@
       }
     });
     out.push(exp);
-    out = out.concat(halves(views.map(function (v) { return h('div', { class: 't' }, xk(v.label || 'One view'), xRich(v.text, fx)); })));
     var side = [];
     if (L.analogy && L.analogy.text) {
       side.push(h('div', { class: 't' }, xk('Think of it like'), xRich(L.analogy.text, fx)));
@@ -1233,6 +1279,8 @@
         return xInl(h('li'), x.label + ': ' + x.value + ' (' + (x.kind === 'constant' ? 'cited' : x.kind === 'control' ? 'setting' : 'worked out') + ')' + (x.source && fx.by[x.source] ? ' [^' + x.source + ']' : ''), fx);
       }))));
     }
+    // The contested views, last, as on the page.
+    out = out.concat(halves(views.map(function (v) { return h('div', { class: 't' }, xk(v.label || 'One view'), xRich(v.text, fx)); })));
     if (c.practice) {
       out.push(h('h2', { class: 'part' }, 'Put it into practice'));
       c.practice.forEach(function (p) { out = out.concat(exportPart(p, fx)); });

@@ -488,31 +488,52 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
   sources), the chapters grid (a cell per idea: a bound one links, with an ink tick; an unbound one
   is dashed, not a link, and says "not yet written" to a screen reader), the question it set out to
   answer (`hook`), In one breath, Keep a copy (Save a copy), then the glossary and bibliography as
-  two small tiles.
+  two small tiles. A finished dossier's date sits beside a smaller ring, sized to the tile, and the
+  ring and the stats go one above the other only where they do not fit side by side, so the date
+  never runs out of the ink. From 55rem, in the same order: Bound over Begun beside the picture,
+  the chapters four a row, then the question beside In one breath.
 - **A chapter** (`#/book/:tid/:iid`), top to bottom: the header (the numeral in its box, "Chapter
   II of VIII" and the kind, the idea title as h1), Key idea (the field note; none, no tile), the
-  plate (grey: "Plate II", its title and Tap to play over the lesson's interactive in a
-  `--surface` well, asleep until played, then "Look for"; a plate too big to keep shows its note),
-  What's going on (the explanation with key terms and source chips, the clipping after the
-  paragraph that cites it), the contested views (a tile each), Think of it like beside Where it
-  breaks (the analogy across when it has no breaks), Compare beside How certain (three pills, this
-  chapter's filled), then the plate's notes: A number from the sources and What you're looking at
-  and What this model leaves out (two short ones side by side), The numbers on this plate (n).
+  plate (grey: "Plate II" and its title as the plate's h2, and Tap to play, over the lesson's
+  interactive in a flat `--surface` well, asleep until played, then "Look for"; a plate too big to
+  keep shows its note), What's going on (the explanation with key terms and source chips, the
+  clipping after the paragraph that cites it), Think of it like beside Where it breaks (the analogy
+  across when it has no breaks), Compare beside How certain (three pills, this chapter's filled),
+  then the plate's notes (A number from the sources and What you're looking at and What this model
+  leaves out, two short ones side by side), The numbers on this plate (n), then the contested views
+  (a tile each, two to a row). Every tile's label is its h2. The plate's height is held from the
+  first paint, as a lesson's panel is: the height this device last measured for that plate at that
+  width (`localStorage` `mu-dos-h:{tid}:{iid}`, plus `:wide`/`:laptop`), else 720 px, so what
+  follows barely moves when it arrives; a look, never written to the dossier.
   From 55rem the header and key idea run across, the plate and the explanation take three of the
-  four columns and the analogy, Where it breaks, Compare and How certain stack beside them.
+  four columns and the analogy, Where it breaks, Compare and How certain stack beside them; the
+  notes and the views follow across the four columns, two to a tile.
 - **Put it into practice** (`/:iid/practice`): a heading with no tile ("Chapter II · title"), the
   parts as tiles (`practiceParts`): the steps as a numbered ink checklist in a white tile, the rule
-  of thumb in the emphasis tile (its first sentence large, the rest smaller, word for word), the
+  of thumb in the emphasis tile (its first sentence large, the rest smaller, word for word; the
+  first sentence is 34 px up to 26 characters, then steps down to 26 px up to 70 and 21 px beyond,
+  so a long one stays a few lines), the
   worked example and any other prose in grey, the common mistakes as one warning tile each, two to
   a row (an odd last one across; a part written as paragraphs, one tile across), then Sources: a
   grey tile per source, two to a row, with its number chip, the publisher (the title split on
   " — "), the quote and the host, opening in a new tab.
 - **Glossary and bibliography** (`/glossary`, `/bibliography`): a grey tile per term (the term
   highlighted, its sentence, "First met in chapter …") and per bibliography entry (the chapters
-  resting on it, its quotes collapsible); with no key terms the page is the bibliography alone.
+  resting on it as a row each, its numeral and title, its quotes collapsible); with no key terms the
+  page is the bibliography alone. Opened at `/bibliography`, the path and the page bar say
+  "bibliography" (the same page of the book).
+Links Dan taps on their own (a source's host, a chapter in the bibliography, "First met in …",
+Compare's chapters, the page bar) keep a 44 px target; a chapter reference never breaks ("ch. V").
 Every dossier page has D4's focus bar (an outlined back button one level up: a chapter to At a
-glance, its practice to the chapter, At a glance to the Library; the mono path; Aa) and the
-floating page bar (section 10). Save a copy writes the same tiles as one static page.
+glance, its practice to the chapter, At a glance to the Library; the mono path, the course's part
+giving way first, cut at a whole character so its ellipsis meets the next slash; Aa) and the
+floating page bar (section 10). Save a copy writes the same tiles as one static page, in the same
+order. The Library's Dossiers (`#/library/dossiers`): a lead tile for the dossier most recently
+bound that is still being written (its ring, and a bar per idea: bound ones filled ink, the rest
+dashed, numerals under them in `--muted`; over 10 ideas, narrower bars with no numerals in
+balanced rows of up to 12, read left to right; the bars go below the ring where they do not fit
+beside it), then half tiles (being written, finished, kept) and "In your own words"; a load error
+shows the app's error panel on its own, not inside a tile.
 
 **Course pictures** (35-art.js, version 10). `prefs.pictures`: absent until Dan answers Learn's
 one-time question (asked below his topics once the profile has been read, only when the connector
@@ -1426,9 +1447,13 @@ topics started here are not source-checked); "Not connected." with the steps to 
   chapters; a dossier with none bound still has At a glance. The old addresses keep their hash and
   draw the page they now belong to. The page bar floats at the bottom in the D4 tab bar's frame
   (62 px, 2 px `--edge`, radius 16 px; centred, at most 34rem, from 40rem): the previous page on
-  the left (a chevron and its name: "Contents", "Chapter II", "Practice", another chapter's "Ch. I
-  practice"), where he is in mono in the middle ("at a glance", "II · 1 of 2" over one `--step`
-  segment per page of the chapter, "glossary"), the next page on the right as the ink button. The
+  the left (a chevron and its name: "Contents", "Chapter II", "Practice", another chapter's practice
+  by its numeral alone, "Ch. I", the rest of its name said to a screen reader), where he is in mono
+  in the middle ("at a glance", "II · 1 of 2" over one `--step` segment per page of the chapter,
+  "glossary", or "bibliography" when opened there), the next page on the right as the ink button.
+  Where he is is never cut: when the bar is narrow " · 1 of 2" drops away whole and the numeral
+  stays, a page's name may take two lines, and a bar under 17rem (a small phone at XL) shows the
+  previous page by its chevron alone (still 44 px, its name still said). The
   book starts and ends at the Library (the bar's first back and last next). The page bar and the
   arrow keys (not inside the plate, a form control, details, a sheet or a source card; the Library
   is not a page, so they stop at either end) go through the page order (`model().leaves`); the
@@ -1531,7 +1556,9 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   light and dark (a dotted canvas, near-black ink for headings, controls and progress, grey panels
   `--sunk` for what Dan reads, white cards outlined in `--edge` for what he acts on) and adds its own:
   `--edge`, `--dot`, `--due`/`--due-ink`/`--due-tint` (what is due, chart marks), `--step` (the
-  lesson's segmented progress), `--pin` (Claude's avatar), `--cond` (Barlow Semi Condensed, labels)
+  lesson's segmented progress), `--pin` (Claude's avatar), `--green-on-heading` (green on an ink
+  tile, which is light in dark mode: `--green` in light, #2E7D4F in dark, 4.3:1 there), `--bar-off`
+  (the dashed outline of a bar not yet filled: `--line-strong`, `--muted` in dark), `--cond` (Barlow Semi Condensed, labels)
   and `--mono` (JetBrains Mono, where he is: the lesson's eyebrow, the review's line). `--sans` and
   `--serif` are Barlow, the dossier's included (Literata is no longer loaded): the dossier is drawn
   in the same tokens, as tiles (section 4, Dossiers; `75-dossier.css`).

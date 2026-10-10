@@ -144,6 +144,11 @@ test('practice is sorted into the practice page\'s parts by fixed rules, word fo
   assert.deepEqual(kinds('**Worked example:** a 2 m swing.\n\nSo it takes about 2.8 s.\n\n**Length sets the beat.** Keep it in mind.'), [
     'example:Worked example=A 2 m swing.|So it takes about 2.8 s.|**Length sets the beat.** Keep it in mind.',
   ]);
+  // The words after a label start with a capital only where they start with a lower-case letter:
+  // a number stops it, so a unit is never changed ("2400 mm" is not "2400 Mm").
+  assert.deepEqual(kinds('**Worked example:** 2400 mm of trunking in equal bays.'), ['example:Worked example=2400 mm of trunking in equal bays.']);
+  assert.deepEqual(kinds('**Rule of thumb:** 2.3 kW is 2300 W.'), ['rules:Rule of thumb=2.3 kW is 2300 W.']);
+  assert.deepEqual(kinds('**Rule of thumb:** *a* third is less than a half.'), ['rules:Rule of thumb=*A* third is less than a half.'], 'markup before the first letter is fine');
   assert.deepEqual(kinds('Just one plain paragraph.'), ['prose=Just one plain paragraph.']);
   assert.deepEqual(kinds(''), []);
   // Every word of the text is printed somewhere (nothing dropped but the labels themselves).
