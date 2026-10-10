@@ -35,6 +35,27 @@ $D/out/                     assemble.mjs docs: the db documents and manifest.jso
 $D/tid.txt                  the topic id, made once
 ```
 
+## 0. Choose the course's writing level and picture (before planning)
+Dan (10 Oct): "distinguish between topics that require lots of writing and ones that don't.
+Fractions requires minimalist writing and should mostly depend on interactive and visuals."
+Pick one level per course and give it to every writer; the interactive carries the teaching in the
+first two.
+- **Minimal** (visual, procedural maths: fractions, percentages, negative numbers, the coordinate
+  plane, equations, most of Foundational maths and Algebra): explanation 50-90 words (the idea in a
+  line, the rule in one or two sentences with the picture's numbers, the misconception in one
+  sentence, a bold takeaway of at most 20 words); "What you're looking at" at most 35 words; what
+  the model ignores at most 20; analogy only if one sentence truly helps; practice at most 60 words
+  (rule of thumb, a short worked example, two mistakes).
+- **Standard** (maths where the why takes a paragraph: calculus, vectors, probability, logic):
+  explanation 150-250 words, practice about 120, panel about 60.
+- **Full** (causal science, technology, history, AI, where an adult needs the mechanism explained:
+  circuits, how AI works, the physics courses): as long as the idea needs and no longer; Dan's 7 Oct
+  note that 120 words was too little was about these.
+Picture: for anything part-of-a-whole, a shape cut into equal parts with the parts shaded, as
+Brilliant draws it, with a number line beside it only where position is the point. No tape
+measures as the frame. `tools/course/patch_text.py` cuts a built lesson's words without touching
+its interactive.
+
 ## 1. Plan (once per course)
 ```
 node tools/eval/prompts.mjs plan-topic --query "<course title>" --level some --mode read --intake $D/intake.json > $D/plan.prompt.txt
