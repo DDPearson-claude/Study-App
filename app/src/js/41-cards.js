@@ -272,15 +272,15 @@
     else if (!end || over <= start) over = Math.min(Math.max(over, 0), start);
     if (Math.abs(over) >= 1) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
   }
-  // A review's panel docked at the foot of a small phone: when its row of reply chips is what keeps
-  // it out of the dock, the row folds into its "Reply…" chip beside Continue (.is-folded), so the
-  // panel docks and Continue shows as they did before Claude's notes (the sheet "Reply…" opens
-  // offers the other questions). Otherwise the row stays as it is.
+  // A review's panel on a small phone: when it does not dock with its row of reply chips, the row
+  // folds into its "Reply…" chip beside Continue (.is-folded). Then the panel docks and Continue
+  // shows as they did before Claude's notes; or, too tall to dock either way, it joins the flow
+  // with Continue no further down than before them. Ask Claude, which "Reply…" opens, has its own
+  // starter questions. A panel that docks with its row keeps the row.
   function fold(c, panel) {
     var row = panel.querySelector('.note-reply.is-compact');
     if (!row || row.parentNode !== panel || panel.classList.contains('is-folded') || dockable(c, panel)) return;
     panel.classList.add('is-folded');
-    if (!dockable(c, panel)) panel.classList.remove('is-folded');
   }
   // reveal()'s two rules for a panel docked at the foot: it takes at most 62% of the screen, and
   // once the question is under the bar it hides no more than a sliver (64 px) of the answers.

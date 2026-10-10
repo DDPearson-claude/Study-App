@@ -1497,10 +1497,11 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
     me another way / Give me an example). In a lesson the byline sits over the parts and the reply
     box comes after Continue (so Continue follows the explanation on a small phone). In a review the
     byline rides at the end of the panel's head (its context for screen readers only) and the
-    compact row (chips and "Reply…") sits over Continue; on a small phone, when that row is what
-    keeps the panel out of the dock (reveal()'s rules: at most 62% of the screen, at most 64 px of
-    the answers hidden), it folds into its "Reply…" chip beside Continue (`.is-folded`, `fold()`),
-    so the panel docks and Continue shows where it did before the notes. A recall card's grade
+    compact row (chips and "Reply…") sits over Continue; on a small phone, when the panel does not
+    dock with that row (reveal()'s rules: at most 62% of the screen, at most 64 px of the answers
+    hidden), the row folds into its "Reply…" chip beside Continue (`.is-folded`, `fold()`): the
+    panel then docks, or, too tall to dock either way, joins the flow, and either way Continue
+    shows where it did before the notes. A recall card's grade
     carries the byline "on your answer" and its reply row once graded. Focus still goes to Continue.
   - the say-it-back grade (50-lesson.js): the byline over the verdict, and on the answer just
     graded a reply row (What did I miss?, Give me an example; or Give me an example, Go a bit deeper
@@ -1521,11 +1522,12 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
     only where the lesson offers one: the idea's stage is `say` and that round holds exactly one
     answer, graded and not got-it; otherwise "Open the lesson". Ready-made courses stay off Learn as
     before. None: nothing shown.
-  - Today (60-today.js): "Claude's notes on what is due": the same notes for the ideas in today's
-    session, at most three. The progress of every topic with a card due is read with the rest of the
-    screen (beside the topics and the slipping ideas), so the notes are part of the first paint and
-    nothing below them moves; the Light day switch redraws them from the same reads. None: nothing
-    shown.
+  - Today (60-today.js): "Claude's notes on today's review", on the done-for-today screen only (Dan,
+    10 Oct: shown before the session they would be hints for the very cards he is about to recall):
+    the same notes for the ideas he reviewed today, the most recent first, at most three. The
+    progress of every topic with a card reviewed today is read with the rest of the screen (beside
+    the topics and the slipping ideas), so the notes are part of the first paint and nothing below
+    them moves; the Light day switch redraws from the same reads. None: nothing shown.
   A steps lesson (`format: 'steps'`) keeps its puzzles' own Check and Why? inside the frame; Ask
   Claude in the lesson bar is its way to talk to Claude.
 

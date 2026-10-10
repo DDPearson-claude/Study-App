@@ -1001,9 +1001,21 @@ await test('d4: the note byline at Large and Extra large keeps one row; a long c
   }
 });
 
-await test('d4: Today\'s notes on what is due are part of the first paint; nothing below them moves', async () => {
-  const db = withProgress(withCards(seedDb(), { due: 3 }), 'how-tides-work-ab12', { ...SEED.progress['how-tides-work-ab12'], ideas: { ...SEED.progress['how-tides-work-ab12'].ideas, i1: { stage: 'done', round: 0, say: { k: { ...SAID } } } } });
-  const app = await openApp({ width: 390, height: 844, file: FILE, config: { db }, sample: () => new Promise(() => {}) });
+await test('d4: Today\'s notes come after the session (none above Start review), in the first paint; nothing below them moves', async () => {
+  const said = (db) => withProgress(db, 'how-tides-work-ab12', { ...SEED.progress['how-tides-work-ab12'], ideas: { ...SEED.progress['how-tides-work-ab12'].ideas, i1: { stage: 'done', round: 0, say: { k: { ...SAID } } } } });
+  // Due: the cards are still to be recalled, so no note gives their answers away.
+  {
+    const app = await openApp({ width: 390, height: 844, file: FILE, config: { db: said(withCards(seedDb(), { due: 3 })) }, sample: () => new Promise(() => {}) });
+    current.apps.push(app);
+    await app.page.goto(app.url('#/today'));
+    await app.page.evaluate(() => U.rt.ready);
+    await app.page.locator('.td-start').waitFor({ timeout: 15000 });
+    await app.page.waitForTimeout(800);
+    const n = await app.page.evaluate(() => document.querySelectorAll('.td .note-text').length);
+    eq(n, 0, 'notes on Today while cards are due');
+  }
+  // Done for today: Claude's notes on the ideas just reviewed, there when the screen first appears.
+  const app = await openApp({ width: 390, height: 844, file: FILE, config: { db: said(withCards(seedDb(), { later: 1, doneToday: 2 })) }, sample: () => new Promise(() => {}) });
   current.apps.push(app);
   await app.page.addInitScript(() => {
     window.__first = null;
@@ -1017,10 +1029,12 @@ await test('d4: Today\'s notes on what is due are part of the first paint; nothi
   await app.page.evaluate(() => U.rt.ready);
   await app.page.locator('.td-title').waitFor({ timeout: 15000 });
   await app.page.waitForTimeout(1500);
-  const r = await app.page.evaluate(() => ({ first: window.__first, notes: [...document.querySelectorAll('.td .note-text')].map((n) => n.textContent), week: document.querySelector('.td-week').getBoundingClientRect().top + scrollY }));
+  const r = await app.page.evaluate(() => ({ first: window.__first, title: document.querySelector('.td-title').textContent, head: (document.querySelector('#td-notes-h') || {}).textContent, notes: [...document.querySelectorAll('.td .note-text')].map((n) => n.textContent), week: document.querySelector('.td-week').getBoundingClientRect().top + scrollY }));
+  eq(r.title, 'Done for today', 'the screen');
   assert(r.first && r.first.notes, 'the notes are there when the screen first appears ' + JSON.stringify(r));
   assert(Math.abs(r.first.week - r.week) < 1, `nothing below moves (${r.first.week} then ${r.week})`);
-  eq(r.notes.join(' / '), SAID.followUp, 'Claude\'s follow-up on the idea due');
+  eq(r.head, 'Claude\'s notes on today\'s review', 'the notes\' heading');
+  eq(r.notes.join(' / '), SAID.followUp, 'Claude\'s follow-up on the idea reviewed today');
 });
 
 await test('d4: the lessons\' "callout note" notices keep the callout look (not a note card\'s)', async () => {

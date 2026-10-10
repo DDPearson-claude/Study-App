@@ -2657,7 +2657,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-10-d4d79d8";
+U.BUILD = "2026-10-10-1b0cc39";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -9893,15 +9893,15 @@ U.interactive = (function () {
     else if (!end || over <= start) over = Math.min(Math.max(over, 0), start);
     if (Math.abs(over) >= 1) try { window.scrollBy({ top: over, behavior: reducedMotion() ? 'auto' : 'smooth' }); } catch (e) { window.scrollBy(0, over); }
   }
-  // A review's panel docked at the foot of a small phone: when its row of reply chips is what keeps
-  // it out of the dock, the row folds into its "Reply…" chip beside Continue (.is-folded), so the
-  // panel docks and Continue shows as they did before Claude's notes (the sheet "Reply…" opens
-  // offers the other questions). Otherwise the row stays as it is.
+  // A review's panel on a small phone: when it does not dock with its row of reply chips, the row
+  // folds into its "Reply…" chip beside Continue (.is-folded). Then the panel docks and Continue
+  // shows as they did before Claude's notes; or, too tall to dock either way, it joins the flow
+  // with Continue no further down than before them. Ask Claude, which "Reply…" opens, has its own
+  // starter questions. A panel that docks with its row keeps the row.
   function fold(c, panel) {
     var row = panel.querySelector('.note-reply.is-compact');
     if (!row || row.parentNode !== panel || panel.classList.contains('is-folded') || dockable(c, panel)) return;
     panel.classList.add('is-folded');
-    if (!dockable(c, panel)) panel.classList.remove('is-folded');
   }
   // reveal()'s two rules for a panel docked at the foot: it takes at most 62% of the screen, and
   // once the question is under the bar it hides no more than a sliver (64 px) of the answers.
@@ -12826,6 +12826,18 @@ U.interactive = (function () {
   function dayOf(iso) { return iso ? U.studyDay(iso) : null; }
   function isDue(c, day) { return !c.retired && !!(c.s && c.s.due) && c.s.due <= day; }
   function hist(c) { return Array.isArray(c.hist) ? c.hist : U.list(c.hist); }
+  // The ideas Dan reviewed on this day, the most recently reviewed first: [{tid, iid}].
+  function reviewedToday(cards, day) {
+    var last = {};
+    cards.forEach(function (c) {
+      hist(c).forEach(function (e) {
+        if (dayOf(e.at) !== day) return;
+        var k = c.tid + '/' + c.iid;
+        if (!last[k] || String(e.at) > last[k].at) last[k] = { tid: c.tid, iid: c.iid, at: String(e.at) };
+      });
+    });
+    return Object.keys(last).map(function (k) { return last[k]; }).sort(function (a, b) { return a.at < b.at ? 1 : a.at > b.at ? -1 : 0; });
+  }
   function reviewedOn(cards, day) {
     var n = 0;
     cards.forEach(function (c) { hist(c).forEach(function (e) { if (dayOf(e.at) === day) n++; }); });
@@ -13342,13 +13354,14 @@ U.interactive = (function () {
     // first come due tomorrow, so today's list need not wait for this.
     mendCards();
 
-    // Claude's notes are read with the rest (the progress of every topic with a card due: the Light
-    // day switch only ever shortens or restores that list), so they are part of the first paint.
+    // Claude's notes come after the session (Dan, 10 Oct: before it they would be hints for the very
+    // cards he is about to recall). They are read with the rest (the progress of every topic with a
+    // card reviewed today), so they are part of the first paint whichever state the screen is in.
     var topics = {}, slipping = [], progress = {};
     planShared().then(function (p) {
       var tids = uniq(p.data.cards.map(function (c) { return c.tid; }));
-      var dueTids = U.notes ? uniq(p.due.map(function (c) { return c.tid; })) : [];
-      return Promise.all([topicsFor(tids), slippingNow(p.data.cards, p.day), progressFor(dueTids)]).then(function (r) { return { p: p, topics: r[0], slipping: r[1], progress: r[2] }; });
+      var doneTids = U.notes ? uniq(reviewedToday(p.data.cards, p.day).map(function (x) { return x.tid; })) : [];
+      return Promise.all([topicsFor(tids), slippingNow(p.data.cards, p.day), progressFor(doneTids)]).then(function (r) { return { p: p, topics: r[0], slipping: r[1], progress: r[2] }; });
     }).then(function (r) {
       if (!ctx.alive()) return;
       topics = r.topics;
@@ -13364,8 +13377,8 @@ U.interactive = (function () {
     function draw(p) {
       U.clear(root);
       root.appendChild(h('p', { class: 'eyebrow td-date' }, longDate(p.day)));
-      if (p.size > 0) { drawDue(p); drawNotes(p); }
-      else drawClear(p);
+      if (p.size > 0) drawDue(p);
+      else { drawClear(p); drawNotes(p); }
       U.append(root, relearnBlock(slipping, topics));
       root.appendChild(weekStrip(p.data.profile.days, p.day, p.data.cards));
     }
@@ -13420,17 +13433,16 @@ U.interactive = (function () {
       update(p);
     }
 
-    // Claude's notes on what is due (D4): for each idea in today's session, what Claude last said
-    // about the words Dan used for it (its say-it-back grade): the follow-up question when he was
-    // not there yet, else what he nailed. Drawn with the screen (the progress was read with the
-    // plan), so nothing below moves once it has appeared; nothing when there is none.
+    // Claude's notes on today's review (D4), once the session is done: for each idea reviewed today,
+    // the most recent first, what Claude last said about the words Dan used for it (its say-it-back
+    // grade): the follow-up question when he was not there yet, else what he nailed. Drawn with the
+    // screen (the progress was read with the plan), so nothing below moves once it has appeared;
+    // nothing when there is none.
     function drawNotes(p) {
       if (!U.notes) return;
-      var seen = {}, notes = [];
-      p.queue.forEach(function (c) {
-        var k = c.tid + '/' + c.iid;
-        if (seen[k] || notes.length >= 3) return;
-        seen[k] = true;
+      var notes = [];
+      reviewedToday(p.data.cards, p.day).forEach(function (c) {
+        if (notes.length >= 3) return;
         var doc = progress[c.tid], ip = doc && doc.ideas && doc.ideas[c.iid];
         var said = U.entries(ip && ip.say).map(function (e) { return e.value; }).filter(function (a) { return a && a.verdict && (a.followUp || a.nailed); });
         var a = said[said.length - 1];
@@ -13438,7 +13450,7 @@ U.interactive = (function () {
         notes.push(U.notes.card({ who: 'claude', context: 'on ' + ideaTitle(topics, c.tid, c.iid),
           text: a.verdict !== 'got-it' && a.followUp ? a.followUp : a.nailed || a.followUp }));
       });
-      var list = U.notes.list({ title: 'Claude\'s notes on what is due', id: 'td-notes-h', notes: notes });
+      var list = U.notes.list({ title: 'Claude\'s notes on today\'s review', id: 'td-notes-h', notes: notes });
       if (list) root.appendChild(h('div', { class: 'td-notes' }, list));
     }
 
