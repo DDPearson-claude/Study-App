@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Browser test for ready-made courses (76-shelves.js): the Library opens on two choices, Dossiers
-// and Ready-made courses; Ready-made courses lists each shelf (Maths), the shelf
+// (the dossiers as tiles) and Ready-made courses; Ready-made courses lists each shelf (Maths), the shelf
 // shows its folders, a folder lists its courses in order, built ones open their topic, the rest
 // say they are not built yet. No shelves: no section. A built course (topic.readyMade) stays out
 // of Learn's list and Continue, and its row says where Dan is ("Lesson 3 of 6"). Screenshots:
@@ -77,6 +77,11 @@ ok((await page.locator('.backlink').getAttribute('href')) === '#/shelf/maths', '
 await page.evaluate(() => U.go('#/shelf/maths/nope'));
 await page.waitForSelector('.v-empty');
 ok(/not in Maths any more/.test(await page.locator('.v-empty').innerText()), 'an unknown folder says so');
+// The other choice: the dossiers, as tiles, ending with "In your own words".
+await page.evaluate(() => U.go('#/book'));
+await page.locator('.lib-choice.is-dossiers').click();
+await page.waitForSelector('.lib-dossiers .dl-grid > li:last-child a.own');
+ok((await page.locator('.lib-page h1').textContent()) === 'Dossiers' && (await page.evaluate(() => location.hash)) === '#/library/dossiers', 'Dossiers opens the dossiers, ending with In your own words');
 ok(app.errors.length === 0, 'no page errors ' + app.errors.join(' | '));
 await app.close();
 

@@ -1,5 +1,6 @@
-// The Library tab (#/book): the course dossiers' shelves first (75-dossier.js draws them), then
-// "In your own words", a link to the Book.
+// The Library tab (#/book): two choices, Dossiers (#/library/dossiers: the course dossiers as
+// tiles, 75-dossier.js draws them, then "In your own words", a link to the Book) and Ready-made
+// courses (76-shelves.js).
 // Book (#/book/words): Dan's own words. For every idea he has explained back ("say it back" in a
 // lesson), it shows his first explanation and his latest, with dates, so he can see how his
 // understanding grew, plus the questions he asked Claude. Exports as Markdown or JSON.
@@ -122,24 +123,20 @@
     }, function () {});
   }, { tab: 'book', title: 'Library' });
 
+  // The Library's Dossiers (#/library/dossiers): the dossiers as tiles (75-dossier.js draws them),
+  // ending with "In your own words".
   U.routes.add('#/library/dossiers', function (params, ctx) {
-    var body = U.h('div', { class: 'dos lib-body' });
+    var own = U.dossier && U.dossier.ownTile ? U.dossier.ownTile('#/book/words')
+      : U.h('a', { class: 'own', href: '#/book/words' }, 'In your own words');
+    var slot = U.h('div', { class: 'lib-dossiers' });
     ctx.view.appendChild(U.h('div', { class: 'lib-page' },
       V.back('#/book', 'Library'),
-      U.h('header', { class: 'page-head' },
-        U.h('p', { class: 'eyebrow' }, 'Library'),
-        U.h('h1', null, 'Dossiers')),
-      body));
-    var slot = U.h('div', { class: 'lib-dossiers' });
-    body.appendChild(slot);
-    var stop = U.dossier && typeof U.dossier.shelf === 'function' ? U.dossier.shelf(slot, ctx) : null;
-    body.appendChild(U.h('section', { class: 'lib-sec', 'aria-labelledby': 'own-h' },
-      U.h('h2', { id: 'own-h' }, 'In your own words'),
-      U.h('a', { class: 'own', href: '#/book/words' },
-        U.h('span', { class: 'own-ico' }, U.icon('book')),
-        U.h('span', null, U.h('b', null, 'Your Book'), U.h('span', null, 'Your own explanations of each idea, first and latest, and the questions you asked.')),
-        U.h('span', { class: 'chev' }, U.icon('arrow')))));
-    return stop || undefined;
+      U.h('header', { class: 'page-head dl-head' },
+        U.h('h1', null, 'Dossiers'),
+        U.h('p', { class: 'muted' }, 'A field guide for every course, a chapter per idea.')),
+      U.h('div', { class: 'dos lib-body' }, slot)));
+    if (U.dossier && typeof U.dossier.shelf === 'function') return U.dossier.shelf(slot, ctx, { after: own });
+    slot.appendChild(own);
   }, { tab: 'book', title: 'Dossiers' });
 
   U.routes.add('#/book/words', function (params, ctx) {

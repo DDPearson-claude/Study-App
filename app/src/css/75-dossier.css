@@ -1,496 +1,369 @@
-/* The course dossier (75-dossier.js): a naturalist's field journal.
-   Paper, ink, tape, cloth and leather are CSS gradients and inline SVG; every word is real text.
-   Colour keeps its meaning, mixed as inks: navy = controls and progress, green = finished only,
-   red = warnings and mistakes, teal = small labels, amber highlighter = key terms. Light by
-   default; dark is a lamp-lit page. Everything is scoped under .dos (the reader and the Library's
-   shelves), so the app's own .card, .note, .tabs, .btn… never reach in and none of this leaks out.
-   Widths are container queries on #view ("view") and on the book ("book"), so a phone pinned on a
-   wide window (html.framed) gets the phone shapes. The hand-lettered fonts come from a second
-   Google Fonts link added only when a dossier or the Library is drawn (U.dossier.fonts()); every
-   family has a fallback and every size is in rem, so nothing reflows when they arrive.
-   Sections: 1 tokens · 2 base · 3 library · 4 reader and pages · 5 type · 6 chapter · 7 plate ·
-   8 put it into practice · 9 sources · 10 cover · 11 contents · 12 back matter · 13 app chrome · 14 motion */
+/* The course dossier (75-dossier.js) as a field guide in D4's tiles (design 3, Dan's choice on
+   10 Oct; docs/ARCHITECTURE.md sections 4 and 12). Built only on the token names of 00-tokens.css
+   and 80-d4.css, so light and dark, Text size and Easier reading follow with nothing of its own.
+   A page is a grid of tiles: two columns with a 10 px gap and 16 px gutters on a phone; from 55rem
+   (#view) one wider page of four columns, up to --wide. Tiles: white (headline tiles, the chapters
+   grid, finished dossiers), grey (reading panels), emphasis (the key idea, the rule of thumb), ink
+   (progress only: the Bound tile), warning (where it breaks, each mistake) and dashed (chapters not
+   yet written, kept dossiers). Colour keeps its meaning: ink = progress and controls, green =
+   finished only, red = mistakes and warnings, teal = small labels and source chips, amber = key
+   terms. Type is in rem (Text size scales the root), so where the half tiles would get too narrow
+   for the words they stack (a container query on the page). Everything is scoped under .dos.
+   Sections: 1 base · 2 tiles · 3 the focus bar and the page bar · 4 at a glance · 5 a chapter ·
+   6 the plate · 7 put it into practice and sources · 8 glossary and bibliography · 9 footnote
+   cards · 10 wide screens · 11 the Library · 12 app chrome · 13 motion */
 
-/* ---------- 1. tokens (light here; lamp-lit dark below, the app's two-block pattern) ---------- */
-.dos {
-  --desk: #D5CDBF; --desk-ink: #4A3A2A; --leather: #5B3A22; --leather-lo: #2E1D10; --leather-hi: #85593A;
-  --stitch: rgba(240, 214, 165, .42); --foil: #E8CB86; --paper: #F1E7D0; --paper-2: #E2D4B4; --lamp: transparent;
-  --card: #FBF5E6; --slip: #F7EFDC; --plate: #F8F1E0; --j-ink: #2B2119; --j-ink2: #5A4936; --j-navy: #1F3A5C;
-  --j-teal: #1B5B55; --j-red: #962A22; --j-green: #235C33; --hl: rgba(237, 185, 64, .5);
-  --tape: rgba(229, 218, 186, .82); --tape-edge: rgba(150, 125, 80, .25); --rule-blue: rgba(70, 120, 175, .3);
-  --rule-red: rgba(196, 70, 60, .55); --stain: rgba(128, 82, 30, .12); --splat: rgba(43, 33, 25, .14);
-  --edge: rgba(120, 78, 30, .2); --gutter: rgba(72, 44, 18, .26); --shade: transparent; --veil: transparent;
-  --veil-top: transparent; --wood: #8A6040; --wood-lo: #5E3F27; --wood-hi: #B08560; --steel: #6F747B;
-  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .48  0 0 0 0 .35  0 0 0 0 .2  0 0 0 -.9 .5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-  --mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='640'%3E%3Cfilter id='m' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .34  0 0 0 0 .14  0 0 0 -.9 .46'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
-  --pores: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.1 .6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
-  --rule-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.2 C 40 3.6 70 5.8 110 4.6 S 190 3.2 230 4.8 S 280 5.6 298 3.9' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3Cpath d='M14 6.4 C 70 5.4 140 6.6 210 5.6' fill='none' stroke='%23000' stroke-width='1' stroke-linecap='round' opacity='.55' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
-  --stamp-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='60'%3E%3Cfilter id='s' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='2' seed='2'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.3'/%3E%3C/filter%3E%3Crect width='160' height='60' filter='url(%23s)'/%3E%3C/svg%3E");
-  --title: "Walter Turncoat", "Patrick Hand SC", "Comic Sans MS", cursive;
-  --caps: "Patrick Hand SC", "Patrick Hand", "Comic Sans MS", cursive;
-  --hand: "Patrick Hand", "Comic Sans MS", cursive;
-  --marker: "Permanent Marker", "Patrick Hand SC", cursive;
-  --typed: "Special Elite", "Courier New", monospace;
-}
-:root[data-mu-theme="dark"] .dos, :root[data-mu-theme="system"][data-theme="dark"] .dos {
-  --desk: #0D0B09; --desk-ink: #CDB58A; --leather: #2C1D12; --leather-lo: #120B05; --leather-hi: #4A3220;
-  --stitch: rgba(214, 180, 120, .26); --foil: #D9B76E; --paper: #2A241D; --paper-2: #201B16;
-  --lamp: rgba(255, 196, 120, .07); --card: #342D24; --slip: #312A21; --plate: #2E2820; --j-ink: #EAE0CC;
-  --j-ink2: #CDBFA4; --j-navy: #AFC6E3; --j-teal: #8CD0C5; --j-red: #F5B3AA; --j-green: #97D5A8;
-  --hl: rgba(214, 160, 40, .3); --tape: rgba(120, 104, 74, .55); --tape-edge: rgba(0, 0, 0, .3);
-  --rule-blue: rgba(140, 175, 215, .18); --rule-red: rgba(230, 120, 105, .4); --stain: rgba(0, 0, 0, .24);
-  --splat: rgba(0, 0, 0, .3); --edge: rgba(0, 0, 0, .42); --gutter: rgba(0, 0, 0, .55); --shade: rgba(8, 5, 2, .35);
-  --veil: rgba(42, 36, 29, .86); --veil-top: rgba(40, 34, 27, .5); --wood: #3A281A; --wood-lo: #1E140C;
-  --wood-hi: #54402C; --steel: #9AA1AA;
-}
-@media (prefers-color-scheme: dark) {
-  :root[data-mu-theme="system"]:not([data-theme="light"]) .dos {
-    --desk: #0D0B09; --desk-ink: #CDB58A; --leather: #2C1D12; --leather-lo: #120B05; --leather-hi: #4A3220;
-    --stitch: rgba(214, 180, 120, .26); --foil: #D9B76E; --paper: #2A241D; --paper-2: #201B16;
-    --lamp: rgba(255, 196, 120, .07); --card: #342D24; --slip: #312A21; --plate: #2E2820; --j-ink: #EAE0CC;
-    --j-ink2: #CDBFA4; --j-navy: #AFC6E3; --j-teal: #8CD0C5; --j-red: #F5B3AA; --j-green: #97D5A8;
-    --hl: rgba(214, 160, 40, .3); --tape: rgba(120, 104, 74, .55); --tape-edge: rgba(0, 0, 0, .3);
-    --rule-blue: rgba(140, 175, 215, .18); --rule-red: rgba(230, 120, 105, .4); --stain: rgba(0, 0, 0, .24);
-    --splat: rgba(0, 0, 0, .3); --edge: rgba(0, 0, 0, .42); --gutter: rgba(0, 0, 0, .55); --shade: rgba(8, 5, 2, .35);
-    --veil: rgba(42, 36, 29, .86); --veil-top: rgba(40, 34, 27, .5); --wood: #3A281A; --wood-lo: #1E140C;
-    --wood-hi: #54402C; --steel: #9AA1AA;
-  }
-}
-/* Easy reading: every passage, note, label and typed line in Atkinson Hyperlegible (--serif and
-   --sans already are, from 00-tokens.css). Only the large lettered titles and the card's marker
-   name keep their hand. */
-:root[data-easy="1"] .dos { --hand: var(--easy); --typed: var(--easy); --caps: var(--easy); }
-
-/* ---------- 2. base: the app's element styles reset inside a dossier ---------- */
-.dos :where(h1, h2, h3, h4) { margin: 0; color: inherit; font: inherit; letter-spacing: normal; text-wrap: balance; }
+/* ---------- 1. base ---------- */
+.dos :where(h1, h2, h3, h4) { margin: 0; }
 .dos :where(p, ol, ul, dl, dd, figure, blockquote) { margin: 0; }
 .dos :where(ol, ul) { padding: 0; list-style: none; }
-.dos :where(a) { color: inherit; }
-.dos :where(button) { font: inherit; color: inherit; }
-.dos :focus-visible { outline: 3px solid var(--j-teal); outline-offset: 3px; border-radius: 4px; }
+.dos :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
 .dos [tabindex="-1"]:focus { outline: none; }
 .dos .nw { white-space: nowrap; }
 .dos .vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-/* A dossier page uses the whole window (no column, no padding) under its own leather bar. */
+.dos .fn { border-radius: 4px; font-family: var(--cond); font-weight: 600; }
 :root:root .view[data-screen="dossier"] { max-width: none; margin: 0; padding: 0; }
-:root:has(.view[data-screen="dossier"]) { scroll-padding-top: 60px; }
-:root:has(.view[data-screen="dossier"]) body { background: var(--bg); }
-
-/* ---------- 3. LIBRARY: dossier shelves above "In your own words" ---------- */
-.dos .lib-sec { margin-top: 28px; }
-.dos .lib-sec + .lib-sec { margin-top: 44px; }
-.dos .lib-sec > h2 { font: 700 1.3rem/1.25 var(--sans); color: var(--heading); }
-.dos .lede { margin-top: 6px; max-width: 40rem; color: var(--muted); font-size: .9375rem; }
-.dos .groups { display: grid; gap: 26px; margin-top: 20px; }
-.dos .group h3 { display: flex; align-items: baseline; gap: 8px; font: 700 1rem/1.3 var(--sans); color: var(--ink); }
-.dos .count { font-weight: 600; color: var(--muted); }
-/* a shelf: face-out field books standing on a wooden plank */
-.dos .shelf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 22px; margin-top: 10px; padding: 16px 10px 0; border-radius: 16px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, .06), transparent 30px), var(--sunk); box-shadow: inset 0 2px 6px rgba(60, 40, 20, .1); }
-@container view (min-width: 560px) { .dos .shelf { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@container view (min-width: 900px) {
-  .dos .groups { display: flex; align-items: flex-start; gap: 22px; }
-  .dos .group { flex: var(--n) 1 0; min-width: 0; }
-  .dos .shelf { grid-template-columns: repeat(var(--n), minmax(0, 1fr)); padding: 22px 16px 0; }
+/* What is focused or scrolled to stops above the floating page bar, never under it. */
+:root:has(.view[data-screen="dossier"]) { scroll-padding-bottom: calc(62px + 28px + env(safe-area-inset-bottom, 0px)); }
+:root:has(.dos-pagebar) .toasts { bottom: calc(62px + 26px + env(safe-area-inset-bottom, 0px)); }
+.dos.reader { min-height: 100vh; min-height: 100dvh; color: var(--ink); }
+.dos .dos-page {
+  container: dospage / inline-size;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 10px;
+  padding: 4px 16px calc(62px + 14px + 28px + env(safe-area-inset-bottom, 0px));
 }
-.dos .slot { padding: 0 9px; }
-.dos .book-link { display: grid; text-decoration: none; color: inherit; border-radius: 4px; }
-.dos .book-link:focus-visible { outline-offset: 5px; }
-.dos .cloth.gap { background: none; box-shadow: none; }
-.dos .cloth.gap::after { display: none; }
-.dos .cloth { position: relative; display: block; aspect-ratio: 3 / 4; max-width: 190px; width: 100%; margin: 0 auto; border-radius: 3px 7px 7px 3px; overflow: hidden;
-  background: linear-gradient(var(--shade), var(--shade)), var(--pores) 0 0 / 200px, repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0, 0, 0, .06) 0 1px, transparent 1px 3px),
-    radial-gradient(120% 90% at 30% 15%, color-mix(in srgb, var(--cloth) 72%, #fff), var(--cloth) 55%, color-mix(in srgb, var(--cloth) 55%, #000));
-  box-shadow: inset 7px 0 6px -4px rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(0, 0, 0, .35), 4px 6px 10px -4px rgba(30, 15, 5, .55); }
-.dos .cloth::after { content: ""; position: absolute; inset: 7px 7px 7px 13px; border: 1.5px dashed var(--stitch); border-radius: 3px 5px 5px 3px; }
-.dos .ribbon { position: absolute; top: -2px; right: 16%; width: 11px; height: 24%; background: var(--j-navy); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 84%, 0 100%); }
-.dos .ribbon.done { background: #3C8A56; }
-.dos .lbl { position: absolute; left: 17%; right: 10%; top: 22%; padding: 8px 9px 10px; background: var(--card); color: var(--j-ink); box-shadow: 0 1px 2px rgba(0, 0, 0, .35); transform: rotate(-1.2deg); }
-.dos .lbl::before, .dos .lbl::after { content: ""; position: absolute; top: -7px; width: 32px; height: 13px; background: var(--tape); box-shadow: 0 0 0 1px var(--tape-edge); }
-.dos .lbl::before { left: -10px; transform: rotate(-28deg); }
-.dos .lbl::after { right: -10px; transform: rotate(24deg); }
-.dos .lbl .pclip { position: absolute; top: -16px; right: 16%; width: 12px; height: 32px; color: var(--steel); filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, .25)); }
-.dos .lbl:has(.pclip)::before, .dos .lbl:has(.pclip)::after { display: none; }
-.dos .lbl-no { display: block; font: .76rem/1.2 var(--typed); letter-spacing: .1em; text-transform: uppercase; color: var(--j-ink2); }
-.dos .lbl-t { display: block; margin-top: 3px; font: 400 clamp(.88rem, 3.6cqi, 1rem)/1.1 var(--caps); overflow-wrap: anywhere; hyphens: auto; }
-.dos .plank { position: relative; z-index: 0; height: 14px; margin: -3px -9px 0; background: linear-gradient(180deg, var(--wood-hi) 0, var(--wood) 3px, var(--wood) 9px, var(--wood-lo)); box-shadow: 0 8px 10px -6px rgba(40, 25, 10, .45); }
-.dos .meta { display: grid; gap: 4px; padding: 10px 0 14px; font: 600 .8125rem/1.35 var(--sans); color: var(--ink); }
-/* the caption stands under its book (as wide as the book at most), so a lone book on a wide shelf keeps it */
-.dos .meta { justify-self: center; width: min(100%, 190px); }
-.dos .st { display: flex; align-items: center; gap: 6px; }
-.dos .st svg { width: 16px; height: 16px; flex: none; }
-.dos .st.done { color: var(--green); }
-.dos .meta .ms { color: var(--muted); font-weight: 500; }
-.dos .sq { display: flex; gap: 3px; }
-.dos .sq i { width: 10px; height: 10px; border: 1.5px solid var(--heading); border-radius: 2px; }
-.dos .sq i.on { background: var(--heading); }
-.dos .own { display: flex; align-items: center; gap: 14px; margin-top: 14px; padding: 16px 18px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); text-decoration: none; color: inherit; max-width: 40rem; }
-.dos .own-ico { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px; background: var(--sunk); color: var(--heading); }
-.dos .own-ico svg { width: 24px; height: 24px; }
-.dos .own b { display: block; font: 700 1rem/1.3 var(--sans); color: var(--heading); }
-.dos .own span span { display: block; margin-top: 2px; font-size: .875rem; color: var(--muted); }
-.dos .own .chev { margin-left: auto; color: var(--muted); }
-.dos .own .chev svg { width: 18px; height: 18px; }
-/* ---------- 4. THE READER: leather bar, chapter tabs, the book and its pages ---------- */
-.dos.reader { min-height: 100vh; min-height: 100dvh; background: var(--pores) 0 0 / 200px, linear-gradient(90deg, var(--leather-lo), var(--leather) 8%, var(--leather) 92%, var(--leather-lo)); background-blend-mode: soft-light, normal; }
-@container view (min-width: 640px) { .dos.reader { background: var(--desk); } }
-.dos .r-bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 4px; height: 52px; padding: 0 6px; color: var(--foil);
-  background: var(--pores) 0 0 / 200px, linear-gradient(180deg, var(--leather-hi), var(--leather) 40%, var(--leather-lo)); box-shadow: 0 2px 8px rgba(20, 10, 0, .35); }
-.dos .r-bar::after { content: ""; position: absolute; inset: auto 0 5px; border-bottom: 1.5px dashed var(--stitch); pointer-events: none; }
-.dos .r-btn { display: inline-flex; align-items: center; gap: 4px; min-width: 44px; min-height: 44px; padding: 0 10px; border: 0; border-radius: 10px; background: none; color: var(--foil); text-decoration: none; font: 400 1.08rem/1 var(--caps); cursor: pointer; }
-.dos .r-btn svg { width: 22px; height: 22px; flex: none; }
-.dos .r-btn:hover { background: rgba(255, 230, 180, .08); }
-.dos .r-head { flex: 1; min-width: 0; text-align: center; font: 400 1.02rem/1.2 var(--caps); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.dos .r-aa { font: 700 1rem/1 var(--serif); }
-/* chapter tabs: index tabs standing up from the page (Contents, I-VII, A-Z) */
-.dos .d-tabs ol { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(2.25rem, 34px), 1fr)); gap: 3px; padding: 8px 6px 0; }
-.dos .d-tabs a, .dos .d-tabs .off { display: grid; place-items: center; min-height: 42px; padding: 0 4px; border-radius: 8px 8px 0 0; background: var(--paper-2); color: var(--j-ink); text-decoration: none; font: 400 min(1.06rem, 19px)/1 var(--caps); box-shadow: inset 0 -6px 6px -6px rgba(60, 40, 15, .35); }
-.dos .d-tabs a[aria-current] { background: var(--paper); box-shadow: none; color: var(--j-navy); text-decoration: underline 2px; text-underline-offset: 5px; }
-.dos .d-tabs .off { color: var(--j-ink2); background: color-mix(in srgb, var(--paper-2) 55%, transparent); }
-.dos .d-tabs .tab-ico svg { width: 20px; height: 20px; }
-@container view (min-width: 640px) { .dos .d-tabs ol { width: min(46rem, 100% - 32px); margin: 0 auto; padding: 10px 14px 0; } }
-@container view (min-width: 960px) { .dos .d-tabs ol { width: min(42rem, 100% - 112px); grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr)); } }
+.dos .dos-sk { height: 220px; border-radius: 16px; }
+.dos .d-loaderr { padding: 16px; }
 
-.dos .d-book { container: book / inline-size; position: relative; margin: 0 auto; padding: 0 5px 0 0; }
-@container view (min-width: 640px) { .dos .d-book { width: min(46rem, 100% - 32px); padding: 10px; border-radius: 8px; background: var(--pores) 0 0 / 200px, var(--leather); background-blend-mode: soft-light; box-shadow: 0 24px 50px -24px rgba(20, 10, 0, .6); } }
-@container view (min-width: 960px) {
-  .dos .d-book { width: min(82rem, 100% - 112px); padding: 14px; border-radius: 10px; box-shadow: 0 30px 60px -20px rgba(20, 10, 0, .6), inset 0 0 0 1px rgba(0, 0, 0, .4); }
-  .dos .d-book::before { content: ""; position: absolute; inset: 6px; border: 1.5px dashed var(--stitch); border-radius: 7px; pointer-events: none; }
+/* ---------- 2. tiles ---------- */
+.dos .t { min-width: 0; padding: 12px; border-radius: 6px; overflow-wrap: break-word; }
+.dos .t-full, .dos .t-bare { grid-column: 1 / -1; }
+.dos .t-half { grid-column: span 1; }
+.dos .t-white { background: var(--surface); border: 1.5px solid var(--edge); border-radius: 16px; }
+.dos .t-first { box-shadow: var(--shadow); }
+.dos .t-grey { background: var(--sunk); border-radius: 6px; }
+.dos .t-em { background: var(--surface); border: 2px solid var(--edge); border-radius: 16px; box-shadow: 3px 3px 0 var(--edge); }
+.dos .t-ink { background: var(--heading); color: var(--on-heading); border-radius: 16px; }
+.dos .t-warn { background: var(--surface); border: 1.5px solid var(--red); border-radius: 16px; color: var(--red); }
+.dos .t-dashed { background: var(--surface); border: 1.5px dashed var(--line-strong); border-radius: 16px; }
+.dos .t-label { display: block; margin: 0 0 4px; font: 500 .65625rem/1.2 var(--mono); letter-spacing: 0; text-transform: uppercase; color: var(--muted); }
+.dos .t-warn .t-label, .dos .t-label.is-red { color: var(--red); }
+.dos .t-ink .t-label { color: color-mix(in srgb, var(--on-heading) 76%, var(--heading)); }
+.dos .t-prose { font-size: 1.0625rem; line-height: 1.55; }
+.dos .t-prose > * + * { margin-top: .6em; }
+.dos .t-prose ul { padding-left: 1.2em; list-style: disc; }
+.dos .t-prose strong { font-weight: 700; }
+.dos .t-small, .dos .t-prose.t-small { font-size: .84375rem; line-height: 1.42; }
+.dos .t-open { display: inline-flex; align-items: center; gap: 2px; font: 700 .875rem/1 var(--sans); }
+.dos .t-open svg { width: 18px; height: 18px; flex: none; }
+.dos a.t { color: var(--ink); text-decoration: none; }
+@media (hover: hover) { .dos a.t:hover { box-shadow: var(--shadow); } .dos a.t:hover .t-open { text-decoration: underline; text-underline-offset: 3px; } }
+.dos .ring { flex: none; display: block; overflow: visible; }
+.dos .ring .tr { stroke: var(--line); }
+.dos .ring .fl { stroke: var(--heading); }
+.dos .t-ink .ring .tr { stroke: color-mix(in srgb, var(--on-heading) 16%, var(--heading)); }
+.dos .t-ink .ring .fl { stroke: var(--on-heading); }
+.dos .ring.is-done .fl { stroke: var(--green); }
+.dos details > summary { list-style: none; cursor: pointer; }
+.dos details > summary::-webkit-details-marker { display: none; }
+.dos details > summary svg { width: 16px; height: 16px; flex: none; transition: transform .15s ease; }
+.dos details[open] > summary svg { transform: rotate(90deg); }
+
+/* ---------- 3. the focus bar and the page bar ---------- */
+.dos .dos-bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
+.dos .dos-sq {
+  flex: none; display: grid; place-items: center; width: 44px; height: 44px; box-sizing: border-box; padding: 0;
+  border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); color: var(--ink);
+  font: 600 1rem/1 var(--sans); text-decoration: none; cursor: pointer;
 }
-.dos .spread { position: relative; display: grid; gap: 10px; }
-/* one sheet of paper: grain, mottling and a browned edge; torn on its outer edges only */
-.dos .page { position: relative; isolation: isolate; overflow: clip; min-width: 0; padding: 26px 22px 44px 18px; color: var(--j-ink); }
-.dos .page::before { content: ""; position: absolute; inset: 0; z-index: -2;
-  background: linear-gradient(var(--veil-top), var(--veil-top)), var(--grain) 0 0 / 240px, radial-gradient(120% 60% at 18% 0%, var(--lamp), transparent 70%), linear-gradient(var(--veil), var(--veil)), var(--mottle) 0 0 / 640px, var(--paper);
-  box-shadow: inset 0 0 0 1px var(--edge), inset -10px 0 14px -8px var(--edge);
-  --m-body: linear-gradient(#000 0 0) 0 0 / calc(100% - 8px) calc(100% - 8px) no-repeat;
-  -webkit-mask: var(--m-body), var(--tear-r) 100% 0 / 8px 160px repeat-y, var(--tear-b) 0 100% / 160px 8px repeat-x;
-  mask: var(--m-body), var(--tear-r) 100% 0 / 8px 160px repeat-y, var(--tear-b) 0 100% / 160px 8px repeat-x; }
-.dos .page::after { content: ""; position: absolute; z-index: -1; inset: 0 auto 0 0; width: 18px; background: linear-gradient(to right, var(--gutter), transparent); opacity: .5; pointer-events: none; }
-.dos .page > * + * { margin-top: 2.2rem; }
-.dos .page > .runhead + * { margin-top: 1.1rem; }
-.dos .page > .deco + * { margin-top: 0; }
-@container book (min-width: 600px) { .dos .page { padding: 34px clamp(26px, 6%, 56px) 52px; } }
-/* two pages: the gutter side is the fold (straight), the other three edges torn */
-@container book (min-width: 55rem) {
-  .dos .spread { grid-template-columns: 1fr 1fr; gap: 0; }
-  .dos .page { --out: 30px; --in: 38px; --mw: 0px; --mg: 0px; padding: 32px var(--in) 56px calc(var(--out) + var(--mw) + var(--mg)); }
-  .dos .page-r { padding: 32px calc(var(--out) + var(--mw) + var(--mg)) 56px var(--in); }
-  .dos .page::before { --m-body: linear-gradient(#000 0 0) 100% 50% / calc(100% - 8px) calc(100% - 16px) no-repeat; box-shadow: inset 0 0 0 1px var(--edge), inset 0 0 22px var(--edge);
-    -webkit-mask: var(--m-body), var(--tear-l) 0 0 / 8px 160px repeat-y, var(--tear-t) 0 0 / 160px 8px repeat-x, var(--tear-b) 0 100% / 160px 8px repeat-x;
-    mask: var(--m-body), var(--tear-l) 0 0 / 8px 160px repeat-y, var(--tear-t) 0 0 / 160px 8px repeat-x, var(--tear-b) 0 100% / 160px 8px repeat-x; }
-  .dos .page-r::before { --m-body: linear-gradient(#000 0 0) 0 50% / calc(100% - 8px) calc(100% - 16px) no-repeat;
-    -webkit-mask: var(--m-body), var(--tear-r) 100% 0 / 8px 160px repeat-y, var(--tear-t) 0 0 / 160px 8px repeat-x, var(--tear-b) 0 100% / 160px 8px repeat-x;
-    mask: var(--m-body), var(--tear-r) 100% 0 / 8px 160px repeat-y, var(--tear-t) 0 0 / 160px 8px repeat-x, var(--tear-b) 0 100% / 160px 8px repeat-x; }
-  .dos .page::after { inset: 0 0 0 auto; width: 80px; background: linear-gradient(to left, var(--gutter), transparent 24px), linear-gradient(to left, color-mix(in srgb, var(--gutter) 40%, transparent), transparent 80px); opacity: 1; }
-  .dos .page-r::after { inset: 0 auto 0 0; background: linear-gradient(to right, var(--gutter), transparent 24px), linear-gradient(to right, color-mix(in srgb, var(--gutter) 40%, transparent), transparent 80px); }
+.dos .dos-sq svg { width: 20px; height: 20px; }
+.dos .dos-path { flex: 1; min-width: 0; display: flex; font: 500 .8125rem/1.3 var(--mono); color: var(--ink); white-space: nowrap; }
+.dos .dos-path span { flex: none; }
+.dos .dos-path .fit { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* The page bar floats in the D4 tab bar's frame. */
+.dos .dos-pagebar {
+  position: fixed; z-index: 30; left: 16px; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  display: grid; align-items: center; gap: 6px; min-height: 62px;
+  /* Each side keeps room for its longest word; the middle gives way first. */
+  grid-template-columns: minmax(auto, 1fr) minmax(0, max-content) minmax(auto, 1fr); box-sizing: border-box; padding: 6px;
+  background: var(--surface); border: 2px solid var(--edge); border-radius: 16px; box-shadow: var(--shadow);
 }
-/* one page alone (a chapter's sources, bound before lessons had practice): a right-hand page */
-@container book (min-width: 55rem) { .dos .spread.single { grid-template-columns: minmax(0, 42rem); justify-content: center; } }
-/* wide pages keep a margin column on their outer side for short notes (side notes) */
-@container book (min-width: 76rem) { .dos .page { --mw: 7.25rem; --mg: 14px; --out: 18px; } }
-.dos .page-l .d-wide { margin-left: calc(-1 * (var(--mw, 0px) + var(--mg, 0px))); }
-.dos .page-r .d-wide { margin-right: calc(-1 * (var(--mw, 0px) + var(--mg, 0px))); }
+:root.framed .dos .dos-pagebar { left: calc(50% - var(--frame) / 2 + 16px); right: calc(50% - var(--frame) / 2 + 16px); }
+.dos .dos-pagebar a { display: inline-flex; align-items: center; min-height: 46px; border-radius: 11px; color: var(--ink); text-decoration: none; font: 600 .875rem/1.1 var(--sans); }
+.dos .dos-pagebar svg { flex: none; width: 18px; height: 18px; }
+.dos .pb-prev { justify-self: start; gap: 2px; padding: 0 8px 0 4px; }
+.dos .dos-pagebar .pb-next { justify-self: end; gap: 4px; padding: 0 10px 0 14px; background: var(--heading); color: var(--on-heading); font-weight: 700; }
+.dos .pb-name { min-width: 0; text-wrap: balance; }
+@media (hover: hover) { .dos .pb-prev:hover { background: var(--sunk); } }
+.dos .pb-at { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; overflow: hidden; font: 500 .71875rem/1 var(--mono); color: var(--muted); white-space: nowrap; }
+.dos .pb-at > span:first-child { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.dos .pb-steps { display: flex; gap: 3px; }
+.dos .pb-steps i { width: 14px; height: 4px; border-radius: 2px; background: var(--line); }
+.dos .pb-steps i.on { background: var(--step); }
 
-/* decorations on the paper: kept off the reading text's strength */
-.dos .deco { position: absolute; z-index: -1; pointer-events: none; }
-.dos .deco svg { display: block; width: 100%; height: 100%; }
-.dos .deco.splat { top: -14px; left: -16px; width: 92px; height: 74px; color: var(--splat); }
-.dos .deco.ring { right: -60px; bottom: -40px; width: 210px; height: 210px; color: var(--stain); }
-.dos .runhead { position: relative; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: .78rem/1.3 var(--typed); letter-spacing: .1em; text-transform: uppercase; color: var(--j-ink2); }
-.dos .runhead span + span::before { content: " · "; }
-@container book (min-width: 55rem) { .dos .page-r .runhead { text-align: right; } }
+/* ---------- 4. at a glance ---------- */
+.dos .g-title { padding: 14px; }
+.dos .g-title .t-label { font-size: .6875rem; }
+.dos .g-h1 { margin-top: 8px; font: 700 2.125rem/1.05 var(--sans); letter-spacing: -.02em; text-wrap: pretty; }
+.dos .d-front { margin: 0; padding: 8px; }
+.dos .d-front[hidden] { display: none; }
+.dos .d-front img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; }
+:root[data-mu-theme="dark"] .dos .d-front img, :root[data-mu-theme="system"][data-theme="dark"] .dos .d-front img { opacity: .86; }
+@media (prefers-color-scheme: dark) { :root[data-mu-theme="system"]:not([data-theme="light"]) .dos .d-front img { opacity: .86; } }
+.dos .d-front figcaption { margin: 6px 4px 0; font: 500 .65625rem/1.3 var(--mono); color: var(--muted); }
+.dos .g-bound { display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.dos .g-bound-in { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.dos .g-stat, .dos .g-begun { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.dos .g-stat .t-label, .dos .g-begun .t-label { margin: 0; }
+.dos .g-big { font: 700 1.875rem/1 var(--sans); letter-spacing: -.01em; white-space: nowrap; }
+.dos .g-big small { font-size: 1.125rem; font-weight: 700; color: var(--muted); }
+.dos .g-small { font-size: .78125rem; line-height: 1.3; }
+.dos .t-ink .g-big small, .dos .t-ink .g-small, .dos .g-kept { color: color-mix(in srgb, var(--on-heading) 76%, var(--heading)); }
+.dos .g-kept { font-size: .75rem; line-height: 1.3; }
+.dos .g-mono { font: 500 .6875rem/1.3 var(--mono); color: var(--muted); }
+.dos .g-ch-h { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.dos .g-ch-hint { text-transform: none; text-align: right; }
+.dos .g-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.dos .g-grid > li { display: flex; min-width: 0; }
+.dos .g-cell { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; min-height: 58px; box-sizing: border-box; padding: 8px 9px; border-radius: 10px; color: inherit; text-decoration: none; }
+.dos .is-bound .g-cell { border: 1.5px solid var(--edge); background: var(--surface); color: var(--ink); }
+.dos .is-unbound .g-cell { border: 1.5px dashed var(--line-strong); color: var(--muted); }
+@media (hover: hover) { .dos a.g-cell:hover { background: var(--sunk); } }
+.dos .g-cell-top { display: flex; justify-content: space-between; align-items: center; min-height: 16px; font: 500 .65625rem/1 var(--mono); }
+.dos .g-tick { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--heading); color: var(--on-heading); }
+.dos .g-tick svg { width: 12px; height: 12px; }
+.dos .g-cell-t { font-size: .8125rem; line-height: 1.2; }
+.dos .is-bound .g-cell-t { font-weight: 600; }
+.dos .g-hook, .dos .g-breath { padding: 12px 14px; }
+.dos .g-hook-q { font-size: .9375rem; line-height: 1.45; }
+.dos .g-breath .t-prose { font-size: .9375rem; line-height: 1.5; }
+.dos .g-more { display: flex; flex-direction: column; gap: 6px; min-height: 96px; }
+.dos .g-more .t-label { margin: 0; }
+.dos .g-more-n { font: 700 1rem/1.2 var(--sans); }
+.dos .g-more .t-open { margin-top: auto; }
+.dos .g-save { padding: 12px 14px; }
+.dos .g-save-t { font-size: .9375rem; line-height: 1.45; }
+.dos .dos-btn-out {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 10px; padding: 0 16px;
+  border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); color: var(--ink);
+  font: 700 .9375rem/1 var(--sans); cursor: pointer;
+}
+.dos .dos-btn-out svg { width: 18px; height: 18px; }
+.dos .dos-btn-out[disabled] { opacity: .6; cursor: default; }
 
-/* turning the page: on the leather under the paper; on a laptop, arrows on the desk too */
-.dos .turn { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 8px calc(18px + env(safe-area-inset-bottom)); }
-.dos .turn a { display: inline-flex; align-items: center; gap: 8px; min-height: 48px; max-width: 48%; padding: 6px 10px; border-radius: 10px; color: var(--foil); text-decoration: none; }
-.dos .turn a:hover { background: rgba(255, 230, 180, .1); }
-.dos .turn svg { width: 22px; height: 22px; flex: none; }
-.dos .turn .tw { display: flex; flex-direction: column; min-width: 0; }
-.dos .turn .tk { font: 400 1.08rem/1.15 var(--caps); }
-/* the label wraps between words (never cut inside one, as an ellipsis did on a phone) */
-.dos .turn .tt { font: .76rem/1.3 var(--typed); letter-spacing: .05em; text-transform: uppercase; overflow-wrap: normal; text-wrap: balance; }
-.dos .turn .next { margin-left: auto; text-align: right; }
-.dos .turn .tw > * { max-width: 100%; }
-.dos .sides { display: none; }
-@container view (min-width: 1100px) {
-  .dos .sides { display: block; }
-  .dos .side-a { position: fixed; z-index: 5; top: 50%; display: grid; place-items: center; width: 44px; height: 96px; margin-top: -48px; border-radius: 12px; color: var(--desk-ink); }
-  .dos .side-a:hover { background: color-mix(in srgb, var(--desk-ink) 10%, transparent); }
-  .dos .side-a svg { width: 32px; height: 32px; }
-  .dos .side-a.prev { left: max(8px, (100vw - 82rem) / 2 - 52px); }
-  .dos .side-a.next { right: max(8px, (100vw - 82rem) / 2 - 52px); }
+/* ---------- 5. a chapter ---------- */
+.dos .c-main, .dos .c-side { display: contents; }
+.dos .c-head { display: flex; align-items: center; gap: 12px; }
+.dos .c-num {
+  flex: none; display: grid; place-items: center; min-width: 3.625rem; height: 3.625rem; box-sizing: border-box; padding: 0 4px;
+  border: 2px solid var(--edge); border-radius: 12px; font: 700 1.75rem/1 var(--sans); letter-spacing: -.02em;
+}
+.dos .c-num.n3 { font-size: 1.375rem; }
+.dos .c-num.n4 { font-size: 1.125rem; }
+.dos .c-head-t { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dos .c-of { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; margin: 0; }
+.dos .c-kind { font: 600 .6875rem/1.1 var(--cond); letter-spacing: .09em; color: var(--teal); }
+.dos .c-h1 { font: 700 1.1875rem/1.2 var(--sans); text-wrap: pretty; }
+.dos .c-key { padding: 12px 14px; }
+.dos .c-key-t { font: 600 1.125rem/1.35 var(--sans); }
+.dos .c-explain { padding: 12px 14px; }
+.dos .c-explain .t-label { margin-bottom: 6px; }
+.dos .c-clip { margin-top: .8em; padding: 10px 12px; border-radius: 10px; background: var(--surface); }
+.dos .c-clip blockquote { font-size: .9375rem; line-height: 1.45; font-style: italic; }
+.dos .c-clip figcaption { margin-top: 6px; font: 500 .65625rem/1.6 var(--mono); text-transform: uppercase; color: var(--muted); }
+.dos .c-compare a { color: inherit; font-weight: 600; text-underline-offset: 2px; white-space: nowrap; }
+.dos .c-pills { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 8px; }
+.dos .c-pills span { padding: 3px 8px; border: 1.5px solid var(--line-strong); border-radius: 99px; font: 600 .75rem/1.1 var(--cond); letter-spacing: .02em; color: var(--muted); }
+.dos .c-pills .on { background: var(--heading); border-color: var(--heading); color: var(--on-heading); }
+.dos .c-num-v { font: 700 1.75rem/1.1 var(--sans); letter-spacing: -.01em; }
+.dos .c-num-src { margin-top: 6px; font: 500 .65625rem/1.8 var(--mono); text-transform: uppercase; color: var(--muted); }
+.dos .c-numbers summary { display: flex; align-items: center; gap: 6px; min-height: 44px; margin: -12px; padding: 0 12px; font: 600 .875rem/1.2 var(--sans); }
+.dos .c-numbers[open] summary { margin-bottom: 4px; }
+.dos .c-numbers li { display: grid; grid-template-columns: 4.4rem minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 7px 0; border-top: 1px solid var(--line); font-size: .875rem; line-height: 1.4; }
+.dos .c-numbers .nk { font: 500 .625rem/1.3 var(--mono); text-transform: uppercase; color: var(--teal); }
+.dos .c-numbers .nv { max-width: 7.5rem; font: 500 .8125rem/1.3 var(--mono); text-align: right; overflow-wrap: anywhere; }
+
+/* ---------- 6. the plate: the lesson's interactive in a well, asleep until Tap to play ---------- */
+.dos .c-plate { display: flex; flex-direction: column; gap: 8px; margin: 0; scroll-margin-top: 12px; }
+.dos .c-plate-cap { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.dos .c-plate-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dos .c-plate-name .t-label { margin: 0; }
+.dos .c-plate-t { font: 700 .9375rem/1.25 var(--sans); }
+.dos .wake {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px;
+  border: 0; border-radius: 11px; background: var(--heading); color: var(--on-heading);
+  font: 700 .84375rem/1 var(--sans); cursor: pointer;
+}
+.dos .wake svg { width: 16px; height: 16px; }
+.dos .wake .w-done, .dos .wake[aria-pressed="true"] .w-play { display: none; }
+.dos .wake[aria-pressed="true"] .w-done { display: block; }
+.dos .wake[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 2px var(--edge); }
+.dos .mount { position: relative; border-radius: 6px; background: var(--surface); }
+.dos .mount .frame { min-height: 120px; border-radius: 6px; overflow: hidden; }
+.dos .mount iframe { display: block; width: 100%; border: 0; background: var(--surface); }
+.dos .cover-tap { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
+.dos .mount[data-awake="true"] { outline: 2px solid var(--edge); outline-offset: 2px; }
+.dos .mount[data-awake="true"] .cover-tap { display: none; }
+.dos .c-look { font-size: .84375rem; line-height: 1.4; }
+.dos .c-look b { font-weight: 700; }
+.dos .c-plate-gone { padding: 14px; border: 1.5px dashed var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--muted); font-size: .9375rem; line-height: 1.45; }
+
+/* ---------- 7. put it into practice, and sources ---------- */
+.dos .p-head { padding: 2px 2px 0; }
+.dos .p-head .t-label { margin: 0; }
+.dos .p-h1 { margin-top: 6px; font: 700 1.625rem/1.1 var(--sans); letter-spacing: -.01em; }
+.dos .p-h2 { font: 700 1.625rem/1.1 var(--sans); letter-spacing: -.01em; }
+.dos .p-sub { margin-top: 6px; font-size: .9375rem; line-height: 1.45; color: var(--muted); }
+.dos .p-sec { margin: 4px 2px 8px; }
+.dos .p-rules { padding: 14px; }
+.dos .p-rules .t-label { margin-bottom: 6px; }
+.dos .p-rule-lead { font: 700 2.125rem/1.05 var(--sans); letter-spacing: -.02em; text-wrap: pretty; }
+.dos .p-rule-lead.is-mid { font-size: 1.625rem; line-height: 1.1; letter-spacing: -.01em; }
+.dos .p-rule-lead.is-long { font-size: 1.3125rem; line-height: 1.2; letter-spacing: -.01em; }
+.dos .p-rule-rest { margin-top: 6px; font: 500 1.125rem/1.35 var(--sans); }
+.dos .p-rule-rest > * + * { margin-top: .4em; }
+.dos .p-rule-rest ul, .dos .p-items { padding-left: 1.2em; list-style: disc; }
+.dos .p-example, .dos .p-other, .dos .p-steps { padding: 12px 14px; }
+.dos .p-example .t-prose, .dos .p-other .t-prose { font-size: 1rem; line-height: 1.5; }
+.dos .p-steps .t-prose { font-size: 1rem; line-height: 1.5; margin-bottom: 8px; }
+.dos .p-check { display: grid; gap: 10px; margin-top: 6px; }
+.dos .p-check li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 1rem; line-height: 1.45; }
+.dos .p-step-n { display: grid; place-items: center; width: 26px; height: 26px; box-sizing: border-box; border: 2px solid var(--edge); border-radius: 7px; font: 700 .8125rem/1 var(--sans); }
+.dos .p-mis-grid, .dos .p-src-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.dos .p-mis { display: flex; flex-direction: column; gap: 6px; }
+.dos .p-mis.is-wide, .dos .p-mis-grid.is-odd > .p-mis:last-child, .dos .p-src-grid.is-odd > .p-src:last-child { grid-column: 1 / -1; }
+.dos .p-x { width: 18px; height: 18px; flex: none; }
+.dos .p-mis p, .dos .p-mis .t-prose { font-size: .90625rem; line-height: 1.35; }
+.dos .p-src { display: flex; flex-direction: column; gap: 6px; scroll-margin: 90px; }
+.dos .t.p-src:focus { outline: 3px solid var(--teal); outline-offset: 2px; }
+.dos .p-src-top { display: flex; align-items: flex-start; gap: 6px; }
+.dos .p-chip { flex: none; display: grid; place-items: center; min-width: 20px; height: 20px; box-sizing: border-box; padding: 0 4px; border-radius: 4px; background: var(--teal-tint); color: var(--teal); font: 600 .75rem/1 var(--cond); }
+.dos .p-src-name { min-width: 0; font: 700 .84375rem/1.3 var(--sans); overflow-wrap: anywhere; }
+.dos .p-src-work { font-size: .8125rem; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
+.dos .p-src-q { font-size: .8125rem; line-height: 1.35; font-style: italic; color: var(--muted); }
+.dos .p-src-u {
+  align-self: flex-start; margin-top: auto; padding: 8px 0 2px; color: var(--ink);
+  font: 500 .65625rem/1.3 var(--mono); text-underline-offset: 3px; overflow-wrap: anywhere;
+}
+.dos .p-src-u svg { display: inline; width: 12px; height: 12px; margin-left: 4px; vertical-align: -2px; }
+.dos .p-none { grid-column: 1 / -1; font-size: .9375rem; line-height: 1.45; color: var(--muted); }
+
+/* ---------- 8. glossary and bibliography ---------- */
+.dos .b-gloss, .dos .b-biblio { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.dos .b-term, .dos .b-work { padding: 12px 14px; }
+.dos .b-term dt { font: 700 1.125rem/1.25 var(--sans); }
+.dos .b-def { margin-top: 6px; font-size: .9375rem; line-height: 1.5; }
+.dos .b-first, .dos .b-ch { margin-top: 6px; font: 500 .6875rem/1.6 var(--mono); color: var(--muted); }
+.dos .b-first a, .dos .b-ch a { color: var(--ink); text-underline-offset: 2px; }
+.dos .b-ch a { padding: 2px; }
+.dos .b-head { margin-top: 18px; }
+.dos .b-work { display: flex; flex-direction: column; gap: 4px; }
+.dos .b-w { font-size: .9375rem; line-height: 1.4; }
+.dos .b-pub { display: block; font-weight: 700; }
+.dos .b-q summary { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font: 600 .84375rem/1.2 var(--sans); }
+.dos .b-q blockquote { margin: 2px 0 8px 22px; font-size: .875rem; line-height: 1.45; font-style: italic; color: var(--muted); }
+
+/* Where the page is narrow for its words (a phone at the larger text sizes), half tiles go across. */
+@container dospage (max-width: 18.5rem) {
+  .dos .t-half { grid-column: 1 / -1; }
+  .dos .p-mis-grid, .dos .p-src-grid { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* ---------- 5. type on the page ---------- */
-.dos .kicker { font: .82rem/1.35 var(--typed); letter-spacing: .08em; text-transform: uppercase; color: var(--j-teal); }
-.dos .hh { position: relative; padding-bottom: 10px; font: 400 1.5rem/1.15 var(--title); color: var(--j-ink); }
-.dos .hh.big { font-size: 2rem; }
-.dos .hh::after, .dos .ch-title::after, .dos .d-tp-title::after { content: ""; position: absolute; left: 0; bottom: 0; width: min(100%, 14em); height: 7px; background: currentColor; opacity: .7;
-  -webkit-mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; }
-.dos .label { font: 400 1.06rem/1.25 var(--caps); letter-spacing: .03em; color: var(--j-teal); }
-.dos .sub { margin-top: .5rem; font: italic .98rem/1.5 var(--serif); color: var(--j-ink2); }
-.dos .prose { font: 400 var(--fs)/1.72 var(--serif); }
-.dos .prose p + p, .dos .prose p + .clip, .dos .prose .clip + p { margin-top: .9em; }
-.dos .prose strong { font-weight: 650; }
-.dos mark.term { color: inherit; font-weight: 600; padding: 0 .14em; margin: 0 -.04em; border-radius: .2em .35em .25em .3em;
-  background: linear-gradient(100deg, transparent .2em, var(--hl) .3em, color-mix(in srgb, var(--hl) 65%, transparent) 85%, var(--hl) calc(100% - .25em), transparent calc(100% - .1em)) 0 75% / 100% 72% no-repeat;
-  -webkit-box-decoration-break: clone; box-decoration-break: clone; }
-/* footnote markers: small to look at, 24 px and more to tap */
-.dos .fn { position: relative; top: 0; display: inline-grid; place-items: center; min-width: 1.65em; height: 1.65em; margin: 0 .06em 0 .1em; padding: 0 .25em; vertical-align: .4em; border: 0; border-radius: 99px;
-  background: var(--card); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--j-teal) 45%, transparent); color: var(--j-teal); font: 700 .7em/1 var(--sans); text-decoration: none; cursor: pointer; }
-.dos .fn::after { content: ""; position: absolute; inset: -6px -3px; left: -3px; top: -6px; width: auto; height: auto; transform: none; }
-.dos .fn:hover { box-shadow: inset 0 0 0 2px var(--j-teal); }
-.dos .fn-pop { position: fixed; z-index: 60; padding: 14px 16px 12px; background: var(--slip); color: var(--j-ink); border-radius: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, .2), 0 18px 40px rgba(20, 10, 0, .35); transform: rotate(-.4deg); }
-.dos .fp-n { font: .76rem/1.3 var(--typed); letter-spacing: .1em; text-transform: uppercase; color: var(--j-teal); }
-.dos .fp-t { margin-top: 4px; font: 600 .98rem/1.4 var(--serif); }
-.dos .fp-t .pub, .dos .ev-t .pub { font-weight: 400; color: var(--j-ink2); }
-.dos .fn-pop blockquote { margin-top: 8px; font: .95rem/1.6 var(--typed); }
+/* ---------- 9. a source card that opens in place ---------- */
+.dos .fn-pop { position: fixed; z-index: 60; padding: 14px 16px 12px; background: var(--surface); color: var(--ink); border: 1.5px solid var(--edge); border-radius: 16px; box-shadow: var(--shadow); }
+.dos .fp-n { font: 500 .65625rem/1.3 var(--mono); text-transform: uppercase; color: var(--muted); }
+.dos .fp-t { margin-top: 4px; font: 700 .9375rem/1.35 var(--sans); }
+.dos .fp-t .pub { font-weight: 400; color: var(--muted); }
+.dos .fn-pop blockquote { margin-top: 8px; font-size: .875rem; line-height: 1.45; font-style: italic; color: var(--muted); }
 .dos .fp-l { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 8px; }
-.dos .fp-l a { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font: .8rem/1.3 var(--typed); color: var(--j-navy); }
+.dos .fp-l a { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; color: var(--ink); font: 500 .75rem/1.3 var(--mono); }
 .dos .fp-l svg { width: 12px; height: 12px; }
 
-/* ---------- 6. CHAPTER: head, margin notes, the index card, notes in the hand ---------- */
-.dos .ch-head { position: relative; }
-.dos .ch-head::after { content: ""; display: table; clear: both; }
-.dos .sketch { float: right; width: 74px; height: 74px; margin: -6px -4px 4px 10px; color: var(--j-ink); opacity: .78; transform: rotate(-5deg); shape-outside: circle(50%); }
-.dos .sketch svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.dos .ch-title { position: relative; margin-top: 8px; padding-bottom: 12px; font: 400 1.85rem/1.12 var(--title); text-wrap: balance; }
-.dos .ch-line { clear: both; margin-top: 12px; font: italic 400 calc(var(--fs) * 1.02)/1.55 var(--serif); color: var(--j-ink2); }
-@container book (min-width: 55rem) { .dos .ch-title { font-size: 2.2rem; } .dos .sketch { width: 96px; height: 96px; } }
-/* side notes: short, in the hand. Inline on a phone; in the outer margin on a wide page. */
-.dos .side { position: relative; display: block; max-width: 22rem; color: var(--j-ink); transform: rotate(-.6deg); }
-.dos .side-k { display: flex; align-items: center; gap: 6px; font: 400 1.04rem/1.2 var(--caps); letter-spacing: .03em; color: var(--j-teal); }
-.dos .side-k svg { width: 30px; height: 22px; flex: none; color: var(--j-ink2); }
-.dos .side-t { display: block; margin-top: 2px; font: 400 1.14rem/1.4 var(--hand); }
-.dos .side-t a { color: var(--j-navy); text-underline-offset: 3px; white-space: nowrap; }
-.dos .side-src { display: block; margin-top: 2px; font: .76rem/1.6 var(--typed); letter-spacing: .06em; text-transform: uppercase; color: var(--j-ink2); }
-.dos .side-src .fn { vertical-align: 0; font-size: .95rem; }
-.dos .side.num { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; margin-left: auto; margin-right: 4%; max-width: 20rem; transform: rotate(-1deg); }
-.dos .side.num .side-src { grid-column: 2; }
-.dos .num-v { position: relative; grid-row: span 2; display: grid; place-items: center; min-width: 4.4rem; padding: .55rem .7rem .45rem; font: 400 1.7rem/1 var(--marker); white-space: nowrap; }
-.dos .num-v svg { position: absolute; inset: -4px -6px; width: calc(100% + 12px); height: calc(100% + 8px); overflow: visible; color: var(--j-ink2); }
-.dos .ch-head + .side { margin-top: 1.2rem; }
-@container book (min-width: 76rem) {
-  .dos .page > .side { margin: .2rem 0 1rem; width: var(--mw); max-width: none; transform: rotate(-1.5deg); }
-  .dos .page-l .side { float: left; clear: left; margin-left: calc(-1 * (var(--mw) + var(--mg))); }
-  .dos .page-r .side { float: right; clear: right; margin-right: calc(-1 * (var(--mw) + var(--mg))); }
-  .dos .side.num { display: block; }
-  .dos .side.num .num-v { margin: 0 0 6px; }
-  .dos .side-t { font-size: 1.05rem; line-height: 1.32; }
-  .dos .side-k svg { display: none; }
-  .dos .ch-head + .side { margin-top: 2.6rem; }
-  .dos .ch-head + .side + * { margin-top: 2.2rem; }
+/* ---------- 10. wide screens: one wider tile page, four columns, up to --wide ---------- */
+@container view (min-width: 40rem) {
+  .dos .dos-pagebar { left: 50%; right: auto; width: min(34rem, calc(100% - 32px)); transform: translateX(-50%); }
 }
-/* the index card, taped in */
-.dos .d-card { --row: 1.95rem; position: relative; z-index: 1; margin-inline: 4px; padding: 12px 16px 14px 18px; background: var(--card); color: var(--j-ink); transform: rotate(-.7deg);
-  box-shadow: 0 1px 1px rgba(60, 40, 15, .18), 0 10px 18px -10px rgba(60, 40, 15, .45); }
-.dos .tape { position: absolute; z-index: 2; top: -11px; width: 80px; height: 23px; background: var(--tape); box-shadow: 0 0 0 1px var(--tape-edge);
-  clip-path: polygon(3% 8%, 9% 0, 16% 9%, 24% 2%, 33% 8%, 45% 0, 56% 7%, 68% 1%, 79% 8%, 90% 0, 97% 6%, 100% 100%, 92% 92%, 83% 100%, 71% 93%, 60% 100%, 47% 92%, 36% 100%, 25% 93%, 13% 100%, 0 94%); }
-.dos .tape.l { left: -14px; transform: rotate(-32deg); }
-.dos .tape.r { right: -14px; transform: rotate(28deg); }
-.dos .tape.c { left: 50%; margin-left: -40px; transform: rotate(-2deg); }
-.dos .card-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 4px 10px; }
-/* the stamp is turned, so its corners reach below its box: room under it, so it never touches the key term (XL) */
-.dos .card-top .stamp { margin: .25em 0 .8em; }
-.dos .card-k { padding-top: 4px; font: 400 1.06rem/1.4 var(--caps); color: var(--j-ink2); }
-.dos .card-name { margin-top: 2px; padding-bottom: 5px; border-bottom: 2px solid var(--rule-red); font: 400 1.75rem/1.12 var(--marker); text-transform: uppercase; overflow-wrap: anywhere; }
-.dos .card-name.long { font-size: 1.3rem; }
-.dos .d-card dl { margin-top: 2px; }
-.dos .d-card dl > div { padding-top: 1px; background: repeating-linear-gradient(transparent 0 calc(var(--row) - 1px), var(--rule-blue) calc(var(--row) - 1px) var(--row)); line-height: var(--row); }
-.dos .d-card dt { display: inline; margin-right: .4em; font: 400 1.02rem/var(--row) var(--caps); color: var(--j-ink2); }
-.dos .d-card dt::after { content: ":"; }
-.dos .d-card dd { display: inline; font: .95rem/var(--row) var(--typed); overflow-wrap: anywhere; }
-.dos .d-card .cert-row dd { display: block; }
-.dos .cert { display: flex; flex-wrap: wrap; gap: 0 .2em; margin-left: -.3em; font: .95rem/var(--row) var(--typed); }
-.dos .cert > span { position: relative; padding: 0 .75em; }
-.dos .cert .off { color: var(--j-ink2); }
-.dos .cert .on { font-weight: 700; }
-.dos .cert .on svg { position: absolute; left: -.05em; top: .12em; width: calc(100% + .1em); height: calc(100% - .2em); overflow: visible; color: var(--j-navy); }
-.dos .cert-why { display: block; font: 400 1.04rem/1.35 var(--hand); color: var(--j-ink); padding-bottom: .3rem; }
-/* rubber stamps (green: complete; only finished things are green) */
-.dos .stamp { flex: none; display: inline-grid; justify-items: center; padding: 3px 8px 2px; border: 2px solid currentColor; border-radius: 5px; color: var(--j-green); transform: rotate(-5deg);
-  font: .8rem/1.2 var(--typed); letter-spacing: .12em; text-transform: uppercase; -webkit-mask: var(--stamp-mask) 0 0 / 160px 60px; mask: var(--stamp-mask) 0 0 / 160px 60px; }
-.dos .stamp small { font-size: .78rem; letter-spacing: .1em; }
-/* longer notes in the hand: the field note, where an analogy breaks (red ink), look for */
-.dos .d-note { position: relative; display: grid; grid-template-columns: 34px 1fr; column-gap: 10px; align-items: start; max-width: 32rem; color: var(--j-ink); }
-.dos .note-ico { width: 32px; height: 32px; margin-top: 2px; overflow: visible; }
-.dos .note-k { font: 400 1.04rem/1.2 var(--caps); letter-spacing: .04em; color: var(--j-teal); }
-.dos .note-t { position: relative; margin-top: 2px; font: 400 1.2rem/1.42 var(--hand); }
-.dos .d-note.d-field { margin-top: 1.6rem; transform: rotate(-.6deg); }
-.dos .d-note.d-field .note-t { padding-bottom: 11px; }
-.dos .d-note.d-field .note-t::after { content: ""; position: absolute; left: 0; bottom: 0; width: 70%; height: 7px; background: var(--j-ink); opacity: .45; -webkit-mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; }
-.dos .d-note.d-warn { margin: 1.4rem 0 0 auto; color: var(--j-red); transform: rotate(.5deg); }
-.dos .d-note.d-warn .note-k { color: var(--j-red); }
-/* a typed clipping from a source, taped in after the paragraph that cites it */
-.dos .clip { position: relative; max-width: 30rem; margin: 2rem 2% 2rem 5%; padding: 20px 18px 14px; background: var(--slip); transform: rotate(.8deg);
-  filter: drop-shadow(0 1px 1px rgba(60, 40, 15, .2)) drop-shadow(0 6px 6px rgba(60, 40, 15, .14));
-  clip-path: polygon(0 1%, 6% 0, 13% 1.4%, 22% .2%, 31% 1.2%, 44% 0, 57% 1%, 70% .1%, 83% 1.3%, 94% .2%, 100% 1%, 99.4% 50%, 100% 99%, 90% 100%, 78% 98.8%, 64% 100%, 51% 98.9%, 37% 100%, 23% 99%, 11% 100%, 0 99%, .6% 50%); }
-.dos .clip .tape { top: -6px; }
-.dos .clip blockquote { font: 1rem/1.6 var(--typed); }
-.dos .clip figcaption { margin-top: 8px; font: .78rem/1.4 var(--typed); letter-spacing: .06em; text-transform: uppercase; color: var(--j-ink2); }
-.dos .clip figcaption .fn { vertical-align: 0; font-size: .95rem; }
-.dos .d-views { display: grid; gap: 14px; margin-top: 1.2rem; }
-.dos .d-view { padding: 12px 14px; border: 1.5px dashed color-mix(in srgb, var(--j-red) 55%, transparent); border-radius: 6px; }
-.dos .d-view h3 { font: 400 1.05rem/1.2 var(--caps); color: var(--j-red); }
-.dos .d-view p { margin-top: 4px; font: .98rem/1.6 var(--serif); }
-.dos .explain .hh, .dos .analogy .hh { margin-bottom: 1rem; }
-.dos .proto { font: 1rem/1.6 var(--typed); color: var(--j-ink2); max-width: 26rem; }
+@container view (min-width: 55rem) {
+  .dos .dos-bar, .dos .dos-page { box-sizing: border-box; width: 100%; max-width: var(--wide); margin-inline: auto; padding-left: 24px; padding-right: 24px; }
+  .dos .dos-page { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .dos .t-half { grid-column: span 2; }
+  /* At a glance: the facts beside the picture, the question beside them; four chapters a row. */
+  .dos .dos-glance { grid-auto-flow: row dense; }
+  .dos .dos-glance .d-front { grid-column: span 2; grid-row: span 2; align-self: start; }
+  .dos .dos-glance .g-bound, .dos .dos-glance .g-begun { grid-column: span 1; }
+  .dos .dos-glance .g-hook { grid-column: span 2; order: 1; }
+  .dos .dos-glance .g-chapters { order: 2; }
+  .dos .dos-glance .g-breath { grid-column: span 2; order: 3; }
+  .dos .dos-glance .g-save { grid-column: span 2; order: 3; }
+  .dos .dos-glance .g-more { grid-column: span 1; order: 4; }
+  .dos .g-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* A chapter: the header and key idea across; the plate and the explanation over three columns,
+     the analogy, Where it breaks, Compare and How certain stacked beside them. */
+  .dos .c-main { grid-column: span 3; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+  .dos .c-main > .t-full { grid-column: 1 / -1; }
+  .dos .c-main > .t-half { grid-column: span 1; }
+  .dos .c-side { grid-column: span 1; display: flex; flex-direction: column; gap: 12px; }
+  .dos .c-prose > * { max-width: var(--measure); }
+  /* Put it into practice: the parts two to a row where they are short. */
+  .dos .dos-practice { grid-auto-flow: row dense; }
+  .dos .p-rules, .dos .p-example { grid-column: span 2; }
+  .dos .p-mis-grid, .dos .p-src-grid, .dos .b-gloss, .dos .b-biblio { grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+  .dos .p-mis-grid.is-odd > .p-mis:last-child, .dos .p-src-grid.is-odd > .p-src:last-child { grid-column: auto; }
+}
 
-/* ---------- 7. THE PLATE: the lesson's interactive, mounted with photo corners ---------- */
-.dos .plate-cap { display: grid; gap: 6px; margin-top: 8px; font-weight: 400; }
-.dos .plate-no { font: .9rem/1.2 var(--typed); letter-spacing: .16em; text-transform: uppercase; color: var(--j-teal); }
-.dos .plate-t { position: relative; padding-bottom: 12px; font: 400 1.75rem/1.12 var(--title); color: var(--j-ink); text-wrap: balance; }
-.dos .plate-t::after { content: ""; position: absolute; left: 0; bottom: 0; width: min(100%, 12em); height: 7px; background: currentColor; opacity: .7; -webkit-mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; }
-@container book (min-width: 55rem) { .dos .plate-t { font-size: 2.1rem; } }
-.dos .prose.d-small { font-size: calc(var(--fs) * .95); }
-.dos .pn .hh { margin-bottom: .8rem; }
-.dos .pn.leaves p { margin-top: 6px; font: .98rem/1.62 var(--serif); }
-.dos .d-note.d-look { grid-template-columns: 40px 1fr; font: 400 1.16rem/1.4 var(--hand); }
-.dos .d-note.d-look b { font-weight: 400; color: var(--j-teal); font-family: var(--caps); }
-.dos .look-ico { width: 38px; height: 28px; margin-top: 4px; color: var(--j-ink2); transform: rotate(20deg); }
-.dos .mount { position: relative; clear: both; margin-top: 0; padding: 8px; background: var(--plate); border: 1px solid color-mix(in srgb, var(--j-ink) 22%, transparent);
-  box-shadow: 0 1px 1px rgba(60, 40, 15, .18), 0 14px 24px -14px rgba(60, 40, 15, .55); }
-.dos .mount iframe { display: block; width: 100%; height: 480px; border: 0; background: var(--plate); color-scheme: normal; }
-.dos .cover-tap { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
-.dos .mount[data-awake="true"] { outline: 2px solid var(--j-navy); outline-offset: 3px; }
-.dos .mount[data-awake="true"] .cover-tap { display: none; }
-/* "Tap to play" is a tab standing on the mount's top edge, in its own row, so it never covers the plate */
-.dos .wake-row { display: flex; justify-content: flex-end; clear: both; padding-right: 34px; }
-.dos .wake { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-bottom: -1px; padding: 0 14px 0 10px;
-  border: 1.5px solid var(--j-navy); border-bottom: 0; border-radius: 9px 9px 0 0; background: var(--plate); color: var(--j-navy); font: 400 1.06rem/1 var(--caps); cursor: pointer; }
-.dos .wake svg { width: 20px; height: 20px; }
-.dos .wake[aria-pressed="true"] { background: var(--j-navy); color: var(--plate); }
-.dos .corner { position: absolute; z-index: 2; width: 28px; height: 28px; background: color-mix(in srgb, var(--leather-lo) 92%, transparent); pointer-events: none; }
-.dos .corner.tl { top: -5px; left: -5px; clip-path: polygon(0 0, 100% 0, 0 100%); }
-.dos .corner.tr { top: -5px; right: -5px; clip-path: polygon(0 0, 100% 0, 100% 100%); }
-.dos .corner.bl { bottom: -5px; left: -5px; clip-path: polygon(0 0, 100% 100%, 0 100%); }
-.dos .corner.br { bottom: -5px; right: -5px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
-.dos .pn.leaves { padding: 14px 16px 15px; border: 1.5px dashed color-mix(in srgb, var(--j-ink) 34%, transparent); border-radius: 6px; }
-.dos .numbers summary { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; cursor: pointer; list-style: none; font: 400 1.04rem/1.2 var(--caps); color: var(--j-navy); }
-.dos .numbers summary::-webkit-details-marker, .dos .bq summary::-webkit-details-marker { display: none; }
-.dos .numbers summary svg, .dos .bq summary svg { width: 16px; height: 16px; flex: none; }
-.dos .numbers[open] summary svg, .dos .bq[open] summary svg { transform: rotate(90deg); }
-.dos .numbers li { display: grid; grid-template-columns: 5.6rem 1fr auto; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dotted color-mix(in srgb, var(--j-ink) 30%, transparent); font: .92rem/1.45 var(--serif); }
-.dos .numbers .nk { font: .76rem/1.3 var(--typed); letter-spacing: .06em; text-transform: uppercase; color: var(--j-teal); }
-.dos .numbers .nv { font: .95rem/1.3 var(--typed); white-space: nowrap; }
+/* ---------- 11. the Library's dossiers (#/library/dossiers; 73-book.js draws the page) ---------- */
+/* The Library uses the wide screens' width on a laptop. */
+:root[data-layout="laptop"] .view:is([data-screen="book"], [data-screen="library"]):has(> .lib-page) { max-width: var(--wide); }
+.lib-page .page-head { margin-bottom: 4px; }
+.lib-page .dl-head { gap: 4px; margin: 4px 0 12px; }
+.lib-page .dl-head h1 { font-size: 1.875rem; line-height: 1.1; letter-spacing: -.01em; }
+.lib-page .dl-head p.muted { font-size: .9375rem; line-height: 1.4; }
+.dos .lib-dossiers { container: dlib / inline-size; }
+.dos .dl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row dense; gap: 10px; }
+.dos .dl-grid > li { display: flex; min-width: 0; }
+.dos .dl-grid > li > * { flex: 1; min-width: 0; }
+.dos .dl-span { grid-column: 1 / -1; }
+.dos .dl-sk { height: 200px; border-radius: 16px; }
+.dos .dl-tile { display: flex; flex-direction: column; gap: 8px; min-height: 104px; box-sizing: border-box; }
+.dos .dl-tile > .t-label { margin: 0; }
+.dos .dl-lead { gap: 10px; padding: 14px 14px 12px; }
+.dos .dl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.dos .dl-top .t-label { margin: 0; font-size: .6875rem; }
+.dos .dl-state { font: 500 .6875rem/1.2 var(--mono); color: var(--muted); }
+.dos .dl-title { font: 700 1.5625rem/1.1 var(--sans); letter-spacing: -.01em; text-wrap: pretty; }
+.dos .dl-prog { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
+.dos .dl-ring { flex: none; display: grid; place-items: center; }
+.dos .dl-ring > * { grid-area: 1 / 1; }
+.dos .dl-ring-n { font: 700 1.125rem/1 var(--sans); }
+.dos .dl-bars { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: flex-end; gap: 6px .3125rem; min-width: 0; }
+.dos .dl-bar { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 1rem; }
+.dos .dl-bar i { width: 1rem; height: 2.875rem; box-sizing: border-box; border: 1.5px dashed var(--line-strong); border-radius: 4px; }
+.dos .dl-bar.on i { border: 0; background: var(--heading); }
+.dos .dl-bar b { font: 500 .53125rem/1 var(--mono); color: var(--line-strong); white-space: nowrap; }
+.dos .dl-bar.on b { color: var(--ink); }
+.dos .dl-bars.is-many .dl-bar { width: .75rem; }
+.dos .dl-bars.is-many .dl-bar i { width: .75rem; height: 1.75rem; }
+.dos .dl-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.dos .dl-when { font: 500 .71875rem/1.2 var(--mono); color: var(--muted); }
+.dos .dl-name { font: 700 1rem/1.2 var(--sans); }
+.dos .dl-row, .dos .dl-fin { display: flex; align-items: center; gap: 8px; margin-top: auto; }
+.dos .dl-tile > .dl-meta { margin-top: auto; }
+.dos .dl-meta { font: 500 .71875rem/1.2 var(--mono); color: var(--muted); }
+.dos .dl-fin { color: var(--green); font: 600 .8125rem/1.2 var(--cond); }
+.dos .dl-check { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: var(--on-green); }
+.dos .dl-check svg { width: 14px; height: 14px; }
+.dos .dl-kept { border-color: var(--muted); }
+.dos .dl-own-ico { width: 22px; height: 22px; }
+.dos .dl-own .t-open { margin-top: auto; font-size: .84375rem; font-weight: 600; }
+.dos .lib-empty { display: grid; gap: 4px; color: var(--muted); font-size: .9375rem; line-height: 1.45; }
+.dos .lib-empty strong { color: var(--ink); }
+@container dlib (max-width: 18.5rem) { .dos .dl-grid > li { grid-column: 1 / -1; } }
+@container dlib (min-width: 38rem) {
+  .dos .dl-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dos .dl-grid > .dl-span:has(.dl-lead) { grid-column: span 2; grid-row: span 2; }
+}
 
-/* ---------- 8. PUT IT INTO PRACTICE: the steps as an ink checklist, rules of thumb on a taped card,
-   the worked example as a field note, the common mistakes in red ink ---------- */
-.dos .d-steps .hh { margin-bottom: 1rem; }
-.dos .d-steps .prose { margin-bottom: .8rem; }
-.dos .d-check { display: grid; gap: 14px; margin-top: .4rem; }
-.dos .d-check li { display: grid; grid-template-columns: 26px auto 1fr; column-gap: 10px; align-items: start; font: var(--fs)/1.55 var(--serif); }
-.dos .d-box { width: 24px; height: 24px; margin-top: 2px; overflow: visible; color: var(--j-ink); }
-.dos .d-step-n { min-width: 1.1em; font: 400 1.3rem/1.2 var(--marker); color: var(--j-navy); }
-.dos .d-step-t { min-width: 0; }
-.dos .d-rules { margin-top: 2.6rem; }
-.dos .d-rules .card-k { margin-bottom: 4px; }
-.dos .d-rules p:not(.card-k), .dos .d-rules li { font: 400 1.16rem/1.42 var(--hand); }
-.dos .d-rules p + p { margin-top: .5rem; }
-.dos .d-items { display: grid; gap: 8px; margin-top: 6px; padding-left: 1.1em; list-style: disc; }
-.dos .d-items li::marker { color: currentColor; }
-.dos .d-note .note-t p + p, .dos .d-note .note-t p + ul, .dos .d-note .note-t ul + p { margin-top: .5rem; }
-.dos .d-note.d-example { max-width: 34rem; }
-.dos .d-note.d-mistakes { margin-left: 0; max-width: 34rem; }
-
-/* ---------- 9. SOURCES: evidence clippings with torn bottoms ---------- */
-.dos .evidence { display: grid; gap: 1.6rem; margin-top: 1.4rem; }
-.dos .ev { position: relative; display: grid; grid-template-columns: 36px 1fr; column-gap: 12px; padding: 18px 16px 24px 12px; background: var(--slip); scroll-margin: 90px; transform: rotate(-.5deg);
-  filter: drop-shadow(0 1px 1px rgba(60, 40, 15, .2)) drop-shadow(0 5px 6px rgba(60, 40, 15, .12));
-  clip-path: polygon(0 0, 100% 0, 100% 94%, 96% 97%, 91% 94.5%, 85% 98.5%, 78% 95%, 71% 99%, 64% 95.5%, 57% 98.6%, 50% 94.8%, 43% 98.4%, 36% 95%, 29% 99%, 22% 95.4%, 15% 98.6%, 8% 95%, 3% 98%, 0 95.5%); }
-.dos .ev:nth-child(even) { transform: rotate(.45deg); }
-.dos .ev .tape { top: -8px; width: 64px; margin-left: -32px; }
-.dos .ev:focus { outline: 3px solid var(--j-teal); }
-.dos .ev-n { position: relative; display: grid; place-items: center; width: 32px; height: 32px; font: 400 1.1rem/1 var(--caps); grid-row: span 3; }
-.dos .ev-n svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; color: var(--j-ink2); }
-.dos .ev-t { font: 600 .98rem/1.42 var(--serif); }
-.dos .ev-t .pub { display: block; font: 400 .82rem/1.4 var(--typed); letter-spacing: .04em; text-transform: uppercase; margin-top: 2px; }
-.dos .ev blockquote { margin-top: 8px; font: .96rem/1.6 var(--typed); }
-.dos .ev-u { display: inline-flex; align-items: center; gap: 4px; justify-self: start; min-height: 36px; margin-top: 2px; font: .82rem/1.3 var(--typed); color: var(--j-teal); text-underline-offset: 3px; }
-.dos .ev-u svg, .dos .dom svg { width: 12px; height: 12px; }
-
-/* ---------- 10. THE COVER: a closed cloth field book with a strap and ribbon ---------- */
-.dos .cover-stage { display: grid; justify-items: center; align-content: center; gap: 20px; min-height: calc(100dvh - 52px); padding: 26px 16px 40px; }
-.dos .jcover { position: relative; display: block; cursor: pointer; width: min(100%, 420px); aspect-ratio: 5 / 7; border-radius: 6px 14px 14px 6px; color: var(--foil); text-decoration: none;
-  background: linear-gradient(var(--shade), var(--shade)), var(--pores) 0 0 / 200px, repeating-linear-gradient(0deg, rgba(255, 255, 255, .03) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0, 0, 0, .07) 0 1px, transparent 1px 3px),
-    radial-gradient(120% 80% at 62% 92%, color-mix(in srgb, var(--cloth) 75%, #fff), var(--cloth) 55%, color-mix(in srgb, var(--cloth) 50%, #000) 115%);
-  box-shadow: inset 14px 0 12px -8px rgba(0, 0, 0, .5), inset 0 0 0 1px rgba(0, 0, 0, .4), inset 0 0 40px rgba(0, 0, 0, .35), 6px 0 0 -2px var(--paper), 9px 1px 0 -3px var(--paper-2), 0 30px 50px -20px rgba(20, 10, 0, .7); }
-@media (max-height: 820px) { @container view (min-width: 960px) { .dos .jcover { width: min(100%, 380px); } } }
-.dos .jcover::before { content: ""; position: absolute; inset: 14px 14px 14px 28px; border: 1.5px dashed var(--stitch); border-radius: 4px 9px 9px 4px; }
-.dos .deboss { position: absolute; inset: 30px 30px 30px 46px; border: 2px solid rgba(0, 0, 0, .35); border-radius: 3px; box-shadow: 1px 1px 0 rgba(255, 225, 180, .12); }
-.dos .jc-top { position: absolute; left: 46px; right: 30px; top: 10.5%; text-align: center; font: 400 1rem/1.2 var(--title); letter-spacing: .3em; text-shadow: 0 -1px 0 rgba(0, 0, 0, .55); }
-.dos .jc-top small { display: block; margin-top: 6px; font: .76rem/1.2 var(--typed); letter-spacing: .3em; }
-.dos .jc-label { position: absolute; left: calc(46px + 3%); right: calc(7% + 30px); top: 24%; padding: 18px 18px 16px; background: var(--card); color: var(--j-ink); transform: rotate(-1.4deg); box-shadow: 0 2px 3px rgba(0, 0, 0, .4), 0 12px 20px -10px rgba(0, 0, 0, .6); }
-.dos .jc-label .pclip { position: absolute; top: -20px; right: 18%; width: 15px; height: 40px; color: var(--steel); filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, .3)); }
-.dos .jc-label:has(.pclip) .tape { display: none; }
-.dos .jc-no { display: block; font: .76rem/1.3 var(--typed); letter-spacing: .12em; text-transform: uppercase; color: var(--j-ink2); }
-.dos .jc-title { position: relative; margin-top: 6px; padding-bottom: 10px; font: 400 1.55rem/1.12 var(--title); text-wrap: balance; }
-.dos .jc-title::after { content: ""; position: absolute; left: 0; bottom: 0; width: 80%; height: 7px; background: currentColor; opacity: .7; -webkit-mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; mask: var(--rule-svg) 0 0 / 100% 100% no-repeat; }
-.dos .jc-rows { display: grid; gap: 2px; margin-top: 12px; }
-.dos .jc-rows div { display: flex; gap: 8px; font: .9rem/1.55 var(--typed); }
-.dos .jc-rows dt { flex: none; width: 5em; font: 400 1rem/1.45 var(--caps); color: var(--j-ink2); }
-.dos .jc-label > .stamp { position: absolute; right: 14px; bottom: 12px; font-size: .95rem; padding: 4px 10px 3px; }
-.dos .jc-label:has(> .stamp) { padding-bottom: 50px; }
-.dos .jc-prog { display: grid; gap: 6px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--rule-blue); font: .86rem/1.4 var(--typed); color: var(--j-navy); }
-.dos .jc-prog .sq i { border-color: var(--j-navy); }
-.dos .jc-prog .sq i.on { background: var(--j-navy); }
-.dos .strap { position: absolute; top: -2px; bottom: -2px; right: 7%; width: 12px; background: linear-gradient(90deg, rgba(0, 0, 0, .55), #2a2420 30%, #3a332d 60%, rgba(0, 0, 0, .55)); box-shadow: 0 0 6px rgba(0, 0, 0, .5); }
-.dos .jc-ribbon { position: absolute; bottom: -34px; left: 34%; width: 16px; height: 46px; background: var(--j-navy); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); }
-.dos .jc-ribbon.done { background: #2F6E44; }
-.dos .cover-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
-.dos .d-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 10px 22px; border-radius: 14px; background: var(--foil); color: #2B1B0E; font: 700 1rem/1.2 var(--sans); text-decoration: none; }
-.dos .d-btn.d-ghost { background: transparent; color: var(--foil); border: 1.5px solid color-mix(in srgb, var(--foil) 60%, transparent); }
-@container view (min-width: 640px) { .dos .d-btn.d-ghost { color: var(--desk-ink); border-color: color-mix(in srgb, var(--desk-ink) 50%, transparent); } }
-
-/* ---------- 11. CONTENTS: title page and contents ---------- */
-.dos .d-tp-title { position: relative; margin-top: 8px; padding-bottom: 14px; font: 400 2.1rem/1.1 var(--title); text-wrap: balance; }
-@container book (min-width: 55rem) { .dos .d-tp-title { font-size: 2.5rem; } }
-.dos .hook-q { margin-top: 8px; font: 400 1.32rem/1.45 var(--hand); }
-.dos .breath .prose { margin-top: 8px; }
-.dos .d-front { position: relative; margin: 18px auto 20px; width: min(100%, 360px); padding: 8px 8px 6px; background: var(--card); transform: rotate(-.8deg); box-shadow: 0 1px 1px rgba(60, 40, 15, .18), 0 10px 18px -10px rgba(60, 40, 15, .45); }
-.dos .d-front[hidden] { display: none; }
-.dos .d-front img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
-.dos .d-front figcaption { margin-top: 5px; font: .76rem/1.3 var(--typed); color: var(--j-ink2); text-align: center; }
-.dos .facts { position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; padding: 16px; background: var(--card); transform: rotate(.5deg); box-shadow: 0 1px 1px rgba(60, 40, 15, .18), 0 10px 18px -10px rgba(60, 40, 15, .45); }
-.dos .facts > div { padding: 6px 0; border-bottom: 1px solid var(--rule-blue); }
-.dos .facts dt { font: 400 1rem/1.3 var(--caps); color: var(--j-ink2); }
-.dos .facts dd { font: 1rem/1.35 var(--typed); }
-.dos .toc { display: grid; margin-top: 1rem; }
-.dos .toc li + li { border-top: 1px dotted color-mix(in srgb, var(--j-ink) 32%, transparent); }
-.dos .toc a, .dos .toc li > div { display: grid; grid-template-columns: 3rem 1fr; column-gap: 10px; padding: 14px 4px 14px 0; color: inherit; text-decoration: none; border-radius: 6px; }
-.dos .toc a:hover { background: color-mix(in srgb, var(--j-ink) 5%, transparent); }
-.dos .toc .n { padding-top: 2px; font: 400 1.4rem/1 var(--title); text-align: center; }
-.dos .toc .t { display: block; font: 400 1.2rem/1.2 var(--title); color: var(--j-navy); }
-.dos .toc a .t { text-decoration: underline 1px color-mix(in srgb, var(--j-navy) 40%, transparent); text-underline-offset: 4px; }
-.dos .toc .l { display: block; margin-top: 4px; font: .95rem/1.5 var(--serif); color: var(--j-ink2); }
-.dos .toc .m { display: block; margin-top: 4px; font: .76rem/1.3 var(--typed); letter-spacing: .06em; text-transform: uppercase; color: var(--j-ink2); }
-.dos .toc .unwritten .t, .dos .toc .unwritten .n { color: var(--j-ink2); }
-.dos .toc-back { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 1.2rem; }
-.dos .toc-back a { display: inline-flex; align-items: center; min-height: 44px; font: 400 1.2rem/1.1 var(--title); color: var(--j-navy); text-underline-offset: 4px; }
-
-/* ---------- 12. BACK MATTER: glossary and bibliography ---------- */
-.dos .gloss { display: grid; margin-top: 1rem; }
-.dos .gloss > div { padding: 14px 0; }
-.dos .gloss > div + div { border-top: 1px dotted color-mix(in srgb, var(--j-ink) 32%, transparent); }
-.dos .gloss dt { font: 400 1.35rem/1.2 var(--title); }
-.dos .gloss dt mark.term { font-weight: 400; }
-.dos .gd { margin-top: 6px; font: 1rem/1.65 var(--serif); }
-.dos .gc { margin-top: 6px; font: .8rem/1.5 var(--typed); color: var(--j-ink2); }
-.dos .gc a { color: var(--j-navy); text-underline-offset: 3px; }
-.dos .biblio { display: grid; margin-top: 1rem; }
-.dos .biblio > li { padding: 12px 0 10px; }
-.dos .biblio > li + li { border-top: 1px dotted color-mix(in srgb, var(--j-ink) 30%, transparent); }
-.dos .bw { font: .98rem/1.5 var(--serif); }
-.dos .bw .pub { font-variant: small-caps; letter-spacing: .04em; font-weight: 600; }
-.dos .bw cite { font-style: italic; }
-.dos .dom { display: inline-flex; align-items: center; gap: 3px; font: .82rem/1.3 var(--typed); color: var(--j-teal); text-underline-offset: 3px; }
-.dos .bc { margin-top: 2px; font: .8rem/1.6 var(--typed); color: var(--j-ink2); }
-.dos .bc a { color: var(--j-navy); display: inline-block; min-width: 24px; text-align: center; }
-.dos .bq summary { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; cursor: pointer; list-style: none; font: 400 1rem/1.2 var(--caps); color: var(--j-navy); }
-.dos .bq blockquote { margin: 4px 0 8px 22px; font: .94rem/1.6 var(--typed); }
-
-/* ---------- 13. app chrome: the topic page's option, the delete sheet's choice, the Library ---------- */
+/* ---------- 12. app chrome: the topic page's option, the delete sheet's choice ---------- */
 .tp-dos { display: grid; gap: 10px; }
 .tp-dos .set-switch { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
 .tp-dos-open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; }
@@ -502,17 +375,8 @@
 .dos-keep-opt[aria-checked="true"]::before { border: 6px solid var(--heading); }
 .dos-keep-opt b { font-weight: 700; color: var(--ink); }
 .dos-keep-opt span { font-size: .875rem; color: var(--muted); }
-/* The Library uses the wide screens' width on a laptop, so its two shelves can stand side by side. */
-:root[data-layout="laptop"] .view[data-screen="book"]:has(> .lib-page) { max-width: var(--wide); }
-.lib-page .page-head { margin-bottom: 4px; }
-.dos .lib-dossiers + .lib-sec { margin-top: 44px; }
-.dos .lib-sec:first-child { margin-top: 20px; }
-.dos .plate-gone { padding: 18px 16px; border: 1.5px dashed color-mix(in srgb, var(--j-ink) 34%, transparent); border-radius: 6px; font: 1.1rem/1.45 var(--hand); color: var(--j-ink2); }
-.dos .d-loaderr { padding: 24px 16px; max-width: 40rem; margin: 0 auto; }
-.lib-empty { margin-top: 14px; max-width: 40rem; padding: 16px 18px; border: 1px dashed var(--line-strong); border-radius: 18px; color: var(--muted); }
-.lib-empty strong { display: block; color: var(--ink); }
 
-/* ---------- 14. motion: a quiet settle on arrival, nothing under reduced motion ---------- */
-.dos .enter { animation: settle .32s cubic-bezier(.2, .7, .3, 1) both; }
-@keyframes settle { from { opacity: 0; transform: translateY(8px); } }
+/* ---------- 13. motion: a quiet settle on arrival, nothing under reduced motion ---------- */
+.dos .enter { animation: dos-settle .28s cubic-bezier(.2, .7, .3, 1) backwards; }
+@keyframes dos-settle { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .dos *, .dos *::before, .dos *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

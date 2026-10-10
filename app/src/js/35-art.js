@@ -1,6 +1,6 @@
 // Course pictures: a cover picture for each course, drawn by an image model (Z-Image Turbo)
 // through Dan's Hugging Face connector, and shown wherever the course's cover is (V.cover: Learn,
-// the topic page, the Map, the Book) and as the frontispiece of its dossier. Decoration only: it
+// the topic page, the Map, the Book) and as a tile on its dossier's At a glance page. Decoration only: it
 // teaches nothing, so it is said to be drawn by an image model, and nothing waits for it.
 //
 //   U.art.SERVER, U.art.TOOL      the connector ('Claude MCP', as named in claude.ai) and its tool
@@ -126,8 +126,8 @@
       if (lastTopics) want(lastTopics);
     }, function (e) { console.warn('art: watch', e && (e.code || e.message)); });
   }
-  // Read as soon as the app is up (when pictures may show), so covers and the dossier's plate
-  // have them before they are drawn and nothing jumps in later.
+  // Read as soon as the app is up (when pictures may show), so covers and the dossier's picture
+  // tile have them before they are drawn and nothing jumps in later.
   U.on('booted', function () { if (shown()) start(); });
   // Saved work answered late (10-runtime.js 'rt-late'): read the real collection.
   U.on('rt-late', function () { if (stop) { try { stop(); } catch (e) { /* gone */ } stop = null; loaded = false; start(); } });

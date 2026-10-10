@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Browser tests for course pictures (35-art.js): drawn through the Hugging Face connector
 // ('Claude MCP', Z-Image Turbo) for every planned course, one at a time, and shown on the covers
-// (Learn, the topic page), in Settings and as the dossier's frontispiece. Asked once on Learn;
+// (Learn, the topic page), in Settings and as a tile on the dossier's At a glance page. Asked once on Learn;
 // off means hidden and never drawn; a refused connector stops the queue; a failure is said only
 // where Dan asked; deleting a course takes its picture unless its dossier is kept.
 // The full build, with the stub runtime. Screenshots land in tests/out/art/.
@@ -272,7 +272,7 @@ await test('off: pictures hidden and never drawn; Settings turns them on and off
   eq(await app.page.locator('.set-art-status').innerText(), '', 'no status while off');
 });
 
-await test('deleting a course takes its picture, unless its kept dossier still shows it on its title page', async () => {
+await test('deleting a course takes its picture, unless its kept dossier still shows it at a glance', async () => {
   const fx = (n) => readJson('tests/fixtures/lesson-ui-' + n + '.json');
   const L = (iid, f) => { const d = JSON.parse(JSON.stringify(fx(f))); d.lesson.iid = iid; return d; };
   const at = (h) => `2026-10-0${h[0]}T${h.slice(1)}:00:00.000Z`;
@@ -284,7 +284,7 @@ await test('deleting a course takes its picture, unless its kept dossier still s
     'art/pendulums': artDoc('pendulums'),
   }, Object.fromEntries(TIDS.map((t) => ['art/' + t, artDoc(t)])), extra || {}) });
   const con = connector();
-  // Kept: the dossier opens on its title page with the picture taped in.
+  // Kept: the dossier's At a glance page shows the picture, a tile after the title.
   const app = await open({ hash: '#/t/pendulums', db: course(), tools: con.tools });
   await app.page.locator('.tp-delete').click();
   await app.page.waitForSelector('.dos-keep');
@@ -296,8 +296,9 @@ await test('deleting a course takes its picture, unless its kept dossier still s
   await app.page.waitForSelector('.d-front:not([hidden]) img', { timeout: 15000 });
   assert(/^data:image\//.test(await app.page.getAttribute('.d-front img', 'src')), 'the frontispiece');
   assert(/drawn for this course by an image model/.test(await app.page.locator('.d-front figcaption').innerText()), 'said to be drawn by an image model');
+  eq(await app.page.evaluate(() => { const f = document.querySelector('.d-front'); return f.previousElementSibling && f.previousElementSibling.classList.contains('g-title'); }), true, 'the tile after the title');
   await shot(app, 'dossier-title-390');
-  // Opened straight from a link: the plate appears when the picture arrives.
+  // Opened straight from a link: the tile appears when the picture arrives.
   const c = await open({ hash: '#/book/pendulums/contents', db: course(), tools: con.tools });
   await c.page.waitForSelector('.d-front:not([hidden]) img', { timeout: 15000 });
   // Not kept: the picture goes too.

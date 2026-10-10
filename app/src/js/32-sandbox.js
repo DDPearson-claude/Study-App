@@ -253,8 +253,9 @@ U.sandbox = (function () {
   var SILENT = 'The interactive stopped answering, so it was closed.';
   function mount(container, o) {
     o = o || {};
-    // o.theme: a function giving the K_THEME to use instead of the app's (the dossier's paper
-    // plates); it is asked again whenever the app's theme or text size changes.
+    // o.theme: a function giving the K_THEME to use instead of the app's (a host with a palette
+    // of its own; the dossier's plates now take the app's); asked again whenever the app's theme or
+    // text size changes.
     var themeOf = typeof o.theme === 'function' ? o.theme : theme;
     var minHeight = Math.max(120, o.minHeight || 320);
     var wrap = U.h('div', { class: 'kit-frame', dataset: { state: 'loading' } });
