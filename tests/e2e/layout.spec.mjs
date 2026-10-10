@@ -85,12 +85,13 @@ async function go(app, hash, ready) {
 }
 
 // ---------- Auto ----------
-await test('auto: a phone gets the phone layout, tabs docked at the bottom, nothing sideways', async () => {
+await test('auto: a phone gets the phone layout, tabs floating at the bottom, nothing sideways', async () => {
   const app = await open(390, 844);
   eq((await layoutOf(app)).layout, 'phone', 'layout');
   await app.page.locator('.tcard').first().waitFor();
   const tabs = await rect(app, '#tabs');
-  assert(Math.abs(tabs.bottom - 844) < 2 && tabs.width >= 389, 'tab bar spans the bottom edge: ' + JSON.stringify(tabs));
+  // D4: the tabs float in an outlined bar, 12 px in from each side and 10 px above the bottom edge.
+  assert(Math.abs(tabs.left - 12) < 2 && Math.abs(390 - tabs.right - 12) < 2 && Math.abs(844 - tabs.bottom - 10) < 2, 'tab bar floats along the bottom edge: ' + JSON.stringify(tabs));
   eq(await cols(app, '.tgrid'), 1, 'topic cards in one column');
   await noSideways(app, 'Learn');
   await shot(app, 'phone-learn');
@@ -197,7 +198,7 @@ await test('pinned phone on a laptop: a centred phone column with its own tab ba
   await app.page.locator('.tcard').first().waitFor();
   const frame = await rect(app, '.app'), tabs = await rect(app, '#tabs');
   assert(frame.width <= 432 && Math.abs((frame.left + frame.right) / 2 - 683) < 2, 'centred phone column ' + JSON.stringify(frame));
-  assert(Math.abs(tabs.left - frame.left) < 2 && Math.abs(tabs.right - frame.right) < 2 && Math.abs(tabs.bottom - 768) < 2, 'tab bar docked inside the column ' + JSON.stringify(tabs));
+  assert(Math.abs(tabs.left - frame.left - 12) < 2 && Math.abs(frame.right - tabs.right - 12) < 2 && Math.abs(768 - tabs.bottom - 10) < 2, 'tab bar floats inside the column ' + JSON.stringify(tabs));
   eq(await cols(app, '.tgrid'), 1, 'the column gets the phone shapes: one column of topics');
   await noSideways(app, 'framed Learn');
   await shot(app, 'framed-learn');

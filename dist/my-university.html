@@ -2607,6 +2607,9 @@ h1 { font-weight: 700; }
 .rv-where { font: 500 .8125rem/1.4 var(--mono); color: var(--muted); letter-spacing: 0; }
 .rv-count { font-family: var(--cond); }
 .rv-close { border-radius: 12px; }
+/* A review's reply row: one line of chips, "Reply…" opening Ask Claude. */
+.note-reply.is-compact { padding-top: 8px; }
+.note-chip-reply svg { width: 16px; height: 16px; margin-right: 4px; vertical-align: -3px; }
 
 </style>
 <div class="app" id="app">
@@ -2632,7 +2635,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-10-46c8e70";
+U.BUILD = "2026-10-10-a20ec92";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -9796,10 +9799,11 @@ U.interactive = (function () {
 
   // Reply to Claude under a feedback panel: chips and a box that open Ask Claude with the question
   // asked (opts.ask, given by the lesson and the review: they know the topic and idea). None
-  // without it.
+  // without it. In a review it is one compact row (its panel must fit beside the card on a laptop);
+  // its "Reply…" asks nothing (text null) and opens the sheet to type in.
   function askRow(c, chips, about) {
     if (!U.notes || typeof c.opts.ask !== 'function') return null;
-    return U.notes.reply({ chips: chips, onAsk: function (text, chip) { c.opts.ask(text, { chip: chip, about: about }); } });
+    return U.notes.reply({ chips: chips, compact: c.mode === 'review', onAsk: function (text, chip) { c.opts.ask(text, { chip: chip, about: about }); } });
   }
 
   // Put a panel in the foot, slide it up and bring it into view.
@@ -12579,10 +12583,12 @@ U.interactive = (function () {
 //
 //   U.notes.avatar(who)                      who: 'claude' | 'app'   -> span.note-av (decorative)
 //   U.notes.byline(who, context?)            -> div.note-by: avatar, "Claude" (or "My University"), context
-//   U.notes.reply({chips, placeholder, label, onAsk(text, chip)}) -> div.note-reply
+//   U.notes.reply({chips, placeholder, label, compact, onAsk(text, chip)}) -> div.note-reply
 //        chips Dan can tap (sent as they are) and a "Reply to Claude…" box; onAsk opens the Ask
 //        Claude sheet with that question asked (U.tutor.open(context, {ask, chip})). Typed
 //        replies are his own questions (saved like any he types there); chips are not.
+//        compact (a review, where the panel must stay short): one row, the chips and a "Reply…"
+//        chip in place of the box, which calls onAsk(null) (the sheet opens to type in).
 //   U.notes.card({who, context, title?, text?, body?, actions?, cls?}) -> article.note
 //        text: Claude-written words, drawn with U.rich (never as HTML); body: app-built nodes.
 //        actions: [{label, href} | {label, onClick}]
@@ -12623,6 +12629,11 @@ U.interactive = (function () {
       onAsk(text, false);
     } } }, h('label', { class: 'visually-hidden', for: id }, o.label || 'Reply to Claude'), input, send);
     var chips = (o.chips || []).filter(Boolean);
+    if (o.compact) {
+      return h('div', { class: 'note-reply is-compact' }, h('div', { class: 'note-chips', role: 'group', 'aria-label': 'Ask Claude' },
+        chips.map(function (c) { return h('button', { class: 'chip note-chip', type: 'button', on: { click: function () { onAsk(c, true); } } }, c); }),
+        h('button', { class: 'chip note-chip note-chip-reply', type: 'button', on: { click: function () { onAsk(null, false); } } }, U.icon('chat'), 'Reply…')));
+    }
     return h('div', { class: 'note-reply' },
       chips.length ? h('div', { class: 'note-chips', role: 'group', 'aria-label': 'Ask Claude' }, chips.map(function (c) {
         return h('button', { class: 'chip note-chip', type: 'button', on: { click: function () { onAsk(c, true); } } }, c);
@@ -13456,7 +13467,7 @@ U.interactive = (function () {
       function askAbout(card, text, o) {
         if (!U.tutor || typeof U.tutor.open !== 'function') { U.toast('Ask Claude is not available in this view.'); return; }
         o = o || {};
-        U.tutor.open({ tid: card.tid, iid: card.iid, topic: S.topics[card.tid] || null, stage: 'review', about: o.about || null }, { ask: text, chip: !!o.chip });
+        U.tutor.open({ tid: card.tid, iid: card.iid, topic: S.topics[card.tid] || null, stage: 'review', about: o.about || null }, text ? { ask: text, chip: !!o.chip } : null);
       }
       function answered(card, r) {
         S.ms += r.ms || 0;

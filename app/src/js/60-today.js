@@ -794,7 +794,7 @@
       function askAbout(card, text, o) {
         if (!U.tutor || typeof U.tutor.open !== 'function') { U.toast('Ask Claude is not available in this view.'); return; }
         o = o || {};
-        U.tutor.open({ tid: card.tid, iid: card.iid, topic: S.topics[card.tid] || null, stage: 'review', about: o.about || null }, { ask: text, chip: !!o.chip });
+        U.tutor.open({ tid: card.tid, iid: card.iid, topic: S.topics[card.tid] || null, stage: 'review', about: o.about || null }, text ? { ask: text, chip: !!o.chip } : null);
       }
       function answered(card, r) {
         S.ms += r.ms || 0;
