@@ -63,6 +63,13 @@ with him before planning. It is cheap; building the wrong course is not.
      Fractions has no dividing).
    - **Starting point.** What Dan already knows, from his trade and earlier courses, so nothing is
      taught twice; examples from the job where they fit naturally, never forced.
+   - **His aim.** Dan is preparing to go back to college for marine engineering (an HNC/HND route:
+     engineering maths, applied mechanics, applied heat, electro-technology). Within each course,
+     weight the skills that course will need (rearranging formulas, powers of ten, graphs) and draw
+     examples from engines, ships and electrics where they fit.
+
+Course order (Dan, 10 Oct): follow the shelf's order, folder by folder, because it builds the maths
+step by step (algebra before calculus). After Fractions comes Negative numbers.
    - **The mistakes to catch.** The common misconceptions for each skill, each one caught by at
      least one DO screen with its own hint.
    - **Where it is used.** One real use per skill, which the examples draw on.
