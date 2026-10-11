@@ -164,6 +164,14 @@ function handlers(extra = {}) {
 // =========================================================================================
 // Validators
 // =========================================================================================
+test('a plan keeps the page\'s 5-8 ideas; a ready-made course may have more (maxIdeas)', () => {
+  const U = loadPure();
+  const ideas = PLAN_JET.ideas.concat(Array.from({ length: 9 - PLAN_JET.ideas.length }, (_, k) => ({ ...PLAN_JET.ideas[0], id: 'i' + (PLAN_JET.ideas.length + k + 1), title: 'Extra idea ' + k })));
+  const nine = { ...PLAN_JET, ideas };
+  assert.ok(plain(U.validate.plan(nine)).some((p) => /ideas has 9 entries; give 5-8/.test(p)));
+  assert.ok(!plain(U.validate.plan(nine, { maxIdeas: 12 })).some((p) => /ideas has/.test(p)));
+});
+
 test('validators accept every fixture', () => {
   const U = loadPure();
   assert.deepEqual(plain(U.validate.plan(PLAN_JET)), []);

@@ -1064,8 +1064,10 @@
   }
   function sentences(t) { return plain(t).split(/[.!?]+(?:\s|$)/).filter(function (x) { return x.trim().length > 2; }).length; }
 
-  function vPlan(o) {
-    var v = V();
+  // opts.maxIdeas: a ready-made course built from an approved brief may plan more ideas than the
+  // in-page planner's 8 (Negative numbers has 9); the page's own plans keep 5-8.
+  function vPlan(o, opts) {
+    var v = V(), most = opts && opts.maxIdeas > 8 ? opts.maxIdeas : 8;
     if (!isObj(o)) return ['The reply must be one JSON object with title, hook, oneBreath, ideas and calibration.'];
     v.str(o.title, 'title', 90);
     if (v.str(o.hook, 'hook', 320)) {
@@ -1076,7 +1078,7 @@
     var ids = [];
     if (!Array.isArray(o.ideas)) v.add('ideas must be a list of 5-8 ideas.');
     else {
-      if (o.ideas.length < 5 || o.ideas.length > 8) v.add('ideas has ' + o.ideas.length + ' entries; give 5-8.');
+      if (o.ideas.length < 5 || o.ideas.length > most) v.add('ideas has ' + o.ideas.length + ' entries; give 5-' + most + '.');
       o.ideas.forEach(function (i, k) {
         var p = 'ideas[' + k + ']';
         if (!isObj(i)) { v.add(p + ' must be an object.'); return; }
