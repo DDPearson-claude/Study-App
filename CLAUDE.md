@@ -40,7 +40,7 @@ high with ultracode off; a course build runs as a workflow when he asks for one.
 |---|---|---|
 | Research | Sonnet | high (the quote checker verifies every quote word for word) |
 | Course brief and plan | Opus | high |
-| Build | Opus | xhigh for a course's first lesson, high for the rest |
+| Build | Opus | xhigh (Dan, 11 Oct) |
 | Fact-check | Opus | high |
 | Review (teaching and motion in one) | Opus | xhigh |
 | Fix | Opus | high |
