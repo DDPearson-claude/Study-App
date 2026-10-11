@@ -28,8 +28,8 @@ that faces a way). You try them on your phone before the rest is built.
    route either way.
 4. Which calculator does your college require? Lesson 9 shows the Casio fx-991EX unless you say
    otherwise.
-5. The lean build (about 2.5M tokens for this course) or the full process (a guess of 3.6M to
-   4.5M)? See "Size and cost".
+5. The lean build (about 2.5M tokens for this course) or the full process (about 15M, measured
+   on Fractions lessons 4 to 8)? See "Size and cost".
 
 ## 1. The overall topic
 Numbers below zero, and how to calculate with them: the readings, changes and answers that go
@@ -341,9 +341,11 @@ of the research holds for an adult is my judgement, not a finding.
   - **Lean,** your standard since Fractions: one writer who drafts, critiques and rewrites, one
     fresh fact-checker, one builder. Fractions' eight lessons took about 2.2M tokens, about 275k a
     lesson (docs/NEXT.md). Here that's about 2.5M.
-  - **Full:** lean plus a teaching review, a motion review and an independent confirm. My guess
-    is 400k to 500k a lesson, not measured, so about 3.6M to 4.5M. The motion review and the
-    confirm aren't in the RUNBOOK yet.
+  - **Full:** lean plus a teaching review, a motion review, fixes and an independent confirm.
+    Measured on Fractions lessons 4 to 8 (built on the night of 10 Oct): about 8.3M tokens for the
+    five, about 1.65M a lesson, so about 15M here. It is what caught the errors: every lesson had
+    corrections from its fact-check, and the reviewers found 5 to 14 things to fix per lesson.
+    The motion review and the confirm aren't in the RUNBOOK yet.
 
   Either way, I'll measure the pilot's tokens and re-estimate before the overnight build.
 - **Pilot first.** Lesson 1, Below zero, is built and put live for you to try on your phone. With

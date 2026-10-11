@@ -158,31 +158,32 @@ While one course builds, I can write the next one's brief, so there's one waitin
 morning.
 
 ## Cost and time, honestly
-Two figures a lesson:
-- **Lean,** your standard since Fractions: Fractions' eight lessons took about 2.2M tokens
+Two figures a lesson, both measured on Fractions:
+- **Lean,** your standard before tonight: Fractions' first eight lessons took about 2.2M tokens
   [17], so about 275k a lesson.
-- **Full:** my guess is 400k to 500k a lesson. It isn't measured.
+- **Full:** lean plus a teaching review, a motion review, fixes and an independent confirm. Lessons
+  4 to 8 (the night of 10 Oct) took about 8.3M tokens for the five, about 1.65M a lesson. It is
+  what caught the errors: every lesson had corrections from its fact-check, and the reviewers
+  found 5 to 14 things to fix per lesson.
 
-| Course | Lessons | Lean | Full (guess) |
+| Course | Lessons | Lean | Full |
 |---|---|---|---|
-| Percentages | 8 | 2.2M | 3.2M to 4.0M |
-| Proportional reasoning | 8 | 2.2M | 3.2M to 4.0M |
-| Solving equations | 9 | 2.5M | 3.6M to 4.5M |
-| The coordinate plane | 8 | 2.2M | 3.2M to 4.0M |
-| Geometry fundamentals | 10 | 2.75M | 4.0M to 5.0M |
-| Research and briefs | | 2.0M to 2.5M | 2.0M to 2.5M |
-| **The five together** | **43** | **about 14M** | **19.2M to 24.0M** |
+| Percentages | 8 | 2.2M | 13M |
+| Proportional reasoning | 8 | 2.2M | 13M |
+| Solving equations | 9 | 2.5M | 15M |
+| The coordinate plane | 8 | 2.2M | 13M |
+| Geometry fundamentals | 10 | 2.75M | 16.5M |
+| Research and briefs | | about 1.5M a course | about 1.5M a course |
+| **The five together** | **43** | **about 19M** | **about 78M** |
 
-Research and a brief aren't measured yet. My guess is 0.4M to 0.5M a course, which is the row
-above.
+Research and briefs: tonight's run for the Negative numbers brief and this roadmap took about
+1.5M tokens. Negative numbers adds 9 lessons: about 2.5M lean, or about 15M full. Powers of ten
+and units, if you want it, adds about 4 lessons: about 1.1M lean, or about 6.6M full, plus its
+research and brief.
 
-Negative numbers adds 9 lessons: about 2.5M lean, or 3.6M to 4.5M full. Its research and brief
-are done, but weren't measured. Powers of ten and units, if you want it, adds about 4 lessons:
-about 1.1M lean, or 1.6M to 2.0M full, plus its research and brief.
-
-The Fractions brief first guessed 150k to 200k a lesson, for one builder [18]. The lean
-build came out nearer 275k. I'll measure each pilot's tokens and re-estimate before its overnight
-build.
+A middle way is possible and not yet measured: lean plus the fresh fact-check and one combined
+review, keeping the full process for pilots. I'll measure each pilot and re-estimate before its
+overnight build.
 
 **Time is a guess until I've timed Negative numbers.** If you review each step the next morning,
 one course goes roughly like this:
