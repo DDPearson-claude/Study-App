@@ -1,0 +1,222 @@
+<!-- kind: quantity -->
+<style>
+  .ct .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .ct .odd { fill: var(--k-accent2); }
+  .ct .even { fill: var(--k-fill1); }
+  .ct .hatchbg { fill: var(--k-sunk); }
+  .ct .hatch { fill: url(#ct-hatch); }
+  .ct .keyt { font: 13px var(--k-font); fill: var(--k-ink); }
+  .ct .len { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .ct .len.above { fill: var(--k-accent2); }
+  .ct .len .frac { font-size: 13px; }
+  .ct .len .slash { font-size: 14px; font-weight: 400; }
+  .ct .line { stroke: var(--k-ink); stroke-width: 1.5; }
+  .ct .tick { stroke: var(--k-muted); stroke-width: 1; }
+  .ct .tick.metre { stroke: var(--k-ink); stroke-width: 1.5; }
+  .ct .num { font: 14px var(--k-font); fill: var(--k-ink); }
+  .ct .end { fill: var(--k-accent2); }
+  .ct .sum { font: 17px var(--k-font); fill: var(--k-ink); }
+  .ct .sum .frac { font-size: 14px; }
+  .ct .sum .slash { font-size: 15px; }
+  .ct .sum .ans { font-weight: 800; font-size: 18px; fill: var(--k-accent2); }
+  .ct .grab { fill: transparent; cursor: ew-resize; }
+</style>
+
+<p class="lead">An example run: 6 m of cable, cut from its left end into equal tails, with a line beneath marking the metres and the quarters.</p>
+
+<svg class="ct" id="scene" viewBox="0 0 340 164" width="100%" role="img" aria-label="">
+  <defs>
+    <pattern id="ct-hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--k-accent2)" stroke-width="1.6"/>
+    </pattern>
+  </defs>
+  <g id="key">
+    <rect class="odd" x="20" y="4" width="12" height="12" rx="2"/>
+    <rect class="even" x="33" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="50" y="14">whole tails, shaded in turn</text>
+    <g id="keyleft">
+      <rect class="hatchbg" x="20" y="21" width="12" height="12" rx="2"/>
+      <rect class="hatch" x="20" y="21" width="12" height="12" rx="2"/>
+      <text class="keyt" x="37" y="31">part of a tail: the cable left over</text>
+    </g>
+  </g>
+  <text class="len above" id="lenAbove" x="20" y="46"></text>
+  <g id="bar"></g>
+  <g id="scale"></g>
+  <g id="sum"></g>
+  <rect class="grab" id="grab" x="20" y="42" width="300" height="50"/>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div id="plot"></div>
+<p class="caption">Count the run in quarters: 24 quarters ÷ the quarters in one tail is the tails that fit.</p>
+
+<script>
+  // The run: 6 m of cable. A quarter of a metre is one of 4 that make a metre, so the run holds 6 × 4 = 24 quarters.
+  const RUN = 6, PER_M = 4, QUARTERS = RUN * PER_M;
+  const SRC_HOWMANY = 'https://www.mathsisfun.com/fractions_division.html';   // [10]
+  const SRC_RECIP = 'https://www.khanacademy.org/math/get-ready-for-7th-grade/xa46d6dd638f86863:get-ready-for-negative-number-operations/xa46d6dd638f86863:dividing-fractions/v/meaning-of-the-reciprocal';   // [4]
+
+  // The rule: a tail of q quarters fits (metres × 4) ÷ q times, because each tail takes q of the quarters.
+  const fitsIn = (metres, q) => (metres * PER_M) / q;
+  const tailM = (q) => q / PER_M;                               // the tail's length in metres
+  const wholeOf = (q) => Math.floor(fitsIn(RUN, q) + 1e-9);     // whole tails that fit
+  const leftOf = (q) => RUN - wholeOf(q) * tailM(q);            // cable the whole tails do not use
+
+  // The tail's length as a fraction of a metre in its simplest name: 1/4, 1/2, 3/4, 1, 1 1/4, 1 1/2, 1 3/4, 2.
+  const PART = { 1: '1/4', 2: '1/2', 3: '3/4' };
+  const GLYPH = { 1: '¼', 2: '½', 3: '¾' };
+  const nameParts = (q) => ({ whole: Math.floor(q / PER_M), part: PART[q % PER_M] || '' });
+  // In running text (the slider, the sentence) the part is a single glyph, so 1¼ cannot read as 11/4.
+  const nameText = (q) => { const n = nameParts(q); return (n.whole ? String(n.whole) : '') + (GLYPH[q % PER_M] || ''); };
+  // On the drawing the part is set as a fraction, its top raised and its bottom lowered either side of the
+  // slash, after a gap from the whole, so 1 1/2 can never read as 11/2.
+  const nameSpans = (q, after) => {
+    const n = nameParts(q), out = [];
+    if (n.whole) out.push(K.svg('tspan', {}, String(n.whole)));
+    if (n.part) {
+      const [top, bottom] = n.part.split('/');
+      out.push(K.svg('tspan', { class: 'frac', dx: n.whole ? 5 : 0, dy: -5 }, top));
+      out.push(K.svg('tspan', { class: 'slash', dy: 5 }, '/'));
+      out.push(K.svg('tspan', { class: 'frac', dy: 3 }, bottom));
+    }
+    out.push(K.svg('tspan', { dx: 3, dy: n.part ? -3 : 0 }, after));
+    return out;
+  };
+  // A count written as the explanation writes it: whole when whole, otherwise to two decimals (4.8, 3.43).
+  const count = (v) => String(Math.round(v * 100) / 100);
+  const metres = count;
+
+  // The drawing: 0 at x = 20, 6 m at x = 320, so a metre is 50 units and a quarter 12.5.
+  const X0 = 20, X1 = 320, M = (X1 - X0) / RUN, Q = M / PER_M;
+  const xAt = (m) => X0 + m * M;
+  const BAR_Y = 50, BAR_H = 34, LINE_Y = 106, NUM_Y = 126, SUM_Y = 152;
+
+  K.control({ id: 'tailQuarters', label: 'Tail length (quarters of a metre)', min: 1, max: 8, step: 1, value: 8, snap: [3, 4],
+    fmt: (q) => q + (q === 1 ? ' quarter' : ' quarters') + ' = ' + nameText(q) + ' m', into: '#controls' });
+  K.stage('#scene', '#controls');
+  K.readout({ id: 'leftOver', label: 'Cable left over', unit: 'm', decimals: 2, into: '#outs' });
+
+  K.model((p) => ({ tailsFit: fitsIn(RUN, p.tailQuarters), leftOver: leftOf(p.tailQuarters) }));
+
+  // Drag along the bar to set where the first cut falls.
+  K.drag('#grab', { control: 'tailQuarters', toValue: (x) => K.clamp(Math.round((x - X0) / Q), 1, 8) });
+
+  // The line beneath, drawn once: a mark at every metre, a fainter one at each quarter.
+  const scale = document.getElementById('scale');
+  scale.appendChild(K.svg('line', { class: 'line', x1: X0, y1: LINE_Y, x2: X1, y2: LINE_Y }));
+  for (let k = 0; k <= QUARTERS; k++) {
+    const metre = k % PER_M === 0;
+    scale.appendChild(K.svg('line', { class: 'tick' + (metre ? ' metre' : ''), x1: xAt(k / PER_M), y1: LINE_Y, x2: xAt(k / PER_M), y2: LINE_Y + (metre ? 9 : 5) }));
+  }
+  for (let m = 0; m <= RUN; m++) scale.appendChild(K.svg('text', { class: 'num', x: xAt(m), y: NUM_Y, 'text-anchor': m === RUN ? 'end' : m === 0 ? 'start' : 'middle' }, m === RUN ? '6 m' : String(m)));
+
+  // The plot: one dot for every setting of the slider, the current one picked out, a level line at 6.
+  const DOTS = [];
+  for (let q = 1; q <= 8; q++) DOTS.push([q, fitsIn(RUN, q)]);
+  const plot = K.plot('#plot', {
+    x: { min: 0.5, max: 8.5, ticks: [1, 2, 3, 4, 5, 6, 7, 8], label: 'Tail length (quarters of a metre)' },
+    y: { min: 0, max: 25, ticks: [0, 6, 12, 18, 24], label: 'Tails that fit' },
+    height: 220,
+    label: 'Tails that fit against tail length: 24 at 1 quarter, falling steeply to 6 at 4 quarters, where the dot sits on the level line at 6, then flattening to 3 at 8 quarters',
+  });
+
+  const svg = document.getElementById('scene');
+  const g = (id) => { const e = document.getElementById(id); e.textContent = ''; return e; };
+
+  function draw(p, o) {
+    const q = p.tailQuarters, len = tailM(q), whole = wholeOf(q), w = len * M;
+
+    // The bar: whole tails from the left end, shaded in turn; the part of the next tail that fits, hatched.
+    const bar = g('bar');
+    for (let i = 0; i < whole; i++) bar.appendChild(K.svg('rect', { class: i % 2 ? 'even' : 'odd', x: xAt(i * len), y: BAR_Y, width: w, height: BAR_H }));
+    if (o.leftOver > 1e-9) {
+      const x = xAt(whole * len), lw = xAt(RUN) - x;
+      bar.appendChild(K.svg('rect', { class: 'hatchbg', x, y: BAR_Y, width: lw, height: BAR_H }));
+      bar.appendChild(K.svg('rect', { class: 'hatch', x, y: BAR_Y, width: lw, height: BAR_H }));
+    }
+    bar.appendChild(K.svg('rect', { class: 'edge', x: X0, y: BAR_Y, width: X1 - X0, height: BAR_H, rx: 2 }));
+    document.getElementById('keyleft').style.display = o.leftOver > 1e-9 ? '' : 'none';
+
+    // The first tail carries its length; too narrow for it, the length sits just above the tail.
+    const inside = K.svg('text', { class: 'len', x: X0 + w / 2, y: BAR_Y + 22, 'text-anchor': 'middle' }, ...nameSpans(q, 'm'));
+    bar.appendChild(inside);
+    const above = document.getElementById('lenAbove');
+    above.textContent = '';
+    if (inside.getComputedTextLength() + 6 > w) {
+      bar.removeChild(inside);
+      nameSpans(q, 'm').forEach((t) => above.appendChild(t));
+    }
+
+    // The end of each tail, marked on the line beneath.
+    Array.prototype.forEach.call(scale.querySelectorAll('.end'), (e) => e.remove());
+    for (let i = 1; i <= whole; i++) scale.appendChild(K.svg('circle', { class: 'end', cx: xAt(i * len), cy: LINE_Y, r: 3.5 }));
+
+    // The division the picture shows: the run ÷ the tail = the tails that fit.
+    const sum = g('sum');
+    const tails = count(o.tailsFit);
+    sum.appendChild(K.svg('text', { class: 'sum', x: 170, y: SUM_Y, 'text-anchor': 'middle' },
+      '6 ÷ ', ...nameSpans(q, '= '), K.svg('tspan', { class: 'ans' }, tails + (o.tailsFit === 1 ? ' tail' : ' tails'))));
+
+    plot.draw({
+      series: [{ points: DOTS, dots: true, label: 'Tails that fit' }],
+      lines: [{ y: RUN, label: 'the run’s 6 m' }],
+      marks: [{ x: q, y: o.tailsFit, guides: true }],
+    });
+
+    const name = nameText(q) + ' m';
+    svg.setAttribute('aria-label', 'A 6 m run of cable cut from the left end into ' + name + ' tails: ' + whole + ' whole tail' + (whole === 1 ? '' : 's') +
+      (o.leftOver > 1e-9 ? ' and a hatched part of a tail, ' + K.fmt(o.leftOver, { decimals: 2 }) + ' m' + ' of cable left over' : ' using the whole run') +
+      ', each tail’s end marked on the line beneath. The division reads 6 ÷ ' + name.replace(' m', '') + ' = ' + tails + '.');
+
+    // The sentence: the counting in quarters, then the division it answers and why the count beats or trails the 6.
+    let s = 'A quarter of a metre fits 4 times in a metre, so 6 × 4 = 24 quarters fit in the run. Each ' + name + ' tail takes ' + q + ' of them, so 24 ÷ ' + q + ' = ' + tails + ' tail' + (o.tailsFit === 1 ? '' : 's') + ' fit';
+    if (o.leftOver > 1e-9) {
+      s += ': ' + whole + ' whole tails use ' + metres(whole * len) + ' m, and the ' + K.fmt(o.leftOver, { decimals: 2 }) + ' m' + ' left over is ' + (QUARTERS % q) + '/' + q + ' of a tail, hatched';
+    } else {
+      s += ', using all 6 m';
+    }
+    s += '. So 6 ÷ ' + nameText(q) + ' = ' + tails + ': ';
+    if (q < PER_M) s += 'more tails than metres, because a tail shorter than a metre fits more than once in every metre.';
+    else if (q === PER_M) s += 'one tail for every metre, because the tail is exactly a metre long.';
+    else s += 'fewer tails than metres, because a tail longer than a metre fits less than once in each metre.';
+    if (!K.moved) s += ' Shorten the tail below 1 m and the count climbs past 6.';
+    document.getElementById('say').textContent = s;
+  }
+  K.update(draw);
+
+  // Known answers, worked out by hand from the rule.
+  K.check('At 8 quarters the tail is 2 m and 24 ÷ 8 = 3 tails fit, the puzzle’s first cut; at 3 quarters, 3/4 m, 24 ÷ 3 = 8, its second; both use all 6 m', () => {
+    const a = K.at({ tailQuarters: 8 }), b = K.at({ tailQuarters: 3 });
+    return K.near(tailM(8), 2, 1e-9) && K.near(a.tailsFit, 3, 1e-9) && K.near(a.leftOver, 0, 1e-9) &&
+      K.near(tailM(3), 0.75, 1e-9) && K.near(b.tailsFit, 8, 1e-9) && K.near(b.leftOver, 0, 1e-9) && K.near(8 * 0.75, 6, 1e-9);
+  });
+  K.check('At 4 quarters the tail is 1 m and 24 ÷ 4 = 6 tails fit, one per metre; every shorter tail fits more than 6 times, every longer one fewer', () => {
+    if (!K.near(K.at({ tailQuarters: 4 }).tailsFit, 6, 1e-9)) return false;
+    for (let q = 1; q <= 8; q++) {
+      const t = K.at({ tailQuarters: q }).tailsFit;
+      if (q < 4 && !(t > 6) || q > 4 && !(t < 6)) return false;
+    }
+    return true;
+  });
+  K.check('Where 24 does not divide evenly: at 5 quarters 24 ÷ 5 = 4.8, four whole tails of 1 1/4 m use 5 m and 1 m is left; at 7, about 3.43, three tails of 1 3/4 m use 5.25 m and 0.75 m is left', () => {
+    const a = K.at({ tailQuarters: 5 }), b = K.at({ tailQuarters: 7 });
+    return K.near(a.tailsFit, 4.8, 1e-9) && wholeOf(5) === 4 && K.near(4 * 1.25, 5, 1e-9) && K.near(a.leftOver, 1, 1e-9) && count(a.tailsFit) === '4.8' &&
+      K.near(b.tailsFit, 24 / 7, 1e-9) && count(b.tailsFit) === '3.43' && wholeOf(7) === 3 && K.near(3 * 1.75, 5.25, 1e-9) && K.near(b.leftOver, 0.75, 1e-9);
+  });
+  K.check('"3 divided by 1/4" asks how many quarters are in 3, which is 12', () => K.near(fitsIn(3, 1), 12, 1e-9) && K.near(3 * 4, 12, 1e-9), { source: SRC_HOWMANY });
+  K.check('The reciprocal counts how many times the fraction fits into 1: a 3/4 m tail fits 4/3 times, about 1.33, into 1 m', () =>
+    K.near(fitsIn(1, 3), 4 / 3, 1e-9) && K.near(4 / 3, 1.33, 0.005), { source: SRC_RECIP });
+  K.check('The dots fall steeply then flatten: from 1 quarter to 2 the count drops by 12, from 7 to 8 by about 0.43; and whole tails plus the cable left over always give the 6 m back', () => {
+    if (!K.near(fitsIn(RUN, 1) - fitsIn(RUN, 2), 12, 1e-9) || !K.near(fitsIn(RUN, 7) - fitsIn(RUN, 8), 0.43, 0.005)) return false;
+    for (let q = 1; q <= 8; q++) {
+      const o = K.at({ tailQuarters: q });
+      if (!K.near(wholeOf(q) * tailM(q) + o.leftOver, RUN, 1e-9) || !(o.leftOver >= 0 && o.leftOver < tailM(q))) return false;
+    }
+    return true;
+  });
+
+  K.ready();
+</script>

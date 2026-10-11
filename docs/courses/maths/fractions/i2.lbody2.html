@@ -1,0 +1,539 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; font-weight: 700; margin: 0 .1em; font-size: .9em; }
+  .fr .n { border-bottom: 2px solid currentColor; padding: 0 .18em; }
+  .fr .d { padding: 0 .18em; }
+  .scene { display: block; width: 100%; }
+  .scene .pc { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .pc.on { fill: var(--k-accent2); }
+  .scene .edge { fill: none; stroke: var(--k-strong); stroke-width: 2.5; }
+  .scene .blank { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2.5; }
+  .scene .cut { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .num { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .big { font: 700 22px var(--k-font); fill: var(--k-ink); }
+  .scene .fbar { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .bbar { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .onnum { font: 700 16px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .onsm { font: 700 14px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .arw { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .drop { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.locked { cursor: default; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 4; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .hop { fill: none; stroke: var(--k-accent); stroke-width: 2; }
+  .scene .mlab { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .mbar { stroke: var(--k-accent2); stroke-width: 1.5; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  .tools .k-btn { min-height: 48px; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 3.5rem; min-width: 0; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+</style>
+
+<p class="lead">Bars cut into pieces and a number line, one small step at a time.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 80" width="100%" role="img" aria-label=""></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row tools" id="tools"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every bar here is one whole, and the bars on each screen are the same length.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const PICK = 'Tap one of the answers.', EMPTY_LINE = 'Tap the line to place a mark.';
+  const STEPS = [
+    { show: true, demo: 'split', dur: 1.8, name: 'Cut every piece in two',
+      text: 'This bar shows 3/4. Cut every piece in two and it shows 6/8. The shaded amount hasn\'t changed, so 3/4 and 6/8 are *equivalent*.' },
+    { kind: 'cut', given: [1, 4], opts: ['2/4', '2/8', '1/8'], want: '2/8', dur: 0.6, name: 'Cut a quarter in two',
+      task: 'This bar shows 1/4. Cut each piece in two, then pick its new name.',
+      why: 'Cutting each piece in two makes 8 pieces, and the shaded quarter becomes 2 of them. The amount stays the same.',
+      hint: 'Not quite. Count the shaded pieces after the cut.',
+      hints: { '2/4': 'Not quite. The pieces are eighths now.' } },
+    { show: true, demo: 'times', dur: 1.8, name: 'Times 3, top and bottom',
+      text: 'Cut each third into 3 and there are 3 times as many pieces, and 3 times as many shaded. So 2/3 becomes 6/9. The top and the bottom are both multiplied by 3.' },
+    { kind: 'gap', given: [3, 4], bottom: 8, opts: ['3', '4', '6', '8'], want: '6', name: 'Fill in the gap',
+      task: 'What goes in the gap?',
+      why: 'The bottom went from 4 to 8, so every quarter was cut in two. Each shaded quarter became two eighths, so the top doubles too.',
+      hint: 'Not quite. The bottom doubled, so the top doubles too.',
+      hints: { '3': 'Not quite. The pieces got smaller, so you need more of them.',
+        '4': 'Not quite. Cutting each piece in two doubles the top as well.',
+        '8': 'Not quite. 8/8 would fill the whole bar.' } },
+    { kind: 'pick', given: [3, 5], opts: ['4/6', '3/10', '6/10'], want: '6/10', name: 'The same amount',
+      task: 'This bar shows 3/5. Which of these is the same amount?',
+      why: 'Multiply the top and the bottom by 2. Each fifth becomes two tenths, so three fifths become six tenths.',
+      hint: 'Not quite. Compare the shaded amounts.',
+      hints: { '4/6': 'Adding 1 to the top and bottom changes the amount. Multiply instead.',
+        '3/10': 'Not quite. Tenths are smaller, so you need more of them.' } },
+    { show: true, demo: 'join', dur: 1.7, name: 'Join pieces back',
+      text: 'Now go back the other way. Join the pieces in pairs and 6/8 becomes 3/4. Joining divides the top and the bottom by the same number, which is called *simplifying*.' },
+    { kind: 'pick', given: [4, 8], opts: ['2/4', '3/7', '1/2'], want: '1/2', name: 'Simplify 4/8',
+      task: 'Simplify 4/8.',
+      why: 'Divide the top and the bottom by 4. Four eighths join into one half, and halves can\'t be joined any further.',
+      hint: 'Not quite. Compare the shaded amounts.',
+      hints: { '2/4': 'Equal, but you can join the pieces again.',
+        '3/7': 'Taking the same number off the top and bottom changes the amount. Divide instead.' } },
+    { kind: 'pick', given: [6, 9], opts: ['3/6', '2/3', '1/3'], want: '2/3', name: 'Simplify 6/9',
+      task: 'Simplify 6/9.',
+      why: 'Divide the top and the bottom by 3. Each group of three ninths joins into one third.',
+      hint: 'Not quite. Compare the shaded amounts.',
+      hints: { '3/6': 'Taking 3 off the top and bottom changes the amount. Divide instead.',
+        '1/3': 'Not quite. Divide the top by the same number as the bottom.' } },
+    { show: true, demo: 'line', dur: 2.2, name: 'One place on the line',
+      text: 'The bars for 1/2, 2/4 and 4/8 shade the same amount. Drop down to the line and all three land on one mark. Equivalent fractions sit at the same place on the line.' },
+    { kind: 'line', per: 8, want: 6, name: 'Find 6/8 on the line',
+      task: 'Tap where 6/8 goes on the line.',
+      why: 'Six eighth-steps from 0 land on the same mark as three quarter-steps. So 6/8 and 3/4 are the same number.',
+      hint: 'Not quite. Count six eighth-steps from 0.' },
+    { kind: 'pick', draw: 'ruler', given: [3, 8], opts: ['3/16', '6/16', '12/16'], want: '6/16', name: 'A drill bit in sixteenths',
+      task: 'A drill bit is 3/8 inch. How many sixteenths is that?',
+      why: 'An eighth is two sixteenths, so multiply the top and the bottom by 2. A 3/8 inch bit is 6/16 inch.',
+      hint: 'Not quite. An eighth is two sixteenths.',
+      hints: { '12/16': 'Not quite. That is twice as wide as the bit.' } },
+    { kind: 'pick', given: [1, 2], not: true, opts: ['3/6', '2/3', '5/10'], want: '2/3', name: 'Not a half',
+      task: 'Which of these is not equal to 1/2?',
+      why: '3/6 and 5/10 both simplify to 1/2. Two thirds is more than a half.',
+      hint: 'Not quite. Its bar lines up with the half, so it is equal.' },
+  ];
+  const FINISH = 'Multiply or divide the top and bottom by the same number, and the fraction keeps its size.';
+  // When each demonstration's parts arrive, in seconds after the screen opens.
+  const AT = {
+    split: [0.3, 0.5, 0.7, 0.9], splitCount: 1.2, splitName: 1.5,   // each quarter is cut, the shaded eighths are counted, then 6/8 is named
+    times: [0.3, 0.55, 0.8], timesCount: 1.1, timesName: 1.4,         // each third is cut into 3, the shaded ninths counted, then x3 and 6/9
+    join: [0.3, 0.5, 0.7, 0.9], joinCount: 1.15, joinName: 1.4,       // each pair joins, the quarters are counted, then /2 and 3/4
+    line: [0.2, 0.6, 1.0], lineFrom: 1.3, lineTo: 1.9,                // three bars shade, then one mark drops to the line
+    cut: 0.4,                                                         // a DO-step cut takes this long
+  };
+  // Drawing sizes, in viewBox units (340 wide): bars and lines run from x = 20 to x = 320.
+  const L0 = 20, LW = 300;
+  const tickX = (k, n) => L0 + (k / n) * LW;           // the k-th of n equal steps along a 0..1 line
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  // ---------- answers (pure, so the checks can test them) ----------
+  const parse = (s) => String(s).split('/').map(Number);
+  const same = (a, b) => a[0] * b[1] === b[0] * a[1];        // equal amounts: cross-multiplied
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  function blank() { return { mark: null, pick: null, res: null, why: false, cut: false }; }
+  function isEmpty(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'cut') return !st.cut || st.pick == null;
+    if (d.kind === 'line') return st.mark == null;
+    return st.pick == null;
+  }
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'line') return st.mark === d.want;
+    if (d.kind === 'cut') return st.cut && st.pick === d.want;
+    return st.pick === d.want;
+  }
+
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, T = 0;     // T: seconds into the current demonstration (or cut)
+
+  // ---------- text with stacked fractions and amber key terms (built with K.el, never innerHTML) ----------
+  function frac(t, b) {
+    return K.el('span', { class: 'fr', role: 'img', 'aria-label': t + '/' + b },
+      K.el('span', { class: 'n', 'aria-hidden': 'true' }, t), K.el('span', { class: 'd', 'aria-hidden': 'true' }, b));
+  }
+  function write(el, text) {
+    el.textContent = '';
+    const re = /\*([^*]+)\*|(\d+)\/(\d+)/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(m[1] ? K.el('span', { class: 'term' }, m[1]) : frac(m[2], m[3]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A stacked fraction drawn in the SVG, centred on x, its bar at y.
+  function svgFrac(x, y, t, b, cls, barCls, half, gap) {
+    half = half || 9; gap = gap || 16;
+    svg.appendChild(K.svg('text', { class: cls, x: x, y: y - 5, 'text-anchor': 'middle' }, String(t)));
+    svg.appendChild(K.svg('line', { class: barCls, x1: x - half, y1: y, x2: x + half, y2: y }));
+    svg.appendChild(K.svg('text', { class: cls, x: x, y: y + gap, 'text-anchor': 'middle' }, String(b)));
+  }
+  const bigFrac = (x, y, t, b) => svgFrac(x, y, t, b, 'big', 'bbar', 13, 24);
+  const text = (x, y, s, cls, anchor) => svg.appendChild(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  const cutBtn = K.button({ label: 'Cut each piece in two', secondary: true, into: '#tools', press: () => {
+    const i = at(), st = S[i];
+    if (finished || STEPS[i].kind !== 'cut' || st.cut) return;
+    st.cut = true; st.res = null;
+    if (REDUCE) { T = Infinity; return; }
+    T = 0; anim.play();
+  } });
+  // Up to four answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), st = S[i];
+    if (STEPS[i].show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    start();
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration (or a cut) from its start; with reduced motion it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    const d = STEPS[at()];
+    if (finished || !(d.show || d.kind === 'cut')) return false;
+    T += dt;
+    paint();
+    return T < d.dur;
+  } });
+  function start() {
+    if (REDUCE) { T = Infinity; anim.pause(); return; }
+    T = 0; anim.play();
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene');
+  const still = (x, y, w, h, on) => svg.appendChild(K.svg('rect', { class: 'pc' + (on ? ' on' : ''), x: x, y: y, width: w, height: h }));
+  const edge = (x, y, w, h) => svg.appendChild(K.svg('rect', { class: 'edge', x: x, y: y, width: w, height: h }));
+  // A bar of n equal pieces with the first t shaded.
+  function barOf(x, y, w, h, t, n) {
+    for (let k = 0; k < n; k++) still(x + k * w / n, y, w / n, h, k < t);
+    edge(x, y, w, h);
+  }
+  // A cut line through a bar, grown to fraction f of its height (from the top).
+  const cutLine = (x, y, h, f) => { if (f > 0) svg.appendChild(K.svg('line', { class: 'cut', x1: x, y1: y, x2: x, y2: y + h * f })); };
+  // Count the first n of the pieces (each w wide) along a bar.
+  const countOn = (y, w, n) => { for (let j = 0; j < n; j++) text(L0 + (j + 0.5) * w, y + 34, j + 1, 'onnum'); };
+  // Two arrows from one stacked fraction to the next, each labelled (x3 or /2), above and below.
+  function arrows(x1, x2, y, label) {
+    [y - 13, y + 16].forEach((ay) => {
+      svg.appendChild(K.svg('path', { class: 'arw', d: 'M' + x1 + ' ' + ay + ' L' + x2 + ' ' + ay + ' M' + (x2 - 7) + ' ' + (ay - 5) + ' L' + x2 + ' ' + ay + ' L' + (x2 - 7) + ' ' + (ay + 5) }));
+    });
+    text((x1 + x2) / 2, y - 20, label, 'tl');
+    text((x1 + x2) / 2, y + 36, label, 'tl');
+  }
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  function demoSplit() {
+    svg.setAttribute('viewBox', '0 0 340 152');
+    const y = 4, H = 56, W = LW / 4;
+    for (let k = 0; k < 4; k++) still(L0 + k * W, y, W, H, k < 3);
+    let cuts = 0;
+    AT.split.forEach((t0, k) => { const f = K.clamp((T - t0) / 0.2, 0, 1); if (f > 0) cuts++; cutLine(L0 + (k + 0.5) * W, y, H, f); });
+    edge(L0, y, LW, H);
+    const counted = T >= AT.splitCount, named = T >= AT.splitName;
+    if (counted) countOn(y, W / 2, 6);
+    bigFrac(named ? 125 : 170, 116, 3, 4);
+    if (named) { text(170, 124, '=', 'big'); bigFrac(215, 116, 6, 8); }
+    return 'A bar of 4 quarters with 3 shaded, named 3/4' + (cuts ? ', with ' + cuts + ' of the 4 quarters cut in two' : '') +
+      (counted ? '. The 6 shaded eighths are counted' : '') + (named ? ', and 3/4 = 6/8.' : '.');
+  }
+  function demoTimes() {
+    svg.setAttribute('viewBox', '0 0 340 164');
+    const y = 4, H = 56, W = LW / 3;
+    for (let k = 0; k < 3; k++) still(L0 + k * W, y, W, H, k < 2);
+    let cuts = 0;
+    AT.times.forEach((t0, k) => {
+      const f = K.clamp((T - t0) / 0.2, 0, 1);
+      if (f > 0) cuts++;
+      cutLine(L0 + (k + 1 / 3) * W, y, H, f); cutLine(L0 + (k + 2 / 3) * W, y, H, f);
+    });
+    edge(L0, y, LW, H);
+    const counted = T >= AT.timesCount, named = T >= AT.timesName;
+    if (counted) countOn(y, W / 3, 6);
+    bigFrac(named ? 95 : 170, 118, 2, 3);
+    if (named) { arrows(122, 214, 118, '×3'); bigFrac(245, 118, 6, 9); }
+    return 'A bar of 3 thirds with 2 shaded, named 2/3' + (cuts ? ', with ' + cuts + ' of the 3 thirds cut into 3' : '') +
+      (counted ? '. The 6 shaded ninths are counted' : '') + (named ? ', and the top and bottom are both multiplied by 3, making 6/9.' : '.');
+  }
+  function demoJoin() {
+    svg.setAttribute('viewBox', '0 0 340 164');
+    const y = 4, H = 56, W = LW / 4;
+    for (let k = 0; k < 4; k++) still(L0 + k * W, y, W, H, k < 3);
+    let joined = 0;
+    AT.join.forEach((t0, k) => {
+      const f = K.clamp((T - t0) / 0.25, 0, 1);
+      if (f >= 1) joined++;
+      cutLine(L0 + (k + 0.5) * W, y, H, 1 - f);       // the line between a pair shrinks away
+    });
+    edge(L0, y, LW, H);
+    const counted = T >= AT.joinCount, named = T >= AT.joinName;
+    if (counted) countOn(y, W, 3); else countOn(y, W / 2, 6);
+    bigFrac(named ? 95 : 170, 118, 6, 8);
+    if (named) { arrows(122, 214, 118, '÷2'); bigFrac(245, 118, 3, 4); }
+    return 'A bar of 8 eighths with 6 shaded, named 6/8' + (joined ? ', with ' + joined + ' of its 4 pairs joined into quarters' : '') +
+      (counted ? '. The 3 shaded quarters are counted' : '') + (named ? ', and the top and bottom are both divided by 2, making 3/4.' : '.');
+  }
+  function demoLine() {
+    svg.setAttribute('viewBox', '0 0 340 228');
+    const X = 60, W = 260, H = 40, ys = [4, 50, 96], rows = [[1, 2], [2, 4], [4, 8]], Y = 170, xm = X + W / 2;
+    let n = 0;
+    rows.forEach((r, j) => {
+      const on = T >= AT.line[j];
+      if (on) n++;
+      for (let k = 0; k < r[1]; k++) still(X + k * W / r[1], ys[j], W / r[1], H, on && k < r[0]);
+      edge(X, ys[j], W, H);
+      svgFrac(30, ys[j] + H / 2 + 2, r[0], r[1], 'lab', 'fbar');
+    });
+    svg.appendChild(K.svg('line', { class: 'axis', x1: X, y1: Y, x2: X + W, y2: Y }));
+    for (let k = 0; k <= 8; k++) {
+      const x = X + k * W / 8, h = k % 8 === 0 ? 12 : k % 2 === 0 ? 8 : 5;
+      svg.appendChild(K.svg('line', { class: 'tick', x1: x, y1: Y - h, x2: x, y2: Y + h }));
+    }
+    text(X, Y + 34, 0, 'num'); text(X + W, Y + 34, 1, 'num');
+    const f = K.clamp((T - AT.lineFrom) / (AT.lineTo - AT.lineFrom), 0, 1);
+    if (f > 0) svg.appendChild(K.svg('line', { class: 'drop', x1: xm, y1: ys[0], x2: xm, y2: ys[0] + (Y - ys[0]) * f }));
+    const landed = T >= AT.lineTo;
+    if (landed) {
+      svg.appendChild(K.svg('circle', { class: 'dot', cx: xm, cy: Y, r: 9 }));
+      svgFrac(xm - 50, Y + 30, 1, 2, 'mlab', 'mbar'); text(xm - 25, Y + 35, '=', 'mlab');
+      svgFrac(xm, Y + 30, 2, 4, 'mlab', 'mbar'); text(xm + 25, Y + 35, '=', 'mlab');
+      svgFrac(xm + 50, Y + 30, 4, 8, 'mlab', 'mbar');
+    }
+    return 'Three bars of the same length, cut into halves, quarters and eighths, with ' + n + ' of them shaded to 1/2, 2/4 and 4/8, above a number line from 0 to 1' +
+      (landed ? '. One line drops from the end of all three shadings to a single mark, labelled 1/2 = 2/4 = 4/8.' : '.');
+  }
+
+  // --- the puzzles (DO steps) ---
+  function drawCut(d, st) {
+    svg.setAttribute('viewBox', '0 0 340 64');
+    const y = 4, H = 56, n = d.given[1], W = LW / n, f = st.cut ? K.clamp(T / AT.cut, 0, 1) : 0;
+    for (let k = 0; k < n; k++) still(L0 + k * W, y, W, H, k < d.given[0]);
+    for (let k = 0; k < n; k++) cutLine(L0 + (k + 0.5) * W, y, H, f);
+    edge(L0, y, LW, H);
+    return 'A bar of ' + n + ' quarters with ' + d.given[0] + ' shaded' + (st.cut ? (f >= 1 ? ', every quarter cut in two, making 8 pieces with 2 shaded.' : ', being cut in two.') : '.');
+  }
+  function drawGap(d, st, right) {
+    svg.setAttribute('viewBox', '0 0 340 152');
+    const Yf = 36, y = 92, H = 56, W = LW / 4;
+    bigFrac(125, Yf, d.given[0], d.given[1]);
+    text(170, Yf + 8, '=', 'big');
+    if (st.pick == null) svg.appendChild(K.svg('rect', { class: 'gapbox', x: 201, y: Yf - 29, width: 28, height: 26, rx: 4 }));
+    else text(215, Yf - 5, st.pick, 'big');
+    svg.appendChild(K.svg('line', { class: 'bbar', x1: 202, y1: Yf, x2: 228, y2: Yf }));
+    text(215, Yf + 24, d.bottom, 'big');
+    for (let k = 0; k < 4; k++) still(L0 + k * W, y, W, H, k < d.given[0]);
+    if (right) { for (let k = 0; k < 4; k++) cutLine(L0 + (k + 0.5) * W, y, H, 1); countOn(y, W / 2, 6); }
+    edge(L0, y, LW, H);
+    return d.given[0] + '/' + d.given[1] + ' = ' + (st.pick == null ? 'a gap' : st.pick) + '/' + d.bottom + ', above a bar of 4 quarters with 3 shaded' +
+      (right ? ', now cut into 8 eighths with 6 shaded.' : '.');
+  }
+  // Two bars of the same length: the given fraction, and (once checked) the picked one under it.
+  function drawPick(d, st) {
+    svg.setAttribute('viewBox', '0 0 340 132');
+    const X = 56, W = 264, H = 46, r1 = 6, r2 = 78;
+    const shown = (st.res === 'right' || st.res === 'wrong') && st.pick != null, p = shown ? parse(st.pick) : null;
+    svgFrac(26, r1 + H / 2 + 2, d.given[0], d.given[1], 'lab', 'fbar');
+    barOf(X, r1, W, H, d.given[0], d.given[1]);
+    if (shown) { svgFrac(26, r2 + H / 2 + 2, p[0], p[1], 'lab', 'fbar'); barOf(X, r2, W, H, p[0], p[1]); }
+    else { svg.appendChild(K.svg('rect', { class: 'blank', x: X, y: r2, width: W, height: H })); text(26, r2 + H / 2 + 6, '?', 'lab'); }
+    if (shown) { const xd = X + W * d.given[0] / d.given[1]; svg.appendChild(K.svg('line', { class: 'drop', x1: xd, y1: r1, x2: xd, y2: r2 + H })); }
+    return 'A bar showing ' + d.given[0] + '/' + d.given[1] + (shown ? ', and under it a bar of the same length showing ' + st.pick +
+      (same(d.given, p) ? ', shaded to the same place.' : ', shaded to a different place.') : ', and an empty bar for your answer.');
+  }
+  // One inch as a bar (one whole) cut into eighths, the drill bit's 3/8 shaded, over a rule marked in sixteenths.
+  function drawRuler(d, st, right) {
+    svg.setAttribute('viewBox', '0 0 340 168');
+    const y = 46, H = 56, Y = 118, n = d.given[1], w16 = LW / 16;
+    svgFrac(L0 + 10, 26, d.given[0], n, 'lab', 'fbar'); text(L0 + 24, 31, 'inch', 'lab', 'start');
+    if (right) { text(L0 + 74, 31, '=', 'lab'); svgFrac(L0 + 96, 26, 6, 16, 'lab', 'fbar'); text(L0 + 112, 31, 'inch', 'lab', 'start'); }
+    for (let k = 0; k < n; k++) still(L0 + k * LW / n, y, LW / n, H, k < d.given[0]);
+    if (right) { for (let k = 0; k < n; k++) cutLine(L0 + (k + 0.5) * LW / n, y, H, 1); for (let j = 0; j < 6; j++) text(L0 + (j + 0.5) * w16, y + 33, j + 1, 'onsm'); }
+    edge(L0, y, LW, H);
+    svg.appendChild(K.svg('line', { class: 'axis', x1: L0, y1: Y, x2: L0 + LW, y2: Y }));
+    for (let k = 0; k <= 16; k++) {
+      const h = k % 16 === 0 ? 16 : k % 8 === 0 ? 14 : k % 4 === 0 ? 11 : k % 2 === 0 ? 8 : 5;
+      svg.appendChild(K.svg('line', { class: 'tick', x1: tickX(k, 16), y1: Y, x2: tickX(k, 16), y2: Y + h }));
+    }
+    text(L0, Y + 38, 0, 'num'); text(L0 + LW, Y + 38, '1 inch', 'num', 'end');
+    return 'One inch drawn as a bar cut into eighths, with 3 shaded for a 3/8 inch drill bit, above a rule marked in sixteenths' +
+      (right ? '. Every eighth is cut in two, so the bit covers 6 sixteenths: 3/8 inch = 6/16 inch.' : '.');
+  }
+  function drawLine(d, st, locked, right) {
+    svg.setAttribute('viewBox', '0 0 340 124');
+    const Y = 76, n = d.per, step = LW / n;
+    if (right) {
+      for (let k = 0; k < st.mark; k++) {
+        const a = tickX(k, n), b = tickX(k + 1, n);
+        svg.appendChild(K.svg('path', { class: 'hop', d: 'M' + (a + 2) + ' ' + (Y - 4) + ' Q' + ((a + b) / 2) + ' ' + (Y - 24) + ' ' + (b - 2) + ' ' + (Y - 4) }));
+      }
+    }
+    svg.appendChild(K.svg('line', { class: 'axis', x1: L0, y1: Y, x2: L0 + LW, y2: Y }));
+    for (let k = 0; k <= n; k++) {
+      const x = tickX(k, n), h = k % n === 0 ? 12 : k % 2 === 0 ? 9 : 6;
+      svg.appendChild(K.svg('line', { class: 'tick', x1: x, y1: Y - h, x2: x, y2: Y + h }));
+    }
+    text(L0, Y + 34, 0, 'num'); text(L0 + LW, Y + 34, 1, 'num');
+    if (st.mark != null) {
+      const x = tickX(st.mark, n);
+      svg.appendChild(K.svg('circle', { class: 'dot', cx: x, cy: Y, r: 9 }));
+      if (right) { svgFrac(x - 24, 26, 6, 8, 'mlab', 'mbar'); text(x, 31, '=', 'mlab'); svgFrac(x + 24, 26, 3, 4, 'mlab', 'mbar'); }
+    }
+    // Tap targets: a tall strip around every tick (the nearest tick takes the tap).
+    for (let k = 0; k <= n; k++) {
+      const x = tickX(k, n);
+      const r = K.svg('rect', { class: 'hit' + (locked ? ' locked' : ''), x: x - step / 2, y: Y - 44, width: step, height: 88, tabindex: locked ? -1 : 0, role: 'button',
+        'aria-label': 'Tick ' + k + ' of ' + n });
+      if (!locked) {
+        const put = () => { st.mark = k; st.res = null; K.reveal(); K.refresh(); };
+        r.addEventListener('click', put);
+        r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); put(); } });
+      }
+      svg.appendChild(r);
+    }
+    return 'A number line from 0 to 1 with a tick at every eighth, longer at the quarters. ' +
+      (st.mark == null ? 'No mark yet.' : 'The mark is on tick ' + st.mark + ' of ' + n + (right ? ', where 6/8 = 3/4.' : '.'));
+  }
+
+  // The scene for the current step (the animation calls this every frame).
+  function paint() {
+    const i = at(), d = STEPS[i], st = S[i], right = st.res === 'right';
+    svg.textContent = '';
+    let aria;
+    if (d.show) aria = { split: demoSplit, times: demoTimes, join: demoJoin, line: demoLine }[d.demo]();
+    else if (d.kind === 'cut') aria = drawCut(d, st);
+    else if (d.kind === 'gap') aria = drawGap(d, st, right);
+    else if (d.kind === 'line') aria = drawLine(d, st, right, right);
+    else if (d.draw === 'ruler') aria = drawRuler(d, st, right);
+    else aria = drawPick(d, st);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (i !== lastStep) { lastStep = i; if (d.show) start(); else { anim.pause(); T = Infinity; } }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint();
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('tools').hidden = d.kind !== 'cut' || st.cut;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    const empty = d.kind === 'line' ? EMPTY_LINE : d.kind === 'cut' && !st.cut ? 'Cut the pieces first.' : PICK;
+    fb.textContent = d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? ((d.hints && d.hints[st.pick]) || d.hint) : st.res === 'empty' ? empty : '';
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v, cut: true }));
+  K.check('Multiplying: 3/4 = 6/8, 1/4 = 2/8, 2/3 = 6/9, 3/5 = 6/10 and 3/8 = 6/16, because 3 × 8 = 6 × 4 and so on; 4/6 (adding 1) and 3/10 are not 3/5', () =>
+    same([3, 4], [6, 8]) && same([1, 4], [2, 8]) && same([2, 3], [6, 9]) && same([3, 5], [6, 10]) && same([3, 8], [6, 16]) &&
+    !same([3, 5], [4, 6]) && !same([3, 5], [3, 10]) && !same([3, 4], [4, 5]) &&
+    pickRight(1, '2/8') && !pickRight(1, '2/4') && !pickRight(1, '1/8') && !isRight(1, Object.assign(blank(), { pick: '2/8' })) &&
+    pickRight(3, '6') && !pickRight(3, '4') && 3 * 2 === 6 && 4 * 2 === 8 &&
+    [4, 10].map((i) => STEPS[i]).every((d) => d.opts.filter((o) => same(d.given, parse(o))).join() === d.want) &&
+    pickRight(10, '6/16') && !pickRight(10, '3/16') && same([12, 16], [6, 8]));
+  K.check('Simplifying: 4/8 is 1/2 and 6/9 is 2/3 (top and bottom divided by 4 and by 3); 2/4 is equal but not simplest; 3/7 and 3/6 (taking away) are not equal', () =>
+    gcd(4, 8) === 4 && gcd(6, 9) === 3 && gcd(1, 2) === 1 && gcd(2, 3) === 1 && gcd(2, 4) === 2 &&
+    same([4, 8], [2, 4]) && !same([4, 8], [3, 7]) && !same([6, 9], [3, 6]) && !same([6, 9], [1, 3]) &&
+    [6, 7].every((i) => { const d = STEPS[i]; return d.opts.filter((o) => { const p = parse(o); return same(d.given, p) && gcd(p[0], p[1]) === 1; }).join() === d.want; }) &&
+    pickRight(6, '1/2') && !pickRight(6, '2/4') && pickRight(7, '2/3') && !pickRight(7, '3/6'));
+  K.check('Line: 1/2, 2/4 and 4/8 end at the same place on a bar, and 6/8 sits on the same tick as 3/4', () =>
+    K.near(tickX(1, 2), tickX(2, 4), 1e-9) && K.near(tickX(2, 4), tickX(4, 8), 1e-9) && K.near(tickX(6, 8), tickX(3, 4), 1e-9) &&
+    K.near(tickX(6, 8), L0 + 0.75 * LW, 1e-9) &&
+    isRight(9, Object.assign(blank(), { mark: 6 })) && !isRight(9, Object.assign(blank(), { mark: 3 })) && !isRight(9, Object.assign(blank(), { mark: 7 })));
+  K.check('Not a half: 3/6 and 5/10 are 1/2 but 2/3 (0.667) is more; a 3/8 inch bit is as wide as 6 sixteenths, and 12/16 is twice that', () =>
+    same([3, 6], [1, 2]) && same([5, 10], [1, 2]) && !same([2, 3], [1, 2]) && 2 / 3 > 1 / 2 &&
+    STEPS[11].opts.filter((o) => !same([1, 2], parse(o))).join() === STEPS[11].want && pickRight(11, '2/3') && !pickRight(11, '3/6') &&
+    K.near(LW * 3 / 8, 6 * (LW / 16), 1e-9) && K.near(12 / 16, 2 * (3 / 8), 1e-12));
+  K.check('Every demonstration has finished arriving within 2.5 s of its screen opening, and a cut within half a second', () => {
+    const last = { split: AT.splitName, times: AT.timesName, join: AT.joinName, line: AT.lineTo };
+    return STEPS.filter((d) => d.show).every((d) => d.dur <= 2.5 && last[d.demo] <= d.dur) && AT.cut <= STEPS[1].dur && STEPS[1].dur <= 0.6;
+  });
+
+  K.ready();
+</script>

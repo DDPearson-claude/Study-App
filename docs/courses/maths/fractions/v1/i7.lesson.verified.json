@@ -1,0 +1,271 @@
+{
+  "iid": "i7",
+  "title": "The second cut runs across every piece",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the pieces stay unequal, 3 kept of 7, until the second cut crosses the unshaded quarter and the whole becomes 8 equal pieces, 3/8, when you run the cut across all four quarters.",
+    "title": "Run the cut across",
+    "controls": [
+      {
+        "id": "quartersCrossed",
+        "label": "Quarters the cut has crossed",
+        "min": 0,
+        "max": 4,
+        "step": 1,
+        "value": 0,
+        "unit": "of 4"
+      },
+      {
+        "id": "takeFraction",
+        "label": "Fraction of the shaded to take",
+        "options": [
+          "A half",
+          "A third",
+          "Two thirds",
+          "A quarter",
+          "Three quarters"
+        ],
+        "value": 0
+      }
+    ],
+    "outputs": [
+      {
+        "id": "piecesInWhole",
+        "label": "Pieces in the whole",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "piecesKept",
+        "label": "Pieces kept",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "loadKept",
+        "label": "Load of the kept part",
+        "unit": "A",
+        "decimals": 1
+      }
+    ],
+    "whatAmILookingAt": "A circuit's 32 A rating drawn as four quarters, three shaded. The slider runs a second cut across the quarters; the menu picks the fraction taken. New fraction = tops multiplied over bottoms multiplied.",
+    "ignores": "A load is not a shape; the rectangle only shows sharing. A real load moves about minute to minute.",
+    "numbers": [
+      {
+        "label": "Rated load of the circuit, the whole, A (chosen)",
+        "value": 32,
+        "kind": "assumed"
+      },
+      {
+        "label": "Quarters in one whole (what quarter means)",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "Quarters shaded, the three-quarter load (chosen)",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Quarters the cut has crossed at the start",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Fraction of the shaded to take at the start",
+        "value": "A half",
+        "kind": "control"
+      },
+      {
+        "label": "Rows the cut makes for a half (what half means)",
+        "value": 2,
+        "kind": "constant"
+      },
+      {
+        "label": "Load of one quarter, 32 ÷ 4, A",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Load of the three shaded quarters, 3 × 8, A",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces in the whole with 1 quarter crossed, 3 + 1 × 2",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces in the whole with 2 crossed, 2 + 2 × 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces in the whole with 3 crossed, 1 + 3 × 2",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces in the whole with all 4 crossed, 4 × 2",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces kept for a half, 3 × 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Load kept per crossed shaded quarter for a half, 8 ÷ 2, A",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Load kept for a half, 3 × 4, and 3/8 of 32, A",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Load 3/7 of 32 A would be, about, A",
+        "value": 13.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Load 6/4 of 32 A would be, A",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Load of one eighth, 32 ÷ 8, A",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Rows for thirds (what third means)",
+        "value": 3,
+        "kind": "constant"
+      },
+      {
+        "label": "Pieces in the whole with all 4 crossed in thirds, 4 × 3",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces kept for a third, 3 × 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Load kept for a third, 24 ÷ 3, A",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces kept for two thirds, 3 × 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Load kept for two thirds, 2 × 8, A",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Load kept per crossed shaded quarter for a third, 8 ÷ 3, about, A",
+        "value": 2.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces in the whole with all 4 crossed in quarters, 4 × 4",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces kept for a quarter, 3 × 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Load kept for a quarter, 24 ÷ 4, A",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces kept for three quarters, 3 × 3",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Load kept for three quarters, 3 × 6, A",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Grouping rating factor in the comparison (chosen)",
+        "value": 0.8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Air-temperature rating factor in the comparison (chosen)",
+        "value": 0.9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Factors multiplied, 0.8 × 0.9",
+        "value": 0.72,
+        "kind": "computed"
+      },
+      {
+        "label": "Drum length in the practice example, m (chosen)",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Cable left on the drum, 2/5 of 50, m",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Three-quarters of what is left, 3/4 of 20, m",
+        "value": 15,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A fraction of a fraction is a multiply.[^1] Half of three-quarters: cut every quarter in two, 4 × 2 = 8 equal pieces, and keep one row of the three shaded, 3 × 1 = 3: 3/8.[^2][^3]\n\nOn a 32 A circuit, three-quarters is 24 A; half of that is 12 A, and so is 3/8 of 32 A.\n\nName it too early and 3 of 7 unequal pieces reads 3/7: about 13.7 A, not 12 A.\n\n**Tops times tops, bottoms times bottoms: half of 3/4 is 3/8.**"
+  },
+  "analogy": {
+    "text": "Rating factors multiply: 0.8 for grouping, then 0.9 for temperature, gives 0.72 of the tabled rating, as 8/10 × 9/10 = 72/100.",
+    "breaks": "Nothing is cut, so there is no picture to check against; the factors come from tables."
+  },
+  "practice": {
+    "text": "**Rule of thumb:** 'of' means multiply: tops by tops, bottoms by bottoms.\n\n**Worked example:** a 50 m drum has 2/5 left; you need 3/4 of that. 3/4 × 2/5 = 6/20 = 3/10 of the drum: 15 m.\n\n**Common mistakes**\n- Matching pieces first: 2/4 × 3/4 = 6/4.\n- Reading 3 of 7 unequal pieces as 3/7."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "How to multiply fractions - KS3 Maths – BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zxdmxbk",
+      "quote": "The word 'of' can be replaced by 'multiplied by' as it means the same thing."
+    },
+    {
+      "n": 2,
+      "title": "How to multiply fractions - KS3 Maths – BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zxdmxbk",
+      "quote": "3⁄4 x 1⁄2 = 3⁄8."
+    },
+    {
+      "n": 3,
+      "title": "Calculating with fractions - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z49c96f",
+      "quote": "Multiply the numerators to find the new numerator, multiply the denominators to find the new denominator, then simplify where necessary."
+    }
+  ]
+}

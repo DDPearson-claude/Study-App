@@ -1,0 +1,127 @@
+{
+  "iid": "i3",
+  "title": "A tenth is smaller than a fifth",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is every piece on the bar shrink, from 200 mm at 5 pieces to 100 mm at 10, when you raise the number of equal pieces the metre is cut into.",
+    "title": "Cut a metre into more pieces",
+    "controls": [
+      {
+        "id": "pieces",
+        "label": "Equal pieces in the metre",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "value": 5,
+        "unit": "pieces"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "pieceLength",
+        "label": "Length of each piece",
+        "unit": "mm",
+        "decimals": 0
+      }
+    ],
+    "whatAmILookingAt": "A metre bar cut into equal pieces; the slider sets how many, 1 to 20. The first piece shows its length. Below, a plot of piece length against pieces. Length = 1000 ÷ pieces.",
+    "ignores": "The slider stops at 20, but a whole can be cut into any number of pieces, each with a length.",
+    "numbers": [
+      {
+        "label": "Length of the whole, one metre of cable, mm (chosen)",
+        "value": 1000,
+        "kind": "assumed"
+      },
+      {
+        "label": "Most pieces the slider allows (chosen)",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Equal pieces at the start",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Length of each piece at the start, 1000 ÷ 5, mm",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of each piece at 10 pieces, 1000 ÷ 10, mm",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of each piece at 1 piece, mm",
+        "value": 1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of each piece at 2 pieces, mm",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of each piece at 3 pieces, mm (rounded)",
+        "value": 333,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of each piece at 4 pieces, mm",
+        "value": 250,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of each piece at 20 pieces, mm",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Taken off each piece from 1 piece to 2, 1000 − 500, mm",
+        "value": 500,
+        "kind": "computed"
+      },
+      {
+        "label": "Taken off each piece from 10 pieces to 11, 100 − 90.9, mm",
+        "value": 9.1,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "More equal pieces in one whole means smaller pieces. Each piece is 1000 mm ÷ pieces: 5 give 200 mm, 10 give 100 mm. When the tops match, the bigger bottom is the smaller fraction.[^1][^2]\n\nThe trap is the whole-number habit: 10 is more than 5, so 1/10 looks bigger.[^3] But if a tenth were over 200 mm, ten of them would make more than 2000 mm from one metre.\n\n**Same whole, more pieces, smaller pieces: a tenth of a metre, 100 mm, is shorter than a fifth.**"
+  },
+  "analogy": {
+    "text": "Matching lamps in series on 230 V share it: two get 115 V each, ten get 23 V. More lamps, less each.",
+    "breaks": "Only in series: in parallel each lamp sees near enough the full 230 V."
+  },
+  "practice": {
+    "text": "**Rule of thumb:** same whole, same top: bigger bottom, smaller piece.\n\n**Worked example:** 2400 mm of trunking in equal bays. 2400 ÷ 4 = 600 mm; 2400 ÷ 8 = 300 mm. More bays, shorter bays.\n\n**Common mistakes**\n- Thinking 1/10 beats 1/5 because 10 beats 5.\n- Using the rule when the tops differ: 3/10 beats 1/5."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Unit fractions: identifying, representing and comparing | NCETM",
+      "url": "https://www.ncetm.org.uk/classroom-resources/primm-302-unit-fractions-identifying-representing-and-comparing",
+      "quote": "Unit fractions can be compared and ordered by looking at the denominator. The greater the denominator, the smaller the fraction."
+    },
+    {
+      "n": 2,
+      "title": "Learn about ordering fractions – KS3 Maths – BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zcfrcmn",
+      "quote": "When fractions have the same numerators, the denominators are compared. The greater the denominator, the smaller the fraction."
+    },
+    {
+      "n": 3,
+      "title": "Does Initial Learning about the Meaning of Fractions Present Similar Challenges for Students with and without Adequate Whole-Number Skill? - PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139",
+      "quote": "the overgeneralization of whole-number knowledge to fractions."
+    }
+  ]
+}

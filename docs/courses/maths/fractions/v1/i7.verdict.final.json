@@ -1,0 +1,122 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Nothing crossed: 4 quarters, 0 pieces kept, 0 A, and the label reads 3/4",
+        "ok": true
+      },
+      {
+        "label": "For a half the pieces in the whole climb 4, 5, 6, 7, 8 as the cut crosses each quarter, 3 + 1 × 2 = 5 and so on, and only at 0 and 4 crossed are they all equal",
+        "ok": true
+      },
+      {
+        "label": "At 4 crossed for a half, 3 × 1 = 3 pieces kept of 4 × 2 = 8: the label reads 3/8",
+        "ok": true
+      },
+      {
+        "label": "Half of three-quarters is three-quarters multiplied by a half, three-eighths",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/zxdmxbk"
+      },
+      {
+        "label": "By amounts, 3 crossed shaded quarters keep 3 × (8 ÷ 2) = 12 A, still 12 A at 4 crossed; 3/8 of 32 A is 3 × 4 = 12 A too, while 3/7 of 32 A would be about 13.7 A",
+        "ok": true
+      },
+      {
+        "label": "The ends for the other choices: a third 3/12 = 1/4 and 8 A, two thirds 6/12 = 1/2 and 16 A, a quarter 3/16 and 6 A, three quarters 9/16 and 18 A",
+        "ok": true
+      },
+      {
+        "label": "Keeping the bottom, 2/4 × 3/4 = 6/4, would mean 48 A on a 32 A circuit; the kept part never exceeds the 24 A shaded load",
+        "ok": true
+      },
+      {
+        "label": "The label names a fraction of the whole only while every piece of the whole is equal",
+        "ok": true,
+        "source": "https://www.bbc.co.uk/bitesize/articles/zq2yfrd"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "quartersCrossed",
+      "takeFraction"
+    ],
+    "readouts": [
+      "loadKept"
+    ],
+    "outputs": [
+      "piecesInWhole",
+      "piecesKept",
+      "loadKept",
+      "equal",
+      "name",
+      "simpler"
+    ],
+    "inputs": [
+      {
+        "id": "quartersCrossed",
+        "kind": "control",
+        "label": "Quarters the cut has crossed",
+        "min": 0,
+        "max": 4,
+        "step": 1,
+        "log": false,
+        "value": 0,
+        "snap": [
+          3,
+          4
+        ]
+      },
+      {
+        "id": "takeFraction",
+        "kind": "choice",
+        "label": "Fraction of the shaded to take",
+        "options": [
+          "A half",
+          "A third",
+          "Two thirds",
+          "A quarter",
+          "Three quarters"
+        ],
+        "labels": [
+          "A half",
+          "A third",
+          "Two thirds",
+          "A quarter",
+          "Three quarters"
+        ],
+        "value": "A half",
+        "index": 0
+      }
+    ],
+    "actions": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

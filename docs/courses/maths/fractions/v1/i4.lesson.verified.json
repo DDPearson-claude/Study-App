@@ -1,0 +1,153 @@
+{
+  "iid": "i4",
+  "title": "One mark, many names",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the shaded run on the bar and the mark beneath it stay put while their name changes from 3/8 to 6/16 to 12/32, when you cut every eighth into more equal pieces.",
+    "title": "Cut every eighth smaller",
+    "controls": [
+      {
+        "id": "cutsPerEighth",
+        "label": "Pieces each eighth is cut into",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "value": 1,
+        "unit": "pieces"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "piecesInWhole",
+        "label": "Equal pieces in the whole",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "piecesShaded",
+        "label": "Pieces shaded",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "place",
+        "label": "Place on the line",
+        "unit": "",
+        "decimals": 3
+      }
+    ],
+    "whatAmILookingAt": "A bar with 3 of 8 pieces shaded, over a line from 0 to 1. The slider cuts each eighth into 1 to 4. The name changes; the mark stays. Place = shaded ÷ pieces.",
+    "ignores": "The slider stops at 4, but cutting by any whole number gives another name; the family never ends.",
+    "numbers": [
+      {
+        "label": "Whole bars drawn (chosen)",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Eighths shaded at the start (chosen)",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Eighths in one whole (what eighth means)",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "Pieces each eighth is cut into at the start",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Most pieces per eighth the slider allows (chosen)",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Size of one eighth, 1 ÷ 8, of the whole",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Place on the line, 3 × 0.125",
+        "value": 0.375,
+        "kind": "computed"
+      },
+      {
+        "label": "Equal pieces in the whole at 2 per eighth, 8 × 2",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces shaded at 2 per eighth, 3 × 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Size of one sixteenth, 1 ÷ 16, of the whole",
+        "value": 0.0625,
+        "kind": "computed"
+      },
+      {
+        "label": "Equal pieces in the whole at 3 per eighth, 8 × 3",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces shaded at 3 per eighth, 3 × 3",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Equal pieces in the whole at 4 per eighth, 8 × 4",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces shaded at 4 per eighth, 3 × 4",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Size of one thirty-second, 1 ÷ 32, of the whole",
+        "value": 0.03125,
+        "kind": "computed"
+      },
+      {
+        "label": "The shaded run if the bar is a metre, 0.375 × 1000, mm",
+        "value": 375,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "One place on the line can have many names. Cut every eighth in two and 3/8 becomes 6/16, with the mark still at 0.375. Multiply top and bottom by the same number and the fraction keeps its place.[^1] Names at the same point are [[equivalent fractions]].[^2]\n\nThe trap is adding instead: 3/8 to 4/9, one more on top and bottom. That moves the mark from 0.375 to about 0.444.\n\n**Same multiplier on top and bottom renames a fraction without moving it: 3/8 = 6/16 = 12/32.**"
+  },
+  "analogy": {
+    "text": "2.3 kW and 2300 W are the same load: a smaller unit, a thousand times the count. Renaming a fraction works the same way.",
+    "breaks": "Units step in fixed thousands; a fraction can be cut by any whole number you like."
+  },
+  "practice": {
+    "text": "**Rule of thumb:** do the same to top and bottom: multiply or divide, never add.\n\n**Worked example:** a hole sits 5/8 inch in; the tape shows sixteenths. 16 ÷ 8 = 2, so 5/8 = 10/16.\n\n**Common mistakes**\n- Adding: 3/8 to 4/9 moves the mark.\n- Changing only the bottom: 3/16 is half of 3/8."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Equivalent fractions (video) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/v/equivalent-amount-of-pizza",
+      "quote": "If I multiply the numerator and the denominator by the same number, then I'm not changing what that fraction represents."
+    },
+    {
+      "n": 2,
+      "title": "Visualizing equivalent fractions review (article) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-review",
+      "quote": "Numbers are equivalent when they are located at the same point on the number line."
+    }
+  ]
+}

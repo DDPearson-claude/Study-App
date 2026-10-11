@@ -1,0 +1,418 @@
+/* The course dossier (75-dossier.js) as a field guide in D4's tiles (design 3, Dan's choice on
+   10 Oct; docs/ARCHITECTURE.md sections 4 and 12). Built only on the token names of 00-tokens.css
+   and 80-d4.css, so light and dark, Text size and Easier reading follow with nothing of its own.
+   A page is a grid of tiles: two columns with a 10 px gap and 16 px gutters on a phone; from 55rem
+   (#view) one wider page of four columns, up to --wide. Tiles: white (headline tiles, the chapters
+   grid, finished dossiers), grey (reading panels), emphasis (the key idea, the rule of thumb), ink
+   (progress only: the Bound tile), warning (where it breaks, each mistake) and dashed (chapters not
+   yet written, kept dossiers). Colour keeps its meaning: ink = progress and controls, green =
+   finished only, red = mistakes and warnings, teal = small labels and source chips, amber = key
+   terms. Type is in rem (Text size scales the root), so where the half tiles would get too narrow
+   for the words they stack (a container query on the page). Everything is scoped under .dos.
+   Sections: 1 base · 2 tiles · 3 the focus bar and the page bar · 4 at a glance · 5 a chapter ·
+   6 the plate · 7 put it into practice and sources · 8 glossary and bibliography · 9 footnote
+   cards · 10 wide screens · 11 the Library · 12 app chrome · 13 motion */
+
+/* ---------- 1. base ---------- */
+.dos :where(h1, h2, h3, h4) { margin: 0; }
+.dos :where(p, ol, ul, dl, dd, figure, blockquote) { margin: 0; }
+.dos :where(ol, ul) { padding: 0; list-style: none; }
+.dos :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.dos [tabindex="-1"]:focus { outline: none; }
+.dos .nw { white-space: nowrap; }
+.dos .vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.dos .fn { border-radius: 4px; font-family: var(--cond); font-weight: 600; }
+:root:root .view[data-screen="dossier"] { max-width: none; margin: 0; padding: 0; }
+/* What is focused or scrolled to stops above the floating page bar, never under it. */
+:root:has(.view[data-screen="dossier"]) { scroll-padding-bottom: calc(62px + 28px + env(safe-area-inset-bottom, 0px)); }
+:root:has(.dos-pagebar) .toasts { bottom: calc(62px + 26px + env(safe-area-inset-bottom, 0px)); }
+.dos.reader { min-height: 100vh; min-height: 100dvh; color: var(--ink); }
+.dos .dos-page {
+  container: dospage / inline-size;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: min-content; gap: 10px;
+  padding: 4px 16px calc(62px + 14px + 28px + env(safe-area-inset-bottom, 0px));
+}
+.dos .dos-sk { height: 220px; border-radius: 16px; }
+
+/* ---------- 2. tiles ---------- */
+.dos .t { min-width: 0; padding: 12px; border-radius: 6px; overflow-wrap: break-word; }
+.dos .t-full, .dos .t-bare { grid-column: 1 / -1; }
+.dos .t-half { grid-column: span 1; }
+.dos .t-white { background: var(--surface); border: 1.5px solid var(--edge); border-radius: 16px; }
+.dos .t-first { box-shadow: var(--shadow); }
+.dos .t-grey { background: var(--sunk); border-radius: 6px; }
+.dos .t-em { background: var(--surface); border: 2px solid var(--edge); border-radius: 16px; box-shadow: 3px 3px 0 var(--edge); }
+.dos .t-ink { background: var(--heading); color: var(--on-heading); border-radius: 16px; }
+.dos .t-warn { background: var(--surface); border: 1.5px solid var(--red); border-radius: 16px; color: var(--red); }
+.dos .t-dashed { background: var(--surface); border: 1.5px dashed var(--line-strong); border-radius: 16px; }
+.dos .t-label { display: block; margin: 0 0 4px; font: 500 .65625rem/1.2 var(--mono); letter-spacing: 0; text-transform: uppercase; color: var(--muted); }
+.dos .t-warn .t-label, .dos .t-label.is-red { color: var(--red); }
+.dos .t-ink .t-label { color: color-mix(in srgb, var(--on-heading) 76%, var(--heading)); }
+.dos .t-prose { font-size: 1.0625rem; line-height: 1.55; }
+.dos .t-prose > * + * { margin-top: .6em; }
+.dos .t-prose ul { padding-left: 1.2em; list-style: disc; }
+.dos .t-prose strong { font-weight: 700; }
+.dos .t-small, .dos .t-prose.t-small { font-size: .84375rem; line-height: 1.42; }
+.dos .t-open { display: inline-flex; align-items: center; gap: 2px; font: 700 .875rem/1 var(--sans); }
+.dos .t-open svg { width: 18px; height: 18px; flex: none; }
+.dos a.t { color: var(--ink); text-decoration: none; }
+@media (hover: hover) { .dos a.t:hover { box-shadow: var(--shadow); } .dos a.t:hover .t-open { text-decoration: underline; text-underline-offset: 3px; } }
+.dos .ring { flex: none; display: block; overflow: visible; }
+.dos .ring .tr { stroke: var(--line); }
+.dos .ring .fl { stroke: var(--heading); }
+.dos .t-ink .ring .tr { stroke: color-mix(in srgb, var(--on-heading) 16%, var(--heading)); }
+.dos .t-ink .ring .fl { stroke: var(--on-heading); }
+.dos .ring.is-done .fl { stroke: var(--green); }
+/* On the ink tile (light in dark mode) the finished ring takes the green that holds 3:1 there. */
+.dos .t-ink .ring.is-done .fl { stroke: var(--green-on-heading); }
+.dos details > summary { list-style: none; cursor: pointer; }
+.dos details > summary::-webkit-details-marker { display: none; }
+.dos details > summary svg { width: 16px; height: 16px; flex: none; transition: transform .15s ease; }
+.dos details[open] > summary svg { transform: rotate(90deg); }
+
+/* ---------- 3. the focus bar and the page bar ---------- */
+.dos .dos-bar { display: flex; align-items: center; gap: 10px; padding: 14px 16px 8px; }
+.dos .dos-sq {
+  flex: none; display: grid; place-items: center; width: 44px; height: 44px; box-sizing: border-box; padding: 0;
+  border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); color: var(--ink);
+  font: 600 1rem/1 var(--sans); text-decoration: none; cursor: pointer;
+}
+.dos .dos-sq svg { width: 20px; height: 20px; }
+.dos .dos-path { flex: 1; min-width: 0; display: flex; font: 500 .8125rem/1.3 var(--mono); color: var(--ink); white-space: nowrap; container-type: inline-size; }
+.dos .dos-path span { flex: none; }
+/* Cut at a whole character (the mono's cells are 1ch), so the ellipsis meets the next slash. */
+.dos .dos-path .fit { flex: 0 1 auto; min-width: 0; max-width: calc(round(down, calc(100cqi - var(--rest, 0) * 1ch - 1px), 1ch) + .5px); overflow: hidden; text-overflow: ellipsis; }
+/* The page bar floats in the D4 tab bar's frame. */
+.dos .dos-pagebar {
+  position: fixed; z-index: 30; left: 16px; right: 16px; bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  container: pagebar / inline-size;
+  display: grid; align-items: center; gap: 6px; min-height: 62px;
+  /* Each side keeps room for its longest word; the middle gives way first. */
+  grid-template-columns: minmax(auto, 1fr) minmax(0, max-content) minmax(auto, 1fr); box-sizing: border-box; padding: 6px;
+  background: var(--surface); border: 2px solid var(--edge); border-radius: 16px; box-shadow: var(--shadow);
+}
+:root.framed .dos .dos-pagebar { left: calc(50% - var(--frame) / 2 + 16px); right: calc(50% - var(--frame) / 2 + 16px); }
+.dos .dos-pagebar a { display: inline-flex; align-items: center; min-height: 46px; border-radius: 11px; color: var(--ink); text-decoration: none; font: 600 .875rem/1.1 var(--sans); }
+.dos .dos-pagebar svg { flex: none; width: 18px; height: 18px; }
+.dos .pb-prev { justify-self: start; gap: 2px; padding: 0 8px 0 4px; }
+.dos .dos-pagebar .pb-next { justify-self: end; gap: 4px; padding: 0 10px 0 14px; background: var(--heading); color: var(--on-heading); font-weight: 700; }
+.dos .pb-name { min-width: 0; text-wrap: balance; }
+@media (hover: hover) { .dos .pb-prev:hover { background: var(--sunk); } }
+.dos .pb-at { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; overflow: hidden; font: 500 .71875rem/1 var(--mono); color: var(--muted); }
+/* Where he is, never cut: the numeral and " · 2 of 2" sit on one line exactly one line tall; when
+   both do not fit, " · 2 of 2" wraps onto the hidden second line as a whole and the numeral stays. */
+.dos .pb-pos { display: flex; flex-wrap: wrap; justify-content: center; max-width: 100%; height: 1em; overflow: hidden; }
+.dos .pb-pos > span { flex: none; white-space: pre; }
+/* A page's name ("at a glance", "bibliography") may take two lines rather than be cut. */
+.dos .pb-word { max-width: 100%; overflow: hidden; line-height: 1.15; text-align: center; text-wrap: balance; }
+.dos .pb-steps { display: flex; gap: 3px; }
+.dos .pb-steps i { width: 14px; height: 4px; border-radius: 2px; background: var(--line); }
+.dos .pb-steps i.on { background: var(--step); }
+/* A narrow bar (a small phone at the larger text sizes): the previous page keeps its chevron, its
+   full name for a screen reader and its 44 px target, and lends its words' room to the position. */
+@container pagebar (max-width: 17rem) {
+  .dos .pb-prev { justify-content: center; min-width: 44px; padding: 0; }
+  .dos .pb-prev .pb-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+
+/* ---------- 4. at a glance ---------- */
+.dos .g-title { padding: 14px; }
+.dos .g-title .t-label { font-size: .6875rem; }
+.dos .g-h1 { margin-top: 8px; font: 700 2.125rem/1.05 var(--sans); letter-spacing: -.02em; text-wrap: pretty; }
+.dos .d-front { margin: 0; padding: 8px; }
+.dos .d-front[hidden] { display: none; }
+.dos .d-front img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; }
+:root[data-mu-theme="dark"] .dos .d-front img, :root[data-mu-theme="system"][data-theme="dark"] .dos .d-front img { opacity: .86; }
+@media (prefers-color-scheme: dark) { :root[data-mu-theme="system"]:not([data-theme="light"]) .dos .d-front img { opacity: .86; } }
+.dos .d-front figcaption { margin: 6px 4px 0; font: 500 .65625rem/1.3 var(--mono); color: var(--muted); }
+.dos .g-bound { display: flex; flex-direction: column; justify-content: center; gap: 6px; container-type: inline-size; }
+/* The stats drop below the ring only when they do not fit beside it. */
+.dos .g-bound-in { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; min-width: 0; }
+/* A finished dossier's date ("28 Sept") is wider than "2/8": a smaller ring, and the date sized to
+   the tile, so it never runs out of the ink (white on the page, it would vanish). */
+.dos .g-bound.is-done .ring { width: 40px; height: 40px; }
+.dos .g-bound.is-done .g-big { font-size: min(1.875rem, 16cqi); }
+.dos .g-stat, .dos .g-begun { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.dos .g-begun { justify-content: center; }
+.dos .g-stat .t-label, .dos .g-begun .t-label { margin: 0; }
+.dos .g-big { font: 700 1.875rem/1 var(--sans); letter-spacing: -.01em; white-space: nowrap; }
+.dos .g-big small { font-size: 1.125rem; font-weight: 700; color: var(--muted); }
+.dos .g-small { font-size: .78125rem; line-height: 1.3; }
+.dos .t-ink .g-big small, .dos .t-ink .g-small, .dos .g-kept { color: color-mix(in srgb, var(--on-heading) 76%, var(--heading)); }
+.dos .g-kept { font-size: .75rem; line-height: 1.3; }
+.dos .g-mono { font: 500 .6875rem/1.3 var(--mono); color: var(--muted); }
+.dos .g-ch-h { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.dos .g-ch-hint { text-transform: none; text-align: right; }
+.dos .g-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.dos .g-grid > li { display: flex; min-width: 0; }
+.dos .g-cell { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; min-height: 58px; box-sizing: border-box; padding: 8px 9px; border-radius: 10px; color: inherit; text-decoration: none; }
+.dos .is-bound .g-cell { border: 1.5px solid var(--edge); background: var(--surface); color: var(--ink); }
+.dos .is-unbound .g-cell { border: 1.5px dashed var(--line-strong); color: var(--muted); }
+@media (hover: hover) { .dos a.g-cell:hover { background: var(--sunk); } }
+.dos .g-cell-top { display: flex; justify-content: space-between; align-items: center; min-height: 16px; font: 500 .65625rem/1 var(--mono); }
+.dos .g-tick { display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--heading); color: var(--on-heading); }
+.dos .g-tick svg { width: 12px; height: 12px; }
+.dos .g-cell-t { font-size: .8125rem; line-height: 1.2; }
+.dos .is-bound .g-cell-t { font-weight: 600; }
+.dos .g-hook, .dos .g-breath { padding: 12px 14px; }
+.dos .g-hook-q { font-size: .9375rem; line-height: 1.45; }
+.dos .g-breath .t-prose { font-size: .9375rem; line-height: 1.5; }
+.dos .g-more { display: flex; flex-direction: column; gap: 6px; min-height: 96px; }
+.dos .g-more .t-label { margin: 0; }
+.dos .g-more-n { font: 700 1rem/1.2 var(--sans); }
+.dos .g-more .t-open { margin-top: auto; }
+.dos .g-save { padding: 12px 14px; }
+.dos .g-save-t { font-size: .9375rem; line-height: 1.45; }
+.dos .dos-btn-out {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-top: 10px; padding: 0 16px;
+  border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); color: var(--ink);
+  font: 700 .9375rem/1 var(--sans); cursor: pointer;
+}
+.dos .dos-btn-out svg { width: 18px; height: 18px; }
+.dos .dos-btn-out[disabled] { opacity: .6; cursor: default; }
+
+/* ---------- 5. a chapter ---------- */
+.dos .c-main, .dos .c-side { display: contents; }
+.dos .c-head { display: flex; align-items: center; gap: 12px; }
+.dos .c-num {
+  flex: none; display: grid; place-items: center; min-width: 3.625rem; height: 3.625rem; box-sizing: border-box; padding: 0 4px;
+  border: 2px solid var(--edge); border-radius: 12px; font: 700 1.75rem/1 var(--sans); letter-spacing: -.02em;
+}
+.dos .c-num.n3 { font-size: 1.375rem; }
+.dos .c-num.n4 { font-size: 1.125rem; }
+.dos .c-head-t { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.dos .c-of { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; margin: 0; }
+.dos .c-kind { font: 600 .6875rem/1.1 var(--cond); letter-spacing: .09em; color: var(--teal); }
+.dos .c-h1 { font: 700 1.1875rem/1.2 var(--sans); text-wrap: pretty; }
+.dos .c-key { padding: 12px 14px; }
+.dos .c-key-t { font: 600 1.125rem/1.35 var(--sans); }
+.dos .c-explain { padding: 12px 14px; }
+.dos .c-explain .t-label { margin-bottom: 6px; }
+.dos .c-clip { margin-top: .8em; padding: 10px 12px; border-radius: 10px; background: var(--surface); }
+.dos .c-clip blockquote { font-size: .9375rem; line-height: 1.45; font-style: italic; }
+.dos .c-clip figcaption { margin-top: 6px; font: 500 .65625rem/1.6 var(--mono); text-transform: uppercase; color: var(--muted); }
+/* Compare's chapters are rows, as the bibliography's (section 8): one link to a line, 44 px tall. */
+.dos .c-compare .b-ch-h { margin-top: 2px; }
+.dos .c-compare .b-ch + .b-ch-h { margin-top: 8px; }
+.dos .c-pills { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 8px; }
+.dos .c-pills span { padding: 3px 8px; border: 1.5px solid var(--line-strong); border-radius: 99px; font: 600 .75rem/1.1 var(--cond); letter-spacing: .02em; color: var(--muted); }
+.dos .c-pills .on { background: var(--heading); border-color: var(--heading); color: var(--on-heading); }
+.dos .c-num-v { font: 700 1.75rem/1.1 var(--sans); letter-spacing: -.01em; }
+.dos .c-num-src { margin-top: 6px; font: 500 .65625rem/1.8 var(--mono); text-transform: uppercase; color: var(--muted); }
+.dos .c-numbers summary { display: flex; align-items: center; gap: 6px; min-height: 44px; margin: -12px; padding: 0 12px; font: 600 .875rem/1.2 var(--sans); }
+.dos .c-numbers[open] summary { margin-bottom: 4px; }
+.dos .c-numbers li { display: grid; grid-template-columns: 4.4rem minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 7px 0; border-top: 1px solid var(--line); font-size: .875rem; line-height: 1.4; }
+.dos .c-numbers .nk { font: 500 .625rem/1.3 var(--mono); text-transform: uppercase; color: var(--teal); }
+.dos .c-numbers .nv { max-width: 7.5rem; font: 500 .8125rem/1.3 var(--mono); text-align: right; overflow-wrap: anywhere; }
+
+/* ---------- 6. the plate: the lesson's interactive in a well, asleep until Tap to play ---------- */
+.dos .c-plate { display: flex; flex-direction: column; gap: 8px; margin: 0; scroll-margin-top: 12px; }
+.dos .c-plate-cap { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.dos .c-plate-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dos .c-plate-name .t-label { margin: 0; }
+.dos .c-plate-t { font: 700 .9375rem/1.25 var(--sans); }
+.dos .wake {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 12px;
+  border: 0; border-radius: 11px; background: var(--heading); color: var(--on-heading);
+  font: 700 .84375rem/1 var(--sans); cursor: pointer;
+}
+.dos .wake svg { width: 16px; height: 16px; }
+.dos .wake .w-done, .dos .wake[aria-pressed="true"] .w-play { display: none; }
+.dos .wake[aria-pressed="true"] .w-done { display: block; }
+.dos .wake[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 2px var(--edge); }
+.dos .mount { position: relative; border-radius: 6px; background: var(--surface); }
+.dos .mount .frame { min-height: 120px; border-radius: 6px; overflow: hidden; }
+.dos .mount iframe { display: block; width: 100%; border: 0; background: var(--surface); }
+/* The plate sits in a flat --surface well, not in the kit host's own card. */
+.dos .mount .kit-frame { border: 0; border-radius: 6px; box-shadow: none; }
+.dos .cover-tap { position: absolute; inset: 0; z-index: 1; cursor: pointer; }
+.dos .mount[data-awake="true"] { outline: 2px solid var(--edge); outline-offset: 2px; }
+.dos .mount[data-awake="true"] .cover-tap { display: none; }
+.dos .c-look { font-size: .84375rem; line-height: 1.4; }
+.dos .c-look b { font-weight: 700; }
+.dos .c-plate-gone { padding: 14px; border: 1.5px dashed var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--muted); font-size: .9375rem; line-height: 1.45; }
+
+/* ---------- 7. put it into practice, and sources ---------- */
+.dos .p-head { padding: 2px 2px 0; }
+.dos .p-head .t-label { margin: 0; }
+.dos .p-h1 { margin-top: 6px; font: 700 1.625rem/1.1 var(--sans); letter-spacing: -.01em; }
+.dos .p-h2 { font: 700 1.625rem/1.1 var(--sans); letter-spacing: -.01em; }
+.dos .p-sub { margin-top: 6px; font-size: .9375rem; line-height: 1.45; color: var(--muted); }
+.dos .p-sec { margin: 4px 2px 8px; }
+.dos .p-rules { padding: 14px; }
+.dos .p-rules .t-label { margin-bottom: 6px; }
+.dos .p-rule-lead { font: 700 2.125rem/1.05 var(--sans); letter-spacing: -.02em; text-wrap: pretty; }
+.dos .p-rule-lead.is-mid { font-size: 1.625rem; line-height: 1.1; letter-spacing: -.01em; }
+.dos .p-rule-lead.is-long { font-size: 1.3125rem; line-height: 1.2; letter-spacing: -.01em; }
+.dos .p-rule-rest { margin-top: 6px; font: 500 1.125rem/1.35 var(--sans); }
+.dos .p-rule-rest > * + * { margin-top: .4em; }
+.dos .p-rule-rest ul, .dos .p-items { padding-left: 1.2em; list-style: disc; }
+.dos .p-example, .dos .p-other, .dos .p-steps { padding: 12px 14px; }
+.dos .p-example .t-prose, .dos .p-other .t-prose { font-size: 1rem; line-height: 1.5; }
+.dos .p-steps .t-prose { font-size: 1rem; line-height: 1.5; margin-bottom: 8px; }
+.dos .p-check { display: grid; gap: 10px; margin-top: 6px; }
+.dos .p-check li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 1rem; line-height: 1.45; }
+.dos .p-step-n { display: grid; place-items: center; width: 26px; height: 26px; box-sizing: border-box; border: 2px solid var(--edge); border-radius: 7px; font: 700 .8125rem/1 var(--sans); }
+.dos .p-mis-grid, .dos .p-src-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.dos .p-mis { display: flex; flex-direction: column; gap: 6px; }
+.dos .p-mis.is-wide, .dos .p-mis-grid.is-odd > .p-mis:last-child, .dos .p-src-grid.is-odd > .p-src:last-child { grid-column: 1 / -1; }
+.dos .p-x { width: 18px; height: 18px; flex: none; }
+.dos .p-mis p, .dos .p-mis .t-prose { font-size: .90625rem; line-height: 1.35; }
+.dos .p-src { display: flex; flex-direction: column; gap: 6px; scroll-margin: 90px; }
+.dos .t.p-src:focus { outline: 3px solid var(--teal); outline-offset: 2px; }
+.dos .p-src-top { display: flex; align-items: flex-start; gap: 6px; }
+.dos .p-chip { flex: none; display: grid; place-items: center; min-width: 20px; height: 20px; box-sizing: border-box; padding: 0 4px; border-radius: 4px; background: var(--teal-tint); color: var(--teal); font: 600 .75rem/1 var(--cond); }
+.dos .p-src-name { min-width: 0; font: 700 .84375rem/1.3 var(--sans); overflow-wrap: anywhere; }
+.dos .p-src-work { font-size: .8125rem; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
+.dos .p-src-q { font-size: .8125rem; line-height: 1.35; font-style: italic; color: var(--muted); }
+/* The host link: a 44 px tap target that reaches into the tile's padding. */
+.dos .p-src-u {
+  align-self: flex-start; display: inline-flex; align-items: center; min-height: 44px; margin-top: auto; margin-bottom: -10px; padding: 0; color: var(--ink);
+  font: 500 .65625rem/1.3 var(--mono); text-underline-offset: 3px; overflow-wrap: anywhere;
+}
+.dos .p-src-u svg { flex: none; width: 12px; height: 12px; margin-left: 4px; }
+.dos .p-none { grid-column: 1 / -1; font-size: .9375rem; line-height: 1.45; color: var(--muted); }
+
+/* ---------- 8. glossary and bibliography ---------- */
+.dos .b-gloss, .dos .b-biblio { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.dos .b-term, .dos .b-work { padding: 12px 14px; }
+.dos .b-term dt { font: 700 1.125rem/1.25 var(--sans); }
+.dos .b-def { margin-top: 6px; font-size: .9375rem; line-height: 1.5; }
+.dos .b-first, .dos .b-ch-h { margin-top: 6px; font: 500 .6875rem/1.6 var(--mono); color: var(--muted); }
+/* "First met in …": its link's 44 px target reaches into the space above and the tile's padding
+   below, never over the definition's last line. */
+.dos .b-first { margin-top: 14px; }
+.dos .b-first a { display: inline-block; padding-block: 13.5px; margin-block: -13.5px; color: var(--ink); text-underline-offset: 2px; }
+/* The chapters that rest on an entry: a row each, its numeral and title, 44 px tall. */
+.dos .b-ch { margin: 0; }
+.dos .b-ch li + li { border-top: 1px solid var(--line); }
+.dos .b-ch a, .dos .b-ch .b-ch-off { display: flex; align-items: center; gap: 8px; min-height: 44px; color: var(--ink); font: 600 .875rem/1.25 var(--sans); }
+.dos .b-ch .b-ch-off { font-weight: 500; color: var(--muted); }
+.dos .b-ch a { text-decoration: none; }
+.dos .b-ch a .b-ch-t { text-decoration: underline; text-underline-offset: 3px; }
+.dos .b-ch-n { flex: none; min-width: 2.2em; font: 500 .75rem/1 var(--mono); color: var(--muted); }
+.dos .b-head { margin-top: 18px; }
+.dos .b-work { display: flex; flex-direction: column; gap: 4px; }
+.dos .b-w { font-size: .9375rem; line-height: 1.4; }
+.dos .b-pub { display: block; font-weight: 700; }
+.dos .b-q summary { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; font: 600 .84375rem/1.2 var(--sans); }
+.dos .b-q blockquote { margin: 2px 0 8px 22px; font-size: .875rem; line-height: 1.45; font-style: italic; color: var(--muted); }
+
+/* Where the page is narrow for its words (a phone at the larger text sizes), half tiles go across. */
+@container dospage (max-width: 18.5rem) {
+  .dos .t-half { grid-column: 1 / -1; }
+  .dos .p-mis-grid, .dos .p-src-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- 9. a source card that opens in place ---------- */
+.dos .fn-pop { position: fixed; z-index: 60; padding: 14px 16px 12px; background: var(--surface); color: var(--ink); border: 1.5px solid var(--edge); border-radius: 16px; box-shadow: var(--shadow); }
+.dos .fp-n { font: 500 .65625rem/1.3 var(--mono); text-transform: uppercase; color: var(--muted); }
+.dos .fp-t { margin-top: 4px; font: 700 .9375rem/1.35 var(--sans); }
+.dos .fp-t .pub { font-weight: 400; color: var(--muted); }
+.dos .fn-pop blockquote { margin-top: 8px; font-size: .875rem; line-height: 1.45; font-style: italic; color: var(--muted); }
+.dos .fp-l { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; margin-top: 8px; }
+.dos .fp-l a { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; color: var(--ink); font: 500 .75rem/1.3 var(--mono); }
+.dos .fp-l svg { width: 12px; height: 12px; }
+
+/* ---------- 10. wide screens: one wider tile page, four columns, up to --wide ---------- */
+@container view (min-width: 40rem) {
+  .dos .dos-pagebar { left: 50%; right: auto; width: min(34rem, calc(100% - 32px)); transform: translateX(-50%); }
+}
+@container view (min-width: 55rem) {
+  .dos .dos-bar, .dos .dos-page { box-sizing: border-box; width: 100%; max-width: var(--wide); margin-inline: auto; padding-left: 24px; padding-right: 24px; }
+  .dos .dos-page { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  .dos .t-half { grid-column: span 2; }
+  /* At a glance, in its reading order: Bound over Begun beside the picture, then the chapters
+     (four a row), then the question beside In one breath. */
+  .dos .dos-glance .d-front { grid-column: span 2; grid-row: span 2; align-self: start; }
+  .dos .dos-glance .g-bound, .dos .dos-glance .g-begun, .dos .dos-glance .g-hook, .dos .dos-glance .g-breath, .dos .dos-glance .g-save { grid-column: span 2; }
+  .dos .dos-glance .g-more { grid-column: span 1; }
+  .dos .g-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* A chapter: the header and key idea across; the plate and the explanation over three columns,
+     the analogy, Where it breaks, Compare and How certain stacked beside them. */
+  .dos .c-main { grid-column: span 3; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start; }
+  .dos .c-main > .t-full { grid-column: 1 / -1; }
+  .dos .c-main > .t-half { grid-column: span 1; }
+  .dos .c-side { grid-column: span 1; display: flex; flex-direction: column; gap: 12px; }
+  .dos .c-prose > * { max-width: var(--measure); }
+  /* Put it into practice: the parts two to a row where they are short. */
+  .dos .dos-practice { grid-auto-flow: row dense; }
+  .dos .p-rules, .dos .p-example { grid-column: span 2; }
+  .dos .p-mis-grid, .dos .p-src-grid, .dos .b-gloss, .dos .b-biblio { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+  .dos .p-mis-grid.is-odd > .p-mis:last-child, .dos .p-src-grid.is-odd > .p-src:last-child { grid-column: auto; }
+}
+
+/* ---------- 11. the Library's dossiers (#/library/dossiers; 73-book.js draws the page) ---------- */
+/* The Library uses the wide screens' width on a laptop. */
+:root[data-layout="laptop"] .view:is([data-screen="book"], [data-screen="library"]):has(> .lib-page) { max-width: var(--wide); }
+.lib-page .page-head { margin-bottom: 4px; }
+.lib-page .dl-head { gap: 4px; margin: 4px 0 12px; }
+.lib-page .dl-head h1 { font-size: 1.875rem; line-height: 1.1; letter-spacing: -.01em; }
+.lib-page .dl-head p.muted { font-size: .9375rem; line-height: 1.4; }
+.dos .lib-dossiers { container: dlib / inline-size; }
+.dos .dl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row dense; gap: 10px; }
+.dos .dl-grid > li { display: flex; min-width: 0; }
+.dos .dl-grid > li > * { flex: 1; min-width: 0; }
+.dos .dl-span { grid-column: 1 / -1; }
+.dos .dl-sk { height: 200px; border-radius: 16px; }
+.dos .dl-tile { display: flex; flex-direction: column; gap: 8px; min-height: 104px; box-sizing: border-box; }
+.dos .dl-tile > .t-label { margin: 0; }
+.dos .dl-lead { gap: 10px; padding: 14px 14px 12px; }
+.dos .dl-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.dos .dl-top .t-label { margin: 0; font-size: .6875rem; }
+.dos .dl-state { font: 500 .6875rem/1.2 var(--mono); color: var(--muted); }
+.dos .dl-title { font: 700 1.5625rem/1.1 var(--sans); letter-spacing: -.01em; text-wrap: pretty; }
+/* The bars go below the ring only when they do not fit beside it (a small phone at XL, or 9-10 ideas). */
+.dos .dl-prog { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding-top: 4px; }
+.dos .dl-ring { flex: none; display: grid; place-items: center; }
+.dos .dl-ring > * { grid-area: 1 / 1; }
+.dos .dl-ring-n { font: 700 1.125rem/1 var(--sans); }
+.dos .dl-bars { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: flex-end; gap: 6px .5rem; min-width: 0; }
+.dos .dl-bar { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 1rem; }
+.dos .dl-bar i { width: 1rem; height: 2.875rem; box-sizing: border-box; border: 1.5px dashed var(--bar-off); border-radius: 4px; }
+.dos .dl-bar.on i { border: 0; background: var(--heading); }
+/* A numeral may run wider than its bar ("VIII"), centred on it. */
+.dos .dl-bar b { font: 500 .625rem/1 var(--mono); color: var(--muted); white-space: nowrap; }
+.dos .dl-bar.on b { color: var(--ink); }
+/* Many ideas: narrower bars with no numerals, in balanced rows that read left to right
+   (--cols, set by 75-dossier.js, is how many go in a row). */
+.dos .dl-bars.is-many { justify-content: flex-start; gap: 6px .3125rem; max-width: calc(var(--cols, 8) * 1.0625rem); }
+.dos .dl-bars.is-many .dl-bar { width: .75rem; }
+.dos .dl-bars.is-many .dl-bar i { width: .75rem; height: 1.75rem; }
+.dos .dl-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.dos .dl-when { font: 500 .71875rem/1.2 var(--mono); color: var(--muted); }
+.dos .dl-name { font: 700 1rem/1.2 var(--sans); }
+.dos .dl-row, .dos .dl-fin { display: flex; align-items: center; gap: 8px; margin-top: auto; }
+.dos .dl-tile > .dl-meta { margin-top: auto; }
+.dos .dl-meta { font: 500 .71875rem/1.2 var(--mono); color: var(--muted); }
+.dos .dl-fin { color: var(--green); font: 600 .8125rem/1.2 var(--cond); }
+.dos .dl-check { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: var(--on-green); }
+.dos .dl-check svg { width: 14px; height: 14px; }
+.dos .dl-kept { border-color: var(--muted); }
+.dos .dl-own-ico { width: 22px; height: 22px; }
+.dos .dl-own .t-open { margin-top: auto; font-size: .84375rem; font-weight: 600; }
+.dos .lib-empty { display: grid; gap: 4px; color: var(--muted); font-size: .9375rem; line-height: 1.45; }
+.dos .lib-empty strong { color: var(--ink); }
+@container dlib (max-width: 18.5rem) { .dos .dl-grid > li { grid-column: 1 / -1; } }
+@container dlib (min-width: 38rem) {
+  .dos .dl-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dos .dl-grid > .dl-span:has(.dl-lead) { grid-column: span 2; grid-row: span 2; }
+}
+
+/* ---------- 12. app chrome: the topic page's option, the delete sheet's choice ---------- */
+.tp-dos { display: grid; gap: 10px; }
+.tp-dos .set-switch { padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.tp-dos-open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 700; }
+.tp-dos-open svg { width: 20px; height: 20px; }
+.dos-keep { display: grid; gap: 8px; margin-top: 14px; }
+.dos-keep-opt { display: grid; grid-template-columns: 24px 1fr; gap: 2px 12px; align-items: start; width: 100%; min-height: 48px; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 14px; background: var(--surface); text-align: left; cursor: pointer; }
+.dos-keep-opt::before { content: ""; grid-row: span 2; width: 20px; height: 20px; margin-top: 1px; border: 2px solid var(--line-strong); border-radius: 50%; box-sizing: border-box; }
+.dos-keep-opt[aria-checked="true"] { border-color: var(--heading); }
+.dos-keep-opt[aria-checked="true"]::before { border: 6px solid var(--heading); }
+.dos-keep-opt b { font-weight: 700; color: var(--ink); }
+.dos-keep-opt span { font-size: .875rem; color: var(--muted); }
+
+/* ---------- 13. motion: a quiet settle on arrival, nothing under reduced motion ---------- */
+.dos .enter { animation: dos-settle .28s cubic-bezier(.2, .7, .3, 1) backwards; }
+@keyframes dos-settle { from { opacity: 0; transform: translateY(6px); } }
+@media (prefers-reduced-motion: reduce) { .dos *, .dos *::before, .dos *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

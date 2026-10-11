@@ -1,0 +1,85 @@
+{
+  "id": "how-jet-engines-work-k3f9a",
+  "title": "How jet engines work",
+  "query": "how jet engines work",
+  "createdAt": "2026-10-05T16:20:00.000Z",
+  "updatedAt": "2026-10-05T16:20:06.000Z",
+  "status": "ready",
+  "level": "new",
+  "hook": "A jet engine has nothing solid to push against: it just throws air out of its back. So how does that hurl a jumbo jet down a runway fast enough to fly?",
+  "oneBreath": "A jet engine works by throwing air backwards: push air back hard and the air pushes the engine forwards. To throw it hard, the engine squeezes the air, burns fuel in it so it expands and rushes out of the back, and uses some of that rush to spin the turbine that drives the squeezing. Airliner engines add a huge fan that moves lots of extra air, which saves fuel.",
+  "ideas": [
+    {
+      "id": "i1",
+      "title": "Throw something back, get pushed forward",
+      "oneLine": "Push something backwards and it pushes you forwards just as hard, so an engine needs nothing solid behind it to push on.",
+      "deps": [],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i2",
+      "title": "Thrust: air per second times speed added",
+      "oneLine": "How hard an engine pushes depends on how much air it throws back each second and how much faster it makes that air go.",
+      "deps": ["i1"],
+      "kind": "quantity"
+    },
+    {
+      "id": "i3",
+      "title": "Suck, squeeze, bang, blow",
+      "oneLine": "Follow the air through the engine: in at the front, squeezed by the compressor, burned with fuel, then blasted out of the nozzle.",
+      "deps": ["i2"],
+      "kind": "process"
+    },
+    {
+      "id": "i4",
+      "title": "Why squeeze the air before burning it",
+      "oneLine": "Squeezing the air before heating it lets the engine turn more of the fuel's energy into a faster jet.",
+      "deps": ["i3"],
+      "kind": "quantity"
+    },
+    {
+      "id": "i5",
+      "title": "The turbine pays for the squeeze",
+      "oneLine": "Some of the hot gas's energy spins a turbine, which turns the shaft that drives the compressor at the front.",
+      "deps": ["i3"],
+      "kind": "mechanism"
+    },
+    {
+      "id": "i6",
+      "title": "Big fans: more air, less fuel",
+      "oneLine": "Airliner engines use a huge fan to push lots of extra air a little faster, giving the same thrust for less fuel.",
+      "deps": ["i2", "i5"],
+      "kind": "quantity"
+    }
+  ],
+  "calibration": [
+    {
+      "id": "c1",
+      "iid": "i1",
+      "q": "How does a jet engine push a plane forwards?",
+      "options": [
+        "It pushes against the air behind the plane",
+        "It throws air backwards, and the air pushes it forwards",
+        "Its hot exhaust lifts the plane like a hot-air balloon",
+        "Its spinning blades screw through the air like a drill"
+      ],
+      "answer": 1,
+      "why": "It throws air backwards, and that air pushes back on the engine. It needs nothing behind the plane to push against, which is also why rockets work in space."
+    },
+    {
+      "id": "c2",
+      "iid": "i3",
+      "q": "Why does a jet engine burn fuel?",
+      "options": [
+        "To heat the air so it expands and rushes out faster",
+        "Because the flame itself pushes on the back of the engine",
+        "To keep the engine warm in the cold air at height"
+      ],
+      "answer": 0,
+      "why": "Burning fuel heats the squeezed air, so it expands and rushes out much faster than it came in. Faster air thrown back means a bigger push; the flame does not push on anything."
+    }
+  ],
+  "research": { "status": "done", "at": "2026-10-05T16:21:40.000Z", "sources": 9 },
+  "hue": 198,
+  "error": null
+}

@@ -1,0 +1,375 @@
+/* Lesson screen (50-lesson.js) and the Ask Claude sheet (51-tutor.js).
+   One focus per stage: generous vertical rhythm, chunky actions, the interactive in a rounded
+   panel with its height reserved so nothing jumps while it loads. Colour only for meaning:
+   navy = progress and controls, green = completion, red = disagreement and problems,
+   amber = "remember this", teal = small labels. */
+
+/* --lsn-hrem is the rem for headings: it grows half as fast with Text size (16 px at M, 18 px at
+   XL instead of 20), so at L and XL a long question still leaves room on screen for the answers. */
+.lsn { --lsn-bar-h: 56px; --lsn-hrem: calc(.5rem + 8px); padding-bottom: 8px; }
+
+/* ---------- sticky bar: close, segmented progress, Ask ---------- */
+/* Whatever is focused or scrolled to stops below the bar (57 px with its border), never under it
+   (WCAG 2.4.11): the page's scroll padding reserves it, 8 px clear as under the top bar
+   (10-base.css). Stages and checks add their own few px on top. */
+:root:has(.lsn-bar) { scroll-padding-top: calc(var(--topbar-h) + env(safe-area-inset-top, 0px) + 57px + 8px); }
+.lsn-bar {
+  position: sticky; top: calc(var(--topbar-h) + env(safe-area-inset-top, 0px)); z-index: 15;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  min-height: var(--lsn-bar-h); margin: -20px -16px 0; padding: 6px 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.lsn-close { border-color: var(--line); }
+.lsn-close svg { width: 22px; height: 22px; }
+.lsn-steps { position: relative; min-width: 0; }
+.lsn-steps-row { display: flex; gap: 4px; }
+.lsn-step {
+  flex: 1; min-width: 0; height: 44px; padding: 12px 0 0; border: 0; background: none; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: flex-start;
+}
+.lsn-step[disabled] { cursor: default; }
+.lsn-step > i { display: block; height: 6px; border-radius: 3px; background: var(--sunk); transition: background-color .35s ease; }
+.lsn-step.is-done > i { background: var(--heading); }
+.lsn-step.is-now > i { background: linear-gradient(90deg, var(--heading) 0 45%, color-mix(in srgb, var(--heading) 24%, var(--sunk)) 45% 100%); }
+.lsn-step.is-all > i { background: var(--green); }
+.lsn-step:focus-visible { outline-offset: -2px; }
+.lsn-steps-label {
+  position: absolute; left: 0; right: 0; bottom: 3px; pointer-events: none;
+  font: 700 .75rem/1.2 var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--teal);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lsn-bar.is-all .lsn-steps-label { color: var(--green); }
+.lsn-ask {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px 0 11px;
+  border-radius: 999px; border: 1.5px solid var(--line-strong); background: var(--surface); color: var(--heading);
+  font: 700 .9375rem/1 var(--sans); cursor: pointer; box-shadow: 0 2px 0 var(--line);
+}
+.lsn-ask:active { transform: translateY(1px); box-shadow: none; }
+.lsn-ask svg { width: 20px; height: 20px; flex: none; }
+.lsn-wide { display: none; }
+@container view (min-width: 528px) { .lsn-wide { display: inline; } }
+
+/* ---------- heading ---------- */
+.lsn-head { display: flex; flex-direction: column; gap: 10px; padding: 28px 0 4px; }
+.lsn-eb { min-height: 17px; }
+/* "Topic name · Idea 1 of 5": the topic name is shown nowhere else on the lesson, so it wraps
+   (at a space) rather than going, and the count never splits. Only at XL on a phone, where every
+   line counts, does the eyebrow keep to one line, and the name drops out whole when it cannot fit
+   beside the count: the row runs right to left with the count placed first, so the name is what
+   wraps to a second line, and that line is clipped. The DOM keeps name, then count, for screen
+   readers. */
+.lsn-eb-topic::after { content: "\00a0·\00a0"; }
+.lsn-eb-n { white-space: nowrap; }
+@container view (max-width: 527px) {
+  :root[data-size="xl"] .lsn-eb.is-filled { display: flex; flex-flow: row-reverse wrap; justify-content: flex-end; max-height: 1.4em; overflow: hidden; }
+  :root[data-size="xl"] .lsn-eb-n { order: -1; }
+}
+.lsn-title { font-size: clamp(calc(1.65 * var(--lsn-hrem)), 6.6vw, calc(2.15 * var(--lsn-hrem))); font-size: clamp(calc(1.65 * var(--lsn-hrem)), 6.6cqi, calc(2.15 * var(--lsn-hrem))); }
+.lsn-one { color: var(--muted); font-size: 1.0625rem; line-height: 1.5; max-width: 34em; }
+.lsn-sk-eb { display: inline-block; width: 46%; height: 12px; vertical-align: middle; }
+.lsn-sk-h1 { display: block; width: 78%; height: 32px; }
+
+/* ---------- stages ---------- */
+.lsn-flow { display: flex; flex-direction: column; }
+.lsn-stage, .lsn-past { scroll-margin-top: 11px; }
+.lsn-stage { display: flex; flex-direction: column; gap: 18px; padding: 40px 0 8px; }
+.lsn-stage + .lsn-stage { margin-top: 32px; border-top: 1px solid var(--line); }
+.lsn-past + .lsn-stage { margin-top: 12px; }
+.lsn-stage > .eyebrow { margin-bottom: -10px; }
+.lsn-h { font-size: calc(1.35 * var(--lsn-hrem)); line-height: 1.3; }
+.lsn-h:focus { outline: none; }
+/* What focus lands on after an action (a verdict, the answer, a model answer): like a heading
+   that takes focus, it shows no ring for it. */
+.lsn-land:focus { outline: none; }
+.lsn-lede { color: var(--muted); font-size: 1rem; line-height: 1.55; max-width: 36em; }
+.lsn-go { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-top: 6px; }
+.lsn-go > .btn svg { width: 20px; height: 20px; }
+@container view (max-width: 527px) {
+  .lsn-go > .btn { flex: 1 1 100%; }
+  .lsn-go > .linkish { margin-inline: auto; }
+}
+.lsn-options .option { font-size: 1.0625rem; }
+.lsn-stage .input { font-size: 1.0625rem; }
+
+/* earlier stages, collapsed on resume but reviewable */
+.lsn-flow > .lsn-past:first-child { margin-top: 24px; }
+.lsn-past { margin-top: 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.lsn-past > summary {
+  list-style: none; display: grid; grid-template-columns: 30px minmax(0, 1fr) 22px; align-items: center; gap: 12px;
+  min-height: 62px; padding: 10px 14px; cursor: pointer; border-radius: var(--r);
+}
+.lsn-past > summary::-webkit-details-marker { display: none; }
+.lsn-past-tick { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); color: var(--heading); }
+.lsn-past-tick svg { width: 17px; height: 17px; }
+.lsn-past-label { display: block; font: 700 .75rem/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+/* The summary wraps: the script already shortens it at a word ("…"), so no word is cut in half.
+   Three lines at most, for a very large text size. */
+.lsn-past-sum { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-top: 2px; font: 500 .9375rem/1.4 var(--sans); color: var(--ink); }
+.lsn-chev { display: grid; place-items: center; color: var(--muted); }
+.lsn-chev svg { width: 20px; height: 20px; transform: rotate(-90deg); transition: transform .2s ease; }
+details[open] > summary .lsn-chev svg { transform: rotate(90deg); }
+.lsn-past-body { display: flex; flex-direction: column; gap: 16px; padding: 6px 16px 22px; border-top: 1px solid var(--line); }
+.lsn-past-body > :first-child { margin-top: 16px; }
+.lsn-past-body .lsn-h { font-size: calc(1.15 * var(--lsn-hrem)); }
+
+/* ---------- preparing ---------- */
+.lsn-prep { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
+.lsn-prep-head { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
+/* A ready-made course's lesson not built yet: a calm note, no working dots. */
+.lsn-soon { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; padding: 20px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
+.lsn-soon p { margin: 0; }
+.lsn-soon-h { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
+.lsn-prep-calm { color: var(--muted); font-size: .9375rem; line-height: 1.5; margin-top: -6px; }
+.lsn-prep-lines { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lsn-prep-lines li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .9688rem; line-height: 1.45; }
+.lsn-prep-lines li.is-done { color: var(--muted); }
+.lsn-prep-mark { display: grid; place-items: center; height: 22px; }
+.lsn-prep-mark i { width: 9px; height: 9px; border-radius: 50%; background: var(--heading); animation: lsn-breathe 1.6s ease-in-out infinite; }
+.lsn-prep-mark svg { display: none; width: 17px; height: 17px; color: var(--teal); }
+.lsn-prep-lines li.is-done .lsn-prep-mark i, .lsn-prep-lines li.is-failed .lsn-prep-mark i { display: none; }
+.lsn-prep-lines li.is-done:not(.is-failed) .lsn-prep-mark .lsn-prep-ok { display: block; }
+/* A step that did not work out while the work went on (a test that found problems, a repair that
+   did not pass): a quiet dash in the tick's place, never a tick. */
+.lsn-prep-lines li.is-missed { color: var(--muted); }
+.lsn-prep-lines li.is-missed .lsn-prep-mark i { animation: none; width: 10px; height: 2px; border-radius: 1px; background: var(--muted); opacity: 1; transform: none; }
+/* The step that failed: a red cross in the ticks' place, never a tick as well. */
+.lsn-prep-lines li.is-failed { color: var(--red); }
+.lsn-prep-lines li.is-failed .lsn-prep-mark .lsn-prep-x { display: block; color: var(--red); }
+.lsn-prep-slow { color: var(--muted); font-size: .875rem; }
+@keyframes lsn-breathe { 0%, 100% { opacity: .35; transform: scale(.8); } 50% { opacity: 1; transform: scale(1); } }
+
+/* ---------- play ---------- */
+.lsn-play { display: flex; flex-direction: column; gap: 10px; }
+@container view (max-width: 527px) { .lsn-play > .lsn-panel { margin-inline: -6px; } }
+.lsn-panel { position: relative; }
+.lsn-panel-foot { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding-inline: 4px; }
+.lsn-panel-foot:empty { display: none; }
+.lsn-selfwarn { font-size: .875rem; line-height: 1.5; padding: 10px 14px; }
+.lsn-none { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; border-radius: var(--r); background: var(--sunk); }
+.lsn-none-head { font: 700 1rem/1.3 var(--sans); color: var(--heading); }
+.lsn-after { display: flex; flex-direction: column; gap: 16px; }
+.lsn-after:empty { display: none; }
+
+/* disclosures: "What am I looking at?", "What this model ignores", sources */
+.lsn-discs { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.lsn-discs:empty { display: none; }
+.lsn-disc { border-bottom: 1px solid var(--line); }
+.lsn-disc > summary {
+  list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 54px; cursor: pointer; font: 700 1rem/1.3 var(--sans); color: var(--heading);
+}
+.lsn-disc > summary::-webkit-details-marker { display: none; }
+.lsn-disc-body { display: flex; flex-direction: column; gap: 14px; padding: 0 0 20px; font-size: 1rem; line-height: 1.65; }
+.lsn-disc-text p + p { margin-top: .8em; }
+.lsn-nums { display: flex; flex-direction: column; margin: 0; border-radius: var(--r-sm); background: var(--sunk); padding: 4px 14px; }
+.lsn-num { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 12px; padding: 10px 0; }
+.lsn-num + .lsn-num { border-top: 1px solid var(--line); }
+.lsn-num-options { flex-basis: 100%; margin: 0; color: var(--muted); font-size: .875rem; line-height: 1.45; }
+.lsn-num dt { font-weight: 600; color: var(--ink); }
+.lsn-num dd { margin: 0; display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.lsn-num-val { font: 700 .9375rem/1.4 var(--mono); color: var(--heading); }
+.lsn-num-now { font: 700 .875rem/1.4 var(--mono); color: var(--teal); }
+.lsn-num-kind { font: 600 .75rem/1.3 var(--sans); color: var(--teal); }
+
+/* predict vs what happens */
+.lsn-reveal { display: grid; gap: 12px; }
+@container view (min-width: 528px) { .lsn-reveal { grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); align-items: start; } }
+.lsn-reveal-guess { padding: 16px 18px; border-radius: var(--r); border: 1.5px dashed var(--line-strong); }
+.lsn-reveal-guess.is-right { border-style: solid; border-color: color-mix(in srgb, var(--green) 55%, var(--line)); }
+.lsn-reveal .lsn-called { display: flex; align-items: center; gap: 6px; margin-top: 8px; font: 700 .9375rem/1.3 var(--sans); color: var(--green); }
+.lsn-called svg { width: 18px; height: 18px; flex: none; }
+.lsn-reveal .eyebrow { margin-bottom: 6px; }
+.lsn-reveal p:not(.eyebrow) { font-size: 1.0625rem; line-height: 1.55; }
+.lsn-reveal-text p + p { margin-top: .6em; }
+
+/* ---------- explain ---------- */
+/* The explanation is the main reading: about 65-70 characters a line of Literata on a laptop
+   (the analogy and sources below keep the wider column). A phone column is narrower anyway. */
+.lsn-reading p { max-width: 33em; }
+.lsn-quiet { padding: 2px 0 2px 12px; border-left: 3px solid var(--line-strong); color: var(--muted); font-size: .875rem; line-height: 1.55; }
+.lsn-quiet strong { color: var(--ink); font-weight: 700; }
+.lsn-analogy { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.lsn-analogy-text { font: 400 calc(var(--fs) - 1px)/1.7 var(--serif); }
+.lsn-breaks { margin-top: 8px; padding-top: 12px; border-top: 1px dashed var(--line-strong); font: 400 calc(var(--fs) - .0625rem)/1.65 var(--serif); color: var(--ink); }
+.lsn-breaks .eyebrow { margin-bottom: 4px; }
+/* Put it into practice: how to use the idea (steps, rules of thumb, a worked example, the common
+   mistakes), in the lesson's own words. Navy numbers on the steps (progress and controls). */
+.lsn-practice { display: flex; flex-direction: column; gap: 8px; padding: 18px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+.lsn-practice-text { display: flex; flex-direction: column; gap: .75em; font: 400 calc(var(--fs) - 1px)/1.7 var(--serif); }
+.lsn-practice-text ol, .lsn-practice-text ul { display: grid; gap: .4em; max-width: 36em; margin: 0; padding-left: 1.5em; }
+.lsn-practice-text ol { list-style: decimal; }
+.lsn-practice-text ul { list-style: disc; }
+.lsn-practice-text ol > li::marker { color: var(--heading); font: 700 .95em var(--sans); }
+.lsn-practice-text li { padding-left: .2em; }
+.lsn-contest { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: var(--r); border: 1.5px solid color-mix(in srgb, var(--red) 38%, var(--line)); }
+.lsn-flag {
+  align-self: flex-start; padding: 5px 11px; border-radius: 999px; background: var(--red-tint); color: var(--red);
+  font: 800 .75rem/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase;
+}
+.lsn-contest-lede { color: var(--muted); font-size: .9375rem; }
+.lsn-views { display: grid; gap: 12px; }
+@container view (min-width: 528px) { .lsn-views { grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); } }
+.lsn-view { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line); }
+.lsn-view-text { font-size: .9688rem; line-height: 1.6; }
+.lsn-sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.lsn-source-btn {
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; width: 100%; min-height: 44px; padding: 8px 0;
+  border: 0; background: none; text-align: left; cursor: pointer; color: var(--ink); font: 600 .9375rem/1.4 var(--sans);
+}
+.lsn-source-n { display: grid; place-items: center; height: 22px; border-radius: 6px; background: var(--teal-tint); color: var(--teal); font: 700 .75rem/1 var(--sans); }
+.lsn-source-host { display: block; color: var(--muted); font-weight: 500; font-size: .8125rem; }
+/* What the fact-check did: one quiet line under the sources (or alone, with none). */
+.lsn-checked { margin: 6px 0 0; color: var(--muted); font-size: .8125rem; line-height: 1.5; }
+
+/* source sheet */
+.lsn-src { display: flex; flex-direction: column; gap: 14px; }
+.lsn-quote { margin: 0; padding: 4px 0 4px 16px; border-left: 3px solid var(--teal); font: italic 400 1.0625rem/1.65 var(--serif); color: var(--ink); }
+.lsn-src-go { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.lsn-src-link svg { width: 18px; height: 18px; }
+.lsn-src-host { min-width: 0; color: var(--muted); font-size: .875rem; overflow-wrap: anywhere; }
+
+/* ---------- say it back ---------- */
+.lsn-say-log { display: flex; flex-direction: column; gap: 18px; }
+.lsn-say-log:empty { display: none; }
+.lsn-attempt { display: flex; flex-direction: column; gap: 10px; }
+.lsn-bubble { align-self: flex-end; max-width: 92%; padding: 12px 16px; border-radius: 18px 18px 6px 18px; background: var(--sunk); }
+.lsn-bubble-label { font: 700 .75rem/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); margin-bottom: 4px; }
+.lsn-bubble-text { font-size: 1rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.lsn-grading { display: flex; flex-direction: column; gap: 8px; color: var(--muted); font-size: .9375rem; }
+.lsn-grade { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; border-radius: var(--r); background: var(--surface); box-shadow: var(--shadow); }
+.lsn-verdict { font: 800 1.0625rem/1.3 var(--sans); color: var(--heading); }
+.lsn-nailed { font-size: 1rem; line-height: 1.55; }
+.lsn-met { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.lsn-met li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; font-size: .9688rem; line-height: 1.45; }
+.lsn-tick { width: 22px; height: 22px; color: var(--green); }
+.lsn-ring { width: 18px; height: 18px; margin: 2px; border-radius: 50%; border: 2px solid var(--line-strong); }
+.lsn-rubric li:not(.is-met) { color: var(--muted); }
+.lsn-follow { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 1rem; line-height: 1.55; }
+.lsn-model { display: flex; flex-direction: column; gap: 10px; }
+.lsn-model-text { font: 400 calc(var(--fs) - 1px)/1.7 var(--serif); }
+.lsn-model-text p + p { margin-top: .8em; }
+.lsn-compose { display: flex; flex-direction: column; gap: 10px; }
+.lsn-say-input { min-height: 132px; font-size: 1.0625rem; line-height: 1.5; }
+.lsn-say-slot:empty { display: none; }
+
+/* ---------- checks ---------- */
+.lsn-checks { display: flex; flex-direction: column; gap: 32px; }
+.lsn-check { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 11px; }
+.lsn-check-count { font: 700 .75rem/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+/* A check's question follows the lesson's heading scale (--lsn-hrem) like the predict question,
+   one step below the stage heading ("Quick checks") on a phone and a laptop alike. Review cards
+   outside a lesson keep their own sizes (40-review.css). */
+.lsn-check .qc-q, :root[data-layout="laptop"] .lsn-check .qc-q { font-size: calc(1.2 * var(--lsn-hrem)); }
+.lsn-check-list { margin: 0; padding: 0 0 0 20px; display: flex; flex-direction: column; gap: 12px; }
+.lsn-check-list li { font-size: .9688rem; line-height: 1.5; }
+.lsn-check-q { display: block; }
+.lsn-check-res { display: inline-block; margin-top: 4px; font: 700 .8125rem/1.3 var(--sans); color: var(--muted); }
+.lsn-check-res.is-right { color: var(--green); }
+.lsn-check-res.is-wrong { color: var(--red); }
+
+/* ---------- done ---------- */
+.lsn-done { align-items: center; text-align: center; }
+/* Same size as U.cheer's bubble: on a first finish the section is scrolled so this mark sits where
+   the cheer pops (38% down the viewport), and the bubble fades into it. */
+.lsn-done-mark { width: 76px; height: 76px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--green); color: var(--bg); box-shadow: 0 8px 24px color-mix(in srgb, var(--green) 30%, transparent); }
+.lsn-done-mark svg { width: 40px; height: 40px; }
+.lsn-stage.lsn-done.is-fresh { scroll-margin-top: max(11px, calc(38vh - 135px - env(safe-area-inset-top, 0px))); }
+.lsn-done .lsn-h { font-size: calc(1.6 * var(--lsn-hrem)); }
+.lsn-done-text { color: var(--muted); max-width: 30em; font-size: 1rem; line-height: 1.6; }
+.lsn-done-text > span { display: block; text-wrap: balance; }
+.lsn-done-score { color: var(--ink); font-weight: 700; }
+.lsn-next { align-self: stretch; display: flex; flex-direction: column; gap: 8px; margin-top: 8px; padding: 20px; text-align: left; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow); }
+.lsn-next h3 { font-size: 1.15rem; }
+.lsn-next .lsn-go { margin-top: 10px; }
+/* Whether the next lesson is still being prepared or ready (a breathing dot, or a tick). */
+.lsn-next-status { display: flex; align-items: center; gap: 8px; font: 600 .9375rem/1.4 var(--sans); color: var(--muted); }
+.lsn-next-status:empty { display: none; }
+.lsn-next-status .lsn-prep-mark { width: 20px; height: auto; }
+.lsn-next-status svg { width: 17px; height: 17px; color: var(--teal); }
+.lsn-again { margin-top: -4px; }
+
+/* ---------- footer ---------- */
+.lsn-foot { display: flex; flex-direction: column; align-items: center; margin-top: 56px; padding-top: 8px; border-top: 1px solid var(--line); }
+.lsn-flag-link { color: var(--muted); font-size: .875rem; font-weight: 600; }
+.lsn-flag-kept { color: var(--muted); font: 600 .875rem/1.4 var(--sans); text-align: center; }
+.lsn-flag-kept svg { display: inline-block; width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; color: var(--teal); }
+.lsn-missing-go { margin-top: 16px; }
+.lsn-notice { margin-top: 16px; }
+
+/* ---------- laptop ----------
+   The interactive gets the full width (its controls sit beside the picture); everything you
+   read keeps a comfortable line length, centred above and below it. */
+@container view (min-width: 900px) {
+  .lsn-head, .lsn-notice, .lsn-flow > .lsn-past, .lsn-prep-slot, .lsn-foot { width: 100%; max-width: var(--measure); margin-inline: auto; }
+  .lsn-stage > * { width: 100%; max-width: var(--measure); align-self: center; }
+  .lsn-stage > .lsn-play { max-width: none; }
+  .lsn-done > .lsn-done-mark { width: 76px; }
+  .lsn-done > .lsn-next { align-self: center; }
+}
+
+/* ---------- Ask Claude sheet ---------- */
+.tutor-sheet { display: flex; flex-direction: column; height: min(88vh, 860px); padding-bottom: 0; }
+.tutor-sheet > .sheet-in { flex: 1; width: 100%; min-height: 0; }
+:root[data-layout="laptop"] .tutor-sheet { height: min(82vh, 720px); }
+/* Before the first question there is only a line of welcome, the chips and the input: no tall
+   empty sheet, and on a phone the lesson stays in view above it. */
+.tutor-sheet.is-empty, :root[data-layout="laptop"] .tutor-sheet.is-empty { height: auto; }
+.tutor { flex: 1; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+.tutor-about { margin-top: -8px; color: var(--muted); font-size: .875rem; }
+.tutor-log { flex: 1; display: flex; flex-direction: column; gap: 16px; padding-bottom: 8px; }
+.tutor-empty { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; color: var(--muted); font-size: .9688rem; line-height: 1.55; }
+.tutor-empty-head { font: 700 1.0625rem/1.3 var(--sans); color: var(--heading); }
+.tutor-msg.me { align-self: flex-end; max-width: 88%; padding: 10px 15px; border-radius: 18px 18px 6px 18px; background: var(--sunk); }
+.tutor-msg.me p { font-size: 1rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.tutor-msg.bot { max-width: 100%; }
+.tutor-msg.bot:focus { outline: none; }
+.tutor-text { font: 400 1.0625rem/1.7 var(--serif); color: var(--ink); overflow-wrap: anywhere; }
+.tutor-text p + p, .tutor-text ul { margin-top: .7em; }
+.tutor-text ul { padding-left: 1.2em; }
+.tutor-wait { display: flex; flex-direction: column; gap: 8px; max-width: 220px; color: var(--muted); font-size: .875rem; }
+.tutor-dock {
+  position: sticky; bottom: 0; z-index: 1; display: flex; flex-direction: column; gap: 10px;
+  margin: 0 -20px; padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface); border-top: 1px solid var(--line);
+}
+.tutor-chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -20px; padding: 0 20px; }
+.tutor-chips::-webkit-scrollbar { display: none; }
+.tutor-chips .chip { flex: none; min-height: 44px; }
+/* A sideways row that runs on past the sheet's edge fades out at that edge (more-left and
+   more-right, set by 51-tutor.js), so a chip cut in half reads as "scroll for more". */
+.tutor-chips.more-left, .tutor-chips.more-right {
+  -webkit-mask-image: linear-gradient(to right, var(--fade-l, #000), #000 56px, #000 calc(100% - 56px), var(--fade-r, #000));
+  mask-image: linear-gradient(to right, var(--fade-l, #000), #000 56px, #000 calc(100% - 56px), var(--fade-r, #000));
+}
+.tutor-chips.more-left { --fade-l: transparent; }
+.tutor-chips.more-right { --fade-r: transparent; }
+/* The chips wrap, so every one is whole (is-wrapped, set by 51-tutor.js): before the first
+   question, in a laptop's dialog, and under a conversation, where on a phone fewer of them show
+   if all of them would crowd it (51-tutor.js measures them wrapped). The one-line sideways row is
+   only for the chips while the keyboard is up on a short screen (is-cramped), so the welcome or
+   the conversation above them stays readable. */
+.tutor-sheet.is-wrapped .tutor-chips { flex-wrap: wrap; overflow-x: visible; }
+.tutor-sheet.is-wrapped .tutor-chips .chip { flex: 0 1 auto; }
+.tutor-chips .chip[disabled] { opacity: .5; cursor: default; }
+.tutor-compose { display: grid; grid-template-columns: minmax(0, 1fr) 52px; gap: 8px; align-items: end; }
+.tutor-input.textarea { min-height: 52px; max-height: 160px; resize: none; padding-block: 13px; overflow-y: auto; }
+.tutor-send {
+  width: 52px; height: 52px; display: grid; place-items: center; border: 0; border-radius: 16px; cursor: pointer;
+  background: var(--heading); color: var(--on-heading); box-shadow: 0 3px 0 color-mix(in srgb, var(--heading) 70%, #000);
+}
+.tutor-send:active:not([disabled]) { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in srgb, var(--heading) 70%, #000); }
+.tutor-send[disabled] { opacity: .4; cursor: default; }
+.tutor-send svg { width: 24px; height: 24px; }
+/* Read lessons: what the picture is, open above it (50-lesson.js renderPlay). */
+.lsn-orient { margin: 4px 0 14px; padding: 14px 16px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line); }
+.lsn-orient .eyebrow { margin: 0 0 6px; }
+.lsn-orient-text { font-size: 1rem; line-height: 1.6; max-width: 36em; }
+.lsn-orient-text p { margin: 0 0 .6em; }
+.lsn-orient-text p:last-child { margin-bottom: 0; }
+/* Read lessons: what cements the idea follows the interactive; the recap closes it. */
+.lsn-more > * + * { margin-top: 20px; }
+.lsn-more:not(:empty) { margin-top: 24px; }
+.lsn-recap { padding: 14px 16px; border-left: 3px solid var(--heading); background: var(--surface); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.lsn-recap .eyebrow { margin: 0 0 4px; }
+.lsn-recap-text { margin: 0; font-size: 1.05rem; line-height: 1.55; font-weight: 600; }
