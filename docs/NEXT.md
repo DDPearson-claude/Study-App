@@ -91,3 +91,12 @@ Published as version 17 of the live artifact. Live db: lessons i1 (version 8), i
 i3 (version 1); the topic and research docs are unchanged (topic version 2, research version 2).
 Lessons i4-i8 are still to build (Coming soon). The field-guide dossier (design 3) is being built in
 the worktree /home/user/wt-dossier on branch dossier-field-guide and is not in this release.
+
+### Overnight release (11 Oct, early hours): the field-guide dossier, Fractions complete
+App version 18 (version id 1791677063-21bb; the previous one, 1791666730-ad04, is the evening
+release to roll back to): the field-guide dossier merged from branch dossier-field-guide, and the
+kit's animations resume after the page is hidden. Live db: Fractions lessons i1 (version 8), i2
+(4), i3 (1), i4-i8 (1 each), all eight built, fact-checked, reviewed, fixed and confirmed, and all
+eight self-test ok against the released code. Plans for Dan's review: docs/courses/maths/
+negative-numbers/brief.md and docs/plans/foundational-maths-roadmap.md (measured costs: lean about
+275k a lesson, full process about 1.65M a lesson).
