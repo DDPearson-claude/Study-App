@@ -2184,6 +2184,45 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 @keyframes dos-settle { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .dos *, .dos *::before, .dos *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 
+/* ---------- course colour (Dan, 11 Oct: "more pops of colour") ----------
+   Each dossier takes one of six course colours (toneOf in 75-dossier.js: from the course's own hue,
+   never red or green, which mean mistakes and finished). --acc marks (stripes, borders, the
+   numeral box), --acc-ink is its text (at least 5.5:1), --acc-tint fills a reading panel. Progress
+   stays ink, finished stays green, warnings stay red; key ideas and rules of thumb are "remember
+   this", so they take the amber that means that. */
+.dos [data-tone], .dos[data-tone] { --acc: var(--acc-l); --acc-ink: var(--acc-ink-l); --acc-tint: var(--acc-tint-l); }
+:root[data-mu-theme="dark"] .dos [data-tone], :root[data-mu-theme="dark"] .dos[data-tone],
+:root[data-mu-theme="system"][data-theme="dark"] .dos [data-tone], :root[data-mu-theme="system"][data-theme="dark"] .dos[data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
+@media (prefers-color-scheme: dark) {
+  :root[data-mu-theme="system"]:not([data-theme="light"]) .dos [data-tone], :root[data-mu-theme="system"]:not([data-theme="light"]) .dos[data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
+}
+.dos [data-tone="0"], .dos[data-tone="0"] { --acc-l: #3B6FD8; --acc-ink-l: #2554B0; --acc-tint-l: #E6EEFC; --acc-d: #6E9BF0; --acc-ink-d: #9DBBF5; --acc-tint-d: #1C2638; }
+.dos [data-tone="1"], .dos[data-tone="1"] { --acc-l: #7A55D3; --acc-ink-l: #5E3BB5; --acc-tint-l: #EFE9FB; --acc-d: #A88BF0; --acc-ink-d: #C3AEF5; --acc-tint-d: #251F38; }
+.dos [data-tone="2"], .dos[data-tone="2"] { --acc-l: #E07B24; --acc-ink-l: #9A4A08; --acc-tint-l: #FCEEDF; --acc-d: #F0A35E; --acc-ink-d: #F5BE8C; --acc-tint-d: #33251A; }
+.dos [data-tone="3"], .dos[data-tone="3"] { --acc-l: #1E9AAE; --acc-ink-l: #0D6573; --acc-tint-l: #DFF3F5; --acc-d: #4FC3D4; --acc-ink-d: #86D6E1; --acc-tint-d: #16292D; }
+.dos [data-tone="4"], .dos[data-tone="4"] { --acc-l: #C53D8C; --acc-ink-l: #9A2A6B; --acc-tint-l: #FBE7F2; --acc-d: #EC7DBA; --acc-ink-d: #F2A6CF; --acc-tint-d: #33192A; }
+.dos [data-tone="5"], .dos[data-tone="5"] { --acc-l: #4B4FC4; --acc-ink-l: #363A9E; --acc-tint-l: #E9E9FA; --acc-d: #8E91EE; --acc-ink-d: #B0B2F3; --acc-tint-d: #1F2038; }
+/* The Library: each dossier's tile carries its colour as a band along the top and in its number. */
+.dos .dl-tile[data-tone] { box-shadow: inset 0 6px 0 var(--acc); padding-top: 18px; }
+.dos .dl-lead[data-tone] { box-shadow: inset 0 6px 0 var(--acc), var(--shadow); }
+.dos .dl-tile[data-tone] .t-label { color: var(--acc-ink); }
+/* At a glance: the title tile's band and label, each chapter's numeral, the question in a tint. */
+.dos[data-tone] .g-title { box-shadow: inset 0 6px 0 var(--acc), var(--shadow); padding-top: 20px; }
+.dos[data-tone] .g-title .t-label { color: var(--acc-ink); }
+.dos[data-tone] .is-bound .g-cell { border-color: var(--acc); }
+.dos[data-tone] .is-bound .g-cell-top > :first-child { color: var(--acc-ink); font-weight: 700; }
+.dos[data-tone] .g-hook { background: var(--acc-tint); }
+.dos[data-tone] .g-hook .t-label { color: var(--acc-ink); }
+/* A chapter: the numeral box in the course colour, the key idea and rule of thumb in amber with a
+   course-coloured edge, the plate's name and the analogy in the course colour. */
+.dos[data-tone] .c-head { box-shadow: inset 0 6px 0 var(--acc), var(--shadow); padding-top: 18px; }
+.dos[data-tone] .c-num { background: var(--acc-tint); border-color: var(--acc); color: var(--acc-ink); }
+.dos[data-tone] .c-key, .dos[data-tone] .p-rules { background: var(--amber); border-color: var(--acc); box-shadow: 3px 3px 0 var(--acc); }
+.dos[data-tone] .c-key .t-label, .dos[data-tone] .p-rules .t-label { color: var(--acc-ink); }
+.dos[data-tone] .c-plate .t-label, .dos[data-tone] .c-analogy .t-label, .dos[data-tone] .p-head .t-label { color: var(--acc-ink); }
+.dos[data-tone] .c-analogy { background: var(--acc-tint); }
+.dos[data-tone] .p-step-n { border-color: var(--acc); color: var(--acc-ink); }
+
 /* src/css/80-d4.css */
 /* D4, "Claude's notes" (Dan chose it on 10 Oct from the redesign canvas): a calm dashboard look.
    A dotted canvas, grey panels for what you read and white outlined cards for what you act on,
@@ -2557,7 +2596,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-11-76957d1";
+U.BUILD = "2026-10-11-7ae6665";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -16504,6 +16543,13 @@ U.interactive = (function () {
 
   // A tile (75-dossier.css): kind white | grey | em (emphasis) | ink | warn | dashed; o.span
   // full (both columns) | half; the page's first tile carries the shadow (t-first).
+  // A dossier's course colour (Dan, 11 Oct: "more pops of colour"): one of six, picked from the
+  // course's own hue (its cover's), or from its title for a kept dossier. Never red or green, which
+  // mean mistakes and finished. 75-dossier.css gives each data-tone its accent, ink and tint.
+  function toneOf(title, topic) {
+    var hue = topic && typeof topic.hue === 'number' ? topic.hue : U.hash(str(title)) % 360;
+    return String(Math.floor((((Math.round(hue) % 360) + 360) % 360) / 60));
+  }
   function tile(tag, kind, o, kids) {
     o = o || {};
     var a = Object.assign({}, o.attrs || {});
@@ -16648,6 +16694,7 @@ U.interactive = (function () {
     var page = h('div', { class: 'dos-page enter ' + o.cls }, o.kids);
     U.clear(S.root);
     S.root.setAttribute('data-leaf', o.leaf);   // which page of model().leaves this is
+    S.root.setAttribute('data-tone', toneOf(M.book.title, M.book.topic));
     U.append(S.root, [topBar(o.up, o.path), page, pageBar(M, turnLinks(M, o.leaf), { at: o.at })]);
     keys(S);
     startPlates(S);
@@ -17070,7 +17117,7 @@ U.interactive = (function () {
       return el;
     }
     function lead(d) {
-      return h('li', { class: 'dl-span' }, h('a', { class: 't t-white t-first dl-tile dl-lead', href: '#/book/' + encodeURIComponent(d.tid) },
+      return h('li', { class: 'dl-span' }, h('a', { class: 't t-white t-first dl-tile dl-lead', href: '#/book/' + encodeURIComponent(d.tid), dataset: { tone: d.tone } },
         h('span', { class: 'dl-top' }, h('span', { class: 't-label' }, dossierNo(d.no)), h('span', { class: 'dl-state' }, 'still being written')),
         h('span', { class: 'dl-title' }, d.title),
         vh(d.count + ' of ' + plural(d.total, 'chapter', 'chapters') + ' bound.'),
@@ -17083,11 +17130,11 @@ U.interactive = (function () {
       var foot = kind === 'done' ? h('span', { class: 'dl-fin' }, h('span', { class: 'dl-check', 'aria-hidden': 'true' }, icon('tick')), 'Finished ' + dayMonth(d.finished))
         : kind === 'kept' ? h('span', { class: 'dl-meta' }, d.count + ' of ' + d.total, vh(' chapters'), ' · course deleted')
         : h('span', { class: 'dl-row' }, ring(d.count, d.total, 34, 5), h('span', { class: 'dl-meta' }, d.count + ' of ' + d.total, vh(' chapters bound, still being written')));
-      return h('li', null, h('a', { class: 't ' + (kind === 'done' ? 't-white' : kind === 'kept' ? 't-dashed' : 't-grey') + ' dl-tile dl-' + kind, href: '#/book/' + encodeURIComponent(d.tid) },
+      return h('li', null, h('a', { class: 't ' + (kind === 'done' ? 't-white' : kind === 'kept' ? 't-dashed' : 't-grey') + ' dl-tile dl-' + kind, href: '#/book/' + encodeURIComponent(d.tid), dataset: { tone: d.tone } },
         h('span', { class: 't-label' }, dossierNo(d.no) + (kind === 'kept' ? ' · kept' : '')), h('span', { class: 'dl-name' }, d.title), foot));
     }
     function render(list, topics, progressAll, nos) {
-      var live = {}; arr(topics).forEach(function (t) { if (t && t.id) live[t.id] = true; });
+      var live = {}, byTid = {}; arr(topics).forEach(function (t) { if (t && t.id) { live[t.id] = true; byTid[t.id] = t; } });
       var shown = arr(list).filter(function (d) {
         if (!d || !d.title || !d.__id) return false;
         return !live[d.__id] || on((progressAll || {})[d.__id]);   // a kept dossier, or a course that keeps one
@@ -17096,7 +17143,8 @@ U.interactive = (function () {
         var done = ideas.length > 0 && n >= ideas.length, last = '', lastRn = '';
         ideas.forEach(function (i, k) { var x = isObj(have[i.id]) ? String(have[i.id].doneAt || '') : ''; if (x && x > last) { last = x; lastRn = roman(k + 1); } });
         return { tid: d.__id, title: d.title, ideas: ideas, have: have, count: n, total: ideas.length, done: done, closed: !done && !live[d.__id],
-          finished: done ? last : null, last: last, lastRn: lastRn, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0 };
+          finished: done ? last : null, last: last, lastRn: lastRn, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0,
+          tone: toneOf(d.title, byTid[d.__id]) };
       }).filter(function (d) { return d.count > 0; });
       var going = shown.filter(function (d) { return !d.done && !d.closed; }).sort(function (a, b) { return a.last < b.last ? 1 : a.last > b.last ? -1 : 0; });
       var done = shown.filter(function (d) { return d.done; }).sort(function (a, b) { return a.finished < b.finished ? 1 : -1; });

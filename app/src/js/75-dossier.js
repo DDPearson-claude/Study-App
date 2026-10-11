@@ -497,6 +497,13 @@
 
   // A tile (75-dossier.css): kind white | grey | em (emphasis) | ink | warn | dashed; o.span
   // full (both columns) | half; the page's first tile carries the shadow (t-first).
+  // A dossier's course colour (Dan, 11 Oct: "more pops of colour"): one of six, picked from the
+  // course's own hue (its cover's), or from its title for a kept dossier. Never red or green, which
+  // mean mistakes and finished. 75-dossier.css gives each data-tone its accent, ink and tint.
+  function toneOf(title, topic) {
+    var hue = topic && typeof topic.hue === 'number' ? topic.hue : U.hash(str(title)) % 360;
+    return String(Math.floor((((Math.round(hue) % 360) + 360) % 360) / 60));
+  }
   function tile(tag, kind, o, kids) {
     o = o || {};
     var a = Object.assign({}, o.attrs || {});
@@ -641,6 +648,7 @@
     var page = h('div', { class: 'dos-page enter ' + o.cls }, o.kids);
     U.clear(S.root);
     S.root.setAttribute('data-leaf', o.leaf);   // which page of model().leaves this is
+    S.root.setAttribute('data-tone', toneOf(M.book.title, M.book.topic));
     U.append(S.root, [topBar(o.up, o.path), page, pageBar(M, turnLinks(M, o.leaf), { at: o.at })]);
     keys(S);
     startPlates(S);
@@ -1063,7 +1071,7 @@
       return el;
     }
     function lead(d) {
-      return h('li', { class: 'dl-span' }, h('a', { class: 't t-white t-first dl-tile dl-lead', href: '#/book/' + encodeURIComponent(d.tid) },
+      return h('li', { class: 'dl-span' }, h('a', { class: 't t-white t-first dl-tile dl-lead', href: '#/book/' + encodeURIComponent(d.tid), dataset: { tone: d.tone } },
         h('span', { class: 'dl-top' }, h('span', { class: 't-label' }, dossierNo(d.no)), h('span', { class: 'dl-state' }, 'still being written')),
         h('span', { class: 'dl-title' }, d.title),
         vh(d.count + ' of ' + plural(d.total, 'chapter', 'chapters') + ' bound.'),
@@ -1076,11 +1084,11 @@
       var foot = kind === 'done' ? h('span', { class: 'dl-fin' }, h('span', { class: 'dl-check', 'aria-hidden': 'true' }, icon('tick')), 'Finished ' + dayMonth(d.finished))
         : kind === 'kept' ? h('span', { class: 'dl-meta' }, d.count + ' of ' + d.total, vh(' chapters'), ' · course deleted')
         : h('span', { class: 'dl-row' }, ring(d.count, d.total, 34, 5), h('span', { class: 'dl-meta' }, d.count + ' of ' + d.total, vh(' chapters bound, still being written')));
-      return h('li', null, h('a', { class: 't ' + (kind === 'done' ? 't-white' : kind === 'kept' ? 't-dashed' : 't-grey') + ' dl-tile dl-' + kind, href: '#/book/' + encodeURIComponent(d.tid) },
+      return h('li', null, h('a', { class: 't ' + (kind === 'done' ? 't-white' : kind === 'kept' ? 't-dashed' : 't-grey') + ' dl-tile dl-' + kind, href: '#/book/' + encodeURIComponent(d.tid), dataset: { tone: d.tone } },
         h('span', { class: 't-label' }, dossierNo(d.no) + (kind === 'kept' ? ' · kept' : '')), h('span', { class: 'dl-name' }, d.title), foot));
     }
     function render(list, topics, progressAll, nos) {
-      var live = {}; arr(topics).forEach(function (t) { if (t && t.id) live[t.id] = true; });
+      var live = {}, byTid = {}; arr(topics).forEach(function (t) { if (t && t.id) { live[t.id] = true; byTid[t.id] = t; } });
       var shown = arr(list).filter(function (d) {
         if (!d || !d.title || !d.__id) return false;
         return !live[d.__id] || on((progressAll || {})[d.__id]);   // a kept dossier, or a course that keeps one
@@ -1089,7 +1097,8 @@
         var done = ideas.length > 0 && n >= ideas.length, last = '', lastRn = '';
         ideas.forEach(function (i, k) { var x = isObj(have[i.id]) ? String(have[i.id].doneAt || '') : ''; if (x && x > last) { last = x; lastRn = roman(k + 1); } });
         return { tid: d.__id, title: d.title, ideas: ideas, have: have, count: n, total: ideas.length, done: done, closed: !done && !live[d.__id],
-          finished: done ? last : null, last: last, lastRn: lastRn, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0 };
+          finished: done ? last : null, last: last, lastRn: lastRn, started: String(d.startedAt || d.createdAt || ''), no: nos[d.__id] || 0,
+          tone: toneOf(d.title, byTid[d.__id]) };
       }).filter(function (d) { return d.count > 0; });
       var going = shown.filter(function (d) { return !d.done && !d.closed; }).sort(function (a, b) { return a.last < b.last ? 1 : a.last > b.last ? -1 : 0; });
       var done = shown.filter(function (d) { return d.done; }).sort(function (a, b) { return a.finished < b.finished ? 1 : -1; });

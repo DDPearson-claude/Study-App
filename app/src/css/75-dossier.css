@@ -416,3 +416,42 @@
 .dos .enter { animation: dos-settle .28s cubic-bezier(.2, .7, .3, 1) backwards; }
 @keyframes dos-settle { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .dos *, .dos *::before, .dos *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+/* ---------- course colour (Dan, 11 Oct: "more pops of colour") ----------
+   Each dossier takes one of six course colours (toneOf in 75-dossier.js: from the course's own hue,
+   never red or green, which mean mistakes and finished). --acc marks (stripes, borders, the
+   numeral box), --acc-ink is its text (at least 5.5:1), --acc-tint fills a reading panel. Progress
+   stays ink, finished stays green, warnings stay red; key ideas and rules of thumb are "remember
+   this", so they take the amber that means that. */
+.dos [data-tone], .dos[data-tone] { --acc: var(--acc-l); --acc-ink: var(--acc-ink-l); --acc-tint: var(--acc-tint-l); }
+:root[data-mu-theme="dark"] .dos [data-tone], :root[data-mu-theme="dark"] .dos[data-tone],
+:root[data-mu-theme="system"][data-theme="dark"] .dos [data-tone], :root[data-mu-theme="system"][data-theme="dark"] .dos[data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
+@media (prefers-color-scheme: dark) {
+  :root[data-mu-theme="system"]:not([data-theme="light"]) .dos [data-tone], :root[data-mu-theme="system"]:not([data-theme="light"]) .dos[data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
+}
+.dos [data-tone="0"], .dos[data-tone="0"] { --acc-l: #3B6FD8; --acc-ink-l: #2554B0; --acc-tint-l: #E6EEFC; --acc-d: #6E9BF0; --acc-ink-d: #9DBBF5; --acc-tint-d: #1C2638; }
+.dos [data-tone="1"], .dos[data-tone="1"] { --acc-l: #7A55D3; --acc-ink-l: #5E3BB5; --acc-tint-l: #EFE9FB; --acc-d: #A88BF0; --acc-ink-d: #C3AEF5; --acc-tint-d: #251F38; }
+.dos [data-tone="2"], .dos[data-tone="2"] { --acc-l: #E07B24; --acc-ink-l: #9A4A08; --acc-tint-l: #FCEEDF; --acc-d: #F0A35E; --acc-ink-d: #F5BE8C; --acc-tint-d: #33251A; }
+.dos [data-tone="3"], .dos[data-tone="3"] { --acc-l: #1E9AAE; --acc-ink-l: #0D6573; --acc-tint-l: #DFF3F5; --acc-d: #4FC3D4; --acc-ink-d: #86D6E1; --acc-tint-d: #16292D; }
+.dos [data-tone="4"], .dos[data-tone="4"] { --acc-l: #C53D8C; --acc-ink-l: #9A2A6B; --acc-tint-l: #FBE7F2; --acc-d: #EC7DBA; --acc-ink-d: #F2A6CF; --acc-tint-d: #33192A; }
+.dos [data-tone="5"], .dos[data-tone="5"] { --acc-l: #4B4FC4; --acc-ink-l: #363A9E; --acc-tint-l: #E9E9FA; --acc-d: #8E91EE; --acc-ink-d: #B0B2F3; --acc-tint-d: #1F2038; }
+/* The Library: each dossier's tile carries its colour as a band along the top and in its number. */
+.dos .dl-tile[data-tone] { box-shadow: inset 0 6px 0 var(--acc); padding-top: 18px; }
+.dos .dl-lead[data-tone] { box-shadow: inset 0 6px 0 var(--acc), var(--shadow); }
+.dos .dl-tile[data-tone] .t-label { color: var(--acc-ink); }
+/* At a glance: the title tile's band and label, each chapter's numeral, the question in a tint. */
+.dos[data-tone] .g-title { box-shadow: inset 0 6px 0 var(--acc), var(--shadow); padding-top: 20px; }
+.dos[data-tone] .g-title .t-label { color: var(--acc-ink); }
+.dos[data-tone] .is-bound .g-cell { border-color: var(--acc); }
+.dos[data-tone] .is-bound .g-cell-top > :first-child { color: var(--acc-ink); font-weight: 700; }
+.dos[data-tone] .g-hook { background: var(--acc-tint); }
+.dos[data-tone] .g-hook .t-label { color: var(--acc-ink); }
+/* A chapter: the numeral box in the course colour, the key idea and rule of thumb in amber with a
+   course-coloured edge, the plate's name and the analogy in the course colour. */
+.dos[data-tone] .c-head { box-shadow: inset 0 6px 0 var(--acc), var(--shadow); padding-top: 18px; }
+.dos[data-tone] .c-num { background: var(--acc-tint); border-color: var(--acc); color: var(--acc-ink); }
+.dos[data-tone] .c-key, .dos[data-tone] .p-rules { background: var(--amber); border-color: var(--acc); box-shadow: 3px 3px 0 var(--acc); }
+.dos[data-tone] .c-key .t-label, .dos[data-tone] .p-rules .t-label { color: var(--acc-ink); }
+.dos[data-tone] .c-plate .t-label, .dos[data-tone] .c-analogy .t-label, .dos[data-tone] .p-head .t-label { color: var(--acc-ink); }
+.dos[data-tone] .c-analogy { background: var(--acc-tint); }
+.dos[data-tone] .p-step-n { border-color: var(--acc); color: var(--acc-ink); }
