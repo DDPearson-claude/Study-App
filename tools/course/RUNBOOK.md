@@ -10,6 +10,11 @@ interactive that someone has actually looked at.
 Work in `/home/user/Study-App`. The build folder is `build/<shelf>/<course>/` (`$D` below; ignored
 by git until the course is copied into `docs/courses/`). Commands are run from the repo root.
 
+Lessons are built by one workflow per batch: per lesson a build, a fresh fact-check, one combined
+teaching-and-motion review, a fix and (unless only polish was found) an independent confirm. Each
+stage's model and effort is set in CLAUDE.md ("Building ready-made courses"), as Dan approved on
+11 Oct; report each batch's token cost to him.
+
 ## The two hats
 - **Model hat** (writing a reply): you are the in-page model. Answer the prompt text you were given,
   in exactly the format it demands (JSON only / HTML body only), obeying every rule in it. Take

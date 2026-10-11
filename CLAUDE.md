@@ -31,6 +31,25 @@ changing code; it is the contract between modules.
 - Browser tests: `node tests/e2e/run.mjs` (Playwright via the global install; uses `tools/harness/claude-stub.js`)
 - Playwright import path: `/opt/node22/lib/node_modules/playwright/index.mjs` (or use `tools/harness/page.mjs`)
 
+## Building ready-made courses: models and effort per stage
+Dan approved this on 11 Oct 2026, so set each workflow agent's `model` and `effort` like this. Dan
+does not switch models between stages; one workflow does them all. His own session runs Opus at
+high with ultracode off; a course build runs as a workflow when he asks for one.
+
+| Stage | Model | Effort |
+|---|---|---|
+| Research | Sonnet | high (the quote checker verifies every quote word for word) |
+| Course brief and plan | Opus | high |
+| Build | Opus | xhigh for a course's first lesson, high for the rest |
+| Fact-check | Opus | high |
+| Review (teaching and motion in one) | Opus | xhigh |
+| Fix | Opus | high |
+| Confirm | Sonnet | medium; skipped when only small polish points were found |
+
+Agents look at one contact sheet per check rather than many single frames. Report each build's
+token cost to Dan, so the setup can be compared with the measured full process (about 1.65M tokens
+a lesson for Fractions lessons 4-8). The process itself is in `tools/course/RUNBOOK.md`.
+
 ## Publishing
 The live app is a private claude.ai artifact: https://claude.ai/artifact/XV69hX3x3kQfSUuCgyED2d
 Publish `dist/my-university.html` with the Artifact tool, keeping that URL (see `docs/DEPLOY.md`). Capabilities: db, user, sample, downloads,
