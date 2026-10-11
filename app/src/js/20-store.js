@@ -618,6 +618,8 @@ U.store = (function () {
     paths: {
       topic: function (tid) { return 'topics/' + tid; },
       lesson: function (tid, iid) { return 'topics/' + tid + '/lessons/' + iid; },
+      // A ready-made steps lesson as a still guide for its dossier chapter (tools/course/guide.mjs).
+      guide: function (tid, iid) { return 'topics/' + tid + '/guide/' + iid; },
       research: function (tid, key) { return 'topics/' + tid + '/research/' + key; },
       profile: function () { return priv('profile'); },
       progress: function (tid) { return priv('profile/progress/' + tid); },
@@ -694,6 +696,7 @@ U.store = (function () {
   function busyLesson(doc) { return !!doc && (doc.status === 'writing' || doc.status === 'building'); }
   // This page's own job is on the lesson (U.gen.status: writing, waiting for another holder, building).
   function jobOn(live) { return live === 'writing' || live === 'waiting' || live === 'building'; }
+  S.guide = { get: function (tid, iid) { return getDoc(S.paths.guide(tid, iid)); } };
   S.lesson = {
     get: function (tid, iid) { return getDoc(S.paths.lesson(tid, iid)); },
     watch: function (tid, iid, fn, onError) { return watchDoc(S.paths.lesson(tid, iid), fn, onError); },

@@ -492,6 +492,18 @@ of it to Atkinson. The page builders, in reading order (`model().leaves`):
   ring and the stats go one above the other only where they do not fit side by side, so the date
   never runs out of the ink. From 55rem, in the same order: Bound over Begun beside the picture,
   the chapters four a row, then the question beside In one breath.
+- **A chapter of a ready-made steps lesson** reads as a still guide instead of the plate (Dan, 11 Oct:
+  "a re-read guide with visuals, not a test to move on"): `topics/{tid}/guide/{iid}` (public, beside
+  the lesson; `U.store.guide.get`), made at build time by `tools/course/guide.mjs`, is
+  `{v, iid, pages: [{kind: 'show', text, svg, alt} | {kind: 'example', task, answer, why, svg?, alt}]}`.
+  The chapter shows "The lesson, step by step" (each demonstration's finished picture on a white well
+  with its sentence), then "Worked examples" (question, solved picture when the build could press the
+  answer, answer, why), with no plate, no plate notes and nothing to press, and ends with a small
+  "Play the lesson again" link to `#/t/:tid/:iid`. Pictures are SVG images (data: URLs; an `<img>` runs
+  no script) and only strings starting `<svg` are drawn. The guide keeps the plate's id, so /plate
+  addresses land on it. A chapter with no guide (a course written in the page, a kept dossier whose
+  course is gone) keeps its plate. Each dossier also takes its course colour (`data-tone`, one of six,
+  from `topic.hue`, never red or green; 75-dossier.css).
 - **A chapter** (`#/book/:tid/:iid`), top to bottom: the header (the numeral in its box, "Chapter
   II of VIII" and the kind, the idea title as h1), Key idea (the field note; none, no tile), the
   plate (grey: "Plate II" and its title as the plate's h2, and Tap to play, over the lesson's

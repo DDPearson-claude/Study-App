@@ -731,5 +731,41 @@ await test('finishing an idea in its lesson binds its chapter', async () => {
   assert(!JSON.stringify(ch).includes('DANWORDS') && !('checks' in ch) && !('say' in ch.lesson), 'and none of his answers');
 });
 
+await test('a ready-made steps lesson reads as a still guide: pictures and sentences, worked examples, no plate to play, a link to play the lesson again', async () => {
+  const SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 60" width="340" height="60"><rect x="20" y="10" width="300" height="40" style="fill:#1F2328"/></svg>';
+  const db = seed({ finished: false });
+  db['topics/pendulums/guide/i1'] = { v: 1, iid: 'i1', pages: [
+    { kind: 'show', name: 'A bar', text: 'This bar is one [[whole]].', svg: SVG, alt: 'A bar, all shaded.' },
+    { kind: 'example', name: 'Colour it', task: 'Colour 1/4 of the bar.', answer: '1/4', why: 'One of four equal pieces.', svg: SVG, alt: 'A bar with one quarter shaded.' },
+    { kind: 'example', name: 'Words only', task: 'Which is bigger, 1/3 or 1/4?', answer: '1/3', why: 'Thirds are bigger pieces.', svg: null, alt: '' },
+    { kind: 'show', name: 'Bad', text: 'Not a picture.', svg: '<img src=x onerror=alert(1)>', alt: '' },
+  ] };
+  const app = await open({ db, hash: '#/book/pendulums/i1/plate' });
+  await app.page.locator('.gd').first().waitFor({ timeout: 20000 });
+  const r = await app.page.evaluate(async () => {
+    const pics = [...document.querySelectorAll('.gd-pic')];
+    await Promise.all(pics.map((i) => i.decode().catch(() => null)));
+    return {
+      frames: document.querySelectorAll('.dos .kit-iframe, .dos .wake').length,
+      shows: document.querySelectorAll('.gd-show').length, pics: pics.length, loaded: pics.filter((i) => i.naturalWidth > 0).length,
+      alts: pics.map((i) => i.alt), examples: [...document.querySelectorAll('.gd-ex')].map((e) => e.innerText.replace(/\s+/g, ' ')),
+      term: !!document.querySelector('.gd-text mark.term, .gd-text .term'),
+      replay: (document.querySelector('.g-replay a') || {}).getAttribute ? document.querySelector('.g-replay a').getAttribute('href') : null,
+      inView: (() => { const g = document.getElementById('c1-plate'); return !!g && g.getBoundingClientRect().top < innerHeight; })(),
+    };
+  });
+  eq(r.frames, 0, 'no playable plate or Tap to play');
+  eq(r.shows, 2, 'both demonstrations listed');
+  eq(r.pics, 2, 'a picture for the demonstration and for the solved example; none for the words-only example or a non-SVG');
+  eq(r.loaded, 2, 'both pictures draw');
+  assert(r.alts.includes('A bar, all shaded.'), 'pictures keep their descriptions');
+  assert(r.examples.length === 2 && /Worked example/i.test(r.examples[0]) && /Answer 1\/4/i.test(r.examples[0]) && /One of four equal pieces/.test(r.examples[0]), 'examples show question, answer and why ' + JSON.stringify(r.examples));
+  assert(r.term, 'key terms highlighted');
+  eq(r.replay, '#/t/pendulums/i1', 'a link to play the lesson again');
+  assert(r.inView, 'the old /plate address scrolls to the guide');
+  await noDan(app, 'guide');
+  await shot(app, 'guide-phone', true);
+});
+
 console.log('\n' + results.map((r) => `${r.ok ? 'PASS' : 'FAIL'}  ${r.name}`).join('\n'));
 process.exit(results.every((r) => r.ok) ? 0 : 1);

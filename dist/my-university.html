@@ -2223,6 +2223,27 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .dos[data-tone] .c-analogy { background: var(--acc-tint); }
 .dos[data-tone] .p-step-n { border-color: var(--acc); color: var(--acc-ink); }
 
+/* ---------- the lesson as a still guide (a ready-made steps lesson's chapter) ---------- */
+.dos .gd-list { display: grid; gap: 14px; counter-reset: gd; }
+.dos .gd-show { display: grid; gap: 8px; }
+.dos .gd-well { padding: 10px; border-radius: 10px; background: #FFFFFF; border: 1px solid var(--line); }
+.dos .gd-pic { display: block; width: 100%; max-width: 340px; height: auto; margin: 0 auto; }
+.dos .gd-text { font-size: 1rem; line-height: 1.5; }
+.dos .gd-exs { display: grid; gap: 8px; }
+.dos .gd-exs > .t-label { margin: 4px 2px 0; }
+.dos .gd-exlist { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+@container view (min-width: 55rem) { .dos .gd-exlist { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dos .gd-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.dos .gd-ex { display: grid; gap: 8px; align-content: start; }
+.dos .gd-q { font: 600 1rem/1.4 var(--sans); }
+.dos .gd-a { font-size: 1rem; }
+.dos .gd-a-k { font: 500 .65625rem/1 var(--mono); text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+.dos .gd-why { font-size: .9375rem; line-height: 1.45; color: var(--muted); }
+.dos .g-replay { margin: 4px 2px; }
+.dos .g-replay a { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font: 600 .9375rem/1.2 var(--sans); color: var(--ink); }
+.dos .g-replay svg { width: 18px; height: 18px; }
+.dos[data-tone] .gd .t-label, .dos[data-tone] .gd-exs > .t-label, .dos[data-tone] .gd-ex .t-label { color: var(--acc-ink); }
+.dos[data-tone] .gd-ex { box-shadow: inset 4px 0 0 var(--acc); }
+
 /* src/css/80-d4.css */
 /* D4, "Claude's notes" (Dan chose it on 10 Oct from the redesign canvas): a calm dashboard look.
    A dotted canvas, grey panels for what you read and white outlined cards for what you act on,
@@ -2596,7 +2617,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-11-7ae6665";
+U.BUILD = "2026-10-11-3cbd8b4";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -4499,6 +4520,8 @@ U.store = (function () {
     paths: {
       topic: function (tid) { return 'topics/' + tid; },
       lesson: function (tid, iid) { return 'topics/' + tid + '/lessons/' + iid; },
+      // A ready-made steps lesson as a still guide for its dossier chapter (tools/course/guide.mjs).
+      guide: function (tid, iid) { return 'topics/' + tid + '/guide/' + iid; },
       research: function (tid, key) { return 'topics/' + tid + '/research/' + key; },
       profile: function () { return priv('profile'); },
       progress: function (tid) { return priv('profile/progress/' + tid); },
@@ -4575,6 +4598,7 @@ U.store = (function () {
   function busyLesson(doc) { return !!doc && (doc.status === 'writing' || doc.status === 'building'); }
   // This page's own job is on the lesson (U.gen.status: writing, waiting for another holder, building).
   function jobOn(live) { return live === 'writing' || live === 'waiting' || live === 'building'; }
+  S.guide = { get: function (tid, iid) { return getDoc(S.paths.guide(tid, iid)); } };
   S.lesson = {
     get: function (tid, iid) { return getDoc(S.paths.lesson(tid, iid)); },
     watch: function (tid, iid, fn, onError) { return watchDoc(S.paths.lesson(tid, iid), fn, onError); },
@@ -16262,6 +16286,7 @@ U.interactive = (function () {
     });
     chapters.forEach(function (c) {
       c.hasPlate = !!(c.lesson && c.lesson.interactive && c.doc && (c.doc.plate || c.doc.plateNote));
+      c.guide = c.doc && book.guides && book.guides[c.idea.id] ? book.guides[c.idea.id] : null;
       // Older chapters (bound before lessons had it) have no practice: their last leaf is the sources.
       var pr = c.lesson && isObj(c.lesson.practice) ? practiceParts(c.lesson.practice.text) : [];
       c.practice = pr.length ? pr : null;
@@ -16410,7 +16435,19 @@ U.interactive = (function () {
 
   // Loads what a dossier shows: its index and chapters (cached while the index is unchanged), or
   // for a course that keeps one but has no chapter yet, the plan. null: nothing to show.
-  function load(tid) {
+  function load(tid) { return loadBook(tid).then(withGuides); }
+  // A ready-made course's bound chapters may have a still guide (Dan, 11 Oct: "a re-read guide with
+  // visuals, not a test"): read with the book, so the chapter page shows it instead of the plate.
+  function withGuides(book) {
+    if (!book || !book.topic || !U.store.guide) return book;
+    var ids = Object.keys(book.chapters || {});
+    return Promise.all(ids.map(function (iid) { return U.store.guide.get(book.tid, iid).catch(function () { return null; }); })).then(function (gs) {
+      book.guides = {};
+      ids.forEach(function (iid, k) { if (isObj(gs[k]) && Array.isArray(gs[k].pages) && gs[k].pages.length) book.guides[iid] = gs[k]; });
+      return book;
+    });
+  }
+  function loadBook(tid) {
     return Promise.all([U.store.dossier.get(tid), U.store.topic.get(tid).catch(function () { return null; }), numbers()]).then(function (r) {
       var index = r[0], topic = r[1], no = r[2][tid] || 0;
       if (index && index.title && arr(index.ideas).length) {
@@ -16845,7 +16882,8 @@ U.interactive = (function () {
       // The field note: the explanation's closing all-bold paragraph. None, no tile.
       ex.note ? tile('section', 'em', { span: 'full', cls: 'c-key', attrs: { 'aria-labelledby': sid + '-key' } }, [heading(sid + '-key', 'Key idea'), inl(h('p', { class: 'c-key-t' }), ex.note, fx)]) : null,
     ];
-    if (c.hasPlate) main.push(plateTile(S, M, c, fx));
+    if (c.guide) main.push.apply(main, guideTiles(c, fx));
+    else if (c.hasPlate) main.push(plateTile(S, M, c, fx));
     var prose = h('div', { class: 't-prose c-prose' });
     ex.ps.forEach(function (p, k) {
       U.append(prose, rich(p, fx));
@@ -16884,10 +16922,41 @@ U.interactive = (function () {
       h('p', { class: 'c-pills' }, ['settled', 'simplified', 'contested'].map(function (k) { return k === cert.conf ? h('span', { class: 'on' }, k, vh(' (this one)')) : h('span', null, k); })),
       h('p', { class: 't-small c-why' }, cert.why)]));
     kids.push(h('div', { class: 'c-main' }, main), h('div', { class: 'c-side' }, side));
-    kids = kids.concat(plateNotes(c, fx), viewTiles);
+    kids = kids.concat(c.guide ? [] : plateNotes(c, fx), viewTiles);
+    if (c.guide) kids.push(h('p', { class: 't-bare g-replay' }, h('a', { href: '#/t/' + encodeURIComponent(M.book.tid) + '/' + encodeURIComponent(idea.id) }, 'Play the lesson again', icon('next'))));
     pageOf(S, M, { leaf: idea.id + ':chapter', up: { href: M.base, label: 'Contents' }, path: [{ t: slugOf(M.book), cls: 'fit' }, { t: 'ch-' + c.rn.toLowerCase() }], cls: 'dos-chapter', kids: kids });
     var pl = S.plates[0];
     if (at && c.hasPlate) scrollTo(document.getElementById(sid + '-plate'), at === 'play' && pl ? function () { togglePlate(pl, false, true); } : null);
+  }
+  // The lesson again, still: each demonstration's finished picture with its sentence, then each
+  // puzzle as a worked example (question, picture once solved, answer, why). Nothing to press. The
+  // pictures are plain SVG images (no script) the build drew from the lesson; they sit on a white
+  // well in both themes, like a printed plate.
+  function guidePic(p) {
+    if (!p.svg || !/^<svg[\s>]/.test(p.svg)) return null;
+    return h('img', { class: 'gd-pic', src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(p.svg), alt: p.alt || '', loading: 'lazy', decoding: 'async' });
+  }
+  function guideTiles(c, fx) {
+    var sid = 'c' + c.n, shows = [], examples = [];
+    c.guide.pages.filter(isObj).forEach(function (p) {
+      if (p.kind === 'show' && p.text) {
+        var pic = guidePic(p);
+        shows.push(h('li', { class: 'gd-show' }, pic ? h('div', { class: 'gd-well' }, pic) : null, inl(h('p', { class: 'gd-text' }), str(p.text), fx)));
+      } else if (p.kind === 'example' && p.task) {
+        var epic = guidePic(p);
+        examples.push(tile('li', 'white', { span: 'full', cls: 'gd-ex' }, [
+          h('p', { class: 't-label' }, 'Worked example'),
+          inl(h('p', { class: 'gd-q' }), str(p.task), fx),
+          epic ? h('div', { class: 'gd-well' }, epic) : null,
+          p.answer ? h('p', { class: 'gd-a' }, h('span', { class: 'gd-a-k' }, 'Answer '), h('b', null, str(p.answer))) : null,
+          p.why ? inl(h('p', { class: 'gd-why' }), str(p.why), fx) : null]));
+      }
+    });
+    var out = [];
+    if (shows.length) out.push(tile('section', 'grey', { span: 'full', cls: 'c-plate gd', attrs: { id: sid + '-plate', 'aria-labelledby': sid + '-gd' } },
+      [heading(sid + '-gd', 'The lesson, step by step'), h('ol', { class: 'gd-list' }, shows)]));
+    if (examples.length) out.push(h('section', { class: 't-bare gd-exs', 'aria-labelledby': sid + '-gx' }, h('h2', { class: 't-label', id: sid + '-gx' }, 'Worked examples'), h('ol', { class: 'gd-exlist' }, examples)));
+    return out;
   }
   // The plate: the lesson's own interactive in a well, asleep until Tap to play. A plate too big
   // to keep shows its note instead.

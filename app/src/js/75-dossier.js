@@ -216,6 +216,7 @@
     });
     chapters.forEach(function (c) {
       c.hasPlate = !!(c.lesson && c.lesson.interactive && c.doc && (c.doc.plate || c.doc.plateNote));
+      c.guide = c.doc && book.guides && book.guides[c.idea.id] ? book.guides[c.idea.id] : null;
       // Older chapters (bound before lessons had it) have no practice: their last leaf is the sources.
       var pr = c.lesson && isObj(c.lesson.practice) ? practiceParts(c.lesson.practice.text) : [];
       c.practice = pr.length ? pr : null;
@@ -364,7 +365,19 @@
 
   // Loads what a dossier shows: its index and chapters (cached while the index is unchanged), or
   // for a course that keeps one but has no chapter yet, the plan. null: nothing to show.
-  function load(tid) {
+  function load(tid) { return loadBook(tid).then(withGuides); }
+  // A ready-made course's bound chapters may have a still guide (Dan, 11 Oct: "a re-read guide with
+  // visuals, not a test"): read with the book, so the chapter page shows it instead of the plate.
+  function withGuides(book) {
+    if (!book || !book.topic || !U.store.guide) return book;
+    var ids = Object.keys(book.chapters || {});
+    return Promise.all(ids.map(function (iid) { return U.store.guide.get(book.tid, iid).catch(function () { return null; }); })).then(function (gs) {
+      book.guides = {};
+      ids.forEach(function (iid, k) { if (isObj(gs[k]) && Array.isArray(gs[k].pages) && gs[k].pages.length) book.guides[iid] = gs[k]; });
+      return book;
+    });
+  }
+  function loadBook(tid) {
     return Promise.all([U.store.dossier.get(tid), U.store.topic.get(tid).catch(function () { return null; }), numbers()]).then(function (r) {
       var index = r[0], topic = r[1], no = r[2][tid] || 0;
       if (index && index.title && arr(index.ideas).length) {
@@ -799,7 +812,8 @@
       // The field note: the explanation's closing all-bold paragraph. None, no tile.
       ex.note ? tile('section', 'em', { span: 'full', cls: 'c-key', attrs: { 'aria-labelledby': sid + '-key' } }, [heading(sid + '-key', 'Key idea'), inl(h('p', { class: 'c-key-t' }), ex.note, fx)]) : null,
     ];
-    if (c.hasPlate) main.push(plateTile(S, M, c, fx));
+    if (c.guide) main.push.apply(main, guideTiles(c, fx));
+    else if (c.hasPlate) main.push(plateTile(S, M, c, fx));
     var prose = h('div', { class: 't-prose c-prose' });
     ex.ps.forEach(function (p, k) {
       U.append(prose, rich(p, fx));
@@ -838,10 +852,41 @@
       h('p', { class: 'c-pills' }, ['settled', 'simplified', 'contested'].map(function (k) { return k === cert.conf ? h('span', { class: 'on' }, k, vh(' (this one)')) : h('span', null, k); })),
       h('p', { class: 't-small c-why' }, cert.why)]));
     kids.push(h('div', { class: 'c-main' }, main), h('div', { class: 'c-side' }, side));
-    kids = kids.concat(plateNotes(c, fx), viewTiles);
+    kids = kids.concat(c.guide ? [] : plateNotes(c, fx), viewTiles);
+    if (c.guide) kids.push(h('p', { class: 't-bare g-replay' }, h('a', { href: '#/t/' + encodeURIComponent(M.book.tid) + '/' + encodeURIComponent(idea.id) }, 'Play the lesson again', icon('next'))));
     pageOf(S, M, { leaf: idea.id + ':chapter', up: { href: M.base, label: 'Contents' }, path: [{ t: slugOf(M.book), cls: 'fit' }, { t: 'ch-' + c.rn.toLowerCase() }], cls: 'dos-chapter', kids: kids });
     var pl = S.plates[0];
     if (at && c.hasPlate) scrollTo(document.getElementById(sid + '-plate'), at === 'play' && pl ? function () { togglePlate(pl, false, true); } : null);
+  }
+  // The lesson again, still: each demonstration's finished picture with its sentence, then each
+  // puzzle as a worked example (question, picture once solved, answer, why). Nothing to press. The
+  // pictures are plain SVG images (no script) the build drew from the lesson; they sit on a white
+  // well in both themes, like a printed plate.
+  function guidePic(p) {
+    if (!p.svg || !/^<svg[\s>]/.test(p.svg)) return null;
+    return h('img', { class: 'gd-pic', src: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(p.svg), alt: p.alt || '', loading: 'lazy', decoding: 'async' });
+  }
+  function guideTiles(c, fx) {
+    var sid = 'c' + c.n, shows = [], examples = [];
+    c.guide.pages.filter(isObj).forEach(function (p) {
+      if (p.kind === 'show' && p.text) {
+        var pic = guidePic(p);
+        shows.push(h('li', { class: 'gd-show' }, pic ? h('div', { class: 'gd-well' }, pic) : null, inl(h('p', { class: 'gd-text' }), str(p.text), fx)));
+      } else if (p.kind === 'example' && p.task) {
+        var epic = guidePic(p);
+        examples.push(tile('li', 'white', { span: 'full', cls: 'gd-ex' }, [
+          h('p', { class: 't-label' }, 'Worked example'),
+          inl(h('p', { class: 'gd-q' }), str(p.task), fx),
+          epic ? h('div', { class: 'gd-well' }, epic) : null,
+          p.answer ? h('p', { class: 'gd-a' }, h('span', { class: 'gd-a-k' }, 'Answer '), h('b', null, str(p.answer))) : null,
+          p.why ? inl(h('p', { class: 'gd-why' }), str(p.why), fx) : null]));
+      }
+    });
+    var out = [];
+    if (shows.length) out.push(tile('section', 'grey', { span: 'full', cls: 'c-plate gd', attrs: { id: sid + '-plate', 'aria-labelledby': sid + '-gd' } },
+      [heading(sid + '-gd', 'The lesson, step by step'), h('ol', { class: 'gd-list' }, shows)]));
+    if (examples.length) out.push(h('section', { class: 't-bare gd-exs', 'aria-labelledby': sid + '-gx' }, h('h2', { class: 't-label', id: sid + '-gx' }, 'Worked examples'), h('ol', { class: 'gd-exlist' }, examples)));
+    return out;
   }
   // The plate: the lesson's own interactive in a well, asleep until Tap to play. A plate too big
   // to keep shows its note instead.

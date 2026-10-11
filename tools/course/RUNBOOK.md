@@ -162,6 +162,13 @@ step); the interactive shows the cause; the trade comparison is honest (its "bre
 nothing invented or absolute; it reads as a pleasure. Below 4 on any count, one more rewrite
 round (steps 3-5 for what changed). Saved as `$D/I.review.json`.
 
+## 6b. The dossier's still guide (steps lessons)
+```
+node tools/course/guide.mjs --dir $D            # writes $D/iN.guide.json for every built lesson
+```
+Each demonstration's finished picture and sentence, and each puzzle as a worked example; assemble
+writes them as `topics/{tid}/guide/{iid}`. Re-run it whenever a lesson body changes.
+
 ## 7. Assemble, write to the db, mark the shelf
 ```
 node tools/course/assemble.mjs docs --dir $D

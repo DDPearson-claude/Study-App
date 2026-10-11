@@ -14,7 +14,8 @@
 //       the topic readyMade.
 //       Reads topic.json, research.json and, for every idea, <iid>.lesson.verified.json (else
 //       .lesson.final.json), <iid>.verify.result.json, <iid>.body.final.html, <iid>.verdict.final.json
-//       and <iid>.attempts.txt, and writes <dir>/out/: topic.json, research-topic.json,
+//       and <iid>.attempts.txt (and <iid>.guide.json, the dossier's still guide, when there is one), and
+//       writes <dir>/out/: topic.json, research-topic.json,
 //       research-<iid>.json, lesson-<iid>.json and manifest.json (collection, doc_id, file per
 //       document). The tid is read from <dir>/tid.txt, or made (U.slug(query) + '-' + 5 random
 //       characters) and saved there. Fails when any lesson does not pass the app's final validation.
@@ -142,6 +143,14 @@ if (cmd === 'docs') {
     if (Buffer.byteLength(text, 'utf8') > 250 * 1024) { problems.push(iid + ': lesson doc over 250 KB'); return; }
     writeFileSync(join(out, 'lesson-' + iid + '.json'), text + '\n');
     manifest.push({ collection: 'topics/' + tid + '/lessons', doc_id: iid, file: join(out, 'lesson-' + iid + '.json') });
+    // The still guide for its dossier chapter (tools/course/guide.mjs), when the build made one.
+    const gf = join(dir, iid + '.guide.json');
+    if (existsSync(gf)) {
+      const g = readFileSync(gf, 'utf8').trim();
+      if (Buffer.byteLength(g, 'utf8') > 250 * 1024) { problems.push(iid + ': guide over 250 KB'); return; }
+      writeFileSync(join(out, 'guide-' + iid + '.json'), g + '\n');
+      manifest.push({ collection: 'topics/' + tid + '/guide', doc_id: iid, file: join(out, 'guide-' + iid + '.json') });
+    }
     summary.push({ iid, title: lesson.title, sources: (lesson.sources || []).length, interactive: !!interactive, attempts: interactive ? interactive.attempts : 0, verified: verified.status, soft: Array.from(((v && v.problems) || {}).soft || []) });
   });
 
