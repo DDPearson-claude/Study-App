@@ -13,6 +13,11 @@
 //       (U.gen._filterResearch). Prints {problems, kept, dropped} and writes the kept research, in
 //       the reply's own shape, to --out (give that to `prompts.mjs write-lesson --research`).
 //
+//   node tools/eval/sources.mjs --quotes notes.json --tools <dir>
+//       For a course brief's research: notes.json is a list of {title, url, quote, ...}. Checks each
+//       quote with the app's own rules (no copy hosts; a page the tools returned; the quote on that
+//       page) and prints every one that fails. Exits 1 if any fail.
+//
 // Tool files: <dir>/*.json (read in name order), each {"tool": "web_search"|"web_fetch",
 // "input": {...}, "output": <the connector's payload, verbatim>}.
 import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
@@ -53,8 +58,6 @@ if (arg('show')) {
   process.exit(0);
 }
 
-const replyText = readFileSync(arg('reply'), 'utf8');
-const topic = JSON.parse(readFileSync(arg('topic'), 'utf8'));
 const dir = arg('tools');
 const files = readdirSync(dir).filter((f) => f.endsWith('.json')).sort();
 const corpus = U.gen._corpus();
@@ -64,6 +67,18 @@ for (const f of files) {
   const text = seen(t);
   if (!corpus.add(text) && t.tool === 'web_fetch' && t.input) corpus.add([].concat(t.input.urls || []).join('\n'));
 }
+
+if (arg('quotes')) {
+  const list = JSON.parse(readFileSync(arg('quotes'), 'utf8'));
+  const raw = { sources: list.map((q, i) => ({ n: i + 1, title: q.title, url: q.url, quote: q.quote })) };
+  const res = U.gen._filterResearch(raw, corpus, []);
+  res.dropped.forEach((d) => console.log('FAIL ' + d.n + ' ' + d.url + ': ' + d.why + '\n     "' + String(list[d.n - 1].quote).slice(0, 140) + '"'));
+  console.log(JSON.stringify({ toolFiles: files.length, quotes: list.length, ok: res.kept, failed: res.dropped.length }));
+  process.exit(res.dropped.length ? 1 : 0);
+}
+
+const replyText = readFileSync(arg('reply'), 'utf8');
+const topic = JSON.parse(readFileSync(arg('topic'), 'utf8'));
 // The answer is picked as the app picks it (U.ask: U.parseJson.pick with the research validator).
 let raw = null, problems = [];
 const got = U.parseJson.pick(replyText, (o) => U.validate.research(o, { ideas: topic.ideas }));

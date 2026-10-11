@@ -100,6 +100,20 @@ Every tool call saved verbatim as `$D/tools/NN-<tool>.json` = `{"tool", "input",
 quote copied word for word from a tool result; sources.mjs keeps only sources the tools returned
 with their quote on the page. Aim for 10-14 kept sources and notes for every idea.
 
+The researcher never retypes a result into a file (Percentages lost every source that way, 11 Oct).
+Its prompt carries a unique marker line, and the tool files are harvested from its own transcript:
+```
+node tools/course/harvest.mjs --marker "RESEARCH-RUN <course>-<date>" --out $D/tools   # or --agent <id>
+```
+It copies each Parallel Search call and the connector's payload exactly, numbers on from the files
+already there and skips results it already has, so it can be re-run after more searches. The
+researcher runs it and then sources.mjs itself, and fixes every dropped source before it finishes.
+
+A course brief's research works the same way: notes plus a `quotes.json` list of
+`{section, claim, title, url, quote}`, harvested into `docs/courses/<shelf>/<course>/tools/` and
+checked with `node tools/eval/sources.mjs --quotes <dir>/quotes.json --tools <dir>/tools` until
+it reports `failed: 0`. The build's research can start from those tool files.
+
 ## 3. Write each lesson (in order: i1 first, each later one with --prior)
 ```
 node tools/eval/prompts.mjs write-lesson --topic $D/topic.json --idea I --research $D/research.json --prior $D/i1.lesson.final.json,$D/i2.lesson.final.json > $D/I.lesson.prompt.txt
