@@ -1,0 +1,27 @@
+{
+ "issues": [
+  {
+   "path": "practice.text",
+   "severity": "fix",
+   "problem": "\"With (−) for every sign\" can be read as every minus sign, but the take-away minus in final − initial is keyed with −, as its own worked example shows; and \"atmospheric at 1 bar\" reads as a fact when it is a rounded choice (about 1.01 bar at sea level).",
+   "now": "**Rule of thumb:** Write the formula out, put each reading in its slot with its sign and brackets, then key exactly what you wrote, with (−) for each reading’s minus.\n\n**Worked example:** A ship goes from 4 m/s astern to 1 m/s ahead. Counting ahead as plus, the change in velocity is final − initial, 1 − (−4). Taking away −4 adds 4, so 1 + 4 = 5 m/s. Key 1 − (−) 4 and the calculator gives 5.\n\n**Common mistakes**\n- Dropping the minus when you put a reading in. Taking atmospheric as 1 bar, a gauge at −0.8 bar gives 0.2 bar absolute, not 1.8, which is more than the air around.\n- Squaring a negative without brackets. (−) 4 x² squares the 4 first and gives −16, while ( (−) 4 ) x² gives 16.\n- Keying a negative with the take-away key. (−) makes a number negative, and − takes one number away from another."
+  },
+  {
+   "path": "explain.text",
+   "severity": "fix",
+   "problem": "\"A scientific calculator keeps the two jobs of a minus on two keys\" is stated of every scientific calculator; key layouts differ (some older ones use a +/− key pressed after the number), so it should say most, as the screens say \"a calculator like this one\".",
+   "now": "A formula is a rule with a slot for each reading, and a negative reading goes into its slot with its sign, inside brackets. Absolute pressure is the sum of gauge pressure and atmospheric pressure,[^1] so with atmospheric pressure at, say, 1 bar, a gauge reading of −0.8 bar gives 1 + (−0.8) = 0.2 bar absolute. Drop the minus and you get 1.8 bar, more than the air around, which can't be right for a gauge reading below zero. Change in velocity is final velocity minus initial velocity,[^2] so counting ahead as plus, a ship going from 2 m/s astern to 3 m/s ahead changes by 3 − (−2) = 5 m/s.\n\nMost scientific calculators keep the two jobs of a minus on two keys. The (−) key makes a number negative, and the − key takes one number away from another, so 3 − (−2) is keyed 3 − (−) 2. When a formula squares a negative reading, brackets are needed to tell the calculator to make the number negative and then square it,[^3] so (−) 4 x² gives −16 but ( (−) 4 ) x² gives 16.\n\n**Put a negative reading into a formula with its sign, inside brackets, key the sign with (−) rather than the take-away key, and bracket the reading before you square it.**"
+  },
+  {
+   "path": "interactive.ignores",
+   "severity": "fix",
+   "problem": "It calls atmospheric pressure at 1 bar an example value without saying what the real value is; standard sea-level atmospheric pressure is about 1.01 bar and varies with the weather, which Dan will meet in marine engineering.",
+   "now": "The readings are example values, and atmospheric pressure is taken as 1 bar (at sea level it is about 1.01 bar, and it changes with the weather). The keypad is drawn generically, not copied from any one calculator."
+  },
+  {
+   "path": "interactive.numbers",
+   "severity": "note",
+   "problem": "Atmospheric 1 bar, the gauge readings (−0.8, −0.6, −0.35 bar) and the ship velocities are chosen example values, and the results are computed from them, but every entry is labelled kind \"constant\"; they should be \"assumed\" and \"computed\"."
+  }
+ ]
+}
