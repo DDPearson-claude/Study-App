@@ -43,7 +43,11 @@ const SNAP = `(() => {
   copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   if (vb && vb.width) { copy.setAttribute('viewBox', [vb.x, vb.y, vb.width, vb.height].join(' ')); copy.setAttribute('width', vb.width); copy.setAttribute('height', vb.height); }
   copy.querySelectorAll('rect.hit, [fill="transparent"]').forEach((n) => n.remove());
-  return { svg: copy.outerHTML.replace(/\\s{2,}/g, ' ').replace(/(\\d+\\.\\d{2})\\d+/g, '$1'), alt: src.getAttribute('aria-label') || '' };
+  // XMLSerializer, not outerHTML: outerHTML writes &nbsp;, which a standalone SVG image cannot parse.
+  const svg = new XMLSerializer().serializeToString(copy).replace(/\\s{2,}/g, ' ').replace(/(\\d+\\.\\d{2})\\d+/g, '$1');
+  const bad = new DOMParser().parseFromString(svg, 'image/svg+xml').querySelector('parsererror');
+  if (bad) throw new Error('picture is not valid SVG: ' + bad.textContent.slice(0, 120));
+  return { svg, alt: src.getAttribute('aria-label') || '' };
 })()`;
 
 const app = await openApp({ width: 390, height: 900, file: appFile });
