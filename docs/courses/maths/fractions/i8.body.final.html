@@ -1,0 +1,905 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; font-weight: 700; margin: 0 .1em; font-size: .9em; }
+  .fr .n { border-bottom: 2px solid currentColor; padding: 0 .18em; }
+  .fr .d { padding: 0 .18em; }
+  .mx { display: inline-flex; align-items: center; vertical-align: middle; white-space: nowrap; }
+  .mx .w { font-weight: 700; margin-left: .1em; }
+  .mx .fr { margin-left: .08em; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  .scene .pc { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .pc.a { fill: var(--k-fill1); }
+  .scene .pc.on { fill: var(--k-accent2); }
+  .scene .edge { fill: none; stroke: var(--k-strong); stroke-width: 2.5; }
+  /* the outline of each whole in a row of wholes that are cut into parts, heavier than the cuts so each bar reads as one whole */
+  .scene .wedge { fill: none; stroke: var(--k-ink); stroke-width: 4.5; }
+  .scene .cut { stroke: var(--k-strong); stroke-width: 2; }
+  /* the marks of the cuts inside a laid piece, one at each part of a whole it covers */
+  .scene .pcut { stroke: var(--k-on-accent2); stroke-width: 2; }
+  .scene .tcut { stroke: var(--k-strong); stroke-width: 2; }
+  /* a tail cut past the end of the cable: there is no cable there, so only its outline, in the mistake colour */
+  .scene .over { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .wnum { font: 700 16px var(--k-font); fill: var(--k-warn); }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .num { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .whole { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .big { font: 700 22px var(--k-font); fill: var(--k-ink); }
+  .scene .fbar { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .bbar { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .onnum { font: 700 16px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .onlab { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .onbar { stroke: var(--k-on-accent2); stroke-width: 1.5; }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .tbar { stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .brk { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .mlab { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* The answers stay on one row, each label whole, at every text size. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  /* Under the cable: cut the next tail, or put the last one back. */
+  .row.cuts { flex-wrap: nowrap; }
+  .cuts .k-btn { flex: 1 1 0; min-height: 48px; min-width: 0; white-space: nowrap; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .last { margin-top: 8px; }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Bars, cable on a tape and a number line, one small step at a time.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 80" width="100%" role="img" aria-label=""></svg>
+    <div class="row cuts" id="cuts" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <p class="muted last">That was the last lesson in Fractions.</p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Where there are bars, each bar in the top row is one whole. On the tape, each metre is one whole.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after an answer plays (seconds).
+  // A DO step's `at` says when each part of that motion arrives, in seconds after Check: `on` the
+  // first piece, `step` the gap between counted pieces, `name` the answer in its slot, `work` the
+  // flip-and-multiply line under it. In `work`, a fraction marked * is the flipped one (the checks
+  // test that it is the divisor turned over).
+  // A 'cut' step is done by hand: Cut a tail lays the next tail along the cable, and Check takes the count.
+  const PICK = 'Tap one of the answers.', EMPTY_CUT = 'Tap Cut a tail to cut the first one.';
+  const STEPS = [
+    { show: true, demo: 'halves', dur: 3.7, name: 'Halves in three',
+      text: '6 ÷ 2 asks how many 2s fit in 6, and three do. 3 ÷ 1/2 asks the same with halves. Six fit along the 3 bars, so 3 ÷ 1/2 = 6.' },
+    { kind: 'pick', draw: 'fit', fit: { a: '2', b: '1/4', cut: 4 }, opts: ['1/2', '8', '4'], want: '8', fb: 2.4, name: 'Quarters in two',
+      at: { on: 0.15, step: 0.2, name: 1.75 },
+      task: 'What is 2 ÷ 1/4?',
+      why: 'Each whole holds 4 quarters, so 2 wholes hold 8 of them. So 2 ÷ 1/4 = 8.',
+      hint: 'Not quite. Count how many quarters fit in 2.',
+      hints: { '1/2': 'Not quite. That is a quarter of 2. Dividing by 1/4 counts the quarters that fit in 2.',
+        '4': 'Not quite. That is the quarters in one bar. There are 2 bars.' } },
+    { show: true, demo: 'cable', dur: 4.0, name: 'Cable into tails',
+      text: 'Here 6 m of cable is cut into tails 3/4 m long. Counted along the tape, eight fit, so 6 ÷ 3/4 = 8.' },
+    { kind: 'cut', cable: { a: '3', tape: 4 }, want: 4, fb: 0.8, name: 'Tails from 3 m',
+      at: { name: 0.2 },
+      task: 'How many 3/4 m tails can you cut from 3 m of cable? Cut them one at a time.',
+      why: '3 m is twelve quarter-metres, and each tail takes three of them. So 4 tails fit, and 3 ÷ 3/4 = 4.',
+      hint: 'Not quite. There is room for another whole tail in the 3 m.',
+      over: 'Not quite. That tail runs past the end of the 3 m.' },
+    { show: true, demo: 'why', dur: 4.4, name: 'Why you flip',
+      text: 'A metre is 4 quarters and a tail takes 3, so a metre holds 4/3 tails. Six metres hold 6 × 4/3 = 8. So dividing by 3/4 is multiplying by 3/4 with its top and bottom swapped, its *reciprocal*.' },
+    { kind: 'pick', draw: 'fit', fit: { a: '2', b: '2/3' }, work: ['2', '×', '3/2*', '=', '6/2', '=', '3'], opts: ['4/3', '3', '1/3'], want: '3', fb: 2.3, name: 'Two thirds in two',
+      at: { on: 0.15, step: 0.3, name: 1.1, work: 1.6 },
+      task: 'What is 2 ÷ 2/3?',
+      why: 'Flip 2/3 to 3/2 and multiply. 2 × 3/2 = 6/2 = 3, and three pieces of 2/3 fill the 2 bars.',
+      hint: 'Not quite. Flip the 2/3, then multiply.',
+      hints: { '4/3': 'Not quite. That multiplies by 2/3. Flip it to 3/2 first.',
+        '1/3': 'Not quite. That flips the 2 into 1/2. Only the fraction you divide by is flipped.' } },
+    { kind: 'pick', draw: 'fit', fit: { a: '3/4', b: '1/8', cut: 4 }, work: ['3/4', '×', '8*', '=', '24/4', '=', '6'], opts: ['6', '3/32', '1/6'], want: '6', fb: 2.4, name: 'Eighths in three quarters',
+      at: { on: 0.15, step: 0.2, name: 1.3, work: 1.8 },
+      task: 'What is 3/4 ÷ 1/8?',
+      why: '1/8 flipped is 8/1, which is 8. So 3/4 × 8 = 24/4 = 6, and six eighths fill the 3/4.',
+      hint: 'Not quite. Count how many eighths fit in 3/4.',
+      hints: { '3/32': 'Not quite. That multiplies by 1/8. Flip it first.',
+        '1/6': 'Not quite. That flips the 3/4. Flip the 1/8, the fraction you divide by.' } },
+    { kind: 'pick', draw: 'fit', fit: { a: '1/2', b: '3/4', cut: 4 }, work: ['1/2', '×', '4/3*', '=', '4/6', '=', '2/3'], opts: ['3/8', '2/3', '3/2'], want: '2/3', fb: 2.1, name: 'Less than one fits',
+      at: { on: 0.15, step: 0.4, name: 1.0, work: 1.5 },
+      task: 'What is 1/2 ÷ 3/4?',
+      why: 'Flip the 3/4 to 4/3, so 1/2 × 4/3 = 4/6 = 2/3. Two of the piece\'s 3 quarters fit in the half, which is 2/3 of it.',
+      hint: 'Not quite. Flip the 3/4, then multiply.',
+      hints: { '3/8': 'Not quite. That multiplies by 3/4. Flip it to 4/3 first.',
+        '3/2': 'Not quite. That flips the 1/2. Flip the 3/4, the fraction you divide by.' } },
+    { show: true, demo: 'more', dur: 4.5, name: 'Smaller pieces, more of them',
+      text: 'The smaller the piece, the more of them fit. Divide an amount above 0 by a number more than 1 and you get less. Divide it by a fraction between 0 and 1 and you get more.' },
+    { kind: 'bigger', opts: ['10 ÷ 2', '10 × 1/2', '10 ÷ 1/2'], want: '10 ÷ 1/2', fb: 1.2, name: 'Bigger than 10',
+      at: { ring: 0.1, label: 0.5 },
+      task: 'Which of these is bigger than 10?',
+      why: 'Dividing by 1/2 counts the halves in 10, and there are 20. Dividing by 2 and taking half of 10 both give 5.',
+      hint: 'Not quite. Watch where it lands.',
+      hints: { '10 ÷ 2': 'Not quite. 2 is more than 1, so dividing by it gives less.',
+        '10 × 1/2': 'Not quite. That is half of 10. Dividing by 1/2 counts the halves instead.' } },
+    { kind: 'pick', draw: 'cable', cable: { a: '4 1/2', tape: 5 }, work: ['9/2', '×', '4/3*', '=', '36/6', '=', '6'], opts: ['6', '5 1/3', '3 3/8'], want: '6', fb: 2.4, name: 'Tails from four and a half',
+      at: { on: 0.15, step: 0.2, name: 1.35, work: 1.8 },
+      task: 'How many 3/4 m tails can you cut from 4 1/2 m of cable?',
+      why: '4 1/2 is 9/2, and 3/4 flipped is 4/3. So 9/2 × 4/3 = 36/6 = 6 tails.',
+      hint: 'Not quite. Turn 4 1/2 into 9/2, then flip the 3/4 and multiply.',
+      hints: { '5 1/3': 'Not quite. That leaves out the half metre. Turn 4 1/2 into 9/2 first.',
+        '3 3/8': 'Not quite. That multiplies by 3/4. Flip it to 4/3 first.' } },
+    { kind: 'pick', draw: 'fit', fit: { a: '3/4', b: '1/2', cut: 4 }, work: ['3/4', '×', '2*', '=', '6/4', '=', '1 1/2'], opts: ['2/3', '3/8', '1 1/2'], want: '1 1/2', fb: 2.3, name: 'Three quarters by a half',
+      at: { on: 0.15, step: 0.3, name: 1.1, work: 1.6 },
+      task: 'What is 3/4 ÷ 1/2?',
+      why: '1/2 flipped is 2/1, which is 2. So 3/4 × 2 = 6/4 = 1 1/2. One half fits in 3/4, and half of another.',
+      hint: 'Not quite. Flip the 1/2, then multiply.',
+      hints: { '2/3': 'Not quite. That flips the 3/4. Flip the 1/2, the fraction you divide by.',
+        '3/8': 'Not quite. That multiplies by 1/2. Flip it to 2 first.' } },
+  ];
+  const FINISH = 'Dividing by a fraction counts how many of it fit. To work it out, flip the fraction and multiply. An amount above 0 divided by a fraction between 0 and 1 gets bigger.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled).
+  const FADE = 0.35;
+  const AT = {
+    // six halves laid along three bars, STEP apart, each counted; then 3 ÷ 1/2 = 6
+    halves: { on: 0.5, step: 0.3, name: 3.0 },
+    // the cable is cut into eight 3/4 m tails along the tape, one after another, each counted; then 6 ÷ 3/4 = 8
+    cable: { on: 0.5, step: 0.3, name: 3.4 },
+    // one tail, then a third of the next fit in one metre: 1 ÷ 3/4 = 1 1/3 = 4/3; then 6 ÷ 3/4, and
+    // 6 × 3/4 whose 3/4 turns over into 4/3; only once it has landed do the = signs come: = 6 × 4/3 = 8
+    why: { tails: [0.5, 1.1], one: 1.7, six: 2.3, times: 2.8, flip: 3.1, eight: 3.8 },
+    // two pieces of 2 laid along 4 (4 ÷ 2 = 2, less), then eight halves (4 ÷ 1/2 = 8, more)
+    more: { twos: 0.5, twoStep: 0.3, less: 1.5, halves: 1.8, halfStep: 0.2, more: 3.9 },
+  };
+  const CNT = 0.2;       // a piece's count follows it by CNT
+  const FLIP = 0.7;      // how long a fraction takes to turn over
+  // Cutting a tail by hand: its cut grows down over CUTG, its shade follows CUTS later and its count
+  // CNT later; the whole motion is over within CUTDUR. A tail put back fades out over K.SOFT.
+  const CUTG = 0.4, CUTS = 0.05, CUTDUR = 0.8;
+  // Drawing sizes, in viewBox units (340 wide). Bars run from BX with their labels at LX; the tape
+  // and the number line run from L0 to L0 + LW; equations are centred on CX.
+  const BX = 64, BW = 256, BH = 44, LX = 30, L0 = 20, LW = 300, CX = 170;
+  // Bars and pieces: the amount (row A) at YA, the pieces laid along it (row B) at YB, PH tall (room for
+  // a stacked label clear of the TICK-long marks of a piece's cuts), and the working lines at YE. The cable at YC, CH tall, over the tape's line at YT, its working at YEC.
+  const YA = 8, YB = 64, PH = 48, YE = [150, 214], TICK = 5;
+  const YC = 52, CH = 36, YT = 112, YEC = [204, 268];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const simp = (t, b) => { const g = gcd(t, b) || 1; return [t / g, b / g]; };
+  const times = (p, q) => [p[0] * q[0], p[1] * q[1]];       // tops times tops, over bottoms times bottoms
+  const flip = (q) => [q[1], q[0]];                         // the top goes to the bottom and the bottom to the top
+  const divide = (p, q) => times(p, flip(q));               // flip the fraction you divide by, then multiply
+  // '2 1/4' -> [2, 1, 4]; '13/4' -> [0, 13, 4]; '5' -> [5, 0, 1].
+  function parts(s) {
+    const m = String(s).trim().match(/^(?:(\d+)\s+)?(\d+)(?:\/(\d+))?$/);
+    if (!m) return [NaN, NaN, NaN];
+    if (m[3] == null) return m[1] == null ? [Number(m[2]), 0, 1] : [NaN, NaN, NaN];
+    return [m[1] == null ? 0 : Number(m[1]), Number(m[2]), Number(m[3])];
+  }
+  const single = (s) => { const p = parts(String(s).replace(/\*$/, '')); return [p[0] * p[2] + p[1], p[2]]; };
+  // Any answer as one fraction, worked left to right: '10 ÷ 1/2' -> [20, 1]; a mixed number turned improper.
+  function fracOf(s) {
+    const xs = String(s).split(/\s*([×÷])\s*/);
+    let f = single(xs[0]);
+    for (let j = 1; j < xs.length; j += 2) f = xs[j] === '×' ? times(f, single(xs[j + 1])) : divide(f, single(xs[j + 1]));
+    return f;
+  }
+  const value = (s) => { const f = fracOf(s); return f[0] / f[1]; };
+  // laid: tails cut by hand; born[k]: when tail k was cut on the motion's clock (none: there already);
+  // gone, goneAt: the tail just put back, fading out from goneAt.
+  function blank() { return { pick: null, res: null, why: false, laid: 0, born: [], gone: null, goneAt: 0 }; }
+  // The most tails the cable step lets Dan cut: every one that fits, and one more that runs past the end.
+  const maxCut = (d) => Math.floor(value(d.cable.a + ' ÷ 3/4')) + 1;
+  const isEmpty = (i, st) => (STEPS[i].kind === 'cut' ? st.laid === 0 : st.pick == null);
+  const isRight = (i, st) => (STEPS[i].kind === 'cut' ? st.laid === STEPS[i].want : st.pick === STEPS[i].want);
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'cut') return st.laid > d.want ? d.over : d.hint;
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank();
+    if (d.kind === 'cut') st.laid = d.want; else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current demonstration, or since Check
+
+  // ---------- text with stacked fractions, mixed numbers and amber key terms (built with K.el, never innerHTML) ----------
+  function frac(t, b, hide) {
+    return K.el('span', hide ? { class: 'fr', 'aria-hidden': 'true' } : { class: 'fr', role: 'img', 'aria-label': t + '/' + b },
+      K.el('span', { class: 'n', 'aria-hidden': 'true' }, t), K.el('span', { class: 'd', 'aria-hidden': 'true' }, b));
+  }
+  // A mixed number: the whole number beside its stacked fraction, read as "1 and 3/4".
+  function mixed(w, t, b) {
+    return K.el('span', { class: 'mx', role: 'img', 'aria-label': w + ' and ' + t + '/' + b },
+      K.el('span', { class: 'w', 'aria-hidden': 'true' }, w), frac(t, b, true));
+  }
+  // Plain text with its fractions, mixed numbers and *key terms* drawn in.
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*|(\d+) (\d+)\/(\d+)|(\d+)\/(\d+)/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      let node = m[1] ? K.el('span', { class: 'term' }, m[1]) : m[2] ? mixed(m[2], m[3], m[4]) : frac(m[5], m[6]);
+      at = m.index + m[0].length;
+      // A full stop or comma after a fraction stays on its line.
+      const stop = !m[1] && /^[.,?!;]/.test(text.slice(at)) ? text[at] : '';
+      if (stop) { node = K.el('span', { class: 'nw' }, node, stop); at++; re.lastIndex = at; }
+      el.appendChild(node);
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A whole sum ("3 ÷ 1/2 = 6" or "6 × 4/3 = 8") or a length ("4 1/2 m") stays together on one line,
+  // with the full stop after it.
+  const NUM = '(?:\\d+ )?\\d+(?:\\/\\d+)?(?: m\\b)?';
+  const GLUE = new RegExp(NUM + '(?: [=×÷] ' + NUM + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      if (/ /.test(m[0])) { const box = el.appendChild(K.el('span', { class: 'nw' })); pieces(box, m[0]); }
+      else pieces(el, m[0]);
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Under the cable: cut the next 3/4 m tail along it (counted as it lands), or put the last one back.
+  const cutBtn = K.button({ label: 'Cut a tail', secondary: true, into: '#cuts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'cut' || st.res === 'right' || st.laid >= maxCut(d)) return;
+    clock();
+    st.born[st.laid] = T; st.laid++; st.res = null;
+    if (st.gone === st.laid - 1) st.gone = null;
+    run(T + CUTDUR);
+  } });
+  const backCutBtn = K.button({ label: 'Put one back', secondary: true, into: '#cuts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'cut' || st.res === 'right' || st.laid === 0) return;
+    clock();
+    st.laid--; st.born[st.laid] = null; st.gone = st.laid; st.goneAt = T; st.res = null;
+    run(T + K.SOFT);
+  } });
+  backCutBtn.el.setAttribute('aria-label', 'Put the last tail back');
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    // A right answer plays its picture's motion; on the number line any answer lands in its place.
+    if (st.res === 'right' || d.kind === 'bigger') play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    play();
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished. If the page is hidden part-way,
+  // the kit carries the motion on when it is shown again.
+  let until = 0;                                     // when the motion now playing ends, on its clock T
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < until;
+  } });
+  // A demonstration, or the motion after Check, from its start.
+  function play() {
+    const d = STEPS[at()], st = S[at()];
+    st.born = []; st.gone = null;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = 0; until = d.show ? d.dur : d.fb || 0; anim.play();
+  }
+  // Cutting tails by hand: the clock starts afresh unless a cut is still moving on it, so tails cut
+  // quickly one after another each keep their own motion; tails cut before the clock started are there already.
+  function clock() {
+    if (anim.playing() && isFinite(T)) return;
+    const st = S[at()];
+    T = 0; st.born = []; st.gone = null;
+  }
+  function run(end) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    until = Math.max(end, anim.playing() ? until : 0); anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene');
+  let into = null;                                   // where shapes go: the scene, or a part that is arriving
+  const add = (node) => (into || svg).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving (a slot giving way to its answer): faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: x, y: y, width: w, height: h }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const brk = (d) => add(K.svg('path', { class: 'brk', d: d }));
+  // A stacked fraction centred on x, its bar at y.
+  function sfrac(x, y, t, b, cls, barCls, half, gap) {
+    half = half || (String(t).length > 1 || String(b).length > 1 ? 11 : 9); gap = gap || 16;
+    text(x, y - 5, t, cls);
+    line(barCls, x - half, y, x + half, y);
+    text(x, y + gap, b, cls);
+  }
+  const bigFrac = (x, y, t, b) => sfrac(x, y, t, b, 'big', 'bbar', String(t).length > 1 || String(b).length > 1 ? 15 : 13, 24);
+  // The label beside a row (h tall, from y): a whole number or length ('3', '1 m'), a fraction ('3/4'),
+  // or what the row's pieces divide by ('÷ 1/2').
+  function sideLabel(y, h, s) {
+    const m = y + h / 2, p = parts(s.replace(/^÷\s*/, ''));
+    if (s[0] === '÷') {
+      text(LX - 10, m + 6, '÷', 'lab');
+      if (p[2] === 1) text(LX + 7, m + 6, p[0], 'lab'); else sfrac(LX + 8, m + 2, p[1], p[2], 'lab', 'fbar');
+    } else if (/\//.test(s)) sfrac(LX, m + 2, p[1], p[2], 'lab', 'fbar');
+    else text(LX, m + 7, s, 'whole');
+  }
+  // The slot an answer goes in: a dashed box that gives way to the answer as a goes 0 -> 1.
+  const slot = (x, y, w, h, a) => leave(a, () => add(K.svg('rect', { class: 'gapbox', x: x, y: y, width: w, height: h, rx: 5 })));
+
+  // One line of working, centred on cx (CX unless given) with its fraction bars at y. Items: {f: [t, b]},
+  // {m: [w, t, b]} and {s: '×'} (a sign or a whole number). `a`: when the item arrives (left out:
+  // there from the start); `slot`: when the item fills its dashed slot, which has PAD of room on each
+  // side; `skip`: left for the caller to draw. (The * on a flipped fraction is only for the checks.)
+  const DIG = 13.5, EGAP = 9, PAD = 6;
+  function itemOf(s) {
+    s = String(s).replace(/\*$/, '');
+    if (/^[=×÷+]$/.test(s)) return { s: s };
+    const p = parts(s);
+    return p[1] === 0 && p[2] === 1 ? { s: String(p[0]) } : p[0] ? { m: [p[0], p[1], p[2]] } : { f: [p[1], p[2]] };
+  }
+  function itemW(it) {
+    if (it.slot != null) return Math.max(28, itemW(Object.assign({}, it, { slot: null }))) + 2 * PAD;
+    if (it.f) return Math.max(26, Math.max(String(it.f[0]).length, String(it.f[1]).length) * DIG + 6);
+    if (it.m) return String(it.m[0]).length * DIG + 5 + itemW({ f: [it.m[1], it.m[2]] });
+    return Math.max(14, String(it.s).length * DIG);
+  }
+  function drawItem(it, x, w, y) {
+    if (it.f) bigFrac(x + w / 2, y, it.f[0], it.f[1]);
+    else if (it.m) {
+      const fw = itemW({ f: [it.m[1], it.m[2]] });
+      text(x + String(it.m[0]).length * DIG / 2, y + 8, it.m[0], 'big');
+      bigFrac(x + w - fw / 2, y, it.m[1], it.m[2]);
+    } else text(x + w / 2, y + 8, it.s, 'big');
+  }
+  // Where each item of a line sits: its left edge x and width w.
+  function eqPos(items, cx) {
+    const ws = items.map(itemW), total = ws.reduce((s, w) => s + w, 0) + EGAP * (items.length - 1);
+    let x = (cx == null ? CX : cx) - total / 2;
+    return ws.map((w) => { const p = { x: x, w: w }; x += w + EGAP; return p; });
+  }
+  function eq(y, items, cx) {
+    const pos = eqPos(items, cx);
+    items.forEach((it, i) => {
+      const x0 = pos[i].x, w = pos[i].w;
+      if (it.skip) return;
+      if (it.slot != null) {
+        slot(x0 + 1, y - 28, w - 2, 58, it.slot);
+        part(it.slot, 6, () => drawItem(it, x0 + PAD, w - 2 * PAD, y));
+      } else part(it.a == null ? 1 : it.a, 6, () => drawItem(it, x0, w, y));
+    });
+    return pos;
+  }
+  // The fraction t/b, centred on x with its bar at y, arriving as a goes 0 -> 1 and turning over into b/t as
+  // e goes 0 -> 1 (eased): its top swings down one side and its bottom up the other, so both stay upright,
+  // on a narrow path that keeps them clear of the sign before it, while the bar fades out and back in
+  // as they pass (so it never reads as a minus between them) and the digits ease a quarter smaller
+  // as they pass each other, like a card turning edge-on (so they never sit as one two-digit number).
+  function flipFrac(x, y, e, a, t, b) {
+    part(a, 6, () => {
+      const th = Math.PI * e, R = 14.5, ym = y + 9.5, sx = 0.6 * R * Math.sin(th), bar = Math.abs(Math.cos(th)), size = (22 * (0.75 + 0.25 * bar)).toFixed(2) + 'px';
+      part(bar > 0.01 ? bar : 0, 0, () => line('bbar', x - 13, y, x + 13, y));
+      text(x + sx, ym - R * Math.cos(th), t, 'big').style.fontSize = size;
+      text(x - sx, ym + R * Math.cos(th), b, 'big').style.fontSize = size;
+    });
+  }
+
+  // --- how many fit: the amount as bars (row A) and pieces of the divisor laid along it (row B) ---
+  // fit: {a: the amount, b: the piece, cut: how finely the amount's bars are cut, U: one whole's width}.
+  function fitGeom(fit) {
+    const A = single(fit.a), P = single(fit.b), wholes = Math.max(1, Math.ceil(A[0] / A[1])), U = fit.U || BW / wholes;
+    const q = divide(A, P), n = Math.floor(q[0] / q[1]), rem = q[0] - n * q[1], pw = U * P[0] / P[1];
+    const list = [];
+    for (let k = 0; k < n; k++) list.push({ x: BX + k * pw, w: pw, fit: 1, n: k + 1 });
+    // a last piece only part of which lies over the amount: `fit` of it, the fraction f
+    if (rem) list.push({ x: BX + n * pw, w: pw, fit: rem / q[1], f: simp(rem, q[1]) });
+    return { A: A, P: P, wholes: wholes, U: U, cut: fit.cut || 1, pieces: list, q: q };
+  }
+  // Row A: the wholes side by side, each cut into `cut` pieces, shaded as far as the amount. When there are
+  // several wholes and they are cut, each whole's outline is heavier than its cuts, so 2 bars of quarters
+  // never read as one bar of eighths; the wholes still touch, so row B's pieces line up with the amount.
+  function rowA(G, label) {
+    const amt = G.A[0] / G.A[1], cw = G.U / G.cut, outline = G.cut > 1 && G.wholes > 1 ? 'wedge' : 'edge';
+    for (let w = 0; w < G.wholes; w++) {
+      for (let k = 0; k < G.cut; k++) rect(w + (k + 1) / G.cut <= amt + 1e-9 ? 'pc a' : 'pc', BX + w * G.U + k * cw, YA, cw, BH);
+      rect(outline, BX + w * G.U, YA, G.U, BH);
+    }
+    sideLabel(YA, BH, label);
+  }
+  // A piece of row B (at y, YB unless given), arrived as far as a, with a thin cut every cw along it (cw:
+  // the width of one of the parts the amount's wholes are cut into; left out, no cuts), so its parts can
+  // be counted. A piece that runs past the amount is in the main colour only over the amount: the part
+  // past it turns plain as `out` goes 0 -> 1, fading in over the shaded piece.
+  function rowPiece(p, a, out, y, cw) {
+    y = y == null ? YB : y;
+    part(a, 0, () => {
+      const inW = p.w * p.fit, cuts = [];
+      if (cw) for (let k = 1; k * cw < p.w - 1e-6; k++) cuts.push(k * cw);
+      // each cut is marked at the top and bottom edges, like the marks on a rule, clear of the label in the middle
+      const mark = (cls, x) => { line(cls, x, y, x, y + TICK); line(cls, x, y + PH - TICK, x, y + PH); };
+      rect('pc on', p.x, y, p.w, PH);
+      cuts.forEach((c) => mark('pcut', p.x + c));
+      if (p.fit < 1) part(out, 0, () => {
+        rect('pc', p.x + inW, y, p.w - inW, PH);
+        cuts.forEach((c) => { if (c > inW + 1e-6) mark('tcut', p.x + c); });
+      });
+      rect('edge', p.x, y, p.w, PH);
+    });
+  }
+  // A whole piece's count, or the fraction of a part piece that fits, rising in as a goes 0 -> 1.
+  function pieceLabel(p, a, y) {
+    y = y == null ? YB : y;
+    if (p.fit >= 1) part(a, 6, () => text(p.x + p.w / 2, y + PH / 2 + 6, p.n, 'onnum'));
+    else part(a, 6, () => sfrac(p.x + p.w * p.fit / 2, y + PH / 2 - 1, p.f[0], p.f[1], 'onlab', 'onbar'));
+  }
+  const say = (f) => (f[1] === 1 ? String(f[0]) : f[0] + '/' + f[1]);
+  const piecesSaid = (G, shown) => {
+    const full = G.pieces.filter((p, k) => p.fit >= 1 && k < shown).length, partly = G.pieces.some((p, k) => p.fit < 1 && k < shown);
+    return (full ? full + (full === 1 ? ' whole piece' : ' whole pieces') : '') + (full && partly ? ' and ' : '') + (partly ? say(G.pieces[G.pieces.length - 1].f) + ' of a piece' : '');
+  };
+
+  // --- cable cut into 3/4 m tails over a tape marked in quarter metres ---
+  // cable: {a: its length in metres, tape: the tape's length in metres}.
+  function cableGeom(c) {
+    const L = single(c.a), perM = LW / c.tape, q = divide(L, [3, 4]);
+    return { L: L, perM: perM, tw: perM * 3 / 4, n: q[0] / q[1], len: perM * L[0] / L[1], tape: c.tape };
+  }
+  // The cable; per tail: how far its cut has grown, its shade has arrived and its count has risen. A tail
+  // that would run past the end of the cable (cut by hand, one too many) is only an outline there.
+  function drawCable(G, tails) {
+    // a bracket over the first tail's length, labelled 3/4 m
+    const x2 = L0 + G.tw, xc = (L0 + x2) / 2, past = (k) => (k + 1) * G.tw > G.len + 1e-6;
+    brk('M' + (L0 + 3) + ' ' + (YC - 4) + ' V' + (YC - 10) + ' H' + (x2 - 3) + ' V' + (YC - 4));
+    sfrac(xc - 5, YC - 30, 3, 4, 'tl', 'tbar'); text(xc + 7, YC - 25, 'm', 'tl', 'start');
+    rect('pc a', L0, YC, G.len, CH);
+    tails.forEach((t, k) => { if (!past(k)) part(t.shade, 0, () => rect('pc on', L0 + k * G.tw, YC, G.tw, CH)); });
+    tails.forEach((t, k) => { const x = L0 + (k + 1) * G.tw; if (!past(k) && x < L0 + G.len - 1e-6 && t.cut > 0) line('cut', x, YC, x, YC + CH * t.cut); });
+    rect('edge', L0, YC, G.len, CH);
+    tails.forEach((t, k) => { if (past(k)) part(t.shade, 0, () => rect('over', L0 + k * G.tw + 1.5, YC + 1.5, G.tw - 3, CH - 3)); });
+    tails.forEach((t, k) => part(t.count, 6, () => text(L0 + (k + 0.5) * G.tw, YC + CH / 2 + 6, k + 1, past(k) ? 'wnum' : 'onnum')));
+    // the tape: a tick every quarter metre, longer at the halves and whole metres, each metre numbered
+    // on its tick, and the unit once under them
+    line('axis', L0, YT, L0 + LW, YT);
+    for (let k = 0; k <= 4 * G.tape; k++) { const x = L0 + k * G.perM / 4; line('tick', x, YT, x, YT + (k % 4 ? (k % 2 ? 6 : 9) : 14)); }
+    for (let m = 0; m <= G.tape; m++) text(L0 + m * G.perM, YT + 32, m, 'num');
+    text(L0 + LW / 2, YT + 52, 'metres', 'tl');
+    return tails.filter((t) => t.count >= 0.5).length;
+  }
+  const cableSaid = (G, a) => 'A cable ' + a + ' m long over a tape marked every quarter metre, from 0 to ' + G.tape + ' m, with a bracket over its first 3/4 m';
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  function demoHalves() {
+    svg.setAttribute('viewBox', '0 0 340 186');
+    const A = AT.halves, G = fitGeom({ a: '3', b: '1/2' });
+    rowA(G, '3');
+    sideLabel(YB, PH, '÷ 1/2');
+    let n = 0;
+    G.pieces.forEach((p, k) => {
+      const t0 = A.on + k * A.step, c = arr(t0 + CNT);
+      rowPiece(p, arr(t0), 1);
+      if (c >= 0.5) n++;
+      pieceLabel(p, c);
+    });
+    const named = arr(A.name);
+    eq(YE[0], [{ s: '3' }, { s: '÷' }, { f: [1, 2] }, { s: '=', a: named }, { s: '6', a: named }]);
+    return 'Three whole bars side by side, labelled 3, and under them a row for ÷ 1/2. ' + (n ? n + ' halves are laid along under the bars and counted' : 'No halves are laid yet') +
+      (named >= 0.5 ? '. 3 ÷ 1/2 = 6.' : '. Under them, 3 ÷ 1/2.');
+  }
+  function demoCable() {
+    svg.setAttribute('viewBox', '0 0 340 240');
+    const A = AT.cable, G = cableGeom({ a: '6', tape: 6 }), tails = [];
+    for (let k = 0; k < G.n; k++) { const t0 = A.on + k * A.step; tails.push({ cut: arr(t0, 0.4), shade: arr(t0 + 0.1), count: arr(t0 + 0.25) }); }
+    const n = drawCable(G, tails), named = arr(A.name);
+    eq(YEC[0], [{ s: '6' }, { s: '÷' }, { f: [3, 4] }, { s: '=', a: named }, { s: '8', a: named }]);
+    return cableSaid(G, 6) + '. ' + (n ? n + ' tails of 3/4 m are cut from it and counted' : 'No tails are cut yet') + (named >= 0.5 ? '. 6 ÷ 3/4 = 8.' : '. Under it, 6 ÷ 3/4.');
+  }
+  function demoWhy() {
+    svg.setAttribute('viewBox', '0 0 340 250');
+    const A = AT.why, G = fitGeom({ a: '1', b: '3/4', cut: 4, U: 160 }), cw = G.U / G.cut;
+    rowA(G, '1 m');
+    // the metre's 4 quarters, numbered with the bar, so a tail can be seen to take 3 of them
+    for (let k = 0; k < G.cut; k++) text(BX + (k + 0.5) * cw, YA + BH / 2 + 6, k + 1, 'num');
+    sideLabel(YB, PH, '÷ 3/4');
+    const tl = G.pieces.map((p, k) => { const a = arr(A.tails[k]), c = arr(A.tails[k] + CNT); rowPiece(p, a, 1, YB, cw); pieceLabel(p, c); return c; });
+    const one = arr(A.one), six = arr(A.six), times6 = arr(A.times), turn = arr(A.flip, FLIP), landed = arr(A.flip + FLIP), eight = arr(A.eight);
+    eq(YE[0], [{ s: '1', a: one }, { s: '÷', a: one }, { f: [3, 4], a: one }, { s: '=', a: one }, { m: [1, 1, 3], a: one }, { s: '=', a: one }, { f: [4, 3], a: one }]);
+    // 6 ÷ 3/4 = 6 × 4/3 = 8: the 4/3 arrives as 3/4 and turns over in its place, and the = after
+    // 6 ÷ 3/4 waits until it has landed, so the line is never 6 ÷ 3/4 = 6 × 3/4
+    const pos = eq(YE[1], [{ s: '6', a: six }, { s: '÷', a: six }, { f: [3, 4], a: six }, { s: '=', a: landed }, { s: '6', a: times6 }, { s: '×', a: times6 }, { f: [4, 3], skip: true },
+      { s: '=', a: eight }, { s: '8', a: eight }]);
+    flipFrac(pos[6].x + pos[6].w / 2, YE[1], turn, times6, 3, 4);
+    const tails = tl.filter((c) => c >= 0.5).length;
+    return 'A bar one metre long, cut into quarters numbered 1 to 4, and under it 3/4 m tails laid along, each cut into its 3 quarters: ' +
+      (tails === 0 ? 'none yet' : tails === 1 ? 'one tail fits' : 'one tail fits, and a third of the next') +
+      (one >= 0.5 ? '. 1 ÷ 3/4 = 1 and 1/3 = 4/3' : '') + (six >= 0.5 ? '. 6 ÷ 3/4' : '') +
+      (times6 >= 0.5 ? (landed >= 0.5 ? ' = 6 × 4/3' : turn >= 1 ? '; 6 × 4/3, the 3/4 turned over' : '; 6 × 3/4 turning over into 4/3') : '') +
+      (eight >= 0.5 ? ' = 8, its 3/4 turned over into 4/3.' : '.');
+  }
+  function demoMore() {
+    svg.setAttribute('viewBox', '0 0 340 272');
+    const A = AT.more, U = BW / 4;
+    for (let w = 0; w < 4; w++) { rect('pc a', BX + w * U, YA, U, BH); rect('edge', BX + w * U, YA, U, BH); }
+    sideLabel(YA, BH, '4');
+    const rows = [{ y: 64, size: 2, label: '÷ 2', t0: A.twos, step: A.twoStep }, { y: 124, size: 0.5, label: '÷ 1/2', t0: A.halves, step: A.halfStep }];
+    const laid = rows.map((r) => {
+      sideLabel(r.y, PH, r.label);
+      let n = 0;
+      for (let k = 0; k < 4 / r.size; k++) {
+        const p = { x: BX + k * U * r.size, w: U * r.size, fit: 1, n: k + 1 }, t0 = r.t0 + k * r.step, c = arr(t0 + CNT);
+        rowPiece(p, arr(t0), 1, r.y);
+        pieceLabel(p, c, r.y);
+        if (c >= 0.5) n++;
+      }
+      return n;
+    });
+    const less = arr(A.less), more = arr(A.more);
+    eq(204, [{ s: '4', a: less }, { s: '÷', a: less }, { s: '2', a: less }, { s: '=', a: less }, { s: '2', a: less }], 90);
+    part(less, 6, () => text(90, 258, 'less than 4', 'tl'));
+    eq(204, [{ s: '4', a: more }, { s: '÷', a: more }, { f: [1, 2], a: more }, { s: '=', a: more }, { s: '8', a: more }], 250);
+    part(more, 6, () => text(250, 258, 'more than 4', 'tl'));
+    return 'Four whole bars side by side, labelled 4. Under them, a row for ÷ 2: ' + (laid[0] ? laid[0] + ' pieces of 2 laid along and counted' : 'none laid yet') +
+      '; and a row for ÷ 1/2: ' + (laid[1] ? laid[1] + ' halves laid along and counted' : 'none laid yet') +
+      (less >= 0.5 ? '. 4 ÷ 2 = 2, less than 4' : '') + (more >= 0.5 ? '; 4 ÷ 1/2 = 8, more than 4.' : '.');
+  }
+
+  // --- the puzzles (DO steps); after a right answer their motion runs on the same clock T ---
+  // The amount and one piece of the divisor laid at its start. Once answered right, the other pieces
+  // are laid along it, each counted, a piece that runs past the amount shows the part that fits, the
+  // answer fills the slot and the flip-and-multiply line arrives under it.
+  function drawFit(d, st, right) {
+    const F = d.at, G = fitGeom(d.fit), work = !!d.work;
+    svg.setAttribute('viewBox', '0 0 340 ' + (work ? 250 : 186));
+    rowA(G, d.fit.a);
+    sideLabel(YB, PH, '÷ ' + d.fit.b);
+    let shown = 1;
+    const cw = G.cut > 1 ? G.U / G.cut : 0;
+    G.pieces.forEach((p, k) => {
+      const a = k === 0 ? 1 : right ? arr(F.on + (k - 1) * F.step) : 0;
+      const out = p.fit >= 1 ? 1 : k > 0 ? 1 : right ? arr(F.on) : 0;
+      rowPiece(p, a, out, YB, cw);
+      pieceLabel(p, right ? arr(F.on + k * F.step + (p.fit < 1 && k === 0 ? 0.4 : 0)) : 0);
+      if (a >= 0.5 && k > 0) shown = k + 1;
+    });
+    const named = right ? arr(F.name) : 0;
+    eq(YE[0], [itemOf(d.fit.a), { s: '÷' }, itemOf(d.fit.b), { s: '=' }, Object.assign(itemOf(d.want), { slot: named })]);
+    const w = work && right ? arr(F.work) : 0;
+    if (work) eq(YE[1], d.work.map((s) => Object.assign(itemOf(s), { a: w })));
+    const many = G.wholes > 1 || G.A[1] === 1;
+    const amount = many ? G.wholes + ' whole bars side by side' : 'A bar cut into ' + G.cut + ' with ' + d.fit.a + ' of it shaded';
+    const last = G.pieces[G.pieces.length - 1], parts1 = cw && G.pieces[0].w > cw + 1e-6 ? Math.round(G.pieces[0].w / cw) : 0;
+    const cutSaid = (each) => (parts1 ? ', ' + (each ? 'each ' : '') + 'cut into its ' + parts1 + ' ' + (G.cut === 4 ? 'quarters' : 'parts') : '');
+    // before the answer, one piece at the start; after it, every piece laid along (or the one piece, and how much of it fits)
+    const laid = !right || shown <= 1
+      ? (G.pieces.length === 1 && right ? 'one piece of ' + d.fit.b + cutSaid() + ', ' + say(last.f) + ' of it over the ' + d.fit.a
+        : 'one piece of ' + d.fit.b + ' laid at the start' + cutSaid() + (G.pieces[0].fit < 1 ? ', running past the end of the ' + d.fit.a : ''))
+      : shown + ' pieces of ' + d.fit.b + ' laid along' + cutSaid(true) + (last.fit < 1 && shown === G.pieces.length ? ', the last running past the end of the ' + d.fit.a : '');
+    return amount + ', labelled ' + d.fit.a + ', and under ' + (many ? 'them ' : 'it ') + laid + '. Under them, ' + d.fit.a + ' ÷ ' + d.fit.b + ' = ' +
+      (right ? (named >= 0.5 ? d.want : 'a gap') + '. ' + piecesSaid(G, shown) + ' fit' + (w >= 0.5 ? '. ' + d.work.join(' ').replace(/\*/g, '') + '.' : '.') : 'a gap.');
+  }
+  // The cable over its tape; once answered right it is cut into its tails, each counted.
+  function drawCableDo(d, st, right) {
+    const F = d.at, G = cableGeom(d.cable), work = !!d.work, tails = [];
+    svg.setAttribute('viewBox', '0 0 340 ' + (work ? 304 : 240));
+    for (let k = 0; k < G.n; k++) {
+      const t0 = F.on + k * F.step;
+      tails.push(right ? { cut: arr(t0, 0.4), shade: arr(t0 + 0.05), count: arr(t0 + CNT) } : { cut: 0, shade: 0, count: 0 });
+    }
+    const n = drawCable(G, tails), named = right ? arr(F.name) : 0;
+    eq(YEC[0], [itemOf(d.cable.a), { s: '÷' }, { f: [3, 4] }, { s: '=' }, Object.assign(itemOf(d.want), { slot: named })]);
+    const w = work && right ? arr(F.work) : 0;
+    if (work) eq(YEC[1], d.work.map((s) => Object.assign(itemOf(s), { a: w })));
+    return cableSaid(G, d.cable.a) + '. Under it, ' + d.cable.a + ' ÷ 3/4 = ' +
+      (right ? (named >= 0.5 ? d.want : 'a gap') + '. ' + (n ? n + ' tails of 3/4 m are cut from it and counted' : 'The cable is being cut') + (w >= 0.5 ? '. ' + d.work.join(' ').replace(/\*/g, '') + '.' : '.') : 'a gap.');
+  }
+  // The cable over a tape longer than it, cut by hand: each press of Cut a tail lays the next 3/4 m tail
+  // along it, its cut growing down and its count rising (the one press may cut past the end, drawn as an
+  // outline there); Put one back fades the last one out. Once answered right, the count fills the slot.
+  function drawCut(d, st, right) {
+    svg.setAttribute('viewBox', '0 0 340 240');
+    const G = cableGeom(d.cable), tails = [];
+    for (let k = 0; k < st.laid; k++) {
+      const t0 = st.born[k];
+      tails.push(t0 == null ? { cut: 1, shade: 1, count: 1 } : { cut: arr(t0, CUTG), shade: arr(t0 + CUTS), count: arr(t0 + CNT) });
+    }
+    // the tail just put back (always the one after the last laid) uncuts and fades out
+    if (st.gone === st.laid) { const g = 1 - arr(st.goneAt); if (g > 0) tails.push({ cut: g, shade: g, count: g }); }
+    drawCable(G, tails);
+    const named = right ? arr(d.at.name) : 0;
+    eq(YEC[0], [itemOf(d.cable.a), { s: '÷' }, { f: [3, 4] }, { s: '=' }, Object.assign(itemOf(String(d.want)), { slot: named })]);
+    const over = st.laid > G.n;
+    return cableSaid(G, d.cable.a) + '. ' + (st.laid ? st.laid + (st.laid === 1 ? ' tail' : ' tails') + ' of 3/4 m cut from it and counted' +
+      (over ? ', the last running past the end of the cable' : '') : 'No tails are cut yet') + '. Under it, ' + d.cable.a + ' ÷ 3/4 = ' + (named >= 0.5 ? d.want : 'a gap') + '.';
+  }
+  // A number line from 0 to 20 with 10 marked and the stretch past 10 bracketed; a checked answer
+  // lands as a ring at its value, labelled.
+  function drawBigger(d, st) {
+    svg.setAttribute('viewBox', '0 0 340 176');
+    const F = d.at, Y = 96, xs = (v) => L0 + v * LW / 20;
+    line('axis', L0, Y, L0 + LW, Y);
+    for (let k = 0; k <= 20; k++) { const h = k % 5 ? 6 : 11; line('tick', xs(k), Y - h, xs(k), Y + h); }
+    for (let k = 0; k <= 20; k += 5) text(xs(k), Y + 32, k, 'num');
+    brk('M' + (xs(10) + 2) + ' ' + (Y + 42) + ' V' + (Y + 48) + ' H' + (xs(20) - 2) + ' V' + (Y + 42));
+    text(xs(15), Y + 68, 'more than 10', 'tl');
+    add(K.svg('circle', { class: 'dot', cx: xs(10), cy: Y, r: 9 }));
+    const shown = (st.res === 'right' || st.res === 'wrong') && st.pick != null;
+    let where = '.';
+    if (shown) {
+      const v = value(st.pick), x = xs(v), ringA = arr(F.ring);
+      part(ringA, 0, () => add(K.svg('circle', { class: 'ring', cx: x, cy: Y, r: 15 * (0.6 + 0.4 * ringA) })));
+      part(arr(F.label), 6, () => text(x, Y - 26, K.fmt(v), 'mlab'));
+      where = '. ' + st.pick + ' = ' + K.fmt(v) + ' lands ' + (v > 10 ? 'past 10.' : 'before 10.');
+    }
+    return 'A number line from 0 to 20 with a mark at 10, and the stretch from 10 to 20 bracketed as more than 10' + where;
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    svg.textContent = '';
+    into = null;
+    let aria;
+    if (d.show) aria = { halves: demoHalves, cable: demoCable, why: demoWhy, more: demoMore }[d.demo]();
+    else if (d.kind === 'bigger') aria = drawBigger(d, st);
+    else if (d.kind === 'cut') aria = drawCut(d, st, right);
+    else aria = { fit: drawFit, cable: drawCableDo }[d.draw](d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;          // motion that was stopped (a test, the end) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(); else { anim.pause(); T = Infinity; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('cuts').hidden = d.kind !== 'cut' || right;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? (d.kind === 'cut' ? EMPTY_CUT : PICK) : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const sameNum = (a, b) => K.near(a, b, 1e-9);
+  const exact = (p, q) => p[0] === q[0] && p[1] === q[1];
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  // Laying pieces of P along A one at a time, with no flipping: how many whole pieces fit, plus the
+  // part of one more that the rest of A fills.
+  function lay(A, P) {
+    let n = 0;
+    while ((n + 1) * P[0] * A[1] <= A[0] * P[1]) n++;
+    const left = (A[0] * P[1] - n * P[0] * A[1]) / (A[1] * P[1]);
+    return n + left / (P[0] / P[1]);
+  }
+  const divisorOf = (d) => (d.fit ? d.fit.b : '3/4'), amountOf = (d) => (d.fit || d.cable).a;
+  // Every picture of pieces laid along an amount, and every cable cut into tails (demonstrations and puzzles).
+  const FITS = [{ a: '3', b: '1/2' }, { a: '1', b: '3/4', cut: 4, U: 160 }].concat(STEPS.filter((d) => d.fit).map((d) => d.fit));
+  const CABLES = [{ a: '6', tape: 6 }].concat(STEPS.filter((d) => d.cable).map((d) => d.cable));
+  K.check('Laid along one at a time: 6 halves fit in 3, 8 quarters in 2, 8 tails of 3/4 m in 6 m, 4 in 3 m and 6 in 4 1/2 m, 3 pieces of 2/3 in 2, 6 eighths in 3/4, a tail and a third of one in 1 m, 2/3 of a 3/4 piece in 1/2 and 1 1/2 halves in 3/4; each matches flip and multiply and the one right option (cut by hand, exactly 4 tails, a 5th running past the end), and the pieces drawn over each amount add up to its length', () => {
+    const cases = [['3', '1/2', 6], ['2', '1/4', 8], ['6', '3/4', 8], ['3', '3/4', 4], ['4 1/2', '3/4', 6], ['2', '2/3', 3], ['3/4', '1/8', 6], ['1', '3/4', 4 / 3], ['1/2', '3/4', 2 / 3], ['3/4', '1/2', 1.5]];
+    const laid = cases.every((c) => sameNum(lay(single(c[0]), single(c[1])), c[2]) && sameNum(value(c[0] + ' ÷ ' + c[1]), c[2]));
+    const cutRight = (i, n) => isRight(i, Object.assign(blank(), { laid: n }));
+    const steps = STEPS.every((d, i) => {
+      if (!d.fit && !d.cable) return true;
+      const v = value(amountOf(d) + ' ÷ ' + divisorOf(d));
+      const answered = d.kind === 'cut' ? cutRight(i, 4) && !cutRight(i, 3) && !cutRight(i, 5) && !cutRight(i, 0) && maxCut(d) === 5
+        : d.opts.filter((o) => sameNum(value(o), v)).join() === d.want && pickRight(i, d.want);
+      return sameNum(v, value(d.want)) && sameNum(lay(single(amountOf(d)), single(divisorOf(d))), v) && answered;
+    });
+    const g1 = fitGeom(FITS[1]), g8 = fitGeom(STEPS[7].fit), g12 = fitGeom(STEPS[11].fit), c4 = cableGeom(STEPS[3].cable);
+    const drawn = g1.pieces.length === 2 && exact(g1.pieces[1].f, [1, 3]) && g8.pieces.length === 1 && exact(g8.pieces[0].f, [2, 3]) &&
+      g12.pieces.length === 2 && exact(g12.pieces[1].f, [1, 2]) && fitGeom(FITS[0]).pieces.length === 6 && fitGeom(STEPS[1].fit).pieces.length === 8 &&
+      cableGeom(CABLES[0]).n === 8 && c4.n === 4 && cableGeom(STEPS[10].cable).n === 6 && cableGeom(STEPS[10].cable).len <= LW &&
+      // cut by hand, the 5th tail starts at the end of the 3 m and still lies on the 4 m tape
+      sameNum(4 * c4.tw, c4.len) && 5 * c4.tw > c4.len && 5 * c4.tw <= LW;
+    // the lengths drawn: the pieces' parts over the amount add up to the amount, and the tails to the cable
+    const lengths = FITS.every((f) => { const G = fitGeom(f); return sameNum(G.pieces.reduce((s, p) => s + p.w * p.fit, 0), G.U * G.A[0] / G.A[1]); }) &&
+      CABLES.every((c) => { const G = cableGeom(c); return sameNum(G.n * G.tw, G.len) && G.len <= LW; });
+    return laid && steps && drawn && lengths;
+  });
+  K.check('Flip the fraction you divide by, its top and bottom swapped, and multiply, tops times tops over bottoms times bottoms: 2 × 3/2 = 6/2, 3/4 × 8 = 24/4, 1/2 × 4/3 = 4/6, 9/2 × 4/3 = 36/6 and 3/4 × 2 = 6/4. The wrong options are the slips: multiplying without the flip (4/3, 3/32, 3/8, 3 3/8), flipping the wrong number (1/3, 1/6, 3/2, 2/3), a quarter of 2 (1/2), one bar\'s 4 quarters, and 5 1/3, which leaves out the half metre', () => {
+    const work = STEPS.every((d) => {
+      if (!d.work) return true;
+      const eqAt = d.work.indexOf('='), left = d.work.slice(0, eqAt), prod = single(d.work[eqAt + 1]);
+      const flipped = d.work.filter((s) => /\*$/.test(s)).map(single)[0];
+      return left.length === 3 && left[1] === '×' && exact(prod, times(single(left[0]), single(left[2]))) && sameNum(value(left[0]), value(amountOf(d))) &&
+        left[2] === d.work.filter((s) => /\*$/.test(s))[0] && exact(flip(single(divisorOf(d))), flipped) && sameNum(value(d.work[d.work.length - 1]), value(d.want));
+    });
+    const slips = STEPS.every((d) => {
+      if ((!d.fit && !d.cable) || !d.opts) return true;
+      const A = single(amountOf(d)), P = single(divisorOf(d)), v = (f) => f[0] / f[1];
+      const known = [v(times(A, P)), v(times(flip(A), P))];
+      return d.opts.filter((o) => o !== d.want).every((o) => known.some((k) => sameNum(k, value(o))) ||
+        (d === STEPS[1] && (sameNum(value(o), 2 / 4) || sameNum(value(o), 4))) || (d === STEPS[10] && sameNum(value(o), value('4 ÷ 3/4'))));
+    });
+    return work && slips && exact(flip([3, 4]), [4, 3]) && exact(times([3, 4], flip([3, 4])), [12, 12]) && exact(divide([1, 2], [3, 4]), [4, 6]) && exact(simp(4, 6), [2, 3]) && !sameNum(value('3/2'), 2 / 3) && !sameNum(value('3/8'), 2 / 3) &&
+      exact(divide([9, 2], [3, 4]), [36, 6]) && exact(single('4 1/2'), [9, 2]) && sameNum(value('5 1/3'), 16 / 3) && sameNum(value('3 3/8'), 27 / 8) && sameNum(value('2 × 1/4'), 1 / 2) &&
+      !pickRight(7, '3/2') && !pickRight(7, '3/8') && !pickRight(11, '2/3') && !pickRight(11, '3/8') && !pickRight(5, '1/3') && !pickRight(5, '4/3');
+  });
+  K.check('For amounts above 0, dividing by a number more than 1 gives less and by a fraction between 0 and 1 gives more: 4 ÷ 2 = 2 and 4 ÷ 1/2 = 8, as two pieces of 2 and eight halves fill four bars; of 10 ÷ 2 = 5, 10 × 1/2 = 5 and 10 ÷ 1/2 = 20, only 10 ÷ 1/2 is bigger than 10. At 0 and below it fails (0 ÷ 1/2 = 0; −4 ÷ 2 = −2, more; −4 ÷ 1/2 = −8, less), which is why the lesson says above 0', () => {
+    const amounts = [1 / 4, 1 / 2, 3 / 4, 1, 3, 4, 10], bys = [1 / 8, 1 / 4, 1 / 2, 2 / 3, 3 / 4, 4 / 3, 3 / 2, 2, 4];
+    const rule = amounts.every((a) => bys.every((q) => (a / q > a) === (q < 1) && (a / q < a) === (q > 1)));
+    const below = 0 / (1 / 2) === 0 && -4 / 2 === -2 && -2 > -4 && -4 / (1 / 2) === -8 && -8 < -4;
+    return rule && below && sameNum(value('4 ÷ 2'), 2) && sameNum(lay([4, 1], [2, 1]), 2) && sameNum(value('4 ÷ 1/2'), 8) && sameNum(lay([4, 1], [1, 2]), 8) &&
+      sameNum(value('10 ÷ 2'), 5) && sameNum(value('10 × 1/2'), 5) && sameNum(value('10 ÷ 1/2'), 20) &&
+      STEPS[9].opts.filter((o) => value(o) > 10).join() === STEPS[9].want && pickRight(9, '10 ÷ 1/2') && !pickRight(9, '10 ÷ 2') && !pickRight(9, '10 × 1/2') &&
+      [[2, 1], [3, 1], [1, 2], [3, 4], [4, 3], [2, 3]].every((q) => (value('10 ÷ ' + say(q)) > 10) === (q[0] < q[1]));
+  });
+  K.check('To divide with fractions, think about how many times a fraction will fit into a number or another fraction', () =>
+    [[[3, 1], [1, 2]], [[6, 1], [3, 4]], [[3, 1], [1, 4]], [[3, 4], [1, 8]], [[1, 2], [3, 4]], [[3, 4], [1, 2]], [[9, 2], [3, 4]], [[5, 1], [5, 1]]].every((pq) =>
+      sameNum(lay(pq[0], pq[1]), (pq[0][0] / pq[0][1]) / (pq[1][0] / pq[1][1])) && sameNum(lay(pq[0], pq[1]), value(say(pq[0]) + ' ÷ ' + say(pq[1])))),
+    { source: 'https://www.bbc.co.uk/bitesize/articles/z78vgdm' });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends, every answer\'s motion within 2.5 s, a tail cut or put back by hand within 0.8 s, counted pieces at least 0.2 s apart, and the = signs in 6 ÷ 3/4 = 6 × 4/3 = 8 only once the 3/4 has turned over', () => {
+    const keepT = T, ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      if (!d.show) S[i] = solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE : latest <= d.fb && d.fb <= 2.5;
+    });
+    // by hand: the last of every tail that can be cut has just been cut, or one has just been put back
+    const byHand = STEPS.every((d, i) => {
+      if (d.kind !== 'cut') return true;
+      const keepS = S[i], cut = blank(), back = blank();
+      cut.laid = maxCut(d); cut.born[cut.laid - 1] = 0;
+      back.laid = d.want; back.gone = d.want; back.goneAt = 0;
+      return [cut, back].every((st) => {
+        T = Infinity; latest = 0; S[i] = st;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest > 0 && latest <= CUTDUR && CUTDUR <= 2.5;
+      });
+    });
+    T = keepT; paint();
+    const gaps = [AT.halves.step, AT.cable.step, AT.more.twoStep, AT.more.halfStep, AT.why.tails[1] - AT.why.tails[0], AT.why.flip - AT.why.times].concat(STEPS.filter((d) => d.at && d.at.step).map((d) => d.at.step));
+    return ok && byHand && gaps.every((g) => g >= 0.2 - 1e-9) && AT.why.eight >= AT.why.flip + FLIP - 1e-9;
+  });
+
+  K.ready();
+</script>
