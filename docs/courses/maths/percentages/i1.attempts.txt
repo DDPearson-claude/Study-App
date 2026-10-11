@@ -1,0 +1,12 @@
+3
+
+build-i1 (Percentages lesson 1, "What a percentage is"), 11 Oct 2026, renders on tests/out/kit-d4.html:
+- l1: verdict ok: true. The 360 px walk (light) and contact sheets showed: the bar too thin for two-line labels, "100%" crowding "+50%" and "150%" on the past-100% screen, "125%" touching "100%" and the slot touching "80 m" on the 125% puzzle, and "10%" crowding "20%" on the twice-10% puzzle.
+- l2: bar 34 -> 40 units, the part past 100% named inside the bar (+50% / 20 A), the 125% puzzle's bar runs to 125%, the given "10%" label dropped, gentler label give-way, grip 48 px; films showed the travelling marker printing raw percentages (7.828%) -> it now reads the whole percentage it is passing. Verdict ok: false only because research.json did not exist, so finalise kept no sources and the two Bitesize URLs on sourced checks counted as unlisted.
+- l3: on a bar past 100%, the whole's labels sit just inside its end, clear of the marker; check labels keep restating the Bitesize quotes but carry no {source} (no URL on the page); step 3's sentence reworded. Verdict ok: true -> i1.body.final.html.
+
+fix-i1 (fact-check and review fixes), 11 Oct 2026, renders on tests/out/kit-d4.html:
+- f1: render ok: false. With a 40-unit drag ramp the drag puzzle's "100%" (marker starting at 80%) stood half faded, 2.1:1 contrast.
+- f2: ramp 16, measured against the answer's tag width. Still ok: false ("90 m" half faded at 80%). The new no-popping check failed only on the bar screen's "230 ÷ 10 = 23 V" working, which shows only with the marker dragged to exactly 10% (by design).
+- f3: ramp 12 against the slot or tag actually shown. The drag part of the popping check now looks only at the end labels, and the probe found no jumps over 0.5 in any demonstration or answer motion. Render ok: true, verdict ok: true -> i1.body.final.html, i1.verdict.final.json.
+  Changes: on step 3 the end labels fade on the timetable (out 1.3-1.7 s, back 3.0-3.4 s), and while Dan drags they go by distance with fixed widths. On step 8 the end labels stay, the marker's words and tag fade in as they move clear, and the 100% divider fades in with the growth. Right answers now sit in places 2,3,2,3,1,2,3,1. New checks cover answer positions and per-frame popping (1/60 s). The grid check counts all 100 squares, the demo workings are built from decOf and checked, workings carry units, the zoom strip's shading follows the marker, and there is new step 1 wording and a step 12 hint.

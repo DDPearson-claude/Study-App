@@ -1,0 +1,905 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  /* The percentage bar: the whole lined up with 100%, percentages above it, amounts below. */
+  .scene .barbg { fill: var(--k-panel); }
+  .scene .barline { fill: none; stroke: var(--k-strong); stroke-width: 2; }
+  .scene .ext { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .part { fill: var(--k-fill1); }
+  .scene .rest { fill: var(--k-fill3); }
+  .scene .cut { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tick.m { stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .pct { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .amt { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .zl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .inl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* The marker: a line through both scales; its percentage in a tag above, its amount below. */
+  .scene .mk { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .val { font: 700 14px var(--k-font); fill: var(--k-accent2); }
+  /* The close-up of the first 10%, joined to the bar by two dashed lines. */
+  .scene .call { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .lim { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 5 3; }
+  .scene .note { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .brk { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .lead { stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .sum { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .sum.m { fill: var(--k-muted); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene #art * { pointer-events: none; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: grab; touch-action: none; }
+  .scene .hit.locked { cursor: default; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .row.nudge { flex-wrap: nowrap; }
+  .nudge .k-btn { flex: 1 1 0; min-height: 48px; min-width: 0; white-space: nowrap; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A percentage bar: the whole lined up with 100%, with amounts underneath.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 204" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="row nudge" id="nudge" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Part ÷ whole × 100. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // B: the bar a step draws: the whole (lined up with 100%), the part, their unit; cells cuts the bar
+  // into that many equal cells; zoom adds a close-up of the first 10%; max stretches the scale past
+  // 100%; rest splits the whole into the part and the rest; other: the wrong whole a slip divides by.
+  // rows: the working written under the bar. dur: how long a demonstration plays; fb: how long the
+  // motion after a right answer plays; at: when each part of that motion arrives (seconds after
+  // Check); a row time of null means it is part of the question, shown from the start. slips: which
+  // common mistake gives each wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  const M = '−';
+  const STEPS = [
+    { show: true, demo: 'line', dur: 4.5, name: 'Line up the whole', B: { whole: 50, part: 20, unit: 'm' },
+      rows: ['20 ÷ 50 = 0.4', '0.4 × 100 = 40%'],
+      text: 'Line the *whole* up with 100%. On a 50 m drum of cable, 20 m of it fills 20 ÷ 50 = 0.4 of the bar. That is 40 hundredths, so 40%.' },
+    { kind: 'drag', name: 'Slide it there', B: { whole: 40, part: 30, unit: 'm' }, target: 75, want: '75%', fb: 2.0,
+      rows: ['30 ÷ 40 = 0.75', '0.75 × 100 = 75%'],
+      at: { amt: 0.15, rows: [0.75, 1.35] },
+      task: 'Of a 40 m cable run, 30 m is pulled in. Slide the marker to that percentage.',
+      empty: 'Slide the marker along the bar first.',
+      why: 'The whole run, 40 m, lines up with 100%. 30 ÷ 40 = 0.75, which is 75 hundredths, so 30 m is 75% of the run.',
+      hint: 'Not quite. Work out 30 ÷ 40, then times by 100.',
+      near: 'Nearly. 30 ÷ 40 = 0.75, so slide to the percentage that matches.',
+      hints: { 30: 'Not quite. 30% would be 30 out of 100, but the whole here is 40 m. Work out 30 ÷ 40.',
+        10: 'Not quite. 10 m is what is left to pull, and it is not a percentage. Work out 30 ÷ 40.' } },
+    { show: true, demo: 'rule', dur: 4.4, name: 'Part ÷ whole × 100', B: { whole: 230, part: 9, unit: 'V', zoom: true },
+      rows: ['9 ÷ 230 ≈ 0.039', '0.039 × 100 = 3.9%'],
+      text: 'The rule is part ÷ whole × 100. So a 9 V drop on 230 V is about 3.9%. Close up, 1% is 2.3 V, and 9 V lands just under 4%.' },
+    { kind: 'pick', name: 'Times by 100', B: { whole: 230, part: 6, unit: 'V', zoom: true },
+      rows: ['6 ÷ 230 ≈ 0.026', '0.026 × 100 = 2.6%'],
+      opts: ['0.026%', '2.6%', '26%'], want: '2.6%', slips: { '0.026%': 'noTimes', '26%': 'tenfold' }, fb: 2.35,
+      at: { fill: [0.15, 0.5], amt: 0.15, zoom: null, zfill: [0.55, 0.65], tag: 1.05, rows: [null, 1.7] },
+      task: 'A calculator gives 6 ÷ 230 = 0.0260869…, about 0.026. What percentage is a 6 V drop on 230 V?',
+      why: '6 ÷ 230, about 0.026, is the share as a decimal, 26 thousandths. Times by 100 to count it in hundredths, 2.6%. Close up, 1% of 230 V is 2.3 V, and 6 V is between two and three of those.',
+      hint: 'Not quite. Times the decimal by 100.',
+      hints: { '0.026%': 'Not quite. 0.026 is the share as a decimal. Times it by 100 to make it a percentage.',
+        '26%': 'Not quite. 26% would be 0.26, ten times as much. Times 0.026 by 100.' } },
+    { show: true, demo: 'pieces', dur: 4.5, name: 'Part on top', B: { whole: 230, part: 9, unit: 'V' },
+      rows: ['230 ÷ 9 ≈ 25.6 pieces', '9 ÷ 230 × 100 ≈ 3.9%'],
+      text: 'Keep the part on top. 230 ÷ 9 counts how many 9 V pieces fit in 230 V, about 25.6. One piece is 9 ÷ 230 × 100, about 3.9%.' },
+    { kind: 'pick', name: 'Which way up?', B: { whole: 24, part: 18, unit: '', cells: 24 },
+      rows: ['18 ÷ 24 = 0.75', '0.75 × 100 = 75%'],
+      opts: ['133%', '6%', '75%'], want: '75%', slips: { '133%': 'wrongWay', '6%': 'diff' }, fb: 2.3,
+      at: { fill: [0.15, 0.7], amt: 0.6, tag: 0.95, rows: [1.25, 1.7] },
+      task: '18 of the 24 circuits on a board have been tested. What percentage is that?',
+      why: 'The part is the 18 tested and the whole is all 24. 18 ÷ 24 = 0.75, so 75%. The other way up, 24 ÷ 18, gives over 100%, too much for a part smaller than its whole.',
+      hint: 'Not quite. Divide the part by the whole, then times by 100.',
+      hints: { '133%': 'Not quite. That is 24 ÷ 18, the whole over the part. Put the part on top, 18 ÷ 24.',
+        '6%': 'Not quite. 6 is how many are still to test, not a percentage. Work out 18 ÷ 24.' } },
+    { kind: 'pick', name: 'Over 100%', B: { whole: 20, part: 25, unit: 'A', max: 150 },
+      rows: ['25 ÷ 20 = 1.25', '1.25 × 100 = 125%'],
+      opts: ['125%', '80%', '5%'], want: '125%', slips: { '80%': 'smallOnTop', '5%': 'diff' }, fb: 2.45,
+      at: { scale: [0.15, 0.5], fill: [0.55, 0.65], amt: 0.95, tag: 1.15, rows: [1.4, 1.85] },
+      task: 'A circuit rated at 20 A is carrying 25 A. What percentage of its rating is that?',
+      why: 'The part is the 25 A it carries, and the whole is the 20 A rating. 25 ÷ 20 = 1.25, so 125%. A part bigger than its whole gives over 100%.',
+      hint: 'Not quite. The part goes on top, even when it is the bigger number.',
+      hints: { '80%': 'Not quite. That puts the smaller number on top. The part here is the 25 A, so work out 25 ÷ 20.',
+        '5%': 'Not quite. 5 A is how far over the rating it is. The question asks for all 25 A as a share of 20 A.' } },
+    { show: true, demo: 'rest', dur: 4.2, name: 'Out and lost', B: { whole: 2000, part: 1700, unit: 'W', rest: true, names: ['in', 'out', 'lost'] },
+      rows: ['1,700 ÷ 2,000 = 0.85', '100% − 85% = 15%'],
+      text: 'The part and the rest share the 100%. A motor takes in 2,000 W and gives out 1,700 W, which is 85%. The other 15% is lost.' },
+    { kind: 'pick', name: 'What is lost?', B: { whole: 1500, part: 1200, unit: 'W', rest: true, ask: 'rest', other: 1200, names: ['in', 'out', 'lost'] },
+      rows: ['1,500 − 1,200 = 300 W', '300 ÷ 1,500 × 100 = 20%'],
+      opts: ['80%', '25%', '20%'], want: '20%', slips: { '80%': 'kept', '25%': 'wrongWhole' }, fb: 2.4,
+      at: { fill: [0.15, 0.6], amt: 0.5, brk: 0.9, rfill: 1.05, rows: [1.3, 1.8] },
+      task: 'A motor takes in 1,500 W and gives out 1,200 W. What percentage of the power in is lost?',
+      why: '1,500 − 1,200 = 300 W is lost, and the whole is the 1,500 W put in. 300 ÷ 1,500 = 0.2, so 20%. The 80% out and the 20% lost make 100%.',
+      hint: 'Not quite. Find the power lost, then divide it by the power in.',
+      hints: { '80%': 'Not quite. 80% is the share that comes out. The question asks for the share lost.',
+        '25%': 'Not quite. That compares the 300 W lost with the 1,200 W out. Compare it with the 1,500 W put in.' } },
+    { kind: 'pick', name: 'A resistor', B: { whole: 470, part: 47, unit: 'Ω' },
+      rows: ['47 ÷ 470 = 0.1', '0.1 × 100 = 10%'],
+      opts: ['47%', '10%', '0.1%'], want: '10%', slips: { '47%': 'partAsPct', '0.1%': 'noTimes' }, fb: 2.2,
+      at: { fill: [0.15, 0.5], amt: 0.45, tag: 0.8, rows: [1.1, 1.6] },
+      task: 'A 470 Ω resistor may be up to 47 Ω off its marked value. What percentage of 470 Ω is that?',
+      why: 'The whole is the marked 470 Ω. 47 ÷ 470 = 0.1, which is 10 hundredths, so 10%.',
+      hint: 'Not quite. Divide the 47 Ω by the 470 Ω, then times by 100.',
+      hints: { '47%': 'Not quite. 47% would be 47 out of 100, but the whole here is 470 Ω. Work out 47 ÷ 470.',
+        '0.1%': 'Not quite. 47 ÷ 470 = 0.1 is the share as a decimal. Times it by 100.' } },
+    { kind: 'pick', name: 'A voltage drop', B: { whole: 230, part: 8, unit: 'V', zoom: true },
+      rows: ['8 ÷ 230 ≈ 0.035', '0.035 × 100 = 3.5%'],
+      opts: ['3.5%', '0.035%', '28.8%'], want: '3.5%', slips: { '0.035%': 'noTimes', '28.8%': 'wrongWayDec' }, fb: 2.45,
+      at: { fill: [0.15, 0.5], amt: 0.15, zoom: null, zfill: [0.55, 0.65], tag: 1.05, rows: [1.3, 1.8] },
+      task: 'A circuit on 230 V has an 8 V drop. What percentage of 230 V is that?',
+      why: 'The part is the 8 V drop and the whole is the 230 V. 8 ÷ 230 is about 0.035, which times 100 is 3.5%. Dividing the other way up, 230 ÷ 8, counts 8 V pieces instead.',
+      hint: 'Not quite. Divide the drop by the 230 V, then times by 100.',
+      hints: { '0.035%': 'Not quite. 0.035 is the share as a decimal. Times it by 100.',
+        '28.8%': 'Not quite. That is 230 ÷ 8, the whole over the part. Put the drop on top, 8 ÷ 230.' } },
+    { kind: 'pick', name: 'All together', B: { whole: 200, part: 50, unit: '£', other: 150 },
+      rows: ['50 ÷ 200 = 0.25', '0.25 × 100 = 25%'],
+      opts: ['33.3%', '50%', '25%'], want: '25%', slips: { '33.3%': 'wrongWhole', '50%': 'partAsPct' }, fb: 2.2,
+      at: { fill: [0.15, 0.5], amt: 0.45, tag: 0.8, rows: [1.1, 1.6] },
+      task: 'An order comes to £200. £50 of it is cable and the rest is fittings. What percentage of the order is cable?',
+      why: 'The whole is the £200 order and the cable is the part. 50 ÷ 200 = 0.25, so 25%. Dividing by the £150 of fittings would compare the cable with only the rest.',
+      hint: 'Not quite. Divide the cable by the whole order, then times by 100.',
+      hints: { '33.3%': 'Not quite. That divides by the £150 of fittings. The whole is the £200 order.',
+        '50%': 'Not quite. 50% would be £50 of £100, but the whole here is £200.' } },
+  ];
+  const FINISH = 'Divide the part by the whole and times by 100. The whole is 100% and the part goes on top, so a part bigger than its whole comes to over 100%.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled).
+  const FADE = 0.35;
+  const AT = {
+    // the whole; the bar fills to 20 m; its amount; its percentage; the working
+    line: { whole: 0.5, fill: [1.1, 0.9], amt: 2.0, tag: 2.6, rows: [3.2, 3.8] },
+    // the whole; the bar fills to 9 V; the close-up of the first 10%; it fills to 9 V; 3.9%; the working
+    rule: { whole: 0.5, fill: [1.0, 0.5], amt: 1.0, zoom: 1.5, zfill: [2.0, 0.7], tag: 2.6, rows: [3.1, 3.7] },
+    // the whole; one 9 V piece; the bar cut into 9 V pieces; how many; one piece's percentage
+    pieces: { whole: 0.5, fill: [1.0, 0.5], amt: 1.0, comb: [1.6, 1.6], rows: [3.3, 3.8], tag: 3.8 },
+    // the whole; the part out fills; its share; the rest lost; its share; the working
+    rest: { whole: 0.5, fill: [1.0, 0.8], amt: 1.5, brk: 2.0, rfill: 2.5, rows: [3.0, 3.5] },
+  };
+  // Drawing sizes, in viewBox units (340 wide). The bar runs BX0..BX1 for its scale (100%, or more
+  // when it stretches), BY..BB tall; percentages sit above it (labels at SLY, a marker's tag from TY
+  // to its point at TP), amounts below (labels at ALY). The close-up: dashed lines down to CY, its
+  // percentages at ZLY, its bar ZY..ZB, its amounts at ZAY. The working's rows follow.
+  const BX0 = 26, BX1 = 304, BW = BX1 - BX0, BY = 56, BH = 36, BB = BY + BH;
+  const TY = 2, TH = 26, TP = 34, SLY = 44, ALY = 113;
+  const CY = 120, ZLY = 138, ZY = 146, ZH = 30, ZB = ZY + ZH, ZAY = 194;
+  const ROWH = 34;
+  // A marker fades in over MK seconds as its fill starts; the answer's slot fades out over MK before
+  // its row arrives; the cut lines in the pieces demonstration arrive as a wave WAVE units wide.
+  const MK = 0.35, WAVE = 50;
+  const slotOf = (rs, ar) => { const t = rs[rs.length - 1]; return t == null ? null : ar(t - MK, MK); };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const pctOf = (part, whole) => part / whole * 100;
+  const roundTo = (v, n) => Math.round(v * Math.pow(10, n) + 1e-9) / Math.pow(10, n);
+  const dpOf = (s) => { const m = /\.(\d+)/.exec(String(s)); return m ? m[1].length : 0; };
+  // What a row of working comes to: the side after its equals sign (= exact, ≈ rounded).
+  const rhs = (s) => String(s).split(/[=≈] /)[1];
+  // A written number back to its value ("1,500 W" -> 1500, "−3%" -> -3).
+  const valueOf = (s) => Number(String(s).replace(/−/g, '-').replace(/[^\d.\-]/g, ''));
+  // Thousands with commas, as Dan writes them: 1,500.
+  function group(s) { const p = String(s).split('.'); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (p[1] ? '.' + p[1] : ''); }
+  // A percentage at n decimal places (whole ones as they are: 40%, 3.9%, 125%).
+  function pctText(v, n) { if (n == null) n = same(v, Math.round(v)) ? 0 : 1; return group(roundTo(v, n).toFixed(n)) + '%'; }
+  function amtText(v, unit) { const s = group(String(roundTo(v, 3))); return unit === '£' ? '£' + s : unit ? s + ' ' + unit : s; }
+  // What each common slip gives for a part p of a whole w: the whole over the part; the share left
+  // as a decimal; that decimal read ten times too big; the whole over the part with no times 100;
+  // the part's own number read as the percentage; the difference read as one; the smaller over
+  // the bigger whichever is the part; the other share of the whole; the part over the wrong whole.
+  const SLIP = {
+    wrongWay: (p, w) => w / p * 100,
+    noTimes: (p, w) => p / w,
+    tenfold: (p, w) => p / w * 1000,
+    wrongWayDec: (p, w) => w / p,
+    partAsPct: (p) => p,
+    diff: (p, w) => Math.abs(w - p),
+    smallOnTop: (p, w) => Math.min(p, w) / Math.max(p, w) * 100,
+    kept: (p, w) => (w - p) / w * 100,
+    wrongWhole: (p, w, o) => p / o * 100,
+  };
+  // The part a puzzle asks about: the rest of the whole when it asks what is lost.
+  const asked = (B) => (B.ask === 'rest' ? B.whole - B.part : B.part);
+  const answerOf = (d) => pctOf(asked(d.B), d.B.whole);
+  // A slip's answer, written to the same decimal places as the option it stands behind.
+  const slipOf = (d, o) => roundTo(SLIP[d.slips[o]](asked(d.B), d.B.whole, d.B.other), dpOf(o));
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/£(\d[\d,.]*)/g, '$1 pounds').replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/≈/g, ' is about ')
+    .replace(/(\d) ?%/g, '$1 percent').replace(/−/g, ' minus ').replace(/Ω/g, 'ohms').replace(/(\d) V\b/g, '$1 volts').replace(/(\d) A\b/g, '$1 amps')
+    .replace(/(\d) W\b/g, '$1 watts').replace(/(\d) m\b/g, '$1 metres').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, at: null, res: null, why: false }; }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'drag') return st.at == null ? d.empty : '';
+    return st.pick == null ? PICK : '';
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (isEmpty(i, st)) return false;
+    if (d.kind === 'drag') return st.at === d.target;
+    return st.pick === d.want;
+  }
+  // A wrong answer's hint names its slip.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'drag') return d.hints[st.at] || (Math.abs(st.at - d.target) <= 5 ? d.near : d.hint);
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'drag') st.at = d.target; else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A number keeps its unit, and a sum stays on one line ("9 ÷ 230 × 100", "1,500 W", "£30"), with
+  // the stop after it; a long one may break only before an equals sign.
+  const TOK = '£?\\d[\\d,]*(?:\\.\\d+)?(?: ?%| (?:V|A|W|m|Ω)(?![A-Za-z]))?';
+  const GLUE = new RegExp(TOK + '(?: [+−=≈×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?=[=≈])/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const live = (i) => !finished && at() === i && S[i].res !== 'right';
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The marker slid on by 5% either way (the drag puzzle).
+  function slide(i, v) {
+    const st = S[i];
+    if (!live(i) || STEPS[i].kind !== 'drag') return;
+    st.at = K.clamp(Math.round(v / 5) * 5, 0, 100); st.res = null;
+    K.reveal(); K.refresh();
+  }
+  const nudgeBtns = [-1, 1].map((dir) => K.button({ label: dir < 0 ? M + ' 5%' : '+ 5%', secondary: true, into: '#nudge', press: () => {
+    const i = at();
+    slide(i, (S[i].at == null ? 0 : S[i].at) + 5 * dir);
+  } }));
+  nudgeBtns[0].el.setAttribute('aria-label', 'Move the marker down 5 percent');
+  nudgeBtns[1].el.setAttribute('aria-label', 'Move the marker up 5 percent');
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after a right answer, from its start;
+  // with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null, H = 204;                          // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity, starts = [];
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    starts.push(t0);
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function fadeIn(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const pathOf = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { sum: 20, tagt: 15, zl: 13 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // A label kept inside the picture: its middle moved in so it never runs past either side.
+  const inside = (x, s, cls) => { const w = tw(s, cls) / 2 + 3; return K.clamp(x, w, 340 - w); };
+
+  // --- the bar ---
+  // The scale: percentage p sits at x(p), from 0 at BX0 to `max` at BX1.
+  const geom = (max) => ({ max: max, x: (p) => BX0 + BW * p / max });
+  // How far a scale label at x (w wide) gives way to the marks in `near` ([{x, w, a}]): gone by the
+  // time a mark that would touch it is half-way in, so the two never show together.
+  const yieldTo = (near, x, w) => Math.min(1, 2 * near.filter((n) => Math.abs(n.x - x) < (w + n.w) / 2 + 4).reduce((m, n) => Math.max(m, n.a), 0));
+  // The whole lined up with 100%: percentages along the top every 10% (0% and 100% named, and the
+  // scale's end when it runs past 100%), amounts along the bottom (0 and the whole). `bg`: what is
+  // drawn inside the bar, between its background and its outline.
+  function frame(g, B, o, bg) {
+    const near = o.near || [], x100 = g.x(100);
+    rect('barbg', BX0, BY, x100 - BX0, BH);
+    if (g.max > 100.001) fadeIn(o.ext == null ? 1 : o.ext, 0, () => rect('ext', x100, BY, g.x(g.max) - x100, BH));
+    if (bg) bg();
+    rect('barline', BX0, BY, x100 - BX0, BH);
+    if (o.ticks !== false) {
+      for (let p = 0; p <= g.max + 1e-9; p += 10) {
+        const big = p % 50 === 0, x = g.x(p);
+        line('tick' + (big ? '' : ' m'), x, big ? SLY + 3 : BY - 6, x, BY);
+      }
+      const named = [0, 100].concat(B.max ? [B.max] : []);
+      named.forEach((p) => {
+        const s = pctText(p), x = p > 100 ? BX1 : g.x(p), w = tw(s, 'pct'), k = yieldTo(near, x, w);
+        const draw = () => text(x, SLY, s, 'pct');
+        if (p > 100) { const e = K.clamp(((o.ext == null ? 1 : o.ext) - 0.6) / 0.4, 0, 1); if (e > 0 && k < 1) fadeIn(Math.min(e, 1 - k), 0, draw); }
+        else if (!k) draw(); else leave(k, draw);
+      });
+    }
+    // amounts below: 0 and the whole, each with its tick
+    const amts = (o.amts || [[0, '0'], [100, amtText(B.whole, B.unit)]]);
+    amts.forEach((m) => {
+      const x = g.x(m[0]), s = m[1], w = tw(s, 'amt'), xs = inside(x, s, 'amt'), k = yieldTo(o.nearBelow || [], xs, w);
+      line('tick', x, BB, x, BB + 6);
+      const draw = () => text(xs, ALY, s, 'amt');
+      if (!k) draw(); else leave(k, draw);
+    });
+  }
+  // The share filled, from percentage p0 to p1, as far as e of its way (0..1).
+  const fillBar = (g, p0, p1, cls) => { if (p1 > p0) rect(cls, g.x(p0), BY, g.x(p1) - g.x(p0), BH); };
+  // The marker at percentage p: a line from the tag's point down through the bar.
+  const marker = (g, p, a) => fadeIn(a, 0, () => line('mk', g.x(p), TP, g.x(p), BB + 6));
+  // The tag above the marker, its point on the marker line: the percentage.
+  function tag(x, s, a, y0) {
+    const y = y0 == null ? TY : y0, w = Math.max(44, tw(s, 'tagt') + 18), bx = K.clamp(x - w / 2, 2, 338 - w), tip = y + TH + 6;
+    fadeIn(a, 4, () => {
+      pathOf('tag', 'M' + (x - 6).toFixed(2) + ' ' + (y + TH - 1) + ' L' + x.toFixed(2) + ' ' + tip + ' L' + (x + 6).toFixed(2) + ' ' + (y + TH - 1) + ' Z');
+      rect('tag', bx, y, w, TH, 7);
+      text(bx + w / 2, y + 18.5, s, 'tagt k-nohalo');
+    });
+    return { x: x, w: w, a: a };
+  }
+  // The part's amount under the marker, in the amount row.
+  function amtAt(g, p, s, a) {
+    const x = g.x(p), xs = inside(x, s, 'val');
+    fadeIn(a, 4, () => { line('mk', x, BB, x, BB + 6); text(xs, ALY, s, 'val'); });
+    return { x: xs, w: tw(s, 'val'), a: a };
+  }
+  // The working, centred under the picture from y0: each row risen in as its arrival goes 0 -> 1; a
+  // row whose time is null is part of the question and stands from the start. Until the last row
+  // arrives, a dashed slot holds its place.
+  function rows(list, as, y0, o) {
+    o = o || {};
+    list.forEach((s, k) => {
+      const y = y0 + k * ROWH, cls = 'sum' + (o.muted && o.muted[k] ? ' m' : '');
+      fadeIn(as[k], 6, () => text(170, y, s, cls));
+    });
+    if (!o.slot) return;
+    // the slot fades out just before its row arrives, so the two never sit on top of each other
+    const k = list.length - 1, w = 132, y = y0 + k * ROWH;
+    leave(o.slotA == null ? as[k] : o.slotA, () => rect('gapbox', 170 - w / 2, y - 21, w, 29, 5));
+  }
+  const rowsTop = (B) => (B.zoom ? ZAY + 42 : B.rest ? 186 : ALY + 40);
+  const heightOf = (d) => rowsTop(d.B) + (d.rows.length - 1) * ROWH + 14;
+
+  // --- the close-up of the first 10% ---
+  // Its scale: p (0..10%) at zx(p). Dashed lines join the bar's first 10% to it; 1% ticks, each named
+  // above; amounts below (0, 1% and 10% of the whole); the part filled as far as e; a limit line.
+  const zx = (p) => BX0 + BW * p / 10;
+  function zoomPic(g, B, a, e, limA, mkA) {
+    fadeIn(a, 0, () => {
+      pathOf('call', 'M' + BX0 + ' ' + (BB + 2) + ' L' + BX0 + ' ' + CY + ' M' + g.x(10).toFixed(2) + ' ' + (BB + 2) + ' L' + BX1 + ' ' + CY);
+      rect('barbg', BX0, ZY, BW, ZH);
+      const pz = pctOf(B.part, B.whole);
+      if (e > 0) rect('part', BX0, ZY, zx(pz * e) - BX0, ZH);
+      for (let p = 0; p <= 10; p++) {
+        const x = zx(p);
+        if (p > 0 && p < 10) { line('cut', x, ZY, x, ZY + 6); line('cut', x, ZB - 6, x, ZB); }
+        line('tick', x, ZY - 5, x, ZY);
+        text(p === 10 ? x + 3 : x, ZLY, p + '%', 'zl');   // the end label sits 3 units out, clear of 9%
+      }
+      rect('barline', BX0, ZY, BW, ZH);
+      [[1, amtText(B.whole / 100, B.unit)], [10, amtText(B.whole / 10, B.unit)]].forEach((m) => {
+        const x = zx(m[0]);
+        line('tick', x, ZB, x, ZB + 5);
+        text(inside(x, m[1], 'amt'), ZAY, m[1], 'amt');
+      });
+      if (B.limit != null) fadeIn(limA == null ? 1 : limA, 0, () => {
+        line('lim', zx(B.limit), ZY - 4, zx(B.limit), ZB + 4);
+        text(zx(B.limit), ZAY, B.limit + '% limit', 'note');
+      });
+      // the part's end and its amount, inside the close-up's fill
+      if (e > 0) {
+        const x = zx(pz * e), s = amtText(B.part, B.unit);
+        fadeIn(mkA == null ? 1 : mkA, 0, () => line('mk', x, ZY - 4, x, ZB + 4));
+        fadeIn(Math.min(1, Math.max(0, (e - 0.6) / 0.4)), 0, () => text((BX0 + x) / 2, ZY + 20, s, 'inl'));
+      }
+    });
+  }
+  const zoomSaid = (B, a, e) => (a >= 0.5 ? ' Below it, a close-up of the first 10 percent, from 0 to ' + say(amtText(B.whole / 10, B.unit)) + ', with each 1 percent marked, every ' + say(amtText(B.whole / 100, B.unit)) +
+    (B.limit != null ? ' and a dashed line at the ' + B.limit + ' percent limit' : '') + (e >= 1 ? '; ' + say(amtText(B.part, B.unit)) + ' fills it to about ' + say(pctText(pctOf(B.part, B.whole), 1)) : '') + '.' : '');
+
+  // --- a part of a whole: the bar fills to the part, its tag and amount arrive, then the working ---
+  // A: the timetable; live: whether it plays (a puzzle before its right answer shows only the question).
+  function partScene(d, A, live) {
+    const B = d.B, pct = pctOf(B.part, B.whole);
+    const ar = (t, dur) => (live && t != null ? arr(t, dur) : t === null ? 1 : 0);
+    const st = B.max ? ar(A.scale[0], A.scale[1]) : 0, g = geom(K.lerp(100, B.max || 100, st));
+    const whole = A.whole != null ? ar(A.whole) : 1;
+    const fe = ar(A.fill[0], A.fill[1]), p = pct * fe;
+    const tg = ar(A.tag), am = ar(A.amt);
+    const zA = B.zoom ? ar(A.zoom) : 0, ze = B.zoom ? ar(A.zfill[0], A.zfill[1]) : 0;
+    // the markers arrive softly as their fills start (the 0% label gives way to the bar's as it comes)
+    const mkA = ar(A.fill[0], MK), zmA = B.zoom ? ar(A.zfill[0], MK) : 0;
+    const tagS = pctText(pct, dpOf(d.want || rhs(d.rows[d.rows.length - 1]))), amS = amtText(B.part, B.unit);
+    const mk = { x: g.x(pct), w: 8, a: Math.max(tg, mkA) };
+    const below = { x: inside(g.x(pct), amS, 'val'), w: tw(amS, 'val'), a: am };
+    fadeIn(whole, 0, () => {
+      frame(g, B, { near: [mk], nearBelow: [below], ext: B.max ? st : null, amts: B.zoom ? [[100, amtText(B.whole, B.unit)]] : null }, () => {
+        if (B.cells) cellsOf(g, B.cells, B.part * fe);
+        else fillBar(g, 0, p, 'part');
+      });
+      if (fe > 0) marker(g, p, mkA);
+      // with a close-up, the part's amount is written inside it, where there is room
+      if (!B.zoom) amtAt(g, pct, amS, am);
+      else fadeIn(am, 0, () => line('mk', g.x(pct), BB, g.x(pct), BB + 6));
+      tag(g.x(pct), tagS, tg);
+    });
+    if (B.zoom) zoomPic(g, B, zA, ze, zA, zmA);
+    const ra = d.rows.map((s, k) => ar(A.rows[k]));
+    rows(d.rows, ra, rowsTop(B), { slot: !d.show, slotA: d.show ? null : slotOf(A.rows, ar) });
+    // in words
+    const shown = d.rows.filter((s, k) => ra[k] >= 0.5);
+    return 'A bar for the whole, ' + say(B.cells ? B.whole + ' circuits, cut into ' + B.cells + ' equal cells' : amtText(B.whole, B.unit)) + ', lined up with 100 percent' +
+      (B.max ? (st >= 0.5 ? ', its scale running on to ' + B.max + ' percent' : '') : '') + '.' +
+      (fe >= 1 ? ' It is filled to ' + say(B.cells ? B.part + ' cells' : amS) + (pct > 100 ? ', past the end of the whole' : '') + '.' : fe > 0 ? ' It is filling.' : '') +
+      (tg >= 0.5 ? ' A tag above says ' + say(tagS) + '.' : '') + zoomSaid(B, zA, ze) +
+      (shown.length ? ' Below, the working: ' + shown.map(say).join(', then ') + '.' : '') + (!d.show && ra[ra.length - 1] < 0.5 ? ' An empty box waits for the answer.' : '');
+  }
+  // A bar cut into n equal cells, the first `k` of them shaded (a fraction of one shading in part).
+  // The shading glides along as one piece; the cuts are drawn over it.
+  function cellsOf(g, n, k) {
+    const w = (g.x(100) - BX0) / n;
+    if (k > 0) rect('part', BX0, BY, k * w, BH);
+    for (let c = 1; c < n; c++) line('cut', BX0 + c * w, BY, BX0 + c * w, BB);
+  }
+
+  // --- the bar cut into pieces the size of the part (dividing the other way up) ---
+  function demoPieces(d, A) {
+    const B = d.B, g = geom(100), pct = pctOf(B.part, B.whole), n = B.whole / B.part;
+    const fe = arr(A.fill[0], A.fill[1]), am = arr(A.amt), cb = arr(A.comb[0], A.comb[1]), tg = arr(A.tag), mkA = arr(A.fill[0], MK);
+    // the cuts come in as a soft wave: each fades in over the WAVE units before the front reaches it
+    const front = K.lerp(g.x(pct) - WAVE, BX1, cb), amS = amtText(B.part, B.unit), tagS = pctText(pct, 1);
+    fadeIn(arr(A.whole), 0, () => {
+      frame(g, B, { near: [{ x: g.x(pct), w: 8, a: Math.max(tg, mkA) }], nearBelow: [{ x: inside(g.x(pct), amS, 'val'), w: tw(amS, 'val'), a: am }] }, () => {
+        fillBar(g, 0, pct * fe, 'part');
+        // a cut at every 9 V, each drawn as the sweep passes it
+        for (let k = 1; k < n; k++) {
+          const x = g.x(pctOf(k * B.part, B.whole));
+          if (k === 1) continue;
+          const f = K.ease(K.clamp((front - x) / WAVE + 1, 0, 1));
+          if (f > 0) fadeIn(f, 0, () => line('cut', x, BY, x, BB));
+        }
+      });
+      if (fe > 0) marker(g, pct * fe, mkA);
+      amtAt(g, pct, amS, am);
+      tag(g.x(pct), tagS, tg);
+    });
+    const ra = A.rows.map((t) => arr(t));
+    rows(d.rows, ra, rowsTop(B), { muted: [true, false] });
+    return 'A bar for the whole, ' + say(amtText(B.whole, B.unit)) + ', lined up with 100 percent.' + (fe >= 1 ? ' Its first ' + say(amS) + ' is shaded.' : '') +
+      (cb > 0 ? ' The bar is ' + (cb < 1 ? 'being cut' : 'cut') + ' into pieces of ' + say(amS) + (cb >= 1 ? ', ' + Math.floor(n) + ' whole ones with a bit left over' : '') + '.' : '') +
+      (tg >= 0.5 ? ' A tag over the first piece says ' + say(tagS) + '.' : '') +
+      (ra.some((a) => a >= 0.5) ? ' Below: ' + d.rows.filter((s, k) => ra[k] >= 0.5).map(say).join(', then ') + '.' : '');
+  }
+
+  // --- the part and the rest sharing the whole (what comes out, and what is lost) ---
+  // Brackets above give each share; the part's amount sits inside it, the rest's under its end; a
+  // bracket under the bar names the whole.
+  function restScene(d, A, live) {
+    const B = d.B, g = geom(100), pct = pctOf(B.part, B.whole), rp = 100 - pct;
+    const ar = (t, dur) => (live ? arr(t, dur) : 0);
+    const whole = A.whole != null ? arr(A.whole) : 1;
+    const fe = ar(A.fill[0], A.fill[1]), am = ar(A.amt), bk = ar(A.brk), rf = ar(A.rfill), mkA = ar(A.fill[0], MK);
+    const xp = g.x(pct), names = B.names;
+    const outS = amtText(B.part, B.unit) + ' ' + names[1], lostS = amtText(B.whole - B.part, B.unit) + ' ' + names[2], inS = amtText(B.whole, B.unit) + ' ' + names[0];
+    const brace = (x0, x1, y, up) => pathOf('brk', 'M' + (x0 + 2) + ' ' + (y + (up ? 6 : -6)) + ' V' + y + ' H' + (x1 - 2) + ' V' + (y + (up ? 6 : -6)));
+    fadeIn(whole, 0, () => {
+      frame(g, B, { ticks: false, amts: [] }, () => {
+        fillBar(g, 0, pct * fe, 'part');
+        fadeIn(rf, 0, () => fillBar(g, pct, 100, 'rest'));
+      });
+      if (fe > 0) fadeIn(mkA, 0, () => line('mk', g.x(pct * fe), BY - 4, g.x(pct * fe), BB + 4));
+      fadeIn(am, 4, () => text((BX0 + xp) / 2, BY + 23, outS, 'inl'));
+      fadeIn(bk, 4, () => { brace(BX0, xp, BY - 10, true); text((BX0 + xp) / 2, BY - 18, pctText(pct), 'note'); });
+      fadeIn(rf, 4, () => {
+        brace(xp, BX1, BY - 10, true); text(inside((xp + BX1) / 2, pctText(rp), 'note'), BY - 18, pctText(rp), 'note');
+        line('lead', (xp + BX1) / 2, BB + 2, (xp + BX1) / 2, BB + 9);
+        text(BX1, ALY, lostS, 'inl', 'end');
+      });
+      // the whole, under the bar
+      brace(BX0, BX1, BB + 30, false);
+      text(170, BB + 50, inS + ', 100%', 'inl');
+    });
+    const ra = d.rows.map((s, k) => ar(A.rows[k]));
+    rows(d.rows, ra, rowsTop(B), { slot: !d.show, slotA: d.show ? null : slotOf(A.rows, ar) });
+    return 'A bar for the whole, ' + say(inS) + ', lined up with 100 percent.' + (fe >= 1 ? ' ' + say(outS) + ' fills ' + say(pctText(pct)) + ' of it' : '') +
+      (rf >= 0.5 ? ', and the other ' + say(pctText(rp)) + ', ' + say(lostS) + ', is shaded at the end' : '') + (fe >= 1 ? '.' : '') +
+      (ra.some((a) => a >= 0.5) ? ' Below: ' + d.rows.filter((s, k) => ra[k] >= 0.5).map(say).join(', then ') + '.' : ra[ra.length - 1] < 0.5 ? ' An empty box waits for the answer.' : '');
+  }
+
+  // --- the drag puzzle: Dan slides the marker to the percentage; the amount shows once it is right ---
+  function drawDrag(d, st, right) {
+    const B = d.B, g = geom(100), v = st.at == null ? 0 : st.at, F = d.at, amS = amtText(B.part, B.unit);
+    const am = right ? arr(F.amt) : 0, tagS = pctText(v);
+    const mk = { x: g.x(v), w: 8, a: 1 };
+    frame(g, B, { near: [mk], nearBelow: [{ x: g.x(v), w: 22, a: 1 }, { x: inside(g.x(v), amS, 'val'), w: tw(amS, 'val'), a: am }] }, () => fillBar(g, 0, v, 'part'));
+    line('mk', g.x(v), TP, g.x(v), BB + 6);
+    if (!right) circle('knob', g.x(v), BB + 6, 9);
+    else leave(arr(0, MK), () => circle('knob', g.x(v), BB + 6, 9));
+    if (right) amtAt(g, v, amS, am);
+    tag(g.x(v), tagS, 1);
+    const ra = d.rows.map((s, k) => (right ? arr(F.rows[k]) : 0));
+    rows(d.rows, ra, rowsTop(B), { slot: true, slotA: slotOf(F.rows, (t, dur) => (right ? arr(t, dur) : 0)) });
+    return 'A bar for the whole run, ' + say(amtText(B.whole, B.unit)) + ', lined up with 100 percent, with a marker on it at ' + say(tagS) + (right ? ', at ' + say(amS) : '') + '.' +
+      (ra.some((a) => a >= 0.5) ? ' Below: ' + d.rows.filter((s, k) => ra[k] >= 0.5).map(say).join(', then ') + '.' : ' An empty box waits for the answer.');
+  }
+  // The place Dan slides along is kept across repaints (the picture is redrawn every frame), so
+  // keyboard focus survives: the whole bar and its labels, a thumb's height and more.
+  const hit = ui.appendChild(K.svg('rect', { class: 'hit', role: 'slider', tabindex: -1, x: 4, y: 0, width: 332, height: ALY + 6, 'aria-valuemin': 0, 'aria-valuemax': 100 }));
+  hit.style.display = 'none';
+  let grab = null;
+  function svgX(e) {
+    const m = svg.getScreenCTM();
+    return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).x : null;
+  }
+  const toPct = (x) => (x - BX0) / BW * 100;
+  hit.addEventListener('pointerdown', (e) => {
+    const i = at();
+    if (!live(i) || STEPS[i].kind !== 'drag' || e.button > 0) return;
+    e.preventDefault();
+    grab = { id: e.pointerId, i: i };
+    try { hit.setPointerCapture(e.pointerId); } catch (x) { /* the slide still follows inside the bar */ }
+    const x = svgX(e);
+    if (x != null) slide(i, toPct(x));
+  });
+  hit.addEventListener('pointermove', (e) => {
+    if (!grab || grab.id !== e.pointerId || !live(grab.i)) return;
+    e.preventDefault();
+    const x = svgX(e);
+    if (x != null) slide(grab.i, toPct(x));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => hit.addEventListener(n, (e) => { if (grab && grab.id === e.pointerId) grab = null; }));
+  hit.addEventListener('touchstart', (e) => { if (live(at()) && STEPS[at()].kind === 'drag') e.preventDefault(); }, { passive: false });
+  hit.addEventListener('keydown', (e) => {
+    const i = at(), step = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5, PageUp: 25, PageDown: -25 }[e.key];
+    if (!step || !live(i) || STEPS[i].kind !== 'drag') return;
+    e.preventDefault(); slide(i, (S[i].at == null ? 0 : S[i].at) + step);
+  });
+  function placeHit(d, st, right) {
+    const on = d.kind === 'drag';
+    hit.style.display = on ? '' : 'none';
+    hit.setAttribute('tabindex', on && !right ? '0' : '-1');
+    hit.setAttribute('class', 'hit' + (on && right ? ' locked' : ''));
+    if (!on) return;
+    const v = st.at == null ? 0 : st.at;
+    hit.setAttribute('aria-label', 'The marker on the bar. Slide it left or right in steps of 5 percent.');
+    hit.setAttribute('aria-valuenow', v);
+    hit.setAttribute('aria-valuetext', v + ' percent');
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    let aria;
+    if (d.show) aria = d.demo === 'pieces' ? demoPieces(d, AT.pieces) : d.demo === 'rest' ? restScene(d, AT.rest, true) : partScene(d, AT[d.demo], true);
+    else if (d.kind === 'drag') aria = drawDrag(d, st, right);
+    else if (d.B.rest) aria = restScene(d, d.at, right);
+    else aria = partScene(d, d.at, right);
+    placeHit(d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('nudge').hidden = d.kind !== 'drag' || right;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const PICKS = DO.filter((i) => STEPS[i].opts);
+  const DRAG_I = STEPS.findIndex((d) => d.kind === 'drag');
+  // A value v written as c with sign = or ≈: = only when it is exact, ≈ only when c is v rounded to the decimals written.
+  const writes = (v, c, sign, dp) => (sign === '=' ? same(v, c) : sign === '≈' && same(roundTo(v, dp), c) && !same(v, c));
+  // A row "a ÷ b = c" or "a × b = c" worked out: its two sides agree, exactly with =, at the decimals written with ≈.
+  function rowHolds(s) {
+    const m = /^(£?[\d,.]+)( [A-Za-zΩ]+)? ([÷×−]) ([\d,.]+%?)( [A-Za-zΩ]+)?( × 100)? ([=≈]) ([\d,.]+)/.exec(s.replace(/%/g, ''));
+    if (!m) return false;
+    const a = valueOf(m[1]), b = valueOf(m[4]), c = valueOf(m[8]), x100 = m[6] && m[3] !== '×' ? 100 : 1;
+    const v = m[3] === '÷' ? a / b * x100 : m[3] === '×' ? a * b : a - b;
+    return writes(v, c, m[7], dpOf(m[8]));
+  }
+  K.check('Part ÷ whole × 100: 20 m of 50 m is 40%, 30 m of 40 m is 75%, 9 V of 230 V is about 3.9%, 25 A of 20 A is 125%, and every row of working on every screen holds, written with = only when exact and with ≈ when rounded (9 ÷ 230 ≈ 0.039, 230 ÷ 9 ≈ 25.6)', () =>
+    pctOf(20, 50) === 40 && pctOf(30, 40) === 75 && roundTo(pctOf(9, 230), 1) === 3.9 && pctOf(25, 20) === 125 && pctOf(300, 1500) === 20 &&
+    STEPS.every((d) => d.rows.every((s) => /pieces$/.test(s) ? writes(d.B.whole / d.B.part, valueOf(rhs(s)), s.split(' ')[3], 1) : /^100% − /.test(s) ? same(100 - valueOf(s.split(' − ')[1].split(' =')[0]), valueOf(rhs(s))) : rowHolds(s))) &&
+    STEPS.every((d) => d.rows.every((s) => / [=≈] /.test(s))) && !rowHolds('9 ÷ 230 = 0.039') && rowHolds('9 ÷ 230 ≈ 0.039') && !rowHolds('30 ÷ 40 ≈ 0.75') &&
+    STEPS.every((d) => same(valueOf(rhs(d.rows[d.rows.length - 1])), d.B.rest && !d.B.ask && /^100%/.test(d.rows[1]) ? 100 - roundTo(pctOf(d.B.part, d.B.whole), 0) : roundTo(answerOf(d), dpOf(rhs(d.rows[d.rows.length - 1]))))));
+  K.check('Each puzzle accepts only its own answer, part ÷ whole × 100 at the decimals shown, and every wrong answer offered is the one a named slip gives: the whole over the part, no times 100, ten times too big, the part read as a percentage, the difference, the smaller on top, the other share, the wrong whole', () =>
+    PICKS.every((i) => {
+      const d = STEPS[i], ok = d.opts.filter((o) => same(valueOf(o), roundTo(answerOf(d), dpOf(o))));
+      return d.opts.length === 3 && ok.join() === d.want && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)) &&
+        Object.keys(d.slips).length === 2 && Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && same(slipOf(d, o), valueOf(o)));
+    }));
+  K.check('The slide puzzle accepts only 75% for 30 m of 40 m, opens with nothing placed, and gives 30% (the part read as a percentage) and 10% (the difference) their own hints', () => {
+    const d = STEPS[DRAG_I], st = (v) => Object.assign(blank(DRAG_I), { at: v });
+    const all = []; for (let v = 0; v <= 100; v += 5) all.push(v);
+    return d.target === pctOf(d.B.part, d.B.whole) && all.filter((v) => isRight(DRAG_I, st(v))).join() === '75' && isEmpty(DRAG_I, blank(DRAG_I)) &&
+      SLIP.partAsPct(d.B.part) === 30 && SLIP.diff(d.B.part, d.B.whole) === 10 && hintFor(DRAG_I, st(30)) === d.hints[30] && hintFor(DRAG_I, st(10)) === d.hints[10] && hintFor(DRAG_I, st(70)) === d.near;
+  });
+  K.check('On the bar a percentage and its amount line up: the part lands at part ÷ whole of the way along, inside the bar when it is smaller than the whole and past its end when it is bigger (25 A on 20 A at 125%); 1% of 230 V is 2.3 V, so 9 V lands between 3% (6.9 V) and 4% (9.2 V)', () => {
+    const g = geom(100), g2 = geom(150);
+    return STEPS.every((d) => same((geom(d.B.max || 100).x(pctOf(d.B.part, d.B.whole)) - BX0) / (geom(d.B.max || 100).x(100) - BX0), d.B.part / d.B.whole)) &&
+      g.x(pctOf(9, 230)) < g.x(100) && g2.x(pctOf(25, 20)) > g2.x(100) && g2.x(pctOf(25, 20)) < BX1 &&
+      same(230 / 100, 2.3) && same(230 * 0.03, 6.9) && same(230 * 0.04, 9.2) && 9 > 6.9 && 9 < 9.2 && Math.floor(pctOf(9, 230)) === 3;
+  });
+  K.check('Dividing the other way up counts pieces: 230 ÷ 9 = 25.6, so the bar takes 25 whole 9 V pieces with a bit left over, while one piece is 9 ÷ 230 × 100 = 3.9% of it', () =>
+    same(roundTo(230 / 9, 1), 25.6) && Math.floor(230 / 9) === 25 && 230 - 25 * 9 === 5 && same(roundTo(pctOf(9, 230), 1), 3.9));
+  K.check('To change a decimal to a percentage, multiply by 100: 0.67 × 100 = 67%, and in this lesson 0.4 is 40%, 0.75 is 75%, 0.039 is 3.9%, 0.026 is 2.6%, 0.035 is 3.5% and 1.25 is 125%', () =>
+    [[0.67, 67], [0.4, 40], [0.75, 75], [0.039, 3.9], [0.026, 2.6], [0.035, 3.5], [1.25, 125]].every((c) => same(roundTo(c[0] * 100, 3), c[1])));
+  K.check('Per cent means out of 100, so the bar lined up with 100% is 100 equal hundredths of the whole: 40% of a 50 m drum is 20 m, and 1% of 230 V is 2.3 V', () => {
+    const g = geom(100), step = g.x(1) - g.x(0);
+    return K.near(g.x(100) - g.x(0), 100 * step, 1e-9) && same(50 * 40 / 100, 20) && same(230 / 100, 2.3) && same(zx(1) - zx(0), (zx(10) - zx(0)) / 10);
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends and its parts at least 0.5 s apart; every answer\'s motion within 2.5 s', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; starts = [];
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const ts = starts.filter((t, k) => starts.indexOf(t) === k).sort((a, b) => a - b);
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE && ts.every((t, k) => k === 0 || t - ts[k - 1] >= 0.5 - 1e-9 || t - ts[k - 1] < 1e-9)
+        : latest <= d.fb && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.check('The right answer moves between the three buttons: each place holds it on at least two of the seven puzzles, and no two puzzles in a row put it in the same place', () => {
+    const slots = PICKS.map((i) => STEPS[i].opts.indexOf(STEPS[i].want));
+    return slots.length === 7 && [0, 1, 2].every((k) => slots.filter((x) => x === k).length >= 2) && slots.every((x, k) => k === 0 || x !== slots[k - 1]);
+  });
+
+  // What every drawn part of the picture shows, by what it is: a word by its text, a line by its
+  // kind and height (a cut by where it is too), a box by where it starts, any other shape by its kind
+  // (the most of each); a part in a fading group shows as much as the group lets it, and a box under
+  // 8 units wide (a fill just starting to grow) in proportion to its width.
+  function shown() {
+    const o = {};
+    art.querySelectorAll('text, path, line, rect, circle').forEach((n) => {
+      let a = 1;
+      for (let q = n; q && q !== art; q = q.parentNode) if (q.style && q.style.opacity !== '') a *= Number(q.style.opacity);
+      if (n.tagName === 'rect') a *= Math.min(1, Number(n.getAttribute('width')) / 8);   // a fill growing from nothing glides, it does not pop
+      const c = n.getAttribute('class') || '', r = (k) => Math.round(Number(n.getAttribute(k)));
+      const key = n.tagName + '|' + c + '|' + (n.tagName === 'text' ? n.textContent : n.tagName === 'line' ? r('y1') + (c === 'cut' ? ',' + r('x1') : '')
+        : n.tagName === 'rect' && c !== 'ext' ? r('x') + ',' + r('y') : '');
+      o[key] = Math.max(o[key] || 0, a);
+    });
+    return o;
+  }
+  K.check('Nothing pops in or out: painted every 1/60 s through every demonstration, and from the question through every right answer\'s motion to its finished picture, no part\'s opacity changes by more than 0.5 from one frame to the next', () => {
+    const keepT = T, dt = 1 / 60;
+    const smooth = (x, y) => Object.keys(Object.assign({}, x, y)).every((k) => Math.abs((x[k] || 0) - (y[k] || 0)) <= 0.5);
+    let ok = true, n = 0;
+    STEPS.forEach((d, i) => {
+      const keepS = S[i];
+      try {
+        const look = (st, t) => { S[i] = st; T = t; paint(i); n++; return shown(); };
+        const done = d.show ? blank(i) : solved(i), end = d.show ? d.dur : d.fb;
+        let prev = d.show ? look(done, 0) : look(Object.assign({}, done, { res: null }), Infinity);
+        for (let t = d.show ? dt : 0; t <= end + dt && ok; t += dt) { const now = look(done, t); ok = ok && smooth(prev, now); prev = now; }
+        ok = ok && smooth(prev, look(done, Infinity));
+      } finally { S[i] = keepS; }
+    });
+    T = keepT; paint();
+    return ok && n > 1500;
+  });
+
+  K.ready();
+</script>

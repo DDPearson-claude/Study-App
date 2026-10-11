@@ -1,0 +1,118 @@
+{
+  "iid": "i3",
+  "title": "Up or down by a percentage",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the bar's end sliding past 100% for a rise and back from it for a cut, so the new amount is the old one stretched or squeezed by the multiplier, when you add the percentage to 100% or take it away and divide by 100.",
+    "title": "Up or down by a percentage",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on a percentage bar, the old amount bracketed above it as 100% and the new amount below it, with an end you can drag, some screens showing an idea and the rest asking you to try it.",
+    "ignores": "The amounts (£150, 40 A, 230 V, 30 m and the rest) are example values, chosen to show the method.",
+    "numbers": [
+      {
+        "label": "£150 up 20%: 100% + 20% = 120%, so 150 × 1.2 = £180, in step 1",
+        "value": 180,
+        "kind": "constant"
+      },
+      {
+        "label": "40 A up 15%: 40 × 1.15 = 46 A, where adding 15 would give 55 A, in step 2",
+        "value": 46,
+        "kind": "constant"
+      },
+      {
+        "label": "£80 down 15%: 100% − 15% = 85%, so 80 × 0.85 = £68, in step 3",
+        "value": 68,
+        "kind": "constant"
+      },
+      {
+        "label": "£60 down 20%: 60 × 0.8 = £48, while 60 × 0.2 = £12 is the part taken off, in step 4",
+        "value": 48,
+        "kind": "constant"
+      },
+      {
+        "label": "50 m stretched or squeezed: 50 × 1.2 = 60 m and 50 × 0.85 = 42.5 m, in step 5",
+        "value": 60,
+        "kind": "constant"
+      },
+      {
+        "label": "£200 up 3%: × 1.03, so 200 × 1.03 = £206, not × 1.3, in step 6",
+        "value": 1.03,
+        "kind": "constant"
+      },
+      {
+        "label": "£120 with 25% off: 75% is left, 120 × 0.75 = £90, in step 7",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "40 A up 100%: 200%, so 40 × 2 = 80 A, in step 8",
+        "value": 80,
+        "kind": "constant"
+      },
+      {
+        "label": "30 m up 150%: 250%, so 30 × 2.5 = 75 m, where 150% of 30 m is 45 m, in step 9",
+        "value": 75,
+        "kind": "constant"
+      },
+      {
+        "label": "230 V down 4%: 230 × 0.96 = 220.8 V, in step 10",
+        "value": 220.8,
+        "kind": "constant"
+      },
+      {
+        "label": "£50 with 8% off: × 0.92, so 50 × 0.92 = £46, in step 11",
+        "value": 0.92,
+        "kind": "constant"
+      },
+      {
+        "label": "£80 up 7.5%: 80 × 1.075 = £86, in step 12",
+        "value": 86,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "To raise an amount by a percentage, you can add the percentage to 100% and find that percentage of the amount.[^1] Up 20% ends at 120%, which is 1.2 as a decimal, so £150 up 20% is 150 × 1.2 = £180 in one step. That 1.2 is the multiplier. A cut works the same way with the percentage taken from 100%, so down 15% leaves 85% and the multiplier is 0.85, and a single multiplier does a cut in one step too.[^2] A multiplier over 1 stretches an amount, and one under 1 squeezes it.\n\nThe slips to watch are adding the percentage as if it were a number, which makes £150 up 20% come to £170 instead of £180, and stopping at the change itself, the £30 on its own. Dividing by 10 instead of 100 carries over as well, since reading 3% as 0.3 makes a 3% rise × 1.3 instead of × 1.03.[^3] Up 100% doubles an amount, so up 150% ends at 250%, × 2.5, while 150% of it is only × 1.5.\n\n**Add a rise to 100%, or take a cut from 100%, and divide by 100 for the multiplier. Up 20% is × 1.2 and down 15% is × 0.85, one step on a calculator.**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** Add a rise to 100%, or take a cut from 100%, then divide by 100 for the multiplier. A rise multiplies by more than 1 and a cut by less than 1, which makes a quick check.\n\n**Worked example:** A 230 V supply drops 4% along a cable run. 100% − 4% = 96%, so the multiplier is 0.96, and 230 × 0.96 = 220.8 V. As a check, 4% of 230 V is 9.2 V, and 230 − 9.2 = 220.8.\n\n**Common mistakes**\n- Adding the percentage as a number. £150 up 20% is not £170. 20% of £150 is £30, so it comes to £180.\n- Stopping at the change. 60 × 0.2 = £12 is the 20% taken off, and 60 × 0.8 = £48 is the price that is left.\n- Dividing by 10 instead of 100. Up 3% is × 1.03, while × 1.3 would be up 30%.\n- Mixing up a rise and a cut. Up 8% is × 1.08, and 8% off is × 0.92.\n- Reading up 150% as 150% of. Up 150% ends at 250%, so 30 m becomes 30 × 2.5 = 75 m, not 45 m."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Percentage change - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zxghrmn",
+      "quote": "Add or subtract the percentage from 100% and find this percentage of the amount."
+    },
+    {
+      "n": 2,
+      "title": "Decrease by a percentage KS3 | Y8 Maths | Lesson Resources | Oak National Academy",
+      "url": "https://www.thenational.academy/teachers/programmes/maths-secondary-ks3/units/understanding-multiplicative-relationships-percentages-and-proportionality/lessons/decrease-by-a-percentage",
+      "quote": "In all of these representations a single multiplier can be used to find a percentage decrease."
+    },
+    {
+      "n": 3,
+      "title": "Increase by a percentage KS3 | Y8 Maths | Lesson Resources | Oak National Academy",
+      "url": "https://www.thenational.academy/teachers/programmes/maths-secondary-ks3/units/understanding-multiplicative-relationships-percentages-and-proportionality/lessons/increase-by-a-percentage",
+      "quote": "A single digit percentage is incorrectly worked out by dividing by 10 and not 100 e.g 3% = 0.3. This error continues when increasing amounts e.g increase 40 by 3% has a multiplier of 1.3"
+    }
+  ]
+}

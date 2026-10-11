@@ -181,6 +181,12 @@ Research and briefs: tonight's run for the Negative numbers brief and this roadm
 and units, if you want it, adds about 4 lessons: about 1.1M lean, or about 6.6M full, plus its
 research and brief.
 
+**Measured on the per-stage settings (CLAUDE.md, 11 Oct).** Negative numbers 5 to 9 took about
+1.03M a lesson. Percentages, cut to 5 core lessons with the build at xhigh, took about 5.3M in all:
+4.87M for the build workflow, about 0.18M for the brief's research and about 0.22M to redo the
+research and citations after the research stage could not save its search results. That is about
+1.05M a lesson, against 1.65M on the full process.
+
 A middle way is possible and not yet measured: lean plus the fresh fact-check and one combined
 review, keeping the full process for pilots. I'll measure each pilot and re-estimate before its
 overnight build.

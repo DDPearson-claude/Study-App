@@ -1,0 +1,119 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "The original amount always represents 100%, so each new amount is (100 + the change)% of it and the original is the new amount ÷ the multiplier: 180 ÷ 1.2 = 150, 46 ÷ 1.15 = 40, 90 ÷ 0.75 = 120, 68 ÷ 0.85 = 80, 300 ÷ 1.2 = 250, 100 ÷ 1.25 = 80, 48 ÷ 0.8 = 60, 384 ÷ 0.96 = 400, 54 ÷ 1.08 = 50 and 99 ÷ 0.99 = 100, each checked forwards by multiplying back",
+        "ok": true
+      },
+      {
+        "label": "A single multiplier finds the original after a percentage increase: dividing by 1.25 is the same as multiplying by 0.8, so a 25% rise is undone by a 20% cut, while a 25% cut lands at 75; dividing by 1.2 is the same as multiplying by 1 ÷ 1.2",
+        "ok": true
+      },
+      {
+        "label": "Going back from a rise gives a smaller amount and going back from a cut a bigger one, on every screen: a multiplier over 1 is divided out to less, one under 1 to more",
+        "ok": true
+      },
+      {
+        "label": "Percentages do not cancel: 100 reduced by 20% is 80, and 80 increased by 20% is 96, because the second 20% is of 80, which is 16; up 20% then down 20% also ends at 96, up 10% then down 10% at 99, and up c% then down c% at 100 − c²/100, short of 100, for every rise the drag allows",
+        "ok": true
+      },
+      {
+        "label": "Taking the percentage off the new amount lands short: 20% of £180 is £36 while the rise was 20% of £150, £30, so 180 × 0.8 = 144, which is 96% of £150; and 46 × 0.85 = 39.1 A falls short of 40 A",
+        "ok": true
+      },
+      {
+        "label": "Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives: the percentage taken off or added on the new amount, the multiplier applied again, a cut's multiplier for a rise, a percentage read as tenths (4% as 0.4, 8% as 0.8), the changes taken to cancel, their combined 1% put back onto £99, the same percentage taken to undo a rise, or what is left in place of the cut",
+        "ok": true
+      },
+      {
+        "label": "The drag puzzle takes 60 m only with the end on 100%, the run before, so going back from the cut drags the end right, to more; past 100% the hint says drag left, short of it right; the end snaps to 5% steps from 0 to 125%",
+        "ok": true
+      },
+      {
+        "label": "The bar is drawn to scale on every screen, finished: the new amount's bracket is the original's length times the multiplier, the shading ends at 100% once the original is found (where the amount lands on the two slip screens), and the labels pair each percentage with the amount the working gives, and the part taken off is £36 after the £180 and £24 after the £120",
+        "ok": true
+      },
+      {
+        "label": "Before an answer, nothing in a puzzle's picture shows the original amount, the multiplier or the new amount's percentage",
+        "ok": true
+      },
+      {
+        "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion within 2.5 s; parts start at least 0.45 s apart, each once the travel before it has ended",
+        "ok": true
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "step"
+    ],
+    "readouts": [],
+    "outputs": [],
+    "inputs": [
+      {
+        "id": "step",
+        "kind": "stepper",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "steps": [
+          "Back from a rise",
+          "Before a rise",
+          "Back from a cut",
+          "Before a cut",
+          "Not 20% off",
+          "Which sum?",
+          "Up, then down",
+          "Undo a 25% rise",
+          "Drag back to 100%",
+          "A 4% drop",
+          "8% added",
+          "Up, down, back"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [
+      "Answer 1",
+      "Answer 2",
+      "Answer 3",
+      "Check",
+      "Why?",
+      "Play again",
+      "Back",
+      "Continue",
+      "Start again",
+      "Demonstration"
+    ],
+    "ready": true,
+    "warnings": [
+      "SVG labels \"100% =\" and \"£150\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 20 more settings) [at 340 px wide]"
+    ],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

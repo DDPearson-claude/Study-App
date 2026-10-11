@@ -1,0 +1,846 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* The percentage bar: the starting amount lined up with 100%, percentages above it, amounts below. */
+  .scene .barbg { fill: var(--k-panel); }
+  .scene .barline { fill: none; stroke: var(--k-strong); stroke-width: 2; }
+  .scene .ext { fill: none; stroke: var(--k-strong); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .part { fill: var(--k-fill1); }
+  /* The change: the piece between the start's end (100%) and the new end, its way shown by an arrow. */
+  .scene .chg { fill: var(--k-fill2); }
+  .scene .cut { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .flow { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .head { fill: var(--k-ink); }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tick.m { stroke: var(--k-muted); stroke-width: 1.2; }
+  .scene .pct { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .amt { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .inl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* The new end: a line through the bar; its amount below, in the colour of the main thing. */
+  .scene .mk { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .val { font: 700 14px var(--k-font); fill: var(--k-accent2); }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .note { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .brk { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .sum { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .sum.m { fill: var(--k-muted); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene #art * { pointer-events: none; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: grab; touch-action: none; }
+  .scene .hit.locked { cursor: default; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .row.nudge { flex-wrap: nowrap; }
+  .nudge .k-btn { flex: 1 1 0; min-height: 48px; min-width: 0; white-space: nowrap; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A percentage bar, the start lined up with 100% and the amounts underneath.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 219" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="row nudge" id="nudge" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Change ÷ original × 100. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // B: the bar a step draws: the start (from, lined up with 100%), the new amount (to), their unit,
+  // and the scale's end (max: 150% when there is room for a rise, else 100%). share writes the new
+  // amount as a percentage of the start, and the multiplier inside the bar; points puts a brace under
+  // the two amounts for the gap in percentage points. rows: the working written under the bar.
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays; at: when
+  // each part of that motion arrives (seconds after Check); a row time of null means it is part of
+  // the question, shown from the start. slips: which common mistake gives each wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  const M = '−';
+  // After a right answer: the end slides to the new amount, its amount, the change's tag, the working.
+  const FB = { slide: [0.15, 0.6], amt: 0.55, tag: 0.95, rows: [1.3, 1.85] };
+  const STEPS = [
+    { show: true, demo: 'rise', dur: 4.2, name: 'Change from the start', B: { from: 40, to: 50, unit: 'A', max: 150 },
+      rows: ['50 − 40 = 10 A', '10 ÷ 40 × 100 = 25%'],
+      text: 'A *percentage change* compares the change with where you started. 40 A up to 50 A is a 10 A rise. 10 ÷ 40 × 100 = 25%, so it is up 25%.' },
+    { kind: 'drag', name: 'Slide to the change', B: { from: 50, to: 60, unit: 'm', max: 150 }, target: 120, want: '+20%', fb: 2.0,
+      rows: ['60 − 50 = 10 m', '10 ÷ 50 × 100 = 20%'],
+      at: { amt: 0.15, rows: [0.75, 1.35] },
+      task: 'A 50 m cable run is made 60 m long. Slide the end of the bar until the tag shows its percentage change.',
+      empty: 'Slide the end of the bar first.',
+      why: 'The change is 60 − 50 = 10 m, and the start is 50 m. 10 ÷ 50 × 100 = 20%, so the end sits at 120%, up 20%.',
+      hint: 'Not quite. Find the change in metres, then divide it by the 50 m start.',
+      near: 'Nearly. 10 ÷ 50 = 0.2, so slide to the change that matches.',
+      below: 'Not quite. The run got longer, so its end goes past 100%.',
+      hints: { 110: 'Not quite. 10 m is the change in metres, not a percentage. Work out 10 ÷ 50 × 100.',
+        115: 'Not quite. That is about 10 ÷ 60, the length it ended at. Divide the 10 m by the 50 m start.' } },
+    { show: true, demo: 'fall', dur: 4.2, name: 'A fall', B: { from: 250, to: 200, unit: '£', max: 100 },
+      rows: ['£200 − £250 = −£50', '−50 ÷ 250 × 100 = −20%'],
+      text: 'A fall works the same way, and its change comes out negative. £250 down to £200 is a change of −£50. −50 ÷ 250 × 100 = −20%, a 20% fall.' },
+    { kind: 'pick', name: 'A sale price', B: { from: 50, to: 30, unit: '£', max: 100 },
+      rows: ['£30 − £50 = −£20', '−20 ÷ 50 × 100 = −40%'],
+      opts: ['−40%', '−66.7%', '60%'], want: '−40%', slips: { '−66.7%': 'newBase', '60%': 'share' }, fb: 2.45, at: FB,
+      task: 'A £50 tool is cut to £30 in a sale. What is the percentage change?',
+      why: 'The change is £30 − £50 = −£20, and the start is £50. −20 ÷ 50 × 100 = −40%, a 40% cut.',
+      hint: 'Not quite. Divide the change by the £50 you started with.',
+      hints: { '−66.7%': 'Not quite. That divides by the £30 it ended at. Divide the −£20 change by the £50 start.',
+        '60%': 'Not quite. 30 ÷ 50 = 60% is the new price as a share of the old. The change is the part that is gone.' } },
+    { show: true, demo: 'base', dur: 4.0, name: 'Divide by the start', B: { from: 250, to: 200, unit: '£' },
+      rows: ['50 ÷ 250 × 100 = 20%', '50 ÷ 200 × 100 = 25%'],
+      text: 'Divide by the *original*, where you started. The same £50 is 20% of the £250 start but 25% of the £200 end. Only the first is the percentage change, a 20% fall.' },
+    { kind: 'pick', name: 'Which start?', B: { from: 160, to: 200, unit: '£', max: 150 },
+      rows: ['£200 − £160 = £40', '40 ÷ 160 × 100 = 25%'],
+      opts: ['+25%', '+20%', '+40%'], want: '+25%', slips: { '+20%': 'newBase', '+40%': 'changeAsPct' }, fb: 2.45, at: FB,
+      task: 'A supplier puts a £160 price up to £200. What is the percentage change?',
+      why: 'The change is £200 − £160 = £40, and the start is £160. 40 ÷ 160 × 100 = 25%. Dividing by the £200 would compare the rise with where it ended.',
+      hint: 'Not quite. Divide the £40 rise by where it started.',
+      hints: { '+20%': 'Not quite. That divides by the new £200. Divide the £40 by the £160 you started from.',
+        '+40%': 'Not quite. £40 is the rise in pounds, not a percentage. Work out 40 ÷ 160 × 100.' } },
+    { kind: 'pick', name: 'Back down', B: { from: 50, to: 40, unit: 'A', max: 100 },
+      rows: ['40 − 50 = −10 A', '−10 ÷ 50 × 100 = −20%'],
+      opts: ['−20%', '−25%', '80%'], want: '−20%', slips: { '−25%': 'newBase', '80%': 'share' }, fb: 2.45, at: FB,
+      task: 'A load rises from 40 A to 50 A, up 25%. It then falls back to 40 A. What is that percentage change?',
+      why: 'The fall is 10 A, but now the start is 50 A. −10 ÷ 50 × 100 = −20%. The same 10 A is a bigger share of the smaller 40 A, which is why the rise was 25%.',
+      hint: 'Not quite. Divide the change by the 50 A it started from.',
+      hints: { '−25%': 'Not quite. That divides by the 40 A it ended at. This time the start is 50 A.',
+        '80%': 'Not quite. 40 ÷ 50 = 80% is the new load as a share of the old. The change is the part that is gone.' } },
+    { show: true, demo: 'mult', dur: 4.5, name: 'The multiplier', B: { from: 40, to: 50, unit: 'A', max: 150, share: true },
+      rows: ['50 ÷ 40 = 1.25', '125% − 100% = 25%'],
+      text: 'Or divide new by original for the multiplier. 50 ÷ 40 = 1.25, so the new load is 125% of the start. Take off the 100% you began with, and the change is +25%.' },
+    { kind: 'pick', name: 'From a multiplier', B: { from: 80, to: 68, unit: '£', max: 100, share: true },
+      rows: ['68 ÷ 80 = 0.85', '85% − 100% = −15%'],
+      opts: ['−15%', '85%', '−0.15%'], want: '−15%', slips: { '85%': 'share', '−0.15%': 'noTimes' }, fb: 2.45,
+      at: { slide: [0.15, 0.6], amt: 0.55, share: 0.75, tag: 0.95, rows: [null, 1.85] },
+      task: 'An £80 part is now £68, and 68 ÷ 80 = 0.85. What is the percentage change?',
+      why: '68 ÷ 80 = 0.85, so £68 is 85% of the start. Take off the 100% you started with, 85% − 100% = −15%. The fall is £12, and 12 ÷ 80 × 100 = 15% too.',
+      hint: 'Not quite. Turn 0.85 into a percentage, then take off the 100% you started with.',
+      hints: { '85%': 'Not quite. 85% is the new price as a share of the old. Take off the 100% to find the change.',
+        '−0.15%': 'Not quite. −0.15 is the change as a decimal. Times it by 100.' } },
+    { show: true, demo: 'points', dur: 4.5, name: 'Percentage points', B: { from: 40, to: 50, unit: '%', max: 150, points: true },
+      rows: ['50% − 40% = 10 points', '10 ÷ 40 × 100 = 25%'],
+      text: 'When the amounts are percentages, the gap between them is in *percentage points*. The humidity in a plant room going from 40% to 50% is up 10 points, but up 25%.' },
+    { kind: 'pick', name: 'Points again', B: { from: 50, to: 60, unit: '%', max: 150, points: true },
+      rows: ['60% − 50% = 10 points', '10 ÷ 50 × 100 = 20%'],
+      opts: ['+20%', '+10%', '+16.7%'], want: '+20%', slips: { '+10%': 'changeAsPct', '+16.7%': 'newBase' }, fb: 2.45,
+      at: { slide: [0.15, 0.6], amt: 0.55, pts: 0.75, tag: 0.95, rows: [1.3, 1.85] },
+      task: 'The humidity in the plant room then goes from 50% to 60%. What is the percentage change?',
+      why: 'It is up 10 percentage points again, but the start is now 50%. 10 ÷ 50 × 100 = 20%, so the same 10 points is a smaller rise than before.',
+      hint: 'Not quite. Divide the 10 points by the 50% you started from.',
+      hints: { '+10%': 'Not quite. 10 is the gap in percentage points. As a percentage change, divide it by the 50% start.',
+        '+16.7%': 'Not quite. That divides by the 60% it ended at. Divide by the 50% start.' } },
+    { kind: 'pick', name: 'All together', B: { from: 64, to: 48, unit: 'A', max: 100 },
+      rows: ['48 − 64 = −16 A', '−16 ÷ 64 × 100 = −25%'],
+      opts: ['−25%', '−33.3%', '75%'], want: '−25%', slips: { '−33.3%': 'newBase', '75%': 'share' }, fb: 2.45, at: FB,
+      task: 'Put it together. A 64 A load falls to 48 A. What is the percentage change?',
+      why: 'The change is 48 − 64 = −16 A, and the start is 64 A. −16 ÷ 64 × 100 = −25%, a 25% fall. As a check, 48 ÷ 64 = 0.75, so 48 A is 75% of the start.',
+      hint: 'Not quite. Find the change, then divide it by the 64 A start.',
+      hints: { '−33.3%': 'Not quite. That divides by the 48 A it ended at. Divide by the 64 A start.',
+        '75%': 'Not quite. 75% is the new load as a share of the old. The change is the part that is gone.' } },
+  ];
+  const FINISH = 'Percentage change is the change ÷ the original × 100. Divide by where you started, read a minus sign as a fall, and call the gap between two percentages percentage points.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled).
+  const FADE = 0.35;
+  const AT = {
+    // the start; its end slides to the new amount; that amount; the change's tag; the working
+    rise: { whole: 0.5, slide: [1.0, 0.8], amt: 1.6, tag: 2.2, rows: [2.8, 3.4] },
+    fall: { whole: 0.5, slide: [1.0, 0.8], amt: 1.6, tag: 2.2, rows: [2.8, 3.4] },
+    // ... then the new amount as a percentage of the start, and the multiplier, before the tag
+    mult: { whole: 0.5, slide: [1.0, 0.8], amt: 1.6, share: 2.2, tag: 2.8, rows: [3.3, 3.8] },
+    // ... then the brace under the two percentages for the gap in points, before the tag
+    points: { whole: 0.5, slide: [1.0, 0.8], amt: 1.6, pts: 2.2, tag: 2.8, rows: [3.3, 3.8] },
+    // the £250 start and its £50 fall; 20% of it; the £200 end; the £50 piece moves down to it; 25% of it
+    base: { whole: 0.5, tag1: 1.1, bar2: 1.7, move: [2.3, 0.7], tag2: 3.1, rows: [1.1, 3.1] },
+  };
+  // Drawing sizes, in viewBox units (340 wide). The bar runs BX0..BX1 for its scale (100%, or 150%
+  // with room for a rise), BY..BB tall. Above it: the change's tag (TY, TH tall, its point at TP), the
+  // brace under the tag at BRY, the percentages at SLY. Below it: the amounts at ALY (a new amount
+  // too close to the start's drops to ALY2). The working's rows follow from ROW0, ROWH apart.
+  const BX0 = 26, BX1 = 304, BW = BX1 - BX0, BY = 68, BH = 36, BB = BY + BH;
+  const TY = 0, TH = 26, TP = 32, BRY = 36, SLY = 58, ALY = 125, ALY2 = 143, ROW0 = 171, ROWH = 34;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const roundTo = (v, n) => Math.round(v * Math.pow(10, n) + (v < 0 ? -1e-9 : 1e-9)) / Math.pow(10, n);
+  // The rule: the change (new − start) as a percentage of the start.
+  const change = (a, b) => (b - a) / a * 100;
+  const pctOf = (B) => B.to / B.from * 100;            // the new amount as a percentage of the start
+  const dpOf = (s) => { const m = /\.(\d+)/.exec(String(s)); return m ? m[1].length : 0; };
+  // A written number back to its value ("−£50" -> -50, "+25%" -> 25, "1,500" -> 1500).
+  const valueOf = (s) => Number(String(s).replace(/−/g, '-').replace(/[^\d.\-]/g, ''));
+  function group(s) { const p = String(s).split('.'); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (p[1] ? '.' + p[1] : ''); }
+  // A percentage at n decimal places (whole ones as they are: 25%, 0.15%).
+  function pctText(v, n) { if (n == null) n = same(v, Math.round(v)) ? 0 : 1; return (v < 0 ? M : '') + group(roundTo(Math.abs(v), n).toFixed(n)) + '%'; }
+  // A change, signed: +25%, −20%, 0%.
+  const chText = (c, n) => (roundTo(c, 3) > 0 ? '+' : '') + pctText(c, n);
+  function amtText(v, unit) {
+    const s = group(String(roundTo(Math.abs(v), 3))), sg = v < 0 ? M : '';
+    return unit === '£' ? sg + '£' + s : unit === '%' ? sg + s + '%' : unit ? sg + s + ' ' + unit : sg + s;
+  }
+  // What each common slip gives for a start a and a new amount b: the change over the new amount;
+  // the new amount as a share of the start, read as the change; the change's own number read as a
+  // percentage (or a gap in points read as one); the change as a decimal, not times 100.
+  const SLIP = {
+    newBase: (a, b) => (b - a) / b * 100,
+    share: (a, b) => b / a * 100,
+    changeAsPct: (a, b) => b - a,
+    noTimes: (a, b) => (b - a) / a,
+  };
+  const answerOf = (d) => change(d.B.from, d.B.to);
+  const slipOf = (d, o) => roundTo(SLIP[d.slips[o]](d.B.from, d.B.to), dpOf(o));
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/£(\d[\d,.]*)/g, '$1 pounds').replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/=/g, ' equals ')
+    .replace(/(\d) ?%/g, '$1 percent').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/(\d) A\b/g, '$1 amps').replace(/(\d) m\b/g, '$1 metres')
+    .replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, at: null, res: null, why: false }; }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'drag') return st.at == null ? d.empty : '';
+    return st.pick == null ? PICK : '';
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (isEmpty(i, st)) return false;
+    if (d.kind === 'drag') return st.at === d.target;
+    return st.pick === d.want;
+  }
+  // A wrong answer's hint names its slip.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'drag') return d.hints[st.at] || (st.at < 100 ? d.below : Math.abs(st.at - d.target) <= 5 ? d.near : d.hint);
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'drag') st.at = d.target; else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A number keeps its sign and unit, and a sum stays on one line ("10 ÷ 40 × 100", "−£50", "40 A"),
+  // with the stop after it (a sign is never left at a line's end); a long one may break only before an equals sign.
+  const TOK = '[+−]?£?\\d[\\d,]*(?:\\.\\d+)?(?: ?%| (?:V|A|W|m|Ω)(?![A-Za-z]))?';
+  const GLUE = new RegExp(TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/[ −+]/.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const live = (i) => !finished && at() === i && S[i].res !== 'right';
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The end of the bar slid on by 5% either way (the slide puzzle), from 50% to 150% of the start.
+  function slide(i, v) {
+    const st = S[i];
+    if (!live(i) || STEPS[i].kind !== 'drag') return;
+    st.at = K.clamp(Math.round(v / 5) * 5, 50, 150); st.res = null;
+    K.reveal(); K.refresh();
+  }
+  const nudgeBtns = [-1, 1].map((dir) => K.button({ label: dir < 0 ? M + ' 5%' : '+ 5%', secondary: true, into: '#nudge', press: () => {
+    const i = at();
+    slide(i, (S[i].at == null ? 100 : S[i].at) + 5 * dir);
+  } }));
+  nudgeBtns[0].el.setAttribute('aria-label', 'Move the end of the bar back 5 percent');
+  nudgeBtns[1].el.setAttribute('aria-label', 'Move the end of the bar on 5 percent');
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after a right answer, from its start;
+  // with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null, H = 219;                          // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity, starts = [];
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    starts.push(t0);
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function fadeIn(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const pathOf = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { sum: 20, tagt: 15 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // A label kept inside the picture: its middle moved in so it never runs past either side.
+  const inside = (x, s, cls) => { const w = tw(s, cls) / 2 + 3; return K.clamp(x, w, 340 - w); };
+
+  // --- the bar ---
+  // The scale: percentage p sits at x(p), from 0 at BX0 to `max` at BX1.
+  const geom = (max) => ({ max: max, x: (p) => BX0 + BW * p / max });
+  // How far a scale label at x (w wide) gives way to the marks in `near` ([{x, w, a}]): gone by the
+  // time a mark that would touch it is half-way in, so the two never show together.
+  const yieldTo = (near, x, w) => Math.min(1, 2 * near.filter((n) => Math.abs(n.x - x) < (w + n.w) / 2 + 4).reduce((m, n) => Math.max(m, n.a), 0));
+  // The start lined up with 100%: a dashed outline for the room past 100% when the scale has it,
+  // percentages along the top every 10% (0% and 100% named), amounts along the bottom (0 and the
+  // start). `inner`: what is drawn inside the bar, between its background and its outline.
+  function frame(g, B, o, inner) {
+    const x100 = g.x(100);
+    rect('barbg', BX0, BY, x100 - BX0, BH);
+    if (g.max > 100.001) rect('ext', x100, BY, g.x(g.max) - x100, BH);
+    if (inner) inner();
+    rect('barline', BX0, BY, x100 - BX0, BH);
+    for (let p = 0; p <= g.max + 1e-9; p += 10) {
+      const big = p % 50 === 0, x = g.x(p);
+      line('tick' + (big ? '' : ' m'), x, big ? SLY + 2 : BY - 5, x, BY);
+    }
+    [0, 100].forEach((p) => {
+      const s = pctText(p), x = g.x(p), k = yieldTo(o.near || [], x, tw(s, 'pct'));
+      const draw = () => text(x, SLY, s, 'pct');
+      if (!k) draw(); else leave(k, draw);
+    });
+    [[0, '0'], [100, amtText(B.from, B.unit)]].forEach((m) => {
+      const x = g.x(m[0]);
+      line('tick', x, BB, x, BB + 6);
+      text(inside(x, m[1], 'amt'), ALY, m[1], 'amt');
+    });
+  }
+  const fillBar = (g, p0, p1, cls) => { if (p1 > p0) rect(cls, g.x(p0), BY, g.x(p1) - g.x(p0), BH); };
+  // The change: the piece between 100% and the end, wherever the end is.
+  const chgPiece = (g, end) => fillBar(g, Math.min(end, 100), Math.max(end, 100), 'chg');
+  // The bar with its end at `end`: the start's share filled, the change piece, and past 100% the
+  // new bar's own outline.
+  function barTo(g, B, o, end) {
+    frame(g, B, o, () => { fillBar(g, 0, Math.min(end, 100), 'part'); chgPiece(g, end); });
+    if (end > 100.001) rect('barline', g.x(100), BY, g.x(end) - g.x(100), BH);
+  }
+  // The way of the change: an arrow along the middle of its piece, from 100% to the end.
+  function arrowIn(g, end) {
+    const x0 = g.x(100), x1 = g.x(end), s = x1 > x0 ? 1 : -1, y = BY + BH / 2;
+    if (Math.abs(x1 - x0) < 18) return;
+    line('flow', x0 + s * 5, y, x1 - s * 6, y);
+    pathOf('head', 'M' + (x1 - s * 3).toFixed(2) + ' ' + y + ' L' + (x1 - s * 12).toFixed(2) + ' ' + (y - 6) + ' L' + (x1 - s * 12).toFixed(2) + ' ' + (y + 6) + ' Z');
+  }
+  const endLine = (g, end) => line('mk', g.x(end), BY - 6, g.x(end), BB + 6);
+  // The tag above the change piece, its point on the brace that spans the piece: the change.
+  function tag(x, s) {
+    const w = Math.max(44, tw(s, 'tagt') + 18), bx = K.clamp(x - w / 2, 2, 338 - w);
+    pathOf('tag', 'M' + (x - 6).toFixed(2) + ' ' + (TY + TH - 1) + ' L' + x.toFixed(2) + ' ' + TP + ' L' + (x + 6).toFixed(2) + ' ' + (TY + TH - 1) + ' Z');
+    rect('tag', bx, TY, w, TH, 7);
+    text(bx + w / 2, TY + 18.5, s, 'tagt k-nohalo');
+  }
+  function changeTag(g, end, s, a) {
+    const x0 = g.x(100), x1 = g.x(end), lo = Math.min(x0, x1), hi = Math.max(x0, x1);
+    fadeIn(a, 4, () => {
+      if (hi - lo > 4) pathOf('brk', 'M' + (lo + 1).toFixed(2) + ' ' + (BRY + 6) + ' V' + BRY + ' H' + (hi - 1).toFixed(2) + ' V' + (BRY + 6));
+      tag((x0 + x1) / 2, s);
+    });
+  }
+  // The new amount under the end (dropped a row when it would touch the start's amount).
+  function endAmount(g, B, a) {
+    const p = pctOf(B), x = g.x(p), s = amtText(B.to, B.unit), w = tw(s, 'val'), w0 = tw(amtText(B.from, B.unit), 'amt');
+    const low = Math.abs(x - g.x(100)) < (w + w0) / 2 + 3;
+    fadeIn(a, 4, () => { line('mk', x, BB, x, low ? ALY2 - 15 : BB + 6); text(inside(x, s, 'val'), low ? ALY2 : ALY, s, 'val'); });
+  }
+  // The new amount as a percentage of the start, above the end, and the multiplier inside the bar.
+  function shareParts(g, B, a) {
+    const p = pctOf(B), mult = roundTo(B.to / B.from, 3);
+    fadeIn(a, 4, () => {
+      text(g.x(p), SLY, pctText(p), 'val');
+      text((BX0 + g.x(p)) / 2, BY + 23, '× ' + mult, 'inl');
+    });
+  }
+  // Under the two amounts, a brace for the gap between them in percentage points.
+  function pointsBrace(g, B, a) {
+    const x0 = g.x(100), x1 = g.x(pctOf(B)), y = ALY + 14, s = roundTo(Math.abs(B.to - B.from), 3) + ' percentage points';
+    fadeIn(a, 4, () => {
+      pathOf('brk', 'M' + (x0 + 1).toFixed(2) + ' ' + (y - 6) + ' V' + y + ' H' + (x1 - 1).toFixed(2) + ' V' + (y - 6));
+      text(inside((x0 + x1) / 2, s, 'note'), y + 20, s, 'note');
+    });
+  }
+  // The working, centred under the picture from y0: each row risen in as its arrival goes 0 -> 1; a
+  // row whose time is null is part of the question and stands from the start. Until the last row
+  // arrives, a dashed slot holds its place.
+  function rows(list, as, y0, o) {
+    o = o || {};
+    list.forEach((s, k) => {
+      const y = y0 + k * ROWH, cls = 'sum' + (o.muted && o.muted[k] ? ' m' : '');
+      fadeIn(as[k], 6, () => text(170, y, s, cls));
+    });
+    if (!o.slot) return;
+    const k = list.length - 1, w = 132, y = y0 + k * ROWH;
+    leave(as[k], () => rect('gapbox', 170 - w / 2, y - 21, w, 29, 5));
+  }
+  const rowsTop = (d) => (d.demo === 'base' ? 226 : d.B.points ? ROW0 + 24 : ROW0);
+  const heightOf = (d) => rowsTop(d) + (d.rows.length - 1) * ROWH + 14;
+  const said = (list, as) => { const shown = list.filter((s, k) => as[k] >= 0.5); return shown.length ? ' Below, the working: ' + shown.map(say).join(', then ') + '.' : ''; };
+
+  // --- a change: the end slides from 100% to the new amount, its amount, the change's tag, the working ---
+  // A: the timetable; live: whether it plays (a puzzle before its right answer shows only the start).
+  function changeScene(d, A, live) {
+    const B = d.B, g = geom(B.max), p = pctOf(B), ch = change(B.from, B.to);
+    const ar = (t, dur) => (t === null ? 1 : live && t != null ? arr(t, dur) : 0);
+    const whole = A.whole != null ? ar(A.whole) : 1;
+    const se = ar(A.slide[0], A.slide[1]), end = K.lerp(100, p, se);
+    const am = ar(A.amt), tg = ar(A.tag), sh = B.share ? ar(A.share) : 0, pt = B.points ? ar(A.pts) : 0;
+    const chS = chText(ch), shS = pctText(p), toS = amtText(B.to, B.unit), fromS = amtText(B.from, B.unit);
+    fadeIn(whole, 0, () => {
+      barTo(g, B, { near: [{ x: g.x(p), w: tw(shS, 'val'), a: sh }] }, end);
+      if (se > 0) { fadeIn(K.clamp((Math.abs(g.x(end) - g.x(100)) - 18) / 18, 0, 1), 0, () => arrowIn(g, end)); fadeIn(Math.min(1, 6 * se), 0, () => endLine(g, end)); }
+      endAmount(g, B, am);
+      if (B.share) shareParts(g, B, sh);
+      if (B.points) pointsBrace(g, B, pt);
+      changeTag(g, p, chS, tg);
+    });
+    const ra = d.rows.map((s, k) => ar(A.rows[k]));
+    rows(d.rows, ra, rowsTop(d), { slot: !d.show });
+    const up = p > 100;
+    return 'A bar for the start, ' + say(fromS) + ', lined up with 100 percent' + (g.max > 100 ? ', with room past 100 percent' : '') + '.' +
+      (se >= 1 ? ' Its end has moved ' + (up ? 'on past 100 percent' : 'back from 100 percent') + ' to ' + say(toS) + ', ' + say(shS) + ' of the start, and the piece between is the change, with an arrow pointing ' + (up ? 'right' : 'left') + '.' : se > 0 ? ' Its end is moving.' : '') +
+      (sh >= 0.5 ? ' Above the end, ' + say(shS) + '; inside the bar, times ' + roundTo(B.to / B.from, 3) + '.' : '') +
+      (pt >= 0.5 ? ' Under the two amounts, a brace: ' + roundTo(Math.abs(B.to - B.from), 3) + ' percentage points.' : '') +
+      (tg >= 0.5 ? ' A tag over the change says ' + say(chS) + '.' : '') + said(d.rows, ra) +
+      (!d.show && ra[ra.length - 1] < 0.5 ? ' An empty box waits for the answer.' : '');
+  }
+
+  // --- the same £50 against two starts: the £250 it fell from, and the £200 it fell to ---
+  // Both bars on one scale of pounds, so the £50 piece is the same length on each.
+  function demoBase(d, A) {
+    const B = d.B, top = B.from, bot = B.to, gap = top - bot, mx = (m) => BX0 + BW * m / top;
+    const Y1 = 44, Y2 = 146, h = 28, pw = mx(gap) - mx(0);
+    const w1 = arr(A.whole), t1 = arr(A.tag1), b2 = arr(A.bar2), mv = arr(A.move[0], A.move[1]), t2 = arr(A.tag2);
+    const gapS = amtText(gap, B.unit), p1 = pctText(gap / top * 100), p2 = pctText(gap / bot * 100);
+    const piece = (x, y) => { rect('chg', x, y, pw, h); text(x + pw / 2, y + 19, gapS, 'inl'); };
+    const brace = (x0, x1, y) => pathOf('brk', 'M' + (x0 + 1).toFixed(2) + ' ' + (y + 6) + ' V' + y + ' H' + (x1 - 1).toFixed(2) + ' V' + (y + 6));
+    const amts = (list, y) => list.forEach((m) => { const x = mx(m[0]); line('tick', x, y - 18, x, y - 12); text(inside(x, m[1], 'amt'), y, m[1], 'amt'); });
+    fadeIn(w1, 0, () => {
+      text(BX0, Y1 - 24, amtText(top, B.unit) + ' start = 100%', 'note', 'start');
+      rect('barbg', BX0, Y1, mx(top) - BX0, h);
+      rect('part', BX0, Y1, mx(bot) - BX0, h);
+      piece(mx(bot), Y1);
+      rect('barline', BX0, Y1, mx(top) - BX0, h);
+      amts([[0, '0'], [bot, amtText(bot, B.unit)], [top, amtText(top, B.unit)]], Y1 + h + 18);
+    });
+    fadeIn(t1, 4, () => { brace(mx(bot), mx(top), Y1 - 8); text(inside((mx(bot) + mx(top)) / 2, p1, 'note'), Y1 - 13, p1, 'note'); });
+    fadeIn(b2, 0, () => {
+      text(BX0, Y2 - 24, amtText(bot, B.unit) + ' end = 100%', 'note', 'start');
+      rect('barbg', BX0, Y2, mx(bot) - BX0, h);
+      rect('part', BX0, Y2, mx(bot - gap) - BX0, h);
+      rect('barline', BX0, Y2, mx(bot) - BX0, h);
+      amts([[0, '0'], [bot, amtText(bot, B.unit)]], Y2 + h + 18);
+    });
+    // the £50 piece copied from the first bar down into the end of the second
+    if (mv > 0) piece(K.lerp(mx(bot), mx(bot - gap), mv), K.lerp(Y1, Y2, mv));
+    fadeIn(t2, 4, () => { brace(mx(bot - gap), mx(bot), Y2 - 8); text(inside((mx(bot - gap) + mx(bot)) / 2, p2, 'note'), Y2 - 13, p2, 'note'); });
+    const ra = [arr(A.rows[0]), arr(A.rows[1])];
+    rows(d.rows, ra, rowsTop(d), { muted: [false, true] });
+    return 'Two bars on one scale of pounds. Above, the ' + say(amtText(top, B.unit)) + ' start lined up with 100 percent; its last ' + say(gapS) + ' is the fall' +
+      (t1 >= 0.5 ? ', and a brace over it says ' + say(p1) : '') + '.' +
+      (b2 >= 0.5 ? ' Below, the ' + say(amtText(bot, B.unit)) + ' end lined up with 100 percent' + (mv >= 1 ? ', the same ' + say(gapS) + ' piece filling its last part' : '') + (t2 >= 0.5 ? ', and a brace over it says ' + say(p2) : '') + '.' : '') +
+      said(d.rows, ra);
+  }
+
+  // --- the slide puzzle: Dan slides the end of the bar; the tag reads the change as it goes ---
+  function drawDrag(d, st, right) {
+    const B = d.B, g = geom(B.max), v = st.at == null ? 100 : st.at, F = d.at;
+    const am = right ? arr(F.amt) : 0, chS = chText(v - 100);
+    barTo(g, B, {}, v);
+    if (right) fadeIn(am, 0, () => arrowIn(g, v));
+    endLine(g, v);
+    if (!right) circle('knob', g.x(v), BY + BH / 2, 10); else leave(am, () => circle('knob', g.x(v), BY + BH / 2, 10));
+    if (right) endAmount(g, B, am);
+    changeTag(g, v, chS, 1);
+    const ra = d.rows.map((s, k) => (right ? arr(F.rows[k]) : 0));
+    rows(d.rows, ra, rowsTop(d), { slot: true });
+    return 'A bar for the start, ' + say(amtText(B.from, B.unit)) + ', lined up with 100 percent, with room past 100 percent. Its end is at ' + v + ' percent' +
+      (right ? ', at ' + say(amtText(B.to, B.unit)) : '') + '; a tag over the change says ' + say(chS) + '.' +
+      (said(d.rows, ra) || ' An empty box waits for the answer.');
+  }
+  // The place Dan slides along is kept across repaints (the picture is redrawn every frame), so
+  // keyboard focus survives: the whole bar and the tag above it, a thumb's height and more.
+  const hit = ui.appendChild(K.svg('rect', { class: 'hit', role: 'slider', tabindex: -1, x: 4, y: 0, width: 332, height: BB + 10, 'aria-valuemin': 50, 'aria-valuemax': 150 }));
+  hit.style.display = 'none';
+  let grab = null;
+  function svgX(e) {
+    const m = svg.getScreenCTM();
+    return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()).x : null;
+  }
+  const toPct = (x) => (x - BX0) / BW * 150;
+  hit.addEventListener('pointerdown', (e) => {
+    const i = at();
+    if (!live(i) || STEPS[i].kind !== 'drag' || e.button > 0) return;
+    e.preventDefault();
+    grab = { id: e.pointerId, i: i };
+    try { hit.setPointerCapture(e.pointerId); } catch (x) { /* the slide still follows inside the bar */ }
+    const x = svgX(e);
+    if (x != null) slide(i, toPct(x));
+  });
+  hit.addEventListener('pointermove', (e) => {
+    if (!grab || grab.id !== e.pointerId || !live(grab.i)) return;
+    e.preventDefault();
+    const x = svgX(e);
+    if (x != null) slide(grab.i, toPct(x));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => hit.addEventListener(n, (e) => { if (grab && grab.id === e.pointerId) grab = null; }));
+  hit.addEventListener('touchstart', (e) => { if (live(at()) && STEPS[at()].kind === 'drag') e.preventDefault(); }, { passive: false });
+  hit.addEventListener('keydown', (e) => {
+    const i = at(), step = { ArrowUp: 5, ArrowRight: 5, ArrowDown: -5, ArrowLeft: -5, PageUp: 25, PageDown: -25 }[e.key];
+    if (!step || !live(i) || STEPS[i].kind !== 'drag') return;
+    e.preventDefault(); slide(i, (S[i].at == null ? 100 : S[i].at) + step);
+  });
+  function placeHit(d, st, right) {
+    const on = d.kind === 'drag';
+    hit.style.display = on ? '' : 'none';
+    hit.setAttribute('tabindex', on && !right ? '0' : '-1');
+    hit.setAttribute('class', 'hit' + (on && right ? ' locked' : ''));
+    if (!on) return;
+    const v = st.at == null ? 100 : st.at;
+    hit.setAttribute('aria-label', 'The end of the bar. Slide it left or right in steps of 5 percent.');
+    hit.setAttribute('aria-valuenow', v);
+    hit.setAttribute('aria-valuetext', v + ' percent of the start, a change of ' + say(chText(v - 100)));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    let aria;
+    if (d.show) aria = d.demo === 'base' ? demoBase(d, AT.base) : changeScene(d, AT[d.demo], true);
+    else if (d.kind === 'drag') aria = drawDrag(d, st, right);
+    else aria = changeScene(d, d.at, right);
+    placeHit(d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('nudge').hidden = d.kind !== 'drag' || right;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    // At a large text size (Text size XL) a six-character answer (−33.3%) would fill its button edge to edge.
+    const big = parseFloat(getComputedStyle(document.documentElement).fontSize) > 18;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6 || (big && o.length >= 6)));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const PICKS = DO.filter((i) => STEPS[i].opts);
+  const DRAG_I = STEPS.findIndex((d) => d.kind === 'drag');
+  // A row of working ("50 − 40 = 10 A", "−50 ÷ 250 × 100 = −20%", "68 ÷ 80 = 0.85",
+  // "125% − 100% = 25%", "50% − 40% = 10 points") worked left to right: its two sides agree at the
+  // decimals written on the right.
+  function rowHolds(s) {
+    const sides = s.replace(/£/g, '').replace(/%/g, '').replace(/ (?:A|m|points)\b/g, '').split(' = ');
+    if (sides.length !== 2) return false;
+    const toks = sides[0].split(' ');
+    let v = valueOf(toks[0]);
+    for (let k = 1; k + 1 < toks.length; k += 2) {
+      const op = toks[k], n = valueOf(toks[k + 1]);
+      v = op === M ? v - n : op === '÷' ? v / n : op === '×' ? v * n : NaN;
+    }
+    return toks.length % 2 === 1 && same(roundTo(v, dpOf(sides[1])), valueOf(sides[1]));
+  }
+  const lastOf = (d) => valueOf(d.rows[d.rows.length - 1].split(' = ')[1]);
+  K.check('Percentage change is the actual change as a fraction of the original amount, converted to a percentage: 40 A to 50 A is +25%, 50 m to 60 m +20%, £250 to £200 −20%, £50 to £30 −40%, £160 to £200 +25%, 50 A to 40 A −20%, £80 to £68 −15%, 64 A to 48 A −25%; every row of working holds, and each screen\'s last row is its change', () =>
+    same(change(40, 50), 25) && same(change(50, 60), 20) && same(change(250, 200), -20) && same(change(50, 30), -40) && same(change(160, 200), 25) &&
+    same(change(50, 40), -20) && same(change(80, 68), -15) && same(change(64, 48), -25) && STEPS.every((d) => d.rows.every(rowHolds)) &&
+    STEPS.filter((d) => d.demo !== 'base').every((d) => same(lastOf(d), roundTo(answerOf(d), dpOf(d.rows[d.rows.length - 1])))));
+  K.check('Each puzzle accepts only its own answer, the change over the start × 100, and every wrong answer offered is the one a named slip gives: dividing by the new amount, the new amount read as the change, the change\'s own number read as a percentage, the decimal left without × 100', () =>
+    PICKS.length === 6 && PICKS.every((i) => {
+      const d = STEPS[i], ok = d.opts.filter((o) => !/^\d/.test(o) && same(valueOf(o), roundTo(answerOf(d), dpOf(o))));
+      return d.opts.length === 3 && ok.join() === d.want && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)) &&
+        Object.keys(d.slips).length === 2 && Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && same(slipOf(d, o), valueOf(o)) && !same(slipOf(d, o), roundTo(answerOf(d), dpOf(o))));
+    }));
+  K.check('The slide puzzle accepts only 120% of the 50 m start, a change of +20%, opens with nothing placed, and gives +10% (the 10 m read as a percentage) and a fall its own hints', () => {
+    const d = STEPS[DRAG_I], st = (v) => Object.assign(blank(DRAG_I), { at: v });
+    const all = []; for (let v = 50; v <= 150; v += 5) all.push(v);
+    return same(d.target, pctOf(d.B)) && chText(d.target - 100) === d.want && all.filter((v) => isRight(DRAG_I, st(v))).join() === '120' && isEmpty(DRAG_I, blank(DRAG_I)) &&
+      SLIP.changeAsPct(d.B.from, d.B.to) === 10 && hintFor(DRAG_I, st(110)) === d.hints[110] && hintFor(DRAG_I, st(90)) === d.below && hintFor(DRAG_I, st(125)) === d.near;
+  });
+  K.check('Dividing by the new amount compares the change with the wrong whole: the same £50 is 20% of £250 but 25% of £200, and 40 A up to 50 A is +25% while 50 A back to 40 A is −20%; every rise comes out positive and every fall negative', () =>
+    same(50 / 250 * 100, 20) && same(50 / 200 * 100, 25) && same(change(40, 50), 25) && same(change(50, 40), -20) && same(SLIP.newBase(50, 40), -25) &&
+    STEPS.every((d) => Math.sign(change(d.B.from, d.B.to)) === Math.sign(d.B.to - d.B.from)) && STEPS.some((d) => d.B.to < d.B.from) && STEPS.some((d) => d.B.to > d.B.from));
+  K.check('Dividing the new amount by the start gives the multiplier, and taking off the 100% leaves the change: 50 ÷ 40 = 1.25 is 125%, +25%; 68 ÷ 80 = 0.85 is 85%, −15%; on every screen (new ÷ start − 1) × 100 is the change', () =>
+    same(50 / 40, 1.25) && same(68 / 80, 0.85) && same((50 / 40 - 1) * 100, 25) && same((68 / 80 - 1) * 100, -15) &&
+    STEPS.every((d) => same((d.B.to / d.B.from - 1) * 100, change(d.B.from, d.B.to))));
+  K.check('A percentage point is the difference between percentages: 40% to 50% is 10 points and +25%, and 50% to 60% is the same 10 points but +20%', () =>
+    50 - 40 === 10 && same(change(40, 50), 25) && 60 - 50 === 10 && same(change(50, 60), 20) &&
+    STEPS.filter((d) => d.B.points).length === 2 && STEPS.filter((d) => d.B.points).every((d) => same(valueOf(d.rows[0].split(' = ')[1]), d.B.to - d.B.from)));
+  K.check('On the bar the start lines up with 100%, and the end sits at new ÷ start of that length: past 100% for a rise, short of it for a fall, inside the scale every time; the change piece is the change ÷ start of the 100% length', () =>
+    STEPS.filter((d) => d.B.max).every((d) => {
+      const g = geom(d.B.max), len = g.x(100) - g.x(0), e = g.x(pctOf(d.B));
+      return same((e - g.x(0)) / len, d.B.to / d.B.from) && (d.B.to > d.B.from ? e > g.x(100) : e < g.x(100)) && e <= BX1 + 1e-9 &&
+        same(Math.abs(e - g.x(100)) / len * 100, Math.abs(change(d.B.from, d.B.to)));
+    }));
+  // What the picture writes, as text.
+  const words = () => Array.from(art.querySelectorAll('text')).map((t) => t.textContent);
+  K.check('Before Check, no puzzle\'s picture gives its answer away: only the start is drawn, lined up with 100%, with no change written', () => {
+    const keepT = T;
+    const ok = DO.every((i) => {
+      const keepS = S[i], d = STEPS[i], bare = d.want.replace(/^[+−]/, '');
+      T = Infinity; S[i] = blank(i);
+      let w;
+      try { paint(i); w = words(); } finally { S[i] = keepS; }
+      return w.every((t) => t.replace(/^[+−]/, '') !== bare && t.indexOf('= ' + bare) < 0 && t.indexOf('= ' + M + bare) < 0) && w.indexOf(amtText(d.B.to, d.B.unit)) < 0;
+    });
+    T = keepT; paint();
+    return ok;
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends and its parts at least 0.5 s apart; every answer\'s motion within 2.5 s', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; starts = [];
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const ts = starts.filter((t, k) => starts.indexOf(t) === k).sort((a, b) => a - b);
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE && ts.every((t, k) => k === 0 || t - ts[k - 1] >= 0.5 - 1e-9)
+        : latest <= d.fb && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    return ok;
+  });
+  // What every drawn part of the picture shows, by what it is: a word by its text, any other shape
+  // (a box aside, since a sliding box moves) by its kind; a part in a fading group shows as much as the group lets it.
+  function shown() {
+    const o = {};
+    art.querySelectorAll('text, path, line, circle').forEach((n) => {
+      let a = 1;
+      for (let q = n; q && q !== art; q = q.parentNode) if (q.style && q.style.opacity !== '') a *= Number(q.style.opacity);
+      const key = n.getAttribute('class') + '|' + (n.tagName === 'text' ? n.textContent : n.tagName);
+      o[key] = Math.max(o[key] || 0, a);
+    });
+    return o;
+  }
+  K.check('Nothing pops in or out: every demonstration and every right answer\'s motion, played at 1/60 s, changes no word, line, arrow or knob by more than 0.3 opacity from one frame to the next, and each change arrow ends whole', () => {
+    const keepT = T, dt = 1 / 60;
+    let ok = true, n = 0;
+    STEPS.forEach((d, i) => {
+      const keepS = S[i], end = d.show ? d.dur : d.fb;
+      S[i] = d.show ? blank(i) : solved(i);
+      try {
+        let prev = null;
+        for (let k = 0; k * dt <= end + dt; k++) {
+          T = k * dt; paint(i);
+          const now = shown();
+          if (prev) ok = ok && Object.keys(Object.assign({}, prev, now)).every((key) => Math.abs((prev[key] || 0) - (now[key] || 0)) <= 0.3);
+          prev = now;
+        }
+        if (d.demo !== 'base') { ok = ok && prev['flow|line'] === 1 && prev['head|path'] === 1; n++; }
+      } finally { S[i] = keepS; }
+    });
+    T = keepT; paint();
+    return ok && n === 11;
+  });
+
+  K.ready();
+</script>
