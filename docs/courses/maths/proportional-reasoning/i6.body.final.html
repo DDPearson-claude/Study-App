@@ -1,0 +1,937 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* Blocks in solid ink; on the gauge screens the atmosphere's row of blocks is the light tint. */
+  .scene .b1 { fill: var(--k-accent2); }
+  .scene .b2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .lbl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .nm { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .wk { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  /* The ratio table, as in lessons 2 and 4: a column for each pair, each step written over the top row and under the bottom one. */
+  .scene .rname { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .col { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .mid { stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .val { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent2); }
+  .scene .opl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  /* A mistake shown failing: in the warning colour. */
+  .scene .arc.wrong { stroke: var(--k-warn); }
+  .scene .head.wrong { fill: var(--k-warn); }
+  .scene .bad { fill: var(--k-warn); }
+  /* The cylinder: head and walls, the gas, the piston and its rod. The rectangle above it is the gas's
+     volume wide and its absolute pressure tall, a dashed line joining its side to the piston. */
+  .scene .wall { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .gas { fill: var(--k-sunk); }
+  .scene .pist { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .rod { stroke: var(--k-ink); stroke-width: 5; stroke-linecap: round; }
+  .scene .guide { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  /* The transformer, as in lesson 1: a laminated core with a winding on each limb, its leads out to the terminals. */
+  .scene .core { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 2; fill-rule: evenodd; }
+  .scene .lead { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .tml { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .thumb { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene #art * { pointer-events: none; }
+  /* What Dan drags: a thumb's-width hit circle over the drawn thumb. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Blocks whose width × height stays the same, a ratio table, a gas cylinder and a transformer.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 160" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">In inverse proportion the product stays the same. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture a step draws. 'blocks': a rectangle of blocks `w0` wide and `h0` tall, laid out
+  // again `w1` wide (blk). 'table': a ratio table; on the SHOW screen `cols`, its two columns, `op` the
+  // step over the top row and under the bottom one, `slipOp` the step a direct reading takes; on a
+  // puzzle `a`, the first column, and `given`, the first row's amount asked about (the column for one
+  // arrives after the answer). 'cyl': a gas cylinder, `v0` litres at `p0` bar absolute (on the gauge
+  // screens `g0`, the gauge reading, with the atmosphere added), squeezed to `v1` litres, or to `pt`
+  // bar absolute; `counts`, the volumes its labels count through as the piston moves. 'tx': a
+  // transformer wound `turns`, with `v` volts and `i` amps on its primary.
+  // ask: what a cylinder puzzle asks for ('p' the absolute pressure, 'gauge' the gauge reading, 'vol'
+  // the volume). dur: how long a demonstration plays; fb: how long the motion after a right answer
+  // plays (seconds); at: when each part of that motion arrives, in seconds after Check. slips: which
+  // mistake gives each wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  // The atmosphere is taken as 1 bar on the gauge screens; standard sea-level pressure is 1013.25 mb.
+  const ATM = 1, ATM_MB = 1013.25;
+  // After a right answer. Blocks: the old labels leave as half the blocks lift and slide onto the
+  // rest; the new labels; the working. Table: the column for one arrives with its steps, then its
+  // amounts, then the steps on to the answer; the '?' gives way to it; the working. Cylinder: the
+  // piston slides in, the rectangle following; the absolute pressure named, where it was hidden; the
+  // working. Transformer: the '?' gives way to the current; the ratio of the currents.
+  const BLK = { off: 0.1, go: [0.1, 1.1], lab: 1.3, work: 1.85 };
+  const VIA = { via: 0.1, viaval: 0.55, arcs: 1.0, ans: 1.45, work: 1.9 };
+  const CYL = { go: [0.1, 1.2], tag: 1.4, work: 1.9 };
+  const TXA = { ans: 0.1, row: 0.85 };
+  const PUMPS = { names: ['Pumps', 'Hours'], u: 'h' };
+  const GEARBOX = { names: ['rpm', 'N m'], u: 'N m' };
+  // A gearbox puzzle steps straight across: the speed ÷ by, the torque × by; the answer, then the working.
+  const BY = { arcs: 0.1, ans: 0.6, work: 1.35 };
+  const STEPS = [
+    { show: true, pic: 'blocks', demo: 'restack', dur: 3.3, blk: { w0: 6, h0: 2, w1: 3 }, name: 'Halve one, double the other',
+      text: 'Twelve blocks sit 6 wide and 2 tall. Halve the width and the same 12 stack 4 tall. When halving one doubles the other, the two are in *inverse proportion*.' },
+    { kind: 'pick', pic: 'blocks', blk: { w0: 4, h0: 3, w1: 2 }, name: 'How tall?',
+      opts: ['6', '1.5', '5'], want: '6', slips: { '1.5': 'direct', '5': 'add' }, fb: 2.45, at: BLK,
+      task: 'These 12 blocks sit 4 wide and 3 tall. Stacked 2 wide instead, how many blocks tall are they?',
+      why: 'There are still 12 blocks. Halving the width from 4 to 2 doubles the height from 3 to 6, and 2 × 6 = 12 checks it.',
+      hint: 'Not quite. Half the width means more rows.',
+      hints: { '1.5': 'Not quite. That halves the height as well, as if it were direct. Fewer blocks across makes the stack taller.',
+        '5': 'Not quite. That adds the 2 taken off the width. 2 wide and 5 tall holds only 10 blocks.' } },
+    { show: true, pic: 'table', demo: 'opp', dur: 4.3, q: { names: ['Width', 'Height'] }, cols: [[6, 2], [3, 4]], op: ['÷ 2', '× 2'], slipOp: '÷ 2', name: 'Opposite steps',
+      text: 'On a table the steps go opposite ways, width ÷ 2 and height × 2. Halving both, as direct proportion would, leaves 3 × 1 = 3 blocks, not 12.' },
+    { kind: 'pick', pic: 'table', q: PUMPS, a: [2, 6], given: 3, name: 'More pumps',
+      opts: ['4 h', '9 h', '5 h'], want: '4 h', slips: { '9 h': 'direct', '5 h': 'add' }, fb: 2.5, at: VIA,
+      task: 'Two equal pumps empty a tank in 6 hours. How long would three of them take?',
+      why: 'One pump alone would take 6 × 2 = 12 hours. Three share that, so 12 ÷ 3 = 4 hours. Pumps × hours stays 12.',
+      hint: 'Not quite. Find how long one pump alone would take first.',
+      hints: { '9 h': 'Not quite. That gives more hours for more pumps, as if it were direct. Three pumps finish sooner than two.',
+        '5 h': 'Not quite. That takes an hour off for the extra pump. Find how long one pump alone would take.' } },
+    { show: true, pic: 'cyl', demo: 'boyle', dur: 3.6, cyl: { v0: 6, p0: 1, v1: 3, counts: [6, 5, 4, 3] }, drag: true, snapV: [1.5, 2, 2.5, 3, 4, 5, 6], name: 'Boyle\'s law',
+      text: 'By *Boyle\'s law*, a sealed-in gas keeps volume × absolute pressure the same at a steady temperature. Halving 6 L to 3 L doubles 1 bar absolute to 2 bar absolute. Drag the piston.' },
+    { kind: 'pick', pic: 'cyl', ask: 'p', cyl: { v0: 8, p0: 1, v1: 2, counts: [8, 4, 2] }, name: 'Squeeze it',
+      opts: ['4 bar', '0.25 bar', '7 bar'], want: '4 bar', slips: { '0.25 bar': 'direct', '7 bar': 'add' }, fb: 2.5, at: CYL,
+      task: 'A cylinder holds 8 L of gas at 1 bar absolute. Squeezed to 2 L at the same temperature, what is its absolute pressure?',
+      why: '2 L is a quarter of 8 L, so the absolute pressure is four times as much, 4 bar. As a check, 8 × 1 = 2 × 4.',
+      hint: 'Not quite. Less space means more pressure.',
+      hints: { '0.25 bar': 'Not quite. That cuts the pressure to a quarter, as if it were direct. Squeezing a gas raises its pressure.',
+        '7 bar': 'Not quite. That adds 6 bar for the 6 L taken away. Volume × absolute pressure has to stay 8.' } },
+    { show: true, pic: 'cyl', demo: 'gauge', dur: 3.1, cyl: { v0: 6, g0: 1, gauge: true, v1: 3, counts: [6, 5, 4, 3] }, name: 'Gauge or absolute',
+      text: 'Boyle\'s law needs absolute pressure, gauge plus about 1 bar. Gauge 1 bar is 2 bar absolute, so halving the space makes 4 bar absolute. The gauge now reads 3 bar, not 2 bar.' },
+    { kind: 'pick', pic: 'cyl', ask: 'gauge', cyl: { v0: 4, g0: 2, gauge: true, v1: 2, counts: [4, 3, 2] }, name: 'Read the gauge',
+      opts: ['5 bar', '4 bar', '1 bar'], want: '5 bar', slips: { '4 bar': 'gaugeDouble', '1 bar': 'direct' }, fb: 2.5, at: CYL,
+      task: 'A cylinder\'s gauge reads 2 bar. Its space is halved at the same temperature. About what will the gauge read now?',
+      why: 'The gauge reads 2 bar, so the gas is at about 2 + 1 = 3 bar absolute. Half the space doubles that to 6 bar absolute, and the gauge reads 6 − 1 = 5 bar.',
+      hint: 'Not quite. Turn the gauge reading into absolute pressure first.',
+      hints: { '4 bar': 'Not quite. That doubles the gauge reading. Boyle\'s law doubles the absolute pressure, gauge plus about 1 bar.',
+        '1 bar': 'Not quite. That halves the pressure, as if it were direct. Squeezing a gas raises its pressure.' } },
+    { show: true, pic: 'tx', demo: 'tx', dur: 4.2, tx: { turns: [10, 1], v: 230, i: 2 }, name: 'A transformer',
+      text: 'A transformer wound 10 : 1 steps 230 V down to 23 V. Its current goes the other way, 1 : 10, so 2 A in the primary goes with about 20 A in the secondary.' },
+    { kind: 'pick', pic: 'tx', tx: { turns: [10, 1], i: 0.5 }, name: 'Which way?',
+      opts: ['5 A', '0.05 A', '0.5 A'], want: '5 A', slips: { '0.05 A': 'direct', '0.5 A': 'same' }, fb: 1.45, at: TXA,
+      task: 'This transformer is wound 10 : 1. Its primary carries 0.5 A. What current does its secondary carry?',
+      why: 'Wound 10 : 1, it steps the voltage down 10 : 1, so the current goes up, 1 : 10. 0.5 × 10 = 5 A in the secondary.',
+      hint: 'Not quite. The current goes the other way from the voltage.',
+      hints: { '0.05 A': 'Not quite. That steps the current down 10 : 1, like the voltage. The current goes the other way.',
+        '0.5 A': 'Not quite. The current changes too. It goes the other way from the voltage.' } },
+    { kind: 'pick', pic: 'cyl', ask: 'vol', cyl: { v0: 6, p0: 1, pt: 3, counts: [6, 3, 2] }, name: 'How much space?',
+      opts: ['2 L', '18 L', '4 L'], want: '2 L', slips: { '18 L': 'direct', '4 L': 'add' }, fb: 2.5, at: CYL,
+      task: 'Gas fills 6 L at 1 bar absolute. To reach 3 bar absolute at the same temperature, how small must its space be?',
+      why: '3 bar is three times 1 bar, so the space must be a third of 6 L, which is 2 L. As a check, 6 × 1 = 2 × 3.',
+      hint: 'Not quite. Three times the pressure needs less space.',
+      hints: { '18 L': 'Not quite. That gives more space for more pressure, as if it were direct. Squeezing is what raises the pressure.',
+        '4 L': 'Not quite. That takes 2 L off for 2 bar more. Volume × absolute pressure has to stay 6.' } },
+    { kind: 'pick', pic: 'table', q: GEARBOX, a: [1500, 120], given: 500, by: 3, name: 'A gearbox',
+      opts: ['360 N m', '40 N m', '120 N m'], want: '360 N m', slips: { '40 N m': 'direct', '120 N m': 'same' }, fb: 1.95, at: BY,
+      task: 'An ideal reduction gearbox takes 1500 rpm down to 500 rpm. 120 N m of torque goes in. How much torque comes out?',
+      why: 'An ideal gearbox trades speed for torque. The speed is a third, 1500 ÷ 3 = 500 rpm, so the torque is three times as much, 360 N m. As a check, 1500 × 120 = 500 × 360.',
+      hint: 'Not quite. Slower out means more torque.',
+      hints: { '40 N m': 'Not quite. That cuts the torque to a third as well, as if it were direct. A gearbox trades speed for torque.',
+        '120 N m': 'Not quite. The torque changes too. It goes the other way from the speed.' } },
+  ];
+  const FINISH = 'In inverse proportion one amount goes up as the other comes down, with their product the same, so doubling one halves the other. Boyle\'s law works this way on absolute pressure, and a 10 : 1 transformer steps its current up 1 : 10.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). restack: the labels leave as
+  // half the blocks lift [start, how long] and slide onto the rest; the new labels; the working.
+  // opp: the step over the top row; the direct step under the bottom row, its amount and its product,
+  // in the warning colour; they leave; the opposite step; its amount and product. boyle, gauge: the
+  // piston slides in; the working; the thumb, to drag. tx: each voltage, their ratio, each current,
+  // their ratio.
+  const FADE = 0.35;
+  const AT = {
+    restack: { off: 0.6, go: [0.6, 1.4], lab: 2.1, work: 2.6 },
+    opp: { top: 0.6, slip: 1.1, sval: 1.6, swork: 2.1, off: 2.7, right: 3.15, ans: 3.6 },
+    boyle: { go: [0.6, 1.6], work: 2.4, grip: 2.9 },
+    gauge: { go: [0.6, 1.6], work: 2.4 },
+    tx: { v1: 0.6, v2: 1.1, vrow: 1.6, i1: 2.1, i2: 2.6, irow: 3.1, prow: 3.6 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const M = '−';
+  const num = (v) => String(r3(v));
+  const amt = (v, u) => num(v) + ' ' + u;
+  // Blocks: w0 × h0 of them laid w1 wide stand w0 × h0 ÷ w1 tall.
+  const blkH1 = (B) => r3(B.w0 * B.h0 / B.w1);
+  // Table: a[0] of the first row goes with a[1] of the second, so one goes with their product, and
+  // `given` goes with that product ÷ given.
+  const prodOf = (d) => r3(d.a[0] * d.a[1]);
+  const tabAns = (d) => r3(prodOf(d) / d.given);
+  // Cylinder: the absolute pressure at the start (on the gauge screens, the gauge reading plus the
+  // atmosphere), at volume v (volume × absolute pressure stays the same), and the volume it ends at.
+  const pAbs0 = (C) => (C.gauge ? r3(C.g0 + ATM) : C.p0);
+  const pAt = (C, v) => r3(pAbs0(C) * C.v0 / v);
+  const vEnd = (C) => (C.pt != null ? r3(pAbs0(C) * C.v0 / C.pt) : C.v1);
+  // Transformer: the secondary's voltage follows the turns ratio and its current goes the other way.
+  const txV2 = (X) => r3(X.v * X.turns[1] / X.turns[0]);
+  const txI2 = (X) => r3(X.i * X.turns[0] / X.turns[1]);
+  const ratio = (a, b) => num(a) + ' : ' + num(b);
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.pic === 'blocks') return num(blkH1(d.blk));
+    if (d.pic === 'table') return amt(tabAns(d), d.q.u);
+    if (d.pic === 'tx') return amt(txI2(d.tx), 'A');
+    const C = d.cyl;
+    if (d.ask === 'vol') return amt(vEnd(C), 'L');
+    if (d.ask === 'gauge') return amt(pAt(C, C.v1) - ATM, 'bar');
+    return amt(pAt(C, C.v1), 'bar');
+  }
+  // What each slip makes of the answer: both amounts scaled the same way, as if in direct proportion;
+  // the change in one taken off (or added to) the other; the gauge reading doubled as if it were
+  // absolute; or the current (or the torque) left as it was.
+  const SLIP = {
+    direct: (d) => {
+      if (d.pic === 'blocks') return num(d.blk.h0 * d.blk.w1 / d.blk.w0);
+      if (d.pic === 'table') return amt(d.a[1] * d.given / d.a[0], d.q.u);
+      if (d.pic === 'tx') return amt(d.tx.i * d.tx.turns[1] / d.tx.turns[0], 'A');
+      const C = d.cyl;
+      if (d.ask === 'vol') return amt(C.v0 * C.pt / C.p0, 'L');
+      if (d.ask === 'gauge') return amt(C.g0 * C.v1 / C.v0, 'bar');
+      return amt(C.p0 * C.v1 / C.v0, 'bar');
+    },
+    add: (d) => {
+      if (d.pic === 'blocks') return num(d.blk.h0 + d.blk.w0 - d.blk.w1);
+      if (d.pic === 'table') return amt(d.a[1] - (d.given - d.a[0]), d.q.u);
+      const C = d.cyl;
+      if (d.ask === 'vol') return amt(C.v0 - (C.pt - C.p0), 'L');
+      return amt(C.p0 + C.v0 - C.v1, 'bar');
+    },
+    gaugeDouble: (d) => amt(d.cyl.g0 * d.cyl.v0 / d.cyl.v1, 'bar'),
+    same: (d) => (d.pic === 'tx' ? amt(d.tx.i, 'A') : amt(d.a[1], d.q.u)),
+  };
+  // An option's worth: "360 N m" is 360.
+  const valueOf = (s) => { const m = /^(\d+(?:\.\d+)?)/.exec(s); return m ? +m[1] : NaN; };
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/ /g, ' ').replace(/(\d) L\b/g, '$1 litres').replace(/(\d) V\b/g, '$1 volts').replace(/(\d) A\b/g, '$1 amps')
+    .replace(/(\d) h\b/g, '$1 hours').replace(/(\d) N m\b/g, '$1 newton metres').replace(/\bN m\b/g, 'newton metres').replace(/(\d) rpm\b/g, '$1 revolutions a minute').replace(/\brpm\b/g, 'revolutions a minute')
+    .replace(/ : /g, ' to ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, mark: null }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) { const st = blank(i); st.pick = STEPS[i].want; st.res = 'right'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A sum, an amount or a ratio stays together on one line ("3 × 1 = 3", "÷ 2", "10 : 1", "230 V"),
+  // with the stop after it; a long one may break only before an equals sign.
+  const TOK = '[−+]?\\d+(?:\\.\\d+)?(?: (?:bar|min|rpm|N m|[VALhm])(?![A-Za-z]))?';
+  const GLUE = new RegExp('(?:[×÷] )?' + TOK + '(?: [+−=×÷:] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].mark = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after a right answer, from its start;
+  // with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let H = 160;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // How far a travel due at t0, d seconds long, has gone, unsmoothed (each leg is eased on its own).
+  function lin(t0, d) {
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const poly = (cls, pts) => add(K.svg('polyline', { class: cls, points: pts.map((p) => p.join(',')).join(' ') }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  // Spaces that SVG keeps (and measures), so a highlight under part of a line lines up with it.
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { wk: 20, val: 16, num: 15, opl: 15, qm: 15 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // A bracket from x0 to x1 at y (or, upright, from y0 to y1 at x): a line with a short stroke at each end.
+  function bracket(cls, x0, x1, y) { line(cls, x0, y, x1, y); line(cls, x0, y - 5, x0, y + 5); line(cls, x1, y - 5, x1, y + 5); }
+  function upright(cls, x, y0, y1) { line(cls, x, y0, x, y1); line(cls, x - 5, y0, x + 5, y0); line(cls, x - 5, y1, x + 5, y1); }
+  // A line of working, right-aligned at y, with the part that does the work highlighted.
+  function workRow(s, y, cls, hl) {
+    const x0 = 334 - tw(nb(s), 'wk');
+    if (hl) { const i = s.indexOf(hl); rect('hl', x0 + (i > 0 ? tw(nb(s.slice(0, i)), 'wk') : 0) - 4, y - 18, tw(nb(hl), 'wk') + 8, 25, 5); }
+    text(x0, y, nb(s), 'wk' + (cls ? ' ' + cls : ''), 'start');
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, wrong) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: 'head' + (wrong ? ' wrong' : ''), d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 8 * ux + 4.5 * px) + ' ' + r3(y - 8 * uy + 4.5 * py) + ' L' + r3(x - 8 * ux - 4.5 * px) + ' ' + r3(y - 8 * uy - 4.5 * py) + ' Z' }));
+  }
+
+  // --- the blocks ---
+  // Blocks BS across, BP apart, from BLX; the rectangle's foot at BB (set for each screen, to fit its
+  // tallest stack). Block (c, r) is c from the left and r up from the foot.
+  const BLX = 30, BP = 24, BS = 22;
+  let BB = 110;
+  const blkX = (c) => BLX + c * BP, blkY = (r) => BB - r * BP - BS;
+  // The width bracketed under the blocks and named; the height bracketed beside them and named.
+  function blockLabels(w, h) {
+    const x1 = BLX + w * BP - (BP - BS), xr = x1 + 10;
+    bracket('brk', BLX, x1, BB + 8);
+    text((BLX + x1) / 2, BB + 28, w + ' wide', 'num');
+    upright('brk', xr, BB - h * BP + (BP - BS), BB);
+    text(xr + 10, BB - h * BP / 2 + 6, h + ' tall', 'num', 'start');
+  }
+  const blkWork = (w, h, hl) => ({ s: num(w) + ' × ' + num(h) + ' = ' + num(w * h), hl: hl });
+  // Half the blocks (those right of w1) lift straight up by the rectangle's height, then slide left onto
+  // the others: the same blocks, w1 wide and twice as tall. The labels and working change as they land.
+  function drawBlocks(d, st, right) {
+    const B = d.blk, h1 = blkH1(B), A = d.show ? AT[d.demo] : d.at, moving = !!(d.show || right);
+    BB = 14 + Math.max(B.h0, h1) * BP;
+    const off = moving ? arr(A.off, 0.4) : 0, u = moving ? lin(A.go[0], A.go[1]) : 0;
+    const lab = moving ? arr(A.lab) : 0, wA = moving ? arr(A.work) : 0;
+    const up = K.ease(K.clamp(u / 0.45, 0, 1)), across = K.ease(K.clamp((u - 0.45) / 0.55, 0, 1));
+    for (let c = 0; c < B.w0; c++) {
+      for (let r = 0; r < B.h0; r++) {
+        const c1 = c % B.w1, r1 = r + B.h0 * Math.floor(c / B.w1);
+        rect('b1', K.lerp(blkX(c), blkX(c1), across), K.lerp(blkY(r), blkY(r1), up), BS, BS, 3);
+      }
+    }
+    const w0 = blkWork(B.w0, B.h0), w1 = blkWork(B.w1, h1);
+    leave(off, () => { blockLabels(B.w0, B.h0); workRow(w0.s, H - 12); });
+    part(lab, 4, () => blockLabels(B.w1, h1));
+    part(wA, 6, () => workRow(w1.s, H - 12));
+    const n = B.w0 * B.h0, lifting = u > 0 && u < 1, landed = lab >= 0.5;
+    return n + ' blocks in a rectangle, ' + (landed ? B.w1 + ' wide and ' + h1 + ' tall' : B.w0 + ' wide and ' + B.h0 + ' tall') +
+      (lifting ? ', the right-hand half lifting and sliding onto the left-hand half.' : '.') +
+      (off < 0.5 ? ' At the foot: ' + say(w0.s) + '.' : wA >= 0.5 ? ' At the foot: ' + say(w1.s) + '.' : '');
+  }
+
+  // --- the ratio table ---
+  // Row names at NX; the table's columns CW apart from TX, its rows CH tall, its top at TY; the working
+  // at the foot, a row (or two on the SHOW screen) under it.
+  const NX = 6, TX = 72, CW = 86, CH = 28, TY = 34;
+  const cx = (k) => TX + k * CW + (CW - 12) / 2;
+  function colBox(k) { rect('col', TX + k * CW, TY, CW - 12, 2 * CH, 6); line('mid', TX + k * CW, TY + CH, TX + k * CW + CW - 12, TY + CH); }
+  const cell = (k, r, v, cls) => text(cx(k), TY + r * CH + 19, num(v), cls || 'val');
+  function gapCell(k, r) { rect('gapbox', cx(k) - 17, TY + r * CH + 5, 34, CH - 10, 5); text(cx(k), TY + r * CH + 19, '?', 'qm'); }
+  function column(k, c) { colBox(k); cell(k, 0, c[0]); cell(k, 1, c[1]); }
+  const names = (list) => list.forEach((s, r) => text(NX, TY + r * CH + 19, s, 'rname', 'start'));
+  // A step from column k0 to k1 on one row: an arrow curving over the top row (r 0) or under the bottom
+  // row (r 1), the step written beyond the curve; in the warning colour for a step that is wrong.
+  function arc(k0, k1, r, op, wrong) {
+    const dir = k1 > k0 ? 1 : -1, x0 = cx(k0) + 14 * dir, x1 = cx(k1) - 14 * dir, xm = (x0 + x1) / 2;
+    const g = r ? [TY + 2 * CH + 3, TY + 2 * CH + 21, TY + 2 * CH + 30] : [TY - 3, TY - 21, TY - 19];
+    add(K.svg('path', { class: 'arc' + (wrong ? ' wrong' : ''), d: 'M' + x0 + ' ' + g[0] + ' Q' + xm + ' ' + g[1] + ' ' + x1 + ' ' + g[0] }));
+    head(x1, g[0], x1 - xm, g[0] - g[1], wrong);
+    text(xm, g[2], op, 'opl' + (wrong ? ' bad' : ''));
+  }
+  // A cell's '?' giving way to its amount (the box fades out first, then the amount in), from t seconds;
+  // with no t the '?' stays.
+  function swap(k, r, v, t) {
+    if (t == null) { gapCell(k, r); return; }
+    leave(arr(t, 0.25), () => gapCell(k, r));
+    part(arr(t + 0.25), 4, () => cell(k, r, v));
+  }
+  // The SHOW screen's two rows of working; a puzzle's one row, a little lower, clear of the step under the table.
+  const W1 = 144, W2 = 174, WP = 152;
+  const tableSaid = (q, cols, steps) => 'A ratio table with rows for ' + q.names.map(say).join(' and ') + '. Its columns read ' +
+    cols.map((c) => (c[0] === '?' ? 'a question mark' : num(c[0])) + ' with ' + (c[1] === '?' ? 'a question mark' : num(c[1]))).join(', then ') + '.' +
+    (steps.length ? ' The steps between them: ' + steps.map(say).join(', then ') + '.' : '');
+  // The SHOW screen: from width 6, height 2 to width 3. The step over the top row is ÷ 2. Taken the
+  // same way under the bottom row, as direct proportion would, it gives 1, and 3 × 1 = 3, not 12, in
+  // the warning colour; that leaves, and the opposite step, × 2, gives 4, and 3 × 4 = 12.
+  function demoOpp(d) {
+    const A = AT.opp, c0 = d.cols[0], c1 = d.cols[1], slipV = r3(c0[1] / 2);
+    const top = arr(A.top), sl = arr(A.slip), sv = arr(A.sval), sw = arr(A.swork), off = arr(A.off, 0.4), rt = arr(A.right), an = arr(A.ans);
+    const w0 = blkWork(c0[0], c0[1]), wS = blkWork(c1[0], slipV), w1 = blkWork(c1[0], c1[1]);
+    column(0, c0); colBox(1); cell(1, 0, c1[0]);
+    part(top, 0, () => arc(0, 1, 0, d.op[0]));
+    leave(arr(A.slip, 0.25), () => gapCell(1, 1));
+    leave(off, () => {
+      part(sl, 0, () => arc(0, 1, 1, d.slipOp, true));
+      part(sv, 4, () => cell(1, 1, slipV, 'val bad'));
+      part(sw, 6, () => workRow(wS.s, W2, 'bad'));
+    });
+    part(rt, 0, () => arc(0, 1, 1, d.op[1]));
+    part(an, 4, () => cell(1, 1, c1[1]));
+    part(an, 6, () => workRow(w1.s, W2));
+    workRow(w0.s, W1);
+    const slipOn = off < 0.5 && sv >= 0.5, rightOn = an >= 0.5;
+    const steps = (top >= 0.5 ? [d.op[0] + ' on the ' + d.q.names[0].toLowerCase()] : []).concat(slipOn ? [d.slipOp + ' on the ' + d.q.names[1].toLowerCase() + ', marked wrong'] : rightOn ? [d.op[1] + ' on the ' + d.q.names[1].toLowerCase()] : []);
+    return tableSaid(d.q, [c0, [c1[0], slipOn ? slipV : rightOn ? c1[1] : '?']], steps) + ' At the foot: ' + say(w0.s) +
+      (slipOn && sw >= 0.5 ? ', and ' + say(wS.s) + ', marked wrong.' : rightOn ? ', and ' + say(w1.s) + '.' : '.');
+  }
+  // A puzzle: the first column, and the given amount with a '?'. After a right answer the column for
+  // one arrives between them with its steps (÷ on the first row, × on the second), then the steps on to
+  // the given amount (× on the first row, ÷ on the second), the answer, and the working.
+  function drawTable(d, st, right) {
+    names(d.q.names);
+    if (d.show) return demoOpp(d);
+    if (d.by) return drawBy(d, right);
+    const A = d.at, p = prodOf(d), ans = tabAns(d);
+    const via = right ? arr(A.via) : 0, vv = right ? arr(A.viaval) : 0, a2 = right ? arr(A.arcs) : 0, wA = right ? arr(A.work) : 0;
+    const wk = { s: num(p) + ' ÷ ' + num(d.given) + ' = ' + num(ans), hl: '÷ ' + num(d.given) };
+    column(0, d.a);
+    colBox(2); cell(2, 0, d.given);
+    swap(2, 1, ans, right ? A.ans : null);
+    part(via, 0, () => { colBox(1); arc(0, 1, 0, '÷ ' + num(d.a[0])); arc(0, 1, 1, '× ' + num(d.a[0])); });
+    part(vv, 4, () => { cell(1, 0, 1); cell(1, 1, p); });
+    part(a2, 0, () => { arc(1, 2, 0, '× ' + num(d.given)); arc(1, 2, 1, '÷ ' + num(d.given)); });
+    part(wA, 6, () => workRow(wk.s, WP, null, wk.hl));
+    const cols = [d.a].concat(vv >= 0.5 ? [[1, p]] : []).concat([[d.given, right && arr(A.ans + 0.25) >= 0.5 ? ans : '?']]);
+    return tableSaid(d.q, cols, a2 >= 0.5 ? ['÷ ' + num(d.a[0]) + ' and × ' + num(d.a[0]), '× ' + num(d.given) + ' and ÷ ' + num(d.given)] : []) +
+      (wA >= 0.5 ? ' At the foot: ' + say(wk.s) + '.' : '');
+  }
+
+  // A puzzle stepped straight across (the gearbox): the first column, and the given amount with a '?'.
+  // After a right answer the steps arrive, ÷ by over the top row and × by under the bottom one, then
+  // the answer, and the working.
+  const byWork = (d) => ({ s: num(d.a[1]) + ' × ' + num(d.by) + ' = ' + num(tabAns(d)), hl: '× ' + num(d.by) });
+  function drawBy(d, right) {
+    const A = d.at, ans = tabAns(d), a1 = right ? arr(A.arcs) : 0, wA = right ? arr(A.work) : 0, wk = byWork(d);
+    column(0, d.a);
+    colBox(1); cell(1, 0, d.given);
+    swap(1, 1, ans, right ? A.ans : null);
+    part(a1, 0, () => { arc(0, 1, 0, '÷ ' + num(d.by)); arc(0, 1, 1, '× ' + num(d.by)); });
+    part(wA, 6, () => workRow(wk.s, WP, null, wk.hl));
+    const known = right && arr(A.ans + 0.25) >= 0.5;
+    return tableSaid(d.q, [d.a, [d.given, known ? ans : '?']], a1 >= 0.5 ? ['÷ ' + num(d.by) + ' on the top row', '× ' + num(d.by) + ' on the bottom row'] : []) +
+      (wA >= 0.5 ? ' At the foot: ' + say(wk.s) + '.' : '');
+  }
+
+  // --- the cylinder and its rectangle ---
+  // The rectangle's left side and the cylinder's head at X0; the rectangle's foot at RB, at most RW wide
+  // and RH tall; the cylinder's walls at CY0 and CY1. Each screen's scales: KX units a litre, KY a bar.
+  const X0 = 20, RB = 142, RW = 200, RH = 112, CY0 = 152, CY1 = 186, CYM = (CY0 + CY1) / 2, WKY = 36;
+  // The thumb Dan drags sits on the piston's rod, GDX past the piston's face, clear of the volume's label.
+  const GDX = 23;
+  function cylScale(d) {
+    const C = d.cyl, vs = [C.v0, vEnd(C)].concat(d.snapV || []);
+    const vmax = Math.max.apply(null, vs), vmin = Math.min.apply(null, vs);
+    return { kx: RW / vmax, ky: Math.min(28, RH / pAt(C, vmin)) };
+  }
+  // The last of the counted volumes the piston has reached, so the labels change in held steps.
+  function passed(counts, v) { let s = counts[0]; counts.forEach((c) => { if (v <= c + 1e-6) s = c; }); return s; }
+  // The rectangle of blocks, V litres wide and p bar tall, one block a litre by a bar (partly cut at the
+  // top and the right where the amounts are not whole); on the gauge screens its bottom row, the
+  // atmosphere's 1 bar, in the tint.
+  function cells(V, p, sc, gauge) {
+    for (let i = 0; i < Math.ceil(V - 1e-9); i++) {
+      for (let j = 0; j < Math.ceil(p - 1e-9); j++) {
+        const w = Math.min(1, V - i) * sc.kx - 2, h = Math.min(1, p - j) * sc.ky - 2;
+        if (w >= 1 && h >= 1) rect(gauge && j < ATM ? 'b2' : 'b1', X0 + i * sc.kx + 1, RB - j * sc.ky - h - 1, w, h, 2);
+      }
+    }
+  }
+  function cylinder(px) {
+    const xe = X0 + RW + 18;
+    rect('gas', X0, CY0 + 1.5, px - X0, CY1 - CY0 - 3);
+    line('wall', X0 - 3, CY0, xe, CY0);
+    line('wall', X0 - 3, CY1, xe, CY1);
+    line('wall', X0 - 3, CY0, X0 - 3, CY1);
+    rect('pist', px, CY0 + 2.5, 9, CY1 - CY0 - 5, 2);
+    line('rod', px + 9, CYM, Math.min(334, px + 130), CYM);
+  }
+  const cylWork = (C, v) => num(C.v0) + ' × ' + num(pAbs0(C)) + ' = ' + num(v) + ' × ' + num(pAt(C, v));
+  // A demonstration: the piston slides from v0 to v1 (or sits where Dan dragged it); the rectangle's
+  // width follows the gas and its height the absolute pressure. A puzzle: the start, and after a right
+  // answer the same slide. The labels (volume, absolute pressure, gauge reading) count through `counts`.
+  function drawCyl(d, st, right) {
+    const C = d.cyl, sc = cylScale(d), A = d.show ? AT[d.demo] : d.at, v1 = vEnd(C), mine = !!d.show && st.mark != null;
+    const moving = d.show ? !mine : right;
+    const go = moving ? arr(A.go[0], A.go[1]) : 0;
+    const V = mine ? st.mark : C.v0 + (v1 - C.v0) * go, p = pAt(C, V);
+    const sV = mine ? st.mark : moving ? (go >= 1 ? v1 : passed(C.counts, V)) : C.v0, sP = pAt(C, sV);
+    const px = X0 + V * sc.kx, top = RB - p * sc.ky;
+    const hidden = !d.show && d.ask === 'gauge';
+    const tagA = hidden ? (right ? arr(A.tag) : 0) : 1, wA = mine ? 1 : moving ? arr(A.work) : 0;
+    cells(V, p, sc, C.gauge);
+    line('guide', px, RB, px, CY0);
+    cylinder(px);
+    text((X0 + px) / 2, CYM + 5, amt(sV, 'L'), 'lbl');
+    const tag = num(sP) + ' bar absolute';
+    part(tagA, 4, () => text(X0, top - 8, tag, 'lbl', 'start'));
+    let gs = '';
+    if (C.gauge) {
+      gs = 'gauge ' + amt(sP - ATM, 'bar');
+      text(px + 8, RB - sc.ky * (ATM + (p - ATM) / 2) + 5, gs, 'lbl', 'start');
+      text(px + 8, RB - sc.ky * ATM / 2 + 5, 'atmosphere', 'lbl', 'start');
+    }
+    const wk = cylWork(C, sV);
+    part(wA, 6, () => workRow(wk, WKY));
+    const gA = d.drag ? (mine ? 1 : arr(A.grip)) : 0;
+    part(gA, 0, () => circle('thumb', px + GDX, CYM, 11));
+    placeGrip(d.drag && gA >= 0.5 ? sc : null, V, d);
+    const travelling = go > 0 && go < 1;
+    return 'A cylinder of gas with a piston, the gas filling ' + say(amt(sV, 'L')) + (travelling ? ', the piston sliding in.' : '.') +
+      ' Above it, a rectangle of blocks as wide as the gas and as tall as its absolute pressure' + (tagA >= 0.5 ? ', ' + say(tag) + '.' : '.') +
+      (C.gauge ? ' Its bottom row, in the tint, is the atmosphere; the rows above it are the ' + say(gs) + '.' : '') +
+      (wA >= 0.5 ? ' Volume times absolute pressure: ' + say(wk) + '.' : '') + (gA >= 0.5 ? ' The piston can be dragged.' : '');
+  }
+
+  // --- the transformer ---
+  // The core, a square ring (outer CO, the window inside it); a winding in the middle of each limb, one
+  // band per turn (TH thick), TP apart, the primary in solid ink and the secondary in the tint; their
+  // names beneath (TNM); each side's volts and amps beside its terminals (LV, LI); the ratios at the foot.
+  const CO = { x0: 104, x1: 236, y0: 12, y1: 128, t: 18 }, CYC = 70, TP = 8, TH = 6, TNM = 148, LV = 64, LI = 96, R1 = 182, R2 = 210, R3 = 238;
+  const limbX = (k) => (k ? CO.x1 - CO.t / 2 : CO.x0 + CO.t / 2);
+  const turnY = (j, n) => CYC - (n - 1) * TP / 2 + j * TP;
+  // A winding of n turns on limb k (0 the primary, 1 the secondary); its two leads leave from the first
+  // turn and the last, out to a terminal each.
+  function winding(k, n) {
+    const x = limbX(k), side = k ? 1 : -1, ox = x + side * 20;
+    const yA = turnY(0, n) - (n === 1 ? TH / 2 : 0), yB = turnY(n - 1, n) + (n === 1 ? TH / 2 : 0);
+    const yTA = Math.min(yA, CYC - 16), yTB = Math.max(yB, CYC + 16);
+    const lead = (y, yT, v) => { poly('lead', [[ox, y], [ox + side * v, y], [ox + side * v, yT], [ox + side * 18, yT]]); circle('tml', ox + side * 22, yT, 3.5); };
+    lead(yA, yTA, 6);
+    lead(yB, yTB, 12);
+    for (let j = 0; j < n; j++) rect(k ? 'b2' : 'b1', x - 20, turnY(j, n) - TH / 2, 40, TH, 3);
+  }
+  const sideText = (k, y, s, cls) => text(k ? 282 : 58, y, s, cls || 'num', k ? 'start' : 'end');
+  function sideGap(k, y) { const x0 = k ? 282 : 18; rect('gapbox', x0, y - 17, 40, 24, 6); text(x0 + 20, y, '?', 'qm'); }
+  function drawTx(d, st, right) {
+    const X = d.tx;
+    add(K.svg('path', { class: 'core', d: 'M' + CO.x0 + ' ' + CO.y0 + 'H' + CO.x1 + 'V' + CO.y1 + 'H' + CO.x0 + 'Z' +
+      'M' + (CO.x0 + CO.t) + ' ' + (CO.y0 + CO.t) + 'V' + (CO.y1 - CO.t) + 'H' + (CO.x1 - CO.t) + 'V' + (CO.y0 + CO.t) + 'Z' }));
+    winding(0, X.turns[0]);
+    winding(1, X.turns[1]);
+    text(limbX(0), TNM, 'primary', 'nm');
+    text(limbX(1), TNM, 'secondary', 'nm');
+    const i2 = txI2(X), irow = amt(X.i, 'A') + ' : ' + amt(i2, 'A') + ' = ' + ratio(X.turns[1], X.turns[0]);
+    const turnsSaid = 'A transformer with ' + X.turns[0] + ' turns on the primary, on the left, and ' + X.turns[1] + (X.turns[1] === 1 ? ' turn' : ' turns') + ' on the secondary, on the right.';
+    if (d.show) {
+      const A = AT.tx, v2 = txV2(X), vrow = amt(X.v, 'V') + ' : ' + amt(v2, 'V') + ' = ' + ratio(X.turns[0], X.turns[1]);
+      const prow = num(X.v) + ' × ' + num(X.i) + ' = ' + num(v2) + ' × ' + num(i2);
+      const a = [A.v1, A.v2, A.vrow, A.i1, A.i2, A.irow, A.prow].map((t) => arr(t));
+      part(a[0], 4, () => sideText(0, LV, amt(X.v, 'V')));
+      part(a[1], 4, () => sideText(1, LV, amt(v2, 'V')));
+      part(a[2], 6, () => workRow(vrow, R1));
+      part(a[3], 4, () => sideText(0, LI, amt(X.i, 'A')));
+      part(a[4], 4, () => sideText(1, LI, amt(i2, 'A')));
+      part(a[5], 6, () => workRow(irow, R2));
+      part(a[6], 6, () => workRow(prow, R3));
+      return turnsSaid + (a[1] >= 0.5 ? ' Its primary has ' + say(amt(X.v, 'V')) + ' and its secondary ' + say(amt(v2, 'V')) + '.' : '') +
+        (a[4] >= 0.5 ? ' Its primary carries ' + say(amt(X.i, 'A')) + ' and its secondary ' + say(amt(i2, 'A')) + '.' : '') +
+        (a[2] >= 0.5 ? ' At the foot: ' + say(vrow) : '') + (a[5] >= 0.5 ? ', and ' + say(irow) : '') + (a[6] >= 0.5 ? ', and ' + say(prow) + '.' : a[2] >= 0.5 ? '.' : '');
+    }
+    const A = d.at, rA = right ? arr(A.row) : 0;
+    sideText(0, LI, amt(X.i, 'A'));
+    if (right) { leave(arr(A.ans, 0.25), () => sideGap(1, LI)); part(arr(A.ans + 0.25), 4, () => sideText(1, LI, amt(i2, 'A'))); } else sideGap(1, LI);
+    part(rA, 6, () => workRow(irow, R1));
+    const known = right && arr(A.ans + 0.25) >= 0.5;
+    return turnsSaid + ' Its primary carries ' + say(amt(X.i, 'A')) + '; its secondary\'s current is ' + (known ? say(amt(i2, 'A')) : 'a question mark') + '.' +
+      (rA >= 0.5 ? ' At the foot: ' + say(irow) + '.' : '');
+  }
+  const heightOf = (d) => (d.pic === 'blocks' ? 14 + Math.max(d.blk.h0, blkH1(d.blk)) * BP + 44 : d.pic === 'table' ? (d.show ? 186 : 164) : d.pic === 'cyl' ? 198 : d.show ? 250 : 194);
+
+  // The rod Dan drags is one grip kept across repaints (the picture is redrawn every frame), so a drag
+  // in progress and the keyboard focus both survive. It is a thumb's width across (about 55 px on a
+  // 360 px phone).
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: CYM, r: 26, tabindex: -1, role: 'slider', 'aria-label': 'The piston',
+    'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  let gripSc = null;
+  function placeGrip(sc, v, d) {
+    gripSc = sc;
+    if (!sc) { grip.style.display = 'none'; grip.setAttribute('tabindex', '-1'); return; }
+    grip.style.display = '';
+    grip.setAttribute('tabindex', '0');
+    grip.setAttribute('cx', (X0 + v * sc.kx + GDX).toFixed(2));
+    grip.setAttribute('aria-valuemin', d.snapV[0]); grip.setAttribute('aria-valuemax', d.snapV[d.snapV.length - 1]); grip.setAttribute('aria-valuenow', r3(v));
+    grip.setAttribute('aria-valuetext', num(v) + ' litres, ' + num(pAt(d.cyl, v)) + ' bar absolute');
+  }
+  const dragging = () => { const d = STEPS[at()]; return !finished && !!gripSc && !!d.drag; };
+  function setMark(v) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (v === st.mark) return;
+    if (d.show) { anim.pause(); T = Infinity; motion = null; }
+    st.mark = v;
+    K.reveal(); K.refresh();
+  }
+  // Where a pointer at x puts the piston: the nearest of the step's volumes.
+  function snapOf(d, x) {
+    const v = (x - GDX - X0) / cylScale(d).kx;
+    return d.snapV.reduce((b, s) => (Math.abs(s - v) < Math.abs(b - v) ? s : b), d.snapV[0]);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    setMark(snapOf(STEPS[at()], q.x));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const d = STEPS[at()], by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: 2, PageDown: -2 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const st = S[at()], k = d.snapV.indexOf(st.mark == null ? vEnd(d.cyl) : st.mark), n = d.snapV.length;
+    setMark(d.snapV[e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : K.clamp(k + by, 0, n - 1)]);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    if (!d.drag) placeGrip(null);
+    const aria = d.pic === 'blocks' ? drawBlocks(d, st, right) : d.pic === 'table' ? drawTable(d, st, right) : d.pic === 'cyl' ? drawCyl(d, st, right) : drawTx(d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) { st.mark = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const CYLS = STEPS.filter((d) => d.pic === 'cyl'), BOYLE = STEPS.find((d) => d.demo === 'boyle');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const box = (sel) => {
+        const ns = Array.from(art.querySelectorAll(sel)).map((n) => [+n.getAttribute('x'), +n.getAttribute('y'), +n.getAttribute('width'), +n.getAttribute('height')]);
+        return ns.length ? { n: ns.length, x0: Math.min.apply(null, ns.map((q) => q[0])), x1: Math.max.apply(null, ns.map((q) => q[0] + q[2])),
+          y0: Math.min.apply(null, ns.map((q) => q[1])), y1: Math.max.apply(null, ns.map((q) => q[1] + q[3])) } : { n: 0 };
+      };
+      return { texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent.replace(/ /g, ' ')), b1: box('rect.b1'), b2: box('rect.b2'), all: box('rect.b1, rect.b2') };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // A whole word or amount inside a label ("5 A" is not inside "0.5 A").
+  const has = (texts, s) => { const re = new RegExp('(^|[^0-9.])' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9])'); return texts.some((t) => re.test(t)); };
+  K.check('In inverse proportion the product stays the same: 6 × 2 = 3 × 4 = 12 and 4 × 3 = 2 × 6 blocks, 2 × 6 = 1 × 12 = 3 × 4 for the pumps, 1500 × 120 = 500 × 360 rpm × N m for the gearbox, and volume × absolute pressure 6 × 1 = 3 × 2, 8 × 1 = 2 × 4, 6 × 2 = 3 × 4, 4 × 3 = 2 × 6 and 6 × 1 = 2 × 3 on the cylinders', () =>
+    STEPS.filter((d) => d.pic === 'blocks').every((d) => d.blk.w0 * d.blk.h0 === 12 && same(d.blk.w1 * blkH1(d.blk), 12)) &&
+    STEPS.filter((d) => d.pic === 'table' && !d.show).every((d) => same(d.a[0] * d.a[1], prodOf(d)) && same(d.given * tabAns(d), prodOf(d))) &&
+    CYLS.every((d) => same(d.cyl.v0 * pAbs0(d.cyl), vEnd(d.cyl) * pAt(d.cyl, vEnd(d.cyl)))) &&
+    STEPS.map((d) => (d.pic === 'blocks' ? blkH1(d.blk) : d.pic === 'table' && !d.show ? tabAns(d) : d.pic === 'cyl' ? (d.ask === 'vol' ? vEnd(d.cyl) : pAt(d.cyl, d.cyl.v1)) : null)).join() === '4,6,,4,2,4,4,6,,,2,360' &&
+    prodOf(STEPS[3]) === 12 && prodOf(STEPS[11]) === 180000);
+  K.check('Doubling one amount halves the other, so on a table the two rows step opposite ways: width ÷ 2 takes height × 2, from 6 and 2 to 3 and 4; dividing both by 2, as direct proportion would, gives 3 × 1 = 3, not 12', () => {
+    const d = STEPS[2], c0 = d.cols[0], c1 = d.cols[1];
+    return c1[0] === c0[0] / 2 && c1[1] === c0[1] * 2 && c0[0] * c0[1] === c1[0] * c1[1] && c1[0] * (c0[1] / 2) === 3 && d.op.join() === '÷ 2,× 2' && d.slipOp === '÷ 2';
+  });
+  K.check('The volume of the gas varies inversely with the absolute pressure', () =>
+    CYLS.every((d) => { const C = d.cyl; return [C.v0, vEnd(C)].concat(d.snapV || []).every((v) => same(v * pAt(C, v), C.v0 * pAbs0(C)) && same(pAt(C, v / 2), 2 * pAt(C, v))); }),
+  { source: 'https://www.engineeringtoolbox.com/boyles-law-d_1276.html' });
+  K.check('The standard pressure at sea-level is 1013.25 millibars (mb)', () => {
+    const atm = ATM_MB / 1000, gaugeAfter = (C) => (C.g0 + atm) * C.v0 / C.v1 - atm;
+    const g = CYLS.filter((d) => d.cyl.gauge);
+    return ATM_MB === 1013.25 && K.near(atm, ATM, 0.02) && g.length === 2 && g.every((d) => K.near(gaugeAfter(d.cyl), pAt(d.cyl, d.cyl.v1) - ATM, 0.02)) &&
+      K.near(gaugeAfter(g[0].cyl), 3.013, 0.001) && K.near(gaugeAfter(g[1].cyl), 5.013, 0.001);
+  }, { source: 'https://www.noaa.gov/jetstream/atmosphere/air-pressure' });
+  K.check('Turns ratio of 10:1 yields 10:1 primary:secondary voltage ratio and 1:10 primary:secondary current ratio', () => {
+    const a = STEPS[8].tx, b = STEPS[9].tx;
+    return a.turns.join() === '10,1' && b.turns.join() === '10,1' && txV2(a) === 23 && a.v / txV2(a) === 10 && txI2(a) === 20 && a.i / txI2(a) === 0.1 && txI2(b) === 5;
+  }, { source: 'https://www.allaboutcircuits.com/textbook/alternating-current/chpt-9/step-up-and-step-down-transformers' });
+  K.check('Since mechanical power equals torque multiplied by rotational speed, an ideal reducer should trade speed for torque', () => {
+    const d = STEPS[11], power = (rpm, nm) => rpm * nm;
+    return d.by === d.a[0] / d.given && same(power(d.a[0], d.a[1]), power(d.given, tabAns(d))) && tabAns(d) === d.a[1] * d.by && d.given < d.a[0] && tabAns(d) > d.a[1];
+  }, { source: 'https://www.stober.com/blog/what-is-gear-reduction' });
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives: both amounts scaled the same way, as if direct; the change in one taken off or added to the other; the gauge reading doubled; or the current or torque left as it was', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.want === answerOf(d) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        Object.keys(d.slips).length === 2 && Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && SLIP[d.slips[o]](d) === o && !K.near(valueOf(o), valueOf(d.want), 0.01));
+    }) && SLIP.direct(STEPS[1]) === '1.5' && SLIP.add(STEPS[1]) === '5' && SLIP.gaugeDouble(STEPS[7]) === '4 bar' && SLIP.direct(STEPS[11]) === '40 N m' && SLIP.same(STEPS[11]) === '120 N m');
+  K.check('Every picture is drawn to scale, finished: 12 blocks laid 3 or 2 wide stand 4 or 6 tall; each rectangle is the gas\'s volume wide and its absolute pressure tall, the atmosphere\'s row 1 bar; and the labels give the amounts the working gives', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? blank(i) : solved(i));
+      if (d.pic === 'blocks') {
+        const h1 = blkH1(d.blk);
+        return g.b1.n === 12 && K.near(g.b1.x1 - g.b1.x0, d.blk.w1 * BP - (BP - BS), 1e-6) && K.near(g.b1.y1 - g.b1.y0, h1 * BP - (BP - BS), 1e-6) &&
+          has(g.texts, d.blk.w1 + ' wide') && has(g.texts, h1 + ' tall') && has(g.texts, blkWork(d.blk.w1, h1).s);
+      }
+      if (d.pic === 'table') return d.show ? has(g.texts, '3 × 4 = 12') && !has(g.texts, '3 × 1 = 3') && has(g.texts, '6 × 2 = 12') : has(g.texts, num(tabAns(d))) && (d.by ? has(g.texts, byWork(d).s) : has(g.texts, num(prodOf(d))));
+      if (d.pic === 'tx') return has(g.texts, amt(txI2(d.tx), 'A')) && has(g.texts, amt(d.tx.i, 'A') + ' : ' + amt(txI2(d.tx), 'A') + ' = 1 : 10') &&
+        (!d.show || (has(g.texts, '230 × 2 = 23 × 20') && same(d.tx.v * d.tx.i, txV2(d.tx) * txI2(d.tx))));
+      const C = d.cyl, sc = cylScale(d), v = vEnd(C), p = pAt(C, v);
+      return K.near(g.all.x1 - g.all.x0, v * sc.kx - 2, 1e-6) && K.near(g.all.y1 - g.all.y0, p * sc.ky - 2, 1e-6) && has(g.texts, amt(v, 'L')) && has(g.texts, num(p) + ' bar absolute') &&
+        has(g.texts, cylWork(C, v)) && (C.gauge ? g.b2.n === Math.ceil(v) && K.near(g.b2.y1 - g.b2.y0, sc.ky - 2, 1e-6) && has(g.texts, 'gauge ' + amt(p - ATM, 'bar')) : g.b2.n === 0);
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer', () =>
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, blank(i)); return !has(g.texts, d.want) && !has(g.texts, num(valueOf(d.want))); }));
+  K.check('The piston on the Boyle\'s law screen snaps to 1.5, 2, 2.5, 3, 4, 5 and 6 L, at 4, 3, 2.4, 2, 1.5, 1.2 and 1 bar absolute, so volume × pressure stays 6', () => {
+    const d = BOYLE, sc = cylScale(d);
+    return d.snapV.join() === '1.5,2,2.5,3,4,5,6' && d.snapV.map((v) => pAt(d.cyl, v)).join() === '4,3,2.4,2,1.5,1.2,1' &&
+      d.snapV.every((v) => same(v * pAt(d.cyl, v), 6) && snapOf(d, X0 + GDX + v * sc.kx) === v) && snapOf(d, -100) === 1.5 && snapOf(d, 900) === 6 && d.cyl.counts.every((v) => d.snapV.indexOf(v) >= 0);
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s; parts start at least 0.45 s apart, each once the travel before it has ended; and each counted volume holds at least 0.2 s', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => (Array.isArray(A[k]) ? [A[k][0], A[k][0] + A[k][1]] : [A[k], A[k]])).sort((a, b) => a[0] - b[0]);
+      let end = -Infinity;
+      return ps.every((q, k) => {
+        const good = k === 0 || q[0] === ps[k - 1][0] || (q[0] - ps[k - 1][0] >= 0.45 - 1e-9 && q[0] >= end + 0.1 - 1e-9);
+        end = Math.max(end, q[1]);
+        return good;
+      });
+    };
+    // each counted volume, on every cylinder that moves, held at least 0.2 s as the piston slides
+    const holds = CYLS.every((d) => {
+      const C = d.cyl, A = d.show ? AT[d.demo] : d.at, v1 = vEnd(C), seen = [];
+      for (let t = 0; t <= A.go[1] + 1e-9; t += 0.005) { const v = C.v0 + (v1 - C.v0) * K.arrive(A.go[0] + t, A.go[0], A.go[1]); seen.push(passed(C.counts, v)); }
+      return C.counts.slice(0, -1).every((c) => seen.filter((s) => s === c).length * 0.005 >= 0.2) && seen[seen.length - 1] === v1;
+    });
+    return ok && holds && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

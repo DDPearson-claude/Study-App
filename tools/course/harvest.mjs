@@ -26,7 +26,7 @@ function find(dir, name) {
   }
   return null;
 }
-// --marker: the newest agent transcript whose first message contains this text, so a research agent
+// --marker: the newest agent transcript whose opening user messages contain this text, so a research agent
 // whose prompt carries a unique marker can harvest its own run before it finishes.
 function byMarker(dir, marker, best) {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
@@ -34,8 +34,9 @@ function byMarker(dir, marker, best) {
     if (e.isDirectory()) { best = byMarker(p, marker, best); continue; }
     if (!/^agent-.*\.jsonl$/.test(e.name)) continue;
     const fd = openSync(p, 'r'), buf = Buffer.alloc(65536), got = readSync(fd, buf, 0, buf.length, 0); closeSync(fd);
-    const first = buf.toString('utf8', 0, got).split('\n', 1)[0];
-    if (first.includes(marker) && (!best || statSync(p).mtimeMs > statSync(best).mtimeMs)) best = p;
+    // The prompt is the first user message, or the second in a workflow agent (after the relayed request).
+    const opening = buf.toString('utf8', 0, got).split('\n').filter((l) => l.startsWith('{"') && l.includes('"type":"user"'));
+    if (opening.some((l) => l.includes(marker)) && (!best || statSync(p).mtimeMs > statSync(best).mtimeMs)) best = p;
   }
   return best;
 }

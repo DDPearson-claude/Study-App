@@ -1,0 +1,871 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  .scene .rname { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* The ratio table, as in lesson 2: a column for each amount, the same step written over the top row
+     and under the bottom one; the 1 in the column for one is highlighted. */
+  .scene .col { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .mid { stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .val { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .arc { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent2); }
+  .scene .opl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  /* The double number line: two scales locked together, a hop for each lot of the rate. */
+  .scene .nl { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .nl.loose { stroke: var(--k-muted); stroke-dasharray: 7 5; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tv { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .stem { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .hop { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .wk { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The times to try on the scaling screen: one row, each label whole. */
+  .row.tries { flex-wrap: nowrap; }
+  .tries .k-btn { flex: 1 1 0; min-width: 0; min-height: 48px; font-size: 1.05rem; white-space: nowrap; padding-inline: 4px; }
+  .tries .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .trysay { line-height: 1.55; margin-top: 10px; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A ratio table with its column for one picked out, and a double number line of two locked scales.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 162" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="row tries" id="tries"></div>
+    <p class="trysay" id="trysay" aria-live="polite"></p>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Divide both amounts by the same number to reach one. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // q: the two amounts compared, their rows' names, short units and the word after "per". pic: the
+  // picture, 'table' (a ratio table), 'line' (a double number line) or 'line3' (the amount line over
+  // two fuel lines, a good load's and a low load's). On a SHOW table, cols: the columns [first row,
+  // second row]; ops: each step [from column, to column, step]; ones: the cells holding the 1 [column,
+  // row]; tags: a rate named under a column ('rate': per one of the first row; 'per1': what one of the
+  // second row buys). On a line, rate: the second amount for one of the first, lmax: where the lines
+  // end. On a DO step, ask says what the puzzle wants: 'unit' the amount for one ('which': the sum that
+  // gives it), 'scale' the amount for `given` of the first row, 'back' how many of the first row make
+  // `given` of the second, 'count' the same on a line, 'holds' the fuel at idle. slips: which mistake
+  // gives each wrong answer (SLIP below). at: when each part of the motion after a right answer
+  // arrives, in seconds after Check.
+  const PICK = 'Tap one of the answers.';
+  const PUMP = { names: ['Minutes', 'Litres'], u: ['min', 'L'], per: 'minute' };
+  const FUEL = { names: ['Hours', 'Litres'], u: ['h', 'L'], per: 'hour' };
+  const CABLE = { names: ['Metres', 'Cost'], u: ['m', '£'], per: 'metre' };
+  const TURNS = { names: ['Turns', 'Metres'], u: ['turns', 'm'], per: 'turn' };
+  const KWH = { names: ['kWh', 'Grams'], u: ['kWh', 'g'], per: 'kWh' };
+  // After a right answer: the step is written over and under the table; the '?' gives way to the
+  // amount; the rate is named under the column for one. Through one first: that column arrives, then
+  // the second step, then the amount. On a line: the '?' leaves, the hops run out to the mark, the
+  // first line's labels arrive, the answer and the working. At idle: the '?' gives way to the amount.
+  const UNITTAB = { arcs: 0.1, ans: 0.55, tag: 1.25 };
+  const VIATAB = { via: 0.1, viaval: 0.55, arcs: 1.0, ans: 1.45 };
+  const COUNT = { q: 0.1, go: [0.1, 0.2, 8], ans: 1.8, work: 1.8 };
+  const IDLE = { ans: 0.1 };
+  const STEPS = [
+    { show: true, demo: 'unit', pic: 'table', q: PUMP, dur: 3.0, cols: [[4, 60], [1, 15]], ops: [[0, 1, '÷ 4']], ones: [[1, 0]], tags: [[1, 'rate']], name: 'Per one',
+      text: 'A pump moves 60 litres in 4 minutes. Divide both by 4 and it moves 15 litres in 1 minute. An amount for one of something is a *unit rate*.' },
+    { kind: 'pick', ask: 'unit', pic: 'table', q: FUEL, ratio: [3, 24], name: 'Per hour',
+      opts: ['8 L', '0.125 L', '72 L'], want: '8 L', slips: { '0.125 L': 'flip', '72 L': 'times' }, fb: 1.9, at: UNITTAB,
+      task: 'An engine burns 24 litres of fuel in 3 hours. How many litres does it burn per hour?',
+      why: 'Per hour means bring the hours to 1, so divide both by 3. 24 ÷ 3 = 8 litres per hour, and 8 × 3 = 24 checks it.',
+      hint: 'Not quite. Divide both amounts by 3, to bring the hours to 1.',
+      hints: { '0.125 L': 'Not quite. That is 3 ÷ 24, hours for each litre. Per hour means share the litres over the hours.',
+        '72 L': 'Not quite. That is 24 × 3. One hour is less than three, so it burns less than 24 litres.' } },
+    { show: true, demo: 'scale', pic: 'table', q: PUMP, dur: 3.6, cols: [[4, 60], [1, 15], [7, 105]], ops: [[0, 1, '÷ 4'], [1, 2, '× 7']], ones: [[1, 0]], tags: [[1, 'rate']], tries: [2, 10, 60], name: 'Then scale',
+      text: 'Going through one minute makes any time easy. 7 minutes is 15 × 7 = 105 litres. Tap a time to try others.' },
+    { kind: 'pick', ask: 'scale', pic: 'table', q: FUEL, ratio: [4, 18], given: 6, name: 'Through one hour',
+      opts: ['27 L', '20 L', '108 L'], want: '27 L', slips: { '20 L': 'add', '108 L': 'skip' }, fb: 2.35, at: VIATAB,
+      task: 'An engine burns 18 litres in 4 hours. How much does it burn in 6 hours?',
+      why: '18 ÷ 4 = 4.5 litres per hour, and 4.5 × 6 = 27 litres. Adding 2 litres for 2 more hours would mean only 1 litre an hour.',
+      hint: 'Not quite. Find 1 hour first, then multiply up to 6.',
+      hints: { '20 L': 'Not quite. That adds 2, as the hours went from 4 to 6. A rate scales by multiplying, not adding, so find 1 hour first.',
+        '108 L': 'Not quite. That is 18 × 6, as if 18 litres took 1 hour. They took 4 hours, so find 1 hour first.' } },
+    { show: true, demo: 'way', pic: 'table', q: CABLE, dur: 4.2, cols: [[2.5, 1], [5, 2], [1, 0.4]], ops: [[1, 2, '÷ 5'], [1, 0, '÷ 2']], ones: [[2, 0], [0, 1]], tags: [[2, 'rate'], [0, 'per1']], name: 'Which way round',
+      text: 'Per metre means divide by the metres. £2 for 5 m of cable is 2 ÷ 5 = £0.40 per metre. 5 ÷ 2 = 2.5 m is what £1 buys, a different rate.' },
+    { kind: 'pick', ask: 'which', pic: 'table', q: CABLE, ratio: [8, 12], name: 'Which sum?',
+      opts: ['12 ÷ 8', '8 ÷ 12', '12 × 8'], want: '12 ÷ 8', slips: { '8 ÷ 12': 'flip', '12 × 8': 'times' }, fb: 1.9, at: UNITTAB,
+      task: '8 m of cable costs £12. Which sum gives the price per metre?',
+      why: 'Per metre means divide by the metres. 12 ÷ 8 = £1.50 per metre, and 1.5 × 8 = 12 checks it. 8 ÷ 12 gives the metres £1 buys.',
+      hint: 'Not quite. Per metre means divide by the metres.',
+      hints: { '8 ÷ 12': 'Not quite. That divides by the pounds, which gives the metres £1 buys. Per metre means divide by the metres.',
+        '12 × 8': 'Not quite. That makes £96, more than all 8 m cost. One metre costs less, so divide.' } },
+    { show: true, demo: 'back', pic: 'line', q: PUMP, dur: 4.0, rate: 15, target: 90, lmax: 8, name: 'Working backwards',
+      text: 'A rate works backwards too. At 15 litres per minute, 90 litres takes 90 ÷ 15 = 6 minutes, because six lots of 15 make 90.' },
+    { kind: 'pick', ask: 'count', pic: 'line', q: TURNS, rate: 0.5, target: 4, lmax: 10, name: 'Turns of a winch',
+      opts: ['8 turns', '2 turns', '0.125 turns'], want: '8 turns', slips: { '2 turns': 'times', '0.125 turns': 'flip' }, fb: 2.45, at: COUNT,
+      task: 'A winch hauls in 0.5 m of rope per turn. How many turns does it take to haul in 4 m?',
+      why: 'Each turn hauls in 0.5 m, so count how many lots of 0.5 m make 4 m. 4 ÷ 0.5 = 8 turns, and 8 × 0.5 = 4 checks it.',
+      hint: 'Not quite. Count how many lots of 0.5 m make 4 m.',
+      hints: { '2 turns': 'Not quite. That is 4 × 0.5. Each turn hauls in less than 1 m, so 4 m takes more than 4 turns.',
+        '0.125 turns': 'Not quite. That is 0.5 ÷ 4. Count how many lots of 0.5 m fit into 4 m.' } },
+    { show: true, demo: 'holds', pic: 'line3', q: KWH, dur: 3.0, rate: 200, x: 10, low: 'Low power', lmax: 10, name: 'Only where it holds',
+      text: 'At a good load, an example engine burns 200 g per kWh, so 10 kWh takes 2,000 g. At low power, fuel per kWh rises greatly, so the rate no longer holds.' },
+    { kind: 'pick', ask: 'holds', pic: 'line3', q: KWH, rate: 200, x: 3, low: 'Idle', lmax: 10, name: 'At idle',
+      opts: ['600 g', 'More than 600 g', 'Less than 600 g'], want: 'More than 600 g', slips: { '600 g': 'steady', 'Less than 600 g': 'down' }, fb: 1.0, at: IDLE,
+      task: 'At a good load this engine burns 200 g of fuel per kWh. At idle, how much fuel does 3 kWh take?',
+      why: '200 g per kWh is the rate at a good load. At idle, fuel per kWh rises dramatically, so 3 kWh takes more than 3 × 200 = 600 g. How much more depends on the engine.',
+      hint: 'Not quite. Does 200 g per kWh still hold at idle?',
+      hints: { '600 g': 'Not quite. That uses the rate at a good load. At idle, each kWh takes more fuel than 200 g.',
+        'Less than 600 g': 'Not quite. At idle, fuel per kWh goes up, not down, so each kWh takes more than 200 g.' } },
+    { kind: 'pick', ask: 'scale', pic: 'table', q: KWH, ratio: [6, 1080], given: 10, name: 'Grams per kWh',
+      opts: ['1,800 g', '1,084 g', '10,800 g'], want: '1,800 g', slips: { '1,084 g': 'add', '10,800 g': 'skip' }, fb: 2.35, at: VIATAB,
+      task: 'At a steady, good load, a generator burns 1,080 g of fuel making 6 kWh. How much fuel does 10 kWh take?',
+      why: '1,080 ÷ 6 = 180 g per kWh, and 180 × 10 = 1,800 g. The rate holds here because the load stays good and steady.',
+      hint: 'Not quite. Find the fuel for 1 kWh first.',
+      hints: { '1,084 g': 'Not quite. That adds 4, as the kWh went from 6 to 10. A rate scales by multiplying, not adding, so find 1 kWh first.',
+        '10,800 g': 'Not quite. That is 1,080 × 10, as if 1,080 g made 1 kWh. It made 6 kWh, so find 1 kWh first.' } },
+    { kind: 'pick', ask: 'back', pic: 'table', q: TURNS, ratio: [4, 6], given: 15, name: 'Put it together',
+      opts: ['10 turns', '22.5 turns', '2.5 turns'], want: '10 turns', slips: { '22.5 turns': 'timesBack', '2.5 turns': 'skipBack' }, fb: 2.35, at: VIATAB,
+      task: 'Put it together. A cable drum pays out 6 m in 4 turns. How many turns pay out 15 m?',
+      why: '6 ÷ 4 = 1.5 m per turn. 15 ÷ 1.5 = 10, so it takes 10 turns, and 10 × 1.5 = 15 checks it.',
+      hint: 'Not quite. Find the metres for 1 turn first.',
+      hints: { '22.5 turns': 'Not quite. That is 15 × 1.5. Each turn pays out 1.5 m, so count how many lots of 1.5 m make 15 m.',
+        '2.5 turns': 'Not quite. That is 15 ÷ 6, as if 6 m took 1 turn. It took 4 turns, so find 1 turn first.' } },
+  ];
+  const FINISH = 'A unit rate is an amount per one. Divide both amounts by the same number until the one after “per” is 1, then multiply up to any amount, or count lots of it to work backwards. Use a rate only where it holds steady.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). arcs: a step written over and
+  // under the table; col: the new column; one: the 1 in it highlighted; tag: the rate named under it;
+  // target: the amount to reach, marked on the second line; go: the hops running out to it [start, how
+  // long]; ans: the answer on the first line; work: the working; good: the amount at a good load; low:
+  // the low-power line; more, more2: what it takes at low power, for one and then for all of them.
+  // A run of hops is counted out, go: [first hop, seconds between hops, how many]; each hop fades in
+  // over HOPIN while the dot on the first line eases on to the next tick.
+  const FADE = 0.35, HOPIN = 0.2;
+  const AT = {
+    unit: { arcs: 0.6, col: 1.2, one: 1.8, tag: 2.4 },
+    scale: { arcs: 0.6, col: 1.2, tag: 1.8, arcs2: 2.4, col2: 3.0 },
+    way: { arcs: 0.6, col: 1.2, tag: 1.8, arcs2: 2.4, col2: 3.0, tag2: 3.6 },
+    back: { target: 0.6, go: [1.2, 0.25, 6], ans: 2.9, work: 3.4 },
+    holds: { good: 0.6, low: 1.2, more: 1.8, more2: 2.4 },
+  };
+  // A time tapped on the scaling screen plays like an answer: the last column and its step fade out
+  // (from `arcs`, over 0.25 s, as a '?' gives way), the new step arrives, then the new column.
+  const TRY = { arcs: 0.1, col: 0.85 }, TRYDUR = 1.45;
+  // Drawing sizes, in viewBox units (340 wide). Row names at NX. The table's columns are CW apart from
+  // TX, its rows CH tall, its top at TY; a rate's tag sits TAGY down. The lines run from LX0 to LX1; a
+  // double line at TL and BL, the fuel lines at F0 (kWh), F1 (a good load) and F2 (a low load). HOF:
+  // each picture's height.
+  const NX = 6, TX = 72, CW = 86, CH = 28, TY = 34, TAGY = 130;
+  const LX0 = 92, LX1 = 326, TL = 52, BL = 118, F0 = 34, F1 = 98, F2 = 156;
+  const HOF = { table: 162, line: 200, line3: 172 };
+  let H = HOF.table;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  // A number as Dan reads it: at most three decimal places, thousands with a comma (1,500); money in pence.
+  const num = (v) => { const p = String(r3(v)).split('.'); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (p[1] ? '.' + p[1] : ''); };
+  const money = (v) => '£' + (Number.isInteger(r3(v)) ? num(v) : r3(v).toFixed(2));
+  function amt(v, u) {
+    if (u === '£') return money(v);
+    if (u === 'turns') return num(v) + (r3(v) === 1 ? ' turn' : ' turns');
+    return num(v) + ' ' + u;
+  }
+  const rateText = (q, r) => amt(r, q.u[1]) + ' per ' + q.per;
+  const cellText = (q, row, v) => (row === 1 && q.u[1] === '£' ? money(v) : num(v));
+  // A step on both rows: '÷ 4' or '× 7'.
+  function apply(op, c) { const k = Number(op.slice(2)); return op[0] === '×' ? [r3(c[0] * k), r3(c[1] * k)] : [r3(c[0] / k), r3(c[1] / k)]; }
+  // A sum's worth: "12 ÷ 8" is 1.5.
+  function valueOf(s) { const m = /^(\d+(?:\.\d+)?) ([×÷]) (\d+(?:\.\d+)?)$/.exec(s); return m ? r3(m[2] === '×' ? +m[1] * +m[3] : +m[1] / +m[3]) : NaN; }
+  // A step's table, finished: its columns, the steps between them, the cells holding the 1, the rates
+  // named under columns; on a puzzle, the cell asked for and the column found on the way (via). On the
+  // scaling screen, `tryT` is a tapped time: the last column becomes that time.
+  function tableOf(d, tryT) {
+    if (d.pic !== 'table') return null;
+    const q = d.q;
+    if (d.show) {
+      const cols = d.cols.map((c) => c.slice()), ops = d.ops.map((o) => o.slice());
+      if (d.tries && tryT != null) { cols[2] = [tryT, r3(cols[1][1] * tryT)]; ops[1] = [1, 2, '× ' + num(tryT)]; }
+      return { cols: cols, ops: ops, ones: d.ones, tags: d.tags.map((t) => [t[0], t[1] === 'rate' ? rateText(q, cols[t[0]][1] / cols[t[0]][0]) : amt(cols[t[0]][0], q.u[0]) + ' per ' + amt(1, q.u[1])]) };
+    }
+    const a = d.ratio[0], b = d.ratio[1], rate = b / a, one = [1, r3(rate)], base = { ones: [[1, 0]], tags: [[1, rateText(q, rate)]] };
+    if (d.ask === 'unit' || d.ask === 'which') return Object.assign({ cols: [[a, b], one], ops: [[0, 1, '÷ ' + num(a)]], unknown: [1, 1] }, base);
+    if (d.ask === 'scale') return Object.assign({ cols: [[a, b], one, [d.given, r3(d.given * rate)]], ops: [[0, 1, '÷ ' + num(a)], [1, 2, '× ' + num(d.given)]], unknown: [2, 1], via: 1 }, base);
+    const n = r3(d.given / rate);
+    return Object.assign({ cols: [[a, b], one, [n, d.given]], ops: [[0, 1, '÷ ' + num(a)], [1, 2, '× ' + num(n)]], unknown: [2, 0], via: 1 }, base);
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    const u = d.q.u[1];
+    if (d.ask === 'unit') return amt(d.ratio[1] / d.ratio[0], u);
+    if (d.ask === 'which') return num(d.ratio[1]) + ' ÷ ' + num(d.ratio[0]);
+    if (d.ask === 'scale') return amt(d.given * d.ratio[1] / d.ratio[0], u);
+    if (d.ask === 'back') return amt(d.given * d.ratio[0] / d.ratio[1], d.q.u[0]);
+    if (d.ask === 'count') return amt(d.target / d.rate, d.q.u[0]);
+    return 'More than ' + amt(d.rate * d.x, u);
+  }
+  // What each slip makes of the answer: the division the wrong way round (the first row per one of the
+  // second); multiplying where it divides; the gap in the first row added to the second, as if adding;
+  // the given amount scaled as if it were one; working backwards, the given amount multiplied by the
+  // rate instead of divided by it; the second amount taken as one turn; the good-load rate used where it does not hold; or the rate taken
+  // to fall at idle.
+  const SLIP = {
+    flip: (d) => (d.ask === 'which' ? num(d.ratio[0]) + ' ÷ ' + num(d.ratio[1]) : d.ask === 'count' ? amt(d.rate / d.target, d.q.u[0]) : amt(d.ratio[0] / d.ratio[1], d.q.u[1])),
+    times: (d) => (d.ask === 'which' ? num(d.ratio[1]) + ' × ' + num(d.ratio[0]) : d.ask === 'count' ? amt(d.target * d.rate, d.q.u[0]) : amt(d.ratio[0] * d.ratio[1], d.q.u[1])),
+    add: (d) => amt(d.ratio[1] + d.given - d.ratio[0], d.q.u[1]),
+    skip: (d) => amt(d.ratio[1] * d.given, d.q.u[1]),
+    timesBack: (d) => amt(d.given * d.ratio[1] / d.ratio[0], d.q.u[0]),
+    skipBack: (d) => amt(d.given / d.ratio[1], d.q.u[0]),
+    steady: (d) => amt(d.rate * d.x, d.q.u[1]),
+    down: (d) => 'Less than ' + amt(d.rate * d.x, d.q.u[1]),
+  };
+  // What a puzzle's picture must not show before the answer.
+  function hiddenOf(d) {
+    const t = tableOf(d);
+    if (t) { const c = t.unknown; return [cellText(d.q, c[1], t.cols[c[0]][c[1]]), num(t.cols[c[0]][c[1]])]; }
+    if (d.ask === 'count') return [num(d.target / d.rate)];
+    return ['more than', 'More than'];
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/£1\b(?![.,]\d)/g, 'one pound').replace(/£(\d[\d,]*(?:\.\d+)?)/g, '$1 pounds').replace(/(^|[^\d.,])1 kWh\b/g, (m, b) => b + '1 kilowatt hour').replace(/(\d) kWh\b/g, '$1 kilowatt hours').replace(/\bkWh\b/g, 'kilowatt hour')
+    .replace(/(\d) min\b/g, '$1 minutes').replace(/(\d) L\b/g, '$1 litres').replace(/(\d) g\b/g, '$1 grams').replace(/(\d) m\b/g, '$1 metres').replace(/(\d) h\b/g, '$1 hours')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, tryT: null, was: undefined }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) { const st = blank(i); st.pick = STEPS[i].want; st.res = 'right'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo', 'try' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A sum, an amount or a step stays together on one line ("15 × 7 = 105", "£0.40", "2,000 g", "÷ 4"),
+  // with the stop after it; a long one may break only before an equals sign.
+  const TOK = '[−+]?£?(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?(?: (?:kWh|min|L|g|m|h)(?![a-zA-Z]))?';
+  const GLUE = new RegExp('(?:[×÷+] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The times to try on the scaling screen: each one plays on the table.
+  const tryBtns = [0, 1, 2].map((k) => K.button({ label: 'Time ' + (k + 1), secondary: true, into: '#tries', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.tries || k >= d.tries.length) return;
+    S[i].was = S[i].tryT; S[i].tryT = d.tries[k];   // was: the time shown before (null: the 7)
+    K.reveal();
+    play(TRYDUR, 'try');
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].tryT = null; S[i].was = undefined;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, a tapped time and the motion after a right answer, from its
+  // start; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { tagt: 15, opl: 15, val: 16, rname: 14, wk: 20 }[cls] || 13;
+    return String(s).length * size * 0.6;
+  }
+  const names = (list, ys) => list.forEach((s, r) => text(NX, ys[r], s, 'rname', 'start'));
+  // A pill with white text on navy, centred at x (kept on the picture), its top at y.
+  function pill(x, y, s) {
+    const w = tw(s, 'tagt') + 20, x0 = K.clamp(x - w / 2, 2, 338 - w);
+    rect('tag', x0, y, w, 24, 8); text(x0 + w / 2, y + 17, s, 'tagt k-nohalo');
+  }
+  // A dashed box with a '?', where an answer will go.
+  function gap(x, y, w) { const x0 = K.clamp(x - w / 2, 2, 338 - w); rect('gapbox', x0, y, w, 24, 8); text(x0 + w / 2, y + 17, '?', 'qm'); }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: 'head', d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 8 * ux + 4.5 * px) + ' ' + r3(y - 8 * uy + 4.5 * py) + ' L' + r3(x - 8 * ux - 4.5 * px) + ' ' + r3(y - 8 * uy - 4.5 * py) + ' Z' }));
+  }
+  // The working, at the foot of the picture, right-aligned.
+  const working = (s, a) => part(a, 6, () => text(334, H - 12, s, 'wk', 'end'));
+
+  // --- the ratio table ---
+  const cx = (k) => TX + k * CW + (CW - 12) / 2;
+  function colBox(k) { rect('col', TX + k * CW, TY, CW - 12, 2 * CH, 6); line('mid', TX + k * CW, TY + CH, TX + k * CW + CW - 12, TY + CH); }
+  const cell = (q, k, r, v) => text(cx(k), TY + r * CH + 19, cellText(q, r, v), 'val');
+  function gapCell(k, r) { rect('gapbox', cx(k) - 17, TY + r * CH + 5, 34, CH - 10, 5); text(cx(k), TY + r * CH + 19, '?', 'qm'); }
+  // The highlight behind the 1 in the column for one (drawn before the column's amounts, so under them).
+  function oneMark(q, k, r) { const w = tw(cellText(q, r, 1), 'val') + 16; rect('hl', cx(k) - w / 2, TY + r * CH + 4, w, CH - 8, 5); }
+  function column(q, k, c) { colBox(k); cell(q, k, 0, c[0]); cell(q, k, 1, c[1]); }
+  // A cell's '?' giving way to its amount (the box fades out first, then the amount in), from t seconds.
+  function swap(q, k, r, v, t, at) {
+    leave(at(t, 0.25), () => gapCell(k, r));
+    part(at(t + 0.25), 4, () => cell(q, k, r, v));
+  }
+  // A step from column k0 to k1, on an arrow curving over the top row and another under the bottom
+  // row: the same step on both amounts.
+  function arcs(k0, k1, op) {
+    const dir = k1 > k0 ? 1 : -1, x0 = cx(k0) + 14 * dir, x1 = cx(k1) - 14 * dir, xm = (x0 + x1) / 2;
+    [[TY - 3, TY - 21, TY - 19], [TY + 2 * CH + 3, TY + 2 * CH + 21, TY + 2 * CH + 30]].forEach((g) => {
+      add(K.svg('path', { class: 'arc', d: 'M' + x0 + ' ' + g[0] + ' Q' + xm + ' ' + g[1] + ' ' + x1 + ' ' + g[0] }));
+      head(x1, g[0], x1 - xm, g[0] - g[1]);
+      text(xm, g[2], op, 'opl');
+    });
+  }
+  const tagUnder = (k, s) => pill(cx(k), TAGY, s);
+  const tableNames = (q) => names(q.names, [TY + 19, TY + CH + 19]);
+  // A row's name as it is said: 'kWh' through say() (kilowatt hours), the rest in lower case, one of
+  // them in the singular ('1 minute').
+  const rowSaid = (q, r) => (q.names[r] === 'kWh' ? 'kilowatt hours' : q.names[r].toLowerCase());
+  function sayCell(q, r, v) {
+    if (v === '?') return 'a question mark';
+    if (r === 1 && q.u[1] === '£') return say(money(v));
+    if (q.names[r] === 'kWh') return say(num(v) + ' kWh');
+    const n = rowSaid(q, r);
+    return say(num(v) + ' ' + (r3(v) === 1 ? n.replace(/s$/, '') : n));
+  }
+  function tableSaid(q, cols, ops, tags) {
+    return 'A ratio table with rows for ' + rowSaid(q, 0) + ' and ' + rowSaid(q, 1) + '. Its columns read ' +
+      cols.map((c) => sayCell(q, 0, c[0]) + ' with ' + sayCell(q, 1, c[1])).join(', then ') +
+      (ops.length ? '. Each step is written over and under both rows: ' + ops.map(say).join(', then ') : '') + '.' +
+      (tags.length ? ' Under the table: ' + tags.map(say).join(', and ') + '.' : '');
+  }
+
+  // --- the double number line ---
+  const lx = (d, v) => LX0 + (LX1 - LX0) * v / d.lmax;
+  const range = (n) => Array.from({ length: n + 1 }, (u, k) => k);
+  // Both lines, a tick every one of the first amount on each, labelled where `topLabs` / `botLabs` say:
+  // the first line's labels under it, the second's over it (between the two lines).
+  function lines2(d, topLabs, botLabs) {
+    names(d.q.names, [TL + 5, BL + 5]);
+    line('nl', LX0, TL, LX1, TL); line('nl', LX0, BL, LX1, BL);
+    for (let k = 0; k <= d.lmax; k++) {
+      line('tick', lx(d, k), TL - 6, lx(d, k), TL + 6); line('tick', lx(d, k), BL - 6, lx(d, k), BL + 6);
+      if (topLabs.indexOf(k) >= 0) text(lx(d, k), TL + 21, num(k), 'tl');
+      if (botLabs.indexOf(k) >= 0) text(lx(d, k), BL - 11, num(k * d.rate), 'tl');
+    }
+  }
+  // A hop under the second line from j to j + 1: one lot of the rate.
+  function hop(d, j) {
+    const x0 = lx(d, j) + 2, x1 = lx(d, j + 1) - 2;
+    add(K.svg('path', { class: 'hop', d: 'M' + r3(x0) + ' ' + (BL + 3) + ' Q' + r3((x0 + x1) / 2) + ' ' + (BL + 22) + ' ' + r3(x1) + ' ' + (BL + 3) }));
+  }
+  // A run of hops counted out from 0 (go: [first, every, how many]), each fading in over HOPIN; a's
+  // are the arrivals (nothing before a right answer on a puzzle). Returns how far the run has got, in
+  // lots of the rate (the dot on the first line eases on a tick as each hop arrives).
+  let hopLog = [];
+  function hopsAt(d, go, a) {
+    let c = 0;
+    for (let j = 0; j < go[2]; j++) {
+      const t0 = go[0] + go[1] * j, h = a(t0, HOPIN);
+      hopLog.push(t0);
+      c += h;
+      part(h, 0, () => hop(d, j));
+    }
+    return c;
+  }
+  function markAt(d, c, top) {
+    const x = lx(d, c);
+    if (top) { circle('dot', x, TL, 4.5); line('stem', x, TL - 14, x, TL - 4); } else { circle('dot', x, BL, 4.5); line('stem', x, BL + 4, x, BL + 16); }
+  }
+  const topPill = (d, c, s) => pill(lx(d, c), TL - 38, s);
+  const botPill = (d, c, s) => pill(lx(d, c), BL + 16, s);
+  const rateTag = (s) => { const w = tw(s, 'tagt') + 20; rect('tag', 4, H - 30, w, 24, 8); text(4 + w / 2, H - 13, s, 'tagt k-nohalo'); };
+  const linesSaid = (d) => 'A double number line, ' + rowSaid(d.q, 0) + ' above and ' + rowSaid(d.q, 1) + ' below, the two locked together, a tick for each one of the ' + rowSaid(d.q, 0) + '.';
+  const hopsSaid = (d, c) => (c >= 1 ? ' Under the lower line, ' + Math.floor(c + 1e-9) + (Math.floor(c + 1e-9) === 1 ? ' hop' : ' hops') + ' of ' + say(amt(d.rate, d.q.u[1])) + ' each.' : '');
+
+  // --- the fuel lines: kWh above, a good load's fuel and a low load's below ---
+  const fx = (d, v) => lx(d, v);
+  // The low load's line (`lowA`: how far it has arrived) is dashed, with no ticks: its rate is not known.
+  function lines3(d, lowA) {
+    names(['kWh', 'Good load'], [F0 + 5, F1 + 5]);
+    line('nl', LX0, F0, LX1, F0); line('nl', LX0, F1, LX1, F1);
+    for (let k = 0; k <= d.lmax; k++) {
+      line('tick', fx(d, k), F0 - 6, fx(d, k), F0 + 6); line('tick', fx(d, k), F1 - 6, fx(d, k), F1 + 6);
+      text(fx(d, k), F0 + 21, num(k), 'tl');
+    }
+    part(lowA, 0, () => { names([d.low], [F2 + 5]); line('nl loose', LX0, F2, LX1, F2); line('tick', LX0, F2 - 6, LX0, F2 + 6); });
+  }
+  // A label over a fuel line at x kWh (kept on the picture), with dots down the locked lines.
+  function fuelAt(d, x, y, s) {
+    const w = tw(s, 'tv'), c = K.clamp(fx(d, x), w / 2 + 2, 338 - w / 2);
+    circle('dot', fx(d, x), y, 4.5);
+    text(c, y - 11, s, 'tv');
+  }
+  const fuelSaid = (d, low) => 'Lines locked at the same kilowatt hours: kilowatt hours on top, labelled 0 to ' + d.lmax + ', then the fuel at a good load, with a tick for each kWh' + (low ? ', then the fuel at ' + d.low.toLowerCase() + ', dashed, with no ticks.' : '.');
+
+  // --- the demonstrations ---
+  // Per one: ÷ 4 is written over and under the table; the column for one fills in; its 1 is
+  // highlighted; the rate is named under it.
+  function demoUnit(d) {
+    const A = AT.unit, q = d.q, t = tableOf(d), arcA = arr(A.arcs), colA = arr(A.col), oneA = arr(A.one), tagA = arr(A.tag);
+    tableNames(q); column(q, 0, t.cols[0]);
+    part(arcA, 0, () => arcs(0, 1, t.ops[0][2]));
+    part(oneA, 0, () => oneMark(q, 1, 0));
+    part(colA, 4, () => column(q, 1, t.cols[1]));
+    part(tagA, 4, () => tagUnder(1, t.tags[0][1]));
+    return tableSaid(q, colA >= 0.5 ? t.cols : [t.cols[0]], arcA >= 0.5 ? [t.ops[0][2]] : [], tagA >= 0.5 ? [t.tags[0][1]] : []) + (oneA >= 0.5 ? ' The 1 is highlighted.' : '');
+  }
+  // Then scale: through one minute, then × 7 (or a tapped time) out to the last column.
+  function demoScale(d, st) {
+    const A = AT.scale, q = d.q, mine = st.tryT != null, t = tableOf(d, st.tryT);
+    const arcA = mine ? 1 : arr(A.arcs), colA = mine ? 1 : arr(A.col), tagA = mine ? 1 : arr(A.tag);
+    const arc2 = mine ? arr(TRY.arcs + 0.25) : arr(A.arcs2), col2 = mine ? arr(TRY.col) : arr(A.col2);
+    if (mine && st.was !== undefined) {
+      const o = tableOf(d, st.was);
+      leave(arr(TRY.arcs, 0.25), () => { arcs(1, 2, o.ops[1][2]); column(q, 2, o.cols[2]); });
+    }
+    tableNames(q); column(q, 0, t.cols[0]);
+    part(arcA, 0, () => arcs(0, 1, t.ops[0][2]));
+    part(colA, 0, () => oneMark(q, 1, 0));
+    part(colA, 4, () => column(q, 1, t.cols[1]));
+    part(tagA, 4, () => tagUnder(1, t.tags[0][1]));
+    part(arc2, 0, () => arcs(1, 2, t.ops[1][2]));
+    part(col2, 4, () => column(q, 2, t.cols[2]));
+    const cols = [t.cols[0]].concat(colA >= 0.5 ? [t.cols[1]] : [], col2 >= 0.5 ? [t.cols[2]] : []), ops = [arcA, arc2].filter((a) => a >= 0.5).map((a, k) => t.ops[k][2]);
+    return tableSaid(q, cols, ops, tagA >= 0.5 ? [t.tags[0][1]] : []);
+  }
+  // Which way round: from £2 for 5 m, ÷ 5 to one metre on the right, then ÷ 2 to £1 on the left.
+  function demoWay(d) {
+    const A = AT.way, q = d.q, t = tableOf(d);
+    const arcA = arr(A.arcs), colA = arr(A.col), tagA = arr(A.tag), arc2 = arr(A.arcs2), col2 = arr(A.col2), tag2 = arr(A.tag2);
+    tableNames(q); column(q, 1, t.cols[1]);
+    part(arcA, 0, () => arcs(1, 2, t.ops[0][2]));
+    part(colA, 0, () => oneMark(q, 2, 0));
+    part(colA, 4, () => column(q, 2, t.cols[2]));
+    part(tagA, 4, () => tagUnder(2, t.tags[0][1]));
+    part(arc2, 0, () => arcs(1, 0, t.ops[1][2]));
+    part(col2, 0, () => oneMark(q, 0, 1));
+    part(col2, 4, () => column(q, 0, t.cols[0]));
+    part(tag2, 4, () => tagUnder(0, t.tags[1][1]));
+    const cols = (col2 >= 0.5 ? [t.cols[0]] : []).concat([t.cols[1]], colA >= 0.5 ? [t.cols[2]] : []);
+    const ops = (arcA >= 0.5 ? [t.ops[0][2] + ' to one metre'] : []).concat(arc2 >= 0.5 ? [t.ops[1][2] + ' to one pound'] : []);
+    return tableSaid(q, cols, ops, [tagA, tag2].map((a, k) => (a >= 0.5 ? t.tags[k][1] : null)).filter(Boolean));
+  }
+  // Working backwards: 90 L is marked on the litres line; hops of 15 L run out to it, one a minute;
+  // the minutes are read off above; the working.
+  function demoBack(d) {
+    const A = AT.back, n = r3(d.target / d.rate);
+    const tA = arr(A.target), ansA = arr(A.ans), wA = arr(A.work);
+    lines2(d, range(d.lmax), range(d.lmax));
+    rateTag(rateText(d.q, d.rate));
+    part(tA, 4, () => { markAt(d, n, false); botPill(d, n, amt(d.target, d.q.u[1])); });
+    const c = hopsAt(d, A.go, arr);
+    part(Math.min(1, c * 3), 0, () => markAt(d, c, true));
+    part(ansA, 4, () => topPill(d, n, amt(n, d.q.u[0])));
+    working(num(d.target) + ' ÷ ' + num(d.rate) + ' = ' + num(n), wA);
+    return linesSaid(d) + ' Each line is labelled at every tick. Beside the lines, the rate: ' + say(rateText(d.q, d.rate)) + '.' +
+      (tA >= 0.5 ? ' On the litres line, ' + say(amt(d.target, d.q.u[1])) + ' is marked.' : '') + hopsSaid(d, c) +
+      (ansA >= 0.5 ? ' Above it, ' + say(amt(n, d.q.u[0])) + '.' : '') + (wA >= 0.5 ? ' At the foot: ' + say(num(d.target) + ' ÷ ' + num(d.rate) + ' = ' + num(n)) + '.' : '');
+  }
+  // Only where it holds: a good load's 200 g per kWh, then 2,000 g for 10 kWh; then the low-power
+  // line, where each kWh, and so all 10, take more.
+  function demoHolds(d) {
+    const A = AT.holds, u = d.q.u[1], all = d.rate * d.x;
+    const gA = arr(A.good), lowA = arr(A.low), m1 = arr(A.more), m2 = arr(A.more2);
+    lines3(d, lowA);
+    fuelAt(d, 1, F1, amt(d.rate, u));
+    part(gA, 4, () => fuelAt(d, d.x, F1, amt(all, u)));
+    part(m1, 4, () => fuelAt(d, 1, F2, 'more than ' + amt(d.rate, u)));
+    part(m2, 4, () => fuelAt(d, d.x, F2, 'more than ' + amt(all, u)));
+    return say(fuelSaid(d, lowA >= 0.5) + ' At a good load, 1 kWh takes ' + say(amt(d.rate, u)) + (gA >= 0.5 ? ' and ' + d.x + ' kWh take ' + say(amt(all, u)) : '') + '.' +
+      (m1 >= 0.5 ? ' At low power, 1 kWh takes more than ' + say(amt(d.rate, u)) : '') + (m2 >= 0.5 ? ', and ' + d.x + ' kWh more than ' + say(amt(all, u)) : '') + (m1 >= 0.5 ? '.' : ''));
+  }
+
+  // --- the puzzles ---
+  // Before the answer: the table with a '?' where the answer goes (and the 1 of the column for one,
+  // which is the question). After a right answer (each part at its time in the step's `at`, through at()):
+  // the step written over and under, the '?' giving way to the amount, the rate named.
+  function drawPuz(d, i, st, right) {
+    const F = d.at, at = (t, dur) => (right && t != null ? arr(t, dur) : 0);
+    if (d.pic === 'line') return puzCount(d, F, at);
+    if (d.pic === 'line3') return puzIdle(d, F, at);
+    const q = d.q, t = tableOf(d), u = t.unknown, last = t.cols.length - 1;
+    tableNames(q); column(q, 0, t.cols[0]);
+    if (!t.via) {
+      oneMark(q, 1, 0); colBox(1); cell(q, 1, 0, 1);
+      swap(q, 1, 1, t.cols[1][1], F.ans, at);
+      part(at(F.arcs), 0, () => arcs(0, 1, t.ops[0][2]));
+      part(at(F.tag), 4, () => tagUnder(1, t.tags[0][1]));
+    } else {
+      colBox(last); cell(q, last, 1 - u[1], t.cols[last][1 - u[1]]);
+      swap(q, last, u[1], t.cols[last][u[1]], F.ans, at);
+      part(at(F.via), 0, () => arcs(0, 1, t.ops[0][2]));
+      part(at(F.viaval), 0, () => oneMark(q, 1, 0));
+      part(at(F.viaval), 4, () => { column(q, 1, t.cols[1]); tagUnder(1, t.tags[0][1]); });
+      part(at(F.arcs), 0, () => arcs(1, 2, t.ops[1][2]));
+    }
+    const got = at(F.ans + 0.25) >= 0.5, viaA = t.via ? at(F.viaval) >= 0.5 : true;
+    const shown = t.cols.map((c, k) => (k === u[0] && !got ? c.map((v, r) => (r === u[1] ? '?' : v)) : c)).filter((c, k) => k !== t.via || viaA);
+    return tableSaid(q, shown, got ? t.ops.map((o) => o[2]) : [], got ? [t.tags[0][1]] : []);
+  }
+  // Turns of a winch: 4 m marked on the rope line, a '?' above it. After a right answer: the '?' leaves,
+  // hops of 0.5 m run out to 4 m, the turns line's labels arrive, the answer and the working.
+  function puzCount(d, F, at) {
+    const n = r3(d.target / d.rate), labA = at(F.ans), wA = at(F.work);
+    const evenBot = range(d.lmax).filter((k) => k === 1 || k % 2 === 0);
+    lines2(d, [0, 1], evenBot);
+    part(labA, 0, () => range(d.lmax).filter((k) => k > 1).forEach((k) => text(lx(d, k), TL + 21, num(k), 'tl')));
+    rateTag(rateText(d.q, d.rate));
+    markAt(d, n, false); botPill(d, n, amt(d.target, d.q.u[1]));
+    leave(at(F.q, 0.25), () => gap(lx(d, n), TL - 38, 40));
+    const c = hopsAt(d, F.go, at);
+    part(Math.min(1, c * 3), 0, () => markAt(d, c, true));
+    part(labA, 4, () => topPill(d, n, amt(n, d.q.u[0])));
+    working(num(d.target) + ' ÷ ' + num(d.rate) + ' = ' + num(n), wA);
+    return linesSaid(d) + ' The turns line is labelled ' + (labA >= 0.5 ? 'at every tick' : 'at 0 and 1') + ', the metres line at 0.5 and every whole metre. Under it, the rate: ' + say(rateText(d.q, d.rate)) + '. On the metres line, ' + say(amt(d.target, d.q.u[1])) + ' is marked' +
+      (labA >= 0.5 ? ', with ' + say(amt(n, d.q.u[0])) + ' above it.' : ', with a question mark above it.') + hopsSaid(d, c) + (wA >= 0.5 ? ' At the foot: ' + say(num(d.target) + ' ÷ ' + num(d.rate) + ' = ' + num(n)) + '.' : '');
+  }
+  // At idle: a good load's 200 g at 1 kWh and 600 g at 3 kWh; on the idle line a '?' at 3 kWh. After a
+  // right answer the '?' gives way to "more than 600 g".
+  function puzIdle(d, F, at) {
+    const u = d.q.u[1], all = d.rate * d.x, A = at(F.ans + 0.25);
+    lines3(d, 1);
+    fuelAt(d, 1, F1, amt(d.rate, u)); fuelAt(d, d.x, F1, amt(all, u));
+    leave(at(F.ans, 0.25), () => { circle('dot', fx(d, d.x), F2, 4.5); gap(fx(d, d.x), F2 - 30, 40); });
+    part(A, 4, () => fuelAt(d, d.x, F2, 'more than ' + amt(all, u)));
+    return say(fuelSaid(d, true) + ' At a good load, 1 kWh takes ' + say(amt(d.rate, u)) + ' and ' + d.x + ' kWh take ' + say(amt(all, u)) + '. At idle, ' + d.x + ' kWh take ' +
+      (A >= 0.5 ? 'more than ' + say(amt(all, u)) : 'a question mark') + '.');
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null; hopLog = [];
+    H = HOF[d.pic];
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    let aria;
+    if (d.show) aria = d.demo === 'unit' ? demoUnit(d) : d.demo === 'scale' ? demoScale(d, st) : d.demo === 'way' ? demoWay(d) : d.demo === 'back' ? demoBack(d) : demoHolds(d);
+    else aria = drawPuz(d, i, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+  // What a tapped time makes, in words.
+  const trySaid = (d, m) => num(m) + (m === 1 ? ' minute is ' : ' minutes is ') + num(d.cols[1][1]) + ' × ' + num(m) + ' = ' + num(d.cols[1][1] * m) + ' litres.';
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) { st.tryT = null; st.was = undefined; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('tries').hidden = !d.tries;
+    tryBtns.forEach((b, k) => {
+      b.el.hidden = !d.tries || k >= d.tries.length;
+      if (b.el.hidden) return;
+      b.setLabel(d.tries[k] + ' min');
+      b.el.setAttribute('aria-label', say(d.tries[k] + ' min'));
+      b.el.setAttribute('aria-pressed', st.tryT === d.tries[k] ? 'true' : 'false');
+    });
+    el('trysay').hidden = !d.tries || st.tryT == null;
+    write(el('trysay'), d.tries && st.tryT != null ? trySaid(d, st.tryT) : '');
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const SC_I = STEPS.findIndex((d) => d.demo === 'scale'), WAY_I = STEPS.findIndex((d) => d.demo === 'way');
+  const BACK_I = STEPS.findIndex((d) => d.demo === 'back'), HOLD_I = STEPS.findIndex((d) => d.demo === 'holds');
+  const COUNT_I = STEPS.findIndex((d) => d.ask === 'count'), IDLE_I = STEPS.findIndex((d) => d.ask === 'holds');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const all = (sel) => Array.from(art.querySelectorAll(sel));
+      return { texts: all('text').map((t) => t.textContent), vals: all('text.val').map((t) => t.textContent), ops: all('text.opl').map((t) => t.textContent),
+        hops: all('path.hop').length, hl: all('rect.hl').length, tags: all('text.tagt').map((t) => t.textContent) };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const TABLES = STEPS.map((d) => tableOf(d)).filter(Boolean);
+  K.check('A rate with a denominator of 1 is called a unit rate', () =>
+    TABLES.every((t) => t.ones.every((o) => t.cols[o[0]][o[1]] === 1) && t.tags.every((g) => / per (minute|hour|metre|turn|kWh|£1)$/.test(g[1]))) &&
+    STEPS.every((d, i) => d.pic !== 'table' || drawn(i, d.show ? blank(i) : solved(i)).hl === tableOf(d).ones.length), { source: 'https://static.bigideasmath.com/protected/content/pe/fl2/msfl2_adv1_pe_14.pdf' });
+  K.check('Dividing both amounts by the same number keeps the rate, and multiplying from one scales it: every column is the one before it with the step written on both rows, all at the same rate, so 60 ÷ 4 = 15, 24 ÷ 3 = 8, 15 × 7 = 105, 18 ÷ 4 = 4.5 and 4.5 × 6 = 27, 2 ÷ 5 = 0.4 and 5 ÷ 2 = 2.5, 12 ÷ 8 = 1.5, 1,080 ÷ 6 = 180 and 180 × 10 = 1,800, 6 ÷ 4 = 1.5 and 1.5 × 10 = 15', () =>
+    TABLES.every((t) => t.ops.every((o) => apply(o[2], t.cols[o[0]]).join() === t.cols[o[1]].join()) && t.cols.every((c) => K.near(c[1] / c[0], t.cols[0][1] / t.cols[0][0], 1e-9))) &&
+    TABLES.map((t) => t.cols.map((c) => c.join(':')).join('=')).join(' ') === '4:60=1:15 3:24=1:8 4:60=1:15=7:105 4:18=1:4.5=6:27 2.5:1=5:2=1:0.4 8:12=1:1.5 6:1080=1:180=10:1800 4:6=1:1.5=10:15');
+  K.check('Per metre divides by the metres: £2 for 5 m is £0.40 per metre, and 5 ÷ 2 = 2.5 m is what £1 buys, a different rate; the two rates multiply to 1, and on every unit-rate puzzle the wrong-way division gives the other one', () => {
+    const t = tableOf(STEPS[WAY_I]);
+    return t.tags.map((g) => g[1]).join('|') === '£0.40 per metre|2.5 m per £1' && K.near(t.cols[2][1] * t.cols[0][0], 1, 1e-9) &&
+      SLIP.flip(STEPS[1]) === '0.125 L' && K.near(0.125 * 8, 1, 1e-9) && SLIP.flip(STEPS[5]) === '8 ÷ 12' && K.near(valueOf('8 ÷ 12') * 1.5, 1, 1e-3);
+  });
+  K.check('Through one minute, any time scales: 7 minutes at 15 litres per minute is 105 litres, and 2, 10 and 60 minutes are 30, 150 and 900 litres, the table writing × 7, × 2, × 10 and × 60 on both rows', () => {
+    const d = STEPS[SC_I];
+    return tableOf(d).cols[2].join() === '7,105' && d.tries.map((m) => tableOf(d, m).cols[2][1]).join() === '30,150,900' &&
+      d.tries.every((m) => { const g = drawn(SC_I, Object.assign(blank(SC_I), { tryT: m })); return g.ops.filter((s) => s === '× ' + m).length === 2 && g.vals.indexOf(num(15 * m)) >= 0; });
+  });
+  K.check('Working backwards counts lots of the rate: 90 litres at 15 litres per minute is 90 ÷ 15 = 6 minutes, six hops of 15, and 6 × 15 = 90; 4 m at 0.5 m per turn is 8 turns, eight hops of 0.5, and 8 × 0.5 = 4; 15 m at 1.5 m per turn is 10 turns, and 10 × 1.5 = 15', () => {
+    const b = STEPS[BACK_I], c = STEPS[COUNT_I];
+    return drawn(BACK_I, blank(BACK_I)).hops === 6 && 6 * b.rate === b.target && drawn(COUNT_I, solved(COUNT_I)).hops === 8 && drawn(COUNT_I, blank(COUNT_I)).hops === 0 && 8 * c.rate === c.target &&
+      answerOf(STEPS[11]) === '10 turns' && 10 * 1.5 === 15;
+  });
+  K.check('Specific fuel consumption increases greatly at low power and dramatically at idle', () => {
+    const g = drawn(HOLD_I, blank(HOLD_I)), h = drawn(IDLE_I, solved(IDLE_I));
+    return g.texts.indexOf('more than 200 g') >= 0 && g.texts.indexOf('more than 2,000 g') >= 0 && g.texts.indexOf('2,000 g') >= 0 && h.texts.indexOf('more than 600 g') >= 0 &&
+      h.texts.indexOf('600 g') >= 0 && STEPS[IDLE_I].want === 'More than 600 g';
+  }, { source: 'https://www.sustainable-ships.org/stories/2022/sfc' });
+  K.check('Each puzzle accepts only its own answer, worked out by its rule, and every wrong answer offered is the one a named slip gives: dividing the wrong way round, multiplying where it divides, adding the gap, scaling the given amount as if it were one, sharing over the wrong amount, multiplying by the rate when working backwards, or using a rate where it does not hold', () =>
+    DO.length === 7 && DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && answerOf(d) === d.want && d.opts.every((o) => pickRight(i, o) === (o === d.want)) && Object.keys(d.slips).length === 2 &&
+        Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && SLIP[d.slips[o]](d) === o && !!d.hints[o]);
+    }) && valueOf(STEPS[5].want) === 1.5);
+  K.check('Before an answer, nothing in a puzzle\'s picture shows its answer: no cell, label or pill gives the amount asked for, and no step is written', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      return hiddenOf(d).every((h) => g.texts.every((s) => s.indexOf(h) < 0)) && g.ops.length === 0;
+    }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 3 to 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; a tapped time\'s motion and every answer\'s within 2.5 s; parts start at least 0.45 s apart, each once the travel before it has ended; a run of hops is counted out, each hop starting at least 0.2 s after the one before', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+    });
+    const d = STEPS[SC_I], keepA = S[SC_I];
+    const tries = d.tries.every((m) => { T = Infinity; latest = 0; S[SC_I] = Object.assign(blank(SC_I), { tryT: m }); try { paint(SC_I); } finally { S[SC_I] = keepA; } return latest <= TRYDUR + 1e-9 && TRYDUR <= 2.5; });
+    T = keepT; paint();
+    // each timetable's parts in order: a start, and when it is done moving (a travel's end)
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => (Array.isArray(A[k]) ? [A[k][0], A[k][0] + A[k][1] * (A[k][2] - 1) + HOPIN] : [A[k], A[k]])).sort((a, b) => a[0] - b[0]);
+      let end = -Infinity;
+      return ps.every((q, k) => {
+        const ok = k === 0 || q[0] === ps[k - 1][0] || (q[0] - ps[k - 1][0] >= 0.45 - 1e-9 && q[0] >= end + 0.1 - 1e-9);
+        end = Math.max(end, q[1]);
+        return ok;
+      });
+    };
+    // each run of hops as drawn: as many hops as lots of the rate, starts at least 0.2 s apart
+    const runs = [[BACK_I, AT.back.go], [COUNT_I, STEPS[COUNT_I].at.go]].every((r) => {
+      const d = STEPS[r[0]], keepS = S[r[0]];
+      T = Infinity; hopLog = [];
+      S[r[0]] = d.show ? blank(r[0]) : solved(r[0]);
+      try { paint(r[0]); } finally { S[r[0]] = keepS; }
+      return r[1][2] === r3(d.target / d.rate) && hopLog.length === r[1][2] && hopLog.every((t, j) => j === 0 || t - hopLog[j - 1] >= 0.2 - 1e-9);
+    });
+    T = keepT; paint();
+    return ok && tries && runs && Object.keys(AT).every((k) => spaced(AT[k])) && spaced(TRY) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

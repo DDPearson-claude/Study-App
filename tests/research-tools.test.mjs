@@ -73,3 +73,18 @@ test('sources --quotes passes quotes on the page and fails the rest', () => {
   assert.match(r.stdout, /FAIL 3 .*not a page the tools returned/);
   assert.match(r.stdout, /"ok":1,"failed":2/);
 });
+
+test('harvest --marker finds a workflow agent whose prompt follows a relayed request', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'harvest-wf-'));
+  const f = transcript(dir, dir);
+  const lines = readFileSync(f, 'utf8').trim().split('\n');
+  const relay = JSON.stringify({ type: 'user', message: { role: 'user', content: '[Workflow harness] the user asked for a build' } });
+  // A fake home whose projects folder holds only this transcript, nested as workflow agents are.
+  const home = join(dir, 'home'), wf = join(home, '.claude', 'projects', 'p', 's', 'subagents', 'workflows', 'wf_x');
+  mkdirSync(wf, { recursive: true });
+  writeFileSync(join(wf, 'agent-wf.jsonl'), [relay].concat(lines).join('\n') + '\n');
+  const out = join(dir, 'tools');
+  const r = spawnSync(process.execPath, [join(root, 'tools/course/harvest.mjs'), '--marker', 'RESEARCH-RUN test-marker', '--out', out], { encoding: 'utf8', env: { ...process.env, HOME: home } });
+  assert.equal(r.status, 0, r.stdout + r.stderr);
+  assert.equal(readdirSync(out).length, 2);
+});
