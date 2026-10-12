@@ -147,6 +147,12 @@ Save the printed `applied` and `notes` as `$D/I.verify.result.json` = `{"status"
 If hard problems remain after one repair, copy the final lesson to the verified file and record
 `{"status": "failed", "applied": [], "notes": []}`, as the app would.
 
+With lesson i1's fact-check, the same fresh reader also checks the course's hook and In one breath
+(`$D/topic.json`) against `$D/research.json` and the lesson, and saves `$D/overview.check.json` =
+`{"status": "done", "by": "<who>", "at": "<date>", "notes": ["..."]}` (`"failed"`, with what was
+wrong, if anything was). assemble then stamps the topic `overviewChecked`, and the topic page says
+the overview was checked instead of calling it Claude's unchecked overview.
+
 ## 5. Build and test each interactive
 ```
 node tools/build.mjs --only 32,33 --out tests/out/kit.html          # once, the kit test page
@@ -159,7 +165,11 @@ If the verdict's `ok` is false: write its `report` object to `$D/I.aN.report-onl
 ```
 node tools/eval/prompts.mjs repair-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.final.json --html $D/I.bodyN.x.html --report $D/I.aN.report-only.json > $D/I.repairN.prompt.txt
 ```
-and answer it (model hat) as the next attempt. Up to five attempts (the page allows three).
+and answer it (model hat) as the next attempt. At most three attempts (Dan, 12 Oct): a body that
+fails three times has the wrong brief, not bad luck, and each further try costs about as much as a
+whole research stage. Stop, say in one sentence what keeps going wrong, fix the lesson's
+`interactive.brief` (step 3) when that is the cause, and start the count again from the new brief;
+`attempts.txt` then records both counts ("3 + 2").
 Then look at the screenshots with the Read tool (`$D/I.aN-360-light.png`, `-360-dark.png`,
 `-1280-light.png`, and the `-moved` and `-end` shots): the opening state must look alive and
 show the thing to be moved; the moved state must show the cause and the effect; sentences and

@@ -255,6 +255,7 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
 ```
 { id, title, query, createdAt, updatedAt, plannedAt?, status:'planning'|'ready'|'failed', error,
   hook, oneBreath, level:'new'|'some'|'solid', hue,              // hue = U.hash(title) % 360
+  overviewChecked?: true,                                         // ready-made only: hook and oneBreath checked at build (below)
   mode?:'study'|'read',                                          // absent: study (below)
   intake?:{ questions:[{ id, q, options:[2-5 strings], multi: bool, other: bool }],
             answers:{ [id]:{ picked:[option strings], other: string|null } } } | null,
@@ -279,11 +280,16 @@ Shared content (the artifact is private, so "shared" means Dan's devices).
   // lists the sources it drew on, or says it was written without them", adding "N of the M
   // lessons written so far were checked against them." when some were.
   // hook, oneBreath and calibration (answer, why) come from plan-topic, before any research, and
-  // are never checked, so the topic page says under "In one breath" (or under the hook, when there
-  // is no oneBreath) and under a revealed warm-up answer, in small muted words, that they are
-  // Claude's overview (answer) from what it already knows, not checked against sources. Under "In
-  // one breath" it names the hook "the question above", or "the line above" when an older plan's
-  // hook is a statement (not ending in "?").
+  // are never checked in the page, so the topic page says under "In one breath" (or under the hook,
+  // when there is no oneBreath) and under a revealed warm-up answer, in small muted words, that they
+  // are Claude's overview (answer) from what it already knows, not checked against sources. Under
+  // "In one breath" it names the hook "the question above", or "the line above" when an older plan's
+  // hook is a statement (not ending in "?"). A ready-made course's build has a fresh reader check
+  // the hook and oneBreath (tools/course/RUNBOOK.md section 4; assemble.mjs stamps
+  // `overviewChecked: true`), and then those two notes say "checked against the course's sources
+  // when it was built" instead; the warm-up's note is unchanged, since its answers are not checked.
+  // The Sources cards fold away under the status line ("Show all N sources"; `.lib-fold`), closed
+  // until Dan opens them, and stay as he left them across a redraw.
 kind: 'mechanism'|'quantity'|'process'|'structure'|'history'|'concept'|'skill'
 ```
 `mode` is how Dan wants the course: `'study'` (teach and test: the default, and what a topic without

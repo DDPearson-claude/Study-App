@@ -14,7 +14,8 @@
 //       the topic readyMade.
 //       Reads topic.json, research.json and, for every idea, <iid>.lesson.verified.json (else
 //       .lesson.final.json), <iid>.verify.result.json, <iid>.body.final.html, <iid>.verdict.final.json
-//       and <iid>.attempts.txt (and <iid>.guide.json, the dossier's still guide, when there is one), and
+//       and <iid>.attempts.txt (and <iid>.guide.json, the dossier's still guide, when there is one),
+//       plus overview.check.json (the hook and In one breath checked: the topic gets overviewChecked), and
 //       writes <dir>/out/: topic.json, research-topic.json,
 //       research-<iid>.json, lesson-<iid>.json and manifest.json (collection, doc_id, file per
 //       document). The tid is read from <dir>/tid.txt, or made (U.slug(query) + '-' + 5 random
@@ -129,7 +130,8 @@ if (cmd === 'docs') {
       if (Buffer.byteLength(html, 'utf8') > 150 * 1024) { problems.push(iid + ': interactive body over 150 KB'); return; }
       const verdict = existsSync(rf) ? read(rf) : null;
       if (!verdict || verdict.ok !== true) { problems.push(iid + ': no passing verdict in ' + rf); return; }
-      const attempts = existsSync(join(dir, iid + '.attempts.txt')) ? Number(readFileSync(join(dir, iid + '.attempts.txt'), 'utf8').trim()) || 1 : 1;
+      // "7", or "3 + 2" after a brief fix and a fresh count (RUNBOOK section 5): the total either way.
+      const attempts = existsSync(join(dir, iid + '.attempts.txt')) ? (readFileSync(join(dir, iid + '.attempts.txt'), 'utf8').match(/\d+/g) || []).map(Number).reduce((a, b) => a + b, 0) || 1 : 1;
       interactive = { html, title: lesson.interactive.title || idea.title, brief: lesson.interactive.brief || '', selftest: verdict.report || verdict, attempts };
     } else {
       note = existsSync(join(dir, iid + '.note.txt')) ? readFileSync(join(dir, iid + '.note.txt'), 'utf8').trim() : 'This idea is taught without an interactive.';
@@ -163,6 +165,10 @@ if (cmd === 'docs') {
     level: topic.level || 'new', hue: U.hash(plan.title) % 360, mode, intake: topic.intake || null,
     ideas: plan.ideas, calibration: plan.calibration,
     readyMade: existsSync(join(dir, 'shelf.json')) ? read(join(dir, 'shelf.json')) : undefined,
+    // The hook and In one breath, checked by a fresh reader against the research and the verified
+    // lessons (RUNBOOK section 4, <dir>/overview.check.json): the topic page then says they were
+    // checked instead of calling them Claude's unchecked overview.
+    overviewChecked: existsSync(join(dir, 'overview.check.json')) && read(join(dir, 'overview.check.json')).status === 'done' ? true : undefined,
     research: research
       ? { status: 'done', at: now, sources: allSources.length, dropped: 0, error: null, reason: null, tries: 0 }
       : { status: 'failed', at: now, sources: 0, error: null, reason: 'none_confirmed', tries: 1 },

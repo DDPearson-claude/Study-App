@@ -288,7 +288,7 @@ await test('topic: ready page with hook, path and library (no warm-up once start
   for (const [w, dark] of WIDTHS) {
     const app = await open({ width: w, dark, db: seedDb(), hash: '#/t/how-tides-work-ab12' });
     await app.page.waitForSelector('.path');
-    await app.page.waitForSelector('.src');
+    await app.page.waitForSelector('.lib-fold');   // the source cards are folded away until opened
     eq(await text(app, '.tp-title'), 'How tides work', 'title');
     assert((await text(app, '.tp-hook')).startsWith('Why does the sea rise twice'), 'hook');
     assert((await text(app, '.tp-breath')).includes('two bulges'), 'in one breath');
@@ -299,7 +299,8 @@ await test('topic: ready page with hook, path and library (no warm-up once start
     assert((await text(app, '.pnode:nth-child(5)')).includes('You may already know this'), 'known idea');
     assert((await text(app, '.pnode:nth-child(6) .pnode-deps')).includes('“Earth turns under the bulges” and “Spring and neap tides”'), 'deps as words');
     eq(await text(app, '.lib-status'), 'Research found 4 sources', 'research status: what research found');
-    eq(await count(app, '.src'), 4, 'four sources');
+    await app.page.click('.lib-fold > summary');   // the cards are folded away until opened
+    eq(await count(app, '.src:visible'), 4, 'four sources');
     assert((await text(app, '.lib-group-h')).includes('Spring and neap tides'), 'per-idea sources');
     eq(await count(app, '.tp-warm, .tp-warm-again'), 0, 'no warm-up once Dan has started');
     eq(await count(app, '.pnode:nth-child(3) .pnode-deps'), 0, 'no deps text when it is just the idea before');
@@ -1285,7 +1286,7 @@ await test('audit 24: the plan\'s overview says it is Claude\'s and not source-c
   db['topics/index-funds-cd34'] = { ...db['topics/index-funds-cd34'], oneBreath: '' };   // an older plan with no summary
   for (const [w, dark] of [[360, false], [1280, true]]) {
     const app = await open({ width: w, dark, db, hash: '#/t/how-tides-work-ab12' });
-    await app.page.waitForSelector('.src');
+    await app.page.waitForSelector('.lib-fold');
     eq(await text(app, '.tp-breath .tp-overview-note'), OVERVIEW, 'In one breath and the hook are labelled as Claude\'s overview');
     eq(await text(app, '.lib-status'), 'Research found 4 sources', 'the tick says what research found');
     assert(!/Sources checked|checked against \d/i.test(await text(app, '#view')), 'no claim that the sources checked anything, beside the overview');
@@ -1486,7 +1487,7 @@ await test('views check 1: the Library says what research found, never that less
     eq(await text(app, '.tcard[href="#/t/how-tides-work-ab12"] .src-badge'), 'Sources found', 'Learn\'s badge: what research found');
     assert(!CLAIMS.test(await text(app, '.learn-topics')), 'no "checked" claim on Learn: ' + await text(app, '.learn-topics'));
     await app.page.click('.tcard[href="#/t/how-tides-work-ab12"]');
-    await app.page.waitForSelector('.src');
+    await app.page.waitForSelector('.lib-fold');
     eq(await text(app, '.lib-status'), 'Research found 4 sources', 'the Library: what research found');
     eq(await text(app, '.tp-lib .lib-note'), LIB_NOTE, 'and that each lesson says whether it drew on them');
     assert(!CLAIMS.test(await text(app, '#view')), 'no claim that lessons were checked: ' + await text(app, '.tp-lib'));
@@ -1525,6 +1526,38 @@ await test('views check 1b: the Library claims a fact-check only where every who
 });
 
 // 2. Older plans can have a statement as the hook: the note under "In one breath" names it as such.
+// 12 Oct: a ready-made course's hook and In one breath are checked when it is built
+// (topic.overviewChecked, from tools/course/assemble.mjs), so its notes say so; and the Sources
+// cards fold away under the status line until Dan opens them, staying open across a redraw.
+await test('ready-made: a checked overview says so; the sources fold away, and stay open across a redraw', async () => {
+  const db = seedDb();
+  db['topics/how-tides-work-ab12'] = { ...db['topics/how-tides-work-ab12'], readyMade: { shelf: 'maths', course: 'tides' }, overviewChecked: true };
+  db['topics/index-funds-cd34'] = { ...db['topics/index-funds-cd34'], oneBreath: '', overviewChecked: true };
+  const app = await open({ db, hash: '#/t/how-tides-work-ab12' });
+  await app.page.waitForSelector('.lib-fold');
+  eq(await text(app, '.tp-breath .tp-overview-note'), 'This summary and the question above were checked against the course\'s sources when it was built.', 'checked: said under In one breath');
+  eq(await text(app, '.lib-status'), 'Research found 4 sources', 'the status line shows as before');
+  eq(await count(app, '.src:visible'), 0, 'the source cards start folded');
+  eq(await text(app, '.lib-fold > summary'), 'Show all 4 sources', 'the fold says how many');
+  const row = await app.page.locator('.lib-fold > summary').boundingBox();
+  assert(row && row.height >= 44, 'the fold row is a 44 px target (' + (row && row.height) + ')');
+  await app.page.click('.lib-fold > summary');
+  eq(await count(app, '.src:visible'), 4, 'open: the four cards');
+  // The Library redraws when an idea's title changes on another device: the fold stays open.
+  await app.page.evaluate(() => { const t = JSON.parse(JSON.stringify(window.__CLAUDE_STUB__.get('topics/how-tides-work-ab12'))); t.ideas[0].title = 'Gravity fades with distance'; window.__CLAUDE_STUB__.seed('topics/how-tides-work-ab12', t); });
+  await app.page.waitForFunction(() => /Gravity fades/.test(document.querySelector('.path').textContent));
+  eq(await count(app, '.src:visible'), 4, 'still open after the redraw');
+  await shot(app, 'ready-made-overview-checked-360', { full: false });
+  // An older plan with no summary: the note under the hook says checked too.
+  await app.page.evaluate(() => U.go('#/t/index-funds-cd34'));
+  await app.page.waitForSelector('.path');
+  eq(await text(app, '.tp-head .tp-overview-note'), 'Checked against the course\'s sources when it was built.', 'checked, under the hook');
+  // A course with no kept sources has nothing to fold.
+  await app.page.evaluate(() => U.go('#/t/minor-keys-ef56'));
+  await app.page.waitForSelector('.path');
+  eq(await count(app, '.lib-fold'), 0, 'no sources: no fold');
+});
+
 await test('views check 2: the overview note calls a statement hook "the line above", a question "the question above"', async () => {
   const db = seedDb();
   db['topics/minor-keys-ef56'] = { ...db['topics/minor-keys-ef56'], hook: 'A weight on a string kept the world on time for 300 years.' };
