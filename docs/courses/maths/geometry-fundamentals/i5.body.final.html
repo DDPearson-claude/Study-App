@@ -1,0 +1,1147 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  /* Nothing in the picture is selected as text while a corner or point is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  /* Unit squares and grid paper: faint lines; the axes in ink; their names in teal, their numbers in muted. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .ax { stroke: var(--k-ink); stroke-width: 1.75; stroke-linecap: round; }
+  /* Areas: the squares being counted in the light tint; the right-angled triangle in use in the second tint. */
+  .scene .t1 { fill: var(--k-fill1); }
+  .scene .t3 { fill: var(--k-fill3); }
+  .scene .sqo { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; stroke-linejoin: round; }
+  /* Shapes in ink; a box's three hidden edges thin and muted. */
+  .scene .shp { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .shp.thin { stroke-width: 1.75; }
+  .scene .hid { fill: none; stroke: var(--k-muted); stroke-width: 1.25; }
+  /* The straight distance (a diagonal, a run, a gap) in ink, thicker; the legs across and up in ink. */
+  .scene .run { fill: none; stroke: var(--k-accent2); stroke-width: 3.25; stroke-linecap: round; }
+  .scene .run.part { stroke-width: 2.5; }
+  .scene .leg { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  /* The way round two walls, beside the straight run: muted, named in the readout. */
+  .scene .route { fill: none; stroke: var(--k-muted); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .route.way { stroke-dasharray: 7 6; stroke-linecap: butt; }
+  .scene .rmk { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  /* Square corners, for comparison with a frame that leans: dashed, and named beside it. */
+  .scene .dsq { fill: none; stroke: var(--k-muted); stroke-width: 1.75; stroke-dasharray: 6 4; }
+  /* A slip, in the warning colour, over any line style above. */
+  .scene .bad { stroke: var(--k-warn); }
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .axv { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .patch { fill: var(--k-bg); }
+  /* The readout along the top: a sum and what it comes to. */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* Points and corners in ink; one put in the wrong place in the warning colour; the one you move has a soft ring. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt.bad { fill: var(--k-warn); }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  /* The places Dan touches: the picture (tap to move the corner or point there) and the corner or point (drag it). */
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Floors, rooms, a frame and a panel drawn to scale, points on a grid, and boxes drawn as see-through frames, each with the right-angled triangle that gives a straight distance.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 260" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Square the two sides that meet at the right angle, add, and take the root. All sizes are example values. Square roots that do not come out exactly are rounded to two decimal places and shown with ≈.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // demo: what a SHOW step plays (dur seconds); grip: what Dan can move once it has played (a room's far
+  // corner, or a point on the grid). A 'pick' puzzle takes one answer, its picture `pic`; the 'drag'
+  // puzzle asks for the room's far corner to be put at `to`. fb: how long the motion after a right
+  // answer plays; at: when each part of it arrives, in seconds after Check. slips: which slip gives each
+  // wrong answer, and hints: what is said for it.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the corner to its place first.';
+  // After a right answer. FLOOR, SIDE: the right-angled triangle picked out with its square corner; the
+  // sum in the readout; the length asked for named. RUN: the triangle; the readouts. GRIDA: the leg across
+  // grows, then the leg up; the straight line; the sum. BOXA: the floor's triangle and diagonal; its sum;
+  // the upright triangle; the line through the box; the sum. FRAME: square corners drawn dashed; the sum.
+  // PANEL: 50 cm said as 0.5 m; the triangle; the sum.
+  const FLOOR = { tri: 0.1, ro: 0.6, lbl: 1.1 };
+  const RUN = { tri: 0.1, ro: 0.6 };
+  const SIDE = { tri: 0.1, ro: 0.6, lbl: 1.1 };
+  const GRIDA = { across: 0.1, up: 0.55, line: 1.0, ro: 1.5 };
+  const BOXA = { floor: 0.1, ro1: 0.55, tri: 1.0, line: 1.45, ro2: 1.9 };
+  const FRAME = { sq: 0.1, ro: 0.6 };
+  const PANEL = { unit: 0.1, tri: 0.6, ro: 1.1 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long a square takes to grow out from its side, a diagonal or run to grow, the way round two walls
+  // to be traced, a leg on the grid to grow, and the line through a box to grow.
+  const SQ_T = 0.6, DIAG_T = 0.6, ROUTE_T = 0.8, LEG_T = 0.45, LINE_T = 0.5, BOXLINE_T = 0.45;
+
+  // The sizes, all example values. The floor of screen 1 (m); the room of screens 3 and 4, on a grid of
+  // 1 m squares up to 12 m by 7 m; the room with a 15 m run (5); the points on the grid (6, 7); the boxes
+  // (8, 9, 12), length by width by height; the frame, with its measured diagonal (10); the panel (11).
+  const RECT1 = [4, 3], ROOM0 = [12, 5], ROOM_MAX = [12, 7], RUNS = { want: 10 }, SIDE5 = { run: 15, w: 9 };
+  const GRID_A = [-1, 1], GRID_B = [4, 3], GRID_X = [-3, 7], GRID_Y = [-1, 7];
+  const FRAME10 = { w: 80, h: 60, diag: 101 };
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  // Up to two decimal places, trailing zeros dropped, thousands with commas, a true minus sign.
+  function num(v) {
+    const a = Math.round(v * 100) / 100, s = Math.abs(a).toFixed(2).replace(/\.?0+$/, '').split('.');
+    return (a < 0 ? '−' : '') + s[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (s[1] ? '.' + s[1] : '');
+  }
+  const amt = (v, u) => num(v) + (u ? ' ' + u : '');
+  // A value is shown exactly when it is a whole number of hundredths; otherwise it is rounded, with ≈.
+  const exact = (v) => Math.abs(v * 100 - Math.round(v * 100)) <= 1e-9;
+  const eq = (v) => (exact(v) ? '=' : '≈');
+  const sqd = (v) => num(v) + '²';
+  const hyp = (a, b) => Math.sqrt(a * a + b * b);
+  const hyp3 = (a, b, c) => Math.sqrt(a * a + b * b + c * c);
+  const legOf = (c, a) => Math.sqrt(c * c - a * a);
+  // A room as its corner puts it ("8 m by 6 m"), and back.
+  const dimsOf = (p) => amt(p[0], 'm') + ' by ' + amt(p[1], 'm');
+  const parseDims = (s) => { const m = /^(\d+) m by (\d+) m$/.exec(s); return m ? [+m[1], +m[2]] : null; };
+  // How far across and up from a to b on the grid: each the larger number take away the smaller.
+  const across = (a, b) => Math.abs(b[0] - a[0]), upOf = (a, b) => Math.abs(b[1] - a[1]);
+  const gap = (a, b) => hyp(across(a, b), upOf(a, b));
+  // The frame: sides w along the bottom and h up its leaning side, at the corner angle its measured
+  // diagonal gives (from the diagonal squared = w² + h² + 2wh × the lean's share, worked back).
+  function frameCorners(f) {
+    const c = (f.diag * f.diag - f.w * f.w - f.h * f.h) / (2 * f.w * f.h), s = Math.sqrt(1 - c * c);
+    return [[0, 0], [f.w, 0], [f.w + f.h * c, f.h * s], [f.h * c, f.h * s]];
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/\((−?[\d.]+), (−?[\d.]+)\)/g, ' the point $1, $2 ').replace(/√\(/g, 'the square root of (').replace(/√/g, 'the square root of ')
+    .replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres').replace(/²/g, ' squared').replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/≈/g, ' about ')
+    .replace(/(^|[^\d.])1 (metre|centimetre)s\b/g, (m, a, u) => a + '1 ' + u).replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  const STEPS = [
+    { show: true, demo: 'rect', dur: 4.0, name: 'The diagonal is a hypotenuse',
+      text: 'A *diagonal* cuts a rectangle into two right-angled triangles, and it is their hypotenuse. On a 4 m by 3 m floor, 4² + 3² = 25, so the diagonal is √25 = 5 m.' },
+    { kind: 'pick', pic: 'floor', dims: [6, 2.5], opts: ['6.5 m', '8.5 m', '42.25 m'], want: '6.5 m', slips: { '8.5 m': 'add', '42.25 m': 'noroot' }, fb: 1.7, at: FLOOR, name: 'A floor\'s diagonal',
+      task: 'A floor is 6 m by 2.5 m. How long is its diagonal?',
+      why: 'The diagonal is the hypotenuse of the right-angled triangle under it. 6² + 2.5² = 36 + 6.25 = 42.25, and √42.25 = 6.5 m.',
+      hint: 'Not quite. Square each side, add, then take the square root.',
+      hints: { '8.5 m': 'Not quite. 8.5 m goes round two sides. The diagonal cuts the corner, so square the sides, add, then take the square root.',
+        '42.25 m': 'Not quite. 42.25 is the diagonal squared. Take its square root to get the length.' } },
+    { show: true, demo: 'run', dur: 4.2, grip: 'room', name: 'Straight across a room',
+      text: 'Straight across a 12 m by 5 m room is √(12² + 5²) = 13 m. Round two walls is 12 + 5 = 17 m. Drag the corner to try other rooms.' },
+    { kind: 'drag', pic: 'room', to: [8, 6], start: [3, 2], want: '8 m by 6 m', fb: 1.2, at: RUN, name: 'A 10 m run',
+      task: 'Drag the corner to make a room whose straight run across, corner to corner, is 10 m.',
+      why: 'An 8 m by 6 m room has a straight run of √(8² + 6²) = √100 = 10 m. Round two walls it is 14 m.',
+      hint: 'Not quite. Compare this room\'s straight run with 10 m.' },
+    { kind: 'pick', pic: 'side', opts: ['12 m', '6 m', '17.49 m'], want: '12 m', slips: { '6 m': 'sub', '17.49 m': 'addsq' }, fb: 1.7, at: SIDE, name: 'A missing side',
+      task: 'A straight run across a room, corner to corner, is 15 m. The room is 9 m wide. How long is it?',
+      why: 'The 15 m run is the hypotenuse, so the length squared is 15² − 9² = 225 − 81 = 144. √144 = 12 m.',
+      hint: 'Not quite. Take the squares away, 15² − 9², then take the square root.',
+      hints: { '6 m': 'Not quite. That takes the lengths away. Take away their squares, 15² − 9², then take the square root.',
+        '17.49 m': 'Not quite. Adding the squares gives more than the 15 m run, which is the longest side. Take 9² away from 15² instead.' } },
+    { show: true, demo: 'grid', dur: 4.2, grip: 'grid', name: 'Between two points',
+      text: 'From (−1, 1) to (4, 3) is 4 − (−1) = 5 across and 2 up. Across and up meet at a right angle, so the points are √(5² + 2²) = √29, about 5.39, apart.' },
+    { kind: 'pick', pic: 'grid', a: [-2, 1], b: [6, 7], opts: ['10', '14', '7.21'], want: '10', slips: { '14': 'gridline', '7.21': 'sign' }, fb: 2.1, at: GRIDA, name: 'Count across and up',
+      task: 'How far apart are (−2, 1) and (6, 7)?',
+      why: 'From −2 to 6 is 6 − (−2) = 8 across, and from 1 to 7 is 6 up. √(8² + 6²) = √100 = 10.',
+      hint: 'Not quite. Count across and up, then square, add and take the root.',
+      hints: { '14': 'Not quite. 14 goes along the gridlines, across and then up. The straight line is √(across² + up²).',
+        '7.21': 'Not quite. From −2 to 6 is 8 across, not 4. Count 2 to the y-axis, then 6 more.' } },
+    { show: true, demo: 'box', dur: 3.9, dims: [6, 3, 2], unit: 'm', name: 'Through a box',
+      text: 'Across a 6 m by 3 m floor, the diagonal squared is 6² + 3² = 45. It meets the 2 m height at a right angle, so through the box is √(45 + 2²) = 7 m.' },
+    { kind: 'pick', pic: 'box', dims: [40, 40, 70], unit: 'cm', opts: ['90 cm', '126.57 cm', '56.57 cm'], want: '90 cm', slips: { '126.57 cm': 'addh', '56.57 cm': 'floor' }, fb: 2.5, at: BOXA, name: 'A cabinet',
+      task: 'A steel cabinet is 40 cm wide, 40 cm deep and 70 cm tall. How far is it straight from a bottom corner to the far top corner?',
+      why: 'Across the floor, 40² + 40² = 3,200. That diagonal meets the 70 cm height at a right angle, so √(3,200 + 70²) = √8,100 = 90 cm.',
+      hint: 'Not quite. Take the floor\'s diagonal first, then use it with the height.',
+      hints: { '126.57 cm': 'Not quite. That adds the height to the floor\'s diagonal. They meet at a right angle, so square both, add, then take the root.',
+        '56.57 cm': 'Not quite. That is across the floor only. Use that diagonal and the 70 cm height as the next triangle\'s two sides.' } },
+    { kind: 'pick', pic: 'frame', opts: ['No', 'Yes', 'Can\'t tell'], want: 'No', slips: { 'Yes': 'square', 'Can\'t tell': 'cant' }, fb: 1.2, at: FRAME, name: 'Square corners?',
+      task: 'A frame is 80 cm by 60 cm, and its diagonal measures 101 cm. Are its corners square?',
+      why: 'With square corners the diagonal would be √(80² + 60²) = √10,000 = 100 cm. It measures 101 cm, so the corners are not square. Pythagoras holds only for right-angled triangles.',
+      hint: 'Not quite. Work out the diagonal square corners would give, and compare.',
+      hints: { 'Yes': 'Not quite. Work out the diagonal square corners would give, √(80² + 60²), and compare it with 101 cm.',
+        'Can\'t tell': 'Not quite. Square corners fix the diagonal at √(80² + 60²). Work it out and compare it with 101 cm.' } },
+    { kind: 'pick', pic: 'panel', dims: [1.2, 0.5], opts: ['1.3 m', '50.01 cm', '1.7 m'], want: '1.3 m', slips: { '50.01 cm': 'mixed', '1.7 m': 'add' }, fb: 1.7, at: PANEL, name: 'One unit first',
+      task: 'A panel is 1.2 m wide and 50 cm tall. How long is its diagonal?',
+      why: '50 cm is 0.5 m, so both sides are in metres. √(1.2² + 0.5²) = √(1.44 + 0.25) = √1.69 = 1.3 m.',
+      hint: 'Not quite. Put both sides in metres, then square, add and take the root.',
+      hints: { '50.01 cm': 'Not quite. That squares 1.2 and 50 as if they were in one unit. Change 50 cm to 0.5 m first.',
+        '1.7 m': 'Not quite. That adds the two sides. Square them, add, then take the square root.' } },
+    { kind: 'pick', pic: 'box', dims: [2, 1, 2], unit: 'm', hword: 'deep', opts: ['3 m', '5 m', '2.24 m'], want: '3 m', slips: { '5 m': 'addall', '2.24 m': 'floor' }, fb: 2.5, at: BOXA, name: 'A box tank',
+      task: 'A box tank is 2 m long, 1 m wide and 2 m deep. How far is it straight from a bottom corner to the far top corner?',
+      why: 'Across the floor, 2² + 1² = 5. That diagonal meets the 2 m depth at a right angle, so √(5 + 2²) = √9 = 3 m.',
+      hint: 'Not quite. Take the floor\'s diagonal first, then use it with the depth.',
+      hints: { '5 m': 'Not quite. That adds the three edges. Across the floor 2² + 1² = 5, then √(5 + 2²).',
+        '2.24 m': 'Not quite. That is across the floor only. Use that diagonal and the 2 m depth as the next triangle\'s two sides.' } },
+  ];
+  // The room puzzle's slips: every room on the grid that is 10 m round two walls, each with its hint.
+  (function () {
+    const d = STEPS.find((s) => s.kind === 'drag');
+    d.slips = {}; d.hints = {};
+    for (let a = 1; a <= ROOM_MAX[0]; a++) for (let b = 1; b <= ROOM_MAX[1]; b++) {
+      if (a + b !== RUNS.want || K.near(hyp(a, b), RUNS.want, 1e-9)) continue;
+      const k = dimsOf([a, b]);
+      d.slips[k] = 'round';
+      d.hints[k] = 'Not quite. That room is ' + amt(a + b, 'm') + ' round two walls. Straight across is shorter, √(' + sqd(a) + ' + ' + sqd(b) + ')' + (exact(hyp(a, b)) ? ' = ' : ', about ') + amt(hyp(a, b), 'm') + '.';
+    }
+  })();
+  const FINISH = 'A diagonal, a straight run across a room, the gap between two grid points and the line through a box are each the hypotenuse of a right-angled triangle. Put the two sides that meet at the right angle in one unit, square them, add, and take the square root.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap, count] for parts counted one
+  // at a time. rect: the diagonal grows; the triangle under it is picked out as the rest of the rectangle
+  // leaves; the squares on its sides grow, one at a time; the sum. run: the way round two walls is traced;
+  // its readout; the straight run grows; its triangle; its readout. grid: the two points; the leg across
+  // grows; the leg up; the square corner; the straight line grows; the sum; (run and grid) the soft ring on
+  // what Dan can move. box: the floor's triangle; its
+  // diagonal grows; its sum; the upright triangle and its square corner; the line through grows; the sum.
+  const FADE = 0.35;
+  const AT = {
+    rect: { diag: 0.6, tri: 1.3, sq: [1.9, 0.5, 3], ro: 3.4 },
+    run: { route: 0.6, roL: 1.5, run: 2.0, tri: 2.6, roR: 3.1, ring: 3.6 },
+    grid: { pts: 0.6, across: 1.1, up: 1.6, tri: 2.1, line: 2.6, ro: 3.1, ring: 3.6 },
+    box: { floor: 0.6, diag: 1.1, ro1: 1.7, tri: 2.2, line: 2.7, ro2: 3.3 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // What each slip makes of an answer, as its button reads.
+  function slipOpt(d, s) {
+    if (d.pic === 'floor') return s === 'add' ? amt(d.dims[0] + d.dims[1], 'm') : amt(d.dims[0] * d.dims[0] + d.dims[1] * d.dims[1], 'm');
+    if (d.pic === 'side') return s === 'sub' ? amt(SIDE5.run - SIDE5.w, 'm') : amt(hyp(SIDE5.run, SIDE5.w), 'm');
+    if (d.pic === 'grid') return s === 'gridline' ? num(across(d.a, d.b) + upOf(d.a, d.b)) : num(hyp(Math.abs(d.b[0] - Math.abs(d.a[0])), upOf(d.a, d.b)));
+    if (d.pic === 'box') {
+      const L = d.dims[0], W = d.dims[1], H = d.dims[2];
+      return amt(s === 'addh' ? hyp(L, W) + H : s === 'floor' ? hyp(L, W) : L + W + H, d.unit);
+    }
+    if (d.pic === 'panel') return s === 'add' ? amt(d.dims[0] + d.dims[1], 'm') : amt(hyp(d.dims[0], d.dims[1] * 100), 'cm');
+    if (d.pic === 'frame') return { square: 'Yes', cant: 'Can\'t tell' }[s];
+    return null;
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.pic === 'floor') return amt(hyp(d.dims[0], d.dims[1]), 'm');
+    if (d.pic === 'side') return amt(legOf(SIDE5.run, SIDE5.w), 'm');
+    if (d.pic === 'grid') return num(gap(d.a, d.b));
+    if (d.pic === 'box') return amt(hyp3(d.dims[0], d.dims[1], d.dims[2]), d.unit);
+    if (d.pic === 'panel') return amt(hyp(d.dims[0], d.dims[1]), 'm');
+    if (d.pic === 'frame') return K.near(hyp(FRAME10.w, FRAME10.h), FRAME10.diag, 1e-9) ? 'Yes' : 'No';
+    if (d.kind === 'drag') { const ok = []; for (let a = 1; a <= ROOM_MAX[0]; a++) for (let b = 1; b <= ROOM_MAX[1]; b++) if (K.near(hyp(a, b), RUNS.want, 1e-9)) ok.push(dimsOf([a, b])); return ok.length === 1 ? ok[0] : null; }
+    return null;
+  }
+
+  function blank(i) { return { pick: null, res: null, why: false, pt: null, moved: false }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => {
+    const d = STEPS[i];
+    if (d.hints && d.hints[st.pick]) return d.hints[st.pick];
+    // Any other room: how far its straight run is from 10 m, and which way to go.
+    if (d.kind === 'drag' && st.pt) { const v = hyp(st.pt[0], st.pt[1]), short = v < RUNS.want; return 'Not quite. This room is ' + (exact(v) ? '' : 'about ') + amt(v, 'm') + ' straight across, ' + (short ? 'short of ' : 'more than ') + amt(RUNS.want, 'm') + '. Make it ' + (short ? 'bigger.' : 'smaller.'); }
+    return d.hint;
+  };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const d = STEPS[i], st = blank(i); st.res = 'right'; st.moved = true; st.pick = d.want; if (d.kind === 'drag') st.pt = d.to.slice(); return st; }
+  function slipped(i, o) { const d = STEPS[i], st = blank(i); st.res = 'wrong'; st.moved = true; st.pick = o; if (d.kind === 'drag') st.pt = parseDims(o); return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A point, an amount, a square, a root or a sum stays together on one line ("(4, 3)", "2.5 m", "4²",
+  // "√(5² + 2²)", "4 − (−1) = 5"), with the stop after it; a long one may break only before an equals sign.
+  const N = '−?\\d+(?:,\\d{3})*(?:\\.\\d+)?', SQ = N + '²?';
+  const TOK = '(?:\\(' + N + '(?:, ' + N + ')?\\)|√(?:\\(' + SQ + '(?: [+−] ' + SQ + ')*\\)|' + N + ')|' + SQ + ')(?: (?:m|cm)(?![A-Za-z²]))?';
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’-])' + TOK + '(?: [=+−×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b)); else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].moved = false; S[i].pt = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  // Each picture sets its frame: X0, Y0 where (0, 0) sits, Q px to a unit (x right, y up), H its height.
+  // The readout sits on the row YNY above it.
+  const YNY = 24;
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let F = { X0: 0, Y0: 0, Q: 1, H: 260 };
+  const P = (x, y) => [F.X0 + F.Q * x, F.Y0 - F.Q * y];
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; grow: the same, eased.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const grow = (t0, d) => K.ease(lin(t0, d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const line = (cls, a, b) => add(K.svg('line', { class: cls, x1: r3(a[0]), y1: r3(a[1]), x2: r3(b[0]), y2: r3(b[1]) }));
+  const circle = (cls, c, r) => add(K.svg('circle', { class: cls, cx: r3(c[0]), cy: r3(c[1]), r: r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  const poly = (cls, pts) => path(cls, pts.map((p, k) => (k ? 'L' : 'M') + r3(p[0]) + ' ' + r3(p[1])).join('') + 'Z');
+  const polyline = (cls, pts) => path(cls, pts.map((p, k) => (k ? 'L' : 'M') + r3(p[0]) + ' ' + r3(p[1])).join(''));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = String(s);
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, an: 13, axv: 13, lbl: 13, rou: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+  // A label on a patch of the page, so a line passing behind it stays clear of the words.
+  function plabel(x, y, s, cls, anchor) {
+    const w = tw(s, cls), x0 = anchor === 'end' ? x - w : anchor === 'start' ? x : x - w / 2;
+    add(K.svg('rect', { class: 'patch', x: r3(x0 - 3), y: r3(y - 12), width: r3(w + 6), height: 16, rx: 3 }));
+    return text(x, y, s, cls, anchor || 'middle');
+  }
+  // The readout on the row above the picture: a sum (small, teal) and what it comes to (big), at the right;
+  // or, on the left, a second one (the way round two walls).
+  function readout(big, small, warn) { const w = warn ? ' warnt' : ''; text(338, YNY, big, 'ro' + w, 'end'); if (small) text(338 - tw(big, 'ro') - 10, YNY - 1, small, 'rou' + w, 'end'); }
+  function readoutLeft(small, big, warn) { const w = warn ? ' warnt' : ''; text(2, YNY - 1, small, 'rou' + w, 'start'); text(2 + tw(small, 'rou') + 8, YNY, big, 'ro' + w, 'start'); }
+  function readoutHidden(small, u) { const big = u ? '? ' + u : '?'; text(338, YNY, big, 'ro q', 'end'); if (small) text(338 - tw(big, 'ro') - 10, YNY - 1, small, 'rou', 'end'); }
+  // A square corner's mark where sides along u and v (unit directions, on screen) meet at c.
+  function corner(c, u, v, sz) { const s = sz || 11; path('rmk', 'M' + r3(c[0] + u[0] * s) + ' ' + r3(c[1] + u[1] * s) + 'L' + r3(c[0] + (u[0] + v[0]) * s) + ' ' + r3(c[1] + (u[1] + v[1]) * s) + 'L' + r3(c[0] + v[0] * s) + ' ' + r3(c[1] + v[1] * s)); }
+  const unit = (a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1; return [dx / L, dy / L]; };
+  const towards = (a, b, e) => [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e];
+  // A run of straight pieces drawn as far as e of its whole length (a route being traced).
+  function traced(cls, pts, e) {
+    if (e <= 0) return;
+    const lens = pts.slice(1).map((p, k) => Math.hypot(p[0] - pts[k][0], p[1] - pts[k][1])), total = lens.reduce((s, v) => s + v, 0);
+    let left = total * Math.min(1, e);
+    const out = [pts[0]];
+    for (let k = 0; k < lens.length && left > 1e-9; k++) { const f = Math.min(1, left / lens[k]); out.push(towards(pts[k], pts[k + 1], f)); left -= lens[k] * f; }
+    polyline(cls, out);
+  }
+  const dot = (c, cls) => circle('pt' + (cls ? ' ' + cls : ''), c, 6);
+
+  // --- unit squares: the square on a side, grown out from it as far as e, with its unit squares ---
+  // p1, p2: the side's ends and n its length (in units); out: the way the square grows (a unit vector).
+  function sqOn(p1, p2, n, out, e, area) {
+    if (e <= 0) return;
+    const q = (a, k) => [a[0] + out[0] * n * k, a[1] + out[1] * n * k];
+    const A = P(p1[0], p1[1]), B = P(p2[0], p2[1]), corners = [p1, p2, q(p2, e), q(p1, e)].map((p) => P(p[0], p[1]));
+    poly('t1', corners);
+    let d = '';
+    for (let k = 1; k < n; k++) {
+      const s = towards(p1, p2, k / n), a = P(s[0], s[1]), b = P(q(s, e)[0], q(s, e)[1]);
+      d += 'M' + r3(a[0]) + ' ' + r3(a[1]) + 'L' + r3(b[0]) + ' ' + r3(b[1]);
+      if (k / n <= e + 1e-9) { const c = P(q(p1, k / n)[0], q(p1, k / n)[1]), c2 = P(q(p2, k / n)[0], q(p2, k / n)[1]); d += 'M' + r3(c[0]) + ' ' + r3(c[1]) + 'L' + r3(c2[0]) + ' ' + r3(c2[1]); }
+    }
+    if (d) path('gl', d);
+    poly('sqo', corners);
+    if (area) { const m = q(towards(p1, p2, 0.5), 0.5), c = P(m[0], m[1]); part(K.clamp((e - 0.6) / 0.4, 0, 1), 0, () => text(c[0], c[1] + 5, area, 'lbl')); }
+    return [A, B];
+  }
+
+  // --- screen 1: the floor, its diagonal, and the squares on the sides of the triangle under it ---
+  function demoRect(i, d) {
+    F = { X0: 126, Y0: 202, Q: 22, H: 298 };
+    const A = AT.rect, w = RECT1[0], h = RECT1[1], e = grow(A.diag, DIAG_T), ta = arr(A.tri), ra = arr(A.ro);
+    const sa = [0, 1, 2].map((k) => arr(nth(A.sq, k), SQ_T)), se = [0, 1, 2].map((k) => grow(nth(A.sq, k), SQ_T));
+    const a = [0, 0], b = [w, 0], c = [w, h], dd = [0, h], k = h / w;
+    part(ta, 0, () => poly('t3', [a, b, c].map((p) => P(p[0], p[1]))));
+    // The squares on the two shorter sides and on the diagonal: 16, 9 and 25 unit squares.
+    const n = hyp(w, h);
+    part(sa[0], 0, () => sqOn(a, b, w, [0, -1], se[0], amt(w * w, 'm²')));
+    part(sa[1], 0, () => sqOn(b, c, h, [1, 0], se[1], amt(h * h, 'm²')));
+    part(sa[2], 0, () => sqOn(a, c, n, [-h / n, w / n], se[2], amt(n * n, 'm²')));
+    // The floor's 1 m squares: the part under the diagonal stays, the part above leaves with the far sides.
+    let low = '', high = '';
+    for (let x = 1; x < w; x++) { const p = P(x, 0), m = P(x, k * x), t = P(x, h); low += 'M' + p[0] + ' ' + p[1] + 'V' + r3(m[1]); high += 'M' + m[0] + ' ' + r3(m[1]) + 'V' + t[1]; }
+    for (let y = 1; y < h; y++) { const p = P(0, y), m = P(y / k, y), t = P(w, y); high += 'M' + p[0] + ' ' + p[1] + 'H' + r3(m[0]); low += 'M' + r3(m[0]) + ' ' + m[1] + 'H' + t[0]; }
+    path('gl', low);
+    leave(ta, () => { path('gl', high); polyline('shp', [c, dd, a].map((p) => P(p[0], p[1]))); });
+    polyline('shp', [a, b, c].map((p) => P(p[0], p[1])));
+    if (e > 0) line('run', P(0, 0), P(w * e, h * e));
+    part(ta, 0, () => corner(P(w, 0), [-1, 0], [0, -1]));
+    plabel(P(w / 2, 0)[0], P(0, -0.62)[1] + 5, amt(w, 'm'), 'lbl');
+    plabel(P(w + 0.18, 0)[0], P(0, h * 0.75)[1] + 5, amt(h, 'm'), 'lbl', 'start');
+    part(ra, 0, () => { const m = P(w / 2, h / 2); plabel(m[0], m[1] + 5, amt(n, 'm'), 'lbl'); readout(amt(n, 'm'), '√(' + sqd(w) + ' + ' + sqd(h) + ') ' + eq(n)); });
+    const said = ['A ' + say(amt(w, 'm')) + ' by ' + say(amt(h, 'm')) + ' floor on 1 metre squares.'];
+    if (e > 0.5) said.push('Its diagonal runs corner to corner, cutting it into two right-angled triangles.');
+    if (ta >= 0.5) said.push('The triangle under the diagonal is picked out, its square corner marked, and the rest of the floor fades away.');
+    if (sa[2] >= 0.5) said.push('Squares stand on its three sides: ' + say(amt(w * w, 'square metres')) + ' and ' + say(amt(h * h, 'square metres')) + ' on the shorter sides, and ' + say(amt(n * n, 'square metres')) + ' on the diagonal.');
+    if (ra >= 0.5) said.push('The diagonal is the square root of ' + num(n * n) + ', ' + say(amt(n, 'm')) + '.');
+    return said.join(' ');
+  }
+
+  // --- a rectangle with its diagonal (screens 2, 5 and 11) ---
+  // dims: its width and height in units; Q: px to a unit. Labels: the width below, the height at the left.
+  function rectFrame(w, h, Q, top) { F = { X0: Math.round((340 - w * Q) / 2), Y0: (top || 56) + h * Q, Q: Q, H: (top || 56) + h * Q + 30 }; }
+  function rectBase(w, h, grid) {
+    if (grid) {
+      let g = '';
+      for (let x = 1; x < w; x++) { const p = P(x, 0), t = P(x, h); g += 'M' + r3(p[0]) + ' ' + r3(p[1]) + 'V' + r3(t[1]); }
+      for (let y = 1; y < h; y++) { const p = P(0, y), t = P(w, y); g += 'M' + r3(p[0]) + ' ' + r3(p[1]) + 'H' + r3(t[0]); }
+      if (g) path('gl', g);
+    }
+    poly('shp', [[0, 0], [w, 0], [w, h], [0, h]].map((p) => P(p[0], p[1])));
+  }
+  const triOf = (w, h) => [[0, 0], [w, 0], [w, h]].map((p) => P(p[0], p[1]));
+  const sideLabelW = (w, s, warn) => text(P(w / 2, 0)[0], F.Y0 + 18, s, 'lbl' + (warn ? ' warnt' : ''));
+  const sideLabelH = (h, s, warn) => text(F.X0 - 7, P(0, h / 2)[1] + 5, s, 'lbl' + (warn ? ' warnt' : ''), 'end');
+  const diagLabel = (w, h, s) => { const m = P(w / 2, h / 2); return plabel(m[0], m[1] + 5, s, 'lbl'); };
+  // The way round two sides, along the bottom and up the right, just inside the shape.
+  const roundPts = (w, h) => { const a = P(0, 0), b = P(w, 0), c = P(w, h); return [[a[0], a[1] - 6], [b[0] - 6, b[1] - 6], [c[0] - 6, c[1]]]; };
+
+  // A floor's diagonal (screen 2).
+  function drawFloor(i, d, st, right) {
+    const A = d.at, w = d.dims[0], h = d.dims[1], wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    rectFrame(w, h, 40, 60);
+    const ta = right ? arr(A.tri) : 0, ra = right ? arr(A.ro) : 0, la = right ? arr(A.lbl) : 0;
+    part(ta, 0, () => poly('t3', triOf(w, h)));
+    rectBase(w, h, true);
+    line('run', P(0, 0), P(w, h));
+    part(ta, 0, () => corner(P(w, 0), [-1, 0], [0, -1]));
+    if (s === 'add') part(sw, 0, () => polyline('route bad', roundPts(w, h)));
+    sideLabelW(w, amt(w, 'm')); sideLabelH(h, amt(h, 'm'));
+    swap(la, () => diagLabel(w, h, '? m'), () => diagLabel(w, h, amt(hyp(w, h), 'm')), 0);
+    const said = ['A ' + say(amt(w, 'm')) + ' by ' + say(amt(h, 'm')) + ' floor on 1 metre squares, with its diagonal drawn.'];
+    if (right) {
+      swap(ra, () => readoutHidden('', 'm'), () => readout(amt(hyp(w, h), 'm'), '√(' + sqd(w) + ' + ' + sqd(h) + ') ' + eq(hyp(w, h))), 0);
+      said.push('The right-angled triangle under the diagonal is picked out. The diagonal is the square root of ' + sqd(w) + ' plus ' + sqd(h) + ', ' + say(amt(hyp(w, h), 'm')) + '.');
+    } else if (wrong) {
+      swap(sw, () => readoutHidden('', 'm'), () => readout(st.pick, s === 'add' ? amt(w, 'm').replace(' m', '') + ' + ' + num(h) + ' =' : sqd(w) + ' + ' + sqd(h) + ' =', true), 0);
+      said.push(s === 'add' ? 'The way round two sides, ' + say(st.pick) + ', is marked in red.' : 'The diagonal squared, ' + say(st.pick) + ', is marked in red.');
+    } else readoutHidden('', 'm');
+    return said.join(' ');
+  }
+  // A missing side (screen 5): the room 12 m by 9 m, its run of 15 m, its length asked for.
+  function drawSide(i, d, st, right) {
+    const A = d.at, w = legOf(SIDE5.run, SIDE5.w), h = SIDE5.w, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    rectFrame(w, h, 19, 56);
+    const ta = right ? arr(A.tri) : 0, ra = right ? arr(A.ro) : 0, la = right ? arr(A.lbl) : 0;
+    part(ta, 0, () => poly('t3', triOf(w, h)));
+    rectBase(w, h, false);
+    line('run', P(0, 0), P(w, h));
+    part(ta, 0, () => corner(P(w, 0), [-1, 0], [0, -1]));
+    if (s === 'sub') part(sw, 0, () => line('route bad', [P(0, 0)[0], P(0, 0)[1] - 6], [P(SIDE5.run - SIDE5.w, 0)[0], P(0, 0)[1] - 6]));
+    sideLabelH(h, amt(h, 'm'));
+    diagLabel(w, h, amt(SIDE5.run, 'm'));
+    if (right) swap(la, () => sideLabelW(w, '? m'), () => sideLabelW(w, amt(w, 'm')), 0);
+    else if (s === 'sub') swap(sw, () => sideLabelW(w, '? m'), () => sideLabelW(SIDE5.run - SIDE5.w, st.pick, true), 0);
+    else sideLabelW(w, '? m');
+    const said = ['A room ' + say(amt(h, 'm')) + ' wide, its straight run across, corner to corner, ' + say(amt(SIDE5.run, 'm')) + '. Its length is asked for.'];
+    if (right) {
+      swap(ra, () => readoutHidden('', 'm'), () => readout(amt(w, 'm'), '√(' + sqd(SIDE5.run) + ' − ' + sqd(h) + ') ' + eq(w)), 0);
+      said.push('The length is the square root of ' + sqd(SIDE5.run) + ' minus ' + sqd(h) + ', ' + say(amt(w, 'm')) + '.');
+    } else if (wrong) {
+      swap(sw, () => readoutHidden('', 'm'), () => readout(st.pick, s === 'sub' ? num(SIDE5.run) + ' − ' + num(h) + ' =' : '√(' + sqd(SIDE5.run) + ' + ' + sqd(h) + ') ' + eq(hyp(SIDE5.run, h)), true), 0);
+      said.push(s === 'sub' ? 'The length picked, ' + say(st.pick) + ', is marked in red along part of the side.' : 'The length picked, ' + say(st.pick) + ', is shown in red in the readout. It is longer than the ' + num(SIDE5.run) + ' metre run itself.');
+    } else readoutHidden('', 'm');
+    return said.join(' ');
+  }
+  // One unit first (screen 11): the panel 1.2 m by 50 cm, drawn to scale.
+  function drawPanel(i, d, st, right) {
+    const A = d.at, w = d.dims[0], h = d.dims[1], wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    rectFrame(w, h, 200, 60);
+    const ua = right ? arr(A.unit) : 0, ta = right ? arr(A.tri) : 0, ra = right ? arr(A.ro) : 0;
+    part(ta, 0, () => poly('t3', triOf(w, h)));
+    rectBase(w, h, false);
+    line('run', P(0, 0), P(w, h));
+    part(ta, 0, () => corner(P(w, 0), [-1, 0], [0, -1]));
+    if (s === 'add') part(sw, 0, () => polyline('route bad', roundPts(w, h)));
+    sideLabelW(w, amt(w, 'm'));
+    if (right) swap(ua, () => sideLabelH(h, amt(h * 100, 'cm')), () => sideLabelH(h, amt(h, 'm')), 0);
+    else if (s === 'mixed') swap(sw, () => sideLabelH(h, amt(h * 100, 'cm')), () => sideLabelH(h, amt(h * 100, 'cm'), true), 0);
+    else sideLabelH(h, amt(h * 100, 'cm'));
+    if (right) swap(ra, () => diagLabel(w, h, '? m'), () => diagLabel(w, h, amt(hyp(w, h), 'm')), 0); else diagLabel(w, h, '? m');
+    const said = ['A panel ' + say(amt(w, 'm')) + ' wide and ' + say(amt(h * 100, 'cm')) + ' tall, with its diagonal drawn.'];
+    if (right) {
+      swap(ra, () => readoutHidden('', 'm'), () => readout(amt(hyp(w, h), 'm'), '√(' + sqd(w) + ' + ' + sqd(h) + ') ' + eq(hyp(w, h))), 0);
+      said.push('The height is said as ' + say(amt(h, 'm')) + ', and the diagonal is the square root of ' + sqd(w) + ' plus ' + sqd(h) + ', ' + say(amt(hyp(w, h), 'm')) + '.');
+    } else if (wrong) {
+      swap(sw, () => readoutHidden('', 'm'), () => readout(st.pick, s === 'add' ? num(w) + ' + ' + num(h) + ' =' : '√(' + sqd(w) + ' + ' + sqd(h * 100) + ') ' + eq(hyp(w, h * 100)), true), 0);
+      said.push(s === 'add' ? 'The way round two sides, ' + say(st.pick) + ', is marked in red.' : '1.2 and 50 are squared as if they were in one unit, and the 50 centimetres is marked in red.');
+    } else readoutHidden('', 'm');
+    return said.join(' ');
+  }
+
+  // --- the room on 1 m squares (screens 3 and 4): its far corner moves; the way round, and straight across ---
+  function roomFrame() { F = { X0: 40, Y0: 50 + ROOM_MAX[1] * 23, Q: 23, H: 50 + ROOM_MAX[1] * 23 + 30 }; }
+  function roomGrid() {
+    let g = '';
+    for (let x = 0; x <= ROOM_MAX[0]; x++) { const p = P(x, 0), t = P(x, ROOM_MAX[1]); g += 'M' + p[0] + ' ' + p[1] + 'V' + t[1]; }
+    for (let y = 0; y <= ROOM_MAX[1]; y++) { const p = P(0, y), t = P(ROOM_MAX[0], y); g += 'M' + p[0] + ' ' + p[1] + 'H' + t[0]; }
+    path('gl', g);
+  }
+  // The room a by b: its walls; its sizes; the way round two walls traced as far as er; the straight run
+  // grown as far as e; its triangle and square corner at ta.
+  function room(p, er, e, ta, warnRound) {
+    const a = p[0], b = p[1];
+    part(ta, 0, () => poly('t3', triOf(a, b)));
+    poly('shp', [[0, 0], [a, 0], [a, b], [0, b]].map((q) => P(q[0], q[1])));
+    traced('route way' + (warnRound ? ' bad' : ''), roundPts(a, b), er);
+    if (e > 0) line('run', P(0, 0), P(a * e, b * e));
+    part(ta, 0, () => corner(P(a, 0), [-1, 0], [0, -1], Math.min(11, F.Q * Math.min(a, b) * 0.45)));
+    sideLabelW(a, amt(a, 'm')); sideLabelH(b, amt(b, 'm'));
+    dot(P(0, 0));
+  }
+  const straightOf = (p) => 'straight' + (exact(hyp(p[0], p[1])) ? '' : ' ≈');
+  const roomSaid = (p) => 'A room ' + say(amt(p[0], 'm')) + ' by ' + say(amt(p[1], 'm')) + ' on a grid of 1 metre squares.';
+  function demoRun(i, d) {
+    roomFrame();
+    const A = AT.run, st = S[i], p = st.moved && st.pt ? st.pt : ROOM0;
+    const er = K.ease(lin(A.route, ROUTE_T)), la = arr(A.roL), e = grow(A.run, DIAG_T), ta = arr(A.tri), ra = arr(A.roR);
+    roomGrid();
+    room(p, er, e, ta);
+    part(la, 0, () => readoutLeft('round two walls', amt(p[0] + p[1], 'm')));
+    part(ra, 0, () => readout(amt(hyp(p[0], p[1]), 'm'), straightOf(p)));
+    if (st.moved) circle('ringp', P(p[0], p[1]), 15); else part(arr(A.ring), 0, () => circle('ringp', P(p[0], p[1]), 15));
+    dot(P(p[0], p[1]));
+    placeGrip(p);
+    const said = [roomSaid(p)];
+    if (er >= 0.5) said.push('The way round two walls, ' + say(amt(p[0] + p[1], 'm')) + ', is traced along them.');
+    if (e >= 0.5) said.push('The straight run across, corner to corner, is ' + (exact(hyp(p[0], p[1])) ? '' : 'about ') + say(amt(hyp(p[0], p[1]), 'm')) + ', the hypotenuse of the right-angled triangle under it.');
+    return said.join(' ');
+  }
+  // A 10 m run (screen 4): put the far corner. Before Check the straight run's length says ?; a right
+  // answer picks out its triangle, then both readouts; a slip traces the way round in red, with its readouts.
+  function drawRoom(i, d, st, right) {
+    roomFrame();
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, p = st.pt || d.start;
+    const ta = right ? arr(A.tri) : 0, ra = right ? arr(A.ro) : 0;
+    roomGrid();
+    room(p, s === 'round' ? K.ease(sw) : 0, 1, ta, true);
+    if (right) swap(ra, () => readoutHidden('straight', 'm'), () => { readoutLeft('round two walls', amt(p[0] + p[1], 'm')); readout(amt(hyp(p[0], p[1]), 'm'), straightOf(p)); }, 0);
+    else if (wrong) swap(sw, () => readoutHidden('straight', 'm'), () => { if (s === 'round') readoutLeft('round two walls', amt(p[0] + p[1], 'm'), true); readout(amt(hyp(p[0], p[1]), 'm'), straightOf(p), true); }, 0);
+    else readoutHidden('straight', 'm');
+    if (!right && !wrong) circle('ringp', P(p[0], p[1]), 15);
+    if (wrong) swap(sw, () => dot(P(p[0], p[1])), () => dot(P(p[0], p[1]), 'bad'), 0); else dot(P(p[0], p[1]));
+    placeGrip(right ? null : p);
+    const lead = roomSaid(p) + ' ';
+    if (right) return lead + 'Its straight run across is ' + say(amt(hyp(p[0], p[1]), 'm')) + ', and round two walls ' + say(amt(p[0] + p[1], 'm')) + '.';
+    if (wrong) return lead + 'Its straight run, ' + (exact(hyp(p[0], p[1])) ? '' : 'about ') + say(amt(hyp(p[0], p[1]), 'm')) + ', is marked wrong' + (s === 'round' ? ', and the way round two walls, ' + say(amt(p[0] + p[1], 'm')) + ', is traced in red.' : '.');
+    return lead + 'A corner to drag' + (st.moved ? '' : ', starting at 3 metres by 2 metres') + '. The straight run\'s length is hidden until you check.';
+  }
+
+  // --- the grid (screens 6 and 7): x along, y up, from GRID_X and GRID_Y, the axes in ink ---
+  function gridFrame() { const Q = 24, w = (GRID_X[1] - GRID_X[0]) * Q; F = { X0: (340 - w) / 2 - GRID_X[0] * Q, Y0: 50 + GRID_Y[1] * Q, Q: Q, H: 50 + (GRID_Y[1] - GRID_Y[0]) * Q + 26 }; }
+  function gridPaper() {
+    let g = '';
+    for (let x = GRID_X[0]; x <= GRID_X[1]; x++) { const p = P(x, GRID_Y[0]), t = P(x, GRID_Y[1]); g += 'M' + p[0] + ' ' + p[1] + 'V' + t[1]; }
+    for (let y = GRID_Y[0]; y <= GRID_Y[1]; y++) { const p = P(GRID_X[0], y), t = P(GRID_X[1], y); g += 'M' + p[0] + ' ' + p[1] + 'H' + t[0]; }
+    path('gl', g);
+    line('ax', P(GRID_X[0], 0), P(GRID_X[1], 0));
+    line('ax', P(0, GRID_Y[0]), P(0, GRID_Y[1]));
+    text(P(GRID_X[1], 0)[0] + 7, P(0, 0)[1] + 5, 'x', 'an', 'start');
+    text(P(0, 0)[0], P(0, GRID_Y[1])[1] - 8, 'y', 'an');
+    const b = P(0, GRID_Y[0])[1] + 19, l = P(GRID_X[0], 0)[0] - 8;
+    for (let x = GRID_X[0]; x <= GRID_X[1]; x++) text(P(x, 0)[0], b, num(x), 'axv');
+    for (let y = GRID_Y[0]; y <= GRID_Y[1]; y++) text(l, P(0, y)[1] + 5, num(y), 'axv', 'end');
+  }
+  const pairOf = (p) => '(' + num(p[0]) + ', ' + num(p[1]) + ')';
+  // A point as said after 'Points at' ("minus 2, 1").
+  const sayAt = (p) => say(pairOf(p)).replace(/^the point /, '');
+  // Labels on the grid are placed one at a time, each at the first of its places that stays inside the
+  // grid (clear of the numbers along its edges) and clear of the points, the axes' names and the labels
+  // already placed. A place is [x, y, anchor]; a box is [left, top, right, bottom].
+  function boxOf(c, s) { const w = tw(s, 'lbl'), x0 = c[2] === 'end' ? c[0] - w : c[2] === 'start' ? c[0] : c[0] - w / 2; return [x0 - 2, c[1] - 10, x0 + w + 2, c[1] + 3]; }
+  const meets = (a, b) => a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
+  function placeAll(items, pts) {
+    const lo = P(GRID_X[0], GRID_Y[0]), hi = P(GRID_X[1], GRID_Y[1]), bounds = [lo[0] - 2, 32, 336, lo[1] + 4];
+    const taken = pts.map((q) => { const c = P(q[0], q[1]); return [c[0] - 7, c[1] - 7, c[0] + 7, c[1] + 7]; });
+    taken.push([hi[0] + 5, P(0, 0)[1] - 7, hi[0] + 16, P(0, 0)[1] + 7], [P(0, 0)[0] - 7, hi[1] - 20, P(0, 0)[0] + 7, hi[1] - 4]);
+    return items.map((it) => {
+      const fits = (c) => { const b = boxOf(c, it.s); return b[0] >= bounds[0] && b[2] <= bounds[2] && b[1] >= bounds[1] && b[3] <= bounds[3] && !taken.some((t) => meets(t, b)); };
+      // Its own places first; failing those, the nearest free place round its home.
+      const ring = [];
+      [0, -14, 14, -28, 28, -42, 42].forEach((dy) => [0, -26, 26, -52, 52, -78, 78].forEach((dx) => ring.push([it.home[0] + dx, it.home[1] + dy, 'middle', Math.hypot(dx, dy * 1.6)])));
+      ring.sort((p, q) => p[3] - q[3]);
+      const c = it.cands.filter(fits)[0] || ring.filter(fits)[0] || it.cands[0];
+      taken.push(boxOf(c, it.s));
+      return c;
+    });
+  }
+  // A point's name: first on the side away from the other point, then the other places round it.
+  function pointCands(p, other) {
+    const c = P(p[0], p[1]), h = other[0] > p[0] ? [[-9, 'end'], [9, 'start']] : [[9, 'start'], [-9, 'end']], v = other[1] > p[1] ? [20, -10] : [-10, 20];
+    return [[h[0], v[0]], [h[0], v[1]], [h[1], v[0]], [h[1], v[1]]].map((q) => [c[0] + q[0][0], c[1] + q[1], q[0][1]]);
+  }
+  // The legs from a: across to (b's x, a's y), then up (or down) to b, grown as far as ea and eu; the
+  // square corner at ta; the straight line to b as far as el. Then the names: the two points (if shown,
+  // at pa) and each leg's length (at la and lu), outside the triangle where there is room.
+  function legs(a, b, ea, eu, ta, el, la, lu, cls, pa) {
+    const c = [b[0], a[1]], dx = across(a, b), dy = upOf(a, b), A = P(a[0], a[1]), C = P(c[0], c[1]), B = P(b[0], b[1]);
+    const k = cls ? ' ' + cls : '', wt = cls === 'bad' ? ' warnt' : '';
+    if (dx && dy) part(ta, 0, () => poly('t3', [A, C, B]));
+    if (dx && ea > 0) line('leg' + k, A, towards(A, C, ea));
+    if (dy && eu > 0) line('leg' + k, C, towards(C, B, eu));
+    if (dx && dy) part(ta, 0, () => corner(C, unit(C, A), unit(C, B), 10));
+    if (el > 0) line('run', A, towards(A, B, el));
+    const up = b[1] >= a[1], rightward = b[0] >= a[0], mx = (A[0] + C[0]) / 2, my = (C[1] + B[1]) / 2 + 5;
+    const items = [], same = a[0] === b[0] && a[1] === b[1];
+    if (pa != null) { items.push({ s: pairOf(a), cands: pointCands(a, b), home: [A[0], A[1] + 5], a: pa }); if (!same) items.push({ s: pairOf(b), cands: pointCands(b, a), home: [B[0], B[1] + 5], a: pa }); }
+    if (dx) { const out = up ? C[1] + 18 : C[1] - 8, inn = up ? C[1] - 8 : C[1] + 18; items.push({ s: num(dx) + ' across', cands: [[mx, out, 'middle'], [mx, inn, 'middle']], home: [mx, (out + inn) / 2], a: la, w: wt }); }
+    if (dy) { const o = rightward ? [C[0] + 8, 'start'] : [C[0] - 8, 'end'], n = rightward ? [C[0] - 8, 'end'] : [C[0] + 8, 'start']; items.push({ s: num(dy) + (up ? ' up' : ' down'), cands: [[o[0], my, o[1]], [n[0], my, n[1]]], home: [C[0], my], a: lu, w: wt }); }
+    const at = placeAll(items, same ? [a] : [a, b]);
+    items.forEach((it, j) => part(it.a, 0, () => plabel(at[j][0], at[j][1], it.s, 'lbl' + (it.w || ''), at[j][2])));
+  }
+  function demoGrid(i, d) {
+    gridFrame();
+    const A = AT.grid, st = S[i], a = GRID_A, b = st.moved && st.pt ? st.pt : GRID_B;
+    const pa = arr(A.pts), ea = grow(A.across, LEG_T), eu = grow(A.up, LEG_T), la = arr(A.across), lu = arr(A.up), ta = arr(A.tri), el = grow(A.line, LINE_T), ra = arr(A.ro);
+    gridPaper();
+    legs(a, b, ea, eu, ta, el, la, lu, null, pa);
+    part(pa, 0, () => dot(P(a[0], a[1])));
+    const dx = across(a, b), dy = upOf(a, b);
+    part(ra, 0, () => readout(num(gap(a, b)), '√(' + sqd(dx) + ' + ' + sqd(dy) + ') ' + eq(gap(a, b))));
+    if (st.moved) circle('ringp', P(b[0], b[1]), 15); else part(arr(A.ring), 0, () => circle('ringp', P(b[0], b[1]), 15));
+    if (pa > 0) part(pa, 0, () => dot(P(b[0], b[1])));
+    placeGrip(b);
+    const said = ['A grid with x along and y up, from ' + say(num(GRID_X[0])) + ' to ' + num(GRID_X[1]) + ' and ' + say(num(GRID_Y[0])) + ' to ' + num(GRID_Y[1]) + '.'];
+    if (pa >= 0.5) said.push('Points at ' + sayAt(a) + ' and ' + sayAt(b) + '.');
+    if (lu >= 0.5 && (dx || dy)) said.push('From one to the other is ' + [dx ? num(dx) + ' across' : '', dy ? num(dy) + (b[1] >= a[1] ? ' up' : ' down') : ''].filter(Boolean).join(' and ') + (dx && dy ? ', meeting at a right angle.' : ', along one gridline.'));
+    if (ra >= 0.5) said.push('The straight distance is the square root of ' + sqd(dx) + ' plus ' + sqd(dy) + ', ' + (exact(gap(a, b)) ? '' : 'about ') + say(num(gap(a, b))) + '.');
+    return said.join(' ');
+  }
+  // Count across and up (screen 7): the two points; a right answer grows the legs, then the line, then the
+  // sum; the gridline slip traces across and up in red; the sign slip draws a leg of 4 across in red.
+  function drawGrid(i, d, st, right) {
+    gridFrame();
+    const A = d.at, a = d.a, b = d.b, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    gridPaper();
+    if (right) legs(a, b, grow(A.across, LEG_T), grow(A.up, LEG_T), arr(A.line), grow(A.line, LINE_T), arr(A.across), arr(A.up), null, 1);
+    else if (s === 'gridline') { legs(a, b, 0, 0, 0, 0, 0, 0, null, 1); part(sw, 0, () => legs(a, b, 1, 1, 0, 0, 1, 1, 'bad')); }
+    else if (s === 'sign') { const c = [Math.abs(a[0]), a[1]]; legs(a, b, 0, 0, 0, 0, 0, 0, null, 1); part(sw, 0, () => legs(c, [b[0], a[1]], 1, 0, 0, 0, 1, 0, 'bad')); }
+    else legs(a, b, 0, 0, 0, 0, 0, 0, null, 1);
+    dot(P(a[0], a[1])); dot(P(b[0], b[1]));
+    const dx = across(a, b), dy = upOf(a, b);
+    const said = ['A grid with x along and y up. Points at ' + sayAt(a) + ' and ' + sayAt(b) + '.'];
+    if (right) {
+      swap(arr(A.ro), () => readoutHidden(''), () => readout(num(gap(a, b)), '√(' + sqd(dx) + ' + ' + sqd(dy) + ') ' + eq(gap(a, b))), 0);
+      said.push('From one to the other is ' + num(dx) + ' across and ' + num(dy) + ' up, and the straight line between them is ' + say(num(gap(a, b))) + '.');
+    } else if (wrong) {
+      swap(sw, () => readoutHidden(''), () => readout(st.pick, s === 'gridline' ? num(dx) + ' + ' + num(dy) + ' =' : '√(' + sqd(Math.abs(b[0] - Math.abs(a[0]))) + ' + ' + sqd(dy) + ') ' + eq(hyp(Math.abs(b[0] - Math.abs(a[0])), dy)), true), 0);
+      said.push(s === 'gridline' ? 'The way along the gridlines, across then up, is traced in red.' : 'A leg of only 4 across, from 2 to 6, is marked in red.');
+    } else readoutHidden('');
+    return said.join(' ');
+  }
+
+  // --- boxes (screens 8, 9 and 12), drawn as see-through frames: length along, width going back, height up ---
+  const KX = 0.42, KY = 0.26;
+  function boxFrame(dims, s) {
+    const L = dims[0], W = dims[1], H = dims[2], wpx = L * s + W * s * KX;
+    F = { X0: Math.round((340 - wpx) / 2) + 8, Y0: 54 + W * s * KY + H * s, Q: s, H: 54 + W * s * KY + H * s + 30 };
+  }
+  const BX = (x, y, z) => [F.X0 + F.Q * (x + y * KX), F.Y0 - F.Q * (z + y * KY)];
+  const BOX_S = (dims) => (dims[2] > dims[0] ? 168 / dims[2] : Math.min(240 / dims[0], 68));
+  // The box's edges: the three meeting at the hidden back corner thin and muted, the rest in ink; its sizes.
+  function boxEdges(dims, unitName) {
+    const L = dims[0], W = dims[1], H = dims[2], v = (x, y, z) => BX(x * L, y * W, z * H);
+    [[[0, 1, 0], [1, 1, 0]], [[0, 0, 0], [0, 1, 0]], [[0, 1, 0], [0, 1, 1]]].forEach((e) => line('hid', v.apply(null, e[0]), v.apply(null, e[1])));
+    let d = '';
+    [[[0, 0, 0], [1, 0, 0]], [[1, 0, 0], [1, 1, 0]], [[1, 1, 0], [1, 1, 1]], [[0, 0, 0], [0, 0, 1]], [[1, 0, 0], [1, 0, 1]], [[0, 0, 1], [1, 0, 1]],
+      [[1, 0, 1], [1, 1, 1]], [[0, 0, 1], [0, 1, 1]], [[0, 1, 1], [1, 1, 1]]].forEach((e) => { const a = v.apply(null, e[0]), b = v.apply(null, e[1]); d += 'M' + r3(a[0]) + ' ' + r3(a[1]) + 'L' + r3(b[0]) + ' ' + r3(b[1]); });
+    path('shp thin', d);
+  }
+  function boxLabels(dims, u) {
+    const L = dims[0], W = dims[1], H = dims[2], f = BX(L / 2, 0, 0), s = BX(L, W / 2, 0), h = BX(0, 0, H / 2);
+    text(f[0], f[1] + 18, amt(L, u), 'lbl');
+    text(s[0] + 7, s[1] + 12, amt(W, u), 'lbl', 'start');
+    text(h[0] - 7, h[1] + 5, amt(H, u), 'lbl', 'end');
+  }
+  // The two triangles: on the floor (its square corner at the near right) and standing up on the floor's
+  // diagonal (its square corner at the foot of the far upright edge).
+  function floorTri(dims, a) {
+    const L = dims[0], W = dims[1], o = BX(0, 0, 0), r = BX(L, 0, 0), f = BX(L, W, 0);
+    part(a, 0, () => { poly('t3', [o, r, f]); corner(r, unit(r, o), unit(r, f), 9); });
+  }
+  function upTri(dims, a) {
+    const L = dims[0], W = dims[1], H = dims[2], o = BX(0, 0, 0), f = BX(L, W, 0), t = BX(L, W, H);
+    part(a, 0, () => { poly('t3', [o, f, t]); corner(f, unit(f, o), unit(f, t), 10); });
+  }
+  const boxSaid = (dims, u, hw) => 'A box ' + say(amt(dims[0], u)) + ' long, ' + say(amt(dims[1], u)) + ' wide and ' + say(amt(dims[2], u)) + ' ' + (hw || 'high') + ', drawn as a see-through frame.';
+  function demoBox(i, d) {
+    const dims = d.dims, u = d.unit, L = dims[0], W = dims[1], H = dims[2];
+    boxFrame(dims, BOX_S(dims));
+    const A = AT.box, fa = arr(A.floor), ed = grow(A.diag, DIAG_T), r1 = arr(A.ro1), ta = arr(A.tri), el = grow(A.line, DIAG_T), r2 = arr(A.ro2);
+    floorTri(dims, fa);
+    upTri(dims, ta);
+    boxEdges(dims);
+    const o = BX(0, 0, 0), f = BX(L, W, 0), t = BX(L, W, H);
+    if (ed > 0) line('run part', o, towards(o, f, ed));
+    if (el > 0) line('run', o, towards(o, t, el));
+    boxLabels(dims, u);
+    dot(o); dot(t);
+    swap(r2, () => part(r1, 0, () => readout(num(L * L + W * W), sqd(L) + ' + ' + sqd(W) + ' =')), () => readout(amt(hyp3(L, W, H), u), '√(' + num(L * L + W * W) + ' + ' + sqd(H) + ') ' + eq(hyp3(L, W, H))), 0);
+    const said = [boxSaid(dims, u)];
+    if (ed >= 0.5) said.push('A right-angled triangle on its floor has a diagonal whose square is ' + sqd(L) + ' plus ' + sqd(W) + ', ' + num(L * L + W * W) + '.');
+    if (ta >= 0.5) said.push('That diagonal meets the ' + say(amt(H, u)) + ' height at a right angle, in a second triangle standing up inside the box.');
+    if (el >= 0.5) said.push('Its hypotenuse runs from a bottom corner to the far top corner, the square root of ' + num(L * L + W * W) + ' plus ' + sqd(H) + ', ' + say(amt(hyp3(L, W, H), u)) + '.');
+    return said.join(' ');
+  }
+  // A cabinet and a box tank (screens 9 and 12): the box with its two far corners marked; a right answer
+  // picks out the floor's triangle and grows its diagonal, its sum, the upright triangle, the line
+  // through, and its sum; a slip draws its way in red.
+  function drawBox(i, d, st, right) {
+    const dims = d.dims, u = d.unit, L = dims[0], W = dims[1], H = dims[2], A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    boxFrame(dims, BOX_S(dims));
+    const fa = right ? arr(A.floor) : 0, r1 = right ? arr(A.ro1) : 0, ta = right ? arr(A.tri) : 0, r2 = right ? arr(A.ro2) : 0;
+    floorTri(dims, fa);
+    upTri(dims, ta);
+    boxEdges(dims);
+    const o = BX(0, 0, 0), r = BX(L, 0, 0), f = BX(L, W, 0), t = BX(L, W, H);
+    if (right) { const ed = grow(A.floor, BOXLINE_T), el = grow(A.line, BOXLINE_T); if (ed > 0) line('run part', o, towards(o, f, ed)); if (el > 0) line('run', o, towards(o, t, el)); }
+    if (s) part(sw, 0, () => { if (s === 'addall') polyline('route bad', [o, r, f, t]); else { line('run part bad', o, f); if (s === 'addh') line('route bad', f, t); } });
+    boxLabels(dims, u);
+    dot(o); dot(t);
+    const said = [boxSaid(dims, u, d.hword) + ' A bottom corner and the far top corner are marked.'];
+    if (right) {
+      swap(r2, () => swap(r1, () => readoutHidden('', u), () => readout(num(L * L + W * W), sqd(L) + ' + ' + sqd(W) + ' =')), () => readout(amt(hyp3(L, W, H), u), '√(' + num(L * L + W * W) + ' + ' + sqd(H) + ') ' + eq(hyp3(L, W, H))), 0);
+      said.push('Across the floor the diagonal squared is ' + num(L * L + W * W) + '. With the ' + say(amt(H, u)) + (d.hword === 'deep' ? ' depth' : ' height') + ' it makes a second right-angled triangle, whose hypotenuse, from corner to far corner, is ' + say(amt(hyp3(L, W, H), u)) + '.');
+    } else if (wrong) {
+      const sm = s === 'addall' ? num(L) + ' + ' + num(W) + ' + ' + num(H) + ' =' : s === 'addh' ? '√' + num(L * L + W * W) + ' + ' + num(H) + ' ' + eq(hyp(L, W) + H) : '√(' + sqd(L) + ' + ' + sqd(W) + ') ' + eq(hyp(L, W));
+      swap(sw, () => readoutHidden('', u), () => readout(st.pick, sm, true), 0);
+      said.push(s === 'addall' ? 'The way along three edges is traced in red.' : s === 'addh' ? 'The floor\'s diagonal and then the height are traced in red.' : 'Only the floor\'s diagonal is drawn, in red.');
+    } else readoutHidden('', u);
+    return said.join(' ');
+  }
+
+  // --- square corners? (screen 10): the frame drawn from its sides and measured diagonal ---
+  function drawFrame(i, d, st, right) {
+    const f = FRAME10, s = 2.4, wrong = st.res === 'wrong', sl = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, A = d.at;
+    const pts = frameCorners(f);
+    F = { X0: 62, Y0: 64 + f.h * s, Q: s, H: 64 + f.h * s + 30 };
+    const sq = right ? arr(A.sq) : sl === 'square' ? sw : 0, ra = right ? arr(A.ro) : 0;
+    poly('shp', pts.map((p) => P(p[0], p[1])));
+    part(sq, 0, () => { poly('dsq' + (sl === 'square' ? ' bad' : ''), [[0, 0], [f.w, 0], [f.w, f.h], [0, f.h]].map((p) => P(p[0], p[1]))); text(P(0, f.h)[0], P(0, f.h)[1] - 9, 'square corners', 'an' + (sl === 'square' ? ' warnt' : ''), 'start'); });
+    line('run', P(0, 0), P(pts[2][0], pts[2][1]));
+    text(P(f.w / 2, 0)[0], F.Y0 + 18, amt(f.w, 'cm'), 'lbl');
+    text(P(pts[3][0] / 2, 0)[0] - 8, P(0, f.h / 2)[1] + 5, amt(f.h, 'cm'), 'lbl', 'end');
+    const m = P(pts[2][0] / 2, pts[2][1] / 2); plabel(m[0], m[1] + 5, amt(f.diag, 'cm'), 'lbl');
+    const said = ['A frame ' + say(amt(f.w, 'cm')) + ' by ' + say(amt(f.h, 'cm')) + ', drawn to scale from its measured diagonal of ' + say(amt(f.diag, 'cm')) + '.'];
+    if (right) {
+      part(ra, 0, () => readout(amt(hyp(f.w, f.h), 'cm'), 'if square, √(' + sqd(f.w) + ' + ' + sqd(f.h) + ') ' + eq(hyp(f.w, f.h))));
+      said.push('A frame with square corners, drawn dashed, would have a diagonal of ' + say(amt(hyp(f.w, f.h), 'cm')) + ', not ' + say(amt(f.diag, 'cm')) + ', so this one leans a little.');
+    } else if (sl === 'square') said.push('A frame with square corners is drawn dashed in red, and this one leans away from it.');
+    return said.join(' ');
+  }
+
+  // ---------- the corner or point Dan drags (kept from frame to frame) ----------
+  // The picture takes a tap (the corner or point goes to the nearest crossing); the grip is dragged, or
+  // moved with the arrow keys. The page does not scroll under a finger on it.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  const gripKind = (d) => (d.kind === 'drag' ? 'room' : d.grip || null);
+  function live() {
+    const i = here(), d = STEPS[i];
+    return !finished && ((d.kind === 'drag' && S[i].res !== 'right') || (d.show && !!d.grip));
+  }
+  // The places a grip can go: the room's far corner 1 to 12 m by 1 to 7 m, or a point on the grid.
+  const RANGE = { room: [[1, ROOM_MAX[0]], [1, ROOM_MAX[1]]], grid: [GRID_X, GRID_Y] };
+  function placeBoard(on, k) {
+    board.style.display = on ? '' : 'none';
+    if (!on) return;
+    const R = RANGE[k], a = P(R[0][0] - 0.5, R[1][1] + 0.5), b = P(R[0][1] + 0.5, R[1][0] - 0.5);
+    board.setAttribute('x', a[0]); board.setAttribute('y', a[1]); board.setAttribute('width', b[0] - a[0]); board.setAttribute('height', b[1] - a[1]);
+  }
+  function placeGrip(p) {
+    const d = STEPS[here()], k = gripKind(d), on = !!p && !!k && live();
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    placeBoard(on, k);
+    if (!on) return;
+    const st = S[here()], c = P(p[0], p[1]);
+    grip.setAttribute('cx', c[0]); grip.setAttribute('cy', c[1]);
+    grip.setAttribute('aria-valuemin', RANGE[k][0][0]); grip.setAttribute('aria-valuemax', RANGE[k][0][1]); grip.setAttribute('aria-valuenow', p[0]);
+    if (k === 'grid') {
+      grip.setAttribute('aria-label', 'The second point. Drag it, tap the grid, or use the arrow keys to move it a square at a time.');
+      grip.setAttribute('aria-valuetext', say(pairOf(p)));
+      return;
+    }
+    grip.setAttribute('aria-label', 'The room\'s far corner. Drag it, tap the grid, or use the arrow keys to move it a metre at a time.');
+    grip.setAttribute('aria-valuetext', say(dimsOf(p)) + (d.kind === 'drag' && st.res !== 'wrong' ? ', its straight run hidden until you check' : ''));
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // A place on the picture as the nearest crossing in range.
+  function toGrid(q) { const R = RANGE[gripKind(STEPS[here()])]; return [K.clamp(Math.round((q[0] - F.X0) / F.Q), R[0][0], R[0][1]), K.clamp(Math.round((F.Y0 - q[1]) / F.Q), R[1][0], R[1][1])]; }
+  // Moving the grip ends a demonstration that is still playing: the picture shows finished.
+  function moveTo(p) {
+    if (!live()) return;
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show && anim.playing()) { anim.pause(); T = Infinity; }
+    if (st.moved && st.pt && st.pt[0] === p[0] && st.pt[1] === p[1]) return;
+    st.pt = p; st.moved = true;
+    if (!d.show) { st.pick = dimsOf(p); st.res = null; }
+    K.refresh();
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = e.pointerId; try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q) moveTo(toGrid(q));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) held = null; }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const i = here(), d = STEPS[i], st = S[i], R = RANGE[gripKind(d)];
+    const p = st.moved && st.pt ? st.pt : d.show ? (d.grip === 'grid' ? GRID_B : ROOM0) : d.start;
+    moveTo([K.clamp(p[0] + by[0], R[0][0], R[0][1]), K.clamp(p[1] + by[1], R[1][0], R[1][1])]);
+  });
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e);
+    if (q) moveTo(toGrid(q));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    let aria;
+    if (d.show) aria = { rect: demoRect, run: demoRun, grid: demoGrid, box: demoBox }[d.demo](i, d);
+    else if (d.kind === 'drag') aria = drawRoom(i, d, st, right);
+    else aria = { floor: drawFloor, side: drawSide, grid: drawGrid, box: drawBox, frame: drawFrame, panel: drawPanel }[d.pic](i, d, st, right);
+    if (!d.grip && d.kind !== 'drag') placeGrip(null);
+    svg.setAttribute('viewBox', '0 0 340 ' + F.H);
+    svg.setAttribute('aria-label', aria.replace(/²/g, ' squared'));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) { st.moved = false; st.pt = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    // Three answers share a row only while each is short; a longer one would overflow at Text size XL.
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, opts[k]));
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size };
+      });
+      const dots = Array.from(art.querySelectorAll('circle.pt')).filter(vis).map((c) => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), cls: c.getAttribute('class') }));
+      const shapes = Array.from(art.querySelectorAll('line, path')).filter(vis).map((n) => ({ cls: n.getAttribute('class'), d: n.getAttribute('d'), x1: +n.getAttribute('x1'), y1: +n.getAttribute('y1'), x2: +n.getAttribute('x2'), y2: +n.getAttribute('y2') }));
+      return { texts: texts, all: texts.map((t) => t.s), dots: dots, shapes: shapes, H: F.H, F: Object.assign({}, F) };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // No two labels overlap (the grid's fixed numbers apart), and every label and point stays inside the picture.
+  const fixed = (c) => /^axv/.test(c);
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || (fixed(a.cls) && fixed(b.cls)) || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5)) &&
+    g.dots.every((c) => c.x >= 7 && c.x <= 333 && c.y >= 7 && c.y <= g.H - 7);
+  const red = (g) => g.texts.some((t) => /warnt/.test(t.cls)) || g.shapes.some((l) => /\bbad\b/.test(l.cls)) || g.dots.some((c) => /bad/.test(c.cls));
+  // The length of a drawn line, in the picture's units.
+  const runs = (g) => g.shapes.filter((l) => /^run( |$)/.test(l.cls) && !/bad/.test(l.cls)).map((l) => Math.hypot(l.x2 - l.x1, l.y2 - l.y1) / g.F.Q);
+  K.check('Adding the two squares and finding the square root of the answer gives each diagonal, run and gap from its two sides (a shorter side takes the squares away instead), and the floors, rooms, grid gap and panel are drawn to those lengths', () => {
+    const g1 = drawn(0, blank(0)), g2 = drawn(1, solved(1)), g3 = drawn(2, blank(2)), g4 = drawn(3, solved(3)), g5 = drawn(4, solved(4)), g7 = drawn(6, solved(6)), g11 = drawn(10, solved(10));
+    return hyp(4, 3) === 5 && K.near(hyp(6, 2.5), 6.5, 1e-9) && hyp(12, 5) === 13 && hyp(8, 6) === 10 && legOf(15, 9) === 12 && K.near(hyp(1.2, 0.5), 1.3, 1e-9) &&
+      K.near(runs(g1)[0], 5, 1e-3) && K.near(runs(g2)[0], 6.5, 1e-3) && K.near(runs(g3)[0], 13, 1e-3) && K.near(runs(g4)[0], 10, 1e-3) && K.near(runs(g5)[0], 15, 1e-3) && K.near(runs(g7)[0], 10, 1e-3) && K.near(runs(g11)[0], 1.3, 1e-3) &&
+      g1.all.indexOf('16 m²') >= 0 && g1.all.indexOf('9 m²') >= 0 && g1.all.indexOf('25 m²') >= 0;
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zf8mp9q' });
+  K.check('Revise calculating the length of line segments and using Pythagoras\' theorem in 2D: a segment between two grid points is so far across and so far up, each the larger number take away the smaller, so (−1, 1) to (4, 3) is 5 across, 2 up and √29, about 5.39, long, and (−2, 1) to (6, 7) is 8 across, 6 up and 10 long', () => {
+    const d = STEPS[stepOf((s) => s.pic === 'grid')];
+    return across(GRID_A, GRID_B) === 5 && upOf(GRID_A, GRID_B) === 2 && num(gap(GRID_A, GRID_B)) === '5.39' && K.near(gap(GRID_A, GRID_B) * gap(GRID_A, GRID_B), 29, 1e-9) &&
+      across(d.a, d.b) === 8 && upOf(d.a, d.b) === 6 && gap(d.a, d.b) === 10 && gap([2, 3], [2, 9]) === 6 && gap([-3, 2], [4, 2]) === 7;
+  }, { source: 'https://www.bbc.co.uk/bitesize/topics/z8bksg8' });
+  K.check('Pythagoras\' theorem can be applied to solve 3-dimensional problems: through each box the line is the root of the floor\'s diagonal squared plus the height squared, the same as all three edges squared and added, so 6 m by 3 m by 2 m is 7 m, 40 by 40 by 70 cm is 90 cm and 2 m by 1 m by 2 m is 3 m', () => {
+    const two = (L, W, H) => Math.sqrt(hyp(L, W) * hyp(L, W) + H * H);
+    return [[6, 3, 2, 7], [40, 40, 70, 90], [2, 1, 2, 3]].every((b) => K.near(two(b[0], b[1], b[2]), b[3], 1e-9) && K.near(hyp3(b[0], b[1], b[2]), b[3], 1e-9)) &&
+      STEPS.filter((s) => s.demo === 'box' || s.pic === 'box').every((s) => { const L = s.dims[0], W = s.dims[1], H = s.dims[2]; boxFrame(s.dims, BOX_S(s.dims)); const o = BX(0, 0, 0), t = BX(L, W, H); return t[0] > o[0] && t[1] < o[1]; });
+  }, { source: 'https://www.bbc.co.uk/bitesize/guides/zpykmsg/revision/1' });
+  K.check('Pythagoras\' theorem is only true for right-angled triangles: the frame drawn from its measured diagonal leans, so its corners are not square, and only a frame with square corners has the diagonal the theorem gives', () => {
+    const f = FRAME10, p = frameCorners(f), side = [p[3][0] - p[0][0], p[3][1] - p[0][1]], dot0 = side[0] * f.w;
+    const diag = Math.hypot(p[2][0], p[2][1]), sq = frameCorners({ w: f.w, h: f.h, diag: hyp(f.w, f.h) });
+    return K.near(diag, f.diag, 1e-9) && Math.abs(dot0) > 1 && K.near(Math.hypot(side[0], side[1]), f.h, 1e-9) && !K.near(diag, hyp(f.w, f.h), 0.5) &&
+      K.near(sq[3][0], 0, 1e-9) && K.near(sq[3][1], f.h, 1e-9) && answerOf(STEPS[stepOf((s) => s.pic === 'frame')]) === 'No';
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zf8mp9q' });
+  K.check('Each puzzle\'s answer is worked out from its rule: 6.5 m; 8 m by 6 m, the only room on the grid with a 10 m run; 12 m; 10; 90 cm; not square, as 80 cm by 60 cm with square corners gives 100 cm; 1.3 m; 3 m', () =>
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) && DO.map((i) => STEPS[i].want).join('|') === '6.5 m|8 m by 6 m|12 m|10|90 cm|No|1.3 m|3 m' &&
+    hyp(80, 60) === 100 && dimsOf(STEPS[stepOf((s) => s.kind === 'drag')].to) === '8 m by 6 m');
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives: the sides added, the square left unrooted, the lengths taken away, the squares added for a shorter side, the gridlines followed, the minus sign dropped, the height added on, the floor alone, the three edges added, 1.2 and 50 squared as if they were in one unit; every room 10 m round two walls; each slip but "Can\'t tell" is shown in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && (d.kind === 'drag' ? parseDims(o) && parseDims(o)[0] + parseDims(o)[1] === RUNS.want : slipOpt(d, d.slips[o]) === o) && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length === slips.length + 1 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return clear(w) && (d.slips[o] === 'cant' || red(w)); });
+    }) && Object.keys(STEPS[stepOf((s) => s.kind === 'drag')].slips).length === 7 && slipOpt(STEPS[1], 'add') === '8.5 m' && slipOpt(STEPS[1], 'noroot') === '42.25 m' &&
+    slipOpt(STEPS[6], 'sign') === '7.21' && slipOpt(STEPS[8], 'addh') === '126.57 cm' && slipOpt(STEPS[10], 'mixed') === '50.01 cm' && slipOpt(STEPS[11], 'addall') === '5 m');
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: the length asked for says ?, the room\'s straight run says ?, no legs or sums on the grid, no line through the box, no square corners beside the frame, which leans too little to judge by eye, the panel\'s 50 cm not yet in metres, nothing in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      if (red(g) || g.all.indexOf(d.want) >= 0) return false;
+      if (d.pic === 'grid') return !g.shapes.some((l) => /^(leg|run)/.test(l.cls)) && g.all.indexOf('?') >= 0;
+      if (d.pic === 'box') return !g.shapes.some((l) => /^run/.test(l.cls)) && g.all.indexOf('? ' + d.unit) >= 0;
+      if (d.pic === 'frame') return !g.shapes.some((l) => /dsq/.test(l.cls)) && g.all.indexOf('square corners') < 0 && Math.abs(frameCorners(FRAME10)[3][0]) * g.F.Q < 4;
+      if (d.pic === 'panel') return g.all.indexOf('0.5 m') < 0 && g.all.indexOf('50 cm') >= 0;
+      return g.all.indexOf('? m') >= 0 && !g.shapes.some((l) => /t3/.test(l.cls));
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other and its points inside it, for every answer, right or wrong, wherever the room\'s corner or the point is put', () => {
+    const ok = STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i)))));
+    const room = [stepOf((s) => s.grip === 'room'), stepOf((s) => s.kind === 'drag')], grid = stepOf((s) => s.grip === 'grid');
+    let all = true;
+    for (let a = 1; a <= ROOM_MAX[0]; a++) for (let b = 1; b <= ROOM_MAX[1]; b++) room.forEach((i) => { const st = Object.assign(blank(i), { moved: true, pt: [a, b] }); if (STEPS[i].kind === 'drag') st.pick = dimsOf([a, b]); if (!clear(drawn(i, st))) all = false; });
+    for (let x = GRID_X[0]; x <= GRID_X[1]; x++) for (let y = GRID_Y[0]; y <= GRID_Y[1]; y++) if (!clear(drawn(grid, Object.assign(blank(grid), { moved: true, pt: [x, y] })))) all = false;
+    return ok && all;
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per item; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 1); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

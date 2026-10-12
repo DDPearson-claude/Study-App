@@ -1,0 +1,80 @@
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>

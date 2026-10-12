@@ -1,0 +1,839 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* The percentage bar, as in lessons 1 and 3: the bracket above is the original, 100%; the shading is where the amount stands. */
+  .scene .track { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .fillr { fill: var(--k-accent2); }
+  .scene .cutn { stroke: var(--k-bg); stroke-width: 2; }
+  .scene .m100 { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .val { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .onb { font: 700 13px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .offb { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  /* The original bracketed above the bar; the new amount bracketed below it. */
+  .scene .brk0 { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .brk1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .wk { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .thumb { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene #art * { pointer-events: none; }
+  /* The end Dan drags: a thumb's-width hit circle over the drawn thumb. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones (sums, 399.36 V) stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A percentage bar, the original above it as 100% and the new amount below.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 166" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The original is the new amount ÷ the multiplier. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // bar: the new amount Dan knows (`now`, with its unit, '£' before the number) and `top`, the
+  // percentage at the bar's right-hand end; on the up-and-down screen, `start`, the amount before both
+  // changes. ch: the change in percent, + for a rise and − for a cut, so the new amount is (100 + ch)%
+  // of the original; two: a rise and then a cut, one after the other. ask: what a puzzle asks for, the
+  // original, the sum that gives it, or the cut that takes the new amount back. slips: which mistake
+  // gives each wrong answer (SLIP below). at: when each part of the motion after a right answer
+  // arrives, in seconds after Check.
+  const PICK = 'Tap one of the answers.';
+  // After a right answer: the new amount's tag gains its percentage and the end slides back to 100%;
+  // the original fills in; the change is named; the working is written (a second row after it).
+  const PZ = { tag: 0.1, go: [0.1, 0.7], ans: 0.9, ch: 1.4, work: 1.85 };
+  const PZ2 = { tag: 0.1, go: [0.1, 0.7], ans: 0.9, ch: 1.4, work: 1.4, work2: 1.85 };
+  const STEPS = [
+    { show: true, demo: 'back', dur: 4.0, bar: { now: 180, unit: '£', top: 125 }, ch: 20, name: 'Back from a rise',
+      text: 'The *original*, the amount before a change, is always 100%. £180 after a 20% rise is 120% of it, so divide by the multiplier, 1.2, to go back. 180 ÷ 1.2 = £150.' },
+    { kind: 'pick', ask: 'orig', bar: { now: 46, unit: 'A', top: 120 }, ch: 15, name: 'Before a rise',
+      opts: ['40 A', '39.1 A', '52.9 A'], want: '40 A', slips: { '39.1 A': 'onNew', '52.9 A': 'again' }, fb: 2.45, at: PZ,
+      task: 'After a 15% rise, a load draws 46 A. What did it draw before?',
+      why: '46 A is 115% of the old load, so divide by 1.15. 46 ÷ 1.15 = 40 A, and 40 × 1.15 = 46 checks it. The rise was 15% of 40 A, which is 6 A.',
+      hint: 'Not quite. 46 A is 115% of the load before.',
+      hints: { '39.1 A': 'Not quite. That takes 15% of 46 A off. The rise was 15% of the old load, which was smaller.',
+        '52.9 A': 'Not quite. That adds 15% again. To go back, divide by 1.15.' } },
+    { show: true, demo: 'back', dur: 4.0, bar: { now: 90, unit: 'm', top: 100 }, ch: -25, name: 'Back from a cut',
+      text: 'A cut goes back the same way. 25% off leaves 75%, so a cable run cut to 90 m was 90 ÷ 0.75 = 120 m. Going back from a cut gives more.' },
+    { kind: 'pick', ask: 'orig', bar: { now: 68, unit: '£', top: 100 }, ch: -15, name: 'Before a cut',
+      opts: ['£80', '£78.20', '£57.80'], want: '£80', slips: { '£78.20': 'onNew', '£57.80': 'again' }, fb: 2.45, at: PZ,
+      task: 'A tool costs £68 after 15% off. What did it cost before?',
+      why: '15% off leaves 85%, so £68 is 85% of the old price. 68 ÷ 0.85 = £80, and 80 × 0.85 = 68 checks it. Going back from a cut gives more.',
+      hint: 'Not quite. £68 is 85% of the price before.',
+      hints: { '£78.20': 'Not quite. That adds 15% of £68. The 15% came off the old price, which was bigger.',
+        '£57.80': 'Not quite. That takes 15% off again. To go back, divide by 0.85.' } },
+    { show: true, demo: 'slip', dur: 3.5, by: 10, bar: { now: 180, unit: '£', top: 125 }, ch: 20, name: 'Not 20% off',
+      text: 'Taking 20% off £180 does not get back to £150. 20% of £180 is £36, more than the £30 that was added, so it lands short at £144.' },
+    { kind: 'pick', ask: 'sum', bar: { now: 300, unit: '£', top: 125 }, ch: 20, name: 'Which sum?',
+      opts: ['300 ÷ 1.2', '300 × 0.8', '300 ÷ 0.8'], want: '300 ÷ 1.2', slips: { '300 × 0.8': 'onNew', '300 ÷ 0.8': 'flip' }, fb: 2.45, at: PZ,
+      task: 'A £300 price has 20% added on. Which sum gives the price before?',
+      why: '£300 is 120% of the price before, so divide by 1.2. 300 ÷ 1.2 = £250, and 250 × 1.2 = 300. Taking 20% off £300 gives £240, which lands short.',
+      hint: 'Not quite. £300 is 120% of the price before.',
+      hints: { '300 × 0.8': 'Not quite. That takes 20% of £300 off, and the 20% was of a smaller price.',
+        '300 ÷ 0.8': 'Not quite. 0.8 is the multiplier for 20% off. This price went up.' } },
+    { show: true, demo: 'updown', dur: 4.5, by: 10, bar: { start: 100, unit: '£', top: 150 }, ch: 20, range: [105, 150], snap: 5, drag: true, name: 'Up, then down',
+      text: '£100 up 20% is £120, and 20% off £120 is £96. The cut is 20% of the bigger amount. Drag the end to try another rise and fall.' },
+    { kind: 'pick', ask: 'cut', bar: { now: 100, unit: '£', top: 125 }, ch: 25, name: 'Undo a 25% rise',
+      opts: ['20%', '25%', '80%'], want: '20%', slips: { '25%': 'same', '80%': 'left' }, fb: 2.45, at: PZ2,
+      task: 'A price went up 25% to £100. What percentage cut takes it back to where it started?',
+      why: 'It started at 100 ÷ 1.25 = £80, so the cut is £20. £20 is 20% of £100, because the cut is worked from the bigger amount. A 25% cut would land at £75.',
+      hint: 'Not quite. Find where it started, then compare the cut with £100.',
+      hints: { '25%': 'Not quite. 25% of £100 is £25, but the rise was 25% of the smaller starting price. The cut is worked from £100.',
+        '80%': 'Not quite. 80% is what is left after the cut. The cut is the part taken off.' } },
+    { kind: 'drag', ask: 'orig', bar: { now: 48, unit: 'm', top: 125 }, ch: -20, start: 80, target: 100, range: [0, 125], snap: 5, name: 'Drag back to 100%',
+      opts: ['60 m', '57.6 m', '38.4 m'], want: '60 m', slips: { '57.6 m': 'onNew', '38.4 m': 'again' }, fb: 1.8,
+      at: { tag: 0.1, ans: 0.1, ch: 0.6, work: 1.1 },
+      task: 'A cable run was cut 20% to 48 m. Drag the end to the run before, then pick it.',
+      why: 'The run before is 100%, and 48 m is 80% of it. 48 ÷ 0.8 = 60 m, and 60 × 0.8 = 48 checks it. Adding 20% of 48 m gives 57.6 m, too little.',
+      hint: 'Not quite. 48 m is 80% of the run before.',
+      hints: { '57.6 m': 'Not quite. That adds 20% of 48 m. The cut was 20% of the run before, which was longer.',
+        '38.4 m': 'Not quite. That takes 20% off again. To go back, divide by 0.8.' },
+      // the end not yet on 100%: the hint says which way to drag it
+      markHint: { left: 'Not quite. That is past the run before. Drag the end left, to where the bracket above ends.',
+        right: 'Not quite. The run before is the whole 100%. Drag the end right, to where the bracket above ends.' },
+      empty: 'Drag the end of the bar first, then tap a length.' },
+    { kind: 'pick', ask: 'orig', bar: { now: 384, unit: 'V', top: 100 }, ch: -4, name: 'A 4% drop',
+      opts: ['400 V', '399.36 V', '640 V'], want: '400 V', slips: { '399.36 V': 'onNew', '640 V': 'tenth' }, fb: 2.45, at: PZ,
+      task: 'A supply has dropped 4% to 384 V. What was it before the drop?',
+      why: 'A 4% drop leaves 96%, so 384 V is 96% of the supply. 384 ÷ 0.96 = 400 V. Adding 4% of 384 V gives 399.36 V, close but short, as the drop was 4% of the bigger voltage.',
+      hint: 'Not quite. 384 V is 96% of the supply.',
+      hints: { '399.36 V': 'Not quite. That adds 4% of 384 V. The drop was 4% of the first voltage, which was bigger.',
+        '640 V': 'Not quite. That reads 4% as 0.4. 4% is 0.04, so 96% is left.' } },
+    { kind: 'pick', ask: 'sum', bar: { now: 54, unit: '£', top: 110 }, ch: 8, name: '8% added',
+      opts: ['54 ÷ 1.08', '54 ÷ 1.8', '54 × 0.92'], want: '54 ÷ 1.08', slips: { '54 ÷ 1.8': 'tenth', '54 × 0.92': 'onNew' }, fb: 2.45, at: PZ,
+      task: 'A part costs £54 with 8% added on. Which sum gives the price before?',
+      why: '8% added makes 108%, which is 1.08, so divide by 1.08. 54 ÷ 1.08 = £50, and 50 × 1.08 = 54. Dividing by 1.8 would undo an 80% rise.',
+      hint: 'Not quite. £54 is 108% of the price before.',
+      hints: { '54 ÷ 1.8': 'Not quite. 1.8 is up 80%. 8% is 8/100, which is 0.08.',
+        '54 × 0.92': 'Not quite. That takes 8% of £54 off, and the 8% was of a smaller price.' } },
+    { kind: 'pick', ask: 'orig', two: [10, -10], bar: { now: 99, unit: '£', top: 115 }, name: 'Up, down, back',
+      opts: ['£100', '£99', '£99.99'], want: '£100', slips: { '£99': 'cancel', '£99.99': 'onNew2' }, fb: 2.45, at: PZ2,
+      task: 'Put it together. A price went up 10%, then down 10%, and is now £99. What was it at the start?',
+      why: 'Up 10% then down 10% is 1.1 × 0.9 = 0.99, so £99 is 99% of the start. 99 ÷ 0.99 = £100. The two changes do not cancel.',
+      hint: 'Not quite. Put the two multipliers together first.',
+      hints: { '£99': 'Not quite. The cut is 10% of the bigger amount, so the two changes do not cancel.',
+        '£99.99': 'Not quite. That adds 1% of £99. The 1% was of the starting price, which was bigger.' } },
+  ];
+  const FINISH = 'To go back to the original, divide the new amount by the multiplier, because the original is always 100%. Taking the percentage off the new amount lands short, for the same reason that up 20% then down 20% ends at 96%.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). go, back: the bar's end
+  // travelling [start, how long]; ans: the original filled in; ch: the change named inside the bar;
+  // work: the working; off: the rise's name leaving; low: the new amount's bracket and tag; grip: the
+  // end's thumb, to drag.
+  const FADE = 0.35;
+  const AT = {
+    // the end slides back to 100%; the original fills in; the change is named; the working
+    back: { go: [0.6, 1.4], ans: 2.1, ch: 2.7, work: 3.3 },
+    // the rise's name leaves as the end slides back by 20% of £180; the £36 named; the working
+    slip: { off: 0.6, go: [0.6, 1.5], ch: 2.2, work: 2.8 },
+    // the new amount's tag; out to 120%; back by 20% of £120; the cut named; the working; the thumb
+    updown: { low: 0.6, go: [0.6, 0.9], back: [1.7, 1.0], ch: 2.8, work: 3.3, grip: 3.9 },
+  };
+  // Drawing sizes, in viewBox units (340 wide). The bar runs from BX0, BW long, from BY down BH. The
+  // original's bracket is at UBY with its label at UPY; the new amount's bracket at LBY with its tag
+  // from TAGY. The working sits at the foot, one row (H1 tall) or two (H2).
+  const BX0 = 20, BW = 296, BY = 42, BH = 40, UPY = 20, UBY = 32, LBY = 92, TAGY = 100, H1 = 166, H2 = 196, SLOTW = 58, ROW = 30;
+  let H = H1;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const M = '−';
+  // The new amount is (100 + ch)% of the original (after two changes, the second of the first), so
+  // the multiplier is that ÷ 100, and the original is the new amount ÷ the multiplier.
+  const pNew = (d) => (d.two ? r3((100 + d.two[0]) * (100 + d.two[1]) / 100) : 100 + d.ch);
+  const multOf = (d) => r3(pNew(d) / 100);
+  const origOf = (d) => r3(d.bar.now / multOf(d));
+  const peakOf = (d) => (d.two ? 100 + d.two[0] : Math.max(100, pNew(d)));
+  const changeOf = (w, c) => r3(w * Math.abs(c) / 100);
+  // Up c% and then down c%, each of the amount it starts from: where it ends, in percent of the start.
+  const upDown = (c) => r3((100 + c) * (100 - c) / 100);
+  // The cut, in percent of the new amount, that takes it back to the original.
+  const cutBack = (d) => r3((d.bar.now - origOf(d)) / d.bar.now * 100);
+  // What each slip makes of the answer: the change taken off (or added to) the new amount; the
+  // multiplier applied again instead of divided by; a cut's multiplier used for a rise; the percentage
+  // read as tenths (4% as 0.4); the changes taken to cancel; after two changes, their combined
+  // percentage put back onto the new amount (1% of £99); the same percentage taken to undo a rise;
+  // or what is left given in place of the cut.
+  const SLIP = {
+    onNew: (d) => r3(d.bar.now * (100 - d.ch) / 100),
+    again: (d) => r3(d.bar.now * multOf(d)),
+    flip: (d) => r3(d.bar.now / ((100 - d.ch) / 100)),
+    tenth: (d) => r3(d.bar.now / (1 + d.ch / 10)),
+    cancel: (d) => d.bar.now,
+    onNew2: (d) => r3(d.bar.now * (2 - multOf(d))),
+    same: (d) => Math.abs(d.ch),
+    left: (d) => r3(100 - cutBack(d)),
+  };
+  // A number as Dan reads it (at most three decimal places, no trailing zeros); money in pence.
+  const num = (v) => String(r3(v));
+  const amt = (v, unit) => (unit === '£' ? '£' + (Number.isInteger(r3(v)) ? num(v) : r3(v).toFixed(2)) : num(v) + ' ' + unit);
+  const pc = (p) => num(p) + '%';
+  const signed = (c) => (c < 0 ? M : '+') + pc(Math.abs(c));
+  // An option's worth: "46 A" is 46, "£78.20" is 78.2, "20%" is 20, "300 ÷ 1.2" is 250.
+  function valueOf(s) {
+    const m = /^(\d+(?:\.\d+)?) ([×÷]) (\d+(?:\.\d+)?)$/.exec(s);
+    if (m) return r3(m[2] === '×' ? +m[1] * +m[3] : +m[1] / +m[3]);
+    const p = /^(\d+(?:\.\d+)?)%$/.exec(s);
+    if (p) return +p[1];
+    const n = /^£?(\d+(?:\.\d+)?)(?: [VAm])?$/.exec(s);
+    return n ? +n[1] : NaN;
+  }
+  const unitOf = (s) => (/^£/.test(s) ? '£' : (/ ([VAm])$/.exec(s) || [])[1] || '');
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/£(\d+(?:\.\d+)?)/g, '$1 pounds').replace(/(\d) V\b/g, '$1 volts').replace(/(\d) A\b/g, '$1 amps')
+    .replace(/(\d) m\b/g, '$1 metres').replace(/%/g, ' percent').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ')
+    .replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/(\d)\/(\d)/g, '$1 over $2').replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+  // The answer a step asks for: the original (a sum is worth the original it gives), or the cut back.
+  const answerOf = (d) => (d.ask === 'cut' ? cutBack(d) : origOf(d));
+  const slipOf = (d, o) => SLIP[d.slips[o]](d);
+
+  function blank(i) {
+    return { pick: null, res: null, why: false, mark: STEPS[i].kind === 'drag' ? STEPS[i].start : null };
+  }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (st.pick != null) return '';
+    return d.kind === 'drag' && st.mark === d.start ? d.empty : PICK;
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const markRight = (i, st) => STEPS[i].kind !== 'drag' || st.mark === STEPS[i].target;
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want && markRight(i, st);
+  // A wrong answer's hint names its slip; on the drag screen a bar end not yet on 100% comes first,
+  // saying which way it has to go.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (!markRight(i, st)) return d.markHint[st.mark > d.target ? 'left' : 'right'];
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'drag') st.mark = d.target;
+    st.pick = d.want; st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A sum, an amount or a multiplier stays together on one line ("180 ÷ 1.2 = £150", "÷ 1.08,",
+  // "100% − 4%", "46 A"), with the stop after it; a long one may break only before an equals sign.
+  const TOK = '[−+]?£?\\d+(?:\\.\\d+)?(?:/\\d+)?%?(?: [VAm](?![a-z]))?';
+  const GLUE = new RegExp('(?:[×÷] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].mark = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after a right answer, from its start;
+  // with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  // Spaces that SVG keeps (and measures), so a highlight under part of a line lines up with it.
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { wk: 20, onb: 13, offb: 13 }[cls] || 15;
+    return String(s).length * size * 0.6;
+  }
+
+  // --- the percentage bar ---
+  // A bar's scale: where p% sits along it.
+  function scaleOf(d) {
+    const top = d.bar.top || 100;
+    return { top: top, unit: d.bar.unit, x: (p) => BX0 + BW * p / top };
+  }
+  // The track (100%, or as far as `reach`, where the amount has been), the shading up to p%, and
+  // where 100% is: a line across the shading past it, or a short mark at each edge of an empty track.
+  // `cut`: where an amount after a cut ends, lined across the shading once it fills past it.
+  function bar(sc, p, reach, cut) {
+    const end = Math.max(100, reach || 0, p), x = sc.x(100);
+    rect('track', BX0, BY, sc.x(end) - BX0, BH, 2);
+    if (p > 0) rect('fillr', BX0 + 1, BY + 1, sc.x(p) - BX0 - 1, BH - 2, 1);
+    if (cut != null && cut < 100 && p > cut + 0.5) line('cutn', sc.x(cut), BY + 1, sc.x(cut), BY + BH - 1);
+    if (p > 100.5) line('cutn', x, BY + 1, x, BY + BH - 1);
+    else if (p < 99.5 && end > 100.5) { line('m100', x, BY + 3, x, BY + 10); line('m100', x, BY + BH - 10, x, BY + BH - 3); }
+  }
+  // A bracket from x0 to x1 at y: a line with a short upright at each end.
+  function bracket(cls, x0, x1, y) {
+    line(cls, x0, y, x1, y);
+    line(cls, x0, y - 5, x0, y + 5);
+    line(cls, x1, y - 5, x1, y + 5);
+  }
+  const mid = (sc, p, w) => K.clamp((sc.x(0) + sc.x(p)) / 2, w / 2 + 2, 338 - w / 2);
+  // The original: a bracket over the bar from 0 to 100%, and above it "100% =" and its amount, or a
+  // dashed box that gives way to the amount as a goes 0 -> 1 (the box's width never tells the answer;
+  // the amount sits where the box began, a space after the equals sign).
+  function upper(sc, s, a) {
+    bracket('brk0', sc.x(0), sc.x(100), UBY);
+    const wl = tw('100% =', 'num'), w = wl + 6 + SLOTW, x0 = mid(sc, 100, w) - w / 2, sx = x0 + wl + 6;
+    text(x0, UPY, '100% =', 'num', 'start');
+    leave(a, () => { rect('gapbox', sx, UPY - 16, SLOTW, 22, 5); text(sx + SLOTW / 2, UPY, '?', 'qm'); });
+    part(a, 4, () => text(sx - 2, UPY, s, 'val', 'start'));
+  }
+  // The new amount at p%: its tag, under the bracket below the bar (risen `rise` units as a arrives).
+  const newText = (p, s) => pc(p) + ' = ' + s;
+  const tagW = (s) => Math.max(40, tw(s, 'tagt') + 20);
+  function tagAt(sc, p, s, a, rise, w) {
+    w = w || tagW(s);
+    const cx = mid(sc, p, w);
+    part(a, rise == null ? 4 : rise, () => { rect('tag', cx - w / 2, TAGY, w, 26, 8); text(cx, TAGY + 18, s, 'tagt k-nohalo'); });
+  }
+  function lower(sc, p, s, a, w) {
+    part(a, 0, () => bracket('brk1', sc.x(0), sc.x(p), LBY));
+    tagAt(sc, p, s, a, null, w);
+  }
+  const tagRight = (sc, p, s, w) => mid(sc, p, w || tagW(s)) + (w || tagW(s)) / 2;
+  // While the end travels, its amount is counted in held steps, as in lesson 3: the travel read only
+  // every HOLD seconds or more and the percentage rounded to `by` (120%, 110%, 100% ...), landing on the
+  // exact value when the end does. The tag is sized once, to the widest label the count shows.
+  const HOLD = 0.22;
+  function counted(t0, dur, from, to, by) {
+    if (T === Infinity) return to;
+    const n = Math.max(1, Math.floor(dur / HOLD + 1e-9)), k = K.clamp(Math.floor((T - t0) * n / dur + 1e-9), 0, n);
+    const a = K.arrive(t0 + k * dur / n, t0, dur);
+    return a >= 1 ? to : Math.round((from + (to - from) * a) / by) * by;
+  }
+  const through = (from, to, by) => { const out = [to]; for (let q = Math.ceil(Math.min(from, to) / by) * by; q <= Math.max(from, to) + 1e-9; q += by) out.push(r3(q)); return out; };
+  const countW = (ps, val) => Math.max.apply(null, ps.map((q) => tagW(newText(q, val(q)))));
+  // Under the bar, beside the new amount's bracket: the part taken off, bracketed from p0% to p1% and
+  // named under its middle (moved right, if need be, to clear the new amount's tag at `clear`).
+  function cutBelow(sc, p0, p1, s, a, clear) {
+    const w = tw(s, 'num'), x0 = sc.x(p0), x1 = sc.x(p1);
+    const cx = K.clamp(Math.max((x0 + x1) / 2, clear + 8 + w / 2), w / 2 + 2, 338 - w / 2);
+    part(a, 4, () => { bracket('brk0', x0, x1, LBY); text(cx, TAGY + 18, s, 'num'); });
+  }
+  // Inside the bar, a change named between p0% and p1%: one line, or two (its percentage and its
+  // amount), on the shading or on the empty track, centred in the room left once `clear` units are
+  // kept free at the right for the thumb. Says whether it fits (a sliver is left unnamed).
+  function changeLabel(sc, p0, p1, lines, shaded, a, clear) {
+    const x0 = sc.x(Math.min(p0, p1)), x1 = sc.x(Math.max(p0, p1)) - (clear || 0);
+    const w = Math.max.apply(null, lines.map((s) => tw(s, 'onb'))) + 6;
+    if (x1 - x0 < w) return false;
+    const x = (x0 + x1) / 2, cls = shaded ? 'onb k-nohalo' : 'offb';
+    part(a, 4, () => {
+      if (lines.length > 1) { text(x, BY + 17, lines[0], cls); text(x, BY + 33, lines[1], cls); }
+      else text(x, BY + BH / 2 + 5, lines[0], cls);
+    });
+    return true;
+  }
+  // The working, at the foot of the picture, right-aligned, one row under another, each with the part
+  // that does the work highlighted; as[k]: how far row k has arrived.
+  function working(rows, as) {
+    const y0 = H - 12 - (rows.length - 1) * ROW;
+    rows.forEach((r, k) => {
+      const y = y0 + k * ROW, x0 = 334 - tw(nb(r.s), 'wk');
+      part(as[k], 6, () => {
+        if (r.hl) { const i = r.s.indexOf(r.hl); rect('hl', x0 + (i > 0 ? tw(nb(r.s.slice(0, i)), 'wk') : 0) - 4, y - 18, tw(nb(r.hl), 'wk') + 8, 25, 5); }
+        text(x0, y, nb(r.s), 'wk', 'start');
+      });
+    });
+  }
+  // A step's working: the new amount ÷ the multiplier; the sum Dan picked; the cut back as a
+  // percentage of the new amount; the two multipliers together; the slip, the percentage taken off.
+  function rowsOf(d) {
+    const now = d.bar.now, m = multOf(d), o = origOf(d);
+    if (d.demo === 'slip') { const k = r3((100 - d.ch) / 100); return [{ s: num(now) + ' × ' + num(k) + ' = ' + num(SLIP.onNew(d)), hl: '× ' + num(k) }]; }
+    if (d.ask === 'sum') return [{ s: d.want + ' = ' + num(valueOf(d.want)), hl: d.want.slice(d.want.indexOf(' ') + 1) }];
+    const back = { s: num(now) + ' ÷ ' + num(m) + ' = ' + num(o), hl: '÷ ' + num(m) };
+    if (d.ask === 'cut') return [back, { s: num(r3(now - o)) + ' ÷ ' + num(now) + ' = ' + num(r3((now - o) / now)) + ' = ' + pc(cutBack(d)), hl: null }];
+    if (d.two) { const a = r3(1 + d.two[0] / 100), b = r3(1 + d.two[1] / 100); return [{ s: num(a) + ' × ' + num(b) + ' = ' + num(m), hl: null }, back]; }
+    return [back];
+  }
+  // Up and down on the drag screen: £100 × the rise's multiplier × the cut's.
+  function updownRows(d, c) {
+    const a = r3(1 + c / 100), b = r3(1 - c / 100), w = d.bar.start;
+    return [{ s: num(w) + ' × ' + num(a) + ' × ' + num(b) + ' = ' + num(w * upDown(c) / 100), hl: '× ' + num(a) + ' × ' + num(b) }];
+  }
+  const heightOf = (d) => (d.demo === 'updown' ? H1 : rowsOf(d).length > 1 ? H2 : H1);
+  const thumb = (sc, p, a) => part(a, 0, () => circle('thumb', sc.x(p), BY + BH / 2, 12));
+  const barSaid = (sc, s, known) => 'A percentage bar. Above it, a bracket marks the original as 100 percent' + (known ? ', ' + say(s) : ', its amount a question mark') + '.';
+  const workSaid = (rows, as) => { const r = rows.filter((x, k) => as[k] >= 0.5); return r.length ? ' At the foot: ' + r.map((x) => say(x.s)).join(', then ') + '.' : ''; };
+
+  // --- the demonstrations ---
+  // Back from a rise or a cut: the new amount is bracketed below; the bar's end slides back from it to
+  // 100%; the original fills in above; the change is named where it was; the working is written.
+  function demoBack(d) {
+    const sc = scaleOf(d), A = AT.back, u = sc.unit, p1 = pNew(d), o = origOf(d), rows = rowsOf(d);
+    const go = arr(A.go[0], A.go[1]), ans = arr(A.ans), chA = arr(A.ch), wA = arr(A.work);
+    const p = r3(p1 + (100 - p1) * go), s = newText(p1, amt(d.bar.now, u));
+    upper(sc, amt(o, u), ans);
+    bar(sc, p, p1, d.ch < 0 ? p1 : null);
+    lower(sc, p1, s, 1);
+    const named = changeLabel(sc, 100, p1, [signed(d.ch), amt(changeOf(o, d.ch), u)], d.ch < 0, chA);
+    working(rows, [wA]);
+    const moving = go > 0 && go < 1;
+    return barSaid(sc, amt(o, u), ans >= 0.5) + ' It is shaded to ' + say(pc(Math.round(p))) + (moving ? ', its end sliding back to 100 percent.' : '.') +
+      ' Below it, a bracket marks the new amount, ' + say(s) + '.' + (named && chA >= 0.5 ? ' Between them, the ' + (d.ch > 0 ? 'rise' : 'cut') + ' is named, ' + say(signed(d.ch)) + ', ' + say(amt(changeOf(o, d.ch), u)) + '.' : '') +
+      workSaid(rows, [wA]);
+  }
+  // The slip: from £180 at 120%, the end slides back by 20% of £180, the new amount's bracket and tag
+  // travelling with it, and lands short of 100%; the rise (£30) and the cut (£36) are named in turn.
+  function demoSlip(d) {
+    const sc = scaleOf(d), A = AT.slip, u = sc.unit, p1 = pNew(d), o = origOf(d), land = r3(p1 * (100 - d.ch) / 100), rows = rowsOf(d);
+    const off = arr(A.off, 0.4), go = arr(A.go[0], A.go[1]), chA = arr(A.ch), wA = arr(A.work);
+    const val = (q) => amt(o * q / 100, u), tw0 = countW(through(p1, land, d.by), val);
+    const p = r3(p1 + (land - p1) * go), shown = counted(A.go[0], A.go[1], p1, land, d.by), s = newText(shown, val(shown));
+    const cut = M + amt(changeOf(d.bar.now, d.ch), u);
+    upper(sc, amt(o, u), 1);
+    bar(sc, p, p1);
+    leave(off, () => changeLabel(sc, 100, p1, [signed(d.ch), amt(changeOf(o, d.ch), u)], true, 1));
+    lower(sc, p, s, 1, tw0);
+    cutBelow(sc, land, p1, cut, chA, tagRight(sc, p, s, tw0));
+    working(rows, [wA]);
+    const moving = go > 0 && go < 1;
+    return barSaid(sc, amt(o, u), true) + ' It is shaded to ' + say(pc(shown)) + (moving ? ', its end sliding back.' : go >= 1 ? ', short of 100 percent.' : '.') +
+      (off < 0.5 ? ' Past 100 percent, the rise is named, ' + say(signed(d.ch)) + ', ' + say(amt(changeOf(o, d.ch), u)) + '.' : '') +
+      ' Below it, a bracket marks the new amount, ' + say(s) + '.' + (chA >= 0.5 ? ' Beside that, a bracket marks the part taken off, ' + say(cut) + '.' : '') + workSaid(rows, [wA]);
+  }
+  // Up, then down: from £100, the end goes out by the rise and comes back by the same percentage of
+  // the bigger amount, the track keeping where it reached; then Dan can drag that reach (st.mark).
+  function demoUpDown(d, st) {
+    const sc = scaleOf(d), A = AT.updown, u = sc.unit, mine = st.mark != null, w0 = d.bar.start;
+    const c = mine ? st.mark - 100 : d.ch, peak = 100 + c, land = upDown(c), rows = updownRows(d, c);
+    const lo = mine ? 1 : arr(A.low), go = mine ? 1 : arr(A.go[0], A.go[1]), back = mine ? 1 : arr(A.back[0], A.back[1]);
+    const chA = mine ? 1 : arr(A.ch), wA = mine ? 1 : arr(A.work), gA = mine ? 1 : arr(A.grip);
+    const reach = 100 + c * go, p = r3(reach + (land - peak) * back);
+    const settled = go >= 1 && back >= 1, val = (q) => amt(w0 * q / 100, u);
+    const shown = mine || settled ? land : back > 0 ? counted(A.back[0], A.back[1], peak, land, d.by) : counted(A.go[0], A.go[1], 100, peak, d.by);
+    const s = newText(shown, val(shown)), tw0 = mine ? null : countW(through(100, peak, d.by).concat(through(land, peak, d.by)), val);
+    const cut = M + amt(changeOf(w0 * peak / 100, c), u);
+    upper(sc, amt(w0, u), 1);
+    bar(sc, p, reach);
+    lower(sc, p, s, lo, tw0);
+    cutBelow(sc, land, peak, cut, chA, tagRight(sc, p, s, tw0));
+    working(rows, [wA]);
+    thumb(sc, peak, gA);
+    placeGrip(gA >= 0.5 ? sc : null, peak, d);
+    const moving = !mine && ((go > 0 && go < 1) || (back > 0 && back < 1));
+    return barSaid(sc, amt(w0, u), true) + ' It is shaded to ' + say(pc(shown)) + (moving ? ', its end moving.' : settled && reach > 100 ? ', and its outline reaches ' + say(pc(peak)) + ', where the rise took it.' : '.') +
+      (lo >= 0.5 ? ' Below it, a bracket marks the new amount, ' + say(s) + '.' : '') + (chA >= 0.5 ? ' Beside that, a bracket marks the part taken off, ' + say(cut) + '.' : '') +
+      workSaid(rows, [wA]) + (gA >= 0.5 ? ' The end of the outline can be dragged.' : '');
+  }
+
+  // --- the puzzles on the bar ---
+  // Before the answer: the new amount bracketed below (its tag the amount alone), a box for the
+  // original above, and on the drag puzzle the end where Dan has put it. After a right answer: the
+  // tag gains its percentage (the old tag fades out, then the new one in, never both at once), the end
+  // slides back to 100%, the original fills in, the change is named and the working written.
+  function drawPuz(d, st, right) {
+    const sc = scaleOf(d), F = d.at, u = sc.unit, drag = d.kind === 'drag', p1 = pNew(d), peak = peakOf(d), o = origOf(d), rows = rowsOf(d);
+    const tgOut = right ? arr(F.tag, 0.25) : 0, tg = right ? arr(F.tag + 0.25) : 0, go = right && F.go ? arr(F.go[0], F.go[1]) : right ? 1 : 0, ans = right ? arr(F.ans) : 0;
+    const chA = right && F.ch != null ? arr(F.ch) : 0;
+    const was = amt(d.bar.now, u), s = newText(p1, was);
+    const p = drag ? (right ? 100 : st.mark) : r3(p1 + (100 - p1) * go);
+    upper(sc, amt(o, u), ans);
+    bar(sc, p, peak, d.ch < 0 ? p1 : null);
+    bracket('brk1', sc.x(0), sc.x(p1), LBY);
+    leave(tgOut, () => tagAt(sc, p1, was, 1, 0));
+    tagAt(sc, p1, s, tg, 0);
+    const lines = d.ask === 'cut' ? [M + amt(r3(d.bar.now - o), u)] : [signed(d.ch), amt(changeOf(o, d.ch), u)];
+    const named = !d.two && changeLabel(sc, 100, p1, lines, d.ch < 0, chA);
+    const as = rows.map((r, k) => (right ? arr(k ? F.work2 : F.work) : 0));
+    working(rows, as);
+    if (drag) leave(right ? arr(0, 0.3) : 0, () => thumb(sc, p, 1));
+    placeGrip(drag && !right ? sc : null, p, d);
+    const moving = go > 0 && go < 1;
+    return barSaid(sc, amt(o, u), ans >= 0.5) + ' It is shaded to ' + say(pc(Math.round(p))) + (moving ? ', its end sliding back to 100 percent.' : drag && !right ? ', and its end can be dragged.' : '.') +
+      (d.two ? ' Its outline reaches ' + say(pc(peak)) + ', where the rise took it.' : '') +
+      ' Below it, a bracket marks the new amount, ' + say(tg >= 0.5 ? s : was) + '.' + (named && chA >= 0.5 ? ' The change is named, ' + lines.map(say).join(', ') + '.' : '') + workSaid(rows, as);
+  }
+
+  // The end Dan drags is one grip kept across repaints (the picture is redrawn every frame), so a drag
+  // in progress and the keyboard focus both survive. It is a thumb's width across (about 48 px on a
+  // 360 px phone).
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: BY + BH / 2, r: 28, tabindex: -1, role: 'slider', 'aria-label': 'The end of the percentage bar',
+    'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  let gripSc = null;
+  function placeGrip(sc, p, d) {
+    gripSc = sc;
+    if (!sc) { grip.style.display = 'none'; grip.setAttribute('tabindex', '-1'); return; }
+    grip.style.display = '';
+    grip.setAttribute('tabindex', '0');
+    grip.setAttribute('cx', sc.x(p).toFixed(2));
+    grip.setAttribute('aria-valuemin', d.range[0]); grip.setAttribute('aria-valuemax', d.range[1]); grip.setAttribute('aria-valuenow', p);
+    grip.setAttribute('aria-valuetext', num(p) + ' percent');
+  }
+  const dragging = () => { const i = at(), d = STEPS[i]; return !finished && !!gripSc && ((d.kind === 'drag' && S[i].res !== 'right') || !!d.drag); };
+  function setMark(p) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (p === st.mark) return;
+    if (d.show) { anim.pause(); T = Infinity; motion = null; }
+    st.mark = p; st.res = null;
+    K.reveal(); K.refresh();
+  }
+  // Where a pointer at x puts the end: the nearest snap step inside the step's range.
+  const snapOf = (d, x) => K.clamp(Math.round((x - BX0) / BW * scaleOf(d).top / d.snap) * d.snap, d.range[0], d.range[1]);
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    setMark(snapOf(STEPS[at()], q.x));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const d = STEPS[at()], s = d.snap, by = { ArrowUp: s, ArrowRight: s, ArrowDown: -s, ArrowLeft: -s, PageUp: 2 * s, PageDown: -2 * s }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const st = S[at()], now = st.mark == null ? 100 + d.ch : st.mark;
+    setMark(e.key === 'Home' ? d.range[0] : e.key === 'End' ? d.range[1] : K.clamp(Math.round((now + by) / s) * s, d.range[0], d.range[1]));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    if (!(d.drag || d.kind === 'drag')) placeGrip(null);
+    let aria;
+    if (d.show) aria = d.demo === 'updown' ? demoUpDown(d, st) : d.demo === 'slip' ? demoSlip(d) : demoBack(d);
+    else aria = drawPuz(d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) { st.mark = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const DRAG_I = STEPS.findIndex((d) => d.kind === 'drag'), UD_I = STEPS.findIndex((d) => d.demo === 'updown');
+  const KNOWN = STEPS.filter((d) => d.bar.now != null);
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const len = (cls) => { const n = art.querySelector('line.' + cls); return n ? Number(n.getAttribute('x2')) - Number(n.getAttribute('x1')) : NaN; };
+      return { up: len('brk0'), low: len('brk1'), texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent.replace(/ /g, ' ')),
+        fill: (() => { const f = art.querySelector('rect.fillr'); return f ? Number(f.getAttribute('x')) + Number(f.getAttribute('width')) : NaN; })() };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  K.check('The original amount always represents 100%, so each new amount is (100 + the change)% of it and the original is the new amount ÷ the multiplier: 180 ÷ 1.2 = 150, 46 ÷ 1.15 = 40, 90 ÷ 0.75 = 120, 68 ÷ 0.85 = 80, 300 ÷ 1.2 = 250, 100 ÷ 1.25 = 80, 48 ÷ 0.8 = 60, 384 ÷ 0.96 = 400, 54 ÷ 1.08 = 50 and 99 ÷ 0.99 = 100, each checked forwards by multiplying back', () =>
+    KNOWN.every((d) => same(origOf(d) * multOf(d), d.bar.now)) &&
+    KNOWN.map((d) => origOf(d)).join() === '150,40,120,80,150,250,80,60,400,50,100' &&
+    multOf(STEPS[0]) === 1.2 && multOf(STEPS[2]) === 0.75 && multOf(STEPS[9]) === 0.96 && multOf(STEPS[10]) === 1.08 && multOf(STEPS[11]) === 0.99);
+  K.check('A single multiplier finds the original after a percentage increase: dividing by 1.25 is the same as multiplying by 0.8, so a 25% rise is undone by a 20% cut, while a 25% cut lands at 75; dividing by 1.2 is the same as multiplying by 1 ÷ 1.2', () =>
+    same(100 / 1.25, 100 * 0.8) && cutBack(STEPS[7]) === 20 && r3(100 * 0.75) === 75 && same(180 / 1.2, 180 * (1 / 1.2)) && origOf(STEPS[7]) === 80);
+  K.check('Going back from a rise gives a smaller amount and going back from a cut a bigger one, on every screen: a multiplier over 1 is divided out to less, one under 1 to more', () =>
+    KNOWN.every((d) => (multOf(d) > 1) === (origOf(d) < d.bar.now) && (multOf(d) < 1) === (origOf(d) > d.bar.now)) &&
+    KNOWN.filter((d) => multOf(d) > 1).length === 6 && KNOWN.filter((d) => multOf(d) < 1).length === 5);
+  K.check('Percentages do not cancel: 100 reduced by 20% is 80, and 80 increased by 20% is 96, because the second 20% is of 80, which is 16; up 20% then down 20% also ends at 96, up 10% then down 10% at 99, and up c% then down c% at 100 − c²/100, short of 100, for every rise the drag allows', () => {
+    const d = STEPS[UD_I], cs = [];
+    for (let p = d.range[0]; p <= d.range[1]; p += d.snap) cs.push(p - 100);
+    return r3(100 * 0.8) === 80 && changeOf(80, 20) === 16 && r3(80 * 1.2) === 96 && upDown(20) === 96 && upDown(10) === 99 && upDown(50) === 75 &&
+      cs.length === 10 && cs.every((c) => same(upDown(c), 100 - c * c / 100) && upDown(c) < 100);
+  });
+  K.check('Taking the percentage off the new amount lands short: 20% of £180 is £36 while the rise was 20% of £150, £30, so 180 × 0.8 = 144, which is 96% of £150; and 46 × 0.85 = 39.1 A falls short of 40 A', () =>
+    changeOf(180, 20) === 36 && changeOf(150, 20) === 30 && SLIP.onNew(STEPS[4]) === 144 && r3(144 / 150 * 100) === 96 && SLIP.onNew(STEPS[1]) === 39.1 && origOf(STEPS[1]) === 40);
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives: the percentage taken off or added on the new amount, the multiplier applied again, a cut\'s multiplier for a rise, a percentage read as tenths (4% as 0.4, 8% as 0.8), the changes taken to cancel, their combined 1% put back onto £99, the same percentage taken to undo a rise, or what is left in place of the cut', () =>
+    DO.every((i) => {
+      const d = STEPS[i], want = answerOf(d);
+      const unitsOk = d.ask !== 'orig' || d.opts.every((o) => unitOf(o) === d.bar.unit);
+      return d.opts.length === 3 && unitsOk && same(valueOf(d.want), want) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        Object.keys(d.slips).length === 2 && Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && K.near(valueOf(o), slipOf(d, o), 1e-6) && !K.near(valueOf(o), want, 0.01));
+    }) && SLIP.flip(STEPS[5]) === 375 && SLIP.tenth(STEPS[9]) === 640 && SLIP.tenth(STEPS[10]) === 30 && SLIP.onNew2(STEPS[11]) === 99.99 && SLIP.onNew(STEPS[8]) === 57.6 && SLIP.again(STEPS[8]) === 38.4);
+  K.check('The drag puzzle takes 60 m only with the end on 100%, the run before, so going back from the cut drags the end right, to more; past 100% the hint says drag left, short of it right; the end snaps to 5% steps from 0 to 125%', () => {
+    const i = DRAG_I, d = STEPS[i], st = (m, pk) => Object.assign(blank(i), { mark: m, pick: pk });
+    return isRight(i, st(100, '60 m')) && !isRight(i, st(105, '60 m')) && !isRight(i, st(80, '60 m')) && !isRight(i, st(100, '57.6 m')) && hintFor(i, st(120, '60 m')) === d.markHint.left &&
+      hintFor(i, st(85, '60 m')) === d.markHint.right && emptyFor(i, blank(i)) === d.empty && hintFor(i, st(100, '57.6 m')) === d.hints['57.6 m'] &&
+      d.start < d.target && origOf(d) > d.bar.now && snapOf(d, BX0 + BW * 0.8) === 100 && snapOf(d, -50) === 0 && snapOf(d, 900) === 125 && d.target === 100;
+  });
+  K.check('The bar is drawn to scale on every screen, finished: the new amount\'s bracket is the original\'s length times the multiplier, the shading ends at 100% once the original is found (where the amount lands on the two slip screens), and the labels pair each percentage with the amount the working gives, and the part taken off is £36 after the £180 and £24 after the £120', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? blank(i) : solved(i)), sc = scaleOf(d), u = sc.unit;
+      if (d.demo === 'updown') {
+        const land = upDown(d.ch);
+        return K.near(g.low / g.up, land / 100, 1e-6) && K.near(g.fill, sc.x(land), 1e-6) && g.texts.indexOf(newText(land, amt(land, u))) >= 0 && g.texts.indexOf(updownRows(d, d.ch)[0].s) >= 0 &&
+          g.texts.indexOf(M + amt(changeOf(100 + d.ch, d.ch), u)) >= 0;
+      }
+      if (d.demo === 'slip') {
+        const land = r3(pNew(d) * (100 - d.ch) / 100);
+        return K.near(g.low / g.up, land / 100, 1e-6) && K.near(g.fill, sc.x(land), 1e-6) && g.texts.indexOf(newText(land, amt(SLIP.onNew(d), u))) >= 0 && g.texts.indexOf(rowsOf(d)[0].s) >= 0 &&
+          g.texts.indexOf(M + amt(changeOf(d.bar.now, d.ch), u)) >= 0;
+      }
+      return K.near(g.low / g.up, multOf(d), 1e-6) && K.near(g.fill, sc.x(100), 1e-6) && g.texts.indexOf(newText(pNew(d), amt(d.bar.now, u))) >= 0 &&
+        g.texts.indexOf(amt(origOf(d), u)) >= 0 && rowsOf(d).every((r) => g.texts.indexOf(r.s) >= 0);
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the original amount, the multiplier or the new amount\'s percentage', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i)), o = amt(origOf(d), d.bar.unit), m = num(multOf(d)), p = pc(pNew(d));
+      return g.texts.every((t) => t.indexOf(o) < 0 && t.indexOf(m) < 0 && t.indexOf(p) < 0 && t.indexOf(d.want) < 0);
+    }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s; parts start at least 0.45 s apart, each once the travel before it has ended', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    // each timetable's parts in order: a start, and when it is done moving (a travel's end)
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => (Array.isArray(A[k]) ? [A[k][0], A[k][0] + A[k][1]] : [A[k], A[k]])).sort((a, b) => a[0] - b[0]);
+      let end = -Infinity;
+      return ps.every((q, k) => {
+        const ok = k === 0 || q[0] === ps[k - 1][0] || (q[0] - ps[k - 1][0] >= 0.45 - 1e-9 && q[0] >= end + 0.1 - 1e-9);
+        end = Math.max(end, q[1]);
+        return ok;
+      });
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

@@ -1,0 +1,152 @@
+<!-- kind: quantity -->
+<style>
+  .cut .first { fill: var(--k-accent2); }
+  .cut .rest { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .cut .len { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .cut .len.above { fill: var(--k-accent2); }
+  .cut .name { font: 800 15px var(--k-font); fill: var(--k-accent2); }
+  .cut .keyt { font: 14px var(--k-font); fill: var(--k-ink); }
+  .cut .scale { stroke: var(--k-ink); stroke-width: 1.5; }
+  .cut .tick { stroke: var(--k-muted); stroke-width: 1; }
+  .cut .tick.big { stroke: var(--k-ink); stroke-width: 1.5; }
+  .cut .num { font: 14px var(--k-font); fill: var(--k-ink); }
+</style>
+
+<p class="lead">One metre of cable, 1000 mm, cut into equal pieces: the first piece carries its length, and the dots under the bar show that length for every count from 1 to 20.</p>
+
+<svg class="cut" id="scene" viewBox="0 0 340 120" width="100%" role="img" aria-label="">
+  <g id="key">
+    <rect class="first" x="10" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="27" y="15">first piece</text>
+    <rect class="rest" x="118" y="4" width="12" height="12" rx="2"/>
+    <text class="keyt" x="135" y="15">the other pieces, all equal</text>
+  </g>
+  <text class="len above" id="lenAbove" x="10" y="40"></text>
+  <text class="name" id="name" x="10" y="40"></text>
+  <g id="bar"></g>
+  <g id="scale"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+
+<div id="plot"></div>
+<p class="caption">The length of one piece is the whole divided by the number of pieces: 1000 mm shared out among them.</p>
+
+<script>
+  // The whole: one metre of cable, 1000 mm. The slider cuts it into 1 to 20 equal pieces.
+  const WHOLE = 1000, MAX = 20;
+  const SOURCE = 'https://www.ncetm.org.uk/classroom-resources/primm-302-unit-fractions-identifying-representing-and-comparing';   // [2]
+  // The drawing: 0 at x = 10, 1000 mm at x = 330, so one millimetre is 0.32 units.
+  const X0 = 10, X1 = 330, S = (X1 - X0) / WHOLE;
+  const xAt = (mm) => X0 + mm * S;
+  const BAR_Y = 46, BAR_H = 32, SCALE_Y = 90;
+
+  // The rule: each equal piece is the whole shared among the pieces.
+  const pieceOf = (n) => WHOLE / n;
+  const takenOff = (n) => pieceOf(n) - pieceOf(n + 1);   // what one more piece takes off every piece
+  const nameOf = (n) => n === 1 ? 'the whole metre (1/1)' : '1/' + n + ' of the metre';
+  const short = (n) => n === 1 ? 'the whole' : '1/' + n;
+  // Whole millimetres written plainly, as the explanation writes them (1000, not 1,000); otherwise to the nearest millimetre.
+  const mm = (v) => String(Math.round(v));
+  // A difference: whole when it is whole, else to one decimal, as the explanation writes 500 and 9.1.
+  const diff = (v) => { const r = Math.round(v * 10) / 10; return Number.isInteger(r) ? String(r) : r.toFixed(1); };
+
+  K.control({ id: 'pieces', label: 'Equal pieces in the metre', min: 1, max: MAX, step: 1, value: 5, unit: 'pieces', snap: [5, 10], into: '#controls' });
+  K.stage('#scene', '#controls');
+
+  K.model((p) => ({ pieceLength: pieceOf(p.pieces) }));
+
+  // The scale the bar is measured against, drawn once: a tick every 100 mm, taller at 0, 500 and 1000.
+  const scale = document.getElementById('scale');
+  scale.appendChild(K.svg('line', { class: 'scale', x1: X0, y1: SCALE_Y, x2: X1, y2: SCALE_Y }));
+  for (let v = 0; v <= WHOLE; v += 100) {
+    const big = v % 500 === 0;
+    scale.appendChild(K.svg('line', { class: 'tick' + (big ? ' big' : ''), x1: xAt(v), y1: SCALE_Y, x2: xAt(v), y2: SCALE_Y + (big ? 9 : 5) }));
+  }
+  scale.appendChild(K.svg('text', { class: 'num', x: X0, y: SCALE_Y + 22, 'text-anchor': 'start' }, '0'));
+  scale.appendChild(K.svg('text', { class: 'num', x: xAt(500), y: SCALE_Y + 22, 'text-anchor': 'middle' }, '500'));
+  scale.appendChild(K.svg('text', { class: 'num', x: X1, y: SCALE_Y + 22, 'text-anchor': 'end' }, '1000 mm'));
+
+  // The plot under the bar: one dot for each whole number of pieces, the current count picked out.
+  const DOTS = [];
+  for (let n = 1; n <= MAX; n++) DOTS.push([n, pieceOf(n)]);
+  const plot = K.plot('#plot', {
+    x: { min: 0, max: 21, ticks: [1, 5, 10, 15, 20], label: 'Equal pieces in the metre' },
+    y: { min: 0, max: 1050, ticks: [0, 250, 500, 750, 1000], label: 'Length of one piece (mm)', fmt: (v) => String(v) },
+    height: 210,
+    label: 'The length of one piece falls steeply from 1 piece to 2, then flattens out towards 20 pieces, never reaching 0',
+  });
+
+  const svg = document.getElementById('scene');
+  function draw(p, o) {
+    const n = p.pieces, L = o.pieceLength, w = L * S, lenTxt = mm(L), name = nameOf(n);
+
+    // The bar: the metre cut into n equal pieces, the first picked out with its length written on it.
+    const bar = document.getElementById('bar');
+    bar.textContent = '';
+    bar.appendChild(K.svg('rect', { class: 'first', x: X0, y: BAR_Y, width: w, height: BAR_H, rx: 2 }));
+    for (let i = 1; i < n; i++) bar.appendChild(K.svg('rect', { class: 'rest', x: X0 + i * w, y: BAR_Y, width: w, height: BAR_H }));
+    const inside = K.svg('text', { class: 'len', x: X0 + w / 2, y: BAR_Y + 21, 'text-anchor': 'middle' }, lenTxt);
+    bar.appendChild(inside);
+    // Too narrow to carry its number: the length moves to just above the piece, and the name steps aside.
+    const fits = inside.getComputedTextLength() + 4 <= w;
+    const above = document.getElementById('lenAbove'), nameEl = document.getElementById('name');
+    if (fits) {
+      above.textContent = '';
+      nameEl.setAttribute('x', X0);
+    } else {
+      bar.removeChild(inside);
+      above.textContent = lenTxt + ' mm';
+      nameEl.setAttribute('x', X0 + above.getComputedTextLength() + 12);
+    }
+    nameEl.textContent = name;
+
+    plot.draw({
+      series: [{ points: DOTS, dots: true, label: 'Length of one piece' }],
+      marks: [{ x: n, y: L, label: short(n), guides: true }],
+    });
+
+    svg.setAttribute('aria-label', 'One metre of cable, 1000 mm, cut into ' + n + ' equal piece' + (n === 1 ? '' : 's') +
+      (n === 1 ? ': the one piece is the whole 1000 mm.' : ' of ' + lenTxt + ' mm each; the first piece is picked out and named ' + name + '.'));
+
+    // The sentence: what is shared, among how many, and what each gets.
+    let s;
+    if (n === 1) {
+      s = 'With one piece nothing is shared out: the piece is the whole 1000 mm. A second piece would take ' + diff(takenOff(1)) + ' mm off it, down to ' + mm(pieceOf(2)) + ' mm each.';
+    } else {
+      const rounded = Number.isInteger(L) ? '' : ' to the nearest millimetre';
+      s = 'The same 1000 mm is shared among ' + n + ' equal pieces, so each piece is 1000 ÷ ' + n + ' = ' + lenTxt + ' mm' + rounded + ', ' + name;
+      if (n === 10) s += ': twice the opening 5 pieces, so half of the 200 mm each piece was then';
+      if (n === MAX) s += ', too narrow to carry its number, so it is written just above the piece';
+      s += '. One more piece would take ' + (n >= 10 ? 'only ' : '') + diff(takenOff(n)) + ' mm off every piece.';
+    }
+    if (!K.moved && n === 5) s += ' Take it up to 10 pieces and every piece halves.';
+    document.getElementById('say').textContent = s;
+  }
+  K.update(draw);
+
+  // Known answers, worked out by hand from the rule.
+  K.check('At 5 pieces each is 1000 ÷ 5 = 200 mm, named 1/5 of the metre; at 10 pieces, 100 mm and 1/10: twice the pieces, half the length', () =>
+    K.near(K.at({ pieces: 5 }).pieceLength, 200, 1e-9) && nameOf(5) === '1/5 of the metre' &&
+    K.near(K.at({ pieces: 10 }).pieceLength, 100, 1e-9) && nameOf(10) === '1/10 of the metre' &&
+    K.near(K.at({ pieces: 5 }).pieceLength / K.at({ pieces: 10 }).pieceLength, 2, 1e-9));
+  K.check('At 1 piece the piece is the whole 1000 mm; at 2, 500 mm; at 4, 250 mm; at 20, 50 mm; at 3 it shows 333 mm, rounded', () =>
+    K.near(K.at({ pieces: 1 }).pieceLength, 1000, 1e-9) && K.near(K.at({ pieces: 2 }).pieceLength, 500, 1e-9) &&
+    K.near(K.at({ pieces: 4 }).pieceLength, 250, 1e-9) && K.near(K.at({ pieces: 20 }).pieceLength, 50, 1e-9) &&
+    mm(K.at({ pieces: 3 }).pieceLength) === '333');
+  K.check('The greater the bottom number, the smaller the unit fraction: every step up in the count makes the piece shorter', () => {
+    for (let n = 1; n < MAX; n++) if (!(K.at({ pieces: n + 1 }).pieceLength < K.at({ pieces: n }).pieceLength)) return false;
+    return true;
+  }, { source: SOURCE });
+  K.check('The shrinking is front-loaded: from 1 piece to 2 takes 500 mm off each piece, from 10 to 11 only 9.1 mm', () =>
+    K.near(takenOff(1), 500, 1e-9) && diff(takenOff(1)) === '500' && K.near(takenOff(10), 1000 / 10 - 1000 / 11, 1e-9) && diff(takenOff(10)) === '9.1');
+  K.check('The pieces laid end to end always give the metre back, and none of them is ever 0 mm', () => {
+    for (let n = 1; n <= MAX; n++) {
+      const L = K.at({ pieces: n }).pieceLength;
+      if (!K.near(n * L, WHOLE, 1e-9) || !(L > 0)) return false;
+    }
+    return true;
+  });
+
+  K.ready();
+</script>

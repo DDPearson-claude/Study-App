@@ -1,0 +1,835 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* The two amounts in a ratio: the first named in solid ink, the second in a light tint, each named beneath. */
+  .scene .b1 { fill: var(--k-accent2); }
+  .scene .b2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .cutn { stroke: var(--k-bg); stroke-width: 2; }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .brkw { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .nm { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .rt { font: 700 22px var(--k-font); fill: var(--k-ink); }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .onb { font: 700 14px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .offb { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* The transformer: a laminated core with a winding on each limb, its leads out to the terminals. */
+  .scene .core { fill: var(--k-sunk); stroke: var(--k-muted); stroke-width: 2; fill-rule: evenodd; }
+  .scene .lead { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .tml { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  /* The ruler under the leads, and the guides down to it. */
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .guide { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  /* The cylinder: its head, walls, piston and rod; ticks on the wall mark each block of space. */
+  .scene .wall { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .head { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .pist { fill: var(--k-sunk); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .wt { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .thumb { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .divider { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene #art * { pointer-events: none; }
+  /* What Dan drags: a thumb's-width hit circle over the drawn thumb. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Ratios drawn as blocks, a transformer's coils, two cable lengths on a ruler and a cylinder.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 152" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each block or drawn turn is one part of the ratio. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture a step draws. 'row': a row of blocks, `a` of the first kind (solid) then `b` of
+  // the second (tinted), named beneath (`names`); `max`, the most blocks the row can hold while Dan
+  // drags; on the drag puzzle `n`, the blocks in all. 'coil': a transformer, `p` turns on the primary
+  // and `s` on the secondary. 'leads': two lengths in centimetres on one ruler, each with the unit it
+  // is given in ('m' or 'cm') and its name. 'cyl': a cylinder holding `n` blocks of space with the
+  // piston at the bottom and 1 at the top.
+  // ask: 'ba' asks for the second kind first; 'frac' asks for the first kind's share of the whole.
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds);
+  // at: when each part of that motion arrives, in seconds after Check. slips: which mistake gives each
+  // wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, pic: 'row', demo: 'build', dur: 3.5, row: { a: 3, b: 2, names: ['vans', 'cars'] }, name: 'Three for every two',
+      text: 'A *ratio* compares two amounts. 3 : 2, vans to cars, means three vans for every two cars. Its numbers keep the order of the words.' },
+    { kind: 'pick', pic: 'row', ask: 'ba', row: { a: 5, b: 2, names: ['vans', 'cars'] }, name: 'Cars to vans',
+      opts: ['2 : 5', '5 : 2', '2 : 7'], want: '2 : 5', slips: { '5 : 2': 'flip', '2 : 7': 'whole' }, fb: 2.1, at: { go: [0.1, 1.2], nums: 1.4 },
+      task: 'A yard holds these vans and cars. What is the ratio of cars to vans?',
+      why: 'Cars to vans names the cars first, so it starts with the 2 cars. 2 : 5 means two cars for every five vans. 5 : 2 is vans to cars.',
+      hint: 'Not quite. Count the cars first, then the vans.',
+      hints: { '5 : 2': 'Not quite. That is vans to cars. The question names the cars first.',
+        '2 : 7': 'Not quite. 7 counts every vehicle. Compare the cars with the vans alone.' } },
+    { show: true, pic: 'coil', demo: 'wind', dur: 4.4, coil: { p: 10, s: 1 }, name: 'Order matters',
+      text: 'A transformer\'s *turns ratio* is usually written primary first. 10 : 1 means ten primary turns for every one on the secondary. Its voltages keep that ratio, so this one steps the voltage down.' },
+    { kind: 'pick', pic: 'coil', coil: { p: 1, s: 4 }, name: 'Count the turns',
+      opts: ['1 : 4', '4 : 1', '1 : 5'], want: '1 : 4', slips: { '4 : 1': 'flip', '1 : 5': 'whole' }, fb: 1.4, at: { nums: 0.1, lab: 0.7 },
+      task: 'Count the turns on each coil. What is this transformer\'s turns ratio?',
+      why: 'The primary comes first, with 1 turn for every 4 on the secondary, so it is 1 : 4. The turns ratio matches the voltage ratio, so this one steps the voltage up.',
+      hint: 'Not quite. Count the primary\'s turns first.',
+      hints: { '4 : 1': 'Not quite. That puts the secondary first. Write the primary\'s turns first.',
+        '1 : 5': 'Not quite. 5 counts every turn. Compare the primary\'s turns with the secondary\'s.' } },
+    { show: true, pic: 'row', demo: 'whole', dur: 3.5, row: { a: 3, b: 2, names: ['vans', 'cars'], max: 8 }, drag: true, range: [1, 5], name: 'Part and whole',
+      text: '3 : 2 compares one *part* with the other. With 2 cars they make 5 blocks, the *whole*, so 3 out of 5 are vans. Drag the end to add cars and watch the whole grow.' },
+    { kind: 'pick', pic: 'row', ask: 'frac', row: { a: 1, b: 4, names: ['squash', 'water'] }, name: 'What fraction?',
+      opts: ['1/5', '1/4', '4/5'], want: '1/5', slips: { '1/4': 'whole', '4/5': 'other' }, fb: 1.4, at: { whole: 0.1, foot: 0.7 },
+      task: 'A drink is mixed 1 : 4, squash to water. What fraction of the drink is squash?',
+      why: '1 : 4 compares the squash with the water. The whole drink is 1 + 4 = 5 parts, and 1 of them is squash, so squash is 1/5 of it.',
+      hint: 'Not quite. Count every part of the drink for the whole.',
+      hints: { '1/4': 'Not quite. 4 is the water alone. The whole drink is every block.',
+        '4/5': 'Not quite. That is the water\'s share. The question asks about the squash.' } },
+    { show: true, pic: 'leads', demo: 'units', dur: 3.2, leads: [{ cm: 300, unit: 'm', name: 'run' }, { cm: 50, unit: 'cm', name: 'tail' }], name: 'Same units',
+      text: 'Two lengths need the same units. 3 m is 300 cm, so a 3 m run and a 50 cm tail are 300 : 50, not 3 : 50.' },
+    { kind: 'pick', pic: 'leads', leads: [{ cm: 200, unit: 'm', name: 'run' }, { cm: 40, unit: 'cm', name: 'tail' }], name: 'Metres and centimetres',
+      opts: ['200 : 40', '2 : 40', '40 : 200'], want: '200 : 40', slips: { '2 : 40': 'units', '40 : 200': 'flip' }, fb: 1.8, at: { ruler: 0.1, swap: [0.6, 0.4], nums: 1.1 },
+      task: 'A cable run is 2 m and its tail is 40 cm. What is the ratio of the run to the tail?',
+      why: 'Both lengths need the same units, and 2 m is 200 cm. The run comes first, so it is 200 : 40. With 2 : 40 the tail would be 20 times the run, yet it is shorter.',
+      hint: 'Not quite. Put both lengths in centimetres first.',
+      hints: { '2 : 40': 'Not quite. 2 is in metres and 40 in centimetres. Change 2 m to centimetres first.',
+        '40 : 200': 'Not quite. That puts the tail first. The question names the run first.' } },
+    { kind: 'drag', pic: 'row', row: { n: 5, names: ['vans', 'cars'] }, start: 0, target: 2, range: [0, 5], name: 'Build the fleet',
+      opts: ['2 : 3', '2 : 5', '3 : 2'], want: '2 : 3', slips: { '2 : 5': 'whole', '3 : 2': 'flip' }, fb: 1.3, at: { whole: 0.1, nums: 0.6 },
+      task: 'In a fleet, 2 of every 5 vehicles are vans. Drag the line to show the fleet, then pick the ratio of vans to cars.',
+      why: '2 of every 5 are vans, so the other 3 are cars. Vans to cars compares part with part, so it is 2 : 3. The ratio 2 : 5 would compare the vans with the whole fleet.',
+      hint: 'Not quite. Count the cars left once 2 blocks are vans.',
+      hints: { '2 : 5': 'Not quite. 5 is the whole fleet. Vans to cars compares the vans with the cars.',
+        '3 : 2': 'Not quite. That is cars to vans. The question names the vans first.' },
+      // the line not yet after 2 blocks: the hint says which way to drag it
+      markHint: { left: 'Not quite. That makes more than 2 vans. Drag the line back to the left.',
+        right: 'Not quite. 2 of every 5 are vans. Drag the line further right.' },
+      empty: 'Drag the line first, then tap a ratio.' },
+    { show: true, pic: 'cyl', demo: 'squeeze', dur: 3.8, cyl: { n: 6 }, name: 'Compression ratio',
+      text: 'An engine\'s *compression ratio* compares the space in its cylinder with the piston at the bottom to the space with it at the top. 6 : 1 squeezes the gas into one-sixth of the space.' },
+    { kind: 'pick', pic: 'cyl', cyl: { n: 8 }, name: 'Count the whole',
+      opts: ['8 : 1', '1 : 8', '7 : 1'], want: '8 : 1', slips: { '1 : 8': 'flip', '7 : 1': 'moved' }, fb: 0.8, at: { nums: 0.1 },
+      task: 'Count the blocks of space in each picture. What is this cylinder\'s compression ratio?',
+      why: 'Compression ratio is the volume with the piston at the bottom to the volume at the top, 8 blocks to 1, so it is 8 : 1. The 7 counts only the blocks the piston rose through.',
+      hint: 'Not quite. Count all the space with the piston at the bottom.',
+      hints: { '1 : 8': 'Not quite. That puts the smaller volume first. Start with the piston at the bottom.',
+        '7 : 1': 'Not quite. 7 is how far the piston rose. Count all 8 blocks of space at the bottom.' } },
+    { kind: 'pick', pic: 'leads', leads: [{ cm: 30, unit: 'cm', name: 'lead' }, { cm: 150, unit: 'm', name: 'run' }], name: 'Put it together',
+      opts: ['30 : 150', '30 : 1.5', '150 : 30'], want: '30 : 150', slips: { '30 : 1.5': 'units', '150 : 30': 'flip' }, fb: 1.8, at: { ruler: 0.1, swap: [0.6, 0.4], nums: 1.1 },
+      task: 'Put it together. A lead is 30 cm long and a cable run is 1.5 m. What is the ratio of the lead to the run?',
+      why: 'Both need the same units, and 1.5 m is 150 cm. The lead comes first, so it is 30 : 150, the shorter length first.',
+      hint: 'Not quite. Put both lengths in centimetres, lead first.',
+      hints: { '30 : 1.5': 'Not quite. 1.5 is in metres. Change it to centimetres first.',
+        '150 : 30': 'Not quite. That puts the run first. The question names the lead first.' } },
+  ];
+  const FINISH = 'Here 3 : 2 compares one part with the other, three for every two, with its numbers in the order of the words. The whole is 3 + 2 = 5 blocks, and two lengths must be in the same units.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). A counted part arrives one item
+  // at a time from `at`, `every` seconds apart (`n` items); a pair [start, how long] is a travel.
+  const FADE = 0.35;
+  const AT = {
+    // the vans' blocks one by one, then their name and number; the cars' blocks, then theirs and the colon
+    build: { b1: { at: 0.6, n: 3, every: 0.25 }, n1: 1.6, b2: { at: 2.1, n: 2, every: 0.25 }, n2: 2.85 },
+    // the primary's turns one by one, its number; the secondary's turn; its number, the colon and what it does
+    wind: { p: { at: 0.5, n: 10, every: 0.2 }, n1: 2.8, s: 3.3, n2: 3.8 },
+    // a bracket sweeps over the whole row; the parts added; the share of the whole; the end to drag
+    whole: { sweep: [0.6, 1.0], sum: 1.7, foot: 2.3, grip: 2.9 },
+    // the ruler; the guides down to it; metres rewritten as centimetres (the new label arriving as the old one leaves); the ratio
+    units: { ruler: 0.6, guide: 1.2, swap: [1.8, 0.4], nums: 2.6 },
+    // the piston rises; where it stops is named; the ratio
+    squeeze: { go: [0.6, 1.6], lab: 2.7, nums: 3.2 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const num = (v) => String(r3(v));
+  const rs = (x, y) => num(x) + ' : ' + num(y);
+  const frac = (x, y) => num(x) + '/' + num(y);
+  // A length as it is given: in metres (3 m) or in centimetres (50 cm).
+  const given = (L) => (L.unit === 'm' ? num(L.cm / 100) + ' m' : num(L.cm) + ' cm');
+  const inUnit = (L) => (L.unit === 'm' ? L.cm / 100 : L.cm);
+  // The blocks on the drag puzzle: Dan's vans (the line's place) and the cars left.
+  function counts(d, st) {
+    const R = d.row;
+    if (d.kind === 'drag') { const a = st.res === 'right' ? d.target : st.mark; return [a, R.n - a]; }
+    return [R.a, d.drag && st.mark != null ? st.mark : R.b];
+  }
+  // The two amounts in the order the question names them.
+  function pair(d) {
+    if (d.pic === 'coil') return [d.coil.p, d.coil.s];
+    if (d.pic === 'cyl') return [d.cyl.n, 1];
+    if (d.pic === 'leads') return [d.leads[0].cm, d.leads[1].cm];
+    if (d.kind === 'drag') return [d.target, d.row.n - d.target];
+    return d.ask === 'ba' ? [d.row.b, d.row.a] : [d.row.a, d.row.b];
+  }
+  const answerOf = (d) => { const p = pair(d); return d.ask === 'frac' ? frac(p[0], p[0] + p[1]) : rs(p[0], p[1]); };
+  // What each slip makes of the answer: the ratio read backwards; a part compared with the whole
+  // (for a share, the first part over the second); the other part's share; a length left in metres
+  // beside one in centimetres; only the blocks the piston rose through, against the one left.
+  const SLIP = {
+    flip: (d) => { const p = pair(d); return rs(p[1], p[0]); },
+    whole: (d) => { const p = pair(d); return d.ask === 'frac' ? frac(p[0], p[1]) : rs(p[0], p[0] + p[1]); },
+    other: (d) => { const p = pair(d); return frac(p[1], p[0] + p[1]); },
+    units: (d) => rs(inUnit(d.leads[0]), inUnit(d.leads[1])),
+    moved: (d) => rs(d.cyl.n - 1, 1),
+  };
+  const slipOf = (d, o) => SLIP[d.slips[o]](d);
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres').replace(/ : /g, ' to ')
+    .replace(/(\d)\/(\d)/g, '$1 out of $2').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) {
+    return { pick: null, res: null, why: false, mark: STEPS[i].kind === 'drag' ? STEPS[i].start : null };
+  }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (st.pick != null) return '';
+    return d.kind === 'drag' && st.mark === d.start ? d.empty : PICK;
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const markRight = (i, st) => STEPS[i].kind !== 'drag' || st.mark === STEPS[i].target;
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want && markRight(i, st);
+  // A wrong answer's hint names its slip; on the drag puzzle a line not yet after 2 blocks comes
+  // first, saying which way it has to go.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (!markRight(i, st)) return d.markHint[st.mark > d.target ? 'left' : 'right'];
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'drag') st.mark = d.target;
+    st.pick = d.want; st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A ratio, a sum or a length stays together on one line ("3 : 2,", "1 + 4 = 5", "3 m"), with the
+  // stop after it; a long one may break only before an equals sign.
+  const TOK = '[−+]?\\d+(?:\\.\\d+)?(?:/\\d+)?(?: (?:cm|m)(?![a-z]))?';
+  const GLUE = new RegExp(TOK + '(?: [+−=×÷:] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].mark = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after a right answer, from its start;
+  // with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // The k-th item of a counted part.
+  const cnt = (c, k) => arr(c.at + k * c.every);
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const poly = (cls, pts) => add(K.svg('polyline', { class: cls, points: pts.map((p) => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' ') }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { rt: 22, nm: 14, onb: 14, offb: 14 }[cls] || 15;
+    return String(s).length * size * 0.6;
+  }
+  // A bracket from x0 to x1 at y: a line with a short upright at each end.
+  function bracket(cls, x0, x1, y) {
+    line(cls, x0, y, x1, y);
+    line(cls, x0, y - 5, x0, y + 5);
+    line(cls, x1, y - 5, x1, y + 5);
+  }
+  // A ratio written under its two amounts: each number under its own, the colon between.
+  function ratioRow(x1, x2, y, n1, n2, a1, a2) {
+    part(a1, 4, () => text(x1, y, num(n1), 'rt'));
+    part(a2, 4, () => { text(x2, y, num(n2), 'rt'); text((x1 + x2) / 2, y, ':', 'rt'); });
+  }
+  const clampMid = (x, w) => K.clamp(x, w / 2 + 2, 338 - w / 2);
+
+  // --- a row of blocks ---
+  // Rows: the whole's bracket (RWB) and its sum (RTOP) above the blocks (RBY, RBH tall); each kind's
+  // bracket (RGB) and name (RNM) beneath, then the ratio (RNUM) and a line of words (RFOOT).
+  const RTOP = 16, RWB = 28, RBY = 38, RBH = 40, RGB = 90, RNM = 109, RNUM = 140, RFOOT = 172;
+  // How high the cars hop on the cars-to-vans screen, whose picture sits DROP lower to make room.
+  const HOP = 46, DROP = 8;
+  function rowGeo(d, n) {
+    const R = d.row, P = Math.min(48, Math.floor((R.max ? 296 : 306) / (R.max || n))), w = n * P - 4;
+    return { P: P, bw: P - 4, x0: R.max ? 18 : (340 - w) / 2, w: w };
+  }
+  const groupMid = (g, k0, k) => g.x0 + k0 * g.P + (k * g.P - 4) / 2;
+  function drawRow(d, st, right) {
+    const R = d.row, A = d.show ? AT[d.demo] : d.at, mine = !!d.drag && st.mark != null, c = counts(d, st), a = c[0], b = c[1], n = a + b;
+    const g = rowGeo(d, n), P = g.P, build = d.demo === 'build';
+    // after a right answer to cars-to-vans, the cars hop over to the front: up clear of the vans, across
+    // as the vans make room, then down; their names fade while they move
+    let sw = 0, lift = 0, lab = 1;
+    if (d.ask === 'ba' && right) {
+      arr(A.go[0], A.go[1]);
+      const q = T === Infinity ? 1 : K.clamp((T - A.go[0]) / A.go[1], 0, 1), ph = (a0, a1) => K.ease(K.clamp((q - a0) / (a1 - a0), 0, 1));
+      const up = ph(0, 0.3), down = ph(0.7, 1);
+      sw = ph(0.3, 0.7); lift = HOP * (up - down); lab = Math.max(1 - up, down);
+    }
+    for (let k = 0; k < a; k++) {
+      const x = g.x0 + (k + b * sw) * P;
+      part(build ? cnt(A.b1, k) : 1, 6, () => rect('b1', x, RBY, g.bw, RBH, 4));
+    }
+    for (let j = 0; j < b; j++) {
+      const x = g.x0 + (a + j - a * sw) * P;
+      part(build ? cnt(A.b2, j) : 1, 6, () => rect('b2', x, RBY - lift, g.bw, RBH, 4));
+    }
+    const c1 = groupMid(g, b * sw, a), c2 = groupMid(g, a - a * sw, b);
+    const n1 = build ? arr(A.n1) : 1, n2 = build ? arr(A.n2) : 1;
+    if (a > 0) part(Math.min(n1, lab), 4, () => { bracket('brk', c1 - (a * P - 4) / 2, c1 + (a * P - 4) / 2, RGB); text(c1, RNM, R.names[0], 'nm'); });
+    if (b > 0) part(Math.min(n2, lab), 4, () => { bracket('brk', c2 - (b * P - 4) / 2, c2 + (b * P - 4) / 2, RGB); text(c2, RNM, R.names[1], 'nm'); });
+    // the ratio under its blocks
+    let said = '';
+    if (d.ask === 'ba') {
+      const na = right ? arr(A.nums) : 0;
+      ratioRow(c2, c1, RNUM, b, a, na, na);
+      if (na >= 0.5) said = ' Under them, ' + say(rs(b, a)) + ', ' + R.names[1] + ' to ' + R.names[0] + '.';
+    } else if (d.kind === 'drag') {
+      const na = right ? arr(A.nums) : 0;
+      ratioRow(c1, c2, RNUM, a, b, na, na);
+      if (na >= 0.5) said = ' Under them, ' + say(rs(a, b)) + '.';
+    } else {
+      ratioRow(c1, c2, RNUM, a, b, n1, n2);
+      if (n2 >= 0.5) said = ' Under them, ' + say(rs(a, b)) + ', ' + R.names[0] + ' to ' + R.names[1] + '.';
+    }
+    // the whole: a bracket over every block, and the parts added
+    let wa = 0, sweep = 0;
+    if (d.demo === 'whole') { sweep = mine ? 1 : arr(A.sweep[0], A.sweep[1]); wa = mine ? 1 : arr(A.sum); }
+    else if (!d.show && A.whole != null && right) { sweep = arr(A.whole); wa = sweep; }
+    const sum = num(a) + ' + ' + num(b) + ' = ' + num(n) + ' in all';
+    // on the part-and-whole screen the bracket fades in over the first third of its sweep as it grows
+    if (sweep > 0) part(d.demo === 'whole' ? K.clamp(sweep * 3, 0, 1) : sweep, 0, () => bracket('brkw', g.x0, g.x0 + g.w * (d.demo === 'whole' ? sweep : 1), RWB));
+    part(wa, 4, () => text(clampMid(g.x0 + g.w / 2, tw(sum, 'num')), RTOP, sum, 'num'));
+    // a line of words: the first part's share of the whole
+    const fa = d.demo === 'whole' ? (mine ? 1 : arr(A.foot)) : d.ask === 'frac' && right ? arr(A.foot) : 0;
+    const foot = num(a) + ' out of ' + num(n) + (a === 1 ? ' is ' : ' are ') + R.names[0];
+    part(fa, 4, () => text(170, RFOOT, foot, 'num'));
+    // what Dan drags: the end of the row (more cars), or the line between the kinds
+    let gripAt = null, gA = 0;
+    if (d.drag) { gA = mine ? 1 : arr(A.grip); gripAt = g.x0 + n * P + 6; }
+    if (d.kind === 'drag') { gA = right ? 0 : 1; gripAt = g.x0 + a * P - 2; }
+    if (d.kind === 'drag') leave(right ? arr(0, 0.3) : 0, () => { line('divider', gripAt, RBY - 6, gripAt, RBY + RBH + 6); circle('thumb', gripAt, RBY + RBH / 2, 12); });
+    else if (gripAt != null) part(gA, 0, () => circle('thumb', gripAt, RBY + RBH / 2, 12));
+    placeGrip(gA >= 0.5 && gripAt != null ? gripAt : null, d, d.kind === 'drag' ? a : b);
+    // in words, for a screen reader
+    const kinds = (sw >= 0.5 ? [[b, R.names[1]], [a, R.names[0]]] : [[a, R.names[0]], [b, R.names[1]]]).filter((x) => x[0] > 0);
+    return 'A row of ' + num(n) + ' blocks: ' + kinds.map((x) => num(x[0]) + ' ' + x[1]).join(', then ') + '.' + said +
+      (wa >= 0.5 ? ' A bracket over the row: ' + say(sum) + '.' : '') + (fa >= 0.5 ? ' ' + say(foot) + '.' : '') +
+      (gA >= 0.5 && gripAt != null ? (d.kind === 'drag' ? ' The line between vans and cars can be dragged.' : ' The end of the row can be dragged to add cars.') : '');
+  }
+
+  // --- a transformer ---
+  // The core, a square ring (outer CO, the window inside it); the windings in the middle of each limb,
+  // one band per turn (TH thick), TP apart; the names beneath (CNM), then the ratio (CNUM); what it does above (CTOP).
+  const CO = { x0: 96, x1: 244, y0: 22, y1: 158, t: 22 }, CYC = 90, TP = 9, TH = 7, CNM = 178, CNUM = 206, CTOP = 14;
+  const limbX = (k) => (k ? CO.x1 - CO.t / 2 : CO.x0 + CO.t / 2);
+  const turnY = (k, n) => CYC - (n - 1) * TP / 2 + k * TP;
+  // A winding of n turns on limb k (0 the primary, 1 the secondary); arrive(j) says how far turn j has come.
+  // Its two leads leave from the first turn and the last, out to a terminal each, arriving with them.
+  function winding(k, n, arrive) {
+    const cx = limbX(k), side = k ? 1 : -1, ox = cx + side * 25;
+    const yA = turnY(0, n) - (n === 1 ? TH / 2 : 0), yB = turnY(n - 1, n) + (n === 1 ? TH / 2 : 0);
+    const yTA = Math.min(yA, CYC - 16), yTB = Math.max(yB, CYC + 16);
+    const lead = (y, yT, v) => { poly('lead', [[ox, y], [ox + side * v, y], [ox + side * v, yT], [ox + side * 20, yT]]); circle('tml', ox + side * 24, yT, 3.5); };
+    part(arrive(0), 0, () => lead(yA, yTA, 6));
+    part(arrive(n - 1), 0, () => lead(yB, yTB, 12));
+    for (let j = 0; j < n; j++) part(arrive(j), 0, () => rect(k ? 'b2' : 'b1', cx - 25, turnY(j, n) - TH / 2, 50, TH, 3));
+  }
+  function drawCoil(d, st, right) {
+    const C = d.coil, A = d.show ? AT[d.demo] : d.at, wind = d.demo === 'wind';
+    add(K.svg('path', { class: 'core', d: 'M' + CO.x0 + ' ' + CO.y0 + 'H' + CO.x1 + 'V' + CO.y1 + 'H' + CO.x0 + 'Z' +
+      'M' + (CO.x0 + CO.t) + ' ' + (CO.y0 + CO.t) + 'V' + (CO.y1 - CO.t) + 'H' + (CO.x1 - CO.t) + 'V' + (CO.y0 + CO.t) + 'Z' }));
+    winding(0, C.p, (j) => (wind ? cnt(A.p, j) : 1));
+    winding(1, C.s, () => (wind ? arr(A.s) : 1));
+    text(limbX(0), CNM, 'primary', 'nm');
+    text(limbX(1), CNM, 'secondary', 'nm');
+    const n1 = wind ? arr(A.n1) : right ? arr(A.nums) : 0, n2 = wind ? arr(A.n2) : n1;
+    ratioRow(limbX(0), limbX(1), CNUM, C.p, C.s, n1, n2);
+    const does = 'steps the voltage ' + (C.p > C.s ? 'down' : 'up');
+    const la = wind ? n2 : right ? arr(A.lab) : 0;
+    part(la, 4, () => text(170, CTOP, does, 'nm'));
+    return 'A transformer: a square core with a winding on each side, ' + num(C.p) + (C.p === 1 ? ' turn' : ' turns') + ' on the primary on the left and ' +
+      num(C.s) + (C.s === 1 ? ' turn' : ' turns') + ' on the secondary on the right.' + (n2 >= 0.5 ? ' Under them, ' + say(rs(C.p, C.s)) + ', primary to secondary.' : '') +
+      (la >= 0.5 ? ' Above, it ' + does + '.' : '');
+  }
+
+  // --- two lengths on one ruler ---
+  // Each length a bar from LX0 (the first named on top, at LY[0]), its length written on it or beside
+  // it; a ruler in centimetres beneath (LAX, its numbers at LAN); the names (LNM), then the ratio (LNUM).
+  const LX0 = 24, LW = 280, LY = [20, 60], LH = 24, LAX = 106, LAN = 126, LNM = 154, LNUM = 182;
+  function drawLeads(d, st, right) {
+    const L = d.leads, A = d.show ? AT[d.demo] : d.at, demo = d.show;
+    const max = Math.max(L[0].cm, L[1].cm), x = (cm) => LX0 + LW * cm / max;
+    const ra = demo ? arr(A.ruler) : right ? arr(A.ruler) : 0;
+    const ga = demo ? arr(A.guide) : ra;
+    const out = demo || right ? arr(A.swap[0], A.swap[1]) : 0, inn = demo || right ? arr(A.swap[0] + A.swap[1] / 2) : 0;
+    const na = demo || right ? arr(A.nums) : 0;
+    // the guides first, so the bars sit over them: down from each bar's end to the ruler, broken where the other bar crosses
+    part(ga, 0, () => L.forEach((Lk, k) => {
+      const gx = x(Lk.cm), y0 = LY[k] + LH;
+      if (k === 0 && x(L[1].cm) > gx - 4) { line('guide', gx, y0, gx, LY[1] - 3); line('guide', gx, LY[1] + LH + 3, gx, LAX); }
+      else line('guide', gx, y0, gx, LAX);
+    }));
+    L.forEach((Lk, k) => {
+      const w = x(Lk.cm) - LX0, cls = k ? 'b2' : 'b1';
+      rect(cls, LX0, LY[k], w, LH, 6);
+      const was = given(Lk) + ' ' + Lk.name, now = num(Lk.cm) + ' cm ' + Lk.name, tcls = k ? 'offb' : 'onb';
+      const fits = (s) => w >= tw(s, tcls) + 16;
+      const put = (s) => (fits(s) ? text(LX0 + 8, LY[k] + 17, s, tcls, 'start') : text(x(Lk.cm) + 8, LY[k] + 17, s, 'offb', 'start'));
+      if (Lk.unit === 'm') { leave(out, () => put(was)); part(inn, 0, () => put(now)); }
+      else put(was);
+    });
+    // the ruler, in centimetres
+    const step = max <= 150 ? 25 : 50, every = max <= 150 ? 50 : 100;
+    part(ra, 4, () => {
+      line('axis', LX0, LAX, LX0 + LW, LAX);
+      for (let cm = 0; cm <= max + 1e-9; cm += step) {
+        line('tick', x(cm), LAX - 5, x(cm), LAX + 5);
+        if (cm % every === 0) text(x(cm), LAN, cm === max ? num(cm) + ' cm' : num(cm), 'num');
+      }
+    });
+    // the names, then the ratio, in the order the words give them
+    part(na, 4, () => {
+      text(160, LNM, L[0].name, 'nm', 'end'); text(170, LNM, ':', 'nm'); text(180, LNM, L[1].name, 'nm', 'start');
+      text(160, LNUM, num(L[0].cm), 'rt', 'end'); text(170, LNUM, ':', 'rt'); text(180, LNUM, num(L[1].cm), 'rt', 'start');
+    });
+    const shown = (Lk) => (Lk.unit === 'm' && inn >= 0.5 ? num(Lk.cm) + ' cm' : given(Lk));
+    return 'Two bars drawn to scale: the ' + L[0].name + ', ' + say(shown(L[0])) + ', above the ' + L[1].name + ', ' + say(shown(L[1])) + '.' +
+      (ra >= 0.5 ? ' Under them, a ruler in centimetres from 0 to ' + num(max) + '.' : '') +
+      (na >= 0.5 ? ' Below it, ' + L[0].name + ' to ' + L[1].name + ', ' + say(rs(L[0].cm, L[1].cm)) + '.' : '');
+  }
+
+  // --- the cylinder, with the piston at the bottom and at the top ---
+  // Two drawings of one cylinder side by side (centres CX), its head at CTOPY, each block of space BK
+  // tall; the piston PH thick; the names beneath, then the ratio.
+  const CX = [95, 245], CHW = 32, CTOPY = 16, BK = 12, PH = 14;
+  const wallEnd = (n) => CTOPY + n * BK + PH + 4;
+  // One drawing: n blocks in all, `space` of them above the piston (fractional while it moves).
+  function cylinder(cx, n, space, cls) {
+    const wb = wallEnd(n), py = CTOPY + space * BK;
+    rect('head', cx - CHW - 4, CTOPY - 9, 2 * CHW + 8, 9, 2);
+    rect(cls, cx - CHW + 2, CTOPY, 2 * CHW - 4, space * BK, 0);
+    if (cls === 'b1') for (let k = 1; k < space; k++) line('cutn', cx - CHW + 2, CTOPY + k * BK, cx + CHW - 2, CTOPY + k * BK);
+    rect('pist', cx - 7, py + PH, 14, wb + 12 - py - PH, 0);
+    rect('pist', cx - CHW + 2, py, 2 * CHW - 4, PH, 2);
+    line('wall', cx - CHW, CTOPY, cx - CHW, wb);
+    line('wall', cx + CHW, CTOPY, cx + CHW, wb);
+    for (let k = 0; k <= n; k++) line('wt', cx + CHW + 3, CTOPY + k * BK, cx + CHW + 9, CTOPY + k * BK);
+  }
+  function drawCyl(d, st, right) {
+    const n = d.cyl.n, A = d.show ? AT[d.demo] : d.at, demo = d.show;
+    const go = demo ? arr(A.go[0], A.go[1]) : 1, space = n + (1 - n) * go;
+    const yN = wallEnd(n) + 32, yR = yN + 30;
+    cylinder(CX[0], n, n, 'b1');
+    cylinder(CX[1], n, space, 'b2');
+    text(CX[0], yN, 'piston at the bottom', 'nm');
+    const la = demo ? arr(A.lab) : 1;
+    part(la, 4, () => text(CX[1], yN, 'piston at the top', 'nm'));
+    const na = demo || right ? arr(A.nums) : 0;
+    ratioRow(CX[0], CX[1], yR, n, 1, na, na);
+    const moving = go > 0 && go < 1;
+    return 'One cylinder drawn twice. On the left, the piston at the bottom, with ' + num(n) + ' blocks of space above it. On the right, ' +
+      (moving ? 'the piston rising, the space above it shrinking.' : go >= 1 ? 'the piston at the top, with 1 block of space left.' : 'the piston at the bottom too.') +
+      (na >= 0.5 ? ' Under them, ' + say(rs(n, 1)) + '.' : '');
+  }
+  const heightOf = (d) => (d.pic === 'coil' ? 218 : d.pic === 'leads' ? 194 : d.pic === 'cyl' ? wallEnd(d.cyl.n) + 76 : d.demo === 'whole' || d.ask === 'frac' ? 182 : d.ask === 'ba' ? 152 + DROP : 152);
+
+  // What Dan drags is one grip kept across repaints (the picture is redrawn every frame), so a drag
+  // in progress and the keyboard focus both survive. It is a thumb's width across (about 48 px on a
+  // 360 px phone).
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: RBY + RBH / 2, r: 28, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  let gripOn = false;
+  function placeGrip(x, d, v) {
+    gripOn = x != null;
+    if (!gripOn) { grip.style.display = 'none'; grip.setAttribute('tabindex', '-1'); return; }
+    grip.style.display = '';
+    grip.setAttribute('tabindex', '0');
+    grip.setAttribute('cx', x.toFixed(2));
+    grip.setAttribute('aria-label', d.kind === 'drag' ? 'The line between vans and cars' : 'The end of the row of blocks');
+    grip.setAttribute('aria-valuemin', d.range[0]); grip.setAttribute('aria-valuemax', d.range[1]); grip.setAttribute('aria-valuenow', v);
+    grip.setAttribute('aria-valuetext', d.kind === 'drag' ? num(v) + (v === 1 ? ' van' : ' vans') : num(v) + (v === 1 ? ' car' : ' cars'));
+  }
+  const dragging = () => { const i = at(), d = STEPS[i]; return !finished && gripOn && ((d.kind === 'drag' && S[i].res !== 'right') || !!d.drag); };
+  function setMark(v) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (v === (st.mark == null ? d.row.b : st.mark)) return;
+    if (d.show) { anim.pause(); T = Infinity; motion = null; }
+    st.mark = v; st.res = null;
+    K.reveal(); K.refresh();
+  }
+  // Where a pointer at x puts the end (a count of cars) or the line (a count of vans).
+  function snapOf(d, x) {
+    if (d.kind === 'drag') { const g = rowGeo(d, d.row.n); return K.clamp(Math.round((x - g.x0 + 2) / g.P), d.range[0], d.range[1]); }
+    const g = rowGeo(d, d.row.a + d.row.b);
+    return K.clamp(Math.round((x - g.x0 - 6) / g.P) - d.row.a, d.range[0], d.range[1]);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    setMark(snapOf(STEPS[at()], q.x));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const d = STEPS[at()], by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const st = S[at()], now = st.mark == null ? d.row.b : st.mark;
+    setMark(e.key === 'Home' ? d.range[0] : e.key === 'End' ? d.range[1] : K.clamp(now + by, d.range[0], d.range[1]));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + heightOf(d));
+    if (d.ask === 'ba') art.setAttribute('transform', 'translate(0 ' + DROP + ')'); else art.removeAttribute('transform');
+    if (d.pic !== 'row') placeGrip(null);
+    const aria = d.pic === 'coil' ? drawCoil(d, st, right) : d.pic === 'leads' ? drawLeads(d, st, right) : d.pic === 'cyl' ? drawCyl(d, st, right) : drawRow(d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) { st.mark = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const DRAG_I = STEPS.findIndex((d) => d.kind === 'drag'), WHOLE_I = STEPS.findIndex((d) => d.demo === 'whole');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const all = (sel) => Array.from(art.querySelectorAll(sel));
+      return { texts: all('text').map((t) => t.textContent), b1: all('rect.b1'), b2: all('rect.b2'), aria: svg.getAttribute('aria-label') };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives: the ratio read backwards, a part compared with the whole, the other part\'s share, a length left in metres beside one in centimetres, or only the blocks the piston rose through', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.want === answerOf(d) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        Object.keys(d.slips).length === 2 && Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && slipOf(d, o) === o);
+    }) && SLIP.flip(STEPS[1]) === '5 : 2' && SLIP.whole(STEPS[5]) === '1/4' && SLIP.units(STEPS[7]) === '2 : 40' && SLIP.units(STEPS[11]) === '30 : 1.5' && SLIP.moved(STEPS[10]) === '7 : 1');
+  K.check('3 : 2 compares part with part, and the whole is the parts added: 3 : 2 is 3 + 2 = 5 blocks, so 3 out of 5; 1 : 4 is 5 parts, so the first is 1/5 and the second 4/5; 2 of every 5 leaves 3, so 2 : 3; and every number of cars Dan can drag onto 3 : 2 gives 3 : c and 3 + c in all', () => {
+    const d = STEPS[WHOLE_I], ok = [];
+    for (let c = d.range[0]; c <= d.range[1]; c++) {
+      const g = drawn(WHOLE_I, Object.assign(blank(WHOLE_I), { mark: c }));
+      ok.push(g.b1.length === 3 && g.b2.length === c && g.texts.indexOf('3 + ' + c + ' = ' + (3 + c) + ' in all') >= 0 && g.texts.indexOf('3 out of ' + (3 + c) + ' are vans') >= 0 && g.texts.indexOf(String(c)) >= 0);
+    }
+    return ok.length === 5 && ok.every(Boolean) && answerOf(STEPS[5]) === '1/5' && SLIP.other(STEPS[5]) === '4/5' && answerOf(STEPS[DRAG_I]) === '2 : 3' && 3 + 2 === 5;
+  });
+  K.check('Both lengths in the same units: a metre is 100 cm, so 3 m = 300 cm, 2 m = 200 cm and 1.5 m = 150 cm, and each pair of lengths is written in centimetres, 300 : 50, 200 : 40 and 30 : 150, the first named first', () =>
+    STEPS.filter((d) => d.pic === 'leads').map((d) => answerOf(d)).join() === '300 : 50,200 : 40,30 : 150' &&
+    given(STEPS[6].leads[0]) === '3 m' && given(STEPS[7].leads[0]) === '2 m' && given(STEPS[11].leads[1]) === '1.5 m' && STEPS.filter((d) => d.pic === 'leads').every((d) => d.leads.some((L) => L.unit === 'm' && L.cm % 1 === 0)));
+  K.check('A turns ratio of 10:1 yields a 10:1 primary:secondary voltage ratio, usually written primary first, so the 10 : 1 transformer, with more turns on its primary, steps the voltage down', () =>
+    answerOf(STEPS[2]) === '10 : 1' && STEPS[2].coil.p > STEPS[2].coil.s && drawn(2, blank(2)).texts.indexOf('steps the voltage down') >= 0,
+    { source: 'https://www.allaboutcircuits.com/textbook/alternating-current/chpt-9/step-up-and-step-down-transformers' });
+  // The same picture with the coils the other way round, 4 turns on the primary for every 1 on the secondary.
+  function flipDown() {
+    const keep = STEPS[3].coil;
+    STEPS[3].coil = { p: 4, s: 1 };
+    try { return drawn(3, solved(3)).texts.indexOf('steps the voltage down') >= 0; } finally { STEPS[3].coil = keep; paint(); }
+  }
+  K.check('The turns ratio of any transformer is the same as its voltage ratio, so the 1 : 4 transformer, with more turns on its secondary, steps the voltage up, and read the other way, 4 : 1, it would step it down', () =>
+    answerOf(STEPS[3]) === '1 : 4' && STEPS[3].coil.s > STEPS[3].coil.p && drawn(3, solved(3)).texts.indexOf('steps the voltage up') >= 0 && SLIP.flip(STEPS[3]) === '4 : 1' && flipDown(),
+    { source: 'https://www.electronics-tutorials.ws/transformer/transformer-basics.html' });
+  K.check('Compression ratio is the maximum volume, with the piston at bottom dead centre, divided by the volume with the piston in the full-compression position: 6 blocks ÷ 1 is 6 and 8 ÷ 1 is 8, so 6 : 1 and 8 : 1, the bigger volume first, and 6 : 1 leaves one-sixth of the space', () =>
+    answerOf(STEPS[9]) === '6 : 1' && answerOf(STEPS[10]) === '8 : 1' && 6 / 1 === 6 && K.near(1 / 6 * 6, 1, 1e-9) && SLIP.moved(STEPS[10]) === '7 : 1',
+    { source: 'https://www.britannica.com/technology/compression-ratio' });
+  K.check('Every picture is drawn to scale, finished: each row has the blocks its ratio names, each winding its turns, each bar its length in centimetres, and each cylinder 1 block of space at the top for n at the bottom', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? blank(i) : solved(i));
+      if (d.pic === 'row') { const c = counts(d, d.show ? blank(i) : solved(i)); return g.b1.length === c[0] && g.b2.length === c[1]; }
+      if (d.pic === 'coil') return g.b1.length === d.coil.p && g.b2.length === d.coil.s;
+      if (d.pic === 'leads') {
+        const w = (r) => Number(r.getAttribute('width'));
+        return K.near(w(g.b1[0]) / w(g.b2[0]), d.leads[0].cm / d.leads[1].cm, 1e-6) && d.leads.every((L) => g.texts.indexOf(num(L.cm) + ' cm ' + L.name) >= 0);
+      }
+      const h = (r) => Number(r.getAttribute('height'));
+      return K.near(h(g.b1[0]) / h(g.b2[0]), d.cyl.n, 1e-6);
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows its answer: no ratio under the blocks, no share of the whole, no metres turned into centimetres', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i)), p = pair(d);
+      const told = d.ask === 'frac' ? [d.want, ' in all', ' out of '] : d.pic === 'leads' ? d.leads.filter((L) => L.unit === 'm').map((L) => num(L.cm) + ' cm') : [];
+      const nums = g.texts.filter((t) => /^\d+$/.test(t));
+      return told.every((s) => g.texts.every((t) => t.indexOf(s) < 0)) && (d.ask === 'frac' || nums.length === 0 || d.pic === 'leads') &&
+        g.texts.indexOf(':') < 0 === (d.ask !== 'frac') && p.length === 2;
+    }));
+  K.check('The drag puzzle takes 2 : 3 only with exactly 2 blocks made vans; with more the hint says drag left, with fewer right; the line snaps to whole blocks from 0 to 5', () => {
+    const i = DRAG_I, d = STEPS[i], st = (m, pk) => Object.assign(blank(i), { mark: m, pick: pk }), g = rowGeo(d, d.row.n);
+    return isRight(i, st(2, '2 : 3')) && !isRight(i, st(3, '2 : 3')) && !isRight(i, st(1, '2 : 3')) && !isRight(i, st(2, '2 : 5')) && hintFor(i, st(4, '2 : 3')) === d.markHint.left &&
+      hintFor(i, st(1, '2 : 3')) === d.markHint.right && emptyFor(i, blank(i)) === d.empty && hintFor(i, st(2, '2 : 5')) === d.hints['2 : 5'] &&
+      snapOf(d, g.x0 + 2 * g.P) === 2 && snapOf(d, -50) === 0 && snapOf(d, 900) === 5 && counts(d, st(2, null))[1] === 3;
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s; parts start at least 0.45 s apart, each once the travel before it has ended, and counted items at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    // each timetable's parts in order: when it starts, when its last item starts, and when it is done moving
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => {
+        const v = A[k];
+        if (Array.isArray(v)) return { s: v[0], c: v[0], e: v[0] + v[1], ok: true };
+        if (typeof v === 'object') return { s: v.at, c: v.at + (v.n - 1) * v.every, e: v.at + (v.n - 1) * v.every, ok: v.every >= 0.2 - 1e-9 };
+        return { s: v, c: v, e: v, ok: true };
+      }).sort((a, b) => a.s - b.s);
+      let end = -Infinity;
+      return ps.every((q, k) => {
+        const good = q.ok && (k === 0 || q.s === ps[k - 1].s || (q.s - ps[k - 1].c >= 0.45 - 1e-9 && q.s >= end + 0.1 - 1e-9));
+        end = Math.max(end, q.e);
+        return good;
+      });
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at)) &&
+      AT.build.b1.n === STEPS[0].row.a && AT.build.b2.n === STEPS[0].row.b && AT.wind.p.n === STEPS[2].coil.p;
+  });
+
+  K.ready();
+</script>

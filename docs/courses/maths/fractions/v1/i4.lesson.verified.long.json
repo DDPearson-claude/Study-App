@@ -1,0 +1,189 @@
+{
+  "iid": "i4",
+  "title": "One mark, many names",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the shaded run on the bar and the mark beneath it stay put while their name changes from 3/8 to 6/16 to 12/32, when you cut every eighth into more equal pieces.",
+    "title": "Cut every eighth smaller",
+    "controls": [
+      {
+        "id": "cutsPerEighth",
+        "label": "Pieces each eighth is cut into",
+        "min": 1,
+        "max": 4,
+        "step": 1,
+        "value": 1,
+        "unit": "pieces"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "piecesInWhole",
+        "label": "Equal pieces in the whole",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "piecesShaded",
+        "label": "Pieces shaded",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "place",
+        "label": "Place on the line",
+        "unit": "",
+        "decimals": 3
+      }
+    ],
+    "whatAmILookingAt": "One bar, one whole, cut by seven cuts into eight equal pieces. The three pieces at the left end are shaded as one run, and a label above the run names it as a fraction: 3/8 at the start. The slider cuts every piece, shaded and unshaded alike, into 2, 3 or 4 equal pieces: new cuts appear inside every eighth, the label changes to 6/16, 9/24 and 12/32, and the shaded run keeps exactly its length. Beneath the bar runs a number line from 0 under the bar’s left end to 1 under its right, with a tick at every cut and a mark on the line directly under the end of the shaded run; the ticks multiply as you slide, the mark stays where it is. The readouts give the equal pieces in the whole, the pieces shaded, and the place on the line: 8, 3 and 0.375 at the opening setting, where no eighth has been cut further.\n\nThe rule is the counting from the first lesson, done again after each cut. One eighth is 1 ÷ 8 = 0.125 of the whole, because eight of them make it, and three of them reach 3 × 0.125 = 0.375: the mark. Cut every eighth into 2 and the whole has 8 × 2 = 16 pieces, each 1 ÷ 16 = 0.0625, half an eighth, because the same whole is now shared among twice as many pieces, as the last lesson showed; the three shaded eighths were cut too, each into 2, so 3 × 2 = 6 pieces are shaded, and 6 × 0.0625 = 0.375 again. In general: equal pieces in the whole = 8 × the slider, pieces shaded = 3 × the slider, and place on the line = pieces shaded ÷ equal pieces in the whole. The slider multiplies both the count and the pieces, so it cancels out of the division, and the place is 3 ÷ 8 = 0.375 at every setting. Call the bar an inch and the shaded run is 3/8 of an inch, the 3/8 stamped on a drill bit; call it a metre and the same run is 0.375 × 1000 = 375 mm.",
+    "ignores": "The slider stops at 4, which could suggest a fraction has only a few names; cutting by any whole number gives another, so the family of names has no end. Sliding back down is drawn as the cuts vanishing, which is the same renaming in reverse: pieces merged, both numbers divided. The cuts are drawn as lines with no width, so the run and the mark sit on exact places; a real cut or a printed mark has a width. One fraction of one whole is shown; any fraction of any whole renames the same way, but 6/16 of a metre and 6/16 of an inch are different lengths, because their wholes differ.",
+    "numbers": [
+      {
+        "label": "Whole bars drawn (chosen)",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Eighths shaded at the start (chosen)",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Eighths in one whole (what eighth means)",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "Pieces each eighth is cut into at the start",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "Most pieces per eighth the slider allows (chosen)",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Size of one eighth, 1 ÷ 8, of the whole",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Place on the line, 3 × 0.125",
+        "value": 0.375,
+        "kind": "computed"
+      },
+      {
+        "label": "Equal pieces in the whole at 2 per eighth, 8 × 2",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces shaded at 2 per eighth, 3 × 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Size of one sixteenth, 1 ÷ 16, of the whole",
+        "value": 0.0625,
+        "kind": "computed"
+      },
+      {
+        "label": "Equal pieces in the whole at 3 per eighth, 8 × 3",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces shaded at 3 per eighth, 3 × 3",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Equal pieces in the whole at 4 per eighth, 8 × 4",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Pieces shaded at 4 per eighth, 3 × 4",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Size of one thirty-second, 1 ÷ 32, of the whole",
+        "value": 0.03125,
+        "kind": "computed"
+      },
+      {
+        "label": "The shaded run if the bar is a metre, 0.375 × 1000, mm",
+        "value": 375,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Three-eighths and six-sixteenths are one number with two names: the same shaded run on the bar, the same mark on the line, the same place on a tape, 3/8 of an inch. Remember from the first lesson that the bottom number names the piece and the top counts those pieces from zero, and from the last that cutting a whole into more equal pieces makes each piece smaller? Put the two together: cut every piece into the same number of smaller pieces and you give the fraction a new name without moving it.\n\nWatch one cut. The bar starts as eighths with three shaded: one eighth is 1 ÷ 8 = 0.125 of the whole, so the run ends at 3 × 0.125 = 0.375, where the mark sits. Now cut every eighth in half. The whole had 8 pieces and has 8 × 2 = 16, so each new piece is a sixteenth, 1 ÷ 16 = 0.0625, half what it was, because the same whole is shared among twice as many pieces. The three shaded eighths were cut too, each into two, so twice as many pieces are shaded: 3 × 2 = 6.[^1] Nothing else happened: every cut landed inside a piece, and the end of the run, where the third eighth stopped, is exactly where it was. Count the six sixteenths and you reach 6 × 0.0625 = 0.375, the same place. The run that was named 3/8 is now named 6/16, and because the two names sit at the same point on the line, they are the same number.[^2] **Multiply the top and the bottom by the same number and the fraction keeps its place: it has been renamed, not moved.**[^3][^4] The cause is two changes that cancel: the piece shrinks by exactly the factor that the count of pieces grows, so the count of pieces times the size of a piece, which is the amount shaded, comes out unchanged. Cut each eighth into three instead and the whole has 24 pieces, 9 of them shaded, 9/24, a name you are unlikely to meet on a tape but a true one all the same; into four, and it has 32 pieces of 1 ÷ 32 = 0.03125, 12 shaded, and 12 × 0.03125 = 0.375 again: 12/32 is the same place too. Fractions that name the same number are what textbooks call [[equivalent fractions]], and every fraction has a whole family of them, all at its one point on the line.[^5]\n\nThe slider does the cutting. At 1 the bar shows eighths and the label reads 3/8; at 2, cuts appear inside every eighth and it reads 6/16; at 4, 12/32. Through all of it the shaded run and the mark beneath it stay put. Slide back down and the cuts vanish: 12/32 merges into 6/16 and then into 3/8, which is dividing the top and the bottom by the same number, and that keeps the place too.[^6] Of a number’s many names, the one with the smallest numbers, where no cut is left to undo, is the one usually written; textbooks add that it is called the fraction’s simplest form.\n\nTwo habits fail here. The first is the whole-number habit from the last lesson: people who study how fractions are learned list judging a fraction by its whole numbers among the common errors,[^7] and by that habit 6/16, bigger on top and bigger on the bottom, looks like more than 3/8. On the bar it is the same run: the bigger bottom means smaller pieces, and the bigger top counts just enough of them to reach the same place. The second habit is to add instead of multiply: 3/8 to 4/9, one added top and bottom. That moves the mark. A ninth is 1 ÷ 9, about 0.111, and four of them reach about 0.444, past the 3/8 mark, because adding one on top counted a whole extra piece while the piece shrank by only a little; the two changes are different sizes, so they do not cancel. Only the same multiplier top and bottom cuts every piece alike, the shaded ones and the rest. And one check keeps all of this honest: renaming happens within one whole. 3/8 of an inch and 6/16 of an inch are the same length because both are of the same inch; 6/16 of a metre is a different length, and comparing fractions is only valid when both refer to the same whole.[^8]\n\n**Cutting every piece into the same number of smaller pieces multiplies the top and the bottom alike and leaves the shaded amount and its mark where they were, so one number has many names, and 3/8 and 6/16 of an inch are the same place on the tape.[^3][^2]**"
+  },
+  "analogy": {
+    "text": "Say a job sheet lists a 2.3 kW heater and the plate on the heater reads 2300 W. You never read the plate as the bigger load: a watt is a thousandth of a kilowatt, so counting the same power in watts gives a count a thousand times bigger, and the heater draws the same current either way. That is the fraction’s renaming with a multiplier of 1000: a smaller piece to count in, a thousand times more of them, the same amount.",
+    "breaks": "A unit hides its bottom number in its name, so 2300 W does not show that 1000 of them make a kilowatt, and the steps between units are fixed in advance, a thousand from watts to kilowatts; a fraction shows both numbers and can be cut by any whole number you like, 2 or 3 or 250. So with units you trust the prefix, while with a fraction you can check the renaming yourself: the same multiplier on top and bottom."
+  },
+  "practice": {
+    "text": "Renaming a fraction in a finer piece (to read 3/8 on a tape ruled in sixteenths, or to compare drill sizes in the next lesson):\n- Decide the piece you want, which is the bottom number you need: say 16.\n- Find what the old bottom must be multiplied by to reach it: 16 ÷ 8 = 2. If it does not come out whole, first take the fraction to its simplest name (below) and try again, since 2/8 is 1/4 and 12 ÷ 4 = 3; if it still does not, that piece will not measure the fraction exactly; choose a bottom the simplest bottom goes into exactly (for eighths: 16, 24, 32).\n- Multiply the top by the same number: 3 × 2 = 6. The new name is 6/16.\n- Check that both names land on the same place: 3 × (1 ÷ 8) and 6 × (1 ÷ 16) are both 0.375. Names that pass this check are equivalent fractions, one number each way.\n\nGoing the other way, to the simplest name:\n- Find a number that goes into both the top and the bottom exactly, and divide both by it. Repeat until none does: 12/32, divide both by 4, 3/8.\n\n**Rule of thumb:** whatever you do to the bottom, do to the top, multiply or divide, never add. Same multiplier, same place.\n\n**Worked example:** a drawing gives a hole centre 5/8 inch from an edge and your tape is ruled in sixteenths. 16 ÷ 8 = 2, so 5 × 2 = 10: 5/8 is 10/16, so you count ten sixteenth marks from the edge. The same move settles the course’s three-quarter-metre tail in millimetres, where the metre is 1000 pieces of 1 mm: 1000 ÷ 4 = 250, so cut each quarter into 250 of those millimetre pieces, multiplying top and bottom by 250, and 3 × 250 = 750: 3/4 of a metre is 750/1000 of it, the 750 mm from the first lesson. One number, two names, one length of cable.\n\n**Common mistakes:**\n- Adding the same number to the top and the bottom. 3/8 renamed as 4/9 has moved: 4/9 is about 0.444, not 0.375. Adding moves any fraction that is not already exactly 1 (3/3 to 4/4 stays at 1, the one case it happens to get right); only multiplying or dividing both by the same number keeps the place.\n- Changing only the bottom. 3/8 to 3/16 keeps the count at three but halves the piece, so the place moves to 0.1875, half the length.\n- Reading 6/16 as bigger than 3/8 because both its numbers are bigger. Same place: smaller pieces, more of them.\n- Dividing by a number that does not go into both. 10/16 divided by 4 gives no whole top; divide both by 2 instead and get 5/8.\n- Renaming across two wholes. 6/16 of an inch matches 3/8 of an inch, not 3/8 of a metre: the names match only within one whole.\n- Treating 6/16 as a finer measurement than 3/8. It is the same length written in finer pieces, which helps when the tape is ruled that way, but it is not more accurate."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Equivalent fractions (video) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/v/equivalent-amount-of-pizza",
+      "quote": "Going from 4 slices to 8 slices, I cut every slice, I turned every slice into 2 more slices, so I had twice as many slices."
+    },
+    {
+      "n": 2,
+      "title": "Visualizing equivalent fractions review (article) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-review",
+      "quote": "Numbers are equivalent when they are located at the same point on the number line."
+    },
+    {
+      "n": 3,
+      "title": "Equivalent fractions (video) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/v/equivalent-amount-of-pizza",
+      "quote": "If I multiply the numerator and the denominator by the same number, then I'm not changing what that fraction represents."
+    },
+    {
+      "n": 4,
+      "title": "How to find equivalent fractions - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zhbxxbk",
+      "quote": "Multiply both the numerator and the denominator by the same number."
+    },
+    {
+      "n": 5,
+      "title": "An Introduction to Irrational Numbers | NRICH",
+      "url": "https://nrich.maths.org/articles/introduction-irrational-numbers",
+      "quote": "They occupy the same point on the number line. In a sense, a rational number (the actual ratio) consists of a whole family of equivalent fractions."
+    },
+    {
+      "n": 6,
+      "title": "Equivalent Fractions",
+      "url": "https://mathsisfun.com/equivalent_fractions.html",
+      "quote": "Because when we multiply or divide both the top and bottom by the same number, the fraction keeps its value"
+    },
+    {
+      "n": 7,
+      "title": "Does Initial Learning about the Meaning of Fractions Present Similar Challenges for Students with and without Adequate Whole-Number Skill? - PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139",
+      "quote": "common misconceptions and errors include viewing numerators and denominators as independent numbers, comparing fraction magnitudes based on whole-number knowledge (e.g., 1/5 > 1/2 because 5 > 2)"
+    },
+    {
+      "n": 8,
+      "title": "Number & Operations—Fractions | Common Core State Standards Initiative",
+      "url": "https://thecorestandards.org/Math/Content/NF",
+      "quote": "Recognize that comparisons are valid only when the two fractions refer to the same whole."
+    }
+  ]
+}

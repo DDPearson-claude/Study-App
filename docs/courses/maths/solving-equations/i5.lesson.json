@@ -1,0 +1,124 @@
+{
+  "iid": "i5",
+  "title": "Rearranging formulas",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a formula's steps drawn as a flow diagram from the letter you want and undone right to left, last step first, each box lighting as its opposite undoes it, when you make a different letter the subject of V = IR, P = VI or v = u + at, with numbers that fit the old formula put into the new one as a check, so that change side, change sign on a × fails its check in red.",
+    "title": "Rearranging formulas",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on formula cards whose letters wear their units, each formula's steps drawn as a flow diagram from the letter you want and undone right to left, and a check that puts numbers which fit the old formula into the new one, some screens showing an idea and the rest asking you to try it.",
+    "ignores": "The amounts (12 V, 3 A and 4 Ω; 16 V, 2 A and 8 Ω; 2300 W, 230 V and 10 A; and the numbers in v = u + at and y = 3x + 5) are example values, chosen so the checks come out whole or simple. The letters in v = u + at are worked as letters only, without units. Undoing in another order can also work when every term is treated; the lesson walks back from the last step. Squares and square roots are the next lesson, and expanding brackets waits for a later course.",
+    "numbers": [
+      {
+        "label": "V = IR drawn from I is one step, × R, undone by ÷ R to give I = V ÷ R, in step 1",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "V = IR drawn from R is one step, × I, undone by ÷ I to give R = V ÷ I, not − I or × I, in step 2",
+        "value": 1,
+        "kind": "constant"
+      },
+      {
+        "label": "12 V, 3 A and 4 Ω fit V = IR, since 3 × 4 = 12; I = V ÷ R gives 12 ÷ 4 = 3 and R = V ÷ I gives 12 ÷ 3 = 4, in step 3",
+        "value": 3,
+        "kind": "constant"
+      },
+      {
+        "label": "I = V ÷ R with 16 V, 2 A and 8 Ω: V = I × R gives 2 × 8 = 16, not 2 ÷ 8 = 0.25 or 8 ÷ 2 = 4, in step 4",
+        "value": 16,
+        "kind": "constant"
+      },
+      {
+        "label": "Change side, change sign turns V = IR into I = V − R, and 12 − 4 = 8, not 3, while I = V ÷ R gives 12 ÷ 4 = 3, in step 5",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "P = VI with 2300 W, 230 V and 10 A: I = P ÷ V gives 2300 ÷ 230 = 10, not 2300 − 230 = 2070 or 230 ÷ 2300 = 0.1, in step 6",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "y = 3x + 5 becomes x = (y − 5) ÷ 3, and y = 26 gives (26 − 5) ÷ 3 = 7, in step 7",
+        "value": 7,
+        "kind": "constant"
+      },
+      {
+        "label": "v = u + at with v = 18, u = 6, a = 3 and t = 4: t = (v − u) ÷ a gives (18 − 6) ÷ 3 = 4, not 18 − 6 ÷ 3 = 16 or 18 ÷ 3 − 6 = 0, in step 8",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "v = u + at becomes u = v − at, and 18 − 3 × 4 = 6, in step 9",
+        "value": 6,
+        "kind": "constant"
+      },
+      {
+        "label": "a = (v − u) ÷ t gives (18 − 6) ÷ 4 = 3, not 18 − 6 − 4 = 8 or (18 + 6) ÷ 4 = 6, in step 10",
+        "value": 3,
+        "kind": "constant"
+      },
+      {
+        "label": "V = P ÷ I gives 2300 ÷ 10 = 230, not 2300 − 10 = 2290 or 2300 × 10 = 23,000, in step 11",
+        "value": 230,
+        "kind": "constant"
+      },
+      {
+        "label": "v = 20, u = 8 and a = 4 give t = (20 − 8) ÷ 4 = 3, and 8 + 4 × 3 = 20 checks it, not 18 or −3, in step 12",
+        "value": 3,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A formula is an equation with letters for its amounts, so you change its subject, the letter on its own, the same way you solve an equation. Draw the steps done to the letter you want, then undo them on both sides in reverse, each with its opposite. V = IR is I times R, so dividing both sides by R gives I = V ÷ R, and dividing both sides by I gives R = V ÷ I. Ohm's law, V = IR, and power, P = VI, are the two equations the other power formulas are built from,[^1] and P = VI turns round the same way into I = P ÷ V. A formula with a sum in it takes two steps. In v = u + at, the steps done to t are × a and then + u, so undo the + u first and the × a second, giving t = (v − u) ÷ a. The brackets make the whole of v − u be divided. Without them, t = v − u ÷ a divides only the u, and with v = 18, u = 6 and a = 3 it gives 16 where t is 4.\n\nTo check a new formula, put in numbers that fit the old one. 12 V, 3 A and 4 Ω fit V = IR, and I = V ÷ R gives 12 ÷ 4 = 3, so both sides match. The units agree too, since volts ÷ ohms gives amps. The shortcut \"change side, change sign\" works perfectly for a great number of equations.[^2] It gives the right answer when the step that crosses over is a + or a −, so v = u + at becomes u = v − at. With a × it fails. It turns V = IR into I = V − R, and 12 − 4 = 8, not 3, while volts take away ohms makes no sense. Bitesize's National 5 notes give the general rule as change side, change operation,[^3] so a × crossing over becomes ÷, the same as undoing it on both sides. Undoing a divide by dividing again fails as well. One recorded slip reaches x ÷ 4 = 160 correctly and then writes x = 160 ÷ 4,[^4] and from I = V ÷ R, V = I ÷ R gives 2 ÷ 8 = 0.25 where V is 16 V.\n\n**Change a formula's subject by undoing the steps done to that letter, last step first, on both sides, so V = IR gives I = V ÷ R and v = u + at gives t = (v − u) ÷ a. Change side, change sign works only for + and −. Check a new formula with numbers that fit the old one.**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** Draw the steps done to the letter you want. Undo them from the last back to the first, on both sides, each with its opposite, then check with numbers that fit the old formula.\n\n**Worked example:** Make I the subject of P = VI. I is multiplied by V, so divide both sides by V, giving I = P ÷ V. As a check, 2300 W at 230 V gives 2300 ÷ 230 = 10 A, and 230 × 10 = 2300.\n\n**Common mistakes**\n- Change side, change sign on a ×. The shortcut works for a great number of equations,[^2] but it turns P = VI into I = P − V, and 2300 − 230 = 2070, not 10. Change the operation instead, so × becomes ÷.[^3]\n- Undoing a divide by dividing again. One recorded slip reaches x ÷ 4 = 160 and then writes x = 160 ÷ 4.[^4] From I = V ÷ R, multiply both sides by R to get V = I × R, not V = I ÷ R."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "9.5 Electrical Energy and Power - University Physics Volume 2 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power",
+      "quote": "they all are combinations of just two equations, Ohm’s law and power"
+    },
+    {
+      "n": 2,
+      "title": "Article - Misconceptions: Solving Equations - Mr Barton Maths Podcast",
+      "url": "https://podcast.mrbartonmaths.com/article-misconceptions-solving-equations",
+      "quote": "The problem is, of course, that the change side, change sign method works absolutely perfectly for a great number of equations."
+    },
+    {
+      "n": 3,
+      "title": "Changing the subject of a formula - Changing the subject of a formula - National 5 Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zx2n7p3/revision/1",
+      "quote": "To change the subject of a formula the terms are rearranged following the general rule, change side, change operation."
+    },
+    {
+      "n": 4,
+      "title": "errors and misconceptions of eighth-grade students",
+      "url": "https://files.eric.ed.gov/fulltext/EJ1294052.pdf",
+      "quote": "reach the equation x / 4 = 160 correctly, eventually reaching the equation x = 160/4 (Kieran, 1992)"
+    }
+  ]
+}

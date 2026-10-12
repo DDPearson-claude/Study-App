@@ -1,0 +1,1144 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  .scene #art * { pointer-events: none; }
+  /* The grid: faint large squares and fainter small ones, the axes in ink with their arrowheads, the
+     numbers along each axis, and each axis's name and unit in teal. A number a reading starts from or
+     lands on is picked out in amber. Past the last test the grid is shaded. */
+  .scene .gl { fill: none; stroke: var(--k-line); stroke-width: 1; }
+  .scene .gm { fill: none; stroke: var(--k-line); stroke-width: .75; stroke-opacity: .55; }
+  .scene .zone { fill: var(--k-sunk); }
+  .scene .ax { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .axh { fill: var(--k-ink); }
+  .scene .tkl { font: 400 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tkl.on { font-weight: 700; }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .02em; }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .tag { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* The pump's tests (points) and the curve through them; past the tests, a guess is dashed. */
+  .scene .tp { fill: var(--k-accent2); }
+  .scene .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .cv.guess { stroke-width: 2; stroke-dasharray: 6 5; stroke-linecap: butt; }
+  .scene .cv.bad { stroke: var(--k-warn); }
+  /* The reading: a marker on an axis, dashed lines to the curve and on to the other axis (an arrowhead
+     where the reading is taken), the point on the curve, the small squares counted past a mark. */
+  .scene .mk { fill: var(--k-accent2); }
+  .scene .mk.bad, .scene .pt.bad { fill: var(--k-warn); }
+  .scene .pt { fill: var(--k-accent2); }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .oring { fill: none; stroke: var(--k-accent); stroke-width: 2; }
+  .scene .oring.bad { stroke: var(--k-warn); }
+  .scene .rd { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .rd.bad { stroke: var(--k-warn); }
+  .scene .rdh { fill: var(--k-accent2); }
+  .scene .rdh.bad { fill: var(--k-warn); }
+  .scene .cell { fill: var(--k-hl); }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.75; stroke-linecap: round; }
+  .scene .brk.bad { stroke: var(--k-warn); }
+  .scene .ltr { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  /* A label beside a reading. */
+  .scene .pl { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .pl.bad { stroke: var(--k-warn); }
+  .scene .pv { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .pv2 { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .ptag { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .val { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* What Dan drags: a thumb's-width hit circle over the marker; a tap anywhere on the grid moves it too. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .scene .pad { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: pointer; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">One pump's tested curve, read up and across, across and down, between the tests and past them.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 284" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Read up then across, or across then down. The pump's tests are example numbers, not a maker's chart.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // Every screen draws the same example pump: its head (m) up the side against its flow (m³/h) along the
+  // bottom, five tests and the smooth curve through them. q: a flow the screen reads from (its marker on
+  // the flow axis); h: a head it reads from (its marker on the head axis). DO kinds: 'pick' (tap an answer),
+  // whose ask is 'head' (the head at flow q), 'change' (how the head changes from flow `from` to `to`),
+  // 'trust' (which of readings A and B to trust more), 'beyond' (the head at a flow past the tests) or
+  // 'spot' (what went wrong with the head logged as `claim` at flow q); and 'drag' (slide the marker to
+  // the flow that gives head h). slips: which slip gives each wrong answer (slipOpt below); for a drag,
+  // keyed by the flow the marker is left at. dur: how long a demonstration plays; fb: how long the motion
+  // after a right answer plays; at: when each part of it arrives, in seconds after Check.
+  const PICK = 'Tap one of the answers.';
+  const PLACE = 'Drag the marker along the flow axis first, or tap a flow.';
+  // The graph: flow along, 5 m³/h a square from 0 to 30; head up, 5 m a square from 0 to 25; each large
+  // square split into 5 small ones, 1 m³/h along and 1 m up.
+  const XA = { name: 'flow (m³/h)', u: 'm³/h', step: 5, n: 6 }, YA = { name: 'head (m)', u: 'm', step: 5, n: 5 }, MINOR = 5;
+  // The example pump's tests, [flow in m³/h, head in m]. Nothing was measured past the last one.
+  const TESTS = [[0, 21], [5, 20], [10, 19], [15, 17], [20, 14]];
+  const NT = TESTS.length, LAST = TESTS[NT - 1][0], XMAX = XA.step * XA.n;
+  // After a right answer. READ: up from the flow (GROWF long), across to the head axis, the small squares
+  // past the mark below counted (CNTGAP apart), the label. FIND: across from the head, down to the flow,
+  // the label. CHANGE: both readings, up then across, then the gap between their heads. TRUST: A named as
+  // between tests, then the stretch past the tests shaded. BEYOND: the stretch past the tests shaded, a
+  // ruler carried on, the bend carried on (GROWF each), the label. SPOT: the logged reading marked as the
+  // slip, its path growing across and then down; then the right reading, up and across, and its label.
+  const GROWF = 0.5, CNTGAP = 0.2, CNT = 0.2, TESTGAP = 0.25, TESTIN = 0.25;
+  const READ = { up: 0.1, across: 0.6, count: 1.1, pill: 1.9 };
+  const FIND = { across: 0.1, down: 0.6, pill: 1.2 };
+  const CHANGE = { up: 0.1, across: 0.6, gap: 1.2 };
+  const TRUST = { a: 0.1, zone: 0.6 };
+  const BEYOND = { zone: 0.1, ruler: 0.6, bend: 1.1, pill: 1.7 };
+  const SPOT = { bad: 0.1, down: 0.55, up: 1.0, across: 1.45, pill: 1.9 };
+  // After a wrong answer: what that answer means, drawn in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  const STEPS = [
+    { show: true, demo: 'curve', dur: 4.2, name: 'A pump\'s curve',
+      text: 'A pump\'s curve plots the *head* it gives, how high it could lift water, against its flow. A low flow gives a high head, and a high flow a low head.' },
+    { show: true, demo: 'up', dur: 3.9, drag: true, q: 10, name: 'Up, then across',
+      text: 'To read the head at a flow, go up from the flow to the curve, then across. Up from 10 m³/h reads 19 m. Slide the marker to read others.' },
+    { kind: 'pick', ask: 'head', q: 20, opts: ['5 m', '14 m', '10 m'], want: '14 m', slips: { '5 m': 'swap', '10 m': 'below' }, fb: 2.5, at: READ, name: 'Read the head',
+      task: 'What head does this pump give at 20 m³/h?',
+      why: 'Go up from 20 m³/h to the curve, then across to the head axis. It meets the axis 4 small squares above 10, and each is 1 m, so 14 m.',
+      hint: 'Not quite. Go up from 20 m³/h to the curve, then across.',
+      hints: { '5 m': 'Not quite. That starts at 20 on the head axis. Here 20 is a flow, so start on the flow axis and go up.',
+        '10 m': 'Not quite. That is the mark below. Count the small squares above it, 1 m each.' } },
+    { show: true, demo: 'back', dur: 3.1, h: 17, name: 'Across, then down',
+      text: 'To find the flow for a head, go the other way. Across from 17 m to the curve, then down, reads 15 m³/h.' },
+    { kind: 'drag', h: 20, goal: 5, want: '5 m³/h', slips: { 20: 'swap', 10: 'near' }, fb: 1.8, at: FIND, name: 'Find the flow',
+      task: 'The pump must give 20 m of head. Drag the marker to the flow that gives it.',
+      why: 'Go across from 20 m on the head axis to the curve, then straight down. It lands on 5 m³/h. As a check, up from 5 m³/h and across reads 20 m.',
+      hint: 'Not quite. Go across from 20 m to the curve, then down.',
+      hints: { 20: 'Not quite. That puts 20 on the flow axis, where the pump gives 14 m. 20 m is a head, so start on the head axis.',
+        10: 'Not quite. 10 m³/h gives 19 m, a small square short. Go across from 20 m to the curve, then straight down.' } },
+    { kind: 'pick', ask: 'change', from: 10, to: 20, opts: ['Rises 5 m', 'Falls 10 m', 'Falls 5 m'], want: 'Falls 5 m', slips: { 'Rises 5 m': 'rise', 'Falls 10 m': 'flowdiff' }, fb: 1.8, at: CHANGE, name: 'More flow',
+      task: 'The flow goes up from 10 to 20 m³/h. What happens to the head?',
+      why: 'Up and across from 10 m³/h reads 19 m, and from 20 m³/h reads 14 m. So the head falls 19 − 14 = 5 m.',
+      hint: 'Not quite. Read the head at each flow, then compare them.',
+      hints: { 'Rises 5 m': 'Not quite. This curve slopes down, so more flow gives less head here.',
+        'Falls 10 m': 'Not quite. 10 is how much the flow went up. Read the head at each flow and take one from the other.' } },
+    { show: true, demo: 'between', dur: 3.7, q: 12.5, name: 'Between and past',
+      text: 'Reading between tests, like here at 12.5 m³/h, is *interpolation*, with a test on each side. Reading beyond the tests is *extrapolation*, where nothing was measured.' },
+    { kind: 'pick', ask: 'trust', A: 17.5, B: 25, opts: ['A', 'B', 'Both alike'], want: 'A', slips: { B: 'beyond', 'Both alike': 'same' }, fb: 1.2, at: TRUST, name: 'Which to trust',
+      task: 'Readings A and B both come off this graph. Which can you trust more?',
+      why: 'A sits between the tests at 15 and 20 m³/h, which hold the curve in place. B is past the last test, where the curve was only carried on.',
+      hint: 'Not quite. Look at where the tests stop.',
+      hints: { B: 'Not quite. B is past the last test at 20 m³/h, so its stretch of curve was never measured.',
+        'Both alike': 'Not quite. A has a test on each side. Nothing was measured past 20 m³/h, where B sits.' } },
+    { show: true, demo: 'guess', dur: 4.0, q: 30, name: 'Two guesses',
+      text: 'Past the tests, the curve can only be guessed. A ruler along the last two tests reads 8 m at 30 m³/h, and carrying on the curve\'s bend reads 5 m.' },
+    { kind: 'pick', ask: 'beyond', q: 25, opts: ['It is 11 m', 'Only a guess', 'It is 10 m'], want: 'Only a guess', slips: { 'It is 11 m': 'ruler', 'It is 10 m': 'bend' }, fb: 2.3, at: BEYOND, name: 'Past the tests',
+      task: 'This pump was tested up to 20 m³/h. What does the graph tell you about its head at 25 m³/h?',
+      why: '25 m³/h is past the last test. A ruler there reads 11 m and the bend carried on reads 10 m, but neither was measured, so the graph gives only a guess.',
+      hint: 'Not quite. Check how far the tests go.',
+      hints: { 'It is 11 m': 'Not quite. 11 m comes from a ruler carried on past the last test at 20 m³/h. Nothing was measured there, so it is only a guess.',
+        'It is 10 m': 'Not quite. 10 m comes from the bend carried on past the last test. A ruler gives 11 m, and nothing measured says which.' } },
+    { kind: 'pick', ask: 'spot', q: 20, claim: 5, opts: ['Wrong axis', 'Nothing', 'Past the tests'], want: 'Wrong axis', slips: { Nothing: 'none', 'Past the tests': 'past' }, fb: 2.5, at: SPOT, name: 'Spot the slip',
+      task: 'This pump\'s head at 20 m³/h was logged as 5 m. What went wrong?',
+      why: '5 m³/h is the flow for a 20 m head, read from 20 on the head axis. Up from 20 m³/h and across reads 14 m.',
+      hint: 'Not quite. Read the head at 20 m³/h yourself.',
+      hints: { Nothing: 'Not quite. Up from 20 m³/h to the curve and across reads 14 m, not 5 m.',
+        'Past the tests': 'Not quite. 20 m³/h is the last test, so it was measured. Look at which axis 20 was found on.' } },
+    { kind: 'pick', ask: 'head', q: 0, opts: ['0 m', '20 m', '21 m'], want: '21 m', slips: { '0 m': 'zero', '20 m': 'below' }, fb: 2.5, at: READ, name: 'No flow',
+      task: 'With no flow, at 0 m³/h, what head does this pump give?',
+      why: 'At 0 m³/h the curve meets the head axis 1 small square above 20, at 21 m. On this curve the lowest flow gives the highest head.',
+      hint: 'Not quite. Find where the curve meets the head axis.',
+      hints: { '0 m': 'Not quite. On this curve less flow gives more head, so with no flow the head is at its highest.',
+        '20 m': 'Not quite. That is the mark below. The curve meets the axis 1 small square higher.' } },
+  ];
+  const FINISH = 'To read a head, go up from the flow to the curve and across. To read a flow, go across from the head to the curve and down. Start on the axis that holds your number, and trust a reading between the tests more than one past them.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled). curve: the tests, counted in TESTGAP apart;
+  // the curve drawn through them (GROW); the two ends named. up: the marker; the line up to the curve and
+  // the line across (GROW each); the small squares past the mark below counted; the label. back: the
+  // marker on the head axis; across; down; the label. between: as up, with the tests either side named;
+  // then the stretch past the tests shaded. guess: the stretch past the tests shaded; a ruler carried on
+  // (GUESS), its reading; the bend carried on, its reading.
+  const FADE = 0.35, GROW = 0.6, CURVE = 1.0, GUESS = 0.8;
+  const AT = {
+    curve: { pts: 0.6, grow: 2.0, hi: 3.1, lo: 3.6 },
+    up: { mark: 0.6, up: 1.1, across: 1.8, count: 2.5, pill: 3.3 },
+    back: { mark: 0.6, across: 1.1, down: 1.8, pill: 2.5 },
+    between: { mark: 0.6, up: 1.1, across: 1.8, pill: 2.5, zone: 3.1 },
+    guess: { zone: 0.6, ruler: 1.1, rv: 2.0, bend: 2.5, bv: 3.4 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const num = (v) => { const a = r3(v); return (a < 0 ? '−' : '') + String(Math.abs(a)); };
+  const amt = (v, u) => num(v) + ' ' + u;
+  // The curve through the tests: on each stretch between two tests a smooth cubic that passes through
+  // both, its slope at each test set by the tests either side (by the one beside it at the ends).
+  const TQ = TESTS.map((p) => p[0]), TH = TESTS.map((p) => p[1]);
+  const TAN = TESTS.map((p, k) => { const a = Math.max(0, k - 1), b = Math.min(NT - 1, k + 1); return (TH[b] - TH[a]) / (TQ[b] - TQ[a]); });
+  function headAt(q) {
+    let k = 0;
+    while (k < NT - 2 && q > TQ[k + 1]) k++;
+    const w = TQ[k + 1] - TQ[k], t = (q - TQ[k]) / w, t2 = t * t, t3 = t2 * t;
+    return (2 * t3 - 3 * t2 + 1) * TH[k] + (t3 - 2 * t2 + t) * w * TAN[k] + (-2 * t3 + 3 * t2) * TH[k + 1] + (t3 - t2) * w * TAN[k + 1];
+  }
+  // The flow that gives head h on the tested curve (it falls all the way, so one flow fits).
+  function flowFor(h) { let lo = 0, hi = LAST; for (let k = 0; k < 60; k++) { const m = (lo + hi) / 2; if (headAt(m) > h) lo = m; else hi = m; } return r3((lo + hi) / 2); }
+  // A reading off the graph, to the nearest metre (a test's own head is exact).
+  const read = (q) => Math.round(headAt(q));
+  const tested = (q) => q >= 0 && q <= LAST + 1e-9;
+  // Two guesses past the last test: a ruler through the last two tests, and the bend of the last three
+  // carried on (the curve through those three that changes its slope steadily).
+  const [P1, P2, P3] = TESTS.slice(NT - 3);
+  const S12 = (P2[1] - P1[1]) / (P2[0] - P1[0]), S23 = (P3[1] - P2[1]) / (P3[0] - P2[0]), BENDC = (S23 - S12) / (P3[0] - P1[0]);
+  const ruler = (q) => r3(P3[1] + S23 * (q - P3[0]));
+  const bend = (q) => r3(P1[1] + S12 * (q - P1[0]) + BENDC * (q - P1[0]) * (q - P2[0]));
+  // The mark below a head on the axis (a whole number of squares).
+  const markBelow = (h) => YA.step * Math.floor(h / YA.step + 1e-9);
+  const coord = (q, h) => '(' + num(q) + ', ' + num(h) + ')';
+  const reading = (q, h) => amt(q, XA.u) + ', ' + amt(h, YA.u);
+  const pillOf = (q, h) => [[coord(q, h), 'pv'], [reading(q, h), 'pv2']];
+  // What a puzzle's answer reads, by the rule: the head the curve gives at q; the flow for head h; how the
+  // head changes; the reading with a test each side; past the tests, only a guess; or what turned the reading into
+  // the one logged.
+  function answerOf(d) {
+    if (d.kind === 'drag') return amt(flowFor(d.h), XA.u);
+    if (d.ask === 'head') return amt(read(d.q), YA.u);
+    if (d.ask === 'change') { const c = read(d.to) - read(d.from); return (c < 0 ? 'Falls ' : 'Rises ') + amt(Math.abs(c), YA.u); }
+    if (d.ask === 'trust') return tested(d.A) && !tested(d.B) ? 'A' : 'B';
+    if (d.ask === 'beyond') return tested(d.q) ? 'It is ' + amt(read(d.q), YA.u) : 'Only a guess';
+    if (read(d.q) === d.claim) return 'Nothing';
+    if (tested(d.claim) && flowFor(d.q) === d.claim) return 'Wrong axis';
+    return tested(d.q) ? 'Nothing' : 'Past the tests';
+  }
+  // The slips. swap: started on the wrong axis (the number given found on the other axis, then read
+  // across or down). below: the mark below the reading, the small squares not counted. near: the flow a
+  // gridline on, a metre short. zero: no flow read as no head. rise: the head read as rising with the
+  // flow. flowdiff: the flow's change given as the head's. beyond: the reading past the tests trusted.
+  // same: both trusted alike. ruler, bend: a guess past the tests read as if measured. none: nothing
+  // wrong. past: the reading taken as past the tests.
+  function slipOpt(d, s) {
+    if (d.kind === 'drag') return s === 'swap' ? String(d.h) : String(d.goal + XA.step);
+    if (d.ask === 'head') return s === 'swap' ? amt(flowFor(d.q), YA.u) : s === 'below' ? amt(markBelow(read(d.q)), YA.u) : amt(0, YA.u);
+    if (d.ask === 'change') { const c = Math.abs(read(d.to) - read(d.from)); return s === 'rise' ? 'Rises ' + amt(c, YA.u) : 'Falls ' + amt(d.to - d.from, YA.u); }
+    if (d.ask === 'trust') return s === 'beyond' ? 'B' : 'Both alike';
+    if (d.ask === 'beyond') return 'It is ' + amt(s === 'ruler' ? ruler(d.q) : bend(d.q), YA.u);
+    return s === 'none' ? 'Nothing' : 'Past the tests';
+  }
+  // As a screen reader says it.
+  const sayU = (s) => String(s).replace(/(\d) m³\/h/g, '$1 cubic metres an hour').replace(/m³\/h/g, 'cubic metres an hour').replace(/(\d) m\b/g, '$1 metres').replace(/−/g, 'minus ');
+  const SAYG = 'A graph of head in metres up the side against flow in cubic metres an hour along the bottom, with the pump\'s five tests, from 0 to 20 cubic metres an hour, and a smooth curve through them, falling from 21 to 14 metres.';
+
+  function blank(i) { return { pick: null, res: null, why: false, q: STEPS[i].kind === 'drag' ? 0 : null, moved: false }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && (STEPS[i].kind === 'drag' ? K.near(st.q, STEPS[i].goal, 1e-9) : st.pick === STEPS[i].want);
+  // A wrong answer's hint names its slip.
+  function hintFor(i, st) {
+    const d = STEPS[i], k = d.kind === 'drag' ? String(st.q) : st.pick;
+    return (d.hints && d.hints[k]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const st = blank(i), d = STEPS[i]; if (d.kind === 'drag') { st.q = d.goal; st.moved = true; } else st.pick = d.want; st.res = 'right'; return st; }
+  function slipped(i, o) { const st = blank(i), d = STEPS[i]; if (d.kind === 'drag') { st.q = +o; st.moved = true; } else st.pick = o; st.res = 'wrong'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // An amount ("12.5 m³/h", "19 m"), a pair of them, coordinates ("(5, 20)") or a sum ("19 − 14 = 5 m")
+  // stays together on one line, with the stop after it.
+  const NUM = '\\d+(?:\\.\\d+)?', UNIT = '(?: (?:m³/h|m)(?![A-Za-z³/]))';
+  const GLUE = new RegExp('(?:\\(' + NUM + ', ' + NUM + '\\)|' + NUM + '(?: [×÷+−] ' + NUM + ')+ = ' + NUM + UNIT + '?|' + NUM + UNIT + '(?:, ' + NUM + UNIT + ')?)[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'nw' }, m[0]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].q = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  const poly = (cls, pts) => add(K.svg('polyline', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') }));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s));
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { ltr: 16, pv: 15, tkl: 14, val: 14, pv2: 13, ptag: 13, an: 13, tag: 13 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 8 * ux + 4.5 * px) + ' ' + r3(y - 8 * uy + 4.5 * py) + ' L' + r3(x - 8 * ux - 4.5 * px) + ' ' + r3(y - 8 * uy - 4.5 * py) + ' Z' }));
+  }
+
+  // --- the grid: squares GS units, the origin at (OX, OY), 6 squares along and 5 up ---
+  const GS = 40, OX = 50, OY = 236, H = 284, TOP = OY - YA.n * GS, XEND = OX + XA.n * GS;
+  const gx = (q) => OX + q / XA.step * GS, gy = (h) => OY - h / YA.step * GS;
+  // The head axis's name, beside its arrowhead; the flow axis's name, centred under its numbers.
+  const YNX = OX + 12, YNY = TOP - 14, XNY = OY + 40;
+  // What is already in the picture, so labels are placed clear of it.
+  let taken = [];
+  const hit = (a, b) => a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 && b.y0 < a.y1;
+  const boxAt = (cx, cy, w, h) => ({ x0: cx - w / 2, x1: cx + w / 2, y0: cy - h / 2, y1: cy + h / 2 });
+  // A drawn line noted as taken (a thin box around it).
+  const noteLine = (x1, y1, x2, y2) => taken.push({ x0: Math.min(x1, x2) - 3, x1: Math.max(x1, x2) + 3, y0: Math.min(y1, y2) - 3, y1: Math.max(y1, y2) + 3 });
+  function notePts(pts) { for (let k = 0; k + 1 < pts.length; k++) noteLine(pts[k][0], pts[k][1], pts[k + 1][0], pts[k + 1][1]); }
+  function freshTaken() {
+    taken = [
+      { x0: YNX - 3, x1: YNX + tw(YA.name, 'an') + 3, y0: YNY - 13, y1: YNY + 4 },   // the head axis's name
+      { x0: 0, x1: OX - 2, y0: TOP - 12, y1: OY + 8 },                             // the head axis's numbers
+      { x0: OX - 26, x1: XEND + 14, y0: OY + 4, y1: H },                           // the flow axis's numbers and name
+      { x0: OX - 3, x1: OX + 3, y0: TOP - 20, y1: OY },                            // the head axis
+      { x0: OX, x1: XEND + 20, y0: OY - 3, y1: OY + 3 },                           // the flow axis
+    ];
+  }
+  function gridLines() {
+    let q = '';
+    for (let k = 1; k < XA.n * MINOR; k++) if (k % MINOR) q += 'M' + r3(OX + k * GS / MINOR) + ' ' + TOP + 'V' + OY;
+    for (let k = 1; k < YA.n * MINOR; k++) if (k % MINOR) q += 'M' + OX + ' ' + r3(OY - k * GS / MINOR) + 'H' + XEND;
+    add(K.svg('path', { class: 'gm', d: q }));
+    let p = '';
+    for (let k = 1; k <= XA.n; k++) p += 'M' + (OX + k * GS) + ' ' + TOP + 'V' + OY;
+    for (let k = 1; k <= YA.n; k++) p += 'M' + OX + ' ' + (OY - k * GS) + 'H' + XEND;
+    add(K.svg('path', { class: 'gl', d: p }));
+  }
+  // The stretch past the last test, shaded, with its name.
+  const ZTAG = { x: (gx(LAST) + XEND) / 2, y: TOP + 18 };
+  function zone(a) {
+    taken.push(boxAt(ZTAG.x, ZTAG.y - 5, tw('not tested', 'tag') + 6, 18));
+    part(a, 0, () => { rect('zone', gx(LAST), TOP, XEND - gx(LAST), OY - TOP); });
+  }
+  const zoneTag = (a, bad) => part(a, 0, () => text(ZTAG.x, ZTAG.y, 'not tested', 'tag' + (bad ? ' warnt' : '')));
+  // The axes with their arrowheads and their names (each with its unit).
+  function axisLines() {
+    line('ax', OX, OY, XEND + 12, OY); head(XEND + 19, OY, 1, 0, 'axh');
+    line('ax', OX, OY, OX, TOP - 12); head(OX, TOP - 19, 0, -1, 'axh');
+    text((OX + XEND) / 2, XNY, XA.name, 'an');
+    text(YNX, YNY, YA.name, 'an', 'start');
+  }
+  // The axes' numbers, the 0 they share in the corner. o.hx: flows picked out in amber (o.hxa: when);
+  // o.hy: heads picked out (o.hya: when). The amber patch does the picking out, fading in under the
+  // number, so the number's weight never jumps.
+  function nums(o) {
+    o = o || {};
+    const hx = [].concat(o.hx == null ? [] : o.hx), hy = [].concat(o.hy == null ? [] : o.hy);
+    for (let k = 0; k <= XA.n; k++) {
+      const v = k * XA.step, s = num(v), x = k === 0 ? OX - 13 : gx(v), w = tw(s, 'tkl'), hi = k > 0 && hx.indexOf(v) >= 0, ha = o.hxa == null ? 1 : o.hxa;
+      if (hi) part(ha, 0, () => rect('hl', x - w / 2 - 5, OY + 6, w + 10, 20, 5));
+      text(x, OY + 21, s, 'tkl');
+    }
+    for (let k = 1; k <= YA.n; k++) {
+      const v = k * YA.step, s = num(v), y = gy(v), w = tw(s, 'tkl'), hi = hy.indexOf(v) >= 0, ha = o.hya == null ? 1 : o.hya;
+      if (hi) part(ha, 0, () => rect('hl', OX - 8 - w - 5, y - 10, w + 10, 20, 5));
+      text(OX - 8, y + 5, s, 'tkl', 'end');
+    }
+  }
+  // A head between the marks, written beside the head axis where a reading starts (picked out in amber).
+  function yVal(h, a) {
+    const s = num(h), w = tw(s, 'tkl'), y = gy(h);
+    taken.push({ x0: OX - 8 - w - 5, x1: OX - 3, y0: y - 8, y1: y + 8 });
+    part(a, 0, () => { rect('hl', OX - 8 - w - 5, y - 8, w + 10, 16, 5); text(OX - 8, y + 5, s, 'tkl on', 'end'); });
+  }
+  // The tested curve, from 0 to `to` m³/h (the whole of it is noted, so labels keep clear of where it will be).
+  const curvePts = (q0, q1, fn) => { const out = []; for (let q = q0; q <= q1 + 1e-9; q += 0.5) out.push([gx(q), gy(fn(q))]); if (out.length && out[out.length - 1][0] < gx(q1) - 1e-6) out.push([gx(q1), gy(fn(q1))]); return out; };
+  function curve(grow) {
+    const all = curvePts(0, LAST, headAt);
+    notePts(all);
+    const g = grow == null ? 1 : grow;
+    if (g <= 0) return;
+    poly('cv', g >= 1 ? all : curvePts(0, LAST * g, headAt));
+  }
+  // The tests: a point each (ap: when each arrives, or all at once).
+  function tests(ap) { TESTS.forEach((p, k) => { taken.push(boxAt(gx(p[0]), gy(p[1]), 12, 12)); part(ap ? ap[k] : 1, 0, () => circle('tp', gx(p[0]), gy(p[1]), 5)); }); }
+  // A guess past the last test, from LAST to q1, grown by a.
+  function guessLine(fn, a, bad, q1) {
+    q1 = q1 == null ? XMAX : q1;
+    const pts = curvePts(LAST, q1, fn);
+    notePts(pts);
+    if (a <= 0) return;
+    poly('cv guess' + (bad ? ' bad' : ''), a >= 1 ? pts : curvePts(LAST, LAST + (q1 - LAST) * a, fn));
+  }
+  // A marker on the flow axis at q (with a dashed arc above it while it can be dragged), or on the head axis at h.
+  function markX(q, bad, drag) {
+    taken.push(boxAt(gx(q), OY - 4, 16, 16));
+    circle('mk' + (bad ? ' bad' : ''), gx(q), OY, 6);
+    if (drag) ringX(q);
+  }
+  // The dashed arc above a marker that can be dragged.
+  const ringX = (q) => add(K.svg('path', { class: 'ring', d: 'M' + r3(gx(q) - 14) + ' ' + OY + ' A14 14 0 0 1 ' + r3(gx(q) + 14) + ' ' + OY }));
+  const noteMark = (q) => taken.push(boxAt(gx(q), OY - 4, 16, 16));
+  function markY(h, bad) { taken.push(boxAt(OX + 4, gy(h), 16, 16)); circle('mk' + (bad ? ' bad' : ''), OX, gy(h), 6); }
+  // The point a reading reaches on the curve.
+  function point(q, h, a, bad) { taken.push(boxAt(gx(q), gy(h), 14, 14)); part(a, 0, () => circle('pt' + (bad ? ' bad' : ''), gx(q), gy(h), 5.5)); }
+  // Up from flow q to the curve at head h (grown by a), then across to the head axis (grown by b), an
+  // arrowhead travelling with its end; the point on the curve fades in as the line up reaches it.
+  function upAcross(q, h, a, b, bad) {
+    const x = gx(q), y = gy(h), c = 'rd' + (bad ? ' bad' : ''), ch = 'rdh' + (bad ? ' bad' : '');
+    if (q > 0) { noteLine(x, OY, x, y); noteLine(OX, y, x, y); }
+    if (a > 0 && q > 0 && OY - 9 > y + 8) line(c, x, OY - 9, x, OY - 9 - (OY - 9 - y - 8) * a);
+    point(q, h, K.clamp((a - 0.75) / 0.25, 0, 1), bad);
+    if (b > 0 && q > 0 && x - 8 > OX + 11) {
+      const xe = x - 8 - (x - 8 - OX - 11) * b;
+      line(c, x - 8, y, xe, y);
+      part(K.clamp(b / 0.35, 0, 1), 0, () => head(xe - 8, y, -1, 0, ch));
+    }
+  }
+  // Across from head h on the head axis to the curve at flow q (grown by a), then down to the flow axis
+  // (grown by b), an arrowhead travelling with its end.
+  function acrossDown(h, q, a, b, bad) {
+    const x = gx(q), y = gy(h), c = 'rd' + (bad ? ' bad' : ''), ch = 'rdh' + (bad ? ' bad' : '');
+    noteLine(OX, y, x, y); noteLine(x, OY, x, y);
+    if (a > 0 && x - 8 > OX + 9) line(c, OX + 9, y, OX + 9 + (x - 8 - OX - 9) * a, y);
+    point(q, h, K.clamp((a - 0.75) / 0.25, 0, 1), bad);
+    if (b > 0 && OY - 11 > y + 8) {
+      const ye = y + 8 + (OY - 11 - y - 8) * b;
+      line(c, x, y + 8, x, ye);
+      part(K.clamp(b / 0.35, 0, 1), 0, () => head(x, ye + 8, 0, 1, ch));
+    }
+  }
+  // The small squares counted from the mark below head h up to it, beside the head axis (ca: when each arrives).
+  function cells(h, ca) {
+    const b = markBelow(h), n = Math.round(h - b);
+    for (let k = 0; k < n; k++) part(ca ? ca[k] : 1, 0, () => rect('cell', OX + 1.5, gy(b + k + 1) + 0.5, 13, GS / MINOR - 1, 0));
+    return n;
+  }
+  // A label near point (x, y): its lines in a box, placed at the nearest spot clear of everything noted
+  // (looking a little further out each time), inside the picture.
+  function placeAt(x, y, lines) {
+    const w = Math.max.apply(null, lines.map((l) => tw(l[0], l[1]))) + 18, h = lines.length === 1 ? 26 : 8 + 17 * lines.length;
+    const ok = (b) => b.x0 >= 2 && b.x1 <= 338 && b.y0 >= 2 && b.y1 <= OY - 3;
+    let first = null, box = null;
+    for (let r = 0; r <= 6 && !box; r++) {
+      const gap = 10 + r * 12;
+      [[1, -1], [-1, -1], [1, 1], [-1, 1], [1, 0], [-1, 0], [0, -1], [0, 1]].some((c) => {
+        const b = boxAt(x + c[0] * (gap + w / 2), y + c[1] * (gap + h / 2), w, h);
+        if (!ok(b)) return false;
+        if (!first) first = b;
+        if (taken.some((t) => hit(t, b))) return false;
+        box = b; return true;
+      });
+    }
+    box = box || first;
+    taken.push(box);
+    return { box: box, lines: lines };
+  }
+  const placePill = (q, h, lines) => placeAt(gx(q), gy(h), lines);
+  function drawPill(pp, bad) {
+    const b = pp.box, n = pp.lines.length;
+    rect('pl' + (bad ? ' bad' : ''), b.x0, b.y0, b.x1 - b.x0, b.y1 - b.y0, 8);
+    pp.lines.forEach((l, k) => text((b.x0 + b.x1) / 2, b.y0 + (n === 1 ? 18.5 : 17 + 17 * k), l[0], l[1] + (bad && l[1] !== 'ptag' ? ' warnt' : '')));
+  }
+  // A bracket beside the head axis from head h0 to h1, with its words to its right.
+  function bracketY(h0, h1, s, bad) {
+    const x = OX + 22, y0 = gy(h0), y1 = gy(h1);
+    taken.push({ x0: x - 6, x1: x + 8 + tw(s, 'val') + 3, y0: Math.min(y0, y1) - 2, y1: Math.max(y0, y1) + 2 });
+    add(K.svg('path', { class: 'brk' + (bad ? ' bad' : ''), d: 'M' + (x - 5) + ' ' + r3(y0) + 'H' + x + 'V' + r3(y1) + 'H' + (x - 5) }));
+    text(x + 6, r3((y0 + y1) / 2 + 5), s, 'val' + (bad ? ' warnt' : ''), 'start');
+  }
+  // A bracket above the flow axis from flow q0 to q1, its words above it.
+  function bracketX(q0, q1, s, bad) {
+    const y = OY - 12, x0 = gx(q0), x1 = gx(q1);
+    add(K.svg('path', { class: 'brk' + (bad ? ' bad' : ''), d: 'M' + r3(x0) + ' ' + (y + 5) + 'V' + y + 'H' + r3(x1) + 'V' + (y + 5) }));
+    text((x0 + x1) / 2, y - 7, s, 'val' + (bad ? ' warnt' : ''));
+  }
+  const counted = (n, t0) => { const ca = []; for (let k = 0; k < n; k++) ca.push(arr(t0 + k * CNTGAP, CNT)); return ca; };
+
+  // --- the demonstrations ---
+  // Each returns what the picture shows, in words, and where the marker that can be dragged sits.
+  const DEMO = {
+    // The tests arrive one by one; the curve is drawn through them; its two ends are named.
+    curve(d) {
+      const A = AT.curve, ap = TESTS.map((p, k) => arr(A.pts + k * TESTGAP, TESTIN)), gr = arr(A.grow, CURVE), hi = arr(A.hi), lo = arr(A.lo);
+      gridLines(); axisLines(); nums();
+      curve(gr);
+      tests(ap);
+      const t0 = TESTS[0], tn = TESTS[NT - 1];
+      part(hi, 4, () => text(OX + 10, gy(t0[1]) - 16, 'low flow, high head', 'tag', 'start'));
+      part(lo, 4, () => text(gx(tn[0]), gy(tn[1]) + 28, 'high flow, low head', 'tag'));
+      const said = ['A graph of head in metres up the side against flow in cubic metres an hour along the bottom.'];
+      const shown = ap.filter((a) => a >= 0.5).length;
+      if (shown === NT) said.push('The pump\'s five example tests are plotted, from 21 metres at no flow down to 14 metres at 20 cubic metres an hour.');
+      else if (shown) said.push(shown + ' of the five example tests are plotted so far.');
+      if (gr >= 0.5) said.push('A smooth curve runs through them, falling as the flow rises.');
+      if (lo >= 0.5) said.push('Low flow, high head; high flow, low head.');
+      return { said: said.join(' ') };
+    },
+    // The marker at 10 m³/h; up to the curve; across to the head axis; the small squares past 15 counted;
+    // the label. Once dragged it reads wherever it is put (past the tests, there is no curve to meet).
+    up(d, st) {
+      const A = AT.up, mine = st.q != null, q = mine ? st.q : d.q;
+      const ma = mine ? 1 : arr(A.mark), ua = mine ? 1 : arr(A.up, GROW), xa = mine ? 1 : arr(A.across, GROW), pa = mine ? 1 : arr(A.pill);
+      gridLines(); axisLines();
+      const inT = tested(q), h = inT ? read(q) : null;
+      nums({ hx: q, hxa: ma, hy: inT && h % YA.step === 0 ? h : null, hya: xa });
+      curve(); tests();
+      let n = 0;
+      if (inT) n = cells(h, mine ? null : counted(h - markBelow(h), A.count));
+      noteMark(q); part(ma, 0, () => markX(q, false, true));
+      if (inT) upAcross(q, h, ua, xa);
+      else { const x = gx(q); noteLine(x, OY, x, TOP); if (ua > 0) line('rd', x, OY - 9, x, OY - 9 - (OY - 9 - TOP - 6) * ua); }
+      const pp = inT ? placePill(q, h, pillOf(q, h)) : placeAt(gx(q), TOP + 30, [[amt(q, XA.u), 'pv'], ['not tested', 'ptag']]);
+      part(pa, 4, () => drawPill(pp));
+      const said = [SAYG];
+      if (ma >= 0.5) said.push('A marker sits on the flow axis at ' + sayU(amt(q, XA.u)) + '.');
+      if (pa >= 0.5) said.push(inT ? 'Up to the curve and across, it reads ' + sayU(amt(h, YA.u)) + (n ? ', ' + n + ' small squares above ' + markBelow(h) + '.' : '.') : 'Past the last test there is no curve to meet: not tested.');
+      if (pa >= 0.5) said.push('The marker can be dragged along the flow axis.');
+      return { said: said.join(' '), grip: q };
+    },
+    // The marker on the head axis at 17 m; across to the curve; down to the flow axis; the label.
+    back(d) {
+      const A = AT.back, h = d.h, q = flowFor(h);
+      const ma = arr(A.mark), xa = arr(A.across, GROW), da = arr(A.down, GROW), pa = arr(A.pill);
+      gridLines(); axisLines();
+      nums({ hx: q, hxa: da });
+      curve(); tests();
+      yVal(h, ma);
+      taken.push(boxAt(OX + 4, gy(h), 16, 16)); part(ma, 0, () => markY(h));
+      acrossDown(h, q, xa, da);
+      const pp = placePill(q, h, pillOf(q, h));
+      part(pa, 4, () => drawPill(pp));
+      const said = [SAYG];
+      if (ma >= 0.5) said.push('A marker sits on the head axis at ' + sayU(amt(h, YA.u)) + '.');
+      if (pa >= 0.5) said.push('Across to the curve and down, it reads ' + sayU(amt(q, XA.u)) + '.');
+      return { said: said.join(' ') };
+    },
+    // A reading between the tests at 10 and 15 m³/h (both ringed), about 18 m, its label naming the flow; then the stretch past the
+    // last test shaded and named.
+    between(d) {
+      const A = AT.between, q = d.q, h = read(q);
+      const ma = arr(A.mark), ua = arr(A.up, GROW), xa = arr(A.across, GROW), pa = arr(A.pill), za = arr(A.zone);
+      zone(za);
+      gridLines(); axisLines(); nums();
+      zoneTag(za);
+      curve(); tests();
+      const lo = TESTS.filter((p) => p[0] < q).pop(), hi = TESTS.find((p) => p[0] > q);
+      part(pa, 0, () => { circle('oring', gx(lo[0]), gy(lo[1]), 10); circle('oring', gx(hi[0]), gy(hi[1]), 10); });
+      [lo, hi].forEach((p) => taken.push(boxAt(gx(p[0]), gy(p[1]), 24, 24)));
+      noteMark(q); part(ma, 0, () => markX(q));
+      upAcross(q, h, ua, xa);
+      const pp = placePill(q, h, [['about ' + amt(h, YA.u), 'pv'], ['at ' + amt(q, XA.u), 'pv2'], ['between tests', 'ptag']]);
+      part(pa, 4, () => drawPill(pp));
+      const said = [SAYG];
+      if (ma >= 0.5) said.push('A marker sits on the flow axis at ' + sayU(amt(q, XA.u)) + ', between the tests at ' + lo[0] + ' and ' + hi[0] + '.');
+      if (pa >= 0.5) said.push('Up to the curve and across, it reads about ' + sayU(amt(h, YA.u)) + '.');
+      if (za >= 0.5) said.push('Past the last test, at ' + LAST + ' cubic metres an hour, the graph is shaded: not tested.');
+      return { said: said.join(' ') };
+    },
+    // Past the last test, shaded; a ruler carried on through the last two tests, reading 8 m at 30 m³/h;
+    // the bend of the last three carried on, reading 5 m.
+    guess(d) {
+      const A = AT.guess, q = d.q, za = arr(A.zone), ra = arr(A.ruler, GUESS), rv = arr(A.rv), ba = arr(A.bend, GUESS), bv = arr(A.bv);
+      zone(za);
+      gridLines(); axisLines(); nums();
+      zoneTag(za);
+      curve(); tests();
+      guessLine(ruler, ra); guessLine(bend, ba);
+      const endLabel = (v, a) => { const s = amt(v, YA.u); taken.push({ x0: XEND + 4, x1: XEND + 8 + tw(s, 'val'), y0: gy(v) - 8, y1: gy(v) + 8 }); part(a, 4, () => text(XEND + 6, gy(v) + 5, s, 'val', 'start')); };
+      endLabel(ruler(q), rv); endLabel(bend(q), bv);
+      // each guess named beside it: the ruler above its line, the bend below its own
+      const nameAt = (s, qx, dy, a) => { const x = gx(qx), y = gy(s === 'ruler' ? ruler(qx) : bend(qx)) + dy; taken.push(boxAt(x, y - 5, tw(s, 'tag') + 4, 16)); part(a, 4, () => text(x, y, s, 'tag')); };
+      nameAt('ruler', LAST + 0.45 * (q - LAST), -14, rv); nameAt('bend', LAST + 0.35 * (q - LAST), 26, bv);
+      const said = [SAYG];
+      if (za >= 0.5) said.push('Past the last test the graph is shaded: not tested.');
+      if (rv >= 0.5) said.push('A dashed line, named ruler, carried on straight through the last two tests reads ' + sayU(amt(ruler(q), YA.u)) + ' at ' + sayU(amt(q, XA.u)) + '.');
+      if (bv >= 0.5) said.push('A second dashed line, named bend, carries the bend on and reads ' + sayU(amt(bend(q), YA.u)) + '.');
+      return { said: said.join(' ') };
+    },
+  };
+
+  // --- the puzzles ---
+  // Before an answer nothing shows it. After a right answer its motion plays; after a wrong one, what that
+  // answer means is drawn in the warning colour.
+  function drawDo(d, st) {
+    const right = st.res === 'right', A = d.at;
+    const wrong = st.res === 'wrong' && (d.kind === 'drag' || st.pick != null);
+    const go = (k, dur) => (right && A[k] != null ? arr(A[k], dur) : 0);
+    const sl = wrong ? arr(WRONG.slip) : 0, slip = wrong ? (d.slips[d.kind === 'drag' ? String(st.q) : st.pick] || null) : null;
+    const o = { right: right, wrong: wrong, go: go, sl: sl, slip: slip };
+    if (d.kind === 'drag') return drawFind(d, st, o);
+    if (d.ask === 'head') return drawHead(d, st, o);
+    if (d.ask === 'change') return drawChange(d, st, o);
+    if (d.ask === 'trust') return drawTrust(d, st, o);
+    if (d.ask === 'beyond') return drawBeyond(d, st, o);
+    return drawSpot(d, st, o);
+  }
+  // The head at flow q: once right, up, across, the small squares past the mark below counted and the label.
+  function drawHead(d, st, o) {
+    const q = d.q, h = read(q), A = d.at, ua = o.go('up', GROWF), xa = o.go('across', GROWF), pa = o.go('pill');
+    gridLines(); axisLines();
+    nums({ hx: q, hy: o.right && h % YA.step === 0 ? h : null, hya: xa });
+    curve(); tests();
+    let n = 0;
+    if (o.right) n = cells(h, counted(h - markBelow(h), A.count));
+    markX(q);
+    if (o.right) upAcross(q, h, ua, xa);
+    const pp = o.right ? placePill(q, h, pillOf(q, h)) : null;
+    let bad = null;
+    if (o.slip === 'swap') { const f = flowFor(q); acrossDown(q, f, 0, 0); bad = placePill(f, q, pillOf(f, q)); part(o.sl, 0, () => acrossDown(q, f, 1, 1, true)); }
+    if (o.slip === 'below' || o.slip === 'zero') {
+      const v = o.slip === 'zero' ? 0 : markBelow(h);
+      if (q > 0) noteLine(OX, gy(v), gx(q), gy(v));
+      bad = placePill(q, v, pillOf(q, v));
+      part(o.sl, 0, () => { if (q > 0 && v > 0) line('rd bad', OX + 9, gy(v), gx(q) - 8, gy(v)); circle('pt bad', gx(q), gy(v), 5.5); });
+    }
+    part(pa, 4, () => drawPill(pp));
+    if (bad) part(o.sl, 0, () => drawPill(bad, true));
+    const said = [SAYG, 'A marker sits on the flow axis at ' + sayU(amt(q, XA.u)) + '.'];
+    if (o.right && pa >= 0.5) said.push('Up to the curve and across, it reads ' + sayU(amt(h, YA.u)) + (n ? ', ' + n + (n === 1 ? ' small square' : ' small squares') + ' above ' + markBelow(h) + '.' : '.'));
+    if (o.slip && o.sl >= 0.5) said.push(o.slip === 'swap' ? 'Marked wrong: across from ' + q + ' on the head axis and down reads ' + sayU(amt(flowFor(q), XA.u)) + ', the flow for that head.' : 'Marked wrong: ' + sayU(o.slip === 'zero' ? amt(0, YA.u) : amt(markBelow(h), YA.u)) + ' at this flow sits below the curve.');
+    return { said: said.join(' ') };
+  }
+  // The flow for head h, the marker dragged along the flow axis: once right, across from h to the curve,
+  // down to the flow, the label; a wrong flow's own reading drawn in the warning colour.
+  function drawFind(d, st, o) {
+    const h = d.h, f = flowFor(h), xa = o.go('across', GROWF), da = o.go('down', GROWF), pa = o.go('pill');
+    gridLines(); axisLines();
+    nums({ hx: o.right ? f : null, hxa: da, hy: h });
+    curve(); tests();
+    const q = st.q;
+    // the marker in ink; after a slip it turns red softly, and once right its dashed arc fades away
+    markX(q);
+    if (o.wrong) part(o.sl, 0, () => circle('mk bad', gx(q), OY, 6));
+    if (o.right) leave(o.go('across', GROWF), () => ringX(q)); else ringX(q);
+    if (o.right) acrossDown(h, f, xa, da);
+    const pp = o.right ? placePill(f, h, pillOf(f, h)) : null;
+    let bad = null;
+    if (o.wrong) {
+      if (tested(q)) { const v = read(q); upAcross(q, v, 0, 0); bad = placePill(q, v, pillOf(q, v)); part(o.sl, 0, () => upAcross(q, v, 1, 1, true)); }
+      else { const x = gx(q); noteLine(x, OY, x, TOP); bad = placeAt(x, TOP + 30, [[amt(q, XA.u), 'pv'], ['not tested', 'ptag']]); part(o.sl, 0, () => line('rd bad', x, OY - 9, x, TOP + 6)); }
+    }
+    part(pa, 4, () => drawPill(pp));
+    if (bad) part(o.sl, 0, () => drawPill(bad, true));
+    const said = [SAYG, 'The head wanted, ' + sayU(amt(h, YA.u)) + ', is picked out on the head axis. A marker on the flow axis sits at ' + sayU(amt(q, XA.u)) + '.'];
+    if (o.right && pa >= 0.5) said.push('Across from ' + sayU(amt(h, YA.u)) + ' to the curve and down, it reads ' + sayU(amt(f, XA.u)) + '.');
+    if (o.wrong && o.sl >= 0.5) said.push(tested(q) ? 'Marked wrong: ' + sayU(amt(q, XA.u)) + ' gives ' + sayU(amt(read(q), YA.u)) + '.' : 'Marked wrong: ' + sayU(amt(q, XA.u)) + ' is past the tests.');
+    return { said: said.join(' '), grip: o.right ? null : q };
+  }
+  // How the head changes from one flow to another: once right, both readings, then the drop between their
+  // heads bracketed by the head axis.
+  function drawChange(d, st, o) {
+    const h0 = read(d.from), h1 = read(d.to), ua = o.go('up', GROWF), xa = o.go('across', GROWF), ga = o.go('gap');
+    gridLines(); axisLines();
+    nums({ hx: [d.from, d.to] });
+    curve(); tests();
+    markX(d.from); markX(d.to);
+    if (o.right) { upAcross(d.from, h0, ua, xa); upAcross(d.to, h1, ua, xa); }
+    const gs = amt(Math.abs(h0 - h1), YA.u);
+    if (o.right) { taken.push({ x0: OX + 15, x1: OX + 30 + tw(gs, 'val'), y0: gy(h0) - 2, y1: gy(h1) + 2 }); }
+    const p0 = o.right ? placePill(d.from, h0, [[amt(h0, YA.u), 'pv']]) : null, p1 = o.right ? placePill(d.to, h1, [[amt(h1, YA.u), 'pv']]) : null;
+    part(ga, 4, () => { drawPill(p0); drawPill(p1); bracketY(h0, h1, gs); });
+    let bad = null;
+    if (o.slip === 'rise') { const v = h0 + Math.abs(h0 - h1); noteLine(OX, gy(v), gx(d.to), gy(v)); bad = placePill(d.to, v, pillOf(d.to, v)); part(o.sl, 0, () => { line('rd bad', OX + 9, gy(v), gx(d.to) - 8, gy(v)); circle('pt bad', gx(d.to), gy(v), 5.5); }); }
+    if (o.slip === 'flowdiff') part(o.sl, 0, () => bracketX(d.from, d.to, amt(d.to - d.from, XA.u), true));
+    if (bad) part(o.sl, 0, () => drawPill(bad, true));
+    const said = [SAYG, 'Markers sit on the flow axis at ' + d.from + ' and ' + d.to + ' cubic metres an hour.'];
+    if (o.right && ga >= 0.5) said.push('They read ' + sayU(amt(h0, YA.u)) + ' and ' + sayU(amt(h1, YA.u)) + ': the head falls ' + sayU(gs) + '.');
+    if (o.slip === 'rise' && o.sl >= 0.5) said.push('Marked wrong: a rise would put ' + sayU(amt(h0 + Math.abs(h0 - h1), YA.u)) + ' at ' + d.to + ' cubic metres an hour, far above the curve.');
+    if (o.slip === 'flowdiff' && o.sl >= 0.5) said.push('Marked wrong: ' + sayU(amt(d.to - d.from, XA.u)) + ' is the change in flow.');
+    return { said: said.join(' ') };
+  }
+  // Readings A (between tests) and B (on a ruler carried on past them), each with its lines but no value:
+  // once right, the stretch with tests and the stretch past them are named, the second shaded; a slip rings
+  // B and names its stretch in the warning colour.
+  function drawTrust(d, st, o) {
+    const aa = o.go('a'), za = o.right ? o.go('zone') : o.sl;
+    zone(za);
+    gridLines(); axisLines(); nums();
+    zoneTag(za, !!o.slip);
+    curve(); tests();
+    guessLine(ruler, 1);
+    const hA = headAt(d.A), hB = ruler(d.B);
+    [[d.A, hA], [d.B, hB]].forEach((p) => { markX(p[0]); upAcross(p[0], p[1], 1, 1); });
+    [['A', d.A, hA], ['B', d.B, hB]].forEach((p) => { const x = gx(p[1]) + 9, y = gy(p[2]) - 9, w = tw(p[0], 'ltr'); taken.push({ x0: x - 2, x1: x + w + 2, y0: y - 14, y1: y + 3 }); text(x, y, p[0], 'ltr', 'start'); });
+    // once right: the stretch with tests named over it; after a slip: B ringed, its stretch shaded and named as the slip
+    part(aa, 4, () => text((OX + gx(LAST)) / 2, ZTAG.y, 'tested', 'tag'));
+    if (o.slip) part(o.sl, 0, () => circle('oring bad', gx(d.B), gy(hB), 11));
+    const said = [SAYG, 'Past the last test the curve is carried on as a dashed ruler line. Reading A is at ' + sayU(amt(d.A, XA.u)) + ', between the tests at 15 and 20. Reading B is at ' + sayU(amt(d.B, XA.u)) + ', on the dashed line.'];
+    if (o.right && za >= 0.5) said.push('Up to 20 cubic metres an hour is named tested, and the stretch past it is shaded: not tested.');
+    if (o.slip && o.sl >= 0.5) said.push('Marked wrong: B sits in the shaded stretch past the tests, not tested.');
+    return { said: said.join(' ') };
+  }
+  // A flow past the tests: once right, the stretch past them shaded, a ruler and the bend carried on to it,
+  // and the label giving both guesses; a guess picked is drawn in the warning colour.
+  function drawBeyond(d, st, o) {
+    const q = d.q, za = o.go('zone'), ra = o.go('ruler', GROWF), ba = o.go('bend', GROWF), pa = o.go('pill');
+    zone(za);
+    gridLines(); axisLines();
+    nums({ hx: q });
+    zoneTag(za);
+    curve(); tests();
+    markX(q);
+    if (o.right) { guessLine(ruler, ra, false, q); guessLine(bend, ba, false, q); point(q, ruler(q), K.clamp((ra - 0.75) / 0.25, 0, 1)); point(q, bend(q), K.clamp((ba - 0.75) / 0.25, 0, 1)); }
+    const pp = o.right ? placeAt(gx(q), gy((ruler(q) + bend(q)) / 2), [['guesses', 'ptag'], [amt(ruler(q), YA.u) + ', ' + amt(bend(q), YA.u), 'pv']]) : null;
+    part(pa, 4, () => drawPill(pp));
+    let bad = null;
+    if (o.slip) {
+      const fn = o.slip === 'ruler' ? ruler : bend, v = fn(q);
+      guessLine(fn, 0, true, q); point(q, v, 0);
+      bad = placePill(q, v, [[coord(q, v), 'pv'], ['a guess', 'ptag']]);
+      part(o.sl, 0, () => { guessLine(fn, 1, true, q); circle('pt bad', gx(q), gy(v), 5.5); drawPill(bad, true); });
+    }
+    const said = [SAYG, 'A marker sits on the flow axis at ' + sayU(amt(q, XA.u)) + ', past the last test.'];
+    if (o.right && pa >= 0.5) said.push('Past the tests, shaded, a ruler carried on reads ' + sayU(amt(ruler(q), YA.u)) + ' and the bend carried on ' + sayU(amt(bend(q), YA.u)) + ': guesses, not tested.');
+    if (o.slip && o.sl >= 0.5) said.push('Marked wrong: ' + sayU(amt(o.slip === 'ruler' ? ruler(q) : bend(q), YA.u)) + ' comes from a line carried on past the tests, a guess.');
+    return { said: said.join(' ') };
+  }
+  // A logged reading: once right, it is marked as the slip with how it was read, drawn leg by leg (across
+  // from 20 on the head axis, then down), then the right reading, up and across, with its label.
+  function drawSpot(d, st, o) {
+    const q = d.q, h = read(q), ba = o.go('bad'), bx = o.go('bad', GROWF), bd = o.go('down', GROWF), ua = o.go('up', GROWF), xa = o.go('across', GROWF), pa = o.go('pill');
+    gridLines(); axisLines();
+    nums({ hx: q });
+    curve(); tests();
+    markX(q);
+    const logged = [['logged', 'ptag'], [reading(q, d.claim), 'pv']];
+    const lw = Math.max(tw(logged[0][0], 'ptag'), tw(logged[1][0], 'pv')) + 18;
+    const lbox = { box: { x0: 336 - lw, x1: 336, y0: TOP + 4, y1: TOP + 46 }, lines: logged };
+    taken.push(lbox.box);
+    const f = flowFor(q);
+    if (o.right) { acrossDown(q, f, bx, bd, true); upAcross(q, h, 0, 0); }
+    if (o.right) upAcross(q, h, ua, xa);
+    const pp = o.right ? placePill(q, h, pillOf(q, h)) : null;
+    swap(ba, () => drawPill(lbox), () => drawPill(lbox, true), 0);
+    part(pa, 4, () => drawPill(pp));
+    if (o.slip === 'none') { const v = d.claim; noteLine(OX, gy(v), gx(q), gy(v)); part(o.sl, 0, () => { line('rd bad', OX + 9, gy(v), gx(q) - 8, gy(v)); circle('pt bad', gx(q), gy(v), 5.5); }); }
+    if (o.slip === 'past') { part(o.sl, 0, () => circle('oring bad', gx(q), gy(h), 11)); const pb = placePill(q, h, [['a test', 'ptag']]); part(o.sl, 0, () => drawPill(pb, true)); }
+    const said = [SAYG, 'A marker sits on the flow axis at ' + sayU(amt(q, XA.u)) + '. A label says logged: ' + sayU(reading(q, d.claim)) + '.'];
+    if (o.right && pa >= 0.5) said.push('Marked as the slip: across from ' + q + ' on the head axis and down reads ' + sayU(amt(f, XA.u)) + '. Up from ' + sayU(amt(q, XA.u)) + ' and across reads ' + sayU(amt(h, YA.u)) + '.');
+    if (o.slip === 'none' && o.sl >= 0.5) said.push('Marked wrong: ' + sayU(amt(d.claim, YA.u)) + ' at this flow sits far below the curve.');
+    if (o.slip === 'past' && o.sl >= 0.5) said.push('Marked wrong: ' + sayU(amt(q, XA.u)) + ' is a test.');
+    return { said: said.join(' ') };
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    freshTaken();
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    const r = d.show ? DEMO[d.demo](d, st) : drawDo(d, st);
+    placeGrip(d, r.grip);
+    svg.setAttribute('aria-label', r.said);
+  }
+
+  // ---------- dragging the marker ----------
+  // A tap anywhere on the grid moves the marker to the nearest flow gridline; the marker itself can be
+  // dragged (a hit circle a thumb wide, 52 units, about 45 px on a 360 px phone) or moved with the arrow
+  // keys. Both are kept across repaints, so a drag in progress and the keyboard focus survive.
+  const pad = ui.appendChild(K.svg('rect', { class: 'pad', x: OX - 20, y: TOP - 20, width: XA.n * GS + 40, height: YA.n * GS + 50 }));
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 26, tabindex: -1, role: 'button', 'aria-label': 'The marker' }));
+  pad.style.display = 'none'; grip.style.display = 'none';
+  let gripOn = false;
+  function placeGrip(d, q) {
+    gripOn = q != null && !finished;
+    pad.style.display = gripOn ? '' : 'none';
+    grip.style.display = gripOn ? '' : 'none';
+    grip.setAttribute('tabindex', gripOn ? '0' : '-1');
+    if (!gripOn) return;
+    grip.setAttribute('cx', r3(gx(q))); grip.setAttribute('cy', OY);
+    grip.setAttribute('aria-label', 'The marker, at ' + sayU(amt(q, XA.u)) + ' on the flow axis. Drag it, or move it with the arrow keys.');
+  }
+  const dragging = () => gripOn && !finished;
+  const flowAt = (p) => K.clamp(Math.round((p.x - OX) / GS), 0, XA.n) * XA.step;
+  function setQ(q) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!dragging()) return;
+    const was = st.q;
+    st.moved = true;
+    if (d.show) { if (anim.playing()) anim.pause(); T = Infinity; motion = null; }
+    if (was === q && st.res !== 'empty') return;
+    st.q = q;
+    if (!d.show) st.res = null;
+    K.reveal(); K.refresh();
+  }
+  const svgPoint = (e) => { const ctm = svg.getScreenCTM(); return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null; };
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the marker */ }
+    e.preventDefault();
+    const p = svgPoint(e);
+    if (p) setQ(flowAt(p));
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    const p = svgPoint(e);
+    if (p) setQ(flowAt(p));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  pad.addEventListener('click', (e) => {
+    if (!dragging()) return;
+    const p = svgPoint(e);
+    if (p) setQ(flowAt(p));
+  });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+    if (!by && e.key !== 'Home') return;
+    e.preventDefault();
+    const d = STEPS[at()], st = S[at()], now = st.q != null ? st.q : d.q != null ? d.q : 0;
+    setQ(e.key === 'Home' ? 0 : K.clamp(now + by * XA.step, 0, XMAX));
+  });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show && st.q == null) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, opts[k]));
+      b.el.setAttribute('aria-label', sayU(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    paint(i);
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(i), STEPS[i].kind === 'drag' ? { q: +v, moved: true } : { pick: v }));
+  // A step painted finished (or at time t) in the state given: what its picture draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const cls = (n) => n.getAttribute('class') || '';
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => ({ s: t.textContent, x: +t.getAttribute('x'), y: +t.getAttribute('y'), cls: cls(t), w: tw(t.textContent, cls(t)), anchor: t.getAttribute('text-anchor'), fill: getComputedStyle(t).fill }));
+      const dots = Array.from(art.querySelectorAll('circle')).filter(vis).filter((c) => /\b(pt|tp|mk)\b/.test(cls(c))).map((c) => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), q: r3((+c.getAttribute('cx') - OX) / GS * XA.step), h: r3((OY - +c.getAttribute('cy')) / GS * YA.step), kind: cls(c).split(' ')[0], bad: /bad/.test(cls(c)), r: +c.getAttribute('r') }));
+      const pills = Array.from(art.querySelectorAll('rect')).filter(vis).filter((r) => /\bpl\b/.test(cls(r))).map((r) => ({ x0: +r.getAttribute('x'), y0: +r.getAttribute('y'), x1: +r.getAttribute('x') + +r.getAttribute('width'), y1: +r.getAttribute('y') + +r.getAttribute('height'), bad: /bad/.test(cls(r)) }));
+      const lines = Array.from(art.querySelectorAll('line')).filter(vis).filter((l) => /\brd\b/.test(cls(l))).map((l) => ({ x1: +l.getAttribute('x1'), y1: +l.getAttribute('y1'), x2: +l.getAttribute('x2'), y2: +l.getAttribute('y2'), bad: /bad/.test(cls(l)) }));
+      const curves = Array.from(art.querySelectorAll('polyline')).filter(vis).map((l) => ({ pts: l.getAttribute('points').split(' ').map((q) => q.split(',').map(Number)), guess: /guess/.test(cls(l)), bad: /bad/.test(cls(l)) }));
+      const hls = Array.from(art.querySelectorAll('rect')).filter(vis).filter((r) => cls(r) === 'hl').length;
+      const cellN = Array.from(art.querySelectorAll('rect')).filter(vis).filter((r) => cls(r) === 'cell').length;
+      const zones = Array.from(art.querySelectorAll('rect')).filter(vis).filter((r) => cls(r) === 'zone').length;
+      const reds = texts.filter((t) => /warnt/.test(t.cls)).map((t) => t.s);
+      return { texts: texts, all: texts.map((t) => t.s), dots: dots, pills: pills, lines: lines, curves: curves, hls: hls, cells: cellN, zones: zones, reds: reds };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const finished_ = (i) => (STEPS[i].show ? blank(i) : solved(i));
+  const boxOf = (t) => { const x0 = t.anchor === 'middle' ? t.x - t.w / 2 : t.anchor === 'end' ? t.x - t.w : t.x; return { x0: x0, x1: x0 + t.w, y0: t.y - 11, y1: t.y + 3 }; };
+  const inside = (g) => g.texts.every((t) => { const b = boxOf(t); return b.x0 >= 2 && b.x1 <= 338 && b.y0 >= 0 && b.y1 <= H; }) && g.pills.every((b) => b.x0 >= 2 && b.x1 <= 338 && b.y0 >= 0 && b.y1 <= H);
+  // No two labels sit over each other (text inside a label's own box excepted), no label covers a point,
+  // and no reading line or curve runs through a label.
+  const segHit = (b, x1, y1, x2, y2) => { for (let s = 0; s <= 24; s++) { const x = x1 + (x2 - x1) * s / 24, y = y1 + (y2 - y1) * s / 24; if (x > b.x0 + 1 && x < b.x1 - 1 && y > b.y0 + 1 && y < b.y1 - 1) return true; } return false; };
+  const clear = (g) => {
+    const free = g.texts.filter((t) => !g.pills.some((b) => { const x = boxOf(t); return x.x0 >= b.x0 && x.x1 <= b.x1 && t.y >= b.y0 && t.y <= b.y1; })).map(boxOf);
+    const all = free.concat(g.pills);
+    return all.every((a, k) => all.every((b, j) => j <= k || !hit(a, b))) &&
+      all.every((b) => g.dots.every((q) => !hit(b, boxAt(q.x, q.y, 2 * q.r, 2 * q.r)))) &&
+      all.every((b) => g.lines.every((l) => !segHit(b, l.x1, l.y1, l.x2, l.y2)) && g.curves.every((c) => c.pts.every((p, k) => k === 0 || !segHit(b, c.pts[k - 1][0], c.pts[k - 1][1], p[0], p[1]))));
+  };
+  // A reading drawn: a vertical reading line at flow q and a level one at head h (both in ink, or both red).
+  const hasV = (g, q, bad) => g.lines.some((l) => !!l.bad === !!bad && K.near(l.x1, gx(q), 1e-3) && K.near(l.x2, gx(q), 1e-3));
+  const hasL = (g, h, bad) => g.lines.some((l) => !!l.bad === !!bad && K.near(l.y1, gy(h), 1e-3) && K.near(l.y2, gy(h), 1e-3));
+  const hasDot = (g, q, h, bad) => g.dots.some((t) => t.kind === 'pt' && !!t.bad === !!bad && K.near(t.q, q, 1e-3) && K.near(t.h, h, 1e-3));
+  K.check('In a QH-curve a low flow results in a high head and a high flow results in a low head: the example pump\'s curve runs through all five tests and falls the whole way, from 21 m at 0 m³/h to 14 m at 20 m³/h, and every screen draws it', () => {
+    let fall = true;
+    for (let q = 0.25; q <= LAST + 1e-9; q += 0.25) if (!(headAt(q) < headAt(q - 0.25))) fall = false;
+    return fall && TESTS.every((p) => K.near(headAt(p[0]), p[1], 1e-9)) && read(0) === 21 && read(LAST) === 14 &&
+      STEPS.every((d, i) => { const g = drawn(i, finished_(i)); return g.curves.filter((c) => !c.guess).length === 1 && g.dots.filter((t) => t.kind === 'tp').length === NT; });
+  }, { source: 'https://www.grundfos.com/uk/learn/ecademy/all-courses/the-basic-pump-curve-course/how-to-read-a-pump-curve-' });
+  K.check('Choosing a flow rate on the horizontal axis, proceeding vertically to the pump curve and then left to the vertical axis reads the head: each up-then-across reading draws its line up from the flow to the curve and left to the head axis, 10 m³/h reading 19 m and 20 m³/h 14 m, and across from 17 m and down reads 15 m³/h', () => {
+    const up = drawn(1, blank(1)), rd = drawn(2, solved(2)), bk = drawn(3, blank(3)), fd = drawn(4, solved(4));
+    return read(10) === 19 && read(20) === 14 && flowFor(17) === 15 && flowFor(20) === 5 &&
+      hasV(up, 10) && hasL(up, 19) && hasDot(up, 10, 19) && up.all.indexOf('(10, 19)') >= 0 && up.all.indexOf('10 m³/h, 19 m') >= 0 &&
+      hasV(rd, 20) && hasL(rd, 14) && rd.all.indexOf('(20, 14)') >= 0 && rd.cells === 4 &&
+      hasL(bk, 17) && hasV(bk, 15) && bk.all.indexOf('(15, 17)') >= 0 && hasL(fd, 20) && hasV(fd, 5) && fd.all.indexOf('(5, 20)') >= 0 &&
+      up.lines.every((l) => l.x1 > OX && l.x2 > OX && l.y1 < OY && l.y2 < OY);
+  }, { source: 'https://www.lsuagcenter.com/~/media/system/9/2/3/5/923525275a3ff99d781ff0eec797e7a8/pub3241hpumpcurves.pdf' });
+  K.check('The highest head occurs at the lowest flow rate, and the highest flow rate occurs at the lowest head: on the tested curve the highest head, 21 m, is at the lowest flow, 0 m³/h, and the lowest head, 14 m, at the highest tested flow, 20 m³/h, which the no-flow puzzle reads as 21 m', () => {
+    const hs = []; for (let q = 0; q <= LAST + 1e-9; q += 0.5) hs.push(headAt(q));
+    const g = drawn(11, solved(11));
+    return K.near(Math.max.apply(null, hs), headAt(0), 1e-9) && K.near(Math.min.apply(null, hs), headAt(LAST), 1e-9) && read(0) === 21 && read(LAST) === 14 &&
+      answerOf(STEPS[11]) === '21 m' && STEPS[11].q === 0 && g.all.indexOf('(0, 21)') >= 0 && g.cells === 1;
+  }, { source: 'https://www.lsuagcenter.com/~/media/system/9/2/3/5/923525275a3ff99d781ff0eec797e7a8/pub3241hpumpcurves.pdf' });
+  K.check('Starting on the wrong axis is drawn as it reads: from 20 on the head axis when the head at 20 m³/h is wanted, across and down reads 5, the flow for a 20 m head; 20 put on the flow axis when the flow for 20 m is wanted reads 14 m; both in the warning colour', () => {
+    const a = drawn(2, slipped(2, '5 m')), b = drawn(4, slipped(4, '20')), c = drawn(10, solved(10));
+    return slipOpt(STEPS[2], 'swap') === '5 m' && slipOpt(STEPS[4], 'swap') === '20' && read(20) === 14 && flowFor(20) === 5 &&
+      hasL(a, 20, true) && hasV(a, 5, true) && a.reds.indexOf('(5, 20)') >= 0 && hasV(b, 20, true) && hasL(b, 14, true) && b.reds.indexOf('(20, 14)') >= 0 &&
+      hasL(c, 20, true) && hasV(c, 5, true) && hasV(c, 20) && hasL(c, 14) && c.reds.indexOf('20 m³/h, 5 m') >= 0;
+  });
+  K.check('State the difference between interpolation and extrapolation and the limitations of each: a reading between two tests (12.5 m³/h, about 18 m) lies between their heads, while past the last test a ruler through the last two tests and the bend of the last three disagree, 11 m and 10 m at 25 m³/h and 8 m and 5 m at 30 m³/h, so there the graph gives only a guess', () => {
+    const v = headAt(12.5), gb = drawn(8, blank(8)), by = drawn(9, solved(9));
+    return v < 19 && v > 17 && read(12.5) === 18 && ruler(25) === 11 && bend(25) === 10 && ruler(30) === 8 && bend(30) === 5 &&
+      K.near(ruler(LAST), headAt(LAST), 1e-9) && K.near(bend(LAST), headAt(LAST), 1e-9) && K.near(bend(15), 17, 1e-9) && K.near(bend(10), 19, 1e-9) &&
+      gb.all.indexOf('8 m') >= 0 && gb.all.indexOf('5 m') >= 0 && gb.curves.filter((c) => c.guess).length === 2 && gb.zones === 1 &&
+      answerOf(STEPS[9]) === 'Only a guess' && by.curves.filter((c) => c.guess).length === 2 && by.all.indexOf('11 m, 10 m') >= 0 && by.all.indexOf('guesses') >= 0 && answerOf(STEPS[7]) === 'A';
+  }, { source: 'https://www.thenational.academy/teachers/programmes/maths-secondary-ks4-higher/units/graphical-representations-of-data-scatter-graphs-and-time-series/lessons' });
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is a named slip: starting on the wrong axis, the mark below, a gridline short, no flow read as no head, the head read as rising, the flow\'s change given, a reading past the tests trusted or read as measured', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      const opts = d.kind === 'drag' ? slips.concat([String(d.goal), '0', '15', '30']) : d.opts;
+      return d.want === answerOf(d) && slips.length === 2 && opts.every((o) => pickRight(i, o) === (d.kind === 'drag' ? +o === d.goal : o === d.want)) &&
+        slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && (d.kind === 'drag' || d.opts.indexOf(o) >= 0));
+    }) && answerOf(STEPS[2]) === '14 m' && slipOpt(STEPS[2], 'below') === '10 m' && answerOf(STEPS[4]) === '5 m³/h' && slipOpt(STEPS[4], 'near') === '10' && read(10) === 19 &&
+    answerOf(STEPS[5]) === 'Falls 5 m' && slipOpt(STEPS[5], 'flowdiff') === 'Falls 10 m' && answerOf(STEPS[9]) === 'Only a guess' && slipOpt(STEPS[9], 'ruler') === 'It is 11 m' &&
+    answerOf(STEPS[10]) === 'Wrong axis' && answerOf(STEPS[11]) === '21 m' && slipOpt(STEPS[11], 'below') === '20 m' && slipOpt(STEPS[11], 'zero') === '0 m');
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other, of the points and of the lines; each slip is drawn in the warning colour', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, finished_(i));
+      if (!inside(g) || !clear(g) || (g.reds.length && d.ask !== 'spot')) return false;
+      if (d.show) return true;
+      return Object.keys(d.slips).every((o) => {
+        const w = drawn(i, slipped(i, o));
+        return inside(w) && clear(w) && (w.reds.length > 0 || w.lines.some((l) => l.bad) || w.dots.some((t) => t.bad) || w.pills.some((t) => t.bad));
+      }) && (d.kind !== 'drag' || [0, 15, 25, 30].every((q) => { const w = drawn(i, Object.assign(blank(i), { q: q, moved: true, res: 'wrong' })); return inside(w) && clear(w); }));
+    }) && [0, 5, 15, 20, 25, 30].every((q) => { const g = drawn(1, Object.assign(blank(1), { q: q, moved: true })); return inside(g) && clear(g); }));
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: no reading line, reading point, counted square or label, no shaded stretch, and the marker to drag starts at 0', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      const own = d.ask === 'trust' ? 4 : 0;   // A and B carry their reading lines, without values, as the question
+      return g.lines.length === own && g.cells === 0 && g.reds.length === 0 && g.zones === 0 && (d.ask === 'trust' || g.all.indexOf(d.want) < 0) &&
+        !g.texts.some((t) => /\bpv\b/.test(t.cls) && d.ask !== 'spot') && (d.ask === 'trust' ? g.pills.length === 0 : d.ask === 'spot' ? g.pills.length === 1 : g.pills.length === 0) &&
+        (d.kind !== 'drag' || (g.dots.filter((t) => t.kind === 'mk').length === 1 && g.dots.some((t) => t.kind === 'mk' && t.q === 0)));
+    }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = finished_(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => A[k]).sort((a, b) => a - b);
+      return ps.every((t, k) => k === 0 || t === ps[k - 1] || t - ps[k - 1] >= 0.45 - 1e-9);
+    };
+    return ok && CNTGAP >= 0.2 && TESTGAP >= 0.2 && CNT <= CNTGAP && TESTIN <= TESTGAP && AT.curve.pts + (NT - 1) * TESTGAP + TESTIN <= AT.curve.grow &&
+      AT.up.count + 4 * CNTGAP <= AT.up.pill + 1e-9 && READ.count + 4 * CNTGAP <= READ.pill + 1e-9 && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

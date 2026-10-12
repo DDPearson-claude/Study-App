@@ -1,0 +1,347 @@
+/* D4, "Claude's notes" (Dan chose it on 10 Oct from the redesign canvas): a calm dashboard look.
+   A dotted canvas, grey panels for what you read and white outlined cards for what you act on,
+   near-black ink for controls, charts and labels in condensed type, mono for where you are.
+   Claude's words arrive as comment cards (.note, 52-notes.js). Loaded last: it restates the
+   tokens of 00-tokens.css and restyles shared components without changing their markup, so
+   every screen, light and dark, Text size and Easier reading follow. Colour keeps its meaning:
+   ink = controls and progress, green = right and finished, red = mistakes and warnings,
+   teal = small labels, amber = key terms, "remember this" and what is due.
+   The dossier (75-dossier.css) is drawn in the same tokens, as tiles. */
+
+:root {
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --sunk: #F2F3F4;          /* grey panels, tracks, wells */
+  --ink: #1D1F22;
+  --muted: #5F6670;         /* 5.6:1 on --bg, 5.2:1 on --sunk */
+  --heading: #1D1F22;       /* ink: headings, controls, progress */
+  --teal: #0B6A70;          /* small labels (5.7:1 on --sunk) */
+  --teal-tint: #E1F1F1;
+  --amber: #FFF3D1;         /* "remember this" boxes */
+  --hl: #F8DC8A;            /* the highlighter under key terms */
+  --red: #9F3038;
+  --red-tint: #F8ECEC;
+  --green: #2E7D4F;
+  --green-tint: #E5F1E9;
+  --line: #E1E4E7;
+  --line-strong: #A9AFB6;
+  --on-heading: #FFFFFF;
+  --green-on-heading: var(--green);   /* green on an ink (--heading) tile: the finished ring */
+  --bar-off: var(--line-strong);      /* the dashed outline of a bar not yet filled */
+  --shadow: 0 1px 2px rgba(29, 31, 34, .05), 0 6px 18px rgba(29, 31, 34, .08);
+  --scrim: rgba(15, 17, 20, .42);
+  /* D4's own */
+  --edge: #1D1F22;          /* the 2 px outline of cards and controls you act on */
+  --dot: #D9D9D4;           /* the canvas dots */
+  --due: #EBA81E;           /* what is due, Claude's pins, chart marks */
+  --due-ink: #8F6200;       /* amber as text (5.3:1 on white) */
+  --due-tint: #FBEFD2;
+  --step: #B8647A;          /* the lesson's segmented progress */
+  --pin: #E7D5DB;           /* Claude's avatar */
+
+  --sans: "Barlow", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --serif: var(--sans);
+  --cond: "Barlow Semi Condensed", "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r-sm: 10px; --r: 14px; --r-lg: 16px;
+}
+:root[data-mu-theme="dark"],
+:root[data-mu-theme="system"][data-theme="dark"] {
+  --bg: #141619; --surface: #1D2024; --sunk: #24282D; --ink: #ECEDEE; --muted: #A3A9B1;
+  --heading: #ECEDEE; --teal: #6CC7BD; --teal-tint: #173030; --amber: #3A3016; --hl: rgba(240, 185, 58, .34);
+  --red: #F2A6AC; --red-tint: #2E1A1D; --green: #6FCB94; --green-tint: #16291F;
+  --line: #33373D; --line-strong: #5A6068; --on-heading: #141619; --on-green: #0E1A13; --green-on-heading: #2E7D4F; --bar-off: var(--muted);
+  --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .28); --scrim: rgba(0, 0, 0, .6);
+  --edge: #D7D9DC; --dot: #2A2E33; --due: #F0B93A; --due-ink: #F0C25A; --due-tint: #3A3016; --step: #D88CA0; --pin: #4A3640;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-mu-theme="system"]:not([data-theme="light"]) {
+    --bg: #141619; --surface: #1D2024; --sunk: #24282D; --ink: #ECEDEE; --muted: #A3A9B1;
+    --heading: #ECEDEE; --teal: #6CC7BD; --teal-tint: #173030; --amber: #3A3016; --hl: rgba(240, 185, 58, .34);
+    --red: #F2A6AC; --red-tint: #2E1A1D; --green: #6FCB94; --green-tint: #16291F;
+    --line: #33373D; --line-strong: #5A6068; --on-heading: #141619; --on-green: #0E1A13; --green-on-heading: #2E7D4F; --bar-off: var(--muted);
+    --shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 8px 24px rgba(0, 0, 0, .28); --scrim: rgba(0, 0, 0, .6);
+    --edge: #D7D9DC; --dot: #2A2E33; --due: #F0B93A; --due-ink: #F0C25A; --due-tint: #3A3016; --step: #D88CA0; --pin: #4A3640;
+  }
+}
+/* Easier reading keeps Atkinson everywhere (00-tokens.css sets --sans and --serif with a stronger
+   selector); labels and the mono line follow it too. */
+:root[data-easy="1"] { --cond: var(--easy); --mono: var(--easy); }
+
+/* ---------- the canvas ---------- */
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.3px);
+  background-size: 16px 16px;
+}
+h1, h2, h3 { letter-spacing: -.01em; }
+h1 { font-weight: 700; }
+.eyebrow { font: 600 .78rem/1.4 var(--cond); letter-spacing: .09em; }
+.aa { font: 600 1.0625rem/1 var(--sans); }
+:focus-visible { outline-color: var(--teal); }
+/* Where you are: the lesson's and the review's breadcrumb. */
+.mono-crumb { font: 500 .8125rem/1.3 var(--mono); color: var(--muted); letter-spacing: 0; text-transform: none; }
+
+/* ---------- top bar and tabs ---------- */
+.topbar { border-bottom-color: transparent; }
+.topbar::before { background: color-mix(in srgb, var(--bg) 92%, transparent); }
+.brand { color: var(--ink); }
+.brand-mark { color: var(--ink); }
+.brand-name { font: 700 1.1875rem/1 var(--sans); letter-spacing: -.01em; }
+.icon-btn { border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); color: var(--ink); }
+/* Phone: the sections float in an outlined bar above the bottom edge; the open one is an ink pill. */
+:root, :root[data-size] { --tabbar-h: calc(48px + 1rem + 24px); }
+/* Focus mode (a lesson, a review) hides the tabs, so nothing makes room for them (10-base.css). */
+:root.focus, :root.focus[data-size] { --tabbar-h: 0px; }
+:root:not([data-layout="laptop"]) .tabs {
+  left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  gap: 4px; padding: 5px; border: 2px solid var(--edge); border-radius: 18px;
+  background: var(--surface); box-shadow: var(--shadow);
+}
+:root.framed:not([data-layout="laptop"]) .tabs { left: calc(50% - var(--frame) / 2 + 12px); right: calc(50% - var(--frame) / 2 + 12px); }
+:root:not([data-layout="laptop"]) .tab { flex: 1; min-width: 0; border-radius: 13px; color: var(--ink); font: 600 .75rem/1.2 var(--sans); }
+.tab[aria-current="page"]::before { display: none; }
+:root:not([data-layout="laptop"]) .tab[aria-current="page"] { background: var(--ink); color: var(--bg); }
+.tab-badge { background: var(--due); color: #1D1F22; font-weight: 700; }
+:root:not([data-layout="laptop"]) .tab-badge { box-shadow: 0 0 0 2px var(--surface); }
+:root[data-layout="laptop"] .tab { color: var(--ink); font-weight: 600; border-radius: 12px; }
+:root[data-layout="laptop"] .tab[aria-current="page"] { background: var(--ink); color: var(--bg); }
+:root.framed .app { box-shadow: 0 0 0 2px var(--edge), 0 12px 40px rgba(29, 31, 34, .1); }
+
+/* ---------- surfaces ---------- */
+/* What you act on: white, outlined in ink. What you read: a grey panel. */
+.card { background: var(--surface); border: 2px solid var(--edge); border-radius: var(--r-lg); box-shadow: none; }
+.card-quiet { background: var(--sunk); border: 0; border-radius: 8px; }
+.callout { border-radius: 10px; }
+.notice { border-radius: 10px; background: var(--surface); border: 1.5px solid var(--line); }
+
+/* ---------- buttons ---------- */
+.btn { border-radius: 14px; background: var(--ink); color: var(--on-heading); box-shadow: none; font-weight: 700; }
+.btn:active:not([disabled]) { transform: translateY(1px); box-shadow: none; }
+.btn.secondary { background: var(--surface); color: var(--ink); border: 2px solid var(--edge); box-shadow: none; }
+.btn.ghost { color: var(--ink); }
+.btn.good { box-shadow: none; }
+.btn.danger { box-shadow: none; }
+.btn.small { border-radius: 12px; }
+.linkish { color: var(--ink); }
+
+/* ---------- inputs ---------- */
+.field > span { color: var(--ink); }
+.input, .textarea { border: 2px solid var(--edge); border-radius: 14px; }
+.input:focus, .textarea:focus { border-color: var(--edge); box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 28%, transparent); }
+.chip { border: 1.5px solid var(--edge); color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip-soft { border-color: var(--line-strong); }
+.seg { border-radius: 12px; }
+.seg-btn { border-radius: 9px; color: var(--ink); font-weight: 600; }
+.seg-btn[aria-checked="true"] { background: var(--ink); color: var(--bg); box-shadow: none; }
+
+/* ---------- answers ---------- */
+.option { border: 1.5px solid var(--line-strong); border-radius: 12px; box-shadow: none; }
+.option[aria-pressed="true"] { border-color: var(--edge); box-shadow: inset 0 0 0 1px var(--edge); background: color-mix(in srgb, var(--ink) 6%, var(--surface)); }
+.option[aria-pressed="true"]::before { border-color: var(--ink); background: radial-gradient(circle, var(--ink) 0 4.5px, var(--surface) 5px); }
+/* Marked answers keep their meaning over the picked look: green right, red wrong. */
+.option.correct { border-color: var(--green); background: var(--green-tint); box-shadow: none; }
+.option.wrong { border-color: var(--red); background: var(--red-tint); box-shadow: none; }
+.option.correct::before { border-color: var(--green); background: radial-gradient(circle, var(--green) 0 4.5px, var(--surface) 5px); }
+.option.wrong::before { border-color: var(--red); background: radial-gradient(circle, var(--red) 0 4.5px, var(--surface) 5px); }
+/* The answers left out once one is marked step back by colour, not opacity (the canvas's dots
+   would show through): muted words (5.8:1, above the old faded ink's 3.8:1) and a faded edge. */
+.option.qc-dim { opacity: 1; color: var(--muted); border-color: color-mix(in srgb, var(--line-strong) 55%, var(--surface)); }
+.option.qc-dim::before { border-color: color-mix(in srgb, var(--line-strong) 55%, var(--surface)); }
+
+/* ---------- progress ---------- */
+.bar { border-radius: 3px; height: 6px; }
+.bar > i { border-radius: 3px; background: var(--ink); }
+
+/* ---------- toasts and sheets ---------- */
+.toast { border-radius: 12px; }
+.sheet { border: 2px solid var(--edge); border-bottom: 0; border-radius: 20px 20px 0 0; }
+:root[data-layout="laptop"] .sheet { border-bottom: 2px solid var(--edge); border-radius: 18px; }
+.sheet-grip { background: var(--ink); opacity: .35; }
+
+/* ---------- Learn ---------- */
+.ask h1 { letter-spacing: -.015em; }
+.ask-input.input { border: 2px solid var(--edge); border-radius: 16px; box-shadow: none; }
+.ask-go.btn { border-radius: 14px; }
+.intake { border: 2px solid var(--edge); border-radius: var(--r-lg); box-shadow: none; }
+.intake-chip[aria-checked="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.ccard { border: 2px solid var(--edge); border-radius: var(--r-lg); box-shadow: none; }
+.ccard-cover { border-bottom: 2px solid var(--edge); }
+@container view (min-width: 608px) { .ccard-cover { border-bottom: 0; border-right: 2px solid var(--edge); } }
+.ccard-next .muted { font-family: var(--mono); font-size: .875rem; }
+.today-row { border: 2px solid var(--edge); border-radius: var(--r-lg); background: var(--surface); }
+.today-row .today-ico { background: var(--due-tint); color: var(--due-ink); }
+.today-row.is-quiet { border: 1.5px dashed var(--line-strong); }
+.today-text strong { color: var(--ink); }
+.today-go { color: var(--ink); }
+.tcard { border: 1.5px solid var(--line); border-radius: 12px; box-shadow: none; background: var(--surface); }
+.tcard:focus-visible, .ccard:focus-visible { border-radius: var(--r-lg); }
+.tcard-cover { border-radius: 8px; }
+@container view (min-width: 528px) { .tcard { border-radius: 12px; } .tcard-cover { border-radius: 0; } }
+.tcard-title { color: var(--ink); }
+.src-badge { border-radius: 4px; font-family: var(--cond); }
+@media (hover: hover) {
+  .ccard:hover, .tcard:hover:not(.is-skeleton) { transform: translateY(-1px); box-shadow: var(--shadow); border-color: var(--edge); }
+}
+.welcome { border: 2px solid var(--edge); border-radius: var(--r-lg); box-shadow: none; }
+.step-n { background: var(--pin); color: var(--ink); font-family: var(--cond); }
+
+/* ---------- topic page, Map and Library chrome ---------- */
+.tp-banner, .tp-sk-banner { border-radius: 10px; }
+.v-pill { border: 1.5px solid var(--edge); }
+
+/* ---------- lesson bar: close, segmented progress, Ask ---------- */
+.lsn-bar { background: var(--bg); border-bottom-color: var(--line); }
+.lsn-close { border: 2px solid var(--edge); border-radius: 12px; background: var(--surface); }
+.lsn-step > i { border-radius: 4px; height: 7px; }
+.lsn-step.is-done > i { background: var(--step); }
+/* The step he is on: its unfilled part light enough to read against the filled part (3.1:1). */
+.lsn-step.is-now > i { background: linear-gradient(90deg, var(--step) 0 45%, color-mix(in srgb, var(--step) 15%, var(--sunk)) 45% 100%); }
+/* A finished lesson's segments turn green under "Idea read" / "Idea learned" (green = finished). */
+.lsn-step.is-all > i { background: var(--green); }
+.lsn-steps-label { font: 600 .75rem/1.2 var(--cond); letter-spacing: .08em; }
+.lsn-ask { border: 2px solid var(--edge); border-radius: 12px; color: var(--ink); box-shadow: none; }
+.lsn-ask:active { transform: translateY(1px); }
+
+/* ---------- lesson body ---------- */
+.lsn-eb { font-family: var(--mono); font-weight: 500; font-size: .8125rem; letter-spacing: 0; text-transform: none; color: var(--muted); }
+.lsn-past { border: 1.5px solid var(--line); border-radius: 12px; }
+.lsn-past-tick { background: var(--sunk); color: var(--ink); }
+.lsn-prep, .lsn-soon { border: 2px solid var(--edge); border-radius: var(--r-lg); }
+.lsn-prep-mark i { background: var(--ink); }
+.lsn-none { border-radius: 8px; }
+.lsn-analogy, .lsn-practice, .lsn-orient { background: var(--sunk); border: 0; border-radius: 8px; }
+.lsn-view { border-radius: 8px; }
+.lsn-recap { border-left-color: var(--ink); background: var(--sunk); }
+.lsn-nums { border-radius: 8px; }
+.lsn-num-val, .lsn-num-now { font-family: var(--mono); }
+.lsn-num-kind, .lsn-check-count, .lsn-bubble-label, .lsn-past-label { font-family: var(--cond); }
+.lsn-reveal-guess { border-radius: 10px; }
+.lsn-bubble { background: var(--sunk); border-radius: 14px 14px 4px 14px; }
+.lsn-next { border: 2px solid var(--edge); border-radius: var(--r-lg); box-shadow: none; }
+.lsn-practice-text ol > li::marker { color: var(--ink); }
+.lsn-source-n { border-radius: 4px; font-family: var(--cond); }
+/* The say-it-back verdict is Claude's comment on his words. */
+.lsn-grade { background: var(--surface); border: 1.5px solid var(--edge); border-radius: var(--r); box-shadow: var(--shadow); }
+.lsn-verdict { font: 700 1.0625rem/1.3 var(--sans); color: var(--ink); }
+
+/* ---------- check and review cards ---------- */
+/* The feedback panel is Claude's comment on the answer: a white card, outlined in ink. The
+   verdict keeps its colour (green right, red mistake); the panel no longer floods with it. */
+.qc-fb { background: var(--surface); border: 1.5px solid var(--edge); border-radius: var(--r); box-shadow: var(--shadow); }
+.qc-fb.is-right, .qc-fb.is-wrong { background: var(--surface); border-color: var(--edge); }
+.qc-fb.is-right { box-shadow: inset 0 4px 0 var(--green), var(--shadow); }
+.qc-fb.is-wrong { box-shadow: inset 0 4px 0 var(--red), var(--shadow); }
+:root:not([data-layout="laptop"]) .qc-review .qc-fb { border-width: 1.5px 0 0; }
+.qc-label { font: 600 .75rem/1.4 var(--cond); letter-spacing: .09em; }
+.qc-mis { border-left-color: var(--red); background: var(--red-tint); border-radius: 8px; }
+.qc-model { background: var(--amber); border-radius: 8px; }
+.qc-g { border: 1.5px solid var(--edge); border-radius: 12px; color: var(--ink); box-shadow: none; }
+.qc-g[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.qc-g-claude { color: var(--teal); }
+.qc-change { color: var(--ink); }
+.qc-step-btn { border: 1.5px solid var(--edge); border-radius: 12px; }
+.qc-step.correct, .qc-step.wrong, .qc-slot { border-radius: 12px; }
+.qc-num { background: var(--ink); color: var(--bg); font-family: var(--cond); }
+.qc-est-value, .qc-est-num { font-family: var(--sans); }
+.qc-range::-webkit-slider-thumb { background: var(--ink); }
+.qc-range::-moz-range-thumb { background: var(--ink); }
+.qc-mine summary { color: var(--ink); }
+
+/* ---------- Ask Claude sheet ---------- */
+.tutor-empty-head { color: var(--ink); }
+.tutor-msg.me { background: var(--sunk); border-radius: 14px 14px 4px 14px; }
+/* Claude's replies carry its avatar, like every note it writes in the app. */
+.tutor-msg.bot { position: relative; padding-left: 36px; }
+.tutor-msg.bot::before {
+  content: ""; position: absolute; left: 0; top: 2px; width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--edge); background: var(--pin) var(--claude-mark) center / 14px 14px no-repeat;
+}
+.tutor-dock { border-top: 2px solid var(--edge); }
+.tutor-send { border-radius: 14px; background: var(--ink); color: var(--on-heading); box-shadow: none; }
+.tutor-send:active:not([disabled]) { transform: translateY(1px); box-shadow: none; }
+
+/* ---------- Claude's notes (52-notes.js) ---------- */
+:root { --claude-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M10.4 4.1a4.4 4.4 0 1 0 0 5.8' fill='none' stroke='%231D1F22' stroke-width='1.9' stroke-linecap='round'/%3E%3C/svg%3E"); }
+:root[data-mu-theme="dark"], :root[data-mu-theme="system"][data-theme="dark"] { --claude-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M10.4 4.1a4.4 4.4 0 1 0 0 5.8' fill='none' stroke='%23ECEDEE' stroke-width='1.9' stroke-linecap='round'/%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) { :root[data-mu-theme="system"]:not([data-theme="light"]) { --claude-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M10.4 4.1a4.4 4.4 0 1 0 0 5.8' fill='none' stroke='%23ECEDEE' stroke-width='1.9' stroke-linecap='round'/%3E%3C/svg%3E"); } }
+
+.note-av {
+  flex: none; display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid var(--edge); background: var(--pin); color: var(--ink);
+}
+.note-av svg { width: 14px; height: 14px; }
+.note-av.is-app { background: var(--surface); }
+.note-av.is-app svg { width: 15px; height: 15px; }
+/* One row: a long context ("on <idea title>") wraps in its own column, its "·" kept beside it. */
+.note-by { display: flex; align-items: center; flex-wrap: nowrap; gap: 8px; min-height: 26px; }
+.note-name { flex: none; font: 600 .875rem/1.3 var(--sans); color: var(--muted); }
+.note-ctx { position: relative; flex: 1 1 auto; min-width: 0; padding-left: 12px; font: 500 .8125rem/1.3 var(--cond); color: var(--muted); }
+.note-ctx::before { content: "·"; position: absolute; left: 0; top: 0; }
+/* (The lessons' own "callout note" notices keep their callout look.) */
+.note:not(.callout) { display: flex; flex-direction: column; gap: 8px; padding: 14px 0; border-top: 1px solid var(--line); }
+.note:not(.callout):first-child { border-top: 0; padding-top: 4px; }
+.note-title { font: 700 1rem/1.3 var(--sans); color: var(--ink); padding-left: 34px; }
+.note-text, .note > .note-body { padding-left: 34px; font-size: 1rem; line-height: 1.5; color: var(--ink); overflow-wrap: anywhere; }
+.note-text p + p { margin-top: .5em; }
+.note-text, .note-title { max-width: calc(var(--measure) + 34px); }
+.note-acts { display: flex; flex-wrap: wrap; gap: 4px 18px; padding-left: 34px; }
+.note-act {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--ink); font: 700 .9375rem/1.2 var(--sans); text-decoration: underline; text-underline-offset: 3px;
+}
+.note-act svg { width: 16px; height: 16px; }
+/* A set of notes: one white comment card, outlined in ink, like an open thread. */
+.notes {
+  display: flex; flex-direction: column; padding: 12px 16px 6px; border: 1.5px solid var(--edge);
+  border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow);
+}
+.notes-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 8px; }
+.notes-h { font: 600 .9375rem/1.3 var(--sans); color: var(--muted); letter-spacing: 0; }
+.notes-n {
+  display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 12px;
+  background: var(--due-tint); color: var(--due-ink); font: 700 .8125rem/1 var(--cond);
+}
+.notes-list { display: flex; flex-direction: column; }
+.notes-list > .note:first-child { border-top: 1px solid var(--line); padding-top: 14px; }
+/* Reply: chips and a "Reply to Claude…" box under a note or a feedback panel. */
+.note-reply { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+.note-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.note-chip.chip { min-height: 44px; padding: 6px 12px; font-size: .875rem; }
+.note-form { display: flex; align-items: center; gap: 8px; }
+.note-input {
+  flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1.5px solid var(--line-strong); border-radius: 12px;
+  background: var(--surface); color: var(--ink); font: 500 1rem/1.4 var(--sans);
+}
+.note-input:focus { outline: none; border-color: var(--edge); box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 28%, transparent); }
+.note-input::placeholder { color: var(--muted); }
+.note-send {
+  flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 12px; cursor: pointer;
+  background: var(--ink); color: var(--on-heading);
+}
+.note-send[disabled] { opacity: .35; cursor: default; }
+.note-send svg { width: 20px; height: 20px; }
+/* In a feedback panel and a say-it-back verdict, the note's parts sit under Claude's byline. */
+.qc-fb > .note-by, .lsn-grade > .note-by { margin-top: -2px; }
+/* Learn and Today */
+.learn-notes:empty, .td-notes:empty { display: none; }
+
+/* ---------- review session ---------- */
+.rv-where { font: 500 .8125rem/1.4 var(--mono); color: var(--muted); letter-spacing: 0; }
+.rv-count { font-family: var(--cond); }
+.rv-close { border-radius: 12px; }
+/* A review's reply row: one line of chips, "Reply…" opening Ask Claude. */
+.note-reply.is-compact { padding-top: 8px; }
+/* A review's byline rides at the end of the panel's head (41-cards.js). */
+.qc-fb-head > .note-by { flex: none; margin-left: auto; }
+/* A review's panel on a small phone, when the chips would keep it out of the dock (41-cards.js
+   fold): "Reply…" sits beside Continue, the other chips wait in the sheet it opens. */
+.qc-fb.is-folded { flex-flow: row wrap; }
+.qc-fb.is-folded > * { flex: 1 1 100%; min-width: 0; }
+.qc-fb.is-folded > .note-reply { flex: none; padding: 0; border: 0; }
+.qc-fb.is-folded > .qc-continue { flex: 1 1 0; margin-top: 0; }
+.qc-fb.is-folded .note-chips { flex: 1; flex-wrap: nowrap; }
+.qc-fb.is-folded .note-chip:not(.note-chip-reply) { display: none; }
+.qc-fb.is-folded .note-chip-reply { border-radius: 14px; padding: 6px 16px; }
+.note-chip-reply svg { width: 16px; height: 16px; margin-right: 4px; vertical-align: -3px; }

@@ -1,0 +1,1037 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  .vx { font-style: italic; }
+  /* Nothing in the picture is selected as text while the radius is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  /* Shapes in ink (navy); the area being counted in a light tint, a second piece (the hole, the lower
+     wedges) in the second tint; the square on the radius in amber; a slip in the warning colour. */
+  .scene .disc { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .disc2 { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .wf1 { fill: var(--k-fill1); }
+  .scene .wf2 { fill: var(--k-fill3); }
+  .scene .edge { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .wcut { fill: none; stroke: var(--k-accent2); stroke-width: 1.25; stroke-linejoin: round; }
+  .scene .hoop { fill: none; stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .ground { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .track { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .rod { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .tick { stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .rad { stroke: var(--k-accent2); stroke-width: 2.25; stroke-linecap: round; }
+  .scene .ctr { fill: var(--k-accent2); }
+  .scene .dim { stroke: var(--k-ink); stroke-width: 1.25; }
+  .scene .dimh { fill: var(--k-ink); }
+  .scene .sq { fill: var(--k-fill2); fill-opacity: .72; stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .ug { stroke: var(--k-amber-line); stroke-width: 1; }
+  .scene .box4 { stroke: var(--k-strong); stroke-width: 1.25; fill: none; }
+  .scene .brk { stroke: var(--k-accent); stroke-width: 1.5; fill: none; }
+  .scene .rad.bad, .scene .dim.bad, .scene .slipc { stroke: var(--k-warn); }
+  .scene .ctr.bad, .scene .dimh.bad { fill: var(--k-warn); }
+  .scene .slipc { fill: none; stroke-width: 2.25; }
+  .scene .rimw { fill: none; stroke: var(--k-warn); stroke-width: 4.5; stroke-linecap: round; }
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lblt { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .vi { font-style: italic; }
+  /* The readout along the top: what the number is (small), then the sum (big). */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The radius Dan drags: its end (the grip) and the picture around it (tap to move it there). */
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Circles and rings drawn to scale and measured across or from the centre, with example pipes, wires, a shaft, a drum and a hatch cover.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 210" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Circumference is 2πr and area is πr², both from the radius. The sizes are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // demo: what a SHOW step plays (dur seconds); slide: the radius Dan can drag once it has played. A
+  // puzzle's picture is `pic`, its sizes in `u`; fb: how long the motion after a right answer plays;
+  // at: when each part of it arrives, in seconds after Check ([start, gap, count] for parts counted one
+  // at a time). slips: which slip gives each wrong answer, and hints: what is said for it. h: the
+  // picture's height.
+  const PICK = 'Tap one of the answers.';
+  // After a right answer. ROLLA: the circle rolls once, laying down its rim, then the sum. WIREA: the
+  // radius, the square on it, then the sum. TWOA: the square on A's radius, then B's four, one at a
+  // time, then the sum. RINGA: the radii (and the hole filled in as a circle of its own), the hole
+  // lifted out, then the sum. BACKA: the square on the radius (r²), the radius (√), the width (× 2).
+  // VERSA: the big wire's four squares one at a time, the small ones' squares, then the sums.
+  const ROLLA = { roll: 0.1, ro: 1.45 };
+  const WIREA = { rad: 0.1, sq: 0.6, ro: 1.1 };
+  const TWOA = { sqA: 0.1, sqB: [0.55, 0.25, 4], ro: 1.75 };
+  const RINGA = { rad: 0.1, out: 0.55, ro: 1.6 };
+  const BACKA = { sq: 0.1, rad: 0.6, dia: 1.1 };
+  const VERSA = { sq: [0.1, 0.25, 4], sm: 1.3, ro: 1.75 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long a counted part takes to arrive; a circle's roll on a demonstration and after an answer; the
+  // wedges fanning out and then closing up; the radius growing; a hole lifted out.
+  const COUNT = 0.3, ROLL_T = 1.4, ROLLA_T = 0.9, OPEN1 = 0.8, OPEN2 = 0.5, GROW_R = 0.8, OUT_T = 0.9, OUTA_T = 0.8;
+
+  const STEPS = [
+    { show: true, demo: 'roll', dur: 4.4, h: 186, name: 'Round once',
+      text: 'Roll a circle once and its rim lays down its *circumference*. For every circle it is just over 3 diameters, a number called *π*, about 3.14. So C = πd.' },
+    { kind: 'pick', pic: 'roll', given: 'd', size: 10, u: 'cm', thing: 'pipe', h: 210, opts: ['31.42 cm', '62.83 cm', '15.71 cm'], want: '31.42 cm',
+      slips: { '62.83 cm': 'dAsR', '15.71 cm': 'half' }, fb: 2.1, at: ROLLA, name: 'Round a pipe',
+      task: 'A pipe is 10 cm across. How far is it round?',
+      why: 'Across is the diameter, so d = 10 cm. The way round is C = πd = π × 10 = 31.42 cm, just over 3 times across.',
+      hint: 'Not quite. Across is the diameter, so use C = πd.',
+      hints: { '62.83 cm': 'Not quite. That is 2 × π × 10, as if 10 cm were the radius. 10 cm is across, so use C = πd.',
+        '15.71 cm': 'Not quite. That is π × 5, only half way round. Use the whole width, C = π × 10.' } },
+    { show: true, demo: 'wedges', dur: 4.3, h: 196, name: 'Wedges into a rectangle',
+      text: 'Cut a circle into wedges and lay them top to tail. They make a rough rectangle πr long, half of the way round, 2πr, and one *radius* tall. So the area is πr × r = πr².' },
+    { show: true, demo: 'grow', dur: 3.5, h: 232, slide: { min: 1, max: 4 }, name: 'Grow the radius',
+      text: 'Drag the radius. The circle covers just over 3 of the 4 squares on its radius, π of them, each r × r. So twice the radius makes four times the area.' },
+    { kind: 'pick', pic: 'wire', size: 2, u: 'mm', thing: 'wire', h: 214, opts: ['3.14 mm²', '12.57 mm²', '6.28 mm²'], want: '3.14 mm²',
+      slips: { '12.57 mm²': 'dAsR', '6.28 mm²': 'round' }, fb: 1.7, at: WIREA, name: 'Halve it first',
+      task: 'This solid round wire is 2 mm across. What is its *cross-section*?',
+      why: 'Halve the diameter first, so r = 1 mm. The cross-section is πr² = π × 1² = 3.14 mm².',
+      hint: 'Not quite. Halve the diameter, then use πr².',
+      hints: { '12.57 mm²': 'Not quite. That is π × 2², using the diameter. πr² needs the radius, half of 2 mm.',
+        '6.28 mm²': 'Not quite. That is 2 × π × 1, the way round. The area is πr².' } },
+    { kind: 'pick', pic: 'two', sizes: [2, 4], u: 'mm', h: 206, opts: ['2 times', '4 times'], want: '4 times', slips: { '2 times': 'linear' }, fb: 2.4, at: TWOA, name: 'Twice as wide',
+      task: 'Solid round wire B is twice as wide across as wire A. How many times A\'s cross-section does it have?',
+      why: 'B\'s radius is twice A\'s, and the radius is squared. The square on B\'s radius holds 2 × 2 = 4 of A\'s squares, so B has 4 times the cross-section, 12.57 mm² against 3.14 mm².',
+      hint: 'Not quite. The radius is squared in πr².',
+      hints: { '2 times': 'Not quite. Two of wire A fit inside B with room to spare. The radius is squared, so twice the width gives 2 × 2 times the area.' } },
+    { show: true, demo: 'ring', dur: 3.9, h: 206, name: 'A ring',
+      text: 'A pipe\'s end is a ring, an *annulus*. Its area is the whole circle less the hole. Work out each with πr², then take one from the other.' },
+    { kind: 'pick', pic: 'ring', sizes: [12, 10], u: 'cm', h: 222, opts: ['34.56 cm²', '3.14 cm²', '138.23 cm²'], want: '34.56 cm²',
+      slips: { '3.14 cm²': 'first', '138.23 cm²': 'dAsR' }, fb: 2.2, at: RINGA, name: 'The metal in a pipe',
+      task: 'A pipe is 12 cm across outside and 10 cm across inside. What is the area of its metal ring?',
+      why: 'Halve both, so the radii are 6 cm and 5 cm. The whole circle is π × 6² = 113.10 cm² and the hole is π × 5² = 78.54 cm², so the ring is 34.56 cm².',
+      hint: 'Not quite. Halve each width, then take the hole\'s area from the whole circle\'s.',
+      hints: { '3.14 cm²': 'Not quite. That is π × (6 − 5)², the area of a circle only 2 cm across. Work out each circle with πr² first, then take one from the other.',
+        '138.23 cm²': 'Not quite. That uses 12 and 10, the widths across. Halve them first, to radii of 6 cm and 5 cm.' } },
+    { kind: 'pick', pic: 'back', r: 3, u: 'cm', h: 204, opts: ['6 cm', '3 cm', '18 cm'], want: '6 cm', slips: { '3 cm': 'radius', '18 cm': 'noroot' }, fb: 1.7, at: BACKA, name: 'Back to the width',
+      task: 'A round shaft\'s end has an area of 28.27 cm². How wide across is it?',
+      why: 'Undo each step. 28.27 ÷ π = 9.00, which is r², so r = √9 = 3 cm. Across is 2 × 3 = 6 cm.',
+      hint: 'Not quite. Divide by π, take the square root to get r, then double it.',
+      hints: { '3 cm': 'Not quite. 3 cm is the radius, from the centre to the rim. Across is twice that.',
+        '18 cm': 'Not quite. 9 is r², not r. Take the square root first, then double it.' } },
+    { kind: 'pick', pic: 'roll', given: 'r', size: 30, u: 'cm', thing: 'drum', h: 210, opts: ['188.50 cm', '94.25 cm', '376.99 cm'], want: '188.50 cm',
+      slips: { '94.25 cm': 'half', '376.99 cm': 'rAsD' }, fb: 2.1, at: ROLLA, name: 'Round the drum',
+      task: 'A cable drum\'s barrel has a radius of 30 cm. How far is it once round the barrel?',
+      why: 'With the radius, C = 2πr = 2 × π × 30 = 188.50 cm. That is the same as πd with d = 60 cm.',
+      hint: 'Not quite. With a radius, use C = 2πr.',
+      hints: { '94.25 cm': 'Not quite. That is π × 30, only half way round. With a radius, use C = 2πr.',
+        '376.99 cm': 'Not quite. That doubles twice, 2 × π × 60. 30 cm is already the radius, so C = 2 × π × 30.' } },
+    { kind: 'pick', pic: 'versus', sizes: [4, 2], u: 'mm', h: 206, opts: ['One 4 mm wire', 'Two 2 mm wires', 'The same'], want: 'One 4 mm wire',
+      slips: { 'Two 2 mm wires': 'count', 'The same': 'linear' }, fb: 2.4, at: VERSA, name: 'One or two',
+      task: 'Which has more cross-section, one solid wire 4 mm across or two solid wires 2 mm across?',
+      why: 'Twice the width makes four times the area. One 4 mm wire has 12.57 mm², and two 2 mm wires have 2 × 3.14 = 6.28 mm², half as much.',
+      hint: 'Not quite. Work out each with πr².',
+      hints: { 'Two 2 mm wires': 'Not quite. There are two of them, but each is small. Both fit inside the 4 mm wire with room to spare.',
+        'The same': 'Not quite. Side by side they are as wide as the 4 mm wire, but area grows with the square of the width.' } },
+    { kind: 'pick', pic: 'wire', size: 0.6, u: 'm', thing: 'cover', h: 214, opts: ['0.28 m²', '1.13 m²', '1.88 m²'], want: '0.28 m²',
+      slips: { '1.13 m²': 'dAsR', '1.88 m²': 'round' }, fb: 1.7, at: WIREA, name: 'A round hatch',
+      task: 'A round hatch cover is 0.6 m across. What is its area?',
+      why: 'Halve the diameter, so r = 0.3 m. Then πr² = π × 0.3² = π × 0.09 = 0.28 m².',
+      hint: 'Not quite. Halve the diameter, then use πr².',
+      hints: { '1.13 m²': 'Not quite. That is π × 0.6², using the diameter. Halve it first, to r = 0.3 m.',
+        '1.88 m²': 'Not quite. That is 2 × π × 0.3, the way round. The area is πr².' } },
+  ];
+  const FINISH = 'Circumference is πd from a diameter, or 2πr from a radius. Area is πr², which needs the radius, so halve a diameter first. Twice as wide makes four times the area, and a ring is the whole circle less the hole.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap, count] for parts counted one
+  // at a time. roll: the diameter named; the circle rolls once, laying down its rim; three diameters laid
+  // under the track one at a time; the bit over and the rule. wedges: the radius named; the cuts; the
+  // wedges fan out and close up into a rough rectangle; its length named; its height named; the area.
+  // grow: the readings at r = 1; the radius grows to 2, its readings arriving as it lands; the comparison.
+  // ring: the whole circle's area; the hole cut; the hole lifted out; its area; the ring's area.
+  const FADE = 0.35;
+  const AT = {
+    roll: { diam: 0.4, roll: 1.3, rods: [2.8, 0.25, 3], ro: 3.8 },
+    wedges: { r: 0.4, cuts: 0.85, open: 1.3, len: 2.8, side: 3.25, ro: 3.7 },
+    grow: { ro: 0.45, grow: 1.8, note: 2.9 },
+    ring: { whole: 0.6, cut: 1.1, out: 1.6, hole: 2.8, ro: 3.3 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const PI = Math.PI;
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const num = (v) => { const a = r3(v); return (a < 0 ? '−' : '') + Math.abs(a); };
+  // Two decimal places, as every worked answer is rounded.
+  const f2 = (v) => (Math.round(v * 100) / 100).toFixed(2);
+  const amt = (v, u) => num(v) + ' ' + u;
+  // The rules: the way round from a diameter, C = πd (so 2πr from a radius), and the area from a radius, πr².
+  const round = (d) => PI * d;
+  const area = (r) => PI * r * r;
+  const areaD = (d) => area(d / 2);
+  // A ring: the whole circle less the hole, each from its own radius.
+  const ringArea = (D, d) => area(D / 2) - area(d / 2);
+  // The shaft: its area as given (rounded), and back to its width: ÷ π, the square root, × 2.
+  const shaftArea = (d) => +f2(area(d.r));
+  const widthOf = (A) => 2 * Math.sqrt(A / PI);
+  // What each slip makes of a puzzle. dAsR: a diameter used as a radius (in 2πr, or in πr²); half: π
+  // times half the size given, only half way round; rAsD: a radius doubled and then used in 2πr; round:
+  // the way round, 2πr, instead of the area; linear: twice the width taken as twice the area; first: the
+  // radii taken away before squaring; radius: the radius given as the width; noroot: r² doubled, without
+  // its square root; count: two wires taken as more than one.
+  function slipOpt(d, s) {
+    if (d.pic === 'roll') {
+      if (s === 'dAsR') return f2(2 * PI * d.size) + ' ' + d.u;
+      if (s === 'half') return f2(PI * (d.given === 'd' ? d.size / 2 : d.size)) + ' ' + d.u;
+      if (s === 'rAsD') return f2(2 * PI * 2 * d.size) + ' ' + d.u;
+    }
+    if (d.pic === 'wire') {
+      if (s === 'dAsR') return f2(area(d.size)) + ' ' + d.u + '²';
+      if (s === 'round') return f2(2 * PI * d.size / 2) + ' ' + d.u + '²';
+    }
+    if (d.pic === 'two' && s === 'linear') return num(d.sizes[1] / d.sizes[0]) + ' times';
+    if (d.pic === 'ring') {
+      if (s === 'first') return f2(area(d.sizes[0] / 2 - d.sizes[1] / 2)) + ' ' + d.u + '²';
+      if (s === 'dAsR') return f2(area(d.sizes[0]) - area(d.sizes[1])) + ' ' + d.u + '²';
+    }
+    if (d.pic === 'back') {
+      if (s === 'radius') return num(Math.round(widthOf(shaftArea(d)) / 2 * 10) / 10) + ' ' + d.u;
+      if (s === 'noroot') return num(Math.round(2 * shaftArea(d) / PI * 10) / 10) + ' ' + d.u;
+    }
+    if (d.pic === 'versus') return { linear: 'The same', count: 'Two ' + d.sizes[1] + ' mm wires' }[s];
+    return null;
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.pic === 'roll') return f2(round(d.given === 'd' ? d.size : 2 * d.size)) + ' ' + d.u;
+    if (d.pic === 'wire') return f2(areaD(d.size)) + ' ' + d.u + '²';
+    if (d.pic === 'two') return num(areaD(d.sizes[1]) / areaD(d.sizes[0])) + ' times';
+    if (d.pic === 'ring') return f2(ringArea(d.sizes[0], d.sizes[1])) + ' ' + d.u + '²';
+    if (d.pic === 'back') return num(Math.round(widthOf(shaftArea(d)) * 10) / 10) + ' ' + d.u;
+    if (d.pic === 'versus') {
+      const one = areaD(d.sizes[0]), two = 2 * areaD(d.sizes[1]);
+      return one > two ? 'One ' + d.sizes[0] + ' mm wire' : one < two ? 'Two ' + d.sizes[1] + ' mm wires' : 'The same';
+    }
+    return null;
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/(\d) mm²/g, '$1 square millimetres').replace(/(\d) cm²/g, '$1 square centimetres').replace(/(\d) m²/g, '$1 square metres')
+    .replace(/(\d) mm\b/g, '$1 millimetres').replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres')
+    .replace(/(?<![\d.,])1 ((?:square )?(?:millimetre|centimetre|metre))s\b/g, '1 $1')
+    .replace(/√/g, ' the square root of ').replace(/π/g, ' pi ').replace(/²/g, ' squared').replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/=/g, ' equals ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, moved: false, c: null }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const st = blank(i); st.res = 'right'; st.moved = true; st.pick = STEPS[i].want; return st; }
+  function slipped(i, o) { const st = blank(i); st.res = 'wrong'; st.moved = true; st.pick = o; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  // C, d and r, the letters in C = πd, 2πr and πr², alone or after π or a number, but not inside a word.
+  const VRE = /(?<![A-Za-z'’])[Cdr](?![A-Za-z'’-])/g;
+  function spans(s) {
+    const out = [];
+    let at = 0, m;
+    VRE.lastIndex = 0;
+    while ((m = VRE.exec(s))) {
+      if (m.index > at) out.push([s.slice(at, m.index), false]);
+      out.push([m[0], true]);
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) out.push([s.slice(at), false]);
+    return out;
+  }
+  function math(el, s) { spans(s).forEach((p) => el.appendChild(p[1] ? K.el('i', { class: 'vx' }, p[0]) : document.createTextNode(p[0]))); }
+  // A hyphened word ("cross-section") stays whole on one line.
+  function plain(el, s) { s.split(/([A-Za-z]+-[A-Za-z]+)/).forEach((b, k) => { if (!b) return; if (k % 2) el.appendChild(K.el('span', { class: 'nw' }, b)); else math(el, b); }); }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) plain(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) plain(el, text.slice(at));
+  }
+  // An amount or a sum stays together on one line ("31.42 cm", "π × 10 = 31.42 cm", "C = πd", "r × r"),
+  // with the stop after it; a long one may break only before an equals sign.
+  const NUMT = '−?\\d[\\d,]*(?:\\.\\d+)?²?(?: (?:mm²|cm²|m²|mm|cm|m)(?![A-Za-z]))?';
+  const TOK = '(?:√\\d+(?:\\.\\d+)?|\\d*π(?:[rd]²?)?|' + NUMT + '|[Cdr]²?(?![A-Za-z]))';
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’*-])' + TOK + '(?: [=+−×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (!m[0]) { GLUE.lastIndex++; continue; }
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) { const sp = K.el('span', { class: 'nw' }); math(sp, b); el.appendChild(sp); } else math(el, b);
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].moved = false; S[i].c = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let H = 210;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; eased where it travels or grows.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const glide = (t0, d) => K.ease(lin(t0, d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r3(r) }));
+  const path = (cls, d, extra) => add(K.svg('path', Object.assign({ class: cls, d: d }, extra || {})));
+  // SVG text, its C, d and r in italics.
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    spans(String(s)).forEach((p) => { if (p[1]) { const ts = K.svg('tspan', { class: 'vi' }); ts.textContent = p[0]; t.appendChild(ts); } else t.appendChild(document.createTextNode(p[0])); });
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, lbl: 13, lblt: 13, rou: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+  // A small arrowhead with its tip at (x, y), pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    path(cls, 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 7 * ux + 3.5 * px) + ' ' + r3(y - 7 * uy + 3.5 * py) + ' L' + r3(x - 7 * ux - 3.5 * px) + ' ' + r3(y - 7 * uy - 3.5 * py) + ' Z');
+  }
+  // A width measured across: a thin line with an arrowhead at each end, short ticks down to the shape
+  // (tick > 0), and its amount above it.
+  function dimH(x1, x2, y, s, warn, tick) {
+    const c = warn ? ' bad' : '';
+    line('dim' + c, x1 + 5, y, x2 - 5, y);
+    head(x1, y, -1, 0, 'dimh' + c); head(x2, y, 1, 0, 'dimh' + c);
+    if (tick) { line('dim' + c, x1, y - 5, x1, y + tick); line('dim' + c, x2, y - 5, x2, y + tick); }
+    text((x1 + x2) / 2, y - 7, s, 'lbl' + (warn ? ' warnt' : ''));
+  }
+  // A radius: from the centre (a dot) out at angle a.
+  function radius(cx, cy, R, a, warn) { const c = warn ? ' bad' : ''; line('rad' + c, cx, cy, cx + R * Math.cos(a), cy + R * Math.sin(a)); circle('ctr' + c, cx, cy, 3); }
+  // A ring: the whole circle less the hole (filled between its two edges).
+  const ringD = (cx, cy, R, r) => 'M' + r3(cx - R) + ' ' + r3(cy) + 'a' + R + ' ' + R + ' 0 1 0 ' + 2 * R + ' 0a' + R + ' ' + R + ' 0 1 0 ' + -2 * R + ' 0Z' +
+    'M' + r3(cx - r) + ' ' + r3(cy) + 'a' + r + ' ' + r + ' 0 1 0 ' + 2 * r + ' 0a' + r + ' ' + r + ' 0 1 0 ' + -2 * r + ' 0Z';
+  // The top half of a circle's rim.
+  const topHalf = (cx, cy, R) => 'M' + r3(cx - R) + ' ' + r3(cy) + 'A' + R + ' ' + R + ' 0 0 1 ' + r3(cx + R) + ' ' + r3(cy);
+  // The square on a radius: from the centre out along the radius and up, n × n unit squares (u px each).
+  function radSquare(cx, cy, side, u) {
+    rect('sq', cx, cy - side, side, side);
+    for (let k = 1; k * u < side - 1e-6; k++) { line('ug', cx + k * u, cy - side, cx + k * u, cy); line('ug', cx, cy - k * u, cx + side, cy - k * u); }
+  }
+  // The readout along the top: what the number is (small), then the sum (big).
+  function readout(big, small, warn) { const w = warn ? ' warnt' : ''; if (small) text(338, 15, small, 'rou' + w, 'end'); text(338, 38, big, 'ro' + w, 'end'); }
+  function readoutQ(small) { if (small) text(338, 15, small, 'rou', 'end'); text(338, 38, '?', 'ro q', 'end'); }
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Round once: a circle rolls once along the ground, a diameter and a point of its rim turning with it,
+  // and lays down a track as long as its rim; three diameters, and the bit over, are laid under the track.
+  const RO = { R: 36, x0: 42, G: 136 };
+  function demoRoll(i, d) {
+    const A = AT.roll, R = RO.R, x0 = RO.x0, G = RO.G, cy = G - R;
+    const da = arr(A.diam), th = 2 * PI * glide(A.roll, ROLL_T), ro = arr(A.ro), cx = x0 + R * th, RY = G + 16;
+    line('ground', 8, G, 332, G);
+    if (th > 0) line('track', x0, G, cx, G);
+    const rods = [0, 1, 2].map((k) => arr(nth(A.rods, k), COUNT));
+    rods.forEach((a, k) => part(a, 3, () => { rod(x0 + 2 * R * k, x0 + 2 * R * (k + 1), RY); text(x0 + R * (2 * k + 1), RY + 18, 'd', 'lblt'); }));
+    part(ro, 3, () => { rod(x0 + 6 * R, x0 + 2 * PI * R, RY); text(x0 + 6 * R + 4, RY + 18, '0.14 d', 'lblt', 'start'); });
+    circle('hoop', cx, cy, R);
+    line('rad', cx - R * Math.cos(th), cy - R * Math.sin(th), cx + R * Math.cos(th), cy + R * Math.sin(th));
+    circle('ctr', cx, cy, 3);
+    circle('ctr', cx + R * Math.cos(PI / 2 + th), cy + R * Math.sin(PI / 2 + th), 4.5);
+    leave(arr(A.roll, 0.3), () => part(da, 0, () => text(x0, cy - 8, 'd', 'lblt')));
+    part(ro, 0, () => readout('C = π × d', 'once round'));
+    const said = ['A circle standing on the ground, with a diameter across it.'];
+    if (th >= PI) said.push('It rolls once to the right, and its rim lays down a straight track, its circumference.');
+    const got = rods.filter((a) => a >= 0.5).length;
+    if (got) said.push(got + ' diameter' + (got > 1 ? 's' : '') + ' laid under the track, end to end.');
+    if (ro >= 0.5) said.push('With 0.14 of a diameter more, the track is π diameters long, about 3.14: C equals pi times d.');
+    return said.join(' ');
+  }
+  function rod(xa, xb, y) { line('rod', xa + 1, y, xb - 1, y); line('tick', xa, y - 5, xa, y + 5); line('tick', xb, y - 5, xb, y + 5); }
+
+  // Wedges into a rectangle: 16 wedges, the upper half's in the first tint and the lower half's in the
+  // second, fan out into two combs, then the lower comb rises into the upper, top to tail. The rough
+  // rectangle is 8 chords long (half the circumference, nearly πr) and one wedge's height tall (nearly r).
+  const WG = (() => {
+    const R = 66, cx = 170, cy = 116, N = 16, D = 2 * PI / N, s = Math.sin(D / 2), c = Math.cos(D / 2), w = 2 * R * s;
+    const xL = cx - 3.75 * w, yb = cy, yt = yb - R * c;
+    return { R, cx, cy, N, D, s, c, w, xL, yb, yt, drop: cy + 6 - yt, len: 8 * w, h: R * c,
+      shape: 'M0 0L' + r3(R * c) + ' ' + r3(-R * s) + 'A' + R + ' ' + R + ' 0 0 1 ' + r3(R * c) + ' ' + r3(R * s) + 'Z' };
+  })();
+  function wedgePoses() {
+    const P = [];
+    for (let k = 0; k < 8; k++) P.push({ top: true, phi: -PI + (k + 0.5) * WG.D, x: WG.xL + k * WG.w, y1: WG.yb, y2: WG.yb, t: -PI / 2 });
+    for (let j = 0; j < 8; j++) P.push({ top: false, phi: PI - (j + 0.5) * WG.D, x: WG.xL + WG.R * WG.s + j * WG.w, y1: WG.yt + WG.drop, y2: WG.yt, t: PI / 2 });
+    return P;
+  }
+  function demoWedges(i, d) {
+    const A = AT.wedges, p1 = glide(A.open, OPEN1), p2 = glide(A.open + OPEN1, OPEN2), ca = arr(A.cuts), ra = arr(A.r);
+    const la = arr(A.len), sa = arr(A.side), ro = arr(A.ro), P = wedgePoses();
+    const tf = (p) => { const x = K.lerp(WG.cx, p.x, p1), y = K.lerp(WG.cy, p.y1, p1) + (p.y2 - p.y1) * p2, a = K.lerp(p.phi, p.t, p1); return 'translate(' + r3(x) + ' ' + r3(y) + ') rotate(' + r3(a * 180 / PI) + ')'; };
+    P.forEach((p) => path(p.top ? 'wf1' : 'wf2', WG.shape, { transform: tf(p) }));
+    leave(ca, () => circle('edge', WG.cx, WG.cy, WG.R));
+    part(ca, 0, () => P.forEach((p) => path('wcut', WG.shape, { transform: tf(p) })));
+    const ar = -PI / 8;
+    leave(arr(A.open, 0.3), () => part(ra, 0, () => {
+      line('rad', WG.cx, WG.cy, WG.cx + WG.R * Math.cos(ar), WG.cy + WG.R * Math.sin(ar)); circle('ctr', WG.cx, WG.cy, 3);
+      text(WG.cx + 21 * Math.cos(ar), WG.cy + 21 * Math.sin(ar) - 9, 'r', 'lblt');
+    }));
+    const right = WG.xL + WG.len, by = WG.yb + WG.R * (1 - WG.c) + 8, bx = right + 8;
+    part(la, 3, () => { path('brk', 'M' + r3(WG.xL) + ' ' + r3(by - 4) + 'V' + r3(by) + 'H' + r3(right) + 'V' + r3(by - 4)); text(WG.xL + WG.len / 2, by + 18, 'πr, half the way round', 'lblt'); });
+    part(sa, 0, () => { path('brk', 'M' + r3(bx - 4) + ' ' + r3(WG.yt) + 'H' + r3(bx) + 'V' + r3(WG.yb) + 'H' + r3(bx - 4)); text(bx + 8, (WG.yt + WG.yb) / 2 + 5, 'r', 'lblt', 'start'); });
+    part(ro, 0, () => readout('πr × r = πr²', 'area'));
+    const said = ['A circle cut into 16 wedges, the upper half\'s and the lower half\'s in two tints.'];
+    if (p2 >= 1) said.push('The wedges are laid top to tail in a rough rectangle, the upper half\'s rim along its top and the lower half\'s along its bottom.');
+    else if (p1 > 0) said.push('The wedges are fanning out.');
+    if (la >= 0.5) said.push('It is half the circumference long, pi r.');
+    if (sa >= 0.5) said.push('It is one radius tall, r.');
+    if (ro >= 0.5) said.push('Its area is pi r times r, which is pi r squared.');
+    return said.join(' ');
+  }
+
+  // Grow the radius: a circle inside the four squares on its radius; the one above the radius is tinted
+  // and split into 1 cm squares. The radius grows from 1 cm to 2 cm, and then
+  // Dan can drag it from 1 cm to 4 cm.
+  const GR = { cx: 100, cy: 138, s: 22, X: 210 };
+  let shownR = null;                                 // the radius drawn, in cm (where the grip goes)
+  function demoGrow(i, d) {
+    const A = AT.grow, st = S[i], moved = st.moved && st.c != null;
+    const g = glide(A.grow, GROW_R), ra = arr(A.ro), na = arr(A.note);
+    const r = moved ? st.c : 1 + g, rp = r * GR.s, cx = GR.cx, cy = GR.cy;
+    shownR = r;
+    circle('wf1', cx, cy, rp);
+    rect('box4', cx - rp, cy - rp, 2 * rp, 2 * rp);
+    line('box4', cx - rp, cy, cx + rp, cy); line('box4', cx, cy - rp, cx, cy + rp);
+    radSquare(cx, cy, rp, GR.s);
+    circle('edge', cx, cy, rp);
+    // the halo round the grip fades in as the demonstration ends (and is there whenever it has stopped)
+    part(moved ? 1 : arr(d.dur - K.SOFT), 0, () => circle('ringp', cx + rp, cy, 15));
+    radius(cx, cy, rp, 0);
+    circle('ctr', cx + rp, cy, 4.5);
+    // the readings in a column beside it: the radius, the square on it, the area
+    const X = GR.X;
+    text(X, 84, 'radius', 'rou', 'start'); text(X, 138, 'r × r', 'rou', 'start'); text(X, 192, 'area, πr²', 'rou', 'start');
+    const vals = (q) => { text(X, 108, amt(q, 'cm'), 'ro', 'start'); text(X, 162, amt(q * q, 'cm²'), 'ro', 'start'); text(X, 216, f2(area(q)) + ' cm²', 'ro', 'start'); };
+    if (moved) vals(st.c);
+    else {
+      part(ra * (1 - arr(A.grow, 0.3)), 0, () => vals(1));
+      part(arr(A.grow + GROW_R - 0.35, 0.3), 0, () => vals(2));
+    }
+    const k = moved ? st.c : 2;
+    if (k > 1) part(moved ? 1 : na, 0, () => readout(num(k * k) + ' × the area', num(k) + ' × the radius of 1 cm (area ' + f2(area(1)) + ' cm²)'));
+    const now = moved ? st.c : g >= 1 ? 2 : 1;
+    const said = ['A circle inside the four squares on its radius, the one above the radius split into 1 centimetre squares.',
+      'The radius is ' + say(amt(now, 'cm')) + '; the square on it holds ' + num(now * now) + ' of those 1 centimetre square' + (now > 1 ? 's' : '') + ', and the circle covers ' + say(f2(area(now)) + ' cm²') + ', pi times the square on its radius.'];
+    if (now > 1) said.push('That is ' + num(now * now) + ' times the area at a radius of 1 centimetre, ' + say(f2(area(1)) + ' cm²') + '.');
+    return said.join(' ');
+  }
+
+  // A ring: a pipe's end, 5 cm and 4 cm radii; the hole is cut and lifted out, leaving the ring.
+  const RG = { cx: 90, cy: 120, s: 12, R: 5, r: 4, hx: 255 };
+  function demoRing(i, d) {
+    const A = AT.ring, R = RG.R * RG.s, r = RG.r * RG.s, cx = RG.cx, cy = RG.cy;
+    const wa = arr(A.whole), ca = arr(A.cut), mv = glide(A.out, OUT_T), ha = arr(A.hole), ro = arr(A.ro), hx = K.lerp(cx, RG.hx, mv);
+    path('wf1', ringD(cx, cy, R, r), { 'fill-rule': 'evenodd' });
+    circle('edge', cx, cy, R);
+    part(ca, 0, () => circle('edge', cx, cy, r));
+    // the hole: the ring's tint until it is cut, then the second tint as a piece of its own
+    leave(ca, () => circle('wf1', hx, cy, r));
+    part(ca, 0, () => { circle('disc2', hx, cy, r); line('rad', hx, cy, hx + r, cy); circle('ctr', hx, cy, 3); text(hx + r / 2, cy - 7, amt(RG.r, 'cm'), 'lbl'); });
+    // the whole circle's radius, out to the left; the hole's own radius points right
+    radius(cx, cy, R, PI);
+    text(cx - R / 2 + 8, cy - 7, amt(RG.R, 'cm'), 'lbl');
+    part(ha, 3, () => text(RG.hx, cy + R + 20, 'π × 4² = ' + f2(area(RG.r)) + ' cm²', 'lbl'));
+    // once the readout gives the ring, the whole circle's working stays as a label under it
+    part(Math.max(0, ro * 2 - 1), 0, () => text(cx, cy + R + 20, 'π × 5² = ' + f2(area(RG.R)) + ' cm²', 'lbl'));
+    part(wa, 0, () => swap(ro, () => readout('π × 5² = ' + f2(area(RG.R)) + ' cm²', 'whole circle'), () => readout(f2(area(RG.R)) + ' − ' + f2(area(RG.r)) + ' = ' + f2(ringArea(2 * RG.R, 2 * RG.r)) + ' cm²', 'ring'), 0));
+    const said = ['A pipe\'s end: a circle of radius 5 centimetres.'];
+    if (wa >= 0.5 && ro < 0.5) said.push('The whole circle is pi times 5 squared, 78.54 square centimetres.');
+    if (ca >= 0.5) said.push('The hole, of radius 4 centimetres, is cut out' + (mv >= 1 ? ' and lifted away, leaving the ring.' : '.'));
+    if (ha >= 0.5) said.push('The hole is pi times 4 squared, 50.27 square centimetres.');
+    if (ro >= 0.5) said.push('The ring is 78.54 minus 50.27, which is 28.27 square centimetres.');
+    return said.join(' ');
+  }
+
+  // --- the puzzles (DO steps) ---
+  // Round a pipe, round the drum: a circle on the ground, its width measured above it or its radius
+  // drawn. A right answer rolls it once, laying down its rim, then gives the sum. A slip is drawn as
+  // what it measures: a circle twice as wide, beside it, or only the top half of the rim.
+  const RL = { R: 38, x0: 46, G: 200 };
+  function drawRoll(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const R = RL.R, x0 = RL.x0, G = RL.G, cy = G - R, th = right ? 2 * PI * glide(A.roll, ROLLA_T) : 0, cx = x0 + R * th, ra = right ? arr(A.ro) : 0;
+    line('ground', 8, G, 332, G);
+    if (th > 0) line('track', x0, G, cx, G);
+    circle('hoop', cx, cy, R);
+    leave(right ? arr(A.roll, 0.3) : 0, () => {
+      if (d.given === 'd') { dimH(x0 - R, x0 + R, cy - R - 12, amt(d.size, d.u), false, 6); circle('ctr', x0, cy, 3); }
+      else { radius(x0, cy, R, 0); text(x0 + R + 6, cy + 5, amt(d.size, d.u), 'lbl', 'start'); }
+    });
+    circle('ctr', cx + R * Math.cos(PI / 2 + th), cy + R * Math.sin(PI / 2 + th), 4.5);
+    if (s === 'half') part(sw, 0, () => path('rimw', topHalf(x0, cy, R)));
+    const R2 = 2 * R, c2 = x0 + R + 48 + R2;
+    if (s === 'dAsR' || s === 'rAsD') part(sw, 0, () => { circle('slipc', c2, G - R2, R2); radius(c2, G - R2, R2, 0, true); text(c2 + R2 / 2, G - R2 - 7, amt(s === 'dAsR' ? d.size : 2 * d.size, d.u), 'lbl warnt'); });
+    const sz = d.given === 'd' ? d.size : 2 * d.size;
+    if (right) swap(ra, () => readoutQ('once round'), () => readout((d.given === 'd' ? 'π × ' + num(d.size) : '2 × π × ' + num(d.size)) + ' = ' + answerOf(d), 'once round'), 0);
+    else if (wrong) swap(sw, () => readoutQ('once round'), () => {
+      if (s === 'half') readout('π × ' + num(d.given === 'd' ? d.size / 2 : d.size) + ' = ' + st.pick, 'only half way round', true);
+      else readout('2 × π × ' + num(s === 'dAsR' ? d.size : 2 * d.size) + ' = ' + st.pick, 'round a circle ' + amt(s === 'dAsR' ? 2 * d.size : 4 * d.size, d.u) + ' across', true);
+    }, 0);
+    else readoutQ('once round');
+    const what = d.thing === 'pipe' ? 'A pipe\'s end, a circle ' + say(amt(d.size, d.u)) + ' across' : 'A cable drum\'s barrel, a circle of radius ' + say(amt(d.size, d.u));
+    const said = [what + ', standing on the ground.'];
+    if (right) said.push('It rolls once and its rim lays down a track ' + say(answerOf(d)) + ' long, pi times ' + say(amt(sz, d.u)) + '.');
+    else if (s === 'half') said.push('The top half of its rim is marked red: ' + say(st.pick) + ' is only half way round.');
+    else if (s) said.push('Beside it, in red, a circle twice as wide, of radius ' + say(amt(s === 'dAsR' ? d.size : 2 * d.size, d.u)) + ': ' + say(st.pick) + ' is the way round that circle.');
+    else said.push('The way round is hidden until you check.');
+    return said.join(' ');
+  }
+  // Halve it first, a round hatch: a circle measured across. A right answer draws the radius, the square
+  // on it, then the sum; a slip draws what it measures: a circle twice as wide, or the rim.
+  const WI = { cx: 120, cy: 128, R: 40 };
+  function drawWire(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const cx = WI.cx, cy = WI.cy, R = WI.R, ra = right ? arr(A.rad) : 0, qa = right ? arr(A.sq) : 0, oa = right ? arr(A.ro) : 0;
+    const name = d.thing === 'wire' ? 'cross-section' : 'area', r = d.size / 2;
+    circle('disc', cx, cy, R);
+    dimH(cx - R, cx + R, cy - R - 12, amt(d.size, d.u), false, 6);
+    part(qa, 0, () => rect('sq', cx, cy - R, R, R));
+    part(ra, 0, () => { radius(cx, cy, R, 0); text(cx + R + 6, cy + 5, amt(r, d.u), 'lbl', 'start'); });
+    if (s === 'dAsR') part(sw, 0, () => { circle('slipc', cx, cy, 2 * R); radius(cx, cy, 2 * R, 0, true); text(cx + 2 * R + 6, cy + 5, amt(d.size, d.u), 'lbl warnt', 'start'); });
+    if (s === 'round') part(sw, 0, () => circle('rimw', cx, cy, R));
+    const sum = 'π × ' + num(r) + '² = ' + st.pick;
+    if (right) swap(oa, () => readoutQ(name), () => readout('π × ' + num(r) + '² = ' + d.want, name), 0);
+    else if (wrong) swap(sw, () => readoutQ(name), () => {
+      if (s === 'dAsR') readout('π × ' + num(d.size) + '² = ' + st.pick, (d.thing === 'wire' ? 'a wire ' : 'a cover ') + amt(2 * d.size, d.u) + ' across', true);
+      else readout('2 × π × ' + num(r) + ' = ' + f2(2 * PI * r) + ' ' + d.u, 'the way round, not the area', true);
+    }, 0);
+    else readoutQ(name);
+    const said = [(d.thing === 'wire' ? 'The end of a solid round wire, ' : 'A round hatch cover, ') + say(amt(d.size, d.u)) + ' across.'];
+    if (right) said.push('Its radius is ' + say(amt(r, d.u)) + ', with the square on it drawn; pi r squared is ' + say(sum.replace(st.pick, d.want)) + '.');
+    else if (s === 'dAsR') said.push('In red, a circle twice as wide, of radius ' + say(amt(d.size, d.u)) + ': ' + say(st.pick) + ' is its area.');
+    else if (s === 'round') said.push('Its rim is marked red: ' + say(f2(2 * PI * r)) + ' is the way round, a length.');
+    else said.push('Its ' + name + ' is hidden until you check.');
+    return said.join(' ');
+  }
+  // Twice as wide: wires A and B, B twice as wide. A right answer draws the square on A's radius, then
+  // B's, its four unit squares one at a time, then the sums; the slip puts two of A inside B, in red.
+  const TW = { ax: 70, bx: 215, cy: 128, u: 12 };
+  function drawTwo(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, ra = TW.u * d.sizes[0], rb = TW.u * d.sizes[1], cy = TW.cy;
+    circle('disc', TW.ax, cy, ra); circle('disc', TW.bx, cy, rb);
+    dimH(TW.ax - ra, TW.ax + ra, cy - ra - 12, amt(d.sizes[0], d.u), false, 6);
+    dimH(TW.bx - rb, TW.bx + rb, cy - rb - 12, amt(d.sizes[1], d.u), false, 6);
+    text(TW.ax, cy + ra + 20, 'wire A', 'lblt'); text(TW.bx, cy + rb + 20, 'wire B', 'lblt');
+    if (right) {
+      part(arr(A.sqA), 0, () => { rect('sq', TW.ax, cy - ra, ra, ra); radius(TW.ax, cy, ra, 0); });
+      [0, 1, 2, 3].forEach((k) => part(arr(nth(A.sqB, k), COUNT), 0, () => rect('sq', TW.bx + (k % 2) * ra, cy - ra - Math.floor(k / 2) * ra, ra, ra)));
+      part(arr(A.sqB[0], COUNT), 0, () => radius(TW.bx, cy, rb, 0));
+    }
+    if (wrong) part(sw, 0, () => { circle('slipc', TW.bx - ra, cy, ra); circle('slipc', TW.bx + ra, cy, ra); });
+    const a1 = f2(areaD(d.sizes[0])), a2 = f2(areaD(d.sizes[1]));
+    if (right) swap(arr(A.ro), () => readoutQ('wire B against wire A'), () => readout('π × ' + num(d.sizes[1] / 2) + '² = ' + num(areaD(d.sizes[1]) / areaD(d.sizes[0])) + ' × π × ' + num(d.sizes[0] / 2) + '²', 'wire B against wire A'), 0);
+    else if (wrong) swap(sw, () => readoutQ('wire B against wire A'), () => readout('2 × ' + a1 + ' = ' + f2(2 * areaD(d.sizes[0])) + ' mm²', 'two of wire A fill half of B', true), 0);
+    else readoutQ('wire B against wire A');
+    const said = ['Two solid round wire ends: wire A, 2 millimetres across, and wire B, 4 millimetres across.'];
+    if (right) said.push('The square on A\'s radius is one small square; the square on B\'s radius holds four of them. B has 12.57 square millimetres, 4 times A\'s 3.14.');
+    else if (wrong) said.push('Two of wire A, drawn in red inside B, leave room to spare: together they have 6.28 square millimetres, half of B.');
+    else said.push('How many times A\'s cross-section B has is hidden until you check.');
+    return said.join(' ');
+  }
+  // The metal in a pipe: a ring 12 cm across outside and 10 cm inside. A right answer halves both into
+  // radii, fills the hole as a circle of its own and lifts it out, then gives the sum.
+  const RI = { cx: 90, cy: 122, s: 10, hx: 250 };
+  function drawRing(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const R = RI.s * d.sizes[0] / 2, r = RI.s * d.sizes[1] / 2, cx = RI.cx, cy = RI.cy, ra = right ? arr(A.rad) : 0, mv = right ? glide(A.out, OUTA_T) : 0, hx = K.lerp(cx, RI.hx, mv);
+    path('disc', ringD(cx, cy, R, r), { 'fill-rule': 'evenodd' });
+    const bad = s === 'dAsR';
+    const dims = (bad) => {
+      dimH(cx - r, cx + r, cy, amt(d.sizes[1], d.u), bad, 0);
+      const y = cy + R + 14;
+      line('dim' + (bad ? ' bad' : ''), cx - R, cy + 4, cx - R, y + 5); line('dim' + (bad ? ' bad' : ''), cx + R, cy + 4, cx + R, y + 5);
+      line('dim' + (bad ? ' bad' : ''), cx - R + 5, y, cx + R - 5, y); head(cx - R, y, -1, 0, 'dimh' + (bad ? ' bad' : '')); head(cx + R, y, 1, 0, 'dimh' + (bad ? ' bad' : ''));
+      text(cx, y + 18, amt(d.sizes[0], d.u), 'lbl' + (bad ? ' warnt' : ''));
+    };
+    const radii = () => { radius(cx, cy, R, PI); text(cx - R / 2 + 8, cy - 7, amt(d.sizes[0] / 2, d.u), 'lbl'); };
+    if (right) {
+      part(Math.max(0, 2 * ra - 1), 0, () => { circle('disc2', hx, cy, r); line('rad', hx, cy, hx + r, cy); circle('ctr', hx, cy, 3); text(hx + r / 2, cy - 7, amt(d.sizes[1] / 2, d.u), 'lbl'); });
+      swap(ra, () => dims(false), radii, 0);
+    } else if (bad) { leave(sw, () => dims(false)); part(sw, 0, () => dims(true)); } else dims(false);
+    if (s === 'first') part(sw, 0, () => { line('rad bad', cx + r, cy, cx + R, cy); circle('slipc', cx + R + 34, cy, RI.s); text(cx + R + 34, cy - RI.s - 8, amt(1, d.u), 'lbl warnt'); });
+    const name = 'the metal ring';
+    const a6 = f2(area(d.sizes[0] / 2)), a5 = f2(area(d.sizes[1] / 2));
+    if (right) swap(arr(A.ro), () => readoutQ(name), () => readout(a6 + ' − ' + a5 + ' = ' + d.want, name), 0);
+    else if (wrong) swap(sw, () => readoutQ(name), () => {
+      if (s === 'first') readout('π × (6 − 5)² = ' + st.pick, 'a circle 2 cm across', true);
+      else readout('π × 12² − π × 10² = ' + st.pick, 'with the widths, not the radii', true);
+    }, 0);
+    else readoutQ(name);
+    const said = ['A pipe\'s end, a ring 12 centimetres across outside and 10 centimetres across inside.'];
+    if (right) said.push('Halved, the radii are 6 and 5 centimetres. The hole, a circle of its own, is lifted out, and the ring is 113.10 minus 78.54, which is 34.56 square centimetres.');
+    else if (s === 'first') said.push('In red, the ring\'s thickness, 1 centimetre, and a circle of that radius: 3.14 square centimetres is its area.');
+    else if (s) said.push('The widths, 12 and 10 centimetres, are marked red: they are diameters, not radii.');
+    else said.push('The ring\'s area is hidden until you check.');
+    return said.join(' ');
+  }
+  // Back to the width: a shaft's end of 28.27 cm². A right answer draws the square on the radius (9 unit
+  // squares: r² = 9), the radius (√9 = 3 cm), then the width (2 × 3 = 6 cm), each with its line of working.
+  const BK = { cx: 95, cy: 128, s: 18, X: 172 };
+  function drawBack(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const R = BK.s * d.r, cx = BK.cx, cy = BK.cy, Ag = shaftArea(d);
+    const qa = right ? arr(A.sq) : 0, ra = right ? arr(A.rad) : 0, da = right ? arr(A.dia) : 0;
+    circle('disc', cx, cy, R);
+    part(qa, 0, () => { radSquare(cx, cy, R, BK.s); text(BK.X, 86, 'r² = ' + f2(Ag) + ' ÷ π = ' + f2(Ag / PI) + ' cm²', 'lbl', 'start'); });
+    part(ra, 0, () => { radius(cx, cy, R, 0); text(BK.X, 116, 'r = √' + num(Math.round(Ag / PI)) + ' = ' + amt(d.r, d.u), 'lbl', 'start'); });
+    part(da, 0, () => {
+      const y = cy + R + 9;
+      line('dim', cx - R + 5, y, cx + R - 5, y); head(cx - R, y, -1, 0, 'dimh'); head(cx + R, y, 1, 0, 'dimh');
+      line('dim', cx - R, y - 6, cx - R, y + 4); line('dim', cx + R, y - 6, cx + R, y + 4);
+      text(cx + R + 8, y + 5, d.want, 'lbl', 'start');
+      text(BK.X, 146, 'd = 2 × ' + num(d.r) + ' = ' + d.want, 'lbl', 'start');
+    });
+    if (s === 'radius') part(sw, 0, () => { radius(cx, cy, R, 0, true); text(cx + R + 6, cy + 5, amt(d.r, d.u), 'lbl warnt', 'start'); });
+    const r9 = Math.round(Ag / PI);
+    if (s === 'noroot') part(sw, 0, () => { radius(cx, cy, BK.s * r9, 0, true); circle('ctr bad', cx + BK.s * r9, cy, 4); text(cx + BK.s * r9 - 4, cy - 9, amt(r9, d.u), 'lbl warnt', 'end'); });
+    if (!wrong) readout(f2(Ag) + ' cm²', 'the end\'s area');
+    else swap(sw, () => readout(f2(Ag) + ' cm²', 'the end\'s area'), () => {
+      if (s === 'radius') readout('r = ' + st.pick, 'only from the centre to the rim', true);
+      else readout('2 × ' + r9 + ' = ' + st.pick, 'as if r were ' + amt(r9, d.u), true);
+    }, 0);
+    const said = ['A round shaft\'s end, a circle of area 28.27 square centimetres.'];
+    if (right) said.push('28.27 divided by pi is 9.00, which is r squared, drawn as a square of 9 unit squares; the square root of 9 is 3, the radius; and twice 3 is 6 centimetres across.');
+    else if (s === 'radius') said.push('The radius, 3 centimetres from the centre to the rim, is marked red.');
+    else if (s) said.push('In red, a radius of 9 centimetres, reaching far past the rim: 9 is r squared, not r.');
+    else said.push('Its width is hidden until you check.');
+    return said.join(' ');
+  }
+  // One or two: one wire 4 mm across and two 2 mm across. A right answer draws the square on each radius,
+  // the big one's four unit squares one at a time, then the sums; a slip puts the two small ones inside
+  // the big one, in red.
+  const VS = { bx: 88, sx: [222, 286], cy: 128, u: 12 };
+  function drawVersus(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, rb = VS.u * d.sizes[0], rs = VS.u * d.sizes[1], cy = VS.cy;
+    circle('disc', VS.bx, cy, rb);
+    VS.sx.forEach((x) => circle('disc', x, cy, rs));
+    text(VS.bx, cy + rb + 20, 'one ' + d.sizes[0] + ' mm wire', 'lblt');
+    text((VS.sx[0] + VS.sx[1]) / 2, cy + rs + 20, 'two ' + d.sizes[1] + ' mm wires', 'lblt');
+    if (right) {
+      [0, 1, 2, 3].forEach((k) => part(arr(nth(A.sq, k), COUNT), 0, () => rect('sq', VS.bx + (k % 2) * rs, cy - rs - Math.floor(k / 2) * rs, rs, rs)));
+      part(arr(A.sq[0], COUNT), 0, () => radius(VS.bx, cy, rb, 0));
+      part(arr(A.sm), 0, () => VS.sx.forEach((x) => { rect('sq', x, cy - rs, rs, rs); radius(x, cy, rs, 0); }));
+    }
+    if (wrong) part(sw, 0, () => { circle('slipc', VS.bx - rs, cy, rs); circle('slipc', VS.bx + rs, cy, rs); });
+    const a1 = f2(areaD(d.sizes[0])), a2 = f2(areaD(d.sizes[1])), two = f2(2 * areaD(d.sizes[1]));
+    if (right) swap(arr(A.ro), () => readoutQ('cross-section'), () => readout(a1 + ' mm² against ' + two + ' mm²', 'one wire against two'), 0);
+    else if (wrong) swap(sw, () => readoutQ('cross-section'), () => readout('2 × ' + a2 + ' = ' + two + ' mm²', 'both fit inside it, with room to spare', true), 0);
+    else readoutQ('cross-section');
+    const said = ['One solid round wire end 4 millimetres across, and two 2 millimetres across.'];
+    if (right) said.push('The square on the big one\'s radius holds four unit squares, and each small one\'s holds one. One 4 millimetre wire has 12.57 square millimetres; the two together have 6.28.');
+    else if (wrong) said.push('In red, the two small wires drawn inside the big one, with room to spare.');
+    else said.push('Which has more is hidden until you check.');
+    return said.join(' ');
+  }
+
+  // ---------- the radius Dan drags (screen 4) ----------
+  // The picture takes a tap (the radius goes to the nearest whole centimetre there); the grip at its end
+  // is dragged, or moved with the arrow keys. The page does not scroll under a finger on it.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  function live() { const d = STEPS[here()]; return !finished && !!d.show && !!d.slide; }
+  function placeGrip(c) {
+    const on = c != null && live();
+    grip.style.display = on ? '' : 'none';
+    board.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const d = STEPS[here()];
+    board.setAttribute('x', 0); board.setAttribute('y', 44); board.setAttribute('width', GR.X - 6); board.setAttribute('height', H - 44);
+    grip.setAttribute('cx', GR.cx + c * GR.s); grip.setAttribute('cy', GR.cy);
+    grip.setAttribute('aria-valuemin', d.slide.min); grip.setAttribute('aria-valuemax', d.slide.max); grip.setAttribute('aria-valuenow', Math.round(c));
+    grip.setAttribute('aria-label', 'The radius. Drag its end, tap the picture, or use the arrow keys to change it a centimetre at a time.');
+    grip.setAttribute('aria-valuetext', say(amt(Math.round(c), 'cm')));
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // A place on the picture as a radius: the nearest whole centimetre out from the centre.
+  const toR = (q) => { const d = STEPS[here()]; return K.clamp(Math.round(Math.hypot(q[0] - GR.cx, q[1] - GR.cy) / GR.s), d.slide.min, d.slide.max); };
+  // Moving the radius ends a demonstration that is still playing: the picture shows finished.
+  function slideTo(c) {
+    if (!live()) return;
+    const st = S[here()];
+    if (anim.playing()) { anim.pause(); T = Infinity; }
+    if (st.moved && st.c === c) return;
+    st.c = c; st.moved = true;
+    K.refresh();
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = e.pointerId; try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q) slideTo(toR(q));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) held = null; }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const d = STEPS[here()], st = S[here()], c = st.moved && st.c != null ? st.c : Math.round(+grip.getAttribute('aria-valuenow'));
+    slideTo(K.clamp(c + by, d.slide.min, d.slide.max));
+  });
+  // A tap anywhere on the picture, the grip included, puts the radius's end there.
+  [board, grip].forEach((n) => n.addEventListener('click', (e) => { if (!live()) return; const q = svgPt(e); if (q) slideTo(toR(q)); }));
+
+  // The scene for a step (the animation calls this every frame).
+  const DEMO = { roll: demoRoll, wedges: demoWedges, grow: demoGrow, ring: demoRing };
+  const PIC = { roll: drawRoll, wire: drawWire, two: drawTwo, ring: drawRing, back: drawBack, versus: drawVersus };
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = d.h;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    shownR = null;
+    const aria = d.show ? DEMO[d.demo](i, d) : PIC[d.pic](i, d, st, right);
+    placeGrip(d.show && d.slide ? shownR : null);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) { st.moved = false; st.c = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      const lab = K.el('span');
+      math(lab, opts[k]);
+      b.el.appendChild(lab);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size };
+      });
+      const lines = Array.from(art.querySelectorAll('line')).filter(vis).map((n) => ({ cls: n.getAttribute('class'), x1: +n.getAttribute('x1'), y1: +n.getAttribute('y1'), x2: +n.getAttribute('x2'), y2: +n.getAttribute('y2') }));
+      const shapes = Array.from(art.querySelectorAll('circle, rect, path, line')).filter(vis).map((n) => ({ tag: n.tagName, cls: n.getAttribute('class') || '', tf: n.getAttribute('transform') || '', r: +n.getAttribute('r') || 0, w: +n.getAttribute('width') || 0 }));
+      return { texts: texts, all: texts.map((t) => t.s), lines: lines, shapes: shapes, H: H };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // No two labels overlap, and every label stays inside the picture.
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5));
+  const red = (g) => g.texts.some((t) => /warnt/.test(t.cls)) || g.shapes.some((c) => /\b(bad|slipc|rimw)\b/.test(c.cls));
+  const big = (g) => (g.texts.filter((t) => /^ro\b/.test(t.cls))[0] || {}).s;
+  K.check('The circumference of a circle is given by the formula C = πd: the circle rolled once lays a track π of its diameters long, three of them and a bit; the pipe measured across is π times that width round, and the drum given its radius is π times twice the radius round', () => {
+    const g = drawn(0, blank(0)), t = g.lines.filter((l) => l.cls === 'track')[0], D = 2 * RO.R;
+    const pipe = STEPS[stepOf((d) => d.thing === 'pipe')], drum = STEPS[stepOf((d) => d.thing === 'drum')];
+    return !!t && K.near(t.x2 - t.x1, PI * D, 1e-3) && 3 * D < t.x2 - t.x1 && t.x2 - t.x1 < 4 * D && g.all.indexOf('0.14 d') >= 0 && K.near(PI - 3, 0.14, 0.005) &&
+      pipe.want === f2(PI * pipe.size) + ' cm' && answerOf(pipe) === pipe.want && drum.want === f2(PI * 2 * drum.size) + ' cm' && answerOf(drum) === drum.want;
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/ztp3xg8' });
+  K.check('The length of the rectangle is equal to half the circumference of the circle, or πr: the opened wedges lie top to tail in a rectangle within a hundredth of πr long and within a fiftieth of r tall, so its area is πr × r, half of each wedge pointing up and half down', () => {
+    const g = drawn(2, blank(2)), P = wedgePoses(), fills = g.shapes.filter((s) => /^wf[12]$/.test(s.cls));
+    const ups = fills.filter((s) => /rotate\(-90\)/.test(s.tf)).length, downs = fills.filter((s) => /rotate\(90\)/.test(s.tf)).length;
+    return K.near(WG.len, PI * WG.R, PI * WG.R / 100) && K.near(WG.h, WG.R, WG.R / 50) && ups === 8 && downs === 8 && P.length === 16 &&
+      K.near(P[8].x - P[0].x, WG.R * WG.s, 1e-9) && K.near(P[0].y2 - P[8].y2, WG.R * WG.c, 1e-9) && big(g) === 'πr × r = πr²';
+  }, { source: 'https://www.nctm.org/Classroom-Resources/ARCs/Measures-of-Circles/Circles-Lesson-2' });
+  K.check('The cross section varies with the square of the diameter: a solid round wire twice as wide across has four times the cross-section, so wire B holds four of wire A\'s squares, and one wire twice as wide has twice the cross-section of two narrow ones together', () => {
+    const two = stepOf((d) => d.pic === 'two'), vs = stepOf((d) => d.pic === 'versus'), g = drawn(two, solved(two));
+    return [0.5, 1, 2, 3, 6].every((x) => K.near(areaD(2 * x) / areaD(x), 4, 1e-9)) && answerOf(STEPS[two]) === '4 times' && STEPS[two].want === '4 times' &&
+      g.shapes.filter((s) => s.cls === 'sq').length === 5 && K.near(areaD(4) / (2 * areaD(2)), 2, 1e-9) && answerOf(STEPS[vs]) === STEPS[vs].want && STEPS[vs].want === 'One 4 mm wire';
+  }, { source: 'https://nvlpubs.nist.gov/nistpubs/Legacy/circ/nbscircular31e4.pdf' });
+  K.check('Difficulty using the variables C, d and r: each wrong answer offered that mixes them up is exactly what the mix-up gives, a width used as a radius, half the width in πd, a radius doubled into twice π r, a radius given as the width, and each has its own hint', () => {
+    const kinds = ['dAsR', 'half', 'rAsD', 'radius'], found = {};
+    const ok = DO.every((i) => { const d = STEPS[i]; return Object.keys(d.slips).every((o) => { const s = d.slips[o]; if (kinds.indexOf(s) < 0) return true; found[s] = true; return slipOpt(d, s) === o && !!d.hints[o]; }); });
+    return ok && kinds.every((k) => found[k]) && slipOpt(STEPS[1], 'dAsR') === '62.83 cm' && slipOpt(STEPS[4], 'dAsR') === '12.57 mm²' && slipOpt(STEPS[9], 'half') === '94.25 cm' && slipOpt(STEPS[8], 'radius') === '3 cm';
+  }, { source: 'https://www.nctm.org/Classroom-Resources/ARCs/Measures-of-Circles/Circles-Lesson-2' });
+  K.check('Twice the radius makes four times the area: at r = 1, 2, 3 and 4 cm the square on the radius holds 1, 4, 9 and 16 unit squares, and the circle covers π of them, 3.14, 12.57, 28.27 and 50.27 cm², drawn to scale', () => {
+    const k = stepOf((d) => d.demo === 'grow');
+    return [1, 2, 3, 4].every((r) => {
+      const g = drawn(k, Object.assign(blank(k), { moved: true, c: r })), cuts = g.lines.filter((l) => l.cls === 'ug').length, disc = g.shapes.filter((s) => s.cls === 'edge')[0];
+      return cuts === 2 * (r - 1) && disc && K.near(disc.r, r * GR.s, 1e-6) && g.all.indexOf(f2(area(r)) + ' cm²') >= 0 && g.all.indexOf(amt(r * r, 'cm²')) >= 0;
+    }) && ['3.14', '12.57', '28.27', '50.27'].join() === [1, 2, 3, 4].map((r) => f2(area(r))).join() && K.near(area(2) / area(1), 4, 1e-9);
+  });
+  K.check('A ring is the whole circle less the hole, each from its own radius: 78.54 − 50.27 = 28.27 cm² and 113.10 − 78.54 = 34.56 cm², the rounded parts giving the rounded whole, while taking the radii away first gives π × 1² = 3.14 cm²', () =>
+    f2(area(5)) === '78.54' && f2(area(4)) === '50.27' && f2(ringArea(10, 8)) === '28.27' && f2(78.54 - 50.27) === '28.27' &&
+    f2(area(6)) === '113.10' && f2(ringArea(12, 10)) === '34.56' && f2(113.10 - 78.54) === '34.56' && f2(area(1)) === '3.14' && f2(area(12) - area(10)) === '138.23');
+  K.check('Each puzzle\'s answer is worked out from its rule: 31.42 cm, 3.14 mm², 4 times, 34.56 cm², 6 cm, 188.50 cm, the one 4 mm wire and 0.28 m²; the shaft\'s 28.27 cm² ÷ π is 9.00, so r = 3 cm', () =>
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) && DO.map((i) => STEPS[i].want).join('|') === '31.42 cm|3.14 mm²|4 times|34.56 cm²|6 cm|188.50 cm|One 4 mm wire|0.28 m²' &&
+    f2(shaftArea(STEPS[8]) / PI) === '9.00' && shaftArea(STEPS[8]) === 28.27 && f2(PI * 0.09) === '0.28');
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it offers is the one a slip gives, shown in the warning colour with its own hint: a width as a radius, half way round, a radius doubled twice, the way round for the area, twice as wide taken as twice the area, the radii taken away first, the radius as the width, r² without its root', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && !!(d.hints && d.hints[o]))) return false;
+      if (!(d.opts.length >= 2 && d.opts.length === slips.length + 1 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return clear(w) && red(w); });
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: its readout asks "?" (the shaft\'s shows only the area given), no radius square, no radius, no lifted hole, no rolled track and nothing in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      if (red(g) || g.all.some((s) => s.indexOf(d.want) >= 0)) return false;
+      if (g.shapes.some((s) => s.cls === 'sq' || s.cls === 'disc2' || s.cls === 'track')) return false;
+      return d.pic === 'back' ? big(g) === '28.27 cm²' && !g.lines.some((l) => l.cls === 'rad') : big(g) === '?';
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other, for every answer, right or wrong, and at every radius Dan can drag', () =>
+    STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i))))) &&
+    [1, 2, 3, 4].every((r) => clear(drawn(3, Object.assign(blank(3), { moved: true, c: r })))));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per item; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 1); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

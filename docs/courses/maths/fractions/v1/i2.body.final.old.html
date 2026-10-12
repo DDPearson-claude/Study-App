@@ -1,0 +1,201 @@
+<!-- kind: concept -->
+<style>
+  .cut .piece1 { fill: var(--k-accent2); }
+  .cut .other { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .cut .copy { fill: var(--k-accent2); }
+  .cut .len { font: 700 13px var(--k-font); fill: var(--k-on-accent2); }
+  .cut .name { font: 800 15px var(--k-font); fill: var(--k-accent2); }
+  .cut .keyt { font: 13px var(--k-font); fill: var(--k-ink); }
+  .cut .rowlab { font: 13px var(--k-font); fill: var(--k-accent); }
+  .cut .endlab { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .cut .endtick { stroke: var(--k-ink); stroke-width: 1.5; }
+  .cut .metre { stroke: var(--k-ink); stroke-width: 2; }
+  .cut .scale { stroke: var(--k-ink); stroke-width: 1.5; }
+  .cut .tick { stroke: var(--k-muted); stroke-width: 1; }
+  .cut .tick.big { stroke: var(--k-ink); stroke-width: 1.5; }
+  .cut .num { font: 13px var(--k-font); fill: var(--k-ink); }
+  .cut .tip { fill: var(--k-accent2); }
+  .cut .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .cut .grip { stroke: var(--k-on-accent2); stroke-width: 1.5; }
+  .cut .hit { fill: var(--k-bg); fill-opacity: 0; }
+</style>
+
+<p class="lead">A 1 m length of cable, 1000 mm, cut into four pieces: the first piece is set by the slider, the other three share the rest equally, and under the bar four copies of the first piece lie end to end from 0.</p>
+
+<svg class="cut" id="scene" viewBox="0 0 340 198" width="100%" role="img" aria-label="">
+  <defs>
+    <clipPath id="edge"><rect x="0" y="100" width="340" height="40"/></clipPath>
+  </defs>
+  <g id="key">
+    <rect class="piece1" x="22" y="3" width="12" height="12" rx="2"/>
+    <text class="keyt" x="39" y="13">first piece</text>
+    <rect class="other" x="116" y="3" width="12" height="12" rx="2"/>
+    <text class="keyt" x="133" y="13">the other three, equal</text>
+  </g>
+  <text class="name" id="name" x="22" y="33"></text>
+  <g id="bar"></g>
+  <text class="rowlab" x="314" y="92" text-anchor="end">four copies of it, from 0</text>
+  <g id="copies" clip-path="url(#edge)"></g>
+  <line class="metre" id="metre" x1="318" y1="70" x2="318" y2="172"/>
+  <line class="endtick" id="endtick" y1="134" y2="140"/>
+  <text class="endlab" id="endlab" y="151"><tspan id="end1"></tspan><tspan id="end2" dy="14"></tspan></text>
+  <g id="scale"></g>
+  <g id="handle">
+    <rect class="hit" x="-18" y="70" width="36" height="38"/>
+    <path class="tip" d="M-8 80 L8 80 L0 70 Z"/>
+    <circle class="knob" cx="0" cy="92" r="12"/>
+    <line class="grip" x1="-5" y1="89" x2="5" y2="89"/>
+    <line class="grip" x1="-5" y1="95" x2="5" y2="95"/>
+  </g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">A piece is a quarter when four of its size make the metre: the whole divided by the piece says how many fit.</p>
+
+<script>
+  // The whole: one metre of cable, 1000 mm, cut into four pieces; the test row copies the first piece four times.
+  const WHOLE = 1000, PIECES = 4, COPIES = 4;
+  const SOURCE = 'https://en.wikipedia.org/wiki/Fraction';   // [3]: the bottom number says how many such pieces make up the whole
+  // The drawing: 0 at x = 22, 1000 mm at x = 318, so one millimetre is 0.296 units.
+  const X0 = 22, X1 = 318, S = (X1 - X0) / WHOLE;
+  const xAt = (mm) => X0 + mm * S;
+  const BAR_Y = 40, BAR_H = 30, ROW_Y = 108, ROW_H = 26, SCALE_Y = 172;
+
+  // The rule: how many pieces of a size fit the metre is the whole divided by the piece.
+  const fitOf = (mm) => WHOLE / mm;
+  const otherOf = (first) => (WHOLE - first) / (PIECES - 1);
+  const copiesEnd = (first) => COPIES * first;
+  const isWhole = (v) => K.near(v, Math.round(v), 1e-9);
+  // A piece's name follows the fit count: 1/4 at 4, 1/5 at 5, 1/10 at 10; no name from an equal cut otherwise.
+  const nameOf = (fit) => isWhole(fit) ? '1/' + Math.round(fit) + ' of the metre' : 'not one piece of any equal cut';
+
+  K.control({
+    id: 'firstPiece', label: 'Length of the first piece', hint: 'Or drag the first cut along the bar',
+    min: 100, max: 400, step: 50, value: 250, unit: 'mm', snap: [100, 200, 250, 400], into: '#controls',
+  });
+  K.stage('#scene', '#controls');
+  // Dan can move the first cut itself: the slider follows it.
+  K.drag('#handle', { control: 'firstPiece', toValue: (x) => (x - X0) / S });
+
+  K.readout({ id: 'fitFirst', label: 'Pieces this size in a metre', decimals: 2, big: true, into: '#outs' });
+  K.readout({ id: 'otherPiece', label: 'Each of the other three', unit: 'mm', decimals: 0, into: '#outs' });
+  K.readout({ id: 'fitOthers', label: 'Pieces their size in a metre', decimals: 2, into: '#outs' });
+
+  K.model((p) => ({
+    fitFirst: fitOf(p.firstPiece),
+    otherPiece: otherOf(p.firstPiece),
+    fitOthers: fitOf(otherOf(p.firstPiece)),
+  }));
+
+  // The scale both rows are measured against, drawn once: a tick every 100 mm, taller at 0, 500 and 1000.
+  const scale = document.getElementById('scale');
+  scale.appendChild(K.svg('line', { class: 'scale', x1: X0, y1: SCALE_Y, x2: X1, y2: SCALE_Y }));
+  for (let mm = 0; mm <= WHOLE; mm += 100) {
+    const big = mm % 500 === 0;
+    scale.appendChild(K.svg('line', { class: 'tick' + (big ? ' big' : ''), x1: xAt(mm), y1: SCALE_Y, x2: xAt(mm), y2: SCALE_Y + (big ? 9 : 5) }));
+  }
+  scale.appendChild(K.svg('text', { class: 'num', x: X0, y: SCALE_Y + 22, 'text-anchor': 'start' }, '0'));
+  scale.appendChild(K.svg('text', { class: 'num', x: xAt(500), y: SCALE_Y + 22, 'text-anchor': 'middle' }, '500'));
+  scale.appendChild(K.svg('text', { class: 'num', x: X1, y: SCALE_Y + 22, 'text-anchor': 'end' }, '1000 mm'));
+
+  const svg = document.getElementById('scene');
+  function draw(p, o) {
+    const L = p.firstPiece, other = o.otherPiece, end = copiesEnd(L), xL = xAt(L), xEnd = xAt(end);
+    const fitTxt = K.fmt(o.fitFirst, { decimals: 2 }), otherTxt = K.fmt(other, { decimals: 0 });
+    const fitOTxt = K.fmt(o.fitOthers, { decimals: 2 }), endTxt = String(end);   // whole millimetres, written plainly as the explanation writes them
+    const name = nameOf(o.fitFirst);
+
+    // The bar: the metre cut into four, the first piece from 0 with its length written on it, then the other three.
+    const bar = document.getElementById('bar');
+    bar.textContent = '';
+    bar.appendChild(K.svg('rect', { class: 'piece1', x: X0, y: BAR_Y, width: xL - X0, height: BAR_H, rx: 2 }));
+    bar.appendChild(K.svg('text', { class: 'len', x: (X0 + xL) / 2, y: BAR_Y + 19, 'text-anchor': 'middle' }, String(L)));
+    for (let i = 0; i < PIECES - 1; i++) {
+      bar.appendChild(K.svg('rect', { class: 'other', x: xL + i * other * S, y: BAR_Y, width: other * S, height: BAR_H }));
+    }
+    document.getElementById('name').textContent = name;
+    document.getElementById('handle').setAttribute('transform', 'translate(' + xL + ' 0)');
+
+    // The test row: four copies of the first piece, end to end from 0, cut off at the drawing's edge if they run past it.
+    const copies = document.getElementById('copies');
+    copies.textContent = '';
+    for (let i = 0; i < COPIES; i++) {
+      copies.appendChild(K.svg('rect', { class: 'copy', x: xAt(i * L) + 1, y: ROW_Y, width: L * S - 2, height: ROW_H, rx: 2 }));
+    }
+    // Where the copies end, marked on the row and said beside it.
+    const onPage = xEnd <= X1 + 0.5;
+    const tick = document.getElementById('endtick');
+    tick.style.display = onPage ? '' : 'none';
+    tick.setAttribute('x1', xEnd); tick.setAttribute('x2', xEnd);
+    const lab = document.getElementById('endlab');
+    const fitsRight = onPage && xEnd + 150 <= X1;
+    lab.setAttribute('x', fitsRight ? xEnd + 4 : onPage ? xEnd - 4 : X1 - 4);
+    lab.setAttribute('text-anchor', fitsRight ? 'start' : 'end');
+    const e1 = document.getElementById('end1'), e2 = document.getElementById('end2');
+    e2.setAttribute('x', lab.getAttribute('x'));
+    if (end === WHOLE) { e1.textContent = COPIES + ' copies end at ' + endTxt + ' mm'; e2.textContent = 'right on the mark'; }
+    else if (end < WHOLE) { e1.textContent = COPIES + ' copies end at ' + endTxt + ' mm'; e2.textContent = 'short of the mark'; }
+    else { e1.textContent = COPIES + ' copies run to ' + endTxt + ' mm'; e2.textContent = 'past the mark, cut off'; }
+
+    // The picture's description names the other three without their length: that number is the readout's alone.
+    svg.setAttribute('aria-label', 'A 1000 mm metre of cable cut into four pieces: the first piece is ' + L + ' mm and named ' + name +
+      '; the other three share the rest equally. Under it, four copies of the first piece laid end to end from 0 ' +
+      (end === WHOLE ? 'end right on the 1000 mm mark.' : end < WHOLE ? 'end at ' + endTxt + ' mm, short of the 1000 mm mark.' : 'run on to ' + endTxt + ' mm, past the 1000 mm mark.'));
+
+    // The sentence: the first piece and what its copies do, then the other three.
+    let first;
+    if (end === WHOLE) {
+      first = 'The first piece is ' + L + ' mm, and exactly ' + fitTxt + ' pieces of that size make the 1000 mm metre, so its four copies end right on the 1000 mm mark: it is 1/4 of the metre.';
+    } else if (isWhole(o.fitFirst)) {
+      first = 'The first piece is ' + L + ' mm, and ' + fitTxt + ' pieces of that size make the 1000 mm metre, so its four copies stop at ' + endTxt +
+        ' mm, short of the 1000 mm mark: it is ' + name + ', although it is still one of four pieces on the bar.';
+    } else {
+      first = 'The first piece is ' + L + ' mm, and ' + fitTxt + ' pieces of that size make the 1000 mm metre, not a whole number, so its four copies ' +
+        (end < WHOLE ? 'stop at ' + endTxt + ' mm, short of' : 'run on to ' + endTxt + ' mm, past') +
+        ' the 1000 mm mark, and no equal cut of the metre has a piece this size: it is ' + name + ', although it is still one of four pieces on the bar.';
+    }
+    let rest;
+    if (end === WHOLE) {
+      rest = ' The other three are ' + otherTxt + ' mm each, the same size, and ' + fitOTxt + ' of those make the metre too: four equal pieces, four honest quarters.';
+    } else if (isWhole(o.fitOthers)) {
+      rest = ' The other three are ' + otherTxt + ' mm each, and exactly ' + fitOTxt + ' of those make the metre: honest fifths, ' + nameOf(o.fitOthers) + ' each, though none of the four pieces is a quarter.';
+    } else {
+      rest = ' The other three are ' + otherTxt + ' mm each, and ' + fitOTxt + ' of those make the metre, not a whole number, so they are not quarters either.';
+    }
+    document.getElementById('say').textContent = first + rest;
+  }
+  K.update(draw);
+
+  // Known answers, worked out by hand from the rule.
+  K.check('At 250 mm, 1000 ÷ 250 = 4 pieces fit, the copies end at 1000 mm, the other three are 250 mm and fit 4 times: 1/4 of the metre', () => {
+    const o = K.at({ firstPiece: 250 });
+    return K.near(o.fitFirst, 4, 1e-9) && K.near(o.otherPiece, 250, 1e-9) && K.near(o.fitOthers, 4, 1e-9) && copiesEnd(250) === 1000 && nameOf(o.fitFirst) === '1/4 of the metre';
+  });
+  K.check('At 200 mm, 5 pieces fit and the copies stop at 800 mm, short of the metre; the other three are 267 mm and 3.75 of them fit: 1/5 of the metre', () => {
+    const o = K.at({ firstPiece: 200 });
+    return K.near(o.fitFirst, 5, 1e-9) && copiesEnd(200) === 800 && K.near(o.otherPiece, 800 / 3, 1e-9) && K.fmt(o.otherPiece, { decimals: 0 }) === '267' &&
+      K.near(o.fitOthers, 3.75, 1e-9) && nameOf(o.fitFirst) === '1/5 of the metre' && nameOf(o.fitOthers) === 'not one piece of any equal cut';
+  });
+  K.check('At 100 mm, 10 pieces fit (1/10 of the metre) and the copies reach only 400 mm; the other three are 300 mm, four of which would be 1200 mm, past the end, and 3.33 fit', () => {
+    const o = K.at({ firstPiece: 100 });
+    return K.near(o.fitFirst, 10, 1e-9) && copiesEnd(100) === 400 && K.near(o.otherPiece, 300, 1e-9) && COPIES * o.otherPiece === 1200 &&
+      K.near(o.fitOthers, 10 / 3, 1e-9) && K.fmt(o.fitOthers, { decimals: 2 }) === '3.33' && nameOf(o.fitFirst) === '1/10 of the metre';
+  });
+  K.check('At 400 mm only 2.5 pieces fit, so the copies run on to 1600 mm and the piece is not one piece of any equal cut; the other three are 200 mm, honest fifths', () => {
+    const o = K.at({ firstPiece: 400 });
+    return K.near(o.fitFirst, 2.5, 1e-9) && copiesEnd(400) === 1600 && nameOf(o.fitFirst) === 'not one piece of any equal cut' &&
+      K.near(o.otherPiece, 200, 1e-9) && K.near(o.fitOthers, 5, 1e-9) && nameOf(o.fitOthers) === '1/5 of the metre';
+  });
+  K.check('The bottom number says how many pieces of this size make up the whole: the label reads one over that count exactly when a whole number of pieces of the first piece\'s size make the metre, and the four pieces on the bar always add up to the whole metre', () => {
+    for (let L = 100; L <= 400; L += 50) {
+      const o = K.at({ firstPiece: L }), whole = isWhole(o.fitFirst);
+      if (!K.near(L + (PIECES - 1) * o.otherPiece, WHOLE, 1e-9)) return false;
+      if (whole !== /^1\/\d+ of the metre$/.test(nameOf(o.fitFirst))) return false;
+      if (whole && !K.near(Math.round(o.fitFirst) * L, WHOLE, 1e-9)) return false;
+    }
+    return true;
+  }, { source: SOURCE });
+
+  K.ready();
+</script>

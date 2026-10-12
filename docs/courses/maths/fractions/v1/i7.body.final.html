@@ -1,0 +1,192 @@
+<!-- kind: mechanism -->
+<style>
+  .fx .rest { fill: var(--k-panel); }
+  .fx .shaded { fill: var(--k-accent2); }
+  .fx .hatch { fill: url(#fx-hatch); }
+  .fx .edge { fill: none; stroke: var(--k-strong); stroke-width: 1.5; }
+  .fx .qcut { stroke: var(--k-strong); stroke-width: 2.5; }
+  .fx .cut { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 1; animation: fx-run .3s ease-out; }
+  .fx .cut.onrun { stroke: var(--k-on-accent2); }
+  .fx .keyt, .fx .lab { font: 16px var(--k-font); fill: var(--k-ink); }
+  .fx .side { font: 600 16px var(--k-font); fill: var(--k-ink); }
+  .fx .name { font: 700 22px var(--k-font); fill: var(--k-accent2); }
+  .fx .name.count { fill: var(--k-ink); }
+  .fx .name .dim { font: 500 17px var(--k-font); fill: var(--k-ink); }
+  .fx .why { font: 16px var(--k-font); fill: var(--k-muted); }
+  .fx #bars { cursor: ew-resize; touch-action: none; }
+  @keyframes fx-run { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+</style>
+
+<p class="lead">A rectangle for a circuit's full rated load, 32 A as an example, in four equal upright quarters with the left three shaded: the three-quarter load. A second cut runs across it from the left, through the quarters already there.</p>
+
+<svg class="fx" id="scene" viewBox="0 0 340 244" width="100%" role="img" aria-label="">
+  <defs>
+    <pattern id="fx-hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="var(--k-on-accent2)" stroke-width="1.6" stroke-opacity=".85"/>
+    </pattern>
+  </defs>
+  <g id="key">
+    <rect class="shaded" x="14" y="4" width="14" height="14" rx="2"/>
+    <text class="keyt" x="34" y="16">shaded: the three-quarter load</text>
+    <rect class="shaded" x="14" y="26" width="14" height="14" rx="2"/>
+    <rect class="hatch" x="14" y="26" width="14" height="14" rx="2"/>
+    <text class="keyt" x="34" y="38">kept part</text>
+    <line class="cut" x1="128" y1="33" x2="142" y2="33" pathLength="1"/>
+    <text class="keyt" x="148" y="38">the second cut</text>
+  </g>
+  <text class="lab" x="14" y="60">4 quarters, 3 shaded</text>
+  <text class="lab" x="270" y="60" text-anchor="end">whole: 32 A</text>
+  <g id="bars"></g>
+  <g id="rows"></g>
+  <g id="names"></g>
+</svg>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Tops by tops and bottoms by bottoms, because the second cut runs across every piece the first cut made.</p>
+
+<script>
+  // Source [2] of the lesson: 3/4 × 1/2 = 3/8. Source [4]: fractions are always divided into equal parts.
+  const SRC_PRODUCT = 'https://www.bbc.co.uk/bitesize/articles/zxdmxbk';
+  const SRC_EQUAL = 'https://www.bbc.co.uk/bitesize/articles/zq2yfrd';
+
+  // The whole: a 32 A rated load (chosen) in 4 quarters (what quarter means), 3 of them shaded (chosen).
+  const WHOLE_A = 32, QUARTERS = 4, SHADED = 3;
+  const QUARTER_A = WHOLE_A / QUARTERS;                 // 32 ÷ 4 = 8 A in one quarter
+  // Each fraction to take: the rows the second cut makes in a quarter (its bottom) and the rows kept (its top).
+  const FR = {
+    'A half': { rows: 2, keep: 1 },
+    'A third': { rows: 3, keep: 1 },
+    'Two thirds': { rows: 3, keep: 2 },
+    'A quarter': { rows: 4, keep: 1 },
+    'Three quarters': { rows: 4, keep: 3 },
+  };
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  // Amps, written the way the explanation writes them: 12 A, about 2.7 A.
+  const amps = (v) => K.fmt(v, { decimals: Number.isInteger(Math.round(v * 10) / 10) ? 0 : 1 }) + ' A';
+  const about = (v) => (Number.isInteger(Math.round(v * 10) / 10) ? '' : 'about ') + amps(v);
+  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : many);
+
+  // The rule, from the pieces. Pieces in the whole: the quarters not yet crossed plus each crossed
+  // quarter times the rows the cut makes. Pieces kept: the shaded quarters crossed times the rows
+  // kept. The load is worked from amounts: each crossed shaded quarter keeps the chosen fraction of 8 A.
+  function rule(q, f) {
+    const shadedCrossed = Math.min(q, SHADED);
+    const piecesInWhole = (QUARTERS - q) + q * f.rows;
+    const piecesKept = shadedCrossed * f.keep;
+    const loadKept = shadedCrossed * (QUARTER_A * f.keep / f.rows);
+    const equal = q === 0 || q === QUARTERS;
+    let name, simpler = '';
+    if (q === 0) name = SHADED + '/' + QUARTERS;
+    else if (!equal) name = piecesKept + ' of ' + piecesInWhole + ' pieces';
+    else {
+      name = piecesKept + '/' + piecesInWhole;
+      const d = gcd(piecesKept, piecesInWhole);
+      if (d > 1) simpler = (piecesKept / d) + '/' + (piecesInWhole / d);
+    }
+    return { piecesInWhole, piecesKept, loadKept, equal: equal ? 'yes' : 'no', name, simpler };
+  }
+
+  // The cause Dan controls: how far the second cut has run, by the slider or by dragging across the rectangle.
+  const X0 = 14, QW = 64, X1 = X0 + QUARTERS * QW, Y0 = 68, H = 118, Y1 = Y0 + H;
+  K.control({ id: 'quartersCrossed', label: 'Quarters the cut has crossed', min: 0, max: 4, step: 1, value: 0, unit: 'of 4', snap: [3, 4], into: '#controls' });
+  K.choice({ id: 'takeFraction', label: 'Fraction of the shaded to take', options: Object.keys(FR), value: 0, into: '#controls' });
+  K.stage('#scene', '#controls');
+  K.drag('#bars', { control: 'quartersCrossed', toValue: (x) => K.clamp(Math.round((x - X0) / QW), 0, QUARTERS) });
+  K.readout({ id: 'loadKept', label: 'Load of the kept part', fmt: amps, into: '#outs' });
+
+  K.model((p) => rule(p.quartersCrossed, FR[p.takeFraction]));
+
+  const svg = document.getElementById('scene');
+  const g = (id) => { const e = document.getElementById(id); e.textContent = ''; return e; };
+  const text = (cls, x, y, anchor, ...kids) => K.svg('text', { class: cls, x, y, 'text-anchor': anchor }, ...kids);
+
+  function draw(p, o) {
+    const q = p.quartersCrossed, f = FR[p.takeFraction], rowH = H / f.rows;
+    const bars = g('bars');
+    for (let i = 0; i < QUARTERS; i++) {
+      const x = X0 + i * QW, shaded = i < SHADED;
+      bars.appendChild(K.svg('rect', { class: shaded ? 'shaded' : 'rest', x, y: Y0, width: QW, height: H }));
+      if (i >= q) continue;
+      // The cut has crossed this quarter: it is in rows, and in a shaded quarter the top rows are kept.
+      if (shaded) bars.appendChild(K.svg('rect', { class: 'hatch', x, y: Y0, width: QW, height: rowH * f.keep }));
+      for (let r = 1; r < f.rows; r++) {
+        bars.appendChild(K.svg('line', { class: 'cut' + (shaded ? ' onrun' : ''), x1: x, y1: Y0 + r * rowH, x2: x + QW, y2: Y0 + r * rowH, pathLength: 1 }));
+      }
+    }
+    for (let i = 1; i < QUARTERS; i++) bars.appendChild(K.svg('line', { class: 'qcut', x1: X0 + i * QW, y1: Y0, x2: X0 + i * QW, y2: Y1 }));
+    bars.appendChild(K.svg('rect', { class: 'edge', x: X0, y: Y0, width: QUARTERS * QW, height: H, rx: 2 }));
+
+    // Beside the rectangle: the rows the cut makes and how many of them are kept.
+    const rows = g('rows');
+    if (q > 0) {
+      rows.appendChild(text('side', X1 + 7, Y0 + H / 2 - 4, 'start', f.rows + ' rows'));
+      rows.appendChild(text('side', X1 + 7, Y0 + H / 2 + 18, 'start', f.keep + ' kept'));
+    }
+
+    // Beneath: what the picture can honestly call the kept part.
+    const names = g('names');
+    const cx = (X0 + X1) / 2;
+    // An honest name (3/4, 3/8) is drawn as the main thing; a count of unequal pieces is not a name, and is drawn in ink.
+    const name = text('name' + (o.equal === 'yes' ? '' : ' count'), cx, Y1 + 30, 'middle', o.name);
+    if (o.simpler) name.appendChild(K.svg('tspan', { class: 'dim' }, ' = ' + o.simpler));
+    names.appendChild(name);
+    const why = q === 0 ? 'nothing taken yet'
+      : o.equal === 'no' ? 'unequal pieces: no bottom number'
+      : 'tops ' + SHADED + ' × ' + f.keep + ', bottoms ' + QUARTERS + ' × ' + f.rows;
+    names.appendChild(text('why', cx, Y1 + 54, 'middle', why));
+
+    svg.setAttribute('aria-label', 'A rectangle for a 32 A load in 4 upright quarters, 3 of them shaded. ' +
+      (q === 0 ? 'No second cut has run yet, so the label beneath reads 3/4.'
+        : 'A second cut has crossed ' + plural(q, 'quarter', 'quarters') + ' from the left, splitting each into ' + f.rows + ' equal rows, with the top ' + plural(f.keep, 'row', 'rows') + ' of each shaded quarter hatched as the kept part. The label beneath reads ' + o.name + (o.simpler ? ', which is ' + o.simpler : '') + '.'));
+
+    // The sentence: the cause (how far the cut has run), then what that does to the pieces and the name.
+    const perQ = QUARTER_A * f.keep / f.rows;
+    let s;
+    if (q === 0) {
+      s = 'The whole, 32 A, is in 4 equal quarters and 3 are shaded: the three-quarter load, 3 × 8 A = 24 A. No second cut has run yet, so nothing is kept and the label can honestly read 3/4. Run the cut across one quarter and it splits into ' + f.rows + ' rows.';
+    } else if (q < SHADED) {
+      s = 'The cut has crossed ' + plural(q, 'shaded quarter', 'shaded quarters') + ', splitting ' + (q === 1 ? 'it' : 'each') + ' into ' + f.rows + ' equal rows, and the top ' + plural(f.keep, 'row', 'rows') + ' ' + (f.keep === 1 ? 'is' : 'are') + ' kept: ' + plural(o.piecesKept, 'piece', 'pieces') + '. A quarter is 8 A and ' + f.keep + ' of its ' + f.rows + ' rows is ' + about(perQ) + ', so the kept part is ' + amps(o.loadKept) + ' so far. The other ' + (QUARTERS - q) + ' quarters are still whole, so the ' + o.piecesInWhole + ' pieces are of two sizes, and ' + o.piecesKept + ' of ' + o.piecesInWhole + ' is a count, not a fraction.';
+    } else if (q === SHADED) {
+      s = 'The cut has crossed all 3 shaded quarters, so the kept part is complete: ' + f.keep + ' of every quarter\'s ' + f.rows + ' rows, ' + about(perQ) + ' each, ' + amps(o.loadKept) + ' in all. But the unshaded quarter is still one whole piece, so the whole holds ' + o.piecesInWhole + ' pieces of two sizes, and ' + o.piecesKept + ' of ' + o.piecesInWhole + ' is not a fraction' +
+        (f.rows === 2 && f.keep === 1 ? ': 3/7 of 32 A would be about 13.7 A, not 12 A' : '') + '. Run the cut across the last quarter and the name appears.';
+    } else {
+      s = 'The cut has crossed all 4 quarters, the unshaded one too, so every quarter is in ' + f.rows + ' rows and the whole is 4 × ' + f.rows + ' = ' + o.piecesInWhole + ' equal pieces. The kept part is 3 shaded quarters wide and ' + plural(f.keep, 'row', 'rows') + ' tall, 3 × ' + f.keep + ' = ' + o.piecesKept + ' of them: ' + o.name + (o.simpler ? ', which is ' + o.simpler : '') + '. Tops multiplied over bottoms multiplied, and the load has not moved: still ' + amps(o.loadKept) +
+        (f.rows === 2 && f.keep === 1 ? ', because an eighth of 32 A is 4 A and 3 × 4 = 12 A' : '') + '.';
+    }
+    document.getElementById('say').textContent = s;
+  }
+  K.update(draw);
+
+  // Known answers, worked out by hand.
+  K.check('Nothing crossed: 4 quarters, 0 pieces kept, 0 A, and the label reads 3/4', () => {
+    const o = K.at({ quartersCrossed: 0 });
+    return o.piecesInWhole === 4 && o.piecesKept === 0 && o.loadKept === 0 && o.name === '3/4' && o.equal === 'yes';
+  });
+  K.check('For a half the pieces in the whole climb 4, 5, 6, 7, 8 as the cut crosses each quarter, 3 + 1 × 2 = 5 and so on, and only at 0 and 4 crossed are they all equal', () =>
+    [4, 5, 6, 7, 8].every((n, q) => K.at({ quartersCrossed: q, takeFraction: 'A half' }).piecesInWhole === n) &&
+    [0, 1, 2, 3, 4].every((q) => (K.at({ quartersCrossed: q, takeFraction: 'A half' }).equal === 'yes') === (q === 0 || q === 4)));
+  K.check('At 4 crossed for a half, 3 × 1 = 3 pieces kept of 4 × 2 = 8: the label reads 3/8', () => {
+    const o = K.at({ quartersCrossed: 4, takeFraction: 'A half' });
+    return o.piecesKept === 3 * 1 && o.piecesInWhole === 4 * 2 && o.name === '3/8' && o.simpler === '';
+  });
+  K.check('Half of three-quarters is three-quarters multiplied by a half, three-eighths', () =>
+    K.at({ quartersCrossed: 4, takeFraction: 'A half' }).name === '3/8' && K.near(3 / 4 * (1 / 2), 3 / 8, 1e-9), { source: SRC_PRODUCT });
+  K.check('By amounts, 3 crossed shaded quarters keep 3 × (8 ÷ 2) = 12 A, still 12 A at 4 crossed; 3/8 of 32 A is 3 × 4 = 12 A too, while 3/7 of 32 A would be about 13.7 A', () =>
+    K.near(K.at({ quartersCrossed: 3, takeFraction: 'A half' }).loadKept, 3 * (8 / 2), 1e-9) && K.near(K.at({ quartersCrossed: 4, takeFraction: 'A half' }).loadKept, 12, 1e-9) &&
+    K.near(3 * (32 / 8), 12, 1e-9) && K.near(32 * 3 / 7, 13.7, 0.05) && !K.near(32 * 3 / 7, 12, 0.5));
+  K.check('The ends for the other choices: a third 3/12 = 1/4 and 8 A, two thirds 6/12 = 1/2 and 16 A, a quarter 3/16 and 6 A, three quarters 9/16 and 18 A', () =>
+    [['A third', '3/12', '1/4', 8], ['Two thirds', '6/12', '1/2', 16], ['A quarter', '3/16', '', 6], ['Three quarters', '9/16', '', 18]].every(([c, n, s, a]) => {
+      const o = K.at({ quartersCrossed: 4, takeFraction: c });
+      return o.name === n && o.simpler === s && K.near(o.loadKept, a, 1e-9) && o.piecesKept === 3 * FR[c].keep && o.piecesInWhole === 4 * FR[c].rows;
+    }));
+  K.check('Keeping the bottom, 2/4 × 3/4 = 6/4, would mean 48 A on a 32 A circuit; the kept part never exceeds the 24 A shaded load', () =>
+    K.near(6 / 4 * 32, 48, 1e-9) && 48 > 32 && Object.keys(FR).every((c) => [0, 1, 2, 3, 4].every((q) => K.at({ quartersCrossed: q, takeFraction: c }).loadKept <= 24 + 1e-9)));
+  K.check('The label names a fraction of the whole only while every piece of the whole is equal', () =>
+    Object.keys(FR).every((c) => [0, 1, 2, 3, 4].every((q) => {
+      const o = K.at({ quartersCrossed: q, takeFraction: c });
+      return (o.equal === 'yes') === (q === 0 || q === 4) && (o.name.indexOf('/') >= 0) === (o.equal === 'yes');
+    })), { source: SRC_EQUAL });
+
+  K.ready();
+</script>

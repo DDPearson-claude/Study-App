@@ -1,0 +1,155 @@
+{
+  "status": "ready",
+  "updatedAt": "2026-10-05T09:07:00.000Z",
+  "sourced": true,
+  "lesson": {
+    "iid": "i3",
+    "title": "Small swings and big swings",
+    "predict": {
+      "q": "You pull a pendulum back twice as far. What happens to the time for one swing?",
+      "options": [
+        "It takes twice as long",
+        "It stays almost the same",
+        "It takes half as long"
+      ],
+      "reveal": "It stays almost the same. A bigger swing travels further, but it also moves faster, and for small swings the two cancel out."
+    },
+    "interactive": {
+      "brief": "The one thing you should see is the swing time growing more slowly than the length when you drag the length slider.",
+      "title": "Length and swing time",
+      "controls": [
+        {
+          "id": "L",
+          "label": "Length of string",
+          "min": 0.25,
+          "max": 3,
+          "step": 0.05,
+          "value": 1,
+          "unit": "m"
+        }
+      ],
+      "whatAmILookingAt": "The time for one full swing is T = 2π√(L/g). L is the length of the string and g is the pull of gravity at Earth’s surface.[^2]",
+      "ignores": "Air resistance, the weight of the string, and wide swings (more than about 20°), where the simple rule starts to drift.",
+      "numbers": [
+        {
+          "label": "Length of string",
+          "value": "0.25 to 3 m",
+          "kind": "control"
+        },
+        {
+          "label": "Swing time",
+          "value": "T = 2π√(L/g)",
+          "kind": "computed"
+        },
+        {
+          "label": "Gravity, g",
+          "value": "9.81 m/s²",
+          "kind": "constant",
+          "source": 2
+        }
+      ]
+    },
+    "explain": {
+      "text": "A pendulum’s [[period]] is the time it takes to swing out and back once. It depends on just two things: the length of the string and the pull of [[gravity]].[^2]\n\nLonger strings swing more slowly, but not in step. The period grows with the *square root* of the length, so four times the length only doubles the swing time.\n\nHow far you pull it back barely matters for small swings,[^1] which is why a pendulum makes such a steady clock."
+    },
+    "analogy": {
+      "text": "A pendulum is like a child on a swing: a longer rope gives a slower, lazier rhythm, however hard you push.",
+      "breaks": "Push a real swing very high and its rhythm does slow down. The simple rule only holds for small swings."
+    },
+    "say": {
+      "prompt": "In your own words: why does a longer pendulum swing more slowly, and why doesn’t the size of the swing matter much?",
+      "rubric": [
+        "A longer string means a longer swing time",
+        "Swing time grows with the square root of length, not in proportion",
+        "For small swings, the size of the swing barely changes the time"
+      ],
+      "model": "A longer pendulum has further to travel along its arc while gravity pulls on it just as hard, so each swing takes longer. The time grows with the square root of the length: four times as long only doubles it. A bigger swing means more distance but also more speed, and for small swings the two cancel out."
+    },
+    "checks": [
+      {
+        "id": "c1",
+        "type": "choice",
+        "q": "A 1 m pendulum takes 2 s per swing. About how long does a 4 m pendulum take?",
+        "options": [
+          "2 s",
+          "4 s",
+          "8 s",
+          "16 s"
+        ],
+        "answer": 1,
+        "why": "Four times the length gives √4 = 2 times the period: 4 s.",
+        "misconception": {
+          "2": "That would be true if swing time grew in step with length. It grows with the square root."
+        }
+      },
+      {
+        "id": "c2",
+        "type": "order",
+        "q": "Put these pendulums in order, fastest swing first.",
+        "items": [
+          "A 25 cm string",
+          "A 1 m string",
+          "A 2 m string"
+        ],
+        "why": "Shorter strings swing faster."
+      },
+      {
+        "id": "c3",
+        "type": "estimate",
+        "q": "Roughly how many seconds does one swing of a 9.8 m pendulum take?",
+        "min": 1,
+        "max": 12,
+        "answer": 6.3,
+        "tolerance": 1,
+        "unit": "s",
+        "why": "T = 2π√(9.8 / 9.81), which is about 6.3 s."
+      }
+    ],
+    "sources": [
+      {
+        "n": 1,
+        "title": "Pendulum (mechanics)",
+        "url": "https://en.wikipedia.org/wiki/Pendulum_(mechanics)",
+        "quote": "For small swings the period of a simple pendulum is approximately independent of the amplitude."
+      },
+      {
+        "n": 2,
+        "title": "Simple pendulum",
+        "url": "http://hyperphysics.phy-astr.gsu.edu/hbase/pend.html",
+        "quote": "The period of a simple pendulum depends on its length and the acceleration of gravity."
+      }
+    ],
+    "confidence": "settled"
+  },
+  "interactive": {
+    "html": "<div class=\"pd\"><svg id=\"pd-svg\" viewBox=\"0 0 320 230\" role=\"img\" aria-label=\"A pendulum swinging\"></svg></div>\n<div id=\"pd-ctl\" class=\"pd-ctl\"></div>\n<div id=\"pd-plot\" class=\"pd-plot\"></div>\n<style>.pd svg{display:block;width:100%;height:auto}.pd-ctl{display:flex;flex-direction:column;gap:12px}.pd-plot{height:180px}</style>\n<script>\nvar g = 9.81, c = K.theme.c;\nvar len = K.control({ id: 'L', label: 'Length of string', min: 0.25, max: 3, step: 0.05, value: 1, unit: 'm' });\nvar per = K.readout({ id: 'T', label: 'Time for one swing', unit: 's', fmt: function (v) { return v.toFixed(2); } });\ndocument.getElementById('pd-ctl').append(len.el, per.el);\nvar plot = K.plot(document.getElementById('pd-plot'), { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Swing time (s)' }, series: [{ fn: function (L) { return 2 * Math.PI * Math.sqrt(L / g); } }] });\nK.model(function (p) { return { T: 2 * Math.PI * Math.sqrt(p.L / g) }; });\nvar svg = document.getElementById('pd-svg'), NS = 'http://www.w3.org/2000/svg';\nfunction mk(tag, a) { var e = document.createElementNS(NS, tag); for (var k in a) e.setAttribute(k, a[k]); svg.appendChild(e); return e; }\nmk('line', { x1: 70, y1: 12, x2: 250, y2: 12, stroke: c.line, 'stroke-width': 5, 'stroke-linecap': 'round' });\nvar rod = mk('line', { x1: 160, y1: 12, x2: 160, y2: 120, stroke: c.muted, 'stroke-width': 2 });\nvar bob = mk('circle', { cx: 160, cy: 120, r: 13, fill: c.accent });\nvar now = { L: 1, T: 2 }, t0 = performance.now();\nK.update(function (p, o) { now.L = p.L; now.T = o.T; per.set(o.T); plot.draw({ marks: [{ x: p.L, y: o.T, label: o.T.toFixed(2) + ' s' }] }); });\nfunction frame(t) {\n  var r = 24 + now.L * 58, th = 0.32 * Math.cos(2 * Math.PI * ((t - t0) / 1000) / now.T);\n  var x = 160 + r * Math.sin(th), y = 12 + r * Math.cos(th);\n  rod.setAttribute('x2', x); rod.setAttribute('y2', y); bob.setAttribute('cx', x); bob.setAttribute('cy', y);\n  requestAnimationFrame(frame);\n}\nrequestAnimationFrame(frame);\nK.check('A 1 m pendulum takes about 2.0 s', function () { return Math.abs(2 * Math.PI * Math.sqrt(1 / g) - 2.006) < 0.01; });\nK.check('Four times the length doubles the time', function () { var a = Math.sqrt(0.5 / g), b = Math.sqrt(2 / g); return Math.abs(b / a - 2) < 1e-9; });\nK.ready();\n</script>",
+    "title": "Length and swing time",
+    "brief": "The one thing you should see is the swing time growing more slowly than the length when you drag the length slider.",
+    "selftest": {
+      "ok": true,
+      "errors": [],
+      "overflow": false,
+      "checks": [
+        {
+          "label": "A 1 m pendulum takes about 2.0 s",
+          "ok": true
+        },
+        {
+          "label": "Four times the length doubles the time",
+          "ok": true
+        }
+      ],
+      "sweep": {
+        "ok": true,
+        "problems": []
+      },
+      "controls": [
+        "L"
+      ],
+      "readouts": [
+        "T"
+      ]
+    },
+    "attempts": 1
+  }
+}

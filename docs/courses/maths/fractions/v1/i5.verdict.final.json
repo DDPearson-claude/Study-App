@@ -1,0 +1,91 @@
+{
+  "ok": true,
+  "reachChecked": true,
+  "problems": [],
+  "report": {
+    "ok": true,
+    "errors": [],
+    "overflow": false,
+    "clipped": [],
+    "checks": [
+      {
+        "label": "Each in its own piece: the tops are 3 and 5, the runs end at 3 × 0.125 = 0.375 and 5 × 0.0625 = 0.3125, a gap of 0.0625",
+        "ok": true
+      },
+      {
+        "label": "In sixteenths both fractions share one bottom: 16 ÷ 8 = 2 makes 3/8 into 3 × 2 = 6, 6/16, and 16 ÷ 16 = 1 leaves 5/16 as 5",
+        "ok": true
+      },
+      {
+        "label": "Thirty-seconds read 12/32 against 10/32; sixty-fourths 24/64 against 20/64",
+        "ok": true
+      },
+      {
+        "label": "Every renaming sits at the same point on the line, so it is the same number: 0.375 for the 3/8 bit and 0.3125 for the 5/16 bit at every setting",
+        "ok": true
+      },
+      {
+        "label": "Once both are counted in one piece the bigger top is the longer run, and the gap spans 1, 2 then 4 pieces: 0.0625 of the inch each time",
+        "ok": true
+      },
+      {
+        "label": "Comparing by whole numbers, 5 beats 3, is the common error: 5 sixteenths are 5 × 0.0625 ÷ 0.125 = 2.5 eighths, short of 3",
+        "ok": true,
+        "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139"
+      }
+    ],
+    "sweep": {
+      "ok": true,
+      "problems": []
+    },
+    "controls": [
+      "countIn"
+    ],
+    "readouts": [
+      "gap"
+    ],
+    "outputs": [
+      "topFirst",
+      "bottomFirst",
+      "topSecond",
+      "bottomSecond",
+      "gap"
+    ],
+    "inputs": [
+      {
+        "id": "countIn",
+        "kind": "stepper",
+        "label": "Piece both are counted in",
+        "min": 0,
+        "max": 3,
+        "step": 1,
+        "steps": [
+          "Each in its own piece",
+          "Sixteenths",
+          "Thirty-seconds",
+          "Sixty-fourths"
+        ],
+        "value": 0
+      }
+    ],
+    "actions": [],
+    "ready": true,
+    "warnings": [],
+    "widths": [
+      {
+        "width": 340,
+        "ok": true
+      },
+      {
+        "width": 720,
+        "ok": true
+      },
+      {
+        "width": 1040,
+        "ok": true
+      }
+    ],
+    "foreign": [],
+    "unreachable": []
+  }
+}

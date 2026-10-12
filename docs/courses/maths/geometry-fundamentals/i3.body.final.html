@@ -1,0 +1,1157 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  /* Nothing in the picture is selected as text while a corner is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  /* Unit squares: faint lines (finer ones for millimetres); the area being counted in a light tint; shapes in ink. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .gl2 { stroke: var(--k-line); stroke-width: .6; fill: none; }
+  .scene .tk { stroke: var(--k-muted); stroke-width: 1; fill: none; }
+  .scene .t1 { fill: var(--k-fill1); }
+  .scene .rowo { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.25; }
+  /* The one row picked out against the whole: the highlighted-area tint, edged in ink. */
+  .scene .rowh { fill: var(--k-fill2); stroke: var(--k-accent2); stroke-width: 1.25; }
+  .scene .tbad { fill: var(--k-warn); fill-opacity: .16; }
+  .scene .shp { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .shp.bad { stroke: var(--k-warn); }
+  .scene .shp.thin { stroke-width: 1.5; }
+  .scene .edge { stroke: var(--k-warn); stroke-width: 5; stroke-linecap: round; }
+  /* Copies of the small shape: the same tint, each edged in ink; a copy turned round in a second tint. */
+  .scene .cp { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.25; stroke-linejoin: round; }
+  .scene .pc { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.25; stroke-linejoin: round; }
+  .scene .cpo { fill: none; stroke: var(--k-accent2); stroke-width: 1.25; }
+  .scene .cmln { stroke: var(--k-accent2); stroke-width: 1.75; fill: none; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .hl { fill: var(--k-hl); }
+  /* Lengths in ink; small labels in teal; counted copies' numbers and the size list in muted. */
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .cn { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axv { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axv.on { fill: var(--k-ink); }
+  .scene .patch { fill: var(--k-bg); }
+  /* The readout along the top: a sum and what it comes to. */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The corner Dan moves: a dot with a soft ring. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt.bad { fill: var(--k-warn); }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Squares drawn to scale in mm, cm and m, filled with smaller unit squares, and shapes scaled up until copies of the small one fill them.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 256" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">To change area units, square the step between lengths. The sizes are example values, except Nexans's conductor sizes.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // demo: what a SHOW step plays (dur seconds); grip: what Dan can move once it has played (the big
+  // square's corner along its diagonal, or the big triangle's corner along its base). A 'pick' puzzle
+  // takes one answer, its picture `pic`; the 'drag' puzzle asks for the big square's corner to be put
+  // where its area is `times` the small one's. fb: how long the motion after a right answer plays; at:
+  // when each part of it arrives, in seconds after Check ([start, gap, count] for parts counted one at
+  // a time). slips: which slip gives each wrong answer, and hints: what is said for it.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the corner to its place first.';
+  // After a right answer. MMFILL: the plate's millimetre lines and its sides in mm; one cm² tinted and
+  // named; the sum. CMFILL: one m² split and named; one 10 cm square of it
+  // named, 100 cm²; the sides in cm; the sum. COPIES: the copies of the
+  // small square numbered one at a time; the sum. TRIROWS: the copies of the small plate, a row at a
+  // time; the sum. QUARTER: the other three 25 mm² blocks and the cm² named; the sum. MILLION: a 100 mm
+  // square named; the square tinted from the bottom up; the sum. BARCM: the cm lines and the sides in
+  // cm; the sum.
+  const MMFILL = { mm: 0.1, one: 0.6, ro: 1.1 };
+  const CMFILL = { block: 0.1, cell: 0.6, sides: 1.1, ro: 1.6 };
+  const COPIES = { cp: [0.1, 0.2, 4], ro: 1.2 };
+  const TRIROWS = { row: [0.1, 0.5, 3], ro: 1.6 };
+  const QUARTER = { whole: 0.1, ro: 0.6 };
+  const MILLION = { block: 0.1, rise: 0.6, ro: 1.5 };
+  const BARCM = { cm: 0.1, ro: 0.6 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long a counted part takes to arrive, a shape to grow, the row of cm squares to run along, the
+  // rows to rise (in mm, cm, and after the million answer), the turned copy to turn, and the tint to
+  // step from one cable size to the next.
+  const COUNT = 0.3, SIDE_T = 0.5, GROW = 0.6, STRIP_T = 0.8, RISE_MM = 0.7, RISE_M = 1.2, RISE_MIL = 0.8, TURN_T = 0.8, SIZE_T = 0.3;
+
+  // The units: 10 mm in a cm, 100 cm in a m, 1,000 mm in a m. An area unit's factor is the length's squared.
+  const MM_PER_CM = 10, CM_PER_M = 100, MM_PER_M = 1000;
+  // The 1 m square's grid lines are every 10 cm: each square of it is 10 cm × 10 cm = 100 cm².
+  const CELL = 10;
+  const sq = (f) => f * f;
+  const CM2MM = sq(MM_PER_CM), M2CM = sq(CM_PER_M), M2MM = sq(MM_PER_M);
+  // The shapes, all example sizes: the rating plate in cm (2); the floor in m (4); the small square, 10 cm
+  // a side, made 1 to 4 times as long (5, 6); the small triangle in picture units, made 1 to 3 times as
+  // long (7, 8), and the 600 cm² plate tripled (8); the conductor (10); the copper bar in mm (12).
+  const PLATE = { w: 5, h: 4 }, FLOOR = { w: 3, h: 2 }, TILE = 10, KMAX = 4, TRI_KMAX = 3;
+  const TRI = { b: 84, a: 28, h: 64 }, PLATE3 = { area: 600, k: 3 }, COND = 25, BAR = { w: 30, t: 5 };
+  // Nexans's conductor cross-sections, in mm² (Nexans, 2-core XLPE cables as per IEC 60502-1).
+  const SZ = [1.5, 2.5, 4, 6, 10, 16, 25, 35];
+
+  const STEPS = [
+    { show: true, demo: 'mm', dur: 4.2, name: 'Square millimetres',
+      text: 'A 1 cm square is 10 mm each way. It holds 10 rows of 10 *square millimetres*, so 1 cm² is 100 mm², not 10.' },
+    { kind: 'pick', pic: 'plate', opts: ['2,000 mm²', '200 mm²', '0.2 mm²'], want: '2,000 mm²', slips: { '200 mm²': 'ten', '0.2 mm²': 'divide' }, fb: 1.7, at: MMFILL, name: 'cm² to mm²',
+      task: 'A rating plate is 5 cm by 4 cm, so it covers 20 cm². How many mm² is that?',
+      why: 'Each cm² holds 10 × 10 = 100 mm², so 20 cm² is 20 × 100 = 2,000 mm². In mm the plate is 50 mm by 40 mm, and 50 × 40 = 2,000 mm² too.',
+      hint: 'Not quite. How many mm² fit in each cm²?',
+      hints: { '200 mm²': 'Not quite. That multiplies by 10, as for a length. Each cm² holds 10 rows of 10, which is 100 mm².',
+        '0.2 mm²': 'Not quite. That divides, but mm² are smaller, so it takes more of them. Multiply by 100.' } },
+    { show: true, demo: 'm', dur: 4.1, name: 'Square metres',
+      text: 'A 1 m square is 100 cm each way. One row of 1 cm squares along the bottom is only 100 cm². With 100 rows, 1 m² is 10,000 cm².' },
+    { kind: 'pick', pic: 'floor', opts: ['60,000 cm²', '600 cm²', '6,000 cm²'], want: '60,000 cm²', slips: { '600 cm²': 'hundred', '6,000 cm²': 'thousand' }, fb: 2.2, at: CMFILL, name: 'm² to cm²',
+      task: 'A switch room floor is 3 m by 2 m, so it covers 6 m². How many cm² is that?',
+      why: 'Each m² is 100 × 100 = 10,000 cm², so 6 m² is 6 × 10,000 = 60,000 cm². In cm the floor is 300 cm by 200 cm, and 300 × 200 = 60,000 cm² too.',
+      hint: 'Not quite. How many cm² fit in each m²?',
+      hints: { '600 cm²': 'Not quite. That multiplies by 100, as for a length. Each m² is 100 rows of 100, which is 10,000 cm².',
+        '6,000 cm²': 'Not quite. That multiplies by 1,000, but there are no thousands here. A 1 m square is 100 cm by 100 cm, so each m² is 100 × 100 = 10,000 cm².' } },
+    { show: true, demo: 'scale', dur: 3.1, grip: 'diag', name: 'Twice the sides',
+      text: 'Double each side of a 10 cm square and 4 copies fit inside. The *scale factor* is 2, and the area goes up 2 × 2 = 4 times.' },
+    { kind: 'drag', pic: 'four', times: 4, start: 1, to: 2, want: '20 cm × 20 cm', slips: { '40 cm × 40 cm': 'side' }, fb: 1.8, at: COPIES, name: 'Four times the area',
+      task: 'Drag the corner to draw a square with 4 times the area of the shaded 10 cm square.',
+      why: 'Twice the side fits 2 × 2 = 4 copies, so the square is 20 cm by 20 cm, 400 cm². Four times the side would fit 4 × 4 = 16 copies.',
+      hint: 'Not quite. Count how many 10 cm squares fit inside. You want 4.',
+      hints: { '40 cm × 40 cm': 'Not quite. Four times the side fits 4 × 4 = 16 copies, 16 times the area. Which side fits 4?' } },
+    { show: true, demo: 'tri', dur: 3.8, grip: 'base', name: 'Any shape',
+      text: 'Any shape made twice as long every way covers 4 times the area. A triangle holds 4 copies, one turned round. A round wire twice as wide has 4 times the *cross-section*.' },
+    { kind: 'pick', pic: 'tri3', opts: ['5,400 cm²', '1,800 cm²', '3,600 cm²'], want: '5,400 cm²', slips: { '1,800 cm²': 'times', '3,600 cm²': 'add' }, fb: 2.2, at: TRIROWS, name: 'Three times the sides',
+      task: 'A triangular plate covers 600 cm². What does a plate the same shape cover with every side 3 times as long?',
+      why: 'Every side is 3 times as long, so 3 × 3 = 9 copies of the small plate fit inside. 9 × 600 = 5,400 cm².',
+      hint: 'Not quite. How many copies of the small plate fit inside?',
+      hints: { '1,800 cm²': 'Not quite. That makes the area only 3 times as much. Each side is 3 times as long, so the area is 3 × 3 = 9 times.',
+        '3,600 cm²': 'Not quite. That multiplies by 3 + 3 = 6. The sides grow 3 times in both directions, so the area grows 3 × 3 = 9 times.' } },
+    { show: true, demo: 'cable', dur: 4.2, name: 'Cable sizes are areas',
+      text: 'Cable sizes are areas. Nexans lists 1.5 mm² to 35 mm², sizes set by IEC 60228. A 35 mm² size means an area of 35 of these 1 mm squares.' },
+    { kind: 'pick', pic: 'c25', opts: ['0.25 cm²', '2.5 cm²', '2,500 cm²'], want: '0.25 cm²', slips: { '2.5 cm²': 'ten', '2,500 cm²': 'times' }, fb: 1.2, at: QUARTER, name: 'mm² to cm²',
+      task: 'A conductor\'s cross-section is 25 mm². How many cm² is that?',
+      why: '1 cm² is 100 mm², so 25 mm² is 25 ÷ 100 = 0.25 cm², a quarter of the 1 cm square.',
+      hint: 'Not quite. How many mm² make 1 cm²?',
+      hints: { '2.5 cm²': 'Not quite. That divides by 10, as for a length. 1 cm² is 100 mm², so divide by 100.',
+        '2,500 cm²': 'Not quite. That multiplies, but cm² are bigger, so it takes fewer of them. Divide by 100.' } },
+    { kind: 'pick', pic: 'mil', opts: ['1,000,000 mm²', '1,000 mm²', '10,000 mm²'], want: '1,000,000 mm²', slips: { '1,000 mm²': 'row', '10,000 mm²': 'cm' }, fb: 2.1, at: MILLION, name: 'm² to mm²',
+      task: '1 m is 1,000 mm. How many mm² make 1 m²?',
+      why: 'A 1 m square is 1,000 mm each way, so it holds 1,000 rows of 1,000 square millimetres. That is 1,000 × 1,000 = 1,000,000 mm².',
+      hint: 'Not quite. Picture the 1 m square in rows of 1 mm squares. How many rows, and how many in each?',
+      hints: { '1,000 mm²': 'Not quite. That is one row along the bottom, 1 mm tall. The 1 m square holds 1,000 rows of 1,000.',
+        '10,000 mm²': 'Not quite. 10,000 is how many cm² make 1 m². In mm each side is 1,000, so 1,000 × 1,000.' } },
+    { kind: 'pick', pic: 'bar', opts: ['1.5 cm²', '15 cm²', '150 cm²'], want: '1.5 cm²', slips: { '15 cm²': 'ten', '150 cm²': 'mm' }, fb: 1.2, at: BARCM, name: 'A copper bar',
+      task: 'A flat copper bar is 30 mm wide and 5 mm thick. What is its cross-section in cm²?',
+      why: '30 × 5 = 150 mm², and 150 ÷ 100 = 1.5 cm². In cm the bar is 3 cm by 0.5 cm, and 3 × 0.5 = 1.5 cm² too.',
+      hint: 'Not quite. Work out the mm² first, then change to cm².',
+      hints: { '15 cm²': 'Not quite. That divides 150 mm² by 10, as for a length. Each cm² is 100 mm², so divide by 100.',
+        '150 cm²': 'Not quite. 30 × 5 = 150 is in mm², because the sides are in mm. Divide by 100 for cm².' } },
+  ];
+  const FINISH = 'To change area units, square the step between lengths. 1 cm² is 10 × 10 = 100 mm², and 1 m² is 100 × 100 = 10,000 cm², not 100. Make a shape twice as long every way, keeping its shape, and its area is 4 times as much.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap, count] for parts counted one
+  // at a time. mm: the bottom row's squares one at a time; the other rows rise; the sum. m: the row of
+  // cm squares runs along the bottom; it is named; the rows rise; one 10 cm square of the grid is named;
+  // the sum. scale: the big square grows
+  // to twice the side; the new copies one at a time; the sum. tri: the big triangle grows to twice the
+  // sides; two copies one at a time; the third turns round into place; the sum. cable: the tint steps
+  // through Nexans's sizes one at a time; the last in cm².
+  const FADE = 0.35;
+  const AT = {
+    mm: { sq: [0.6, 0.2, 10], rise: 2.85, sum: 3.6 },
+    m: { strip: 0.6, label: 1.6, rise: 2.1, cell: 2.9, sum: 3.5 },
+    scale: { grow: 0.6, cp: [1.4, 0.25, 3], sum: 2.45 },
+    tri: { grow: 0.6, cp: [1.4, 0.3, 2], turn: 2.2, sum: 3.2 },
+    cable: { size: [0.6, 0.35, 8], sum: 3.6 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const num = (v) => { const a = r3(v), p = String(Math.abs(a)).split('.'); return (a < 0 ? '−' : '') + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (p[1] ? '.' + p[1] : ''); };
+  const amt = (v, u) => num(v) + ' ' + u;
+  // A square k tiles a side, as its button reads ("20 cm × 20 cm"), and back.
+  const side = (k) => amt(k * TILE, 'cm');
+  const dims = (k) => side(k) + ' × ' + side(k);
+  const parseDims = (s) => { const m = /^(\d+) cm × (\d+) cm$/.exec(s); return m && m[1] === m[2] ? +m[1] / TILE : null; };
+  const copiesWord = (n) => (n === 1 ? '1 copy' : n + ' copies');
+  // The squares of a k by k block, the first the small one, then ring by ring outwards (the new
+  // copies a bigger k adds come last).
+  function squareCopies(k) {
+    const out = [];
+    for (let r = 0; r < k; r++) { for (let y = 0; y < r; y++) out.push([r, y]); for (let x = 0; x <= r; x++) out.push([x, r]); }
+    return out;
+  }
+  // The small triangle and the triangle k times as big; the k × k copies of the small one that fill
+  // the big one, row by row from the bottom: upright ones, and between them ones turned round.
+  const triPts = (k) => [[0, 0], [k * TRI.b, 0], [k * TRI.a, k * TRI.h]];
+  function triCopies(k) {
+    const out = [];
+    for (let j = 0; j < k; j++) for (let i = 0; i + j < k; i++) {
+      const ox = i * TRI.b + j * TRI.a, oy = j * TRI.h;
+      out.push({ up: true, j: j, i: i, pts: [[ox, oy], [ox + TRI.b, oy], [ox + TRI.a, oy + TRI.h]] });
+      if (i + j < k - 1) out.push({ up: false, j: j, i: i, pts: [[ox + TRI.b, oy], [ox + TRI.a + TRI.b, oy + TRI.h], [ox + TRI.a, oy + TRI.h]] });
+    }
+    return out;
+  }
+  const centroid = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
+  // A shape's area from its corners (the shoelace sum), so the checks can measure what is drawn.
+  const areaOf = (pts) => Math.abs(pts.reduce((s, p, k) => { const q = pts[(k + 1) % pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
+  const rot = (p, c, th) => [c[0] + (p[0] - c[0]) * Math.cos(th) - (p[1] - c[1]) * Math.sin(th), c[1] + (p[0] - c[0]) * Math.sin(th) + (p[1] - c[1]) * Math.cos(th)];
+  // A triangle's three side lengths, smallest first (two triangles with the same three are the same shape and size).
+  const sidesOf = (pts) => pts.map((p, k) => { const q = pts[(k + 1) % 3]; return Math.hypot(q[0] - p[0], q[1] - p[1]); }).sort((a, b) => a - b);
+  // Whether p lies in (or on) triangle t.
+  function inside(p, t) {
+    const s = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+    const d1 = s(t[0], t[1], p), d2 = s(t[1], t[2], p), d3 = s(t[2], t[0], p);
+    return !((d1 < -1e-9 || d2 < -1e-9 || d3 < -1e-9) && (d1 > 1e-9 || d2 > 1e-9 || d3 > 1e-9));
+  }
+  // What each slip makes of an answer, and the answer a puzzle wants, worked out by its rule, as its button reads.
+  function slipOpt(d, s) {
+    const plate = PLATE.w * PLATE.h, floor = FLOOR.w * FLOOR.h, bar = BAR.w * BAR.t;
+    if (d.pic === 'plate') return s === 'ten' ? amt(plate * MM_PER_CM, 'mm²') : amt(plate / CM2MM, 'mm²');
+    if (d.pic === 'floor') return s === 'hundred' ? amt(floor * CM_PER_M, 'cm²') : amt(floor * 1000, 'cm²');
+    if (d.pic === 'four') return dims(d.times);
+    if (d.pic === 'tri3') return s === 'times' ? amt(PLATE3.k * PLATE3.area, 'cm²') : amt((PLATE3.k + PLATE3.k) * PLATE3.area, 'cm²');
+    if (d.pic === 'c25') return s === 'ten' ? amt(COND / MM_PER_CM, 'cm²') : amt(COND * CM2MM, 'cm²');
+    if (d.pic === 'mil') return s === 'row' ? amt(MM_PER_M, 'mm²') : amt(M2CM, 'mm²');
+    return s === 'ten' ? amt(bar / MM_PER_CM, 'cm²') : amt(bar, 'cm²');
+  }
+  function answerOf(d) {
+    if (d.pic === 'plate') return amt(PLATE.w * PLATE.h * CM2MM, 'mm²');
+    if (d.pic === 'floor') return amt(FLOOR.w * FLOOR.h * M2CM, 'cm²');
+    if (d.pic === 'four') return dims(Math.sqrt(d.times));
+    if (d.pic === 'tri3') return amt(sq(PLATE3.k) * PLATE3.area, 'cm²');
+    if (d.pic === 'c25') return amt(COND / CM2MM, 'cm²');
+    if (d.pic === 'mil') return amt(M2MM, 'mm²');
+    return amt(BAR.w * BAR.t / CM2MM, 'cm²');
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/(\d),(\d{3})/g, '$1$2').replace(/(\d),(\d{3})/g, '$1$2')
+    .replace(/mm²/g, 'square millimetres').replace(/cm²/g, 'square centimetres').replace(/m²/g, 'square metres')
+    .replace(/(\d) mm\b/g, '$1 millimetres').replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres')
+    .replace(/(^|[^\d.])1 square (milli|centi)?metres/g, '$11 square $2metre').replace(/(^|[^\d.])1 (milli|centi)?metres/g, '$11 $2metre')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, k: null, moved: false }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const d = STEPS[i], st = blank(i); st.res = 'right'; st.moved = true; st.pick = d.want; if (d.kind === 'drag') st.k = d.to; return st; }
+  function slipped(i, o) { const d = STEPS[i], st = blank(i); st.res = 'wrong'; st.moved = true; st.pick = o; if (d.kind === 'drag') st.k = parseDims(o); return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // An amount or a sum stays together on one line ("100 mm²", "1,000,000 mm²", "10 × 10 = 100 mm²"),
+  // with the stop after it; a long one may break only before an equals sign.
+  const TOK = '(?:\\d[\\d,]*(?:\\.\\d+)?(?: (?:mm²|cm²|m²|mm|cm|m)(?![A-Za-z²]))?)';
+  const GLUE = new RegExp('IEC \\d+[.,]?|(?<![A-Za-z0-9\'’-])' + TOK + '(?: [=+−×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b)); else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].moved = false; S[i].k = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    // Once the motion has played, the picture is drawn finished, so a corner Dan can move shows its ring.
+    if (T >= motionEnd) { T = Infinity; paint(); return false; }
+    paint();
+    return true;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  // Each picture has its own frame: Q units a grid unit (a mm, a cm, a m, a 10 cm tile, or one picture
+  // unit for the triangles), its bottom-left corner at (ox, by), H tall. The readout sits on the row YNY.
+  const YNY = 24;
+  const LAY = {
+    mm: { Q: 18, ox: 80, by: 230, H: 256 },        // a 1 cm square, 18 units a mm
+    plate: { Q: 46, ox: 70, by: 226, H: 252 },     // the plate, 46 units a cm
+    m: { Q: 2.1, ox: 76, by: 252, H: 280 },        // a 1 m square, 2.1 units a cm
+    floor: { Q: 80, ox: 66, by: 214, H: 240 },     // the floor, 80 units a m
+    sq: { Q: 48, ox: 74, by: 238, H: 264 },        // squares, 48 units a 10 cm tile
+    tri: { Q: 1, ox: 44, by: 244, H: 270 },        // triangles, in picture units
+    cable: { Q: 16, ox: 90, by: 200, H: 254 },     // a 1 cm square, 16 units a mm, the sizes below
+    c25: { Q: 12, ox: 80, by: 236, H: 262 },       // a 1 cm square, 12 units a mm
+    bar: { Q: 9, ox: 56, by: 112, H: 140 },        // the bar's end, 9 units a mm
+  };
+  const LAY_OF = { mm: 'mm', m: 'm', scale: 'sq', tri: 'tri', cable: 'cable', plate: 'plate', floor: 'floor', four: 'sq', tri3: 'tri', c25: 'c25', mil: 'm', bar: 'bar' };
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let F = LAY.mm, H = F.H;
+  const gx = (x) => F.ox + F.Q * x;
+  const gy = (y) => F.by - F.Q * y;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; grow: the same, eased.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const grow = (t0, d) => K.ease(lin(t0, d == null ? GROW : d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = String(s);
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, an: 13, lbl: 13, rou: 13, cn: 13, axv: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+  // --- shapes in unit squares ---
+  const P = (pts) => 'M' + pts.map((p) => r3(gx(p[0])) + ' ' + r3(gy(p[1]))).join('L') + 'Z';
+  const poly = (cls, pts) => path(cls, P(pts));
+  const box = (cls, x, y, w, h) => rect(cls, gx(x), gy(y + h), F.Q * w, F.Q * h);
+  // The lines between unit squares every `step` inside a w by h block (and its border, if asked).
+  function gridIn(x0, y0, w, h, step, border, cls) {
+    let p = '';
+    const nx = Math.round(w / step), ny = Math.round(h / step);
+    for (let k = border ? 0 : 1; k <= (border ? nx : nx - 1); k++) p += 'M' + r3(gx(x0 + k * step)) + ' ' + r3(gy(y0)) + 'V' + r3(gy(y0 + h));
+    for (let k = border ? 0 : 1; k <= (border ? ny : ny - 1); k++) p += 'M' + r3(gx(x0)) + ' ' + r3(gy(y0 + k * step)) + 'H' + r3(gx(x0 + w));
+    if (p) path(cls || 'gl', p);
+  }
+  // A ruler along the bottom and up the left of an n by n square: a tick every unit, a longer one every ten.
+  function ruler(n) {
+    let p = '';
+    for (let k = 0; k <= n; k++) { const L = k % 10 ? 3 : 6; p += 'M' + r3(gx(k)) + ' ' + r3(gy(0)) + 'v' + L + 'M' + r3(gx(0)) + ' ' + r3(gy(k)) + 'h' + (-L); }
+    path('tk', p);
+  }
+  // A side's length beside it: below a bottom side, left of an upright one.
+  const below = (x0, x1, y, s, cls, dy) => text((gx(x0) + gx(x1)) / 2, gy(y) + (dy || 18), s, cls || 'lbl');
+  const leftOf = (x, y0, y1, s, cls, dx) => text(gx(x) - (dx || 7), (gy(y0) + gy(y1)) / 2 + 5, s, cls || 'lbl', 'end');
+  // A label on a patch of the page (centred on x, or starting at x), so the lines it sits over stay clear of it.
+  function plabel(x, y, s, cls) { const w = tw(s, cls); rect('patch', x - w / 2 - 4, y - 13, w + 8, 18, 4); text(x, y, s, cls); }
+  function plabelAt(x, y, s, cls, anchor) { const w = tw(s, cls), x0 = anchor === 'end' ? x - w : x; rect('patch', x0 - 4, y - 13, w + 8, 18, 4); text(x0, y, s, cls, 'start'); }
+  // The readout on the row above the picture: what it comes to (big) after the sum that gives it (small).
+  // (loose: the readouts drawn this frame straight onto the picture, outside part() or swap(), which
+  // the timing check notes.)
+  let loose = [];
+  function readout2(big, small, warn) {
+    if (!into) loose.push(big);
+    const w = warn ? ' warnt' : '';
+    text(338, YNY, big, 'ro' + w, 'end');
+    if (small) text(338 - tw(big, 'ro') - 8, YNY - 1, small, 'rou' + w, 'end');
+  }
+  const readoutHidden = (u) => { if (!into) loose.push('? ' + u); text(338, YNY, '? ' + u, 'ro q', 'end'); };
+  // The corner Dan moves: a dot, with a soft ring while it can be moved.
+  function handle(p, live, warn) { if (live) circle('ringp', gx(p[0]), gy(p[1]), 15); circle('pt' + (warn ? ' bad' : ''), gx(p[0]), gy(p[1]), 6); }
+  let gripAt = null;                                 // where the grip sits this frame (grid units), if anywhere
+  // A sum of k × k copies of a square tile, and what they cover.
+  const tileSum = (k) => [amt(sq(k) * TILE * TILE, 'cm²'), k + ' × ' + k + ' = ' + copiesWord(sq(k)) + ','];
+
+  // One 10 cm square of a 1 m square's grid (n cm a side), its top-left one, picked out and named.
+  function cellName(n) {
+    const c = CELL;
+    box('rowh', 0, n - c, c, c);
+    plabelAt(gx(c) + 6, gy(n - c / 2) + 5, amt(c, 'cm') + ' × ' + amt(c, 'cm') + ' = ' + amt(c * c, 'cm²'), 'lbl');
+  }
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Square millimetres: the bottom row's ten squares fill one at a time, numbered; the readout fades in
+  // with the first and counts them, 0.2 s apart. Then the other rows rise while it holds "one row,
+  // 10 mm²"; then the sum takes its place.
+  function demoMM(i, d) {
+    const A = AT.mm, n = MM_PER_CM;
+    const as = []; for (let k = 0; k < n; k++) as.push(arr(nth(A.sq, k), COUNT));
+    const got = as.filter((a) => a >= 0.5).length, ri = K.ease(lin(A.rise, RISE_MM)), rows = 1 + (n - 1) * ri, sa = arr(A.sum);
+    const whole = Math.floor(rows + 1e-9);
+    as.forEach((a, k) => part(a, 0, () => box('t1', k, 0, 1, 1)));
+    if (ri > 0) box('t1', 0, 1, n, rows - 1);
+    gridIn(0, 0, n, n, 1, true, 'gl');
+    as.forEach((a, k) => part(a, 0, () => text(gx(k + 0.5), gy(0.5) + 4.5, k + 1, 'cn')));
+    box('shp', 0, 0, n, n);
+    below(0, n, 0, '1 cm = 10 mm'); leftOf(0, 0, n, '10 mm');
+    const rowRead = () => readout2(amt(Math.max(1, got), 'mm²'), 'one row');
+    if (sa > 0) swap(sa, rowRead, () => readout2(amt(CM2MM, 'mm²'), n + ' × ' + n + ' ='), 0);
+    else part(as[0], 0, rowRead);
+    const said = ['A 1 centimetre square, 10 millimetres each way, ruled into 1 millimetre squares.'];
+    if (got) said.push('Along the bottom row, ' + got + ' of its 10 squares are numbered.');
+    if (ri >= 0.5) said.push('The rows above fill too, ' + whole + ' rows of 10.');
+    if (sa >= 0.5) said.push('10 times 10 equals 100 square millimetres.');
+    return said.join(' ');
+  }
+  // Square metres: the row of cm squares runs along the bottom; it is named, and the readout fades in
+  // with its name, "one row, 100 cm²", and holds while the rows rise. One 10 cm square of the grid is
+  // picked out and named, 10 cm × 10 cm = 100 cm² (so its 100 squares are not taken for 100 cm²); then
+  // the sum takes the readout's place.
+  function demoM(i, d) {
+    const A = AT.m, n = CM_PER_M;
+    const e = K.ease(lin(A.strip, STRIP_T)), la = arr(A.label), ri = K.ease(lin(A.rise, RISE_M)), ca = arr(A.cell), sa = arr(A.sum);
+    const rows = 1 + (n - 1) * ri, whole = Math.floor(rows + 1e-9);
+    if (ri > 0) box('t1', 0, 1, n, rows - 1);
+    gridIn(0, 0, n, n, CELL, false, 'gl');
+    ruler(n);
+    box('shp', 0, 0, n, n);
+    // The row is drawn over the square's edge, so its 1 cm stays in sight.
+    if (e > 0) box('rowh', 0, 0, n * e, 1);
+    below(0, n, 0, '1 m = 100 cm', 'lbl', 22); leftOf(0, 0, n, '100 cm', 'lbl', 10);
+    part(la, 0, () => plabel(gx(n / 2), gy(1) - 8, 'one row, 100 cm²', 'lbl'));
+    part(ca, 0, () => cellName(n));
+    const rowRead = () => readout2(amt(n, 'cm²'), 'one row');
+    if (sa > 0) swap(sa, rowRead, () => readout2(amt(M2CM, 'cm²'), n + ' × ' + n + ' ='), 0);
+    else part(la, 0, rowRead);
+    const said = ['A 1 metre square, 100 centimetres each way, with a ruler of centimetres along the bottom and up the side.'];
+    if (e >= 0.5) said.push('One row of 1 centimetre squares along the bottom is 100 square centimetres.');
+    if (ri >= 0.5) said.push(whole + ' rows of 100 are filled.');
+    if (ca >= 0.5) said.push('Each 10 centimetre square of the grid is 10 times 10, 100 square centimetres.');
+    if (sa >= 0.5) said.push('100 times 100 equals 10,000 square centimetres.');
+    return said.join(' ');
+  }
+  // Twice the sides: the big square grows from the small one to twice its side; the three new copies
+  // arrive one at a time, numbered; the sum. Once it has played, Dan drags the corner and the copies fill at once.
+  function demoScale(i, d, st) {
+    const A = AT.scale, moved = st.moved && st.k != null;
+    const k = moved ? st.k : 1 + grow(A.grow), kk = moved ? st.k : 2;
+    const cps = squareCopies(kk), as = cps.map((c, j) => (moved || j === 0 ? 1 : arr(nth(A.cp, j - 1), COUNT)));
+    const got = as.filter((a) => a >= 0.5).length, sa = moved ? 1 : arr(A.sum);
+    gridIn(0, 0, KMAX, KMAX, 1, true, 'gl');
+    cps.forEach((c, j) => part(as[j], 0, () => { box('cp', c[0], c[1], 1, 1); text(gx(c[0] + 0.5), gy(c[1] + 0.5) + 4.5, j + 1, 'cn'); }));
+    box('shp', 0, 0, k, k);
+    // The sides' lengths follow the corner but never roll through the numbers between: they read 10 cm
+    // while the square grows, and 20 cm takes their place once it has landed.
+    const sides = (v) => () => { below(0, k, 0, side(v)); leftOf(0, 0, k, side(v)); };
+    if (moved) sides(kk)(); else swap(arr(A.grow + GROW - 0.15, SIDE_T), sides(1), sides(kk), 0);
+    const counted = () => readout2(amt(got * TILE * TILE, 'cm²'), copiesWord(got) + ',');
+    if (moved) readout2.apply(null, tileSum(kk));
+    else if (sa > 0) swap(sa, counted, () => readout2.apply(null, tileSum(kk)), 0);
+    else counted();
+    handle([k, k], T === Infinity);
+    gripAt = [k, k];
+    const said = ['A grid of 10 centimetre squares, 4 each way. The shaded square in the bottom left corner is 10 centimetres a side.'];
+    said.push('A bigger square from the same corner, ' + say(amt(Math.round(k * TILE), 'cm')) + ' a side, holds ' + copiesWord(got) + ' of it, numbered.');
+    if (sa >= 0.5) said.push(kk + ' times ' + kk + ' equals ' + sq(kk) + ', so it covers ' + say(amt(sq(kk) * 100, 'cm²')) + '.');
+    said.push('Its top right corner can be dragged.');
+    return said.join(' ');
+  }
+  // Any shape: the big triangle grows from the small one to twice its sides; two upright copies arrive
+  // one at a time; the third turns round into the gap between them; the sum. Once it has played, Dan
+  // drags the big triangle's right-hand corner, 1 to 3 times as long, and the copies fill at once.
+  function demoTri(i, d, st) {
+    const A = AT.tri, moved = st.moved && st.k != null;
+    const k = moved ? st.k : 1 + grow(A.grow), kk = moved ? st.k : 2;
+    const cps = triCopies(kk), sa = moved ? 1 : arr(A.sum);
+    // The demonstration's order: the small one, the right copy, the top copy, then the one turned round.
+    const order = moved ? cps.map((c, j) => j) : [0, 2, 3, 1];
+    const as = order.map((j, n) => (moved || n === 0 ? 1 : n < 3 ? arr(nth(A.cp, n - 1), COUNT) : arr(A.turn, TURN_T)));
+    const te = moved ? 1 : K.ease(lin(A.turn, TURN_T));
+    const got = as.filter((a) => a >= 0.5).length;
+    order.forEach((j, n) => {
+      const c = cps[j];
+      part(as[n], 0, () => {
+        const ctr = centroid(c.pts), pts = !c.up && te < 1 ? c.pts.map((p) => rot(p, ctr, Math.PI * (1 - te))) : c.pts;
+        poly(c.up ? 'cp' : 'pc', pts);
+        text(gx(ctr[0]), gy(ctr[1]) + 4.5, n + 1, 'cn');
+      });
+    });
+    poly('shp', triPts(k));
+    const tip = [k * TRI.b, 0];
+    handle(tip, T === Infinity);
+    gripAt = tip;
+    const counted = () => readout2(copiesWord(got), 'counted');
+    if (moved) readout2(copiesWord(sq(kk)), kk + ' × ' + kk + ' =');
+    else if (sa > 0) swap(sa, counted, () => readout2(copiesWord(sq(kk)), kk + ' × ' + kk + ' ='), 0);
+    else counted();
+    const kr = Math.round(k * 10) / 10;
+    const said = ['A small shaded triangle, and a triangle of the same shape from the same corner, ' + (kr === 1 ? 'the same size.' : kr + ' times as long each way.')];
+    said.push('It holds ' + copiesWord(got) + ' of the small one, numbered' + (sq(kk) > 1 && (moved || te >= 0.5) ? ', the ones between the others turned round.' : '.'));
+    if (sa >= 0.5) said.push(kk + ' times ' + kk + ' equals ' + sq(kk) + '.');
+    said.push('Its right-hand corner can be dragged along the bottom.');
+    return said.join(' ');
+  }
+  // Cable sizes are areas: the tint steps through Nexans's sizes one at a time, filling that many square
+  // millimetres row by row, its size picked out in the list below; then the last one in cm².
+  function fillCount(c) {
+    const full = Math.floor(c / MM_PER_CM + 1e-9), rest = c - full * MM_PER_CM;
+    if (full) box('t1', 0, 0, MM_PER_CM, full);
+    if (rest > 1e-9) box('t1', 0, full, rest, 1);
+  }
+  const CHIP = { x0: 52, gap: 37 };
+  function demoCable(i, d) {
+    const A = AT.cable, n = MM_PER_CM, sa = arr(A.sum);
+    const ks = SZ.map((v, k) => K.ease(lin(nth(A.size, k), SIZE_T)));
+    // c: the tint, growing steadily; cur: the size named, the last one the tint is at least halfway to,
+    // so the readout, the tint and the picked-out chip change together.
+    let c = 0, cur = -1;
+    SZ.forEach((v, k) => { if (ks[k] > 0) c = K.lerp(k ? SZ[k - 1] : 0, v, ks[k]); if (ks[k] >= 0.5) cur = k; });
+    fillCount(c);
+    gridIn(0, 0, n, n, 1, true, 'gl');
+    box('shp', 0, 0, n, n);
+    below(0, n, 0, '1 cm = 10 mm'); leftOf(0, 0, n, '10 mm');
+    // The list of sizes: each picked out (amber) as the tint reaches it, and let go as the next arrives.
+    const yc = F.by + 44;
+    text(8, yc, 'mm²', 'an', 'start');
+    SZ.forEach((v, k) => {
+      const x = CHIP.x0 + CHIP.gap * k, a = arr(nth(A.size, k), SIZE_T) * (k + 1 < SZ.length ? 1 - arr(nth(A.size, k + 1), SIZE_T) : 1);
+      if (a > 0) part(a, 0, () => { const w = tw(num(v), 'axv'); rect('hl', x - w / 2 - 4, yc - 13, w + 8, 18, 5); });
+      text(x, yc, num(v), 'axv');
+      if (a > 0) part(a, 0, () => text(x, yc, num(v), 'axv on'));
+    });
+    const last = SZ[SZ.length - 1], size = () => readout2(amt(SZ[Math.max(0, cur)], 'mm²'), 'conductor');
+    if (sa > 0) swap(sa, size, () => readout2(amt(last / CM2MM, 'cm²'), num(last) + ' ÷ 100 ='), 0);
+    else part(arr(nth(A.size, 0), SIZE_T), 0, size);
+    const said = ['A 1 centimetre square ruled into 100 square millimetres, with Nexans\'s conductor sizes listed below it: ' + SZ.map((v) => num(v)).join(', ') + ' square millimetres.'];
+    if (cur >= 0) said.push('The squares filled show ' + say(amt(SZ[cur], 'mm²')) + '.');
+    if (sa >= 0.5) said.push('35 square millimetres is 35 divided by 100, 0.35 square centimetres.');
+    return said.join(' ');
+  }
+
+  // --- the puzzles (DO steps) ---
+  // cm² to mm²: the plate on its cm squares, its area given; a right answer rules its millimetre lines and
+  // gives its sides in mm, tints one cm² and names it, then the sum; a slip's area is a red patch.
+  function drawPlate(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const ma = right ? arr(A.mm) : 0, oa = right ? arr(A.one) : 0, ra = right ? arr(A.ro) : 0, w = PLATE.w, h = PLATE.h;
+    part(oa, 0, () => box('t1', 0, 0, 1, 1));
+    if (s === 'ten') part(sw, 0, () => box('tbad', 0, 0, 2, 1));
+    gridIn(0, 0, w, h, 1, false, 'gl');
+    part(ma, 0, () => gridIn(0, 0, w, h, 1 / MM_PER_CM, false, 'gl2'));
+    if (s === 'ten') part(sw, 0, () => { box('shp bad thin', 0, 0, 2, 1); plabelAt(gx(2) + 6, gy(0.5) + 5, st.pick, 'lbl warnt'); });
+    if (s === 'divide') part(sw, 0, () => { const e = Math.sqrt(PLATE.w * PLATE.h / CM2MM) / MM_PER_CM; box('tbad', 0.5 - e / 2, 0.5 - e / 2, e, e); circle('ring', gx(0.5), gy(0.5), 7); plabelAt(gx(1) + 6, gy(0.5) + 5, st.pick, 'lbl warnt'); });
+    box('shp', 0, 0, w, h);
+    swap(ma, () => { below(0, w, 0, amt(w, 'cm')); leftOf(0, 0, h, amt(h, 'cm')); }, () => { below(0, w, 0, amt(w * MM_PER_CM, 'mm')); leftOf(0, 0, h, amt(h * MM_PER_CM, 'mm')); }, 0);
+    part(oa, 0, () => plabelAt(gx(1) + 6, gy(0.5) + 5, '1 cm² = 100 mm²', 'lbl'));
+    const given = () => readout2(amt(w * h, 'cm²'), w + ' × ' + h + ' =');
+    if (right) swap(ra, given, () => readout2(answerOf(d), (w * h) + ' × 100 ='), 0); else given();
+    const said = ['A rating plate 5 centimetres by 4 centimetres on centimetre squares, 20 square centimetres.'];
+    if (right) said.push('Ruled in millimetres it is 50 by 40 millimetres, and each square centimetre holds 100 square millimetres, so 20 times 100 equals 2,000 square millimetres.');
+    else if (s === 'ten') said.push('200 square millimetres is shown in red, only 2 of the 20 centimetre squares.');
+    else if (s === 'divide') said.push('0.2 square millimetres is shown in red, a speck inside one centimetre square.');
+    return said.join(' ');
+  }
+  // m² to cm²: the floor on its metre squares, its area given; a right answer splits one m² into 10 cm
+  // squares and names it, names one 10 cm square, gives the sides in cm, then the sum; a slip's area is a red square in the corner.
+  function drawFloor(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, w = FLOOR.w, h = FLOOR.h;
+    const ba = right ? arr(A.block) : 0, ca = right ? arr(A.cell) : 0, sda = right ? arr(A.sides) : 0, ra = right ? arr(A.ro) : 0;
+    part(ba, 0, () => box('t1', 0, 0, 1, 1));
+    const e = wrong ? Math.sqrt(+st.pick.replace(/[^\d]/g, '') / M2CM) : 0;
+    if (wrong) part(sw, 0, () => box('tbad', 0, 0, e, e));
+    gridIn(0, 0, w, h, 1, false, 'gl');
+    part(ba, 0, () => gridIn(0, 0, 1, 1, 0.1, false, 'gl'));
+    if (wrong) part(sw, 0, () => { box('shp bad thin', 0, 0, e, e); plabelAt(gx(e) + 6, gy(e / 2) + 5, st.pick, 'lbl warnt'); });
+    box('shp', 0, 0, w, h);
+    swap(sda, () => { below(0, w, 0, amt(w, 'm')); leftOf(0, 0, h, amt(h, 'm')); }, () => { below(0, w, 0, amt(w * CM_PER_M, 'cm')); leftOf(0, 0, h, amt(h * CM_PER_M, 'cm')); }, 0);
+    part(ba, 0, () => plabelAt(gx(1) + 6, gy(0.5) + 5, '1 m² = 10,000 cm²', 'lbl'));
+    // One of its 10 cm squares, the top-right one, picked out and named: 100 cm², not 1 cm².
+    const c = CELL / CM_PER_M;
+    part(ca, 0, () => { box('rowh', 1 - c, 1 - c, c, c); plabelAt(gx(1) + 6, gy(1 - c / 2) + 5, CELL + ' × ' + CELL + ' = ' + amt(CELL * CELL, 'cm²'), 'lbl'); });
+    const given = () => readout2(amt(w * h, 'm²'), w + ' × ' + h + ' =');
+    if (right) swap(ra, given, () => readout2(answerOf(d), (w * h) + ' × 10,000 ='), 0); else given();
+    const said = ['A floor 3 metres by 2 metres on metre squares, 6 square metres.'];
+    if (right) said.push('One square metre is split into 10 centimetre squares, each 100 square centimetres, and holds 10,000 square centimetres. The floor is 300 by 200 centimetres, so 6 times 10,000 equals 60,000 square centimetres.');
+    else if (wrong) said.push(say(st.pick) + ' is shown in red, a small square in the corner of the floor.');
+    return said.join(' ');
+  }
+  // Four times the area: the shaded square and the big square Dan sizes by its corner. Before Check its
+  // area shows ?; a right answer numbers the copies one at a time, then the sum; a wrong one turns the
+  // big square and its sum the warning colour.
+  function drawFour(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, k = st.k != null ? st.k : d.start, ra = right ? arr(A.ro) : 0;
+    gridIn(0, 0, KMAX, KMAX, 1, true, 'gl');
+    box('cp', 0, 0, 1, 1);
+    if (right) squareCopies(k).forEach((c, j) => part(arr(nth(A.cp, j), COUNT), 0, () => { if (j) box('cp', c[0], c[1], 1, 1); text(gx(c[0] + 0.5), gy(c[1] + 0.5) + 4.5, j + 1, 'cn'); }));
+    if (wrong) swap(sw, () => box('shp', 0, 0, k, k), () => box('shp bad', 0, 0, k, k), 0); else box('shp', 0, 0, k, k);
+    below(0, k, 0, side(k)); leftOf(0, 0, k, side(k));
+    if (right) swap(ra, () => readoutHidden('cm²'), () => readout2.apply(null, tileSum(k)), 0);
+    else if (wrong) swap(sw, () => readoutHidden('cm²'), () => readout2(tileSum(k)[0], tileSum(k)[1], true), 0);
+    else readoutHidden('cm²');
+    if (!right) handle([k, k], !finished, false);
+    gripAt = right ? null : [k, k];
+    const said = ['A grid of 10 centimetre squares, 4 each way, with the bottom left one shaded. A big square from the same corner is ' + say(side(k)) + ' a side.'];
+    if (right) said.push('It holds ' + copiesWord(sq(k)) + ' of the shaded square, ' + say(amt(sq(k) * 100, 'cm²')) + '.');
+    else if (wrong) said.push('It holds ' + copiesWord(sq(k)) + ', ' + say(amt(sq(k) * 100, 'cm²')) + ', marked wrong.');
+    else said.push('Its area is hidden until you check. Its top right corner can be dragged.');
+    return said.join(' ');
+  }
+  // Three times the sides: the small plate and the big outline 3 times as long each way; a right answer
+  // fills it with copies of the small plate a row at a time, then the sum; a slip's copies are red,
+  // leaving gaps.
+  function drawTri3(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, k = PLATE3.k, ra = right ? arr(A.ro) : 0;
+    const cps = triCopies(k);
+    cps.forEach((c, j) => {
+      const ctr = centroid(c.pts);
+      if (j === 0) poly('cp', c.pts);
+      else if (right) part(arr(nth(A.row, c.j), COUNT), 0, () => poly(c.up ? 'cp' : 'pc', c.pts));
+      if (right) part(arr(nth(A.row, c.j), COUNT), 0, () => text(gx(ctr[0]), gy(ctr[1]) + 4.5, j + 1, 'cn'));
+    });
+    // The slips: 3 copies along the bottom (3 times), or every upright copy (3 + 3 = 6 times), in red.
+    const reds = s === 'times' ? cps.filter((c) => c.up && c.j === 0) : s === 'add' ? cps.filter((c) => c.up) : [];
+    if (reds.length) part(sw, 0, () => reds.forEach((c) => { poly('tbad', c.pts); poly('shp bad thin', c.pts); }));
+    poly('shp', triPts(k));
+    text(gx(TRI.b / 2), F.by + 18, amt(PLATE3.area, 'cm²'), 'lbl');
+    if (right) part(ra, 0, () => readout2(answerOf(d), sq(k) + ' × ' + num(PLATE3.area) + ' ='));
+    else if (wrong) part(sw, 0, () => readout2(st.pick, (s === 'times' ? k : '(' + k + ' + ' + k + ')') + ' × ' + num(PLATE3.area) + ' =', true));
+    const said = ['A small triangular plate of 600 square centimetres, shaded, inside the outline of a plate the same shape 3 times as long each way.'];
+    if (right) said.push('9 copies of the small plate fill it, 6 upright and 3 turned round, so 9 times 600 equals 5,400 square centimetres.');
+    else if (wrong) said.push(reds.length + ' copies are shown in red, leaving gaps.');
+    return said.join(' ');
+  }
+  // mm² to cm²: the 1 cm square in mm with the 25 mm² block tinted; a right answer outlines the other three
+  // blocks like it and names the cm², then the sum; the 2.5 cm² slip is a red square far bigger than the cm².
+  function drawC25(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, n = MM_PER_CM, b = Math.sqrt(COND);
+    const wa = right ? arr(A.whole) : 0, ra = right ? arr(A.ro) : 0;
+    box('rowo', 0, 0, b, b);
+    gridIn(0, 0, n, n, 1, true, 'gl');
+    part(wa, 0, () => [[b, 0], [0, b], [b, b]].forEach((c) => box('cpo', c[0], c[1], b, b)));
+    box('shp', 0, 0, n, n);
+    const big = Math.sqrt(2.5 * CM2MM);
+    if (s === 'ten') part(sw, 0, () => { box('shp bad', 0, 0, big, big); plabelAt(gx(big) - 6, gy(big) + 20, st.pick, 'lbl warnt', 'end'); });
+    below(0, n, 0, '1 cm = 10 mm'); leftOf(0, 0, n, '10 mm');
+    plabelAt(gx(b) + 6, gy(b / 2) + 5, amt(COND, 'mm²'), 'lbl');
+    part(wa, 0, () => plabel(gx(n / 2), gy(n) - 9, '1 cm² = 100 mm²', 'lbl'));
+    if (right) part(ra, 0, () => readout2(answerOf(d), num(COND) + ' ÷ 100 ='));
+    else if (wrong) part(sw, 0, () => readout2(st.pick, num(COND) + (s === 'ten' ? ' ÷ 10 =' : ' × 100 ='), true));
+    const said = ['A 1 centimetre square ruled into 100 square millimetres, with a 5 by 5 block of 25 square millimetres shaded in its corner.'];
+    if (right) said.push('Four blocks like it fill the square centimetre, so 25 divided by 100 equals 0.25 square centimetres.');
+    else if (s === 'ten') said.push('2.5 square centimetres is drawn in red, a square far bigger than the whole square centimetre.');
+    else if (wrong) said.push('25 times 100 equals 2,500 is shown in red.');
+    return said.join(' ');
+  }
+  // m² to mm²: the 1 m square ruled in 100 mm squares, labelled in mm; a right answer names one 100 mm
+  // square, tints the whole from the bottom up, then the sum; the slips are a red row along the bottom, or
+  // one red 100 mm square.
+  function drawMil(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, n = CM_PER_M;
+    const ba = right ? arr(A.block) : 0, ri = right ? K.ease(lin(A.rise, RISE_MIL)) : 0, ra = right ? arr(A.ro) : 0;
+    if (ri > 0) box('t1', 0, 0, n, n * ri);
+    part(ba, 0, () => box('rowo', 0, 0, 10, 10));
+    if (s === 'cm') part(sw, 0, () => box('tbad', 0, 0, 10, 10));
+    gridIn(0, 0, n, n, 10, false, 'gl');
+    ruler(n);
+    box('shp', 0, 0, n, n);
+    if (s === 'row') part(sw, 0, () => { line('edge', gx(0), gy(0), gx(n), gy(0)); plabelAt(gx(2), gy(7) + 5, '1,000 mm², a row 1 mm tall', 'lbl warnt'); });
+    if (s === 'cm') part(sw, 0, () => { box('shp bad thin', 0, 0, 10, 10); plabelAt(gx(10) + 6, gy(5) + 5, st.pick, 'lbl warnt'); });
+    below(0, n, 0, '1 m = 1,000 mm', 'lbl', 22); leftOf(0, 0, n, '1,000 mm', 'lbl', 10);
+    part(ba, 0, () => plabelAt(gx(10) + 6, gy(5) + 5, '100 × 100 = 10,000 mm²', 'lbl'));
+    if (right) part(ra, 0, () => readout2(answerOf(d), '1,000 × 1,000 ='));
+    else if (wrong) part(sw, 0, () => readout2(st.pick, s === 'row' ? 'one row' : '100 × 100 =', true));
+    const said = ['A 1 metre square, 1,000 millimetres each way, ruled in 100 millimetre squares, with a ruler along the bottom and up the side.'];
+    if (right) said.push('One 100 millimetre square holds 10,000 square millimetres, and the whole square fills: 1,000 times 1,000 equals 1,000,000 square millimetres.');
+    else if (s === 'row') said.push('The bottom edge is marked in red: 1,000 square millimetres is only one row, 1 millimetre tall.');
+    else if (s === 'cm') said.push('One 100 millimetre square in the corner is shown in red, 10,000 square millimetres.');
+    return said.join(' ');
+  }
+  // A copper bar: its end ruled in millimetres; a right answer rules the cm lines and gives the sides in
+  // cm, then the sum; a slip's sum is in the warning colour.
+  function drawBar(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, w = BAR.w, t = BAR.t;
+    const ca = right ? arr(A.cm) : 0, ra = right ? arr(A.ro) : 0;
+    box('t1', 0, 0, w, t);
+    gridIn(0, 0, w, t, 1, false, 'gl');
+    part(ca, 0, () => gridIn(0, 0, w, t, MM_PER_CM, false, 'cmln'));
+    box('shp', 0, 0, w, t);
+    swap(ca, () => { below(0, w, 0, amt(w, 'mm')); leftOf(0, 0, t, amt(t, 'mm')); }, () => { below(0, w, 0, amt(w / MM_PER_CM, 'cm')); leftOf(0, 0, t, amt(t / MM_PER_CM, 'cm')); }, 0);
+    if (right) part(ra, 0, () => readout2(answerOf(d), num(w * t) + ' ÷ 100 ='));
+    else if (wrong) part(sw, 0, () => readout2(st.pick, s === 'ten' ? num(w * t) + ' ÷ 10 =' : w + ' × ' + t + ' =', true));
+    const said = ['The end of a flat copper bar, 30 millimetres wide and 5 millimetres thick, ruled in millimetre squares.'];
+    if (right) said.push('Ruled in centimetres it is 3 by 0.5 centimetres. 150 square millimetres divided by 100 equals 1.5 square centimetres.');
+    else if (wrong) said.push(say(st.pick) + ' is shown in red.');
+    return said.join(' ');
+  }
+
+  // ---------- the corner Dan drags (kept from frame to frame) ----------
+  // The picture takes a tap (the corner goes to the nearest size); the corner is dragged, or moved with the
+  // arrow keys. The page does not scroll under a finger on it.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  const gripKind = (d) => (d.show ? d.grip || null : d.kind === 'drag' ? 'diag' : null);
+  function live() {
+    const i = here(), d = STEPS[i];
+    return !finished && ((d.kind === 'drag' && S[i].res !== 'right') || (d.show && !!d.grip));
+  }
+  const kMax = (kind) => (kind === 'base' ? TRI_KMAX : KMAX);
+  function placeGrip(p) {
+    const i = here(), d = STEPS[i], kind = gripKind(d), on = !!p && !!kind && live();
+    grip.style.display = on ? '' : 'none';
+    board.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', r3(gx(p[0]))); grip.setAttribute('cy', r3(gy(p[1])));
+    if (kind === 'base') {
+      const k = Math.round(p[0] / TRI.b);
+      board.setAttribute('x', gx(0)); board.setAttribute('y', gy(TRI_KMAX * TRI.h) - 10); board.setAttribute('width', TRI_KMAX * TRI.b + 30); board.setAttribute('height', TRI_KMAX * TRI.h + 26);
+      grip.setAttribute('aria-valuemin', 1); grip.setAttribute('aria-valuemax', TRI_KMAX); grip.setAttribute('aria-valuenow', k);
+      grip.setAttribute('aria-label', 'The big triangle\'s right-hand corner. Drag it along the bottom, tap the picture, or use the arrow keys to make it a size bigger or smaller.');
+      grip.setAttribute('aria-valuetext', k === 1 ? 'the same size' : k + ' times as long each way');
+      return;
+    }
+    const k = Math.round(p[0]);
+    board.setAttribute('x', gx(0) - F.Q / 2); board.setAttribute('y', gy(KMAX) - F.Q / 2); board.setAttribute('width', F.Q * (KMAX + 1)); board.setAttribute('height', F.Q * (KMAX + 1));
+    grip.setAttribute('aria-valuemin', 1); grip.setAttribute('aria-valuemax', KMAX); grip.setAttribute('aria-valuenow', k);
+    grip.setAttribute('aria-label', 'The big square\'s top right corner. Drag it, tap the grid, or use the arrow keys to make it a size bigger or smaller.');
+    grip.setAttribute('aria-valuetext', say(side(k)) + ' a side');
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // A place on the picture as a size: the nearest corner on the square's diagonal, or the nearest
+  // whole number of triangle bases along the bottom.
+  function toK(q, kind) {
+    if (kind === 'base') return K.clamp(Math.round((q[0] - F.ox) / TRI.b), 1, TRI_KMAX);
+    return K.clamp(Math.round(((q[0] - F.ox) / F.Q + (F.by - q[1]) / F.Q) / 2), 1, KMAX);
+  }
+  // Moving the corner ends a demonstration that is still playing: the picture shows finished.
+  function moveTo(k) {
+    if (!live()) return;
+    const i = here(), d = STEPS[i], st = S[i];
+    if (anim.playing() && d.show) { anim.pause(); T = Infinity; }
+    if (st.moved && st.k === k) return;
+    st.k = k; st.moved = true;
+    if (!d.show) { st.pick = dims(k); st.res = null; }
+    K.refresh();
+  }
+  const moveBy = (q) => moveTo(toK(q, gripKind(STEPS[here()])));
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = e.pointerId; try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q) moveBy(q);
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) held = null; }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: 1, ArrowDown: -1 }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const i = here(), d = STEPS[i], st = S[i], kind = gripKind(d);
+    const k = st.k != null ? st.k : d.show ? 2 : d.start;
+    moveTo(K.clamp(k + by, 1, kMax(kind)));
+  });
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e);
+    if (q) moveBy(q);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  const DEMO = { mm: demoMM, m: demoM, scale: demoScale, tri: demoTri, cable: demoCable };
+  const PIC = { plate: drawPlate, floor: drawFloor, four: drawFour, tri3: drawTri3, c25: drawC25, mil: drawMil, bar: drawBar };
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    F = LAY[LAY_OF[d.show ? d.demo : d.pic]];
+    H = F.H;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    gripAt = null;
+    const aria = d.show ? DEMO[d.demo](i, d, st) : PIC[d.pic](i, d, st, right);
+    if (i === here()) placeGrip(gripAt);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) { st.moved = false; st.k = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, opts[k]));
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T, keepF = F;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        const prev = t.previousSibling, patched = !!(prev && prev.tagName === 'rect' && /\b(patch|hl)\b/.test(prev.getAttribute('class')));
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size, patched: patched };
+      });
+      // Every stroked edge drawn, as straight pieces (lines, rectangles' sides and paths' legs).
+      const segs = [];
+      Array.from(art.querySelectorAll('line, rect, path')).filter(vis).forEach((n) => {
+        const cls = n.getAttribute('class') || '';
+        if (/\b(t1|tbad|patch|hl)\b/.test(cls)) return;
+        if (n.tagName === 'line') { segs.push({ cls: cls, a: [+n.getAttribute('x1'), +n.getAttribute('y1')], b: [+n.getAttribute('x2'), +n.getAttribute('y2')] }); return; }
+        if (n.tagName === 'rect') { const x = +n.getAttribute('x'), y = +n.getAttribute('y'), w = +n.getAttribute('width'), h = +n.getAttribute('height'); [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]].forEach((q) => segs.push({ cls: cls, a: [q[0], q[1]], b: [q[2], q[3]] })); return; }
+        const toks = n.getAttribute('d').match(/[MLHVZhv]|-?[\d.]+/g) || [];
+        let cur = null, start = null, k = 0;
+        while (k < toks.length) {
+          const c = toks[k++];
+          if (c === 'M') { cur = [+toks[k++], +toks[k++]]; start = cur; }
+          else if (c === 'L') { const q = [+toks[k++], +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'H') { const q = [+toks[k++], cur[1]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'V') { const q = [cur[0], +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'h') { const q = [cur[0] + +toks[k++], cur[1]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'v') { const q = [cur[0], cur[1] + +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'Z') { segs.push({ cls: cls, a: cur, b: start }); cur = start; }
+        }
+      });
+      const rects = Array.from(art.querySelectorAll('rect')).filter(vis).map((n) => ({ cls: n.getAttribute('class') || '', x: +n.getAttribute('x'), y: +n.getAttribute('y'), w: +n.getAttribute('width'), h: +n.getAttribute('height') }));
+      const tints = Array.from(art.querySelectorAll('.t1, .rowo, .rowh, .cp, .pc, .tbad')).filter(vis).length;
+      const reds = Array.from(art.querySelectorAll('.bad, .edge, .warnt, .tbad, .ring')).filter(vis).length;
+      const nums = texts.filter((t) => /^cn/.test(t.cls)).map((t) => t.s);
+      return { texts: texts, all: texts.map((t) => t.s), segs: segs, rects: rects, tints: tints, reds: reds, nums: nums, H: H, F: F };
+    } finally { S[i] = keepS; T = keepT; F = keepF; paint(); }
+  }
+  // No two labels overlap, every label stays inside the picture, no drawn edge runs through a label that is
+  // not on its own patch, and every edge stays inside the picture.
+  function crosses(s, t) {
+    const b = { l: t.x0 + 1, r: t.x1 - 1, t: t.y0 + 2, u: t.y1 - 1 };
+    for (let k = 0; k <= 40; k++) { const x = K.lerp(s.a[0], s.b[0], k / 40), y = K.lerp(s.a[1], s.b[1], k / 40); if (x > b.l && x < b.r && y > b.t && y < b.u) return true; }
+    return false;
+  }
+  // (A size in the list and its picked-out copy sit on the same place by design.)
+  const fixed = (c) => /^axv/.test(c);
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || (fixed(a.cls) && fixed(b.cls)) || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5) &&
+    (a.patched || !g.segs.some((s) => crosses(s, a)))) &&
+    g.segs.every((s) => [s.a, s.b].every((q) => q[0] >= 0 && q[0] <= 340 && q[1] >= 0 && q[1] <= g.H));
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zncb9ty';
+  K.check('1 cm = 10 mm. 1 cm² = 10 mm x 10 mm = 100 mm². Conversion factor is 100: the 1 cm square is drawn as 10 rows of 10 mm squares and counted to 100 mm²; so the 20 cm² plate is 20 × 100 = 2,000 mm², the same as 50 mm × 40 mm, and a 25 mm² conductor is 25 ÷ 100 = 0.25 cm²', () => {
+    const g = drawn(0, blank(0)), lines = g.segs.filter((s) => /^gl$/.test(s.cls));
+    return MM_PER_CM === 10 && CM2MM === 100 && lines.length === 22 && g.all.indexOf('100 mm²') >= 0 && g.all.indexOf('10 × 10 =') >= 0 &&
+      g.nums.join() === '1,2,3,4,5,6,7,8,9,10' && answerOf(STEPS[1]) === '2,000 mm²' && PLATE.w * MM_PER_CM * PLATE.h * MM_PER_CM === 2000 &&
+      answerOf(STEPS[9]) === '0.25 cm²' && K.near(COND / CM2MM, 0.25, 1e-12);
+  }, { source: BITESIZE });
+  K.check('A common misconception would be that 100 cm² are needed because 1 metre is 100 centimetres: the 1 m square\'s one row of cm squares along the bottom is 100 cm², a hundredth of it, and its 100 rows make 100 × 100 = 10,000 cm²; the 6 m² floor is 60,000 cm², and the 600 cm² slip is drawn as a red square a hundredth of that', () => {
+    const g = drawn(2, blank(2)), strip = g.rects.filter((r) => /\browh\b/.test(r.cls))[0], side1 = LAY.m.Q * CM_PER_M;
+    const f = drawn(3, slipped(3, '600 cm²')), red = f.rects.filter((r) => /\btbad\b/.test(r.cls))[0], Qm = LAY.floor.Q;
+    return CM_PER_M === 100 && M2CM === 10000 && g.all.indexOf('one row, 100 cm²') >= 0 && g.all.indexOf('10,000 cm²') >= 0 && g.all.indexOf('100 × 100 =') >= 0 &&
+      !!strip && K.near(strip.w * strip.h / (side1 * side1), 1 / 100, 1e-4) && answerOf(STEPS[3]) === '60,000 cm²' && slipOpt(STEPS[3], 'hundred') === '600 cm²' &&
+      !!red && K.near(red.w * red.h / (Qm * Qm) * M2CM, 600, 0.5) && K.near(600 * 100, FLOOR.w * FLOOR.h * M2CM, 1e-9);
+  }, { source: BITESIZE });
+  K.check('Conductor cross-section 1.5 mm² 2.5 mm² 4 mm² 6 mm² 10 mm² 16 mm² 25 mm² 35 mm²: the cable screen steps through exactly these sizes in this order, each tinting that many of the 100 one-millimetre squares in 1 cm², and ends at 35 mm² = 35 ÷ 100 = 0.35 cm²', () => {
+    const g = drawn(8, blank(8)), Q = LAY.cable.Q;
+    const tint = g.rects.filter((r) => /\bt1\b/.test(r.cls)).reduce((s, r) => s + r.w * r.h, 0) / (Q * Q);
+    return SZ.map(String).join(' ') === '1.5 2.5 4 6 10 16 25 35' && SZ.every((v, k) => k === 0 || v > SZ[k - 1]) && SZ.every((v) => g.all.indexOf(num(v)) >= 0) &&
+      K.near(tint, SZ[SZ.length - 1], 1e-6) && g.all.indexOf('0.35 cm²') >= 0 && STEPS[8].text.indexOf('Nexans') >= 0;
+  }, { source: 'https://www.nexans.qa/en/Products/EnergyCables/Infrastructure/LowVoltageCablesIECStandards/2COREXLP34533.html' });
+  K.check('IEC 60228 specifies the nominal cross-sectional areas, in the range 0,5 mm2 to 3 500 mm2: every conductor size the lesson uses, the eight listed and the 25 mm² puzzle, lies in that range and is given as an area in mm²', () =>
+    SZ.concat([COND]).every((v) => v >= 0.5 && v <= 3500) && /mm²/.test(STEPS[9].task) && STEPS[8].text.indexOf('IEC 60228') >= 0,
+  { source: 'https://webstore.iec.ch/en/publication/71891' });
+  K.check('Every side k times as long fits k × k copies: k × k copies of the 10 cm square tile the square k × 10 cm a side exactly (k = 1 to 4), and k × k copies of the triangle, k(k + 1) ÷ 2 upright and k(k − 1) ÷ 2 turned round, each the same size and shape, fill the triangle k times as big (k = 1 to 3); so twice the sides is 4 times the area and the 600 cm² plate tripled is 9 × 600 = 5,400 cm²', () => {
+    let ok = true;
+    for (let k = 1; k <= KMAX; k++) { const c = squareCopies(k); ok = ok && c.length === k * k && new Set(c.map(String)).size === k * k && c.every((p) => p[0] >= 0 && p[1] >= 0 && p[0] < k && p[1] < k) && squareCopies(k).slice(0, sq(k - 1)).join() === squareCopies(k - 1 || 1).slice(0, sq(k - 1)).join(); }
+    const small = triPts(1), sa = areaOf(small), ss = sidesOf(small);
+    for (let k = 1; k <= TRI_KMAX; k++) {
+      const c = triCopies(k), big = triPts(k);
+      ok = ok && c.length === k * k && c.filter((q) => q.up).length === k * (k + 1) / 2 && c.filter((q) => !q.up).length === k * (k - 1) / 2 &&
+        c.every((q) => K.near(areaOf(q.pts), sa, 1e-6) && sidesOf(q.pts).every((v, n) => K.near(v, ss[n], 1e-6)) && q.pts.every((p) => inside(p, big))) &&
+        K.near(c.reduce((s, q) => s + areaOf(q.pts), 0), areaOf(big), 1e-6) && new Set(c.map((q) => centroid(q.pts).map(r3).join())).size === k * k;
+    }
+    return ok && answerOf(STEPS[7]) === '5,400 cm²' && sq(2) === 4 && K.near(areaOf(triPts(2)) / sa, 4, 1e-9);
+  });
+  K.check('Each puzzle\'s answer is worked out from its rule: 20 × 100 = 2,000 mm²; 6 × 10,000 = 60,000 cm²; a 20 cm square, 4 copies of the 10 cm one; 9 × 600 = 5,400 cm²; 25 ÷ 100 = 0.25 cm²; 1,000 × 1,000 = 1,000,000 mm²; 30 × 5 = 150 mm² and 150 ÷ 100 = 1.5 cm², the same as 3 cm × 0.5 cm', () =>
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) && DO.map((i) => STEPS[i].want).join('|') === '2,000 mm²|60,000 cm²|20 cm × 20 cm|5,400 cm²|0.25 cm²|1,000,000 mm²|1.5 cm²' &&
+    M2MM === 1000000 && K.near((BAR.w / MM_PER_CM) * (BAR.t / MM_PER_CM), BAR.w * BAR.t / CM2MM, 1e-12) && sq(STEPS[5].to) === STEPS[5].times &&
+    FLOOR.w * CM_PER_M * FLOOR.h * CM_PER_M === 60000 && parseDims(STEPS[5].want) === STEPS[5].to);
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives: the length\'s factor (× 10, × 100, ÷ 10) used for an area, a divide for a multiply or a multiply for a divide, × 1,000 for m² to cm², the cm² number for mm², mm² read as cm², the side made 4 times as long, the area made only 3 times or 3 + 3 times as much; each is shown in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length === slips.length + 1 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      if (d.kind === 'drag' && slips.some((o) => isRight(i, slipped(i, o)))) return false;
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return clear(w) && w.reds > 0; });
+    }) && slipOpt(STEPS[1], 'ten') === '200 mm²' && slipOpt(STEPS[1], 'divide') === '0.2 mm²' && slipOpt(STEPS[3], 'thousand') === '6,000 cm²' &&
+    slipOpt(STEPS[7], 'times') === '1,800 cm²' && slipOpt(STEPS[7], 'add') === '3,600 cm²' && slipOpt(STEPS[9], 'ten') === '2.5 cm²' && slipOpt(STEPS[9], 'times') === '2,500 cm²' &&
+    slipOpt(STEPS[10], 'row') === '1,000 mm²' && slipOpt(STEPS[10], 'cm') === '10,000 mm²' && slipOpt(STEPS[11], 'ten') === '15 cm²' && slipOpt(STEPS[11], 'mm') === '150 cm²' &&
+    [1, 3, 4].every((k) => !isRight(5, Object.assign(blank(5), { moved: true, k: k, pick: dims(k) }))) && isRight(5, Object.assign(blank(5), { moved: true, k: 2, pick: dims(2) })));
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: the plate not ruled in mm, the floor not split into cm, the big square\'s area shown as ?, no copies in the big triangle, no blocks or cm² named beside the conductor, the metre square not tinted, the bar not ruled in cm; no answer anywhere and nothing in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      if (g.reds || g.all.indexOf(d.want) >= 0) return false;
+      if (d.kind === 'drag') return g.all.indexOf('? cm²') >= 0 && g.nums.length === 0;
+      if (d.pic === 'plate') return !g.segs.some((s) => /\bgl2\b/.test(s.cls)) && g.all.indexOf('50 mm') < 0 && g.tints === 0;
+      if (d.pic === 'floor') return g.all.indexOf('300 cm') < 0 && g.tints === 0;
+      if (d.pic === 'tri3') return g.tints === 1 && g.nums.length === 0;
+      if (d.pic === 'c25') return g.all.indexOf('1 cm² = 100 mm²') < 0 && !g.segs.some((s) => /\bcpo\b/.test(s.cls));
+      if (d.pic === 'mil') return g.tints === 0 && g.all.indexOf('100 × 100 = 10,000 mm²') < 0;
+      return !g.segs.some((s) => /\bcmln\b/.test(s.cls)) && g.all.indexOf('3 cm') < 0;
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other and of the lines, for every answer, right or wrong, and at every size the corners can be dragged to', () =>
+    STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i))))) &&
+    [1, 2, 3, 4].every((k) => clear(drawn(4, Object.assign(blank(4), { moved: true, k: k }))) && clear(drawn(5, Object.assign(blank(5), { moved: true, k: k, pick: dims(k) })))) &&
+    [1, 2, 3].every((k) => clear(drawn(6, Object.assign(blank(6), { moved: true, k: k })))));
+  // A screen filmed in state st from its start to dur, 30 frames a second. A readout drawn outside part()
+  // or swap() pops in, so one is allowed only where a readout is already there as the screen opens (and
+  // fades in with it); its count may then change in place. A readout or label that
+  // changes in place (one fully shown string gone and another fully shown in the same frame, with no fade
+  // between) is a counted step: those come at least 0.2 s apart, give or take a frame.
+  function filmed(i, st, dur) {
+    const keepS = S[i], keepT = T, DT = 1 / 30;
+    const shown = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.999) return false; return true; };
+    let first = null, prev = null, lastTick = -Infinity, good = true;
+    S[i] = st;
+    try {
+      for (let n = 0; n * DT <= dur + DT && good; n++) {
+        T = n * DT; loose = [];
+        paint(i);
+        const lo = loose.join('|');
+        if (n === 0) first = lo; else if (lo && !first) good = false;
+        const now = Array.from(art.querySelectorAll('text')).filter((t) => /^(ro|rou|lbl)\b/.test(t.getAttribute('class')) && shown(t)).map((t) => t.textContent);
+        if (prev) {
+          const gone = prev.filter((x) => now.indexOf(x) < 0), came = now.filter((x) => prev.indexOf(x) < 0);
+          if (gone.length && came.length) { if (T - lastTick < 0.2 - DT - 1e-6) good = false; lastTick = T; }
+        }
+        prev = now;
+      }
+    } finally { S[i] = keepS; T = keepT; paint(); }
+    return good;
+  }
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart; and, filmed 30 frames a second, no readout or label changes in place sooner than 0.2 s after its last change, and no readout appears outside a fade (part() or swap()) unless it is there as the screen opens', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per item; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 1); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at)) &&
+      STEPS.every((d, i) => filmed(i, d.show ? blank(i) : solved(i), d.show ? d.dur : d.fb));
+  });
+
+  K.ready();
+</script>

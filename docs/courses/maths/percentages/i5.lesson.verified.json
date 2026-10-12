@@ -1,0 +1,118 @@
+{
+  "iid": "i5",
+  "title": "Back to the original",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the bar's end sliding back from the new amount to 100%, where the original always sits, so dividing by the multiplier gives the original back, when you go back from a rise or a cut, while taking the percentage off the new amount lands short of 100%.",
+    "title": "Back to the original",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on a percentage bar, the original amount bracketed above it as 100% and the new amount below it, with an end that slides back to 100%, some screens showing an idea and the rest asking you to try it.",
+    "ignores": "The amounts (£180, 46 A, 90 m, 384 V and the rest) are example values, chosen to show the method, all above zero. A 100% cut leaves nothing, so there is no way back from it.",
+    "numbers": [
+      {
+        "label": "£180 after a 20% rise is 120% of the original, so 180 ÷ 1.2 = £150, in step 1",
+        "value": 150,
+        "kind": "constant"
+      },
+      {
+        "label": "46 A after a 15% rise: 46 ÷ 1.15 = 40 A, where 46 × 0.85 = 39.1 A takes 15% off the new load, in step 2",
+        "value": 40,
+        "kind": "constant"
+      },
+      {
+        "label": "90 m after a 25% cut is 75% of the run, so 90 ÷ 0.75 = 120 m, in step 3",
+        "value": 120,
+        "kind": "constant"
+      },
+      {
+        "label": "£68 after 15% off: 68 ÷ 0.85 = £80, not 68 × 1.15 = £78.20, in step 4",
+        "value": 80,
+        "kind": "constant"
+      },
+      {
+        "label": "20% off £180 is 180 × 0.8 = £144, which is 96% of £150, because 20% of £180 is £36 and the rise was £30, in step 5",
+        "value": 144,
+        "kind": "constant"
+      },
+      {
+        "label": "£300 with 20% added: 300 ÷ 1.2 = £250, while 300 × 0.8 = £240 and 300 ÷ 0.8 = £375, in step 6",
+        "value": 250,
+        "kind": "constant"
+      },
+      {
+        "label": "£100 up 20% then down 20%: 100 × 1.2 × 0.8 = £96, and up 50% then down 50% ends at £75, in step 7",
+        "value": 96,
+        "kind": "constant"
+      },
+      {
+        "label": "Up 25% to £100: 100 ÷ 1.25 = £80, a cut of £20, which is 20% of £100, in step 8",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "A cable run cut 20% to 48 m is 80% of the run before, so 48 ÷ 0.8 = 60 m, where 48 × 1.2 = 57.6 m adds 20% of the new length, in step 9",
+        "value": 60,
+        "kind": "constant"
+      },
+      {
+        "label": "384 V after a 4% drop: 384 ÷ 0.96 = 400 V, where 384 × 1.04 = 399.36 V, in step 10",
+        "value": 400,
+        "kind": "constant"
+      },
+      {
+        "label": "£54 with 8% added: 54 ÷ 1.08 = £50, not 54 ÷ 1.8 = £30, in step 11",
+        "value": 50,
+        "kind": "constant"
+      },
+      {
+        "label": "Up 10% then down 10% is × 0.99, so £99 now was 99 ÷ 0.99 = £100 at the start, in step 12",
+        "value": 100,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "The amount before a change is the original, and the original amount always represents 100%.[^1] After a 20% rise the new amount is 120% of it, which is the original × 1.2, so one division by that same multiplier finds the original.[^2] £180 after a 20% rise was 180 ÷ 1.2 = £150, and you can check it forwards, since 150 × 1.2 = 180. A cut goes back the same way. 25% off leaves 75%, so a cable run cut to 90 m was 90 ÷ 0.75 = 120 m. Going back from a rise gives a smaller amount, and going back from a cut gives a bigger one.\n\nTaking the percentage off the new amount does not work, because the percentage was of the original. 20% of £180 is £36, but the rise was 20% of £150, only £30, so £180 − £36 = £144 lands short. For the same reason, a rise and a cut by the same percentage do not cancel. 100 down 20% is 80, and 80 up 20% is 96, because the second 20% is of 80, which is only 16.[^3] Either way round, the two multipliers come to 0.8 × 1.2 = 0.96.\n\n**The original is always 100%, so to go back, divide the new amount by the multiplier, ÷ 1.2 after a 20% rise and ÷ 0.75 after a 25% cut. Taking the percentage off the new amount lands short, and up 20% then down 20% ends at 96%.**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** Turn the change into its multiplier, then divide the new amount by it.[^2] Going back from a rise gives less, and going back from a cut gives more, which makes a quick check.\n\n**Worked example:** A supply has dropped 4% to 384 V. 100% − 4% = 96%, so the multiplier is 0.96, and 384 ÷ 0.96 = 400 V. As a check, 400 × 0.96 = 384.\n\n**Common mistakes**\n- Taking the percentage off the new amount. 46 A after a 15% rise was not 46 × 0.85 = 39.1 A. The rise was 15% of the old load, so it was 46 ÷ 1.15 = 40 A.\n- Multiplying again instead of dividing. £68 after 15% off was 68 ÷ 0.85 = £80, not 68 × 0.85 = £57.80.\n- Using a cut's multiplier for a rise. £300 with 20% added was 300 ÷ 1.2 = £250, not 300 ÷ 0.8 = £375.\n- Dividing by 10 instead of 100. 8% added is ÷ 1.08, not ÷ 1.8.\n- Expecting the same percentage to undo a change. Up 20% then down 20% ends at 96%, and undoing a 25% rise takes a 20% cut.[^3]"
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Percentage change - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zxghrmn",
+      "quote": "The original amount always represents 100%."
+    },
+    {
+      "n": 2,
+      "title": "Finding the original amount after an increase KS3 | Y8 Maths | Lesson Resources | Oak National Academy",
+      "url": "https://www.thenational.academy/teachers/programmes/maths-secondary-ks3/units/understanding-multiplicative-relationships-percentages-and-proportionality/lessons/finding-the-original-amount-after-an-increase",
+      "quote": "In all of these representations a single multiplier can be used to find the original amount after a percentage increase"
+    },
+    {
+      "n": 3,
+      "title": "Common ways percentages can mislead you - Math Open Reference",
+      "url": "https://mathopenref.com/percenterrors.html",
+      "quote": "For example, if I have 100 items and reduce that by 20% I get 80 items: Now if I increase 80 by 20% I get 96: So I end up with 96 items, not 100."
+    }
+  ]
+}

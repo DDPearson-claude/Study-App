@@ -1,0 +1,1088 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A calculator key named in the words: drawn as a small key cap. */
+  .kc { display: inline-block; min-width: 1.7em; padding: 0 .3em; margin: 0 .05em; border: 1.5px solid var(--k-strong); border-radius: 6px;
+    background: var(--k-panel); font-weight: 700; line-height: 1.3; text-align: center; font-size: .92em; }
+  .scene { display: block; width: 100%; }
+  /* The upright number line: a tube with the line up its middle (a thermometer has a bulb). */
+  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tick.m { stroke-width: 1.5; }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .zero { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .unit { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .note { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .val { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  /* The marker: its round end stands on a number, its point shows the way it faces. */
+  .scene .mk { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; stroke-linejoin: round; }
+  /* The answer's tag, pointing at its place on the line. */
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .hop { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent); }
+  .scene .hl2 { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  /* A lost minus: its hop dashed, its tag outlined, both in the colour for mistakes. */
+  .scene .bad { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: round; }
+  .scene .badhead { fill: var(--k-warn); }
+  .scene .badtag { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .badt { font: 700 15px var(--k-font); fill: var(--k-warn); }
+  .scene .badn { font: 700 14px var(--k-font); fill: var(--k-warn); }
+  /* A change: an arrow from the initial reading to the final one. */
+  .scene .ov { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .chg { font: 700 18px var(--k-font); fill: var(--k-accent2); }
+  .scene .sum { font: 700 21px var(--k-font); fill: var(--k-ink); }
+  .scene .fw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ph { font: italic 600 19px var(--k-font); fill: var(--k-muted); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.25; stroke-dasharray: 3 4; opacity: .7; }
+  /* The rule in words, beside the marker; the line of it in use is highlighted. */
+  .scene .card { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .rule { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .mini { fill: var(--k-accent2); }
+  /* The calculator: its body, its display, its keys (the top row darker, as function keys are). */
+  .scene .calc { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .lcd { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .lcdx { font: 600 20px var(--k-font); fill: var(--k-ink); white-space: pre; }
+  .scene .lcdr { font: 700 26px var(--k-font); fill: var(--k-accent2); }
+  .scene .key { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .key.fn { fill: var(--k-sunk); }
+  .scene .keyhl { fill: var(--k-hl); }
+  /* A key being pressed: a ring round it that fades. */
+  .scene .keyring { fill: none; stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .keyt { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .keyt.fn { font-size: 16px; }
+  .scene .capn { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  /* The keys Dan can tap: a thumb-sized box over each. */
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* The answers stay on one row, each label whole, at every text size. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A number line, formulas and a calculator's keys.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 286" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A reading goes in its slot with its sign, in brackets. Readings are example values, and atmospheric is rounded to 1 bar (about 1.013 bar, as in lesson 3).</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // lay: which picture a step draws (LAY below). at: when each part of the motion after a right
+  // answer arrives, in seconds after Check. In the words, *term* is a key term and [key] a calculator key.
+  const PICK = 'Tap one of the answers.', FULL = 'The display is full. Tap DEL to take a key off.';
+  const SHORT = 'Not quite. The sum stops short. Take the last key off with DEL.';
+  const M = '−';
+  const STEPS = [
+    { show: true, demo: 'slot', dur: 4.4, lay: 'bar', name: 'Into a formula',
+      text: 'A *formula* has a slot for each reading. Round atmospheric to 1 bar. Absolute pressure = atmospheric + gauge, and a gauge reading of −0.8 goes in with its minus, in brackets.' },
+    { kind: 'press', lay: 'bar', air: 1, gauge: -0.6, filled: true, opts: ['0.4', '1.6', '−0.4'], want: '0.4', fb: 2.0, name: 'A gauge below zero',
+      at: { hl: 0.15, hop: [0.3, 0.8], lab: 0.75, tag: 1.3 },
+      task: 'A gauge reads −0.6 bar, and atmospheric is 1 bar. What is the absolute pressure, in bar?',
+      why: 'Atmospheric + gauge is 1 + (−0.6). Adding a negative steps down the line, so 0.6 down from 1 is 0.4 bar, less than the air around.',
+      hint: 'Not quite. Start at 1 and add −0.6.',
+      hints: { '1.6': 'Not quite. That drops the minus. A gauge reading below zero gives less than 1 bar.', '−0.4': 'Not quite. That takes 1 from 0.6. Start at 1 and step 0.6 down.' } },
+    { show: true, demo: 'keys', dur: 4.0, lay: 'calc', name: 'Two minus keys',
+      text: 'A calculator like this one has two minus keys. [(−)] makes a number negative, and [−] takes one number away from another. So −3 − 2 is keyed [(−)] 3 [−] 2.' },
+    { kind: 'key', lay: 'calc', rule: 'neg', keyed: ['neg', '3'], fb: 1.3, name: 'Key in −3',
+      at: { res: 0.15, hl: [0.6] }, marks: [['neg', 'sign']],
+      task: 'Key in −3, then Check, as you would press = on your own calculator.',
+      empty: 'Tap the keys to key in −3.',
+      hTake: 'Not quite. [−] takes one number away from another. [(−)] makes a number negative.',
+      hOpen: 'Not quite. Close the bracket you opened.',
+      hSyntax: 'Not quite. The minus sign goes in front of the 3.',
+      why: '[(−)] is the sign key, so [(−)] 3 makes 3 negative. [−] is for taking one number away from another, as in 5 − 3.' },
+    { show: true, demo: 'square', dur: 4.3, lay: 'strips', name: 'Brackets to square',
+      text: 'Keyed as [(−)] 4 [x²], the calculator squares the 4 first and gives −16. To square −4 itself, put it in brackets, [(] [(−)] 4 [)] [x²], and you get 16.' },
+    { kind: 'key', lay: 'calc', rule: 'sq', keyed: ['(', 'neg', '4', ')', 'sq'], fb: 1.3, name: 'Square a reading',
+      at: { res: 0.15, hl: [0.6] }, marks: [['()', 'brackets']],
+      task: 'A formula needs u², and the reading u is −4. Key in u² so the calculator gives 16.',
+      empty: 'Tap the keys to key in u².',
+      hTake: 'Not quite. [−] takes away. [(−)] makes a number negative.',
+      hOpen: 'Not quite. Close the bracket after the 4.',
+      hSyntax: 'Not quite. Put −4 in brackets, then square the bracket.',
+      why: 'Brackets round −4 make the calculator square the whole reading, (−4) × (−4) = 16. Without them it squares the 4 and then makes it negative, −16.' },
+    { show: true, demo: 'change', dur: 4.3, lay: 'vel', name: 'A change in velocity',
+      text: 'Change in velocity = final − initial. Counting ahead as plus, a ship going from 2 m/s *astern* (backwards) to 3 m/s ahead changes by 3 − (−2) = 5 m/s.' },
+    { kind: 'change', lay: 'vel2', first: 1, last: -3, opts: ['−4', '2', '4'], want: '−4', fb: 2.35, name: 'Ahead, then astern',
+      at: { arrow: [0.15, 0.7], label: 0.6, work: 1.05, keys: [1.3, 1.5, 1.7] },
+      task: 'Counting ahead as plus, a ship goes from 1 m/s ahead to 3 m/s astern. What is its change in velocity, in m/s?',
+      why: 'Counting ahead as plus, initial is 1 and final is −3. Final − initial is (−3) − 1, one step further down from −3, so −4 m/s. Key it as [(−)] 3 [−] 1.',
+      hint: 'Not quite. Final − initial is (−3) − 1.',
+      hints: { '2': 'Not quite. That drops the minus. Going astern makes the final velocity −3.', '4': 'Not quite. That is initial − final. A change is final − initial.' } },
+    { show: true, demo: 'sense', dur: 4.0, lay: 'bar9', name: 'Does it make sense?',
+      text: 'A quick look catches a lost minus. A gauge reading below zero has to give less than atmospheric. So with 1 bar and −0.8, 0.2 makes sense and 1.8 does not.' },
+    { kind: 'press', lay: 'bar', air: 1, gauge: -0.35, filled: false, opts: ['0.65', '1.35', '−0.65'], want: '0.65', fb: 2.1, name: 'A gauge in bar',
+      at: { fill: 0.15, hl: 0.3, hop: [0.45, 0.7], lab: 0.85, tag: 1.4 },
+      task: 'Another gauge reads −0.35 bar. With atmospheric at 1 bar, what is the absolute pressure?',
+      why: 'Atmospheric + gauge is 1 + (−0.35). Adding a negative steps down, so 0.35 down from 1 is 0.65 bar, less than the air around, as it should be.',
+      hint: 'Not quite. Start at 1 and add −0.35.',
+      hints: { '1.35': 'Not quite. That drops the minus. A gauge reading below zero gives less than 1 bar.', '−0.65': 'Not quite. That takes 1 from 0.35. Start at 1 and step 0.35 down.' } },
+    { kind: 'square', lay: 'form', u: -3, opts: ['18', '−18', '36'], want: '18', fb: 1.8, name: 'Square in a formula',
+      at: { u: 0.15, sq: 0.65, ans: 1.15 },
+      task: 'A formula has 2u² in it, and u is −3. What is 2u²?',
+      why: 'Put −3 in its slot in brackets, 2 × (−3)². Powers come before times, so (−3)² = 9 first, then 2 × 9 = 18.',
+      hint: 'Not quite. Put −3 in the slot in brackets, and square it first.',
+      hints: { '−18': 'Not quite. That squares 3, then makes it negative. Square the whole reading, (−3)² = 9.', '36': 'Not quite. Powers come before times, so square −3 first, then double it.' } },
+    { kind: 'key', lay: 'calc', rule: 'vel', keyed: ['2', M, 'neg', '5'], fb: 1.8, name: 'Key the change',
+      at: { res: 0.15, hl: [0.6, 1.1] }, marks: [[M, 'take away'], ['neg', 'sign']],
+      task: 'Counting ahead as plus, a ship goes from 5 m/s astern to 2 m/s ahead. Key in its change in velocity.',
+      empty: 'Tap the keys to key in the change.',
+      hTake: 'Not quite. [−] takes away. Key the sign of −5 with [(−)].',
+      hOpen: 'Not quite. Close the bracket you opened.',
+      hSyntax: 'Not quite. Key the final velocity, then [−], then the initial one.',
+      why: 'Counting ahead as plus, initial is −5 and final is 2. Final − initial is 2 − (−5) = 7 m/s. Key it as 2 [−] [(−)] 5, the take-away key and then the sign key.' },
+  ];
+  const FINISH = 'That’s Negative numbers done, all nine lessons. Put each reading into its formula with its sign, in brackets, and key the sign with [(−)], keeping [−] for taking away.';
+  // The rule beside the marker, in words.
+  const RULES = ['Facing up: add', 'Positive: forwards', 'Negative: backwards'];
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). FLASH: how long a key's ring shows
+  // when it is pressed.
+  const FADE = 0.35, HL = 0.4, FLASH = 0.42, WRONGFADE = 0.3;
+  const AT = {
+    // the formula's words; the rule, the air's reading and the marker on it; the sum with its slots;
+    // the gauge reading drops into its slot; the rule's backwards line lights; the hop back 0.8; the answer
+    slot: { air: 1, gauge: -0.8, words: 0.5, mk: 1.0, sum: 1.5, fill: 2.0, hl: 2.5, hop: [2.7, 0.9], lab: 3.2, tag: 3.8 },
+    // the two minus keys lit and named; then −3 − 2 keyed one key at a time; the answer
+    keys: { hl: [0.5, 1.1], press: [1.8, 2.1, 2.4, 2.7], seq: ['neg', '3', M, '2'], res: 3.3 },
+    // without brackets: the keys, pressed in turn, then the answer; then the same with brackets
+    square: { a: 0.5, pa: [0.85, 1.08, 1.31], ra: 1.65, b: 2.15, pb: [2.5, 2.72, 2.94, 3.16, 3.38], rb: 3.7 },
+    // the initial velocity, then the final one; the rule and the sum; the keys; the change's arrow; the answer
+    change: { first: -2, last: 3, r1: 0.5, r2: 1.0, work: 1.6, keys: [2.2, 2.45, 2.7], arrow: [2.9, 0.7], label: 3.3, ans: 3.6 },
+    // the air's reading and the marker; the hop back 0.8 to 0.2; then the lost minus, up to 1.8
+    sense: { air: 1, gauge: -0.8, mk: 0.5, hop: [1.2, 0.8], lab: 1.7, tag: 2.2, bad: [2.8, 0.6], btag: 3.4 },
+  };
+  // Drawing sizes, in viewBox units (340 wide). The line runs up x = X inside a tube TW either side
+  // of it, its numbers ending at LX. Each line: values top..bot drawn from Y0 down to H - 46, a tick
+  // every `minor`, a longer one every `mid`, a number every `every`; `bulb` for a thermometer.
+  const X = 76, TW = 9, LX = 56, Y0 = 40, H0 = 286, TAGX = 120, AX = 228;
+  let H = H0;
+  const LAY = {
+    bar: { top: 1.2, bot: 0, minor: 0.1, every: 0.2, unit: 'bar', H: 262 },
+    bar9: { top: 2, bot: 0, minor: 0.1, mid: 0.5, every: 0.5, unit: 'bar' },
+    vel: { top: 5, bot: -4, minor: 1, every: 1, unit: 'm/s', H: 262 },
+    vel2: { top: 3, bot: -5, minor: 1, every: 1, unit: 'm/s', H: 262 },
+    calc: { H: 296 }, strips: { H: 256 }, form: { H: 200 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const GAUGE = 'https://openstax.org/books/college-physics-2e/pages/11-6-gauge-pressure-absolute-pressure-and-pressure-measurement';
+  const VELOCITY = 'https://www.bbc.co.uk/bitesize/guides/z2wy6yc/revision/2';
+  const OPENLEARN = 'https://www.open.edu/openlearn/science-maths-technology/mathematics-statistics/squares-roots-and-powers/content-section-3.2';
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const round3 = (v) => Math.round(v * 1000) / 1000;
+  const DIGIT = /^\d$/;
+  // '−0.66' -> −0.66; '413' -> 413; words -> NaN.
+  function value(s) {
+    const t = String(s).replace(/−/g, '-').trim();
+    return /^[-+]?\d+(\.\d+)?$/.test(t) ? Number(t) : NaN;
+  }
+  // As Dan reads it: a proper minus sign (and a plus on a change upwards); as a screen reader says it.
+  const fmt = (v) => (v < 0 ? M : '') + String(round3(Math.abs(v)));
+  const signed = (v) => (v > 0 ? '+' : '') + fmt(v);
+  const KEYSAY = { '(−)': 'the sign key', '−': 'the take-away key', 'x²': 'x squared', '(': 'open bracket', ')': 'close bracket' };
+  const say = (s) => String(s).replace(/\[([^\]]+)\]/g, (m, k) => KEYSAY[k] || k).replace(/−\s*/g, 'minus ').replace(/ \+ /g, ' plus ').replace(/\+/g, 'plus ')
+    .replace(/ = /g, ' equals ').replace(/ × /g, ' times ').replace(/²/g, ' squared').replace(/°C/g, 'degrees').replace(/m\/s/g, 'metres per second');
+  // Absolute pressure = atmospheric + gauge: a reading below zero steps down from the air's pressure.
+  const absolute = (air, gauge) => round3(air + gauge);
+  // A change is last minus first: change in velocity = final velocity − initial velocity.
+  const changeOf = (first, last) => round3(last - first);
+
+  // What a calculator works out from the keys pressed, the way a scientific calculator reads them:
+  // brackets, then squares, then a sign (so (−) 4 x² is −(4²)), then times and divide, then add and
+  // take away, left to right. 'neg' is the (−) key, M the take-away key. -> {ok, v} or {ok: false, err}
+  function evalKeys(keys) {
+    let i = 0;
+    const peek = () => keys[i];
+    const fail = (err) => { throw { err: err }; };
+    function expr() { let v = term(); while (peek() === '+' || peek() === M) { const op = keys[i++], r = term(); v = op === '+' ? v + r : v - r; } return v; }
+    function term() { let v = factor(); while (peek() === '×' || peek() === '÷') { const op = keys[i++], r = factor(); v = op === '×' ? v * r : v / r; } return v; }
+    function factor() { if (peek() === 'neg') { i++; return -factor(); } return power(); }
+    function power() { let v = primary(); while (peek() === 'sq') { i++; v = v * v; } return v; }
+    function primary() {
+      const t = peek();
+      if (t === '(') { i++; const v = expr(); if (peek() !== ')') fail('unclosed'); i++; return v; }
+      if (DIGIT.test(t || '')) { let s = ''; while (DIGIT.test(peek() || '')) s += keys[i++]; return Number(s); }
+      if (t === M) fail('takeaway');   // the take-away key where a number should start
+      return fail(t == null ? 'short' : 'syntax');
+    }
+    try {
+      if (!keys.length) return { ok: false, err: 'empty' };
+      const v = expr();
+      if (i < keys.length) fail('syntax');
+      if (!isFinite(v)) fail('math');
+      return { ok: true, v: round3(v) };
+    } catch (e) { if (e && e.err) return { ok: false, err: e.err }; throw e; }
+  }
+  // Each key as it shows on the display: a sign sits tight on its number; take away, add, times and
+  // divide have a space either side.
+  function keyPieces(keys) {
+    return keys.map((k, j) => {
+      if (DIGIT.test(k) || k === '(' || k === ')') return k;
+      if (k === 'neg') return M;
+      if (k === 'sq') return '²';
+      return (j === 0 ? '' : ' ') + k + ' ';
+    });
+  }
+  const shown = (keys) => keyPieces(keys).join('').trim();
+  // Is the keying right? A wrong one gets a hint aimed at its slip; nothing keyed yet is empty.
+  const digitsOf = (keys) => keys.filter((k) => DIGIT.test(k));
+  // Two sign keys in a row cancel: they are never how a reading is keyed.
+  const twoSigns = (keys) => keys.some((k, j) => k === 'neg' && keys[j + 1] === 'neg');
+  // Is x² pressed inside a bracket that is still open?
+  function sqInside(keys) {
+    let depth = 0;
+    return keys.some((k) => { if (k === '(') depth++; else if (k === ')') depth--; return k === 'sq' && depth > 0; });
+  }
+  const JUDGE = {
+    // −3: the sign key, then 3
+    neg: (v, keys) => {
+      const ds = digitsOf(keys).join('');
+      if (twoSigns(keys)) return { hint: 'Not quite. Two [(−)] presses cancel. Press [(−)] once, then 3.' };
+      if (v === -3 && ds === '3') return { right: true };
+      if (v === 3 && ds === '3') return { hint: 'Not quite. That is 3, with no minus sign in front.' };
+      return { hint: 'Not quite. −3 is the number 3 with a minus sign in front.' };
+    },
+    // u² for u = −4: the reading keyed with its sign, in brackets, then squared
+    sq: (v, keys) => {
+      const s = keys.join(' ');
+      if (twoSigns(keys)) return { hint: 'Not quite. Two [(−)] presses cancel. Key [(] [(−)] 4 [)] [x²].' };
+      // right: an open bracket straight before the sign, a close bracket after the 4 and before x²; or −4 × −4
+      if (v === 16 && (/\( neg 4 \)( \))* sq/.test(s) || /^(\( )?neg 4( \))? × (\( )?neg 4( \))?$/.test(s))) return { right: true };
+      if (v === 16 && keys.indexOf('neg') < 0) return { hint: 'Not quite. That squares 4, but u is −4. Key its minus with [(−)], inside brackets.' };
+      if (v === 16) return { hint: 'Not quite. That gives 16, but not by squaring −4. Key [(] [(−)] 4 [)] [x²].' };
+      if (v === -16 && keys.some((k, j) => k === 'neg' && keys[j + 1] === '(')) return { hint: 'Not quite. That gives −16, as the bracket holds only the 4. Put the minus inside, [(] [(−)] 4 [)], then press [x²].' };
+      if (v === -16 && sqInside(keys)) return { hint: 'Not quite. That gives −16, as [x²] is inside the bracket. Close the bracket after the 4, then press [x²].' };
+      if (v === -16) return { hint: 'Not quite. That gives −16. The calculator squares the 4 first, so put brackets round −4.' };
+      if (v === -4) return { hint: 'Not quite. That is u itself. Now square it with [x²].' };
+      return { hint: 'Not quite. That gives ' + fmt(v) + '. Put −4 in brackets, then square it.' };
+    },
+    // the change in velocity from 5 m/s astern to 2 m/s ahead, ahead counted as plus: 2 − (−5)
+    vel: (v, keys) => {
+      const ds = digitsOf(keys).join(''), five = keys.indexOf('5');
+      if (v === 7 && ds === '25' && keys[five - 1] === 'neg') return { right: true };
+      if (v === -3 && ds === '25') return { hint: 'Not quite. That gives −3. It drops the minus on −5, so key it with [(−)].' };
+      if (v === -7 && keys[keys.indexOf('2') - 1] === 'neg') return { hint: 'Not quite. That makes the 2 negative. 2 m/s ahead is +2, and 5 m/s astern is −5.' };
+      if (v === -7) return { hint: 'Not quite. That gives −7, initial − final. Key the final velocity first.' };
+      if (v === 7) return { hint: 'Not quite. That gives 7, but not as the formula stands. Key final − initial, with [(−)] for −5.' };
+      if (v === 3) return { hint: 'Not quite. That drops the minus and swaps the order. Key final − initial.' };
+      return { hint: 'Not quite. That gives ' + fmt(v) + '. Key the final velocity, then [−], then the initial one.' };
+    },
+  };
+  function judge(d, keys) {
+    if (!keys.length) return { empty: true };
+    const r = evalKeys(keys);
+    if (!r.ok) return { hint: r.err === 'takeaway' ? d.hTake : r.err === 'unclosed' ? d.hOpen : r.err === 'short' ? SHORT : d.hSyntax };
+    return JUDGE[d.rule](r.v, keys);
+  }
+  // The answer a step asks for, worked by the rule.
+  function answerOf(d) {
+    if (d.kind === 'press') return absolute(d.air, d.gauge);
+    if (d.kind === 'change') return changeOf(d.first, d.last);
+    if (d.kind === 'square') return 2 * d.u * d.u;
+    if (d.kind === 'key') return evalKeys(d.keyed).v;
+    return null;
+  }
+
+  // keys: what Dan has keyed; out: what the display shows after Check (null: nothing yet).
+  function blank(i) {
+    return { keys: [], out: null, flash: null, pick: null, res: null, why: false };
+  }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'key') return st.keys.length ? '' : d.empty;
+    return st.pick == null ? PICK : '';
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (isEmpty(i, st)) return false;
+    if (d.kind === 'key') return !!judge(d, st.keys).right;
+    return st.pick === d.want;
+  }
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'key') return judge(d, st.keys).hint || '';
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'key') { st.keys = d.keyed.slice(); st.out = answerOf(d); }
+    else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo', 'fb' or 'key'
+
+  // ---------- text with amber key terms and drawn keys (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A run of keys ("[(−)] 3 [−] 2", "2 [−] [(−)] 5") stays on one line, each key drawn as a key cap.
+  const RUN = /(?:\d+(?:\.\d+)? )?\[[^\]]+\](?: (?:\[[^\]]+\]|\d+(?:\.\d+)?))*/g;
+  function keyRun(s) {
+    const span = K.el('span', { class: 'nw' });
+    s.split(' ').forEach((p, k) => {
+      if (k) span.appendChild(document.createTextNode(' '));
+      const m = /^\[(.+)\]$/.exec(p);
+      span.appendChild(m ? K.el('span', { class: 'kc' }, m[1]) : document.createTextNode(p));
+    });
+    return span;
+  }
+  // A sum stays together on one line ("3 − (−2) = 5", "(−3)²", "−0.8 bar"), with the stop after it;
+  // so do the word formulas "atmospheric + gauge" and "final − initial".
+  const TOK = '[−(]*\\d+(?:\\.\\d+)?[)²]*(?: (?:°C|m\\/s|bar)(?![A-Za-z]))?';
+  const GLUE = new RegExp('(?:[Aa]tmospheric \\+ gauge|[Ff]inal − initial|(?:\\bto )?' + TOK + '(?: [+−=×] ' + TOK + ')*)[.,?!;]?', 'g');
+  function sums(el, text) {
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      if (/[ −(]/.test(m[0])) el.appendChild(K.el('span', { class: 'nw' }, m[0]));
+      else el.appendChild(document.createTextNode(m[0]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    RUN.lastIndex = 0;
+    while ((m = RUN.exec(text))) {
+      if (m.index > at) sums(el, text.slice(at, m.index));
+      el.appendChild(keyRun(m[0]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) sums(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to four answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // A key on the calculator: added to what is keyed (DEL takes the last one off). A ring shows round it as it is pressed.
+  function pressKey(id) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'key' || st.res === 'right') return;
+    if (id === 'DEL') st.keys.pop();
+    else if (shown(st.keys.concat([id])).length > 18) { st.res = 'full'; K.reveal(); K.refresh(); return; }
+    else st.keys.push(id);
+    st.out = null; st.res = null; st.flash = id;
+    K.reveal();
+    play(FLASH, 'key');
+    K.refresh();
+  }
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (d.kind === 'key') { const r = evalKeys(st.keys); st.out = r.ok ? r.v : null; }
+    if (st.res === 'right') play(d.fb, 'fb');
+    else if (st.out != null) play(WRONGFADE, 'fb');   // the display's answer fades in
+    else if (motion === 'key') { anim.pause(); T = Infinity; motion = null; }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the motion after a right answer and a key's ring, from
+  // its start; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A key pressed at t: a ring round it rises softly and fades (gone in the finished picture).
+  const glow = (t) => Math.min(arr(t, 0.12), 1 - arr(t + 0.12, 0.3));
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving (a slot giving way to its answer): faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: w, height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const pathOf = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  // A stroke grown as far as e (0..1) along its own length.
+  function grown(cls, d, e) {
+    if (e <= 0) return;
+    const attrs = { class: cls, d: d };
+    if (e < 1) { attrs.pathLength = 1; attrs['stroke-dasharray'] = '1 1'; attrs['stroke-dashoffset'] = (1 - e).toFixed(3); }
+    add(K.svg('path', attrs));
+  }
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { sum: 21, chg: 18, keyt: 17, capn: 17, rule: 14, fw: 15, ph: 19, lcdx: 20 }[cls] || 15;
+    return String(s).length * size * 0.6;
+  }
+  // Pieces laid out in a row from x0 with gap G: [{s?, w?}] -> [{x, w}] (a piece with w is a box).
+  function rowAt(items, x0, cls, G) {
+    let x = x0;
+    return items.map((it) => { const w = it.w != null ? it.w : tw(it.s, cls), o = { x: x, w: w }; x += w + G; return o; });
+  }
+  const rowWidth = (items, cls, G) => items.reduce((s, it) => s + (it.w != null ? it.w : tw(it.s, cls)), 0) + G * (items.length - 1);
+
+  // A line's scale: where value v sits (y), from Y0 at the top to H - 46 at the bottom.
+  function scaleOf(L) {
+    const y1 = H - 46, k = (y1 - Y0) / (L.top - L.bot);
+    return { L: L, k: k, y: (v) => Y0 + (L.top - v) * k };
+  }
+  const isMult = (v, s) => Math.abs(v / s - Math.round(v / s)) < 1e-6;
+  // The upright line: a tube (with a bulb for a thermometer), the line up its middle, a tick at every
+  // step, longer at every `mid` and `every`, the longest at 0; numbers at every `every`, 0 the largest.
+  // A number that a reading's own label would cover gives way to it (readings: [{v, a}]).
+  function upright(sc, readings) {
+    const L = sc.L, y0 = sc.y(L.top), y1 = sc.y(L.bot), yT = y0 - 12, yB = y1 + 6;
+    readings = readings || [];
+    if (L.bulb) pathOf('tube', 'M' + (X - TW) + ' ' + (yT + TW) + ' A' + TW + ' ' + TW + ' 0 0 1 ' + (X + TW) + ' ' + (yT + TW) + ' V' + yB +
+      ' A15 15 0 1 1 ' + (X - TW) + ' ' + yB + ' Z');
+    else rect('tube', X - TW, yT, 2 * TW, yB + 6 - yT, TW);
+    line('axis', X, y0 - 4, X, y1 + 4);
+    const n = Math.round((L.top - L.bot) / L.minor);
+    for (let j = 0; j <= n; j++) {
+      const v = round3(L.top - j * L.minor), y = sc.y(v), z = same(v, 0), big = isMult(v, L.every), mid = L.mid && isMult(v, L.mid);
+      const h = z ? 14 : big ? 8 : mid ? 6 : 4;
+      line('tick' + (z || big ? '' : ' m'), X - h, y, X + h, y);
+      if (!(z || big)) continue;
+      const draw = () => text(LX, y + (z ? 6.5 : 5.5), fmt(v), z ? 'zero' : 'num', 'end');
+      const cover = readings.filter((r) => Math.abs(sc.y(r.v) - y) < 18).map((r) => (r.a == null ? 1 : r.a));
+      if (!cover.length) draw();
+      else leave(Math.min(1, 2 * Math.max.apply(null, cover)), draw);
+    }
+    if (L.unit) text(LX, y0 - 20, L.unit, 'unit', 'end');
+  }
+  // A reading on the line: a dot, and its value beside the numbers, risen in as a goes 0 -> 1.
+  function reading(sc, v, a) {
+    part(a, 0, () => add(K.svg('circle', { class: 'dot', cx: X, cy: sc.y(v), r: 7 })));
+    part(a, 6, () => text(LX, sc.y(v) + 5.5, sc.L.unit === '°C' ? signed(v) + ' °C' : fmt(v), 'val', 'end'));
+  }
+  // The marker at v, turned `ang` degrees from facing up (180 faces down): its round end on the line
+  // at v, its point the way it faces.
+  function marker(sc, v, ang, a) {
+    part(a, 0, () => add(K.svg('path', { class: 'mk', 'data-v': round3(v), 'data-ang': Math.round(ang),
+      transform: 'translate(' + X + ' ' + sc.y(v).toFixed(2) + ') rotate(' + ang.toFixed(1) + ')', d: 'M0 -18 L6.93 -4 A8 8 0 1 1 -6.93 -4 Z' })));
+  }
+  // The rule beside the marker: line k arrives as ins[k] goes 0 -> 1 and is highlighted as hls[k]
+  // does (the line in use). The facing line carries a small marker facing up.
+  function card(ins, hls) {
+    const face = (k) => /^Facing/.test(RULES[k]);
+    const w = Math.max.apply(null, RULES.map((s, k) => tw(s, 'rule') + (face(k) ? 18 : 0))) + 22;
+    const x = 334 - w;
+    part(Math.max.apply(null, ins), 0, () => rect('card', x, 6, w, 10 + 20 * RULES.length, 8));
+    for (let k = 0; k < RULES.length; k++) {
+      const yb = 26 + 20 * k, h = hls ? hls[k] || 0 : 0;
+      part(Math.min(ins[k], h), 0, () => rect('hl', x + 5, yb - 14, w - 10, 19, 4));
+      part(ins[k], 6, () => {
+        if (face(k)) add(K.svg('path', { class: 'mini', transform: 'translate(' + (x + 16) + ' ' + (yb - 5) + ') scale(0.55)',
+          d: 'M0 -18 L6.93 -4 A8 8 0 1 1 -6.93 -4 Z' }));
+        text(x + 11 + (face(k) ? 18 : 0), yb, RULES[k], 'rule k-nohalo', 'start');
+      });
+    }
+  }
+  const ruleSaid = (back) => ' Beside it, the rule: facing up means add, a positive number steps forwards and a negative one backwards' +
+    (back >= 0.5 ? '; the backwards line is highlighted.' : '.');
+  // A long hop beside the line, from a to b, with an arrowhead as it lands and its size beside it. Its
+  // bulge is small, so the growing tip keeps level with the marker gliding beside it. `bad`: a lost minus.
+  function bigHop(sc, h, bad) {
+    const e = arr(h.t, h.dur), hd = arr(h.t + h.dur * 0.6, 0.3), x = X + TW + 3, d = 14, up = h.b > h.a;
+    if (e > 0) {
+      const y1 = sc.y(h.a) + (up ? -2 : 2), y2 = sc.y(h.b) + (up ? 2 : -2), ym = (y1 + y2) / 2;
+      const path = 'M' + x + ' ' + y1.toFixed(2) + ' Q' + (x + 2 * d) + ' ' + ym.toFixed(2) + ' ' + x + ' ' + y2.toFixed(2);
+      // a lost minus's dashed hop fades in whole (growing it would hide its dashes until it landed)
+      if (bad) part(e, 0, () => pathOf('bad', path)); else grown('hop', path, e);
+      const dx = -2 * d, dy = y2 - ym, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+      const bx = x - ux * 9, by = y2 - uy * 9, px = -uy * 4.5, py = ux * 4.5;
+      part(hd, 0, () => pathOf(bad ? 'badhead' : 'head', 'M' + x + ' ' + y2.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z'));
+    }
+    if (h.lab) part(arr(h.lt), 6, () => text(x + d + 8, (sc.y(h.a) + sc.y(h.b)) / 2 + 5, h.lab, 'hl2', 'start'));
+    return e;
+  }
+  // The answer's tag at v, its point at TAGX - 7, risen in as a goes 0 -> 1 (`bad`: outlined, for a lost minus).
+  function tag(sc, v, s, a, bad) {
+    const y = sc.y(v), w = Math.max(40, tw(s, 'tagt') + 20);
+    part(a, 6, () => {
+      if (bad) {
+        pathOf('badtag', 'M' + (TAGX + 8) + ' ' + (y - 15) + ' H' + (TAGX + w - 8) + ' A8 8 0 0 1 ' + (TAGX + w) + ' ' + (y - 7) + ' V' + (y + 7) +
+          ' A8 8 0 0 1 ' + (TAGX + w - 8) + ' ' + (y + 15) + ' H' + (TAGX + 8) + ' L' + (TAGX - 7) + ' ' + y + ' Z');
+        text(TAGX + w / 2 + 2, y + 5.5, s, 'badt k-nohalo');
+        return;
+      }
+      pathOf('tag', 'M' + TAGX + ' ' + (y - 7).toFixed(2) + ' L' + (TAGX - 7) + ' ' + y.toFixed(2) + ' L' + TAGX + ' ' + (y + 7).toFixed(2) + ' Z');
+      rect('tag', TAGX, y - 15, w, 30, 8);
+      text(TAGX + w / 2, y + 5.5, s, 'tagt k-nohalo');
+    });
+    return TAGX + w;
+  }
+  // The slot an answer goes in: a dashed box that gives way to the answer as a goes 0 -> 1.
+  const slot = (x, y, w, h, a) => leave(a, () => rect('gapbox', x, y, w, h, 5));
+  // The sum at the foot of the picture, right-aligned: its left side, then a slot that gives way to
+  // the answer as a goes 0 -> 1 (or the whole sum risen in as a does, with `whole`).
+  function sumAt(left, ans, a, whole) {
+    const y = H - 12;
+    if (whole) { part(a, 6, () => text(334, y, left, 'sum', 'end')); return; }
+    const w = Math.max(36, tw(ans, 'sum') + 12), x = 334 - w;
+    text(x - 6, y, left, 'sum', 'end');
+    slot(x, y - 21, w, 29, a);
+    part(a, 6, () => text(x + w / 2, y, ans, 'sum'));
+  }
+  const lineSaid = (L) => 'An upright number line from ' + say(fmt(L.top)) + ' down to ' + say(fmt(L.bot)) + (L.unit ? ' ' + (L.unit === '°C' ? 'degrees' : L.unit === 'm/s' ? 'metres per second' : L.unit) : '') +
+    (L.bulb ? ', drawn like a thermometer' : '') + '.';
+
+  // --- pressure: absolute = atmospheric + gauge, the marker facing up on the air's reading ---
+  // The formula's words, right of the line.
+  function words(a) {
+    part(a, 6, () => { text(334, 108, 'absolute pressure =', 'fw', 'end'); text(334, 128, 'atmospheric + gauge', 'fw', 'end'); });
+  }
+  // The air's reading on the line, named.
+  function air(sc, v, a) {
+    reading(sc, v, a);
+    part(a, 6, () => text(126, sc.y(v) + 5, 'air', 'note', 'start'));
+  }
+  // The sum at the foot: air + [gauge] = [answer]. The gauge's slot holds the word "gauge" until the
+  // reading drops into it (as g goes 0 -> 1), in brackets and highlighted; the answer fills its slot as a does.
+  function pressSum(airV, gauge, g, a, appear) {
+    const y = H - 12, gs = '(' + fmt(gauge) + ')', gw = tw(gs, 'sum') + 16, ans = fmt(absolute(airV, gauge)), aw = Math.max(36, tw(ans, 'sum') + 12);
+    const items = [{ s: fmt(airV) }, { s: '+' }, { w: gw }, { s: '=' }, { w: aw }], G = 8;
+    const p = rowAt(items, 334 - rowWidth(items, 'sum', G), 'sum', G);
+    part(appear, 6, () => {
+      text(p[0].x, y, items[0].s, 'sum', 'start'); text(p[1].x, y, '+', 'sum', 'start'); text(p[3].x, y, '=', 'sum', 'start');
+      slot(p[2].x, y - 22, gw, 30, g);
+      leave(g, () => text(p[2].x + gw / 2, y - 2, 'gauge', 'ph'));
+      part(g, 10, () => { rect('hl', p[2].x + 2, y - 20, gw - 4, 26, 5); text(p[2].x + gw / 2, y, gs, 'sum'); });
+      slot(p[4].x, y - 22, aw, 30, a);
+      part(a, 6, () => text(p[4].x + aw / 2, y, ans, 'sum'));
+    });
+  }
+  // One pressure screen: the line, the formula, the air's reading and the marker on it; o says how far
+  // each part has arrived: words, mk (the marker and the air), sum, fill (the gauge into its slot),
+  // hl (the backwards rule), hop (the motion's own arrival), tag.
+  function pressScene(L, airV, gauge, o) {
+    const sc = scaleOf(L), ans = absolute(airV, gauge);
+    upright(sc, [{ v: airV, a: o.mk }]);
+    words(o.words);
+    card([o.mk, o.mk, o.mk], [o.mk, 0, o.hl]);
+    air(sc, airV, o.mk);
+    const e = o.hop ? bigHop(sc, o.hop) : 0;
+    marker(sc, airV - (airV - ans) * e, 0, o.mk);
+    tag(sc, ans, fmt(ans), o.tag);
+    pressSum(airV, gauge, o.fill, o.tag, o.sum);
+    return { sc: sc, e: e, ans: ans };
+  }
+  function pressSaid(L, airV, gauge, o, r) {
+    return lineSaid(L) + ' Beside it, the formula: absolute pressure equals atmospheric plus gauge.' +
+      (o.mk >= 0.5 ? ' The air’s reading, ' + say(fmt(airV)) + ', is marked, with a marker on it facing up.' + ruleSaid(o.hl) : '') +
+      (o.sum >= 0.5 ? ' Below, the sum ' + say(fmt(airV)) + ' plus ' + (o.fill >= 0.5 ? 'open bracket ' + say(fmt(gauge)) + ' close bracket' : 'a slot for the gauge reading') +
+        (o.tag >= 0.5 ? ' equals ' + say(fmt(r.ans)) : ' equals an empty box') + '.' : '') +
+      (r.e >= 1 ? ' The marker has stepped backwards ' + say(fmt(Math.abs(gauge))) + ', down the line, to ' + say(fmt(r.ans)) + '.' : '');
+  }
+
+  // --- the calculator: its display and its keys (the two minus keys among them) ---
+  const LCD = { x: 24, y: 16, w: 292, h: 70 }, KX = 28, KW = 52, KH = 48, KG = 6, KROW = [98, 166, 220];
+  const KEYS = [
+    { id: 'neg', t: '(−)', r: 0, c: 0, fn: true, say: 'the sign key, (−)' }, { id: 'sq', t: 'x²', r: 0, c: 1, fn: true, say: 'x squared' },
+    { id: '(', r: 0, c: 2, fn: true, say: 'open bracket' }, { id: ')', r: 0, c: 3, fn: true, say: 'close bracket' },
+    { id: 'DEL', r: 0, c: 4, fn: true, say: 'DEL, take the last key off' },
+    { id: '4', r: 1, c: 0 }, { id: '5', r: 1, c: 1 }, { id: '6', r: 1, c: 2 }, { id: '×', r: 1, c: 3, say: 'times' }, { id: '÷', r: 1, c: 4, say: 'divide' },
+    { id: '1', r: 2, c: 0 }, { id: '2', r: 2, c: 1 }, { id: '3', r: 2, c: 2 }, { id: '+', r: 2, c: 3, say: 'add' }, { id: M, r: 2, c: 4, say: 'the take-away key, minus' },
+  ];
+  const keyOf = (id) => KEYS.filter((k) => k.id === id)[0];
+  const keyBox = (k) => ({ x: KX + k.c * (KW + KG), y: KROW[k.r] });
+  // Where a key's name goes: in the band under the top row, or under the bottom row.
+  function markAt(id) {
+    if (id === '()') { const a = keyBox(keyOf('(')), b = keyBox(keyOf(')')); return { x: (a.x + b.x + KW) / 2, y: KROW[0] + KH + 15 }; }
+    const k = keyOf(id), p = keyBox(k);
+    return { x: p.x + KW / 2, y: k.r === 0 ? KROW[0] + KH + 15 : KROW[2] + KH + 15 };
+  }
+  // The display's sum, each key's piece fading in as it is pressed (arrivals: per key, 0..1).
+  function lcdLine(x, y, keys, arrivals) {
+    const t = add(K.svg('text', { class: 'lcdx k-nohalo', x: x, y: y }));
+    keyPieces(keys).forEach((p, k) => {
+      const a = arrivals ? arrivals[k] : 1;
+      if (a <= 0) return;
+      const ts = t.appendChild(K.svg('tspan', {}, p));
+      if (a < 1) ts.setAttribute('fill-opacity', a.toFixed(3));
+    });
+  }
+  // A key drawn at x, y (w wide): its face, a highlight (as hl arrives), a ring as it is pressed, its label.
+  function keyFace(k, x, y, w, h, hl, glowA) {
+    rect('key' + (k.fn ? ' fn' : ''), x, y, w, h, 9);
+    part(hl, 0, () => rect('keyhl', x + 3, y + 3, w - 6, h - 6, 7));
+    if (glowA > 0) K.fade(rect('keyring', x - 1.5, y - 1.5, w + 3, h + 3, 10), glowA, 0);
+    text(x + w / 2, y + h / 2 + 6, k.t || k.id, 'keyt k-nohalo' + (k.fn ? ' fn' : ''));
+  }
+  // The calculator. o: keys (keyed so far) and arr (their arrivals); res (the answer shown) and resA;
+  // hl {id: a} keys lit; glow {id: a} rings round keys being pressed; marks [{id, s, a}] names under keys.
+  function calculator(o) {
+    rect('calc', 8, 4, 324, 288, 18);
+    rect('lcd', LCD.x, LCD.y, LCD.w, LCD.h, 8);
+    lcdLine(LCD.x + 12, LCD.y + 30, o.keys || [], o.arr);
+    if (o.res != null) part(o.resA == null ? 1 : o.resA, 0, () => text(LCD.x + LCD.w - 12, LCD.y + 60, o.res, 'lcdr k-nohalo', 'end'));
+    KEYS.forEach((k) => {
+      const p = keyBox(k), hl = (o.hl && o.hl[k.id]) || 0, g = (o.glow && o.glow[k.id]) || 0;
+      keyFace(k, p.x, p.y, KW, KH, hl, g);
+    });
+    (o.marks || []).forEach((m) => { const p = markAt(m.id); part(m.a, 4, () => text(p.x, p.y, m.s, 'note k-nohalo')); });
+  }
+  const calcSaid = (keys, res, marks) => 'A calculator. Among its top keys, (−), the sign key; at the bottom right, minus, the take-away key.' +
+    ' The display shows ' + (keys.length ? say(shown(keys)) : 'nothing yet') + (res != null ? ', and the answer ' + say(res) : '') + '.' +
+    (marks || []).filter((m) => m.a >= 0.5).map((m) => ' Under ' + (m.id === '()' ? 'the brackets' : keyOf(m.id).say) + ': ' + m.s + '.').join('');
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // A gauge reading drops into its slot in the formula; adding a negative, the marker steps backwards 0.8 from 1 to 0.2.
+  function demoSlot() {
+    const A = AT.slot, L = LAY.bar;
+    const o = { words: arr(A.words), mk: arr(A.mk), sum: arr(A.sum), fill: arr(A.fill), hl: arr(A.hl, HL), tag: arr(A.tag),
+      hop: { a: A.air, b: absolute(A.air, A.gauge), t: A.hop[0], dur: A.hop[1], lab: fmt(-A.gauge), lt: A.lab } };
+    const r = pressScene(L, A.air, A.gauge, o);
+    return pressSaid(L, A.air, A.gauge, o, r);
+  }
+  // The two minus keys lit and named; then −3 − 2 keyed, one key at a time, and its answer.
+  function demoKeys() {
+    const A = AT.keys, h1 = arr(A.hl[0]), h2 = arr(A.hl[1]);
+    const ins = A.press.map((t) => arr(t + 0.06, 0.3)), lit = A.press.map(glow);
+    const res = arr(A.res), v = evalKeys(A.seq).v, rings = {};
+    A.seq.forEach((id, j) => { rings[id] = Math.max(rings[id] || 0, lit[j]); });   // each pressed key its own ring
+    const hl = {}; hl.neg = h1; hl[M] = h2;
+    const marks = [{ id: 'neg', s: 'sign', a: h1 }, { id: M, s: 'take away', a: h2 }];
+    calculator({ keys: A.seq, arr: ins, res: fmt(v), resA: res, hl: hl, glow: rings, marks: marks });
+    const n = ins.filter((a) => a >= 0.5).length;
+    return calcSaid(A.seq.slice(0, n), res >= 0.5 ? fmt(v) : null, marks);
+  }
+  // (−) 4 x² and ( (−) 4 ) x²: each keyed in turn on its own row of keys, its display showing the answer.
+  function demoSquare() {
+    const A = AT.square, said = [];
+    [{ y: 14, s: 'Without brackets', keys: ['neg', '4', 'sq'], t: A.a, ps: A.pa, rt: A.ra },
+      { y: 140, s: 'With brackets', keys: ['(', 'neg', '4', ')', 'sq'], t: A.b, ps: A.pb, rt: A.rb }].forEach((R) => {
+      const a = arr(R.t), ins = R.ps.map((t) => arr(t + 0.06, 0.3)), lit = R.ps.map(glow), res = arr(R.rt), v = evalKeys(R.keys).v;
+      part(a, 6, () => {
+        text(20, R.y + 14, R.s, 'note', 'start');
+        const caps = R.keys.map((id) => ({ k: keyOf(id), w: Math.max(42, tw(keyOf(id).t || id, 'keyt') + 18) }));
+        let x = 20;
+        caps.forEach((c, j) => { keyFace(c.k, x, R.y + 22, c.w, 36, 0, lit[j]); x += c.w + 6; });
+        rect('lcd', 20, R.y + 66, 300, 48, 8);
+        lcdLine(32, R.y + 97, R.keys, ins);
+        part(res, 0, () => text(308, R.y + 99, fmt(v), 'lcdr k-nohalo', 'end'));
+      });
+      if (a >= 0.5) said.push(R.s + ': ' + R.keys.map((id) => keyOf(id).say || id).join(', ') +
+        (ins.every((x) => x >= 0.5) ? '; the display shows ' + say(shown(R.keys)) : '') + (res >= 0.5 ? ', and the answer ' + say(fmt(v)) : '') + '.');
+    });
+    return 'Two ways to key in minus 4 squared. ' + said.join(' ');
+  }
+  // A change in velocity: the initial and final velocities on the line; the rule and the sum; the keys; the arrow and its size.
+  function demoChange() {
+    const A = AT.change, L = LAY.vel, d = { first: A.first, last: A.last };
+    const o = { r1: arr(A.r1), r2: arr(A.r2), e: arr(A.arrow[0], A.arrow[1]), lab: arr(A.label), work: arr(A.work), ans: arr(A.ans), keys: A.keys.map((t) => arr(t)) };
+    changeScene(L, d, o, true);
+    return changeSaid(L, d, o);
+  }
+  // A lost minus caught: from the air's 1 bar the marker steps back 0.8 to 0.2; dropping the minus would go up to 1.8.
+  function demoSense() {
+    const A = AT.sense, L = LAY.bar9, sc = scaleOf(L), mk = arr(A.mk), ans = absolute(A.air, A.gauge), wrong = absolute(A.air, -A.gauge);
+    upright(sc, [{ v: A.air, a: mk }]);
+    air(sc, A.air, mk);
+    const e = bigHop(sc, { a: A.air, b: ans, t: A.hop[0], dur: A.hop[1], lab: fmt(-A.gauge), lt: A.lab });
+    marker(sc, A.air - (A.air - ans) * e, 0, mk);
+    const tg = arr(A.tag), x1 = tag(sc, ans, fmt(ans), tg), good = fmt(A.air) + ' + (' + fmt(A.gauge) + ')', bad = fmt(A.air) + ' + ' + fmt(-A.gauge);
+    part(tg, 6, () => text(x1 + 8, sc.y(ans) + 5, good, 'note', 'start'));
+    const eb = bigHop(sc, { a: A.air, b: wrong, t: A.bad[0], dur: A.bad[1] }, true), bt = arr(A.btag);
+    const x2 = tag(sc, wrong, fmt(wrong), bt, true);
+    part(bt, 6, () => { text(x2 + 8, sc.y(wrong) + 5, bad, 'badn', 'start'); text(x2 + 8, sc.y(wrong) + 25, 'minus lost', 'badn', 'start'); });
+    return lineSaid(L) + (mk >= 0.5 ? ' Atmospheric, ' + say(fmt(A.air)) + ' bar, is marked, with a marker on it facing up.' : '') +
+      (e >= 1 ? ' The marker steps backwards ' + say(fmt(-A.gauge)) + ', down to ' + say(fmt(ans)) + ', tagged ' + say(good) + '.' : '') +
+      (eb >= 1 ? ' A dashed hop in the colour for mistakes goes up instead, to ' + say(fmt(wrong)) + ', tagged ' + say(bad) + ', minus lost.' : '');
+  }
+
+  // --- a change in velocity: the initial and final velocities on the line, the change's arrow between them ---
+  // A change is last minus first, written with brackets round each negative reading.
+  const changeSum = (d) => (d.last < 0 ? '(' + fmt(d.last) + ')' : fmt(d.last)) + ' − ' + (d.first < 0 ? '(' + fmt(d.first) + ')' : fmt(d.first));
+  // The keys for it: the last reading (its sign key first if it is negative), the take-away key, then the first reading.
+  function keyItems(d) {
+    const num = (v, g) => (v < 0 ? [{ k: keyOf('neg'), g: g }] : []).concat([{ n: fmt(Math.abs(v)), g: g }]);
+    return num(d.last, 0).concat([{ k: keyOf(M), g: 1 }], num(d.first, 2));
+  }
+  // The keys as key caps and numbers in a row ending at x1, each group arriving as ins[g].
+  function capsRow(items, x1, y, ins) {
+    const G = 5;
+    items.forEach((it) => { it.w = it.k ? Math.max(30, tw(it.k.t || it.k.id, 'keyt') + 14) : tw(it.n, 'capn'); });
+    const p = rowAt(items, x1 - rowWidth(items, 'capn', G), 'capn', G);
+    part(Math.max.apply(null, ins), 6, () => text(p[0].x - 8, y + 21, 'keyed', 'note', 'end'));
+    items.forEach((it, k) => part(ins[it.g], 6, () => {
+      if (it.k) keyFace(it.k, p[k].x, y, it.w, 30, 0, 0);
+      else text(p[k].x, y + 21, it.n, 'capn', 'start');
+    }));
+  }
+  // o: r1, r2 (the readings), work (the rule and the sum), keys [3], e (the arrow), lab, ans.
+  function changeScene(L, d, o, slotSum) {
+    const sc = scaleOf(L), c = changeOf(d.first, d.last), ym = (sc.y(d.first) + sc.y(d.last)) / 2, rise = d.last > d.first;
+    upright(sc, [{ v: d.first, a: o.r1 }, { v: d.last, a: o.r2 }]);
+    reading(sc, d.first, o.r1); reading(sc, d.last, o.r2);
+    part(o.r1, 6, () => text(X + TW + 7, sc.y(d.first) + (rise ? 20 : -9), 'initial', 'note', 'start'));
+    part(o.r2, 6, () => text(X + TW + 7, sc.y(d.last) + (rise ? -9 : 20), 'final', 'note', 'start'));
+    // faint guides from the two readings across, arriving with the arrow, so its ends meet them
+    part(Math.min(1, o.e * 3), 0, () => [d.first, d.last].forEach((v) => line('guide', X + TW + 4, sc.y(v), AX - 4, sc.y(v))));
+    if (o.e > 0) {
+      const y1 = sc.y(d.first), y2 = sc.y(d.last), y = K.lerp(y1, y2, o.e), s = y2 < y1 ? 1 : -1;
+      part(Math.min(1, o.e * 3), 0, () => {
+        line('ov', AX, y1, AX, y);
+        pathOf('ov', 'M' + (AX - 6) + ' ' + (y + 9 * s).toFixed(2) + ' L' + AX + ' ' + y.toFixed(2) + ' L' + (AX + 6) + ' ' + (y + 9 * s).toFixed(2));
+      });
+    }
+    part(o.lab, 6, () => { text(AX + 10, ym - 6, 'change', 'note', 'start'); text(AX + 10, ym + 16, signed(c) + ' m/s', 'chg', 'start'); });
+    if (slotSum) {
+      part(o.work, 6, () => { text(334, H - 41, 'final − initial', 'note', 'end'); sumAt(changeSum(d) + ' =', fmt(c), o.ans); });
+    } else {
+      text(334, H - 41, 'change = final − initial', 'note', 'end');
+      sumAt(changeSum(d) + ' = ' + fmt(c), '', o.work, true);
+    }
+    capsRow(keyItems(d), 334, 12, o.keys);
+  }
+  function changeSaid(L, d, o) {
+    const c = changeOf(d.first, d.last);
+    return lineSaid(L) + (o.r1 >= 0.5 ? ' The initial velocity, ' + say(fmt(d.first)) + ', is marked' : '') + (o.r2 >= 0.5 ? ', and the final velocity, ' + say(fmt(d.last)) + '.' : '.') +
+      (o.keys[2] >= 0.5 ? ' Keyed: ' + keyItems(d).map((it) => (it.k ? it.k.say : it.n)).join(', ') + '.' : '') +
+      (o.lab >= 0.5 ? ' An arrow points ' + (c < 0 ? 'down' : 'up') + ' from the initial velocity to the final one, labelled change ' + say(signed(c) + ' m/s') + '.' : '') +
+      ((o.whole ? o.work : o.ans) >= 0.5 ? ' ' + say(changeSum(d) + ' = ' + fmt(c)) + '.' : '');
+  }
+
+  // --- the puzzles (DO steps); after a right answer their motion runs on the same clock T ---
+  function drawPress(d, st, right) {
+    const L = LAY[d.lay], F = d.at, a = (t, dur) => (right ? arr(t, dur) : 0);
+    const o = { words: 1, mk: 1, sum: 1, fill: d.filled ? 1 : a(F.fill), hl: a(F.hl, HL), tag: a(F.tag),
+      hop: right ? { a: d.air, b: absolute(d.air, d.gauge), t: F.hop[0], dur: F.hop[1], lab: fmt(-d.gauge), lt: F.lab } : null };
+    const r = pressScene(L, d.air, d.gauge, o);
+    return pressSaid(L, d.air, d.gauge, o, r);
+  }
+  // The calculator Dan keys himself: what he keyed, its answer after Check, and after a right one the keys that mattered named.
+  function drawKey(d, st, right) {
+    const F = d.at, glowA = motion === 'key' && st.flash && T !== Infinity ? 1 - K.arrive(T, 0, FLASH) : 0;
+    // the answer fades in after Check, right or wrong (a wrong one sooner, so the hint and it arrive together)
+    const res = st.out != null ? fmt(st.out) : null, resA = res == null ? 1 : right ? arr(F.res) : arr(0, WRONGFADE);
+    const hl = {}, marks = [];
+    d.marks.forEach((m, k) => {
+      const a = right ? arr(F.hl[k]) : 0;
+      (m[0] === '()' ? ['(', ')'] : [m[0]]).forEach((id) => { hl[id] = a; });
+      marks.push({ id: m[0], s: m[1], a: a });
+    });
+    calculator({ keys: st.keys, res: res, resA: resA, hl: hl, glow: glowA > 0 ? { [st.flash]: glowA } : null, marks: marks });
+    return calcSaid(st.keys, res, marks);
+  }
+  function drawChange(d, st, right) {
+    const L = LAY[d.lay], F = d.at, a = (t, dur) => (right ? arr(t, dur) : 0);
+    const o = { r1: 1, r2: 1, e: a(F.arrow[0], F.arrow[1]), lab: a(F.label), work: a(F.work), ans: 0, whole: true, keys: F.keys.map((t) => a(t)) };
+    changeScene(L, d, o, false);
+    return changeSaid(L, d, o);
+  }
+  // 2u² with a slot for u: a right answer drops (−3) into it, then works the square, then the double.
+  function drawSquare(d, st, right) {
+    const F = d.at, fu = right ? arr(F.u) : 0, fs = right ? arr(F.sq) : 0, fa = right ? arr(F.ans) : 0;
+    const us = '(' + fmt(d.u) + ')', sq = d.u * d.u, ans = 2 * sq, G = 10;
+    const uw = Math.max(56, tw(us, 'sum') + 16), sw = Math.max(40, tw(String(sq), 'sum') + 14), aw = Math.max(40, tw(String(ans), 'sum') + 14);
+    // 2 × [u]²
+    const r1 = [{ s: '2' }, { s: '×' }, { w: uw }], x1 = 170 - (rowWidth(r1, 'sum', G) + tw('²', 'sum')) / 2, p1 = rowAt(r1, x1, 'sum', G), y1 = 50;
+    text(p1[0].x, y1, '2', 'sum', 'start'); text(p1[1].x, y1, '×', 'sum', 'start');
+    slot(p1[2].x, y1 - 23, uw, 31, fu);
+    leave(fu, () => text(p1[2].x + uw / 2, y1 - 2, 'u', 'ph'));
+    part(fu, 10, () => { rect('hl', p1[2].x + 2, y1 - 21, uw - 4, 27, 5); text(p1[2].x + uw / 2, y1, us, 'sum'); });
+    // the ² sits after the slot, and glides in to the bracket as −3 fills it
+    text(K.lerp(p1[2].x + uw + 1, p1[2].x + uw / 2 + tw(us, 'sum') / 2 + 1, fu), y1, '²', 'sum', 'start');
+    text(p1[2].x + uw / 2, y1 + 32, 'u = ' + fmt(d.u), 'note');
+    // = 2 × [9]
+    const r2 = [{ s: '=' }, { s: '2' }, { s: '×' }, { w: sw }], p2 = rowAt(r2, x1 - tw('=', 'sum') - G, 'sum', G), y2 = 128;
+    r2.forEach((it, k) => { if (it.s) text(p2[k].x, y2, it.s, 'sum', 'start'); });
+    slot(p2[3].x, y2 - 23, sw, 31, fs);
+    part(fs, 6, () => text(K.lerp(p2[3].x + sw / 2, p2[3].x + tw(String(sq), 'sum') / 2, fs), y2, String(sq), 'sum'));
+    // = [18]
+    const p3 = rowAt([{ s: '=' }, { w: aw }], p2[0].x, 'sum', G), y3 = 176;
+    text(p3[0].x, y3, '=', 'sum', 'start');
+    slot(p3[1].x, y3 - 23, aw, 31, fa);
+    part(fa, 6, () => text(K.lerp(p3[1].x + aw / 2, p3[1].x + tw(String(ans), 'sum') / 2, fa), y3, String(ans), 'sum'));
+    return 'The formula 2 times u squared, with u in a slot, and u equals minus 3 beneath it.' +
+      (fu >= 0.5 ? ' Minus 3 has gone into the slot, in brackets.' : '') + (fs >= 0.5 ? ' Squared first: equals 2 times 9.' : ' Below, equals 2 times an empty box.') +
+      (fa >= 0.5 ? ' Equals 18.' : ' Then equals an empty box.');
+  }
+
+  // The keys Dan can tap are kept across repaints (the picture is redrawn every frame), so the keyboard
+  // focus survives. Each is a little larger than its key, a thumb's width across.
+  const hits = KEYS.map((k) => {
+    const p = keyBox(k);
+    const r = ui.appendChild(K.svg('rect', { class: 'hit', role: 'button', tabindex: -1, 'aria-label': 'Key: ' + (k.say || k.id),
+      x: p.x - 3, y: p.y - 3, width: KW + 6, height: KH + 6, rx: 10 }));
+    r.style.display = 'none';
+    const go = () => pressKey(k.id);
+    r.addEventListener('click', go);
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    return r;
+  });
+  function placeHits(on) {
+    hits.forEach((r) => { r.style.display = on ? '' : 'none'; r.setAttribute('tabindex', on ? '0' : '-1'); });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = (d.lay && LAY[d.lay].H) || H0;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    placeHits(d.kind === 'key' && !right && !finished && i === at());
+    let aria;
+    if (d.show) aria = { slot: demoSlot, keys: demoKeys, square: demoSquare, change: demoChange, sense: demoSense }[d.demo]();
+    else aria = { press: drawPress, key: drawKey, change: drawChange, square: drawSquare }[d.kind](d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That’s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : st.res === 'full' ? FULL : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(i), { pick: v }));
+  // The one option a step accepts: the only one equal to the answer the rule gives.
+  function onlyRight(i) {
+    const d = STEPS[i];
+    if (d.kind === 'key') return isRight(i, solved(i));
+    const ans = answerOf(d), ok = d.opts.filter((o) => same(value(o), ans));
+    return ok.join() === d.want && d.opts.every((o) => pickRight(i, o) === (o === d.want));
+  }
+  const PRESS = STEPS.filter((d) => d.kind === 'press');
+  K.check('A reading goes in with its sign: with atmospheric at 1 bar, atmospheric + gauge gives 1 + (−0.8) = 0.2, 1 + (−0.6) = 0.4 and 1 + (−0.35) = 0.65 bar; dropping the minus gives 1.8, 1.6 and 1.35, each more than the air; each puzzle accepts only its answer', () =>
+    same(absolute(1, -0.8), 0.2) && same(absolute(1, -0.6), 0.4) && same(absolute(1, -0.35), 0.65) &&
+    same(absolute(1, 0.8), 1.8) && same(absolute(1, 0.6), 1.6) && same(absolute(1, 0.35), 1.35) &&
+    PRESS.every((d) => d.gauge < 0 && absolute(d.air, d.gauge) < d.air && absolute(d.air, -d.gauge) > d.air) && DO.every(onlyRight));
+  K.check('Absolute pressure is the sum of gauge pressure and atmospheric pressure', () =>
+    PRESS.concat([AT.slot, AT.sense]).every((d) => same(absolute(d.air, d.gauge), d.air + d.gauge)), { source: GAUGE });
+  K.check('Change in velocity = final velocity − initial velocity', () =>
+    [AT.change].concat(STEPS.filter((d) => d.kind === 'change')).every((d) => same(changeOf(d.first, d.last), d.last - d.first)), { source: VELOCITY });
+  K.check('Counting ahead as plus: from 2 m/s astern to 3 m/s ahead the change in velocity is 3 − (−2) = 5 m/s, from 1 m/s ahead to 3 m/s astern it is (−3) − 1 = −4, and from 5 m/s astern to 2 m/s ahead it is 2 − (−5) = 7, keyed 2 − (−) 5; keyed 2 − 5 instead, the lost minus gives −3; each negative reading is written in brackets', () =>
+    changeOf(-2, 3) === 5 && changeOf(1, -3) === -4 && changeOf(-5, 2) === 7 && changeOf(AT.change.first, AT.change.last) === 5 &&
+    evalKeys(['3', M, 'neg', '2']).v === 5 && evalKeys(['neg', '3', M, '1']).v === -4 && evalKeys(['2', M, 'neg', '5']).v === 7 && evalKeys(['2', M, '5']).v === -3 &&
+    changeSum({ first: -2, last: 3 }) === '3 − (−2)' && changeSum({ first: 1, last: -3 }) === '(−3) − 1');
+  K.check('Brackets are needed to tell the calculator to make the 9 negative and then square: (−) 9 x² gives −81 and ( (−) 9 ) x² gives 81, as (−) 4 x² gives −16 and ( (−) 4 ) x² gives 16', () =>
+    evalKeys(['neg', '9', 'sq']).v === -81 && evalKeys(['(', 'neg', '9', ')', 'sq']).v === 81 &&
+    evalKeys(['neg', '4', 'sq']).v === -16 && evalKeys(['(', 'neg', '4', ')', 'sq']).v === 16, { source: OPENLEARN });
+  K.check('The keyed sums: (−) 3 − 2 = −5 and 3 − (−) 2 = 5; the take-away key cannot start a number or follow another sign; brackets must close; each keying puzzle accepts only a right keying and names the slip: 3 alone, − 3, (−) (−) 3 and (−) (−) (−) 3 (two signs cancel), (−) 3 × (stops short), (−) 4 x² (−16), 4 x² (16, the minus lost), (−) (−) 4 x² (two signs cancel, though it gives 16), (−) ( 4 ) x² (the bracket holds only the 4), ( (−) 4 x² ) (inside the bracket), 2 − 5 (−3, the minus lost), (−) 2 − 5 (the 2 made negative), (−) 5 − 2 (the order) and 2 + 5 (not the formula as it stands)', () => {
+    const K4 = STEPS.findIndex((d) => d.rule === 'neg'), K6 = STEPS.findIndex((d) => d.rule === 'sq'), K12 = STEPS.findIndex((d) => d.rule === 'vel');
+    const h = (i, keys) => judge(STEPS[i], keys).hint || '', ok = (i, keys) => !!judge(STEPS[i], keys).right;
+    return evalKeys(['neg', '3', M, '2']).v === -5 && evalKeys(['3', M, 'neg', '2']).v === 5 && evalKeys([M, '3']).err === 'takeaway' &&
+      evalKeys(['3', M, M, '2']).err === 'takeaway' && evalKeys(['(', 'neg', '4', 'sq']).err === 'unclosed' && evalKeys(['3', 'neg']).err === 'syntax' && evalKeys(['3', M]).err === 'short' &&
+      ok(K4, ['neg', '3']) && !ok(K4, ['3']) && !ok(K4, [M, '3']) && /\[\(−\)\] makes a number negative/.test(h(K4, [M, '3'])) && /no minus/.test(h(K4, ['3'])) &&
+      !ok(K4, ['neg', 'neg', '3']) && !ok(K4, ['neg', 'neg', 'neg', '3']) && /cancel/.test(h(K4, ['neg', 'neg', '3'])) && /cancel/.test(h(K4, ['neg', 'neg', 'neg', '3'])) &&
+      /stops short/.test(h(K4, ['neg', '3', '×'])) &&
+      !ok(K6, ['neg', 'neg', '4', 'sq']) && /cancel/.test(h(K6, ['neg', 'neg', '4', 'sq'])) &&
+      !ok(K6, ['neg', '(', '4', ')', 'sq']) && /holds only the 4/.test(h(K6, ['neg', '(', '4', ')', 'sq'])) && ok(K6, ['neg', '4', '×', 'neg', '4']) &&
+      !ok(K6, ['neg', '(', 'neg', '4', 'sq', ')']) &&
+      ok(K6, ['(', 'neg', '4', ')', 'sq']) && !ok(K6, ['neg', '4', 'sq']) && /squares the 4 first/.test(h(K6, ['neg', '4', 'sq'])) &&
+      !ok(K6, ['4', 'sq']) && /u is −4/.test(h(K6, ['4', 'sq'])) && /inside the bracket/.test(h(K6, ['(', 'neg', '4', 'sq', ')'])) &&
+      ok(K12, ['2', M, 'neg', '5']) && ok(K12, ['2', M, '(', 'neg', '5', ')']) && !ok(K12, ['2', '+', '5']) && /formula stands/.test(h(K12, ['2', '+', '5'])) &&
+      /drops the minus on −5/.test(h(K12, ['2', M, '5'])) && /final velocity first/.test(h(K12, ['neg', '5', M, '2'])) && !ok(K12, ['5', M, '2']) &&
+      !ok(K12, ['neg', '2', M, '5']) && /makes the 2 negative/.test(h(K12, ['neg', '2', M, '5'])) &&
+      isEmpty(K4, blank(K4)) && shown(['neg', '3', M, '2']) === '−3 − 2' && shown([M, '3']) === '− 3';
+  });
+  K.check('Squaring a reading in a formula: 2u² for u = −3 is 2 × (−3)² = 2 × 9 = 18; squaring 3 and then making it negative gives −18, and doubling first gives 36', () =>
+    answerOf(STEPS.find((d) => d.kind === 'square')) === 18 && 2 * -(3 * 3) === -18 && (2 * -3) * (2 * -3) === 36);
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer’s motion within 2.5 s; key presses at least 0.2 s apart', () => {
+    const keepT = T, ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      if (!d.show) S[i] = solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE : latest <= d.fb && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    const runs = [AT.keys.press, AT.square.pa, AT.square.pb, AT.change.keys].concat(STEPS.filter((d) => d.at && d.at.keys).map((d) => d.at.keys));
+    return ok && runs.every((ts) => ts.every((t, k) => k === 0 || t - ts[k - 1] >= 0.2 - 1e-9));
+  });
+
+  K.ready();
+</script>

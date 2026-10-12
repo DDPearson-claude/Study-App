@@ -1,0 +1,1163 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  .vx { font-style: italic; }
+  /* Nothing in the picture is selected as text while a point or a line's end is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  /* The table: its names in teal, like the axes they go with; its readings in ink; the reading being
+     plotted highlighted. */
+  .scene .tb { fill: none; stroke: var(--k-line); stroke-width: 1.25; }
+  .scene .tn { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tv { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  /* The graph: faint gridlines, the axes in ink, their names (with units) in teal, the numbers in muted. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .ax { stroke: var(--k-ink); stroke-width: 1.75; stroke-linecap: round; }
+  .scene .axh { fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .axv { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axv.on { fill: var(--k-ink); }
+  /* Points in ink; one put in the wrong place in the warning colour; the one you drag has a soft ring. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt.bad { fill: var(--k-warn); }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .gd { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  /* Lines and curves through the points in ink; a slip (a zigzag, a line that misses) in the warning
+     colour. A gap from a point to the line is a short dashed mark. */
+  .scene .fit { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .scene .fit.thin { stroke-width: 2; }
+  .scene .fit.bad, .scene .zz { stroke: var(--k-warn); }
+  .scene .zz { stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .scene .gp { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .scene .gp.bad { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: none; }
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .pl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* A candidate line's letter, on a patch of the page so the line stays clear of it. */
+  .scene .bdg { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .bdg.bad { stroke: var(--k-warn); }
+  .scene .bdl { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  /* The readout along the top: the point's (x, y) and what it says, or the scale chosen. */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .arw { stroke: var(--k-warn); stroke-width: 2; stroke-linecap: round; }
+  .scene .arwh { fill: var(--k-warn); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The ends of the line you lay: a ring you drag. */
+  .scene .hnd { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }
+  /* The places Dan touches: the graph (tap to put the point there) and the point or a line's end (drag it). */
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A table of readings above a graph with named axes, each reading a point, with one line or curve through them.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 328" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">One point for each reading, then one line or curve through the middle. The readings are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // g: which table and graph a step uses (TABLES below). demo: what a SHOW step plays (dur seconds).
+  // A 'drag' puzzle asks for the point to be put at `to`, the table's reading `cur`; a 'line' puzzle
+  // asks for a line laid through the readings by dragging its two ends; a 'pick' puzzle takes one
+  // answer, its picture `pic`. fb: how long the motion after a right answer plays; at: when each part
+  // of it arrives, in seconds after Check ([start, gap] for parts counted one at a time). slips: which
+  // slip gives each wrong answer, and hints: what is said for it.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the point to its place first.', ENDS = 'Drag the rings on the line first.';
+  // After a right answer. PLOT: the dashed guides from the axes, then the readout. SCALE: the axis's
+  // numbers, then the points one by one. WHICH: the other lines go, then the count of readings above
+  // and below line B. NONE: the best-fit line, then that count. OWN: the count for the line laid.
+  // CURVE: the curve, then its name.
+  // SWAP: the swapped point marked, then moved to its place, named, and the curve drawn.
+  const PLOT = { guides: 0.1, ro: 0.6 };
+  const SCALE = { nums: 0.1, pts: [0.6, 0.2] };
+  const WHICH = { others: 0.1, tally: 0.6 };
+  const NONE = { line: 0.1, tally: 0.9 };
+  const OWN = { tally: 0.1 };
+  const CURVE = { curve: 0.1, label: 0.6 };
+  const SWAP = { mark: 0.1, move: 0.6, label: 1.1, curve: 1.6 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long a counted part takes to arrive, a line or curve to grow, a zigzag's piece to draw, and a
+  // swapped point to travel to its place.
+  const COUNT = 0.4, GROW = 0.7, SEG = 0.3, TRAVEL = 0.8, LINE_T = 1.2;
+
+  // The tables of example readings, each with its graph: time along (10 squares of x.step) and the
+  // reading up (y.n squares of y.step from y.min). curve: the smooth rule drawn through readings that bend.
+  const TABLES = {
+    shop: { what: 'a workshop warming', x: { name: 'time (min)', unit: 'min', step: 2 }, y: { name: 'temperature (°C)', unit: '°C', step: 2, min: 0, n: 10 },
+      cols: [[0, 4], [4, 8], [8, 10], [12, 14], [16, 15], [20, 19]] },
+    motor: { what: 'a motor\'s casing warming', x: { name: 'time (min)', unit: 'min', step: 5 }, y: { name: 'temperature (°C)', unit: '°C', step: 10, min: 0, n: 10 },
+      cols: [[0, 18], [10, 41], [20, 54], [30, 59], [40, 63], [50, 64]], curve: (t) => 66 - 48 * Math.exp(-t / 15) },
+    frz: { what: 'a freezer warming after a power cut', x: { name: 'time (h)', unit: 'h', step: 1 }, y: { name: 'temperature (°C)', unit: '°C', step: 5, min: -20, n: 6 },
+      cols: [[0, -18], [2, -14], [4, -10]] },
+    drain: { what: 'a tank draining', x: { name: 'time (min)', unit: 'min', step: 2 }, y: { name: 'depth (cm)', unit: 'cm', step: 2, min: 0, n: 10 },
+      cols: [[0, 19], [4, 15], [8, 12], [12, 10], [16, 6], [20, 3]] },
+    fill: { what: 'a tank filling', x: { name: 'time (min)', unit: 'min', step: 1 }, y: { name: 'depth (cm)', unit: 'cm', step: 5, min: 0, n: 10 },
+      cols: [[0, 6], [2, 13], [4, 17], [6, 26], [8, 30], [10, 38]] },
+    cool: { what: 'a tank cooling', x: { name: 'time (min)', unit: 'min', step: 5 }, y: { name: 'temperature (°C)', unit: '°C', step: 5, min: 0, n: 10 },
+      cols: [[0, 48], [10, 32], [20, 24], [30, 19], [40, 17], [50, 16]], curve: (t) => 15 + 33 * Math.exp(-t / 15) },
+  };
+  // The scales a square may be worth, as in Scales: 1, 2 or 5 times a power of ten.
+  const EASY = [1, 2, 5, 10, 20, 50, 100];
+  const STEPS = [
+    { show: true, g: 'shop', demo: 'plot', dur: 3.7, name: 'Each reading is a point',
+      text: 'Each reading in a table is one point. The axis labels say which number goes along and which goes up, so 8 °C at 4 min is (4, 8).' },
+    { kind: 'drag', g: 'shop', cur: 2, to: [8, 10], start: [20, 20], want: '(8, 10)', fb: 1.2, at: PLOT, name: 'Plot a reading',
+      slips: { '(10, 8)': 'swap', '(16, 10)': 'xsq', '(8, 20)': 'ysq' },
+      task: 'Drag the point to the next reading in the table, 10 °C at 8 min.',
+      why: 'Time goes along and temperature goes up, as the axis labels say. Each square is 2, so 8 min is 4 squares along and 10 °C is 5 squares up, the point (8, 10).',
+      hint: 'Not quite. Find 8 on the time axis, then go up to 10 on the temperature axis.',
+      hints: { '(10, 8)': 'Not quite. That puts the temperature along and the time up. Time goes along, so 8 along, then 10 up.',
+        '(16, 10)': 'Not quite. That counts 8 squares along, but each square is 2 min. 8 min is 4 squares along.',
+        '(8, 20)': 'Not quite. That counts 10 squares up, but each square is 2 °C. 10 °C is 5 squares up.' } },
+    { kind: 'pick', pic: 'scale', g: 'motor', opts: ['5 °C', '10 °C', '20 °C'], want: '10 °C', slips: { '5 °C': 'over', '20 °C': 'squash' }, fb: 2.05, at: SCALE, name: 'Fit the scale',
+      task: 'A motor casing\'s temperature readings go up to 64 °C, and the temperature axis has 10 squares. How many °C should each square be?',
+      why: '64 ÷ 10 = 6.4, so each square must be at least 6.4 °C, and the next easy step up is 10 °C. Then 10 squares reach 100 °C, so every reading fits.',
+      hint: 'Not quite. Divide the top reading by the 10 squares, then take the next easy step up.',
+      hints: { '5 °C': 'Not quite. 10 squares of 5 °C only reach 50 °C, so the top readings go off the graph.',
+        '20 °C': 'Not quite. That fits, but squashes the readings into the bottom 4 squares. A smaller step still fits them all.' } },
+    { kind: 'drag', g: 'frz', cur: 2, to: [4, -10], start: [10, 10], want: '(4, −10)', fb: 1.2, at: PLOT, name: 'Below zero',
+      slips: { '(4, 10)': 'sign' },
+      task: 'A freezer is warming after a power cut. Drag the point to its reading of −10 °C at 4 h.',
+      why: '4 h is 4 squares along. −10 °C is below zero, and each square is 5 °C, so it is 2 squares down, the point (4, −10).',
+      hint: 'Not quite. Go 4 along the time axis, then down to −10. Each square up the side is 5 °C.',
+      hints: { '(4, 10)': 'Not quite. That is 10 °C above zero. −10 °C is below zero, so go down from the time axis.' } },
+    { show: true, g: 'shop', demo: 'zigzag', dur: 4.1, name: 'Dot to dot',
+      text: 'All six readings, joined dot to dot, make a zigzag, as if the warming lurched at every reading. A lab handbook says never to join lab readings like this.' },
+    { show: true, g: 'shop', demo: 'line', dur: 3.2, name: 'A best-fit line',
+      text: 'Instead, draw one straight *best-fit line* through the middle of them. It runs close to every reading, with some above it and some below.' },
+    { kind: 'pick', pic: 'which', g: 'drain', opts: ['Line A', 'Line B', 'Line C'], want: 'Line B', slips: { 'Line A': 'low', 'Line C': 'flat' }, fb: 1.25, at: WHICH, name: 'Pick the best fit',
+      task: 'A tank is draining. Which line is the best-fit line for its depth readings?',
+      why: 'Line B runs through the middle of the readings, close to every one, with some above it and some below. Every reading sits above line A, and line C is too flat.',
+      hint: 'Not quite. Look for the line with readings close to it on both sides.',
+      hints: { 'Line A': 'Not quite. Line A has about the right slant, but every reading sits above it. A best-fit line has some on each side.',
+        'Line C': 'Not quite. Line C is too flat. The first readings sit well above it and the last ones well below.' } },
+    { kind: 'pick', pic: 'none', g: 'drain', opts: ['None', 'All', 'The first and last'], want: 'None', slips: { 'All': 'all', 'The first and last': 'ends' }, fb: 1.55, at: NONE, name: 'Touching points',
+      task: 'How many of the readings must a best-fit line pass through?',
+      why: 'None has to. A best-fit line runs through the middle, close to every reading. It may touch some by chance, but it need not touch any.',
+      hint: 'Not quite. Think of a line through the middle of the readings.',
+      hints: { 'All': 'Not quite. Passing through every reading means joining the dots, which makes a zigzag. The line runs close to them instead.',
+        'The first and last': 'Not quite. The first and last are readings like the rest and wobble too. The line runs through the middle of all of them.' } },
+    { kind: 'line', g: 'fill', hx: [1, 9], start: [20, 20], fb: 0.75, at: OWN, name: 'Lay a best-fit line',
+      want: 'about 9 cm at 1 min to 34 cm at 9 min',
+      task: 'A tank is filling. Drag the two rings on the line to make it a best-fit line for these readings.',
+      why: 'A line from about 9 cm at 1 min to 34 cm at 9 min runs through the middle of the readings, close to every one, with some above it and some below.',
+      hint: 'Not quite. The readings ringed in red are more than half a square from your line. Tilt or shift it to run through the middle of them all.' },
+    { show: true, g: 'cool', demo: 'bend', dur: 4.2, name: 'When readings bend',
+      text: 'These readings bend, so no straight line runs close to them all. Draw one smooth curve through them instead, not a zigzag.' },
+    { kind: 'pick', pic: 'curve', g: 'motor', opts: ['A smooth curve', 'A straight line', 'Dot to dot'], want: 'A smooth curve', slips: { 'A straight line': 'straight', 'Dot to dot': 'dots' }, fb: 1.25, at: CURVE, name: 'Line or curve?',
+      task: 'Here are the motor\'s readings, at 10 °C a square. What should you draw through them?',
+      why: 'The readings rise fast and then level off, so they bend. One smooth curve runs close to all of them, and a straight line cannot.',
+      hint: 'Not quite. Look at how the readings run.',
+      hints: { 'A straight line': 'Not quite. These readings bend, so a straight line runs well away from some of them, like the first one.',
+        'Dot to dot': 'Not quite. Joining the dots puts a corner at every reading. Draw one smooth curve through them instead.' } },
+    { kind: 'pick', pic: 'swap', g: 'cool', swapped: 1, opts: ['10 min', '30 min', '40 min'], want: '10 min', slips: { '30 min': 'match', '40 min': 'match' }, fb: 2.35, at: SWAP, name: 'Spot the slip',
+      task: 'One of these cooling readings was plotted with its two numbers swapped. Which one?',
+      why: 'The 10 min reading, 32 °C, belongs at (10, 32). There is no point at 10 min, and one at (32, 10) instead, 32 along and 10 up, so its numbers were swapped.',
+      hint: 'Not quite. Look for a time in the table with no point above it.',
+      hints: { '30 min': 'Not quite. (30, 19) matches the 30 min reading. Look for a time in the table with no point above it.',
+        '40 min': 'Not quite. (40, 17) matches the 40 min reading. Look for a time in the table with no point above it.' } },
+  ];
+  const FINISH = 'Each reading in a table is one point, placed along and up as the axis labels say, on scales fitted to the table. Through measured points, draw one best-fit line, or one smooth curve where they bend, not a dot-to-dot zigzag.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap] for parts counted one at a
+  // time, with how many when not one per reading. plot: the first reading highlighted, its point; the second highlighted, the guide up from its
+  // time, the guide across from its temperature, its point. zigzag: the six points, then the zigzag a
+  // piece at a time, then its name. line: the best-fit line grows (over LINE_T), its name, then the count
+  // of readings above and below it.
+  // bend: the points; the best straight line and its name; the smooth curve and its name.
+  const FADE = 0.35;
+  const AT = {
+    plot: { c0: 0.6, p0: 1.1, c1: 1.6, ux: 2.1, uy: 2.6, p1: 3.1 },
+    zigzag: { pts: [0.6, 0.2], seg: [2.2, 0.2, 5], label: 3.5 },
+    line: { line: 0.6, label: 2.0, tally: 2.6 },
+    bend: { pts: [0.6, 0.2], straight: 2.1, slabel: 2.6, curve: 3.1, clabel: 3.6 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const num = (v) => { const a = r3(v); return (a < 0 ? '−' : '') + Math.abs(a); };
+  const pair = (x, y) => '(' + num(x) + ', ' + num(y) + ')';
+  const parsePair = (s) => { const m = /^\((−?)(\d+), (−?)(\d+)\)$/.exec(s); return m ? [(m[1] ? -1 : 1) * +m[2], (m[3] ? -1 : 1) * +m[4]] : null; };
+  const amt = (v, u) => num(v) + ' ' + u;
+  // The best-fit line of a table's readings: the straight line y = a + b x that the readings sit
+  // closest to overall (the smallest total of their squared gaps up or down to it).
+  function fitOf(cols) {
+    const n = cols.length, mx = cols.reduce((s, c) => s + c[0], 0) / n, my = cols.reduce((s, c) => s + c[1], 0) / n;
+    let sxy = 0, sxx = 0;
+    cols.forEach((c) => { sxy += (c[0] - mx) * (c[1] - my); sxx += (c[0] - mx) * (c[0] - mx); });
+    const b = sxy / sxx;
+    return { a: my - b * mx, b: b };
+  }
+  const at = (L, x) => L.a + L.b * x;
+  // Each reading's gap up (+) or down (−) from a line to the reading.
+  const gapsOf = (cols, L) => cols.map((c) => c[1] - at(L, c[0]));
+  // The lines offered on the draining tank: A, the best fit 2 cm lower; B, the best fit; C, too flat.
+  function linesOf(g) {
+    const B = fitOf(g.cols);
+    return { 'Line A': { a: B.a - 2, b: B.b }, 'Line B': B, 'Line C': { a: 15, b: -0.4 } };
+  }
+  // The line laid through two ends: y = yL at hx[0] squares along and yR at hx[1].
+  function laid(d, ends) {
+    const g = TABLES[d.g], x0 = d.hx[0] * g.x.step, x1 = d.hx[1] * g.x.step, b = (ends[1] - ends[0]) / (x1 - x0);
+    return { a: ends[0] - b * x0, b: b };
+  }
+  // A laid line is a best fit when every reading is within half a square of it, with some above it and
+  // some below (on these readings, any line within half a square of all of them has some on each side).
+  // far: the readings further off than that.
+  function judge(d, ends) {
+    const g = TABLES[d.g], gaps = gapsOf(g.cols, laid(d, ends)), tol = g.y.step / 2;
+    const far = gaps.map((v, k) => (Math.abs(v) > tol + 1e-9 ? k : -1)).filter((k) => k >= 0);
+    const above = gaps.some((v) => v > 1e-9), below = gaps.some((v) => v < -1e-9);
+    return { gaps: gaps, far: far, sides: above && below, ok: !far.length && above && below };
+  }
+  // The scale that fits a table: its top reading over the squares, then the next easy step up.
+  const need = (g) => Math.max.apply(null, g.cols.map((c) => c[1])) / g.y.n;
+  const fitScale = (g) => EASY.filter((s) => s >= need(g) - 1e-9)[0];
+  const scaleOf = (o) => +String(o).replace(/[^\d.]/g, '');
+  // A table's reading `k` as a point, or (on the swap screen) where it was plotted.
+  const plotted = (d, k) => { const c = TABLES[d.g].cols[k]; return d.swapped === k ? [c[1], c[0]] : c.slice(); };
+  // What each slip makes of a reading (x, y). swap: the numbers swapped; xsq, ysq: a square taken as 1
+  // along or up; sign: the minus dropped.
+  const SLIP = {
+    swap: (d) => [d.to[1], d.to[0]],
+    xsq: (d) => [d.to[0] * TABLES[d.g].x.step, d.to[1]],
+    ysq: (d) => [d.to[0], d.to[1] * TABLES[d.g].y.step],
+    sign: (d) => [d.to[0], -d.to[1]],
+  };
+  // What each pick's slip gives, as its button reads. over: the step below the one that fits; squash:
+  // the step above; low, flat: the lines that are not the best fit; all, ends, straight, dots, match:
+  // fixed answers, each with its own picture.
+  function slipOpt(d, s, o) {
+    if (d.kind === 'drag') return pair.apply(null, SLIP[s](d));
+    if (d.pic === 'scale') { const k = EASY.indexOf(fitScale(TABLES[d.g])); return amt(EASY[s === 'over' ? k - 1 : k + 1], '°C'); }
+    if (d.pic === 'which') { const L = linesOf(TABLES[d.g]), B = L['Line B']; return Object.keys(L).filter((n) => s === 'low' ? K.near(L[n].b, B.b, 1e-9) && L[n].a < B.a - 1 : Math.abs(L[n].b) < Math.abs(B.b) - 0.2)[0]; }
+    if (d.pic === 'swap') { const k = TABLES[d.g].cols.findIndex((c) => amt(c[0], 'min') === o); return k >= 0 && k !== d.swapped ? o : null; }
+    return { all: 'All', ends: 'The first and last', straight: 'A straight line', dots: 'Dot to dot' }[s];
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    const g = TABLES[d.g];
+    if (d.kind === 'drag') return pair(g.cols[d.cur][0], g.cols[d.cur][1]);
+    if (d.kind === 'line') return d.want;
+    if (d.pic === 'scale') return amt(fitScale(g), '°C');
+    if (d.pic === 'which') { const L = linesOf(g), B = fitOf(g.cols); return Object.keys(L).filter((n) => K.near(L[n].a, B.a, 1e-9) && K.near(L[n].b, B.b, 1e-9))[0]; }
+    if (d.pic === 'swap') return amt(g.cols[d.swapped][0], 'min');
+    if (d.pic === 'curve') return g.curve ? 'A smooth curve' : 'A straight line';
+    return 'None';
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/\((−?[\d.]+), (−?[\d.]+)\)/g, ' the point $1, $2 ').replace(/°C/g, ' degrees').replace(/(\d) min\b/g, '$1 minutes').replace(/(\d) h\b/g, '$1 hours')
+    .replace(/(\d) cm\b/g, '$1 centimetres').replace(/−/g, ' minus ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { const d = STEPS[i]; return { pick: null, res: null, why: false, pt: null, moved: false, ends: d.kind === 'line' ? d.start.slice() : null }; }
+  const emptyFor = (i, st) => { const d = STEPS[i]; return d.kind === 'drag' ? (st.moved ? '' : PLACE) : d.kind === 'line' ? (st.moved ? '' : ENDS) : st.pick != null ? '' : PICK; };
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && (STEPS[i].kind === 'line' ? judge(STEPS[i], st.ends).ok : st.pick === STEPS[i].want);
+  // A wrong answer's hint names its slip.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  const BEST = (d) => { const L = fitOf(TABLES[d.g].cols), g = TABLES[d.g], q = g.y.step / 5; return d.hx.map((h) => Math.round(at(L, h * g.x.step) / q) * q); };
+  function solved(i) {
+    const d = STEPS[i], st = blank(i); st.res = 'right'; st.moved = true;
+    if (d.kind === 'drag') { st.pt = d.to.slice(); st.pick = d.want; } else if (d.kind === 'line') { st.ends = BEST(d); st.pick = d.want; } else st.pick = d.want;
+    return st;
+  }
+  function slipped(i, o) {
+    const d = STEPS[i], st = blank(i); st.res = 'wrong'; st.moved = true;
+    if (d.kind === 'drag') { st.pt = parsePair(o); st.pick = o; } else if (d.kind === 'line') st.ends = o.slice(); else st.pick = o;
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  // x and y, the letters for a point's two numbers, alone or in x-axis, but not inside a word.
+  const VRE = /(?<![A-Za-z'’])[xy](?![A-Za-z])/g;
+  function spans(s) {
+    const out = [];
+    let at = 0, m;
+    VRE.lastIndex = 0;
+    while ((m = VRE.exec(s))) {
+      if (m.index > at) out.push([s.slice(at, m.index), false]);
+      out.push([m[0], true]);
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) out.push([s.slice(at), false]);
+    return out;
+  }
+  function math(el, s) { spans(s).forEach((p) => el.appendChild(p[1] ? K.el('i', { class: 'vx' }, p[0]) : document.createTextNode(p[0]))); }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) math(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) math(el, text.slice(at));
+  }
+  // A point, an amount or a sum stays together on one line ("(4, −10)", "10 °C", "64 ÷ 10 = 6.4"),
+  // with the stop after it; a long one may break only before an equals sign.
+  const TOK = '(?:\\(−?\\d+(?:\\.\\d+)?, −?\\d+(?:\\.\\d+)?\\)|−?\\d+(?:\\.\\d+)?(?: (?:°C|min|h|cm)(?![A-Za-z]))?)';
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’])' + TOK + '(?: [=+−×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) { const sp = K.el('span', { class: 'nw' }); math(sp, b); el.appendChild(sp); } else math(el, b);
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  // The table sits along the top (rows TR1 and TR2); the graph's left edge is OX and its top PT, each
+  // square Q across; the y-axis's name (and the readout) sit on the row YNY above it.
+  const OX = 46, PT = 92, Q = 21, YNY = 82, TR1 = 22, TR2 = 48, TBT = 4, TBB = 56;
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let F = null;                                      // the graph being drawn: its table and scales
+  let H = 328;
+  function frame(g, ys) { const s = ys || g.y.step; return { g: g, xs: g.x.step, ys: s, ymin: g.y.min, ymax: g.y.min + g.y.n * s, n: g.y.n, bottom: PT + g.y.n * Q }; }
+  const gx = (v) => OX + Q * v / F.xs;
+  const gy = (v) => F.bottom - Q * (v - F.ymin) / F.ys;
+  const RIGHT = OX + 10 * Q;
+  // The time axis: along zero, or along the foot of the graph when every reading is above zero.
+  const axisY = () => gy(Math.max(F.ymin, 0));
+  const heightOf = (g) => PT + g.y.n * Q + (g.y.min < 0 ? 10 : 26);
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; grow: the same, eased.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const grow = (t0, d) => K.ease(lin(t0, d == null ? GROW : d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    spans(String(s)).forEach((p) => t.appendChild(p[1] ? K.svg('tspan', { class: 'vx' }, p[0]) : document.createTextNode(p[0])));
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, tv: 15, pl: 14, tn: 13, an: 13, axv: 13, lbl: 13, bdl: 13, rou: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    path(cls, 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 8 * ux + 4.5 * px) + ' ' + r3(y - 8 * uy + 4.5 * py) + ' L' + r3(x - 8 * ux - 4.5 * px) + ' ' + r3(y - 8 * uy - 4.5 * py) + ' Z');
+  }
+
+  // --- the table ---
+  // The names down the left (as the axes are named), then a column for each reading. hl(k): how far
+  // the highlight on reading k has arrived.
+  function colsOf(g) {
+    const hw = Math.max(tw(g.x.name, 'tn'), tw(g.y.name, 'tn')) + 14, n = g.cols.length, cw = Math.min(46, (336 - 4 - hw) / n);
+    return { hw: hw, cw: cw, cx: (k) => 4 + hw + cw * (k + 0.5) };
+  }
+  function table(g, hl) {
+    const L = colsOf(g), x1 = 4 + L.hw + L.cw * g.cols.length;
+    g.cols.forEach((c, k) => { const a = hl ? hl(k) : 0; if (a > 0) part(a, 0, () => rect('hl', L.cx(k) - L.cw / 2 + 2, TBT + 2, L.cw - 4, TBB - TBT - 4, 5)); });
+    rect('tb', 4, TBT, x1 - 4, TBB - TBT, 6);
+    line('tb', 4, (TBT + TBB) / 2, x1, (TBT + TBB) / 2);
+    line('tb', 4 + L.hw, TBT, 4 + L.hw, TBB);
+    text(11, TR1, g.x.name, 'tn', 'start');
+    text(11, TR2, g.y.name, 'tn', 'start');
+    g.cols.forEach((c, k) => { text(L.cx(k), TR1, num(c[0]), 'tv'); text(L.cx(k), TR2, num(c[1]), 'tv'); });
+  }
+  const tableSaid = (g) => 'A table of ' + g.what + ': ' + g.cols.map((c) => say(amt(c[1], g.y.unit)) + ' at ' + say(amt(c[0], g.x.unit))).join(', ') + '.';
+
+  // --- the graph ---
+  // Gridlines; the axes with arrowheads and their names (with units); the numbers along them. o.noY: the side's numbers not shown (the scale not yet chosen); o.ya: when they arrive;
+  // o.ywarn: in the warning colour; o.hx, o.hy: a number picked out, arriving at o.hxa, o.hya.
+  function grid(o) {
+    o = o || {};
+    let p = '';
+    for (let k = 0; k <= 10; k++) p += 'M' + (OX + Q * k) + ' ' + PT + 'V' + F.bottom;
+    for (let k = 0; k <= F.n; k++) p += 'M' + OX + ' ' + (PT + Q * k) + 'H' + RIGHT;
+    path('gl', p);
+    const ay = axisY();
+    line('ax', OX, ay, RIGHT + 12, ay); head(RIGHT + 19, ay, 1, 0, 'axh');
+    line('ax', OX, F.bottom, OX, PT - 11); head(OX, PT - 18, 0, -1, 'axh');
+    text(OX + 10, YNY, F.g.y.name, 'an', 'start');
+    text(338, ay + 17, F.g.x.name, 'an', 'end');
+    // A number picked out: its highlight and an ink copy of it arrive together, over the muted number.
+    const pick = (v, h, a, x, y, anchor, warn) => {
+      if (h == null || !K.near(h, v, 1e-9) || a <= 0) return;
+      part(a, 0, () => { const w = tw(num(v), 'axv'), x0 = anchor === 'end' ? x - w : x - w / 2; rect('hl', x0 - 4, y - 13, w + 8, 18, 5); text(x, y, num(v), 'axv on' + (warn || ''), anchor); });
+    };
+    const hxa = o.hxa == null ? 1 : o.hxa, hya = o.hya == null ? 1 : o.hya;
+    // a number every square, or every other square when two-figure numbers would crowd
+    const every = tw(num(10 * F.xs), 'axv') > Q - 8 ? 2 : 1;
+    for (let k = every; k <= 10; k += every) {
+      const v = k * F.xs;
+      text(gx(v), ay + 17, num(v), 'axv');
+      pick(v, o.hx, hxa, gx(v), ay + 17, 'middle');
+    }
+    if (o.noY) return;
+    part(o.ya == null ? 1 : o.ya, 0, () => {
+      for (let k = 0; k <= F.n; k++) {
+        const v = F.ymin + k * F.ys;
+        text(OX - 6, gy(v) + 5, num(v), 'axv' + (o.ywarn ? ' warnt' : ''), 'end');
+        pick(v, o.hy, hya, OX - 6, gy(v) + 5, 'end', o.ywarn ? ' warnt' : '');
+      }
+    });
+  }
+  const graphSaid = () => 'A graph with ' + F.g.x.name.replace(/ \(.*/, '') + ' in ' + say(F.g.x.unit === 'min' ? 'minutes' : F.g.x.unit === 'h' ? 'hours' : F.g.x.unit) + ' along, ' + num(F.xs) + ' a square, and ' +
+    F.g.y.name.replace(/ \(.*/, '') + ' up, ' + say(amt(F.ys, F.g.y.unit)) + ' a square, from ' + say(num(F.ymin)) + ' to ' + say(num(F.ymax)) + '.';
+  const dot = (p, cls) => circle('pt' + (cls ? ' ' + cls : ''), gx(p[0]), gy(p[1]), 6);
+  const inside = (p) => p[1] >= F.ymin - 1e-9 && p[1] <= F.ymax + 1e-9;
+  // The dashed guides to a point: up (or down) from its time on the time axis, and across from its
+  // reading on the side.
+  // (Below the time axis the guide starts under its number, so it never runs through it.)
+  function guideUp(p) { const ay = axisY(), y = gy(p[1]), s = y < ay ? 1 : -1, y0 = s > 0 ? ay - 2 : ay + 23; if (Math.abs(y - y0) > 10) line('gd', gx(p[0]), y0, gx(p[0]), y + 8 * s); }
+  function guideAcross(p) { if (p[0] > 0) line('gd', OX + 2, gy(p[1]), gx(p[0]) - 8, gy(p[1])); }
+  // A straight line y = a + b x across the graph, cut to its edges, grown from the left as far as e.
+  function span(L) {
+    let x0 = 0, x1 = 10 * F.xs;
+    if (Math.abs(L.b) > 1e-12) {
+      const xa = (F.ymin - L.a) / L.b, xb = (F.ymax - L.a) / L.b;
+      x0 = Math.max(x0, Math.min(xa, xb)); x1 = Math.min(x1, Math.max(xa, xb));
+    } else if (L.a < F.ymin || L.a > F.ymax) return null;
+    return x1 > x0 ? [x0, x1] : null;
+  }
+  function straight(L, cls, e) {
+    const s = span(L);
+    if (!s || e <= 0) return;
+    const xe = s[0] + (s[1] - s[0]) * Math.min(1, e);
+    line(cls, gx(s[0]), gy(at(L, s[0])), gx(xe), gy(at(L, xe)));
+  }
+  // A smooth curve f across the graph, grown from the left as far as e.
+  function smooth(f, cls, e) {
+    if (e <= 0) return;
+    const xe = 10 * F.xs * Math.min(1, e), n = 60;
+    let d = '';
+    for (let k = 0; k <= n; k++) { const x = xe * k / n; d += (k ? 'L' : 'M') + r3(gx(x)) + ' ' + r3(gy(K.clamp(f(x), F.ymin, F.ymax))); }
+    path(cls, d);
+  }
+  // Dot to dot: the pieces between readings, piece k drawn as far as e(k).
+  function zigzag(cols, e) {
+    for (let k = 0; k + 1 < cols.length; k++) {
+      const f = e(k);
+      if (f <= 0) continue;
+      const a = cols[k], b = cols[k + 1], x = a[0] + (b[0] - a[0]) * f, y = a[1] + (b[1] - a[1]) * f;
+      line('zz', gx(a[0]), gy(a[1]), gx(x), gy(y));
+    }
+  }
+  // A reading's gap to a line: a short dashed mark from the point to the line (in the warning colour when
+  // it is too far), drawn when there is room for it outside the point.
+  // A reading at time 0 sits on the side's axis, so it gets no mark (it would colour the axis; its ring marks it).
+  function gapMark(c, y2, bad) {
+    if (c[0] === 0) return;
+    const y1 = gy(c[1]), y = gy(y2), s = y > y1 ? 1 : -1;
+    if (Math.abs(y - y1) > 9) line('gp' + (bad ? ' bad' : ''), gx(c[0]), y1 + 7 * s, gx(c[0]), y);
+  }
+  // A red ring round a reading; for one on the side's axis, only its half on the graph side, clear of the side's numbers.
+  function ringAt(p) {
+    const x = gx(p[0]), y = gy(p[1]), r = 11;
+    if (p[0] === 0) path('ring', 'M' + r3(x) + ' ' + r3(y - r) + ' A' + r + ' ' + r + ' 0 0 1 ' + r3(x) + ' ' + r3(y + r));
+    else circle('ring', x, y, r);
+  }
+  // How many readings sit above a line and how many below ("3 above, 3 below"), written where the graph
+  // is empty: low on the right under a rising line, high on the right over a falling one.
+  function tallyOf(cols, L) {
+    const g = gapsOf(cols, L), up = g.filter((v) => v > 1e-9).length, dn = g.filter((v) => v < -1e-9).length, on = g.length - up - dn;
+    return up + ' above, ' + dn + ' below' + (on ? ', ' + on + ' on it' : '');
+  }
+  const tally = (cols, L) => text(RIGHT - 4, L.b > 0 ? gy(F.ymin + F.ys) - 8 : PT + 22, tallyOf(cols, L), 'lbl', 'end');
+  // A short name at the right-hand end of a line or curve, just outside the graph.
+  const endLabel = (s, y, warn) => text(RIGHT + 6, y + 5, s, 'lbl' + (warn ? ' warnt' : ''), 'start');
+  // A candidate line's letter on a patch at (x, y).
+  function badge(s, x, y, warn) { rect('bdg' + (warn ? ' bad' : ''), x - 10, y - 10, 20, 20, 10); text(x, y + 4.5, s, 'bdl' + (warn ? ' warnt' : '')); }
+  // The readout on the row above the graph: the point's (x, y) and what it says.
+  function readout(p, warn) {
+    const w = warn ? ' warnt' : '', s = pair(p[0], p[1]);
+    text(338, YNY, s, 'ro' + w, 'end');
+    text(338 - tw(s, 'ro') - 10, YNY - 1, amt(p[0], F.g.x.unit) + ', ' + amt(p[1], F.g.y.unit), 'rou' + w, 'end');
+  }
+  const readoutHidden = () => text(338, YNY, '(?, ?)', 'ro q', 'end');
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Each reading is a point: the first highlighted and its point; the second highlighted, the guide up
+  // from its time, the guide across from its temperature, then its point and its (x, y).
+  function demoPlot(d) {
+    const g = TABLES[d.g], A = AT.plot, c = g.cols;
+    const c0 = arr(A.c0), p0 = arr(A.p0), c1 = arr(A.c1), ux = arr(A.ux), uy = arr(A.uy), p1 = arr(A.p1);
+    table(g, (k) => (k === 0 ? c0 * (1 - c1) : k === 1 ? c1 : 0));
+    grid({ hx: c[1][0], hxa: ux, hy: c[1][1], hya: uy });
+    part(p0, 4, () => { guideAcross(c[0]); dot(c[0]); });
+    part(ux, 0, () => guideUp(c[1]));
+    part(uy, 0, () => guideAcross(c[1]));
+    part(p1, 4, () => { dot(c[1]); text(gx(c[1][0]) + 10, gy(c[1][1]) - 10, pair(c[1][0], c[1][1]), 'pl', 'start'); });
+    const said = [tableSaid(g), graphSaid()];
+    if (p0 >= 0.5) said.push('The first reading is plotted at ' + say(pair(c[0][0], c[0][1])) + '.');
+    if (p1 >= 0.5) said.push('The second, ' + say(amt(c[1][1], g.y.unit)) + ' at ' + say(amt(c[1][0], g.x.unit)) + ', is plotted at ' + say(pair(c[1][0], c[1][1])) + ', ' + num(c[1][0] / F.xs) + ' squares along and ' + num(c[1][1] / F.ys) + ' up.');
+    return said.join(' ');
+  }
+  // Dot to dot: the six points one at a time, then the zigzag a piece at a time, then its name.
+  function demoZigzag(d) {
+    const g = TABLES[d.g], A = AT.zigzag, c = g.cols, la = arr(A.label);
+    table(g);
+    grid();
+    zigzag(c, (k) => lin(nth(A.seg, k), SEG));
+    c.forEach((p, k) => part(arr(nth(A.pts, k), COUNT), 3, () => dot(p)));
+    part(la, 0, () => endLabel('dot to dot', gy(c[c.length - 1][1]), true));
+    const said = [tableSaid(g), graphSaid(), 'The readings are plotted as points.'];
+    if (lin(nth(A.seg, 0), SEG) > 0) said.push('They are joined dot to dot in red, making a zigzag.');
+    return said.join(' ');
+  }
+  // A best-fit line: it grows across, then its name, then how many readings sit above it and below.
+  function demoLine(d) {
+    const g = TABLES[d.g], A = AT.line, c = g.cols, L = fitOf(c), e = grow(A.line, LINE_T), la = arr(A.label), ta = arr(A.tally);
+    table(g);
+    grid();
+    straight(L, 'fit', e);
+    c.forEach((p) => dot(p));
+    part(la, 0, () => endLabel('best fit', gy(at(L, 10 * F.xs))));
+    part(ta, 3, () => tally(c, L));
+    const said = [tableSaid(g), graphSaid(), 'The readings are plotted as points.'];
+    if (e > 0.5) said.push('One straight best-fit line runs through the middle of them, from about ' + say(amt(r3(Math.round(L.a * 10) / 10), g.y.unit)) + ' to about ' + say(amt(Math.round(at(L, 10 * F.xs) * 10) / 10, g.y.unit)) + ', close to every reading.');
+    if (ta > 0.5) said.push(tallyOf(c, L) + '.');
+    return said.join(' ');
+  }
+  // When readings bend: the points; the best straight line, in the warning colour, and its name; then the
+  // smooth curve and its name.
+  function demoBend(d) {
+    const g = TABLES[d.g], A = AT.bend, c = g.cols, L = fitOf(c), es = grow(A.straight, 0.5), sl = arr(A.slabel), ec = grow(A.curve, 0.7), cl = arr(A.clabel);
+    table(g);
+    grid();
+    straight(L, 'fit bad', es);
+    smooth(g.curve, 'fit', ec);
+    c.forEach((p, k) => part(arr(nth(A.pts, k), COUNT), 3, () => dot(p)));
+    part(sl, 0, () => endLabel('straight', gy(at(L, 10 * F.xs)), true));
+    part(cl, 0, () => endLabel('curve', gy(g.curve(10 * F.xs))));
+    const said = [tableSaid(g), graphSaid(), 'The readings are plotted as points; they bend.'];
+    if (es > 0.5) said.push('The best straight line, in red, misses them: the first reading is ' + say(amt(r3(c[0][1] - L.a), g.y.unit)) + ' above it.');
+    if (ec > 0.5) said.push('A smooth curve runs close to every reading.');
+    return said.join(' ');
+  }
+
+  // --- the puzzles (DO steps) ---
+  // Put the point on a reading: the table's reading highlighted, the ones before it already plotted.
+  // Before Check the readout says (?, ?); a right answer draws the guides to it and its readout; a wrong
+  // one turns it and its readout the warning colour.
+  function drawDrag(i, d, st, right) {
+    const g = TABLES[d.g], A = d.at, wrong = st.res === 'wrong', p = st.pt || d.start;
+    const ga = right ? arr(A.guides) : 0, ro = right ? arr(A.ro) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    table(g, (k) => (k === d.cur ? 1 : 0));
+    grid({ hx: right ? p[0] : null, hxa: ga, hy: right ? p[1] : null, hya: ga });
+    for (let k = 0; k < d.cur; k++) dot(g.cols[k]);
+    if (right) part(ga, 0, () => { guideUp(p); guideAcross(p); });
+    const halo = () => circle('ringp', gx(p[0]), gy(p[1]), 15);
+    if (!right && !wrong) halo(); else leave(arr(0.1), halo);
+    if (wrong) swap(sw, () => dot(p), () => dot(p, 'bad'), 0); else dot(p);
+    if (right) swap(ro, readoutHidden, () => readout(p), 0);
+    else if (wrong) swap(sw, readoutHidden, () => readout(p, true), 0);
+    else readoutHidden();
+    placeGrip(right ? null : p);
+    const lead = tableSaid(g) + ' ' + graphSaid() + ' ' + (d.cur ? 'The first ' + d.cur + ' readings are plotted. ' : '');
+    if (right) return lead + 'The point is at ' + say(d.want) + ': ' + say(amt(p[1], g.y.unit)) + ' at ' + say(amt(p[0], g.x.unit)) + '.';
+    if (wrong) return lead + 'The point is at ' + say(pair(p[0], p[1])) + ', which says ' + say(amt(p[1], g.y.unit)) + ' at ' + say(amt(p[0], g.x.unit)) + ', marked wrong.';
+    return lead + 'A point to drag' + (st.moved ? '' : ', starting at the top right') + '. Its readout is hidden until you check.';
+  }
+  // Fit the scale: the side's numbers are hidden until Check; then the scale picked numbers the side and
+  // the readings are plotted on it, any above the top shown as arrows off the graph.
+  function drawScale(i, d, st, right) {
+    const g = TABLES[d.g], A = d.at, wrong = st.res === 'wrong', s = right || wrong ? scaleOf(st.pick) : null, c = g.cols;
+    if (s) F = frame(g, s);
+    const na = right ? arr(A.nums) : wrong ? arr(WRONG.slip) : 0;
+    table(g);
+    grid({ noY: !s, ya: na, ywarn: wrong && d.slips[st.pick] === 'over' });
+    const said = [tableSaid(g), graphSaid().replace(/, [^,]* a square, from.*$/, '.')];
+    if (!s) { text(338, YNY, '? °C a square', 'ro q', 'end'); said.push('The temperature axis has 10 squares, its numbers still to choose.'); return said.join(' '); }
+    swap(na, () => text(338, YNY, '? °C a square', 'ro q', 'end'), () => text(338, YNY, amt(s, '°C') + ' a square', 'ro' + (wrong ? ' warnt' : ''), 'end'), 0);
+    const off = c.filter((p) => !inside(p));
+    c.forEach((p, k) => {
+      const a = right ? arr(nth(A.pts, k), COUNT) : arr(WRONG.slip);
+      if (inside(p)) part(a, 3, () => dot(p));
+      else part(a, 0, () => { line('arw', gx(p[0]), PT + 20, gx(p[0]), PT + 10); head(gx(p[0]), PT + 3, 0, -1, 'arwh'); });
+    });
+    if (wrong && off.length) part(na, 0, () => text(RIGHT - 4, gy(F.ymin + F.ys) - 8, off.length + ' readings off the top', 'lbl warnt', 'end'));
+    if (wrong && !off.length) part(na, 0, () => text(RIGHT - 4, PT + 22, 'all in the bottom ' + Math.ceil(need(g) * g.y.n / s) + ' squares', 'lbl warnt', 'end'));
+    said.push('At ' + say(amt(s, '°C')) + ' a square the side reaches ' + say(amt(F.ymax, '°C')) + (off.length ? ', and ' + off.length + ' readings go off the top, marked wrong.' : right ? ', and every reading fits.' : ', and the readings crowd into the bottom squares, marked wrong.'));
+    return said.join(' ');
+  }
+  // Pick the best fit: three lines through the readings, each with its letter; a right answer leaves line B
+  // and counts the readings above it and below; a wrong one turns the line picked the warning colour.
+  const BADGE = { 'Line A': 9, 'Line B': 7, 'Line C': 9 };
+  function drawWhich(i, d, st, right) {
+    const g = TABLES[d.g], A = d.at, wrong = st.res === 'wrong', Ls = linesOf(g), oa = right ? arr(A.others) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    table(g);
+    grid();
+    const names = Object.keys(Ls);
+    names.forEach((n) => {
+      const L = Ls[n], keep = n === d.want, x = BADGE[n] * F.xs, draw = (warn) => { straight(L, 'fit thin' + (warn ? ' bad' : ''), 1); badge(n.slice(-1), gx(x), gy(at(L, x)), warn); };
+      if (right && !keep) leave(oa, () => draw(false));
+      else if (wrong && st.pick === n) swap(sw, () => draw(false), () => draw(true), 0);
+      else draw(false);
+    });
+    const B = Ls[d.want];
+    g.cols.forEach((p) => dot(p));
+    if (right) part(arr(A.tally), 3, () => tally(g.cols, B));
+    const said = [tableSaid(g), graphSaid(), 'The readings are plotted as points, with three lines through them, A, B and C.'];
+    if (right) said.push('Line B, the best fit, is left, close to every reading: ' + tallyOf(g.cols, B) + '.');
+    if (wrong) said.push(st.pick + ' is marked wrong.');
+    return said.join(' ');
+  }
+  // How many must it pass through: the readings alone until Check; a right answer draws the best-fit line
+  // and counts the readings above it and below; 'All' draws the zigzag that passing through all of them makes; 'The first and last'
+  // rings those two.
+  function drawNone(i, d, st, right) {
+    const g = TABLES[d.g], A = d.at, wrong = st.res === 'wrong', c = g.cols, L = fitOf(c), sw = wrong ? arr(WRONG.slip) : 0;
+    table(g);
+    grid();
+    const said = [tableSaid(g), graphSaid(), 'The readings are plotted as points.'];
+    if (right) {
+      const e = grow(A.line);
+      straight(L, 'fit', e);
+      part(e, 0, () => endLabel('best fit', gy(at(L, 10 * F.xs))));
+      part(arr(A.tally), 3, () => tally(c, L));
+      said.push('The best-fit line runs through the middle of them, close to every one: ' + tallyOf(c, L) + '.');
+    }
+    if (wrong && d.slips[st.pick] === 'all') { part(sw, 0, () => { zigzag(c, () => 1); endLabel('dot to dot', gy(c[c.length - 1][1]), true); }); said.push('A line through all of them is the zigzag, marked wrong.'); }
+    c.forEach((p) => dot(p));
+    if (wrong && d.slips[st.pick] === 'ends') { part(sw, 0, () => [c[0], c[c.length - 1]].forEach(ringAt)); said.push('The first and last readings are ringed, marked wrong.'); }
+    return said.join(' ');
+  }
+  // Lay your own: a line through two ends you drag; a right answer counts the readings above it and below;
+  // a wrong one marks each reading's gap to it, those more than half a square off in the warning colour
+  // and ringed.
+  function drawLine(i, d, st, right) {
+    const g = TABLES[d.g], A = d.at, wrong = st.res === 'wrong', L = laid(d, st.ends), j = judge(d, st.ends), c = g.cols, sw = wrong ? arr(WRONG.slip) : 0;
+    table(g);
+    grid();
+    straight(L, 'fit', 1);
+    if (right) part(arr(A.tally), 3, () => tally(c, L));
+    const badK = (k) => j.far.indexOf(k) >= 0;
+    if (wrong) part(sw, 0, () => c.forEach((p, k) => { gapMark(p, at(L, p[0]), badK(k)); if (badK(k)) ringAt(p); }));
+    c.forEach((p) => dot(p));
+    const live = !right;
+    d.hx.forEach((h, k) => { const x = gx(h * F.xs), y = gy(st.ends[k]); if (live) circle('ringp', x, y, 15); else leave(arr(0.1), () => circle('ringp', x, y, 15)); circle('hnd', x, y, 7); });
+    placeHandles(live ? d : null);
+    const said = [tableSaid(g), graphSaid(), 'The readings are plotted as points, with a line through two rings you drag, now at ' + say(amt(st.ends[0], g.y.unit)) + ' at ' + say(amt(d.hx[0] * F.xs, g.x.unit)) + ' and ' + say(amt(st.ends[1], g.y.unit)) + ' at ' + say(amt(d.hx[1] * F.xs, g.x.unit)) + '.'];
+    if (right) said.push('Every reading is close to it: ' + tallyOf(c, L) + '.');
+    if (wrong) said.push(j.far.length + ' readings are more than half a square from it, ringed in red.');
+    return said.join(' ');
+  }
+  // Line or curve: the readings alone until Check; a right answer draws the smooth curve and names it; a
+  // wrong one draws the straight line or the zigzag in the warning colour.
+  function drawCurve(i, d, st, right) {
+    const g = TABLES[d.g], A = d.at, wrong = st.res === 'wrong', c = g.cols, sw = wrong ? arr(WRONG.slip) : 0, s = wrong ? d.slips[st.pick] : null;
+    table(g);
+    grid();
+    const said = [tableSaid(g), graphSaid(), 'The readings are plotted as points.'];
+    if (right) {
+      smooth(g.curve, 'fit', grow(A.curve, 0.8));
+      part(arr(A.label), 0, () => endLabel('curve', gy(g.curve(10 * F.xs))));
+      said.push('One smooth curve runs close to every reading.');
+    }
+    if (s === 'straight') { const L = fitOf(c); part(sw, 0, () => { straight(L, 'fit bad', 1); endLabel('straight', gy(at(L, 10 * F.xs)), true); }); said.push('The best straight line misses the first reading by about a square, marked wrong.'); }
+    if (s === 'dots') { part(sw, 0, () => { zigzag(c, () => 1); endLabel('dot to dot', gy(c[c.length - 1][1]), true); }); said.push('Dot to dot puts a corner at every reading, marked wrong.'); }
+    c.forEach((p) => dot(p));
+    return said.join(' ');
+  }
+  // Spot the slip: one reading plotted with its numbers swapped. A right answer rings it in the warning
+  // colour with its (x, y), moves the point to its place (the ring stays where it was), names it there and
+  // draws the curve; a wrong one rings
+  // the point picked, with its (x, y), in the warning colour.
+  function drawSwap(i, d, st, right) {
+    const g = TABLES[d.g], A = d.at, wrong = st.res === 'wrong', c = g.cols, k0 = d.swapped, sw = wrong ? arr(WRONG.slip) : 0;
+    table(g);
+    grid();
+    const bad = plotted(d, k0), good = c[k0];
+    const said = [tableSaid(g), graphSaid(), 'Six points are plotted: ' + c.map((x, k) => say(pair.apply(null, plotted(d, k)))).join(', ') + '.'];
+    if (right) {
+      const ma = arr(A.mark), mv = K.ease(lin(A.move, TRAVEL)), la = arr(A.label);
+      smooth(g.curve, 'fit', grow(A.curve));
+      c.forEach((p, k) => { if (k !== k0) dot(p); });
+      const x = K.lerp(bad[0], good[0], mv), y = K.lerp(bad[1], good[1], mv);
+      part(ma, 0, () => { circle('ring', gx(bad[0]), gy(bad[1]), 11); text(gx(bad[0]) + 14, gy(bad[1]) + 5, pair(bad[0], bad[1]), 'pl warnt', 'start'); });
+      dot([x, y]);
+      part(la, 4, () => text(gx(good[0]) + 10, gy(good[1]) - 10, pair(good[0], good[1]), 'pl', 'start'));
+      said.push('The point at ' + say(pair(bad[0], bad[1])) + ' is the ' + say(amt(good[0], 'min')) + ' reading swapped; it belongs at ' + say(pair(good[0], good[1])) + ', on the curve.');
+      return said.join(' ');
+    }
+    c.forEach((p, k) => dot(plotted(d, k)));
+    if (wrong) {
+      const k = c.findIndex((x) => amt(x[0], 'min') === st.pick), p = plotted(d, k);
+      part(sw, 0, () => { circle('ring', gx(p[0]), gy(p[1]), 11); text(gx(p[0]) + 14, gy(p[1]) - 10, pair(p[0], p[1]), 'pl warnt', 'start'); });
+      said.push('The ' + say(st.pick) + ' reading is ringed at ' + say(pair(p[0], p[1])) + ', marked wrong.');
+    }
+    return said.join(' ');
+  }
+
+  // ---------- the point and the line's ends Dan drags (kept from frame to frame) ----------
+  // The graph takes a tap (the point goes to the nearest crossing, or the nearer end of the line moves
+  // to that height); the point and the ends are dragged, or moved with the arrow keys. The page does not
+  // scroll under a finger on them.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  const ends = [0, 1].map((k) => hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider', 'data-end': k })));
+  function live() {
+    const i = here(), d = STEPS[i];
+    return !finished && (d.kind === 'drag' || d.kind === 'line') && S[i].res !== 'right';
+  }
+  function placeBoard(on) {
+    board.style.display = on ? '' : 'none';
+    if (!on) return;
+    board.setAttribute('x', OX - Q / 2); board.setAttribute('y', PT - Q / 2);
+    board.setAttribute('width', 11 * Q); board.setAttribute('height', (F.n + 1) * Q);
+  }
+  function placeGrip(p) {
+    const on = !!p && live();
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (STEPS[here()].kind !== 'line') placeBoard(on);
+    if (!on) return;
+    const st = S[here()], hide = st.res !== 'wrong';
+    grip.setAttribute('cx', gx(p[0])); grip.setAttribute('cy', gy(p[1]));
+    grip.setAttribute('aria-valuemin', F.ymin); grip.setAttribute('aria-valuemax', F.ymax); grip.setAttribute('aria-valuenow', p[1]);
+    grip.setAttribute('aria-label', 'The point. Drag it, tap the graph, or use the arrow keys to move it a square at a time.');
+    grip.setAttribute('aria-valuetext', hide ? 'its place is hidden until you check' : say(pair(p[0], p[1])));
+  }
+  function placeHandles(d) {
+    const on = !!d && live();
+    ends.forEach((h, k) => {
+      h.style.display = on ? '' : 'none';
+      h.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const v = S[here()].ends[k];
+      h.setAttribute('cx', gx(d.hx[k] * F.xs)); h.setAttribute('cy', gy(v));
+      h.setAttribute('aria-valuemin', F.ymin); h.setAttribute('aria-valuemax', F.ymax); h.setAttribute('aria-valuenow', v);
+      h.setAttribute('aria-label', (k ? 'The right' : 'The left') + ' end of the line. Drag it up or down, or use the arrow keys.');
+      h.setAttribute('aria-valuetext', say(amt(v, F.g.y.unit)) + ' at ' + say(amt(d.hx[k] * F.xs, F.g.x.unit)));
+    });
+    if (STEPS[here()].kind === 'line') placeBoard(on);
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // A place on the graph as a point on the nearest crossing, and a height to the line's step.
+  const toGrid = (q) => [K.clamp(Math.round((q[0] - OX) / Q), 0, 10) * F.xs, F.ymin + K.clamp(Math.round((F.bottom - q[1]) / Q), 0, F.n) * F.ys];
+  const lineStep = () => F.ys / 5;
+  const toHeight = (y) => { const s = lineStep(); return r3(K.clamp(Math.round((F.ymin + (F.bottom - y) / Q * F.ys) / s) * s, F.ymin, F.ymax)); };
+  function moveTo(p) {
+    if (!live()) return;
+    const i = here(), st = S[i];
+    if (st.moved && st.pt && st.pt[0] === p[0] && st.pt[1] === p[1]) return;
+    st.pt = p; st.moved = true; st.pick = pair(p[0], p[1]); st.res = null;
+    K.refresh();
+  }
+  function moveEnd(k, v) {
+    if (!live()) return;
+    const st = S[here()];
+    if (st.moved && st.ends[k] === v) return;
+    st.ends[k] = v; st.moved = true; st.res = null;
+    K.refresh();
+  }
+  let held = null;
+  const hold = (el) => (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = { id: e.pointerId, el: el }; try { el.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } };
+  const follow = (e) => {
+    if (!held || held.id !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (!q) return;
+    if (held.el === grip) moveTo(toGrid(q)); else moveEnd(+held.el.getAttribute('data-end'), toHeight(q[1]));
+  };
+  const drop = (e) => { if (held && held.id === e.pointerId) held = null; };
+  [grip].concat(ends).forEach((el) => {
+    el.addEventListener('pointerdown', hold(el));
+    el.addEventListener('pointermove', follow);
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => el.addEventListener(n, drop));
+    el.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const st = S[here()], p = st.pt || STEPS[here()].start;
+    moveTo([K.clamp(p[0] + by[0] * F.xs, 0, 10 * F.xs), K.clamp(p[1] + by[1] * F.ys, F.ymin, F.ymax)]);
+  });
+  ends.forEach((h, k) => h.addEventListener('keydown', (e) => {
+    const by = { ArrowUp: 1, ArrowDown: -1, ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    moveEnd(k, r3(K.clamp(S[here()].ends[k] + by * lineStep(), F.ymin, F.ymax)));
+  }));
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e), d = STEPS[here()];
+    if (!q) return;
+    if (d.kind === 'drag') moveTo(toGrid(q));
+    else moveEnd(q[0] < OX + 5 * Q ? 0 : 1, toHeight(q[1]));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right', g = TABLES[d.g];
+    art.textContent = '';
+    into = null;
+    F = frame(g);
+    H = heightOf(g);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    let aria;
+    if (d.show) aria = { plot: demoPlot, zigzag: demoZigzag, line: demoLine, bend: demoBend }[d.demo](d);
+    else if (d.kind === 'drag') aria = drawDrag(i, d, st, right);
+    else if (d.kind === 'line') aria = drawLine(i, d, st, right);
+    else aria = { scale: drawScale, which: drawWhich, none: drawNone, curve: drawCurve, swap: drawSwap }[d.pic](i, d, st, right);
+    if (d.kind !== 'drag') placeGrip(null);
+    if (d.kind !== 'line') placeHandles(null);
+    if (d.kind !== 'drag' && d.kind !== 'line') placeBoard(false);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      const lab = K.el('span');
+      math(lab, opts[k]);
+      b.el.appendChild(lab);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const DRAGS = DO.filter((i) => STEPS[i].kind === 'drag'), PICKS = DO.filter((i) => STEPS[i].kind === 'pick'), LINE = DO.filter((i) => STEPS[i].kind === 'line')[0];
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size, fill: getComputedStyle(t).fill };
+      });
+      const dots = Array.from(art.querySelectorAll('circle.pt')).filter(vis).map((c) => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), cls: c.getAttribute('class') }));
+      const lines = Array.from(art.querySelectorAll('line, path')).filter(vis).map((n) => n.getAttribute('class'));
+      return { texts: texts, all: texts.map((t) => t.s), dots: dots, lines: lines, rings: art.querySelectorAll('.ring').length, H: H, F: F };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // No two labels overlap (the table's and the axes' fixed numbers apart), and every label and point stays
+  // inside the picture.
+  const fixed = (c) => /^(axv|tv|tn)/.test(c);
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || (fixed(a.cls) && fixed(b.cls)) || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5)) &&
+    g.dots.every((c) => c.x >= 7 && c.x <= 333 && c.y >= PT - 7 && c.y <= g.H - 7);
+  const dotAt = (g, p, cls) => g.dots.some((c) => K.near(c.x, OX + Q * p[0] / g.F.xs, 1e-6) && K.near(c.y, g.F.bottom - Q * (p[1] - g.F.ymin) / g.F.ys, 1e-6) && (cls == null || c.cls === cls));
+  const maxGap = (cols, f) => Math.max.apply(null, cols.map((c) => Math.abs(c[1] - f(c[0]))));
+  K.check('Each puzzle\'s answer is worked out from its table: 10 °C at 8 min is (8, 10); 64 ÷ 10 = 6.4, so 10 °C a square; −10 °C at 4 h is (4, −10); line B is the draining tank\'s best fit; a best-fit line need pass through none; the readings that bend take a smooth curve; the 10 min reading is the swapped one', () =>
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) &&
+    DO.filter((i) => STEPS[i].kind !== 'line').map((i) => STEPS[i].want).join('|') === '(8, 10)|10 °C|(4, −10)|Line B|None|A smooth curve|10 min' &&
+    DRAGS.every((i) => { const d = STEPS[i], c = TABLES[d.g].cols[d.cur]; return d.to[0] === c[0] && d.to[1] === c[1]; }) &&
+    K.near(need(TABLES.motor), 6.4, 1e-9) && fitScale(TABLES.motor) === 10 && fitScale(TABLES.fill) === 5 && fitScale(TABLES.shop) === 2 && fitScale(TABLES.cool) === 5 &&
+    judge(STEPS[LINE], BEST(STEPS[LINE])).ok && judge(STEPS[LINE], [9, 34]).ok && !judge(STEPS[LINE], STEPS[LINE].start).ok && BEST(STEPS[LINE]).join() === '9,34');
+  K.check('A reading with its two numbers swapped is plotted somewhere else: 10 °C at 8 min swapped is (10, 8), and the cooling tank\'s 32 °C at 10 min swapped sits at (32, 10), more than a square and a half below the smooth curve, with no point at 10 min', () => {
+    const d2 = STEPS[1], sw = SLIP.swap(d2), k = stepOf((d) => d.pic === 'swap'), ds = STEPS[k], g = TABLES[ds.g], p = plotted(ds, ds.swapped), cv = g.curve(p[0]);
+    const w = drawn(k, blank(k));
+    return pair(sw[0], sw[1]) === '(10, 8)' && (sw[0] !== d2.to[0] || sw[1] !== d2.to[1]) && p[0] === 32 && p[1] === 10 && (cv - p[1]) / g.y.step > 1.5 && dotAt(w, [32, 10]) && !dotAt(w, [10, 32]);
+  });
+  K.check('Incorrectly assigning points to the axes or quadrants on the coordinate plane: the freezer\'s reading of −10 °C at 4 h is drawn below the time axis, and the slip that drops its minus, (4, 10), puts it above in the warning colour', () => {
+    const k = stepOf((d) => d.g === 'frz'), d = STEPS[k], r = drawn(k, solved(k)), w = drawn(k, slipped(k, '(4, 10)'));
+    const below = (g, p) => g.F.bottom - Q * (p[1] - g.F.ymin) / g.F.ys > g.F.bottom - Q * (0 - g.F.ymin) / g.F.ys;
+    return d.to[1] < 0 && dotAt(r, d.to, 'pt') && below(r, d.to) && dotAt(w, [4, 10], 'pt bad') && !below(w, [4, 10]) && r.all.indexOf('(4, −10)') >= 0;
+  }, { source: 'https://files.eric.ed.gov/fulltext/EJ1486282.pdf' });
+  K.check('Construct a best-fit straight line graph from supplied experimental data: each best-fit line the lesson draws is worked out from its readings, runs within about half a square of every one, with some above it and some below, and the line laid on the filling tank is judged the same way', () =>
+    ['shop', 'drain', 'fill'].every((k) => {
+      const g = TABLES[k], L = fitOf(g.cols), gaps = gapsOf(g.cols, L);
+      return Math.max.apply(null, gaps.map(Math.abs)) <= 0.55 * g.y.step && gaps.some((v) => v > 0) && gaps.some((v) => v < 0);
+    }) && K.near(fitOf(TABLES.shop.cols).a, 95 / 21, 1e-9) && K.near(fitOf(TABLES.shop.cols).b, 5 / 7, 1e-9) && K.near(linesOf(TABLES.drain)['Line B'].a, fitOf(TABLES.drain.cols).a, 1e-9) &&
+    gapsOf(TABLES.drain.cols, linesOf(TABLES.drain)['Line A']).every((v) => v > 0) && tallyOf(TABLES.shop.cols, fitOf(TABLES.shop.cols)) === '3 above, 3 below' &&
+    drawn(stepOf((d) => d.demo === 'line'), blank(stepOf((d) => d.demo === 'line'))).all.indexOf('3 above, 3 below') >= 0,
+  { source: 'https://www.sqa.org.uk/files/nu/F3HX12.pdf' });
+  K.check('Never connect even linearized data point-to-point with straight lines: the dot-to-dot zigzag is drawn only as the slip, in the warning colour, and every answer drawn through the readings is one straight best-fit line or one smooth curve', () => {
+    const zz = STEPS.map((d, i) => i).filter((i) => drawn(i, STEPS[i].show ? blank(i) : solved(i)).lines.some((c) => /\bzz\b/.test(c)));
+    return zz.join() === String(stepOf((d) => d.demo === 'zigzag')) &&
+      drawn(stepOf((d) => d.pic === 'curve'), slipped(stepOf((d) => d.pic === 'curve'), 'Dot to dot')).lines.some((c) => /\bzz\b/.test(c)) &&
+      drawn(stepOf((d) => d.pic === 'none'), slipped(stepOf((d) => d.pic === 'none'), 'All')).lines.some((c) => /\bzz\b/.test(c));
+  }, { source: 'http://www.phy.ilstu.edu/ptefiles/302content/student_lab_hdbk/graph_errors.pdf' });
+  K.check('Plot ordered pairs on graph paper, either given or calculated and join the points with an appropriate curve: the readings that bend get one smooth curve that runs within a third of a square of every reading, where the best straight line misses one by a square or more', () =>
+    ['cool', 'motor'].every((k) => {
+      const g = TABLES[k], L = fitOf(g.cols);
+      return maxGap(g.cols, g.curve) <= g.y.step / 3 && maxGap(g.cols, (x) => at(L, x)) >= g.y.step;
+    }) && K.near(fitOf(TABLES.cool.cols).a, 41, 1e-9) && K.near(TABLES.cool.cols[0][1] - fitOf(TABLES.cool.cols).a, 7, 1e-9),
+  { source: 'https://www.gov.uk/government/publications/general-engineering-science-written-examination-syllabuses/general-engineering-science-i-written-examination-syllabuses' });
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives, shown in the warning colour: the numbers swapped, a square taken as 1, a minus dropped, a scale that overflows or squashes, a line with every reading on one side or too flat, a zigzag, the ends forced, a straight line through a bend', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.kind === 'line') { const w = drawn(i, slipped(i, d.start)); return w.rings === 6 && w.lines.some((c) => /\bgp bad\b/.test(c)) && clear(w) && hintFor(i, slipped(i, d.start)) === d.hint; }
+      const slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o], o) === o && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length === 3 && slips.length === 2 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return (w.texts.some((t) => /warnt/.test(t.cls)) || w.rings > 0 || w.lines.some((c) => /\b(zz|bad)\b/.test(c))) && clear(w) && (d.kind !== 'drag' || dotAt(w, parsePair(o), 'pt bad')); });
+    }) && SLIP.xsq(STEPS[1]).join() === '16,10' && SLIP.ysq(STEPS[1]).join() === '8,20' && SLIP.sign(STEPS[3]).join() === '4,10' &&
+    slipOpt(STEPS[2], 'over') === '5 °C' && slipOpt(STEPS[2], 'squash') === '20 °C');
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: the readout says (?, ?), the side has no numbers until a scale is picked, no line is singled out or drawn, the swapped point is not marked, and no reading is ringed', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      if (g.rings || g.texts.some((t) => /warnt/.test(t.cls)) || g.lines.some((c) => /\b(zz|bad|gp)\b/.test(c))) return false;
+      if (d.kind === 'drag') return g.all.indexOf('(?, ?)') >= 0 && g.all.indexOf(d.want) < 0;
+      if (d.pic === 'scale') return !g.texts.some((t) => /^axv/.test(t.cls) && t.x1 <= OX) && g.dots.length === 0;
+      if (d.pic === 'which') return g.lines.filter((c) => /\bfit\b/.test(c)).length === 3;
+      if (d.pic === 'none' || d.pic === 'curve') return !g.lines.some((c) => /\bfit\b/.test(c));
+      if (d.pic === 'swap') return g.dots.length === 6 && !g.lines.some((c) => /\bfit\b/.test(c));
+      return true;
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other and its points inside the graph, for every answer, right or wrong', () =>
+    STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i))))));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      const wrongs = d.kind === 'line' ? [d.start] : Object.keys(d.slips);
+      return wrongs.every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per reading; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 6); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

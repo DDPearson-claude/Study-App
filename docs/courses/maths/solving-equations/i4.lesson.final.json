@@ -1,0 +1,124 @@
+{
+  "iid": "i4",
+  "title": "Using formulas",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a formula card whose letters wear their units filling with the amounts you know, leaving one unknown that the flow diagram undoes and the check confirms, when you put numbers into V = IR, P = VI or P = I²R, or write a job's amounts as an equation.",
+    "title": "Using formulas",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on formula cards, whose letters wear their units with the amounts you know put in beneath them; a flow diagram whose top row is the steps done to the unknown and whose bottom row undoes them, last step first; and the check, the answer run back through the formula. A job card does the same for an equation written from a job's amounts. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The amounts (the supplies, currents, resistances and powers, the tank, the cable drum and the callout charges) are example values, chosen so the answers come out simply. The heaters, resistors, lamp and relay coil are treated as plain resistances. The pump is taken to add the same amount every minute. Turning a formula round with letters, rather than numbers, is the next lesson.",
+    "numbers": [
+      {
+        "label": "230 V across 46 Ω: 230 = I × 46, so I = 230 ÷ 46 = 5 A, and 5 × 46 = 230 checks it, in step 1",
+        "value": 5,
+        "kind": "constant"
+      },
+      {
+        "label": "12 V driving 3 A: 12 = 3 × R, so R = 12 ÷ 3 = 4 Ω, not 36 Ω or 0.25 Ω, in step 2",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "A 2.3 kW heater is 2300 W; on 230 V, 2300 = 230 × I, so I = 10 A, in step 3",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "A 24 V coil drawing 50 mA, which is 0.05 A: R = 24 ÷ 0.05 = 480 Ω, not 0.48 Ω or 1.2 Ω, in step 4",
+        "value": 480,
+        "kind": "constant"
+      },
+      {
+        "label": "A 12 W lamp on 24 V: 12 = 24 × I, so I = 12 ÷ 24 = 0.5 A, not 2 A or 288 A, in step 5",
+        "value": 0.5,
+        "kind": "constant"
+      },
+      {
+        "label": "10 A through 23 Ω: P = 10 × 10 × 23 = 2300 W, the same as 230 V × 10 A, in step 6",
+        "value": 2300,
+        "kind": "constant"
+      },
+      {
+        "label": "3 A through 10 Ω: P = 3 × 3 × 10 = 90 W, not 60 W or 900 W, in step 7",
+        "value": 90,
+        "kind": "constant"
+      },
+      {
+        "label": "1000 W at 5 A: 1000 = 5² × R, so R = 1000 ÷ 25 = 40 Ω, not 100 Ω or 200 Ω, in step 8",
+        "value": 40,
+        "kind": "constant"
+      },
+      {
+        "label": "A tank with 50 L gaining 15 L a minute holds 200 L when 15t + 50 = 200, at t = 10 minutes, in step 9",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "50 m of cable, lengths of 5 m cut and 15 m left: 5n + 15 = 50, so n = 7, in step 10",
+        "value": 7,
+        "kind": "constant"
+      },
+      {
+        "label": "A £60 callout and £30 an hour on a £180 bill: 30h + 60 = 180, so 4 hours, not 8 or 2.5, in step 11",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "200 mA, which is 0.2 A, through 100 Ω: P = 0.2 × 0.2 × 100 = 4 W, not 40 W or 400 W, in step 12",
+        "value": 4,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A formula is an equation whose letters stand for amounts, each in its own unit. Ohm's law relates the voltage across a resistor to the current through it,[^1] as V = IR, with V in volts, I in amps and R in ohms, and IR meaning I × R. To use it, substitute the amounts you know and solve for the one left. With 230 V across 46 Ω, 230 = I × 46. I has been multiplied by 46, so undo that with ÷ 46, and I = 230 ÷ 46 = 5 A. Then run the answer back through the formula. 5 × 46 = 230, so both sides match, while dividing the wrong way round gives 46 ÷ 230 = 0.2 A, and 0.2 × 46 = 9.2 fails the check. Each amount has to go in using its letter's unit. A 2.3 kW heater goes into P = VI as 2300 W, so on 230 V, 2300 = 230 × I and I = 10 A. In the same way, 50 mA goes in as 0.05 A.\n\nThe power formulas are combinations of just two equations, Ohm's law and power.[^2] Put IR in for V in P = VI and P = I × R × I, which is the same as I × I × R, or I²R.[^3] The square is worked out before the × R, so 10 A through 23 Ω gives 10 × 10 × 23 = 2300 W, the same as 230 V × 10 A. A job's amounts make an equation the same way, and forming linear equations consistent with data provided is a line in the MCA's General Engineering Science I syllabus.[^4] A tank with 50 L in it, gaining 15 L a minute, holds 15t + 50 litres after t minutes, so it holds 200 L when 15t + 50 = 200. Take the 50 off, then divide by 15, and t = 10 minutes. As a check, 15 × 10 + 50 = 200.\n\n**Substitute what you know, each amount in its letter's unit, then undo the steps done to the one you don't know and run the answer back through to check it. In P = I²R the current is squared before it is multiplied by R, and a job's amounts make an equation the same way.**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** Put each amount in using its letter's unit, so watts, volts, amps and ohms, not kilowatts or milliamps. Undo the steps done to the unknown, last first, then run the answer back through the formula.\n\n**Worked example:** A heater element gives out 1000 W when it carries 5 A. Find its resistance with P = I²R. Substituting gives 1000 = 5² × R, and 5² = 25, so 1000 = 25 × R. Undo × 25 with ÷ 25, and R = 1000 ÷ 25 = 40 Ω. As a check, 5² × 40 = 25 × 40 = 1000.\n\n**Common mistakes**\n- Dividing the wrong way round. From 12 = 3 × R, R is 12 ÷ 3 = 4 Ω, not 3 ÷ 12 = 0.25 Ω. As a check, 3 × 0.25 = 0.75, not 12.\n- Putting kilowatts or milliamps in as they are. A 24 V coil drawing 50 mA draws 0.05 A, so its resistance is 24 ÷ 0.05 = 480 Ω, not 24 ÷ 50 = 0.48 Ω.\n- Doubling instead of squaring, or squaring the wrong amount. 3 A through 10 Ω gives 3 × 3 × 10 = 90 W, not 3 × 2 × 10 = 60 W, and not 30 squared, 900 W.\n- Adding a fixed amount instead of taking it off. A £60 callout and £30 an hour on a £180 bill gives 30h + 60 = 180, so 4 hours, not 8."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "2.7 Resistors and Ohm’s Law – Applied Electrical Engineering Fundamentals",
+      "url": "https://openbooks.library.umass.edu/funee/chapter/2-7/",
+      "quote": "Ohm’s law stipulates that the voltage drop across and current through a resistor are related by"
+    },
+    {
+      "n": 2,
+      "title": "9.5 Electrical Energy and Power - University Physics Volume 2 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power",
+      "quote": "they all are combinations of just two equations, Ohm’s law and power"
+    },
+    {
+      "n": 3,
+      "title": "Power - Electrical principles",
+      "url": "https://learninglab.rmit.edu.au/Toolbox/electrotech/toolbox1204/resources/01principles/03terminology/07power.htm",
+      "quote": "P = I x R x I which is the same as I x I x R which is the same as I 2 R"
+    },
+    {
+      "n": 4,
+      "title": "General Engineering Science I Written Examination Syllabuses - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/general-engineering-science-written-examination-syllabuses/general-engineering-science-i-written-examination-syllabuses",
+      "quote": "Form linear equations consistent with data provided."
+    }
+  ]
+}

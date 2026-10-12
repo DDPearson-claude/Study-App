@@ -1,0 +1,920 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .fr { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1.1; font-weight: 700; margin: 0 .1em; font-size: .9em; }
+  .fr .n { border-bottom: 2px solid currentColor; padding: 0 .18em; }
+  .fr .d { padding: 0 .18em; }
+  .mx { display: inline-flex; align-items: center; vertical-align: middle; white-space: nowrap; }
+  .mx .w { font-weight: 700; margin-left: .1em; }
+  .mx .fr { margin-left: .08em; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  .scene .pc { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .pc.a { fill: var(--k-fill1); }
+  .scene .pc.on { fill: var(--k-accent2); }
+  .scene .pc.hl { fill: var(--k-fill2); }
+  .scene .pc.tap { cursor: pointer; transition: fill .15s ease; }
+  .scene .pc.tap.locked { cursor: default; }
+  .scene .pc:focus { outline: none; }
+  .scene .pc:focus-visible { stroke: var(--k-accent); stroke-width: 4; }
+  .scene .edge { fill: none; stroke: var(--k-strong); stroke-width: 2.5; }
+  .scene .cut { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .half { stroke: var(--k-strong); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .num { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .lab { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .whole { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .big { font: 700 22px var(--k-font); fill: var(--k-ink); }
+  .scene .fbar { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .bbar { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .onnum { font: 700 16px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .onlab { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .onwhole { font: 700 20px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .onbar { stroke: var(--k-on-accent2); stroke-width: 1.5; }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .brk { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .mlab { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .mbar { stroke: var(--k-accent2); stroke-width: 1.5; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* The answers stay on one row, each label whole, at every text size. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+    .scene .pc.tap { transition: none; }
+  }
+</style>
+
+<p class="lead">Squares and bars cut into pieces, one small step at a time.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 80" width="100%" role="img" aria-label=""></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each bar is one whole, and so is each 1 by 1 square.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after an answer plays (seconds).
+  // A DO step's `at` says when each part of that motion arrives, in seconds after Check.
+  const PICK = 'Tap one of the answers.', EMPTY_PIECE = 'Tap a piece to colour it.';
+  const STEPS = [
+    { show: true, demo: 'half', dur: 4.3, name: 'Half of three quarters',
+      text: 'You\'ve taken 3/4 of an amount. Now take half of 3/4 of a square. The cuts make 8 equal pieces, and that half is 3 of them, so half of 3/4 is 3/8.' },
+    { kind: 'colour', area: { a: [1, 2], b: [1, 4] }, fb: 2.4, name: 'Half of a quarter',
+      at: { counts: 0.15, name: 1.75 },
+      task: 'The bar shows 1/4 shaded. Colour half of the shaded quarter.',
+      why: 'Cut in half the long way, the bar has 8 equal pieces. Half of the quarter is one of them, so it is 1/8.',
+      hint: 'Not quite. The shaded quarter is 2 pieces. Half of it is one of them.' },
+    { show: true, demo: 'rule', dur: 3.9, name: 'Tops and bottoms',
+      text: '*Of* means times, so half of 3/4 is 1/2 × 3/4. The 1 row of 3 taken gives the top, 1 × 3. The 2 rows of 4 give the bottom, 2 × 4.' },
+    { kind: 'pick', draw: 'area', area: { a: [2, 3], b: [3, 4] }, opts: ['6/12', '5/7', '1/2'], want: '1/2', fb: 2.5, name: 'Two thirds of three quarters',
+      at: { on: 0.15, name: 1.5, simp: 1.9 },
+      task: 'What is 2/3 × 3/4? Simplify it as far as it goes.',
+      why: 'The tops make 2 × 3 = 6 and the bottoms 3 × 4 = 12. 6/12 simplifies to 1/2, half the square.',
+      hint: 'Not quite. Multiply the tops, then the bottoms, then simplify.',
+      hints: { '5/7': 'Not quite. That adds the tops and the bottoms. Multiply them.', '6/12': 'Equal, but it simplifies. Both 6 and 12 divide by 6.' } },
+    { kind: 'pick', draw: 'area', area: { a: [1, 2], b: [3, 8], bar: true }, opts: ['3/16', '12/8', '3/4'], want: '3/16', fb: 1.8, name: 'Half of three eighths',
+      at: { on: 0.15, name: 1.1 },
+      task: 'What is 1/2 × 3/8?',
+      why: 'The tops make 1 × 3 = 3 and the bottoms 2 × 8 = 16. Cut in half the long way, the bar has 16 equal pieces.',
+      hint: 'Not quite. Multiply the tops, then the bottoms.',
+      hints: { '12/8': 'Not quite. Matching the bottoms is for adding. 12/8 is more than the whole bar, and the bottoms multiply too.', '3/4': 'Not quite. 3/4 is bigger than 3/8, but half of 3/8 must be smaller.' } },
+    { show: true, demo: 'lots', dur: 4.5, name: 'Lots of a fraction',
+      text: '3 × 2/5 means three lots of 2/5. That makes 6 fifths, so only the top is multiplied. 6/5 is one whole and one fifth, 1 1/5.' },
+    { kind: 'pick', draw: 'lots', lots: { n: 4, f: [3, 8] }, opts: ['7/8', '12/8', '12/32'], want: '12/8', fb: 2.45, name: 'Four lots of three eighths',
+      at: { lots: [0.15, 0.45, 0.75], labels: 1.05, name: 1.45, mixed: 1.85 },
+      task: 'What is 4 × 3/8?',
+      why: 'Four lots of 3 eighths make 12 eighths, 12/8. Eight of them fill a whole, so it is 1 4/8, or 1 1/2.',
+      hint: 'Not quite. Count the eighths in four lots of 3/8.',
+      hints: { '7/8': 'Not quite. That adds 4 to the top. Four lots of 3 is 4 × 3.', '12/32': 'Not quite. 12/32 is the same size as 3/8, just one lot. Multiply only the top.' } },
+    { show: true, demo: 'mixed', dur: 4.5, name: 'One and a half times itself',
+      text: 'Turn each 1 1/2 into the improper fraction 3/2 first. The square holds 3 rows of 3 quarters, so 3/2 × 3/2 = 9/4. Multiplying only 1 × 1 and 1/2 × 1/2 misses two strips.' },
+    { kind: 'pick', draw: 'halves', opts: ['1/3', '1 1/3', '1'], want: '1', fb: 2.5, name: 'Two thirds of one and a half',
+      at: { counts: 0.15, on: 0.95, name: 1.5 },
+      task: 'What is 2/3 of 1 1/2?',
+      why: '1 1/2 is 3/2, and 2/3 × 3/2 = 6/6, which is 1. Two thirds of three halves is two halves.',
+      hint: 'Not quite. Turn 1 1/2 into 3/2 first.',
+      hints: { '1 1/3': 'Not quite. That keeps the whole and multiplies only the half. Turn 1 1/2 into 3/2 first.', '1/3': 'Not quite. That drops the whole. Turn 1 1/2 into 3/2 first.' } },
+    { kind: 'pick', draw: 'area', of: true, area: { a: [1, 3], b: [3, 4], bar: true, reel: true }, opts: ['1/4', '1/3', '4/7'], want: '1/4', fb: 2.4, name: 'A reel of cable',
+      at: { on: 0.15, name: 0.9, slide: 1.3, simp: 1.8 },
+      task: 'A reel of cable is 3/4 full. A job uses 1/3 of what is on it. What fraction of a full reel is that?',
+      why: 'Of means times, so the job uses 1/3 × 3/4 = 3/12 of a full reel. That simplifies to 1/4.',
+      hint: 'Not quite. Of means times, so multiply 1/3 by 3/4.',
+      hints: { '1/3': 'Not quite. That is a third of a full reel. The job uses a third of the 3/4.', '4/7': 'Not quite. That adds the tops and the bottoms. Multiply them.' } },
+    { kind: 'less', opts: ['5 × 3/2', '5 × 2/3', '5 × 5/4'], want: '5 × 2/3', fb: 1.2, name: 'Less than 5',
+      at: { ring: 0.1, label: 0.5 },
+      task: 'Which of these is less than 5?',
+      why: 'Multiplying by a fraction between 0 and 1 gives only part of a number. 2/3 is less than 1, so 5 × 2/3 = 10/3, or 3 1/3.',
+      hint: 'Not quite. Watch where it lands.',
+      hints: { '5 × 3/2': 'Not quite. 3/2 is more than 1, so it makes 5 bigger.', '5 × 5/4': 'Not quite. 5/4 is more than 1, so it makes 5 bigger.' } },
+    { kind: 'pick', draw: 'big', opts: ['3 1/4', '2 1/4', '3 3/4'], want: '3 3/4', fb: 2.4, name: 'Two mixed numbers',
+      at: { half: 0.15, rows: [0.45, 0.85, 1.25], name: 1.8 },
+      task: 'What is 2 1/2 × 1 1/2?',
+      why: '2 1/2 is 5/2 and 1 1/2 is 3/2, so the picture holds 5 × 3 = 15 quarters. 5/2 × 3/2 = 15/4, which is 3 3/4.',
+      hint: 'Not quite. Turn both into halves first.',
+      hints: { '2 1/4': 'Not quite. Multiplying the wholes, then the halves, misses the strips. Turn both into halves first.',
+        '3 1/4': 'Not quite. That is 1/2 too little. The strip along the bottom is two halves, a whole 1. Turn both into halves first.' } },
+  ];
+  const FINISH = 'Multiply the tops, multiply the bottoms, then simplify. Turn mixed numbers into improper fractions first.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled).
+  const FADE = 0.35;
+  const AT = {
+    // 3 of 4 columns shade (3/4), a cut grows across, half of the shaded part is taken and counted, then 1/2 of 3/4 = 3/8
+    half: { cols: [0.5, 0.75, 1.0], top: 1.4, cut: 1.9, left: 2.4, on: [2.7, 2.95, 3.2], name: 3.6 },
+    // the same square: the 3 pieces taken are counted, then the tops multiply; the bottoms come with a
+    // note of the square's 2 rows of 4; then 3/8
+    rule: { start: 0.5, counts: [1.0, 1.25, 1.5], tops: 2.0, bottoms: 2.6, name: 3.2 },
+    // three lots of two fifths arrive, a bar each, each labelled 2/5, with 3 × 2/5 written; the product
+    // follows; the three fifths outside the first bar move up one at a time to fill it; then 6/5 = 1 1/5
+    lots: { lots: [0.5, 1.0, 1.5], prod: 2.0, slide: 2.3, gap: 0.25, six: 3.5, name: 3.9 },
+    // a 1 1/2 square: its sides, then the half-lines that make 3 by 3 quarters (and 3/2 × 3/2), the 9
+    // quarters counted, the products, the answer, then the two strips that multiplying the parts misses
+    mixed: { sides: 0.5, halves: 0.9, counts: 1.25, prod: 3.0, name: 3.45, strips: 3.9 },
+  };
+  const CNT = 0.2, STEP = 0.2;   // a count follows its piece by CNT; pieces taken or counted one by one arrive STEP apart
+  // Pieces that slide (the gathering fifths, the reel's cable) take MOVE each; the across part of the
+  // trip leads and the up or down part lags by LEAD of it, so a piece goes round, not over, the others.
+  const MOVE = 0.7, LEAD = 0.4;
+  // Drawing sizes, in viewBox units (340 wide). Bars run from BX with their labels at LX; the
+  // number line runs from L0 to L0 + LW; equations are centred on CX.
+  const BX = 64, BW = 256, BH = 44, BG = 12, LX = 30, L0 = 20, LW = 300, CX = 170;
+  const SQ = { x: 98, y: 56, w: 144, h: 144 };          // the 1 by 1 square
+  const MX = { x: 110, y: 56, u: 104 }, BIG = { x: 96, y: 52, u: 84 };   // the mixed-number rectangles (u: one whole)
+  // Pieces Dan colours by tapping are TAPH tall (and 64 wide), so each is a thumb's width on a phone.
+  const TAPH = 56;
+  const barY = (b, top, h) => top + b * ((h || BH) + BG);
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const simp = (t, b) => { const g = gcd(t, b) || 1; return [t / g, b / g]; };
+  const times = (p, q) => [p[0] * q[0], p[1] * q[1]];       // tops times tops, over bottoms times bottoms
+  const toMixed = (t, b) => [Math.floor(t / b), t % b, b];   // how many wholes fit; the rest keeps the bottom
+  // '2 1/4' -> [2, 1, 4]; '13/4' -> [0, 13, 4]; '5' -> [5, 0, 1].
+  function parts(s) {
+    const m = String(s).trim().match(/^(?:(\d+)\s+)?(\d+)(?:\/(\d+))?$/);
+    if (!m) return [NaN, NaN, NaN];
+    if (m[3] == null) return m[1] == null ? [Number(m[2]), 0, 1] : [NaN, NaN, NaN];
+    return [m[1] == null ? 0 : Number(m[1]), Number(m[2]), Number(m[3])];
+  }
+  // Any answer as one fraction: a mixed number turned improper, and '5 × 2/3' multiplied out.
+  function fracOf(s) {
+    const xs = String(s).split('×');
+    if (xs.length > 1) return xs.map(fracOf).reduce(times);
+    const p = parts(s);
+    return [p[0] * p[2] + p[1], p[2]];
+  }
+  const value = (s) => { const f = fracOf(s); return f[0] / f[1]; };
+  // An answer as a mixed number, its fraction simplified: '5 × 3/2' -> [7, 1, 2].
+  function mixedOf(s) { const f = fracOf(s), m = toMixed(f[0], f[1]), r = simp(m[1], m[2]); return [m[0], r[0], r[1]]; }
+  const count = (on) => on.filter(Boolean).length;
+  // The colouring step: its bar is the second fraction's columns by the first's rows, the first
+  // b[0] columns shaded; Dan colours a[0] × b[0] pieces, all inside the shaded part.
+  const tapCount = (d) => (d.kind === 'colour' ? d.area.a[1] * d.area.b[1] : 0);
+  const inShade = (d, k) => k % d.area.b[1] < d.area.b[0];
+  function blank(i) { return { on: new Array(tapCount(STEPS[i])).fill(false), pick: null, res: null, why: false }; }
+  function isEmpty(i, st) { return STEPS[i].kind === 'colour' ? count(st.on) === 0 : st.pick == null; }
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (d.kind !== 'colour') return st.pick === d.want;
+    return count(st.on) === d.area.a[0] * d.area.b[0] && st.on.every((v, k) => !v || inShade(d, k));
+  }
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind !== 'colour') return (d.hints && d.hints[st.pick]) || d.hint;
+    const c = count(st.on), inside = st.on.filter((v, k) => v && inShade(d, k)).length;
+    if (c === 2 && inside === 2) return 'Not quite. That is the whole shaded quarter. Colour half of it.';
+    if (c === 1 && inside === 0) return 'Not quite. Half of the shaded quarter is inside it.';
+    if (c === 4) return 'Not quite. 4 pieces make 2/4, more than the quarter you started with.';
+    return d.hint;
+  }
+  // A step answered right (the timing check draws each one this way): on the colouring step, the
+  // first piece of the shaded quarter.
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'colour') st.on[0] = true; else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current demonstration, or since Check
+
+  // ---------- text with stacked fractions, mixed numbers and amber key terms (built with K.el, never innerHTML) ----------
+  function frac(t, b, hide) {
+    return K.el('span', hide ? { class: 'fr', 'aria-hidden': 'true' } : { class: 'fr', role: 'img', 'aria-label': t + '/' + b },
+      K.el('span', { class: 'n', 'aria-hidden': 'true' }, t), K.el('span', { class: 'd', 'aria-hidden': 'true' }, b));
+  }
+  // A mixed number: the whole number beside its stacked fraction, read as "1 and 3/4".
+  function mixed(w, t, b) {
+    return K.el('span', { class: 'mx', role: 'img', 'aria-label': w + ' and ' + t + '/' + b },
+      K.el('span', { class: 'w', 'aria-hidden': 'true' }, w), frac(t, b, true));
+  }
+  // Plain text with its fractions, mixed numbers and *key terms* drawn in.
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*|(\d+) (\d+)\/(\d+)|(\d+)\/(\d+)/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      let node = m[1] ? K.el('span', { class: 'term' }, m[1]) : m[2] ? mixed(m[2], m[3], m[4]) : frac(m[5], m[6]);
+      at = m.index + m[0].length;
+      // A full stop or comma after a fraction stays on its line.
+      const stop = !m[1] && /^[.,?!;]/.test(text.slice(at)) ? text[at] : '';
+      if (stop) { node = K.el('span', { class: 'nw' }, node, stop); at++; re.lastIndex = at; }
+      el.appendChild(node);
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A whole sum ("2/3 × 3/4 = 6/12" or "5 × 2/3") stays together on one line, with the full stop after it.
+  const NUM = '(?:\\d+ )?\\d+(?:\\/\\d+)?';
+  const GLUE = new RegExp(NUM + '(?: [=×] ' + NUM + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      if (/ /.test(m[0])) { const box = el.appendChild(K.el('span', { class: 'nw' })); pieces(box, m[0]); }
+      else pieces(el, m[0]);
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    // A right answer plays its picture's motion; on the number line any answer lands in its place.
+    if (st.res === 'right' || d.kind === 'less') play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    play();
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished. If the page is hidden part-way,
+  // the kit carries the motion on when it is shown again.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    const d = STEPS[at()];
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < (d.show ? d.dur : d.fb || 0);
+  } });
+  function play() {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene');
+  let into = null;                                   // where shapes go: the scene, or a part that is arriving
+  const add = (node) => (into || svg).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving (a slot giving way to its answer): faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: x, y: y, width: w, height: h }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const brk = (d) => add(K.svg('path', { class: 'brk', d: d }));
+  // A stacked fraction centred on x, its bar at y.
+  function sfrac(x, y, t, b, cls, barCls, half, gap) {
+    half = half || (String(t).length > 1 || String(b).length > 1 ? 11 : 9); gap = gap || 16;
+    text(x, y - 5, t, cls);
+    line(barCls, x - half, y, x + half, y);
+    text(x, y + gap, b, cls);
+  }
+  const bigFrac = (x, y, t, b) => sfrac(x, y, t, b, 'big', 'bbar', String(t).length > 1 || String(b).length > 1 ? 15 : 13, 24);
+  function smallMixed(x, y, w, t, b, cls, barCls) { text(x - 18, y + 5, w, cls); sfrac(x, y, t, b, cls, barCls); }
+  // A piece, plain, with its shade fading in as a goes 0 -> 1.
+  function piece(x, y, w, h, a) { rect('pc', x, y, w, h); if (a > 0) part(a, 0, () => rect('pc on', x, y, w, h)); }
+  // One bar of a stack at y: per pieces, piece k shaded as far as shade(k) (0..1).
+  function bar(y, per, shade) {
+    const w = BW / per;
+    for (let k = 0; k < per; k++) piece(BX + k * w, y, w, BH, shade(k));
+    rect('edge', BX, y, BW, BH);
+  }
+  // A count number on piece k of a bar, rising in as a goes 0 -> 1.
+  const countIn = (y, per, k, n, a) => part(a, 6, () => text(BX + (k + 0.5) * BW / per, y + BH / 2 + 6, n, 'onnum'));
+  // The label beside a bar: 1 for a whole bar, or the fraction of it shaded.
+  const sideLabel = (y, t, b, a) => part(a, 6, () => { const m = y + BH / 2; if (b) sfrac(LX, m + 2, t, b, 'lab', 'fbar'); else text(LX, m + 7, t, 'whole'); });
+  // The slot an answer goes in: a dashed box that gives way to the answer as a goes 0 -> 1.
+  const slot = (x, y, w, h, a) => leave(a, () => add(K.svg('rect', { class: 'gapbox', x: x, y: y, width: w, height: h, rx: 5 })));
+  // Brackets marking a fraction of a side: along the top of x1..x2 (the shape's top at y) with the
+  // label above, or down the left of y1..y2 (the shape's left at x) with the label beside it.
+  function topBrace(x1, x2, y, a, label) {
+    part(a, 0, () => brk('M' + (x1 + 3) + ' ' + (y - 4) + ' V' + (y - 10) + ' H' + (x2 - 3) + ' V' + (y - 4)));
+    part(a, 6, () => label((x1 + x2) / 2, y - 32));
+  }
+  function leftBrace(y1, y2, x, a, label) {
+    part(a, 0, () => brk('M' + (x - 4) + ' ' + (y1 + 3) + ' H' + (x - 10) + ' V' + (y2 - 3) + ' H' + (x - 4)));
+    part(a, 6, () => label(x - 34, (y1 + y2) / 2 - 2));
+  }
+  const fracLab = (t, b) => (x, y) => sfrac(x, y, t, b, 'lab', 'fbar');
+  const mixLab = (w, t, b) => (x, y) => smallMixed(x + 7, y, w, t, b, 'lab', 'fbar');
+
+  // One line of working, centred on CX with its fraction bars at y. Items: {f: [t, b]}, {m: [w, t, b]},
+  // {s: '×'} (a sign, a word or a whole number) and {r: ['1 × 3', '2 × 4']} (a fraction whose top and
+  // bottom are products, arriving at `at` and `ab`). `a`: when the item arrives (left out: there from
+  // the start); `slot`: when the item fills its dashed slot, which has PAD of room on each side.
+  const DIG = 13.5, EGAP = 9, PAD = 6;
+  function itemW(it) {
+    if (it.slot != null) return Math.max(28, itemW(Object.assign({}, it, { slot: null }))) + 2 * PAD;
+    if (it.f) return Math.max(26, Math.max(String(it.f[0]).length, String(it.f[1]).length) * DIG + 6);
+    if (it.m) return String(it.m[0]).length * DIG + 5 + itemW({ f: [it.m[1], it.m[2]] });
+    if (it.r) return Math.max(it.r[0].length, it.r[1].length) * 11 + 6;
+    return Math.max(14, String(it.s).length * DIG);
+  }
+  function drawItem(it, x, w, y) {
+    if (it.f) bigFrac(x + w / 2, y, it.f[0], it.f[1]);
+    else if (it.m) {
+      const fw = itemW({ f: [it.m[1], it.m[2]] });
+      text(x + String(it.m[0]).length * DIG / 2, y + 8, it.m[0], 'big');
+      bigFrac(x + w - fw / 2, y, it.m[1], it.m[2]);
+    } else text(x + w / 2, y + 8, it.s, 'big');
+  }
+  function eq(y, items) {
+    const ws = items.map(itemW), total = ws.reduce((s, w) => s + w, 0) + EGAP * (items.length - 1);
+    let x = CX - total / 2;
+    items.forEach((it, i) => {
+      const w = ws[i], x0 = x;
+      if (it.r) {
+        part(it.at, 6, () => { text(x0 + w / 2, y - 5, it.r[0], 'big'); line('bbar', x0, y, x0 + w, y); });
+        part(it.ab, 6, () => text(x0 + w / 2, y + 24, it.r[1], 'big'));
+      } else if (it.slot != null) {
+        slot(x0 + 1, y - 28, w - 2, 58, it.slot);
+        part(it.slot, 6, () => drawItem(it, x0 + PAD, w - 2 * PAD, y));
+      } else part(it.a == null ? 1 : it.a, 6, () => drawItem(it, x0, w, y));
+      x += w + EGAP;
+    });
+  }
+
+  // An area picture: the whole (x, y, w, h) cut into `cols` columns and `rows` rows. The first sc
+  // columns are the amount a fraction is taken of, shaded as far as colA(c); the row cuts have grown
+  // across as far as rowCut (0..1, all the way when left out).
+  function areaBase(g) {
+    const cw = g.w / g.cols;
+    for (let c = 0; c < g.cols; c++) {
+      rect('pc', g.x + c * cw, g.y, cw, g.h);
+      if (c < g.sc) part(g.colA ? g.colA(c) : 1, 0, () => rect('pc a', g.x + c * cw, g.y, cw, g.h));
+    }
+  }
+  function areaCuts(g) {
+    const rh = g.h / g.rows, f = g.rowCut == null ? 1 : g.rowCut;
+    if (f > 0) for (let r = 1; r < g.rows; r++) line('cut', g.x, g.y + r * rh, g.x + g.w * f, g.y + r * rh);
+    rect('edge', g.x, g.y, g.w, g.h);
+  }
+  // A piece taken (row r, column c), shaded as far as a; and its count n, rising in as a goes 0 -> 1.
+  function onPiece(g, r, c, a) {
+    const cw = g.w / g.cols, rh = g.h / g.rows;
+    part(a, 0, () => rect('pc on', g.x + c * cw, g.y + r * rh, cw, rh));
+  }
+  function pieceCount(g, r, c, n, a) {
+    const cw = g.w / g.cols, rh = g.h / g.rows;
+    part(a, 6, () => text(g.x + (c + 0.5) * cw, g.y + (r + 0.5) * rh + 6, n, 'onnum'));
+  }
+  // How far through its trip a piece that sets off at t0 and takes d is (0..1, not eased; noted in
+  // the timetable like arr). A piece goes from p to q across first, then up or down (or, downFirst,
+  // the other way round), each leg eased and the second starting LEAD of the way through, so it
+  // passes round the pieces beside its path rather than over them.
+  function lin(t0, d) { arr(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  function along(p, q, f, downFirst) {
+    const first = K.ease(f / (1 - LEAD)), second = K.ease((f - LEAD) / (1 - LEAD));
+    return { x: K.lerp(p.x, q.x, downFirst ? second : first), y: K.lerp(p.y, q.y, downFirst ? first : second) };
+  }
+  // A (w + 1/2) by (h + 1/2) rectangle, u to a whole: its w × h whole squares, the strip of halves
+  // down the right, the strip along the bottom and the corner, drawn plain. Faint half-lines (as far
+  // as A.half) cut it into quarters of a whole, (2w + 1) across and (2h + 1) down; quarter k (row by
+  // row) shades as far as A.on(k), its count arriving as far as A.count(k). From A.strips (a time)
+  // the quarters of the two strips, what multiplying the parts alone misses, turn amber; their counts
+  // hand over from light to ink, one fading out before the other fades in. Returns how many are counted.
+  function quartersPicture(P, w, h, A) {
+    const u = P.u, q = u / 2, x0 = P.x, y0 = P.y, cols = 2 * w + 1, rows = 2 * h + 1, W = cols * q, H = rows * q;
+    for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) rect('pc', x0 + i * u, y0 + j * u, u, u);
+    rect('pc', x0 + w * u, y0, q, h * u); rect('pc', x0, y0 + h * u, w * u, q); rect('pc', x0 + w * u, y0 + h * u, q, q);
+    part(A.half, 0, () => {
+      for (let i = 0; i < w; i++) line('half', x0 + i * u + q, y0, x0 + i * u + q, y0 + H);
+      for (let j = 0; j < h; j++) line('half', x0, y0 + j * u + q, x0 + W, y0 + j * u + q);
+    });
+    const strip = (r, c) => (c === cols - 1) !== (r === rows - 1);
+    const amber = A.strips == null ? 0 : arr(A.strips), dim = A.strips == null ? 0 : arr(A.strips, 0.3), ink = A.strips == null ? 0 : arr(A.strips + 0.3, 0.3);
+    const cells = [];
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+      const k = r * cols + c, x = x0 + c * q, y = y0 + r * q, s = strip(r, c);
+      part(A.on(k), 0, () => rect('pc on', x, y, q, q));
+      if (s) part(amber, 0, () => rect('pc hl', x, y, q, q));
+      cells.push({ k: k, x: x + q / 2, y: y + q / 2 + 6, s: s });
+    }
+    rect('edge', x0, y0, W, H);
+    let n = 0;
+    cells.forEach((c) => {
+      const a = A.count(c.k);
+      if (a >= 0.5) n++;
+      if (!c.s) { part(a, 6, () => text(c.x, c.y, c.k + 1, 'onnum')); return; }
+      leave(dim, () => part(a, 6, () => text(c.x, c.y, c.k + 1, 'onnum')));
+      part(ink, 0, () => part(a, 6, () => text(c.x, c.y, c.k + 1, 'num k-nohalo')));   // on a solid piece: no halo needed
+    });
+    return n;
+  }
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  function demoHalf() {
+    svg.setAttribute('viewBox', '0 0 340 282');
+    const A = AT.half, g = Object.assign({ cols: 4, rows: 2, sc: 3, colA: (c) => arr(A.cols[c]), rowCut: arr(A.cut) }, SQ);
+    areaBase(g);
+    A.on.forEach((t, c) => onPiece(g, 0, c, arr(t)));
+    areaCuts(g);
+    let n = 0, shaded = 0;
+    A.on.forEach((t, c) => { const a = arr(t + CNT); if (a >= 0.5) n++; pieceCount(g, 0, c, c + 1, a); });
+    A.cols.forEach((t) => { if (arr(t) >= 0.5) shaded++; });
+    const top = arr(A.top), left = arr(A.left), named = arr(A.name);
+    topBrace(g.x, g.x + 3 * g.w / 4, g.y, top, fracLab(3, 4));
+    leftBrace(g.y, g.y + g.h / 2, g.x, left, fracLab(1, 2));
+    eq(g.y + g.h + 50, [{ f: [1, 2], a: left }, { s: 'of', a: left }, { f: [3, 4], a: top }, { s: '=', a: named }, { f: [3, 8], a: named }]);
+    return 'A square cut into 4 equal columns' + (shaded ? ', ' + shaded + ' of them shaded' + (shaded === 3 ? ': 3/4' : '') : '') +
+      (g.rowCut >= 1 ? '. A cut across makes 8 equal pieces' : '') + (n ? ', and ' + n + ' of them, the top half of the shaded part, are taken and counted' : '') +
+      (named >= 0.5 ? '. 1/2 of 3/4 = 3/8.' : '.');
+  }
+  function demoRule() {
+    svg.setAttribute('viewBox', '0 0 340 296');
+    const A = AT.rule, g = Object.assign({ cols: 4, rows: 2, sc: 3 }, SQ);
+    areaBase(g);
+    for (let c = 0; c < 3; c++) onPiece(g, 0, c, 1);
+    areaCuts(g);
+    let n = 0;
+    A.counts.forEach((t, c) => { const a = arr(t); if (a >= 0.5) n++; pieceCount(g, 0, c, c + 1, a); });
+    topBrace(g.x, g.x + 3 * g.w / 4, g.y, 1, fracLab(3, 4));
+    leftBrace(g.y, g.y + g.h / 2, g.x, 1, fracLab(1, 2));
+    const s = arr(A.start), tops = arr(A.tops), bots = arr(A.bottoms), named = arr(A.name);
+    // as the bottoms arrive, a note under the square: it is 2 rows of 4
+    part(bots, 6, () => text(g.x + g.w / 2, g.y + g.h + 22, '2 rows of 4', 'tl'));
+    eq(g.y + g.h + 62, [{ f: [1, 2], a: s }, { s: '×', a: s }, { f: [3, 4], a: s }, { s: '=', a: tops }, { r: ['1 × 3', '2 × 4'], at: tops, ab: bots },
+      { s: '=', a: named }, { f: [3, 8], a: named }]);
+    return 'A square cut into 2 rows of 4 pieces: 3 of the 4 columns shaded, 3/4, and the top row of them, 1/2 of it, taken' +
+      (n ? ', ' + n + ' pieces counted' : '') + (s >= 0.5 ? '. Under it, 1/2 × 3/4' : '') + (tops >= 0.5 ? ' = (1 × 3)' : '') + (bots >= 0.5 ? '/(2 × 4), the square being 2 rows of 4' : '') +
+      (named >= 0.5 ? ' = 3/8.' : '.');
+  }
+  function demoLots() {
+    svg.setAttribute('viewBox', '0 0 340 238');
+    const A = AT.lots, w = BW / 5, pos = (q) => ({ x: BX + (q % 5) * w, y: barY(Math.floor(q / 5), 4) });
+    // lot j is the first two fifths of bar j, the second arriving STEP after the first
+    const shadeA = (q) => arr(A.lots[Math.floor(q / 5)] + (q % 5) * STEP);
+    // then the three fifths outside the first bar move into it one at a time, A.gap apart, the
+    // nearest first; the third goes to the gap the first two leave, so no trip crosses another
+    const stay = [0, 1, 5], moves = [[6, 2], [11, 4], [10, 3]];
+    const trip = moves.map((mv, j) => lin(A.slide + j * A.gap, MOVE));
+    const landed = moves.filter((mv, j) => trip[j] >= 1).map((mv) => mv[1]), waiting = moves.filter((mv, j) => trip[j] <= 0).map((mv) => mv[0]);
+    for (let q = 0; q < 15; q++) {
+      const p = pos(q);
+      rect('pc', p.x, p.y, w, BH);
+      if (stay.includes(q) || waiting.includes(q)) part(shadeA(q), 0, () => rect('pc on', p.x, p.y, w, BH));
+      else if (landed.includes(q)) rect('pc on', p.x, p.y, w, BH);
+    }
+    for (let b = 0; b < 3; b++) rect('edge', BX, barY(b, 4), BW, BH);
+    moves.forEach((mv, j) => { if (trip[j] > 0 && trip[j] < 1) { const c = along(pos(mv[0]), pos(mv[1]), trip[j]); rect('pc on', c.x, c.y, w, BH); } });
+    // each lot is labelled 2/5 as it arrives; the labels give way as the fifths move, and the
+    // gathered bars are labelled 1 and 1/5
+    const off = arr(A.slide, 0.3), six = arr(A.six), prod = arr(A.prod), named = arr(A.name), start = arr(A.lots[0]);
+    A.lots.forEach((t0, b) => leave(off, () => sideLabel(pos(5 * b).y, 2, 5, arr(t0 + 0.3))));
+    sideLabel(pos(0).y, 1, 0, six); sideLabel(pos(5).y, 1, 5, six);
+    eq(pos(10).y + BH + 46, [{ s: '3', a: start }, { s: '×', a: start }, { f: [2, 5], a: start }, { s: '=', a: prod }, { r: ['3 × 2', '5'], at: prod, ab: prod },
+      { s: '=', a: prod }, { f: [6, 5], a: prod }, { s: '=', a: named }, { m: [1, 1, 5], a: named }]);
+    const lots = A.lots.filter((t0) => arr(t0) >= 0.5).length, moved = trip.filter((f) => f >= 1).length;
+    return 'Three bars, one above another, each cut into 5 fifths. ' + (lots ? lots + (lots === 1 ? ' lot' : ' lots') + ' of 2 fifths shaded, one lot to a bar, each labelled 2/5' : 'None shaded yet') +
+      (start >= 0.5 ? '. Under them, 3 × 2/5' : '') + (prod >= 0.5 ? ' = (3 × 2)/5 = 6/5' : '') +
+      (moved ? '. ' + moved + ' of the 3 fifths outside the first bar have moved up into it' + (moved === 3 ? ', so it is full, labelled 1, and one fifth is in the second, labelled 1/5' : '') : '') +
+      (named >= 0.5 ? '. 6/5 = 1 and 1/5.' : '.');
+  }
+  function demoMixed() {
+    svg.setAttribute('viewBox', '0 0 340 292');
+    const A = AT.mixed, side = arr(A.sides), halves = arr(A.halves), prod = arr(A.prod), named = arr(A.name);
+    const n = quartersPicture(MX, 1, 1, { half: halves, on: (k) => arr(A.counts + k * STEP), count: (k) => arr(A.counts + k * STEP + 0.1), strips: A.strips });
+    const s = 1.5 * MX.u, missed = arr(A.strips);
+    topBrace(MX.x, MX.x + s, MX.y, side, mixLab(1, 1, 2));
+    leftBrace(MX.y, MX.y + s, MX.x, side, mixLab(1, 1, 2));
+    eq(MX.y + s + 46, [{ f: [3, 2], a: halves }, { s: '×', a: halves }, { f: [3, 2], a: halves }, { s: '=', a: prod }, { r: ['3 × 3', '2 × 2'], at: prod, ab: prod },
+      { s: '=', a: named }, { f: [9, 4], a: named }, { s: '=', a: named }, { m: [2, 1, 4], a: named }]);
+    return 'A square with sides of 1 and 1/2: a whole 1 by 1 square, a strip of 1/2 down the right, a strip of 1/2 along the bottom and a corner' +
+      (halves >= 0.5 ? '. Half-lines cut it into 3 rows of 3 quarters, and under it, 3/2 × 3/2' : '') + (n ? '. ' + n + ' of the 9 quarters are shaded and counted' : '') +
+      (prod >= 0.5 ? '. 3/2 × 3/2 = (3 × 3)/(2 × 2)' : '') + (named >= 0.5 ? ' = 9/4 = 2 and 1/4' : '') +
+      (missed >= 0.5 ? '. The 4 quarters of the two strips, which multiplying only 1 × 1 and 1/2 × 1/2 misses, are highlighted.' : '.');
+  }
+
+  // --- the puzzles (DO steps); after a right answer their motion runs on the same clock T ---
+  // Half of a shaded quarter, coloured by Dan: a bar of the second fraction's columns by the first's
+  // rows, its first column shaded. He taps pieces to colour them; once right they lock, all 8 are
+  // counted and the working fills its slot.
+  function drawColour(d, st, right) {
+    const F = d.at, A = d.area, cols = A.b[1], rows = A.a[1], w = BW / cols, x0 = BX, y0 = 56, Y = y0 + rows * TAPH + 50;
+    svg.setAttribute('viewBox', '0 0 340 ' + (Y + 32));
+    for (let k = 0; k < cols * rows; k++) {
+      const r = Math.floor(k / cols), c = k % cols, on = st.on[k], sh = inShade(d, k);
+      const el = K.svg('rect', { class: 'pc tap' + (sh ? ' a' : '') + (on ? ' on' : '') + (right ? ' locked' : ''), x: x0 + c * w, y: y0 + r * TAPH, width: w, height: TAPH,
+        tabindex: right ? -1 : 0, role: 'button', 'aria-pressed': on ? 'true' : 'false',
+        'aria-label': (r ? 'Bottom' : 'Top') + ' row, piece ' + (c + 1) + (sh ? ', in the shaded quarter' : '') });
+      if (!right) {
+        const flip = () => { st.on[k] = !st.on[k]; st.res = null; K.reveal(); K.refresh(); };
+        el.addEventListener('click', flip);
+        el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); } });
+      }
+      add(el);
+    }
+    rect('edge', x0, y0, BW, rows * TAPH);
+    let n = 0;
+    if (right) for (let k = 0; k < cols * rows; k++) {
+      const a = arr(F.counts + k * STEP), x = x0 + (k % cols + 0.5) * w, y = y0 + (Math.floor(k / cols) + 0.5) * TAPH + 6;
+      if (a >= 0.5) n++;
+      part(a, 6, () => text(x, y, k + 1, st.on[k] ? 'onnum' : 'num'));
+    }
+    topBrace(x0, x0 + A.b[0] * w, y0, 1, fracLab(A.b[0], A.b[1]));
+    const named = right ? arr(F.name) : 0, pt = A.a[0] * A.b[0], pb = A.a[1] * A.b[1];
+    eq(Y, [{ f: A.a }, { s: 'of' }, { f: A.b }, { s: '=' }, { f: [pt, pb], slot: named }]);
+    return 'A bar cut into ' + cols + ' columns and ' + rows + ' rows, ' + pb + ' pieces, with its first column shaded and marked 1/4. ' + count(st.on) + ' of the pieces ' +
+      (count(st.on) === 1 ? 'is' : 'are') + ' coloured' + (right ? ', one of the 2 in the shaded quarter' + (n ? ', and ' + n + ' pieces are counted' : '') : '') +
+      '. Under it, 1/2 of 1/4 = ' + (named >= 0.5 ? '1/8.' : 'a gap.');
+  }
+  // A fraction of a fraction as an area: the whole (a bar, or the square) cut into the second
+  // fraction's columns and the first's rows, the second fraction shaded. Once answered right, the
+  // first fraction of it is taken, piece by piece, and the working fills the slot.
+  function drawArea(d, st, right) {
+    const F = d.at, A = d.area, sq = !A.bar, pr = A.a[0], sc = A.b[0];
+    const g = sq ? Object.assign({}, SQ) : { x: BX, y: 56, w: BW, h: A.reel ? 72 : 56 };
+    Object.assign(g, { cols: A.b[1], rows: A.a[1], sc: sc });
+    const Y = g.y + g.h + (A.reel ? 108 : 50);
+    svg.setAttribute('viewBox', '0 0 340 ' + (Y + 32));
+    const yb = g.y + g.h, cw = g.w / g.cols, rh = g.h / g.rows;
+    if (A.reel) {   // the whole bar is one full reel: a bracket along its underside says so
+      brk('M' + (g.x + 3) + ' ' + (yb + 4) + ' V' + (yb + 10) + ' H' + (g.x + g.w - 3) + ' V' + (yb + 4));
+      text(g.x + g.w / 2 + 32, yb + 30, 'one full reel', 'tl');
+    }
+    areaBase(g);
+    const cells = [];
+    for (let r = 0; r < pr; r++) for (let c = 0; c < sc; c++) cells.push([r, c]);
+    const ons = cells.map((p, j) => (right ? arr(F.on + j * STEP) : 0));
+    if (!A.reel) cells.forEach((p, j) => onPiece(g, p[0], p[1], ons[j]));
+    areaCuts(g);
+    let slid = 0, low = 0;
+    if (A.reel) {
+      // a third of the cable on the reel is one piece from each shaded quarter; they move into the
+      // first column, a quarter of the full reel, the farthest first: down, then across
+      const trips = cells.map((p, j) => (right && j ? lin(F.slide + (cells.length - 1 - j) * 0.15, MOVE) : 1));
+      cells.forEach((p, j) => part(ons[j], 0, () => {
+        const c = along({ x: g.x + p[1] * cw, y: g.y + p[0] * rh }, { x: g.x, y: g.y + p[1] * rh }, trips[j], true);
+        rect('pc on', c.x, c.y, cw, rh);
+      }));
+      slid = right && trips.every((f) => f >= 1) ? 1 : 0;
+    } else if (cells.length > 1) cells.forEach((p, j) => pieceCount(g, p[0], p[1], j + 1, right ? arr(F.on + j * STEP + CNT) : 0));
+    topBrace(g.x, g.x + sc * g.w / g.cols, g.y, 1, fracLab(A.b[0], A.b[1]));
+    leftBrace(g.y, g.y + pr * g.h / g.rows, g.x, 1, fracLab(A.a[0], A.a[1]));
+    const pt = pr * sc, pb = g.rows * g.cols, s = simp(pt, pb), named = right ? arr(F.name) : 0;
+    low = right && F.simp != null ? arr(F.simp) : 0;
+    // once the cable fills the first column, a bracket under that column names it: 1/4 of the reel
+    if (A.reel && right) {
+      part(low, 0, () => brk('M' + (g.x + 3) + ' ' + (yb + 18) + ' V' + (yb + 24) + ' H' + (g.x + cw - 3) + ' V' + (yb + 18)));
+      part(low, 6, () => sfrac(g.x + cw / 2, yb + 46, s[0], s[1], 'lab', 'fbar'));
+    }
+    const items = [{ f: A.a }, { s: d.of ? 'of' : '×' }, { f: A.b }, { s: '=' }, { f: [pt, pb], slot: named }];
+    if (s[1] !== pb) items.push({ s: '=', a: low }, { f: s, a: low });
+    eq(Y, items);
+    const fa = A.a.join('/'), fb = A.b.join('/'), op = d.of ? ' of ' : ' × ';
+    return (A.reel ? 'A bar standing for one full reel' : sq ? 'A square' : 'A bar') + ', cut into ' + g.cols + ' columns and ' + g.rows + ' rows, with ' + sc +
+      ' of the columns shaded, ' + fb + ', and the top ' + (pr === 1 ? 'row' : pr + ' rows') + ' marked ' + fa + '. ' +
+      (right ? pt + ' of the ' + pb + ' pieces are taken, so ' + fa + op + fb + ' = ' + pt + '/' + pb + (s[1] !== pb && low >= 0.5 ? ' = ' + s.join('/') : '') +
+        (A.reel && slid && low >= 0.5 ? '. They fill the first column, marked as 1/4 of the reel.' : '.') : 'Under it, ' + fa + op + fb + ' = a gap.');
+  }
+  // Lots of a fraction: a bar of eighths with the first lot shaded, counted and bracketed; once
+  // answered right the other lots arrive, each lot's eighths shaded, counted and bracketed together
+  // (the second bar comes with the lot that needs it), and the eighths are named as a whole and what
+  // is left. The scene is one height from the start, room for every bar, so nothing below it moves
+  // when the answer lands; the second bar's space stays blank (no ghost, which would hint at more
+  // than 1) until it fades in.
+  function drawLots(d, st, right) {
+    const F = d.at, n = d.lots.n, t = d.lots.f[0], b = d.lots.f[1], total = n * t, bars = Math.ceil(total / b), w = BW / b;
+    const E = 34, top = 80, gap = 22, yOf = (i) => top + i * (BH + gap);
+    svg.setAttribute('viewBox', '0 0 340 ' + (yOf(bars - 1) + BH + 16));
+    const lotA = (k) => (k === 0 ? 1 : right ? arr(F.lots[k - 1]) : 0), barA = (i) => (i === 0 ? 1 : lotA(Math.floor((i * b) / t)));
+    let lots = 0;
+    for (let k = 0; k < n; k++) if (lotA(k) >= 0.5) lots++;
+    for (let i = 0; i < bars; i++) part(barA(i), 0, () => {
+      bar(yOf(i), b, (c) => (i * b + c < total ? lotA(Math.floor((i * b + c) / t)) : 0));
+    });
+    for (let q = 0; q < total; q++) {
+      const i = Math.floor(q / b), c = q % b, a = lotA(Math.floor(q / t));
+      countIn(yOf(i), b, c, q + 1, a);
+    }
+    // a bracket under each lot; a lot that runs on into the next bar is open where it breaks
+    for (let k = 0; k < n; k++) {
+      const q0 = k * t, q1 = q0 + t - 1;
+      for (let i = Math.floor(q0 / b); i <= Math.floor(q1 / b); i++) {
+        const c0 = Math.max(q0, i * b) - i * b, c1 = Math.min(q1, i * b + b - 1) - i * b, y = yOf(i) + BH;
+        const x1 = BX + c0 * w, x2 = BX + (c1 + 1) * w, openL = q0 < i * b, openR = q1 >= i * b + b;
+        const dd = (openL ? 'M' + x1 + ' ' + (y + 10) : 'M' + (x1 + 3) + ' ' + (y + 4) + ' V' + (y + 10)) + ' H' + (openR ? x2 : (x2 - 3) + ' V' + (y + 4));
+        part(lotA(k), 0, () => brk(dd));
+      }
+    }
+    const lab = right ? arr(F.labels) : 0, named = right ? arr(F.name) : 0, mix = right ? arr(F.mixed) : 0, m = mixedOf(total + '/' + b);
+    for (let i = 0; i < bars; i++) { const c = Math.min(b, total - i * b); sideLabel(yOf(i), c === b ? 1 : c, c === b ? 0 : b, lab); }
+    eq(E, [{ s: String(n) }, { s: '×' }, { f: [t, b] }, { s: '=' }, { f: [total, b], slot: named }, { s: '=', a: mix }, { m: m, a: mix }]);
+    return n + ' × ' + t + '/' + b + ' = ' + (right && named >= 0.5 ? total + '/' + b : 'a gap') + ', above a bar cut into ' + b + ' eighths. ' +
+      (right ? lots + ' lots of ' + t + ' eighths are shaded, counted and bracketed' + (lots === n ? ', filling the first bar and ' + (total - b) + ' eighths of a second' : '') + (mix >= 0.5 ? ', 1 and ' + m[1] + '/' + m[2] + '.' : '.')
+        : 'One lot of ' + t + ' eighths is shaded, counted 1 to ' + t + ' and bracketed.');
+  }
+  // 1 1/2 as three halves (a whole bar of 2 halves and a half); once answered right, the three
+  // halves are counted and two of them, two thirds, are taken: one whole.
+  function drawHalves(d, st, right) {
+    svg.setAttribute('viewBox', '0 0 340 186');
+    const F = d.at, w = BW / 2;
+    for (let q = 0; q < 4; q++) {
+      const y = barY(Math.floor(q / 2), 4), x = BX + (q % 2) * w;
+      rect('pc', x, y, w, BH);
+      if (q < 3) rect('pc a', x, y, w, BH);
+    }
+    const taken = [0, 1].map((q) => (right ? arr(F.on + q * STEP) : 0));
+    taken.forEach((a, q) => part(a, 0, () => rect('pc on', BX + q * w, barY(0, 4), w, BH)));
+    for (let b = 0; b < 2; b++) rect('edge', BX, barY(b, 4), BW, BH);
+    let n = 0;
+    // a count on a half that is taken hands over from ink to light: the one fades out over the first
+    // half of the shading, then the other fades in, so the two never show at once
+    if (right) for (let q = 0; q < 3; q++) {
+      const y = barY(Math.floor(q / 2), 4) + BH / 2 + 6, x = BX + (q % 2) * w + w / 2, ca = arr(F.counts + q * 0.25), t0 = F.on + q * STEP;
+      const out = q < 2 ? arr(t0, 0.3) : 0, inn = q < 2 ? arr(t0 + 0.3, 0.3) : 0;
+      if (ca >= 0.5) n++;
+      leave(out, () => part(ca, 6, () => text(x, y, q + 1, 'num')));
+      part(inn, 0, () => part(ca, 6, () => text(x, y, q + 1, 'onnum')));
+    }
+    sideLabel(barY(0, 4), 1, 0, 1); sideLabel(barY(1, 4), 1, 2, 1);
+    const named = right ? arr(F.name) : 0;
+    eq(154, [{ f: [2, 3] }, { s: '×' }, { m: [1, 1, 2] }, { s: '=' }, { s: '1', slot: named }]);
+    return 'A whole bar of 2 halves, labelled 1, above a bar with 1 half shaded, labelled 1/2: three halves in all. Under them, 2/3 × 1 and 1/2 = ' +
+      (right ? (named >= 0.5 ? '1' : 'a gap') + '. ' + (n ? n + ' halves are counted' : '') + (taken[1] >= 0.5 ? ', and two of the three, a whole bar, are taken.' : '.') : 'a gap.');
+  }
+  // A number line from 0 to 8 with 5 marked and the stretch below 5 bracketed; a checked answer lands
+  // as a ring at its value, labelled.
+  function drawLess(d, st) {
+    svg.setAttribute('viewBox', '0 0 340 176');
+    const F = d.at, Y = 96, xs = (v) => L0 + v * LW / 8;
+    line('axis', L0, Y, L0 + LW, Y);
+    for (let k = 0; k <= 16; k++) { const x = L0 + k * LW / 16, h = k % 2 ? 6 : 11; line('tick', x, Y - h, x, Y + h); }
+    for (let w = 0; w <= 8; w++) text(xs(w), Y + 32, w, 'num');
+    brk('M' + (xs(0) + 2) + ' ' + (Y + 42) + ' V' + (Y + 48) + ' H' + (xs(5) - 2) + ' V' + (Y + 42));
+    text(xs(2.5), Y + 68, 'less than 5', 'tl');
+    add(K.svg('circle', { class: 'dot', cx: xs(5), cy: Y, r: 9 }));
+    const shown = (st.res === 'right' || st.res === 'wrong') && st.pick != null;
+    let where = '.';
+    if (shown) {
+      const v = value(st.pick), x = xs(v), m = mixedOf(st.pick), ringA = arr(F.ring);
+      part(ringA, 0, () => add(K.svg('circle', { class: 'ring', cx: x, cy: Y, r: 15 * (0.6 + 0.4 * ringA) })));
+      part(arr(F.label), 6, () => smallMixed(x + 6, Y - 40, m[0], m[1], m[2], 'mlab', 'mbar'));
+      where = '. ' + st.pick + ' = ' + m[0] + ' and ' + m[1] + '/' + m[2] + ' lands ' + (v < 5 ? 'inside it, before 5.' : 'past 5.');
+    }
+    return 'A number line from 0 to 8 with a mark at 5, and the stretch from 0 to 5 bracketed as less than 5' + where;
+  }
+  // 2 1/2 × 1 1/2 as an area: two whole squares, the strips and the corner; once answered right,
+  // half-lines cut it into quarters and the 15 quarters shade and are counted, a row of 5 at a time.
+  function drawBig(d, st, right) {
+    svg.setAttribute('viewBox', '0 0 340 258');
+    const F = d.at, named = right ? arr(F.name) : 0, row = (k) => F.rows[Math.floor(k / 5)];
+    const n = quartersPicture(BIG, 2, 1, { half: right ? arr(F.half) : 0, on: (k) => (right ? arr(row(k)) : 0), count: (k) => (right ? arr(row(k) + 0.1) : 0) });
+    topBrace(BIG.x, BIG.x + 2.5 * BIG.u, BIG.y, 1, mixLab(2, 1, 2));
+    leftBrace(BIG.y, BIG.y + 1.5 * BIG.u, BIG.x, 1, mixLab(1, 1, 2));
+    eq(BIG.y + 1.5 * BIG.u + 46, [{ m: [2, 1, 2] }, { s: '×' }, { m: [1, 1, 2] }, { s: '=' }, { m: [3, 3, 4], slot: named }]);
+    return 'A rectangle 2 and 1/2 wide and 1 and 1/2 tall: two whole 1 by 1 squares, a strip of 1/2 down the right, a strip along the bottom and a corner. Under it, 2 and 1/2 × 1 and 1/2 = ' +
+      (right ? (named >= 0.5 ? '3 and 3/4' : 'a gap') + '. Half-lines cut it into quarters, 5 across and 3 down' + (n ? ', and ' + n + ' of the 15 are shaded and counted.' : '.') : 'a gap.');
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    svg.textContent = '';
+    into = null;
+    let aria;
+    if (d.show) aria = { half: demoHalf, rule: demoRule, lots: demoLots, mixed: demoMixed }[d.demo]();
+    else if (d.kind === 'less') aria = drawLess(d, st);
+    else if (d.kind === 'colour') aria = drawColour(d, st, right);
+    else aria = { area: drawArea, lots: drawLots, halves: drawHalves, big: drawBig }[d.draw](d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;          // motion that was stopped (a test, the end) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(); else { anim.pause(); T = Infinity; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? (d.kind === 'colour' ? EMPTY_PIECE : PICK) : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const sameNum = (a, b) => K.near(a, b, 1e-9);
+  const same = (p, q) => p[0] === q[0] && p[1] === q[1];
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(i), { pick: v }));
+  const colourRight = (ks) => isRight(1, Object.assign(blank(1), { on: blank(1).on.map((v, k) => ks.includes(k)) }));
+  // The one option a step accepts is the only one equal to `v` that is written as simply as it goes.
+  const lowest = (o) => { const p = parts(o); return p[2] === 1 || gcd(p[1], p[2]) === 1; };
+  const onlyAnswer = (i, v) => STEPS[i].opts.filter((o) => sameNum(value(o), v) && lowest(o)).join() === STEPS[i].want;
+  // A step painted finished (a DO step answered right): how many of its shapes match each selector.
+  function drawn(i, sels) {
+    const keepS = S[i], keepT = T;
+    if (!STEPS[i].show) S[i] = solved(i);
+    T = Infinity;
+    try { paint(i); return sels.map((q) => svg.querySelectorAll(q).length); } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // The pieces an area step's finished picture takes, and all of its pieces: the colouring's pieces,
+  // or its columns times the rows its cuts make.
+  function piecesOf(i) {
+    const c = drawn(i, ['rect.pc.tap', 'rect.pc.on', 'rect.pc:not(.a):not(.on):not(.hl)', 'line.cut']);
+    return [c[1], c[0] || c[2] * (c[3] + 1)];
+  }
+  K.check('A fraction of a fraction, tops times tops over bottoms times bottoms: 1/2 × 1/4 = 1/8, 2/3 × 3/4 = 6/12 = 1/2, 1/2 × 3/8 = 3/16 and 1/3 × 3/4 = 3/12 = 1/4, as many pieces as each picture takes out of all its pieces, counted on the screen. Half of the shaded quarter is one of its 2 pieces (4 pieces would be 2/4); 6/12, 5/7, 12/8, 3/4, 1/3 and 4/7 are not the answers', () => {
+    const area = [1, 3, 4, 9].every((i) => {
+      const d = STEPS[i], A = d.area, v = (A.a[0] / A.a[1]) * (A.b[0] / A.b[1]), p = piecesOf(i);
+      return sameNum((A.a[0] * A.b[0]) / (A.a[1] * A.b[1]), v) && p[0] === A.a[0] * A.b[0] && p[1] === A.a[1] * A.b[1] &&
+        (d.kind === 'colour' || (onlyAnswer(i, v) && pickRight(i, d.want)));
+    });
+    return area && same(times([1, 2], [3, 4]), [3, 8]) && same(times([1, 2], [1, 4]), [1, 8]) && same(times([2, 3], [3, 4]), [6, 12]) && same(simp(6, 12), [1, 2]) &&
+      same(times([1, 2], [3, 8]), [3, 16]) && same(times([1, 3], [3, 4]), [3, 12]) && same(simp(3, 12), [1, 4]) &&
+      colourRight([0]) && colourRight([4]) && !colourRight([]) && !colourRight([0, 4]) && !colourRight([1]) && !colourRight([0, 1, 2, 3]) && sameNum(4 / 8, value('2/4')) &&
+      !pickRight(3, '6/12') && !pickRight(3, '5/7') && !pickRight(4, '12/8') && !pickRight(4, '3/4') &&
+      !pickRight(9, '1/3') && !pickRight(9, '4/7') && sameNum(value('6/12'), 0.5) && !sameNum(value('12/8'), 3 / 16) && value('12/8') > 1;
+  });
+  K.check('A whole number times a fraction multiplies just the top: 3 × 2/5 = (3 × 2)/5 = 6/5 = 1 1/5 (6 fifths drawn) and 4 × 3/8 = 12/8 = 1 1/2 (12 eighths drawn and counted); 7/8 and 12/32 (the size of 3/8, one lot) are not. Of 5 × 3/2 = 7 1/2, 5 × 5/4 = 6 1/4 and 5 × 2/3 = 3 1/3, only 5 × 2/3, times a fraction between 0 and 1, is less than 5', () => {
+    const lots = drawn(6, ['rect.pc.on', 'text.onnum']), fifths = drawn(5, ['rect.pc.on'])[0];
+    return same(times([3, 1], [2, 5]), [6, 5]) && toMixed(6, 5).join() === '1,1,5' && fifths === 6 && same(fracOf('4 × 3/8'), [12, 8]) && mixedOf('12/8').join() === '1,1,2' &&
+      lots[0] === 12 && lots[1] === 12 &&
+      sameNum(value('12/32'), 3 / 8) && STEPS[6].opts.filter((o) => sameNum(value(o), 1.5)).join() === STEPS[6].want && pickRight(6, '12/8') && !pickRight(6, '7/8') && !pickRight(6, '12/32') &&
+      sameNum(value('5 × 3/2'), 7.5) && sameNum(value('5 × 5/4'), 6.25) && sameNum(value('5 × 2/3'), 10 / 3) && mixedOf('5 × 2/3').join() === '3,1,3' &&
+      STEPS[10].opts.filter((o) => value(o) < 5).join() === STEPS[10].want && STEPS[10].opts.every((o) => { const f = value(o.split('×')[1]); return (value(o) < 5) === (f > 0 && f < 1); }) &&
+      pickRight(10, '5 × 2/3') && !pickRight(10, '5 × 3/2') && !pickRight(10, '5 × 5/4');
+  });
+  K.check('Mixed numbers become improper fractions first: 1 1/2 × 1 1/2 = 3/2 × 3/2 = (3 × 3)/(2 × 2) = 9/4 = 2 1/4, 3 rows of 3 quarters drawn and counted (multiplying only 1 × 1 and 1/2 × 1/2 gives 1 1/4 and misses the two strips, 4 quarters); 2/3 of 1 1/2 = 2/3 × 3/2 = 6/6 = 1; 2 1/2 × 1 1/2 = 5/2 × 3/2 = 15/4 = 3 3/4, 5 by 3 quarters drawn and counted; 1 1/3, 1/3, 2 1/4 and 3 1/4 (1/2 too little) are not', () => {
+    const sq = drawn(7, ['rect.pc.on', 'rect.pc.hl', 'text.onnum', 'text.num']), big = drawn(11, ['rect.pc.on', 'text.onnum']);
+    return same(fracOf('1 1/2'), [3, 2]) && same(times([3, 2], [3, 2]), [9, 4]) && toMixed(9, 4).join() === '2,1,4' &&
+      sq[0] === 3 * 3 && sq[1] === 4 && sq[2] + sq[3] === 9 && sameNum(1 * 1 + 0.5 * 0.5, value('1 1/4')) && sameNum(value('2 1/4') - value('1 1/4'), 4 / 4) &&
+      same(times([2, 3], fracOf('1 1/2')), [6, 6]) && onlyAnswer(8, 1) && pickRight(8, '1') && !pickRight(8, '1 1/3') && !pickRight(8, '1/3') &&
+      sameNum(1 + (2 / 3) * (1 / 2), value('1 1/3')) && sameNum((2 / 3) * (1 / 2), value('1/3')) &&
+      same(times(fracOf('2 1/2'), fracOf('1 1/2')), [15, 4]) && toMixed(15, 4).join() === '3,3,4' && big[0] === 5 * 3 && big[1] === 15 &&
+      sameNum(2 * 1 + 0.5 * 0.5, value('2 1/4')) && sameNum(value('3 3/4') - value('3 1/4'), 1 / 2) && sameNum(2 * 0.5, 1) &&
+      onlyAnswer(11, 3.75) && pickRight(11, '3 3/4') && !pickRight(11, '2 1/4') && !pickRight(11, '3 1/4');
+  });
+  K.check('Multiply the numerators to find the new numerator, multiply the denominators to find the new denominator, then simplify where necessary', () =>
+    [[1, 2, 3, 4], [1, 2, 1, 4], [2, 3, 3, 4], [1, 2, 3, 8], [1, 3, 3, 4], [2, 3, 3, 2], [5, 2, 3, 2]].every((q) => {
+      const p = times([q[0], q[1]], [q[2], q[3]]), s = simp(p[0], p[1]);
+      return sameNum(p[0] / p[1], (q[0] / q[1]) * (q[2] / q[3])) && sameNum(s[0] / s[1], p[0] / p[1]) && gcd(s[0], s[1]) === 1;
+    }), { source: 'https://www.bbc.co.uk/bitesize/articles/z49c96f' });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends, and every answer\'s motion within 2.5 s', () => {
+    const keepT = T, ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      if (!d.show) S[i] = solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE : latest <= d.fb && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

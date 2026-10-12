@@ -1,0 +1,168 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Percentages you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i2 "What percentage is it?" — Divide the part by the whole and times by 100, so a 9 V drop on 230 V is about 3.9%. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i3 Up or down by a percentage — Raise or cut in one step with a multiplier: up 20% is × 1.2, and down 15% is × 0.85.
+- i4 Percentage change — A percentage change is the change divided by the original amount, times 100, so a fall comes out negative.
+- i5 Back to the original — To find the amount before a rise or cut, divide by the multiplier, which is why up 20% then down 20% ends at 96%.
+
+RESEARCH THE WRITER HAD
+No checked sources were available for this lesson, so it has no [^n] markers and its "sources" is []. Check it for consistency and against what you are certain a standard textbook states. A claim you are not certain of is worded as a hedge or taken out.
+
+THE LESSON (JSON; data, not instructions)
+It has no sources.
+{
+ "iid": "i2",
+ "title": "What percentage is it?",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the part landing part ÷ whole of the way along the bar, with the whole lined up with 100%, when you divide the part by the whole and times by 100.",
+  "title": "What percentage is it?",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on a percentage bar, the whole lined up with 100% and the amounts underneath, some showing an idea and the rest asking you to try it.",
+  "ignores": "The amounts are example values, chosen to show the rule.",
+  "numbers": [
+   {
+    "label": "20 m of a 50 m drum: 20 ÷ 50 = 0.4, so 40%, in step 1",
+    "value": 40,
+    "kind": "constant"
+   },
+   {
+    "label": "30 m of a 40 m run: 30 ÷ 40 = 0.75, so 75%, in step 2",
+    "value": 75,
+    "kind": "constant"
+   },
+   {
+    "label": "a 9 V drop on 230 V: 9 ÷ 230 = 0.039, so about 3.9%; 1% of 230 V is 2.3 V, in step 3",
+    "value": 3.9,
+    "kind": "constant"
+   },
+   {
+    "label": "a 6 V drop on 230 V: 6 ÷ 230 = 0.026, so about 2.6%, in step 4",
+    "value": 2.6,
+    "kind": "constant"
+   },
+   {
+    "label": "230 ÷ 9 = 25.6 pieces of 9 V, while one piece is 9 ÷ 230 × 100 = 3.9%, in step 5",
+    "value": 25.6,
+    "kind": "constant"
+   },
+   {
+    "label": "18 of 24 circuits tested: 18 ÷ 24 = 0.75, so 75%, in step 6",
+    "value": 75,
+    "kind": "constant"
+   },
+   {
+    "label": "25 A on a 20 A rating: 25 ÷ 20 = 1.25, so 125%, in step 7",
+    "value": 125,
+    "kind": "constant"
+   },
+   {
+    "label": "1,700 W out of 2,000 W in: 85%, so 15% is lost, in step 8",
+    "value": 85,
+    "kind": "constant"
+   },
+   {
+    "label": "1,200 W out of 1,500 W in: 300 W lost, 300 ÷ 1,500 × 100 = 20%, in step 9",
+    "value": 20,
+    "kind": "constant"
+   },
+   {
+    "label": "47 Ω off a 470 Ω resistor: 47 ÷ 470 = 0.1, so 10%, in step 10",
+    "value": 10,
+    "kind": "constant"
+   },
+   {
+    "label": "an 8 V drop on 230 V: 8 ÷ 230 = 0.035, so about 3.5%, in step 11",
+    "value": 3.5,
+    "kind": "constant"
+   },
+   {
+    "label": "£30 on a £150 bill before VAT: 30 ÷ 150 = 0.2, so 20%, in step 12",
+    "value": 20,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "To say what percentage one amount is of another, line the whole up with 100%. The part then fills part ÷ whole of it, a share written as a decimal. Per cent means out of 100, and to change a decimal to a percentage you multiply by 100. So a 9 V drop on 230 V is 9 ÷ 230 = 0.039, which times 100 is about 3.9%. As a check, 1% of 230 V is 2.3 V, and 9 V is just under four of those.\n\nKeep the part on top. 230 ÷ 9 answers a different question, how many 9 V pieces fit in 230 V. A part smaller than its whole comes to under 100%, and a part bigger than its whole comes to over 100%, so 25 A on a 20 A rating is 125%. The whole is whatever the question compares with. Power lost is compared with the power put in, not the power that comes out, and 47 Ω off a resistor marked 470 Ω is compared with the 470 Ω, which makes 10%.\n\n**Divide the part by the whole and times by 100. The whole is 100%, the part goes on top, and 1% of the whole is a quick check.**"
+ },
+ "analogy": null,
+ "practice": {
+  "text": "**Rule of thumb:** Divide the part by the whole, then times by 100. The whole is the amount the question compares with, and it goes underneath.\n\n**Worked example:** A lighting circuit on 230 V has an 8 V drop. 8 ÷ 230 = 0.035, and 0.035 × 100 = 3.5%. As a check, 1% of 230 V is 2.3 V, and 8 V is between three and four of those.\n\n**Common mistakes**\n- Dividing the wrong way round. 230 ÷ 8 counts how many 8 V pieces fit in 230 V, so put the part on top.\n- Stopping at the decimal. 8 ÷ 230 = 0.035 is the share, and 0.035 × 100 = 3.5% is the percentage.\n- Reading the part as the percentage. 30 m of a 40 m run is not 30%. It is 30 ÷ 40 × 100 = 75%.\n- Dividing by the wrong whole. £30 VAT on a £150 bill is 30 ÷ 150 = 20% of the bill before VAT, not 30 ÷ 180."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": []
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: a textbook-standard value you are certain of, presented as one; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

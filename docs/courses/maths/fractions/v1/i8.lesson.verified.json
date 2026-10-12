@@ -1,0 +1,278 @@
+{
+  "iid": "i8",
+  "title": "Dividing asks how many fit",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the count of tails climb past 6, the length itself, to 8 at a three-quarter-metre tail and 24 at a quarter, when you shorten the tail below one metre.",
+    "title": "Cut the run into tails",
+    "controls": [
+      {
+        "id": "tailQuarters",
+        "label": "Tail length (quarters of a metre)",
+        "min": 1,
+        "max": 8,
+        "step": 1,
+        "value": 8,
+        "unit": "quarters"
+      }
+    ],
+    "outputs": [
+      {
+        "id": "tailsFit",
+        "label": "Tails that fit",
+        "unit": "tails",
+        "decimals": 2
+      },
+      {
+        "id": "leftOver",
+        "label": "Cable left over",
+        "unit": "m",
+        "decimals": 2
+      }
+    ],
+    "whatAmILookingAt": "A 6 m run cut into tails; the slider sets the tail in quarters of a metre, 1 to 8. Below, a plot of tails that fit. Tails = 24 ÷ quarters per tail.",
+    "ignores": "Cuts have no width here; a real cut takes a little cable, so the last tail comes up short.",
+    "numbers": [
+      {
+        "label": "Length of the run, the number divided, m (chosen)",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Quarters in one metre (what quarter means)",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "Quarters in the run, 6 × 4",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Shortest tail the slider allows, quarters (chosen)",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Longest tail the slider allows, quarters (chosen)",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tail length at the start, quarters",
+        "value": 8,
+        "kind": "control"
+      },
+      {
+        "label": "Tail length at the start, 8 ÷ 4, m",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at the start, 24 ÷ 8",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of a quarter of a metre, 1000 ÷ 4, mm",
+        "value": 250,
+        "kind": "computed"
+      },
+      {
+        "label": "Length of a three-quarter-metre tail, 3 × 250, mm",
+        "value": 750,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at 3 quarters, 24 ÷ 3",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at 4 quarters, 24 ÷ 4",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at 2 quarters, 24 ÷ 2",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at 1 quarter, 24 ÷ 1",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at 6 quarters, 24 ÷ 6",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at 5 quarters, 24 ÷ 5",
+        "value": 4.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable used by 4 whole tails of 1 1/4 m, 4 × 1.25, m",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable left over at 5 quarters, 6 − 4 × 1.25, m",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails that fit at 7 quarters, 24 ÷ 7, about",
+        "value": 3.43,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable used by 3 whole tails of 1 3/4 m, 3 × 1.75, m",
+        "value": 5.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable left over at 7 quarters, 6 − 3 × 1.75, m",
+        "value": 0.75,
+        "kind": "computed"
+      },
+      {
+        "label": "Times a three-quarter tail fits in one metre, 4 ÷ 3, about",
+        "value": 1.33,
+        "kind": "computed"
+      },
+      {
+        "label": "Check: 8 tails × 0.75 m, m",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer 6 × 3/4 would give, tails",
+        "value": 4.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable 4.5 tails of 0.75 m would use, m",
+        "value": 3.375,
+        "kind": "computed"
+      },
+      {
+        "label": "Cable the wrong answer leaves uncut, 6 − 3.375, m",
+        "value": 2.625,
+        "kind": "computed"
+      },
+      {
+        "label": "Quarters in 3, 3 ÷ 1/4",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Tails of 2/3 m that fit in 6 m, 6 × 3 ÷ 2",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Current the lighting circuit can give, A (chosen)",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current each lamp draws, A (chosen)",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lamps at a quarter of an amp, 6 ÷ 1/4",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Lamps at three-quarters of an amp, 6 × 4/3",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Spare current with 4 lamps of 1 1/4 A, 6 − 5, A",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Run of trunking in the practice example, m (chosen)",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length of each piece of trunking, m (chosen)",
+        "value": 2.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Lengths of trunking, 15 × 2/5",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Spare time in the practice example, hours (chosen)",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Time each test takes, hours (chosen)",
+        "value": 0.25,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tests that fit, 1/2 × 4/1",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong answer from flipping the first fraction, 1/6 × 3/4",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Same sum in millimetres, 6000 ÷ 750",
+        "value": 8,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Dividing by a fraction asks how many of that piece fit.[^1] How many 3/4 m tails in 6 m? Six metres is 24 quarters; each tail takes 3: 24 ÷ 3 = 8. So multiply by the fraction flipped, its [[reciprocal]]:[^2] 6 × 4/3 = 8.[^3]\n\nThe trap is expecting less. 6 × 3/4 gives 4 1/2 tails, using only 3.375 m. A piece under one fits more times than there are wholes.\n\n**Dividing by a fraction counts how many fit: 6 ÷ 3/4 = 6 × 4/3 = 8.**"
+  },
+  "analogy": {
+    "text": "A 6 A circuit with lamps drawing a quarter of an amp each: 6 ÷ 1/4 = 24 lamps. Smaller draw, more lamps.",
+    "breaks": "Lamps come whole: at 1 1/4 A each, 4.8 lamps means four, with 1 A spare."
+  },
+  "practice": {
+    "text": "**Rule of thumb:** flip only the second number, then multiply.\n\n**Worked example:** a 15 m run from 2 1/2 m lengths. 2 1/2 is 5/2, flipped 2/5. 15 × 2/5 = 6 lengths. Check: 6 × 2.5 = 15.\n\n**Common mistakes**\n- Flipping the first number instead of the second.\n- Flipping 2 1/2 before writing it as 5/2."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Divide fractions: FAQ (article) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fifth-grade-math/divide-fractions/imp-dividing-fractions-and-whole-numbers-word-problems/a/divide-fractions-faq",
+      "quote": "When we divide one fraction by another, we're finding out how many times one fraction fits into another."
+    },
+    {
+      "n": 2,
+      "title": "4.3: Multiply and Divide Fractions - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Bookshelves/PreAlgebra/Prealgebra_2e_(OpenStax)/04%3A_Fractions/4.03%3A_Multiply_and_Divide_Fractions",
+      "quote": "To find the reciprocal of a fraction, we invert the fraction. This means that we place the numerator in the denominator and the denominator in the numerator."
+    },
+    {
+      "n": 3,
+      "title": "4.3: Multiply and Divide Fractions - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Bookshelves/PreAlgebra/Prealgebra_2e_(OpenStax)/04%3A_Fractions/4.03%3A_Multiply_and_Divide_Fractions",
+      "quote": "To divide fractions, multiply the first fraction by the reciprocal of the second."
+    }
+  ]
+}

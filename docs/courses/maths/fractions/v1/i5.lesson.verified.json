@@ -1,0 +1,220 @@
+{
+  "iid": "i5",
+  "title": "Match the piece, then the tops decide",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the top number of 3/8 turn from 3 to 6 while its shaded run stays put, so the tops, 6 against 5, agree with the runs, when you count both in sixteenths.",
+    "title": "Count both in one piece",
+    "controls": [
+      {
+        "id": "countIn",
+        "label": "Piece both are counted in",
+        "options": [
+          "Each in its own piece",
+          "Sixteenths",
+          "Thirty-seconds",
+          "Sixty-fourths"
+        ],
+        "value": 0
+      }
+    ],
+    "outputs": [
+      {
+        "id": "topFirst",
+        "label": "3/8 counted in the piece",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "topSecond",
+        "label": "5/16 counted in the piece",
+        "unit": "pieces",
+        "decimals": 0
+      },
+      {
+        "id": "gap",
+        "label": "Gap between the marks",
+        "unit": "inch",
+        "decimals": 4
+      }
+    ],
+    "whatAmILookingAt": "Two one-inch bars, 3/8 above and 5/16 below, over one line. The stepper picks the piece both are counted in. Tops change, marks stay. New top = top × (new bottom ÷ old bottom).",
+    "ignores": "Only pieces that measure both exactly are offered; eighths would leave 5/16 halfway through a piece.",
+    "numbers": [
+      {
+        "label": "Bars drawn, one per fraction (chosen)",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Length of each bar, one inch, the same whole (chosen)",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Top number of the first drill, 3/8 (chosen)",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Eighths in one whole (what eighth means)",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "Top number of the second drill, 5/16 (chosen)",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sixteenths in one whole (what sixteenth means)",
+        "value": 16,
+        "kind": "constant"
+      },
+      {
+        "label": "Piece both are counted in at the start",
+        "value": "Each in its own piece",
+        "kind": "control"
+      },
+      {
+        "label": "Size of one eighth, 1 ÷ 8, of the whole",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Place of 3/8 on the line, 3 × 0.125",
+        "value": 0.375,
+        "kind": "computed"
+      },
+      {
+        "label": "Size of one sixteenth, 1 ÷ 16, of the whole",
+        "value": 0.0625,
+        "kind": "computed"
+      },
+      {
+        "label": "Place of 5/16 on the line, 5 × 0.0625",
+        "value": 0.3125,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap between the marks, 0.375 − 0.3125, of an inch",
+        "value": 0.0625,
+        "kind": "computed"
+      },
+      {
+        "label": "Sixteenths in each eighth, 16 ÷ 8",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "3/8 counted in sixteenths, 3 × 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Sixteenths in each sixteenth, 16 ÷ 16",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "5/16 counted in sixteenths, 5 × 1",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap in sixteenths, 6 − 5",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Thirty-seconds in one whole (what thirty-second means)",
+        "value": 32,
+        "kind": "constant"
+      },
+      {
+        "label": "Thirty-seconds in each eighth, 32 ÷ 8",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "3/8 counted in thirty-seconds, 3 × 4",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Thirty-seconds in each sixteenth, 32 ÷ 16",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "5/16 counted in thirty-seconds, 5 × 2",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap in thirty-seconds, 12 − 10",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Sixty-fourths in one whole (what sixty-fourth means)",
+        "value": 64,
+        "kind": "constant"
+      },
+      {
+        "label": "Sixty-fourths in each eighth, 64 ÷ 8",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "3/8 counted in sixty-fourths, 3 × 8",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Sixty-fourths in each sixteenth, 64 ÷ 16",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "5/16 counted in sixty-fourths, 5 × 4",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Gap in sixty-fourths, 24 − 20",
+        "value": 4,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "To compare two fractions, count both in the same piece. 3/8 against 5/16: in sixteenths, 3/8 is 6/16. Six against five, so 3/8 is bigger, by one sixteenth of an inch. A shared bottom like this is a [[common denominator]].[^1]\n\nThe trap: 5/16 looks bigger because 5 beats 3 and 16 beats 8.[^2] But its 5 counts smaller pieces: 0.3125 against 0.375.\n\n**Match the piece first; then the bigger top is the bigger fraction.**"
+  },
+  "analogy": {
+    "text": "A 500 mA fuse and a 3 A fuse: 500 beats 3 as bare numbers, but in milliamps it is 500 against 3000.",
+    "breaks": "Units fix the piece for you; with fractions you choose it, and it must measure both."
+  },
+  "practice": {
+    "text": "**Rule of thumb:** same piece first, then compare the tops.\n\n**Worked example:** the limit is 3/8 inch and the bit is stamped 11/32. 32 ÷ 8 = 4, so 3/8 is 12/32. 11 is under 12: the bit is within the limit.\n\n**Common mistakes**\n- Comparing tops while the bottoms differ.\n- Choosing a piece that measures only one fraction."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Equivalent fractions and comparing fractions: FAQ (article) | Khan Academy",
+      "url": "https://www.khanacademy.org/math/cc-fourth-grade-math/comparing-fractions-and-equivalent-fractions/imp-equivalent-fractions-2/a/equivalent-fractions-and-comparing-fractions-faq-4",
+      "quote": "To use a common denominator, you can find equivalent fractions for both fractions so that they both have the same denominator."
+    },
+    {
+      "n": 2,
+      "title": "Does Initial Learning about the Meaning of Fractions Present Similar Challenges for Students with and without Adequate Whole-Number Skill? - PMC",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5736139",
+      "quote": "common misconceptions and errors include viewing numerators and denominators as independent numbers, comparing fraction magnitudes based on whole-number knowledge (e.g., 1/5 > 1/2 because 5 > 2)"
+    }
+  ]
+}

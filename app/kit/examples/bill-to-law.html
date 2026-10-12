@@ -1,0 +1,123 @@
+<!-- kind: process -->
+<style>
+  .flow { list-style: none; padding: 0; margin-top: 6px; }
+  .start { margin-left: 40px; }
+  .grp { position: relative; display: block; margin: 16px 0 4px 40px; }
+  .row-item { position: relative; }
+  /* The thread joining the stages runs behind the dots and through the group labels. */
+  .row-item::before, .grp::before { content: ""; position: absolute; width: 2px; background: var(--k-line); }
+  .row-item::before { left: 13px; top: 0; bottom: 0; }
+  .grp::before { left: -27px; top: -16px; bottom: -4px; }
+  .flow > li:first-child .row-item::before { top: 22px; }
+  .flow > li:last-child .row-item::before { bottom: auto; height: 22px; }
+  .stage {
+    position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px;
+    padding: 6px 0; border: 0; background: none; text-align: left; cursor: pointer; color: var(--k-muted); font: inherit;
+  }
+  .dot {
+    flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--k-strong); background: var(--k-bg); font-size: 13px; font-weight: 700; color: var(--k-muted);
+  }
+  .stage.done { color: var(--k-ink); }
+  .stage.done .dot { background: var(--k-accent2); border-color: var(--k-accent2); color: var(--k-on-accent2); }
+  .stage.now { color: var(--k-ink); font-weight: 700; }
+  .stage.now .dot { border-color: var(--k-accent2); color: var(--k-accent2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--k-accent2) 16%, transparent); }
+  .stage.skip { text-decoration: line-through; opacity: .55; }
+  .loop { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; font-weight: 600; color: var(--k-accent); }
+  .loop svg { width: 16px; height: 16px; }
+  .detail { margin: 0 0 8px 40px; padding: 10px 14px; border-radius: 12px; background: var(--k-panel); }
+</style>
+
+<p class="lead">Follow a bill on its way to becoming law. Then flip the switch to see what happens when the second House changes it.</p>
+
+<div>
+  <span class="k-label start">The House where it starts</span>
+  <ol class="flow" id="flow" aria-label="Stages of a bill"></ol>
+</div>
+
+<div class="k-controls" id="controls"></div>
+
+<p class="caption">Simplified from UK Parliament's guide to the passage of a bill; timings vary.</p>
+
+<script>
+  const SOURCE = 'https://www.parliament.uk/about/how/laws/passage-bill/';
+  const LOOP = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6.5a4.5 4.5 0 0 1 8.4-2.2M13 9.5a4.5 4.5 0 0 1-8.4 2.2M11.6 1.8v2.7H8.9M4.4 14.2v-2.7h2.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  // Each stage in order. `group` starts a labelled section of the diagram.
+  const FIRST = [
+    { key: 'first', title: 'First reading', text: 'The bill is introduced: its title is read out and it is printed. There is no debate and no vote yet.' },
+    { key: 'second', title: 'Second reading', text: 'The first debate, about the bill\'s main ideas rather than its details. Members can vote it down here.' },
+    { key: 'committee', title: 'Committee stage', text: 'Members go through it line by line and can change the wording. Each change is called an amendment.' },
+    { key: 'report', title: 'Report stage', text: 'The whole House looks at the amended bill and can make more changes.' },
+    { key: 'third', title: 'Third reading', text: 'A last debate on the bill as a whole. In the Commons it can no longer be changed at this point; in the Lords it still can.' },
+  ];
+  const OTHER = { key: 'other', title: 'The same five stages again', group: 'The other House', text: 'The bill goes through first reading to third reading in the other House. (A bill can start in either the Commons or the Lords.)' };
+  const PING = { key: 'ping', title: 'Consideration of amendments', group: 'Back to the first House', text: 'The House where it started votes on the other House\'s changes. If they still disagree, the bill goes back and forth (nicknamed ping-pong) until both agree on every word.' };
+  const ASSENT = { key: 'assent', title: 'Royal Assent', group: 'The monarch', text: 'The monarch formally agrees, and the bill becomes an Act of Parliament: it is now law.' };
+  const ALL = FIRST.concat([OTHER, PING, ASSENT]);
+  const stepsFor = (amended) => FIRST.concat([OTHER], amended ? [PING] : [], [ASSENT]);
+
+  const step = K.stepper({ id: 'step', steps: stepsFor(true).map((s) => s.title), value: 0, compact: true, into: '#controls' });
+  const amended = K.toggle({ id: 'amended', label: 'The other House amends it', hint: 'It changes the wording, so both Houses must agree', value: true, into: '#controls' });
+
+  // Build the diagram once; each update only changes classes and text.
+  const flow = document.getElementById('flow');
+  const rows = {};
+  ALL.forEach((s) => {
+    const btn = K.el('button', { type: 'button', class: 'stage' }, K.el('span', { class: 'dot' }), K.el('span', { class: 'name' }, s.title));
+    const detail = K.el('p', { class: 'detail', hidden: true });
+    const li = K.el('li', null, s.group ? K.el('span', { class: 'k-label grp' }, s.group) : null, K.el('div', { class: 'row-item' }, btn, detail));
+    btn.addEventListener('click', () => { const i = stepsFor(amended.get()).findIndex((x) => x.key === s.key); if (i >= 0) step.set(i); });
+    flow.appendChild(li);
+    rows[s.key] = { btn, detail, dot: btn.querySelector('.dot') };
+  });
+  // The ping-pong row carries a loop badge: the stage that can repeat.
+  const badge = K.el('span', { class: 'loop', html: LOOP + 'repeats until both agree' });
+  rows.ping.btn.querySelector('.name').appendChild(K.el('br'));
+  rows.ping.btn.querySelector('.name').appendChild(badge);
+
+  // The pure model: (step index, amended?) -> where the bill is (numbers and short strings only).
+  const orderFor = (amended) => stepsFor(amended).map((s) => s.title);
+  K.model((p) => {
+    const steps = stepsFor(p.amended);
+    const i = Math.min(Math.max(0, p.step), steps.length - 1);
+    return { total: steps.length, stage: steps[i].title, key: steps[i].key };
+  });
+
+  K.update((p, o) => {
+    step.setSteps(stepsFor(p.amended).map((s) => s.title));
+    const steps = stepsFor(p.amended);
+    ALL.forEach((s) => {
+      const r = rows[s.key], i = steps.findIndex((x) => x.key === s.key), cur = steps.findIndex((x) => x.key === o.key);
+      const skipped = i < 0;
+      r.btn.className = 'stage' + (skipped ? ' skip' : i < cur ? ' done' : i === cur ? ' now' : '');
+      r.btn.disabled = skipped;
+      r.btn.setAttribute('aria-current', i === cur ? 'step' : 'false');
+      r.dot.textContent = skipped ? '' : String(i + 1);
+      r.detail.hidden = i !== cur;
+      if (i === cur) {
+        let text = s.text;
+        if (s.key === 'other') text += p.amended ? ' Here it makes changes, so the bill has to go back.' : ' It makes no changes, so the bill is ready for Royal Assent.';
+        r.detail.textContent = text;
+      }
+      if (s.key === 'ping') {
+        r.btn.querySelector('.name').firstChild.textContent = skipped ? 'Consideration of amendments: not needed' : s.title;
+        badge.hidden = skipped;
+      }
+    });
+  });
+
+  // Known answers from UK Parliament's guide.
+  K.check('Each House\'s stages run: first reading, second reading, committee, report, third reading', () =>
+    orderFor(false).slice(0, 5).join('|') === 'First reading|Second reading|Committee stage|Report stage|Third reading', { source: SOURCE });
+  K.check('With amendments there are 8 steps; without, 7 (no ping-pong)', () =>
+    K.at({ amended: true }).total === 8 && K.at({ amended: false }).total === 7);
+  K.check('Royal Assent is always the last step', () =>
+    [true, false].every((a) => K.at({ amended: a, step: 99 }).stage === 'Royal Assent' && orderFor(a).indexOf('Royal Assent') === orderFor(a).length - 1));
+  K.check('Ping-pong comes after the other House and before Royal Assent', () => {
+    const o = orderFor(true);
+    return o.indexOf('Consideration of amendments') === o.indexOf('The same five stages again') + 1 && o.indexOf('Royal Assent') === o.length - 1;
+  });
+
+  K.ready();
+</script>

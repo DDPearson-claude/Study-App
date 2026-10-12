@@ -1,0 +1,1007 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* The balance: a post and its foot, the beam on its pivot, a tray on a short stem at each end. */
+  .scene .post { fill: var(--k-sunk); stroke: var(--k-strong); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .beam { stroke: var(--k-ink); stroke-width: 6; stroke-linecap: round; }
+  /* A tipped balance is the slip showing itself: the beam in the warning colour. */
+  .scene .beam.bad { stroke: var(--k-warn); }
+  .scene .pivot { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .stem { stroke: var(--k-strong); stroke-width: 3; stroke-linecap: round; }
+  .scene .tray { fill: var(--k-strong); }
+  /* What sits on the trays: blocks worth 1 each, in solid ink, and boxes, each an unknown x. */
+  .scene .b1 { fill: var(--k-accent2); }
+  .scene .box { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .box.gap { stroke-dasharray: 4 3; }
+  .scene .bl { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .opl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* The equation under the balance, and the working (the check) under that. */
+  .scene .eq { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .wk { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .wk.bad { fill: var(--k-warn); }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  /* What Dan drags: a pan-sized hit area over each tray's blocks. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .row.picks.long { gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A balance whose pans hold boxes, each standing for <span class="v">x</span>, and small blocks worth 1 each.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Do the same to both sides and the balance stays level. The numbers are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // Every picture is a balance. bal: x, the box's true worth in blocks (every box on a screen is the
+  // same x); P, the spacing of the blocks; L and R, the two pans, each with n boxes (lab: 'x', or '?'
+  // for a gap to fill) and g, its groups of blocks, [how many, how many across].
+  // eq: the equation the balance stands for, a·x + b = c (written c = a·x + b when flip), so x is
+  // (c − b) ÷ a and the boxes sit on the left pan, or on the right when flip.
+  // moves: what happens over time, in seconds (on a SHOW screen from when it opens; on a puzzle
+  // `right` from Check): op, a step written over a pan ('L', 'R' or 'both'); lift, n blocks lifted
+  // off the top; put, n blocks set on; guess, a value put in every box (its weight follows); open, the
+  // box opened into its blocks; regroup, a pan's blocks sliding into rows `cols` across over d
+  // seconds; share, both pans cut into that many equal shares and all but one lifted off; eq, the
+  // equation under the balance rewritten; work, a line of working (true: the check for the answer).
+  // dur: how long a demonstration plays; fb and fbw: how long the motion after a right and a wrong
+  // answer plays. slips: which mistake gives each wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, demo: 'level', dur: 3.0, name: 'Equals means level',
+      bal: { x: 0, P: 14, L: { g: [[8, 4], [4, 2]] }, R: { g: [[7, 4], [5, 3]] } },
+      eqAt: [0.6, 1.2, 1.8], moves: [{ t: 2.4, work: '12 = 12' }],
+      text: 'An *equation* says both sides are the same amount, like a balance sitting level. 8 + 4 = 7 + 5 is true, because both sides make 12.' },
+    { kind: 'pick', name: 'Fill the gap', eq: { a: 1, b: 5, c: 12, flip: true },
+      bal: { P: 14, L: { g: [[8, 4], [4, 2]] }, R: { n: 1, lab: '?', g: [[5, 3]] } },
+      opts: ['7', '12', '17'], want: '7', slips: { '12': 'next', '17': 'all' }, fb: 2.2, fbw: 2.2,
+      right: [{ t: 0.1, guess: 7 }, { t: 1.1, eq: 1 }, { t: 1.6, work: true }],
+      task: '8 + 4 = ? + 5. What number goes in the box, so both sides make the same amount?',
+      why: 'The left side makes 8 + 4 = 12. The right side already has 5, so the box needs 7, because 7 + 5 = 12.',
+      hint: 'Not quite. Both sides have to make the same amount.',
+      hints: { '12': 'Not quite. That reads = as "the answer comes next". With 12 in the box, the right side makes 12 + 5 = 17.',
+        '17': 'Not quite. That adds all three numbers. With 17 in the box, the right side makes 17 + 5 = 22.' } },
+    { show: true, demo: 'off', dur: 4.0, name: 'Same off both sides', eq: { a: 1, b: 7, c: 12 },
+      bal: { P: 14, L: { n: 1, g: [[7, 4]] }, R: { g: [[12, 6]] } },
+      moves: [{ t: 0.6, op: '− 1', side: 'L' }, { t: 0.6, lift: 'L', n: 1 }, { t: 1.2, eq: 1 },
+        { t: 1.7, op: '+ 1', side: 'L' }, { t: 1.7, put: 'L', n: 1 }, { t: 2.3, eq: 1 },
+        { t: 2.8, op: '− 7', side: 'both' }, { t: 2.8, lift: 'both', n: 7 }, { t: 3.4, eq: 1 }],
+      text: 'The box is the *unknown*, x. Take 1 off one side only and it tips. Put it back, then take 7 off both sides and it stays level, leaving x = 5.' },
+    { kind: 'drag', name: 'Get x alone', eq: { a: 1, b: 3, c: 10 },
+      bal: { P: 14, L: { n: 1, g: [[3, 3]] }, R: { g: [[10, 5]] } },
+      want: 'x = 7', fb: 0.7, right: [{ t: 0.1, work: true }],
+      task: 'x + 3 = 10. Drag blocks off the pans until the box is alone, keeping the balance level.',
+      why: 'Each block off one pan needs one off the other to keep it level. With 3 off each, the box is alone and x = 7, and 7 + 3 = 10 checks it.',
+      empty: 'Drag a block off a pan first.',
+      hints: { tipped: 'Not quite. It has tipped, so the sides are no longer equal. Take blocks off the lower pan until it is level, or put them back.',
+        stuck: 'Not quite. It has tipped, and the box cannot come off. Put them back and take the same off both pans.',
+        more: 'Not quite. It is level, but the box is not alone yet. Take another block off each pan.' } },
+    { show: true, demo: 'check', dur: 4.2, name: 'Check it', eq: { a: 1, b: 7, c: 12 },
+      bal: { P: 14, L: { n: 1, g: [[7, 4]] }, R: { g: [[12, 6]] } },
+      moves: [{ t: 0.6, guess: 5 }, { t: 1.55, open: 1 }, { t: 2.25, regroup: 'L', cols: 6, d: 0.7 }, { t: 3.05, eq: 1 }, { t: 3.55, work: '12 = 12' }],
+      text: 'To *check* an answer, put it back in place of x. With 5 in the box, the left side makes 5 + 7 = 12, the same as the right.' },
+    { kind: 'pick', ask: 'claim', claim: 21, name: 'Check an answer', eq: { a: 1, b: 6, c: 15 },
+      bal: { P: 14, L: { n: 1, g: [[6, 3]] }, R: { g: [[15, 5]] } },
+      opts: ['15', '27', '21'], want: '27', slips: { '15': 'trust', '21': 'drop' }, fb: 1.7,
+      right: [{ t: 0.1, guess: 21 }, { t: 1.1, work: true }],
+      task: 'Someone solves x + 6 = 15 and gets x = 21. Put 21 in place of x. What does the left side make?',
+      why: '21 + 6 = 27, which is not 15, so x = 21 fails the check. Taking 6 off both sides gives x = 9, and 9 + 6 = 15.',
+      hint: 'Not quite. Work out 21 + 6.',
+      hints: { '15': 'Not quite. That takes the answer on trust. Work out 21 + 6 and compare it with 15.',
+        '21': 'Not quite. That leaves out the 6 on the left side. Add it on.' } },
+    { show: true, demo: 'share', dur: 4.2, name: 'Share both sides', eq: { a: 4, b: 0, c: 36 },
+      bal: { P: 12, L: { n: 4 }, R: { g: [[36, 6]] } },
+      moves: [{ t: 0.6, regroup: 'R', cols: 9, d: 0.8 }, { t: 1.5, op: '÷ 4', side: 'both' }, { t: 2.0, share: 4 }, { t: 2.6, eq: 1 },
+        { t: 3.1, work: '36 ÷ 4 = 9', hl: '÷ 4' }, { t: 3.6, work: '4 × 9 = 36' }],
+      text: '4x means 4 lots of x. Share both sides into 4 equal parts and keep one, so divide both by 4. 36 ÷ 4 = 9, so x = 9.' },
+    { kind: 'pick', name: 'Divide both sides', eq: { a: 3, b: 0, c: 24 },
+      bal: { P: 12, L: { n: 3 }, R: { g: [[24, 6]] } },
+      opts: ['21', '72', '8'], want: '8', slips: { '21': 'minus', '72': 'times' }, fb: 2.5, fbw: 1.7,
+      right: [{ t: 0.1, regroup: 'R', cols: 8, d: 0.6 }, { t: 0.1, op: '÷ 3', side: 'both' }, { t: 0.8, share: 3 }, { t: 1.4, eq: 1 }, { t: 1.9, work: true }],
+      task: 'Solve 3x = 24. What is x?',
+      why: '3x is 3 lots of x, so divide both sides by 3. 24 ÷ 3 = 8, so x = 8, and 3 × 8 = 24 checks it.',
+      hint: 'Not quite. 3x is 3 lots of x, so share both sides into 3.',
+      hints: { '21': 'Not quite. That takes 3 off. 3x means 3 times x, so divide both sides by 3.',
+        '72': 'Not quite. That multiplies by 3 again. Divide both sides by 3 to undo times 3.' } },
+    { show: true, demo: 'flip', dur: 3.3, name: 'Either way round', eq: { a: 1, b: 9, c: 15, flip: true },
+      bal: { P: 14, L: { g: [[15, 5]] }, R: { n: 1, g: [[9, 3]] } },
+      moves: [{ t: 0.6, op: '− 9', side: 'both' }, { t: 1.1, lift: 'both', n: 9 }, { t: 1.7, eq: 1 }, { t: 2.2, work: 'x = 6' }, { t: 2.7, work: true }],
+      text: 'The = sign works both ways, so 15 = x + 9 says the same as x + 9 = 15. Take 9 off both sides and 6 = x, so x = 6.' },
+    { kind: 'pick', ask: 'move', name: 'Which move?', eq: { a: 1, b: 4, c: 11 },
+      bal: { P: 14, L: { n: 1, g: [[4, 2]] }, R: { g: [[11, 6]] } },
+      opts: ['Take 4 off both', 'Take 4 off the left', 'Add 4 to both'], want: 'Take 4 off both',
+      slips: { 'Take 4 off the left': 'oneMove', 'Add 4 to both': 'addMove' }, fb: 2.3, fbw: 1.8,
+      right: [{ t: 0.1, op: '− 4', side: 'both' }, { t: 0.6, lift: 'both', n: 4 }, { t: 1.2, eq: 1 }, { t: 1.7, work: true }],
+      wrongs: { 'Take 4 off the left': [{ t: 0.1, op: '− 4', side: 'L' }, { t: 0.6, lift: 'L', n: 4 }, { t: 1.2, eq: 1 }],
+        'Add 4 to both': [{ t: 0.1, op: '+ 4', side: 'both' }, { t: 0.6, put: 'both', n: 4 }, { t: 1.2, eq: 1 }] },
+      task: 'x + 4 = 11. Which move gets x alone and keeps the balance level?',
+      why: 'Taking 4 off both sides keeps it level and leaves x alone, so x = 7. As a check, 7 + 4 = 11.',
+      hint: 'Not quite. Do the same to both sides, and undo the + 4.',
+      hints: { 'Take 4 off the left': 'Not quite. Off the left side only, the balance tips. Take 4 off the right side too.',
+        'Add 4 to both': 'Not quite. That stays level, but x + 8 = 15 still has a number added to x. Take the 4 away instead.' } },
+    { kind: 'pick', name: 'x on the right', eq: { a: 4, b: 0, c: 28, flip: true },
+      bal: { P: 12, L: { g: [[28, 6]] }, R: { n: 4 } },
+      opts: ['24', '28', '7'], want: '7', slips: { '24': 'minus', '28': 'one' }, fb: 2.5, fbw: 1.7,
+      right: [{ t: 0.1, regroup: 'L', cols: 7, d: 0.6 }, { t: 0.1, op: '÷ 4', side: 'both' }, { t: 0.8, share: 4 }, { t: 1.4, eq: 1 }, { t: 1.9, work: true }],
+      task: 'Solve 28 = 4x. What is x?',
+      why: '4x is 4 lots of x, so divide both sides by 4. 28 ÷ 4 = 7, so 7 = x, which says x = 7. As a check, 4 × 7 = 28.',
+      hint: 'Not quite. 4x is 4 lots of x, so divide both sides by 4.',
+      hints: { '24': 'Not quite. That takes 4 off. 4x means 4 times x, so divide both sides by 4.',
+        '28': 'Not quite. That drops the 4 from the right side only, so the balance tips. Divide the 28 by 4 as well.' } },
+    { kind: 'pick', name: 'Put it together', eq: { a: 1, b: 13, c: 21, flip: true },
+      bal: { P: 12, L: { g: [[21, 7]] }, R: { n: 1, g: [[13, 6]] } },
+      opts: ['34', '8', '21'], want: '8', slips: { '34': 'add', '21': 'one' }, fb: 2.3, fbw: 1.7,
+      right: [{ t: 0.1, op: '− 13', side: 'both' }, { t: 0.6, lift: 'both', n: 13 }, { t: 1.2, eq: 1 }, { t: 1.7, work: true }],
+      task: 'Put it together. Solve 21 = x + 13. What is x?',
+      why: 'Take 13 off both sides to leave x alone. 21 − 13 = 8, so 8 = x, which says x = 8. As a check, 21 = 8 + 13.',
+      hint: 'Not quite. Take 13 off both sides.',
+      hints: { '34': 'Not quite. That adds 13. Take 13 off both sides to undo the + 13.',
+        '21': 'Not quite. That takes the 13 off the right side only. Take 13 off the left side too.' } },
+  ];
+  const FINISH = 'An equation says both sides are the same amount, like a level balance. Do the same to both sides, such as taking 7 off or dividing by 4, until x is alone. Then put the answer back in to check it.';
+  // The balance tips this far (degrees) to whichever side is heavier: it shows which side, not by how much.
+  const TILT = 7;
+  // The beam's half-length and pivot; each tray's width; a box's size and the gap between boxes.
+  const BL = 106, PX = 170, PW = 120, BX = 26, BG = 4;
+  // A block lifting off or set on takes LIFT; the beam starts to answer LAG after a change and swings over SWING.
+  const LIFT = 0.5, LAG = 0.15, SWING = 0.6;
+  // A screen takes FADE to fade in, so no demonstration starts before it has settled.
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  // a·x + b = c: x is what makes both sides the same; the boxes' side with v in place of x.
+  const xOf = (e) => (e.c - e.b) / e.a;
+  const lhs = (e, v) => e.a * v + e.b;
+  // a·x + b written out with v in place of x: '5 + 7', '3 × 8'.
+  const filled = (e, v) => (e.a === 1 ? String(v) : e.a + ' × ' + v) + (e.b ? ' + ' + e.b : '');
+  // The check: v put back in place of x. Right, both sides match (written the equation's way round);
+  // wrong, the two sides differ.
+  function checkRow(e, v) {
+    const l = lhs(e, v);
+    if (l === e.c) return e.flip ? e.c + ' = ' + filled(e, v) : filled(e, v) + ' = ' + e.c;
+    return filled(e, v) + ' = ' + l + ', not ' + e.c;
+  }
+  const boxSide = (d) => (d.eq && d.eq.flip ? 'R' : 'L');
+  const trueX = (d) => (d.eq ? xOf(d.eq) : 0);
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.kind === 'drag') return 'x = ' + xOf(d.eq);
+    if (d.ask === 'claim') return String(lhs(d.eq, d.claim));
+    if (d.ask === 'move') return 'Take ' + d.eq.b + ' off both';
+    return String(xOf(d.eq));
+  }
+  // What each slip makes of the answer: = read as "the answer comes next" (the left side's sum, the
+  // right side ignored); every number added; the + b added to the other side instead of taken off;
+  // a step done to x's side only (the other side left as it was); a taken off, or multiplied by,
+  // instead of divided by; a claimed answer taken on trust, or its + b left out; a move done to one
+  // side only, or the + b added to both sides.
+  const SLIP = {
+    next: (d) => String(d.eq.c),
+    all: (d) => String(d.eq.c + d.eq.b),
+    add: (d) => String(d.eq.c + d.eq.b),
+    one: (d) => String(d.eq.c),
+    minus: (d) => String(d.eq.c - d.eq.a),
+    times: (d) => String(d.eq.c * d.eq.a),
+    trust: (d) => String(d.eq.c),
+    drop: (d) => String(d.claim),
+    oneMove: (d) => 'Take ' + d.eq.b + ' off the left',
+    addMove: (d) => 'Add ' + d.eq.b + ' to both',
+  };
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/\u00a0/g, ' ').replace(/\?/g, ' a gap ').replace(/\+/g, ' plus ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; off: on the drag puzzle,
+  // the blocks taken off each pan; held: a block in Dan's hand; gone: one just let go, fading; sw: the
+  // beam's swing after a block came off (from, to, when).
+  function blank(i) { return { pick: null, res: null, why: false, off: { L: 0, R: 0 }, held: null, gone: null, sw: null }; }
+  // Blocks on a pan of the drag puzzle now; whether it is level; whether the box is alone.
+  const blocksAt = (d, s, st) => (d.bal[s].g || []).reduce((a, g) => a + g[0], 0) - (st ? st.off[s] : 0);
+  const weightOf = (d, s, st) => (d.bal[s].n || 0) * trueX(d) + blocksAt(d, s, st);
+  const levelNow = (d, st) => weightOf(d, 'L', st) === weightOf(d, 'R', st);
+  const aloneNow = (d, st) => blocksAt(d, boxSide(d), st) === 0;
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'drag') return st.off.L + st.off.R === 0 ? d.empty : '';
+    return st.pick != null ? '' : PICK;
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (isEmpty(i, st)) return false;
+    if (d.kind === 'drag') return levelNow(d, st) && aloneNow(d, st);
+    return st.pick === d.want;
+  }
+  // A wrong answer's hint names its slip; on the drag puzzle it says what the balance shows.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'drag') {
+      if (levelNow(d, st)) return d.hints.more;
+      const lower = weightOf(d, 'L', st) > weightOf(d, 'R', st) ? 'L' : 'R';
+      return blocksAt(d, lower, st) > 0 ? d.hints.tipped : d.hints.stuck;
+    }
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'drag') { const n = blocksAt(d, boxSide(d)); st.off = { L: n, R: n }; }
+    else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+  // The motion a wrong answer plays: on a move puzzle the move itself; otherwise the value put in the
+  // box, the balance tipping, and the check that fails.
+  function wrongMoves(d, v) {
+    if (d.wrongs) return d.wrongs[v] || [];
+    if (!d.eq || d.ask === 'claim' || d.kind === 'drag' || v == null) return [];
+    const n = +v, gap = d.bal[boxSide(d)].lab === '?';
+    return [{ t: 0.1, guess: n }].concat(gap ? [{ t: 1.1, eq: 1 }, { t: 1.6, work: checkRow(d.eq, n), bad: true }] : [{ t: 1.1, work: checkRow(d.eq, n), bad: true }]);
+  }
+  function movesFor(d, st) {
+    if (d.show) return d.moves;
+    if (st.res === 'right') return d.right;
+    if (st.res === 'wrong') return wrongMoves(d, st.pick);
+    return [];
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0, clock = 0;                          // motion: 'demo', 'fb' or 'free' (the drag puzzle)
+  let settled = false;                                                   // true while a check draws a finished picture
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  function letters(el, s) {
+    s.split(/(\bx\b)/).forEach((b) => { if (!b) return; el.appendChild(b === 'x' ? K.el('span', { class: 'v' }, 'x') : document.createTextNode(b)); });
+  }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) letters(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) letters(el, text.slice(at));
+  }
+  // A sum or a step stays together on one line ("x + 7 = 12", "÷ 4", "4x"), with the stop after it;
+  // a long one may break only before an equals sign. Its letters are italic.
+  const TOK = '(?:\\d+(?:\\.\\d+)?x?|\\bx\\b|\\?)';
+  const GLUE = new RegExp('(?:[×÷−+] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function mathBit(el, b) {
+    const box = / /.test(b) ? el.appendChild(K.el('span', { class: 'nw' })) : el;
+    b.split(/(x)/).forEach((p) => { if (!p) return; box.appendChild(p === 'x' ? K.el('span', { class: 'v' }, 'x') : document.createTextNode(p)); });
+  }
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (/^\?[.,?!;]?$/.test(m[0])) continue;   // a question mark ending a sentence
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => { if (k) el.appendChild(document.createTextNode(' ')); mathBit(el, b); });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong' && wrongMoves(d, st.pick).length > 0;
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; motion = null; enter('scene'); }
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, and a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (d.kind === 'drag') { st.held = null; st.gone = null; st.sw = null; }
+    if (st.res === 'right') play(d.fb, 'fb');
+    else if (wrongMoves(d, st.pick).length) play(d.fbw, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  // On the drag puzzle: every block back on its pan.
+  const backOnBtn = K.button({ label: 'Put them back', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.kind !== 'drag' || finished || st.res === 'right') return;
+    st.off = { L: 0, R: 0 }; st.res = null; st.held = null; st.gone = null; st.sw = null;
+    enter('scene');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the motion after an answer, and the drag puzzle's beam;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    if (motion === 'free') return freeStep(dt);
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel, or the picture after a fresh start) fades in softly.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let H = 200;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and moved `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1, moving `rise` units as it goes (negative: upwards).
+  function leave(a, draw, rise) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, rise || 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx, side) => add(K.svg('rect', Object.assign({ class: cls, x: r3(x), y: r3(y), width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 }, side ? { 'data-side': side } : {})));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  // Text with every x in italics.
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    String(s).split(/(x)/).forEach((p) => { if (p) t.appendChild(p === 'x' ? K.svg('tspan', { class: 'v' }, 'x') : document.createTextNode(p)); });
+    return add(t);
+  }
+  // Spaces that SVG keeps (and measures), so a highlight under part of a line lines up with it.
+  const nb = (s) => String(s).replace(/ /g, '\u00a0');
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 20 * 0.6;
+  }
+  // A line of working, centred at y, with the part that does the work highlighted.
+  function workRow(s, y, bad, hl) {
+    const x0 = PX - tw(nb(s), 'wk') / 2;
+    if (hl) { const i = s.indexOf(hl); rect('hl', x0 + (i > 0 ? tw(nb(s.slice(0, i)), 'wk') : 0) - 4, y - 18, tw(nb(hl), 'wk') + 8, 25, 5); }
+    text(x0, y, nb(s), 'wk' + (bad ? ' bad' : ''), 'start');
+  }
+
+  // --- the balance ---
+  // Each screen's sizes: the tallest stack of weights (top), the pivot's height (PY) and the picture's.
+  // The equation sits under the foot at PY + 72, each line of working 30 below the one before.
+  function allMoves(d) {
+    if (d.show) return d.moves;
+    let m = (d.right || []).slice();
+    if (d.wrongs) Object.keys(d.wrongs).forEach((k) => { m = m.concat(d.wrongs[k]); });
+    else (d.opts || []).forEach((o) => { m = m.concat(wrongMoves(d, o)); });
+    return m;
+  }
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const B = d.bal, P = B.P, mv = allMoves(d), hgt = (n, c) => Math.ceil(n / c) * P;
+    let top = 0;
+    ['L', 'R'].forEach((s) => {
+      const sp = B[s], g = sp.g || [], all = g.reduce((a, q) => a + q[0], 0);
+      const puts = mv.filter((m) => m.put && (m.put === s || m.put === 'both')).reduce((a, m) => a + m.n, 0);
+      if (sp.n) top = Math.max(top, BX);
+      g.forEach((q, k) => { top = Math.max(top, hgt(q[0] + (k === g.length - 1 ? puts : 0), q[1])); });
+      mv.filter((m) => m.regroup === s).forEach((m) => { top = Math.max(top, hgt(all + (sp.n && mv.some((o) => o.open) ? trueX(d) : 0), m.cols)); });
+      if (sp.n && mv.some((m) => m.open)) top = Math.max(top, hgt(trueX(d), 2));
+    });
+    const rows = d.show ? d.moves.filter((m) => m.work).length : Math.max((d.right || []).filter((m) => m.work).length, ...((d.opts || []).map((o) => wrongMoves(d, o).filter((m) => m.work).length)), 0);
+    const PY = top + 62, G = { P, top, PY, rows, H: PY + 84 + 30 * rows };
+    GEO.set(d, G);
+    return G;
+  }
+
+  // A pan's contents as the picture keeps them: its boxes and its groups of blocks, each block noting
+  // when it was lifted off or set on. Blocks are taken off from the top of the last group down.
+  function makeSide(d, s) {
+    const sp = d.bal[s];
+    return {
+      s, lab: sp.lab || 'x',
+      boxes: Array.from({ length: sp.n || 0 }, () => ({ lift: null })),
+      groups: (sp.g || []).map((q) => ({ cols: q[1], blocks: Array.from({ length: q[0] }, () => ({ lift: null, put: null, gone: false })) })),
+      guess: null, open: null, regroup: null,
+    };
+  }
+  const flat = (side) => side.groups.reduce((a, g) => a.concat(g.blocks), []);
+  const onPan = (b) => b.lift == null && !b.gone;
+  function liftN(side, n, t) { const bl = flat(side).filter(onPan); bl.slice(bl.length - n).forEach((b) => { b.lift = t; }); }
+  // A block set on takes the place of one lifted off that pan's last group earlier, if any (so a block
+  // put back sits where it was), or else goes on top.
+  function putN(side, n, t) {
+    const g = side.groups[side.groups.length - 1];
+    for (let k = 0; k < n; k++) {
+      let j = g.blocks.length - 1;
+      while (j >= 0 && !(g.blocks[j].lift != null && g.blocks[j].lift <= t && !g.blocks[j].refilled)) j -= 1;
+      const nw = { lift: null, put: t, gone: false };
+      if (j >= 0) { g.blocks[j].refilled = true; nw.slot = g.blocks[j].slot != null ? g.blocks[j].slot : j; }
+      g.blocks.push(nw);
+    }
+  }
+  // Share into k: keep the first box and the first k-th of the blocks; the rest lift off.
+  function shareK(side, k, t) {
+    side.boxes.forEach((b, j) => { if (j > 0) b.lift = t; });
+    const bl = flat(side), keep = bl.length / k;
+    bl.forEach((b, j) => { if (j >= keep) b.lift = t; });
+  }
+  const boxesOn = (side) => (side.open ? 0 : side.boxes.filter((b) => b.lift == null).length);
+  const blocksOn = (side) => flat(side).filter(onPan).length;
+  const worth = (d, side) => boxesOn(side) * (side.guess ? side.guess.v : trueX(d)) + blocksOn(side);
+  // The equation's side as written under its pan: the boxes ('x', '4x', or the number in a gap),
+  // then each group's blocks.
+  function expr(side) {
+    const parts = [], nb2 = boxesOn(side), lab = side.lab === '?' && side.guess ? String(side.guess.v) : side.lab;
+    if (nb2) parts.push(nb2 === 1 ? lab : nb2 + lab);
+    side.groups.forEach((g) => { const n = g.blocks.filter(onPan).length; if (n) parts.push(String(n)); });
+    return parts.join(' + ') || '0';
+  }
+  const tiltOf = (d, sides) => Math.sign(worth(d, sides.R) - worth(d, sides.L)) * TILT;
+
+  // Runs a step's moves into the pans, noting when each change happens: the beam's targets, the
+  // equation as it is rewritten, the steps over the pans and the lines of working.
+  function run(d, st, moves) {
+    const sides = { L: makeSide(d, 'L'), R: makeSide(d, 'R') };
+    if (d.kind === 'drag') ['L', 'R'].forEach((s) => { const bl = flat(sides[s]); bl.slice(bl.length - st.off[s]).forEach((b) => { b.gone = true; }); });
+    const R = { sides, targets: [{ t: -1, v: tiltOf(d, sides) }], snaps: [{ t: -Infinity, L: expr(sides.L), R: expr(sides.R) }], ops: { L: [], R: [] }, rows: [] };
+    const which = (w) => (w === 'both' ? ['L', 'R'] : [w]);
+    moves.slice().sort((a, b) => a.t - b.t).forEach((m) => {
+      let weigh = null;
+      if (m.lift) { which(m.lift).forEach((s) => liftN(sides[s], m.n, m.t)); weigh = m.t; }
+      if (m.put) { which(m.put).forEach((s) => putN(sides[s], m.n, m.t)); weigh = m.t; }
+      if (m.guess != null) { ['L', 'R'].forEach((s) => { if (sides[s].boxes.length) sides[s].guess = { v: m.guess, t: m.t }; }); weigh = m.t + 0.25; }
+      if (m.open) {
+        ['L', 'R'].forEach((s) => {
+          const side = sides[s];
+          if (!side.boxes.length) return;
+          side.open = m.t;
+          side.groups.unshift({ cols: 2, atBox: true, blocks: Array.from({ length: side.boxes.length * (side.guess ? side.guess.v : trueX(d)) }, () => ({ lift: null, put: null, gone: false })) });
+        });
+      }
+      if (m.regroup) sides[m.regroup].regroup = { t: m.t, d: m.d, cols: m.cols };
+      if (m.share) { ['L', 'R'].forEach((s) => shareK(sides[s], m.share, m.t)); weigh = m.t; }
+      if (m.op) which(m.side).forEach((s) => R.ops[s].push({ s: m.op, t: m.t }));
+      if (m.eq) R.snaps.push({ t: m.t, L: expr(sides.L), R: expr(sides.R) });
+      if (m.work) {
+        const v = d.ask === 'claim' ? d.claim : trueX(d);
+        R.rows.push({ s: m.work === true ? checkRow(d.eq, v) : m.work, t: m.t, bad: m.bad || (m.work === true && lhs(d.eq, v) !== d.eq.c), hl: m.hl });
+      }
+      if (weigh != null) R.targets.push({ t: weigh, v: tiltOf(d, sides) });
+    });
+    return R;
+  }
+  // The beam's angle at T: each change of weight swings it, softly, from LAG after the change.
+  function angleAt(R) {
+    let a = R.targets[0].v;
+    for (let k = 1; k < R.targets.length; k++) {
+      const dv = R.targets[k].v - R.targets[k - 1].v;
+      if (dv) a += dv * arr(R.targets[k].t + LAG, SWING);
+    }
+    return a;
+  }
+  // On the drag puzzle the beam follows Dan: it swings from where it was to its new tilt.
+  const dragTarget = (d, st) => Math.sign(weightOf(d, 'R', st) - weightOf(d, 'L', st)) * TILT;
+  function dragAngle(d, st) {
+    const tg = dragTarget(d, st);
+    if (!st.sw || settled || REDUCE || testing()) return tg;
+    return st.sw.from + (st.sw.to - st.sw.from) * K.ease((clock - st.sw.t0) / SWING);
+  }
+
+  // Where things sit on a tray, from its middle (x 0) and its top (y 0): boxes first, then each group
+  // of blocks in rows from the tray up; an opened box's blocks where the box was. Regrouped: every
+  // block in one set of rows `cols` across.
+  function layout(side, P, cols) {
+    const nb2 = side.boxes.length, keepBoxes = cols == null || !side.open;
+    const bw = nb2 && keepBoxes ? nb2 * BX + (nb2 - 1) * BG : 0;
+    const out = { boxes: side.boxes.map((b, k) => -0 + k * (BX + BG)), blocks: [] };
+    if (cols != null) {
+      const bl = flat(side), gw = Math.min(bl.length, cols) * P - 2, total = bw + (bw ? 8 : 0) + gw, x0 = -total / 2, gx = x0 + (bw ? bw + 8 : 0);
+      out.boxes = side.boxes.map((b, k) => x0 + k * (BX + BG));
+      bl.forEach((b, j) => { const q = b.slot != null ? b.slot : j; out.blocks.push([gx + (q % cols) * P, -(Math.floor(q / cols) + 1) * P + 2]); });
+      return out;
+    }
+    const gs = side.groups.filter((g) => !g.atBox);
+    const ws = gs.map((g) => Math.min(g.blocks.filter((b) => b.slot == null).length, g.cols) * P - 2);
+    const items = (bw ? 1 : 0) + gs.length, total = bw + ws.reduce((a, w) => a + w, 0) + 8 * Math.max(0, items - 1);
+    let x = -total / 2;
+    const bx0 = x;
+    out.boxes = side.boxes.map((b, k) => bx0 + k * (BX + BG));
+    if (bw) x += bw + 8;
+    side.groups.forEach((g) => {
+      const gx = g.atBox ? bx0 : x;
+      const span = g.blocks.filter((b) => b.slot == null).length;
+      g.blocks.forEach((b, j) => { const q = b.slot != null ? b.slot : j; out.blocks.push([gx + (q % g.cols) * P, -(Math.floor(q / g.cols) + 1) * P + 2]); });
+      if (!g.atBox) x += Math.min(span, g.cols) * P - 2 + 8;
+    });
+    return out;
+  }
+
+  // How tall a pan's stack stands at t: its boxes, and its blocks as laid out then (regrouped once
+  // the regroup has ended). Blocks keep their places as others lift off, so this is the stack's top.
+  function stackH(side, P, t) {
+    const rg = side.regroup, lay = rg && t >= rg.t + rg.d - 1e-9 ? layout(side, P, rg.cols) : layout(side, P);
+    let h = side.boxes.length && !(side.open != null && t >= side.open) ? BX : 0;
+    lay.blocks.forEach((q) => { h = Math.max(h, 2 - q[1]); });
+    return h;
+  }
+  // A box with its label: x, a gap's '?', or the value put in it (the old label leaving first).
+  function boxAt(x, y, side, k) {
+    rect('box' + (side.lab === '?' ? ' gap' : ''), x, y, BX, BX, 4, side.s);
+    const lab = side.lab, g = side.guess;
+    if (!g) { text(x + BX / 2, y + 18.5, lab, 'bl'); return; }
+    leave(arr(g.t, 0.25), () => text(x + BX / 2, y + 18.5, lab, 'bl'));
+    part(arr(g.t + 0.25), 3, () => text(x + BX / 2, y + 18.5, String(g.v), 'bl'));
+  }
+  // One pan: its stem and tray at the beam's end (ex, ey), and what sits on it.
+  function drawPan(d, R, s, ex, ey, G, st) {
+    const side = R.sides[s], P = G.P, ty = ey - 16;
+    line('stem', ex, ey, ex, ey - 10);
+    rect('tray', ex - PW / 2, ty, PW, 6, 3);
+    const A = layout(side, P), rg = side.regroup, B = rg ? layout(side, P, rg.cols) : null, u = rg ? arr(rg.t, rg.d) : 0;
+    side.boxes.forEach((b, k) => {
+      const x = ex + (B ? K.lerp(A.boxes[k], B.boxes[k], u) : A.boxes[k]), y = ty - BX;
+      const draw = () => boxAt(x, y, side, k);
+      if (b.lift != null) leave(arr(b.lift, LIFT), draw, -20);
+      else if (side.open != null) leave(arr(side.open), draw, 0);
+      else draw();
+    });
+    const sz = P - 2;
+    let j = 0;
+    side.groups.forEach((g) => g.blocks.forEach((b) => {
+      const q = A.blocks[j], p = B ? [K.lerp(q[0], B.blocks[j][0], u), K.lerp(q[1], B.blocks[j][1], u)] : q;
+      j += 1;
+      if (b.gone) return;
+      const x = ex + p[0], y = ty + p[1] - 2, draw = () => rect('b1', x, y, sz, sz, 2, s);
+      const on = () => (b.put != null ? part(arr(b.put, LIFT), -10, draw) : draw());
+      if (b.lift != null) leave(arr(b.lift, LIFT), on, -20);
+      else if (b.put != null) part(arr(b.put, LIFT), -10, draw);
+      else if (g.atBox) part(arr(side.open), 0, draw);
+      else draw();
+    }));
+    // the steps written over this pan (each gives way to the next), just above the taller stack
+    const ops = R.ops[s];
+    ops.forEach((o, k) => {
+      const a = arr(o.t), l = ops[k + 1] ? arr(ops[k + 1].t, 0.25) : 0, v = a * (1 - l);
+      const h = Math.max(stackH(R.sides.L, P, o.t), stackH(R.sides.R, P, o.t));
+      if (v > 0) part(v, 4, () => text(ex, ty - h - 10, o.s, 'opl'));
+    });
+  }
+  // The pans' positions now (for the drag puzzle's hit areas and a block let go).
+  function ends(ang, G) {
+    const a = ang * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+    return { L: [PX - BL * c, G.PY - BL * s], R: [PX + BL * c, G.PY + BL * s] };
+  }
+  // The equation under the balance as it is rewritten (old words leave, then the new arrive), and
+  // its = sign, which fades while the beam is tipped.
+  function drawEq(d, R, G, w) {
+    const y = G.PY + 72, xs = { L: PX - BL, R: PX + BL };
+    ['L', 'R'].forEach((s, si) => {
+      const seq = [];
+      R.snaps.forEach((sn) => { if (!seq.length || seq[seq.length - 1].s !== sn[s]) seq.push({ s: sn[s], t: sn.t }); });
+      seq.forEach((q, k) => {
+        const a = k === 0 ? (d.eqAt ? arr(d.eqAt[si]) : 1) : arr(q.t), l = seq[k + 1] ? arr(seq[k + 1].t - 0.25, 0.25) : 0, v = a * (1 - l);
+        if (v > 0) part(v, 4, () => text(xs[s], y, q.s, 'eq'));
+      });
+    });
+    const e = (d.eqAt ? arr(d.eqAt[2]) : 1) * (1 - w);
+    if (e > 0.02) part(e, 0, () => text(PX, y, '=', 'eq'));
+  }
+  // The current state in words (what has arrived counts once it is half there).
+  function sideSaid(d, R, s) {
+    const side = R.sides[s], half = (t, dd) => t == null || arr(t, dd) < 0.5;
+    const boxes = side.open != null && arr(side.open) >= 0.5 ? 0 : side.boxes.filter((b) => half(b.lift, LIFT)).length;
+    const lab = side.guess && arr(side.guess.t + 0.25) >= 0.5 ? String(side.guess.v) : side.lab === '?' ? 'a question mark' : 'x';
+    let blocks = 0;
+    side.groups.forEach((g) => g.blocks.forEach((b) => { if (!b.gone && half(b.lift, LIFT) && (b.put == null || arr(b.put, LIFT) >= 0.5) && (!g.atBox || arr(side.open) >= 0.5)) blocks += 1; }));
+    const parts = [];
+    if (boxes) parts.push(boxes === 1 ? 'a box marked ' + lab : boxes + ' boxes marked ' + lab);
+    if (blocks) parts.push(blocks === 1 ? '1 block' : blocks + ' blocks');
+    return parts.join(' and ') || 'nothing';
+  }
+  let lastAngle = 0;
+  function drawBal(d, st, G) {
+    const R = run(d, st, movesFor(d, st));
+    const ang = d.kind === 'drag' ? dragAngle(d, st) : angleAt(R), w = Math.min(1, Math.abs(ang) / TILT);
+    lastAngle = ang;
+    const PY = G.PY, E = ends(ang, G);
+    // the post and its foot, the beam (in the warning colour as it tips), the pivot
+    add(K.svg('path', { class: 'post', d: 'M' + PX + ' ' + PY + ' L' + (PX - 18) + ' ' + (PY + 40) + ' L' + (PX + 18) + ' ' + (PY + 40) + ' Z' }));
+    rect('post', PX - 34, PY + 40, 68, 6, 2);
+    line('beam', E.L[0], E.L[1], E.R[0], E.R[1]);
+    if (w > 0.01) part(w, 0, () => line('beam bad', E.L[0], E.L[1], E.R[0], E.R[1]));
+    add(K.svg('circle', { class: 'pivot', cx: PX, cy: PY, r: 5 }));
+    drawPan(d, R, 'L', E.L[0], E.L[1], G, st);
+    drawPan(d, R, 'R', E.R[0], E.R[1], G, st);
+    // a block in Dan's hand, held just above his finger, and one let go, fading as it rises
+    const sz = G.P - 2;
+    if (st.held) rect('b1', st.held.x - sz / 2, st.held.y - 30 - sz / 2, sz, sz, 2);
+    const ga = st.gone ? K.ease(K.clamp(st.gone.a, 0, 1)) : 0;
+    if (ga > 0) part(ga, 0, () => rect('b1', st.gone.x - sz / 2, st.gone.y - 30 - sz / 2 - (1 - ga) * 16, sz, sz, 2));
+    drawEq(d, R, G, w);
+    R.rows.forEach((r, k) => part(arr(r.t), 6, () => workRow(r.s, PY + 72 + 30 * (k + 1), r.bad, r.hl)));
+    const level = Math.abs(ang) < 0.5;
+    const eqNow = ['L', 'R'].map((s) => { let cur = R.snaps[0][s]; R.snaps.slice(1).forEach((sn) => { if (arr(sn.t) >= 0.5) cur = sn[s]; }); return cur; });
+    const shown = R.rows.filter((r) => arr(r.t) >= 0.5);
+    return 'A balance. On the left pan, ' + sideSaid(d, R, 'L') + '; on the right pan, ' + sideSaid(d, R, 'R') + '. ' +
+      (level ? 'It sits level.' : 'It has tipped, the ' + (ang > 0 ? 'right' : 'left') + ' pan lower.') +
+      (!d.eqAt || arr(d.eqAt[1]) >= 0.5 ? ' Under it: ' + say(eqNow[0]) + (level ? ' equals ' : ' and ') + say(eqNow[1]) + '.' : '') +
+      (shown.length ? ' Working: ' + shown.map((r) => say(r.s)).join(', then ') + '.' : '') +
+      (d.kind === 'drag' && st.res !== 'right' ? ' A block can be dragged off either pan.' : '');
+  }
+
+  // ---------- the drag puzzle: a block off a pan ----------
+  // A hit area over each tray (where the blocks sit), kept across repaints so a drag survives them.
+  const grips = {};
+  ['L', 'R'].forEach((s) => {
+    const g = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'button',
+      'aria-label': s === 'L' ? 'Take a block off the left pan' : 'Take a block off the right pan' }));
+    g.style.display = 'none';
+    grips[s] = g;
+  });
+  const dragging = () => { const d = STEPS[at()]; return !finished && d.kind === 'drag' && S[at()].res !== 'right'; };
+  function placeGrips(d, st, G) {
+    const on = d.kind === 'drag' && st.res !== 'right' && !finished;
+    ['L', 'R'].forEach((s) => {
+      const g = grips[s];
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      const ex = s === 'L' ? PX - BL : PX + BL;
+      g.setAttribute('x', ex - PW / 2 - 2); g.setAttribute('width', PW + 4);
+      g.setAttribute('y', G.PY - 16 - G.top - 30); g.setAttribute('height', G.top + 60);
+    });
+  }
+  // Take the top block off pan s: the beam swings from where it is to its new tilt.
+  function takeOff(s, held) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (blocksAt(d, s, st) <= 0) return false;
+    const from = dragAngle(d, st);
+    st.off[s] += 1; st.res = null;
+    st.sw = { from, to: dragTarget(d, st), t0: clock };
+    if (held) st.held = held;
+    K.reveal(); K.refresh(); goFree();
+    return true;
+  }
+  function goFree() {
+    motion = 'free';
+    if (REDUCE || testing()) { const st = S[at()]; st.gone = null; paint(); return; }
+    if (!anim.playing()) anim.play();
+  }
+  function freeStep(dt) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.kind !== 'drag') return false;
+    clock += dt;
+    if (st.gone) { st.gone.a -= dt / 0.35; if (st.gone.a <= 0) st.gone = null; }
+    paint();
+    const swinging = st.sw && clock - st.sw.t0 < SWING;
+    return !!(swinging || st.gone || st.held);
+  }
+  const svgPoint = (e) => { const ctm = svg.getScreenCTM(); return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null; };
+  ['L', 'R'].forEach((s) => {
+    const g = grips[s];
+    g.addEventListener('pointerdown', (e) => {
+      if (!dragging()) return;
+      const p = svgPoint(e);
+      if (!p) return;
+      e.preventDefault();
+      if (!takeOff(s, { x: p.x, y: p.y, id: e.pointerId })) return;
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the pan */ }
+    });
+    g.addEventListener('pointermove', (e) => {
+      const st = S[at()];
+      if (!st.held || st.held.id !== e.pointerId) return;
+      const p = svgPoint(e);
+      if (!p) return;
+      st.held.x = K.clamp(p.x, 8, 332); st.held.y = K.clamp(p.y, 40, H);
+      if (!anim.playing()) paint();
+    });
+    const letGo = (e) => {
+      const st = S[at()];
+      if (!st.held || (e && e.pointerId != null && st.held.id !== e.pointerId)) return;
+      st.gone = { x: st.held.x, y: st.held.y, a: 1 }; st.held = null;
+      goFree();
+    };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', letGo);
+    g.addEventListener('keydown', (e) => {
+      if (!dragging() || ['Enter', ' ', 'Delete', 'Backspace'].indexOf(e.key) < 0) return;
+      e.preventDefault();
+      const d = STEPS[at()], G = geo(d), E = ends(dragAngle(d, S[at()]), G);
+      if (takeOff(s)) { S[at()].gone = { x: E[s][0], y: E[s][1] - 16 - G.top / 2 + 30, a: 1 }; goFree(); }
+    });
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    H = G.H;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    svg.setAttribute('aria-label', drawBal(d, st, G));
+    placeGrips(d, st, G);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      st.held = null; st.gone = null; st.sw = null;
+      if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    backOnBtn.el.hidden = d.kind !== 'drag' || right || (st.off.L + st.off.R === 0);
+    el('replay').hidden = replayBtn.el.hidden && backOnBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const EQS = STEPS.filter((d) => d.eq);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(i), { pick: v }));
+  // A step painted in the state given (finished, or at t seconds into its motion; 0 is a SHOW
+  // screen's opening): what its picture draws, and the beam's tilt.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; settled = true;
+    try {
+      paint(i);
+      const count = (sel) => art.querySelectorAll(sel).length;
+      return { texts: Array.from(art.querySelectorAll('text')).map((t) => t.textContent.replace(/\u00a0/g, ' ')), angle: lastAngle,
+        bL: count('rect.b1[data-side="L"]'), bR: count('rect.b1[data-side="R"]'), xL: count('rect.box[data-side="L"]'), xR: count('rect.box[data-side="R"]') };
+    } finally { S[i] = keepS; T = keepT; settled = false; paint(); }
+  }
+  const has = (texts, s) => texts.some((t) => t === s || t.split(/, | = /).indexOf(s) >= 0 || t.indexOf(s) >= 0 && s.length > 3);
+  K.check('Both sides of step 1 make 12, and every equation\'s answer makes both sides the same amount ("=" as "having the same value as")', () => {
+    const sum = (g) => g.reduce((a, q) => a + q[0], 0), d = STEPS[0];
+    return sum(d.bal.L.g) === sum(d.bal.R.g) && sum(d.bal.L.g) === 12 && EQS.every((e) => lhs(e.eq, xOf(e.eq)) === e.eq.c);
+  }, { source: 'https://www.ncetm.org.uk/media/wbylane0/ncetm_ks3_cc_2_2.pdf' });
+  K.check('Balance scales can illustrate this by showing that the quantities on both sides of the equal sign are the same', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, blank(i), 0), x = trueX(d);
+      return g.bL + g.xL * x === g.bR + g.xR * x && g.angle === 0;
+    }) && DO.filter((k) => STEPS[k].kind === 'pick' && !STEPS[k].wrongs && STEPS[k].ask !== 'claim').every((k) => STEPS[k].opts.filter((o) => o !== STEPS[k].want).every((o) => {
+      const d = STEPS[k], g = drawn(k, Object.assign(blank(k), { pick: o, res: 'wrong' })), v = +o;
+      return Math.sign(g.bR + g.xR * v - g.bL - g.xL * v) * TILT === g.angle && g.angle !== 0;
+    })),
+  { source: 'https://math.libretexts.org/Courses/Northern_Illinois_University/Conceptual_Mathematics_in_Society/04%3A_Algebra/4.06%3A_Solving_Equations_Using_the_Balance_Scale_Representations' });
+  K.check('Some may misinterpret the equal sign as "the answer comes next", and add the numbers on the left side of the equation and ignore the numbers on the right side', () => {
+    const d = STEPS[1], left = d.bal.L.g.reduce((a, q) => a + q[0], 0);
+    return SLIP.next(d) === String(left) && d.slips[String(left)] === 'next' && lhs(d.eq, left) !== d.eq.c && left === 8 + 4;
+  }, { source: 'https://www.tandfonline.com/doi/full/10.1080/15248372.2023.2245507' });
+  K.check('Doing the same to both sides keeps them equal, and doing a step to one side only does not; every right answer\'s picture ends level, and only a claimed answer that fails its check ends tipped', () =>
+    EQS.every((d) => {
+      const e = d.eq, x = xOf(e), boxes = lhs(e, x), other = e.c;
+      const same = (f) => f(boxes) === f(other), oneSideOnly = (f) => f(boxes) === other;
+      return same((v) => v - e.b) && same((v) => (v - e.b) / e.a) && (e.b === 0 || !oneSideOnly((v) => v - e.b)) && (e.a === 1 || !oneSideOnly((v) => v / e.a));
+    }) && DO.concat(STEPS.map((d, i) => i).filter((i) => STEPS[i].show)).every((i) => Math.abs(drawn(i, STEPS[i].show ? blank(i) : solved(i)).angle) < 1e-9 || STEPS[i].ask === 'claim') &&
+    Math.abs(drawn(5, solved(5)).angle) === TILT);
+  K.check('Each answer, put back in place of x, makes both sides the same: 7 + 5 = 12, 5 + 7 = 12, 7 + 3 = 10, 9 + 6 = 15, 4 × 9 = 36, 3 × 8 = 24, 6 + 9 = 15, 7 + 4 = 11, 28 = 4 × 7 and 21 = 8 + 13; the claimed 21 makes 21 + 6 = 27, not 15', () =>
+    EQS.map((d) => xOf(d.eq)).join() === '7,5,7,5,9,9,8,6,7,7,8' && EQS.every((d) => lhs(d.eq, xOf(d.eq)) === d.eq.c) &&
+    lhs(STEPS[5].eq, 21) === 27 && checkRow(STEPS[5].eq, 21) === '21 + 6 = 27, not 15' && checkRow(STEPS[1].eq, 7) === '12 = 7 + 5' && checkRow(STEPS[10].eq, 7) === '28 = 4 × 7' && checkRow(STEPS[11].eq, 8) === '21 = 8 + 13');
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives: = read as "the answer comes next", every number added, the step added instead of taken off, a step on one side only, taking off instead of dividing, multiplying again, or a claimed answer taken on trust or with its + 6 left out', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.kind === 'drag') return d.want === answerOf(d);
+      return d.opts.length === 3 && d.want === answerOf(d) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        Object.keys(d.slips).length === 2 && Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && SLIP[d.slips[o]](d) === o);
+    }) && SLIP.next(STEPS[1]) === '12' && SLIP.all(STEPS[1]) === '17' && SLIP.minus(STEPS[7]) === '21' && SLIP.times(STEPS[7]) === '72' && SLIP.one(STEPS[11]) === '21' && SLIP.add(STEPS[11]) === '34');
+  K.check('Every picture is drawn to count: the blocks on each pan are the equation\'s numbers and the boxes its x\'s; finished, x is alone on its pan with its value in blocks on the other, and the working gives the check', () =>
+    STEPS.every((d, i) => {
+      const g0 = drawn(i, blank(i), 0), sum = (s) => (d.bal[s].g || []).reduce((a, q) => a + q[0], 0);
+      if (g0.bL !== sum('L') || g0.bR !== sum('R') || g0.xL !== (d.bal.L.n || 0) || g0.xR !== (d.bal.R.n || 0)) return false;
+      if (!d.eq) { const g = drawn(i, blank(i)); return has(g.texts, '8 + 4') && has(g.texts, '7 + 5') && has(g.texts, '12 = 12') && g.angle === 0; }
+      const e = d.eq, bs = boxSide(d), os = bs === 'L' ? 'R' : 'L';
+      if (bs === 'L' ? (g0.xL !== e.a || sum('L') !== e.b || sum('R') !== e.c) : (g0.xR !== e.a || sum('R') !== e.b || sum('L') !== e.c)) return false;
+      const g = drawn(i, d.show ? blank(i) : solved(i)), x = xOf(e);
+      if (d.ask === 'claim') return has(g.texts, '21 + 6 = 27, not 15') && g.angle === -TILT;
+      if (d.bal[bs].lab === '?') return g.xR === 1 && g.bR === e.b && g.bL === e.c && has(g.texts, filled(e, x)) && has(g.texts, checkRow(e, x));
+      if (d.demo === 'check') return g.bL === 12 && g.bR === 12 && g.xL === 0 && has(g.texts, '5 + 7') && has(g.texts, '12 = 12');
+      if (d.ask === 'move' || d.kind === 'drag' || d.demo === 'off') return (bs === 'L' ? g.xL === 1 && g.bL === 0 && g.bR === x : true) && has(g.texts, String(x)) && (d.demo === 'off' || has(g.texts, checkRow(e, x)));
+      return (bs === 'L' ? g.xL === 1 && g.bL === 0 && g.bR === x : g.xR === 1 && g.bR === 0 && g.bL === x) && has(g.texts, String(x)) && has(g.texts, checkRow(e, x));
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer', () =>
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, blank(i)); return !g.texts.some((t) => t === d.want || t.indexOf(d.want) >= 0 && d.want.length > 2) && !has(g.texts, String(d.kind === 'drag' ? xOf(d.eq) : d.want)); }));
+  K.check('The balance tips toward the heavier pan whenever the two sides differ: one block off the left pan of x + 3 = 10 tips it right, one off each levels it, and only 3 off each leaves x alone and level', () => {
+    const i = 3, d = STEPS[i], st = (l, r) => Object.assign(blank(i), { off: { L: l, R: r } });
+    const tilt = (l, r) => drawn(i, st(l, r)).angle;
+    return tilt(1, 0) === TILT && tilt(1, 1) === 0 && tilt(0, 2) === -TILT && tilt(3, 3) === 0 && isRight(i, st(3, 3)) && !isRight(i, st(2, 2)) && !isRight(i, st(3, 4)) &&
+      hintFor(i, st(1, 0)) === d.hints.tipped && hintFor(i, st(3, 4)) === d.hints.stuck && hintFor(i, st(2, 2)) === d.hints.more && emptyFor(i, st(0, 0)) === d.empty &&
+      DO.filter((k) => STEPS[k].kind === 'pick' && STEPS[k].ask !== 'claim').every((k) => STEPS[k].opts.filter((o) => o !== STEPS[k].want).every((o) => Math.abs(drawn(k, Object.assign(blank(k), { pick: o, res: 'wrong' })).angle) === TILT || o.indexOf('Add') === 0));
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s; and the steps of each start at least 0.45 s apart, each once the travel before it has ended', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(i), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      const right = timed(i, solved(i), d.fb) && d.fb <= 2.5;
+      const wrongs = (d.opts || []).filter((o) => o !== d.want && wrongMoves(d, o).length).every((o) => timed(i, Object.assign(blank(i), { pick: o, res: 'wrong' }), d.fbw) && d.fbw <= 2.5);
+      return right && wrongs;
+    });
+    T = keepT; paint();
+    const long = (m) => (m.lift || m.put || m.share ? LIFT : m.regroup ? m.d : m.guess != null ? 0.85 : m.open ? K.SOFT : 0);
+    const spaced = (ms) => {
+      const ps = ms.map((m) => [m.t, m.t + long(m)]).concat([]).sort((a, b) => a[0] - b[0]);
+      let end = -Infinity;
+      return ps.every((q, k) => {
+        const good = k === 0 || q[0] === ps[k - 1][0] || (q[0] - ps[k - 1][0] >= 0.45 - 1e-9 && q[0] >= end + 0.1 - 1e-9);
+        end = Math.max(end, q[1]);
+        return good;
+      });
+    };
+    const lines = STEPS.map((d) => (d.show ? [d.moves.concat(d.eqAt ? d.eqAt.map((t) => ({ t })) : [])] : [d.right].concat((d.opts || []).map((o) => wrongMoves(d, o)))));
+    return ok && lines.every((ls) => ls.every(spaced));
+  });
+
+  K.ready();
+</script>

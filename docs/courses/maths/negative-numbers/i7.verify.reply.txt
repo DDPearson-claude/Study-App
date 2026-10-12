@@ -1,0 +1,33 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "severity": "fix",
+   "problem": "The ship slowing from 12 m/s to 4 m/s in 4 seconds (about 0.2 g) is far quicker than any real ship can slow, yet is stated as plain fact; and [^3] sits on the computed −8 m/s rather than on the negative change for slowing that its quote backs.",
+   "now": "Division is the inverse of multiplication, so dividing undoes a times.[^1] 12 ÷ −3 asks what times −3 makes 12. As −4 × −3 = 12, the answer is −4, and multiplying back like this is how you check a division. When both numbers have the same sign you can also count hops. −12 ÷ −3 asks how many hops of −3 from 0 land on −12, and four do, so it is 4. Hops of −3 only go down, though, so none of them land on 12.\n\nThe signs follow the rule for multiplying. Dividing two numbers with different signs gives a negative answer,[^2] and two with the same sign give a positive one, so −8 ÷ −4 = 2, not −2. Say a ship slows steadily from 12 m/s to 4 m/s over 4 seconds (a real one would take far longer). Its change in velocity is 4 − 12 = −8 m/s, so each second its velocity changes by −8 ÷ 4 = −2 m/s, negative because it is slowing.[^3]\n\n**Dividing undoes multiplying, so the same signs give a positive answer and different signs a negative one, and multiplying back checks it.**"
+  },
+  {
+   "path": "practice.text",
+   "severity": "fix",
+   "problem": "The reason given for \"you can't divide by 0\" covers 6 ÷ 0 but not 0 ÷ 0, where every number times 0 does give 0; the rule Dan keeps should give a reason true of both.",
+   "now": "**Rule of thumb:** Divide the numbers without their signs, then look at the signs. The same signs give a positive answer and different signs a negative one. 0 divided by another number is 0, and you can't divide by 0: no number times 0 gives anything but 0, and for 0 ÷ 0 every number would do, so there is no one answer.\n\n**Worked example:** What is −1.2 ÷ 0.6? Without the signs, 1.2 ÷ 0.6 = 2, because 2 × 0.6 = 1.2. The signs differ, so the answer is −2. Multiply back to check, −2 × 0.6 = −1.2.\n\n**Common mistakes**\n- Making the answer negative just because there is a negative in it. −8 ÷ −4 has the same signs, so it is 2, and 2 × −4 = −8 checks it.\n- Multiplying instead of dividing. 12 ÷ −3 asks what times −3 makes 12, which is −4, not 12 × −3 = −36.\n- Counting hops when the signs differ. Hops of −3 never land on 12, so undo the times instead."
+  },
+  {
+   "path": "interactive.ignores",
+   "severity": "fix",
+   "problem": "It says the speeds are example values but not that the 4 seconds is too: a real ship takes far longer to lose 8 m/s, so the simplification should be named.",
+   "now": "The ship's speeds and time are example values, not measurements: a real ship would take far longer to slow this much, and its slowing is taken as steady."
+  },
+  {
+   "path": "interactive.whatAmILookingAt",
+   "severity": "fix",
+   "problem": "Not every screen is on the number line: the signs table, the zero puzzle and the last puzzle are sums with no line.",
+   "now": "A short lesson in twelve small screens, most on an upright number line, with a marker that hops from 0 and an arrow that turns about zero to multiply back. Some screens show an idea and the rest ask you to try it."
+  },
+  {
+   "path": "interactive.numbers",
+   "severity": "note",
+   "problem": "The ship's 12 m/s and 4 seconds are chosen example values, so their kind should be \"assumed\", not \"constant\"; and 12 m/s to 4 m/s in 4 seconds (−2 m/s each second) is not a pace a ship can slow at: 4 minutes (−2 m/s each minute) or a car would be realistic."
+  }
+ ]
+}

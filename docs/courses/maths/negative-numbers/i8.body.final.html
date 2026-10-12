@@ -1,0 +1,1147 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  /* The upright number line, drawn like a thermometer: a tube with the line up its middle. */
+  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tick.m { stroke-width: 1.5; }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .zero { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .note { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .cnt { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .val { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* The marker: its round end stands on a number, its point shows the way it faces. */
+  .scene .mk { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; stroke-linejoin: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  /* The answer's tag, pointing at its place on the line. */
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .hop { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent); }
+  .scene .hl2 { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .brk { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .sum { font: 700 21px var(--k-font); fill: var(--k-ink); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  /* The working: the sum, then one row for each job done, the part worked out highlighted. */
+  .scene .wk { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .flow { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .huge { font: 700 46px var(--k-font); fill: var(--k-ink); }
+  /* A number as an arrow from zero, turning about zero; each half-turn leaves a curved arrow beside it. */
+  .scene .ptr { stroke: var(--k-accent2); stroke-width: 4.5; stroke-linecap: round; }
+  .scene .ptrh { fill: var(--k-accent2); }
+  .scene .pivot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .trail { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .turnl { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  /* The order of jobs across the top; the job being done is highlighted. */
+  .scene .chip { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .chev { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .rule { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  .scene #art * { pointer-events: none; }
+  /* Under each sign Dan can tap: a dashed line; under the one he picked, a solid bar. */
+  .scene .tapline { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: round; }
+  .scene .picked { stroke: var(--k-accent2); stroke-width: 5; stroke-linecap: round; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .replay .tog { margin-right: auto; }
+  .replay .tog[aria-pressed="true"] { border-color: var(--k-accent2); }
+  /* The answers stay on one row, each label whole, at every text size. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A number line, with the order of jobs across the top.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 286" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Brackets, then powers, then times and divide, then add and take away. The sums are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // lay: which upright line a step draws (LAY below). lad: a sum and its jobs, each [the part worked
+  // out, its job: b brackets, p powers, m times and divide, a add and take away]; the working's rows
+  // follow from them (ladderOf). An add or take away row is walked by the marker on the line.
+  // expr, grow, turns: a power (or a minus before a bracket) drawn as an arrow from zero, grown to
+  // `grow` (what `note` works out) and turned half a turn for each minus sign. slips: what common
+  // mistake gives each wrong answer (evaluate below). at: when each part of the motion after a right
+  // answer arrives, in seconds after Check.
+  const PICK = 'Tap one of the answers.';
+  const M = '−';
+  const STEPS = [
+    { show: true, demo: 'order', dur: 4.2, lay: 'order', name: 'The order',
+      lad: { first: '1 + 2 × −3', jobs: [['2 × −3', 'm'], ['1 + (−6)', 'a']] },
+      text: 'When a sum mixes jobs, they go in a set *order*. Brackets, then powers, then times and divide, then add and take away. So in 1 + 2 × −3 the times goes first.' },
+    { kind: 'tap', expr: ['6', '+', '12', '÷', '−3'], taps: [1, 3, 4], span: [2, 4], want: 1, fb: 1.8, name: 'Which job first?',
+      lad: { first: '6 + 12 ÷ −3', jobs: [['12 ÷ −3', 'm'], ['6 + (−4)', 'a']] },
+      tapNames: ['The plus between 6 and 12', 'The divide between 12 and −3', 'The minus sign of −3'],
+      at: { hl: 0.15, val: 0.6, sum: 1.2 },
+      task: 'In 6 + 12 ÷ −3, tap the job to do first.',
+      empty: 'Tap the +, the ÷ or the minus sign in the sum.',
+      why: 'Divide comes before add, even with a negative, so 12 ÷ −3 = −4 goes first. Then 6 + (−4) = 2. Adding first would give 18 ÷ −3 = −6.',
+      hint: 'Not quite. Times and divide come before add and take away, even when a number is negative.',
+      hints: { 2: 'Not quite. That minus is part of the number −3, saying it is below zero. The jobs sit between two numbers.' } },
+    { show: true, demo: 'partners', dur: 4.5, lay: 'partners', name: 'Equal partners',
+      lad: { first: '1 − 4 + 2', jobs: [['1 − 4', 'a'], ['−3 + 2', 'a']] },
+      text: '*BIDMAS*, the school word for this order, lists A (add) before S (subtract). But add and take away are equal *partners*, so go left to right. 1 − 4 + 2 takes away 4, then adds\u00a02.' },
+    { kind: 'ladder', lay: 'p8', name: 'Left to right',
+      lad: { first: '8 − 3 + 2', jobs: [['8 − 3', 'a'], ['5 + 2', 'a']] },
+      opts: ['7', '3', '13'], want: '7', slips: { '3': 'addFirst', '13': 'allAdd' }, fb: 2.5,
+      at: { rows: [0, 1.1, 1.9], hl: [0.15, 1.2], mk: 0.15, mkd: 0.35, walks: [{ hops: [0.5, 0.72, 0.94] }, { hops: [1.55, 1.77] }], hop: 0.22, turn: [1.16, 0.35], tag: 1.9 },
+      task: 'What is 8 − 3 + 2?',
+      why: 'BIDMAS puts A (add) before S (subtract), but add and take away are equal partners. Left to right, 8 − 3 = 5, then 5 + 2 = 7. Adding first would take away 5, not 3.',
+      hint: 'Not quite. Go left to right, starting with 8 − 3.',
+      hints: { '3': 'Not quite. That adds 3 + 2 first. Add and take away are equal partners, so start with 8 − 3.',
+        '13': 'Not quite. The 3 is taken away, not added. Start with 8 − 3.' } },
+    { show: true, demo: 'power', dur: 3.6, lay: 'pow3', name: 'A power', toggle: true,
+      text: 'A *power*, the small raised number, is worked before a minus sign. In −3² it touches only the 3, so 3² = 9, then the minus makes it −9. Tap Add brackets to square\u00a0−3.' },
+    { kind: 'power', lay: 'pow25', expr: '−5²', grow: 25, turns: 1, note: '5 × 5 = 25', job: 'p', name: 'Square, then the minus',
+      opts: ['−25', '25', '−10'], want: '−25', slips: { '25': 'signSticks', '−10': 'powTimes' }, fb: 2.3,
+      at: { note: 0.15, grow: [0.15, 0.45], turns: [0.95], turn: 0.7, tag: 1.7 },
+      task: 'What is −5²?',
+      why: 'The square touches only the 5, so 5² = 25 comes first. The minus in front then turns it to its opposite, −25. To square −5 itself, write (−5)², which is 25.',
+      hint: 'Not quite. Square the 5 first, then deal with the minus.',
+      hints: { '25': 'Not quite. The minus looks stuck to the 5, but the square goes first. 5² = 25, then the minus.', '−10': 'Not quite. 5² is 5 × 5, not 5 × 2.' } },
+    { kind: 'power', lay: 'pow8', expr: '(−2)³', grow: 8, turns: 3, note: '2 × 2 × 2 = 8', job: 'p', name: 'A cube',
+      opts: ['−8', '8', '−6'], want: '−8', slips: { '8': 'powDropsSign', '−6': 'powTimes' }, fb: 2.45,
+      at: { note: 0.15, grow: [0.15, 0.4], turns: [0.6, 1.02, 1.44], turn: 0.4, tag: 1.85 },
+      task: '(−2)³ means (−2) × (−2) × (−2). What is it?',
+      why: '2 × 2 × 2 = 8, and each −2 gives a half-turn about zero. Three half-turns go down, up, then down again, so (−2)³ = −8.',
+      hint: 'Not quite. Work out 2 × 2 × 2, then count the −2s.',
+      hints: { '8': 'Not quite. There are three −2s, so count three half-turns.', '−6': 'Not quite. The small 3 means three −2s multiplied together, not −2 × 3.' } },
+    { show: true, demo: 'bracket', dur: 4.0, lay: 'brk', name: 'A minus before brackets',
+      lad: { first: '6 − (1 − 4)', jobs: [['(1 − 4)', 'b'], ['6 − (−3)', 'a']] },
+      text: 'Brackets still come first when there is a minus in front. 6 − (1 − 4) is 6 − (−3), and taking away −3 adds 3, so it makes 9.' },
+    { kind: 'ladder', lay: 'b10', name: 'Take away a bracket',
+      lad: { first: '10 − (3 − 5)', jobs: [['(3 − 5)', 'b'], ['10 − (−2)', 'a']] },
+      opts: ['12', '8', '2'], want: '12', slips: { '8': 'keepMinus', '2': 'dropBrackets' }, fb: 2.4,
+      at: { rows: [0, 0.6, 1.8], hl: [0.15, 0.75], mk: 0.75, mkd: 0.35, walks: [{ hops: [1.15, 1.4] }], hop: 0.25, tag: 1.8 },
+      task: 'What is 10 − (3 − 5)?',
+      why: 'Brackets first, 3 − 5 = −2. Then 10 − (−2), and taking away −2 adds 2, so it is 12. Dropping the brackets would give 10 − 3 − 5 = 2.',
+      hint: 'Not quite. Work the bracket out first.',
+      hints: { '8': 'Not quite. 3 − 5 is −2, and taking away −2 adds 2.', '2': 'Not quite. That takes away the 5 as well. Work the bracket out first, 3 − 5.' } },
+    { kind: 'power', lay: 'opp3', expr: '−(5 − 8)', grow: -3, turns: 1, note: '5 − 8 = −3', job: 'b', name: 'The opposite',
+      opts: ['3', '−3', '−13'], want: '3', slips: { '−3': 'noOpposite', '−13': 'dropBrackets' }, fb: 2.3,
+      at: { note: 0.15, grow: [0.15, 0.45], turns: [0.95], turn: 0.7, tag: 1.7 },
+      task: 'A lone minus in front of a bracket turns it to its opposite. What is −(5 − 8)?',
+      why: 'Brackets first, 5 − 8 = −3. The minus in front turns −3 to its opposite, a half-turn about zero, so −(5 − 8) = 3.',
+      hint: 'Not quite. Work the bracket out first, then take its opposite.',
+      hints: { '−3': 'Not quite. 5 − 8 is −3, and the minus in front turns it to its opposite.', '−13': 'Not quite. The minus works on the whole bracket. Work out 5 − 8 first.' } },
+    { kind: 'which', lay: 'pow16', grow: 16, turns: 2, note: '4 × 4 = 16', job: 'p', target: 16, name: 'Which is 16?',
+      opts: ['−4²', '(−4)²', '−(4²)'], want: '(−4)²', fb: 2.3,
+      at: { note: 0.15, grow: [0.15, 0.4], turns: [0.65, 1.15], turn: 0.45, tag: 1.65 },
+      task: 'Which of these comes to 16?',
+      why: '(−4)² = (−4) × (−4), and two minus signs give two half-turns, so it is 16. −4² and −(4²) both square the 4 first, then turn it to −16.',
+      hint: 'Not quite. Look at what each square touches.',
+      hints: { '−4²': 'Not quite. The square belongs to the 4 alone, so −4² is −16.', '−(4²)': 'Not quite. That squares 4 to 16, then turns it to its opposite, −16.' } },
+    { kind: 'ladder', lay: 'mix', name: 'All together',
+      lad: { first: '2 − 3 × (−2)²', jobs: [['(−2)²', 'p'], ['3 × 4', 'm'], ['2 − 12', 'a']] },
+      opts: ['−10', '−4', '14'], want: '−10', slips: { '−4': 'flat', '14': 'powKeepsSign' }, fb: 2.45,
+      at: { rows: [0, 0.5, 1.0, 1.85], hl: [0.1, 0.6, 1.1], mk: 1.1, mkd: 0.3, walks: [{ big: [1.3, 0.5] }], tag: 1.85 },
+      task: 'Put it all together. What is 2 − 3 × (−2)²?',
+      why: 'Powers first, (−2)² = 4. Times next, 3 × 4 = 12. Last, 2 − 12 = −10, 12 steps down from\u00a02.',
+      hint: 'Not quite. Powers first, then times, then take away.',
+      hints: { '−4': 'Not quite. That takes away before the times. Times comes first, 3 × 4.', '14': 'Not quite. (−2)² is (−2) × (−2), which is 4, not −4.' } },
+  ];
+  const FINISH = 'Brackets, then powers, then times and divide, then add and take away, with partners left to right. A power belongs only to the number or bracket it touches, so −3² = −9 but (−3)² = 9.';
+  // The order of jobs, across the top of every picture.
+  const JOBS = [{ k: 'b', s: 'Brackets', said: 'brackets' }, { k: 'p', s: 'Powers', said: 'powers' }, { k: 'm', s: '× and ÷', said: 'times and divide' }, { k: 'a', s: '+ and −', said: 'add and take away' }];
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). HOP: one step of the marker;
+  // HL: a highlight; CNT: a hop's count rising in, from half-way through its hop.
+  const FADE = 0.35, HOP = 0.25, HL = 0.4, CNT = 0.35;
+  const AT = {
+    // the sum; the times highlighted; its row; the marker on 1, facing up, adds −6; the answer
+    order: { rows: [0.5, 1.6, 3.5], hl: [1.0, 2.2], mk: 2.2, walks: [{ big: [2.8, 0.6] }], tag: 3.5 },
+    // the sum; left to right; the marker on 1, facing down, takes away 4; it turns to face up and adds 2
+    partners: { rows: [0.5, 2.9, 3.8], arrow: 1.0, hl: [1.5, 3.0], mk: 1.5, walks: [{ hops: [2.0, 2.22, 2.44, 2.66] }, { hops: [3.3, 3.52] }], hop: 0.22, turn: [2.9, 0.4], tag: 3.8 },
+    // the sum; its bracket highlighted; its row; the marker on 6, facing down, takes away −3, backwards; the answer
+    bracket: { rows: [0.5, 1.6, 3.4], hl: [1.0, 2.1], mk: 2.1, walks: [{ hops: [2.6, 2.85, 3.1] }], hop: 0.25, tag: 3.4 },
+    // −3² from the screen opening; (−3)² played again; the brackets put on; the brackets taken off.
+    // out: the old picture leaving; brk: the brackets arriving (or leaving); lab: what the power
+    // touches; grow: the arrow to 9, which rests there a moment; turns: its half-turns; sum: the answer written out.
+    power: {
+      open: { expr: 0.5, lab: 1.0, grow: [1.4, 0.45], turns: [2.2], turn: 0.7, sum: 3.0 },
+      openOn: { expr: 0.5, lab: 1.0, grow: [1.4, 0.45], turns: [2.2, 3.0], turn: 0.7, sum: 3.8 },
+      on: { out: 0.4, brk: 0.15, lab: 0.8, grow: [1.2, 0.45], turns: [2.0, 2.8], turn: 0.7, sum: 3.6 },
+      off: { out: 0.4, brk: 0.15, lab: 0.8, grow: [1.2, 0.45], turns: [2.0], turn: 0.7, sum: 2.8 },
+    },
+  };
+  // Drawing sizes, in viewBox units (340 wide). The order runs across the top; the line runs up
+  // x = X inside a tube TW either side of it, its numbers ending at LX. Each line: values top..bot
+  // drawn from Y0 down to H - 46, a tick every `minor`, a number every `every`; `ly`: where the
+  // working's first row sits. The tap screen is TAPH tall.
+  const X = 76, TW = 9, LX = 56, Y0 = 60, H0 = 286, TAGX = 120, CNTX = 102, TAPH = 214, LDY = 34;
+  let H = H0;
+  const LAY = {
+    order: { top: 3, bot: -7, minor: 1, every: 1, ly: 104 },
+    partners: { top: 3, bot: -5, minor: 1, every: 1, ly: 116 },
+    p8: { top: 14, bot: -1, minor: 1, every: 2, ly: 104, H: 304 },
+    pow3: { top: 10, bot: -10, minor: 1, every: 3 },
+    pow25: { top: 30, bot: -30, minor: 5, every: 10 },
+    pow8: { top: 10, bot: -10, minor: 1, every: 4 },
+    brk: { top: 10, bot: -2, minor: 1, every: 2, ly: 108 },
+    b10: { top: 14, bot: -1, minor: 1, every: 2, ly: 108, H: 304 },
+    opp3: { top: 5, bot: -15, minor: 1, every: 5 },
+    pow16: { top: 20, bot: -20, minor: 2, every: 8 },
+    mix: { top: 15, bot: -15, minor: 1, every: 5, ly: 100 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const OPENSTAX = 'https://openstax.org/books/elementary-algebra-2e/pages/1-4-multiply-and-divide-integers';
+  const OPENLEARN = 'https://www.open.edu/openlearn/science-maths-technology/mathematics-statistics/squares-roots-and-powers/content-section-3.2';
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const round3 = (v) => Math.round(v * 1000) / 1000;
+  // As Dan reads it: a proper minus sign; as a screen reader says it.
+  const fmt = (v) => (v < 0 ? M : '') + String(round3(Math.abs(v)));
+  const say = (s) => String(s).replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/\(/g, ' open bracket ').replace(/\)/g, ' close bracket ')
+    .replace(/−\s*/g, ' minus ').replace(/\+/g, ' plus ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+  // A written sum worked by the order: a sum is terms joined by + and −, left to right; a term is
+  // factors joined by × and ÷, left to right; a factor is a minus in front of a factor (its
+  // opposite), or a power; a power is a number or a bracket, raised by ² or ³. So a power belongs
+  // only to what it touches, −3² = −(3²). `slip` works it the way a common mistake does instead:
+  // addFirst adds before taking away; allAdd adds what is taken away; flat works every job left to
+  // right, whatever its kind; signSticks squares the minus with the number; dropBrackets ignores the
+  // brackets; keepMinus takes away a negative as if it were positive; noOpposite drops a minus in
+  // front of a bracket; powTimes reads 5² as 5 × 2; powDropsSign and powKeepsSign give a power of a
+  // negative number always a plus, or always a minus.
+  function evaluate(src, slip) {
+    let toks = String(src).replace(/-/g, M).match(/\d+(?:\.\d+)?|[−+×÷()²³]/g) || [];
+    if (slip === 'dropBrackets') toks = toks.filter((t) => t !== '(' && t !== ')');
+    let i = 0;
+    const peek = () => toks[i], next = () => toks[i++], isNum = (t) => /^\d/.test(t || '');
+    function sum() {
+      if (slip === 'flat') {
+        let v = factor();
+        while (/^[−+×÷]$/.test(peek() || '')) { const op = next(), f = factor(); v = op === '+' ? v + f : op === M ? v - f : op === '×' ? v * f : v / f; }
+        return v;
+      }
+      if (slip === 'addFirst') { let v = adds(); while (peek() === M) { next(); v -= adds(); } return v; }
+      let v = term();
+      while (peek() === '+' || peek() === M) {
+        const op = next(), t = term();
+        v = op === '+' || slip === 'allAdd' ? v + t : slip === 'keepMinus' && t < 0 ? v + t : v - t;
+      }
+      return v;
+    }
+    function adds() { let v = term(); while (peek() === '+') { next(); v += term(); } return v; }
+    function term() {
+      let v = factor();
+      while (peek() === '×' || peek() === '÷') { const op = next(), f = factor(); v = op === '×' ? v * f : v / f; }
+      return v;
+    }
+    function factor() {
+      if (peek() !== M) return power(1);
+      next();
+      if (slip === 'noOpposite' && peek() === '(') return factor();
+      if (slip === 'signSticks') return power(-1);
+      return -factor();
+    }
+    function power(sign) {
+      let v = sign * primary();
+      while (peek() === '²' || peek() === '³') {
+        const n = next() === '²' ? 2 : 3, s = Math.pow(Math.abs(v), n);
+        v = slip === 'powTimes' ? v * n : slip === 'powDropsSign' ? s : slip === 'powKeepsSign' ? Math.sign(v) * s : Math.pow(v, n);
+      }
+      return v;
+    }
+    function primary() {
+      const t = next();
+      if (t === '(') { const v = sum(); return next() === ')' ? v : NaN; }
+      return isNum(t) ? Number(t) : NaN;
+    }
+    const v = sum();
+    return i === toks.length && isFinite(v) ? round3(v) : NaN;
+  }
+  // An add or take away, "a + b" or "a − b" (b in brackets when negative), as the marker walks it:
+  // facing up to add, down to take away; forwards for a positive b, backwards for a negative one.
+  function walkOf(on) {
+    const m = /^(−?\d+(?:\.\d+)?) ([+−]) \(?(−?\d+(?:\.\d+)?)\)?$/.exec(on);
+    if (!m) return null;
+    const a = evaluate(m[1]), b = evaluate(m[3]), down = m[2] === M;
+    const unit = (down ? -1 : 1) * (b < 0 ? -1 : 1), n = Math.abs(b);
+    return { from: a, down: down, by: b, unit: unit, n: n, to: round3(a + unit * n), back: b < 0 };
+  }
+  // A sum's working: each job's part is worked out and written in its place (in brackets when it is
+  // negative and follows a sign), one row per job, down to the answer.
+  function ladderOf(lad) {
+    const rows = [lad.first], jobs = [];
+    lad.jobs.forEach((j, k) => {
+      const s = rows[k], at = s.indexOf(j[0]), v = evaluate(j[0]);
+      const before = s.slice(0, Math.max(0, at)), after = s.slice(at + j[0].length);
+      jobs.push({ on: j[0], job: j[1], at: at, v: v, walk: j[1] === 'a' ? walkOf(j[0]) : null });
+      rows.push(before + (v < 0 && /[+−×÷] $/.test(before) ? '(' + fmt(v) + ')' : fmt(v)) + after);
+    });
+    return { rows: rows, jobs: jobs, value: evaluate(rows[rows.length - 1]) };
+  }
+  STEPS.forEach((d) => { if (d.lad) d.L = ladderOf(d.lad); });
+  // What kind of job a part of a sum is: a bracket on its own, a power, a times or divide, or an add or take away.
+  function jobOf(on) {
+    const top = on.replace(/\([^()]*\)/g, 'N');
+    if (top === 'N') return 'b';
+    if (/^(N|\d+)[²³]$/.test(top)) return 'p';
+    if (/ [×÷] /.test(top) && !/ [+−] /.test(top)) return 'm';
+    if (/ [+−] /.test(top) && !/ [×÷] /.test(top) && !/[²³]/.test(top)) return 'a';
+    return '?';
+  }
+  // Of a sum written as items, the job to do first: of the signs between two numbers (a minus with
+  // nothing before it is a sign, stuck to its number), the first times or divide, else the first + or −.
+  function firstJob(items) {
+    const ops = [];
+    items.forEach((s, k) => { if (/^[+−×÷]$/.test(s) && k > 0 && /[\d)²³]$/.test(items[k - 1])) ops.push({ k: k, pri: /[×÷]/.test(s) ? 1 : 0 }); });
+    const top = Math.max.apply(null, ops.map((o) => o.pri));
+    return ops.filter((o) => o.pri === top)[0].k;
+  }
+  // Half-turns about zero: the arrow to `size`, turned n half-turns, points at size × cos(n × 180°).
+  const turned = (size, n) => round3(size * Math.cos(Math.PI * n));
+  // The k-th half-turn (1, 2, …) of an arrow that started pointing down (or up): does it go down?
+  const goesDown = (k, startDown) => (k % 2 === 1) !== !!startDown;
+  // The answer a step asks for, worked by the order.
+  function answerOf(d) {
+    if (d.kind === 'ladder' || d.kind === 'tap') return d.L.value;
+    if (d.kind === 'power') return evaluate(d.expr);
+    if (d.kind === 'which') return d.opts.filter((o) => same(evaluate(o), d.target)).join();
+    return null;
+  }
+
+  function blank(i) {
+    return { sel: null, pick: null, res: null, why: false, brk: false, mode: 'open', was: null };
+  }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'tap') return st.sel == null ? d.empty : '';
+    return st.pick == null ? PICK : '';
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (isEmpty(i, st)) return false;
+    if (d.kind === 'tap') return st.sel === d.want;
+    return st.pick === d.want;
+  }
+  // A wrong answer's hint names its slip.
+  function hintFor(i, st) {
+    const d = STEPS[i], key = d.kind === 'tap' ? st.sel : st.pick;
+    return (d.hints && d.hints[key]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'tap') st.sel = d.want; else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A sum stays together on one line ("2 × −3", "(−2)³", "−(5 − 8)?"), with the stop after it; a
+  // long one may break only before an equals sign.
+  const TOK = '[−(]*\\d+(?:\\.\\d+)?[)²³]*';
+  const GLUE = new RegExp(TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/[ −(]/.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // The brackets on −3²: put on or taken off, and the power worked again.
+  const togBtn = K.button({ label: 'Add brackets', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.toggle || finished) return;
+    Object.assign(st, toggled(st, anim.playing() ? T : Infinity));
+    play(demoDur(i), 'demo');
+  } });
+  togBtn.el.classList.add('tog');
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].mode = 'open';
+    play(demoDur(i), 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after a right answer, from its start;
+  // with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // How long a demonstration plays (the brackets screen: as its brackets are, and how they came).
+  function demoDur(i) {
+    const d = STEPS[i];
+    return d.toggle ? powerTT(S[i]).sum + K.SOFT : d.dur;
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: w, height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const pathOf = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  // A stroke grown as far as e (0..1) along its own length.
+  function grown(cls, d, e) {
+    if (e <= 0) return;
+    const attrs = { class: cls, d: d };
+    if (e < 1) { attrs.pathLength = 1; attrs['stroke-dasharray'] = '1 1'; attrs['stroke-dashoffset'] = (1 - e).toFixed(3); }
+    add(K.svg('path', attrs));
+  }
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { huge: 46, sum: 21, wk: 20, rule: 14, note: 14 }[cls] || 15;
+    return String(s).length * size * 0.6;
+  }
+  // Spaces that SVG keeps (and measures), so the highlight under a part of a row lines up with it.
+  const nb = (s) => String(s).replace(/ /g, ' ');
+
+  // A line's scale: where value v sits (y), from Y0 at the top to H - 46 at the bottom.
+  function scaleOf(L) {
+    const y1 = H - 46, k = (y1 - Y0) / (L.top - L.bot);
+    return { L: L, k: k, y: (v) => Y0 + (L.top - v) * k };
+  }
+  const isMult = (v, s) => Math.abs(v / s - Math.round(v / s)) < 1e-6;
+  // The upright line: a tube, the line up its middle, a tick at every step, longer at every `every`,
+  // the longest at 0; numbers at every `every`, 0 the largest. A number that a reading's own label
+  // would cover gives way to it (readings: [{v, a}]).
+  function upright(sc, readings) {
+    const L = sc.L, y0 = sc.y(L.top), y1 = sc.y(L.bot), yT = y0 - 12, yB = y1 + 6;
+    readings = readings || [];
+    rect('tube', X - TW, yT, 2 * TW, yB + 6 - yT, TW);
+    line('axis', X, y0 - 4, X, y1 + 4);
+    const n = Math.round((L.top - L.bot) / L.minor);
+    for (let j = 0; j <= n; j++) {
+      const v = round3(L.top - j * L.minor), y = sc.y(v), z = same(v, 0), big = isMult(v, L.every);
+      const h = z ? 14 : big ? 8 : 4;
+      line('tick' + (z || big ? '' : ' m'), X - h, y, X + h, y);
+      if (!(z || big)) continue;
+      const draw = () => text(LX, y + (z ? 6.5 : 5.5), fmt(v), z ? 'zero' : 'num', 'end');
+      const cover = readings.filter((r) => Math.abs(sc.y(r.v) - y) < 18 && (r.a == null || r.a > 0)).map((r) => (r.a == null ? 1 : r.a));
+      if (!cover.length) draw();
+      else leave(Math.min(1, 2 * Math.max.apply(null, cover)), draw);
+    }
+  }
+  const lineSaid = (L) => 'An upright number line from ' + say(fmt(L.top)) + ' down to ' + say(fmt(L.bot)) + ', with zero marked.';
+
+  // --- the order of jobs, across the top: four chips, the job being done highlighted ---
+  function stripLayout() {
+    const pad = 8, gap = 14, ws = JOBS.map((j) => tw(j.s, 'rule') + 2 * pad);
+    const total = ws.reduce((s, w) => s + w, 0) + gap * (JOBS.length - 1);
+    let x = 170 - total / 2;
+    return JOBS.map((j, k) => { const o = { k: j.k, s: j.s, x: x, w: ws[k] }; x += ws[k] + gap; return o; });
+  }
+  // hls: how far each job's highlight has arrived ({b, p, m, a}).
+  function strip(hls) {
+    const L = stripLayout(), y = 6, h = 26;
+    L.forEach((c, k) => {
+      rect('chip', c.x, y, c.w, h, 7);
+      if (k) pathOf('chev', 'M' + (c.x - 9) + ' ' + (y + 8) + ' L' + (c.x - 4) + ' ' + (y + 13) + ' L' + (c.x - 9) + ' ' + (y + 18));
+      part(hls ? hls[c.k] || 0 : 0, 0, () => rect('hl', c.x + 3, y + 3, c.w - 6, h - 6, 5));
+      text(c.x + c.w / 2, y + 18, c.s, 'rule k-nohalo');
+    });
+  }
+  // Jobs lit in turn: each [job, when] lights its chip until the next one lights another.
+  function chipsAt(evs, ar) {
+    const h = {};
+    ar = ar || arr;
+    evs.forEach((e, k) => {
+      const nx = evs.slice(k + 1).filter((f) => f[0] !== e[0])[0];
+      const on = ar(e[1], HL), off = nx ? ar(nx[1], HL) : 0;
+      h[e[0]] = Math.max(h[e[0]] || 0, Math.min(on, 1 - off));
+    });
+    return h;
+  }
+  const stripSaid = (hls) => {
+    const lit = JOBS.filter((j) => hls && (hls[j.k] || 0) >= 0.5).map((j) => j.said);
+    return ' Across the top, the order: brackets, then powers, then times and divide, then add and take away' + (lit.length ? '; ' + lit.join(' and ') + ' is highlighted' : '') + '.';
+  };
+
+  // --- the working: the sum, then a row for each job, its part highlighted ---
+  function ladderBox(rows, y0) {
+    const ws = rows.map((s, k) => tw(nb(s), 'wk'));
+    return { x: 334 - Math.max.apply(null, ws), y: (k) => y0 + k * LDY };
+  }
+  function rowAt(box, s, k) {
+    if (k) text(box.x - 7, box.y(k), '=', 'wk', 'end');
+    text(box.x, box.y(k), nb(s), 'wk', 'start');
+  }
+  function hlOn(box, s, job, k) {
+    const x = box.x + (job.at > 0 ? tw(nb(s.slice(0, job.at)), 'wk') : 0), w = tw(nb(job.on), 'wk');
+    rect('hl', x - 4, box.y(k) - 18, w + 8, 25, 5);
+  }
+  // An arrow along the first row, left to right, with its name above it.
+  function flowArrow(box, s, e) {
+    if (e <= 0) return;
+    const y = box.y(0) - 26, x0 = box.x, x1 = box.x + tw(nb(s), 'wk'), x = K.lerp(x0, x1, e);
+    part(Math.min(1, 3 * e), 0, () => { line('flow', x0, y, x, y); pathOf('flow', 'M' + (x - 7).toFixed(2) + ' ' + (y - 5) + ' L' + x.toFixed(2) + ' ' + y + ' L' + (x - 7).toFixed(2) + ' ' + (y + 5)); });
+    part(Math.min(1, 2 * e), 6, () => text((x0 + x1) / 2, y - 10, 'left to right', 'note'));
+  }
+
+  // --- the marker and its hops ---
+  // The marker at v, turned `ang` degrees from facing up (180 faces down): its round end on the line
+  // at v, its point the way it faces.
+  function marker(sc, v, ang, a) {
+    part(a, 0, () => add(K.svg('path', { class: 'mk', 'data-v': round3(v), 'data-ang': Math.round(ang),
+      transform: 'translate(' + X + ' ' + sc.y(v).toFixed(2) + ') rotate(' + ang.toFixed(1) + ')', d: 'M0 -18 L6.93 -4 A8 8 0 1 1 -6.93 -4 Z' })));
+  }
+  const ring = (sc, v, a) => part(a, 0, () => circle('ring', X, sc.y(v), 9));
+  // A hop beside the line, from value a to b, bulging `bulge` units, grown as far as e.
+  function hop(sc, a, b, e, bulge) {
+    const x = X + TW + 3, y1 = sc.y(a) + (b < a ? 2 : -2), y2 = sc.y(b) + (b < a ? -2 : 2);
+    grown('hop', 'M' + x + ' ' + y1.toFixed(2) + ' Q' + (x + 2 * bulge) + ' ' + ((y1 + y2) / 2).toFixed(2) + ' ' + x + ' ' + y2.toFixed(2), e);
+  }
+  // Unit hops from `from`, `unit` (up 1 or down 1) each: hop k grows from ts[k] over dur seconds, and
+  // its count rises in softly from half-way through it.
+  function drawHops(sc, from, unit, ts, dur) {
+    ts.forEach((t, k) => {
+      const e = arr(t, dur), c = arr(t + dur / 2, CNT);
+      if (e <= 0) return;
+      const a = round3(from + k * unit), b = round3(from + (k + 1) * unit);
+      hop(sc, a, b, e, 8);
+      part(c, 6, () => text(CNTX, sc.y((a + b) / 2) + 4.5, k + 1, 'cnt', 'start'));
+    });
+  }
+  const hopsWent = (ts, dur) => ts.reduce((s, t) => s + arr(t, dur), 0);
+  // A long hop with an arrowhead as it lands and its size beside it.
+  function bigHop(sc, h) {
+    const e = arr(h.t, h.dur), hd = arr(h.t + h.dur * 0.6, 0.3), x = X + TW + 3, d = 14, s = h.b < h.a ? 1 : -1;
+    if (e > 0) {
+      const y1 = sc.y(h.a) + 2 * s, y2 = sc.y(h.b) - 2 * s, ym = (y1 + y2) / 2;
+      grown('hop', 'M' + x + ' ' + y1.toFixed(2) + ' Q' + (x + 2 * d) + ' ' + ym.toFixed(2) + ' ' + x + ' ' + y2.toFixed(2), e);
+      const dx = -2 * d, dy = y2 - ym, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+      const bx = x - ux * 9, by = y2 - uy * 9, px = -uy * 4.5, py = ux * 4.5;
+      part(hd, 0, () => pathOf('head', 'M' + x + ' ' + y2.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z'));
+    }
+    part(arr(h.lt), 6, () => text(x + d + 8, (sc.y(h.a) + sc.y(h.b)) / 2 + 5, h.lab, 'hl2', 'start'));
+    return e;
+  }
+  // The answer's tag at v, its point at TAGX - 7, risen in as a goes 0 -> 1.
+  function tag(sc, v, s, a) {
+    const y = sc.y(v), w = Math.max(40, tw(s, 'tagt') + 20);
+    part(a, 6, () => {
+      pathOf('tag', 'M' + TAGX + ' ' + (y - 7).toFixed(2) + ' L' + (TAGX - 7) + ' ' + y.toFixed(2) + ' L' + TAGX + ' ' + (y + 7).toFixed(2) + ' Z');
+      rect('tag', TAGX, y - 15, w, 30, 8);
+      text(TAGX + w / 2, y + 5.5, s, 'tagt k-nohalo');
+    });
+  }
+  // The slot an answer goes in: a dashed box that gives way to the answer as a goes 0 -> 1.
+  const slot = (x, y, w, h, a) => leave(a, () => rect('gapbox', x, y, w, h, 5));
+  // The sum at the foot of the picture, right-aligned: its left side, then a slot that gives way to
+  // the answer as a goes 0 -> 1 (or the whole sum risen in as a does, with `whole`).
+  function sumAt(left, ans, a, whole) {
+    const y = H - 12;
+    if (whole) { part(a, 6, () => text(334, y, left, 'sum', 'end')); return; }
+    const w = Math.max(36, tw(ans, 'sum') + 12), x = 334 - w;
+    text(x - 6, y, left, 'sum', 'end');
+    slot(x, y - 21, w, 29, a);
+    part(a, 6, () => text(x + w / 2, y, ans, 'sum'));
+  }
+
+  // --- the arrow from zero, and its half-turns (as in Multiplying) ---
+  // The tip of an arrow r units long from zero, turned `ang` degrees clockwise from pointing up.
+  function tip(sc, r, ang) {
+    const th = ang * Math.PI / 180;
+    return { x: X + r * Math.sin(th), y: sc.y(0) - r * Math.cos(th) };
+  }
+  // The arrow to a number, r units long, turned `ang` degrees, on its pivot at zero.
+  function pointer(sc, r, ang) {
+    const th = ang * Math.PI / 180, s = Math.sin(th), c = Math.cos(th), y0 = sc.y(0), p = tip(sc, r, ang);
+    const hl = Math.min(13, r), hw = hl * 0.55;
+    if (r - hl > 1) line('ptr', X, y0, X + (r - hl + 2) * s, y0 - (r - hl + 2) * c);
+    const bx = X + (r - hl) * s, by = y0 - (r - hl) * c;
+    if (r > 0.5) pathOf('ptrh', 'M' + p.x.toFixed(2) + ' ' + p.y.toFixed(2) + ' L' + (bx + c * hw).toFixed(2) + ' ' + (by + s * hw).toFixed(2) +
+      ' L' + (bx - c * hw).toFixed(2) + ' ' + (by - s * hw).toFixed(2) + ' Z');
+    circle('pivot', X, y0, 5.5);
+  }
+  // Half-turn k (1, 2, …) of an arrow r units long: a curved arrow beside the line, 12 units further
+  // out each time, round the right side, down or up the way it turns, grown as far as e.
+  function trail(sc, r, k, e, startDown) {
+    if (e <= 0) return;
+    const R = r + 12 * k, down = goesDown(k, startDown), a0 = down ? 6 : 174, a1 = down ? 174 : 6;
+    const p0 = tip(sc, R, a0), p1 = tip(sc, R, a1);
+    grown('trail', 'M' + p0.x.toFixed(2) + ' ' + p0.y.toFixed(2) + ' A' + R + ' ' + R + ' 0 0 ' + (down ? 1 : 0) + ' ' + p1.x.toFixed(2) + ' ' + p1.y.toFixed(2), e);
+    // its head, along the way it turns, as it lands
+    part(e >= 1 ? 1 : K.clamp((e - 0.8) / 0.2, 0, 1), 0, () => {
+      const th = a1 * Math.PI / 180, ux = (down ? 1 : -1) * Math.cos(th), uy = (down ? 1 : -1) * Math.sin(th);
+      const bx = p1.x - ux * 9, by = p1.y - uy * 9, px = -uy * 4.5, py = ux * 4.5;
+      pathOf('head', 'M' + p1.x.toFixed(2) + ' ' + p1.y.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z');
+    });
+  }
+  // How many half-turns, beside the outermost curved arrow, level with zero.
+  const turnLabel = (sc, r, n) => text(X + r + 12 * n + 8, sc.y(0) + 5, n + ' half-turn' + (n === 1 ? '' : 's'), 'turnl', 'start');
+  const turnsWord = (n) => (n === 1 ? 'one half-turn' : n === 2 ? 'two half-turns' : n === 3 ? 'three half-turns' : n + ' half-turns');
+  // The value at the arrow's tip, beside the line's numbers.
+  const tipLabel = (sc, v, a) => part(a, 6, () => text(LX, sc.y(v) + 5.5, fmt(v), 'val', 'end'));
+  // The arrow's way after its half-turns so far (each e 0..1): 0 points up, 180 down.
+  function angleOf(startDown, es) {
+    let ang = startDown ? 180 : 0;
+    es.forEach((e, k) => { ang += (goesDown(k + 1, startDown) ? 180 : -180) * e; });
+    return ang;
+  }
+
+  // --- the screens with a sum worked on the line (SHOW demos, and DO steps after a right answer) ---
+  // A: the timetable; live: whether it plays (a DO step before its right answer shows only the sum).
+  function ladScene(d, A, live) {
+    const L = d.L, Ly = LAY[d.lay], sc = scaleOf(Ly);
+    upright(sc);
+    const hls = live ? chipsAt(L.jobs.map((j, k) => [j.job, A.hl[k]])) : null;
+    strip(hls);
+    const box = ladderBox(L.rows, Ly.ly);
+    const ra = L.rows.map((s, k) => (k === 0 ? (A.rows[0] ? arr(A.rows[0]) : 1) : live ? arr(A.rows[k]) : 0));
+    const ha = L.jobs.map((j, k) => (live ? arr(A.hl[k], HL) : 0));
+    L.jobs.forEach((j, k) => part(Math.min(ha[k], ra[k]), 0, () => hlOn(box, L.rows[k], j, k)));
+    L.rows.forEach((s, k) => part(ra[k], k ? 6 : 0, () => rowAt(box, s, k)));
+    if (A.arrow != null) flowArrow(box, L.rows[0], live ? arr(A.arrow) : 0);
+    // the marker's walks, one for each add or take away; between two, it turns and the first walk's hops give way
+    const W = L.jobs.filter((j) => j.walk).map((j) => j.walk);
+    let mk = 0, v = W.length ? W[0].from : 0, ang = W.length && W[0].down ? 180 : 0, moving = false;
+    if (W.length && live) {
+      mk = arr(A.mk, A.mkd);
+      W.forEach((w, k) => {
+        const sp = A.walks[k];
+        if (k > 0) { const tn = arr(A.turn[0], A.turn[1]); ang = K.lerp(ang, w.down ? 180 : 0, tn); if (tn > 0 && tn < 1) moving = true; }
+        let went;
+        if (sp.big) went = bigHop(sc, { a: w.from, b: w.to, t: sp.big[0], dur: sp.big[1], lt: sp.big[0] + 0.3, lab: fmt(w.by) }) * w.n;
+        else {
+          went = hopsWent(sp.hops, A.hop);
+          const gone = k === 0 && W.length > 1 ? arr(A.turn[0], A.turn[1]) : 0;
+          leave(gone, () => drawHops(sc, w.from, w.unit, sp.hops, A.hop));
+        }
+        if (went > 0) { v = round3(w.from + w.unit * went); if (went < w.n) moving = true; }
+      });
+      marker(sc, v, ang, mk);
+    }
+    const done = live ? arr(A.tag) : 0;
+    tag(sc, L.value, fmt(L.value), done);
+    // in words
+    const shown = L.rows.filter((s, k) => ra[k] >= 0.5), lit = L.jobs.filter((j, k) => ha[k] >= 0.5 && ra[k] >= 0.5).pop();
+    return lineSaid(Ly) + stripSaid(hls) + (shown.length ? ' Beside it, the working: ' + shown.map((s, k) => (k ? 'equals ' : '') + say(s)).join(', then ') + '.' : '') +
+      (lit ? ' Highlighted: ' + say(lit.on) + '.' : '') + (A.arrow != null && live && arr(A.arrow) >= 0.5 ? ' An arrow along the sum says left to right.' : '') +
+      (mk >= 0.5 ? ' A marker facing ' + (ang >= 90 ? 'down' : 'up') + (moving ? ' is moving along the line.' : ' stands on ' + say(fmt(v)) + '.') : '') +
+      (done >= 0.5 ? ' A tag marks the answer, ' + say(fmt(L.value)) + '.' : '');
+  }
+
+  // --- the brackets screen: −3², and (−3)² with the brackets on ---
+  // Its timetable: as the screen opens (or plays again), or as the brackets are put on or taken off.
+  function powerTT(st) {
+    const P = AT.power;
+    return st.mode === 'toggle' ? (st.brk ? P.on : P.off) : (st.brk ? P.openOn : P.open);
+  }
+  // −3², written large, with brackets coming in round −3 as b goes 0 -> 1 (the −3 and the square
+  // slide apart to make room). At rest it is one line of text, so its parts never read as separate labels.
+  const EX = { cx: 262, y: 98 };
+  function exprLayout() {
+    const w = (s) => tw(s, 'huge'), off = M + '3²', on = '(' + M + '3)²', wOff = w(off), wOn = w(on);
+    return { off: off, on: on, wOff: wOff, wOn: wOn, wm: w(M), wp: w('('), wn: w(M + '3'), wq: w(')'), xOff: EX.cx - wOff / 2, xOn: EX.cx - wOn / 2 };
+  }
+  function bigExpr(b) {
+    const g = exprLayout(), y = EX.y;
+    if (b <= 0) { text(g.xOff, y, g.off, 'huge', 'start'); return; }
+    if (b >= 1) { text(g.xOn, y, g.on, 'huge', 'start'); return; }
+    text(K.lerp(g.xOff, g.xOn + g.wp, b), y, M + '3', 'huge', 'start');
+    text(K.lerp(g.xOff + g.wn, g.xOn + g.wp + g.wn + g.wq, b), y, '²', 'huge', 'start');
+    part(b, 0, () => { text(g.xOn, y, '(', 'huge', 'start'); text(g.xOn + g.wp + g.wn, y, ')', 'huge', 'start'); });
+  }
+  // Under the expression, what the power touches: the 3 alone, or (−3) with the brackets on.
+  function touched(on) {
+    const g = exprLayout(), y = EX.y, x0 = on ? g.xOn : g.xOff + g.wm, x1 = on ? g.xOn + g.wOn : g.xOff + g.wOff;
+    grown('brk', 'M' + x0.toFixed(2) + ' ' + (y + 12) + ' V' + (y + 18) + ' H' + x1.toFixed(2) + ' V' + (y + 12), 1);
+    text((x0 + x1) / 2, y + 36, on ? '(−3) × (−3)' : '3 × 3', 'note');
+  }
+  // The arrow to 9 (3 × 3), grown as g goes 0 -> 1, then turned once for the minus in front, or twice
+  // for the two minus signs in (−3) × (−3); its value; the answer written out.
+  function powerParts(sc, on, a) {
+    const n = on ? 2 : 1, r = 9 * sc.k, fin = turned(9, n), es = a.ts.slice(0, n);
+    es.forEach((e, k) => trail(sc, r, k + 1, e, false));
+    part(a.sum, 6, () => turnLabel(sc, r, n));
+    if (a.g > 0) part(Math.min(1, 3 * a.g), 0, () => pointer(sc, r * a.g, angleOf(false, es)));
+    tipLabel(sc, 9, a.v9);
+    tipLabel(sc, fin, a.sum);
+    part(a.lab, 6, () => touched(on));
+    if (!on) part(a.opp, 6, () => { const g = exprLayout(); text(g.xOff + g.wm / 2, EX.y - 47, 'opposite', 'note'); });
+    part(a.sum, 6, () => text(334, H - 12, (on ? '(−3)²' : '−3²') + ' = ' + fmt(fin), 'sum', 'end'));
+  }
+  // One state of the brackets screen ({brk, mode, was}) t seconds into its motion: how far each part
+  // has arrived. A toggle starts from the picture on screen when it was tapped (`was`, frozen at was.T,
+  // Infinity if it had settled): that picture fades out over `out` with each part where it was, and
+  // the expression and its brackets carry on from where they were. `rec`: the live picture, whose
+  // arrivals the timing check notes.
+  function powerAt(st, t, rec) {
+    const A = powerTT(st), on = st.brk, tog = st.mode === 'toggle';
+    const ar = rec ? arr : (t0, d) => K.arrive(t, t0, d == null ? K.SOFT : d);
+    const w = tog && st.was ? powerAt(st.was, st.was.T, false) : null;
+    const out = tog ? ar(0, A.out) : 1;
+    const ex = tog ? K.lerp(w ? w.ex : 1, 1, out) : ar(A.expr);
+    const b = tog ? K.lerp(w ? w.b : on ? 0 : 1, on ? 1 : 0, ar(A.brk)) : on ? 1 : 0;
+    const a = { g: ar(A.grow[0], A.grow[1]), ts: A.turns.map((x) => ar(x, A.turn)), lab: ar(A.lab), sum: ar(A.sum), opp: on ? 0 : ar(A.turns[0]),
+      v9: Math.min(ar(A.grow[0] + A.grow[1] - 0.1, 0.3), 1 - ar(A.turns[0], 0.25)) };
+    const hls = chipsAt(on ? [['b', tog ? A.brk : A.expr], ['p', A.lab]] : [['p', A.lab]], ar);
+    return { on: on, w: w, out: w ? out : 1, ex: ex, b: b, a: a, hls: hls };
+  }
+  // The brackets put on or taken off t seconds into the motion on screen (Infinity: it had settled).
+  // The state then on screen is kept, frozen at t, to fade out under the new one, and so is the one
+  // under it while that can still show (a toggle has let go of it by the time its brackets are on).
+  function toggled(st, t) {
+    const keep = st.mode === 'toggle' && t < AT.power.on.brk + K.SOFT;
+    return { brk: !st.brk, mode: 'toggle', was: { brk: st.brk, mode: st.mode, T: t, was: keep ? st.was : null } };
+  }
+  // A frozen state's picture, over the one before it as that fades in turn (the expression is the live state's).
+  function powerPic(sc, p) {
+    if (p.w) leave(p.out, () => powerPic(sc, p.w));
+    powerParts(sc, p.on, p.a);
+  }
+  // Across a state and the ones fading under it (each shown k): what the line's numbers give way to,
+  // and how lit each job is.
+  function powerReadings(p, k) {
+    return [{ v: 9, a: p.a.v9 * k }, { v: turned(9, p.on ? 2 : 1), a: p.a.sum * k }].concat(p.w ? powerReadings(p.w, k * (1 - p.out)) : []);
+  }
+  function powerHls(p, k) {
+    const h = {}, o = p.w ? powerHls(p.w, k * (1 - p.out)) : {};
+    JOBS.forEach((j) => { h[j.k] = Math.max((p.hls[j.k] || 0) * k, o[j.k] || 0); });
+    return h;
+  }
+  function demoPower(d) {
+    const st = S[STEPS.indexOf(d)], sc = scaleOf(LAY[d.lay]), p = powerAt(st, T, true), on = p.on, a = p.a, ex = p.ex, g = a.g, ts = a.ts;
+    const fin = turned(9, on ? 2 : 1), hls = powerHls(p, 1);
+    upright(sc, powerReadings(p, 1));
+    strip(hls);
+    // the picture that was on screen gives way, from where it was, as the brackets go on or come off
+    if (p.w) leave(p.out, () => powerPic(sc, p.w));
+    part(ex, 6, () => bigExpr(p.b));
+    powerParts(sc, on, a);
+    const said = on ? 'open bracket minus 3 close bracket squared' : 'minus 3 squared', n = on ? 2 : 1;
+    const turning = ts.some((e) => e > 0 && e < 1);
+    return lineSaid(LAY[d.lay]) + stripSaid(hls) +
+      (ex >= 0.5 ? ' Beside it, ' + said + ', written large' + (a.lab >= 0.5 ? '; the square touches ' + (on ? 'the bracket, minus 3 times minus 3' : 'the 3 alone, 3 times 3') : '') + '.' : '') +
+      (g >= 0.5 ? ' An arrow from zero ' + (turning ? 'is turning about zero' : 'points to ' + say(fmt(turned(9, ts.filter((e) => e >= 1).length)))) + '.' : '') +
+      (a.sum >= 0.5 ? ' After ' + turnsWord(n) + ', ' + say((on ? '(−3)²' : '−3²') + ' = ' + fmt(fin)) + '.' : '');
+  }
+
+  // --- the puzzles drawn as an arrow from zero: a power, or a minus in front of a bracket ---
+  function drawPower(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at, n = d.turns, r = Math.abs(d.grow) * sc.k, down0 = d.grow < 0, v = turned(d.grow, n);
+    const g = right ? arr(F.grow[0], F.grow[1]) : 0, nt = right ? arr(F.note) : 0;
+    const ts = F.turns.map((t) => (right ? arr(t, F.turn) : 0));
+    const done = right ? arr(F.tag) : 0;
+    // the grown arrow's value, until it starts to turn; the landing's, as it is named
+    const gl = right ? Math.min(arr(F.grow[0] + F.grow[1] - 0.1, 0.3), 1 - arr(F.turns[0], 0.25)) : 0;
+    upright(sc, [{ v: d.grow, a: gl }, { v: v, a: done }]);
+    const hls = right ? chipsAt([[d.job, F.note]]) : null;
+    strip(hls);
+    if (d.target != null) ring(sc, d.target, 1);
+    ts.forEach((e, k) => trail(sc, r, k + 1, e, down0));
+    part(done, 6, () => turnLabel(sc, r, n));
+    if (g > 0) part(Math.min(1, 3 * g), 0, () => pointer(sc, r * g, angleOf(down0, ts)));
+    part(nt, 6, () => text(334, 58, d.note, 'note', 'end'));
+    tipLabel(sc, d.grow, gl);
+    tipLabel(sc, v, done);
+    if (d.kind === 'which') sumAt(d.want + ' = ' + fmt(v), '', done, true);
+    else sumAt(d.expr + ' =', fmt(v), done);
+    const turning = ts.some((e) => e > 0 && e < 1);
+    return lineSaid(L) + stripSaid(hls) + (d.target != null ? ' A ring marks ' + say(fmt(d.target)) + '.' : '') +
+      (nt >= 0.5 ? ' Top right: ' + say(d.note) + '.' : '') +
+      (g >= 0.5 ? ' An arrow from zero ' + (turning ? 'is turning about zero' : 'points to ' + say(fmt(turned(d.grow, ts.filter((e) => e >= 1).length)))) + '.' : '') +
+      (done >= 0.5 ? ' After ' + turnsWord(n) + ', ' + say((d.kind === 'which' ? d.want : d.expr) + ' = ' + fmt(v)) + '.' : d.kind === 'which' ? '' : ' Below, ' + say(d.expr) + ' equals an empty box.');
+  }
+
+  // --- the tap puzzle: a sum written large; Dan taps the job to do first ---
+  const TAP = { y: 112, G: 28 };
+  function tapLayout(d) {
+    const ws = d.expr.map((s) => tw(s, 'huge')), total = ws.reduce((s, w) => s + w, 0) + TAP.G * (ws.length - 1);
+    let x = 170 - total / 2;
+    const g = d.expr.map((s, k) => { const o = { s: s, x: x, w: ws[k] }; x += ws[k] + TAP.G; return o; });
+    const mw = tw(M, 'huge');
+    g.targets = d.taps.map((k) => { const o = g[k], w = o.s.length > 1 ? mw : o.w; return { c: o.x + w / 2, w: w }; });
+    const gaps = g.targets.slice(1).map((t, k) => t.c - g.targets[k].c);
+    g.boxW = Math.max(46, Math.min(52, Math.min.apply(null, gaps) - 4));
+    return g;
+  }
+  function drawTap(d, st, right) {
+    svg.setAttribute('viewBox', '0 0 340 ' + TAPH);
+    const g = tapLayout(d), F = d.at, L = d.L, y = TAP.y, s0 = g[d.span[0]], s1 = g[d.span[1]];
+    const h1 = right ? arr(F.hl, HL) : 0, va = right ? arr(F.val) : 0, sa = right ? arr(F.sum) : 0;
+    const hls = right ? chipsAt([['m', F.hl], ['a', F.sum]]) : null;
+    strip(hls);
+    part(h1, 0, () => rect('hl', s0.x - 8, y - 40, s1.x + s1.w - s0.x + 16, 52, 8));
+    g.forEach((o) => text(o.x, y, o.s, 'huge', 'start'));
+    // until it is answered, a dashed line under each sign says it can be tapped; the picked one gets a bar
+    const taps = () => g.targets.forEach((o, k) => line(st.sel === k ? 'picked' : 'tapline', o.c - o.w / 2 + 2, y + 14, o.c + o.w / 2 - 2, y + 14));
+    if (!right) taps(); else leave(h1, taps);
+    const x0 = s0.x, x1 = s1.x + s1.w;
+    part(va, 0, () => grown('brk', 'M' + x0.toFixed(2) + ' ' + (y + 16) + ' V' + (y + 22) + ' H' + x1.toFixed(2) + ' V' + (y + 16), 1));
+    part(va, 6, () => text((x0 + x1) / 2, y + 46, fmt(L.jobs[0].v), 'hl2'));
+    part(sa, 6, () => text(334, TAPH - 14, L.rows[1] + ' = ' + L.rows[2], 'sum', 'end'));
+    placeHits(right ? null : g, d);
+    return 'The sum ' + say(d.expr.join(' ')) + ', written large, with its plus, its divide and the minus of minus 3 to tap' +
+      (st.sel != null && !right ? '; ' + say(d.tapNames[st.sel]).toLowerCase() + ' is picked' : '') + '.' + stripSaid(hls) +
+      (h1 >= 0.5 ? ' Highlighted, the job done first: ' + say(L.jobs[0].on) + '.' : '') + (va >= 0.5 ? ' Under it: ' + say(fmt(L.jobs[0].v)) + '.' : '') +
+      (sa >= 0.5 ? ' Below: ' + say(L.rows[1] + ' = ' + L.rows[2]) + '.' : '');
+  }
+  // The signs Dan can tap are kept across repaints (the picture is redrawn every frame), so the
+  // keyboard focus survives. Each is a thumb's width across.
+  const hits = [0, 1, 2].map((k) => {
+    const r = ui.appendChild(K.svg('rect', { class: 'hit', role: 'button', tabindex: -1, 'aria-pressed': 'false', 'aria-label': 'Sign ' + (k + 1) }));
+    r.style.display = 'none';
+    const pickIt = () => {
+      const i = at(), st = S[i];
+      if (finished || STEPS[i].kind !== 'tap' || st.res === 'right') return;
+      st.sel = k; st.res = null;
+      K.reveal(); K.refresh();
+    };
+    r.addEventListener('click', pickIt);
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickIt(); } });
+    return r;
+  });
+  function placeHits(g, d) {
+    hits.forEach((r, k) => {
+      if (!g || k >= g.targets.length) { r.style.display = 'none'; r.setAttribute('tabindex', '-1'); return; }
+      const o = g.targets[k], st = S[at()];
+      r.style.display = '';
+      r.setAttribute('tabindex', '0');
+      r.setAttribute('x', (o.c - g.boxW / 2).toFixed(2)); r.setAttribute('y', TAP.y - 52);
+      r.setAttribute('width', g.boxW.toFixed(2)); r.setAttribute('height', 72); r.setAttribute('rx', 10);
+      r.setAttribute('aria-label', say(d.tapNames[k]).replace(/^the /, 'The '));
+      r.setAttribute('aria-pressed', st.sel === k ? 'true' : 'false');
+    });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = d.kind === 'tap' ? TAPH : (d.lay && LAY[d.lay].H) || H0;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    if (d.kind !== 'tap') placeHits(null, d);
+    let aria;
+    if (d.show) aria = d.demo === 'power' ? demoPower(d) : ladScene(d, AT[d.demo], true);
+    else if (d.kind === 'ladder') aria = ladScene(d, d.at, right);
+    else if (d.kind === 'tap') aria = drawTap(d, st, right);
+    else aria = drawPower(d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) { st.mode = 'open'; play(demoDur(i), 'demo'); } else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || (REDUCE && !d.toggle);
+    replayBtn.el.hidden = REDUCE;
+    togBtn.el.hidden = !d.toggle;
+    togBtn.setLabel(st.brk ? 'Remove brackets' : 'Add brackets');
+    togBtn.el.setAttribute('aria-pressed', st.brk ? 'true' : 'false');
+    togBtn.el.setAttribute('aria-label', st.brk ? 'Remove brackets from minus 3 squared' : 'Add brackets round the minus 3 in minus 3 squared');
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const LADS = STEPS.filter((d) => d.L);
+  const TAP_I = STEPS.findIndex((d) => d.kind === 'tap'), POW_I = STEPS.findIndex((d) => d.toggle);
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // The one option a step accepts: the only one worth the answer the order gives.
+  function onlyRight(i) {
+    const d = STEPS[i];
+    if (d.kind === 'tap') return true;
+    const ok = d.kind === 'which' ? d.opts.filter((o) => same(evaluate(o), d.target)) : d.opts.filter((o) => same(evaluate(o), answerOf(d)));
+    return ok.join() === d.want && d.opts.every((o) => pickRight(i, o) === (o === d.want));
+  }
+  const PRI = { b: 0, p: 1, m: 2, a: 3 };
+  K.check('The order of operations still applies when negatives are included, so every screen\'s working does brackets, then powers, then times and divide, then add and take away, partners left to right, each row worth the same as the sum', () =>
+    LADS.every((d) => {
+      const L = d.L, v0 = evaluate(L.rows[0]);
+      return L.rows.every((s) => same(evaluate(s), v0)) && same(L.value, v0) && /^−?\d+$/.test(L.rows[L.rows.length - 1]) &&
+        L.jobs.every((j, k) => j.at >= 0 && jobOf(j.on) === j.job && (k === 0 || PRI[j.job] >= PRI[L.jobs[k - 1].job]) && (j.job !== 'a' || j.at === 0));
+    }), { source: OPENSTAX });
+  K.check('Brackets are needed to make 9 negative and then square it, so (−9)² = 81 while −9² = −81; in the same way (−3)² = 9 and −3² = −9, the arrow to 9 turned twice or once', () =>
+    evaluate('(−9)²') === 81 && evaluate('−9²') === -81 && evaluate('(−3)²') === 9 && evaluate('−3²') === -9 && turned(9, 2) === 9 && turned(9, 1) === -9, { source: OPENLEARN });
+  K.check('It is best to use brackets when squaring negative numbers: each square or cube of a negative number in this lesson has its brackets, and each power written after a lone minus raises the number alone', () => {
+    const all = [].concat.apply([], STEPS.map((d) => [d.expr, d.text, d.task, d.why].concat(d.opts || [], d.L ? d.L.rows : []))).filter((s) => s && /[²³]/.test(s));
+    const withB = [], without = [];
+    all.forEach((s) => { (s.match(/\(−\d+\)[²³]/g) || []).forEach((m) => withB.push(m)); (s.match(/(^|[^)\d(])−\d+[²³]/g) || []).forEach((m) => without.push(m.replace(/^[^−]/, ''))); });
+    return withB.length >= 4 && without.length >= 3 && withB.every((m) => { const n = Number(m.match(/\d+/)[0]), p = /²/.test(m) ? 2 : 3; return evaluate(m) === Math.pow(-n, p); }) &&
+      without.every((m) => { const n = Number(m.match(/\d+/)[0]), p = /²/.test(m) ? 2 : 3; return evaluate(m) === -Math.pow(n, p); });
+  }, { source: OPENLEARN });
+  K.check('Equal partners go left to right: 8 − 3 + 2 = 7, while adding first gives 8 − 5 = 3; 1 − 4 + 2 = −1, not 1 − 6 = −5; and the times or divide goes before the add, so 6 + 12 ÷ −3 = 2, not 18 ÷ −3 = −6, and 1 + 2 × −3 = −5', () =>
+    evaluate('8 − 3 + 2') === 7 && evaluate('8 − 3 + 2', 'addFirst') === 3 && evaluate('1 − 4 + 2') === -1 && evaluate('1 − 4 + 2', 'addFirst') === -5 &&
+    evaluate('6 + 12 ÷ −3') === 2 && evaluate('6 + 12 ÷ −3', 'flat') === -6 && evaluate('1 + 2 × −3') === -5 && STEPS[0].L.value === -5 && STEPS[1].L.value === 2 && STEPS[2].L.value === -1);
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives: adding first, adding what is taken away, squaring the minus, reading a power as a times, losing or keeping a power\'s sign, keeping a minus, dropping a bracket, forgetting the opposite, working left to right regardless', () =>
+    DO.every(onlyRight) && DO.every((i) => {
+      const d = STEPS[i], q = d.L ? d.L.rows[0] : d.expr;
+      return !d.slips || Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && same(evaluate(q, d.slips[o]), evaluate(o)) && !same(evaluate(o), answerOf(d)));
+    }) && DO.filter((i) => STEPS[i].opts).every((i) => STEPS[i].opts.length === 3));
+  K.check('In 6 + 12 ÷ −3 only the divide is accepted as the job to do first; the minus of −3 is part of the number, not a job between two numbers; the working gives 6 + (−4) = 2', () => {
+    const d = STEPS[TAP_I], st = (k) => Object.assign(blank(TAP_I), { sel: k });
+    return firstJob(d.expr) === d.taps[d.want] && d.expr[d.taps[2]] === '−3' && /^−\d/.test(d.expr[d.taps[2]]) && d.expr.slice(d.span[0], d.span[1] + 1).join(' ') === d.L.jobs[0].on &&
+      same(evaluate(d.expr.join(' ')), d.L.value) && d.L.value === 2 && d.L.rows[1] === '6 + (−4)' && isRight(TAP_I, st(1)) && !isRight(TAP_I, st(0)) && !isRight(TAP_I, st(2)) && isEmpty(TAP_I, blank(TAP_I));
+  });
+  K.check('The marker lands where the working says: facing up to add and down to take away, it steps forwards for a positive number and backwards for a negative one, so 1 + (−6) = −5, 1 − 4 = −3, −3 + 2 = −1, 6 − (−3) = 9 and 2 − 12 = −10', () => {
+    const walks = [].concat.apply([], LADS.map((d) => d.L.jobs.filter((j) => j.job === 'a')));
+    return walks.length >= 9 && walks.every((j) => j.walk && same(j.walk.to, j.v) && Number.isInteger(j.walk.n)) &&
+      walkOf('1 + (−6)').to === -5 && !walkOf('1 + (−6)').down && walkOf('1 + (−6)').back && walkOf('6 − (−3)').down && walkOf('6 − (−3)').back && walkOf('6 − (−3)').to === 9 &&
+      walkOf('2 − 12').to === -10 && !walkOf('2 − 12').back && walkOf('1 − 4').to === -3 && walkOf('−3 + 2').to === -1;
+  });
+  K.check('The arrow pictures agree with the sums: the arrow drawn to the part worked out first (5 × 5, 2 × 2 × 2, 5 − 8, 4 × 4), then one half-turn for each minus sign left: −5² = −25, (−2)³ = −8, −(5 − 8) = 3 and (−4)² = 16', () =>
+    STEPS.filter((d) => d.grow != null).every((d) => same(turned(d.grow, d.turns), d.kind === 'which' ? evaluate(d.want) : evaluate(d.expr)) && same(evaluate(d.note.split(' = ')[0]), d.grow) && same(evaluate(d.note.split(' = ')[1]), d.grow)) &&
+    evaluate('−5²') === -25 && evaluate('(−2)³') === -8 && evaluate('−(5 − 8)') === 3 && evaluate('(−4)²') === 16 && evaluate('−4²') === -16 && evaluate('−(4²)') === -16);
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; putting the brackets on or taking them off plays out within 4.5 s; every answer\'s motion within 2.5 s; hops and half-turns start at least 0.2 s apart', () => {
+    const keepT = T, keepP = S[POW_I];
+    let ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      if (!d.show) S[i] = solved(i); else S[i] = Object.assign(blank(i), { brk: false, mode: 'open' });
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE : latest <= d.fb && d.fb <= 2.5;
+    });
+    [['open', true], ['toggle', true], ['toggle', false]].forEach((c) => {
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[POW_I] = Object.assign(blank(POW_I), { brk: c[1], mode: c[0] });
+      try { paint(POW_I); } finally { S[POW_I] = keepP; }
+      const end = powerTT({ brk: c[1], mode: c[0] }).sum + K.SOFT;
+      ok = ok && latest <= end && end <= 4.5 && (c[0] !== 'open' || earliest >= FADE);
+    });
+    T = keepT; paint();
+    const runs = [];
+    [AT.order, AT.partners, AT.bracket].concat(STEPS.filter((d) => d.at && d.at.walks).map((d) => d.at)).forEach((A) => A.walks.forEach((w) => { if (w.hops) runs.push(w.hops); }));
+    STEPS.filter((d) => d.at && d.at.turns).forEach((d) => runs.push(d.at.turns));
+    Object.keys(AT.power).forEach((k) => runs.push(AT.power[k].turns));
+    return ok && runs.length >= 12 && runs.every((ts) => ts.every((t, k) => k === 0 || t - ts[k - 1] >= 0.2 - 1e-9));
+  });
+
+  // What every drawn part of the picture shows, by what it is: a word by its text, a box by where it
+  // starts, any other shape by its kind (the most of each); a part in a fading group shows as much as the group lets it.
+  function shown() {
+    const o = {};
+    art.querySelectorAll('text, path, line, rect, circle').forEach((n) => {
+      let a = 1;
+      for (let q = n; q && q !== art; q = q.parentNode) if (q.style && q.style.opacity !== '') a *= Number(q.style.opacity);
+      const key = n.getAttribute('class') + '|' + (n.tagName === 'text' ? n.textContent : n.tagName === 'rect' ? Math.round(Number(n.getAttribute('x'))) : '');
+      o[key] = Math.max(o[key] || 0, a);
+    });
+    return o;
+  }
+  K.check('Putting the brackets on or taking them off part-way through never pops a picture in or out: tapped 1.0 s or 2.5 s into the screen or into a toggle, and tapped again 0.2 s later, no part\'s opacity changes by more than 0.5 from one 1/60 s frame to the next', () => {
+    const keepT = T, keepP = S[POW_I], dt = 1 / 60;
+    const look = (st, t) => { S[POW_I] = st; T = t; paint(POW_I); return shown(); };
+    const smooth = (x, y) => Object.keys(Object.assign({}, x, y)).every((k) => Math.abs((x[k] || 0) - (y[k] || 0)) <= 0.5);
+    const tap = (st, t) => Object.assign({}, st, toggled(st, t));
+    let ok = true, n = 0;
+    try {
+      [{ brk: false, mode: 'open' }, { brk: true, mode: 'toggle' }, { brk: false, mode: 'toggle' }].forEach((s) => [1.0, 2.5].forEach((t) => {
+        const s0 = Object.assign(blank(POW_I), s), s1 = tap(s0, t);
+        ok = ok && smooth(look(s0, t), look(s1, dt)) && smooth(look(s1, 0.2), look(tap(s1, 0.2), dt));
+        n++;
+      }));
+    } finally { S[POW_I] = keepP; T = keepT; paint(); }
+    return ok && n === 6;
+  });
+  K.check('Every answer offered sits on its puzzle\'s number line, and the right one is never at an end of it, so the line gives nothing away', () =>
+    DO.filter((i) => STEPS[i].opts && STEPS[i].lay).every((i) => {
+      const d = STEPS[i], L = LAY[d.lay], w = evaluate(d.want);
+      return d.opts.every((o) => evaluate(o) <= L.top && evaluate(o) >= L.bot) && w < L.top && w > L.bot;
+    }) && DO.filter((i) => STEPS[i].opts && STEPS[i].lay).length === 7);
+
+  K.ready();
+</script>

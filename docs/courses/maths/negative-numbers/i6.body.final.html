@@ -1,0 +1,1004 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  /* The upright number line, drawn like a thermometer: a tube with the line up its middle. */
+  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tick.m { stroke-width: 1.5; }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .zero { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .unit { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .note { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .cnt { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .val { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  /* The marker: its round end stands on a number, its point shows the way it faces. */
+  .scene .mk { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; stroke-linejoin: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  /* The answer's tag, pointing at its place on the line. */
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .hop { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent); }
+  .scene .hl2 { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .sum { font: 700 21px var(--k-font); fill: var(--k-ink); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  /* Faint dashed guides from an answer on the line across to its row. */
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.25; stroke-dasharray: 3 4; opacity: .7; }
+  /* The rows of a pattern: the times, then its answer. */
+  .scene .rowl { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .rowa { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  /* A number as an arrow from zero, turning about zero; each half-turn leaves a curved arrow beside it. */
+  .scene .ptr { stroke: var(--k-accent2); stroke-width: 4.5; stroke-linecap: round; }
+  .scene .ptrh { fill: var(--k-accent2); }
+  .scene .pivot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .trail { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .turnl { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  /* The rule beside the marker (or beside the half-turns), in words; the lines of it in use are highlighted. */
+  .scene .card { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .rule { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .mini { fill: var(--k-accent2); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* Under the line with the arrow to turn: give it a half-turn, or start again. */
+  .row.turnrow { flex-wrap: nowrap; }
+  .turnrow .k-btn { flex: 1 1 0; min-height: 48px; min-width: 0; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones wrap whole. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.wrap { flex-wrap: wrap; }
+  .picks.wrap .k-btn { flex: 1 1 8rem; font-size: 1.05rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">An upright number line, a pattern of rows, and a half-turn about zero.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 286" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row turnrow" id="turnrow"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Times −1 turns a number's arrow half a turn about zero. The tank's numbers are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // lay: which upright line a step draws (LAY below). by, of: by lots of `of`, added with the marker.
+  // rows, ask: a pattern's rows (their first numbers) and the row it asks for. size, sum: the arrow
+  // Dan turns and the times it stands for. nums: a times worked by half-turns.
+  // at: when each part of the motion after a right answer arrives, in seconds after Check.
+  // (In the text Dan reads, "Start again", the button's name, never breaks across two lines.)
+  const PICK = 'Tap one of the answers.', END = 'That is four half-turns. Tap Start again.';
+  const M = '−';
+  const STEPS = [
+    { show: true, demo: 'lots', dur: 4.4, lay: 'lots', name: 'Lots of −4',
+      text: '3 × −4 means three lots of −4, added together. Each −4 steps the marker 4 backwards, down the line, so 3 × −4 = −12.' },
+    { kind: 'lots', lay: 'lots5', by: 2, of: -5, note: '−5 + (−5)', opts: ['−10', '10', '−3'], want: '−10', fb: 2.2, name: 'Two lots of −5',
+      at: { hops: [0.15, 0.85], hop: 0.55, tag: 1.5 },
+      task: 'What is 2 × −5?',
+      why: '2 × −5 is two lots of −5, added together. Each −5 steps the marker 5 backwards, from 0 to −5, then on to −10. So 2 × −5 = −10.',
+      hint: 'Not quite. Add two lots of −5, starting from 0.',
+      hints: { '10': 'Not quite. Each −5 steps the marker down, so two lots end below zero.', '−3': 'Not quite. That adds 2 and −5. 2 × −5 means two lots of −5.' } },
+    { show: true, demo: 'pattern', dur: 3.6, lay: 'pat4', name: 'A pattern',
+      text: 'These rows make a *pattern*. Each row has one lot of −4 fewer, so the answer climbs 4 up the line, from −12 to 0.' },
+    { kind: 'pattern', lay: 'pat4', of: -4, rows: [3, 2, 1, 0], ask: -1, opts: ['−4', '4', '−5'], want: '4', fb: 1.3, name: 'Carry it on',
+      at: { hops: [0.15], hop: 0.45, tag: 0.6 },
+      task: 'Carry the pattern on. What is −1 × −4?',
+      why: 'Each row so far has one lot of −4 fewer, so the answer climbs 4. Carry that climb on: after 0 × −4 = 0, which is neither positive nor negative, comes −1 × −4 = 4.',
+      hint: 'Not quite. Each row the answer climbs 4.',
+      hints: { '−4': 'Not quite. The answer climbs 4 every row, so after 0 comes 4.', '−5': 'Not quite. That adds −1 and −4. Follow the pattern up 4 from 0.' } },
+    { show: true, demo: 'past', dur: 3.4, lay: 'pat4', name: 'Past zero',
+      text: 'You can\'t add −1 lots of −4, so for a negative first number the marker stops working. The pattern carries on, climbing 4 a row, to −3 × −4 = 12.' },
+    { kind: 'pattern', lay: 'pat2', of: -2, rows: [2, 1, 0], ask: -3, opts: ['6', '−6', '−5'], want: '6', fb: 2.2, name: 'Same signs',
+      at: { hops: [0.15, 0.65, 1.15], hop: 0.4, tag: 1.55 },
+      task: 'Carry this pattern on, row by row. What is −3 × −2?',
+      why: 'The answer climbs 2 a row, so −3 × −2 = 6. Brackets agree. −3 × (2 + (−2)) is −3 × 0 = 0, and it splits into −3 × 2 = 2 × −3 = −6 plus −3 × −2, so −3 × −2 must be 6.',
+      hint: 'Not quite. Each row the answer climbs 2.',
+      hints: { '−6': 'Not quite. The answer climbs 2 every row. After 0 come 2, 4 and 6.', '−5': 'Not quite. That adds −3 and −2. Carry the times pattern on, up 2 a row.' } },
+    { show: true, demo: 'turn', dur: 4.1, lay: 'turn4', name: 'A half-turn',
+      text: 'You found −1 × −4 = 4, the opposite of −4. Times −1 turns each number into its opposite, a *half-turn* about zero. Two half-turns bring it back.' },
+    { kind: 'turns', lay: 'turn12', size: 12, sum: '−3 × −4', note: '3 × 4 = 12', want: 2, fb: 0.8, name: 'Turn it',
+      at: { sum: 0.15 },
+      task: 'Work out −3 × −4 by turning. Start from 3 × 4 = 12, and give it one half-turn for each minus sign.',
+      empty: 'Tap Half-turn once for each minus sign in −3 × −4.',
+      turnHints: { 1: 'Not quite. One half-turn gives 3 × −4 = −12. −3 × −4 has two minus signs, so give it one more.',
+        3: 'Not quite. That is three half-turns. −3 × −4 has two minus signs, so tap Start again.',
+        4: 'Not quite. Four half-turns land on 12 too, but −3 × −4 has two minus signs. Tap Start again.' },
+      hint: 'Not quite. Give it one half-turn for each minus sign.',
+      why: '−3 is 3 × −1 and −4 is 4 × −1, so each minus sign brings one half-turn. Two half-turns take 12 round and back, so −3 × −4 = 12. Same signs give a positive answer.' },
+    { kind: 'add', lay: 'add', from: -3, add: -4, opts: ['−7', '7', '12'], want: '−7', fb: 2.1, name: 'Adding is different',
+      at: { hops: [0.15, 0.45, 0.75, 1.05], tag: 1.45 },
+      task: '−3 × −4 = 12. What is −3 + (−4)?',
+      why: 'Adding −4 steps the marker 4 backwards, from −3 down to −7. Half-turns come from multiplying, so −3 × −4 = 12 but −3 + (−4) = −7.',
+      hint: 'Not quite. Stand on −3, facing up, and step backwards 4.',
+      hints: { '7': 'Not quite. Half-turns come from multiplying, not adding. Adding −4 moves you down 4 from −3.', '12': 'Not quite. 12 is −3 × −4. Adding −4 moves you down 4 from −3.' } },
+    { kind: 'lots', lay: 'tank', by: 3, of: -0.4, unit: 'm', note: '−0.4 + (−0.4) + (−0.4)', opts: ['−1.2 m', '1.2 m', '2.6 m'], want: '−1.2 m', fb: 2.3, name: 'A tank',
+      at: { hops: [0.15, 0.65, 1.15], hop: 0.45, tag: 1.6 },
+      task: 'Say a tank\'s level changes by −0.4 m each hour. What is the change over 3 hours?',
+      why: 'Each hour adds −0.4 m to the change, so 3 hours give 3 × −0.4 = −1.2. The level ends 1.2 m lower than it started.',
+      hint: 'Not quite. Add three lots of −0.4.',
+      hints: { '1.2 m': 'Not quite. The level drops every hour, so the change over 3 hours is negative.', '2.6 m': 'Not quite. That adds 3 and −0.4. Three hours of −0.4 m is 3 × −0.4.' } },
+    { kind: 'times', lay: 'turn24', nums: [-2, -3, -4], note: '2 × 3 × 4 = 24', opts: ['−24', '24', '−9'], want: '−24', fb: 2.5, name: 'Three minus signs',
+      at: { grow: [0.05, 0.3], turns: [0.35, 0.95, 1.55], turn: 0.4, tag: 1.85 },
+      task: 'What is −2 × −3 × −4?',
+      why: '2 × 3 × 4 = 24. Three minus signs give three half-turns, down, back up, then down again. So −2 × −3 × −4 = −24.',
+      hint: 'Not quite. Work out 2 × 3 × 4, then count the minus signs.',
+      hints: { '24': 'Not quite. Three minus signs are three half-turns, which leave the arrow pointing down, so the answer is negative.', '−9': 'Not quite. That adds them. Times first, 2 × 3 × 4 = 24, then count the minus signs.' } },
+    { kind: 'which', lay: 'turn15', target: 15, nums: [-5, -3], note: '5 × 3 = 15', opts: ['−5 × 3', '−5 × −3', '−5 + (−3)'], want: '−5 × −3', wrap: true, fb: 2.3, name: 'Which is 15?',
+      at: { grow: [0.05, 0.3], turns: [0.35, 0.95], turn: 0.4, tag: 1.6 },
+      task: 'Which of these comes to 15?',
+      why: '−5 × −3 has two minus signs, so two half-turns bring 15 back to 15. −5 × 3 has one, so it is −15. −5 + (−3) adds, so it is −8.',
+      hint: 'Not quite. Count the minus signs in each times sum.',
+      hints: { '−5 × 3': 'Not quite. One minus sign is one half-turn, so −5 × 3 = −15.', '−5 + (−3)': 'Not quite. That adds −3 to −5, which moves down 3, to −8.' } },
+  ];
+  const FINISH = 'Each minus sign in a times sum gives a half-turn about zero, so, unless a number is 0, one makes the answer negative and two make it positive. That rule is for times, not adding, so −3 + (−4) is still −7.';
+  // The rule beside the marker, in words (as in Adding).
+  const RULES = ['Facing up: add', 'Positive: forwards', 'Negative: backwards'];
+  // The rule beside the half-turns, in words: true for two numbers or three (count the minus signs).
+  const TURN_RULES = ['Times −1: a half-turn', 'Even count: positive', 'Odd count: negative'];
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). TURN: how long a half-turn Dan
+  // gives takes; BACK: how long Start again takes to fade the old turns away; LABEL: how long a
+  // landing's labels take to rise in; HOP: one step of the marker; CNT: a count rising in.
+  const FADE = 0.35, TURN = 0.6, BACK = 0.45, LABEL = 0.3, HOP = 0.3, HL = 0.4, CNT = 0.35, MAXT = 4;
+  const AT = {
+    // the rule; the marker on 0, facing up; three lots of −4, each a hop of 4 backwards; the answer
+    lots: { by: 3, of: -4, card: 0.5, mk: 1.0, hl: 1.3, hops: [1.7, 2.35, 3.0], hop: 0.55, tag: 3.7 },
+    // the first row; then each row a hop up the line, its climb, and the row beside its answer
+    pattern: { of: -4, rows: [3, 2, 1, 0], first: 0.5, hops: [1.05, 1.7, 2.35], hop: 0.45 },
+    // the rows so far; then three more, on past zero
+    past: { of: -4, rows: [3, 2, 1, 0], more: [-1, -2, -3], hops: [0.6, 1.3, 2.0], hop: 0.5 },
+    // the arrow to 4; a half-turn to −4 and its sum; a second half-turn back to 4 and its sum
+    turn: { v: 4, mk: 0.5, turns: [1.1, 2.5], turn: 0.8, lab1: 1.9, sum1: 2.0, lab2: 3.3, sum2: 3.4, card: 3.4 },
+  };
+  // Drawing sizes, in viewBox units (340 wide). The line runs up x = X inside a tube TW either side
+  // of it, its numbers ending at LX. Each line: values top..bot drawn from Y0 down to H - 46 (H: the
+  // picture's height, shorter where a line's own `H` says so, to keep a long question on a phone
+  // screen), a tick every `minor`, a number every `every`. RX: where a pattern's rows put "=".
+  const X = 76, TW = 9, LX = 56, Y0 = 40, H0 = 286, TAGX = 120, CNTX = 102, RX = 258;
+  let H = H0;
+  const LAY = {
+    lots: { top: 2, bot: -13, minor: 1, every: 2 },
+    lots5: { top: 10, bot: -12, minor: 1, every: 2 },
+    pat4: { top: 12, bot: -12, minor: 1, every: 4 },
+    pat2: { top: 8, bot: -6, minor: 1, every: 2 },
+    turn4: { top: 5, bot: -5, minor: 1, every: 1 },
+    turn12: { top: 20, bot: -20, minor: 1, every: 5, H: 262 },
+    add: { top: 2, bot: -9, minor: 1, every: 1 },
+    tank: { top: 1.5, bot: -1.5, minor: 0.1, every: 0.5, unit: 'm', H: 262 },
+    turn24: { top: 30, bot: -30, minor: 2, every: 10 },
+    turn15: { top: 20, bot: -20, minor: 1, every: 5 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const BBC = 'https://www.bbc.co.uk/bitesize/articles/z8x44xs';
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const round3 = (v) => Math.round(v * 1000) / 1000;
+  // '−1.2 m' -> −1.2; '(−4)' -> −4; a sum or words -> NaN.
+  function value(s) {
+    const t = String(s).replace(/−/g, '-').replace(/\s*m$/, '').replace(/[()]/g, '').trim();
+    return /^[-+]?\d+(\.\d+)?$/.test(t) ? Number(t) : NaN;
+  }
+  // As Dan reads it: a proper minus sign; as a screen reader says it.
+  const fmt = (v) => (v < 0 ? M : '') + String(round3(Math.abs(v)));
+  const say = (s) => String(s).replace(/[()]/g, '').replace(/−\s*/g, 'minus ').replace(/ × /g, ' times ').replace(/ \+ /g, ' plus ')
+    .replace(/ = /g, ' equals ').replace(/(\d) m\b/g, '$1 metres');
+  // n lots of b (n a whole number, 0 or more), added one lot at a time from 0: where it lands, and each place on the way.
+  function lotsOf(n, b) {
+    let v = 0;
+    const seen = [0];
+    for (let k = 0; k < n; k++) { v = round3(v + b); seen.push(v); }
+    return { at: v, seen: seen };
+  }
+  // Adding a whole number b to a, one step at a time along the line: up for a positive b, down for a negative one.
+  function stepBy(a, b) {
+    let v = a;
+    for (let k = 0; k < Math.abs(b); k++) v = round3(v + (b < 0 ? -1 : 1));
+    return v;
+  }
+  // The pattern: `top` lots of b (added, so top is 0 or more), then each row the first number drops by
+  // 1 and the answer moves the same amount, −b, again. The answer on the row whose first number is m.
+  function patternAt(m, b, top) {
+    let v = lotsOf(top, b).at;
+    for (let r = top; r > m; r--) v = round3(v - b);
+    return v;
+  }
+  // Half-turns about zero: the arrow to `size`, turned n half-turns, points at size × cos(n × 180°).
+  const turned = (size, n) => round3(size * Math.cos(Math.PI * n));
+  const minusCount = (nums) => nums.filter((x) => x < 0).length;
+  const sizeOf = (nums) => round3(nums.reduce((p, x) => p * Math.abs(x), 1));
+  // A times worked the half-turn way: the sizes multiplied, then one half-turn for each minus sign.
+  const byTurns = (nums) => turned(sizeOf(nums), minusCount(nums));
+  // An answer written on a button: 'a × b' worked by half-turns, 'a + (b)' by steps along the line.
+  function worth(s) {
+    const t = /^(−?\d+(?:\.\d+)?) × (−?\d+(?:\.\d+)?)$/.exec(s), p = /^(−?\d+) \+ \((−?\d+)\)$/.exec(s);
+    if (t) return byTurns([value(t[1]), value(t[2])]);
+    if (p) return stepBy(value(p[1]), value(p[2]));
+    return value(s);
+  }
+  // The answer a step asks for, worked by its rule.
+  function answerOf(d) {
+    if (d.kind === 'lots') return lotsOf(d.by, d.of).at;
+    if (d.kind === 'pattern') return patternAt(d.ask, d.of, d.rows[0]);
+    if (d.kind === 'turns') return turned(d.size, d.want);
+    if (d.kind === 'add') return stepBy(d.from, d.add);
+    if (d.kind === 'times') return byTurns(d.nums);
+    if (d.kind === 'which') return d.opts.filter((o) => same(worth(o), d.target)).join();
+    return null;
+  }
+
+  // n: the half-turns Dan has given (the one turning included); queued: taps waiting for it to finish.
+  function blank(i) {
+    return { n: 0, queued: 0, glide: null, pick: null, res: null, why: false };
+  }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'turns') return st.n + st.queued === 0 ? d.empty : '';
+    return st.pick == null ? PICK : '';
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (isEmpty(i, st)) return false;
+    if (d.kind === 'turns') return st.n === d.want;
+    return st.pick === d.want;
+  }
+  // A wrong answer's hint names its slip: for the turns, how many half-turns were given.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'turns') return d.turnHints[st.n] || d.hint;
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'turns') st.n = d.want;
+    else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo', 'fb' or 'turn'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  // A number keeps its sign, brackets and unit ("−0.4 m", "(−4)") and a whole sum stays together
+  // ("−3 × −4 = 12."), with the full stop after it, so none of them breaks across two lines; so does
+  // a word with a hyphen ("half-turn").
+  const NUM = '\\(?[−+]?\\d+(?:\\.\\d+)?\\)?(?: (?:m|hours?)(?![A-Za-z]))?';
+  // "to" stays with the number after it, so "to −12." never leaves the answer alone on a line.
+  const GLUE = new RegExp('(?:\\bto )?' + NUM + '(?: [+−=×] ' + NUM + ')*[.,?!;]?|[A-Za-z]+-[A-Za-z]+[.,?!;]?', 'g');
+  function glued(el, text) {
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      if (/[ −-]/.test(m[0])) el.appendChild(K.el('span', { class: 'nw' }, m[0]));
+      else el.appendChild(document.createTextNode(m[0]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  function write(el, text) {
+    el.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) glued(el, text.slice(at, m.index));
+      glued(el.appendChild(K.el('span', { class: 'term' })), m[1]);
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) glued(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // The arrow Dan turns: its angle (0 points up, 180 down), part-way through a half-turn while it
+  // turns. Is a turn still playing (or its landing's labels still rising in)?
+  const turnLive = () => motion === 'turn' && anim.playing() && T !== Infinity;
+  function turnNow(i) {
+    const st = S[i], ang = st.n % 2 ? 180 : 0;
+    if (!st.glide || motion !== 'turn' || i !== at() || T === Infinity) return { ang: ang, e: 1, gone: 0, live: false };
+    const g = st.glide, e = K.ease(K.clamp((T - g.t0) / g.dur, 0, 1));
+    return { ang: K.lerp(g.a0, g.a1, e), e: e, gone: g.gone, live: true, t0: g.t0, t1: g.t0 + g.dur };
+  }
+  // A turn starts now: on the running clock if a turn is still playing, else on a fresh one.
+  function glide(st, a0, a1, dur, gone) {
+    const live = turnLive(), t0 = live ? T : 0;
+    st.glide = { a0: a0, a1: a1, dur: dur, gone: gone || 0, t0: t0 };
+    st.res = null;
+    K.reveal();
+    const end = t0 + dur + LABEL;
+    if (live) motionEnd = Math.max(motionEnd, end);
+    else play(end, 'turn');
+  }
+  // Taps that come while the arrow is still turning wait their turn, so it keeps a steady pace; each
+  // starts the moment the one before ends (the animation calls this).
+  function turnOn() {
+    const i = at(), d = STEPS[i], st = S[i];
+    while (d.kind === 'turns' && st.glide && st.queued > 0 && T >= st.glide.t0 + st.glide.dur) {
+      const g = st.glide, a0 = st.n % 2 ? 180 : 0;
+      st.queued -= 1; st.n += 1;
+      st.glide = { a0: a0, a1: st.n % 2 ? 180 : 0, dur: TURN, gone: 0, t0: g.t0 + g.dur };
+      motionEnd = Math.max(motionEnd, st.glide.t0 + TURN + LABEL);
+    }
+  }
+  // The turns end where they were going: waiting taps are taken, and nothing turns.
+  function settle(st) {
+    st.n += st.queued; st.queued = 0; st.glide = null;
+  }
+  // One more half-turn, from where the arrow points; no more than MAXT.
+  function halfTurn() {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'turns' || st.res === 'right') return;
+    if (st.n + st.queued >= MAXT) { st.res = 'end'; return; }
+    const g = st.glide;
+    if (g && turnLive() && T < g.t0 + g.dur) { st.queued += 1; st.res = null; return; }
+    const a0 = st.n % 2 ? 180 : 0;
+    st.n += 1;
+    glide(st, a0, st.n % 2 ? 180 : 0, TURN, 0);
+  }
+  // Back to 3 × 4 = 12, pointing up: the old half-turns fade away.
+  function restart() {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'turns' || st.res === 'right' || st.n + st.queued === 0) return;
+    const gone = st.n;
+    st.n = 0; st.queued = 0;
+    glide(st, gone % 2 ? 180 : 0, 0, BACK, gone);
+  }
+  const turnBtns = [K.button({ label: 'Half-turn', secondary: true, into: '#turnrow', press: halfTurn }),
+    K.button({ label: 'Start again', secondary: true, into: '#turnrow', press: restart })];
+  turnBtns[0].el.setAttribute('aria-label', 'Give the arrow a half-turn about zero');
+  turnBtns[1].el.setAttribute('aria-label', 'Start again: the arrow back on 12, pointing up');
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    settle(st);
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+    else if (motion === 'turn') { anim.pause(); T = Infinity; motion = null; }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the motion after a right answer, and each half-turn Dan
+  // gives the arrow, from its start; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (motion === 'turn') turnOn();
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: w, height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const pathOf = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  // A stroke grown as far as e (0..1) along its own length.
+  function grown(cls, d, e) {
+    if (e <= 0) return;
+    const attrs = { class: cls, d: d };
+    if (e < 1) { attrs.pathLength = 1; attrs['stroke-dasharray'] = '1 1'; attrs['stroke-dashoffset'] = (1 - e).toFixed(3); }
+    add(K.svg('path', attrs));
+  }
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { sum: 21, rowl: 16, rowa: 16, rule: 14, note: 14 }[cls] || 15;
+    return String(s).length * size * 0.6;
+  }
+
+  // A line's scale: where value v sits (y), from Y0 at the top to H - 46 at the bottom.
+  function scaleOf(L) {
+    const y1 = H - 46, k = (y1 - Y0) / (L.top - L.bot);
+    return { L: L, k: k, y: (v) => Y0 + (L.top - v) * k };
+  }
+  const isMult = (v, s) => Math.abs(v / s - Math.round(v / s)) < 1e-6;
+  // The upright line: a tube, the line up its middle, a tick at every step, longer at every `every`,
+  // the longest at 0; numbers at every `every`, 0 the largest. A number that a reading's own label
+  // would cover gives way to it (readings: [{v, a}]).
+  function upright(sc, readings) {
+    const L = sc.L, y0 = sc.y(L.top), y1 = sc.y(L.bot), yT = y0 - 12, yB = y1 + 6;
+    readings = (readings || []).filter((r) => r.a > 0);
+    rect('tube', X - TW, yT, 2 * TW, yB + 6 - yT, TW);
+    line('axis', X, y0 - 4, X, y1 + 4);
+    const n = Math.round((L.top - L.bot) / L.minor);
+    for (let j = 0; j <= n; j++) {
+      const v = round3(L.top - j * L.minor), y = sc.y(v), z = same(v, 0), big = isMult(v, L.every);
+      const h = z ? 14 : big ? 8 : 4;
+      line('tick' + (z || big ? '' : ' m'), X - h, y, X + h, y);
+      if (!(z || big)) continue;
+      const draw = () => text(LX, y + (z ? 6.5 : 5.5), fmt(v), z ? 'zero' : 'num', 'end');
+      const cover = readings.filter((r) => Math.abs(sc.y(r.v) - y) < 15).map((r) => r.a);
+      if (!cover.length) draw();
+      else leave(Math.min(1, Math.max.apply(null, cover)), draw);
+    }
+    if (L.unit) text(LX, y0 - 20, L.unit, 'unit', 'end');
+  }
+  // A value of the arrow's tip, in place of the line's own number there, risen in as a goes 0 -> 1.
+  const tipLabel = (sc, v, a) => part(a, 6, () => text(LX, sc.y(v) + 5.5, fmt(v), 'val', 'end'));
+  // The marker at v, turned `ang` degrees from facing up: its round end on the line at v, its point the way it faces.
+  function marker(sc, v, ang, a) {
+    part(a, 0, () => add(K.svg('path', { class: 'mk', 'data-v': round3(v), 'data-ang': Math.round(ang),
+      transform: 'translate(' + X + ' ' + sc.y(v).toFixed(2) + ') rotate(' + ang.toFixed(1) + ')', d: 'M0 -18 L6.93 -4 A8 8 0 1 1 -6.93 -4 Z' })));
+  }
+  const ring = (sc, v, a) => part(a, 0, () => circle('ring', X, sc.y(v), 9));
+  // The rule beside the marker: line k arrives as ins[k] goes 0 -> 1 and is highlighted as hls[k]
+  // does (a line in use). The facing line carries a small marker facing up.
+  function card(ins, hls) {
+    const w = Math.max.apply(null, RULES.map((s, k) => tw(s, 'rule') + (k === 0 ? 18 : 0))) + 22;
+    const x = 334 - w;
+    part(Math.max.apply(null, ins), 0, () => rect('card', x, 6, w, 10 + 20 * RULES.length, 8));
+    for (let k = 0; k < RULES.length; k++) {
+      const yb = 26 + 20 * k, h = hls ? hls[k] || 0 : 0;
+      part(Math.min(ins[k], h), 0, () => rect('hl', x + 5, yb - 14, w - 10, 19, 4));
+      part(ins[k], 6, () => {
+        if (k === 0) add(K.svg('path', { class: 'mini', transform: 'translate(' + (x + 16) + ' ' + (yb - 5) + ') scale(0.55)',
+          d: 'M0 -18 L6.93 -4 A8 8 0 1 1 -6.93 -4 Z' }));
+        text(x + 11 + (k === 0 ? 18 : 0), yb, RULES[k], 'rule k-nohalo', 'start');
+      });
+    }
+  }
+  // The rule beside the half-turns: a small card at the top right, clear of the outermost curved arrow
+  // (the check below holds it there), risen in as a goes 0 -> 1. Its lines are 18 apart, its foot at y = 66.
+  const turnCardBox = () => { const w = Math.max.apply(null, TURN_RULES.map((s) => tw(s, 'rule'))) + 22; return { x: 336 - w, w: w, y: 4, h: 8 + 18 * TURN_RULES.length }; };
+  function turnCard(a) {
+    const b = turnCardBox();
+    part(a, 0, () => rect('card', b.x, b.y, b.w, b.h, 8));
+    part(a, 6, () => TURN_RULES.forEach((s, k) => text(b.x + 11, b.y + 17 + 18 * k, s, 'rule k-nohalo', 'start')));
+  }
+  const turnRuleSaid = ' Beside it, the rule: times minus 1 is a half-turn; an even count of minus signs gives a positive answer, an odd count a negative one.';
+  const ruleSaid = ' Beside it, the rule: facing up means add, a positive number steps forwards and a negative number steps backwards; the adding and the backwards lines are highlighted.';
+  // A hop beside the line, from value a to b, bulging `bulge` units, grown as far as e.
+  function hop(sc, a, b, e, bulge) {
+    const x = X + TW + 3, y1 = sc.y(a) + (b < a ? 2 : -2), y2 = sc.y(b) + (b < a ? -2 : 2);
+    grown('hop', 'M' + x + ' ' + y1.toFixed(2) + ' Q' + (x + 2 * bulge) + ' ' + ((y1 + y2) / 2).toFixed(2) + ' ' + x + ' ' + y2.toFixed(2), e);
+  }
+  // Unit hops down from `from`, one step of u each: hop k grows from ts[k] over dur seconds, and its
+  // count rises in softly from half-way through it. Returns how far the hops have gone, and how many are counted.
+  function stepArcs(sc, from, u, ts, dur) {
+    let counted = 0, went = 0;
+    ts.forEach((t, k) => {
+      const e = arr(t, dur), c = arr(t + dur / 2, CNT);
+      went += e;
+      if (e <= 0) return;
+      const a = round3(from - k * u), b = round3(from - (k + 1) * u);
+      hop(sc, a, b, e, 8);
+      if (c >= 0.5) counted++;
+      part(c, 6, () => text(CNTX, sc.y((a + b) / 2) + 4.5, k + 1, 'cnt', 'start'));
+    });
+    return { went: went, counted: counted };
+  }
+  // A long hop (one lot) with an arrowhead as it lands and its size beside it. Its bulge is small,
+  // so the growing tip keeps level with the marker gliding down beside it.
+  function bigHop(sc, h) {
+    const e = arr(h.t, h.dur), hd = arr(h.t + h.dur * 0.6, 0.3), x = X + TW + 3, d = 14;
+    if (e > 0) {
+      const y1 = sc.y(h.a) + 2, y2 = sc.y(h.b) - 2, ym = (y1 + y2) / 2;
+      grown('hop', 'M' + x + ' ' + y1.toFixed(2) + ' Q' + (x + 2 * d) + ' ' + ym.toFixed(2) + ' ' + x + ' ' + y2.toFixed(2), e);
+      const dx = -2 * d, dy = y2 - ym, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+      const bx = x - ux * 9, by = y2 - uy * 9, px = -uy * 4.5, py = ux * 4.5;
+      part(hd, 0, () => pathOf('head', 'M' + x + ' ' + y2.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z'));
+    }
+    part(arr(h.lt), 6, () => text(x + d + 8, (sc.y(h.a) + sc.y(h.b)) / 2 - 2, h.lab, 'hl2', 'start'));
+    return e;
+  }
+  // `by` lots of `of` from 0, each a long hop down the line at ts[k]. Returns where the marker has got to, and the lots landed.
+  function lotsHops(sc, by, of, ts, dur) {
+    let v = 0, n = 0;
+    if (!ts) return { v: 0, n: 0 };
+    ts.slice(0, by).forEach((t, k) => {
+      const a = round3(k * of), b = round3((k + 1) * of);
+      const e = bigHop(sc, { a: a, b: b, t: t, dur: dur, lab: fmt(of), lt: t + dur * 0.6 });
+      v += (b - a) * e;
+      if (e >= 1) n++;
+    });
+    return { v: round3(v), n: n };
+  }
+  // The answer's tag at v, its point at TAGX - 7, risen in as a goes 0 -> 1.
+  function tag(sc, v, s, a) {
+    const y = sc.y(v), w = Math.max(40, tw(s, 'tagt') + 20);
+    part(a, 6, () => {
+      pathOf('tag', 'M' + TAGX + ' ' + (y - 7).toFixed(2) + ' L' + (TAGX - 7) + ' ' + y.toFixed(2) + ' L' + TAGX + ' ' + (y + 7).toFixed(2) + ' Z');
+      rect('tag', TAGX, y - 15, w, 30, 8);
+      text(TAGX + w / 2, y + 5.5, s, 'tagt k-nohalo');
+    });
+  }
+  // The slot an answer goes in: a dashed box that gives way to the answer as a goes 0 -> 1.
+  const slot = (x, y, w, h, a) => leave(a, () => rect('gapbox', x, y, w, h, 5));
+  // The sum at the foot of the picture, right-aligned: its left side, then a slot that gives way to
+  // the answer as a goes 0 -> 1 (or the whole sum risen in as a does, with `whole`).
+  function sumAt(left, ans, a, whole) {
+    const y = H - 12;
+    if (whole) { part(a, 6, () => text(334, y, left, 'sum', 'end')); return; }
+    const w = Math.max(36, tw(ans, 'sum') + 12), x = 334 - w;
+    text(x - 6, y, left, 'sum', 'end');
+    slot(x, y - 21, w, 29, a);
+    part(a, 6, () => text(x + w / 2, y, ans, 'sum'));
+  }
+  const lineSaid = (L) => 'An upright number line from ' + say(fmt(L.top)) + ' down to ' + say(fmt(L.bot)) + (L.unit ? ' metres' : '') + ', with zero marked.';
+
+  // --- the rows of a pattern ---
+  // Row m of the times by `of`: a dot at its answer on the line, a faint guide across, and the row
+  // itself level with its answer ("2 × −4 =" then the answer).
+  function row(sc, m, of, v) {
+    const y = sc.y(v), left = fmt(m) + ' × ' + fmt(of) + ' =';
+    line('guide', 100, y, RX - tw(left, 'rowl') - 8, y);
+    text(RX, y + 5.5, left, 'rowl', 'end');
+    text(RX + 7, y + 5.5, fmt(v), 'rowa', 'start');
+  }
+  // The rows, in order, each first number one less: item k arrives as its `a` goes 0 -> 1, after its
+  // hop up the line from the row before has grown as its `h` does, the climb ("+4") beside it as `c` does.
+  function rows(sc, of, top, items) {
+    let prev = null;
+    items.forEach((it) => {
+      const v = patternAt(it.m, of, top);
+      if (prev != null && it.h > 0) {
+        const p = prev;
+        hop(sc, p, v, it.h, 8);
+        part(it.c, 6, () => text(CNTX, (sc.y(p) + sc.y(v)) / 2 + 4.5, '+' + fmt(-of), 'cnt', 'start'));
+      }
+      part(it.a, 0, () => circle('dot', X, sc.y(v), 6));
+      part(it.a, 6, () => row(sc, it.m, of, v));
+      prev = v;
+    });
+  }
+  const rowsSaid = (of, top, ms) => ms.map((m) => say(fmt(m) + ' × ' + fmt(of) + ' = ' + fmt(patternAt(m, of, top)))).join(', ');
+
+  // --- the arrow from zero, and its half-turns ---
+  // The tip of an arrow r units long from zero, turned `ang` degrees clockwise from pointing up.
+  function tip(sc, r, ang) {
+    const th = ang * Math.PI / 180;
+    return { x: X + r * Math.sin(th), y: sc.y(0) - r * Math.cos(th) };
+  }
+  // The arrow to a number, r units long, turned `ang` degrees, on its pivot at zero.
+  function pointer(sc, r, ang) {
+    const th = ang * Math.PI / 180, s = Math.sin(th), c = Math.cos(th), y0 = sc.y(0), p = tip(sc, r, ang);
+    const hl = Math.min(13, r), hw = hl * 0.55;
+    if (r - hl > 1) line('ptr', X, y0, X + (r - hl + 2) * s, y0 - (r - hl + 2) * c);
+    const bx = X + (r - hl) * s, by = y0 - (r - hl) * c;
+    if (r > 0.5) pathOf('ptrh', 'M' + p.x.toFixed(2) + ' ' + p.y.toFixed(2) + ' L' + (bx + c * hw).toFixed(2) + ' ' + (by + s * hw).toFixed(2) +
+      ' L' + (bx - c * hw).toFixed(2) + ' ' + (by - s * hw).toFixed(2) + ' Z');
+    circle('pivot', X, y0, 5.5);
+  }
+  // Half-turn k (1, 2, …) of an arrow r units long: a curved arrow beside the line, 12 units further
+  // out each time, down the right for an odd one and back up for an even one, grown as far as e.
+  function trail(sc, r, k, e) {
+    if (e <= 0) return;
+    const R = r + 12 * k, down = k % 2 === 1, a0 = down ? 6 : 174, a1 = down ? 174 : 6;
+    const p0 = tip(sc, R, a0), p1 = tip(sc, R, a1);
+    grown('trail', 'M' + p0.x.toFixed(2) + ' ' + p0.y.toFixed(2) + ' A' + R + ' ' + R + ' 0 0 ' + (down ? 1 : 0) + ' ' + p1.x.toFixed(2) + ' ' + p1.y.toFixed(2), e);
+    // its head, along the way it turns, fading in over the turn's second half so it never pops in
+    part(e >= 1 ? 1 : K.clamp((e - 0.4) / 0.6, 0, 1), 0, () => {
+      const th = a1 * Math.PI / 180, ux = (down ? 1 : -1) * Math.cos(th), uy = (down ? 1 : -1) * Math.sin(th);
+      const bx = p1.x - ux * 9, by = p1.y - uy * 9, px = -uy * 4.5, py = ux * 4.5;
+      pathOf('head', 'M' + p1.x.toFixed(2) + ' ' + p1.y.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z');
+    });
+  }
+  // How many half-turns so far, beside the outermost curved arrow, level with zero.
+  const turnLabel = (sc, r, n) => text(X + r + 12 * n + 8, sc.y(0) + 5, n + ' half-turn' + (n === 1 ? '' : 's'), 'turnl', 'start');
+  const turnsWord = (n) => (n === 1 ? 'one half-turn' : n === 2 ? 'two half-turns' : n === 3 ? 'three half-turns' : n + ' half-turns');
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // 3 × −4: the marker on 0, facing up, adds three lots of −4, each a hop of 4 backwards, to −12.
+  function demoLots() {
+    const A = AT.lots, sc = scaleOf(LAY.lots), mk = arr(A.mk), hl = arr(A.hl, HL), cd = arr(A.card);
+    upright(sc);
+    card([cd, cd, cd], [Math.min(mk, hl), 0, hl]);
+    const w = lotsHops(sc, A.by, A.of, A.hops, A.hop);
+    marker(sc, w.v, 0, mk);
+    const done = arr(A.tag), ans = lotsOf(A.by, A.of).at;
+    tag(sc, ans, fmt(ans), done);
+    part(done, 6, () => text(334, H - 38, '−4 + (−4) + (−4)', 'note', 'end'));
+    sumAt('3 × −4 = ' + fmt(ans), '', done, true);
+    return lineSaid(LAY.lots) + (mk >= 0.5 ? ' A marker stands on 0, facing up' + (w.n ? ', and has stepped ' + w.n + (w.n === 1 ? ' lot' : ' lots') + ' of 4 backwards, down the line' : '') + '.' : '') +
+      (cd >= 0.5 ? ruleSaid : '') + (done >= 0.5 ? ' It lands on minus 12: minus 4 plus minus 4 plus minus 4, so 3 times minus 4 equals minus 12.' : '');
+  }
+  // The rows 3 × −4 = −12 down to 0 × −4 = 0, each answer 4 higher up the line than the one before.
+  function demoPattern() {
+    const A = AT.pattern, sc = scaleOf(LAY.pat4);
+    upright(sc);
+    const items = A.rows.map((m, k) => (k === 0 ? { m: m, a: arr(A.first) }
+      : { m: m, h: arr(A.hops[k - 1], A.hop), c: arr(A.hops[k - 1] + A.hop / 2, CNT), a: arr(A.hops[k - 1] + A.hop) }));
+    rows(sc, A.of, A.rows[0], items);
+    const shown = A.rows.filter((m, k) => items[k].a >= 0.5);
+    return lineSaid(LAY.pat4) + (shown.length ? ' Beside it, rows level with their answers: ' + rowsSaid(A.of, A.rows[0], shown) + '.' +
+      (shown.length > 1 ? ' Each answer is 4 higher up the line than the one before.' : '') : '');
+  }
+  // The rows carry on past zero: −1 × −4 = 4, −2 × −4 = 8 and −3 × −4 = 12, still 4 higher each row.
+  function demoPast() {
+    const A = AT.past, sc = scaleOf(LAY.pat4);
+    upright(sc);
+    const items = A.rows.map((m) => ({ m: m, a: 1, h: 1, c: 1 })).concat(A.more.map((m, k) => ({ m: m, h: arr(A.hops[k], A.hop),
+      c: arr(A.hops[k] + A.hop / 2, CNT), a: arr(A.hops[k] + A.hop) })));
+    rows(sc, A.of, A.rows[0], items);
+    const shown = A.rows.concat(A.more).filter((m, k) => items[k].a >= 0.5);
+    return lineSaid(LAY.pat4) + ' Beside it, rows level with their answers, each 4 higher up the line than the one before: ' + rowsSaid(A.of, A.rows[0], shown) + '.';
+  }
+  // An arrow from zero to 4; times −1 turns it half a turn about zero, to −4, and a second half-turn brings it back.
+  function demoTurn() {
+    const A = AT.turn, sc = scaleOf(LAY.turn4), r = A.v * sc.k, mk = arr(A.mk);
+    const t1 = arr(A.turns[0], A.turn), t2 = arr(A.turns[1], A.turn), out1 = arr(A.turns[0], LABEL), out2 = arr(A.turns[1], LABEL);
+    const in1 = arr(A.lab1, LABEL), in2 = arr(A.lab2, LABEL), s1 = arr(A.sum1), s2 = arr(A.sum2), cd = arr(A.card);
+    const up = Math.min(1, mk * (1 - out1) + in2), down = in1 * (1 - out2);
+    upright(sc, [{ v: A.v, a: up }, { v: -A.v, a: down }]);
+    trail(sc, r, 1, t1);
+    trail(sc, r, 2, t2);
+    part(in1 * (1 - out2), 6, () => turnLabel(sc, r, 1));
+    part(in2, 6, () => turnLabel(sc, r, 2));
+    part(mk, 0, () => pointer(sc, r, 180 * t1 - 180 * t2));
+    tipLabel(sc, A.v, up);
+    tipLabel(sc, -A.v, down);
+    part(s1, 6, () => text(334, H - 38, '4 × −1 = −4', 'sum', 'end'));
+    part(s2, 6, () => text(334, H - 12, '4 × −1 × −1 = 4', 'sum', 'end'));
+    turnCard(cd);
+    const turning = (t1 > 0 && t1 < 1) || (t2 > 0 && t2 < 1);
+    return lineSaid(LAY.turn4) + (mk >= 0.5 ? ' An arrow from zero ' + (turning ? 'is turning about zero' : 'points to ' + (t1 >= 1 && t2 < 1 ? 'minus 4' : '4')) + '.' : '') +
+      (t1 >= 1 ? ' A curved arrow beside the line shows a half-turn' + (t2 >= 1 ? ', and a second one shows another, back again' : '') + '.' : '') +
+      (s1 >= 0.5 ? ' 4 times minus 1 equals minus 4.' : '') + (s2 >= 0.5 ? ' 4 times minus 1 times minus 1 equals 4.' : '') + (cd >= 0.5 ? turnRuleSaid : '');
+  }
+
+  // --- the puzzles (DO steps); after a right answer their motion runs on the same clock T ---
+  // Lots added with the marker: a right answer hops it down one lot at a time, tags the landing and fills in the sum.
+  function drawLots(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at, ans = answerOf(d);
+    upright(sc);
+    card([1, 1, 1], [1, 0, 1]);
+    const w = lotsHops(sc, d.by, d.of, right ? F.hops : null, F.hop);
+    marker(sc, w.v, 0, 1);
+    const done = right ? arr(F.tag) : 0;
+    tag(sc, ans, fmt(ans), done);
+    part(done, 6, () => text(334, H - 38, d.note, 'note', 'end'));
+    sumAt(d.by + ' × ' + fmt(d.of) + ' =', fmt(ans), done);
+    return lineSaid(L) + ' A marker facing up stands on 0' + (w.n ? ', and has stepped ' + w.n + (w.n === 1 ? ' lot' : ' lots') + ' of ' + fmt(-d.of) + ' backwards' : '') + '.' + ruleSaid +
+      (done >= 0.5 ? ' ' + say(d.by + ' × ' + fmt(d.of) + ' = ' + fmt(ans)) + '.' : ' Below, ' + say(d.by + ' × ' + fmt(d.of)) + ' equals an empty box.');
+  }
+  // A pattern to carry on: its rows so far; a right answer hops on up the line, row by row, and fills the slot.
+  function drawPattern(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at, top = d.rows[0], ans = answerOf(d), more = [];
+    upright(sc);
+    for (let m = d.rows[d.rows.length - 1] - 1; m >= d.ask; m--) more.push(m);
+    const items = d.rows.map((m) => ({ m: m, a: 1, h: 1, c: 1 })).concat(more.map((m, k) => (right
+      ? { m: m, h: arr(F.hops[k], F.hop), c: arr(F.hops[k] + F.hop / 2, CNT), a: arr(F.hops[k] + F.hop) } : { m: m, h: 0, c: 0, a: 0 })));
+    rows(sc, d.of, top, items);
+    const done = right ? arr(F.tag) : 0;
+    sumAt(fmt(d.ask) + ' × ' + fmt(d.of) + ' =', fmt(ans), done);
+    const shown = d.rows.concat(more).filter((m, k) => items[k].a >= 0.5);
+    return lineSaid(L) + ' Beside it, rows level with their answers, each ' + fmt(-d.of) + ' higher up the line than the one before: ' + rowsSaid(d.of, top, shown) + '.' +
+      (done >= 0.5 ? '' : ' Below, ' + say(fmt(d.ask) + ' × ' + fmt(d.of)) + ' equals an empty box.');
+  }
+  // The arrow Dan turns, from 3 × 4 = 12: each half-turn swings it about zero and leaves a curved arrow.
+  function drawTurns(d, st, right) {
+    const i = STEPS.indexOf(d), L = LAY[d.lay], sc = scaleOf(L), now = turnNow(i), r = d.size * sc.k, F = d.at;
+    const turning = now.live && !now.gone, moving = turning && now.e < 1, landed = turning ? K.arrive(T, now.t1, LABEL) : 1, off = turning ? K.arrive(T, now.t0, 0.25) : 1;
+    const v = turned(d.size, st.n), was = turned(d.size, st.n - 1), old = now.gone ? turned(d.size, now.gone) : v, kept = same(old, v);
+    // The line's own number near the tip gives way before the tip's value rises in, and comes back
+    // only once the old value has gone, so the two never show at once.
+    let readings = [{ v: v, a: 1 }];
+    if (turning) readings = [{ v: was, a: 1 - landed }, { v: v, a: off }];
+    else if (now.gone && !kept) readings = [{ v: old, a: 1 - K.arrive(T, now.t1, LABEL) }, { v: v, a: Math.min(1, 2 * now.e) }];
+    upright(sc, readings);
+    turnCard(1);
+    text(334, H - 38, d.note, 'note', 'end');
+    // the old half-turns fade away after Start again
+    if (now.gone) leave(now.e, () => { for (let k = 1; k <= now.gone; k++) trail(sc, r, k, 1); turnLabel(sc, r, now.gone); pointer(sc, r, now.gone % 2 ? 180 : 0); if (!kept) tipLabel(sc, old, 1); });
+    for (let k = 1; k <= st.n; k++) trail(sc, r, k, k === st.n && turning ? now.e : 1);
+    if (turning && st.n > 1) leave(off, () => turnLabel(sc, r, st.n - 1));
+    if (st.n > 0) part(landed, 6, () => turnLabel(sc, r, st.n));
+    if (now.gone) part(now.e, 0, () => pointer(sc, r, 0));
+    else pointer(sc, r, now.ang);
+    if (turning) leave(off, () => tipLabel(sc, was, 1));
+    tipLabel(sc, v, turning ? landed : now.gone && !kept ? K.clamp((now.e - 0.5) / 0.5, 0, 1) : 1);
+    const done = right ? arr(F.sum) : 0;
+    sumAt(d.sum + ' =', fmt(answerOf(d)), done);
+    return lineSaid(L) + ' An arrow from zero ' + (moving ? 'is turning about zero' : 'points ' + (v < 0 ? 'down' : 'up') + ' to ' + say(fmt(v))) + ', starting from 3 times 4 equals 12' +
+      (st.n ? ', after ' + turnsWord(st.n) : '') + '.' + turnRuleSaid + (done >= 0.5 ? ' ' + say(d.sum + ' = ' + fmt(answerOf(d))) + '.' : ' Below, ' + say(d.sum) + ' equals an empty box.');
+  }
+  // Adding with the marker: a right answer steps it backwards one step at a time, tags the landing and fills the slot.
+  function drawAdd(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at, ans = answerOf(d), sum = fmt(d.from) + ' + (' + fmt(d.add) + ')';
+    upright(sc);
+    card([1, 1, 1], [1, 0, 1]);
+    const w = right ? stepArcs(sc, d.from, 1, F.hops, HOP) : { went: 0, counted: 0 };
+    marker(sc, round3(d.from - w.went), 0, 1);
+    const done = right ? arr(F.tag) : 0;
+    tag(sc, ans, fmt(ans), done);
+    sumAt(sum + ' =', fmt(ans), done);
+    return lineSaid(L) + ' A marker facing up stands on ' + say(fmt(d.from)) + (w.counted ? ', and has stepped ' + w.counted + ' backwards, down the line' : '') + '.' + ruleSaid +
+      (done >= 0.5 ? ' ' + say(sum + ' = ' + fmt(ans)) + '.' : ' Below, ' + say(sum) + ' equals an empty box.');
+  }
+  // A times worked by half-turns: a right answer grows the arrow to the sizes multiplied, then turns
+  // it once for each minus sign; the landing is named and the sum filled (or, for `which`, written whole).
+  function drawTimes(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at, size = sizeOf(d.nums), n = minusCount(d.nums), r = size * sc.k, v = byTurns(d.nums);
+    const g = right ? arr(F.grow[0], F.grow[1]) : 0, nt = right ? arr(F.grow[0]) : 0;
+    const ts = F.turns.map((t) => (right ? arr(t, F.turn) : 0));
+    let ang = 0;
+    ts.forEach((e, k) => { ang += (k % 2 ? -180 : 180) * e; });
+    const done = right ? arr(F.tag) : 0;
+    // the line's own number there gives way just before the landing is named
+    upright(sc, [{ v: v, a: right ? arr(F.tag - 0.35, 0.3) : 0 }]);
+    if (d.target != null) ring(sc, d.target, 1);
+    turnCard(1);
+    ts.forEach((e, k) => trail(sc, r, k + 1, e));
+    // a running count as each half-turn lands ("1 half-turn", "2 half-turns", …), in the place the
+    // last one takes beside the outermost curved arrow; each fades as the next turn lands, and the
+    // next rises in just after, so the two never show muddled together
+    if (right) F.turns.forEach((t, k) => {
+      const lab = () => text(X + r + 12 * n + 8, sc.y(0) + 5, (k + 1) + ' half-turn' + (k ? 's' : ''), 'turnl', 'start');
+      const out = k + 1 < n ? arr(F.turns[k + 1] + F.turn, 0.2) : 0;
+      if (out > 0) leave(out, lab);
+      else part(arr(t + F.turn + (k ? 0.15 : 0), LABEL), 6, lab);
+    });
+    if (g > 0) part(g, 0, () => pointer(sc, r * g, ang));
+    part(nt, 6, () => text(334, H - 38, d.note, 'note', 'end'));
+    tipLabel(sc, v, done);
+    const sum = d.nums.map(fmt).join(' × ');
+    if (d.kind === 'which') sumAt(sum + ' = ' + fmt(v), '', done, true);
+    else sumAt(sum + ' =', fmt(v), done);
+    return lineSaid(L) + (d.target != null ? ' A ring marks ' + say(fmt(d.target)) + '.' : '') + turnRuleSaid +
+      (g >= 0.5 ? ' An arrow from zero, ' + say(d.note) + ', ' + (done >= 0.5 ? 'after ' + turnsWord(n) + ' points to ' + say(fmt(v)) : 'turns about zero') + '.' : '') +
+      (done >= 0.5 ? ' ' + say(sum + ' = ' + fmt(v)) + '.' : (d.kind === 'which' ? '' : ' Below, ' + say(sum) + ' equals an empty box.'));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = (d.lay && LAY[d.lay].H) || H0;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    let aria;
+    if (d.show) aria = { lots: demoLots, pattern: demoPattern, past: demoPast, turn: demoTurn }[d.demo]();
+    else aria = { lots: drawLots, pattern: drawPattern, turns: drawTurns, add: drawAdd, times: drawTimes, which: drawTimes }[d.kind](d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) { T = Infinity; if (motion === 'turn') settle(st); }   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); settle(S[i]); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('turnrow').hidden = d.kind !== 'turns' || right;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').className = 'row picks' + (d.wrap ? ' wrap' : '');
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : st.res === 'end' ? END : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const TURN_I = STEPS.findIndex((d) => d.kind === 'turns');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // The one option a step accepts: the only one equal to the answer its rule gives.
+  function onlyRight(i) {
+    const d = STEPS[i], ans = answerOf(d);
+    if (d.kind === 'turns') return true;
+    const ok = typeof ans === 'number' ? d.opts.filter((o) => same(value(o), ans)) : d.opts.filter((o) => o === ans);
+    return ok.join() === d.want && d.opts.every((o) => pickRight(i, o) === (o === d.want));
+  }
+  K.check('A times by a whole number adds that many lots: 3 × −4 = −4 + (−4) + (−4) = −12, passing −4 and −8; 2 × −5 = −10; 3 × −0.4 = −1.2; each puzzle accepts only its answer', () =>
+    lotsOf(3, -4).at === -12 && lotsOf(3, -4).seen.join() === '0,-4,-8,-12' && lotsOf(2, -5).at === -10 && same(lotsOf(3, -0.4).at, -1.2) &&
+    answerOf(STEPS[9]) === -1.2 && DO.every(onlyRight));
+  K.check('The pattern: as the first number drops by 1 from 3, the answer to it times −4 climbs 4 every row, −12, −8, −4, 0, then on past zero to 4, 8 and 12; times −2 it climbs 2 a row, to −3 × −2 = 6; 0 × −4 = 0 is neither positive nor negative', () => {
+    const p4 = [3, 2, 1, 0, -1, -2, -3].map((m) => patternAt(m, -4, 3)), p2 = [2, 1, 0, -1, -2, -3].map((m) => patternAt(m, -2, 2));
+    return p4.join() === '-12,-8,-4,0,4,8,12' && p4.every((v, k) => k === 0 || v - p4[k - 1] === 4) && p2.join() === '-4,-2,0,2,4,6' &&
+      p2.every((v, k) => k === 0 || v - p2[k - 1] === 2) && patternAt(0, -4, 3) === 0 && !(patternAt(0, -4, 3) > 0) && !(patternAt(0, -4, 3) < 0);
+  });
+  K.check('Multiplying two numbers with the same sign gives a positive answer, so (−3) × (−2) = +6, and two with different signs a negative one', () =>
+    byTurns([-3, -2]) === 6 && patternAt(-3, -2, 2) === 6 && byTurns([3, 2]) > 0 && byTurns([3, -2]) < 0 && byTurns([-3, 2]) < 0 &&
+    lotsOf(3, -2).at === -6 && byTurns([3, -2]) === 3 * -2 && byTurns([-3, 2]) === -3 * 2 && byTurns([-5, 3]) === -5 * 3, { source: BBC });
+  K.check('A half-turn about zero takes the tip of the arrow to 4 round to −4 on the line, and a second brings it back to 4; turning once for each minus sign, −3 × −4 = 12, −2 × −3 × −4 = −24 and −5 × −3 = 15, as ordinary arithmetic gives, and every row of the pattern agrees', () => {
+    const keep = H;
+    H = H0;
+    const sc = scaleOf(LAY.turn4), r = 4 * sc.k, a = tip(sc, r, 180), b = tip(sc, r, 360);
+    H = keep;
+    return K.near(a.y, sc.y(-4), 1e-6) && K.near(a.x, X, 1e-6) && K.near(b.y, sc.y(4), 1e-6) && turned(4, 1) === -4 && turned(4, 2) === 4 &&
+      byTurns([-3, -4]) === (-3) * (-4) && byTurns([-2, -3, -4]) === (-2) * (-3) * (-4) && byTurns([-2, -3, -4]) === -24 && byTurns([-5, -3]) === 15 &&
+      [3, 2, 1, 0, -1, -2, -3].every((m) => same(patternAt(m, -4, 3), byTurns([m, -4])));
+  });
+  K.check('Adding is not times: −3 + (−4) steps down 4 from −3 to −7, not 7, while −3 × −4 = 12; of −5 × 3, −5 × −3 and −5 + (−3) only −5 × −3 comes to 15', () =>
+    stepBy(-3, -4) === -7 && byTurns([-3, -4]) === 12 && answerOf(STEPS[8]) === -7 && worth('−5 × 3') === -15 && worth('−5 + (−3)') === -8 &&
+    worth('−5 × −3') === 15 && answerOf(STEPS[11]) === '−5 × −3' && !pickRight(8, '7') && pickRight(8, '−7'));
+  K.check('Turning for −3 × −4 is accepted only after exactly two half-turns from 3 × 4 = 12, which land on 12; one lands on −12 and is told −3 × −4 has two minus signs; three or four are not accepted; no more than four can be given', () => {
+    const d = STEPS[TURN_I], st = (n) => Object.assign(blank(TURN_I), { n: n });
+    return isRight(TURN_I, st(2)) && turned(d.size, 2) === 12 && !isRight(TURN_I, st(1)) && turned(d.size, 1) === -12 && /two minus signs/.test(hintFor(TURN_I, st(1))) &&
+      !isRight(TURN_I, st(3)) && !isRight(TURN_I, st(4)) && isEmpty(TURN_I, blank(TURN_I)) && /Start\sagain/.test(hintFor(TURN_I, st(3))) && MAXT === 4;
+  });
+  // The rule card beside the half-turns sits clear of the outermost curved arrow each screen can draw
+  // (on Turn it, up to four half-turns): its nearest corner is further from zero than that arrow's radius.
+  K.check('The rule card beside the half-turns (times −1 is a half-turn; an even count of minus signs gives a positive answer, an odd count a negative one) clears every curved arrow, up to four half-turns on Turn it', () => {
+    const keep = H, b = turnCardBox(), xl = b.x, yb = b.y + b.h;
+    const screens = [{ lay: 'turn4', size: 4, n: 2 }, { lay: 'turn12', size: 12, n: MAXT }, { lay: 'turn24', size: 24, n: 3 }, { lay: 'turn15', size: 15, n: 2 }];
+    const ok = screens.every((c) => { H = LAY[c.lay].H || H0; const sc = scaleOf(LAY[c.lay]), R = c.size * sc.k + 12 * c.n;
+      return Math.hypot(xl - X, sc.y(0) - yb) > R + 3; });
+    H = keep;
+    return ok && [[4], [-3, -4], [-2, -3, -4], [-5, -3], [-5, 3], [4, -1, -1]].every((nums) => (minusCount(nums) % 2 ? byTurns(nums) < 0 : byTurns(nums) > 0));
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s; hops and half-turns start at least 0.2 s apart', () => {
+    const keepT = T, ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      if (!d.show) S[i] = solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE : latest <= d.fb && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    const runs = [AT.lots.hops, AT.pattern.hops, AT.past.hops, AT.turn.turns].concat(STEPS.filter((d) => d.at && (d.at.hops || d.at.turns)).map((d) => d.at.hops || d.at.turns));
+    return ok && runs.every((ts) => ts.every((t, k) => k === 0 || t - ts[k - 1] >= 0.2 - 1e-9));
+  });
+
+  K.ready();
+</script>

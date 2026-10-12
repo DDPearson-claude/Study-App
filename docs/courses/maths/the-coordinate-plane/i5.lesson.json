@@ -1,0 +1,124 @@
+{
+  "iid": "i5",
+  "title": "Reading a graph",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is that a graph is read with two straight moves, up from a flow to the curve and across, or across from a head and down, starting on the axis that holds your number, and that a reading between tests is held in place while one past the last test is a guess, when you slide a marker along a pump's flow axis and carry its curve past the tests.",
+    "title": "Reading a graph",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on one example pump's curve, its head in metres up the side against its flow in m³/h along the bottom, with five test points from 0 to 20 m³/h and a smooth curve through them. A marker on an axis sends dashed lines up to the curve and across, or across and down, to read one amount from the other, and some screens carry the curve on past the tests as dashed guesses. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The pump's tests (21, 20, 19, 17 and 14 m of head at 0, 5, 10, 15 and 20 m³/h) are example values chosen to read cleanly, not taken from a maker's chart or a real pump, and the smooth curve through them is drawn by a rule that passes through every test. A reading between the tests is given to the nearest metre. The two guesses past the tests, a straight line through the last two tests and the bend of the last three carried on, are rules chosen to show how far apart such guesses can be, not predictions of what this pump does. Real pump charts can carry several curves, and duty points and efficiency are left out here.",
+    "numbers": [
+      {
+        "label": "Example tests: 21, 20, 19, 17 and 14 m of head at 0, 5, 10, 15 and 20 m³/h, the head falling as the flow rises, in step 1",
+        "value": 14,
+        "kind": "constant"
+      },
+      {
+        "label": "Up from 10 m³/h to the curve and across reads 19 m, in step 2",
+        "value": 19,
+        "kind": "constant"
+      },
+      {
+        "label": "At 20 m³/h the curve reads 14 m, 4 small squares above 10; not 5 m (from 20 on the head axis) or 10 m (the mark below), in step 3",
+        "value": 14,
+        "kind": "constant"
+      },
+      {
+        "label": "Across from 17 m to the curve and down reads 15 m³/h, in step 4",
+        "value": 15,
+        "kind": "constant"
+      },
+      {
+        "label": "20 m of head comes at 5 m³/h; 20 m³/h gives 14 m and 10 m³/h gives 19 m, in step 5",
+        "value": 5,
+        "kind": "constant"
+      },
+      {
+        "label": "From 10 to 20 m³/h the head falls from 19 m to 14 m, 19 − 14 = 5 m; not a rise, and not the flow's change of 10, in step 6",
+        "value": 5,
+        "kind": "constant"
+      },
+      {
+        "label": "Between the tests at 10 and 15 m³/h, the curve at 12.5 m³/h reads about 18 m (18.1 by its rule), in step 7",
+        "value": 18,
+        "kind": "constant"
+      },
+      {
+        "label": "A at 17.5 m³/h sits between the tests at 15 and 20 m³/h; B at 25 m³/h is past the last test, in step 8",
+        "value": 25,
+        "kind": "constant"
+      },
+      {
+        "label": "Past 20 m³/h, a line through the last two tests falls 3 m a square, to 8 m at 30 m³/h; the bend carried on reads 5 m, in step 9",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "At 25 m³/h the two guesses read 11 m and 10 m, and neither was tested, in step 10",
+        "value": 25,
+        "kind": "constant"
+      },
+      {
+        "label": "Logged as 5 m at 20 m³/h: 5 m³/h is the flow for a 20 m head, and the head at 20 m³/h is 14 m, in step 11",
+        "value": 14,
+        "kind": "constant"
+      },
+      {
+        "label": "At 0 m³/h the curve meets the head axis at 21 m, 1 small square above 20; not 20 m or 0 m, in step 12",
+        "value": 21,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A pump's curve plots the [[head]] it gives, how high it could lift water in metres, up the side, against its flow along the bottom. Grundfos, a pump maker, notes that on such a QH-curve a low flow gives a high head and a high flow a low head.[^1] Reading it takes two straight moves. The LSU AgCenter's guide reads a pump curve by choosing a flow on the horizontal axis, going straight up to the curve and then left to the vertical axis to read the head.[^2] On the example pump here, tested from 0 to 20 m³/h, up from 10 m³/h and across reads 19 m. To find the flow for a head, go the other way, across from the head to the curve and then down, so across from 20 m and down reads 5 m³/h. Start on the axis that holds the number you have. Starting at 20 on the head axis when you want the head at 20 m³/h is the mix-up of axes from Along, then up, and it gives 5 m in place of 14 m. The same guide notes that the highest head occurs at the lowest flow rate,[^3] and on this curve that is 21 m at 0 m³/h.\n\nReading the curve between two tests, like about 18 m at 12.5 m³/h, is [[interpolation]], and the tests on each side hold the curve in place. Reading past the last test is [[extrapolation]]. Oak National Academy teaches the difference between the two and the limitations of each.[^4] Past 20 m³/h nothing was measured, so the curve there is a guess. A straight line through the last two tests reads 8 m at 30 m³/h, while the bend of the last three carried on reads 5 m, and nothing on the graph says which is nearer.\n\n**To read a head, go up from the flow to the curve and across. To read a flow, go across from the head to the curve and down. Start on the axis that holds the number you have, and trust a reading between the tests more than one past them.**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** Find the number you have on its own axis, go straight to the curve, then turn and go straight to the other axis. If you had to carry the curve on past the last test, treat the reading as a guess.\n\n**Worked example:** The example pump here was tested from 0 to 20 m³/h. For the flow that gives 20 m of head, start at 20 on the head axis, go across to the curve, then down to the flow axis, which reads 5 m³/h. As a check, up from 5 m³/h to the curve and across reads 20 m.\n\n**Common mistakes**\n- Starting on the wrong axis, the mix-up of axes from Along, then up. Here it turns the head at 20 m³/h, 14 m, into 5 m, which is the flow for a 20 m head.\n- Reading past the data as if it were measured. Past the last test at 20 m³/h, a straight line reads 8 m at 30 m³/h and the bend carried on reads 5 m. Oak teaches the limitations of extrapolation,[^4] so treat a reading out there as a guess."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "How to read a pump curve? | Grundfos",
+      "url": "https://www.grundfos.com/uk/learn/ecademy/all-courses/the-basic-pump-curve-course/how-to-read-a-pump-curve-",
+      "quote": "In a QH-curve, which measures the flow and head, you can see that a low flow results in a high head and a high flow results in a low head."
+    },
+    {
+      "n": 2,
+      "title": "Pump Curves",
+      "url": "https://www.lsuagcenter.com/~/media/system/9/2/3/5/923525275a3ff99d781ff0eec797e7a8/pub3241hpumpcurves.pdf",
+      "quote": "Choosing a flow rate (for example, 2,000 gallons per minute) on the horizontal axis, proceeding vertically to the pump curve and then proceeding left to the vertical axis, thus reading the head (80 feet)."
+    },
+    {
+      "n": 3,
+      "title": "Pump Curves",
+      "url": "https://www.lsuagcenter.com/~/media/system/9/2/3/5/923525275a3ff99d781ff0eec797e7a8/pub3241hpumpcurves.pdf",
+      "quote": "The highest head occurs at the lowest flow rate, and the highest flow rate occurs at the lowest head."
+    },
+    {
+      "n": 4,
+      "title": "Graphical representations of data: scatter graphs and time series KS4 | Y10 Maths Higher | Lesson Resources | Oak National Academy",
+      "url": "https://www.thenational.academy/teachers/programmes/maths-secondary-ks4-higher/units/graphical-representations-of-data-scatter-graphs-and-time-series/lessons",
+      "quote": "I can state the difference between interpolation and extrapolation and the limitations of each."
+    }
+  ]
+}

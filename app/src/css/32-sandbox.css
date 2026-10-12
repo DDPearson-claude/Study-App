@@ -1,0 +1,23 @@
+/* Kit host: the card an interactive lives in (32-sandbox.js). The iframe's own page is themed by
+   the kit to the card colour, so the frame reads as one calm surface; it grows to its content
+   while loading behind a quiet progress line. */
+.kit-frame {
+  position: relative; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: var(--shadow);
+}
+.kit-iframe {
+  display: block; width: 100%; border: 0; background: transparent; color-scheme: normal;
+  transition: height .25s ease, opacity .3s ease;
+}
+.kit-frame[data-state="loading"] .kit-iframe { opacity: 0; }
+.kit-loading {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; flex-direction: column; justify-content: center; align-items: stretch; gap: 12px;
+  padding: 24px 28px; text-align: center;
+}
+.kit-loading .working { max-width: 220px; width: 100%; margin: 0 auto; }
+.kit-frame[data-state="failed"] .kit-loading { position: static; color: var(--red); }
+/* Hidden self-test frames (inline styles carry the essentials; this is belt and braces). */
+.kit-test { position: fixed; left: 0; top: 0; opacity: 0; pointer-events: none; z-index: -1; border: 0; }
+@media (prefers-reduced-motion: reduce) { .kit-iframe { transition: none; } }

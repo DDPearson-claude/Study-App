@@ -1,0 +1,832 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  /* The upright number line, drawn like a thermometer: a tube (with a bulb for degrees), its scale on the left. */
+  .scene .art { pointer-events: none; }
+  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .zero { stroke: var(--k-ink); stroke-width: 3; stroke-linecap: round; }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .num0 { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .rt { font: 700 12px var(--k-font); fill: var(--k-accent); }
+  .scene .val { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  .scene .thumb { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .chev { fill: var(--k-accent2); }
+  .scene .hop { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent); }
+  .scene .cnt { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .hl { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .rb { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .rl { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .wk { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .big { font: 700 22px var(--k-font); fill: var(--k-ink); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  /* The marker Dan drags: a thumb's-width hit circle over the drawn marker. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones wrap whole. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.wrap { flex-wrap: wrap; }
+  .picks.wrap .k-btn { flex: 1 1 9rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">An upright number line, like a thermometer, one small step at a time.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 272" width="100%" role="img" aria-label=""><g class="art" id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Higher up the line is bigger, as on a thermometer. The readings are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // line: which upright scale the step draws (LINES); pair: the two readings a gap is between.
+  // at: when each part of the motion after a right answer arrives, in seconds after Check. A hop is
+  // { a, b, t, dur, d, lab, lt }: from reading a to b, growing from t over dur, d units deep, its
+  // label lab arriving at lt. unit: [t0, gap, rest] for one-degree hops, counted as they land.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, demo: 'count', dur: 4.5, line: 'six', name: 'Count through zero',
+      text: 'The *gap* between −5 °C and +3 °C is how far apart they are. Count up from −5 °C, 5 degrees to zero and 3 more. The gap is 8 degrees.' },
+    { kind: 'gap', line: 'six', pair: [-4, 2], opts: ['−6', '2', '6', '7'], want: '6', fb: 2.5, name: 'Four below, two above',
+      at: { unit: [0.15, 0.22, 0.1], label: 1.55, work: 1.85 }, work: '4 + 2 = 6',
+      task: 'How far apart are −4 °C and +2 °C?',
+      why: 'Count up from the lower reading. From −4 °C to zero is 4 degrees, and zero to +2 °C is 2 more, so the gap is 4 + 2 = 6 degrees.',
+      hint: 'Not quite. Count up from −4 °C, through zero, to +2 °C.',
+      hints: { '−6': 'Not quite. A gap is how far apart, so it has no minus sign.',
+        '2': 'Not quite. That takes 2 from 4. Count up from −4 °C, 4 degrees to zero, then 2 more.',
+        '7': 'Not quite. Count the steps between the marks, not the marks. From −4 °C that is 4 steps to zero, then 2 more.' } },
+    { show: true, demo: 'two', dur: 4.4, line: 'mid', name: 'To zero, then on',
+      text: 'For bigger gaps, hop to zero, then on. From −12 °C it is 12 degrees up to zero, then 6 more to +6 °C. The gap is 12 + 6 = 18 degrees.' },
+    { kind: 'drag', line: 'rooms', fixed: 4, start: -6, target: -20, opts: ['−24', '16', '24'], want: '24', fb: 2.5, name: 'Meat room to vegetable room',
+      at: { swap: [0, 0.3], hops: [{ a: -20, b: 0, t: 0.3, dur: 0.7, d: 32, lab: '20', lt: 0.65 }, { a: 0, b: 4, t: 1.1, dur: 0.5, d: 16, lab: '4', lt: 1.35 }], label: 1.65, work: 1.9 },
+      work: '20 + 4 = 24', tags: ['meat room', 'veg room'],
+      task: 'Drag the meat room to −20 °C. How far is it from the vegetable room?',
+      why: 'From −20 °C up to zero is 20 degrees, and from zero up to +4 °C is 4 more. So the two rooms are 20 + 4 = 24 degrees apart.',
+      hint: 'Not quite. Count up from −20 °C, through zero, to +4 °C.',
+      hints: { '−24': 'Not quite. A gap is a distance, never negative. Count up from the lower one, 20 to zero, then 4 more.',
+        '16': 'Not quite. That takes 4 from 20. Count through zero, 20 degrees up to it, then 4 more.' },
+      // the marker not yet on −20: the hint says which way to drag it, down from above or up from below
+      markHint: { down: 'Not quite. Drag the meat room down to −20 °C first. Its reading shows beside it.',
+        up: 'Not quite. Drag the meat room up to −20 °C first. Its reading shows beside it.' },
+      empty: 'Drag the meat room to −20 °C, then tap an answer.' },
+    { show: true, demo: 'down', dur: 4.4, line: 'rooms', name: 'A gap has no sign',
+      text: 'Count down from +4 °C instead. That is 4 degrees to zero, then 20 more, the same 24. A gap is a distance, so it is never negative.' },
+    { kind: 'gap', line: 'below', pair: [-18, -5], opts: ['−13', '13', '23'], want: '13', fb: 2.2, name: 'Both below zero',
+      at: { hops: [{ a: -18, b: -5, t: 0.15, dur: 0.8, d: 30, lab: '13', lt: 0.6 }], label: 1.1, work: 1.5 }, work: '18 − 5 = 13',
+      task: 'How far apart are −18 °C and −5 °C?',
+      why: 'Both readings are below zero, so the count never reaches zero. From −18 °C up to −5 °C is 13 degrees, the same as 18 − 5.',
+      hint: 'Not quite. Count up from −18 °C to −5 °C.',
+      hints: { '23': 'Not quite. Both are below zero, so you never reach zero. Count up from −18 °C to −5 °C.',
+        '−13': 'Not quite. A gap is never negative.' } },
+    { show: true, demo: 'size', dur: 3.6, line: 'six', name: 'Size',
+      text: 'A reading’s *size* is its gap from zero, so it leaves the sign off. −5 °C and +5 °C both have size 5. Maths writes size with bars, |−5| = 5.' },
+    { kind: 'size', line: 'volts', v: -12, opts: ['−12', '12', '24'], want: '12', fb: 2.1, name: 'The size of −12 V',
+      at: { hops: [{ a: -12, b: 0, t: 0.15, dur: 0.8, d: 26, lab: '12', lt: 0.6 }], label: 1.0, bars: 1.4 },
+      task: 'A meter reads −12 V. What is the size of that reading?',
+      why: 'Size is the gap from zero, so −12 V has size 12 V. The minus only says which side of zero it sits. Maths writes |−12| = 12 and calls size the modulus, or absolute value.',
+      hint: 'Not quite. Size is the gap from zero.',
+      hints: { '−12': 'Not quite. Size leaves the sign off.', '24': 'Not quite. That is the gap from −12 to +12. Size is the gap from zero.' } },
+    { kind: 'further', line: 'eight', pair: [-7, 5], opts: ['−7 °C', '+5 °C', 'Equal'], want: '−7 °C', fb: 1.7, name: 'Further from zero',
+      at: { sizes: [0.15, 0.75], labels: [0.45, 1.05] },
+      task: 'Which reading is further from zero, −7 °C or +5 °C?',
+      why: 'Further from zero means a bigger size. −7 °C has size 7 and +5 °C has size 5, so −7 °C is further from zero, even though +5 °C is higher.',
+      hint: 'Not quite. Compare their sizes.',
+      hints: { '+5 °C': 'Not quite. +5 °C is higher, but further from zero means a bigger size. Compare 7 and 5.',
+        'Equal': 'Not quite. Their sizes are 7 and 5.' } },
+    { kind: 'gap', line: 'reefer', pair: [-25, 25], opts: ['0', '25', '50'], want: '50', fb: 2.5, name: 'A reefer’s range',
+      at: { hops: [{ a: -25, b: 0, t: 0.15, dur: 0.7, d: 30, lab: '25', lt: 0.5 }, { a: 0, b: 25, t: 0.9, dur: 0.7, d: 30, lab: '25', lt: 1.25 }], label: 1.6, work: 1.9 },
+      work: '25 + 25 = 50',
+      task: 'A standard reefer runs from −25 °C to +25 °C. How many degrees is that range?',
+      why: 'From −25 °C up to zero is 25 degrees, and from zero up to +25 °C is 25 more. The range is 25 + 25 = 50 degrees, twice the size of either end.',
+      hint: 'Not quite. Count up from −25 °C, through zero, to +25 °C.',
+      hints: { '0': 'Not quite. −25 and +25 add to 0, but a gap counts the degrees between them.',
+        '25': 'Not quite. That only reaches zero. Count on from zero to +25 °C too.' } },
+    { kind: 'gap', line: 'deci', pair: [-1.5, 2.3], opts: ['−3.8', '0.8', '3.8'], want: '3.8', fb: 2.4, name: 'Decimal readings',
+      at: { hops: [{ a: -1.5, b: 0, t: 0.15, dur: 0.6, d: 24, lab: '1.5', lt: 0.45 }, { a: 0, b: 2.3, t: 0.85, dur: 0.6, d: 28, lab: '2.3', lt: 1.15 }], label: 1.5, work: 1.8 },
+      work: '1.5 + 2.3 = 3.8',
+      task: 'The air is at −1.5 °C and the sea at +2.3 °C. How many degrees apart are they?',
+      why: 'From −1.5 °C up to zero is 1.5 degrees, and from zero up to +2.3 °C is 2.3 more. So they are 1.5 + 2.3 = 3.8 degrees apart.',
+      hint: 'Not quite. Count up from −1.5 °C, through zero, to +2.3 °C.',
+      hints: { '0.8': 'Not quite. That takes 1.5 from 2.3. Count through zero, 1.5 degrees up to it, then 2.3 more.',
+        '−3.8': 'Not quite. A gap is never negative.' } },
+    { kind: 'pairs', line: 'pairs', pairs: [[-8, -3], [-3, 3]], tags: ['A', 'B'], opts: ['A', 'B', 'Equal'], want: 'B', fb: 2.5, name: 'Which gap is bigger?',
+      // A in one hop below zero, then B in two, up to zero and on; each gap is named as its hops land
+      at: { hops: [{ a: -8, b: -3, t: 0.15, dur: 0.6, d: 13, lab: '5', lt: 0.45 }, { a: -3, b: 0, t: 1.0, dur: 0.45, d: 11, lab: '3', lt: 1.15 },
+        { a: 0, b: 3, t: 1.35, dur: 0.45, d: 11, lab: '3', lt: 1.5 }], labels: [0.6, 1.6], work: [0.9, 1.9] }, works: ['8 − 3 = 5', '3 + 3 = 6'],
+      task: 'Which gap is bigger, A or B?',
+      why: 'A, from −8 °C to −3 °C, stays below zero, so it is 8 − 3 = 5 degrees. B, from −3 °C to +3 °C, crosses zero, so it is 3 + 3 = 6 degrees, the bigger gap.',
+      hint: 'Not quite. Count each gap up from its lower reading.',
+      hints: { 'A': 'Not quite. The 8 looks big, but count the degrees in each gap. B crosses zero.',
+        'Equal': 'Not quite. Count each gap up from its lower reading.' } },
+  ];
+  const FINISH = 'Count up from the lower reading, through zero when you pass it. A gap, often called the difference, is never negative. A reading’s size is its gap from zero.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled).
+  const FADE = 0.35;
+  const AT = {
+    // the two readings, then one-degree hops from −5 counted as they land, a rest at zero, then the gap and its sum
+    count: { pair: [-5, 3], marks: [0.4, 0.8], unit: [1.0, 0.28, 0.2], label: 3.55, work: 3.9, sum: '5 + 3 = 8' },
+    // the two readings, a hop up to zero, a hop on, then the gap and the sum that makes it
+    two: { pair: [-12, 6], marks: [0.5, 1.0], hops: [{ a: -12, b: 0, t: 1.5, dur: 0.8, d: 30, lab: '12', lt: 1.9 }, { a: 0, b: 6, t: 2.4, dur: 0.6, d: 20, lab: '6', lt: 2.7 }],
+      label: 3.2, work: 3.7, sum: '12 + 6 = 18' },
+    // the same rooms counted downwards from +4: the gap comes out the same
+    down: { pair: [4, -20], marks: [0.4, 0.9], hops: [{ a: 4, b: 0, t: 1.4, dur: 0.6, d: 16, lab: '4', lt: 1.7 }, { a: 0, b: -20, t: 2.1, dur: 0.9, d: 32, lab: '20', lt: 2.6 }],
+      label: 3.2, work: 3.7, sum: '4 + 20 = 24' },
+    // ±5 placed, a bracket grown out from zero to each and named as it lands, then the bars
+    size: { pair: [-5, 5], marks: [0.5, 1.0], sizes: [1.6, 2.2], labels: [1.9, 2.5], bars: 2.9 },
+  };
+  const HOP = 0.35, CNT = 0.15;   // a one-degree hop grows over HOP; its count follows CNT later
+  const UNIT_D = 16;              // how far a one-degree hop bulges out from the tube
+  // The upright scales: lo..hi, a tick every `minor`, a number every `major`. Degrees get a bulb.
+  const LINES = {
+    six: { lo: -6, hi: 6, minor: 1, major: 2, unit: '°C' },
+    mid: { lo: -15, hi: 10, minor: 1, major: 5, unit: '°C' },
+    rooms: { lo: -24, hi: 8, minor: 2, major: 10, unit: '°C' },
+    below: { lo: -20, hi: 4, minor: 1, major: 5, unit: '°C' },
+    volts: { lo: -15, hi: 15, minor: 1, major: 5, unit: 'V' },
+    eight: { lo: -8, hi: 8, minor: 1, major: 2, unit: '°C' },
+    reefer: { lo: -30, hi: 30, minor: 5, major: 10, unit: '°C' },
+    deci: { lo: -3, hi: 3, minor: 0.5, major: 1, unit: '°C' },
+    pairs: { lo: -10, hi: 5, minor: 1, major: 5, unit: '°C' },
+  };
+  // Drawing sizes, in viewBox units (340 wide, VH tall). The scale runs from YB (lo) up to YT (hi);
+  // the tube is centred on TX with its numbers to the left; hops start at HX; brackets stand at BX
+  // with their labels from LX.
+  const VH = 272, YT = 22, YB = 232, TX = 90, HX = 100, BX = 186, LX = 198;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const OAK = 'https://www.thenational.academy/teachers/programmes/maths-primary-ks2/units/negative-numbers/lessons/use-knowledge-of-positive-and-negative-numbers-to-calculate-intervals';
+  const KN = 'https://www.kuehne-nagel.com/uk/how-to/sea-freight/ship-in-reefer-containers';
+
+  // ---------- answers (pure, so the checks can test them) ----------
+  // The gap: count up from the lower reading to the higher one. Across zero that is two hops, up
+  // to zero and then on (the two sizes added); on one side of zero it is one hop.
+  const sizeOf = (v) => (v < 0 ? -v : v);                       // the gap from zero: the sign left off
+  function gapOf(a, b) {
+    const lo = Math.min(a, b), hi = Math.max(a, b);
+    return lo < 0 && hi > 0 ? sizeOf(lo) + sizeOf(hi) : hi - lo;
+  }
+  const tidy = (v) => Math.round(v * 1000) / 1000;
+  const value = (s) => parseFloat(String(s).replace('−', '-'));   // '−6' -> -6; 'The same' -> NaN
+  const near = (a, b) => K.near(a, b, 1e-9);
+  // The right answer a DO step asks for, worked by the rule: a number, or (further, pairs) an option.
+  function answerOf(d) {
+    if (d.kind === 'gap') return tidy(gapOf(d.pair[0], d.pair[1]));
+    if (d.kind === 'drag') return tidy(gapOf(d.target, d.fixed));
+    if (d.kind === 'size') return sizeOf(d.v);
+    if (d.kind === 'further') { const s = d.pair.map(sizeOf); return s[0] > s[1] ? d.opts[0] : s[1] > s[0] ? d.opts[1] : d.opts[2]; }
+    if (d.kind === 'pairs') { const g = d.pairs.map((p) => gapOf(p[0], p[1])); return g[0] > g[1] ? d.opts[0] : g[1] > g[0] ? d.opts[1] : d.opts[2]; }
+    return null;
+  }
+  function blank(i) {
+    const d = STEPS[i];
+    return { mark: d.kind === 'drag' ? d.start : null, pick: null, res: null, why: false };
+  }
+  // Nothing to check yet: no answer picked. On the drag screen, say what to do first.
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (st.pick != null) return '';
+    return d.kind === 'drag' && st.mark === d.start ? d.empty : PICK;
+  }
+  const isEmpty = (i, st) => st.pick == null;
+  const markRight = (i, st) => STEPS[i].kind !== 'drag' || st.mark === STEPS[i].target;
+  const isRight = (i, st) => st.pick === STEPS[i].want && markRight(i, st);
+  // A wrong answer's hint names its slip; on the drag screen a marker not yet on −20 comes first,
+  // with the way it has to go (down when it is above −20, up when it has gone past it).
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (!markRight(i, st)) return d.markHint[st.mark > d.target ? 'down' : 'up'];
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'drag') st.mark = d.target;
+    st.pick = d.want; st.res = 'right';
+    return st;
+  }
+  // One-degree hops from a up to b, `gap` seconds apart from t0, resting `rest` longer on reaching zero.
+  function unitHops(a, b, t0, gap, rest) {
+    const out = [];
+    let t = t0;
+    for (let v = a; v < b; v++) { out.push({ a: v, b: v + 1, t: t }); t += gap + (v + 1 === 0 ? rest : 0); }
+    return out;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current demonstration, or since Check
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A reading with its unit ("−20 °C", "12 V", "24 degrees"), a size in bars ("|−5|") or a whole
+  // sum ("12 + 6 = 18 degrees.") stays together on one line, with the full stop after it.
+  const NUM = '(?:\\|[−+]?\\d+(?:\\.\\d+)?\\||[−+]?\\d+(?:\\.\\d+)?(?: (?:°C|V|degrees)(?![A-Za-z]))?)';
+  const GLUE = new RegExp(NUM + '(?: [+−=] ' + NUM + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      if (/ /.test(m[0])) el.appendChild(K.el('span', { class: 'nw' }, m[0]));
+      else el.appendChild(document.createTextNode(m[0]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to four answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Check: marks the answer; a right one plays its picture's motion.
+  function checkAnswer(i, st) {
+    if (isEmpty(i, st)) { st.res = 'empty'; return false; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    return st.res === 'right';
+  }
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (checkAnswer(i, st)) play();
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    if (!STEPS[at()].show || finished) return;
+    play();
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    const d = STEPS[at()];
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < (d.show ? d.dur : d.fb || 0);
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play() {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving (a slot giving way to its answer): faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (cls === 'big' ? 22 : 16) * 0.6;
+  }
+  // Numbers as Dan reads them (a true minus sign, a plus on readings above zero) and as a screen reader says them.
+  const M = '−';
+  const plain = (v) => String(tidy(Math.abs(v)));
+  const signed = (v) => (v < 0 ? M : v > 0 ? '+' : '') + plain(v);
+  const fmt = (v) => (v < 0 ? M : '') + plain(v);                 // a number on the scale: no plus sign
+  let L = LINES.six;
+  const unitWord = () => (L.unit === 'V' ? 'volts' : 'degrees');
+  const said = (v) => (v < 0 ? 'minus ' : v > 0 ? 'plus ' : '') + plain(v) + ' ' + unitWord();
+  const reading = (v) => signed(v) + ' ' + L.unit;
+  function setLine(name) { L = LINES[name]; svg.setAttribute('viewBox', '0 0 340 ' + VH); }
+  const yOf = (v) => YB - (v - L.lo) * (YB - YT) / (L.hi - L.lo);
+  // The value under a height on the scale, snapped to its ticks.
+  function snapOf(y) {
+    const v = L.lo + (YB - y) / (YB - YT) * (L.hi - L.lo);
+    return tidy(K.clamp(Math.round(v / L.minor) * L.minor, L.lo, L.hi));
+  }
+  const lineAria = () => 'An upright number line from ' + said(L.lo) + ' to ' + said(L.hi) + (L.unit === '°C' ? ', drawn like a thermometer' : '') + ', with zero marked';
+  // The scale: the tube (and bulb), ticks, numbers and zero, then the readings in `marks`, each
+  // { v, a (how far it has arrived), thumb (Dan's marker), swap (how far that marker has become a
+  // reading dot), hideLabel, tag (a small name above its reading's label) }. A number on the scale
+  // that a reading's label (or tag) would cover gives way to it as the reading arrives.
+  const TAG_UP = 11, TAG_COVER = 29;
+  function covers(o, y) {
+    const dy = y - yOf(o.v);
+    return Math.abs(dy) < 19 || (!!o.tag && dy > -TAG_COVER && dy < 0);
+  }
+  function scale(marks) {
+    marks = marks || [];
+    const bulb = L.unit === '°C', top = YT - 12, r = 7;
+    if (bulb) {
+      const cy = YB + 24, R = 13, jy = cy - Math.sqrt(R * R - r * r);
+      add(K.svg('path', { class: 'tube', d: 'M' + (TX - r) + ' ' + jy.toFixed(2) + ' V' + (top + r) + ' A' + r + ' ' + r + ' 0 0 1 ' + (TX + r) + ' ' + (top + r) +
+        ' V' + jy.toFixed(2) + ' A' + R + ' ' + R + ' 0 1 1 ' + (TX - r) + ' ' + jy.toFixed(2) + ' Z' }));
+    } else add(K.svg('rect', { class: 'tube', x: TX - r, y: top, width: 2 * r, height: YB + 10 - top, rx: r }));
+    const n = Math.round((L.hi - L.lo) / L.minor);
+    for (let k = 0; k <= n; k++) {
+      const v = tidy(L.lo + k * L.minor), y = yOf(v), major = near(v / L.major, Math.round(v / L.major));
+      if (v === 0) continue;
+      line('tick', TX - 9 - (major ? 9 : 5), y, TX - 9, y);
+    }
+    line('zero', TX - 22, yOf(0), TX + r, yOf(0));
+    const m = Math.round((L.hi - L.lo) / L.major);
+    for (let k = 0; k <= m; k++) {
+      const v = tidy(Math.ceil(L.lo / L.major) * L.major + k * L.major);
+      if (v > L.hi + 1e-9) break;
+      const y = yOf(v), cover = marks.filter((o) => !o.hideLabel && covers(o, y)).map((o) => o.a == null ? 1 : o.a);
+      const draw = () => (v === 0 ? text(TX - 26, y + 6.5, '0', 'num0', 'end') : text(TX - 24, y + 5.5, fmt(v), 'num', 'end'));
+      if (!cover.length) draw();
+      else leave(Math.min(1, 2 * Math.max.apply(null, cover)), draw);
+    }
+    marks.forEach((o) => {
+      const a = o.a == null ? 1 : o.a, y = yOf(o.v);
+      const ring = () => {
+        add(K.svg('circle', { class: 'thumb', cx: TX, cy: y, r: 11 }));
+        if (!o.chevrons) return;
+        add(K.svg('path', { class: 'chev', d: 'M' + (TX - 5) + ' ' + (y - 17) + ' L' + TX + ' ' + (y - 23) + ' L' + (TX + 5) + ' ' + (y - 17) + ' Z' }));
+        add(K.svg('path', { class: 'chev', d: 'M' + (TX - 5) + ' ' + (y + 17) + ' L' + TX + ' ' + (y + 23) + ' L' + (TX + 5) + ' ' + (y + 17) + ' Z' }));
+      };
+      const dot = () => add(K.svg('circle', { class: 'dot', cx: TX, cy: y, r: 6.5 }));
+      if (o.thumb) ring();
+      else if (o.swap != null && o.swap < 1) { leave(o.swap, ring); part(o.swap, 0, dot); }   // Dan's marker handing over to a reading dot
+      else part(a, 0, dot);
+      if (o.hideLabel) return;
+      part(a, 6, () => text(TX - 24, y + 5, reading(o.v), 'val', 'end'));
+      if (o.tag) part(a, 6, () => text(TX - 24, y - TAG_UP, o.tag, 'rt', 'end'));
+    });
+  }
+  // A hop beside the tube from reading a to reading b, d units deep, grown as far as e (eased);
+  // with `head`, an arrowhead shows its direction as it lands.
+  function hop(a, b, d, e, head) {
+    if (e <= 0) return;
+    const y1 = yOf(a), y2 = yOf(b), ym = (y1 + y2) / 2;
+    const attrs = { class: 'hop', d: 'M' + HX + ' ' + y1.toFixed(2) + ' Q' + (HX + 2 * d) + ' ' + ym.toFixed(2) + ' ' + HX + ' ' + y2.toFixed(2) };
+    if (e < 1) { attrs.pathLength = 1; attrs['stroke-dasharray'] = '1 1'; attrs['stroke-dashoffset'] = (1 - e).toFixed(3); }
+    add(K.svg('path', attrs));
+    if (!head) return;
+    // the arrowhead points along the curve's last stretch, from its control point to its end
+    const dx = -2 * d, dy = y2 - ym, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+    const bx = HX - ux * 9, by = y2 - uy * 9, px = -uy * 4.5, py = ux * 4.5;
+    part(K.clamp((e - 0.75) / 0.25, 0, 1), 0, () => add(K.svg('path', { class: 'head', d: 'M' + HX + ' ' + y2.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z' })));
+  }
+  // A hop from the timetable: grown from h.t over h.dur, its label arriving at h.lt beside its middle.
+  function bigHop(h) {
+    hop(h.a, h.b, h.d, arr(h.t, h.dur), true);
+    const ym = (yOf(h.a) + yOf(h.b)) / 2;
+    part(arr(h.lt), 6, () => text(HX + h.d + 6, ym + 5, h.lab, 'hl', 'start'));
+  }
+  // One-degree hops, each counted as it lands; returns how many have landed.
+  function unitRun(list, depth) {
+    let n = 0;
+    list.forEach((h, k) => {
+      const e = arr(h.t, HOP);
+      if (e >= 1) n++;
+      hop(h.a, h.b, depth, e, false);
+      part(arr(h.t + CNT, HOP), 6, () => text(HX + depth + 5, (yOf(h.a) + yOf(h.b)) / 2 + 4.5, k + 1, 'cnt', 'start'));
+    });
+    return n;
+  }
+  // The slot an answer goes in: a dashed box that gives way to the answer as a goes 0 -> 1.
+  const slot = (x, y, w, h, a) => leave(a, () => add(K.svg('rect', { class: 'gapbox', x: x, y: y, width: w, height: h, rx: 5 })));
+  // A bracket at BX from reading a to reading b (pulled in by `inset` units at either end), drawn
+  // as far as a goes 0 -> 1. Its label sits to its right: text arriving at la, or a slot until then.
+  function bracket(a, b, al, inset) {
+    const ins = inset || [0, 0], y1 = yOf(Math.max(a, b)) + ins[0], y2 = yOf(Math.min(a, b)) - ins[1];
+    part(al, 0, () => add(K.svg('path', { class: 'rb', d: 'M' + (BX - 8) + ' ' + y1.toFixed(2) + ' H' + BX + ' V' + y2.toFixed(2) + ' H' + (BX - 8) })));
+    return (y1 + y2) / 2;
+  }
+  // Where two brackets meet at one reading, each stops this far short of it, so the two read as two.
+  const MEET = 6;
+  // A size bracket from zero to reading v, grown out from zero as e goes 0 -> 1 (eased): its zero
+  // end fades in, the line runs out to v, and its far end fades in as it lands. Its zero end is
+  // pulled in `ins` units. Returns the middle of the finished bracket.
+  function sizeBracket(v, e, ins) {
+    if (e >= 1) return bracket(v, 0, 1, v < 0 ? [ins, 0] : [0, ins]);
+    const yz = yOf(0) + (v < 0 ? ins : -ins), yv = yOf(v);
+    if (e > 0) {
+      part(K.clamp(e / 0.2, 0, 1), 0, () => line('rb', BX - 8, yz, BX, yz));
+      line('rb', BX, yz, BX, yz + (yv - yz) * e);
+      part(K.clamp((e - 0.8) / 0.2, 0, 1), 0, () => line('rb', BX - 8, yv, BX, yv));
+    }
+    return (yz + yv) / 2;
+  }
+  const label = (ym, s, a) => part(a, 6, () => text(LX, ym + 5.5, s, 'rl', 'start'));
+  function slotLabel(ym, s, a) { slot(LX - 6, ym - 13, tw(s, 'rl') + 12, 24, a); label(ym, s, a); }
+  const working = (ym, s, a) => part(a, 6, () => text(LX, ym + 28, s, 'wk', 'start'));
+  const degrees = (v) => plain(v) + ' degrees';
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  function demoCount() {
+    const A = AT.count, p = A.pair, mk = A.marks.map((t) => arr(t));
+    scale([{ v: p[0], a: mk[0] }, { v: p[1], a: mk[1] }]);
+    const n = unitRun(unitHops(p[0], p[1], A.unit[0], A.unit[1], A.unit[2]), UNIT_D);
+    const g = arr(A.label), ym = bracket(p[0], p[1], g), w = arr(A.work);
+    label(ym, degrees(gapOf(p[0], p[1])), g);
+    working(ym, A.sum, w);
+    return lineAria() + ', and readings at ' + said(p[0]) + ' and ' + said(p[1]) + '. ' +
+      (n ? n + ' one-degree hops up from minus 5 are counted' + (n >= 5 ? ', 5 of them to reach zero' : '') + '. ' : '') +
+      (g >= 0.5 ? 'A bracket marks the gap, 8 degrees' + (w >= 0.5 ? ', ' + A.sum.replace('=', 'equals') + '.' : '.') : '');
+  }
+  function demoHops(A) {
+    const p = A.pair, mk = A.marks.map((t) => arr(t));
+    scale([{ v: p[0], a: mk[0] }, { v: p[1], a: mk[1] }]);
+    A.hops.forEach(bigHop);
+    const g = arr(A.label), ym = bracket(p[0], p[1], g);
+    label(ym, degrees(gapOf(p[0], p[1])), g);
+    const w = arr(A.work);
+    working(ym, A.sum, w);
+    const landed = A.hops.filter((h) => arr(h.t, h.dur) >= 1);
+    return lineAria() + ', and readings at ' + said(p[0]) + ' and ' + said(p[1]) + '. ' +
+      landed.map((h) => 'A hop ' + (h.b > h.a ? 'up' : 'down') + ' from ' + said(h.a) + ' to ' + said(h.b) + ', ' + h.lab + ' degrees.').join(' ') +
+      (g >= 0.5 ? ' A bracket marks the gap, ' + degrees(gapOf(p[0], p[1])) + (w >= 0.5 ? ', ' + A.sum.replace('=', 'equals') + '.' : '.') : '');
+  }
+  function demoSize() {
+    const A = AT.size, p = A.pair, mk = A.marks.map((t) => arr(t));
+    scale([{ v: p[0], a: mk[0] }, { v: p[1], a: mk[1] }]);
+    const up = arr(A.sizes[0]), dn = arr(A.sizes[1]), lu = arr(A.labels[0]), ld = arr(A.labels[1]);
+    const yu = sizeBracket(p[1], up, MEET), yd = sizeBracket(p[0], dn, MEET);
+    label(yu, 'size ' + sizeOf(p[1]), lu);
+    label(yd, 'size ' + sizeOf(p[0]), ld);
+    const b = arr(A.bars);
+    part(b, 6, () => text(LX, VH - 12, '|' + signed(p[0]) + '| = ' + sizeOf(p[0]), 'big', 'start'));
+    return lineAria() + ', and readings at minus 5 and plus 5 degrees. ' + (lu >= 0.5 ? 'A bracket from zero up to plus 5 is labelled size 5. ' : '') +
+      (ld >= 0.5 ? 'A bracket from zero down to minus 5 is labelled size 5. ' : '') + (b >= 0.5 ? 'Beside them, the size of minus 5 written with bars equals 5.' : '');
+  }
+
+  // --- the puzzles (DO steps); after a right answer their motion runs on the same clock T ---
+  // A gap between two readings: a bracket with a slot; a right answer hops it out and fills the slot.
+  function drawGap(d, st, right) {
+    const F = d.at, p = d.pair, g = tidy(gapOf(p[0], p[1]));
+    scale([{ v: p[0] }, { v: p[1] }]);
+    let n = 0;
+    if (right && F.unit) n = unitRun(unitHops(p[0], p[1], F.unit[0], F.unit[1], F.unit[2]), UNIT_D);
+    if (right && F.hops) F.hops.forEach(bigHop);
+    const ym = bracket(p[0], p[1], 1);
+    const named = right ? arr(F.label) : 0, w = right ? arr(F.work) : 0;
+    slotLabel(ym, degrees(g), named);
+    working(ym, d.work, w);
+    return lineAria() + ', and readings at ' + said(p[0]) + ' and ' + said(p[1]) + ', with a bracket between them and ' +
+      (named >= 0.5 ? 'the gap, ' + degrees(g) + ', beside it' + (w >= 0.5 ? ': ' + d.work.replace('=', 'equals').replace('−', 'minus') + '.' : '.') : 'a space beside it for the gap.') +
+      (n ? ' ' + n + ' one-degree hops are counted.' : '');
+  }
+  // The meat room's marker, which Dan drags; the vegetable room's stays at +4.
+  function drawDrag(d, st, right) {
+    const F = d.at, m = st.mark, hideFixed = Math.abs(yOf(m) - yOf(d.fixed)) < 15 && m !== d.fixed;
+    // Each room is named above its reading. The vegetable room's name gives way while the meat room's
+    // marker is level with it or above it (or so close that its reading gives way too).
+    const veg = { v: d.fixed, hideLabel: hideFixed, tag: hideFixed || m >= d.fixed ? null : d.tags[1] };
+    const meat = right ? { v: m, swap: arr(F.swap[0], F.swap[1]), chevrons: true, tag: d.tags[0] } : { v: m, thumb: true, chevrons: true, tag: d.tags[0] };
+    scale([veg, meat]);
+    if (right) F.hops.forEach(bigHop);
+    let ym = null;
+    if (m !== d.fixed) {
+      ym = bracket(m, d.fixed, 1);
+      const named = right ? arr(F.label) : 0;
+      // the slot is as wide as the answer, wherever the marker is, so its width tells nothing
+      slotLabel(ym, degrees(answerOf(d)), named);
+      working(ym, d.work, right ? arr(F.work) : 0);
+    }
+    placeGrip(right ? null : m);
+    return lineAria() + '. The vegetable room\'s reading is plus 4 degrees, and the meat room\'s marker, which you can drag, is at ' + said(m) +
+      (m !== d.fixed ? ', with a bracket between them and ' + (right ? 'the gap, 24 degrees: 20 plus 4.' : 'a space beside it for the gap.') : '.');
+  }
+  // The size of one reading: a bracket from zero to it; a right answer hops it out and writes the bars.
+  function drawSize(d, st, right) {
+    const F = d.at, v = d.v;
+    scale([{ v: v }]);
+    if (right) F.hops.forEach(bigHop);
+    const ym = bracket(v, 0, 1, v < 0 ? [2, 0] : [0, 2]);
+    const named = right ? arr(F.label) : 0, b = right ? arr(F.bars) : 0;
+    slotLabel(ym, 'size ' + sizeOf(v) + ' ' + L.unit, named);
+    part(b, 6, () => text(LX, 70, '|' + signed(v) + '| = ' + sizeOf(v), 'big', 'start'));
+    return lineAria() + ', and a reading at ' + said(v) + ', with a bracket from zero to it and ' +
+      (named >= 0.5 ? 'its size, 12 volts, beside it' + (b >= 0.5 ? '. Above, the size of minus 12 written with bars equals 12.' : '.') : 'a space beside it for its size.');
+  }
+  // Which of two readings is further from zero: a right answer brackets each one's size from zero.
+  function drawFurther(d, st, right) {
+    const F = d.at, p = d.pair;
+    scale([{ v: p[0] }, { v: p[1] }]);
+    const out = [];
+    p.forEach((v, k) => {
+      const a = right ? arr(F.sizes[k]) : 0, la = right ? arr(F.labels[k]) : 0;
+      const ym = sizeBracket(v, a, MEET);
+      label(ym, 'size ' + sizeOf(v), la);
+      if (la >= 0.5) out.push(said(v) + ' has size ' + sizeOf(v));
+    });
+    return lineAria() + ', and readings at ' + said(p[0]) + ' and ' + said(p[1]) + (out.length ? '. Brackets from zero show the sizes: ' + out.join(', and ') + '.' : '.');
+  }
+  // Two gaps on one line, one below zero and one across it: two brackets with slots.
+  function drawPairs(d, st, right) {
+    const F = d.at, ps = d.pairs, vals = [ps[0][0], ps[0][1], ps[1][1]], out = [];
+    scale(vals.map((v) => ({ v: v })));
+    if (right) F.hops.forEach(bigHop);
+    ps.forEach((p, k) => {
+      const ym = bracket(p[0], p[1], 1, k === 0 ? [MEET, 0] : [0, MEET]), g = gapOf(p[0], p[1]);
+      const named = right ? arr(F.labels[k]) : 0, w = right ? arr(F.work[k]) : 0;
+      text(BX - 12, ym + 5.5, d.tags[k], 'tag', 'end');
+      slotLabel(ym, degrees(g), named);
+      working(ym, d.works[k], w);
+      if (named >= 0.5) out.push(d.tags[k] + ' is ' + degrees(g));
+    });
+    return lineAria() + ', and readings at minus 8, minus 3 and plus 3 degrees, with bracket A from minus 8 to minus 3 and bracket B from minus 3 to plus 3' +
+      (out.length ? '. ' + out.join(', and ') + '.' : ', each with a space beside it for its gap.');
+  }
+
+  // The marker Dan drags is one grip kept across repaints (the picture is redrawn every frame), so
+  // a drag in progress and the keyboard focus both survive. It is a thumb's width across (about 47 px
+  // on a 360 px phone).
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: TX, cy: 0, r: 27, tabindex: -1, role: 'slider', 'aria-label': 'Meat room marker',
+    'aria-orientation': 'vertical' }));
+  grip.style.display = 'none';
+  function placeGrip(v) {
+    if (v == null) { grip.style.display = 'none'; grip.setAttribute('tabindex', '-1'); return; }
+    grip.style.display = '';
+    grip.setAttribute('tabindex', '0');
+    grip.setAttribute('cy', yOf(v).toFixed(2));
+    grip.setAttribute('aria-valuemin', L.lo); grip.setAttribute('aria-valuemax', L.hi); grip.setAttribute('aria-valuenow', v);
+    grip.setAttribute('aria-valuetext', said(v));
+  }
+  const dragging = () => { const i = at(); return !finished && STEPS[i].kind === 'drag' && S[i].res !== 'right'; };
+  function setMark(v) {
+    const st = S[at()];
+    if (v === st.mark) return;
+    st.mark = v; st.res = null;
+    K.reveal(); K.refresh();
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    setMark(snapOf(q.y));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const step = L.minor, by = { ArrowUp: step, ArrowRight: step, ArrowDown: -step, ArrowLeft: -step, PageUp: 5 * step, PageDown: -5 * step }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const st = S[at()];
+    setMark(e.key === 'Home' ? L.lo : e.key === 'End' ? L.hi : tidy(K.clamp(st.mark + by, L.lo, L.hi)));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    setLine(d.line);
+    if (d.kind !== 'drag') placeGrip(null);
+    let aria;
+    if (d.show) aria = d.demo === 'count' ? demoCount() : d.demo === 'size' ? demoSize() : demoHops(AT[d.demo]);
+    else aria = { gap: drawGap, drag: drawDrag, size: drawSize, further: drawFurther, pairs: drawPairs }[d.kind](d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;          // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(); else { anim.pause(); T = Infinity; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').className = 'row picks' + (d.wrap ? ' wrap' : '');
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const DRAG = STEPS.findIndex((d) => d.kind === 'drag');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // The one option a step accepts: the only one equal to the answer the rule gives.
+  function onlyRight(i) {
+    const d = STEPS[i], ans = answerOf(d);
+    const ok = typeof ans === 'number' ? d.opts.filter((o) => near(value(o), ans)) : d.opts.filter((o) => o === ans);
+    return ok.join() === d.want && d.opts.every((o) => pickRight(i, o) === (o === d.want));
+  }
+  // Counting one degree at a time from the lower reading to the higher: an answer from outside the rule.
+  function counted(a, b) { let n = 0; for (let v = Math.min(a, b); v < Math.max(a, b); v++) n++; return n; }
+  K.check('Count up from the lower reading, through zero: −5 to +3 is 8, −4 to +2 is 6, −12 to +6 is 18, −20 to +4 is 24, −25 to +25 is 50 and −1.5 to +2.3 is 3.8 (the two sizes added); −18 to −5 is 13 and −8 to −3 is 5, never reaching zero; counting one degree at a time gives the same whole-number gaps; each puzzle accepts only its answer', () =>
+    gapOf(-5, 3) === 8 && gapOf(-4, 2) === 6 && gapOf(-12, 6) === 18 && gapOf(-20, 4) === 24 && gapOf(-25, 25) === 50 && near(gapOf(-1.5, 2.3), 3.8) &&
+    gapOf(-18, -5) === 13 && gapOf(-8, -3) === 5 && gapOf(-3, 3) === 6 &&
+    [[-5, 3], [-4, 2], [-12, 6], [-20, 4], [-25, 25], [-18, -5], [-8, -3], [-3, 3]].every((p) => counted(p[0], p[1]) === gapOf(p[0], p[1])) &&
+    DO.every(onlyRight));
+  K.check('Differences between values are always positive: every gap in this lesson comes out above zero, counted from either reading, and no answer with a minus sign is accepted', () => {
+    const pairs = [AT.count.pair, AT.two.pair, AT.down.pair].concat(STEPS.filter((d) => d.pair && d.kind !== 'further').map((d) => d.pair), [[-20, 4]], STEPS.filter((d) => d.pairs).reduce((a, d) => a.concat(d.pairs), []));
+    return pairs.every((p) => gapOf(p[0], p[1]) > 0 && gapOf(p[0], p[1]) === gapOf(p[1], p[0])) &&
+      DO.filter((i) => ['gap', 'drag', 'size'].includes(STEPS[i].kind)).every((i) => STEPS[i].opts.filter((o) => /^−\d/.test(o)).every((o) => !pickRight(i, o)));
+  }, { source: OAK });
+  K.check('Size leaves the sign off: the size of −12 is 12, of −5 and +5 is 5, and of 0 is 0; −7 is further from zero than +5 though +5 is higher; a gap across zero is the two sizes added (20 + 4 = 24, 25 + 25 = 50)', () =>
+    sizeOf(-12) === 12 && sizeOf(-5) === 5 && sizeOf(5) === 5 && sizeOf(0) === 0 && sizeOf(-7) > sizeOf(5) && -7 < 5 &&
+    gapOf(-20, 4) === sizeOf(-20) + sizeOf(4) && gapOf(-25, 25) === sizeOf(-25) + sizeOf(25));
+  K.check('All standard reefer containers are built to maintain a temperature between +25 °C and −25 °C: step 10 asks for that range, and counted up from −25 through zero to +25 it is 25 + 25 = 50 degrees', () => {
+    const d = STEPS.find((x) => x.line === 'reefer');
+    return !!d && d.pair[0] === -25 && d.pair[1] === 25 && d.task.indexOf('−25 °C to +25 °C') >= 0 && gapOf(-25, 25) === 50 && answerOf(d) === 50 && value(d.want) === 50;
+  }, { source: KN });
+  // The drawing itself, measured: step i painted finished in state st.
+  function drawn(i, st, sel) {
+    const keepT = T, keepS = S[i];
+    T = Infinity; S[i] = st;
+    try { paint(i); return Array.prototype.map.call(art.querySelectorAll(sel), (n) => n.getAttribute('d')); }
+    finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  K.check('The meat room marker snaps to whole steps of 2 degrees between −24 and +8, and 24 is accepted only with it on −20 (left above it, the hint says drag it down; gone past it, up); as drawn, −20 sits below zero and +4 above it, and the bracket between them spans 24 degrees of the scale', () => {
+    const d = STEPS[DRAG], keep = L;
+    try {
+      L = LINES[d.line];
+      const snaps = [-24, -20, -10, 0, 4, 8].every((v) => snapOf(yOf(v)) === v) && snapOf(yOf(-19.2)) === -20 && snapOf(yOf(-21.2)) === -22 &&
+        snapOf(YB + 40) === L.lo && snapOf(YT - 40) === L.hi;
+      const at20 = Object.assign(blank(DRAG), { mark: -20, pick: '24' }), at18 = Object.assign(blank(DRAG), { mark: -18, pick: '24' }), at22 = Object.assign(blank(DRAG), { mark: -22, pick: '24' });
+      const unmoved = Object.assign(blank(DRAG), { pick: '24' }), minus = Object.assign(blank(DRAG), { mark: -20, pick: '−24' });
+      const answers = isRight(DRAG, at20) && !isRight(DRAG, at18) && hintFor(DRAG, at18) === d.markHint.down && /down/.test(d.markHint.down) &&
+        !isRight(DRAG, at22) && hintFor(DRAG, at22) === d.markHint.up && /up/.test(d.markHint.up) && !isRight(DRAG, unmoved) &&
+        !isRight(DRAG, minus) && hintFor(DRAG, minus) === d.hints['−24'] && isEmpty(DRAG, blank(DRAG)) && emptyFor(DRAG, blank(DRAG)) === d.empty;
+      const path = drawn(DRAG, solved(DRAG), 'path.rb')[0] || '', ys = (path.match(/[VM][^HV]*/g) || []).map((s) => +s.slice(1).trim().split(/\s+/).pop());
+      L = LINES[d.line];
+      const unitsPerDegree = (YB - YT) / (L.hi - L.lo), span = ys.length >= 2 ? Math.abs(ys[1] - ys[0]) : 0;
+      return snaps && answers && yOf(-20) > yOf(0) && yOf(4) < yOf(0) && K.near(span, 24 * unitsPerDegree, 1e-6);
+    } finally { L = keep; }
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s; hops along the line start at least 0.2 s apart', () => {
+    const keepT = T, ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      if (!d.show) S[i] = solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE : latest <= d.fb && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    const runs = [AT.count, AT.two, AT.down].concat(STEPS.filter((d) => d.at).map((d) => d.at)).map((A) => {
+      if (A.unit) { const p = A.pair || STEPS.find((d) => d.at === A).pair; return unitHops(p[0], p[1], A.unit[0], A.unit[1], A.unit[2]).map((h) => h.t); }
+      return (A.hops || []).map((h) => h.t);
+    });
+    return ok && runs.every((ts) => ts.every((t, k) => k === 0 || t - ts[k - 1] >= 0.2 - 1e-9));
+  });
+
+  K.ready();
+</script>

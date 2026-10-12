@@ -1,0 +1,1002 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* Blocks, as in lesson 1: the first amount solid ink, the second a light tint of it, each row named. */
+  .scene .b1 { fill: var(--k-accent2); }
+  .scene .b2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .rname { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .unit { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .blab { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .over { fill: none; stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .overt { font: 700 13px var(--k-font); fill: var(--k-warn); }
+  /* The ratio table: a column for each amount, the same step written over the top row and under the bottom one. */
+  .scene .col { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .mid { stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .val { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .arc, .scene .arcl { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent2); }
+  .scene .opl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* Adding the same number to both parts is the slip: its steps are drawn in the warning colour. */
+  .scene .arc.bad { stroke: var(--k-warn); }
+  .scene .head.bad { fill: var(--k-warn); }
+  .scene .opl.bad { fill: var(--k-warn); }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  /* The double number line: two scales locked together. */
+  .scene .nl { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .tl { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .stem { stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .thumb { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene #art * { pointer-events: none; }
+  /* The mark Dan drags: a thumb's-width hit circle over the drawn thumb. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The four steps to try on the adding screen: one row, each label whole. */
+  .row.tries { flex-wrap: nowrap; }
+  .tries .k-btn { flex: 1 1 0; min-width: 0; min-height: 48px; font-size: 1.1rem; white-space: nowrap; padding-inline: 4px; }
+  .tries .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .trysay { line-height: 1.55; margin-top: 10px; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones (1,799 rpm) stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A ratio table with the same step above and below, and the mix above it as batches of blocks, or for a scale, two number lines locked together.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 198" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="row tries" id="tries"></div>
+    <p class="trysay" id="trysay" aria-live="polite"></p>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Both parts of a ratio take the same × or ÷. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // pic: the picture, 'mix' (blocks above a ratio table), 'table' (the table alone) or 'line' (a double
+  // number line for a scale). names: the table's two rows, in the ratio's order. On a SHOW step, cols:
+  // the table's columns [first, second] and ops: the step between each pair; batch: one batch, the
+  // simplest ratio. On a DO step, ask says what the puzzle wants: 'fill' the missing amount when
+  // `given` of the first goes with a ratio (`via`: through one batch first), 'same' the ratio × `by`,
+  // 'simp' the simplest ratio, 'up' the real length of `cm` on a drawing at 1 : scale, 'down' the
+  // drawing length of `m` metres. slips: which mistake gives each wrong answer (SLIP below). at: when
+  // each part of the motion after a right answer arrives, in seconds after Check.
+  const PICK = 'Tap one of the answers.';
+  const MIX = ['Squash', 'Water'];
+  // After a right answer: the step is written over and under the table; the missing amount fills in;
+  // the blocks slide into batches, or more arrive, or all but one batch leave; each batch is named.
+  const FILLMIX = { arcs: 0.1, ans: 0.6, slide: [1.1, 0.6], grow: 1.8, labs: 1.8 };
+  const SAMEMIX = { arcs: 0.1, ans: 0.6, grow: 1.1, labs: 1.6 };
+  const SIMPMIX = { arcs: 0.1, slide: [0.1, 0.5], ans: 0.7, labs: 0.7, cut: 1.3 };
+  const UPLINE = { arrow: 0.1, ans: 0.55 };
+  const DOWNLINE = { arrow: 0.1, real: 0.55, ans: 1.0 };
+  const FILLTAB = { arcs: 0.1, ans: 0.55 };
+  const VIATAB = { via: 0.1, viaval: 0.55, arcs: 1.0, ans: 1.45 };
+  const STEPS = [
+    { show: true, demo: 'copies', pic: 'mix', dur: 3.0, names: MIX, batch: [3, 2], cols: [[3, 2], [6, 4]], ops: ['× 2'], name: 'Two batches',
+      text: 'Two batches of a 3 : 2 mix make 6 : 4. Both parts are doubled. 3 : 2 and 6 : 4 are *equivalent ratios*, like equivalent fractions.' },
+    { kind: 'pick', ask: 'fill', pic: 'mix', names: MIX, ratio: [3, 2], given: 9, unit: '', name: 'Three batches',
+      opts: ['8', '6', '13.5'], want: '6', slips: { '8': 'add', '13.5': 'flip' }, fb: 2.45, at: FILLMIX,
+      task: 'A mix is 3 : 2, squash to water. How many parts of water go with 9 parts of squash?',
+      why: '9 is 3 × 3, so that is three batches. The water is × 3 too, and 2 × 3 = 6, which makes 9 : 6. Adding 6 to both parts would give 9 : 8, a weaker mix.',
+      hint: 'Not quite. How many batches of 3 make 9?',
+      hints: { '8': 'Not quite. That adds 6 to both parts. 9 is three lots of 3, so the water is three lots of 2.',
+        '13.5': 'Not quite. That reads the ratio the wrong way round. Squash comes first, 3 for every 2 water.' } },
+    { show: true, demo: 'add', pic: 'mix', dur: 3.0, names: MIX, batch: [3, 2], cols: [[3, 2]], op: '+ 3', tries: ['× 2', '× 3', '+ 1', '+ 3'], name: 'Adding changes it',
+      text: 'Adding the same number to both parts changes this mix. 3 : 2 with 3 more of each is 6 : 5, one water too many for two batches. Tap a button to try others.' },
+    { kind: 'pick', ask: 'same', pic: 'mix', names: MIX, ratio: [1, 4], by: 2, name: 'Same mix?',
+      opts: ['2 : 5', '4 : 7', '2 : 8'], want: '2 : 8', slips: { '2 : 5': 'add1', '4 : 7': 'add3' }, fb: 2.25, at: SAMEMIX,
+      task: 'Another mix is 1 : 4, squash to water. Which of these is the same mix?',
+      why: '2 : 8 is 1 : 4 with both parts × 2, which is two whole batches. 2 : 5 adds 1 to both parts and 4 : 7 adds 3, so both change the mix.',
+      hint: 'Not quite. Look for both parts multiplied by the same number.',
+      hints: { '2 : 5': 'Not quite. That adds 1 to both parts, which changes the mix. Multiply both parts instead.',
+        '4 : 7': 'Not quite. That adds 3 to both parts. Look for both parts times the same number.' } },
+    { show: true, demo: 'join', pic: 'mix', dur: 3.0, names: MIX, batch: [3, 2], cols: [[12, 8], [3, 2]], ops: ['÷ 4'], name: 'One batch',
+      text: 'Dividing both parts by the same number keeps the mix too. 12 : 8 is four batches of 3 : 2, so ÷ 4 gives one batch. Dividing as far as it goes is *simplifying*.' },
+    { kind: 'pick', ask: 'simp', pic: 'mix', names: MIX, ratio: [20, 12], name: 'As far as it goes',
+      opts: ['5 : 3', '10 : 6', '5 : 12'], want: '5 : 3', slips: { '10 : 6': 'half', '5 : 12': 'one' }, fb: 2.0, at: SIMPMIX,
+      task: 'A mix is 20 : 12. Simplify it as far as it goes.',
+      why: '20 and 12 both divide by 4, so 20 : 12 is four batches of 5 : 3. 10 : 6 is the same mix, but both parts still divide by 2. Only 1 divides both 5 and 3.',
+      hint: 'Not quite. Find the biggest number that divides both 20 and 12.',
+      hints: { '10 : 6': 'Not quite. 10 : 6 is the same mix, but both parts still divide by 2.',
+        '5 : 12': 'Not quite. That divides only the first part. Divide both parts by the same number.' } },
+    { show: true, demo: 'scale', pic: 'line', dur: 4.5, scale: 100, from: 1, to: 5, range: [0.5, 8], snap: 0.5, drag: true, name: 'A scale drawing',
+      text: 'At a *scale* of 1 : 100, 1 cm on a drawing stands for 100 cm, which is 1 m. The two lines stay locked together. Drag the mark to try other lengths.' },
+    { kind: 'pick', ask: 'up', pic: 'line', scale: 100, cm: 4.5, name: 'Real length',
+      opts: ['450 m', '103.5 cm', '4.5 m'], want: '4.5 m', slips: { '450 m': 'unitm', '103.5 cm': 'gap' }, fb: 1.45, at: UPLINE,
+      task: 'On a 1 : 100 drawing, a wall is 4.5 cm long. How long is the real wall?',
+      why: 'The real wall is 100 times as long, and 4.5 × 100 = 450 cm. 100 cm make 1 m, so that is 4.5 m. Both parts of 1 : 100 are in the same unit.',
+      hint: 'Not quite. The real wall is 100 times as long, in centimetres.',
+      hints: { '450 m': 'Not quite. 4.5 × 100 = 450, but in centimetres, the drawing\'s unit. Turn 450 cm into metres.',
+        '103.5 cm': 'Not quite. That adds 99, the gap between 1 and 100. A scale multiplies, so the wall is 100 times as long.' } },
+    { kind: 'pick', ask: 'down', pic: 'line', scale: 100, m: 7, name: 'On the drawing',
+      opts: ['700 cm', '7 cm', '0.07 cm'], want: '7 cm', slips: { '700 cm': 'real', '0.07 cm': 'unitcm' }, fb: 1.9, at: DOWNLINE,
+      task: 'A room is 7 m long. How long is it on a 1 : 100 drawing?',
+      why: '7 m is 700 cm, and the drawing is 100 times smaller, so 700 ÷ 100 = 7 cm. At 1 : 100, each metre is a centimetre on the drawing.',
+      hint: 'Not quite. Turn 7 m into centimetres, then make it 100 times smaller.',
+      hints: { '700 cm': 'Not quite. That is the real length in centimetres. The drawing is 100 times smaller.',
+        '0.07 cm': 'Not quite. 7 ÷ 100 = 0.07, but in metres. Turn 0.07 m into centimetres.' } },
+    { show: true, demo: 'steps', pic: 'mix', dur: 4.2, names: MIX, batch: [2, 3], cols: [[6, 9], [2, 3], [8, 12]], ops: ['÷ 3', '× 4'], name: 'Through one batch',
+      text: 'To scale 6 : 9 up to 8 squash, go through one batch. ÷ 3 gives 2 : 3, then × 4 gives 8 : 12. A *ratio table* can take as many steps as you need.' },
+    { kind: 'pick', ask: 'fill', pic: 'table', names: ['Engine', 'Shaft'], note: 'Speeds in rpm', ratio: [2, 1], given: 1800, unit: 'rpm', name: 'A gearbox',
+      opts: ['900 rpm', '3,600 rpm', '1,799 rpm'], want: '900 rpm', slips: { '1,799 rpm': 'add', '3,600 rpm': 'flip' }, fb: 1.45, at: FILLTAB,
+      task: 'A reduction gearbox lowers speed 2 : 1, engine to shaft. The engine turns at 1,800 rpm. How fast does the shaft turn?',
+      why: 'The engine turns twice for each turn of the shaft. 1,800 is 2 × 900, so both parts are × 900 and the shaft turns at 900 rpm.',
+      hint: 'Not quite. What number takes 2 up to 1,800?',
+      hints: { '1,799 rpm': 'Not quite. That keeps the gap of 1, as if adding. Multiply both parts by the same number.',
+        '3,600 rpm': 'Not quite. The engine is the 2, the faster one, so the shaft turns slower.' } },
+    { kind: 'pick', ask: 'fill', pic: 'table', names: MIX, ratio: [4, 6], via: true, given: 10, unit: '', name: 'Put it together',
+      opts: ['12', '60', '15'], want: '15', slips: { '12': 'add', '60': 'batches' }, fb: 2.35, at: VIATAB,
+      task: 'Put it together. A mix is 4 : 6, squash to water. How many parts of water go with 10 parts of squash?',
+      why: '4 : 6 simplifies to 2 : 3, one batch. 10 squash is 5 batches, so the water is 3 × 5 = 15. Adding 6 to both parts would give 10 : 12, which changes the mix.',
+      hint: 'Not quite. Simplify 4 : 6 first, then scale up.',
+      hints: { '12': 'Not quite. That adds 6 to both parts. Go through one batch, 2 : 3, then multiply.',
+        '60': 'Not quite. 10 squash is not 10 batches of 4 : 6. Go through one batch first.' } },
+  ];
+  const FINISH = 'To keep a ratio, multiply or divide both parts by the same number, so 3 : 2 is also 6 : 4 and 30 : 20. Adding the same number to both parts changes a ratio like 3 : 2. A scale such as 1 : 100 multiplies too, once both parts are in the same unit.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). grow: more blocks arriving; labs:
+  // each batch named under it; arcs: the step written over and under the table; ans: the new column;
+  // over: the blocks left over ringed; cut: all but one batch leaving; arrow: the scale's × 100 between
+  // the lines; mark: the marked length on both lines; go: the mark travelling [start, how long]; grip:
+  // the mark's thumb, to drag.
+  const FADE = 0.35;
+  const AT = {
+    copies: { grow: 0.6, labs: 1.2, arcs: 1.8, ans: 2.4 },
+    add: { arcs: 0.6, grow: 1.2, ans: 1.8, over: 2.4 },
+    join: { labs: 0.6, arcs: 1.2, cut: 1.8, ans: 2.4 },
+    scale: { arrow: 0.6, mark: 1.2, go: [1.8, 1.6], grip: 3.9 },
+    steps: { arcs: 0.6, cut: 1.2, ans: 1.8, arcs2: 2.4, grow: 3.0, ans2: 3.6 },
+  };
+  // A step tapped on the adding screen plays like an answer: the step, the blocks, the column, any left over.
+  const TRY = { arcs: 0.1, grow: 0.55, ans: 1.0, over: 1.45 }, TRYDUR = 2.1;
+  // Drawing sizes, in viewBox units (340 wide). Row names at NX. Blocks from BX, at most BW across, in two
+  // rows at BR (BHT tall, BG apart, batches BATCH apart), labelled at LABY. The table's columns are CW
+  // apart from TX, its rows CH tall, its top at TY. The number lines run from LX0 to LX1 (0 to LMAX cm)
+  // at TL (the drawing) and BL (real life). HOF: each picture's height.
+  const NX = 6, BX = 66, BW = 268, BR = [8, 34], BHT = 20, BG = 3, BATCH = 10, LABY = 70;
+  const TX = 66, CW = 88, CH = 28, TY = { mix: 106, table: 34 };
+  const LX0 = 84, LX1 = 326, LMAX = 8, TL = 50, BL = 120;
+  const HOF = { mix: 198, table: 126, line: 164 };
+  let H = HOF.mix;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const M = '−';
+  // A number as Dan reads it: at most three decimal places, thousands with a comma (1,800).
+  const num = (v) => { const p = String(r3(v)).split('.'); return p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (p[1] ? '.' + p[1] : ''); };
+  const withUnit = (v, u) => num(v) + (u ? ' ' + u : '');
+  const rat = (a, b) => num(a) + ' : ' + num(b);
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const simplest = (c) => { const g = gcd(c[0], c[1]); return [c[0] / g, c[1] / g]; };
+  // A step on both parts: '× 2', '÷ 4', or the slip, '+ 3'.
+  function apply(op, c) {
+    const k = Number(op.slice(2));
+    return op[0] === '×' ? [c[0] * k, c[1] * k] : op[0] === '÷' ? [c[0] / k, c[1] / k] : [c[0] + k, c[1] + k];
+  }
+  const sameMix = (p, q) => p[0] * q[1] === p[1] * q[0];
+  // A step's table, finished: its columns and the step between each pair (bad: the step is the slip).
+  function tableOf(d) {
+    if (d.show) return d.cols && d.demo !== 'add' ? { cols: d.cols, ops: d.ops } : d.demo === 'add' ? { cols: [d.cols[0], apply(d.op, d.cols[0])], ops: [d.op], bad: true } : null;
+    if (d.ask === 'same') return { cols: [d.ratio, apply('× ' + d.by, d.ratio)], ops: ['× ' + d.by] };
+    if (d.ask === 'simp') { const g = gcd(d.ratio[0], d.ratio[1]); return { cols: [d.ratio, simplest(d.ratio)], ops: ['÷ ' + g] }; }
+    if (d.ask !== 'fill') return null;
+    const out = [d.given, d.ratio[1] * d.given / d.ratio[0]];
+    if (!d.via) return { cols: [d.ratio, out], ops: ['× ' + num(d.given / d.ratio[0])] };
+    const one = simplest(d.ratio);
+    return { cols: [d.ratio, one, out], ops: ['÷ ' + gcd(d.ratio[0], d.ratio[1]), '× ' + num(d.given / one[0])] };
+  }
+  // At 1 : scale, c cm on the drawing is c × scale cm in real life, which is c × scale ÷ 100 m.
+  const realCm = (c, scale) => r3(c * scale);
+  const realText = (c, scale) => num(realCm(c, scale)) + ' cm = ' + num(realCm(c, scale) / 100) + ' m';
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.ask === 'fill') return withUnit(d.ratio[1] * d.given / d.ratio[0], d.unit);
+    if (d.ask === 'same') return rat(d.ratio[0] * d.by, d.ratio[1] * d.by);
+    if (d.ask === 'simp') return rat.apply(null, simplest(d.ratio));
+    if (d.ask === 'up') return num(realCm(d.cm, d.scale) / 100) + ' m';
+    return num(d.m * 100 / d.scale) + ' cm';
+  }
+  // What each slip makes of the answer: the gap between the parts kept, as if adding; the ratio read
+  // backwards; the amount taken as the number of batches; 1 or 3 added to both parts; a ratio halved but
+  // not simplified; only the first part divided; centimetres read as metres; the gap of 99 added; the
+  // real length given for the drawing's; metres ÷ 100 read as centimetres.
+  const SLIP = {
+    add: (d) => withUnit(d.ratio[1] + d.given - d.ratio[0], d.unit),
+    flip: (d) => withUnit(d.given * d.ratio[0] / d.ratio[1], d.unit),
+    batches: (d) => withUnit(d.ratio[1] * d.given, d.unit),
+    add1: (d) => rat(d.ratio[0] + 1, d.ratio[1] + 1),
+    add3: (d) => rat(d.ratio[0] + 3, d.ratio[1] + 3),
+    half: (d) => rat(d.ratio[0] / 2, d.ratio[1] / 2),
+    one: (d) => rat(d.ratio[0] / gcd(d.ratio[0], d.ratio[1]), d.ratio[1]),
+    unitm: (d) => num(realCm(d.cm, d.scale)) + ' m',
+    gap: (d) => num(d.cm + d.scale - 1) + ' cm',
+    real: (d) => num(d.m * 100) + ' cm',
+    unitcm: (d) => num(d.m / d.scale) + ' cm',
+  };
+  // What a puzzle's picture must not show before the answer.
+  function hiddenOf(d) {
+    const t = tableOf(d);
+    if (t) { const last = t.cols[t.cols.length - 1]; return d.ask === 'fill' ? [num(last[1])] : last.map(num); }
+    return d.ask === 'up' ? [num(realCm(d.cm, d.scale)), answerOf(d)] : [num(d.m * 100), answerOf(d)];
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/(\d) : (\d)/g, '$1 to $2').replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres').replace(/ rpm\b/g, ' r p m')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/ /g, ' ').replace(/\s+/g, ' ').trim();
+  const WORD = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
+
+  function blank(i) { return { pick: null, res: null, why: false, mark: null, op: null }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) { const st = blank(i); st.pick = STEPS[i].want; st.res = 'right'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo', 'try' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A ratio, a sum, an amount or a step stays together on one line ("3 : 2", "4.5 × 100 = 450 cm",
+  // "1,800 rpm", "÷ 4"), with the stop after it; a long one may break only before an equals sign.
+  const TOK = '[−+]?(?:\\d{1,3}(?:,\\d{3})+|\\d+)(?:\\.\\d+)?(?: (?:cm|rpm|m)(?![a-z]))?';
+  const GLUE = new RegExp('(?:[×÷+] )?' + TOK + '(?: [+−=×÷:] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b));
+        else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // The steps to try on the adding screen: each one plays on the table and the blocks.
+  const tryBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Step ' + (k + 1), secondary: true, into: '#tries', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.tries || k >= d.tries.length) return;
+    S[i].op = d.tries[k];
+    K.reveal();
+    play(TRYDUR, 'try');
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].mark = null; S[i].op = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, a tapped step and the motion after a right answer, from its
+  // start; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { tagt: 15, opl: 15, val: 16, rname: 14 }[cls] || 13;
+    return String(s).length * size * 0.6;
+  }
+  const names = (list, ys) => list.forEach((s, r) => text(NX, ys[r], s, 'rname', 'start'));
+
+  // --- blocks ---
+  // Where each block of p : q sits: in batches of a : b (n whole batches side by side, then any left
+  // over), or loose, one even row each. w: the blocks' width on this screen.
+  function layout(p, q, a, b, w, loose) {
+    const m = Math.max(a, b), bw = m * (w + BG) - BG, n = Math.min(Math.floor(p / a + 1e-9), Math.floor(q / b + 1e-9));
+    const x = (k, per) => (loose ? BX + k * (w + BG) : k < n * per ? BX + Math.floor(k / per) * (bw + BATCH) + (k % per) * (w + BG) : BX + n * (bw + BATCH) + (k - n * per) * (w + BG));
+    const xs = (cnt, per) => Array.from({ length: cnt }, (u, k) => x(k, per));
+    const top = xs(p, a), bot = xs(q, b), over = loose ? [0, 0] : [p - n * a, q - n * b];
+    const right = Math.max(top.length ? top[top.length - 1] + w : BX, bot.length ? bot[bot.length - 1] + w : BX) + (over[0] + over[1] ? 4 : 0);
+    return { top: top, bot: bot, n: loose ? 0 : n, a: a, b: b, bw: bw, w: w, over: over, right: right };
+  }
+  // Every arrangement of blocks a screen shows, [p, q, a, b, loose], so one block width fits them all.
+  function blockSets(d) {
+    if (d.pic !== 'mix') return [];
+    if (d.show) {
+      const [a, b] = d.batch, pairs = d.demo === 'add' ? d.tries.concat([d.op]).map((op) => apply(op, d.cols[0])) : d.cols;
+      return pairs.map((c) => [c[0], c[1], a, b, false]);
+    }
+    const last = tableOf(d).cols[tableOf(d).cols.length - 1], [a, b] = d.ask === 'same' ? d.ratio : simplest(d.ratio);
+    return [[last[0], last[1], a, b, false], [d.ask === 'simp' ? d.ratio[0] : last[0], d.ask === 'simp' ? d.ratio[1] : 0, a, b, true], [d.ratio[0], d.ratio[1], a, b, false]];
+  }
+  const wCache = {};
+  function wOf(i) {
+    if (wCache[i]) return wCache[i];
+    const sets = blockSets(STEPS[i]);
+    let w = 26;
+    while (w > 6 && !sets.every((s) => layout(s[0], s[1], s[2], s[3], w, s[4]).right <= BX + BW)) w -= 0.5;
+    return (wCache[i] = w);
+  }
+  // Blocks of each row at their places in L (or sliding there from `from` as s goes 0 -> 1), those keep(k, row) allows.
+  function drawBlocks(L, keep, from, s) {
+    [L.top, L.bot].forEach((xs, r) => xs.forEach((x, k) => {
+      if (keep && !keep(k, r)) return;
+      const x0 = from ? (r ? from.bot : from.top)[k] : x;
+      rect(r ? 'b2' : 'b1', from ? K.lerp(x0, x, s) : x, BR[r], L.w, BHT, 3);
+    }));
+  }
+  const batchOf = (L, k, r) => { const per = r ? L.b : L.a; return k < L.n * per ? Math.floor(k / per) : L.n; };
+  const inFirst = (L) => (k, r) => batchOf(L, k, r) === 0;
+  function batchLabels(L, s, only) { for (let j = 0; j < L.n; j++) if (only == null || only === j) text(BX + j * (L.bw + BATCH) + L.bw / 2, LABY, s, 'blab'); }
+  // The blocks left over after the whole batches, ringed in the warning colour and named: beside the
+  // ring where there is room (clear of the step written over the table), else under it.
+  function overRing(L) {
+    if (!(L.over[0] + L.over[1])) return;
+    const x0 = BX + L.n * (L.bw + BATCH) - 3, w = Math.max(L.over[0], L.over[1]) * (L.w + BG) - BG + 6;
+    const y0 = (L.over[0] ? BR[0] : BR[1]) - 3, y1 = (L.over[1] ? BR[1] : BR[0]) + BHT + 3;
+    rect('over', x0, y0, w, y1 - y0, 4);
+    const lw = tw('left over', 'overt');
+    if (x0 + w + 6 + lw <= 338) text(x0 + w + 6, (y0 + y1) / 2 + 5, 'left over', 'overt', 'start');
+    else text(K.clamp(x0 + w / 2, lw / 2 + 2, 338 - lw / 2), LABY, 'left over', 'overt');
+  }
+  const blockNames = (d) => names(d.names, [BR[0] + 15, BR[1] + 15]);
+  function blocksSaid(d, L, shown) {
+    const n0 = d.names[0].toLowerCase(), n1 = d.names[1].toLowerCase(), p = shown ? shown[0] : L.top.length, q = shown ? shown[1] : L.bot.length;
+    const over = L.over[0] + L.over[1] ? ', with ' + [L.over[0] ? L.over[0] + ' ' + n0 : '', L.over[1] ? L.over[1] + ' ' + n1 : ''].filter(Boolean).join(' and ') + ' left over' : '';
+    return 'Blocks in two rows, ' + p + ' ' + n0 + ' in solid ink and ' + q + ' ' + n1 + ' in a light tint' +
+      (L.n && !shown ? ', in ' + WORD[L.n] + (L.n > 1 ? ' batches of ' : ' batch of ') + say(rat(L.a, L.b)) + over : '') + '. ';
+  }
+
+  // --- the ratio table ---
+  const cx = (k) => TX + k * CW + (CW - 12) / 2;
+  function colBox(k, ty) { rect('col', TX + k * CW, ty, CW - 12, 2 * CH, 6); line('mid', TX + k * CW, ty + CH, TX + k * CW + CW - 12, ty + CH); }
+  const cell = (k, r, ty, v) => text(cx(k), ty + r * CH + 19, typeof v === 'number' ? num(v) : v, 'val');
+  function gapCell(k, r, ty) { rect('gapbox', cx(k) - 17, ty + r * CH + 5, 34, CH - 10, 5); text(cx(k), ty + r * CH + 19, '?', 'qm'); }
+  function column(k, ty, c) { colBox(k, ty); cell(k, 0, ty, c[0]); cell(k, 1, ty, c[1]); }
+  // A cell's '?' giving way to its amount (the box fades out first, then the amount in), from t seconds.
+  function swap(k, r, ty, v, t, at) {
+    leave(at(t, 0.25), () => gapCell(k, r, ty));
+    part(at(t + 0.25), 4, () => cell(k, r, ty, v));
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: 'head' + cls, d: 'M' + x + ' ' + y + ' L' + r3(x - 8 * ux + 4.5 * px) + ' ' + r3(y - 8 * uy + 4.5 * py) + ' L' + r3(x - 8 * ux - 4.5 * px) + ' ' + r3(y - 8 * uy - 4.5 * py) + ' Z' }));
+  }
+  // The step from column k to k + 1, on an arrow curving over the top row and another under the bottom
+  // row: the same step on both parts. Adding (the slip) is drawn in the warning colour.
+  function arcs(k, ty, op, bad) {
+    const x0 = cx(k) + 14, x1 = cx(k + 1) - 14, xm = (x0 + x1) / 2, cls = bad ? ' bad' : '';
+    [[ty - 3, ty - 21, ty - 19], [ty + 2 * CH + 3, ty + 2 * CH + 21, ty + 2 * CH + 30]].forEach((g) => {
+      add(K.svg('path', { class: 'arc' + cls, d: 'M' + x0 + ' ' + g[0] + ' Q' + xm + ' ' + g[1] + ' ' + x1 + ' ' + g[0] }));
+      head(x1, g[0], x1 - xm, g[0] - g[1], cls);
+      text(xm, g[2], op, 'opl' + cls);
+    });
+  }
+  // A note on the units (speeds in rpm) sits to the right of the table's last column, clear of the steps.
+  const tableNames = (d, ty, ncol) => { names(d.names, [ty + 19, ty + CH + 19]); if (d.note) text(TX + (ncol || 2) * CW, ty + CH + 5, d.note, 'unit', 'start'); };
+  const sayCol = (c) => (c[0] === '?' || c[1] === '?' ? c.map((v) => (v === '?' ? 'a question mark' : say(typeof v === 'number' ? num(v) : v))).join(' to ') : say(rat(c[0], c[1])));
+  function tableSaid(d, cols, ops) {
+    return 'A ratio table with rows for ' + d.names[0].toLowerCase() + ' and ' + d.names[1].toLowerCase() + (d.note ? ', speeds in r p m' : '') + '. Its columns read ' +
+      cols.map(sayCol).join(', then ') + (ops.length ? ', each step ' + ops.map(say).join(', then ') + ', written over and under both rows' : '') + '.';
+  }
+
+  // --- the double number line ---
+  const lx = (c) => LX0 + (LX1 - LX0) * c / LMAX;
+  const ALL = [0, 1, 2, 3, 4, 5, 6, 7, 8], PAIR = [0, 1];
+  // Both lines with a tick every centimetre of the drawing, each labelled where `topLabs` / `botLabs` says.
+  function lines(topLabs, botLabs, scale) {
+    names(['Drawing', 'Real'], [TL + 5, BL + 5]);
+    text(NX, TL + 21, 'cm', 'unit', 'start'); text(NX, BL + 21, 'cm', 'unit', 'start');
+    line('nl', LX0, TL, LX1, TL); line('nl', LX0, BL, LX1, BL);
+    for (let c = 0; c <= LMAX; c++) {
+      line('tick', lx(c), TL - 6, lx(c), TL + 6); line('tick', lx(c), BL - 6, lx(c), BL + 6);
+      if (topLabs.indexOf(c) >= 0) text(lx(c), TL + 21, num(c), 'tl');
+      if (botLabs.indexOf(c) >= 0) text(lx(c), BL - 11, num(realCm(c, scale)), 'tl');
+    }
+  }
+  // A length marked at c cm: a dot on the line and a short stem to its label.
+  function markAt(top, c) {
+    const x = lx(c);
+    circle('dot', x, top ? TL : BL, 4.5);
+    if (top) line('stem', x, TL - 14, x, TL - 4); else line('stem', x, BL + 4, x, BL + 12);
+  }
+  // The label: a pill above the drawing's line or below the real one ('?' as a dashed box), kept on the picture.
+  function pillAt(top, c, s) {
+    const x = lx(c), y = top ? TL - 38 : BL + 12;
+    if (s === '?') { const x0 = K.clamp(x - 20, 2, 298); rect('gapbox', x0, y, 40, 24, 8); text(x0 + 20, y + 17, '?', 'qm'); return; }
+    const w = tw(s, 'tagt') + 20, x0 = K.clamp(x - w / 2, 2, 338 - w);
+    rect('tag', x0, y, w, 24, 8); text(x0 + w / 2, y + 17, s, 'tagt k-nohalo');
+  }
+  // A '?' kept clear of the line's ticks: above the line's name, at the left of the picture.
+  function askPill(y) { rect('gapbox', NX, y, 40, 24, 8); text(NX + 20, y + 17, '?', 'qm'); }
+  // The scale's step between the lines, at the left: × 100 down to real life, or ÷ 100 up to the drawing.
+  function scaleArrow(op, up) {
+    const x = 22, y0 = TL + 30, y1 = BL - 18;
+    line('arcl', x, up ? y0 + 6 : y0, x, up ? y1 : y1 - 6);
+    head(x, up ? y0 : y1, 0, up ? -1 : 1, '');
+    text(x + 9, (y0 + y1) / 2 + 5, op, 'opl', 'start');
+  }
+  const linesSaid = 'A double number line. The top line is the drawing in centimetres, the bottom line real life in centimetres, the two locked together.';
+
+  // While a mark travels (go: how far, 0 -> 1), its pills count whole centimetres from where the dot is
+  // now, so the labels never lag the dot; landing on the exact value when the mark does.
+  const travelAt = (d, go) => r3(d.from + (d.to - d.from) * go);
+  const counted = (c) => Math.round(c);
+
+  // --- the demonstrations ---
+  // Two batches: the second batch arrives beside the first; each is named 3 : 2; × 2 is written over and
+  // under the table; the new column fills in.
+  function demoCopies(d, i) {
+    const A = AT.copies, ty = TY.mix, t = tableOf(d), L = layout(t.cols[1][0], t.cols[1][1], d.batch[0], d.batch[1], wOf(i));
+    const grow = arr(A.grow), lab = arr(A.labs), arcA = arr(A.arcs), ans = arr(A.ans);
+    blockNames(d);
+    drawBlocks(L, inFirst(L));
+    part(grow, 4, () => drawBlocks(L, (k, r) => !inFirst(L)(k, r)));
+    part(lab, 4, () => batchLabels(L, rat(d.batch[0], d.batch[1])));
+    tableNames(d, ty); column(0, ty, t.cols[0]);
+    part(arcA, 0, () => arcs(0, ty, t.ops[0]));
+    part(ans, 4, () => column(1, ty, t.cols[1]));
+    return blocksSaid(d, L, grow >= 0.5 ? null : d.batch) + tableSaid(d, ans >= 0.5 ? t.cols : [t.cols[0]], arcA >= 0.5 ? t.ops : []);
+  }
+  // Adding: + 3 (or the step tapped) is written over and under the table in the warning colour; the new
+  // blocks arrive after the first batch; the new column fills in; any left over is ringed.
+  function demoAdd(d, i, st) {
+    const mine = st.op != null, op = mine ? st.op : d.op, A = mine ? TRY : AT.add, ty = TY.mix, c0 = d.cols[0], c1 = apply(op, c0), bad = op[0] === '+';
+    const L = layout(c1[0], c1[1], d.batch[0], d.batch[1], wOf(i)), first = (k, r) => k < d.batch[r];
+    const arcA = arr(A.arcs), grow = arr(A.grow), ans = arr(A.ans), ov = arr(A.over);
+    blockNames(d);
+    drawBlocks(L, first);
+    part(grow, 4, () => drawBlocks(L, (k, r) => !first(k, r)));
+    part(ov, 0, () => overRing(L));
+    tableNames(d, ty); column(0, ty, c0);
+    part(arcA, 0, () => arcs(0, ty, op, bad));
+    part(ans, 4, () => column(1, ty, c1));
+    return blocksSaid(d, L, grow >= 0.5 && ov >= 0.5 ? null : grow >= 0.5 ? c1 : c0) + tableSaid(d, ans >= 0.5 ? [c0, c1] : [c0], arcA >= 0.5 ? [op] : []);
+  }
+  // Dividing: four batches each named 3 : 2; ÷ 4 written over and under; all but one batch leave; the
+  // new column fills in.
+  function demoJoin(d, i) {
+    const A = AT.join, ty = TY.mix, t = tableOf(d), L = layout(t.cols[0][0], t.cols[0][1], d.batch[0], d.batch[1], wOf(i)), first = inFirst(L);
+    const lab = arr(A.labs), arcA = arr(A.arcs), cut = arr(A.cut), ans = arr(A.ans);
+    blockNames(d);
+    drawBlocks(L, first);
+    part(lab, 4, () => batchLabels(L, rat(d.batch[0], d.batch[1]), 0));
+    leave(cut, () => { drawBlocks(L, (k, r) => !first(k, r)); part(lab, 4, () => { for (let j = 1; j < L.n; j++) batchLabels(L, rat(d.batch[0], d.batch[1]), j); }); });
+    tableNames(d, ty); column(0, ty, t.cols[0]);
+    part(arcA, 0, () => arcs(0, ty, t.ops[0]));
+    part(ans, 4, () => column(1, ty, t.cols[1]));
+    const one = cut >= 0.5;
+    return blocksSaid(d, one ? layout(t.cols[1][0], t.cols[1][1], d.batch[0], d.batch[1], wOf(i)) : L) + tableSaid(d, ans >= 0.5 ? t.cols : [t.cols[0]], arcA >= 0.5 ? t.ops : []);
+  }
+  // Through one batch: ÷ 3 (two of the three batches leave), the column 2 : 3; then × 4 (three batches
+  // arrive), the column 8 : 12.
+  function demoSteps(d, i) {
+    const A = AT.steps, ty = TY.mix, t = tableOf(d), w = wOf(i), [a, b] = d.batch;
+    const L0 = layout(t.cols[0][0], t.cols[0][1], a, b, w), L2 = layout(t.cols[2][0], t.cols[2][1], a, b, w), first = (k, r) => k < d.batch[r];
+    const arc1 = arr(A.arcs), cut = arr(A.cut), ans1 = arr(A.ans), arc2 = arr(A.arcs2), grow = arr(A.grow), ans2 = arr(A.ans2);
+    blockNames(d);
+    drawBlocks(L0, first);
+    leave(cut, () => drawBlocks(L0, (k, r) => !first(k, r)));
+    part(grow, 4, () => drawBlocks(L2, (k, r) => !first(k, r)));
+    tableNames(d, ty); column(0, ty, t.cols[0]);
+    part(arc1, 0, () => arcs(0, ty, t.ops[0]));
+    part(ans1, 4, () => column(1, ty, t.cols[1]));
+    part(arc2, 0, () => arcs(1, ty, t.ops[1]));
+    part(ans2, 4, () => column(2, ty, t.cols[2]));
+    const shownCols = [t.cols[0]].concat(ans1 >= 0.5 ? [t.cols[1]] : [], ans2 >= 0.5 ? [t.cols[2]] : []), shownOps = [arc1, arc2].filter((x) => x >= 0.5).map((x, k) => t.ops[k]);
+    return blocksSaid(d, grow >= 0.5 ? L2 : cut >= 0.5 ? layout(a, b, a, b, w) : L0) + tableSaid(d, shownCols, shownOps);
+  }
+  // A scale drawing: × 100 between the lines; a length marked on both at 1 cm, then travelling to 5 cm,
+  // its lengths counted; then its thumb, to drag (st.mark: where Dan has put it).
+  function demoScale(d, i, st) {
+    const A = AT.scale, mine = st.mark != null;
+    const arrowA = mine ? 1 : arr(A.arrow), mk = mine ? 1 : arr(A.mark), go = mine ? 1 : arr(A.go[0], A.go[1]), gA = mine ? 1 : arr(A.grip);
+    const c = mine ? st.mark : travelAt(d, go), shown = mine ? st.mark : counted(c);
+    lines(ALL, ALL, d.scale);
+    part(arrowA, 0, () => scaleArrow('× ' + d.scale));
+    part(mk, 4, () => { markAt(true, c); markAt(false, c); pillAt(true, c, num(shown) + ' cm'); pillAt(false, c, realText(shown, d.scale)); });
+    part(gA, 0, () => circle('thumb', lx(c), TL, 9));
+    placeGrip(gA >= 0.5 ? d : null, c);
+    const moving = !mine && go > 0 && go < 1;
+    return linesSaid + (arrowA >= 0.5 ? ' Between them, times ' + d.scale + ' takes the drawing to real life.' : '') +
+      (mk >= 0.5 ? ' A length is marked at ' + say(num(shown) + ' cm') + ' on the drawing and ' + say(realText(shown, d.scale)) + ' in real life' + (moving ? ', moving along.' : '.') : '') +
+      (gA >= 0.5 ? ' The mark can be dragged.' : '');
+  }
+
+  // --- the puzzles ---
+  // Before the answer: the table with a '?' where the answer goes, and the blocks Dan is given. After a
+  // right answer (each part at its time in the step's `at`, through at()): the step written over and
+  // under, the '?' giving way to the amount, the blocks into batches.
+  function drawPuz(d, i, st, right) {
+    const F = d.at, at = (t, dur) => (right && t != null ? arr(t, dur) : 0);
+    if (d.pic === 'line') return d.ask === 'up' ? puzUp(d, F, at) : puzDown(d, F, at);
+    if (d.pic === 'table') return puzTable(d, F, at);
+    return d.ask === 'fill' ? puzFill(d, i, F, at) : d.ask === 'same' ? puzSame(d, i, F, at) : puzSimp(d, i, F, at);
+  }
+  // A missing amount on the blocks: the squash loose in one row slide into batches, and the water arrives
+  // as each batch is named.
+  function puzFill(d, i, F, at) {
+    const ty = TY.mix, t = tableOf(d), out = t.cols[1], [a, b] = simplest(d.ratio), w = wOf(i);
+    const G = layout(out[0], out[1], a, b, w), Lz = layout(out[0], 0, a, b, w, true);
+    const arcA = at(F.arcs), slide = at(F.slide[0], F.slide[1]), grow = at(F.grow);
+    blockNames(d);
+    drawBlocks(G, (k, r) => r === 0, Lz, slide);
+    part(grow, 4, () => drawBlocks(G, (k, r) => r === 1));
+    part(at(F.labs), 4, () => batchLabels(G, rat(a, b)));
+    tableNames(d, ty); column(0, ty, t.cols[0]); colBox(1, ty); cell(1, 0, ty, out[0]);
+    swap(1, 1, ty, out[1], F.ans, at);
+    part(arcA, 0, () => arcs(0, ty, t.ops[0]));
+    const done = grow >= 0.5;
+    return blocksSaid(d, G, done ? null : [out[0], 0]) + (done ? '' : 'The ' + d.names[0].toLowerCase() + ' sit in one even row and the ' + d.names[1].toLowerCase() + ' row is empty. ') +
+      tableSaid(d, [t.cols[0], at(F.ans + 0.25) >= 0.5 ? out : [out[0], '?']], arcA >= 0.5 ? t.ops : []);
+  }
+  // The same mix: one batch, then a second arrives.
+  function puzSame(d, i, F, at) {
+    const ty = TY.mix, t = tableOf(d), out = t.cols[1], [a, b] = d.ratio, L = layout(out[0], out[1], a, b, wOf(i)), first = inFirst(L);
+    const arcA = at(F.arcs), grow = at(F.grow), lab = at(F.labs);
+    blockNames(d);
+    drawBlocks(L, first);
+    part(grow, 4, () => drawBlocks(L, (k, r) => !first(k, r)));
+    part(lab, 4, () => batchLabels(L, rat(a, b)));
+    tableNames(d, ty); column(0, ty, t.cols[0]); colBox(1, ty);
+    swap(1, 0, ty, out[0], F.ans, at); swap(1, 1, ty, out[1], F.ans, at);
+    part(arcA, 0, () => arcs(0, ty, t.ops[0]));
+    return blocksSaid(d, grow >= 0.5 ? L : layout(a, b, a, b, wOf(i))) + tableSaid(d, [t.cols[0], at(F.ans + 0.25) >= 0.5 ? out : ['?', '?']], arcA >= 0.5 ? t.ops : []);
+  }
+  // Simplest form: the loose blocks slide into batches as the step is written; each batch is named as the
+  // answer fills in; then all but one batch leave, taking their names with them.
+  function puzSimp(d, i, F, at) {
+    const ty = TY.mix, t = tableOf(d), one = t.cols[1], w = wOf(i);
+    const G = layout(d.ratio[0], d.ratio[1], one[0], one[1], w), Lz = layout(d.ratio[0], d.ratio[1], one[0], one[1], w, true), first = inFirst(G);
+    const arcA = at(F.arcs), slide = at(F.slide[0], F.slide[1]), cut = at(F.cut), lab = at(F.labs), s = rat(one[0], one[1]);
+    blockNames(d);
+    drawBlocks(G, first, Lz, slide);
+    part(lab, 4, () => batchLabels(G, s, 0));
+    leave(cut, () => { drawBlocks(G, (k, r) => !first(k, r), Lz, slide); part(lab, 4, () => { for (let j = 1; j < G.n; j++) batchLabels(G, s, j); }); });
+    tableNames(d, ty); column(0, ty, t.cols[0]); colBox(1, ty);
+    swap(1, 0, ty, one[0], F.ans, at); swap(1, 1, ty, one[1], F.ans, at);
+    part(arcA, 0, () => arcs(0, ty, t.ops[0]));
+    return blocksSaid(d, cut >= 0.5 ? layout(one[0], one[1], one[0], one[1], w) : slide >= 0.5 ? G : Lz, slide >= 0.5 || cut >= 0.5 ? null : d.ratio) +
+      tableSaid(d, [t.cols[0], at(F.ans + 0.25) >= 0.5 ? one : ['?', '?']], arcA >= 0.5 ? t.ops : []);
+  }
+  // A real length: the drawing's length marked above, a '?' below that gives way to it, × 100 between.
+  // The real line's dot arrives only with the answer.
+  function puzUp(d, F, at) {
+    const c = d.cm, arrowA = at(F.arrow), got = at(F.ans + 0.25);
+    lines(ALL, PAIR, d.scale);
+    markAt(true, c); pillAt(true, c, num(c) + ' cm');
+    leave(at(F.ans, 0.25), () => pillAt(false, c, '?'));
+    part(got, 4, () => { markAt(false, c); pillAt(false, c, realText(c, d.scale)); });
+    part(arrowA, 0, () => scaleArrow('× ' + d.scale));
+    return linesSaid + ' The top line is labelled every centimetre, the bottom line at 0 and 100. A length is marked at ' + say(num(c) + ' cm') + ' on the drawing; in real life ' +
+      (got >= 0.5 ? 'it is ' + say(realText(c, d.scale)) + ', times ' + d.scale + '.' : 'it is a question mark.');
+  }
+  // A drawing length: the real length marked below, then shown in centimetres; ÷ 100 up to the drawing.
+  // Until the answer the drawing's line has no mark, only a '?' above its name (so its ticks cannot be
+  // counted to the answer); the '?' gives way to the mark and its length.
+  function puzDown(d, F, at) {
+    const c = d.m * 100 / d.scale, real = at(F.real + 0.25), got = at(F.ans + 0.25);
+    lines(PAIR, PAIR, d.scale);
+    markAt(false, c);
+    leave(at(F.real, 0.25), () => pillAt(false, c, num(d.m) + ' m'));
+    part(real, 4, () => pillAt(false, c, realText(c, d.scale)));
+    leave(at(F.ans, 0.25), () => askPill(TL - 38));
+    part(got, 4, () => { markAt(true, c); pillAt(true, c, num(c) + ' cm'); });
+    part(at(F.arrow), 0, () => scaleArrow('÷ ' + d.scale, true));
+    return linesSaid + ' Each line is labelled at its first two ticks, 0 and 1 on the drawing, 0 and 100 below. A real length is marked, ' + say(real >= 0.5 ? realText(c, d.scale) : num(d.m) + ' m') +
+      '; on the drawing ' + (got >= 0.5 ? 'it is ' + say(num(c) + ' cm') + ', divided by ' + d.scale + '.' : 'it is a question mark.');
+  }
+  // The table alone: a '?' that gives way to the amount; through one batch first when the step is awkward.
+  function puzTable(d, F, at) {
+    const ty = TY.table, t = tableOf(d), k = t.cols.length - 1, out = t.cols[k];
+    tableNames(d, ty); column(0, ty, t.cols[0]);
+    colBox(k, ty); cell(k, 0, ty, out[0]);
+    swap(k, 1, ty, out[1], F.ans, at);
+    if (d.via) {
+      part(at(F.via), 0, () => { arcs(0, ty, t.ops[0]); colBox(1, ty); });
+      part(at(F.viaval), 4, () => { cell(1, 0, ty, t.cols[1][0]); cell(1, 1, ty, t.cols[1][1]); });
+      part(at(F.arcs), 0, () => arcs(1, ty, t.ops[1]));
+    } else part(at(F.arcs), 0, () => arcs(0, ty, t.ops[0]));
+    const got = at(F.ans + 0.25) >= 0.5;
+    return tableSaid(d, got ? t.cols : [t.cols[0], [out[0], '?']], got ? t.ops : []);
+  }
+
+  // The mark Dan drags is one grip kept across repaints (the picture is redrawn every frame), so a drag
+  // in progress and the keyboard focus both survive. It is a thumb's width across (about 45 px on a
+  // 360 px phone).
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: TL, r: 26, tabindex: -1, role: 'slider', 'aria-label': 'The mark on the drawing\'s line',
+    'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  let gripOn = false;
+  function placeGrip(d, c) {
+    gripOn = !!d;
+    if (!d) { grip.style.display = 'none'; grip.setAttribute('tabindex', '-1'); return; }
+    grip.style.display = '';
+    grip.setAttribute('tabindex', '0');
+    grip.setAttribute('cx', lx(c).toFixed(2));
+    grip.setAttribute('aria-valuemin', d.range[0]); grip.setAttribute('aria-valuemax', d.range[1]); grip.setAttribute('aria-valuenow', c);
+    grip.setAttribute('aria-valuetext', say(num(c) + ' cm') + ' on the drawing, ' + say(realText(c, d.scale)) + ' in real life');
+  }
+  const dragging = () => { const d = STEPS[at()]; return !finished && gripOn && !!d.drag; };
+  function setMark(c) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (c === st.mark) return;
+    if (d.show) { anim.pause(); T = Infinity; motion = null; }
+    st.mark = c;
+    K.reveal(); K.refresh();
+  }
+  // Where a pointer at x puts the mark: the nearest snap step inside the step's range.
+  const snapOf = (d, x) => r3(K.clamp(Math.round((x - LX0) / (LX1 - LX0) * LMAX / d.snap) * d.snap, d.range[0], d.range[1]));
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    setMark(snapOf(STEPS[at()], q.x));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const d = STEPS[at()], s = d.snap, by = { ArrowUp: s, ArrowRight: s, ArrowDown: -s, ArrowLeft: -s, PageUp: 2 * s, PageDown: -2 * s }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    const st = S[at()], now = st.mark == null ? d.to : st.mark;
+    setMark(e.key === 'Home' ? d.range[0] : e.key === 'End' ? d.range[1] : r3(K.clamp(Math.round((now + by) / s) * s, d.range[0], d.range[1])));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = HOF[d.pic];
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    if (!d.drag) placeGrip(null);
+    let aria;
+    if (d.show) aria = d.demo === 'copies' ? demoCopies(d, i) : d.demo === 'add' ? demoAdd(d, i, st) : d.demo === 'join' ? demoJoin(d, i) : d.demo === 'scale' ? demoScale(d, i, st) : demoSteps(d, i);
+    else aria = drawPuz(d, i, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+  // What a tapped step makes of 3 : 2, in words: whole batches, or batches with some left over.
+  function trySaid(d, op) {
+    const c1 = apply(op, d.cols[0]), L = layout(c1[0], c1[1], d.batch[0], d.batch[1], 10), b = rat(d.batch[0], d.batch[1]);
+    const n0 = d.names[0].toLowerCase(), n1 = d.names[1].toLowerCase();
+    if (!(L.over[0] + L.over[1])) return rat(c1[0], c1[1]) + ' is ' + WORD[L.n] + ' whole batches of ' + b + ', the same mix.';
+    const over = [L.over[0] ? L.over[0] + ' ' + n0 : '', L.over[1] ? L.over[1] + ' ' + n1 : ''].filter(Boolean).join(' and ');
+    return rat(c1[0], c1[1]) + ' is ' + WORD[L.n] + (L.n > 1 ? ' batches' : ' batch') + ' of ' + b + ' with ' + over + ' left over, so the mix has changed.';
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) { st.mark = null; st.op = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('tries').hidden = !d.tries;
+    tryBtns.forEach((b, k) => {
+      b.el.hidden = !d.tries || k >= d.tries.length;
+      if (b.el.hidden) return;
+      write(b.el, d.tries[k]);
+      b.el.setAttribute('aria-label', 'Both parts ' + say(d.tries[k]));
+      b.el.setAttribute('aria-pressed', st.op === d.tries[k] ? 'true' : 'false');
+    });
+    el('trysay').hidden = !d.tries || st.op == null;
+    write(el('trysay'), d.tries && st.op != null ? trySaid(d, st.op) : '');
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const ADD_I = STEPS.findIndex((d) => d.demo === 'add'), SC_I = STEPS.findIndex((d) => d.demo === 'scale');
+  const GEAR_I = STEPS.findIndex((d) => d.unit === 'rpm'), SIMP_I = STEPS.findIndex((d) => d.ask === 'simp');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const all = (sel) => Array.from(art.querySelectorAll(sel));
+      return { b1: all('rect.b1').length, b2: all('rect.b2').length, over: all('rect.over').length, texts: all('text').map((t) => t.textContent),
+        dots: all('circle.dot').map((c) => Number(c.getAttribute('cx'))), doty: all('circle.dot').map((c) => Number(c.getAttribute('cy'))),
+        gaps: all('rect.gapbox').map((r) => [Number(r.getAttribute('x')), Number(r.getAttribute('x')) + Number(r.getAttribute('width'))]), vals: all('text.val').map((t) => t.textContent), ops: all('text.opl').map((t) => t.textContent) };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  K.check('Multiplying or dividing both parts by the same number keeps a ratio: every table column is the one before it with the step written between them, and the same mix as the first, so 3 : 2 = 6 : 4 = 9 : 6, 1 : 4 = 2 : 8, 12 : 8 = 3 : 2, 20 : 12 = 5 : 3, 6 : 9 = 2 : 3 = 8 : 12, 2 : 1 = 1,800 : 900 and 4 : 6 = 2 : 3 = 10 : 15', () => {
+    const tabs = STEPS.map(tableOf).filter(Boolean);
+    return tabs.every((t) => t.ops.every((op, k) => apply(op, t.cols[k]).join() === t.cols[k + 1].join()) && (t.bad || t.cols.every((c) => sameMix(c, t.cols[0])))) &&
+      tabs.map((t) => t.cols.map((c) => c.join(':')).join('=')).join(' ') === '3:2=6:4 3:2=9:6 3:2=6:5 1:4=2:8 12:8=3:2 20:12=5:3 6:9=2:3=8:12 2:1=1800:900 4:6=2:3=10:15';
+  });
+  K.check('Adding the same number to both parts of 3 : 2 never keeps it: plus any whole number from 1 to 100 it is a different mix, closer to 1 : 1 the more is added, and a 2 : 1 gearbox with 1,798 added to both parts is 1,800 : 1,799, within 0.1% of 1 : 1', () => {
+    let prev = 3 / 2, ok = true;
+    for (let k = 1; k <= 100; k++) { const r = (3 + k) / (2 + k); ok = ok && !sameMix([3 + k, 2 + k], [3, 2]) && r < prev && r > 1; prev = r; }
+    return ok && SLIP.add(STEPS[GEAR_I]) === '1,799 rpm' && 1800 / 1799 - 1 < 0.001 && apply('+ 3', [3, 2]).join() === '6,5' && !sameMix([6, 5], [3, 2]);
+  });
+  K.check('Simplifying divides both parts by the biggest number that divides both: 20 : 12 ÷ 4 is 5 : 3, which only 1 divides further, while 10 : 6 still divides by 2; 12 : 8 ÷ 4 is 3 : 2, 6 : 9 ÷ 3 and 4 : 6 ÷ 2 are 2 : 3', () =>
+    gcd(20, 12) === 4 && gcd(5, 3) === 1 && gcd(10, 6) === 2 && gcd(12, 8) === 4 && gcd(6, 9) === 3 && gcd(4, 6) === 2 && answerOf(STEPS[SIMP_I]) === '5 : 3' &&
+    simplest([12, 8]).join() === '3,2' && simplest([4, 6]).join() === '2,3');
+  K.check('1 cm on a scale drawing representing 1 metre in real life is a scale of 1 : 100', () =>
+    STEPS[SC_I].scale === 100 && realCm(1, STEPS[SC_I].scale) === 100 && realText(1, 100) === '100 cm = 1 m', { source: 'https://www.bbc.co.uk/bitesize/articles/zqffmsg' });
+  K.check('At 1 : 100 the real length is the drawing\'s × 100 in the same unit: 4.5 cm on the drawing is 450 cm, which is 4.5 m; a 7 m room is 700 cm, which is 7 cm on the drawing; and at every place the mark can be dragged, both lines mark the same point, c cm above c × 100 cm', () => {
+    const d = STEPS[SC_I], cs = [];
+    for (let c = d.range[0]; c <= d.range[1] + 1e-9; c += d.snap) cs.push(r3(c));
+    return realText(4.5, 100) === '450 cm = 4.5 m' && answerOf(STEPS[DO[3]]) === '4.5 m' && answerOf(STEPS[DO[4]]) === '7 cm' && cs.length === 16 &&
+      cs.every((c) => { const g = drawn(SC_I, Object.assign(blank(SC_I), { mark: c })); return g.dots.length === 2 && g.dots.every((x) => K.near(x, lx(c), 1e-6)) && g.texts.indexOf(num(c) + ' cm') >= 0 && g.texts.indexOf(realText(c, 100)) >= 0; });
+  });
+  K.check('Each puzzle accepts only its own answer, worked out by its rule, and every wrong answer offered is the one a named slip gives: the gap between the parts kept (adding), the ratio read backwards, the amount taken as the number of batches, the same number added to both parts, a ratio halved but not simplified, only one part divided, centimetres read as metres, the gap of 99 added, the real length given for the drawing\'s, or metres ÷ 100 read as centimetres', () =>
+    DO.length === 7 && DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && answerOf(d) === d.want && d.opts.every((o) => pickRight(i, o) === (o === d.want)) && Object.keys(d.slips).length === 2 &&
+        Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && SLIP[d.slips[o]](d) === o && !!d.hints[o]);
+    }));
+  K.check('The blocks count the table\'s last column on every screen, finished, in whole batches of one batch\'s ratio; blocks are left over only after adding (3 : 2 + 3 is 6 : 5, 1 water over; + 1 is 4 : 3, one of each over), never after × 2 or × 3', () => {
+    const mixOk = STEPS.every((d, i) => {
+      if (d.pic !== 'mix') return true;
+      const g = drawn(i, d.show ? blank(i) : solved(i)), t = tableOf(d), last = t.cols[t.cols.length - 1];
+      return g.b1 === last[0] && g.b2 === last[1] && g.over === (d.demo === 'add' ? 1 : 0);
+    });
+    const d = STEPS[ADD_I];
+    const tries = d.tries.every((op) => { const g = drawn(ADD_I, Object.assign(blank(ADD_I), { op: op })), c1 = apply(op, d.cols[0]); return g.b1 === c1[0] && g.b2 === c1[1] && g.over === (op[0] === '+' ? 1 : 0) && g.ops.length === 2 && g.ops.every((s) => s === op); });
+    const L1 = layout(4, 3, 3, 2, 10), L3 = layout(6, 5, 3, 2, 10);
+    return mixOk && tries && L1.over.join() === '1,1' && L3.over.join() === '0,1' && layout(6, 4, 3, 2, 10).over.join() === '0,0' && layout(9, 6, 3, 2, 10).n === 3;
+  });
+  K.check('Before an answer, nothing in a puzzle\'s picture shows its answer: no cell, label or pill gives the missing amount, the simplified ratio or the length asked for; on the blocks the squash sit loose with no water drawn; on a scale the line holding the answer has no dot, and the drawing\'s \'?\' sits clear of its ticks', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i)), ansY = d.ask === 'up' ? BL : TL;
+      const lineOk = d.pic !== 'line' || (g.doty.length === 1 && g.doty.every((y) => y !== ansY) && (d.ask !== 'down' || (g.gaps.length === 1 && g.gaps[0][1] < LX0 - 6)));
+      return hiddenOf(d).every((h) => g.texts.every((s) => s.indexOf(h) < 0)) && (d.ask !== 'fill' || d.pic !== 'mix' || g.b2 === 0) && g.ops.length === 0 && lineOk;
+    }));
+  K.check('The right answer does not sit in the same place every time: across the seven puzzles it is in each of the three places, in no place more than three times, and never in the same place twice running', () => {
+    const pos = DO.map((i) => STEPS[i].opts.indexOf(STEPS[i].want));
+    return pos.every((p) => p >= 0) && [0, 1, 2].every((p) => { const n = pos.filter((q) => q === p).length; return n >= 1 && n <= 3; }) && pos.every((p, k) => k === 0 || p !== pos[k - 1]);
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 3 to 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; a tapped step\'s motion and every answer\'s within 2.5 s; parts start at least 0.45 s apart, each once the travel before it has ended; a counted travel holds each number at least 0.2 s', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+    });
+    const d = STEPS[ADD_I], keepA = S[ADD_I];
+    const tries = d.tries.every((op) => { T = Infinity; latest = 0; S[ADD_I] = Object.assign(blank(ADD_I), { op: op }); try { paint(ADD_I); } finally { S[ADD_I] = keepA; } return latest <= TRYDUR + 1e-9 && TRYDUR <= 2.5; });
+    T = keepT; paint();
+    // each timetable's parts in order: a start, and when it is done moving (a travel's end)
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => (Array.isArray(A[k]) ? [A[k][0], A[k][0] + A[k][1]] : [A[k], A[k]])).sort((a, b) => a[0] - b[0]);
+      let end = -Infinity;
+      return ps.every((q, k) => {
+        const ok = k === 0 || q[0] === ps[k - 1][0] || (q[0] - ps[k - 1][0] >= 0.45 - 1e-9 && q[0] >= end + 0.1 - 1e-9);
+        end = Math.max(end, q[1]);
+        return ok;
+      });
+    };
+    // a counted travel: the label read from the dot as it eases along; each number shows at least 0.2 s
+    const holds = STEPS.every((d) => {
+      const A = AT[d.demo];
+      if (!d.show || !A || !A.go) return true;
+      let last = counted(travelAt(d, 0)), since = A.go[0], ok = true;
+      for (let t = A.go[0]; t <= A.go[0] + A.go[1] + 1e-9; t += 0.001) {
+        const v = counted(travelAt(d, K.arrive(t, A.go[0], A.go[1])));
+        if (v !== last) { if (t - since < 0.2) ok = false; last = v; since = t; }
+      }
+      return ok && last === d.to;
+    });
+    return ok && tries && Object.keys(AT).every((k) => spaced(AT[k])) && spaced(TRY) && DO.every((i) => spaced(STEPS[i].at)) && holds;
+  });
+
+  K.ready();
+</script>

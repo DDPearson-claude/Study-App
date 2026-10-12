@@ -1,0 +1,1022 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .scene { display: block; width: 100%; }
+  /* The upright number line, drawn like a thermometer: a tube with the line up its middle. */
+  .scene .tube { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 2; }
+  .scene .axis { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tick.m { stroke-width: 1.5; }
+  .scene .num { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .zero { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .unit { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .note { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .cnt { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .val { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .dot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; }
+  /* The marker: its round end stands on a number, its point shows the way it faces. */
+  .scene .mk { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2.5; stroke-linejoin: round; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  /* The answer's tag, pointing at its place on the line. */
+  .scene .tag { fill: var(--k-accent2); }
+  .scene .tagt { font: 700 15px var(--k-font); fill: var(--k-on-accent2); }
+  .scene .hop { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; }
+  .scene .head { fill: var(--k-accent); }
+  .scene .hl2 { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  /* A change: an arrow from the first reading to the last. A gap: a bracket, with no way to point. */
+  .scene .ov { fill: none; stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .brk { fill: none; stroke: var(--k-accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .chg { font: 700 18px var(--k-font); fill: var(--k-accent2); }
+  .scene .gapl { font: 700 16px var(--k-font); fill: var(--k-accent); }
+  .scene .sum { font: 700 21px var(--k-font); fill: var(--k-ink); }
+  .scene .expr { font: 700 26px var(--k-font); fill: var(--k-ink); }
+  .scene .huge { font: 700 46px var(--k-font); fill: var(--k-ink); }
+  .scene .lead { stroke: var(--k-accent); stroke-width: 1.5; }
+  .scene .gapbox { fill: none; stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 4 3; }
+  /* Faint dashed guides from a change's two readings across to its bracket and arrow. */
+  .scene .guide { stroke: var(--k-muted); stroke-width: 1.25; stroke-dasharray: 3 4; opacity: .7; }
+  /* Under each minus Dan can tap: a dashed line; under the one he picked, a solid bar. */
+  .scene .tapline { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: round; }
+  .scene .picked { stroke: var(--k-accent2); stroke-width: 5; stroke-linecap: round; }
+  /* The rule in words, beside the marker; the line of it in use is highlighted. */
+  .scene .card { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .rule { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .mini { fill: var(--k-accent2); }
+  .scene #art * { pointer-events: none; }
+  /* The two minus signs Dan can tap: a thumb-sized box over each. */
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; }
+  /* Under a line with the marker to move: turn it round, or step it forwards one step at a time. */
+  .row.walk { flex-wrap: nowrap; }
+  .walk .k-btn { flex: 1 1 0; min-height: 48px; min-width: 0; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones wrap whole. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.wrap { flex-wrap: wrap; }
+  .picks.wrap .k-btn { flex: 1 1 8rem; font-size: 1.05rem; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A number line and a marker that faces down to take away.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 286" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row walk" id="walk"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Higher up the line is bigger. Facing down takes away. The readings and speeds are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // dur: how long a demonstration plays; fb: how long the motion after a right answer plays (seconds).
+  // lay: which upright line a step draws (LAY below). from, take: the sum from − take, taken away
+  // one step at a time with the marker facing down. first, last: a change's two readings.
+  // at: when each part of the motion after a right answer arrives, in seconds after Check.
+  // (In the text Dan reads, "Start again", the button's name, never breaks across two lines.)
+  const PICK = 'Tap one of the answers.', END = 'The line ends here. Tap Start\u00a0again.';
+  const M = '−';
+  const STEPS = [
+    { show: true, demo: 'face', dur: 4.5, lay: 'face', name: 'Facing down',
+      text: 'To take away, the marker turns to face down. A positive number still steps it forwards, so 4 − 6 takes 6 steps down from 4, past zero, to −2.' },
+    { kind: 'walk', lay: 'face', from: 2, take: 5, fb: 0.8, name: 'Hop 2 − 5',
+      at: { tag: 0.15 },
+      task: 'Work out 2 − 5. Turn the marker round, then step it forwards.',
+      empty: 'Tap Turn round, then step the marker forwards.',
+      up: 'Not quite. Facing up adds. Tap Start\u00a0again, then turn it to face down first.',
+      none: 'Good, it faces down. Now step it forwards, one step for each of the 5.',
+      why: 'Taking away 5 is 5 steps down from 2, to 1, 0, −1, −2 and −3. Zero is one of the steps, so 2 − 5 = −3.' },
+    { kind: 'take', lay: 'face', from: 3, take: 5, opts: ['2', '−2', '−3'], want: '−2', fb: 2.4, name: 'Three take away five',
+      at: { hops: [0.15, 0.45, 0.75, 1.05, 1.35], tag: 1.75 },
+      task: 'What is 3 − 5?',
+      why: 'Start at 3, face down and step forwards 5, to 2, 1, 0, −1 and −2. You take away more than you start with, so the steps carry on past zero and 3 − 5 = −2.',
+      hint: 'Not quite. Start at 3 and go down 5, one step at a time.',
+      hints: { '2': 'Not quite. That takes 3 from 5. Start at 3 and go down 5, past zero.', '−3': 'Not quite. Zero counts as one of the 5 steps.' } },
+    { show: true, demo: 'jobs', dur: 4.4, lay: 'jobs', name: 'Two jobs for a minus',
+      text: 'In −4 − 3 the minus stuck to the 4 is a *sign*, saying it is 4 below zero. The other one means take away, so the marker starts at −4 and steps 3 down, to −7.' },
+    { kind: 'sign', want: 0, fb: 2.0, name: 'Which minus is a sign?',
+      at: { labels: [0.15, 0.75, 1.35] },
+      task: 'In −7 − 3, tap the minus that means below zero.',
+      empty: 'Tap one of the two minus signs.',
+      why: 'The minus stuck to the 7 is a sign, so the start is −7, below zero. The minus between −7 and 3 means take away 3.',
+      hint: 'Not quite. The minus between the numbers means take away. Look for the one stuck to a number.' },
+    { kind: 'take', lay: 'deep', from: -7, take: 3, opts: ['−10', '−4', '4', '10'], want: '−10', fb: 1.85, name: 'From −7, take away 3',
+      at: { hops: [0.15, 0.45, 0.75], tag: 1.2 },
+      task: 'What is −7 − 3?',
+      why: 'Start at −7, face down and step forwards 3, to −8, −9 and −10. Taking 3 away from a number below zero takes you further below, so −7 − 3 = −10.',
+      hint: 'Not quite. Start at −7 and go down 3.',
+      hints: { '10': 'Not quite. Two minuses don\'t make a plus here. One says start at −7, the other says go down 3.',
+        '4': 'Not quite. The start is −7, below zero, and taking away 3 goes further down.', '−4': 'Not quite. That goes up 3 from −7. Taking away 3 goes down.' } },
+    { show: true, demo: 'change', dur: 4.0, lay: 'cool', name: 'A change',
+      text: 'A *change* is last minus first, so a fall comes out negative. Cooling from +6 °C to −2 °C is a change of −2 − 6 = −8 degrees, though the gap is 8.' },
+    { kind: 'change', lay: 'rooms', first: 4, last: -20, gap: true, tags: ['first', 'last'], opts: ['24', '−24', '−16'], want: '−24', fb: 2.45, name: 'A fall',
+      at: { arrow: [0.15, 0.8], label: 0.7, gap: 1.2, work: 1.8 }, work: '−20 − 4 = −24', workTag: 'last − first',
+      task: 'Say a probe goes from a vegetable room at +4 °C to a meat room at −20 °C. What is the change?',
+      why: 'Last minus first is −20 − 4, and 4 steps down from −20 is −24. The gap is 24, but the reading fell, so the change is −24.',
+      hint: 'Not quite. A change is last minus first.',
+      hints: { '24': 'Not quite. 24 is the gap, and a gap has no sign. A fall is a negative change.',
+        '−16': 'Not quite. Last minus first is −20 − 4. Start at −20 and go 4 further down.' } },
+    { kind: 'change', lay: 'rooms', first: -20, last: 4, gap: true, tags: ['first', 'last'], opts: ['+24', '−24', '16'], want: '+24', fb: 2.45, name: 'Back up',
+      at: { arrow: [0.15, 0.8], label: 0.7, gap: 1.2, work: 1.8 }, work: '20 + 4 = +24', workTag: 'rose 20, then 4',
+      task: 'Now the probe goes back, from −20 °C up to +4 °C. What is the change this time?',
+      why: 'The reading rose 20 degrees to zero, then 4 more, so the change is +24. The gap is 24 either way round, but a change has a sign. Working it out as last minus first takes away a negative, which is the next lesson.',
+      hint: 'Not quite. Did the reading rise or fall?',
+      hints: { '−24': 'Not quite. This time the reading rose, and a rise is a positive change.', '16': 'Not quite. Count through zero, 20 up to it and 4 more.' } },
+    { kind: 'change', lay: 'speed', first: 6, last: 2, gap: false, tags: ['initial', 'final'], unit: 'm/s', opts: ['4 m/s', '−4 m/s', '8 m/s'], want: '−4 m/s', fb: 1.95, name: 'Slowing down',
+      at: { arrow: [0.15, 0.8], label: 0.7, work: 1.3 }, work: '2 − 6 = −4', workTag: 'final − initial',
+      task: 'A ship slows from 6 m/s to 2 m/s. What is its change in *velocity*, final minus initial?',
+      why: 'Velocity is speed in a particular direction. Final minus initial is 2 − 6, and 6 steps down from 2 is −4. So the change in velocity is −4 m/s, negative because the ship slowed while moving the way counted as plus.',
+      hint: 'Not quite. Take the initial velocity away from the final one.',
+      hints: { '4 m/s': 'Not quite. That is initial minus final. The ship slowed, so the change is negative.', '8 m/s': 'Not quite. Take the initial velocity away from the final one, 2 − 6.' } },
+    { kind: 'take', lay: 'gauge', from: 0.5, take: 1.2, unit: 0.1, opts: ['−0.7', '0.7', '−1.7'], want: '−0.7', fb: 2.25, name: 'A gauge drops',
+      at: { big: [{ a: 0.5, b: 0, t: 0.15, dur: 0.5, lab: '0.5', lt: 0.45 }, { a: 0, b: -0.7, t: 0.75, dur: 0.6, lab: '0.7', lt: 1.1 }], tag: 1.6 },
+      task: 'A gauge that reads below zero shows 0.5 bar. It drops 1.2 bar. What does it read now?',
+      why: 'Down 0.5 takes the gauge to zero, and the other 0.7 of the drop goes below it. So 0.5 − 1.2 = −0.7, and the gauge reads −0.7 bar.',
+      hint: 'Not quite. Go down 0.5 to zero, then on.',
+      hints: { '0.7': 'Not quite. That takes 0.5 from 1.2. Start at 0.5 and go down 1.2, past zero.', '−1.7': 'Not quite. Only 0.5 of the drop gets you to zero. The rest goes below it.' } },
+    { kind: 'which', lay: 'mixed', from: 2, take: 4, target: -2, opts: ['2 − 4', '4 − 2', '−2 − 4'], want: '2 − 4', fb: 2.45, name: 'Which comes to −2?',
+      at: { mk: 0.15, hl: 0.45, hops: [0.7, 1.0, 1.3, 1.6], tag: 1.85 },
+      task: 'Which of these comes to −2?',
+      why: 'Start at 2 and step 4 down, to 1, 0, −1 and −2, so 2 − 4 = −2. But 4 − 2 is 2, and −2 − 4 is −6, so order and signs both matter.',
+      hint: 'Not quite. Work each one out on the line.',
+      hints: { '4 − 2': 'Not quite. 4 − 2 goes down 2 from 4 and stays above zero. The order matters.', '−2 − 4': 'Not quite. That starts at −2 and goes 4 further down.' } },
+  ];
+  const FINISH = 'To take away a positive number, face down and step forwards, on past zero if you need to. A change is last minus first, so a fall is negative. A gap never has a sign.';
+  // The rule beside the marker, in words.
+  const RULES = ['Facing up: add', 'Facing down: take away', 'Positive: forwards'];
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). HOP: how long one hop takes;
+  // WALK and TURN: how long the marker takes over one step, or to turn round, when Dan moves it.
+  // CNT: how long a hop's count takes to rise in, from half-way through its hop.
+  const FADE = 0.35, HOP = 0.3, WALK = 0.3, TURN = 0.45, HL = 0.4, CNT = 0.35;
+  const AT = {
+    // the rule; the marker on 4, facing up; it turns to face down; six steps forwards; the answer
+    face: { from: 4, take: 6, card: 0.5, mk: 1.0, turn: [1.6, 0.5], hl: 2.1, hops: [2.3, 2.55, 2.8, 3.05, 3.3, 3.55], hop: 0.25, tag: 3.85 },
+    // the sum; what each minus does; the marker on −4, facing down; three steps forwards; the answer
+    jobs: { from: -4, take: 3, expr: 0.5, sign: 1.0, away: 1.5, mk: 2.0, hl: 2.4, hops: [2.7, 3.0, 3.3], hop: 0.3, tag: 3.7 },
+    // the first reading, then the last; the change grows from one to the other; the sum; then the gap
+    change: { first: 6, last: -2, r1: 0.5, r2: 1.0, arrow: [1.5, 0.8], label: 2.1, work: 2.7, gap: 3.3, sum: '−2 − 6 = −8' },
+  };
+  // Drawing sizes, in viewBox units (340 wide). The line runs up x = X inside a tube TW either side
+  // of it, its numbers ending at LX. Each line: values top..bot drawn from Y0 down to H - 46 (H: the
+  // picture's height, shorter where a line's own `H` says so, to keep a long question and its hint on a phone screen), a tick
+  // every `minor`, a longer one every `mid`, a number every `every`; `bulb` for a thermometer.
+  const X = 76, TW = 9, LX = 56, Y0 = 40, H0 = 286, TAGX = 120, CNTX = 102;
+  let H = H0;
+  const BX = 150, AX = 228;   // on a change screen: the gap's bracket, and the change's arrow
+  const LAY = {
+    face: { top: 5, bot: -5, minor: 1, every: 1 },
+    jobs: { top: 2, bot: -8, minor: 1, every: 1 },
+    deep: { top: 0, bot: -11, minor: 1, every: 1 },
+    cool: { top: 8, bot: -4, minor: 1, every: 2, unit: '°C', bulb: true },
+    rooms: { top: 5, bot: -25, minor: 1, every: 5, unit: '°C', bulb: true, H: 262 },
+    speed: { top: 8, bot: 0, minor: 1, every: 1, unit: 'm/s', H: 262 },
+    gauge: { top: 1, bot: -1, minor: 0.1, mid: 0.5, every: 0.5, unit: 'bar', H: 262 },
+    mixed: { top: 4, bot: -7, minor: 1, every: 1 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const BBC = 'https://www.bbc.co.uk/bitesize/articles/zrjsn9q';
+  const VELOCITY = 'https://www.bbc.co.uk/bitesize/guides/z2wy6yc/revision/2';
+  const VEG_ROOM = 'https://www.merchantnavydecoded.com/what-is-refrigeration-systemwhy-is-refrigeration-used-on-ships';
+  const FROZEN = 'https://www.kuehne-nagel.com/uk/how-to/sea-freight/ship-in-reefer-containers';
+  const GAUGE = 'https://openstax.org/books/college-physics-2e/pages/11-6-gauge-pressure-absolute-pressure-and-pressure-measurement';
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const same = (a, b) => K.near(a, b, 1e-9);
+  const round3 = (v) => Math.round(v * 1000) / 1000;
+  // '−0.7' -> −0.7; '+24' -> 24; '−4 m/s' -> −4; a sum or words -> NaN.
+  function value(s) {
+    const t = String(s).replace(/−/g, '-').replace(/\s*m\/s$/, '').trim();
+    return /^[-+]?\d+(\.\d+)?$/.test(t) ? Number(t) : NaN;
+  }
+  // As Dan reads it: a proper minus sign (and a plus on a temperature above zero); as a screen reader says it.
+  const fmt = (v) => (v < 0 ? M : '') + String(round3(Math.abs(v)));
+  const signed = (v) => (v > 0 ? '+' : '') + fmt(v);
+  const say = (s) => String(s).replace(/−\s*/g, 'minus ').replace(/ \+ /g, ' plus ').replace(/\+/g, 'plus ').replace(/ = /g, ' equals ').replace(/m\/s/g, 'metres per second').replace(/°C/g, 'degrees');
+  // Taking away a positive number b from a: the marker faces down and steps forwards, one step of
+  // u at a time, down the line. Returns where it lands and every place it stood, zero included.
+  function walkDown(a, b, u) {
+    u = u || 1;
+    const n = Math.round(b / u), seen = [a];
+    let v = a;
+    for (let k = 0; k < n; k++) { v = round3(v - u); seen.push(v); }
+    return { at: v, seen: seen, steps: n };
+  }
+  // A change, counted step by step along the line from the first reading to the last: up is plus, down is minus.
+  function counted(first, last) {
+    let v = first, c = 0;
+    while (v < last) { v++; c++; }
+    while (v > last) { v--; c--; }
+    return c;
+  }
+  // A change by the rule: last minus first. A gap: how far apart, so never negative.
+  const changeOf = (first, last) => round3(last - first);
+  const gapOf = (a, b) => round3(Math.abs(counted(a, b)));
+  // A sum as written on an answer: '2 − 4' -> [2, 4]; '−2 − 4' -> [−2, 4].
+  function sumOf(s) {
+    const m = /^(−?\d+(?:\.\d+)?) − (\d+(?:\.\d+)?)$/.exec(String(s));
+    return m ? [value(m[1]), value(m[2])] : null;
+  }
+  // The answer a step asks for, worked by the rule.
+  function answerOf(d) {
+    if (d.kind === 'walk' || d.kind === 'take') return walkDown(d.from, d.take, d.unit).at;
+    if (d.kind === 'change') return changeOf(d.first, d.last);
+    if (d.kind === 'sign') return 0;
+    if (d.kind === 'which') return d.opts.filter((o) => { const p = sumOf(o); return p && same(walkDown(p[0], p[1]).at, d.target); }).join();
+    return null;
+  }
+
+  // n: the marker's steps so far (the one gliding included); queued: taps waiting for it to finish
+  // gliding; hopAt: when each step began, on the motion's clock (its count rises in after that).
+  function blank(i) {
+    return { n: 0, queued: 0, hopAt: [], down: false, glide: null, sel: null, pick: null, res: null, why: false };
+  }
+  // Nothing to check yet: says what to do first ('' when there is something to check).
+  function emptyFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'walk') return st.n === 0 && !st.down ? d.empty : '';
+    if (d.kind === 'sign') return st.sel == null ? d.empty : '';
+    return st.pick == null ? PICK : '';
+  }
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  function isRight(i, st) {
+    const d = STEPS[i];
+    if (isEmpty(i, st)) return false;
+    if (d.kind === 'walk') return st.down && st.n === d.take;
+    if (d.kind === 'sign') return st.sel === d.want;
+    return st.pick === d.want;
+  }
+  // A wrong answer's hint names its slip: on the walk, the way the marker faces, then the count of
+  // steps. One step short is counting the start as a step; one too many, through zero, is skipping zero.
+  function hintFor(i, st) {
+    const d = STEPS[i];
+    if (d.kind === 'walk') {
+      if (!st.down) return d.up;
+      if (st.n === 0) return d.none;
+      const n = st.n, said = 'Not quite. That is ' + n + ' step' + (n === 1 ? '' : 's');
+      if (n === d.take - 1) return said + '. Count the hops, not the number you start on. Step once more.';
+      if (n < d.take) return said + '. Taking away ' + d.take + ' takes ' + d.take + ' hops. Step ' + (d.take - n) + ' more.';
+      if (n === d.take + 1 && walkDown(d.from, n).seen.some((v) => same(v, 0)))
+        return said + ', to ' + fmt(walkAt(d, st)) + '. Zero counts as a step: ' + walkDown(d.from, d.take).seen.slice(1).map(fmt).join(', ') + '. Tap Start\u00a0again.';
+      return said + '. Taking away ' + d.take + ' takes ' + d.take + ' hops. Tap Start\u00a0again.';
+    }
+    if (d.kind === 'sign') return d.hint;
+    return (d.hints && d.hints[st.pick]) || d.hint;
+  }
+  // A step answered right (the timing check draws each one this way).
+  function solved(i) {
+    const d = STEPS[i], st = blank(i);
+    if (d.kind === 'walk') { st.down = true; st.n = d.take; }
+    else if (d.kind === 'sign') st.sel = d.want;
+    else st.pick = d.want;
+    st.res = 'right';
+    return st;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo', 'fb' or 'walk'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // A reading keeps its sign and unit ("−20 °C", "6 m/s", "1.2 bar") and a whole sum stays together
+  // ("−2 − 6 = −8 degrees."), with the full stop after it, so none of them breaks across two lines.
+  const NUM = '[−+]?\\d+(?:\\.\\d+)?(?: (?:°C|m\\/s|bar|degrees|steps)(?![A-Za-z]))?';
+  // "to" stays with the number after it, so "to −2." never leaves the answer alone on a line.
+  const GLUE = new RegExp('(?:\\bto )?' + NUM + '(?: [+−=] ' + NUM + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      if (/[ −]/.test(m[0])) el.appendChild(K.el('span', { class: 'nw' }, m[0]));
+      else el.appendChild(document.createTextNode(m[0]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to four answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2, 3].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // The marker Dan moves (the walk step): where it stands and which way it points, part-way
+  // through a move while it glides. Angle 0 faces up, 180 faces down.
+  const walkAt = (d, st) => round3(d.from + (st.down ? -1 : 1) * st.n);
+  // Whether the marker, after st.n steps, can take one more the way it faces: it never leaves the line.
+  function canStep(d, st) {
+    const v = round3(walkAt(d, st) + (st.down ? -1 : 1)), L = LAY[d.lay];
+    return v <= L.top + 1e-9 && v >= L.bot - 1e-9;
+  }
+  // Is the marker's move still playing (or its last count still rising in)?
+  const walkLive = () => motion === 'walk' && anim.playing() && T !== Infinity;
+  function walkNow(i) {
+    const d = STEPS[i], st = S[i], v = walkAt(d, st), ang = st.down ? 180 : 0;
+    if (!st.glide || motion !== 'walk' || i !== at() || T === Infinity) return { v: v, ang: ang, e: 1, gone: 0 };
+    // (painted for another step, or settled: where it stands now)
+    const g = st.glide, e = K.ease(K.clamp((T - g.t0) / g.dur, 0, 1));
+    return { v: K.lerp(g.v0, g.v1, e), ang: K.lerp(g.a0, g.a1, e), e: e, gone: g.gone || 0 };
+  }
+  // A move starts now: on the running clock if a move is still playing, else on a fresh one.
+  // The motion runs on until the move ends and, after a step, until its count has risen in.
+  function glide(st, now, v1, a1, dur, gone) {
+    const live = walkLive(), t0 = live ? T : 0;
+    if (!live) st.hopAt = [];
+    st.glide = { v0: now.v, v1: v1, a0: now.ang, a1: a1, dur: dur, gone: gone || 0, t0: t0 };
+    st.res = null;
+    K.reveal();
+    const end = t0 + Math.max(dur, gone == null && v1 !== now.v ? WALK / 2 + CNT : 0);
+    if (live) motionEnd = Math.max(motionEnd, end);
+    else play(end, 'walk');
+  }
+  // Taps that come while the marker is still gliding wait their turn, so it keeps a steady pace,
+  // one step per WALK; each starts the moment the one before ends (the animation calls this).
+  function walkOn() {
+    const i = at(), d = STEPS[i], st = S[i];
+    while (d.kind === 'walk' && st.glide && st.queued > 0 && T >= st.glide.t0 + st.glide.dur) {
+      const g = st.glide, v0 = walkAt(d, st);
+      st.queued -= 1; st.n += 1;
+      st.glide = { v0: v0, v1: walkAt(d, st), a0: g.a1, a1: g.a1, dur: WALK, gone: 0, t0: g.t0 + g.dur };
+      st.hopAt[st.n - 1] = st.glide.t0;
+      motionEnd = Math.max(motionEnd, st.glide.t0 + WALK / 2 + CNT);
+    }
+  }
+  // The marker's moves end where they were going: waiting taps are taken, and nothing glides.
+  function settle(st) {
+    st.n += st.queued; st.queued = 0; st.glide = null; st.hopAt = [];
+  }
+  // Turn round (before any step), or go back to the start (after one), still facing the same way.
+  function turnOrRestart() {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'walk' || st.res === 'right') return;
+    const now = walkNow(i);
+    if (st.n > 0) { const gone = st.n; st.n = 0; st.queued = 0; glide(st, now, d.from, st.down ? 180 : 0, TURN, gone); st.hopAt = []; return; }
+    st.down = !st.down;
+    glide(st, now, d.from, st.down ? 180 : 0, TURN, 0);
+  }
+  // One step forwards, the way the marker faces; it never leaves the line.
+  function stepForwards() {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.kind !== 'walk' || st.res === 'right') return;
+    if (!canStep(d, { down: st.down, n: st.n + st.queued })) { st.res = 'end'; return; }
+    const g = st.glide;
+    if (g && walkLive() && T < g.t0 + g.dur) { st.queued += 1; st.res = null; return; }
+    const now = walkNow(i);
+    st.n += 1;
+    glide(st, now, walkAt(d, st), st.down ? 180 : 0, WALK);
+    st.hopAt[st.n - 1] = st.glide.t0;
+  }
+  const walkBtns = [K.button({ label: 'Turn round', secondary: true, into: '#walk', press: turnOrRestart }),
+    K.button({ label: 'Step forwards', secondary: true, into: '#walk', press: stepForwards })];
+  walkBtns[1].el.setAttribute('aria-label', 'Step the marker forwards, the way it faces');
+
+  // Check: marks the answer; a right one plays its picture's motion.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    settle(st);
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+    else if (motion === 'walk') { anim.pause(); T = Infinity; motion = null; }
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, the motion after a right answer, and each move Dan
+  // gives the marker, from its start; with reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    if (motion === 'walk') walkOn();
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving (a slot giving way to its answer): faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: w, height: h, rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' }, String(s)));
+  const pathOf = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  // A stroke grown as far as e (0..1) along its own length.
+  function grown(cls, d, e) {
+    if (e <= 0) return;
+    const attrs = { class: cls, d: d };
+    if (e < 1) { attrs.pathLength = 1; attrs['stroke-dasharray'] = '1 1'; attrs['stroke-dashoffset'] = (1 - e).toFixed(3); }
+    add(K.svg('path', attrs));
+  }
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { huge: 46, expr: 26, sum: 21, chg: 18, rule: 14 }[cls] || 15;
+    return String(s).length * size * 0.6;
+  }
+
+  // A line's scale: where value v sits (y), from Y0 at the top to H - 46 at the bottom.
+  function scaleOf(L) {
+    const y1 = H - 46, k = (y1 - Y0) / (L.top - L.bot);
+    return { L: L, k: k, y: (v) => Y0 + (L.top - v) * k };
+  }
+  const isMult = (v, s) => Math.abs(v / s - Math.round(v / s)) < 1e-6;
+  // The upright line: a tube (with a bulb for a thermometer), the line up its middle, a tick at every
+  // step, longer at every `mid` and `every`, the longest at 0; numbers at every `every`, 0 the largest.
+  // A number that a reading's own label would cover gives way to it (readings: [{v, a}]).
+  function upright(sc, readings) {
+    const L = sc.L, y0 = sc.y(L.top), y1 = sc.y(L.bot), yT = y0 - 12, yB = y1 + 6;
+    readings = readings || [];
+    if (L.bulb) pathOf('tube', 'M' + (X - TW) + ' ' + (yT + TW) + ' A' + TW + ' ' + TW + ' 0 0 1 ' + (X + TW) + ' ' + (yT + TW) + ' V' + yB +
+      ' A15 15 0 1 1 ' + (X - TW) + ' ' + yB + ' Z');
+    else rect('tube', X - TW, yT, 2 * TW, yB + 6 - yT, TW);
+    line('axis', X, y0 - 4, X, y1 + 4);
+    const n = Math.round((L.top - L.bot) / L.minor);
+    for (let j = 0; j <= n; j++) {
+      const v = round3(L.top - j * L.minor), y = sc.y(v), z = same(v, 0), big = isMult(v, L.every), mid = L.mid && isMult(v, L.mid);
+      const h = z ? 14 : big ? 8 : mid ? 6 : 4;
+      line('tick' + (z || big ? '' : ' m'), X - h, y, X + h, y);
+      if (!(z || big)) continue;
+      const draw = () => text(LX, y + (z ? 6.5 : 5.5), fmt(v), z ? 'zero' : 'num', 'end');
+      const cover = readings.filter((r) => Math.abs(sc.y(r.v) - y) < 18).map((r) => (r.a == null ? 1 : r.a));
+      if (!cover.length) draw();
+      else leave(Math.min(1, 2 * Math.max.apply(null, cover)), draw);
+    }
+    if (L.unit) text(LX, y0 - 20, L.unit, 'unit', 'end');
+  }
+  // A reading on the line: a dot, and its value beside the numbers, risen in as a goes 0 -> 1.
+  function reading(sc, v, a, unit) {
+    part(a, 0, () => add(K.svg('circle', { class: 'dot', cx: X, cy: sc.y(v), r: 7 })));
+    part(a, 6, () => text(LX, sc.y(v) + 5.5, (unit === '°C' ? signed(v) : fmt(v)) + ' ' + unit, 'val', 'end'));
+  }
+  // The marker at v, turned `ang` degrees from facing up (180 faces down): its round end on the line
+  // at v, its point the way it faces.
+  function marker(sc, v, ang, a) {
+    part(a, 0, () => add(K.svg('path', { class: 'mk', 'data-v': round3(v), 'data-ang': Math.round(ang),
+      transform: 'translate(' + X + ' ' + sc.y(v).toFixed(2) + ') rotate(' + ang.toFixed(1) + ')', d: 'M0 -18 L6.93 -4 A8 8 0 1 1 -6.93 -4 Z' })));
+  }
+  const ring = (sc, v, a) => part(a, 0, () => add(K.svg('circle', { class: 'ring', cx: X, cy: sc.y(v), r: 8 })));
+  // The rule beside the marker: line k arrives as ins[k] goes 0 -> 1 and is highlighted as hls[k]
+  // does (the line in use). The two facing lines carry a small marker facing their way.
+  function card(ins, hls) {
+    const w = Math.max.apply(null, RULES.map((s, k) => tw(s, 'rule') + (k < 2 ? 18 : 0))) + 22;
+    const x = 334 - w;
+    part(Math.max.apply(null, ins), 0, () => rect('card', x, 6, w, 10 + 20 * RULES.length, 8));
+    for (let k = 0; k < RULES.length; k++) {
+      const yb = 26 + 20 * k, h = hls ? hls[k] || 0 : 0;
+      part(Math.min(ins[k], h), 0, () => rect('hl', x + 5, yb - 14, w - 10, 19, 4));
+      part(ins[k], 6, () => {
+        if (k < 2) add(K.svg('path', { class: 'mini', transform: 'translate(' + (x + 16) + ' ' + (yb - 5) + ') rotate(' + (k === 0 ? 0 : 180) + ') scale(0.55)',
+          d: 'M0 -18 L6.93 -4 A8 8 0 1 1 -6.93 -4 Z' }));
+        text(x + 11 + (k < 2 ? 18 : 0), yb, RULES[k], 'rule k-nohalo', 'start');
+      });
+    }
+  }
+  const ruleSaid = (hls) => ' Beside it, the rule: facing up means add, facing down means take away, and a positive number steps forwards' +
+    (hls && hls[1] >= 0.5 ? '; the take-away line is highlighted.' : '.');
+  // A hop beside the line, from value a to b, bulging `bulge` units, grown as far as e.
+  function hop(sc, a, b, e, bulge) {
+    const x = X + TW + 3, y1 = sc.y(a) + (b < a ? 2 : -2), y2 = sc.y(b) + (b < a ? -2 : 2);
+    grown('hop', 'M' + x + ' ' + y1.toFixed(2) + ' Q' + (x + 2 * bulge) + ' ' + ((y1 + y2) / 2).toFixed(2) + ' ' + x + ' ' + y2.toFixed(2), e);
+  }
+  // Unit hops down from `from`, one step of u each: hop k grows from ts[k] over dur seconds, and its
+  // count rises in softly from half-way through it. Returns how far the hops have gone, and how many are counted.
+  function stepArcs(sc, from, u, ts, dur) {
+    let counted = 0, went = 0;
+    ts.forEach((t, k) => {
+      const e = arr(t, dur), c = arr(t + dur / 2, CNT);
+      went += e;
+      if (e <= 0) return;
+      const a = round3(from - k * u), b = round3(from - (k + 1) * u);
+      hop(sc, a, b, e, 8);
+      if (c >= 0.5) counted++;
+      part(c, 6, () => text(CNTX, sc.y((a + b) / 2) + 4.5, k + 1, 'cnt', 'start'));
+    });
+    return { went: went, counted: counted };
+  }
+  // A long hop (to zero, then on) with an arrowhead as it lands and its size beside it. Its bulge is
+  // small, so the growing tip keeps level with the marker gliding down beside it.
+  function bigHop(sc, h) {
+    const e = arr(h.t, h.dur), hd = arr(h.t + h.dur * 0.6, 0.3), x = X + TW + 3, d = 14;
+    if (e > 0) {
+      const y1 = sc.y(h.a) + 2, y2 = sc.y(h.b) - 2, ym = (y1 + y2) / 2;
+      grown('hop', 'M' + x + ' ' + y1.toFixed(2) + ' Q' + (x + 2 * d) + ' ' + ym.toFixed(2) + ' ' + x + ' ' + y2.toFixed(2), e);
+      const dx = -2 * d, dy = y2 - ym, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+      const bx = x - ux * 9, by = y2 - uy * 9, px = -uy * 4.5, py = ux * 4.5;
+      part(hd, 0, () => pathOf('head', 'M' + x + ' ' + y2.toFixed(2) + ' L' + (bx + px).toFixed(2) + ' ' + (by + py).toFixed(2) + ' L' + (bx - px).toFixed(2) + ' ' + (by - py).toFixed(2) + ' Z'));
+    }
+    part(arr(h.lt), 6, () => text(x + d + 8, (sc.y(h.a) + sc.y(h.b)) / 2 + 5, h.lab, 'hl2', 'start'));
+    return e;
+  }
+  // The answer's tag at v, its point at TAGX - 7, risen in as a goes 0 -> 1.
+  function tag(sc, v, s, a) {
+    const y = sc.y(v), w = Math.max(40, tw(s, 'tagt') + 20);
+    part(a, 6, () => {
+      pathOf('tag', 'M' + TAGX + ' ' + (y - 7).toFixed(2) + ' L' + (TAGX - 7) + ' ' + y.toFixed(2) + ' L' + TAGX + ' ' + (y + 7).toFixed(2) + ' Z');
+      rect('tag', TAGX, y - 15, w, 30, 8);
+      text(TAGX + w / 2, y + 5.5, s, 'tagt k-nohalo');
+    });
+  }
+  // The slot an answer goes in: a dashed box that gives way to the answer as a goes 0 -> 1.
+  const slot = (x, y, w, h, a) => leave(a, () => rect('gapbox', x, y, w, h, 5));
+  // The sum at the foot of the picture, right-aligned: its left side, then a slot that gives way to
+  // the answer as a goes 0 -> 1 (or the whole sum risen in as a does, with `whole`).
+  function sumAt(left, ans, a, whole) {
+    const y = H - 12;
+    if (whole) { part(a, 6, () => text(334, y, left, 'sum', 'end')); return; }
+    const w = Math.max(36, tw(ans, 'sum') + 12), x = 334 - w;
+    text(x - 6, y, left, 'sum', 'end');
+    slot(x, y - 21, w, 29, a);
+    part(a, 6, () => text(x + w / 2, y, ans, 'sum'));
+  }
+  // A vertical arrow at x from value a to b, grown as far as e, its head on the growing tip; it
+  // fades in over the first third of its growth, so its head never pops in.
+  function arrow(sc, x, a, b, e) {
+    if (e <= 0) return;
+    const y1 = sc.y(a), y2 = sc.y(b), y = K.lerp(y1, y2, e), s = y2 < y1 ? 1 : -1;
+    part(Math.min(1, e * 3), 0, () => {
+      line('ov', x, y1, x, y);
+      pathOf('ov', 'M' + (x - 6) + ' ' + (y + 9 * s).toFixed(2) + ' L' + x + ' ' + y.toFixed(2) + ' L' + (x + 6) + ' ' + (y + 9 * s).toFixed(2));
+    });
+  }
+  // A bracket at x, its ends turned back towards the line, from value a to b.
+  const bracket = (sc, x, a, b, e) => grown('brk', 'M' + (x - 6) + ' ' + sc.y(a).toFixed(2) + ' H' + x + ' V' + sc.y(b).toFixed(2) + ' H' + (x - 6), e);
+  // The words "first" and "last" (or "initial" and "final") beside a change's readings, on the side away from its move.
+  function ends(sc, d, a1, a2) {
+    const rise = d.last > d.first;
+    part(a1, 6, () => text(X + TW + 7, sc.y(d.first) + (rise ? 20 : -9), d.tags[0], 'note', 'start'));
+    part(a2, 6, () => text(X + TW + 7, sc.y(d.last) + (rise ? -9 : 20), d.tags[1], 'note', 'start'));
+  }
+  const lineSaid = (L) => 'An upright number line from ' + say(fmt(L.top)) + ' down to ' + say(fmt(L.bot)) + (L.unit ? ' ' + say(L.unit) : '') +
+    (L.bulb ? ', drawn like a thermometer' : '') + ', with zero marked.';
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Adding faced up; to take away the marker turns to face down, then steps forwards 6 from 4, through zero, to −2.
+  function demoFace() {
+    const A = AT.face, sc = scaleOf(LAY.face), mk = arr(A.mk), tn = arr(A.turn[0], A.turn[1]);
+    upright(sc);
+    const ang = 180 * tn, fr = ang / 180;
+    card([arr(A.card), arr(A.card), arr(A.card)], [Math.min(mk, 1 - fr), fr, arr(A.hl, HL)]);
+    const w = stepArcs(sc, A.from, 1, A.hops, A.hop), n = w.counted;
+    marker(sc, A.from - w.went, ang, mk);
+    const done = arr(A.tag), ans = walkDown(A.from, A.take).at;
+    tag(sc, ans, fmt(ans), done);
+    sumAt('4 − 6 = ' + fmt(ans), '', done, true);
+    return lineSaid(LAY.face) + (mk >= 0.5 ? ' A marker stands on 4, ' + (tn >= 0.5 ? 'turned to face down' : 'facing up') + (n ? ', and has stepped forwards ' + n + ' step' + (n === 1 ? '' : 's') + ', down the line' : '') + '.' : '') +
+      (arr(A.card) >= 0.5 ? ruleSaid([0, fr]) : '') + (done >= 0.5 ? ' It lands on minus 2: 4 minus 6 equals minus 2.' : '');
+  }
+  // −4 − 3: the minus stuck to the 4 is a sign; the other one says take away; the marker steps 3 down from −4.
+  // The sum is written large, each minus labelled; the answer arrives in its slot.
+  function demoJobs() {
+    const A = AT.jobs, sc = scaleOf(LAY.jobs), mk = arr(A.mk);
+    upright(sc);
+    card([1, 1, 1], [0, mk, arr(A.hl, HL)]);
+    const w = stepArcs(sc, A.from, 1, A.hops, A.hop), n = w.counted;
+    marker(sc, A.from - w.went, 180, mk);
+    const done = arr(A.tag), ans = walkDown(A.from, A.take).at;
+    tag(sc, ans, fmt(ans), done);
+    const ex = arr(A.expr), sg = arr(A.sign), aw = arr(A.away);
+    part(ex, 6, () => expression(250, 168, done));
+    return lineSaid(LAY.jobs) + (ex >= 0.5 ? ' Beside it the sum minus 4 minus 3' + (sg >= 0.5 ? ': the minus stuck to the 4 is labelled sign' : '') + (aw >= 0.5 ? ', and the minus between the numbers is labelled take away' : '') + '.' : '') +
+      (mk >= 0.5 ? ' A marker facing down stands on minus 4' + (n ? ' and has stepped forwards ' + n + ', down the line' : '') + '.' : '') + ruleSaid([0, mk]) +
+      (done >= 0.5 ? ' It lands on minus 7: minus 4 minus 3 equals minus 7.' : '');
+    // "−4 − 3 = ?" centred on cx, its baseline at y: labels above the sign and below the take away; the answer in its slot as a goes 0 -> 1.
+    function expression(cx, y, a) {
+      const gw = (s) => tw(s, 'expr'), G = 12, items = [M + '4', M, '3', '=', ''];
+      const ansW = Math.max(46, gw(M + '7') + 14), ws = items.map((s, k) => (k === 4 ? ansW : gw(s)));
+      let x = cx - (ws.reduce((s, w) => s + w, 0) + G * (items.length - 1)) / 2;
+      const xs = ws.map((w) => { const x0 = x; x += w + G; return x0; });
+      items.forEach((s, k) => { if (k < 4) text(xs[k], y, s, 'expr', 'start'); });
+      slot(xs[4], y - 26, ansW, 34, a);
+      part(a, 6, () => text(xs[4] + ansW / 2, y, M + '7', 'expr'));
+      const m1 = xs[0] + gw(M) / 2, m2 = xs[1] + gw(M) / 2;
+      part(sg, 6, () => { line('lead', m1, y - 26, m1, y - 34); text(m1, y - 40, 'sign', 'note'); });
+      part(aw, 6, () => { line('lead', m2, y + 8, m2, y + 18); text(m2, y + 33, 'take away', 'note'); });
+    }
+  }
+  // Cooling from +6 °C to −2 °C: the first reading, then the last; the change grows from one to the
+  // other and is named −8; the sum; then the gap, 8, beside it with no sign.
+  function demoChange() {
+    const A = AT.change, L = LAY.cool, sc = scaleOf(L), d = { first: A.first, last: A.last, tags: ['first', 'last'] };
+    const r1 = arr(A.r1), r2 = arr(A.r2), e = arr(A.arrow[0], A.arrow[1]), lab = arr(A.label), wk = arr(A.work), gp = arr(A.gap);
+    upright(sc, [{ v: A.first, a: r1 }, { v: A.last, a: r2 }]);
+    reading(sc, A.first, r1, L.unit); reading(sc, A.last, r2, L.unit);
+    ends(sc, d, r1, r2);
+    changeParts(sc, d, e, lab, gp, '');
+    part(wk, 6, () => { text(334, H - 34, 'last − first', 'note', 'end'); text(334, H - 12, A.sum, 'sum', 'end'); });
+    return lineSaid(L) + (r1 >= 0.5 ? ' The first reading is plus 6 degrees' : '') + (r2 >= 0.5 ? ' and the last is minus 2 degrees.' : '.') +
+      (e >= 1 ? ' An arrow points down from the first to the last' + (lab >= 0.5 ? ', labelled change minus 8' : '') + '.' : '') + (wk >= 0.5 ? ' Last minus first: minus 2 minus 6 equals minus 8.' : '') +
+      (gp >= 0.5 ? ' A bracket beside it, with no direction, is labelled gap 8.' : '');
+  }
+  // A change's arrow from the first reading to the last (grown as e goes 0 -> 1) with its value, and
+  // the gap's bracket with its size (arriving as g does).
+  function changeParts(sc, d, e, lab, g, unit) {
+    const c = changeOf(d.first, d.last), ym = (sc.y(d.first) + sc.y(d.last)) / 2;
+    // faint guides from the two readings across, arriving with the arrow, so its ends meet them
+    part(Math.min(1, e * 3), 0, () => [d.first, d.last].forEach((v) => line('guide', X + TW + 4, sc.y(v), AX - 4, sc.y(v))));
+    arrow(sc, AX, d.first, d.last, e);
+    part(lab, 6, () => { text(AX + 10, ym - 6, 'change', 'note', 'start'); text(AX + 10, ym + 16, signed(c) + (unit ? ' ' + unit : ''), 'chg', 'start'); });
+    if (g <= 0) return;
+    part(g, 0, () => bracket(sc, BX, d.first, d.last, 1));
+    part(g, 6, () => text(BX + 8, ym + 5.5, 'gap ' + gapOf(d.first, d.last), 'gapl', 'start'));
+  }
+
+  // --- the puzzles (DO steps); after a right answer their motion runs on the same clock T ---
+  // The marker Dan turns and steps himself; a right answer tags where it landed and fills in the sum.
+  function drawWalk(d, st, right) {
+    const sc = scaleOf(LAY[d.lay]), now = walkNow(STEPS.indexOf(d)), F = d.at;
+    upright(sc);
+    const fr = now.ang / 180, stepping = st.glide && st.glide.v1 !== st.glide.v0 && now.e < 1;
+    card([1, 1, 1], [1 - fr, fr, st.n > 0 ? (st.n === 1 && stepping ? now.e : 1) : 0]);
+    // the hops taken so far (the newest grows as the marker glides); after Start again, the old ones fade
+    const dir = st.down ? -1 : 1;
+    if (now.gone) leave(now.e, () => stepArcsDir(sc, d.from, now.gone, st.glide && st.glide.a0 >= 90 ? -1 : 1, null, null));
+    if (st.n) stepArcsDir(sc, d.from, st.n, dir, stepping ? now.e : 1, walkLive() ? st.hopAt : null);
+    marker(sc, now.v, now.ang, 1);
+    const done = right ? arr(F.tag) : 0, ans = answerOf(d);
+    tag(sc, ans, fmt(ans), done);
+    sumAt(fmt(d.from) + ' − ' + fmt(d.take) + ' =', fmt(ans), done);
+    return lineSaid(LAY[d.lay]) + ' The marker you move stands on ' + say(fmt(walkAt(d, st))) + ', facing ' + (st.down ? 'down' : 'up') +
+      (st.n ? ', after ' + st.n + ' step' + (st.n === 1 ? '' : 's') + ' forwards from 2' : '') + '.' + ruleSaid([0, st.down ? 1 : 0]) +
+      (done >= 0.5 ? ' 2 minus 5 equals minus 3.' : ' Below, 2 minus 5 equals an empty box.');
+  }
+  // n unit hops from `from` the way dir points (the last grown as far as last), each counted: while
+  // the marker moves, a hop's count rises in softly from half-way through it (hopAt: when each began).
+  function stepArcsDir(sc, from, n, dir, last, hopAt) {
+    for (let k = 0; k < n; k++) {
+      const e = k === n - 1 && last != null ? last : 1, a = round3(from + k * dir), b = round3(from + (k + 1) * dir);
+      const c = hopAt && hopAt[k] != null ? K.arrive(T, hopAt[k] + WALK / 2, CNT) : 1;
+      hop(sc, a, b, e, 8);
+      part(c, 6, () => text(CNTX, sc.y((a + b) / 2) + 4.5, k + 1, 'cnt', 'start'));
+    }
+  }
+  // Take away with the marker facing down: a right answer hops it there, tags the landing and fills the slot.
+  function drawTake(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at, ans = answerOf(d);
+    upright(sc);
+    card([1, 1, 1], [0, 1, 1]);
+    let travelled = 0, hopsSaid = '';
+    if (F.big) {
+      F.big.forEach((h) => { const e = right ? bigHop(sc, h) : 0; travelled += (h.a - h.b) * e; });
+      if (right) hopsSaid = ' It hops down 0.5 to zero, then 0.7 more.';
+    } else {
+      const w = right ? stepArcs(sc, d.from, 1, F.hops, HOP) : { went: 0, counted: 0 };
+      travelled = w.went;
+      if (w.counted) hopsSaid = ' It has stepped forwards ' + w.counted + ', down the line.';
+    }
+    marker(sc, round3(d.from - travelled), 180, 1);
+    const done = right ? arr(F.tag) : 0;
+    tag(sc, ans, fmt(ans), done);
+    sumAt(fmt(d.from) + ' − ' + fmt(d.take) + ' =', fmt(ans), done);
+    return lineSaid(L) + ' A marker facing down stands on ' + say(fmt(d.from)) + '.' + hopsSaid + ruleSaid([0, 1]) +
+      (done >= 0.5 ? ' ' + say(fmt(d.from) + ' − ' + fmt(d.take) + ' = ' + fmt(ans)) + '.' : ' Below, ' + say(fmt(d.from) + ' − ' + fmt(d.take)) + ' equals an empty box.');
+  }
+  // −7 − 3 written large; Dan taps the minus that is a sign. A right answer labels what each minus does.
+  const SIGN = { y: 98, size: 'huge', boxW: 56, boxH: 72 };
+  // Where −7, the minus and the 3 sit, and the middle of each minus (the one stuck to the 7 is its first character).
+  function signLayout() {
+    const gw = (s) => tw(s, SIGN.size), items = [M + '7', M, '3'], G = 30;
+    const ws = items.map(gw), total = ws.reduce((s, w) => s + w, 0) + G * (items.length - 1);
+    let x = 170 - total / 2;
+    const g = items.map((s, k) => { const x0 = x; x += ws[k] + G; return { s: s, x: x0, w: ws[k] }; });
+    const mw = gw(M);
+    g.minus = [{ c: g[0].x + mw / 2, w: mw }, { c: g[1].x + ws[1] / 2, w: mw }];
+    return g;
+  }
+  function drawSign(d, st, right) {
+    svg.setAttribute('viewBox', '0 0 340 186');
+    const g = signLayout(), F = d.at, y = SIGN.y;
+    g.forEach((o) => text(o.x, y, o.s, SIGN.size, 'start'));
+    const l1 = right ? arr(F.labels[0]) : 0, l2 = right ? arr(F.labels[1]) : 0, l3 = right ? arr(F.labels[2]) : 0;
+    // until it is answered, a dashed line under each minus says it can be tapped; the picked one gets a
+    // bar. After a right answer they give way softly as the first label arrives.
+    const taps = () => g.minus.forEach((o, k) => line(st.sel === k ? 'picked' : 'tapline', o.c - o.w / 2 + 2, y + 14, o.c + o.w / 2 - 2, y + 14));
+    if (!right) taps(); else leave(l1, taps);
+    // above the first minus only: it is the sign (as on the screen before); under −7: it is below zero;
+    // under − 3: what the other minus does
+    const m1 = g.minus[0].c, c1 = g[0].x + g[0].w / 2, c2 = (g[1].x + g[2].x + g[2].w) / 2;
+    part(l1, 6, () => { line('lead', m1, y - 38, m1, y - 46); text(m1, y - 52, 'sign', 'note'); });
+    part(l2, 0, () => grown('brk', 'M' + (g[0].x) + ' ' + (y + 14) + ' V' + (y + 20) + ' H' + (g[0].x + g[0].w) + ' V' + (y + 14), 1));
+    part(l2, 6, () => text(c1, y + 42, 'below zero', 'note'));
+    part(l3, 0, () => grown('brk', 'M' + (g[1].x) + ' ' + (y + 14) + ' V' + (y + 20) + ' H' + (g[2].x + g[2].w) + ' V' + (y + 14), 1));
+    part(l3, 6, () => text(c2, y + 42, 'take away 3', 'note'));
+    placeHits(right ? null : g);
+    return 'The sum minus 7 minus 3, written large, with its two minus signs to tap' + (st.sel != null ? '; the ' + (st.sel === 0 ? 'first, stuck to the 7,' : 'second, between the numbers,') + ' is picked' : '') + '.' +
+      (l1 >= 0.5 ? ' Above the minus stuck to the 7: sign.' : '') + (l2 >= 0.5 ? ' Under minus 7: below zero.' : '') + (l3 >= 0.5 ? ' Under minus 3: take away 3.' : '');
+  }
+  // A change between two readings: a right answer grows the arrow from first to last, names the change, then the gap and the sum.
+  function drawChange(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at;
+    upright(sc, [{ v: d.first }, { v: d.last }]);
+    reading(sc, d.first, 1, L.unit); reading(sc, d.last, 1, L.unit);
+    ends(sc, d, 1, 1);
+    const e = right ? arr(F.arrow[0], F.arrow[1]) : 0, lab = right ? arr(F.label) : 0, g = right && d.gap ? arr(F.gap) : 0, wk = right ? arr(F.work) : 0;
+    changeParts(sc, d, e, lab, g, d.unit || '');
+    part(wk, 6, () => { text(334, H - 34, d.workTag, 'note', 'end'); text(334, H - 12, d.work, 'sum', 'end'); });
+    const c = changeOf(d.first, d.last), u = L.unit;
+    return lineSaid(L) + ' The ' + d.tags[0] + ' reading is ' + say(signedU(d.first, u)) + ' and the ' + d.tags[1] + ' is ' + say(signedU(d.last, u)) + '.' +
+      (lab >= 0.5 ? ' An arrow points ' + (c < 0 ? 'down' : 'up') + ' from the ' + d.tags[0] + ' to the ' + d.tags[1] + ', labelled change ' + say(signed(c)) + '.' : '') +
+      (g >= 0.5 ? ' A bracket beside it, with no direction, is labelled gap ' + gapOf(d.first, d.last) + '.' : '') + (wk >= 0.5 ? ' ' + say(d.work) + '.' : '');
+  }
+  const signedU = (v, u) => (u === '°C' ? signed(v) : fmt(v)) + ' ' + u;
+  // Which sum comes to −2: the target ringed; a right answer brings the marker to 2, facing down, and hops it there.
+  function drawWhich(d, st, right) {
+    const L = LAY[d.lay], sc = scaleOf(L), F = d.at;
+    upright(sc);
+    const mk = right ? arr(F.mk) : 0;
+    card([1, 1, 1], [0, mk, right ? arr(F.hl, HL) : 0]);
+    ring(sc, d.target, 1);
+    const w = right ? stepArcs(sc, d.from, 1, F.hops, HOP) : { went: 0, counted: 0 }, n = w.counted;
+    marker(sc, d.from - w.went, 180, mk);
+    const done = right ? arr(F.tag) : 0;
+    tag(sc, d.target, fmt(d.target), done);
+    sumAt(d.want + ' = ' + fmt(d.target), '', done, true);
+    return lineSaid(L) + ' A ring marks minus 2.' + (mk >= 0.5 ? ' A marker facing down stands on 2' + (n ? ' and has stepped forwards ' + n + ', down the line' : '') + '.' : '') +
+      ruleSaid([0, mk]) + (done >= 0.5 ? ' It lands in the ring: 2 minus 4 equals minus 2.' : '');
+  }
+
+  // The two minus signs Dan can tap are kept across repaints (the picture is redrawn every frame), so
+  // the keyboard focus survives. Each is a thumb's width across.
+  const hits = [0, 1].map((k) => {
+    const r = ui.appendChild(K.svg('rect', { class: 'hit', role: 'button', tabindex: -1, 'aria-pressed': 'false',
+      'aria-label': k === 0 ? 'The minus stuck to the 7' : 'The minus between the 7 and the 3' }));
+    r.style.display = 'none';
+    const pickIt = () => {
+      const i = at(), st = S[i];
+      if (finished || STEPS[i].kind !== 'sign' || st.res === 'right') return;
+      st.sel = k; st.res = null;
+      K.reveal(); K.refresh();
+    };
+    r.addEventListener('click', pickIt);
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickIt(); } });
+    return r;
+  });
+  function placeHits(g) {
+    hits.forEach((r, k) => {
+      if (!g) { r.style.display = 'none'; r.setAttribute('tabindex', '-1'); return; }
+      const o = g.minus[k], st = S[at()];
+      r.style.display = '';
+      r.setAttribute('tabindex', '0');
+      r.setAttribute('x', (o.c - SIGN.boxW / 2).toFixed(2)); r.setAttribute('y', SIGN.y - 52);
+      r.setAttribute('width', SIGN.boxW); r.setAttribute('height', SIGN.boxH); r.setAttribute('rx', 10);
+      r.setAttribute('aria-pressed', st.sel === k ? 'true' : 'false');
+    });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = (d.lay && LAY[d.lay].H) || H0;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    if (d.kind !== 'sign') placeHits(null);
+    let aria;
+    if (d.show) aria = { face: demoFace, jobs: demoJobs, change: demoChange }[d.demo]();
+    else aria = { walk: drawWalk, take: drawTake, sign: drawSign, change: drawChange, which: drawWhich }[d.kind](d, st, right);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  el('finish').textContent = FINISH;
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) { T = Infinity; if (motion === 'walk') settle(st); }   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); settle(S[i]); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    el('walk').hidden = d.kind !== 'walk' || right;
+    if (d.kind === 'walk') {
+      walkBtns[0].setLabel(st.n > 0 ? 'Start again' : 'Turn round');
+      walkBtns[0].el.setAttribute('aria-label', st.n > 0 ? 'Start again: the marker back on 2, still facing ' + (st.down ? 'down' : 'up') : 'Turn the marker round');
+    }
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').className = 'row picks' + (d.wrap ? ' wrap' : '');
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      write(b.el, opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : st.res === 'end' ? END : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const WALK_I = STEPS.findIndex((d) => d.kind === 'walk'), SIGN_I = STEPS.findIndex((d) => d.kind === 'sign');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // The one option a step accepts: the only one equal to the answer the rule gives.
+  function onlyRight(i) {
+    const d = STEPS[i], ans = answerOf(d);
+    if (d.kind === 'walk' || d.kind === 'sign') return true;
+    const ok = typeof ans === 'number' ? d.opts.filter((o) => same(value(o), ans)) : d.opts.filter((o) => o === ans);
+    return ok.join() === d.want && d.opts.every((o) => pickRight(i, o) === (o === d.want));
+  }
+  const through0 = (a, b, u) => walkDown(a, b, u).seen.some((v) => same(v, 0));
+  K.check('Taking away a positive number steps down the line one step at a time, through zero when it is crossed: 4 − 6 = −2, 2 − 5 = −3 and 3 − 5 = −2 each stand on 0 on the way; −4 − 3 = −7 and −7 − 3 = −10 go further below; 0.5 − 1.2 = −0.7 in steps of 0.1; of 2 − 4, 4 − 2 and −2 − 4 only 2 − 4 comes to −2; each puzzle accepts only its answer', () =>
+    walkDown(4, 6).at === -2 && walkDown(2, 5).at === -3 && walkDown(3, 5).at === -2 && through0(4, 6) && through0(2, 5) && through0(3, 5) &&
+    walkDown(-4, 3).at === -7 && walkDown(-7, 3).at === -10 && !through0(-7, 3) && same(walkDown(0.5, 1.2, 0.1).at, -0.7) && through0(0.5, 1.2, 0.1) &&
+    walkDown(4, 2).at === 2 && walkDown(-2, 4).at === -6 && answerOf(STEPS[11]) === '2 − 4' && DO.every(onlyRight));
+  K.check('Moving 6 places down the line from 4 shows that 4 − 6 = −2, as the first screen shows', () =>
+    walkDown(AT.face.from, AT.face.take).steps === 6 && walkDown(4, 6).at === -2, { source: BBC });
+  K.check('A change is last minus first and a gap has no sign: +6 °C to −2 °C is a change of −8 with a gap of 8; +4 °C to −20 °C a change of −24, and back up a change of +24, the gap 24 both ways; counted along the line, a fall comes out negative and a rise positive', () =>
+    changeOf(6, -2) === -8 && gapOf(6, -2) === 8 && changeOf(4, -20) === -24 && changeOf(-20, 4) === 24 && gapOf(4, -20) === 24 && gapOf(-20, 4) === 24 &&
+    counted(6, -2) === changeOf(6, -2) && counted(4, -20) === changeOf(4, -20) && counted(-20, 4) === changeOf(-20, 4) && counted(-20, 4) > 0 && counted(4, -20) < 0);
+  K.check('Change in velocity is final velocity minus initial velocity, so slowing down while moving the plus way gives a negative change in velocity, and speeding up a positive one', () =>
+    changeOf(6, 2) < 0 && changeOf(2, 6) > 0 && same(changeOf(6, 2), walkDown(2, 6).at), { source: VELOCITY });
+  // The cold rooms and the gauge, against the lesson's sources.
+  const ROOMS = STEPS.filter((d) => d.lay === 'rooms'), GAUGE_I = STEPS.findIndex((d) => d.lay === 'gauge');
+  K.check('A ship\'s vegetable room is kept at 3 °C to 5 °C, so the vegetable room at +4 °C in steps 8 and 9 is within that range', () =>
+    ROOMS.length === 2 && ROOMS.every((d) => { const veg = Math.max(d.first, d.last); return veg === 4 && veg >= 3 && veg <= 5; }), { source: VEG_ROOM });
+  K.check('Frozen goods are generally shipped and stored at −20 °C or lower, so the meat room at −20 °C in steps 8 and 9 is a frozen room', () =>
+    ROOMS.every((d) => { const meat = Math.min(d.first, d.last); return meat === -20 && meat <= -20; }), { source: FROZEN });
+  K.check('Gauge pressure is positive above atmospheric pressure and negative below it, so a gauge that reads below zero can show −0.7 bar, as in step 11', () =>
+    STEPS[GAUGE_I].from > 0 && answerOf(STEPS[GAUGE_I]) < 0 && same(answerOf(STEPS[GAUGE_I]), -0.7) && LAY.gauge.bot < 0, { source: GAUGE });
+  K.check('In −7 − 3 only the minus stuck to the 7 is accepted as the sign; −7 − 3 is −10, and neither the "two minuses make a plus" answer, 10, nor 7 − 3 = 4 is accepted', () => {
+    const st = (k) => Object.assign(blank(SIGN_I), { sel: k });
+    const d = STEPS[5];
+    return isRight(SIGN_I, st(0)) && !isRight(SIGN_I, st(1)) && isEmpty(SIGN_I, blank(SIGN_I)) && walkDown(-7, 3).at === -10 &&
+      d.from === -7 && d.take === 3 && !pickRight(5, '10') && !pickRight(5, '4') && pickRight(5, '−10');
+  });
+  K.check('Using the marker for 2 − 5 is accepted only facing down after exactly 5 steps forwards, which land on −3; facing up the steps go up; 4 or 6 steps are not accepted, 6 (to −4, skipping zero) told that zero counts as a step and 4 to count the hops, not the start; the marker never leaves the line, so at −5 facing down, or 5 facing up, it cannot step', () => {
+    const d = STEPS[WALK_I], st = (down, n) => Object.assign(blank(WALK_I), { down: down, n: n });
+    return isRight(WALK_I, st(true, 5)) && walkAt(d, st(true, 5)) === -3 && !isRight(WALK_I, st(false, 5)) && walkAt(d, st(false, 3)) === 5 &&
+      !isRight(WALK_I, st(true, 4)) && !isRight(WALK_I, st(true, 6)) && isEmpty(WALK_I, blank(WALK_I)) && hintFor(WALK_I, st(false, 2)) === d.up &&
+      walkAt(d, st(true, 6)) === -4 && /zero counts as a step: 1, 0, −1, −2, −3\./i.test(hintFor(WALK_I, st(true, 6))) && /−4/.test(hintFor(WALK_I, st(true, 6))) &&
+      /not the number you start on/.test(hintFor(WALK_I, st(true, 4))) && !/zero/i.test(hintFor(WALK_I, st(true, 4))) && /Start\sagain/.test(hintFor(WALK_I, st(true, 7))) &&
+      canStep(d, st(true, 6)) && !canStep(d, st(true, 7)) && walkAt(d, st(true, 7)) === LAY[d.lay].bot && !canStep(d, st(false, 3)) && walkAt(d, st(false, 3)) === LAY[d.lay].top;
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s; hops along the line start at least 0.2 s apart', () => {
+    const keepT = T, ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      if (!d.show) S[i] = solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      return d.show ? latest <= d.dur && d.dur <= 4.5 && earliest >= FADE : latest <= d.fb && d.fb <= 2.5;
+    });
+    T = keepT; paint();
+    const runs = [AT.face.hops, AT.jobs.hops].concat(STEPS.filter((d) => d.at && (d.at.hops || d.at.big)).map((d) => d.at.hops || d.at.big.map((h) => h.t)));
+    return ok && runs.every((ts) => ts.every((t, k) => k === 0 || t - ts[k - 1] >= 0.2 - 1e-9));
+  });
+
+  K.ready();
+</script>

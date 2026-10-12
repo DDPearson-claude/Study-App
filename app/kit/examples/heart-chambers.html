@@ -1,0 +1,201 @@
+<!-- kind: structure -->
+<style>
+  .heart text { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .heart .organ { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1.5; }
+  .heart .vessel { fill: none; stroke: var(--k-sunk); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+  .heart .room { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 2; }
+  .heart .room.here { fill: var(--k-fill1); stroke: var(--k-accent2); }
+  .heart .room.thick { stroke-width: 5; }
+  .heart .trail { fill: none; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+  .heart .poor { stroke: var(--k-cat1); }
+  .heart .rich { stroke: var(--k-cat2); }
+  .heart .valve { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .heart .arrow { fill: var(--k-muted); }
+  .heart .side { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; fill: var(--k-accent); }
+  .heart .valve-name { font-size: 13px; fill: var(--k-accent2); }
+  .heart .drop { stroke: var(--k-bg); stroke-width: 2.5; }
+  .dot-poor { background: var(--k-cat1); }
+  .dot-rich { background: var(--k-cat2); }
+</style>
+
+<p class="lead">Follow one drop of blood through the heart. Drag it along, or press Play, and watch which chamber it passes through.</p>
+
+<div id="scene">
+  <svg class="heart" id="heart" viewBox="0 0 340 340" role="img" aria-label="">
+    <rect class="organ" x="80" y="6" width="200" height="46" rx="14"/>
+    <text x="104" y="40">Lungs</text>
+    <rect class="organ" x="80" y="292" width="200" height="42" rx="14"/>
+    <text x="180" y="326" text-anchor="middle">Rest of the body</text>
+    <path class="vessel" id="vessels"/>
+    <rect class="room" id="room-ra" x="58" y="92" width="90" height="58" rx="12"/>
+    <rect class="room" id="room-la" x="192" y="92" width="90" height="58" rx="12"/>
+    <rect class="room" id="room-rv" x="58" y="160" width="90" height="86" rx="14"/>
+    <rect class="room thick" id="room-lv" x="192" y="160" width="90" height="86" rx="14"/>
+    <text x="117" y="114" text-anchor="middle">Right</text><text x="117" y="129" text-anchor="middle">atrium</text>
+    <text x="225" y="114" text-anchor="middle">Left</text><text x="225" y="129" text-anchor="middle">atrium</text>
+    <text x="117" y="191" text-anchor="middle">Right</text><text x="117" y="206" text-anchor="middle">ventricle</text>
+    <text x="225" y="191" text-anchor="middle">Left</text><text x="225" y="206" text-anchor="middle">ventricle</text>
+    <text class="side" x="103" y="266" text-anchor="middle">THEIR RIGHT</text>
+    <text class="side" x="237" y="266" text-anchor="middle">THEIR LEFT</text>
+    <path class="trail poor" id="trail-poor"/>
+    <path class="trail rich" id="trail-rich"/>
+    <g id="valves"></g>
+    <g class="k-after-move" id="arrows"></g>
+    <g id="valve-label"></g>
+    <circle class="drop" id="drop" r="7"/>
+  </svg>
+  <div class="key" aria-hidden="true">
+    <span><i class="swatch dot-poor"></i>Blood low in oxygen</span>
+    <span><i class="swatch dot-rich"></i>Blood rich in oxygen</span>
+  </div>
+</div>
+<div class="k-controls" id="controls"></div>
+<div class="k-readouts" id="outs"></div>
+<p class="say" id="say"></p>
+<p class="caption">A flat map of the heart seen from the front, so the person's right side is on your left.</p>
+
+<script>
+  // Source [1] of the lesson: the heart's chambers, valves and the two circuits.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Heart';
+
+  // The drop's loop, leg by leg: the path it follows (viewBox units), its share of the slider
+  // (weights add up to 100, so short valves still get room), what it is, and where it goes next.
+  const LEGS = [
+    { key: 'body', name: 'Rest of the body', pts: [[180, 303], [80, 303]], w: 10, next: 'Right atrium',
+      say: 'The drop is out in the body, where its oxygen has just been handed to the cells. Next it heads back to the heart.' },
+    { key: 'veins', name: 'Big veins from the body', pts: [[80, 303], [30, 303], [30, 135], [58, 135]], w: 8, next: 'Right atrium',
+      say: 'Low on oxygen, it rides the big veins (the venae cavae) back to the heart\'s right side.' },
+    { key: 'ra', name: 'Right atrium', room: 'ra', pts: [[58, 135], [80, 135], [80, 150]], w: 8, next: 'Right ventricle',
+      say: 'It collects in the right atrium, the holding chamber at the top of the heart\'s right side.' },
+    { key: 'tricuspid', name: 'Tricuspid valve', valve: true, pts: [[80, 150], [80, 160]], w: 3, next: 'Right ventricle',
+      say: 'The tricuspid valve opens one way only: blood can drop into the right ventricle but not flow back.' },
+    { key: 'rv', name: 'Right ventricle', room: 'rv', pts: [[80, 160], [80, 225], [148, 225]], w: 8, next: 'Lungs',
+      say: 'The right ventricle squeezes it out to the lungs, not to the body.' },
+    { key: 'pulmonary', name: 'Pulmonary valve', valve: true, pts: [[148, 225], [158, 225]], w: 3, next: 'Lungs',
+      say: 'Through the pulmonary valve, another one-way door.' },
+    { key: 'artery', name: 'Pulmonary artery', pts: [[158, 225], [170, 225], [170, 52]], w: 6, next: 'Lungs',
+      say: 'The pulmonary artery carries it to the lungs. It counts as an artery because it leads away from the heart, even though this blood is low in oxygen.' },
+    { key: 'lungs', name: 'Lungs', pts: [[170, 52], [170, 20], [260, 20], [260, 52]], w: 9, next: 'Left atrium',
+      say: 'In the lungs it gives up carbon dioxide and picks up oxygen from the air breathed in.' },
+    { key: 'pveins', name: 'Pulmonary veins', pts: [[260, 52], [260, 92]], w: 5, next: 'Left atrium',
+      say: 'Rich in oxygen now, it returns along the pulmonary veins to the heart\'s left side.' },
+    { key: 'la', name: 'Left atrium', room: 'la', pts: [[260, 92], [260, 150]], w: 8, next: 'Left ventricle',
+      say: 'It collects in the left atrium.' },
+    { key: 'mitral', name: 'Mitral valve', valve: true, pts: [[260, 150], [260, 160]], w: 3, next: 'Left ventricle',
+      say: 'The mitral valve lets it into the left ventricle and stops it flowing back.' },
+    { key: 'lv', name: 'Left ventricle', room: 'lv', pts: [[260, 160], [260, 225], [282, 225]], w: 8, next: 'Rest of the body',
+      say: 'The left ventricle has the thickest wall of the four: it pushes blood all the way round the body.' },
+    { key: 'aortic', name: 'Aortic valve', valve: true, pts: [[282, 225], [292, 225]], w: 3, next: 'Rest of the body',
+      say: 'Out through the aortic valve, the last of the four one-way doors.' },
+    { key: 'aorta', name: 'Aorta', pts: [[292, 225], [310, 225], [310, 303], [280, 303]], w: 8, next: 'Rest of the body',
+      say: 'Into the aorta, the body\'s biggest artery, which branches to every part of the body.' },
+    { key: 'body2', name: 'Rest of the body', pts: [[280, 303], [180, 303]], w: 10, next: 'Right atrium',
+      say: 'Back in the body, it hands over its oxygen. One loop has taken it through the heart twice: once on each side.' },
+  ];
+  // Each leg's span of the slider [from, to) and its path length.
+  let at0 = 0;
+  LEGS.forEach((L) => {
+    L.from = at0; at0 += L.w; L.to = at0;
+    L.len = L.pts.slice(1).reduce((s, q, i) => s + Math.hypot(q[0] - L.pts[i][0], q[1] - L.pts[i][1]), 0);
+  });
+  const LUNGS = LEGS.find((L) => L.key === 'lungs'), LUNGS_MID = LUNGS.from + LUNGS.w / 2;   // oxygen picked up from here on
+  const legAt = (pos) => LEGS.find((L) => pos < L.to) || LEGS[LEGS.length - 1];
+  // The point a fraction f of the way along a leg's path.
+  function pointOn(L, f) {
+    let d = f * L.len;
+    for (let i = 1; i < L.pts.length; i++) {
+      const a = L.pts[i - 1], b = L.pts[i], s = Math.hypot(b[0] - a[0], b[1] - a[1]);
+      if (d <= s || i === L.pts.length - 1) { const t = s ? Math.min(1, d / s) : 0; return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]; }
+      d -= s;
+    }
+    return L.pts[L.pts.length - 1];
+  }
+  const where = (pos) => { const L = legAt(pos); return pointOn(L, Math.min(1, (pos - L.from) / L.w)); };
+  // The path from slider position a to b, as an SVG path.
+  function pathBetween(a, b) {
+    if (!(b > a)) return '';
+    const pts = [where(a)];
+    LEGS.forEach((L) => L.pts.forEach((q, i) => {
+      const pos = L.from + L.w * (L.len ? L.pts.slice(1, i + 1).reduce((s, r, j) => s + Math.hypot(r[0] - L.pts[j][0], r[1] - L.pts[j][1]), 0) / L.len : 0);
+      if (pos > a && pos < b) pts.push(q);
+    }));
+    pts.push(where(b));
+    return 'M' + pts.map((q) => q[0].toFixed(1) + ' ' + q[1].toFixed(1)).join('L');
+  }
+  const oxygen = (pos) => pos >= LUNGS_MID ? 'Plenty' : 'Little';
+
+  const pos = K.control({ id: 'pos', label: 'Round the loop', min: 0, max: 100, step: 1, value: 22, unit: '%', into: '#controls' });
+  // Play moves the slider. The slider moves in whole steps, so the drawing follows the exact
+  // position while playing; Dan dragging the slider takes over from wherever he leaves it.
+  let smooth = null;
+  K.anim({ label: 'Play the loop', into: '#controls', step: (dt) => {
+    const from = smooth !== null && Math.abs(smooth - pos.get()) < 1 ? smooth : pos.get();
+    smooth = (from + dt * 5) % 100;
+    pos.set(smooth);
+  } });
+  K.stage('#scene', '#controls');
+
+  K.readout({ id: 'place', label: 'Where the drop is', into: '#outs' });
+  K.readout({ id: 'oxygen', label: 'Oxygen it carries', into: '#outs' });
+  // Shows "?" until Dan moves something: it would answer his prediction.
+  K.readout({ id: 'next', label: 'Where it goes next', afterMove: true, into: '#outs' });
+
+  // The pure model: position round the loop -> where the drop is (text outputs only).
+  K.model((p) => {
+    const L = legAt(p.pos);
+    return { place: L.name, oxygen: oxygen(p.pos), next: L.next, leg: L.key };
+  });
+
+  // The drawing that never changes: vessels, valves, and the flow arrows kept for after a move.
+  const svg = document.getElementById('heart');
+  document.getElementById('vessels').setAttribute('d', pathBetween(0, 100));
+  LEGS.filter((L) => L.valve).forEach((L) => {
+    const [a, b] = L.pts, cx = (a[0] + b[0]) / 2, cy = (a[1] + b[1]) / 2, across = a[0] === b[0];
+    document.getElementById('valves').appendChild(across
+      ? K.svg('path', { class: 'valve', d: `M${cx - 8} ${cy - 2}L${cx} ${cy + 3}L${cx + 8} ${cy - 2}` })
+      : K.svg('path', { class: 'valve', d: `M${cx - 2} ${cy - 8}L${cx + 3} ${cy}L${cx - 2} ${cy + 8}` }));
+  });
+  [['veins', 0.55], ['artery', 0.55], ['pveins', 0.5], ['aorta', 0.5], ['body', 0.5], ['lungs', 0.5]].forEach(([key, f]) => {
+    const L = LEGS.find((x) => x.key === key), a = pointOn(L, f - 0.02), b = pointOn(L, f + 0.02);
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI, c = pointOn(L, f);
+    document.getElementById('arrows').appendChild(K.svg('path', { class: 'arrow', d: 'M-5 -5L5 0L-5 5Z', transform: `translate(${c[0]} ${c[1]}) rotate(${ang})` }));
+  });
+
+  K.update((p, o) => {
+    const at = smooth !== null && Math.abs(smooth - p.pos) < 1 ? smooth : p.pos;
+    const L = legAt(at), [x, y] = where(at), rich = at >= LUNGS_MID;
+    document.getElementById('trail-poor').setAttribute('d', pathBetween(0, Math.min(at, LUNGS_MID)));
+    document.getElementById('trail-rich').setAttribute('d', pathBetween(LUNGS_MID, at));
+    const drop = document.getElementById('drop');
+    drop.setAttribute('cx', x.toFixed(1)); drop.setAttribute('cy', y.toFixed(1));
+    drop.style.fill = K.color(rich ? 'cat2' : 'cat1');
+    ['ra', 'rv', 'la', 'lv'].forEach((r) => document.getElementById('room-' + r).classList.toggle('here', L.room === r));
+    // Name a valve while the drop is going through it, placed clear of the other labels and off the trails.
+    const v = L.valve ? L : null;
+    K.labels('#valve-label', v ? [{ x: v.pts[0][0] + 12, y: v.pts[0][1] + 9, text: v.name.toLowerCase(), anchor: 'start', class: 'valve-name' }] : [], { avoid: '.trail' });
+    svg.setAttribute('aria-label', 'Map of the heart. The drop is in the ' + L.name.toLowerCase() + ', carrying ' + o.oxygen.toLowerCase() + ' oxygen.');
+    // Until Dan moves something, the sentence asks rather than tells.
+    document.getElementById('say').textContent = K.moved ? L.say : 'Where will this drop go after the right atrium? Make your guess, then move it on.';
+  });
+
+  // Known answers: the route and the valves, as the source describes them.
+  const visits = (keep) => {
+    const out = [];
+    for (let q = 0; q < 100; q += 0.5) { const n = K.at({ pos: q }).place; if (keep(n) && out[out.length - 1] !== n) out.push(n); }
+    return out;
+  };
+  const STOPS = ['Rest of the body', 'Right atrium', 'Right ventricle', 'Lungs', 'Left atrium', 'Left ventricle'];
+  K.check('One loop: body, right atrium, right ventricle, lungs, left atrium, left ventricle, body', () =>
+    visits((n) => STOPS.includes(n)).join('|') === STOPS.concat(['Rest of the body']).join('|'), { source: SOURCE });
+  K.check('Four valves, each passed once, in order: tricuspid, pulmonary, mitral, aortic', () =>
+    visits((n) => / valve$/.test(n)).join('|') === 'Tricuspid valve|Pulmonary valve|Mitral valve|Aortic valve', { source: SOURCE });
+  K.check('The right side carries blood low in oxygen, the left side blood rich in it', () =>
+    ['Right atrium', 'Right ventricle', 'Pulmonary artery'].every((n) => K.at({ pos: LEGS.find((L) => L.name === n).from + 1 }).oxygen === 'Little') &&
+    ['Pulmonary veins', 'Left atrium', 'Left ventricle', 'Aorta'].every((n) => K.at({ pos: LEGS.find((L) => L.name === n).from + 1 }).oxygen === 'Plenty'));
+  K.check('Each loop goes through the heart twice, once on each side', () =>
+    visits((n) => /atrium$/.test(n)).length === 2);
+  K.check('The ends of the slider are the same place: the loop closes', () =>
+    at0 === 100 && K.at({ pos: 0 }).place === K.at({ pos: 100 }).place && Math.hypot(where(0)[0] - where(100)[0], where(0)[1] - where(100)[1]) < 1e-9);
+
+  K.ready();
+</script>

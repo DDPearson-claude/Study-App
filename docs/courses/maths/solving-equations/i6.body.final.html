@@ -1,0 +1,903 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  /* A letter that stands for an amount is set in italics wherever it is written. */
+  .vx { font-style: italic; }
+  .scene { display: block; width: 100%; }
+  /* The formula card: each letter, what it measures under it, and the amount put in for it. A word that
+     stands for an amount (drop, mV/A/m) is set upright. */
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .lt { font: italic 700 26px var(--k-font); fill: var(--k-ink); }
+  .scene .ltw { font: 700 19px var(--k-font); fill: var(--k-ink); }
+  .scene .eqs { font: 700 24px var(--k-font); fill: var(--k-ink); }
+  .scene .eqw { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .tag { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .02em; }
+  .scene .hl { fill: var(--k-hl); }
+  /* The flow diagram, as in lessons 2 and 4: each amount in a plain box, each step in a box drawn in ink;
+     a step being undone lights up solid. A box still to fill in is dashed with a '?'. */
+  .scene .vb { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .ob { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ob.lit { fill: var(--k-accent2); }
+  .scene .gap { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .val { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .opl { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .opl.lit { fill: var(--k-on-accent2); }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .rl { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .ar { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .arh { fill: var(--k-muted); }
+  .scene .wk { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .wk.sm { font-size: 16px; }
+  .scene .res { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  /* The number line, as in lesson 2. */
+  .scene .nl { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .tkl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .dot { fill: var(--k-accent2); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  /* A cable run: a board and a load, the cable between them. */
+  .scene .kitbox { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .cht { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .wire { stroke: var(--k-ink); stroke-width: 4; stroke-linecap: round; }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  /* A slip's words (a failed check, a wrong formula) in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Formula cards whose letters wear their units, a flow diagram that undoes the steps, and the check.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 276" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Undo the steps last first, then feed the answer back in. The amounts and table values are examples.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture a step draws. 'card': a formula card `f` (FORM below) with the amounts `giv` put in
+  // and `find` the letter wanted; under it the flow diagram of the steps done to that letter, left to
+  // right, and their undo, right to left; then the rearranged formula and the check. `gauge`: the
+  // pressures given are gauge readings, made absolute by adding the atmosphere. 'roots': I = √n squared,
+  // the two square roots of n on a number line, and which one fits I = √n. 'unit': a cable run, and the
+  // voltage-drop rule built from its unit `vd` (table value k in mV/A/m, current I, length L).
+  // ask: 'formula' when the answers are formulas. dur: how long a demonstration plays; fb: how long the
+  // motion after a right answer plays (seconds); at: when each part of that motion arrives, in seconds
+  // after Check. slips: which slip gives each wrong answer (SLIPV below).
+  const PICK = 'Tap one of the answers.';
+  // The letters: how each is written, its unit, and what the card says under it.
+  const SHOWN = { p1: 'p₁', V1: 'V₁', p2: 'p₂', V2: 'V₂', k: 'mV/A/m' };
+  const nm = (L) => SHOWN[L] || L;
+  const UNIT = { P: 'W', I: 'A', R: 'Ω', p1: 'bar', V1: 'L', p2: 'bar', V2: 'L', drop: 'V', k: '', L: 'm' };
+  const WORD = { P: 'watts', I: 'amps', R: 'ohms', p1: 'absolute', V1: 'litres', p2: 'absolute', V2: 'litres', drop: 'volts', k: 'table value', L: 'metres' };
+  // Each formula's card, left to right: a letter (with ² when it is squared) or a sign, at its x.
+  const FORM = {
+    PIR: { name: 'P = I²R', card: [['P', 62], ['=', 116], ['I', 170, '²'], ['×', 224], ['R', 278]] },
+    BOY: { name: 'p₁V₁ = p₂V₂', card: [['p1', 44], ['×', 85], ['V1', 126], ['=', 170], ['p2', 214], ['×', 255], ['V2', 296]] },
+    VD: { name: 'drop = mV/A/m × I × L ÷ 1000', card: [['drop', 37], ['=', 75.5], ['k', 130], ['×', 184.5], ['I', 207], ['×', 230], ['L', 256.5], ['÷ 1000', 299.5]] },
+  };
+  // Each rearrangement, written out, and (for Boyle's law and the voltage-drop rule) its units check.
+  const RES = { PIRI: 'I = √(P ÷ R)', PIRR: 'R = P ÷ I²', BOYV2: 'V₂ = p₁V₁ ÷ p₂', BOYp2: 'p₂ = p₁V₁ ÷ V₂', VDL: 'L = 1000 × drop ÷ (mV/A/m × I)' };
+  const UNITS = { BOYV2: 'units: bar × L ÷ bar = L', BOYp2: 'units: bar × L ÷ L = bar', VDL: 'units: 1000 × V ÷ (mV/A/m × A) = m' };
+  // What the steps done to the letter wanted end on: P, p₁V₁, or the drop.
+  const END = { PIR: 'P', BOY: 'p₁V₁', VD: 'drop' };
+  // The atmosphere is taken as 1 bar; a standard atmosphere is 101 325 Pa, and 1 bar is 100 000 Pa.
+  const ATM = 1, ATM_PA = 101325;
+  // After a right answer. SOLVE2: the undo of the last step lights, with what it gives; then the undo
+  // of the first step, with the answer (on the card too); the rearranged formula; the check. SOLVE1: one
+  // step, its undo, then the answer. GAUGE: first the gauge readings turn into absolute pressures.
+  const SOLVE2 = { u1: 0.1, u2: 0.55, res: 1.0, check: 1.45 };
+  const SOLVE1 = { u1: 0.1, ans: 0.55, res: 1.0, check: 1.45 };
+  const GAUGE = { conv: 0.1, u1: 0.55, ans: 1.0, res: 1.45, check: 1.9 };
+  // After a wrong answer: its check, failing, in the warning colour (and a wrong formula, in red too).
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  const STEPS = [
+    { show: true, pic: 'card', demo: 'root', dur: 3.7, f: 'PIR', giv: { P: 2300, R: 23 }, find: 'I', name: 'Undo a square',
+      text: 'To get I from P = I²R, undo × R first (2300 ÷ 23 = 100), then the square. For a positive amount like a current, a *square root* undoes a square, so √100 = 10.' },
+    { kind: 'pick', pic: 'card', f: 'PIR', giv: { P: 144, R: 4 }, find: 'I', name: 'Find the current',
+      opts: ['6 A', '18 A', '36 A'], want: '6 A', slips: { '18 A': 'halve', '36 A': 'noRoot' }, fb: 2.05, at: SOLVE2,
+      task: 'A 4 Ω resistor gives out 144 W. Using P = I²R, what current does it carry?',
+      why: 'Undo × R first, 144 ÷ 4 = 36, so I² = 36. Then undo the square, √36 = 6 A, since 6 × 6 = 36. As a check, 6² × 4 = 144.',
+      hint: 'Not quite. Undo × R, then take the square root.',
+      hints: { '18 A': 'Not quite. That halves 36. A square root is the number that times itself makes 36.',
+        '36 A': 'Not quite. That stops at I², which is 36. Take its square root as well.' } },
+    { show: true, pic: 'roots', demo: 'roots', dur: 3.2, n: 100, name: 'Two square roots',
+      text: 'Squaring both sides of I = √100 gives I² = 100. But −10 × −10 = 100 too, so −10 sneaks in. It fails I = √100, as √ means the positive root.' },
+    { kind: 'pick', pic: 'card', f: 'PIR', giv: { P: 400, R: 16 }, find: 'I', name: 'Root last',
+      opts: ['5 A', '1.25 A', '5 A or −5 A'], want: '5 A', slips: { '1.25 A': 'rootFirst', '5 A or −5 A': 'both' }, fb: 2.05, at: SOLVE2,
+      task: 'A 16 Ω element gives out 400 W. What current does I = √(P ÷ R) give?',
+      why: 'Divide first, 400 ÷ 16 = 25, then √25 = 5 A. The √ sign means the positive root. As a check, 5² × 16 = 400.',
+      hint: 'Not quite. Work out P ÷ R first, then its square root.',
+      hints: { '1.25 A': 'Not quite. That takes the root of 400 before the ÷ 16. The square was done first, so it is undone last.',
+        '5 A or −5 A': 'Not quite. −5 squares to 25 as well, but √ means the positive root. The formula gives one current.' } },
+    { show: true, pic: 'card', demo: 'boyle', dur: 3.7, f: 'BOY', giv: { p1: 2, V1: 12, p2: 6 }, find: 'V2', name: 'Boyle\'s law',
+      text: 'Boyle\'s law as an equation is p₁V₁ = p₂V₂, for a sealed gas at a steady temperature, with absolute pressures. V₂ is multiplied by p₂, so divide both sides by p₂.' },
+    { kind: 'pick', pic: 'card', ask: 'formula', f: 'BOY', giv: { p1: 4, V1: 9, V2: 3 }, find: 'p2', name: 'Make p₂ the subject',
+      opts: ['p₂ = p₁V₁ ÷ V₂', 'p₂ = p₁V₁ × V₂', 'p₂ = p₁V₁ − V₂'], want: 'p₂ = p₁V₁ ÷ V₂', slips: { 'p₂ = p₁V₁ × V₂': 'again', 'p₂ = p₁V₁ − V₂': 'sign' }, fb: 2.05, at: SOLVE1,
+      task: 'In p₁V₁ = p₂V₂, which formula gives the new pressure p₂?',
+      why: 'p₂ is multiplied by V₂, so divide both sides by V₂. p₂ = p₁V₁ ÷ V₂, which here is 4 × 9 ÷ 3 = 12 bar. As a check, 4 × 9 = 12 × 3.',
+      hint: 'Not quite. Undo the × V₂ on p₂.',
+      hints: { 'p₂ = p₁V₁ × V₂': 'Not quite. That multiplies by V₂ again instead of undoing it. Undo × with ÷.',
+        'p₂ = p₁V₁ − V₂': 'Not quite. That takes V₂ away, but p₂ is multiplied by V₂. Undo × with ÷.' } },
+    { kind: 'pick', pic: 'card', f: 'BOY', gauge: true, giv: { p1: 2, V1: 10, p2: 5 }, find: 'V2', name: 'Gauge readings',
+      opts: ['5 L', '4 L', '20 L'], want: '5 L', slips: { '4 L': 'gauge', '20 L': 'flip' }, fb: 2.5, at: GAUGE,
+      task: 'Gas fills 10 L at a gauge reading of 2 bar. Squeezed at a steady temperature until the gauge reads 5 bar, about what volume does it fill?',
+      why: 'Add about 1 bar for the atmosphere, so 3 bar and 6 bar absolute. Then V₂ = 3 × 10 ÷ 6 = 5 L. As a check, 3 × 10 = 6 × 5.',
+      hint: 'Not quite. Turn the gauge readings into absolute pressure first.',
+      hints: { '4 L': 'Not quite. That uses the gauge readings. Boyle\'s law needs absolute pressure, so add about 1 bar to each.',
+        '20 L': 'Not quite. That divides the wrong way round. More pressure means less space.' } },
+    { show: true, pic: 'unit', demo: 'unit', dur: 3.2, vd: { k: 18, I: 20, L: 25 }, name: 'Built from its unit',
+      text: 'A cable table\'s mV/A/m is millivolts per amp per metre. Times the amps and the metres, the units cancel to millivolts, and ÷ 1000 turns them into volts.' },
+    { show: true, pic: 'card', demo: 'run', dur: 3.7, f: 'VD', giv: { drop: 9, k: 18, I: 20 }, find: 'L', name: 'The longest run',
+      text: 'For the longest run, undo the steps on L. L gets × 360 (18 × 20), then ÷ 1000, so × 1000 and then ÷ 360. Allowing, say, a 9 V drop gives 25 m.' },
+    { kind: 'pick', pic: 'card', f: 'VD', giv: { drop: 6, k: 12, I: 25 }, find: 'L', name: 'How long a run?',
+      opts: ['20 m', '0.02 m', '1.8 m'], want: '20 m', slips: { '0.02 m': 'noK', '1.8 m': 'redo' }, fb: 2.05, at: SOLVE2,
+      task: 'A cable\'s table value is 12 mV/A/m, as an example. At 25 A, how long can the run be if you allow, say, a 6 V drop?',
+      why: 'Each metre drops 12 × 25 = 300 mV. A 6 V drop is 6000 mV, so 6000 ÷ 300 = 20 m. As a check, 12 × 25 × 20 ÷ 1000 = 6.',
+      hint: 'Not quite. Undo the ÷ 1000, then divide by 12 × 25.',
+      hints: { '0.02 m': 'Not quite. That leaves out the × 1000, so it mixes volts with millivolts. 6 V is 6000 mV.',
+        '1.8 m': 'Not quite. That does the steps again, × 300 then ÷ 1000. Undo them, × 1000 then ÷ 300.' } },
+    { kind: 'pick', pic: 'card', ask: 'formula', f: 'PIR', giv: { P: 500, I: 5 }, find: 'R', name: 'Make R the subject',
+      opts: ['R = P ÷ I²', 'R = P ÷ 2I', 'R = P ÷ I'], want: 'R = P ÷ I²', slips: { 'R = P ÷ 2I': 'twoI', 'R = P ÷ I': 'noSq' }, fb: 2.05, at: SOLVE1,
+      task: 'In P = I²R, which formula gives the resistance R?',
+      why: 'R is multiplied by I², so divide both sides by I². R = P ÷ I², which here is 500 ÷ 25 = 20 Ω. As a check, 5² × 20 = 500.',
+      hint: 'Not quite. Undo the × I² on R.',
+      hints: { 'R = P ÷ 2I': 'Not quite. That reads I² as 2 × I. I² is I × I.',
+        'R = P ÷ I': 'Not quite. That leaves out the square. R is multiplied by I × I.' } },
+    { kind: 'pick', pic: 'card', f: 'BOY', giv: { p1: 8, V1: 3, p2: 2 }, find: 'V2', name: 'Let it expand',
+      opts: ['12 L', '0.75 L', '48 L'], want: '12 L', slips: { '0.75 L': 'flip', '48 L': 'again' }, fb: 2.05, at: SOLVE1,
+      task: 'Gas fills 3 L at 8 bar absolute. It expands at a steady temperature to 2 bar absolute. What volume does it fill now?',
+      why: 'V₂ = p₁V₁ ÷ p₂ = 8 × 3 ÷ 2 = 12 L. A quarter of the pressure needs four times the space. As a check, 8 × 3 = 2 × 12.',
+      hint: 'Not quite. Use V₂ = p₁V₁ ÷ p₂.',
+      hints: { '0.75 L': 'Not quite. That divides the wrong way round. Less pressure means more space.',
+        '48 L': 'Not quite. That multiplies by p₂ instead of dividing. Undo × p₂ with ÷ p₂.' } },
+  ];
+  const FINISH = 'For a current, a square root undoes the square, taken after the ÷ R, so I = √(P ÷ R). Boyle\'s law turns round to V₂ = p₁V₁ ÷ p₂ with absolute pressures, and a cable\'s longest run, for the drop you allow, is 1000 × drop ÷ (mV/A/m × I).';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled). root, run: the amounts on the card; the
+  // steps done to the letter; the last step's undo lights, with what it gives; the first step's undo
+  // and the answer; the rearranged formula; the check. boyle: as root, with one step. roots: I² = n;
+  // the positive root and its square; the negative root and its square; the positive root fits; the
+  // negative one fails. unit: the table value; × the amps; × the metres; ÷ 1000; the rule.
+  const FADE = 0.35;
+  const AT = {
+    root: { vals: 0.6, rowA: 1.1, u1: 1.6, u2: 2.1, res: 2.6, check: 3.1 },
+    roots: { sq: 0.6, pos: 1.1, neg: 1.6, ok: 2.1, bad: 2.6 },
+    boyle: { vals: 0.6, rowA: 1.1, u1: 1.6, ans: 2.1, res: 2.6, check: 3.1 },
+    unit: { l1: 0.6, l2: 1.1, l3: 1.6, l4: 2.1, rule: 2.6 },
+    run: { vals: 0.6, rowA: 1.1, u1: 1.6, u2: 2.1, res: 2.6, check: 3.1 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const same = (a, b) => K.near(a, b, 1e-9);
+  // A number as the page writes it: 0.25, 2300, 10,000, with a true minus sign.
+  function num(v) {
+    const a = r3(v);
+    let s = String(Math.abs(a));
+    if (Math.abs(a) >= 10000) s = s.replace(/^(\d+)(\d{3})/, '$1,$2');
+    return (a < 0 ? '−' : '') + s;
+  }
+  const amt = (v, u) => (u ? num(v) + ' ' + u : num(v));
+  const key = (d) => d.f + d.find;
+  // A letter's amount: as given, or (a pressure on the gauge screen) its gauge reading plus the atmosphere.
+  const val = (d, L) => (d.gauge && /^p/.test(L) ? r3(d.giv[L] + ATM) : d.giv[L]);
+  // The answer, by the rearranged formula.
+  function solveOf(d) {
+    const g = (L) => val(d, L);
+    if (key(d) === 'PIRI') return r3(Math.sqrt(g('P') / g('R')));
+    if (key(d) === 'PIRR') return r3(g('P') / (g('I') * g('I')));
+    if (key(d) === 'BOYV2') return r3(g('p1') * g('V1') / g('p2'));
+    if (key(d) === 'BOYp2') return r3(g('p1') * g('V1') / g('V2'));
+    return r3(1000 * g('drop') / (g('k') * g('I')));
+  }
+  // The steps done to the letter wanted, in order, and the amount they end on (with what the first step
+  // makes of it, when there are two). I in P = I²R is squared, then × R; R is × I²; V₂ is × p₂ and p₂ is
+  // × V₂, ending on p₁V₁; L is × (mV/A/m × I), then ÷ 1000.
+  function chainOf(d) {
+    const g = (L) => val(d, L);
+    if (key(d) === 'PIRI') return { ops: [{ sq: true }, { mul: g('R') }], end: g('P'), mid: 'I²' };
+    if (key(d) === 'PIRR') return { ops: [{ mul: r3(g('I') * g('I')), label: '× ' + num(g('I')) + '²' }], end: g('P') };
+    if (d.f === 'BOY') return { ops: [{ mul: g(d.find === 'V2' ? 'p2' : 'V2') }], end: r3(g('p1') * g('V1')) };
+    const kI = r3(g('k') * g('I'));
+    return { ops: [{ mul: kI }, { div: 1000 }], end: g('drop'), mid: num(kI) + 'L' };
+  }
+  const opLabel = (o) => (o.sq ? '( )²' : o.label || (o.mul != null ? '× ' + num(o.mul) : '÷ ' + num(o.div)));
+  const undoLabel = (o) => (o.sq ? '√( )' : o.mul != null ? '÷ ' + num(o.mul) : '× ' + num(o.div));
+  const undo = (o, v) => r3(o.sq ? Math.sqrt(v) : o.mul != null ? v / o.mul : v * o.div);
+  // The flow diagram's rows: the steps (in numbers, or in letters on the gauge screen until its readings
+  // are made absolute), and the undo, last step first.
+  function rowA(d, numbers) {
+    const c = chainOf(d), t = nm(d.find);
+    if (!numbers && d.f === 'BOY') return [t, '× ' + nm(d.find === 'V2' ? 'p2' : 'V2'), 'p₁V₁'];
+    return c.ops.length === 1 ? [t, opLabel(c.ops[0]), num(c.end)] : [t, opLabel(c.ops[0]), c.mid, opLabel(c.ops[1]), num(c.end)];
+  }
+  function rowB(d) {
+    const c = chainOf(d), v1 = undo(c.ops[c.ops.length - 1], c.end);
+    if (c.ops.length === 1) return [num(v1), undoLabel(c.ops[0]), num(c.end)];
+    return [num(undo(c.ops[0], v1)), undoLabel(c.ops[0]), num(v1), undoLabel(c.ops[1]), num(c.end)];
+  }
+  // The answer fed back into the formula you started with: 10² × 23 = 2300; 2 × 12 = 6 × 4;
+  // 18 × 20 × 25 ÷ 1000 = 9 (", not …" when it fails).
+  function checkOf(d, x) {
+    const g = (L) => (L === d.find ? x : val(d, L));
+    if (d.f === 'PIR') {
+      const got = r3(g('I') * g('I') * g('R')), want = val(d, 'P');
+      return num(g('I')) + '² × ' + num(g('R')) + ' = ' + num(got) + (same(got, want) ? '' : ', not ' + num(want));
+    }
+    if (d.f === 'BOY') {
+      const left = r3(val(d, 'p1') * val(d, 'V1')), got = r3(g('p2') * g('V2'));
+      return same(got, left) ? num(val(d, 'p1')) + ' × ' + num(val(d, 'V1')) + ' = ' + num(g('p2')) + ' × ' + num(g('V2'))
+        : num(g('p2')) + ' × ' + num(g('V2')) + ' = ' + num(got) + ', not ' + num(left);
+    }
+    const got = r3(g('k') * g('I') * g('L') / 1000), want = val(d, 'drop');
+    return num(g('k')) + ' × ' + num(g('I')) + ' × ' + num(g('L')) + ' ÷ 1000 = ' + num(got) + (same(got, want) ? '' : ', not ' + num(want));
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  const answerOf = (d) => (d.ask === 'formula' ? RES[key(d)] : amt(solveOf(d), UNIT[d.find]));
+  // What each slip makes of the letter wanted. halve: the square undone by halving. noRoot: the square
+  // left on. rootFirst: the root taken before the ÷ R. both: the negative root kept as well. again: the
+  // step done again instead of undone. sign: a × undone by taking away. flip: the division the wrong
+  // way round. gauge: gauge readings put in as if absolute. noK: the × 1000 left out. redo: the steps on
+  // L done again (× mV/A/m × I, then ÷ 1000) instead of undone. twoI: I² read as 2 × I. noSq: the square left out.
+  const SLIPV = {
+    halve: (d) => r3(val(d, 'P') / val(d, 'R') / 2),
+    noRoot: (d) => r3(val(d, 'P') / val(d, 'R')),
+    rootFirst: (d) => r3(Math.sqrt(val(d, 'P')) / val(d, 'R')),
+    both: (d) => -solveOf(d),
+    again: (d) => r3(val(d, 'p1') * val(d, 'V1') * val(d, d.find === 'p2' ? 'V2' : 'p2')),
+    sign: (d) => r3(val(d, 'p1') * val(d, 'V1') - val(d, 'V2')),
+    flip: (d) => r3(val(d, 'p2') * val(d, 'V1') / val(d, 'p1')),
+    gauge: (d) => r3(d.giv.p1 * d.giv.V1 / d.giv.p2),
+    noK: (d) => r3(val(d, 'drop') / (val(d, 'k') * val(d, 'I'))),
+    redo: (d) => r3(val(d, 'drop') * val(d, 'k') * val(d, 'I') / 1000),
+    twoI: (d) => r3(val(d, 'P') / (2 * val(d, 'I'))),
+    noSq: (d) => r3(val(d, 'P') / val(d, 'I')),
+  };
+  // A slip as its answer button reads: an amount, both roots, or (on a formula puzzle) its formula.
+  const SLIPF = { again: { p2: 'p₂ = p₁V₁ × V₂' }, sign: { p2: 'p₂ = p₁V₁ − V₂' }, twoI: { R: 'R = P ÷ 2I' }, noSq: { R: 'R = P ÷ I' } };
+  function slipOpt(d, s) {
+    if (d.ask === 'formula') return SLIPF[s][d.find];
+    if (s === 'both') return amt(solveOf(d), UNIT[d.find]) + ' or ' + amt(-solveOf(d), UNIT[d.find]);
+    return amt(SLIPV[s](d), UNIT[d.find]);
+  }
+  // A slip's check, failing: its amount fed back in, or (both roots) the negative one against the √.
+  function slipCheck(d, s) {
+    if (s === 'both') { const n = r3(val(d, 'P') / val(d, 'R')), r = solveOf(d); return '√' + num(n) + ' = ' + num(r) + ', not ' + num(-r); }
+    return checkOf(d, SLIPV[s](d));
+  }
+  // An option's worth: "0.25 m" is 0.25; a formula has none.
+  const valueOf = (s) => { const m = /^(−?)(\d[\d,]*(?:\.\d+)?)(?:\s|$)/.exec(s); return m ? (m[1] ? -1 : 1) * +m[2].replace(/,/g, '') : NaN; };
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/ /g, ' ').replace(/mV\/A\/m/g, ' millivolts per amp per metre ').replace(/mV\/m\b/g, 'millivolts per metre')
+    .replace(/(\d) mV\b/g, '$1 millivolts').replace(/(\d) V\b/g, '$1 volts').replace(/(\d) A\b/g, '$1 amps').replace(/(\d) W\b/g, '$1 watts').replace(/(\d) Ω/g, '$1 ohms')
+    .replace(/(\d) L\b/g, '$1 litres').replace(/(\d) m\b/g, '$1 metres').replace(/Ω/g, ' ohms ')
+    .replace(/\( \)²/g, 'square it').replace(/√\( \)/g, 'take the square root').replace(/√\(/g, ' the square root of (').replace(/√/g, ' the square root of ')
+    .replace(/([pV])([₁₂])/g, (m, a, b) => ' ' + a + ' ' + (b === '₁' ? '1' : '2') + ' ').replace(/²/g, ' squared ')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const st = blank(i); st.pick = STEPS[i].want; st.res = 'right'; return st; }
+  function slipped(i, o) { const st = blank(i); st.pick = o; st.res = 'wrong'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  // A letter that stands for an amount (P, I, R, L, p₁, V₁, p₂, V₂), alone or as I², I²R, p₁V₁, but not a
+  // unit after its number ("12 L").
+  const VRE = /(?<![A-Za-z'’])(?:I²R|I²|p₁V₁|p₂V₂|[pV][₁₂]|[PIRL])(?![A-Za-z])/g;
+  function spans(s) {
+    const out = [];
+    let at = 0, m;
+    VRE.lastIndex = 0;
+    while ((m = VRE.exec(s))) {
+      if (/\d $/.test(s.slice(0, m.index))) continue;
+      if (m.index > at) out.push([s.slice(at, m.index), false]);
+      out.push([m[0], true]);
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) out.push([s.slice(at), false]);
+    return out;
+  }
+  function math(el, s) { spans(s).forEach((p) => el.appendChild(p[1] ? K.el('i', { class: 'vx' }, p[0]) : document.createTextNode(p[0]))); }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) math(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) math(el, text.slice(at));
+  }
+  // A sum, an amount or a step stays together on one line ("√100 = 10", "12 mV/A/m", "÷ 1000",
+  // "I = √(P ÷ R)"), with the stop after it; a long one may break only before an equals sign.
+  const NUMT = '−?\\d[\\d,]*(?:\\.\\d+)?²?(?:[IL](?![A-Za-z]))?(?: (?:bar|mV\\/A\\/m|mV|[VAWΩLm])(?![A-Za-z\\/]))?';
+  const LETT = '(?:I²R|I²|p₁V₁|p₂V₂|[pV][₁₂]|[PIRL])(?![A-Za-z])';
+  const TOK = '(?<![A-Za-z0-9.,\'’])√?\\(?(?:' + NUMT + '|' + LETT + ')\\)?';
+  const GLUE = new RegExp('(?:[×÷+−] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) { const sp = K.el('span', { class: 'nw' }); math(sp, b); el.appendChild(sp); } else math(el, b);
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let H = 276;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, h), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  // Text whose letters for amounts are set in italics (each as its own span).
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: y, 'text-anchor': anchor || 'middle' });
+    spans(String(s)).forEach((p) => t.appendChild(p[1] ? K.svg('tspan', { class: 'vx' }, p[0]) : document.createTextNode(p[0])));
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { lt: 26, eqs: 24, res: 20, ltw: 19, wk: 18, eqw: 16, val: 17, opl: 16, qm: 15, cht: 13, tag: 13, rl: 13, tkl: 13 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 7 * ux + 4 * px) + ' ' + r3(y - 7 * uy + 4 * py) + ' L' + r3(x - 7 * ux - 4 * px) + ' ' + r3(y - 7 * uy - 4 * py) + ' Z' }));
+  }
+  // A line of text with part of it highlighted, placed at x by its anchor.
+  // (Spaces are measured as fixed spaces, which SVG keeps at the end of a piece it measures.)
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  function hlText(x, y, s, cls, hl, anchor) {
+    const w = tw(s, cls), x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+    if (hl != null) {
+      const i = s.indexOf(hl);
+      if (i >= 0) rect('hl', x0 + (i > 0 ? tw(nb(s.slice(0, i)), cls) : 0) - 4, y - 19, tw(hl, cls) + 8, 25, 5);
+    }
+    text(x0, y, s, cls, 'start');
+  }
+  // A bracket from x0 to x1 at y: a line with a short stroke at each end.
+  function bracket(cls, x0, x1, y) { line(cls, x0, y, x1, y); line(cls, x0, y - 5, x0, y + 5); line(cls, x1, y - 5, x1, y + 5); }
+
+  // --- the formula card ---
+  // The card is CW wide from CXL and CH tall from CY; its letters sit LY below its top, what each
+  // measures TY and the amounts VY.
+  const CXL = 8, CW = 324, CY = 4, CH = 78, LY = 31, TY = 49, VY = 72;
+  const isLetter = (t) => t in UNIT;
+  const letterCls = (t) => (t === 'drop' || t === 'k' ? 'ltw' : 'lt');
+  const cell = (x, s, hl) => (hl ? hlText(x, CY + VY, s, 'val', s, 'middle') : text(x, CY + VY, s, 'val'));
+  function cellGap(x) { rect('gap', x - 22, CY + VY - 17, 44, 24, 6); text(x, CY + VY, '?', 'qm'); }
+  // The card, its amounts arriving at `vals`; the letter wanted shows '?' until the answer arrives at
+  // `an`; on the gauge screen the readings give way to absolute pressures at `cv`.
+  function card(d, vals, cv, an) {
+    rect('card', CXL, CY, CW, CH, 10);
+    FORM[d.f].card.forEach((c) => {
+      const t = c[0], x = c[1];
+      if (!isLetter(t)) { text(x, CY + LY - 2, t, t.length > 1 ? 'eqw' : 'eqs'); return; }
+      text(x, CY + LY, nm(t) + (c[2] || ''), letterCls(t));
+      const pg = !!d.gauge && /^p/.test(t);
+      if (pg) swap(cv, () => text(x, CY + TY, 'gauge', 'tag'), () => text(x, CY + TY, WORD[t], 'tag'), 0);
+      else text(x, CY + TY, WORD[t], 'tag');
+      part(vals, 4, () => {
+        if (t === d.find) { swap(an, () => cellGap(x), () => cell(x, amt(solveOf(d), UNIT[t]))); return; }
+        if (pg) swap(cv, () => cell(x, amt(d.giv[t], UNIT[t])), () => cell(x, amt(val(d, t), UNIT[t]), true));
+        else cell(x, amt(d.giv[t], UNIT[t]));
+      });
+    });
+    const letters = FORM[d.f].card.map((c) => c[0]).filter(isLetter);
+    return 'A formula card for ' + say(FORM[d.f].name) + '. ' + letters.map((t) => {
+      const pg = !!d.gauge && /^p/.test(t), what = pg ? (cv >= 0.5 ? 'absolute' : 'a gauge reading') : WORD[t];
+      const v = t === d.find ? (an >= 0.5 ? say(amt(solveOf(d), UNIT[t])) : 'a question mark') : vals < 0.5 ? 'still to come' : say(amt(pg && cv >= 0.5 ? val(d, t) : d.giv[t], UNIT[t]));
+      return say(nm(t)) + ', ' + what + ', ' + v;
+    }).join('; ') + '.';
+  }
+
+  // --- the flow diagram ---
+  // Row A (the steps) and row B (the undo), BH tall from their tops; each row's name sits above it. Each
+  // place is as wide as its words need in either row (at least VW for an amount, OW for a step), and the
+  // places share the width evenly, so an undo sits under the step it undoes.
+  const BH = 32, VW = 42, OW = 50;
+  const ROWS = { A: { top: 106, name: 98 }, B: { top: 162, name: 154 } };
+  // The rearranged formula; the check's name (and Boyle's units check); the check.
+  const RY = 222, CKN = 244, FY = 266;
+  const widthsOf = (rows) => rows[0].map((_, k) => Math.max.apply(null, rows.map((r) => Math.max(k % 2 ? OW : VW, tw(r[k], k % 2 ? 'opl' : 'val') + 14))));
+  function placesOf(w) {
+    const n = w.length, tot = w.reduce((s, x) => s + x, 0), gap = Math.min(44, (328 - tot) / (n - 1));
+    let x = 170 - (tot + gap * (n - 1)) / 2;
+    return w.map((wk) => { const c = x + wk / 2; x += wk + gap; return r3(c); });
+  }
+  // A box at place k of row r: kind 'v' (an amount), 'o' (a step), 'lit' (a step being undone), 'gap'
+  // (still to fill in).
+  function box(r, sx, k, w, s, kind) {
+    const x = sx[k] - w / 2, y = ROWS[r].top;
+    rect(kind === 'gap' ? 'gap' : kind === 'v' ? 'vb' : kind === 'lit' ? 'ob lit' : 'ob', x, y, w, BH, 8);
+    if (kind === 'gap') { text(sx[k], y + 21, '?', 'qm'); return; }
+    text(sx[k], y + 22, s, (kind === 'v' ? 'val' : 'opl') + (kind === 'lit' ? ' lit' : ''));
+  }
+  // The arrow between place k and k + 1 of row r, pointing right (dir 1) or left (dir -1).
+  function arrow(r, sx, k, w, dir) {
+    const y = ROWS[r].top + BH / 2, a = sx[k] + w[k] / 2 + 3, b = sx[k + 1] - w[k + 1] / 2 - 3;
+    if (dir > 0) { line('ar', a, y, b - 6, y); head(b, y, 1, 0, 'arh'); } else { line('ar', b, y, a + 6, y); head(a, y, -1, 0, 'arh'); }
+  }
+  const rowName = (r, s) => text(4, ROWS[r].name, s, 'rl', 'start');
+  function stepsRow(labels, sx, w) {
+    for (let k = 0; k + 1 < labels.length; k++) arrow('A', sx, k, w, 1);
+    labels.forEach((s, k) => box('A', sx, k, w[k], s, k % 2 ? 'o' : 'v'));
+  }
+  // The undo row: place k arrives at a[k]. In a demonstration a place is empty until it arrives; in a
+  // puzzle it shows a '?' box until then. `endFrom` (the gauge screen's p₁V₁) gives way to the end amount at endAt.
+  function undoRow(labels, a, gaps, sx, w, endFrom, endAt) {
+    const n = labels.length;
+    for (let k = 0; k + 1 < n; k++) part(gaps ? 1 : Math.min(a[k], a[k + 1]), 0, () => arrow('B', sx, k, w, -1));
+    labels.forEach((s, k) => {
+      const kind = k % 2 ? 'lit' : 'v';
+      if (k === n - 1 && endFrom != null) { swap(endAt, () => box('B', sx, k, w[k], endFrom, 'v'), () => box('B', sx, k, w[k], s, 'v'), 0); return; }
+      if (gaps) swap(a[k], () => box('B', sx, k, w[k], '', 'gap'), () => box('B', sx, k, w[k], s, kind));
+      else part(a[k], 4, () => box('B', sx, k, w[k], s, kind));
+    });
+  }
+  // The rearranged formula, highlighted (a wrong one in the warning colour), with Boyle's units check.
+  function result(s, warn, units) {
+    if (warn) text(170, RY, s, 'res warnt');
+    else hlText(170, RY, s, 'res', s, 'middle');
+    if (units) text(336, CKN, units, 'rl', 'end');
+  }
+  function resultGap() { rect('gap', 90, RY - 20, 160, 28, 8); text(170, RY - 1, '?', 'qm'); }
+  // The check along the foot of the picture (in the warning colour when it fails), its name above it.
+  function foot(s, warn) {
+    text(4, CKN, 'check', 'rl', 'start');
+    const cls = tw(s, 'wk') > 328 ? 'wk sm' : 'wk';
+    text(336 - tw(s, cls), FY, s, cls + (warn ? ' warnt' : ''), 'start');
+  }
+
+  // --- a formula card, its flow diagram, the rearranged formula and the check ---
+  function drawCard(d, st, right) {
+    const A = d.show ? AT[d.demo] : d.at, moving = !!(d.show || right);
+    const wrong = !d.show && st.res === 'wrong' && st.pick != null, slip = wrong ? d.slips[st.pick] : null;
+    const go = (k) => (moving && A[k] != null ? arr(A[k]) : 0);
+    const two = chainOf(d).ops.length === 2, said = [];
+    const vals = d.show ? go('vals') : 1;
+    // the gauge readings made absolute: after Check, whether right or wrong
+    const cv = d.gauge ? (moving ? go('conv') : slip ? arr(WRONG.slip) : 0) : 1;
+    const an = go(two ? 'u2' : 'ans'), u1 = go('u1');
+    said.push(card(d, vals, cv, an));
+    const LA = rowA(d, true), LL = rowA(d, false), LB = rowB(d), w = widthsOf([LA, LL, LB]), sx = placesOf(w);
+    const ra = d.show ? go('rowA') : 1;
+    rowName('A', 'steps');
+    part(ra, 4, () => {
+      if (d.gauge) swap(cv, () => stepsRow(LL, sx, w), () => stepsRow(LA, sx, w), 0);
+      else stepsRow(LA, sx, w);
+    });
+    // what the steps end on, named over its box (on the gauge screen once the box holds a number: it comes
+    // in with the numbers, in the second half of the swap)
+    part(Math.min(ra, d.gauge ? Math.max(0, cv * 2 - 1) : 1), 0, () => text(sx[sx.length - 1], ROWS.A.name, END[d.f], 'rl'));
+    const shownA = d.gauge && cv < 0.5 ? LL : LA;
+    if (ra >= 0.5) said.push('The steps done to ' + say(nm(d.find)) + ': ' + shownA.filter((s, k) => k % 2).map(say).join(', then ') + ', giving ' + say(shownA[shownA.length - 1]) + '.');
+    rowName('B', 'undo');
+    const n = LB.length, a = n === 3 ? [an, u1, d.show ? u1 : 1] : [an, an, u1, u1, d.show ? u1 : 1];
+    undoRow(LB, a, !d.show, sx, w, d.gauge ? LL[n - 1] : null, cv);
+    if (u1 >= 0.5) said.push('Below, the undo, last step first: ' + (n === 3 ? say(LB[1]) : say(LB[3]) + ' gives ' + say(LB[2]) + (an >= 0.5 ? ', then ' + say(LB[1])  : '')) + (an >= 0.5 ? ' gives ' + say(LB[0]) + '.' : '.'));
+    else if (!d.show) said.push('Below, the undo, its boxes still to fill in.');
+    // the rearranged formula (a '?' until then on a formula puzzle), and the check
+    const rs = go('res'), ck = go('check');
+    if (d.ask === 'formula') {
+      if (slip) swap(arr(WRONG.slip), resultGap, () => result(st.pick, true));
+      else swap(rs, resultGap, () => result(RES[key(d)], false, UNITS[key(d)]));
+    } else part(rs, 4, () => result(RES[key(d)], false, UNITS[key(d)]));
+    if (rs >= 0.5) said.push('Rearranged: ' + say(RES[key(d)]) + (UNITS[key(d)] ? ', and its ' + say(UNITS[key(d)]) : '') + '.');
+    else if (slip && d.ask === 'formula') said.push('Rearranged: ' + say(st.pick) + ', marked wrong.');
+    part(ck, 6, () => foot(checkOf(d, solveOf(d))));
+    if (ck >= 0.5) said.push('Check: ' + say(checkOf(d, solveOf(d))) + '.');
+    if (slip) {
+      const s = slipCheck(d, slip);
+      part(arr(WRONG.slip), 6, () => foot(s, true));
+      said.push('Check: ' + say(s) + ', marked wrong.');
+    }
+    return said.join(' ');
+  }
+
+  // --- the two square roots ---
+  // I = √n, squared to I² = n; a number line from −NR to NR at NLY; the two roots marked, each with its
+  // square; then each put back into I = √n.
+  const NLY = 118, NX0 = 22, NX1 = 318, NR = 12, CHY = 170, OKY = 196;
+  const nx = (v) => 170 + v * (NX1 - NX0) / (2 * NR);
+  function drawRoots(d) {
+    const A = AT.roots, n = d.n, r = r3(Math.sqrt(n));
+    const sq = arr(A.sq), pp = arr(A.pos), pn = arr(A.neg), ok = arr(A.ok), bad = arr(A.bad);
+    const said = ['Working: I equals the square root of ' + num(n) + '.'];
+    text(10, 36, 'I = √' + num(n), 'res', 'start');
+    part(sq, 4, () => { line('ar', 108, 29, 226, 29); head(234, 29, 1, 0, 'arh'); text(170, 16, 'square both sides', 'rl'); text(330, 36, 'I² = ' + num(n), 'res', 'end'); });
+    if (sq >= 0.5) said.push('Squared on both sides: I squared equals ' + num(n) + '.');
+    // the number line
+    line('nl', NX0, NLY, NX1, NLY);
+    for (let v = -NR; v <= NR; v++) line('tick', nx(v), NLY - (v % 5 ? 4 : 7), nx(v), NLY + (v % 5 ? 4 : 7));
+    [-10, -5, 0, 5, 10].forEach((v) => text(nx(v), NLY + 26, num(v), 'tkl'));
+    said.push('A number line from ' + say(num(-NR)) + ' to ' + NR + '.');
+    const mark = (v, s, anchor, x) => { circle('dot', nx(v), NLY, 6); line('ar', nx(v), 92, nx(v), NLY - 11); text(x, 84, s, 'wk', anchor); };
+    const sp = num(r) + ' × ' + num(r) + ' = ' + num(n), sn = num(-r) + ' × ' + num(-r) + ' = ' + num(n);
+    part(pp, 4, () => mark(r, sp, 'end', 332));
+    part(pn, 4, () => mark(-r, sn, 'start', 8));
+    if (pp >= 0.5) said.push(num(r) + ' is marked: ' + say(sp) + '.');
+    if (pn >= 0.5) said.push(say(num(-r)) + ' is marked: ' + say(sn) + '.');
+    const back = 'back in I = √' + num(n), fits = num(r) + ' fits', fails = '√' + num(n) + ' = ' + num(r) + ', not ' + num(-r);
+    part(ok, 4, () => { text(170, CHY, back, 'rl'); text(nx(r), OKY, fits, 'wk'); });
+    part(bad, 4, () => { circle('ring', nx(-r), NLY, 11); text(8, OKY, fails, 'wk warnt', 'start'); });
+    if (ok >= 0.5) said.push('Put back into I equals the square root of ' + num(n) + ': ' + num(r) + ' fits' + (bad >= 0.5 ? '; ' + say(fails) + ', marked wrong.' : '.'));
+    return said.join(' ');
+  }
+
+  // --- the voltage-drop rule, built from its unit ---
+  // A cable run from a board to a load, its current and its length; under it the working, each line with
+  // what its unit has become; then the rule.
+  const LG = [108, 138, 168, 198], RULE = 236;
+  function drawUnit(d) {
+    const A = AT.unit, u = d.vd, kI = r3(u.k * u.I), mv = r3(kI * u.L), v = r3(mv / 1000);
+    rect('kitbox', 8, 14, 54, 36, 6); text(35, 37, 'board', 'cht');
+    rect('kitbox', 278, 14, 54, 36, 6); text(305, 37, 'load', 'cht');
+    line('wire', 62, 32, 278, 32);
+    text(146, 22, amt(u.I, 'A'), 'cht'); line('ar', 168, 17, 194, 17); head(201, 17, 1, 0, 'arh');
+    bracket('brk', 62, 278, 52); text(170, 72, amt(u.L, 'm'), 'cht');
+    const said = ['A cable run from a board to a load, ' + say(amt(u.L, 'm')) + ' long, carrying ' + say(amt(u.I, 'A')) + '.'];
+    const rows = [
+      [u.k + ' mV/A/m', 'an example value'],
+      ['× ' + amt(u.I, 'A') + ' = ' + num(kI) + ' mV/m', 'amps cancel the /A'],
+      ['× ' + amt(u.L, 'm') + ' = ' + num(mv) + ' mV', 'metres cancel the /m'],
+      ['÷ 1000 = ' + amt(v, 'V'), '1000 mV in a volt'],
+    ];
+    const ts = [A.l1, A.l2, A.l3, A.l4].map((t) => arr(t));
+    rows.forEach((rw, k) => part(ts[k], 4, () => { text(8, LG[k], rw[0], 'wk', 'start'); text(332, LG[k], rw[1], 'rl', 'end'); }));
+    const shown = rows.filter((rw, k) => ts[k] >= 0.5);
+    if (shown.length) said.push('Working: ' + shown.map((rw) => say(rw[0]) + ', ' + rw[1]).join('; ') + '.');
+    const rule = 'drop = mV/A/m × I × L ÷ 1000', ra = arr(A.rule);
+    part(ra, 6, () => hlText(170, RULE, rule, 'res', rule, 'middle'));
+    if (ra >= 0.5) said.push('The rule: ' + say(rule) + '.');
+    return said.join(' ');
+  }
+
+  const heightOf = (d) => (d.pic === 'roots' ? 206 : d.pic === 'unit' ? 250 : 276);
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    svg.setAttribute('aria-label', d.pic === 'card' ? drawCard(d, st, right) : d.pic === 'roots' ? drawRoots(d) : drawUnit(d));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      const lab = K.el('span');
+      math(lab, opts[k]);
+      b.el.appendChild(lab);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const CARDS = STEPS.map((d, i) => i).filter((i) => STEPS[i].pic === 'card');
+  const BOYS = STEPS.filter((d) => d.f === 'BOY'), VDS = STEPS.filter((d) => d.f === 'VD');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const boxes = Array.from(art.querySelectorAll('rect')).map((n) => ({ cls: n.getAttribute('class'), x: +n.getAttribute('x') + +n.getAttribute('width') / 2, x0: +n.getAttribute('x'), x1: +n.getAttribute('x') + +n.getAttribute('width'),
+        y: +n.getAttribute('y'), s: n.nextSibling && n.nextSibling.tagName === 'text' ? n.nextSibling.textContent : '' }));
+      const texts = Array.from(art.querySelectorAll('text')).map((t) => ({ s: t.textContent, x: +t.getAttribute('x'), y: +t.getAttribute('y'), cls: t.getAttribute('class'), w: tw(t.textContent, t.getAttribute('class')), anchor: t.getAttribute('text-anchor'), fill: getComputedStyle(t).fill }));
+      return { boxes: boxes, texts: texts, all: texts.map((t) => t.s), H: H };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // A whole amount, step or sum inside a label ("5" is not inside "25" or "0.5").
+  const has = (texts, s) => { const re = new RegExp('(^|[^0-9.,])' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9])'); return texts.some((t) => re.test(t)); };
+  // A row's boxes, left to right, with their labels and whether they leave room for an arrow between.
+  const rowOf = (g, r) => g.boxes.filter((b) => b.y === ROWS[r].top && /vb|ob|gap/.test(b.cls)).sort((a, b) => a.x - b.x);
+  const rowIs = (g, r, labels) => { const bs = rowOf(g, r); return bs.length === labels.length && bs.every((b, k) => b.s === labels[k] && (k === 0 || b.x0 - bs[k - 1].x1 >= 12)); };
+  const inside = (g) => g.texts.every((t) => { const x0 = t.anchor === 'middle' ? t.x - t.w / 2 : t.anchor === 'end' ? t.x - t.w : t.x; return x0 >= 2 && x0 + t.w <= 338 && t.y <= g.H; });
+  K.check('Every answer comes from its rearranged formula and checks back: √(2300 ÷ 23) = 10 A; √(144 ÷ 4) = 6 A; √(400 ÷ 16) = 5 A; 2 × 12 ÷ 6 = 4 L; 4 × 9 ÷ 3 = 12 bar; 3 × 10 ÷ 6 = 5 L; 9 × 1000 ÷ 360 = 25 m; 6 × 1000 ÷ 300 = 20 m; 500 ÷ 5² = 20 Ω; 8 × 3 ÷ 2 = 12 L', () =>
+    CARDS.map((i) => num(solveOf(STEPS[i]))).join() === '10,6,5,4,12,5,25,20,20,12' &&
+    CARDS.every((i) => { const d = STEPS[i]; return rowB(d)[0] === num(solveOf(d)) && !/not/.test(checkOf(d, solveOf(d))); }) &&
+    checkOf(STEPS[0], 10) === '10² × 23 = 2300' && checkOf(STEPS[4], 4) === '2 × 12 = 6 × 4' && checkOf(STEPS[6], 5) === '3 × 10 = 6 × 5' &&
+    checkOf(STEPS[8], 25) === '18 × 20 × 25 ÷ 1000 = 9' && checkOf(STEPS[10], 20) === '5² × 20 = 500' &&
+    rowB(STEPS[0]).join('|') === '10|√( )|100|÷ 23|2300' && rowB(STEPS[8]).join('|') === '25|÷ 360|9000|× 1000|9' && rowA(STEPS[8], true).join('|') === 'L|× 360|360L|÷ 1000|9' &&
+    rowA(STEPS[0], true).join('|') === 'I|( )²|I²|× 23|2300' && rowB(STEPS[10]).join('|') === '20|÷ 25|500' && rowA(STEPS[6], false).join('|') === 'V₂|× p₂|p₁V₁');
+  K.check('Squaring both sides of an equation may introduce extra solutions not valid for the original equation: I = √ of a number, squared, lets in its negative root as well, which fails when put back', () => {
+    const d = STEPS[2], r = Math.sqrt(d.n), g = drawn(2, blank(2));
+    return same(r * r, d.n) && same(-r * -r, d.n) && r === 10 &&
+      ['I = √100', 'I² = 100', '10 × 10 = 100', '−10 × −10 = 100', 'back in I = √100', '10 fits', '√100 = 10, not −10'].every((s) => g.all.indexOf(s) >= 0) &&
+      g.texts.filter((t) => /warnt/.test(t.cls)).map((t) => t.s).join() === '√100 = 10, not −10' && inside(g);
+  }, { source: 'https://sheffield.ac.uk/media/31930/download?attachment' });
+  K.check('Boyle\'s law: the absolute pressure and volume of a given mass of confined gas are inversely proportional, provided the temperature remains unchanged, so p₁V₁ = p₂V₂ on every Boyle\'s law screen, with absolute pressures, and more pressure goes with less volume', () =>
+    BOYS.length === 4 && BOYS.every((d) => { const x = solveOf(d), v = (L) => (L === d.find ? x : val(d, L)); return same(v('p1') * v('V1'), v('p2') * v('V2')) && (v('p2') > v('p1')) === (v('V2') < v('V1')); }),
+  { source: 'https://uen.pressbooks.pub/introductorychemistry/chapter/gas-laws' });
+  K.check('Standard atmosphere: 101 325 Pa, about 1 bar (100 000 Pa), so with that exact figure the gauge screen\'s 2 bar and 5 bar readings still give about 5 L', () => {
+    const atm = ATM_PA / 100000, d = STEPS[6], exact = (d.giv.p1 + atm) * d.giv.V1 / (d.giv.p2 + atm);
+    return ATM_PA === 101325 && K.near(atm, ATM, 0.02) && d.gauge && K.near(exact, solveOf(d), 0.02) && K.near(exact, 5.011, 0.001) &&
+      ['4 L', '20 L'].every((o) => !K.near(valueOf(o), exact, 0.5));
+  }, { source: 'https://physics.nist.gov/cgi-bin/cuu/Value?stdatm' });
+  K.check('Voltage drop per ampere per metre: mV/A/m × amps × metres gives millivolts, and a thousand millivolts make a volt, on every voltage-drop screen', () => {
+    const u = STEPS[7].vd, g = drawn(7, blank(7));
+    return u.k * u.I === 360 && u.k * u.I * u.L === 9000 && u.k * u.I * u.L / 1000 === 9 &&
+      ['18 mV/A/m', '× 20 A = 360 mV/m', '× 25 m = 9000 mV', '÷ 1000 = 9 V', 'drop = mV/A/m × I × L ÷ 1000'].every((s) => g.all.indexOf(s) >= 0) && inside(g) &&
+      VDS.length === 2 && VDS.every((d) => same(val(d, 'k') * val(d, 'I') * solveOf(d) / 1000, val(d, 'drop'))) &&
+      STEPS[8].giv.drop === 9 && STEPS[8].giv.k === u.k && STEPS[8].giv.I === u.I && solveOf(STEPS[8]) === u.L;
+  }, { source: 'https://www.elandcables.com/media/ksllepjp/table-4e2a-and-4e2b.pdf' });
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives, its check failing: a square halved or left on; the root taken before the ÷ R; both roots kept; a step done again instead of undone; a × undone by taking away; a division the wrong way round; gauge readings put in as absolute; the × 1000 left out; the steps on L done again; I² read as 2I or left as I', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      return d.opts.length === 3 && slips.length === 2 && d.want === answerOf(d) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        slips.every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && slipOpt(d, d.slips[o]) === o && / not /.test(slipCheck(d, d.slips[o])) && !same(SLIPV[d.slips[o]](d), solveOf(d)));
+    }) && [[1, 'halve', 18], [1, 'noRoot', 36], [3, 'rootFirst', 1.25], [3, 'both', -5], [5, 'again', 108], [5, 'sign', 33], [6, 'gauge', 4], [6, 'flip', 20],
+      [9, 'noK', 0.02], [9, 'redo', 1.8], [10, 'twoI', 50], [10, 'noSq', 100], [11, 'flip', 0.75], [11, 'again', 48]].every((q) => SLIPV[q[1]](STEPS[q[0]]) === q[2]) &&
+    slipCheck(STEPS[3], 'both') === '√25 = 5, not −5' && slipCheck(STEPS[1], 'halve') === '18² × 4 = 1296, not 144' && slipCheck(STEPS[6], 'gauge') === '6 × 4 = 24, not 30' &&
+    slipCheck(STEPS[9], 'noK') === '12 × 25 × 0.02 ÷ 1000 = 0.006, not 6' && slipCheck(STEPS[9], 'redo') === '12 × 25 × 1.8 ÷ 1000 = 0.54, not 6');
+  K.check('Every card screen, finished, puts each amount under its letter in that letter\'s unit, draws the steps done to the letter wanted, naming what they end on, and, under them, their undo, last step first, then the rearranged formula (with its units check for Boyle\'s law and the voltage-drop rule) and the check; each slip\'s check (and wrong formula) is in the warning colour; nothing leaves the picture', () =>
+    CARDS.every((i) => {
+      const d = STEPS[i], g = drawn(i, d.show ? blank(i) : solved(i)), LB = rowB(d), n = LB.length;
+      const letters = FORM[d.f].card.map((c) => c[0]).filter(isLetter);
+      const ok = inside(g) && letters.every((t) => g.all.indexOf(WORD[t]) >= 0 && g.all.indexOf(amt(t === d.find ? solveOf(d) : val(d, t), UNIT[t])) >= 0) &&
+        rowIs(g, 'A', rowA(d, true)) && rowIs(g, 'B', LB) && rowOf(g, 'A').every((b, k) => K.near(b.x, rowOf(g, 'B')[k].x, 1e-3)) &&
+        g.boxes.filter((b) => /lit/.test(b.cls)).map((b) => b.s).sort().join() === LB.filter((s, k) => k % 2).sort().join() &&
+        g.all.indexOf(RES[key(d)]) >= 0 && g.all.indexOf(checkOf(d, solveOf(d))) >= 0 && (d.f === 'PIR' || (!!UNITS[key(d)] && g.all.indexOf(UNITS[key(d)]) >= 0 && 336 - tw(UNITS[key(d)], 'rl') >= 4 + tw('check', 'rl') + 12)) &&
+        g.texts.some((t) => t.s === END[d.f] && t.y === ROWS.A.name && K.near(t.x, rowOf(g, 'A')[n - 1].x, 1e-3));
+      if (!ok || d.show) return ok;
+      return Object.keys(d.slips).every((o) => {
+        const w = drawn(i, slipped(i, o)), red = w.texts.filter((t) => /warnt/.test(t.cls)).map((t) => t.s);
+        const ink = (w.texts.filter((t) => /\bwk\b/.test(t.cls) && !/warnt/.test(t.cls))[0] || g.texts.filter((t) => /\bres\b/.test(t.cls))[0] || {}).fill;
+        return inside(w) && red.join('|') === (d.ask === 'formula' ? o + '|' : '') + slipCheck(d, d.slips[o]) && w.texts.filter((t) => /warnt/.test(t.cls)).every((t) => t.fill !== ink) &&
+          (!d.gauge || (has(w.all, amt(val(d, 'p1'), 'bar')) && has(w.all, amt(val(d, 'p2'), 'bar'))));
+      });
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer: the letter wanted is a \'?\', no undo box is lit or filled, no rearranged formula or check, and the gauge screen shows no absolute pressure', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i)), LB = rowB(d);
+      return !has(g.all, d.want) && !has(g.all, amt(solveOf(d), UNIT[d.find])) && !g.boxes.some((b) => /lit/.test(b.cls)) && rowOf(g, 'B').filter((b) => b.cls === 'vb').length === 1 &&
+        g.all.indexOf(RES[key(d)]) < 0 && !g.texts.some((t) => /\bwk\b/.test(t.cls)) && (!d.gauge || (!has(g.all, '3 bar') && !has(g.all, '6 bar') && !has(g.all, '30') && g.all.indexOf('p₁V₁') >= 0)) &&
+        (LB.length === 3 || !has(g.all, LB[2]));
+    }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => A[k]).sort((a, b) => a - b);
+      return ps.every((t, k) => k === 0 || t === ps[k - 1] || t - ps[k - 1] >= 0.45 - 1e-9);
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>
