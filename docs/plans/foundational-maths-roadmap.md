@@ -191,7 +191,8 @@ about 0.17M for the brief's research, so about 0.99M a lesson. Its research kept
 harvested from the transcript (tools/course/harvest.mjs). A separate look at other visuals for the
 course cost about 0.17M more. Solving equations, 6 lessons on the same settings (12 Oct), took
 about 6.18M: 5.96M for the build workflow and about 0.21M for the brief's research, so about
-1.03M a lesson.
+1.03M a lesson. The coordinate plane, 6 lessons (12 Oct), took about 6.63M: 6.38M for the build
+workflow and about 0.25M for the brief's research, so about 1.1M a lesson.
 
 A middle way is possible and not yet measured: lean plus the fresh fact-check and one combined
 review, keeping the full process for pilots. I'll measure each pilot and re-estimate before its
