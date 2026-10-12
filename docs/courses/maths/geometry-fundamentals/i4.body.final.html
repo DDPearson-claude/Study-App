@@ -1,0 +1,1122 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  /* Nothing in the picture is selected as text while a corner is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  /* Unit squares: tiles in a light tint with the page showing between them; a square's area in the
+     same tint; shapes outlined in ink; counted tiles in amber; a slip in the warning colour. */
+  .scene .cell { fill: var(--k-fill1); stroke: var(--k-bg); stroke-width: 1.25; stroke-linejoin: round; }
+  .scene .cell2 { fill: var(--k-fill2); stroke: var(--k-bg); stroke-width: 1.25; stroke-linejoin: round; }
+  .scene .gapc { fill: none; stroke: var(--k-accent2); stroke-width: 1.25; stroke-linejoin: round; }
+  .scene .sqf { fill: var(--k-fill1); }
+  .scene .sqo { fill: none; stroke: var(--k-accent2); stroke-width: 1.75; stroke-linejoin: round; }
+  .scene .sqo.bad { stroke: var(--k-warn); stroke-width: 3; }
+  .scene .tri { fill: none; stroke: var(--k-accent2); stroke-width: 2.75; stroke-linejoin: round; }
+  .scene .hyp { stroke: var(--k-amber-line); stroke-width: 5; stroke-linecap: round; }
+  .scene .ra { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .ra.bad { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .lay { stroke: var(--k-warn); stroke-width: 3; stroke-dasharray: 6 4; stroke-linecap: round; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .hl { fill: var(--k-hl); }
+  /* Lengths on a badge that sits on its side; areas, counts and small labels. */
+  .scene .bdg { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .bdg.on { fill: var(--k-hl); }
+  .scene .bdg.bad { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .bdl { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .lbl.mq { fill: var(--k-muted); }
+  .scene .cn { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .patch { fill: var(--k-bg); }
+  /* The readout along the top: a sum (small, teal) and what it comes to (big). */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The corner Dan moves: a dot with a soft ring; the places he touches are invisible. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Triangles drawn to scale with a square on each side, in example sizes, one on a grid, and one corner you can open and close.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 260" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">In a right-angled triangle, the squares on the shorter sides add up to the hypotenuse's square. Sizes are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // f: which triangle a step draws (FIGS below); th: its corner, if not a right angle. demo: what a SHOW
+  // step plays (dur seconds). A 'pick' puzzle takes one answer, its picture `pic` ('area': unit squares
+  // move in; 'len': the squares' areas, then the side; 'spill' and 'gap': unit squares that do not fit);
+  // a 'drag' puzzle asks for the top corner to be put at the height `want`. fb: how long the motion after
+  // a right answer plays; at: when each part of it arrives, in seconds after Check ([start, gap, count]
+  // for parts counted one at a time). slips: which slip gives each wrong answer, and hints: what is said.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the top corner to its place first.';
+  // After a right answer. MOVE: the 4 or 8 cm side's block of unit squares turns into the corner of the
+  // longest side's square, then the other side's squares follow in four groups, then the sum. AREAS: one
+  // known square's area, the other's, the square found from them, then the side (its root). GRIDA: the
+  // hypotenuse's length, then the sum.
+  const MOVE = { blk: 0.1, cells: [0.6, 0.2, 4], ro: 1.7 };
+  const AREAS = { a1: 0.1, a2: 0.6, fill: 1.1, side: 1.6 };
+  const GRIDA = { side: 0.1, ro: 0.6 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long the block takes to travel, each group of unit squares, a counted tile, and the corner's swing.
+  const BLK_T = 0.8, CELL_T = 0.6, COUNT = 0.3, SWING_T = 1.2, GROUPS = 4;
+
+  // The triangles, in their own units: side p runs from the corner C at angle th (90 unless given) and
+  // side q along from C; m turns or flips the whole figure. All the sizes are example values.
+  const DEG = Math.PI / 180;
+  const turn = (a) => [Math.cos(a * DEG), -Math.sin(a * DEG), Math.sin(a * DEG), Math.cos(a * DEG)];
+  const FIGS = {
+    f43: { p: 4, q: 3, u: 'cm', cells: true, range: [70, 110] },
+    f86: { p: 8, q: 6, u: 'cm', cells: true, at: { p: [0.8] } },
+    f125: { p: 12, q: 5, u: 'cm', at: { p: [0.25] } },
+    // turned so the hypotenuse lies along the bottom and the right angle points up
+    f912: { p: 9, q: 12, u: 'cm', m: turn(180 + Math.atan2(9, 12) / DEG), at: { p: [0.55], q: [0.55] } },
+    // the 8 cm and 7 cm sides opened until the third side is 11 cm
+    f87: { p: 8, q: 7, u: 'cm', cells: true, c: 11, at: { p: [0.8] } },
+    // a shelf bracket: the right angle at the top left, the brace running down to the left
+    f2030: { p: 30, q: 20, u: 'cm', m: [1, 0, 0, -1], at: { p: [0.3] } },
+    // turned so the hypotenuse stands upright on the left and the right angle points right
+    f152: { p: 1.5, q: 2, u: 'm', m: turn(90 + Math.atan2(1.5, 2) / DEG) },
+  };
+  // at: where along a side its length's badge would rather go (from C, or from A for the third side),
+  // so the third side's badge can keep its middle.
+  // The corner that makes the third side c long, for a figure given by its three sides.
+  FIGS.f87.th = Math.acos((FIGS.f87.p * FIGS.f87.p + FIGS.f87.q * FIGS.f87.q - FIGS.f87.c * FIGS.f87.c) / (2 * FIGS.f87.p * FIGS.f87.q)) / DEG;
+  // The corner on the screen where it can be dragged: from 70 to 110 in steps of 5, a right angle at 90.
+  const TH = { min: 70, max: 110, by: 5, open: 110 };
+
+  const STEPS = [
+    { show: true, demo: 'fit', f: 'f43', dur: 3.9, name: 'Squares on the sides',
+      text: 'Draw a square on each side of a right-angled triangle. The 16 and 9 unit squares on the shorter sides move into the longest side\'s square and fill it. That is *Pythagoras\' theorem*.' },
+    { kind: 'pick', pic: 'area', f: 'f86', opts: ['196 cm²', '100 cm²', '28 cm²'], want: '100 cm²', slips: { '196 cm²': 'sumsq', '28 cm²': 'diff' }, fb: 2.3, at: MOVE, long: true, name: 'The biggest square',
+      task: 'In this right-angled triangle, the squares on the shorter sides cover 64 cm² and 36 cm². How much does the square on the longest side cover?',
+      why: 'The pieces of the two smaller squares fill the square on the longest side exactly. So it covers 64 + 36 = 100 cm².',
+      hint: 'Not quite. The two smaller squares together fill the biggest one.',
+      hints: { '196 cm²': 'Not quite. That squares 8 + 6 = 14, but the longest side is shorter than the other two together. Add the two areas instead.',
+        '28 cm²': 'Not quite. That takes 36 from 64. The two smaller squares together fill the biggest one, so add them.' } },
+    { show: true, demo: 'root', f: 'f43', dur: 3.3, name: 'The hypotenuse',
+      text: 'The longest side, opposite the right angle, is the *hypotenuse*. Its square holds 25 unit squares, 5 along each edge, so the side is √25 = 5 cm.' },
+    { kind: 'pick', pic: 'len', find: 'hyp', f: 'f125', opts: ['17 cm', '169 cm', '13 cm'], want: '13 cm', slips: { '17 cm': 'add', '169 cm': 'noroot' }, fb: 2.2, at: AREAS, name: 'Find the hypotenuse',
+      task: 'A right-angled triangle\'s shorter sides are 12 cm and 5 cm. How long is its hypotenuse?',
+      why: 'Square the shorter sides and add. 144 + 25 = 169 cm² is the hypotenuse\'s square, and the square root undoes the square, so the hypotenuse is √169 = 13 cm.',
+      hint: 'Not quite. Square both sides, add, then take the square root.',
+      hints: { '17 cm': 'Not quite. That adds the lengths, 12 + 5. Add their squares instead, then take the square root.',
+        '169 cm': 'Not quite. 144 + 25 = 169 is the area of the hypotenuse\'s square, in cm². Take its square root for the side.' } },
+    { show: true, demo: 'less', f: 'f86', dur: 3.7, name: 'A shorter side',
+      text: 'For a shorter side, take away. The hypotenuse\'s square holds 100, so 100 − 36 = 64 are left, an 8 by 8 square. The side is √64 = 8 cm.' },
+    { kind: 'pick', pic: 'len', find: 'leg', f: 'f912', opts: ['12 cm', '17.49 cm', '6 cm'], want: '12 cm', slips: { '17.49 cm': 'addsq', '6 cm': 'sublen' }, fb: 2.2, at: AREAS, name: 'Which side?',
+      task: 'This right-angled triangle has sides of 15 cm and 9 cm. How long is the third side?',
+      why: 'The 15 cm side is opposite the right angle, so it is the hypotenuse. Take away, 225 − 81 = 144 cm², and √144 = 12 cm.',
+      hint: 'Not quite. Find the hypotenuse first. It is opposite the right angle.',
+      hints: { '17.49 cm': 'Not quite. That adds the squares, as if 15 cm were a shorter side. It is opposite the right angle, so take away instead.',
+        '6 cm': 'Not quite. That takes 9 from 15. Take away the squares, 225 − 81, then take the square root.' } },
+    { kind: 'drag', pic: 'grid', base: 8, hyp: 10, start: 3, top: 10, want: '6 cm', slips: { '2 cm': 'sublen', '10 cm': 'same' }, fb: 1.3, at: GRIDA, name: 'Make it fit',
+      task: 'This triangle\'s base is 8 cm. Drag the top corner so the hypotenuse is 10 cm.',
+      why: 'The hypotenuse\'s square is 10² = 100 and the base\'s is 8² = 64, leaving 36 for the upright side. √36 = 6, so the corner goes 6 cm up.',
+      hint: 'Not quite. Take the base\'s square, 64, from the hypotenuse\'s, 100, then take the square root.',
+      hints: { '2 cm': 'Not quite. That takes 8 from 10. Take away the squares instead, then take the square root.',
+        '10 cm': 'Not quite. That makes the upright side 10 cm, but the hypotenuse is opposite the right angle. Take 8² from 10², then take the square root.' } },
+    { show: true, demo: 'corner', f: 'f43', dur: 3.7, name: 'Only with a right angle',
+      text: 'Pythagoras needs a right angle. Opened wider, the third side grows and the 25 unit squares leave a gap. Drag the dot at the top of the 4 cm side to try.' },
+    { kind: 'pick', pic: 'spill', f: 'f43', th: 70, opts: ['5 cm', 'More than 5 cm', 'Less than 5 cm'], want: 'Less than 5 cm', slips: { '5 cm': 'pyth', 'More than 5 cm': 'way' }, fb: 2.3, at: MOVE, name: 'A narrower corner',
+      task: 'These 4 cm and 3 cm sides meet at a corner narrower than a right angle. How long is the third side?',
+      why: 'Pythagoras only works with a right angle. A narrower corner brings the ends closer, so the third side is less than 5 cm and the 25 unit squares spill over.',
+      hint: 'Not quite. Picture the corner closing up from a right angle. Do the ends move apart or together?',
+      hints: { '5 cm': 'Not quite. 5 cm needs a right angle. Picture this corner closing up from a right angle. Do its ends move apart or together?',
+        'More than 5 cm': 'Not quite. A wider corner pushes the ends apart. This one is narrower than a right angle, so its ends are closer together.' } },
+    { kind: 'pick', pic: 'gap', f: 'f87', opts: ['Yes, a right angle', 'No, it is wider', 'No, it is narrower'], want: 'No, it is wider', slips: { 'Yes, a right angle': 'looks', 'No, it is narrower': 'way' }, fb: 2.3, at: MOVE, name: 'A right angle?',
+      task: 'A triangle\'s sides are 8 cm, 7 cm and 11 cm. Is the corner between the 8 cm and 7 cm sides a right angle?',
+      why: '8² + 7² = 64 + 49 = 113, but 11² = 121 is more. So the corner is wider than a right angle, and the 113 unit squares leave a gap.',
+      hint: 'Not quite. Compare 8² + 7² with 11².',
+      hints: { 'Yes, a right angle': 'Not quite. It looks close, but 8² + 7² = 113 and 11² = 121. They do not match, so it is not a right angle.',
+        'No, it is narrower': 'Not quite. 11² = 121 is more than 113, so the long side is too long for a right angle. A narrower corner would make it shorter.' } },
+    { kind: 'pick', pic: 'len', find: 'hyp', f: 'f2030', qfirst: true, opts: ['50 cm', '36.06 cm', '1,300 cm'], want: '36.06 cm', slips: { '50 cm': 'add', '1,300 cm': 'noroot' }, fb: 2.2, at: AREAS, name: 'A shelf bracket',
+      task: 'A shelf bracket\'s two arms meet at a right angle and are 20 cm and 30 cm long. How long is the brace between their ends?',
+      why: 'The brace is opposite the right angle, so it is the hypotenuse. 20² + 30² = 400 + 900 = 1,300 cm², and √1,300 = 36.06 cm, to 2 decimal places.',
+      hint: 'Not quite. Square both arms, add, then take the square root.',
+      hints: { '50 cm': 'Not quite. That adds the lengths, 20 + 30. Add their squares, 400 + 900, then take the square root.',
+        '1,300 cm': 'Not quite. 400 + 900 = 1,300 is the area of the brace\'s square, in cm². Its square root is the length.' } },
+    { kind: 'pick', pic: 'len', find: 'leg', f: 'f152', opts: ['2.92 m', '1 m', '2 m'], want: '2 m', slips: { '2.92 m': 'addsq', '1 m': 'sublen' }, fb: 2.2, at: AREAS, long: true, name: 'One more side',
+      task: 'This right-angled triangle has sides of 2.5 m and 1.5 m. How long is the third side?',
+      why: 'The 2.5 m side is opposite the right angle, so it is the hypotenuse. Take away, 6.25 − 2.25 = 4 m², and √4 = 2 m.',
+      hint: 'Not quite. Find the hypotenuse first. It is opposite the right angle.',
+      hints: { '2.92 m': 'Not quite. That adds the squares, as if 2.5 m were a shorter side. It is opposite the right angle, so take away instead.',
+        '1 m': 'Not quite. That takes 1.5 from 2.5. Take away the squares, 6.25 − 2.25, then take the square root.' } },
+  ];
+  const FINISH = 'In a right-angled triangle, the squares on the two shorter sides add up to the square on the hypotenuse, the side opposite the right angle. Square, add or take away, then take the square root. It works only with a right angle.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap, count] for parts counted one
+  // at a time. fit: the 16 unit squares, the 9, the 16 turn into the big square, the 9 follow in four
+  // groups, the sum. root: the hypotenuse picked out, the tiles along its edge counted, its length. less:
+  // the big square's 100, the 36 go back to the 6 cm side in four groups, the 8 by 8 block that is left
+  // moves to the third side, its length. corner: the sum, the corner swings wider, the gap named.
+  const FADE = 0.35;
+  const AT = {
+    fit: { c1: 0.6, c2: 1.1, blk: 1.6, cells: [2.1, 0.2, 4], ro: 3.3 },
+    root: { hyp: 0.6, edge: [1.1, 0.25, 5], ro: 2.6 },
+    less: { c: 0.6, cells: [1.1, 0.2, 4], blk: 2.2, ro: 3.0 },
+    corner: { ro: 0.6, swing: 1.1, gap: 2.6, ring: 3.1 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  // A number as the lesson writes it: at most 2 decimal places, thousands with a comma.
+  const num = (v) => { const s = (Math.round(v * 100) / 100).toFixed(2).replace(/\.?0+$/, ''), parts = s.split('.'); return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? '.' + parts[1] : ''); };
+  const amt = (v, u) => num(v) + ' ' + u;
+  const sq2 = (v) => num(v * v);
+  // The figure's sides: the two at the corner (p, q) and the third (c), by the rule for a right angle or
+  // as given; and what each puzzle's slips make of them.
+  const sideC = (f) => (f.c != null ? f.c : Math.sqrt(f.p * f.p + f.q * f.q));
+  const unitOf = (d) => (d.kind === 'drag' ? 'cm' : FIGS[d.f].u);
+  function answerOf(d) {
+    const f = FIGS[d.f] || {}, u = unitOf(d);
+    if (d.pic === 'area') return amt(f.p * f.p + f.q * f.q, u + '²');
+    if (d.pic === 'len' && d.find === 'hyp') return amt(Math.sqrt(f.p * f.p + f.q * f.q), u);
+    if (d.pic === 'len') return amt(Math.sqrt(sideC(f) * sideC(f) - f.p * f.p), u);
+    if (d.kind === 'drag') return amt(Math.sqrt(d.hyp * d.hyp - d.base * d.base), u);
+    if (d.pic === 'spill') { const t = tri(f, d.th); return t.c < 5 - 1e-9 ? 'Less than 5 cm' : t.c > 5 + 1e-9 ? 'More than 5 cm' : '5 cm'; }
+    const t = tri(f);   // gap: is c² equal to p² + q², or bigger (wider), or smaller (narrower)?
+    const d2 = t.c * t.c - (f.p * f.p + f.q * f.q);
+    return Math.abs(d2) < 1e-9 ? 'Yes, a right angle' : d2 > 0 ? 'No, it is wider' : 'No, it is narrower';
+  }
+  // sumsq: the sides added, then squared; diff: one area taken from the other; add: the lengths added;
+  // noroot: the hypotenuse's square given as its length; addsq: the squares added when a shorter side is
+  // missing; sublen: the lengths taken away; same: the upright side made the hypotenuse's length; pyth:
+  // 5 cm with no right angle; way: the wrong way round; looks: taken as a right angle by eye.
+  function slipOpt(d, s) {
+    const f = FIGS[d.f] || {}, u = unitOf(d), c = d.kind === 'drag' ? d.hyp : sideC(f), p = d.kind === 'drag' ? d.base : f.p;
+    if (s === 'sumsq') return amt((f.p + f.q) * (f.p + f.q), u + '²');
+    if (s === 'diff') return amt(Math.abs(f.p * f.p - f.q * f.q), u + '²');
+    if (s === 'add') return amt(f.p + f.q, u);
+    if (s === 'noroot') return amt(f.p * f.p + f.q * f.q, u);
+    if (s === 'addsq') return amt(Math.sqrt(c * c + p * p), u);
+    if (s === 'sublen') return amt(c - p, u);
+    if (s === 'same') return amt(d.hyp, u);
+    if (s === 'pyth') return '5 cm';
+    if (s === 'looks') return 'Yes, a right angle';
+    if (d.pic === 'spill') return 'More than 5 cm';
+    return 'No, it is narrower';
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/√([\d.,]+)/g, 'the square root of $1').replace(/(\d) cm²/g, '$1 square centimetres').replace(/(\d) m²/g, '$1 square metres')
+    .replace(/(\d)²/g, '$1 squared').replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres').replace(/−/g, ' minus ').replace(/×/g, ' times ')
+    .replace(/=/g, ' equals ').replace(/</g, ' is less than ').replace(/(^|[^\d.,])1 (square )?(centi)?metres\b/g, '$11 $2$3metre').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, h: null, moved: false, th: null }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const d = STEPS[i], st = blank(i); st.res = 'right'; st.moved = true; st.pick = d.want; if (d.kind === 'drag') st.h = parseFloat(d.want); return st; }
+  function slipped(i, o) { const d = STEPS[i], st = blank(i); st.res = 'wrong'; st.moved = true; st.pick = o; if (d.kind === 'drag') st.h = parseFloat(o); return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // An amount or a sum stays together on one line ("64 cm²", "√25 = 5 cm", "8² + 7² = 113"), with the
+  // stop after it; a long one may break only before an equals sign.
+  const TOK = '(?:√?\\d[\\d,]*(?:\\.\\d+)?²?(?: (?:cm²|m²|cm|m)(?![A-Za-z]))?)';
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’-])' + TOK + '(?: [=+−×<] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b)); else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].moved = false; S[i].th = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- geometry, in the figure's own units with y up ----------
+  const V = {
+    add: (a, b) => [a[0] + b[0], a[1] + b[1]], sub: (a, b) => [a[0] - b[0], a[1] - b[1]], mul: (a, k) => [a[0] * k, a[1] * k],
+    len: (a) => Math.hypot(a[0], a[1]), dot: (a, b) => a[0] * b[0] + a[1] * b[1], lerp: (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t],
+    unit: (a) => { const l = Math.hypot(a[0], a[1]); return [a[0] / l, a[1] / l]; },
+    turn: (a, t) => [a[0] * Math.cos(t) - a[1] * Math.sin(t), a[0] * Math.sin(t) + a[1] * Math.cos(t)],
+  };
+  const ang = (v) => Math.atan2(v[1], v[0]);
+  // The square drawn on side PQ, on the side away from R: its corners, centre and edge directions
+  // (e1 along PQ, e2 outwards), so its unit squares sit at P + (i + ½) e1 + (j + ½) e2.
+  function sqOn(P, Q, R) {
+    const d = V.sub(Q, P), L = V.len(d);
+    let n = [-d[1], d[0]];
+    if (V.dot(n, V.sub(R, P)) > 0) n = V.mul(n, -1);
+    return { P: P, Q: Q, L: L, pts: [P, Q, V.add(Q, n), V.add(P, n)], ctr: V.add(V.lerp(P, Q, 0.5), V.mul(n, 0.5)), e1: V.unit(d), e2: V.unit(n) };
+  }
+  // A triangle: the corner C at (0, 0), side q along to B, side p up to A at the corner's angle th.
+  function tri(f, th) {
+    if (th == null) th = f.th == null ? 90 : f.th;
+    const M = f.m || [1, 0, 0, 1], T2 = (v) => [M[0] * v[0] + M[1] * v[1], M[2] * v[0] + M[3] * v[1]];
+    const C = [0, 0], B = T2([f.q, 0]), A = T2([f.p * Math.cos(th * DEG), f.p * Math.sin(th * DEG)]);
+    return { f: f, th: th, C: C, A: A, B: B, p: f.p, q: f.q, c: V.len(V.sub(A, B)), right: Math.abs(th - 90) < 1e-9,
+      sp: sqOn(C, A, B), sq: sqOn(C, B, A), sc: sqOn(A, B, C) };
+  }
+  const cellIn = (S2, i, j) => V.add(S2.P, V.add(V.mul(S2.e1, i + 0.5), V.mul(S2.e2, j + 0.5)));
+  // How the unit squares move. The p by p block on side p turns the least way onto the corner of the
+  // third side's square at A; the q by q squares of side q go to the rest of a K by K patch there (K the
+  // whole number at or above √(p² + q²)), row by row outwards, nearest first, in four groups. For a right
+  // angle the patch is the third side's square, filled exactly.
+  function planOf(t) {
+    const p = t.p, q = t.q, K2 = Math.ceil(Math.sqrt(p * p + q * q) - 1e-9);
+    const au = ang(t.sc.e1), a1 = ang(t.sp.e1), qa = ang(t.sq.e1);
+    const least = (d) => d - Math.round(d / (Math.PI / 2)) * (Math.PI / 2);
+    const D = least(au - a1);
+    const blk = [];
+    for (let i = 0; i < p; i++) for (let j = 0; j < p; j++) blk.push(V.add(V.mul(t.sp.e1, i + 0.5 - p / 2), V.mul(t.sp.e2, j + 0.5 - p / 2)));
+    const Cs = t.sp.ctr, Ct = V.add(t.A, V.add(V.mul(t.sc.e1, p / 2), V.mul(t.sc.e2, p / 2)));
+    const L = [];
+    for (let j = 0; j < K2; j++) for (let i = 0; i < K2; i++) if (!(i < p && j < p)) L.push(cellIn(t.sc, i, j));
+    const tg = L.slice(0, q * q), src = [];
+    for (let i = 0; i < q; i++) for (let j = 0; j < q; j++) src.push(cellIn(t.sq, i, j));
+    const near = (pt) => (a, b) => V.len(V.sub(a, pt)) - V.len(V.sub(b, pt));
+    src.sort(near(t.sc.ctr)); tg.sort(near(t.sq.ctr));
+    const cells = src.map((s, k) => ({ s: s, t: tg[k], sa: qa, ta: qa + least(au - qa), g: Math.floor(k * GROUPS / src.length) }));
+    return { p: p, q: q, K: K2, blk: blk, Cs: Cs, Ct: Ct, a1: a1, D: D, cells: cells, gaps: L.slice(q * q), au: au };
+  }
+
+  // ---------- drawing ----------
+  // The readout row along the top (its baseline YNY); the figure below TOPY, fitted to the picture.
+  const YNY = 24, TOPY = 42, BOT = 12, FW = 316, FH = 226;
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let X = null, H = 260;                              // the figure's scale and place, and the picture's height
+  const P2 = (pt) => [X.ox + X.s * pt[0], X.oy - X.s * pt[1]];
+  // Every corner a figure can reach (each square, the patch the unit squares fill, a slip's line), so
+  // one scale fits it however it is moved or answered.
+  function reach(d) {
+    const f = FIGS[d.f], ths = f.range ? [] : [null], pts = [];
+    if (f.range) for (let a = f.range[0]; a <= f.range[1] + 1e-9; a += TH.by) ths.push(a);
+    ths.forEach((th) => {
+      const t = tri(f, th);
+      [t.sp, t.sq, t.sc].forEach((s2) => s2.pts.forEach((p) => pts.push(p)));
+      if (f.cells) { const K2 = planOf(t).K; [[0, 0], [K2, 0], [K2, K2], [0, K2]].forEach((c) => pts.push(V.add(t.A, V.add(V.mul(t.sc.e1, c[0]), V.mul(t.sc.e2, c[1]))))); }
+    });
+    // where a slip's red line ends
+    const t = tri(f, d.th);
+    if (d.pic === 'area' || (d.pic === 'len' && d.find === 'hyp')) pts.push(V.add(t.A, V.mul(t.sc.e1, f.p + f.q)));
+    if (d.pic === 'len' && d.find === 'leg') pts.push(V.mul(t.sq.e1, Math.sqrt(t.c * t.c + f.p * f.p)));
+    if (d.pic === 'spill') pts.push(V.add(t.B, V.mul(t.sc.e1, -5)));
+    return pts;
+  }
+  function fitTo(pts) {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    const x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
+    const s = Math.min(FW / (x1 - x0), FH / (y1 - y0));
+    return { s: s, ox: 170 - s * (x0 + x1) / 2, oy: TOPY + s * y1, H: Math.round(TOPY + s * (y1 - y0) + BOT) };
+  }
+  // Each figure's fit, shared by every screen that draws it (so a figure keeps its place between screens).
+  const FIT = {};
+  STEPS.forEach((d) => { if (d.f && !FIT[d.f]) FIT[d.f] = fitTo(STEPS.filter((e) => e.f === d.f).reduce((a, e) => a.concat(reach(e)), [])); });
+
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; grow: the same, eased.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const grow = (t0, d) => K.ease(lin(t0, d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 3 : rise, to); }
+  const xy = (p) => r3(p[0]) + ' ' + r3(p[1]);
+  const path = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  const poly = (cls, pts) => path(cls, 'M' + pts.map((p) => xy(P2(p))).join('L') + 'Z');
+  const line = (cls, a, b) => add(K.svg('line', { class: cls, x1: r3(a[0]), y1: r3(a[1]), x2: r3(b[0]), y2: r3(b[1]) }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const circle = (cls, c, r) => add(K.svg('circle', { class: cls, cx: r3(c[0]), cy: r3(c[1]), r: r }));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = String(s);
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, rou: 13, lbl: 13, bdl: 13, cn: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+
+  // --- the parts of a figure ---
+  // Unit squares, each a tile of side 1 at its centre c, turned to angle a; many in one path.
+  function tiles(list, cls) {
+    if (!list.length) return;
+    let d = '';
+    list.forEach((c) => {
+      const h = 0.5, u = [Math.cos(c[1]) * h, Math.sin(c[1]) * h], v = [-Math.sin(c[1]) * h, Math.cos(c[1]) * h], o = c[0];
+      d += 'M' + [V.add(V.add(o, u), v), V.sub(V.add(o, v), u), V.sub(V.sub(o, u), v), V.sub(V.add(o, u), v)].map((p) => xy(P2(p))).join('L') + 'Z';
+    });
+    path(cls || 'cell', d);
+  }
+  // The p by p block at progress e (0: on side p, 1: in the corner of the third side's square).
+  const blockAt = (pl, e) => pl.blk.map((o) => [V.add(V.lerp(pl.Cs, pl.Ct, e), V.turn(o, pl.D * e)), pl.a1 + pl.D * e]);
+  // The q by q squares, each group k at progress eg[k].
+  const cellsAt = (pl, eg) => pl.cells.map((c) => { const e = eg[c.g]; return [V.lerp(c.s, c.t, e), c.sa + (c.ta - c.sa) * e]; });
+  const outline = (S2, bad) => poly('sqo' + (bad ? ' bad' : ''), S2.pts);
+  const shade = (S2) => poly('sqf', S2.pts);
+  const triangle = (t) => poly('tri', [t.C, t.A, t.B]);
+  // The right-angle mark at C, 9 px along each side.
+  function raMark(t, bad) {
+    const c = P2(t.C), a = V.unit(V.sub(P2(t.A), c)), b = V.unit(V.sub(P2(t.B), c)), k = 9;
+    path('ra' + (bad ? ' bad' : ''), 'M' + xy(V.add(c, V.mul(a, k))) + 'L' + xy(V.add(V.add(c, V.mul(a, k)), V.mul(b, k))) + 'L' + xy(V.add(c, V.mul(b, k))));
+  }
+  // Where a figure's labels go: each side's length on a badge sitting on the side (p: C to A, q: C to B,
+  // c: A to B), then each square's area inside it. Each is placed in turn at the first of its places
+  // that clears the right-angle mark, the readout row, the picture's edges and the labels placed before
+  // it, so nothing sits on anything else. `want` names every label the screen can show (the widest
+  // text for each place), so a label keeps its place as others arrive.
+  function layoutOf(t, want, extra) {
+    const boxes = (extra || []).slice(), out = { b: {}, a: {} }, c = P2(t.C);
+    boxes.push({ x0: c[0] - 13, x1: c[0] + 13, y0: c[1] - 13, y1: c[1] + 13 });
+    const hit = (b) => b.x0 < 2 || b.x1 > 338 || b.y0 < TOPY - 8 || b.y1 > H - 2 ||
+      boxes.some((o) => b.x0 < o.x1 + 3 && o.x0 < b.x1 + 3 && b.y0 < o.y1 + 3 && o.y0 < b.y1 + 3);
+    const ends = { p: [t.C, t.A], q: [t.C, t.B], c: [t.A, t.B] };
+    ['p', 'q', 'c'].forEach((k) => {
+      if (!want.b || !want.b[k]) return;
+      const w = Math.max.apply(null, [].concat(want.b[k]).map((s2) => tw(s2, 'bdl'))) + 14, P = P2(ends[k][0]), Q = P2(ends[k][1]);
+      const at = ((t.f.at && t.f.at[k]) || []).concat([0.5, 0.42, 0.58, 0.35, 0.65, 0.28, 0.72, 0.22, 0.78, 0.15, 0.85]).map((f) => V.lerp(P, Q, f));
+      const box = (m) => ({ x0: m[0] - w / 2, x1: m[0] + w / 2, y0: m[1] - 10, y1: m[1] + 10 });
+      const m = at.filter((q2) => !hit(box(q2)))[0] || at[0];
+      boxes.push(box(m)); out.b[k] = { m: m, w: w };
+    });
+    ['p', 'q', 'c'].forEach((k) => {
+      if (!want.a || !want.a[k]) return;
+      const S2 = t['s' + k], w = Math.max.apply(null, [].concat(want.a[k]).map((s2) => tw(s2, 'lbl'))) + 10, L = S2.L * X.s;
+      const e1 = [S2.e1[0], -S2.e1[1]], e2 = [S2.e2[0], -S2.e2[1]], c0 = P2(S2.ctr);
+      const at = [[0, 0], [0.22, 0], [-0.22, 0], [0, 0.2], [0.22, 0.2], [-0.22, 0.2], [0.3, 0.1], [-0.3, 0.1]].map((o) => V.add(c0, V.add(V.mul(e1, o[0] * L), V.mul(e2, o[1] * L))));
+      const box = (m) => ({ x0: m[0] - w / 2, x1: m[0] + w / 2, y0: m[1] - 11, y1: m[1] + 8 });
+      // wholly inside its square, clear of its edges
+      const o = P2(S2.P), inside = (b) => [[b.x0, b.y0], [b.x1, b.y0], [b.x1, b.y1], [b.x0, b.y1]].every((q2) => {
+        const v = V.sub(q2, o), a = V.dot(v, e1), bb = V.dot(v, e2);
+        return a > 3 && a < L - 3 && bb > 3 && bb < L - 3;
+      });
+      const m = at.filter((q2) => inside(box(q2)) && !hit(box(q2)))[0] || at.filter((q2) => inside(box(q2)))[0] || at[0];
+      boxes.push(box(m)); out.a[k] = m;
+    });
+    out.boxes = boxes;
+    return out;
+  }
+  // A square's area (or count) at its place; `on` puts the answer on an amber patch.
+  function areaText(c, s, cls, on) {
+    const k = cls || 'lbl';
+    if (on) { const w = tw(s, 'lbl'); rect('hl', c[0] - w / 2 - 5, c[1] - 11, w + 10, 19, 5); }
+    text(c[0], c[1] + 5, s, k);
+  }
+  // A side's length on a badge at its place on the side.
+  function badge(b, s, kind) {
+    const m = b.m, w = tw(s, 'bdl') + 14;
+    rect('bdg' + (kind === 'on' ? ' on' : kind === 'bad' ? ' bad' : ''), m[0] - w / 2, m[1] - 10, w, 20, 10);
+    text(m[0], m[1] + 4.5, s, 'bdl' + (kind === 'bad' ? ' warnt' : ''));
+  }
+  // A slip's length laid in red along a side (from `from` in direction `dir`, offset outwards), its length
+  // just past the line's end; or, where that leaves the picture or meets another label, beside the end.
+  function lay(from, dir, len, out, s) {
+    const n = [out[0], -out[1]], a = V.add(P2(from), V.mul(n, 14)), b = V.add(P2(V.add(from, V.mul(dir, len))), V.mul(n, 14));
+    line('lay', a, b);
+    return { a: a, b: b, k: V.unit(V.sub(b, a)), n: n, s: s };
+  }
+  function layLabel(L, boxes) {
+    const w = tw(L.s, 'lbl'), reach2 = (u) => Math.abs(u[0]) * (w / 2) + Math.abs(u[1]) * 7 + 6;
+    const at = [V.add(L.b, V.mul(L.k, reach2(L.k))), V.add(L.b, V.mul(L.n, reach2(L.n))), V.add(L.b, V.mul(L.n, reach2(L.n) + 18)),
+      V.add(L.a, V.mul(L.k, -reach2(L.k))), V.add(L.b, V.mul(L.n, -reach2(L.n)))];
+    const box = (m) => ({ x0: m[0] - w / 2, x1: m[0] + w / 2, y0: m[1] - 9, y1: m[1] + 5 });
+    const ok = (b) => b.x0 >= 2 && b.x1 <= 338 && b.y0 >= TOPY - 6 && b.y1 <= H - 2 && !(boxes || []).some((o) => b.x0 < o.x1 + 6 && o.x0 < b.x1 + 6 && b.y0 < o.y1 + 4 && o.y0 < b.y1 + 4);
+    const m = at.filter((q2) => ok(box(q2)))[0] || at[0];
+    text(K.clamp(m[0], w / 2 + 3, 337 - w / 2), m[1] + 5, L.s, 'lbl warnt');
+  }
+  // The readout on the row above the figure: a sum (small) and what it comes to (big), or the big alone.
+  function readout(big, small, warn, q) {
+    const w = warn ? ' warnt' : '';
+    text(338, YNY, big, 'ro' + w + (q ? ' q' : ''), 'end');
+    if (small) text(338 - tw(big, 'ro') - 10, YNY - 1, small, 'rou' + w, 'end');
+  }
+  // Only the small label of a readout whose big part is already drawn.
+  const small = (big, s) => text(338 - tw(big, 'ro') - 10, YNY - 1, s, 'rou', 'end');
+  const sidesSaid = (t, u, known) => 'A ' + (t.right ? 'right-angled ' : '') + 'triangle with a square drawn on each side. ' + known;
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Squares on the sides: the 16 unit squares on the 4 cm side and the 9 on the 3 cm side arrive; the 16
+  // turn into the corner of the longest side's square; the 9 follow in four groups; then the sum.
+  function demoFit(i, d) {
+    const A = AT.fit, t = tri(FIGS.f43, 90), pl = planOf(t);
+    const c1 = arr(A.c1), c2 = arr(A.c2), eb = grow(A.blk, BLK_T), ro = arr(A.ro);
+    const eg = [0, 1, 2, 3].map((k) => grow(nth(A.cells, k), CELL_T));
+    part(c1, 0, () => tiles(blockAt(pl, eb)));
+    part(c2, 0, () => tiles(cellsAt(pl, eg)));
+    outline(t.sp); outline(t.sq); outline(t.sc); triangle(t); raMark(t);
+    const Lb = layoutOf(t, { b: { p: '4 cm', q: '3 cm' }, a: { p: '16', q: '9', c: '25' } });
+    part(c1, 3, () => areaText(Lb.a.p, '16'));
+    part(c2, 3, () => areaText(Lb.a.q, '9'));
+    part(ro, 3, () => { areaText(Lb.a.c, '25', 'lbl', true); readout('16 + 9 = 25', 'unit squares'); });
+    badge(Lb.b.p, '4 cm'); badge(Lb.b.q, '3 cm');
+    const said = [sidesSaid(t, 'cm', 'Its shorter sides are 4 centimetres and 3 centimetres.')];
+    if (c2 >= 0.5) said.push('The square on the 4 centimetre side holds 16 unit squares and the square on the 3 centimetre side holds 9.');
+    if (eb >= 0.5) said.push('The 16 move into the corner of the square on the longest side' + (eg[3] >= 0.5 ? ', and the 9 fill the rest of it exactly.' : '.'));
+    if (ro >= 0.5) said.push('16 plus 9 equals 25 unit squares.');
+    return said.join(' ');
+  }
+  // The hypotenuse: the side opposite the right angle picked out in amber; the tiles along its square's
+  // edge counted, 1 to 5; then its length.
+  function demoRoot(i, d) {
+    const A = AT.root, t = tri(FIGS.f43, 90), pl = planOf(t), ha = arr(A.hyp), ro = arr(A.ro);
+    const ea = [0, 1, 2, 3, 4].map((k) => arr(nth(A.edge, k), COUNT));
+    tiles(blockAt(pl, 1)); tiles(cellsAt(pl, [1, 1, 1, 1]));
+    ea.forEach((a, k) => part(a, 0, () => tiles([[cellIn(t.sc, k, 0), pl.au]], 'cell2')));
+    outline(t.sp); outline(t.sq); outline(t.sc); triangle(t);
+    part(ha, 0, () => line('hyp', P2(t.A), P2(t.B)));
+    raMark(t);
+    const Lb = layoutOf(t, { b: { p: '4 cm', q: '3 cm' }, a: { p: '16', q: '9', c: '25' } });
+    areaText(Lb.a.p, '16'); areaText(Lb.a.q, '9'); areaText(Lb.a.c, '25');
+    ea.forEach((a, k) => part(a, 0, () => { const c = P2(cellIn(t.sc, k, 0)); text(c[0], c[1] + 4.5, String(k + 1), 'cn'); }));
+    badge(Lb.b.p, '4 cm'); badge(Lb.b.q, '3 cm');
+    part(ro, 3, () => readout('√25 = 5 cm', 'hypotenuse'));
+    const said = [sidesSaid(t, 'cm', 'Its shorter sides are 4 centimetres and 3 centimetres, and the square on the longest side holds 25 unit squares.')];
+    if (ha >= 0.5) said.push('The longest side, opposite the right angle, is picked out: the hypotenuse.');
+    const n = ea.filter((a) => a >= 0.5).length;
+    if (n) said.push(n + ' unit square' + (n > 1 ? 's' : '') + ' counted along its edge.');
+    if (ro >= 0.5) said.push('The hypotenuse is the square root of 25, 5 centimetres.');
+    return said.join(' ');
+  }
+  // A shorter side: the hypotenuse's square holds 100; the 36 go back to the 6 cm side's square in four
+  // groups; the 8 by 8 block that is left moves to the third side; then its length.
+  function demoLess(i, d) {
+    const A = AT.less, t = tri(FIGS.f86, 90), pl = planOf(t), ca = arr(A.c), ro = arr(A.ro);
+    const eg = [0, 1, 2, 3].map((k) => 1 - grow(nth(A.cells, k), CELL_T)), eb = 1 - grow(A.blk, BLK_T), qa = arr(nth(A.cells, 0));
+    part(ca, 0, () => { tiles(blockAt(pl, eb)); tiles(cellsAt(pl, eg)); });
+    outline(t.sp); outline(t.sq); outline(t.sc); triangle(t); raMark(t);
+    const Lb = layoutOf(t, { b: { p: ['?', '8 cm'], q: '6 cm', c: '10 cm' }, a: { p: '64 cm²', q: '36 cm²', c: '100 cm²' } });
+    part(ca, 3, () => areaText(Lb.a.c, '100 cm²'));
+    part(qa, 3, () => areaText(Lb.a.q, '36 cm²'));
+    badge(Lb.b.q, '6 cm'); badge(Lb.b.c, '10 cm');
+    swap(ro, () => badge(Lb.b.p, '?'), () => badge(Lb.b.p, '8 cm', 'on'), 0);
+    part(ro, 3, () => { areaText(Lb.a.p, '64 cm²', 'lbl', true); readout('√64 = 8 cm', '100 − 36 = 64'); });
+    const said = [sidesSaid(t, 'cm', 'Its hypotenuse is 10 centimetres, one shorter side is 6 centimetres, and the other is not known.')];
+    if (ca >= 0.5) said.push('The square on the hypotenuse holds 100 unit squares.');
+    if (qa >= 0.5) said.push('36 of them move back to the square on the 6 centimetre side' + (eb < 0.5 ? ', and the 8 by 8 block of 64 that is left moves to the third side.' : '.'));
+    if (ro >= 0.5) said.push('100 minus 36 equals 64, and the square root of 64 is 8, so the third side is 8 centimetres.');
+    return said.join(' ');
+  }
+  // Only with a right angle: the sum; the 4 cm side swings wider than a right angle, its square of unit
+  // squares going with the third side, and the 25 unit squares leave a gap; then Dan drags the corner.
+  const fitWord = (t) => (t.right ? 'fits exactly' : t.th > 90 ? 'leaves a gap' : 'spills over');
+  function demoCorner(i, d) {
+    const A = AT.corner, ra = arr(A.ro), sw = grow(A.swing, SWING_T), ga = arr(A.gap);
+    const st = S[i], th = st.moved && st.th != null ? st.th : 90 + (TH.open - 90) * sw, t = tri(FIGS.f43, th), pl = planOf(t);
+    tiles(blockAt(pl, 1)); tiles(cellsAt(pl, [1, 1, 1, 1]));
+    outline(t.sp); outline(t.sq); outline(t.sc); triangle(t);
+    // the right-angle mark, fading out as the corner starts to open
+    if (t.right) raMark(t); else if (!st.moved) leave(Math.min(1, sw * 5), () => raMark(t));
+    const Lb = layoutOf(t, { b: { p: '4 cm', q: '3 cm' }, a: { p: '16', q: '9' } });
+    // the end Dan drags, its soft ring arriving as the demonstration's last part (at once once he moves it)
+    if (st.moved) circle('ringp', P2(t.A), 15); else part(arr(A.ring), 0, () => circle('ringp', P2(t.A), 15));
+    circle('pt', P2(t.A), 6);
+    areaText(Lb.a.p, '16'); areaText(Lb.a.q, '9');
+    badge(Lb.b.p, '4 cm'); badge(Lb.b.q, '3 cm');
+    if (st.moved) readout('16 + 9 = 25', fitWord(t));
+    else part(ra, 0, () => { readout('16 + 9 = 25'); swap(ga, () => small('16 + 9 = 25', 'fits exactly'), () => small('16 + 9 = 25', 'leaves a gap'), 0); });
+    shownTh = th; gripAt = P2(t.A);
+    const how = t.right ? 'a right angle' : t.th > 90 ? 'a corner wider than a right angle' : 'a corner narrower than a right angle';
+    return 'A triangle whose 4 centimetre and 3 centimetre sides meet at ' + how + ', with a square on each side. The 16 and 9 unit squares sit in the square on the third side, ' +
+      (t.right ? 'filling it exactly.' : t.th > 90 ? 'leaving a gap.' : 'spilling over its edges.') + ' The corner can be dragged wider or narrower.';
+  }
+
+  // --- the puzzles (DO steps) ---
+  // The biggest square: the unit squares on both shorter sides, their areas, and "? cm²" in the third;
+  // a right answer moves them in, then the sum; a slip lays 8 + 6 along the longest side, or rings the
+  // square taken away, in the warning colour.
+  function drawArea(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, f = FIGS[d.f], t = tri(f), pl = planOf(t);
+    const eb = right ? grow(A.blk, BLK_T) : 0, eg = [0, 1, 2, 3].map((k) => (right ? grow(nth(A.cells, k), CELL_T) : 0)), ro = right ? arr(A.ro) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    tiles(blockAt(pl, eb)); tiles(cellsAt(pl, eg));
+    outline(t.sp); outline(t.sc);
+    if (s === 'diff') swap(sw, () => outline(t.sq), () => outline(t.sq, true), 0); else outline(t.sq);
+    triangle(t); raMark(t);
+    let L = null;
+    if (s === 'sumsq') part(sw, 0, () => { L = lay(t.A, t.sc.e1, f.p + f.q, t.sc.e2, amt(f.p + f.q, 'cm')); });
+    const Lb = layoutOf(t, { b: { p: amt(f.p, 'cm'), q: amt(f.q, 'cm') }, a: { p: amt(f.p * f.p, 'cm²'), q: amt(f.q * f.q, 'cm²'), c: ['? cm²', d.want] } });
+    areaText(Lb.a.p, amt(f.p * f.p, 'cm²')); areaText(Lb.a.q, amt(f.q * f.q, 'cm²'));
+    swap(ro, () => areaText(Lb.a.c, '? cm²', 'lbl mq'), () => areaText(Lb.a.c, d.want, 'lbl', true), 0);
+    badge(Lb.b.p, amt(f.p, 'cm')); badge(Lb.b.q, amt(f.q, 'cm'));
+    if (right) part(ro, 0, () => readout(sq2(f.p) + ' + ' + sq2(f.q) + ' = ' + d.want));
+    if (s === 'sumsq') part(sw, 0, () => { if (L) layLabel(L, Lb.boxes); readout(sq2(f.p + f.q) + ' cm²', num(f.p + f.q) + '² =', true); });
+    if (s === 'diff') part(sw, 0, () => readout(sq2(f.p) + ' − ' + sq2(f.q) + ' = ' + st.pick, '', true));
+    const said = [sidesSaid(t, 'cm', 'The square on the 8 centimetre side covers 64 square centimetres and the square on the 6 centimetre side covers 36. The area of the square on the longest side is not shown.')];
+    if (right) said.push('The unit squares of both smaller squares move into it and fill it exactly: 64 plus 36 equals 100 square centimetres.');
+    if (s === 'sumsq') said.push('A red line 14 centimetres long, 8 plus 6, is laid along the longest side and runs past its end.');
+    if (s === 'diff') said.push('The 36 square centimetre square is ringed in red: 64 minus 36 is 28.');
+    return said.join(' ');
+  }
+  // Find a side: the triangle with its squares drawn empty and its known sides on badges; a right answer
+  // shades each known square with its area, then the square found from them, then the side's length. A
+  // slip lays its length along the side in red, or rings the hypotenuse's square with its area as a length.
+  function drawLen(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, f = FIGS[d.f], t = tri(f), u = f.u, hyp = d.find === 'hyp';
+    const c = sideC(f);
+    const a1 = right ? arr(A.a1) : 0, a2 = right ? arr(A.a2) : 0, af = right ? arr(A.fill) : 0, as = right ? arr(A.side) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    // which square is shaded when: for the hypotenuse, p then q then c; for a shorter side, c then p then q
+    const order = hyp ? [t.sp, t.sq, t.sc] : [t.sc, t.sp, t.sq];
+    const areas = hyp ? [f.p * f.p, f.q * f.q, f.p * f.p + f.q * f.q] : [c * c, f.p * f.p, c * c - f.p * f.p];
+    [a1, a2, af].forEach((a, k) => part(a, 0, () => shade(order[k])));
+    outline(t.sp); outline(t.sq);
+    if (s === 'noroot') swap(sw, () => outline(t.sc), () => outline(t.sc, true), 0); else outline(t.sc);
+    triangle(t); raMark(t);
+    let L = null;
+    if (s === 'add') part(sw, 0, () => { L = lay(t.A, t.sc.e1, f.p + f.q, t.sc.e2, st.pick); });
+    if (s === 'addsq' || s === 'sublen') part(sw, 0, () => { L = lay(t.C, t.sq.e1, parseFloat(st.pick), t.sq.e2, st.pick); });
+    // the badges: the known sides, and the side asked for ("?" until it is found); the squares' areas
+    const knownP = amt(f.p, u), other = hyp ? amt(f.q, u) : amt(c, u), ask = hyp ? 'c' : 'q', given = hyp ? 'q' : 'c';
+    const sqKey = (S2) => (S2 === t.sp ? 'p' : S2 === t.sq ? 'q' : 'c'), wantA = { b: { p: knownP }, a: {} };
+    wantA.b[given] = other; wantA.b[ask] = ['?', d.want];
+    order.forEach((S2, k) => { wantA.a[sqKey(S2)] = amt(areas[k], u + '²'); });
+    const Lb = layoutOf(t, wantA);
+    [a1, a2].forEach((a, k) => part(a, 3, () => areaText(Lb.a[sqKey(order[k])], amt(areas[k], u + '²'))));
+    part(af, 3, () => areaText(Lb.a[sqKey(order[2])], amt(areas[2], u + '²'), 'lbl', true));
+    if (s === 'noroot') part(sw, 3, () => areaText(Lb.a.c, amt(areas[2], u + '²'), 'lbl warnt'));
+    badge(Lb.b.p, knownP); badge(Lb.b[given], other);
+    swap(as, () => badge(Lb.b[ask], '?'), () => badge(Lb.b[ask], d.want, 'on'), 0);
+    const two = d.qfirst ? [f.q, f.p] : [f.p, f.q];
+    if (right) part(as, 0, () => readout('√' + num(areas[2]) + ' = ' + d.want, hyp ? sq2(two[0]) + ' + ' + sq2(two[1]) : sq2(c) + ' − ' + sq2(f.p)));
+    if (L) part(sw, 0, () => layLabel(L, Lb.boxes));
+    if (s === 'add') part(sw, 0, () => readout(num(two[0]) + ' + ' + num(two[1]) + ' = ' + st.pick, '', true));
+    if (s === 'addsq') part(sw, 0, () => readout('√' + num(c * c + f.p * f.p) + ' = ' + st.pick, sq2(c) + ' + ' + sq2(f.p), true));
+    if (s === 'sublen') part(sw, 0, () => readout(num(c) + ' − ' + num(f.p) + ' = ' + st.pick, '', true));
+    const said = [sidesSaid(t, u, hyp ? 'Its shorter sides are ' + say(knownP) + ' and ' + say(other) + '; the hypotenuse, opposite the right angle, is not known.'
+      : 'The side opposite the right angle, the hypotenuse, is ' + say(other) + '; one shorter side is ' + say(knownP) + ' and the other is not known.')];
+    if (right) said.push('The squares cover ' + order.map((o, k) => say(amt(areas[k], u + '²'))).join(', ') + ', and the side asked for is the square root of ' + num(areas[2]) + ', ' + say(d.want) + '.');
+    if (L) said.push('A red line ' + say(st.pick) + ' long is laid along the side asked for.');
+    if (s === 'noroot') said.push('The hypotenuse\'s square is ringed in red with its area, ' + say(amt(areas[2], u + '²')) + '.');
+    return said.join(' ');
+  }
+  // Not a right angle: the unit squares on the 4 cm and 3 cm sides of a narrower corner; a right answer
+  // moves them into the third side's square, where they spill over; a slip lays 5 cm along it in red.
+  function drawSpill(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', f = FIGS[d.f], t = tri(f, d.th), pl = planOf(t);
+    const eb = right ? grow(A.blk, BLK_T) : 0, eg = [0, 1, 2, 3].map((k) => (right ? grow(nth(A.cells, k), CELL_T) : 0)), ro = right ? arr(A.ro) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    tiles(blockAt(pl, eb)); tiles(cellsAt(pl, eg));
+    outline(t.sp); outline(t.sq); outline(t.sc); triangle(t);
+    let L = null;
+    if (wrong) part(sw, 0, () => { L = lay(t.B, V.mul(t.sc.e1, -1), 5, t.sc.e2, '5 cm'); });
+    const Lb = layoutOf(t, { b: { p: '4 cm', q: '3 cm', c: '?' }, a: { p: '16', q: '9' } });
+    areaText(Lb.a.p, '16'); areaText(Lb.a.q, '9');
+    badge(Lb.b.p, '4 cm'); badge(Lb.b.q, '3 cm'); badge(Lb.b.c, '?');
+    if (right) part(ro, 0, () => readout('16 + 9 = 25', 'spills over'));
+    if (L) part(sw, 0, () => layLabel(L, Lb.boxes));
+    const said = ['A triangle whose 4 centimetre and 3 centimetre sides meet at a corner narrower than a right angle, with a square on each side. The squares on the two sides hold 16 and 9 unit squares; the third side is not labelled.'];
+    if (right) said.push('The 25 unit squares move into the square on the third side and spill over its edges, so the third side is less than 5 centimetres.');
+    if (wrong) said.push('A red line 5 centimetres long is laid along the third side and runs past its end.');
+    return said.join(' ');
+  }
+  // A right angle? The 8 cm, 7 cm and 11 cm triangle with the unit squares on its two shorter sides; a
+  // right answer moves them into the 11 cm side's square, then the areas, the comparison and the 8 places
+  // left empty, outlined; a slip marks the corner as a right angle, in red, with the comparison.
+  function drawGap(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', f = FIGS[d.f], t = tri(f), pl = planOf(t);
+    const eb = right ? grow(A.blk, BLK_T) : 0, eg = [0, 1, 2, 3].map((k) => (right ? grow(nth(A.cells, k), CELL_T) : 0)), ro = right ? arr(A.ro) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    tiles(blockAt(pl, eb)); tiles(cellsAt(pl, eg));
+    // the places the unit squares do not reach, drawn empty in ink as the comparison arrives
+    if (right) part(ro, 0, () => tiles(pl.gaps.map((c) => [c, pl.au]), 'gapc'));
+    outline(t.sp); outline(t.sq); outline(t.sc); triangle(t);
+    // a slip: the corner marked as a right angle, in red
+    if (wrong) part(sw, 0, () => raMark(t, true));
+    const corner = V.add(P2(t.C), V.mul(V.unit(V.add(V.unit(V.sub(P2(t.A), P2(t.C))), V.unit(V.sub(P2(t.B), P2(t.C))))), 20));
+    if (!right) text(corner[0], corner[1] + 5, '?', 'lbl mq');
+    const Lb = layoutOf(t, { b: { p: '8 cm', q: '7 cm', c: '11 cm' }, a: { p: '64', q: '49', c: '121' } }, [{ x0: corner[0] - 6, x1: corner[0] + 6, y0: corner[1] - 6, y1: corner[1] + 6 }]);
+    badge(Lb.b.p, '8 cm'); badge(Lb.b.q, '7 cm'); badge(Lb.b.c, '11 cm');
+    if (right) part(ro, 3, () => { areaText(Lb.a.p, '64'); areaText(Lb.a.q, '49'); areaText(Lb.a.c, '121'); readout('113 < 121', '64 + 49 = 113'); gapLabel(t, pl, Lb.boxes); });
+    if (wrong) part(sw, 0, () => (d.slips[st.pick] === 'looks' ? readout('113, not 121', '8² + 7² =', true) : readout('121 > 113', '11² =', true)));
+    const said = ['A triangle with sides of 8 centimetres, 7 centimetres and 11 centimetres, a square on each side, and unit squares on the two shorter sides\' squares. The corner between the 8 and 7 centimetre sides looks close to a right angle.'];
+    if (right) said.push('The 64 and 49 unit squares move into the 11 centimetre side\'s square of 121 and leave 8 places empty, outlined, so the corner is wider than a right angle.');
+    if (wrong) said.push('The corner is marked as a right angle, in red. ' +
+      (d.slips[st.pick] === 'looks' ? '8 squared plus 7 squared is 113, not 121.' : '11 squared, 121, is more than 113.'));
+    return said.join(' ');
+  }
+  // How many places are left empty, in teal beside them: just outside the square's far edge, or else just
+  // inside, at the first place clear of the other labels and inside the picture.
+  function gapLabel(t, pl, boxes) {
+    const s = pl.gaps.length + ' empty', w = tw(s, 'rou');
+    const mid = P2(V.mul(pl.gaps.reduce((a, c) => V.add(a, c), [0, 0]), 1 / pl.gaps.length));
+    const out = [t.sc.e2[0], -t.sc.e2[1]], along = [t.sc.e1[0], -t.sc.e1[1]], cell = X.s;
+    const reach2 = (u) => Math.abs(u[0]) * (w / 2) + Math.abs(u[1]) * 7 + 4;
+    const at = [V.add(mid, V.mul(out, cell / 2 + reach2(out))), V.add(mid, V.add(V.mul(out, cell / 2 + reach2(out)), V.mul(along, cell * 2))),
+      V.add(mid, V.add(V.mul(out, cell / 2 + reach2(out)), V.mul(along, -cell * 2))), V.add(mid, V.mul(out, -(cell / 2 + reach2(out))))];
+    const box = (m) => ({ x0: m[0] - w / 2, x1: m[0] + w / 2, y0: m[1] - 9, y1: m[1] + 4 });
+    const ok = (b) => b.x0 >= 2 && b.x1 <= 338 && b.y0 >= TOPY - 6 && b.y1 <= H - 2 && !(boxes || []).some((o) => b.x0 < o.x1 + 4 && o.x0 < b.x1 + 4 && b.y0 < o.y1 + 3 && o.y0 < b.y1 + 3);
+    const m = at.filter((q2) => ok(box(q2)))[0] || at[0];
+    text(m[0], m[1] + 4.5, s, 'rou');
+  }
+  // Make it fit: a triangle on a grid of 1 cm squares, its 8 cm base along the bottom and its top corner
+  // dragged up the side; the hypotenuse's length is hidden until Check; a right answer shows it (10 cm)
+  // and the sum; a wrong place shows the length it really makes, in the warning colour.
+  const GQ = 19, GX = 98, GN = 10;                     // a grid square, the corner's place across, and squares up
+  const gridC = () => [GX, TOPY + GN * GQ];
+  const gpt = (x, y) => [GX + GQ * x, TOPY + (GN - y) * GQ];
+  function drawGrid(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', h = st.moved && st.h != null ? st.h : d.start, c = Math.sqrt(d.base * d.base + h * h);
+    const sa = right ? arr(A.side) : 0, ro = right ? arr(A.ro) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    let g = '';
+    for (let k = 0; k <= d.base + 1; k++) g += 'M' + xy(gpt(k, 0)) + 'L' + xy(gpt(k, GN));
+    for (let k = 0; k <= GN; k++) g += 'M' + xy(gpt(0, k)) + 'L' + xy(gpt(d.base + 1, k));
+    path('gl', g);
+    const C = gpt(0, 0), B = gpt(d.base, 0), Ap = gpt(0, h);
+    path('tri', 'M' + xy(C) + 'L' + xy(Ap) + 'L' + xy(B) + 'Z');
+    path('ra', 'M' + xy([C[0], C[1] - 9]) + 'L' + xy([C[0] + 9, C[1] - 9]) + 'L' + xy([C[0] + 9, C[1]]));
+    if (!right) circle('ringp', Ap, 15);
+    circle('pt', Ap, 6);
+    text((C[0] + B[0]) / 2, C[1] + 19, amt(d.base, 'cm'), 'lbl');
+    text(C[0] - 9, (C[1] + Ap[1]) / 2 + 5, amt(h, 'cm'), 'lbl', 'end');
+    // the hypotenuse's badge, at its middle
+    const m = V.lerp(Ap, B, 0.5), sb = (s, kind) => { const w = tw(s, 'bdl') + 14; rect('bdg' + (kind ? ' ' + kind : ''), m[0] - w / 2, m[1] - 10, w, 20, 10); text(m[0], m[1] + 4.5, s, 'bdl' + (kind === 'bad' ? ' warnt' : '')); };
+    if (right) swap(sa, () => sb('?'), () => sb(amt(c, 'cm'), 'on'), 0);
+    else if (wrong) swap(sw, () => sb('?'), () => sb(amt(c, 'cm'), 'bad'), 0);
+    else sb('?');
+    if (right) swap(ro, () => readout('? cm', 'hypotenuse', false, true), () => readout('√' + num(c * c) + ' = ' + amt(c, 'cm'), sq2(d.base) + ' + ' + sq2(h) + ' = ' + num(c * c)), 0);
+    else if (wrong) swap(sw, () => readout('? cm', 'hypotenuse', false, true), () => readout('√' + num(c * c) + ' = ' + amt(c, 'cm'), sq2(d.base) + ' + ' + sq2(h) + ' = ' + num(c * c), true), 0);
+    else readout('? cm', 'hypotenuse', false, true);
+    gripAt = right ? null : Ap;
+    const lead = 'A right-angled triangle on a grid of 1 centimetre squares: an 8 centimetre base and an upright side ' + say(amt(h, 'cm')) + ' high. ';
+    if (right) return lead + 'Its hypotenuse is ' + say(amt(c, 'cm')) + '.';
+    if (wrong) return lead + 'Its hypotenuse comes to ' + say(amt(c, 'cm')) + ', not 10 centimetres, marked in red.';
+    return lead + 'The top corner can be dragged up or down. The hypotenuse\'s length is hidden until you check.';
+  }
+
+  // ---------- the corner Dan drags (kept from frame to frame) ----------
+  // On the grid puzzle the top corner moves up the upright side a square at a time; on the corner screen
+  // the 4 cm side's end swings round the corner in steps of 5. A tap on the picture moves it there; the
+  // arrow keys move it a step. The page does not scroll under a finger on it.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  let gripAt = null, shownTh = 90;
+  function live() {
+    const i = here(), d = STEPS[i];
+    return !finished && ((d.kind === 'drag' && S[i].res !== 'right') || d.demo === 'corner');
+  }
+  function placeGrip() {
+    const on = !!gripAt && live(), d = STEPS[here()];
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    board.style.display = on ? '' : 'none';
+    if (!on) return;
+    board.setAttribute('x', 0); board.setAttribute('y', TOPY - 10); board.setAttribute('width', 340); board.setAttribute('height', H - TOPY + 10);
+    grip.setAttribute('cx', r3(gripAt[0])); grip.setAttribute('cy', r3(gripAt[1]));
+    if (d.demo === 'corner') {
+      grip.setAttribute('aria-valuemin', TH.min); grip.setAttribute('aria-valuemax', TH.max); grip.setAttribute('aria-valuenow', shownTh);
+      grip.setAttribute('aria-label', 'The end of the 4 centimetre side. Drag it round to open or close the corner, tap the picture, or use the arrow keys.');
+      grip.setAttribute('aria-valuetext', shownTh === 90 ? 'a right angle' : shownTh > 90 ? 'wider than a right angle' : 'narrower than a right angle');
+      return;
+    }
+    const st = S[here()], h = st.moved && st.h != null ? st.h : d.start;
+    grip.setAttribute('aria-valuemin', 1); grip.setAttribute('aria-valuemax', d.top); grip.setAttribute('aria-valuenow', h);
+    grip.setAttribute('aria-label', 'The top corner. Drag it up or down the upright side, tap the grid, or use the arrow keys to move it a square at a time.');
+    grip.setAttribute('aria-valuetext', say(amt(h, 'cm')) + ' up');
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // A place in the picture as a height on the grid, or as a corner (round C, in steps of 5).
+  const toH = (q) => K.clamp(Math.round((gridC()[1] - q[1]) / GQ), 1, STEPS[here()].top);
+  function toTh(q) {
+    X = FIT.f43;
+    const c = P2([0, 0]), a = Math.atan2(c[1] - q[1], q[0] - c[0]) / DEG;
+    return K.clamp(Math.round(a / TH.by) * TH.by, TH.min, TH.max);
+  }
+  function moveTo(v) {
+    if (!live()) return;
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.demo === 'corner') {
+      if (anim.playing()) { anim.pause(); T = Infinity; }
+      if (st.moved && st.th === v) return;
+      st.th = v; st.moved = true;
+    } else {
+      if (st.moved && st.h === v) return;
+      st.h = v; st.moved = true; st.pick = amt(v, 'cm'); st.res = null;
+    }
+    K.refresh();
+  }
+  const valueAt = (q) => (STEPS[here()].demo === 'corner' ? toTh(q) : toH(q));
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = e.pointerId; try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q) moveTo(valueAt(q));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) held = null; }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.demo === 'corner') { moveTo(K.clamp(Math.round(shownTh / TH.by) * TH.by + by * TH.by, TH.min, TH.max)); return; }
+    const h = st.moved && st.h != null ? st.h : d.start;
+    moveTo(K.clamp(h + by, 1, d.top));
+  });
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e);
+    if (q) moveTo(valueAt(q));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    gripAt = null;
+    X = d.f ? FIT[d.f] : null;
+    H = d.f ? X.H : TOPY + GN * GQ + 32;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    let aria;
+    if (d.show) aria = { fit: demoFit, root: demoRoot, less: demoLess, corner: demoCorner }[d.demo](i, d);
+    else if (d.kind === 'drag') aria = drawGrid(i, d, st, right);
+    else aria = { area: drawArea, len: drawLen, spill: drawSpill, gap: drawGap }[d.pic](i, d, st, right);
+    placeGrip();
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) { st.moved = false; st.th = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', !!d.long || opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, opts[k]));
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size };
+      });
+      const shapes = Array.from(art.querySelectorAll('path, line, rect')).filter(vis).map((n) => ({ cls: n.getAttribute('class') || '', d: n.getAttribute('d') || '' }));
+      const tileCount = (cls) => shapes.filter((s2) => s2.cls === cls).reduce((n, s2) => n + (s2.d.match(/Z/g) || []).length, 0);
+      return { texts: texts, all: texts.map((t) => t.s), shapes: shapes, tiles: tileCount('cell'), amber: tileCount('cell2'), H: H };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // No two labels overlap, and every label stays inside the picture.
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 1 && a.x1 <= 339 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5));
+  const red = (g) => g.texts.some((t) => /warnt/.test(t.cls)) || g.shapes.some((s2) => /\b(bad|lay)\b/.test(s2.cls));
+  // The right-angled triangles the lesson draws, as [p, q, the third side as the lesson gives it].
+  const RIGHT = [['f43', 5], ['f86', 10], ['f125', 13], ['f912', 15], ['f2030', 36.06], ['f152', 2.5]];
+  K.check('For any right triangle, the square of the hypotenuse is equal to the sum of the squares of the other two sides: in every right-angled triangle drawn, the side opposite the right angle measures √(p² + q²) on the drawing, and on the grid at every height from 1 to 10 cm the drawn hypotenuse measures √(8² + h²) grid squares, the length its label shows', () =>
+    RIGHT.every((r) => { const f = FIGS[r[0]], t = tri(f); return t.right && K.near(t.c * t.c, f.p * f.p + f.q * f.q, 1e-9) && K.near(t.c, r[1], 0.005); }) &&
+    K.near(Math.hypot(8, 6), 10, 1e-12) &&
+    (() => {
+      const i = stepOf((d) => d.kind === 'drag'), d = STEPS[i], ok = [];
+      for (let h = 1; h <= d.top; h++) {
+        const drawnLen = V.len(V.sub(gpt(0, h), gpt(d.base, 0))) / GQ, label = amt(Math.sqrt(d.base * d.base + h * h), 'cm');
+        ok.push(K.near(drawnLen, Math.sqrt(d.base * d.base + h * h), 1e-9) && amt(drawnLen, 'cm') === label && drawn(i, slipped(i, h + ' cm')).all.indexOf(label) >= 0);
+      }
+      return ok.every(Boolean);
+    })(),
+  { source: 'https://www.grc.nasa.gov/www/k-12/rocket/pythag.html' });
+  K.check('We are going to break up the pieces of these two squares and move them into the grey square area on the hypotenuse: the 16 and 9 unit squares, and the 64 and 36, land on different places that together fill the square on the hypotenuse exactly, all of them inside it', () =>
+    ['f43', 'f86'].every((k) => {
+      const t = tri(FIGS[k], 90), pl = planOf(t), ends = blockAt(pl, 1).map((c) => c[0]).concat(cellsAt(pl, [1, 1, 1, 1]).map((c) => c[0]));
+      const ij = ends.map((p) => { const v = V.sub(p, t.A); return [V.dot(v, t.sc.e1) - 0.5, V.dot(v, t.sc.e2) - 0.5]; });
+      const whole = ij.every((q) => K.near(q[0], Math.round(q[0]), 1e-9) && K.near(q[1], Math.round(q[1]), 1e-9) && q[0] > -0.5 && q[1] > -0.5 && q[0] < t.c - 0.5 && q[1] < t.c - 0.5);
+      const keys = new Set(ij.map((q) => Math.round(q[0]) + ',' + Math.round(q[1])));
+      return whole && ends.length === Math.round(t.c) * Math.round(t.c) && K.near(t.c, Math.round(t.c), 1e-9) && keys.size === ends.length && pl.gaps.length === 0;
+    }),
+  { source: 'https://www.grc.nasa.gov/www/k-12/rocket/pythag.html' });
+  K.check('Pythagoras\' theorem is only true for right-angled triangles: the 4 cm and 3 cm sides make a third side whose square is 25 only at a right angle, more when the corner is wider (a gap) and less when it is narrower (spilling over); the 8, 7 and 11 cm triangle is wider than a right angle, 113 against 121', () => {
+    const ok = [];
+    for (let a = TH.min; a <= TH.max; a += TH.by) { const t = tri(FIGS.f43, a), c2 = t.c * t.c; ok.push(a === 90 ? K.near(c2, 25, 1e-9) : a > 90 ? c2 > 25 + 1 : c2 < 25 - 1); }
+    const g = tri(FIGS.f87);
+    return ok.every(Boolean) && K.near(g.c, 11, 1e-9) && 8 * 8 + 7 * 7 === 113 && 11 * 11 === 121 && g.th > 90 && V.dot(V.sub(g.A, g.C), V.sub(g.B, g.C)) < 0 &&
+      planOf(g).gaps.length === 121 - 113 && tri(FIGS.f43, 70).c < 5 && answerOf(STEPS[stepOf((d) => d.pic === 'spill')]) === 'Less than 5 cm';
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zf8mp9q' });
+  K.check('The hypotenuse is always opposite the right angle: in every right-angled triangle drawn, the side away from the right-angle corner is the longest, and the screens that give it (15 cm on screen 6, 10 cm on screen 5, 2.5 m on screen 12) put it there', () =>
+    RIGHT.every((r) => { const t = tri(FIGS[r[0]]); return t.c > t.p && t.c > t.q; }) &&
+    [['f912', 15], ['f86', 10], ['f152', 2.5]].every((r) => K.near(sideC(FIGS[r[0]]), r[1], 1e-9)),
+  { source: 'https://www.bbc.co.uk/bitesize/guides/zpykmsg/revision/1' });
+  K.check('Each puzzle\'s answer is worked out from its rule: 64 + 36 = 100 cm²; √(144 + 25) = 13 cm; √(225 − 81) = 12 cm; √(100 − 64) = 6 cm; less than 5 cm at a narrower corner; wider, as 113 is less than 121; √(400 + 900) = 36.06 cm; √(6.25 − 2.25) = 2 m; and each demonstration\'s sum: 16 + 9 = 25 and √25 = 5, 100 − 36 = 64 and √64 = 8', () =>
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) &&
+    DO.map((i) => STEPS[i].want).join('|') === '100 cm²|13 cm|12 cm|6 cm|Less than 5 cm|No, it is wider|36.06 cm|2 m' &&
+    K.near(Math.sqrt(1300), 36.0555, 1e-4) && K.near(Math.sqrt(225 + 81), 17.4929, 1e-4) && K.near(Math.sqrt(6.25 + 2.25), 2.9155, 1e-4) &&
+    4 * 4 + 3 * 3 === 25 && Math.sqrt(25) === 5 && 100 - 36 === 64 && Math.sqrt(64) === 8 && drawn(0, blank(0)).tiles === 25 && drawn(2, blank(2)).amber === 5);
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives: 8 + 6 squared, 64 − 36, 12 + 5, 169 as a length, the squares added when a shorter side is missing, the lengths taken away, the upright made 10 cm, 5 cm with no right angle, the wrong way round, taken as a right angle by eye; every slip is drawn in the warning colour, clear of the other labels', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length === slips.length + 1 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return clear(w) && red(w); });
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: no area or length asked for, no unit squares in the longest side\'s square, the hypotenuse\'s length hidden as ? on the grid, nothing in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      if (red(g) || g.all.indexOf(d.want) >= 0) return false;
+      if (d.pic === 'area') return g.all.indexOf('? cm²') >= 0 && g.tiles === 100;
+      if (d.pic === 'len') return g.all.indexOf('?') >= 0 && !g.shapes.some((s2) => s2.cls === 'sqf');
+      if (d.kind === 'drag') return g.all.indexOf('? cm') >= 0 && g.all.indexOf('10 cm') < 0;
+      if (d.pic === 'gap') return g.all.indexOf('121') < 0 && g.all.indexOf('113 < 121') < 0 && !g.shapes.some((s2) => /^ra/.test(s2.cls));
+      return g.all.indexOf('spills over') < 0;
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other, for every answer, right or wrong, at every height of the grid\'s corner and every opening of the dragged corner', () =>
+    STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i))))) &&
+    (() => { const i = stepOf((d) => d.kind === 'drag'), ok = []; for (let h = 1; h <= STEPS[i].top; h++) { ok.push(clear(drawn(i, Object.assign(blank(i), { moved: true, h: h })))); ok.push(clear(drawn(i, Object.assign(slipped(i, h + ' cm'))))); } return ok.every(Boolean); })() &&
+    (() => { const i = stepOf((d) => d.demo === 'corner'), ok = []; for (let a = TH.min; a <= TH.max; a += TH.by) ok.push(clear(drawn(i, Object.assign(blank(i), { moved: true, th: a })))); return ok.every(Boolean); })());
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per item; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 1); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

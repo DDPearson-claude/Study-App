@@ -1,0 +1,22 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "problem": "\"Make every side of a shape twice as long\" fails for shapes with four or more sides (a rhombus with 20 cm sides need not cover 400 cm²), and 4 copies of a circle cannot fit inside one twice as wide; a cable's mm² size is a nominal area (IEC 60228), not a measured one.",
+   "severity": "fix",
+   "now": "A [[square millimetre]], 1 mm², is the area of a square 1 mm each way, just as 1 cm² and 1 m² are squares 1 cm and 1 m each way. A 1 cm square is 10 mm along each side, so it holds 10 rows of 10 square millimetres, and 1 cm² is 10 × 10 = 100 mm². BBC Bitesize works it the same way, 1 cm² = 10 mm × 10 mm = 100 mm², a conversion factor of 100.[^1] Cable sizes are areas in mm². Nexans lists conductor cross-sections of 1.5 mm², 2.5 mm², 4 mm² and up,[^2] and IEC 60228 is the standard that sets these nominal areas.[^3] So a 25 mm² conductor has a nominal area of 25 square millimetres, which is 25 ÷ 100 = 0.25 cm².\n\nA 1 m square is 100 cm each way, so it holds 100 rows of 100, and 1 m² is 100 × 100 = 10,000 cm². Bitesize warns of the slip of taking 100 cm² for 1 m² because 1 m is 100 cm,[^4] but 100 cm² is only the one row along the bottom. Going to a smaller unit you multiply, and going to a bigger one you divide. Units scale this way because area counts squares in two directions at once. Make every side of a square twice as long, a [[scale factor]] of 2, and 2 × 2 = 4 copies of the old square fit inside, so it covers 4 times the area. With every side 3 times as long, 3 × 3 = 9 copies fit. The same holds for a triangle, where one of the 4 copies is turned round, and for any shape made twice as long every way, a circle too, which is why a round wire twice as wide has 4 times the cross-section. Going backwards, a square with 4 times the area is only twice as wide.\n\n**Area units scale by the length's factor squared, so 1 cm² is 10 × 10 = 100 mm² and 1 m² is 100 × 100 = 10,000 cm², not 100. Make a shape twice as long every way, keeping its shape, and its area is 4 times as much, and 3 times as long makes it 9 times.**"
+  },
+  {
+   "path": "interactive.whatAmILookingAt",
+   "problem": "\"Each shows squares drawn to scale with their sides labelled\" is not true of every screen: the plate, floor and bar are rectangles, and the triangle screens show triangles with no side lengths labelled.",
+   "severity": "fix",
+   "now": "A short lesson in twelve small screens. Most show shapes drawn to scale with their sides labelled in mm, cm or m: a 1 cm square split into square millimetres, a 1 m square filled row by row with square centimetres, squares and triangles scaled up until copies of the small one fill them, and conductor sizes drawn as counts of square millimetres. Some screens show an idea and the rest ask you to try it."
+  },
+  {
+   "path": "interactive.ignores",
+   "problem": "A conductor's size is its nominal cross-sectional area, as the cited IEC 60228 quote says; the copper in a stranded conductor is not measured to that exact figure, so \"the area of its copper\" overstates it.",
+   "severity": "fix",
+   "now": "All the sizes are example values, chosen so the numbers come out simply: the plate, the floor, the squares, the triangles and the copper bar. Only the conductor sizes are real, the cross-sections Nexans lists. A conductor's size is the nominal area of its copper, drawn here as a count of square millimetres, not as its shape. Volume units come in a later lesson."
+  }
+ ]
+}

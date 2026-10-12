@@ -1,0 +1,1157 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  /* Nothing in the picture is selected as text while a corner is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  /* Unit squares: faint lines; the area being counted in a light tint; shapes outlined in ink. */
+  .scene .gl { stroke: var(--k-muted); stroke-opacity: .35; stroke-width: 1; fill: none; }
+  .scene .t1 { fill: var(--k-fill1); }
+  .scene .tbad { fill: var(--k-warn); fill-opacity: .14; }
+  .scene .shp { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .shp.bad { stroke: var(--k-warn); stroke-width: 3.5; }
+  /* A piece that moves: a second tint with a dashed edge. Where a piece or rectangle was: a dashed outline. */
+  .scene .pc { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 5 3; stroke-linejoin: round; }
+  .scene .gh { fill: none; stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .scene .gh.bad { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .cut { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .trace { fill: none; stroke: var(--k-accent2); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .edge { stroke: var(--k-warn); stroke-width: 5; stroke-linecap: round; }
+  /* The height, dashed, with its square-corner mark. */
+  .scene .ht { stroke: var(--k-accent2); stroke-width: 2; stroke-dasharray: 5 3; }
+  .scene .ra { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .sw { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.25; }
+  /* Lengths in ink; small labels in teal; the counted squares' numbers muted. */
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .cn { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .patch { fill: var(--k-bg); }
+  .scene .bdg { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .bdg.bad { stroke: var(--k-warn); }
+  .scene .bdl { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  /* The readout along the top: a sum and what it comes to. */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The corner or top point Dan moves: a dot with a soft ring. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt.bad { fill: var(--k-warn); }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Floors, plates and triangles drawn to scale, their unit squares counted and their edges added up.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 232" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Area counts unit squares, and a triangle is half its rectangle. All the sizes are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // demo: what a SHOW step plays (dur seconds); grip: what Dan can move once it has played (a floor's
+  // corner, or a triangle's top corner). A 'pick' puzzle takes one answer, its picture `pic`; a 'drag'
+  // puzzle asks for a floor's corner to be put at `to` (or at one of `also`). fb: how long the motion
+  // after a right answer plays; at: when each part of it arrives, in seconds after Check ([start, gap,
+  // count] for parts counted one at a time). slips: which slip gives each wrong answer, and hints: what
+  // is said for it.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the corner to its place first.';
+  // After a right answer. ROWS: the floor's rows tinted one at a time, each with its running total, then
+  // the sum. BOTH: floor A's squares and area, then floor B's. TALLY: each row's running total, then the
+  // area. TURN: the rectangle around the triangle, then a turned copy or the outside pieces turning in,
+  // then the sum. SPLIT: the split line, the left part, the right part, then the sum. EDGE: the edge
+  // traced side by side, the unlabelled lengths picked out, then the sum.
+  const ROWS = { row: [0.1, 0.3, 4], ro: 1.5 };
+  const BOTH = { a: 0.1, b: 0.6 };
+  const TALLY = { row: [0.1, 0.25, 4], ro: 1.4 };
+  const TURN = { rect: 0.1, turn: 0.7, ro: 1.8 };
+  const SPLIT = { split: 0.1, left: 0.6, right: 1.1, ro: 1.6 };
+  const EDGE = { side: [0.1, 0.2, 6], ro: 1.6 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long a counted part takes to arrive, a line to grow, a side to be traced (on a demonstration and
+  // after an answer), the cut half to turn, the outside pieces to turn, and a turned copy to turn.
+  // After Dan lets go of the top corner: the outside pieces turn in again (SLIDE_DUR in all).
+  const SLIDE = { turn: 0.1 }, SLIDE_DUR = 1.3;
+  const COUNT = 0.3, GROW = 0.5, SIDE_T = 0.45, TRACE_T = 0.3, HALF_T = 1.4, PIECE_T = 1.2, COPY_T = 1.0;
+
+  // The shapes, all example sizes. A floor before it is dragged (screen 1); the plant room (2, 3); two
+  // floors the same distance around (4); the rectangle cut corner to corner and the any-triangle's
+  // rectangle (6, 8), whose top corner starts 2 m along; the bracket plate in cm, drawn 10 cm a square,
+  // its long side given (it comes from Pythagoras, a later lesson); the triangle with sloping sides
+  // (9); the L-shaped floors, each a w by h rectangle less an nw by nh corner at its top right (10, 11, 12).
+  const FLOOR = { w: 4, h: 3 }, ROOM = { w: 6, h: 4 }, PAIR = { A: { w: 6, h: 2 }, B: { w: 4, h: 4 } };
+  const RECT = { w: 6, h: 4 }, APEX = 2, PLATE = { b: 40, h: 30, s: 50, per: 10 }, ISO = { b: 6, h: 4, s: 5 };
+  const ELL1 = { w: 5, h: 4, nw: 2, nh: 1 }, ELL2 = { w: 6, h: 5, nw: 2, nh: 3 };
+  const GRID = { cols: 8, rows: 5 };
+
+  const STEPS = [
+    { show: true, demo: 'count', dur: 3.9, grip: 'corner', name: 'Squares you can count',
+      text: '*Area* is how many unit squares cover a shape. This floor is 3 rows of 4 one-metre squares, so 4 × 3 = 12 m². Drag its corner to try others.' },
+    { kind: 'pick', pic: 'area', opts: ['20 m²', '10 m²', '24 m²'], want: '24 m²', slips: { '20 m²': 'around', '10 m²': 'two' }, fb: 2.1, at: ROWS, name: 'Area, not around',
+      task: 'A plant room floor is 6 m by 4 m. What is its area?',
+      why: 'Area counts the squares inside. 4 rows of 6 one-metre squares is 6 × 4 = 24 m².',
+      hint: 'Not quite. Count the squares inside. How many rows, and how many in each?',
+      hints: { '20 m²': 'Not quite. 20 adds all four sides, the distance around the edge. Area counts the squares inside.',
+        '10 m²': 'Not quite. 6 + 4 adds two sides. Area counts the squares, 4 rows of 6.' } },
+    { show: true, demo: 'around', dur: 3.7, name: 'Around, or inside',
+      text: 'The *perimeter* is the distance around the edge, so for straight sides you add them up. Area counts the squares inside. This floor is 20 m around and covers 24 m².' },
+    { kind: 'pick', pic: 'same', opts: ['Floor A', 'Floor B', 'The same'], want: 'Floor B', slips: { 'The same': 'same', 'Floor A': 'longer' }, fb: 1.2, at: BOTH, name: 'Same distance around',
+      task: 'Both floors are 16 m around. Which covers more floor?',
+      why: 'A covers 6 × 2 = 12 m² and B covers 4 × 4 = 16 m². The same perimeter can hold different areas.',
+      hint: 'Not quite. Count the squares in each floor.',
+      hints: { 'The same': 'Not quite. The same distance around can hold different areas. Count each floor\'s squares.',
+        'Floor A': 'Not quite. A is longer, but it is only 2 rows of 6. Count B\'s squares too.' } },
+    { kind: 'drag', pic: 'corner', side: 3, area: 12, start: [2, 2], to: [4, 3], also: ['3 m × 4 m'], want: '4 m × 3 m', fb: 2.0, at: TALLY, name: 'Draw the floor',
+      slips: { '3 m × 3 m': 'around', '6 m × 2 m': 'noside' },
+      task: 'A floor has a 3 m side and covers 12 m². Drag the corner to draw it.',
+      why: 'With a 3 m side, 12 ÷ 3 = 4, so the other side is 4 m. The floor is 4 m by 3 m, or 3 m by 4 m.',
+      hint: 'Not quite. Keep one side 3 m. What times 3 makes 12?',
+      hints: { '3 m × 3 m': 'Not quite. That floor is 12 m around the edge, but it covers 9 m². Area counts the squares inside.',
+        '6 m × 2 m': 'Not quite. That covers 12 m², but neither side is 3 m. Keep one side 3 m long.' } },
+    { show: true, demo: 'half', dur: 3.8, name: 'Half a rectangle',
+      text: 'Cut a rectangle corner to corner and the two halves match. So each half is a triangle covering 6 × 4 ÷ 2 = 12 m².' },
+    { kind: 'pick', pic: 'bracket', opts: ['1,200 cm²', '600 cm²', '1,000 cm²'], want: '600 cm²', slips: { '1,000 cm²': 'slope', '1,200 cm²': 'whole' }, fb: 2.4, at: TURN, name: 'A bracket plate',
+      task: 'A triangular bracket plate has these sides. What is its area?',
+      why: 'The 40 cm and 30 cm sides meet at a square corner, so they are the base and height. 40 × 30 ÷ 2 = 600 cm². The 50 cm side is not used.',
+      hint: 'Not quite. Multiply the two sides that meet at the square corner, then halve.',
+      hints: { '1,000 cm²': 'Not quite. 50 cm is the sloping side, across from the square corner. Use the two sides at the square corner, 40 cm and 30 cm.',
+        '1,200 cm²': 'Not quite. 40 × 30 is the whole rectangle around the plate. The triangle is half of it.' } },
+    { show: true, demo: 'any', dur: 3.5, grip: 'apex', name: 'Any triangle',
+      text: 'Slide the top corner along and the triangle is still half its rectangle. Its *height* is the 4 m at right angles to the base, not a sloping side.' },
+    { kind: 'pick', pic: 'iso', opts: ['15 cm²', '24 cm²', '12 cm²'], want: '12 cm²', slips: { '15 cm²': 'slope', '24 cm²': 'whole' }, fb: 2.4, at: TURN, name: 'Which height?',
+      task: 'What is this triangle\'s area?',
+      why: 'The height at right angles to the 6 cm base is 4 cm. 6 × 4 ÷ 2 = 12 cm². The 5 cm sides slope, so they are not used.',
+      hint: 'Not quite. Use the base and the height at right angles to it, then halve.',
+      hints: { '15 cm²': 'Not quite. 5 cm is a sloping side. The height is the 4 cm at right angles to the base.',
+        '24 cm²': 'Not quite. 6 × 4 is the whole rectangle around the triangle. The triangle is half of it.' } },
+    { show: true, demo: 'ell', dur: 3.7, name: 'L-shaped floors',
+      text: 'Split an L-shaped floor into rectangles and add, 12 + 6 = 18 m². Or take the missing corner from the whole, 20 − 2 = 18 m².' },
+    { kind: 'pick', pic: 'ell', opts: ['30 m²', '24 m²', '20 m²'], want: '24 m²', slips: { '30 m²': 'outer', '20 m²': 'part' }, fb: 2.2, at: SPLIT, name: 'An L-shaped room',
+      task: 'What is the floor area of this L-shaped room?',
+      why: 'The right part is 6 − 4 = 2 m wide and 5 − 3 = 2 m tall, 4 m². With the 4 m by 5 m part, 20 + 4 = 24 m².',
+      hint: 'Not quite. Split the room into two rectangles and add their areas.',
+      hints: { '30 m²': 'Not quite. 6 × 5 is the whole rectangle around the room. The missing corner is not floor, so take it away.',
+        '20 m²': 'Not quite. 4 × 5 is the left-hand part only. Add the 2 m by 2 m part on the right.' } },
+    { kind: 'pick', pic: 'edge', opts: ['18 m', '24 m', '22 m'], want: '22 m', slips: { '18 m': 'labelled', '24 m': 'area' }, fb: 2.2, at: EDGE, name: 'Around the room',
+      task: 'A cable runs once around the edge of the same room. How long is that run?',
+      why: 'The two unlabelled sides are 6 − 4 = 2 m and 5 − 3 = 2 m. Around the edge, 5 + 4 + 3 + 2 + 2 + 6 = 22 m.',
+      hint: 'Not quite. Add every side around the edge, working out the two unlabelled ones.',
+      hints: { '18 m': 'Not quite. That adds the four labelled sides, but the room has six. The two short ones are 2 m each.',
+        '24 m': 'Not quite. 24 m² is the floor inside. The cable runs around the edge, so add the sides.' } },
+  ];
+  const FINISH = 'Area counts unit squares, so a rectangle covers length × width. A triangle is half its rectangle, base × height ÷ 2, with the height at right angles to the base. The perimeter is the distance around the edge, so for a straight-sided shape add every side.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap, count] for parts counted one
+  // at a time. count: the floor's squares one at a time, then the sum. around: the four sides traced one
+  // at a time, each with its length; the squares inside; their area. half: the cut grows; the top half
+  // turns onto the other; "halves match"; the sum. any: the height drops; its square-corner mark and
+  // length; the two outside pieces turn in; the sum. ell: the split line; the left part; the right part;
+  // their sum; the missing corner; the whole less the corner.
+  const FADE = 0.35;
+  const AT = {
+    count: { sq: [0.6, 0.2, 12], sum: 3.3 },
+    around: { side: [0.6, 0.5, 4], fill: 2.6, label: 3.1 },
+    half: { cut: 0.6, turn: 1.2, match: 2.7, ro: 3.2 },
+    any: { ht: 0.6, mark: 1.1, turn: 1.6, ro: 2.9 },
+    ell: { split: 0.6, left: 1.1, right: 1.6, sum: 2.1, notch: 2.6, whole: 3.1 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const num = (v) => { const a = r3(v), s = String(Math.abs(a)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); return (a < 0 ? '−' : '') + s; };
+  const amt = (v, u) => num(v) + ' ' + u;
+  const dims = (w, h) => num(w) + ' m × ' + num(h) + ' m';
+  const parseDims = (s) => { const m = /^([\d.]+) m × ([\d.]+) m$/.exec(s); return m ? [+m[1], +m[2]] : null; };
+  const rectA = (r) => r.w * r.h;
+  const around = (r) => 2 * (r.w + r.h);
+  const triA = (b, h) => b * h / 2;
+  const ellA = (L) => L.w * L.h - L.nw * L.nh;
+  // An L split by the line under its missing corner: the left part, all its height, and the right part, under the corner.
+  const ellParts = (L) => [{ x: 0, y: 0, w: L.w - L.nw, h: L.h }, { x: L.w - L.nw, y: 0, w: L.nw, h: L.h - L.nh }];
+  // Its corners, around from the bottom left, up first; and its sides' lengths in that order.
+  const ellPts = (L) => [[0, 0], [0, L.h], [L.w - L.nw, L.h], [L.w - L.nw, L.h - L.nh], [L.w, L.h - L.nh], [L.w, 0]];
+  const ellSides = (L) => ellPts(L).map((p, k, a) => { const q = a[(k + 1) % a.length]; return Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]); });
+  const ellAround = (L) => ellSides(L).reduce((s, v) => s + v, 0);
+  // The unit squares of a w by h floor, row by row from the bottom left.
+  const squaresOf = (w, h) => { const out = []; for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) out.push([x, y]); return out; };
+  // A shape's area from its corners (the shoelace sum), so the checks can measure what is drawn.
+  const areaOf = (pts) => Math.abs(pts.reduce((s, p, k) => { const q = pts[(k + 1) % pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
+  // A point turned through th about c (a half-turn is th = π).
+  const rot = (p, c, th) => [c[0] + (p[0] - c[0]) * Math.cos(th) - (p[1] - c[1]) * Math.sin(th), c[1] + (p[0] - c[0]) * Math.sin(th) + (p[1] - c[1]) * Math.cos(th)];
+  // Two shapes the same, corner for corner in any order.
+  const same = (a, b) => a.length === b.length && a.every((p) => b.some((q) => K.near(p[0], q[0], 1e-9) && K.near(p[1], q[1], 1e-9)));
+  // A triangle on base 0..w with its top corner at (a, h): the triangle, and the pieces of its rectangle
+  // left and right of it, each in its own small rectangle (centre c).
+  function triParts(w, h, a) {
+    return { tri: [[0, 0], [w, 0], [a, h]],
+      left: { pts: [[0, 0], [0, h], [a, h]], c: [a / 2, h / 2], into: [[0, 0], [a, 0], [a, h]] },
+      right: { pts: [[w, 0], [w, h], [a, h]], c: [(a + w) / 2, h / 2], into: [[w, 0], [a, 0], [a, h]] } };
+  }
+  // What each slip makes of an answer, and the answer a puzzle wants, worked out by its rule, as its button reads.
+  function slipOpt(d, s) {
+    if (d.pic === 'area') return s === 'around' ? amt(around(ROOM), 'm²') : amt(ROOM.w + ROOM.h, 'm²');
+    if (d.pic === 'same') return s === 'same' ? 'The same' : (PAIR.A.w > PAIR.B.w ? 'Floor A' : 'Floor B');
+    if (d.pic === 'corner') return s === 'around' ? dims(d.area / 4, d.area / 4) : dims(d.area / 2, 2);
+    if (d.pic === 'bracket') return s === 'slope' ? amt(triA(PLATE.b, PLATE.s), 'cm²') : amt(PLATE.b * PLATE.h, 'cm²');
+    if (d.pic === 'iso') return s === 'slope' ? amt(triA(ISO.b, ISO.s), 'cm²') : amt(ISO.b * ISO.h, 'cm²');
+    if (d.pic === 'ell') return s === 'outer' ? amt(rectA(ELL2), 'm²') : amt(ellParts(ELL2)[0].w * ELL2.h, 'm²');
+    return s === 'labelled' ? amt(ELL2.w + ELL2.h + (ELL2.w - ELL2.nw) + ELL2.nh, 'm') : amt(ellA(ELL2), 'm');
+  }
+  function answerOf(d) {
+    if (d.pic === 'area') return amt(rectA(ROOM), 'm²');
+    if (d.pic === 'same') { const a = rectA(PAIR.A), b = rectA(PAIR.B); return b > a ? 'Floor B' : a > b ? 'Floor A' : 'The same'; }
+    if (d.pic === 'corner') return dims(d.area / d.side, d.side);
+    if (d.pic === 'bracket') return amt(triA(PLATE.b, PLATE.h), 'cm²');
+    if (d.pic === 'iso') return amt(triA(ISO.b, ISO.h), 'cm²');
+    if (d.pic === 'ell') return amt(ellA(ELL2), 'm²');
+    return amt(ellAround(ELL2), 'm');
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/(\d),(\d{3})/g, '$1$2').replace(/cm²/g, 'square centimetres').replace(/m²/g, 'square metres').replace(/\b1 square (centi)?metres/g, '1 square $1metre')
+    .replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres').replace(/\b1 (centi)?metres/g, '1 $1metre')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, pt: null, moved: false, c: null }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && (st.pick === STEPS[i].want || (STEPS[i].also || []).indexOf(st.pick) >= 0);
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const d = STEPS[i], st = blank(i); st.res = 'right'; st.moved = true; st.pick = d.want; if (d.kind === 'drag') st.pt = d.to.slice(); return st; }
+  function slipped(i, o) { const d = STEPS[i], st = blank(i); st.res = 'wrong'; st.moved = true; st.pick = o; if (d.kind === 'drag') st.pt = parseDims(o); return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0, sliding = false;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // An amount or a sum stays together on one line ("12 m²", "1,000 cm²", "6 × 4 ÷ 2 = 12 m²"), with
+  // the stop after it; a long one may break only before an equals sign.
+  const TOK = '(?:\\d[\\d,]*(?:\\.\\d+)?(?: (?:cm²|m²|cm|m)(?![A-Za-z²]))?)';
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’-])' + TOK + '(?: [=+−×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b)); else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    // Screen 1 replays its 4 m by 3 m floor; the any-triangle screen replays wherever its top corner is.
+    S[i].moved = false; S[i].pt = null;
+    sliding = false;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  // Each picture has its own frame: Q px a unit square, its bottom-left corner at (ox, by), H tall. The
+  // readout sits on the row YNY (a second row YNY2 on the L-shaped floor's screen).
+  const YNY = 24, YNY2 = 48;
+  const LAY = {
+    count: { Q: 32, ox: 42, by: 204, H: 232 }, corner: { Q: 32, ox: 42, by: 204, H: 232 },
+    area: { Q: 32, ox: 74, by: 182, H: 210 }, around: { Q: 32, ox: 74, by: 182, H: 210 },
+    same: { Q: 22, ox: 49, by: 150, H: 178 },
+    half: { Q: 28, ox: 86, by: 194, H: 244 },
+    bracket: { Q: 40, ox: 90, by: 196, H: 244 },
+    any: { Q: 32, ox: 74, by: 190, H: 236 }, iso: { Q: 32, ox: 74, by: 190, H: 236 },
+    ell1: { Q: 32, ox: 90, by: 202, H: 230 }, ell: { Q: 30, ox: 80, by: 200, H: 228 }, edge: { Q: 30, ox: 80, by: 200, H: 228 },
+  };
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let F = LAY.count, H = F.H;
+  const gx = (x) => F.ox + F.Q * x;
+  const gy = (y) => F.by - F.Q * y;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; grow: the same, eased.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const grow = (t0, d) => K.ease(lin(t0, d == null ? GROW : d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = String(s);
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, an: 13, lbl: 13, bdl: 13, rou: 13, cn: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+  // --- shapes in unit squares ---
+  const P = (pts) => 'M' + pts.map((p) => r3(gx(p[0])) + ' ' + r3(gy(p[1]))).join('L') + 'Z';
+  const poly = (cls, pts) => path(cls, P(pts));
+  const seg = (cls, a, b) => line(cls, gx(a[0]), gy(a[1]), gx(b[0]), gy(b[1]));
+  const box = (cls, x, y, w, h) => rect(cls, gx(x), gy(y + h), F.Q * w, F.Q * h);
+  // The lines between unit squares inside a w by h block (and its border, if asked).
+  function gridIn(x0, y0, w, h, border) {
+    let p = '';
+    for (let k = border ? 0 : 1; k <= (border ? w : w - 1); k++) p += 'M' + r3(gx(x0 + k)) + ' ' + r3(gy(y0)) + 'V' + r3(gy(y0 + h));
+    for (let k = border ? 0 : 1; k <= (border ? h : h - 1); k++) p += 'M' + r3(gx(x0)) + ' ' + r3(gy(y0 + k)) + 'H' + r3(gx(x0 + w));
+    if (p) path('gl', p);
+  }
+  // Inside an L: the lines between its squares.
+  function gridL(L) {
+    let p = '';
+    for (let k = 1; k < L.w; k++) p += 'M' + gx(k) + ' ' + gy(0) + 'V' + gy(k < L.w - L.nw ? L.h : L.h - L.nh);
+    for (let k = 1; k < L.h; k++) p += 'M' + gx(0) + ' ' + gy(k) + 'H' + gx(k < L.h - L.nh ? L.w : L.w - L.nw);
+    path('gl', p);
+  }
+  // A side's length beside it: below a bottom side, above a top side, left or right of an upright one.
+  const below = (x0, x1, y, s, cls) => text((gx(x0) + gx(x1)) / 2, gy(y) + 18, s, cls || 'lbl');
+  const above = (x0, x1, y, s, cls) => text((gx(x0) + gx(x1)) / 2, gy(y) - 7, s, cls || 'lbl');
+  const leftOf = (x, y0, y1, s, cls) => text(gx(x) - 7, (gy(y0) + gy(y1)) / 2 + 5, s, cls || 'lbl', 'end');
+  const rightOf = (x, y0, y1, s, cls) => text(gx(x) + 7, (gy(y0) + gy(y1)) / 2 + 5, s, cls || 'lbl', 'start');
+  // A label on a patch of the page (centred on x), so the lines between squares stay clear of it.
+  function plabel(x, y, s, cls) { const w = tw(s, cls); rect('patch', x - w / 2 - 4, y - 13, w + 8, 18, 4); text(x, y, s, cls); }
+  // A length picked out in amber (one worked out, not labelled on the drawing).
+  function hlabel(x, y, s, anchor) { const w = tw(s, 'lbl'), x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2; rect('hl', x0 - 4, y - 13, w + 8, 18, 5); text(x0, y, s, 'lbl', 'start'); }
+  // A square-corner mark at p, its sides along u and v (unit steps in the drawing's directions).
+  function raMark(p, u, v) {
+    const s = 10 / F.Q, a = [p[0] + u[0] * s, p[1] + u[1] * s], b = [a[0] + v[0] * s, a[1] + v[1] * s], c = [p[0] + v[0] * s, p[1] + v[1] * s];
+    path('ra', 'M' + r3(gx(a[0])) + ' ' + r3(gy(a[1])) + 'L' + r3(gx(b[0])) + ' ' + r3(gy(b[1])) + 'L' + r3(gx(c[0])) + ' ' + r3(gy(c[1])));
+  }
+  // A floor's letter on a patch at (x, y).
+  function badge(s, x, y, warn) { rect('bdg' + (warn ? ' bad' : ''), x - 10, y - 10, 20, 20, 10); text(x, y + 4.5, s, 'bdl' + (warn ? ' warnt' : '')); }
+  // The key to the squares: one unit square.
+  function legend(u) { rect('sw', 8, 11, 14, 14, 2); text(28, YNY, '1 ' + (u || 'm²'), 'an', 'start'); }
+  // The readout on the row above the picture: what it comes to (big) after the sum that gives it (small).
+  function readout2(big, small, warn, y) {
+    const w = warn ? ' warnt' : '', row = y || YNY;
+    text(338, row, big, 'ro' + w, 'end');
+    if (small) text(338 - tw(big, 'ro') - 8, row - 1, small, 'rou' + w, 'end');
+  }
+  // The point Dan moves: a dot, with a soft ring while it can be moved.
+  function handle(p, live, warn) { if (live) circle('ringp', gx(p[0]), gy(p[1]), 15); circle('pt' + (warn ? ' bad' : ''), gx(p[0]), gy(p[1]), 6); }
+  let gripAt = null;                                 // where the grip sits this frame (grid units), if anywhere
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Squares you can count: the floor's squares fill one at a time, each numbered, the readout counting;
+  // then the sum. Once it has played, Dan drags the corner and the squares fill at once.
+  function demoCount(i, d, st) {
+    const A = AT.count, moved = st.moved && st.pt, c = moved ? st.pt : [FLOOR.w, FLOOR.h], sqs = squaresOf(c[0], c[1]);
+    const as = sqs.map((q, k) => (moved ? 1 : arr(nth(A.sq, k), COUNT))), got = as.filter((a) => a >= 0.5).length, sa = moved ? 1 : arr(A.sum);
+    legend();
+    sqs.forEach((q, k) => part(as[k], 0, () => box('t1', q[0], q[1], 1, 1)));
+    gridIn(0, 0, GRID.cols, GRID.rows, true);
+    sqs.forEach((q, k) => part(as[k], 0, () => text(gx(q[0] + 0.5), gy(q[1] + 0.5) + 4.5, k + 1, 'cn')));
+    box('shp', 0, 0, c[0], c[1]);
+    below(0, c[0], 0, amt(c[0], 'm')); leftOf(0, 0, c[1], amt(c[1], 'm'));
+    const area = c[0] * c[1];
+    if (sa > 0) swap(sa, () => readout2(amt(got, 'm²'), 'counted'), () => readout2(amt(area, 'm²'), c[0] + ' × ' + c[1] + ' ='), 0);
+    else part(as[0], 0, () => readout2(amt(Math.max(1, got), 'm²'), 'counted'));
+    // The soft ring, showing the corner can be moved, fades in with the sum.
+    part(sa, 0, () => circle('ringp', gx(c[0]), gy(c[1]), 15));
+    handle(c, false);
+    gripAt = c;
+    const said = ['A grid of 1 metre squares, ' + GRID.cols + ' along and ' + GRID.rows + ' up, with a floor ' + say(dims(c[0], c[1])).replace(' times ', ' by ') + ' from its bottom left corner.'];
+    if (got) said.push('Its squares are numbered 1 to ' + got + '.');
+    if (sa >= 0.5) said.push(say(c[0] + ' × ' + c[1] + ' = ' + amt(area, 'm²')) + '.');
+    said.push('Its top right corner can be dragged.');
+    return said.join(' ');
+  }
+  // Around, or inside: the four sides traced one at a time, each with its length, the readout adding
+  // them; then the squares inside tinted and their area named.
+  function demoAround(i, d) {
+    const A = AT.around, r = ROOM, c = [[0, 0], [r.w, 0], [r.w, r.h], [0, r.h]], lens = [r.w, r.h, r.w, r.h];
+    const fa = arr(A.fill), la = arr(A.label);
+    legend();
+    part(fa, 0, () => box('t1', 0, 0, r.w, r.h));
+    gridIn(0, 0, r.w, r.h);
+    box('shp', 0, 0, r.w, r.h);
+    let got = 0;
+    c.forEach((p, k) => {
+      const q = c[(k + 1) % 4], e = K.ease(lin(nth(A.side, k), SIDE_T));
+      if (e > 0) seg('trace', p, [K.lerp(p[0], q[0], e), K.lerp(p[1], q[1], e)]);
+      if (e >= 1) got = k + 1;
+      const s = amt(lens[k], 'm');
+      part(arr(nth(A.side, k), SIDE_T), 0, () => [() => below(0, r.w, 0, s), () => rightOf(r.w, 0, r.h, s), () => above(0, r.w, r.h, s), () => leftOf(0, 0, r.h, s)][k]());
+    });
+    const shown = Math.max(1, got);
+    part(arr(nth(A.side, 0) + SIDE_T, 0.3), 0, () => readout2(amt(lens.slice(0, shown).reduce((a, b) => a + b, 0), 'm'), shown > 1 ? lens.slice(0, shown).join(' + ') + ' =' : 'around'));
+    part(la, 0, () => plabel(gx(r.w / 2), gy(r.h / 2) + 5, amt(rectA(r), 'm²') + ' inside', 'lbl'));
+    const said = ['A floor 6 metres by 4 metres, in 1 metre squares.'];
+    if (got) said.push('Around its edge, ' + say(lens.slice(0, got).join(' + ') + ' = ' + amt(lens.slice(0, got).reduce((a, b) => a + b, 0), 'm')) + '.');
+    if (fa >= 0.5) said.push('Inside, it covers 24 square metres.');
+    return said.join(' ');
+  }
+  // Half a rectangle: the cut grows corner to corner; the top half turns a half-turn about the middle and
+  // lands exactly on the other half; "halves match"; the sum.
+  function demoHalf(i, d) {
+    const A = AT.half, r = RECT, ctr = [r.w / 2, r.h / 2], U = [[0, 0], [0, r.h], [r.w, r.h]], L = [[0, 0], [r.w, 0], [r.w, r.h]];
+    const ce = grow(A.cut), te = K.ease(lin(A.turn, HALF_T)), ma = arr(A.match), ra = arr(A.ro), lift = K.clamp(te * 4, 0, 1);
+    legend();
+    poly('t1', L);
+    leave(lift, () => poly('t1', U));
+    gridIn(0, 0, r.w, r.h);
+    part(lift, 0, () => poly('gh', U));
+    box('shp', 0, 0, r.w, r.h);
+    if (ce > 0) seg('cut', [0, 0], [r.w * ce, r.h * ce]);
+    part(lift, 0, () => poly('pc', U.map((p) => rot(p, ctr, Math.PI * te))));
+    below(0, r.w, 0, amt(r.w, 'm')); leftOf(0, 0, r.h, amt(r.h, 'm'));
+    part(ma, 0, () => plabel(gx(r.w * 0.32), gy(r.h * 0.82) + 5, 'halves match', 'an'));
+    part(ra, 0, () => readout2(amt(triA(r.w, r.h), 'm²'), r.w + ' × ' + r.h + ' ÷ 2 ='));
+    const said = ['A rectangle 6 metres by 4 metres, in 1 metre squares.'];
+    if (ce >= 1) said.push('It is cut corner to corner.');
+    if (te >= 1) said.push('The top half has turned half a turn and lies exactly on the bottom half: the two halves match.');
+    if (ra >= 0.5) said.push('Each half covers 6 times 4 divided by 2, 12 square metres.');
+    return said.join(' ');
+  }
+  // Any triangle: a triangle on a 6 m base with its top corner on the top of its rectangle (2 m along
+  // until Dan slides it). Its height drops at right angles to the base; the mark and its length; the two
+  // pieces outside it turn a half-turn each and land exactly on the triangle; the sum.
+  function demoAny(i, d, st) {
+    // The top corner where Dan left it (2 m along until he slides it). While his finger holds it the two
+    // outside pieces wait beside the triangle; when he lets go they turn in again (motion 'slide').
+    const A = AT.any, r = RECT, a = st.c != null ? st.c : APEX, tp = triParts(r.w, r.h, a);
+    const held2 = sliding, slid = motion === 'slide' && T !== Infinity;
+    const he = held2 || slid ? 1 : grow(A.ht), ma = held2 || slid ? 1 : arr(A.mark), ra = held2 || slid ? 1 : arr(A.ro);
+    const te = held2 ? 0 : slid ? K.ease(lin(SLIDE.turn, PIECE_T)) : K.ease(lin(A.turn, PIECE_T));
+    box('gh', 0, 0, r.w, r.h);
+    poly('t1', tp.tri);
+    [tp.left, tp.right].forEach((pc) => { if (areaOf(pc.pts) > 1e-9) poly('pc', pc.pts.map((p) => rot(p, pc.c, Math.PI * te))); });
+    poly('shp', tp.tri);
+    if (he > 0) seg('ht', [a, r.h], [a, r.h * (1 - he)]);
+    part(ma, 0, () => {
+      raMark([a, 0], a < r.w ? [1, 0] : [-1, 0], [0, 1]);
+      if (a <= r.w / 2) rightOf(a, 0, r.h, amt(r.h, 'm')); else leftOf(a, 0, r.h, amt(r.h, 'm'));
+    });
+    below(0, r.w, 0, amt(r.w, 'm'));
+    part(ra, 0, () => readout2(amt(triA(r.w, r.h), 'm²'), r.w + ' × ' + r.h + ' ÷ 2 ='));
+    // The soft ring, showing the top corner can be slid, fades in with the sum.
+    part(ra, 0, () => circle('ringp', gx(a), gy(r.h), 15));
+    handle([a, r.h], false);
+    gripAt = [a, r.h];
+    const said = ['A triangle on a 6 metre base inside a dashed 6 by 4 metre rectangle, its top corner ' + say(amt(a, 'm')) + ' along the top.'];
+    if (he >= 1) said.push('Its height, 4 metres, drops at right angles to the base.');
+    if (te >= 1) said.push('The two pieces of the rectangle outside the triangle have turned and cover it exactly.');
+    else if (held2) said.push('The two pieces of the rectangle outside the triangle sit beside it, ready to turn in.');
+    if (ra >= 0.5) said.push('It covers 6 times 4 divided by 2, 12 square metres.');
+    said.push('The top corner can be slid along.');
+    return said.join(' ');
+  }
+  // L-shaped floors: the split line under the missing corner; the left part and its area; the right part
+  // and its area; their sum; the missing corner, dashed, and its area; the whole less the corner.
+  function demoEll(i, d) {
+    const A = AT.ell, L = ELL1, pp = ellParts(L), x = L.w - L.nw;
+    const se = grow(A.split), la = arr(A.left), rra = arr(A.right), sa = arr(A.sum), na = arr(A.notch), wa = arr(A.whole);
+    legend();
+    part(la, 0, () => box('t1', pp[0].x, 0, pp[0].w, pp[0].h));
+    part(rra, 0, () => box('t1', pp[1].x, 0, pp[1].w, pp[1].h));
+    gridL(L);
+    part(na, 0, () => box('gh', x, L.h - L.nh, L.nw, L.nh));
+    poly('shp', ellPts(L));
+    if (se > 0) seg('cut', [x, 0], [x, (L.h - L.nh) * se]);
+    below(0, L.w, 0, amt(L.w, 'm')); leftOf(0, 0, L.h, amt(L.h, 'm')); above(0, x, L.h, amt(x, 'm')); rightOf(L.w, 0, L.h - L.nh, amt(L.h - L.nh, 'm'));
+    part(la, 0, () => plabel(gx(pp[0].w / 2), gy(pp[0].h / 2) + 5, amt(rectA(pp[0]), 'm²'), 'lbl'));
+    part(rra, 0, () => plabel(gx(pp[1].x + pp[1].w / 2), gy(pp[1].h / 2) + 5, amt(rectA(pp[1]), 'm²'), 'lbl'));
+    part(na, 0, () => text(gx(x + L.nw / 2), gy(L.h - L.nh / 2) + 5, amt(L.nw * L.nh, 'm²'), 'an'));
+    part(sa, 0, () => readout2(amt(ellA(L), 'm²'), rectA(pp[0]) + ' + ' + rectA(pp[1]) + ' ='));
+    part(wa, 0, () => readout2(amt(ellA(L), 'm²'), 'or ' + rectA(L) + ' − ' + L.nw * L.nh + ' =', false, YNY2));
+    const c2 = L.nw * L.nh, a0 = rectA(pp[0]), a1 = rectA(pp[1]);
+    const said = ['An L-shaped floor, ' + L.w + ' metres along the bottom and ' + L.h + ' metres up the left, ' + x + ' metres along the top, with a ' + L.nw + ' by ' + L.nh + ' metre corner missing at its top right, in 1 metre squares.'];
+    if (se >= 1) said.push('A line splits it into two rectangles.');
+    if (rra >= 0.5) said.push('The left part covers ' + a0 + ' square metres and the right part ' + a1 + '.');
+    if (sa >= 0.5) said.push(a0 + ' plus ' + a1 + ' equals ' + ellA(L) + ' square metres.');
+    if (wa >= 0.5) said.push('Or the whole ' + rectA(L) + ' square metres minus the missing ' + c2 + ' square metre corner, ' + ellA(L) + ' square metres.');
+    return said.join(' ');
+  }
+
+  // --- the puzzles (DO steps) ---
+  // Area, not around: the plant room in squares; a right answer tints its rows one at a time with their
+  // running totals, then the sum; a slip shows what it added, in the warning colour.
+  function drawArea(i, d, st, right) {
+    const A = d.at, r = ROOM, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    legend();
+    const rows = [];
+    for (let k = 0; k < r.h; k++) rows.push(right ? arr(nth(A.row, k), COUNT) : 0);
+    rows.forEach((a, k) => part(a, 0, () => box('t1', 0, k, r.w, 1)));
+    gridIn(0, 0, r.w, r.h);
+    if (s === 'around') swap(sw, () => box('shp', 0, 0, r.w, r.h), () => box('shp bad', 0, 0, r.w, r.h), 0); else box('shp', 0, 0, r.w, r.h);
+    if (s === 'two') part(sw, 0, () => { seg('edge', [0, r.h], [0, 0]); seg('edge', [0, 0], [r.w, 0]); });
+    below(0, r.w, 0, amt(r.w, 'm')); leftOf(0, 0, r.h, amt(r.h, 'm'));
+    rows.forEach((a, k) => part(a, 0, () => text(gx(r.w) + 8, gy(k + 0.5) + 5, (k + 1) * r.w, 'lbl', 'start')));
+    const said = ['A plant room floor 6 metres by 4 metres, in 1 metre squares.'];
+    if (right) {
+      part(arr(A.ro), 0, () => readout2(amt(rectA(r), 'm²'), r.w + ' × ' + r.h + ' ='));
+      said.push('Its 4 rows of 6 squares are tinted one at a time: 6, 12, 18, 24. 6 times 4 equals 24 square metres.');
+    } else if (s === 'around') {
+      part(sw, 0, () => readout2(amt(around(r), 'm'), [r.w, r.h, r.w, r.h].join(' + ') + ' =', true));
+      said.push('Its whole edge is marked in red: 6 plus 4 plus 6 plus 4 equals 20 metres around.');
+    } else if (s === 'two') {
+      part(sw, 0, () => readout2(amt(r.w + r.h, 'm'), r.w + ' + ' + r.h + ' =', true));
+      said.push('Two sides are marked in red: 6 plus 4 equals 10 metres.');
+    }
+    return said.join(' ');
+  }
+  // Same distance around: floors A and B in squares; a right answer tints each and names its area; a
+  // slip turns the floor or floors picked the warning colour.
+  function drawSame(i, d, st, right) {
+    const A = d.at, a = PAIR.A, b = PAIR.B, xb = a.w + 1, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const pa = right ? arr(A.a) : 0, pb = right ? arr(A.b) : 0;
+    legend();
+    part(pa, 0, () => box('t1', 0, 0, a.w, a.h));
+    part(pb, 0, () => box('t1', xb, 0, b.w, b.h));
+    gridIn(0, 0, a.w, a.h); gridIn(xb, 0, b.w, b.h);
+    const redA = s === 'same' || s === 'longer', redB = s === 'same';
+    const outline = (x, r, red, k) => { if (red) swap(sw, () => box('shp', x, 0, r.w, r.h), () => box('shp bad', x, 0, r.w, r.h), 0); else box('shp', x, 0, r.w, r.h); };
+    outline(0, a, redA); outline(xb, b, redB);
+    below(0, a.w, 0, amt(a.w, 'm')); leftOf(0, 0, a.h, amt(a.h, 'm'));
+    below(xb, xb + b.w, 0, amt(b.w, 'm')); rightOf(xb + b.w, 0, b.h, amt(b.h, 'm'));
+    const bA = () => badge('A', gx(a.w / 2), gy(a.h) - 16), bB = () => badge('B', gx(xb + b.w / 2), gy(b.h) - 16);
+    if (redA) swap(sw, bA, () => badge('A', gx(a.w / 2), gy(a.h) - 16, true), 0); else bA();
+    if (redB) swap(sw, bB, () => badge('B', gx(xb + b.w / 2), gy(b.h) - 16, true), 0); else bB();
+    part(pa, 0, () => plabel(gx(a.w / 2), gy(a.h / 2) + 5, amt(rectA(a), 'm²'), 'lbl'));
+    part(pb, 0, () => plabel(gx(xb + b.w / 2), gy(b.h / 2) + 5, amt(rectA(b), 'm²'), 'lbl'));
+    const said = ['Two floors in 1 metre squares: A, 6 metres by 2 metres, and B, 4 metres by 4 metres, both 16 metres around.'];
+    if (right) said.push('A covers 12 square metres and B covers 16 square metres.');
+    else if (wrong) said.push((redB ? 'Both floors are' : 'Floor A is') + ' marked in red.');
+    return said.join(' ');
+  }
+  // Draw the floor: a floor from the bottom left corner to the corner Dan drags, its squares tinted as it
+  // grows; its area stays "?" until Check. A right answer counts its rows' running totals, then the area;
+  // a slip turns it and its readout the warning colour.
+  function drawCorner(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, c = st.pt || d.start, area = c[0] * c[1];
+    box('t1', 0, 0, c[0], c[1]);
+    gridIn(0, 0, GRID.cols, GRID.rows, true);
+    legend();
+    if (wrong) swap(sw, () => box('shp', 0, 0, c[0], c[1]), () => box('shp bad', 0, 0, c[0], c[1]), 0); else box('shp', 0, 0, c[0], c[1]);
+    below(0, c[0], 0, amt(c[0], 'm')); leftOf(0, 0, c[1], amt(c[1], 'm'));
+    const small = dims(c[0], c[1]) + ' =', hidden = () => { text(338, YNY, '? m²', 'ro q', 'end'); text(338 - tw('? m²', 'ro') - 8, YNY - 1, small, 'rou', 'end'); };
+    if (right) {
+      for (let k = 0; k < c[1]; k++) part(arr(nth(A.row, k), COUNT), 0, () => text(gx(c[0]) + 8, gy(k + 0.5) + 5, (k + 1) * c[0], 'lbl', 'start'));
+      swap(arr(A.ro), hidden, () => readout2(amt(area, 'm²'), small), 0);
+    } else if (wrong) swap(sw, hidden, () => readout2(amt(area, 'm²'), small, true), 0);
+    else hidden();
+    if (right) handle(c, false); else if (wrong) swap(sw, () => handle(c, false), () => handle(c, false, true), 0); else handle(c, true);
+    gripAt = right ? null : c;
+    const lead = 'A grid of 1 metre squares, ' + GRID.cols + ' along and ' + GRID.rows + ' up. ';
+    if (right) return lead + 'The floor is ' + say(dims(c[0], c[1])).replace(' times ', ' by ') + ', covering ' + say(amt(area, 'm²')) + ', its rows counted ' + squaresOf(1, c[1]).map((q, k) => (k + 1) * c[0]).join(', ') + '.';
+    if (wrong) return lead + 'The floor is ' + say(dims(c[0], c[1])).replace(' times ', ' by ') + ', covering ' + say(amt(area, 'm²')) + ', marked wrong.';
+    return lead + 'A floor ' + say(dims(c[0], c[1])).replace(' times ', ' by ') + ' from the bottom left corner, its top right corner to drag. Its area is hidden until you check.';
+  }
+  // The bracket plate: a triangle with its square corner marked and its sides labelled. A right answer
+  // draws the rectangle around it, then a copy turns a half-turn to fill the rest, then the sum; a slip
+  // marks the side or rectangle it used, in the warning colour.
+  function drawBracket(i, d, st, right) {
+    const A = d.at, p = PLATE, b = p.b / p.per, h = p.h / p.per, tri = [[0, 0], [b, 0], [0, h]], ctr = [b / 2, h / 2];
+    const wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const ra = right ? arr(A.rect) : 0, te = right ? K.ease(lin(A.turn, COPY_T)) : 0, ro = right ? arr(A.ro) : 0;
+    part(ra, 0, () => box('gh', 0, 0, b, h));
+    if (s === 'whole') part(sw, 0, () => box('gh bad', 0, 0, b, h));
+    poly('t1', tri);
+    part(ra, 0, () => poly('pc', tri.map((q) => rot(q, ctr, Math.PI * te))));
+    poly('shp', tri);
+    if (s === 'slope') part(sw, 0, () => seg('edge', [b, 0], [0, h]));
+    raMark([0, 0], [1, 0], [0, 1]);
+    below(0, b, 0, amt(p.b, 'cm')); leftOf(0, 0, h, amt(p.h, 'cm'));
+    const sl = (cls) => text(gx(b / 2 + 0.6 * 0.35), gy(h / 2 + 0.8 * 0.35) + 4, amt(p.s, 'cm'), cls, 'start');
+    if (s === 'slope') swap(sw, () => sl('lbl'), () => sl('lbl warnt'), 0); else sl('lbl');
+    const said = ['A triangular plate with a square corner: 40 centimetres along the bottom, 30 centimetres up the side, and a 50 centimetre sloping side.'];
+    if (right) {
+      part(ro, 0, () => readout2(amt(triA(p.b, p.h), 'cm²'), p.b + ' × ' + p.h + ' ÷ 2 ='));
+      said.push('A dashed 40 by 30 centimetre rectangle surrounds it, and a turned copy fills the other half. 40 times 30 divided by 2 equals 600 square centimetres.');
+    } else if (s === 'slope') {
+      part(sw, 0, () => readout2(amt(triA(p.b, p.s), 'cm²'), p.b + ' × ' + p.s + ' ÷ 2 =', true));
+      said.push('The 50 centimetre sloping side is marked in red.');
+    } else if (s === 'whole') {
+      part(sw, 0, () => readout2(amt(p.b * p.h, 'cm²'), p.b + ' × ' + p.h + ' =', true));
+      said.push('The whole rectangle around it is marked in red.');
+    }
+    return said.join(' ');
+  }
+  // Which height?: a triangle with sloping sides, its height dashed with its square corner. A right answer
+  // draws the rectangle around it and its two outside pieces, which turn in to cover it; then the sum; a
+  // slip marks the sides or rectangle it used, in the warning colour.
+  function drawIso(i, d, st, right) {
+    const A = d.at, t = ISO, tp = triParts(t.b, t.h, t.b / 2), wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const ra = right ? arr(A.rect) : 0, te = right ? K.ease(lin(A.turn, COPY_T)) : 0, ro = right ? arr(A.ro) : 0, a = t.b / 2;
+    part(ra, 0, () => box('gh', 0, 0, t.b, t.h));
+    if (s === 'whole') part(sw, 0, () => box('gh bad', 0, 0, t.b, t.h));
+    poly('t1', tp.tri);
+    part(ra, 0, () => [tp.left, tp.right].forEach((pc) => poly('pc', pc.pts.map((q) => rot(q, pc.c, Math.PI * te)))));
+    poly('shp', tp.tri);
+    if (s === 'slope') part(sw, 0, () => { seg('edge', [0, 0], [a, t.h]); seg('edge', [t.b, 0], [a, t.h]); });
+    seg('ht', [a, t.h], [a, 0]);
+    raMark([a, 0], [1, 0], [0, 1]);
+    below(0, t.b, 0, amt(t.b, 'cm'));
+    rightOf(a, 0, t.h * 0.8, amt(t.h, 'cm'));
+    const sl = (cls) => { text(gx(a / 2 - 0.8 * 0.35), gy(t.h / 2 + 0.6 * 0.35) + 4, amt(t.s, 'cm'), cls, 'end'); text(gx(t.b - a / 2 + 0.8 * 0.35), gy(t.h / 2 + 0.6 * 0.35) + 4, amt(t.s, 'cm'), cls, 'start'); };
+    if (s === 'slope') swap(sw, () => sl('lbl'), () => sl('lbl warnt'), 0); else sl('lbl');
+    const said = ['A triangle on a 6 centimetre base with two 5 centimetre sloping sides, and its 4 centimetre height dashed, at right angles to the base.'];
+    if (right) {
+      part(ro, 0, () => readout2(amt(triA(t.b, t.h), 'cm²'), t.b + ' × ' + t.h + ' ÷ 2 ='));
+      said.push('A dashed 6 by 4 centimetre rectangle surrounds it, and its two outside pieces turn in to cover the triangle exactly. 6 times 4 divided by 2 equals 12 square centimetres.');
+    } else if (s === 'slope') {
+      part(sw, 0, () => readout2(amt(triA(t.b, t.s), 'cm²'), t.b + ' × ' + t.s + ' ÷ 2 =', true));
+      said.push('The two 5 centimetre sloping sides are marked in red.');
+    } else if (s === 'whole') {
+      part(sw, 0, () => readout2(amt(t.b * t.h, 'cm²'), t.b + ' × ' + t.h + ' =', true));
+      said.push('The whole rectangle around it is marked in red.');
+    }
+    return said.join(' ');
+  }
+  // The L-shaped room and its labelled sides (four of its six).
+  function ellLabels(L, warn) {
+    const x = L.w - L.nw;
+    below(0, L.w, 0, amt(L.w, 'm')); leftOf(0, 0, L.h, amt(L.h, 'm')); above(0, x, L.h, amt(x, 'm')); rightOf(x, L.h - L.nh, L.h, amt(L.nh, 'm'));
+  }
+  // An L-shaped room: a right answer splits it, tints and names each part, then the sum; the outer slip
+  // marks the missing corner, and the part slip the left part, in the warning colour.
+  function drawEll(i, d, st, right) {
+    const A = d.at, L = ELL2, pp = ellParts(L), x = L.w - L.nw, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const se = right ? grow(A.split) : 0, la = right ? arr(A.left) : 0, rra = right ? arr(A.right) : 0;
+    part(la, 0, () => box('t1', pp[0].x, 0, pp[0].w, pp[0].h));
+    part(rra, 0, () => box('t1', pp[1].x, 0, pp[1].w, pp[1].h));
+    if (s === 'outer') part(sw, 0, () => { box('tbad', x, L.h - L.nh, L.nw, L.nh); box('gh bad', x, L.h - L.nh, L.nw, L.nh); });
+    poly('shp', ellPts(L));
+    if (s === 'part') part(sw, 0, () => box('shp bad', 0, 0, pp[0].w, pp[0].h));
+    if (se > 0) seg('cut', [x, 0], [x, (L.h - L.nh) * se]);
+    ellLabels(L);
+    part(la, 0, () => plabel(gx(pp[0].w / 2), gy(pp[0].h / 2) + 5, amt(rectA(pp[0]), 'm²'), 'lbl'));
+    part(rra, 0, () => plabel(gx(pp[1].x + pp[1].w / 2), gy(pp[1].h / 2) + 5, amt(rectA(pp[1]), 'm²'), 'lbl'));
+    const said = ['An L-shaped room: 6 metres along the bottom, 5 metres up the left, 4 metres along the top, then 3 metres down into a missing corner; the other two sides are not labelled.'];
+    if (right) {
+      part(arr(A.ro), 0, () => readout2(amt(ellA(L), 'm²'), rectA(pp[0]) + ' + ' + rectA(pp[1]) + ' ='));
+      said.push('A line splits it into a 4 by 5 metre part, 20 square metres, and a 2 by 2 metre part, 4 square metres. 20 plus 4 equals 24 square metres.');
+    } else if (s === 'outer') {
+      part(sw, 0, () => readout2(amt(rectA(L), 'm²'), L.w + ' × ' + L.h + ' =', true));
+      said.push('The missing corner, which 6 times 5 counts as floor, is marked in red.');
+    } else if (s === 'part') {
+      part(sw, 0, () => readout2(amt(rectA(pp[0]), 'm²'), pp[0].w + ' × ' + pp[0].h + ' =', true));
+      said.push('The left-hand part alone is marked in red.');
+    }
+    return said.join(' ');
+  }
+  // Around the room: a right answer traces the edge side by side, the two unlabelled lengths picked out
+  // in amber as they are reached, then the sum; the labelled slip marks the two unlabelled sides, and the
+  // area slip tints the floor, in the warning colour.
+  function drawEdge(i, d, st, right) {
+    const A = d.at, L = ELL2, pts = ellPts(L), lens = ellSides(L), wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    if (s === 'area') part(sw, 0, () => poly('tbad', pts));
+    poly('shp', pts);
+    const x = L.w - L.nw;
+    // the two sides the drawing does not label: across the missing corner, and down the right
+    const unl = [3, 4], at = [() => [gx(x + L.nw / 2), gy(L.h - L.nh) - 7, 'middle'], () => [gx(L.w) + 7, (gy(0) + gy(L.h - L.nh)) / 2 + 5, 'start']];
+    if (s === 'labelled') part(sw, 0, () => unl.forEach((k, j) => { seg('edge', pts[k], pts[(k + 1) % 6]); const q = at[j](); text(q[0], q[1], '?', 'lbl warnt', q[2]); }));
+    let got = 0;
+    if (right) pts.forEach((p, k) => {
+      const q = pts[(k + 1) % 6], e = K.ease(lin(nth(A.side, k), TRACE_T));
+      if (e > 0) seg('trace', p, [K.lerp(p[0], q[0], e), K.lerp(p[1], q[1], e)]);
+      if (e >= 1) got = k + 1;
+      const j = unl.indexOf(k);
+      if (j >= 0) part(arr(nth(A.side, k), COUNT), 0, () => { const c = at[j](); hlabel(c[0], c[1], amt(lens[k], 'm'), c[2]); });
+    });
+    ellLabels(L);
+    const said = ['The same L-shaped room: 6 metres along the bottom, 5 metres up the left, 4 metres along the top, then 3 metres down into a missing corner; the other two sides are not labelled.'];
+    if (right) {
+      part(arr(A.ro), 0, () => readout2(amt(ellAround(L), 'm'), lens.join(' + ') + ' ='));
+      said.push('Its edge is traced all the way around, the two unlabelled sides picked out as 2 metres each. ' + say(lens.join(' + ') + ' = ' + amt(ellAround(L), 'm')) + '.');
+    } else if (s === 'labelled') {
+      part(sw, 0, () => readout2(amt(L.w + L.h + x + L.nh, 'm'), [L.w, L.h, x, L.nh].join(' + ') + ' =', true));
+      said.push('The two unlabelled sides are marked in red with question marks.');
+    } else if (s === 'area') {
+      part(sw, 0, () => readout2(amt(ellA(L), 'm²'), 'the floor inside is', true));
+      said.push('The floor inside is tinted red: 24 square metres.');
+    }
+    return said.join(' ');
+  }
+
+  // ---------- the corner or top point Dan drags (kept from frame to frame) ----------
+  // The picture takes a tap (the corner goes to the nearest crossing, the top point to the nearest metre
+  // along); the point is dragged, or moved with the arrow keys. The page does not scroll under a finger on it.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  const gripKind = (d) => (d.show ? d.grip || null : d.kind === 'drag' ? 'corner' : null);
+  function live() {
+    const i = here(), d = STEPS[i];
+    return !finished && ((d.kind === 'drag' && S[i].res !== 'right') || (d.show && !!d.grip));
+  }
+  function placeGrip(p) {
+    const i = here(), d = STEPS[i], kind = gripKind(d), on = !!p && !!kind && live();
+    grip.style.display = on ? '' : 'none';
+    board.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', r3(gx(p[0]))); grip.setAttribute('cy', r3(gy(p[1])));
+    if (kind === 'apex') {
+      board.setAttribute('x', gx(0) - F.Q / 2); board.setAttribute('y', gy(RECT.h) - F.Q); board.setAttribute('width', F.Q * (RECT.w + 1)); board.setAttribute('height', F.Q * (RECT.h + 1));
+      grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', RECT.w); grip.setAttribute('aria-valuenow', p[0]);
+      grip.setAttribute('aria-label', 'The triangle\'s top corner. Slide it along the top, tap the picture, or use the arrow keys to move it a metre at a time.');
+      grip.setAttribute('aria-valuetext', say(amt(p[0], 'm')) + ' along the top');
+      return;
+    }
+    board.setAttribute('x', gx(0) - F.Q / 2); board.setAttribute('y', gy(GRID.rows) - F.Q / 2); board.setAttribute('width', F.Q * (GRID.cols + 1)); board.setAttribute('height', F.Q * (GRID.rows + 1));
+    grip.setAttribute('aria-valuemin', 1); grip.setAttribute('aria-valuemax', GRID.cols); grip.setAttribute('aria-valuenow', p[0]);
+    grip.setAttribute('aria-label', 'The floor\'s top right corner. Drag it, tap the grid, or use the arrow keys to move it a square at a time.');
+    grip.setAttribute('aria-valuetext', say(dims(p[0], p[1])).replace(' times ', ' by '));
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // A place on the picture as the floor's corner (the nearest crossing, at least 1 by 1), or as the top
+  // point (the nearest metre along the top).
+  const toCorner = (q) => [K.clamp(Math.round((q[0] - F.ox) / F.Q), 1, GRID.cols), K.clamp(Math.round((F.by - q[1]) / F.Q), 1, GRID.rows)];
+  const toAlong = (q) => K.clamp(Math.round((q[0] - F.ox) / F.Q), 0, RECT.w);
+  // Moving the corner or the top point ends a demonstration that is still playing: the picture shows finished.
+  function moveTo(p) {
+    if (!live()) return;
+    const i = here(), d = STEPS[i], st = S[i];
+    if (anim.playing() && d.show) { anim.pause(); T = Infinity; }
+    if (st.moved && st.pt && st.pt[0] === p[0] && st.pt[1] === p[1]) return;
+    st.pt = p; st.moved = true;
+    if (!d.show) { st.pick = dims(p[0], p[1]); st.res = null; }
+    K.refresh();
+  }
+  function slideTo(c, holding) {
+    if (!live()) return;
+    const i = here(), st = S[i];
+    if (holding) {
+      if (anim.playing()) anim.pause();
+      T = Infinity;
+      if ((st.c != null ? st.c : APEX) === c && (sliding || T === Infinity && !st.moved)) return;
+      sliding = true; st.c = c; st.moved = true;
+      K.refresh();
+      return;
+    }
+    st.c = c; st.moved = true; sliding = false;
+    play(SLIDE_DUR, 'slide');
+    K.refresh();
+  }
+  // Letting go of the top corner after sliding it: the outside pieces turn in at its new place.
+  function letGo() { if (!sliding) return; sliding = false; if (live()) { play(SLIDE_DUR, 'slide'); K.refresh(); } }
+  const moveBy = (q, holding) => { if (gripKind(STEPS[here()]) === 'apex') slideTo(toAlong(q), holding); else moveTo(toCorner(q)); };
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = e.pointerId; try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q) moveBy(q, true);
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) { held = null; letGo(); } }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const i = here(), d = STEPS[i], st = S[i];
+    if (gripKind(d) === 'apex') { const c = st.c != null ? st.c : APEX; slideTo(K.clamp(c + (by[0] || by[1]), 0, RECT.w)); return; }
+    const p = st.pt || (d.show ? [FLOOR.w, FLOOR.h] : d.start);
+    moveTo([K.clamp(p[0] + by[0], 1, GRID.cols), K.clamp(p[1] + by[1], 1, GRID.rows)]);
+  });
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e);
+    if (q) moveBy(q);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  const DEMO = { count: demoCount, around: demoAround, half: demoHalf, any: demoAny, ell: demoEll };
+  const PIC = { area: drawArea, same: drawSame, corner: drawCorner, bracket: drawBracket, iso: drawIso, ell: drawEll, edge: drawEdge };
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    F = LAY[d.show ? (d.demo === 'ell' ? 'ell1' : d.demo) : d.pic];
+    H = F.H;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    gripAt = null;
+    const aria = d.show ? DEMO[d.demo](i, d, st) : PIC[d.pic](i, d, st, right);
+    if (i === here()) placeGrip(gripAt);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; sliding = false; enter('stepbox');
+      if (d.show) { st.moved = false; st.pt = null; st.c = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, opts[k]));
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T, keepF = F;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        const prev = t.previousSibling, patched = !!(prev && prev.tagName === 'rect' && /\b(patch|hl|bdg)\b/.test(prev.getAttribute('class')));
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size, patched: patched };
+      });
+      // Every stroked edge drawn, as straight pieces (lines, rectangles' sides and paths' legs).
+      const segs = [];
+      Array.from(art.querySelectorAll('line, rect, path')).filter(vis).forEach((n) => {
+        const cls = n.getAttribute('class') || '';
+        if (/\b(t1|tbad|patch|hl|bdg|sw)\b/.test(cls)) return;
+        if (n.tagName === 'line') { segs.push({ cls: cls, a: [+n.getAttribute('x1'), +n.getAttribute('y1')], b: [+n.getAttribute('x2'), +n.getAttribute('y2')] }); return; }
+        if (n.tagName === 'rect') { const x = +n.getAttribute('x'), y = +n.getAttribute('y'), w = +n.getAttribute('width'), h = +n.getAttribute('height'); [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]].forEach((q) => segs.push({ cls: cls, a: [q[0], q[1]], b: [q[2], q[3]] })); return; }
+        const toks = n.getAttribute('d').match(/[MLHVZ]|-?[\d.]+/g) || [];
+        let cur = null, start = null, k = 0;
+        while (k < toks.length) {
+          const c = toks[k++];
+          if (c === 'M') { cur = [+toks[k++], +toks[k++]]; start = cur; }
+          else if (c === 'L') { const q = [+toks[k++], +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'H') { const q = [+toks[k++], cur[1]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'V') { const q = [cur[0], +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'Z') { segs.push({ cls: cls, a: cur, b: start }); cur = start; }
+        }
+      });
+      const tints = Array.from(art.querySelectorAll('rect.t1, path.t1, path.pc, rect.tbad, path.tbad')).filter(vis).length;
+      const reds = Array.from(art.querySelectorAll('.bad, .edge, .warnt, .tbad')).filter(vis).length;
+      return { texts: texts, all: texts.map((t) => t.s), segs: segs, tints: tints, reds: reds, H: H, F: F, d: art.innerHTML };
+    } finally { S[i] = keepS; T = keepT; F = keepF; paint(); }
+  }
+  // No two labels overlap, every label stays inside the picture, no drawn edge runs through a label that is
+  // not on its own patch, and every edge stays inside the picture.
+  function crosses(s, t) {
+    const b = { l: t.x0 + 1, r: t.x1 - 1, t: t.y0 + 2, u: t.y1 - 1 };
+    for (let k = 0; k <= 40; k++) { const x = K.lerp(s.a[0], s.b[0], k / 40), y = K.lerp(s.a[1], s.b[1], k / 40); if (x > b.l && x < b.r && y > b.t && y < b.u) return true; }
+    return false;
+  }
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5) &&
+    (a.patched || !g.segs.some((s) => crosses(s, a)))) &&
+    g.segs.every((s) => [s.a, s.b].every((q) => q[0] >= 0 && q[0] <= 340 && q[1] >= 0 && q[1] <= g.H));
+  K.check('If you know the width and height of a rectangle, you can split it into squares and count them, to figure out its area: every floor drawn on a grid is split into its unit squares, and their count is width × height (4 m by 3 m is 12, the plant room 24, floors A and B 12 and 16, and every floor the corner can be dragged to, 1 by 1 up to 8 by 5)', () => {
+    const g1 = drawn(0, blank(0)), g40 = drawn(0, Object.assign(blank(0), { moved: true, pt: [8, 5] }));
+    let all = true;
+    for (let w = 1; w <= GRID.cols; w++) for (let h = 1; h <= GRID.rows; h++) all = all && squaresOf(w, h).length === w * h;
+    // The plant room's and floors A and B's drawn lines split each into w × h unit squares.
+    const cells = (g, x0, w, h) => {
+      const xs = new Set([x0, x0 + w]), ys = new Set([0, h]);
+      g.segs.filter((s) => /\bgl\b/.test(s.cls)).forEach((s) => {
+        const ax = (s.a[0] - g.F.ox) / g.F.Q, bx = (s.b[0] - g.F.ox) / g.F.Q, ay = (g.F.by - s.a[1]) / g.F.Q, by = (g.F.by - s.b[1]) / g.F.Q;
+        if (K.near(ax, bx, 1e-6) && ax > x0 + 1e-6 && ax < x0 + w - 1e-6 && Math.min(ay, by) <= 1e-6 && Math.max(ay, by) >= h - 1e-6) xs.add(Math.round(ax * 1000) / 1000);
+        if (K.near(ay, by, 1e-6) && ay > 1e-6 && ay < h - 1e-6 && Math.min(ax, bx) <= x0 + 1e-6 && Math.max(ax, bx) >= x0 + w - 1e-6) ys.add(Math.round(ay * 1000) / 1000);
+      });
+      const gx2 = [...xs].sort((p, q) => p - q), gy2 = [...ys].sort((p, q) => p - q);
+      return (xs.size - 1) * (ys.size - 1) === w * h && gx2.every((v, k) => k === 0 || K.near(v - gx2[k - 1], 1, 1e-6)) && gy2.every((v, k) => k === 0 || K.near(v - gy2[k - 1], 1, 1e-6));
+    };
+    const gRoom = drawn(1, solved(1)), gPair = drawn(3, solved(3));
+    const gridsOk = cells(gRoom, 0, ROOM.w, ROOM.h) && cells(gPair, 0, PAIR.A.w, PAIR.A.h) && cells(gPair, PAIR.A.w + 1, PAIR.B.w, PAIR.B.h);
+    return all && gridsOk && g1.all.indexOf('12') >= 0 && g1.all.indexOf('13') < 0 && g1.all.indexOf('12 m²') >= 0 && g40.all.indexOf('40') >= 0 && g40.all.indexOf('40 m²') >= 0 &&
+      rectA(FLOOR) === 12 && rectA(ROOM) === 24 && rectA(PAIR.A) === 12 && rectA(PAIR.B) === 16;
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zwqt6fr' });
+  K.check('The area of the triangle is half the area of the rectangle: a half-turn about its middle carries one half of the 6 m by 4 m rectangle exactly onto the other, each covering 12 of its 24 m²; the bracket plate\'s turned copy fills the rest of its 40 cm by 30 cm rectangle, 600 of 1,200 cm²', () => {
+    const r = RECT, U = [[0, 0], [0, r.h], [r.w, r.h]], L = [[0, 0], [r.w, 0], [r.w, r.h]];
+    const b = PLATE.b / PLATE.per, h = PLATE.h / PLATE.per, tri = [[0, 0], [b, 0], [0, h]];
+    return same(U.map((p) => rot(p, [r.w / 2, r.h / 2], Math.PI)), L) && K.near(areaOf(U), 12, 1e-9) && K.near(areaOf(L) + areaOf(U), rectA(r), 1e-9) &&
+      same(tri.map((p) => rot(p, [b / 2, h / 2], Math.PI)), [[b, h], [0, h], [b, 0]]) && triA(PLATE.b, PLATE.h) === 600 && PLATE.b * PLATE.h === 1200 &&
+      answerOf(STEPS[6]) === '600 cm²' && STEPS[6].want === '600 cm²';
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zdxshcw' });
+  K.check('The base and the perpendicular height are at right angles to each other: each height is drawn straight up from a level base; for the top corner anywhere from 0 to 6 m along, the two outside pieces turned a half-turn land exactly on the triangle, so it covers 6 × 4 ÷ 2 = 12 m²; the 6 cm triangle uses its 4 cm height, 12 cm², and its 5 cm sloping sides give 15 cm², which is wrong', () => {
+    let ok = true;
+    for (let a = 0; a <= RECT.w; a++) {
+      const tp = triParts(RECT.w, RECT.h, a);
+      ok = ok && K.near(areaOf(tp.tri), 12, 1e-9) && [tp.left, tp.right].every((pc) => areaOf(pc.pts) < 1e-9 || same(pc.pts.map((p) => rot(p, pc.c, Math.PI)), pc.into)) &&
+        K.near(areaOf(tp.left.pts) + areaOf(tp.right.pts), areaOf(tp.tri), 1e-9);
+    }
+    // Exactly one height, upright (both ends the same x), its foot on the base's level.
+    const upright = (g) => { const hts = g.segs.filter((s) => /\bht\b/.test(s.cls)); return hts.length === 1 && K.near(hts[0].a[0], hts[0].b[0], 1e-9) && [hts[0].a[1], hts[0].b[1]].some((y) => K.near(y, g.F.by, 1e-9)); };
+    let slid = upright(drawn(7, blank(7)));
+    for (let a = 0; a <= RECT.w; a++) slid = slid && upright(drawn(7, Object.assign(blank(7), { moved: true, c: a })));
+    return ok && slid && upright(drawn(8, blank(8))) && K.near(Math.hypot(ISO.b / 2, ISO.h), ISO.s, 1e-9) &&
+      answerOf(STEPS[8]) === '12 cm²' && slipOpt(STEPS[8], 'slope') === '15 cm²';
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zc4pk2p' });
+  K.check('Perimeter and area, worked from their rules: the plant room is 6 + 4 + 6 + 4 = 20 m around and covers 24 m²; floors A and B are both 16 m around but cover 12 m² and 16 m²; the L-shaped floors cover 12 + 6 = 20 − 2 = 18 m² and 20 + 4 = 30 − 6 = 24 m², and the second is 22 m around, the same as the 6 m by 5 m rectangle around it', () => {
+    const p1 = ellParts(ELL1), p2 = ellParts(ELL2);
+    return around(ROOM) === 20 && rectA(ROOM) === 24 && around(PAIR.A) === 16 && around(PAIR.B) === 16 &&
+      rectA(p1[0]) === 12 && rectA(p1[1]) === 6 && ellA(ELL1) === 18 && rectA(ELL1) - ELL1.nw * ELL1.nh === 18 && ELL1.nw * ELL1.nh !== rectA(p1[1]) &&
+      rectA(p2[0]) === 20 && rectA(p2[1]) === 4 && ellA(ELL2) === 24 && rectA(ELL2) === 30 && ELL2.nw * ELL2.nh === 6 &&
+      K.near(areaOf(ellPts(ELL2)), 24, 1e-9) && ellAround(ELL2) === 22 && ellAround(ELL2) === around(ELL2) && ellSides(ELL2).join() === '5,4,3,2,2,6';
+  });
+  K.check('Each puzzle\'s answer is worked out from its rule: 24 m²; floor B; a floor 4 m by 3 m (or 3 m by 4 m); 600 cm²; 12 cm²; 24 m²; 22 m', () =>
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) && DO.map((i) => STEPS[i].want).join('|') === '24 m²|Floor B|4 m × 3 m|600 cm²|12 cm²|24 m²|22 m' &&
+    isRight(4, Object.assign(blank(4), { moved: true, pick: '3 m × 4 m' })) && STEPS[4].to[0] * STEPS[4].to[1] === STEPS[4].area && STEPS[4].to[1] === STEPS[4].side);
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives: all four sides added, two sides added, the same perimeter taken as the same area, the longer floor, a 3 m square 12 m around, a 12 m² floor with no 3 m side, the sloping side as the height, the whole rectangle, the whole rectangle around the room, the left part alone, only the labelled sides, the area\'s number; each is shown in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length === slips.length + 1 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      if (d.kind === 'drag' && slips.some((o) => isRight(i, slipped(i, o)))) return false;
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return clear(w) && w.reds > 0; });
+    }) && slipOpt(STEPS[1], 'around') === '20 m²' && slipOpt(STEPS[1], 'two') === '10 m²' && slipOpt(STEPS[6], 'slope') === '1,000 cm²' && slipOpt(STEPS[6], 'whole') === '1,200 cm²' &&
+    slipOpt(STEPS[10], 'outer') === '30 m²' && slipOpt(STEPS[10], 'part') === '20 m²' && slipOpt(STEPS[11], 'labelled') === '18 m' && slipOpt(STEPS[11], 'area') === '24 m' &&
+    around({ w: 3, h: 3 }) === 12 && parseDims(slipOpt(STEPS[4], 'noside')).indexOf(3) < 0);
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: no tint or running totals on the plant room, no areas on floors A and B, the drawn floor\'s area shown as ?, no rectangle, turned copy or sum on the triangles, no split or areas on the L-shaped room, the two unlabelled sides unlabelled, nothing in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      if (g.reds) return false;
+      if (d.kind === 'drag') return g.all.indexOf('? m²') >= 0 && g.all.indexOf('12 m²') < 0;
+      if (g.all.indexOf(d.want) >= 0) return false;
+      if (d.pic === 'area') return g.tints === 0 && g.all.indexOf('24') < 0;
+      if (d.pic === 'same') return g.tints === 0 && !g.all.some((s) => / m²$/.test(s) && s !== '1 m²');
+      if (d.pic === 'bracket' || d.pic === 'iso') return g.tints === 1 && !g.segs.some((s) => /\bgh\b/.test(s.cls)) && !g.all.some((s) => /÷/.test(s));
+      if (d.pic === 'ell') return g.tints === 0 && !g.segs.some((s) => /\bcut\b/.test(s.cls));
+      return g.all.filter((s) => s === '2 m').length === 0 && !g.segs.some((s) => /\btrace\b/.test(s.cls));
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture, clear of each other and of the edges drawn, for every answer, right or wrong, wherever the floor\'s corner is dragged and wherever the top corner slides', () => {
+    const corners = [];
+    for (let w = 1; w <= GRID.cols; w++) for (let h = 1; h <= GRID.rows; h++) corners.push([w, h]);
+    return STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i))))) &&
+      corners.every((c) => clear(drawn(0, Object.assign(blank(0), { moved: true, pt: c }))) && clear(drawn(4, Object.assign(blank(4), { moved: true, pt: c, pick: dims(c[0], c[1]) })))) &&
+      [0, 1, 2, 3, 4, 5, 6].every((a) => clear(drawn(7, Object.assign(blank(7), { moved: true, c: a }))));
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, and the turn after the top corner is let go, within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per item; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 1); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && SLIDE.turn + PIECE_T <= SLIDE_DUR + 1e-9 && SLIDE_DUR <= 2.5 && SLIDE.turn >= 0 && AT.count.sq[2] === rectA(FLOOR) && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

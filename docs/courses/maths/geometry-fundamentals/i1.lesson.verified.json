@@ -1,0 +1,124 @@
+{
+  "iid": "i1",
+  "title": "Area from unit squares",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is that area counts unit squares, so a rectangle covers length × width and a triangle half its rectangle, using the height at right angles to the base, while the perimeter adds the sides, when you drag a floor's corner to fill its squares, compare floors the same distance around, cut a rectangle corner to corner, slide a triangle's corner and split an L-shaped room.",
+    "title": "Area from unit squares",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens. Each shows a floor, a plate or a triangle drawn to scale, with its sides labelled in m or cm, some on a grid of one-metre squares. Squares fill one at a time to count an area, the edge is traced to add a perimeter, and triangles are cut from their rectangles and turned to show that the pieces match. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "All the sizes are example values, chosen so the numbers come out simply: the floors, the plant room, the bracket plate, the triangles and the L-shaped rooms. The floors are drawn with straight sides and square corners, and every length is taken as exact. Each triangle here has its top corner above its base; when the top corner leans out past the end of the base, base × height ÷ 2 still holds, but the triangle is then less than half of the rectangle drawn around it. Circles, changing between square units and Pythagoras come in later lessons, so the plate's 50 cm side and the triangle's 5 cm sides are given, not worked out.",
+    "numbers": [
+      {
+        "label": "A 4 m by 3 m floor: 3 rows of 4 one-metre squares, counted one at a time, 4 × 3 = 12 m², in step 1",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "A 6 m by 4 m plant room: 4 rows of 6 squares, 6 × 4 = 24 m², not 6 + 4 + 6 + 4 = 20 or 6 + 4 = 10, in step 2",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "The same floor: 6 + 4 + 6 + 4 = 20 m around its edge, and 6 × 4 = 24 m² inside, in step 3",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Floors A, 6 m by 2 m, and B, 4 m by 4 m: both 16 m around, covering 6 × 2 = 12 m² and 4 × 4 = 16 m², in step 4",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "A floor with a 3 m side covering 12 m²: 12 ÷ 3 = 4, so 4 m by 3 m, not 3 m by 3 m (9 m²) or 6 m by 2 m (no 3 m side), in step 5",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "A 6 m by 4 m rectangle cut corner to corner: each half covers 6 × 4 ÷ 2 = 12 m², in step 6",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "A plate with 40 cm and 30 cm sides at right angles: 40 × 30 ÷ 2 = 600 cm², not 40 × 50 ÷ 2 = 1,000 or 40 × 30 = 1,200, in step 7",
+        "value": 600,
+        "kind": "computed"
+      },
+      {
+        "label": "A triangle on a 6 m base, 4 m high, its top corner anywhere along the top of its rectangle: 6 × 4 ÷ 2 = 12 m², in step 8",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "A triangle with a 6 cm base, 5 cm sloping sides and a 4 cm height: 6 × 4 ÷ 2 = 12 cm², not 6 × 5 ÷ 2 = 15 cm² or 6 × 4 = 24 cm², in step 9",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "An L-shaped floor, 5 m by 4 m less a 2 m by 1 m corner: 3 × 4 + 2 × 3 = 12 + 6 = 18 m², or 20 − 2 = 18 m², in step 10",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "An L-shaped room, 6 m by 5 m less a 2 m by 3 m corner: 20 + 4 = 24 m², or 30 − 6 = 24 m², not 6 × 5 = 30 m² or 4 × 5 = 20 m², in step 11",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "The room's edge, with 6 − 4 = 2 m and 5 − 3 = 2 m: 5 + 4 + 3 + 2 + 2 + 6 = 22 m, not the labelled 6 + 5 + 4 + 3 = 18 m, in step 12",
+        "value": 22,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "[[Area]] is how much flat surface a shape covers, counted in unit squares. A floor 4 m long and 3 m wide holds 3 rows of 4 one-metre squares, 12 in all, so it covers 4 × 3 = 12 m². BBC Bitesize describes the same idea, splitting a rectangle into squares and counting them to find its area.[^1] The [[perimeter]] is a different measure, the distance around the edge, so for a shape with straight sides you add them up. A 6 m by 4 m plant room is 6 + 4 + 6 + 4 = 20 m around but covers 6 × 4 = 24 m². Floors of 6 m by 2 m and 4 m by 4 m are both 16 m around, yet they cover 12 m² and 16 m². NCETM suggests working on area and perimeter together, because that shows whether the two are still being confused.[^2]\n\nA triangle is half a rectangle. Cut a 6 m by 4 m rectangle corner to corner and the two halves match, so each covers 6 × 4 ÷ 2 = 12 m². Bitesize puts it simply: the area of the triangle is half the area of the rectangle.[^3] The same holds for a triangle whose top corner sits anywhere along the top of its rectangle, because its [[height]] splits the rectangle into two smaller ones, and each is cut in half. So a triangle covers base × height ÷ 2, with the height measured at right angles to the base, as Bitesize says.[^4] A sloping side is not the height. A triangle with a 6 cm base, 5 cm sloping sides and a 4 cm height covers 6 × 4 ÷ 2 = 12 cm², not 15 cm². An L-shaped room splits into rectangles whose areas add, or it is the whole rectangle less the missing corner.\n\n**Area counts unit squares, so a rectangle covers length × width. A triangle is half its rectangle, base × height ÷ 2, with the height at right angles to the base. The perimeter is the distance around the edge, so for a straight-sided shape add every side.**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** For a rectangle's area, multiply the two sides that meet at a square corner. For a triangle, halve base × height, taking the height at right angles to the base, not a sloping side. For the perimeter of a straight-sided shape, add every side, working out any that are not labelled.\n\n**Worked example:** A triangular bracket plate has a 40 cm side and a 30 cm side meeting at a square corner, and a 50 cm sloping side. The two sides at right angles are its base and height, so it covers 40 × 30 ÷ 2 = 600 cm². The 50 cm side is not used.\n\n**Common mistakes**\n- Muddling perimeter and area, which NCETM suggests checking by working on the two together.[^2] The 6 m by 4 m floor is 20 m around but covers 24 m², and a perimeter is a length in m while an area is in m². Floors can also share a perimeter and still differ in area, as 6 m by 2 m and 4 m by 4 m do."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "How to work out an area - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zwqt6fr",
+      "quote": "If you know the width and height of a rectangle, you can split it into squares and count them, to figure out its area."
+    },
+    {
+      "n": 2,
+      "title": "Teaching perimeter and area in Year 7 using NCETM Checkpoints | NCETM",
+      "url": "https://www.ncetm.org.uk/features/teaching-perimeter-and-area-in-year-7-using-ncetm-checkpoints",
+      "quote": "Working with area and perimeter simultaneously will allow you to assess whether students are still confusing the two concepts."
+    },
+    {
+      "n": 3,
+      "title": "Area - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zdxshcw",
+      "quote": "The area of the triangle is half the area of the rectangle."
+    },
+    {
+      "n": 4,
+      "title": "Area of triangles - KS3 Maths - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zc4pk2p",
+      "quote": "The base and the perpendicular height are at right angles to each other."
+    }
+  ]
+}

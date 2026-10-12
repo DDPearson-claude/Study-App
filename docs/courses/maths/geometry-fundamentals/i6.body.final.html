@@ -1,0 +1,1280 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  /* Nothing in the picture is selected as text while a part is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  /* Solids: unit cubes and liquid in the light tint (their tops and sides a shade deeper, so they read as
+     solid), the base area being counted in the highlighted tint, shapes edged in ink, the edges behind dashed. */
+  .scene .cube, .scene .liq { fill: var(--k-fill1); }
+  .scene .cube.ft, .scene .liq.ft { fill: color-mix(in srgb, var(--k-fill1) 90%, var(--k-ink)); }
+  .scene .cube.fs, .scene .liq.fs { fill: color-mix(in srgb, var(--k-fill1) 80%, var(--k-ink)); }
+  .scene .base { fill: var(--k-fill2); }
+  .scene .one { fill: var(--k-fill2); stroke: var(--k-accent2); stroke-width: 1.25; stroke-linejoin: round; }
+  .scene .gc { stroke: var(--k-accent2); stroke-opacity: .45; stroke-width: .8; fill: none; }
+  .scene .gl2 { stroke: var(--k-line); stroke-width: .7; fill: none; }
+  .scene .shp { fill: none; stroke: var(--k-accent2); stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+  .scene .shp.thin { stroke-width: 1.25; }
+  .scene .hid { stroke: var(--k-muted); stroke-width: 1.25; stroke-dasharray: 4 3; fill: none; }
+  .scene .tk { stroke: var(--k-muted); stroke-width: 1; fill: none; }
+  .scene .dim { stroke: var(--k-muted); stroke-width: 1.25; fill: none; }
+  .scene .rad { stroke: var(--k-amber-line); stroke-width: 3; stroke-linecap: round; }
+  .scene .radi { stroke: var(--k-accent2); stroke-width: 2; stroke-linecap: round; }
+  .scene .rowl { stroke: var(--k-amber-line); stroke-width: 5; stroke-linecap: round; }
+  /* A slip: a red tint over what it counts, a red edge or outline. */
+  .scene .tbad { fill: var(--k-warn); fill-opacity: .18; }
+  .scene .edge { stroke: var(--k-warn); stroke-width: 5; stroke-linecap: round; fill: none; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.25; }
+  .scene .redl { stroke: var(--k-warn); stroke-width: 1.5; fill: none; }
+  .scene .redg { stroke: var(--k-warn); stroke-opacity: .6; stroke-width: .8; fill: none; }
+  .scene .hl { fill: var(--k-hl); }
+  /* Lengths in ink; small labels in teal; the table's numbers in muted, the one reached in ink. */
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .axv { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axv.on { fill: var(--k-ink); }
+  .scene .patch { fill: var(--k-bg); }
+  /* The readout along the top: a sum and what it comes to. */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The part Dan moves: a dot with a soft ring. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Solids with their lengths labelled, some built from unit cubes: boxes, a metre cube of litres, a drum, a round tank, a box tank with liquid, and boxes unfolded flat.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 272" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption" id="cap">A box or cylinder holds its base area × its length, and 1 m³ is 1,000 L. All sizes are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // demo: what a SHOW step plays (dur seconds); grip: what Dan can move once it has played (the top of the
+  // stack of cubes, the drum's end, or the level of the liquid). Each puzzle takes one answer, its picture
+  // `pic`: a 'pick' puzzle one of its options, a 'drag' puzzle the tank's top dragged to the depth `want`. fb: how long the motion after a right answer plays; at: when each part of it arrives, in
+  // seconds after Check ([start, gap, count] for parts counted one at a time). slips: which slip gives
+  // each wrong answer, and hints: what is said for it.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the top to its place first.';
+  // After a right answer. LAYER1: the tank's base tinted, its sum; a layer of 1 m cubes; the half layer
+  // and the sum. MILLION: one row of 1 cm cubes; one layer; the layers rise; the sum. LITRES: the metre
+  // cube ruled into litres; one litre picked out; the sum. ROUND: the radius; the round base; the tank
+  // fills up from it; the sum. DEPTH: the liquid's base area; its m³; its litres. MASS: each cube of oil
+  // tagged with its mass, one at a time; the sum. PAIRS: the net's faces tinted a matching pair at a time,
+  // with their areas, the readout counting up to the sum.
+  const LAYER1 = { base: 0.1, layer: 0.6, half: 1.1 };
+  const MILLION = { row: 0.1, layer: 0.6, rise: 1.1, ro: 1.8 };
+  const LITRES = { grid: 0.1, one: 0.6, ro: 1.1 };
+  const ROUND = { r: 0.1, base: 0.6, rise: 1.1, ro: 1.6 };
+  const DEPTH = { area: 0.1, m3: 0.6, ro: 1.1 };
+  const MASS = { tag: [0.1, 0.3, 3], ro: 1.2 };
+  const PAIRS = { pair: [0.1, 0.45, 3] };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long a layer of cubes takes to drop in, a row or layer of litres to grow, the layers of cm³ to rise,
+  // the round tank to fill, the drum's end to turn and to slide, the box to unfold, the liquid to rise a
+  // step, and a row of the table to light up.
+  const LAY_T = 0.4, GROW = 0.6, RISE = 0.7, FILL_T = 0.8, TURN = 0.7, SLIDE = 1.0, UNFOLD = 1.1, HOP = 0.35, PICK_T = 0.25;
+
+  // The solids, all example sizes, in metres: the base of 1 m squares and the layers stacked on it (1);
+  // the box tank, 3 m long, 2 m wide and 1.5 m deep (2, 5, 8, 9, 12), and its liquid's depth (9); the
+  // drum (6); the round tank (7); the oil, its density in kg per m³ and its volume in m³ (10); the box
+  // unfolded (11).
+  const BASE = { l: 4, w: 3, n: 5 };
+  const TANK = { l: 3, w: 2, h: 1.5 }, LIQ = 0.8;
+  const DRUM = { d: 1, L: 2, min: 0.5, max: 3 };
+  const RTANK = { d: 1.2, h: 2 };
+  const OIL = { rho: 850, v: 3 };
+  const NETBOX = { l: 3, w: 2, h: 1 };
+  // The units: a litre is a 10 cm cube, so 10 fit along a metre; 100 cm in a metre.
+  const L_EDGE = 10, CM_PER_M = 100, L_PER_M3 = L_EDGE * L_EDGE * L_EDGE, CM3_PER_L = 10 * 10 * 10;
+  // The sounding table drawn for the example tank: the liquid's volume at every 0.25 m of depth.
+  const TABLE_STEP = 0.25;
+
+  const STEPS = [
+    { show: true, demo: 'layers', dur: 4.0, grip: 'height', name: 'Layers of cubes',
+      text: '*Volume* counts unit cubes, here 1 m cubes called *cubic metres*. A 4 m by 3 m base takes 12 in a layer, so 5 layers hold 12 × 5 = 60 m³. Drag the top.' },
+    { kind: 'drag', pic: 'tank', grip: 'depth', start: 0.5, want: '1.5 m', slips: { '1 m': 'base' }, fb: 1.7, at: LAYER1, name: 'A box tank',
+      task: 'An example box tank is 3 m long and 2 m wide. Drag its top until it holds 9 m³.',
+      why: 'Its base is 3 × 2 = 6 m², so each 1 m layer holds 6 cubes. 9 m³ is one and a half layers, so the tank is 1.5 m deep, and 6 × 1.5 = 9 m³.',
+      hint: 'Not quite. Work out the base area, the cubes in one 1 m layer. How many layers make 9 m³?',
+      hints: { '1 m': 'Not quite. 1 m deep is one layer of 3 × 2 = 6 cubes, only 6 m³. 9 m³ needs half a layer more.' } },
+    { show: true, demo: 'litre', dur: 4.2, name: 'A litre',
+      text: 'A *litre* is the space in a 10 cm cube. Ten of them fit along each edge of a 1 m cube, so 1 m³ holds 10 × 10 × 10 = 1,000 L.' },
+    { kind: 'pick', pic: 'million', opts: ['100 cm³', '10,000 cm³', '1,000,000 cm³'], want: '1,000,000 cm³', slips: { '100 cm³': 'row', '10,000 cm³': 'layer' }, fb: 2.4, at: MILLION, name: 'cm³ in a m³',
+      task: '1 m is 100 cm. How many cm³ make 1 m³?',
+      why: 'A 1 m cube is 100 cm each way. One row of 1 cm cubes along the bottom is 100 cm³, a layer is 100 × 100 = 10,000, and 100 layers make 100 × 100 × 100 = 1,000,000 cm³.',
+      hint: 'Not quite. Picture the 1 m cube in 1 cm cubes. How many in a row, in a layer, and how many layers?',
+      hints: { '100 cm³': 'Not quite. That uses the length\'s factor, 100. It is only one row of 1 cm cubes along the bottom edge.',
+        '10,000 cm³': 'Not quite. 100 × 100 = 10,000 fills only one layer, 1 cm tall. The cube is 100 layers tall.' } },
+    { kind: 'pick', pic: 'litres', opts: ['900 L', '9,000 L', '9,000,000 L'], want: '9,000 L', slips: { '900 L': 'hundred', '9,000,000 L': 'cm3' }, fb: 1.7, at: LITRES, name: 'm³ to litres',
+      task: 'The tank from step 2 holds 9 m³. How many litres is that?',
+      why: 'Each m³ holds 10 × 10 × 10 = 1,000 litre cubes, so 9 m³ is 9 × 1,000 = 9,000 L.',
+      hint: 'Not quite. How many litres fill 1 m³?',
+      hints: { '900 L': 'Not quite. That multiplies by 100, as for a length. 10 litre cubes fit along each edge of a 1 m cube, so 10 × 10 × 10 fill it.',
+        '9,000,000 L': 'Not quite. That counts 1 cm cubes, which are cm³. A litre is a whole 10 cm cube, 1,000 cm³.' } },
+    { show: true, demo: 'drum', dur: 3.7, grip: 'length', name: 'Cylinders',
+      text: 'A *cylinder* works the same way, its round end of πr² sliding along its length. A drum 1 m across and 2 m long holds π × 0.5² × 2 = 1.57 m³. Drag its end.' },
+    { kind: 'pick', pic: 'round', opts: ['2.26 m³', '7.54 m³', '9.05 m³'], want: '2.26 m³', slips: { '9.05 m³': 'diam', '7.54 m³': 'side' }, fb: 2.2, at: ROUND, name: 'A round tank',
+      task: 'An example round tank is 1.2 m across and 2 m tall. How many m³ does it hold?',
+      why: 'Halve 1.2 m for the radius, 0.6 m. The round base is π × 0.6² = 1.13 m², and it rises 2 m, so π × 0.6² × 2 = 2.26 m³.',
+      hint: 'Not quite. Find the radius, then the round base\'s area, then multiply by the height.',
+      hints: { '9.05 m³': 'Not quite. That puts 1.2 m into πr², but 1.2 m is the diameter. Halve it for the radius first.',
+        '7.54 m³': 'Not quite. That is 2πr × the 2 m height, the area of the round side, in m². The space inside is the base\'s area, πr², times the height.' } },
+    { show: true, demo: 'level', dur: 3.1, grip: 'level', name: 'A tank\'s table',
+      text: 'On a ship, each tank comes with its own *sounding table*, giving the volume of liquid in it at each sounding, or depth. In this made-up box tank the liquid is a box, 6 m² × its depth. Drag the level.' },
+    { kind: 'pick', pic: 'liquid', opts: ['4.8 L', '4,800 L', '9,000 L'], want: '4,800 L', slips: { '9,000 L': 'full', '4.8 L': 'nolitre' }, fb: 1.7, at: DEPTH, name: 'Liquid in a tank',
+      task: 'The liquid in this example tank is 0.8 m deep. How many litres is it?',
+      why: 'The liquid is a box too, 6 m² across the base and 0.8 m deep, so 6 × 0.8 = 4.8 m³. Each m³ is 1,000 L, so that is 4,800 L.',
+      hint: 'Not quite. Multiply the base area by the liquid\'s depth, then change m³ to litres.',
+      hints: { '9,000 L': 'Not quite. That is the whole tank, 1.5 m deep. Use the liquid\'s depth, 0.8 m.',
+        '4.8 L': 'Not quite. 6 × 0.8 = 4.8 is in m³. Each m³ holds 1,000 L.' } },
+    { kind: 'pick', pic: 'mass', opts: ['283.33 kg', '2,550 kg', '2,550,000 kg'], want: '2,550 kg', slips: { '283.33 kg': 'divide', '2,550,000 kg': 'litres' }, fb: 1.8, at: MASS, name: 'Mass from density',
+      task: '*Density* is mass ÷ volume. An example tank holds 3 m³ of an oil of 850 kg per m³. What is the oil\'s mass?',
+      why: 'Density is mass ÷ volume, so mass is density × volume. Each m³ of the oil has a mass of 850 kg, so 3 m³ has 850 × 3 = 2,550 kg.',
+      hint: 'Not quite. Each m³ of the oil has a mass of 850 kg. How much do 3 of them have?',
+      hints: { '283.33 kg': 'Not quite. That divides 850 by 3. Mass is density × volume, so multiply.',
+        '2,550,000 kg': 'Not quite. That multiplies by 3,000 litres. The density is per m³, so use the 3 m³.' } },
+    { show: true, demo: 'net', dur: 4.0, name: 'A box\'s net',
+      text: 'Unfold a box and its six faces lie flat as a *net*. They come in three matching pairs, so the area of this box\'s whole outside, its *surface area*, is 2 × (6 + 3 + 2) = 22 m².' },
+    { kind: 'pick', pic: 'sheet', opts: ['9 m³', '13.5 m²', '27 m²'], want: '27 m²', slips: { '13.5 m²': 'half', '9 m³': 'volume' }, fb: 1.6, at: PAIRS, name: 'Sheet for a tank',
+      task: 'How much sheet covers the outside of the closed tank from step 2, 3 m by 2 m by 1.5 m?',
+      why: 'Its net has three pairs of faces, 3 × 2 = 6 m², 3 × 1.5 = 4.5 m² and 2 × 1.5 = 3 m². So 2 × (6 + 4.5 + 3) = 27 m².',
+      hint: 'Not quite. Add the areas of all six faces of its net.',
+      hints: { '13.5 m²': 'Not quite. That counts three faces, one of each pair. Each face has a matching one opposite it.',
+        '9 m³': 'Not quite. 3 × 2 × 1.5 = 9 m³ is the space inside. The sheet is an area, the six faces added.' } },
+  ];
+  const FINISH = 'A box or a cylinder holds its base area × its length, counted in unit cubes. A litre is a 10 cm cube, so 1 m³ holds 1,000 L and 1,000,000 cm³. Volume × density gives mass, and a box\'s six faces give its surface area.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap, count] for parts counted one
+  // at a time. layers: the base with its sum; the layers drop in one at a time; the sum. litre: one litre
+  // cube; a row of 10 grows along the edge, the readout swapping to 10 L as it lands (ro1); it spreads back
+  // into a layer of 100 (ro2); the layers rise to 1,000, and the sum. drum: the round end, face on, with its area; it turns side on; it slides along 2 m; the sum.
+  // level: the liquid rises a quarter metre at a time, its row of the table lighting up as it lands; its
+  // base area. net: the box; it unfolds; the edges' lengths; each pair's areas, the readout counting to
+  // the sum.
+  const FADE = 0.35;
+  const AT = {
+    layers: { base: 0.6, lay: [1.1, 0.45, 5], sum: 3.4 },
+    litre: { cube: 0.6, row: 1.1, ro1: 1.6, layer: 2.1, ro2: 2.6, stack: 3.1, sum: 3.6 },
+    drum: { face: 0.6, turn: 1.2, slide: 2.0, sum: 3.1 },
+    level: { hop: [0.6, 0.45, 4], area: 2.45 },
+    net: { box: 0.6, unfold: 1.1, edges: 2.4, pair: [2.9, 0.25, 3] },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  // Answers with π are rounded to 2 decimal places.
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const num = (v) => { const a = r3(v), p = String(Math.abs(a)).split('.'); return (a < 0 ? '−' : '') + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (p[1] ? '.' + p[1] : ''); };
+  const amt = (v, u) => num(v) + ' ' + u;
+  const sq = (v) => v * v;
+  const boxVol = (b) => b.l * b.w * b.h;
+  const cylVol = (d, len) => Math.PI * sq(d / 2) * len;
+  // A closed box's faces: three pairs, length × width, length × height and width × height.
+  const facesArea = (b) => [b.l * b.w, b.l * b.h, b.w * b.h];
+  const surface = (b) => 2 * facesArea(b).reduce((s, a) => s + a, 0);
+  // What each slip makes of an answer, as its button reads.
+  function slipOpt(d, s) {
+    const V = boxVol(TANK), base = TANK.l * TANK.w, liq = base * LIQ;
+    if (d.pic === 'tank') return amt(1, 'm');                     // one layer of 1 m cubes only
+    if (d.pic === 'million') return s === 'row' ? amt(CM_PER_M, 'cm³') : amt(sq(CM_PER_M), 'cm³');
+    if (d.pic === 'litres') return s === 'hundred' ? amt(V * CM_PER_M, 'L') : amt(V * CM_PER_M * CM_PER_M * CM_PER_M, 'L');
+    if (d.pic === 'round') return s === 'diam' ? amt(r2(Math.PI * sq(RTANK.d) * RTANK.h), 'm³') : amt(r2(2 * Math.PI * (RTANK.d / 2) * RTANK.h), 'm³');
+    if (d.pic === 'liquid') return s === 'full' ? amt(V * L_PER_M3, 'L') : amt(liq, 'L');
+    if (d.pic === 'mass') return s === 'divide' ? amt(r2(OIL.rho / OIL.v), 'kg') : amt(OIL.rho * OIL.v * L_PER_M3, 'kg');
+    return s === 'half' ? amt(surface(TANK) / 2, 'm²') : amt(V, 'm³');
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.pic === 'tank') return amt(boxVol(TANK) / (TANK.l * TANK.w), 'm');
+    if (d.pic === 'million') return amt(CM_PER_M * CM_PER_M * CM_PER_M, 'cm³');
+    if (d.pic === 'litres') return amt(boxVol(TANK) * L_PER_M3, 'L');
+    if (d.pic === 'round') return amt(r2(cylVol(RTANK.d, RTANK.h)), 'm³');
+    if (d.pic === 'liquid') return amt(TANK.l * TANK.w * LIQ * L_PER_M3, 'L');
+    if (d.pic === 'mass') return amt(OIL.rho * OIL.v, 'kg');
+    return amt(surface(TANK), 'm²');
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/(\d),(\d{3})/g, '$1$2').replace(/(\d),(\d{3})/g, '$1$2')
+    .replace(/cm³/g, 'cubic centimetres').replace(/m³/g, 'cubic metres').replace(/m²/g, 'square metres')
+    .replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) m\b/g, '$1 metres').replace(/(\d) L\b/g, '$1 litres').replace(/(\d) kg\b/g, '$1 kilograms')
+    .replace(/(^|[^\d.])1 (cubic |square )?(centi)?metres/g, '$11 $2$3metre').replace(/(^|[^\d.])1 litres/g, '$11 litre')
+    .replace(/π/g, ' pi ').replace(/²/g, ' squared').replace(/³/g, ' cubed')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, v: null, moved: false }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const d = STEPS[i], st = blank(i); st.res = 'right'; st.moved = true; st.pick = d.want; if (d.kind === 'drag') st.v = parseFloat(d.want); return st; }
+  function slipped(i, o) { const d = STEPS[i], st = blank(i); st.res = 'wrong'; st.moved = true; st.pick = o; if (d.kind === 'drag') st.v = parseFloat(o); return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) el.appendChild(document.createTextNode(text.slice(at, m.index)));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) el.appendChild(document.createTextNode(text.slice(at)));
+  }
+  // An amount or a sum stays together on one line ("1,000 L", "π × 0.5² × 2 = 1.57 m³",
+  // "2 × (6 + 3 + 2) = 22 m²"), with the stop after it; a long one may break only before an equals sign.
+  const TOK = '(?:2?π|\\(?\\d[\\d,]*(?:\\.\\d+)?[²³]?\\)?(?: (?:cm³|m³|cm²|m²|cm|m|L|kg)(?![A-Za-z²³]))?)';
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’-])' + TOK + '(?: [=+−×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) el.appendChild(K.el('span', { class: 'nw' }, b)); else el.appendChild(document.createTextNode(b));
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].moved = false; S[i].v = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  // Solids are drawn in metres: x along, y up, z back, the back drawn up and to the right (KX, KY of a
+  // metre for each metre back). Each picture has its own frame: Q units a metre, the front bottom left
+  // corner at (ox, by), H tall. The readout sits on the row YNY.
+  const YNY = 24, KX = 0.5, KY = 0.3, E = 0.32;      // E: how round ends squash when seen from the side
+  const LAY = {
+    layers: { Q: 34, ox: 84, by: 246, H: 272 },     // the base of 1 m squares and its layers
+    tank: { Q: 56, ox: 58, by: 200, H: 228 },       // the box tank
+    tankd: { Q: 48, ox: 60, by: 214, H: 240 },      // the box tank whose top Dan drags, up to 2.5 m deep
+    litre: { Q: 150, ox: 62, by: 246, H: 274 },     // a 1 m cube, in litres or cm
+    tank5: { Q: 30, ox: 50, by: 200, H: 244 },      // the box tank, small, beside a 1 m cube drawn larger (CUBE5)
+    drum: { Q: 76, ox: 72, by: 132, H: 200 },       // the drum on its side: its left end's centre
+    round: { Q: 80, ox: 150, by: 236, H: 272 },     // the round tank standing: its base's centre
+    level: { Q: 33, ox: 58, by: 200, H: 228 },      // the box tank beside its table
+    oil: { Q: 70, ox: 48, by: 196, H: 224 },        // three 1 m cubes of oil
+    net: { Q: 34, ox: 170, by: 252, H: 278 },       // the 3 m by 2 m by 1 m box, unfolded about x = ox
+    net2: { Q: 30, ox: 170, by: 250, H: 276 },      // the tank, unfolded
+  };
+  const CUBE5 = { Q: 86, ox: 194, by: 200 };
+  const LAY_OF = { layers: 'layers', litre: 'litre', drum: 'drum', level: 'level', net: 'net', tank: 'tankd', million: 'litre', litres: 'tank5', round: 'round', liquid: 'tank', mass: 'oil', sheet: 'net2' };
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let F = LAY.layers, H = F.H;
+  // Draw in another frame for a moment (the metre cube beside the tank).
+  function within(fr, draw) { const keep = F; F = Object.assign({}, F, fr); try { draw(); } finally { F = keep; } }
+  const P3 = (x, y, z) => [F.ox + F.Q * (x + z * KX), F.by - F.Q * (y + z * KY)];
+  const gx = (x) => F.ox + F.Q * x;
+  const gy = (y) => F.by - F.Q * y;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; grow: the same, eased.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const grow = (t0, d) => K.ease(lin(t0, d == null ? GROW : d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place (a negative rise
+  // drops it from above); nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = String(s);
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, an: 13, lbl: 13, rou: 13, axv: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+
+  // --- solids ---
+  const pathOf = (pts) => 'M' + pts.map((p) => r3(p[0]) + ' ' + r3(p[1])).join('L') + 'Z';
+  const openOf = (pts) => 'M' + pts.map((p) => r3(p[0]) + ' ' + r3(p[1])).join('L');
+  const on3 = (c) => P3(c[0], c[1], c[2]);
+  const face = (cls, corners) => path(cls, pathOf(corners.map(on3)));
+  function seg3(cls, a, b) { const p = on3(a), q = on3(b); line(cls, p[0], p[1], q[0], q[1]); }
+  // A box from (x0, y0, z0) to (x1, y1, z1): its faces' corners.
+  function facesOf(b) {
+    const x0 = b[0], y0 = b[1], z0 = b[2], x1 = b[3], y1 = b[4], z1 = b[5];
+    return { front: [[x0, y0, z0], [x1, y0, z0], [x1, y1, z0], [x0, y1, z0]], top: [[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]],
+      side: [[x1, y0, z0], [x1, y0, z1], [x1, y1, z1], [x1, y1, z0]], bottom: [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]] };
+  }
+  // The whole multiples of s strictly between a0 and a1.
+  function cuts(a0, a1, s) { const out = []; for (let k = Math.floor(a0 / s + 1e-9) + 1; k * s < a1 - 1e-9; k++) out.push(k * s); return out; }
+  // The lines between unit cubes (every s metres, counted from 0) on a box's three faces seen (its front
+  // and top only, if `front`: a cube with another beside it).
+  function cubeLines(b, s, cls, front) {
+    const x0 = b[0], y0 = b[1], z0 = b[2], x1 = b[3], y1 = b[4], z1 = b[5], d = [];
+    const L = (a, c) => { const p = on3(a), q = on3(c); d.push('M' + r3(p[0]) + ' ' + r3(p[1]) + 'L' + r3(q[0]) + ' ' + r3(q[1])); };
+    cuts(x0, x1, s).forEach((x) => { L([x, y0, z0], [x, y1, z0]); L([x, y1, z0], [x, y1, z1]); });
+    cuts(y0, y1, s).forEach((y) => { L([x0, y, z0], [x1, y, z0]); if (!front) L([x1, y, z0], [x1, y, z1]); });
+    cuts(z0, z1, s).forEach((z) => { L([x0, y1, z], [x1, y1, z]); if (!front) L([x1, y0, z], [x1, y1, z]); });
+    if (d.length) path(cls || 'gc', d.join(''));
+  }
+  // The lines between unit squares on a floor at height y.
+  function floorLines(b, s, cls) {
+    const x0 = b[0], y = b[1], z0 = b[2], x1 = b[3], z1 = b[5], d = [];
+    const L = (a, c) => { const p = on3(a), q = on3(c); d.push('M' + r3(p[0]) + ' ' + r3(p[1]) + 'L' + r3(q[0]) + ' ' + r3(q[1])); };
+    cuts(x0, x1, s).forEach((x) => L([x, y, z0], [x, y, z1]));
+    cuts(z0, z1, s).forEach((z) => L([x0, y, z], [x1, y, z]));
+    if (d.length) path(cls || 'gc', d.join(''));
+  }
+  // A solid box: its three faces seen, tinted (fc), ruled into cubes every s metres (if s), edged.
+  function solid(b, fc, s, ec) {
+    const f = facesOf(b);
+    face(fc, f.front); face(fc + ' ft', f.top); face(fc + ' fs', f.side);
+    if (s) cubeLines(b, s);
+    [f.front, f.top, f.side].forEach((c) => face(ec || 'shp thin', c));
+  }
+  // A see-through box (a tank): the three edges behind it dashed, and its outline.
+  function behind(b) { const x0 = b[0], y0 = b[1], z0 = b[2], x1 = b[3], y1 = b[4], z1 = b[5]; seg3('hid', [x0, y0, z1], [x1, y0, z1]); seg3('hid', [x0, y0, z0], [x0, y0, z1]); seg3('hid', [x0, y0, z1], [x0, y1, z1]); }
+  function outline(b, cls) { const f = facesOf(b); [f.front, f.top, f.side].forEach((c) => face(cls || 'shp', c)); }
+  // Points round an ellipse centred (cx, cy) from angle a0 to a1 (0 points right, π/2 down).
+  function ell(cx, cy, rx, ry, a0, a1, n) { const out = []; n = n || 36; for (let k = 0; k <= n; k++) { const a = a0 + (a1 - a0) * k / n; out.push([cx + rx * Math.cos(a), cy + ry * Math.sin(a)]); } return out; }
+  const oval = (cls, cx, cy, rx, ry) => path(cls, pathOf(ell(cx, cy, rx, ry, 0, 2 * Math.PI, 48).slice(0, -1)));
+  const arc = (cls, cx, cy, rx, ry, a0, a1) => path(cls, openOf(ell(cx, cy, rx, ry, a0, a1, 24)));
+
+  // --- labels and the readout ---
+  // A length beside a box: under its front edge, left of its front upright edge, or right of its bottom
+  // edge going back.
+  const below = (x0, x1, s, dy) => text((gx(x0) + gx(x1)) / 2, F.by + (dy || 18), s, 'lbl');
+  const leftOf = (y0, y1, s, dx) => text(F.ox - (dx || 8), (gy(y0) + gy(y1)) / 2 + 5, s, 'lbl', 'end');
+  function backOf(x, w, s) { const p = P3(x, 0, w / 2); text(p[0] + 10, p[1] + 7, s, 'lbl', 'start'); }
+  // A label on a patch of the page (centred on x), so the lines it sits over stay clear of it.
+  function plabel(x, y, s, cls) { const w = tw(s, cls); rect('patch', x - w / 2 - 4, y - 13, w + 8, 18, 4); text(x, y, s, cls); }
+  // The readout on the row above the picture: what it comes to (big) after the sum that gives it (small).
+  function readout2(big, small, warn) {
+    const w = warn ? ' warnt' : '';
+    text(338, YNY, big, 'ro' + w, 'end');
+    if (small) text(338 - tw(big, 'ro') - 8, YNY - 1, small, 'rou' + w, 'end');
+  }
+  const readoutHidden = (u) => text(338, YNY, '? ' + u, 'ro q', 'end');
+  // The part Dan moves: a dot, with a soft ring while it can be moved.
+  function handle(p, live) { if (live) circle('ringp', p[0], p[1], 15); circle('pt', p[0], p[1], 6); }
+  let gripAt = null;                                 // where the grip sits this frame (on the page), if anywhere
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Layers of cubes: the base of 1 m squares, tinted, with its area; the layers of 12 cubes drop in one
+  // at a time, the readout counting; the sum. Once it has played, Dan drags the top, 1 to 5 layers.
+  function demoLayers(i, d, st) {
+    const A = AT.layers, moved = st.moved && st.v != null, live = T === Infinity;
+    const ba = moved ? 1 : arr(A.base), las = [];
+    for (let k = 0; k < BASE.n; k++) las.push(arr(nth(A.lay, k), LAY_T));
+    const sa = moved ? 1 : arr(A.sum), h = moved ? st.v : BASE.n, got = moved ? h : las.filter((a) => a >= 0.5).length, area = BASE.l * BASE.w;
+    const floor = [0, 0, 0, BASE.l, 0, BASE.w];
+    part(ba, 0, () => {
+      face('base', facesOf(floor).bottom); floorLines(floor, 1); face('shp thin', facesOf(floor).bottom);
+      below(0, BASE.l, amt(BASE.l, 'm')); backOf(BASE.l, BASE.w, amt(BASE.w, 'm'));
+    });
+    if (moved) solid([0, 0, 0, BASE.l, h, BASE.w], 'cube', 1);
+    else las.forEach((a, k) => part(a, -8, () => solid([0, k, 0, BASE.l, k + 1, BASE.w], 'cube', 1)));
+    part(sa, 0, () => leftOf(0, h, amt(h, 'm')));
+    const counted = () => readout2(amt(got * area, 'm³'), got === 1 ? 'one layer' : got + ' layers of ' + area);
+    const total = () => readout2(amt(h * area, 'm³'), area + ' × ' + h + ' =');
+    if (moved) total();
+    else if (sa > 0) swap(sa, counted, total, 0);
+    else if (got) counted();
+    else part(ba, 0, () => readout2(amt(area, 'm²'), BASE.l + ' × ' + BASE.w + ' ='));
+    gripAt = P3(BASE.l, h, 0);
+    part(sa, 0, () => handle(gripAt, live));
+    const said = ['A base 4 metres by 3 metres, ruled into 12 one-metre squares.'];
+    if (got) said.push(got + (got === 1 ? ' layer' : ' layers') + ' of 12 one-metre cubes ' + (got === 1 ? 'sits' : 'are stacked') + ' on it, ' + say(amt(got * area, 'm³')) + '.');
+    if (sa >= 0.5) said.push(area + ' times ' + h + ' equals ' + say(amt(h * area, 'm³')) + '.');
+    said.push('The top can be dragged up or down a layer at a time.');
+    return said.join(' ');
+  }
+  // A litre: one 10 cm cube in the corner of a 1 m cube; a row of 10 grows along the bottom edge; it
+  // spreads back into a layer of 100; the layers rise to fill it, 1,000. The readout holds each count while
+  // the next stage grows, and swaps to the new one as it lands (1 L, 10 L, 100 L, then 10 × 10 × 10 =
+  // 1,000 L). The first litre stays picked out.
+  function demoLitre(i, d) {
+    const A = AT.litre, ca = arr(A.cube), er = grow(A.row), el = grow(A.layer), es = grow(A.stack);
+    const r1 = arr(A.ro1), r2a = arr(A.ro2), sa = arr(A.sum);
+    const cube = [0, 0, 0, 1, 1, 1], t = 1 / L_EDGE;
+    behind(cube);
+    cubeLines(cube, t, 'gl2');
+    const x1 = t + (1 - t) * er, z1 = t + (1 - t) * el, y1 = t + (1 - t) * es;
+    part(ca, 0, () => {
+      solid([0, 0, 0, x1, y1, z1], 'cube', t);
+      face('one', facesOf([0, 0, 0, t, t, 0]).front);
+      leftOf(0, t, '10 cm');
+    });
+    outline(cube);
+    below(0, 1, amt(1, 'm')); leftOf(0, 1, amt(1, 'm')); backOf(1, 1, amt(1, 'm'));
+    const one = () => readout2(amt(1, 'L'), 'a 10 cm cube');
+    const row = () => readout2(amt(L_EDGE, 'L'), 'one row');
+    const layer = () => readout2(amt(L_EDGE * L_EDGE, 'L'), 'one layer, 10 × 10');
+    const all = () => readout2(amt(L_PER_M3, 'L'), '10 × 10 × 10 =');
+    if (sa > 0) swap(sa, layer, all, 0);
+    else if (r2a > 0) swap(r2a, row, layer, 0);
+    else if (r1 > 0) swap(r1, one, row, 0);
+    else part(ca, 0, one);
+    const said = ['A 1 metre cube, ruled into 10 centimetre cubes, 10 along each edge.'];
+    if (ca >= 0.5) said.push('A 10 centimetre cube in its front bottom corner is 1 litre.');
+    if (er >= 1) said.push('A row of 10 litres runs along the bottom edge.');
+    if (el >= 1) said.push('10 rows make a layer of 100 litres.');
+    if (es >= 1) said.push('10 layers fill it.');
+    if (sa >= 0.5) said.push('10 times 10 times 10 equals 1000 litres in 1 cubic metre.');
+    return said.join(' ');
+  }
+  // Cylinders: the drum's round end face on, with its radius and area; it turns side on; it slides along
+  // 2 m, the drum growing behind it; the sum. Once it has played, Dan drags the end, 0.5 m to 3 m.
+  function drumAt(L, rx, lbl) {
+    const R = DRUM.d / 2 * F.Q, x0 = F.ox, cy = F.by, xR = x0 + L * F.Q, rx0 = R * E;
+    if (L > 0) {
+      // the drum behind the end: its top and bottom, and its left end's outer half
+      const left = ell(x0, cy, rx0, R, -0.5 * Math.PI, -1.5 * Math.PI, 24);
+      path('cube', pathOf([[xR, cy - R]].concat(left, [[xR, cy + R]])));
+      line('shp', x0, cy - R, xR, cy - R); line('shp', x0, cy + R, xR, cy + R);
+      path('shp', openOf(left));
+    }
+    oval('one', xR, cy, rx, R);
+    line('radi', xR, cy, xR, cy - R);
+    if (lbl) lbl(xR);
+    return xR;
+  }
+  function demoDrum(i, d, st) {
+    const A = AT.drum, moved = st.moved && st.v != null, live = T === Infinity;
+    const fa = moved ? 1 : arr(A.face), tu = moved ? 1 : K.ease(lin(A.turn, TURN)), sl = moved ? 1 : K.ease(lin(A.slide, SLIDE)), sa = moved ? 1 : arr(A.sum);
+    const da = moved ? 1 : arr(A.slide);
+    const L = moved ? st.v : DRUM.L * sl, R = DRUM.d / 2 * F.Q, rx = K.lerp(R, R * E, tu), cy = F.by;
+    let xR = F.ox + L * F.Q;
+    part(fa, 0, () => { xR = drumAt(L, rx); leave(Math.min(1, tu * 1.6), () => plabel(F.ox + 25, cy - R / 2 + 5, amt(DRUM.d / 2, 'm'), 'lbl')); });
+    // its width, 1 m, beside its left end; its length under it
+    part(da, 0, () => {
+      const x = F.ox - R * E - 12;
+      path('dim', 'M' + r3(x - 4) + ' ' + r3(cy - R) + 'H' + r3(x + 4) + 'M' + r3(x) + ' ' + r3(cy - R) + 'V' + r3(cy + R) + 'M' + r3(x - 4) + ' ' + r3(cy + R) + 'H' + r3(x + 4));
+      text(x - 6, cy + 5, amt(DRUM.d, 'm'), 'lbl', 'end');
+    });
+    const Lshown = moved ? st.v : DRUM.L;
+    part(sa, 0, () => text(F.ox + Lshown * F.Q / 2, cy + R + 22, amt(Lshown, 'm'), 'lbl'));
+    const areaRo = () => readout2(amt(r2(Math.PI * sq(DRUM.d / 2)), 'm²'), 'π × 0.5² =');
+    const total = () => readout2(amt(r2(cylVol(DRUM.d, Lshown)), 'm³'), 'π × 0.5² × ' + num(Lshown) + ' =');
+    if (moved) total();
+    else if (sa > 0) swap(sa, areaRo, total, 0);
+    else part(fa, 0, areaRo);
+    gripAt = [F.ox + L * F.Q, cy];
+    part(sa, 0, () => handle(gripAt, live));
+    const said = ['A drum 1 metre across, its round end of radius 0.5 metres, area pi times 0.5 squared, 0.79 square metres.'];
+    if (tu >= 0.5) said.push('The end is seen side on' + (L > 0 ? ' and has slid ' + say(amt(r3(L), 'm')) + ' along, the drum behind it.' : '.'));
+    if (sa >= 0.5 || moved) said.push('Pi times 0.5 squared times ' + say(num(Lshown)) + ' equals ' + say(amt(r2(cylVol(DRUM.d, Lshown)), 'm³')) + '.');
+    said.push('Its end can be dragged along to make it longer or shorter.');
+    return said.join(' ');
+  }
+  // A tank's table: the box tank empty; the liquid rises a quarter metre at a time, its row of the table
+  // lighting up as it lands and the readout counting; then its base area is named. Once it has played, Dan
+  // drags the level, 0 to 1.5 m.
+  const TABLE = { x1: 282, x2: 338, y0: 100, dy: 17 };
+  function tableRows() { const out = []; for (let k = 1; k * TABLE_STEP <= TANK.h + 1e-9; k++) out.push(r3(k * TABLE_STEP)); return out; }
+  function drawTable(picks) {
+    const rows = tableRows();
+    text(TABLE.x1, TABLE.y0, 'depth', 'an', 'end'); text(TABLE.x2, TABLE.y0, 'volume', 'an', 'end');
+    rows.forEach((v, k) => {
+      const y = TABLE.y0 + TABLE.dy * (k + 1) + 2, a = picks(v), vol = amt(TANK.l * TANK.w * v, 'm³');
+      if (a > 0) part(a, 0, () => rect('hl', TABLE.x1 - 48, y - 13, TABLE.x2 - TABLE.x1 + 50, 17, 5));
+      text(TABLE.x1, y, amt(v, 'm'), 'axv', 'end'); text(TABLE.x2, y, vol, 'axv', 'end');
+      if (a > 0) part(a, 0, () => { text(TABLE.x1, y, amt(v, 'm'), 'axv on', 'end'); text(TABLE.x2, y, vol, 'axv on', 'end'); });
+    });
+  }
+  function demoLevel(i, d, st) {
+    const A = AT.level, moved = st.moved && st.v != null, live = T === Infinity, n = A.hop[2];
+    const hops = []; for (let k = 0; k < n; k++) hops.push(K.ease(lin(nth(A.hop, k), HOP)));
+    const lv = moved ? st.v : TABLE_STEP * hops.reduce((s, h) => s + h, 0);
+    const landed = moved ? st.v : TABLE_STEP * hops.filter((h) => h >= 1).length;
+    const lit = []; for (let k = 0; k < n; k++) lit.push(arr(nth(A.hop, k) + HOP, PICK_T));
+    const aa = moved ? 1 : arr(A.area), tank = [0, 0, 0, TANK.l, TANK.h, TANK.w], base = TANK.l * TANK.w;
+    behind(tank);
+    if (lv > 1e-9) solid([0, 0, 0, TANK.l, lv, TANK.w], 'liq', 0, 'shp thin');
+    outline(tank);
+    below(0, TANK.l, amt(TANK.l, 'm')); backOf(TANK.l, TANK.w, amt(TANK.w, 'm'));
+    { const p = P3(TANK.l, TANK.h / 2, TANK.w); text(p[0] + 6, p[1] + 5, amt(TANK.h, 'm'), 'lbl', 'start'); }
+    // The liquid's depth and the readout fade in as the first quarter metre lands, then count on as
+    // each later one lands.
+    const fa = moved ? 1 : arr(nth(A.hop, 0) + HOP);
+    drawTable((v) => (moved ? (K.near(v, landed, 1e-9) ? 1 : 0) : lit.reduce((m, a, k) => (K.near(v, TABLE_STEP * (k + 1), 1e-9) ? a * (k + 1 < n ? 1 - lit[k + 1] : 1) : m), 0)));
+    if (lv > 1e-9) part(aa, 0, () => { const p = P3(TANK.l / 2, lv, TANK.w / 2); plabel(p[0], p[1] + 5, amt(base, 'm²'), 'lbl'); });
+    if (landed > 1e-9) part(fa, 0, () => leftOf(0, lv, amt(landed, 'm')));
+    if (landed > 1e-9 || moved) part(fa, 0, () => readout2(amt(base * landed, 'm³'), base + ' × ' + num(landed) + ' ='));
+    gripAt = P3(TANK.l, lv, 0);
+    part(aa, 0, () => handle(gripAt, live));
+    const said = ['An example box tank 3 metres long, 2 metres wide and 1.5 metres deep, beside its table of the volume of liquid at every quarter metre of depth.'];
+    said.push(landed > 1e-9 ? 'The liquid is ' + say(amt(landed, 'm')) + ' deep: 6 times ' + say(num(landed)) + ' equals ' + say(amt(base * landed, 'm³')) + ', its row of the table picked out.' : 'The tank is empty.');
+    said.push('The level can be dragged up or down a quarter metre at a time.');
+    return said.join(' ');
+  }
+  // A box's net: the box; it unfolds flat, each face swinging out from its place on the box to its place
+  // in the net; the lengths of the edges; each matching pair's areas, one pair at a time; the sum.
+  // Each face: its corners on the box (x along, y up, z back), and in the net (u along, v up the page).
+  function netFaces(b) {
+    const L = b.l, W = b.w, h = b.h;
+    return [
+      { p3: [[0, 0, 0], [L, 0, 0], [L, 0, W], [0, 0, W]], uv: [[0, 0], [L, 0], [L, W], [0, W]], pair: 0 },
+      { p3: [[0, 0, 0], [0, 0, W], [0, h, W], [0, h, 0]], uv: [[0, 0], [0, W], [-h, W], [-h, 0]], pair: 2 },
+      { p3: [[0, 0, W], [L, 0, W], [L, h, W], [0, h, W]], uv: [[0, W], [L, W], [L, W + h], [0, W + h]], pair: 1 },
+      { p3: [[0, 0, 0], [L, 0, 0], [L, h, 0], [0, h, 0]], uv: [[0, 0], [L, 0], [L, -h], [0, -h]], pair: 1 },
+      { p3: [[L, 0, 0], [L, 0, W], [L, h, W], [L, h, 0]], uv: [[L, 0], [L, W], [L + h, W], [L + h, 0]], pair: 2 },
+      { p3: [[0, h, W], [L, h, W], [L, h, 0], [0, h, 0]], uv: [[0, W + h], [L, W + h], [L, 2 * W + h], [0, 2 * W + h]], pair: 0 },
+    ];
+  }
+  // The net's place on the page: centred on ox, its lowest edge on by.
+  const NU = (b) => (u, v) => [F.ox + (u - b.l / 2) * F.Q, F.by - (v + b.h) * F.Q];
+  const netCentre = (b, fc) => { const N = NU(b), q = fc.uv.map((c) => N(c[0], c[1])); return [q.reduce((s, p) => s + p[0], 0) / 4, q.reduce((s, p) => s + p[1], 0) / 4]; };
+  function netEdges(b) {
+    const N = NU(b), a = N(b.l / 2, -b.h), w = N(b.l, b.w * 1.5 + b.h), c = N(-b.h / 2, 0);
+    text(a[0], a[1] + 16, amt(b.l, 'm'), 'lbl');
+    text(w[0] + 8, w[1] + 5, amt(b.w, 'm'), 'lbl', 'start');
+    text(c[0], c[1] + 16, amt(b.h, 'm'), 'lbl');
+  }
+  function demoNet(i, d) {
+    const A = AT.net, b = NETBOX, ba = arr(A.box), u = K.ease(lin(A.unfold, UNFOLD)), ea = arr(A.edges);
+    const pas = [0, 1, 2].map((k) => arr(nth(A.pair, k), K.SOFT)), got = pas.filter((a) => a >= 0.5).length, areas = facesArea(b);
+    const N = NU(b), o = N(0, 0), fcs = netFaces(b);
+    // the box sits with its front bottom left corner where the net's will be
+    const at3 = (c) => [o[0] + F.Q * (c[0] + c[2] * KX), o[1] - F.Q * (c[1] + c[2] * KY)];
+    part(ba, 0, () => fcs.forEach((fc) => {
+      const pts = fc.p3.map((c, k) => { const p = at3(c), q = N(fc.uv[k][0], fc.uv[k][1]); return [K.lerp(p[0], q[0], u), K.lerp(p[1], q[1], u)]; });
+      path('cube', pathOf(pts)); path('shp thin', pathOf(pts));
+    }));
+    part(ea, 0, () => netEdges(b));
+    fcs.forEach((fc) => part(pas[fc.pair], 0, () => { const c = netCentre(b, fc); plabel(c[0], c[1] + 5, amt(areas[fc.pair], 'm²'), 'lbl'); }));
+    const run = (k) => readout2(amt(2 * areas.slice(0, k).reduce((s, a) => s + a, 0), 'm²'), k === 1 ? '2 × ' + num(areas[0]) + ' =' : '2 × (' + areas.slice(0, k).map(num).join(' + ') + ') =');
+    // The readout fades in with the first pair and counts on as the others land; with all three it is
+    // the sum, 2 × (6 + 3 + 2) = 22 m².
+    part(pas[0], 0, () => run(Math.max(1, got)));
+    const said = ['A closed box 3 metres long, 2 metres wide and 1 metre tall' + (u >= 0.5 ? ', unfolded flat into its net of six faces.' : '.')];
+    if (got) said.push('Its faces come in matching pairs: ' + areas.slice(0, got).map((a) => 'two of ' + say(amt(a, 'm²'))).join(', ') + '.');
+    if (got === 3) said.push('2 times 6 plus 3 plus 2 equals 22 square metres.');
+    return said.join(' ');
+  }
+
+  // --- the puzzles (DO steps) ---
+  // A box tank: the tank drawn see-through, 3 m by 2 m, its top dragged up or down half a metre at a time
+  // (0.5 to 2.5 m deep), its m³ hidden until Check; a right answer (1.5 m) tints its base with the area,
+  // drops in a layer of 6 cubes, then the half layer, with the sum; a wrong depth tints the whole tank red
+  // with what it really holds.
+  function drawTank(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, live = !right && !finished;
+    const h = st.moved && st.v != null ? st.v : d.start;
+    const tank = [0, 0, 0, TANK.l, h, TANK.w], base = TANK.l * TANK.w, floor = [0, 0, 0, TANK.l, 0, TANK.w];
+    behind(tank);
+    const said = ['An example box tank drawn see-through, 3 metres long, 2 metres wide and ' + say(amt(h, 'm')) + ' deep.'];
+    const labels = () => { below(0, TANK.l, amt(TANK.l, 'm')); backOf(TANK.l, TANK.w, amt(TANK.w, 'm')); leftOf(0, h, amt(h, 'm')); };
+    if (right) {
+      const ba = arr(A.base), la = arr(A.layer), ha = arr(A.half);
+      part(ba, 0, () => { face('base', facesOf(floor).bottom); floorLines(floor, 1); });
+      part(la, -8, () => solid([0, 0, 0, TANK.l, 1, TANK.w], 'cube', 1));
+      part(ha, -8, () => solid([0, 1, 0, TANK.l, h, TANK.w], 'cube', 1));
+      outline(tank);
+      labels();
+      const baseRo = () => readout2(amt(base, 'm²'), TANK.l + ' × ' + TANK.w + ' =');
+      const layerRo = () => readout2(amt(base, 'm³'), 'one layer');
+      const totalRo = () => readout2(amt(base * h, 'm³'), base + ' × ' + num(h) + ' =');
+      if (ha > 0) swap(ha, layerRo, totalRo, 0); else if (la > 0) swap(la, baseRo, layerRo, 0); else swap(ba, () => readoutHidden('m³'), baseRo, 0);
+      said.push('Its base of 6 one-metre squares holds a layer of 6 cubes, and half a layer more fills it: 6 times 1.5 equals 9 cubic metres.');
+      return said.join(' ');
+    }
+    if (wrong) part(sw, 0, () => { const f = facesOf(tank); [f.front, f.top, f.side].forEach((c) => face('tbad', c)); cubeLines(tank, 1, 'redg'); });
+    outline(tank);
+    labels();
+    if (wrong) {
+      swap(sw, () => readoutHidden('m³'), () => readout2(amt(base * h, 'm³'), base + ' × ' + num(h) + ' =', true), 0);
+      said.push('Tinted red, it holds ' + say(amt(base * h, 'm³')) + ', not 9.');
+    } else readoutHidden('m³');
+    gripAt = P3(TANK.l, h, 0);
+    handle(gripAt, live);
+    said.push('Its top can be dragged up or down half a metre at a time. What it holds is hidden until you check.');
+    return said.join(' ');
+  }
+  // cm³ in a m³: the 1 m cube with its edges marked every 10 cm; a right answer picks out one row of 1 cm
+  // cubes along the bottom edge, then one layer, then the layers rise to fill it, with the sum; the row
+  // and layer slips show that row or layer in red.
+  function drawMillion(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const cube = [0, 0, 0, 1, 1, 1], cm = 1 / CM_PER_M;
+    behind(cube);
+    const said = ['A 1 metre cube, 100 centimetres each way, its edges marked every 10 centimetres.'];
+    const rowAt = (cls) => seg3(cls, [0, 0, 0], [1, 0, 0]);
+    const rowLbl = (warn) => plabel(gx(0.5), F.by - 14, 'one row, 100 cm³', 'lbl' + (warn ? ' warnt' : ''));
+    const layAt = (cls) => face(cls, facesOf([0, cm, 0, 1, cm, 1]).bottom);
+    const layLbl = (warn) => { const p = P3(0.5, 0, 0.5); plabel(p[0], p[1] + 5, warn ? 'one layer, 1 cm tall' : 'one layer, 10,000 cm³', 'lbl' + (warn ? ' warnt' : '')); };
+    if (right) {
+      const ra = arr(A.row), la = arr(A.layer), e = grow(A.rise, RISE), oa = arr(A.ro);
+      part(la, 0, () => solid([0, 0, 0, 1, cm + (1 - cm) * e, 1], 'cube', 0, 'shp thin'));
+      swap(la, () => part(ra, 0, () => rowAt('rowl')), () => {}, 0);
+      outline(cube);
+      if (e <= 0) swap(la, () => part(ra, 0, () => rowLbl(false)), () => layLbl(false), 0);
+      else leave(Math.min(1, e * 3), () => layLbl(false));
+      const rowRo = () => readout2(amt(CM_PER_M, 'cm³'), 'one row');
+      const layRo = () => readout2(amt(sq(CM_PER_M), 'cm³'), 'one layer, 100 × 100');
+      const allRo = () => readout2(amt(CM_PER_M * CM_PER_M * CM_PER_M, 'cm³'), '100 × 100 × 100 =');
+      if (oa > 0) swap(oa, layRo, allRo, 0); else if (la > 0) swap(la, rowRo, layRo, 0); else swap(ra, () => readoutHidden('cm³'), rowRo, 0);
+      said.push('One row of 1 centimetre cubes along the bottom is 100, one layer is 100 times 100, 10000, and 100 layers fill it: 1000000 cubic centimetres.');
+    } else {
+      if (s === 'layer') part(sw, 0, () => layAt('tbad'));
+      if (s === 'row') part(sw, 0, () => rowAt('edge'));
+      outline(cube);
+      if (s === 'row') { part(sw, 0, () => rowLbl(true)); swap(sw, () => readoutHidden('cm³'), () => readout2(amt(CM_PER_M, 'cm³'), 'only one row', true), 0); said.push('One row of 1 centimetre cubes along the bottom edge, only 100, is marked in red.'); }
+      else if (s === 'layer') { part(sw, 0, () => layLbl(true)); swap(sw, () => readoutHidden('cm³'), () => readout2(amt(sq(CM_PER_M), 'cm³'), 'only one layer', true), 0); said.push('One layer of 1 centimetre cubes on the floor, only 1 centimetre tall, is tinted red.'); }
+      else readoutHidden('cm³');
+    }
+    // the edges marked every 10 cm, each 100 cm long
+    let tk = '';
+    for (let k = 0; k <= 10; k++) {
+      const a = on3([k / 10, 0, 0]), b = on3([0, k / 10, 0]), c = on3([1, 0, k / 10]);
+      tk += 'M' + r3(a[0]) + ' ' + r3(a[1]) + 'v5M' + r3(b[0]) + ' ' + r3(b[1]) + 'h-5M' + r3(c[0]) + ' ' + r3(c[1]) + 'h5';
+    }
+    path('tk', tk);
+    below(0, 1, amt(CM_PER_M, 'cm'), 20); leftOf(0, 1, amt(CM_PER_M, 'cm'), 10); backOf(1, 1, amt(CM_PER_M, 'cm'));
+    return said.join(' ');
+  }
+  function tankLabels(left) {
+    below(0, TANK.l, amt(TANK.l, 'm')); backOf(TANK.l, TANK.w, amt(TANK.w, 'm'));
+    if (left) leftOf(0, TANK.h, amt(TANK.h, 'm'));
+  }
+  // m³ to litres: the 9 m³ tank with one of its 1 m cubes picked out, and that cube drawn larger beside
+  // it (so its litres can be ruled), a thin leader between them; a right answer rules the cube into litre
+  // cubes, picks out one litre, then names the cube's litres with the sum; the hundred slip tints only
+  // its bottom layer of litres, in red; the cm³ slip picks out one litre, 1,000 cm³, in red.
+  function drawLitres(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, V = boxVol(TANK);
+    const tank = [0, 0, 0, TANK.l, TANK.h, TANK.w], cube = [0, 0, 0, 1, 1, 1], t = 1 / L_EDGE;
+    solid(tank, 'cube', 1, 'shp thin');
+    { const f = facesOf([TANK.l - 1, 0, 0, TANK.l, 1, 1]); [f.front, f.side].forEach((c) => { face('base', c); face('shp thin', c); }); }
+    outline(tank);
+    { const p = P3(TANK.l / 2 - 0.5, TANK.h / 2, 0); plabel(p[0], p[1] + 5, amt(V, 'm³'), 'lbl'); }
+    tankLabels(true);
+    const from = P3(TANK.l, 0.5, 0.5);
+    let to = null;
+    within(CUBE5, () => { to = P3(0, 0.5, 0); });
+    line('dim', from[0], from[1], to[0] - 3, to[1]);
+    const ga = right ? arr(A.grid) : 0, oa = right ? arr(A.one) : 0, ra = right ? arr(A.ro) : 0;
+    within(CUBE5, () => {
+      solid(cube, 'cube', 0, 'shp thin');
+      part(ga, 0, () => cubeLines(cube, t, 'gc'));
+      if (s === 'hundred') part(sw, 0, () => { const b = [0, 0, 0, 1, t, 1], f = facesOf(b); [f.front, f.top, f.side].forEach((c) => face('tbad', c)); cubeLines(b, t, 'redg'); });
+      part(oa, 0, () => face('one', facesOf([0, 0, 0, t, t, 0]).front));
+      if (s === 'cm3') part(sw, 0, () => face('tbad', facesOf([0, 0, 0, t, t, 0]).front));
+      if (s === 'cm3') part(sw, 0, () => face('redl', facesOf([0, 0, 0, t, t, 0]).front));
+      outline(cube);
+      const c = P3(0.5, 0.55, 0);
+      if (right) swap(ra, () => plabel(c[0], c[1] + 5, amt(1, 'm³'), 'lbl'), () => plabel(c[0], c[1] + 5, amt(L_PER_M3, 'L'), 'lbl'), 0);
+      else if (s === 'hundred') swap(sw, () => plabel(c[0], c[1] + 5, amt(1, 'm³'), 'lbl'), () => plabel(c[0], c[1] + 5, amt(100, 'L'), 'lbl warnt'), 0);
+      else plabel(c[0], c[1] + 5, amt(1, 'm³'), 'lbl');
+      if (s === 'cm3') part(sw, 0, () => { const q = P3(0.5, 1, 1); text(q[0], q[1] - 10, '1 L = 1,000 cm³', 'lbl warnt'); });
+      below(0, 1, amt(1, 'm')); backOf(1, 1, amt(1, 'm'));
+      text(gx(0.5), F.by + 36, 'one 1 m³, enlarged', 'an');
+    });
+    const said = ['The 9 cubic metre tank, ruled into 1 metre cubes, one of them picked out, and that 1 metre cube drawn larger beside it.'];
+    if (right) {
+      swap(ra, () => readoutHidden('L'), () => readout2(amt(V * L_PER_M3, 'L'), V + ' × 1,000 ='), 0);
+      said.push('The 1 metre cube is ruled into 10 centimetre litre cubes, 10 each way, 1000 litres; 9 times 1000 equals 9000 litres.');
+    } else if (s === 'hundred') {
+      swap(sw, () => readoutHidden('L'), () => readout2(amt(V * 100, 'L'), V + ' × 100 =', true), 0);
+      said.push('Only the bottom layer of litre cubes in the 1 metre cube, 100 litres, is tinted red.');
+    } else if (s === 'cm3') {
+      swap(sw, () => readoutHidden('L'), () => readout2(amt(V * 1000000, 'cm³'), V + ' × 1,000,000 =', true), 0);
+      said.push('One litre cube in the corner, 1000 cubic centimetres, is marked in red.');
+    } else readoutHidden('L');
+    return said.join(' ');
+  }
+  // A round tank: the tank standing, see-through, its width across the top and its height; a right
+  // answer draws the radius, tints the round base with its area, fills the tank up from it, then the sum;
+  // the diameter slip draws a red circle twice as wide round the base; the side slip tints the round side.
+  function drawRound(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const R = RTANK.d / 2 * F.Q, ry = R * E, cx = F.ox, by = F.by, top = by - RTANK.h * F.Q;
+    arc('hid', cx, by, R, ry, Math.PI, 2 * Math.PI);
+    const said = ['An example round tank standing, drawn see-through, 1.2 metres across and 2 metres tall.'];
+    let ra = 0, ba = 0, e = 0, oa = 0;
+    if (right) { ra = arr(A.r); ba = arr(A.base); e = K.ease(lin(A.rise, FILL_T)); oa = arr(A.ro); }
+    if (s === 'side') part(sw, 0, () => path('tbad', pathOf([[cx - R, top]].concat(ell(cx, by, R, ry, Math.PI, 0, 24), [[cx + R, top]]))));
+    if (right) {
+      const yL = by + (top - by) * e;
+      part(ba, 0, () => oval('base', cx, by, R, ry));
+      if (e > 0) {
+        path('cube', pathOf([[cx - R, yL]].concat(ell(cx, by, R, ry, Math.PI, 0, 24), [[cx + R, yL]])));
+        oval('one', cx, yL, R, ry);
+      }
+    }
+    line('shp', cx - R, top, cx - R, by); line('shp', cx + R, top, cx + R, by);
+    arc('shp', cx, by, R, ry, 0, Math.PI);
+    oval('shp', cx, top, R, ry);
+    if (s === 'diam') part(sw, 0, () => { oval('ring', cx, by, 2 * R, 2 * ry); text(cx + 2 * R + 6, by + 5, 'r = 1.2 m', 'lbl warnt', 'start'); });
+    // its width across the top, and its height
+    const yd = top - ry - 12;
+    path('dim', 'M' + r3(cx - R) + ' ' + r3(yd - 4) + 'V' + r3(yd + 4) + 'M' + r3(cx - R) + ' ' + r3(yd) + 'H' + r3(cx + R) + 'M' + r3(cx + R) + ' ' + r3(yd - 4) + 'V' + r3(yd + 4));
+    plabel(cx, yd + 5, amt(RTANK.d, 'm'), 'lbl');
+    text(cx - R - 8, (top + by) / 2 + 5, amt(RTANK.h, 'm'), 'lbl', 'end');
+    if (right) {
+      part(ra, 0, () => { line('rad', cx, top, cx + R, top); circle('pt', cx, top, 3.5); plabel(cx + R / 2, top - 5, amt(RTANK.d / 2, 'm'), 'lbl'); });
+      const areaRo = () => readout2(amt(r2(Math.PI * sq(RTANK.d / 2)), 'm²'), 'π × 0.6² =');
+      const allRo = () => readout2(amt(r2(cylVol(RTANK.d, RTANK.h)), 'm³'), 'π × 0.6² × 2 =');
+      if (oa > 0) swap(oa, areaRo, allRo, 0); else if (ba > 0) swap(ba, () => readoutHidden('m³'), areaRo, 0); else readoutHidden('m³');
+      said.push('Its radius is 0.6 metres; the round base, pi times 0.6 squared, 1.13 square metres, rises 2 metres to fill it: 2.26 cubic metres.');
+    } else if (s === 'diam') {
+      swap(sw, () => readoutHidden('m³'), () => readout2(amt(r2(Math.PI * sq(RTANK.d) * RTANK.h), 'm³'), 'π × 1.2² × 2 =', true), 0);
+      said.push('A red circle of radius 1.2 metres, twice as wide as the tank, is drawn round its base.');
+    } else if (s === 'side') {
+      swap(sw, () => readoutHidden('m³'), () => readout2(amt(r2(2 * Math.PI * (RTANK.d / 2) * RTANK.h), 'm²'), '2π × 0.6 × 2 =', true), 0);
+      said.push('The round side of the tank is tinted red: 7.54 square metres, an area.');
+    } else readoutHidden('m³');
+    return said.join(' ');
+  }
+  // Liquid in a tank: the tank with its liquid 0.8 m deep; a right answer names the liquid's base area,
+  // then its m³, then its litres; the full slip tints the empty part of the tank red too; the litres slip
+  // leaves the answer in m³, in red.
+  function drawLiquid(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0;
+    const tank = [0, 0, 0, TANK.l, TANK.h, TANK.w], base = TANK.l * TANK.w, V = base * LIQ;
+    behind(tank);
+    solid([0, 0, 0, TANK.l, LIQ, TANK.w], 'liq', 0, 'shp thin');
+    if (s === 'full') part(sw, 0, () => { const f = facesOf([0, LIQ, 0, TANK.l, TANK.h, TANK.w]); [f.front, f.top, f.side].forEach((c) => face('tbad', c)); });
+    outline(tank);
+    below(0, TANK.l, amt(TANK.l, 'm')); backOf(TANK.l, TANK.w, amt(TANK.w, 'm'));
+    { const p = P3(TANK.l, TANK.h / 2, TANK.w); text(p[0] + 6, p[1] + 5, amt(TANK.h, 'm'), 'lbl', 'start'); }
+    const xd = F.ox - 10;
+    path('dim', 'M' + r3(xd - 4) + ' ' + r3(gy(LIQ)) + 'H' + r3(xd + 4) + 'M' + r3(xd) + ' ' + r3(gy(LIQ)) + 'V' + r3(gy(0)) + 'M' + r3(xd - 4) + ' ' + r3(gy(0)) + 'H' + r3(xd + 4));
+    text(xd - 6, gy(LIQ / 2) + 5, amt(LIQ, 'm'), 'lbl', 'end');
+    const said = ['An example box tank 3 metres long, 2 metres wide and 1.5 metres deep, with liquid in it 0.8 metres deep.'];
+    if (right) {
+      const aa = arr(A.area), ma = arr(A.m3), la = arr(A.ro);
+      part(aa, 0, () => { const p = P3(TANK.l / 2, LIQ, TANK.w / 2); plabel(p[0], p[1] + 5, amt(base, 'm²'), 'lbl'); });
+      const m3 = () => readout2(amt(V, 'm³'), base + ' × ' + num(LIQ) + ' =');
+      const lit = () => readout2(amt(V * L_PER_M3, 'L'), num(V) + ' × 1,000 =');
+      if (la > 0) swap(la, m3, lit, 0); else if (ma > 0) swap(ma, () => readoutHidden('L'), m3, 0); else readoutHidden('L');
+      said.push('The liquid covers the 6 square metre base 0.8 metres deep: 6 times 0.8 equals 4.8 cubic metres, which is 4800 litres.');
+    } else if (s === 'full') {
+      swap(sw, () => readoutHidden('L'), () => readout2(amt(boxVol(TANK) * L_PER_M3, 'L'), 'the whole tank, 9 m³ =', true), 0);
+      said.push('The empty part of the tank above the liquid is tinted red too: the whole tank is 9 cubic metres.');
+    } else if (s === 'nolitre') {
+      swap(sw, () => readoutHidden('L'), () => readout2(amt(V, 'm³'), base + ' × ' + num(LIQ) + ' =', true), 0);
+      said.push('6 times 0.8 equals 4.8 is shown in red, in cubic metres, not litres.');
+    } else readoutHidden('L');
+    return said.join(' ');
+  }
+  // Mass from density: three 1 m cubes of oil; a right answer tags each with 850 kg, one at a time, then
+  // the sum; the divide slip cuts one cube in three, in red; the litres slip rules one cube into litres, in red.
+  function drawMass(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, n = OIL.v;
+    solid([0, 0, 0, n, 1, 1], 'liq', 1, 'shp thin');
+    if (s === 'divide') part(sw, 0, () => { let p = ''; [1 / 3, 2 / 3].forEach((x) => { const a = on3([x, 0, 0]), b = on3([x, 1, 0]), c = on3([x, 1, 1]); p += 'M' + r3(a[0]) + ' ' + r3(a[1]) + 'L' + r3(b[0]) + ' ' + r3(b[1]) + 'L' + r3(c[0]) + ' ' + r3(c[1]); }); path('redl', p); face('tbad', facesOf([0, 0, 0, 1 / 3, 1, 0]).front); });
+    if (s === 'litres') part(sw, 0, () => cubeLines([0, 0, 0, 1, 1, 1], 1 / L_EDGE, 'redg', true));
+    outline([0, 0, 0, n, 1, 1]);
+    below(0, n, amt(n, 'm')); leftOf(0, 1, amt(1, 'm')); backOf(n, 1, amt(1, 'm'));
+    const said = ['3 cubic metres of an example oil, drawn as three 1 metre cubes in a row.'];
+    if (right) {
+      const tags = [0, 1, 2].map((k) => arr(nth(A.tag, k), K.SOFT)), oa = arr(A.ro), got = tags.filter((a) => a >= 0.5).length;
+      tags.forEach((a, k) => part(a, 4, () => { const p = P3(k + 0.5, 0.5, 0); plabel(p[0], p[1] + 5, amt(OIL.rho, 'kg'), 'lbl'); }));
+      const c = Math.max(1, got), counted = () => readout2(amt(c * OIL.rho, 'kg'), c === 1 ? 'one m³' : c + ' m³');
+      const allRo = () => readout2(amt(OIL.rho * n, 'kg'), num(OIL.rho) + ' × ' + n + ' =');
+      if (oa > 0) swap(oa, counted, allRo, 0); else swap(tags[0], () => readoutHidden('kg'), counted, 0);
+      said.push('Each cube of oil is tagged 850 kilograms: 850 times 3 equals 2550 kilograms.');
+    } else if (s === 'divide') {
+      part(sw, 0, () => { const p = P3(0.5, 1, 0.5); plabel(p[0] + 12, p[1] - 14, 'a third of 1 m³', 'lbl warnt'); });
+      swap(sw, () => readoutHidden('kg'), () => readout2(amt(r2(OIL.rho / n), 'kg'), num(OIL.rho) + ' ÷ ' + n + ' =', true), 0);
+      said.push('The first cube is cut into thirds in red: 850 divided by 3 is the mass of a third of 1 cubic metre.');
+    } else if (s === 'litres') {
+      part(sw, 0, () => { const p = P3(0.5, 1, 0.5); plabel(p[0] + 12, p[1] - 14, '1 m³ = 1,000 L', 'lbl warnt'); });
+      swap(sw, () => readoutHidden('kg'), () => readout2(amt(OIL.rho * n * L_PER_M3, 'kg'), num(OIL.rho) + ' × 3,000 =', true), 0);
+      said.push('The first cube is ruled into 1000 litres in red; the 850 kilograms is for the whole cubic metre.');
+    } else readoutHidden('kg');
+    return said.join(' ');
+  }
+  // Sheet for a tank: the tank's net with its edges' lengths; a right answer tints the faces a matching
+  // pair at a time, each with its area, then the sum; the half slip tints three faces, one of each pair, in
+  // red; the volume slip gives the m³ inside, in red.
+  function drawSheet(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', s = wrong ? d.slips[st.pick] : null, sw = wrong ? arr(WRONG.slip) : 0, b = TANK;
+    const N = NU(b), fcs = netFaces(b), areas = facesArea(b);
+    const pas = right ? [0, 1, 2].map((k) => arr(nth(A.pair, k), K.SOFT)) : [0, 0, 0], got = pas.filter((a) => a >= 0.5).length;
+    const firsts = [0, 1, 3];                      // one face of each pair: the bottom, the left side and the front
+    fcs.forEach((fc, k) => {
+      const pts = fc.uv.map((c) => N(c[0], c[1]));
+      if (right) part(pas[fc.pair], 0, () => path('cube', pathOf(pts)));
+      if (s === 'half' && firsts.indexOf(k) >= 0) part(sw, 0, () => path('tbad', pathOf(pts)));
+      path('shp thin', pathOf(pts));
+    });
+    netEdges(b);
+    fcs.forEach((fc, k) => {
+      const c = netCentre(b, fc);
+      if (right) part(pas[fc.pair], 0, () => plabel(c[0], c[1] + 5, amt(areas[fc.pair], 'm²'), 'lbl'));
+      if (s === 'half' && firsts.indexOf(k) >= 0) part(sw, 0, () => plabel(c[0], c[1] + 5, amt(areas[fc.pair], 'm²'), 'lbl warnt'));
+    });
+    const said = ['The net of the closed tank, 3 metres by 2 metres by 1.5 metres: six faces laid flat.'];
+    if (right) {
+      const run = (k) => readout2(amt(2 * areas.slice(0, k).reduce((t, a) => t + a, 0), 'm²'), k === 1 ? '2 × ' + num(areas[0]) + ' =' : '2 × (' + areas.slice(0, k).map(num).join(' + ') + ') =');
+      swap(pas[0], () => readoutHidden('m²'), () => run(Math.max(1, got)), 0);
+      said.push('Its faces come in matching pairs of 6, 4.5 and 3 square metres: 2 times 13.5 equals 27 square metres.');
+    } else if (s === 'half') {
+      swap(sw, () => readoutHidden('m²'), () => readout2(amt(surface(b) / 2, 'm²'), areas.map(num).join(' + ') + ' =', true), 0);
+      said.push('Three faces, one of each matching pair, are tinted red: 13.5 square metres, half the sheet.');
+    } else if (s === 'volume') {
+      swap(sw, () => readoutHidden('m²'), () => readout2(amt(boxVol(b), 'm³'), 'the space inside, 3 × 2 × 1.5 =', true), 0);
+      said.push('9 cubic metres, the space inside the tank, is shown in red.');
+    } else readoutHidden('m²');
+    return said.join(' ');
+  }
+
+  // ---------- the part Dan drags (kept from frame to frame) ----------
+  // The picture takes a tap (the part goes to the nearest setting); the part is dragged, or moved with the
+  // arrow keys. The page does not scroll under a finger on it.
+  const GRIP = {
+    height: { min: 1, max: BASE.n, step: 1, start: BASE.n, toV: (q) => (F.by - q[1]) / F.Q,
+      label: 'The top of the stack of cubes. Drag it up or down, tap the picture, or use the arrow keys to add or take away a layer.', say: (v) => v + (v === 1 ? ' layer' : ' layers') + ' of 12 cubes' },
+    length: { min: DRUM.min, max: DRUM.max, step: 0.5, start: DRUM.L, toV: (q) => (q[0] - F.ox) / F.Q,
+      label: 'The drum\'s end. Drag it along, tap the picture, or use the arrow keys to make the drum half a metre longer or shorter.', say: (v) => say(amt(v, 'm')) + ' long' },
+    level: { min: 0, max: TANK.h, step: TABLE_STEP, start: AT.level.hop[2] * TABLE_STEP, toV: (q) => (F.by - q[1]) / F.Q,
+      label: 'The level of the liquid. Drag it up or down, tap the picture, or use the arrow keys to raise or lower it a quarter metre.', say: (v) => say(amt(v, 'm')) + ' deep' },
+    depth: { min: 0.5, max: 2.5, step: 0.5, start: 0.5, toV: (q) => (F.by - q[1]) / F.Q,
+      label: 'The top of the tank. Drag it up or down, tap the picture, or use the arrow keys to raise or lower it half a metre.', say: (v) => say(amt(v, 'm')) + ' deep' },
+  };
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  // A demonstration's part once it has played; a drag puzzle's part until it is answered right.
+  function live() { const i = here(), d = STEPS[i]; return !finished && !!d.grip && (!!d.show || S[i].res !== 'right'); }
+  const snap = (g, v) => K.clamp(Math.round(v / g.step) * g.step, g.min, g.max);
+  function placeGrip(p) {
+    const i = here(), d = STEPS[i], on = !!p && live();
+    grip.style.display = on ? '' : 'none';
+    board.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const g = GRIP[d.grip], st = S[i], v = st.moved && st.v != null ? st.v : g.start;
+    grip.setAttribute('cx', r3(p[0])); grip.setAttribute('cy', r3(p[1]));
+    board.setAttribute('x', 0); board.setAttribute('y', 34); board.setAttribute('width', 340); board.setAttribute('height', H - 34);
+    grip.setAttribute('aria-valuemin', g.min); grip.setAttribute('aria-valuemax', g.max); grip.setAttribute('aria-valuenow', v);
+    grip.setAttribute('aria-label', g.label);
+    grip.setAttribute('aria-valuetext', g.say(v));
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // Moving the part ends a demonstration that is still playing: the picture shows finished.
+  function moveTo(v) {
+    if (!live()) return;
+    const i = here(), st = S[i];
+    if (anim.playing()) { anim.pause(); T = Infinity; }
+    if (st.moved && st.v === v) return;
+    st.v = v; st.moved = true;
+    if (!STEPS[i].show) { st.pick = amt(v, 'm'); st.res = null; }
+    K.refresh();
+  }
+  const moveBy = (q) => { const g = GRIP[STEPS[here()].grip]; moveTo(snap(g, g.toV(q))); };
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = e.pointerId; try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q) moveBy(q);
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) held = null; }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: 1, ArrowDown: -1 }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const i = here(), g = GRIP[STEPS[i].grip], st = S[i];
+    moveTo(snap(g, (st.moved && st.v != null ? st.v : g.start) + by * g.step));
+  });
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e);
+    if (q) moveBy(q);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  const DEMO = { layers: demoLayers, litre: demoLitre, drum: demoDrum, level: demoLevel, net: demoNet };
+  const PIC = { tank: drawTank, million: drawMillion, litres: drawLitres, round: drawRound, liquid: drawLiquid, mass: drawMass, sheet: drawSheet };
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    F = LAY[LAY_OF[d.show ? d.demo : d.pic]];
+    H = F.H;
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    gripAt = null;
+    const aria = d.show ? DEMO[d.demo](i, d, st) : PIC[d.pic](i, d, st, right);
+    if (i === here()) placeGrip(gripAt);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  // The caption's amounts stay whole on one line too ("1,000 L").
+  write(el('cap'), el('cap').textContent);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) { st.moved = false; st.v = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, opts[k]));
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T, keepF = F;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        const prev = t.previousSibling, patched = !!(prev && prev.tagName === 'rect' && /\b(patch|hl)\b/.test(prev.getAttribute('class')));
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size, patched: patched };
+      });
+      // Every stroked edge drawn, as straight pieces (lines, rectangles' sides and paths' legs).
+      const segs = [];
+      Array.from(art.querySelectorAll('line, rect, path')).filter(vis).forEach((n) => {
+        const cls = n.getAttribute('class') || '';
+        if (/\b(cube|liq|base|tbad|patch|hl)\b/.test(cls)) return;
+        if (n.tagName === 'line') { segs.push({ cls: cls, a: [+n.getAttribute('x1'), +n.getAttribute('y1')], b: [+n.getAttribute('x2'), +n.getAttribute('y2')] }); return; }
+        if (n.tagName === 'rect') { const x = +n.getAttribute('x'), y = +n.getAttribute('y'), w = +n.getAttribute('width'), h = +n.getAttribute('height'); [[x, y, x + w, y], [x + w, y, x + w, y + h], [x + w, y + h, x, y + h], [x, y + h, x, y]].forEach((q) => segs.push({ cls: cls, a: [q[0], q[1]], b: [q[2], q[3]] })); return; }
+        const toks = n.getAttribute('d').match(/[MLHVZhv]|-?[\d.]+/g) || [];
+        let cur = null, start = null, k = 0;
+        while (k < toks.length) {
+          const c = toks[k++];
+          if (c === 'M') { cur = [+toks[k++], +toks[k++]]; start = cur; }
+          else if (c === 'L') { const q = [+toks[k++], +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'H') { const q = [+toks[k++], cur[1]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'V') { const q = [cur[0], +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'h') { const q = [cur[0] + +toks[k++], cur[1]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'v') { const q = [cur[0], cur[1] + +toks[k++]]; segs.push({ cls: cls, a: cur, b: q }); cur = q; }
+          else if (c === 'Z') { segs.push({ cls: cls, a: cur, b: start }); cur = start; }
+        }
+      });
+      const shapes = Array.from(art.querySelectorAll('path, rect')).filter(vis).map((n) => ({ cls: n.getAttribute('class') || '', d: n.getAttribute('d') }));
+      const reds = Array.from(art.querySelectorAll('.tbad, .edge, .ring, .redl, .redg, .warnt')).filter(vis).length;
+      return { texts: texts, all: texts.map((t) => t.s), segs: segs, shapes: shapes, reds: reds, H: H, F: F };
+    } finally { S[i] = keepS; T = keepT; F = keepF; paint(); }
+  }
+  // No two labels overlap, every label stays inside the picture, no drawn edge runs through a label that is
+  // not on its own patch, and every edge stays inside the picture.
+  function crosses(s, t) {
+    const b = { l: t.x0 + 1, r: t.x1 - 1, t: t.y0 + 2, u: t.y1 - 1 };
+    for (let k = 0; k <= 40; k++) { const x = K.lerp(s.a[0], s.b[0], k / 40), y = K.lerp(s.a[1], s.b[1], k / 40); if (x > b.l && x < b.r && y > b.t && y < b.u) return true; }
+    return false;
+  }
+  // (A row of the table and its picked-out copy sit on the same place by design.)
+  const fixed = (c) => /^axv/.test(c);
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || (fixed(a.cls) && fixed(b.cls)) || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5) &&
+    (a.patched || !g.segs.some((s) => crosses(s, a)))) &&
+    g.segs.every((s) => [s.a, s.b].every((q) => q[0] >= 0 && q[0] <= 340 && q[1] >= 0 && q[1] <= g.H));
+  // A box path's corners (its M and L points), to measure what is drawn.
+  const cornersOf = (dd) => { const n = (dd.match(/-?[\d.]+/g) || []).map(Number), out = []; for (let k = 0; k + 1 < n.length; k += 2) out.push([n[k], n[k + 1]]); return out; };
+  const spanY = (pts) => Math.max.apply(null, pts.map((p) => p[1])) - Math.min.apply(null, pts.map((p) => p[1]));
+  const spanX = (pts) => Math.max.apply(null, pts.map((p) => p[0])) - Math.min.apply(null, pts.map((p) => p[0]));
+  K.check('The volume of a prism is the area of its cross-section multiplied by the length: the 4 m by 3 m base\'s 12 cubes stacked 5 high make 12 × 5 = 60 m³ (and 12 × h for every height dragged), the 3 m by 2 m by 1.5 m tank 6 × 1.5 = 9 m³, the drum 1 m across π × 0.5² × 2 = 1.57 m³ (0.39 to 2.36 m³ from 0.5 to 3 m long), and the round tank 1.2 m across π × 0.6² × 2 = 2.26 m³', () => {
+    const g0 = drawn(0, blank(0)), g5 = drawn(5, blank(5));
+    const fronts = g0.shapes.filter((x) => x.cls === 'cube').map((x) => cornersOf(x.d)).filter((p) => p.length === 4 && K.near(spanX(p), BASE.l * LAY.layers.Q, 1e-6) && K.near(spanY(p), LAY.layers.Q, 1e-6));
+    const heights = [1, 2, 3, 4, 5].every((h) => drawn(0, Object.assign(blank(0), { moved: true, v: h })).all.indexOf(amt(12 * h, 'm³')) >= 0);
+    const lens = [0.5, 1, 1.5, 2, 2.5, 3].every((L) => drawn(5, Object.assign(blank(5), { moved: true, v: L })).all.indexOf(amt(r2(cylVol(1, L)), 'm³')) >= 0);
+    return fronts.length === BASE.n && g0.all.indexOf('60 m³') >= 0 && g0.all.indexOf('12 × 5 =') >= 0 && heights &&
+      g5.all.indexOf('1.57 m³') >= 0 && lens && K.near(r2(cylVol(1, 0.5)), 0.39, 1e-9) && K.near(r2(cylVol(1, 3)), 2.36, 1e-9) &&
+      answerOf(STEPS[1]) === '1.5 m' && boxVol(TANK) === 9 && drawn(1, solved(1)).all.indexOf('9 m³') >= 0 && answerOf(STEPS[6]) === '2.26 m³' && K.near(cylVol(RTANK.d, RTANK.h), Math.PI * 0.36 * 2, 1e-12);
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zmkn3qt' });
+  K.check('A 10 cm × 10 cm × 10 cm cube has a volume of 1 000 cm³ or 1 L: the litre cube is drawn a tenth of the 1 m cube\'s edge each way, 10 along each edge, and 10 × 10 × 10 = 1,000 fill the 1 m³; so the 9 m³ tank holds 9,000 L, and 1 L is 1,000 cm³', () => {
+    const g = drawn(2, blank(2)), one = g.shapes.filter((x) => x.cls === 'one').map((x) => cornersOf(x.d))[0];
+    return !!one && K.near(spanX(one), LAY.litre.Q / L_EDGE, 1e-6) && K.near(spanY(one), LAY.litre.Q / L_EDGE, 1e-6) && L_PER_M3 === 1000 && CM3_PER_L === 1000 &&
+      g.all.indexOf('1,000 L') >= 0 && g.all.indexOf('10 × 10 × 10 =') >= 0 && g.all.indexOf('10 cm') >= 0 && answerOf(STEPS[4]) === '9,000 L' && CM_PER_M * CM_PER_M * CM_PER_M / CM3_PER_L === L_PER_M3;
+  }, { source: 'https://www.nist.gov/pml/owm/si-units-volume' });
+  K.check('Each tank comes with its own sounding table, which indicates the volume of liquid inside the tank: the example box tank\'s table lists the liquid\'s volume at every 0.25 m of depth up to its full 1.5 m, each 6 m² × the depth (1.5, 3, 4.5, 6, 7.5 and 9 m³), and the liquid drawn at each depth is that deep, its row picked out', () => {
+    const rows = tableRows(), g = drawn(7, blank(7));
+    const each = rows.every((v) => {
+      const w = drawn(7, Object.assign(blank(7), { moved: true, v: v })), liq = w.shapes.filter((x) => x.cls === 'liq').map((x) => cornersOf(x.d))[0];
+      return w.all.indexOf(amt(6 * v, 'm³')) >= 0 && !!liq && K.near(spanY(liq), v * LAY.level.Q, 1e-6) && w.texts.some((t) => t.cls === 'axv on' && t.s === amt(v, 'm')) && w.texts.some((t) => t.cls === 'axv on' && t.s === amt(6 * v, 'm³'));
+    });
+    return rows.join() === '0.25,0.5,0.75,1,1.25,1.5' && rows.map((v) => num(6 * v)).join() === '1.5,3,4.5,6,7.5,9' && each &&
+      g.all.indexOf('6 m³') >= 0 && g.all.indexOf('6 m²') >= 0 && STEPS[7].text.indexOf('its own *sounding table*') >= 0;
+  }, { source: 'https://www2.kaiyodai.ac.jp/~takagi/ime/0503_tank_sounding.pdf' });
+  K.check('The density of an object or substance is its mass divided by its volume: so the oil\'s mass is density × volume, 850 × 3 = 2,550 kg, and 2,550 kg ÷ 3 m³ gives back its 850 kg per m³; each of its three 1 m cubes is tagged 850 kg', () => {
+    const g = drawn(9, solved(9));
+    return OIL.rho * OIL.v === 2550 && 2550 / OIL.v === OIL.rho && answerOf(STEPS[9]) === '2,550 kg' && g.all.filter((s) => s === '850 kg').length === 3 && g.all.indexOf('2,550 kg') >= 0;
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zfmkr2p' });
+  K.check('Each puzzle\'s answer is worked out from its rule: a 3 m by 2 m tank holds 3 × 2 × 1.5 = 9 m³ at 1.5 m deep; 100 × 100 × 100 = 1,000,000 cm³; 9 × 1,000 = 9,000 L; π × 0.6² × 2 = 2.26 m³; 6 × 0.8 = 4.8 m³ = 4,800 L; 850 × 3 = 2,550 kg; 2 × (6 + 4.5 + 3) = 27 m²; and the box unfolded in step 11 is 2 × (6 + 3 + 2) = 22 m²', () =>
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) && DO.map((i) => STEPS[i].want).join('|') === '1.5 m|1,000,000 cm³|9,000 L|2.26 m³|4,800 L|2,550 kg|27 m²' &&
+    surface(NETBOX) === 22 && facesArea(TANK).join() === '6,4.5,3' && K.near(TANK.l * TANK.w * LIQ, 4.8, 1e-9) && drawn(10, blank(10)).all.indexOf('22 m²') >= 0);
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives: one layer only (the tank 1 m deep, and every other wrong depth shown with what it holds), the length\'s factor 100 or the area\'s 10,000 for cm³, × 100 or the cm³ count for litres, the diameter in πr² or the round side\'s area, the whole tank or m³ left as litres, the density divided or used with litres, three faces only or the volume for the sheet; each is shown in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length === slips.length + 1 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      if (d.kind === 'drag') {
+        // every depth the top can be dragged to: only 1.5 m is right, and each wrong one shows in red what it holds
+        const g = GRIP[d.grip], ok = [];
+        for (let v = g.min; v <= g.max + 1e-9; v += g.step) {
+          const o = amt(r3(v), 'm'), right = isRight(i, Object.assign(blank(i), { moved: true, v: r3(v), pick: o }));
+          if (right !== (o === d.want)) return false;
+          if (!right) { const w = drawn(i, slipped(i, o)); ok.push(clear(w) && w.reds > 0 && w.all.indexOf(amt(6 * r3(v), 'm³')) >= 0); }
+        }
+        if (!ok.every(Boolean) || ok.length !== 4) return false;
+      }
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return clear(w) && w.reds > 0; });
+    }) && slipOpt(STEPS[1], 'base') === '1 m' && slipOpt(STEPS[3], 'row') === '100 cm³' && slipOpt(STEPS[3], 'layer') === '10,000 cm³' &&
+    slipOpt(STEPS[4], 'cm3') === '9,000,000 L' && slipOpt(STEPS[6], 'diam') === '9.05 m³' && slipOpt(STEPS[6], 'side') === '7.54 m³' &&
+    slipOpt(STEPS[8], 'nolitre') === '4.8 L' && slipOpt(STEPS[9], 'divide') === '283.33 kg' && slipOpt(STEPS[9], 'litres') === '2,550,000 kg' && slipOpt(STEPS[11], 'half') === '13.5 m²');
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: the readout shows ? with the unit asked for, no cubes or litres counted, no radius or area named, no faces tinted, no answer anywhere and nothing in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i)), u = d.kind === 'drag' ? 'm³' : d.want.replace(/^[\d.,]+ /, '');
+      if (g.reds || g.all.indexOf(d.want) >= 0 || g.all.indexOf('? ' + u) < 0) return false;
+      if (d.pic === 'tank' || d.pic === 'million') return !g.shapes.some((x) => /\b(cube|base|rowl)\b/.test(x.cls));
+      if (d.pic === 'litres') return !g.shapes.some((x) => x.cls === 'one') && g.all.indexOf('1,000 L') < 0;
+      if (d.pic === 'round') return !g.shapes.some((x) => /\b(cube|base|one)\b/.test(x.cls)) && g.all.indexOf('0.6 m') < 0;
+      if (d.pic === 'liquid') return g.all.indexOf('6 m²') < 0;
+      if (d.pic === 'mass') return g.all.indexOf('850 kg') < 0;
+      return !g.shapes.some((x) => x.cls === 'cube') && !g.all.some((s) => /m²$/.test(s) && s !== '? m²');
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other and of the lines, for every answer, right or wrong, and wherever its part is dragged', () =>
+    STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i))))) &&
+    STEPS.every((d, i) => { if (!d.grip) return true; const g = GRIP[d.grip], ok = []; for (let v = g.min; v <= g.max + 1e-9; v += g.step) ok.push(clear(drawn(i, Object.assign(blank(i), { moved: true, v: r3(v) })))); return ok.every(Boolean); }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per item; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 1); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>
