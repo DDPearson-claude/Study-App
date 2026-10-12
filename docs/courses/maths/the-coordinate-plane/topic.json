@@ -1,0 +1,148 @@
+{
+  "title": "Points and graphs you will actually use",
+  "hook": "A pump's curve shows the head it gives at each flow, and more flow means less head. How do you read the head for the flow you need straight off the graph?",
+  "oneBreath": "A point on a grid is named by two numbers, (x, y): how far along from (0, 0), then how far up, always in that order. Negative numbers send you left or down, so the grid has four quarters, and a zero puts the point on an axis. A square on a graph need not be worth 1, so read the scale from the axis labels and keep its steps equal. Plot a table of measurements as points, then draw one best straight line or smooth curve through them rather than joining the dots. Read a graph both ways, up from a flow to a pump's curve and across to its head, or back again, and trust a reading inside the measured points more than one beyond them. When two things are in proportion their graph is a straight line through (0, 0), like a resistor's voltage against its current from V = IR, and with voltage up the side a steeper line means more ohms.",
+  "ideas": [
+    {
+      "id": "i1",
+      "title": "Along, then up",
+      "oneLine": "(3, 2) means 3 along then 2 up from (0, 0), x before y, so swapping the numbers puts the point somewhere else.",
+      "deps": [],
+      "kind": "concept"
+    },
+    {
+      "id": "i2",
+      "title": "All four quadrants",
+      "oneLine": "Negatives go left or down, so the signs of (x, y) name the quarter and a zero puts the point on an axis.",
+      "deps": [
+        "i1"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i3",
+      "title": "Scales",
+      "oneLine": "A square need not be 1: read the axis labels, read between the marks, and choose equal steps of 1, 2 or 5 so the data fits.",
+      "deps": [
+        "i1"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i4",
+      "title": "From a table to a graph",
+      "oneLine": "Plot each row of a table as a point, then draw one best straight line or smooth curve through measured points instead of joining the dots.",
+      "deps": [
+        "i2",
+        "i3"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i5",
+      "title": "Reading a graph",
+      "oneLine": "Read up from a flow to a pump's curve and across to its head, or back, and trust readings inside the data, not beyond.",
+      "deps": [
+        "i3",
+        "i4"
+      ],
+      "kind": "skill"
+    },
+    {
+      "id": "i6",
+      "title": "Straight lines through zero",
+      "oneLine": "Two things in proportion make a straight line through (0, 0), like a resistor's V-I graph from V = IR; a bend or a miss means not proportional.",
+      "deps": [
+        "i4",
+        "i5"
+      ],
+      "kind": "concept"
+    }
+  ],
+  "calibration": [
+    {
+      "id": "c1",
+      "iid": "i1",
+      "q": "Which point is 2 along and 5 up from (0, 0)?",
+      "options": [
+        "(5, 2)",
+        "(2, 5)",
+        "(7, 0)"
+      ],
+      "answer": 1,
+      "why": "The first number says how far along and the second how far up, so it is (2, 5). (5, 2) swaps them, which lands 5 along and 2 up, and (7, 0) adds them together."
+    },
+    {
+      "id": "c2",
+      "iid": "i6",
+      "q": "A resistor passes 2 A at 10 V. On its graph, with current along the bottom and voltage up the side, which point is at 4 A?",
+      "options": [
+        "(4, 20)",
+        "(4, 12)",
+        "(4, 10)"
+      ],
+      "answer": 0,
+      "why": "Its graph is a straight line through zero, so double the current gives double the voltage: 4 A at 20 V. (4, 12) adds 2 to each number, and (4, 10) keeps the voltage the same."
+    }
+  ],
+  "query": "The coordinate plane",
+  "level": "some",
+  "mode": "read",
+  "intake": {
+    "questions": [
+      {
+        "id": "q1",
+        "q": "What do you want from this course?",
+        "options": [
+          "To understand coordinates and reading graphs",
+          "A quick refresher of the methods",
+          "Exam practice"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q2",
+        "q": "Where will you use it?",
+        "options": [
+          "On the job and in everyday life",
+          "For further study",
+          "Just curiosity"
+        ],
+        "multi": false,
+        "other": false
+      },
+      {
+        "id": "q3",
+        "q": "How do you like to learn?",
+        "options": [
+          "Hands-on, with the why explained in full",
+          "Rules and worked examples only",
+          "Lots of practice questions"
+        ],
+        "multi": false,
+        "other": false
+      }
+    ],
+    "answers": {
+      "q1": {
+        "picked": [
+          "To understand coordinates and reading graphs"
+        ],
+        "other": null
+      },
+      "q2": {
+        "picked": [
+          "On the job and in everyday life"
+        ],
+        "other": null
+      },
+      "q3": {
+        "picked": [
+          "Hands-on, with the why explained in full"
+        ],
+        "other": null
+      }
+    }
+  }
+}

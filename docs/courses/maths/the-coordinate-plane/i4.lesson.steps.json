@@ -1,0 +1,124 @@
+{
+  "iid": "i4",
+  "title": "From a table to a graph",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a table of readings turning into points, each placed along and up as the axis labels say on a scale fitted to the table, and then one best-fit line or one smooth curve laid through the middle of measured points, where joining them dot to dot makes a zigzag, when you plot readings from a table, choose a scale for one, pick and lay a best-fit line, and spot a reading plotted with its numbers swapped.",
+    "title": "From a table to a graph",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens. Each shows a small table of readings above a graph whose axes are named with their units, time along the bottom and the reading up the side. Points you drag, or that arrive one at a time, show where each reading goes, and lines and curves are laid through them: a dot-to-dot zigzag, a straight best-fit line and a smooth curve. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "All the readings are example values, not measured from a real workshop, freezer, tank or motor, and chosen to show either a straight pattern or a bend. The best-fit lines are worked out from the example readings, and the smooth curves are drawn from a rule chosen to run close to them, not taken from a maker's chart or a law of cooling. A best-fit line is judged here by eye, with every reading within half a square of it. Working one out exactly, and reading values off a line or curve, come later.",
+    "numbers": [
+      {
+        "label": "Workshop readings 4 °C at 0 min and 8 °C at 4 min, plotted at (0, 4) and (4, 8) on 2 a square, in step 1",
+        "value": 8,
+        "kind": "constant"
+      },
+      {
+        "label": "10 °C at 8 min on 2 a square: 4 squares along and 5 up, (8, 10), not (10, 8) swapped, (16, 10) or (8, 20) counted as 1 a square, in step 2",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "Motor readings up to 64 °C on 10 squares: 64 ÷ 10 = 6.4, so 10 °C a square; 5 °C reaches only 50 °C, in step 3",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "Freezer reading −10 °C at 4 h on 5 °C a square: 4 squares along and 2 down, (4, −10), not (4, 10), in step 4",
+        "value": -10,
+        "kind": "constant"
+      },
+      {
+        "label": "Six workshop readings, 4, 8, 10, 14, 15 and 19 °C at 0, 4, 8, 12, 16 and 20 min, joined dot to dot, in step 5",
+        "value": 6,
+        "kind": "constant"
+      },
+      {
+        "label": "Their best-fit line runs from about 4.5 °C at 0 min to about 18.8 °C at 20 min, each reading within 1 °C of it, in step 6",
+        "value": 18.8,
+        "kind": "constant"
+      },
+      {
+        "label": "Draining tank readings 19 to 3 cm; line B, the best fit, runs from about 18.6 cm to 3.1 cm, line A 2 cm below it, in step 7",
+        "value": 18.6,
+        "kind": "constant"
+      },
+      {
+        "label": "The best-fit line passes within 0.8 cm of every draining reading without having to pass through any, in step 8",
+        "value": 0.8,
+        "kind": "constant"
+      },
+      {
+        "label": "Filling tank readings 6 to 38 cm; a line from about 9 cm at 1 min to 34 cm at 9 min is within 2.5 cm of each, in step 9",
+        "value": 2.5,
+        "kind": "constant"
+      },
+      {
+        "label": "Cooling readings 48, 32, 24, 19, 17 and 16 °C at 0 to 50 min; the best straight line misses the first by 7 °C, in step 10",
+        "value": 7,
+        "kind": "constant"
+      },
+      {
+        "label": "Motor readings 18 to 64 °C at 0 to 50 min on 10 °C a square; the best straight line misses the first by about 10 °C, in step 11",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "32 °C at 10 min belongs at (10, 32); plotted with its numbers swapped it sits at (32, 10), in step 12",
+        "value": 32,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A table of readings becomes a graph one reading at a time. Each reading is a pair, such as 8 °C at 4 min, and it becomes one point. The axis labels say which number goes along and which goes up, so with time along and temperature up, that reading is (4, 8). Swap its numbers and it lands at (8, 4), somewhere else. Fit each axis to the table before plotting. Divide the largest reading by the squares you have and take the next easy step up, as in Scales, so 64 °C over 10 squares is 6.4 a square, which rounds up to 10 °C a square. A reading below zero, like −10 °C, goes below the time axis.\n\nMeasured readings, like the example ones here, need not sit exactly in line. An SQA engineering unit asks for a best-fit straight line graph from supplied experimental data,[^1] which means one straight [[best-fit line]] through the middle of the points, close to every one, with some above it and some below. It need not pass through any of them. An Illinois State University lab handbook says never to connect even linearized data point-to-point with straight lines,[^2] and the zigzag that makes would show the readings lurching at every point. When the points bend, like the example motor readings that rise fast and then level off, no straight line runs close to them all, so draw one smooth curve through them. That is what the MCA's General Engineering Science I syllabus asks for when it says to join the points with an appropriate curve.[^3] A point far from the line or curve is worth checking against the table, in case its numbers were swapped.\n\n**Plot each reading as one point, along and up as the axis labels say, on scales fitted to the table. Then draw one best-fit line through the middle of measured points, or one smooth curve where they bend, not a dot-to-dot zigzag.**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** Fit each scale to the table, then plot each reading along and up as the axis labels say. Through measured points, draw one straight best-fit line or one smooth curve through the middle of them, not dot to dot.\n\n**Worked example:** A tank's depth readings are 6, 13, 17, 26, 30 and 38 cm at 0, 2, 4, 6, 8 and 10 min. The depth axis has 10 squares, and 38 ÷ 10 = 3.8, so take 5 cm a square. Plot the six points with time along and depth up. A ruler laid from about 9 cm at 1 min to about 34 cm at 9 min passes close to every point, with some above it and some below, so that is the best-fit line.\n\n**Common mistakes**\n- Joining the dots. A lab handbook says never to connect even linearized data point-to-point with straight lines.[^2] Draw one best-fit line, or one smooth curve where the points bend, through the middle of them instead.\n- Putting a reading below zero on the wrong side. A research article on common errors lists points put in the wrong quadrant or on the wrong axis.[^4] At 5 °C a square, −10 °C at 4 h goes 2 squares below the time axis, not above it."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "sources": [
+    {
+      "n": 1,
+      "title": "national unit specification: general information",
+      "url": "https://www.sqa.org.uk/files/nu/F3HX12.pdf",
+      "quote": "Construct a best-fit straight line graph from supplied experimental data correctly"
+    },
+    {
+      "n": 2,
+      "title": "Microsoft Word - graph_errors.doc",
+      "url": "http://www.phy.ilstu.edu/ptefiles/302content/student_lab_hdbk/graph_errors.pdf",
+      "quote": "Never connect even linearized data point-to-point with straight lines."
+    },
+    {
+      "n": 3,
+      "title": "General Engineering Science I Written Examination Syllabuses - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/general-engineering-science-written-examination-syllabuses/general-engineering-science-i-written-examination-syllabuses",
+      "quote": "Plot ordered pairs on graph paper, either given or calculated and join the points with an appropriate curve."
+    },
+    {
+      "n": 4,
+      "title": "Research Article The Most Common Conceptual Errors in",
+      "url": "https://files.eric.ed.gov/fulltext/EJ1486282.pdf",
+      "quote": "incorrectly assigning points to the axes or quadrants on the coordinate plane"
+    }
+  ]
+}

@@ -1,0 +1,1156 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  .vx { font-style: italic; }
+  /* Nothing in the picture is selected as text while a point is dragged. */
+  .scene { display: block; width: 100%; -webkit-user-select: none; user-select: none; }
+  .scene .hl { fill: var(--k-hl); }
+  /* The graph: faint gridlines, the axes in ink, their names (with units) in teal, the numbers in muted. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; fill: none; }
+  .scene .ax { stroke: var(--k-ink); stroke-width: 1.75; stroke-linecap: round; }
+  .scene .axh { fill: var(--k-ink); }
+  .scene .an { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .axv { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axv.on { fill: var(--k-ink); }
+  /* Points in ink; one put in the wrong place in the warning colour; the one you move has a soft ring. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt.bad { fill: var(--k-warn); }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .ring.bad, .scene .box.bad { stroke: var(--k-warn); }
+  .scene .box { fill: none; stroke-width: 2; }
+  .scene .gd { stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  /* Lines and curves in ink; a slip (a zigzag, a line picked wrongly) in the warning colour. */
+  .scene .fit { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .scene .fit.thin { stroke-width: 2.25; }
+  .scene .fit.bad, .scene .zz { stroke: var(--k-warn); }
+  .scene .zz { stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+  .scene .lbl { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  /* A label a reading's guide may slide behind sits on a patch of the page. */
+  .scene .patch { fill: var(--k-bg); }
+  /* A line's letter, on a patch of the page so the line stays clear of it. */
+  .scene .bdg { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .bdg.bad { stroke: var(--k-warn); }
+  .scene .bdl { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  /* The readout along the top: the point's (x, y) and what it says. */
+  .scene .ro { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .rou { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The places Dan touches: the graph (tap to move the point there) and the point (drag it). */
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Graphs with named axes, each line drawn from its rule or from readings, and tested for being straight and through (0, 0).</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 262" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A straight line through (0, 0) means in proportion. The amounts and readings are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // g: which graph a step draws on (G below). demo: what a SHOW step plays (dur seconds); cursor: the
+  // point riding a line that Dan can slide along it once the demonstration has played (f: the line,
+  // its rule in FN). A 'pick' puzzle takes one answer, its picture `pic`; a 'drag' puzzle asks for the
+  // point to be put at `to`. fb: how long the motion after a right answer plays; at: when each part of
+  // it arrives, in seconds after Check ([start, gap, count] for parts counted one at a time). slips:
+  // which slip gives each wrong answer, and hints: what is said for it.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the point to its place first.';
+  // After a right answer. DOUBLE: the line through (0, 0) and the given point grows on, the guides to
+  // the answer, then its point and readout. MISS: the line's start ringed and named; the reading at 20 m;
+  // the reading at 40 m, not double. READ: the point travels along the curve, then the readout. STEEP:
+  // each line's ohms at its end, one at a time. PLOT: the guides, then the readout. CORNER: the side's
+  // numbers redrawn from 0 as the line eases up to its start, then that start named. FIT: the best-fit line grows, its name, then
+  // where it runs through.
+  const DOUBLE = { line: 0.1, guides: 0.6, pt: 1.1 };
+  const MISS = { ring: 0.1, r20: 0.6, r40: 1.1 };
+  const READ = { move: 0.1, ro: 0.6 };
+  const STEEP = { ohm: [0.1, 0.25, 3] }, STEEP2 = { ohm: [0.1, 0.25, 2] };
+  const PLOT = { guides: 0.1, ro: 0.6 };
+  const CORNER = { regrid: 0.1, ring: 0.9 };
+  const FIT = { line: 0.1, label: 0.6, ro: 1.1 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  // How long a counted part takes to arrive, a line to grow, a point to travel along a line, a best-fit
+  // line to grow, and the swapped line to swing.
+  const COUNT = 0.3, GROW = 0.7, TRAVEL = 0.8, LINE_T = 0.8, SWING = 1.2, REGRID = 0.7;
+  // A reading that steps along a line hops a square at a time: each hop takes HOP seconds, a hop starting
+  // every HOPS seconds, and its readout counts when it lands. The numbers it sits on fade in over PICK_T
+  // as it lands (and out as it leaves); on the first screen it hops to each point in COUNT_HOP.
+  const HOP = 0.25, HOPS = 0.45, PICK_T = 0.25, COUNT_HOP = 0.2;
+  // An answer's motion: the given point's guides and numbers fade out over this while the new ones arrive.
+  const OLD = [0.1, 0.3];
+
+  // The graphs: x along (6 squares of x.step), y up (y.n squares of y.step from y.min), each axis named
+  // with its unit. A unit written before the number (£) is `pre`.
+  const G = {
+    vi: { x: { name: 'current (A)', unit: 'A', step: 1 }, y: { name: 'voltage (V)', unit: 'V', step: 5, min: 0, n: 6 } },
+    vi14: { x: { name: 'current (A)', unit: 'A', step: 1 }, y: { name: 'voltage (V)', unit: 'V', step: 2, min: 0, n: 7 } },
+    iv: { x: { name: 'voltage (V)', unit: 'V', step: 5 }, y: { name: 'current (A)', unit: 'A', step: 1, min: 0, n: 6 } },
+    iv6: { x: { name: 'voltage (V)', unit: 'V', step: 1 }, y: { name: 'current (A)', unit: 'A', step: 1, min: 0, n: 6 } },
+    bill: { x: { name: 'time (h)', unit: 'h', step: 1 }, y: { name: 'cost (£)', unit: '£', step: 50, min: 0, n: 6 } },
+    drum: { x: { name: 'cable (m)', unit: 'm', step: 10 }, y: { name: 'weight (kg)', unit: 'kg', step: 10, min: 0, n: 6 } },
+    heat: { x: { name: 'current (A)', unit: 'A', step: 1 }, y: { name: 'power (W)', unit: 'W', step: 50, min: 0, n: 4 } },
+    tank: { x: { name: 'time (min)', unit: 'min', step: 1 }, y: { name: 'level (cm)', unit: 'cm', step: 5, min: 20, n: 6 } },
+    tank0: { x: { name: 'time (min)', unit: 'min', step: 1 }, y: { name: 'level (cm)', unit: 'cm', step: 10, min: 0, n: 6 } },
+  };
+  const NX = 6;
+  // The rules the lines are drawn from. A resistor by V = IR; the call-out bill, £40 plus £30 an hour;
+  // the cable drum, 20 kg empty plus 0.5 kg a metre; the heater by P = I²R at 5 Ω; the part's bent V-I
+  // curve, drawn from example numbers (through (2, 5), (4, 15) and (6, 30)); the tank, 20 cm at the start
+  // and 5 cm a minute. All are example values.
+  const ohm = (R) => (I) => R * I;
+  const BILL = { fixed: 40, rate: 30 }, DRUM = { empty: 20, per: 0.5 }, HEAT_R = 5, PART = { a: 1.25, b: 0.625 }, TANK = { start: 20, rate: 5 };
+  const FN = {
+    R3: ohm(3), R5: ohm(5), R10: ohm(10),
+    bill: (h) => BILL.fixed + BILL.rate * h,
+    drum: (m) => DRUM.empty + DRUM.per * m,
+    heat: (I) => I * I * HEAT_R,
+    part: (I) => PART.a * I + PART.b * I * I,
+    tank: (t) => TANK.start + TANK.rate * t,
+  };
+  // The resistors on the steepness puzzles, by their letters: voltage up the side (screen 8), and current
+  // up the side (screen 11), where each line is I = V / R and the one that climbs less has more ohms.
+  const LINES = { 'Line A': 4, 'Line B': 8, 'Line C': 3 }, LINES_I = { 'Line A': 6, 'Line B': 15 };
+  // A resistor's measured readings (example values): 5 V an amp, give or take a little.
+  const READINGS = [[0, 0], [1, 6], [2, 8.5], [3, 16.5], [4, 17.5], [5, 26.5]];
+
+  const STEPS = [
+    { show: true, g: 'vi', demo: 'line', dur: 3.7, cursor: { f: 'R5' }, name: 'A line through zero',
+      text: 'By V = IR, a 5 Ω resistor takes 5 V at 1 A and 10 V at 2 A. Its points make a straight line through (0, 0), the mark of amounts *in proportion*.' },
+    { kind: 'pick', pic: 'double', g: 'vi14', R: 3, from: 2, x2: 4, opts: ['(4, 12)', '(4, 8)', '(4, 6)'], want: '(4, 12)', slips: { '(4, 8)': 'add', '(4, 6)': 'same' }, fb: 1.7, at: DOUBLE, name: 'Double it',
+      task: 'A resistor reads 6 V at 2 A, and its graph is a straight line through (0, 0). Which point is on it at 4 A?',
+      why: 'On a straight line through (0, 0), doubling the current doubles the voltage. 4 A is double 2 A, so the voltage is 2 × 6 = 12 V, the point (4, 12).',
+      hint: 'Not quite. 4 A is double 2 A. What happens to the voltage?',
+      hints: { '(4, 8)': 'Not quite. That adds 2 to the voltage. On a line through (0, 0), doubling the current doubles the voltage.',
+        '(4, 6)': 'Not quite. That keeps 6 V. More current through the same resistor takes more voltage.' } },
+    { show: true, g: 'bill', demo: 'bill', dur: 3.7, cursor: { f: 'bill' }, name: 'Straight, but not through zero',
+      text: 'A £40 call-out plus £30 an hour makes a straight line too, but it starts at £40. So 4 hours cost £160, not double the £100 for 2 hours.' },
+    { kind: 'pick', pic: 'miss', g: 'drum', opts: ['Yes, it is straight', 'No, it misses (0, 0)', 'No, it bends'], want: 'No, it misses (0, 0)', slips: { 'Yes, it is straight': 'straight', 'No, it bends': 'bends' }, fb: 1.7, at: MISS, name: 'In proportion?',
+      task: 'As cable is wound onto a drum, the drum gets heavier. Is its weight in proportion to the length of cable?',
+      why: 'The line is straight, but at 0 m the empty drum already weighs 20 kg, so the line misses (0, 0). 20 m weighs 30 kg and 40 m weighs 40 kg, not double.',
+      hint: 'Not quite. Look at where the line meets the weight axis.',
+      hints: { 'Yes, it is straight': 'Not quite. Straight is not enough. Where is the line at 0 m?',
+        'No, it bends': 'Not quite. The line is straight. Look at where it meets the weight axis.' } },
+    { show: true, g: 'heat', demo: 'heat', dur: 3.7, cursor: { f: 'heat' }, name: 'Through zero, but bent',
+      text: 'By P = I²R, a 5 Ω heater\'s power graph starts at (0, 0) but curves upwards. From 2 A to 4 A it goes from 20 W to 80 W, four times as much.' },
+    { kind: 'pick', pic: 'curve', g: 'vi', from: 2, x2: 4, opts: ['15 V', '10 V', '20 V'], want: '15 V', slips: { '10 V': 'double', '20 V': 'four' }, fb: 1.25, at: READ, name: 'Read the curve',
+      task: 'This part\'s V-I graph bends. It takes 5 V at 2 A. What voltage does it take at 4 A?',
+      why: 'The graph bends, so doubling does not work. Read up from 4 A to the curve, then across to the side. It takes 15 V, three times the 5 V at 2 A.',
+      hint: 'Not quite. Read up from 4 A to the curve, then across to the voltage.',
+      hints: { '10 V': 'Not quite. That doubles 5 V, as if it were in proportion. This graph bends, so read it off the curve at 4 A.',
+        '20 V': 'Not quite. That is four times 5 V, as the heater\'s power went. Read this curve itself at 4 A.' } },
+    { show: true, g: 'vi', demo: 'steep', dur: 3.2, cursor: { f: 'R10', also: 'R5' }, name: 'Steeper means more ohms',
+      text: 'With voltage up the side, a 10 Ω resistor\'s line is *steeper* than a 5 Ω one. At 2 A it takes 20 V, where the 5 Ω takes 10 V. On the same axes, steeper means more ohms.' },
+    { kind: 'pick', pic: 'steep', g: 'vi', opts: ['Line A', 'Line B', 'Line C'], want: 'Line B', slips: { 'Line A': 'far', 'Line C': 'flat' }, fb: 1.2, at: STEEP, name: 'Most ohms',
+      task: 'With voltage up the side, which resistor has the most ohms?',
+      why: 'Line B is the steepest. At 3 A it takes 24 V, where line A takes 12 V and line C takes 9 V. More volts for each amp means more ohms.',
+      hint: 'Not quite. Compare how steeply the lines climb.',
+      hints: { 'Line A': 'Not quite. Line A runs furthest, but it climbs less steeply than B. At 3 A it takes 12 V, and B takes 24 V.',
+        'Line C': 'Not quite. Line C is the flattest, so each amp takes the fewest volts. That is the fewest ohms.' } },
+    { show: true, g: 'vi', demo: 'swap', dur: 3.2, name: 'Axes swapped',
+      text: 'Bitesize puts voltage up the side, as this lesson has so far. Some books put current up the side instead. Then the 5 Ω line is the steeper one, so read the labels first.' },
+    { kind: 'drag', g: 'iv6', R: 3, I: 2, to: [6, 2], start: [1, 5], want: '(6, 2)', fb: 1.2, at: PLOT, name: 'Current up the side',
+      slips: { '(2, 6)': 'swap', '(5, 2)': 'add' },
+      task: 'This graph has current up the side. Drag the point to show a 3 Ω resistor carrying 2 A.',
+      why: 'By V = IR, 2 A through 3 Ω takes 2 × 3 = 6 V. Current goes up the side here, so the point is 6 along and 2 up, (6, 2).',
+      hint: 'Not quite. Work out the voltage by V = IR, then put the current up and the voltage along.',
+      hints: { '(2, 6)': 'Not quite. That puts 6 up the side, as if voltage went up. Here current goes up, so 2 A is 2 up and 6 V is 6 along.',
+        '(5, 2)': 'Not quite. That adds 3 and 2. By V = IR, 2 A through 3 Ω takes 2 × 3 = 6 V.' } },
+    { kind: 'pick', pic: 'steep', g: 'iv', lines: LINES_I, badges: { 'Line A': 15, 'Line B': 20 }, opts: ['Line A', 'Line B'], want: 'Line B', slips: { 'Line A': 'steeper' }, fb: 1.2, at: STEEP2, name: 'Labels first',
+      task: 'This graph has current up the side. Which resistor has more ohms?',
+      why: 'Current is up the side here. At 30 V, line A carries 5 A and line B only 2 A. More volts for each amp means more ohms, so line B has more.',
+      hint: 'Not quite. Read the labels first. Which line takes more volts for each amp?',
+      hints: { 'Line A': 'Not quite. Current is up the side here, so the line that climbs less takes more volts for each amp.' } },
+    { kind: 'pick', pic: 'corner', g: 'tank', opts: ['Yes, it is straight', 'Yes, from the corner', 'No, it misses (0, 0)'], want: 'No, it misses (0, 0)', slips: { 'Yes, it is straight': 'straight', 'Yes, from the corner': 'corner' }, fb: 1.5, at: CORNER, name: 'Check the corner',
+      task: 'This tank\'s level graph is straight and starts in the corner. Is the level in proportion to the time?',
+      why: 'The side starts at 20 cm, not 0, so the corner is (0, 20). At 0 min the tank already holds 20 cm, so the line misses (0, 0).',
+      hint: 'Not quite. Read the numbers up the side, starting at the corner.',
+      hints: { 'Yes, it is straight': 'Not quite. Straight is not enough, as it must pass through (0, 0). Read the side\'s number at the corner.',
+        'Yes, from the corner': 'Not quite. The corner here is 20 cm, not 0. Read the numbers up the side.' } },
+    { kind: 'pick', pic: 'measured', g: 'vi', opts: ['Yes', 'No, they zigzag', 'No, they bend'], want: 'Yes', slips: { 'No, they zigzag': 'dots', 'No, they bend': 'bend' }, fb: 1.7, at: FIT, name: 'Measured readings',
+      task: 'These are a resistor\'s measured readings. Is its voltage in proportion to its current?',
+      why: 'Measured readings wobble a little. One best-fit line through them is straight and runs through (0, 0), so the voltage is in proportion to the current.',
+      hint: 'Not quite. Picture one best-fit line through the readings.',
+      hints: { 'No, they zigzag': 'Not quite. Joining the dots makes a zigzag of small wobbles. Picture one best-fit line through them instead.',
+        'No, they bend': 'Not quite. The readings wobble either side of one straight line, but they do not curve away from it.' } },
+  ];
+  const FINISH = 'Two amounts are in proportion when their graph is a straight line through (0, 0). A line that misses (0, 0), or bends, is not. With voltage up the side, a steeper V-I line on the same axes means more ohms, but read the labels first, as some graphs swap them.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled); [start, gap, count] for parts counted one
+  // at a time. line: the points at 0 to 5 A one at a time, the reading following them; the line grows
+  // through them; its ohms. bill and heat: the line or curve grows; (bill) its start ringed and named;
+  // the reading at 2; the reading hops to 3, then 4; the note. steep: the 5 Ω line grows, its name; the
+  // 10 Ω line, its name; the reading at 2 A. swap: the axes' names and numbers change places as the 10 Ω
+  // line swings; its name; the note.
+  const FADE = 0.35;
+  const AT = {
+    line: { pts: [0.6, 0.3, 6], line: 2.6, label: 3.1 },
+    bill: { line: 0.6, ring: 1.1, cur: 1.6, hops: [2.1, HOPS, 2], note: 3.1 },
+    heat: { line: 0.6, cur: 1.6, hops: [2.1, HOPS, 2], note: 3.1 },
+    steep: { l5: 0.6, n5: 1.1, l10: 1.6, n10: 2.1, cur: 2.6 },
+    swap: { axes: 0.6, label: 2.1, note: 2.6 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const num = (v) => { const a = r3(v); return (a < 0 ? '−' : '') + Math.abs(a); };
+  const pair = (x, y) => '(' + num(x) + ', ' + num(y) + ')';
+  const parsePair = (s) => { const m = /^\((−?)([\d.]+), (−?)([\d.]+)\)$/.exec(s); return m ? [(m[1] ? -1 : 1) * +m[2], (m[3] ? -1 : 1) * +m[4]] : null; };
+  const amt = (v, u) => (u === '£' ? '£' + num(v) : num(v) + ' ' + u);
+  // The best-fit line of readings: the straight line y = a + b x they sit closest to overall (the
+  // smallest total of their squared gaps up or down to it).
+  function fitOf(cols) {
+    const n = cols.length, mx = cols.reduce((s, c) => s + c[0], 0) / n, my = cols.reduce((s, c) => s + c[1], 0) / n;
+    let sxy = 0, sxx = 0;
+    cols.forEach((c) => { sxy += (c[0] - mx) * (c[1] - my); sxx += (c[0] - mx) * (c[0] - mx); });
+    const b = sxy / sxx;
+    return { a: my - b * mx, b: b };
+  }
+  const lineFn = (L) => (x) => L.a + L.b * x;
+  // The doubling test: does f(2x) = 2 f(x)? On a line through (0, 0) it holds everywhere.
+  const doubles = (f, x) => K.near(f(2 * x), 2 * f(x), 1e-9);
+  // What each slip makes of an answer. add: the change in current added to the voltage; same: the voltage
+  // kept; double: the curve's reading doubled; four: four times it; swap: current along and voltage up;
+  // addR: the ohms added to the amps.
+  const SLIP = {
+    add: (d) => [d.x2, d.R * d.from + (d.x2 - d.from)],
+    same: (d) => [d.x2, d.R * d.from],
+    double: (d) => 2 * FN.part(d.from),
+    four: (d) => 4 * FN.part(d.from),
+    swap: (d) => [d.I, d.R * d.I],
+    add2: (d) => [d.R + d.I, d.I],
+  };
+  // The lines on the steepness puzzle, and how far each runs on the graph (in squares).
+  const runOf = (R) => { const I = Math.min(NX * G.vi.x.step, G.vi.y.n * G.vi.y.step / R); return Math.hypot(I / G.vi.x.step, R * I / G.vi.y.step); };
+  // A pick's slip as its button reads.
+  function slipOpt(d, s) {
+    if (d.pic === 'double') return pair.apply(null, SLIP[s](d));
+    if (d.pic === 'curve') return amt(SLIP[s](d), 'V');
+    if (d.kind === 'drag') return pair.apply(null, s === 'swap' ? SLIP.swap(d) : SLIP.add2(d));
+    if (d.pic === 'steep') {
+      const L = linesOf(d), names = Object.keys(L), best = answerOf(d);
+      // steeper: with current up the side, the line that climbs most, which has the fewest ohms
+      if (s === 'steeper') return names.filter((n) => L[n] === Math.min.apply(null, names.map((m) => L[m])))[0];
+      if (s === 'flat') return names.filter((n) => LINES[n] === Math.min.apply(null, names.map((m) => LINES[m])))[0];
+      return names.filter((n) => n !== best).sort((a, b) => runOf(LINES[b]) - runOf(LINES[a]))[0];
+    }
+    return { straight: 'Yes, it is straight', bends: 'No, it bends', corner: 'Yes, from the corner', dots: 'No, they zigzag', bend: 'No, they bend' }[s];
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.pic === 'double') return pair(d.x2, d.R * d.from * d.x2 / d.from);
+    if (d.pic === 'curve') return amt(FN.part(d.x2), 'V');
+    if (d.kind === 'drag') return pair(d.R * d.I, d.I);
+    if (d.pic === 'steep') { const L = linesOf(d), names = Object.keys(L); return names.filter((n) => L[n] === Math.max.apply(null, names.map((m) => L[m])))[0]; }
+    if (d.pic === 'miss') return FN.drum(0) !== 0 ? 'No, it misses (0, 0)' : 'Yes, it is straight';
+    if (d.pic === 'corner') return FN.tank(0) !== 0 ? 'No, it misses (0, 0)' : 'Yes, from the corner';
+    const L = fitOf(READINGS);
+    return Math.abs(L.a) < G.vi.y.step / 10 ? 'Yes' : 'No';
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/\((−?[\d.]+), (−?[\d.]+)\)/g, ' the point $1, $2 ').replace(/£(\d[\d.]*)/g, '$1 pounds').replace(/(\d) min\b/g, '$1 minutes').replace(/(\d) h\b/g, '$1 hours')
+    .replace(/(\d) cm\b/g, '$1 centimetres').replace(/(\d) kg\b/g, '$1 kilograms').replace(/(\d) m\b/g, '$1 metres').replace(/(\d) V\b/g, '$1 volts').replace(/(\d) A\b/g, '$1 amps')
+    .replace(/(\d) W\b/g, '$1 watts').replace(/Ω/g, ' ohms').replace(/²/g, ' squared').replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, pt: null, moved: false, c: null }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const d = STEPS[i], st = blank(i); st.res = 'right'; st.moved = true; st.pick = d.want; if (d.kind === 'drag') st.pt = d.to.slice(); return st; }
+  function slipped(i, o) { const d = STEPS[i], st = blank(i); st.res = 'wrong'; st.moved = true; st.pick = o; if (d.kind === 'drag') st.pt = parsePair(o); return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------
+  // V, I, R and P, the letters in V = IR and P = I²R, alone or as IR and I²R, but not inside a word or a
+  // unit after its number ("6 V").
+  const VRE = /(?<![A-Za-z'’])(?:I²R|IR|[VIRP])(?![A-Za-z-])/g;
+  function spans(s) {
+    const out = [];
+    let at = 0, m;
+    VRE.lastIndex = 0;
+    while ((m = VRE.exec(s))) {
+      if (/\d $/.test(s.slice(0, m.index)) || /-$/.test(s.slice(0, m.index))) continue;
+      if (m.index > at) out.push([s.slice(at, m.index), false]);
+      out.push([m[0], true]);
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) out.push([s.slice(at), false]);
+    return out;
+  }
+  function math(el, s) { spans(s).forEach((p) => el.appendChild(p[1] ? K.el('i', { class: 'vx' }, p[0]) : document.createTextNode(p[0]))); }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) math(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) math(el, text.slice(at));
+  }
+  // A point, an amount or a sum stays together on one line ("(4, 12)", "5 Ω", "£160", "2 × 6 = 12 V",
+  // "V = IR"), with the stop after it; a long one may break only before an equals sign.
+  const TOK = '(?:\\(−?\\d+(?:\\.\\d+)?, −?\\d+(?:\\.\\d+)?\\)|£\\d+|I²R|IR|[VIRP](?![A-Za-z-])|−?\\d+(?:\\.\\d+)?(?: (?:V|A|Ω|W|kg|cm|min|m|h)(?![A-Za-z]))?)';
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’-])' + TOK + '(?: [=+−×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) { const sp = K.el('span', { class: 'nw' }); math(sp, b); el.appendChild(sp); } else math(el, b);
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const here = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[here()].show || finished) return;
+    const st = S[here()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = here(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].moved = false; S[i].c = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, here() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = here();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  // The graph's left edge is OX and its top PT, each square Q across; the side's name (and the readout)
+  // sit on the row YNY above it.
+  const OX = 44, PT = 44, Q = 32, YNY = 24, RIGHT = OX + NX * Q;
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let F = null;                                      // the graph being drawn: its axes and scales
+  let H = 262;
+  function frame(g) { return { g: g, xs: g.x.step, ys: g.y.step, ymin: g.y.min, ymax: g.y.min + g.y.n * g.y.step, xmax: NX * g.x.step, n: g.y.n, bottom: PT + g.y.n * Q }; }
+  const gx = (v) => OX + Q * v / F.xs;
+  const gy = (v) => F.bottom - Q * (v - F.ymin) / F.ys;
+  const heightOf = (g) => PT + g.y.n * Q + 26;
+  // Draw with another graph's scales for a moment (a graph giving way to another).
+  function on(g, draw) { const keep = F; F = frame(g); try { draw(); } finally { F = keep; } }
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // A steady run from t0 over d seconds, 0 -> 1; grow: the same, eased.
+  function lin(t0, d) { note(t0, d); return T === Infinity ? 1 : K.clamp((T - t0) / d, 0, 1); }
+  const grow = (t0, d) => K.ease(lin(t0, d == null ? GROW : d));
+  // The kth of a counted run of parts [start, gap].
+  const nth = (A, k) => A[0] + A[1] * k;
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d: d }));
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    t.textContent = String(s);
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 20, an: 13, axv: 13, lbl: 13, bdl: 13, rou: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    path(cls, 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 8 * ux + 4.5 * px) + ' ' + r3(y - 8 * uy + 4.5 * py) + ' L' + r3(x - 8 * ux - 4.5 * px) + ' ' + r3(y - 8 * uy - 4.5 * py) + ' Z');
+  }
+
+  // --- the graph ---
+  // Gridlines and the axes with arrowheads; then (axisText) their names, with units, and the numbers along
+  // them. o.hx, o.hy: a number picked out (amber), arriving at o.hxa, o.hya; o.hxs, o.hys: several, each
+  // [number, how far it has arrived] (one arriving while another leaves); o.corner: the corner number
+  // boxed in the warning colour; o.only: 'x' draws the names and the bottom numbers, 'y' the side's numbers.
+  function gridLines() {
+    let p = '';
+    for (let k = 0; k <= NX; k++) p += 'M' + (OX + Q * k) + ' ' + PT + 'V' + F.bottom;
+    for (let k = 0; k <= F.n; k++) p += 'M' + OX + ' ' + (PT + Q * k) + 'H' + RIGHT;
+    path('gl', p);
+    line('ax', OX, F.bottom, RIGHT + 12, F.bottom); head(RIGHT + 19, F.bottom, 1, 0, 'axh');
+    line('ax', OX, F.bottom, OX, PT - 11); head(OX, PT - 18, 0, -1, 'axh');
+  }
+  function axisText(o) {
+    o = o || {};
+    const ay = F.bottom;
+    const hxs = o.hxs || (o.hx != null ? [[o.hx, o.hxa == null ? 1 : o.hxa]] : []);
+    const hys = o.hys || (o.hy != null ? [[o.hy, o.hya == null ? 1 : o.hya]] : []);
+    const picked = (list, v) => list.reduce((m, h) => (h[0] != null && K.near(h[0], v, 1e-9) ? Math.max(m, h[1]) : m), 0);
+    // A number picked out as far as a: its amber patch and its ink fade in together over the muted number.
+    const number = (v, a, x, y, anchor, extra) => {
+      if (a > 0) part(a, 0, () => { const w = tw(num(v), 'axv'), x0 = anchor === 'end' ? x - w : x - w / 2; rect('hl', x0 - 4, y - 13, w + 8, 18, 5); });
+      text(x, y, num(v), 'axv' + extra, anchor);
+      if (a > 0) part(a, 0, () => text(x, y, num(v), 'axv on' + extra, anchor));
+    };
+    if (o.only !== 'y') {
+      text(OX + 10, YNY, F.g.y.name, 'an', 'start');
+      text(338, ay + 17, F.g.x.name, 'an', 'end');
+      for (let k = 1; k <= NX; k++) { const v = k * F.xs; number(v, picked(hxs, v), gx(v), ay + 17, 'middle', ''); }
+    }
+    if (o.only === 'x') return;
+    for (let k = 0; k <= F.n; k++) {
+      const v = F.ymin + k * F.ys;
+      if (k === 0 && o.corner) part(o.corner, 0, () => { const w = tw(num(v), 'axv'); rect('box bad', OX - 6 - w - 4, gy(v) - 9, w + 7, 19, 5); });
+      number(v, picked(hys, v), OX - 6, gy(v) + 5, 'end', k === 0 && o.corner >= 0.5 ? ' warnt' : '');
+    }
+  }
+  function grid(o) { gridLines(); axisText(o); }
+  const unitWord = (u) => ({ A: 'amps', V: 'volts', W: 'watts', h: 'hours', min: 'minutes', m: 'metres', kg: 'kilograms', cm: 'centimetres', '£': 'pounds' }[u]);
+  // One square's worth, said: "1 amp a square", "5 volts a square".
+  const perSquare = (v, u) => say(amt(v, u)).replace(/^1 (amp|hour|minute|volt|watt|metre|kilogram|centimetre|pound)s\b/, '1 $1');
+  const graphSaid = () => 'A graph with ' + F.g.x.name.replace(/ \(.*/, '') + ' along, ' + perSquare(F.xs, F.g.x.unit) + ' a square, and ' +
+    F.g.y.name.replace(/ \(.*/, '') + ' up, ' + perSquare(F.ys, F.g.y.unit) + ' a square, from ' + say(num(F.ymin)) + ' to ' + say(num(F.ymax)) + ' ' + unitWord(F.g.y.unit) + '.';
+  const dot = (p, cls) => circle('pt' + (cls ? ' ' + cls : ''), gx(p[0]), gy(p[1]), 6);
+  // The dashed guides to a point: up from its place on the bottom axis, and across from the side.
+  function guideUp(p) { const y0 = F.bottom - 2, y = gy(p[1]); if (y0 - y - 8 > 1) line('gd', gx(p[0]), y0, gx(p[0]), y + 8); }
+  function guideAcross(p) { const x1 = gx(p[0]) - 8; if (x1 - (OX + 2) > 1) line('gd', OX + 2, gy(p[1]), x1, gy(p[1])); }
+  // How far along a rising rule f stays on the graph.
+  function xTop(f) {
+    if (f(F.xmax) <= F.ymax + 1e-9) return F.xmax;
+    let lo = 0, hi = F.xmax;
+    for (let k = 0; k < 40; k++) { const m = (lo + hi) / 2; if (f(m) <= F.ymax) lo = m; else hi = m; }
+    return lo;
+  }
+  // A rule's line or curve across the graph from x = 0 (to xEnd, if given), grown from there as far as e.
+  function plot(f, cls, e, xEnd) {
+    if (e <= 0) return;
+    const x1 = Math.min(xTop(f), xEnd == null ? Infinity : xEnd) * Math.min(1, e), n = 48;
+    let d = '';
+    for (let k = 0; k <= n; k++) { const x = x1 * k / n; d += (k ? 'L' : 'M') + r3(gx(x)) + ' ' + r3(gy(f(x))); }
+    path(cls, d);
+  }
+  // Dot to dot: the pieces between readings.
+  function zigzag(cols) { let d = ''; cols.forEach((c, k) => { d += (k ? 'L' : 'M') + r3(gx(c[0])) + ' ' + r3(gy(c[1])); }); path('zz', d); }
+  // A short name: at the right-hand end of a line that leaves by the right edge, or just right of where it
+  // leaves by the top; push moves it further out (clear of the reading's ring when that sits at the end).
+  function endLabel(f, s, warn, push) {
+    const x = xTop(f), cls = 'lbl' + (warn ? ' warnt' : ''), out = push || 0;
+    if (x >= F.xmax - 1e-9) text(RIGHT + 10 + out, gy(f(x)) + 5, s, cls, 'start');
+    else text(gx(x) + 8 + out, PT + 12, s, cls, 'start');
+  }
+  // How far an end label moves out when the reading c sits at its line's end, so the ring stays clear of it.
+  const RING_PUSH = 8;
+  const pushAt = (d, c, f) => (T === Infinity && c != null && K.near(c, Math.floor(xTop(f) / F.xs + 1e-9) * F.xs, 1e-9) ? RING_PUSH : 0);
+  // A line's letter on a patch at (x, y).
+  function badge(s, x, y, warn) { rect('bdg' + (warn ? ' bad' : ''), x - 10, y - 10, 20, 20, 10); text(x, y + 4.5, s, 'bdl' + (warn ? ' warnt' : '')); }
+  // The readout on the row above the graph: a point's (x, y) and what it says, or a short statement.
+  function readout(p, warn) {
+    const w = warn ? ' warnt' : '', s = pair(p[0], p[1]);
+    text(338, YNY, s, 'ro' + w, 'end');
+    text(338 - tw(s, 'ro') - 10, YNY - 1, amt(p[0], F.g.x.unit) + ', ' + amt(p[1], F.g.y.unit), 'rou' + w, 'end');
+  }
+  function readout2(big, small, warn) { const w = warn ? ' warnt' : ''; text(338, YNY, big, 'ro' + w, 'end'); text(338 - tw(big, 'ro') - 10, YNY - 1, small, 'rou' + w, 'end'); }
+  const readoutHidden = () => text(338, YNY, '(?, ?)', 'ro q', 'end');
+  // A label on a patch of the page, so a reading's guide slides behind it rather than through it.
+  function plabel(x, y, s, cls) { const w = tw(s, cls); rect('patch', x - 3, y - 12, w + 6, 16, 3); text(x, y, s, cls, 'start'); }
+  // Where a line meets the side: a point there, and its amount just under the line.
+  function startMark(f, u, warn) { dot([0, f(0)], warn ? 'bad' : null); plabel(OX + 8, gy(f(0)) + 16, amt(f(0), u), 'lbl' + (warn ? ' warnt' : '')); }
+  // A short note under and to the right of a point on a rising line, clear of the line.
+  const noteAt = (p, s, warn) => plabel(gx(p[0]) + 9, gy(p[1]) + 19, s, 'lbl' + (warn ? ' warnt' : ''));
+  // A reading the cursor has left: a small ink dot, and its amount on a patch to its left (dx along, dy
+  // down from the dot), above the line and clear of the guides.
+  function markAt(p, s, dx, dy) { circle('pt', gx(p[0]), gy(p[1]), 4.5); plabel(gx(p[0]) + dx - tw(s, 'lbl'), gy(p[1]) + dy, s, 'lbl'); }
+  const MARK = { bill: [-10, -3], heat: [-14, -2] };
+
+  // --- the reading cursor on a demonstration: a point riding a line, its guides and its readout ---
+  // c: where it is along; f: the line it rides (also: a second line its guide crosses); a: how far it
+  // has arrived. Once a demonstration has played, Dan can slide it (the soft ring shows it moves).
+  function cursorMax(d) { return Math.floor(xTop(FN[d.cursor.f]) / F.xs + 1e-9) * F.xs; }
+  let shownC = null;                                 // where the reading was last drawn along
+  function cursorDot(d, c, live) { if (live == null) live = T === Infinity; if (live) circle('ringp', gx(c), gy(FN[d.cursor.f](c)), 15); dot([c, FN[d.cursor.f](c)]); }
+  function drawCursor(d, c, a, live, count, late) {
+    shownC = c;
+    const f = FN[d.cursor.f], g = d.cursor.also ? FN[d.cursor.also] : null, p = [c, f(c)];
+    const shown = count == null ? c : count, ps = [shown, f(shown)];
+    part(a, 0, () => {
+      guideUp(p); guideAcross(p);
+      if (g) { guideAcross([c, g(c)]); dot([c, g(c)]); }
+      if (!late) cursorDot(d, c, live);
+      if (g) readout2(amt(g(shown), F.g.y.unit) + ', ' + amt(f(shown), F.g.y.unit), 'at ' + amt(shown, F.g.x.unit));
+      else readout(ps);
+    });
+  }
+  const onGrid = (v) => K.near(v / F.ys - Math.round(v / F.ys), 0, 1e-9);
+  // The cursor's place now: Dan's, once he has moved it; else where the demonstration has it.
+  const cursorAt = (i, demoC) => (S[i].moved && S[i].c != null ? S[i].c : demoC);
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // A line through zero: the points at 0 to 5 A one at a time, the reading following each; the line
+  // grows through them; its ohms at its end.
+  function demoLine(i, d) {
+    const A = AT.line, f = FN.R5, pts = [0, 1, 2, 3, 4, 5].map((I) => [I, f(I)]);
+    const as = pts.map((p, k) => arr(nth(A.pts, k), COUNT)), got = as.filter((a) => a >= 0.5).length;
+    const e = grow(A.line, 0.8), la = arr(A.label);
+    const moved = S[i].moved && S[i].c != null, done = T === Infinity;
+    // Halfway through each point's arrival the reading sets off for it, a short eased hop; the numbers
+    // it lands on fade in as it goes, and the last ones fade out.
+    const go = pts.map((p, k) => nth(A.pts, k) + COUNT / 2), pick = go.map((t) => arr(t, PICK_T));
+    const hops = go.map((t) => K.ease(lin(t, COUNT_HOP)));
+    let k = 0;
+    while (k + 1 < pts.length && hops[k + 1] > 0) k++;
+    const demoC = k ? K.lerp(k - 1, k, hops[k]) : 0, c = cursorAt(i, demoC);
+    const count = moved ? c : hops[k] >= 1 || k === 0 ? k : k - 1;
+    const sits = moved ? [[c, 1]] : pts.map((p, j) => [p[0], pick[j] * (j + 1 < pts.length ? 1 - pick[j + 1] : 1)]);
+    grid({ hxs: sits, hys: sits.map((h) => [f(h[0]), h[1]]) });
+    plot(f, 'fit', e);
+    pts.forEach((p, j) => part(as[j], 3, () => dot(p)));
+    part(la, 0, () => endLabel(f, '5 Ω', false, pushAt(d, moved ? c : null, f)));
+    if (as[0] > 0 || moved) drawCursor(d, c, moved ? 1 : as[0], done, count);
+    const said = [graphSaid()];
+    if (got) said.push('By V equals I R, a 5 ohm resistor\'s points are plotted: ' + pts.slice(0, got).map((p) => say(pair(p[0], p[1]))).join(', ') + '.');
+    if (e > 0.5) said.push('They lie on one straight line through the point 0, 0.');
+    said.push('The reading is at ' + say(amt(count, 'A')) + ', ' + say(amt(f(count), 'V')) + '.');
+    return said.join(' ');
+  }
+  // Straight, but not through zero (the bill) and through zero, but bent (the heater): the line grows; (the
+  // bill) its start ringed and named; the reading at 2; it travels to 4, counting; the note.
+  function demoTravel(i, d) {
+    const A = AT[d.demo], f = FN[d.cursor.f], bill = d.demo === 'bill';
+    const e = grow(A.line, 0.8), ra = bill ? arr(A.ring) : 0, ca = arr(A.cur), na = arr(A.note);
+    const hop = (k) => K.ease(lin(nth(A.hops, k), HOP)), demoC = 2 + hop(0) + hop(1);
+    const moved = S[i].moved && S[i].c != null, c = cursorAt(i, demoC);
+    const count = moved ? c : Math.floor(demoC + 1e-9);
+    // The number the reading sits on: 2 arrives with it; as it hops off, that one fades out, and each new
+    // one fades in as the reading lands on it.
+    const sits = moved ? [[c, 1]] : [[2, ca * (1 - hop(0))], [3, arr(nth(A.hops, 0) + HOP, PICK_T) * (1 - hop(1))], [4, arr(nth(A.hops, 1) + HOP, PICK_T)]];
+    grid({ hxs: sits, hys: sits.filter((h) => onGrid(f(h[0]))).map((h) => [f(h[0]), h[1]]) });
+    plot(f, 'fit', e);
+    if (ca > 0 || moved) drawCursor(d, c, moved ? 1 : ca, T === Infinity, count, true);
+    // Once the reading leaves 2, that reading stays marked, so both amounts the screen compares are shown.
+    const p2 = [2, f(2)], ma = moved ? 1 : arr(nth(A.hops, 0), 0.35);
+    part(ma, 0, () => markAt(p2, amt(p2[1], F.g.y.unit), MARK[d.demo][0], MARK[d.demo][1]));
+    if (bill) part(ra, 0, () => startMark(f, '£', false));
+    const p4 = [4, f(4)];
+    part(na, 3, () => noteAt(p4, bill ? amt(f(4), '£') + ', not ' + amt(2 * f(2), '£') : 'four times ' + amt(f(2), 'W'), false));
+    if (ca > 0 || moved) part(moved ? 1 : ca, 0, () => cursorDot(d, c));
+    const said = [graphSaid()];
+    if (bill) said.push('A straight line for a 40 pound call-out plus 30 pounds an hour, starting at 40 pounds at 0 hours.');
+    else said.push('A curve for a 5 ohm heater\'s power by P equals I squared R, starting at the point 0, 0 and curving upwards.');
+    if (ma >= 0.5) said.push('The reading at ' + say(amt(2, F.g.x.unit)) + ', ' + say(amt(p2[1], F.g.y.unit)) + ', stays marked.');
+    if (ca >= 0.5 || moved) said.push('The reading is at ' + say(amt(count, F.g.x.unit)) + ', ' + say(amt(f(count), F.g.y.unit)) + '.');
+    if (na >= 0.5) said.push(bill ? '4 hours cost 160 pounds, not double the 100 pounds for 2 hours.' : '4 amps gives 80 watts, four times the 20 watts at 2 amps.');
+    return said.join(' ');
+  }
+  // Steeper means more ohms: the 5 Ω line grows and is named, then the 10 Ω line; the reading at 2 A
+  // crosses both.
+  function demoSteep(i, d) {
+    const A = AT.steep, e5 = grow(A.l5), n5 = arr(A.n5), e10 = grow(A.l10), n10 = arr(A.n10), ca = arr(A.cur);
+    const moved = S[i].moved && S[i].c != null, c = cursorAt(i, 2);
+    grid({ hx: ca > 0 ? c : null, hxa: moved ? 1 : ca, hy: ca > 0 && onGrid(FN.R10(c)) ? FN.R10(c) : null, hya: moved ? 1 : ca });
+    plot(FN.R5, 'fit', e5);
+    plot(FN.R10, 'fit', e10);
+    part(n5, 0, () => endLabel(FN.R5, '5 Ω'));
+    part(n10, 0, () => endLabel(FN.R10, '10 Ω', false, pushAt(d, moved ? c : null, FN.R10)));
+    if (ca > 0 || moved) drawCursor(d, c, moved ? 1 : ca, T === Infinity);
+    const said = [graphSaid(), 'Two resistors\' lines from the point 0, 0: 5 ohms, and 10 ohms, which is steeper.'];
+    if (ca >= 0.5 || moved) said.push('At ' + say(amt(c, 'A')) + ' the 5 ohm resistor takes ' + say(amt(FN.R5(c), 'V')) + ' and the 10 ohm one ' + say(amt(FN.R10(c), 'V')) + '.');
+    return said.join(' ');
+  }
+  // Axes swapped: the axes' names and numbers change places; the 5 Ω line stays on the diagonal and the
+  // 10 Ω line swings from steep to shallow; its name; the note.
+  function demoSwap(i, d) {
+    const A = AT.swap, sa = arr(A.axes, SWING), mv = K.ease(lin(A.axes, SWING)), la = arr(A.label), na = arr(A.note);
+    gridLines();
+    swap(sa, () => axisText(), () => on(G.iv, () => axisText()), 0);
+    // in squares: the 5 Ω line ends at (6, 6) both ways; the 10 Ω line's end goes from (3, 6) to (6, 3)
+    const sq = (x, y) => [OX + Q * x, F.bottom - Q * y];
+    const a = sq(0, 0), e5 = sq(6, 6), e10 = sq(K.lerp(3, 6, mv), K.lerp(6, 3, mv));
+    line('fit', a[0], a[1], e5[0], e5[1]);
+    line('fit', a[0], a[1], e10[0], e10[1]);
+    text(RIGHT + 10, PT + 5, '5 Ω', 'lbl', 'start');
+    leave(Math.min(1, sa * 2), () => text(OX + 3 * Q + 8, PT + 12, '10 Ω', 'lbl', 'start'));
+    part(la, 0, () => text(RIGHT + 10, F.bottom - 3 * Q + 5, '10 Ω', 'lbl', 'start'));
+    part(na, 3, () => text(OX + 8, PT + 18, '5 Ω is now steeper', 'lbl', 'start'));
+    const said = [];
+    if (sa < 0.5) said.push('Voltage up the side and current along, with the 5 ohm and 10 ohm resistors\' lines; 10 ohms is steeper.');
+    else said.push('The axes swapped: current up the side, 1 amp a square, and voltage along, 5 volts a square. The 5 ohm line runs from the point 0, 0 to the point 30, 6' + (mv >= 0.5 ? ', and the 10 ohm line to the point 30, 3, so the 5 ohm line is now the steeper.' : '.'));
+    return said.join(' ');
+  }
+
+  // --- the puzzles (DO steps) ---
+  // Double it: the point given, with its guides; a right answer grows the line through (0, 0) and it on to
+  // the answer, then its guides, point and readout; a wrong one puts the point picked, and its readout, in
+  // the warning colour.
+  function drawDouble(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', f = ohm(d.R), p1 = [d.from, f(d.from)], p2 = [d.x2, f(d.x2)];
+    const ga = right ? arr(A.guides) : 0, pa = right ? arr(A.pt) : 0, sw = wrong ? arr(WRONG.slip) : 0, lo = right ? arr(OLD[0], OLD[1]) : 0;
+    grid({ hxs: [[p1[0], 1 - lo], [p2[0], ga]], hys: [[p1[1], 1 - lo], [p2[1], ga]] });
+    if (right) plot(f, 'fit', grow(A.line));
+    leave(lo, () => { guideUp(p1); guideAcross(p1); });
+    dot([0, 0]); dot(p1);
+    text(gx(p1[0]) + 10, gy(p1[1]) + 20, pair(p1[0], p1[1]), 'lbl', 'start');
+    const said = [graphSaid(), 'Points at the point 0, 0 and ' + say(pair(p1[0], p1[1])) + ', ' + say(amt(p1[1], 'V')) + ' at ' + say(amt(p1[0], 'A')) + '.'];
+    if (right) {
+      part(ga, 0, () => { guideUp(p2); guideAcross(p2); });
+      part(pa, 4, () => { dot(p2); readout(p2); });
+      said.push('The straight line through them runs on to ' + say(pair(p2[0], p2[1])) + ', ' + say(amt(p2[1], 'V')) + ' at ' + say(amt(p2[0], 'A')) + '.');
+    } else if (wrong) {
+      const p = parsePair(st.pick);
+      part(sw, 0, () => { dot(p, 'bad'); readout(p, true); });
+      said.push('The point picked, ' + say(st.pick) + ', is marked wrong.');
+    }
+    return said.join(' ');
+  }
+  // In proportion? The drum's line; a right answer rings where it meets the weight axis and names it, then
+  // reads 20 m and 40 m; the straight slip rings that start in the warning colour.
+  function drawMiss(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', f = FN.drum, s = wrong ? d.slips[st.pick] : null, p0 = [0, f(0)];
+    const ra = right ? arr(A.ring) : s === 'straight' ? arr(WRONG.slip) : 0, a20 = right ? arr(A.r20) : 0, a40 = right ? arr(A.r40) : 0;
+    grid({ hx: right ? 40 : null, hxa: a40, hy: right ? f(40) : null, hya: a40 });
+    plot(f, 'fit', 1);
+    const bad = s === 'straight';
+    part(ra, 0, () => startMark(f, 'kg', bad));
+    const said = [graphSaid(), 'A straight line for the drum\'s weight as cable is wound on.'];
+    if (right) {
+      [[20, a20], [40, a40]].forEach((q) => { const p = [q[0], f(q[0])]; part(q[1], 3, () => { guideUp(p); guideAcross(p); dot(p); noteAt(p, q[0] === 40 ? amt(p[1], 'kg') + ', not ' + amt(2 * f(20), 'kg') : amt(p[1], 'kg'), false); }); });
+      said.push('It meets the weight axis at 20 kilograms, so it misses the point 0, 0. 20 metres weighs 30 kilograms, and 40 metres weighs 40 kilograms, not 60.');
+    } else if (bad) said.push('Where it meets the weight axis, 20 kilograms at 0 metres, is marked in red.');
+    return said.join(' ');
+  }
+  // Read the curve: the part's curve and its reading at 2 A; a right answer moves the reading along the
+  // curve to 4 A, then its readout; a wrong one puts the slip's point, and its readout, in the warning colour.
+  function drawCurve(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', f = FN.part, sw = wrong ? arr(WRONG.slip) : 0;
+    const mv = right ? K.ease(lin(A.move, TRAVEL)) : 0, ra = right ? arr(A.ro) : 0;
+    const c = K.lerp(d.from, d.x2, mv), p = [c, f(c)], p1 = [d.from, f(d.from)], p2 = [d.x2, f(d.x2)];
+    const lo = right ? arr(OLD[0], OLD[1]) : 0;
+    grid({ hxs: [[p1[0], 1 - lo], [p2[0], ra]], hys: [[p1[1], 1 - lo], [p2[1], ra]] });
+    plot(f, 'fit', 1);
+    guideUp(p); guideAcross(p);
+    if (right) dot(p1);
+    dot(p);
+    if (right) swap(ra, () => readout(p1), () => readout(p2), 0); else readout(p1);
+    const said = [graphSaid(), 'A curve for the part\'s voltage against its current, through the point 0, 0, bending upwards. Its reading at 2 amps is 5 volts.'];
+    if (wrong) {
+      const q = [d.x2, valueOfV(st.pick)];
+      const above = q[1] > f(q[0]);
+      part(sw, 0, () => { dot(q, 'bad'); text(gx(q[0]) + (above ? -10 : 10), gy(q[1]) + 5, st.pick, 'lbl warnt', above ? 'end' : 'start'); });
+      said.push('The answer picked, ' + say(st.pick) + ' at 4 amps, is marked wrong, off the curve.');
+    }
+    if (right) said.push('Read up from 4 amps to the curve and across: 15 volts.');
+    return said.join(' ');
+  }
+  const valueOfV = (s) => +String(s).replace(/[^\d.]/g, '');
+  // Most ohms: three resistors' lines with their letters; a right answer names each line's ohms at its end,
+  // one at a time; a wrong one turns the line picked the warning colour.
+  // Where each line's letter sits (how far along). With current up the side a resistor's line is I = V / R.
+  const BADGE = { 'Line A': 5, 'Line B': 2.5, 'Line C': 4 };
+  const linesOf = (d) => d.lines || LINES;
+  const currentUp = (d) => G[d.g].y.unit === 'A';
+  const lineOf = (d, R) => (currentUp(d) ? (V) => V / R : ohm(R));
+  function drawSteep(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, L = linesOf(d), names = Object.keys(L), at = d.badges || BADGE;
+    grid();
+    names.forEach((n) => {
+      const f = lineOf(d, L[n]), x = at[n], draw = (warn) => { plot(f, 'fit thin' + (warn ? ' bad' : ''), 1); badge(n.slice(-1), gx(x), gy(f(x)), warn); };
+      if (wrong && st.pick === n) swap(sw, () => draw(false), () => draw(true), 0); else draw(false);
+    });
+    if (right) names.forEach((n, k) => part(arr(nth(A.ohm, k), COUNT), 3, () => endLabel(lineOf(d, L[n]), L[n] + ' Ω')));
+    const said = [graphSaid()];
+    if (currentUp(d)) {
+      said.push('Two resistors\' straight lines from the point 0, 0, with current up the side: A reaches ' + names.map((n) => say(amt(lineOf(d, L[n])(F.xmax), 'A'))).join(' and B reaches ') + ' at ' + say(amt(F.xmax, 'V')) + '.');
+      if (right) said.push('Line B, which climbs less, is ' + L['Line B'] + ' ohms; line A is ' + L['Line A'] + ' ohms.');
+    } else {
+      said.push('Three resistors\' straight lines from the point 0, 0: A reaches 24 volts at 6 amps, B reaches 30 volts at 3.75 amps, and C reaches 18 volts at 6 amps.');
+      if (right) said.push('Line B, the steepest, is 8 ohms; A is 4 ohms and C is 3 ohms.');
+    }
+    if (wrong) said.push(st.pick + ' is marked wrong.');
+    return said.join(' ');
+  }
+  // Current up the side: put the point. Before Check the readout says (?, ?); a right answer draws the
+  // guides to it and its readout; a wrong one turns it and its readout the warning colour.
+  function drawDrag(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', p = st.pt || d.start;
+    const ga = right ? arr(A.guides) : 0, ro = right ? arr(A.ro) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    grid({ hx: right ? p[0] : null, hxa: ga, hy: right ? p[1] : null, hya: ga });
+    if (right) part(ga, 0, () => { guideUp(p); guideAcross(p); });
+    if (!right && !wrong) circle('ringp', gx(p[0]), gy(p[1]), 15);
+    if (wrong) swap(sw, () => dot(p), () => dot(p, 'bad'), 0); else dot(p);
+    if (right) swap(ro, readoutHidden, () => readout(p), 0);
+    else if (wrong) swap(sw, readoutHidden, () => readout(p, true), 0);
+    else readoutHidden();
+    placeGrip(right ? null : p);
+    const lead = graphSaid() + ' ';
+    if (right) return lead + 'The point is at ' + say(d.want) + ': ' + say(amt(p[1], 'A')) + ' at ' + say(amt(p[0], 'V')) + '.';
+    if (wrong) return lead + 'The point is at ' + say(pair(p[0], p[1])) + ', which says ' + say(amt(p[1], 'A')) + ' at ' + say(amt(p[0], 'V')) + ', marked wrong.';
+    return lead + 'A point to drag' + (st.moved ? '' : ', starting near the top left') + '. Its readout is hidden until you check.';
+  }
+  // Check the corner: the tank's line from the corner of a side that starts at 20 cm; a right answer redraws
+  // the graph from 0, then rings where the line starts and names it; a slip boxes the corner's number in
+  // the warning colour, with its readout.
+  function drawCorner(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', f = FN.tank, sw = wrong ? arr(WRONG.slip) : 0;
+    const said = [];
+    if (right) {
+      const rg = arr(A.regrid, REGRID), mv = K.ease(lin(A.regrid, REGRID)), ra = arr(A.ring);
+      gridLines();
+      axisText({ only: 'x' });
+      swap(rg, () => on(G.tank, () => axisText({ only: 'y' })), () => axisText({ only: 'y' }), 0);
+      // the same line, from its place on the old side to its place on the new one
+      const ends = () => [[gx(0), gy(f(0))], [gx(F.xmax), gy(f(F.xmax))]], was = [], now = ends();
+      on(G.tank, () => was.push.apply(was, ends()));
+      const at = (k) => [K.lerp(was[k][0], now[k][0], mv), K.lerp(was[k][1], now[k][1], mv)], a = at(0), b = at(1);
+      path('fit', 'M' + r3(a[0]) + ' ' + r3(a[1]) + 'L' + r3(b[0]) + ' ' + r3(b[1]));
+      part(ra, 0, () => startMark(f, 'cm', false));
+      said.push(graphSaid(), 'With the side renumbered from 0, the tank\'s straight line starts at 20 centimetres at 0 minutes, so it misses the point 0, 0.');
+      return said.join(' ');
+    }
+    grid({ corner: sw });
+    plot(f, 'fit', 1);
+    said.push(graphSaid(), 'A straight line for the tank\'s level, from the corner to the top right.');
+    if (wrong) { part(sw, 0, () => readout2(pair(0, f(0)), 'the corner is', true)); said.push('The corner\'s number, 20 centimetres, is boxed in red: the corner is the point 0, 20.'); }
+    return said.join(' ');
+  }
+  // Measured readings: the readings alone until Check; a right answer grows the best-fit line, names it, then
+  // says where it runs through; the zigzag slip joins the dots in the warning colour.
+  function drawMeasured(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, L = fitOf(READINGS), f = lineFn(L);
+    grid();
+    const said = [graphSaid(), 'A resistor\'s measured readings: ' + READINGS.map((c) => say(amt(c[1], 'V')) + ' at ' + say(amt(c[0], 'A'))).join(', ') + '.'];
+    if (right) {
+      const last = READINGS[READINGS.length - 1][0];
+      plot(f, 'fit', grow(A.line, LINE_T), last);
+      part(arr(A.label), 0, () => text(gx(last) + 10, gy(f(last)) + 5, 'best fit', 'lbl', 'start'));
+      part(arr(A.ro), 0, () => readout2(pair(0, 0), 'best fit through'));
+      said.push('One straight best-fit line runs through them, from the point 0, 0 to the last reading at 5 amps, close to every reading.');
+    }
+    if (wrong && d.slips[st.pick] === 'dots') {
+      part(sw, 0, () => { zigzag(READINGS); const c = READINGS[READINGS.length - 1]; text(gx(c[0]) + 10, gy(c[1]) + 5, 'dot to dot', 'lbl warnt', 'start'); });
+      said.push('Joined dot to dot in red, they zigzag.');
+    }
+    READINGS.forEach((c) => dot(c));
+    return said.join(' ');
+  }
+
+  // ---------- the point Dan drags, or the reading he slides (kept from frame to frame) ----------
+  // The graph takes a tap (the point goes to the nearest crossing, or the reading to the nearest square
+  // along); the point is dragged, or moved with the arrow keys. The page does not scroll under a finger on it.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board' }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 26, tabindex: 0, role: 'slider' }));
+  function live() {
+    const i = here(), d = STEPS[i];
+    return !finished && ((d.kind === 'drag' && S[i].res !== 'right') || (d.show && !!d.cursor));
+  }
+  function placeBoard(on) {
+    board.style.display = on ? '' : 'none';
+    if (!on) return;
+    board.setAttribute('x', OX - Q / 2); board.setAttribute('y', PT - Q / 2);
+    board.setAttribute('width', (NX + 1) * Q); board.setAttribute('height', (F.n + 1) * Q);
+  }
+  function placeGrip(p) {
+    const on = !!p && live();
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    placeBoard(on);
+    if (!on) return;
+    const d = STEPS[here()], st = S[here()];
+    grip.setAttribute('cx', gx(p[0])); grip.setAttribute('cy', gy(p[1]));
+    if (d.show) {
+      grip.setAttribute('aria-valuemin', 0); grip.setAttribute('aria-valuemax', cursorMax(d)); grip.setAttribute('aria-valuenow', p[0]);
+      grip.setAttribute('aria-label', 'The reading. Slide it along the line, tap the graph, or use the arrow keys to move it a square at a time.');
+      grip.setAttribute('aria-valuetext', say(amt(p[0], F.g.x.unit)) + ', ' + say(amt(p[1], F.g.y.unit)));
+      return;
+    }
+    const hide = st.res !== 'wrong';
+    grip.setAttribute('aria-valuemin', F.ymin); grip.setAttribute('aria-valuemax', F.ymax); grip.setAttribute('aria-valuenow', p[1]);
+    grip.setAttribute('aria-label', 'The point. Drag it, tap the graph, or use the arrow keys to move it a square at a time.');
+    grip.setAttribute('aria-valuetext', hide ? 'its place is hidden until you check' : say(pair(p[0], p[1])));
+  }
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // A place on the graph as a point on the nearest crossing; or, for the reading, its nearest square along.
+  const toGrid = (q) => [K.clamp(Math.round((q[0] - OX) / Q), 0, NX) * F.xs, F.ymin + K.clamp(Math.round((F.bottom - q[1]) / Q), 0, F.n) * F.ys];
+  const toAlong = (q) => K.clamp(Math.round((q[0] - OX) / Q) * F.xs, 0, cursorMax(STEPS[here()]));
+  function moveTo(p) {
+    if (!live()) return;
+    const i = here(), st = S[i];
+    if (st.moved && st.pt && st.pt[0] === p[0] && st.pt[1] === p[1]) return;
+    st.pt = p; st.moved = true; st.pick = pair(p[0], p[1]); st.res = null;
+    K.refresh();
+  }
+  // Sliding the reading ends a demonstration that is still playing: the picture shows finished.
+  function slideTo(c) {
+    if (!live()) return;
+    const i = here(), st = S[i];
+    if (anim.playing()) { anim.pause(); T = Infinity; }
+    if (st.moved && st.c === c) return;
+    st.c = c; st.moved = true;
+    K.refresh();
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => { if (!live() || e.button > 0) return; e.preventDefault(); held = e.pointerId; try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on it */ } });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (!q) return;
+    if (STEPS[here()].show) slideTo(toAlong(q)); else moveTo(toGrid(q));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) held = null; }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const i = here(), d = STEPS[i], st = S[i];
+    if (d.show) { const c = st.moved && st.c != null ? st.c : +grip.getAttribute('aria-valuenow'); slideTo(K.clamp(c + (by[0] || by[1]) * F.xs, 0, cursorMax(d))); return; }
+    const p = st.pt || d.start;
+    moveTo([K.clamp(p[0] + by[0] * F.xs, 0, NX * F.xs), K.clamp(p[1] + by[1] * F.ys, F.ymin, F.ymax)]);
+  });
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e);
+    if (!q) return;
+    if (STEPS[here()].show) slideTo(toAlong(q)); else moveTo(toGrid(q));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = here();
+    const d = STEPS[i], st = S[i], right = st.res === 'right', g = G[d.pic === 'corner' && right ? 'tank0' : d.g];
+    art.textContent = '';
+    into = null;
+    F = frame(g);
+    H = heightOf(g);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    let aria;
+    shownC = null;
+    if (d.show) aria = { line: demoLine, bill: demoTravel, heat: demoTravel, steep: demoSteep, swap: demoSwap }[d.demo](i, d);
+    else if (d.kind === 'drag') aria = drawDrag(i, d, st, right);
+    else aria = { double: drawDouble, miss: drawMiss, curve: drawCurve, steep: drawSteep, corner: drawCorner, measured: drawMeasured }[d.pic](i, d, st, right);
+    if (d.show && d.cursor && shownC != null) { const f = FN[d.cursor.f]; placeGrip([shownC, f(shownC)]); }
+    else if (d.kind !== 'drag') placeGrip(null);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) { st.moved = false; st.c = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      const lab = K.el('span');
+      math(lab, opts[k]);
+      b.el.appendChild(lab);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const stepOf = (pred) => STEPS.findIndex(pred);
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size, fill: getComputedStyle(t).fill };
+      });
+      const dots = Array.from(art.querySelectorAll('circle.pt')).filter(vis).map((c) => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), cls: c.getAttribute('class') }));
+      const lines = Array.from(art.querySelectorAll('line, path')).filter(vis).map((n) => ({ cls: n.getAttribute('class'), d: n.getAttribute('d'), x1: +n.getAttribute('x1'), y1: +n.getAttribute('y1'), x2: +n.getAttribute('x2'), y2: +n.getAttribute('y2') }));
+      const rings = Array.from(art.querySelectorAll('circle.ring, rect.box')).filter(vis).map((c) => c.getAttribute('class'));
+      return { texts: texts, all: texts.map((t) => t.s), dots: dots, lines: lines, rings: rings, H: H, F: F };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // No two labels overlap (the axes' fixed numbers apart), and every label and point stays inside the picture.
+  const fixed = (c) => /^axv/.test(c);
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= 0 && a.y1 <= g.H &&
+    g.texts.every((b, j) => j <= k || (fixed(a.cls) && fixed(b.cls)) || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5)) &&
+    g.dots.every((c) => c.x >= 7 && c.x <= 333 && c.y >= PT - 7 && c.y <= g.H - 7);
+  const dotAt = (g, p, cls) => g.dots.some((c) => K.near(c.x, OX + Q * p[0] / g.F.xs, 1e-6) && K.near(c.y, g.F.bottom - Q * (p[1] - g.F.ymin) / g.F.ys, 1e-6) && (cls == null || c.cls === cls));
+  const red = (g) => g.texts.some((t) => /warnt/.test(t.cls)) || g.rings.some((c) => /bad/.test(c)) || g.lines.some((l) => /\b(zz|bad)\b/.test(l.cls)) || g.dots.some((c) => /bad/.test(c.cls));
+  K.check('The V-I graph is a straight line that passes through the origin, this shows that the current and voltage are proportional: every resistor line drawn from V = IR (3, 4, 5, 8 and 10 Ω) passes through (0, 0), and along each, doubling the current doubles the voltage, so 6 V at 2 A is 12 V at 4 A', () =>
+    [3, 4, 5, 8, 10].every((r) => ohm(r)(0) === 0 && [0.5, 1, 1.5, 2, 3].every((x) => doubles(ohm(r), x))) &&
+    answerOf(STEPS[1]) === '(4, 12)' && STEPS[1].want === '(4, 12)' && ohm(3)(2) === 6 && ohm(3)(4) === 12 &&
+    dotAt(drawn(1, solved(1)), [4, 12]) && dotAt(drawn(0, blank(0)), [0, 0]) && dotAt(drawn(0, blank(0)), [5, 25]),
+  { source: 'https://www.bbc.co.uk/bitesize/articles/zncrmbk' });
+  K.check('If the line were not straight, then the material would not be ohmic and we would not be able to use Ohm\'s law: the example part\'s V-I curve bends, its volts per amp going from 2.5 at 2 A to 3.75 at 4 A, so no one resistance fits it and doubling 2 A gives 15 V, not 10 V', () => {
+    const f = FN.part;
+    return K.near(f(2), 5, 1e-9) && K.near(f(4), 15, 1e-9) && K.near(f(6), 30, 1e-9) && f(0) === 0 && K.near(f(2) / 2, 2.5, 1e-9) && K.near(f(4) / 4, 3.75, 1e-9) && !doubles(f, 2) &&
+      answerOf(STEPS[5]) === '15 V' && STEPS[5].want === '15 V';
+  }, { source: 'https://openstax.org/books/physics/pages/19-1-ohms-law' });
+  K.check('R (the slope of the V-I graph) is a constant for a given conductor and is called the resistance: with voltage up the side each resistor\'s line climbs R volts for every amp, so the steeper line is the one with more ohms; the 10 Ω line is drawn steeper than the 5 Ω, and line B (8 Ω) is the steepest of A (4 Ω), B and C (3 Ω)', () => {
+    const steep = (R) => R * G.vi.x.step / G.vi.y.step;
+    const g7 = drawn(6, blank(6)), fits = g7.lines.filter((l) => l.cls === 'fit');
+    const tops = fits.map((l) => { const m = /L([\d.]+) ([\d.]+)$/.exec(l.d); const x = +m[1] - OX, y = g7.F.bottom - +m[2]; return y / x; }).sort((a, b) => a - b);
+    return steep(10) > steep(5) && fits.length === 2 && K.near(tops[1] / tops[0], 2, 1e-6) &&
+      answerOf(STEPS[7]) === 'Line B' && Object.keys(LINES).every((n) => n === 'Line B' || LINES[n] < LINES['Line B']) && ohm(8)(3) === 24 && ohm(4)(3) === 12 && ohm(3)(3) === 9;
+  }, { source: 'https://learninglab.rmit.edu.au/sites/default/files/Electricity_Ohms%20Law.pdf' });
+  K.check('With voltage on the y-axis and current on the x-axis: every V-I graph in the lesson puts voltage up the side, except the screens that say they have current up the side; when the axes swap, the 5 Ω line ends at (30, 6) and is steeper than the 10 Ω line ending at (30, 3), and with current up the side the line that climbs less (line B, 15 Ω, 2 A at 30 V, against line A, 6 Ω, 5 A at 30 V) has more ohms', () => {
+    const vi = STEPS.filter((d) => /^(vi|iv)/.test(d.g)).map((d) => d.g);
+    const swapG = drawn(8, blank(8)), up = STEPS.filter((d) => /^iv/.test(d.g)), k = stepOf((d) => d.lines === LINES_I), dI = STEPS[k];
+    return vi.every((g) => G[g].y.name === (g.startsWith('vi') ? 'voltage (V)' : 'current (A)')) && up.length === 2 && up.every((d) => /current up the side/.test(d.task)) &&
+      k > 0 && answerOf(dI) === 'Line B' && dI.want === 'Line B' && lineOf(dI, 15)(30) === 2 && lineOf(dI, 6)(30) === 5 && lineOf(dI, 15)(30) < lineOf(dI, 6)(30) && slipOpt(dI, 'steeper') === 'Line A' &&
+      swapG.all.indexOf('current (A)') >= 0 && swapG.all.indexOf('voltage (V)') >= 0 && G.iv.y.name === 'current (A)' &&
+      30 / 5 === 6 && 30 / 10 === 3 && swapG.all.indexOf('5 Ω is now steeper') >= 0 && G.iv6.y.name === 'current (A)';
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zncrmbk' });
+  K.check('A line that misses (0, 0) or bends is not in proportion, worked from each rule: the call-out costs £100 for 2 h and £160 for 4 h, not £200; the drum weighs 20 kg at 0 m, 30 kg at 20 m and 40 kg at 40 m, not 60 kg; the heater gives 20 W at 2 A and 80 W at 4 A, four times; the tank holds 20 cm at 0 min and 50 cm at 6 min', () =>
+    FN.bill(2) === 100 && FN.bill(4) === 160 && 2 * FN.bill(2) === 200 && FN.bill(0) === 40 &&
+    FN.drum(0) === 20 && FN.drum(20) === 30 && FN.drum(40) === 40 && FN.drum(60) === 50 && !doubles(FN.drum, 20) &&
+    FN.heat(2) === 20 && FN.heat(4) === 80 && FN.heat(4) === 4 * FN.heat(2) && FN.heat(0) === 0 &&
+    FN.tank(0) === 20 && FN.tank(6) === 50 && G.tank.y.min === FN.tank(0) && G.tank.y.min + G.tank.y.n * G.tank.y.step === FN.tank(6) &&
+    answerOf(STEPS[3]) === STEPS[3].want && answerOf(STEPS[stepOf((d) => d.pic === 'corner')]) === STEPS[stepOf((d) => d.pic === 'corner')].want);
+  K.check('Each puzzle\'s answer is worked out from its rule: (4, 12); it misses (0, 0); 15 V; line B; (6, 2) for 3 Ω at 2 A, current up; line B, the one with more ohms, current up; the tank misses (0, 0), its side starting at 20 cm; and the measured readings\' best-fit line runs within half a square of every reading, through (0, 0), with some above it and some below', () => {
+    const L = fitOf(READINGS), gaps = READINGS.map((c) => c[1] - (L.a + L.b * c[0]));
+    return DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) && DO.map((i) => STEPS[i].want).join('|') === '(4, 12)|No, it misses (0, 0)|15 V|Line B|(6, 2)|Line B|No, it misses (0, 0)|Yes' && G.tank.y.min === 20 &&
+      K.near(L.a, 0, 1e-9) && K.near(L.b, 5, 1e-9) && gaps.every((v) => Math.abs(v) <= G.vi.y.step / 2 + 1e-9) && gaps.some((v) => v > 0) && gaps.some((v) => v < 0) &&
+      STEPS[9].to[0] === ohm(STEPS[9].R)(STEPS[9].I) && STEPS[9].to[1] === STEPS[9].I;
+  });
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives: 2 added instead of doubling, the voltage kept, the curve\'s reading doubled or made four times, a line that runs furthest or is flattest, voltage put up the side, the ohms added to the amps, the steeper line taken as more ohms with current up the side; each straight, corner and zigzag slip is shown in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length >= 2 && d.opts.length === slips.length + 1 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      return slips.every((o) => { const w = drawn(i, slipped(i, o)); return clear(w) && (['bends', 'bend'].indexOf(d.slips[o]) >= 0 || red(w)) && (d.kind !== 'drag' || dotAt(w, parsePair(o), 'pt bad')); });
+    }) && SLIP.add(STEPS[1]).join() === '4,8' && SLIP.same(STEPS[1]).join() === '4,6' && SLIP.double(STEPS[5]) === 10 && SLIP.four(STEPS[5]) === 20 &&
+    SLIP.swap(STEPS[9]).join() === '2,6' && SLIP.add2(STEPS[9]).join() === '5,2' && slipOpt(STEPS[7], 'far') === 'Line A' && slipOpt(STEPS[7], 'flat') === 'Line C');
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: no line through the given point, no answer point or reading, the drag point\'s readout says (?, ?), no line\'s ohms, the side not redrawn from 0, no best-fit line, nothing in the warning colour', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank(i));
+      if (red(g) || g.rings.length) return false;
+      if (d.kind === 'drag') return g.all.indexOf('(?, ?)') >= 0 && g.all.indexOf(d.want) < 0;
+      if (d.pic === 'double') return !g.lines.some((l) => /\bfit\b/.test(l.cls)) && g.all.indexOf(d.want) < 0 && !dotAt(g, parsePair(d.want));
+      if (d.pic === 'curve') return g.all.indexOf('(4, 15)') < 0 && g.all.indexOf('(2, 5)') >= 0;
+      if (d.pic === 'steep') return !g.all.some((s) => / Ω$/.test(s));
+      if (d.pic === 'corner') return g.F.ymin === 20 && g.all.indexOf('20') >= 0;
+      if (d.pic === 'measured') return !g.lines.some((l) => /\bfit\b/.test(l.cls)) && g.dots.length === READINGS.length;
+      return g.lines.filter((l) => /\bfit\b/.test(l.cls)).length === 1 && g.all.indexOf('20 kg') < 0;
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other and its points inside the graph, for every answer, right or wrong, and wherever the reading is slid', () =>
+    STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))) && (d.show || clear(drawn(i, blank(i))))) &&
+    [0, 2, 4, 6].every((i) => { const d = STEPS[i]; F = frame(G[d.g]); const m = cursorMax(d); const ok = []; for (let c = 0; c <= m + 1e-9; c += F.xs) ok.push(clear(drawn(i, Object.assign(blank(i), { moved: true, c: c })))); return ok.every(Boolean); }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    // Every start time, a counted run expanded one part per item; counted parts may be 0.2 s apart.
+    const spaced = (A) => {
+      const ts = [];
+      Object.keys(A).forEach((k) => { const v = A[k]; if (Array.isArray(v)) { if (v[1] < 0.2 - 1e-9) ts.push([0, 'x']); for (let n = 0; n < (v[2] || 1); n++) ts.push([v[0] + v[1] * n, k]); } else ts.push([v, k]); });
+      ts.sort((a, b) => a[0] - b[0]);
+      return ts.every((t, k) => k === 0 || (t[1] === ts[k - 1][1] ? t[0] - ts[k - 1][0] >= 0.2 - 1e-9 : t[0] - ts[k - 1][0] >= 0.45 - 1e-9));
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

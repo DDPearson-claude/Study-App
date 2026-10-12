@@ -1,0 +1,1086 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A key term stays whole on one line, so its amber highlight never splits. */
+  .task .term { white-space: nowrap; }
+  /* x and y, the letters for the two numbers of a point, are set in italics wherever they are written. */
+  .vx { font-style: italic; }
+  .scene { display: block; width: 100%; }
+  /* The grid: faint gridlines, the axes in ink with their names in teal, the axis numbers in muted. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-ink); stroke-width: 1.75; stroke-linecap: round; }
+  .scene .axh { fill: var(--k-ink); }
+  .scene .axn { font: italic 700 17px var(--k-font); fill: var(--k-accent); }
+  .scene .axv { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  /* Where a line crosses an axis number, the number sits on a patch of the page, so it stays whole. */
+  .scene .nbk { fill: var(--k-bg); }
+  /* The quadrant a point is in, lightly filled; the quadrants' names and their signs. */
+  .scene .tint { fill: var(--k-fill1); fill-opacity: .55; }
+  .scene .qn { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  .scene .sg { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  /* A point, in ink; the one you drag has a soft ring to show it can be moved. A point put in the
+     wrong place is in the warning colour; points only being compared are muted. */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt.bad { fill: var(--k-warn); }
+  .scene .pt.mute { fill: var(--k-muted); }
+  .scene .ringp { fill: var(--k-accent2); fill-opacity: .16; }
+  /* Its path from (0, 0): along by x, then up or down by y. */
+  .scene .leg { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }
+  .scene .legh { fill: var(--k-accent2); }
+  .scene .lgl { font: 700 13px var(--k-font); fill: var(--k-accent); }
+  /* The readout: the point's (x, y) and the quadrant it is in, or the axis it sits on. */
+  .scene .ro { font: 700 22px var(--k-font); fill: var(--k-ink); }
+  .scene .ro.q { fill: var(--k-muted); }
+  .scene .roq { font: 700 14px var(--k-font); fill: var(--k-accent); }
+  .scene .pl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .pl.mute { fill: var(--k-muted); }
+  /* Lines such as x = 3, their names; a bracket along a gridline and its count; a sum. */
+  .scene .ln { stroke: var(--k-accent2); stroke-width: 3; stroke-linecap: round; }
+  .scene .ln.bad { stroke: var(--k-warn); }
+  .scene .lnl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .brk { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; }
+  .scene .brl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .sum { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .arw { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .arh { fill: var(--k-accent2); }
+  .scene .hl { fill: var(--k-hl); }
+  /* A slip's words in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The places Dan touches: the grid (tap to put the point there) and the point (drag it). */
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: pointer; }
+  .scene .hit.grab { cursor: grab; touch-action: none; }
+  .scene .hit:focus { outline: none; }
+  .scene .hit.grab:focus-visible { stroke: var(--k-accent); stroke-width: 3; stroke-opacity: 1; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A grid running from −5 to 5 each way, with a point you drag and its <span class="nw">(<i class="vx">x</i>, <i class="vx">y</i>)</span> readout.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 308" width="100%" role="img" aria-label=""><g id="art"></g><g id="hits"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">A minus <i class="vx">x</i> goes left and a minus <i class="vx">y</i> goes down. The points are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // demo: what a SHOW step plays (dur seconds); drag: the point can be dragged once it has played.
+  // A 'drag' puzzle asks for the point to be put at `to`; a 'pick' puzzle takes one answer, its
+  // picture `pic`. fb: how long the motion after a right answer plays; at: when each part of it
+  // arrives, in seconds after Check. slips: which slip gives each wrong answer (SLIP below), and
+  // hints: what is said for it.
+  const PICK = 'Tap one of the answers.', PLACE = 'Drag the point to its place first.';
+  // After a right answer. PLOT: the path along, then up or down, then the readout. ONTO: the line
+  // first. FAR: the quadrant and its signs, the arrow out to the point, its name. NAMED: the line
+  // asked for named, two of its points, the others named. GAP: the gridline between the points,
+  // the two counts, the sum. ONAXIS: the point on the x-axis, then the other two.
+  const PLOT = { along: 0.1, up: 0.6, ro: 1.1 };
+  const ONTO = { line: 0.1, along: 0.6, up: 1.1, ro: 1.6 };
+  const FAR = { quad: 0.1, arrow: 0.6, name: 1.1 };
+  const NAMED = { name: 0.1, pts: 0.6, rest: 1.1 };
+  const GAP = { seg: 0.1, br1: 0.6, br2: 1.1, sum: 1.6 };
+  const ONAXIS = { right: 0.1, rest: 0.6 };
+  // After a wrong answer: the slip, in the warning colour.
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  const STEPS = [
+    { show: true, demo: 'grow', dur: 4.1, name: 'Four quadrants',
+      text: 'Both axes carry on past 0, like a number line. Left of 0, x is negative, and below 0, y is negative. The axes cut the grid into four *quadrants*.' },
+    { show: true, demo: 'tour', dur: 3.8, drag: true, name: 'Signs flip',
+      text: '(−3, 2) means 3 to the left, then 2 up. Watch the signs flip each time the point crosses an axis. Then drag it round yourself.' },
+    { kind: 'drag', to: [-4, 3], want: '(−4, 3)', fb: 1.7, at: PLOT, name: 'Plot (−4, 3)',
+      slips: { '(4, 3)': 'signX', '(−4, −3)': 'signY', '(4, −3)': 'both', '(3, −4)': 'swap', '(−3, 4)': 'swapSign' },
+      task: 'Drag the point to (−4, 3).',
+      why: 'x comes first and is −4, so go 4 to the left. y is 3, so go 3 up. The point lands in the top left quadrant.',
+      hint: 'Not quite. From (0, 0), go 4 to the left, then 3 up.',
+      hints: { '(4, 3)': 'Not quite. That is 4 to the right. A minus x sends you left.',
+        '(−4, −3)': 'Not quite. That goes down. Only x is negative here, so go 3 up.',
+        '(4, −3)': 'Not quite. Both signs are flipped. Go 4 to the left, then 3 up.',
+        '(3, −4)': 'Not quite. That swaps the numbers. Go along by x first, 4 to the left, then 3 up.',
+        '(−3, 4)': 'Not quite. That swaps the numbers. x comes first, so go 4 to the left, then 3 up.' } },
+    { kind: 'pick', pic: 'far', far: [35, -120], opts: ['Bottom right', 'Top left', 'Top right'], want: 'Bottom right', fb: 1.7, at: FAR, name: 'Which quadrant?',
+      slips: { 'Top left': 'swap', 'Top right': 'drop' },
+      task: '(35, −120) is far off this grid. Which quadrant is it in?',
+      why: 'x is 35, positive, so the point is right of the y-axis. y is −120, negative, so it is below the x-axis. Right and down is the bottom right quadrant.',
+      hint: 'Not quite. Read the sign of each number.',
+      hints: { 'Top left': 'Not quite. That reads the signs the wrong way round. x is 35, positive, so the point is to the right.',
+        'Top right': 'Not quite. y is −120, negative, so the point is below the x-axis.' } },
+    { show: true, demo: 'zero', dur: 3.9, name: 'On an axis',
+      text: 'A zero means no move that way. (0, −4) does not move left or right, so it sits on the y-axis. (4, 0) sits on the x-axis.' },
+    { kind: 'drag', to: [-3, 0], want: '(−3, 0)', fb: 1.7, at: PLOT, name: 'Plot (−3, 0)',
+      slips: { '(0, −3)': 'swap', '(0, 3)': 'swapSign', '(3, 0)': 'signX' },
+      task: 'Drag the point to (−3, 0).',
+      why: 'x is −3, so go 3 to the left. y is 0, so do not move up or down. The point sits on the x-axis.',
+      hint: 'Not quite. Go 3 to the left from (0, 0), and do not move up or down.',
+      hints: { '(0, −3)': 'Not quite. That is on the y-axis, 3 down. y is 0 here, so do not move up or down.',
+        '(0, 3)': 'Not quite. That is on the y-axis. x comes first, so go 3 to the left.',
+        '(3, 0)': 'Not quite. That is 3 to the right. A minus x sends you left.' } },
+    { show: true, demo: 'lines', dur: 3.6, name: 'Upright and flat',
+      text: 'Every point with x = 3 is 3 to the right of the y-axis, so together they make the upright line x = 3. Points with y = −2 make the flat line y = −2.' },
+    { kind: 'pick', pic: 'named', ask: { x: -4 }, lines: { 'Line A': { y: -4 }, 'Line B': { x: -4 }, 'Line C': { x: 4 } }, opts: ['Line A', 'Line B', 'Line C'], want: 'Line B', fb: 1.7, at: NAMED,
+      slips: { 'Line A': 'flat', 'Line C': 'sign' }, name: 'Which line?',
+      task: 'Which line is x = −4?',
+      why: 'Every point on x = −4 is 4 to the left of the y-axis, like (−4, 3) and (−4, −2). Together they stand in an upright line, line B.',
+      hint: 'Not quite. Find the line where every point is 4 to the left.',
+      hints: { 'Line A': 'Not quite. Line A is flat, so its points share y = −4. Every point on x = −4 is 4 to the left, so the line stands upright.',
+        'Line C': 'Not quite. Line C is 4 to the right, x = 4. The minus in x = −4 sends you left.' } },
+    { show: true, demo: 'gap', dur: 3.7, name: 'Along a gridline',
+      text: '(−3, 2) and (4, 2) share y = 2, so they sit on one gridline. Take the smaller x from the larger. 4 − (−3) = 7, which is 3 to the y-axis and 4 more.' },
+    { kind: 'pick', pic: 'gap', pts: [[2, -5], [2, 3]], opts: ['8', '2', '−8'], want: '8', fb: 2.2, at: GAP, name: 'How far apart?',
+      slips: { '2': 'sizes', '−8': 'order' },
+      task: 'How far apart are (2, −5) and (2, 3)?',
+      why: 'Both points have x = 2, so they sit on one upright gridline. 3 − (−5) = 3 + 5 = 8, which is 5 up to the x-axis and 3 more.',
+      hint: 'Not quite. Take the lower y from the higher one.',
+      hints: { '2': 'Not quite. That takes 3 from 5, as if both were above zero. 3 − (−5) = 3 + 5.',
+        '−8': 'Not quite. A distance is never negative. Take the lower number from the higher, 3 − (−5).' } },
+    { kind: 'pick', pic: 'onaxis', opts: ['(0, −2)', '(−2, 0)', '(−2, −2)'], want: '(−2, 0)', fb: 1.2, at: ONAXIS, name: 'On the x-axis',
+      slips: { '(0, −2)': 'yaxis', '(−2, −2)': 'quad' },
+      task: 'Which of these points lies on the x-axis?',
+      why: 'On the x-axis a point has no move up or down, so its y is 0. (−2, 0) is 2 to the left, on the x-axis. (0, −2) sits on the y-axis.',
+      hint: 'Not quite. On the x-axis, y is 0.',
+      hints: { '(0, −2)': 'Not quite. Its x is 0, so it does not move left or right. It sits on the y-axis, 2 down.',
+        '(−2, −2)': 'Not quite. That moves 2 down, into the bottom left quadrant. On the x-axis, y is 0.' } },
+    { kind: 'drag', to: [-5, -2], want: '(−5, −2)', onto: { y: -2 }, fb: 2.2, at: ONTO, name: 'Onto a line',
+      slips: { '(−2, −5)': 'swap', '(5, −2)': 'signX', '(−5, 2)': 'signY', '(5, 2)': 'both' },
+      task: 'Drag the point 5 to the left of the y-axis, onto the line y = −2.',
+      why: 'Every point on y = −2 is 2 below the x-axis. 5 to the left of the y-axis makes x = −5. So the point is (−5, −2).',
+      hint: 'Not quite. Go 5 to the left, then 2 down.',
+      hints: { '(−2, −5)': 'Not quite. That is 2 to the left and 5 down. On y = −2 every point is 2 down.',
+        '(5, −2)': 'Not quite. That is 5 to the right. Left of the y-axis, x is negative.',
+        '(−5, 2)': 'Not quite. That is 2 up. y = −2 is 2 below the x-axis.',
+        '(5, 2)': 'Not quite. Both signs are flipped. Go 5 to the left, then 2 down.' } },
+  ];
+  const FINISH = 'A minus x goes left and a minus y goes down, so the signs of (x, y) name the quadrant. A zero keeps a point on an axis. Along a gridline, the distance is the larger number take away the smaller.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself takes
+  // FADE to fade in, so nothing starts before it has settled). Counted steps (a number arriving, a hop
+  // of one square) come HOP apart; other parts at least 0.45 s apart.
+  // grow: the x-axis runs on past 0, a number every HOP from x0; then the y-axis from y0; the
+  // quadrants' names; their signs. tour: the point hops a square every HOP from t0 round the four
+  // quadrants. zero: (0, −4) hops down from a0, is named at aLab; (ZB, 0) hops along from b0, is named
+  // at bLab. lines: four points on x = 3 from x0, the line; two points on y = −2 from y0, the line.
+  // gap: the two points; the gridline between them; the count to the y-axis; the count on; the sum.
+  const FADE = 0.35, HOP = 0.2;
+  const AT = {
+    grow: { x0: 0.4, y0: 1.5, names: 3.0, signs: 3.5 },
+    tour: { t0: 0.6 },
+    zero: { a0: 0.6, aLab: 1.7, b0: 2.2, bLab: 3.3 },
+    lines: { x0: 0.6, xl: 1.7, y0: 2.3, yl: 3.0 },
+    gap: { a: 0.6, b: 1.1, seg: 1.6, br1: 2.1, br2: 2.6, sum: 3.1 },
+  };
+  // The tour: from (1, 2) left through (−3, 2), down to (−3, −2), then right to (1, −2). Each time
+  // the point lands in a new quadrant it rests PAUSE, so the flipped sign can be read.
+  const TOUR = [[1, 2], [-3, 2], [-3, -2], [1, -2]], PAUSE = 0.3;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers and places (pure, so the checks can test them) ----------
+  const num = (v) => (v < 0 ? '−' : '') + Math.abs(v);
+  const pair = (x, y) => '(' + num(x) + ', ' + num(y) + ')';
+  const parsePair = (s) => { const m = /^\((−?)(\d+), (−?)(\d+)\)$/.exec(s); return m ? [(m[1] ? -1 : 1) * +m[2], (m[3] ? -1 : 1) * +m[4]] : null; };
+  // Where a point is: by the signs of its two numbers alone, or on an axis when one is 0.
+  function placeOf(x, y) {
+    if (x === 0 && y === 0) return 'where the axes cross';
+    if (x === 0) return 'on the y-axis';
+    if (y === 0) return 'on the x-axis';
+    return (y > 0 ? 'top' : 'bottom') + ' ' + (x > 0 ? 'right' : 'left') + ' quadrant';
+  }
+  const signsOf = (x, y) => '(' + (x > 0 ? '+' : '−') + ', ' + (y > 0 ? '+' : '−') + ')';
+  // A quadrant as an answer button names it ('Bottom right'), and where it is.
+  const QUAD = { 'Top right': [1, 1], 'Top left': [-1, 1], 'Bottom left': [-1, -1], 'Bottom right': [1, -1] };
+  const quadName = (x, y) => { const p = placeOf(x, y).replace(/ quadrant$/, ''); return p.charAt(0).toUpperCase() + p.slice(1); };
+  // What each slip makes of a point (x, y). signX, signY, both: a minus dropped or added; swap: the
+  // two numbers swapped; swapSign: swapped, with the minus left in first place.
+  const SLIP = {
+    signX: (p) => [-p[0], p[1]], signY: (p) => [p[0], -p[1]], both: (p) => [-p[0], -p[1]],
+    swap: (p) => [p[1], p[0]], swapSign: (p) => [-p[1], -p[0]],
+  };
+  // The distance between two points on one gridline: the larger of their other numbers take away the
+  // smaller. sizes: the sizes taken away (5 − 3); order: the smaller take away the larger.
+  function gapOf(d) {
+    const a = d.pts[0], b = d.pts[1], k = a[0] === b[0] ? 1 : 0, lo = Math.min(a[k], b[k]), hi = Math.max(a[k], b[k]);
+    return { k: k, lo: lo, hi: hi, gap: hi - lo, sizes: Math.abs(Math.abs(hi) - Math.abs(lo)), order: lo - hi };
+  }
+  // The sum as the page writes it: 3 − (−5) = 3 + 5 = 8.
+  const gapSum = (g) => num(g.hi) + ' − ' + (g.lo < 0 ? '(' + num(g.lo) + ')' : num(g.lo)) + (g.lo < 0 ? ' = ' + num(g.hi) + ' + ' + num(-g.lo) : '') + ' = ' + num(g.gap);
+  const slipSum = (g, s) => (s === 'sizes' ? num(Math.max(Math.abs(g.hi), Math.abs(g.lo))) + ' − ' + num(Math.min(Math.abs(g.hi), Math.abs(g.lo))) + ' = ' + num(g.sizes) : num(g.lo) + ' − ' + num(g.hi) + ' = ' + num(g.order));
+  // A line's name: x = −4 or y = −4.
+  const lineName = (L) => (L.x != null ? 'x = ' + num(L.x) : 'y = ' + num(L.y));
+  // What each pick puzzle's slips give. far: the signs read the wrong way round, or a minus dropped.
+  // named: the same number on the other letter (a flat line), or the minus dropped. gap: as above.
+  // onaxis: a zero in the other place, or no zero at all.
+  function slipOpt(d, s) {
+    if (d.pic === 'far') return s === 'swap' ? quadName(d.far[1], d.far[0]) : quadName(Math.abs(d.far[0]), Math.abs(d.far[1]));
+    if (d.pic === 'named') {
+      const want = d.lines[d.want], v = want.x != null ? want.x : want.y, flip = want.x != null ? { y: v } : { x: v };
+      const target = s === 'flat' ? flip : want.x != null ? { x: -v } : { y: -v };
+      return Object.keys(d.lines).filter((k) => lineName(d.lines[k]) === lineName(target))[0];
+    }
+    if (d.pic === 'gap') return num(gapOf(d)[s]);
+    if (d.pic === 'onaxis') { const p = parsePair(d.want); return s === 'yaxis' ? pair(p[1], p[0]) : pair(p[0], p[0]); }
+    return pair.apply(null, SLIP[s](d.to));
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.kind === 'drag') return pair(d.to[0], d.to[1]);
+    if (d.pic === 'far') return quadName(d.far[0], d.far[1]);
+    if (d.pic === 'named') return Object.keys(d.lines).filter((k) => lineName(d.lines[k]) === lineName(d.ask))[0];
+    if (d.pic === 'gap') return num(gapOf(d).gap);
+    return d.opts.filter((o) => { const p = parsePair(o); return p[1] === 0 && p[0] !== 0; })[0];
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/\((−?\d+), (−?\d+)\)/g, ' the point $1, $2 ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ')
+    .replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false, pt: null, moved: false }; }
+  const emptyFor = (i, st) => (STEPS[i].kind === 'drag' ? (st.moved ? '' : PLACE) : st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const d = STEPS[i], st = blank(i); st.pick = d.want; st.res = 'right'; if (d.kind === 'drag') { st.pt = d.to.slice(); st.moved = true; } return st; }
+  function slipped(i, o) { const d = STEPS[i], st = blank(i); st.pick = o; st.res = 'wrong'; if (d.kind === 'drag') { st.pt = parsePair(o); st.moved = true; } return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  // x and y, the letters for a point's two numbers, alone or in x-axis, but not inside a word.
+  const VRE = /(?<![A-Za-z'’])[xy](?![A-Za-z])/g;
+  function spans(s) {
+    const out = [];
+    let at = 0, m;
+    VRE.lastIndex = 0;
+    while ((m = VRE.exec(s))) {
+      if (m.index > at) out.push([s.slice(at, m.index), false]);
+      out.push([m[0], true]);
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) out.push([s.slice(at), false]);
+    return out;
+  }
+  function math(el, s) { spans(s).forEach((p) => el.appendChild(p[1] ? K.el('i', { class: 'vx' }, p[0]) : document.createTextNode(p[0]))); }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) math(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) math(el, text.slice(at));
+  }
+  // A point, a sum or a line's name stays together on one line ("(−4, 3)", "4 − (−3) = 7", "x = −4"),
+  // with the stop after it; a long one may break only before an equals sign.
+  const TOK = '(?:\\((?:−?\\d+|[xy]), (?:−?\\d+|[xy])\\)|\\(−\\d+\\)|−?\\d+|[xy](?![A-Za-z-]))';
+  // "x-axis" and "y-axis" stay whole too, so they never break at the hyphen.
+  const GLUE = new RegExp('(?<![A-Za-z0-9\'’])(?:[xy]-axis|' + TOK + '(?: [=+−] ' + TOK + ')*)[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/[ -]/.test(b)) { const sp = K.el('span', { class: 'nw' }); math(sp, b); el.appendChild(sp); } else math(el, b);
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].pt = null; S[i].moved = false;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  // The grid runs from −R to R each way, UNIT to a square, with (0, 0) at (OX, OY); the readout sits
+  // along the top at RO_Y.
+  const UNIT = 24, OX = 170, OY = 176, R = 5, H = 308, RO_Y = 28;
+  const gx = (v) => OX + UNIT * v, gy = (v) => OY - UNIT * v;
+  // A screen with no readout along the top starts its picture just above the grid.
+  const topOf = (d) => (d.show ? (d.demo === 'grow' || d.demo === 'lines' ? 30 : 0) : d.kind === 'drag' || d.pic === 'gap' ? 0 : 30);
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), hits = document.getElementById('hits');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }
+  // An axis running on past 0 from t0, a square at a time: each square an eased hop of HOP that settles
+  // softly, then the last 0.4 of a square to its end, at the same pace (5.4 squares in all).
+  function run(t0) {
+    let n = 0;
+    for (let k = 0; k < 5; k++) n += arr(t0 + HOP * k, HOP);
+    return n + 0.4 * arr(t0 + HOP * 5, 0.4 * HOP);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out over the first half, and only then
+  // the second fades in, so the two never sit over each other.
+  function swap(a, from, to, rise) { leave(Math.min(1, a * 2), from); part(Math.max(0, a * 2 - 1), rise == null ? 4 : rise, to); }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, r3(h)), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));
+  // Text whose x and y are set in italics (each as its own span).
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    spans(String(s)).forEach((p) => t.appendChild(p[1] ? K.svg('tspan', { class: 'vx' }, p[0]) : document.createTextNode(p[0])));
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  const SIZE = { ro: 22, sum: 20, axn: 17, sg: 16, lnl: 15, brl: 15, pl: 14, roq: 14, qn: 13, lgl: 13, axv: 13 };
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * (SIZE[cls.split(' ')[0]] || 14) * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 8 * ux + 4.5 * px) + ' ' + r3(y - 8 * uy + 4.5 * py) + ' L' + r3(x - 8 * ux - 4.5 * px) + ' ' + r3(y - 8 * uy - 4.5 * py) + ' Z' }));
+  }
+  // A line of text with all of it highlighted, centred at x.
+  function hlText(x, y, s, cls) {
+    const w = tw(s, cls);
+    rect('hl', x - w / 2 - 5, y - 19, w + 10, 26, 6);
+    text(x - w / 2, y, s, cls, 'start');
+  }
+
+  // --- the grid ---
+  // The gridlines; the axes, reaching xn and yn squares below 0 (all the way unless an axis is still
+  // growing), each with its arrowhead and its name; the numbers along them, a negative number -k
+  // arriving at xa(k) or ya(k).
+  function mesh() {
+    for (let v = -R; v <= R; v++) { line('gl', gx(v), gy(R), gx(v), gy(-R)); line('gl', gx(-R), gy(v), gx(R), gy(v)); }
+  }
+  function axes(xn, yn) {
+    xn = xn == null ? 5.4 : xn; yn = yn == null ? 5.4 : yn;
+    line('ax', gx(-xn), OY, gx(5.5) - 7, OY); head(gx(5.5), OY, 1, 0, 'axh');
+    line('ax', OX, gy(-yn), OX, gy(5.5) + 7); head(OX, gy(5.5), 0, -1, 'axh');
+    text(gx(5.5) + 6, OY + 6, 'x', 'axn', 'start');
+    text(OX + 9, gy(5.5) + 6, 'y', 'axn', 'start');
+  }
+  // cut: the numbers a line crosses ({x: [...], y: [...]}), each set on a patch of the page (filled
+  // like the quadrant under it, when that one is filled: tq gives how far each quadrant's fill has
+  // arrived, so a patch fills with its quadrant, never ahead of it).
+  function numbers(xa, ya, cut, tq) {
+    cut = cut || {};
+    const has = (k, v) => !!cut[k] && cut[k].indexOf(v) >= 0, filled = (qx, qy) => (tq ? tq(qx, qy) : 0);
+    for (let v = -R; v <= R; v++) {
+      if (v === 0) continue;
+      part(v < 0 && xa ? xa(-v) : 1, 0, () => { if (has('x', v)) backing(gx(v), OY + 16, num(v), 'middle', filled(Math.sign(v), -1)); text(gx(v), OY + 16, num(v), 'axv'); });
+      part(v < 0 && ya ? ya(-v) : 1, 0, () => { if (has('y', v)) backing(OX - 6, gy(v) + 5, num(v), 'end', filled(-1, Math.sign(v))); text(OX - 6, gy(v) + 5, num(v), 'axv', 'end'); });
+    }
+    text(OX - 3, OY + 16, '0', 'axv', 'end');
+  }
+  function backing(x, y, s, anchor, filled) {
+    const w = tw(s, 'axv'), x0 = anchor === 'middle' ? x - w / 2 : x - w;
+    rect('nbk', x0 - 2, y - 11, w + 4, 14, 3);
+    part(filled, 0, () => rect('tint', x0 - 2, y - 11, w + 4, 14, 3));
+  }
+  // A point's path, going down from the x-axis, crosses the number for its x.
+  const legCut = (x, y) => ({ x: y < 0 && x ? [Math.round(x)] : [] });
+  const sgn = (p) => (p[0] && p[1] ? [Math.sign(p[0]), Math.sign(p[1])] : null);
+  // The quadrant fill for numbers(): the quadrant of p, arrived as far as a (a fill fading in or out).
+  const fillOf = (p, a) => { const q = sgn(p); return (qx, qy) => (q && q[0] === qx && q[1] === qy ? a : 0); };
+  // The quadrant a point is in, lightly filled (none for a point on an axis).
+  function tint(x, y) {
+    if (!x || !y) return;
+    rect('tint', x > 0 ? OX : gx(-R), y > 0 ? gy(R) : OY, UNIT * R, UNIT * R);
+  }
+  const dot = (x, y, cls) => circle('pt' + (cls ? ' ' + cls : ''), gx(x), gy(y), 7);
+  // The readout along the top: the point's (x, y), and where it is.
+  function readout(x, y, warn) {
+    const w = warn ? ' warnt' : '';
+    text(8, RO_Y, pair(x, y), 'ro' + w, 'start');
+    text(332, RO_Y, placeOf(x, y), 'roq' + w, 'end');
+  }
+  function readoutHidden() { text(8, RO_Y, '(?, ?)', 'ro q', 'start'); }
+  // A point's path from (0, 0): along by x as far as ea of the way, then up or down by y as far as eu,
+  // each with a note of how far ("4 left", "3 up") when it is two squares or more and `say` is set.
+  // The second leg stops short of the point, its arrowhead just outside it.
+  const along = (x) => Math.abs(x) + (x < 0 ? ' left' : ' right');
+  const upDown = (y) => Math.abs(y) + (y < 0 ? ' down' : ' up');
+  function legs(x, y, ea, eu, labels) {
+    if (x !== 0 && ea > 0) {
+      const tip = x * ea, back = y === 0 ? Math.sign(x) * Math.min(9, Math.abs(tip) * UNIT * 0.5) : 0;
+      line('leg', OX, OY, gx(tip) - back, OY);
+      if (y === 0) part(K.clamp(ea / 0.35, 0, 1), 0, () => head(gx(tip) - back, OY, Math.sign(x), 0, 'legh'));
+      // its note centred over it, but (left of 0) kept clear of the numbers up the y-axis
+      const s = along(x), cx = x < 0 ? Math.min(gx(x / 2), OX - UNIT - tw(s, 'lgl') / 2) : gx(x / 2);
+      if (labels && Math.abs(x) >= 2) part(ea, 0, () => text(cx, OY - 8, s, 'lgl'));
+    }
+    if (y !== 0 && eu > 0) {
+      const tip = y * eu, back = Math.sign(y) * Math.min(9, Math.abs(tip) * UNIT * 0.5);
+      line('leg', gx(x), OY, gx(x), gy(tip) + back);
+      part(K.clamp(eu / 0.35, 0, 1), 0, () => head(gx(x), gy(tip) + back, 0, -Math.sign(y), 'legh'));
+      if (labels && Math.abs(y) >= 2) {
+        // beside the leg, on the side towards the y-axis when there is room clear of its numbers
+        const inner = x === 0 || (x > 0 ? x >= 3 : x <= -4), side = x === 0 ? 1 : inner ? -Math.sign(x) : Math.sign(x);
+        part(eu, 0, () => text(gx(x) + 8 * side, gy(y * 0.6) + 4.5, upDown(y), 'lgl', side > 0 ? 'start' : 'end'));
+      }
+    }
+  }
+  // The quadrants' names (and their signs), each in the middle of its quadrant.
+  const QC = (q) => [gx(3 * q[0]), gy(3 * q[1])];
+  function quadLabel(q, signs, warn) {
+    const c = QC(q), w = warn ? ' warnt' : '';
+    text(c[0], c[1], placeOf(q[0], q[1]).replace(/ quadrant$/, ''), 'qn' + w);
+    if (signs) text(c[0], c[1] + 21, signsOf(q[0], q[1]), 'sg' + w);
+  }
+  // A bracket from a to b (picture units) across at y (or, upright, down at x), with its count.
+  function bracketH(x0, x1, y, s) { line('brk', x0, y, x1, y); line('brk', x0, y - 5, x0, y + 5); line('brk', x1, y - 5, x1, y + 5); text((x0 + x1) / 2, y + 19, s, 'brl'); }
+  function bracketV(y0, y1, x, s) { line('brk', x, y0, x, y1); line('brk', x - 5, y0, x + 5, y0); line('brk', x - 5, y1, x + 5, y1); text(x - 9, (y0 + y1) / 2 + 5, s, 'brl', 'end'); }
+
+  // --- the demonstrations (SHOW steps), drawn at time T ---
+  // Both axes run on past 0, a negative number arriving as each axis reaches it; then the quadrants.
+  function demoGrow() {
+    const A = AT.grow, xn = run(A.x0), yn = run(A.y0);
+    mesh();
+    axes(xn, yn);
+    numbers((k) => arr(A.x0 + HOP * k, 0.4), (k) => arr(A.y0 + HOP * k, 0.4));
+    const na = arr(A.names), sa = arr(A.signs);
+    [[1, 1], [-1, 1], [-1, -1], [1, -1]].forEach((q) => {
+      part(na, 4, () => quadLabel(q, false));
+      const c = QC(q);
+      part(sa, 4, () => text(c[0], c[1] + 21, signsOf(q[0], q[1]), 'sg'));
+    });
+    const said = ['A grid with the x-axis across and the y-axis up the side. To the right of 0 and above it the numbers run 1 to 5.'];
+    if (xn > 0.9) said.push('The x-axis runs on to the left of 0, to minus ' + Math.min(5, Math.floor(xn + 1e-9)) + '.');
+    if (yn > 0.9) said.push('The y-axis runs on below 0, to minus ' + Math.min(5, Math.floor(yn + 1e-9)) + '.');
+    if (na >= 0.5) said.push('The four quadrants are named: top right, top left, bottom left and bottom right.');
+    if (sa >= 0.5) said.push('Their signs: top right plus, plus; top left minus, plus; bottom left minus, minus; bottom right plus, minus.');
+    return said.join(' ');
+  }
+  // The squares the tour hops through, one at a time.
+  const TOUR_PTS = (() => {
+    const out = [TOUR[0].slice()];
+    for (let k = 1; k < TOUR.length; k++) {
+      const a = TOUR[k - 1], b = TOUR[k], n = Math.abs(b[0] - a[0]) + Math.abs(b[1] - a[1]);
+      for (let s = 1; s <= n; s++) out.push([a[0] + Math.sign(b[0] - a[0]) * s, a[1] + Math.sign(b[1] - a[1]) * s]);
+    }
+    return out;
+  })();
+  const inQuad = (p) => !!(p[0] && p[1]);
+  // When each hop starts: a square every HOP, with a rest after each hop that lands in a new quadrant.
+  const TOUR_AT = (() => {
+    const out = [];
+    let t = AT.tour.t0;
+    for (let h = 0; h + 1 < TOUR_PTS.length; h++) { out.push(t); t += HOP; if (!inQuad(TOUR_PTS[h]) && inQuad(TOUR_PTS[h + 1])) t += PAUSE; }
+    return out;
+  })();
+  // The quadrants the tour passes through, each fill fading in over 0.4 s from the start of the hop
+  // that lands the point in it, and out over the hop that takes the point onto an axis.
+  function tourFills() {
+    const P = TOUR_PTS, out = [];
+    let cur = inQuad(P[0]) ? { q: P[0], tin: null } : null;
+    for (let h = 0; h + 1 < P.length; h++) {
+      if (cur && !inQuad(P[h + 1])) { out.push({ q: cur.q, tin: cur.tin, tout: TOUR_AT[h] }); cur = null; }
+      else if (!cur && inQuad(P[h + 1])) cur = { q: P[h + 1], tin: TOUR_AT[h] };
+    }
+    if (cur) out.push({ q: cur.q, tin: cur.tin, tout: null });
+    return out.map((v) => ({ q: [Math.sign(v.q[0]), Math.sign(v.q[1])], a: (v.tin == null ? 1 : arr(v.tin, 0.4)) * (v.tout == null ? 1 : 1 - arr(v.tout, HOP)) }));
+  }
+  // Where the tour's point is at T: between two crossings, and the crossing it has (as good as) reached.
+  function tourAt() {
+    const P = TOUR_PTS;
+    let pos = P[0].slice(), landed = P[0];
+    for (let h = 0; h + 1 < P.length; h++) {
+      const e = arr(TOUR_AT[h], HOP);
+      if (e <= 0) continue;
+      pos = [K.lerp(P[h][0], P[h + 1][0], e), K.lerp(P[h][1], P[h + 1][1], e)];
+      landed = e >= 0.5 ? P[h + 1] : P[h];
+    }
+    return { pos: pos, landed: landed };
+  }
+  // The point tours the four quadrants, its readout's signs flipping as it crosses each axis; then it
+  // can be dragged (or the grid tapped) anywhere.
+  function demoTour(d, st) {
+    const own = st.moved && st.pt, tour = own ? null : tourAt();
+    const p = own ? st.pt : tour.landed, pos = own ? st.pt : tour.pos;
+    // Dragged, the fill follows the point at once; touring, each quadrant's fill fades in and out.
+    const fills = own ? [{ q: sgn(p), a: 1 }].filter((f) => f.q) : tourFills();
+    fills.forEach((f) => part(f.a, 0, () => tint(f.q[0], f.q[1])));
+    mesh();
+    axes();
+    legs(pos[0], pos[1], 1, 1, !!own);
+    numbers(null, null, legCut(pos[0], pos[1]), (qx, qy) => fills.reduce((a, f) => (f.q[0] === qx && f.q[1] === qy ? Math.max(a, f.a) : a), 0));
+    circle('ringp', gx(pos[0]), gy(pos[1]), 15);
+    dot(pos[0], pos[1]);
+    readout(p[0], p[1]);
+    placeGrip(p);
+    return 'A grid from minus 5 to 5 each way. ' + (own ? 'The point you are dragging' : 'A point touring the four quadrants') + ' is at ' + say(pair(p[0], p[1])) + ', ' + placeOf(p[0], p[1]) + '.' +
+      (own ? '' : ' It goes from ' + say(pair(TOUR[0][0], TOUR[0][1])).replace('the point ', '') + ' left to ' + say(pair(TOUR[1][0], TOUR[1][1])).replace('the point ', '') +
+        ', down to ' + say(pair(TOUR[2][0], TOUR[2][1])).replace('the point ', '') + ', then right to ' + say(pair(TOUR[3][0], TOUR[3][1])).replace('the point ', '') + '.');
+  }
+  // (0, −4) hops down the y-axis and (ZB, 0) along the x-axis, each named as it lands.
+  const ZB = 4;
+  function demoZero() {
+    const A = AT.zero;
+    const ea = [0, 1, 2, 3].map((k) => arr(A.a0 + HOP * k, HOP)), eb = Array.from({ length: ZB }, (_, k) => arr(A.b0 + HOP * k, HOP));
+    const ya = -ea.reduce((s, e) => s + e, 0), xb = eb.reduce((s, e) => s + e, 0);
+    const la = arr(A.aLab), lb = arr(A.bLab);
+    mesh();
+    axes();
+    legs(0, ya, 1, 1, false);
+    // the second point, its path and arrowhead fade in softly over 0.5 s as it sets off from (0, 0)
+    const bIn = arr(A.b0, 0.5);
+    part(bIn, 0, () => legs(xb, 0, 1, 1, false));
+    part(la, 0, () => text(OX + 8, gy(-2) + 4.5, upDown(-4), 'lgl', 'start'));
+    part(lb, 0, () => text(gx(ZB / 2), OY - 8, along(ZB), 'lgl'));
+    numbers();
+    dot(0, ya);
+    part(la, 4, () => text(OX + 12, gy(-4) + 5, pair(0, -4), 'pl', 'start'));
+    part(bIn, 0, () => dot(xb, 0));
+    part(lb, 4, () => text(gx(ZB), OY - 30, pair(ZB, 0), 'pl'));
+    swap(lb, () => part(la, 4, () => readout(0, -4)), () => readout(ZB, 0));
+    const said = ['A grid from minus 5 to 5 each way.'];
+    said.push(la >= 0.5 ? 'The point 0, minus 4 sits on the y-axis, 4 down from where the axes cross, with no move left or right.' : 'A point moves straight down the y-axis from where the axes cross.');
+    if (lb >= 0.5) said.push('The point ' + ZB + ', 0 sits on the x-axis, ' + ZB + ' to the right, with no move up or down.');
+    else if (eb[0] > 0) said.push('A second point moves along the x-axis to the right.');
+    return said.join(' ');
+  }
+  // Four points with x = 3 line up and the upright line x = 3 is drawn through them; then two points
+  // with y = −2 and the flat line y = −2.
+  const XS = [4, 2, -1, -4], YS = [-4, -1];
+  function demoLines() {
+    const A = AT.lines;
+    const xa = XS.map((v, k) => arr(A.x0 + HOP * k, 0.4)), ya = YS.map((v, k) => arr(A.y0 + HOP * k, 0.4));
+    const xl = arr(A.xl, 0.5), xn = arr(A.xl), yl = arr(A.yl, 0.5), yn = arr(A.yl);
+    mesh();
+    axes();
+    if (xl > 0) line('ln', gx(3), gy(R), gx(3), K.lerp(gy(R), gy(-R), xl));
+    if (yl > 0) line('ln', gx(-R), gy(-2), K.lerp(gx(-R), gx(R), yl), gy(-2));
+    numbers(null, null, { x: [3], y: [-2] });
+    XS.forEach((v, k) => part(xa[k], 4, () => { dot(3, v); text(gx(3) + 12, gy(v) + 5, pair(3, v), 'pl', 'start'); }));
+    // each label below and to the left of its dot, clear of the numbers up the y-axis
+    YS.forEach((v, k) => part(ya[k], 4, () => { dot(v, -2); text(gx(v) - 12, gy(-2) + 22, pair(v, -2), 'pl', 'end'); }));
+    part(xn, 4, () => text(gx(3), gy(R) - 8, 'x = 3', 'lnl'));
+    part(yn, 4, () => text(gx(-3.5), gy(-2) - 9, 'y = −2', 'lnl'));
+    const said = ['A grid from minus 5 to 5 each way.'];
+    const nx = xa.filter((a) => a >= 0.5).length, ny = ya.filter((a) => a >= 0.5).length;
+    if (nx) said.push('Points ' + XS.slice(0, nx).map((v) => say(pair(3, v)).replace('the point ', '')).join('; ') + ' all have x equals 3.');
+    if (xl >= 1) said.push('An upright line through them is named x equals 3.');
+    if (ny) said.push('Points ' + YS.slice(0, ny).map((v) => say(pair(v, -2)).replace('the point ', '')).join('; ') + ' have y equals minus 2.');
+    if (yl >= 1) said.push('A flat line through them is named y equals minus 2.');
+    return said.join(' ');
+  }
+  // (−3, 2) and (4, 2) on one gridline: the line between them, 3 squares to the y-axis, 4 more, the sum.
+  const GAP_SHOW = { pts: [[-3, 2], [4, 2]] };
+  function demoGap() {
+    const A = AT.gap, g = gapOf(GAP_SHOW), a = arr(A.a), b = arr(A.b), seg = arr(A.seg, 0.5), b1 = arr(A.br1), b2 = arr(A.br2), sm = arr(A.sum);
+    mesh();
+    axes();
+    if (seg > 0) line('ln', gx(-3), gy(2), K.lerp(gx(-3), gx(4), seg), gy(2));
+    part(b1, 4, () => bracketH(gx(-3), gx(0), gy(2) + 12, '3'));
+    part(b2, 4, () => bracketH(gx(0), gx(4), gy(2) + 12, '4'));
+    numbers(null, null, { y: [2] });
+    part(a, 4, () => { dot(-3, 2); text(gx(-3), gy(2) - 14, pair(-3, 2), 'pl'); });
+    part(b, 4, () => { dot(4, 2); text(gx(4), gy(2) - 14, pair(4, 2), 'pl'); });
+    part(sm, 6, () => hlText(170, RO_Y, gapSum(g), 'sum'));
+    const said = ['A grid from minus 5 to 5 each way.'];
+    if (a >= 0.5) said.push('The point minus 3, 2 is marked' + (b >= 0.5 ? ', and the point 4, 2 on the same flat gridline.' : '.'));
+    if (b1 >= 0.5) said.push('A bracket counts 3 squares from it to the y-axis' + (b2 >= 0.5 ? ', and another 4 more to the second point.' : '.'));
+    if (sm >= 0.5) said.push('The distance: ' + say(gapSum(g)) + '.');
+    return said.join(' ');
+  }
+
+  // --- the puzzles (DO steps) ---
+  // Put the point at a place: before Check its readout says (?, ?); a right answer draws its path and
+  // its readout; a wrong one turns it and its readout the warning colour.
+  function drawDrag(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', p = st.pt || [0, 0];
+    const go = (k) => (right && A[k] != null ? arr(A[k], k === 'along' || k === 'up' ? 0.5 : null) : 0);
+    const ea = go('along'), eu = go('up'), ro = go('ro'), ln = d.onto ? go('line') : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    if (right) part(ro, 0, () => tint(p[0], p[1]));
+    mesh();
+    if (ln > 0) line('ln', gx(-R), gy(d.onto.y), K.lerp(gx(-R), gx(R), ln), gy(d.onto.y));
+    axes();
+    if (right) legs(p[0], p[1], ea, eu, true);
+    const cut = right ? legCut(p[0], p[1]) : { x: [] };
+    if (d.onto) cut.y = [d.onto.y];
+    numbers(null, null, cut, right ? fillOf(p, ro) : null);
+    if (ln > 0) part(ln, 4, () => text(gx(R) - 4, gy(d.onto.y) - 9, lineName(d.onto), 'lnl', 'end'));
+    if (!right && !wrong) circle('ringp', gx(p[0]), gy(p[1]), 15);
+    if (wrong) swap(sw, () => dot(p[0], p[1]), () => dot(p[0], p[1], 'bad'), 0); else dot(p[0], p[1]);
+    if (right) swap(ro, readoutHidden, () => readout(p[0], p[1]), 0);
+    else if (wrong) swap(sw, readoutHidden, () => readout(p[0], p[1], true), 0);
+    else readoutHidden();
+    placeGrip(right ? null : p);
+    if (right) return 'A grid from minus 5 to 5 each way. The point is at ' + say(d.want) + ', ' + placeOf(p[0], p[1]) + ': ' + along(p[0]) + (p[1] ? ', then ' + upDown(p[1]) : ', no move up or down') + ' from where the axes cross.';
+    if (wrong) return 'A grid from minus 5 to 5 each way. The point is at ' + say(pair(p[0], p[1])) + ', ' + placeOf(p[0], p[1]) + ', marked wrong.';
+    return 'A grid from minus 5 to 5 each way, with a point to drag' + (st.moved ? '' : ', starting where the axes cross') + '. Its readout is hidden until you check.';
+  }
+  // (35, −120), far off the grid: the quadrants named; then the bottom right one filled with its
+  // signs, and an arrow from (0, 0) the way the point lies.
+  function drawFar(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', f = d.far;
+    const qa = right ? arr(A.quad) : 0, aa = right ? arr(A.arrow, 0.5) : 0, na = right ? arr(A.name) : 0, sw = wrong ? arr(WRONG.slip) : 0;
+    const picked = wrong ? QUAD[st.pick] : null, mine = [Math.sign(f[0]), Math.sign(f[1])];
+    if (right) part(qa, 0, () => tint(mine[0], mine[1]));
+    mesh();
+    axes();
+    // the way the point lies, as far as the edge of the grid
+    const k = Math.min((gx(R) - OX) / Math.abs(f[0]), (gy(-R) - OY - 8) / Math.abs(f[1])), ex = OX + f[0] * k * aa, ey = OY - f[1] * k * aa;
+    if (aa > 0) { line('arw', OX, OY, ex, ey); part(K.clamp(aa / 0.35, 0, 1), 0, () => head(ex, ey, f[0], -f[1], 'arh')); }
+    numbers();
+    Object.keys(QUAD).forEach((n) => {
+      const q = QUAD[n], isMine = q[0] === mine[0] && q[1] === mine[1], isPicked = picked && q[0] === picked[0] && q[1] === picked[1];
+      if (isPicked) { swap(sw, () => quadLabel(q, false), () => quadLabel(q, true, true), 0); return; }
+      quadLabel(q, false);
+      if (isMine && right) part(qa, 4, () => { const c = QC(q); text(c[0], c[1] + 21, signsOf(q[0], q[1]), 'sg'); });
+    });
+    // the label says which way the far-off point lies, kept inside the picture
+    const farLab = 'towards ' + pair(f[0], f[1]);
+    part(na, 4, () => text(Math.min(OX + f[0] * k + 8, 336 - tw(farLab, 'pl')), OY - f[1] * k + 4, farLab, 'pl', 'start'));
+    let s = 'A grid from minus 5 to 5 each way, its four quadrants named: top left, top right, bottom left and bottom right.';
+    if (right) s += ' The bottom right quadrant, plus, minus, is filled, and an arrow from where the axes cross points right and steeply down, towards ' + say(pair(f[0], f[1])) + ', far off the grid.';
+    if (wrong) s += ' The ' + st.pick.toLowerCase() + ' quadrant is marked wrong, with its signs ' + say(signsOf(picked[0], picked[1])) + '.';
+    return s;
+  }
+  // Three lines named A, B and C; after an answer their equations, and two points on the one asked for.
+  function drawNamed(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0;
+    const nm = right ? arr(A.name) : 0, pa = right ? arr(A.pts) : 0, ra = right ? arr(A.rest) : 0;
+    mesh();
+    axes();
+    const names = Object.keys(d.lines), own = { 'Line A': [36, gy(-4) + 5, 'end'], 'Line B': [gx(-4), gy(R) - 8, 'middle'], 'Line C': [gx(4), gy(R) - 8, 'middle'] };
+    // where each line's equation goes once named: beside its letter, clear of the other lines
+    const eqAt = { 'Line A': [gx(-2), gy(-4) - 9, 'middle'], 'Line B': [gx(-4) + 10, gy(R) + 18, 'start'], 'Line C': [gx(4) + 10, gy(R) + 18, 'start'] };
+    names.forEach((n) => {
+      const L = d.lines[n], isPicked = wrong && st.pick === n, draw = (cls) => (L.x != null ? line(cls, gx(L.x), gy(R), gx(L.x), gy(-R)) : line(cls, gx(-R), gy(L.y), gx(R), gy(L.y)));
+      if (isPicked) swap(sw, () => draw('ln'), () => draw('ln bad'), 0); else draw('ln');
+    });
+    numbers(null, null, { x: names.filter((n) => d.lines[n].x != null).map((n) => d.lines[n].x), y: names.filter((n) => d.lines[n].y != null).map((n) => d.lines[n].y) });
+    names.forEach((n) => {
+      const L = d.lines[n], o = own[n], e = eqAt[n], isPicked = wrong && st.pick === n, letter = n.slice(5);
+      if (isPicked) swap(sw, () => text(o[0], o[1], letter, 'lnl', o[2]), () => { text(o[0], o[1], letter, 'lnl warnt', o[2]); text(e[0], e[1], lineName(L), 'lnl warnt', e[2]); }, 0);
+      else text(o[0], o[1], letter, 'lnl', o[2]);
+      if (right) part(n === d.want ? nm : ra, 4, () => text(e[0], e[1], lineName(L), 'lnl', e[2]));
+    });
+    if (right) [[-4, 3], [-4, -2]].forEach((p) => part(pa, 4, () => { dot(p[0], p[1]); text(gx(p[0]) + 12, gy(p[1]) + 5, pair(p[0], p[1]), 'pl', 'start'); }));
+    let s = 'A grid from minus 5 to 5 each way, with three lines: A, flat, 4 below the x-axis; B, upright, 4 to the left of the y-axis; C, upright, 4 to the right.';
+    if (right) s += ' Line B is named x equals minus 4, through the points minus 4, 3 and minus 4, minus 2. Line A is y equals minus 4 and line C is x equals 4.';
+    if (wrong) s += ' ' + st.pick + ' is marked wrong: it is ' + say(lineName(d.lines[st.pick])) + '.';
+    return s;
+  }
+  // Two points on one upright gridline; after an answer, the gridline between them, the counts to the
+  // x-axis and on, and the sum; after a slip, its sum in the warning colour.
+  function drawGap(i, d, st, right) {
+    const A = d.at, g = gapOf(d), wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, x = d.pts[0][0];
+    const seg = right ? arr(A.seg, 0.5) : 0, b1 = right ? arr(A.br1) : 0, b2 = right ? arr(A.br2) : 0, sm = right ? arr(A.sum) : 0;
+    mesh();
+    axes();
+    if (seg > 0) line('ln', gx(x), gy(g.lo), gx(x), K.lerp(gy(g.lo), gy(g.hi), seg));
+    part(b1, 4, () => bracketV(gy(g.lo), gy(0), gx(x) - 12, num(-g.lo)));
+    part(b2, 4, () => bracketV(gy(0), gy(g.hi), gx(x) - 12, num(g.hi)));
+    numbers(null, null, { x: [x] });
+    d.pts.forEach((p) => { dot(p[0], p[1]); text(gx(p[0]) + 12, gy(p[1]) + 5, pair(p[0], p[1]), 'pl', 'start'); });
+    part(sm, 6, () => hlText(170, RO_Y, gapSum(g), 'sum'));
+    if (wrong) part(sw, 6, () => text(170, RO_Y, slipSum(g, d.slips[st.pick]), 'sum warnt'));
+    let s = 'A grid from minus 5 to 5 each way, with the points ' + d.pts.map((p) => say(pair(p[0], p[1])).replace('the point ', '')).join(' and ') + ' on one upright gridline.';
+    if (right) s += ' Brackets count ' + num(-g.lo) + ' squares up to the x-axis and ' + g.hi + ' more. ' + say(gapSum(g)) + '.';
+    if (wrong) s += ' ' + say(slipSum(g, d.slips[st.pick])) + ', marked wrong.';
+    return s;
+  }
+  // The x-axis picked out; after an answer, the point on it and the other two where they lie.
+  function drawOnAxis(i, d, st, right) {
+    const A = d.at, wrong = st.res === 'wrong', sw = wrong ? arr(WRONG.slip) : 0, ra = right ? arr(A.right) : 0, oa = right ? arr(A.rest) : 0;
+    mesh();
+    axes();
+    line('leg', gx(-R), OY, gx(R), OY);
+    numbers();
+    text(gx(-R) + 2, OY - 9, 'the x-axis', 'lgl', 'start');
+    const lab = (p, cls) => {
+      if (p[1] === 0) text(gx(p[0]), gy(p[1]) - 30, pair(p[0], p[1]), 'pl' + cls);
+      else if (p[0] === 0) text(gx(p[0]) + 12, gy(p[1]) + 5, pair(p[0], p[1]), 'pl' + cls, 'start');
+      else text(gx(p[0]) - 12, gy(p[1]) + 5, pair(p[0], p[1]), 'pl' + cls, 'end');
+    };
+    d.opts.forEach((o) => {
+      const p = parsePair(o);
+      if (right) part(o === d.want ? ra : oa, 4, () => { dot(p[0], p[1], o === d.want ? '' : 'mute'); lab(p, o === d.want ? '' : ' mute'); });
+      else if (wrong && o === st.pick) part(sw, 4, () => { dot(p[0], p[1], 'bad'); lab(p, ' warnt'); });
+    });
+    let s = 'A grid from minus 5 to 5 each way, with the x-axis picked out.';
+    if (right) s += ' The point minus 2, 0 sits on it. The point 0, minus 2 sits on the y-axis, and minus 2, minus 2 in the bottom left quadrant.';
+    if (wrong) { const p = parsePair(st.pick); s += ' ' + say(st.pick) + ' is marked wrong: it is ' + placeOf(p[0], p[1]) + '.'; }
+    return s;
+  }
+
+  // ---------- the point Dan drags (kept from frame to frame) ----------
+  // The grid takes a tap (the point goes to the nearest crossing); the point itself is dragged, or
+  // moved a square at a time with the arrow keys. The page does not scroll under a finger on it.
+  const board = hits.appendChild(K.svg('rect', { class: 'hit board', x: gx(-R - 0.5), y: gy(R + 0.5), width: UNIT * (2 * R + 1), height: UNIT * (2 * R + 1) }));
+  const grip = hits.appendChild(K.svg('circle', { class: 'hit grab', r: 27, tabindex: 0, role: 'slider', 'aria-valuemin': -R, 'aria-valuemax': R }));
+  function live() {
+    const i = at(), d = STEPS[i];
+    return !finished && (d.show ? !!d.drag : d.kind === 'drag' && S[i].res !== 'right');
+  }
+  function placeGrip(p) {
+    const on = !!p && live();
+    grip.style.display = on ? '' : 'none';
+    board.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const hide = !STEPS[at()].show && S[at()].res !== 'right' && S[at()].res !== 'wrong';
+    grip.setAttribute('cx', gx(p[0])); grip.setAttribute('cy', gy(p[1]));
+    grip.setAttribute('aria-valuenow', p[0]);
+    grip.setAttribute('aria-label', 'The point. Drag it, tap the grid, or use the arrow keys to move it a square at a time.');
+    grip.setAttribute('aria-valuetext', hide ? 'its place is hidden until you check' : say(pair(p[0], p[1])) + ', ' + placeOf(p[0], p[1]));
+  }
+  const toGrid = (q) => [K.clamp(Math.round((q[0] - OX) / UNIT), -R, R), K.clamp(Math.round((OY - q[1]) / UNIT), -R, R)];
+  function svgPt(e) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    return [q.x, q.y];
+  }
+  // Where the point is now (the tour's crossing while it plays).
+  function current() {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (st.pt) return st.pt;
+    if (d.show) { const keep = T; const p = tourAt().landed; T = keep; return p.slice(); }
+    return [0, 0];
+  }
+  function moveTo(p) {
+    if (!live()) return;
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show && (anim.playing() || T !== Infinity)) { anim.pause(); T = Infinity; motion = null; }
+    if (st.moved && st.pt && st.pt[0] === p[0] && st.pt[1] === p[1]) return;
+    st.pt = p; st.moved = true; st.pick = pair(p[0], p[1]);
+    if (!d.show) st.res = null;
+    K.refresh();
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!live() || e.button > 0) return;
+    e.preventDefault();
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (x) { /* the drag still follows while the finger stays on the point */ }
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !live()) return;
+    e.preventDefault();
+    const q = svgPt(e);
+    if (q) moveTo(toGrid(q));
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((n) => grip.addEventListener(n, (e) => { if (held === e.pointerId) held = null; }));
+  grip.addEventListener('touchstart', (e) => { if (live()) e.preventDefault(); }, { passive: false });
+  grip.addEventListener('keydown', (e) => {
+    const by = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+    if (!by || !live()) return;
+    e.preventDefault();
+    const p = current();
+    moveTo([K.clamp(p[0] + by[0], -R, R), K.clamp(p[1] + by[1], -R, R)]);
+  });
+  board.addEventListener('click', (e) => {
+    if (!live()) return;
+    const q = svgPt(e);
+    if (q) moveTo(toGrid(q));
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 ' + topOf(d) + ' 340 ' + (H - topOf(d)));
+    let aria;
+    if (d.show) aria = { grow: demoGrow, tour: demoTour, zero: demoZero, lines: demoLines, gap: demoGap }[d.demo](d, st);
+    else if (d.kind === 'drag') aria = drawDrag(i, d, st, right);
+    else aria = { far: drawFar, named: drawNamed, gap: drawGap, onaxis: drawOnAxis }[d.pic](i, d, st, right);
+    if (d.demo !== 'tour' && d.kind !== 'drag') placeGrip(null);
+    svg.setAttribute('aria-label', aria);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; held = null; enter('stepbox');
+      if (d.show) { st.pt = null; st.moved = false; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      const lab = K.el('span');
+      math(lab, opts[k]);
+      b.el.appendChild(lab);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const DRAGS = DO.filter((i) => STEPS[i].kind === 'drag'), PICKS = DO.filter((i) => STEPS[i].kind === 'pick');
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const vis = (n) => { for (let p = n; p && p !== svg; p = p.parentNode) if (p.style && p.style.opacity !== '' && +p.style.opacity < 0.05) return false; return true; };
+      const texts = Array.from(art.querySelectorAll('text')).filter(vis).map((t) => {
+        const cls = t.getAttribute('class'), w = tw(t.textContent, cls), x = +t.getAttribute('x'), y = +t.getAttribute('y'), anchor = t.getAttribute('text-anchor');
+        const size = SIZE[cls.split(' ')[0]] || 14, x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+        return { s: t.textContent, cls: cls, x0: x0, x1: x0 + w, y0: y - 0.72 * size, y1: y + 0.22 * size, fill: getComputedStyle(t).fill };
+      });
+      const dots = Array.from(art.querySelectorAll('circle.pt')).filter(vis).map((c) => ({ x: +c.getAttribute('cx'), y: +c.getAttribute('cy'), cls: c.getAttribute('class') }));
+      return { texts: texts, all: texts.map((t) => t.s), dots: dots, tints: art.querySelectorAll('rect.tint').length, top: topOf(STEPS[i]) };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // No two labels overlap, and every label and point stays inside the picture.
+  // (The axis numbers are one fixed layout, measured by the kit's own sweep, so only labels are paired with them.)
+  const clear = (g) => g.texts.every((a, k) => a.x0 >= 2 && a.x1 <= 338 && a.y0 >= g.top && a.y1 <= H &&
+    g.texts.every((b, j) => j <= k || (a.cls === 'axv' && b.cls === 'axv') || a.x1 <= b.x0 + 0.5 || b.x1 <= a.x0 + 0.5 || a.y1 <= b.y0 + 0.5 || b.y1 <= a.y0 + 0.5)) &&
+    g.dots.every((c) => c.x >= 7 && c.x <= 333 && c.y >= g.top + 7 && c.y <= H - 7);
+  const at0 = (g, x, y, cls) => g.dots.some((c) => K.near(c.x, gx(x), 1e-6) && K.near(c.y, gy(y), 1e-6) && (cls == null || c.cls === cls));
+  K.check('Every point goes along by x, left when x is negative, then up or down by y, down when y is negative: each puzzle\'s answer is its own target and its readout names where it is, (−4, 3) top left, (−3, 0) on the x-axis, (−5, −2) bottom left on y = −2; (35, −120) bottom right; 3 − (−5) = 8 apart; (−2, 0) on the x-axis; line B is x = −4', () =>
+    DO.map((i) => answerOf(STEPS[i])).join('|') === '(−4, 3)|Bottom right|(−3, 0)|Line B|8|(−2, 0)|(−5, −2)' && DO.every((i) => STEPS[i].want === answerOf(STEPS[i])) &&
+    DRAGS.every((i) => { const d = STEPS[i], g = drawn(i, solved(i)); return at0(g, d.to[0], d.to[1], 'pt') && g.all.indexOf(d.want) >= 0 && g.all.indexOf(placeOf(d.to[0], d.to[1])) >= 0; }) &&
+    placeOf(-4, 3) === 'top left quadrant' && placeOf(-3, 0) === 'on the x-axis' && placeOf(-5, -2) === 'bottom left quadrant' && placeOf(35, -120) === 'bottom right quadrant' &&
+    gapSum(gapOf(STEPS[9])) === '3 − (−5) = 3 + 5 = 8' && gapSum(gapOf(GAP_SHOW)) === '4 − (−3) = 4 + 3 = 7' && STEPS[11].onto.y === STEPS[11].to[1]);
+  K.check('The four quadrants allow coordinates with negative and positive values to be plotted: every point the lesson plots with a negative number is drawn left of or below where the axes cross, in the quadrant its signs name, and the grid runs as far below zero as above it', () => {
+    const pts = [].concat(TOUR_PTS, DRAGS.map((i) => STEPS[i].to), [[-3, 2], [4, 2], [2, -5], [-4, 3], [-4, -2], [-5, -2], [-2, -2]]);
+    return pts.every((p) => (p[0] < 0) === (gx(p[0]) < OX) && (p[1] < 0) === (gy(p[1]) > OY)) && gx(-R) - gx(0) === gx(0) - gx(R) && gy(-R) - gy(0) === gy(0) - gy(R) &&
+      TOUR_PTS.some((p) => p[0] < 0 && p[1] > 0) && TOUR_PTS.some((p) => p[0] < 0 && p[1] < 0) && TOUR_PTS.some((p) => p[0] > 0 && p[1] < 0) && TOUR_PTS.some((p) => p[0] > 0 && p[1] > 0);
+  }, { source: 'https://www.bbc.co.uk/bitesize/articles/zbq7xbk' });
+  K.check('We can always tell which quadrant a point is located in by the signs of its coordinates: the quadrant the readout names depends only on the signs, for every point on the grid and for a point far off it', () => {
+    let ok = true;
+    for (let x = -R; x <= R; x++) for (let y = -R; y <= R; y++) if (x && y) ok = ok && placeOf(x, y) === placeOf(Math.sign(x) * 97, Math.sign(y) * 1000) && signsOf(x, y) === signsOf(Math.sign(x), Math.sign(y));
+    return ok && quadName(35, -120) === quadName(1, -1) && signsOf(35, -120) === '(+, −)' && new Set([[1, 1], [-1, 1], [-1, -1], [1, -1]].map((q) => placeOf(q[0], q[1]))).size === 4;
+  }, { source: 'https://access.openupresources.org/curricula/our6-8math-tn/en/tn/grade-6/unit-7/section-c/lesson-14/student.html' });
+  K.check('If the x-coordinate is 0, do not count left or right: a point whose x is 0 is drawn on the y-axis, and one whose y is 0 on the x-axis, in no quadrant', () => {
+    let ok = true;
+    for (let v = -R; v <= R; v++) if (v) ok = ok && gx(0) === OX && placeOf(0, v) === 'on the y-axis' && placeOf(v, 0) === 'on the x-axis';
+    const z = drawn(4, blank(4));
+    return ok && at0(z, 0, -4) && at0(z, 4, 0) && z.all.indexOf('(0, −4)') >= 0 && z.all.indexOf('(4, 0)') >= 0 && z.all.indexOf('on the x-axis') >= 0 && !/quadrant/.test(placeOf(0, -3));
+  }, { source: 'https://learningcentre.nelson.com/student/9780070988590/Student_Text/Ch01_MathLinks7.pdf' });
+  K.check('Each puzzle accepts only its own answer, and each wrong answer it names is the one a slip gives, shown in the warning colour: a minus sign dropped or added, the two numbers swapped, a zero put on the wrong axis, the signs read the wrong way round, sizes taken away across zero, a distance taken the wrong way round, a flat line for an upright one', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      if (!slips.every((o) => o !== d.want && slipOpt(d, d.slips[o]) === o && !!(d.hints && d.hints[o]))) return false;
+      if (d.kind === 'pick' && !(d.opts.length === 3 && slips.length === 2 && slips.every((o) => d.opts.indexOf(o) >= 0) && d.opts.every((o) => isRight(i, Object.assign(blank(i), { pick: o })) === (o === d.want)))) return false;
+      return slips.every((o) => { const g = drawn(i, slipped(i, o)), red = g.texts.filter((t) => /warnt/.test(t.cls)); return red.length > 0 && clear(g) && (d.kind !== 'drag' || at0(g, parsePair(o)[0], parsePair(o)[1], 'pt bad')); });
+    }) && slipSum(gapOf(STEPS[9]), 'sizes') === '5 − 3 = 2' && slipSum(gapOf(STEPS[9]), 'order') === '−5 − 3 = −8' && quadName(-120, 35) === 'Top left' &&
+    isRight(2, Object.assign(blank(2), { pick: '(−4, 3)', moved: true })) && !isRight(2, Object.assign(blank(2), { pick: '(4, 3)', moved: true })));
+  K.check('Before an answer, nothing in a puzzle\'s picture gives it away: the readout says (?, ?) with no path drawn, no quadrant is filled or signed, no line is named, no bracket or sum is drawn and no candidate point is plotted', () =>
+    DO.every((i) => {
+      const d = STEPS[i], st = blank(i);
+      if (d.kind === 'drag') { st.pt = d.to.slice(); st.moved = true; st.pick = d.want; }
+      const g = drawn(i, st);
+      if (d.kind === 'drag') return g.all.indexOf('(?, ?)') >= 0 && g.all.indexOf(d.want) < 0 && !g.all.some((s) => /quadrant|left$|right$|up$|down$/.test(s)) && g.tints === 0;
+      if (d.pic === 'far') return !g.all.some((s) => /\(\+|\(−/.test(s)) && g.all.indexOf('(35, −120)') < 0;
+      if (d.pic === 'named') return !g.all.some((s) => /=/.test(s));
+      if (d.pic === 'gap') return !g.all.some((s) => /=/.test(s)) && g.dots.length === 2;
+      return g.dots.length === 0;
+    }));
+  K.check('Every screen, finished, keeps its labels inside the picture and clear of each other, and so does the point wherever it is dragged on the grid', () => {
+    if (!STEPS.every((d, i) => clear(drawn(i, d.show ? blank(i) : solved(i))))) return false;
+    for (let x = -R; x <= R; x++) for (let y = -R; y <= R; y++) {
+      const st = blank(1); st.pt = [x, y]; st.moved = true;
+      if (!clear(drawn(1, st))) return false;
+    }
+    return true;
+  });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart and counted steps at least 0.2 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    const spaced = (ts) => { const ps = ts.slice().sort((a, b) => a - b); return ps.every((t, k) => k === 0 || t === ps[k - 1] || t - ps[k - 1] >= 0.45 - 1e-9); };
+    const A = AT;
+    return ok && HOP >= 0.2 && spaced([A.grow.x0 + 5 * HOP, A.grow.names, A.grow.signs]) && A.grow.y0 >= A.grow.x0 + 5.4 * HOP - 1e-9 &&
+      spaced([A.zero.a0 + 3 * HOP, A.zero.aLab, A.zero.b0]) && spaced([A.zero.b0 + (ZB - 1) * HOP, A.zero.bLab]) &&
+      spaced([A.lines.x0 + 3 * HOP, A.lines.xl, A.lines.y0]) && spaced([A.lines.y0 + HOP, A.lines.yl]) &&
+      spaced(Object.keys(A.gap).map((k) => A.gap[k])) && DO.every((i) => spaced(Object.keys(STEPS[i].at).map((k) => STEPS[i].at[k])));
+  });
+
+  K.ready();
+</script>

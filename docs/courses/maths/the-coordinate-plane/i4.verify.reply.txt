@@ -1,0 +1,38 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "severity": "fix",
+   "problem": "\"Divide the largest reading\" works only for an axis from zero (the freezer's largest is −10 °C) and \"next step up\" skips an exact fit; the examples are not measured; \"appropriate curve\" also covers a straight line; dot-to-dot line graphs of records are normal.",
+   "now": "A table of readings becomes a graph one reading at a time. Each reading is a pair, such as 8 °C at 4 min, and it becomes one point. The axis labels say which number goes along and which goes up, so with time along and temperature up, that reading is (4, 8). Swap its numbers and it lands at (8, 4), somewhere else. Fit each axis to the table before plotting. For an axis that starts at zero, divide the largest reading by the squares you have and take the easy step that covers it, as in Scales, so 64 °C over 10 squares is 6.4 a square, which rounds up to 10 °C a square. A reading below zero, like −10 °C, goes below the time axis, so the temperature axis must reach below zero too.\n\nMeasured readings need not sit exactly in line, and the example ones here are made to wobble the same way. An SQA engineering unit asks for a best-fit straight line graph from supplied experimental data,[^1] which means one straight [[best-fit line]] through the middle of the points, close to every one, with some above it and some below. It need not pass through any of them. An Illinois State University lab handbook says never to connect even linearized data point-to-point with straight lines,[^2] and the zigzag that makes would show the readings lurching at every point. When the points bend, like the example motor readings that rise fast and then level off, no straight line runs close to them all, so draw one smooth curve through them. The MCA's General Engineering Science I syllabus likewise asks you to join plotted points with an appropriate curve.[^3] A point far from the line or curve is worth checking against the table, in case its numbers were swapped. A record with no steady pattern, like a shop's sales week by week, is sometimes still drawn dot to dot as a line graph.\n\n**Plot each reading as one point, along and up as the axis labels say, on scales fitted to the table. Then draw one best-fit line through the middle of measured points, or one smooth curve where they bend, not a dot-to-dot zigzag.**"
+  },
+  {
+   "path": "practice.text",
+   "severity": "fix",
+   "problem": "The rule of thumb forbids dot to dot for all measured points, wider than the explanation now allows: records with no steady pattern, such as weekly sales, are commonly drawn as dot-to-dot line graphs.",
+   "now": "**Rule of thumb:** Fit each scale to the table, then plot each reading along and up as the axis labels say. Through measured points that follow a steady pattern, draw one straight best-fit line or one smooth curve through the middle of them, not dot to dot.\n\n**Worked example:** A tank's depth readings are 6, 13, 17, 26, 30 and 38 cm at 0, 2, 4, 6, 8 and 10 min. The depth axis has 10 squares, and 38 ÷ 10 = 3.8, so take 5 cm a square. Plot the six points with time along and depth up. A ruler laid from about 9 cm at 1 min to about 34 cm at 9 min passes close to every point, with some above it and some below, so that is the best-fit line.\n\n**Common mistakes**\n- Joining the dots. A lab handbook says never to connect even linearized data point-to-point with straight lines.[^2] Draw one best-fit line, or one smooth curve where the points bend, through the middle of them instead.\n- Putting a reading below zero on the wrong side. A research article on common errors lists points put in the wrong quadrant or on the wrong axis.[^4] At 5 °C a square, −10 °C at 4 h goes 2 squares below the time axis, not above it."
+  },
+  {
+   "path": "interactive.ignores",
+   "severity": "fix",
+   "problem": "The laid line is judged by a fixed rule (within half a square, some on each side), not by eye, and no later lesson in this course works a best-fit line out exactly, so \"come later\" is untrue for that part.",
+   "now": "All the readings are example values, not measured from a real workshop, freezer, tank or motor, and chosen to show either a straight pattern or a bend. The best-fit lines are worked out from the example readings, and the smooth curves are drawn from a rule chosen to run close to them, not taken from a maker's chart or a law of cooling. The line you lay is accepted when every reading is within half a square of it, with some on each side; real readings may scatter further. Working a best-fit line out exactly is not covered in this course, and reading values off a line or curve comes next."
+  },
+  {
+   "path": "interactive.whatAmILookingAt",
+   "severity": "fix",
+   "problem": "On the freezer screen the time axis runs along zero, partway up the graph with readings below it, so \"time along the bottom\" is untrue there.",
+   "now": "A short lesson in twelve small screens. Each shows a small table of readings above a graph whose axes are named with their units, time along the bottom, or along zero when a reading dips below it, and the reading up the side. Points you drag, or that arrive one at a time, show where each reading goes, and lines and curves are laid through them: a dot-to-dot zigzag, a straight best-fit line and a smooth curve. Some screens show an idea and the rest ask you to try it."
+  },
+  {
+   "path": "interactive.numbers",
+   "severity": "note",
+   "problem": "Every reading is a value chosen for the example (ignores and the caption call them example values), so each number's kind should be \"assumed\", or \"computed\" for the fitted-line figures, not \"constant\"."
+  },
+  {
+   "path": "interactive.numbers",
+   "severity": "note",
+   "problem": "Line B (least squares of 19, 15, 12, 10, 6, 3 cm) ends at 18.619 − 0.7786 × 20 = 3.05 cm, so its label's \"3.1 cm\" should read \"about 3 cm\"; the screen itself shows no figure."
+  }
+ ]
+}
