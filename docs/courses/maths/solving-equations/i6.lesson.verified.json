@@ -1,0 +1,124 @@
+{
+  "iid": "i6",
+  "title": "Rearranging harder formulas",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a formula's steps undone last first, a square root undoing a square after the ÷ R, a ÷ p₂ freeing V₂, and × 1000 then ÷ 360 freeing a cable's length, with each answer fed back in to check it, when you rearrange P = I²R, Boyle's law at absolute pressure, or the voltage-drop rule built from its mV/A/m.",
+    "title": "Rearranging harder formulas",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on formula cards, whose letters wear their units with the amounts put in beneath them; a flow diagram whose top row is the steps done to the letter you want and whose bottom row undoes them, last step first; the rearranged formula; and the check, the answer fed back into the formula you started with. A number line shows the two square roots of 100, and a cable run shows where the voltage-drop rule comes from. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The amounts (the heaters' watts and ohms, the gases' bar and litres, the cable runs, currents and drops) are example values, chosen so the answers come out simply, and the table values of 18 and 12 mV/A/m are examples, not read from a real cable table. The gases are taken to be sealed in at a steady temperature and to follow Boyle’s law exactly, which real gases do only closely, less so at high pressures, and the atmosphere is taken as 1 bar. A standard atmosphere is 101 325 Pa, about 1.01 bar, so with it the gauge answer of 5 L is about 0.01 L out, and real air pressure varies a little from day to day. The voltage-drop rule is worked out from its unit, and no limit on the drop is given here.",
+    "numbers": [
+      {
+        "label": "2300 W in 23 Ω: 2300 ÷ 23 = 100 and √100 = 10 A, as 10 × 10 = 100; 10² × 23 = 2300 checks it, in step 1",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "144 W in 4 Ω: 144 ÷ 4 = 36 and √36 = 6 A, not 18 A (36 halved) or 36 A (no root), in step 2",
+        "value": 6,
+        "kind": "constant"
+      },
+      {
+        "label": "I = √100 squared gives I² = 100, which 10 and −10 both fit, as −10 × −10 = 100; √100 = 10, not −10, in step 3",
+        "value": 10,
+        "kind": "constant"
+      },
+      {
+        "label": "400 W in 16 Ω: √(400 ÷ 16) = √25 = 5 A, not √400 ÷ 16 = 1.25 A, nor 5 A or −5 A, in step 4",
+        "value": 5,
+        "kind": "constant"
+      },
+      {
+        "label": "2 bar absolute in 12 L squeezed to 6 bar absolute: V₂ = 2 × 12 ÷ 6 = 4 L, and 2 × 12 = 6 × 4, in step 5",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "4 bar absolute in 9 L squeezed to 3 L: p₂ = 4 × 9 ÷ 3 = 12 bar, not 4 × 9 × 3 = 108 or 4 × 9 − 3 = 33, in step 6",
+        "value": 12,
+        "kind": "constant"
+      },
+      {
+        "label": "Gauge 2 bar and 5 bar are 3 and 6 bar absolute, the atmosphere taken as 1 bar: 3 × 10 ÷ 6 = 5 L, not 4 L or 20 L, in step 7",
+        "value": 5,
+        "kind": "constant"
+      },
+      {
+        "label": "Example table value 18 mV/A/m at 20 A over 25 m: 18 × 20 = 360 mV a metre, × 25 = 9000 mV, ÷ 1000 = 9 V, in step 8",
+        "value": 9,
+        "kind": "constant"
+      },
+      {
+        "label": "A 9 V drop at 18 mV/A/m and 20 A: 9 × 1000 = 9000 mV, and 9000 ÷ 360 = 25 m, in step 9",
+        "value": 25,
+        "kind": "constant"
+      },
+      {
+        "label": "Example 12 mV/A/m at 25 A with a 6 V drop: 6000 ÷ 300 = 20 m, not 6 ÷ 300 = 0.02 m or 6 × 300 ÷ 1000 = 1.8 m (the steps done again), in step 10",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "500 W at 5 A: R = P ÷ I² = 500 ÷ 25 = 20 Ω, not P ÷ 2I = 50 Ω or P ÷ I = 100 Ω, in step 11",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "8 bar absolute in 3 L expanding to 2 bar absolute: 8 × 3 ÷ 2 = 12 L, not 2 × 3 ÷ 8 = 0.75 L or 8 × 3 × 2 = 48 L, in step 12",
+        "value": 12,
+        "kind": "constant"
+      }
+    ]
+  },
+  "explain": {
+    "text": "P = I²R squares the current and then multiplies by R, so to make I the subject, undo the × R first and then the square. A [[square root]] undoes a square, for a positive amount like a current. √100 = 10, because 10 × 10 = 100, so I = √(P ÷ R), and a 23 Ω heater giving out 2300 W draws √(2300 ÷ 23) = √100 = 10 A. As a check, 10² × 23 = 2300. The order matters. For 400 W in 16 Ω, √(400 ÷ 16) = 5 A, while taking the root first gives √400 ÷ 16 = 1.25 A, and 1.25² × 16 is only 25. 100 also has a negative square root, since −10 × −10 = 100, and the √ sign means the positive one. That is how squaring both sides of an equation can bring in extra answers that do not fit the original,[^1] so run each answer back through the formula you started with.\n\nBoyle's law says the absolute pressure and volume of a sealed-in gas are inversely proportional while its temperature stays the same,[^2] which as an equation is p₁V₁ = p₂V₂. V₂ is multiplied by p₂, so dividing both sides by p₂ gives V₂ = p₁V₁ ÷ p₂, and its units check, bar × L ÷ bar = L. Gas at 2 bar absolute in 12 L, squeezed to 6 bar absolute, fills 2 × 12 ÷ 6 = 4 L. A gauge reads above the atmosphere, and a standard atmosphere is 101 325 Pa,[^3] about 1 bar, so add about 1 bar to each gauge reading first. A cable table reproduced from BS 7671 gives voltage drop per ampere per metre,[^4] in millivolts, written mV/A/m. Times the amps and the metres that gives millivolts, and ÷ 1000 turns them into volts, so drop = mV/A/m × I × L ÷ 1000. With an example table value of 18 mV/A/m at 20 A, each metre drops 18 × 20 = 360 mV. For the longest run if you allow, say, a 9 V drop, undo the ÷ 1000 with × 1000, then ÷ 360, so L = 9000 ÷ 360 = 25 m, and 18 × 20 × 25 ÷ 1000 = 9 checks it.\n\n**For a current, a square root undoes the square, after the ÷ R, so I = √(P ÷ R), and the √ means the positive root. Boyle's law turns round to V₂ = p₁V₁ ÷ p₂ with absolute pressures, and the voltage-drop rule, built from mV/A/m, turns round to L = 1000 × drop ÷ (mV/A/m × I).**"
+  },
+  "analogy": null,
+  "practice": {
+    "text": "**Rule of thumb:** Write down the steps done to the letter you want, then undo them last first, a square with a square root, × with ÷ and ÷ 1000 with × 1000. Put pressures in as absolute, then feed the answer back into the formula you started with.\n\n**Worked example:** A cable's table value is 12 mV/A/m, as an example, and it carries 25 A. How long can the run be if you allow, say, a 6 V drop? L = 1000 × drop ÷ (mV/A/m × I) = 6000 ÷ (12 × 25) = 6000 ÷ 300 = 20 m. As a check, 12 × 25 × 20 ÷ 1000 = 6 V.\n\n**Common mistakes**\n- Halving instead of taking the square root. From I² = 36, I is 6 A, not 18 A, since 6 × 6 = 36.\n- Taking the root before undoing the × R. For 400 W in 16 Ω, I = √(400 ÷ 16) = 5 A, not √400 ÷ 16 = 1.25 A, and 1.25² × 16 is only 25.\n- Keeping both roots. 25 has two square roots, 5 and −5, but I = √(P ÷ R) gives the positive one, 5 A. Squaring both sides can bring in an answer that does not fit the original,[^1] so check it.\n- Putting gauge readings into Boyle's law. Gauge 2 bar and 5 bar are about 3 and 6 bar absolute, so 10 L becomes about 5 L, not 4 L.\n- Leaving out the × 1000. With 12 mV/A/m at 25 A, 6 ÷ 300 = 0.02 m mixes volts with millivolts. 6 V is 6000 mV, so the run is 20 m."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Formulae and Transposition",
+      "url": "https://sheffield.ac.uk/media/31930/download?attachment",
+      "quote": "Note that in general by squaring both sides of an equation may introduce extra solutions not valid for the original equation."
+    },
+    {
+      "n": 2,
+      "title": "Gas Laws – Introductory Chemistry",
+      "url": "https://uen.pressbooks.pub/introductorychemistry/chapter/gas-laws",
+      "quote": "Boyle’s law (sometimes referred to as the Boyle-Mariotte law) states that the absolute pressure and volume of a given mass of confined gas are inversely proportional, provided the temperature remains unchanged within a closed system."
+    },
+    {
+      "n": 3,
+      "title": "CODATA Value: standard atmosphere - physics.nist.gov",
+      "url": "https://physics.nist.gov/cgi-bin/cuu/Value?stdatm",
+      "quote": "standard atmosphere atm Numerical value 101 325 Pa Standard uncertainty (exact)"
+    },
+    {
+      "n": 4,
+      "title": "TABLE 4E2A - Eland Cables",
+      "url": "https://www.elandcables.com/media/ksllepjp/table-4e2a-and-4e2b.pdf",
+      "quote": "VOLTAGE DROP (per ampere per metre)"
+    }
+  ]
+}

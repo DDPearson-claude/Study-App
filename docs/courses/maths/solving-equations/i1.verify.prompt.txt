@@ -1,0 +1,216 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Equations and formulas you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "The balance" — = means both sides are the same amount, so do the same to both and it stays level: x + 7 = 12 gives x = 5. [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Undo in reverse — 3x + 5 = 26 is times 3 then add 5, so undo the last step first: take 5 off, then divide by 3.
+- i3 Unknowns on both sides — Take the same x's off both sides, so 5x + 2 = 3x + 10 becomes 2x + 2 = 10, then finish as before.
+- i4 Using formulas — Put the numbers you know into V = IR, P = VI or P = I²R and solve for the one you don't, or write the equation from the job.
+- i5 Rearranging formulas — Make another letter the subject by undoing the formula's steps, as V = IR becomes R = V ÷ I, and "change side, change sign" fails for × and ÷.
+- i6 Rearranging harder formulas — Undo a square with a square root in P = I²R, turn p1V1 = p2V2 round at absolute pressure, and find a cable's longest run from its mV/A/m.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Solving linear equations KS3 | Y8 Maths | Lesson Resources | Oak National Academy — https://www.thenational.academy/teachers/programmes/maths-secondary-ks3/units/solving-linear-equations/lessons
+    "I can appreciate that in an equation the two sides of the equals sign balance."
+[R2] Mastery materials writing frame — https://www.ncetm.org.uk/media/wbylane0/ncetm_ks3_cc_2_2.pdf
+    "Understanding the ‘=’ sign as ‘having the same value as’, and the correct use of order of operations, along with inverse operations, are key to the solving of equations."
+[R3] Full article: We Cannot Ignore the Signs: The Development of Equivalence and Arithmetic for Students from Grades 3 to 4 — https://www.tandfonline.com/doi/full/10.1080/15248372.2023.2245507
+    "may misinterpret the equal sign as “the answer comes next,” and proceed to add the numbers on the left side of the equation and ignore the numbers on the right side"
+[R4] 4.6: Solving Equations Using the Balance Scale Representations - Mathematics LibreTexts — https://math.libretexts.org/Courses/Northern_Illinois_University/Conceptual_Mathematics_in_Society/04%3A_Algebra/4.06%3A_Solving_Equations_Using_the_Balance_Scale_Representations
+    "Balance scales can effectively illustrate this concept by showing that the quantities on both sides of the equal sign are the same."
+[R5] 4.6: Solving Equations Using the Balance Scale Representations - Mathematics LibreTexts — https://math.libretexts.org/Courses/Northern_Illinois_University/Conceptual_Mathematics_in_Society/04%3A_Algebra/4.06%3A_Solving_Equations_Using_the_Balance_Scale_Representations
+    "Using balance scales can be tricky and has some limitations. For instance, representing negative numbers with balance scales can be challenging."
+[R6] national unit specification: general information — https://www.sqa.org.uk/files/hn/H7K033.pdf
+    "it would be advantageous if learners had good algebraic skills together with an ability to transpose engineering formulae and solve simple trigonometric equations."
+[R7] Module 6 (M6) – Algebra - Changing the subject of the formula - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zwtwh4j
+    "The process of solving a linear equation and the process of changing the subject are exactly the same."
+Notes (claims, and the sources that support them):
+- Oak National Academy begins its linear equations unit with the idea that the two sides of the equals sign balance. [R1]
+- NCETM names understanding the equals sign as meaning "having the same value as" as key to solving equations. [R2]
+- Some students read the equals sign as "the answer comes next" and add up the left side while ignoring the right. [R3]
+- Balance scales can show that the quantities on both sides of the equals sign are the same. [R4]
+- Balance scales have limits, and showing negative numbers on them can be challenging. [R5]
+- Transposing engineering formulae is listed as a skill learners are advised to have on entry to the SQA HN Engineering Mathematics 1 unit. [R6]  (whole topic)
+- Solving a linear equation and changing the subject of a formula use the same process, according to BBC Bitesize. [R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "The balance",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is a balance that stays level when you take the same off both pans, or share both pans the same way, and tips when you do it to one pan only, so x + 7 = 12 leaves x = 5, and putting 5 back in still balances.",
+  "title": "The balance",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 11,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in twelve small screens on a balance whose pans hold boxes, each an unknown x, and small blocks worth 1 each. Blocks come off both pans, or both pans are shared out, until x is alone, and the answer is put back in to check it. Some screens show an idea and the rest ask you to try it.",
+  "ignores": "The equations' numbers are example values, kept to whole positive numbers so the balance can show them as blocks. The balance tips the same small amount whichever side is heavier, so it shows which side is heavier, not by how much. This balance does not show negative numbers; later lessons use another picture for them.",
+  "numbers": [
+   {
+    "label": "8 + 4 and 7 + 5 both make 12, so the balance sits level, in step 1",
+    "value": 12,
+    "kind": "constant"
+   },
+   {
+    "label": "8 + 4 = ? + 5 needs 7 in the box, as 7 + 5 = 12; 12 or 17 in the box tips it, in step 2",
+    "value": 7,
+    "kind": "constant"
+   },
+   {
+    "label": "x + 7 = 12: 1 off the left pan only tips it; 7 off both pans leaves x = 5, in step 3",
+    "value": 5,
+    "kind": "constant"
+   },
+   {
+    "label": "x + 3 = 10: 3 blocks off each pan leave the box alone, x = 7, and 7 + 3 = 10, in step 4",
+    "value": 7,
+    "kind": "constant"
+   },
+   {
+    "label": "x = 5 put back into x + 7 = 12: 5 + 7 = 12, the same as the right side, in step 5",
+    "value": 12,
+    "kind": "constant"
+   },
+   {
+    "label": "x + 6 = 15 with the claimed x = 21 makes 21 + 6 = 27, not 15, so x is 9, in step 6",
+    "value": 27,
+    "kind": "constant"
+   },
+   {
+    "label": "4x = 36: both sides shared into 4, 36 ÷ 4 = 9, and 4 × 9 = 36, in step 7",
+    "value": 9,
+    "kind": "constant"
+   },
+   {
+    "label": "3x = 24 gives x = 8, not 21 (3 taken off) or 72 (times 3 again), in step 8",
+    "value": 8,
+    "kind": "constant"
+   },
+   {
+    "label": "15 = x + 9: 9 off both sides leaves 6 = x, and 15 = 6 + 9, in step 9",
+    "value": 6,
+    "kind": "constant"
+   },
+   {
+    "label": "x + 4 = 11: 4 off both sides leaves x = 7; off the left only it tips; adding 4 gives x + 8 = 15, in step 10",
+    "value": 7,
+    "kind": "constant"
+   },
+   {
+    "label": "28 = 4x gives x = 7, not 24 (4 taken off) or 28 (the 4 dropped from one side only), in step 11",
+    "value": 7,
+    "kind": "constant"
+   },
+   {
+    "label": "x + 13 = 21 gives x = 8, not 34 (13 added) or 21 (13 off one side only), in step 12",
+    "value": 8,
+    "kind": "constant"
+   }
+  ]
+ },
+ "explain": {
+  "text": "An equation says that two amounts are the same. Its = sign means \"having the same value as\",[^1] so 8 + 4 = 7 + 5 is true, because both sides make 12. Some learners read = as \"the answer comes next\", adding up the left side and ignoring the right.[^2] Read that way, 8 + 4 = ? + 5 seems to want 12, yet 12 + 5 is 17. A balance shows this well. When it sits level, the amounts on its two pans are the same.[^3]\n\nTo find an unknown, x, keep the balance level while you get x on its own. Do the same thing to both sides and it stays level. In x + 7 = 12, 7 has been added to x, so take 7 off both sides to leave x = 5. In 4x = 36, x has been multiplied by 4, so divide both sides by 4 to leave x = 9. Do a step to one side only and the balance tips, because the two sides are no longer equal. Then put the answer back in place of x to check it. 5 + 7 = 12 and 4 × 9 = 36, so both answers hold. Solving an equation like this and changing the subject of a formula are exactly the same process,[^4] which is where this course is heading.\n\n**= means both sides are the same amount, like a level balance. Do the same to both sides, such as taking 7 off or dividing by 4, until x is alone, then put the answer back in to check that both sides still match.**"
+ },
+ "analogy": null,
+ "practice": {
+  "text": "**Rule of thumb:** Ask what has been done to x, then do the opposite to both sides. Take off what was added, and divide by what x was multiplied by. Done to one side only, the balance tips.\n\n**Worked example:** 3x = 24. x has been multiplied by 3, so divide both sides by 3. 24 ÷ 3 = 8, so x = 8. As a check, 3 × 8 = 24. Taking 3 off instead gives 21, which fails the check, since 3 × 21 = 63.\n\n**Common mistakes**\n- Reading = as \"the answer comes next\", adding up the left side and ignoring the right.[^2] In 8 + 4 = ? + 5 the box needs 7, not 12, because both sides must make 12."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Mastery materials writing frame",
+   "url": "https://www.ncetm.org.uk/media/wbylane0/ncetm_ks3_cc_2_2.pdf",
+   "quote": "Understanding the ‘=’ sign as ‘having the same value as’, and the correct use of order of operations, along with inverse operations, are key to the solving of equations."
+  },
+  {
+   "n": 2,
+   "title": "Full article: We Cannot Ignore the Signs: The Development of Equivalence and Arithmetic for Students from Grades 3 to 4",
+   "url": "https://www.tandfonline.com/doi/full/10.1080/15248372.2023.2245507",
+   "quote": "may misinterpret the equal sign as “the answer comes next,” and proceed to add the numbers on the left side of the equation and ignore the numbers on the right side"
+  },
+  {
+   "n": 3,
+   "title": "4.6: Solving Equations Using the Balance Scale Representations - Mathematics LibreTexts",
+   "url": "https://math.libretexts.org/Courses/Northern_Illinois_University/Conceptual_Mathematics_in_Society/04%3A_Algebra/4.06%3A_Solving_Equations_Using_the_Balance_Scale_Representations",
+   "quote": "Balance scales can effectively illustrate this concept by showing that the quantities on both sides of the equal sign are the same."
+  },
+  {
+   "n": 4,
+   "title": "Module 6 (M6) – Algebra - Changing the subject of the formula - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/zwtwh4j",
+   "quote": "The process of solving a linear equation and the process of changing the subject are exactly the same."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }

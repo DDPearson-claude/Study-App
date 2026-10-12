@@ -1,0 +1,785 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* The unknown, a letter, is set in italics wherever it is written. */
+  .vx { font-style: italic; }
+  .scene { display: block; width: 100%; }
+  /* The flow diagram: each amount in a plain box, each step in a box drawn in ink; a step being undone
+     lights up solid. A box still to fill in is dashed with a '?'. A slip is in the warning colour. */
+  .scene .vb { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .ob { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ob.lit { fill: var(--k-accent2); }
+  .scene .gap { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .warnb { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .val { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .opl { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .opl.lit { fill: var(--k-on-accent2); }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .rl { font: 700 14px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .ar { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .arh { fill: var(--k-muted); }
+  .scene .wk { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  /* A slip's words (a failed check, a wrong undo) in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  /* The number line: a line with a tick at every whole number; the jump that undoes a step in ink. */
+  .scene .nl { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .tl { font: 700 14px var(--k-font); fill: var(--k-muted); }
+  .scene .tl.on { fill: var(--k-ink); font-size: 16px; }
+  .scene .jump { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .jh { fill: var(--k-accent2); }
+  .scene .dot { fill: var(--k-ink); }
+  .scene .dot.on { fill: var(--k-accent2); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A flow diagram of the steps done to <i>x</i>, undone backwards and checked.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 172" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Undo the last step first, then run the answer forwards to check it. The equations are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // Every picture is a flow diagram of an equation `eq`: two steps done to x, `ops` (each [sign, number]),
+  // giving `rhs`. Its top row is the steps in order, left to right; its bottom row undoes them right to
+  // left, last step first, each box lighting as it undoes the step above it. On 'check' screens the
+  // bottom row runs `tries` forwards through the steps instead. `nl`: a number line from nl[0] to nl[1]
+  // for an undo that crosses zero. ask: what a puzzle asks for ('first', the step done to x first;
+  // 'undo1', the step undone first; 'undo2', the step undone second, the first undo given; 'x', the answer). dur: how long a demonstration plays; fb: how long
+  // the motion after a right answer plays (seconds); at: when each part of that motion arrives, in
+  // seconds after Check. slips: which slip gives each wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  const E = (op1, op2, rhs) => ({ ops: [op1, op2], rhs: rhs });
+  // After a right answer. 'first': the first step, what it makes of x, the second step. Undo: the
+  // last step undone (its box lights) and what it leaves; the first step undone and x; the check.
+  // With a number line the last step's undo jumps along it, and the second undo arrives with x.
+  const FIRST = { op1: 0.1, mid: 0.55, op2: 1.0 };
+  const SOLVE = { op2: 0.1, mid: 0.55, op1: 1.0, x: 1.45, check: 1.9 };
+  const SOLVE_NL = { op2: 0.1, go: [0.1, 0.75], mid: 0.95, op1: 1.45, check: 1.9 };
+  // With the first undo given: the second undo (its box lights), x, the check.
+  const SOLVE2 = { op1: 0.1, x: 0.55, check: 1.0 };
+  // After a wrong answer: the slip, in the warning colour (a wrong step or undo box, or a check that
+  // fails). A wrong undo is carried on to the x it gives, and that x's check fails at the foot.
+  const WRONG = { slip: 0.1, carry: 0.55, check: 1.0 }, WRONG_DUR = 1.6;
+  const STEPS = [
+    { show: true, demo: 'build', dur: 3.4, eq: E(['×', 3], ['+', 5], 26), name: 'Steps done to x',
+      text: '3x + 5 = 26 is a list of steps done to x. Times it by 3, then add 5, and you get 26. A *flow diagram* draws the steps in order.' },
+    { kind: 'pick', ask: 'first', eq: E(['×', 2], ['+', 5], 17), name: 'Which comes first?',
+      opts: ['× 2', '+ 5'], want: '× 2', slips: { '+ 5': 'written' }, fb: 1.6, at: FIRST,
+      task: 'In 5 + 2x = 17, which step is done to x first?',
+      why: 'Without brackets, times comes before add, whichever is written first. So x is doubled first and the 5 added after, the same as 2x + 5 = 17.',
+      hint: 'Not quite. Times comes before add.',
+      hints: { '+ 5': 'Not quite. The 5 is written first, but times comes before add.' } },
+    { show: true, demo: 'undo', dur: 3.7, eq: E(['×', 3], ['+', 5], 26), name: 'Undo in reverse',
+      text: 'To find x, undo the steps backwards, last step first. Take 5 off 26 to get 21, then divide by 3, so x = 7. Running 7 forwards gives 26, a *check* that it is right.' },
+    { kind: 'pick', ask: 'undo1', eq: E(['×', 4], ['+', 7], 31), name: 'Undo which first?',
+      opts: ['− 7', '÷ 4', '+ 7'], want: '− 7', slips: { '÷ 4': 'order', '+ 7': 'again' }, fb: 2.5, at: SOLVE,
+      task: 'Solve 4x + 7 = 31. Walking back from 31, which undo comes first?',
+      why: '+ 7 was the last step done to x, so undo it first, 31 − 7 = 24. Then ÷ 4 undoes × 4, and x = 24 ÷ 4 = 6.',
+      hint: 'Not quite. Walk back from 31.',
+      hints: { '÷ 4': 'Not quite. ÷ 4 on the 31 alone leaves the + 7 in place, so the check fails. Undo + 7 first.',
+        '+ 7': 'Not quite. Adding 7 does the step again instead of undoing it, so the check fails.' } },
+    { show: true, demo: 'check', dur: 4.2, eq: E(['×', 2], ['+', 4], 20), tries: [6, 8], name: 'The check',
+      text: 'To check x, run it forwards through the steps. x = 6 gives 2 × 6 + 4 = 16, not 20, so it is wrong. x = 8 gives 20, and both sides match.' },
+    { kind: 'pick', ask: 'x', eq: E(['×', 2], ['+', 6], 20), name: 'Solve it',
+      opts: ['7', '4', '13'], want: '7', slips: { '4': 'oneTerm', '13': 'again' }, fb: 2.5, at: SOLVE,
+      task: 'Solve 2x + 6 = 20.',
+      why: 'Take the 6 off first, 20 − 6 = 14. Then halve it, 14 ÷ 2 = 7. As a check, 2 × 7 + 6 = 20.',
+      hint: 'Not quite. Run it forwards to check it.',
+      hints: { '4': 'Not quite. That halves the 20 but not the 6, so the check fails. Take the 6 off first.',
+        '13': 'Not quite. Adding 6 does the step again, so the check fails. Take the 6 off.' } },
+    { show: true, demo: 'neg', dur: 4.1, eq: E(['×', 2], ['+', 9], 1), nl: [-9, 2], name: 'Below zero',
+      text: 'In 2x + 9 = 1, taking 9 off 1 goes below zero. The number line shows 1 − 9 = −8. Then −8 ÷ 2 = −4, so x = −4.' },
+    { kind: 'pick', ask: 'x', eq: E(['×', 4], ['+', 10], 2), nl: [-9, 3], name: 'Across zero',
+      opts: ['−2', '2', '3'], want: '−2', slips: { '2': 'sign', '3': 'again' }, fb: 2.5, at: SOLVE_NL,
+      task: 'Solve 4x + 10 = 2.',
+      why: 'Take 10 off 2, which goes below zero to −8. Then −8 ÷ 4 = −2. As a check, 4 × (−2) + 10 = 2.',
+      hint: 'Not quite. Run it forwards to check it.',
+      hints: { '2': 'Not quite. 2 − 10 goes below zero. Count down 10 from 2 on the number line.',
+        '3': 'Not quite. Adding 10 does the step again. Take 10 off 2.' } },
+    { show: true, demo: 'div', dur: 3.7, eq: E(['÷', 4], ['−', 3], 2), name: 'Undo a divide',
+      text: 'x ÷ 4 − 3 = 2 divides x by 4, then takes 3 off. Undo the − 3 first, so 2 + 3 = 5. Then × 4 undoes ÷ 4, and x = 20.' },
+    { kind: 'pick', ask: 'undo2', eq: E(['÷', 5], ['+', 2], 6), name: 'Undo the divide',
+      opts: ['÷ 5', '× 5', '− 5'], want: '× 5', slips: { '÷ 5': 'other', '− 5': 'kind' }, fb: 1.6, at: SOLVE2,
+      task: 'Solve x ÷ 5 + 2 = 6. Taking the 2 off gives 4. What undoes ÷ 5 next?',
+      why: '× 5 is the opposite of ÷ 5, so x = 4 × 5 = 20. As a check, 20 ÷ 5 + 2 = 6.',
+      hint: 'Not quite. Run it forwards to check it.',
+      hints: { '÷ 5': 'Not quite. That divides by 5 again, so the check fails. The opposite of ÷ 5 is × 5.',
+        '− 5': 'Not quite. − 5 undoes + 5, not ÷ 5, so the check fails.' } },
+    { kind: 'pick', ask: 'x', eq: E(['×', -2], ['+', 5], 11), name: 'A negative times',
+      opts: ['−3', '3', '−8'], want: '−3', slips: { '3': 'sign', '−8': 'again' }, fb: 2.5, at: SOLVE,
+      task: 'Solve −2x + 5 = 11.',
+      why: 'Take the 5 off, 11 − 5 = 6. Then ÷ −2 undoes × −2, and 6 ÷ −2 = −3. As a check, −2 × (−3) + 5 = 11.',
+      hint: 'Not quite. Run it forwards to check it.',
+      hints: { '3': 'Not quite. 6 ÷ −2 has one negative sign, so its answer is negative.',
+        '−8': 'Not quite. Adding 5 does the step again. Take the 5 off first.' } },
+    { kind: 'pick', ask: 'x', eq: E(['÷', 2], ['−', 7], -3), nl: [-4, 5], name: 'Up past zero',
+      opts: ['8', '−8', '2'], want: '8', slips: { '−8': 'sign', '2': 'other' }, fb: 2.5, at: SOLVE_NL,
+      task: 'Solve x ÷ 2 − 7 = −3.',
+      why: '+ 7 undoes − 7, and −3 + 7 = 4, up past zero. Then × 2 undoes ÷ 2, so x = 8. As a check, 8 ÷ 2 − 7 = −3.',
+      hint: 'Not quite. Run it forwards to check it.',
+      hints: { '−8': 'Not quite. −3 + 7 climbs up past zero. Count up 7 from −3 on the number line.',
+        '2': 'Not quite. That divides by 2 again. The opposite of ÷ 2 is × 2.' } },
+  ];
+  const FINISH = 'In an equation like 3x + 5 = 26, one side is a list of steps done to x. Undo them backwards, last step first, each with its opposite, then run the answer forwards to check that both sides match.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). build: x, the first step, what it
+  // makes of x, the second step, the right side. undo, div: the right side, the last step undone (its
+  // box lights) and what it leaves, the first step undone and x, the check. check: the first try runs
+  // forwards (x, then each step and what it makes), its check fails in the warning colour, it leaves,
+  // then the second try runs forwards and checks. neg: as undo, the last step's undo jumping along the
+  // number line to below zero.
+  const FADE = 0.35;
+  const AT = {
+    build: { x: 0.6, op1: 1.15, mid: 1.7, op2: 2.25, rhs: 2.8 },
+    undo: { rhs: 0.6, op2: 1.1, mid: 1.6, op1: 2.1, x: 2.6, check: 3.1 },
+    check: { x: 0.6, mid: 1.1, end: 1.6, work: 2.1, off: 2.65, x2: 3.1, end2: 3.55 },
+    neg: { rhs: 0.6, op2: 1.1, go: [1.1, 0.8], mid: 2.0, op1: 2.5, x: 3.0, check: 3.5 },
+    div: { rhs: 0.6, op2: 1.1, mid: 1.6, op1: 2.1, x: 2.6, check: 3.1 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const same = (a, b) => K.near(a, b, 1e-9);
+  // A number as the page writes it, with a true minus sign: −8, 0.8, 20.
+  const num = (v) => { const a = r3(v); return (a < 0 ? '−' : '') + String(Math.abs(a)); };
+  // A step and its opposite: + undoes −, × undoes ÷, and the other way round.
+  const OPP = { '+': '−', '−': '+', '×': '÷', '÷': '×' };
+  const inv = (o) => [OPP[o[0]], o[1]];
+  function apply(o, v) {
+    const k = o[1];
+    return r3(o[0] === '+' ? v + k : o[0] === '−' ? v - k : o[0] === '×' ? v * k : v / k);
+  }
+  const opLabel = (o) => o[0] + ' ' + num(o[1]);
+  // Forwards through the steps; backwards through their opposites, last step first.
+  const forward = (q, x) => apply(q.ops[1], apply(q.ops[0], x));
+  const firstUndo = (q) => apply(inv(q.ops[1]), q.rhs);
+  const solve = (q) => apply(inv(q.ops[0]), firstUndo(q));
+  // What x is after the first step, as the top row writes it: 3x, −2x, x ÷ 4.
+  const midOf = (q) => { const o = q.ops[0]; return o[0] === '×' ? (o[1] === 1 ? 'x' : o[1] === -1 ? '−x' : num(o[1]) + 'x') : 'x ' + o[0] + ' ' + num(o[1]); };
+  const eqText = (q) => midOf(q) + ' ' + opLabel(q.ops[1]) + ' = ' + num(q.rhs);
+  // A value run forwards, written out: 3 × 7 + 5 = 26 (and ", not 20" when it fails); a negative
+  // number after × goes in brackets, 4 × (−2).
+  function checkText(q, x) {
+    const o = q.ops[0], first = o[0] === '×' ? num(o[1]) + ' × ' + (x < 0 ? '(' + num(x) + ')' : num(x)) : num(x) + ' ' + o[0] + ' ' + num(o[1]);
+    const got = forward(q, x);
+    return first + ' ' + opLabel(q.ops[1]) + ' = ' + num(got) + (same(got, q.rhs) ? '' : ', not ' + num(q.rhs));
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.ask === 'first') return opLabel(d.eq.ops[0]);
+    if (d.ask === 'undo1') return opLabel(inv(d.eq.ops[1]));
+    if (d.ask === 'undo2') return opLabel(inv(d.eq.ops[0]));
+    return num(solve(d.eq));
+  }
+  // What each slip makes of the answer. written: the step written first taken as the first done to x.
+  // order: the first step undone first. again: the last step done again instead of undone. oneTerm: the
+  // right side divided but not the number added to it (the undo in the build order). other: the divide
+  // undone by dividing again (as a second undo, ÷ 5 for ÷ 5). kind: a divide undone by taking away (− 5
+  // for ÷ 5). sign: the sign of the answer dropped (a slip across zero).
+  const SLIP = {
+    written: (d) => opLabel(d.eq.ops[1]),
+    order: (d) => opLabel(inv(d.eq.ops[0])),
+    again: (d) => (d.ask === 'undo1' ? opLabel(d.eq.ops[1]) : num(apply(inv(d.eq.ops[0]), apply(d.eq.ops[1], d.eq.rhs)))),
+    oneTerm: (d) => num(apply(inv(d.eq.ops[1]), apply(inv(d.eq.ops[0]), d.eq.rhs))),
+    other: (d) => (d.ask === 'undo2' ? opLabel(d.eq.ops[0]) : num(apply(d.eq.ops[0], firstUndo(d.eq)))),
+    kind: (d) => opLabel(['−', d.eq.ops[0][1]]),
+    sign: (d) => num(-solve(d.eq)),
+  };
+  // A wrong undo carried on to the x it gives: the first undo (o2) gives m, the second (o1) gives x.
+  // Undo first: the slip, then the other step undone. Undo second: the right first undo, then the slip.
+  // 31 ÷ 4 = 7.75, − 7 gives 0.75; 31 + 7 = 38, ÷ 4 gives 9.5; 4 ÷ 5 = 0.8.
+  const opOf = (s) => [s[0], valueOf(s.slice(2))];
+  function slipRun(d, pick) {
+    const q = d.eq, o = opOf(pick);
+    if (d.ask === 'undo2') { const m = firstUndo(q); return { o2: inv(q.ops[1]), m: m, o1: o, x: apply(o, m) }; }
+    const m = apply(o, q.rhs), o1 = d.slips[pick] === 'order' ? inv(q.ops[1]) : inv(q.ops[0]);
+    return { o2: o, m: m, o1: o1, x: apply(o1, m) };
+  }
+  // An option's worth: "−8" is -8; a step such as "+ 7" has none.
+  const valueOf = (s) => { const m = /^(−?)(\d+(?:\.\d+)?)$/.exec(s); return m ? (m[1] ? -1 : 1) * +m[2] : NaN; };
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/ /g, ' ').replace(/(\d)x\b/g, '$1 x').replace(/ : /g, ' to ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/[()]/g, '').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const st = blank(i); st.pick = STEPS[i].want; st.res = 'right'; return st; }
+  function slipped(i, o) { const st = blank(i); st.pick = o; st.res = 'wrong'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms and an italic x (built with K.el, never innerHTML) ----------
+  const XRE = /(?<![A-Za-z])x(?![A-Za-z])/g;
+  function math(el, s) {
+    let at = 0, m;
+    XRE.lastIndex = 0;
+    while ((m = XRE.exec(s))) {
+      if (m.index > at) el.appendChild(document.createTextNode(s.slice(at, m.index)));
+      el.appendChild(K.el('i', { class: 'vx' }, 'x'));
+      at = m.index + 1;
+    }
+    if (at < s.length) el.appendChild(document.createTextNode(s.slice(at)));
+  }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) math(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) math(el, text.slice(at));
+  }
+  // A sum or a step stays together on one line ("3x + 5 = 26", "÷ 3", "−8"), with the stop after it;
+  // a long one may break only before an equals sign.
+  const TOK = '(?<![A-Za-z0-9.(])(?:\\(−\\d+(?:\\.\\d+)?\\)|−?\\d+(?:\\.\\d+)?x?|x)(?![A-Za-z0-9)])';
+  const GLUE = new RegExp('(?:[×÷+−] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) { const sp = K.el('span', { class: 'nw' }); math(sp, b); el.appendChild(sp); } else math(el, b);
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let H = 172;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // How far a travel due at t0, d seconds long, has gone, eased.
+  function trav(t0, d) {
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return T === Infinity ? 1 : K.ease(K.clamp((T - t0) / d, 0, 1));
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: x, y: y, width: Math.max(0, w), height: Math.max(0, h), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: x1, y1: y1, x2: x2, y2: y2 }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: cx, cy: cy, r: r }));
+  const poly = (cls, pts) => add(K.svg('polyline', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') }));
+  // Text whose x is set in italics (as a separate span).
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: x, y: y, 'text-anchor': anchor || 'middle' });
+    s = String(s);
+    let k = 0, m;
+    XRE.lastIndex = 0;
+    while ((m = XRE.exec(s))) {
+      if (m.index > k) t.appendChild(document.createTextNode(s.slice(k, m.index)));
+      t.appendChild(K.svg('tspan', { class: 'vx' }, 'x'));
+      k = m.index + 1;
+    }
+    if (k < s.length) t.appendChild(document.createTextNode(s.slice(k)));
+    return (parent || null) ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { wk: 18, val: 17, opl: 16, qm: 15, tl: 14, rl: 14 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 7 * ux + 4 * px) + ' ' + r3(y - 7 * uy + 4 * py) + ' L' + r3(x - 7 * ux - 4 * px) + ' ' + r3(y - 7 * uy - 4 * py) + ' Z' }));
+  }
+
+  // --- the flow diagram ---
+  // Five places across, SX: an amount, a step, an amount, a step, an amount. Row A (the steps) and row
+  // B (the undo, or a check) are BH tall from their tops; each row's name sits above it.
+  const SX = [30, 100, 170, 240, 310], BH = 34, VW = 46, OW = 54;
+  const ROWS = { A: { top: 22, name: 14 }, B: { top: 92, name: 84 } };
+  const midY = (r) => ROWS[r].top + BH / 2;
+  // Each place's box is as wide as its words need (at least VW for an amount, OW for a step).
+  const widthsOf = (labels) => labels.map((s, k) => Math.max(k % 2 ? OW : VW, tw(s, k % 2 ? 'opl' : 'val') + 16));
+  const buildLabels = (q) => ['x', opLabel(q.ops[0]), midOf(q), opLabel(q.ops[1]), num(q.rhs)];
+  const undoLabels = (q) => [num(solve(q)), opLabel(inv(q.ops[0])), num(firstUndo(q)), opLabel(inv(q.ops[1])), num(q.rhs)];
+  const tryLabels = (q, x) => [num(x), opLabel(q.ops[0]), num(apply(q.ops[0], x)), opLabel(q.ops[1]), num(forward(q, x))];
+  // A box at place k of row r: kind 'v' (an amount), 'o' (a step), 'lit' (a step being undone), 'gap'
+  // (still to fill in), with 'warn' for a slip.
+  function box(r, k, w, s, kind, warn) {
+    const x = SX[k] - w / 2, y = ROWS[r].top;
+    const cls = kind === 'gap' ? 'gap' : kind === 'v' ? 'vb' : kind === 'lit' ? 'ob lit' : 'ob';
+    rect(cls + (warn ? ' warnb' : ''), x, y, w, BH, 8);
+    if (kind === 'gap') { text(SX[k], y + 22, '?', 'qm'); return; }
+    text(SX[k], y + 23, s, (kind === 'v' ? 'val' : 'opl') + (kind === 'lit' ? ' lit' : '') + (warn ? ' warnt' : ''));
+  }
+  // The arrow between place k and k + 1 of row r, pointing right (dir 1) or left (dir -1).
+  function arrow(r, k, w, dir) {
+    const y = midY(r), a = SX[k] + w[k] / 2 + 3, b = SX[k + 1] - w[k + 1] / 2 - 3;
+    if (dir > 0) { line('ar', a, y, b - 6, y); head(b, y, 1, 0, 'arh'); } else { line('ar', b, y, a + 6, y); head(a, y, -1, 0, 'arh'); }
+  }
+  const rowName = (r, s) => text(4, ROWS[r].name, s, 'rl', 'start');
+  // The check written along the foot of the picture (in the warning colour when it fails), with its name.
+  let FY = 160;
+  function foot(s, warn, named) {
+    if (named) text(4, FY, 'check', 'rl', 'start');
+    text(336 - tw(s, 'wk'), FY, s, 'wk' + (warn ? ' warnt' : ''), 'start');
+  }
+
+  // --- the number line ---
+  // From d.nl[0] to d.nl[1] across NX0..NX1 at NLY, a tick at every whole number; 0 and the start named.
+  const NLY = 198, NX0 = 26, NX1 = 314;
+  const nlx = (d, v) => NX0 + (v - d.nl[0]) * (NX1 - NX0) / (d.nl[1] - d.nl[0]);
+  function numberLine(d, from) {
+    line('nl', NX0 - 12, NLY, NX1 + 12, NLY);
+    for (let v = d.nl[0]; v <= d.nl[1]; v++) line('tick', nlx(d, v), NLY - 5, nlx(d, v), NLY + 5);
+    if (from !== 0) text(nlx(d, 0), NLY + 24, '0', 'tl');
+    circle('dot', nlx(d, from), NLY, 4.5);
+    text(nlx(d, from), NLY + 24, num(from), 'tl on');
+  }
+  // The jump that undoes a step: an arc from `from` to `to`, drawn as far as u (0..1), its head on the tip.
+  function jumpPts(d, from, to, u) {
+    const x0 = nlx(d, from), x1 = nlx(d, to), y0 = NLY - 7, yc = y0 - 56, xm = (x0 + x1) / 2, pts = [];
+    for (let k = 0; k <= 24; k++) {
+      const t = u * k / 24, s = 1 - t;
+      pts.push([s * s * x0 + 2 * s * t * xm + t * t * x1, s * s * y0 + 2 * s * t * yc + t * t * y0]);
+    }
+    const t = u, s = 1 - t;
+    return { pts: pts, dx: 2 * s * (xm - x0) + 2 * t * (x1 - xm), dy: 2 * s * (yc - y0) + 2 * t * (y0 - yc), top: y0 - 28, xm: xm };
+  }
+  function jump(d, from, to, u) {
+    if (u <= 0.02) return;
+    const J = jumpPts(d, from, to, u), tip = J.pts[J.pts.length - 1];
+    poly('jump', J.pts);
+    head(tip[0], tip[1], J.dx, J.dy, 'jh');
+  }
+  const jumpLabel = (d, from, to, s) => text(jumpPts(d, from, to, 1).xm, NLY - 7 - 28 - 9, s, 'opl');
+  function landing(d, to) { circle('dot on', nlx(d, to), NLY, 4.5); text(nlx(d, to), NLY + 24, num(to), 'tl on'); }
+
+  const heightOf = (d) => (d.demo === 'build' || d.ask === 'first' ? 64 : d.nl ? 262 : 172);
+
+  // The picture for a step: the steps on top, then the undo (or the check runs), the number line, the check.
+  function drawFlow(d, st, right) {
+    const q = d.eq, A = d.show ? AT[d.demo] : d.at, wrong = !d.show && st.res === 'wrong' && st.pick != null;
+    const bl = buildLabels(q), bw = widthsOf(bl), said = [];
+    FY = d.nl ? NLY + 52 : 160;
+    // Row A: the steps done to x, left to right.
+    rowName('A', 'steps');
+    if (d.demo === 'build') {
+      const a = [arr(A.x), arr(A.op1), arr(A.mid), arr(A.op2), arr(A.rhs)];
+      part(a[0], 4, () => box('A', 0, bw[0], bl[0], 'v'));
+      part(a[1], 4, () => { arrow('A', 0, bw, 1); box('A', 1, bw[1], bl[1], 'o'); });
+      part(a[2], 4, () => { arrow('A', 1, bw, 1); box('A', 2, bw[2], bl[2], 'v'); });
+      part(a[3], 4, () => { arrow('A', 2, bw, 1); box('A', 3, bw[3], bl[3], 'o'); });
+      part(a[4], 4, () => { arrow('A', 3, bw, 1); box('A', 4, bw[4], bl[4], 'v'); });
+      const n = a.filter((v) => v >= 0.5).length;
+      said.push('A flow diagram of the steps done to x' + (n ? ': ' + ['x', 'times ' + num(q.ops[0][1]), 'giving ' + say(bl[2]), 'plus ' + num(q.ops[1][1]), 'giving ' + say(bl[4])].slice(0, n).join(', ') : '') + '.');
+    } else if (d.ask === 'first') {
+      for (let k = 0; k < 4; k++) arrow('A', k, bw, 1);
+      box('A', 0, bw[0], bl[0], 'v');
+      box('A', 4, bw[4], bl[4], 'v');
+      const a = right ? [arr(A.op1), arr(A.mid), arr(A.op2)] : [0, 0, 0];
+      [1, 2, 3].forEach((k, j) => {
+        if (k === 1 && wrong) {
+          leave(arr(WRONG.slip, 0.3), () => box('A', 1, bw[1], '', 'gap'));
+          part(arr(WRONG.slip), 4, () => box('A', 1, bw[1], st.pick, 'o', true));
+          return;
+        }
+        leave(right ? arr([A.op1, A.mid, A.op2][j], 0.3) : 0, () => box('A', k, bw[k], '', 'gap'));
+        part(a[j], 4, () => box('A', k, bw[k], bl[k], k === 2 ? 'v' : 'o'));
+      });
+      said.push('A flow diagram from x to ' + say(bl[4]) + (a[2] >= 0.5 ? ': x, times ' + num(q.ops[0][1]) + ', giving ' + say(bl[2]) + ', plus ' + num(q.ops[1][1]) + '.' :
+        wrong ? ', its first step tried as ' + say(st.pick) + ', marked wrong.' : ', its two steps still to fill in.'));
+    } else {
+      for (let k = 0; k < 4; k++) arrow('A', k, bw, 1);
+      bl.forEach((s, k) => box('A', k, bw[k], s, k % 2 ? 'o' : 'v'));
+      said.push('A flow diagram of ' + say(eqText(q)) + '. The steps: x, ' + say(bl[1]) + ', giving ' + say(bl[2]) + ', ' + say(bl[3]) + ', giving ' + say(bl[4]) + '.');
+    }
+    if (d.demo === 'build' || d.ask === 'first') return said.join(' ');
+
+    // Row B, the check runs: each try forwards through the same steps, the first failing.
+    if (d.demo === 'check') {
+      rowName('B', 'check');
+      const t1 = tryLabels(q, d.tries[0]), t2 = tryLabels(q, d.tries[1]), w1 = widthsOf(t1), w2 = widthsOf(t2);
+      const off = arr(A.off, 0.4), a2 = arr(A.x2), e2 = arr(A.end2);
+      const a1 = [arr(A.x), arr(A.mid), arr(A.end), arr(A.work)];
+      leave(off, () => {
+        part(a1[0], 4, () => box('B', 0, w1[0], t1[0], 'v'));
+        part(a1[1], 4, () => { arrow('B', 0, w1, 1); box('B', 1, w1[1], t1[1], 'o'); arrow('B', 1, w1, 1); box('B', 2, w1[2], t1[2], 'v'); });
+        part(a1[2], 4, () => { arrow('B', 2, w1, 1); box('B', 3, w1[3], t1[3], 'o'); arrow('B', 3, w1, 1); box('B', 4, w1[4], t1[4], 'v', true); });
+        part(a1[3], 6, () => foot(checkText(q, d.tries[0]), true, false));
+      });
+      part(a2, 4, () => { box('B', 0, w2[0], t2[0], 'v'); arrow('B', 0, w2, 1); box('B', 1, w2[1], t2[1], 'o'); arrow('B', 1, w2, 1); box('B', 2, w2[2], t2[2], 'v'); });
+      part(e2, 4, () => { arrow('B', 2, w2, 1); box('B', 3, w2[3], t2[3], 'o'); arrow('B', 3, w2, 1); box('B', 4, w2[4], t2[4], 'v'); foot(checkText(q, d.tries[1]), false, false); });
+      if (off < 0.5 && a1[0] >= 0.5) said.push('Below, the check runs x = ' + say(num(d.tries[0])) + ' forwards' + (a1[2] >= 0.5 ? ' to ' + say(t1[4]) + ', marked wrong' : '') + (a1[3] >= 0.5 ? ': ' + say(checkText(q, d.tries[0])) : '') + '.');
+      if (a2 >= 0.5) said.push('Below, the check runs x = ' + say(num(d.tries[1])) + ' forwards' + (e2 >= 0.5 ? ' to ' + say(t2[4]) + ': ' + say(checkText(q, d.tries[1])) : '') + '.');
+      return said.join(' ');
+    }
+
+    // Row B, the undo: right to left, last step first, each step's box lighting as it is undone.
+    rowName('B', 'undo');
+    const ul = undoLabels(q), moving = d.show || right, given = d.ask === 'undo2';
+    // A wrong undo, carried on: its boxes (each place as wide as either answer needs).
+    const run = wrong && d.ask !== 'x' ? slipRun(d, st.pick) : null;
+    const rl = run ? [num(run.x), opLabel(run.o1), num(run.m), opLabel(run.o2), ul[4]] : ul;
+    const uw = widthsOf(ul).map((w, k) => Math.max(w, widthsOf(rl)[k]));
+    const tx = A.x != null ? A.x : A.op1;
+    const a = moving ? { rhs: d.show ? arr(A.rhs) : 1, op2: given ? 1 : arr(A.op2), mid: given ? 1 : arr(A.mid), op1: arr(A.op1), x: arr(tx), check: arr(A.check) } :
+      { rhs: 1, op2: given ? 1 : 0, mid: given ? 1 : 0, op1: 0, x: 0, check: 0 };
+    part(a.rhs, 4, () => box('B', 4, uw[4], ul[4], 'v'));
+    if (!d.show) {
+      // The places still to fill in, each fading as its box arrives. A wrong undo shows in its place in
+      // the warning colour, and the places after it fill with what it gives.
+      for (let k = 0; k < 4; k++) arrow('B', k, uw, -1);
+      const slot = given ? 1 : 3;
+      [[3, A.op2], [2, A.mid], [1, A.op1], [0, tx]].forEach((p) => {
+        const k = p[0];
+        if (k > slot) return;
+        if (run) {
+          const t = k === slot ? WRONG.slip : WRONG.carry;
+          leave(arr(t, 0.3), () => box('B', k, uw[k], '', 'gap'));
+          part(arr(t), 4, () => box('B', k, uw[k], rl[k], k % 2 ? 'o' : 'v', k === slot));
+          return;
+        }
+        leave(right ? arr(p[1], 0.3) : 0, () => box('B', k, uw[k], '', 'gap'));
+      });
+    }
+    part(a.op2, 4, () => { if (d.show) arrow('B', 3, uw, -1); box('B', 3, uw[3], ul[3], 'lit'); });
+    part(a.mid, 4, () => { if (d.show) arrow('B', 2, uw, -1); box('B', 2, uw[2], ul[2], 'v'); });
+    part(a.op1, 4, () => { if (d.show) arrow('B', 1, uw, -1); box('B', 1, uw[1], ul[1], 'lit'); });
+    part(a.x, 4, () => { if (d.show) arrow('B', 0, uw, -1); box('B', 0, uw[0], ul[0], 'v'); });
+    const r1 = firstUndo(q), x = solve(q);
+    // The number line: the last step's undo as a jump from the right side.
+    if (d.nl) {
+      numberLine(d, q.rhs);
+      const u = moving ? trav(A.go[0], A.go[1]) : 0;
+      jump(d, q.rhs, r1, u);
+      // the jump's name arrives softly, once the jump has started moving
+      if (moving) part(arr(A.go[0] + 0.3 * A.go[1]), 0, () => jumpLabel(d, q.rhs, r1, ul[3]));
+      part(a.mid, 4, () => landing(d, r1));
+    }
+    // The check along the foot: the answer run forwards; a wrong answer's check fails in the warning colour.
+    part(a.check, 6, () => foot(checkText(q, x), false, true));
+    if (wrong && d.ask === 'x') { const v = valueOf(st.pick); part(arr(WRONG.slip), 6, () => foot(checkText(q, v), true, true)); }
+    if (run) part(arr(WRONG.check), 6, () => foot(checkText(q, run.x), true, true));
+    const steps = [];
+    if (a.op2 >= 0.5) steps.push(say(ul[3]) + ' gives ' + say(ul[2]));
+    if (a.op1 >= 0.5) steps.push(say(ul[1]) + ' gives ' + say(ul[0]));
+    if (run) steps.push(say(st.pick) + ' tried, marked wrong' + (given ? ', giving x = ' : ', giving ' + say(num(run.m)) + ', then ' + say(opLabel(run.o1)) + ' giving x = ') + say(num(run.x)));
+    said.push('Below, the undo from ' + say(ul[4]) + (steps.length ? ': ' + steps.join(', then ') + '.' : ', its boxes still to fill in.'));
+    if (d.nl) said.push('A number line from ' + say(num(d.nl[0])) + ' to ' + say(num(d.nl[1])) + ', starting at ' + say(num(q.rhs)) + (a.mid >= 0.5 ? ', with a jump of ' + say(ul[3]) + ' landing on ' + say(num(r1)) : '') + '.');
+    if (a.check >= 0.5) said.push('Check: ' + say(checkText(q, x)) + '.');
+    if (wrong && d.ask === 'x') said.push('Check: ' + say(checkText(q, valueOf(st.pick))) + ', marked wrong.');
+    if (run) said.push('Check: ' + say(checkText(q, run.x)) + ', marked wrong.');
+    return said.join(' ');
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    svg.setAttribute('aria-label', drawFlow(d, st, right));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const UNDOS = STEPS.map((d, i) => i).filter((i) => STEPS[i].demo !== 'build' && STEPS[i].demo !== 'check' && STEPS[i].ask !== 'first');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const boxes = Array.from(art.querySelectorAll('rect')).map((n) => ({ cls: n.getAttribute('class'), x: +n.getAttribute('x') + +n.getAttribute('width') / 2, y: +n.getAttribute('y'),
+        s: n.nextSibling && n.nextSibling.tagName === 'text' ? n.nextSibling.textContent : '' }));
+      const texts = Array.from(art.querySelectorAll('text')).map((t) => ({ s: t.textContent, x: +t.getAttribute('x'), y: +t.getAttribute('y'), cls: t.getAttribute('class'), w: tw(t.textContent, t.getAttribute('class')), anchor: t.getAttribute('text-anchor'), fill: getComputedStyle(t).fill }));
+      const jumpLine = art.querySelector('polyline.jump');
+      const pts = jumpLine ? jumpLine.getAttribute('points').split(' ').map((p) => p.split(',').map(Number)) : null;
+      return { boxes: boxes, texts: texts, all: texts.map((t) => t.s), jump: pts };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // A whole amount or step inside a label ("8" is not inside "−8" or "18").
+  const has = (texts, s) => { const re = new RegExp('(^|[^0-9.−])' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9])'); return texts.some((t) => re.test(t)); };
+  K.check('Every equation is undone in reverse and checked forwards: 26 − 5 = 21 and 21 ÷ 3 = 7 with 3 × 7 + 5 = 26; 31 − 7 = 24 and 24 ÷ 4 = 6; 2 × 8 + 4 = 20 but 2 × 6 + 4 = 16; 20 − 6 = 14 and 14 ÷ 2 = 7; 1 − 9 = −8 and −8 ÷ 2 = −4; 2 − 10 = −8 and −8 ÷ 4 = −2; 2 + 3 = 5 and 5 × 4 = 20; 6 − 2 = 4 and 4 × 5 = 20; 11 − 5 = 6 and 6 ÷ −2 = −3; −3 + 7 = 4 and 4 × 2 = 8', () =>
+    STEPS.map((d) => num(firstUndo(d.eq)) + '>' + num(solve(d.eq))).join() === '21>7,12>6,21>7,24>6,16>8,14>7,−8>−4,−8>−2,5>20,4>20,6>−3,4>8' &&
+    STEPS.every((d) => same(forward(d.eq, solve(d.eq)), d.eq.rhs)) && forward(STEPS[4].eq, 6) === 16 && forward(STEPS[4].eq, 8) === 20 &&
+    checkText(STEPS[2].eq, 7) === '3 × 7 + 5 = 26' && checkText(STEPS[4].eq, 6) === '2 × 6 + 4 = 16, not 20' && checkText(STEPS[10].eq, -3) === '−2 × (−3) + 5 = 11' && checkText(STEPS[7].eq, -2) === '4 × (−2) + 10 = 2' && checkText(STEPS[6].eq, -4) === '2 × (−4) + 9 = 1' && checkText(STEPS[11].eq, 8) === '8 ÷ 2 − 7 = −3' &&
+    STEPS.map((d) => eqText(d.eq)).join() === '3x + 5 = 26,2x + 5 = 17,3x + 5 = 26,4x + 7 = 31,2x + 4 = 20,2x + 6 = 20,2x + 9 = 1,4x + 10 = 2,x ÷ 4 − 3 = 2,x ÷ 5 + 2 = 6,−2x + 5 = 11,x ÷ 2 − 7 = −3');
+  K.check('Start with the last operation and work back to the first', () =>
+    STEPS.every((d) => { const u = undoLabels(d.eq); return u[3] === opLabel(inv(d.eq.ops[1])) && u[1] === opLabel(inv(d.eq.ops[0])) && same(apply(d.eq.ops[0], solve(d.eq)), firstUndo(d.eq)); }) &&
+    UNDOS.every((i) => { const d = STEPS[i], A = d.show ? AT[d.demo] : d.at; return d.ask === 'undo2' ? A.op1 < A.x && A.x < A.check : A.op2 < A.mid && A.mid < A.op1 && A.op1 < (A.x != null ? A.x : A.op1 + 1) && A.op1 < A.check; }),
+  { source: 'https://www.bbc.co.uk/bitesize/articles/zh8yg2p' });
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives, and every wrong number (a wrong undo carried on to its x) fails its check: the step written first taken as done first; the first step undone first; a step done again instead of undone; the 20 halved but not the 6; a divide undone by dividing or by taking away; or a sign dropped across zero', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      return d.opts.length === slips.length + 1 && d.want === answerOf(d) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        slips.every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && SLIP[d.slips[o]](d) === o && (d.ask === 'first' || !same(forward(d.eq, d.ask === 'x' ? valueOf(o) : slipRun(d, o).x), d.eq.rhs)));
+    }) && SLIP.oneTerm(STEPS[5]) === '4' && SLIP.again(STEPS[5]) === '13' && SLIP.sign(STEPS[7]) === '2' && SLIP.other(STEPS[9]) === '÷ 5' && SLIP.kind(STEPS[9]) === '− 5' && SLIP.again(STEPS[10]) === '−8' && SLIP.sign(STEPS[11]) === '−8' &&
+    checkText(STEPS[5].eq, 4) === '2 × 4 + 6 = 14, not 20' && slipRun(STEPS[9], '÷ 5').x === 0.8 && checkText(STEPS[9].eq, 0.8) === '0.8 ÷ 5 + 2 = 2.16, not 6' &&
+    slipRun(STEPS[9], '− 5').x === -1 && checkText(STEPS[9].eq, -1) === '−1 ÷ 5 + 2 = 1.8, not 6' &&
+    slipRun(STEPS[3], '÷ 4').m === 7.75 && slipRun(STEPS[3], '÷ 4').x === 0.75 && checkText(STEPS[3].eq, 0.75) === '4 × 0.75 + 7 = 10, not 31' &&
+    slipRun(STEPS[3], '+ 7').m === 38 && slipRun(STEPS[3], '+ 7').x === 9.5 && checkText(STEPS[3].eq, 9.5) === '4 × 9.5 + 7 = 45, not 31');
+  K.check('Every picture, finished, draws the steps in order, each undo box under the step it undoes, the answer and its check; each jump on the number line runs from the right side to the first undo; and a wrong answer\'s check fails in the warning colour, clear of its name', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? blank(i) : solved(i)), bl = buildLabels(d.eq);
+      const at = (s, row) => g.boxes.filter((b) => b.s === s && b.y === ROWS[row].top).map((b) => b.x);
+      const inA = bl.every((s, k) => at(s, 'A').some((x) => K.near(x, SX[k], 1e-6)));
+      if (d.demo === 'build' || d.ask === 'first') return inA && !has(g.all, 'undo');
+      if (d.demo === 'check') return inA && has(g.all, checkText(d.eq, d.tries[1])) && at(num(d.tries[1]), 'B').some((x) => K.near(x, SX[0], 1e-6)) && !has(g.all, ', not');
+      const ul = undoLabels(d.eq);
+      const under = [[3, ul[3]], [1, ul[1]], [0, ul[0]], [2, ul[2]]].every((p) => at(p[1], 'B').some((x) => K.near(x, SX[p[0]], 1e-6)));
+      const lit = g.boxes.filter((b) => /lit/.test(b.cls)).map((b) => b.s).join() === [ul[3], ul[1]].join() || g.boxes.filter((b) => /lit/.test(b.cls)).length === 2;
+      let line = true;
+      if (d.nl) {
+        const j = g.jump, a = j[0], b = j[j.length - 1];
+        line = K.near(a[0], nlx(d, d.eq.rhs), 1e-3) && K.near(b[0], nlx(d, firstUndo(d.eq)), 1e-3) && has(g.all, num(firstUndo(d.eq))) && firstUndo(d.eq) >= d.nl[0] && firstUndo(d.eq) <= d.nl[1] && d.eq.rhs >= d.nl[0] && d.eq.rhs <= d.nl[1] &&
+          (firstUndo(d.eq) < 0) !== (d.eq.rhs < 0);
+      }
+      let slips = true;
+      const rightFill = (g.texts.filter((t) => /wk/.test(t.cls))[0] || {}).fill;
+      if (!d.show) slips = Object.keys(d.slips).every((o) => {
+        const w = drawn(i, slipped(i, o)), f = w.texts.filter((t) => /warnt/.test(t.cls) && /wk/.test(t.cls));
+        return f.length === 1 && f[0].s === checkText(d.eq, d.ask === 'x' ? valueOf(o) : slipRun(d, o).x) && / not /.test(f[0].s) && f[0].x >= 4 + tw('check', 'rl') + 8 && f[0].x + f[0].w <= 336.5 && f[0].fill !== rightFill;
+      });
+      return inA && under && lit && line && slips && has(g.all, checkText(d.eq, solve(d.eq))) && has(g.all, 'check');
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer', () =>
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, blank(i)); return !has(g.all, d.want) && !has(g.all, num(solve(d.eq))) && g.boxes.filter((b) => /lit/.test(b.cls)).length === (d.ask === 'undo2' ? 1 : 0); }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip\'s within 1.6 s; parts start at least 0.45 s apart, each once the travel before it has ended', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1.6;
+      });
+    });
+    T = keepT; paint();
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => (Array.isArray(A[k]) ? [A[k][0], A[k][0] + A[k][1]] : [A[k], A[k]])).sort((a, b) => a[0] - b[0]);
+      let end = -Infinity;
+      return ps.every((q, k) => {
+        const good = k === 0 || q[0] === ps[k - 1][0] || (q[0] - ps[k - 1][0] >= 0.45 - 1e-9 && q[0] >= end + 0.1 - 1e-9);
+        end = Math.max(end, q[1]);
+        return good;
+      });
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at)) && spaced(WRONG);
+  });
+
+  K.ready();
+</script>

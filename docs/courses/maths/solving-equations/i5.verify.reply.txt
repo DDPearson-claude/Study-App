@@ -1,0 +1,21 @@
+{
+ "issues": [
+  {
+   "path": "explain.text",
+   "problem": "\"A formula with a sum in it takes two steps\" is too general: u = v − at from the same formula takes one step (screen 9). Also the slip 2 ÷ 8 = 0.25 uses 2 and 8 without saying they are 2 A and 8 Ω, so read alone on review the numbers come from nowhere.",
+   "severity": "fix",
+   "now": "A formula is an equation with letters for its amounts, so you change its subject, the letter on its own, the same way you solve an equation. Draw the steps done to the letter you want, then undo them on both sides in reverse, each with its opposite. V = IR is I times R, so dividing both sides by R gives I = V ÷ R, and dividing both sides by I gives R = V ÷ I. Ohm's law, V = IR, and power, P = VI, are the two equations the other power formulas are built from,[^1] and P = VI turns round the same way into I = P ÷ V. A formula with a sum and a product can take two steps. In v = u + at, the steps done to t are × a and then + u, so undo the + u first and the × a second, giving t = (v − u) ÷ a. The brackets make the whole of v − u be divided. Without them, t = v − u ÷ a divides only the u, and with v = 18, u = 6 and a = 3 it gives 16 where t is 4.\n\nTo check a new formula, put in numbers that fit the old one. 12 V, 3 A and 4 Ω fit V = IR, and I = V ÷ R gives 12 ÷ 4 = 3, so both sides match. The units agree too, since volts ÷ ohms gives amps. The shortcut \"change side, change sign\" works perfectly for a great number of equations.[^2] It gives the right answer when the step that crosses over is a + or a −, so v = u + at becomes u = v − at. With a × it fails. It turns V = IR into I = V − R, and 12 − 4 = 8, not 3, while volts take away ohms makes no sense. Bitesize's National 5 notes give the general rule as change side, change operation,[^3] so a × crossing over becomes ÷, the same as undoing it on both sides. Undoing a divide by dividing again fails as well. One recorded slip reaches x ÷ 4 = 160 correctly and then writes x = 160 ÷ 4,[^4] and from I = V ÷ R with 2 A and 8 Ω, V = I ÷ R gives 2 ÷ 8 = 0.25 where V is 16 V.\n\n**Change a formula's subject by undoing the steps done to that letter, last step first, on both sides, so V = IR gives I = V ÷ R and v = u + at gives t = (v − u) ÷ a. Change side, change sign works only for + and −. Check a new formula with numbers that fit the old one.**"
+  },
+  {
+   "path": "interactive.whatAmILookingAt",
+   "problem": "Not every card's letters wear units: the v = u + at and y = 3x + 5 cards carry example values only (ignores says so), and the electrical cards after the first screens show values with units.",
+   "severity": "fix",
+   "now": "A short lesson in twelve small screens on formula cards whose letters wear their units or example values, each formula's steps drawn as a flow diagram from the letter you want and undone right to left, and a check that puts numbers which fit the old formula into the new one, some screens showing an idea and the rest asking you to try it."
+  },
+  {
+   "path": "interactive.numbers",
+   "problem": "Every number is kind \"constant\", but 12 V, 3 A, 4 Ω, 16 V, 2 A, 8 Ω, 2300 W, 230 V, 10 A and the v = u + at and y = 3x + 5 values are example values chosen for whole checks (ignores says so), so their kind should be \"assumed\"; frozen, so recorded here.",
+   "severity": "note"
+  }
+ ]
+}

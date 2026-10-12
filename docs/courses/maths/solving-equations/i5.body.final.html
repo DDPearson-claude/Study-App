@@ -1,0 +1,850 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A formula's letters are set in italics wherever they are written; units stay upright. */
+  .vx { font-style: italic; }
+  .scene { display: block; width: 100%; }
+  /* The formula card: the formula, and under it each letter with its unit or its example value. */
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .fm { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  .scene .chip { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  /* A value on the card ringed in ink when a check matches it. */
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-width: 2; }
+  /* The flow diagram, as in lesson 2: each amount in a plain box, each step in a box drawn in ink; a
+     step being undone lights up solid. A box still to fill in is dashed with a '?'. A slip is in the
+     warning colour. */
+  .scene .vb { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .ob { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ob.lit { fill: var(--k-accent2); }
+  .scene .gap { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .warnb { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .val { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .opl { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .opl.lit { fill: var(--k-on-accent2); }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .rl { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .ar { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .arh { fill: var(--k-muted); }
+  .scene .wk { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  /* A slip's words (a failed check, a wrong formula) in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; when a label would not fit
+     (measured after layout) they stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A formula's steps on a flow diagram, undone backwards to change its subject, then checked with numbers.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 242" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Undo the steps done to the letter you want, last first, then check with numbers. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // F: the formula card a step shows: the formula as written, its letters in order and, for each
+  // letter, [unit name, unit symbol, example value] (no unit for the letters of v = u + at and
+  // y = 3x + 5). units: the card shows each letter's unit instead of its value (before the check is
+  // met). w: the flow diagram, the steps done to the letter wanted `s` in order (each [sign, what]),
+  // giving the old subject `out`, and for two steps what the middle boxes hold [steps row, undo row].
+  // Its top row is the steps, left to right; its bottom row undoes them right to left, last step
+  // first, each box lighting as it undoes the step above it. ask: what a puzzle asks for ('undo1', the
+  // step that undoes; 'formula', the new formula; 'num', the letter's value). dur: how long a
+  // demonstration plays; fb: how long the motion after a right answer plays (seconds); at: when each
+  // part of that motion arrives, in seconds after Check. slips: which slip gives each wrong answer
+  // (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  const C = (f, order, vars) => ({ f: f, order: order, vars: vars });
+  const OHM = C('V = IR', ['V', 'I', 'R'], { V: ['volts', 'V', 12], I: ['amps', 'A', 3], R: ['ohms', 'Ω', 4] });
+  const OHM2 = C('I = V ÷ R', ['I', 'V', 'R'], { I: ['amps', 'A', 2], V: ['volts', 'V', 16], R: ['ohms', 'Ω', 8] });
+  const POW = C('P = VI', ['P', 'V', 'I'], { P: ['watts', 'W', 2300], V: ['volts', 'V', 230], I: ['amps', 'A', 10] });
+  const SUM = C('v = u + at', ['v', 'u', 'a', 't'], { v: [null, '', 18], u: [null, '', 6], a: [null, '', 3], t: [null, '', 4] });
+  const LIN = C('y = 3x + 5', ['y', 'x'], { y: [null, '', 26], x: [null, '', 7] });
+  const SUM2 = C('v = u + at', ['v', 'u', 'a', 't'], { v: [null, '', 20], u: [null, '', 8], a: [null, '', 4], t: [null, '', null] });
+  const W1 = (s, op, out) => ({ s: s, ops: [op], out: out });
+  const W2 = (s, op1, op2, out, midA, midB) => ({ s: s, ops: [op1, op2], out: out, mid: [midA, midB] });
+  // After a right answer: each undo box lights in turn (with what it leaves), then the new formula,
+  // then its check. Two steps: the last step's undo and what it leaves, then the first step's undo and
+  // the letter. A puzzle that asks for the step shows the new formula without a check.
+  const FB_UNDO = { op: 0.1, subj: 0.6, nf: 1.1 };
+  const FB1 = { op: 0.1, subj: 0.6, nf: 1.1, check: 1.6 };
+  const FB2 = { op2: 0.1, mid: 0.1, op1: 0.6, subj: 0.6, nf: 1.1, check: 1.6 };
+  // After a wrong answer: the slip, in the warning colour (a wrong undo box, or a check that fails).
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  const STEPS = [
+    { show: true, demo: 'undo', dur: 4.0, F: OHM, units: true, w: W1('I', ['×', 'R'], 'V'), name: 'Change the subject',
+      text: 'In V = IR, V is I times R. To make I the *subject*, the letter on its own, undo the × R by dividing both sides by R. So I = V ÷ R.' },
+    { kind: 'pick', ask: 'undo1', F: OHM, units: true, w: W1('R', ['×', 'I'], 'V'), name: 'Undo it',
+      opts: ['− I', '÷ I', '× I'], want: '÷ I', slips: { '− I': 'sign', '× I': 'again' }, fb: 1.7, at: FB_UNDO,
+      task: 'V = IR. To make R the subject, what do you do to both sides?',
+      why: 'R is multiplied by I, and dividing undoes multiplying. Divide both sides by I, so R = V ÷ I.',
+      hint: 'Not quite. Undo the × I.',
+      hints: { '− I': 'Not quite. Taking away undoes an add, but here R is multiplied by I.',
+        '× I': 'Not quite. Multiplying by I again does the step twice instead of undoing it.' } },
+    { show: true, demo: 'check', dur: 3.9, F: OHM, units: true, lines: ['I = V ÷ R', 'R = V ÷ I'], name: 'The check',
+      text: 'To *check* a new formula, put in numbers that fit the old one, like 12 V, 3 A and 4 Ω. I = V ÷ R gives 12 ÷ 4 = 3, which matches.' },
+    { kind: 'pick', ask: 'formula', F: OHM2, w: W1('V', ['÷', 'R'], 'I'), name: 'Undo a divide',
+      opts: ['V = I ÷ R', 'V = I + R', 'V = I × R'], want: 'V = I × R', slips: { 'V = I ÷ R': 'again', 'V = I + R': 'sign' }, fb: 2.2, at: FB1,
+      task: 'I = V ÷ R. Which formula gives V?',
+      why: 'V is divided by R, and multiplying undoes dividing. Multiply both sides by R, so V = I × R. As a check, 2 × 8 = 16.',
+      hint: 'Not quite. Put the numbers in to check it.',
+      hints: { 'V = I ÷ R': 'Not quite. Dividing by R again does the step twice, so the check gives 0.25, not 16. Undo ÷ R with × R.',
+        'V = I + R': 'Not quite. Changing ÷ R to + R does not undo it, so the check gives 10, not 16. Undo ÷ R with × R.' } },
+    { show: true, demo: 'shortcut', dur: 4.2, F: OHM, w: W1('I', ['×', 'R'], 'V'), name: 'Change side, change sign',
+      text: '*Change side, change sign* works for + and −, but not for × or ÷. It turns V = IR into I = V − R, and 12 − 4 = 8, not 3. Change × to ÷ instead.' },
+    { kind: 'pick', ask: 'formula', F: POW, w: W1('I', ['×', 'V'], 'P'), name: 'Power',
+      opts: ['I = P − V', 'I = P ÷ V', 'I = V ÷ P'], want: 'I = P ÷ V', slips: { 'I = P − V': 'sign', 'I = V ÷ P': 'flip' }, fb: 2.2, at: FB1,
+      task: 'P = VI. Which formula gives I?',
+      why: 'I is multiplied by V, so divide both sides by V. As a check, 2300 ÷ 230 = 10. The units agree too, since watts ÷ volts gives amps.',
+      hint: 'Not quite. Put the numbers in to check it.',
+      hints: { 'I = P − V': 'Not quite. Change side, change sign fails for ×, and the check gives 2070, not 10.',
+        'I = V ÷ P': 'Not quite. That divides V by P, so the check gives 0.1, not 10. Divide P by V.' } },
+    { show: true, demo: 'same', dur: 4.2, F: LIN, w: W2('x', ['×', '3'], ['+', '5'], 'y', '3x', 'y − 5'), name: 'Two steps',
+      text: 'Rearranging is the same undo as solving. y = 3x + 5 rearranges to x = (y − 5) ÷ 3, last step first. The brackets keep y − 5 together.' },
+    { kind: 'pick', ask: 'formula', F: SUM, w: W2('t', ['×', 'a'], ['+', 'u'], 'v', 'at', 'v − u'), name: 'Undo a sum',
+      opts: ['t = v − u ÷ a', 't = (v − u) ÷ a', 't = v ÷ a − u'], want: 't = (v − u) ÷ a', slips: { 't = v − u ÷ a': 'oneTerm', 't = v ÷ a − u': 'order' }, fb: 2.2, at: FB2,
+      task: 'v = u + at. Which formula gives t?',
+      why: 'The steps done to t are × a, then + u. Undo the + u first, then the × a, so t = (v − u) ÷ a. As a check, (18 − 6) ÷ 3 = 4.',
+      hint: 'Not quite. Put the numbers in to check it.',
+      hints: { 't = v − u ÷ a': 'Not quite. Without brackets only the u is divided by a, so the check gives 16, not 4.',
+        't = v ÷ a − u': 'Not quite. That divides the v by a but not the u, so the check gives 0, not 4. Take u off first.' } },
+    { show: true, demo: 'plus', dur: 3.95, F: SUM, w: W1('u', ['+', 'at'], 'v'), name: 'Where it works',
+      text: 'For + and −, change side, change sign gives the same answer as the undo. In v = u + at, − at undoes + at, so u = v − at.' },
+    { kind: 'pick', ask: 'formula', F: SUM, w: W2('a', ['×', 't'], ['+', 'u'], 'v', 'at', 'v − u'), name: 'Another letter',
+      opts: ['a = v − u − t', 'a = (v + u) ÷ t', 'a = (v − u) ÷ t'], want: 'a = (v − u) ÷ t', slips: { 'a = v − u − t': 'sign', 'a = (v + u) ÷ t': 'again' }, fb: 2.2, at: FB2,
+      task: 'v = u + at. Which formula gives a?',
+      why: 'The steps done to a are × t, then + u. Take u off, then divide by t, so a = (v − u) ÷ t. As a check, (18 − 6) ÷ 4 = 3.',
+      hint: 'Not quite. Put the numbers in to check it.',
+      hints: { 'a = v − u − t': 'Not quite. The + u can change sign, but the t multiplies, so it needs ÷ t. The check gives 8, not 3.',
+        'a = (v + u) ÷ t': 'Not quite. Adding u does that step again, so the check gives 6, not 3. Take u off.' } },
+    { kind: 'pick', ask: 'formula', F: POW, w: W1('V', ['×', 'I'], 'P'), name: 'Power again',
+      opts: ['V = P ÷ I', 'V = P − I', 'V = P × I'], want: 'V = P ÷ I', slips: { 'V = P − I': 'sign', 'V = P × I': 'again' }, fb: 2.2, at: FB1,
+      task: 'P = VI. Which formula gives V?',
+      why: 'V is multiplied by I, so divide both sides by I. As a check, 2300 ÷ 10 = 230.',
+      hint: 'Not quite. Put the numbers in to check it.',
+      hints: { 'V = P − I': 'Not quite. Change side, change sign fails for ×, and the check gives 2290, not 230.',
+        'V = P × I': 'Not quite. Multiplying by I again does the step twice, so the check gives 23,000, not 230.' } },
+    { kind: 'pick', ask: 'num', F: SUM2, w: W2('t', ['×', '4'], ['+', '8'], '20', '4t', null), nf: 't = (v − u) ÷ a', name: 'Use it',
+      opts: ['18', '−3', '3'], want: '3', slips: { '18': 'oneTerm', '−3': 'order' }, fb: 2.2, at: FB2,
+      task: 'v = u + at. When v = 20, u = 8 and a = 4, what is t?',
+      why: 't = (v − u) ÷ a, so t = (20 − 8) ÷ 4 = 3. As a check, 8 + 4 × 3 = 20.',
+      hint: 'Not quite. Run it forwards to check it.',
+      hints: { '18': 'Not quite. That divides only the 8 by 4. Take 8 off 20 first, then divide.',
+        '−3': 'Not quite. That divides the 20 by 4 but not the 8. Take 8 off 20 first.' } },
+  ];
+  const FINISH = 'To change a formula\'s subject, undo the steps done to that letter, last first, on both sides. Change side, change sign works only for + and −. Check each new formula with numbers that fit.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). undo: the letter wanted, then its
+  // step and the old subject; the undo row from the old subject, the step's opposite lighting, the
+  // letter; the new formula. check: the card's units fade out and its values fade in after them (the card
+  // easing to its new width), then each new formula and its check. shortcut: change side, change sign (its formula, its check and its units, failing), then
+  // change side, change operation (the same, matching). same: the undo row of y = 3x + 5 box by box,
+  // the new formula and its check. plus: the undo of + at, the new formula it gives, the same formula by
+  // change side, change sign under it, and their check.
+  const FADE = 0.35;
+  const AT = {
+    undo: { s: 0.6, a1: 1.15, rhs: 1.7, op: 2.25, subj: 2.8, nf: 3.35 },
+    check: { vals: 0.6, l1: 1.5, c1: 2.1, l2: 2.7, c2: 3.3 },
+    shortcut: { l: 0.6, lc: 1.2, lu: 1.8, r: 2.4, rc: 3.0, ru: 3.6 },
+    same: { rhs: 0.6, op2: 1.1, mid: 1.6, op1: 2.1, subj: 2.6, nf: 3.1, check: 3.6 },
+    plus: { rhs: 0.6, op: 1.15, subj: 1.7, nf: 2.25, sc: 2.8, check: 3.35 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers and formulas (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const same = (a, b) => K.near(a, b, 1e-9);
+  // A number as the page writes it, with a true minus sign: −3, 0.25, 2300, 23,000.
+  function num(v) {
+    const a = r3(v), s = String(Math.abs(a));
+    return (a < 0 ? '−' : '') + (Math.abs(a) >= 10000 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : s);
+  }
+  // A step and its opposite: + undoes −, × undoes ÷, and the other way round.
+  const OPP = { '+': '−', '−': '+', '×': '÷', '÷': '×' };
+  const inv = (o) => [OPP[o[0]], o[1]];
+  const opLabel = (o) => o[0] + ' ' + o[1];
+  // Reading a formula's side: letters, numbers, + − × ÷ and brackets, a letter next to a letter or a
+  // number multiplied (IR, at, 3x), times and divide before add and take away.
+  function lex(s) {
+    const raw = String(s).match(/−?\d+(?:\.\d+)?|[A-Za-z]|[()+−×÷]/g) || [], out = [];
+    const ends = (x) => /^[A-Za-z0-9−.]|\)$/.test(x) && !/^[+−×÷(]$/.test(x);
+    raw.forEach((x) => {
+      const p = out[out.length - 1];
+      if (p != null && ends(p) && (/^[A-Za-z(]$/.test(x))) out.push('×');
+      out.push(x);
+    });
+    return out;
+  }
+  function ev(s, vals) {
+    const t = lex(s);
+    let k = 0;
+    const atom = () => { const x = t[k++]; if (x === '(') { const v = sum(); k++; return v; } return /^[A-Za-z]$/.test(x) ? vals[x] : parseFloat(x.replace('−', '-')); };
+    const prod = () => { let v = atom(); while (t[k] === '×' || t[k] === '÷') { const o = t[k++], w = atom(); v = o === '×' ? v * w : v / w; } return v; };
+    const sum = () => { let v = prod(); while (t[k] === '+' || t[k] === '−') { const o = t[k++], w = prod(); v = o === '+' ? v + w : v - w; } return v; };
+    return r3(sum());
+  }
+  // A side with numbers put in for its letters: (18 − 6) ÷ 3, 8 + 4 × 3, and a negative after a sign in brackets, 8 + 4 × (−3).
+  function subText(s, vals) {
+    const t = lex(s);
+    let out = '';
+    t.forEach((x, k) => {
+      let v = /^[A-Za-z]$/.test(x) ? num(vals[x]) : x;
+      if (/^−/.test(v) && k > 0 && /^[+−×÷]$/.test(t[k - 1])) v = '(' + v + ')';
+      out += x === ')' || k === 0 || t[k - 1] === '(' ? v : ' ' + v;
+    });
+    return out;
+  }
+  const lhs = (f) => f.split(' = ')[0], rhs = (f) => f.split(' = ').slice(1).join(' = ');
+  const valsOf = (F) => { const o = {}; F.order.forEach((L) => { o[L] = F.vars[L][2]; }); return o; };
+  // The new formula, by undoing the steps on both sides in reverse: I = V ÷ R, t = (v − u) ÷ a.
+  function undone(w) {
+    if (w.ops.length === 1) return w.s + ' = ' + w.out + ' ' + opLabel(inv(w.ops[0]));
+    return w.s + ' = (' + w.out + ' ' + opLabel(inv(w.ops[1])) + ') ' + opLabel(inv(w.ops[0]));
+  }
+  const nfOf = (d) => d.nf || undone(d.w);
+  // The letter's value: given on the card, or (on the last puzzle) worked out by the new formula.
+  const answerVal = (d) => { const v = valsOf(d.F), s = lhs(nfOf(d)); return v[s] != null ? v[s] : ev(rhs(nfOf(d)), v); };
+  // A formula's check: the example values put into its right side, against the letter's own value.
+  function checkFor(d, f) {
+    const v = valsOf(d.F), got = ev(rhs(f), v), want = v[lhs(f)] != null ? v[lhs(f)] : answerVal(d);
+    return subText(rhs(f), v) + ' = ' + num(got) + (same(got, want) ? '' : ', not ' + num(want));
+  }
+  // The last puzzle's check: its answer run forwards through the old formula.
+  function runCheck(d, x) {
+    const v = valsOf(d.F), L = lhs(d.F.f);
+    v[lhs(nfOf(d))] = x;
+    const got = ev(rhs(d.F.f), v);
+    return subText(rhs(d.F.f), v) + ' = ' + num(got) + (same(got, v[L]) ? '' : ', not ' + num(v[L]));
+  }
+  // The units a formula's two sides come out in, for the change side screen: volts ÷ ohms = amps.
+  function unitsOf(d, f) {
+    const u = (L) => d.F.vars[L][0], r = lex(rhs(f));
+    return u(r[0]) + ' ' + r[1] + ' ' + u(r[2]) + (r[1] === '÷' || r[1] === '×' ? ' = ' + u(lhs(f)) : '');
+  }
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.ask === 'undo1') return opLabel(inv(d.w.ops[0]));
+    if (d.ask === 'num') return num(answerVal(d));
+    return undone(d.w);
+  }
+  // What each slip makes of the answer. sign: change side, change sign used on a × or ÷ (× crosses as −, ÷ as +).
+  // again: a step done again instead of undone (× again, ÷ again, or + again). flip: a divide the wrong
+  // way round. oneTerm: the undo written without brackets, so only the number added is divided.
+  // order: the × undone first on the old subject alone, the + after it.
+  const SIGN = { '+': '−', '−': '+', '×': '−', '÷': '+' };
+  function SLIPF(kind, d) {
+    const w = d.w, o = w.ops, two = o.length === 2;
+    if (d.ask === 'undo1') return kind === 'sign' ? SIGN[o[0][0]] + ' ' + o[0][1] : opLabel(o[0]);
+    if (kind === 'sign') return two ? w.s + ' = ' + w.out + ' ' + SIGN[o[1][0]] + ' ' + o[1][1] + ' ' + SIGN[o[0][0]] + ' ' + o[0][1] : w.s + ' = ' + w.out + ' ' + SIGN[o[0][0]] + ' ' + o[0][1];
+    if (kind === 'again') return two ? w.s + ' = (' + w.out + ' ' + opLabel(o[1]) + ') ' + opLabel(inv(o[0])) : w.s + ' = ' + w.out + ' ' + opLabel(o[0]);
+    if (kind === 'flip') return w.s + ' = ' + o[0][1] + ' ÷ ' + w.out;
+    if (kind === 'oneTerm') return w.s + ' = ' + w.out + ' ' + opLabel(inv(o[1])) + ' ' + opLabel(inv(o[0]));
+    if (kind === 'order') return w.s + ' = ' + w.out + ' ' + opLabel(inv(o[0])) + ' ' + opLabel(inv(o[1]));
+    return '';
+  }
+  // A slip as its button reads: the formula, or on the last puzzle the number it gives.
+  function SLIP(kind, d) {
+    if (d.ask !== 'num') return SLIPF(kind, d);
+    const lw = { s: 't', ops: [['×', 'a'], ['+', 'u']], out: 'v' };
+    return num(ev(rhs(SLIPF(kind, { w: lw, ask: 'formula' })), valsOf(d.F)));
+  }
+  // An option's worth: "−3" is -3; a formula has none.
+  const valueOf = (s) => { const m = /^(−?)(\d+(?:\.\d+)?)$/.exec(s); return m ? (m[1] ? -1 : 1) * +m[2] : NaN; };
+
+  // ---------- writing: letters in italics, units upright, sums kept on one line ----------
+  // The letters these formulas use. A letter right after a number is a unit (12 V); a lone "a" before
+  // a word is the article, not the letter.
+  const LETS = 'VIRPvuatxy';
+  // A term: a number (with a letter it multiplies, 3x), a product of two letters (IR, VI, at) or one letter.
+  const TOK = '\\(?(?:−?\\d+(?:\\.\\d+)?[xt]?|IR|VI|at|[' + LETS + '])\\)?';
+  const RUN = new RegExp('(?<![A-Za-z0-9.\'’])(?:[×÷+−=] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*(?![A-Za-z0-9])[.,?!;]?', 'g');
+  // -> [[text, italic, run]]: run numbers group a sum to keep on one line (-1 for plain words).
+  function segs(s) {
+    const out = [];
+    let at = 0, m, id = 0;
+    const push = (t, it, run) => { if (!t) return; const l = out[out.length - 1]; if (l && l[1] === it && l[2] === run) l[0] += t; else out.push([t, it, run]); };
+    RUN.lastIndex = 0;
+    while ((m = RUN.exec(s))) {
+      const r = m[0], core = r.replace(/[.,?!;]$/, ''), before = s.slice(0, m.index), after = s.slice(m.index + core.length);
+      if (m.index > at) push(s.slice(at, m.index), false, -1);
+      const lone = !/ [+−=×÷] |^[×÷+−=] /.test(core);
+      const unit = lone && core === 'V' && /\d $/.test(before);
+      const article = lone && core === 'a' && /^ [a-z]/.test(after) && !/^ (the|is|and|are|but)\b/.test(after);
+      // a long sum may break only before an equals sign
+      const parts = r.length > 18 ? r.split(/ (?==)/) : [r];
+      parts.forEach((p, k) => {
+        const run = /\s/.test(p) ? id++ : -1;
+        if (k) push(' ', false, -1);
+        if (unit || article) push(p, false, run);
+        else for (const ch of p) push(ch, LETS.indexOf(ch) >= 0, run);
+      });
+      at = m.index + r.length;
+    }
+    if (at < s.length) push(s.slice(at), false, -1);
+    return out;
+  }
+  function inline(el, s) {
+    let span = null, run = -1;
+    segs(s).forEach((g) => {
+      const node = g[1] ? K.el('i', { class: 'vx' }, g[0]) : document.createTextNode(g[0]);
+      if (g[2] >= 0) {
+        if (!span || run !== g[2]) { span = K.el('span', { class: 'nw' }); el.appendChild(span); run = g[2]; }
+        span.appendChild(node);
+      } else { span = null; run = -1; el.appendChild(node); }
+    });
+  }
+  // *term* is an amber key term.
+  function write(el, text) {
+    el.textContent = '';
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) inline(el, text.slice(at, m.index));
+      const sp = K.el('span', { class: 'term' });
+      inline(sp, m[1]);
+      el.appendChild(sp);
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) inline(el, text.slice(at));
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/(\d) V\b/g, '$1 volts').replace(/(\d) A\b/g, '$1 amps').replace(/(\d) W\b/g, '$1 watts').replace(/Ω/g, ' ohms').replace(/ /g, ' ').replace(/(\d)([A-Za-z])\b/g, '$1 $2').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const st = blank(i); st.pick = STEPS[i].want; st.res = 'right'; return st; }
+  function slipped(i, o) { const st = blank(i); st.pick = o; st.res = 'wrong'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let H = 242;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    if (t0 == null) return 0;
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: y, width: Math.max(0, r3(w)), height: Math.max(0, h), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: y1, x2: r3(x2), y2: y2 }));
+  // Text whose letters are set in italics (each as a tspan).
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: y, 'text-anchor': anchor || 'middle' });
+    segs(String(s)).forEach((g) => t.appendChild(g[1] ? K.svg('tspan', { class: 'vx' }, g[0]) : document.createTextNode(g[0])));
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { fm: 20, wk: 17, val: 17, opl: 16, qm: 15, chip: 14, rl: 13 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 7 * ux + 4 * px) + ' ' + r3(y - 7 * uy + 4 * py) + ' L' + r3(x - 7 * ux - 4 * px) + ' ' + r3(y - 7 * uy - 4 * py) + ' Z' }));
+  }
+
+  // --- the formula card: the formula, and each letter with its unit or its example value ---
+  const CARD = { top: 4, h: 54, f: 28, chips: 48 };
+  const hasUnits = (F) => !!F.vars[F.order[0]][0];
+  const chipsOf = (F, units) => F.order.map((L) => { const v = F.vars[L]; return units ? L + ' in ' + v[0] : L + ' = ' + (v[2] == null ? '?' : num(v[2]) + (v[1] ? ' ' + v[1] : '')); });
+  const chipsW = (list) => list.reduce((s, c) => s + tw(c, 'chip'), 0) + 18 * (list.length - 1);
+  function chipRow(list) {
+    let x = 170 - chipsW(list) / 2;
+    list.forEach((c) => { text(x, CARD.chips, c, 'chip', 'start'); x += tw(c, 'chip') + 18; });
+  }
+  // A value on the card ringed, to show a check matching it (the card showing its values).
+  function ringChip(F, L, a) {
+    const list = chipsOf(F, false), k = F.order.indexOf(L);
+    let x = 170 - chipsW(list) / 2;
+    for (let j = 0; j < k; j++) x += tw(list[j], 'chip') + 18;
+    part(a, 0, () => rect('ring', x - 6, CARD.chips - 15, tw(list[k], 'chip') + 12, 21, 6));
+  }
+  // out: how far the units have faded out; a: how far the values have faded in after them (0, 0: units
+  // only; 1, 1: values only). The card eases from the units' width to the values' as they arrive.
+  function drawCard(F, out, a) {
+    const units = hasUnits(F), cu = units ? chipsOf(F, true) : null, cv = chipsOf(F, false);
+    const w = Math.max(tw(F.f, 'fm'), units ? chipsW(cu) + (chipsW(cv) - chipsW(cu)) * a : chipsW(cv)) + 28;
+    rect('card', 170 - w / 2, CARD.top, w, CARD.h, 10);
+    text(170, CARD.f, F.f, 'fm');
+    if (!units) { chipRow(cv); return 'A formula card: ' + say(F.f) + ', with ' + cv.map(say).join(', ') + '.'; }
+    leave(out, () => chipRow(cu));
+    part(a, 3, () => chipRow(cv));
+    return 'A formula card: ' + say(F.f) + ', with ' + (a >= 0.5 ? cv : cu).map(say).join(', ') + '.';
+  }
+
+  // --- the flow diagram ---
+  // Row A (the steps) and row B (the undo) are BH tall from their tops; each row's name sits above it.
+  // The places across are an amount, a step, an amount (and a step and an amount for two steps).
+  const BH = 34, VW = 38, OW = 52;
+  const ROWS = { A: { top: 80, name: 72 }, B: { top: 142, name: 134 } };
+  const midY = (r) => ROWS[r].top + BH / 2;
+  const FOOT = { nf: 206, check: 232, sc: 258 };
+  const labelsA = (w) => (w.ops.length === 1 ? [w.s, opLabel(w.ops[0]), w.out] : [w.s, opLabel(w.ops[0]), w.mid[0], opLabel(w.ops[1]), w.out]);
+  function labelsB(d) {
+    const w = d.w;
+    if (d.ask === 'num') {
+      const m = ev(w.out + ' ' + opLabel(inv(w.ops[1])), {});
+      return [num(answerVal(d)), opLabel(inv(w.ops[0])), num(m), opLabel(inv(w.ops[1])), num(valueOf(w.out))];
+    }
+    return w.ops.length === 1 ? [w.s, opLabel(inv(w.ops[0])), w.out] : [w.s, opLabel(inv(w.ops[0])), w.mid[1], opLabel(inv(w.ops[1])), w.out];
+  }
+  // Each place is as wide as its words need in either row; the places spread evenly across.
+  function layout(d) {
+    const A = labelsA(d.w), B = labelsB(d), n = A.length;
+    const w = A.map((s, k) => r3(Math.max(k % 2 ? OW : VW, tw(s, k % 2 ? 'opl' : 'val') + 18, tw(B[k], k % 2 ? 'opl' : 'val') + 18)));
+    const tot = w.reduce((a, b) => a + b, 0), gap = Math.min(46, (332 - tot) / (n - 1));
+    let x = 170 - (tot + gap * (n - 1)) / 2;
+    const sx = [];
+    w.forEach((wk) => { sx.push(x + wk / 2); x += wk + gap; });
+    return { A: A, B: B, w: w, sx: sx, n: n };
+  }
+  // A box at place k of row r: kind 'v' (an amount), 'o' (a step), 'lit' (a step being undone), 'gap'
+  // (still to fill in), with 'warn' for a slip.
+  function box(r, k, L, s, kind, warn) {
+    const w = L.w[k], x = L.sx[k] - w / 2, y = ROWS[r].top;
+    const cls = kind === 'gap' ? 'gap' : kind === 'v' ? 'vb' : kind === 'lit' ? 'ob lit' : 'ob';
+    rect(cls + (warn ? ' warnb' : ''), x, y, w, BH, 8);
+    if (kind === 'gap') { text(L.sx[k], y + 22, '?', 'qm'); return; }
+    text(L.sx[k], y + 23, s, (kind === 'v' ? 'val' : 'opl') + (kind === 'lit' ? ' lit' : '') + (warn ? ' warnt' : ''));
+  }
+  // The arrow between place k and k + 1 of row r, pointing right (dir 1) or left (dir -1).
+  function arrow(r, k, L, dir) {
+    const y = midY(r), a = L.sx[k] + L.w[k] / 2 + 3, b = L.sx[k + 1] - L.w[k + 1] / 2 - 3;
+    if (dir > 0) { line('ar', a, y, b - 6, y); head(b, y, 1, 0, 'arh'); } else { line('ar', b, y, a + 6, y); head(a, y, -1, 0, 'arh'); }
+  }
+  const rowName = (r, s) => text(4, ROWS[r].name, s, 'rl', 'start');
+  // A check written along a line, its name before it (in the warning colour when it fails).
+  function checkAt(y, s, warn, name) {
+    const w = tw(s, 'wk');
+    text(336 - w, y, s, 'wk' + (warn ? ' warnt' : ''), 'start');
+    text(336 - w - 10, y, name || 'check', 'rl', 'end');
+  }
+  const footFormula = (s, warn) => text(170, FOOT.nf, s, 'fm' + (warn ? ' warnt' : ''));
+
+  const heightOf = (d) => (d.demo === 'check' ? 154 : d.demo === 'plus' ? 268 : d.demo === 'shortcut' ? 232 : d.demo === 'undo' || d.ask === 'undo1' ? 216 : 242);
+
+  // The picture for a flow-diagram step: the card, the steps, the undo, the new formula and its check.
+  function drawFlow(d, st, right, said) {
+    const L = layout(d), A = d.show ? AT[d.demo] : d.at, n = L.n - 1, two = L.n === 5;
+    const wrong = !d.show && st.res === 'wrong' && st.pick != null;
+    // Row A: the steps done to the letter wanted, left to right.
+    rowName('A', 'steps');
+    if (d.demo === 'undo') {
+      part(arr(A.s), 4, () => box('A', 0, L, L.A[0], 'v'));
+      part(arr(A.a1), 4, () => { arrow('A', 0, L, 1); box('A', 1, L, L.A[1], 'o'); arrow('A', 1, L, 1); box('A', 2, L, L.A[2], 'v'); });
+    } else {
+      for (let k = 0; k < n; k++) arrow('A', k, L, 1);
+      L.A.forEach((s, k) => box('A', k, L, s, k % 2 ? 'o' : 'v'));
+    }
+    said.push('A flow diagram of the steps done to ' + say(L.A[0]) + ': ' + L.A.map((s, k) => (k % 2 ? say(s) : (k ? 'giving ' : '') + say(s))).join(', ') + '.');
+    // Row B: the undo, right to left, last step first, each step's box lighting as it is undone.
+    rowName('B', 'undo');
+    const moving = d.show || right;
+    const keys = two ? [[3, 'op2'], [2, 'mid'], [1, 'op1'], [0, 'subj']] : [[1, 'op'], [0, 'subj']];
+    part(d.show ? arr(A.rhs) : 1, 4, () => box('B', n, L, L.B[n], 'v'));
+    if (!d.show) {
+      // The places still to fill in, each fading as its box arrives; a wrong undo shows in its place.
+      for (let k = 0; k < n; k++) arrow('B', k, L, -1);
+      keys.forEach((p) => {
+        if (wrong && d.ask === 'undo1' && p[1] === 'op') { leave(arr(WRONG.slip, 0.3), () => box('B', p[0], L, '', 'gap')); part(arr(WRONG.slip), 4, () => box('B', p[0], L, st.pick, 'o', true)); return; }
+        leave(right ? arr(A[p[1]], 0.3) : 0, () => box('B', p[0], L, '', 'gap'));
+      });
+    }
+    keys.forEach((p) => part(moving ? arr(A[p[1]]) : 0, 4, () => { if (d.show) arrow('B', p[0], L, -1); box('B', p[0], L, L.B[p[0]], p[0] % 2 ? 'lit' : 'v'); }));
+    const aOp = moving ? arr(A[two ? 'op1' : 'op']) : 0;
+    // The new formula and its check along the foot; a wrong answer's formula and check in the warning colour.
+    const nf = nfOf(d), chk = d.ask === 'num' ? runCheck(d, answerVal(d)) : checkFor(d, nf);
+    const aNf = moving ? arr(A.nf) : 0, aCk = moving && A.check != null ? arr(A.check) : 0;
+    let scSaid = '';
+    if (d.demo === 'plus') {
+      // Where the shortcut works: the undo's formula, the same formula by change side, change sign, one check for both.
+      const sc = SLIPF('sign', { w: d.w, ask: 'formula' }), aSc = arr(A.sc);
+      part(aNf, 6, () => { text(4, FOOT.nf, 'undo', 'rl', 'start'); text(112, FOOT.nf, nf, 'fm', 'start'); });
+      part(aSc, 6, () => { text(4, FOOT.check, 'change sign', 'rl', 'start'); text(112, FOOT.check, sc, 'fm', 'start'); });
+      part(aCk, 6, () => checkAt(FOOT.sc, chk, false));
+      if (aSc >= 0.5) scSaid = 'Change side, change sign gives the same, ' + say(sc) + '.';
+    } else {
+      part(aNf, 6, () => footFormula(nf, false));
+      part(aCk, 6, () => checkAt(FOOT.check, chk, false));
+    }
+    if (wrong && d.ask === 'formula') part(arr(WRONG.slip), 6, () => { footFormula(st.pick, true); checkAt(FOOT.check, checkFor(d, st.pick), true); });
+    if (wrong && d.ask === 'num') part(arr(WRONG.slip), 6, () => checkAt(FOOT.check, runCheck(d, valueOf(st.pick)), true));
+    if (aOp >= 0.5) said.push('Below, the undo from ' + say(L.B[n]) + ': ' + (two ? say(L.B[3]) + ' gives ' + say(L.B[2]) + ', then ' : '') + say(L.B[1]) + ' gives ' + say(L.B[0]) + '.');
+    else if (wrong && d.ask === 'undo1') said.push('Below, the undo from ' + say(L.B[n]) + ', its step tried as ' + say(st.pick) + ', marked wrong.');
+    else said.push('Below, the undo from ' + say(L.B[n]) + ', its boxes still to fill in.');
+    if (aNf >= 0.5) said.push('So ' + say(nf) + '.');
+    if (scSaid) said.push(scSaid);
+    if (aCk >= 0.5) said.push('Check: ' + say(chk) + '.');
+    if (wrong && d.ask === 'formula') said.push('Tried: ' + say(st.pick) + '. Check: ' + say(checkFor(d, st.pick)) + ', marked wrong.');
+    if (wrong && d.ask === 'num') said.push('Check: ' + say(runCheck(d, valueOf(st.pick))) + ', marked wrong.');
+  }
+
+  // The check screen: each new formula with the card's values put in.
+  const LINE_Y = [100, 140];
+  function drawChecks(d, said) {
+    const A = AT.check;
+    d.lines.forEach((f, k) => {
+      const a = arr(A['l' + (k + 1)]), c = arr(A['c' + (k + 1)]);
+      part(a, 4, () => text(4, LINE_Y[k], f, 'fm', 'start'));
+      part(c, 4, () => checkAt(LINE_Y[k], checkFor(d, f), false));
+      ringChip(d.F, lhs(f), c);
+      const val = chipsOf(d.F, false)[d.F.order.indexOf(lhs(f))];
+      if (c >= 0.5) said.push(say(f) + '. Check: ' + say(checkFor(d, f)) + ', which matches ' + say(val) + ' on the card.');
+    });
+  }
+  // The change side screen: change side, change sign (failing), then change side, change operation.
+  const SC = { lh: 84, l: 110, lu: 136, rh: 170, r: 196, ru: 222 };
+  function drawShortcut(d, said) {
+    const A = AT.shortcut, slip = SLIPF('sign', { w: d.w, ask: 'formula' }), fix = undone(d.w);
+    part(arr(A.l), 4, () => { text(4, SC.lh, 'change sign', 'rl', 'start'); text(4, SC.l, slip, 'fm warnt', 'start'); });
+    part(arr(A.lc), 4, () => checkAt(SC.l, checkFor(d, slip), true));
+    part(arr(A.lu), 4, () => checkAt(SC.lu, unitsOf(d, slip), true, 'units'));
+    part(arr(A.r), 4, () => { text(4, SC.rh, 'change operation', 'rl', 'start'); text(4, SC.r, fix, 'fm', 'start'); });
+    part(arr(A.rc), 4, () => checkAt(SC.r, checkFor(d, fix), false));
+    part(arr(A.ru), 4, () => checkAt(SC.ru, unitsOf(d, fix), false, 'units'));
+    if (arr(A.lu) >= 0.5) said.push('Change side, change sign gives ' + say(slip) + '. Check: ' + say(checkFor(d, slip)) + ', and its units, ' + say(unitsOf(d, slip)) + ', make no sense. Marked wrong.');
+    if (arr(A.ru) >= 0.5) said.push('Change side, change operation gives ' + say(fix) + '. Check: ' + say(checkFor(d, fix)) + ', and ' + say(unitsOf(d, fix)) + '.');
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    const c = !hasUnits(d.F) ? [1, 1] : d.demo === 'check' ? [arr(AT.check.vals, 0.3), arr(AT.check.vals + 0.3)] : d.units ? [0, 0] : [1, 1];
+    const said = [drawCard(d.F, c[0], c[1])];
+    if (d.demo === 'check') drawChecks(d, said);
+    else if (d.demo === 'shortcut') drawShortcut(d, said);
+    else drawFlow(d, st, right, said);
+    svg.setAttribute('aria-label', said.join(' '));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  // The answers sit in one row when every label fits its button at the current text size and width;
+  // otherwise they stack, one to a row.
+  function fitPicks() {
+    const row = el('picks');
+    row.classList.remove('long');
+    if (row.hidden || !row.offsetWidth) return;
+    const over = pickBtns.some((b) => {
+      if (b.el.hidden) return false;
+      const sp = b.el.firstElementChild, cs = getComputedStyle(b.el);
+      const room = b.el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      return (sp ? sp.getBoundingClientRect().width : b.el.scrollWidth) > room + 0.5 || b.el.scrollWidth > b.el.clientWidth + 1;
+    });
+    row.classList.toggle('long', over);
+  }
+  let fitW = 0;
+  window.addEventListener('resize', () => { if (window.innerWidth !== fitW) { fitW = window.innerWidth; fitPicks(); } });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitPicks);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      // one span, so the button's own spacing does not open a gap around an italic letter
+      b.el.textContent = '';
+      const sp = K.el('span');
+      inline(sp, opts[k]);
+      b.el.appendChild(sp);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    fitPicks();
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FLOWS = STEPS.map((d, i) => i).filter((i) => STEPS[i].w && STEPS[i].demo !== 'shortcut');
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const boxes = Array.from(art.querySelectorAll('rect')).map((n) => ({ cls: n.getAttribute('class'), x: +n.getAttribute('x') + +n.getAttribute('width') / 2, y: +n.getAttribute('y'),
+        s: n.nextSibling && n.nextSibling.tagName === 'text' ? n.nextSibling.textContent : '' }));
+      const texts = Array.from(art.querySelectorAll('text')).map((t) => ({ s: t.textContent, x: +t.getAttribute('x'), y: +t.getAttribute('y'), cls: t.getAttribute('class'), w: tw(t.textContent, t.getAttribute('class')), anchor: t.getAttribute('text-anchor'), fill: getComputedStyle(t).fill }));
+      return { boxes: boxes, texts: texts, all: texts.map((t) => t.s) };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // A whole amount, step or formula inside a label ("3" is not inside "−3" or "13").
+  const has = (texts, s) => { const re = new RegExp('(^|[^0-9.−])' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9])'); return texts.some((t) => re.test(t)); };
+  K.check('Every new formula undoes its old one and gives back the letter\'s example value: I = V ÷ R, R = V ÷ I, V = I × R, I = P ÷ V, x = (y − 5) ÷ 3, t = (v − u) ÷ a, u = v − at, a = (v − u) ÷ t, V = P ÷ I; every card\'s values fit it, 12 = 3 × 4, 16 = 2 × 8, 2300 = 230 × 10, 26 = 3 × 7 + 5, 18 = 6 + 3 × 4; and v = 20, u = 8, a = 4 give t = 3, with 8 + 4 × 3 = 20', () =>
+    FLOWS.filter((i) => STEPS[i].ask !== 'num').map((i) => undone(STEPS[i].w)).join() === 'I = V ÷ R,R = V ÷ I,V = I × R,I = P ÷ V,x = (y − 5) ÷ 3,t = (v − u) ÷ a,u = v − at,a = (v − u) ÷ t,V = P ÷ I' &&
+    STEPS.every((d) => { const v = valsOf(d.F), L = lhs(d.F.f); if (d.ask === 'num') v[lhs(nfOf(d))] = answerVal(d); return same(ev(rhs(d.F.f), v), v[L]); }) &&
+    FLOWS.every((i) => { const d = STEPS[i]; return same(ev(rhs(nfOf(d)), valsOf(d.F)), answerVal(d)); }) &&
+    checkFor(STEPS[2], 'I = V ÷ R') === '12 ÷ 4 = 3' && checkFor(STEPS[2], 'R = V ÷ I') === '12 ÷ 3 = 4' && checkFor(STEPS[7], STEPS[7].want) === '(18 − 6) ÷ 3 = 4' &&
+    checkFor(STEPS[6], undone(STEPS[6].w)) === '(26 − 5) ÷ 3 = 7' && checkFor(STEPS[8], undone(STEPS[8].w)) === '18 − 3 × 4 = 6' && answerVal(STEPS[11]) === 3 && runCheck(STEPS[11], 3) === '8 + 4 × 3 = 20' &&
+    num(23000) === '23,000' && num(-3) === '−3');
+  K.check('They all are combinations of just two equations, Ohm\'s law and power: V = IR put into P = VI gives P = I²R for the amounts on every electrical card, with R = V ÷ I where a card has no R (23 Ω for 2300 W at 230 V)', () =>
+    same(POW.vars.V[2] / POW.vars.I[2], 23) && [OHM, OHM2, POW].every((F) => { const v = valsOf(F), P = F === POW ? v.P : v.V * v.I, R = F === POW ? v.V / v.I : v.R; return same(v.V, ev('IR', { I: v.I, R: R })) && same(P, ev('VI', { V: v.V, I: v.I })) && same(P, v.I * v.I * R); }),
+  { source: 'https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power' });
+  K.check('The change side, change sign method works absolutely perfectly for a great number of equations: wherever the step that crosses over is a + or a −, it gives the same new formula as undoing on both sides', () =>
+    STEPS.filter((d) => d.w && d.ask !== 'num' && d.w.ops.length === 1 && /[+−]/.test(d.w.ops[0][0])).every((d) => SLIPF('sign', { w: d.w, ask: 'formula' }) === undone(d.w)) &&
+    STEPS.filter((d) => d.w && d.ask !== 'num' && d.w.ops.length === 2).every((d) => d.w.ops[1][0] === '+' && SIGN[d.w.ops[1][0]] === inv(d.w.ops[1])[0]),
+  { source: 'https://podcast.mrbartonmaths.com/article-misconceptions-solving-equations' });
+  K.check('To change the subject of a formula the terms are rearranged following the general rule, change side, change operation: each step crossing over as its opposite operation, last step first, gives every new formula on these screens, and every check matches', () =>
+    FLOWS.filter((i) => STEPS[i].ask !== 'num').every((i) => { const d = STEPS[i], f = undone(d.w); return /, not /.test(checkFor(d, f)) === false && d.w.ops.every((o) => f.indexOf(opLabel(inv(o))) > 0); }),
+  { source: 'https://www.bbc.co.uk/bitesize/guides/zx2n7p3/revision/1' });
+  K.check('Reach the equation x / 4 = 160 correctly, then x = 160/4: dividing where it should multiply gives 40, and 40 / 4 is 10, not 160; multiplying gives 640, and 640 / 4 = 160', () => {
+    const w = { s: 'x', ops: [['÷', '4']], out: 'n' }, d = { w: w, ask: 'formula' };
+    return undone(w) === 'x = n × 4' && SLIPF('again', d) === 'x = n ÷ 4' && ev('n × 4', { n: 160 }) === 640 && ev('x ÷ 4', { x: 640 }) === 160 &&
+      ev('n ÷ 4', { n: 160 }) === 40 && ev('x ÷ 4', { x: 40 }) === 10 && STEPS[3].slips['V = I ÷ R'] === 'again';
+  }, { source: 'https://files.eric.ed.gov/fulltext/EJ1294052.pdf' });
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives, its check failing: change side, change sign used on a × or a ÷; a step done again instead of undone; a divide the wrong way round; only part of a side divided; or the × undone before the +', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      return d.opts.length === slips.length + 1 && d.want === answerOf(d) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        slips.every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && SLIP(d.slips[o], d) === o &&
+          (d.ask === 'undo1' || (d.ask === 'num' ? / not /.test(runCheck(d, valueOf(o))) : / not /.test(checkFor(d, o)))));
+    }) && checkFor(STEPS[7], 't = v − u ÷ a') === '18 − 6 ÷ 3 = 16, not 4' && checkFor(STEPS[7], 't = v ÷ a − u') === '18 ÷ 3 − 6 = 0, not 4' &&
+    checkFor(STEPS[5], 'I = P − V') === '2300 − 230 = 2070, not 10' && checkFor(STEPS[3], 'V = I ÷ R') === '2 ÷ 8 = 0.25, not 16' && checkFor(STEPS[3], 'V = I + R') === '2 + 8 = 10, not 16' && checkFor(STEPS[9], 'a = v − u − t') === '18 − 6 − 4 = 8, not 3' &&
+    runCheck(STEPS[11], 18) === '8 + 4 × 18 = 80, not 20' && runCheck(STEPS[11], -3) === '8 + 4 × (−3) = −4, not 20');
+  K.check('Every picture, finished, draws the steps in order from the letter wanted, each undo box under the step it undoes with the opposite steps lit, then the new formula and its check; the change side screen fails its check and units in the warning colour; and a wrong answer\'s formula and check fail in the warning colour, clear of the check\'s name', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? blank(i) : solved(i));
+      const ok = (s, warn) => g.texts.some((t) => t.s === s && /warnt/.test(t.cls) === warn);
+      if (d.demo === 'check') return d.lines.every((f) => ok(f, false) && ok(checkFor(d, f), false) && g.texts.some((t) => t.s === chipsOf(d.F, false)[d.F.order.indexOf(lhs(f))] && t.y === CARD.chips && g.boxes.some((b) => b.cls === 'ring' && K.near(b.x, t.x + t.w / 2, 0.5))));
+      if (d.demo === 'shortcut') { const slip = SLIPF('sign', { w: d.w, ask: 'formula' }); return ok(slip, true) && ok(checkFor(d, slip), true) && ok(unitsOf(d, slip), true) && ok(undone(d.w), false) && ok(checkFor(d, undone(d.w)), false) && ok('volts ÷ ohms = amps', false); }
+      const L = layout(d);
+      const atRow = (s, row) => g.boxes.filter((b) => b.s === s && b.y === ROWS[row].top).map((b) => b.x);
+      const inA = L.A.every((s, k) => atRow(s, 'A').some((x) => K.near(x, L.sx[k], 0.01)));
+      const inB = L.B.every((s, k) => atRow(s, 'B').some((x) => K.near(x, L.sx[k], 0.01)));
+      const lit = g.boxes.filter((b) => /lit/.test(b.cls)).map((b) => b.s).sort().join() === L.B.filter((s, k) => k % 2).sort().join();
+      const opposite = L.A.every((s, k) => !(k % 2) || L.B[k] === opLabel(inv([s[0], s.slice(2)])));
+      const foot = ok(nfOf(d), false) && (d.demo !== 'plus' || (g.texts.filter((t) => t.s === nfOf(d) && !/warnt/.test(t.cls)).length === 2 && ok('change sign', false))) && (d.ask === 'undo1' || d.demo === 'undo' || ok(d.ask === 'num' ? runCheck(d, answerVal(d)) : checkFor(d, nfOf(d)), false));
+      let slips = true;
+      const rightFill = (g.texts.filter((t) => /wk/.test(t.cls))[0] || {}).fill;
+      if (d.ask === 'formula' || d.ask === 'num') slips = Object.keys(d.slips).every((o) => {
+        const w = drawn(i, slipped(i, o)), f = w.texts.filter((t) => /warnt/.test(t.cls) && /wk/.test(t.cls)), name = w.texts.filter((t) => t.s === 'check')[0];
+        return f.length === 1 && / not /.test(f[0].s) && f[0].x + f[0].w <= 336.5 && name && name.x <= f[0].x - 6 && f[0].fill !== rightFill &&
+          (d.ask === 'num' || w.texts.some((t) => t.s === o && /warnt/.test(t.cls)));
+      });
+      if (d.ask === 'undo1') slips = Object.keys(d.slips).every((o) => drawn(i, slipped(i, o)).boxes.some((b) => b.s === o && /warnb/.test(b.cls)));
+      return inA && inB && lit && opposite && foot && slips;
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer: no undo box lit, no new formula, no value for the letter', () =>
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, blank(i)); return !has(g.all, d.want) && !g.texts.some((t) => t.s === nfOf(d)) && !g.boxes.some((b) => /lit/.test(b.cls)) && (d.ask !== 'num' || !has(g.all, num(answerVal(d)))); }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => A[k]).sort((a, b) => a - b);
+      return ps.every((q, k) => k === 0 || q === ps[k - 1] || q - ps[k - 1] >= 0.45 - 1e-9);
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>

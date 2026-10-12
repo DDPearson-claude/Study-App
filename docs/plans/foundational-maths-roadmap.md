@@ -189,7 +189,9 @@ research and citations after the research stage could not save its search result
 settings, took about 5.93M: 5.76M for the build workflow (plan, research and all six lessons) and
 about 0.17M for the brief's research, so about 0.99M a lesson. Its research kept every source,
 harvested from the transcript (tools/course/harvest.mjs). A separate look at other visuals for the
-course cost about 0.17M more.
+course cost about 0.17M more. Solving equations, 6 lessons on the same settings (12 Oct), took
+about 6.18M: 5.96M for the build workflow and about 0.21M for the brief's research, so about
+1.03M a lesson.
 
 A middle way is possible and not yet measured: lean plus the fresh fact-check and one combined
 review, keeping the full process for pilots. I'll measure each pilot and re-estimate before its

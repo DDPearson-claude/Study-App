@@ -1,0 +1,951 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  /* A letter that stands for an amount is set in italics wherever it is written. */
+  .vx { font-style: italic; }
+  .scene { display: block; width: 100%; }
+  /* The formula card: each letter, the name of its unit under it, and the amount put in for it. A job
+     card: the job's amounts in chips, and the equation made from them under them. */
+  .scene .card { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .lt { font: italic 700 26px var(--k-font); fill: var(--k-ink); }
+  .scene .eqs { font: 700 24px var(--k-font); fill: var(--k-ink); }
+  .scene .tag { font: 700 14px var(--k-font); fill: var(--k-accent); letter-spacing: .02em; }
+  .scene .chip { fill: var(--k-bg); stroke: var(--k-line); stroke-width: 1.5; }
+  .scene .cht { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .term { font: 700 21px var(--k-font); fill: var(--k-ink); }
+  .scene .hl { fill: var(--k-hl); }
+  /* The flow diagram, as in lesson 2: each amount in a plain box, each step in a box drawn in ink; a
+     step being undone lights up solid. A box still to fill in is dashed with a '?'. A slip is in the
+     warning colour. */
+  .scene .vb { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .ob { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .ob.lit { fill: var(--k-accent2); }
+  .scene .gap { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .warnb { stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .val { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .opl { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .opl.lit { fill: var(--k-on-accent2); }
+  .scene .qm { font: 700 15px var(--k-font); fill: var(--k-muted); }
+  .scene .rl { font: 700 14px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .ar { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .arh { fill: var(--k-muted); }
+  .scene .wk { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .wk2 { font: 700 20px var(--k-font); fill: var(--k-ink); }
+  /* A slip's words (a failed check, a wrong equation) in the warning colour, over any text style above. */
+  .scene text.warnt { fill: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Formula cards whose letters wear their units, a flow diagram that undoes the steps, and the check.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 256" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Substitute in each letter's own unit, undo the steps, then check. The amounts are example values.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic: the picture a step draws. 'formula': a formula card `f` (FORM below) with the amounts `giv`
+  // put in, each [number, unit], and `find` the letter still unknown; under it the flow diagram of the
+  // steps done to that letter, undone in reverse (or, when the unknown is the formula's subject, its
+  // steps worked forwards), and the check. 'derive': P = VI turned into P = I²R by putting IR in for V.
+  // 'job': a job card, the job's amounts `job.chips` over the equation made from them (a × v + b = c),
+  // then the flow diagram and the check. ask: what a job puzzle asks for ('eq' the equation, 'val' the
+  // answer). dur: how long a demonstration plays; fb: how long the motion after a right answer plays
+  // (seconds); at: when each part of that motion arrives, in seconds after Check. slips: which slip gives
+  // each wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  // Each letter's unit, as a symbol and as the card names it.
+  const UNIT = { V: 'V', I: 'A', R: 'Ω', P: 'W' };
+  const WORD = { V: 'volts', I: 'amps', R: 'ohms', P: 'watts' };
+  // A formula: lhs = a × b, with a squared in P = I²R.
+  const FORM = {
+    VIR: { lhs: 'V', a: 'I', b: 'R', sq: false, name: 'V = IR' },
+    PVI: { lhs: 'P', a: 'V', b: 'I', sq: false, name: 'P = VI' },
+    PIR: { lhs: 'P', a: 'I', b: 'R', sq: true, name: 'P = I²R' },
+  };
+  // An amount in a unit that is not its letter's own goes in multiplied by this: kW to W, mA to A.
+  const SCALE = { kW: 1000, mA: 0.001 };
+  const J = (v, a, b, c, u, chips) => ({ v: v, a: a, b: b, c: c, u: u, chips: chips });
+  // After a right answer. SOLVE: the undo box lights under the step it undoes, with the amount it
+  // starts from; the answer; the check. SOLVE_C: first the amount in milliamps turns into amps. FWD: the
+  // current; times itself; times R, giving the power; the check by V = IR and P = VI. FWD_C: the
+  // milliamps turn into amps first. JOB: the equation; the steps done to the unknown; each undo; the check.
+  const SOLVE = { undo: 0.1, ans: 0.55, check: 1.0 };
+  const SOLVE_C = { conv: 0.1, undo: 1.0, ans: 1.45, check: 1.9 };
+  const FWD = { a1: 0.1, sq: 0.55, mul: 1.0, check: 1.45 };
+  const FWD_C = { conv: 0.1, a1: 0.95, sq: 1.4, mul: 1.85 };
+  const JOB = { eq: 0.1, rowA: 0.55, u1: 1.0, u2: 1.45, check: 1.9 };
+  // After a wrong answer: the slip, in the warning colour (a check that fails, a wrong order of steps,
+  // or a wrong equation).
+  const WRONG = { slip: 0.1 }, WRONG_DUR = 0.7;
+  const STEPS = [
+    { show: true, pic: 'formula', demo: 'solve', dur: 3.3, f: 'VIR', giv: { V: [230, 'V'], R: [46, 'Ω'] }, find: 'I', name: 'Put the numbers in',
+      text: '*Substitute* what you know into V = IR, 230 V for V and 46 Ω for R. That leaves 230 = I × 46. Undo the × 46 with ÷ 46, so I = 5 A.' },
+    { kind: 'pick', pic: 'formula', f: 'VIR', giv: { V: [12, 'V'], I: [3, 'A'] }, find: 'R', name: 'Find the resistance',
+      opts: ['4 Ω', '36 Ω', '0.25 Ω'], want: '4 Ω', slips: { '36 Ω': 'again', '0.25 Ω': 'flip' }, fb: 1.7, at: SOLVE,
+      task: 'A 12 V supply drives 3 A through a resistor. Using V = IR, what is its resistance?',
+      why: 'Substituting gives 12 = 3 × R, so R has been multiplied by 3. Undo that with ÷ 3, and 12 ÷ 3 = 4 Ω. As a check, 3 × 4 = 12.',
+      hint: 'Not quite. Run your answer back through V = IR to check it.',
+      hints: { '36 Ω': 'Not quite. That multiplies by 3 again instead of undoing it, so the check fails. Undo × 3 with ÷ 3.',
+        '0.25 Ω': 'Not quite. That divides 3 by 12, the wrong way round. It is the 12 that gets ÷ 3.' } },
+    { show: true, pic: 'formula', demo: 'units', dur: 4.2, f: 'PVI', giv: { P: [2.3, 'kW'], V: [230, 'V'] }, find: 'I', name: 'In its own unit',
+      text: 'Put each amount in using its letter\'s unit. P is in watts, so a 2.3 kW heater counts as 2300 W. On 230 V, 2300 = 230 × I, so I = 10 A.' },
+    { kind: 'pick', pic: 'formula', f: 'VIR', giv: { V: [24, 'V'], I: [50, 'mA'] }, find: 'R', name: 'Milliamps',
+      opts: ['480 Ω', '0.48 Ω', '1.2 Ω'], want: '480 Ω', slips: { '0.48 Ω': 'milli', '1.2 Ω': 'again' }, fb: 2.5, at: SOLVE_C,
+      task: 'A 24 V DC relay coil draws 50 mA. Using V = IR, what is the coil\'s resistance?',
+      why: 'I is in amps, and 50 mA is 0.05 A. So 24 = 0.05 × R, and R = 24 ÷ 0.05 = 480 Ω. As a check, 0.05 × 480 = 24.',
+      hint: 'Not quite. Put the current in in amps, then undo.',
+      hints: { '0.48 Ω': 'Not quite. That puts the 50 in as amps. 50 mA is 0.05 A.',
+        '1.2 Ω': 'Not quite. That multiplies by the current again instead of undoing it. Undo × I with ÷ I.' } },
+    { kind: 'pick', pic: 'formula', f: 'PVI', giv: { P: [12, 'W'], V: [24, 'V'] }, find: 'I', name: 'Find the current',
+      opts: ['0.5 A', '2 A', '288 A'], want: '0.5 A', slips: { '2 A': 'flip', '288 A': 'again' }, fb: 1.7, at: SOLVE,
+      task: 'A 12 W lamp runs on a 24 V supply. Using P = VI, what current does it draw?',
+      why: 'Substituting gives 12 = 24 × I. Undo × 24 with ÷ 24, and 12 ÷ 24 = 0.5 A. As a check, 24 × 0.5 = 12.',
+      hint: 'Not quite. Run your answer back through P = VI to check it.',
+      hints: { '2 A': 'Not quite. That divides 24 by 12, the wrong way round. It is the 12 that gets ÷ 24.',
+        '288 A': 'Not quite. That multiplies by 24 again instead of undoing it. Undo × 24 with ÷ 24.' } },
+    { show: true, pic: 'derive', demo: 'derive', dur: 3.8, f: 'PIR', giv: { I: [10, 'A'], R: [23, 'Ω'] }, find: 'P', name: 'Where I²R comes from',
+      text: 'Put IR in for V and P = VI becomes P = IR × I. That is I × I × R, or I²R, so 10 A through 23 Ω gives 10 × 10 × 23 = 2300 W.' },
+    { kind: 'pick', pic: 'formula', f: 'PIR', giv: { I: [3, 'A'], R: [10, 'Ω'] }, find: 'P', name: 'Square first',
+      opts: ['90 W', '60 W', '900 W'], want: '90 W', slips: { '60 W': 'double', '900 W': 'irsq' }, fb: 2.1, at: FWD,
+      task: 'A 10 Ω resistor carries 3 A. Using P = I²R, what power does it give out?',
+      why: 'I² means 3 × 3 = 9, worked out before the × R. So P = 9 × 10 = 90 W. As a check, V = IR gives 3 × 10 = 30 V, and P = VI gives 30 × 3 = 90 W.',
+      hint: 'Not quite. Square the current first, then multiply by R.',
+      hints: { '60 W': 'Not quite. That doubles the 3. I² means 3 × 3, not 3 × 2.',
+        '900 W': 'Not quite. That squares 3 × 10. Only the I is squared, so square the 3 first.' } },
+    { kind: 'pick', pic: 'formula', f: 'PIR', giv: { P: [1000, 'W'], I: [5, 'A'] }, find: 'R', name: 'Resistance from power',
+      opts: ['40 Ω', '100 Ω', '200 Ω'], want: '40 Ω', slips: { '100 Ω': 'double', '200 Ω': 'nosq' }, fb: 1.7, at: SOLVE,
+      task: 'A heater element gives out 1000 W when it carries 5 A. Using P = I²R, what is its resistance?',
+      why: 'Substituting gives 1000 = 5² × R, and 5² = 25. Undo × 25 with ÷ 25, so R = 1000 ÷ 25 = 40 Ω. As a check, 5² × 40 = 1000.',
+      hint: 'Not quite. Run your answer back through P = I²R to check it.',
+      hints: { '100 Ω': 'Not quite. That divides by 10, from doubling the 5. 5² is 5 × 5 = 25.',
+        '200 Ω': 'Not quite. That divides by 5 and leaves out the square. 5² is 25.' } },
+    { show: true, pic: 'job', demo: 'job', dur: 4.3, job: J('t', 15, 50, 200, 'min', ['15 L a minute', '50 L at start', '200 L in all']), name: 'From a job to an equation',
+      text: 'A tank has 50 L and a pump adds 15 L a minute. After t minutes it holds 15t + 50 litres. It holds 200 L when 15t + 50 = 200, at t = 10 minutes.' },
+    { kind: 'pick', pic: 'job', ask: 'eq', job: J('n', 5, 15, 50, '', ['5 m a length', '15 m left', '50 m on drum']), name: 'Which equation?',
+      opts: ['5n + 15 = 50', '15n + 5 = 50', '5n − 15 = 50'], want: '5n + 15 = 50', slips: { '15n + 5 = 50': 'swapEq', '5n − 15 = 50': 'takeEq' }, fb: 2.5, at: JOB,
+      task: 'A drum had 50 m of cable. After n lengths of 5 m were cut, 15 m was left. Which equation fits?',
+      why: 'The n lengths of 5 m make 5n metres. Add the 15 m left and you have the drum\'s 50 m, so 5n + 15 = 50. That gives n = 7, and 5 × 7 + 15 = 50.',
+      hint: 'Not quite. Match each number to what it measures.',
+      hints: { '15n + 5 = 50': 'Not quite. That cuts lengths of 15 m and leaves 5 m. Each length is 5 m, and 15 m is left.',
+        '5n − 15 = 50': 'Not quite. That takes the 15 m off. What was cut and what is left add up to the 50 m.' } },
+    { kind: 'pick', pic: 'job', ask: 'val', job: J('h', 30, 60, 180, 'h', ['£30 an hour', '£60 callout', '£180 bill']), name: 'The callout',
+      opts: ['4 h', '8 h', '2.5 h'], want: '4 h', slips: { '8 h': 'jobAgain', '2.5 h': 'jobSwap' }, fb: 2.5, at: JOB,
+      task: 'A callout costs £60, then £30 for each hour. The bill is £180. How many hours was the job?',
+      why: 'The bill is 30h + 60 = 180. Take the £60 off first, 180 − 60 = 120, then 120 ÷ 30 = 4 hours. As a check, 30 × 4 + 60 = 180.',
+      hint: 'Not quite. Write the bill as an equation, then undo it.',
+      hints: { '8 h': 'Not quite. That adds the £60 instead of taking it off, so the check fails. Take it off first.',
+        '2.5 h': 'Not quite. That charges £60 an hour and £30 once. The £30 goes with each hour.' } },
+    { kind: 'pick', pic: 'formula', f: 'PIR', giv: { I: [200, 'mA'], R: [100, 'Ω'] }, find: 'P', name: 'Milliamps squared',
+      opts: ['0.04 W', '4 W', '40 W'], want: '4 W', slips: { '0.04 W': 'tenth', '40 W': 'double' }, fb: 2.5, at: FWD_C,
+      task: 'A 100 Ω resistor carries 200 mA. Using P = I²R, what power does it give out?',
+      why: '200 mA is 0.2 A, and 0.2² = 0.2 × 0.2 = 0.04. So P = 0.04 × 100 = 4 W. As a check, V = IR gives 0.2 × 100 = 20 V, and P = VI gives 20 × 0.2 = 4 W.',
+      hint: 'Not quite. Put the current in in amps, then square it first.',
+      hints: { '0.04 W': 'Not quite. 200 mA is 0.2 A, not 0.02 A.',
+        '40 W': 'Not quite. That doubles the 0.2. Squaring means 0.2 × 0.2.' } },
+  ];
+  const FINISH = 'A formula is an equation with a letter for each amount, each in its own unit. Put in what you know in those units, undo the steps to find the one you don\'t, and check it. A job\'s amounts make an equation the same way.';
+  // When each demonstration's parts arrive, in seconds after the screen opens (the screen itself
+  // takes FADE to fade in, so nothing starts before it has settled). solve: the amounts under their
+  // letters; the steps done to the unknown; the undo box lights; the answer, in the flow diagram and on
+  // the card; the check. units: as solve, the kilowatts turning into watts before the flow diagram.
+  // derive: IR put in for V; I × I × R; the card for P = I²R with the amounts; the working; the power
+  // on the card; the check by P = VI. job: each term of the equation under its amount; the steps done
+  // to the unknown; the last step undone; the first step undone and the answer; the check.
+  const FADE = 0.35;
+  const AT = {
+    solve: { vals: 0.6, rowA: 1.1, undo: 1.6, ans: 2.1, check: 2.6 },
+    units: { vals: 0.6, conv: 1.1, rowA: 2.0, undo: 2.5, ans: 3.0, check: 3.5 },
+    derive: { l2: 0.6, l3: 1.1, card: 1.6, work: 2.1, pval: 2.6, check: 3.1 },
+    job: { t1: 0.6, t2: 1.1, t3: 1.6, rowA: 2.1, u1: 2.6, u2: 3.1, check: 3.6 },
+  };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const same = (a, b) => K.near(a, b, 1e-9);
+  // A number as the page writes it: 0.25, 2300, 10,000, with a true minus sign.
+  function num(v) {
+    const a = Math.round(v * 1e6) / 1e6;
+    let s = String(Math.abs(a));
+    if (Math.abs(a) >= 10000) s = s.replace(/^(\d+)(\d{3})/, '$1,$2');
+    return (a < 0 ? '−' : '') + s;
+  }
+  const amt = (v, u) => (u ? num(v) + ' ' + u : num(v));
+  // An amount in its letter's own unit; as the job gives it (2.3 kW, 50 mA); whether a step has one to turn.
+  const base = (q) => r3(q[0] * (SCALE[q[1]] || 1));
+  const given = (q) => amt(q[0], q[1]);
+  const converts = (d) => !!d.giv && Object.keys(d.giv).some((L) => !!SCALE[d.giv[L][1]]);
+  // The letter the unknown is multiplied by, and that amount (squared when it is the I of I²R).
+  const other = (d) => { const f = FORM[d.f]; return d.find === f.a ? f.b : f.a; };
+  function kOf(d) { const f = FORM[d.f], o = other(d), v = base(d.giv[o]); return f.sq && o === f.a ? r3(v * v) : v; }
+  // The unknown: the subject worked forwards, or the subject undone by ÷ k.
+  function solveF(d) {
+    const f = FORM[d.f];
+    if (d.find === f.lhs) { const a = base(d.giv[f.a]); return r3((f.sq ? a * a : a) * base(d.giv[f.b])); }
+    return r3(base(d.giv[f.lhs]) / kOf(d));
+  }
+  // The formula worked forwards with x for the unknown: 5 × 46 = 230, 5² × 40 = 1000 (", not 12" when it fails).
+  function checkF(d, x) {
+    const f = FORM[d.f], va = d.find === f.a ? x : base(d.giv[f.a]), vb = d.find === f.b ? x : base(d.giv[f.b]);
+    const got = r3((f.sq ? va * va : va) * vb), want = base(d.giv[f.lhs]);
+    return (f.sq ? num(va) + '²' : num(va)) + ' × ' + num(vb) + ' = ' + num(got) + (same(got, want) ? '' : ', not ' + num(want));
+  }
+  // P = I²R worked forwards, checked by the other route on two lines, V from V = IR and then P = VI:
+  // "V = IR = 3 × 10 = 30" over "P = VI = 30 × 3 = 90".
+  function checkVI(d) {
+    const I = base(d.giv.I), R = base(d.giv.R), V = r3(I * R);
+    return ['V = IR = ' + num(I) + ' × ' + num(R) + ' = ' + num(V), 'P = VI = ' + num(V) + ' × ' + num(I) + ' = ' + num(V * I)];
+  }
+  // The flow diagram of a formula with one unknown: the unknown, × k, the subject (the step in the
+  // job's own unit until it is turned: × 50 mA, then × 0.05; in I²R, × 5²); and its undo, ÷ k.
+  function kLabel(d, turned) {
+    const f = FORM[d.f], o = other(d), q = d.giv[o];
+    if (f.sq && o === f.a) return '× ' + num(q[0]) + '²';
+    return '× ' + (SCALE[q[1]] && !turned ? given(q) : num(base(q)));
+  }
+  const lhsLabel = (d, turned) => { const q = d.giv[FORM[d.f].lhs]; return SCALE[q[1]] && !turned ? given(q) : num(base(q)); };
+  const solveA = (d, turned) => [d.find, kLabel(d, turned), lhsLabel(d, turned)];
+  const solveB = (d) => [num(solveF(d)), '÷ ' + num(kOf(d)), num(base(d.giv[FORM[d.f].lhs]))];
+  // P = I²R worked forwards: the current, times itself, times R. A slip's order: doubled instead of
+  // squared, I × R squared, or the current turned into amps a place too far.
+  function fwdRow(d, slip) {
+    const I = base(d.giv.I), R = base(d.giv.R);
+    if (slip === 'tenth') { const i = I / 10; return [num(i), '× ' + num(i), num(i * i), '× ' + num(R), num(i * i * R)]; }
+    if (slip === 'double') return [num(I), '× 2', num(2 * I), '× ' + num(R), num(2 * I * R)];
+    if (slip === 'irsq') return [num(I), '× ' + num(R), num(I * R), '× ' + num(I * R), num(I * R * I * R)];
+    return [num(I), '× ' + num(I), num(I * I), '× ' + num(R), num(I * I * R)];
+  }
+  // A job: a × v + b = c, so v = (c − b) ÷ a. Its terms, its flow diagram and undo, and its check.
+  const jobAns = (j) => r3((j.c - j.b) / j.a);
+  const termsOf = (j) => [num(j.a) + j.v, '+ ' + num(j.b), '= ' + num(j.c)];
+  const jobEq = (j) => termsOf(j).join(' ');
+  const jobA = (j) => [j.v, '× ' + num(j.a), num(j.a) + j.v, '+ ' + num(j.b), num(j.c)];
+  const jobB = (j) => [num(jobAns(j)), '÷ ' + num(j.a), num(j.c - j.b), '− ' + num(j.b), num(j.c)];
+  function checkJ(j, x) { const got = r3(j.a * x + j.b); return num(j.a) + ' × ' + num(x) + ' + ' + num(j.b) + ' = ' + num(got) + (same(got, j.c) ? '' : ', not ' + num(j.c)); }
+  // A wrong equation's terms: the rate and the fixed amount swapped; or what is left taken off instead
+  // of added. EQROOT: the amount each wrong equation gives, which the job's check then fails.
+  const swapTerms = (j) => [num(j.b) + j.v, '+ ' + num(j.a), '= ' + num(j.c)];
+  const takeTerms = (j) => [num(j.a) + j.v, '− ' + num(j.b), '= ' + num(j.c)];
+  const EQROOT = { swapEq: (j) => r3((j.c - j.a) / j.b), takeEq: (j) => r3((j.c + j.b) / j.a) };
+  // The answer a puzzle wants, worked out by its rule, as its button reads.
+  function answerOf(d) {
+    if (d.pic === 'job') return d.ask === 'eq' ? jobEq(d.job) : amt(jobAns(d.job), d.job.u);
+    return amt(solveF(d), UNIT[d.find]);
+  }
+  // What each slip makes of the answer. again: the step done again instead of undone (× k). flip: the
+  // division the wrong way round (k ÷ the subject). milli: milliamps put in as amps. double: the current
+  // doubled instead of squared. irsq: I × R squared. nosq: the square left out. jobAgain: the fixed
+  // amount added instead of taken off. jobSwap: the rate and the fixed amount swapped. swapEq, takeEq:
+  // the equation with the rate and the fixed amount swapped, or with what is left taken off instead of
+  // added. tenth: milliamps turned into amps one place too far (200 mA as 0.02 A).
+  const lhsOf = (d) => base(d.giv[FORM[d.f].lhs]);
+  const SLIP = {
+    again: (d) => amt(lhsOf(d) * kOf(d), UNIT[d.find]),
+    flip: (d) => amt(kOf(d) / lhsOf(d), UNIT[d.find]),
+    milli: (d) => amt(lhsOf(d) / d.giv[other(d)][0], UNIT[d.find]),
+    double: (d) => (d.find === 'P' ? amt(2 * base(d.giv.I) * base(d.giv.R), 'W') : amt(lhsOf(d) / (2 * base(d.giv.I)), UNIT[d.find])),
+    irsq: (d) => { const v = base(d.giv.I) * base(d.giv.R); return amt(v * v, 'W'); },
+    nosq: (d) => amt(lhsOf(d) / base(d.giv.I), UNIT[d.find]),
+    jobAgain: (d) => amt((d.job.c + d.job.b) / d.job.a, d.job.u),
+    jobSwap: (d) => amt((d.job.c - d.job.a) / d.job.b, d.job.u),
+    swapEq: (d) => swapTerms(d.job).join(' '),
+    takeEq: (d) => takeTerms(d.job).join(' '),
+    tenth: (d) => { const I = base(d.giv.I) / 10; return amt(I * I * base(d.giv.R), 'W'); },
+  };
+  // An option's worth: "0.25 Ω" is 0.25, "10,000 W" is 10000; an equation has none.
+  const valueOf = (s) => { const m = /^£?(−?)(\d[\d,]*(?:\.\d+)?)(?:\s|$)/.exec(s); return m ? (m[1] ? -1 : 1) * +m[2].replace(/,/g, '') : NaN; };
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/ /g, ' ').replace(/£(\d[\d,.]*)/g, '$1 pounds')
+    .replace(/(\d) kW\b/g, '$1 kilowatts').replace(/(\d) mA\b/g, '$1 milliamps').replace(/(\d) min\b/g, '$1 minutes')
+    .replace(/(\d) V\b/g, '$1 volts').replace(/(\d) A\b/g, '$1 amps').replace(/(\d) W\b/g, '$1 watts').replace(/(\d) Ω/g, '$1 ohms')
+    .replace(/(\d) L\b/g, '$1 litres').replace(/(\d) m\b/g, '$1 metres').replace(/(\d) h\b/g, '$1 hours').replace(/Ω/g, ' ohms ')
+    .replace(/²/g, ' squared ').replace(/\bIR\b/g, 'I R').replace(/\bVI\b/g, 'V I').replace(/(\d)([tnh])\b/g, '$1 $2')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/\+/g, ' plus ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  function blank(i) { return { pick: null, res: null, why: false }; }
+  const emptyFor = (i, st) => (st.pick != null ? '' : PICK);
+  const isEmpty = (i, st) => !!emptyFor(i, st);
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  // A wrong answer's hint names its slip.
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A step answered right (the timing check draws each one this way), or with a slip.
+  function solved(i) { const st = blank(i); st.pick = STEPS[i].want; st.res = 'right'; return st; }
+  function slipped(i, o) { const st = blank(i); st.pick = o; st.res = 'wrong'; return st; }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                      // what is moving: 'demo' or 'fb'
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  // A letter that stands for an amount (V, I, R, P, t, n, h), alone or in one of the formulas' runs IR,
+  // VI and I²R (so "It" and "In" stay words), but not a unit after its number ("230 V", "4 h").
+  const VRE = /(?<![A-Za-z'])(?:I²R|IR|VI|[VIRPtnh]²?)(?![A-Za-z])/g;
+  function spans(s) {
+    const out = [];
+    let at = 0, m;
+    VRE.lastIndex = 0;
+    while ((m = VRE.exec(s))) {
+      if (/\d $/.test(s.slice(0, m.index))) continue;
+      if (m.index > at) out.push([s.slice(at, m.index), false]);
+      out.push([m[0], true]);
+      at = m.index + m[0].length;
+    }
+    if (at < s.length) out.push([s.slice(at), false]);
+    return out;
+  }
+  function math(el, s) { spans(s).forEach((p) => el.appendChild(p[1] ? K.el('i', { class: 'vx' }, p[0]) : document.createTextNode(p[0]))); }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) math(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) math(el, text.slice(at));
+  }
+  // A sum, an amount or a step stays together on one line ("230 = I × 46", "2.3 kW", "÷ 46", "£60"),
+  // with the stop after it; a long one may break only before an equals sign.
+  const NUMT = '£?\\d[\\d,]*(?:\\.\\d+)?²?(?:[tnh](?![A-Za-z]))?(?: (?:kW|mA|minutes|min|[VAWΩLmh])(?![A-Za-z]))?';
+  const TOK = '(?<![A-Za-z0-9.,\'£])(?:' + NUMT + '|(?:I²R|IR|VI|[VIRPtn]²?)(?![A-Za-z]))';
+  const GLUE = new RegExp('(?:[×÷+−] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => {
+        if (k) el.appendChild(document.createTextNode(' '));
+        if (/ /.test(b)) { const sp = K.el('span', { class: 'nw' }); math(sp, b); el.appendChild(sp); } else math(el, b);
+      });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb'); else play(WRONG_DUR, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer, from its start; with
+  // reduced motion (and while the self-test looks) it opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel) fades in softly: the CSS animation restarts on it.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let H = 256;
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and risen `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // One thing giving way to another at arrival a: the first fades out, the second in.
+  function swap(a, from, to, rise) { leave(a, from); part(a, rise == null ? 4 : rise, to); }
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: Math.max(0, r3(w)), height: Math.max(0, h), rx: rx || 0 }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  // Text whose letters for amounts are set in italics (each as its own span).
+  function mtext(x, y, s, cls, anchor, parent) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: y, 'text-anchor': anchor || 'middle' });
+    spans(String(s)).forEach((p) => t.appendChild(p[1] ? K.svg('tspan', { class: 'vx' }, p[0]) : document.createTextNode(p[0])));
+    return parent ? parent.appendChild(t) : add(t);
+  }
+  const text = (x, y, s, cls, anchor) => mtext(x, y, s, cls, anchor);
+  // The width of a line of text (measured once it can be; estimated while the scene is hidden).
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = mtext(0, -50, s, cls, 'start', svg);
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    const size = { lt: 26, eqs: 24, term: 21, wk2: 20, wk: 18, val: 17, opl: 16, qm: 15, cht: 13, tag: 14, rl: 14 }[cls.split(' ')[0]] || 14;
+    return String(s).length * size * 0.6;
+  }
+  // An arrowhead at (x, y) pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, px = -uy, py = ux;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(x - 7 * ux + 4 * px) + ' ' + r3(y - 7 * uy + 4 * py) + ' L' + r3(x - 7 * ux - 4 * px) + ' ' + r3(y - 7 * uy - 4 * py) + ' Z' }));
+  }
+  // A line of text with part of it highlighted (the part that is new), starting at x.
+  // (Spaces are measured as fixed spaces, which SVG keeps at the end of a piece it measures.)
+  const nb = (s) => String(s).replace(/ /g, '\u00a0');
+  function hlText(x, y, s, cls, hl, anchor) {
+    const w = tw(s, cls), x0 = anchor === 'middle' ? x - w / 2 : anchor === 'end' ? x - w : x;
+    if (hl != null) {
+      const i = s.indexOf(hl);
+      if (i >= 0) rect('hl', x0 + (i > 0 ? tw(nb(s.slice(0, i)), cls) : 0) - 4, y - 19, tw(hl, cls) + 8, 25, 5);
+    }
+    text(x0, y, s, cls, 'start');
+  }
+
+  // --- the cards ---
+  // A card is CW wide from CXL; its three columns at CX, the signs between them at OX. On a formula
+  // card the letters sit LY below its top, their units' names TY and the amounts VY.
+  const CXL = 8, CW = 324, CH = 90, CX = [62, 170, 278], OX = [116, 224], LY = 34, TY = 54, VY = 80;
+  const cardRect = (y0) => rect('card', CXL, y0, CW, CH, 10);
+  const lettersOf = (f) => [f.lhs, f.a + (f.sq ? '²' : ''), f.b];
+  function formulaHead(f, y0) {
+    lettersOf(f).forEach((s, k) => text(CX[k], y0 + LY, s, 'lt'));
+    text(OX[0], y0 + LY - 2, '=', 'eqs');
+    text(OX[1], y0 + LY - 2, '×', 'eqs');
+    [f.lhs, f.a, f.b].forEach((L, k) => text(CX[k], y0 + TY, WORD[L], 'tag'));
+  }
+  // The amount under a letter, or a '?' still to find.
+  const cell = (k, y0, s, hl) => (hl ? hlText(CX[k], y0 + VY, s, 'val', s, 'middle') : text(CX[k], y0 + VY, s, 'val'));
+  function cellGap(k, y0) { rect('gap', CX[k] - 28, y0 + VY - 19, 56, 26, 6); text(CX[k], y0 + VY, '?', 'qm'); }
+  // A job card: the job's amounts in chips, and the equation's terms each under the amount it comes from
+  // (two terms when one side holds two amounts).
+  const CHY = 12, CHH = 26, EQY = 76;
+  function chips(j) {
+    j.chips.forEach((s, k) => { const w = tw(s, 'cht') + 16; rect('chip', CX[k] - w / 2, CHY, w, CHH, 13); text(CX[k], CHY + 18, s, 'cht'); });
+  }
+  function terms(list, warn) {
+    const xs = list.length === 3 ? CX : [CX[0], (CX[1] + CX[2]) / 2];
+    list.forEach((s, k) => text(xs[k], EQY, s, 'term' + (warn ? ' warnt' : '')));
+  }
+  function eqGap() { rect('gap', 34, EQY - 22, 272, 30, 8); text(170, EQY - 1, '?', 'qm'); }
+
+  // --- the flow diagram ---
+  // Three places across (the unknown, a step, an amount) or five (amount, step, amount, step, amount).
+  // Row A (the steps) and row B (the undo) are BH tall from their tops; each row's name sits above it.
+  const SX5 = [30, 100, 170, 240, 310], SX3 = [62, 170, 278], BH = 34, VW = 46, OW = 54;
+  const ROWS = { A: { top: 118, name: 110 }, B: { top: 180, name: 172 } };
+  const placesOf = (n) => (n === 3 ? SX3 : SX5);
+  // Each place's box is as wide as its words need (at least VW for an amount, OW for a step).
+  const widthsOf = (labels) => labels.map((s, k) => Math.max(k % 2 ? OW : VW, tw(s, k % 2 ? 'opl' : 'val') + 16));
+  // A box at place k of row r: kind 'v' (an amount), 'o' (a step), 'lit' (a step being undone), 'gap'
+  // (still to fill in), with warn for a slip.
+  function box(r, sx, k, w, s, kind, warn) {
+    const x = sx[k] - w / 2, y = ROWS[r].top;
+    const cls = kind === 'gap' ? 'gap' : kind === 'v' ? 'vb' : kind === 'lit' ? 'ob lit' : 'ob';
+    rect(cls + (warn ? ' warnb' : ''), x, y, w, BH, 8);
+    if (kind === 'gap') { text(sx[k], y + 22, '?', 'qm'); return; }
+    text(sx[k], y + 23, s, (kind === 'v' ? 'val' : 'opl') + (kind === 'lit' ? ' lit' : '') + (warn ? ' warnt' : ''));
+  }
+  // The arrow between place k and k + 1 of row r, pointing right (dir 1) or left (dir -1).
+  function arrow(r, sx, k, w, dir) {
+    const y = ROWS[r].top + BH / 2, a = sx[k] + w[k] / 2 + 3, b = sx[k + 1] - w[k + 1] / 2 - 3;
+    if (dir > 0) { line('ar', a, y, b - 6, y); head(b, y, 1, 0, 'arh'); } else { line('ar', b, y, a + 6, y); head(a, y, -1, 0, 'arh'); }
+  }
+  const rowName = (r, s) => text(4, ROWS[r].name, s, 'rl', 'start');
+  // A whole row, its arrows pointing dir; `lit` the step places lit; `kinds` overrides a place's kind.
+  // A place of kind 'none' is left empty, with no arrow to it (its box arrives later).
+  // A row whose boxes would come closer than 12 at the usual places (200 mA slipped to 0.02 A, squared
+  // to 0.0004) has slimmer margins in its boxes, spread evenly across the picture.
+  function layout(labels, w0) {
+    const w = w0 || widthsOf(labels), sx = placesOf(labels.length);
+    if (sx.every((x, k) => k === 0 || (x - w[k] / 2) - (sx[k - 1] + w[k - 1] / 2) >= 12)) return { w: w, sx: sx };
+    const ws = labels.map((s, k) => Math.max(k % 2 ? OW : VW, tw(s, k % 2 ? 'opl' : 'val') + 8));
+    const g = (332 - ws.reduce((a, b) => a + b, 0)) / (labels.length - 1);
+    let x = 4;
+    return { w: ws, sx: ws.map((ww) => { const c = x + ww / 2; x += ww + g; return r3(c); }) };
+  }
+  function row(r, labels, opt) {
+    opt = opt || {};
+    const L = layout(labels, opt.w), sx = L.sx, w = L.w;
+    const kind = (k) => (opt.kinds && opt.kinds[k]) || (k % 2 ? ((opt.lit || []).indexOf(k) >= 0 ? 'lit' : 'o') : 'v');
+    for (let k = 0; k + 1 < labels.length; k++) if (kind(k) !== 'none' && kind(k + 1) !== 'none') arrow(r, sx, k, w, opt.dir || 1);
+    labels.forEach((s, k) => { if (kind(k) !== 'none') box(r, sx, k, w[k], s, kind(k), opt.warn); });
+  }
+  // A row that fills in: place k shows was[k] (a '?' when empty) until its arrival when[k], then gives
+  // way to labels[k]; a place with no `when` shows labels[k] throughout.
+  function growRow(r, labels, was, when, opt) {
+    opt = opt || {};
+    const sx = placesOf(labels.length), w = widthsOf(labels);
+    for (let k = 0; k + 1 < labels.length; k++) arrow(r, sx, k, w, opt.dir || 1);
+    labels.forEach((s, k) => {
+      const kind = k % 2 ? ((opt.lit || []).indexOf(k) >= 0 ? 'lit' : 'o') : 'v';
+      if (when[k] == null) { box(r, sx, k, w[k], s, kind, opt.warn); return; }
+      swap(when[k], () => box(r, sx, k, w[k], was[k] || '', was[k] ? 'v' : 'gap'), () => box(r, sx, k, w[k], s, kind, opt.warn));
+    });
+  }
+  // The check written along the foot of the picture (in the warning colour when it fails), with its name.
+  let FY = 244;
+  function foot(s, warn) {
+    text(4, FY, 'check', 'rl', 'start');
+    text(336 - tw(s, 'wk'), FY, s, 'wk' + (warn ? ' warnt' : ''), 'start');
+  }
+  // A check on two lines, FL apart, the second under the first, both starting where the wider one must.
+  const FL = 25;
+  function foot2(ls, y) {
+    const x = 336 - Math.max.apply(null, ls.map((s) => tw(s, 'wk')));
+    text(4, y, 'check', 'rl', 'start');
+    ls.forEach((s, k) => text(x, y + k * FL, s, 'wk', 'start'));
+  }
+
+  // --- a formula card with one unknown ---
+  function drawFormula(d, st, right) {
+    const f = FORM[d.f], fwd = d.find === f.lhs, A = d.show ? AT[d.demo] : d.at, moving = !!(d.show || right);
+    const wrong = !d.show && st.res === 'wrong' && st.pick != null, slip = wrong ? d.slips[st.pick] : null;
+    const go = (k) => (moving && A[k] != null ? arr(A[k]) : 0);
+    const turns = converts(d), said = [];
+    // Arrivals: the amounts on a demonstration's card; the job's units turned into the letters'; the answer.
+    const vals = d.show ? go('vals') : 1, cv = turns ? go('conv') : 1;
+    const ansT = fwd ? 'mul' : 'ans', an = go(ansT);
+    FY = fwd ? 184 : 244;
+    cardRect(4);
+    formulaHead(f, 4);
+    const Ls = [f.lhs, f.a, f.b];
+    part(vals, 4, () => Ls.forEach((L, k) => {
+      if (L === d.find) { swap(an, () => cellGap(k, 4), () => cell(k, 4, amt(solveF(d), UNIT[L]))); return; }
+      const q = d.giv[L];
+      if (SCALE[q[1]]) swap(cv, () => cell(k, 4, given(q)), () => cell(k, 4, amt(base(q), UNIT[L]), true));
+      else cell(k, 4, given(q));
+    }));
+    said.push('A formula card for ' + say(f.name) + ': ' + Ls.map((L, k) => L + ' in ' + WORD[L] + ', ' +
+      (L === d.find ? (an >= 0.5 ? say(amt(solveF(d), UNIT[L])) : 'a question mark') : say(SCALE[d.giv[L][1]] && cv >= 0.5 ? amt(base(d.giv[L]), UNIT[L]) : given(d.giv[L])))).join('; ') + '.');
+    rowName('A', 'steps');
+    if (fwd) {
+      // P = I²R worked forwards: the current, times itself, then times R. A slip shows its own order in red.
+      const R0 = fwdRow(d), I0 = num(base(d.giv.I));
+      const before = () => row('A', ['I', '', '', '', 'P'], { w: widthsOf(R0), kinds: ['v', 'gap', 'gap', 'gap', 'v'] });
+      if (slip) {
+        const sl = arr(WRONG.slip), R1 = fwdRow(d, slip);
+        swap(sl, before, () => row('A', R1, { warn: true }));
+        said.push('The steps done to the current, marked wrong: ' + R1[0] + ', ' + say(R1[1]) + ' gives ' + say(R1[2]) + ', ' + say(R1[3]) + ' gives ' + say(R1[4]) + '.');
+      } else if (moving) {
+        const a1 = go('a1'), sq = go('sq'), mul = go('mul');
+        growRow('A', R0, ['I', '', '', '', 'P'], [a1, sq, sq, mul, mul]);
+        said.push(mul >= 0.5 ? 'The steps done to the current: ' + I0 + ', ' + say(R0[1]) + ' gives ' + say(R0[2]) + ', ' + say(R0[3]) + ' gives ' + say(R0[4]) + '.' : 'The steps done to the current are filling in.');
+      } else {
+        before();
+        said.push('The steps from I to P, still to fill in.');
+      }
+      const ck = A.check != null ? go('check') : an;
+      part(moving && !slip ? ck : 0, 6, () => foot2(checkVI(d), FY));
+      if (moving && ck >= 0.5) said.push('Check by V = I R and then P = V I: ' + say(checkVI(d).join(', then ')) + '.');
+      return said.join(' ');
+    }
+    // One unknown multiplied by k: its steps, then the undo, ÷ k, and the check.
+    const ra = d.show ? go('rowA') : 1;
+    part(ra, 4, () => {
+      if (turns && d.giv[other(d)] && SCALE[d.giv[other(d)][1]]) swap(cv, () => row('A', solveA(d, false)), () => row('A', solveA(d, true)), 0);
+      else row('A', solveA(d, true));
+    });
+    const la = solveA(d, cv >= 0.5);
+    if (ra >= 0.5) said.push('The steps done to ' + say(d.find) + ': ' + say(la[1]) + ', giving ' + say(la[2]) + '.');
+    rowName('B', 'undo');
+    const ul = solveB(d), uw = widthsOf(ul), un = go('undo');
+    if (d.show) {
+      part(un, 4, () => row('B', ['', ul[1], ul[2]], { dir: -1, w: uw, kinds: ['none', 'lit', 'v'], lit: [1] }));
+      part(an, 4, () => { arrow('B', SX3, 0, uw, -1); box('B', SX3, 0, uw[0], ul[0], 'v'); });
+    } else {
+      growRow('B', ul, ['', '', ul[2]], [an, un, null], { dir: -1, lit: [1] });
+    }
+    if (un >= 0.5) said.push('Below, the undo from ' + say(ul[2]) + ': ' + say(ul[1]) + (an >= 0.5 ? ' gives ' + say(ul[0]) + '.' : '.'));
+    else if (!d.show) said.push('Below, the undo, its boxes still to fill in.');
+    const ck = go('check');
+    part(ck, 6, () => foot(checkF(d, solveF(d))));
+    if (ck >= 0.5) said.push('Check: ' + say(checkF(d, solveF(d))) + '.');
+    if (slip) {
+      const s = checkF(d, valueOf(st.pick));
+      part(arr(WRONG.slip), 6, () => foot(s, true));
+      said.push('Check: ' + say(s) + ', marked wrong.');
+    }
+    return said.join(' ');
+  }
+
+  // --- P = VI turned into P = I²R ---
+  // The working at DX, a line DL apart from DY; a note on the right of a line; then a card for P = I²R
+  // at DC with the amounts, the working and the check by P = VI.
+  const DX = 30, DY = 28, DL = 30, DC = 104, DWY = 228, DFY = 258;
+  function drawDerive(d) {
+    const A = AT.derive, f = FORM.PIR, I = base(d.giv.I), R = base(d.giv.R), P = solveF(d);
+    const l2 = arr(A.l2), l3 = arr(A.l3), cd = arr(A.card), wk = arr(A.work), pv = arr(A.pval), ck = arr(A.check);
+    const said = ['Working: P equals V times I.'];
+    text(DX, DY, 'P = V × I', 'wk2', 'start');
+    text(336, DY, 'power', 'tag', 'end');
+    part(l2, 4, () => { hlText(DX, DY + DL, 'P = IR × I', 'wk2', 'IR'); text(336, DY + DL, 'IR in for V', 'tag', 'end'); });
+    part(l3, 4, () => { text(DX, DY + 2 * DL, 'P = I × I × R', 'wk2', 'start'); text(336, DY + 2 * DL, 'I × I is I²', 'tag', 'end'); });
+    if (l2 >= 0.5) said.push('Put I R in for V: P equals I R times I' + (l3 >= 0.5 ? ', which is I times I times R.' : '.'));
+    const wkS = num(I) + ' × ' + num(I) + ' × ' + num(R) + ' = ' + num(P), ckS = checkVI(d);
+    part(cd, 4, () => {
+      cardRect(DC);
+      formulaHead(f, DC);
+      swap(pv, () => cellGap(0, DC), () => cell(0, DC, amt(P, 'W')));
+      cell(1, DC, amt(I, 'A'));
+      cell(2, DC, amt(R, 'Ω'));
+    });
+    if (cd >= 0.5) said.push('A formula card for P equals I squared R: P in watts, ' + (pv >= 0.5 ? say(amt(P, 'W')) : 'a question mark') + '; I in amps, ' + say(amt(I, 'A')) + '; R in ohms, ' + say(amt(R, 'Ω')) + '.');
+    part(wk, 6, () => text(336 - tw(wkS, 'wk'), DWY, wkS, 'wk', 'start'));
+    if (wk >= 0.5) said.push('Working: ' + say(wkS) + '.');
+    part(ck, 6, () => foot2(ckS, DFY));
+    if (ck >= 0.5) said.push('Check by V = I R and P = V I: ' + say(ckS.join(', then ')) + '.');
+    return said.join(' ');
+  }
+
+  // --- a job card ---
+  function drawJob(d, st, right) {
+    const j = d.job, A = d.show ? AT[d.demo] : d.at, moving = !!(d.show || right);
+    const wrong = !d.show && st.res === 'wrong' && st.pick != null, slip = wrong ? d.slips[st.pick] : null;
+    const go = (k) => (moving && A[k] != null ? arr(A[k]) : 0);
+    const tm = termsOf(j), said = ['A job card: ' + j.chips.map(say).join(', ') + '.'];
+    FY = 244;
+    cardRect(4);
+    chips(j);
+    // The equation, each term under the amount it comes from.
+    if (d.show) {
+      [go('t1'), go('t2'), go('t3')].forEach((a, k) => part(a, 4, () => text(CX[k], EQY, tm[k], 'term')));
+      if (go('t3') >= 0.5) said.push('Under them, the equation ' + say(jobEq(j)) + '.');
+    } else if (slip === 'swapEq' || slip === 'takeEq') {
+      // The wrong equation in the warning colour, and the amount it gives failing the job's check.
+      const t = slip === 'swapEq' ? swapTerms(j) : takeTerms(j), sl = arr(WRONG.slip), s = checkJ(j, EQROOT[slip](j));
+      swap(sl, eqGap, () => terms(t, true));
+      part(sl, 6, () => foot(s, true));
+      said.push('Under them, the equation ' + say(t.join(' ')) + ', marked wrong. It gives ' + j.v + ' = ' + num(EQROOT[slip](j)) + '. Check: ' + say(s) + ', marked wrong.');
+    } else if (moving) {
+      const e = go('eq');
+      swap(e, eqGap, () => terms(tm));
+      said.push(e >= 0.5 ? 'Under them, the equation ' + say(jobEq(j)) + '.' : 'Under them, the equation still to write.');
+    } else {
+      eqGap();
+      said.push('Under them, the equation still to write.');
+    }
+    // The flow diagram: the steps done to the unknown, then undone, last step first.
+    rowName('A', 'steps');
+    rowName('B', 'undo');
+    const la = jobA(j), ul = jobB(j), uw = widthsOf(ul), ra = go('rowA'), u1 = go('u1'), u2 = go('u2');
+    if (d.show) {
+      part(ra, 4, () => row('A', la));
+      part(u1, 4, () => row('B', ['', '', ul[2], ul[3], ul[4]], { dir: -1, w: uw, kinds: ['none', 'none', 'v', 'lit', 'v'] }));
+      part(u2, 4, () => { arrow('B', SX5, 0, uw, -1); arrow('B', SX5, 1, uw, -1); box('B', SX5, 0, uw[0], ul[0], 'v'); box('B', SX5, 1, uw[1], ul[1], 'lit'); });
+    } else {
+      growRow('A', la, [j.v, '', '', '', ''], [null, ra, ra, ra, null]);
+      growRow('B', ul, ['', '', '', '', ''], [u2, u2, u1, u1, null], { dir: -1, lit: [1, 3] });
+    }
+    if (ra >= 0.5) said.push('The steps done to ' + j.v + ': ' + say(la[1]) + ', giving ' + say(la[2]) + ', ' + say(la[3]) + ', giving ' + say(la[4]) + '.');
+    else if (!d.show) said.push('The steps done to ' + j.v + ', still to fill in, end on ' + say(la[4]) + '.');
+    if (u1 >= 0.5) said.push('Below, the undo from ' + say(ul[4]) + ': ' + say(ul[3]) + ' gives ' + say(ul[2]) + (u2 >= 0.5 ? ', then ' + say(ul[1]) + ' gives ' + say(ul[0]) + '.' : '.'));
+    const ck = go('check');
+    part(ck, 6, () => foot(checkJ(j, jobAns(j))));
+    if (ck >= 0.5) said.push('Check: ' + say(checkJ(j, jobAns(j))) + '.');
+    if (slip === 'jobAgain' || slip === 'jobSwap') {
+      const s = checkJ(j, valueOf(st.pick));
+      part(arr(WRONG.slip), 6, () => foot(s, true));
+      said.push('Check: ' + say(s) + ', marked wrong.');
+    }
+    return said.join(' ');
+  }
+
+  const heightOf = (d) => (d.pic === 'derive' ? 294 : d.pic === 'formula' && d.find === FORM[d.f].lhs ? 221 : 256);
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], right = st.res === 'right';
+    art.textContent = '';
+    into = null;
+    H = heightOf(d);
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    svg.setAttribute('aria-label', d.pic === 'formula' ? drawFormula(d, st, right) : d.pic === 'job' ? drawJob(d, st, right) : drawDerive(d));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) { lastStep = i; enter('stepbox'); if (d.show) play(d.dur, 'demo'); else { anim.pause(); T = Infinity; motion = null; } }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('replay').hidden = !d.show || REDUCE;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.el.textContent = '';
+      const lab = K.el('span');
+      math(lab, opts[k]);
+      b.el.appendChild(lab);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? emptyFor(i, st) || PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const FORMS = STEPS.filter((d) => d.pic !== 'job'), JOBS = STEPS.filter((d) => d.pic === 'job');
+  const isFwd = (d) => d.pic !== 'job' && d.find === FORM[d.f].lhs;
+  const answerValue = (d) => (d.pic === 'job' ? jobAns(d.job) : solveF(d));
+  const pickRight = (i, v) => isRight(i, Object.assign(solved(i), { pick: v, res: null }));
+  // A step painted finished in the state given: what its picture draws.
+  function drawn(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity;
+    try {
+      paint(i);
+      const boxes = Array.from(art.querySelectorAll('rect')).map((n) => ({ cls: n.getAttribute('class'), x: +n.getAttribute('x') + +n.getAttribute('width') / 2, x0: +n.getAttribute('x'), x1: +n.getAttribute('x') + +n.getAttribute('width'),
+        y: +n.getAttribute('y'), s: n.nextSibling && n.nextSibling.tagName === 'text' ? n.nextSibling.textContent : '' }));
+      const texts = Array.from(art.querySelectorAll('text')).map((t) => ({ s: t.textContent, x: +t.getAttribute('x'), y: +t.getAttribute('y'), cls: t.getAttribute('class'), w: tw(t.textContent, t.getAttribute('class')), anchor: t.getAttribute('text-anchor'), fill: getComputedStyle(t).fill }));
+      return { boxes: boxes, texts: texts, all: texts.map((t) => t.s) };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // A whole amount, step or sum inside a label ("4" is not inside "24" or "0.4").
+  const has = (texts, s) => { const re = new RegExp('(^|[^0-9.,])' + s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![0-9])'); return texts.some((t) => re.test(t)); };
+  // A row's boxes, left to right, with their labels and whether they leave room for an arrow between.
+  const rowOf = (g, r) => g.boxes.filter((b) => b.y === ROWS[r].top && /vb|ob|gap/.test(b.cls)).sort((a, b) => a.x - b.x);
+  const rowIs = (g, r, labels, sx) => { const bs = rowOf(g, r); return bs.length === labels.length && bs.every((b, k) => b.s === labels[k] && K.near(b.x, sx[k], 1e-3) && (k === 0 || b.x0 - bs[k - 1].x1 >= 12)); };
+  K.check('Every answer is worked from its formula or its job and checks back: 230 ÷ 46 = 5 A; 12 ÷ 3 = 4 Ω; 2300 ÷ 230 = 10 A; 24 ÷ 0.05 = 480 Ω; 12 ÷ 24 = 0.5 A; 10 × 10 × 23 = 2300 W; 3 × 3 × 10 = 90 W; 1000 ÷ 25 = 40 Ω; 150 ÷ 15 = 10 minutes; 35 ÷ 5 = 7 lengths; 120 ÷ 30 = 4 hours; 0.2 × 0.2 × 100 = 4 W', () =>
+    STEPS.map((d) => num(answerValue(d))).join() === '5,4,10,480,0.5,2300,90,40,10,7,4,4' &&
+    FORMS.filter((d) => !isFwd(d)).every((d) => !/not/.test(checkF(d, solveF(d)))) && JOBS.every((d) => !/not/.test(checkJ(d.job, jobAns(d.job)))) &&
+    base([2.3, 'kW']) === 2300 && base([50, 'mA']) === 0.05 && base([200, 'mA']) === 0.2 &&
+    checkF(STEPS[0], 5) === '5 × 46 = 230' && checkF(STEPS[1], 0.25) === '3 × 0.25 = 0.75, not 12' && checkF(STEPS[3], 0.48) === '0.05 × 0.48 = 0.024, not 24' &&
+    checkF(STEPS[7], 40) === '5² × 40 = 1000' && checkVI(STEPS[6]).join(' / ') === 'V = IR = 3 × 10 = 30 / P = VI = 30 × 3 = 90' && checkVI(STEPS[11]).join(' / ') === 'V = IR = 0.2 × 100 = 20 / P = VI = 20 × 0.2 = 4' &&
+    checkVI(STEPS[5]).join(' / ') === 'V = IR = 10 × 23 = 230 / P = VI = 230 × 10 = 2300' && checkJ(STEPS[10].job, 8) === '30 × 8 + 60 = 300, not 180' &&
+    EQROOT.takeEq(STEPS[9].job) === 13 && checkJ(STEPS[9].job, 13) === '5 × 13 + 15 = 80, not 50' && EQROOT.swapEq(STEPS[9].job) === 3 && checkJ(STEPS[9].job, 3) === '5 × 3 + 15 = 30, not 50');
+  K.check('Ohm\'s law stipulates that the voltage drop across and current through a resistor are related by V = IR: on every V = IR screen the volts are the amps × the ohms', () => {
+    const vir = STEPS.filter((d) => d.f === 'VIR');
+    return vir.length === 3 && vir.every((d) => { const v = (L) => (L === d.find ? solveF(d) : base(d.giv[L])); return same(v('V'), v('I') * v('R')) && WORD.V === 'volts' && WORD.I === 'amps' && WORD.R === 'ohms'; });
+  }, { source: 'https://openbooks.library.umass.edu/funee/chapter/2-7/' });
+  K.check('They all are combinations of just two equations, Ohm\'s law and power: P = I²R gives the same watts as V = IR followed by P = VI, on every P = I²R screen and on the 2.3 kW heater', () => {
+    const pir = STEPS.filter((d) => d.f === 'PIR');
+    const viaVI = (d) => { const I = d.find === 'I' ? solveF(d) : base(d.giv.I), R = d.find === 'R' ? solveF(d) : base(d.giv.R); return I * R * I; };
+    const P = (d) => (d.find === 'P' ? solveF(d) : base(d.giv.P));
+    const heater = STEPS[2], I = solveF(heater), R = base(heater.giv.V) / I;
+    return pir.length === 4 && pir.every((d) => same(viaVI(d), P(d))) && same(R, base(STEPS[5].giv.R)) && same(I, base(STEPS[5].giv.I)) && same(solveF(STEPS[5]), base(heater.giv.P)) && same(base(heater.giv.V) * I, 2300);
+  }, { source: 'https://openstax.org/books/university-physics-volume-2/pages/9-5-electrical-energy-and-power' });
+  K.check('P = I × R × I, which is the same as I × I × R, which is the same as I²R', () => {
+    const d = STEPS[5], g = drawn(5, blank(5)), I = base(d.giv.I), R = base(d.giv.R), at = (s) => g.texts.findIndex((t) => t.s === s);
+    const order = ['P = V × I', 'P = IR × I', 'P = I × I × R'].map(at);
+    return order.every((k, n) => k >= 0 && (n === 0 || k > order[n - 1])) && g.texts.some((t) => t.s === 'I²' && t.cls === 'lt') &&
+      same(I * R * I, I * I * R) && same(I * I * R, solveF(d)) && solveF(d) === 2300;
+  }, { source: 'https://learninglab.rmit.edu.au/Toolbox/electrotech/toolbox1204/resources/01principles/03terminology/07power.htm' });
+  K.check('Form linear equations consistent with data provided: each job\'s equation is built from its own amounts, and its answer gives them back', () =>
+    JOBS.map((d) => jobEq(d.job)).join() === '15t + 50 = 200,5n + 15 = 50,30h + 60 = 180' &&
+    JOBS.every((d) => { const j = d.job; return [j.a, j.b, j.c].every((v, k) => new RegExp('(^|[^0-9])' + num(v) + '(?![0-9])').test(j.chips[k])) && same(j.a * jobAns(j) + j.b, j.c) && checkJ(j, jobAns(j)) === num(j.a) + ' × ' + num(jobAns(j)) + ' + ' + num(j.b) + ' = ' + num(j.c); }),
+  { source: 'https://www.gov.uk/government/publications/general-engineering-science-written-examination-syllabuses/general-engineering-science-i-written-examination-syllabuses' });
+  K.check('Each puzzle accepts only its own answer, and every wrong answer offered is the one a named slip gives, its check failing or its order wrong: a step done again instead of undone; a division the wrong way round; milliamps put in as amps; a current doubled instead of squared; I × R squared; the square left out; a fixed amount added instead of taken off; the rate and the fixed amount swapped; what is left taken off instead of added, its equation\'s answer failing the job\'s check; or milliamps turned into amps one place too far', () =>
+    DO.every((i) => {
+      const d = STEPS[i], slips = Object.keys(d.slips);
+      return d.opts.length === slips.length + 1 && d.want === answerOf(d) && d.opts.every((o) => pickRight(i, o) === (o === d.want)) &&
+        slips.every((o) => {
+          if (d.opts.indexOf(o) < 0 || o === d.want || SLIP[d.slips[o]](d) !== o) return false;
+          if (d.ask === 'eq') { const n = EQROOT[d.slips[o]](d.job); return o !== jobEq(d.job) && !same(d.job.a * n + d.job.b, d.job.c); }
+          const v = valueOf(o);
+          return !same(v, answerValue(d)) && (d.pic === 'job' ? !same(d.job.a * v + d.job.b, d.job.c) : isFwd(d) || / not /.test(checkF(d, v)));
+        });
+    }) && SLIP.again(STEPS[1]) === '36 Ω' && SLIP.flip(STEPS[1]) === '0.25 Ω' && SLIP.milli(STEPS[3]) === '0.48 Ω' && SLIP.again(STEPS[3]) === '1.2 Ω' && SLIP.flip(STEPS[4]) === '2 A' &&
+    SLIP.double(STEPS[6]) === '60 W' && SLIP.irsq(STEPS[6]) === '900 W' && SLIP.double(STEPS[7]) === '100 Ω' && SLIP.nosq(STEPS[7]) === '200 Ω' && SLIP.jobAgain(STEPS[10]) === '8 h' && SLIP.jobSwap(STEPS[10]) === '2.5 h' &&
+    SLIP.double(STEPS[11]) === '40 W' && SLIP.tenth(STEPS[11]) === '0.04 W' && SLIP.swapEq(STEPS[9]) === '15n + 5 = 50' && SLIP.takeEq(STEPS[9]) === '5n − 15 = 50' &&
+    fwdRow(STEPS[11], 'tenth').join() === '0.02,× 0.02,0.0004,× 100,0.04');
+  K.check('Every picture, finished, puts each amount under its letter in that letter\'s unit and ends on the check: the steps done to the unknown with the undo under them, last step first, or, where P is the unknown, the steps worked forwards with the check by V = IR and P = VI; the P = I²R screen shows P = VI turned into I × I × R; a wrong answer\'s check, order or equation is in the warning colour, inside the picture', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? blank(i) : solved(i));
+      const inside = (gg) => gg.texts.every((t) => { const x0 = t.anchor === 'middle' ? t.x - t.w / 2 : t.anchor === 'end' ? t.x - t.w : t.x; return x0 >= 2 && x0 + t.w <= 338; });
+      if (!inside(g)) return false;
+      if (d.pic === 'derive') return ['P = V × I', 'P = IR × I', 'P = I × I × R', '2300 W', '10 A', '23 Ω', '10 × 10 × 23 = 2300', 'V = IR = 10 × 23 = 230', 'P = VI = 230 × 10 = 2300'].every((s) => g.all.indexOf(s) >= 0) &&
+        g.texts.filter((t) => /^[VP] = /.test(t.s) && /wk/.test(t.cls) && t.y > DWY).length === 2;
+      const warnFoot = (w, s) => { const f = w.texts.filter((t) => /warnt/.test(t.cls) && /wk/.test(t.cls)); return f.length === 1 && f[0].s === s && / not /.test(s) && f[0].x >= 4 + tw('check', 'rl') + 8 && f[0].x + f[0].w <= 336.5 && f[0].fill !== (g.texts.filter((t) => /wk/.test(t.cls))[0] || {}).fill; };
+      if (d.pic === 'job') {
+        const j = d.job, ok = termsOf(j).every((s) => g.all.indexOf(s) >= 0) && rowIs(g, 'A', jobA(j), SX5) && rowIs(g, 'B', jobB(j), SX5) && g.all.indexOf(checkJ(j, jobAns(j))) >= 0 &&
+          g.boxes.filter((b) => /lit/.test(b.cls)).map((b) => b.s).sort().join() === ['÷ ' + num(j.a), '− ' + num(j.b)].sort().join();
+        if (!ok || d.show) return ok;
+        return Object.keys(d.slips).every((o) => {
+          const w = drawn(i, slipped(i, o));
+          if (d.ask === 'eq') { const t = d.slips[o] === 'swapEq' ? swapTerms(j) : takeTerms(j), red = w.texts.filter((x) => /warnt/.test(x.cls) && /term/.test(x.cls)).map((x) => x.s); return red.join(' ') === t.join(' ') && warnFoot(w, checkJ(j, EQROOT[d.slips[o]](j))) && inside(w); }
+          return warnFoot(w, checkJ(j, valueOf(o))) && inside(w);
+        });
+      }
+      const f = FORM[d.f], Ls = [f.lhs, f.a, f.b];
+      const cardOk = Ls.every((L) => g.all.indexOf(WORD[L]) >= 0 && g.all.indexOf(amt(L === d.find ? solveF(d) : base(d.giv[L]), UNIT[L])) >= 0);
+      if (isFwd(d)) {
+        const ok = cardOk && rowIs(g, 'A', fwdRow(d), SX5) && checkVI(d).every((s) => g.all.indexOf(s) >= 0) && !rowOf(g, 'B').length;
+        return ok && Object.keys(d.slips).every((o) => { const w = drawn(i, slipped(i, o)), bs = rowOf(w, 'A'); return rowIs(w, 'A', fwdRow(d, d.slips[o]), layout(fwdRow(d, d.slips[o])).sx) && bs.every((b) => /warnb/.test(b.cls)) && !checkVI(d).some((s) => has(w.all, s)) && inside(w); });
+      }
+      const ok = cardOk && rowIs(g, 'A', solveA(d, true), SX3) && rowIs(g, 'B', solveB(d), SX3) && g.all.indexOf(checkF(d, solveF(d))) >= 0 &&
+        g.boxes.filter((b) => /lit/.test(b.cls)).map((b) => b.s).join() === '÷ ' + num(kOf(d));
+      if (!ok || d.show) return ok;
+      return Object.keys(d.slips).every((o) => { const w = drawn(i, slipped(i, o)); return warnFoot(w, checkF(d, valueOf(o))) && inside(w); });
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer', () =>
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, blank(i)); return !has(g.all, d.want) && (d.ask === 'eq' || !has(g.all, num(answerValue(d)))) && !g.boxes.some((b) => /lit/.test(b.cls)); }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion within 2.5 s and a slip within 1 s; parts start at least 0.45 s apart', () => {
+    const keepT = T;
+    const ok = STEPS.every((d, i) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = d.show ? blank(i) : solved(i);
+      try { paint(i); } finally { S[i] = keepS; }
+      const good = d.show ? latest <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE : latest <= d.fb + 1e-9 && d.fb <= 2.5;
+      if (!good || d.show) return good;
+      return Object.keys(d.slips).every((o) => {
+        S[i] = slipped(i, o); latest = 0;
+        try { paint(i); } finally { S[i] = keepS; }
+        return latest <= WRONG_DUR + 1e-9 && WRONG_DUR <= 1;
+      });
+    });
+    T = keepT; paint();
+    const spaced = (A) => {
+      const ps = Object.keys(A).map((k) => A[k]).sort((a, b) => a - b);
+      return ps.every((t, k) => k === 0 || t === ps[k - 1] || t - ps[k - 1] >= 0.45 - 1e-9);
+    };
+    return ok && Object.keys(AT).every((k) => spaced(AT[k])) && DO.every((i) => spaced(STEPS[i].at));
+  });
+
+  K.ready();
+</script>
