@@ -99,17 +99,20 @@ if (!verdict.ok) {
 // 6. One summary: what to look at, and no more (CLAUDE.md: one contact sheet per check).
 const checks = report.checks || report.results || null;
 const checkLine = Array.isArray(checks) ? `${checks.filter((c) => c.ok !== false && c.passed !== false).length} of ${checks.length} checks` : (report.passed === false ? 'self-test failed' : 'self-test ok');
-const moved = film && Array.isArray(film.steps) ? film.steps.filter((s) => s.changes && s.changes.length).map((s) => s.step) : [];
-const still = film && Array.isArray(film.steps) ? film.steps.filter((s) => !s.changes || !s.changes.length).map((s) => s.step) : [];
+// A demonstration moves for a second or more; a puzzle's arrival settles well under that and its
+// sheet shows nothing a still does not.
+const DEMO_S = 1;
+const moved = film && Array.isArray(film.steps) ? film.steps.filter((s) => (s.settled || 0) >= DEMO_S).map((s) => s.step) : [];
+const still = film && Array.isArray(film.steps) ? film.steps.filter((s) => (s.settled || 0) < DEMO_S).map((s) => s.step) : [];
 const lookAt = [
   `${out}-360-light.png`, `${out}-360-light-moved.png`, `${out}-360-light-end.png`, `${out}-360-dark-moved.png`, `${out}-1280-light-end.png`,
 ].filter((p) => existsSync(p)).concat(moved.map((s) => `${out}.film-s${s}.png`));
 const summary = {
   attempt: n, ok: verdict.ok, checks: checkLine, problems,
   moved: rendered.moved,
-  film: film && film.steps ? { steps: film.steps.length, settledBy: Object.fromEntries(film.steps.map((s) => [s.step, s.settled])), movedSteps: moved, stillSteps: still, errors: film.errors || null } : film,
+  film: film && film.steps ? { steps: film.steps.length, settledBy: Object.fromEntries(film.steps.map((s) => [s.step, s.settled])), demonstrations: moved, settleUnderASecond: still, errors: film.errors || null } : film,
   lookAt,
-  note: 'Read the lookAt pictures once each (the moved and end states, dark, the laptop end state, and one contact sheet per step that moves); nothing else.',
+  note: 'Read the lookAt pictures once each (the moved and end states, dark, the laptop end state, and one contact sheet per demonstration step, one that moves for a second or more); nothing else.',
   repairPrompt,
   bodyFile, verdictFile: `${out}.verdict.json`,
 };
