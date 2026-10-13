@@ -46,6 +46,8 @@ high with ultracode off; a course build runs as a workflow when he asks for one.
 | Fix | Opus | high |
 | Confirm | Sonnet | medium; skipped when only small polish points were found |
 
+Build: at most three attempts per interactive, then stop and fix the brief before trying again
+(Dan, 12 Oct; `tools/course/RUNBOOK.md` section 5).
 Agents look at one contact sheet per check rather than many single frames. Report each build's
 token cost to Dan, so the setup can be compared with the measured full process (about 1.65M tokens
 a lesson for Fractions lessons 4-8). The process itself is in `tools/course/RUNBOOK.md`.

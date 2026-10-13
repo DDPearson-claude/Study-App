@@ -30,7 +30,7 @@
   U.routes.add('#/t/:tid', function (params, ctx) {
     var tid = params.tid;
     var topic = null, loaded = false, failure = null, progress = { ideas: {} }, deleting = false;
-    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null, mode: null };
+    var ui = { reveal: null, pick: null, line: 0, retrying: false, researching: false, scrolled: false, slow: false, focus: null, mode: null, lib: false };
     var slowTimer = setTimeout(function () { if (!loaded && ctx.alive()) { ui.slow = true; schedule(); } }, 8000);
     var lib = { key: null, groups: null, checked: null, seq: 0 };
     var dossier = null;   // the course's dossier index (75-dossier.js), for the option's link
@@ -359,14 +359,19 @@
       });
       // The hook is a question in newer plans; older ones may have a statement.
       var hookIs = !topic.hook ? '' : /\?["'”’)]?\s*$/.test(U.plain(topic.hook).trim()) ? 'question' : 'line';
+      // Written with the plan, before any research, and never checked in the page: said in calm
+      // small words. A ready-made course's build checks them (topic.overviewChecked, set by
+      // tools/course/assemble.mjs from a fresh reader's check), and then the note says so.
+      var checked = !!topic.overviewChecked;
       return [
-        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
-        // Written with the plan, before any research, and never checked: said in calm small words.
-        topic.oneBreath ? ['breath', sig(topic.oneBreath, hookIs), function () {
+        ['head', sig(topic.title, topic.query, topic.hook, !!topic.oneBreath, checked, topic.hue, ui.mode || V.modeOf(topic), s.current && s.current.id, s.current && s.current.title, s.index, s.started, s.allDone, next), function () { return head(s, next); }, 'top'],
+        topic.oneBreath ? ['breath', sig(topic.oneBreath, hookIs, checked), function () {
           return U.h('section', { class: 'callout remember tp-breath', 'aria-label': 'In one breath' },
             U.h('p', { class: 'eyebrow' }, 'In one breath'),
             U.h('div', { class: 'reading' }, U.rich(topic.oneBreath)),
-            U.h('p', { class: 'tp-overview-note' }, (hookIs ? 'This summary and the ' + hookIs + ' above are' : 'This summary is') + ' Claude\'s overview from what it already knows, not checked against sources.'));
+            U.h('p', { class: 'tp-overview-note' }, checked
+              ? (hookIs ? 'This summary and the ' + hookIs + ' above were' : 'This summary was') + ' checked against the course\'s sources when it was built.'
+              : (hookIs ? 'This summary and the ' + hookIs + ' above are' : 'This summary is') + ' Claude\'s overview from what it already knows, not checked against sources.'));
         }] : null,
         ['warm', sig(topic.calibration, cal, progress.calibrationSkipped, ui.reveal, ui.pick, s.done > 0 || s.started), warmup],
         ['path', sig(ideaState, cal, topic.calibration, progress.lastIdea, busy), function () {
@@ -412,7 +417,7 @@
             U.h('h1', { class: 'tp-title' }, V.asTitle(topic.title || topic.query)),
             topic.hook ? U.inline(U.h('p', { class: 'tp-hook' }), topic.hook) : null,
             // No summary to say it under (older plans): the question says it itself.
-            topic.hook && !topic.oneBreath ? U.h('p', { class: 'tp-overview-note' }, 'Claude\'s overview from what it already knows, not checked against sources.') : null,
+            topic.hook && !topic.oneBreath ? U.h('p', { class: 'tp-overview-note' }, topic.overviewChecked ? 'Checked against the course\'s sources when it was built.' : 'Claude\'s overview from what it already knows, not checked against sources.') : null,
             cta, note)));
     }
 
@@ -704,9 +709,14 @@
           g.key === 'topic' ? null : U.h('h3', { class: 'lib-group-h' }, 'For “' + (idea ? idea.title : g.key) + '”'),
           U.h('ol', { class: 'sources' }, g.sources.map(sourceItem)));
       });
+      // The cards fold away under the status (a ready-made course can have 18), open only when
+      // Dan asks; the fold's state survives a redraw (ui.lib). The chevron is the lesson's.
+      var fold = !count ? groups : U.h('details', { class: 'lib-fold', open: ui.lib, on: { toggle: function (e) { ui.lib = !!e.target.open; } } },
+        U.h('summary', { 'data-key': 'lib-fold' }, U.h('span', null, count === 1 ? 'Show the source' : 'Show all ' + count + ' sources'), U.h('span', { class: 'lsn-chev', 'aria-hidden': 'true' }, U.icon('back'))),
+        U.h('div', { class: 'lib-fold-body' }, groups));
       return U.h('section', { class: 'tp-lib', 'aria-labelledby': 'lib-h' },
         U.h('div', { class: 'section-head' }, U.h('h2', { id: 'lib-h' }, 'Sources')),
-        status, groups);
+        status, fold);
     }
 
     function researchAgain() {
