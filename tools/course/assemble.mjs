@@ -130,8 +130,9 @@ if (cmd === 'docs') {
       if (Buffer.byteLength(html, 'utf8') > 150 * 1024) { problems.push(iid + ': interactive body over 150 KB'); return; }
       const verdict = existsSync(rf) ? read(rf) : null;
       if (!verdict || verdict.ok !== true) { problems.push(iid + ': no passing verdict in ' + rf); return; }
-      // "7", or "3 + 2" after a brief fix and a fresh count (RUNBOOK section 5): the total either way.
-      const attempts = existsSync(join(dir, iid + '.attempts.txt')) ? (readFileSync(join(dir, iid + '.attempts.txt'), 'utf8').match(/\d+/g) || []).map(Number).reduce((a, b) => a + b, 0) || 1 : 1;
+      // The first line: "7", or "3 + 2" after a brief fix and a fresh count (RUNBOOK section 5), the
+      // total either way. Anything after the first line is a builder's note and is not counted.
+      const attempts = existsSync(join(dir, iid + '.attempts.txt')) ? ((readFileSync(join(dir, iid + '.attempts.txt'), 'utf8').split('\n')[0]).match(/\d+/g) || []).map(Number).reduce((a, b) => a + b, 0) || 1 : 1;
       interactive = { html, title: lesson.interactive.title || idea.title, brief: lesson.interactive.brief || '', selftest: verdict.report || verdict, attempts };
     } else {
       note = existsSync(join(dir, iid + '.note.txt')) ? readFileSync(join(dir, iid + '.note.txt'), 'utf8').trim() : 'This idea is taught without an interactive.';
