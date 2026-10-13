@@ -155,32 +155,43 @@ the overview was checked instead of calling it Claude's unchecked overview.
 
 ## 5. Build and test each interactive
 ```
-node tools/build.mjs --only 32,33 --out tests/out/kit.html          # once, the kit test page
-node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.final.json > $D/I.build.prompt.txt
-node --input-type=module -e "const {loadPrompts}=await import('./tools/eval/prompts.mjs');const U=loadPrompts();const fs=await import('fs');fs.writeFileSync('$D/I.bodyN.x.html',U.interactive.extract(fs.readFileSync('$D/I.bodyN.html','utf8')))"
-node tools/eval/render.mjs $D/I.bodyN.x.html --out $D/I.aN --app tests/out/kit.html
-node tools/eval/prompts.mjs verdict --lesson $D/I.lesson.final.json --html $D/I.bodyN.x.html --report $D/I.aN-report.json --app tests/out/kit.html > $D/I.aN.verdict.json
+node tools/eval/prompts.mjs build-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.verified.json > $D/I.build.prompt.txt
+# model hat: answer it as $D/I.body1.html, then one command per attempt:
+node tools/course/attempt.mjs --dir $D --idea I --attempt N
 ```
-If the verdict's `ok` is false: write its `report` object to `$D/I.aN.report-only.json`, then
-```
-node tools/eval/prompts.mjs repair-interactive --topic $D/topic.json --idea I --lesson $D/I.lesson.final.json --html $D/I.bodyN.x.html --report $D/I.aN.report-only.json > $D/I.repairN.prompt.txt
-```
-and answer it (model hat) as the next attempt. At most three attempts (Dan, 12 Oct): a body that
+`attempt.mjs` (13 Oct) does the whole check in one turn: extracts the body (`I.bodyN.x.html`),
+self-tests and screenshots it (`I.aN-*.png`, `I.aN-report.json`), adds the app's own checks
+(`I.aN.verdict.json`), films every step's motion (`I.aN.film-s<K>.png`, one contact sheet per step)
+and, when it fails, writes `I.aN.report-only.json` and the repair prompt `I.repairN.prompt.txt`.
+The repair prompt does not quote the body back (you wrote it a moment ago and still have it;
+`--with-body` if you need it). Answer the repair prompt (model hat) as `I.bodyN+1.html` and run the
+command again with the next attempt number. Its summary's `lookAt` list is the pictures to read,
+once each: the moved and end states at 360 light, dark moved, the laptop end state and one contact
+sheet per step that moves. Read nothing else (CLAUDE.md: one contact sheet per check, not single
+frames); the builder who read 18 pictures and ran 48 commands for a two-attempt build cost more
+than the attempts did. The old separate commands (render.mjs, prompts.mjs verdict and
+repair-interactive, filmstrip.mjs) still exist for a single step.
+At most three attempts (Dan, 12 Oct): a body that
 fails three times has the wrong brief, not bad luck, and each further try costs about as much as a
 whole research stage. Stop, say in one sentence what keeps going wrong, fix the lesson's
 `interactive.brief` (step 3) when that is the cause, and start the count again from the new brief;
-`attempts.txt` then records both counts ("3 + 2").
-Then look at the screenshots with the Read tool (`$D/I.aN-360-light.png`, `-360-dark.png`,
-`-1280-light.png`, and the `-moved` and `-end` shots): the opening state must look alive and
-show the thing to be moved; the moved state must show the cause and the effect; sentences and
-labels must read right at the extremes; nothing clipped, overlapping or too small on a phone.
-Anything wrong is a problem for one more repair, written into a report-only JSON by hand
-(`{"ok": false, "errors": ["what is wrong, in one sentence"], "sweep": {"ok": false, "problems": []}}`).
+`attempts.txt` then records both counts ("3 + 2") on its first line; notes go in `I.build.log.md`,
+never under the count (assemble reads the first line).
+What the `lookAt` pictures must show: the opening state alive and showing the thing to be moved;
+the moved state showing the cause and the effect; sentences and labels reading right at the
+extremes; nothing clipped, overlapping or too small on a phone; each filmed step settling without
+anything popping in. Anything wrong is a problem for one more repair, written into a report-only
+JSON by hand (`{"ok": false, "errors": ["what is wrong, in one sentence"], "sweep": {"ok": false, "problems": []}}`)
+and turned into a prompt with `prompts.mjs repair-interactive --no-body`.
 When it passes: copy the body to `$D/I.body.final.html`, the verdict to `$D/I.verdict.final.json`,
-and write the attempt count to `$D/I.attempts.txt`.
+and write the attempt count to `$D/I.attempts.txt`. The reviewer (section 6) reads that attempt's
+pictures and contact sheets; it does not film again.
 
 ## 6. Read it as Dan would
-A reader who wrote none of it reads `$D/I.lesson.verified.json` with the final screenshots and
+A reader who wrote none of it reads `$D/I.lesson.verified.json` with the passing attempt's pictures
+(its `lookAt` set: the moved and end states, dark, the laptop end state, and that attempt's
+`I.aN.film-s<K>.png` contact sheets for the steps that move; never single frames, never a fresh
+film) and
 scores the lesson 1-5 on: the idea lands (he could say it back); the why is complete (no skipped
 step); the interactive shows the cause; the trade comparison is honest (its "breaks" is true);
 nothing invented or absolute; it reads as a pleasure. Below 4 on any count, one more rewrite

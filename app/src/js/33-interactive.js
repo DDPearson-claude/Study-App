@@ -312,7 +312,11 @@ U.interactive = (function () {
   }
 
   // TASK: repair-interactive
-  function repairPrompt(topic, idea, lesson, html, report) {
+  // opts.noBody (a build session, tools/course/attempt.mjs): the builder wrote the body a moment ago
+  // and still has it, so the prompt names the file instead of quoting 60 KB back; the page, whose
+  // repair call is a fresh sample, always quotes it.
+  function repairPrompt(topic, idea, lesson, html, report, opts) {
+    opts = opts || {};
     var found = problems(report, lesson, html).concat(advice(report, lesson));
     return [
       'TASK: repair-interactive',
@@ -342,7 +346,9 @@ U.interactive = (function () {
       sourcesSection(lesson),
       rulesSection(lesson),
       kitSection(),
-      '## The body that failed\n' + String(html || '(empty reply)'),
+      opts.noBody
+        ? '## The body that failed\nThe body you just wrote' + (opts.bodyFile ? ' (' + opts.bodyFile + ')' : '') + '. You already have it; it is not repeated here. Return the complete corrected body.'
+        : '## The body that failed\n' + String(html || '(empty reply)'),
       outputSection(true),
     ].filter(Boolean).join('\n\n');
   }

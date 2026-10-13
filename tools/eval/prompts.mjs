@@ -98,7 +98,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     case 'write-lesson': out = U.prompts.writeLesson(topic, idea, { research: json('research'), known: [], prior }); break;
     case 'verify-lesson': out = U.prompts.verifyLesson(topic, idea, lessonOf(json('lesson')), { research: json('research') }); break;
     case 'build-interactive': out = U.interactive.prompt(topic, idea, json('lesson'), {}); break;
-    case 'repair-interactive': out = U.interactive.repairPrompt(topic, idea, json('lesson'), readFileSync(arg('html'), 'utf8'), json('report')); break;
+    case 'repair-interactive': out = U.interactive.repairPrompt(topic, idea, json('lesson'), readFileSync(arg('html'), 'utf8'), json('report'), { noBody: process.argv.includes('--no-body'), bodyFile: arg('html') }); break;
     case 'grade': out = U.prompts.grade(json('lesson').say, arg('answer'), { attempt: Number(arg('attempt', '1')) }); break;
     case 'verdict': {
       const lesson = json('lesson'), html = readFileSync(arg('html'), 'utf8');
