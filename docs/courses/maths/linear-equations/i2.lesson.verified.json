@@ -1,0 +1,198 @@
+{
+  "iid": "i2",
+  "title": "Expanding brackets",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is three (x + 5) bars stacking into a rectangle that splits into 3x and 15, so 3(x + 5) matches 3x + 15 at every x, when you slide x.",
+    "title": "Expanding brackets",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on bars, as in Like terms. An x-bar is x long, plain numbers are small squares worth 1 each, and a part taken away is dashed. A bracket such as (x + 5) is drawn as one bar, an x-bar with 5 squares on its end. 3(x + 5) is three of those bars stacked into a rectangle 3 high, and a line splits it into its two parts, 3 rows of x, which is 3x, and 3 rows of 5, which is 15. A slider for x stretches every x-bar together, so the rectangle grows, and each expression shows its value for the chosen x beside it. With a letter outside, the rectangle is R₀ tall and splits into a 1 part, which is R₀, and a thin αΔT strip, which is R₀αΔT. Where a minus sits in front of a bracket the picture switches to trying a number, because an area cannot be below zero. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The values tried for x and the puzzles' numbers are example values, kept to small whole numbers so the bars can be drawn and counted. x can be any number, even a negative or a fraction, and every expansion here still holds; a bar just cannot be drawn with a negative length. The αΔT strip's width is a sketch, not to scale.",
+    "numbers": [
+      {
+        "label": "Example x = 4, in step 1",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "At x = 4, 3(x + 5) = 3 × 9 and 3x + 15 = 12 + 15, both 27, in step 1",
+        "value": 27,
+        "kind": "computed"
+      },
+      {
+        "label": "4(x + 5) = 4x + 20, not 4x + 5 (5 not multiplied) or 20x (joined into one term), in step 2",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Check at x = 2: 4(x + 5) makes 28, 4x + 5 makes 13, 20x makes 40, in step 2",
+        "value": 28,
+        "kind": "computed"
+      },
+      {
+        "label": "Trying x = 2: 3(x + 5) and 3x + 15 both make 21, 3x + 5 makes 11, in step 3",
+        "value": 21,
+        "kind": "computed"
+      },
+      {
+        "label": "2(3a + 4) = 6a + 8, not 6a + 4 (4 not multiplied) or 14a (joined), in step 4",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Check at a = 2: 2(3a + 4) makes 20, 6a + 4 makes 16, 14a makes 28, in step 4",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "5(x − 2) = 5x − 10, five dashed 2s cut off; both make 20 at x = 6, in step 5",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "3(2x − 4) = 6x − 12, not 6x − 4 (4 not multiplied) or 6x + 12 (sign changed), in step 6",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Check at x = 5: 3(2x − 4) makes 18, 6x − 4 makes 26, 6x + 12 makes 42, in step 6",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Example winding resistance cold, R₀, in ohms, in step 7",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example winding resistance after a run, R, in ohms, in step 7",
+        "value": 2.4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Its R₀αΔT part, 2.4 − 2.0, in ohms, in step 7",
+        "value": 0.4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current I through both resistors, in amps, in step 8",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example R₁, in ohms, in step 8",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example R₂, in ohms, in step 8",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "I(R₁ + R₂) = IR₁ + IR₂: 2 × 8 and 6 + 10 both make 16 V, in step 8",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "The slip IR₁ + R₂ makes 6 + 5 = 11, in step 8",
+        "value": 11,
+        "kind": "computed"
+      },
+      {
+        "label": "−(6x − 5) = −6x + 5; at x = 2 both make −7, the slip −6x − 5 makes −17, in step 9",
+        "value": -7,
+        "kind": "computed"
+      },
+      {
+        "label": "4(x + 3) + 2(x − 1) = 6x + 10, not 6x + 14 (minus dropped) or 6x + 2 (half-expanded), in step 10",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Check at x = 1: the start makes 16, 6x + 14 makes 20, 6x + 2 makes 8, in step 10",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "−2(x − 4) = −2x + 8, not −2x − 8 (second sign kept) or −2x − 4 (4 not multiplied), in step 11",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Check at x = 5: −2(x − 4) makes −2, −2x − 8 makes −18, −2x − 4 makes −14, in step 11",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "8x − (6x − 5) = 2x + 5, not 2x − 5 (sign kept) or 14x − 5 (minus dropped), in step 12",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Check at x = 3: 8x − (6x − 5) makes 11, 2x − 5 makes 1, 14x − 5 makes 37, in step 12",
+        "value": 11,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A bracket keeps what is inside it together as one number, so 3(x + 5) means 3 lots of the whole of x + 5. [[Expanding]] the bracket writes it without the bracket, and the number outside, the [[factor]], multiplies each term inside, not just the first.[^1] Picture x + 5 as an x-bar with 5 squares on its end. Stack three of them and you have a rectangle 3 high and x + 5 long. Its left part is 3 rows of x, which is 3x, and its right part is 3 rows of 5, which is 15. So 3(x + 5) = 3x + 15. Expanding brackets does not change the value of an expression, as it is two ways of writing the same one,[^2] so trying a number checks it. At x = 4, 3(4 + 5) = 3 × 9 = 27, and 3x + 15 = 12 + 15 = 27.\n\nAn easy slip is to multiply the x and forget the 5, writing 3x + 5. The rectangle shows what that loses, as its right part holds 15 squares, not 5. At x = 2, 3x + 5 makes 11, while 3(x + 5) makes 21. A minus inside works the same way. 5(x − 2) is five x-bars, each with a dashed 2 cut off its end, so 5x with 10 cut off, 5x − 10. A letter outside works the same way too. R = R₀(1 + αΔT) gives the resistance R after a temperature change ΔT, where R₀ is the original resistance.[^3] Its bracket expands the same way,[^1] to R = R₀ + R₀αΔT. The first part, R₀ × 1, is the original resistance. The second part, R₀αΔT, is the change the temperature change makes, extra resistance when a metal warms. For an example winding of 2.0 Ω cold and 2.4 Ω after a run, that second part is 2.4 − 2.0 = 0.4 Ω. In the same way, with a current I through resistors R₁ and R₂ in series, the voltage across them is I(R₁ + R₂) = IR₁ + IR₂.[^4]\n\nA minus in front of a bracket takes away the whole of what is inside. 6x − 5 is 5 less than 6x, so taking it away takes away 5 less than taking away 6x would. That is −6x, then 5 back, so −(6x − 5) = −6x + 5. Each term inside has been multiplied by −1, so every sign inside has changed. The rectangle cannot show this, because an area cannot be below zero, so try a number instead. At x = 2, 6x − 5 makes 7, so −(6x − 5) makes −7, and −6x + 5 makes −12 + 5 = −7. The slip −6x − 5 makes −17. In the same way x − (a − b) is x − a + b, because the minus must be multiplied into both terms in the bracket.[^5]\n\n**Expanding multiplies the factor outside by every term inside the bracket,[^1] so 3(x + 5) = 3x + 15 and R₀(1 + αΔT) = R₀ + R₀αΔT. A minus in front changes every sign inside,[^5] and trying a number checks the result.**"
+  },
+  "analogy": {
+    "text": "Say three identical circuits each need a run of x metres plus 5 m for the tails. You order 3(x + 5) metres of cable, which is 3x metres for the runs and 15 m for the tails, not 5.",
+    "breaks": "A length of cable is a positive number of metres, so the order cannot show a lone −(6x − 5), where every sign inside changes, or a negative total. x itself can be any number, even a negative one, and 3(x + 5) = 3x + 15 still holds."
+  },
+  "practice": {
+    "text": "- Multiply the factor outside by each term inside, keeping each term's sign with it.\n- A negative factor multiplies the sizes and changes every sign inside. A lone minus in front is a factor of −1.\n- Collect like terms.\n- Try a number in the old and new versions, then a second number.\n\n**Rule of thumb:** Everything inside the bracket gets multiplied, sign and all.\n\n**Worked example:** 4(2x − 3) − (x − 5). The first bracket gives 8x − 12. The minus in front of the second changes both signs, giving −x + 5. Collect them: 8x − x is 7x and −12 + 5 is −7, so 7x − 7. As a check, with x = 6 the start makes 4 × 9 − 1 = 35, and 7x − 7 makes 42 − 7 = 35.\n\n**Common mistakes**\n- Forgetting the last term, so 4(x + 5) becomes 4x + 5. Try x = 2: 4(x + 5) makes 28, but 4x + 5 makes 13.\n- Joining it into one term, so 4(x + 5) becomes 20x. At x = 2 that makes 40, not 28.\n- Changing only the first sign after a minus, so −(6x − 5) becomes −6x − 5. Try x = 2: −7 against −17.\n- Keeping the second sign with a negative factor, so −2(x − 4) becomes −2x − 8. −2 × −4 is +8, so it is −2x + 8. Try x = 5: −2 against −18."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Ch. 6 Simplify Expressions Using the Distributive Property: Mini-Lesson Review - Algebra 1 | OpenStax",
+      "url": "https://openstax.org/books/algebra-1/pages/6-simplify-expressions-using-the-distributive-property-mini-lesson-review",
+      "quote": "When using the Distributive Property, the factor outside of the parentheses is multiplied by each term inside the parentheses."
+    },
+    {
+      "n": 2,
+      "title": "Solve equations with brackets - KS3 Maths - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z7wkjfr",
+      "quote": "Expanding brackets does not change the value of an expression . It is two ways of writing the same expression."
+    },
+    {
+      "n": 3,
+      "title": "Module 6 Resistance | Science 111",
+      "url": "https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity",
+      "quote": "R = R ₀ ( 1 + α Δ T ) is the temperature dependence of the resistance of an object, where R ₀ is the original resistance and R is the resistance after a temperature change Δ T ."
+    },
+    {
+      "n": 4,
+      "title": "21.1: Resistors in Series and Parallel - Physics LibreTexts",
+      "url": "https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_%28OpenStax%29/21%3A_Circuits_Bioelectricity_and_DC_Instruments/21.01%3A_Resistors_in_Series_and_Parallel",
+      "quote": "[V=IR_{1}+IR_{2}+IR_{3}=I(R_{1}+R_{2}+R_{3}).]"
+    },
+    {
+      "n": 5,
+      "title": "MATH 1046 Common Mistakes - algebra.nipissingu.ca",
+      "url": "http://algebra.nipissingu.ca/mistakes.html",
+      "quote": "As can be seen -5 is not equal to 3 so the formula is incorrect. The error was that the negative sign must be multiplied into both terms in the bracket leaving x-(a-b) = x-a+b."
+    }
+  ]
+}

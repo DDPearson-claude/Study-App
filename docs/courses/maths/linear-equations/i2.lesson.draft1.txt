@@ -1,0 +1,48 @@
+{
+  "iid": "i2",
+  "title": "Expanding brackets",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is three (x + 5) bars stacking into a rectangle that splits into 3x and 15, so 3(x + 5) matches 3x + 15 at every x, when you slide x.",
+    "title": "Expanding brackets",
+    "controls": [ { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" } ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on bars. An x-bar is x long, plain numbers are small squares worth 1 each, and a part taken away is dashed, as in Like terms. A bracket such as (x + 5) is one bar, an x-bar with 5 squares on its end. 3(x + 5) is three of those bars stacked into a rectangle 3 high, and a line splits it into its two parts, 3x and 15. A slider for x stretches every x-bar together, and each expression shows its value for the chosen x. Where a minus sits in front of a bracket the picture switches to trying a number, because an area cannot be negative. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The values tried for x and the puzzles' numbers are example values, kept small so the bars can be drawn and counted. x can be any number and every expansion here still holds. The αΔT strip on the resistance rectangle is a sketch, not to scale.",
+    "numbers": [
+      { "label": "Example x = 4: 3(x + 5) and 3x + 15 both make 27, in step 1", "value": 27, "kind": "computed" },
+      { "label": "4(x + 5) = 4x + 20, not 4x + 5 or 20x, in step 2", "value": 20, "kind": "computed" },
+      { "label": "Trying x = 2: 3(x + 5) and 3x + 15 make 21, 3x + 5 makes 11, in step 3", "value": 21, "kind": "computed" },
+      { "label": "2(3a + 4) = 6a + 8, not 6a + 4 or 14a, in step 4", "value": 8, "kind": "computed" },
+      { "label": "5(x − 2) = 5x − 10; both make 20 at x = 6, in step 5", "value": 10, "kind": "computed" },
+      { "label": "3(2x − 4) = 6x − 12, not 6x − 4 or 6x + 12, in step 6", "value": 12, "kind": "computed" },
+      { "label": "Example winding: 2.0 Ω cold, 2.4 Ω after a run, in step 7", "value": 2.0, "kind": "assumed" },
+      { "label": "Its R₀αΔT part: 2.4 − 2.0 = 0.4 Ω, in step 7", "value": 0.4, "kind": "computed" },
+      { "label": "I(R₁ + R₂) = IR₁ + IR₂; 2 A through 3 Ω and 5 Ω makes 16 V, in step 8", "value": 16, "kind": "computed" },
+      { "label": "−(6x − 5) = −6x + 5; both make −7 at x = 2, in step 9", "value": -7, "kind": "computed" },
+      { "label": "4(x + 3) + 2(x − 1) = 6x + 10, in step 10", "value": 10, "kind": "computed" },
+      { "label": "−2(x − 4) = −2x + 8, not −2x − 8, in step 11", "value": 8, "kind": "computed" },
+      { "label": "8x − (6x − 5) = 2x + 5, not 2x − 5, in step 12", "value": 5, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "A bracket keeps what is inside it together as one number, so 3(x + 5) means 3 lots of the whole of x + 5. [[Expanding]] the bracket writes it without the bracket, and the number outside, the [[factor]], multiplies each term inside, not just the first.[^1] Picture x + 5 as an x-bar with 5 squares on its end. Stack three of them and you have a rectangle 3 high and x + 5 long. Its left part is 3 rows of x, which is 3x, and its right part is 3 rows of 5, which is 15. So 3(x + 5) = 3x + 15. At x = 4, 3(4 + 5) = 3 × 9 = 27, and 3x + 15 = 12 + 15 = 27.\n\nThe common slip is to multiply the x and forget the 5, writing 3x + 5. At x = 2 that makes 11, while 3(x + 5) makes 21. A letter outside works the same way. R = R₀(1 + αΔT) gives the resistance R after a temperature change ΔT, where R₀ is the original resistance.[^2] Its bracket expands the same way,[^1] to R₀ + R₀αΔT. The first part is the original resistance and the second is the extra resistance from warming. For a winding of 2.0 Ω cold and 2.4 Ω after a run, that extra part is 0.4 Ω.\n\nA minus in front of a bracket multiplies every term inside by −1, so every sign inside changes: −(6x − 5) = −6x + 5. The rectangle cannot show this, because an area is never negative, so try a number instead. At x = 2, 6x − 5 makes 7, so −(6x − 5) makes −7, and −6x + 5 makes −12 + 5 = −7. The slip −6x − 5 makes −17. In the same way x − (a − b) is x − a + b, because the minus must be multiplied into both terms in the bracket.[^3]\n\n**Expanding multiplies the factor outside by every term inside the bracket,[^1] so 3(x + 5) = 3x + 15, and a minus in front changes every sign inside.[^3]**"
+  },
+  "analogy": {
+    "text": "Say three identical circuits each need a run of x metres plus 5 m for the tails. You order 3(x + 5) metres, which is 3x metres of run and 15 m of tails, not 5.",
+    "breaks": "A length is always positive, so the cable cannot show a minus in front of a bracket, while x can be any number."
+  },
+  "practice": {
+    "text": "- Multiply the factor outside by the first term inside.\n- Multiply it by every other term inside, sign and all.\n- If the factor is negative, every sign inside changes.\n- Collect like terms.\n- Try a number in the old and new versions.\n\n**Rule of thumb:** Everything inside gets multiplied.\n\n**Worked example:** 4(2x − 3) − (x − 5) = 8x − 12 − x + 5 = 7x − 7. At x = 6 the start makes 4 × 9 − 1 = 35, and 7x − 7 makes 42 − 7 = 35.\n\n**Common mistakes**\n- Forgetting the last term: 4(x + 5) as 4x + 5.\n- Joining into one term: 4(x + 5) as 20x.\n- Changing only the first sign after a minus: −(6x − 5) as −6x − 5."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Ch. 6 Simplify Expressions Using the Distributive Property: Mini-Lesson Review - Algebra 1 | OpenStax", "url": "https://openstax.org/books/algebra-1/pages/6-simplify-expressions-using-the-distributive-property-mini-lesson-review", "quote": "When using the Distributive Property, the factor outside of the parentheses is multiplied by each term inside the parentheses." },
+    { "n": 4, "title": "Module 6 Resistance | Science 111", "url": "https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity", "quote": "R = R ₀ ( 1 + α Δ T ) is the temperature dependence of the resistance of an object, where R ₀ is the original resistance and R is the resistance after a temperature change Δ T ." },
+    { "n": 3, "title": "MATH 1046 Common Mistakes - algebra.nipissingu.ca", "url": "http://algebra.nipissingu.ca/mistakes.html", "quote": "As can be seen -5 is not equal to 3 so the formula is incorrect. The error was that the negative sign must be multiplied into both terms in the bracket leaving x-(a-b) = x-a+b." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
