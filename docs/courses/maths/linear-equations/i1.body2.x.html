@@ -1,0 +1,930 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* Bars, each x long (or R long), and squares worth 1 each; a term taken away is a dashed outline. */
+  .scene .xb { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .sq { fill: var(--k-accent2); }
+  .scene .neg { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  /* A wrong answer's row is the slip showing itself: drawn in the warning colour. */
+  .scene .xb.bad { fill: var(--k-warn); fill-opacity: .12; stroke: var(--k-warn); }
+  .scene .sq.bad { fill: var(--k-warn); }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .brk.bad { stroke: var(--k-warn); }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tl.bad { fill: var(--k-warn); }
+  .scene .il { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .val { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .val.bad { fill: var(--k-warn); }
+  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .wk { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .wk.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  /* The slider for x: a track, a tick at each whole number, and a knob with its value above. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* Resistors in series: a wire, the resistors as boxes, a terminal at each end. */
+  .scene .wire { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .res { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene .end { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2; }
+  .scene #art * { pointer-events: none; }
+  /* What Dan drags: a band over the slider's track. */
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Rows of bars, each <span class="v">x</span> long, and small squares worth 1 each. The values of <span class="v">x</span> are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Only like terms join, and trying a number checks a tidy-up.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // Every picture is rows of pieces laid end to end from the same left edge, so rows that make the
+  // same amount end in the same place. A bar is x long (R on the last screen) and a square is 1
+  // long. rows: the expressions drawn, as written; a term with a minus is a dashed outline under the
+  // pieces it takes away, and a tidy-up (tidy) fades those out and closes the gap.
+  // x: the value of x drawn: shown when tag, or set by the slider when slide = {min, max, from, to,
+  // t, d} (on a SHOW screen x slides from `from` to `to` starting at t, over d seconds). On a puzzle
+  // that never shows it, x is a length chosen so the longest wrong row still fits with squares big
+  // enough to count, and never 1, where a wrong answer could line up by chance.
+  // A SHOW step's tl is its timetable in seconds from when the screen opens: groups, when each
+  // row's terms arrive (split: a row's pieces arriving in parts); negs, when each taken-away term
+  // arrives; tidy, when a row tidies; sub, when each bar's letter gives way to x's value; val, when
+  // each row's value appears at its end; strips, rows of squares under a row (n squares in all by
+  // each time in at); work, a line of working under the picture.
+  // A puzzle asks for a value (ask 'value': its right answer counts squares under the row and gives
+  // each row's value) or a tidy-up (ask 'tidy': the answer's own row is drawn under the question,
+  // lining up when it is right). fb and fbw: how long the motion after a right and a wrong answer
+  // plays. slips: which mistake gives each wrong answer (SLIP below).
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'A letter is a number', x: 4, tag: true, rows: ['3x'], split: { 0: [1, 2] }, dur: 3.5,
+      tl: { groups: [[0.5, 1.7]], strips: [{ row: 0, n: [4, 12], at: [1.1, 2.3] }], val: 2.9 },
+      text: 'A letter such as x stands for a number. Picture x as a bar that long, so here x = 4 and the bar matches 4 squares. 3x means 3 lots of x, three bars end to end, and makes 3 × 4 = 12.' },
+    { kind: 'pick', ask: 'value', name: 'Three lots of x', x: 4, tag: true, rows: ['3x'], q: [0],
+      opts: ['12', '7', '34'], want: '12', slips: { '7': 'add', '34': 'side' },
+      right: { sub: 0.1, strips: [{ row: 0, n: [12], at: [0.6] }], val: 1.1 }, fb: 1.7, fbw: 0.7,
+      task: 'Here x = 4. What does 3x make?',
+      why: '3x is three bars end to end, each 4 long. So 3x makes 3 × 4 = 12, the length of 12 squares.',
+      hint: 'Not quite. 3x means 3 lots of x.',
+      hints: { '7': 'Not quite. That adds 3 and 4. 3x means 3 lots of 4.',
+        '34': 'Not quite. That writes 3 and 4 side by side. 3x means 3 times x.' } },
+    { show: true, name: 'Like terms join', slide: { min: 1, max: 7, from: 3, to: 7, t: 2.1, d: 1.2 }, rows: ['3x + 2x', '5x'], dur: 4.1,
+      tl: { groups: [[0.5, 1.0], [1.5]], val: 3.5 },
+      text: '3x and 2x are *like terms*, lots of the same number x, so 3 lots and 2 more make 5 lots, 5x. At x = 7 both rows make 35, as 3 sevens and 2 sevens make 5 sevens. Slide x and every bar stretches together, so they always line up.' },
+    { kind: 'pick', ask: 'tidy', name: 'Count the lots', x: 2, rows: ['4x + 3x'],
+      opts: ['12x', '7x', '7x²'], want: '7x', slips: { '12x': 'times', '7x²': 'power' }, fb: 0.7, fbw: 0.7,
+      task: 'Tidy 4x + 3x into one term.',
+      why: '4x and 3x are like terms, both lots of x. 4 lots and 3 more make 7 lots, so 4x + 3x = 7x.',
+      hint: 'Not quite. Count the lots of x.',
+      hints: { '12x': 'Not quite. That multiplies 4 by 3. 4 lots and 3 more lots make 7 lots.',
+        '7x²': 'Not quite. x² is x times x, a different term. 4 lots of x and 3 more make 7 lots of x.' } },
+    { show: true, name: 'Already finished', slide: { min: 1, max: 3, from: 3, to: 1, t: 2.7, d: 1.0 }, rows: ['3x + 4', '7x'], dur: 4.3,
+      tl: { groups: [[0.5, 1.0], [1.5]], val: 2.1 },
+      text: '3x + 4 has bars and plain squares, which are not like terms, so it cannot join into one term. It lines up with 7x only at x = 1, where both make 7. Slide x and they part, so 3x + 4 is already finished.' },
+    { kind: 'pick', ask: 'tidy', name: 'Leave it be', x: 2, rows: ['5x + 2'],
+      opts: ['7x', '7', '5x + 2'], want: '5x + 2', slips: { '7x': 'joinX', '7': 'joinNum' }, fb: 0.7, fbw: 0.7,
+      task: 'Tidy 5x + 2 as far as it will go.',
+      why: '5x is lots of x and 2 is a plain number, so they are not like terms. Nothing joins, so 5x + 2 is already finished.',
+      hint: 'Not quite. Only like terms join.',
+      hints: { '7x': 'Not quite. That joins the 2 onto the bars. 2 is a plain number, not lots of x.',
+        '7': 'Not quite. That adds 5 and 2 and drops the x. 5x is 5 lots of x, not 5.' } },
+    { show: true, name: 'Try a number', x: 3, tag: true, rows: ['3x + 2x', '5x', '3x + 4', '7x'], pairs: true, dur: 3.4,
+      tl: { groups: [[0.5, 0.5], [0.5], [1.0, 1.0], [1.0]], sub: 1.6, val: [2.2, 2.2, 2.8, 2.8] },
+      text: 'A tidy-up writes the same *expression* another way, so you can check one by trying a number in both. At x = 3, 3x + 2x and 5x both make 15. But 3x + 4 makes 13 and 7x makes 21, so they are not the same.' },
+    { kind: 'pick', ask: 'value', name: 'Test a claim', x: 2, tag: true, rows: ['4x + 3', '7x'], q: [0],
+      opts: ['14', '11', '7'], want: '11', slips: { '14': 'other', '7': 'drop' },
+      right: { sub: 0.1, val: 0.6, work: [{ s: '8 + 3 = 11, not 14', t: 1.1, bad: true }] }, fb: 1.7, fbw: 0.7,
+      task: 'Someone says 4x + 3 = 7x. Try x = 2. What does 4x + 3 make?',
+      why: 'With x = 2, 4x + 3 makes 8 + 3 = 11, but 7x makes 14. They differ, so 4x + 3 is not the same as 7x.',
+      hint: 'Not quite. Put 2 in place of x in 4x + 3.',
+      hints: { '14': 'Not quite. 14 is what 7x makes. Work out 4 × 2 + 3.',
+        '7': 'Not quite. That adds 4 and 3 and leaves out x. 4x is 4 lots of 2.' } },
+    { show: true, name: 'Signs belong to terms', x: 2, tag: true, rows: ['7x − 2x + 3 − x'], dur: 4.4,
+      tl: { groups: [[0.5, 1.0]], negs: [[1.5, 2.0]], tidy: [2.5], val: 3.8, work: [{ s: '14 − 4 + 3 − 2 = 11', t: 3.8 }] },
+      text: 'Each part joined on by + or − is a *term*, and the sign in front belongs to it. Taking away 2x and x leaves 7 − 2 − 1 = 4 lots of x, so 7x − 2x + 3 − x = 4x + 3. At x = 2 both make 11.' },
+    { kind: 'pick', ask: 'tidy', name: 'A minus at the start', x: 2, rows: ['−x + 8x + 3'],
+      opts: ['9x + 3', '8x + 3', '7x + 3'], want: '7x + 3', slips: { '9x + 3': 'startMinus', '8x + 3': 'loneX' }, fb: 2.0, fbw: 2.0,
+      task: 'Tidy −x + 8x + 3.',
+      why: 'The minus at the start belongs to the lone x, which is 1x. 8 lots take away 1 lot leaves 7 lots, so −x + 8x + 3 = 7x + 3.',
+      hint: 'Not quite. Each sign belongs to the term after it.',
+      hints: { '9x + 3': 'Not quite. That adds the first x. Its minus belongs to it, so it takes one x away.',
+        '8x + 3': 'Not quite. That drops the lone x. It is 1x, taken away, so 8 − 1.' } },
+    { kind: 'pick', ask: 'tidy', name: 'Put it together', x: 1.5, rows: ['9x + 4 − 3x − 1'],
+      opts: ['6x + 3', '12x + 5', '6x + 5'], want: '6x + 3', slips: { '12x + 5': 'ignoreMinus', '6x + 5': 'lastMinus' }, fb: 2.0, fbw: 2.0,
+      task: 'Put it together. Tidy 9x + 4 − 3x − 1.',
+      why: 'The x terms are 9x and −3x, and 9 − 3 = 6. The numbers are 4 and −1, which make 3. So 9x + 4 − 3x − 1 = 6x + 3.',
+      hint: 'Not quite. Each sign belongs to the term after it.',
+      hints: { '12x + 5': 'Not quite. That adds every term. The minuses belong to 3x and 1, so take those away.',
+        '6x + 5': 'Not quite. The minus in front of the 1 belongs to it, so 4 − 1 = 3.' } },
+    { kind: 'pick', ask: 'tidy', name: 'Resistors in series', x: 1.5, letter: 'R', circuit: true, rows: ['R + R + R + 10'],
+      opts: ['13R', '3R + 10', 'R³ + 10'], want: '3R + 10', slips: { '13R': 'joinX', 'R³ + 10': 'cube' }, fb: 0.7, fbw: 0.7,
+      task: 'Three resistors of R ohms and a 10 Ω one in series total R + R + R + 10. Tidy it.',
+      why: 'R + R + R is 3 lots of R, so 3R. The 10 is a plain number, not a like term, so the total is 3R + 10.',
+      hint: 'Not quite. Only like terms join.',
+      hints: { '13R': 'Not quite. That joins the 10 onto the R\'s. 10 is a plain number, not lots of R.',
+        'R³ + 10': 'Not quite. R³ means R × R × R. Adding three R\'s makes 3R.' } },
+  ];
+  const FINISH = 'A letter stands for a number, so like terms count together and 3x + 2x = 5x. Anything else, such as 3x + 4, is already finished. Each sign belongs to the term after it, and trying a number checks a tidy-up.';
+  // Sources the checks restate (the lesson's own).
+  const NCETM = 'https://www.ncetm.org.uk/media/bdddodxr/secmm-cc-audit-1-4-simplifying-and-manipulating-expressions-equations-and-formulae.pdf';
+  const OPENSTAX = 'https://openstax.org/books/prealgebra-2e/pages/2-2-evaluate-simplify-and-translate-expressions';
+  const PURPLEMATH = 'https://www.purplemath.com/modules/polydefs2.htm';
+  // Rows start at X0 and may run L long (room is kept on the right for a row's value); a square is
+  // U long, at most UMAX; bars are BH tall. The slider's track runs from SX0 to SX1.
+  const X0 = 12, L = 284, UMAX = 24, BH = 28, SX0 = 40, SX1 = 300;
+  // A screen takes FADE to fade in, so no demonstration starts before it has settled.
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- expressions (pure, so the checks can test them) ----------
+  // A term is {c, v, p}: its count (negative after a minus), its letter ('' for a plain number) and
+  // the letter's power.
+  const SUP = { '²': 2, '³': 3 }, SUPS = { 2: '²', 3: '³' };
+  function parse(s) {
+    return String(s).replace(/\s+/g, '').replace(/−/g, '-').match(/[+-]?[^+-]+/g).map((tok) => {
+      const m = /^([+-]?)(\d*)([A-Za-z]?)([²³]?)$/.exec(tok);
+      const n = m[2] === '' ? 1 : +m[2];
+      return { c: (m[1] === '-' ? -1 : 1) * n, v: m[3] || '', p: m[3] ? (SUP[m[4]] || 1) : 0 };
+    });
+  }
+  const valueOf = (terms, x) => terms.reduce((a, t) => a + t.c * (t.v ? Math.pow(x, t.p) : 1), 0);
+  const val = (s, x) => valueOf(parse(s), x);
+  // Like terms (the same letter to the same power, or plain numbers) counted together; letters first.
+  function tidy(terms) {
+    const keys = [], sum = {};
+    terms.forEach((t) => { const k = t.v + t.p; if (!(k in sum)) { keys.push(k); sum[k] = { c: 0, v: t.v, p: t.p }; } sum[k].c += t.c; });
+    return keys.map((k) => sum[k]).filter((t) => t.c !== 0).sort((a, b) => (b.v ? 1 : 0) - (a.v ? 1 : 0) || b.p - a.p);
+  }
+  const termText = (t) => (t.v ? (Math.abs(t.c) === 1 ? '' : String(Math.abs(t.c))) + t.v + (t.p > 1 ? SUPS[t.p] : '') : String(Math.abs(t.c)));
+  const fmt = (terms) => terms.map((t, k) => (k === 0 ? (t.c < 0 ? '−' : '') : t.c < 0 ? ' − ' : ' + ') + termText(t)).join('') || '0';
+  const tidied = (s) => fmt(tidy(parse(s)));
+  // The answer a puzzle wants, worked out by its rule.
+  const answerOf = (d) => (d.ask === 'value' ? String(val(d.rows[0], d.x)) : tidied(d.rows[0]));
+  // What each slip makes of the question: 3 and 4 added, or written side by side; the counts
+  // multiplied; the counts added but a power made up; every count joined onto the letter, or added
+  // with the letter dropped; the plain numbers added with x left out; the other side of a claim
+  // worked out instead; a minus at the start ignored; a lone x dropped; every minus ignored; the
+  // minus on a plain number ignored; three R's made into R³.
+  const first = (d) => parse(d.rows[0]);
+  const SLIP = {
+    add: (d) => String(first(d)[0].c + d.x),
+    side: (d) => String(first(d)[0].c) + String(d.x),
+    times: (d) => first(d).reduce((a, t) => a * t.c, 1) + 'x',
+    power: (d) => fmt([{ c: first(d).reduce((a, t) => a + t.c, 0), v: 'x', p: 2 }]),
+    joinX: (d) => first(d).reduce((a, t) => a + Math.abs(t.c), 0) + first(d).filter((t) => t.v)[0].v,
+    joinNum: (d) => String(first(d).reduce((a, t) => a + t.c, 0)),
+    drop: (d) => String(first(d).reduce((a, t) => a + t.c, 0)),
+    other: (d) => String(val(d.rows[1], d.x)),
+    startMinus: (d) => fmt(tidy(first(d).map((t, k) => (k === 0 ? Object.assign({}, t, { c: Math.abs(t.c) }) : t)))),
+    loneX: (d) => fmt(tidy(first(d).filter((t) => !(t.v && Math.abs(t.c) === 1)))),
+    ignoreMinus: (d) => fmt(tidy(first(d).map((t) => Object.assign({}, t, { c: Math.abs(t.c) })))),
+    lastMinus: (d) => fmt(tidy(first(d).map((t) => (t.v ? t : Object.assign({}, t, { c: Math.abs(t.c) }))))),
+    cube: (d) => { const ts = first(d), ls = ts.filter((t) => t.v); return fmt([{ c: 1, v: ls[0].v, p: ls.length }].concat(tidy(ts.filter((t) => !t.v)))); },
+  };
+  // As a screen reader says it.
+  const say = (s) => String(s).replace(/\u00a0/g, ' ').replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/Ω/g, ' ohms').replace(/\?/g, ' a question mark ')
+    .replace(/\+/g, ' plus ').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // A row's pieces: each term with a plus laid out as bars or squares in the order written; each
+  // term with a minus takes away the last pieces of its own kind (a dashed outline under them).
+  const ROWS = {};
+  function rowInfo(e) {
+    if (ROWS[e]) return ROWS[e];
+    const terms = parse(e), pieces = [], groups = [], negs = [];
+    terms.forEach((t, j) => {
+      if (t.c <= 0) return;
+      const g = { term: j, pieces: [] };
+      for (let n = 0; n < t.c; n++) { g.pieces.push(pieces.length); pieces.push({ kind: t.v ? 'bar' : 'sq', v: t.v, cut: null }); }
+      groups.push(g);
+    });
+    terms.forEach((t, j) => {
+      if (t.c >= 0) return;
+      const covers = [];
+      for (let k = pieces.length - 1; k >= 0 && covers.length < -t.c; k--) if (pieces[k].cut == null && pieces[k].v === t.v) { pieces[k].cut = negs.length; covers.unshift(k); }
+      negs.push({ term: j, covers });
+    });
+    ROWS[e] = { e, terms, pieces, groups, negs, drawable: terms.every((t) => t.p <= 1) };
+    return ROWS[e];
+  }
+  // How long a row's solid pieces run, in squares, with x as given.
+  const solidUnits = (r, x) => r.pieces.reduce((a, p) => a + (p.kind === 'bar' ? x : 1), 0);
+  // Where each piece sits: x0 as written, x1 once the taken-away pieces are gone and the gap closed.
+  function positions(r, x, U) {
+    let a = X0, b = X0;
+    const list = r.pieces.map((p) => { const w = p.kind === 'bar' ? x * U : U, q = { x0: a, x1: b, w }; a += w; if (p.cut == null) b += w; return q; });
+    return { list, solid: a - X0, net: b - X0 };
+  }
+
+  // ---------- each step's sizes ----------
+  // The square's length U fits the longest row the screen can draw; the picture's height follows
+  // from what each row may carry (a taken-away band, a strip of squares), the answer's row, the
+  // working and the key.
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const info = d.rows.map(rowInfo);
+    const xMax = d.slide ? d.slide.max : d.x;
+    let units = 0;
+    info.forEach((r) => { units = Math.max(units, solidUnits(r, xMax)); });
+    if (d.ask === 'tidy') d.opts.forEach((o) => { const r = rowInfo(o); if (r.drawable) units = Math.max(units, solidUnits(r, d.x)); });
+    const U = Math.min(UMAX, L / units);
+    const fit = (n) => n > 0 && n * U <= L + 1e-9;
+    const stripRows = {};
+    if (d.show) (d.tl.strips || []).forEach((s) => { stripRows[s.row] = true; });
+    else if (d.ask === 'value' && (((d.right || {}).strips || []).length || d.opts.some((o) => o !== d.want && fit(+o)))) stripRows[0] = true;
+    let y = d.slide ? 58 : d.tag ? 32 : d.circuit ? 74 : 8;
+    const rowY = info.map((r, k) => {
+      if (d.pairs && k === 2) y += 14;
+      const at = y;
+      let below = 0;
+      if (r.negs.length) below = 40;
+      if (stripRows[k]) below = Math.max(below, U + 12);
+      y += 57 + below + 8;
+      return at;
+    });
+    let ansY = null;
+    if (d.ask === 'tidy') { ansY = y; y += 57 + 8; }
+    const nWork = d.show ? (d.tl.work || []).length : ((d.right && d.right.work) || []).length;
+    const workY = y + 20;
+    y += 30 * nWork;
+    const keyY = y + 12;
+    y += 30;
+    const G = { info, U, fit, stripRows, rowY, ansY, workY, keyY, H: Math.ceil(y + 4), neg: info.some((r) => r.negs.length > 0) };
+    GEO.set(d, G);
+    return G;
+  }
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // x: on a slider screen, the x Dan has set (null while the demonstration sets it).
+  function blank(i) { return { pick: null, res: null, why: false, x: null }; }
+  const isEmpty = (i, st) => st.pick == null;
+  const isRight = (i, st) => !isEmpty(i, st) && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // A wrong answer is drawn when it can be: a value as that many squares under the row (when they
+  // fit), a tidy-up as its own row under the question (not a power, which no bar can show); a
+  // question with minuses tidies first, so the comparison is fair.
+  const hasWrongMotion = (d, v) => (d.ask === 'value' ? geo(d).fit(+v) : rowInfo(v).drawable || geo(d).info[0].negs.length > 0);
+
+  // A step's timetable in its state (null: there from the start).
+  function timeline(d, st) {
+    const tl = { groups: d.rows.map(() => null), negs: d.rows.map(() => null), tidy: d.rows.map(() => null), sub: null,
+      val: d.rows.map(() => null), q: d.rows.map((e, k) => !d.show && (d.q || []).indexOf(k) >= 0), strips: [], ans: null, work: [], slide: null };
+    if (d.show) {
+      const s = d.tl;
+      if (s.groups) tl.groups = s.groups;
+      if (s.negs) tl.negs = s.negs;
+      if (s.tidy) tl.tidy = s.tidy;
+      if (s.sub != null) tl.sub = s.sub;
+      if (s.val != null) tl.val = Array.isArray(s.val) ? s.val : d.rows.map(() => s.val);
+      if (s.strips) tl.strips = s.strips;
+      if (s.work) tl.work = s.work;
+      if (d.slide) tl.slide = d.slide;
+      return tl;
+    }
+    const neg = geo(d).info[0].negs.length > 0;
+    if (st.res === 'right') {
+      const r = d.right || {};
+      if (r.sub != null) tl.sub = r.sub;
+      if (r.val != null) tl.val = d.rows.map(() => r.val);
+      if (r.strips) tl.strips = r.strips;
+      if (r.work) tl.work = r.work;
+      if (d.ask === 'tidy') { if (neg) tl.tidy = [0.1]; tl.ans = { e: d.want, t: neg ? 1.4 : 0.1, bad: false }; }
+    } else if (st.res === 'wrong' && st.pick != null) {
+      if (d.ask === 'value') { const n = +st.pick; if (geo(d).fit(n)) tl.strips = [{ row: 0, n: [n], at: [0.1], bad: true, label: true }]; }
+      else {
+        if (neg) tl.tidy = [0.1];
+        if (rowInfo(st.pick).drawable) tl.ans = { e: st.pick, t: neg ? 1.4 : 0.1, bad: true };
+      }
+    }
+    return tl;
+  }
+
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motion = null, motionEnd = 0;                                       // motion: 'demo' or 'fb'
+  let REC = null;                                                         // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  function letters(el, s) {
+    s.split(/(\b[xR]\b)/).forEach((b) => { if (!b) return; el.appendChild(/^[xR]$/.test(b) ? K.el('span', { class: 'v' }, b) : document.createTextNode(b)); });
+  }
+  function pieces(el, text) {
+    const re = /\*([^*]+)\*/g;
+    let at = 0, m;
+    while ((m = re.exec(text))) {
+      if (m.index > at) letters(el, text.slice(at, m.index));
+      el.appendChild(K.el('span', { class: 'term' }, m[1]));
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) letters(el, text.slice(at));
+  }
+  // A sum stays together on one line ("7x − 2x + 3 − x", "3 × 4 = 12", "10 Ω"), with the stop after
+  // it; a long one may break only before an equals sign. Its letters are italic.
+  const TOK = '(?:−?\\d+(?:\\.\\d+)?(?:[xR][²³]?)?(?: Ω)?|−?\\b[xR]\\b[²³]?|\\?)';
+  const GLUE = new RegExp('(?:[×÷−+] )?' + TOK + '(?: [+−=×÷] ' + TOK + ')*[.,?!;]?', 'g');
+  function mathBit(el, b) {
+    const box = / /.test(b) ? el.appendChild(K.el('span', { class: 'nw' })) : el;
+    b.split(/([xR])/).forEach((p) => { if (!p) return; box.appendChild(/^[xR]$/.test(p) ? K.el('span', { class: 'v' }, p) : document.createTextNode(p)); });
+  }
+  function write(el, text) {
+    el.textContent = '';
+    let at = 0, m;
+    GLUE.lastIndex = 0;
+    while ((m = GLUE.exec(text))) {
+      if (!m[0].length) { GLUE.lastIndex += 1; continue; }
+      if (/^\?[.,?!;]?$/.test(m[0])) continue;   // a question mark ending a sentence
+      if (m.index > at) pieces(el, text.slice(at, m.index));
+      const bits = m[0].length > 18 ? m[0].split(/ (?==)/) : [m[0]];
+      bits.forEach((b, k) => { if (k) el.appendChild(document.createTextNode(' ')); mathBit(el, b); });
+      at = m.index + m[0].length;
+    }
+    if (at < text.length) pieces(el, text.slice(at));
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong' && st.pick != null && hasWrongMotion(d, st.pick);
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; motion = null; enter('scene'); }
+  } }));
+
+  // Check: marks the answer; a right one plays its picture's motion, and a wrong one shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (isEmpty(i, st)) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right') play(d.fb, 'fb');
+    else if (hasWrongMotion(d, st.pick)) play(d.fbw, 'fb');
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].x = null;
+    play(d.dur, 'demo');
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  const againBtn = K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden (Dan switches app or locks the phone) and
+  // resumes it when he comes back; this only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur, kind) {
+    motion = kind;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel, or the picture after a fresh start) fades in softly.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and moved `rise` units into place; nothing before it starts.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx, attrs) => add(K.svg('rect', Object.assign({ class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }, attrs || {})));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  // Text with every letter x or R in italics.
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    String(s).split(/([xR])/).forEach((p) => { if (p) t.appendChild(/^[xR]$/.test(p) ? K.svg('tspan', { class: 'v' }, p) : document.createTextNode(p)); });
+    return add(t);
+  }
+  // Spaces that SVG keeps (and measures).
+  const nb = (s) => String(s).replace(/ /g, '\u00a0');
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  // Labels in a line, each as near the middle of its span as it can sit without touching the next.
+  function pack(items, lo, hi) {
+    const order = items.map((it, k) => k).sort((a, b) => items[a].c - items[b].c), left = [];
+    let prev = -Infinity;
+    order.forEach((k) => { const it = items[k]; left[k] = Math.max(it.c - it.w / 2, lo, prev + 8); prev = left[k] + it.w; });
+    let lim = hi;
+    order.slice().reverse().forEach((k) => { const it = items[k]; if (left[k] + it.w > lim) left[k] = lim - it.w; lim = left[k] - 8; });
+    return left;
+  }
+  // Term names over a row: a bracket over each term's pieces, its name above.
+  function labelSet(items, ly, by, bad) {
+    const lefts = pack(items.map((it) => ({ c: (it.a0 + it.a1) / 2, w: tw(nb(it.text), 'tl') })), 4, 336);
+    return items.map((it, m) => () => {
+      if (it.a1 - it.a0 >= 8) add(K.svg('path', { class: 'brk' + (bad ? ' bad' : ''), d: 'M' + r3(it.a0 + 1.5) + ' ' + (by + 5) + ' V' + by + ' H' + r3(it.a1 - 1.5) + ' V' + (by + 5) }));
+      text(lefts[m], ly, nb(it.text), 'tl' + (bad ? ' bad' : ''), 'start');
+    });
+  }
+  // One piece: a bar with its letter (or, once x is tried, its value) inside, or a square.
+  function drawPiece(p, x, bt, w, U, bad, attrs, tl, xr) {
+    if (p.kind === 'sq') { const s = Math.max(2, U - 2); rect('sq' + bad, x + (U - s) / 2, bt + BH - s, s, s, Math.min(2, s / 4), attrs); return; }
+    rect('xb' + bad, x + 0.75, bt, w - 1.5, BH, Math.min(3, w / 4), attrs);
+    if (w < 15) return;
+    const cx = x + w / 2, cy = bt + BH / 2 + 5;
+    if (!tl || tl.sub == null) { text(cx, cy, p.v, 'il'); return; }
+    leave(arr(tl.sub, 0.25), () => text(cx, cy, p.v, 'il'));
+    part(arr(tl.sub + 0.25), 3, () => text(cx, cy, String(xr), 'il'));
+  }
+
+  // When piece j of row k arrives (1: there from the start).
+  function pieceA(d, tl, k, j) {
+    const g = tl.groups[k];
+    if (!g) return 1;
+    let n;
+    if (d.split && d.split[k]) { let acc = 0; n = d.split[k].findIndex((c) => (acc += c) > j); }
+    else n = geo(d).info[k].groups.findIndex((gr) => gr.pieces.indexOf(j) >= 0);
+    return arr(g[n]);
+  }
+  // x now: Dan's setting on a slider screen, else where the demonstration has slid it, else the step's.
+  function xNow(d, st) {
+    if (!d.slide) return d.x;
+    if (st.x != null) return st.x;
+    return K.lerp(d.slide.from, d.slide.to, arr(d.slide.t, d.slide.d));
+  }
+  // A row's value shows once due, and hides while x slides.
+  function valVis(tl, k) {
+    if (tl.val[k] == null) return 0;
+    let a = arr(tl.val[k]);
+    if (tl.slide) { const s = tl.slide; a *= 1 - arr(s.t, 0.25) * (1 - arr(s.t + s.d, 0.4)); }
+    return a;
+  }
+  // Bars and squares in words.
+  function pieceWords(ts, letter) {
+    const b = ts.filter((t) => t.v).reduce((a, t) => a + t.c, 0), s = ts.filter((t) => !t.v).reduce((a, t) => a + t.c, 0), out = [];
+    if (b) out.push(b === 1 ? 'one bar ' + letter + ' long' : b + ' bars, each ' + letter + ' long');
+    if (s) out.push(s === 1 ? 'one square' : s + ' squares');
+    return out.join(' and ') || 'nothing';
+  }
+
+  // One row of the question: its pieces, what is taken away, the term names, its value and any
+  // strip of squares under it.
+  function drawRow(d, st, tl, G, k, xv) {
+    const info = G.info[k], U = G.U, y0 = G.rowY[k], bt = y0 + 29, P = positions(info, xv, U), xr = Math.round(xv);
+    const tT = tl.tidy[k], letter = d.letter || 'x';
+    const cutA = tT == null ? 0 : arr(tT, K.SOFT), slideA = tT == null ? 0 : arr(tT + 0.6, 0.6);
+    info.pieces.forEach((p, j) => {
+      const q = P.list[j], x = K.lerp(q.x0, q.x1, slideA), a = pieceA(d, tl, k, j);
+      const draw = () => drawPiece(p, x, bt, q.w, U, '', { 'data-row': k }, tl, xr);
+      if (p.cut != null && tT != null) leave(cutA, () => part(a, 6, draw));
+      else part(a, 6, draw);
+    });
+    // what is taken away: a dashed outline under the pieces it takes, named under it
+    const ny = bt + BH + 5;
+    const negs = info.negs.map((n, m) => {
+      const a = n.covers.map((j) => P.list[j]), last = a[a.length - 1];
+      return { a0: a[0].x0, a1: last.x0 + last.w, a: tl.negs[k] ? arr(tl.negs[k][m]) : 1, text: '− ' + termText(info.terms[n.term]) };
+    });
+    const nl = pack(negs.map((it) => ({ c: (it.a0 + it.a1) / 2, w: tw(nb(it.text), 'tl') })), 4, 336);
+    negs.forEach((it, m) => {
+      const shown = () => part(it.a, 6, () => { rect('neg', it.a0 + 1, ny, it.a1 - it.a0 - 2, 16, 3, { 'data-row': k }); text(nl[m], ny + 32, nb(it.text), 'tl', 'start'); });
+      if (tT != null) leave(cutA, shown); else shown();
+    });
+    // the term names: as written, then (after a tidy-up) the tidied terms
+    const ly = y0 + 15, by = y0 + 22;
+    const old = info.groups.map((g, n) => {
+      const f = P.list[g.pieces[0]], l = P.list[g.pieces[g.pieces.length - 1]];
+      return { a0: K.lerp(f.x0, f.x1, slideA), a1: K.lerp(l.x0, l.x1, slideA) + l.w, text: (n === 0 ? '' : '+ ') + termText(info.terms[g.term]), a: pieceA(d, tl, k, g.pieces[g.pieces.length - 1]) };
+    });
+    const oldDraw = labelSet(old, ly, by, false);
+    old.forEach((it, m) => { const sh = () => part(it.a, 6, oldDraw[m]); if (tT != null) leave(arr(tT, 0.3), sh); else sh(); });
+    let tidyText = null;
+    if (tT != null) {
+      const ts = tidy(info.terms), runs = [];
+      info.pieces.forEach((p, j) => { if (p.cut != null) return; const r = runs[runs.length - 1]; if (r && info.pieces[r[0]].kind === p.kind) r.push(j); else runs.push([j]); });
+      const neu = runs.map((r, n) => { const l = P.list[r[r.length - 1]]; return { a0: P.list[r[0]].x1, a1: l.x1 + l.w, text: (n === 0 ? '' : '+ ') + termText(ts[n]) }; });
+      const na = arr(tT + 1.2);
+      labelSet(neu, ly, by, false).forEach((f) => part(na, 6, f));
+      tidyText = fmt(ts);
+    }
+    // its value at its end (or a question mark until a puzzle is answered)
+    const end = X0 + K.lerp(P.solid, P.net, slideA), vy = bt + 20;
+    if (tl.q[k]) leave(tl.val[k] == null ? 0 : arr(tl.val[k] - 0.25, 0.25), () => text(end + 7, vy, '?', 'val', 'start'));
+    const vv = valVis(tl, k), value = valueOf(info.terms, xr);
+    if (vv > 0) part(vv, 4, () => text(end + 7, vy, String(value), 'val', 'start'));
+    // a strip of squares under the row, each worth 1 (in the warning colour for a wrong answer)
+    const sz = Math.max(2, U - 2), sy = ny;
+    tl.strips.filter((s) => s.row === k).forEach((s) => {
+      let from = 0;
+      s.n.forEach((n, m) => {
+        const lo = from;
+        part(arr(s.at[m]), 6, () => { for (let j = lo; j < n; j++) rect('sq' + (s.bad ? ' bad' : ''), X0 + j * U + (U - sz) / 2, sy, sz, sz, Math.min(2, sz / 4), { 'data-strip': k }); });
+        from = n;
+      });
+      const n = s.n[s.n.length - 1];
+      if (s.label) part(arr(s.at[s.at.length - 1]), 6, () => text(X0 + n * U + 7, sy + sz / 2 + 6, String(n), 'val' + (s.bad ? ' bad' : ''), 'start'));
+      REC.strips.push({ row: k, end: X0 + n * U, n, bad: !!s.bad, seen: arr(s.at[s.at.length - 1]) >= 0.5 });
+    });
+    const tidiedNow = !info.negs.length || slideA >= 1;
+    REC.rows.push({ end, value: valueOf(info.terms, xv), solid: solidUnits(info, xv), tidied: tidiedNow });
+    // in words
+    const shownAll = info.pieces.every((p, j) => pieceA(d, tl, k, j) >= 0.5);
+    const ts = slideA >= 0.5 ? tidy(info.terms) : info.terms.filter((t) => t.c > 0);
+    const negSaid = negs.filter((it) => it.a >= 0.5 && cutA < 0.5).map((it) => say(it.text));
+    return (shownAll ? 'A row for ' + say(slideA >= 0.5 && tidyText ? tidyText : info.e) + ', ' + pieceWords(ts, letter) +
+      (negSaid.length ? ', with ' + negSaid.join(' and ') + ' marked as taken away' : '') +
+      (vv >= 0.5 ? ', making ' + value : tl.q[k] ? ', its value a question mark' : '') + '.' : '');
+  }
+  // The answer's own row under the question: lining up when right, in the warning colour when not.
+  function drawAns(d, tl, G) {
+    const r = rowInfo(tl.ans.e), U = G.U, y0 = G.ansY, bt = y0 + 29, P = positions(r, d.x, U), bad = tl.ans.bad ? ' bad' : '';
+    const a = arr(tl.ans.t);
+    part(a, 6, () => {
+      r.pieces.forEach((p, j) => drawPiece(p, P.list[j].x0, bt, P.list[j].w, U, bad, { 'data-row': 'ans' }, null, d.x));
+      const items = r.groups.map((g, n) => { const f = P.list[g.pieces[0]], l = P.list[g.pieces[g.pieces.length - 1]]; return { a0: f.x0, a1: l.x0 + l.w, text: (n === 0 ? '' : '+ ') + termText(r.terms[g.term]) }; });
+      labelSet(items, y0 + 15, y0 + 22, !!bad).forEach((f) => f());
+    });
+    REC.ans = { end: X0 + P.net, e: tl.ans.e, bad: !!tl.ans.bad };
+    return a >= 0.5 ? ' Under it, the answer ' + say(tl.ans.e) + ' as its own row, ' + pieceWords(r.terms, d.letter || 'x') + (tl.ans.bad ? ', which does not line up.' : ', which lines up.') : '';
+  }
+  // The slider for x: its track, a tick at each whole number, the knob and its value.
+  const xPos = (s, v) => SX0 + (v - s.min) / (s.max - s.min) * (SX1 - SX0);
+  function drawSlider(d, xv) {
+    const s = d.slide, ty = 40;
+    line('track', SX0, ty, SX1, ty);
+    for (let v = s.min; v <= s.max; v++) line('tick', xPos(s, v), ty - 7, xPos(s, v), ty + 7);
+    const kx = xPos(s, xv), lab = 'x = ' + Math.round(xv), w = tw(nb(lab), 'xl');
+    add(K.svg('circle', { class: 'knob', cx: r3(kx), cy: ty, r: 10 }));
+    text(K.clamp(kx, 12 + w / 2, 328 - w / 2), 19, nb(lab), 'xl');
+  }
+  // Three resistors of R ohms and a 10 ohm one on one wire.
+  function drawCircuit() {
+    const wy = 48, xs = [64, 134, 204, 274], labs = ['R', 'R', 'R', '10 Ω'];
+    line('wire', 20, wy, 320, wy);
+    [20, 320].forEach((x) => add(K.svg('circle', { class: 'end', cx: x, cy: wy, r: 4 })));
+    xs.forEach((cx, k) => { rect('res', cx - 22, wy - 9, 44, 18, 2); text(cx, wy - 17, nb(labs[k]), 'tl'); });
+  }
+  // The key, inside the drawing: a bar, a square and (where used) a dashed outline.
+  function drawKey(d, G) {
+    const y = G.keyY, letter = d.letter || 'x';
+    let x = X0;
+    const item = (sw, wd, label) => { sw(x); x += wd + 6; text(x, y + 5, nb(label), 'key', 'start'); x += tw(nb(label), 'key') + 18; };
+    item((x0) => rect('xb', x0 + 0.75, y - 7, 24, 14, 3), 25, letter + ' long');
+    item((x0) => rect('sq', x0, y - 6, 12, 12, 2), 12, 'worth 1');
+    if (G.neg) item((x0) => rect('neg', x0 + 1, y - 7, 24, 14, 3), 26, 'taken away');
+  }
+
+  // The whole picture for a step now; returns it in words.
+  function drawScene(d, st, G) {
+    const tl = timeline(d, st), xv = xNow(d, st);
+    REC = { rows: [], strips: [], ans: null, x: xv };
+    const said = [];
+    if (d.slide) { drawSlider(d, xv); said.push('A slider sets x, now ' + Math.round(xv) + '.'); }
+    else if (d.tag) { text(X0, 21, nb('x = ' + d.x), 'tag', 'start'); said.push('Here x is ' + d.x + '.'); }
+    if (d.circuit) { drawCircuit(); said.push('Three resistors marked R and one marked 10 ohms, one after another on a wire.'); }
+    d.rows.forEach((e, k) => said.push(drawRow(d, st, tl, G, k, xv)));
+    if (tl.ans) said.push(drawAns(d, tl, G));
+    tl.work.forEach((w, m) => {
+      const a = arr(w.t);
+      part(a, 6, () => text(170, G.workY + 30 * m, nb(w.s), 'wk' + (w.bad ? ' bad' : '')));
+      if (a >= 0.5) said.push('Working: ' + say(w.s) + '.');
+    });
+    drawKey(d, G);
+    placeGrip(d, xv);
+    return said.filter(Boolean).join(' ');
+  }
+
+  // ---------- the slider: Dan sets x himself ----------
+  // A band over the track, kept across repaints so a drag survives them; a thumb's height tall.
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': 'x', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  function placeGrip(d, xv) {
+    const on = !!d.slide && !finished;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('x', SX0 - 24); grip.setAttribute('width', SX1 - SX0 + 48);
+    grip.setAttribute('y', 14); grip.setAttribute('height', 48);
+    const v = Math.round(xv);
+    grip.setAttribute('aria-valuemin', d.slide.min); grip.setAttribute('aria-valuemax', d.slide.max); grip.setAttribute('aria-valuenow', v);
+    grip.setAttribute('aria-valuetext', 'x = ' + v);
+  }
+  const sliding = () => !finished && !!STEPS[at()].slide;
+  // Dan's x, a whole number on the track: it stops the demonstration and every bar takes it up.
+  function setX(v) {
+    const i = at(), d = STEPS[i], st = S[i];
+    v = K.clamp(Math.round(v), d.slide.min, d.slide.max);
+    if (st.x === v && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity; motion = null;
+    st.x = v;
+    K.reveal(); K.refresh();
+  }
+  function xFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), s = STEPS[at()].slide;
+    return s.min + (q.x - SX0) / (SX1 - SX0) * (s.max - s.min);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!sliding()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+    e.preventDefault();
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !sliding()) return;
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!sliding()) return;
+    const d = STEPS[at()], st = S[at()], now = st.x != null ? st.x : Math.round(xNow(d, st));
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    setX(e.key === 'Home' ? d.slide.min : e.key === 'End' ? d.slide.max : now + by);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, st, G));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.x = null; play(d.dur, 'demo'); } else { anim.pause(); T = Infinity; motion = null; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(i), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(i), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(i), { pick: o, res: 'wrong' });
+  const near = (a, b) => Math.abs(a - b) < 1e-6;
+  const TRY = [1, 2, 3, 4, 7, 10, 0.5, -4];
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      const rec = REC, counts = {};
+      // Counted now, while this step's picture is the one drawn (the finally below repaints the screen on show).
+      art.querySelectorAll('rect[data-row]').forEach((n) => { const key = n.getAttribute('class').split(' ')[0] + '|' + n.getAttribute('data-row'); counts[key] = (counts[key] || 0) + 1; });
+      const count = (cls, k) => counts[cls + '|' + k] || 0;
+      return { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/\u00a0/g, ' ')), rows: rec.rows, strips: rec.strips, ans: rec.ans, count };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  K.check('Collecting like terms generalises unitising in number: three lots and two lots of the same number make five lots of it, whatever the number, so the two rows that compare them line up wherever x is slid', () => {
+    const G = geo(STEPS[2]);
+    return TRY.every((v) => val('3x + 2x', v) === val('5x', v)) &&
+      [1, 2, 3, 4, 5, 6, 7].every((v) => { const g = drawn(2, Object.assign(blank(2), { x: v })); return near(g.rows[0].end, g.rows[1].end) && near(g.rows[0].end - X0, 5 * v * G.U); });
+  }, { source: NCETM });
+  K.check('Terms are like terms if they have the same variables and exponents, and all constant terms are like terms: each tidy-up joins only those, and each puzzle accepts only its own tidy answer', () =>
+    tidied('4x + 3x') === '7x' && tidied('7x − 2x + 3 − x') === '4x + 3' && tidied('9x + 4 − 3x − 1') === '6x + 3' && tidied('R + R + R + 10') === '3R + 10' &&
+    tidied('x + x²') === 'x² + x' && tidied('5x + 2') === '5x + 2' && tidy(parse('3 + 4')).length === 1 &&
+    DO.every((i) => STEPS[i].want === answerOf(STEPS[i]) && STEPS[i].opts.every((o) => pickRight(i, o) === (o === STEPS[i].want))), { source: OPENSTAX });
+  K.check('Terms can be combined only if they have the exact same variable portion: a letter term and a plain number never join, and the row that holds them lines up with the joined-up version at just one value of x', () => {
+    const G = geo(STEPS[4]);
+    return tidy(parse('3x + 4')).length === 2 && tidy(parse('5x + 2')).length === 2 && tidy(parse('R + R + R + 10')).length === 2 &&
+      TRY.filter((v) => val('3x + 4', v) === val('7x', v)).join() === '1' && TRY.filter((v) => val('5x + 2', v) === val('7x', v)).join() === '1' &&
+      [1, 2, 3].every((v) => { const g = drawn(4, Object.assign(blank(4), { x: v })); return near(g.rows[0].end, g.rows[1].end) === (v === 1) && near(g.rows[1].end - X0, 7 * v * G.U); });
+  }, { source: PURPLEMATH });
+  K.check('The worked numbers: 3x makes 12 at x = 4; 3x + 2x and 5x make 35 at x = 7 and 15 at x = 3; 3x + 4 and 7x make 7 at x = 1 but 13 and 21 at x = 3; 4x + 3 makes 11 and 7x makes 14 at x = 2; 7x − 2x + 3 − x and 4x + 3 both make 11 at x = 2', () => {
+    const g = drawn(6, blank(6)), h = drawn(8, blank(8));
+    return val('3x', 4) === 12 && val('3x + 2x', 7) === 35 && val('5x', 7) === 35 && val('3x + 2x', 3) === 15 && val('5x', 3) === 15 &&
+      val('3x + 4', 1) === 7 && val('7x', 1) === 7 && val('3x + 4', 3) === 13 && val('7x', 3) === 21 && val('4x + 3', 2) === 11 && val('7x', 2) === 14 &&
+      val('7x − 2x + 3 − x', 2) === 11 && val('4x + 3', 2) === 11 && 7 * 2 - 2 * 2 + 3 - 2 === 11 &&
+      ['15', '15', '13', '21'].every((s) => g.texts.indexOf(s) >= 0) && g.texts.filter((s) => s === '15').length === 2 &&
+      h.texts.indexOf('11') >= 0 && h.texts.indexOf('14 − 4 + 3 − 2 = 11') >= 0;
+  });
+  K.check('Every tidy answer gives the same value as its question for every x tried, whole, a half or negative, and every wrong answer offered gives a different value at the x drawn', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      if (d.ask === 'value') return String(val(d.rows[0], d.x)) === d.want && d.opts.every((o) => o === d.want || +o !== val(d.rows[0], d.x));
+      return TRY.every((v) => near(val(d.rows[0], v), val(d.want, v))) && d.opts.every((o) => o === d.want || !near(val(o, d.x), val(d.rows[0], d.x)));
+    }));
+  K.check('Each wrong answer offered is the one a named slip gives: 3 and 4 added or written side by side, the counts multiplied, a power made up, a plain number joined onto the letters, the letter dropped, the other side of a claim worked out, a starting minus ignored, a lone x dropped, every minus ignored, or the minus on a plain number dropped', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && Object.keys(d.slips).length === 2 &&
+        Object.keys(d.slips).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want && SLIP[d.slips[o]](d) === o);
+    }) && SLIP.add(STEPS[1]) === '7' && SLIP.side(STEPS[1]) === '34' && SLIP.times(STEPS[3]) === '12x' && SLIP.ignoreMinus(STEPS[10]) === '12x + 5' && SLIP.cube(STEPS[11]) === 'R³ + 10');
+  K.check('Every picture is drawn to count: each bar is x long and each square 1, so a row ends at its value; a right answer lines up with its question and a wrong one does not', () =>
+    STEPS.every((d, i) => {
+      const G = geo(d);
+      const ok = (g) => g.rows.every((r, k) => {
+        const info = G.info[k], ts = r.tidied ? tidy(info.terms) : info.terms.filter((t) => t.c > 0);
+        const bars = ts.filter((t) => t.v).reduce((a, t) => a + t.c, 0), sqs = ts.filter((t) => !t.v).reduce((a, t) => a + t.c, 0);
+        return near(r.end - X0, (r.tidied ? r.value : r.solid) * G.U) && g.count('xb', k) === bars && g.count('sq', k) === sqs;
+      });
+      if (d.show) { const g = drawn(i, blank(i)); return ok(g) && g.strips.every((s) => near(s.end - X0, s.n * G.U)); }
+      const g = drawn(i, solvedSt(i));
+      if (!ok(g)) return false;
+      if (d.ask === 'tidy' && !(g.ans && near(g.ans.end, g.rows[0].end) && g.rows[0].tidied)) return false;
+      if (d.ask === 'value' && !g.strips.every((s) => near(s.end, g.rows[0].end))) return false;
+      return d.opts.filter((o) => o !== d.want && hasWrongMotion(d, o)).every((o) => {
+        const w = drawn(i, wrongSt(i, o));
+        if (d.ask === 'tidy') return !w.ans || (w.ans.bad && !near(w.ans.end, w.rows[0].end));
+        return w.strips.length === 1 && w.strips[0].bad && !near(w.strips[0].end, w.rows[0].end);
+      });
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer', () =>
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, blank(i)); return g.texts.indexOf(d.want) < 0 && !g.ans && !g.strips.length && (d.ask !== 'value' || g.texts.indexOf('?') >= 0); }));
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(i), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      const right = timed(i, solvedSt(i), d.fb) && d.fb <= 2.5;
+      const wrongs = d.opts.filter((o) => o !== d.want && hasWrongMotion(d, o)).every((o) => timed(i, wrongSt(i, o), d.fbw) && d.fbw <= 2.5);
+      return right && wrongs;
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

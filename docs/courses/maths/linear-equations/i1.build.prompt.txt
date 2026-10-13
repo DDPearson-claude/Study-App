@@ -1,0 +1,397 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Brackets, equations and formulas with letters
+Idea: Like terms (A letter stands for a number, so 3x + 2x makes 5x while 3x + 4 is already finished, and trying a number checks it.)
+Kind: concept
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is 3x + 2x lining up with 5x at every x, because every x-bar stretches together, while 3x + 4 matches 7x only at x = 1, when you slide x.
+Title (the app shows it above the frame, so do not repeat it): Like terms
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in twelve small screens on bars. An x-bar is x long, a length standing for a number you do not know yet, and a slider for x stretches or shrinks every x-bar together. Plain numbers are small squares worth 1 each, and a term taken away is a dashed bar. Two rows sit side by side to compare, each with its value for the chosen x beneath it. Some screens show an idea and the rest ask you to try it.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): The values tried for x and the puzzles' numbers are example values, kept to small whole positive numbers so the bars can be drawn and counted. x can be any number, even a negative or a fraction, and every tidy-up here still holds; a bar just cannot be drawn with a negative length. Only one letter at a time is drawn, and no powers such as x².
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Example x = 4: 3x is three x-bars, 3 × 4 = 12, in step 1: 12 (assumed)
+- With x = 4, 3x is 12, not 7 (3 + 4) or 34 (3 and 4 side by side), in step 2: 12 (computed)
+- 3x + 2x and 5x both make 35 at x = 7, as 3 sevens and 2 sevens make 5 sevens, in step 3: 35 (computed)
+- 4x + 3x = 7x, not 12x (counts multiplied) or 7x² (a power made up), in step 4: 7 (computed)
+- Sliding x: 3x + 4 and 7x match only at x = 1, where both make 7, in step 5: 7 (computed)
+- 5x + 2 is already finished, not 7x or 7, in step 6: 5 (computed)
+- Trying x = 3: 3x + 2x and 5x both make 15; 3x + 4 makes 13 but 7x makes 21, in step 7: 15 (computed)
+- Claim 4x + 3 = 7x at x = 2: 4x + 3 makes 11, not 14 (7x) or 7 (4 + 3), in step 8: 11 (computed)
+- 7x − 2x + 3 − x = 4x + 3, as 7 − 2 − 1 = 4; both make 11 at x = 2, in step 9: 4 (computed)
+- −x + 8x + 3 = 7x + 3, not 9x + 3 (starting minus ignored) or 8x + 3 (lone x dropped), in step 10: 7 (computed)
+- 9x + 4 − 3x − 1 = 6x + 3, not 12x + 5 (minuses ignored) or 6x + 5 (the minus on 1 dropped), in step 11: 6 (computed)
+- Three equal resistors of R ohms in series with an example 10 Ω one: 3R + 10, not 13R or R³ + 10, in step 12: 10 (assumed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+A letter stands for a number you do not know yet, so x is a number and 3x means 3 lots of it. Adding 3x and 2x is counting those lots, just as 3 sevens and 2 sevens make 5 sevens. Picture x as a bar whose length is the number. 3x is three bars end to end and 2x is two more, so together they are five bars, 5x. Change x and every bar changes with it, so the two rows still line up, which is why 3x + 2x = 5x whatever x is. Teachers disagree about the picture. A Bitesize video uses apples, while NCETM says the apples picture should be avoided, because a letter stands for a number, not an object, and treats it as counting lots of a number, as with sevens. This lesson uses bars, because x stands for a number.
+
+Each part joined on by + or − is a term, and the sign in front of it belongs to it, even a minus at the very start. Terms with the same letters, each raised to the same power, like 3x and 2x, are like terms, and plain numbers are all like terms too. Only like terms can be added or taken away into one term. So 3x + 4 is already finished. 7x is 3x and 4x more, so it matches 3x + 4 only when 4x is 4, which is when x is 1. At x = 3, 3x + 4 makes 13 but 7x makes 21. A lone x is 1x, so 7x − 2x + 3 − x is 7 − 2 − 1 = 4 lots of x, plus 3, which is 4x + 3.
+
+A tidied expression, the whole string of terms, is another way of writing the same thing, as Bitesize says of an expanded bracket: …
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Core concept 1.4: Simplifying and manipulating expressions, equations and formulae (https://www.ncetm.org.uk/media/bdddodxr/secmm-cc-audit-1-4-simplifying-and-manipulating-expressions-equations-and-formulae.pdf): "Students should fully appreciate that 'collecting like terms' is not a new idea but a generalisation of something they have previously experienced when unitising in number."
+[2] Algebraic terms and expressions - KS3 Maths - BBC Bitesize (https://www.bbc.co.uk/bitesize/topics/zxjpn9q): "WATCH: How to collect like terms in algebra See how to collect like terms in algebra, using apples to demonstrate in this Bitesize KS3 maths video."
+[3] 2.2 Evaluate, Simplify, and Translate Expressions - Prealgebra 2e | OpenStax (https://openstax.org/books/prealgebra-2e/pages/2-2-evaluate-simplify-and-translate-expressions): "Terms are called like terms if they have the same variables and exponents. All constant terms are also like terms."
+[4] What are "like terms"? How do you combine them? (https://www.purplemath.com/modules/polydefs2.htm): "Terms can be combined only if they have the exact same variable portion."
+[5] Solve equations with brackets - KS3 Maths - BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/z7wkjfr): "Expanding brackets does not change the value of an expression . It is two ways of writing the same expression."
+[6] Module 6 Resistance | Science 111 (https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity): "R = R ₀ ( 1 + α Δ T ) is the temperature dependence of the resistance of an object, where R ₀ is the original resistance and R is the resistance after a temperature change Δ T ."
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: concept). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: concept -->
+<style>
+  /* Columns in rem, so at a large text size the cards reflow to fewer, wider columns and no name splits. */
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 12px; }
+  .group { padding: 10px 12px 12px; border-radius: var(--k-r); background: var(--k-panel); }
+  .group-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 10px; }
+  .group-head b { font-size: .95rem; }
+  .group-head span { font-size: .8rem; color: var(--k-muted); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 6px; margin-top: 8px; }
+  .card { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 7px; padding: 6px 8px; border-radius: 10px; background: var(--k-bg); }
+  .card i { font-style: normal; font-size: 13px; line-height: 1; }
+  .card b { font-size: 1rem; line-height: 1.1; }
+  .card span { grid-column: 1 / -1; font-size: .75rem; color: var(--k-muted); }
+</style>
+
+<p class="lead">Sort these ten elements three ways. Which way puts elements that behave alike in the same group?</p>
+
+<div class="k-controls" id="controls"></div>
+<div class="groups" id="groups" role="img" aria-label=""></div>
+<div class="key" id="key" aria-hidden="true"></div>
+<div class="k-readouts" id="outs"></div>
+<p class="say" id="say"></p>
+<p class="caption">Behaviour and states at room temperature are the source's; group-mates "behave alike" when they share a behaviour.</p>
+
+<script>
+  // Source [1] of the lesson: the halogens, alkali metals and noble gases.
+  const SOURCE = 'https://en.wikipedia.org/wiki/Halogen';
+
+  // A fair set: the first members of three families in order (no hand-picking to make one sort
+  // look good), with hydrogen left out because it is not an alkali metal.
+  const ELEMENTS = [
+    { sym: 'Li', name: 'Lithium', column: 1, state: 'Solid', mass: 6.94, does: 'metal' },
+    { sym: 'Na', name: 'Sodium', column: 1, state: 'Solid', mass: 22.99, does: 'metal' },
+    { sym: 'K', name: 'Potassium', column: 1, state: 'Solid', mass: 39.10, does: 'metal' },
+    { sym: 'F', name: 'Fluorine', column: 17, state: 'Gas', mass: 19.00, does: 'salt' },
+    { sym: 'Cl', name: 'Chlorine', column: 17, state: 'Gas', mass: 35.45, does: 'salt' },
+    { sym: 'Br', name: 'Bromine', column: 17, state: 'Liquid', mass: 79.90, does: 'salt' },
+    { sym: 'I', name: 'Iodine', column: 17, state: 'Solid', mass: 126.90, does: 'salt' },
+    { sym: 'He', name: 'Helium', column: 18, state: 'Gas', mass: 4.00, does: 'inert' },
+    { sym: 'Ne', name: 'Neon', column: 18, state: 'Gas', mass: 20.18, does: 'inert' },
+    { sym: 'Ar', name: 'Argon', column: 18, state: 'Gas', mass: 39.95, does: 'inert' },
+  ];
+  // Three equal kinds of behaviour: categorical colours, each with its own shape too.
+  const DOES = {
+    metal: { text: 'Soft metal that fizzes in water', role: 'cat1', mark: '●' },
+    salt: { text: 'Joins with sodium to make a salt', role: 'cat2', mark: '▲' },
+    inert: { text: 'Hardly ever reacts', role: 'cat3', mark: '■' },
+  };
+  // Each way of sorting: the group an element goes in, and the groups in display order.
+  const SORTS = {
+    state: { groupOf: (e) => e.state, order: ['Solid', 'Liquid', 'Gas'] },
+    mass: { groupOf: (e) => e.mass < 30 ? 'Lighter atoms' : 'Heavier atoms', order: ['Lighter atoms', 'Heavier atoms'] },
+    column: { groupOf: (e) => 'Column ' + e.column, order: ['Column 1', 'Column 17', 'Column 18'] },
+  };
+  const groupsFor = (by) => SORTS[by].order.map((g) => ({ name: g, members: ELEMENTS.filter((e) => SORTS[by].groupOf(e) === g) }));
+  // Pairs of group-mates, and how many of them share a behaviour.
+  function pairs(by) {
+    let all = 0, alike = 0;
+    groupsFor(by).forEach((g) => g.members.forEach((a, i) => g.members.slice(i + 1).forEach((b) => { all++; if (a.does === b.does) alike++; })));
+    return { all, alike };
+  }
+
+  // The lesson's control: named options, opening on the first (index 0).
+  K.choice({ id: 'by', label: 'Sort them by', value: 0, into: '#controls', options: [
+    { value: 'state', label: 'Solid, liquid, gas' },
+    { value: 'mass', label: 'Weight' },
+    { value: 'column', label: 'Table column' },
+  ] });
+  K.readout({ id: 'alike', label: 'Group-mates alike', unit: '%', decimals: 0, into: '#outs' });
+  K.readout({ id: 'mixed', label: 'Mixed groups', into: '#outs' });
+
+  // The pure model: a way of sorting -> how well its groups predict behaviour.
+  K.model((p) => {
+    const n = pairs(p.by), groups = groupsFor(p.by);
+    return {
+      alike: n.all ? 100 * n.alike / n.all : 0,
+      mixed: groups.filter((g) => new Set(g.members.map((e) => e.does)).size > 1).length,
+      groups: groups.length,
+    };
+  });
+
+  const key = document.getElementById('key');
+  Object.keys(DOES).forEach((k) => key.appendChild(K.el('span', null, K.el('i', { style: { color: K.color(DOES[k].role), fontStyle: 'normal' } }, DOES[k].mark), DOES[k].text)));
+
+  K.update((p, o) => {
+    const box = document.getElementById('groups');
+    box.textContent = '';
+    groupsFor(p.by).forEach((g) => {
+      const kinds = new Set(g.members.map((e) => e.does)).size;
+      const verdict = g.members.length < 2 ? 'on its own' : kinds === 1 ? 'all behave alike' : 'mixed: ' + kinds + ' kinds';
+      box.appendChild(K.el('div', { class: 'group' },
+        K.el('div', { class: 'group-head' }, K.el('b', null, g.name + ' · ' + g.members.length), K.el('span', null, verdict)),
+        K.el('div', { class: 'cards' }, g.members.map((e) => K.el('div', { class: 'card' },
+          K.el('i', { style: { color: K.color(DOES[e.does].role) }, 'aria-hidden': 'true' }, DOES[e.does].mark), K.el('b', null, e.sym), K.el('span', null, e.name))))));
+    });
+    box.setAttribute('aria-label', groupsFor(p.by).map((g) => g.name + ': ' + g.members.map((e) => e.name + ' (' + DOES[e.does].text.toLowerCase() + ')').join(', ')).join('. '));
+    // The sentence uses the readout's own rounding (whole percent), so the two always agree.
+    const pct = K.fmt(o.alike, { decimals: 0 }) + '%';
+    document.getElementById('say').textContent = !K.moved ? 'Which way of sorting will keep elements that behave alike together? Make your guess, then try each one.' : {
+      state: 'Sorted by state, only ' + pct + ' of group-mates behave alike: bromine sits alone as the only liquid, and the gases mix elements that react eagerly with ones that hardly react at all.',
+      mass: 'Sorted by weight, just ' + pct + ' of group-mates behave alike: lithium shares a group with neon, potassium with bromine. Weight alone predicts almost nothing here.',
+      column: 'Sorted by column, ' + pct + ' of group-mates behave alike. Knowing the column tells you how an element reacts: a natural grouping, and the reason the periodic table is laid out this way.',
+    }[p.by];
+  });
+
+  // Known answers, counted by hand from the table above.
+  K.check('By column, all 12 pairs of group-mates behave alike (100%)', () => K.near(K.at({ by: 'column' }).alike, 100) && K.at({ by: 'column' }).mixed === 0);
+  K.check('By state, 7 of 16 pairs behave alike (43.75%)', () => K.near(K.at({ by: 'state' }).alike, 43.75));
+  K.check('By weight, 5 of 20 pairs behave alike (25%)', () => K.near(K.at({ by: 'mass' }).alike, 25) && K.at({ by: 'mass' }).mixed === 2);
+  K.check('At room temperature bromine is the only liquid; fluorine and chlorine are gases, iodine a solid', () =>
+    groupsFor('state')[1].members.map((e) => e.sym).join() === 'Br' &&
+    ['F', 'Cl'].every((s) => ELEMENTS.find((e) => e.sym === s).state === 'Gas') && ELEMENTS.find((e) => e.sym === 'I').state === 'Solid', { source: SOURCE });
+  K.check('A fair test: every sort places each of the ten exactly once', () =>
+    Object.keys(SORTS).every((by) => groupsFor(by).reduce((n, g) => n + g.members.length, 0) === 10 &&
+      ELEMENTS.every((e) => groupsFor(by).filter((g) => g.members.includes(e)).length === 1)));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
