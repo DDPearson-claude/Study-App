@@ -1,0 +1,985 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* The number line: its axis, a tick at each step, and the numbers under it. */
+  .scene .ax { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .tk { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk0 { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .tn { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tn0 { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  /* An answer: a stretch of the line with an arrow at its far end, and a circle on its end number. */
+  .scene .band { stroke: var(--k-accent2); stroke-width: 6; }
+  .scene .head { fill: var(--k-accent2); }
+  .scene .open { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .shut { fill: var(--k-accent2); stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .whole { fill: var(--k-accent2); }
+  /* The two sides of a move: two dots, told apart by colour and named in the key. */
+  .scene .p1 { fill: var(--k-cat1); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .p2 { fill: var(--k-cat2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .l1 { font: 700 15px var(--k-font); fill: var(--k-cat1); }
+  .scene .l2 { font: 700 15px var(--k-font); fill: var(--k-cat2); }
+  .scene text.c1 { fill: var(--k-cat1); }
+  .scene text.c2 { fill: var(--k-cat2); }
+  .scene .arc { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .an { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .hd { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }
+  .scene .te { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tb { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad { fill: var(--k-warn); }
+  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .ol { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ol.on { fill: var(--k-accent2); }
+  .scene .box { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .hl { fill: var(--k-hl); }
+  .scene .div { stroke: var(--k-line); stroke-width: 1.5; }
+  /* A number put back in: a pin on the line, in red when it shows a wrong pick going wrong. */
+  .scene .pin { fill: var(--k-ink); }
+  .scene .pin.bad { fill: var(--k-warn); }
+  .scene .pin.me { fill: var(--k-accent2); }
+  .scene .pl { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .pl.bad { fill: var(--k-warn); }
+  .scene .pl.me { fill: var(--k-accent2); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .moves .k-label { margin: 0 0 6px; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A number line: an inequality's answers are a stretch of it, and two dots stand for its two sides. Every number here, including the circuit's in the last puzzle, is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="moves" id="moves" hidden><p class="k-label">Try each move on 10 &lt; 15</p><div class="row picks" id="moverow"></div></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Multiplying or dividing both sides by a negative number reverses the sign, and putting a number back in checks it.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic 'try': an inequality's stretch, with a marker that tries a number (drag: its range).
+  // pic 'sides': an inequality tried at x; its two sides are two dots, and each move (add, mul or
+  //   div) is done to both; the answer is a stretch on a second line.
+  // pic 'mirror': 10 < 15 under one move at a time (moves: each with its line's range).
+  // pic 'routes': one inequality solved two ways side by side, then its stretch and two numbers put back.
+  // A puzzle: q, the question; opts, the answers (sets: what each letter draws); want, the right one;
+  // tries, the numbers a right answer puts back; wt, the number each wrong answer puts back.
+  // A SHOW step's tl is its timetable in seconds from when the screen opens.
+  const PICK = 'Tap one of the answers.';
+  const MOVES = ['× −1', '× −5', '÷ −5', '÷ 5'];
+  const STEPS = [
+    { show: true, name: 'A stretch of answers', pic: 'try', ineq: 'x > 3', line: { lo: 0, hi: 6 }, drag: { min: 0, max: 6 },
+      dur: 4.6, tl: { line: 0.4, pin: 0.4, to35: 1.8, to3: 2.8, stretch: 3.5, key: 4.0 },
+      text: 'An *inequality* such as `x > 3` says `x` is greater than 3, so it has many answers: 4 works, 3.5 works, but 3 does not. They make a stretch of the number line, with an open circle because 3 is left out and an arrow because it carries on for ever. Drag the marker to try any number.' },
+    { kind: 'pick', name: 'Less than or equal', q: 'x ≤ 2', line: { lo: -2, hi: 5 },
+      opts: ['A', 'B', 'C'], sets: { A: 'x ≤ 2', B: 'x < 2', C: 'x ≥ 2' }, want: 'A', tries: [0, 2], wt: { B: 2, C: 3 },
+      task: '`≤` means *less than or equal to*, so `x ≤ 2` includes 2 itself, and `≥` means *greater than or equal to*. Which picture shows `x ≤ 2`?',
+      why: '`x ≤ 2` includes 2, so its circle is filled, and every number below 2 works too, so the stretch runs left. Put back 0 and 2: `0 ≤ 2` and `2 ≤ 2` are both true.',
+      hint: 'Not quite. Is 2 included, and which way do the smaller numbers lie?',
+      hints: { B: 'Not quite. An open circle leaves 2 out, but `2 ≤ 2` is true.', C: 'Not quite. That stretch runs right, but 3 is not less than or equal to 2.' } },
+    { show: true, name: 'Same undo moves', pic: 'sides', x: 5, sides: ['2x + 3', '11'], op: '>', line: { lo: 0, hi: 14 },
+      moves: [{ add: -3, note: '− 3 both sides', e: '2x > 8' }, { div: 2, note: '÷ 2 both sides', e: 'x > 4' }], answer: 'x > 4',
+      dur: 4.4, tl: { start: 0.4, rows: [1.1, 2.3], moves: [[1.3, 2.1], [2.5, 3.3]], answer: 3.5, grow: 3.7 },
+      text: 'You solve an inequality with the same undo moves as an equation, doing each one to both sides. Try `x = 5`: taking 3 from both sides slides both dots along, and halving both squeezes them towards 0 without crossing it. Half of the bigger distance is still the bigger one, so the bigger side stays on the right. That leaves `x > 4`.' },
+    { kind: 'pick', name: 'A bracket', q: '3(x − 2) ≥ 12', line: { lo: 0, hi: 9 },
+      opts: ['x ≥ 6', 'x = 6', 'x ≥ 4'], want: 'x ≥ 6', tries: [6, 7], wt: { 'x = 6': 7, 'x ≥ 4': 5 },
+      task: 'Undo it the same way as an equation. Solve `3(x − 2) ≥ 12`.',
+      why: 'Divide both sides by 3 to get `x − 2 ≥ 4`, then add 2 to both sides to get `x ≥ 6`. Put back 6 and it makes 12; put back 7 and it makes 15. Both are at least 12, so 6 gets a filled circle.',
+      hint: 'Not quite. Divide both sides by 3, then add 2.',
+      hints: { 'x = 6': 'Not quite. An inequality has a stretch of answers: 7 makes 15, which is more than 12, so 7 works too.',
+        'x ≥ 4': 'Not quite. Dividing by 3 leaves `x − 2 ≥ 4`, so add 2 to both sides: 5 makes 9, which is less than 12.' } },
+    { show: true, name: 'A negative flips it', pic: 'mirror', pair: [10, 15], op: '<', start: '× −5', line: { lo: -80, hi: 20 },
+      moves: { '× −1': { mul: -1 }, '× −5': { mul: -5 }, '÷ −5': { div: -5 }, '÷ 5': { div: 5 } },
+      dur: 4.2, tl: { start: 0.4, note: 0.9, beats: [[1.3, 2.3], [2.6, 3.4]] }, tlPress: { start: null, note: null, beats: [[0.1, 1.1], [1.4, 2.2]] },
+      text: 'Take something true, `10 < 15`, and multiply both sides by −5: each number mirrors across 0, to −10 and −15, then stretches five times as far, to −50 and −75. 15 was further right, but now it is further left, so `−50 > −75` and the sign flips. Multiplying or dividing both sides by a *negative number* reverses the sign, while a positive number keeps it.' },
+    { kind: 'pick', name: 'Dividing by a negative', q: '−4x ≥ 20', line: { lo: -8, hi: 8 },
+      opts: ['x ≥ −5', 'x ≤ 5', 'x ≤ −5'], want: 'x ≤ −5', tries: [-5, -6], wt: { 'x ≥ −5': 0, 'x ≤ 5': 5 },
+      task: 'Solve `−4x ≥ 20`.',
+      why: 'Divide both sides by −4, a negative number, so the sign flips: `x ≤ −5`. Put back −5 and it makes 20; put back −6 and it makes 24. Both are at least 20.',
+      hint: 'Not quite. You divide both sides by −4, a negative number.',
+      hints: { 'x ≥ −5': 'Not quite. Dividing by −4 flips the sign: 0 makes 0, which is less than 20.',
+        'x ≤ 5': 'Not quite. 20 ÷ −4 is −5: 5 makes −20, which is less than 20.' } },
+    { show: true, name: 'A minus in sight', pic: 'sides', x: -5, sides: ['3x', '−12'], op: '<', line: { lo: -16, hi: 2 },
+      moves: [{ div: 3, note: '÷ 3 both sides', e: 'x < −4' }], answer: 'x < −4',
+      dur: 3.6, tl: { start: 0.4, rows: [1.1], moves: [[1.3, 2.3]], answer: 2.6, grow: 2.8 },
+      text: 'A minus sign in sight does not flip anything by itself. In `3x < −12` you divide both sides by 3, a positive number, so both dots squeeze towards 0 without crossing it and the sign stays: `x < −4`.' },
+    { kind: 'pick', name: 'Dividing by a positive', q: '4x > −20', line: { lo: -8, hi: 8 },
+      opts: ['x < −5', 'x > −5', 'x > 5'], want: 'x > −5', tries: [0, -5], wt: { 'x < −5': -6, 'x > 5': 0 },
+      task: 'Solve `4x > −20`.',
+      why: 'Divide both sides by 4, a positive number, so the sign stays: `x > −5`. 0 makes 0, which is more than −20, but −5 makes −20, which is not, so −5 gets an open circle.',
+      hint: 'Not quite. Is the number you divide by positive or negative?',
+      hints: { 'x < −5': 'Not quite. 4 is positive, so the sign stays: −6 makes −24, which is less than −20.',
+        'x > 5': 'Not quite. −20 ÷ 4 is −5: 0 is left out, but it makes 0, which is more than −20.' } },
+    { show: true, name: 'Two routes', pic: 'routes', q: '7 − 3x ≥ 1', answer: 'x ≤ 2', line: { lo: -3, hi: 5 }, tries: [0, 3],
+      cols: [{ head: 'Divide by −3', rows: [['', '7 − 3x ≥ 1'], ['− 7', '−3x ≥ −6'], ['÷ −3, flip', 'x ≤ 2']] },
+        { head: 'Add 3x first', rows: [['', '7 − 3x ≥ 1'], ['+ 3x', '7 ≥ 1 + 3x'], ['− 1', '6 ≥ 3x'], ['÷ 3', '2 ≥ x'], ['turned round', 'x ≤ 2']] }],
+      dur: 4.4, tl: { heads: 0.4, rows: [[0.6, 0.85, 1.1], [1.35, 1.6, 1.85, 2.1, 2.35]], both: 2.7, grow: 2.8, tries: [3.4, 3.7] },
+      text: 'You can even dodge the negative. Solve `7 − 3x ≥ 1` by dividing by −3 and flipping, or by adding `3x` to both sides first so nothing is divided by a negative. Both give `x ≤ 2`, because `2 ≥ x` read from the other end says the same thing.' },
+    { kind: 'pick', name: 'Take away, then flip', q: '10 − 2x > 4', line: { lo: -5, hi: 6 },
+      opts: ['x > 3', 'x < −3', 'x < 3'], want: 'x < 3', tries: [2, 4], wt: { 'x > 3': 4, 'x < −3': 0 },
+      task: 'Solve `10 − 2x > 4`.',
+      why: 'Take 10 from both sides to get `−2x > −6`, then divide both sides by −2 and flip the sign: `x < 3`. 2 makes 6, which is more than 4, but 4 makes 2, which is not.',
+      hint: 'Not quite. Take 10 from both sides, then divide by −2.',
+      hints: { 'x > 3': 'Not quite. Dividing by −2 flips the sign: 4 makes 2, which is not more than 4.',
+        'x < −3': 'Not quite. −6 ÷ −2 is 3, not −3: 0 is left out, but it makes 10, which is more than 4.' } },
+    { kind: 'pick', name: 'Mixed: a bracket', q: '2(x + 4) ≤ 14', line: { lo: -2, hi: 7 },
+      opts: ['x ≤ 3', 'x ≥ 3', 'x ≤ 5'], want: 'x ≤ 3', tries: [3, 4], wt: { 'x ≥ 3': 4, 'x ≤ 5': 5 },
+      task: 'Mixed puzzles now. Solve `2(x + 4) ≤ 14`.',
+      why: 'Divide both sides by 2 to get `x + 4 ≤ 7`, then take 4 from both sides: `x ≤ 3`. 3 makes 14, and `14 ≤ 14` is true, but 4 makes 16, which is more than 14.',
+      hint: 'Not quite. Divide both sides by 2, then take 4 away.',
+      hints: { 'x ≥ 3': 'Not quite. Dividing by 2 keeps the sign: 4 makes 16, which is more than 14.',
+        'x ≤ 5': 'Not quite. The 2 multiplies the 4 too: 5 makes 18, which is more than 14.' } },
+    { kind: 'pick', name: 'Mixed: minus x', q: '5 − x ≥ 8', line: { lo: -6, hi: 5 },
+      opts: ['x ≥ 3', 'x ≤ −3', 'x ≥ −3'], want: 'x ≤ −3', tries: [-3, -4], wt: { 'x ≥ 3': 3, 'x ≥ −3': 0 },
+      task: 'Solve `5 − x ≥ 8`.',
+      why: 'Take 5 from both sides to get `−x ≥ 3`. `−x` is −1 lot of `x`, so divide both sides by −1 and flip the sign: `x ≤ −3`. −3 makes 8 and −4 makes 9, both at least 8.',
+      hint: 'Not quite. Taking 5 away leaves `−x`, and dividing by −1 flips the sign.',
+      hints: { 'x ≥ 3': 'Not quite. 3 makes 2, which is less than 8. Taking 5 away leaves `−x ≥ 3`, so there is a −1 to divide by.',
+        'x ≥ −3': 'Not quite. Dividing by −1 flips the sign: 0 makes 5, which is less than 8.' } },
+    { kind: 'pick', name: 'Mixed: loads on a circuit', q: '6 + 2x ≤ 20', whole: true, line: { lo: 0, hi: 15 },
+      opts: ['x ≥ 7', 'x ≤ 14', 'x ≤ 7'], want: 'x ≤ 7', tries: [7, 8], wt: { 'x ≥ 7': 8, 'x ≤ 14': 14 },
+      task: 'The circuit has a 20\u00a0A limit and already carries a 6\u00a0A heater, and each extra load draws 2\u00a0A, so `x` loads make `6 + 2x` amps. How many loads keep `6 + 2x ≤ 20`?',
+      why: 'Take 6 from both sides to get `2x ≤ 14`, then divide both sides by 2: `x ≤ 7`. Loads come whole, so it is 0 to 7 of them: 7 make 20\u00a0A, right on the limit, and 8 would make 22\u00a0A.',
+      hint: 'Not quite. Take the heater\'s 6 away first, then divide by 2.',
+      hints: { 'x ≥ 7': 'Not quite. More loads draw more current: 8 make 22\u00a0A, over the 20\u00a0A limit.',
+        'x ≤ 14': 'Not quite. Divide the 14 by 2 as well: 14 loads would make 34\u00a0A.' } },
+  ];
+  const FINISH = 'An inequality\'s answer is a stretch of the number line, found with the same undo moves as an equation, except that multiplying or dividing both sides by a *negative number* reverses the sign.';
+  // Sources the checks restate (the lesson's own).
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/zbn8qyc';
+  const OPENSTAX_CHECK = 'https://openstax.org/books/algebra-1/pages/1-solve-linear-equations-mini-lesson-review';
+  const OPENSTAX_SIGN = 'https://openstax.org/books/intermediate-algebra-2e/pages/2-5-solve-linear-inequalities';
+  const BIGIDEAS = 'https://www.bigideasmath.com/protected/content/ipe_cc/grade%207/02/g7_02_6b.pdf';
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- numbers and inequalities (pure, so the checks can test them) ----------
+  // Reads +, −, ×, ÷, brackets, a minus in front and a number beside x (3x, 3(x − 2)).
+  function evalExpr(s, x) {
+    const src = String(s).replace(/−/g, '-').replace(/×/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+    let i = 0;
+    const peek = () => src[i];
+    function expr() {
+      let v = term();
+      while (peek() === '+' || peek() === '-') { const op = src[i++]; const t = term(); v = op === '+' ? v + t : v - t; }
+      return v;
+    }
+    function term() {
+      let v = unary();
+      for (;;) {
+        const c = peek();
+        if (c === '*') { i++; v *= unary(); } else if (c === '/') { i++; v /= unary(); } else if (c === '(' || c === 'x' || (c != null && /[0-9]/.test(c))) v *= unary(); else break;
+      }
+      return v;
+    }
+    function unary() { if (peek() === '-') { i++; return -unary(); } if (peek() === '+') { i++; return unary(); } return atom(); }
+    function atom() {
+      const c = peek();
+      if (c === '(') { i++; const v = expr(); if (src[i] !== ')') throw new Error('no closing bracket'); i++; return v; }
+      if (c === 'x') { i++; if (x == null) throw new Error('no value for x'); return x; }
+      const m = /^\d+(?:\.\d+)?/.exec(src.slice(i));
+      if (m) { i += m[0].length; return +m[0]; }
+      throw new Error('cannot read ' + src.slice(i));
+    }
+    const v = expr();
+    if (i !== src.length) throw new Error('left over: ' + src.slice(i));
+    return v;
+  }
+  function parseIneq(s) {
+    const m = /^(.*?)\s*([≤≥<>=])\s*(.*)$/.exec(String(s));
+    if (!m) throw new Error('not an inequality: ' + s);
+    return { lhs: m[1].trim(), op: m[2], rhs: m[3].trim() };
+  }
+  function cmp(a, op, b) {
+    const e = 1e-9;
+    if (op === '<') return a < b - e;
+    if (op === '>') return a > b + e;
+    if (op === '≤') return a <= b + e;
+    if (op === '≥') return a >= b - e;
+    return Math.abs(a - b) <= e;
+  }
+  const holds = (s, x) => { const p = parseIneq(s); return cmp(evalExpr(p.lhs, x), p.op, evalExpr(p.rhs, x)); };
+  const endOf = (s) => evalExpr(parseIneq(s).rhs);
+  const setOf = (d, o) => (d.sets ? d.sets[o] : o);
+  const inSet = (d, o, v) => (!d.whole || (Number.isInteger(v) && v >= 0)) && holds(setOf(d, o), v);
+  const fmtN = (v) => { const r = Math.round(v * 100) / 100; return (r < 0 ? '−' : '') + String(Math.abs(r)); };
+  const apply = (m, v) => (m.add != null ? v + m.add : m.mul != null ? v * m.mul : v / m.div);
+  const factorOf = (m) => (m.add != null ? 1 : m.mul != null ? m.mul : 1 / m.div);
+  const relOp = (a, b) => (Math.abs(a - b) < 1e-9 ? '=' : a < b ? '<' : '>');
+  // A number put back into the question: the question with it in, and what that makes.
+  function subX(lhs, v) {
+    const V = fmtN(v), neg = v < 0;
+    return lhs.replace(/(\d)x/g, (m, dg) => dg + ' × ' + (neg ? '(' + V + ')' : V))
+      .replace(/(^|[^\w])x(?!\w)/g, (m, pre) => pre + (neg && pre !== '(' ? '(' + V + ')' : V));
+  }
+  function putBack(q, v) {
+    const p = parseIneq(q), lv = evalExpr(p.lhs, v), ok = holds(q, v);
+    const e = p.lhs === 'x' ? 'x = ' + fmtN(v) : subX(p.lhs, v) + ' ' + p.op + ' ' + p.rhs;
+    return { e, w: fmtN(lv) + ' ' + p.op + ' ' + p.rhs + ', ' + (ok ? 'true' : 'false'), ok, v };
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/≤/g, ' is less than or equal to ').replace(/≥/g, ' is greater than or equal to ')
+    .replace(/</g, ' is less than ').replace(/>/g, ' is greater than ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // x: on the first screen, the number Dan has tried (null until he drags); move: the mirror's move.
+  function blank() { return { pick: null, res: null, why: false, x: null, move: null, pressed: false }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  const fbOf = () => [1.3, 0.9];
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and an italic x (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])x(?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its x italic; *a key term* is highlighted.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        node.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // The mirror's moves: each plays itself on 10 < 15.
+  const moveBtns = MOVES.map((mv) => K.button({ label: mv, secondary: true, into: '#moverow', press: () => {
+    const d = STEPS[at()];
+    if (finished || d.pic !== 'mirror') return;
+    S[at()].move = mv; S[at()].pressed = true;
+    play(mirrorTl(d, S[at()]).end);
+  } }));
+  // Check: marks the answer; a right one puts its numbers back in, a wrong one shows where it goes wrong.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    const f = fbOf(d);
+    play(st.res === 'right' ? f[0] : f[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].x = null;
+    if (d.pic === 'mirror') { S[at()].pressed = true; play(mirrorTl(d, S[at()]).end); return; }
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), ui = el('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, String(s), true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  // A number line from lo to hi drawn between xa and xb at height y; s(v) is where v sits.
+  function geoLine(lo, hi, xa, xb, y) { const g = { lo, hi, xa, xb, y }; g.s = (v) => xa + (v - lo) / (hi - lo) * (xb - xa); return g; }
+  // Its axis, ticks and numbers: 0 and the end numbers in `need` first, then every few, each
+  // clear of the next (a regular one beside a needed end number gives way to it); a number under a
+  // dot's label gives way to it as that label fades in.
+  function axis(g, need, avoid) {
+    const { lo, hi, xa, xb, y } = g, s = g.s, ppu = (xb - xa) / (hi - lo);
+    REC.lines.push(g);
+    line('ax', xa - 8, y, xb + 8, y);
+    const tick = ppu >= 10 ? 1 : ppu * 5 >= 10 ? 5 : 10;
+    for (let v = Math.ceil(lo / tick) * tick; v <= hi + 1e-9; v += tick) { const z = v === 0; line(z ? 'tk0' : 'tk', s(v), y - (z ? 8 : 5), s(v), y + (z ? 8 : 5)); }
+    const lstep = [1, 2, 5, 10, 20, 50].find((k) => k % tick === 0 && k * ppu >= 26) || 50;
+    const order = [];
+    const push = (v) => { if (v >= lo - 1e-9 && v <= hi + 1e-9 && order.indexOf(v) < 0) order.push(v); };
+    if (lo <= 0 && hi >= 0) push(0);
+    (need || []).forEach(push);
+    for (let v = Math.ceil(lo / lstep) * lstep; v <= hi + 1e-9; v += lstep) if (!(need || []).some((n) => Math.abs(v - n) > 1e-9 && Math.abs(v - n) < lstep - 1e-9)) push(v);
+    const kept = [];
+    order.forEach((v) => {
+      const t = fmtN(v), cls = v === 0 ? 'tn0' : 'tn', w = tw(t, cls), x = s(v), b = { x0: x - w / 2, x1: x + w / 2 };
+      if (b.x0 < 1 || b.x1 > 339) return;
+      if (kept.some((q) => b.x0 < q.x1 + 6 && b.x1 > q.x0 - 6)) return;
+      let a = 1;
+      (avoid || []).forEach((q) => { const gap = Math.max(q.x0 - b.x1, b.x0 - q.x1); if (gap < 8) a = Math.min(a, 1 - q.a); });
+      if (a <= 0.001) return;
+      kept.push(b);
+      const node = text(x, y + 21, t, cls, 'middle');
+      if (a < 1) node.style.opacity = a.toFixed(3);
+    });
+  }
+  function head(x, y, dir) { path('head', 'M' + r3(x + dir * 9) + ' ' + y + ' L' + r3(x - dir) + ' ' + (y - 7) + ' L' + r3(x - dir) + ' ' + (y + 7) + ' Z'); }
+  // An answer drawn on line g: a stretch grown p of the way to the line's end, with its circle; or,
+  // for whole loads, a dot on each whole number in it. Notes what it drew for the checks.
+  function drawStretch(g, set, p, whole) {
+    const q = parseIneq(set), b = evalExpr(q.rhs), op = q.op, s = g.s, y = g.y, x0 = s(b);
+    const rec = { g, set, whole: !!whole, op, b, x: x0, dir: 0, cls: null, dots: [] };
+    const right = op === '>' || op === '≥';
+    if (whole) {
+      const vals = [];
+      for (let v = Math.max(0, Math.ceil(g.lo)); v <= g.hi + 1e-9; v++) if (cmp(v, op, b)) vals.push(v);
+      const ordered = right ? vals : vals.slice().reverse(), n = Math.max(1, ordered.length);
+      ordered.forEach((v, k) => { if (p >= 1 || k / n < p) { circle('whole', s(v), y, 4.5); rec.dots.push(v); } });
+      if (right && p >= 0.999 && vals.length) { head(g.xb + 8, y, 1); rec.dir = 1; }
+      return rec;
+    }
+    if (op === '=') { circle('shut', x0, y, 6); rec.cls = 'shut'; return rec; }
+    const dir = right ? 1 : -1, end = right ? g.xb + 6 : g.xa - 6, xe = x0 + (end - x0) * p;
+    if (p > 0.001) { line('band', x0, y, xe, y); head(xe, y, dir); rec.dir = dir; }
+    rec.cls = op === '≤' || op === '≥' ? 'shut' : 'open';
+    circle(rec.cls, x0, y, 6);
+    return rec;
+  }
+  // Pins: numbers put back in, each a small marker on the line with its number above.
+  function spread(items, lo, hi) {
+    const idx = items.map((it, k) => k).sort((a, b) => items[a].c - items[b].c), left = [];
+    let prev = -Infinity;
+    idx.forEach((k) => { const it = items[k]; left[k] = Math.max(it.c - it.w / 2, lo, prev + 5); prev = left[k] + it.w; });
+    let lim = hi;
+    idx.slice().reverse().forEach((k) => { const it = items[k]; if (left[k] + it.w > lim) left[k] = lim - it.w; lim = left[k] - 5; });
+    return items.map((it, k) => left[k] + it.w / 2);
+  }
+  const pinShape = (x, y, cls) => path('pin' + (cls ? ' ' + cls : ''), 'M' + r3(x) + ' ' + (y - 7) + ' l-6 -10 h12 Z');
+  function pins(g, list, row) {
+    const items = list.map((q) => ({ q, x: g.s(q.v), w: tw(fmtN(q.v), 'pl') }));
+    const cs = spread(items.map((it) => ({ c: it.x, w: it.w })), 2, 338);
+    items.forEach((it, k) => {
+      if (it.q.a >= 0.5) REC.pins.push({ v: it.q.v, x: it.x, cls: it.q.cls || '', row });
+      part(it.q.a, 4, () => { pinShape(it.x, g.y, it.q.cls); text(cs[k], g.y - 22, fmtN(it.q.v), 'pl' + (it.q.cls ? ' ' + it.q.cls : ''), 'middle'); });
+    });
+  }
+  // A put-back row: the question with the number in on the left, what it makes on the right.
+  function putRow(r, y, a) {
+    const bad = r.bad ? ' bad' : '';
+    part(a, 6, () => { text(12, y, r.e, 'te' + bad, 'start'); text(328, y, r.w, 'te' + bad, 'end'); });
+    if (a >= 0.5) REC.rows.push({ e: r.e, w: r.w, bad: !!r.bad, v: r.v });
+    return a >= 0.5 ? 'Put back ' + fmtN(r.v) + ': ' + say(r.w) + '.' : '';
+  }
+  // Two sides' numbers, lined up on the sign between them, each in its dot's colour.
+  function pairText(xOp, y, a, b, op, big) {
+    const c = big ? 'tb' : 'te';
+    text(xOp - 9, y, fmtN(a), c + ' c1', 'end'); text(xOp, y, op, c, 'middle'); text(xOp + 9, y, fmtN(b), c + ' c2', 'start');
+  }
+  // Labels for the two dots: centred on them, pushed apart just enough when they are close.
+  function pairCenters(x1, x2, t1, t2) {
+    const w1 = tw(t1, 'l1'), w2 = tw(t2, 'l2'), need = (w1 + w2) / 2 + 6, gap = Math.abs(x2 - x1);
+    let c1 = x1, c2 = x2;
+    if (gap < need) { const sh = (need - gap) / 2, sg = x1 <= x2 ? 1 : -1; c1 = x1 - sg * sh; c2 = x2 + sg * sh; }
+    return [{ c: K.clamp(c1, w1 / 2 + 2, 338 - w1 / 2), w: w1 }, { c: K.clamp(c2, w2 / 2 + 2, 338 - w2 / 2), w: w2 }];
+  }
+  // A key inside the drawing: a swatch and its words, from x (or ending at xEnd).
+  function swatch(kind, cx, cy) {
+    if (kind === 'open' || kind === 'shut') circle(kind, cx, cy, 5);
+    else if (kind === 'whole') circle('whole', cx, cy, 4.5);
+    else if (kind === 'p1' || kind === 'p2') circle(kind, cx, cy, 5.5);
+    else if (kind === 'head') path('head', 'M' + r3(cx + 6) + ' ' + cy + ' L' + r3(cx - 4) + ' ' + (cy - 6) + ' L' + r3(cx - 4) + ' ' + (cy + 6) + ' Z');
+  }
+  function keyRow(items, y, x, xEnd) {
+    const ws = items.map((it) => 15 + tw(it[1], 'key')), total = ws.reduce((a, b) => a + b, 0) + 16 * (items.length - 1);
+    let cx = xEnd != null ? xEnd - total : x;
+    items.forEach((it, k) => { swatch(it[0], cx + 5, y - 5); text(cx + 15, y, it[1], 'key', 'start'); cx += ws[k] + 16; });
+  }
+  // Where a dot rests between moves, and how its label fades out while it travels.
+  function labelFade(wins) { return wins.reduce((al, w) => Math.min(al, T < (w[0] + w[1]) / 2 ? 1 - arr(w[0] - 0.25, 0.25) : arr(w[1], 0.35)), 1); }
+  function sidesRest(d) {
+    const R = [[evalExpr(d.sides[0], d.x), evalExpr(d.sides[1], d.x)]];
+    d.moves.forEach((m) => { const p = R[R.length - 1]; R.push([apply(m, p[0]), apply(m, p[1])]); });
+    return R;
+  }
+  const keyItems = (d) => {
+    if (d.whole) return [['whole', 'whole loads']];
+    const ops = d.opts.map((o) => parseIneq(setOf(d, o)).op), out = [];
+    if (ops.some((o) => o === '<' || o === '>')) out.push(['open', 'left out']);
+    if (ops.some((o) => o === '≤' || o === '≥' || o === '=')) out.push(['shut', 'included']);
+    return out;
+  };
+
+  // ---------- each picture ----------
+  // The first screen: x > 3, a marker trying 4, 3.5 and 3 in turn, then the stretch growing.
+  function drawTry(d, st) {
+    const t = d.tl, L = 100, g = geoLine(d.line.lo, d.line.hi, 20, 320, L), q = parseIneq(d.ineq), b = endOf(d.ineq);
+    const aL = vis(t.line);
+    const v = st.x != null ? st.x : 4 - 0.5 * arr(t.to35, 0.5) - 0.5 * arr(t.to3, 0.5);
+    const shown = Math.round(v * 2) / 2, ok = holds(d.ineq, shown), w = fmtN(shown) + ' ' + q.op + ' ' + q.rhs + ', ' + (ok ? 'true' : 'false');
+    part(aL, 4, () => text(12, 26, d.ineq, 'tag', 'start'));
+    part(aL, 0, () => axis(g, [b], []));
+    const sp = arr(t.stretch, 0.8);
+    if (sp > 0) part(Math.min(1, sp * 2.5), 0, () => REC.stretches.push(drawStretch(g, d.ineq, sp, false)));
+    const ap = vis(t.pin), x = g.s(v), lab = 'x = ' + fmtN(shown), lw = tw(lab, 'pl me');
+    part(ap, 4, () => {
+      pinShape(x, L, 'me');
+      text(K.clamp(x, 4 + lw / 2, 336 - lw / 2), L - 22, lab, 'pl me', 'middle');
+      text(328, 26, w, 'te', 'end');
+    });
+    if (ap >= 0.5) { REC.pins.push({ v: shown, x, cls: 'me', row: 0 }); REC.rows.push({ e: d.ineq, w, bad: false, v: shown }); }
+    part(vis(t.key), 0, () => keyRow([['open', 'left out'], ['head', 'goes on for ever']], 152, 12));
+    return { H: 164, said: 'A number line. ' + (sp >= 0.5 ? 'The answers of x > 3 are a stretch from an open circle at 3 to the right, with an arrow. ' : '') +
+      (ap >= 0.5 ? 'The marker is at ' + fmtN(shown) + ', and ' + say(w) + '.' : '') };
+  }
+  // Two sides as two dots, moved together by each undo move; then the answer's stretch.
+  function drawSides(d, st) {
+    const t = d.tl, R = sidesRest(d), n = d.moves.length, L1 = 52 + 30 * n + 52, g = geoLine(d.line.lo, d.line.hi, 20, 320, L1);
+    const a0 = vis(t.start), said = [];
+    part(a0, 4, () => text(12, 22, 'Try x = ' + fmtN(d.x), 'tag', 'start'));
+    const rowsE = [d.sides[0] + ' ' + d.op + ' ' + d.sides[1]].concat(d.moves.map((m) => m.e));
+    rowsE.forEach((e, k) => {
+      const y = 52 + 30 * k, a = k ? vis(t.rows[k - 1]) : a0;
+      part(a, 4, () => {
+        text(12, y, e, 'te', 'start');
+        if (k) text(170, y, d.moves[k - 1].note, 'an', 'middle');
+        pairText(290, y, R[k][0], R[k][1], relOp(R[k][0], R[k][1]));
+      });
+      if (a >= 0.5) said.push(say(e) + (k ? ', after ' + say(d.moves[k - 1].note) : '') + '; the sides make ' + fmtN(R[k][0]) + ' and ' + fmtN(R[k][1]) + '.');
+    });
+    let cur = R[0].slice(), j = 0;
+    d.moves.forEach((m, k) => {
+      const w = t.moves[k], p = arr(w[0], w[1] - w[0]);
+      cur = [cur[0] + (R[k + 1][0] - R[k][0]) * p, cur[1] + (R[k + 1][1] - R[k][1]) * p];
+      if (T >= (w[0] + w[1]) / 2) j++;
+    });
+    const la = Math.min(labelFade(t.moves), a0), xs = [g.s(cur[0]), g.s(cur[1])], labs = [fmtN(R[j][0]), fmtN(R[j][1])];
+    const lp = pairCenters(xs[0], xs[1], labs[0], labs[1]);
+    part(a0, 0, () => {
+      axis(g, [], la > 0 ? lp.map((c) => ({ x0: c.c - c.w / 2, x1: c.c + c.w / 2, a: la })) : []);
+      circle('p1', xs[0], L1, 6.5); circle('p2', xs[1], L1, 6.5);
+      keyRow([['p1', 'left side'], ['p2', 'right side']], L1 + 48, 12);
+    });
+    if (la > 0) part(la, 0, () => { text(lp[0].c, L1 + 21, labs[0], 'l1', 'middle'); text(lp[1].c, L1 + 21, labs[1], 'l2', 'middle'); });
+    REC.pts = [{ v: cur[0], x: xs[0] }, { v: cur[1], x: xs[1] }];
+    const aa = vis(t.answer), g2 = geoLine(d.line.lo, d.line.hi, 20, 320, L1 + 104), gp = arr(t.grow, 0.7);
+    part(aa, 4, () => {
+      text(12, L1 + 80, 'The answers: ' + d.answer, 'ol', 'start');
+      axis(g2, [endOf(d.answer)], []);
+      if (gp > 0) REC.stretches.push(drawStretch(g2, d.answer, gp, false));
+    });
+    if (aa >= 0.5) said.push('The answers, ' + say(d.answer) + ', drawn as a stretch.');
+    return { H: L1 + 136, said: 'Trying x = ' + fmtN(d.x) + '. Two dots stand for the two sides on a number line. ' + said.join(' ') };
+  }
+  // A move's beats: a negative one first mirrors both numbers across 0 (an arc over it); any size
+  // other than 1 then stretches or squeezes them along the line.
+  function beatsOf(M) {
+    const f = factorOf(M), m = Math.abs(f), out = [];
+    if (f < 0) out.push({ mirror: true, f: -1 });
+    if (Math.abs(m - 1) > 1e-9) out.push({ mirror: false, f: m, word: m > 1 ? 'stretch × ' + fmtN(m) : 'squeeze ÷ ' + fmtN(1 / m) });
+    return out;
+  }
+  // Its timetable: on opening, after the screen fades in; after a press, straight away, with
+  // 10 < 15 and the line staying on screen. The result follows the last beat.
+  function mirrorTl(d, st) {
+    const o = st.pressed ? d.tlPress : d.tl, n = beatsOf(d.moves[st.move || d.start]).length, w = o.beats.slice(0, n);
+    const result = w[n - 1][1] + 0.2;
+    return { start: o.start, note: o.note, w, result, end: result + K.SOFT };
+  }
+  // 10 < 15 under one move, on one fixed line: each beat moves both dots, a mirror along arcs
+  // over 0, a stretch or squeeze sliding along the line.
+  function drawMirror(d, st) {
+    const mv = st.move || d.start, M = d.moves[mv], t = mirrorTl(d, st), BT = beatsOf(M), L = 146, g = geoLine(d.line.lo, d.line.hi, 20, 320, L);
+    const v0 = d.pair, v1 = v0.map((v) => apply(M, v)), neg = factorOf(M) < 0, op1 = relOp(v1[0], v1[1]);
+    const rests = [v0.slice()];
+    BT.forEach((b) => rests.push(rests[rests.length - 1].map((v) => v * b.f)));
+    rests[BT.length] = v1;
+    const a0 = vis(t.start), an = vis(t.note), ar = vis(t.result);
+    part(a0, 4, () => pairText(60, 26, v0[0], v0[1], d.op, true));
+    part(an, 4, () => text(328, 26, mv + ' both sides', 'an', 'end'));
+    const ps = t.w.map((w) => arr(w[0], w[1] - w[0]));
+    let j = 0;
+    t.w.forEach((w) => { if (T >= (w[0] + w[1]) / 2) j++; });
+    const la = Math.min(labelFade(t.w), a0);
+    const arcOf = (v) => { const x1 = g.s(v), x2 = g.s(-v), rx = Math.abs(x2 - x1) / 2; return { x1, cx: (x1 + x2) / 2, h: K.clamp(10 + 0.35 * rx, 14, 58) }; };
+    const pos = [0, 1].map((k) => {
+      for (let b = 0; b < BT.length; b++) {
+        const p = ps[b], from = rests[b][k], to = rests[b + 1][k];
+        if (p >= 1) continue;
+        const v = from + (to - from) * p;
+        if (BT[b].mirror && p > 0) { const a = arcOf(from), th = Math.PI * p; return { x: a.cx + (a.x1 - a.cx) * Math.cos(th), y: L - a.h * Math.sin(th), v }; }
+        return { x: g.s(v), y: L, v };
+      }
+      const v = rests[BT.length][k];
+      return { x: g.s(v), y: L, v };
+    });
+    const labs = rests[j].map(fmtN), lp = pairCenters(g.s(rests[j][0]), g.s(rests[j][1]), labs[0], labs[1]);
+    part(a0, 0, () => axis(g, [], la > 0 ? lp.map((c) => ({ x0: c.c - c.w / 2, x1: c.c + c.w / 2, a: la })) : []));
+    let bigH = 0;
+    BT.forEach((bt, b) => {
+      const p = ps[b];
+      if (bt.mirror) {
+        const arcs = rests[b].map(arcOf);
+        bigH = Math.max(arcs[0].h, arcs[1].h);
+        if (p > 0) arcs.forEach((a) => {
+          const pts = [];
+          for (let m = 0; m <= 28; m++) { const th = Math.PI * p * m / 28; pts.push(r3(a.cx + (a.x1 - a.cx) * Math.cos(th)) + ' ' + r3(L - a.h * Math.sin(th))); }
+          path('arc', 'M' + pts.join(' L'));
+        });
+        part(vis(t.w[b][1]), 2, () => text(g.s(0), L - bigH - 8, 'mirror across 0', 'an', 'middle'));
+      } else {
+        const xm = (g.s((rests[b][0] + rests[b][1]) / 2) + g.s((rests[b + 1][0] + rests[b + 1][1]) / 2)) / 2, w = tw(bt.word, 'an');
+        part(vis(t.w[b][1]), 2, () => text(K.clamp(xm, 4 + w / 2, 336 - w / 2), L - bigH - 26, bt.word, 'an', 'middle'));
+      }
+    });
+    part(a0, 0, () => { circle('p1', pos[0].x, pos[0].y, 6.5); circle('p2', pos[1].x, pos[1].y, 6.5); keyRow([['p1', 'left side'], ['p2', 'right side']], 196, 12); });
+    if (la > 0) part(la, 0, () => { text(lp[0].c, L + 21, labs[0], 'l1', 'middle'); text(lp[1].c, L + 21, labs[1], 'l2', 'middle'); });
+    part(ar, 4, () => {
+      if (neg) rect('hl', 53, 40, 14, 22, 3);
+      pairText(60, 56, v1[0], v1[1], op1, true);
+      text(328, 56, neg ? 'sign flips' : 'sign stays', 'an', 'end');
+    });
+    REC.pts = pos.map((q) => ({ v: q.v, x: q.x }));
+    REC.sign = ar >= 0.5 ? op1 : null;
+    REC.move = mv;
+    const how = BT.map((bt, b) => (bt.mirror ? 'mirror across 0' : bt.f > 1 ? 'stretch' : 'squeeze') + ' to ' + fmtN(rests[b + 1][0]) + ' and ' + fmtN(rests[b + 1][1])).join(', then ');
+    return { H: 208, said: '10 is less than 15, two dots on a number line. ' + say(mv) + ' both sides' +
+      (ar >= 0.5 ? ': the dots ' + how + ', so ' + say(fmtN(v1[0]) + ' ' + op1 + ' ' + fmtN(v1[1])) + ', and the sign ' + (neg ? 'flips.' : 'stays.') : '.') };
+  }
+  // One inequality solved two ways side by side, then its stretch and two numbers put back.
+  function drawRoutes(d, st) {
+    const t = d.tl, C = [{ x0: 10, x1: 164 }, { x0: 182, x1: 332 }], said = [];
+    const ah = vis(t.heads);
+    part(ah, 0, () => line('div', 173, 6, 173, 162));
+    d.cols.forEach((c, k) => {
+      part(ah, 4, () => text(C[k].x0, 22, c.head, 'hd', 'start'));
+      c.rows.forEach((r, m) => {
+        const a = vis(t.rows[k][m]);
+        part(a, 4, () => { text(C[k].x0, 50 + 26 * m, r[1], 'te', 'start'); if (r[0]) text(C[k].x1, 50 + 26 * m, r[0], 'an', 'end'); });
+        if (a >= 0.5) REC.rows.push({ e: r[1], w: r[0], bad: false, route: k });
+      });
+      if (vis(t.rows[k][c.rows.length - 1]) >= 0.5) said.push(c.head + ': ' + c.rows.map((r) => say(r[1])).join(', then ') + '.');
+    });
+    const L = 236, g = geoLine(d.line.lo, d.line.hi, 20, 320, L), ab = vis(t.both), gp = arr(t.grow, 0.6);
+    part(ab, 4, () => { text(12, 192, 'Both routes end at ' + d.answer, 'ol', 'start'); keyRow([['shut', 'included']], 192, null, 328); });
+    axis(g, [endOf(d.answer)], []);
+    if (gp > 0) REC.stretches.push(drawStretch(g, d.answer, gp, false));
+    const ts = d.tries.map((v, m) => ({ v, cls: '', a: vis(t.tries[m]) }));
+    pins(g, ts, 0);
+    d.tries.forEach((v, m) => { const s = putRow(Object.assign(putBack(d.q, v), { bad: false }), 286 + 26 * m, ts[m].a); if (s) said.push(s); });
+    if (ab >= 0.5) said.push('Both routes end at ' + say(d.answer) + ', a stretch to the left of a filled circle at 2.');
+    return { H: 324, said: said.join(' ') };
+  }
+  // A puzzle: its three answers drawn as stretches; a right one puts its numbers back in, a
+  // wrong one puts back the number where it goes wrong, in red.
+  function drawPuzzle(d, st) {
+    const said = ['Solve ' + say(d.q) + '.'];
+    text(12, 22, d.q, 'tag', 'start');
+    keyRow(keyItems(d), 22, null, 328);
+    d.opts.forEach((o, k) => {
+      const y = 82 + 72 * k, g = geoLine(d.line.lo, d.line.hi, 92, 316, y), on = st.pick === o, set = setOf(d, o);
+      if (on) rect('box', 3, y - 42, 334, 70, 8);
+      text(12, y + 5, o, 'ol' + (on ? ' on' : ''), 'start');
+      axis(g, [endOf(set)], []);
+      const r = drawStretch(g, set, 1, d.whole); r.row = k; REC.stretches.push(r);
+      let ps = [];
+      if (st.res === 'right' && o === d.want) ps = d.tries.map((v, m) => ({ v, cls: '', a: vis(0.1 + 0.4 * m) }));
+      else if (st.res === 'wrong' && o === st.pick) ps = [{ v: d.wt[o], cls: 'bad', a: vis(0.1) }];
+      pins(g, ps, k);
+      said.push((d.sets ? 'Picture ' + o + ': ' : '') + say(set) + (d.whole ? ', as whole numbers' : '') + (on ? ', picked.' : '.'));
+    });
+    if (st.res === 'right') d.tries.forEach((v, m) => { const s = putRow(Object.assign(putBack(d.q, v), { bad: false }), 284 + 26 * m, vis(0.3 + 0.4 * m)); if (s) said.push(s); });
+    else if (st.res === 'wrong' && st.pick != null) { const s = putRow(Object.assign(putBack(d.q, d.wt[st.pick]), { bad: true }), 284, vis(0.3)); if (s) said.push(s); }
+    return { H: 322, said: said.join(' ') };
+  }
+
+  // ---------- the marker on the first screen: Dan tries any number himself ----------
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': 'Number to try', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  const tryGeo = (d) => geoLine(d.line.lo, d.line.hi, 20, 320, 100);
+  function placeGrip(d, st) {
+    const on = d.pic === 'try' && !finished;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('x', 8); grip.setAttribute('width', 324);
+    grip.setAttribute('y', 56); grip.setAttribute('height', 60);
+    const v = st.x != null ? st.x : 3;
+    grip.setAttribute('aria-valuemin', d.drag.min); grip.setAttribute('aria-valuemax', d.drag.max); grip.setAttribute('aria-valuenow', v);
+    grip.setAttribute('aria-valuetext', 'x = ' + fmtN(v));
+  }
+  const dragging = () => !finished && STEPS[at()].pic === 'try';
+  function setX(v) {
+    const d = STEPS[at()], st = S[at()];
+    v = K.clamp(Math.round(v * 2) / 2, d.drag.min, d.drag.max);
+    if (st.x === v && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.x = v;
+    K.reveal(); K.refresh();
+  }
+  function xFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), g = tryGeo(STEPS[at()]);
+    return g.lo + (q.x - g.xa) / (g.xb - g.xa) * (g.hi - g.lo);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragging()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+    e.preventDefault();
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragging()) return;
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragging()) return;
+    const d = STEPS[at()], st = S[at()], now = st.x != null ? st.x : 3;
+    const by = { ArrowUp: 0.5, ArrowRight: 0.5, ArrowDown: -0.5, ArrowLeft: -0.5 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    setX(e.key === 'Home' ? d.drag.min : e.key === 'End' ? d.drag.max : now + by);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { stretches: [], pts: [], rows: [], pins: [], lines: [], sign: null, move: null };
+    const out = d.pic === 'try' ? drawTry(d, st) : d.pic === 'sides' ? drawSides(d, st) : d.pic === 'mirror' ? drawMirror(d, st) : d.pic === 'routes' ? drawRoutes(d, st) : drawPuzzle(d, st);
+    svg.setAttribute('viewBox', '0 0 340 ' + out.H);
+    svg.setAttribute('aria-label', out.said);
+    placeGrip(d, st);
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.x = null; st.move = d.pic === 'mirror' ? d.start : null; st.pressed = false; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    el('moves').hidden = d.pic !== 'mirror';
+    moveBtns.forEach((b, k) => b.el.setAttribute('aria-pressed', d.pic === 'mirror' && (st.move || d.start) === MOVES[k] ? 'true' : 'false'));
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "x ≥ 6"
+      b.el.setAttribute('aria-label', d.sets ? 'Picture ' + opts[k] : say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    el('nav').hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const gridOf = (d) => { const out = []; if (d.whole) { for (let v = 0; v <= 20; v++) out.push(v); } else { for (let v = -20; v <= 20; v += 0.5) out.push(v); } return out; };
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) });
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // Is a drawn answer what its rule says: circle on the end number, open or filled, running the right way?
+  function drawnRight(r) {
+    const q = parseIneq(r.set), b = evalExpr(q.rhs), g = r.g;
+    if (r.whole) {
+      const want = [];
+      for (let v = Math.max(0, Math.ceil(g.lo)); v <= g.hi + 1e-9; v++) if (cmp(v, q.op, b)) want.push(v);
+      return r.dots.length === want.length && want.every((v) => r.dots.indexOf(v) >= 0) && r.dir === (q.op === '≥' || q.op === '>' ? 1 : 0);
+    }
+    const dirOk = q.op === '=' ? r.dir === 0 : r.dir === (q.op === '>' || q.op === '≥' ? 1 : -1);
+    return K.near(r.x, g.s(b), 1e-6) && dirOk && r.cls === (q.op === '<' || q.op === '>' ? 'open' : 'shut');
+  }
+
+  K.check('The two sides in an equation are equal, but in an inequality one side may be greater than (or less than) the other: every inequality here holds for a whole stretch of numbers, while the equation in the explanation holds for just one', () => {
+    const grid = gridOf({});
+    const eq = grid.filter((v) => holds('x + 3 = 7', v));
+    return eq.length === 1 && eq[0] === 4 && DO.every((i) => { const d = STEPS[i]; return gridOf(d).filter((v) => holds(d.q, v)).length >= 2; }) &&
+      STEPS.every((d) => d.pic !== 'sides' || gridOf(d).filter((v) => holds(d.answer, v)).length >= 2);
+  }, { source: BITESIZE });
+  K.check('You can check the solution by substituting the value into the equation, and an inequality the same way: a right answer\'s numbers put back come out true inside its stretch and false outside it, and each wrong pick puts back a number that comes out the wrong way, in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, solvedSt(i));
+      const rOk = g.rows.length === d.tries.length && d.tries.every((v, k) => inSet(d, d.want, v) === holds(d.q, v) && g.rows[k].w.endsWith(holds(d.q, v) ? ', true' : ', false') && !g.rows[k].bad) &&
+        g.pins.length === d.tries.length && g.pins.every((p) => p.row === d.opts.indexOf(d.want));
+      const wOk = d.opts.filter((o) => o !== d.want).every((o) => {
+        const v = d.wt[o], h = drawn(i, wrongSt(i, o));
+        return v != null && inSet(d, o, v) !== holds(d.q, v) && h.rows.length === 1 && h.rows[0].bad && h.rows[0].w.endsWith(holds(d.q, v) ? ', true' : ', false') &&
+          h.pins.length === 1 && K.near(h.pins[0].v, v) && h.pins[0].row === d.opts.indexOf(o) && h.pins[0].cls === 'bad';
+      });
+      return rOk && wOk;
+    }), { source: OPENSTAX_CHECK });
+  K.check('When we divide or multiply an inequality by a positive number the sign stays the same, and by a negative number the sign reverses: on the mirror screen each negative move swaps the two dots and flips the sign, each positive one keeps both, and the positive undo moves keep the order', () => {
+    const i = idx('A negative flips it'), d = STEPS[i];
+    const okM = MOVES.every((mv) => {
+      const M = d.moves[mv], a = apply(M, 10), b = apply(M, 15), neg = factorOf(M) < 0, g = drawn(i, Object.assign(blank(), { move: mv }));
+      return g.move === mv && g.pts.length === 2 && K.near(g.pts[0].v, a) && K.near(g.pts[1].v, b) &&
+        (neg ? a > b && g.pts[0].x > g.pts[1].x && g.sign === '>' : a < b && g.pts[0].x < g.pts[1].x && g.sign === '<');
+    });
+    const okS = STEPS.every((s) => s.pic !== 'sides' || (s.moves.every((m) => factorOf(m) > 0) && sidesRest(s).every((r) => relOp(r[0], r[1]) === s.op)));
+    return okM && okS && MOVES.some((mv) => factorOf(d.moves[mv]) < 0) && MOVES.some((mv) => factorOf(d.moves[mv]) > 0);
+  }, { source: OPENSTAX_SIGN });
+  K.check('Every puzzle accepts only the answer that matches its inequality at every number from −20 to 20 in halves (whole loads 0 to 20 on the circuit), and each wrong answer differs from it', () =>
+    DO.every((i) => {
+      const d = STEPS[i], vs = gridOf(d), same = (o) => vs.every((v) => inSet(d, o, v) === holds(d.q, v));
+      return d.opts.length >= 2 && same(d.want) && d.opts.filter((o) => o !== d.want).every((o) => !same(o)) && d.opts.every((o) => pickRight(i, o) === (o === d.want));
+    }));
+  K.check('Every line of working adds up: at x = 5 the sides make 13 and 11, then 10 and 8, then 5 and 4; at x = −5 they make −15 and −12, then −5 and −4; the moves send 10 and 15 to −10 and −15, −50 and −75, −2 and −3, or 2 and 3; every line of both routes has the same answers as 7 − 3x ≥ 1; and every number put back makes what its row says', () => {
+    const near2 = (r, a, b) => K.near(r[0], a) && K.near(r[1], b);
+    const s1 = sidesRest(STEPS[idx('Same undo moves')]), s2 = sidesRest(STEPS[idx('A minus in sight')]);
+    const okS = near2(s1[0], 13, 11) && near2(s1[1], 10, 8) && near2(s1[2], 5, 4) && near2(s2[0], -15, -12) && near2(s2[1], -5, -4);
+    const okE = STEPS.every((d) => {
+      if (d.pic !== 'sides') return true;
+      const R = sidesRest(d), rowsE = [d.sides[0] + ' ' + d.op + ' ' + d.sides[1]].concat(d.moves.map((m) => m.e));
+      return rowsE.every((e, k) => { const p = parseIneq(e); return K.near(evalExpr(p.lhs, d.x), R[k][0]) && K.near(evalExpr(p.rhs, d.x), R[k][1]); }) &&
+        gridOf(d).every((v) => holds(rowsE[0], v) === holds(d.answer, v));
+    });
+    const M = STEPS[idx('A negative flips it')].moves;
+    const okM = near2([apply(M['× −1'], 10), apply(M['× −1'], 15)], -10, -15) && near2([apply(M['× −5'], 10), apply(M['× −5'], 15)], -50, -75) &&
+      near2([apply(M['÷ −5'], 10), apply(M['÷ −5'], 15)], -2, -3) && near2([apply(M['÷ 5'], 10), apply(M['÷ 5'], 15)], 2, 3);
+    const R = STEPS[idx('Two routes')];
+    const okR = R.cols.every((c) => c.rows.every((r) => gridOf(R).every((v) => holds(r[1], v) === holds(R.q, v)))) && R.cols.every((c) => c.rows[c.rows.length - 1][1] === R.answer);
+    const rowsOk = (d) => (d.tries.concat(Object.keys(d.wt || {}).map((o) => d.wt[o]))).every((v) => {
+      const r = putBack(d.q, v), p = parseIneq(r.e);
+      return K.near(p.lhs === 'x' ? v : evalExpr(p.lhs, null), evalExpr(parseIneq(d.q).lhs, v)) && r.w.indexOf(fmtN(evalExpr(parseIneq(d.q).lhs, v)) + ' ') === 0;
+    });
+    return okS && okE && okM && okR && DO.every((i) => rowsOk(STEPS[i])) && rowsOk(R);
+  });
+  K.check('The circle is unshaded for < and > and shaded for ≤ and ≥: every stretch is drawn to that rule, its circle on the end number, open or filled (one filled dot for =), running the way the sign points, and the circuit draws only the whole loads in each answer', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, d.show ? blank() : solvedSt(i)), want = d.show ? (d.pic === 'mirror' ? 0 : 1) : d.opts.length;
+      return g.stretches.length === want && g.stretches.every(drawnRight);
+    }), { source: BITESIZE });
+  K.check('Only reverse the inequality symbol when you multiply or divide each side by a negative number: on the minus-in-sight screen and the puzzle after it a minus sign is in sight, but every move is by a positive number and the sign stays', () => {
+    const s = STEPS[idx('A minus in sight')], q = STEPS[idx('Dividing by a positive')];
+    return /−/.test(s.sides.join(' ')) && s.moves.every((m) => factorOf(m) > 0) && sidesRest(s).every((r) => relOp(r[0], r[1]) === s.op) && parseIneq(s.answer).op === s.op &&
+      /−/.test(q.q) && parseIneq(q.want).op === parseIneq(q.q).op;
+  }, { source: BIGIDEAS });
+  K.check('Before an answer, a puzzle shows its answers as stretches and puts no number back; a right answer then puts its numbers back on its own line', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g0 = drawn(i, blank()), g1 = drawn(i, solvedSt(i));
+      return g0.pins.length === 0 && g0.rows.length === 0 && g0.stretches.length === d.opts.length && !g0.texts.some((s) => /true|false/.test(s)) &&
+        g1.pins.length === d.tries.length && g1.rows.length === d.tries.length;
+    }));
+  K.check('The marker tries any number: at every half from 0 to 6 it sits on its number, and the line beside it says true exactly when the number is greater than 3', () => {
+    const d = STEPS[0], vs = [];
+    for (let v = d.drag.min; v <= d.drag.max + 1e-9; v += 0.5) vs.push(v);
+    return vs.every((v) => {
+      const g = drawn(0, Object.assign(blank(), { x: v })), pn = g.pins[0], r = g.rows[0], line0 = g.lines[0];
+      return pn && r && line0 && K.near(pn.v, v) && K.near(pn.x, line0.s(v)) && r.w === fmtN(v) + ' > 3, ' + (v > 3 ? 'true' : 'false');
+    });
+  });
+  K.check('Every demonstration (each move on the mirror screen too) has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends, and a pressed move plays straight away and is done within the same time; every answer\'s motion, right or wrong, within 1.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const sts = d.pic === 'mirror' ? MOVES.map((mv) => Object.assign(blank(), { move: mv })) : [blank()];
+        const pressed = d.pic === 'mirror' ? MOVES.every((mv) => timed(i, Object.assign(blank(), { move: mv, pressed: true }), d.dur)) : true;
+        return sts.every((st) => timed(i, st, d.dur) && earliest >= FADE) && pressed && d.dur <= 5 && d.dur >= 3;
+      }
+      const f = fbOf(d);
+      return timed(i, solvedSt(i), f[0]) && f[0] <= 1.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), f[1]) && f[1] <= 1.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

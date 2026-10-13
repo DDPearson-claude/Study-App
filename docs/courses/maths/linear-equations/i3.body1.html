@@ -1,0 +1,911 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* Bars, each x long, and squares worth 1 each; a part taken away is a dashed outline. */
+  .scene .xb { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .sq { fill: var(--k-accent2); }
+  .scene .neg { fill: none; stroke: var(--k-ink); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .cover { fill: var(--k-bg); stroke: none; }
+  .scene .outline { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .split { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .strip { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .il { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tag { font: 700 16px var(--k-font); fill: var(--k-accent2); }
+  .scene .te { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  /* The slider for x: a track, a tick at each whole number, and a knob with its value above. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">The parts of an expression, as bars each <span class="v">x</span> long and small squares worth 1 each, fitted back into rectangles. Every value tried is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Factorising is expanding in reverse: the height that fits every part goes outside the bracket.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic 'area': the parts of an expression, laid out loose, slide into a rectangle k rows high.
+  // area.segs: each part's pieces per row, in order along the row: 'bar' (x long), 'sq' (worth 1)
+  // or 'neg' (a square's worth taken away, dashed, off each row's end); a part's name sits beside
+  // its loose pieces. Once fitted: side, the factor (the height); top, the bracket's contents over
+  // the top row; splits, where each part ends; parts, the parts' names under it ([span, name, level]).
+  // pic 'res': R0 + R0αΔT, a block R0 tall and a thin strip, slid together into R0(1 + αΔT).
+  // pic 'try': where a rectangle cannot show it, a number is tried in each expression.
+  // work: lines of working, an expression and what it makes at the value tried.
+  // A SHOW step's tl is its timetable in seconds from when the screen opens.
+  // A puzzle: q, the expression; qw its working; opts, the answers offered; ow each answer's working;
+  // nd, an answer that is true but not finished, with what its bracket still shares.
+  // num: the factor taken out is a whole number (the biggest-factor check reads these).
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, num: true, name: 'Two parts, one rectangle', pic: 'area', vars: { x: 2 }, slide: { min: 1, max: 6 },
+      area: { k: 3, U: 16, segs: [{ t: 'bar', n: 2, name: '6x' }, { t: 'sq', n: 5, name: '15' }] },
+      top: [['all', '2x + 5']], side: ['3'], splits: ['s0'], parts: [['s0', '6x', 1], ['s1', '15', 1]],
+      pair: ['6x + 15', '3(2x + 5)'],
+      work: [{ e: '6x + 15', w: (v) => 6 * v.x + ' + 15 = ' + (6 * v.x + 15) }, { e: '3(2x + 5)', w: (v) => '3 × ' + (2 * v.x + 5) + ' = ' + 3 * (2 * v.x + 5) }],
+      dur: 4.4, tl: { segIn: [0.4, 0.8], slide: [1.3, 1.6], split: 2.6, parts: [2.75, 2.9], side: 3.0, top: [3.2], work: [3.5, 3.8] },
+      text: '*Factorising* is expanding run backwards: start from the parts and find the rectangle. The `6x` part and the 15 part both fit 3 rows, so the rectangle is 3 high and `2x + 5` long: `6x + 15 = 3(2x + 5)`. At `x = 2` both make 27, and sliding `x` keeps them equal.' },
+    { kind: 'pick', num: true, name: 'Four rows', pic: 'area', vars: { x: 2 }, tag: true,
+      area: { k: 4, U: 24, segs: [{ t: 'bar', n: 1, name: '4x' }, { t: 'sq', n: 5, name: '20' }] },
+      top: [['all', 'x + 5']], side: ['4'], splits: ['s0'], parts: [['s0', '4x', 1], ['s1', '20', 1]],
+      q: '4x + 20', qw: '8 + 20 = 28',
+      opts: ['4(x + 5)', '4(x + 20)', '5(x + 4)'], want: '4(x + 5)', ow: { '4(x + 5)': '4 × 7 = 28', '4(x + 20)': '4 × 22 = 88', '5(x + 4)': '5 × 6 = 30' },
+      task: 'Your turn: factorise `4x + 20`. What height fits both parts?',
+      why: 'Four rows fit both parts: `4x` is 4 rows of `x`, and 20 is 4 rows of 5. So `4x + 20 = 4(x + 5)`, and at `x = 2` both make 28.',
+      hint: 'Not quite. Find the height that fits both parts.',
+      hints: { '4(x + 20)': 'Not quite. Expand it back: `4(x + 20)` makes `4x + 80`. Divide the 20 by 4 too.',
+        '5(x + 4)': 'Not quite. 5 does not divide `4x`: four bars cannot share into 5 equal rows.' } },
+    { show: true, num: true, name: 'The biggest factor', pic: 'area', vars: { x: 1 }, tag: true,
+      area: { k: 6, U: 22, segs: [{ t: 'bar', n: 2, name: '12x' }, { t: 'sq', n: 3, name: '18' }] },
+      top: [['all', '2x + 3']], side: ['6'], splits: ['s0'], parts: [['s0', '12x', 1], ['s1', '18', 1]],
+      pair: ['12x + 18', '6(2x + 3)'],
+      work: [{ e: '12x + 18', w: '12 + 18 = 30' }, { e: '6(2x + 3)', w: '6 × 5 = 30' }],
+      dur: 4.4, tl: { segIn: [0.4, 0.8], slide: [1.3, 1.6], split: 2.8, parts: [2.9, 3.0], side: 3.1, top: [3.3], work: [3.5, 3.8] },
+      text: '`12x` and 18 have 2, 3 and 6 as *common factors*: take out the biggest. Six rows fit both parts, so `12x + 18 = 6(2x + 3)`, and at `x = 1` both make 30. `2(6x + 9)` is true too, but `6x` and 9 still share 3, so it is not finished.' },
+    { kind: 'pick', num: true, name: 'Fully', pic: 'area', vars: { x: 1 }, tag: true,
+      area: { k: 4, U: 24, segs: [{ t: 'bar', n: 2, name: '8x' }, { t: 'sq', n: 3, name: '12' }] },
+      top: [['all', '2x + 3']], side: ['4'], splits: ['s0'], parts: [['s0', '8x', 1], ['s1', '12', 1]],
+      q: '8x + 12', qw: '8 + 12 = 20',
+      opts: ['2(4x + 6)', '4(2x + 3)', '4(2x + 12)'], want: '4(2x + 3)', ow: { '4(2x + 3)': '4 × 5 = 20', '2(4x + 6)': '2 × 10 = 20', '4(2x + 12)': '4 × 14 = 56' },
+      nd: { '2(4x + 6)': ['4x + 6', 'still share 2'] },
+      task: 'Factorise `8x + 12` fully: take out the biggest common factor.',
+      why: '`8x` and 12 share 2 and 4, and the biggest is 4. `8x ÷ 4 = 2x` and `12 ÷ 4 = 3`, so `8x + 12 = 4(2x + 3)`, and at `x = 1` both make 20.',
+      hint: 'Not quite. Find the biggest number that divides both terms.',
+      hints: { '2(4x + 6)': 'True, but not finished: `4x` and 6 still share 2, so more can come out.',
+        '4(2x + 12)': 'Not quite. Every term is divided by 4, the 12 too.' } },
+    { show: true, name: 'Keep the 1', pic: 'res', vars: { 'R₀': 2, 'α': 0.2, 'ΔT': 1 },
+      pair: ['R₀ + R₀αΔT', 'R₀(1 + αΔT)'],
+      work: [{ e: 'R₀ + R₀αΔT', w: '2.0 + 0.4 = 2.4 Ω' }, { e: '1 + αΔT', w: '2.4 ÷ 2.0 = 1.2' }, { e: 'R₀(1 + αΔT)', w: '2.0 × 1.2 = 2.4 Ω' }],
+      dur: 4.2, tl: { main: 0.4, strip: 0.7, slide: 1.3, side: 2.3, top: 2.5, work: [2.9, 3.2, 3.5] },
+      text: 'When the factor is a whole term, dividing that term by it leaves 1, and the 1 must stay. `R₀` is `R₀ × 1`, so taking `R₀` out of `R₀ + R₀αΔT` leaves `R₀(1 + αΔT)`. For a winding of 2.0 Ω cold and 2.4 Ω after a run, `2.0 + 0.4 = 2.0 × 1.2`.' },
+    { kind: 'pick', num: true, name: 'The 1 stays', pic: 'area', vars: { x: 3 }, tag: true,
+      area: { k: 5, U: 18, segs: [{ t: 'bar', n: 1, name: '5x' }, { t: 'sq', n: 1, name: '5' }] },
+      top: [['all', 'x + 1']], side: ['5'], splits: ['s0'], parts: [['s0', '5x', 1], ['s1', '5', 1]],
+      q: '5x + 5', qw: '15 + 5 = 20',
+      opts: ['5x', '5(x + 5)', '5(x + 1)'], want: '5(x + 1)', ow: { '5(x + 1)': '5 × 4 = 20', '5x': '5 × 3 = 15', '5(x + 5)': '5 × 8 = 40' },
+      task: 'Factorise `5x + 5`. What height fits both parts?',
+      why: 'Five rows fit both parts: `5x` is 5 rows of `x`, and 5 is 5 rows of 1. The 1 must stay, so `5x + 5 = 5(x + 1)`, and at `x = 3` both make 20.',
+      hint: 'Not quite. Divide every term by 5.',
+      hints: { '5x': 'Not quite. The 5 is a part too: each row keeps 1 square, and the 1 must stay.',
+        '5(x + 5)': 'Not quite. Divide the 5 by 5 as well: that leaves 1.' } },
+    { show: true, name: 'Three resistors', pic: 'area', vars: { I: 2, 'R₁': 3, 'R₂': 5, 'R₃': 2 }, tag: 'I = 2 A', unit: 'V',
+      area: { k: 2, U: 24, segs: [{ t: 'sq', n: 3, name: 'IR₁' }, { t: 'sq', n: 5, name: 'IR₂' }, { t: 'sq', n: 2, name: 'IR₃' }] },
+      top: [['s0', 'R₁ = 3 Ω'], ['s1', 'R₂ = 5 Ω'], ['s2', 'R₃ = 2 Ω']], side: ['I'], splits: ['s0', 's1'],
+      parts: [['s0', 'IR₁', 1], ['s1', 'IR₂', 1], ['s2', 'IR₃', 1]],
+      pair: ['IR₁ + IR₂ + IR₃', 'I(R₁ + R₂ + R₃)'],
+      work: [{ e: 'IR₁ + IR₂ + IR₃', w: '6 + 10 + 4 = 20 V' }, { e: 'I(R₁ + R₂ + R₃)', w: '2 × 10 = 20 V' }],
+      dur: 4.4, tl: { segIn: [0.4, 0.6, 0.8], slide: [1.2, 1.4, 1.6], split: 2.6, parts: [2.7, 2.8, 2.9], side: 3.0, top: [3.1, 3.2, 3.3], work: [3.5, 3.8] },
+      text: 'A current `I` through resistors `R₁`, `R₂` and `R₃` in series makes a voltage of `IR₁ + IR₂ + IR₃`. Every part is `I` tall, so `I` comes out: `I(R₁ + R₂ + R₃)`. With 2 A through 3, 5 and 2 Ω, both make 20 V.' },
+    { kind: 'pick', num: true, name: 'Three terms', pic: 'try', vars: { a: 1, b: 2 }, tag: 'Try a = 1, b = 2',
+      q: '4a + 4b + 12', qw: '4 + 8 + 12 = 24',
+      opts: ['4(a + b + 12)', '4(a + b)', '4(a + b + 3)'], want: '4(a + b + 3)', ow: { '4(a + b + 3)': '4 × 6 = 24', '4(a + b + 12)': '4 × 15 = 60', '4(a + b)': '4 × 3 = 12' },
+      task: 'Factorise `4a + 4b + 12`, where `a` and `b` are two different letters.',
+      why: 'All three terms share 4: `4a ÷ 4 = a`, `4b ÷ 4 = b` and `12 ÷ 4 = 3`. So `4a + 4b + 12 = 4(a + b + 3)`, and at `a = 1, b = 2` both make 24.',
+      hint: 'Not quite. Divide every term by 4.',
+      hints: { '4(a + b + 12)': 'Not quite. Every term is divided by 4, the 12 too.',
+        '4(a + b)': 'Not quite. The 12 is a term too: divided by 4 it leaves 3.' } },
+    { show: true, num: true, name: 'A minus inside', pic: 'area', vars: { x: 4 }, tag: true,
+      area: { k: 3, U: 20, segs: [{ t: 'bar', n: 2, name: '6x' }, { t: 'neg', n: 5, name: '− 15' }] },
+      top: [['solid', '2x − 5'], ['cut', '5']], side: ['3'], splits: ['solid'], parts: [['all', '6x', 2], ['cut', '− 15', 1]],
+      pair: ['6x − 15', '3(2x − 5)'],
+      work: [{ e: '6x − 15', w: '24 − 15 = 9' }, { e: '3(2x − 5)', w: '3 × 3 = 9' }, { e: '3(2x + 5)', w: '3 × 13 = 39', bad: true }],
+      dur: 4.4, tl: { segIn: [0.4, 0.8], slide: [1.2, 1.9], split: 3.0, parts: [3.1, 3.2], side: 3.2, top: [3.3, 3.3], work: [3.4, 3.6, 3.8] },
+      text: 'A minus stays with its term: the 15 taken away is 3 rows of 5, so `6x − 15 = 3(2x − 5)`. Expand it back to check: `3 × 2x = 6x` and `3 × −5 = −15`. At `x = 4` both make 9, but the slip `3(2x + 5)` makes 39.' },
+    { kind: 'pick', num: true, name: 'Mixed: a minus', pic: 'try', vars: { x: 2 }, tag: true,
+      q: '14x − 21', qw: '28 − 21 = 7',
+      opts: ['7(2x + 3)', '7(2x − 3)', '7(2x − 21)'], want: '7(2x − 3)', ow: { '7(2x − 3)': '7 × 1 = 7', '7(2x + 3)': '7 × 7 = 49', '7(2x − 21)': '7 × −17 = −119' },
+      task: 'Factorise `14x − 21`.',
+      why: '14 and 21 share 7. `14x ÷ 7 = 2x` and `−21 ÷ 7 = −3`, the minus staying with its term, so `14x − 21 = 7(2x − 3)`. At `x = 2` both make 7.',
+      hint: 'Not quite. Divide every term by 7, sign and all.',
+      hints: { '7(2x + 3)': 'Not quite. A minus stays with its term: `−21 ÷ 7 = −3`.',
+        '7(2x − 21)': 'Not quite. Every term is divided by 7, the 21 too.' } },
+    { kind: 'pick', name: 'Mixed: letters', pic: 'try', vars: { a: 2, b: 3 }, tag: 'Try a = 2, b = 3', letter: true,
+      q: 'ab + a', qw: '6 + 2 = 8',
+      opts: ['a(b + 1)', 'a(b + a)', 'ab'], want: 'a(b + 1)', ow: { 'a(b + 1)': '2 × 4 = 8', 'ab': '2 × 3 = 6', 'a(b + a)': '2 × 5 = 10' },
+      task: 'Factorise `ab + a`.',
+      why: 'Both terms have `a` in them. `ab ÷ a = b` and `a ÷ a = 1`, and the 1 must stay, so `ab + a = a(b + 1)`. At `a = 2, b = 3` both make 8.',
+      hint: 'Not quite. Divide each term by `a`.',
+      hints: { 'ab': 'Not quite. Taking `a` out of `a` leaves 1, and the 1 must stay.',
+        'a(b + a)': 'Not quite. Divide the second `a` by `a` too: that leaves 1.' } },
+    { kind: 'pick', num: true, name: 'Mixed: fully', pic: 'area', vars: { x: 1 }, tag: true,
+      area: { k: 4, U: 20, segs: [{ t: 'bar', n: 3, name: '12x' }, { t: 'sq', n: 2, name: '8' }] },
+      top: [['all', '3x + 2']], side: ['4'], splits: ['s0'], parts: [['s0', '12x', 1], ['s1', '8', 1]],
+      q: '12x + 8', qw: '12 + 8 = 20',
+      opts: ['2(6x + 4)', '4(3x + 8)', '4(3x + 2)'], want: '4(3x + 2)', ow: { '4(3x + 2)': '4 × 5 = 20', '2(6x + 4)': '2 × 10 = 20', '4(3x + 8)': '4 × 11 = 44' },
+      nd: { '2(6x + 4)': ['6x + 4', 'still share 2'] },
+      task: 'Factorise `12x + 8` fully.',
+      why: '`12x` and 8 share 2 and 4, and the biggest is 4. `12x ÷ 4 = 3x` and `8 ÷ 4 = 2`, so `12x + 8 = 4(3x + 2)`, and at `x = 1` both make 20.',
+      hint: 'Not quite. Find the biggest number that divides both terms.',
+      hints: { '2(6x + 4)': 'True, but not finished: `6x` and 4 still share 2, so more can come out.',
+        '4(3x + 8)': 'Not quite. Every term is divided by 4, the 8 too.' } },
+  ];
+  const FINISH = 'Factorising is expanding run backwards: take the biggest common factor out of every term, keep any 1, and expand it back to check. So `6x + 15 = 3(2x + 5)` and `IR₁ + IR₂ + IR₃ = I(R₁ + R₂ + R₃)`.';
+  // Sources the checks restate (the lesson's own).
+  const NCETM = 'https://www.ncetm.org.uk/media/bdddodxr/secmm-cc-audit-1-4-simplifying-and-manipulating-expressions-equations-and-formulae.pdf';
+  const GCF = 'https://openstax.org/books/college-algebra-2e/pages/1-5-factoring-polynomials';
+  const OPENSTAX = 'https://openstax.org/books/algebra-1/pages/6-simplify-expressions-using-the-distributive-property-mini-lesson-review';
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/articles/z7wkjfr';
+  const LUMEN = 'https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity';
+  const LIBRE = 'https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_%28OpenStax%29/21%3A_Circuits_Bioelectricity_and_DC_Instruments/21.01%3A_Resistors_in_Series_and_Parallel';
+  // Rectangles start at X0 and run at most L long. The slider's track runs from SX0 to SX1.
+  // Pieces slide into place over SLIDE seconds, each row ROWLAG after the one above.
+  const X0 = 46, L = 278, SX0 = 40, SX1 = 300;
+  const FADE = 0.35, SLIDE = 0.9, ROWLAG = 0.06;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- expressions (pure, so the checks can test them) ----------
+  // Reads +, −, ×, ÷, brackets, a minus in front and letters side by side (6x, ab, IR₁, R₀αΔT).
+  function evalExpr(s, vars) {
+    const src = String(s).replace(/ /g, ' ').replace(/−/g, '-').replace(/×/g, '*').replace(/÷/g, '/').replace(/[ΩVA]/g, '').replace(/\s+/g, '');
+    let i = 0;
+    const peek = () => src[i];
+    function expr() {
+      let sign = 1;
+      if (peek() === '-') { i++; sign = -1; } else if (peek() === '+') i++;
+      let v = sign * term();
+      while (peek() === '+' || peek() === '-') { const op = src[i++]; const t = term(); v = op === '+' ? v + t : v - t; }
+      return v;
+    }
+    function term() {
+      let v = factor();
+      while (i < src.length && peek() !== '+' && peek() !== '-' && peek() !== ')') {
+        if (peek() === '/') { i++; v /= factor(); continue; }
+        if (peek() === '*') i++;
+        v *= factor();
+      }
+      return v;
+    }
+    function factor() {
+      const rest = src.slice(i);
+      if (rest[0] === '(') { i++; const v = expr(); if (src[i] !== ')') throw new Error('no closing bracket'); i++; return v; }
+      if (rest[0] === '-') { i++; return -factor(); }
+      let m = /^\d+(?:\.\d+)?/.exec(rest);
+      if (m) { i += m[0].length; return +m[0]; }
+      m = /^(ΔT|R[₀₁₂₃]?|[xabIα])/.exec(rest);
+      if (m) { i += m[0].length; if (!(m[0] in vars)) throw new Error('no value for ' + m[0]); return vars[m[0]]; }
+      throw new Error('cannot read ' + rest);
+    }
+    const v = expr();
+    if (i !== src.length) throw new Error('left over: ' + src.slice(i));
+    return v;
+  }
+  const gcd = (a, b) => { a = Math.abs(Math.round(a)); b = Math.abs(Math.round(b)); while (b) { const t = a % b; a = b; b = t; } return a; };
+  // A linear expression's number in front of each letter, and its number on its own.
+  function coefs(s, ls) {
+    const z = {};
+    ls.forEach((l) => { z[l] = 0; });
+    const k = evalExpr(s, z);
+    return { k, c: ls.map((l) => evalExpr(s, Object.assign({}, z, { [l]: 1 })) - k) };
+  }
+  // The biggest whole number taken out of every term, written as the bracket ('4(a + b + 3)', '3(2x − 5)').
+  function fullForm(s, ls) {
+    const f = coefs(s, ls), g = [f.k].concat(f.c).reduce(gcd, 0);
+    let inner = '';
+    ls.forEach((l, m) => {
+      const c = f.c[m] / g;
+      if (!c) return;
+      const n = Math.abs(c) === 1 ? '' : String(Math.abs(c));
+      inner += inner ? (c > 0 ? ' + ' : ' − ') + n + l : (c < 0 ? '−' : '') + n + l;
+    });
+    const k = f.k / g;
+    if (k) inner += inner ? (k > 0 ? ' + ' : ' − ') + Math.abs(k) : String(k).replace('-', '−');
+    return g + '(' + inner + ')';
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/R₀/g, 'R nought').replace(/R₁/g, 'R one').replace(/R₂/g, 'R two').replace(/R₃/g, 'R three')
+    .replace(/α/g, ' alpha ').replace(/ΔT/g, ' delta T').replace(/Ω/g, ' ohms').replace(/\bV\b/g, 'volts').replace(/\bA\b/g, 'amps').replace(/÷/g, ' divided by ')
+    .replace(/\+/g, ' plus ').replace(/×/g, ' times ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // x: on the slider screen, the x Dan has set (null until he slides it).
+  function blank() { return { pick: null, res: null, why: false, x: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  // How long the motion after a right and a wrong answer plays.
+  const fbOf = (d) => (d.pic === 'try' ? [0.7, 0.7] : [2.2, 1.0]);
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  // Letters standing for numbers are italic: x, a and b, I, R with its subscript, α and the T of ΔT.
+  const ITAL = /(R[₀₁₂₃]?|(?<![A-Za-z])I(?=R|\(|\s|$)|(?<![A-Za-z])[xab]+(?![A-Za-z])|α|(?<=Δ)T)/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one slides the parts into their rectangle or tries the number,
+  // a wrong one tries its own number in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    const f = fbOf(d);
+    play(st.res === 'right' ? f[0] : f[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].x = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A timetable entry: false, not shown; null, there from the start; a time, arriving then.
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  // Labels in a line, each as near the middle of its span as it can sit without touching the next.
+  function pack(items, lo, hi) {
+    const order = items.map((it, k) => k).sort((a, b) => items[a].c - items[b].c), left = [];
+    let prev = -Infinity;
+    order.forEach((k) => { const it = items[k]; left[k] = Math.max(it.c - it.w / 2, lo, prev + 8); prev = left[k] + it.w; });
+    let lim = hi;
+    order.slice().reverse().forEach((k) => { const it = items[k]; if (left[k] + it.w > lim) left[k] = lim - it.w; lim = left[k] - 8; });
+    return left;
+  }
+  // Brackets along a rectangle's edge (a0, a1 measured from X0), each with its name: over the
+  // top (up) or under the bottom.
+  function labelSet(items, ly, by, up) {
+    const lefts = pack(items.map((it) => ({ c: X0 + (it.a0 + it.a1) / 2, w: tw(it.text, 'tl') })), 4, 336);
+    return items.map((it, m) => () => {
+      const a0 = X0 + it.a0 + 1.5, a1 = X0 + it.a1 - 1.5, e = up ? by + 5 : by - 5;
+      if (a1 - a0 >= 6) add(K.svg('path', { class: 'brk', d: 'M' + r3(a0) + ' ' + r3(e) + ' V' + r3(by) + ' H' + r3(a1) + ' V' + r3(e) }));
+      text(lefts[m], ly, it.text, 'tl', 'start');
+    });
+  }
+  // The factor beside the rows: a bracket down the left side and its name.
+  function sideMark(ry, h, names) {
+    add(K.svg('path', { class: 'brk', d: 'M' + (X0 - 3) + ' ' + r3(ry + 1) + ' H' + (X0 - 8) + ' V' + r3(ry + h - 1) + ' H' + (X0 - 3) }));
+    const n = names.length, mid = ry + h / 2;
+    names.forEach((s, m) => text(X0 - 13, mid + 5 + (m - (n - 1) / 2) * 18, s, 'tl', 'end'));
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  const letterOf = (d) => (d.area && d.area.letter) || 'x';
+  // The loose layout: each part's pieces in lines from X0 (bars as many to a line as fit, squares
+  // ten to a line), each part starting a new line, its name beside it. Positions from (X0, rectY).
+  function looseOf(d, G) {
+    const A = d.area, U = G.U, bw = (d.vars[letterOf(d)] || 0) * U, segs = [];
+    let y = 0;
+    A.segs.forEach((s) => {
+      const w = s.t === 'bar' ? bw : U, total = A.k * s.n;
+      const per = Math.max(1, s.t === 'bar' ? Math.floor((L + 0.5) / w) : Math.min(10, Math.floor((L + 0.5) / w)));
+      const pos = [];
+      for (let j = 0; j < total; j++) pos.push([(j % per) * w, y + Math.floor(j / per) * (U + 4)]);
+      segs.push({ y0: y, pos });
+      y += Math.ceil(total / per) * (U + 4) + 6;
+    });
+    return { segs, h: y - 10 };
+  }
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const G = {};
+    let y = d.slide ? 64 : d.tag ? 34 : 8;
+    if (d.pic === 'area') {
+      G.U = d.area.U;
+      G.rectY = y + 30;
+      G.yb = G.rectY + d.area.k * G.U;
+      G.loose = looseOf(d, G);
+      y = Math.max(G.yb + Math.max.apply(null, d.parts.map((p) => p[2])) * 30 + 6, G.rectY + G.loose.h + 14);
+    } else if (d.pic === 'res') {
+      G.rh = 72; G.rectY = y + 30; G.yb = G.rectY + G.rh; y = G.yb + 40;
+    }
+    G.workY = y;
+    y += 30 * (d.show ? d.work.length : d.nd ? 3 : 2) + 4;
+    if (d.pic === 'area') { G.keyY = y + 12; y += 30; }
+    G.H = Math.ceil(y + 4);
+    GEO.set(d, G);
+    return G;
+  }
+  // Where each part of a fitted row runs, in px from X0, with x as given: s0, s1, … in order,
+  // a 'neg' part over the row's end; all, the whole row; solid, what is not taken away; cut, what is.
+  function spans(d, xv, G) {
+    const A = d.area, U = G.U, s = {};
+    let a = 0, cut = 0;
+    A.segs.forEach((g, m) => {
+      if (g.t === 'neg') { cut += g.n * U; return; }
+      const w = (g.t === 'bar' ? xv * U : U) * g.n;
+      s['s' + m] = [a, a + w]; a += w;
+    });
+    s.all = [0, a]; s.solid = [0, a - cut]; s.cut = [a - cut, a];
+    A.segs.forEach((g, m) => { if (g.t === 'neg') s['s' + m] = s.cut; });
+    return s;
+  }
+  // x now: Dan's setting on the slider screen, else the step's own value.
+  function xNow(d, st) {
+    if (d.slide && st.x != null) return st.x;
+    const v = d.vars[letterOf(d)];
+    return v != null ? v : 0;
+  }
+  const varsNow = (d, xv) => (d.slide ? { x: Math.round(xv) } : d.vars);
+  const tagText = (d) => { if (typeof d.tag === 'string') return d.tag; const l = Object.keys(d.vars)[0]; return (d.pic === 'try' ? 'Try ' : '') + l + ' = ' + d.vars[l]; };
+
+  // A step's timetable in its state.
+  function timeline(d, st) {
+    const ns = d.area ? d.area.segs.length : 0, nt = (d.top || []).length;
+    const tl = { segIn: Array(ns).fill(null), slide: false, split: false, parts: false, side: false, top: Array(nt).fill(false),
+      main: null, strip: null, work: [] };
+    if (d.show) {
+      const s = d.tl;
+      ['segIn', 'slide', 'split', 'parts', 'side', 'top', 'main', 'strip'].forEach((key) => { if (s[key] !== undefined) tl[key] = s[key]; });
+      tl.work = d.work.map((r, m) => Object.assign({}, r, { t: s.work[m] }));
+      return tl;
+    }
+    // The expression's working shows from the start, and its parts lie loose until the answer is right.
+    tl.work.push({ e: d.q, w: d.qw, t: null });
+    if (st.res === 'right') {
+      if (d.pic === 'area') {
+        tl.slide = d.area.segs.map((g, m) => 0.1 + 0.15 * m);
+        tl.split = 1.3; tl.parts = d.parts.map((p, m) => 1.4 + 0.1 * m); tl.side = 1.4; tl.top = d.top.map((t, m) => 1.5 + 0.1 * m);
+      }
+      tl.work.push({ e: d.want, w: d.ow[d.want], t: d.pic === 'area' ? 1.6 : 0.1 });
+    } else if (st.res === 'wrong' && st.pick != null) {
+      const nd = d.nd && d.nd[st.pick];
+      tl.work.push({ e: st.pick, w: d.ow[st.pick], t: 0.1, bad: !nd });
+      if (nd) tl.work.push({ e: nd[0], w: nd[1], t: 0.4, bad: true, nd: true });
+    }
+    return tl;
+  }
+
+  // The parts, loose or sliding or fitted, then (once fitted) the outline, the factor, the bracket's
+  // contents, the split and the parts' names.
+  function drawArea(d, tl, G, xv) {
+    const A = d.area, U = G.U, Sp = spans(d, xv, G), ry = G.rectY, k = A.k, l = letterOf(d), bw = xv * U, yb = ry + k * U, LO = G.loose;
+    const rec = { bars: 0, sqs: 0, cuts: 0, len: Sp.all[1], right: 0, bottom: 0, placed: true };
+    REC.area = rec;
+    const cutAt = Sp.cut[0];
+    const slideOf = (si) => (tl.slide === false ? false : tl.slide[si]);
+    const pAt = (si, r) => { const t = slideOf(si); return t === false ? 0 : arr(t + ROWLAG * r, SLIDE); };
+    // Where a part is taken away, each row's end is covered once its dashed squares have all arrived.
+    const negSi = A.segs.findIndex((g) => g.t === 'neg');
+    const coverA = (r) => { if (negSi < 0) return 0; const t = slideOf(negSi); return t === false ? 0 : arr(t + ROWLAG * r + SLIDE, 0.4); };
+    A.segs.forEach((g, si) => {
+      const a = vis(tl.segIn[si]);
+      if (a <= 0) { rec.placed = false; return; }
+      if (g.t === 'neg') for (let r = 0; r < k; r++) part(coverA(r), 0, () => rect('cover', X0 + cutAt, ry + r * U, Sp.cut[1] - cutAt + 1, U));
+      part(a, 0, () => {
+        const w = g.t === 'bar' ? bw : U, x0 = Sp['s' + si][0], total = k * g.n;
+        for (let j = 0; j < total; j++) {
+          const r = Math.floor(j / g.n), c = j % g.n, p = pAt(si, r), lp = LO.segs[si].pos[j];
+          if (p < 1) rec.placed = false;
+          const px = X0 + K.lerp(lp[0], x0 + c * w, p), py = ry + K.lerp(lp[1], r * U, p);
+          if (g.t === 'bar') {
+            rect('xb', px + 0.75, py + 1, bw - 1.5, U - 2, Math.min(3, bw / 4));
+            rec.bars++;
+            // its letter: at its middle, or once fitted the middle of what is not taken away
+            const lo = c * bw, hi = Math.min((c + 1) * bw, cutAt), mid = (c + 0.5) * bw, fits = hi - lo >= 15;
+            const off = (fits && mid + 6 >= cutAt ? (lo + hi) / 2 : mid) - lo, la = fits ? 1 : 1 - coverA(r);
+            if (la > 0.02) part(la, 0, () => text(px + K.lerp(bw / 2, off, p), py + U / 2 + 5, l, 'il'));
+          } else if (g.t === 'sq') { rect('sq', px + 2, py + 2, U - 4, U - 4, 2); rec.sqs++; }
+          else { rect('neg', px + 2.5, py + 2.5, U - 5, U - 5, 2); rec.cuts++; }
+          rec.right = Math.max(rec.right, px + w); rec.bottom = Math.max(rec.bottom, py + U);
+        }
+      });
+      // its name beside its loose pieces, fading as they slide
+      const t = slideOf(si), na = a * (1 - (t === false ? 0 : arr(t, 0.5)));
+      if (na > 0.02) part(na, 0, () => text(X0 - 10, ry + LO.segs[si].y0 + U / 2 + 5, g.name, 'tl', 'end'));
+    });
+    part(vis(tl.side), 0, () => rect('outline', X0, ry, Sp.solid[1], k * U, 2));
+    part(vis(tl.side), 0, () => sideMark(ry, k * U, d.side));
+    const tops = labelSet(d.top.map((t) => ({ a0: Sp[t[0]][0], a1: Sp[t[0]][1], text: t[1] })), ry - 15, ry - 8, true);
+    tops.forEach((f, m) => part(vis(tl.top[m]), 4, f));
+    if (tl.split !== false) part(vis(tl.split), 0, () => d.splits.forEach((key) => { const sx = X0 + Sp[key][1]; line('split', sx, ry - 4, sx, yb + 2); REC.split.push(sx); }));
+    if (tl.parts) [1, 2].forEach((lv) => {
+      const ms = d.parts.map((p, m) => m).filter((m) => d.parts[m][2] === lv);
+      if (!ms.length) return;
+      const by = yb + 8 + (lv - 1) * 30;
+      const fs = labelSet(ms.map((m) => ({ a0: Sp[d.parts[m][0]][0], a1: Sp[d.parts[m][0]][1], text: d.parts[m][1] })), by + 17, by, false);
+      ms.forEach((m, n) => part(vis(tl.parts[m]), 4, fs[n]));
+    });
+    // in words
+    const names = A.segs.map((g) => say(g.name)).join(' and ');
+    let w = '';
+    if (vis(tl.segIn[A.segs.length - 1]) >= 0.5) w = rec.placed ? 'The parts ' + names + ' fitted into one rectangle ' + k + ' rows high.' : 'The parts ' + names + ', laid out loose.';
+    if (vis(tl.side) >= 0.5) w += ' Its height is ' + say(d.side[0]) + ', and each row is ' + say(d.top.map((t) => t[1]).join(' and ')) + '.';
+    return w;
+  }
+  // R0 + R0αΔT: a block R0 tall and 1 long, and a thin strip αΔT long, slid together.
+  function drawRes(d, tl, G) {
+    const ry = G.rectY, h = G.rh, MW = 190, SW = MW * d.vars['α'] * d.vars['ΔT'], yb = ry + h, GAP = 40;
+    const p = tl.slide === false ? 0 : arr(tl.slide, SLIDE), so = MW + GAP * (1 - p);
+    part(vis(tl.main), 6, () => rect('xb', X0, ry, MW, h, 3));
+    part(vis(tl.strip), 6, () => rect('strip', X0 + so, ry, SW, h, 2));
+    part(vis(tl.top), 0, () => text(X0 + MW / 2, ry + h / 2 + 5, 'R₀ × 1', 'tl'));
+    part(vis(tl.side), 0, () => sideMark(ry, h, ['R₀']));
+    labelSet([{ a0: 0, a1: MW, text: '1' }, { a0: MW, a1: MW + SW, text: 'αΔT' }], ry - 15, ry - 8, true).forEach((f) => part(vis(tl.top), 4, f));
+    const names = labelSet([{ a0: 0, a1: MW, text: 'R₀ = 2.0 Ω' }, { a0: so, a1: so + SW, text: 'R₀αΔT = 0.4 Ω' }], yb + 25, yb + 8, false);
+    part(vis(tl.main), 4, names[0]);
+    part(vis(tl.strip), 4, names[1]);
+    REC.res = { main: MW, strip: SW, joined: p >= 1 };
+    return (vis(tl.main) >= 0.5 ? 'A block R nought tall, 2.0 ohms.' : '') +
+      (vis(tl.strip) >= 0.5 ? (p >= 1 ? ' Against its end, a thin strip, R nought alpha delta T, 0.4 ohms.' : ' Apart from it, a thin strip as tall, R nought alpha delta T, 0.4 ohms.') : '') +
+      (vis(tl.side) >= 0.5 ? ' Together they are R nought tall and 1 plus alpha delta T long.' : '');
+  }
+  // A line of working: the expression on the left, what it makes at the value tried on the right.
+  function drawWork(r, m, G, v) {
+    const y = G.workY + 20 + 30 * m, a = vis(r.t), bad = r.bad ? ' bad' : '', w = typeof r.w === 'function' ? r.w(v) : r.w;
+    part(a, 6, () => { text(12, y, r.e, 'te' + bad, 'start'); text(328, y, w, 'tw' + bad, 'end'); });
+    if (a >= 0.5) REC.work.push({ e: r.e, w, bad: !!r.bad, nd: !!r.nd });
+    return a >= 0.5 ? (r.nd ? 'Inside, ' + say(r.e) + ': ' + say(w) + '.' : say(r.e) + ' makes ' + say(w) + (r.bad ? ', the slip.' : '.')) : '';
+  }
+  // The key, inside the drawing: a bar, a square and (where used) a dashed outline.
+  function drawKey(d, G) {
+    const y = G.keyY, A = d.area;
+    let x = 12;
+    const item = (sw, wd, label) => { sw(x); x += wd + 6; text(x, y + 5, label, 'key', 'start'); x += tw(label, 'key') + 18; };
+    if (A.segs.some((g) => g.t === 'bar')) item((x0) => rect('xb', x0 + 0.75, y - 7, 24, 14, 3), 25, letterOf(d) + ' long');
+    item((x0) => rect('sq', x0, y - 6, 12, 12, 2), 12, d.unit ? 'worth 1 ' + d.unit : 'worth 1');
+    if (A.segs.some((g) => g.t === 'neg')) item((x0) => rect('neg', x0 + 1, y - 7, 24, 14, 3), 26, 'taken away');
+  }
+  // The slider for x: its track, a tick at each whole number, the knob and its value.
+  const xPos = (s, v) => SX0 + (v - s.min) / (s.max - s.min) * (SX1 - SX0);
+  function drawSlider(d, xv) {
+    const s = d.slide, ty = 40;
+    line('track', SX0, ty, SX1, ty);
+    for (let v = s.min; v <= s.max; v++) line('tick', xPos(s, v), ty - 7, xPos(s, v), ty + 7);
+    const kx = xPos(s, xv), lab = 'x = ' + Math.round(xv), w = tw(lab, 'xl');
+    add(K.svg('circle', { class: 'knob', cx: r3(kx), cy: ty, r: 10 }));
+    text(K.clamp(kx, 12 + w / 2, 328 - w / 2), 19, lab, 'xl');
+  }
+  // The whole picture for a step now; returns it in words.
+  function drawScene(d, st, G) {
+    const tl = timeline(d, st), xv = xNow(d, st), v = varsNow(d, xv);
+    REC = { area: null, split: [], res: null, work: [] };
+    const said = [];
+    if (d.slide) { drawSlider(d, xv); said.push('A slider sets x, now ' + Math.round(xv) + '.'); }
+    else if (d.tag) { const t = tagText(d); text(12, 21, t, 'tag', 'start'); said.push(say(t) + '.'); }
+    if (d.pic === 'area') said.push(drawArea(d, tl, G, xv));
+    if (d.pic === 'res') said.push(drawRes(d, tl, G));
+    tl.work.forEach((r, m) => said.push(drawWork(r, m, G, v)));
+    if (G.keyY != null) drawKey(d, G);
+    placeGrip(d, xv);
+    return said.filter(Boolean).join(' ');
+  }
+
+  // ---------- the slider: Dan sets x himself ----------
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider', 'aria-label': 'x', 'aria-orientation': 'horizontal' }));
+  grip.style.display = 'none';
+  function placeGrip(d, xv) {
+    const on = !!d.slide && !finished;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('x', SX0 - 24); grip.setAttribute('width', SX1 - SX0 + 48);
+    grip.setAttribute('y', 14); grip.setAttribute('height', 48);
+    const v = Math.round(xv);
+    grip.setAttribute('aria-valuemin', d.slide.min); grip.setAttribute('aria-valuemax', d.slide.max); grip.setAttribute('aria-valuenow', v);
+    grip.setAttribute('aria-valuetext', 'x = ' + v);
+  }
+  const sliding = () => !finished && !!STEPS[at()].slide;
+  // Dan's x, a whole number on the track: it settles the demonstration and every bar takes it up.
+  function setX(v) {
+    const i = at(), d = STEPS[i], st = S[i];
+    v = K.clamp(Math.round(v), d.slide.min, d.slide.max);
+    if (st.x === v && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st.x = v;
+    K.reveal(); K.refresh();
+  }
+  function xFrom(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), s = STEPS[at()].slide;
+    return s.min + (q.x - SX0) / (SX1 - SX0) * (s.max - s.min);
+  }
+  let held = null;
+  grip.addEventListener('pointerdown', (e) => {
+    if (!sliding()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }
+    e.preventDefault();
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !sliding()) return;
+    const v = xFrom(e);
+    if (v != null) setX(v);
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!sliding()) return;
+    const d = STEPS[at()], st = S[at()], now = Math.round(xNow(d, st));
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+    e.preventDefault();
+    setX(e.key === 'Home' ? d.slide.min : e.key === 'End' ? d.slide.max : now + by);
+  });
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, st, G));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.x = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "4(x + 5)"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // Values tried for every letter: whole numbers, a half and a negative, each letter its own.
+  const TRY = [1, 2, 3, 4, 7, 10, 0.5, -4];
+  const ENVS = TRY.map((v, n) => ({ x: v, a: TRY[(n + 1) % 8], b: TRY[(n + 3) % 8], I: v, 'R₀': TRY[(n + 2) % 8], 'R₁': TRY[(n + 5) % 8], 'R₂': TRY[(n + 6) % 8], 'R₃': TRY[(n + 3) % 8], 'α': TRY[(n + 4) % 8], 'ΔT': TRY[(n + 7) % 8] }));
+  const same = (p, q) => ENVS.every((e) => close(evalExpr(p, e), evalExpr(q, e)));
+  const endOf = (w) => evalExpr(String(w).split('=').pop(), {});
+  // Every line of working a step can show, with the values it was tried at.
+  function works(i) {
+    const d = STEPS[i], out = [];
+    if (d.show) {
+      const vs = d.slide ? Array.from({ length: d.slide.max - d.slide.min + 1 }, (z, n) => ({ x: d.slide.min + n })) : [d.vars];
+      vs.forEach((v) => d.work.forEach((r) => out.push({ e: r.e, w: typeof r.w === 'function' ? r.w(v) : r.w, v })));
+    } else {
+      out.push({ e: d.q, w: d.qw, v: d.vars });
+      d.opts.forEach((o) => out.push({ e: o, w: d.ow[o], v: d.vars }));
+    }
+    return out;
+  }
+  const workAddsUp = (r) => { const ps = r.w.split('='), end = evalExpr(ps[ps.length - 1], {}); return close(evalExpr(r.e, r.v), end) && ps.slice(0, -1).every((p) => close(evalExpr(p, {}), end)); };
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      const rec = REC;
+      return { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/ /g, ' ')), area: rec.area, split: rec.split, res: rec.res, work: rec.work };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const innerShares = (s, ls) => { const f = coefs(s, ls); return [f.k].concat(f.c).reduce(gcd, 0); };
+
+  K.check('Factorising is the reverse process to expanding brackets: on every screen the bracket expands back to the expression it started from, making the same value at every number tried, whole, a half or negative', () =>
+    STEPS.every((d) => { const p = d.show ? d.pair : [d.q, d.want]; return same(p[0], p[1]); }), { source: NCETM });
+  K.check('The greatest common factor is the largest that divides evenly into all the terms: every answer takes out the largest whole number dividing every term, so what is left inside shares nothing more (12x and 18 share 2, 3 and 6, the biggest 6)', () =>
+    STEPS.filter((d) => d.num).every((d) => { const p = d.show ? d.pair : [d.q, d.want]; return fullForm(p[0], Object.keys(d.vars)) === p[1]; }) &&
+    [2, 3, 6].every((f) => 12 % f === 0 && 18 % f === 0) && gcd(12, 18) === 6 && innerShares('6x + 9', ['x']) === 3, { source: GCF });
+  K.check('The factor outside of the parentheses is multiplied by each term inside: each puzzle accepts only the answer that multiplies back to the start, and every wrong answer offered either makes a different value at the number tried or, true but not finished, still has a factor shared inside its bracket', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => pickRight(i, o) === (o === d.want)) && d.opts.every((o) => {
+        if (o === d.want) return same(o, d.q);
+        const nd = d.nd && d.nd[o];
+        if (nd) { const m = /^(\d+)\((.*)\)$/.exec(o); return !!m && m[2] === nd[0] && same(o, d.q) && innerShares(nd[0], Object.keys(d.vars)) > 1; }
+        return !close(evalExpr(o, d.vars), evalExpr(d.q, d.vars));
+      });
+    }) && same('4(x + 20)', '4x + 80') && same('3(2x − 5)', '6x − 15') && !same('3(2x + 5)', '6x − 15'), { source: OPENSTAX });
+  K.check('Expanding brackets does not change the value of an expression, as it is two ways of writing the same one: on the first screen 6x + 15 and 3(2x + 5) both make 27 at x = 2, and the same as each other wherever x is slid from 1 to 6, the rectangle staying 3 rows of 2x + 5', () => {
+    const i = idx('Two parts, one rectangle'), G = geo(STEPS[i]), g0 = drawn(i, blank());
+    return g0.work.length === 2 && close(endOf(g0.work[0].w), 27) && close(endOf(g0.work[1].w), 27) && [1, 2, 3, 4, 5, 6].every((x) => {
+      const h = drawn(i, Object.assign(blank(), { x }));
+      return h.work.length === 2 && h.area.placed && h.area.bars === 6 && h.area.sqs === 15 && close(h.area.len, (2 * x + 5) * G.U) &&
+        close(endOf(h.work[0].w), 3 * (2 * x + 5)) && close(endOf(h.work[1].w), 3 * (2 * x + 5));
+    });
+  }, { source: BITESIZE });
+  K.check('R = R₀(1 + αΔT) gives the resistance R after a temperature change ΔT, where R₀ is the original resistance: R₀ + R₀αΔT factorises back to it, and for the example winding of 2.0 Ω cold and 2.4 Ω after a run, 2.0 + 0.4 = 2.0 × 1.2, drawn as a block R₀ tall, R₀ × 1, and the strip R₀αΔT', () => {
+    const i = idx('Keep the 1'), v = STEPS[i].vars, g = drawn(i, blank());
+    return same('R₀ + R₀αΔT', 'R₀(1 + αΔT)') && close(v['R₀'], 2) && close(evalExpr('R₀(1 + αΔT)', v), 2.4) && close(evalExpr('1 + αΔT', v), 1.2) &&
+      close(evalExpr('R₀αΔT', v), 0.4) && ['R₀ = 2.0 Ω', 'R₀αΔT = 0.4 Ω', 'R₀ × 1', '1', 'αΔT', 'R₀'].every((s) => g.texts.indexOf(s) >= 0) && g.res.joined && close(g.res.strip / g.res.main, 0.2);
+  }, { source: LUMEN });
+  K.check('V = IR₁ + IR₂ + IR₃ = I(R₁ + R₂ + R₃): with the example 2 A through 3, 5 and 2 Ω the three parts make 6 + 10 + 4 = 20 V and I(R₁ + R₂ + R₃) makes 2 × 10 = 20 V, drawn as I rows of R₁ + R₂ + R₃ squares, each worth 1 V', () => {
+    const i = idx('Three resistors'), d = STEPS[i], v = d.vars, A = d.area, g = drawn(i, blank());
+    return same('IR₁ + IR₂ + IR₃', 'I(R₁ + R₂ + R₃)') && close(evalExpr(d.pair[0], v), 20) && close(evalExpr(d.pair[1], v), 20) && d.unit === 'V' &&
+      A.k === v.I && A.segs.map((s) => s.n).join() === [v['R₁'], v['R₂'], v['R₃']].join() && g.area.placed && g.area.sqs === 20 && g.split.length === 2;
+  }, { source: LIBRE });
+  K.check('Every worked number is right (27 at x = 2; 28, 88 and 30; 30 at x = 1; 20, 20 and 56; 2.4 Ω and 1.2; 20, 15 and 40 at x = 3; 20 V; 24, 60 and 12; 9, 9 and 39 at x = 4; 7, 49 and −119; 8, 6 and 10; 20, 20 and 44), and every line of working on every screen adds up', () => {
+    const listed = [['6x + 15', { x: 2 }, 27], ['3(2x + 5)', { x: 2 }, 27], ['4x + 20', { x: 2 }, 28], ['4(x + 20)', { x: 2 }, 88], ['5(x + 4)', { x: 2 }, 30],
+      ['12x + 18', { x: 1 }, 30], ['6(2x + 3)', { x: 1 }, 30], ['8x + 12', { x: 1 }, 20], ['2(4x + 6)', { x: 1 }, 20], ['4(2x + 12)', { x: 1 }, 56],
+      ['5x + 5', { x: 3 }, 20], ['5x', { x: 3 }, 15], ['5(x + 5)', { x: 3 }, 40], ['4a + 4b + 12', { a: 1, b: 2 }, 24], ['4(a + b + 12)', { a: 1, b: 2 }, 60], ['4(a + b)', { a: 1, b: 2 }, 12],
+      ['6x − 15', { x: 4 }, 9], ['3(2x − 5)', { x: 4 }, 9], ['3(2x + 5)', { x: 4 }, 39], ['14x − 21', { x: 2 }, 7], ['7(2x + 3)', { x: 2 }, 49], ['7(2x − 21)', { x: 2 }, -119],
+      ['ab + a', { a: 2, b: 3 }, 8], ['ab', { a: 2, b: 3 }, 6], ['a(b + a)', { a: 2, b: 3 }, 10], ['12x + 8', { x: 1 }, 20], ['2(6x + 4)', { x: 1 }, 20], ['4(3x + 8)', { x: 1 }, 44]];
+    return listed.every((r) => close(evalExpr(r[0], r[1]), r[2])) && STEPS.every((d, i) => works(i).every(workAddsUp));
+  });
+  K.check('Every rectangle is drawn to count: once fitted it holds the factor\'s rows of bars and squares, each bar x long and each square 1, filling exactly the height and length its sides name, with a split line where each part ends; before a puzzle is answered the same pieces lie loose inside the drawing', () =>
+    STEPS.every((d, i) => {
+      if (d.pic !== 'area') return true;
+      const A = d.area, G = geo(d), Sp = spans(d, xNow(d, blank()), G), g = drawn(i, d.show ? blank() : solvedSt(i)), r = g.area;
+      const per = (t) => A.segs.filter((s) => s.t === t).reduce((n, s) => n + s.n, 0);
+      const ok = r.placed && r.bars === A.k * per('bar') && r.sqs === A.k * per('sq') && r.cuts === A.k * per('neg') &&
+        close(r.right, X0 + Sp.all[1]) && close(r.bottom, G.rectY + A.k * G.U) &&
+        g.split.length === d.splits.length && d.splits.every((key, m) => close(g.split[m], X0 + Sp[key][1]));
+      if (d.show) return ok;
+      const h = drawn(i, blank()).area;
+      return ok && !h.placed && h.right <= X0 + L + 0.5 && h.bars === r.bars && h.sqs === r.sqs;
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer: the parts lie loose, with no height, no bracket, no split line and no answer row', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      return g.texts.indexOf(d.want) < 0 && g.split.length === 0 && g.work.every((r) => r.e === d.q) &&
+        (!g.area || (!g.area.placed && (d.top || []).every((t) => g.texts.indexOf(t[1]) < 0)));
+    }));
+  K.check('Trying the number: a right answer makes the same value as the question; a wrong one shows in red making a different value, or, true but not finished, shows in red what its bracket still shares', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, solvedSt(i)), q = g.work[0], a = g.work[g.work.length - 1];
+      if (!(g.work.length === 2 && q.e === d.q && a.e === d.want && !a.bad && close(endOf(a.w), endOf(q.w)))) return false;
+      if (d.pic === 'area' && !g.area.placed) return false;
+      return d.opts.filter((o) => o !== d.want).every((o) => {
+        const h = drawn(i, wrongSt(i, o)), nd = d.nd && d.nd[o];
+        if (nd) return h.work.length === 3 && h.work[1].e === o && !h.work[1].bad && close(endOf(h.work[1].w), endOf(h.work[0].w)) && h.work[2].bad && h.work[2].nd && h.work[2].e === nd[0];
+        const b = h.work[h.work.length - 1];
+        return h.work.length === 2 && b.e === o && b.bad && !close(endOf(b.w), endOf(h.work[0].w));
+      });
+    }));
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      const f = fbOf(d);
+      return timed(i, solvedSt(i), f[0]) && f[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), f[1]) && f[1] <= 2.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

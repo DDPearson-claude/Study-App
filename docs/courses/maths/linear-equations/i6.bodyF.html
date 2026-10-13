@@ -1,0 +1,954 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, p.lead, p.caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; touch-action: pan-y; }
+  /* Equations, keys and small teal labels. */
+  .scene .ln { font: 700 18px var(--k-font); fill: var(--k-ink); }
+  .scene .ln.mu { fill: var(--k-muted); }
+  .scene .kv { font: 400 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lb { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .an { font: 600 14px var(--k-font); fill: var(--k-accent); }
+  .scene .mk { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .v { font-style: italic; }
+  /* The sheet: one line for each part of the job, each part a bar. */
+  .scene .sheet { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1; }
+  .scene .rl { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .il { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .xb { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .tb { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  /* The flow diagram: a box for each value, each step written over its arrow. */
+  .scene .nd { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .nd.q { fill: var(--k-muted); }
+  .scene .op { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .op.q { fill: var(--k-muted); }
+  .scene .vn { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .vn.ans { stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .vn.blank { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  /* The bracket: its steps grouped, or the whole bracket as one step. */
+  .scene .grp { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .on.whole { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .arw { fill: none; stroke: var(--k-muted); stroke-width: 1.8; }
+  .scene .arh { fill: var(--k-muted); }
+  /* The try-a-number strip. */
+  .scene .strip { fill: var(--k-panel); stroke: var(--k-line); stroke-width: 1; }
+  .scene .sx { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .sub { font: 400 14px var(--k-font); fill: var(--k-muted); }
+  .scene .sv { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .sv.q { fill: var(--k-muted); }
+  .scene .sv.bad { fill: var(--k-warn); }
+  /* The rectangle for a rod that grows. */
+  .scene .thin { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .split { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole, at every text size; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A sheet with a bar for each part of a job, and flow diagrams for its equation and for formulas with a bracket. Every length, hour, price and resistance is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label=""><g id="art"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Copper's α, 0.0039 per °C, and the rule's limit of about 100 °C are from Lumen Learning's Science 111.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // pic 'job': a sheet with one line for each part of the job, each part a bar (parts: [words, width,
+  // class]); the bracket over one line names one part (top), the brace round them all the total.
+  // Under it the equation, its flow diagram and the try-a-number strip. pic 'formula': the formula
+  // with a key of its values, its flow diagram and (when an answer is put back in) the strip.
+  // pic 'rect': the rectangle from Expanding brackets for a rod that grows, and lines of working.
+  // flow: a, what is done to the unknown in order (ao, each step); b, the same boxes undone from the
+  // right (bo, each undo step); grp, the bracket's steps grouped; whole, the bracket as one step;
+  // under, a value under each box. vars: the values at the answer, for the checks. A puzzle: opts,
+  // the answers offered; slips, the sum each wrong answer comes from; putOf, what is put back in for
+  // an answer (the ΔT puzzle puts back αΔT). A SHOW step's tl is its timetable in seconds.
+  const PICK = 'Tap one of the answers.';
+  const ALPHA = 0.0039;   // copper's temperature coefficient, per °C (Lumen Learning, Science 111)
+  const STEPS = [
+    { show: true, pic: 'job', name: 'Two cable runs', L: 'x', eq: '2(x + 3) = 40',
+      sheet: { title: 'Cable order', row: 'Run', k: 2, parts: [['x m', 150, 'xb'], ['3 m', 46, 'tb']], top: 'x + 3', total: '40 m' },
+      flow: { a: ['x', 'x + 3', '40'], ao: ['+ 3', '× 2'], b: ['x = 17', '20', '40'], bo: ['− 3', '÷ 2'] },
+      vars: { x: 17 }, tries: [{ v: '17' }], dur: 4.3,
+      tl: { sheet: 0.4, rows: [0.4, 0.8], top: 1.2, eq: 1.6, a: [2.0, 2.0, 2.0], b: [3.2, 2.8, 2.4], s: [3.7] },
+      text: 'Say the job in one sentence first: two cable runs, each `x` metres plus a 3 m tail, use 40 m in all. One run is `x + 3`, and the bracket keeps that run together, so two runs make `2(x + 3) = 40`. Undo it from the right: 40 ÷ 2 = 20, then 20 − 3 = 17. Put 17 back in to check.' },
+    { kind: 'pick', pic: 'job', name: 'A timesheet', L: 'x', eq: '2(x + 1) = 18',
+      sheet: { title: 'Timesheet', row: 'Day', k: 2, parts: [['x hours on site', 130, 'xb'], ['1 h travel', 76, 'tb']], top: 'x + 1', total: '18 h' },
+      flow: { a: ['x', 'x + 1', '18'], ao: ['+ 1', '× 2'], b: ['x = 8', '9', '18'], bo: ['− 1', '÷ 2'] },
+      vars: { x: 8 }, opts: ['8.5', '8', '17'], want: '8', slips: { '8.5': '(18 − 1) ÷ 2', '17': '18 − 1' },
+      task: 'A timesheet: two days, each `x` hours on site plus an hour\'s travel, 18 hours in all. So `2(x + 1) = 18`. What is `x`?',
+      why: 'One day is `x + 1`, so two days are `2(x + 1) = 18`. Undo it from the right: 18 ÷ 2 = 9 hours a day, and 9 − 1 = 8. Check: `2(8 + 1) = 18`.',
+      hint: 'Not quite. Undo each step, starting from the right.',
+      hints: { '8.5': 'Not quite. That takes the hour off before halving. Undo from the right: halve the 18 first, then take 1 off.',
+        '17': 'Not quite. That solves `x + 1 = 18`, which is one day. Halve the 18 first.' } },
+    { show: true, pic: 'job', name: 'An invoice', L: 'h', eq: '2(60 + 40h) = 360',
+      sheet: { title: 'Invoice', row: 'Job', k: 2, parts: [['£60 call-out', 86, 'tb'], ['h hours at £40', 118, 'xb']], top: '60 + 40h', total: '£360' },
+      flow: { a: ['h', '40h', '60 + 40h', '360'], ao: ['× 40', '+ 60', '× 2'], b: ['h = 3', '120', '180', '360'], bo: ['÷ 40', '− 60', '÷ 2'] },
+      vars: { h: 3 }, tries: [{ v: '3' }], dur: 4.45,
+      tl: { sheet: 0.4, rows: [0.4, 0.8], top: 1.2, eq: 1.6, a: [2.0, 2.0, 2.0, 2.0], b: [3.6, 3.2, 2.8, 2.4], s: [3.85] },
+      text: 'An invoice works the same way. Two jobs, each a £60 call-out plus `h` hours at £40 an hour, come to £360, so `2(60 + 40h) = 360`. Halve it to £180 for one job, take off the £60 call-out to leave £120, and £120 ÷ £40 is 3 hours.' },
+    { kind: 'pick', pic: 'job', name: 'Three jobs', L: 'h', eq: '3(60 + 40h) = 420',
+      sheet: { title: 'Invoice', row: 'Job', k: 3, parts: [['£60 call-out', 86, 'tb'], ['h hours at £40', 118, 'xb']], top: '60 + 40h', total: '£420' },
+      flow: { a: ['h', '40h', '60 + 40h', '420'], ao: ['× 40', '+ 60', '× 3'], b: ['h = 2', '80', '140', '420'], bo: ['÷ 40', '− 60', '÷ 3'] },
+      vars: { h: 2 }, opts: ['3', '3.5', '2'], want: '2', slips: { '3': '(420 − 60) ÷ 120', '3.5': '420 ÷ 120' },
+      task: 'Three jobs, each a £60 call-out plus `h` hours at £40 an hour, come to £420: `3(60 + 40h) = 420`. How many hours is `h`?',
+      why: 'One job is `60 + 40h`, so three jobs are `3(60 + 40h) = 420`. Undo it from the right: 420 ÷ 3 = £140 a job, take off the £60 call-out to leave £80, and £80 ÷ £40 = 2 hours. Check: `3(60 + 40 × 2) = 420`.',
+      hint: 'Not quite. Undo each step, starting from the right.',
+      hints: { '3': 'Not quite. That takes one £60 off before dividing by 3, but each job has its own call-out. Divide by 3 first, then take off £60.',
+        '3.5': 'Not quite. That leaves the call-outs out. Take off the £60 once you have one job\'s £140.' } },
+    { show: true, pic: 'formula', name: 'A formula', eq: 'R = R₀(1 + αΔT)', key: ['α = 0.0039 per °C', 'R₀ = 2.0 Ω, ΔT = 50 °C'],
+      flow: { a: ['ΔT', 'αΔT', '1 + αΔT', 'R'], ao: ['× α', '+ 1', '× R₀'], grp: true, under: ['50', '0.195', '1.195', '2.39'] },
+      vars: { α: ALPHA, 'R₀': 2, 'ΔT': 50 }, dur: 3.5,
+      tl: { eq: 0.4, a: [0.9, 1.4, 1.9, 2.9], grp: 2.4 },
+      text: 'A formula with a bracket is undone the same way. `R = R₀(1 + αΔT)` gives a winding\'s resistance `R` after a temperature change `ΔT`, where `R₀` is its resistance at the starting temperature. For copper the *temperature coefficient* `α` is 0.0039 for each °C. Warm a 2.0 Ω winding by 50 °C and the bracket is 1.195, the factor the resistance grows by, so `R` is 2.39 Ω.' },
+    { kind: 'pick', pic: 'formula', name: 'Make R₀ the subject', pk: 'R0', eq: 'R = R₀(1 + αΔT)', key: ['1 + αΔT = 1.2', 'R = 3.0 Ω'], B: '1.2', R: '3.0',
+      flow: { a: ['R₀', 'R'], ao: ['× (1 + αΔT)'], whole: true, b: ['R₀ = 2.5', '3.0'], bo: ['÷ 1.2'] },
+      vars: { 'R₀': 2.5, α: ALPHA, 'ΔT': 0.2 / ALPHA, R: 3 },
+      opts: ['2.5 Ω', '3.6 Ω', '15 Ω'], want: '2.5 Ω', slips: { '3.6 Ω': '3.0 × 1.2', '15 Ω': '3.0 ÷ 0.2' },
+      task: 'To make `R₀` the *subject*, the letter on its own on one side, divide both sides by the whole bracket. A warm winding reads 3.0 Ω and its bracket `1 + αΔT` is 1.2. What is `R₀`?',
+      why: '`R` is `R₀` times the whole bracket, so `R₀ = R ÷ (1 + αΔT)`, and 3.0 ÷ 1.2 = 2.5 Ω. Check: `2.5 × 1.2 = 3.0`.',
+      hint: 'Not quite. Divide by the whole bracket.',
+      hints: { '3.6 Ω': 'Not quite. That multiplies by the bracket. `R₀` was multiplied to make `R`, so divide.',
+        '15 Ω': 'Not quite. That divides by the 0.2 part alone. `R₀` multiplied the 1 too, so divide by all of 1.2.' } },
+    { show: true, pic: 'formula', name: 'Undo for ΔT', pk: 'dT', eq: 'R = R₀(1 + αΔT)', key: ['α = 0.0039 per °C', 'R₀ = 2.0 Ω, R = 2.4 Ω'], R0: '2.0', R: '2.4',
+      flow: { a: ['ΔT', 'αΔT', '1 + αΔT', 'R'], ao: ['× α', '+ 1', '× R₀'], grp: true, b: ['ΔT ≈ 51', '0.2', '1.2', '2.4'], bo: ['÷ α', '− 1', '÷ R₀'] },
+      vars: { α: ALPHA, 'R₀': 2, 'ΔT': 0.2 / ALPHA, R: 2.4 },
+      rule: 'ΔT = (R ÷ R₀ − 1) ÷ α',
+      tries: [{ v: '0.2', c: '51 °C' }, { v: '0.7', c: '179 °C', bad: true }], note: ['The rule fits changes of about 100 °C or less,', 'and 51 °C is inside that.'], dur: 4.4,
+      tl: { eq: 0.4, a: [0.8, 0.8, 0.8, 0.8], grp: 0.8, b: [2.6, 2.2, 1.8, 1.4], rule: 3.0, s: [3.4, 3.8], note: 3.8 },
+      text: 'To make `ΔT` the subject, undo the flow from the right: ÷ `R₀`, then − 1, then ÷ `α`. A winding that reads 2.0 Ω cold and 2.4 Ω after a run warmed by about 51 °C. Take the 1 off only after dividing by `R₀`, which multiplies the 1 as well: `(2.4 − 1) ÷ 2.0` gives about 179 °C.' },
+    { kind: 'pick', pic: 'formula', name: 'Your turn', pk: 'dT', eq: 'R = R₀(1 + αΔT)', key: ['α = 0.0039 per °C', 'R₀ = 4.0 Ω, R = 4.6 Ω'], R0: '4.0', R: '4.6',
+      flow: { a: ['ΔT', 'αΔT', '1 + αΔT', 'R'], ao: ['× α', '+ 1', '× R₀'], grp: true, b: ['ΔT ≈ 38', '0.15', '1.15', '4.6'], bo: ['÷ α', '− 1', '÷ R₀'] },
+      vars: { α: ALPHA, 'R₀': 4, 'ΔT': 0.15 / ALPHA, R: 4.6 },
+      opts: ['231 °C', '154 °C', '38 °C'], want: '38 °C', putOf: { '38 °C': '0.15', '231 °C': '0.9', '154 °C': '0.6' },
+      slips: { '231 °C': '(4.6 − 1) ÷ 4.0 ÷ 0.0039', '154 °C': '(4.6 − 4.0) ÷ 0.0039' },
+      task: 'Your turn. A copper winding reads 4.0 Ω cold and 4.6 Ω after a run. About how much did it warm up, `ΔT`?',
+      why: 'Undo it from the right, `ΔT = (R ÷ R₀ − 1) ÷ α`: 4.6 ÷ 4.0 = 1.15, then 1.15 − 1 = 0.15, and 0.15 ÷ 0.0039 is about 38 °C. Check: `4.0 × (1 + 0.15) = 4.6`.',
+      hint: 'Not quite. Undo from the right: ÷ `R₀`, then − 1, then ÷ `α`.',
+      hints: { '231 °C': 'Not quite. That takes the 1 off first, but `R₀` multiplies the 1 as well. Divide by `R₀` first.',
+        '154 °C': 'Not quite. That takes 4.0 away instead of dividing by it. Divide by `R₀` first.' } },
+    { show: true, pic: 'rect', name: 'The same shape',
+      lines: [{ e: 'L₁ = L₀ + L₀α(t₁ − t₀)' }, { e: 'L₁ = L₀(1 + α(t₁ − t₀))', an: 'take out L₀' }, { e: 'R = R₀(1 + αΔT)', an: 'same shape', mu: true },
+        { e: 'L₀ = L₁ ÷ (1 + α(t₁ − t₀))', an: '÷ bracket' }],
+      key: ['t₁ − t₀ is the temperature change, like ΔT.', 'α is how much each metre grows', 'for each degree.'], dur: 3.8,
+      tl: { main: 0.4, thin: 0.9, parts: 1.4, lines: [1.9, 2.4, 2.8, 3.2] },
+      text: 'The same shape turns up when metal warms. A rod or pipe warmed from `t₀` to `t₁` grows to `L₁ = L₀ + L₀α(t₁ − t₀)`, where `α` is now how much each metre grows for each degree, a different number. `L₀` is a common factor, so `L₁ = L₀(1 + α(t₁ − t₀))`, and `L₀ = L₁ ÷ (1 + α(t₁ − t₀))`, just as for `R₀`.' },
+    { kind: 'pick', pic: 'formula', name: 'Find L₀', pk: 'L0', eq: 'L₁ = L₀(1 + α(t₁ − t₀))', key: ['L₁ = 10.01 m, α(t₁ − t₀) = 0.001'], B: '1.001', R: '10.01',
+      flow: { a: ['L₀', 'L₁'], ao: ['× (1 + α(t₁ − t₀))'], whole: true, b: ['L₀ = 10', '10.01'], bo: ['÷ 1.001'] },
+      vars: { 'L₀': 10, α: 0.001, 't₁': 1, 't₀': 0, 'L₁': 10.01 },
+      opts: ['10,010 m', '10 m', '10.02 m'], want: '10 m', slips: { '10,010 m': '10.01 ÷ 0.001', '10.02 m': '10.01 × 1.001' },
+      task: 'A warm rod is 10.01 m long, and its `α(t₁ − t₀)` is 0.001. How long was it cold, `L₀`?',
+      why: 'The bracket is 1 + 0.001 = 1.001, so `L₀ = 10.01 ÷ 1.001 = 10` m. Check: `10 + 10 × 0.001 = 10.01`.',
+      hint: 'Not quite. Divide by the whole bracket.',
+      hints: { '10,010 m': 'Not quite. That divides by the 0.001 alone and drops the 1. Divide by the whole bracket, 1.001.',
+        '10.02 m': 'Not quite. That multiplies by the bracket. `L₀` was multiplied to make `L₁`, so divide.' } },
+    { kind: 'pick', pic: 'job', name: 'A cable drum', L: 'x', eq: '4(x + 2) = 60',
+      sheet: { title: 'Cable drum', row: 'Circuit', k: 4, parts: [['x m', 120, 'xb'], ['2 m spare', 70, 'tb']], top: 'x + 2', total: '60 m' },
+      flow: { a: ['x', 'x + 2', '60'], ao: ['+ 2', '× 4'], b: ['x = 13', '15', '60'], bo: ['− 2', '÷ 4'] },
+      vars: { x: 13 }, opts: ['13', '15', '14.5'], want: '13', slips: { '15': '60 ÷ 4', '14.5': '(60 − 2) ÷ 4' },
+      form: { opts: ['4x + 2 = 60', '4(x + 2) = 60', 'x + 2 = 60'], want: '4(x + 2) = 60',
+        task: 'One more. Four circuits each take `x` metres plus 2 m spare, 60 m off the drum in all. Which equation fits?',
+        why: 'One circuit is `x + 2`: its `x` metres and its own 2 m spare. Four circuits are four lots of that, `4(x + 2)`, and they use 60 m, so `4(x + 2) = 60`.',
+        hint: 'Not quite. Write one circuit, then multiply it by how many circuits there are.',
+        hints: { '4x + 2 = 60': 'Not quite. That counts the 2 m spare once. Each circuit has its own, so it goes inside the bracket with `x`.',
+          'x + 2 = 60': 'Not quite. That is one circuit using all 60 m. There are four circuits, so multiply one circuit by 4.' },
+        next: 'That\'s it. Now find `x`.' },
+      task: 'Four circuits each take `x` metres plus 2 m spare, 60 m in all: `4(x + 2) = 60`. Find `x`.',
+      why: 'One circuit is `x + 2`, so four are `4(x + 2) = 60`. Undo it from the right: 60 ÷ 4 = 15 m a circuit, and 15 − 2 = 13. Check: `4(13 + 2) = 60`.',
+      hint: 'Not quite. Write one circuit, then undo from the right.',
+      hints: { '15': 'Not quite. 60 ÷ 4 = 15 is the whole of `x + 2`. Take the 2 m spare off too.',
+        '14.5': 'Not quite. That takes the 2 m spare off before dividing by 4. Undo from the right: ÷ 4 first, then − 2.' } },
+    { kind: 'pick', pic: 'formula', name: 'A warm coil', pk: 'R0', eq: 'R = R₀(1 + αΔT)', key: ['1 + αΔT = 1.156', 'R = 5.78 Ω'], B: '1.156', R: '5.78',
+      flow: { a: ['R₀', 'R'], ao: ['× (1 + αΔT)'], whole: true, b: ['R₀ = 5.0', '5.78'], bo: ['÷ 1.156'] },
+      vars: { 'R₀': 5, α: ALPHA, 'ΔT': 40, R: 5.78 },
+      opts: ['6.68 Ω', '5.0 Ω', '37 Ω'], want: '5.0 Ω', slips: { '6.68 Ω': '5.78 × 1.156', '37 Ω': '5.78 ÷ 0.156' },
+      task: 'Last one. A copper coil reads 5.78 Ω after warming by 40 °C, so its bracket is 1 + 0.0039 × 40 = 1.156. What did it read cold, `R₀`?',
+      why: '`R₀ = R ÷ (1 + αΔT)`, so divide by the whole bracket: 5.78 ÷ 1.156 = 5.0 Ω. Check: `5.0 × 1.156 = 5.78`.',
+      hint: 'Not quite. Divide by the whole bracket.',
+      hints: { '6.68 Ω': 'Not quite. That multiplies by the bracket. `R₀` was multiplied to make `R`, so divide.',
+        '37 Ω': 'Not quite. That divides by the 0.156 part alone and drops the 1, which `R₀` multiplied too.' } },
+  ];
+  const FINISH = 'Write one part of the job and multiply it by how many parts there are. Undo a formula from the outside in, dividing by its bracket as one whole thing, and put the answer back in to check it.';
+  // Sources the checks restate (the lesson's own).
+  const OPENSTAX = 'https://openstax.org/books/algebra-1/pages/1-solve-linear-equations-mini-lesson-review';
+  const SENTENCE = 'https://openstax.org/books/intermediate-algebra-2e/pages/2-2-use-a-problem-solving-strategy';
+  const LUMEN = 'https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity';
+  const NCETM = 'https://www.ncetm.org.uk/media/wbylane0/ncetm_ks3_cc_2_2.pdf';
+  const TOOLBOX = 'https://www.engineeringtoolbox.com/amp/linear-thermal-expansion-d_1379.html';
+  // A screen takes FADE to fade in, so no demonstration starts before it has settled.
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // While the kit's self-test looks at every screen it switches fades off (the k-testing class):
+  // demonstrations then open finished, as they do with reduced motion.
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- numbers (pure, so the checks can test them) ----------
+  // A number as written ("10,010 m", "x = 17") -> its value; after = or ≈ when there is one.
+  const num = (s) => +String(s).replace(/−/g, '-').replace(/[^\d.\-]/g, '');
+  const valOf = (s) => { const m = /[=≈]\s*([^=≈]+)$/.exec(String(s)); return num(m ? m[1] : s); };
+  const numText = (o) => String(o).replace(/\s*(Ω|°C|m)$/, '');
+  const putText = (d, o) => (d.putOf ? d.putOf[o] : numText(o));
+  const sides = (e) => { const k = e.indexOf(' = '); return [e.slice(0, k), e.slice(k + 3)]; };
+  // A worked-out value as the lesson writes it: the given text when it is that value, else to two places.
+  function fmtN(v, ref) {
+    if (ref != null && Math.abs(v - num(ref)) < 1e-9) return ref;
+    const sg = v < 0 ? '−' : '', r = Math.round(Math.abs(v) * 100) / 100, p = String(r).split('.');
+    return sg + p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (p[1] ? '.' + p[1] : '');
+  }
+  // The value of an expression: brackets first, then × and ÷ (letters and brackets side by side
+  // multiply), then + and −, left to right.
+  function ev(s, V) {
+    const src = String(s).replace(/−/g, '-').replace(/×/g, '*').replace(/÷/g, '/').replace(/,/g, '').replace(/\s+/g, '');
+    let i = 0;
+    const peek = () => src[i];
+    function expr() {
+      let v = term();
+      while (peek() === '+' || peek() === '-') { const op = src[i++]; const t = term(); v = op === '+' ? v + t : v - t; }
+      return v;
+    }
+    function term() {
+      let v = unary();
+      for (;;) {
+        const c = peek();
+        if (c === '*') { i++; v *= unary(); } else if (c === '/') { i++; v /= unary(); }
+        else if (c != null && c !== '+' && c !== '-' && c !== ')') v *= unary();
+        else return v;
+      }
+    }
+    function unary() { if (peek() === '-') { i++; return -unary(); } return atom(); }
+    function atom() {
+      const rest = src.slice(i);
+      if (rest[0] === '(') { i++; const v = expr(); if (src[i] !== ')') throw new Error('no closing bracket in ' + s); i++; return v; }
+      let m = /^\d+(?:\.\d+)?/.exec(rest);
+      if (m) { i += m[0].length; return +m[0]; }
+      m = /^(ΔT|R₀|L₀|L₁|t₀|t₁|R|α|x|h)/.exec(rest);
+      if (m) { i += m[0].length; if (!(m[0] in V)) throw new Error('no value for ' + m[0]); return V[m[0]]; }
+      throw new Error('cannot read ' + rest);
+    }
+    const v = expr();
+    if (i !== src.length) throw new Error('left over: ' + src.slice(i));
+    return v;
+  }
+  // A step in a flow diagram ("× α", "÷ 1.2", "× (1 + αΔT)") done to a value.
+  const OPF = { '+': (a, b) => a + b, '−': (a, b) => a - b, '×': (a, b) => a * b, '÷': (a, b) => a / b };
+  const apply = (op, v, V) => OPF[op[0]](v, ev(op.slice(1), V));
+  function varsOf(d) {
+    const V = Object.assign({}, d.vars);
+    if (V.R == null && V['R₀'] != null) V.R = V['R₀'] * (1 + V.α * V['ΔT']);
+    if (V['L₁'] == null && V['L₀'] != null) V['L₁'] = V['L₀'] * (1 + V.α * (V['t₁'] - V['t₀']));
+    return V;
+  }
+  // An answer put back in: its row on the strip, {lab, sub, l: the left side's value, r: the right's, rs: as written}.
+  function putRow(d, txt, from) {
+    const v = num(txt);
+    if (d.pic === 'job') {
+      const s = sides(d.eq), V = {};
+      V[d.L] = v;
+      const sub = s[0].replace(new RegExp('(\\d)' + d.L, 'g'), '$1 × ' + txt).replace(new RegExp(d.L, 'g'), txt);
+      return { lab: d.L + ' = ' + txt, sub, l: ev(s[0], V), r: ev(s[1], {}), rs: s[1] };
+    }
+    if (d.pk === 'dT') return { lab: from ? from + ', so αΔT ≈ ' + txt : 'αΔT = ' + txt, sub: d.R0 + ' × (1 + ' + txt + ')', l: num(d.R0) * (1 + v), r: num(d.R), rs: d.R };
+    return { lab: (d.pk === 'L0' ? 'L₀' : 'R₀') + ' = ' + txt, sub: txt + ' × ' + d.B, l: v * num(d.B), r: num(d.R), rs: d.R };
+  }
+  const unknownLab = (d) => (d.pic === 'job' ? d.L : d.pk === 'dT' ? 'αΔT' : d.pk === 'L0' ? 'L₀' : 'R₀') + ' = ?';
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/\u00a0/g, ' ')
+    .replace(/R₀/g, 'R nought').replace(/L₀/g, 'L nought').replace(/L₁/g, 'L one').replace(/t₀/g, 't nought').replace(/t₁/g, 't one')
+    .replace(/α/g, ' alpha ').replace(/ΔT/g, ' delta T').replace(/Ω/g, ' ohms').replace(/°C/g, ' degrees C').replace(/£(\d[\d,.]*)/g, '$1 pounds')
+    .replace(/≈/g, ' about ').replace(/≠/g, ' is not ').replace(/\?/g, ' a question mark ')
+    .replace(/\+/g, ' plus ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open.
+  function blank() { return { pick: null, res: null, why: false }; }
+  // A puzzle with a form: Dan first picks the equation; it and its flow diagram appear once he has it.
+  const forming = (d, st) => !!d.form && !st.formed;
+  const optsOf = (d, st) => (d.show ? [] : forming(d, st) ? d.form.opts : d.opts || []);
+  const hintFor = (i, st) => { const d = STEPS[i], h = forming(d, st) ? d.form : d; return (h.hints && h.hints[st.pick]) || h.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion
+  let REC = { rows: [], sheet: null };                                                  // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  // Letters standing for numbers are italic: x and h alone (not the h of "18 h"), R and L with
+  // their subscripts, t₀ and t₁, α and the T of ΔT.
+  const ITAL = /(R₀|L₀|L₁|t₀|t₁|(?<![A-Za-z])R(?![a-z])|α|(?<=Δ)T|(?<![A-Za-z])(?<!\d[  ])[xh](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+    return parent;
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).replace(/ (?=Ω|°C)/g, '\u00a0').replace(/(\d) (?=m\b)/g, '$1\u00a0').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i], opts = optsOf(d, st);
+    if (finished || d.show || k >= opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one fills in the undo row and puts it back in, a wrong one is put back in.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    if (forming(d, st)) {
+      if (st.pick !== d.form.want) { st.res = 'wrong'; return; }
+      st.formed = true; st.pick = null; st.res = null; st.why = false;
+      play(motionLen(i));
+      return;
+    }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(motionLen(i));
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  // The kit pauses the motion while the page is hidden and resumes it when Dan comes back; this
+  // only settles a motion that had already stopped.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  // A new screen (or the finish panel, or the picture after a fresh choice) fades in softly.
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;                                   // where shapes go: the picture, or a part that is arriving
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A part arriving: drawn into a group faded in to a and moved `rise` units into place.
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // A part leaving: faded out as a goes 0 -> 1.
+  function leave(a, draw) {
+    if (a >= 1) return;
+    const g = add(K.svg('g'));
+    K.fade(g, 1 - a, 0);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  // t: null, not yet; below 0, there from the start; else when it arrives.
+  const A = (t, d) => (t == null ? 0 : t < 0 ? 1 : arr(t, d));
+  const partAt = (t, rise, draw) => part(A(t), rise, draw);
+  const leaveAt = (t, draw) => leave(A(t, 0.3), draw);
+  const arrived = (t) => t != null && (t < 0 || K.arrive(T, t) >= 0.5);
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  // Spaces that SVG keeps (and measures); letters in italics.
+  const nb = (s) => String(s).replace(/ /g, '\u00a0');
+  const text = (x, y, s, cls, anchor) => add(italics(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }), nb(s), true));
+  const SIZE = { ln: 18, nd: 15, op: 15, lb: 13, an: 14, sx: 15, sub: 14, sv: 17, mk: 15, key: 13, kv: 14, rl: 14, il: 13, tl: 15 };
+  const widths = {};
+  let estimated = false;
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    if (!String(s).length) return 0;
+    const t = svg.appendChild(italics(K.svg('text', { class: cls, x: 0, y: -50 }), nb(s), true));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    estimated = true;
+    return String(s).length * (SIZE[cls] || 15) * 0.56;
+  }
+  function arrow(x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, bx = x2 - ux * 6, by = y2 - uy * 6;
+    line('arw', x1, y1, bx, by);
+    path('arh', 'M' + r3(x2) + ' ' + r3(y2) + 'L' + r3(bx - uy * 4) + ' ' + r3(by + ux * 4) + 'L' + r3(bx + uy * 4) + ' ' + r3(by - ux * 4) + 'Z');
+  }
+
+  // ---------- each step's sizes ----------
+  const NH = 34, AY = 21;                 // a box's height; the arrows run under their step's name
+  const stripH = (n) => 30 + 28 * n;
+  // Lines of working lined up on the equals sign, each with the move that made it.
+  function linesGeo(lines) {
+    const half = (e, k) => e.split(' = ')[k], eqW = tw('=', 'ln');
+    const maxL = Math.max.apply(null, lines.map((l) => tw(half(l.e, 0), 'ln')));
+    const maxR = Math.max.apply(null, lines.map((l) => tw(half(l.e, 1), 'ln')));
+    const maxA = Math.max.apply(null, [0].concat(lines.map((l) => (l.an ? tw(l.an, 'an') : 0))));
+    const total = maxL + eqW + 20 + maxR + (maxA ? 18 + maxA : 0), x0 = Math.max(8, (340 - total) / 2);
+    return { EQX: x0 + maxL + 10, eqW, anX: x0 + maxL + 10 + eqW + 10 + maxR + 18 };
+  }
+  const GEO = new Map();
+  function geo(d, bare) {
+    const gk = bare ? d.form : d;
+    if (GEO.has(gk)) return GEO.get(gk);
+    estimated = false;
+    const G = {};
+    let y = 0;
+    if (d.pic === 'job') {
+      const s = d.sheet;
+      G.sy = 2;
+      G.bx = 16 + Math.max.apply(null, Array.from({ length: s.k }, (_, j) => tw(s.row + ' ' + (j + 1), 'rl'))) + 10;
+      const w = s.parts.reduce((a, p) => a + p[1], 0), room = 328 - 17 - tw(s.total, 'mk') - G.bx;
+      G.f = Math.min(1, room / w);
+      G.rowY = G.sy + 30;
+      G.sheetH = 34 + s.k * 24;
+      G.eqY = G.sy + G.sheetH + 26;
+      y = G.eqY + 8;
+    } else if (d.pic === 'formula') {
+      // The formula and its key side by side when they fit, else one under the other.
+      const ew = tw(d.eq, 'ln'), kw = Math.max.apply(null, d.key.map((k) => tw(k, 'kv'))), n = d.key.length;
+      G.side = ew + kw + 30 <= 320;
+      if (G.side) { G.keyY = 20; G.eqY = 26 + 9 * (n - 1); y = 30 + 18 * (n - 1); }
+      else { G.eqY = 24; G.keyY = 48; y = 56 + 18 * (n - 1); }
+    } else if (d.pic === 'rect') {
+      G.rectY = 34;
+      Object.assign(G, linesGeo(d.lines));
+      G.lineY = d.lines.map((l, k) => G.rectY + 108 + 31 * k);
+      G.keyY = G.lineY[G.lineY.length - 1] + 30;
+      y = G.keyY + 18 * (d.key.length - 1) + 4;
+    }
+    if (d.flow && !bare) {
+      // Each value's box as wide as its widest text; each arrow as long as its step's name, and any
+      // room left shared among the arrows.
+      const f = d.flow, pad = f.whole ? 34 : 18;
+      const vw = f.a.map((s, k) => Math.max(36, tw(s, 'nd') + 10, f.b ? tw(f.b[k], 'nd') + 10 : 0, f.under ? tw(f.under[k], 'mk') + 8 : 0));
+      const aw = f.ao.map((s, k) => Math.max(34, tw(s, 'op') + pad, f.bo ? tw(f.bo[k], 'op') + pad : 0));
+      let total = vw.reduce((a, b) => a + b, 0) + aw.reduce((a, b) => a + b, 0);
+      const each = Math.min(Math.max(0, 326 - total) / aw.length, 60);
+      for (let k = 0; k < aw.length; k++) aw[k] += each;
+      total += each * aw.length;
+      let x = (340 - total) / 2;
+      G.vx = []; G.ax = [];
+      vw.forEach((w, k) => { G.vx.push([x, x + w]); x += w; if (k < aw.length) { G.ax.push([x, x + aw[k]]); x += aw[k]; } });
+      G.yA = y + (f.grp ? 28 : 26);
+      G.yB = f.b ? G.yA + (f.grp ? 66 : 60) : null;
+      y = f.b ? G.yB + NH : f.under ? G.yA + 64 : G.yA + NH;
+    }
+    if (d.rule) { G.ruleY = y + 30; y = G.ruleY + 6; }
+    if (!bare && d.pic !== 'rect' && (d.tries || d.opts)) {
+      // The strip's columns, wide enough for every row it may show.
+      G.rows = d.show ? d.tries.length : 1;
+      G.stripY = y + 14;
+      const R = (d.show ? d.tries.map((t) => t.v) : d.opts.map((o) => putText(d, o))).map((t) => putRow(d, t));
+      const wl = Math.max.apply(null, [tw('left', 'lb'), tw('?', 'sv')].concat(R.map((r) => tw(fmtN(r.l, r.rs), 'sv'))));
+      const wr = Math.max.apply(null, [tw('right', 'lb')].concat(R.map((r) => tw(r.rs, 'sv'))));
+      G.SR = 322 - wr / 2; G.SS = G.SR - wr / 2 - 14; G.SL = G.SS - 14 - wl / 2; G.wl = wl;
+      y = G.stripY + stripH(G.rows);
+    }
+    if (d.note) { G.noteY = y + 22; y = G.noteY + 17 * (d.note.length - 1) + 4; }
+    G.H = Math.ceil(y + 8);
+    if (!estimated) GEO.set(gk, G);
+    return G;
+  }
+
+  // ---------- each step's timetable in its state ----------
+  // null: not yet; -1: there from the start; else seconds into the motion.
+  function timeline(d, st) {
+    const n = d.flow ? d.flow.a.length : 0;
+    const tl = { sheet: -1, rows: d.sheet ? Array(d.sheet.k).fill(-1) : [], top: -1, eq: -1, a: Array(n).fill(-1), grp: -1,
+      b: Array(n).fill(null), s: [], note: -1, rule: -1, head: -1, main: -1, thin: -1, parts: -1, lines: (d.lines || []).map(() => -1) };
+    if (n) tl.b[n - 1] = -1;
+    if (d.show) {
+      Object.keys(d.tl).forEach((k) => { if (k !== 's') tl[k] = d.tl[k]; });
+      tl.s = (d.tries || []).map((t, j) => ({ txt: t.v, from: t.c, bad: !!t.bad, t: d.tl.s[j] }));
+      return tl;
+    }
+    if (d.form && st.res == null) {
+      // The equation just chosen arrives, then its flow diagram and the empty strip.
+      tl.eq = 0.1; tl.a = Array(n).fill(0.5); tl.b[n - 1] = 0.9; tl.head = 1.3;
+    }
+    if (st.res === 'right') {
+      // The undo row fills in from the right, then the answer is put back in.
+      let t = 0.1;
+      for (let k = n - 2; k >= 0; k--) { tl.b[k] = t; t += 0.35; }
+      tl.s = [{ txt: putText(d, d.want), from: d.putOf ? d.want : null, t: t + 0.05 }];
+    } else if (st.res === 'wrong' && st.pick != null) tl.s = [{ txt: putText(d, st.pick), from: d.putOf ? st.pick : null, bad: true, t: 0.1 }];
+    return tl;
+  }
+
+  // ---------- the pictures ----------
+  // The sheet: a line for each part, each part a bar; a bracket names one part, a brace the total.
+  function drawSheet(d, tl, G) {
+    const s = d.sheet, y0 = G.sy, bx = G.bx, ws = s.parts.map((p) => p[1] * G.f), w = ws.reduce((a, b) => a + b, 0);
+    REC.sheet = { n: 0, w: [] };
+    partAt(tl.sheet, 4, () => { rect('sheet', 6, y0, 328, G.sheetH, 8); text(16, y0 + 19, s.title, 'lb', 'start'); });
+    for (let j = 0; j < s.k; j++) {
+      const y = G.rowY + j * 24;
+      partAt(tl.rows[j], 8, () => {
+        text(16, y + 14, s.row + ' ' + (j + 1), 'rl', 'start');
+        let x = bx;
+        s.parts.forEach((p, m) => { rect(p[2], x + 0.75, y, ws[m] - 1.5, 19, 3); text(x + ws[m] / 2, y + 14, p[0], 'il'); x += ws[m]; });
+        REC.sheet.n++; REC.sheet.w.push(x - bx);
+      });
+    }
+    partAt(tl.top, 0, () => {
+      path('brk', 'M' + r3(bx + 1.5) + ' ' + (y0 + 26) + ' V' + (y0 + 22) + ' H' + r3(bx + w - 1.5) + ' V' + (y0 + 26));
+      text(bx + w / 2, y0 + 17, s.top, 'mk');
+      const ex = r3(bx + w + 6), ya = G.rowY + 1, yb = G.rowY + s.k * 24 - 6;
+      path('brk', 'M' + ex + ' ' + ya + ' H' + r3(ex + 5) + ' V' + yb + ' H' + ex);
+      text(ex + 11, (ya + yb) / 2 + 5, s.total, 'mk', 'start');
+    });
+  }
+  // The formula and the key that gives each letter its value.
+  function drawTop(d, tl, G) {
+    partAt(tl.eq, 4, () => {
+      if (G.side) { text(10, G.eqY, d.eq, 'ln', 'start'); d.key.forEach((k, j) => text(330, G.keyY + 18 * j, k, 'kv', 'end')); }
+      else { text(170, G.eqY, d.eq, 'ln'); d.key.forEach((k, j) => text(170, G.keyY + 18 * j, k, 'kv')); }
+    });
+  }
+  // A value's box in a flow diagram.
+  function vbox(k, y, label, cls, G) {
+    const v = G.vx[k];
+    rect(cls, v[0], y, v[1] - v[0], NH, 7);
+    text((v[0] + v[1]) / 2, y + 22, label, 'nd' + (label === '?' ? ' q' : ''));
+  }
+  // The step between boxes k and k + 1: an arrow (rightwards on the top row, leftwards when undoing)
+  // with what it does written over it; a step that is the whole bracket sits on an amber pill.
+  function stepAt(k, y, label, back, G, whole) {
+    const a = G.ax[k], x1 = a[0] + 3, x2 = a[1] - 3, cx = (a[0] + a[1]) / 2;
+    if (back) arrow(x2, y + AY, x1, y + AY); else arrow(x1, y + AY, x2, y + AY);
+    if (whole && label !== '?') {
+      const w = tw(label, 'op') + 18, g = add(K.svg('g', { class: 'k-nohalo' })), keep = into;
+      into = g; rect('on whole', cx - w / 2, y - 7, w, 24, 7); text(cx, y + 10, label, 'op'); into = keep;
+      return;
+    }
+    text(cx, y + 11, label, 'op' + (label === '?' ? ' q' : ''));
+  }
+  // A flow diagram: what is done to the unknown, in order, then undone from the right.
+  function drawFlow(d, st, tl, G) {
+    const f = d.flow, n = f.a.length, yA = G.yA, yB = G.yB, last = n - 1;
+    const gx0 = f.grp ? G.ax[0][0] + 1 : 0, gx1 = f.grp ? G.vx[2][1] + 4 : 0;
+    if (f.grp) {
+      partAt(tl.grp, 0, () => {
+        rect('grp', gx0, yA - 7, gx1 - gx0, f.under ? 69 : NH + 13, 9);
+        text((gx0 + gx1) / 2, yA - 13, 'the bracket, worked out first', 'lb');
+      });
+    } else partAt(tl.a[0], 4, () => text(12, yA - 11, 'What is done to ' + f.a[0], 'lb', 'start'));
+    for (let k = 0; k < n; k++) {
+      partAt(tl.a[k], 6, () => {
+        if (k > 0) stepAt(k - 1, yA, f.ao[k - 1], false, G, f.whole);
+        vbox(k, yA, f.a[k], 'vn', G);
+        if (f.under) text((G.vx[k][0] + G.vx[k][1]) / 2, yA + 54, f.under[k], 'mk');
+      });
+    }
+    if (!f.b) return;
+    const cx = (G.vx[last][0] + G.vx[last][1]) / 2;
+    partAt(tl.b[last], 6, () => {
+      text(12, yB - 12, 'Undo it, from the right', 'lb', 'start');
+      arrow(cx, yA + NH + 2, cx, yB - 2);
+      vbox(last, yB, f.b[last], 'vn', G);
+    });
+    if (f.grp) partAt(tl.b[2], 0, () => rect('grp', gx0, yB - 7, gx1 - gx0, NH + 13, 9));
+    for (let k = last - 1; k >= 0; k--) {
+      // On a puzzle the undo row's places wait empty until the answer is right.
+      if (!d.show) {
+        const ph = () => leaveAt(tl.b[k], () => { stepAt(k, yB, '?', true, G, false); vbox(k, yB, '?', 'vn blank', G); });
+        if (tl.head === -1) ph(); else partAt(tl.b[last], 6, ph);
+      }
+      partAt(tl.b[k], 6, () => { stepAt(k, yB, f.bo[k], true, G, f.whole); vbox(k, yB, f.b[k], k === 0 ? 'vn ans' : 'vn', G); });
+    }
+  }
+  // The try-a-number strip: an answer put back in, and the two sides' values side by side.
+  function drawStrip(d, st, tl, G) {
+    const y = G.stripY, n = G.rows, rowY = (j) => y + 47 + 28 * j;
+    const head = () => {
+      rect('strip', 8, y, 324, stripH(n), 8);
+      text(18, y + 19, d.pk === 'dT' ? 'Put αΔT back in' : 'Put it back in', 'lb', 'start');
+      text(G.SL, y + 19, 'left', 'lb');
+      text(G.SR, y + 19, 'right', 'lb');
+    };
+    const hd = (draw) => (tl.head === -1 ? draw() : partAt(tl.head, 4, draw));
+    if (d.show) partAt(tl.s.length ? tl.s[0].t : null, 4, head); else hd(head);
+    if (!d.show) hd(() => {
+      leaveAt(tl.s.length ? tl.s[0].t : null, () => {
+        const by = rowY(0), r0 = putRow(d, putText(d, d.want));
+        text(18, by, unknownLab(d), 'sx', 'start');
+        text(G.SL, by, '?', 'sv q');
+        text(G.SR, by, r0.rs, 'sv');
+      });
+    });
+    tl.s.forEach((s, j) => {
+      const r = putRow(d, s.txt, s.from), same = Math.abs(r.l - r.r) < 1e-9, by = rowY(j), a = A(s.t), lt = fmtN(r.l, r.rs);
+      part(a, 4, () => {
+        text(18, by, r.lab, 'sx', 'start');
+        const sx = 18 + tw(r.lab, 'sx') + 10;
+        if (sx + tw(r.sub, 'sub') <= G.SL - G.wl / 2 - 8) text(sx, by, r.sub, 'sub', 'start');
+        text(G.SL, by, lt, 'sv' + (same ? '' : ' bad'));
+        text(G.SS, by, same ? '=' : '≠', 'sv' + (same ? '' : ' bad'));
+        text(G.SR, by, r.rs, 'sv');
+      });
+      REC.rows.push({ lab: r.lab, lt, rs: r.rs, l: r.l, r: r.r, same, seen: a >= 0.5 });
+    });
+  }
+  // A line of working, lined up on its equals sign.
+  function eqLine(e, base, G, cls) {
+    const h = e.split(' = ');
+    text(G.EQX - 10, base, h[0], cls, 'end');
+    text(G.EQX, base, '=', cls, 'start');
+    text(G.EQX + G.eqW + 10, base, h[1], cls, 'start');
+  }
+  // The rectangle from Expanding brackets: L₀ tall, a 1 part and a thin α(t₁ − t₀) strip.
+  function drawRect(d, tl, G) {
+    const X0 = 60, W1 = 170, W2 = 34, RH = 56, RY = G.rectY, xm = X0 + W1, xe = xm + W2;
+    const top = (a, b, s) => { path('brk', 'M' + (a + 1.5) + ' ' + (RY - 4) + ' V' + (RY - 8) + ' H' + (b - 1.5) + ' V' + (RY - 4)); text((a + b) / 2, RY - 13, s, 'tl'); };
+    const under = (a, b, s) => { path('brk', 'M' + (a + 1.5) + ' ' + (RY + RH + 4) + ' V' + (RY + RH + 8) + ' H' + (b - 1.5) + ' V' + (RY + RH + 4)); text((a + b) / 2, RY + RH + 25, s, 'tl'); };
+    partAt(tl.main, 6, () => {
+      rect('xb', X0, RY, W1, RH, 3);
+      path('brk', 'M' + (X0 - 3) + ' ' + (RY + 1) + ' H' + (X0 - 8) + ' V' + (RY + RH - 1) + ' H' + (X0 - 3));
+      text(X0 - 13, RY + RH / 2 + 5, 'L₀', 'tl', 'end');
+      top(X0, xm, '1');
+      d.key.forEach((k, j) => text(12, G.keyY + 18 * j, k, 'kv', 'start'));
+    });
+    partAt(tl.thin, 6, () => { rect('thin', xm, RY, W2, RH, 0); top(xm, xe, 'α(t₁ − t₀)'); });
+    partAt(tl.parts, 4, () => { line('split', xm, RY - 1, xm, RY + RH + 1); under(X0, xm, 'L₀'); under(xm, xe, 'L₀α(t₁ − t₀)'); });
+    d.lines.forEach((l, k) => partAt(tl.lines[k], 6, () => {
+      eqLine(l.e, G.lineY[k], G, l.mu ? 'ln mu' : 'ln');
+      if (l.an) text(G.anX, G.lineY[k], l.an, 'an', 'start');
+    }));
+  }
+  // The picture in words, for the screen reader.
+  function words(d, st, tl, bare) {
+    const out = [], f = bare ? null : d.flow;
+    if (d.pic === 'job') { const s = d.sheet; out.push('A ' + s.title.toLowerCase() + ' with one line for each of its ' + s.k + ' parts, each part a bar of ' + say(s.top) + ', and ' + say(s.total) + ' in all' + (bare ? '. Its equation is not shown until you choose it.' : ': ' + say(d.eq) + '.')); }
+    if (d.pic === 'formula') out.push('The formula ' + say(d.eq) + ', where ' + d.key.map(say).join(', and ') + '.');
+    if (f) {
+      out.push('A flow diagram: ' + say(f.a[0]) + f.ao.map((o, k) => ', then ' + say(o) + ' gives ' + say(f.a[k + 1])).join('') + '.');
+      if (f.under) out.push('With these values: ' + f.under.map(say).join(', then ') + '.');
+      if (f.b) {
+        if (arrived(tl.b[0])) {
+          let s = 'Undone from the right: ' + say(f.b[f.b.length - 1]);
+          for (let k = f.bo.length - 1; k >= 0; k--) s += ', ' + say(f.bo[k]) + ' gives ' + say(f.b[k]);
+          out.push(s + '.');
+        } else if (!d.show) out.push('The undo row is empty until the answer is right.');
+      }
+    }
+    if (d.pic === 'rect') {
+      out.push('A rectangle L nought tall, split into a part 1 wide, which is L nought, and a thin strip alpha (t one minus t nought) wide, which is L nought alpha (t one minus t nought).');
+      d.lines.forEach((l, k) => { if (arrived(tl.lines[k])) out.push(say(l.e) + (l.an ? ' (' + say(l.an) + ')' : '') + '.'); });
+    }
+    if (d.rule && arrived(tl.rule)) out.push('So ' + say(d.rule) + '.');
+    REC.rows.forEach((r) => { if (r.seen) out.push('Put back in, ' + say(r.lab) + ' makes ' + say(r.lt) + ' against ' + say(r.rs) + (r.same ? ', the same.' : ', not the same.')); });
+    if (d.note && arrived(tl.note)) out.push(d.note.join(' '));
+    return out.join(' ');
+  }
+  // The whole picture for a step now; returns it in words.
+  function drawScene(d, st, G) {
+    const tl = timeline(d, st), bare = forming(d, st);
+    REC = { rows: [], sheet: null };
+    if (d.pic === 'job') {
+      drawSheet(d, tl, G);
+      if (bare) text(170, G.eqY, 'Which equation fits?', 'ln mu'); else partAt(tl.eq, 4, () => text(170, G.eqY, d.eq, 'ln'));
+    }
+    if (d.pic === 'formula') drawTop(d, tl, G);
+    if (d.flow && !bare) drawFlow(d, st, tl, G);
+    if (d.rule) partAt(tl.rule, 4, () => text(170, G.ruleY, d.rule, 'ln'));
+    if (G.stripY != null) drawStrip(d, st, tl, G);
+    if (d.note) partAt(tl.note, 4, () => d.note.forEach((s, j) => text(12, G.noteY + 17 * j, s, 'kv', 'start')));
+    if (d.pic === 'rect') drawRect(d, tl, G);
+    return words(d, st, tl, bare);
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d, forming(d, st));
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, st, G));
+  }
+  // How long the motion for a step's state lasts: its last arrival, painted finished.
+  function motionLen(i) {
+    const keepT = T;
+    T = Infinity; latest = 0;
+    paint(i);
+    T = keepT;
+    return latest;
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) play(d.dur); else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : forming(d, st) ? d.form.task : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = optsOf(d, st);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', { class: 'nw' }, opts[k]));   // one span, so "38 °C" stays whole
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : d.form && st.formed ? d.form.next : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : forming(d, st) ? d.form.why : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right', formed: true });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong', formed: true });
+  const formedSt = () => Object.assign(blank(), { formed: true });
+  const near = (a, b, t) => Math.abs(a - b) < (t || 1e-9);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/\u00a0/g, ' ')), rec: REC };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  K.check('You can check the solution by substituting the value into the equation: every screen\'s answer, put back in, makes both sides equal, every wrong answer offered or drawn leaves them different, and the strip shows both sides\' values', () =>
+    STEPS.every((d, i) => {
+      if (!(d.tries || d.opts)) return true;
+      if (d.show) {
+        const g = drawn(i, blank());
+        return d.tries.every((t, j) => { const r = putRow(d, t.v), w = g.rec.rows[j]; return near(r.l, r.r) === !t.bad && !!w && w.same === !t.bad && w.seen; });
+      }
+      const w = drawn(i, solvedSt(i)).rec.rows[0];
+      return !!w && w.same && w.seen && d.opts.filter((o) => o !== d.want).every((o) => { const r = drawn(i, wrongSt(i, o)).rec.rows[0]; return !!r && !r.same && r.seen; });
+    }), { source: OPENSTAX });
+  K.check('Copper\'s temperature coefficient is 3.9 × 10⁻³ per °C: every resistance screen uses α = 0.0039, three keys say so, and the brackets worked out from it are 1 + 0.0039 × 50 = 1.195 and 1 + 0.0039 × 40 = 1.156', () => {
+    const res = STEPS.filter((d) => /αΔT/.test(d.eq || ''));
+    return near(ALPHA, 3.9e-3) && res.length === 5 && res.every((d) => near(d.vars.α, 3.9e-3)) &&
+      res.filter((d) => (d.key || []).join(' ').indexOf('0.0039') >= 0).length === 3 && near(1 + ALPHA * 50, 1.195) && near(1 + ALPHA * 40, 1.156);
+  }, { source: LUMEN });
+  K.check('Over relatively small temperature changes (about 100 °C or less) the rule holds: the warmings worked out here, 50, 51, 38 and 40 °C, are inside that, the slips\' 179, 231 and 154 °C are not, and the undo screen says so', () => {
+    const inside = [50, 0.2 / ALPHA, 0.15 / ALPHA, 40].every((v) => v <= 100) && [0.7 / ALPHA, 0.9 / ALPHA, 0.6 / ALPHA].every((v) => v > 100);
+    const r = [0.2, 0.15, 0.7, 0.9, 0.6].map((v) => Math.round(v / ALPHA));
+    return inside && r.join() === '51,38,179,231,154' && drawn(idx('Undo for ΔT'), blank()).texts.some((s) => s.indexOf('100 °C') >= 0);
+  }, { source: LUMEN });
+  K.check('R = R₀(1 + αΔT), where R₀ is the original resistance and R is the resistance after a temperature change ΔT: each resistance flow diagram runs ΔT through × α, + 1 and × R₀ to give R, and every value on it follows the rule', () => {
+    const fl = STEPS.filter((d) => d.flow && d.flow.a[0] === 'ΔT'), R0 = STEPS.filter((d) => d.pk === 'R0');
+    return fl.length === 3 && fl.every((d) => d.flow.ao.join('|') === '× α|+ 1|× R₀' && d.flow.a[3] === 'R') &&
+      fl.every((d) => { const V = varsOf(d); return near(V.R, V['R₀'] * (1 + V.α * V['ΔT'])) && (!d.flow.under || d.flow.under.every((u, k) => near(num(u), ev(d.flow.a[k], V)))); }) &&
+      R0.length === 2 && R0.every((d) => { const V = varsOf(d); return near(V['R₀'] * (1 + V.α * V['ΔT']), V.R) && near(1 + V.α * V['ΔT'], num(d.B)); });
+  }, { source: LUMEN });
+  K.check('L₁ = L₀ + L₀α(t₁ − t₀): the rectangle\'s two parts add to L₁, L₀(1 + α(t₁ − t₀)) is the same for every value tried, and dividing by the whole bracket gives L₀ back', () => {
+    const d = STEPS[idx('The same shape')], e = d.lines.map((l) => sides(l.e)[1]);
+    const ok = [[10, 0.001, 1, 0], [2.5, 1.2e-5, 80, 20], [7, 2e-5, 45, -5]].every((q) => {
+      const V = { 'L₀': q[0], α: q[1], 't₁': q[2], 't₀': q[3] };
+      V['L₁'] = ev(e[0], V);
+      return near(ev(e[1], V), V['L₁']) && near(ev(e[3], V), V['L₀']) && near(V['L₁'], V['L₀'] + V['L₀'] * V.α * (V['t₁'] - V['t₀']));
+    });
+    const g = drawn(idx('The same shape'), blank()).texts, f = STEPS[idx('Find L₀')];
+    return ok && ['1', 'α(t₁ − t₀)', 'L₀', 'L₀α(t₁ − t₀)'].every((s) => g.indexOf(s) >= 0) && near(10 + 10 * 0.001, 10.01) && near(10.01 / 1.001, 10) && f.flow.bo[0] === '÷ 1.001';
+  }, { source: TOOLBOX });
+  K.check('Restate the problem in one sentence with all the important information, then translate it into an equation: on every job screen the sentence carries each number, the sheet draws one identical bar for each part, and the equation is how many parts times one part, equal to the total', () => {
+    const jobs = STEPS.map((d, i) => i).filter((i) => STEPS[i].pic === 'job');
+    const nums = (s) => String(s).match(/\d+(?:\.\d+)?/g) || [];
+    return jobs.length === 5 && jobs.every((i) => {
+      const d = STEPS[i], s = d.sheet, e = sides(d.eq), said = nums(d.show ? d.text : d.task), rows = drawn(i, blank()).rec.sheet;
+      return e[0] === s.k + '(' + s.top + ')' && num(e[1]) === num(s.total) && nums(s.top).concat(nums(s.total)).every((n) => said.indexOf(n) >= 0) &&
+        !!rows && rows.n === s.k && rows.w.every((w) => near(w, rows.w[0]));
+    });
+  }, { source: SENTENCE });
+  K.check('A process can be manipulated as one object: on the R₀ and L₀ screens the whole bracket is one step, done and undone as one, and dividing by part of it alone gives an answer that fails when put back in', () => {
+    const W = STEPS.filter((d) => d.flow && d.flow.whole);
+    return W.length === 3 && W.every((d) => {
+      const f = d.flow, V = varsOf(d), part1 = Object.keys(d.slips).filter((o) => /÷ 0\./.test(d.slips[o]));
+      return f.ao.length === 1 && /^× \(1 \+ .+\)$/.test(f.ao[0]) && f.bo[0] === '÷ ' + d.B && near(apply(f.ao[0], 1, V), num(d.B)) &&
+        near(num(d.R) / num(d.B), valOf(f.b[0])) && part1.length === 1 && !near(putRow(d, numText(part1[0])).l, num(d.R));
+    });
+  }, { source: NCETM });
+  K.check('Each flow diagram is drawn to its rule: every step on the top row turns one box into the next, every undo step turns each box back, both rows hold the same values at the answer, and all of it is on the picture', () =>
+    STEPS.every((d, i) => {
+      if (!d.flow) return true;
+      const f = d.flow, V = varsOf(d), n = f.a.length;
+      for (let k = 0; k < n - 1; k++) if (!near(apply(f.ao[k], ev(f.a[k], V), V), ev(f.a[k + 1], V))) return false;
+      if (!f.b) return true;
+      const tol = (s) => (/≈/.test(s) ? 0.5 : 1e-9);
+      for (let k = 0; k < n - 1; k++) if (!near(apply(f.bo[k], valOf(f.b[k + 1]), V), valOf(f.b[k]), tol(f.b[k]))) return false;
+      for (let k = 0; k < n; k++) if (!near(valOf(f.b[k]), ev(f.a[k], V), tol(f.b[k]))) return false;
+      const g = drawn(i, d.show ? blank() : solvedSt(i)).texts;
+      return f.a.concat(f.ao, f.b, f.bo).every((s) => g.indexOf(s) >= 0);
+    }));
+  K.check('Each wrong answer offered is the one its slip gives: a once-per-part figure counted once, the bracket only half undone, the 1 taken off before dividing by R₀, R₀ taken away instead, multiplying by the bracket, or dividing by part of it', () =>
+    DO.every((i) => {
+      const d = STEPS[i], wrong = d.opts.filter((o) => o !== d.want);
+      return d.opts.indexOf(d.want) >= 0 && wrong.length === Object.keys(d.slips).length && wrong.every((o) => {
+        const dp = (numText(o).split('.')[1] || '').length, v = ev(d.slips[o], {});
+        return near(Math.round(v * Math.pow(10, dp)) / Math.pow(10, dp), num(o));
+      }) && (!d.putOf || d.opts.every((o) => Math.round(num(d.putOf[o]) / ALPHA) === num(o)));
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer', () =>
+    DO.every((i) => { const d = STEPS[i], g = drawn(i, blank()); return g.texts.indexOf(d.flow.b[0]) < 0 && g.texts.indexOf(numText(d.want)) < 0 && g.rec.rows.length === 0; }));
+  K.check('Translate the problem into an equation: on the cable drum screen the equation is picked before it is shown, the right pick is how many parts times one part, and each wrong one, solved, gives a length that does not fit the job', () => {
+    const i = idx('A cable drum'), d = STEPS[i], f = d.form, e = sides(d.eq), g = drawn(i, blank()).texts;
+    const solve = (q) => { const s = sides(q), a = ev(s[0], { x: 0 }), b = ev(s[0], { x: 1 }); return (ev(s[1], {}) - a) / (b - a); };
+    return f.want === d.eq && f.opts.length === 3 && g.every((t) => f.opts.indexOf(t) < 0) && near(solve(f.want), valOf(d.flow.b[0])) &&
+      f.opts.filter((o) => o !== f.want).every((o) => !near(ev(e[0], { x: solve(o) }), ev(e[1], {}))) &&
+      drawn(i, formedSt()).texts.indexOf(d.eq) >= 0;
+  }, { source: SENTENCE });
+  K.check('ΔT made the subject, ΔT = (R ÷ R₀ − 1) ÷ α, is drawn under the undo row, gives back each warming worked out from the rule, and is in the next puzzle\'s Why?', () => {
+    const d = STEPS[idx('Undo for ΔT')], p = STEPS[idx('Your turn')], e = sides(d.rule);
+    return [d, p].every((q) => { const V = varsOf(q); return near(ev(e[1], V), V['ΔT'], 1e-6); }) &&
+      drawn(idx('Undo for ΔT'), blank()).texts.indexOf(d.rule) >= 0 && p.why.indexOf(d.rule) >= 0;
+  }, { source: LUMEN });
+  // Drawn from the lesson's own timetable: each screen is painted finished and every arrival it used is noted.
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st) => { const keepS = S[i]; T = Infinity; latest = 0; earliest = Infinity; S[i] = st; try { paint(i); } finally { S[i] = keepS; } return latest; };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const L = timed(i, blank()); return L <= d.dur + 1e-9 && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i)) <= 2.5 && (!d.form || timed(i, formedSt()) <= 2.5) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o)) <= 2.5);
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

@@ -1,0 +1,68 @@
+{
+  "iid": "i3",
+  "title": "Factorising",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a 6x part and a 15 part fitting together into a rectangle 3 high and 2x + 5 long, so 6x + 15 matches 3(2x + 5) at every x, when you slide x.",
+    "title": "Factorising",
+    "controls": [ { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" } ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on bars, as in Expanding brackets. An x-bar is x long, plain numbers are small squares worth 1 each, and a part taken away is dashed. Factorising starts from the parts. A 6x part, six x-bars, and a 15 part, fifteen squares, slide into rows of the same height. The height that fits both, 3, is the factor outside, and one row, 2x + 5, is what goes in the bracket. A slider for x stretches every x-bar together, so the rectangle grows, and each expression shows its value for the chosen x beside it. With a letter outside, the rectangle is R₀ tall and its parts are a 1 part, which is R₀, and a thin αΔT strip, which is R₀αΔT. For the voltage across three resistors in series, the rectangle is I tall and R₁, R₂ and R₃ long. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The values tried for x and the puzzles' numbers are example values, kept to small whole numbers so the bars can be drawn and counted. x can be any number, even a negative or a fraction, and every factorising here still holds; a bar just cannot be drawn with a negative length. The αΔT strip's width is a sketch, not to scale.",
+    "numbers": [
+      { "label": "Example x = 2, in step 1", "value": 2, "kind": "assumed" },
+      { "label": "At x = 2, 6x + 15 = 12 + 15 and 3(2x + 5) = 3 × 9, both 27, in step 1", "value": 27, "kind": "computed" },
+      { "label": "4x + 20 = 4(x + 5), not 4(x + 20) (20 not divided) or 5(x + 4) (5 does not divide 4x), in step 2", "value": 5, "kind": "computed" },
+      { "label": "Check at x = 2: 4x + 20 makes 28, 4(x + 20) makes 88, 5(x + 4) makes 30, in step 2", "value": 28, "kind": "computed" },
+      { "label": "12x and 18 share 2, 3 and 6; the biggest, 6, gives 6(2x + 3), in step 3", "value": 6, "kind": "computed" },
+      { "label": "Check at x = 1: 12x + 18 and 6(2x + 3) both make 30, in step 3", "value": 30, "kind": "computed" },
+      { "label": "8x + 12 = 4(2x + 3), not 2(4x + 6) (a 2 still shared) or 4(2x + 12) (12 not divided), in step 4", "value": 4, "kind": "computed" },
+      { "label": "Check at x = 1: 8x + 12 and 2(4x + 6) make 20, 4(2x + 12) makes 56, in step 4", "value": 20, "kind": "computed" },
+      { "label": "3x + 3 = 3(x + 1), as 3 = 3 × 1; at x = 2 both make 9, the slip 3x makes 6, in step 5", "value": 9, "kind": "computed" },
+      { "label": "Example winding resistance cold, R₀, in ohms, in step 5", "value": 2.0, "kind": "assumed" },
+      { "label": "Example winding resistance after a run, R, in ohms, in step 5", "value": 2.4, "kind": "assumed" },
+      { "label": "Its R₀αΔT part, 2.4 − 2.0, in ohms, in step 5", "value": 0.4, "kind": "computed" },
+      { "label": "1 + αΔT, 2.4 ÷ 2.0, so 2.0 + 0.4 = 2.0 × 1.2, in step 5", "value": 1.2, "kind": "computed" },
+      { "label": "5x + 5 = 5(x + 1), not 5x (1 dropped) or 5(x + 5) (5 not divided), in step 6", "value": 1, "kind": "computed" },
+      { "label": "Check at x = 3: 5x + 5 makes 20, 5x makes 15, 5(x + 5) makes 40, in step 6", "value": 20, "kind": "computed" },
+      { "label": "Example current I through three resistors in series, in amps, in step 7", "value": 2, "kind": "assumed" },
+      { "label": "Example R₁, in ohms, in step 7", "value": 3, "kind": "assumed" },
+      { "label": "Example R₂, in ohms, in step 7", "value": 5, "kind": "assumed" },
+      { "label": "Example R₃, in ohms, in step 7", "value": 2, "kind": "assumed" },
+      { "label": "IR₁ + IR₂ + IR₃ = 6 + 10 + 4 and I(R₁ + R₂ + R₃) = 2 × 10, both 20 V, in step 7", "value": 20, "kind": "computed" },
+      { "label": "4a + 4b + 12 = 4(a + b + 3), not 4(a + b + 12) or 4(a + b) (3 dropped), in step 8", "value": 3, "kind": "computed" },
+      { "label": "Check at a = 1, b = 2: 4a + 4b + 12 makes 24, 4(a + b + 12) makes 60, 4(a + b) makes 12, in step 8", "value": 24, "kind": "computed" },
+      { "label": "6x − 15 = 3(2x − 5), as 3 × 2x = 6x and 3 × −5 = −15, in step 9", "value": -15, "kind": "computed" },
+      { "label": "Check at x = 4: 6x − 15 and 3(2x − 5) both make 9, the slip 3(2x + 5) makes 39, in step 9", "value": 9, "kind": "computed" },
+      { "label": "14x − 21 = 7(2x − 3), not 7(2x + 3) (sign lost) or 7(2x − 21) (21 not divided), in step 10", "value": 7, "kind": "computed" },
+      { "label": "Check at x = 2: 14x − 21 makes 7, 7(2x + 3) makes 49, 7(2x − 21) makes −119, in step 10", "value": 7, "kind": "computed" },
+      { "label": "ab + a = a(b + 1), not ab (1 dropped) or a(b + a) (a not divided), in step 11", "value": 1, "kind": "computed" },
+      { "label": "Check at a = 2, b = 3: ab + a makes 8, ab makes 6, a(b + a) makes 10, in step 11", "value": 8, "kind": "computed" },
+      { "label": "12x + 8 = 4(3x + 2), not 2(6x + 4) (a 2 still shared) or 4(3x + 8) (8 not divided), in step 12", "value": 4, "kind": "computed" },
+      { "label": "Check at x = 1: 12x + 8 and 2(6x + 4) make 20, 4(3x + 8) makes 44, in step 12", "value": 20, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "[[Factorising]] is expanding run backwards.[^1] Expanding turned 3(2x + 5) into 6x + 15. Factorising starts from 6x + 15 and finds the bracket again. Picture the rectangle from Expanding brackets with its two parts given, a 6x part and a 15 part, and its sides missing. The parts sit side by side, so they have the same height, and that height has to divide both of them. 6x is 3 rows of 2x and 15 is 3 rows of 5, so a height of 3 fits both, and the rectangle is 3 high and 2x + 5 long. So 6x + 15 = 3(2x + 5). A factor that divides every term like this is a [[common factor]].\n\nSome terms share more than one factor, and you take out the biggest, the largest factor that divides evenly into all of them.[^2] 12x and 18 share 2, 3 and 6. 2(6x + 9) is true, but 6x and 9 still share a 3, so it is not finished. Take out 6 and you get 6(2x + 3), since 12x ÷ 6 = 2x and 18 ÷ 6 = 3. A minus stays with its term, so 6x − 15 = 3(2x − 5). To check, expand it back, multiplying the factor outside by each term inside,[^4] and you should get the start again: 3 × 2x = 6x and 3 × −5 = −15. Expanding does not change the value of an expression,[^3] so trying a number checks it too. At x = 4, 6x − 15 makes 9 and 3(2x − 5) makes 3 × 3 = 9.\n\nWhen the factor is a whole term, dividing that term by it leaves 1, and the 1 must stay. 3x + 3 = 3(x + 1), because 3 is 3 × 1. Without it, 3(x) is only 3x, which loses the 3. Letters work the same way. R = R₀(1 + αΔT) gives the resistance R after a temperature change ΔT, where R₀ is the original resistance.[^5] Expanded, it was R₀ + R₀αΔT. Both terms have R₀ in them, and R₀ is R₀ × 1, so taking R₀ out leaves 1 + αΔT. For an example winding of 2.0 Ω cold and 2.4 Ω after a run, 2.0 + 0.4 = 2.0 × 1.2. In the same way, with a current I through resistors R₁, R₂ and R₃ in series, V = IR₁ + IR₂ + IR₃ = I(R₁ + R₂ + R₃).[^6] With an example 2 A through 3, 5 and 2 Ω, the three parts make 6 + 10 + 4 = 20 V, and I(R₁ + R₂ + R₃) makes 2 × 10 = 20 V.\n\n**Factorising is the reverse of expanding:[^1] take the biggest common factor out of every term,[^2] put what is left of each term in the bracket, keeping any 1, and expand it back to check.**"
+  },
+  "analogy": {
+    "text": "Say three identical flats each need two runs of x metres and 5 m for the tails. The order for the job is 6x + 15 metres. Factorising it as 3(2x + 5) reads the order back as what one flat needs, three times over.",
+    "breaks": "Flats come in whole numbers, but a common factor need not be a whole count: it can be a letter such as R₀, or a fraction. And a cable order cannot show a minus inside, as in 3(2x − 5)."
+  },
+  "practice": {
+    "text": "- Find the biggest factor that divides every term, numbers and letters.\n- Write it outside the bracket.\n- Divide each term by it and write what is left inside, sign and all. A term equal to the factor leaves 1.\n- Look inside: if the terms there still share a factor, take that out too.\n- Expand it back, and try a number in the start and the result.\n\n**Rule of thumb:** If expanding your answer does not give the start again, it is wrong.\n\n**Worked example:** 18x − 12. 18 and 12 share 2, 3 and 6, so take out 6. 18x ÷ 6 = 3x and −12 ÷ 6 = −2, so 6(3x − 2). Expand it back: 6 × 3x = 18x and 6 × −2 = −12. As a check, with x = 2 the start makes 36 − 12 = 24, and 6(3x − 2) makes 6 × 4 = 24.\n\n**Common mistakes**\n- Dividing only the first term, so 4x + 20 becomes 4(x + 20). Expand it back and you get 4x + 80. At x = 2 that makes 88, not 28.\n- Dropping the 1, so 3x + 3 becomes 3(x), which is only 3x. At x = 2, 6 against 9.\n- Stopping at a smaller factor, so 12x + 18 becomes 2(6x + 9). It is true but not finished, as 6x and 9 still share 3.\n- Losing a minus, so 6x − 15 becomes 3(2x + 5). At x = 4, 39 against 9."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Core concept 1.4: Simplifying and manipulating expressions, equations and formulae", "url": "https://www.ncetm.org.uk/media/bdddodxr/secmm-cc-audit-1-4-simplifying-and-manipulating-expressions-equations-and-formulae.pdf", "quote": "Factorising is the reverse process to expanding brackets." },
+    { "n": 2, "title": "1.5 Factoring Polynomials - College Algebra 2e | OpenStax", "url": "https://openstax.org/books/college-algebra-2e/pages/1-5-factoring-polynomials", "quote": "The greatest common factor (GCF) of polynomials is the largest polynomial that divides evenly into the polynomials." },
+    { "n": 3, "title": "Solve equations with brackets - KS3 Maths - BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/articles/z7wkjfr", "quote": "Expanding brackets does not change the value of an expression . It is two ways of writing the same expression." },
+    { "n": 4, "title": "Ch. 6 Simplify Expressions Using the Distributive Property: Mini-Lesson Review - Algebra 1 | OpenStax", "url": "https://openstax.org/books/algebra-1/pages/6-simplify-expressions-using-the-distributive-property-mini-lesson-review", "quote": "When using the Distributive Property, the factor outside of the parentheses is multiplied by each term inside the parentheses." },
+    { "n": 5, "title": "Module 6 Resistance | Science 111", "url": "https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity", "quote": "R = R ₀ ( 1 + α Δ T ) is the temperature dependence of the resistance of an object, where R ₀ is the original resistance and R is the resistance after a temperature change Δ T ." },
+    { "n": 6, "title": "21.1: Resistors in Series and Parallel - Physics LibreTexts", "url": "https://phys.libretexts.org/Bookshelves/College_Physics/College_Physics_1e_%28OpenStax%29/21%3A_Circuits_Bioelectricity_and_DC_Instruments/21.01%3A_Resistors_in_Series_and_Parallel", "quote": "[V=IR_{1}+IR_{2}+IR_{3}=I(R_{1}+R_{2}+R_{3}).]" }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
