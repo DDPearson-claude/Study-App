@@ -1,0 +1,980 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick, .scene .aname, .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* The top graph: the rule's curve, P and its tangent. */
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .tan { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .halo { fill: var(--k-accent); fill-opacity: .08; stroke: var(--k-accent); stroke-opacity: .5; stroke-width: 1.5; }
+  /* The graph below: P's slope at each x, as dots joined where P has passed, and the dotted drop from P. */
+  .scene .dline { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .dot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dot.now { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .drop { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 2 4; }
+  /* A slip is drawn in the warning colour. */
+  .scene .dline.bad { stroke: var(--k-warn); stroke-dasharray: 7 5; }
+  .scene .dot.bad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2.5; }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }
+  .scene .row { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }
+  .scene .row.soft { font-weight: 400; }
+  .scene .lab.bad, .scene .row.bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Linked graphs sharing one x across: above, an amount you want the most or the least of; below, its slope at the same x.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 470" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every rule is an example, and every dot below is the slope worked out from the rule above.</p>
+
+<script>
+  // ---------- the example rules ----------
+  // fn: the top graph's rule; x, y, d: [from, to, tick step] across, for the amount above and for its
+  // slope below; step: where a drag of P lands; xu, yu: the units across and up.
+  const G2 = (o) => Object.assign({ yn: '`y`', dn: 'slope `dy/dx`', xn: '`x`', xu: '', yu: '', step: 0.5 }, o);
+  const PW = { yn: '`P`, power into the load in W', dn: 'slope `dP/dI`', xn: '`I`, current in A', xu: 'A', yu: 'W' };
+  const GR = {
+    tape: G2({ who: '40 m of tape: `A = 20x − x²`', fn: (x) => 20 * x - x * x, x: [0, 20, 5], y: [0, 125, 25], d: [-20, 20, 10], step: 1,
+      yn: '`A`, area in m²', dn: 'slope `dA/dx`', xn: '`x`, one side in m', xu: 'm', yu: 'm²' }),
+    cup: G2({ who: 'An example cup: `y = x² − 8x + 20`', fn: (x) => x * x - 8 * x + 20, x: [0, 8, 2], y: [0, 20, 5], d: [-8, 8, 4] }),
+    hill: G2({ who: 'An example: `y = 12x − 3x²`', fn: (x) => 12 * x - 3 * x * x, x: [0, 4, 1], y: [0, 15, 5], d: [-12, 12, 6] }),
+    cube: G2({ who: 'The curve `y = x³`', fn: (x) => x * x * x, x: [-2, 2, 1], y: [-8, 8, 4], d: [-4, 12, 4] }),
+    flat3: G2({ who: 'An example: `y = x³ − 3x² + 3x`', fn: (x) => x * x * x - 3 * x * x + 3 * x, x: [0, 2, 0.5], y: [0, 2.5, 0.5], d: [-1, 3, 1], step: 0.25 }),
+    power: G2(Object.assign({ who: '12 V, 0.5 Ω inside: `P = 12I − 0.5I²`', fn: (i) => 12 * i - 0.5 * i * i, x: [0, 24, 4], y: [0, 80, 20], d: [-12, 12, 6], step: 1, E: 12, r: 0.5 }, PW)),
+    pow24: G2(Object.assign({ who: '24 V, 3 Ω inside: `P = 24I − 3I²`', fn: (i) => 24 * i - 3 * i * i, x: [0, 8, 2], y: [0, 100, 25], d: [-24, 24, 12], E: 24, r: 3 }, PW)),
+    box: G2({ who: 'A 30 cm sheet: `V = x(30 − 2x)²`', fn: (x) => x * (30 - 2 * x) * (30 - 2 * x), x: [0, 15, 5], y: [0, 2500, 500], d: [-300, 900, 300],
+      yn: '`V`, volume in cm³', dn: 'slope `dV/dx`', xn: '`x`, the cut in cm', xu: 'cm', yu: 'cm³' }),
+    bowl: G2({ who: 'An example: `y = 2x² − 12x + 25`', fn: (x) => 2 * x * x - 12 * x + 25, x: [0, 6, 1], y: [0, 30, 10], d: [-12, 12, 6] }),
+    cubic2: G2({ who: 'An example: `y = x³ − 12x`', fn: (x) => x * x * x - 12 * x, x: [0, 4, 1], y: [-20, 20, 10], d: [-12, 36, 12] }),
+  };
+  const ta = GR.tape, cu = GR.cup, hl = GR.hill, c3 = GR.cube, f3 = GR.flat3, pw = GR.power, p24 = GR.pow24, bx = GR.box, bw = GR.bowl, c2 = GR.cubic2;
+
+  // ---------- numbers ----------
+  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };
+  const fmtN = (v) => String(tidy(v)).replace('-', '−');
+  const fmtK = (v) => { const t = tidy(v); return Math.abs(t) >= 1000 ? t.toLocaleString('en-GB', { maximumFractionDigits: 6 }).replace('-', '−') : fmtN(t); };
+  const slope = (g, a, b) => (g.fn(b) - g.fn(a)) / (b - a);   // a chord's slope from the rule
+  // The slope at x, from the rule: a chord 0.0002 wide centred on x, rounded to six places (the number
+  // the chords settle on). The slope of the slope, the second derivative, from how the chords change.
+  const HH = 1e-4;
+  const rate = (g, x) => tidy(Math.round((g.fn(x + HH) - g.fn(x - HH)) / (2 * HH) * 1e6) / 1e6);
+  function rate2(g, x) { const h = 1e-3; return tidy(Math.round((g.fn(x + h) - 2 * g.fn(x) + g.fn(x - h)) / (h * h) * 1e4) / 1e4); }
+  const val = (g, k, x) => (k === 0 ? g.fn(x) : rate(g, x));
+  const amt = (g, v) => fmtK(v) + (g.yu ? ' ' + g.yu : '');
+  const sq = (v) => (v < 0 ? '(' + fmtN(v) + ')' : fmtN(v));
+  // Where the slope readout passes through 0 between lo and hi, closed in on by halving.
+  function zeroOf(g, lo, hi) {
+    let a = lo, b = hi;
+    const sa = Math.sign(rate(g, a));
+    for (let j = 0; j < 60; j++) { const m = (a + b) / 2; if (Math.sign(rate(g, m)) === sa) a = m; else b = m; }
+    return tidy(Math.round(b * 1e4) / 1e4);
+  }
+  const xT = zeroOf(ta, 0, 20), iT = zeroOf(pw, 0, 24), i24 = zeroOf(p24, 0, 8), xB = zeroOf(bx, 1, 10), xW = zeroOf(bw, 0, 6);
+  const say = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/−/g, ' minus ')
+    .replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/Ω/g, ' ohms').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+  const onGrid = (g, x) => tidy(Math.round(x / g.step) * g.step);
+  const gridIn = (g, lo, hi) => { const s = g.step, out = []; for (let k = Math.ceil(lo / s - 1e-9); k <= Math.floor(hi / s + 1e-9); k++) out.push(tidy(k * s)); return out; };
+  const uniq = (g, xs) => Array.from(new Set(xs.map((x) => onGrid(g, x)))).sort((a, b) => a - b);
+  // Grid points P has visited, as stretches of neighbours (joined up between them).
+  function runsOf(g, xs) {
+    const out = [];
+    uniq(g, xs).forEach((x) => { const r = out[out.length - 1]; if (r && x - r[1] <= g.step + 1e-9) r[1] = x; else out.push([x, x]); });
+    return out;
+  }
+
+  // ---------- the working under each SHOW screen's graphs, at P ----------
+  const top0 = (s, w) => (s === 0 ? w : '');
+  const RA = {
+    tape: (x) => { const s = rate(ta, x); return [{ s: 'P at `x` = ' + fmtN(x) + ' m: area ' + fmtN(x) + ' × ' + fmtN(20 - x) + ' = ' + amt(ta, ta.fn(x)), soft: true },
+      { s: 'Slope 20 − 2 × ' + fmtN(x) + ' = ' + fmtN(s) + top0(s, ': the top'), big: true }]; },
+    cup: (x) => { const s = rate(cu, x); return [{ s: 'P at `x` = ' + fmtN(x) + ': `y` = ' + fmtN(x * x) + ' − ' + fmtN(8 * x) + ' + 20 = ' + fmtN(cu.fn(x)), soft: true },
+      { s: 'Slope 2 × ' + fmtN(x) + ' − 8 = ' + fmtN(s) + top0(s, ': the bottom'), big: true }]; },
+    cube: (x) => { const s = rate(c3, x); return [{ s: 'P at `x` = ' + fmtN(x) + ': `y` = ' + fmtN(c3.fn(x)), soft: true },
+      { s: 'Slope 3 × ' + sq(x) + '² = ' + fmtN(s) + top0(s, ', plus either side'), big: true }]; },
+    power: (i) => { const s = rate(pw, i), V = pw.E - pw.r * i; return [{ s: 'At `I` = ' + fmtN(i) + ' A: `P` = ' + fmtN(12 * i) + ' − ' + fmtN(0.5 * i * i) + ' = ' + amt(pw, pw.fn(i)), soft: true },
+      { s: 'Slope 12 − ' + fmtN(i) + ' = ' + fmtN(s) + top0(s, ': the top'), big: true },
+      { s: s === 0 ? 'Load ' + fmtN(V) + ' V ÷ ' + fmtN(i) + ' A = ' + fmtN(V / i) + ' Ω, as inside' : 'Terminal voltage 12 − ' + fmtN(pw.r * i) + ' = ' + fmtN(V) + ' V', soft: true }]; },
+    box: (x) => { const s = rate(bx, x), w = 30 - 2 * x, out = [{ s: 'P at `x` = ' + fmtN(x) + ' cm: ' + fmtN(x) + ' × ' + fmtN(w) + ' × ' + fmtN(w) + ' = ' + amt(bx, bx.fn(x)), soft: true },
+      { s: 'Slope ' + fmtN(12 * x * x) + ' − ' + fmtN(240 * x) + ' + 900 = ' + fmtN(s) + (s === 0 ? (w > 0 ? ': the top' : ': no base') : ''), big: true }];
+      if (s === 0) out.push({ s: 'Second derivative 24 × ' + fmtN(x) + ' − 240 = ' + fmtN(rate2(bx, x)), soft: true });
+      return out; },
+  };
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A SHOW step sweeps P along the top graph (legs) while its slope drops a dot below at every x it
+  // passes; flags name a place once P has passed it. A puzzle's o lists its answers: right, and each
+  // slip with the working it shows (rows), where P goes (at) and what it draws (mark).
+  const STEPS = [
+    { show: true, name: 'Tape round a work area', g: 'tape', dur: 4.2, rows: 2, rowsAt: RA.tape,
+      tour: { x0: 4, legs: [{ to: 16, t: 0.7, len: 3.0 }] },
+      flags: [{ k: 1, x: xT, text: 'slope 0' }, { k: 0, x: xT, text: 'the top' }],
+      text: 'Take 40 m of barrier tape, an example, round a rectangular work area. If one side is `x` metres, two sides take half the tape, 20 m, so the other side is `20 − x` and the area is `A = 20x − x²` square metres. Its slope is `20 − 2x`: ' +
+        fmtN(rate(ta, 4)) + ' at 4 m, ' + fmtN(rate(ta, 16)) + ' at 16 m. Where a curve turns over, at a *turning point*, its tangent lies level. Drag P over the top.' },
+    { name: 'The largest area', g: 'tape', p: null, rows: 3, opts: ['zero', 'right', 'two'],
+      task: 'The same tape. Set the slope `20 − 2x` to zero: which side `x` gives the largest area?',
+      why: '`20 − 2x = 0` gives `2x = 20`, so `x` = ' + fmtN(xT) + ' m, the other side is `20 − 10 = 10` m too, and the area is `10 × 10 = ' + fmtN(ta.fn(xT)) + '` m², a square. Dropping the 2 gives `20 − x = 0` and 20 m; setting the area itself to zero gives 0 m. Both enclose nothing.',
+      hint: 'Not quite. Solve `20 − 2x = 0`.',
+      hints: { zero: 'Not quite. 0 m is where the area itself is 0. Set the slope to zero, not the area.', two: 'Not quite. Bring the power down: `x²` gives `2x`, so the slope is `20 − 2x`.' },
+      pre: ['Slope `20 − 2x` = 0', 'So `x` = ?'],
+      right: ['Slope `20 − 2x` = 0', '`2x` = 20, so `x` = ' + fmtN(xT) + ' m', 'Area 10 × 10 = ' + amt(ta, ta.fn(xT)) + ', a square'],
+      o: {
+        zero: { t: '0 m', at: 0, mark: { ring: 'no area: ' + amt(ta, ta.fn(0)), pts: [{ k: 1, x: 0, text: 'slope ' + fmtN(rate(ta, 0)) + ', not 0' }] }, rows: ['Setting the area to 0 gives `x` = 0 m', 'That is no area at all'] },
+        right: { t: fmtN(xT) + ' m', at: xT, lab: 'slope 0' },
+        two: { t: '20 m', at: 20, mark: { ring: 'no area: ' + amt(ta, ta.fn(20)), pts: [{ k: 1, x: 20, text: 'slope ' + fmtN(rate(ta, 20)) + ', not 0' }] }, rows: ['`20 − x = 0` drops the 2: `x` = 20 m', 'A strip with no width: ' + amt(ta, ta.fn(20))] },
+      } },
+    { show: true, name: 'A top or a bottom', g: 'cup', dur: 4.6, rows: 2, rowsAt: RA.cup,
+      tour: { x0: 1, legs: [{ to: 7, t: 0.7, len: 2.2 }, { to: 4, t: 3.1, len: 1.0 }] },
+      flags: [{ k: 1, x: 4, text: 'slope 0' }, { k: 0, x: 4, text: 'the bottom' }, { k: 1, x: 6, text: 'slope rising' }],
+      text: 'The area\'s slope, `20 − 2x`, falls 2 for each metre across: its own slope, the *second derivative*, is ' + fmtN(rate2(ta, 10)) + '. So the slope runs from plus through zero to minus, and the flat point is a top, the *maximum*. On a cup, an example `y = x² − 8x + 20`, the slope `2x − 8` rises instead: ' +
+        fmtN(rate(cu, 2)) + ' at 2, ' + fmtN(rate(cu, 4)) + ' at 4, ' + fmtN(rate(cu, 6)) + ' at 6. Its second derivative is ' + fmtN(rate2(cu, 4)) + ', plus, so the flat point is a bottom, the *minimum*.' },
+    { name: 'A flat point at 2', g: 'hill', p: 2, rows: 3, opts: ['right', 'bottom', 'neither'],
+      task: 'An example rule, `y = 12x − 3x²`, has slope `12 − 6x`. That is 0 at `x` = 2, where `y = 24 − 12 = ' + fmtN(hl.fn(2)) + '`, and its second derivative is ' + fmtN(rate2(hl, 2)) + '. What is the flat point?',
+      why: 'The slope `12 − 6x` falls 6 for each 1 across: its second derivative is ' + fmtN(rate2(hl, 2)) + ', so the slope runs from plus through zero to minus, and the flat point is a top, the largest `y`, ' + fmtN(hl.fn(2)) + '. A bottom needs the slope rising through zero; neither needs it to stay plus, or stay minus, either side.',
+      hint: 'Not quite. Is the slope rising or falling as it passes 0?',
+      hints: { bottom: 'Not quite. A bottom has a plus second derivative. This one is ' + fmtN(rate2(hl, 2)) + '.', neither: 'Not quite. The slope is ' + fmtN(rate(hl, 1)) + ' before 2 and ' + fmtN(rate(hl, 3)) + ' after it: it changes from plus to minus.' },
+      pre: ['Flat at `x` = 2, `y` = ' + fmtN(hl.fn(2)), 'Second derivative ' + fmtN(rate2(hl, 2)), 'The flat point is ?'],
+      right: ['Flat at `x` = 2, `y` = ' + fmtN(hl.fn(2)), 'Second derivative ' + fmtN(rate2(hl, 2)) + ': the slope falls', 'A top: the largest `y`, ' + fmtN(hl.fn(2))],
+      o: {
+        right: { t: 'A top', all: true, lab: 'falling through 0' },
+        bottom: { t: 'A bottom', mark: { line: { k: 1, fn: (x) => 6 * x - 12, text: 'a bottom needs this', at: [3.3, 10, 'end'] } }, rows: ['A bottom needs the slope rising', 'Here it falls 6 for each 1 across'] },
+        neither: { t: 'Neither', mark: { pts: [{ k: 1, x: 1, text: 'slope ' + fmtN(rate(hl, 1)) + ' before' }, { k: 1, x: 3, text: 'slope ' + fmtN(rate(hl, 3)) + ' after' }] }, rows: ['The slope goes from plus to minus', 'So the curve turns over at 2'] },
+      } },
+    { show: true, name: 'Flat, but not a turn', g: 'cube', dur: 4.5, rows: 2, rowsAt: RA.cube,
+      tour: { x0: -2, legs: [{ to: 2, t: 0.7, len: 2.2 }, { to: 0, t: 3.1, len: 0.9 }] },
+      flags: [{ k: 1, x: 0, text: 'touches 0' }, { k: 0, x: 0, text: 'level, still climbing' }],
+      text: 'A zero slope is a candidate, not a guarantee. `y = x³` climbs, is level for an instant at `x` = 0, then climbs again. Its slope, `3x²`, is ' + fmtN(rate(c3, -1)) + ' at −1, ' + fmtN(rate(c3, 0)) + ' at 0 and ' + fmtN(rate(c3, 1)) +
+        ' at 1: plus on both sides, so the dots below touch the axis without crossing it. Its second derivative, `6x`, is ' + fmtN(rate2(c3, 0)) + ' there too, so that test cannot decide: look at the slope either side.' },
+    { name: 'A flat point at 1', g: 'flat3', p: 1, rows: 3, opts: ['top', 'bottom', 'right'],
+      task: 'An example rule, `y = x³ − 3x² + 3x`, is flat at `x` = 1. Its slope is ' + fmtN(rate(f3, 0)) + ' at `x` = 0 and ' + fmtN(rate(f3, 2)) + ' at `x` = 2, and its heights at 0, 1 and 2 are ' + [0, 1, 2].map((x) => fmtN(f3.fn(x))).join(', ').replace(/, (\d+)$/, ' and $1') + '. What is the flat point?',
+      why: 'The slope is plus at 0, 0 at 1 and plus again at 2: it touches zero without crossing, so the curve climbs, is level for an instant, then climbs on, like `y = x³`. Flat, but neither a top nor a bottom: its heights ' + [0, 1, 2].map((x) => fmtN(f3.fn(x))).join(', ') + ' keep rising.',
+      hint: 'Not quite. Look at the slope just either side of 1.',
+      hints: { top: 'Not quite. After 1 it keeps climbing: ' + fmtN(f3.fn(2)) + ' at `x` = 2 is higher.', bottom: 'Not quite. Before 1 it was lower: ' + fmtN(f3.fn(0)) + ' at `x` = 0.' },
+      pre: ['Heights ' + [0, 1, 2].map((x) => fmtN(f3.fn(x))).join(', ') + ' at `x` = 0, 1, 2', 'Slope ' + fmtN(rate(f3, 0)) + ' at 0 and at 2', 'The flat point is ?'],
+      right: ['Slope ' + fmtN(rate(f3, 0)) + ', then ' + fmtN(rate(f3, 1)) + ', then ' + fmtN(rate(f3, 2)), 'Plus on both sides: still climbing', 'Neither: flat for an instant'],
+      o: {
+        top: { t: 'A top', mark: { pts: [{ k: 0, x: 2, text: 'higher at 2' }] }, rows: ['A top would be the highest nearby', 'But `y` is ' + fmtN(f3.fn(2)) + ' at 2, above the ' + fmtN(f3.fn(1)) + ' at 1'] },
+        bottom: { t: 'A bottom', mark: { pts: [{ k: 0, x: 0, text: 'lower at 0' }] }, rows: ['A bottom would be the lowest nearby', 'But `y` is ' + fmtN(f3.fn(0)) + ' at 0, below the ' + fmtN(f3.fn(1)) + ' at 1'] },
+        right: { t: 'Neither', all: true, lab: 'touches 0' },
+      } },
+    { show: true, name: 'Most power to a load', g: 'power', dur: 4.6, rows: 3, rowsAt: RA.power,
+      tour: { x0: 4, legs: [{ to: 20, t: 0.7, len: 2.2 }, { to: iT, t: 3.1, len: 1.0 }] },
+      flags: [{ k: 1, x: iT, text: 'slope 0' }, { k: 0, x: iT, text: 'most power' }],
+      text: 'An example source, 12 V open-circuit with 0.5 Ω inside, feeds a load. The voltage at its terminals is `12 − 0.5I`, so the power into the load is `P = 12I − 0.5I²` watts, with slope `12 − I`. That falls through 0 at ' + fmtN(iT) + ' A, the top: `144 − 72 = ' + fmtN(pw.fn(iT)) +
+        '` W, against ' + fmtN(pw.fn(4)) + ' W at 4 A or 20 A, and none at the short-circuit 24 A. There the load is 0.5 Ω, matching the source, which turns `12² × 0.5 = ' + fmtN(iT * iT * pw.r) + '` W into heat inside itself as well.' },
+    { name: 'A 24 V source', g: 'pow24', p: null, rows: 3, opts: ['keep', 'zero', 'right'],
+      task: 'An example source has 24 V open-circuit and 3 Ω inside, so the power into a load is `P = 24I − 3I²` watts. What is the most power it can deliver?',
+      why: 'The slope `24 − 6I` is 0 at `I` = ' + fmtN(i24) + ' A, and the power there is `96 − 48 = ' + fmtN(p24.fn(i24)) + '` W. Leaving out `3I²` gives `24 × 4 = 96` W, as if nothing were lost inside, and 0 is the slope at the top, not the power. The terminal voltage is `24 − 12 = 12` V, so the load is `12 ÷ 4 = ' + fmtN((p24.E - p24.r * i24) / i24) + '` Ω, the same as inside.',
+      hint: 'Not quite. Find where the slope is 0, then put that current back into `P`.',
+      hints: { keep: 'Not quite. Keep the `3I²` term: the source loses power inside itself.', zero: 'Not quite. 0 is the slope at the top. The question asks for the power there.' },
+      pre: ['Slope `24 − 6I`', 'Most power = ?'],
+      right: ['Slope `24 − 6I` = 0 at `I` = ' + fmtN(i24) + ' A', '`P` = 96 − 48 = ' + amt(p24, p24.fn(i24)), 'Load 12 V ÷ 4 A = ' + fmtN((p24.E - p24.r * i24) / i24) + ' Ω, as inside'],
+      o: {
+        keep: { t: fmtN(24 * i24) + ' W', at: i24, mark: { line: { k: 0, fn: (i) => 24 * i, text: '`24I` alone', at: [1.4, 62, 'end'] }, pts: [{ k: 0, x: i24, v: 24 * i24, text: fmtN(24 * i24) + ' W' }] }, rows: ['Dropping `3I²`: 24 × 4 = ' + fmtN(24 * i24) + ' W', 'That leaves out the loss inside'] },
+        zero: { t: fmtN(rate(p24, i24)) + ' W', at: i24, mark: { pts: [{ k: 1, x: i24, text: '0 is the slope' }] }, rows: ['0 is the slope at the top', 'Put 4 A back into `P`'] },
+        right: { t: amt(p24, p24.fn(i24)), at: i24, lab: 'slope 0' },
+      } },
+    { show: true, name: 'The largest box', g: 'box', dur: 4.8, rows: 3, rowsAt: RA.box,
+      tour: { x0: 1, legs: [{ to: 15, t: 0.7, len: 2.4 }, { to: xB, t: 3.3, len: 1.0 }] },
+      flags: [{ k: 1, x: xB, text: 'slope 0: the top' }, { k: 1, x: 15, text: '0 again' }, { k: 0, x: 15, text: 'no base' }],
+      text: 'Fold an open box from a 30 cm square sheet, an example, cutting squares of side `x` from its corners. Its volume is `V = x(30 − 2x)²` cm³, and its slope, `12x² − 240x + 900`, is awkward to solve, so read off where it is 0: ' + fmtN(xB) + ' cm. Check it: `300 − 1200 + 900 = ' + fmtN(12 * xB * xB - 240 * xB + 900) +
+        '`. The box holds `5 × 20 × 20 = ' + fmtK(bx.fn(xB)) + '` cm³, more than ' + fmtK(bx.fn(4)) + ' at 4 cm or ' + fmtK(bx.fn(6)) + ' at 6 cm. At 15 cm the slope is 0 again, but no base is left.' },
+    { name: 'Reading the readout', g: 'box', p: null, rows: 3, known: { dots: [4, 6] }, opts: ['four', 'right', 'fifteen'],
+      task: 'The same box. The slope readout says ' + fmtN(rate(bx, 4)) + ' at 4 cm and ' + fmtN(rate(bx, 6)) + ' at 6 cm. Where is the largest box?',
+      why: 'The readout falls from ' + fmtN(rate(bx, 4)) + ' at 4 cm to ' + fmtN(rate(bx, 6)) + ' at 6 cm, so it passes through zero between them, at ' + fmtN(xB) + ' cm, where the box holds `5 × 20 × 20 = ' + fmtK(bx.fn(xB)) + '` cm³. At 4 cm the volume is still climbing. At 15 cm the slope is 0 again, but that is a bottom, where no base is left.',
+      hint: 'Not quite. Where does the readout pass through 0?',
+      hints: { four: 'Not quite. A plus readout means the volume is still climbing at 4 cm.', fifteen: 'Not quite. The slope is 0 at 15 cm too, but there the box has no base: ' + amt(bx, bx.fn(15)) + '.' },
+      pre: ['Slope ' + fmtN(rate(bx, 4)) + ' at 4 cm, ' + fmtN(rate(bx, 6)) + ' at 6 cm', 'Largest box at `x` = ?'],
+      right: ['Slope ' + fmtN(rate(bx, 4)) + ' at 4 cm, ' + fmtN(rate(bx, 6)) + ' at 6 cm', 'It falls through 0 at ' + fmtN(xB) + ' cm', 'Largest: ' + amt(bx, bx.fn(xB))],
+      o: {
+        four: { t: '4 cm', at: 4, mark: { tan: true, note: 'still climbing' }, rows: ['At 4 cm the slope is ' + fmtN(rate(bx, 4)) + ': still climbing', 'The top is where it reads 0'] },
+        right: { t: fmtN(xB) + ' cm', at: xB, lab: 'slope 0' },
+        fifteen: { t: '15 cm', at: 15, mark: { ring: 'no base: ' + amt(bx, bx.fn(15)) }, rows: ['Slope 0 at 15 cm too, but a bottom', 'No base is left: ' + amt(bx, bx.fn(15))] },
+      } },
+    { name: 'The lowest value', g: 'bowl', p: null, rows: 3, opts: ['right', 'xval', 'start'],
+      task: 'An example rule, `y = 2x² − 12x + 25`. What is its lowest value?',
+      why: 'The slope `4x − 12` is 0 at `x` = ' + fmtN(xW) + ', and it rises through zero there, so that is a bottom. Put 3 back into the rule: `2 × 9 − 36 + 25 = 18 − 36 + 25 = ' + fmtN(bw.fn(xW)) + '`. 3 is where the bottom is, not how low it goes, and 25 is the value at `x` = 0, where the curve is still falling.',
+      hint: 'Not quite. Find where the slope is 0, then put that `x` back into the rule.',
+      hints: { xval: 'Not quite. 3 is the `x` of the bottom. The question asks for the value of `y` there.', start: 'Not quite. 25 is the value at `x` = 0, where the slope is ' + fmtN(rate(bw, 0)) + ': still falling.' },
+      pre: ['Slope `4x − 12`', 'Lowest `y` = ?'],
+      right: ['Slope `4x − 12` = 0 at `x` = ' + fmtN(xW), 'The slope rises there: a bottom', 'Lowest `y` = 18 − 36 + 25 = ' + fmtN(bw.fn(xW))],
+      o: {
+        right: { t: fmtN(bw.fn(xW)), at: xW, lab: 'slope 0' },
+        xval: { t: fmtN(xW), at: xW, mark: { note: '`x` = 3 is where, not how low' }, rows: [fmtN(xW) + ' is the `x` of the bottom', 'Put it back into the rule'] },
+        start: { t: fmtN(bw.fn(0)), at: 0, mark: { ring: fmtN(bw.fn(0)) + ' at `x` = 0' }, rows: [fmtN(bw.fn(0)) + ' is `y` at `x` = 0', 'The slope there is ' + fmtN(rate(bw, 0)) + ': still falling'] },
+      } },
+    { name: 'Flat at 2 on x³ − 12x', g: 'cubic2', p: 2, rows: 3, opts: ['top', 'right', 'neither'],
+      task: 'An example rule, `y = x³ − 12x`, has slope `3x² − 12`, which is 0 at `x` = 2. Its second derivative is `6x`. What is the flat point at 2?',
+      why: 'The second derivative `6x` is `6 × 2 = ' + fmtN(rate2(c2, 2)) + '` at the flat point: plus, so the slope is rising through zero, from ' + fmtN(rate(c2, 1)) + ' at 1 to ' + fmtN(rate(c2, 3)) + ' at 3, and the flat point is a bottom, at `y = 8 − 24 = ' + fmtN(c2.fn(2)) + '`. A top needs a minus second derivative; neither needs the slope to stay plus, or stay minus, either side.',
+      hint: 'Not quite. Work out `6x` at 2: plus or minus?',
+      hints: { top: 'Not quite. A top has a minus second derivative. Here `6 × 2 = ' + fmtN(rate2(c2, 2)) + '`, plus.', neither: 'Not quite. The slope is ' + fmtN(rate(c2, 1)) + ' before 2 and ' + fmtN(rate(c2, 3)) + ' after it: it changes from minus to plus.' },
+      pre: ['Slope `3x² − 12` = 0 at `x` = 2', 'Second derivative `6x`', 'The flat point is ?'],
+      right: ['Second derivative 6 × 2 = ' + fmtN(rate2(c2, 2)) + ': rising', 'A bottom: the lowest nearby', 'Bottom `y` = 8 − 24 = ' + fmtN(c2.fn(2))],
+      o: {
+        top: { t: 'A top', mark: { line: { k: 1, fn: (x) => 24 - 12 * x, text: 'a top needs this', at: [0.5, 28, 'start'] } }, rows: ['A top needs the slope falling', 'Here ' + fmtN(rate2(c2, 2)) + ' is plus: it rises'] },
+        right: { t: 'A bottom', all: true, lab: 'rising through 0' },
+        neither: { t: 'Neither', mark: { pts: [{ k: 1, x: 1, text: 'slope ' + fmtN(rate(c2, 1)) + ' before' }, { k: 1, x: 3, text: 'slope ' + fmtN(rate(c2, 3)) + ' after' }] }, rows: ['The slope goes from minus to plus', 'So the curve turns at 2'] },
+      } },
+  ];
+  const FINISH = 'A smooth curve is flat where it turns at a top or a bottom: set its derivative to zero to find the place, tell which it is from the second derivative or the slope either side, check the ends, and put the answer back into the rule.';
+  // The lesson's sources the checks restate.
+  const OS_D = 'https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function';
+  const GOV = 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus';
+  const SQA = 'https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf';
+  const OS_M = 'https://openstax.org/books/calculus-volume-1/pages/4-3-maxima-and-minima';
+  const FADE = 0.35, FB = [1.3, 1.2];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // p, seen: where Dan has dragged P and the grid points it has visited.
+  function blank() { return { pick: null, res: null, why: false, p: null, seen: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion
+  let REC = null, checking = false;
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z/])[xyAPIV](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === 'right' ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    const st = S[at()]; st.p = null; st.seen = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null, AV = [], LQ = [], KEY = [];   // AV: lines and shapes labels keep clear of; LQ: labels waiting; KEY: the key's entries
+  const add = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  // Text in the drawing: letters inside backticks are the rule's letters, set in italics.
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    String(s).split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); });
+    return add(t);
+  }
+  // A line of text kept inside the drawing: shrunk (never under 12) when it would run past the edge.
+  function fit(t, room, size) {
+    try { const w = t.getComputedTextLength(); if (w > room) t.style.fontSize = Math.max(12, Math.floor(size * room / w * 10) / 10) + 'px'; } catch (e) { /* measured again next paint */ }
+  }
+  const widths = {};
+  function tw(s, cls) {
+    s = String(s).replace(/`/g, '');
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * 13 * 0.6;
+  }
+  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.
+  const queue = (a, items) => { items = items.filter((it) => it.text); if (a > 0 && items.length) LQ.push({ a, items }); };
+  function flushLabels() {
+    const list = LQ; LQ = [];
+    list.forEach((q) => part(q.a, 4, () => {
+      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text.replace(/`/g, ''), anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });
+      ts.forEach((t) => { REC.labs.push(t.textContent); if (/\bbad\b/.test(t.getAttribute('class') || '')) REC.bad++; });
+    }));
+  }
+
+  // ---------- the linked graphs: the rule on top, its slope below, one x across ----------
+  const PL = 52, PR = 318;
+  const LAY = [[56, 124], [238, 108]];
+  function panes(g) {
+    if (g._p) return g._p;
+    g._p = [g.y, g.d].map((r, k) => ({ k, T: LAY[k][0], H: LAY[k][1], B: LAY[k][0] + LAY[k][1], r, name: k ? g.dn : g.yn }));
+    return g._p;
+  }
+  const X = (g, v) => PL + (v - g.x[0]) / (g.x[1] - g.x[0]) * (PR - PL);
+  const Yk = (g, k, v) => { const P = panes(g)[k]; return P.B - (v - P.r[0]) / (P.r[1] - P.r[0]) * P.H; };
+  const inR = (g, k, v) => { const r = panes(g)[k].r; return v >= r[0] - 1e-9 && v <= r[1] + 1e-9; };
+  // Gridlines (one x across both graphs), the axes (through zero where zero is in view), numbers and
+  // the graph's name.
+  function drawFrame(g, P) {
+    const r = P.r, B = P.B, T0 = P.T;
+    for (let v = r[0]; v <= r[1] + 1e-9; v += r[2]) { const y = Yk(g, P.k, v); if (v > r[0] + 1e-9 && Math.abs(v) > 1e-9) line('grid', PL, y, PR, y); text(PL - 7, y + 4.5, fmtK(v), 'tick', 'end'); }
+    for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.x[2]) { const x = X(g, v); if (v > g.x[0] + 1e-9) line('grid', x, T0, x, B); line('mtick', x, B, x, B + 5); text(x, B + 17, fmtN(v), 'tick'); }
+    const zy = r[0] < 0 && r[1] > 0 ? Yk(g, P.k, 0) : null;
+    if (zy != null) line('grid', PL, B, PR, B);
+    AV.push(line('axis', PL, zy == null ? B : zy, PR + 6, zy == null ? B : zy), line('axis', PL, T0 - 6, PL, B));
+    text(12, T0 - 14, P.name, 'aname', 'start');
+  }
+  function curveD(g) {
+    return K.linspace(g.x[0], g.x[1], 161).map((x, k) => (k ? 'L' : 'M') + r3(X(g, x)) + ' ' + r3(Yk(g, 0, g.fn(x)))).join(' ');
+  }
+  // The stretch of a straight line through (x0, y0) with slope m that lies inside the top graph.
+  function clipLine(g, x0, y0, m) {
+    let a = g.x[0], b = g.x[1];
+    if (Math.abs(m) > 1e-12) {
+      const u = x0 + (g.y[0] - y0) / m, w = x0 + (g.y[1] - y0) / m;
+      a = Math.max(a, Math.min(u, w)); b = Math.min(b, Math.max(u, w));
+    } else if (y0 < g.y[0] || y0 > g.y[1]) return null;
+    return b > a ? [[a, y0 + m * (a - x0)], [b, y0 + m * (b - x0)]] : null;
+  }
+  // P on the top graph, with its name.
+  function drawP(g, x, a, halo) {
+    const px = X(g, x), py = Yk(g, 0, g.fn(x));
+    REC.P = [px, py]; REC.p = x;
+    if (a <= 0) return;
+    part(a, 0, () => { if (halo) AV.push(circle('halo', px, py, 13)); AV.push(circle('pt', px, py, 7)); });
+    queue(a, [{ x: px - 10, y: py - 10, text: 'P', anchor: 'end' }]);
+  }
+  // The tangent at P: the line through P with the slope the chords settle on.
+  function drawTangent(g, x, a) {
+    if (a <= 0) return;
+    const s = clipLine(g, x, g.fn(x), rate(g, x));
+    if (!s) return;
+    const c = { x1: X(g, s[0][0]), y1: Yk(g, 0, s[0][1]), x2: X(g, s[1][0]), y2: Yk(g, 0, s[1][1]) };
+    part(a, 0, () => AV.push(line('tan', c.x1, c.y1, c.x2, c.y2)));
+    REC.tan = c;
+    KEY.push({ cls: 'tan', text: 'tangent', a });
+  }
+  // The dotted drop from P to the graph below (to its foot while the answer is still a question),
+  // broken between the graphs where their numbers and names sit. grow: how far it has dropped.
+  function drawGuide(g, x, v, grow, a) {
+    if (grow <= 0 || a <= 0) return;
+    const PS = panes(g), px = X(g, x), segs = [];
+    const y0 = Yk(g, 0, g.fn(x)) + 10, y1 = PS[0].B, y2 = PS[1].T, y3 = v == null ? PS[1].B : Yk(g, 1, v) - 8;
+    if (y1 > y0) segs.push([y0, y1]);
+    if (y3 > y2) segs.push([y2, y3]);
+    let left = grow * segs.reduce((s, q) => s + q[1] - q[0], 0);
+    part(a, 0, () => segs.forEach((q) => { if (left <= 0) return; const L = Math.min(left, q[1] - q[0]); AV.push(line('drop', px, q[0], px, q[0] + L)); left -= L; }));
+  }
+  // The trail below: a line through the slope over each stretch P has covered, and a dot at each grid
+  // point, every height worked out from the rule.
+  function drawTrail(g, runs, xs, a, r) {
+    if (a <= 0) return;
+    part(a, 0, () => {
+      runs.forEach((rn) => {
+        const lo = rn[0], hi = rn[1];
+        if (!(hi > lo)) return;
+        const n = Math.max(2, Math.ceil((hi - lo) / (g.x[1] - g.x[0]) * 80));
+        let s = '';
+        for (let j = 0; j <= n; j++) { const x = lo + (hi - lo) * j / n; s += (j ? ' L' : 'M') + r3(X(g, x)) + ' ' + r3(Yk(g, 1, rate(g, x))); }
+        AV.push(path('dline', s));
+      });
+      xs.forEach((x) => {
+        const v = rate(g, x);
+        if (!inR(g, 1, v)) return;
+        const px = X(g, x), py = Yk(g, 1, v);
+        AV.push(circle('dot', px, py, r || 3.5));
+        REC.dots.push({ k: 1, x, px, py });
+      });
+    });
+    KEY.push({ cls: 'trail', text: 'slope', a });
+  }
+  // The dot P is dropping now, straight below it.
+  function drawLive(g, x, a) {
+    if (a <= 0) return;
+    const v = rate(g, x);
+    if (!inR(g, 1, v)) return;
+    const px = X(g, x), py = Yk(g, 1, v);
+    part(a, 0, () => AV.push(circle('dot now', px, py, 6)));
+    REC.live.push({ k: 1, x, px, py });
+    KEY.push({ cls: 'trail', text: 'slope', a });
+  }
+  // Where a label for a point on graph k goes: above or below it, right or left, inside its own graph
+  // and clear of the zero line.
+  function spot(g, k, x, v, s) {
+    const P = panes(g)[k], px = X(g, x), py = Yk(g, k, v), w = tw(s, 'lab') + 2;
+    const zy = P.r[0] < 0 && P.r[1] > 0 ? Yk(g, k, 0) : null;
+    const ok = (x0, b) => {
+      const top = b - 11, bot = b + 3;
+      if (x0 < PL + 2 || x0 + w > PR + 14 || bot > P.B - 2 || top < P.T + 1) return false;
+      return !(zy != null && top < zy + 3 && bot > zy - 3);
+    };
+    const cands = [[px + 10, py - 9, 'start'], [px - 10, py - 9, 'end'], [px + 10, py + 19, 'start'], [px - 10, py + 19, 'end'], [px + 12, py - 22, 'start'], [px - 12, py - 22, 'end']];
+    for (const c of cands) if (ok(c[2] === 'end' ? c[0] - w : c[0], c[1])) return c;
+    return cands[0];
+  }
+  function valLabel(g, x, a, s) {
+    if (a <= 0) return;
+    const v = rate(g, x);
+    s = s || fmtN(v);
+    if (!inR(g, 1, v)) return;
+    const c = spot(g, 1, x, v, s);
+    queue(a, [{ x: c[0], y: c[1], text: s, anchor: c[2] }]);
+  }
+  function flag(g, f, a) {
+    const v = val(g, f.k, f.x), c = spot(g, f.k, f.x, v, f.text);
+    queue(a, [{ x: c[0], y: c[1], text: f.text, anchor: c[2] }]);
+  }
+  // The key, on its own line under the graphs.
+  function drawKey(y) {
+    const seen = {}, list = [];
+    KEY.forEach((k) => { if (k.a <= 0) return; if (seen[k.cls]) { seen[k.cls].a = Math.max(seen[k.cls].a, k.a); return; } seen[k.cls] = Object.assign({}, k); list.push(seen[k.cls]); });
+    const order = ['tan', 'trail'];
+    list.sort((a, b) => order.indexOf(a.cls) - order.indexOf(b.cls));
+    let x = 12;
+    list.forEach((k) => {
+      const x0 = x;
+      part(k.a, 0, () => {
+        if (k.cls === 'trail') { line('dline', x0, y - 4.5, x0 + 22, y - 4.5); circle('dot', x0 + 11, y - 4.5, 3.5); } else line(k.cls, x0, y - 4.5, x0 + 22, y - 4.5);
+        text(x0 + 28, y, k.text, 'key', 'start');
+      });
+      x += 28 + tw(k.text, 'key') + 18;
+    });
+  }
+  // ---------- the working under the drawing, one line each ----------
+  function drawRows(G, RW) {
+    RW.forEach((r, n) => {
+      const a = r.a != null ? r.a : vis(r.t);
+      part(a, 4, () => fit(text(12, G.rowsY + 18 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start'), 316, 15));
+      if (a >= 0.5) REC.rows.push(r.s);
+      if (r.bad && a > 0) REC.bad++;
+    });
+  }
+
+  // ---------- the SHOW screens ----------
+  // P sweeps along the top graph, its tangent riding with it, and its slope drops a dot straight below
+  // at every grid point it passes. Once Dan drags P the sweep gives way to his trail.
+  const tourEnd = (d) => (d.tour.legs.length ? d.tour.legs[d.tour.legs.length - 1].to : d.tour.x0);
+  function finalTrail(d) {
+    const ends = [d.tour.x0].concat(d.tour.legs.map((Lg) => Lg.to));
+    return gridIn(GR[d.g], Math.min.apply(null, ends), Math.max.apply(null, ends));
+  }
+  // When the sweep first carries P past x (null if it never does).
+  function tPass(d, fx) {
+    let a = d.tour.x0;
+    if (Math.abs(fx - a) < 1e-9) return 0.4;
+    for (const Lg of d.tour.legs) {
+      const b = Lg.to;
+      if (a !== b && (fx - a) * (fx - b) <= 0) {
+        const want = (fx - a) / (b - a);
+        let lo = 0, hi = 1;
+        for (let j = 0; j < 40; j++) { const m = (lo + hi) / 2; if (K.ease(m) < want) lo = m; else hi = m; }
+        return Lg.t + hi * Lg.len;
+      }
+      a = b;
+    }
+    return null;
+  }
+  function drawTour(d, st, G, RW) {
+    const g = G.g, tr = d.tour, own = st.p != null, pa = own ? 1 : vis(0.4);
+    let x = tr.x0, rx = x, la = 1, lo = x, hi = x;
+    if (own) {
+      x = st.p; rx = x;
+      drawTrail(g, runsOf(g, st.seen), st.seen, 1);
+    } else {
+      for (let n = 0; n < tr.legs.length; n++) {
+        const Lg = tr.legs[n];
+        if (T < Lg.t) break;
+        if (T < Lg.t + Lg.len) { la = 1 - K.arrive(T, Lg.t, 0.3); x = K.lerp(x, Lg.to, K.ease((T - Lg.t) / Lg.len)); break; }
+        x = Lg.to; rx = x; la = arr(Lg.t + Lg.len, 0.5);
+        lo = Math.min(lo, x); hi = Math.max(hi, x);
+      }
+      lo = Math.min(lo, x); hi = Math.max(hi, x);
+      drawTrail(g, [[lo, hi]], gridIn(g, lo, hi), pa);
+    }
+    drawGuide(g, x, rate(g, x), pa, 1);
+    drawLive(g, x, pa);
+    const lb = own ? 1 : Math.min(la, pa), fl = d.flags || [];
+    fl.forEach((f) => {
+      let fa = 0;
+      if (own) fa = st.seen.some((s) => Math.abs(s - f.x) < 1e-9) ? 1 : 0;
+      else { const tp = tPass(d, f.x); fa = tp == null ? 0 : arr(tp, 0.5); }
+      if (fa > 0) flag(g, f, fa);
+    });
+    if (lb > 0 && !fl.some((f) => f.k === 1 && Math.abs(f.x - rx) < 1e-9)) valLabel(g, rx, lb);
+    drawTangent(g, x, 1);
+    drawP(g, x, 1, !finished);
+    d.rowsAt(rx).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: own ? 1 : la }));
+    return [[X(g, x), Yk(g, 0, g.fn(x)), x]];
+  }
+
+  // ---------- the puzzles ----------
+  // Before Check the working ends in a question mark and P's drop ends in "?"; after it, the answer
+  // (the level tangent and P's dot on the zero line), or the slip drawn in red.
+  function puzzleRows(d, k, o, RW) {
+    if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n < d.pre.length - 1 }));
+    else if (k === 'right') d.right.forEach((s, n) => RW.push(n === 0 ? { s, soft: true } : { s, big: n === d.right.length - 1, t: 0.2 + 0.2 * n }));
+    else { RW.push({ s: d.pre[0], soft: true }); o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.2 + 0.2 * n })); }
+  }
+  function drawRedLine(g, k, fn, a, txt, pos) {
+    let s = '', on = false;
+    K.linspace(g.x[0], g.x[1], 81).forEach((x) => { const v = fn(x); if (inR(g, k, v)) { s += (on ? ' L' : ' M') + r3(X(g, x)) + ' ' + r3(Yk(g, k, v)); on = true; } else on = false; });
+    part(a, 0, () => AV.push(path('dline bad', s.trim())));
+    queue(a, [{ x: X(g, pos[0]), y: Yk(g, k, pos[1]), text: txt, anchor: pos[2] || 'middle', cls: 'bad' }]);
+  }
+  function drawSlipG(g, p, mk, a) {
+    const px = X(g, p), py = Yk(g, 0, g.fn(p)), right = px > 200;
+    if (mk.ring) {   // a red ring round P where the slip lands
+      part(a, 0, () => AV.push(circle('ring', px, py, 12)));
+      queue(a, [right ? { x: px - 18, y: py - 14, text: mk.ring, anchor: 'end', cls: 'bad' } : { x: px + 18, y: py - 14, text: mk.ring, anchor: 'start', cls: 'bad' }]);
+      REC.bad++;
+    }
+    if (mk.tan) drawTangent(g, p, a);
+    if (mk.note) { queue(a, [right ? { x: px - 14, y: py - 20, text: mk.note, anchor: 'end', cls: 'bad' } : { x: px + 14, y: py - 20, text: mk.note, anchor: 'start', cls: 'bad' }]); REC.bad++; }
+    (mk.pts || []).forEach((q) => {   // red dots at the values the slip reads
+      const v = q.v != null ? q.v : val(g, q.k, q.x), qx = X(g, q.x), qy = Yk(g, q.k, v), c = spot(g, q.k, q.x, v, q.text);
+      part(a, 0, () => AV.push(circle('dot bad', qx, qy, 6)));
+      queue(a, [{ x: c[0], y: c[1], text: q.text, anchor: c[2], cls: 'bad' }]);
+      REC.bad++;
+    });
+    if (mk.line) { drawRedLine(g, mk.line.k, mk.line.fn, a, mk.line.text, mk.line.at); REC.bad++; }
+  }
+  function drawPuzzleG(d, st, G, RW) {
+    const g = G.g, k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, a = arr(0.1), o = k ? d.o[k] : null, kn = d.known || {};
+    const p = o && o.at != null ? o.at : d.p;
+    if (kn.dots) { drawTrail(g, [], kn.dots, 1, 5); kn.dots.forEach((x) => valLabel(g, x, 1)); }
+    if (k === 'right') {
+      drawTangent(g, p, a);
+      if (o.all) drawTrail(g, [[g.x[0], g.x[1]]], gridIn(g, g.x[0], g.x[1]), a);
+      drawGuide(g, p, rate(g, p), a, 1);
+      drawLive(g, p, a);
+      valLabel(g, p, a, o.lab);
+    } else if (p != null) drawGuide(g, p, null, 1, 1);
+    if (!k) queue(1, [{ x: (p != null ? X(g, p) : X(g, (g.x[0] + g.x[1]) / 2)) + 9, y: panes(g)[1].T + 24, text: '?', anchor: 'start' }]);
+    if (p != null) drawP(g, p, 1, false);
+    if (o && o.mark) drawSlipG(g, p, o.mark, a);
+    puzzleRows(d, k, o, RW);
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const g = GR[d.g], rowsY = panes(g)[1].B + 62, G = { g, rowsY, H: Math.ceil(rowsY + 26 * d.rows + 12) };
+    GEO.set(d, G);
+    return G;
+  }
+  // The step's picture: the graphs, then what this screen shows on them, then the key and the working.
+  function drawScene(d, st, G) {
+    const RW = [], g = G.g, PS = panes(g), foot = PS[1].B + 36;
+    REC = { rows: [], labs: [], bad: 0, dots: [], live: [], tan: null, P: null, p: null, G };
+    AV = []; LQ = []; KEY = [];
+    fit(text(12, 20, g.who, 'tag', 'start'), 318, 15);
+    PS.forEach((P) => drawFrame(g, P));
+    text(PR + 8, foot, g.xn, 'aname', 'end');
+    AV.push(path('curve', curveD(g)));
+    let grips = [];
+    if (d.show) grips = drawTour(d, st, G, RW) || []; else drawPuzzleG(d, st, G, RW);
+    drawKey(foot + 22);
+    drawRows(G, RW);
+    flushLabels();
+    placeGrip(d, grips);
+    return 'Above, ' + say(g.who) + (REC.P ? ', with the point P on it' : '') + '; below, ' + say(g.dn) + '. ' + REC.rows.map(say).join('. ');
+  }
+
+  // ---------- dragging P along the top graph (the SHOW screens) ----------
+  // P lands on the graph's grid inside the axes, and leaves a dot at every grid point it passes.
+  const snapP = (g, v) => tidy(K.clamp(Math.round(v / g.step) * g.step, g.x[0], g.x[1]));
+  const dragOn = () => !finished && !!STEPS[at()].show;
+  const curP = () => { const d = STEPS[at()], st = S[at()]; return st.p != null ? st.p : tourEnd(d); };
+  function setP(v) {
+    const i = at(), d = STEPS[i], st = S[i], g = GR[d.g], n = snapP(g, v);
+    if (st.p === n && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    const from = curP();
+    st.seen = uniq(g, (st.seen || finalTrail(d)).concat(gridIn(g, Math.min(from, n), Math.max(from, n))));
+    T = Infinity; st.p = n;
+    K.reveal(); K.refresh();
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null;
+  }
+  let held = null;
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': 'Point P' }));
+  grip.style.display = 'none';
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragOn()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragOn()) return;
+    const q = svgPoint(e), g = GR[STEPS[at()].g];
+    if (q) setP(g.x[0] + (q.x - PL) / (PR - PL) * (g.x[1] - g.x[0]));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragOn()) return;
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    setP(curP() + GR[STEPS[at()].g].step * by);
+  });
+  function placeGrip(d, list) {
+    if (checking) return;
+    const on = !!d.show && !finished && list.length > 0;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const g = GR[d.g];
+    grip.setAttribute('cx', r3(list[0][0])); grip.setAttribute('cy', r3(list[0][1]));
+    grip.setAttribute('aria-valuemin', g.x[0]); grip.setAttribute('aria-valuemax', g.x[1]); grip.setAttribute('aria-valuenow', list[0][2]);
+    grip.setAttribute('aria-valuetext', fmtN(list[0][2]) + (g.xu ? ' ' + g.xu : ''));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, st, G));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.p = null; st.seen = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(labs[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, labs[k]));
+      b.el.setAttribute('aria-label', say(labs[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });
+  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A height on graph k, and a line's slope on the top graph, read back through the axes.
+  const readV = (g, k, py) => { const P = panes(g)[k]; return P.r[0] + (P.B - py) / P.H * (P.r[1] - P.r[0]); };
+  const tanSlope = (c, g) => { const P = panes(g)[0]; return (-(c.y2 - c.y1) / P.H * (P.r[1] - P.r[0])) / ((c.x2 - c.x1) / (PR - PL) * (g.x[1] - g.x[0])); };
+  const onLine = (c, pt) => Math.abs((c.x2 - c.x1) * (pt[1] - c.y1) - (c.y2 - c.y1) * (pt[0] - c.x1)) / Math.hypot(c.x2 - c.x1, c.y2 - c.y1) < 1e-6;
+  // Chords from both sides, ever shorter, settle on the slope the page uses.
+  const settles = (g, x) => { const err = (e) => Math.max(Math.abs(slope(g, x, x + e) - rate(g, x)), Math.abs(slope(g, x - e, x) - rate(g, x))); return err(1e-5) <= err(1e-3) + 1e-9 && err(1e-5) < 1e-2; };
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; checking = true;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), dots: REC.dots.slice(), live: REC.live.slice() });
+    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }
+  }
+  const dragged = (g, p, lo) => Object.assign(blank(), { p, seen: gridIn(g, lo, p) });
+  const level = (h, g) => rate(g, h.p) === 0 && !!h.tan && Math.abs(h.tan.y2 - h.tan.y1) < 1e-9 && h.live.length === 1 && Math.abs(readV(g, 1, h.live[0].py)) < 1e-9;
+  // Every top and bottom here: [rule, where, which, second derivative worked out by hand].
+  const TURN = [[ta, xT, 'top', -2], [cu, 4, 'bottom', 2], [hl, 2, 'top', -6], [pw, iT, 'top', -1], [p24, i24, 'top', -6], [bx, xB, 'top', -120], [bw, xW, 'bottom', 4], [c2, 2, 'bottom', 12]];
+
+  K.check('The derivative is zero where the function has a horizontal tangent: wherever P sits where the slope is 0 (the tape at 10 m, the cup at 4, y = x³ at 0, the 12 V source at 12 A, the box at 5 cm and at 15 cm, and every puzzle\'s answer) the tangent drawn through P is level and P\'s dot below sits on the zero line; on the tape the dots run from plus, through 0 at the top, to minus', () => {
+    const show = [['Tape round a work area', 10], ['A top or a bottom', 4], ['Flat, but not a turn', 0], ['Most power to a load', 12], ['The largest box', 5], ['The largest box', 15]];
+    const a = show.every((s) => { const i = idx(s[0]), g = GR[STEPS[i].g], h = drawn(i, dragged(g, s[1], g.x[0])); return h.p === s[1] && level(h, g); });
+    const b = DO.every((i) => level(drawn(i, solvedSt()), GR[STEPS[i].g]));
+    const ds = drawn(idx('Tape round a work area'), blank()).dots;
+    const c = ds.length > 5 && ds.some((q) => q.x === 10) && ds.every((q) => { const v = readV(ta, 1, q.py); return q.x < 10 ? v > 0 : q.x > 10 ? v < 0 : Math.abs(v) < 1e-9; });
+    return a && b && c;
+  }, { source: OS_D });
+  K.check('At the turning point of a curve the differential coefficient is zero: at every top or bottom here (the tape\'s 10 m, the cup\'s 4, 12x − 3x² at 2, the 12 V source\'s 12 A, the 24 V source\'s 4 A, the box\'s 5 cm, 2x² − 12x + 25 at 3, x³ − 12x at 2) the slope from the rule is 0, and the value there is higher than one grid step either side, or lower on both', () =>
+    TURN.every((q) => { const g = q[0], x = q[1], s = g.step; return rate(g, x) === 0 && (q[2] === 'top' ? g.fn(x) > g.fn(x - s) && g.fn(x) > g.fn(x + s) : g.fn(x) < g.fn(x - s) && g.fn(x) < g.fn(x + s)); }), { source: GOV });
+  K.check('First and second derivatives give the position and nature of a turning point: where the slope is 0, a minus second derivative goes with the slope falling from plus to minus, a top (tape −2, 12x − 3x² −6, the 12 V source −1, the 24 V source −6, the box −120), and a plus one with it rising from minus to plus, a bottom (the cup 2, 2x² − 12x + 25 4, x³ − 12x 12)', () =>
+    TURN.every((q) => { const g = q[0], x = q[1], s = g.step, s2 = rate2(g, x); return s2 === q[3] && (q[2] === 'top' ? s2 < 0 && rate(g, x - s) > 0 && rate(g, x + s) < 0 : s2 > 0 && rate(g, x - s) < 0 && rate(g, x + s) > 0); }), { source: SQA });
+  K.check('Local extrema can only occur at critical points: on every curve here, wherever the rule\'s value is higher, or lower, than at both neighbouring sample points, the slope passes through 0 between those neighbours (eight such places, none on y = x³ or x³ − 3x² + 3x)', () => {
+    let found = 0;
+    const ok = Object.keys(GR).every((key) => {
+      const g = GR[key], xs = K.linspace(g.x[0], g.x[1], 241);
+      return xs.every((x, j) => {
+        if (j === 0 || j === xs.length - 1) return true;
+        const a = g.fn(xs[j - 1]), b = g.fn(x), c = g.fn(xs[j + 1]);
+        if (!((b > a && b > c) || (b < a && b < c))) return true;
+        found++;
+        return rate(g, xs[j - 1]) * rate(g, xs[j + 1]) <= 0 && key !== 'cube' && key !== 'flat3';
+      });
+    });
+    return ok && found === 8;
+  }, { source: OS_M });
+  K.check('Critical points are candidates for local extrema, not certainties: y = x³ at 0 and x³ − 3x² + 3x at 1 have slope 0 but are neither, their values rising through them with the slope plus on both sides; y = x³\'s second derivative there is 0; and their slope dots touch the zero line without going below it', () => {
+    const cand = [[c3, 0], [f3, 1]].every((q) => { const g = q[0], x = q[1]; return rate(g, x) === 0 && g.fn(x - 0.5) < g.fn(x) && g.fn(x) < g.fn(x + 0.5) && rate(g, x - 0.5) > 0 && rate(g, x + 0.5) > 0; });
+    const ds = drawn(idx('Flat, but not a turn'), blank()).dots, fs = drawn(idx('A flat point at 1'), solvedSt()).dots;
+    return cand && rate2(c3, 0) === 0 && ds.length > 5 && ds.every((q) => readV(c3, 1, q.py) > -1e-9) && ds.some((q) => Math.abs(readV(c3, 1, q.py)) < 1e-9) &&
+      fs.length > 5 && fs.every((q) => readV(f3, 1, q.py) > -1e-9) && fs.some((q) => Math.abs(readV(f3, 1, q.py)) < 1e-9);
+  }, { source: OS_M });
+  K.check('If an absolute extremum is not at an endpoint it is at an interior local extremum: over each range drawn, the largest box (2,000 cm³ at 5 cm), the most power (72 W at 12 A, 48 W at 4 A) and the largest area (100 m² at 10 m) sit inside, where the slope is 0, while the smallest, 0, sit at both ends', () => {
+    const best = (g) => { const xs = gridIn(g, g.x[0], g.x[1]); let m = xs[0]; xs.forEach((x) => { if (g.fn(x) > g.fn(m)) m = x; }); return m; };
+    return [[bx, 5, 2000], [pw, 12, 72], [p24, 4, 48], [ta, 10, 100]].every((q) => { const g = q[0], x = q[1]; return best(g) === x && g.fn(x) === q[2] && rate(g, x) === 0 && x > g.x[0] && x < g.x[1] && g.fn(g.x[0]) === 0 && g.fn(g.x[1]) === 0; });
+  }, { source: OS_M });
+  K.check('Differentiation finds the condition for the most power from a source to a load: for P = EI − I²r the slope is 0 at I = E ÷ 2r, 12 A for 12 V and 0.5 Ω and 4 A for 24 V and 3 Ω, where the load V ÷ I equals r (0.5 Ω, 3 Ω) and the power, 72 W and 48 W, is the most at any current; 40 W at 4 A and 20 A, 0 W at the short-circuit 24 A, and 12² × 0.5 = 72 W of heat inside', () =>
+    [[pw, 12, 72], [p24, 4, 48]].every((q) => {
+      const g = q[0], Im = zeroOf(g, g.x[0], g.x[1]), V = g.E - g.r * Im;
+      return Im === g.E / (2 * g.r) && Im === q[1] && g.fn(Im) === q[2] && close(V / Im, g.r) && rate2(g, Im) < 0 && gridIn(g, g.x[0], g.x[1]).every((i) => g.fn(i) <= q[2]);
+    }) && pw.fn(4) === 40 && pw.fn(20) === 40 && pw.fn(24) === 0 && close(iT * iT * pw.r, 72), { source: SQA });
+  K.check('Every dot below is the rule\'s slope: on every screen each dot sits straight under its x, as high as the slope the chords there settle on from either side, and the tangent through P has that slope', () =>
+    STEPS.every((d, i) => {
+      const g = GR[d.g], states = d.show ? [blank(), dragged(g, onGrid(g, g.x[0] + 0.7 * (g.x[1] - g.x[0])), onGrid(g, g.x[0] + 0.3 * (g.x[1] - g.x[0])))] : [solvedSt()];
+      return states.every((st) => {
+        const h = drawn(i, st), ds = h.dots, lv = h.live;
+        return (!d.show || ds.length > 0) && ds.every((q) => close(q.px, X(g, q.x)) && settles(g, q.x) && close(readV(g, 1, q.py), rate(g, q.x))) &&
+          lv.length === 1 && close(lv[0].px, h.P[0]) && close(readV(g, 1, lv[0].py), rate(g, h.p)) && settles(g, h.p) &&
+          !!h.tan && close(tanSlope(h.tan, g), rate(g, h.p)) && onLine(h.tan, h.P);
+      });
+    }));
+  K.check('From the rules, by hand: the tape at 4 m is 4 × 16 = 64 m² with slope 12, at 16 m slope −12, at 10 m 100 m²; the cup\'s slope is −4, 0, 4 at 2, 4, 6 and its bottom 4; 12x − 3x² is 12 at 2; y = x³ has slope 3, 0, 3 at −1, 0, 1; x³ − 3x² + 3x is 0, 1, 2 at 0, 1, 2 with slope 3, 0, 3; the 12 V source gives 72 W at 12 A, 40 W at 4 A and 20 A, 6 V and 0.5 Ω; the 24 V source 48 W at 4 A (96 W without 3I²), a 3 Ω load; the box 2,000 cm³ at 5 cm, 1,936 at 4, 1,944 at 6, slope 132 and −108 at 4 and 6, 0 at 15; 2x² − 12x + 25 is 7 at 3 and 25 at 0; x³ − 12x is −16 at 2, slope −9 and 15 at 1 and 3; and the screens\' words quote these values', () => {
+    const nums = ta.fn(4) === 64 && rate(ta, 4) === 12 && rate(ta, 16) === -12 && ta.fn(16) === 64 && xT === 10 && ta.fn(10) === 100 && rate(ta, 0) === 20 && rate(ta, 20) === -20 &&
+      cu.fn(4) === 4 && rate(cu, 2) === -4 && rate(cu, 4) === 0 && rate(cu, 6) === 4 &&
+      hl.fn(2) === 12 && rate(hl, 2) === 0 && rate(hl, 1) === 6 && rate(hl, 3) === -6 &&
+      rate(c3, -1) === 3 && rate(c3, 0) === 0 && rate(c3, 1) === 3 &&
+      f3.fn(0) === 0 && f3.fn(1) === 1 && f3.fn(2) === 2 && rate(f3, 0) === 3 && rate(f3, 1) === 0 && rate(f3, 2) === 3 &&
+      iT === 12 && pw.fn(12) === 72 && pw.fn(4) === 40 && pw.fn(20) === 40 && pw.E - pw.r * iT === 6 && (pw.E - pw.r * iT) / iT === 0.5 &&
+      i24 === 4 && p24.fn(4) === 48 && 24 * i24 === 96 && (p24.E - p24.r * i24) / i24 === 3 && rate(p24, 4) === 0 &&
+      xB === 5 && bx.fn(5) === 2000 && 12 * 25 - 240 * 5 + 900 === 0 && bx.fn(4) === 1936 && bx.fn(6) === 1944 && rate(bx, 4) === 132 && rate(bx, 6) === -108 && rate(bx, 15) === 0 && bx.fn(15) === 0 &&
+      xW === 3 && bw.fn(3) === 7 && bw.fn(0) === 25 && rate(bw, 0) === -12 &&
+      c2.fn(2) === -16 && rate(c2, 2) === 0 && rate(c2, 1) === -9 && rate(c2, 3) === 15;
+    const has = (name, key, bits) => { const v = STEPS[idx(name)][key]; return bits.every((b) => v.indexOf(b) >= 0); };
+    const words = has('Tape round a work area', 'text', ['12 at 4 m, −12 at 16 m']) &&
+      has('The largest area', 'why', ['`x` = 10 m', '`10 × 10 = 100`']) &&
+      has('A top or a bottom', 'text', ['is −2.', '−4 at 2, 0 at 4, 4 at 6', 'second derivative is 2,']) &&
+      has('A flat point at 2', 'task', ['`y = 24 − 12 = 12`', 'second derivative is −6']) &&
+      has('Flat, but not a turn', 'text', ['is 3 at −1, 0 at 0 and 3 at 1', '`6x`, is 0 there']) &&
+      has('A flat point at 1', 'task', ['are 0, 1 and 2', 'slope is 3 at `x` = 0 and 3 at `x` = 2']) &&
+      has('Most power to a load', 'text', ['at 12 A', '`144 − 72 = 72`', '40 W at 4 A', '`12² × 0.5 = 72`']) &&
+      has('A 24 V source', 'why', ['`I` = 4 A', '`96 − 48 = 48`', '`12 ÷ 4 = 3`']) &&
+      has('The largest box', 'text', [': 5 cm', '`300 − 1200 + 900 = 0`', '`5 × 20 × 20 = 2,000`', '1,936 at 4 cm or 1,944 at 6 cm']) &&
+      has('Reading the readout', 'task', ['132 at 4 cm and −108 at 6 cm']) &&
+      has('The lowest value', 'why', ['`x` = 3', '`2 × 9 − 36 + 25 = 18 − 36 + 25 = 7`']) &&
+      has('Flat at 2 on x³ − 12x', 'why', ['`6 × 2 = 12`', 'from −9 at 1 to 15 at 3', '`y = 8 − 24 = −16`']);
+    return nums && words;
+  });
+  K.check('Every puzzle offers three different answers and accepts only the right one; each wrong answer is the slip it stands for: 0 m and 20 m against 10 m; a bottom and neither against a top; a top and a bottom against neither; 96 W and 0 W against 48 W; 4 cm and 15 cm against 5 cm; 3 and 25 against 7; a top and neither against a bottom', () => {
+    const want = {
+      'The largest area': ['0 m', '10 m', '20 m'], 'A flat point at 2': ['A top', 'A bottom', 'Neither'], 'A flat point at 1': ['A top', 'A bottom', 'Neither'],
+      'A 24 V source': ['96 W', '0 W', '48 W'], 'Reading the readout': ['4 cm', '5 cm', '15 cm'], 'The lowest value': ['7', '3', '25'], 'Flat at 2 on x³ − 12x': ['A top', 'A bottom', 'Neither'],
+    };
+    const right = { 'The largest area': 1, 'A flat point at 2': 0, 'A flat point at 1': 2, 'A 24 V source': 2, 'Reading the readout': 1, 'The lowest value': 0, 'Flat at 2 on x³ − 12x': 1 };
+    return DO.length === 7 && DO.every((i) => {
+      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);
+      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1 && d.opts[right[d.name]] === 'right';
+    });
+  });
+  K.check('Before an answer no puzzle shows it: no tangent, no dot under P, nothing red, and the working ends in a question mark; a right answer shows the level tangent and P\'s dot on the zero line with nothing red, and every wrong answer shows its slip in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt()), ans = d.o.right.t.toLowerCase();
+      const preOk = !pre.tan && pre.live.length === 0 && pre.bad === 0 && / \?$/.test(pre.rows[pre.rows.length - 1]) && !pre.rows.some((r) => r.toLowerCase().indexOf(ans) >= 0);
+      const rightOk = ok.bad === 0 && ok.rows.some((r) => r.toLowerCase().indexOf(ans) >= 0) && !!ok.tan && ok.live.length === 1;
+      return preOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => drawn(i, wrongSt(k)).bad > 0);
+    }));
+  K.check('Dragging P keeps it on its graph\'s grid inside the axes (whole metres and amps, half centimetres, half steps of x) and leaves a dot at every grid point it passes', () =>
+    snapP(ta, 9.6) === 10 && snapP(ta, 25) === 20 && snapP(c3, -3) === -2 && snapP(c3, 0.3) === 0.5 && snapP(bx, 4.8) === 5 && snapP(pw, 11.6) === 12 &&
+    JSON.stringify(runsOf(ta, [4, 5, 6, 9, 10])) === '[[4,6],[9,10]]' && drawn(idx('Tape round a work area'), dragged(ta, 12, 6)).dots.length === 7);
+  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 1.3 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; checking = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; checking = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(), FB[0]) && d.opts.filter((o) => o !== 'right').every((o) => timed(i, wrongSt(o), FB[1]));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

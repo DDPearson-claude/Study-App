@@ -1,0 +1,185 @@
+{
+ "title": "Calculus you will actually use",
+ "hook": "Expanding gas pushes a piston with a pressure that keeps falling, so no single force times distance will do. How do you get the work it does from its pressure–volume diagram?",
+ "oneBreath": "Calculus is the maths of things that change, and it has two halves that undo each other. The derivative is a rate, how fast one thing changes per unit of another at a single instant, like current as the rate charge flows; one rule finds the derivative of any power, and a slope of zero finds the largest or smallest value. The integral adds a rate up into a total, like charge from a current graph or work from a pV diagram, and the reverse of differentiating gets it exactly, right through to mean and RMS values.",
+ "ideas": [
+  {
+   "id": "i1",
+   "title": "Average rate of change",
+   "oneLine": "Average rate between two points is the change in y divided by the change in x, the slope of the line joining them, with units.",
+   "deps": [],
+   "kind": "quantity"
+  },
+  {
+   "id": "i2",
+   "title": "The rate at an instant",
+   "oneLine": "Slide two points together and the slope of the line joining them settles on one number: the rate at that instant, written dy/dx.",
+   "deps": [
+    "i1"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i3",
+   "title": "The derivative as a function",
+   "oneLine": "Finding the rate at every point at once gives a new rule, the derivative f′(x), which for y = x² is 2x.",
+   "deps": [
+    "i2"
+   ],
+   "kind": "concept"
+  },
+  {
+   "id": "i4",
+   "title": "The power rule",
+   "oneLine": "The derivative of xⁿ is nxⁿ⁻¹, worked term by term, so 4x³ − 2x² + 7x − 9 gives 12x² − 4x + 7.",
+   "deps": [
+    "i3"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i5",
+   "title": "Rates on the job",
+   "oneLine": "Read in its units, a derivative is a rate on the job: current is the rate charge flows, i = dq/dt, and velocity is displacement's.",
+   "deps": [
+    "i3",
+    "i4"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i6",
+   "title": "Highest and lowest",
+   "oneLine": "A smooth curve is flat where it turns at a top or bottom, so setting its derivative to zero finds the largest area or power.",
+   "deps": [
+    "i4",
+    "i5"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i7",
+   "title": "Integration, the reverse",
+   "oneLine": "Integrating undoes differentiating: xⁿ (n not −1) becomes xⁿ⁺¹ ÷ (n + 1), plus a constant c fixed by a starting value.",
+   "deps": [
+    "i4"
+   ],
+   "kind": "skill"
+  },
+  {
+   "id": "i8",
+   "title": "Adding up: the definite integral",
+   "oneLine": "Adding up bars under a rate graph gives the total, such as charge from current, and the reverse rule, F(b) − F(a), gets it exactly.",
+   "deps": [
+    "i7"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i9",
+   "title": "Work from a pV diagram",
+   "oneLine": "The work a gas does is the area under its pV curve, which for pVⁿ = C is (p₁V₁ − p₂V₂) ÷ (n − 1).",
+   "deps": [
+    "i7",
+    "i8"
+   ],
+   "kind": "quantity"
+  },
+  {
+   "id": "i10",
+   "title": "Mean and RMS values",
+   "oneLine": "Mean value is area ÷ length; RMS is the root of the squared graph's mean, which for a sine wave is its peak ÷ √2.",
+   "deps": [
+    "i7",
+    "i8"
+   ],
+   "kind": "quantity"
+  }
+ ],
+ "calibration": [
+  {
+   "id": "c1",
+   "iid": "i1",
+   "q": "You drive 60 km out at 60 km/h, then the same 60 km back at 30 km/h. What was your average speed for the whole trip?",
+   "options": [
+    "45 km/h",
+    "40 km/h",
+    "You cannot say without knowing your speed at every moment"
+   ],
+   "answer": 1,
+   "why": "The trip is 120 km and takes 1 hour out plus 2 hours back, so 120 ÷ 3 = 40 km/h. 45 km/h averages the two speeds, but you spend twice as long at 30. An average rate needs only the total change and the total time, not every moment."
+  },
+  {
+   "id": "c2",
+   "iid": "i2",
+   "q": "A falling stone is doing 10 m/s at one exact instant. In that instant it moves no distance in no time. So what can the 10 m/s mean?",
+   "options": [
+    "Nothing exact: a speed needs a stretch of time to mean anything",
+    "Its average speed over the whole fall so far",
+    "The distance it would cover each second if it carried on exactly as it is"
+   ],
+   "answer": 2,
+   "why": "It is the speed at that instant: 10 metres each second if nothing changed, the value averages over ever-shorter stretches close in on. It is exact, not meaningless. The average over the fall so far is lower, because the stone started from rest and has been speeding up."
+  }
+ ],
+ "query": "Calculus fundamentals",
+ "level": "some",
+ "mode": "read",
+ "intake": {
+  "questions": [
+   {
+    "id": "q1",
+    "q": "What do you want from this course?",
+    "options": [
+     "To understand calculus and how to work with it",
+     "A quick refresher of the methods",
+     "Exam practice"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q2",
+    "q": "Where will you use it?",
+    "options": [
+     "On the job and in everyday life",
+     "For further study",
+     "Just curiosity"
+    ],
+    "multi": false,
+    "other": false
+   },
+   {
+    "id": "q3",
+    "q": "How do you like to learn?",
+    "options": [
+     "Hands-on, with the why explained in full",
+     "Rules and worked examples only",
+     "Lots of practice questions"
+    ],
+    "multi": false,
+    "other": false
+   }
+  ],
+  "answers": {
+   "q1": {
+    "picked": [
+     "To understand calculus and how to work with it"
+    ],
+    "other": null
+   },
+   "q2": {
+    "picked": [
+     "On the job and in everyday life"
+    ],
+    "other": null
+   },
+   "q3": {
+    "picked": [
+     "Hands-on, with the why explained in full"
+    ],
+    "other": null
+   }
+  }
+ }
+}

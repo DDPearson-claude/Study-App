@@ -1,0 +1,339 @@
+TASK: repair-interactive
+
+The interactive below, written for Dan's learning app, failed its automatic checks. Fix every problem listed and return the complete corrected body. Keep what already works.
+
+## The idea
+Topic: Calculus you will actually use
+Idea: Rates on the job (Read in its units, a derivative is a rate on the job: current is the rate charge flows, i = dq/dt, and velocity is displacement's.)
+Kind: quantity
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the current dot below following the voltage graph's slope, not its height, dropping to zero where the voltage holds steady, when you drag the point along a capacitor's voltage graph.
+Title (the app shows it above the frame, so do not repeat it): Rates on linked graphs
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in twelve small screens with the slope tracker's linked graphs: two graphs, one above the other, sharing the same time across. The top graph shows an amount on the job. A point P can be dragged along it, the tangent at P rides with it, and the bottom graph drops a dot at the same time, as high as the tangent's slope. First comes charge passing a point in a cable, q coulombs after t seconds, with example rules. For q = 3t the dots sit on a flat line at 3 A, because an ampere is one coulomb each second; for q = 0.5t² they trace the line i = t, so 4 A at 4 s. Then a 0.01 F capacitor whose voltage climbs 5 V each second for 4 s and then holds at 20 V. Its bottom graph is the capacitance times the slope, i = C dv/dt: 50 mA while the voltage climbs, and 0 where it holds. Then a sketch, with no numbers on its axes, of a capacitor charging from a steady supply through a resistor, with a bracket from P up to the supply's voltage for what is left across the resistor: its voltage climbs steeply, then more and more gently, and the current below starts high and falls away towards zero. Then a 0.5 H coil, with its current on top and the voltage across it below, v = L di/dt: 2 V while the current climbs 4 A each second, 0 V while it holds, and −2 V while it falls 4 A each second. Then three graphs for motion: displacement s, how far along from the start, on top; velocity, its slope, in the middle; and acceleration, the slope of the velocity, at the bottom. The speeding boat, s = t² metres, has velocity 2t and a flat acceleration of 2. A trolley shoved up a ramp, s = 8t − t² metres, has velocity 8 − 2t, which crosses zero at 4 s while its acceleration stays at −2. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graphs.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): Every rule is an example, chosen so the numbers come out exactly. The capacitor's climb and the coil's current are drawn with sharp corners; a real voltage or current rounds each corner, so the current or voltage below changes quickly rather than all at once. The capacitor and coil are ideal parts: a real capacitor leaks a very little current at a steady voltage, and a real coil's resistance gives a small voltage at a steady current. The trolley's rule keeps its acceleration the same up and down; friction would make it a little different each way.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 11 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Example steady charge, 3 C each second, in step 1: 3 (assumed)
+- Current 3 C per s = 3 A, in step 1: 3 (computed)
+- Example charge rule q = 0.5t² coulombs, in step 2: 0.5 (assumed)
+- P at 4 s, in step 2: 4 (assumed)
+- Current dq/dt = t = 4 A at 4 s, in step 2: 4 (computed)
+- Slip height 0.5 × 16 = 8 C read as 8 A, in step 2: 8 (computed)
+- Slip average 8 ÷ 4 = 2 A, in step 2: 2 (computed)
+- Example capacitor 0.01 F, in step 3: 0.01 (assumed)
+- Voltage climbs 5 V each second, in step 3: 5 (assumed)
+- Voltage holds at 20 V after 4 s, in step 3: 20 (computed)
+- Current 0.01 × 5 = 0.05 A, 50 mA, in step 3: 50 (computed)
+- Current while voltage holds: 0 A, in step 3: 0 (computed)
+- Example capacitor held at a steady 50 V, in step 4: 50 (assumed)
+- Slip 0.01 × 50 = 0.5 A, in step 4: 0.5 (computed)
+- Slip 50 mA, the current while it climbed, in step 4: 50 (computed)
+- Example coil 0.5 H, in step 7: 0.5 (assumed)
+- Current climbs or falls 4 A each second, in step 7: 4 (assumed)
+- Voltage 0.5 × 4 = 2 V while climbing, in step 7: 2 (computed)
+- Voltage −2 V while falling, in step 7: -2 (computed)
+- Example current 2 A falling to 0 in 0.01 s, in step 8: 0.01 (assumed)
+- Rate −2 ÷ 0.01 = −200 A per s, in step 8: -200 (computed)
+- Voltage 0.5 × −200 = −100 V, in step 8: -100 (computed)
+- Slip 0.5 × 2 = 1 V, in step 8: 1 (computed)
+- Slip 0 V, as the current ends at 0, in step 8: 0 (computed)
+- Speeding boat s = t² metres, at 3 s, in step 9: 3 (assumed)
+- Boat at 3 s: 9 m, 6 m per s, in step 9: 6 (computed)
+- Boat's acceleration 2 m per s each second, in step 9: 2 (computed)
+- Example trolley s = 8t − t² metres, in step 10: 8 (assumed)
+- Trolley at 4 s: 16 m up, velocity 0, in step 10: 16 (computed)
+- Trolley's acceleration −2 m per s each second, in step 10: -2 (computed)
+- Slip acceleration 0 at the top, in step 10: 0 (computed)
+- Slip height 16 read as acceleration, in step 10: 16 (computed)
+- Example charge q = 2t² + 3t coulombs, at 2 s, in step 11: 2 (assumed)
+- Current 4 × 2 + 3 = 11 A, in step 11: 11 (computed)
+- Slip height 8 + 6 = 14 C read as 14 A, in step 11: 14 (computed)
+- Slip power not lowered, 4 × 4 + 3 = 19 A, in step 11: 19 (computed)
+- Example 0.01 F capacitor, v = t² volts, at 3 s, in step 12: 3 (assumed)
+- Slope 2 × 3 = 6 V per s, in step 12: 6 (computed)
+- Current 0.01 × 6 = 0.06 A, 60 mA, in step 12: 60 (computed)
+- Slip 0.01 × 9 = 0.09 A, 90 mA, in step 12: 90 (computed)
+- Slip C dropped: 6 A, in step 12: 6 (computed)
+- Practice: example capacitor 0.002 F, 2,000 µF: 0.002 (assumed)
+- Practice: example rule v = 4t² volts, at 1.5 s: 1.5 (assumed)
+- Practice: dv/dt = 8 × 1.5 = 12 V per s: 12 (computed)
+- Practice: i = 0.002 × 12 = 0.024 A, 24 mA: 24 (computed)
+- Practice: v at 1.5 s = 9 V, at 1.6 s = 10.24 V: 10.24 (computed)
+- Practice: chord 1.24 ÷ 0.1 = 12.4 V per s, 24.8 mA: 24.8 (computed)
+- Practice: slip 0.002 × 9 = 0.018 A: 0.018 (computed)
+- Practice: slip average 9 ÷ 1.5 = 6 V per s: 6 (computed)
+
+## What the checks found (at 340, 720 and 1040 px wide)
+- Text cut off: SVG labels "t in seconds" and "from the slope" are printed over each other (at the opening state, and 14 more settings)
+- Advice: The check "One ampere is the current in which one coulomb of charge passes a point each second: the charge line climbing 3 C every…" cites [2], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "The current through a capacitor is equal to the capacitance times the slope of its voltage graph: on every capacitor sc…" cites [5], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "Velocity from the displacement-time function and acceleration from the velocity-time function: on both motion screens t…" cites [10], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "The derivative of a constant function is zero: wherever a voltage or a current holds steady (the capacitor at 20 V and …" cites [11], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "Charging through a resistor (the sketch): the charge, and so the voltage, climbs at every step but stays under the supp…" cites [3], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+- Advice: The check "The voltage across a coil is the derivative of its current, times its inductance: on both coil screens each dot below r…" cites [8], but none of its numbers is in that source's quote: give a source only to a check that restates the quote; a result of your own rule takes none.
+
+## How to fix the usual problems
+- A thrown error (also from a K.button press or a K.anim step): go to the body line it names; check element ids, variable names and the kit call signatures.
+- NaN or Infinity: guard the maths at the ends of every control's range (division by zero, log of 0, square root of a negative), or start the range where the rule makes sense.
+- A model output that is a list or object: K.model returns single numbers or short strings; keep lists in your own variables.
+- Too wide at 340 px: let rows wrap (flex-wrap), use width:100% and max-width:100%, give SVG a viewBox with width 100%, no fixed widths over 300 px, shorter labels.
+- Text cut off: shorten it or let it wrap, or give it room (a wider box, a bigger viewBox); never cut it off or hide the overflow. SVG labels printed over each other, even by a letter or two: move one, or place them with K.labels. A plot's axis title too long for a phone: shorten it (about 30 characters). A word split across two lines (often at Text size XL): size its grid columns or tiles in rem, not px (minmax(6rem, 1fr)), so they reflow to fewer, wider columns; or use a shorter word.
+- SVG text too small on a phone: font-size 13-16 in a drawing about 340 wide. A line or arrowhead through a label: place the label with K.labels and pass that line in avoid, or stop the line short of it. More labels than room (K.labels says avoid cannot be honoured): label fewer things, or move the names into a key under the drawing or a list beside it.
+- A readout's value printed elsewhere (a label, an aria-label or a plot label that follows it): while Dan answers a check the app hides only the readout and the .say line, so show the number in the readout alone and name the thing elsewhere.
+- Text hard to read (contrast) or a colour name: ink, muted, accent2, accent, warn or good (on-accent2 on navy), as var(--k-…) or K.color set in K.update, so it follows the theme.
+- A blank hole before Dan moves: hide only the answer (a line, a mark, a sentence), never a whole figure.
+- The first control far below the main figure (phone layout): put the visual and its controls together with K.stage(visual, controls), secondary figures below.
+- K.sound: frequencies 20 to 20,000 Hz (200 to 2,000 for anything Dan must hear on a phone), dur above 0 and at most 10 s, gain 0 to 1, a listed type; play it from a K.button press.
+- Navigation, links out, connections or frames: everything stays on this page (no <a href> or forms, no location changes, no WebSocket, XMLHttpRequest or iframes); name sources in words.
+- A failing check: work the expected value out again by hand. Fix whichever is wrong, the model or the check. Never delete a correct check or change its expected answer to pass. A tolerance that was unrealistically tight (a millionth, where square roots or small steps meet rounding) may be widened to a sensible one (a thousandth of the size).
+- Slow updates: sample curves less densely and do not rebuild large parts of the page on every change.
+- Missing ids: use exactly the ids listed; an output must be a key of the object K.model returns.
+- An unlisted web address: delete it, and the {source} that held it.
+- A target out of reach: make the model follow the lesson's rule with the lesson's ranges and opening values, so moving that one control brings the output to the target.
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] 9.1 Electrical Current - University Physics Volume 2 | OpenStax (https://openstax.org/books/university-physics-volume-2/pages/9-1-electrical-current): "An ampere is the flow of one coulomb of charge through an area in one second."
+[2] Ampere: Introduction | NIST (https://www.nist.gov/si-redefinition/ampere-introduction): "One ampere is the current in which one coulomb of charge travels across a given point in 1 second."
+[3] 9.2: Electrical Current - Physics LibreTexts (https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/09:_Current_and_Resistance/9.02:_Electrical_Current): "The instantaneous electrical current, or simply the electrical current , is the time derivative of the charge that flows ... Notice from the figure that the charge increases to (Q_M) and the derivative decreases, approaching zero, as time …"
+[4] 3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax (https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function): "Use of the notation (called Leibniz notation) is quite common in engineering and physics."
+[5] 8.2: Capacitance and Capacitors - Engineering LibreTexts (https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/DC_Electrical_Circuit_Analysis_-_A_Practical_Approach_(Fiore)/08%3A_Capacitors/8.2%3A_Capacitance_and_Capacitors): "By definition, if a total charge of 1 coulomb is associated with a potential of 1 volt across the plates, then the capacitance is 1 farad."
+[6] Differentiation Rules - math.uconn.edu (https://www2.math.uconn.edu/ClassHomePages/Math1071/Textbook2/sec_Ch3Sec3.html): "The derivative of a constant (k) multiplied by a function (f) is the same as the constant multiplied by the derivative"
+[7] 8.2: Capacitance and Capacitors - Engineering LibreTexts (https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/DC_Electrical_Circuit_Analysis_-_A_Practical_Approach_(Fiore)/08%3A_Capacitors/8.2%3A_Capacitance_and_Capacitors): "The current through a capacitor is equal to the capacitance times the rate of change of the capacitor voltage with respect to time (i.e., its slope). That is, the value of the voltage is not important, but rather how quickly the voltage is…"
+[8] 15.2: Inductors and Calculus - Workforce LibreTexts (https://workforce.libretexts.org/@api/deki/pages/1124/pdf/15.2%253A%2bInductors%2band%2bCalculus.pdf): "This fixed value, multiplied by the inductor’s inductance in Henrys (also fixed), results in a fixed voltage of some magnitude. ... the induced voltage across the inductor is the derivative of the current through the inductor"
+[9] 3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax (https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function): "If we differentiate a position function at a given time, we obtain the velocity at that time."
+[10] Mathematics Written Examination Syllabus - GOV.UK (https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus): "Determines velocity from displacement-time functions and acceleration from velocity-time functions."
+[11] 3.3 Differentiation Rules - Calculus Volume 1 | OpenStax (https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules): "It states that the derivative of a constant function is zero"
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## The body that failed
+The body you just wrote (/home/user/Study-App/build/maths/calculus-fundamentals/i5.body8.x.html). You already have it; it is not repeated here. Return the complete corrected body.
+
+## Output
+Return ONLY the complete corrected body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.

@@ -1,0 +1,1057 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick, .scene .aname, .scene .th, .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* The table of chord slopes under the square. */
+  .scene .td { font: 600 14px var(--k-font); fill: var(--k-ink); text-anchor: middle; }
+  .scene .td.head { font-weight: 400; }
+  .scene .thl { fill: var(--k-fill2); }
+  .scene .tsep { stroke: var(--k-line); stroke-width: 1; }
+  /* The top graph: the rule's curve, P and its tangent. */
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .tan { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .halo { fill: var(--k-accent); fill-opacity: .08; stroke: var(--k-accent); stroke-opacity: .5; stroke-width: 1.5; }
+  /* The graph below: P's slopes as dots, joined where P has passed, and the dotted drop from P. */
+  .scene .dline { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .dot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .dot.now { stroke: var(--k-ink); stroke-width: 2; }
+  .scene .drop { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 2 4; }
+  .scene .ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .tri { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; }
+  /* The growing square: the old square, two strips and a corner. */
+  .scene .sqA { fill: var(--k-fill1); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .sqB { fill: var(--k-fill2); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .sqC { fill: var(--k-fill3); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .sqok { fill: none; stroke: var(--k-accent2); stroke-width: 3; }
+  /* A slip is drawn in the warning colour. */
+  .scene .dline.bad { stroke: var(--k-warn); stroke-dasharray: 7 5; }
+  .scene .dot.bad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: round; }
+  .scene .sqbad { fill: none; stroke: var(--k-warn); stroke-width: 3; }
+  .scene .sqgone { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }
+  .scene .row { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }
+  .scene .row.soft { font-weight: 400; }
+  .scene .lab.bad, .scene .row.bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Two graphs sharing one x: above, an example speeding boat, f(x) = x² metres after x seconds; below, its slope at each moment.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 480" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="k-controls" id="hbox" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every slope and dot here is worked out from each screen's own rule, never typed in.</p>
+
+<script>
+  // ---------- the example rules ----------
+  // x, y: the top graph's [from, to, tick step]; d: the graph below's, where the slopes go;
+  // xu, yu: units; who: the drawing's title; xn, yn, dn: the axes' names.
+  const GR = {
+    boat: { fn: (x) => x * x, who: 'The speeding boat, f(x) = x²', x: [0, 5, 1], y: [0, 25, 5], d: [0, 10, 2], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x) in metres', dn: 'f′(x), slope in m per s' },
+    plain: { fn: (x) => x * x, who: 'The plain curve y = x²', x: [-3, 3, 1], y: [0, 9, 3], d: [-6, 6, 3], xu: '', yu: '', xn: 'x', yn: 'y = f(x)', dn: 'f′(x), the slope' },
+    steady: { fn: (x) => 4 * x, who: 'The steady boat, f(x) = 4x', x: [0, 5, 1], y: [0, 20, 5], d: [0, 10, 2], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x) in metres', dn: 'f′(x), slope in m per s' },
+    drum: { fn: (x) => 3 * x, who: 'The cable drum, f(x) = 3x', x: [0, 5, 1], y: [0, 15, 5], d: [0, 10, 2], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x), metres paid out', dn: 'f′(x), slope in m per s' },
+    dip: { fn: (x) => x * x - 2 * x, who: 'The curve y = x² − 2x', x: [-1, 4, 1], y: [-2, 8, 2], d: [-4, 8, 4], xu: '', yu: '', xn: 'x', yn: 'y = f(x)', dn: 'f′(x), the slope' },
+  };
+  const bo = GR.boat, pl = GR.plain, sd = GR.steady, dr = GR.drum, dp = GR.dip;
+  // A square's area from its side, and the square that grows: its side x, its step h.
+  const sqr = { fn: (x) => x * x };
+  const HS = [1, 0.5, 0.1, 0.01];
+  const SQ3 = { x: 3, scale: 42, unit: '' }, SQ5 = { x: 5, scale: 34, unit: '' }, PLATE = { x: 20, scale: 8.5, unit: ' cm', fixedW: 16 };
+  const sqGrow = (x, h) => (x + h) * (x + h) - x * x;   // the new square minus the old
+  const strips = (x, h) => 2 * x * h;
+  const corner = (h) => h * h;
+
+  // ---------- numbers and words ----------
+  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };
+  const fmtN = (v) => String(tidy(v)).replace('-', '−');
+  // A chord's slope, Δy ÷ Δx, from the rule.
+  const slope = (g, a, b) => (g.fn(b) - g.fn(a)) / (b - a);
+  // The slope at x, from the rule: where the chords settle, read off a chord 0.0002 wide centred
+  // on x and rounded to six decimal places (a tidy number the chords close in on).
+  const rate = (g, x) => { const h = 1e-4; return Math.round((g.fn(x + h) - g.fn(x - h)) / (2 * h) * 1e6) / 1e6; };
+  // How much the slope rises for every 1 across (the 2 in 2x), read from the slopes themselves.
+  const K2 = (g) => rate(g, 1) - rate(g, 0);
+  const rateS = (g, v) => fmtN(v) + (g.xu ? ' ' + g.yu + ' per ' + g.xu : '');
+  const amt = (g, v) => fmtN(v) + (g.yu ? ' ' + g.yu : '');
+  const atS = (g, x) => fmtN(x) + (g.xu ? ' ' + g.xu : '');
+  const coord = (g, x) => '(' + atS(g, x) + ', ' + amt(g, g.fn(x)) + ')';
+  const fdash = (g, x) => 'f′(' + fmtN(x) + ') = ' + fmtN(K2(g)) + ' × ' + fmtN(x) + ' = ' + rateS(g, rate(g, x));
+  const say = (s) => String(s == null ? '' : s).replace(/′/g, ' dash').replace(/Δ/g, 'change in ').replace(/÷/g, ' divided by ')
+    .replace(/×/g, ' times ').replace(/−/g, ' minus ').replace(/²/g, ' squared').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+  const halvesIn = (lo, hi) => { const out = []; for (let k = Math.ceil(lo * 2 - 1e-9); k <= Math.floor(hi * 2 + 1e-9); k++) out.push(k / 2); return out; };
+  const uniq = (xs) => Array.from(new Set(xs.map((x) => Math.round(x * 2) / 2))).sort((a, b) => a - b);
+  // Half steps P has visited, as stretches of neighbours (joined up between them).
+  function runsOf(xs) {
+    const out = [];
+    uniq(xs).forEach((x) => { const r = out[out.length - 1]; if (r && x - r[1] <= 0.5 + 1e-9) r[1] = x; else out.push([x, x]); });
+    return out;
+  }
+  const lineName = (g) => 'f′(x) = ' + fmtN(K2(g)) + 'x' + (rate(g, 0) ? ' − ' + fmtN(-rate(g, 0)) : '');
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A SHOW step on the graphs draws a tour: P travels (legs) and its slope drops onto the graph
+  // below, at each stop (stops) or all the way (sweep). A puzzle's o lists its answers: right, and
+  // each slip with the working it shows (rows) and what it draws: a guide to P's height (height), a
+  // dot at the wrong slope (dot), a wrong line of slopes (line), or a mark on the square (sq).
+  const STEPS = [
+    { show: true, kind: 'graph', name: 'Slopes at 1, 2 and 3 s', g: 'boat', dn: 'slope of the tangent, m per s', drag: true, dur: 4.0, rows: 2, draw: drawTour,
+      tour: { mode: 'stops', x0: 1, legs: [{ to: 2, t: 1.3, len: 0.6 }, { to: 3, t: 2.7, len: 0.6 }], drops: [0.6, 2.0, 3.4] },
+      rowsAt: (x) => [{ s: 'P ' + coord(bo, x), soft: true }, { s: 'Slope of the tangent at P = ' + rateS(bo, rate(bo, x)), big: true }],
+      text: 'The speeding boat again: `f(x) = x²` metres after `x` seconds. P sits on its graph with the dashed tangent, whose slope is the number the chords from P settle on: 2 m per s at 1 s, 4 at 2 s and 6 at 3 s. Each slope drops a dot on the graph below, at the same `x` and as high as the slope. Drag P along the curve to drop more.' },
+    { kind: 'graph', name: 'The slope at 4 s', g: 'boat', dn: 'slope of the tangent, m per s', p: 4, rows: 3, known: { dots: [1, 2, 3] }, opts: ['height', 'right', 'last'],
+      task: 'P is now at 4 s, where `f(4) = 16` m. Chords from P read `0.81 ÷ 0.1 = 8.1` m per s over 0.1 s, and `0.0801 ÷ 0.01 = 8.01` over 0.01 s. How high will P\'s dot sit on the graph below?',
+      why: 'The chords read 8.1 and 8.01, each above 8 by its gap, so they settle on 8. The slope at 4 s is 8 m per s, and P\'s dot sits at 8, in line with 2, 4 and 6. The 16 m is how far the boat has gone.',
+      hint: 'Not quite. Where are the chords settling?',
+      hints: { height: 'Not quite. 16 m is how far the boat has gone, the height of P itself. Its dot shows how fast it is going.', last: 'Not quite. 8.01 m per s is still a chord over 0.01 s. Where are the chords settling?' },
+      pre: ['P ' + coord(bo, 4), 'Chords from P: ' + fmtN(slope(bo, 4, 4.1)) + ' and ' + rateS(bo, slope(bo, 4, 4.01)), 'Slope at 4 s = ?'],
+      right: ['P ' + coord(bo, 4), 'The chords settle on ' + rateS(bo, rate(bo, 4)), 'Slope at 4 s = ' + rateS(bo, rate(bo, 4))],
+      o: {
+        right: { t: rateS(bo, rate(bo, 4)) },
+        height: { t: amt(bo, bo.fn(4)), mark: { height: true }, rows: [amt(bo, bo.fn(4)) + ' is how far it has gone by 4 s', 'A height on the top graph, not a slope'] },
+        last: { t: rateS(bo, slope(bo, 4, 4.01)), rows: [rateS(bo, slope(bo, 4, 4.01)) + ' is a chord over 0.01 s', 'Still an average, not where they settle'] },
+      } },
+    { show: true, kind: 'graph', name: 'A rule for every x', g: 'boat', drag: true, dur: 3.9, rows: 2, draw: drawTour,
+      tour: { mode: 'sweep', x0: 0, legs: [{ to: 5, t: 0.8, len: 2.0 }], labT: 3.0, labAt: [3.55, 8.7, 'end'], triT: 3.3 }, lineLab: () => lineName(bo),
+      rowsAt: (x, end) => (end ? [{ s: 'The dots rise ' + fmtN(K2(bo)) + ' for every 1 across', soft: true }, { s: lineName(bo), big: true }]
+        : [{ s: 'P ' + coord(bo, x), soft: true }, { s: fdash(bo, x), big: true }]),
+      text: 'Sweep P along the whole graph and its dots line up on a straight line through zero that rises 2 for every 1 across. So at `x` seconds the boat is doing `2x` metres per second. That rule is a function in its own right, the *derivative* of f, written `f′(x)` and read \'f dash of x\' (many books say \'f prime\'). Put in a time, `x`, and it gives back the slope there.' },
+    { kind: 'graph', name: 'At 5 s', g: 'boat', p: 5, rows: 3, known: { trail: [0, 4], lab: lineName(bo), labAt: [2.8, 7.4, 'end'] }, opts: ['height', 'right', 'add'],
+      task: 'The dots follow `f′(x) = 2x`. P is at 5 s. How fast is the boat going at that moment, the height of P\'s dot below?',
+      why: '`f′(5) = 2 × 5 = 10` m per s, so P\'s dot sits at 10, on the line. 25 m is f(5), how far the boat has gone, and `5 + 2 = 7` adds where `2x` multiplies.',
+      hint: 'Not quite. Put 5 into the rule for the slope.',
+      hints: { height: 'Not quite. `5 × 5 = 25` m is f(5), how far it has gone. Put 5 into f′ instead.', add: 'Not quite. `2x` means 2 × `x`, not 2 + `x`.' },
+      pre: ['P ' + coord(bo, 5), 'f′(5) = ?'],
+      right: ['P ' + coord(bo, 5), fdash(bo, 5)],
+      o: {
+        right: { t: rateS(bo, rate(bo, 5)) },
+        height: { t: amt(bo, bo.fn(5)), mark: { height: true }, rows: ['5 × 5 = ' + amt(bo, bo.fn(5)) + ' is f(5), the distance', 'Not the slope, f′(5)'] },
+        add: { t: rateS(bo, 5 + K2(bo)), mark: { dot: { v: 5 + K2(bo), text: '5 + ' + fmtN(K2(bo)) } }, rows: ['5 + ' + fmtN(K2(bo)) + ' = ' + rateS(bo, 5 + K2(bo)) + ' adds', 'But 2x means 2 × x'] },
+      } },
+    { show: true, kind: 'square', name: 'Why 2x: a growing square', tag: 'A square of side x, grown by h', sq: SQ3, slider: true, dur: 4.7, rows: 3, draw: drawS5,
+      growT: 0.7, rowT: 1.2, gl: [{ t: 1.8, len: 0.45 }, { t: 2.7, len: 0.45 }, { t: 3.6, len: 0.45 }],
+      text: 'Why `2x`? `x²` is `x × x`, the area of a square of side `x`. Grow the side by a small step `h` and the new square is the old one plus two strips, each `x` by `h`, and a corner `h` by `h`: a growth of `2xh + h²`. That is how far `y = x²` climbs from `x` to `x + h`, so the chord\'s slope is the growth ÷ `h`, which is `2x + h`. Shrink `h`: at `x = 3` it reads 7, 6.5, 6.1 and 6.01, settling on 6.' },
+    { kind: 'square', name: 'A side of 5', tag: 'A square of side 5, grown by 0.1', sq: SQ5, h: 0.1, rows: 3, opts: ['nodiv', 'right', 'nocorner'],
+      task: 'A square of side 5 grows by `h = 0.1`. Its two strips add `2 × 5 × 0.1 = 1` and its corner `0.1 × 0.1 = 0.01`. What is the slope of the chord on `y = x²` from 5 to 5.1, the growth ÷ `h`?',
+      why: 'The growth is `1 + 0.01 = 1.01`, and `1.01 ÷ 0.1 = 10.1`. That is `2x + h` at `x = 5`: 10 plus the step itself, so it settles on 10 as `h` shrinks.',
+      hint: 'Not quite. Add the strips and the corner, then divide by `h`.',
+      hints: { nodiv: 'Not quite. 1.01 is the growth, an area. Divide it by `h`.', nocorner: 'Not quite. `1 ÷ 0.1` leaves out the corner. Add it to the strips first.' },
+      pre: ['Side x = 5, h = 0.1', 'Growth ÷ h = ?'],
+      right: ['Side x = 5, h = 0.1', 'Growth = ' + fmtN(strips(5, 0.1)) + ' + ' + fmtN(corner(0.1)) + ' = ' + fmtN(sqGrow(5, 0.1)), 'Slope = ' + fmtN(sqGrow(5, 0.1)) + ' ÷ 0.1 = ' + fmtN(sqGrow(5, 0.1) / 0.1)],
+      o: {
+        right: { t: fmtN(sqGrow(5, 0.1) / 0.1) },
+        nodiv: { t: fmtN(sqGrow(5, 0.1)), sq: 'growth', rows: [fmtN(strips(5, 0.1)) + ' + ' + fmtN(corner(0.1)) + ' = ' + fmtN(sqGrow(5, 0.1)) + ' is the growth, an area', 'Not yet ÷ 0.1'] },
+        nocorner: { t: fmtN(strips(5, 0.1) / 0.1), sq: 'corner', rows: [fmtN(strips(5, 0.1)) + ' ÷ 0.1 = ' + fmtN(strips(5, 0.1) / 0.1) + ' leaves out the corner', 'The growth is ' + fmtN(strips(5, 0.1)) + ' + ' + fmtN(corner(0.1))] },
+      } },
+    { show: true, kind: 'graph', name: 'Left of zero', g: 'plain', drag: true, dur: 3.8, rows: 2, draw: drawTour, ref: true, refAt: [0.25, 4.6, 'start'],
+      tour: { mode: 'sweep', x0: 3, pre: [0, 3], legs: [{ to: 0, t: 0.8, len: 1.0 }, { to: -2, t: 2.4, len: 0.9 }] },
+      rowsAt: (x) => [{ s: 'P ' + coord(pl, x), soft: true }, { s: fdash(pl, x), big: true }],
+      text: 'Now the plain curve `y = x²`, from −3 to 3. Left of zero it falls as `x` grows, so its slopes there are below zero, and the dots carry on along the same line, below the axis: `f′(−2) = 2 × −2 = −4`, though the curve itself is at 4. At 0 it is flat at the bottom, and `f′(0) = 0`. The square needed a side above zero, but `(x + h)² = x² + 2xh + h²` holds for any `x`.' },
+    { kind: 'graph', name: 'The slope at −1', g: 'plain', p: -1, rows: 3, known: { trail: [0, 3] }, opts: ['height', 'right', 'sign'],
+      task: 'On the plain curve, P sits at `x = −1`, where the curve is at 1. What is `f′(−1)`, the height of P\'s dot below?',
+      why: '`f′(−1) = 2 × −1 = −2`. The curve is falling there, so P\'s dot sits below the axis, on the line. That does not put a point at (−1, −2): the curve is at (−1, 1), and −2 is how steeply it falls.',
+      hint: 'Not quite. Put −1 into the rule for the slope.',
+      hints: { height: 'Not quite. 1 is where the curve is, the height of P. Its dot shows the slope.', sign: 'Not quite. 2 is the slope at `x = 1`, where the curve climbs. At −1 it is falling.' },
+      pre: ['P ' + coord(pl, -1), 'f′(−1) = ?'],
+      right: ['P ' + coord(pl, -1), fdash(pl, -1)],
+      o: {
+        right: { t: fmtN(rate(pl, -1)) },
+        height: { t: fmtN(pl.fn(-1)), mark: { height: true, dot: { v: pl.fn(-1), text: 'P\'s height' } }, rows: [fmtN(pl.fn(-1)) + ' is where the curve is, P\'s height', 'Not how steeply it falls'] },
+        sign: { t: fmtN(rate(pl, 1)), mark: { dot: { v: rate(pl, 1), text: 'slope at x = 1' } }, rows: [fmtN(rate(pl, 1)) + ' is the slope at x = 1, where it climbs', 'At −1 the curve falls'] },
+      } },
+    { show: true, kind: 'graph', name: 'A straight line', g: 'steady', drag: true, dur: 3.6, rows: 2, draw: drawTour,
+      tour: { mode: 'sweep', x0: 0, legs: [{ to: 5, t: 0.8, len: 2.0 }], labT: 3.0, labAt: [1.5, 5.6, 'middle'] }, lineLab: () => 'f′(x) = ' + fmtN(rate(sd, 1)),
+      rowsAt: (x) => [{ s: 'P ' + coord(sd, x), soft: true }, { s: 'f′(' + fmtN(x) + ') = ' + rateS(sd, rate(sd, x)) + ', as at every x', big: true }],
+      text: 'A straight line has the same slope everywhere. The steady boat, `f(x) = 4x` metres after `x` seconds, gains 4 m every second, so its tangent lies along the line itself and every dot sits at 4. Its derivative is the flat line `f′(x) = 4`: 4 m per s at every moment.' },
+    { kind: 'graph', name: 'The cable drum', g: 'drum', p: 2, rows: 3, opts: ['same', 'right', 'zero'],
+      task: 'A cable drum pays out `f(x) = 3x` metres of cable after `x` seconds. Which rule gives the slope of its graph at every `x`?',
+      why: 'The graph is a straight line climbing 3 m every second, so the tangent at every point is the line itself, with slope 3. The derivative is the flat line `f′(x) = 3`: 3 m per s at every moment, not `3x`, which is f itself.',
+      hint: 'Not quite. How steep is a straight line at each point?',
+      hints: { same: 'Not quite. `3x` is f itself, the cable paid out. Its slope is the same at every `x`.', zero: 'Not quite. A straight line still climbs, 3 m every second. Only a flat one has slope 0.' },
+      pre: ['P ' + coord(dr, 2), 'f′(x) = ?'],
+      right: ['P ' + coord(dr, 2), 'Slope ' + rateS(dr, rate(dr, 2)) + ' at every x', 'f′(x) = ' + fmtN(rate(dr, 2))],
+      o: {
+        right: { t: 'f′(x) = ' + fmtN(rate(dr, 2)), all: true, lab: 'f′(x) = ' + fmtN(rate(dr, 2)), labAt: [3.8, 4.6, 'middle'] },
+        same: { t: 'f′(x) = ' + fmtN(dr.fn(1)) + 'x', mark: { line: { fn: dr.fn, text: fmtN(dr.fn(1)) + 'x is f itself', at: [3.2, 7.2, 'start'] } }, rows: [fmtN(dr.fn(1)) + 'x is f itself, the cable paid out', 'Its slope is the same at every x'] },
+        zero: { t: 'f′(x) = 0', mark: { line: { fn: () => 0, text: 'slope 0', at: [4, 0.7, 'middle'] } }, rows: ['A straight line still climbs', fmtN(dr.fn(1)) + ' m every second, not 0'] },
+      } },
+    { kind: 'square', name: 'A growing plate', tag: 'A square plate, its side growing', sq: PLATE, rows: 3, opts: ['area', 'right', 'one'],
+      task: 'A square plate has a side of 20 cm, and the side is growing. How fast is its area growing, per cm of side?',
+      why: 'Each small step `h` adds two strips, each 20 cm by `h`, plus a corner that shrinks away, so the area grows at `2 × 20 = 40` cm² per cm of side: `f′(x) = 2x` at `x = 20`. 400 cm² is the area itself, and 20 counts one strip.',
+      hint: 'Not quite. How much do the strips add for each cm of side?',
+      hints: { area: 'Not quite. `20 × 20 = 400` cm² is the area itself, not how fast it grows.', one: 'Not quite. Growing the side adds two strips, each 20 cm long.' },
+      pre: ['Side x = 20 cm', 'Rate of growth = ?'],
+      right: ['Side x = 20 cm', 'Two strips, each 20 cm by h', 'Rate = 2 × 20 = ' + fmtN(rate(sqr, 20)) + ' cm² per cm'],
+      o: {
+        right: { t: fmtN(rate(sqr, 20)) + ' cm² per cm' },
+        area: { t: fmtN(sqr.fn(20)) + ' cm²', sq: 'area', rows: ['20 × 20 = ' + fmtN(sqr.fn(20)) + ' cm² is the area', 'Not how fast it grows'] },
+        one: { t: fmtN(rate(sqr, 20) / 2) + ' cm² per cm', sq: 'one', rows: [fmtN(rate(sqr, 20) / 2) + ' cm² per cm counts one strip', 'Each step adds two strips'] },
+      } },
+    { kind: 'graph', name: 'A new curve', g: 'dip', p: 3, rows: 3, known: { trail: [-1, 2], lab: lineName(dp), labAt: [0.3, -3.2, 'start'] }, opts: ['height', 'right', 'drop'],
+      task: 'This curve is `y = x² − 2x`, and its derivative is `f′(x) = 2x − 2`. P sits at `x = 3`. What is the slope there, the height of P\'s dot below?',
+      why: '`f′(3) = 2 × 3 − 2 = 4`, so the tangent at P climbs 4 for every 1 across, and P\'s dot sits at 4, on the line `2x − 2`. 3 is where the curve is, and 6 forgets the − 2.',
+      hint: 'Not quite. Put 3 into `2x − 2`.',
+      hints: { height: 'Not quite. `9 − 6 = 3` is the curve\'s height at 3, f(3). Use f′.', drop: 'Not quite. `2 × 3 = 6` leaves out the − 2.' },
+      pre: ['P ' + coord(dp, 3), 'f′(3) = ?'],
+      right: ['P ' + coord(dp, 3), 'f′(3) = 2 × 3 − 2 = ' + fmtN(rate(dp, 3))],
+      o: {
+        right: { t: fmtN(rate(dp, 3)) },
+        height: { t: fmtN(dp.fn(3)), mark: { height: true }, rows: ['9 − 6 = ' + fmtN(dp.fn(3)) + ' is the curve\'s height, f(3)', 'Not its slope'] },
+        drop: { t: fmtN(rate(dp, 3) - rate(dp, 0)), mark: { dot: { v: rate(dp, 3) - rate(dp, 0), text: '2 × 3' } }, rows: ['2 × 3 = ' + fmtN(rate(dp, 3) - rate(dp, 0)) + ' leaves out the − 2', 'f′(x) is 2x − 2'] },
+      } },
+  ];
+  const FINISH = 'The derivative `f′(x)` is the rule that gives the slope of f at each point where it has one. For `y = x²` it is `2x`: the square\'s `2x + h` settles on `2x` as `h` shrinks.';
+  // The lesson's source the checks restate.
+  const OS = 'https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function';
+  const FADE = 0.35, FB = [1.3, 1.2];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // p, seen: where Dan has dragged P and the half steps it has visited; h: Dan's slider stop.
+  function blank() { return { pick: null, res: null, why: false, p: null, seen: null, h: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion
+  let REC = null, checking = false, hShown = 0;
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[fxyh](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === 'right' ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    const st = S[at()]; st.p = null; st.seen = null; st.h = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The slider that shrinks the square's step h (shown on its own screen).
+  const hCtl = K.control({ id: 'h', label: 'Size of the step h', min: 0, max: HS.length - 1, step: 1, value: 0,
+    fmt: (v) => 'h = ' + fmtN(HS[K.clamp(Math.round(v), 0, HS.length - 1)]), into: '#hbox' });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null, AV = [], LQ = [], KEY = [];   // AV: lines and shapes labels keep clear of; LQ: labels waiting; KEY: the key's entries
+  const add = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: rx || 0 }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, s, true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 13 * 0.6;
+  }
+  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.
+  const queue = (a, items) => { items = items.filter((it) => it.text); if (a > 0 && items.length) LQ.push({ a, items }); };
+  function flushLabels() {
+    const list = LQ; LQ = [];
+    list.forEach((q) => part(q.a, 4, () => {
+      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text, anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });
+      ts.forEach((t) => { const s = t.textContent; t.textContent = ''; italics(t, s, true); REC.labs.push(t.textContent); if (/\bbad\b/.test(t.getAttribute('class') || '')) REC.bad++; });
+    }));
+  }
+
+  // ---------- the two graphs: the rule above, its slopes below, one x across ----------
+  const PL = 52, PR = 318, T1 = 56, H1 = 124, B1 = T1 + H1, T2 = 238, H2 = 108, B2 = T2 + H2;
+  const X = (g, v) => PL + (v - g.x[0]) / (g.x[1] - g.x[0]) * (PR - PL);
+  const Y1 = (g, v) => B1 - (v - g.y[0]) / (g.y[1] - g.y[0]) * H1;
+  const Y2 = (g, v) => B2 - (v - g.d[0]) / (g.d[1] - g.d[0]) * H2;
+  const inD = (g, v) => v >= g.d[0] - 1e-9 && v <= g.d[1] + 1e-9;
+  // Gridlines (one x for both), axes through zero where zero is in view, numbers and names.
+  function drawFrame(g, top, name) {
+    const r = top ? g.y : g.d, Yf = top ? Y1 : Y2, T0 = top ? T1 : T2, B = top ? B1 : B2;
+    for (let v = r[0]; v <= r[1] + 1e-9; v += r[2]) { const y = Yf(g, v); if (v > r[0] + 1e-9 && Math.abs(v) > 1e-9) line('grid', PL, y, PR, y); text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end'); }
+    for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.x[2]) { const x = X(g, v); if (v > g.x[0] + 1e-9 && Math.abs(v) > 1e-9) line('grid', x, T0, x, B); line('mtick', x, B, x, B + 5); text(x, B + 17, fmtN(v), 'tick'); }
+    const zy = r[0] < 0 && r[1] > 0 ? Yf(g, 0) : null, zx = g.x[0] < 0 && g.x[1] > 0 ? X(g, 0) : null;
+    if (zy != null) line('grid', PL, B, PR, B);
+    if (zx != null) line('grid', PL, T0, PL, B);
+    const ay = zy == null ? B : zy, ax = zx == null ? PL : zx;
+    AV.push(line('axis', PL, ay, PR + 6, ay), line('axis', ax, T0 - 6, ax, B));
+    text(12, T0 - 14, name, 'aname', 'start');
+  }
+  function curveD(g) {
+    let s = '';
+    for (let k = 0; k <= 90; k++) { const x = g.x[0] + (g.x[1] - g.x[0]) * k / 90; s += (k ? ' L' : 'M') + r3(X(g, x)) + ' ' + r3(Y1(g, g.fn(x))); }
+    return s;
+  }
+  // The stretch of a straight line through (x0, y0) with slope m that lies inside the top graph.
+  function clipLine(g, x0, y0, m) {
+    let a = g.x[0], b = g.x[1];
+    if (Math.abs(m) > 1e-12) {
+      const u = x0 + (g.y[0] - y0) / m, w = x0 + (g.y[1] - y0) / m;
+      a = Math.max(a, Math.min(u, w)); b = Math.min(b, Math.max(u, w));
+    } else if (y0 < g.y[0] || y0 > g.y[1]) return null;
+    return b > a ? [[a, y0 + m * (a - x0)], [b, y0 + m * (b - x0)]] : null;
+  }
+  // P on the curve, with its name.
+  function drawP(g, x, a, halo) {
+    const px = X(g, x), py = Y1(g, g.fn(x));
+    REC.P = [px, py]; REC.p = x;
+    if (a <= 0) return;
+    part(a, 0, () => { if (halo) AV.push(circle('halo', px, py, 13)); AV.push(circle('pt', px, py, 7)); });
+    queue(a, [{ x: px - 10, y: py - 10, text: 'P', anchor: 'end' }]);
+  }
+  // The tangent at P: the line through P with the slope the chords settle on.
+  function drawTangent(g, x, a) {
+    if (a <= 0) return;
+    const s = clipLine(g, x, g.fn(x), rate(g, x));
+    if (!s) return;
+    const c = { x1: X(g, s[0][0]), y1: Y1(g, s[0][1]), x2: X(g, s[1][0]), y2: Y1(g, s[1][1]) };
+    part(a, 0, () => AV.push(line('tan', c.x1, c.y1, c.x2, c.y2)));
+    REC.tan = c;
+    KEY.push({ cls: 'tan', text: 'tangent', a });
+  }
+  // The dotted drop from P to its slope on the graph below (to that graph's foot while the slope is
+  // still a question), broken where the numbers between the graphs sit. grow: how far it has dropped.
+  function drawGuide(g, x, v, grow, a) {
+    if (grow <= 0 || a <= 0) return;
+    const px = X(g, x), top = Y1(g, g.fn(x)) + 10, end = v == null ? B2 : Y2(g, v) - 8;
+    const L1 = Math.max(0, B1 - top), L2 = Math.max(0, end - T2), got = grow * (L1 + L2);
+    part(a, 0, () => {
+      if (L1 > 0 && got > 0) AV.push(line('drop', px, top, px, top + Math.min(got, L1)));
+      if (L2 > 0 && got > L1) AV.push(line('drop', px, T2, px, T2 + Math.min(got - L1, L2)));
+    });
+  }
+  // The trail below: a line through the slopes over each stretch P has covered, and a dot at each
+  // half step on it, every height worked out from the rule.
+  function drawTrail(g, runs, xs, a, r) {
+    if (a <= 0) return;
+    part(a, 0, () => {
+      runs.forEach((rn) => {
+        const lo = rn[0], hi = rn[1];
+        if (hi - lo < 1e-9) return;
+        const n = Math.max(2, Math.ceil((hi - lo) / 0.1));
+        let s = '';
+        for (let k = 0; k <= n; k++) { const x = lo + (hi - lo) * k / n, py = Y2(g, rate(g, x)); s += (k ? ' L' : 'M') + r3(X(g, x)) + ' ' + r3(py); REC.line.push([x, py]); }
+        AV.push(path('dline', s));
+      });
+      xs.forEach((x) => {
+        const v = rate(g, x);
+        if (!inD(g, v)) return;
+        const px = X(g, x), py = Y2(g, v);
+        AV.push(circle('dot', px, py, r || 3.5));
+        REC.dots.push({ x, px, py });
+      });
+    });
+    KEY.push({ cls: 'trail', text: 'slopes', a });
+  }
+  // The dot P is dropping now, straight below it.
+  function drawLive(g, x, a) {
+    if (a <= 0) return;
+    const v = rate(g, x), px = X(g, x), py = Y2(g, v);
+    if (!inD(g, v)) return;
+    part(a, 0, () => AV.push(circle('dot now', px, py, 6)));
+    REC.live = { x, px, py };
+    KEY.push({ cls: 'trail', text: 'slopes', a });
+  }
+  // Where P's slope is named: beside its dot, below right or above left (clear of the rising line
+  // of slopes), else higher up; never across an axis, into the numbers or over the graph's name.
+  function slopeSpot(g, x, s) {
+    const px = X(g, x), py = Y2(g, rate(g, x)), w = tw(s, 'lab') + 2;
+    const ay = g.d[0] < 0 && g.d[1] > 0 ? Y2(g, 0) : null, ax = g.x[0] < 0 && g.x[1] > 0 ? X(g, 0) : null;
+    const nameEnd = 18 + Math.max(tw(g.dn, 'aname'), tw('slope of the tangent, m per s', 'aname'));
+    const ok = (x0, b) => {
+      const x1 = x0 + w, top = b - 11, bot = b + 3;
+      if (x0 < PL + 2 || x1 > PR + 14 || bot > B2 - 4) return false;
+      if (top < T2 + 1 && !(top >= B1 + 24 && x0 >= nameEnd)) return false;
+      if (ay != null && top < ay + 3 && bot > ay - 3) return false;
+      return !(ax != null && x0 < ax + 3 && x1 > ax - 3);
+    };
+    const cands = [[px + 10, py + 19, 'start'], [px - 10, py - 10, 'end'], [px + 8, py - 26, 'start'], [px - 10, py + 40, 'end']];
+    for (const c of cands) if (ok(c[2] === 'end' ? c[0] - w : c[0], c[1])) return c;
+    return cands[0];
+  }
+  const slopeLabel = (g, x, a) => { const v = rate(g, x); if (!inD(g, v)) return; const s = 'slope ' + fmtN(v), c = slopeSpot(g, x, s); queue(a, [{ x: c[0], y: c[1], text: s, anchor: c[2] }]); };
+  // A line's name at the spot given, [x, slope, anchor], chosen clear of the axes and the other labels.
+  const lineLabel = (g, pos, s, a) => queue(a, [{ x: X(g, pos[0]), y: Y2(g, pos[1]), text: s, anchor: pos[2] || 'middle' }]);
+  // The line the slopes made before, dashed, for the dots to land on.
+  function drawRef(g, a) {
+    if (a <= 0) return;
+    let s = '', on = false;
+    K.linspace(g.x[0], g.x[1], 41).forEach((x) => { const v = rate(g, x); if (inD(g, v)) { s += (on ? ' L' : ' M') + r3(X(g, x)) + ' ' + r3(Y2(g, v)); on = true; } else on = false; });
+    part(a, 0, () => AV.push(path('ref', s.trim())));
+  }
+  // Rise over run on the slopes' line: 1 across, and how far it climbs.
+  function drawRise(g, a) {
+    if (a <= 0) return;
+    const v1 = rate(g, 1), v2 = rate(g, 2), x1 = X(g, 1), x2 = X(g, 2), y1 = Y2(g, v1), y2 = Y2(g, v2);
+    part(a, 0, () => AV.push(line('tri', x1, y1, x2, y1), line('tri', x2, y1, x2, y2)));
+    queue(a, [{ x: (x1 + x2) / 2, y: y1 + 16, text: '1 across' }, { x: x2 + 7, y: (y1 + y2) / 2 + 5, text: fmtN(v2 - v1) + ' up', anchor: 'start' }]);
+    REC.rise = v2 - v1;
+  }
+  // The key, under the graph below on the left.
+  function drawKey(y) {
+    const seen = {}, list = [];
+    KEY.forEach((k) => { if (k.a <= 0) return; if (seen[k.cls]) { seen[k.cls].a = Math.max(seen[k.cls].a, k.a); return; } seen[k.cls] = Object.assign({}, k); list.push(seen[k.cls]); });
+    const order = ['tan', 'trail'];
+    list.sort((a, b) => order.indexOf(a.cls) - order.indexOf(b.cls));
+    let x = 12;
+    list.forEach((k) => {
+      const x0 = x;
+      part(k.a, 0, () => {
+        if (k.cls === 'trail') { line('dline', x0, y - 4.5, x0 + 22, y - 4.5); circle('dot', x0 + 11, y - 4.5, 3.5); } else line(k.cls, x0, y - 4.5, x0 + 22, y - 4.5);
+        text(x0 + 28, y, k.text, 'key', 'start');
+      });
+      x += 28 + tw(k.text, 'key') + 18;
+    });
+  }
+
+  // ---------- the growing square ----------
+  const SX = 64, SY = 56, MINW = 8;
+  // The old square of side x, the two strips x by h and the corner h by h. h is drawn at the
+  // square's scale but never under MINW units, so thin strips still show (and the key says so).
+  function drawSquare(G, c, h, a, o) {
+    const s = c.x * c.scale, wt = h == null ? c.fixedW : h * c.scale, w = Math.max(wt, MINW), gw = w * (o.grow == null ? 1 : o.grow);
+    const hl = o.hLab != null ? o.hLab : h, wide = hl != null && hl * c.scale < MINW - 1e-9, la = Math.min(a, o.labA == null ? 1 : o.labA), sa = o.sa == null ? 1 : o.sa;
+    part(a, 0, () => {
+      AV.push(rect('sqA', SX, SY, s, s));
+      text(SX + s / 2, SY + s / 2 + 6, 'x²', 'lab');
+      text(SX + s / 2, SY - 9, 'x = ' + fmtN(c.x) + c.unit, 'lab');
+      text(SX - 9, SY + s / 2 + 5, 'x', 'lab', 'end');
+    });
+    if (gw > 0.3) part(a, 0, () => AV.push(rect('sqB', SX + s, SY, gw, s), rect('sqB', SX, SY + s, s, gw), rect('sqC', SX + s, SY + s, gw, gw)));
+    if (gw > 0.3) part(la, 0, () => { text(SX + s + gw / 2, SY - 9, hl == null ? 'h' : 'h = ' + fmtN(hl), 'lab'); text(SX - 9, SY + s + gw / 2 + 5, 'h', 'lab', 'end'); });
+    if (o.slip === 'growth') { part(sa, 0, () => { rect('sqbad', SX + s, SY, gw, s); rect('sqbad', SX, SY + s, s, gw); rect('sqbad', SX + s, SY + s, gw, gw); }); REC.bad++; }
+    if (o.slip === 'corner') { part(sa, 0, () => AV.push(rect('sqbad', SX + s, SY + s, gw, gw))); queue(sa, [{ x: SX + s + gw / 2, y: SY + s + gw + 20, text: 'corner left out', cls: 'bad' }]); REC.bad++; }
+    if (o.slip === 'area') { part(sa, 0, () => { rect('sqbad', SX, SY, s, s); text(SX + s / 2, SY + s / 2 + 30, fmtN(sqr.fn(c.x)) + c.unit + '², the area', 'lab bad'); }); REC.bad++; }
+    if (o.slip === 'one') { part(sa, 0, () => AV.push(rect('sqgone', SX, SY + s, s, gw))); queue(sa, [{ x: SX + s / 2, y: SY + s + gw + 20, text: 'this strip left out', cls: 'bad' }]); REC.bad++; }
+    if (o.ok) part(sa, 0, () => { rect('sqok', SX + s, SY, gw, s); rect('sqok', SX, SY + s, s, gw); });
+    REC.sq = { s, w, gw, wide, noteA: la, x: c.x, h };
+  }
+  // The key under the square, in rows; and a note when the strips are drawn wider than h.
+  function drawSqKey(G) {
+    const items = [['sqA', 'x², the old square'], ['sqB', 'a strip, x by h'], ['sqC', 'the corner, h by h']];
+    let x = 12, row = 0;
+    items.forEach((it) => {
+      const w = 19 + tw(it[1], 'key');
+      if (x + w > 330) { x = 12; row++; }
+      const y = G.keyY + 20 * row;
+      rect(it[0], x, y - 11, 13, 13, 2);
+      text(x + 19, y, it[1], 'key', 'start');
+      x += w + 18;
+    });
+    if (REC.sq && REC.sq.wide) part(REC.sq.noteA, 0, () => text(12, G.keyY + 20 * (row + 1), 'Strips drawn wider than h, to show them', 'key', 'start'));
+  }
+  // A table of chord slopes, growth ÷ h, under the square key: the steps across, a slope under each.
+  function drawTable(G, tb) {
+    const n = tb.cols.length, x0 = 104, w = (334 - x0) / n, y0 = G.tabY;
+    REC.tab = [tb.row.map((c) => (c.a >= 0.5 ? c.s : ''))];
+    text(12, y0, tb.title, 'th', 'start');
+    if (tb.hl >= 0) part(tb.hlA, 0, () => rect('thl', x0 + tb.hl * w + 3, y0 + 9, w - 6, 50, 6));
+    text(12, y0 + 24, tb.names[0], 'th', 'start');
+    tb.cols.forEach((h, c) => text(x0 + (c + 0.5) * w, y0 + 24, fmtN(h), 'td head'));
+    line('tsep', 12, y0 + 31, x0 + n * w, y0 + 31);
+    text(12, y0 + 48, tb.names[1], 'th', 'start');
+    tb.row.forEach((c, k) => { if (c.a > 0) part(c.a, 3, () => text(x0 + (k + 0.5) * w, y0 + 48, c.s, 'td')); });
+  }
+
+  // ---------- the working under the drawing, one line each ----------
+  function drawRows(G, RW) {
+    RW.forEach((r, n) => {
+      const a = r.a != null ? r.a : vis(r.t);
+      part(a, 4, () => {
+        const t = text(12, G.rowsY + 18 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start');
+        try { if (t.getComputedTextLength() > 314) t.style.fontSize = '13.5px'; } catch (e) { /* measured again next paint */ }
+      });
+      if (a >= 0.5) REC.rows.push(r.s);
+      if (r.bad && a > 0) REC.bad++;
+    });
+  }
+  // Where a shrinking demonstration has got to: the step now, the last stop reached, and how far
+  // that stop's labels have arrived (they fade while the strips move, and come back once they stop).
+  function glide(gaps, gl, t0) {
+    let k = 0;
+    for (; k < gl.length; k++) {
+      const g0 = gl[k].t, g1 = g0 + gl[k].len;
+      if (T < g0) break;
+      if (T < g1) {
+        const e = K.ease((T - g0) / gl[k].len);
+        return { gap: Math.exp(K.lerp(Math.log(gaps[k]), Math.log(gaps[k + 1]), e)), stop: k, la: 1 - K.arrive(T, g0, 0.3) };
+      }
+    }
+    return { gap: gaps[k], stop: k, la: k === 0 ? vis(t0) : arr(gl[k - 1].t + gl[k - 1].len, 0.5) };
+  }
+
+  // ---------- the SHOW screens ----------
+  // A tour of the graphs: P travels, its tangent riding with it, and its slope drops a dot straight
+  // below. Once Dan drags P the tour gives way to his trail: every half step P has passed.
+  const tourEnd = (d) => (d.tour.legs.length ? d.tour.legs[d.tour.legs.length - 1].to : d.tour.x0);
+  function finalTrail(d) {
+    const tr = d.tour;
+    if (tr.mode === 'stops') return [tr.x0].concat(tr.legs.map((L) => L.to));
+    const ends = [tr.x0].concat(tr.legs.map((L) => L.to), tr.pre || []);
+    return halvesIn(Math.min.apply(null, ends), Math.max.apply(null, ends));
+  }
+  function drawTour(d, st, G, RW) {
+    const g = G.g, tr = d.tour, own = st.p != null, pa = own ? 1 : vis(0.4);
+    let x = tr.x0, rx = x, la = 1, lab = 1, end = false;
+    if (d.ref) { drawRef(g, 1); lineLabel(g, d.refAt, lineName(g), 1); }
+    if (own) {
+      x = st.p; rx = x;
+      drawTrail(g, runsOf(st.seen), st.seen, 1);
+      drawGuide(g, x, rate(g, x), 1, 1);
+      drawLive(g, x, 1);
+    } else if (tr.mode === 'stops') {
+      // P stops at each place, its dot drops, then it moves on.
+      let k = 0, moving = false;
+      for (let n = 0; n < tr.legs.length; n++) {
+        const L = tr.legs[n];
+        if (T < L.t) break;
+        if (T < L.t + L.len) { moving = true; x = K.lerp(x, L.to, K.ease((T - L.t) / L.len)); break; }
+        x = L.to; rx = x; k = n + 1;
+      }
+      const stops = [tr.x0].concat(tr.legs.map((L) => L.to));
+      stops.forEach((sx, j) => drawTrail(g, [], [sx], arr(tr.drops[j] + 0.25, 0.35), 5));
+      if (moving) {
+        la = 1 - K.arrive(T, tr.legs[k].t, 0.3); lab = la;
+        drawGuide(g, rx, rate(g, rx), 1, la);
+      } else {
+        lab = arr(tr.drops[k] + 0.25, 0.35);
+        drawGuide(g, rx, rate(g, rx), arr(tr.drops[k], 0.35), 1);
+        drawLive(g, rx, lab);
+        la = k === 0 ? 1 : arr(tr.drops[k], 0.5);
+      }
+    } else {
+      // P sweeps along, dropping its slope all the way; the trail grows behind it.
+      la = 1;
+      for (let n = 0; n < tr.legs.length; n++) {
+        const L = tr.legs[n];
+        if (T < L.t) break;
+        if (T < L.t + L.len) { la = 1 - K.arrive(T, L.t, 0.3); x = K.lerp(x, L.to, K.ease((T - L.t) / L.len)); break; }
+        x = L.to; rx = x; la = arr(L.t + L.len, 0.5);
+        if (n === tr.legs.length - 1) end = true;
+      }
+      const ends = [x, tr.x0].concat(tr.pre || []), lo = Math.min.apply(null, ends), hi = Math.max.apply(null, ends);
+      drawTrail(g, [[lo, hi]], halvesIn(lo, hi), tr.pre ? 1 : pa);
+      drawGuide(g, x, rate(g, x), pa, 1);
+      drawLive(g, x, pa);
+      lab = Math.min(la, pa);
+    }
+    if (lab > 0) slopeLabel(g, rx, lab);
+    if (tr.labT != null) lineLabel(g, tr.labAt, d.lineLab(), own ? 1 : arr(tr.labT));
+    if (tr.triT != null) drawRise(g, own ? 1 : arr(tr.triT));
+    drawTangent(g, x, 1);
+    drawP(g, x, 1, d.drag && !finished);
+    d.rowsAt(rx, end && !own).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: la }));
+    return [[X(g, x), Y1(g, g.fn(x)), x]];
+  }
+  // Screen 5: the square grows its strips, then the slider shrinks h; the table fills in.
+  function drawS5(d, st, G, RW) {
+    const c = d.sq, own = st.h != null;
+    const s = own ? { gap: HS[st.h], stop: st.h, la: 1 } : glide(HS, d.gl, d.rowT);
+    const h = HS[s.stop];
+    drawSquare(G, c, s.gap, 1, { grow: own ? 1 : arr(d.growT, 0.6), labA: s.la, hLab: h });
+    const ca = (k) => (own ? 1 : vis(k === 0 ? d.rowT : d.gl[k - 1].t + d.gl[k - 1].len));
+    drawTable(G, { title: 'Chord slope, growth ÷ h, at x = ' + fmtN(c.x), names: ['h', 'slope'], cols: HS, hl: s.stop, hlA: s.la,
+      row: HS.map((hh, k) => ({ s: fmtN(sqGrow(c.x, hh) / hh), a: ca(k) })) });
+    RW.push({ s: 'Strips 2 × ' + fmtN(c.x) + ' × ' + fmtN(h) + ' = ' + fmtN(strips(c.x, h)), soft: true, a: s.la },
+      { s: 'Corner ' + fmtN(h) + ' × ' + fmtN(h) + ' = ' + fmtN(corner(h)), soft: true, a: s.la },
+      { s: 'Growth ÷ h = ' + fmtN(sqGrow(c.x, h)) + ' ÷ ' + fmtN(h) + ' = ' + fmtN(sqGrow(c.x, h) / h), big: true, a: s.la });
+    if (!checking && STEPS[at()] === d) { if (Math.round(hCtl.get()) !== s.stop) hCtl.set(s.stop, true); hShown = s.stop; }
+  }
+
+  // ---------- the puzzles ----------
+  // Before Check the working ends in a question mark and P's drop ends in "?"; after it, the answer
+  // (the tangent and P's dot), or the slip drawn in red.
+  function puzzleRows(d, k, o, RW) {
+    if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n < d.pre.length - 1 }));
+    else if (k === 'right') d.right.forEach((s, n) => RW.push(n === 0 ? { s, soft: true } : { s, big: n === d.right.length - 1, t: 0.2 + 0.2 * n }));
+    else { RW.push({ s: d.pre[0], soft: true }); o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.2 + 0.2 * n })); }
+  }
+  function drawRedLine(g, fn, a, txt, pos) {
+    let s = '', on = false;
+    K.linspace(g.x[0], g.x[1], 51).forEach((x) => { const v = fn(x); if (inD(g, v)) { s += (on ? ' L' : ' M') + r3(X(g, x)) + ' ' + r3(Y2(g, v)); on = true; } else on = false; });
+    part(a, 0, () => AV.push(path('dline bad', s.trim())));
+    queue(a, [{ x: X(g, pos[0]), y: Y2(g, pos[1]), text: txt, anchor: pos[2] || 'middle', cls: 'bad' }]);
+  }
+  function drawSlipG(g, p, mk, a) {
+    if (mk.height) {
+      const y = Y1(g, g.fn(p));
+      part(a, 0, () => AV.push(line('slip', PL + 2, y, X(g, p) - 9, y)));
+      queue(a, [{ x: PL + 8, y: y - 8, text: amt(g, g.fn(p)), anchor: 'start', cls: 'bad' }]);
+      REC.bad++;
+    }
+    if (mk.dot) {
+      const px = X(g, p), py = Y2(g, mk.dot.v);
+      part(a, 0, () => AV.push(circle('dot bad', px, py, 6)));
+      queue(a, [px > 262 ? { x: px - 12, y: py + 5, text: mk.dot.text, anchor: 'end', cls: 'bad' } : { x: px + 11, y: py + 5, text: mk.dot.text, anchor: 'start', cls: 'bad' }]);
+      REC.bad++;
+    }
+    if (mk.line) { drawRedLine(g, mk.line.fn, a, mk.line.text, mk.line.at); REC.bad++; }
+  }
+  function drawPuzzleG(d, st, G, RW) {
+    const g = G.g, p = d.p, k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, a = arr(0.1), o = k ? d.o[k] : null, kn = d.known;
+    if (kn && kn.dots) kn.dots.forEach((x) => drawTrail(g, [], [x], 1, 5));
+    if (kn && kn.trail) { drawTrail(g, [kn.trail], halvesIn(kn.trail[0], kn.trail[1]), 1); if (kn.lab) lineLabel(g, kn.labAt, kn.lab, 1); }
+    if (k === 'right') {
+      drawTangent(g, p, a);
+      if (o.all) { drawTrail(g, [[g.x[0], g.x[1]]], halvesIn(g.x[0], g.x[1]), a); lineLabel(g, o.labAt, o.lab, a); }
+      drawGuide(g, p, rate(g, p), a, 1);
+      drawLive(g, p, a);
+      if (!o.all) slopeLabel(g, p, a);
+    } else {
+      drawGuide(g, p, null, 1, 1);
+      if (!k) queue(1, [{ x: X(g, p) + 9, y: T2 + 24, text: '?', anchor: 'start' }]);
+    }
+    drawP(g, p, 1, false);
+    if (o && o.mark) drawSlipG(g, p, o.mark, a);
+    puzzleRows(d, k, o, RW);
+  }
+  function drawPuzzleS(d, st, G, RW) {
+    const k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, a = arr(0.1), o = k ? d.o[k] : null;
+    drawSquare(G, d.sq, d.h == null ? null : d.h, 1, { grow: 1, labA: 1, slip: o ? o.sq : null, ok: k === 'right', sa: a });
+    puzzleRows(d, k, o, RW);
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    let G;
+    if (d.kind === 'graph') { const rowsY = B2 + 40; G = { g: GR[d.g], rowsY, H: Math.ceil(rowsY + 26 * d.rows + 12) }; }
+    else {
+      const c = d.sq, s = c.x * c.scale, wMax = c.fixedW || Math.max((d.slider ? HS[0] : d.h) * c.scale, MINW);
+      const keyY = Math.round(SY + s + wMax + 40), lines = c.fixedW ? 2 : 3;
+      const tabY = d.slider ? keyY + 20 * (lines - 1) + 34 : null;
+      const rowsY = d.slider ? tabY + 64 : keyY + 20 * (lines - 1) + 12;
+      G = { keyY, tabY, rowsY, H: Math.ceil(rowsY + 26 * d.rows + 12) };
+    }
+    GEO.set(d, G);
+    return G;
+  }
+
+  // The step's picture: the drawing, then what this screen shows on it, then the key and the working.
+  function drawScene(d, st, G) {
+    const RW = [];
+    REC = { rows: [], labs: [], bad: 0, dots: [], line: [], live: null, tan: null, P: null, p: null, tab: null, sq: null, rise: null, G };
+    AV = []; LQ = []; KEY = [];
+    let grips = [];
+    if (d.kind === 'graph') {
+      const g = G.g;
+      text(12, 20, g.who, 'tag', 'start');
+      drawFrame(g, true, g.yn);
+      drawFrame(g, false, d.dn || g.dn);
+      text(PR + 8, B2 + 36, g.xn, 'aname', 'end');
+      AV.push(path('curve', curveD(g)));
+      if (d.draw) grips = d.draw(d, st, G, RW) || []; else drawPuzzleG(d, st, G, RW);
+      drawKey(B2 + 36);
+    } else {
+      text(12, 20, d.tag, 'tag', 'start');
+      if (d.draw) d.draw(d, st, G, RW); else drawPuzzleS(d, st, G, RW);
+      drawSqKey(G);
+    }
+    drawRows(G, RW);
+    flushLabels();
+    placeGrip(d, grips);
+    return (d.kind === 'graph' ? 'Above, ' + say(G.g.who) + ', with the point P on it; below, the slopes P drops. ' : say(d.tag) + '. ') + REC.rows.map(say).join('. ');
+  }
+
+  // ---------- dragging P along the curve (the SHOW screens on the graphs) ----------
+  // P lands on half steps inside the axes, and leaves its slope at every half step it passes.
+  const snapP = (g, v) => K.clamp(Math.round(v * 2) / 2, g.x[0], g.x[1]);
+  const dragOn = () => !finished && !!STEPS[at()].drag;
+  const curP = () => { const d = STEPS[at()], st = S[at()]; return st.p != null ? st.p : tourEnd(d); };
+  function setP(v) {
+    const i = at(), d = STEPS[i], st = S[i], n = snapP(GR[d.g], v);
+    if (st.p === n && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    const from = curP();
+    st.seen = uniq((st.seen || finalTrail(d)).concat(halvesIn(Math.min(from, n), Math.max(from, n))));
+    T = Infinity; st.p = n;
+    K.reveal(); K.refresh();
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null;
+  }
+  let held = null;
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': 'Point P' }));
+  grip.style.display = 'none';
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragOn()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragOn()) return;
+    const q = svgPoint(e), g = GR[STEPS[at()].g];
+    if (q) setP(g.x[0] + (q.x - PL) / (PR - PL) * (g.x[1] - g.x[0]));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragOn()) return;
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    setP(curP() + 0.5 * by);
+  });
+  function placeGrip(d, list) {
+    if (checking) return;
+    const on = !!d.drag && !finished && list.length > 0;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    const g = GR[d.g];
+    grip.setAttribute('cx', r3(list[0][0])); grip.setAttribute('cy', r3(list[0][1]));
+    grip.setAttribute('aria-valuemin', g.x[0]); grip.setAttribute('aria-valuemax', g.x[1]); grip.setAttribute('aria-valuenow', list[0][2]);
+    grip.setAttribute('aria-valuetext', atS(g, list[0][2]));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, st, G));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i], hp = Math.round(p.h);
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.p = null; st.seen = null; st.h = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    } else if (d.slider && hp !== hShown) {
+      // Dan moved the slider: his step h, shown at once.
+      st.h = K.clamp(hp, 0, HS.length - 1);
+      if (anim.playing()) anim.pause();
+      T = Infinity;
+    }
+    if (!d.slider) hShown = hp;
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('hbox').hidden = !d.slider || finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(labs[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, labs[k]));
+      b.el.setAttribute('aria-label', say(labs[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });
+  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A height on the graph below, and a line's gradient on the graph above, read back through the axes.
+  const readY2 = (g, py) => g.d[0] + (B2 - py) / H2 * (g.d[1] - g.d[0]);
+  const tanSlope = (c, g) => (-(c.y2 - c.y1) / H1 * (g.y[1] - g.y[0])) / ((c.x2 - c.x1) / (PR - PL) * (g.x[1] - g.x[0]));
+  const onLine = (c, pt) => Math.abs((c.x2 - c.x1) * (pt[1] - c.y1) - (c.y2 - c.y1) * (pt[0] - c.x1)) / Math.hypot(c.x2 - c.x1, c.y2 - c.y1) < 1e-6;
+  // Chords from both sides, ever shorter, settle on the slope the page uses.
+  const settles = (g, x) => [1e-3, 1e-5].every((e) => Math.abs(slope(g, x, x + e) - rate(g, x)) < 1e-2 && Math.abs(slope(g, x - e, x) - rate(g, x)) < 1e-2);
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; checking = true;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), dots: REC.dots.slice(), line: REC.line.slice() });
+    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }
+  }
+
+  K.check('The derivative function gives the derivative of a function at each point where it is defined: on every graph, each dot below sits straight under the place P visited, as high as the number the chords there settle on from either side, and the tangent through P has that slope', () =>
+    STEPS.every((d, i) => {
+      if (d.kind !== 'graph') return true;
+      const g = GR[d.g], mid = (g.x[0] + g.x[1]) / 2;
+      const states = d.show ? [blank(), Object.assign(blank(), { p: mid, seen: halvesIn(mid - 1, mid) })] : [solvedSt()];
+      return states.every((st) => {
+        const h = drawn(i, st);
+        const dots = h.dots.length > 0 && h.dots.every((q) => close(q.px, X(g, q.x)) && settles(g, q.x) && close(readY2(g, q.py), rate(g, q.x)));
+        const live = !!h.live && close(h.live.px, h.P[0]) && close(readY2(g, h.live.py), rate(g, h.p)) && settles(g, h.p);
+        const tan = !!h.tan && close(tanSlope(h.tan, g), rate(g, h.p)) && onLine(h.tan, h.P);
+        return dots && live && tan;
+      });
+    }), { source: OS });
+  K.check('The function f(x) = x squared – 2x is graphed as is its derivative f′(x) = 2x − 2: on the last screen, answered, every dot below reads 2x − 2 at its x, and the tangent at x = 3 climbs 4 for every 1 across', () => {
+    const h = drawn(idx('A new curve'), solvedSt()), g = dp;
+    return h.dots.length === 7 && !!h.live && h.dots.concat([h.live]).every((q) => close(readY2(g, q.py), 2 * q.x - 2)) && !!h.tan && close(tanSlope(h.tan, g), 4) && h.p === 3;
+  }, { source: OS });
+  K.check('From the rules, by hand: x² is 1, 4, 9 and 16 m at 1 to 4 s, with slopes 2, 4, 6, 8 and 10 m per s at 1 to 5 s; chords from 4 s read 0.81 ÷ 0.1 = 8.1 and 0.0801 ÷ 0.01 = 8.01; the square of side 3 gives 7, 6.5, 6.1 and 6.01; side 5 grown by 0.1 gives strips 1, corner 0.01, 1.01 and 10.1; y = x² has slopes −4, −2, 0 and 2 at −2, −1, 0 and 1; 4x and 3x have slopes 4 and 3 everywhere; a 20 cm plate grows at 40 cm² per cm; x² − 2x is 3 at 3, with slope 4; and the screens\' sentences quote these same values', () => {
+    const n = (a, b) => close(a, b, 1e-9);
+    const boat = [1, 2, 3, 4].every((x) => bo.fn(x) === x * x) && [[1, 2], [2, 4], [3, 6], [4, 8], [5, 10]].every(([x, v]) => rate(bo, x) === v) &&
+      n(sqGrow(4, 0.1), 0.81) && n(slope(bo, 4, 4.1), 8.1) && n(sqGrow(4, 0.01), 0.0801) && n(slope(bo, 4, 4.01), 8.01) && bo.fn(5) === 25 && K2(bo) === 2;
+    const square = [[1, 7, 7], [0.5, 3.25, 6.5], [0.1, 0.61, 6.1], [0.01, 0.0601, 6.01]].every(([h, gr, v]) => n(sqGrow(3, h), gr) && n(sqGrow(3, h) / h, v) && n(strips(3, h) + corner(h), gr)) &&
+      n(strips(5, 0.1), 1) && n(corner(0.1), 0.01) && n(sqGrow(5, 0.1), 1.01) && n(sqGrow(5, 0.1) / 0.1, 10.1) && n(strips(5, 0.1) / 0.1, 10);
+    const others = rate(pl, -2) === -4 && rate(pl, -1) === -2 && rate(pl, 0) === 0 && rate(pl, 1) === 2 && pl.fn(-1) === 1 && pl.fn(-2) === 4 &&
+      [0, 1.5, 3, 4.5].every((x) => rate(sd, x) === 4 && rate(dr, x) === 3) && rate(sqr, 20) === 40 && sqr.fn(20) === 400 &&
+      dp.fn(3) === 3 && rate(dp, 3) === 4 && rate(dp, 3) - rate(dp, 0) === 6;
+    const has = (name, key, bits) => { const v = key.split('.').reduce((o, k) => o[k], STEPS[idx(name)]); return bits.every((b) => v.indexOf(b) >= 0); };
+    const list = (vs) => vs.slice(0, -1).map(fmtN).join(', ') + ' and ' + fmtN(vs[vs.length - 1]);
+    const words = has('Slopes at 1, 2 and 3 s', 'text', [fmtN(rate(bo, 1)) + ' m per s at 1 s, ' + fmtN(rate(bo, 2)) + ' at 2 s and ' + fmtN(rate(bo, 3)) + ' at 3 s']) &&
+      has('The slope at 4 s', 'task', ['f(4) = ' + fmtN(bo.fn(4)), fmtN(sqGrow(4, 0.1)) + ' ÷ 0.1 = ' + fmtN(slope(bo, 4, 4.1)), fmtN(sqGrow(4, 0.01)) + ' ÷ 0.01 = ' + fmtN(slope(bo, 4, 4.01))]) &&
+      has('A rule for every x', 'text', ['rises ' + fmtN(K2(bo)) + ' for every 1 across']) &&
+      has('At 5 s', 'why', ['2 × 5 = ' + fmtN(rate(bo, 5)), '5 + 2 = ' + fmtN(5 + K2(bo))]) && has('At 5 s', 'hints.height', ['5 × 5 = ' + fmtN(bo.fn(5))]) &&
+      has('Why 2x: a growing square', 'text', [list(HS.map((h) => sqGrow(3, h) / h)) + ', settling on ' + fmtN(rate(sqr, 3))]) &&
+      has('A side of 5', 'task', ['2 × 5 × 0.1 = ' + fmtN(strips(5, 0.1)), '0.1 × 0.1 = ' + fmtN(corner(0.1))]) &&
+      has('A side of 5', 'why', ['1 + 0.01 = ' + fmtN(sqGrow(5, 0.1)), '1.01 ÷ 0.1 = ' + fmtN(sqGrow(5, 0.1) / 0.1)]) &&
+      has('Left of zero', 'text', ['f′(−2) = 2 × −2 = ' + fmtN(rate(pl, -2)), 'the curve itself is at ' + fmtN(pl.fn(-2)), 'f′(0) = ' + fmtN(rate(pl, 0))]) &&
+      has('The slope at −1', 'why', ['f′(−1) = 2 × −1 = ' + fmtN(rate(pl, -1)), '(−1, ' + fmtN(pl.fn(-1)) + ')']) &&
+      has('A straight line', 'text', ['f′(x) = ' + fmtN(rate(sd, 2))]) &&
+      has('The cable drum', 'why', ['f′(x) = ' + fmtN(rate(dr, 2))]) &&
+      has('A growing plate', 'why', ['2 × 20 = ' + fmtN(rate(sqr, 20))]) && has('A growing plate', 'hints.area', ['20 × 20 = ' + fmtN(sqr.fn(20))]) &&
+      has('A new curve', 'why', ['2 × 3 − 2 = ' + fmtN(rate(dp, 3))]) && has('A new curve', 'hints.height', ['9 − 6 = ' + fmtN(dp.fn(3))]);
+    return boat && square && others && words;
+  });
+  K.check('Swept along the whole boat graph, the dots lie on a straight line through zero that rises 2 for every 1 across: every dot and every point of the trail below reads 2x, the rise step reads 2, and the working says f′(x) = 2x', () => {
+    const h = drawn(idx('A rule for every x'), blank());
+    return h.dots.length === 11 && h.dots.every((q) => close(readY2(bo, q.py), 2 * q.x)) && h.line.length > 10 && h.line.every((q) => close(readY2(bo, q[1]), 2 * q[0])) &&
+      h.rise === 2 && h.rows[1] === 'f′(x) = 2x';
+  });
+  K.check('The growing square of side 3: at every stop of the slider the old square is drawn 3 across, the strips h wide (never under 8 units, so they show), and the table and working give the growth (3 + h)² − 9 = 2 × 3 × h + h × h divided by h, which is 6 + h', () => {
+    const i = idx('Why 2x: a growing square');
+    return HS.every((h, k) => {
+      const s = drawn(i, Object.assign(blank(), { h: k })), gr = sqGrow(3, h), v = gr / h;
+      return close(s.sq.s, 3 * SQ3.scale) && close(s.sq.gw, Math.max(h * SQ3.scale, MINW)) && s.tab[0][k] === fmtN(v) &&
+        s.rows[2] === 'Growth ÷ h = ' + fmtN(gr) + ' ÷ ' + fmtN(h) + ' = ' + fmtN(v) && close(gr, strips(3, h) + corner(h)) && close(v - 6, h);
+    });
+  });
+  K.check('Every puzzle offers three different answers and accepts only the right one; each wrong answer is the slip it stands for: 16 m and 8.01 m per s against 8 m per s; 25 m and 7 m per s against 10 m per s; 1.01 and 10 against 10.1; 1 and 2 against −2; 3x and 0 against 3; 400 cm² and 20 cm² per cm against 40 cm² per cm; 3 and 6 against 4', () => {
+    const want = {
+      'The slope at 4 s': ['16 m', '8 m per s', '8.01 m per s'], 'At 5 s': ['25 m', '10 m per s', '7 m per s'], 'A side of 5': ['1.01', '10.1', '10'],
+      'The slope at −1': ['1', '−2', '2'], 'The cable drum': ['f′(x) = 3x', 'f′(x) = 3', 'f′(x) = 0'], 'A growing plate': ['400 cm²', '40 cm² per cm', '20 cm² per cm'], 'A new curve': ['3', '4', '6'],
+    };
+    return DO.length === 7 && DO.every((i) => {
+      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);
+      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1;
+    });
+  });
+  K.check('Before an answer no puzzle shows it: no tangent, no dot at P, nothing red, and the working ends in a question mark; a right answer shows its value with nothing red, and every wrong answer shows its slip in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt()), ans = d.o.right.t;
+      const preOk = !pre.tan && !pre.live && pre.bad === 0 && / \?$/.test(pre.rows[pre.rows.length - 1]) && !pre.rows.some((r) => r.indexOf(ans) >= 0);
+      const rightOk = ok.bad === 0 && ok.rows.some((r) => r.indexOf(ans) >= 0) && (d.kind !== 'graph' || (!!ok.tan && !!ok.live));
+      return preOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => drawn(i, wrongSt(k)).bad > 0);
+    }));
+  K.check('Dragging P keeps it on a half step inside the axes, and the trail joins only half steps P has passed', () =>
+    snapP(bo, 2.3) === 2.5 && snapP(bo, 7) === 5 && snapP(bo, -1) === 0 && snapP(pl, -2.74) === -2.5 && snapP(pl, -9) === -3 && snapP(sd, 4.1) === 4 &&
+    JSON.stringify(runsOf([1, 2, 3, 3.5, 4])) === '[[1,1],[2,2],[3,4]]' && JSON.stringify(halvesIn(-1, 0.6)) === '[-1,-0.5,0,0.5]');
+  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 1.3 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; checking = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; checking = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(), FB[0]) && d.opts.filter((o) => o !== 'right').every((o) => timed(i, wrongSt(o), FB[1]));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

@@ -66,7 +66,10 @@ for (const iid of ideas) {
     await Promise.race([window.__g.ready, new Promise((r) => setTimeout(r, 8000))]);
   }, body);
   const frame = () => app.page.frames().find((f) => f !== app.page.mainFrame());
-  const steps = await frame().evaluate(() => STEPS.map((d) => ({ show: !!d.show, text: d.text || '', task: d.task || d.ask || '', why: d.why || '', want: d.want, name: d.name || '' })));
+  // A puzzle names its answer either as `want` (the right option's words) or as `opts`, a list of
+  // option keys in button order with 'right' marking the answer (the calculus lessons' way, where
+  // the words are worked out at render time).
+  const steps = await frame().evaluate(() => STEPS.map((d) => ({ show: !!d.show, text: d.text || '', task: d.task || d.ask || '', why: d.why || '', want: d.want, name: d.name || '', rightIndex: Array.isArray(d.opts) ? d.opts.indexOf('right') : -1 })));
   const pages = [];
   for (let i = 0; i < steps.length; i++) {
     const d = steps[i];
@@ -77,20 +80,29 @@ for (const iid of ideas) {
       pages.push({ kind: 'show', name: d.name, text: terms(d.text), svg: snap && snap.svg, alt: snap ? snap.alt : '' });
       continue;
     }
-    const answer = typeof d.want === 'string' || typeof d.want === 'number' ? String(d.want) : '';
+    let answer = typeof d.want === 'string' || typeof d.want === 'number' ? String(d.want) : '';
     let snap = null;
-    if (answer) {
-      // Press the button that says the answer, then Check, and keep the solved picture.
+    if (answer || d.rightIndex >= 0) {
+      // Press the button that says the answer (or the right one by position), then Check, and keep
+      // the solved picture; the button's words become the example's answer.
       const f = frame();
-      const pressed = await f.evaluate((ans) => {
+      const pressed = await f.evaluate(([ans, idx]) => {
         const norm = (s) => String(s).replace(/\s+/g, ' ').trim();
-        const btn = [...document.querySelectorAll('button')].find((b) => norm(b.textContent) === norm(ans) || norm(b.getAttribute('aria-label') || '') === norm(ans));
-        if (!btn) return false;
+        const CTRL = /^(Check|Why\?|Back|Continue|Play again|Start again|Done|Finish)$/;
+        const all = [...document.querySelectorAll('button')].filter((b) => b.offsetParent !== null);
+        let btn = ans ? all.find((b) => norm(b.textContent) === norm(ans) || norm(b.getAttribute('aria-label') || '') === norm(ans)) : null;
+        if (!btn && idx >= 0) {
+          const picks = [...document.querySelectorAll('#picks button')].filter((b) => b.offsetParent !== null);
+          const pool = picks.length ? picks : all.filter((b) => !CTRL.test(norm(b.textContent)));
+          btn = pool[idx] || null;
+        }
+        if (!btn) return null;
         btn.click();
-        const check = [...document.querySelectorAll('button')].find((b) => norm(b.textContent) === 'Check');
+        const check = all.find((b) => norm(b.textContent) === 'Check');
         if (check) check.click();
-        return true;
-      }, answer);
+        return norm(btn.textContent);
+      }, [answer, d.rightIndex]);
+      if (pressed && !answer) answer = pressed;
       // Only a picture the lesson itself marked right (S[i].res): an answer that needed more than a
       // button (colouring first, say) stays an example in words.
       if (pressed) {

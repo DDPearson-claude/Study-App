@@ -1,0 +1,288 @@
+{
+  "iid": "i3",
+  "title": "The derivative as a function",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the tangent's slope at each point dropping a dot on the graph below, and the dots tracing the straight line f′(x) = 2x, when you drag the point along y = x².",
+    "title": "A slope tracker",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens with two graphs, one above the other, sharing the same x across. The top graph is the speeding boat from the last two lessons, f(x) = x² metres after x seconds, where x² means x × x. A point P can be dragged along the curve, and the tangent at P rides with it, with a readout of its slope in m per s, the number the chords from P settle on. The bottom graph plots that slope upwards: wherever P goes, it drops a dot at the same x, as high as the slope there. At 1, 2, 3 and 4 s the slopes are 2, 4, 6 and 8 m per s, and dragging P all the way leaves a trail of dots along a straight line through zero that rises 2 for every 1 across, f′(x) = 2x. Middle screens show a growing square: a square of side x whose side grows by a small step h, so the new square is the old one plus two strips, each x by h, and a corner h by h. A slider shrinks h, and a readout adds the strips and the corner and divides by h, giving 2x + h, which settles on 2x; at x = 3 it reads 7, 6.5, 6.1 and 6.01 as h goes 1, 0.5, 0.1 and 0.01. Later screens drop the boat and run the plain curve y = x² from −3 to 3, falling on the left, where its dots carry on along the same line below the axis; then a straight line, y = 4x, whose dots sit on a flat line at 4; then the curve y = x² − 2x, whose dots trace 2x − 2. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graphs.",
+    "ignores": "The boat's rule is an example rule, chosen so the numbers come out exactly. The trail on the bottom graph is made of the slopes at the places P visits, joined up between them. The square's step h is drawn large enough to see the strips and the corner. A side cannot be below zero, so the square only pictures x above zero, but the working (x + h)² = x² + 2xh + h² holds for any x, which is why the line of dots carries on to the left.",
+    "numbers": [
+      {
+        "label": "Example speeding boat f(x) = x² metres, P at 1 s, in step 1",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Heights at 1, 2, 3 s: 1, 4, 9 m, in step 1",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slope at 1 s: 2 m per s, in step 1",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slope at 2 s: 4 m per s, in step 1",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slope at 3 s: 6 m per s, from the last lesson, in step 1",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "P at 4 s: f(4) = 16 m, in step 2",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Chord 4 s to 4.1 s: 0.81 ÷ 0.1 = 8.1 m per s, in step 2",
+        "value": 8.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Chord 4 s to 4.01 s: 0.0801 ÷ 0.01 = 8.01 m per s, in step 2",
+        "value": 8.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Slope at 4 s: 8 m per s, in step 2",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Dots rise 2 for every 1 across: f′(x) = 2x, in step 3",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "f′(5) = 2 × 5 = 10 m per s, in step 4",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height: 5 × 5 = 25 m, in step 4",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip adding: 5 + 2 = 7, in step 4",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Square side 3, h = 1: (6 + 1) ÷ 1 = 7, in step 5",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Square side 3, h = 0.5: 3.25 ÷ 0.5 = 6.5, in step 5",
+        "value": 6.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Square side 3, h = 0.1: 0.61 ÷ 0.1 = 6.1, in step 5",
+        "value": 6.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Square side 3, h = 0.01: 0.0601 ÷ 0.01 = 6.01, in step 5",
+        "value": 6.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Side 5 grown by 0.1: strips 2 × 5 × 0.1 = 1, in step 6",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Corner 0.1 × 0.1 = 0.01, in step 6",
+        "value": 0.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Extra area 1.01, slope 1.01 ÷ 0.1 = 10.1, in step 6",
+        "value": 10.1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip not dividing: 1.01, in step 6",
+        "value": 1.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip forgetting the corner: 1 ÷ 0.1 = 10, in step 6",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Plain curve y = x² drawn from x = −3 to 3, in step 7",
+        "value": -3,
+        "kind": "assumed"
+      },
+      {
+        "label": "f′(0) = 0, flat at the bottom, in step 7",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "f′(−2) = 2 × −2 = −4, in step 7",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Curve at x = −2: 4, in step 7",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "f′(−1) = 2 × −1 = −2, in step 8",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Curve at x = −1: 1, the point (−1, 1), in step 8",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: the point (−1, −2), not on the curve, in step 8",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Steady boat f(x) = 4x, slope 4 m per s at every x, in step 9",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example cable drum f(x) = 3x metres paid out, in step 10",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip: a straight line read as slope 0, in step 10",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example square plate of side 20 cm, in step 11",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip area: 20 × 20 = 400 cm², in step 11",
+        "value": 400,
+        "kind": "computed"
+      },
+      {
+        "label": "Area growth 2 × 20 = 40 cm² per cm, in step 11",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip one strip only: 20 cm² per cm, in step 11",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Curve y = x² − 2x has f′(x) = 2x − 2, in step 12",
+        "value": 2,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Slope at x = 3: 2 × 3 − 2 = 4, in step 12",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height: 9 − 6 = 3, in step 12",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip forgetting the − 2: 6, in step 12",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: example hatch of side 1.5 m, area 2.25 m²",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: rate 2 × 1.5 = 3 m² per metre of side",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: side 1.6 m gives 2.56 m², 0.31 m² more",
+        "value": 0.31,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: chord 0.31 ÷ 0.1 = 3.1 m² per metre",
+        "value": 3.1,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "The derivative is the rate at an instant worked out at every point at once, and the answers make a new function of their own. Last lesson the speeding boat, f(x) = x² metres after x seconds, was doing 6 m per s at 3 s. Do the same at other moments and each gives one rate: 2 m per s at 1 s, 4 at 2 s, 6 at 3 s and 8 at 4 s, each the number its chords settle on. Plot each rate as a dot on a second graph below, at the same x, with the rate going up instead of the distance. The dots line up on a straight line through zero that rises 2 for every 1 across, so at x seconds the boat is doing 2x metres per second. That rule is a function in its own right, the [[derivative]] of f, written f′(x) and read 'f dash of x' (many books say 'f prime'). Like any function, it takes a number, x, and gives one back, here the slope of f at x. It gives the rate at each point of f where there is one.[^2] For f(x) = x², f′(x) = 2x.\n\nFour dots on a line suggest the rule, and a square shows why it holds. Since x² is x × x, picture it as the area of a square of side x. Make the side longer by a small step h. The new square is the old one plus two thin strips, each x long and h wide, plus a tiny corner h by h, the same area model you used for brackets in Linear equations. So the area grows by 2xh + h². On the graph of y = x², moving from x to x + h raises y by exactly that growth, so the chord between them has Δy = 2xh + h² over Δx = h. Divide each piece by h: each strip, x by h, leaves x, and the corner, h by h, leaves h, so the slope is 2x + h. Shrink h and the h left over shrinks with it, so the slope settles on 2x. At x = 3 the chord's slope is 6 + h, which is why, in every column of last lesson's table, the amount above 6 was the gap itself: a gap of 1 gave 7 and a gap of 0.5 gave 6.5. Working out a derivative is called [[differentiating]], and textbooks call doing it from chords like this working from first principles.\n\nKeep the number and the rule apart. f′(3) = 6 is one number, the slope at x = 3, while f′(x) = 2x is the whole rule, which gives a slope for any x you put in. f′(3) = 6 does not put the curve, or its tangent, through (3, 6): the curve is at (3, 9), and the 6 is how steeply it climbs there, the height of the dot on the graph below. The rule holds on both sides of zero, because multiplying out (x + h)² gives x² + 2xh + h² for any x, not only for a square's side. The plain curve y = x² falls to the left of zero as x grows, so its slopes there are below zero: f′(−2) = −4, and the dots carry on along the same line below the axis. At x = 0 the curve is flat at the bottom and f′(0) = 0. Other functions have their own derivatives. A straight line has the same slope everywhere, so its derivative is that slope at every x, a flat line on the graph below: for the steady boat, f(x) = 4x, it is 4 m per s at every moment. For f(x) = x² − 2x the derivative is f′(x) = 2x − 2.[^1] In engineering and physics the same rule is often written dy/dx = 2x.[^3] At a sharp corner, where the slopes from the left and from the right settle on different values, there is no derivative at that point.[^4] **The derivative f′(x) is the rule that gives the rate of change of f at each point where it has one, and for y = x² it is 2x.[^2]**"
+  },
+  "analogy": {
+    "text": "A van's mileometer and its speedometer describe the same journey. Note the mileometer every moment and you get a distance graph; note the speedometer every moment and you get a second graph, the speed at each moment. The speed graph is the derivative of the distance graph: at every moment it says how steeply the distance is climbing, as the dots on the lower graph do for y = x².",
+    "breaks": "A speedometer reads speed from the turning wheels or gearbox, not from the mileometer, while the derivative is worked out exactly from the distance rule. And a mileometer normally only counts up, so its speed graph never goes below zero; a derivative goes below zero wherever the quantity falls, as on the left of y = x²."
+  },
+  "practice": {
+    "text": "- Pick a few values of x and find the rate at each, the number its chords settle on.\n- Plot each rate as a dot above its x on a second graph, with the rate going up.\n- Look for the rule the dots follow, and test it at a value you have not plotted.\n- To be sure, work from first principles: write the growth f(x + h) − f(x), divide it by h, and see what it settles on as h shrinks.\n- Use the rule: put a value of x in to get the rate there, in the y unit per x unit.\n\n**Rules of thumb:** f(3) is a height and f′(3) is a slope; keep them apart. Where the curve climbs, f′ is above zero; where it falls, below zero; where it is flat, zero. A straight line's derivative is its slope, the same at every x.\n\n**Worked example:** A square hatch of side x metres has an area of x² square metres. At what rate does its area grow as the side grows, when the side is 1.5 m? The derivative of x² is 2x, so the rate is 2 × 1.5 = 3 m² per metre of side. Check with a chord: a side of 1.6 m gives 2.56 m², which is 0.31 m² more than 2.25 m², and 0.31 ÷ 0.1 = 3.1, above 3 by the step itself, as 2x + h says.\n\n**Common mistakes**\n- Reading the height as the slope. At 1.5 m the area is 2.25 m², but it is growing at 3 m² per metre of side.\n- Reading f′(−1) = −2 as the point (−1, −2). It is the slope at x = −1; y = x² is at (−1, 1) there.\n- Forgetting to divide by h. The growth 2xh + h² is an amount, not a rate.\n- Writing the derivative of 4x as 4x. A straight line's slope is the same everywhere, so it is 4."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+      "quote": "The function f(x) = x squared – 2x is graphed as is its derivative f’(x) = 2x − 2."
+    },
+    {
+      "n": 2,
+      "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+      "quote": "The derivative function gives the derivative of a function at each point in the domain of the original function for which the derivative is defined."
+    },
+    {
+      "n": 3,
+      "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+      "quote": "Use of the notation (called Leibniz notation) is quite common in engineering and physics."
+    },
+    {
+      "n": 4,
+      "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+      "quote": "because the limit of the slopes of the tangent lines on the left and right were not the same"
+    }
+  ]
+}

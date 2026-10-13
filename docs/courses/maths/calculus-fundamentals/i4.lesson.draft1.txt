@@ -1,0 +1,345 @@
+{
+  "iid": "i4",
+  "title": "The power rule",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the tangent's slope readout matching the power rule's n × xⁿ⁻¹ wherever the point is, for every power n, when you drag the point along y = xⁿ.",
+    "title": "Powers and their slopes",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens. It opens on last lesson's growing square beside a growing cube. The square has side x, and a slider for a small step h grows its side, adding two strips, each x by h, and a corner h by h, which is where 2x came from. The cube has side 2, and the same slider grows every edge by h, adding three slabs, each x by x by h, three thin rods along the edges, each x by h by h, and a tiny cube h by h by h. A readout adds the new pieces and divides by h: each slab leaves x², each rod leaves xh and the tiny cube leaves h², so it reads 3x² + 3xh + h². As h goes 1, 0.5, 0.1 and 0.01 it reads 19, 15.25, 12.61 and 12.06, settling on 3 × 2² = 12. Next comes a graph of y = xⁿ, where xⁿ means n x's multiplied together, with a stepper for the power n from 1 to 5 and a point P you drag along the curve. The tangent at P rides with it, with a readout of its slope beside the power rule's value, n × xⁿ⁻¹, and the two agree wherever P is: for x⁴ at x = 2 both read 4 × 2³ = 32. Then y = x³ beside a curve 5 times as tall, 5x³, whose tangent at the same x is 5 times as steep: 12 and 60 at x = 2. Then y = x² with a slider that lifts the whole curve by up to 5; the tangent at x = 2 rides up with it and keeps its slope of 4, because every point rises by the same amount. Then 4x³ − 2x² + 7x − 9 is built a term at a time, each term lighting up with its own derivative, and the tangent at x = 1 reads 15. The last screen is an optional look at the chain rule, on y = (3x + 1)². The inside, 3x + 1, climbs 3 for every 1 across. The outside squares it, so by the power rule it climbs 2 × (3x + 1) for every 1 its inside climbs. The two rates multiply, the way the ratios of two gearboxes in line multiply, giving 2(3x + 1) × 3 = 18x + 6; a square of side 3x + 1 multiplies out to 9x² + 6x + 1, whose derivative, term by term, is the same 18x + 6. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graph.",
+    "ignores": "The example rules and the values of x are chosen so the numbers come out exactly. The square and the cube are drawn with a step h big enough to see the strips, slabs and rods. A side cannot be below zero, so they only picture x above zero, but multiplying out (x + h) works the same for any x, which is why the slope readout matches the rule on the left of zero too. The stepper offers whole-number powers from 1 to 5; the rule also holds for powers below zero and between whole numbers, which the slabs do not picture.",
+    "numbers": [
+      {
+        "label": "Example cube of side 2, in step 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Step h = 1: (27 − 8) ÷ 1 = 19, in step 1",
+        "value": 19,
+        "kind": "computed"
+      },
+      {
+        "label": "Step h = 0.5: 7.625 ÷ 0.5 = 15.25, in step 1",
+        "value": 15.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Step h = 0.1: 1.261 ÷ 0.1 = 12.61, in step 1",
+        "value": 12.61,
+        "kind": "computed"
+      },
+      {
+        "label": "Step h = 0.01: 12.0601, shown as 12.06, in step 1",
+        "value": 12.06,
+        "kind": "computed"
+      },
+      {
+        "label": "Slope settles on 3 × 2² = 12, in step 1",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Example cube of side 4 cm, in step 2",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Volume grows 3 × 4² = 48 cm³ per cm, in step 2",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip volume 4 × 4 × 4 = 64 cm³, in step 2",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip one slab only: 16 cm³ per cm, in step 2",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Power stepper from 1 to 5, in step 3",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Power stepper opens on 4, P at x = 2, in step 3",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "x⁴ at x = 2: slope 4 × 2³ = 32, in step 3",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "y = x⁵ at x = 2: slope 5 × 2⁴ = 80, in step 4",
+        "value": 80,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 5x⁵ at x = 2: 160, in step 4",
+        "value": 160,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip x⁴ at x = 2: 16, in step 4",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Second curve 5 times as tall as y = x³, in step 5",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Heights at x = 2: 8 and 40, in step 5",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Slopes at x = 2: 12 and 60, in step 5",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "5x³ gives 5 × 3x² = 15x², in step 5",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "4x³ at x = 2: slope 12 × 2² = 48, in step 6",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 4x² at x = 2: 16, in step 6",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 12x³ at x = 2: 96, in step 6",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Lift slider from 0 to 5, opening on 0, in step 7",
+        "value": 5,
+        "kind": "control"
+      },
+      {
+        "label": "Slope of y = x² at x = 2: 4 at every lift, in step 7",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "y = x² + 9 at x = 3: slope 6, in step 8",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip slope plus lift: 6 + 9 = 15, in step 8",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height: 9 + 9 = 18, in step 8",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "4x³ − 2x² + 7x − 9 gives 12x² − 4x + 7, in step 9",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "At x = 1: height 0, slope 12 − 4 + 7 = 15, in step 9",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "2x³ + 5x² − 3x + 8 at x = 2: slope 41, in step 10",
+        "value": 41,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip powers not lowered, 6x³ + 10x² − 3x: 82, in step 10",
+        "value": 82,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 8 kept, 6x² + 10x + 5: 49, in step 10",
+        "value": 49,
+        "kind": "computed"
+      },
+      {
+        "label": "Example boat f(x) = x³ + 2x metres, at 2 s, in step 11",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Speed 3 × 2² + 2 = 14 m per s, in step 11",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height 8 + 4 = 12 m, in step 11",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 3x² + 2x: 12 + 4 = 16, in step 11",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Example y = (3x + 1)², in step 12",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Chain rule: 2(3x + 1) × 3 = 18x + 6, in step 12",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "At x = 1: 2 × 4 × 3 = 24, in step 12",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: example patch 20 tiles each way, 400 tiles",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: 21 each way adds 20 + 20 + 1 = 41",
+        "value": 41,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: a cube of blocks gains about 3 × 20 × 20",
+        "value": 1200,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: exactly 9,261 − 8,000 = 1,261 blocks",
+        "value": 1261,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: example fixed resistance 2 Ω",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: example current 10 A",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: P = 2 × 10² = 200 W",
+        "value": 200,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: dP/dI = 4 × 10 = 40 W per amp",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: average from 0 A, 200 ÷ 10 = 20 W per amp",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: at 10.1 A, 2 × 10.1² = 204.02 W",
+        "value": 204.02,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: chord 4.02 ÷ 0.1 = 40.2 W per amp",
+        "value": 40.2,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "For any power of x there is a short rule for its derivative, so you can differentiate a whole formula without drawing a single chord. Last lesson the growing square showed why x² gives 2x: grow the side by a small step h and the area gains two strips, x by h, and a tiny corner, h by h; divide by h and shrink it, and only 2x is left. A cube shows the next power the same way. Grow every edge of a cube of side x by h and its volume, x³, gains three slabs, each x by x by h, three thin rods, each x by h by h, and one tiny cube, h by h by h. Divide each piece by h: each slab leaves x², each rod leaves xh and the tiny cube leaves h², so the chord's slope is 3x² + 3xh + h². Shrink h and every piece with an h left in it shrinks away, so the slope settles on 3x². For a cube of side 2 the chord slopes for h = 1, 0.5, 0.1 and 0.01 are 19, 15.25, 12.61 and 12.06, settling on 12, which is 3 × 2².\n\nPut the results side by side: x gives 1, x² gives 2x and x³ gives 3x². Each time the power comes down in front and the power left on x is one less, and the reason is the same each time. Multiply out (x + h) used n times over, and the pieces with a single h in them come from taking h from one bracket and x from all the rest, so there are n of them, each xⁿ⁻¹ × h: those are the slabs. Every other piece has h × h or more in it, so after dividing by h it still has an h and shrinks away. So the derivative of xⁿ is nxⁿ⁻¹, the [[power rule]]: bring the power down in front, then take one off the power.[^1][^2] The slabs show why for whole-number powers; the rule also holds for powers below zero and between whole numbers,[^1] and the Second Engineer syllabus asks for it with powers above and below zero.[^3] A number in front stays. 5x³ is x³ with every height 5 times bigger, so every rise between two points is 5 times bigger over the same step across, and every slope is 5 times as steep: the derivative of 5x³ is 5 × 3x² = 15x².[^5] At x = 2, x³ climbs at 12 and 5x³ at 60.\n\nFormulas are built from terms added and taken away, and each term can be done on its own. The height of a sum is the heights added, so its rise between two points is the rises added, and its slope is the slopes added: the derivative of a sum is the sum of the derivatives.[^4] A number on its own, a [[constant]], draws a flat line, so its slope is 0.[^7] Adding a constant to a formula lifts every point of its graph by the same amount, which changes no slope. And x on its own is a straight line of slope 1, so 7x gives 7, as straight lines did last lesson. Put together, 4x³ − 2x² + 7x − 9 gives 12x² − 4x + 7: 4 × 3x², then −2 × 2x, then 7, then 0.[^6] The Second Engineer syllabus asks for exactly this, the derivatives of formulas with several terms.[^8] At x = 1 that curve is at height 0 but climbing at 12 − 4 + 7 = 15. **To differentiate a formula in powers of x, take each term on its own, multiply it by its power and take one off the power, and let any constant give 0.[^1][^4][^7]**"
+  },
+  "analogy": {
+    "text": "Lay square floor tiles in a square patch 20 tiles each way, 400 tiles. To make it 21 each way you add a row of 20 along one side, a row of 20 along the other and 1 tile in the corner: 41 tiles, close to 2 × 20. Stack blocks into a cube 20 each way and a layer on three of its faces adds about 3 × 20 × 20 = 1,200 blocks. That is the power rule's 2x and 3x², counted in tiles and blocks.",
+    "breaks": "Tiles and blocks come whole, so the step is at least one tile, and the corner tile and the edge blocks never shrink away: 41, not 40, and 9,261 − 8,000 = 1,261, not 1,200. The derivative lets the step shrink as small as you like, so those extra pieces shrink to nothing and the rate is exactly 2x or 3x²."
+  },
+  "practice": {
+    "text": "- Write the formula as terms added and taken away: each one a number times a power of x, or a number on its own.\n- For each power term, multiply the number in front by the power, then take one off the power.\n- A term in x alone gives its number; a constant gives 0.\n- Keep each term's sign and write the results together.\n- Put in a value of x to get the rate there, in the y unit per x unit.\n- To check, work out a chord with a small step: its slope should be just off your answer.\n\n**Rules of thumb:** the new power is one less than the old. A number in front stays and multiplies. A constant drops out, because lifting a graph tilts nothing.\n\n**Worked example:** The heat given off in a conductor is P = I²R watts. Take its resistance as a fixed 2 Ω, say (a real conductor's resistance rises a little as it warms). Then P = 2I², so dP/dI = 2 × 2I = 4I watts per amp. At 10 A the heat is 2 × 10² = 200 W, and it is growing at 4 × 10 = 40 W per amp, twice the average of 200 ÷ 10 = 20 W per amp from 0 A. Check with a chord: at 10.1 A the heat is 2 × 10.1² = 204.02 W, 4.02 W more, and 4.02 ÷ 0.1 = 40.2 W per amp, just above 40.\n\n**Common mistakes**\n- Forgetting to take one off the power: 5x³ gives 15x², not 15x³.\n- Dropping the number in front: 5x³ gives 15x², not 3x².\n- Keeping a constant: the − 9 in 4x³ − 2x² + 7x − 9 gives 0.\n- Leaving the x on a straight-line term: 7x gives 7, not 7x.\n- Reading the height as the slope: at x = 1, 4x³ − 2x² + 7x − 9 is at 0 but climbing at 15."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "4.4: Elementary Derivative Rules - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Courses/Hope_College/Math_125%3A_Hope_College/04%3A_Applications_of_the_Derivative/4.04%3A_Elementary_Derivative_Rules",
+      "quote": "For any nonzero real number, if (f (x) = x^n), then (f'(x) = nx^{n−1})."
+    },
+    {
+      "n": 2,
+      "title": "Power Rule -- from Wolfram MathWorld",
+      "url": "https://mathworld.wolfram.com/PowerRule.html",
+      "quote": "The derivative of the power x^n is given by d/(dx)(x^n)=nx^(n-1)."
+    },
+    {
+      "n": 3,
+      "title": "Mathematics Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+      "quote": "Derives the derivative of ax n where n is +ve or -ve."
+    },
+    {
+      "n": 4,
+      "title": "Differentiation Rules - math.uconn.edu",
+      "url": "https://www2.math.uconn.edu/ClassHomePages/Math1071/Textbook2/sec_Ch3Sec3.html",
+      "quote": "The derivative of the sum of a function (f) and a function (g) is the same as the sum of the derivative of (f) and the derivative of (g.)"
+    },
+    {
+      "n": 5,
+      "title": "Differentiation Rules - math.uconn.edu",
+      "url": "https://www2.math.uconn.edu/ClassHomePages/Math1071/Textbook2/sec_Ch3Sec3.html",
+      "quote": "The derivative of a constant (k) multiplied by a function (f) is the same as the constant multiplied by the derivative"
+    },
+    {
+      "n": 6,
+      "title": "3.3 Differentiation Rules - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules",
+      "quote": "We begin by applying the rule for differentiating the sum of two functions, followed by the rules for differentiating constant multiples of functions and the rule for differentiating powers."
+    },
+    {
+      "n": 7,
+      "title": "3.3 Differentiation Rules - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules",
+      "quote": "It states that the derivative of a constant function is zero"
+    },
+    {
+      "n": 8,
+      "title": "Mathematics Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+      "quote": "Determines the derivatives of multinomial algebraic expressions."
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

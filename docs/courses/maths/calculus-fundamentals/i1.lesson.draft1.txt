@@ -1,0 +1,72 @@
+{
+  "iid": "i1",
+  "title": "Average rate of change",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the slope readout, Δy ÷ Δx, staying at 4 m per s on the straight line but changing on the curve, when you drag the two points along it.",
+    "title": "A chord on a graph",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on one graph. A rule f(x) takes a number x and gives one back, and the graph plots each point (x, f(x)). Two points, P and Q, sit on the graph and can be dragged along it. A straight line, the chord, joins them, and a right-angled triangle under it shows the change between them: Δx across, Δy up, each labelled with its unit. The readout shows Δy ÷ Δx in units, which is the chord's slope. First a boat moving steadily away from a buoy, 4 m every second, so f(x) = 4x metres after x seconds: dragging P and Q changes Δx and Δy together and the readout stays at 4 m per s. Then the line bends into a boat speeding up from the quay, f(x) = x², and the readout changes as the points move. A draining tank, f(x) = 2(10 − x)² litres after x minutes, gives a falling graph and a minus rate. Two screens show example readings in a table, plotted as dots, with the chord drawn between two rows. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The boats' and the tank's rules are example rules chosen to keep the numbers whole, and the table readings are example figures, not from a real motor or meter. The chord shows only where the two points are; whatever happens between them, a burst of speed or a pause, leaves its slope unchanged.",
+    "numbers": [
+      { "label": "Example steady boat, f(x) = 4x metres after x seconds, in step 1", "value": 4, "kind": "assumed" },
+      { "label": "f(3) = 4 × 3 = 12 m, in step 1", "value": 12, "kind": "computed" },
+      { "label": "Second boat starts 10 m out, f(x) = 10 + 4x, in step 2", "value": 10, "kind": "assumed" },
+      { "label": "f(5) = 10 + 20 = 30 m, in step 2", "value": 30, "kind": "computed" },
+      { "label": "Slip (10 + 4) × 5 = 70, in step 2", "value": 70, "kind": "computed" },
+      { "label": "P at x = 1 s and Q at x = 3 s on f(x) = 4x, in step 3", "value": 3, "kind": "assumed" },
+      { "label": "Δx = 2 s, Δy = 8 m, so 4 m per s, in step 3", "value": 8, "kind": "computed" },
+      { "label": "Moved: P at 2 s, Q at 5 s, Δy = 12 m over Δx = 3 s, in step 3", "value": 12, "kind": "computed" },
+      { "label": "f(x) = 10 + 4x from 1 s to 5 s: 30 − 14 = 16 m over 4 s, in step 4", "value": 16, "kind": "computed" },
+      { "label": "Slip y ÷ x: 30 ÷ 5 = 6 m per s, in step 4", "value": 6, "kind": "computed" },
+      { "label": "Slip upside down: 4 ÷ 16 = 0.25 s per m, in step 4", "value": 0.25, "kind": "computed" },
+      { "label": "Speeding boat f(x) = x² reaches 16 m at 4 s, in step 5", "value": 16, "kind": "computed" },
+      { "label": "Chord 0 s to 1 s on x²: 1 m per s, in step 5", "value": 1, "kind": "computed" },
+      { "label": "Chord 3 s to 4 s on x²: 16 − 9 = 7 m per s, in step 5", "value": 7, "kind": "computed" },
+      { "label": "x² from 2 s to 4 s: 16 − 4 = 12 m over 2 s, 6 m per s, in step 6", "value": 6, "kind": "computed" },
+      { "label": "Slip y ÷ x: 16 ÷ 4 = 4 m per s, in step 6", "value": 4, "kind": "computed" },
+      { "label": "Slip averaging the distances: (4 + 16) ÷ 2 = 10 m, in step 6", "value": 10, "kind": "computed" },
+      { "label": "Tank f(x) = 2(10 − x)² litres: 200 L at 0 min, in step 7", "value": 200, "kind": "computed" },
+      { "label": "Tank at 5 min: 50 L; Δy = −150 L over 5 min, in step 7", "value": -150, "kind": "computed" },
+      { "label": "Tank from 0 to 5 min: −30 L per min, in step 7", "value": -30, "kind": "computed" },
+      { "label": "Tank from 2 to 6 min: 128 L to 32 L, in step 8", "value": 128, "kind": "computed" },
+      { "label": "Δy = −96 L over 4 min, −24 L per min, in step 8", "value": -24, "kind": "computed" },
+      { "label": "Example winding readings: 30 °C at 10 min, 66 °C at 40 min, in step 9", "value": 66, "kind": "assumed" },
+      { "label": "36 °C over 30 min, 1.2 °C per min, in step 9", "value": 1.2, "kind": "computed" },
+      { "label": "Example capacitor readings: 6 V at 2 s, 12 V at 6 s, in step 10", "value": 12, "kind": "assumed" },
+      { "label": "6 V over 4 s, 1.5 V per s, in step 10", "value": 1.5, "kind": "computed" },
+      { "label": "Slip y ÷ x: 12 ÷ 6 = 2 V per s, in step 10", "value": 2, "kind": "computed" },
+      { "label": "x² chords: 1 s to 2 s gives 3 m per s, 3 s to 4 s gives 7, in step 11", "value": 3, "kind": "computed" },
+      { "label": "Tank from 5 to 10 min: 50 L to 0 L, −10 L per min, in step 12", "value": -10, "kind": "computed" },
+      { "label": "Explain: example 120 km in 2 hours, 60 km per hour", "value": 60, "kind": "computed" },
+      { "label": "Practice: example day tank 900 L at 06:00, 660 L at 10:00", "value": 900, "kind": "assumed" },
+      { "label": "Practice: −240 L over 4 h, −60 L per h", "value": -60, "kind": "computed" },
+      { "label": "Analogy: example meter 1,250 kWh at 8 am, 1,262 kWh at 2 pm", "value": 1262, "kind": "assumed" },
+      { "label": "Analogy: 12 kWh over 6 h, 2 kW", "value": 2, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "An average rate of change says how much one thing changed for each unit of another, between two points. You already work these out. 120 km in 2 hours is 60 km per hour, the change in distance divided by the change in time.\n\nCalculus writes the rule behind a graph as f(x), read \"f of x\". A boat leaving a buoy at a steady 4 metres a second is f(x) = 4x metres away after x seconds, and f(3) means the rule applied to 3, which is 12 m. Pick two points on the graph, P at 1 s and Q at 3 s, and join them with a straight line, a [[chord]]. Δ, the Greek letter delta, means \"change in\". From P to Q, Δx is 2 s and Δy is 8 m, so Δy ÷ Δx is 4 m per s. The units come with the division, metres over seconds. On a straight line every chord gives the same answer, because each second adds the same 4 m, so Δy is always 4 times Δx.\n\nA boat speeding up from the quay is a curve. Say it covers f(x) = x² metres in x seconds, where x² means x × x. From 0 s to 1 s it goes 1 m, but from 3 s to 4 s it goes 16 − 9 = 7 m, so the chords no longer agree. Δy ÷ Δx over a stretch is the [[average rate of change]], the ratio of the change in f to the change in x.[^1] It is the steady rate that would give the same change over the same stretch. Calculus books use the slope of such a chord to estimate the rate at which one quantity changes in relation to another.[^2] A falling graph gives a minus rate: a tank going from 200 L to 50 L in 5 minutes changes by −150 L, so −30 L per minute.\n\nThe course's puzzle, the work done by a gas whose pressure keeps falling, starts from reading a graph like this, one quantity changing per unit of another. **The average rate of change between two points is Δy ÷ Δx, the change in y divided by the change in x,[^1] the slope of the chord joining them, in units of y per unit of x.**"
+  },
+  "analogy": {
+    "text": "Your electricity meter reads 1,250 kWh at 8 am and 1,262 kWh at 2 pm. That is 12 kWh used in 6 hours, so the average power is 2 kW, the change in reading divided by the change in time.",
+    "breaks": "The meter only counts up, so it never shows a falling graph's minus rate, and it cannot tell a steady 2 kW from a kettle's burst followed by nothing."
+  },
+  "practice": {
+    "text": "- Pick the two points and read off each one's x and y, with units.\n- Δy is the later y minus the earlier y; Δx is the later x minus the earlier x.\n- Divide Δy by Δx.\n- The unit is the y unit per x unit.\n\n**Rule of thumb:** Change over change, never value over value.\n\n**Worked example:** A day tank reads 900 L at 06:00 and 660 L at 10:00. Δy = 660 − 900 = −240 L and Δx = 4 h, so the average rate is −60 L per hour. The minus says it is emptying.\n\n**Common mistakes**\nOne calculus teacher reports that almost no one starting calculus gives the correct average rate of change.[^4]\n- Dividing y by x, which only works for a line through zero.\n- Dividing Δx by Δy. The unit comes out as hours per litre.\n- Dropping the minus on a falling graph.\n\nThe MCA's Second Engineer syllabus asks you to determine the gradient of a chord.[^3]"
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "3.4 Derivatives as Rates of Change - Calculus Volume 1 | OpenStax", "url": "https://openstax.org/books/calculus-volume-1/pages/3-4-derivatives-as-rates-of-change", "quote": "The average rate of change of the function over that same interval is the ratio of the amount of change over that interval to the corresponding change in the values." },
+    { "n": 2, "title": "3.1 Defining the Derivative - Calculus Volume 1 | OpenStax", "url": "https://openstax.org/books/calculus-volume-1/pages/3-1-defining-the-derivative", "quote": "Recall that we used the slope of a secant line to a function at a point to estimate the rate of change, or the rate at which one variable changes in relation to another variable." },
+    { "n": 3, "title": "Mathematics Written Examination Syllabus - GOV.UK", "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus", "quote": "Determines the gradient of a chord." },
+    { "n": 4, "title": "The Derivative is not the Slope of the Tangent Line – Mathematical Association of America", "url": "https://maa.org/math-values/2018-11-26-the-derivative-is-not-the-slope-of-the-tangent-line", "quote": "Invariably, almost everyone, even at the start of Calculus I, can calculate the instantaneous rate of change. Almost no one gives me the correct average rate of change." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

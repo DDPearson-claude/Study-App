@@ -1,0 +1,462 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-13T23:05:47.808Z",
+ "startedAt": "2026-10-13T23:05:47.808Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i1",
+  "title": "Average rate of change",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the slope readout, Δy ÷ Δx, staying at 4 m per s on the straight line but changing on the curve, when you drag the two points along it.",
+   "title": "A chord on a graph",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in twelve small screens on one graph. A function f(x) takes a number x and gives one back, and its graph plots each point (x, f(x)), with x across in seconds or minutes and f(x) up in metres or litres. Two points, P and Q, sit on the graph and can be dragged along it. A straight line, the chord, joins them, and a right-angled triangle under it shows the change between them, Δx across and Δy up, each labelled with its unit. The readout shows Δy ÷ Δx in units, which is the chord's slope. First a boat moving steadily away from a buoy, 4 m every second, so f(x) = 4x metres after x seconds. Dragging P or Q changes Δx and Δy together and the readout stays at 4 m per s, because every second adds the same 4 m. Then the line bends into a boat speeding up from the quay, f(x) = x² metres, where x² means x × x. It covers 1, 3, 5 and 7 m in its first four seconds, more each second, so the readout changes as the points move. Both graphs pass through (0, 0) and (4 s, 16 m), so the chord from 0 to 4 s reads 4 m per s on both. A draining tank, f(x) = 2(10 − x)² litres after x minutes, gives a falling graph, a Δy below zero and a minus rate; its values are labelled on the points so no working with the rule is needed. Two screens show example readings in a small table, plotted as dots, with the chord drawn between the two rows used. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the triangle.",
+   "ignores": "The boats' and the tank's rules are example rules chosen to keep the numbers whole, and the table readings are example figures, not from a real motor, capacitor or tank. Real readings wobble a little; the graphs here are smooth. The chord depends only on where its two points are, so a burst of speed or a pause between them leaves its slope unchanged.",
+   "numbers": [
+    {
+     "label": "Example steady boat, f(x) = 4x metres after x seconds, in step 1",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "f(3) = 4 × 3 = 12 m, in step 1",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Second example boat starts 10 m out, f(x) = 10 + 4x, in step 2",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "f(5) = 10 + 4 × 5 = 30 m, in step 2",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (10 + 4) × 5 = 70 m, adding before multiplying, in step 2",
+     "value": 70,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 10 + 4 + 5 = 19 m, adding instead of multiplying, in step 2",
+     "value": 19,
+     "kind": "computed"
+    },
+    {
+     "label": "P at x = 1 s (4 m) on f(x) = 4x, in step 3",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Q at x = 3 s (12 m) on f(x) = 4x, in step 3",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Δx = 2 s, Δy = 8 m, so 4 m per s, in step 3",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Moved: P at 2 s, Q at 5 s, Δy = 12 m over Δx = 3 s, in step 3",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "f(x) = 10 + 4x from 1 s to 5 s: 30 − 14 = 16 m over 4 s, in step 4",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip y ÷ x: 30 ÷ 5 = 6 m per s, in step 4",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip upside down: 4 ÷ 16 = 0.25 s per m, in step 4",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Speeding boat f(x) = x² reaches 16 m at 4 s, in step 5",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Distance in each of its first four seconds: 1, 3, 5, 7 m, in step 5",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Chord 0 s to 1 s on x²: 1 m per s, in the explain",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Chord 3 s to 4 s on x²: 16 − 9 = 7 m per s, in step 5",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Chord 0 s to 4 s: 16 ÷ 4 = 4 m per s on both graphs, in step 5",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "x² from 2 s to 4 s: 16 − 4 = 12 m over 2 s, 6 m per s, in step 6",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip y ÷ x: 16 ÷ 4 = 4 m per s, in step 6",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip averaging the distances: (4 + 16) ÷ 2 = 10 m, in step 6",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Example tank f(x) = 2(10 − x)² litres: 200 L at 0 min, in step 7",
+     "value": 200,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank at 5 min: 50 L, so Δy = −150 L over 5 min, in step 7",
+     "value": -150,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank from 0 to 5 min: −30 L per min, in step 7",
+     "value": -30,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank at 2 min: 128 L; at 6 min: 32 L, in step 8",
+     "value": 128,
+     "kind": "computed"
+    },
+    {
+     "label": "Δy = 32 − 128 = −96 L over 4 min, −24 L per min, in step 8",
+     "value": -24,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip sign lost: +24 L per min, in step 8",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip not divided by Δx: −96 L, in step 8",
+     "value": -96,
+     "kind": "computed"
+    },
+    {
+     "label": "Example motor winding readings: 15, 30, 44, 56, 66 °C at 0 to 40 min, in step 9",
+     "value": 66,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rows used: 30 °C at 10 min, 66 °C at 40 min, in step 9",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "36 °C over 30 min, 1.2 °C per min, in step 9",
+     "value": 1.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example capacitor readings: 6 V at 2 s, 12 V at 6 s, in step 10",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "6 V over 4 s, 1.5 V per s, in step 10",
+     "value": 1.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip y ÷ x: 12 ÷ 6 = 2 V per s, in step 10",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip upside down: 4 ÷ 6 = 0.67 s per V, in step 10",
+     "value": 0.67,
+     "kind": "computed"
+    },
+    {
+     "label": "x² chords: 1 s to 2 s gives 4 − 1 = 3 m per s, in step 11",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "x² chords: 3 s to 4 s gives 16 − 9 = 7 m per s, in step 11",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank from 5 to 10 min: 50 L to 0 L, −50 L over 5 min, −10 L per min, in step 12",
+     "value": -10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip sign lost: +10 L per min, in step 12",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip y ÷ x: 0 ÷ 10 = 0 L per min, in step 12",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Explain: example 120 km in 2 hours",
+     "value": 120,
+     "kind": "assumed"
+    },
+    {
+     "label": "Explain: 120 ÷ 2 = 60 km per hour",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: example day tank 900 L at 06:00, 660 L at 10:00",
+     "value": 900,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: 660 − 900 = −240 L over 4 h, −60 L per hour",
+     "value": -60,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice slip: 660 ÷ 10 = 66 L per hour",
+     "value": 66,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice slip: (900 + 660) ÷ 2 = 780 L",
+     "value": 780,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: example meter 1,250 kWh at 8 am, 1,262 kWh at 2 pm",
+     "value": 1262,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: 12 kWh over 6 h, 2 kW",
+     "value": 2,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "An average rate of change says how much one thing changed for each unit of another, between two points. You already work these out. 120 km in 2 hours is 120 ÷ 2 = 60 km per hour, the change in distance divided by the change in time, and its unit comes straight from the division, km over hours.\n\nA boat leaving a buoy at a steady 4 metres a second is 4x metres away after x seconds. A rule like this, which takes one number and gives back one, is a [[function]], written f(x) = 4x and read \"f of x\". f(3) means the rule applied to 3, so f(3) = 4 × 3 = 12 m. On its graph, pick two points, P at 1 s and Q at 3 s, and join them with a straight line, a [[chord]]. Δ, the Greek letter delta, means \"change in\". From P to Q, Δx = 3 − 1 = 2 s and Δy = 12 − 4 = 8 m, so Δy ÷ Δx = 8 m ÷ 2 s = 4 m per s, the slope of the chord. On a straight line every chord gives the same answer, because each second adds the same 4 m, so Δy is 4 times Δx wherever the points sit. A second boat that started 10 m out, f(x) = 10 + 4x, has the same slope, 4 m per s. Dividing its y by its x at 5 s gives 30 ÷ 5 = 6 m per s, which is too much, because the 30 m includes the 10 m it had before the clock started. y ÷ x is the slope of the line from (0, 0), so it answers a different question unless your first point is (0, 0).\n\nA boat pulling away from the quay speeds up, so its graph curves. Say it covers f(x) = x² metres in x seconds, where x² means x × x, the area of a square x long on each side. It covers 1 m in its first second, 3 m in its second, 5 m in its third and 7 m in its fourth, more each second, so a chord further along rises more for the same Δx. From 0 s to 1 s the chord's slope is 1 m per s, and from 3 s to 4 s it is 16 − 9 = 7 m per s. Chords in different places generally no longer agree, so the answer depends on which two points you pick. Δy ÷ Δx between them is the [[average rate of change]] over that stretch, the change in f divided by the change in x.[^1] It is the steady rate that would give the same change, because that rate times Δx gives back Δy. From 0 s to 4 s the curve and the steady boat's line both go from 0 m to 16 m, so both chords give 4 m per s, though one boat crawled at first and then went faster. An average does not show what happened between its two points. Calculus uses the slope of a chord like this to estimate the rate at which one quantity changes in relation to another.[^2]\n\nA falling graph gives a rate below zero. A tank draining from 200 L at 0 min to 50 L at 5 min has Δy = 50 − 200 = −150 L, because the later amount is the smaller, so the rate is −150 ÷ 5 = −30 L per min, and the minus says it is emptying. Take both changes in the same order, or the sign comes out wrong. Your electro-technology papers use Δ the same way: an inductor's emf is written e = LΔi/Δt,[^5] where Δi ÷ Δt is the change in current divided by the change in time, in amps per second. **The average rate of change between two points is Δy ÷ Δx, the change in y divided by the change in x,[^1] the slope of the chord joining them, in units of y per unit of x.**"
+  },
+  "analogy": {
+   "text": "Your electricity meter reads 1,250 kWh at 8 am and 1,262 kWh at 2 pm. Δy is 12 kWh over Δx of 6 hours, so the average power is 12 ÷ 6 = 2 kW. A steady 2 kW load would move the meter the same 12 kWh, whatever the kettle and the heater did in between.",
+   "breaks": "kWh per hour tidies into kW, a unit with its own name, which most rates, such as litres per minute, do not have. And a meter that only records energy used can only go up, so on its own it has no falling graph and no minus rate, as a draining tank has."
+  },
+  "practice": {
+   "text": "- Pick the two points and read each one's x and y, with their units.\n- Find Δy and Δx, taking both in the same order, later minus earlier.\n- Divide Δy by Δx.\n- Give the unit, the y unit per x unit.\n- Check that the rate times Δx gives back Δy, and that a falling graph gave a minus.\n\n**Rules of thumb:** Change over change, so subtract first, then divide. On a curve the answer depends on the two points, so say which two you used.\n\n**Worked example:** A day tank reads 900 L at 06:00 and 660 L at 10:00. Δy = 660 − 900 = −240 L and Δx = 10 − 6 = 4 h, so the average rate is −240 ÷ 4 = −60 L per hour, and the minus says it is emptying. Check: −60 L per hour for 4 hours is −240 L. The MCA's Second Engineer maths syllabus asks for this same working, as determining the gradient of a chord,[^3] gradient being another word for slope.\n\n**Common mistakes**\nOne calculus teacher reports that almost all his students, even at the start of calculus, can work out a rate at an instant, but almost no one gives him the correct average rate.[^4] These are the slips to check for.\n- Dividing y by x. For the tank, 660 ÷ 10 = 66 L per hour divides by the clock time, not by a change in it.\n- Dividing Δx by Δy. 4 ÷ (−240) gives hours per litre, and the unit gives it away.\n- Dropping the minus. +60 L per hour would say the tank is filling.\n- Averaging the readings. (900 + 660) ÷ 2 = 780 L is an amount, not a rate."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "3.4 Derivatives as Rates of Change - Calculus Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/calculus-volume-1/pages/3-4-derivatives-as-rates-of-change",
+    "quote": "The average rate of change of the function over that same interval is the ratio of the amount of change over that interval to the corresponding change in the values."
+   },
+   {
+    "n": 2,
+    "title": "3.1 Defining the Derivative - Calculus Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/calculus-volume-1/pages/3-1-defining-the-derivative",
+    "quote": "Recall that we used the slope of a secant line to a function at a point to estimate the rate of change, or the rate at which one variable changes in relation to another variable."
+   },
+   {
+    "n": 3,
+    "title": "Mathematics Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+    "quote": "Determines the gradient of a chord."
+   },
+   {
+    "n": 4,
+    "title": "The Derivative is not the Slope of the Tangent Line – Mathematical Association of America",
+    "url": "https://maa.org/math-values/2018-11-26-the-derivative-is-not-the-slope-of-the-tangent-line",
+    "quote": "Invariably, almost everyone, even at the start of Calculus I, can calculate the instantaneous rate of change. Almost no one gives me the correct average rate of change."
+   },
+   {
+    "n": 5,
+    "title": "Marine Electro-Technology Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus",
+    "quote": "States that e = LΔ i /Δt volts."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; touch-action: pan-y; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tick, .scene .aname, .scene .th { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene .td { font: 600 14px var(--k-font); fill: var(--k-ink); text-anchor: middle; }\n  .scene .thl { fill: var(--k-fill2); }\n  .scene .tsep { stroke: var(--k-line); stroke-width: 1; }\n  /* The graph of the rule; the steady boat's line kept for comparison is dashed. */\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 6 5; }\n  /* The chord, and its right-angled triangle: Δx across, Δy up or down. */\n  .scene .chord { stroke: var(--k-amber-line); stroke-width: 3.5; stroke-linecap: round; }\n  .scene .leg { stroke: var(--k-accent); stroke-width: 2; }\n  .scene .corner { fill: none; stroke: var(--k-accent); stroke-width: 1.5; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .dot { fill: var(--k-muted); }\n  /* A soft ring round a point Dan can drag. */\n  .scene .halo { fill: var(--k-accent); fill-opacity: .08; stroke: var(--k-accent); stroke-opacity: .5; stroke-width: 1.5; }\n  /* A slip is drawn in the warning colour. */\n  .scene .chord.bad { stroke: var(--k-warn); }\n  .scene .pt.bad { fill: var(--k-warn); }\n  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: round; }\n  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }\n  .scene .row { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }\n  .scene .row.soft { font-weight: 400; }\n  .scene .lab.bad, .scene .row.bad { fill: var(--k-warn); }\n  .scene .v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Drag two points along a graph and watch how steep the straight line between them is.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 340\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">The rules and readings are examples, chosen to keep the numbers whole.</p>\n\n<script>\n  // ---------- the graphs: an example rule f(x), or a table of example readings ----------\n  // x, y: [from, to, tick step]; xu, yu: units; xn, yn: the axes' names; th: a table's row names.\n  const GR = {\n    boat: { fn: (x) => 4 * x, rule: 'f(x) = 4x', x: [0, 6, 1], y: [0, 24, 4], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x) in metres' },\n    head100: { fn: (x) => 10 + 4 * x, rule: 'f(x) = 10 + 4x', x: [0, 6, 1], y: [0, 100, 20], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x) in metres' },\n    head: { fn: (x) => 10 + 4 * x, rule: 'f(x) = 10 + 4x', x: [0, 6, 1], y: [0, 40, 10], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x) in metres' },\n    sq: { fn: (x) => x * x, rule: 'f(x) = x²', x: [0, 5, 1], y: [0, 25, 5], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x) in metres' },\n    tank: { fn: (x) => 2 * (10 - x) * (10 - x), rule: 'f(x) = 2(10 − x)²', x: [0, 10, 2], minor: 1, y: [0, 200, 50], xu: 'min', yu: 'L', xn: 'x in minutes', yn: 'f(x) in litres' },\n    motor: { table: [[0, 15], [10, 30], [20, 44], [30, 56], [40, 66]], th: ['minutes', '°C'], x: [0, 40, 10], y: [0, 80, 20], xu: 'min', yu: '°C', xn: 'time in minutes', yn: 'winding temperature in °C' },\n    cap: { table: [[2, 6], [6, 12]], th: ['seconds', 'volts'], x: [0, 8, 2], y: [0, 15, 5], xu: 's', yu: 'V', xn: 'time in seconds', yn: 'capacitor voltage in V' },\n  };\n  const val = (g, x) => (g.table ? g.table.find((r) => r[0] === x)[1] : g.fn(x));\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // A SHOW step's tl is its timetable in seconds from when the screen opens. pts: where P and Q\n  // open; glide: where they move to in the demonstration; one: a single point; drag: Dan can drag\n  // the points along the graph. A puzzle's opts are kinds of answer, worked from its own points:\n  // right, origin (y ÷ x), flip (Δx ÷ Δy), level (the two readings averaged), sign (the minus\n  // lost), nodiv (Δy not divided); for f(5), bracket ((10 + 4) × 5) and add (10 + 4 + 5).\n  const STEPS = [\n    { show: true, name: 'A rule and its graph', g: 'boat', one: 3, drag: true, dur: 3.4,\n      tl: { pts: 0.4, travel: [0.7, 1.3], guides: 2.0, labs: 2.2, rows: [2.4, 2.7] },\n      text: 'A boat leaves a buoy at a steady 4 metres a second, so after `x` seconds it is `4x` metres away. A rule like this, which takes one number and gives back one, is a *function*, written `f(x) = 4x` and read \"f of `x`\". `f(3)` means the rule applied to 3, so `f(3) = 4 × 3 = 12` m. Its graph plots each point `(x, f(x))`. Drag the point along it.' },\n    { kind: 'pick', name: 'A head start', g: 'head100', at: 5, ab: [10, 4], opts: ['bracket', 'add', 'right'],\n      task: 'A second boat starts 10 m out and adds the same 4 m every second, so `f(x) = 10 + 4x`. How far out is it after 5 s? Find `f(5)`.',\n      why: '`f(5)` means the rule with 5 in place of `x`. Multiply first, `4 × 5 = 20`, then add the 10 m it started with, `10 + 20 = 30` m. The point (5 s, 30 m) sits on its graph.',\n      hint: 'Not quite. Put 5 in place of `x`, multiply, then add.',\n      hints: { bracket: 'Not quite. That adds 10 and 4 first. Multiply `4 × 5` first, then add the 10.', add: 'Not quite. `4x` means 4 times `x`, so multiply 4 by 5.' } },\n    { show: true, name: 'A chord and its slope', g: 'boat', pts: [1, 3], glide: { to: [2, 5], t: 2.6, len: 1.0 }, drag: true, dur: 4.2,\n      tl: { pts: 0.4, chord: [0.7, 0.5], legs: 1.1, labs: 1.4, rows: [1.7, 2.0] },\n      text: 'Pick two points on the graph, P at 1 s and Q at 3 s, and join them with a straight line, a *chord*. Δ, the Greek letter delta, means \"change in\". From P to Q, `Δx = 3 − 1 = 2` s and `Δy = 12 − 4 = 8` m, so `Δy ÷ Δx = 8 m ÷ 2 s = 4` m per s. That is the chord\\'s *slope*. Moved to 2 s and 5 s it is 12 m over 3 s, still 4 m per s, because each second adds the same 4 m. Drag P or Q to try others.' },\n    { kind: 'pick', name: 'Not from zero', g: 'head', pts: [1, 5], opts: ['origin', 'right', 'flip'],\n      task: 'The boat that started 10 m out is at 14 m after 1 s and 30 m after 5 s. What is `Δy ÷ Δx` from P to Q?',\n      why: 'From P to Q, `Δy = 30 − 14 = 16` m and `Δx = 5 − 1 = 4` s, so `Δy ÷ Δx = 16 m ÷ 4 s = 4` m per s, the same as the first boat. The 10 m head start lifts the whole line but leaves its slope alone.',\n      hint: 'Not quite. Subtract to find Δy and Δx, then divide.',\n      hints: { origin: 'Not quite. `30 ÷ 5` divides `y` by `x`. The 30 m includes the 10 m it had at the start.', flip: 'Not quite. That is `Δx ÷ Δy`, upside down. The unit, s per m, gives it away.' } },\n    { show: true, name: 'The line bends', g: 'sq', pts: [0, 4], morph: [0.5, 1.7], glide: { to: [3, 4], t: 2.5, len: 1.0 }, drag: true, dur: 4.1,\n      tl: { ref: 1.8 },\n      text: 'A boat pulling away from the quay speeds up. Say it covers `f(x) = x²` metres in `x` seconds, where `x²` means `x × x`, so its graph curves. From 0 s to 4 s it still gives 4 m per s, like the steady boat, but from 3 s to 4 s it gives `16 − 9 = 7` m per s. `Δy ÷ Δx` is the *average rate of change*, and on a curve it depends on which two points you pick.' },\n    { kind: 'pick', name: 'A chord on the curve', g: 'sq', pts: [2, 4], opts: ['right', 'level', 'origin'],\n      task: 'On the speeding boat\\'s curve, P is at 2 s and Q at 4 s. What is its average rate of change from P to Q?',\n      why: '`Δy = 16 − 4 = 12` m and `Δx = 4 − 2 = 2` s, so `Δy ÷ Δx = 12 m ÷ 2 s = 6` m per s. A boat going a steady 6 m per s would cover the same 12 m in those 2 s.',\n      hint: 'Not quite. Subtract to find Δy and Δx, then divide.',\n      hints: { origin: 'Not quite. `16 ÷ 4` divides Q\\'s `y` by its `x`. Take both changes from P.', level: 'Not quite. That averages the two distances. It is an amount in metres, not a rate.' } },\n    { show: true, name: 'A falling graph', g: 'tank', pts: [0, 5], drag: true, dur: 3.6,\n      tl: { curve: [0.4, 1.0], pts: 1.4, chord: [1.7, 0.5], legs: 2.0, labs: 2.3, rows: [2.6, 2.9] },\n      text: 'A tank drains, so its graph falls. It holds 200 L at 0 min and 50 L at 5 min, so `Δy = 50 − 200 = −150` L, a minus because the later amount is the smaller. Then `Δy ÷ Δx = −150 L ÷ 5 min = −30` L per min, and the minus says it is emptying. Take both changes in the same order, later minus earlier. Drag P or Q.' },\n    { kind: 'pick', name: 'Emptying', g: 'tank', pts: [2, 6], opts: ['sign', 'nodiv', 'right'],\n      task: 'The tank holds 128 L at 2 min and 32 L at 6 min. What is its average rate of change from P to Q?',\n      why: 'Later minus earlier, `Δy = 32 − 128 = −96` L and `Δx = 6 − 2 = 4` min. So `Δy ÷ Δx = −96 L ÷ 4 min = −24` L per min, and the minus says the tank is emptying.',\n      hint: 'Not quite. Later minus earlier for both, then divide.',\n      hints: { sign: 'Not quite. Later minus earlier is `32 − 128`, a minus. A plus would mean filling.', nodiv: 'Not quite. −96 L is the change in the tank. Divide it by Δx, 4 min.' } },\n    { show: true, name: 'Readings in a table', g: 'motor', pts: [10, 40], dur: 3.9,\n      tl: { dots: [0.4, 0.25], hl: 1.6, pts: 1.8, chord: [2.0, 0.5], legs: 2.3, labs: 2.6, rows: [2.9, 3.2] },\n      text: 'Rates also come from readings. These are example temperatures of a motor winding as it warms up, plotted as dots. Take two rows, 30 °C at 10 min and 66 °C at 40 min. `Δy = 66 − 30 = 36` °C over `Δx = 40 − 10 = 30` min, so the average rate is `36 ÷ 30 = 1.2` °C per min. The chord joins the two rows used.' },\n    { kind: 'pick', name: 'From two readings', g: 'cap', pts: [2, 6], opts: ['flip', 'right', 'origin'],\n      task: 'An example capacitor charging up reads 6 V at 2 s and 12 V at 6 s. What is its average rate of change between the two readings?',\n      why: '`Δy = 12 − 6 = 6` V and `Δx = 6 − 2 = 4` s, so `Δy ÷ Δx = 6 V ÷ 4 s = 1.5` V per s. Check it. 1.5 V per s for 4 s gives back the 6 V.',\n      hint: 'Not quite. Subtract to find Δy and Δx, then divide.',\n      hints: { origin: 'Not quite. `12 ÷ 6` divides a reading by its time. Subtract first, then divide.', flip: 'Not quite. That is `Δx ÷ Δy`, upside down. The rate is volts per second.' } },\n    { kind: 'pick', name: 'Two chords', g: 'sq', two: [[1, 2], [3, 4]], opts: ['early', 'agree', 'right'],\n      task: 'On the speeding boat\\'s curve, which chord is steeper, from 1 s to 2 s or from 3 s to 4 s?',\n      why: 'From 1 s to 2 s, `Δy = 4 − 1 = 3` m in 1 s, so 3 m per s. From 3 s to 4 s, `Δy = 16 − 9 = 7` m in 1 s, so 7 m per s. The boat covers more each second, so a chord further along is steeper.',\n      hint: 'Not quite. Find Δy for each chord.',\n      hints: { early: 'Not quite. Both take 1 s. Find Δy for each and compare.', agree: 'Not quite. On a straight line they would, but this is a curve. Find Δy for each.' } },\n    { kind: 'pick', name: 'Empty at last', g: 'tank', pts: [5, 10], opts: ['right', 'origin', 'sign'],\n      task: 'The tank holds 50 L at 5 min and is empty at 10 min. What is its average rate of change over those 5 minutes?',\n      why: '`Δy = 0 − 50 = −50` L and `Δx = 10 − 5 = 5` min, so `Δy ÷ Δx = −50 L ÷ 5 min = −10` L per min. The minus says it is emptying.',\n      hint: 'Not quite. Later minus earlier for both, then divide.',\n      hints: { sign: 'Not quite. Later minus earlier is `0 − 50`, a minus, because it is emptying.', origin: 'Not quite. `0 ÷ 10` divides the last reading by the clock time. Subtract first.' } },\n  ];\n  const FINISH = 'The average rate of change between two points is `Δy ÷ Δx`, the change in `y` divided by the change in `x`. It is the slope of the chord joining them, in units of `y` per unit of `x`. On a straight line every chord agrees; on a curve, chords in different places generally differ; and a falling graph gives a minus.';\n  // Sources the checks restate (the lesson's own).\n  const OPENSTAX = 'https://openstax.org/books/calculus-volume-1/pages/3-4-derivatives-as-rates-of-change';\n  const MCA = 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus';\n  // The plot runs from PL to PR across and is PH tall.\n  const PL = 52, PR = 318, PH = 170;\n  const FADE = 0.35, FB = [1.3, 1.2];\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- numbers and words ----------\n  const fmtN = (v) => { let r = Math.round(v * 100) / 100; if (r === 0) r = 0; return String(r).replace('-', '−'); };\n  const fmtS = (v) => (v > 0 ? '+' : '') + fmtN(v);\n  const coord = (g, x, y) => '(' + fmtN(x) + ' ' + g.xu + ', ' + fmtN(y) + ' ' + g.yu + ')';\n  const per = (g) => ' ' + g.yu + ' per ' + g.xu;\n  const WORD = { m: 'metres', L: 'litres', V: 'volts', '°C': 'degrees' };\n  const say = (s) => String(s == null ? '' : s).replace(/Δ/g, 'change in ').replace(/÷/g, ' divided by ').replace(/×/g, ' times ')\n    .replace(/−/g, ' minus ').replace(/²/g, ' squared').replace(/\\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\\s+/g, ' ').trim();\n  // Δy ÷ Δx between two points, as the working under the graph shows it.\n  function chordRows(g, xp, yp, xq, yq) {\n    const dx = xq - xp, dy = yq - yp, rate = dy / dx;\n    return { rate, rows: [{ s: 'Δy ÷ Δx = ' + fmtN(dy) + ' ' + g.yu + ' ÷ ' + fmtN(dx) + ' ' + g.xu }, { s: 'Slope of the chord = ' + fmtN(rate) + per(g), big: true }] };\n  }\n  const ptsRow = (g, c) => 'P ' + coord(g, c.xp, c.yp) + ' and Q ' + coord(g, c.xq, c.yq);\n  const legValues = (g, c) => ['Δx = ' + fmtN(c.xq - c.xp) + ' ' + g.xu, 'Δy = ' + fmtN(c.yq - c.yp) + ' ' + g.yu];\n  // Each answer a puzzle offers: its value, its words, and (for f(5)) its working.\n  function optInfo(d, k) {\n    const g = GR[d.g];\n    if (d.at != null) {\n      const a = d.ab[0], b = d.ab[1], x = d.at;\n      const v = { right: a + b * x, bracket: (a + b) * x, add: a + b + x }[k];\n      const w = { right: 'f(' + x + ') = ' + a + ' + ' + b + ' × ' + x, bracket: '(' + a + ' + ' + b + ') × ' + x, add: a + ' + ' + b + ' + ' + x }[k];\n      return { v, text: fmtN(v) + ' ' + g.yu, work: w + ' = ' + fmtN(v) + ' ' + g.yu };\n    }\n    if (d.two) {\n      const r = d.two.map(([a, b]) => (g.fn(b) - g.fn(a)) / (b - a)), steep = r[1] > r[0] ? 1 : 0;\n      const name = (m) => d.two[m][0] + ' ' + g.xu + ' to ' + d.two[m][1] + ' ' + g.xu;\n      return { right: { text: name(steep), v: r[steep] }, early: { text: name(1 - steep), v: r[1 - steep] }, agree: { text: 'They agree', v: null } }[k];\n    }\n    const [xp, xq] = d.pts, yp = val(g, xp), yq = val(g, xq), dx = xq - xp, dy = yq - yp, r = dy / dx;\n    switch (k) {\n      case 'right': return { v: r, text: fmtN(r) + per(g) };\n      case 'origin': return { v: yq / xq, text: fmtN(yq / xq) + per(g) };\n      case 'flip': return { v: dx / dy, text: fmtN(dx / dy) + ' ' + g.xu + ' per ' + g.yu };\n      case 'level': return { v: (yp + yq) / 2, text: fmtN((yp + yq) / 2) + ' ' + g.yu };\n      case 'sign': return { v: -r, text: fmtS(-r) + per(g) };\n      case 'nodiv': return { v: dy, text: fmtN(dy) + ' ' + g.yu };\n    }\n    return null;\n  }\n  // The working a wrong answer shows, in red: the slip, then what it missed.\n  function slipRows(d, k) {\n    const g = GR[d.g], [xp, xq] = d.pts, yp = val(g, xp), yq = val(g, xq), dx = xq - xp, dy = yq - yp, o = optInfo(d, k), u = (v, un) => fmtN(v) + ' ' + un;\n    switch (k) {\n      case 'origin': return ['y ÷ x = ' + u(yq, g.yu) + ' ÷ ' + u(xq, g.xu) + ' = ' + o.text, 'The slope from (0, 0), not from P'];\n      case 'flip': return ['Δx ÷ Δy = ' + u(dx, g.xu) + ' ÷ ' + u(dy, g.yu) + ' = ' + o.text, 'The unit, ' + g.xu + ' per ' + g.yu + ', gives it away'];\n      case 'level': return ['(' + fmtN(yp) + ' + ' + fmtN(yq) + ') ÷ 2 = ' + o.text, 'An amount in ' + (WORD[g.yu] || g.yu) + ', not a rate'];\n      case 'sign': return [fmtS(-dy) + ' ' + g.yu + ' ÷ ' + u(dx, g.xu) + ' = ' + o.text, 'A plus says filling, but it empties'];\n      case 'nodiv': return ['Δy = ' + fmtN(yq) + ' − ' + fmtN(yp) + ' = ' + o.text, 'A change in ' + (WORD[g.yu] || g.yu) + ', not yet ÷ ' + u(dx, g.xu)];\n    }\n    return [];\n  }\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // pts: on a drag screen, where Dan has put the points (null until he drags one).\n  function blank() { return { pick: null, res: null, why: false, pts: null }; }\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion\n  let REC = null;                                                                       // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[fxy](?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === 'right' ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    S[at()].pts = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  let into = null, AV = [], LQ = [];          // AV: lines and shapes labels keep clear of; LQ: labels waiting to be placed\n  const add = (node) => (into || art).appendChild(node);\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));\n  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(w), height: r3(h), rx: rx || 0 }));\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    italics(t, s, true);\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 14 * 0.6;\n  }\n  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.\n  const queue = (a, items) => { items = items.filter((it) => it.text); if (a > 0 && items.length) LQ.push({ a, items }); };\n  function flushLabels() {\n    const list = LQ; LQ = [];\n    list.forEach((q) => part(q.a, 4, () => {\n      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text, anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });\n      ts.forEach((t) => { const s = t.textContent; t.textContent = ''; italics(t, s, true); REC.labs.push(t.textContent); if (/\\bbad\\b/.test(t.getAttribute('class') || '')) REC.bad++; });\n    }));\n  }\n\n  // ---------- each step's sizes ----------\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const g = GR[d.g], G = { g, tagY: 20 };\n    G.nameY = (g.table ? 66 : 30) + 12; G.PT = G.nameY + 30; G.PB = G.PT + PH; G.rowsY = G.PB + 42;\n    G.H = Math.ceil(G.rowsY + 26 * (d.two || !(g.table || d.one != null || d.at != null) ? 3 : 2) + 10);\n    GEO.set(d, G);\n    return G;\n  }\n  const X = (G, v) => PL + (v - G.g.x[0]) / (G.g.x[1] - G.g.x[0]) * (PR - PL);\n  const Y = (G, v) => G.PB - (v - G.g.y[0]) / (G.g.y[1] - G.g.y[0]) * PH;\n  function curveD(G, fn, x0, x1) {\n    let s = '';\n    for (let k = 0; k <= 90; k++) { const x = x0 + (x1 - x0) * k / 90; s += (k ? ' L' : 'M') + r3(X(G, x)) + ' ' + r3(Y(G, fn(x))); }\n    return s;\n  }\n  // Gridlines, axes, their numbers and names.\n  function drawAxes(G) {\n    const g = G.g;\n    for (let v = g.y[0]; v <= g.y[1] + 1e-9; v += g.y[2]) { const y = Y(G, v); if (v > g.y[0]) line('grid', PL, y, PR, y); text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end'); }\n    if (g.minor) for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.minor) line('mtick', X(G, v), G.PB, X(G, v), G.PB + 4);\n    for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.x[2]) { const x = X(G, v); line('mtick', x, G.PB, x, G.PB + 6); text(x, G.PB + 20, fmtN(v), 'tick'); }\n    AV.push(line('axis', PL, G.PT - 8, PL, G.PB), line('axis', PL, G.PB, PR + 8, G.PB));\n    text(12, G.nameY, g.yn, 'aname', 'start');\n    text(PR + 8, G.PB + 38, g.xn, 'aname', 'end');\n  }\n  // A table of readings over the graph, the two rows used highlighted.\n  function drawTable(d, G, used, a) {\n    const g = G.g, n = g.table.length, x0 = 80, w = Math.min(68, (332 - x0) / n);\n    used.forEach((xv) => { const k = g.table.findIndex((r) => r[0] === xv); part(a, 0, () => rect('thl', x0 + k * w + 3, 4, w - 6, 56, 6)); });\n    text(12, 24, g.th[0], 'th', 'start');\n    text(12, 51, g.th[1], 'th', 'start');\n    line('tsep', 12, 32, x0 + n * w, 32);\n    g.table.forEach((r, k) => { text(x0 + (k + 0.5) * w, 24, fmtN(r[0]), 'td'); text(x0 + (k + 0.5) * w, 51, fmtN(r[1]), 'td'); });\n  }\n  // One chord: P and Q, the straight line between them, and its triangle. c: where they are drawn;\n  // lv: the values the labels give (the same, except while a demonstration glides the points);\n  // a: each part's arrival; o.legText: what the triangle's sides say.\n  function drawChord(G, c, lv, a, o) {\n    const g = G.g, px = X(G, c.xp), py = Y(G, c.yp), qx = X(G, c.xq), qy = Y(G, c.yq), up = lv.yq >= lv.yp;\n    if (a.chord > 0) {\n      part(a.chord, 0, () => AV.push(line('chord' + (o.chordBad ? ' bad' : ''), px, py, K.lerp(px, qx, a.grow), K.lerp(py, qy, a.grow))));\n      if (a.grow >= 1) REC.chord = { px, py, qx, qy };\n      if (o.chordBad) REC.bad++;\n    }\n    part(a.legs, 0, () => {\n      AV.push(line('leg', px, py, qx, py), line('leg', qx, py, qx, qy));\n      if (Math.abs(qx - px) > 18 && Math.abs(qy - py) > 18) { const s = qy < py ? -8 : 8; AV.push(path('corner', 'M' + r3(qx - 8) + ' ' + r3(py) + ' V' + r3(py + s) + ' H' + r3(qx))); }\n    });\n    if (a.pts > 0) { part(a.pts, 0, () => { if (o.halo) AV.push(circle('halo', px, py, 13), circle('halo', qx, qy, 13)); AV.push(circle('pt', px, py, 7), circle('pt', qx, qy, 7)); }); REC.pts.push([px, py], [qx, qy]); }\n    if (o.names) {\n      queue(Math.min(a.pts, a.ptLab), up ? [{ x: px - 11, y: py + 5, text: 'P', anchor: 'end' }, { x: qx - 9, y: qy - 9, text: 'Q', anchor: 'end' }]\n        : [{ x: px + 9, y: py - 9, text: 'P', anchor: 'start' }, { x: qx + 9, y: qy - 9, text: 'Q', anchor: 'start' }]);\n    }\n    if (o.legText) {\n      const tx = o.legText[0], ty = o.legText[1], bad = o.legBad || [false, false];\n      const dxY = up ? (py + 18 <= G.PB - 4 ? py + 18 : py - 8) : (py - 22 >= G.PT + 2 ? py - 8 : py + 18);\n      const right = qx + 8 + tw(ty, 'lab') <= 334;\n      queue(Math.min(a.legs, a.legLab), [{ x: (px + qx) / 2, y: dxY, text: tx, cls: bad[0] ? 'bad' : '' },\n        { x: right ? qx + 8 : qx - 8, y: (py + qy) / 2 + 5, text: ty, anchor: right ? 'start' : 'end', cls: bad[1] ? 'bad' : '' }]);\n    }\n  }\n  // Where the points are now on a demonstration screen, and how far their labels have arrived.\n  function glideState(d, st) {\n    const from = d.pts, gl = d.glide;\n    if (st.pts) return { now: st.pts, lab: st.pts, la: () => 1 };\n    if (!gl) return { now: from, lab: from, la: vis };\n    const g0 = gl.t, g1 = gl.t + gl.len;\n    if (T < g0) return { now: from, lab: from, la: vis };\n    if (T < g1) { const k = K.ease((T - g0) / gl.len); return { now: [K.lerp(from[0], gl.to[0], k), K.lerp(from[1], gl.to[1], k)], lab: from, la: () => 1 - K.arrive(T, g0, 0.3) }; }\n    return { now: gl.to, lab: gl.to, la: (t) => Math.min(vis(t), arr(g1, 0.5)) };\n  }\n  const curPts = (d, st) => st.pts || (d.one != null ? [d.one] : d.glide ? d.glide.to : d.pts);\n\n  // The step's picture: the graph, then what this kind of screen draws on it, then the working.\n  function drawScene(d, st, G) {\n    const g = G.g, RW = [];\n    REC = { rate: null, chord: null, rows: [], labs: [], bad: 0, pts: [] };\n    AV = []; LQ = [];\n    drawAxes(G);\n    const m = d.morph ? arr(d.morph[0], d.morph[1] - d.morph[0]) : 1;\n    if (g.table) drawTable(d, G, d.pts, vis(d.show ? d.tl.hl : null));\n    else if (d.morph) { part(1 - m, 0, () => text(12, G.tagY, GR.boat.rule, 'tag', 'start')); part(m, 0, () => text(12, G.tagY, g.rule, 'tag', 'start')); }\n    else text(12, G.tagY, g.rule, 'tag', 'start');\n    const fn = g.table ? null : d.morph ? (x) => (1 - m) * GR.boat.fn(x) + m * g.fn(x) : g.fn;\n    const vy = (x) => (fn ? fn(x) : val(g, x));\n    if (d.morph) {\n      const a = vis(d.tl.ref);\n      part(a, 0, () => AV.push(path('ref', curveD(G, GR.boat.fn, g.x[0], g.x[1]))));\n      queue(a, [{ x: X(G, 2.4) - 8, y: Y(G, GR.boat.fn(2.4)) - 8, text: 'steady boat', anchor: 'end', cls: 'soft' }]);\n    }\n    if (fn) {\n      const c = d.show && d.tl.curve ? arr(d.tl.curve[0], d.tl.curve[1]) : 1;\n      if (c > 0) AV.push(path('curve', curveD(G, fn, g.x[0], K.lerp(g.x[0], g.x[1], c))));\n    }\n    let grips = [];\n    if (d.one != null) grips = drawOne(d, st, G, fn, RW);\n    else if (d.at != null) drawValue(d, st, G, RW);\n    else if (d.two) drawTwo(d, st, G, fn, RW);\n    else if (d.show) grips = drawShowChord(d, st, G, vy, RW);\n    else drawPuzzleChord(d, st, G, vy, RW);\n    drawRows(G, RW);\n    flushLabels();\n    placeGrips(d, st, grips);\n    return (g.table ? 'A table of example readings, plotted as dots. ' : 'The graph of ' + say(g.rule) + '. ') + REC.rows.map(say).join('. ');\n  }\n  // Screen 1: one point on the graph, with guides to both axes.\n  function drawOne(d, st, G, fn, RW) {\n    const g = G.g, tl = d.tl, xv = curPts(d, st)[0], yv = fn(xv);\n    const tr = st.pts || !tl.travel ? 1 : arr(tl.travel[0], tl.travel[1]), xn = K.lerp(Math.min(1, xv), xv, tr), px = X(G, xn), py = Y(G, fn(xn));\n    part(vis(tl.guides), 0, () => { if (py < G.PB - 8) AV.push(line('guide', px, py + 7, px, G.PB)); if (px > PL + 8) AV.push(line('guide', PL, py, px - 7, py)); });\n    part(vis(tl.pts), 0, () => { if (d.drag && !finished) AV.push(circle('halo', px, py, 13)); AV.push(circle('pt', px, py, 7)); });\n    REC.pts.push([px, py]);\n    queue(vis(tl.labs), [{ x: px - 10, y: py - 9, text: coord(g, xv, yv), anchor: 'end' }]);\n    RW.push({ s: 'f(' + xv + ') = 4 × ' + xv + ' = ' + fmtN(yv) + ' ' + g.yu, big: true, t: tl.rows[0] },\n      { s: xv === 0 ? 'At 0 s it is still at the buoy' : 'After ' + xv + ' s it is ' + fmtN(yv) + ' m from the buoy', soft: true, t: tl.rows[1] });\n    return [[px, py, xv]];\n  }\n  // A demonstration with a chord: the points arrive, the chord grows, the triangle and working follow.\n  function drawShowChord(d, st, G, vy, RW) {\n    const g = G.g, tl = d.tl, gs = glideState(d, st);\n    const c = { xp: gs.now[0], yp: vy(gs.now[0]), xq: gs.now[1], yq: vy(gs.now[1]) };\n    const lv = { xp: gs.lab[0], yp: vy(gs.lab[0]), xq: gs.lab[1], yq: vy(gs.lab[1]) };\n    if (g.table) g.table.forEach((r, k) => part(vis(tl.dots ? tl.dots[0] + k * tl.dots[1] : null), 0, () => AV.push(circle('dot', X(G, r[0]), Y(G, r[1]), 5))));\n    const ch = tl.chord;\n    drawChord(G, c, lv, { pts: vis(tl.pts), chord: vis(ch ? ch[0] : null), grow: ch ? arr(ch[0], ch[1]) : 1, legs: vis(tl.legs), ptLab: gs.la(tl.labs), legLab: gs.la(tl.labs) },\n      { names: true, coords: !g.table, legText: legValues(g, lv), halo: !!d.drag && !finished });\n    const cr = chordRows(g, lv.xp, lv.yp, lv.xq, lv.yq), rt = tl.rows || [null, null];\n    REC.rate = cr.rate;\n    if (!g.table) RW.push({ s: ptsRow(g, lv), soft: true, t: tl.labs, a: gs.la(tl.labs) });\n    cr.rows.forEach((r, k) => RW.push(Object.assign({ t: rt[k], a: gs.la(rt[k]) }, r)));\n    const cp = curPts(d, st);\n    return d.drag ? [[X(G, c.xp), Y(G, c.yp), cp[0]], [X(G, c.xq), Y(G, c.yq), cp[1]]] : [];\n  }\n  // A puzzle on a chord: before Check the triangle's sides read Δx and Δy; after it, the answer's\n  // working, or the slip drawn on the graph in red.\n  function drawPuzzleChord(d, st, G, vy, RW) {\n    const g = G.g, [xp, xq] = d.pts, c = { xp, yp: vy(xp), xq, yq: vy(xq) }, dy = c.yq - c.yp;\n    const k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, a = arr(0.1);\n    if (g.table) g.table.forEach((r) => AV.push(circle('dot', X(G, r[0]), Y(G, r[1]), 5)));\n    const avg = (c.yp + c.yq) / 2;\n    if (k === 'origin') part(a, 0, () => AV.push(line('slip', X(G, 0), Y(G, 0), X(G, xq), Y(G, c.yq))));\n    if (k === 'level') part(a, 0, () => AV.push(line('slip', X(G, xp), Y(G, avg), X(G, xq), Y(G, avg))));\n    if (k === 'origin' || k === 'level') REC.bad++;\n    let legText = ['Δx', 'Δy'], legBad = [false, false], legA = 1;\n    const vals = legValues(g, c);\n    if (k && k !== 'origin' && k !== 'level') { legText = vals; legA = a; }\n    if (k === 'flip') legBad = [true, true];\n    if (k === 'sign') { legText = [vals[0], 'Δy = ' + fmtS(-dy) + ' ' + g.yu]; legBad = [false, true]; }\n    if (k === 'nodiv') legBad = [false, true];\n    drawChord(G, c, c, { pts: 1, chord: 1, grow: 1, legs: 1, ptLab: 1, legLab: legA }, { names: true, coords: !g.table, legText, legBad });\n    if (k === 'origin') queue(a, [{ x: (X(G, 0) + X(G, xq)) / 2 - 8, y: (Y(G, 0) + Y(G, c.yq)) / 2 - 8, text: 'y ÷ x', anchor: 'end', cls: 'bad' }]);\n    if (k === 'level') queue(a, [{ x: X(G, xq) + 8, y: Y(G, avg) + 5, text: optInfo(d, 'level').text, anchor: 'start', cls: 'bad' }]);\n    if (!g.table) RW.push({ s: ptsRow(g, c), soft: true });\n    if (!k) RW.push({ s: 'Δy ÷ Δx = ?' });\n    else if (k === 'right') { const cr = chordRows(g, xp, c.yp, xq, c.yq); REC.rate = cr.rate; cr.rows.forEach((r, n) => RW.push(Object.assign({ t: 0.3 + 0.3 * n }, r))); }\n    else slipRows(d, k).forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.3 + 0.3 * n }));\n  }\n  // f(5): a guide up from 5 s; the answer is a point, on the graph if right, off it in red if not.\n  function drawValue(d, st, G, RW) {\n    const g = G.g, xv = d.at, gx = X(G, xv), k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null;\n    AV.push(line('guide', gx, G.PB, gx, G.PT + 22));\n    queue(1, [{ x: gx, y: G.PT + 14, text: 'x = ' + xv + ' ' + g.xu }]);\n    const q = 'f(' + xv + ') = ' + d.ab[0] + ' + ' + d.ab[1] + ' × ' + xv + ' = ?';\n    if (!k) { RW.push({ s: q }); return; }\n    const o = optInfo(d, k), py = Y(G, o.v), bad = k !== 'right', a = arr(0.1);\n    part(a, 0, () => { AV.push(line('guide', PL, py, gx - 7, py)); AV.push(circle('pt' + (bad ? ' bad' : ''), gx, py, 7)); });\n    REC.pts.push([gx, py]);\n    queue(a, [{ x: gx - 10, y: py - 9, text: coord(g, xv, o.v), anchor: 'end', cls: bad ? 'bad' : '' }]);\n    if (bad) { REC.bad++; RW.push({ s: q }, { s: o.work + ', off the graph', bad: true, t: 0.3 }); }\n    else RW.push({ s: o.work, big: true, t: 0.3 }, { s: 'That point is on the graph', soft: true, t: 0.6 });\n  }\n  // Two chords on the curve, drawn once the answer is checked.\n  function drawTwo(d, st, G, fn, RW) {\n    const g = G.g, done = st.res === 'right' || st.res === 'wrong', xs = [].concat(...d.two);\n    queue(1, xs.map((x) => ({ x: X(G, x) - 10, y: Y(G, fn(x)) + 5, text: fmtN(fn(x)) + ' ' + g.yu, anchor: 'end' })));\n    const rs = d.two.map(([p, q]) => { const dy = fn(q) - fn(p), dx = q - p; return { p, q, r: dy / dx, s: p + ' ' + g.xu + ' to ' + q + ' ' + g.xu + ': ' + fmtN(dy) + ' ' + g.yu + ' ÷ ' + fmtN(dx) + ' ' + g.xu + ' = ' + fmtN(dy / dx) + per(g) }; });\n    const early = st.res === 'wrong' && st.pick === 'early', agree = st.res === 'wrong' && st.pick === 'agree';\n    if (done) d.two.forEach(([p, q], n) => {\n      const al = arr(0.1 + 0.2 * n), c = { xp: p, yp: fn(p), xq: q, yq: fn(q) };\n      drawChord(G, c, c, { pts: 0, chord: al, grow: 1, legs: al, ptLab: 0, legLab: al }, { names: false, legText: ['', fmtN(c.yq - c.yp) + ' ' + g.yu], chordBad: early && rs[n].r < rs[1 - n].r });\n    });\n    xs.forEach((x) => AV.push(circle('pt', X(G, x), Y(G, fn(x)), 7)));\n    if (!done) { rs.forEach((r) => RW.push({ s: r.p + ' ' + g.xu + ' to ' + r.q + ' ' + g.xu + ': Δy ÷ Δx = ?' })); return; }\n    const steep = rs[1].r > rs[0].r ? 1 : 0;\n    rs.forEach((r, n) => RW.push({ s: r.s, t: 0.3 + 0.3 * n, big: st.res === 'right' && n === steep, bad: early && n !== steep }));\n    if (agree) RW.push({ s: fmtN(rs[0].r) + ' and ' + fmtN(rs[1].r) + per(g) + ' do not agree', bad: true, t: 0.6 });\n  }\n  // The working under the graph, one line each.\n  function drawRows(G, RW) {\n    RW.forEach((r, n) => {\n      const a = r.a != null ? r.a : vis(r.t);\n      part(a, 4, () => {\n        const t = text(12, G.rowsY + 18 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start');\n        try { if (t.getComputedTextLength() > 314) t.style.fontSize = '13.5px'; } catch (e) { /* measured again next paint */ }\n      });\n      if (a >= 0.5) REC.rows.push(r.s);\n      if (r.bad && a > 0) REC.bad++;\n    });\n  }\n\n  // ---------- dragging the points along the graph ----------\n  const clampPt = (cur, k, v, g) => {\n    const n = cur.slice();\n    if (n.length === 1) n[0] = K.clamp(v, g.x[0], g.x[1]);\n    else if (k === 0) n[0] = K.clamp(v, g.x[0], n[1] - 1);\n    else n[1] = K.clamp(v, n[0] + 1, g.x[1]);\n    return n;\n  };\n  const dragOn = () => !finished && !!STEPS[at()].drag;\n  function setPt(k, v) {\n    const i = at(), d = STEPS[i], st = S[i], n = clampPt(curPts(d, st), k, Math.round(v), GR[d.g]);\n    if (st.pts && st.pts.join() === n.join() && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity; st.pts = n;\n    K.reveal(); K.refresh();\n  }\n  function svgPoint(e) {\n    const ctm = svg.getScreenCTM();\n    return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null;\n  }\n  let held = null;\n  const gripEls = [0, 1].map((k) => {\n    const c = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': k ? 'Point Q' : 'Point P' }));\n    c.style.display = 'none';\n    c.addEventListener('pointerdown', (e) => {\n      if (!dragOn()) return;\n      const q = svgPoint(e);\n      let near = k;\n      if (q) { let best = Infinity; gripEls.forEach((o, j) => { if (o.style.display === 'none') return; const dd = Math.hypot(+o.getAttribute('cx') - q.x, +o.getAttribute('cy') - q.y); if (dd < best) { best = dd; near = j; } }); }\n      held = { id: e.pointerId, k: near };\n      try { c.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }\n      e.preventDefault();\n    });\n    c.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId || !dragOn()) return;\n      const q = svgPoint(e), g = GR[STEPS[at()].g];\n      if (q) setPt(held.k, g.x[0] + (q.x - PL) / (PR - PL) * (g.x[1] - g.x[0]));\n    });\n    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };\n    c.addEventListener('pointerup', letGo);\n    c.addEventListener('pointercancel', letGo);\n    c.addEventListener('lostpointercapture', () => { held = null; });\n    c.addEventListener('keydown', (e) => {\n      if (!dragOn()) return;\n      const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n      if (by == null) return;\n      e.preventDefault();\n      setPt(k, curPts(STEPS[at()], S[at()])[k] + by);\n    });\n    return c;\n  });\n  function placeGrips(d, st, list) {\n    const g = GR[d.g];\n    gripEls.forEach((c, k) => {\n      const on = !!d.drag && !finished && k < list.length;\n      c.style.display = on ? '' : 'none';\n      c.setAttribute('tabindex', on ? '0' : '-1');\n      if (!on) return;\n      c.setAttribute('cx', r3(list[k][0])); c.setAttribute('cy', r3(list[k][1]));\n      c.setAttribute('aria-label', list.length > 1 ? (k ? 'Point Q' : 'Point P') : 'The point');\n      c.setAttribute('aria-valuemin', g.x[0]); c.setAttribute('aria-valuemax', g.x[1]); c.setAttribute('aria-valuenow', list[k][2]);\n      c.setAttribute('aria-valuetext', list[k][2] + ' ' + g.xu);\n    });\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d);\n    art.textContent = '';\n    into = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    svg.setAttribute('aria-label', drawScene(d, st, G));\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.pts = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts, labs = opts.map((k) => optInfo(d, k).text);\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(labs[k]);\n      b.el.textContent = '';\n      b.el.appendChild(K.el('span', {}, labs[k]));\n      b.el.setAttribute('aria-label', say(labs[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const CH = STEPS.map((d, i) => i).filter((i) => STEPS[i].show && STEPS[i].pts);\n  const solvedSt = (i) => Object.assign(blank(), { pick: 'right', res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const rate = (g, p, q) => (val(g, q) - val(g, p)) / (q - p);\n  const xsOf = (g) => (g.table ? g.table.map((r) => r[0]) : Array.from({ length: g.x[1] - g.x[0] + 1 }, (z, n) => g.x[0] + n));\n  const pairsOf = (xs) => { const out = []; xs.forEach((p, a) => xs.slice(a + 1).forEach((q) => out.push([p, q]))); return out; };\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i);\n      return { rows: REC.rows.slice(), labs: REC.labs.slice(), rate: REC.rate, chord: REC.chord, pts: REC.pts.slice(), bad: REC.bad, G: geo(STEPS[i]) };\n    } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n\n  K.check('The average rate of change over an interval is the ratio of the amount of change in the function to the corresponding change in x: on every chord screen, for every pair of points P and Q it can show, the working reads (f(Q) − f(P)) ÷ (Q − P) in the y unit per x unit, and so does the drawing at its end and after a drag', () =>\n    CH.every((i) => {\n      const d = STEPS[i], g = GR[d.g];\n      const all = pairsOf(xsOf(g)).every(([p, q]) => { const cr = chordRows(g, p, val(g, p), q, val(g, q)), r = rate(g, p, q);\n        return cr.rate === r && cr.rows[0].s === 'Δy ÷ Δx = ' + fmtN(val(g, q) - val(g, p)) + ' ' + g.yu + ' ÷ ' + fmtN(q - p) + ' ' + g.xu && cr.rows[1].s === 'Slope of the chord = ' + fmtN(r) + per(g); });\n      const end = curPts(d, blank()), e = drawn(i, blank());\n      const ok = close(e.rate, rate(g, end[0], end[1])) && e.rows[e.rows.length - 1] === 'Slope of the chord = ' + fmtN(rate(g, end[0], end[1])) + per(g);\n      const moved = !d.drag || [[0, 1], [1, 4], [2, 5]].every((pq) => { const h = drawn(i, Object.assign(blank(), { pts: pq })); return close(h.rate, rate(g, pq[0], pq[1])); });\n      return all && ok && moved;\n    }), { source: OPENSTAX });\n  K.check('Determines the gradient of a chord: on every chord screen the chord is drawn as a straight line from P to Q, and its gradient on the drawing, read back through the axes, is the slope in the working', () =>\n    CH.concat(DO.filter((i) => STEPS[i].pts)).every((i) => {\n      const d = STEPS[i], g = GR[d.g], h = drawn(i, d.show ? blank() : solvedSt(i)), G = h.G, c = h.chord;\n      if (!c || h.pts.length < 2) return false;\n      const dyD = (c.py - c.qy) / PH * (g.y[1] - g.y[0]), dxD = (c.qx - c.px) / (PR - PL) * (g.x[1] - g.x[0]);\n      return close(dyD / dxD, h.rate, 1e-6) && close(c.px, h.pts[0][0], 1e-6) && close(c.py, h.pts[0][1], 1e-6) && close(c.qx, h.pts[1][0], 1e-6) && close(c.qy, h.pts[1][1], 1e-6) && c.py <= G.PB + 1e-9 && c.qy >= G.PT - 1e-9;\n    }), { source: MCA });\n  K.check('On the straight line f(x) = 4x every chord gives 4 m per s, and the boat that started 10 m out gives 4 m per s from 1 s to 5 s (30 − 14 = 16 m over 4 s, where 30 ÷ 5 would give 6); on f(x) = x² the boat covers 1, 3, 5 and 7 m in its first four seconds, so its chords differ: 1 m per s from 0 s to 1 s, 3 from 1 s to 2 s, 7 from 3 s to 4 s and 6 from 2 s to 4 s, while from 0 s to 4 s both graphs give 4 m per s', () => {\n    const b = GR.boat, h = GR.head, q = GR.sq;\n    return pairsOf(xsOf(b)).every(([p, r]) => rate(b, p, r) === 4) && val(h, 1) === 14 && val(h, 5) === 30 && rate(h, 1, 5) === 4 && val(h, 5) / 5 === 6 && val(GR.head100, 5) === 30 &&\n      [1, 2, 3, 4].map((s) => q.fn(s) - q.fn(s - 1)).join() === '1,3,5,7' && rate(q, 0, 1) === 1 && rate(q, 1, 2) === 3 && rate(q, 3, 4) === 7 && rate(q, 2, 4) === 6 &&\n      rate(q, 0, 4) === 4 && rate(b, 0, 4) === 4 && q.fn(4) === 16 && b.fn(4) === 16;\n  });\n  K.check('The tank\\'s rule gives 200 L at 0 min, 128 L at 2 min, 50 L at 5 min, 32 L at 6 min and 0 L at 10 min, so its chords give −30, −24 and −10 L per min, and every chord on its falling graph gives a minus', () => {\n    const t = GR.tank;\n    return [[0, 200], [2, 128], [5, 50], [6, 32], [10, 0]].every(([x, v]) => t.fn(x) === v) && rate(t, 0, 5) === -30 && rate(t, 2, 6) === -24 && rate(t, 5, 10) === -10 &&\n      pairsOf(xsOf(t)).every(([p, q]) => rate(t, p, q) < 0);\n  });\n  K.check('The example readings give 66 − 30 = 36 °C over 40 − 10 = 30 min, 1.2 °C per min, and 12 − 6 = 6 V over 4 s, 1.5 V per s, as the working under each table\\'s graph says', () => {\n    const a = drawn(idx('Readings in a table'), blank()), b = drawn(idx('From two readings'), solvedSt(idx('From two readings')));\n    return rate(GR.motor, 10, 40) === 1.2 && rate(GR.cap, 2, 6) === 1.5 && a.rows.join('|') === 'Δy ÷ Δx = 36 °C ÷ 30 min|Slope of the chord = 1.2 °C per min' &&\n      b.rows.join('|') === 'Δy ÷ Δx = 6 V ÷ 4 s|Slope of the chord = 1.5 V per s';\n  });\n  K.check('Every puzzle offers three different answers and accepts only the right one; each wrong answer is the slip it stands for, worked from the same points: 70 m and 19 m against 30 m; 6 m per s and 0.25 s per m against 4 m per s; 10 m and 4 m per s against 6 m per s; +24 L per min and −96 L against −24 L per min; 0.67 s per V and 2 V per s against 1.5 V per s; and 0 and +10 L per min against −10 L per min', () => {\n    const want = { 'A head start': ['70 m', '19 m', '30 m'], 'Not from zero': ['6 m per s', '4 m per s', '0.25 s per m'], 'A chord on the curve': ['6 m per s', '10 m', '4 m per s'],\n      'Emptying': ['+24 L per min', '−96 L', '−24 L per min'], 'From two readings': ['0.67 s per V', '1.5 V per s', '2 V per s'], 'Two chords': ['1 s to 2 s', 'They agree', '3 s to 4 s'],\n      'Empty at last': ['−10 L per min', '0 L per min', '+10 L per min'] };\n    return DO.every((i) => {\n      const d = STEPS[i], labs = d.opts.map((k) => optInfo(d, k).text);\n      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1;\n    });\n  });\n  K.check('Before an answer no puzzle shows its answer: the working ends in a question mark, the triangle\\'s sides read only Δx and Δy, and nothing is red; a right answer ends the working in it with nothing red, and every wrong answer shows its slip in red', () =>\n    DO.every((i) => {\n      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt(i)), o = optInfo(d, 'right');\n      const end = d.two ? fmtN(o.v) + per(GR[d.g]) : o.text;\n      const preOk = pre.rows.length > 0 && / \\?$/.test(pre.rows[pre.rows.length - 1]) && pre.labs.every((s) => !/Δ[xy] =/.test(s) && s.indexOf(' per ') < 0) && pre.bad === 0;\n      const rightOk = ok.bad === 0 && ok.rows.some((r) => r.slice(-end.length) === end);\n      return preOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => drawn(i, wrongSt(i, k)).bad > 0);\n    }));\n  K.check('Dragging keeps each point on a whole number inside the axes, with P always left of Q', () => {\n    const b = GR.boat;\n    return clampPt([1, 3], 0, 5, b).join() === '2,3' && clampPt([1, 3], 1, 0, b).join() === '1,2' && clampPt([1, 3], 1, 9, b).join() === '1,6' &&\n      clampPt([3], 0, -2, b).join() === '0' && clampPt([0, 4], 0, -1, GR.sq).join() === '0,4';\n  });\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 1.3 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(i), FB[0]) && d.opts.filter((o) => o !== 'right').every((o) => timed(i, wrongSt(i, o), FB[1]));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "A chord on a graph",
+  "brief": "The one thing you should see is the slope readout, Δy ÷ Δx, staying at 4 m per s on the straight line but changing on the curve, when you drag the two points along it.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The average rate of change over an interval is the ratio of the amount of change in the function to the corresponding change in x: on every chord screen, for every pair of points P and Q it can show, the working reads (f(Q) − f(P)) ÷ (Q − P) in the y unit per x unit, and so does the drawing at its end and after a drag",
+     "ok": true,
+     "source": "https://openstax.org/books/calculus-volume-1/pages/3-4-derivatives-as-rates-of-change"
+    },
+    {
+     "label": "Determines the gradient of a chord: on every chord screen the chord is drawn as a straight line from P to Q, and its gradient on the drawing, read back through the axes, is the slope in the working",
+     "ok": true,
+     "source": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus"
+    },
+    {
+     "label": "On the straight line f(x) = 4x every chord gives 4 m per s, and the boat that started 10 m out gives 4 m per s from 1 s to 5 s (30 − 14 = 16 m over 4 s, where 30 ÷ 5 would give 6); on f(x) = x² the boat covers 1, 3, 5 and 7 m in its first four seconds, so its chords differ: 1 m per s from 0 s to 1 s, 3 from 1 s to 2 s, 7 from 3 s to 4 s and 6 from 2 s to 4 s, while from 0 s to 4 s both graphs give 4 m per s",
+     "ok": true
+    },
+    {
+     "label": "The tank's rule gives 200 L at 0 min, 128 L at 2 min, 50 L at 5 min, 32 L at 6 min and 0 L at 10 min, so its chords give −30, −24 and −10 L per min, and every chord on its falling graph gives a minus",
+     "ok": true
+    },
+    {
+     "label": "The example readings give 66 − 30 = 36 °C over 40 − 10 = 30 min, 1.2 °C per min, and 12 − 6 = 6 V over 4 s, 1.5 V per s, as the working under each table's graph says",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle offers three different answers and accepts only the right one; each wrong answer is the slip it stands for, worked from the same points: 70 m and 19 m against 30 m; 6 m per s and 0.25 s per m against 4 m per s; 10 m and 4 m per s against 6 m per s; +24 L per min and −96 L against −24 L per min; 0.67 s per V and 2 V per s against 1.5 V per s; and 0 and +10 L per min against −10 L per min",
+     "ok": true
+    },
+    {
+     "label": "Before an answer no puzzle shows its answer: the working ends in a question mark, the triangle's sides read only Δx and Δy, and nothing is red; a right answer ends the working in it with nothing red, and every wrong answer shows its slip in red",
+     "ok": true
+    },
+    {
+     "label": "Dragging keeps each point on a whole number inside the axes, with P always left of Q",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 1.3 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "A rule and its graph",
+      "A head start",
+      "A chord and its slope",
+      "Not from zero",
+      "The line bends",
+      "A chord on the curve",
+      "A falling graph",
+      "Emptying",
+      "Readings in a table",
+      "From two readings",
+      "Two chords",
+      "Empty at last"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 3
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-13T23:05:47.808Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The lesson defines a chord as a line joining two points on the graph, but for f(x) = 10 + 4x the point (0, 0) is not on the graph, so the line from (0, 0) to (5 s, 30 m) is not a chord; call it a line."
+   },
+   {
+    "path": "practice.text",
+    "problem": "The quote is about the teacher's own students (\"almost everyone, even at the start of Calculus I\"), not everyone starting calculus; keep its narrower group."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

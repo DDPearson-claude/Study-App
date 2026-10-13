@@ -1,0 +1,341 @@
+{
+  "iid": "i5",
+  "title": "Rates on the job",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the current dot below following the voltage graph's slope, not its height, dropping to zero where the voltage holds steady, when you drag the point along a capacitor's voltage graph.",
+    "title": "Rates on linked graphs",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens with the slope tracker's linked graphs: two graphs, one above the other, sharing the same time across. The top graph shows an amount on the job. A point P can be dragged along it, the tangent at P rides with it, and the bottom graph drops a dot at the same time, as high as the tangent's slope. First comes charge passing a point in a cable, q coulombs after t seconds, with example rules. For q = 3t the dots sit on a flat line at 3 A, because an ampere is one coulomb each second; for q = 0.5t² they trace the line i = t, so 4 A at 4 s. Then a 0.01 F capacitor whose voltage climbs 5 V each second for 4 s and then holds at 20 V. Its bottom graph is the capacitance times the slope, i = C dv/dt: 50 mA while the voltage climbs, and 0 where it holds. Then a sketch, with no numbers on its axes, of a capacitor charging from a steady supply through a resistor: its voltage climbs steeply, then more and more gently, and the current below starts high and falls away towards zero. Then a 0.5 H coil, with its current on top and the voltage across it below, v = L di/dt: 2 V while the current climbs 4 A each second, 0 V while it holds, and −2 V while it falls 4 A each second. Then three graphs for motion: displacement s, how far along from the start, on top; velocity, its slope, in the middle; and acceleration, the slope of the velocity, at the bottom. The speeding boat, s = t² metres, has velocity 2t and a flat acceleration of 2. A trolley shoved up a ramp, s = 8t − t² metres, has velocity 8 − 2t, which crosses zero at 4 s while its acceleration stays at −2. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graphs.",
+    "ignores": "Every rule is an example, chosen so the numbers come out exactly. The capacitor's climb is drawn with a sharp corner where it starts to hold; a real voltage rounds that corner, so the current falls quickly rather than all at once. The capacitor and coil are ideal parts: a real capacitor leaks a very little current at a steady voltage, and a real coil's resistance gives a small voltage at a steady current. The trolley's rule keeps its acceleration the same up and down; friction would make it a little different each way.",
+    "numbers": [
+      {
+        "label": "Example steady charge, 3 C each second, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current 3 C per s = 3 A, in step 1",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example charge rule q = 0.5t² coulombs, in step 2",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "P at 4 s, in step 2",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current dq/dt = t = 4 A at 4 s, in step 2",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height 0.5 × 16 = 8 C read as 8 A, in step 2",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip average 8 ÷ 4 = 2 A, in step 2",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example capacitor 0.01 F, in step 3",
+        "value": 0.01,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage climbs 5 V each second, in step 3",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage holds at 20 V after 4 s, in step 3",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Current 0.01 × 5 = 0.05 A, 50 mA, in step 3",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Current while voltage holds: 0 A, in step 3",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example capacitor held at a steady 50 V, in step 4",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip 0.01 × 50 = 0.5 A, in step 4",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 50 mA, the current while it climbed, in step 4",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Example coil 0.5 H, in step 7",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current climbs or falls 4 A each second, in step 7",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Voltage 0.5 × 4 = 2 V while climbing, in step 7",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Voltage −2 V while falling, in step 7",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example current 2 A falling to 0 in 0.01 s, in step 8",
+        "value": 0.01,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rate −2 ÷ 0.01 = −200 A per s, in step 8",
+        "value": -200,
+        "kind": "computed"
+      },
+      {
+        "label": "Voltage 0.5 × −200 = −100 V, in step 8",
+        "value": -100,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 0.5 × 2 = 1 V, in step 8",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 0 V, as the current ends at 0, in step 8",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Speeding boat s = t² metres, at 3 s, in step 9",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Boat at 3 s: 9 m, 6 m per s, in step 9",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Boat's acceleration 2 m per s each second, in step 9",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example trolley s = 8t − t² metres, in step 10",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Trolley at 4 s: 16 m up, velocity 0, in step 10",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Trolley's acceleration −2 m per s each second, in step 10",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip acceleration 0 at the top, in step 10",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height 16 read as acceleration, in step 10",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Example charge q = 2t² + 3t coulombs, at 2 s, in step 11",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current 4 × 2 + 3 = 11 A, in step 11",
+        "value": 11,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip height 8 + 6 = 14 C read as 14 A, in step 11",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip power not lowered, 4 × 4 + 3 = 19 A, in step 11",
+        "value": 19,
+        "kind": "computed"
+      },
+      {
+        "label": "Example 0.01 F capacitor, v = t² volts, at 3 s, in step 12",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slope 2 × 3 = 6 V per s, in step 12",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Current 0.01 × 6 = 0.06 A, 60 mA, in step 12",
+        "value": 60,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 0.01 × 9 = 0.09 A, 90 mA, in step 12",
+        "value": 90,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip C dropped: 6 A, in step 12",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: example capacitor 0.002 F, 2,000 µF",
+        "value": 0.002,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: example rule v = 4t² volts, at 1.5 s",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: dv/dt = 8 × 1.5 = 12 V per s",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: i = 0.002 × 12 = 0.024 A, 24 mA",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: v at 1.5 s = 9 V, at 1.6 s = 10.24 V",
+        "value": 10.24,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: chord 1.24 ÷ 0.1 = 12.4 V per s, 24.8 mA",
+        "value": 24.8,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: slip 0.002 × 9 = 0.018 A",
+        "value": 0.018,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: slip average 9 ÷ 1.5 = 6 V per s",
+        "value": 6,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Read in its units, a derivative is a rate on the job: so much of one thing per unit of another, at one instant. Its unit is the top graph's unit per the unit across, and that unit tells you what it measures. Take charge. An ampere is one coulomb of charge passing a point each second,[^2][^3] so if 3 C pass every second, the graph of charge passed against time is a straight line climbing 3 C each second, and the current is 3 A: the slope of the charge graph, in coulombs per second. When the current changes, the same holds at each instant, using the tangent's slope: the current is the derivative of the charge that flows, with respect to time,[^1] written i = dq/dt. That is the dy/dx from lesson 2 with letters that say what is measured, q for charge and t for time; writing it this way is quite common in engineering and physics.[^11] Say the charge passed after t seconds is q = 0.5t² coulombs, an example rule. The power rule gives dq/dt = 0.5 × 2t = t, so at 4 s the current is 4 A. At that moment the charge graph stands at 0.5 × 16 = 8 C, and the chord from the start gives 8 ÷ 4 = 2 A on average. Neither is the current now: the height says how much charge has passed, the chord how fast on average, and the tangent's slope how fast at that instant.\n\nA capacitor shows why the difference matters on the job. Textbooks add that the charge on a capacitor is its capacitance times the voltage across it, q = Cv. C is fixed, and a number in front stays when you differentiate,[^15] so i = dq/dt = C dv/dt: the current through a capacitor is its capacitance times the slope of its voltage graph.[^5] The units agree: q = Cv makes a farad a coulomb per volt, so farads times volts per second are coulombs per second, which is amps. So it is not how high the voltage is that sets the current, but how fast it is changing.[^5] Make the voltage on a 0.01 F capacitor climb a steady 5 V each second and the current is 0.01 × 5 = 0.05 A, 50 mA, the whole time it climbs. Hold the voltage at 20 V and its slope is 0, so the current is 0, however high it is held. Across the same resistor, a higher voltage means more current; for a capacitor, it is the change of voltage that drives the current. Now charge a capacitor from a steady supply through a resistor. The resistor has the supply's voltage less the capacitor's across it, so at the start, with the capacitor uncharged, the most current flows, and by i = C dv/dt the voltage climbs fastest. As the capacitor's voltage climbs, less is left across the resistor, so less current flows and the voltage climbs more slowly. So the voltage climbs quickly at first, then more and more slowly as it nears the supply's voltage, and the current is largest at the start, when the voltage is lowest, and falls away towards zero as the voltage levels off. A coil, an inductor, has the same pattern with voltage and current swapped: textbooks add that the voltage across it is its inductance times how fast its current changes, v = L di/dt. A steady current makes no voltage across it, and a current that falls fast makes a large voltage, the other way round to the one a rising current makes. These capacitor and coil rules are for ideal parts, a simplified picture: a real capacitor leaks a very little current at a steady voltage, and a real coil's resistance gives a small voltage at a steady current.\n\nMotion works the same way and adds a second step. Measure displacement, s, as how far something is from a starting point along its path, plus one way and minus the other. Differentiate it with respect to time and you get its [[velocity]] at that time,[^4] its speed with a sign for its direction, in metres per second. Velocity changes too, and its rate of change, in metres per second each second, is the [[acceleration]]; the Second Engineer syllabus asks for both, velocity from displacement and acceleration from velocity.[^6] Acceleration is a derivative of a derivative, the [[second derivative]] of displacement, which textbooks write d²s/dt². The speeding boat, s = t² metres, has velocity 2t and acceleration 2 m per s each second, the same at every moment. Now shove a trolley up a long ramp, with s = 8t − t² metres up the ramp as an example rule. Its velocity is 8 − 2t and its acceleration −2. At 4 s it is 16 m up and its velocity is 0: it has stopped for an instant. Its acceleration is still −2, because its velocity is still falling, from going up to coming down, so a velocity of zero does not mean an acceleration of zero. Anything holding steady, a charge, a voltage, a position, has a rate of 0, because the derivative of a constant is zero.[^17] **Read a derivative in its units, so much per so much: current is how fast charge flows, i = dq/dt,[^1] a capacitor's current is its capacitance times how fast its voltage changes,[^5] and velocity is how fast displacement changes, with acceleration how fast velocity changes.[^4][^6]**"
+  },
+  "analogy": {
+    "text": "Picture filling a straight-sided header tank. The flow in is the tank's floor area times how fast the water level rises. A tank holding a steady level takes no flow at all, however high the level stands, and a level rising fast means a big flow, even near the bottom. A capacitor follows the same rule, with its voltage as the level, its capacitance as the floor area and its current as the flow: i = C dv/dt.",
+    "breaks": "Water piles up inside a tank, but charge does not pile up inside a capacitor: as much current leaves by one lead as arrives by the other, while one plate gains charge and the other loses the same amount. And a tank's level comes from the water's weight, while a capacitor's voltage comes from the charge separated between its plates."
+  },
+  "practice": {
+    "text": "- Name the two things: the amount that changes (charge, voltage, current, displacement) and what it changes with, usually time.\n- Write the amount as a rule in time and differentiate it term by term with the power rule.\n- Give the answer the top unit per the unit across: coulombs per second is amps; metres per second; volts per second.\n- Multiply by the part's own number where the job's rule has one: C for a capacitor's current, L for a coil's voltage.\n- Put in the moment you want. A minus sign means falling: charge flowing back, a voltage the other way round, motion back towards the start.\n- For acceleration, differentiate a second time.\n- Check with a chord over a small step: its slope should be just off your answer.\n\n**Rules of thumb:** the height says how much, the slope says how fast. Anything holding steady has a rate of 0. A capacitor's current and a coil's voltage follow change, not size.\n\n**Worked example:** Say a 0.002 F (2,000 µF) capacitor has its voltage raised by the rule v = 4t² volts after t seconds, an example rule. Then dv/dt = 8t volts per second, and at 1.5 s that is 12 V per s. So i = C dv/dt = 0.002 × 12 = 0.024 A, 24 mA. Check with a chord: at 1.5 s the voltage is 9 V and at 1.6 s it is 4 × 1.6² = 10.24 V, so the chord's slope is 1.24 ÷ 0.1 = 12.4 V per s, giving 24.8 mA, just above.\n\n**Common mistakes**\n- Reading the height as the rate: at 1.5 s the voltage is 9 V, but 0.002 × 9 = 0.018 A is not the current.\n- Using the average since the start: 9 V in 1.5 s is 6 V per s, half the slope at 1.5 s.\n- Dropping C or L: the voltage's slope alone is in volts per second, not amps.\n- Taking a velocity of zero to mean no acceleration: the trolley at the top of its ramp is still accelerating at −2 m per s each second."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "9.2: Electrical Current - Physics LibreTexts",
+      "url": "https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/09:_Current_and_Resistance/9.02:_Electrical_Current",
+      "quote": "The instantaneous electrical current, or simply the electrical current , is the time derivative of the charge that flows"
+    },
+    {
+      "n": 2,
+      "title": "9.1 Electrical Current - University Physics Volume 2 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-2/pages/9-1-electrical-current",
+      "quote": "An ampere is the flow of one coulomb of charge through an area in one second."
+    },
+    {
+      "n": 3,
+      "title": "Ampere: Introduction | NIST",
+      "url": "https://www.nist.gov/si-redefinition/ampere-introduction",
+      "quote": "One ampere is the current in which one coulomb of charge travels across a given point in 1 second."
+    },
+    {
+      "n": 4,
+      "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+      "quote": "If we differentiate a position function at a given time, we obtain the velocity at that time."
+    },
+    {
+      "n": 5,
+      "title": "8.2: Capacitance and Capacitors - Engineering LibreTexts",
+      "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/DC_Electrical_Circuit_Analysis_-_A_Practical_Approach_(Fiore)/08%3A_Capacitors/8.2%3A_Capacitance_and_Capacitors",
+      "quote": "The current through a capacitor is equal to the capacitance times the rate of change of the capacitor voltage with respect to time (i.e., its slope). That is, the value of the voltage is not important, but rather how quickly the voltage is changing."
+    },
+    {
+      "n": 6,
+      "title": "Mathematics Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+      "quote": "Determines velocity from displacement-time functions and acceleration from velocity-time functions."
+    },
+    {
+      "n": 11,
+      "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+      "quote": "Use of the notation (called Leibniz notation) is quite common in engineering and physics."
+    },
+    {
+      "n": 15,
+      "title": "Differentiation Rules - math.uconn.edu",
+      "url": "https://www2.math.uconn.edu/ClassHomePages/Math1071/Textbook2/sec_Ch3Sec3.html",
+      "quote": "The derivative of a constant (k) multiplied by a function (f) is the same as the constant multiplied by the derivative"
+    },
+    {
+      "n": 17,
+      "title": "3.3 Differentiation Rules - Calculus Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules",
+      "quote": "It states that the derivative of a constant function is zero"
+    }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}

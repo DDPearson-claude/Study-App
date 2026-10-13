@@ -1,0 +1,528 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-13T23:05:47.808Z",
+ "startedAt": "2026-10-13T23:05:47.808Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i5",
+  "title": "Rates on the job",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the current dot below following the voltage graph's slope, not its height, dropping to zero where the voltage holds steady, when you drag the point along a capacitor's voltage graph.",
+   "title": "Rates on linked graphs",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in twelve small screens with the slope tracker's linked graphs: two graphs, one above the other, sharing the same time across. The top graph shows an amount on the job. A point P can be dragged along it, the tangent at P rides with it, and the bottom graph drops a dot at the same time, as high as the tangent's slope. First comes charge passing a point in a cable, q coulombs after t seconds, with example rules. For q = 3t the dots sit on a flat line at 3 A, because an ampere is one coulomb each second; for q = 0.5t² they trace the line i = t, so 4 A at 4 s. Then a 0.01 F capacitor whose voltage climbs 5 V each second for 4 s and then holds at 20 V. Its bottom graph is the capacitance times the slope, i = C dv/dt: 50 mA while the voltage climbs, and 0 where it holds. Then a sketch, with no numbers on its axes, of a capacitor charging from a steady supply through a resistor, with a bracket from P up to the supply's voltage for what is left across the resistor: its voltage climbs steeply, then more and more gently, and the current below starts high and falls away towards zero. Then a 0.5 H coil, with its current on top and the voltage across it below, v = L di/dt: 2 V while the current climbs 4 A each second, 0 V while it holds, and −2 V while it falls 4 A each second. Then three graphs for motion: displacement s, how far along from the start, on top; velocity, its slope, in the middle; and acceleration, the slope of the velocity, at the bottom. The speeding boat, s = t² metres, has velocity 2t and a flat acceleration of 2. A trolley shoved up a ramp, s = 8t − t² metres, has velocity 8 − 2t, which crosses zero at 4 s while its acceleration stays at −2. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graphs.",
+   "ignores": "Every rule is an example, chosen so the numbers come out exactly. The capacitor's climb and the coil's current are drawn with sharp corners; a real voltage or current rounds each corner, so the current or voltage below changes quickly rather than all at once. The capacitor and coil are ideal parts: a real capacitor leaks a very little current at a steady voltage, and a real coil's resistance gives a small voltage at a steady current. The trolley's rule keeps its acceleration the same up and down; friction would make it a little different each way.",
+   "numbers": [
+    {
+     "label": "Example steady charge, 3 C each second, in step 1",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current 3 C per s = 3 A, in step 1",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example charge rule q = 0.5t² coulombs, in step 2",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "P at 4 s, in step 2",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current dq/dt = t = 4 A at 4 s, in step 2",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip height 0.5 × 16 = 8 C read as 8 A, in step 2",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip average 8 ÷ 4 = 2 A, in step 2",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example capacitor 0.01 F, in step 3",
+     "value": 0.01,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage climbs 5 V each second, in step 3",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage holds at 20 V after 4 s, in step 3",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Current 0.01 × 5 = 0.05 A, 50 mA, in step 3",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Current while voltage holds: 0 A, in step 3",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Example capacitor held at a steady 50 V, in step 4",
+     "value": 50,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip 0.01 × 50 = 0.5 A, in step 4",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 50 mA, the current while it climbed, in step 4",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Example coil 0.5 H, in step 7",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current climbs or falls 4 A each second, in step 7",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Voltage 0.5 × 4 = 2 V while climbing, in step 7",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage −2 V while falling, in step 7",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example current 2 A falling to 0 in 0.01 s, in step 8",
+     "value": 0.01,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rate −2 ÷ 0.01 = −200 A per s, in step 8",
+     "value": -200,
+     "kind": "computed"
+    },
+    {
+     "label": "Voltage 0.5 × −200 = −100 V, in step 8",
+     "value": -100,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 0.5 × 2 = 1 V, in step 8",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 0 V, as the current ends at 0, in step 8",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Speeding boat s = t² metres, at 3 s, in step 9",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Boat at 3 s: 9 m, 6 m per s, in step 9",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Boat's acceleration 2 m per s each second, in step 9",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example trolley s = 8t − t² metres, in step 10",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Trolley at 4 s: 16 m up, velocity 0, in step 10",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Trolley's acceleration −2 m per s each second, in step 10",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip acceleration 0 at the top, in step 10",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip height 16 read as acceleration, in step 10",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Example charge q = 2t² + 3t coulombs, at 2 s, in step 11",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current 4 × 2 + 3 = 11 A, in step 11",
+     "value": 11,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip height 8 + 6 = 14 C read as 14 A, in step 11",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip power not lowered, 4 × 4 + 3 = 19 A, in step 11",
+     "value": 19,
+     "kind": "computed"
+    },
+    {
+     "label": "Example 0.01 F capacitor, v = t² volts, at 3 s, in step 12",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slope 2 × 3 = 6 V per s, in step 12",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Current 0.01 × 6 = 0.06 A, 60 mA, in step 12",
+     "value": 60,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 0.01 × 9 = 0.09 A, 90 mA, in step 12",
+     "value": 90,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip C dropped: 6 A, in step 12",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: example capacitor 0.002 F, 2,000 µF",
+     "value": 0.002,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: example rule v = 4t² volts, at 1.5 s",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: dv/dt = 8 × 1.5 = 12 V per s",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: i = 0.002 × 12 = 0.024 A, 24 mA",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: v at 1.5 s = 9 V, at 1.6 s = 10.24 V",
+     "value": 10.24,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: chord 1.24 ÷ 0.1 = 12.4 V per s, 24.8 mA",
+     "value": 24.8,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: slip 0.002 × 9 = 0.018 A",
+     "value": 0.018,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: slip average 9 ÷ 1.5 = 6 V per s",
+     "value": 6,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Read in its units, a derivative is a rate on the job: so much of one thing per unit of another, at one instant. Its unit is the top graph's unit per the unit across, and that unit tells you what it measures. Take charge. An ampere is one coulomb of charge passing a point each second,[^1][^2] so if 3 C pass every second, the graph of charge passed against time is a straight line climbing 3 C each second, and the current is 3 A: the slope of the charge graph, in coulombs per second. When the current changes, the same holds at each instant, using the tangent's slope: the current is the derivative of the charge that flows, with respect to time,[^3] written i = dq/dt. That is the dy/dx from lesson 2 with letters that say what is measured, q for charge and t for time; writing it this way is quite common in engineering and physics.[^4] Say the charge passed after t seconds is q = 0.5t² coulombs, an example rule. The power rule gives dq/dt = 0.5 × 2t = t, so at 4 s the current is 4 A. At that moment the charge graph stands at 0.5 × 16 = 8 C, and the chord from the start gives 8 ÷ 4 = 2 A on average. Neither is the current now: the height says how much charge has passed, the chord how fast on average, and the tangent's slope how fast at that instant.\n\nA capacitor shows why the difference matters on the job. The charge on a capacitor is its capacitance times the voltage across it, q = Cv: one farad holds one coulomb for each volt.[^5] C is fixed, and a number in front stays when you differentiate,[^6] so i = dq/dt = C dv/dt: the current through a capacitor is its capacitance times the slope of its voltage graph.[^7] The units agree: q = Cv makes a farad a coulomb per volt, so farads times volts per second are coulombs per second, which is amps. So it is not how high the voltage is that sets the current, but how fast it is changing.[^7] Make the voltage on a 0.01 F capacitor climb a steady 5 V each second and the current is 0.01 × 5 = 0.05 A, 50 mA, the whole time it climbs. Hold the voltage at 20 V and its slope is 0, so the current is 0, however high it is held. Across the same resistor, a higher voltage means more current; for a capacitor, it is the change of voltage that drives the current. Now charge a capacitor from a steady supply through a resistor. The resistor has the supply's voltage less the capacitor's across it, so at the start, with the capacitor uncharged, the most current flows, and by i = C dv/dt the voltage climbs fastest. As the capacitor's voltage climbs, less is left across the resistor, so less current flows and the voltage climbs more slowly. So the voltage climbs quickly at first, then more and more slowly as it nears the supply's voltage, and the current is largest at the start, when the voltage is lowest, and falls away towards zero as the voltage levels off.[^3] A coil, an inductor, has the same pattern with voltage and current swapped: the voltage across it is the derivative of its current, its inductance times how fast the current changes,[^8] v = L di/dt. A steady current makes no voltage across it, and a current that falls fast makes a large voltage, the other way round to the one a rising current makes. These capacitor and coil rules are for ideal parts, a simplified picture: a real capacitor leaks a very little current at a steady voltage, and a real coil's resistance gives a small voltage at a steady current.\n\nMotion works the same way and adds a second step. Measure displacement, s, as how far something is from a starting point along its path, plus one way and minus the other. Differentiate it with respect to time and you get its [[velocity]] at that time,[^9] its speed with a sign for its direction, in metres per second. Velocity changes too, and its rate of change, in metres per second each second, is the [[acceleration]]; the Second Engineer syllabus asks for both, velocity from displacement and acceleration from velocity.[^10] Acceleration is a derivative of a derivative, the [[second derivative]] of displacement, which textbooks write d²s/dt². The speeding boat, s = t² metres, has velocity 2t and acceleration 2 m per s each second, the same at every moment. Now shove a trolley up a long ramp, with s = 8t − t² metres up the ramp as an example rule. Its velocity is 8 − 2t and its acceleration −2. At 4 s it is 16 m up and its velocity is 0: it has stopped for an instant. Its acceleration is still −2, because its velocity is still falling, from going up to coming down, so a velocity of zero does not mean an acceleration of zero. Anything holding steady, a charge, a voltage, a position, has a rate of 0, because the derivative of a constant is zero.[^11] **Read a derivative in its units, so much per so much: current is how fast charge flows, i = dq/dt,[^3] a capacitor's current is its capacitance times how fast its voltage changes,[^7] and velocity is how fast displacement changes, with acceleration how fast velocity changes.[^9][^10]**"
+  },
+  "analogy": {
+   "text": "Picture filling a straight-sided header tank with nothing drawn off. The flow in is the tank's floor area times how fast the water level rises. A tank holding a steady level takes no flow at all, however high the level stands, and a level rising fast means a big flow, even near the bottom. A capacitor follows the same rule, with its voltage as the level, its capacitance as the floor area and its current as the flow: i = C dv/dt.",
+   "breaks": "Water piles up inside a tank, but charge does not pile up inside a capacitor: as much current leaves by one lead as arrives by the other, while one plate gains charge and the other loses the same amount. And the push a tank's level gives comes from the water's weight, while a capacitor's voltage comes from the charge separated between its plates."
+  },
+  "practice": {
+   "text": "- Name the two things: the amount that changes (charge, voltage, current, displacement) and what it changes with, usually time.\n- Write the amount as a rule in time and differentiate it term by term with the power rule.\n- Give the answer the top unit per the unit across: coulombs per second is amps; metres per second; volts per second.\n- Multiply by the part's own number where the job's rule has one: C for a capacitor's current, L for a coil's voltage.\n- Put in the moment you want. A minus sign means falling: charge flowing back, a voltage the other way round, motion the minus way along its path.\n- For acceleration, differentiate a second time.\n- Check with a chord over a small step: its slope should be just off your answer.\n\n**Rules of thumb:** the height says how much, the slope says how fast. Anything holding steady has a rate of 0. A capacitor's current and a coil's voltage follow change, not size.\n\n**Worked example:** Say a 0.002 F (2,000 µF) capacitor has its voltage raised by the rule v = 4t² volts after t seconds, an example rule. Then dv/dt = 8t volts per second, and at 1.5 s that is 12 V per s. So i = C dv/dt = 0.002 × 12 = 0.024 A, 24 mA. Check with a chord: at 1.5 s the voltage is 9 V and at 1.6 s it is 4 × 1.6² = 10.24 V, so the chord's slope is 1.24 ÷ 0.1 = 12.4 V per s, giving 24.8 mA, just above.\n\n**Common mistakes**\n- Reading the height as the rate: at 1.5 s the voltage is 9 V, but 0.002 × 9 = 0.018 A is not the current.\n- Using the average since the start: 9 V in 1.5 s is 6 V per s, half the slope at 1.5 s.\n- Dropping C or L: the voltage's slope alone is in volts per second, not amps.\n- Taking a velocity of zero to mean no acceleration: the trolley at the top of its ramp is still accelerating at −2 m per s each second."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "9.1 Electrical Current - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/9-1-electrical-current",
+    "quote": "An ampere is the flow of one coulomb of charge through an area in one second."
+   },
+   {
+    "n": 2,
+    "title": "Ampere: Introduction | NIST",
+    "url": "https://www.nist.gov/si-redefinition/ampere-introduction",
+    "quote": "One ampere is the current in which one coulomb of charge travels across a given point in 1 second."
+   },
+   {
+    "n": 3,
+    "title": "9.2: Electrical Current - Physics LibreTexts",
+    "url": "https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/09:_Current_and_Resistance/9.02:_Electrical_Current",
+    "quote": "The instantaneous electrical current, or simply the electrical current , is the time derivative of the charge that flows ... Notice from the figure that the charge increases to (Q_M) and the derivative decreases, approaching zero, as time increases"
+   },
+   {
+    "n": 4,
+    "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+    "quote": "Use of the notation (called Leibniz notation) is quite common in engineering and physics."
+   },
+   {
+    "n": 5,
+    "title": "8.2: Capacitance and Capacitors - Engineering LibreTexts",
+    "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/DC_Electrical_Circuit_Analysis_-_A_Practical_Approach_(Fiore)/08%3A_Capacitors/8.2%3A_Capacitance_and_Capacitors",
+    "quote": "By definition, if a total charge of 1 coulomb is associated with a potential of 1 volt across the plates, then the capacitance is 1 farad."
+   },
+   {
+    "n": 6,
+    "title": "Differentiation Rules - math.uconn.edu",
+    "url": "https://www2.math.uconn.edu/ClassHomePages/Math1071/Textbook2/sec_Ch3Sec3.html",
+    "quote": "The derivative of a constant (k) multiplied by a function (f) is the same as the constant multiplied by the derivative"
+   },
+   {
+    "n": 7,
+    "title": "8.2: Capacitance and Capacitors - Engineering LibreTexts",
+    "url": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/DC_Electrical_Circuit_Analysis_-_A_Practical_Approach_(Fiore)/08%3A_Capacitors/8.2%3A_Capacitance_and_Capacitors",
+    "quote": "The current through a capacitor is equal to the capacitance times the rate of change of the capacitor voltage with respect to time (i.e., its slope). That is, the value of the voltage is not important, but rather how quickly the voltage is changing."
+   },
+   {
+    "n": 8,
+    "title": "15.2: Inductors and Calculus - Workforce LibreTexts",
+    "url": "https://workforce.libretexts.org/@api/deki/pages/1124/pdf/15.2%253A%2bInductors%2band%2bCalculus.pdf",
+    "quote": "This fixed value, multiplied by the inductor’s inductance in Henrys (also fixed), results in a fixed voltage of some magnitude. ... the induced voltage across the inductor is the derivative of the current through the inductor"
+   },
+   {
+    "n": 9,
+    "title": "3.2 The Derivative as a Function - Calculus Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/calculus-volume-1/pages/3-2-the-derivative-as-a-function",
+    "quote": "If we differentiate a position function at a given time, we obtain the velocity at that time."
+   },
+   {
+    "n": 10,
+    "title": "Mathematics Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus",
+    "quote": "Determines velocity from displacement-time functions and acceleration from velocity-time functions."
+   },
+   {
+    "n": 11,
+    "title": "3.3 Differentiation Rules - Calculus Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules",
+    "quote": "It states that the derivative of a constant function is zero"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; touch-action: pan-y; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tick, .scene .aname, .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  /* The top graph: the rule's curve, P and its tangent. */\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .tan { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 7 5; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .halo { fill: var(--k-accent); fill-opacity: .08; stroke: var(--k-accent); stroke-opacity: .5; stroke-width: 1.5; }\n  /* The graphs below: what P's slope gives, as dots, joined where P has passed, and the dotted drop from P. */\n  .scene .dline { fill: none; stroke: var(--k-accent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .dot { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .dot.now { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .drop { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 2 4; }\n  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .ref { fill: none; stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 7 5; }\n  /* A slip is drawn in the warning colour. */\n  .scene .dline.bad { stroke: var(--k-warn); stroke-dasharray: 7 5; }\n  .scene .dot.bad { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: round; }\n  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }\n  .scene .row { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }\n  .scene .row.soft { font-weight: 400; }\n  .scene .lab.bad, .scene .row.bad { fill: var(--k-warn); }\n  .scene .v { font-style: italic; }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Linked graphs sharing one time across: above, an amount on the job; below, what its slope gives at each moment.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 450\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Every rule is an example and every dot is worked out from it; the charging curve is only a sketch.</p>\n\n<script>\n  // ---------- the example rules ----------\n  // fn: the top graph's rule in time t; x, y, d, e: [from, to, tick step] for time and each graph's\n  // height; mul: what the slope is multiplied by for the graph below (C in mA for a capacitor, L for\n  // a coil); corners: where a drawn rule turns a sharp corner (no slope there).\n  const C_F = 0.01, L_H = 0.5, MA = 1000;   // the example capacitor (farads) and coil (henrys); mA in an amp\n  const Q = { yn: '`q`, charge passed in C', dn: '`i`, current in A', yu: 'C', du: 'A', mul: 1 };\n  const VC = { yn: '`v`, voltage across it in V', dn: '`i`, current in mA', yu: 'V', du: 'mA', mul: C_F * MA };\n  const IL = { yn: '`i`, current in A', dn: '`v`, voltage across it in V', yu: 'A', du: 'V', mul: L_H };\n  const MO = { yn: '`s`, displacement in m', dn: 'velocity in m per s', en: 'acceleration in m per s each second', yu: 'm', du: 'm per s', mul: 1 };\n  const GR = {\n    steady: Object.assign({ who: 'An example cable: `q = 3t`', fn: (t) => 3 * t, x: [0, 5, 1], y: [0, 15, 5], d: [0, 6, 2] }, Q),\n    growing: Object.assign({ who: 'An example cable: `q = 0.5t²`', fn: (t) => 0.5 * t * t, x: [0, 5, 1], y: [0, 15, 5], d: [0, 6, 2] }, Q),\n    cap: Object.assign({ who: 'An example capacitor, `C` = 0.01 F', fn: (t) => Math.min(5 * t, 20), x: [0, 8, 1], y: [0, 25, 5], d: [0, 60, 20], corners: [4] }, VC),\n    held: Object.assign({ who: 'The same capacitor, `C` = 0.01 F', fn: (t) => Math.min(5 * t, 50), x: [0, 12, 2], y: [0, 60, 20], d: [0, 60, 20], corners: [10] }, VC),\n    charge: { who: 'Charging through a resistor: a sketch', fn: (t) => 1 - Math.exp(-t), x: [0, 5, 1], y: [0, 1.25, 0.25], d: [0, 1.25, 0.25], sketch: true, sup: 1, mul: 1,\n      yn: '`v`, voltage across the capacitor', dn: '`i`, current', xn: '`t`, time', yu: '', du: '' },\n    coil: Object.assign({ who: 'An example coil, `L` = 0.5 H', fn: (t) => (t < 2 ? 4 * t : t < 4 ? 8 : Math.max(0, 8 - 4 * (t - 4))), x: [0, 6, 1], y: [0, 10, 2], d: [-4, 4, 2], corners: [2, 4] }, IL),\n    off: Object.assign({ who: 'The same coil, `L` = 0.5 H', fn: (t) => K.clamp(2 - (2 / 0.01) * (t - 0.02), 0, 2), x: [0, 0.05, 0.01], y: [0, 3, 1], d: [-120, 40, 40], corners: [0.02, 0.03], step: 0.005 }, IL),\n    boat: Object.assign({ who: 'The speeding boat: `s = t²`', fn: (t) => t * t, x: [0, 5, 1], y: [0, 25, 5], d: [0, 10, 5], e: [0, 4, 2] }, MO),\n    trolley: Object.assign({ who: 'An example trolley: `s = 8t − t²`', fn: (t) => 8 * t - t * t, x: [0, 8, 1], y: [0, 20, 5], d: [-8, 8, 4], e: [-4, 2, 2] }, MO),\n    mixq: Object.assign({ who: 'An example cable: `q = 2t² + 3t`', fn: (t) => 2 * t * t + 3 * t, x: [0, 3, 1], y: [0, 30, 10], d: [0, 20, 5] }, Q),\n    mixv: Object.assign({ who: 'A 0.01 F capacitor: `v = t²`', fn: (t) => t * t, x: [0, 4, 1], y: [0, 16, 4], d: [0, 100, 20] }, VC),\n  };\n  const cb = GR.steady, cg = GR.growing, cp = GR.cap, ch = GR.held, sk = GR.charge, co = GR.coil, sw = GR.off, bt = GR.boat, tl = GR.trolley, mq = GR.mixq, mv = GR.mixv;\n  const keepPow = (t) => 4 * t * t + 3;   // the slip on the mixed charge puzzle: 2t² read as 4t², the power not lowered\n\n  // ---------- numbers ----------\n  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };\n  const fmtN = (v) => String(tidy(v)).replace('-', '−');\n  const slope = (g, a, b) => (g.fn(b) - g.fn(a)) / (b - a);   // a chord's slope from the rule\n  // The slope at t, from the rule: a chord 0.0002 wide centred on t, rounded to six places (the\n  // number the chords settle on). Beside a corner the chord stays on t's own side of it.\n  const HH = 1e-4;\n  function rate(g, x, side) {\n    if (!side && g.corners) g.corners.forEach((c) => { if (Math.abs(x - c) < 2 * HH) side = x <= c ? -1 : 1; });\n    const v = side < 0 ? (g.fn(x) - g.fn(x - HH)) / HH : side > 0 ? (g.fn(x + HH) - g.fn(x)) / HH : (g.fn(x + HH) - g.fn(x - HH)) / (2 * HH);\n    return Math.round(v * 1e6) / 1e6;\n  }\n  // The slope of the slope (the second derivative), from the rule: how the chords' slopes change.\n  function rate2(g, x) { const h = 1e-3; return Math.round((g.fn(x + h) - 2 * g.fn(x) + g.fn(x - h)) / (h * h) * 1e4) / 1e4; }\n  // Each graph's height at t: 0 the rule, 1 the slope (times C or L), 2 the slope of the slope.\n  function val(g, k, x) { return k === 0 ? g.fn(x) : k === 1 ? tidy(g.mul * rate(g, x)) : rate2(g, x); }\n  const cur = (g, x) => val(g, 1, x);\n  const K2 = (g) => rate(g, 1) - rate(g, 0);   // the 2 in 2t, read from the slopes themselves\n  const coord = (g, x) => '(' + fmtN(x) + ' s, ' + fmtN(g.fn(x)) + ' ' + g.yu + ')';\n  const amt = (g, v) => fmtN(v) + (g.yu ? ' ' + g.yu : '');\n  const lab = (g, k, v) => (k === 1 ? (g.du ? fmtN(v) + ' ' + g.du : '') : fmtN(v));\n  const say = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/−/g, ' minus ')\n    .replace(/²/g, ' squared').replace(/\\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\\s+/g, ' ').trim();\n  const stepOf = (g) => g.step || 0.5;\n  const onGrid = (g, x) => tidy(Math.round(x / stepOf(g)) * stepOf(g));\n  const halvesIn = (g, lo, hi) => { const s = stepOf(g), out = []; for (let k = Math.ceil(lo / s - 1e-9); k <= Math.floor(hi / s + 1e-9); k++) out.push(tidy(k * s)); return out; };\n  const uniq = (g, xs) => Array.from(new Set(xs.map((x) => onGrid(g, x)))).sort((a, b) => a - b);\n  // Half steps P has visited, as stretches of neighbours (joined up between them).\n  function runsOf(g, xs) {\n    const out = [], s = stepOf(g);\n    uniq(g, xs).forEach((x) => { const r = out[out.length - 1]; if (r && x - r[1] <= s + 1e-9) r[1] = x; else out.push([x, x]); });\n    return out;\n  }\n  const isCorner = (g, x) => !!g.corners && g.corners.some((c) => Math.abs(c - x) < 1e-9);\n  // A stretch of time split at the rule's corners, each piece stopping just short of a corner.\n  function pieces(g, lo, hi) {\n    const eps = (g.x[1] - g.x[0]) * 1e-5, cuts = (g.corners || []).filter((c) => c > lo + 1e-9 && c < hi - 1e-9);\n    const ends = [lo].concat(cuts, [hi]), out = [];\n    for (let j = 0; j + 1 < ends.length; j++) {\n      const a = ends[j] + (isCorner(g, ends[j]) ? eps : 0), b = ends[j + 1] - (isCorner(g, ends[j + 1]) ? eps : 0);\n      if (b > a) out.push([a, b]);\n    }\n    return out;\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // A SHOW step draws a tour: P travels along the top graph (legs) and what its slope gives drops onto\n  // the graphs below, at each stop (stops) or all the way (sweep). A puzzle's o lists its answers: right,\n  // and each slip with the working it shows (rows) and what it draws (mark).\n  const STEPS = [\n    { show: true, name: 'A steady 3 C each second', g: 'steady', drag: true, dur: 4.0, rows: 2, draw: drawTour,\n      tour: { mode: 'stops', x0: 1, legs: [{ to: 2, t: 1.3, len: 0.6 }, { to: 3, t: 2.7, len: 0.6 }], drops: [0.6, 2.0, 3.4] },\n      rowsAt: (x) => [{ s: 'P ' + coord(cb, x) + ', slope ' + fmtN(rate(cb, x)) + ' C per s', soft: true }, { s: '`i` = ' + fmtN(cur(cb, x)) + ' A', big: true }],\n      text: 'An ampere is one coulomb passing a point each second. An example cable carries a steady 3 C every second, `q = 3t`, so the current is 3 A wherever P goes: the slope of the charge graph, `i = dq/dt`. On a straight line the tangent is the line itself. Drag P.' },\n    { name: 'The current at 4 s', g: 'growing', p: 4, rows: 3, opts: ['height', 'right', 'chord'],\n      task: 'Now the charge passed is `q = 0.5t²` coulombs, an example rule, and P is at 4 s. The power rule gives `dq/dt = 0.5 × 2t = t`. What is the current at 4 s, the height of P\\'s dot below?',\n      why: '`dq/dt = t`, so at 4 s the current is 4 A, and P\\'s dot sits at 4. The graph stands at `0.5 × 16 = 8` C, which is how much charge has passed, and the chord from the start gives `8 ÷ 4 = 2` A on average. Only the tangent\\'s slope says how fast at that instant.',\n      hint: 'Not quite. Put 4 into `dq/dt = t`.',\n      hints: { height: 'Not quite. 8 C is how much charge has passed by 4 s, the height of P. The current is how fast it passes.', chord: 'Not quite. 2 A is the chord from the start, the average over 4 s. Use the slope at 4 s.' },\n      pre: ['P ' + coord(cg, 4), '`dq/dt = t`', 'Current at 4 s = ?'],\n      right: ['P ' + coord(cg, 4), 'Slope of the tangent: ' + fmtN(rate(cg, 4)) + ' C per s', '`i` = ' + fmtN(cur(cg, 4)) + ' A'],\n      o: {\n        right: { t: fmtN(cur(cg, 4)) + ' A' },\n        height: { t: fmtN(cg.fn(4)) + ' A', mark: { height: true }, rows: ['0.5 × 16 = ' + fmtN(cg.fn(4)) + ' C is the charge passed', 'A height, not a slope'] },\n        chord: { t: fmtN(cg.fn(4) / 4) + ' A', mark: { chord: true, dot: { v: cg.fn(4) / 4, text: fmtN(cg.fn(4) / 4) + ' A on average' } }, rows: ['8 ÷ 4 = ' + fmtN(cg.fn(4) / 4) + ' A is the chord\\'s average', 'Not the slope at 4 s'] },\n      } },\n    { show: true, name: 'A capacitor', g: 'cap', drag: true, dur: 4.6, rows: 2, draw: drawTour,\n      tour: { mode: 'sweep', x0: 0, legs: [{ to: 3, t: 0.8, len: 1.2 }, { to: 7, t: 2.6, len: 1.4 }] },\n      rowsAt: (x) => { const r = rate(cp, x), i = cur(cp, x); return [{ s: 'P ' + coord(cp, x) + ', slope ' + fmtN(r) + ' V per s', soft: true }, { s: '`i` = 0.01 × ' + fmtN(r) + ' = ' + (i ? fmtN(i / MA) + ' A, ' + fmtN(i) + ' mA' : '0'), big: true }]; },\n      text: 'An example 0.01 F capacitor, its voltage on top. Its current, below, is its capacitance times the voltage\\'s slope: `i = C dv/dt`. While the voltage climbs 5 V each second, that is `0.01 × 5 = 0.05` A, 50 mA. Once it holds at 20 V the slope is 0, so for an ideal capacitor the current is 0, however high it is held.' },\n    { name: 'Held at 50 V', g: 'held', p: 11, rows: 3, known: { trail: [0, 10] }, opts: ['height', 'climb', 'right'],\n      task: 'The same capacitor is charged at 5 V each second up to 50 V, then held there, steady. P is on the steady part. What current flows through it now?',\n      why: 'Held steady, the voltage graph is flat, so its slope is 0 and the current is `0.01 × 0 = 0`, however high it is held. `0.01 × 50 = 0.5` A uses the height, and 50 mA is the current while it climbed.',\n      hint: 'Not quite. How steep is the voltage graph at P?',\n      hints: { height: 'Not quite. `0.01 × 50` uses how high the voltage is. The current follows how fast it changes.', climb: 'Not quite. 50 mA flowed while the voltage climbed. At P it is holding steady.' },\n      pre: ['P ' + coord(ch, 11) + ', held steady', 'Current at P = ?'],\n      right: ['P ' + coord(ch, 11) + ', slope ' + fmtN(rate(ch, 11)) + ' V per s', '`i` = 0.01 × 0 = ' + fmtN(cur(ch, 11)) + ' A'],\n      o: {\n        right: { t: fmtN(cur(ch, 11)) + ' A' },\n        height: { t: fmtN(C_F * ch.fn(11)) + ' A', mark: { height: true }, rows: ['0.01 × 50 = ' + fmtN(C_F * ch.fn(11)) + ' A uses the height', 'The current follows the slope'] },\n        climb: { t: fmtN(cur(ch, 5)) + ' mA', mark: { dot: { v: cur(ch, 5), text: fmtN(cur(ch, 5)) + ' mA' } }, rows: [fmtN(cur(ch, 5)) + ' mA flowed while it climbed', 'At P the voltage holds steady'] },\n      } },\n    { show: true, name: 'Charging through a resistor', g: 'charge', drag: true, dur: 4.0, rows: 2, draw: drawTour,\n      tour: { mode: 'sweep', x0: 0, legs: [{ to: 5, t: 0.8, len: 2.6 }] },\n      rowsAt: (x) => {\n        const f = cur(sk, x) / cur(sk, 0);\n        return f > 0.5 ? [{ s: 'Where the voltage climbs steeply,', soft: true }, { s: 'a large current is flowing', big: true }]\n          : f > 0.12 ? [{ s: 'Where the climb is gentler,', soft: true }, { s: 'less current is flowing', big: true }]\n          : [{ s: 'Where the voltage has nearly levelled off,', soft: true }, { s: 'almost no current is flowing', big: true }];\n      },\n      text: 'A sketch: a capacitor charged from a steady supply through a resistor. What is left across the resistor sets the current, and that same current charges the capacitor. At first that is the whole supply, so the current is largest and the voltage climbs fastest; as less is left, the current falls away towards zero.' },\n    { name: 'The largest current', g: 'charge', p: null, rows: 3, opts: ['right', 'end', 'same'],\n      task: 'On the same charging sketch, when is the current through the capacitor largest?',\n      why: 'The current follows how fast the voltage climbs, and the climb is steepest at the start, when the voltage is lowest. At the end the voltage is highest but has nearly levelled off, so almost no current flows. A steady current would make the voltage climb in a straight line.',\n      hint: 'Not quite. Where is the voltage graph steepest?',\n      hints: { end: 'Not quite. The voltage is highest at the end, but it has nearly levelled off there.', same: 'Not quite. A steady current would make the voltage climb in a straight line, and this one curves.' },\n      pre: ['The current follows the voltage\\'s slope', 'Largest current = ?'],\n      right: ['The current follows the voltage\\'s slope', 'The steepest climb is at the start', 'Largest current: at the start'],\n      o: {\n        right: { t: 'At the start', at: 0, all: true, lab: 'largest at the start' },\n        end: { t: 'At the end', at: 5, mark: { tan: true, note: 'nearly level', dot: { v: cur(sk, 5), text: 'almost 0 at the end' } }, rows: ['The voltage is highest at the end', 'But nearly level, so almost no current'] },\n        same: { t: 'The same all along', mark: { line: { k: 1, fn: () => cur(sk, 0), text: 'a steady current', at: [2.5, 1.1, 'middle'] } }, rows: ['A steady current: a straight climb', 'This climb curves, so the current falls'] },\n      } },\n    { show: true, name: 'A coil', g: 'coil', drag: true, dur: 5.0, rows: 2, draw: drawTour,\n      tour: { mode: 'sweep', x0: 0, legs: [{ to: 1, t: 0.5, len: 0.6 }, { to: 3, t: 1.7, len: 0.9 }, { to: 5, t: 3.2, len: 0.9 }] },\n      rowsAt: (x) => [{ s: 'P ' + coord(co, x) + ', slope ' + fmtN(rate(co, x)) + ' A per s', soft: true }, { s: '`v` = 0.5 × ' + fmtN(rate(co, x)) + ' = ' + fmtN(cur(co, x)) + ' V', big: true }],\n      text: 'A coil, an inductor, swaps the roles: the voltage across it is its inductance times how fast its current changes, `v = L di/dt`. In an example 0.5 H coil, while the current climbs 4 A each second the voltage is `0.5 × 4 = 2` V; holding steady, 0 V; falling 4 A each second, −2 V.' },\n    { name: 'Switched off fast', g: 'off', p: 0.025, rows: 3, opts: ['lc', 'right', 'end'],\n      task: 'The same coil carries 2 A, and a switch cuts it to 0 in 0.01 s, so the current falls at `−2 ÷ 0.01 = −200` A per s. What voltage is across the coil while it falls?',\n      why: 'While the current falls, `v = 0.5 × −200 = −100` V: a large voltage, the other way round, because the current changes so fast. `0.5 × 2 = 1` V uses how big the current is, and 0 V is what is left once the current has stopped.',\n      hint: 'Not quite. Multiply 0.5 by how fast the current changes.',\n      hints: { lc: 'Not quite. `0.5 × 2` uses how big the current is. The voltage follows how fast it changes.', end: 'Not quite. The current ends at 0, but while it falls it is changing very fast.' },\n      pre: ['Slope −2 ÷ 0.01 = ' + fmtN(rate(sw, 0.025)) + ' A per s', 'Voltage while it falls = ?'],\n      right: ['Slope −2 ÷ 0.01 = ' + fmtN(rate(sw, 0.025)) + ' A per s', '`v` = 0.5 × ' + fmtN(rate(sw, 0.025)) + ' = ' + fmtN(cur(sw, 0.025)) + ' V'],\n      o: {\n        right: { t: fmtN(cur(sw, 0.025)) + ' V', all: true },\n        lc: { t: fmtN(L_H * 2) + ' V', mark: { dot: { v: L_H * 2, text: fmtN(L_H * 2) + ' V' } }, rows: ['0.5 × 2 = ' + fmtN(L_H * 2) + ' V uses the current\\'s size', 'The voltage follows its change'] },\n        end: { t: fmtN(cur(sw, 0.04)) + ' V', mark: { dot: { v: cur(sw, 0.04), text: fmtN(cur(sw, 0.04)) + ' V' } }, rows: ['0 V once the current has stopped', 'While it falls, it changes fast'] },\n      } },\n    { show: true, name: 'Velocity and acceleration', g: 'boat', drag: true, dur: 3.6, rows: 3, draw: drawTour,\n      tour: { mode: 'sweep', x0: 0, legs: [{ to: 3, t: 0.8, len: 2.2 }] },\n      rowsAt: (x) => [{ s: 'P ' + coord(bt, x), soft: true }, { s: 'Velocity ' + fmtN(K2(bt)) + ' × ' + fmtN(x) + ' = ' + fmtN(rate(bt, x)) + ' m per s' },\n        { s: 'Acceleration ' + fmtN(rate2(bt, x)) + ' m per s each second', big: true }],\n      text: 'Motion adds a second step. The slope of displacement `s`, how far along from the start, is the *velocity*; the slope of the velocity is the *acceleration*, the *second derivative*. The speeding boat, `s = t²` metres, at 3 s is 9 m along, doing `2 × 3 = 6` m per s, and its acceleration is 2 at every moment.' },\n    { name: 'The trolley at the top', g: 'trolley', p: 4, rows: 3, known: { mid: true }, opts: ['vel', 'height', 'right'],\n      task: 'An example trolley is shoved up a long ramp: `s = 8t − t²` metres up it after `t` seconds. Its velocity is `8 − 2t`, so at 4 s it is 16 m up and stopped for an instant. What is its acceleration then, in m per s each second?',\n      why: 'The velocity line falls 2 m per s every second, all the way, from going up to coming down, so the acceleration is −2, even at the top. After 4 s the velocity is below 0: a minus velocity means moving the minus way, here back down the ramp. A velocity of 0 does not mean an acceleration of 0, and 16 m is how far up it is.',\n      hint: 'Not quite. How fast is the velocity changing at 4 s?',\n      hints: { vel: 'Not quite. 0 is its velocity at the top. The velocity is still falling there.', height: 'Not quite. 16 m is how far up the ramp it is, the height of P.' },\n      pre: ['P ' + coord(tl, 4) + ', velocity ' + fmtN(rate(tl, 4)), 'Acceleration at 4 s = ?'],\n      right: ['P ' + coord(tl, 4) + ', velocity ' + fmtN(rate(tl, 4)), 'Velocity falls ' + fmtN(-rate2(tl, 4)) + ' m per s each second', 'Acceleration ' + fmtN(rate2(tl, 4)) + ' m per s each second'],\n      o: {\n        vel: { t: fmtN(rate(tl, 4)), mark: { dot: { v: rate(tl, 4), text: fmtN(rate(tl, 4)) + ', the velocity' } }, rows: [fmtN(rate(tl, 4)) + ' is the velocity at 4 s', 'The velocity is still falling'] },\n        height: { t: fmtN(tl.fn(4)), mark: { height: true }, rows: [fmtN(tl.fn(4)) + ' m is how far up it is', 'A height, not a rate'] },\n        right: { t: fmtN(rate2(tl, 4)), all: true },\n      } },\n    { name: 'Charge, mixed', g: 'mixq', p: 2, rows: 3, opts: ['right', 'height', 'power'],\n      task: 'An example cable passes `q = 2t² + 3t` coulombs after `t` seconds. What is the current at 2 s?',\n      why: 'Term by term, `dq/dt = 4t + 3`, so at 2 s the current is `4 × 2 + 3 = 11` A. 14 is the charge passed by then, `8 + 6 = 14` C, and 19 comes from not lowering the power: `4 × 4 + 3 = 19`.',\n      hint: 'Not quite. Differentiate term by term, then put in 2.',\n      hints: { height: 'Not quite. `8 + 6 = 14` C is the charge passed by 2 s, the height of P.', power: 'Not quite. The power rule lowers the power: `2t²` gives `4t`, not `4t²`.' },\n      pre: ['P ' + coord(mq, 2), 'Current at 2 s = ?'],\n      right: ['P ' + coord(mq, 2), '`dq/dt = 4t + 3`', '`i` = 4 × 2 + 3 = ' + fmtN(rate(mq, 2)) + ' A'],\n      o: {\n        right: { t: fmtN(rate(mq, 2)) + ' A' },\n        height: { t: fmtN(mq.fn(2)) + ' A', mark: { height: true }, rows: ['8 + 6 = ' + fmtN(mq.fn(2)) + ' C is the charge passed', 'A height, not a slope'] },\n        power: { t: fmtN(keepPow(2)) + ' A', mark: { dot: { v: keepPow(2), text: fmtN(keepPow(2)) + ' A' } }, rows: ['4 × 4 + 3 = ' + fmtN(keepPow(2)) + ' keeps the power', '`2t²` gives `4t`, not `4t²`'] },\n      } },\n    { name: 'A capacitor, mixed', g: 'mixv', p: 3, rows: 3, opts: ['height', 'right', 'noc'],\n      task: 'An example 0.01 F capacitor has its voltage raised by the rule `v = t²` volts after `t` seconds. What current flows at 3 s?',\n      why: 'The voltage\\'s slope at 3 s is `2 × 3 = 6` V per s, so the current is `0.01 × 6 = 0.06` A, 60 mA. `0.01 × 9` uses the voltage\\'s height, and 6 is the slope alone, in volts per second: times the capacitance, it gives amps.',\n      hint: 'Not quite. Find the slope at 3 s, then multiply by 0.01.',\n      hints: { height: 'Not quite. 9 V is the voltage at 3 s, its height. Use its slope.', noc: 'Not quite. 6 V per s is the slope alone. Multiply by 0.01 F to get amps.' },\n      pre: ['P ' + coord(mv, 3), 'Current at 3 s = ?'],\n      right: ['P ' + coord(mv, 3) + ', slope 2 × 3 = ' + fmtN(rate(mv, 3)) + ' V per s', '`i` = 0.01 × 6 = ' + fmtN(cur(mv, 3) / MA) + ' A, ' + fmtN(cur(mv, 3)) + ' mA'],\n      o: {\n        height: { t: fmtN(C_F * mv.fn(3) * MA) + ' mA', mark: { height: true, dot: { v: C_F * mv.fn(3) * MA, text: fmtN(C_F * mv.fn(3) * MA) + ' mA' } }, rows: ['0.01 × 9 = ' + fmtN(C_F * mv.fn(3)) + ' A uses the height', 'The current follows the slope'] },\n        right: { t: fmtN(cur(mv, 3)) + ' mA' },\n        noc: { t: fmtN(rate(mv, 3)) + ' A', mark: { tanLab: 'slope ' + fmtN(rate(mv, 3)) + ' V per s' }, rows: [fmtN(rate(mv, 3)) + ' is the slope, in V per s', 'Times 0.01 F, it gives amps'] },\n      } },\n  ];\n  const FINISH = 'Read a derivative in its units, so much per so much: current is how fast charge flows, `i = dq/dt`; a capacitor\\'s current is its capacitance times how fast its voltage changes; velocity is how fast displacement changes, and acceleration how fast velocity changes.';\n  // The lesson's sources the checks restate.\n  const LT_I = 'https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/09:_Current_and_Resistance/9.02:_Electrical_Current';\n  const NIST = 'https://www.nist.gov/si-redefinition/ampere-introduction';\n  const CAPS = 'https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/DC_Electrical_Circuit_Analysis_-_A_Practical_Approach_(Fiore)/08%3A_Capacitors/8.2%3A_Capacitance_and_Capacitors';\n  const GOV = 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus';\n  const OS_C = 'https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules';\n  const LT_L = 'https://workforce.libretexts.org/@api/deki/pages/1124/pdf/15.2%253A%2bInductors%2band%2bCalculus.pdf';\n  const FADE = 0.35, FB = [1.3, 1.2];\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // p, seen: where Dan has dragged P and the half steps it has visited.\n  function blank() { return { pick: null, res: null, why: false, p: null, seen: null }; }\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion\n  let REC = null, checking = false;\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[qtivsCL](?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === 'right' ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    const st = S[at()]; st.p = null; st.seen = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');\n  let into = null, AV = [], LQ = [], KEY = [];   // AV: lines and shapes labels keep clear of; LQ: labels waiting; KEY: the key's entries\n  const add = (node) => (into || art).appendChild(node);\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g; draw(); into = keep;\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));\n  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));\n  // Text in the drawing: letters inside backticks are the rule's letters, set in italics.\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    String(s).split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); });\n    return add(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    s = String(s).replace(/`/g, '');\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 13 * 0.6;\n  }\n  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.\n  const queue = (a, items) => { items = items.filter((it) => it.text); if (a > 0 && items.length) LQ.push({ a, items }); };\n  function flushLabels() {\n    const list = LQ; LQ = [];\n    list.forEach((q) => part(q.a, 4, () => {\n      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text, anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });\n      ts.forEach((t) => { REC.labs.push(t.textContent); if (/\\bbad\\b/.test(t.getAttribute('class') || '')) REC.bad++; });\n    }));\n  }\n\n  // ---------- the linked graphs: the rule on top, what its slope gives below, one time across ----------\n  const PL = 52, PR = 318;\n  const LAY = { 2: [[56, 124], [238, 108]], 3: [[56, 96], [206, 76], [336, 76]] };\n  function panes(g) {\n    if (g._p) return g._p;\n    const rs = g.e ? [g.y, g.d, g.e] : [g.y, g.d], ns = [g.yn, g.dn, g.en];\n    g._p = rs.map((r, k) => { const L = LAY[rs.length][k]; return { k, T: L[0], H: L[1], B: L[0] + L[1], r, name: ns[k] }; });\n    return g._p;\n  }\n  const lastK = (g) => panes(g).length - 1;\n  const X = (g, v) => PL + (v - g.x[0]) / (g.x[1] - g.x[0]) * (PR - PL);\n  const Yk = (g, k, v) => { const P = panes(g)[k]; return P.B - (v - P.r[0]) / (P.r[1] - P.r[0]) * P.H; };\n  const inR = (g, k, v) => { const r = panes(g)[k].r; return v >= r[0] - 1e-9 && v <= r[1] + 1e-9; };\n  // Gridlines (one time across every graph), the axes (through zero where zero is in view), numbers\n  // and the graph's name. A sketch has no numbers.\n  function drawFrame(g, P) {\n    const r = P.r, B = P.B, T0 = P.T;\n    if (!g.sketch) {\n      for (let v = r[0]; v <= r[1] + 1e-9; v += r[2]) { const y = Yk(g, P.k, v); if (v > r[0] + 1e-9 && Math.abs(v) > 1e-9) line('grid', PL, y, PR, y); text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end'); }\n      for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.x[2]) { const x = X(g, v); if (v > g.x[0] + 1e-9) line('grid', x, T0, x, B); line('mtick', x, B, x, B + 5); text(x, B + 17, fmtN(v), 'tick'); }\n    }\n    const zy = r[0] < 0 && r[1] > 0 ? Yk(g, P.k, 0) : null;\n    if (zy != null) line('grid', PL, B, PR, B);\n    AV.push(line('axis', PL, zy == null ? B : zy, PR + 6, zy == null ? B : zy), line('axis', PL, T0 - 6, PL, B));\n    text(12, T0 - 14, P.name, 'aname', 'start');\n  }\n  function curveD(g) {\n    const xs = K.linspace(g.x[0], g.x[1], 121).concat(g.corners || []).sort((a, b) => a - b);\n    return xs.map((x, k) => (k ? 'L' : 'M') + r3(X(g, x)) + ' ' + r3(Yk(g, 0, g.fn(x)))).join(' ');\n  }\n  // The steady supply's voltage, a dashed line the charging voltage creeps up to.\n  function drawSupply(g) {\n    const y = Yk(g, 0, g.sup);\n    AV.push(line('ref', PL, y, PR, y));\n    queue(1, [{ x: X(g, 0.15), y: y - 7, text: 'supply\\'s voltage', anchor: 'start', cls: 'soft' }]);\n  }\n  // What is left across the resistor: a bracket from P up to the supply's voltage, shrinking as P climbs.\n  function drawLeft(g, x) {\n    const bx = X(g, x) + 14, y0 = Yk(g, 0, g.sup), y1 = Yk(g, 0, g.fn(x)), gap = y1 - y0;\n    if (gap < 4) return;\n    part(1, 0, () => AV.push(line('brk', bx, y0, bx, y1), line('brk', bx - 4, y0, bx + 4, y0), line('brk', bx - 4, y1, bx + 4, y1)));\n    REC.left = gap;\n    queue(K.clamp((gap - 16) / 12, 0, 1), [{ x: bx + 8, y: (y0 + y1) / 2 + 5, text: 'across the resistor', anchor: 'start', cls: 'soft' }]);\n  }\n  // The stretch of a straight line through (x0, y0) with slope m that lies inside the top graph.\n  function clipLine(g, x0, y0, m) {\n    let a = g.x[0], b = g.x[1];\n    if (Math.abs(m) > 1e-12) {\n      const u = x0 + (g.y[0] - y0) / m, w = x0 + (g.y[1] - y0) / m;\n      a = Math.max(a, Math.min(u, w)); b = Math.min(b, Math.max(u, w));\n    } else if (y0 < g.y[0] || y0 > g.y[1]) return null;\n    return b > a ? [[a, y0 + m * (a - x0)], [b, y0 + m * (b - x0)]] : null;\n  }\n  // P on the top graph, with its name.\n  function drawP(g, x, a, halo) {\n    const px = X(g, x), py = Yk(g, 0, g.fn(x));\n    REC.P = [px, py]; REC.p = x;\n    if (a <= 0) return;\n    part(a, 0, () => { if (halo) AV.push(circle('halo', px, py, 13)); AV.push(circle('pt', px, py, 7)); });\n    queue(a, [{ x: px - 10, y: py - 10, text: 'P', anchor: 'end' }]);\n  }\n  // The tangent at P: the line through P with the slope the chords settle on.\n  function drawTangent(g, x, a) {\n    if (a <= 0) return;\n    const s = clipLine(g, x, g.fn(x), rate(g, x));\n    if (!s) return;\n    const c = { x1: X(g, s[0][0]), y1: Yk(g, 0, s[0][1]), x2: X(g, s[1][0]), y2: Yk(g, 0, s[1][1]) };\n    part(a, 0, () => AV.push(line('tan', c.x1, c.y1, c.x2, c.y2)));\n    REC.tan = c;\n    KEY.push({ cls: 'tan', text: 'tangent', a });\n  }\n  // The dotted drop from P to graph k below (to its foot while the answer is still a question), broken\n  // between the graphs where their numbers and names sit. grow: how far it has dropped.\n  function drawGuide(g, x, k, v, grow, a) {\n    if (grow <= 0 || a <= 0) return;\n    const PS = panes(g), px = X(g, x), segs = [];\n    for (let j = 0; j <= k; j++) {\n      const P = PS[j], y0 = j === 0 ? Yk(g, 0, g.fn(x)) + 10 : P.T, y1 = j === k ? (v == null ? P.B : Yk(g, k, v) - 8) : P.B;\n      if (y1 > y0) segs.push([y0, y1]);\n    }\n    let left = grow * segs.reduce((s, q) => s + q[1] - q[0], 0);\n    part(a, 0, () => segs.forEach((q) => { if (left <= 0) return; const L = Math.min(left, q[1] - q[0]); AV.push(line('drop', px, q[0], px, q[0] + L)); left -= L; }));\n  }\n  // The trail on graph k: a line through what the slope gives over each stretch P has covered (broken\n  // at a corner, where the slope jumps), and a dot at each half step, every height worked out from the rule.\n  function drawTrail(g, k, runs, xs, a, r) {\n    if (a <= 0) return;\n    part(a, 0, () => {\n      runs.forEach((rn) => pieces(g, rn[0], rn[1]).forEach((pc) => {\n        const lo = pc[0], hi = pc[1], n = Math.max(2, Math.ceil((hi - lo) / (g.x[1] - g.x[0]) * 60));\n        let s = '', on = false;\n        for (let j = 0; j <= n; j++) {\n          const x = lo + (hi - lo) * j / n, v = val(g, k, x);\n          if (!inR(g, k, v)) { on = false; continue; }\n          s += (on ? ' L' : ' M') + r3(X(g, x)) + ' ' + r3(Yk(g, k, v)); on = true;\n        }\n        if (s) AV.push(path('dline', s.trim()));\n      }));\n      xs.forEach((x) => {\n        if (isCorner(g, x)) return;\n        const v = val(g, k, x);\n        if (!inR(g, k, v)) return;\n        const px = X(g, x), py = Yk(g, k, v);\n        AV.push(circle('dot', px, py, r || 3.5));\n        REC.dots.push({ k, x, px, py });\n      });\n    });\n    KEY.push({ cls: 'trail', text: 'from the slope', a });\n  }\n  // The dot P is dropping now on graph k, straight below it.\n  function drawLive(g, k, x, a) {\n    if (a <= 0) return;\n    const v = val(g, k, x);\n    if (!inR(g, k, v)) return;\n    const px = X(g, x), py = Yk(g, k, v);\n    part(a, 0, () => AV.push(circle('dot now', px, py, 6)));\n    REC.live.push({ k, x, px, py });\n    KEY.push({ cls: 'trail', text: 'from the slope', a });\n  }\n  // Where a dot's value is named: above or below it, right or left, inside its own graph and clear of\n  // the zero line.\n  function valSpot(g, k, x, s) {\n    const P = panes(g)[k], px = X(g, x), py = Yk(g, k, val(g, k, x)), w = tw(s, 'lab') + 2;\n    const zy = P.r[0] < 0 && P.r[1] > 0 ? Yk(g, k, 0) : null;\n    const ok = (x0, b) => {\n      const top = b - 11, bot = b + 3;\n      if (x0 < PL + 2 || x0 + w > PR + 14 || bot > P.B - 2 || top < P.T + 1) return false;\n      return !(zy != null && top < zy + 3 && bot > zy - 3);\n    };\n    const cands = [[px + 10, py - 9, 'start'], [px - 10, py - 9, 'end'], [px + 10, py + 19, 'start'], [px - 10, py + 19, 'end'], [px + 12, py - 22, 'start'], [px - 12, py - 22, 'end']];\n    for (const c of cands) if (ok(c[2] === 'end' ? c[0] - w : c[0], c[1])) return c;\n    return cands[0];\n  }\n  function valLabel(g, k, x, a, s) {\n    if (a <= 0) return;\n    const v = val(g, k, x);\n    s = s || lab(g, k, v);\n    if (!s || !inR(g, k, v)) return;\n    const c = valSpot(g, k, x, s);\n    queue(a, [{ x: c[0], y: c[1], text: s, anchor: c[2] }]);\n  }\n  // The key, under the lowest graph on the left.\n  function drawKey(y) {\n    const seen = {}, list = [];\n    KEY.forEach((k) => { if (k.a <= 0) return; if (seen[k.cls]) { seen[k.cls].a = Math.max(seen[k.cls].a, k.a); return; } seen[k.cls] = Object.assign({}, k); list.push(seen[k.cls]); });\n    const order = ['tan', 'trail'];\n    list.sort((a, b) => order.indexOf(a.cls) - order.indexOf(b.cls));\n    let x = 12;\n    list.forEach((k) => {\n      const x0 = x;\n      part(k.a, 0, () => {\n        if (k.cls === 'trail') { line('dline', x0, y - 4.5, x0 + 22, y - 4.5); circle('dot', x0 + 11, y - 4.5, 3.5); } else line(k.cls, x0, y - 4.5, x0 + 22, y - 4.5);\n        text(x0 + 28, y, k.text, 'key', 'start');\n      });\n      x += 28 + tw(k.text, 'key') + 18;\n    });\n  }\n  // ---------- the working under the drawing, one line each ----------\n  function drawRows(G, RW) {\n    RW.forEach((r, n) => {\n      const a = r.a != null ? r.a : vis(r.t);\n      part(a, 4, () => {\n        const t = text(12, G.rowsY + 18 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start');\n        try { if (t.getComputedTextLength() > 314) t.style.fontSize = '13.5px'; } catch (e) { /* measured again next paint */ }\n      });\n      if (a >= 0.5) REC.rows.push(r.s);\n      if (r.bad && a > 0) REC.bad++;\n    });\n  }\n\n  // ---------- the SHOW screens ----------\n  // A tour of the graphs: P travels, its tangent riding with it, and what its slope gives drops a dot\n  // straight below on each graph. Once Dan drags P the tour gives way to his trail.\n  const tourEnd = (d) => (d.tour.legs.length ? d.tour.legs[d.tour.legs.length - 1].to : d.tour.x0);\n  function finalTrail(d) {\n    const tr = d.tour, g = GR[d.g];\n    if (tr.mode === 'stops') return [tr.x0].concat(tr.legs.map((Lg) => Lg.to));\n    const ends = [tr.x0].concat(tr.legs.map((Lg) => Lg.to));\n    return halvesIn(g, Math.min.apply(null, ends), Math.max.apply(null, ends));\n  }\n  function drawTour(d, st, G, RW) {\n    const g = G.g, tr = d.tour, own = st.p != null, pa = own ? 1 : vis(0.4), L = lastK(g);\n    const each = (fn) => { for (let k = 1; k <= L; k++) fn(k); };\n    let x = tr.x0, rx = x, la = 1, lb = 1;\n    if (own) {\n      x = st.p; rx = x;\n      each((k) => drawTrail(g, k, runsOf(g, st.seen), st.seen, 1));\n      drawGuide(g, x, L, val(g, L, x), 1, 1);\n      each((k) => drawLive(g, k, x, 1));\n    } else if (tr.mode === 'stops') {\n      // P stops at each place, its dot drops, then it moves on.\n      let n0 = 0, moving = false;\n      for (let n = 0; n < tr.legs.length; n++) {\n        const Lg = tr.legs[n];\n        if (T < Lg.t) break;\n        if (T < Lg.t + Lg.len) { moving = true; x = K.lerp(x, Lg.to, K.ease((T - Lg.t) / Lg.len)); break; }\n        x = Lg.to; rx = x; n0 = n + 1;\n      }\n      const stops = [tr.x0].concat(tr.legs.map((Lg) => Lg.to));\n      stops.forEach((sx, j) => each((k) => drawTrail(g, k, [], [sx], arr(tr.drops[j] + 0.25, 0.35), 5)));\n      if (moving) {\n        la = 1 - K.arrive(T, tr.legs[n0].t, 0.3); lb = la;\n        drawGuide(g, rx, L, val(g, L, rx), 1, la);\n      } else {\n        lb = arr(tr.drops[n0] + 0.25, 0.35);\n        drawGuide(g, rx, L, val(g, L, rx), arr(tr.drops[n0], 0.35), 1);\n        each((k) => drawLive(g, k, rx, lb));\n        la = n0 === 0 ? 1 : arr(tr.drops[n0], 0.5);\n      }\n    } else {\n      // P sweeps along, dropping what its slope gives all the way; the trail grows behind it.\n      for (let n = 0; n < tr.legs.length; n++) {\n        const Lg = tr.legs[n];\n        if (T < Lg.t) break;\n        if (T < Lg.t + Lg.len) { la = 1 - K.arrive(T, Lg.t, 0.3); x = K.lerp(x, Lg.to, K.ease((T - Lg.t) / Lg.len)); break; }\n        x = Lg.to; rx = x; la = arr(Lg.t + Lg.len, 0.5);\n      }\n      const lo = Math.min(x, tr.x0), hi = Math.max(x, tr.x0);\n      each((k) => drawTrail(g, k, [[lo, hi]], halvesIn(g, lo, hi), pa));\n      drawGuide(g, x, L, val(g, L, x), pa, 1);\n      each((k) => drawLive(g, k, x, pa));\n      lb = Math.min(la, pa);\n    }\n    if (lb > 0) each((k) => valLabel(g, k, rx, lb));\n    if (g.sup) drawLeft(g, x);\n    drawTangent(g, x, 1);\n    drawP(g, x, 1, d.drag && !finished);\n    d.rowsAt(rx).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: la }));\n    return [[X(g, x), Yk(g, 0, g.fn(x)), x]];\n  }\n\n  // ---------- the puzzles ----------\n  // Before Check the working ends in a question mark and P's drop ends in \"?\"; after it, the answer\n  // (the tangent and P's dot below), or the slip drawn in red.\n  function puzzleRows(d, k, o, RW) {\n    if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n < d.pre.length - 1 }));\n    else if (k === 'right') d.right.forEach((s, n) => RW.push(n === 0 ? { s, soft: true } : { s, big: n === d.right.length - 1, t: 0.2 + 0.2 * n }));\n    else { RW.push({ s: d.pre[0], soft: true }); o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.2 + 0.2 * n })); }\n  }\n  function drawRedLine(g, k, fn, a, txt, pos) {\n    let s = '', on = false;\n    K.linspace(g.x[0], g.x[1], 51).forEach((x) => { const v = fn(x); if (inR(g, k, v)) { s += (on ? ' L' : ' M') + r3(X(g, x)) + ' ' + r3(Yk(g, k, v)); on = true; } else on = false; });\n    part(a, 0, () => AV.push(path('dline bad', s.trim())));\n    queue(a, [{ x: X(g, pos[0]), y: Yk(g, k, pos[1]), text: txt, anchor: pos[2] || 'middle', cls: 'bad' }]);\n  }\n  function drawSlipG(g, p, mk, a) {\n    const L = lastK(g);\n    if (mk.height) {   // a guide to P's height: the amount, read as if it were the rate\n      const y = Yk(g, 0, g.fn(p));\n      part(a, 0, () => AV.push(line('slip', PL + 2, y, X(g, p) - 9, y)));\n      queue(a, [{ x: PL + 8, y: y - 8, text: amt(g, g.fn(p)), anchor: 'start', cls: 'bad' }]);\n      REC.bad++;\n    }\n    if (mk.chord) {   // the chord from the start to P: an average, not the rate now\n      const x0 = X(g, g.x[0]), y0 = Yk(g, 0, g.fn(g.x[0])), x1 = X(g, p), y1 = Yk(g, 0, g.fn(p));\n      part(a, 0, () => AV.push(line('slip', x0, y0, x1, y1)));\n      queue(a, [{ x: PL + 8, y: y1 + 4, text: 'chord from the start', anchor: 'start', cls: 'bad' }]);\n      REC.bad++;\n    }\n    if (mk.tan) drawTangent(g, p, a);\n    if (mk.note) { queue(a, [{ x: X(g, p) - 12, y: Yk(g, 0, g.fn(p)) + 24, text: mk.note, anchor: 'end', cls: 'bad' }]); REC.bad++; }\n    if (mk.dot) {   // a red dot at the wrong value, below P\n      const k = mk.dot.k != null ? mk.dot.k : L, px = X(g, p), py = Yk(g, k, mk.dot.v), w = tw(mk.dot.text, 'lab');\n      part(a, 0, () => AV.push(circle('dot bad', px, py, 6)));\n      queue(a, [px + 11 + w > 334 ? { x: px - 12, y: py - 9, text: mk.dot.text, anchor: 'end', cls: 'bad' } : { x: px + 11, y: py - 8, text: mk.dot.text, anchor: 'start', cls: 'bad' }]);\n      REC.bad++;\n    }\n    if (mk.line) { drawRedLine(g, mk.line.k, mk.line.fn, a, mk.line.text, mk.line.at); REC.bad++; }\n    if (mk.tanLab) {   // the tangent's slope, read as if it were already the current\n      drawTangent(g, p, a);\n      queue(a, [{ x: X(g, p) - 14, y: Yk(g, 0, g.fn(p)) - 12, text: mk.tanLab, anchor: 'end', cls: 'bad' }]);\n      REC.bad++;\n    }\n  }\n  function drawPuzzleG(d, st, G, RW) {\n    const g = G.g, L = lastK(g), k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, a = arr(0.1), o = k ? d.o[k] : null, kn = d.known || {};\n    const p = o && o.at != null ? o.at : d.p;\n    if (kn.trail) drawTrail(g, L, [kn.trail], halvesIn(g, kn.trail[0], kn.trail[1]), 1);\n    if (kn.mid) { drawTrail(g, 1, [[g.x[0], g.x[1]]], halvesIn(g, g.x[0], g.x[1]), 1); drawLive(g, 1, d.p, 1); valLabel(g, 1, d.p, 1); }\n    if (k === 'right') {\n      drawTangent(g, p, a);\n      if (o.all) drawTrail(g, L, [[g.x[0], g.x[1]]], halvesIn(g, g.x[0], g.x[1]), a);\n      drawGuide(g, p, L, val(g, L, p), a, 1);\n      drawLive(g, L, p, a);\n      valLabel(g, L, p, a, o.lab);\n    } else if (p != null) drawGuide(g, p, L, null, 1, 1);\n    if (!k) queue(1, [{ x: (p != null ? X(g, p) : X(g, (g.x[0] + g.x[1]) / 2)) + 9, y: panes(g)[L].T + 24, text: '?', anchor: 'start' }]);\n    if (p != null) drawP(g, p, 1, false);\n    if (o && o.mark) drawSlipG(g, p, o.mark, a);\n    puzzleRows(d, k, o, RW);\n  }\n\n  // ---------- each step's sizes ----------\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const g = GR[d.g], PS = panes(g), rowsY = PS[PS.length - 1].B + 40, G = { g, rowsY, H: Math.ceil(rowsY + 26 * d.rows + 12) };\n    GEO.set(d, G);\n    return G;\n  }\n  // The step's picture: the graphs, then what this screen shows on them, then the key and the working.\n  function drawScene(d, st, G) {\n    const RW = [], g = G.g, PS = panes(g), foot = PS[PS.length - 1].B + 36;\n    REC = { rows: [], labs: [], bad: 0, dots: [], live: [], tan: null, P: null, p: null, G };\n    AV = []; LQ = []; KEY = [];\n    text(12, 20, g.who, 'tag', 'start');\n    PS.forEach((P) => drawFrame(g, P));\n    text(PR + 8, foot, g.xn || '`t` in seconds', 'aname', 'end');\n    AV.push(path('curve', curveD(g)));\n    if (g.sup) drawSupply(g);\n    let grips = [];\n    if (d.draw) grips = d.draw(d, st, G, RW) || []; else drawPuzzleG(d, st, G, RW);\n    drawKey(foot);\n    drawRows(G, RW);\n    flushLabels();\n    placeGrip(d, grips);\n    return 'Above, ' + say(g.who) + (REC.P ? ', with the point P on it' : '') + '; below, ' + PS.slice(1).map((P) => say(P.name)).join(', then ') + '. ' + REC.rows.map(say).join('. ');\n  }\n\n  // ---------- dragging P along the top graph (the SHOW screens) ----------\n  // P lands on half steps inside the axes, never on a corner, and leaves a dot at every half step it passes.\n  const snapP = (g, v) => {\n    let n = K.clamp(Math.round(v * 2) / 2, g.x[0], g.x[1]);\n    if (isCorner(g, n)) n = K.clamp(n + (v >= n ? 0.5 : -0.5), g.x[0], g.x[1]);\n    return n;\n  };\n  const dragOn = () => !finished && !!STEPS[at()].drag;\n  const curP = () => { const d = STEPS[at()], st = S[at()]; return st.p != null ? st.p : tourEnd(d); };\n  function setP(v) {\n    const i = at(), d = STEPS[i], st = S[i], g = GR[d.g], n = snapP(g, v);\n    if (st.p === n && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    const from = curP();\n    st.seen = uniq(g, (st.seen || finalTrail(d)).concat(halvesIn(g, Math.min(from, n), Math.max(from, n))));\n    T = Infinity; st.p = n;\n    K.reveal(); K.refresh();\n  }\n  function svgPoint(e) {\n    const ctm = svg.getScreenCTM();\n    return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null;\n  }\n  let held = null;\n  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': 'Point P' }));\n  grip.style.display = 'none';\n  grip.addEventListener('pointerdown', (e) => {\n    if (!dragOn()) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }\n    e.preventDefault();\n  });\n  grip.addEventListener('pointermove', (e) => {\n    if (held !== e.pointerId || !dragOn()) return;\n    const q = svgPoint(e), g = GR[STEPS[at()].g];\n    if (q) setP(g.x[0] + (q.x - PL) / (PR - PL) * (g.x[1] - g.x[0]));\n  });\n  const letGo = (e) => { if (held === e.pointerId) held = null; };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n  grip.addEventListener('keydown', (e) => {\n    if (!dragOn()) return;\n    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];\n    if (by == null) return;\n    e.preventDefault();\n    setP(curP() + 0.5 * by);\n  });\n  function placeGrip(d, list) {\n    if (checking) return;\n    const on = !!d.drag && !finished && list.length > 0;\n    grip.style.display = on ? '' : 'none';\n    grip.setAttribute('tabindex', on ? '0' : '-1');\n    if (!on) return;\n    const g = GR[d.g];\n    grip.setAttribute('cx', r3(list[0][0])); grip.setAttribute('cy', r3(list[0][1]));\n    grip.setAttribute('aria-valuemin', g.x[0]); grip.setAttribute('aria-valuemax', g.x[1]); grip.setAttribute('aria-valuenow', list[0][2]);\n    grip.setAttribute('aria-valuetext', fmtN(list[0][2]) + ' s');\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d);\n    art.textContent = '';\n    into = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    svg.setAttribute('aria-label', drawScene(d, st, G));\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.p = null; st.seen = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(labs[k]);\n      b.el.textContent = '';\n      b.el.appendChild(K.el('span', {}, labs[k]));\n      b.el.setAttribute('aria-label', say(labs[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });\n  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const close = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A height on graph k, and a line's slope on the top graph, read back through the axes.\n  const readV = (g, k, py) => { const P = panes(g)[k]; return P.r[0] + (P.B - py) / P.H * (P.r[1] - P.r[0]); };\n  const tanSlope = (c, g) => { const P = panes(g)[0]; return (-(c.y2 - c.y1) / P.H * (P.r[1] - P.r[0])) / ((c.x2 - c.x1) / (PR - PL) * (g.x[1] - g.x[0])); };\n  const onLine = (c, pt) => Math.abs((c.x2 - c.x1) * (pt[1] - c.y1) - (c.y2 - c.y1) * (pt[0] - c.x1)) / Math.hypot(c.x2 - c.x1, c.y2 - c.y1) < 1e-6;\n  // Chords from both sides, ever shorter, settle on the slope the page uses.\n  const settles = (g, x) => [1e-3, 1e-5].every((e) => Math.abs(slope(g, x, x + e) - rate(g, x)) < 1e-2 && Math.abs(slope(g, x - e, x) - rate(g, x)) < 1e-2);\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t; checking = true;\n    try {\n      paint(i);\n      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), dots: REC.dots.slice(), live: REC.live.slice() });\n    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }\n  }\n  const dragged = (g, p, lo) => Object.assign(blank(), { p, seen: halvesIn(g, lo, p) });\n\n  K.check('The instantaneous current is the time derivative of the charge that flows: on every charge screen each dot below sits straight under its time, as high as the slope the chords there settle on from either side, and the tangent through P has that slope', () =>\n    STEPS.every((d, i) => {\n      if (['steady', 'growing', 'mixq'].indexOf(d.g) < 0) return true;\n      const g = GR[d.g], states = d.show ? [blank(), dragged(g, 2.5, 1.5)] : [solvedSt()];\n      return states.every((st) => {\n        const h = drawn(i, st), ds = h.dots.filter((q) => q.k === 1), lv = h.live.filter((q) => q.k === 1);\n        return (!d.show || ds.length > 0) && ds.every((q) => close(q.px, X(g, q.x)) && settles(g, q.x) && close(readV(g, 1, q.py), rate(g, q.x))) &&\n          lv.length === 1 && close(lv[0].px, h.P[0]) && close(readV(g, 1, lv[0].py), rate(g, h.p)) && settles(g, h.p) &&\n          !!h.tan && close(tanSlope(h.tan, g), rate(g, h.p)) && onLine(h.tan, h.P);\n      });\n    }), { source: LT_I });\n  K.check('One ampere is the current in which one coulomb of charge passes a point each second: the charge line climbing 3 C every second drops every dot at 3 A, wherever P goes', () => {\n    const i = idx('A steady 3 C each second'), hs = [drawn(i, blank()), drawn(i, dragged(cb, 5, 0))];\n    const at3 = (h) => { const ds = h.dots.filter((q) => q.k === 1); return ds.length >= 3 && ds.every((q) => close(readV(cb, 1, q.py), 3)); };\n    return cb.fn(1) - cb.fn(0) === 3 && hs.every(at3) && hs[1].dots.filter((q) => q.k === 1).length === 11;\n  }, { source: NIST });\n  K.check('The current through a capacitor is equal to the capacitance times the slope of its voltage graph: on every capacitor screen each dot below reads 0.01 F × that slope, in mA, so 50 mA while the voltage climbs 5 V each second and 0 while it holds', () => {\n    const all = STEPS.every((d, i) => {\n      if (['cap', 'held', 'mixv'].indexOf(d.g) < 0) return true;\n      const g = GR[d.g], states = d.show ? [blank(), dragged(g, 6, 2)] : [solvedSt()];\n      return states.every((st) => {\n        const h = drawn(i, st), ds = h.dots.filter((q) => q.k === 1).concat(h.live.filter((q) => q.k === 1));\n        return ds.length > 0 && ds.every((q) => close(readV(g, 1, q.py), C_F * rate(g, q.x) * MA) && settles(g, q.x));\n      });\n    });\n    const h = drawn(idx('A capacitor'), blank()), ds = h.dots.filter((q) => q.k === 1);\n    return all && ds.length > 8 && ds.every((q) => close(readV(cp, 1, q.py), q.x < 4 ? 50 : 0)) && !!h.tan && close(tanSlope(h.tan, cp), rate(cp, h.p));\n  }, { source: CAPS });\n  K.check('Velocity from the displacement-time function and acceleration from the velocity-time function: on both motion screens the middle dots read the slope of the displacement graph (2t for the boat, 8 − 2t for the trolley) and the bottom dots the slope of the velocity graph (2, then −2)', () => {\n    const b = drawn(idx('Velocity and acceleration'), blank()), t = drawn(idx('The trolley at the top'), solvedSt());\n    const vOK = (h, g, f) => { const ds = h.dots.filter((q) => q.k === 1); return ds.length > 3 && ds.every((q) => close(readV(g, 1, q.py), f(q.x)) && settles(g, q.x)); };\n    const aOK = (h, g, a) => { const ds = h.dots.filter((q) => q.k === 2).concat(h.live.filter((q) => q.k === 2)); return ds.length > 0 && ds.every((q) => close(readV(g, 2, q.py), a) && close((val(g, 1, q.x + 0.5) - val(g, 1, q.x)) / 0.5, a)); };\n    return vOK(b, bt, (x) => 2 * x) && aOK(b, bt, 2) && vOK(t, tl, (x) => 8 - 2 * x) && aOK(t, tl, -2);\n  }, { source: GOV });\n  K.check('The derivative of a constant function is zero: wherever a voltage or a current holds steady (the capacitor at 20 V and at 50 V, the coil at 8 A, the coil before and after the switch-off) its rate below is 0', () =>\n    [4.5, 5, 6, 7, 8].every((x) => cur(cp, x) === 0) && [10.5, 11, 12].every((x) => cur(ch, x) === 0) && [2.5, 3, 3.5].every((x) => cur(co, x) === 0) &&\n    [0, 0.01, 0.015, 0.035, 0.05].every((x) => cur(sw, x) === 0) &&\n    drawn(idx('A capacitor'), blank()).dots.filter((q) => q.k === 1 && q.x > 4).every((q) => close(readV(cp, 1, q.py), 0)), { source: OS_C });\n  K.check('Charging through a resistor (the sketch): the charge, and so the voltage, climbs at every step but stays under the supply\\'s voltage, and the current below falls at every step towards zero, largest at the start and nearly 0 by the end; the bracket for what is left across the resistor shrinks as P climbs', () => {\n    const ci = idx('Charging through a resistor'), l1 = drawn(ci, dragged(sk, 0.5, 0)).left, l2 = drawn(ci, dragged(sk, 1.5, 0)).left;\n    if (!(l1 > l2 && l2 > 0)) return false;\n    const xs = halvesIn(sk, 0, 5);\n    const up = xs.every((x, j) => j === 0 || (sk.fn(x) > sk.fn(xs[j - 1]) && sk.fn(x) < sk.sup));\n    const down = xs.every((x, j) => j === 0 || cur(sk, x) < cur(sk, xs[j - 1]));\n    const h = drawn(idx('Charging through a resistor'), blank()), ds = h.dots.filter((q) => q.k === 1);\n    return up && down && cur(sk, 5) < cur(sk, 0) / 10 && ds.length === 11 && ds.every((q, j) => j === 0 || q.py > ds[j - 1].py);\n  }, { source: LT_I });\n  K.check('The voltage across a coil is the derivative of its current, times its inductance: on both coil screens each dot below reads 0.5 H × the slope of the current graph, so 2 V while it climbs 4 A each second, 0 while it holds, −2 V while it falls and −100 V switched off', () => {\n    const all = STEPS.every((d, i) => {\n      if (['coil', 'off'].indexOf(d.g) < 0) return true;\n      const g = GR[d.g], states = d.show ? [blank(), dragged(g, 5, 1)] : [solvedSt()];\n      return states.every((st) => {\n        const h = drawn(i, st), ds = h.dots.filter((q) => q.k === 1).concat(h.live.filter((q) => q.k === 1));\n        return ds.length > 0 && ds.every((q) => close(readV(g, 1, q.py), L_H * rate(g, q.x)) && settles(g, q.x));\n      });\n    });\n    const ds = drawn(idx('A coil'), blank()).dots.filter((q) => q.k === 1);\n    return all && ds.length > 6 && ds.some((q) => close(readV(co, 1, q.py), 2)) && ds.some((q) => close(readV(co, 1, q.py), 0)) && ds.some((q) => close(readV(co, 1, q.py), -2));\n  }, { source: LT_L });\n  K.check('From the rules, by hand: 3t gives 3 A; 0.5t² at 4 s is 8 C, slope 4, chord 8 ÷ 4 = 2; the capacitor climbing 5 V per s gives 0.01 × 5 = 0.05 A = 50 mA, and 0 held at 20 V or 50 V (0.01 × 50 = 0.5); the coil gives 0.5 × 4 = 2 V, 0 and −2 V; switched off, −2 ÷ 0.01 = −200 A per s and −100 V (0.5 × 2 = 1); the boat at 3 s is 9 m, 6 m per s, 2; the trolley at 4 s is 16 m, 0, −2; 2t² + 3t at 2 s is 14 C and 11 A (19 with the power kept); t² volts at 3 s is 9 V, slope 6, 60 mA (90 from the height); and the screens\\' words quote these values', () => {\n    const nums = rate(cb, 2) === 3 && cur(cb, 2) === 3 &&\n      cg.fn(4) === 8 && rate(cg, 4) === 4 && cur(cg, 4) === 4 && cg.fn(4) / 4 === 2 &&\n      rate(cp, 2) === 5 && cur(cp, 2) === 50 && close(cur(cp, 2) / MA, 0.05) && cp.fn(6) === 20 && cur(cp, 6) === 0 &&\n      ch.fn(11) === 50 && close(C_F * ch.fn(11), 0.5) && cur(ch, 11) === 0 && cur(ch, 5) === 50 &&\n      rate(co, 1) === 4 && cur(co, 1) === 2 && cur(co, 3) === 0 && rate(co, 5) === -4 && cur(co, 5) === -2 &&\n      rate(sw, 0.025) === -200 && cur(sw, 0.025) === -100 && L_H * 2 === 1 &&\n      bt.fn(3) === 9 && rate(bt, 3) === 6 && rate2(bt, 3) === 2 && K2(bt) === 2 &&\n      tl.fn(4) === 16 && rate(tl, 4) === 0 && rate2(tl, 4) === -2 &&\n      mq.fn(2) === 14 && rate(mq, 2) === 11 && keepPow(2) === 19 &&\n      mv.fn(3) === 9 && rate(mv, 3) === 6 && cur(mv, 3) === 60 && close(C_F * mv.fn(3) * MA, 90);\n    const has = (name, key, bits) => { const v = key.split('.').reduce((o, k) => o[k], STEPS[idx(name)]); return bits.every((b) => v.indexOf(b) >= 0); };\n    const words = has('A steady 3 C each second', 'text', ['steady ' + fmtN(rate(cb, 1)) + ' C every second', 'current is ' + fmtN(cur(cb, 1)) + ' A']) &&\n      has('The current at 4 s', 'why', ['at 4 s the current is ' + fmtN(cur(cg, 4)) + ' A', '0.5 × 16 = ' + fmtN(cg.fn(4)), '8 ÷ 4 = ' + fmtN(cg.fn(4) / 4)]) &&\n      has('A capacitor', 'text', ['climbs ' + fmtN(rate(cp, 1)) + ' V each second', '0.01 × 5 = ' + fmtN(cur(cp, 1) / MA), fmtN(cur(cp, 1)) + ' mA', 'holds at ' + fmtN(cp.fn(6)) + ' V']) &&\n      has('Held at 50 V', 'why', ['0.01 × 50 = ' + fmtN(C_F * ch.fn(11)), fmtN(cur(ch, 5)) + ' mA']) &&\n      has('A coil', 'text', ['climbs ' + fmtN(rate(co, 1)) + ' A each second', '0.5 × 4 = ' + fmtN(cur(co, 1)), fmtN(cur(co, 5)) + ' V']) &&\n      has('Switched off fast', 'task', ['−2 ÷ 0.01 = ' + fmtN(rate(sw, 0.025))]) && has('Switched off fast', 'why', ['0.5 × −200 = ' + fmtN(cur(sw, 0.025)), '0.5 × 2 = ' + fmtN(L_H * 2)]) &&\n      has('Velocity and acceleration', 'text', ['at 3 s is ' + fmtN(bt.fn(3)) + ' m', '2 × 3 = ' + fmtN(rate(bt, 3)), 'acceleration is ' + fmtN(rate2(bt, 3))]) &&\n      has('The trolley at the top', 'task', ['at 4 s it is ' + fmtN(tl.fn(4)) + ' m up']) && has('The trolley at the top', 'why', ['acceleration is ' + fmtN(rate2(tl, 4))]) &&\n      has('Charge, mixed', 'why', ['4 × 2 + 3 = ' + fmtN(rate(mq, 2)), '8 + 6 = ' + fmtN(mq.fn(2)), '4 × 4 + 3 = ' + fmtN(keepPow(2))]) &&\n      has('A capacitor, mixed', 'why', ['2 × 3 = ' + fmtN(rate(mv, 3)), '0.01 × 6 = ' + fmtN(cur(mv, 3) / MA), fmtN(cur(mv, 3)) + ' mA']);\n    return nums && words;\n  });\n  K.check('Every puzzle offers three different answers and accepts only the right one; each wrong answer is the slip it stands for: 8 A and 2 A against 4 A; 0.5 A and 50 mA against 0 A; the end and the same all along against the start; 1 V and 0 V against −100 V; 0 and 16 against −2; 14 A and 19 A against 11 A; 90 mA and 6 A against 60 mA', () => {\n    const want = {\n      'The current at 4 s': ['8 A', '4 A', '2 A'], 'Held at 50 V': ['0.5 A', '50 mA', '0 A'], 'The largest current': ['At the start', 'At the end', 'The same all along'],\n      'Switched off fast': ['1 V', '−100 V', '0 V'], 'The trolley at the top': ['0', '16', '−2'], 'Charge, mixed': ['11 A', '14 A', '19 A'], 'A capacitor, mixed': ['90 mA', '60 mA', '6 A'],\n    };\n    return DO.length === 7 && DO.every((i) => {\n      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);\n      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1;\n    });\n  });\n  K.check('Before an answer no puzzle shows it: no tangent, no dot on the answer\\'s graph, nothing red, and the working ends in a question mark; a right answer shows its value with nothing red, and every wrong answer shows its slip in red', () =>\n    DO.every((i) => {\n      const d = STEPS[i], L = lastK(GR[d.g]), pre = drawn(i, blank()), ok = drawn(i, solvedSt()), ans = d.o.right.t.toLowerCase();\n      const preOk = !pre.tan && !pre.live.some((q) => q.k === L) && pre.bad === 0 && / \\?$/.test(pre.rows[pre.rows.length - 1]) && !pre.rows.some((r) => r.toLowerCase().indexOf(ans) >= 0);\n      const rightOk = ok.bad === 0 && ok.rows.some((r) => r.toLowerCase().indexOf(ans) >= 0) && !!ok.tan && ok.live.some((q) => q.k === L);\n      return preOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => drawn(i, wrongSt(k)).bad > 0);\n    }));\n  K.check('Dragging P keeps it on a half second inside the axes and never on a corner of the capacitor\\'s or the coil\\'s graph, and the dots below skip the corners', () =>\n    snapP(cb, 2.3) === 2.5 && snapP(cb, 7) === 5 && snapP(cb, -1) === 0 && snapP(cp, 4.1) === 4.5 && snapP(cp, 3.9) === 3.5 && snapP(co, 2) === 2.5 && snapP(co, 3.9) === 3.5 &&\n    JSON.stringify(runsOf(cb, [1, 2, 3, 3.5, 4])) === '[[1,1],[2,2],[3,4]]' && JSON.stringify(pieces(cp, 0, 8).map((q) => q.map((v) => Math.round(v)))) === '[[0,4],[4,8]]' &&\n    drawn(idx('A capacitor'), blank()).dots.every((q) => !isCorner(cp, q.x)));\n  K.check('Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 1.3 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity; checking = true;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; checking = false; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(), FB[0]) && d.opts.filter((o) => o !== 'right').every((o) => timed(i, wrongSt(o), FB[1]));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Rates on linked graphs",
+  "brief": "The one thing you should see is the current dot below following the voltage graph's slope, not its height, dropping to zero where the voltage holds steady, when you drag the point along a capacitor's voltage graph.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The instantaneous current is the time derivative of the charge that flows: on every charge screen each dot below sits straight under its time, as high as the slope the chords there settle on from either side, and the tangent through P has that slope",
+     "ok": true,
+     "source": "https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/09:_Current_and_Resistance/9.02:_Electrical_Current"
+    },
+    {
+     "label": "One ampere is the current in which one coulomb of charge passes a point each second: the charge line climbing 3 C every second drops every dot at 3 A, wherever P goes",
+     "ok": true,
+     "source": "https://www.nist.gov/si-redefinition/ampere-introduction"
+    },
+    {
+     "label": "The current through a capacitor is equal to the capacitance times the slope of its voltage graph: on every capacitor screen each dot below reads 0.01 F × that slope, in mA, so 50 mA while the voltage climbs 5 V each second and 0 while it holds",
+     "ok": true,
+     "source": "https://eng.libretexts.org/Bookshelves/Electrical_Engineering/Electronics/DC_Electrical_Circuit_Analysis_-_A_Practical_Approach_(Fiore)/08%3A_Capacitors/8.2%3A_Capacitance_and_Capacitors"
+    },
+    {
+     "label": "Velocity from the displacement-time function and acceleration from the velocity-time function: on both motion screens the middle dots read the slope of the displacement graph (2t for the boat, 8 − 2t for the trolley) and the bottom dots the slope of the velocity graph (2, then −2)",
+     "ok": true,
+     "source": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus"
+    },
+    {
+     "label": "The derivative of a constant function is zero: wherever a voltage or a current holds steady (the capacitor at 20 V and at 50 V, the coil at 8 A, the coil before and after the switch-off) its rate below is 0",
+     "ok": true,
+     "source": "https://openstax.org/books/calculus-volume-1/pages/3-3-differentiation-rules"
+    },
+    {
+     "label": "Charging through a resistor (the sketch): the charge, and so the voltage, climbs at every step but stays under the supply's voltage, and the current below falls at every step towards zero, largest at the start and nearly 0 by the end; the bracket for what is left across the resistor shrinks as P climbs",
+     "ok": true,
+     "source": "https://phys.libretexts.org/Bookshelves/University_Physics/University_Physics_(OpenStax)/University_Physics_II_-_Thermodynamics_Electricity_and_Magnetism_(OpenStax)/09:_Current_and_Resistance/9.02:_Electrical_Current"
+    },
+    {
+     "label": "The voltage across a coil is the derivative of its current, times its inductance: on both coil screens each dot below reads 0.5 H × the slope of the current graph, so 2 V while it climbs 4 A each second, 0 while it holds, −2 V while it falls and −100 V switched off",
+     "ok": true,
+     "source": "https://workforce.libretexts.org/@api/deki/pages/1124/pdf/15.2%253A%2bInductors%2band%2bCalculus.pdf"
+    },
+    {
+     "label": "From the rules, by hand: 3t gives 3 A; 0.5t² at 4 s is 8 C, slope 4, chord 8 ÷ 4 = 2; the capacitor climbing 5 V per s gives 0.01 × 5 = 0.05 A = 50 mA, and 0 held at 20 V or 50 V (0.01 × 50 = 0.5); the coil gives 0.5 × 4 = 2 V, 0 and −2 V; switched off, −2 ÷ 0.01 = −200 A per s and −100 V (0.5 × 2 = 1); the boat at 3 s is 9 m, 6 m per s, 2; the trolley at 4 s is 16 m, 0, −2; 2t² + 3t at 2 s is 14 C and 11 A (19 with the power kept); t² volts at 3 s is 9 V, slope 6, 60 mA (90 from the height); and the screens' words quote these values",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle offers three different answers and accepts only the right one; each wrong answer is the slip it stands for: 8 A and 2 A against 4 A; 0.5 A and 50 mA against 0 A; the end and the same all along against the start; 1 V and 0 V against −100 V; 0 and 16 against −2; 14 A and 19 A against 11 A; 90 mA and 6 A against 60 mA",
+     "ok": true
+    },
+    {
+     "label": "Before an answer no puzzle shows it: no tangent, no dot on the answer's graph, nothing red, and the working ends in a question mark; a right answer shows its value with nothing red, and every wrong answer shows its slip in red",
+     "ok": true
+    },
+    {
+     "label": "Dragging P keeps it on a half second inside the axes and never on a corner of the capacitor's or the coil's graph, and the dots below skip the corners",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 1.3 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "A steady 3 C each second",
+      "The current at 4 s",
+      "A capacitor",
+      "Held at 50 V",
+      "Charging through a resistor",
+      "The largest current",
+      "A coil",
+      "Switched off fast",
+      "Velocity and acceleration",
+      "The trolley at the top",
+      "Charge, mixed",
+      "A capacitor, mixed"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-13T23:05:47.808Z",
+  "applied": [
+   {
+    "path": "practice.text",
+    "problem": "'A minus sign means ... motion back towards the start' is not always true: with displacement signed, a negative velocity on the minus side of the start moves away from it; a minus velocity means motion the minus way."
+   },
+   {
+    "path": "analogy.text",
+    "problem": "A header tank in use is drawn from while held at a steady level, so 'a steady level takes no flow at all' is only true with nothing drawn off; the flow-in rule likewise needs no outflow."
+   },
+   {
+    "path": "analogy.breaks",
+    "problem": "A tank's level does not come from the water's weight (it comes from how much water is stored); it is the pressure the level gives that comes from the weight, the thing compared with voltage."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The coil screen also has sharp corners (current climbs, holds, falls), so its voltage jumps 2 V, 0 V, -2 V at once; a real coil's current rounds those corners too, which ignores only says of the capacitor."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

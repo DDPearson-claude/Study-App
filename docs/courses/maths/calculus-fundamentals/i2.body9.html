@@ -1,0 +1,986 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; touch-action: pan-y; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick, .scene .aname, .scene .th, .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  /* The table of chord slopes under the graph. */
+  .scene .td { font: 600 14px var(--k-font); fill: var(--k-ink); text-anchor: middle; }
+  .scene .td.head { font-weight: 400; }
+  .scene .thl { fill: var(--k-fill2); }
+  .scene .tbad { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .tsep { stroke: var(--k-line); stroke-width: 1; }
+  /* The graph of the rule, the chord (drawn on past P and Q so its swing shows), the tangent. */
+  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .chord { stroke: var(--k-amber-line); stroke-width: 3.5; stroke-linecap: round; }
+  .scene .chordx { stroke: var(--k-amber-line); stroke-width: 1.5; }
+  .scene .tan { fill: none; stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .leg { stroke: var(--k-accent); stroke-width: 2; }
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  /* A soft ring round a point Dan can drag. */
+  .scene .halo { fill: var(--k-accent); fill-opacity: .08; stroke: var(--k-accent); stroke-opacity: .5; stroke-width: 1.5; }
+  /* The lens: a round close-up of the graph near P, joined to P by a dotted line. */
+  .scene .lens { fill: var(--k-bg); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .leader { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 3 4; }
+  /* A slip is drawn in the warning colour. */
+  .scene .chord.bad, .scene .chordx.bad { stroke: var(--k-warn); }
+  .scene .pt.bad { fill: var(--k-warn); }
+  .scene .slip { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 7 5; stroke-linecap: round; }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }
+  .scene .row { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }
+  .scene .row.soft { font-weight: 400; }
+  .scene .lab.bad, .scene .row.bad, .scene .td.bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Chords on the graph of an example rule, closing in on one point.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 360" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="k-controls" id="gapbox" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every slope here is worked from the example rules f(x) = x² and f(x) = 2(10 − x)².</p>
+
+<script>
+  // ---------- the example rules ----------
+  // x, y: [from, to, tick step]; xu, yu: units; xn, yn: the axes' names.
+  const GR = {
+    sq: { fn: (x) => x * x, rule: 'f(x) = x²', x: [0, 5, 1], y: [0, 25, 5], xu: 's', yu: 'm', xn: 'x in seconds', yn: 'f(x) in metres' },
+    tank: { fn: (x) => 2 * (10 - x) * (10 - x), rule: 'f(x) = 2(10 − x)²', x: [0, 10, 2], minor: 1, y: [0, 200, 50], xu: 'min', yu: 'L', xn: 'x in minutes', yn: 'f(x) in litres' },
+  };
+  const sq = GR.sq, tk = GR.tank;
+  // The gaps the slider stops at, largest first.
+  const GAPS = [1, 0.5, 0.1, 0.01];
+
+  // ---------- numbers and words ----------
+  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };
+  const fmtN = (v) => String(tidy(v)).replace('-', '−');
+  // A chord's slope, Δy ÷ Δx, from the rule (the same either way round).
+  const slope = (g, a, b) => (g.fn(b) - g.fn(a)) / (b - a);
+  // The rate at an instant, from the rule: where the chords settle, read off a chord 0.0002 wide
+  // centred on x and rounded to six decimal places (a tidy number the chords close in on).
+  const rate = (g, x) => { const h = 1e-4; return Math.round((g.fn(x + h) - g.fn(x - h)) / (2 * h) * 1e6) / 1e6; };
+  const per = (g) => ' ' + g.yu + ' per ' + g.xu;
+  const rateS = (g, v) => fmtN(v) + per(g);
+  const amt = (g, v) => fmtN(v) + ' ' + g.yu;
+  const atS = (g, x) => fmtN(x) + ' ' + g.xu;
+  const coord = (g, x) => '(' + atS(g, x) + ', ' + amt(g, g.fn(x)) + ')';
+  const ptsRow = (g, p, q) => (q < p ? 'Q ' + coord(g, q) + ' and P ' + coord(g, p) : 'P ' + coord(g, p) + ' and Q ' + coord(g, q));
+  // The working for a chord: later minus earlier for both changes, then divide.
+  function chordRows(g, a, b) {
+    const e = Math.min(a, b), l = Math.max(a, b);
+    return ['Δy ÷ Δx = ' + amt(g, g.fn(l) - g.fn(e)) + ' ÷ ' + atS(g, l - e), 'Slope of the chord = ' + rateS(g, slope(g, a, b))];
+  }
+  const say = (s) => String(s == null ? '' : s).replace(/Δ/g, 'change in ').replace(/δ/g, 'small change in ').replace(/÷/g, ' divided by ')
+    .replace(/×/g, ' times ').replace(/−/g, ' minus ').replace(/²/g, ' squared').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+  // A table cell: its text and how far it has arrived.
+  const cell = (s, a, cls) => ({ s: s, a: a == null ? 1 : a, cls: cls || '' });
+  // A row of chord slopes at p: forward to p + h (side 1), or ending at p from p − h (side −1).
+  const sideRow = (g, p, hs, side, a) => hs.map((h) => cell(fmtN(side < 0 ? slope(g, p - h, p) : slope(g, p, p + h)), a));
+  const R3 = rate(sq, 3);
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A SHOW step draws itself (draw) from T, the seconds since it opened. A puzzle's o lists its
+  // answers: right, and each slip with the working it shows (rows) and what it draws: a line from
+  // (0, 0) (origin), a guide to the y-axis (height), a red chord (chord), a ring for a zero gap
+  // (zero), Δy in red (leg) or a red cell in the table (cell).
+  const STEPS = [
+    { show: true, name: 'A chord over one second', g: 'sq', p: 3, q: 4, drag: true, dur: 3.0, rows: 3, draw: drawS1,
+      tl: { chord: [0.4, 0.6], legs: 1.0, labs: 1.3, rows: [1.6, 2.0] },
+      text: 'Back to the speeding boat, `f(x) = x²` metres after `x` seconds. P sits on its graph at 3 s and 9 m. The chord from P to Q at 4 s climbs `16 − 9 = 7` m in 1 s, a slope of 7 m per s. That is an average over a whole second, and the boat was speeding up all through it, so as the clock passed 3 s it was going slower than 7 m per s. Drag Q to try other chords.' },
+    { name: 'Half a second', g: 'sq', p: 3, q: 3.5, rows: 3, opts: ['origin', 'right', 'nodiv'],
+      task: 'Q is now at 3.5 s, half a second from P. The boat is then at `3.5 × 3.5 = 12.25` m. What is the slope of the chord from P to Q?',
+      why: '`Δy = 12.25 − 9 = 3.25` m over `Δx = 3.5 − 3 = 0.5` s, so `Δy ÷ Δx = 3.25 ÷ 0.5 = 6.5` m per s. That is less than 7, because this chord averages over less of the speeding up.',
+      hint: 'Not quite. Subtract to find Δy and Δx, then divide.',
+      hints: { origin: 'Not quite. `12.25 ÷ 3.5` divides Q\'s `y` by its `x`. Take both changes from P.', nodiv: 'Not quite. 3.25 m is Δy, the change in distance. Divide it by Δx, 0.5 s.' },
+      o: {
+        right: { t: rateS(sq, slope(sq, 3, 3.5)) },
+        origin: { t: rateS(sq, sq.fn(3.5) / 3.5), mark: { origin: 3.5 }, rows: ['y ÷ x = ' + amt(sq, sq.fn(3.5)) + ' ÷ ' + atS(sq, 3.5) + ' = ' + rateS(sq, sq.fn(3.5) / 3.5), 'The slope from (0, 0), not from P'] },
+        nodiv: { t: amt(sq, sq.fn(3.5) - sq.fn(3)), leg: true, rows: ['Δy = ' + fmtN(sq.fn(3.5)) + ' − ' + fmtN(sq.fn(3)) + ' = ' + amt(sq, sq.fn(3.5) - sq.fn(3)), 'A change in metres, not yet ÷ ' + atS(sq, 0.5)] },
+      } },
+    { show: true, name: 'Shrink the gap', g: 'sq', p: 3, slider: true, lens: true, dur: 4.4, rows: 2, tabRows: 2, draw: drawS3,
+      gl: [{ t: 1.2, len: 0.6 }, { t: 2.1, len: 0.6 }, { t: 3.0, len: 0.6 }], tanT: 3.7,
+      text: 'Now shrink the gap between P and Q, Δx, with the slider. Each shorter chord averages over less of the speeding up, so its slope is a better estimate of the rate at 3 s itself. The table fills in 7, 6.5, 6.1 and 6.01 m per s, and in every column the amount above 6 is the gap itself. The chord swings round towards one dashed line through P, the *tangent*, whose slope is 6. The lens keeps P and Q in view close up.' },
+    { name: 'A thousandth of a second', g: 'sq', p: 3, q: 3.001, lens: true, rows: 3, tabRows: 2, opts: ['settled', 'nodiv', 'right'],
+      head: 'Q ' + coord(sq, 3.001),
+      task: 'Shrink the gap to 0.001 s. Q is at 3.001 s, where `f(3.001) = 9.006001` m. What is the slope of the chord now?',
+      why: '`Δy = 9.006001 − 9 = 0.006001` m over `Δx = 0.001` s, so the slope is `0.006001 ÷ 0.001 = 6.001` m per s. The amount above 6 is the gap again, 0.001.',
+      hint: 'Not quite. Subtract to find Δy, then divide by Δx.',
+      hints: { settled: 'Not quite. This chord still has a gap of 0.001 s, so it reads a little above 6. Divide Δy by Δx.', nodiv: 'Not quite. 0.006001 m is Δy. Divide it by Δx, 0.001 s.' },
+      o: {
+        right: { t: rateS(sq, slope(sq, 3, 3.001)) },
+        settled: { t: rateS(sq, R3), rows: [rateS(sq, R3) + ' is where the slopes settle', 'This chord still has a gap of ' + atS(sq, 0.001)] },
+        nodiv: { t: amt(sq, sq.fn(3.001) - sq.fn(3)), leg: true, rows: ['Δy = ' + fmtN(sq.fn(3.001)) + ' − ' + fmtN(sq.fn(3)) + ' = ' + amt(sq, sq.fn(3.001) - sq.fn(3)), 'A change in metres, not yet ÷ ' + atS(sq, 0.001)] },
+      },
+      table: (k, a) => {
+        const hs = GAPS.concat([0.001]), n = hs.length - 1, m = slope(sq, 3, 3.001);
+        const sl = sideRow(sq, 3, hs, 1), ab = hs.map((h) => cell(fmtN(slope(sq, 3, 3 + h) - R3)));
+        if (k === 'right') { sl[n] = cell(fmtN(m), a); ab[n] = cell(fmtN(m - R3), a); }
+        else if (k === 'settled') { sl[n] = cell(fmtN(R3), a, 'bad'); ab[n] = cell(fmtN(R3 - R3), a, 'bad'); }
+        else { sl[n] = cell('?', 1, 'head'); ab[n] = cell('?', 1, 'head'); }
+        return { title: 'Chord slopes from 3 s, in m per s', names: ['gap, s', 'slope', 'above ' + fmtN(R3)], gaps: hs, rows: [sl, ab], hl: k === 'settled' ? -1 : n, bad: k === 'settled' ? [0, n] : null, badA: a };
+      } },
+    { show: true, name: 'Not zero', g: 'sq', p: 3, lens: true, dur: 4.2, rows: 3, tabRows: 2, draw: drawS5,
+      tl: { slide: [0.9, 0.6], zero: 1.6, out: 1.9, swap: 2.3, left: 2.9 },
+      text: 'Why not make the gap zero? Then Q sits on P, Δy and Δx are both 0, and 0 ÷ 0 has no answer: any number times 0 is 0, so 0 ÷ 0 could be any number. Come at 3 s from the other side instead. Chords that end at 3 s, from 2 s and from 2.99 s, read 5 and 5.99 m per s. They sit a little below 6, because the boat was slower before 3 s, and they come up towards 6 from below.' },
+    { name: 'From 2.9 s', g: 'sq', p: 3, q: 2.9, lens: true, rows: 3, tabRows: 2, opts: ['right', 'other', 'nodiv'],
+      task: 'Now Q sits before P, at 2.9 s, where `f(2.9) = 8.41` m. What is the slope of the chord from Q to P?',
+      why: 'Later minus earlier, `Δy = 9 − 8.41 = 0.59` m over `Δx = 3 − 2.9 = 0.1` s, so the slope is `0.59 ÷ 0.1 = 5.9` m per s. The boat was slower just before 3 s, so this chord reads a little below 6.',
+      hint: 'Not quite. Later minus earlier for both, then divide.',
+      hints: { other: 'Not quite. 6.1 m per s is the chord from 3 s to 3.1 s. Before 3 s the boat was slower. Start from 8.41 m.', nodiv: 'Not quite. 0.59 m is Δy. Divide it by Δx, 0.1 s.' },
+      o: {
+        right: { t: rateS(sq, slope(sq, 2.9, 3)) },
+        other: { t: rateS(sq, slope(sq, 3, 3.1)), rows: [rateS(sq, slope(sq, 3, 3.1)) + ' is the chord from 3 s to 3.1 s', 'Before 3 s the boat was slower'] },
+        nodiv: { t: amt(sq, sq.fn(3) - sq.fn(2.9)), leg: true, rows: ['Δy = ' + fmtN(sq.fn(3)) + ' − ' + fmtN(sq.fn(2.9)) + ' = ' + amt(sq, sq.fn(3) - sq.fn(2.9)), 'A change in metres, not yet ÷ ' + atS(sq, 0.1)] },
+      },
+      table: (k, a) => {
+        const hs = [1, 0.1, 0.01], af = sideRow(sq, 3, hs, 1), bf = sideRow(sq, 3, hs, -1);
+        bf[1] = k === 'right' ? cell(fmtN(slope(sq, 2.9, 3)), a) : cell('?', 1, 'head');
+        return { title: 'Chord slopes at 3 s, in m per s', names: ['gap, s', 'Q after P', 'Q before P'], gaps: hs, rows: [af, bf], hl: k === 'other' ? -1 : 1, bad: k === 'other' ? [0, 1] : null, badA: a };
+      } },
+    { show: true, name: 'The tangent', g: 'sq', p: 3, lens: true, dur: 4.3, rows: 2, tabRows: 2, draw: drawS7,
+      tl: { tan: [0.4, 0.8], lens: 1.2, zoom: [{ t: 1.9, len: 0.7 }, { t: 3.0, len: 0.7 }] },
+      text: 'Both rows settle on 6, so the speed at 3 s is defined as 6 m per s exactly, not \'nearly 6\'. You can bring a chord as close to 6 as you like by shrinking the gap. That settled number is the chords\' *limit*, the *instantaneous rate of change* at 3 s, and the tangent is the line the chords settle on. Touching the curve once is not what makes it the tangent: an upright line through P meets the curve once too, but it has no slope. Zoom in on P and the curve looks straighter and straighter, until it is hard to tell from the tangent, which is why the tangent\'s slope is the curve\'s rate there.' },
+    { name: 'At exactly 3 s', g: 'sq', p: 3, rows: 3, tabRows: 2, opts: ['height', 'right', 'last'],
+      task: 'Chords from P read 6.1, 6.01 and 6.001 m per s. Chords ending at P read 5.9, 5.99 and 5.999. How fast is the boat going at exactly 3 s?',
+      why: 'Both sides settle on 6, and a chord can be brought as close to 6 as you like by shrinking the gap. So the speed at 3 s, their limit, is 6 m per s exactly. 6.001 m per s is still an average over 0.001 s.',
+      hint: 'Not quite. Where do both rows settle?',
+      hints: { height: 'Not quite. 9 m is how far the boat has gone by 3 s, not how fast it is going.', last: 'Not quite. 6.001 m per s is still an average over 0.001 s. Where do both sides settle?' },
+      pre: ['P ' + coord(sq, 3), 'Speed at 3 s = ?'], right: ['Both sides settle on ' + rateS(sq, R3), 'At 3 s the boat is covering ' + amt(sq, R3) + ' each second', 'Speed at 3 s = ' + rateS(sq, R3) + ', exactly'],
+      o: {
+        right: { t: rateS(sq, R3), tan: true },
+        height: { t: amt(sq, sq.fn(3)), mark: { height: true }, rows: [amt(sq, sq.fn(3)) + ' is how far it has gone by 3 s', 'Not how fast it is going'] },
+        last: { t: rateS(sq, slope(sq, 3, 3.001)), rows: [rateS(sq, slope(sq, 3, 3.001)) + ' is a chord over ' + atS(sq, 0.001), 'Still an average, not yet the limit'] },
+      },
+      table: (k, a) => {
+        const hs = [0.1, 0.01, 0.001];
+        return { title: 'Chord slopes at 3 s, in m per s', names: ['gap, s', 'Q after P', 'Q before P'], gaps: hs, rows: [sideRow(sq, 3, hs, 1), sideRow(sq, 3, hs, -1)], hl: -1, bad: k === 'last' ? [0, 2] : null, badA: a };
+      } },
+    { show: true, name: 'δy/δx becomes dy/dx', g: 'sq', p: 3, lens: true, dur: 3.8, rows: 3, draw: drawS9,
+      gaps: [0.5, 0.1, 0.01], gl: [{ t: 1.1, len: 0.6 }, { t: 2.0, len: 0.6 }], tanT: 2.8, endT: 3.1,
+      text: 'A small change gets a small delta, δ, so a short chord\'s slope is written δy/δx. Its limiting value as δx shrinks towards zero is written `dy/dx`, read \'dee y by dee x\'. At each point it is one symbol for one number. At 3 s, `dy/dx = 6` m per s, in metres per second because `y` is in metres and `x` in seconds.' },
+    { name: 'dy/dx at 3 s', g: 'sq', p: 3, rows: 3, opts: ['yx', 'right', 'zero'],
+      task: 'At P, `y` is 9 m and `x` is 3 s. What is `dy/dx` there?',
+      why: '`dy/dx` is the limiting value of δy/δx as δx shrinks, the slope of the tangent at P, 6 m per s. Its d\'s do not cancel, so it is not `y ÷ x = 9 ÷ 3 = 3`. And it is not worked out with a gap of 0, which gives 0 ÷ 0.',
+      hint: 'Not quite. Where do the chords at P settle?',
+      hints: { yx: 'Not quite. `9 ÷ 3` treats `dy/dx` as `y ÷ x`, but the d\'s do not cancel. Where do the chords settle?', zero: 'Not quite. A gap of 0 gives 0 ÷ 0, but `dy/dx` is where the chords settle as the gap shrinks.' },
+      pre: ['P ' + coord(sq, 3), 'dy/dx = ?'], right: ['Slope of the tangent at P = ' + rateS(sq, R3), 'At 3 s the boat is covering ' + amt(sq, R3) + ' each second', 'dy/dx = ' + rateS(sq, R3)],
+      o: {
+        right: { t: rateS(sq, R3), tan: true },
+        yx: { t: rateS(sq, sq.fn(3) / 3), mark: { origin: 3 }, rows: ['y ÷ x = ' + amt(sq, sq.fn(3)) + ' ÷ ' + atS(sq, 3) + ' = ' + rateS(sq, sq.fn(3) / 3), 'The d\'s do not cancel'] },
+        zero: { t: '0 ÷ 0, no answer', mark: { zero: true }, rows: ['A gap of 0 gives 0 m ÷ 0 s', 'dy/dx is where the chords settle'] },
+      } },
+    { name: 'The draining tank', g: 'tank', p: 5, rows: 2, tabRows: 1, opts: ['last', 'right', 'height'],
+      task: 'The draining tank from the last lesson holds 50 L at 5 min. Chords forward from 5 min read −19.8 L per min with a gap of 0.1 min, and −19.98 with a gap of 0.01 min. What is `dy/dx` at 5 min?',
+      why: 'The chords settle on −20, so `dy/dx = −20` L per min at 5 min. The tank is losing 20 litres a minute at that moment, and the minus says it is emptying. 50 L is how much is in it.',
+      hint: 'Not quite. Where are the chords settling?',
+      hints: { last: 'Not quite. −19.98 L per min is still an average over 0.01 min. Where are the chords settling?', height: 'Not quite. 50 L is how much is in the tank, not how fast it is changing.' },
+      pre: ['P ' + coord(tk, 5), 'dy/dx = ?'], right: ['Losing ' + amt(tk, -rate(tk, 5)) + ' a minute at 5 min', 'dy/dx = ' + rateS(tk, rate(tk, 5))],
+      o: {
+        right: { t: rateS(tk, rate(tk, 5)), tan: true },
+        last: { t: rateS(tk, slope(tk, 5, 5.01)), rows: [rateS(tk, slope(tk, 5, 5.01)) + ' is a chord over ' + atS(tk, 0.01), 'Still an average, not yet the limit'] },
+        height: { t: amt(tk, tk.fn(5)), mark: { height: true }, rows: [amt(tk, tk.fn(5)) + ' is how much is in the tank', 'Not how fast it is changing'] },
+      },
+      table: (k, a) => {
+        const hs = [0.1, 0.01];
+        return { title: 'Chord slopes from 5 min, in L per min', names: ['gap, min', 'slope'], gaps: hs, rows: [sideRow(tk, 5, hs, 1)], hl: -1, bad: k === 'last' ? [0, 1] : null, badA: a };
+      } },
+    { name: 'The boat at 2 s', g: 'sq', p: 2, rows: 3, tabRows: 1, opts: ['right', 'first', 'yx'],
+      task: 'Back on the boat, P is now at 2 s and 4 m. Chords from P to 3 s, 2.1 s and 2.01 s read 5, 4.1 and 4.01 m per s. What is `dy/dx` at 2 s?',
+      why: 'The chords settle on 4, so `dy/dx = 4` m per s at 2 s, slower than the 6 m per s at 3 s because the boat is speeding up. 5 m per s is the average over the whole second from 2 s to 3 s, and `4 ÷ 2 = 2` is `y ÷ x`.',
+      hint: 'Not quite. Where do the chords settle as the gap shrinks?',
+      hints: { first: 'Not quite. 5 m per s is the chord over a whole second, an average. Where do the chords settle as the gap shrinks?', yx: 'Not quite. `4 ÷ 2` treats `dy/dx` as `y ÷ x`. Where do the chords settle?' },
+      pre: ['P ' + coord(sq, 2), 'dy/dx = ?'], right: ['Slope of the tangent at P = ' + rateS(sq, rate(sq, 2)), 'At 2 s the boat is covering ' + amt(sq, rate(sq, 2)) + ' each second', 'dy/dx = ' + rateS(sq, rate(sq, 2))],
+      o: {
+        right: { t: rateS(sq, rate(sq, 2)), tan: true },
+        first: { t: rateS(sq, slope(sq, 2, 3)), mark: { chord: 3 }, rows: [rateS(sq, slope(sq, 2, 3)) + ' is the chord from 2 s to 3 s', 'An average over a whole second'] },
+        yx: { t: rateS(sq, sq.fn(2) / 2), mark: { origin: 2 }, rows: ['y ÷ x = ' + amt(sq, sq.fn(2)) + ' ÷ ' + atS(sq, 2) + ' = ' + rateS(sq, sq.fn(2) / 2), 'The d\'s do not cancel'] },
+      },
+      table: (k, a) => {
+        const hs = [1, 0.1, 0.01];
+        return { title: 'Chord slopes from 2 s, in m per s', names: ['gap, s', 'slope'], gaps: hs, rows: [sideRow(sq, 2, hs, 1)], hl: -1, bad: k === 'first' ? [0, 0] : null, badA: a };
+      } },
+  ];
+  const FINISH = 'The rate at an instant is the number the slope of a chord settles on as its two points slide together. It is written `dy/dx`, the limiting value of δy/δx, and it is the slope of the tangent there. For the boat at 3 s it is 6 m per s, exactly.';
+  // Sources the checks restate (the lesson's own).
+  const OPENSTAX = 'https://openstax.org/books/calculus-volume-1/pages/2-1-a-preview-of-calculus';
+  const MCA = 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/mathematics-written-examination-syllabus';
+  // The plot runs from PL to PR across, PT to PB down; the lens sits in the empty top left.
+  const PL = 52, PR = 318, PT = 72, PH = 150, PB = PT + PH;
+  const LX = 120, LY = PT + 60, LR = 50;
+  // The lens's widest view: the boat's graph at its own scale, so the lens never shows less than the graph.
+  const SAME = LR * 0.92 / ((PR - PL) / (sq.x[1] - sq.x[0]));
+  const lensA = (h) => Math.min(SAME, 1.5 * h);
+  const FADE = 0.35, FB = [1.3, 1.2];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // q: where Dan has dragged Q; gap: the slider stop Dan has chosen (null until he moves it).
+  function blank() { return { pick: null, res: null, why: false, q: null, gap: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion
+  let REC = null, checking = false, gapShown = 0;
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[fxy](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === 'right' ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].q = null; S[at()].gap = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The slider that shrinks the gap between P and Q (shown on its own screen).
+  const gapCtl = K.control({ id: 'gap', label: 'Gap between P and Q, Δx', min: 0, max: GAPS.length - 1, step: 1, value: 0,
+    fmt: (v) => fmtN(GAPS[K.clamp(Math.round(v), 0, GAPS.length - 1)]) + ' s', into: '#gapbox' });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null, AV = [], LQ = [], KEY = [];   // AV: lines and shapes labels keep clear of; LQ: labels waiting; KEY: the key's entries
+  const add = (node) => (into || art).appendChild(node);
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t) => (t === false ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(w), height: r3(h), rx: rx || 0 }));
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, s, true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 13 * 0.6;
+  }
+  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.
+  const queue = (a, items) => { items = items.filter((it) => it.text); if (a > 0 && items.length) LQ.push({ a, items }); };
+  function flushLabels() {
+    const list = LQ; LQ = [];
+    list.forEach((q) => part(q.a, 4, () => {
+      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text, anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });
+      ts.forEach((t) => { const s = t.textContent; t.textContent = ''; italics(t, s, true); REC.labs.push(t.textContent); if (/\bbad\b/.test(t.getAttribute('class') || '')) REC.bad++; });
+    }));
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const G = { g: GR[d.g], PB, nameY: 42 };
+    G.tabY = PB + 64;
+    G.rowsY = d.tabRows ? G.tabY + 24 * (d.tabRows + 1) + 10 : PB + 50;
+    G.H = Math.ceil(G.rowsY + 26 * d.rows + 12);
+    GEO.set(d, G);
+    return G;
+  }
+  const X = (G, v) => PL + (v - G.g.x[0]) / (G.g.x[1] - G.g.x[0]) * (PR - PL);
+  const Y = (G, v) => G.PB - (v - G.g.y[0]) / (G.g.y[1] - G.g.y[0]) * PH;
+  function curveD(G, fn, x0, x1) {
+    let s = '';
+    for (let k = 0; k <= 90; k++) { const x = x0 + (x1 - x0) * k / 90; s += (k ? ' L' : 'M') + r3(X(G, x)) + ' ' + r3(Y(G, fn(x))); }
+    return s;
+  }
+  // The stretch of a straight line through (x0, y0) with slope m that lies inside the axes.
+  function clipLine(g, x0, y0, m) {
+    let a = g.x[0], b = g.x[1];
+    if (Math.abs(m) > 1e-12) {
+      const u = x0 + (g.y[0] - y0) / m, w = x0 + (g.y[1] - y0) / m;
+      a = Math.max(a, Math.min(u, w)); b = Math.min(b, Math.max(u, w));
+    } else if (y0 < g.y[0] || y0 > g.y[1]) return null;
+    return b > a ? [[a, y0 + m * (a - x0)], [b, y0 + m * (b - x0)]] : null;
+  }
+  // Gridlines, axes, their numbers and names.
+  function drawAxes(G) {
+    const g = G.g;
+    for (let v = g.y[0]; v <= g.y[1] + 1e-9; v += g.y[2]) { const y = Y(G, v); if (v > g.y[0]) line('grid', PL, y, PR, y); text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end'); }
+    if (g.minor) for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.minor) line('mtick', X(G, v), G.PB, X(G, v), G.PB + 4);
+    for (let v = g.x[0]; v <= g.x[1] + 1e-9; v += g.x[2]) { const x = X(G, v); line('mtick', x, G.PB, x, G.PB + 6); text(x, G.PB + 20, fmtN(v), 'tick'); }
+    AV.push(line('axis', PL, PT - 8, PL, G.PB), line('axis', PL, G.PB, PR + 8, G.PB));
+    text(12, G.nameY, g.yn, 'aname', 'start');
+    text(PR + 8, G.PB + 38, g.xn, 'aname', 'end');
+  }
+  // The key, under the graph on the left: what the chord and the tangent look like.
+  function drawKey(G) {
+    const seen = {}, list = [];
+    KEY.forEach((k) => { if (k.a <= 0) return; if (seen[k.cls]) { seen[k.cls].a = Math.max(seen[k.cls].a, k.a); return; } seen[k.cls] = Object.assign({}, k); list.push(seen[k.cls]); });
+    const order = ['chord', 'tan'];
+    list.sort((a, b) => order.indexOf(a.cls) - order.indexOf(b.cls));
+    let x = 12;
+    const y = G.PB + 38;
+    list.forEach((k) => {
+      const x0 = x;
+      part(k.a, 0, () => { line(k.cls, x0, y - 4.5, x0 + 22, y - 4.5); text(x0 + 28, y, k.text, 'key', 'start'); });
+      x += 28 + tw(k.text, 'key') + 18;
+    });
+  }
+  // A point on the graph, with its name.
+  function drawPoint(G, x, a, name, up) {
+    const px = X(G, x), py = Y(G, G.g.fn(x));
+    part(a, 0, () => AV.push(circle('pt', px, py, 7)));
+    REC.pts.push([px, py]);
+    queue(a, [up ? { x: px - 9, y: py - 9, text: name || 'P', anchor: 'end' } : { x: px - 11, y: py + 5, text: name || 'P', anchor: 'end' }]);
+  }
+  // The tangent at P: the line through P with the slope the chords settle on, drawn out from P.
+  function drawTangent(G, p, a) {
+    if (a <= 0) return;
+    const g = G.g, m = rate(g, p), s = clipLine(g, p, g.fn(p), m);
+    if (!s) return;
+    const px = X(G, p), py = Y(G, g.fn(p));
+    const x1 = K.lerp(px, X(G, s[0][0]), a), y1 = K.lerp(py, Y(G, s[0][1]), a), x2 = K.lerp(px, X(G, s[1][0]), a), y2 = K.lerp(py, Y(G, s[1][1]), a);
+    part(Math.min(1, a * 2), 0, () => AV.push(line('tan', x1, y1, x2, y2)));
+    if (a >= 1) REC.tan = { x1, y1, x2, y2 };
+    KEY.push({ cls: 'tan', text: 'tangent', a });
+  }
+  // One chord from P to Q: the line through them (drawn across the graph, so its swing shows), the
+  // stretch between them, and its right-angled triangle, Δx across and Δy up. a: each part's arrival.
+  function drawChord(G, p, q, a, o) {
+    const g = G.g, m = slope(g, p, q), yp = g.fn(p), px = X(G, p), py = Y(G, yp), qx = X(G, q), qy = Y(G, g.fn(q));
+    const e = Math.min(p, q), l = Math.max(p, q), ex = X(G, e), ey = Y(G, g.fn(e)), lx = X(G, l), ly = Y(G, g.fn(l));
+    if (a.chord > 0) {
+      const s = clipLine(g, p, yp, m);
+      if (s) {
+        const c = { x1: X(G, s[0][0]), y1: Y(G, s[0][1]), x2: X(G, s[1][0]), y2: Y(G, s[1][1]) };
+        part(a.chord * a.grow, 0, () => AV.push(line('chordx', c.x1, c.y1, c.x2, c.y2)));
+        if (a.grow >= 1) REC.chordLine = c;
+      }
+      part(a.chord, 0, () => AV.push(line('chord', px, py, K.lerp(px, qx, a.grow), K.lerp(py, qy, a.grow))));
+      KEY.push({ cls: 'chord', text: 'chord', a: a.chord });
+    }
+    if (lx - ex > 8) part(a.legs, 0, () => AV.push(line('leg', ex, ey, lx, ey), line('leg', lx, ey, lx, ly)));
+    part(a.pts, 0, () => AV.push(circle('pt', px, py, 7)));
+    part(a.q, 0, () => { if (o.halo) AV.push(circle('halo', qx, qy, 13)); AV.push(circle('pt', qx, qy, 7)); });
+    REC.pts.push([px, py], [qx, qy]);
+    const pe = q > p;   // P is the earlier point
+    queue(a.pts, [pe ? { x: px - 11, y: py + 5, text: 'P', anchor: 'end' } : { x: px - 9, y: py - 9, text: 'P', anchor: 'end' }]);
+    if (Math.hypot(qx - px, qy - py) > 14) queue(a.q, [pe ? { x: qx - 9, y: qy - 9, text: 'Q', anchor: 'end' } : { x: qx - 11, y: qy + 5, text: 'Q', anchor: 'end' }]);
+    if (o.legText && lx - ex > 18 && ey - ly > 14) {
+      queue(a.labs, [{ x: (ex + lx) / 2, y: ey + 18 <= G.PB - 4 ? ey + 18 : ey - 8, text: o.legText[0] },
+        { x: lx + 8, y: (ey + ly) / 2 + 5, text: o.legText[1], anchor: 'start', cls: o.legBad ? 'bad' : '' }]);
+    }
+  }
+  // The lens: a round close-up of the graph near P, a units of x either side of its centre foc, at
+  // the graph's own proportions, so slopes look the same in it. o: p, q (a chord), tan (its arrival),
+  // legs (the triangle's names), label. al: the lens's arrival; ca: its contents' arrival.
+  function drawLens(G, foc, a, o, al, ca) {
+    if (al <= 0) return;
+    const g = G.g, p = o.p, asp = (PH / (g.y[1] - g.y[0])) / ((PR - PL) / (g.x[1] - g.x[0]));
+    const kx = LR * 0.92 / a, ky = kx * asp, yf = g.fn(foc), rr = LR - 2;
+    const lx = (v) => LX + (v - foc) * kx, ly = (v) => LY - (v - yf) * ky;
+    const px = X(G, p), py = Y(G, g.fn(p)), dx = px - LX, dy = py - LY, dl = Math.hypot(dx, dy);
+    // A straight line through (x0, y0) with slope m, clipped to the lens's rim.
+    const through = (cls, x0, y0, m) => {
+      const n = Math.hypot(1, m * asp), ux = 1 / n, uy = -m * asp / n, ox = x0 - LX, oy = y0 - LY;
+      const b = ox * ux + oy * uy, disc = b * b - (ox * ox + oy * oy - rr * rr);
+      if (disc <= 0) return;
+      const t1 = -b - Math.sqrt(disc), t2 = -b + Math.sqrt(disc);
+      line(cls, x0 + ux * t1, y0 + uy * t1, x0 + ux * t2, y0 + uy * t2);
+    };
+    part(al, 0, () => {
+      AV.push(line('leader', LX + dx / dl * (LR + 2), LY + dy / dl * (LR + 2), px - dx / dl * 11, py - dy / dl * 11));
+      AV.push(circle('lens', LX, LY, LR));
+      if (o.label && (o.labelA == null || o.labelA > 0)) part(o.labelA == null ? 1 : o.labelA, 0, () => text(LX + LR + 8, LY - 28, o.label, 'lab soft', 'start'));
+      part(ca == null ? 1 : ca, 0, () => {
+        let s = '', on = false;
+        for (let k = 0; k <= 120; k++) {
+          const x = foc - 1.15 * a + 2.3 * a * k / 120, x1 = lx(x), y1 = ly(g.fn(x));
+          if (Math.hypot(x1 - LX, y1 - LY) <= rr) { s += (on ? ' L' : ' M') + r3(x1) + ' ' + r3(y1); on = true; } else on = false;
+        }
+        if (s) path('curve', s.trim());
+        const P = [lx(p), ly(g.fn(p))];
+        if (o.tan > 0) part(o.tan, 0, () => through('tan', P[0], P[1], rate(g, p)));
+        if (o.q != null && Math.abs(o.q - p) > 1e-12 && o.qa !== 0) part(o.qa == null ? 1 : o.qa, 0, () => {
+          const q = o.q, Q = [lx(q), ly(g.fn(q))], E = q < p ? Q : P, L = q < p ? P : Q;
+          through('chordx', P[0], P[1], slope(g, p, q));
+          if (L[0] - E[0] > 2) { line('leg', E[0], E[1], L[0], E[1]); line('leg', L[0], E[1], L[0], L[1]); }
+          line('chord', P[0], P[1], Q[0], Q[1]);
+          circle('pt', Q[0], Q[1], 5);
+          if (o.legs && L[0] - E[0] > 14 && E[1] - L[1] > 10) {
+            text((E[0] + L[0]) / 2, E[1] + 16, o.legs[0], 'lab');
+            text(L[0] + 5, (E[1] + L[1]) / 2 + 5, o.legs[1], 'lab' + (o.legBad ? ' bad' : ''), 'start');
+            if (o.legBad) REC.bad++;
+          }
+        });
+        circle('pt', P[0], P[1], 5);
+      });
+    });
+  }
+  // A table of chord slopes under the graph: the gaps across the top, a row of slopes under them.
+  function drawTable(G, tb) {
+    const n = tb.gaps.length, x0 = 100, w = (334 - x0) / n, y0 = G.tabY, nr = tb.rows.length;
+    REC.tab = tb.rows.map((row) => row.map((c) => (c.a >= 0.5 ? c.s : '')));
+    text(12, y0, tb.title, 'th', 'start');
+    if (tb.hl >= 0) part(tb.hlA == null ? 1 : tb.hlA, 0, () => rect('thl', x0 + tb.hl * w + 3, y0 + 9, w - 6, 24 * (nr + 1) + 2, 6));
+    text(12, y0 + 24, tb.names[0], 'th', 'start');
+    tb.gaps.forEach((h, c) => text(x0 + (c + 0.5) * w, y0 + 24, fmtN(h), 'td head'));
+    line('tsep', 12, y0 + 31, x0 + n * w, y0 + 31);
+    tb.rows.forEach((row, r) => {
+      const y = y0 + 24 * (r + 2);
+      text(12, y, tb.names[r + 1], 'th', 'start');
+      row.forEach((c, k) => {
+        if (c.a <= 0) return;
+        part(c.a, 3, () => text(x0 + (k + 0.5) * w, y, c.s, 'td' + (c.cls ? ' ' + c.cls : '')));
+        if (c.cls === 'bad') REC.bad++;
+      });
+    });
+    const ba = tb.badA == null ? 1 : tb.badA;
+    if (tb.bad && ba > 0) { const r = tb.bad[0], c = tb.bad[1]; part(ba, 0, () => rect('tbad', x0 + c * w + 3, y0 + 24 * (r + 2) - 17, w - 6, 23, 6)); REC.bad++; }
+  }
+  // The working under the graph (and the table), one line each.
+  function drawRows(G, RW) {
+    RW.forEach((r, n) => {
+      const a = r.a != null ? r.a : vis(r.t);
+      part(a, 4, () => {
+        const t = text(12, G.rowsY + 18 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start');
+        try { if (t.getComputedTextLength() > 314) t.style.fontSize = '13.5px'; } catch (e) { /* measured again next paint */ }
+      });
+      if (a >= 0.5) REC.rows.push(r.s);
+      if (r.bad && a > 0) REC.bad++;
+    });
+  }
+  // Where a shrinking demonstration has got to: the gap now, the last stop reached, and how far that
+  // stop's labels have arrived (they fade while the points move, and come back once they stop).
+  function glide(gaps, gl, t0) {
+    let k = 0;
+    for (; k < gl.length; k++) {
+      const g0 = gl[k].t, g1 = g0 + gl[k].len;
+      if (T < g0) break;
+      if (T < g1) {
+        const e = K.ease((T - g0) / gl[k].len);
+        return { gap: Math.exp(K.lerp(Math.log(gaps[k]), Math.log(gaps[k + 1]), e)), stop: k, la: 1 - K.arrive(T, g0, 0.3) };
+      }
+    }
+    return { gap: gaps[k], stop: k, la: k === 0 ? vis(t0) : arr(gl[k - 1].t + gl[k - 1].len, 0.5) };
+  }
+
+  // ---------- the SHOW screens ----------
+  // Screen 1: the chord from 3 s to 4 s. P, Q and where they are show from the start (Q is what Dan
+  // drags); the chord, its triangle and the working arrive.
+  function drawS1(d, st, G, RW) {
+    const g = G.g, tl = d.tl, own = st.q != null, q = own ? st.q : d.q, A = own ? () => 1 : vis;
+    drawChord(G, d.p, q, { pts: 1, q: 1, chord: A(tl.chord[0]), grow: own ? 1 : arr(tl.chord[0], tl.chord[1]), legs: A(tl.legs), labs: A(tl.labs) },
+      { legText: ['Δx', 'Δy'], halo: !finished });
+    RW.push({ s: ptsRow(g, d.p, q), soft: true, a: 1 });
+    chordRows(g, d.p, q).forEach((s, n) => RW.push({ s, big: n === 1, a: A(tl.rows[n]) }));
+    REC.rate = slope(g, d.p, q);
+    return [[X(G, q), Y(G, g.fn(q)), q]];
+  }
+  // Screen 3: the slider shrinks the gap; the table fills in; the chord swings to the tangent.
+  function drawS3(d, st, G, RW) {
+    const g = G.g, p = d.p, own = st.gap != null, A = own ? () => 1 : vis;
+    const s = own ? { gap: GAPS[st.gap], stop: st.gap, la: 1 } : glide(GAPS, d.gl, 0.6);
+    const q = p + s.gap, tan = own ? 1 : vis(d.tanT), r = rate(g, p);
+    drawChord(G, p, q, { pts: A(0.4), q: A(0.4), chord: A(0.4), grow: 1, legs: A(0.4), labs: 0 }, {});
+    drawTangent(G, p, tan);
+    drawLens(G, (p + q) / 2, lensA(s.gap), { p, q, legs: ['Δx', 'Δy'], tan, label: 'close-up of P' }, A(0.4));
+    const ca = (c) => (own ? 1 : vis(c === 0 ? 0.5 : d.gl[c - 1].t + d.gl[c - 1].len));
+    drawTable(G, { title: 'Chord slopes from 3 s, in m per s', names: ['gap, s', 'slope', 'above ' + fmtN(r)], gaps: GAPS, hl: s.stop, hlA: s.la,
+      rows: [GAPS.map((h, c) => cell(fmtN(slope(g, p, p + h)), ca(c))), GAPS.map((h, c) => cell(fmtN(slope(g, p, p + h) - r), ca(c)))] });
+    chordRows(g, p, p + GAPS[s.stop]).forEach((t, n) => RW.push({ s: t, big: n === 1, a: s.la }));
+    REC.rate = slope(g, p, p + GAPS[s.stop]);
+    if (!checking && STEPS[at()] === d) { if (Math.round(gapCtl.get()) !== s.stop) gapCtl.set(s.stop, true); gapShown = s.stop; }
+  }
+  // Screen 5: Q slides onto P (0 ÷ 0), then chords come in from before P.
+  function drawS5(d, st, G, RW) {
+    const g = G.g, p = d.p, tl = d.tl, r = rate(g, p), one = T < tl.swap;
+    let q, s = null;
+    if (one) q = K.lerp(p + 0.01, p, K.ease(K.clamp((T - tl.slide[0]) / tl.slide[1], 0, 1)));
+    else { s = glide([1, 0.01], [{ t: tl.left, len: 0.6 }], tl.swap + 0.2); q = p - s.gap; }
+    const pa = vis(0.4), ca = one ? pa : arr(tl.swap, 0.5);
+    // The chord fades over the last 0.2 s before Q lands on P, so it goes rather than jumps.
+    const cf = one ? ca * (1 - K.arrive(T, tl.slide[0] + tl.slide[1] - 0.2, 0.2)) : ca;
+    if (Math.abs(q - p) > 1e-9) drawChord(G, p, q, { pts: pa, q: ca, chord: cf, grow: 1, legs: cf, labs: 0 }, {});
+    else drawPoint(G, p, pa);
+    // The lens holds its zoom while Q slides onto P, then fades and comes back for the chords before P.
+    const inner = one ? Math.min(pa, 1 - K.arrive(T, tl.out, 0.4)) : arr(tl.swap, 0.5);
+    drawLens(G, (p + q) / 2, one ? 0.015 : lensA(s.gap), { p, q, qa: cf / (ca || 1), legs: ['Δx', 'Δy'], label: 'close-up of P' }, pa, inner);
+    const hs = [1, 0.1, 0.01];
+    drawTable(G, { title: 'Chord slopes at 3 s, in m per s', names: ['gap, s', 'Q after P', 'Q before P'], gaps: hs, hl: one ? -1 : s.stop === 0 ? 0 : 2, hlA: s ? s.la : 0,
+      rows: [sideRow(g, p, hs, 1, pa), [cell(fmtN(slope(g, p - 1, p)), vis(tl.swap + 0.2)), cell('?', pa, 'head'), cell(fmtN(slope(g, p - 0.01, p)), arr(tl.left + 0.6, 0.6))]] });
+    RW.push({ s: 'Gap 0: ' + amt(g, 0) + ' ÷ ' + atS(g, 0) + ' has no answer', bad: true, a: vis(tl.zero) });
+    const h = s ? [1, 0.01][s.stop] : 1;
+    chordRows(g, p - h, p).forEach((t, n) => RW.push({ s: t, big: n === 1, a: s ? s.la : 0 }));
+    REC.rate = slope(g, p - h, p);
+    void r;
+  }
+  // Screen 7: the tangent, then the lens zooms in on P until the curve looks straight.
+  function drawS7(d, st, G, RW) {
+    const g = G.g, p = d.p, tl = d.tl, hs = [1, 0.1, 0.01], r = rate(g, p);
+    drawPoint(G, p, vis(0.4));
+    drawTangent(G, p, arr(tl.tan[0], tl.tan[1]));
+    const zs = [SAME, SAME / 10, SAME / 100], s = glide(zs, tl.zoom, tl.lens), z = SAME / zs[s.stop];
+    drawLens(G, p, s.gap, { p, tan: 1, label: s.stop === 0 ? 'same as the graph' : fmtN(z) + ' times closer', labelA: s.la }, vis(tl.lens));
+    drawTable(G, { title: 'Chord slopes at 3 s, in m per s', names: ['gap, s', 'Q after P', 'Q before P'], gaps: hs, hl: -1,
+      rows: [sideRow(g, p, hs, 1, vis(0.4)), sideRow(g, p, hs, -1, vis(0.4))] });
+    RW.push({ s: 'Both sides settle on ' + rateS(g, r), a: vis(0.6) }, { s: 'Slope of the tangent at P = ' + rateS(g, r), big: true, a: vis(0.9) });
+  }
+  // Screen 9: δy/δx at shrinking gaps, settling on dy/dx.
+  function drawS9(d, st, G, RW) {
+    const g = G.g, p = d.p, s = glide(d.gaps, d.gl, 0.6), q = p + s.gap, h = d.gaps[s.stop], tan = vis(d.tanT);
+    drawChord(G, p, q, { pts: vis(0.4), q: vis(0.4), chord: vis(0.4), grow: 1, legs: vis(0.4), labs: 0 }, {});
+    drawTangent(G, p, tan);
+    drawLens(G, (p + q) / 2, 1.5 * s.gap, { p, q, legs: ['δx', 'δy'], tan, label: 'close-up of P' }, vis(0.4));
+    RW.push({ s: 'δx = ' + atS(g, h) + ' and δy = ' + amt(g, g.fn(p + h) - g.fn(p)), soft: true, a: s.la },
+      { s: 'δy/δx = ' + rateS(g, slope(g, p, p + h)), a: s.la },
+      { s: 'dy/dx = ' + rateS(g, rate(g, p)), big: true, a: vis(d.endT) });
+    REC.rate = slope(g, p, p + h);
+  }
+
+  // ---------- the puzzles ----------
+  // Before Check the working ends in a question mark; after it, the answer, or the slip drawn in red.
+  function drawSlip(G, p, mk, a) {
+    const g = G.g;
+    if (mk.origin != null) {
+      const x = mk.origin, y = g.fn(x);
+      part(a, 0, () => AV.push(line('slip', X(G, 0), Y(G, 0), X(G, x), Y(G, y))));
+      queue(a, [{ x: (X(G, 0) + X(G, x)) / 2 - 8, y: (Y(G, 0) + Y(G, y)) / 2 - 8, text: 'y ÷ x', anchor: 'end', cls: 'bad' }]);
+      REC.bad++;
+    }
+    if (mk.height) {
+      const y = g.fn(p);
+      part(a, 0, () => AV.push(line('slip', PL + 2, Y(G, y), X(G, p) - 9, Y(G, y))));
+      queue(a, [{ x: PL + 8, y: Y(G, y) - 8, text: amt(g, y), anchor: 'start', cls: 'bad' }]);
+      REC.bad++;
+    }
+    if (mk.chord != null) {
+      const q = mk.chord;
+      part(a, 0, () => AV.push(line('chord bad', X(G, p), Y(G, g.fn(p)), X(G, q), Y(G, g.fn(q))), circle('pt bad', X(G, q), Y(G, g.fn(q)), 7)));
+      REC.bad++;
+    }
+    if (mk.zero) {
+      part(a, 0, () => AV.push(circle('slip', X(G, p), Y(G, g.fn(p)), 13)));
+      queue(a, [{ x: X(G, p) + 16, y: Y(G, g.fn(p)) + 22, text: 'gap 0', anchor: 'start', cls: 'bad' }]);
+      REC.bad++;
+    }
+  }
+  function drawPuzzle(d, st, G, RW) {
+    const g = G.g, p = d.p, k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, a = arr(0.1), o = k ? d.o[k] : null;
+    if (d.q != null) {
+      drawChord(G, p, d.q, { pts: 1, q: 1, chord: 1, grow: 1, legs: 1, labs: 1 }, { legText: ['Δx', 'Δy'], legBad: !!(o && o.leg) });
+      if (d.lens) drawLens(G, (p + d.q) / 2, 1.5 * Math.abs(d.q - p), { p, q: d.q, legs: ['Δx', 'Δy'], legBad: !!(o && o.leg), label: 'close-up of P' }, 1);
+    } else drawPoint(G, p, 1, null, rate(g, p) > 0);
+    if (o && o.tan) drawTangent(G, p, a);
+    if (o && o.mark) drawSlip(G, p, o.mark, a);
+    if (d.table) drawTable(G, d.table(k, arr(0.3)));
+    if (d.q != null) {
+      RW.push({ s: d.head || ptsRow(g, p, d.q), soft: true });
+      if (!k) RW.push({ s: 'Δy ÷ Δx = ?' });
+      else if (k === 'right') { chordRows(g, p, d.q).forEach((s, n) => RW.push({ s, big: n === 1, t: 0.3 + 0.3 * n })); REC.rate = slope(g, p, d.q); }
+      else o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.3 + 0.3 * n }));
+    } else if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n === 0 }));
+    else if (k === 'right') d.right.forEach((s, n) => RW.push({ s, big: n === d.right.length - 1, t: 0.3 + 0.2 * n }));
+    else o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.3 + 0.3 * n }));
+  }
+
+  // The step's picture: the graph, then what this screen draws on it, then the key and the working.
+  function drawScene(d, st, G) {
+    const g = G.g, RW = [];
+    REC = { rate: null, chordLine: null, tan: null, rows: [], labs: [], bad: 0, pts: [], tab: null, G };
+    AV = []; LQ = []; KEY = [];
+    drawAxes(G);
+    text(12, 20, g.rule, 'tag', 'start');
+    AV.push(path('curve', curveD(G, g.fn, g.x[0], g.x[1])));
+    let grips = [];
+    if (d.draw) grips = d.draw(d, st, G, RW) || [];
+    else drawPuzzle(d, st, G, RW);
+    drawKey(G);
+    drawRows(G, RW);
+    flushLabels();
+    placeGrip(d, grips);
+    return 'The graph of ' + say(g.rule) + '. ' + REC.rows.map(say).join('. ');
+  }
+
+  // ---------- dragging Q along the graph (screen 1) ----------
+  // Q lands on half seconds inside the axes, never on P, so every chord has a gap.
+  function clampQ(d, cur, v) {
+    const g = GR[d.g], r = K.clamp(Math.round(v * 2) / 2, g.x[0], g.x[1]);
+    return r === d.p ? cur : r;
+  }
+  const dragOn = () => !finished && !!STEPS[at()].drag;
+  const curQ = () => { const d = STEPS[at()], st = S[at()]; return st.q != null ? st.q : d.q; };
+  function setQ(v) {
+    const i = at(), d = STEPS[i], st = S[i], n = clampQ(d, curQ(), v);
+    if (st.q === n && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity; st.q = n;
+    K.reveal(); K.refresh();
+  }
+  function svgPoint(e) {
+    const ctm = svg.getScreenCTM();
+    return ctm ? new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()) : null;
+  }
+  let held = null;
+  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: 0, cy: 0, r: 22, tabindex: -1, role: 'slider', 'aria-orientation': 'horizontal', 'aria-label': 'Point Q' }));
+  grip.style.display = 'none';
+  grip.addEventListener('pointerdown', (e) => {
+    if (!dragOn()) return;
+    held = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the grip */ }
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => {
+    if (held !== e.pointerId || !dragOn()) return;
+    const q = svgPoint(e), g = GR[STEPS[at()].g];
+    if (q) setQ(g.x[0] + (q.x - PL) / (PR - PL) * (g.x[1] - g.x[0]));
+  });
+  const letGo = (e) => { if (held === e.pointerId) held = null; };
+  grip.addEventListener('pointerup', letGo);
+  grip.addEventListener('pointercancel', letGo);
+  grip.addEventListener('lostpointercapture', () => { held = null; });
+  grip.addEventListener('keydown', (e) => {
+    if (!dragOn()) return;
+    const by = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1 }[e.key];
+    if (by == null) return;
+    e.preventDefault();
+    let n = curQ() + 0.5 * by;
+    if (n === STEPS[at()].p) n += 0.5 * by;
+    setQ(n);
+  });
+  function placeGrip(d, list) {
+    if (checking) return;
+    const g = GR[d.g], on = !!d.drag && !finished && list.length > 0;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    grip.setAttribute('cx', r3(list[0][0])); grip.setAttribute('cy', r3(list[0][1]));
+    grip.setAttribute('aria-valuemin', g.x[0]); grip.setAttribute('aria-valuemax', g.x[1]); grip.setAttribute('aria-valuenow', list[0][2]);
+    grip.setAttribute('aria-valuetext', fmtN(list[0][2]) + ' ' + g.xu);
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(d, st, G));
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i], gp = Math.round(p.gap);
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.q = null; st.gap = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    } else if (d.slider && gp !== gapShown) {
+      // Dan moved the slider: his gap, shown at once.
+      st.gap = K.clamp(gp, 0, GAPS.length - 1);
+      if (anim.playing()) anim.pause();
+      T = Infinity;
+    }
+    if (!d.slider) gapShown = gp;
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('gapbox').hidden = !d.slider || finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(labs[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, labs[k]));
+      b.el.setAttribute('aria-label', say(labs[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });
+  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A drawn line's gradient read back through the axes, in the rule's units.
+  const lineSlope = (c, g) => (-(c.y2 - c.y1) / PH * (g.y[1] - g.y[0])) / ((c.x2 - c.x1) / (PR - PL) * (g.x[1] - g.x[0]));
+  const onLine = (c, pt) => Math.abs((c.x2 - c.x1) * (pt[1] - c.y1) - (c.y2 - c.y1) * (pt[0] - c.x1)) / Math.hypot(c.x2 - c.x1, c.y2 - c.y1) < 1e-6;
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; checking = true;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), pts: REC.pts.slice() });
+    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }
+  }
+
+  K.check('As Q gets closer to P, the slope of the chord becomes a better approximation to the rate of change at P: on the boat at P, from either side, each shorter chord the page uses is nearer the rate there than the one before, and at every stop of the slider the chord drawn, the working and the table give the slope the rule gives, with the amount above the rate equal to the gap', () => {
+    const r = rate(sq, 3), hs = [1, 0.5, 0.1, 0.01, 0.001], down = (a) => a.every((v, n) => n === 0 || v < a[n - 1]);
+    const i = idx('Shrink the gap');
+    const slider = GAPS.every((h, k) => {
+      const s = drawn(i, Object.assign(blank(), { gap: k })), m = slope(sq, 3, 3 + h);
+      return close(s.rate, m) && s.rows[1] === 'Slope of the chord = ' + rateS(sq, m) && s.tab[0][k] === fmtN(m) && s.tab[1][k] === fmtN(h) && !!s.chordLine && close(lineSlope(s.chordLine, sq), m);
+    });
+    return down(hs.map((h) => Math.abs(slope(sq, 3, 3 + h) - r))) && down(hs.map((h) => Math.abs(slope(sq, 3 - h, 3) - r))) && slider;
+  }, { source: OPENSTAX });
+  K.check('Recognize a tangent to a curve at a point as the limit of secant lines: every tangent the page draws goes through its point P with the slope the chords there settle on from either side, and read back through the axes its drawn gradient is that slope', () =>
+    [['Shrink the gap', blank()], ['The tangent', blank()], ['δy/δx becomes dy/dx', blank()], ['At exactly 3 s', solvedSt()], ['dy/dx at 3 s', solvedSt()], ['The draining tank', solvedSt()], ['The boat at 2 s', solvedSt()]].every(([name, st]) => {
+      const i = idx(name), d = STEPS[i], g = GR[d.g], h = drawn(i, st), t = h.tan, lim = rate(g, d.p);
+      if (!t) return false;
+      const settle = [1e-3, 1e-5].every((e) => Math.abs(slope(g, d.p, d.p + e) - lim) < 1e-2 && Math.abs(slope(g, d.p - e, d.p) - lim) < 1e-2);
+      return settle && close(lineSlope(t, g), lim) && onLine(t, [X(h.G, d.p), Y(h.G, g.fn(d.p))]);
+    }), { source: OPENSTAX });
+  K.check('Discusses the meaning of the limiting value of δy/δx as δx shrinks towards nought, defining it as dy/dx: on the δ screen δy/δx reads the rule\'s chord slope at each gap it stops at, and dy/dx is the number those slopes settle on', () => {
+    const i = idx('δy/δx becomes dy/dx');
+    const seen = [[0.98, 0.5], [1.98, 0.1]].every(([t, h]) => drawn(i, blank(), t).rows[1] === 'δy/δx = ' + rateS(sq, slope(sq, 3, 3 + h)));
+    const end = drawn(i, blank());
+    return seen && end.rows[1] === 'δy/δx = ' + rateS(sq, slope(sq, 3, 3.01)) && end.rows[2] === 'dy/dx = ' + rateS(sq, rate(sq, 3)) &&
+      Math.abs(slope(sq, 3, 3.01) - rate(sq, 3)) < Math.abs(slope(sq, 3, 3.1) - rate(sq, 3));
+  }, { source: MCA });
+  K.check('From the rules: f(3) = 9 m and the chord from 3 s to 4 s is 16 − 9 = 7 m per s; chords from 3 s read 7, 6.5, 6.1, 6.01 and 6.001 m per s, each above 6 by its gap; chords ending at 3 s from 2, 2.9, 2.99 and 2.999 s read 5, 5.9, 5.99 and 5.999; f(3.5) = 12.25 m, 3.25 m above P, and 12.25 ÷ 3.5 = 3.5; f(2.9) = 8.41 m; f(3.001) = 9.006001 m; from 2 s the chords read 5, 4.1 and 4.01 and settle on 4, while 4 ÷ 2 = 2; the tank holds 50 L at 5 min, its chords read −19.8 and −19.98 and settle on −20 L per min; and the screens\' sentences quote these same values', () => {
+    const n = (a, b) => close(a, b, 1e-9);
+    const boat = sq.fn(3) === 9 && sq.fn(4) - sq.fn(3) === 7 && R3 === 6 &&
+      [[1, 7], [0.5, 6.5], [0.1, 6.1], [0.01, 6.01], [0.001, 6.001]].every(([h, v]) => n(slope(sq, 3, 3 + h), v) && n(slope(sq, 3, 3 + h) - R3, h)) &&
+      [[1, 5], [0.1, 5.9], [0.01, 5.99], [0.001, 5.999]].every(([h, v]) => n(slope(sq, 3 - h, 3), v)) &&
+      n(sq.fn(3.5), 12.25) && n(sq.fn(3.5) - 9, 3.25) && n(sq.fn(3.5) / 3.5, 3.5) && n(sq.fn(2.9), 8.41) && n(sq.fn(3.001), 9.006001) &&
+      [[1, 5], [0.1, 4.1], [0.01, 4.01]].every(([h, v]) => n(slope(sq, 2, 2 + h), v)) && rate(sq, 2) === 4 && sq.fn(2) / 2 === 2 && sq.fn(3) / 3 === 3;
+    const tank = tk.fn(5) === 50 && n(slope(tk, 5, 5.1), -19.8) && n(slope(tk, 5, 5.01), -19.98) && rate(tk, 5) === -20;
+    const has = (name, key, bits) => bits.every((b) => STEPS[idx(name)][key].indexOf(b) >= 0);
+    const list = (vs) => vs.slice(0, -1).map(fmtN).join(', ') + ' and ' + fmtN(vs[vs.length - 1]);
+    const words = has('A chord over one second', 'text', [fmtN(sq.fn(4)) + ' − ' + fmtN(sq.fn(3)) + ' = ' + fmtN(slope(sq, 3, 4))]) &&
+      has('Half a second', 'task', ['3.5 × 3.5 = ' + fmtN(sq.fn(3.5))]) &&
+      has('Shrink the gap', 'text', [list(GAPS.map((h) => slope(sq, 3, 3 + h)))]) &&
+      has('A thousandth of a second', 'task', ['f(3.001) = ' + fmtN(sq.fn(3.001))]) &&
+      has('Not zero', 'text', [list([slope(sq, 2, 3), slope(sq, 2.99, 3)])]) &&
+      has('From 2.9 s', 'task', ['f(2.9) = ' + fmtN(sq.fn(2.9))]) &&
+      has('At exactly 3 s', 'task', [list([0.1, 0.01, 0.001].map((h) => slope(sq, 3, 3 + h))), list([0.1, 0.01, 0.001].map((h) => slope(sq, 3 - h, 3)))]) &&
+      has('The draining tank', 'task', [fmtN(tk.fn(5)) + ' L', fmtN(slope(tk, 5, 5.1)) + ' L per min', fmtN(slope(tk, 5, 5.01))]) &&
+      has('The boat at 2 s', 'task', [list([1, 0.1, 0.01].map((h) => slope(sq, 2, 2 + h)))]);
+    return boat && tank && words;
+  });
+  K.check('Every puzzle offers three different answers and accepts only the right one; each wrong answer is the slip it stands for: 3.5 m per s and 3.25 m against 6.5 m per s; 6 m per s and 0.006001 m against 6.001 m per s; 6.1 m per s and 0.59 m against 5.9 m per s; 9 m and 6.001 m per s against 6 m per s; 3 m per s and 0 ÷ 0, no answer against 6 m per s; −19.98 L per min and 50 L against −20 L per min; 5 m per s and 2 m per s against 4 m per s', () => {
+    const want = { 'Half a second': ['3.5 m per s', '6.5 m per s', '3.25 m'], 'A thousandth of a second': ['6 m per s', '0.006001 m', '6.001 m per s'], 'From 2.9 s': ['5.9 m per s', '6.1 m per s', '0.59 m'],
+      'At exactly 3 s': ['9 m', '6 m per s', '6.001 m per s'], 'dy/dx at 3 s': ['3 m per s', '6 m per s', '0 ÷ 0, no answer'], 'The draining tank': ['−19.98 L per min', '−20 L per min', '50 L'], 'The boat at 2 s': ['4 m per s', '5 m per s', '2 m per s'] };
+    return DO.length === 7 && DO.every((i) => {
+      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);
+      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1;
+    });
+  });
+  K.check('Before an answer no puzzle shows it: no tangent, nothing red, and the working ends in a question mark; a right answer shows its value with nothing red, and every wrong answer shows its slip in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt()), ans = d.o.right.t;
+      const preOk = !pre.tan && pre.bad === 0 && / \?$/.test(pre.rows[pre.rows.length - 1]) && !pre.rows.some((r) => r.indexOf(ans) >= 0);
+      const rightOk = ok.bad === 0 && ok.rows.some((r) => r.indexOf(ans) >= 0) && (!d.o.right.tan || !!ok.tan);
+      return preOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => drawn(i, wrongSt(k)).bad > 0);
+    }));
+  K.check('Every chord is drawn as a straight line through P and Q, and its gradient read back through the axes is the slope in the working', () => {
+    const states = [[0, blank()]].concat([1, 4.5, 0, 2.5].map((q) => [0, Object.assign(blank(), { q })]),
+      [[idx('Half a second'), solvedSt()], [idx('A thousandth of a second'), solvedSt()], [idx('From 2.9 s'), solvedSt()], [idx('Not zero'), blank()], [idx('δy/δx becomes dy/dx'), blank()]]);
+    return states.every(([i, st]) => {
+      const h = drawn(i, st), g = GR[STEPS[i].g];
+      return !!h.chordLine && h.pts.length >= 2 && close(lineSlope(h.chordLine, g), h.rate) && onLine(h.chordLine, h.pts[0]) && onLine(h.chordLine, h.pts[1]);
+    });
+  });
+  K.check('Dragging Q keeps it on a half second inside the axes and never on P, so every chord it makes has a gap', () => {
+    const d = STEPS[0];
+    return clampQ(d, 4, 3.1) === 4 && clampQ(d, 4, 7) === 5 && clampQ(d, 4, -1) === 0 && clampQ(d, 2, 2.74) === 2.5 && clampQ(d, 1, 3.6) === 3.5;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 1.3 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; checking = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; checking = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(), FB[0]) && d.opts.filter((o) => o !== 'right').every((o) => timed(i, wrongSt(o), FB[1]));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
