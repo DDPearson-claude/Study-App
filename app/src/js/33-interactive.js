@@ -62,9 +62,12 @@ U.interactive = (function () {
     return str(u).toLowerCase().replace(/^https?:\/\//, '').replace(/^www\d?\./, '').replace(/#.*$/, '').replace(/\/+$/, '');
   }
   function urlsIn(text) {
-    var out = [], re = /https?:\/\/[^\s'"`<>\\)\]]+/gi, m;
+    // Brackets may be part of an address (Wikipedia, LibreTexts: "..._(OpenStax)/21..."): keep a
+    // ")" that closes one opened inside the address, and drop the one that closes prose around it.
+    var out = [], re = /https?:\/\/[^\s'"`<>\\\]]+/gi, m;
     while ((m = re.exec(String(text || '')))) {
       var u = m[0].replace(/[.,;:!?]+$/, '');
+      while (/\)$/.test(u) && (u.match(/\)/g) || []).length > (u.match(/\(/g) || []).length) u = u.slice(0, -1).replace(/[.,;:!?]+$/, '');
       if (!/^https?:\/\/(www\.)?w3\.org\//i.test(u) && out.indexOf(u) < 0) out.push(u);
     }
     return out;

@@ -144,6 +144,10 @@ node tools/eval/prompts.mjs verify-lesson --topic $D/topic.json --idea I --lesso
 node tools/eval/validate.mjs verify $D/I.verify.reply.txt --lesson $D/I.lesson.final.json --out $D/I.lesson.verified.json
 ```
 Save the printed `applied` and `notes` as `$D/I.verify.result.json` = `{"status": "done", "applied": [...], "notes": [...]}`.
+A finalised or verified lesson is checked with `validate.mjs lesson $D/I.lesson.verified.json --iid I
+--sources $D/research.json --topic $D/topic.json --final`: its sources are renumbered in citation
+order, so without `--final` every source "differs". Sources stay numbered 1..n with no gaps; a
+source added later goes at the end of `research.json` (never renumber what other lessons cite).
 If hard problems remain after one repair, copy the final lesson to the verified file and record
 `{"status": "failed", "applied": [], "notes": []}`, as the app would.
 

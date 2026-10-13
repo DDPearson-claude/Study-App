@@ -2622,7 +2622,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-12-0da8b4e";
+U.BUILD = "2026-10-13-f75458c";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -6181,6 +6181,12 @@ U.logStudy = (function () {
     if (opts.sources === null && Array.isArray(o.sources) && o.sources.length) v.add('No research was supplied, so "sources" must be [] and the lesson must have no [^n] markers.');
     if (Array.isArray(opts.sources) && Array.isArray(o.sources)) o.sources.forEach(function (x, k) {
       if (!isObj(x) || !isInt(x.n)) return;
+      // A finalised lesson's sources are renumbered in order of first citation (_finaliseLesson), so
+      // they no longer carry the research numbering: match them by address instead.
+      if (opts.final) {
+        if (!opts.sources.some(function (y) { return urlKey(y.url) === urlKey(x.url); })) v.add('sources[' + k + '] (' + str(x.url) + ') is not one of the supplied research sources; cite only those.');
+        return;
+      }
       var a = opts.sources.filter(function (y) { return y.n === x.n; })[0];
       if (!a) v.add('sources[' + k + '] is [' + x.n + '], which is not one of the supplied research sources; cite only those.');
       else if (urlKey(a.url) !== urlKey(x.url)) v.add('sources[' + k + '] is [' + x.n + '] but its url differs from supplied source [' + x.n + ']; copy n, title, url and quote exactly.');
@@ -8400,9 +8406,12 @@ U.interactive = (function () {
     return str(u).toLowerCase().replace(/^https?:\/\//, '').replace(/^www\d?\./, '').replace(/#.*$/, '').replace(/\/+$/, '');
   }
   function urlsIn(text) {
-    var out = [], re = /https?:\/\/[^\s'"`<>\\)\]]+/gi, m;
+    // Brackets may be part of an address (Wikipedia, LibreTexts: "..._(OpenStax)/21..."): keep a
+    // ")" that closes one opened inside the address, and drop the one that closes prose around it.
+    var out = [], re = /https?:\/\/[^\s'"`<>\\\]]+/gi, m;
     while ((m = re.exec(String(text || '')))) {
       var u = m[0].replace(/[.,;:!?]+$/, '');
+      while (/\)$/.test(u) && (u.match(/\)/g) || []).length > (u.match(/\(/g) || []).length) u = u.slice(0, -1).replace(/[.,;:!?]+$/, '');
       if (!/^https?:\/\/(www\.)?w3\.org\//i.test(u) && out.indexOf(u) < 0) out.push(u);
     }
     return out;
@@ -8650,7 +8659,11 @@ U.interactive = (function () {
   }
 
   // TASK: repair-interactive
-  function repairPrompt(topic, idea, lesson, html, report) {
+  // opts.noBody (a build session, tools/course/attempt.mjs): the builder wrote the body a moment ago
+  // and still has it, so the prompt names the file instead of quoting 60 KB back; the page, whose
+  // repair call is a fresh sample, always quotes it.
+  function repairPrompt(topic, idea, lesson, html, report, opts) {
+    opts = opts || {};
     var found = problems(report, lesson, html).concat(advice(report, lesson));
     return [
       'TASK: repair-interactive',
@@ -8680,7 +8693,9 @@ U.interactive = (function () {
       sourcesSection(lesson),
       rulesSection(lesson),
       kitSection(),
-      '## The body that failed\n' + String(html || '(empty reply)'),
+      opts.noBody
+        ? '## The body that failed\nThe body you just wrote' + (opts.bodyFile ? ' (' + opts.bodyFile + ')' : '') + '. You already have it; it is not repeated here. Return the complete corrected body.'
+        : '## The body that failed\n' + String(html || '(empty reply)'),
       outputSection(true),
     ].filter(Boolean).join('\n\n');
   }

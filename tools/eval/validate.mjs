@@ -3,7 +3,8 @@
 //   node tools/eval/validate.mjs intake  reply.json       the intake questions (TASK: intake); also prints
 //     them as the app keeps them (U.prompts.cleanIntake: an "Other" option folded into other: true)
 //   node tools/eval/validate.mjs plan    reply.json
-//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json --topic topic.json] [--mode study|read]
+//   node tools/eval/validate.mjs lesson  reply.json --iid i1 [--sources research.json --topic topic.json] [--mode study|read] [--final]
+//        (--final for a finalised or verified lesson, whose sources are numbered in citation order)
 //     --mode: the course's mode (default the topic's "mode", else study): a read lesson needs no
 //     predict, say or checks; practice is required in both
 //   node tools/eval/validate.mjs grade   reply.json [--attempt 1]
@@ -62,6 +63,10 @@ try {
       const lr = U.prompts.lessonResearch(JSON.parse(readFileSync(arg('sources'), 'utf8')), opts.iid, idea && idea.deps, topic && topic.ideas);
       opts.sources = lr && lr.sources.length ? lr.sources : null;
     }
+    // --final: a finalised or verified lesson (assemble finalise, validate verify --out), whose
+    // sources are renumbered in order of first citation, as the app checks it before saving; without
+    // it the check expects the write prompt's numbering and a final lesson fails on every source.
+    if (process.argv.includes('--final')) opts.final = true;
   }
   if (kind === 'grade') opts.attempt = Number(arg('attempt', '1'));
   const got = U.parseJson.pick(text, (o) => U.validate[kind](o, opts));

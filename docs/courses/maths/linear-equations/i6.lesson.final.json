@@ -154,7 +154,7 @@
         "label": "Copper's temperature coefficient α, per °C",
         "value": 0.0039,
         "kind": "constant",
-        "source": 6
+        "source": 5
       },
       {
         "label": "Example cold resistance R₀, ohms, steps 5 and 7",
@@ -235,7 +235,7 @@
         "label": "Rule fits changes of about this many °C or less",
         "value": 100,
         "kind": "constant",
-        "source": 7
+        "source": 6
       },
       {
         "label": "Slip, 1 taken first: (2.4 − 1) ÷ 2.0, step 7",
@@ -450,14 +450,14 @@
     ]
   },
   "explain": {
-    "text": "A job in words becomes an equation when you write what one part is and then how many parts there are, so a job made of identical two-part pieces gets a bracket. Say it in one sentence first:[^1] two cable runs, each x metres plus a 3 m tail, use 40 m in all. One run is x + 3, and the bracket keeps that run together, so two runs are 2(x + 3), and 2(x + 3) = 40. Writing 2x + 3 would count the tail once, though each run has its own. Undo it as in Equations with brackets: 40 ÷ 2 = 20, then 20 − 3 = 17, so x = 17. Put it back in to check:[^5] 2(17 + 3) = 2 × 20 = 40. An invoice works the same way. Two jobs, each a £60 call-out plus h hours at £40 an hour, come to £360, so 2(60 + 40h) = 360. Halve it to £180 for one job, take off the £60 call-out to leave £120, and £120 ÷ £40 is 3 hours.\n\nA formula with a bracket is undone in the same way. R = R₀(1 + αΔT) gives the resistance R after a temperature change ΔT, where R₀ is the original resistance, its reading at the starting temperature.[^3] Expanded, it is R = R₀ + R₀αΔT, so each degree adds α × R₀. α is the [[temperature coefficient]], and for copper it is 3.9 × 10⁻³ per °C, which is 0.0039.[^6] As a flow diagram, ΔT is multiplied by α, then 1 is added, then the whole bracket is multiplied by R₀. Say a 2.0 Ω winding warms by 50 °C: 0.0039 × 50 = 0.195, the bracket is 1.195, and R = 2.0 × 1.195 = 2.39 Ω. The bracket is one number, the factor the resistance grows by. Handling a process like this as one object is a shift some learners find hard,[^2] and here the object is the whole bracket. To make R₀ the [[subject]], the letter on its own on one side, divide both sides by the whole bracket: R₀ = R ÷ (1 + αΔT), and 2.39 ÷ 1.195 = 2.0. Dividing by the αΔT part alone leaves out the 1, which R₀ multiplied too.\n\nTo make ΔT the subject, undo the flow diagram from the right. Divide both sides by R₀, which leaves R ÷ R₀ = 1 + αΔT. Take 1 from both sides, then divide by α: ΔT = (R ÷ R₀ − 1) ÷ α. A winding that reads 2.0 Ω cold and 2.4 Ω after a run gives 2.4 ÷ 2.0 = 1.2, then 1.2 − 1 = 0.2, and 0.2 ÷ 0.0039 is about 51 °C. Taking the 1 off first is the slip to watch, because R₀ multiplies the 1 as well: (2.4 − 1) ÷ 2.0 = 0.7 gives about 179 °C. The rule fits changes of about 100 °C or less,[^7] and 51 °C is inside that.\n\nThe same shape turns up in thermal expansion. A rod or pipe warmed from t₀ to t₁ grows to L₁ = L₀ + L₀α(t₁ − t₀),[^8] where t₁ − t₀ is the temperature change, like ΔT, and α is now how much each metre of the metal grows for each degree, a different number. L₀ is a common factor, so it is L₁ = L₀(1 + α(t₁ − t₀)), and L₀ = L₁ ÷ (1 + α(t₁ − t₀)), just as for R₀. **Write one part of the job and multiply it by how many parts there are, undo a formula from the outside in with its bracket divided as one whole thing, and put the answer back in to check it.[^5]**"
+    "text": "A job in words becomes an equation when you write what one part is and then how many parts there are, so a job made of identical two-part pieces gets a bracket. Say it in one sentence first:[^1] two cable runs, each x metres plus a 3 m tail, use 40 m in all. One run is x + 3, and the bracket keeps that run together, so two runs are 2(x + 3), and 2(x + 3) = 40. Writing 2x + 3 would count the tail once, though each run has its own. Undo it as in Equations with brackets: 40 ÷ 2 = 20, then 20 − 3 = 17, so x = 17. Put it back in to check:[^4] 2(17 + 3) = 2 × 20 = 40. An invoice works the same way. Two jobs, each a £60 call-out plus h hours at £40 an hour, come to £360, so 2(60 + 40h) = 360. Halve it to £180 for one job, take off the £60 call-out to leave £120, and £120 ÷ £40 is 3 hours.\n\nA formula with a bracket is undone in the same way. R = R₀(1 + αΔT) gives the resistance R after a temperature change ΔT, where R₀ is the original resistance, its reading at the starting temperature.[^3] Expanded, it is R = R₀ + R₀αΔT, so each degree adds α × R₀. α is the [[temperature coefficient]], and for copper it is 3.9 × 10⁻³ per °C, which is 0.0039.[^5] As a flow diagram, ΔT is multiplied by α, then 1 is added, then the whole bracket is multiplied by R₀. Say a 2.0 Ω winding warms by 50 °C: 0.0039 × 50 = 0.195, the bracket is 1.195, and R = 2.0 × 1.195 = 2.39 Ω. The bracket is one number, the factor the resistance grows by. Handling a process like this as one object is a shift some learners find hard,[^2] and here the object is the whole bracket. To make R₀ the [[subject]], the letter on its own on one side, divide both sides by the whole bracket: R₀ = R ÷ (1 + αΔT), and 2.39 ÷ 1.195 = 2.0. Dividing by the αΔT part alone leaves out the 1, which R₀ multiplied too.\n\nTo make ΔT the subject, undo the flow diagram from the right. Divide both sides by R₀, which leaves R ÷ R₀ = 1 + αΔT. Take 1 from both sides, then divide by α: ΔT = (R ÷ R₀ − 1) ÷ α. A winding that reads 2.0 Ω cold and 2.4 Ω after a run gives 2.4 ÷ 2.0 = 1.2, then 1.2 − 1 = 0.2, and 0.2 ÷ 0.0039 is about 51 °C. Taking the 1 off first is the slip to watch, because R₀ multiplies the 1 as well: (2.4 − 1) ÷ 2.0 = 0.7 gives about 179 °C. The rule fits changes of about 100 °C or less,[^6] and 51 °C is inside that.\n\nThe same shape turns up in thermal expansion. A rod or pipe warmed from t₀ to t₁ grows to L₁ = L₀ + L₀α(t₁ − t₀),[^7] where t₁ − t₀ is the temperature change, like ΔT, and α is now how much each metre of the metal grows for each degree, a different number. L₀ is a common factor, so it is L₁ = L₀(1 + α(t₁ − t₀)), and L₀ = L₁ ÷ (1 + α(t₁ − t₀)), just as for R₀. **Write one part of the job and multiply it by how many parts there are, undo a formula from the outside in with its bracket divided as one whole thing, and put the answer back in to check it.[^4]**"
   },
   "analogy": {
-    "text": "When you size a cable, the correction factors are applied as divisors: you divide the design current by all of them together to find the tabulated rating you need.[^9] (1 + αΔT) is a factor on R₀ in the same way: R₀ times it gives R, so R divided by all of it gives R₀ back.",
+    "text": "When you size a cable, the correction factors are applied as divisors: you divide the design current by all of them together to find the tabulated rating you need.[^8] (1 + αΔT) is a factor on R₀ in the same way: R₀ times it gives R, so R divided by all of it gives R₀ back.",
     "breaks": "Each correction factor is a single number read from a table, so there is nothing inside it to split off. (1 + αΔT) has a 1 and an αΔT part, and dividing by the αΔT part alone is exactly the slip to avoid: R₀ multiplies the 1 too."
   },
   "practice": {
-    "text": "- Say the job in one sentence, with every number in it.[^1]\n- Pick a letter for the unknown and write what one part is, such as x + 3 for one run.\n- Put a bracket round that part and multiply it by how many parts there are.\n- When the bracket is all there is on its side, undo from the outside in: the number or letter outside the bracket first, then what is inside.\n- In a formula, keep the bracket whole: divide by all of it, or take the factor outside off first.\n- Put your answer back in to check it.[^5]\n\n**Rule of thumb:** Anything that comes once for each part goes inside the bracket.\n\n**Worked example:** A copper coil reads 10 Ω cold and 11.17 Ω warm. ΔT = (R ÷ R₀ − 1) ÷ α. 11.17 ÷ 10 = 1.117, 1.117 − 1 = 0.117, and 0.117 ÷ 0.0039 = 30 °C. Check: 10 × 1.117 = 11.17.\n\n**Common mistakes**\n- Counting a once-per-part figure once, so two runs with a 3 m tail each become 2x + 3 = 40. That gives x = 18.5, and two real runs would then take 2(18.5 + 3) = 43 m, not 40.\n- Splitting the bracket, dividing R by the αΔT part alone. With R = 3.0 Ω and a bracket of 1.2, that gives 15 Ω, and 15 × 1.2 = 18, not 3.0.\n- Taking the 1 off before dividing by R₀. For 2.0 Ω to 2.4 Ω, (2.4 − 1) ÷ 2.0 = 0.7 gives about 179 °C, not 51 °C.\n- Leaving R₀ out, as (R − R₀) ÷ α. For 4.0 Ω to 4.6 Ω that gives about 154 °C, not 38 °C.\n- Using the rule far outside its range: it fits changes of about 100 °C or less.[^7]"
+    "text": "- Say the job in one sentence, with every number in it.[^1]\n- Pick a letter for the unknown and write what one part is, such as x + 3 for one run.\n- Put a bracket round that part and multiply it by how many parts there are.\n- When the bracket is all there is on its side, undo from the outside in: the number or letter outside the bracket first, then what is inside.\n- In a formula, keep the bracket whole: divide by all of it, or take the factor outside off first.\n- Put your answer back in to check it.[^4]\n\n**Rule of thumb:** Anything that comes once for each part goes inside the bracket.\n\n**Worked example:** A copper coil reads 10 Ω cold and 11.17 Ω warm. ΔT = (R ÷ R₀ − 1) ÷ α. 11.17 ÷ 10 = 1.117, 1.117 − 1 = 0.117, and 0.117 ÷ 0.0039 = 30 °C. Check: 10 × 1.117 = 11.17.\n\n**Common mistakes**\n- Counting a once-per-part figure once, so two runs with a 3 m tail each become 2x + 3 = 40. That gives x = 18.5, and two real runs would then take 2(18.5 + 3) = 43 m, not 40.\n- Splitting the bracket, dividing R by the αΔT part alone. With R = 3.0 Ω and a bracket of 1.2, that gives 15 Ω, and 15 × 1.2 = 18, not 3.0.\n- Taking the 1 off before dividing by R₀. For 2.0 Ω to 2.4 Ω, (2.4 − 1) ÷ 2.0 = 0.7 gives about 179 °C, not 51 °C.\n- Leaving R₀ out, as (R − R₀) ÷ α. For 4.0 Ω to 4.6 Ω that gives about 154 °C, not 38 °C.\n- Using the rule far outside its range: it fits changes of about 100 °C or less.[^6]"
   },
   "say": null,
   "checks": [],
@@ -485,31 +485,31 @@
       "quote": "R = R ₀ ( 1 + α Δ T ) is the temperature dependence of the resistance of an object, where R ₀ is the original resistance and R is the resistance after a temperature change Δ T ."
     },
     {
-      "n": 5,
+      "n": 4,
       "title": "Ch. 1 Solve Linear Equations: Mini-Lesson Review - Algebra 1 | OpenStax",
       "url": "https://openstax.org/books/algebra-1/pages/1-solve-linear-equations-mini-lesson-review",
       "quote": "You can check the solution by substituting the value into the equation."
     },
     {
-      "n": 6,
+      "n": 5,
       "title": "Module 6 Resistance | Science 111",
       "url": "https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity",
       "quote": "Copper | 3.9 × 10 −3"
     },
     {
-      "n": 7,
+      "n": 6,
       "title": "Module 6 Resistance | Science 111",
       "url": "https://courses.lumenlearning.com/ivytech-sci111/chapter/resistance-and-resistivity",
       "quote": "Over relatively small temperature changes (about 100ºC or less), resistivity ρ varies with temperature change Δ T as expressed in the following equation"
     },
     {
-      "n": 8,
+      "n": 7,
       "title": "Linear Thermal Expansion: Formula, Coefficients & Calculator (Engineering ToolBox)",
       "url": "https://www.engineeringtoolbox.com/amp/linear-thermal-expansion-d_1379.html",
       "quote": "L 1 = L 0 + dl = L 0 + L 0 α (t 1 - t 0 ) (2)"
     },
     {
-      "n": 9,
+      "n": 8,
       "title": "Changes to Appendix 4 of Amendment 1 of BS 7671:2008 (IET Wiring Matters, Autumn 2012)",
       "url": "https://electrical.theiet.org/media/1522/changes-to-appendix-4-of-amendment-1-of-bs7671-2008.pdf",
       "quote": "the correction factors are simply applied as divisors to the design current (load current) of the circuit (Ib)"
