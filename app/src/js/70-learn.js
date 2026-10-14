@@ -132,6 +132,15 @@
     },
   ];
 
+  // V.toneOf(title, topic) -> '0'..'5': a course's colour, one of six (75-dossier.css [data-tone]),
+  // from its own hue (its cover's) or from its title when there is no topic. Never red or green,
+  // which mean mistakes and finished. The dossier, the shelves, the Library's doors and the Map
+  // all carry it (Dan, 11 and 14 Oct: more colour, within the palette).
+  V.toneOf = function (title, topic) {
+    var hue = topic && typeof topic.hue === 'number' ? topic.hue : U.hash(String(title || '')) % 360;
+    return String(Math.floor((((Math.round(hue) % 360) + 360) % 360) / 60));
+  };
+
   // V.cover(topic, {class}) -> <svg>: a calm abstract cover drawn from topic.hue and the title.
   // No text, identical every render; colours come from CSS so light and dark both work.
   V.cover = function (topic, opts) {

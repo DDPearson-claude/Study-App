@@ -1768,6 +1768,19 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .lib-choice-m { color: var(--muted); font-size: .875rem; }
 .lib-choice-m:empty { display: none; }
 .lib-choice-go { flex: none; width: 22px; height: 22px; color: var(--muted); }
+/* Menus in colour (Dan, 14 Oct): each shelf, folder and course carries its course colour (the
+   dossier's six tones, 75-dossier.css [data-tone], from V.toneOf): a band at its left edge, its
+   icon tile and its number in the colour's tint and ink. The Library's two doors take one each,
+   and a Map card a band along its top, like a dossier's tile. Meaning colours are untouched:
+   teal labels, green finished, amber due, red warnings, ink controls. A course not built yet
+   wears its colour faintly, so the built ones stand out. */
+.shelf-card[data-tone], .shelf-course[data-tone] { box-shadow: inset 5px 0 0 var(--acc); }
+.lib-choice[data-tone] { box-shadow: inset 5px 0 0 var(--acc), var(--shadow); }
+.shelf-card[data-tone] .shelf-ico, .lib-choice[data-tone] .lib-choice-ico { background: var(--acc-tint); color: var(--acc-ink); }
+.shelf-course[data-tone] .shelf-n { background: var(--acc-tint); border-color: var(--acc); color: var(--acc-ink); }
+.shelf-courses .is-waiting .shelf-course[data-tone] { box-shadow: inset 5px 0 0 color-mix(in srgb, var(--acc) 40%, var(--surface)); }
+.shelf-courses .is-waiting .shelf-course[data-tone] .shelf-n { background: transparent; border-color: color-mix(in srgb, var(--acc) 50%, var(--surface)); color: var(--muted); }
+.map-topic[data-tone] { box-shadow: inset 0 6px 0 var(--acc); padding-top: 22px; }
 
 /* src/css/75-dossier.css */
 /* The course dossier (75-dossier.js) as a field guide in D4's tiles (design 3, Dan's choice on
@@ -2195,18 +2208,18 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
    numeral box), --acc-ink is its text (at least 5.5:1), --acc-tint fills a reading panel. Progress
    stays ink, finished stays green, warnings stay red; key ideas and rules of thumb are "remember
    this", so they take the amber that means that. */
-.dos [data-tone], .dos[data-tone] { --acc: var(--acc-l); --acc-ink: var(--acc-ink-l); --acc-tint: var(--acc-tint-l); }
-:root[data-mu-theme="dark"] .dos [data-tone], :root[data-mu-theme="dark"] .dos[data-tone],
-:root[data-mu-theme="system"][data-theme="dark"] .dos [data-tone], :root[data-mu-theme="system"][data-theme="dark"] .dos[data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
+[data-tone] { --acc: var(--acc-l); --acc-ink: var(--acc-ink-l); --acc-tint: var(--acc-tint-l); }
+:root[data-mu-theme="dark"] [data-tone],
+:root[data-mu-theme="system"][data-theme="dark"] [data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
 @media (prefers-color-scheme: dark) {
-  :root[data-mu-theme="system"]:not([data-theme="light"]) .dos [data-tone], :root[data-mu-theme="system"]:not([data-theme="light"]) .dos[data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
+  :root[data-mu-theme="system"]:not([data-theme="light"]) [data-tone] { --acc: var(--acc-d); --acc-ink: var(--acc-ink-d); --acc-tint: var(--acc-tint-d); }
 }
-.dos [data-tone="0"], .dos[data-tone="0"] { --acc-l: #3B6FD8; --acc-ink-l: #2554B0; --acc-tint-l: #E6EEFC; --acc-d: #6E9BF0; --acc-ink-d: #9DBBF5; --acc-tint-d: #1C2638; }
-.dos [data-tone="1"], .dos[data-tone="1"] { --acc-l: #7A55D3; --acc-ink-l: #5E3BB5; --acc-tint-l: #EFE9FB; --acc-d: #A88BF0; --acc-ink-d: #C3AEF5; --acc-tint-d: #251F38; }
-.dos [data-tone="2"], .dos[data-tone="2"] { --acc-l: #E07B24; --acc-ink-l: #9A4A08; --acc-tint-l: #FCEEDF; --acc-d: #F0A35E; --acc-ink-d: #F5BE8C; --acc-tint-d: #33251A; }
-.dos [data-tone="3"], .dos[data-tone="3"] { --acc-l: #1E9AAE; --acc-ink-l: #0D6573; --acc-tint-l: #DFF3F5; --acc-d: #4FC3D4; --acc-ink-d: #86D6E1; --acc-tint-d: #16292D; }
-.dos [data-tone="4"], .dos[data-tone="4"] { --acc-l: #C53D8C; --acc-ink-l: #9A2A6B; --acc-tint-l: #FBE7F2; --acc-d: #EC7DBA; --acc-ink-d: #F2A6CF; --acc-tint-d: #33192A; }
-.dos [data-tone="5"], .dos[data-tone="5"] { --acc-l: #4B4FC4; --acc-ink-l: #363A9E; --acc-tint-l: #E9E9FA; --acc-d: #8E91EE; --acc-ink-d: #B0B2F3; --acc-tint-d: #1F2038; }
+[data-tone="0"] { --acc-l: #3B6FD8; --acc-ink-l: #2554B0; --acc-tint-l: #E6EEFC; --acc-d: #6E9BF0; --acc-ink-d: #9DBBF5; --acc-tint-d: #1C2638; }
+[data-tone="1"] { --acc-l: #7A55D3; --acc-ink-l: #5E3BB5; --acc-tint-l: #EFE9FB; --acc-d: #A88BF0; --acc-ink-d: #C3AEF5; --acc-tint-d: #251F38; }
+[data-tone="2"] { --acc-l: #E07B24; --acc-ink-l: #9A4A08; --acc-tint-l: #FCEEDF; --acc-d: #F0A35E; --acc-ink-d: #F5BE8C; --acc-tint-d: #33251A; }
+[data-tone="3"] { --acc-l: #1E9AAE; --acc-ink-l: #0D6573; --acc-tint-l: #DFF3F5; --acc-d: #4FC3D4; --acc-ink-d: #86D6E1; --acc-tint-d: #16292D; }
+[data-tone="4"] { --acc-l: #C53D8C; --acc-ink-l: #9A2A6B; --acc-tint-l: #FBE7F2; --acc-d: #EC7DBA; --acc-ink-d: #F2A6CF; --acc-tint-d: #33192A; }
+[data-tone="5"] { --acc-l: #4B4FC4; --acc-ink-l: #363A9E; --acc-tint-l: #E9E9FA; --acc-d: #8E91EE; --acc-ink-d: #B0B2F3; --acc-tint-d: #1F2038; }
 /* The Library: each dossier's tile carries its colour as a band along the top and in its number. */
 .dos .dl-tile[data-tone] { box-shadow: inset 0 6px 0 var(--acc); padding-top: 18px; }
 .dos .dl-lead[data-tone] { box-shadow: inset 0 6px 0 var(--acc), var(--shadow); }
@@ -2622,7 +2635,7 @@ h1 { font-weight: 700; }
 // ---- src/js/00-core.js ----
 // Core helpers shared by every module. See docs/ARCHITECTURE.md section 3.
 var U = (window.U = window.U || {});
-U.BUILD = "2026-10-13-8fa08a6";
+U.BUILD = "2026-10-14-1d6c12e";
 // TalkBack/VoiceOver pronunciation and hyphenation (head.html has no lang attribute).
 try { if (!document.documentElement.lang) document.documentElement.lang = 'en-GB'; } catch (e) { /* no DOM (node evals) */ }
 
@@ -13782,6 +13795,15 @@ U.interactive = (function () {
     },
   ];
 
+  // V.toneOf(title, topic) -> '0'..'5': a course's colour, one of six (75-dossier.css [data-tone]),
+  // from its own hue (its cover's) or from its title when there is no topic. Never red or green,
+  // which mean mistakes and finished. The dossier, the shelves, the Library's doors and the Map
+  // all carry it (Dan, 11 and 14 Oct: more colour, within the palette).
+  V.toneOf = function (title, topic) {
+    var hue = topic && typeof topic.hue === 'number' ? topic.hue : U.hash(String(title || '')) % 360;
+    return String(Math.floor((((Math.round(hue) % 360) + 360) % 360) / 60));
+  };
+
   // V.cover(topic, {class}) -> <svg>: a calm abstract cover drawn from topic.hue and the title.
   // No text, identical every render; colours come from CSS so light and dark both work.
   V.cover = function (topic, opts) {
@@ -15552,7 +15574,7 @@ U.interactive = (function () {
           first = false;
           var t = queue.shift(), s = V.summary(t, progress[t.id]), word = V.doneWord(t, progress[t.id]);
           var holder = U.h('div', { class: 'map-svg-box', dataset: { tid: t.id } });
-          listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
+          listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : ''), 'data-tone': V.toneOf(t.title, t) },
             U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
               U.h('span', { class: 'map-thumb' }, V.cover(t)),
               // A finished topic says so in words and green (finished only), as the topic cards
@@ -15714,8 +15736,10 @@ U.interactive = (function () {
   }
 
   // The Library opens on two choices (Dan, 7 Oct): his Dossiers, and Ready-made courses.
+  // Each door in a colour of its own (the six course tones, 75-dossier.css): the Dossiers blue, the
+  // courses' folder orange (Dan, 14 Oct: more colour on the menus, within the palette).
   function choice(href, title, text, meta, cls) {
-    return U.h('a', { class: 'lib-choice ' + cls, href: href },
+    return U.h('a', { class: 'lib-choice ' + cls, href: href, 'data-tone': cls === 'is-courses' ? '2' : '0' },
       U.h('span', { class: 'lib-choice-ico', 'aria-hidden': 'true' }, U.icon(cls === 'is-courses' ? 'folder' : 'book')),
       U.h('span', { class: 'lib-choice-body' }, U.h('span', { class: 'lib-choice-t' }, title), U.h('span', { class: 'lib-choice-x' }, text), meta),
       U.icon('arrow', 'lib-choice-go'));
@@ -16613,10 +16637,7 @@ U.interactive = (function () {
   // A dossier's course colour (Dan, 11 Oct: "more pops of colour"): one of six, picked from the
   // course's own hue (its cover's), or from its title for a kept dossier. Never red or green, which
   // mean mistakes and finished. 75-dossier.css gives each data-tone its accent, ink and tint.
-  function toneOf(title, topic) {
-    var hue = topic && typeof topic.hue === 'number' ? topic.hue : U.hash(str(title)) % 360;
-    return String(Math.floor((((Math.round(hue) % 360) + 360) % 360) / 60));
-  }
+  function toneOf(title, topic) { return V.toneOf(str(title), topic); }   // shared with the shelves and the Map (70-learn.js)
   function tile(tag, kind, o, kids) {
     o = o || {};
     var a = Object.assign({}, o.attrs || {});
@@ -17567,8 +17588,10 @@ U.interactive = (function () {
   }
   function allCourses(shelf) { return folders(shelf).reduce(function (a, f) { return a.concat(courses(f)); }, []); }
   function order(list) { return list.slice().sort(function (a, b) { return (Number(a.order) || 99) - (Number(b.order) || 99) || String(a.title).localeCompare(String(b.title)); }); }
+  // A shelf or folder card in its colour (V.toneOf, from its title): the icon tile and a band at
+  // its left edge (70-views.css). A course row takes its topic's own colour once that is read.
   function card(href, title, blurb, meta) {
-    return U.h('a', { class: 'shelf-card', href: href },
+    return U.h('a', { class: 'shelf-card', href: href, 'data-tone': V.toneOf(title) },
       U.h('span', { class: 'shelf-ico', 'aria-hidden': 'true' }, U.icon('folder')),
       U.h('span', { class: 'shelf-body' },
         U.h('span', { class: 'shelf-title' }, title),
@@ -17579,11 +17602,13 @@ U.interactive = (function () {
   // Where Dan is in a built course ("Lesson 2 of 8", "Finished"), read once from his progress
   // and the topic's ideas. Not started, or either read fails: "Ready to browse". Ready-made
   // courses are resumed from here; Learn leaves them out (70-learn.js).
-  function whereNow(tid, ctx) {
+  function whereNow(tid, ctx, onTopic) {
     var el = U.h('span', { class: 'shelf-ready' }, 'Ready to browse');
     Promise.all([U.store.topic.get(tid), U.store.progress.get(tid)]).then(function (r) {
       var ideas = r[0] && Array.isArray(r[0].ideas) ? r[0].ideas : [], pi = (r[1] && r[1].ideas) || {};
-      if (!ctx.alive() || !ideas.length) return;
+      if (!ctx.alive()) return;
+      if (r[0] && typeof onTopic === 'function') onTopic(r[0]);
+      if (!ideas.length) return;
       var done = ideas.filter(function (i) { return i && pi[i.id] && pi[i.id].stage === 'done'; }).length;
       var started = done > 0 || ideas.some(function (i) { return i && pi[i.id] && pi[i.id].stage; });
       if (!started) return;
@@ -17653,16 +17678,18 @@ U.interactive = (function () {
           str(folder.blurb) ? U.h('p', { class: 'muted' }, str(folder.blurb)) : null,
           U.h('p', { class: 'muted small' }, counts(courses(folder)))),
         U.h('ol', { class: 'shelf-courses' }, courses(folder).map(function (c, i) {
-          var tid = built(c);
+          var tid = built(c), row;
+          // Its colour: from its title now, and from the built topic's own hue once that is read.
           var inner = [
             U.h('span', { class: 'shelf-n', 'aria-hidden': 'true' }, String(i + 1)),
             U.h('span', { class: 'shelf-body' },
               U.h('span', { class: 'shelf-title' }, str(c.title)),
               str(c.blurb) ? U.h('span', { class: 'shelf-blurb' }, str(c.blurb)) : null,
-              tid ? whereNow(tid, ctx) : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
+              tid ? whereNow(tid, ctx, function (topic) { if (row) row.setAttribute('data-tone', V.toneOf(str(c.title), topic)); }) : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
             tid ? U.icon('arrow', 'shelf-go') : null];
-          return U.h('li', { class: tid ? 'is-built' : 'is-waiting' },
-            tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid) }, inner) : U.h('div', { class: 'shelf-course' }, inner));
+          row = tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid), 'data-tone': V.toneOf(str(c.title)) }, inner)
+            : U.h('div', { class: 'shelf-course', 'data-tone': V.toneOf(str(c.title)) }, inner);
+          return U.h('li', { class: tid ? 'is-built' : 'is-waiting' }, row);
         })));
     }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
   }

@@ -1595,6 +1595,15 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   edge), not opacity, so the canvas's dots never show through. `.note` (a note card) never applies
   to the lessons' own `callout note` notices. The kit's palette is unchanged (accent2 = `--heading`,
   now ink), so interactives match without a rebuild.
+- **Course colours on the menus** (Dan, 14 Oct: "more colour on all menus, sticking to the palette"):
+  the dossier's six course tones (`75-dossier.css` `[data-tone="0".."5"]`, each with `--acc`,
+  `--acc-ink` and `--acc-tint` for light and dark, never red or green) are global, and `V.toneOf(title,
+  topic)` (70-learn.js) picks one from a course's hue, or from its title when there is no topic. The
+  shelves (`76-shelves.js`) give every shelf, folder and course card `data-tone`: a 5 px band at its left
+  edge, the icon tile and the course's number in the tint and ink; a course not built yet wears it
+  faintly; a built course takes its topic's own hue once that is read. The Library's doors are blue
+  (Dossiers) and orange (Ready-made courses); a Map card carries a band along its top like a dossier
+  tile. Meaning colours are untouched: teal labels, green finished, amber due, red warnings, ink controls.
 - **The dossier** (design 3, "the field guide", chosen on 10 Oct; `docs/design/dossier-field-guide/`)
   took the same look in place of its field journal (cloth covers, tape, stamps, ring stains,
   hand-lettered fonts, Literata, its own ink palette for the plates): tiles in the token names

@@ -27,8 +27,10 @@
   }
   function allCourses(shelf) { return folders(shelf).reduce(function (a, f) { return a.concat(courses(f)); }, []); }
   function order(list) { return list.slice().sort(function (a, b) { return (Number(a.order) || 99) - (Number(b.order) || 99) || String(a.title).localeCompare(String(b.title)); }); }
+  // A shelf or folder card in its colour (V.toneOf, from its title): the icon tile and a band at
+  // its left edge (70-views.css). A course row takes its topic's own colour once that is read.
   function card(href, title, blurb, meta) {
-    return U.h('a', { class: 'shelf-card', href: href },
+    return U.h('a', { class: 'shelf-card', href: href, 'data-tone': V.toneOf(title) },
       U.h('span', { class: 'shelf-ico', 'aria-hidden': 'true' }, U.icon('folder')),
       U.h('span', { class: 'shelf-body' },
         U.h('span', { class: 'shelf-title' }, title),
@@ -39,11 +41,13 @@
   // Where Dan is in a built course ("Lesson 2 of 8", "Finished"), read once from his progress
   // and the topic's ideas. Not started, or either read fails: "Ready to browse". Ready-made
   // courses are resumed from here; Learn leaves them out (70-learn.js).
-  function whereNow(tid, ctx) {
+  function whereNow(tid, ctx, onTopic) {
     var el = U.h('span', { class: 'shelf-ready' }, 'Ready to browse');
     Promise.all([U.store.topic.get(tid), U.store.progress.get(tid)]).then(function (r) {
       var ideas = r[0] && Array.isArray(r[0].ideas) ? r[0].ideas : [], pi = (r[1] && r[1].ideas) || {};
-      if (!ctx.alive() || !ideas.length) return;
+      if (!ctx.alive()) return;
+      if (r[0] && typeof onTopic === 'function') onTopic(r[0]);
+      if (!ideas.length) return;
       var done = ideas.filter(function (i) { return i && pi[i.id] && pi[i.id].stage === 'done'; }).length;
       var started = done > 0 || ideas.some(function (i) { return i && pi[i.id] && pi[i.id].stage; });
       if (!started) return;
@@ -113,16 +117,18 @@
           str(folder.blurb) ? U.h('p', { class: 'muted' }, str(folder.blurb)) : null,
           U.h('p', { class: 'muted small' }, counts(courses(folder)))),
         U.h('ol', { class: 'shelf-courses' }, courses(folder).map(function (c, i) {
-          var tid = built(c);
+          var tid = built(c), row;
+          // Its colour: from its title now, and from the built topic's own hue once that is read.
           var inner = [
             U.h('span', { class: 'shelf-n', 'aria-hidden': 'true' }, String(i + 1)),
             U.h('span', { class: 'shelf-body' },
               U.h('span', { class: 'shelf-title' }, str(c.title)),
               str(c.blurb) ? U.h('span', { class: 'shelf-blurb' }, str(c.blurb)) : null,
-              tid ? whereNow(tid, ctx) : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
+              tid ? whereNow(tid, ctx, function (topic) { if (row) row.setAttribute('data-tone', V.toneOf(str(c.title), topic)); }) : U.h('span', { class: 'shelf-meta' }, 'Not built yet')),
             tid ? U.icon('arrow', 'shelf-go') : null];
-          return U.h('li', { class: tid ? 'is-built' : 'is-waiting' },
-            tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid) }, inner) : U.h('div', { class: 'shelf-course' }, inner));
+          row = tid ? U.h('a', { class: 'shelf-course', href: '#/t/' + encodeURIComponent(tid), 'data-tone': V.toneOf(str(c.title)) }, inner)
+            : U.h('div', { class: 'shelf-course', 'data-tone': V.toneOf(str(c.title)) }, inner);
+          return U.h('li', { class: tid ? 'is-built' : 'is-waiting' }, row);
         })));
     }, function (e) { if (ctx.alive()) loadError(box, 'These courses', e); });
   }

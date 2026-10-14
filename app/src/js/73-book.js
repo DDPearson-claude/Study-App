@@ -97,8 +97,10 @@
   }
 
   // The Library opens on two choices (Dan, 7 Oct): his Dossiers, and Ready-made courses.
+  // Each door in a colour of its own (the six course tones, 75-dossier.css): the Dossiers blue, the
+  // courses' folder orange (Dan, 14 Oct: more colour on the menus, within the palette).
   function choice(href, title, text, meta, cls) {
-    return U.h('a', { class: 'lib-choice ' + cls, href: href },
+    return U.h('a', { class: 'lib-choice ' + cls, href: href, 'data-tone': cls === 'is-courses' ? '2' : '0' },
       U.h('span', { class: 'lib-choice-ico', 'aria-hidden': 'true' }, U.icon(cls === 'is-courses' ? 'folder' : 'book')),
       U.h('span', { class: 'lib-choice-body' }, U.h('span', { class: 'lib-choice-t' }, title), U.h('span', { class: 'lib-choice-x' }, text), meta),
       U.icon('arrow', 'lib-choice-go'));

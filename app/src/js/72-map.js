@@ -181,7 +181,7 @@
           first = false;
           var t = queue.shift(), s = V.summary(t, progress[t.id]), word = V.doneWord(t, progress[t.id]);
           var holder = U.h('div', { class: 'map-svg-box', dataset: { tid: t.id } });
-          listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : '') },
+          listBox.appendChild(U.h('section', { class: 'card map-topic' + (s.allDone ? ' is-done' : ''), 'data-tone': V.toneOf(t.title, t) },
             U.h('a', { class: 'map-topic-head', href: '#/t/' + encodeURIComponent(t.id) },
               U.h('span', { class: 'map-thumb' }, V.cover(t)),
               // A finished topic says so in words and green (finished only), as the topic cards

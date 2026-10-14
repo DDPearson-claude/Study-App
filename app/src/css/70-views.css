@@ -572,3 +572,16 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .lib-choice-m { color: var(--muted); font-size: .875rem; }
 .lib-choice-m:empty { display: none; }
 .lib-choice-go { flex: none; width: 22px; height: 22px; color: var(--muted); }
+/* Menus in colour (Dan, 14 Oct): each shelf, folder and course carries its course colour (the
+   dossier's six tones, 75-dossier.css [data-tone], from V.toneOf): a band at its left edge, its
+   icon tile and its number in the colour's tint and ink. The Library's two doors take one each,
+   and a Map card a band along its top, like a dossier's tile. Meaning colours are untouched:
+   teal labels, green finished, amber due, red warnings, ink controls. A course not built yet
+   wears its colour faintly, so the built ones stand out. */
+.shelf-card[data-tone], .shelf-course[data-tone] { box-shadow: inset 5px 0 0 var(--acc); }
+.lib-choice[data-tone] { box-shadow: inset 5px 0 0 var(--acc), var(--shadow); }
+.shelf-card[data-tone] .shelf-ico, .lib-choice[data-tone] .lib-choice-ico { background: var(--acc-tint); color: var(--acc-ink); }
+.shelf-course[data-tone] .shelf-n { background: var(--acc-tint); border-color: var(--acc); color: var(--acc-ink); }
+.shelf-courses .is-waiting .shelf-course[data-tone] { box-shadow: inset 5px 0 0 color-mix(in srgb, var(--acc) 40%, var(--surface)); }
+.shelf-courses .is-waiting .shelf-course[data-tone] .shelf-n { background: transparent; border-color: color-mix(in srgb, var(--acc) 50%, var(--surface)); color: var(--muted); }
+.map-topic[data-tone] { box-shadow: inset 0 6px 0 var(--acc); padding-top: 22px; }
