@@ -133,12 +133,17 @@
   ];
 
   // V.toneOf(title, topic) -> '0'..'5': a course's colour, one of six (75-dossier.css [data-tone]),
-  // from its own hue (its cover's) or from its title when there is no topic. Never red or green,
-  // which mean mistakes and finished. The dossier, the shelves, the Library's doors and the Map
-  // all carry it (Dan, 11 and 14 Oct: more colour, within the palette).
+  // from its own hue (its cover's) or from its title when there is no topic: the tone whose own hue
+  // is nearest, so a card's band agrees with the cover beside it (Dan, 14 Oct: colour on Learn).
+  // Never red or green, which mean mistakes and finished. The dossier, the shelves, the Library's
+  // doors, the Map and Learn all carry it (Dan, 11 and 14 Oct: more colour, within the palette).
+  var TONE_HUES = [220, 258, 28, 188, 325, 238];   // blue, violet, orange, teal, pink, indigo
   V.toneOf = function (title, topic) {
     var hue = topic && typeof topic.hue === 'number' ? topic.hue : U.hash(String(title || '')) % 360;
-    return String(Math.floor((((Math.round(hue) % 360) + 360) % 360) / 60));
+    hue = ((Math.round(hue) % 360) + 360) % 360;
+    var best = 0, bestD = 361;
+    TONE_HUES.forEach(function (h, i) { var d = Math.abs(h - hue); d = Math.min(d, 360 - d); if (d < bestD) { bestD = d; best = i; } });
+    return String(best);
   };
 
   // V.cover(topic, {class}) -> <svg>: a calm abstract cover drawn from topic.hue and the title.
@@ -483,7 +488,7 @@
     var intakeSlot = U.h('div', { class: 'intake-slot' });
     var said = U.h('p', { class: 'visually-hidden', role: 'status' });
     var exampleChips = EXAMPLES.map(function (t) {
-      return U.h('button', { class: 'chip chip-soft', type: 'button', on: { click: function () {
+      return U.h('button', { class: 'chip chip-soft chip-try', type: 'button', 'data-tone': V.toneOf(t), on: { click: function () {
         if (input.disabled) return;
         input.value = t;
         fit();
@@ -904,7 +909,7 @@
     function continueCard(best, lesson) {
       var t = best.t, s = best.s, begun = s.started || s.done > 0;
       var pct = s.total ? Math.round((s.done / s.total) * 100) : 0;
-      return U.h('a', { class: 'ccard', href: '#/t/' + encodeURIComponent(t.id) + '/' + encodeURIComponent(s.current.id), 'aria-label': (begun ? 'Continue ' : 'Start ') + t.title + ': ' + s.current.title },
+      return U.h('a', { class: 'ccard', 'data-tone': V.toneOf(t.title, t), href: '#/t/' + encodeURIComponent(t.id) + '/' + encodeURIComponent(s.current.id), 'aria-label': (begun ? 'Continue ' : 'Start ') + t.title + ': ' + s.current.title },
         U.h('div', { class: 'ccard-cover' }, V.cover(t)),
         U.h('div', { class: 'ccard-body' },
           U.h('p', { class: 'eyebrow' }, begun ? 'Continue where you left off' : 'Ready when you are'),
@@ -921,7 +926,7 @@
       var href = '#/t/' + encodeURIComponent(t.id);
       var title = V.asTitle(t.title || t.query) || 'Untitled topic';
       if (t.status === 'planning' && !V.planningStuck(t)) {
-        return U.h('a', { class: 'tcard is-planning', href: href },
+        return U.h('a', { class: 'tcard is-planning', 'data-tone': V.toneOf(title, t), href: href },
           U.h('div', { class: 'tcard-cover' }, V.cover(t), U.h('div', { class: 'tcard-shimmer' })),
           U.h('div', { class: 'tcard-body' },
             U.h('h3', { class: 'tcard-title' }, title),
@@ -931,7 +936,7 @@
       // The same words as the topic page: "did not finish" when planning failed, "stopped" when
       // the page that was planning went away.
       if (t.status === 'failed' || t.status === 'planning') {
-        return U.h('a', { class: 'tcard is-failed', href: href },
+        return U.h('a', { class: 'tcard is-failed', 'data-tone': V.toneOf(title, t), href: href },
           U.h('div', { class: 'tcard-cover' }, V.cover(t)),
           U.h('div', { class: 'tcard-body' },
             U.h('h3', { class: 'tcard-title' }, title),
@@ -942,7 +947,7 @@
       var r = t.research || {};
       var badge = V.sourcesChecked(t) ? U.h('span', { class: 'src-badge' }, 'Sources found')
         : r.status === 'running' && !V.researchStale(t) ? U.h('span', { class: 'src-badge is-quiet' }, 'Checking sources…') : null;
-      return U.h('a', { class: 'tcard' + (s.allDone ? ' is-done' : ''), href: href },
+      return U.h('a', { class: 'tcard' + (s.allDone ? ' is-done' : ''), 'data-tone': V.toneOf(title, t), href: href },
         U.h('div', { class: 'tcard-cover' }, V.cover(t)),
         U.h('div', { class: 'tcard-body' },
           U.h('h3', { class: 'tcard-title' }, title),
@@ -955,7 +960,7 @@
 
     function welcome() {
       function step(n, head, text) {
-        return U.h('li', null, U.h('span', { class: 'step-n', 'aria-hidden': 'true' }, String(n)), U.h('div', null, U.h('strong', null, head + ' '), U.h('span', { class: 'muted' }, text)));
+        return U.h('li', { 'data-tone': ['0', '2', '3'][n - 1] }, U.h('span', { class: 'step-n', 'aria-hidden': 'true' }, String(n)), U.h('div', null, U.h('strong', null, head + ' '), U.h('span', { class: 'muted' }, text)));
       }
       return U.h('div', { class: 'welcome' },
         U.h('div', { class: 'welcome-art' }, V.cover({ title: 'My University', hue: 205 })),

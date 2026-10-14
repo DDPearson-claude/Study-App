@@ -39,16 +39,17 @@
 .bar.is-complete > i { background: var(--green); }
 
 /* ---------- generated covers ---------- */
+/* The hue mixed a little stronger from 14 Oct (Dan: more colour on Learn); still soft, so the words on top stay first. */
 .cover { display: block; width: 100%; height: 100%; }
-.cover .cv-bg { fill: color-mix(in oklab, hsl(var(--h) 40% 62%) 15%, var(--surface)); }
-.cover .cv-1 { fill: color-mix(in oklab, hsl(var(--h) 40% 60%) 28%, var(--surface)); }
-.cover .cv-2 { fill: color-mix(in oklab, hsl(var(--h) 38% 55%) 46%, var(--surface)); }
-.cover .cv-3 { fill: color-mix(in oklab, hsl(var(--h) 36% 44%) 68%, var(--surface)); }
+.cover .cv-bg { fill: color-mix(in oklab, hsl(var(--h) 50% 62%) 24%, var(--surface)); }
+.cover .cv-1 { fill: color-mix(in oklab, hsl(var(--h) 50% 60%) 44%, var(--surface)); }
+.cover .cv-2 { fill: color-mix(in oklab, hsl(var(--h) 48% 55%) 64%, var(--surface)); }
+.cover .cv-3 { fill: color-mix(in oklab, hsl(var(--h) 46% 44%) 82%, var(--surface)); }
 .cover .cv-4 { fill: var(--heading); }
 .cover .cv-sun { fill: color-mix(in oklab, #F2C75C 70%, var(--surface)); }
 .cover .cv-soft { opacity: .55; }
-.cover .cv-ring { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 52%) 40%, var(--surface)); stroke-width: 2; }
-.cover .cv-line { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 38% 48%) 55%, var(--surface)); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: .1 7; }
+.cover .cv-ring { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 44% 52%) 50%, var(--surface)); stroke-width: 2; }
+.cover .cv-line { fill: none; stroke: color-mix(in oklab, hsl(var(--h) 44% 48%) 64%, var(--surface)); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: .1 7; }
 /* Course pictures (35-art.js): the course's own picture over the motif; a little dimmer in dark mode. */
 .cover .cv-art { pointer-events: none; }
 .cover .cv-art.cv-new { animation: cv-in .6s ease both; }
@@ -585,3 +586,23 @@ a.shelf-card:hover, a.shelf-course:hover { border-color: var(--line-strong); }
 .shelf-courses .is-waiting .shelf-course[data-tone] { box-shadow: inset 5px 0 0 color-mix(in srgb, var(--acc) 40%, var(--surface)); }
 .shelf-courses .is-waiting .shelf-course[data-tone] .shelf-n { background: transparent; border-color: color-mix(in srgb, var(--acc) 50%, var(--surface)); color: var(--muted); }
 .map-topic[data-tone] { box-shadow: inset 0 6px 0 var(--acc); padding-top: 22px; }
+
+/* Learn in colour (Dan, 14 Oct): the continue card and every topic card carry their course's tone
+   (the same six as the menus, from V.toneOf, nearest to the cover's own hue so the two agree): a
+   band along the top of the continue card and its label in the tone's ink; a band at the left of a
+   topic row, under the cover once the cards are a grid. The example chips a first visit offers carry
+   a dot in the tone their course would take, and the welcome's three steps take three tones. Progress
+   bars and buttons stay ink, finished stays green. */
+.ccard[data-tone] { position: relative; }
+.ccard[data-tone]::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--acc); pointer-events: none; }
+.ccard[data-tone] .eyebrow { color: var(--acc-ink); }
+.tcard[data-tone] { box-shadow: inset 5px 0 0 var(--acc); }
+@media (hover: hover) { .tcard[data-tone]:hover:not(.is-skeleton) { box-shadow: inset 5px 0 0 var(--acc), var(--shadow); } }
+@container view (min-width: 528px) {
+  .tcard[data-tone], .tcard[data-tone]:hover:not(.is-skeleton) { box-shadow: none; }
+  .tcard[data-tone]:hover:not(.is-skeleton) { box-shadow: var(--shadow); }
+  .tcard[data-tone] .tcard-cover { border-bottom: 4px solid var(--acc); }
+}
+.chip-try[data-tone] { display: inline-flex; align-items: center; gap: 8px; }
+.chip-try[data-tone]::before { content: ""; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--acc); }
+.welcome-steps li[data-tone] .step-n { background: var(--acc-tint); color: var(--acc-ink); }

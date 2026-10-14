@@ -1604,6 +1604,14 @@ as comment cards. Two parts, both additive (no screen's markup or behaviour was 
   faintly; a built course takes its topic's own hue once that is read. The Library's doors are blue
   (Dossiers) and orange (Ready-made courses); a Map card carries a band along its top like a dossier
   tile. Meaning colours are untouched: teal labels, green finished, amber due, red warnings, ink controls.
+- **Learn in colour** (Dan, 14 Oct: "more colour on the learn screen"): `V.toneOf` now picks the
+  tone whose own hue is nearest the course's hue (blue 220, violet 258, orange 28, teal 188, pink 325,
+  indigo 238), so a card's band agrees with the cover beside it. On Learn the continue card wears a
+  band along its top and its label in the tone's ink; a topic card a band at its left (a row on a
+  phone) or under its cover (the grid from 528 px); a first visit's example chips carry a dot in the
+  tone their course would take, and the welcome's three steps take blue, orange and teal. The
+  generated covers mix their hue a little stronger everywhere (`.cover .cv-*`, 70-views.css). Bars
+  and buttons stay ink; finished stays green.
 - **The dossier** (design 3, "the field guide", chosen on 10 Oct; `docs/design/dossier-field-guide/`)
   took the same look in place of its field journal (cloth covers, tape, stamps, ring stains,
   hand-lettered fonts, Literata, its own ink palette for the plates): tiles in the token names
