@@ -513,7 +513,7 @@
   // A dossier's course colour (Dan, 11 Oct: "more pops of colour"): one of six, picked from the
   // course's own hue (its cover's), or from its title for a kept dossier. Never red or green, which
   // mean mistakes and finished. 75-dossier.css gives each data-tone its accent, ink and tint.
-  function toneOf(title, topic) { return V.toneOf(str(title), topic); }   // shared with the shelves and the Map (70-learn.js)
+  function toneOf(title, topic) { return U.views.toneOf(str(title), topic); }   // shared with the shelves and the Map (70-learn.js)
   function tile(tag, kind, o, kids) {
     o = o || {};
     var a = Object.assign({}, o.attrs || {});
