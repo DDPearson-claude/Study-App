@@ -1,0 +1,265 @@
+{
+  "iid": "i2",
+  "title": "Zero and negative powers",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is 4 squares becoming 1, then a quarter, then a sixteenth, dividing by 4 at every step and never dropping below nothing, when you step the power down past zero.",
+    "title": "The staircase of powers",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on the staircase of powers. Each stair is one power of a base, and beside it the amount is drawn as unit squares with its value written under it, as in the factor tiles of lesson 1, where 4³ is three 4s multiplied. On the first screen a stepper runs the power down from 3 to −3 with base 4. 4³ is 64 squares, 4² is 16 and 4¹ is 4: each step down takes one 4 out of the multiplying, so it divides by 4, and the sum ÷ 4 is shown beside every step. At 4⁰ one whole square is left, because 4 ÷ 4 = 1. Below that the single square is cut into 4 equal parts with one shaded, which is 1/4, then into 16 with one shaded, 1/16, then into 64, 1/64, as the Fractions course draws a fraction. The amount shrinks at every step but stays above nothing, so a negative power of these bases is a small amount, not a negative one. Other screens use base 2, 3, 7 or 10 the same way; with base 10 the stairs show numbers only, because 1000 squares, or a square cut into 1000 parts, are too small to see. On screen 9 a jump arrow counts the steps a multiplication takes: × 2⁻⁵ divides by 2 five times, so it is five steps down. Screens 1, 3, 5, 7 and 9 show an idea, screens 2, 4, 6, 8 and 10 ask you to try it, and screens 11 to 13 mix them. A puzzle offers three answers. A wrong pick shows its slip under the stairs: its working in red and, for some picks, its own amount drawn on its own, as squares, a part of a square, or squares hanging below nothing. Other picks show the working only, such as 0 for 7⁰, or −1000 and −30 for 10⁻³; on the x screens the working puts 2 in for x.",
+    "ignores": "At the top of the staircase the squares are drawn smaller so that 64 fit on the screen, and below 4⁰ the one square is drawn larger so its parts can be seen, with the same amount at true size under it; the values under them are exact. The stepper stops at 3 and −3, but the pattern carries on the same way in both directions. Squares cannot show a negative base. With one, the answer can be negative, as in (−2)⁻¹ = −1/2, but that minus comes from the base, not the power. Squares cannot show a base between 0 and 1, such as a half: dividing by a half doubles, so its stairs climb as the power goes down, and a negative power gives a large amount, though still not a negative one. A base of zero has no stairs below 0¹, because each step down would divide by zero. A power between whole numbers, such as a half, sits between the stairs, and lesson 4 finds what it means. The puzzles' numbers are examples.",
+    "numbers": [
+      {
+        "label": "Opening base on the staircase, in step 1",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Opening power on the stepper, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stepper's lowest power, in step 1",
+        "value": -3,
+        "kind": "assumed"
+      },
+      {
+        "label": "4³ = 4 × 4 × 4 squares, in step 1",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "4² = 64 ÷ 4 squares, in step 1",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "4¹ = 16 ÷ 4 squares, in step 1",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "4⁻³ = 1/64, one square cut into 64, in step 1",
+        "value": 0.015625,
+        "kind": "computed"
+      },
+      {
+        "label": "3³ = 27, then 9 and 3 dividing by 3, in step 2",
+        "value": 27,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 27 − 3 = 24, taking 3 away, in step 2",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: taking 18 away, the gap from 27 to 9, in step 2",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Taking 18 away again: 9 − 18, in step 2",
+        "value": -9,
+        "kind": "computed"
+      },
+      {
+        "label": "4⁰ = 4 ÷ 4, in step 3",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Power 2 − 2 = 0, so 4² ÷ 4² = 4⁰, in step 3",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 7 + 0 = 7, the base itself, for 7⁰, in step 4",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: if 4⁻¹ were −4, then 1 − 5 = −4, in step 5",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "4⁻¹ = 1 ÷ 4 = 1/4, in step 5",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "4⁻² = 1/4 ÷ 4 = 1/16, in step 5",
+        "value": 0.0625,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip −3² = −9 for 3⁻², in step 6",
+        "value": -9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 3 × −2, in step 6",
+        "value": -6,
+        "kind": "computed"
+      },
+      {
+        "label": "4⁴ = 256, in 4² ÷ 4⁴ = 16/256 = 1/16, in step 7",
+        "value": 256,
+        "kind": "computed"
+      },
+      {
+        "label": "10⁻³ = 1/1000 = 0.001, in step 8",
+        "value": 0.001,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip −10³ = −1000 for 10⁻³, in step 8",
+        "value": -1000,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 10 × −3, in step 8",
+        "value": -30,
+        "kind": "computed"
+      },
+      {
+        "label": "2³ = 8 squares, start of the jump, in step 9",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Steps down for × 2⁻⁵, in step 9",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Power 3 + (−5) = −2, so 2³ × 2⁻⁵ = 2⁻², in step 9",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 3 × (−5) = −15, powers multiplied, in step 10",
+        "value": -15,
+        "kind": "computed"
+      },
+      {
+        "label": "10⁵ = 100,000, in 1000 ÷ 100,000 = 1/100, in step 10",
+        "value": 100000,
+        "kind": "computed"
+      },
+      {
+        "label": "x⁵ = 32 at x = 2, in 32 ÷ 256 = 1/8, in step 11",
+        "value": 32,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip −x³ = −8 at x = 2, in step 11",
+        "value": -8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 4 × (−4) = −16, powers multiplied, in step 12",
+        "value": -16,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 1/8, which is 2⁻³ itself, for 1 ÷ 2⁻³, in step 13",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Negative base: (−2)⁻¹ = −1/2",
+        "value": -0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Milli: one thousandth of an amp, 10⁻³ A",
+        "value": 0.001,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Analogy: 0.01 A, two steps of ÷ 10 down from 1 A",
+        "value": 0.01,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example check at x = 2: 1/8 ÷ 1/2",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Calculator: 4 ^ (−) 2",
+        "value": 0.0625,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Each step down in power divides by the base, so a zero power is 1 and a negative power is one over the matching positive power: 4⁻² is 1/16, a small amount, not a negative one. Start from the tiles of lesson 1. 4³ is three 4s multiplied, 4 × 4 × 4 = 64. Take one 4 out of the multiplying and you have 4² = 16, because taking out a factor of 4 divides by 4. So walking down the staircase of powers, 4³, 4², 4¹, gives 64, 16, 4, dividing by 4 at every step.[^2]\n\nNow keep walking, dividing by 4 each time.[^2] 4¹ is 4, and 4 ÷ 4 = 1, so 4⁰ = 1, one whole square. The dividing law from lesson 1 agrees: 4² ÷ 4² is 16 ÷ 16 = 1, and taking the powers away gives the power 2 − 2, which is 4⁰. So any base to the power of zero equals 1,[^3] as long as the base is not zero, because the step down divides by the base and you cannot divide by zero. It is not 0: from 7¹ = 7 the step down divides by 7, leaving 1, where 0 would mean taking all 7 away. One more step: 1 ÷ 4 = 1/4, so 4⁻¹ = 1/4. The next is 1/4 ÷ 4 = 1/16, so 4⁻² = 1/16. Since 16 is 4², that is 1 over 4². This is the rule: a negative power gives the [[reciprocal]], one over the number with the matching positive power.[^4] The dividing law agrees again: 4² ÷ 4⁴ is 16/256 = 1/16, and 2 − 4 = −2.\n\nDividing a positive amount by 4 makes it smaller but never takes it below nothing, so the minus in the power does not make the answer negative.[^5] It is a common slip to think it does.[^5] If 4⁻¹ were −4, the step from 4⁰ = 1 down to it would take 5 away instead of dividing by 4, and the pattern would break. A negative base, as in (−2)⁻¹ = −1/2, can give a negative answer, but that minus comes from the base, not the power. The laws from lesson 1 still hold. 10³ × 10⁻⁵ adds the powers, 3 + (−5) = −2, to give 10⁻², and 1000 ÷ 100,000 = 1/100 agrees. Multiplying by 10⁻⁵ divides by 10 five times, so it is five steps down. Dividing by a negative power climbs back up: 1 ÷ 4⁻² is 1 ÷ 1/16 = 16, because sixteen sixteenths make 1, and 16 is 4². Lesson 5 uses 10⁻³ for milli.\n\n**Each step down in power divides by the base, so a power of zero is 1 and a negative power is one over the positive power: the minus in the power does not make the answer negative.[^4][^5]**"
+  },
+  "analogy": {
+    "text": "On your meter, 0.001 A is 1 mA, a thousandth of an amp, 10⁻³ A.[^1] Walk down from 1 A to 0.1 A, 0.01 A and 0.001 A and each step divides by 10, so the power of ten goes 10⁰, 10⁻¹, 10⁻², 10⁻³. A milliamp is a tiny current still flowing the same way, not a current below nothing.",
+    "breaks": "A meter can show a negative current, one flowing the other way round the circuit, but that minus sits in front of the number, as in −1 mA, not in the power. Prefixes such as milli cover only some of the steps; lesson 5 takes them properly."
+  },
+  "practice": {
+    "text": "- A power of zero: any base except zero gives 1.\n- A negative power: work out the matching positive power, then turn it over. 3⁻² is 1 over 3², which is 1/9.\n- Multiplying and dividing with one base: add or take away the powers as in lesson 1, keeping each minus with its power.\n- Dividing by a negative power multiplies: 1 ÷ x⁻² is x².\n- To finish, write a negative power as one over a positive one: x⁻³ is 1/x³, the same number. College courses usually expect answers with positive powers; an older SQA Higher National unit asks for answers \"leaving your answer with positive indices\".[^6]\n- Unsure? Walk the staircase: down a step divides by the base, up a step multiplies by it.\n\n**Rule of thumb:** A minus in the power means one over, not below zero.\n\n**On a calculator** (not from this lesson's sources): key 4, the power key, the (−) key, 2 and = to get 0.0625, which is 1/16. Use the (−) key, not the take-away key.\n\n**Worked example:** Simplify x² × x⁻⁵ ÷ x⁻¹, with x not zero. Multiplying adds the powers, 2 + (−5) = −3, giving x⁻³. Dividing takes them away, −3 − (−1) = −2, giving x⁻², which is 1/x². Check with x = 2: 4 × 1/32 = 1/8, and 1/8 ÷ 1/2 = 1/4, while 1/2² = 1/4.\n\n**Common mistakes**\n- Making the answer negative: 4⁻² is 1/16, not −16.[^5]\n- Taking a zero power as 0 or as the base: 7⁰ is 1, not 7 × 0 = 0 or 7.\n- Multiplying the powers when you multiply: 10³ × 10⁻⁵ is 10⁻², not 10⁻¹⁵.\n- Losing a minus when you take away a negative power: x⁻³ ÷ x⁻⁵ is x², because −3 − (−5) = 2, not x⁻⁸. Try x = 2: 1/8 ÷ 1/32 = 4, which is 2²."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Milli- - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Milli-",
+      "quote": "Milli (symbol m ) is a unit prefix in the metric system denoting a factor of one thousandth (10 −3 )."
+    },
+    {
+      "n": 2,
+      "title": "Negative exponent intuition (video) | Khan Academy",
+      "url": "https://www.khanacademy.org/v/negative-exponent-intuition",
+      "quote": "Continue the pattern of decreasing exponents by dividing by 'a', and see how it extends to zero and negative powers. While we're at it, we'll see why a^0 =1."
+    },
+    {
+      "n": 3,
+      "title": "Negative and fractional indices - GCSE Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zrqr7v4",
+      "quote": "Any base to the power of zero equals 1 and any base to the power of one is the base itself."
+    },
+    {
+      "n": 4,
+      "title": "Engineer cadets maths refresher — Solent University Warsash",
+      "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+      "quote": "So a negative power gives the reciprocal of the number — that is, 1 over the number."
+    },
+    {
+      "n": 5,
+      "title": "Engineer cadets maths refresher — Solent University Warsash",
+      "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+      "quote": "A common misconception is that since the power is negative, the result must be negative: as you can see, this is not so."
+    },
+    {
+      "n": 6,
+      "title": "Introductory Mathematics for Engineering (unit 7481997) - SQA Higher National unit specification",
+      "url": "http://www.sqa.org.uk/files/hn/D7481997.pdf",
+      "quote": "leaving your answer with positive indices."
+    }
+  ]
+}

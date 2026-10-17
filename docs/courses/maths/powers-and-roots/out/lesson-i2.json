@@ -1,0 +1,433 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T18:00:18.210Z",
+ "startedAt": "2026-10-17T18:00:18.210Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Zero and negative powers",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is 4 squares becoming 1, then a quarter, then a sixteenth, dividing by 4 at every step and never dropping below nothing, when you step the power down past zero.",
+   "title": "The staircase of powers",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on the staircase of powers. Each stair is one power of a base, and beside it the amount is drawn as unit squares with its value written under it, as in the factor tiles of lesson 1, where 4³ is three 4s multiplied. On the first screen a stepper runs the power down from 3 to −3 with base 4. 4³ is 64 squares, 4² is 16 and 4¹ is 4: each step down takes one 4 out of the multiplying, so it divides by 4, and the sum ÷ 4 is shown beside every step. At 4⁰ one whole square is left, because 4 ÷ 4 = 1. Below that the single square is cut into 4 equal parts with one shaded, which is 1/4, then into 16 with one shaded, 1/16, then into 64, 1/64, as the Fractions course draws a fraction. The amount shrinks at every step but stays above nothing, so a negative power of these bases is a small amount, not a negative one. Other screens use base 2, 3, 7 or 10 the same way; with base 10 the stairs show numbers only, because 1000 squares, or a square cut into 1000 parts, are too small to see. On screen 9 a jump arrow counts the steps a multiplication takes: × 2⁻⁵ divides by 2 five times, so it is five steps down. Screens 1, 3, 5, 7 and 9 show an idea, screens 2, 4, 6, 8 and 10 ask you to try it, and screens 11 to 13 mix them. A puzzle offers three answers. A wrong pick shows its slip under the stairs: its working in red and, for some picks, its own amount drawn on its own, as squares, a part of a square, or squares hanging below nothing. Other picks show the working only, such as 0 for 7⁰, or −1000 and −30 for 10⁻³; on the x screens the working puts 2 in for x.",
+   "ignores": "At the top of the staircase the squares are drawn smaller so that 64 fit on the screen, and below 4⁰ the one square is drawn larger so its parts can be seen, with the same amount at true size under it; the values under them are exact. The stepper stops at 3 and −3, but the pattern carries on the same way in both directions. Squares cannot show a negative base. With one, the answer can be negative, as in (−2)⁻¹ = −1/2, but that minus comes from the base, not the power. Squares cannot show a base between 0 and 1, such as a half: dividing by a half doubles, so its stairs climb as the power goes down, and a negative power gives a large amount, though still not a negative one. A base of zero has no stairs below 0¹, because each step down would divide by zero. A power between whole numbers, such as a half, sits between the stairs, and lesson 4 finds what it means. The puzzles' numbers are examples.",
+   "numbers": [
+    {
+     "label": "Opening base on the staircase, in step 1",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Opening power on the stepper, in step 1",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stepper's lowest power, in step 1",
+     "value": -3,
+     "kind": "assumed"
+    },
+    {
+     "label": "4³ = 4 × 4 × 4 squares, in step 1",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "4² = 64 ÷ 4 squares, in step 1",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "4¹ = 16 ÷ 4 squares, in step 1",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "4⁻³ = 1/64, one square cut into 64, in step 1",
+     "value": 0.015625,
+     "kind": "computed"
+    },
+    {
+     "label": "3³ = 27, then 9 and 3 dividing by 3, in step 2",
+     "value": 27,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 27 − 3 = 24, taking 3 away, in step 2",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: taking 18 away, the gap from 27 to 9, in step 2",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Taking 18 away again: 9 − 18, in step 2",
+     "value": -9,
+     "kind": "computed"
+    },
+    {
+     "label": "4⁰ = 4 ÷ 4, in step 3",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Power 2 − 2 = 0, so 4² ÷ 4² = 4⁰, in step 3",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 7 + 0 = 7, the base itself, for 7⁰, in step 4",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: if 4⁻¹ were −4, then 1 − 5 = −4, in step 5",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "4⁻¹ = 1 ÷ 4 = 1/4, in step 5",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "4⁻² = 1/4 ÷ 4 = 1/16, in step 5",
+     "value": 0.0625,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip −3² = −9 for 3⁻², in step 6",
+     "value": -9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 3 × −2, in step 6",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "4⁴ = 256, in 4² ÷ 4⁴ = 16/256 = 1/16, in step 7",
+     "value": 256,
+     "kind": "computed"
+    },
+    {
+     "label": "10⁻³ = 1/1000 = 0.001, in step 8",
+     "value": 0.001,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip −10³ = −1000 for 10⁻³, in step 8",
+     "value": -1000,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 10 × −3, in step 8",
+     "value": -30,
+     "kind": "computed"
+    },
+    {
+     "label": "2³ = 8 squares, start of the jump, in step 9",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Steps down for × 2⁻⁵, in step 9",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Power 3 + (−5) = −2, so 2³ × 2⁻⁵ = 2⁻², in step 9",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 3 × (−5) = −15, powers multiplied, in step 10",
+     "value": -15,
+     "kind": "computed"
+    },
+    {
+     "label": "10⁵ = 100,000, in 1000 ÷ 100,000 = 1/100, in step 10",
+     "value": 100000,
+     "kind": "computed"
+    },
+    {
+     "label": "x⁵ = 32 at x = 2, in 32 ÷ 256 = 1/8, in step 11",
+     "value": 32,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip −x³ = −8 at x = 2, in step 11",
+     "value": -8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 4 × (−4) = −16, powers multiplied, in step 12",
+     "value": -16,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 1/8, which is 2⁻³ itself, for 1 ÷ 2⁻³, in step 13",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Negative base: (−2)⁻¹ = −1/2",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Milli: one thousandth of an amp, 10⁻³ A",
+     "value": 0.001,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Analogy: 0.01 A, two steps of ÷ 10 down from 1 A",
+     "value": 0.01,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example check at x = 2: 1/8 ÷ 1/2",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Calculator: 4 ^ (−) 2",
+     "value": 0.0625,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Each step down in power divides by the base, so a zero power is 1 and a negative power is one over the matching positive power: 4⁻² is 1/16, a small amount, not a negative one. Start from the tiles of lesson 1. 4³ is three 4s multiplied, 4 × 4 × 4 = 64. Take one 4 out of the multiplying and you have 4² = 16, because taking out a factor of 4 divides by 4. So walking down the staircase of powers, 4³, 4², 4¹, gives 64, 16, 4, dividing by 4 at every step.[^2]\n\nNow keep walking, dividing by 4 each time.[^2] 4¹ is 4, and 4 ÷ 4 = 1, so 4⁰ = 1, one whole square. The dividing law from lesson 1 agrees: 4² ÷ 4² is 16 ÷ 16 = 1, and taking the powers away gives the power 2 − 2, which is 4⁰. So any base to the power of zero equals 1,[^3] as long as the base is not zero, because the step down divides by the base and you cannot divide by zero. It is not 0: from 7¹ = 7 the step down divides by 7, leaving 1, where 0 would mean taking all 7 away. One more step: 1 ÷ 4 = 1/4, so 4⁻¹ = 1/4. The next is 1/4 ÷ 4 = 1/16, so 4⁻² = 1/16. Since 16 is 4², that is 1 over 4². This is the rule: a negative power gives the [[reciprocal]], one over the number with the matching positive power.[^4] The dividing law agrees again: 4² ÷ 4⁴ is 16/256 = 1/16, and 2 − 4 = −2.\n\nDividing a positive amount by 4 makes it smaller but never takes it below nothing, so the minus in the power does not make the answer negative.[^5] It is a common slip to think it does.[^5] If 4⁻¹ were −4, the step from 4⁰ = 1 down to it would take 5 away instead of dividing by 4, and the pattern would break. A negative base, as in (−2)⁻¹ = −1/2, can give a negative answer, but that minus comes from the base, not the power. The laws from lesson 1 still hold. 10³ × 10⁻⁵ adds the powers, 3 + (−5) = −2, to give 10⁻², and 1000 ÷ 100,000 = 1/100 agrees. Multiplying by 10⁻⁵ divides by 10 five times, so it is five steps down. Dividing by a negative power climbs back up: 1 ÷ 4⁻² is 1 ÷ 1/16 = 16, because sixteen sixteenths make 1, and 16 is 4². Lesson 5 uses 10⁻³ for milli.\n\n**Each step down in power divides by the base, so a power of zero is 1 and a negative power is one over the positive power: the minus in the power does not make the answer negative.[^4][^5]**"
+  },
+  "analogy": {
+   "text": "On your meter, 0.001 A is 1 mA, a thousandth of an amp, 10⁻³ A.[^1] Walk down from 1 A to 0.1 A, 0.01 A and 0.001 A and each step divides by 10, so the power of ten goes 10⁰, 10⁻¹, 10⁻², 10⁻³. A milliamp is a tiny current still flowing the same way, not a current below nothing.",
+   "breaks": "A meter can show a negative current, one flowing the other way round the circuit, but that minus sits in front of the number, as in −1 mA, not in the power. Prefixes such as milli cover only some of the steps; lesson 5 takes them properly."
+  },
+  "practice": {
+   "text": "- A power of zero: any base except zero gives 1.\n- A negative power: work out the matching positive power, then turn it over. 3⁻² is 1 over 3², which is 1/9.\n- Multiplying and dividing with one base: add or take away the powers as in lesson 1, keeping each minus with its power.\n- Dividing by a negative power multiplies: 1 ÷ x⁻² is x².\n- To finish, write a negative power as one over a positive one: x⁻³ is 1/x³, the same number. College courses usually expect answers with positive powers; an older SQA Higher National unit asks for answers \"leaving your answer with positive indices\".[^6]\n- Unsure? Walk the staircase: down a step divides by the base, up a step multiplies by it.\n\n**Rule of thumb:** A minus in the power means one over, not below zero.\n\n**On a calculator** (not from this lesson's sources): key 4, the power key, the (−) key, 2 and = to get 0.0625, which is 1/16. Use the (−) key, not the take-away key.\n\n**Worked example:** Simplify x² × x⁻⁵ ÷ x⁻¹, with x not zero. Multiplying adds the powers, 2 + (−5) = −3, giving x⁻³. Dividing takes them away, −3 − (−1) = −2, giving x⁻², which is 1/x². Check with x = 2: 4 × 1/32 = 1/8, and 1/8 ÷ 1/2 = 1/4, while 1/2² = 1/4.\n\n**Common mistakes**\n- Making the answer negative: 4⁻² is 1/16, not −16.[^5]\n- Taking a zero power as 0 or as the base: 7⁰ is 1, not 7 × 0 = 0 or 7.\n- Multiplying the powers when you multiply: 10³ × 10⁻⁵ is 10⁻², not 10⁻¹⁵.\n- Losing a minus when you take away a negative power: x⁻³ ÷ x⁻⁵ is x², because −3 − (−5) = 2, not x⁻⁸. Try x = 2: 1/8 ÷ 1/32 = 4, which is 2²."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Milli- - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Milli-",
+    "quote": "Milli (symbol m ) is a unit prefix in the metric system denoting a factor of one thousandth (10 −3 )."
+   },
+   {
+    "n": 2,
+    "title": "Negative exponent intuition (video) | Khan Academy",
+    "url": "https://www.khanacademy.org/v/negative-exponent-intuition",
+    "quote": "Continue the pattern of decreasing exponents by dividing by 'a', and see how it extends to zero and negative powers. While we're at it, we'll see why a^0 =1."
+   },
+   {
+    "n": 3,
+    "title": "Negative and fractional indices - GCSE Maths Revision - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zrqr7v4",
+    "quote": "Any base to the power of zero equals 1 and any base to the power of one is the base itself."
+   },
+   {
+    "n": 4,
+    "title": "Engineer cadets maths refresher — Solent University Warsash",
+    "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+    "quote": "So a negative power gives the reciprocal of the number — that is, 1 over the number."
+   },
+   {
+    "n": 5,
+    "title": "Engineer cadets maths refresher — Solent University Warsash",
+    "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+    "quote": "A common misconception is that since the power is negative, the result must be negative: as you can see, this is not so."
+   },
+   {
+    "n": 6,
+    "title": "Introductory Mathematics for Engineering (unit 7481997) - SQA Higher National unit specification",
+    "url": "http://www.sqa.org.uk/files/hn/D7481997.pdf",
+    "quote": "leaving your answer with positive indices."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: concept -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; }\n  /* A stair is a slab with its power and its amount; a navy outline marks the stair you are on. */\n  .scene .slab { fill: var(--k-sunk); }\n  .scene .mk, .scene .pick { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }\n  /* The amount: unit squares, or one square cut into equal parts with the part kept shaded. */\n  .scene .sq { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.2; }\n  .scene .whole { fill: var(--k-bg); }\n  .scene .edge { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .cell { fill: var(--k-fill1); }\n  .scene .cut { stroke: var(--k-muted); stroke-width: 1; }\n  /* A slip is drawn in the warning colour; an amount below nothing hangs under the floor, dashed. */\n  .scene .sq.bad { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 1.5; }\n  .scene .sq.neg { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 3 2; }\n  .scene .cell.bad { fill: var(--k-warn); }\n  .scene .edge.bad { stroke: var(--k-warn); }\n  .scene .floor { stroke: var(--k-ink); stroke-width: 2; }\n  .scene .darr { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .darrh { fill: var(--k-muted); }\n  .scene .hop { fill: none; stroke: var(--k-accent2); stroke-width: 2; }\n  .scene .hoph { fill: var(--k-accent2); }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }\n  .scene .sp { font: 700 15px var(--k-font); fill: var(--k-ink); }\n  .scene .sv { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .sv.q { fill: var(--k-muted); }\n  .scene .hn { font: 700 13px var(--k-font); fill: var(--k-accent2); }\n  .scene .hk { font: 700 13px var(--k-font); fill: var(--k-accent2); }\n  .scene .amt { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .amt.mu { fill: var(--k-muted); }\n  .scene .op { font: 600 14px var(--k-font); fill: var(--k-muted); }\n  .scene .tag { font: 700 18px var(--k-font); fill: var(--k-accent2); }\n  .scene .try { font: 700 15px var(--k-font); fill: var(--k-accent); }\n  .scene .note { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .te { font: 700 16px var(--k-font); fill: var(--k-ink); }\n  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }\n  .scene .te.mu, .scene .tw.mu { fill: var(--k-muted); }\n  .scene .lab.bad, .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .v { font-style: italic; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .row.tune .k-btn { flex: 1 1 8rem; min-height: 48px; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .picks .k-btn[aria-pressed=\"true\"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A staircase of powers, one stair for each power of a base, with each amount drawn as unit squares beside it where the squares fit. The bases and numbers tried are examples.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 200\" width=\"100%\" role=\"img\" aria-label=\"\">\n      <g id=\"art\"></g>\n    </svg>\n    <div class=\"row tune\" id=\"tune\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Each step down the stairs divides by the base, so the amount shrinks but never drops below nothing.</p>\n\n<script>\n  // ---------- powers written out ----------\n  const SUPC = '⁰¹²³⁴⁵⁶⁷⁸⁹';\n  const sup = (n) => String(n).split('').map((c) => (c === '-' ? '⁻' : SUPC[+c])).join('');\n  const P = (b, n) => String(b) + sup(n);\n  const isNum = (b) => /^[0-9]+$/.test(String(b));\n  const valOf = (b, n) => Math.pow(+b, n);\n  // A stair's amount as the lesson writes it: whole numbers, and one over a whole number below zero.\n  const valText = (b, n) => (n >= 0 ? String(valOf(b, n)) : '1/' + valOf(b, -n));\n  const amtText = (b, n) => { const v = valOf(b, Math.abs(n)); return n >= 0 ? v + (v === 1 ? ' square' : ' squares') : '1/' + v + ' of a square'; };\n  const fmtV = (v) => (v < 0 ? '−' + (-v) : String(v));\n  // How a power of b is laid out as unit squares. Base 4 doubles both sides at each stair up; any\n  // other base multiplies across, then up, in turn. So a step down keeps one of b equal groups, and\n  // below zero one square is cut the same way into parts.\n  const grp = (b, m) => (+b === 4 ? { gx: 2, gy: 2 } : m % 2 ? { gx: +b, gy: 1 } : { gx: 1, gy: +b });\n  function lay(b, n) { let c = 1, r = 1; for (let m = 1; m <= n; m++) { const g = grp(b, m); c *= g.gx; r *= g.gy; } return { c, r }; }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // A stair panel: base b, stairs from power hi down to lo, the marker starting on n0 and moving to\n  // go (a walk, or with hops: a jump whose steps are counted). known: the lowest stair whose amount\n  // shows at the start (below it, \"?\" until the marker reaches it). Every stair's amount, every\n  // square and part, every count and label is worked out from these numbers.\n  // A SHOW panel's tl is its timetable in seconds from when the screen opens; work, its lines.\n  // A puzzle: opts, the answers offered; right, the lines a right answer adds once its move ends;\n  // wrong, each wrong answer's own slip (bad: an amount drawn in the warning colour) and lines.\n  const PICK = 'Tap one of the answers.';\n  const STEPS = [\n    { show: true, name: 'Down the staircase', replay: 'Play again',\n      panels: [{ kind: 'stair', b: '4', hi: 3, lo: -3, n0: 3, live: true, tl: { in: 0.4, work: [2.6] } }],\n      text: 'Each stair is a power of 4. One step down takes one 4 out of the multiplying, so the amount divides by 4. Step down past `4⁰` and see what is left.' },\n    { name: 'Stairs of 3', op: true, q: 'Powers of 3', panels: [{ kind: 'stair', b: '3', hi: 3, lo: 1, n0: 3, known: 2, go: 1, hideOps: true }],\n      opts: ['− 3', '÷ 3', '− 18'], want: '÷ 3', before: [],\n      right: [{ e: '27 ÷ 3', w: '9' }, { e: '9 ÷ 3', w: '3' }],\n      wrong: { '− 3': { lines: [{ e: '27 − 3', w: '24', bad: true }, { e: '24 − 3', w: '21', bad: true }] },\n        '− 18': { bad: { v: -9 }, lines: [{ e: '27 − 18', w: '9' }, { e: '9 − 18', w: '−9', bad: true }] } },\n      task: 'On the stairs of 3, `3³` is 27 and `3²` is 9. What does each step down do?',\n      why: 'Each step down takes one 3 out of the multiplying, so it divides by 3. 27 ÷ 3 = 9, and 9 ÷ 3 = 3, so `3¹` is 3.',\n      hint: 'Not quite. Look at what taking one 3 out of 3 × 3 × 3 does.',\n      hints: { '− 3': 'Not quite. Taking 3 away gives 24, then 21, but `3²` is 3 × 3 = 9. Each step takes a 3 out of the multiplying.',\n        '− 18': 'Not quite. Taking 18 away gets from 27 to 9, but the next step would give 9 − 18 = −9, below nothing. Each step divides by 3.' } },\n    { show: true, name: 'A power of zero', replay: 'Play again',\n      panels: [{ kind: 'stair', b: '4', hi: 2, lo: -1, n0: 1, go: 0, step: 1.2, tl: { in: 0.4, act: 1.5, work: [2.9, 3.3, 3.7] },\n        work: [{ e: '4⁰', w: '4 ÷ 4 = 1' }, { e: '4² ÷ 4²', w: '16 ÷ 16 = 1' }, { e: '4² ÷ 4²', w: '4²⁻² = 4⁰' }] }],\n      text: 'From `4¹ = 4`, one step down is 4 ÷ 4 = 1, so `4⁰ = 1`, one whole square. The dividing law agrees, since `4² ÷ 4²` is 16 ÷ 16 = 1 and its power is 2 − 2 = 0.' },\n    { name: 'Seven to the power zero', q: '7⁰', panels: [{ kind: 'stair', b: '7', hi: 2, lo: 0, n0: 1, go: 0 }],\n      opts: ['0', '7', '1'], want: '1', before: [],\n      right: [{ e: '7⁰', w: '7 ÷ 7 = 1' }],\n      wrong: { '0': { lines: [{ e: '7 × 0', w: '0', bad: true }] },\n        '7': { bad: { b: '7', n: 1, tail: ', the same as 7¹' }, lines: [{ e: '7 + 0', w: '7', bad: true }] } },\n      task: 'What is `7⁰`?',\n      why: 'From `7¹ = 7`, one step down divides by 7, and 7 ÷ 7 = 1. So `7⁰ = 1`, as for any base except zero.',\n      hint: 'Not quite. Take one step down from `7¹ = 7`.',\n      hints: { '0': 'Not quite. That is 7 × 0. A step down from `7¹ = 7` divides by 7, which leaves one square.',\n        '7': 'Not quite. That is 7 + 0, the base itself. A step down from `7¹ = 7` divides by 7.' } },\n    { show: true, name: 'Below zero', replay: 'Play again',\n      panels: [{ kind: 'stair', b: '4', hi: 1, lo: -2, n0: 0, go: -2, step: 1.1, tl: { in: 0.4, act: 1.3, work: [2.5, 3.6, 4.0] },\n        work: [{ e: '4⁻¹', w: '1 ÷ 4 = 1/4' }, { e: '4⁻²', w: '1/4 ÷ 4 = 1/16' }, { e: '1 − 5', w: '−4', bad: true }],\n        slip: { v: -4, t: 4.1 } }],\n      text: 'Keep dividing by 4. `4⁻¹` is 1 ÷ 4 = 1/4, and `4⁻²` is 1/4 ÷ 4 = 1/16, smaller but never below nothing. If `4⁻¹` were −4, the step from 1 would take 5 away instead of dividing by 4.' },\n    { name: 'A negative power of 3', q: '3⁻²', panels: [{ kind: 'stair', b: '3', hi: 2, lo: -2, n0: 0, go: -2 }],\n      opts: ['1/9', '−9', '−6'], want: '1/9', before: [],\n      right: [{ e: '3⁻²', w: '1 ÷ 3 ÷ 3 = 1/9' }, { e: '1/3²', w: '1/9' }],\n      wrong: { '−9': { bad: { v: -9 }, lines: [{ e: '−3²', w: '−9', bad: true }] },\n        '−6': { bad: { v: -6 }, lines: [{ e: '3 × −2', w: '−6', bad: true }] } },\n      task: 'What is `3⁻²`?',\n      why: 'Two steps down from `3⁰ = 1` divide by 3 twice, 1 ÷ 3 ÷ 3 = 1/9. That is one over `3²`, a small amount, not a negative one.',\n      hint: 'Not quite. Walk two steps down from `3⁰ = 1`, dividing by 3 each time.',\n      hints: { '−9': 'Not quite. The minus in the power does not make the answer negative. Walk two steps down from 1, dividing by 3 each time.',\n        '−6': 'Not quite. That is 3 × −2, but a power is not a times sign. Walk two steps down from 1, dividing by 3 each time.' } },\n    { show: true, name: 'One over', replay: 'Play again',\n      panels: [{ kind: 'recip', b: '4', k: 2, tl: { in: 0.4, work: [3.9, 4.15, 4.4] },\n        work: [{ e: '4⁻²', w: '1/4² = 1/16' }, { e: '4² ÷ 4⁴', w: '16/256 = 1/16' }, { e: '2 − 4', w: '−2' }] }],\n      text: 'A negative power gives the *reciprocal*, one over the matching positive power. `4²` is 16 squares, and `4⁻²` is one square cut into 16, so 1/16. The dividing law agrees, as `4² ÷ 4⁴` is 16/256 = 1/16.' },\n    { name: 'Powers of ten below zero', q: '10⁻³', panels: [{ kind: 'stair', b: '10', hi: 1, lo: -3, n0: 0, go: -3 }],\n      opts: ['−1000', '0.001', '−30'], want: '0.001', before: [],\n      right: [{ e: '10⁻³', w: '1 ÷ 10 ÷ 10 ÷ 10 = 1/1000' }, { e: '1/1000', w: '0.001' }],\n      wrong: { '−1000': { lines: [{ e: '−10³', w: '−1000', bad: true }] }, '−30': { lines: [{ e: '10 × −3', w: '−30', bad: true }] } },\n      task: 'What is `10⁻³`?',\n      why: 'Three steps down from `10⁰ = 1` divide by 10 three times, which gives 1/1000 = 0.001, a thousandth. The minus means one over, not below nothing.',\n      hint: 'Not quite. Walk three steps down from `10⁰ = 1`.',\n      hints: { '−1000': 'Not quite. That is `−10³`. The minus in the power means one over `10³`, not a negative number.',\n        '−30': 'Not quite. That is 10 × −3. The power counts steps down, and each one divides by 10.' } },\n    { show: true, name: 'Multiplying jumps down', replay: 'Jump',\n      panels: [{ kind: 'stair', b: '2', hi: 3, lo: -3, n0: 3, go: -2, known: -3, hops: true, tag: '2³ × 2⁻⁵', step: 0.55, tl: { in: 0.4, act: 1.2, work: [4.0, 4.3] },\n        work: [{ e: '2³ × 2⁻⁵', w: '8 ÷ 2 ÷ 2 ÷ 2 ÷ 2 ÷ 2 = 1/4' }, { e: '3 + (−5)', w: '−2' }] }],\n      text: '`2⁻⁵` is 1 ÷ 2 ÷ 2 ÷ 2 ÷ 2 ÷ 2 = 1/32, so multiplying by it does those five divisions: five steps down the stairs. From `2³ = 8` it lands on `2⁻² = 1/4`, and the powers add, 3 + (−5) = −2.' },\n    { name: 'Add the powers', q: '10³ × 10⁻⁵', panels: [{ kind: 'stair', b: '10', hi: 3, lo: -3, n0: 3, go: -2, known: -3, hops: true }],\n      opts: ['10⁻¹⁵', '10⁸', '10⁻²'], want: '10⁻²', before: [],\n      right: [{ e: '3 + (−5)', w: '−2' }, { e: '10³ × 10⁻⁵', w: '1000 ÷ 100,000 = 1/100' }],\n      wrong: { '10⁻¹⁵': { lines: [{ e: '3 × (−5)', w: '−15', bad: true }] }, '10⁸': { lines: [{ e: '3 + 5', w: '8', bad: true }] } },\n      task: 'Write `10³ × 10⁻⁵` as one power of 10.',\n      why: 'Multiplying by `10⁻⁵` divides by 10 five times, five steps down from `10³` to `10⁻²`. The powers add, 3 + (−5) = −2, and 1000 ÷ 100,000 = 1/100 agrees.',\n      hint: 'Not quite. Count the steps down that `× 10⁻⁵` takes from `10³`.',\n      hints: { '10⁻¹⁵': 'Not quite. That multiplies the powers, 3 × (−5). Multiplying numbers adds the powers.',\n        '10⁸': 'Not quite. That loses the minus, 3 + 5. Multiplying by `10⁻⁵` takes five steps down, not up.' } },\n    { name: 'Dividing by a power', mixed: true, q: 'x⁵ ÷ x⁸', at: { x: 2 }, panels: [{ kind: 'stair', b: 'x', hi: 5, lo: -4, n0: 5, go: -3, hops: true, try: true }],\n      opts: ['1/x³', '−x³', 'x³'], want: '1/x³',\n      before: [{ e: 'x⁵ ÷ x⁸', w: '32 ÷ 256 = 1/8' }], right: [{ e: '5 − 8', w: '−3' }, { e: '1/x³', w: '1/8' }],\n      wrong: { '−x³': { lines: [{ e: '−x³', w: '−8', bad: true }] }, 'x³': { lines: [{ e: 'x³', w: '8', bad: true }] } },\n      task: 'Simplify `x⁵ ÷ x⁸` (`x` not zero).',\n      why: 'Dividing by `x⁸` takes 8 steps down from `x⁵`, to `x⁻³`, since 5 − 8 = −3. That is one over `x³`, so `x⁵ ÷ x⁸ = 1/x³`. At `x = 2`, 32 ÷ 256 = 1/8.',\n      hint: 'Not quite. Take away the powers, then turn a negative power into one over.',\n      hints: { '−x³': 'Not quite. The minus in the power means one over, not a negative. At `x = 2` the question makes 1/8, not −8.',\n        'x³': 'Not quite. That turns the division round. Dividing by `x⁸` takes 8 steps down from `x⁵`, past `x⁰`.' } },\n    { name: 'A power and its opposite', mixed: true, q: 'x⁴ × x⁻⁴', at: { x: 2 }, panels: [{ kind: 'stair', b: 'x', hi: 4, lo: -2, n0: 4, go: 0, hops: true, try: true }],\n      opts: ['0', '1', 'x⁻¹⁶'], want: '1', before: [],\n      right: [{ e: '4 + (−4)', w: '0' }, { e: 'x⁴ × x⁻⁴', w: '16 × 1/16 = 1' }],\n      wrong: { '0': { lines: [{ e: 'x⁴ × x⁻⁴', w: '16 × 1/16 = 1' }] },\n        'x⁻¹⁶': { lines: [{ e: '4 × (−4)', w: '−16', bad: true }, { e: 'x⁴ × x⁻⁴', w: '16 × 1/16 = 1' }] } },\n      task: 'Simplify `x⁴ × x⁻⁴` (`x` not zero).',\n      why: 'Multiplying by `x⁻⁴` takes 4 steps down from `x⁴` to `x⁰`, since 4 + (−4) = 0. A power of zero is 1, so `x⁴ × x⁻⁴ = 1`. At `x = 2`, 16 × 1/16 = 1.',\n      hint: 'Not quite. Add the powers, then ask what a power of zero is.',\n      hints: { '0': 'Not quite. 4 + (−4) = 0 gives `x⁰`, and a power of zero is 1, not 0.',\n        'x⁻¹⁶': 'Not quite. That multiplies the powers, 4 × (−4). Multiplying adds them, 4 + (−4).' } },\n    { name: 'Dividing by a negative power', mixed: true, q: '1 ÷ 2⁻³', panels: [{ kind: 'stair', b: '2', hi: 3, lo: -3, n0: 0, go: 3, known: -3, hops: true }],\n      opts: ['−8', '1/8', '8'], want: '8', before: [],\n      right: [{ e: '2⁰ ÷ 2⁻³', w: '2³ = 8' }, { e: '1 ÷ 1/8', w: '8' }],\n      wrong: { '−8': { bad: { v: -8 }, lines: [{ e: '−2³', w: '−8', bad: true }] },\n        '1/8': { bad: { b: '2', n: -3, label: '1/8 is 2⁻³ itself, not 1 ÷ 2⁻³' }, lines: [{ e: '2⁻³', w: '1/8', mu: true }] } },\n      task: 'What is `1 ÷ 2⁻³`?',\n      why: 'Dividing by `2⁻³` undoes three steps down, so it climbs 3 steps up from `2⁰ = 1` to `2³ = 8`. As a check, 1 ÷ 1/8 = 8, because eight eighths make 1.',\n      hint: 'Not quite. Dividing undoes multiplying, so which way do the stairs go?',\n      hints: { '−8': 'Not quite. Nothing on these stairs drops below nothing. Dividing by `2⁻³` climbs 3 steps up from 1.',\n        '1/8': 'Not quite. 1/8 is `2⁻³` itself. Dividing by it climbs back up the stairs.' } },\n  ];\n  const FINISH = 'Each step down the stairs divides by the base. So a power of zero is 1, and a negative power is one over the positive power. The minus in the power never makes the answer negative, and for a base above 1 it is a small amount.';\n  // Sources the checks restate (the lesson's own).\n  const SRC1 = 'https://en.wikipedia.org/wiki/Milli-';\n  const SRC2 = 'https://www.khanacademy.org/v/negative-exponent-intuition';\n  const SRC3 = 'https://www.bbc.co.uk/bitesize/articles/zrqr7v4';\n  const SRC4 = 'https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf';\n  const XL = 12, XR = 328, LH = 26, FADE = 0.35, LIVE_D = 1.1, BX = 224, BW = 104;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  // A puzzle's move: one step at a time, quick enough that the whole jump ends within about 2 s.\n  const moveD = (p) => Math.min(0.8, 1.9 / Math.max(1, Math.abs(p.go - p.n0)));\n  STEPS.forEach((d) => { if (!d.show) d.rt = 0.2 + Math.abs(d.panels[0].go - d.panels[0].n0) * moveD(d.panels[0]); });\n\n  // ---------- reading an expression (pure, so the checks can test it) ----------\n  // +, −, ×, ÷, brackets, a minus in front, fractions (a/b binds tighter than ÷), powers written\n  // small (negative ones too), commas in thousands and letters standing for numbers.\n  function val(s, vars) {\n    vars = vars || {};\n    const src = String(s).replace(/\\s+/g, '');\n    let i = 0;\n    const peek = () => src[i];\n    function sum() {\n      let v = prod();\n      while (peek() === '+' || peek() === '−') { const op = src[i++]; const w = prod(); v = op === '+' ? v + w : v - w; }\n      return v;\n    }\n    function prod() {\n      let v = unary();\n      for (;;) {\n        const c = peek();\n        if (c === '×') { i++; v *= unary(); } else if (c === '÷') { i++; v /= unary(); } else if (c != null && /[0-9(a-z]/.test(c)) v *= frac(); else return v;\n      }\n    }\n    function unary() { if (peek() === '−') { i++; return -unary(); } return frac(); }\n    function frac() { let v = powr(); while (peek() === '/') { i++; v /= powr(); } return v; }\n    function powr() {\n      const v = atom();\n      // a power written small, which may take a power away, as in 4²⁻² (power 2 − 2)\n      let e = 0, any = false;\n      for (;;) {\n        let neg = false, m = '';\n        if (src[i] === '⁻') { neg = true; i++; }\n        while (i < src.length && SUPC.indexOf(src[i]) >= 0) m += SUPC.indexOf(src[i++]);\n        if (neg && !m) throw new Error('a minus with no power in ' + s);\n        if (!m) break;\n        e += neg ? -m : +m; any = true;\n        if (src[i] !== '⁻') break;\n      }\n      return any ? Math.pow(v, e) : v;\n    }\n    function atom() {\n      const c = peek();\n      if (c === '(') { i++; const v = sum(); if (src[i] !== ')') throw new Error('no closing bracket in ' + s); i++; return v; }\n      const m = /^[0-9][0-9,]*(\\.[0-9]+)?/.exec(src.slice(i));\n      if (m) { i += m[0].length; return +m[0].replace(/,/g, ''); }\n      if (c && /[a-z]/.test(c)) { i++; if (!(c in vars)) throw new Error('no value for ' + c); return vars[c]; }\n      throw new Error('cannot read ' + src.slice(i));\n    }\n    const v = sum();\n    if (i !== src.length) throw new Error('left over in ' + s);\n    return v;\n  }\n  // As a screen reader says it.\n  const say = (s) => String(s == null ? '' : s)\n    .replace(/⁻?[⁰¹²³⁴⁵⁶⁷⁸⁹]+(?:⁻[⁰¹²³⁴⁵⁶⁷⁸⁹]+)*/g, (m) => ' to the power ' + m.split('').map((c) => (c === '⁻' ? ' minus ' : SUPC.indexOf(c))).join('') + ' ')\n    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\\+/g, ' plus ').replace(/\\//g, ' over ')\n    .replace(/\\s+/g, ' ').trim();\n  // The lines of working on the first screen, worked out from the power the stairs are on.\n  const liveWork = (b, n, hi) => [{ e: P(b, n), w: n === hi ? Array(n).fill(b).join(' × ') + ' = ' + valText(b, n) : valText(b, n + 1) + ' ÷ ' + b + ' = ' + valText(b, n) }];\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // n: the first screen's power; prev: the power before Dan's last step (null when none); low: the\n  // lowest stair reached so far, and lowBefore: that before the last step.\n  function blank() { return { pick: null, res: null, why: false, n: 3, prev: null, low: 3, lowBefore: 3 }; }\n  const liveSt = (n) => Object.assign(blank(), { n, low: Math.min(3, n), lowBefore: Math.min(3, n) });\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])x(?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n\n  // Three answer buttons; each step fills in its own options. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one makes its move on the stairs, a wrong one draws its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(motionLen(i, st).latest);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  // The first screen's power: one stair down or up.\n  function setN(by) {\n    if (finished || at() !== 0) return;\n    const st = S[0], v = K.clamp(st.n + by, -3, 3);\n    if (v === st.n) return;\n    st.prev = st.n; st.lowBefore = st.low; st.n = v; st.low = Math.min(st.low, v);\n    play(motionLen(0, st).latest);\n  }\n  const downBtn = K.button({ label: 'Step down', secondary: true, into: '#tune', press: () => setN(-1) });\n  const upBtn = K.button({ label: 'Step up', secondary: true, into: '#tune', press: () => setN(1) });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    S[i].prev = null;\n    play(motionLen(i, S[i]).latest);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    motionEnd = dur + 0.05; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    d = d == null ? K.SOFT : d;\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  const vis = (t, d) => (t === false ? 0 : t == null ? 1 : arr(t, d));\n  // A panel's arrival (I, from when it opens).\n  const I = (C, off, d) => (C.tin == null ? 1 : arr(C.tin + off, d));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const curve = (cls, x1, y1, cx, cy, x2, y2) => add(K.svg('path', { class: cls, d: 'M' + r3(x1) + ' ' + r3(y1) + ' Q' + r3(cx) + ' ' + r3(cy) + ' ' + r3(x2) + ' ' + r3(y2) }));\n  function text(x, y, s, cls, anchor, math) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    if (math) italics(t, s, true); else t.textContent = s;\n    return add(t);\n  }\n  // An arrowhead with its tip at (x, y), pointing along (dx, dy).\n  function head(x, y, dx, dy, cls) {\n    const L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, s = 7, w = 4, bx = x - ux * s, by = y - uy * s;\n    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(bx - uy * w) + ' ' + r3(by + ux * w) + ' L' + r3(bx + uy * w) + ' ' + r3(by - ux * w) + ' Z' }));\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 15 * 0.6;\n  }\n  // One square of side s with its top-left at (x, y): the parts in 'shade' ({i, j, c, r, a}: part i\n  // across and j up of a c by r cutting) shaded, then the cuts of each grid ({c, r, a}), then its edge.\n  function cutSquare(x, y, s, shade, grids, cls) {\n    const k = cls || '';\n    rect('whole', x, y, s, s, 0);\n    let n = 0;\n    shade.forEach((q) => {\n      if (q.a >= 0.5) n++;\n      if (q.a > 0) part(q.a, 0, () => rect('cell' + k, x + q.i * s / q.c, y + s - (q.j + 1) * s / q.r, s / q.c, s / q.r, 0));\n    });\n    let cells = 1;\n    grids.forEach((gr) => {\n      if (gr.a >= 0.5) cells = Math.max(cells, gr.c * gr.r);\n      if (gr.a > 0) part(gr.a, 0, () => {\n        for (let i = 1; i < gr.c; i++) line('cut', x + i * s / gr.c, y, x + i * s / gr.c, y + s);\n        for (let j = 1; j < gr.r; j++) line('cut', x, y + j * s / gr.r, x + s, y + j * s / gr.r);\n      });\n    });\n    rect('edge' + k, x, y, s, s, 0);\n    return { cells, shaded: n };\n  }\n\n  // ---------- where the marker is ----------\n  // The move a stair panel makes in its state: from, to, each step's progress, and the stair it is\n  // on now (pos, between two stairs while it moves).\n  function moveOf(p, C) {\n    let from, to;\n    if (p.live) { to = C.st.n; from = C.st.prev != null ? C.st.prev : to; } else { from = p.n0; to = p.go == null ? p.n0 : p.go; }\n    const steps = Math.abs(to - from), dir = to > from ? 1 : -1, prog = [];\n    for (let j = 0; j < steps; j++) prog.push(C.act === false ? 0 : C.act == null ? 1 : arr(C.act + j * C.D, C.D));\n    let done = 0;\n    while (done < steps && prog[done] >= 1) done++;\n    const t = done < steps ? prog[done] : 0;\n    return { from, to, dir, steps, prog, done, t, pos: from + dir * (done + t), depth: prog.reduce((s, v) => s + v, 0) };\n  }\n\n  // ---------- the panels ----------\n  const PAN = {};\n  // The amount on a stair, in the box beside the stairs, standing on its bottom edge. State n is drawn\n  // with tt = 0; while a step down from n runs (tt from 0 to 1), the amount splits into b equal\n  // groups and all but one fade, so it divides by b. From one square the square is drawn larger,\n  // cut into b parts, and all but one part lose their shading; below that the kept part is cut again.\n  function squaresAt(b, n, tt, u, FY) {\n    if (n === 0 && tt === 0) { rect('sq', BX, FY - u, u, u, 2); return { squares: 1, zoom: 0 }; }\n    if (n >= 1) {\n      const Lc = lay(b, n - 1), g = grp(b, n), s = K.ease(K.clamp(tt / 0.4, 0, 1)), fo = 1 - K.clamp((tt - 0.4) / 0.45, 0, 1);\n      let count = 0;\n      for (let gj = g.gy - 1; gj >= 0; gj--) for (let gi = g.gx - 1; gi >= 0; gi--) {\n        const keep = gi === 0 && gj === 0, a = keep ? 1 : fo, ox = gi * 4 * s, oy = gj * 4 * s;\n        if (a <= 0) continue;\n        part(a, 0, () => {\n          for (let j = 0; j < Lc.r; j++) for (let i = 0; i < Lc.c; i++) rect('sq', BX + ox + (gi * Lc.c + i) * u, FY - oy - (gj * Lc.r + j + 1) * u, u, u, 2);\n        });\n        if (a >= 0.5) count += Lc.c * Lc.r;\n      }\n      return { squares: count, zoom: 0 };\n    }\n    if (n === 0) {\n      const z = K.ease(K.clamp(tt / 0.35, 0, 1)), sz = K.lerp(u, BW, z), L1 = lay(b, 1);\n      const la = K.clamp((tt - 0.35) / 0.25, 0, 1), sh = 1 - K.clamp((tt - 0.6) / 0.4, 0, 1), shade = [];\n      for (let j = 0; j < L1.r; j++) for (let i = 0; i < L1.c; i++) shade.push({ i, j, c: L1.c, r: L1.r, a: i || j ? sh : 1 });\n      const r = cutSquare(BX, FY - sz, sz, shade, [{ c: L1.c, r: L1.r, a: la }]);\n      return { cells: r.cells, shaded: r.shaded, zoom: z };\n    }\n    const m = -n, Lm = lay(b, m);\n    if (tt === 0) {\n      const r = cutSquare(BX, FY - BW, BW, [{ i: 0, j: 0, c: Lm.c, r: Lm.r, a: 1 }], [{ c: Lm.c, r: Lm.r, a: 1 }]);\n      return { cells: r.cells, shaded: r.shaded, zoom: 1 };\n    }\n    const Ln = lay(b, m + 1), g = grp(b, m + 1), sh = 1 - K.clamp((tt - 0.5) / 0.5, 0, 1), shade = [];\n    for (let j = 0; j < g.gy; j++) for (let i = 0; i < g.gx; i++) shade.push({ i, j, c: Ln.c, r: Ln.r, a: i || j ? sh : 1 });\n    const r = cutSquare(BX, FY - BW, BW, shade, [{ c: Lm.c, r: Lm.r, a: 1 }, { c: Ln.c, r: Ln.r, a: K.clamp(tt / 0.45, 0, 1) }]);\n    return { cells: r.cells, shaded: r.shaded, zoom: 1 };\n  }\n  function drawAmount(p, G, y0, mo, C) {\n    const b = p.b, FY = y0 + 34 + BW, a0 = I(C, 0.7, 0.6);\n    const cur = mo.from + mo.dir * mo.done, moving = mo.done < mo.steps && mo.t > 0;\n    const upper = moving && mo.dir > 0 ? cur + 1 : cur, tt = moving ? (mo.dir < 0 ? mo.t : 1 - mo.t) : 0;\n    let got = null;\n    part(a0, 6, () => { got = squaresAt(b, upper, tt, G.u, FY); });\n    if (got) REC.amount = { squares: got.squares, cells: got.cells, shaded: got.shaded };\n    // its amount in words under it; while it changes, the old words fade out before the new fade in\n    const lx = BX + BW / 2, ly = FY + 20;\n    if (moving) {\n      part(Math.min(a0, 1 - K.clamp((mo.t - 0.3) / 0.2, 0, 1)), 0, () => text(lx, ly, amtText(b, cur), 'amt', 'middle'));\n      part(Math.min(a0, K.clamp((mo.t - 0.5) / 0.2, 0, 1)), 0, () => text(lx, ly, amtText(b, cur + mo.dir), 'amt', 'middle'));\n    } else part(a0, 0, () => text(lx, ly, amtText(b, cur), 'amt', 'middle'));\n    const za = got ? got.zoom : 0;\n    if (za > 0) part(Math.min(a0, za), 0, () => {\n      text(XR, y0 + 22, 'one square, drawn larger', 'note', 'end');\n      // under it, the same amount at true size, so the shrink stays in sight\n      const shown = Math.min(0, moving && mo.t >= 0.5 ? cur + mo.dir : cur), u = G.u, qx = XR - u, qy = FY + 30, Lq = lay(b, -shown);\n      rect('whole', qx, qy, u, u, 0);\n      rect('cell', qx, qy + u - u / Lq.r, u / Lq.c, u / Lq.r, 0);\n      rect('edge', qx, qy, u, u, 0);\n      text(qx - 6, qy + u / 2 + 4, 'true size', 'note', 'end');\n    });\n    if (!got) return '';\n    return got.squares != null ? ' Beside it, ' + got.squares + (got.squares === 1 ? ' unit square.' : ' unit squares.')\n      : ' Beside it, one square drawn larger, cut into ' + got.cells + ' equal parts, with ' + got.shaded + ' part shaded, and under it the same amount at true size.';\n  }\n  // A staircase of powers: one stair for each power, each a slab with its power and amount. A curved\n  // arrow from each stair to the next says \"÷ b\"; a jump is counted in hops on the left.\n  PAN.stair = {\n    geo(p) {\n      const rows = p.hi - p.lo + 1, amt = isNum(p.b) && p.b !== '10', L = lay(p.b, Math.max(0, p.hi));\n      return { rows, R: rows > 7 ? 22 : 26, amt, ind: amt ? 5 : 7, SW: amt ? 96 : 140, u: amt ? Math.min(56, BW / L.c, BW / L.r) : 0 };\n    },\n    h(p) { const G = PAN.stair.geo(p); return Math.max(34 + G.rows * G.R, G.amt ? 34 + BW + 30 + (p.lo < 0 ? G.u + 2 : 0) : 0) + 6; },\n    draw(p, y0, C, d) {\n      const G = PAN.stair.geo(p), b = p.b, st = C.st, mo = moveOf(p, C), num = isNum(b);\n      const row = (pw) => p.hi - pw, ry = (k) => y0 + 34 + k * G.R, yc = (k) => ry(k) + G.R / 2, sx = (k) => XL + 30 + k * G.ind;\n      const knownLo = p.live ? (st.prev != null ? st.lowBefore : st.low) : (p.known != null ? p.known : p.n0);\n      const reveal = (pw) => {\n        if (pw >= knownLo) return 1;\n        if (mo.dir < 0 && pw < mo.from && pw >= mo.to) return K.clamp((mo.depth - (mo.from - pw - 1) - 0.5) * 2, 0, 1);\n        return 0;\n      };\n      text(XL, y0 + 22, d.show ? (p.tag || 'Powers of ' + b) : d.q, 'tag', 'start', true);\n      if (p.try && d.at) { const l = Object.keys(d.at)[0]; text(XR, y0 + 22, 'Try ' + l + ' = ' + d.at[l], 'try', 'end', true); }\n      for (let k = 0; k < G.rows; k++) {\n        const pw = p.hi - k, rv = num ? reveal(pw) : 1;\n        part(I(C, 0.1 * k, 0.5), 6, () => {\n          rect('slab', sx(k), ry(k) + 2, G.SW, G.R - 4, 6);\n          const pl = P(b, pw), x = sx(k) + 8;\n          text(x, yc(k) + 5, pl, 'sp', 'start', true);\n          if (!num) return;\n          const xv = x + tw(pl, 'sp') + 6;\n          if (rv < 1) part(1 - rv, 0, () => text(xv, yc(k) + 5, '= ?', 'sv q', 'start', false));\n          if (rv > 0) part(rv, 0, () => text(xv, yc(k) + 5, '= ' + valText(b, pw), 'sv', 'start', false));\n        });\n        REC.stairs.push({ p: pw, value: num && rv >= 0.5 ? valText(b, pw) : null });\n      }\n      // one step down divides by the base: shown between stairs whose amounts are known\n      const opsA = p.hideOps ? (C.act === false ? 0 : C.act == null ? 1 : arr(C.act, 0.4)) : 1;\n      for (let k = 0; k < G.rows - 1; k++) {\n        const pw = p.hi - k, a = Math.min(I(C, 0.1 * k + 0.3, 0.5), num ? Math.min(reveal(pw), reveal(pw - 1)) : 1, opsA);\n        if (a <= 0) continue;\n        const x1 = sx(k) + G.SW + 3, y1 = yc(k) + 3, x2 = sx(k + 1) + G.SW + 3, y2 = yc(k + 1) - 3, cx = x2 + 10, cy = (y1 + y2) / 2;\n        part(a, 0, () => {\n          curve('darr', x1, y1, cx, cy, x2, y2);\n          head(x2, y2, x2 - cx, y2 - cy, 'darrh');\n          text(cx + 4, cy + 5, '÷ ' + b, 'op', 'start', true);\n        });\n        if (a >= 0.5) REC.ops.push('÷ ' + b);\n      }\n      // a jump: one numbered hop for each stair passed\n      if (p.hops) for (let j = 0; j < mo.steps; j++) {\n        const a = K.clamp(mo.prog[j] * 2.5, 0, 1);\n        if (a <= 0) continue;\n        const kf = row(mo.from + mo.dir * j), kt = row(mo.from + mo.dir * (j + 1));\n        const x1 = sx(kf) - 3, y1 = yc(kf), x2 = sx(kt) - 3, y2 = yc(kt), cx = Math.min(x1, x2) - 20, cy = (y1 + y2) / 2;\n        part(a, 0, () => {\n          curve('hop', x1, y1, cx, cy, x2, y2);\n          head(x2, y2, x2 - cx, y2 - cy, 'hoph');\n          text(cx - 1, cy + 5, String(j + 1), 'hn', 'middle', false);\n        });\n        if (a >= 0.5) REC.hops++;\n      }\n      // the marker on the stair it is on, sliding between stairs as it moves\n      const kp = p.hi - mo.pos;\n      part(I(C, 0.1 * row(mo.from), 0.5), 0, () => rect('mk', XL + 30 + kp * G.ind, y0 + 34 + kp * G.R + 1, G.SW, G.R - 2, 7));\n      REC.marker = mo.pos;\n      const on = Math.round(mo.pos);\n      let words = 'Stairs of powers of ' + say(b) + ', from ' + say(P(b, p.hi)) + ' down to ' + say(P(b, p.lo)) + '. The marker is on ' + say(P(b, on)) +\n        (num && reveal(on) >= 0.5 ? ', which is ' + say(valText(b, on)) : '') + '.';\n      if (REC.hops) words += ' A jump of ' + REC.hops + (REC.hops === 1 ? ' step.' : ' steps.');\n      if (G.amt) words += drawAmount(p, G, y0, mo, C);\n      return words;\n    },\n  };\n  // One over: b to the k as unit squares, and one of those squares drawn larger and cut into as many\n  // parts, all but one losing their shading.\n  PAN.recip = {\n    h: () => 176,\n    draw(p, y0, C, d) {\n      const b = p.b, k = p.k, L = lay(b, k), u = 22, gw = L.c * u, gh = L.r * u, x0 = 22, yT = y0 + 40, bx = 228, bw = gh;\n      text(XL, y0 + 22, P(b, k) + ' and ' + P(b, -k), 'tag', 'start', true);\n      let n = 0;\n      for (let j = 0; j < L.r; j++) {\n        const a = I(C, 0.15 * j, 0.5);\n        part(a, 6, () => { for (let i = 0; i < L.c; i++) rect('sq', x0 + i * u, yT + gh - (j + 1) * u, u, u, 2); });\n        if (a >= 0.5) n += L.c;\n      }\n      part(I(C, 0.9, 0.5), 4, () => {\n        text(x0 + gw / 2, yT + gh + 20, P(b, k) + ' = ' + valText(b, k), 'amt', 'middle', true);\n        text(x0 + gw / 2, yT + gh + 38, 'squares', 'amt mu', 'middle', false);\n      });\n      part(I(C, 1.4, 0.4), 0, () => rect('pick', x0 + gw - u, yT, u, u, 2));\n      part(I(C, 1.8, 0.5), 0, () => {\n        line('guide', x0 + gw, yT, bx, yT);\n        line('guide', x0 + gw, yT + u, bx, yT + bw);\n        text((x0 + gw + bx) / 2, yT - 8, 'drawn larger', 'note', 'middle', false);\n      });\n      const sa = I(C, 2.1, 0.5), ga = I(C, 2.5, 0.5), ua = I(C, 2.9, 0.6), shade = [];\n      for (let j = 0; j < L.r; j++) for (let i = 0; i < L.c; i++) shade.push({ i, j, c: L.c, r: L.r, a: i || j ? 1 - ua : 1 });\n      let got = null;\n      part(sa, 4, () => { got = cutSquare(bx, yT, bw, shade, [{ c: L.c, r: L.r, a: ga }]); });\n      part(I(C, 3.3, 0.5), 4, () => {\n        text(bx + bw / 2, yT + gh + 20, P(b, -k) + ' = ' + valText(b, -k), 'amt', 'middle', true);\n        text(bx + bw / 2, yT + gh + 38, 'of one square', 'amt mu', 'middle', false);\n      });\n      REC.amount = { squares: n, cells: got ? got.cells : 0, shaded: got ? got.shaded : 0 };\n      return say(P(b, k)) + ' is ' + valOf(b, k) + ' unit squares.' + (got ? ' One of them is drawn larger and cut into ' + got.cells + ' parts, with ' + got.shaded + ' shaded: ' + say(P(b, -k)) + ' is ' + say(valText(b, -k)) + ' of one square.' : '');\n    },\n  };\n\n  // A slip's amount, in the warning colour: below nothing it hangs under a floor, dashed.\n  const BS = 16, BG = 3;\n  function badH(b) {\n    if (!b) return 0;\n    if (b.v != null) return 35 + BS + 8;\n    if (b.n >= 0) return 26 + lay(b.b, b.n).r * (BS + BG) + 8;\n    return 26 + 48 + 8;\n  }\n  function badLabel(b) {\n    if (b.label) return b.label;\n    if (b.v != null) return fmtV(b.v) + ' would be ' + (-b.v) + ' squares below nothing';\n    const v = valOf(b.b, Math.abs(b.n));\n    return b.n >= 0 ? v + ' is ' + v + ' squares' + (b.tail || '') : '1/' + v + ' is one part of ' + v + (b.tail || '');\n  }\n  function drawBad(b, y, a) {\n    part(a, 6, () => {\n      text(XL, y + 16, badLabel(b), 'lab bad', 'start', true);\n      if (b.v != null) {\n        line('floor', XL, y + 32, XR, y + 32);\n        text(XR, y + 27, 'nothing', 'key', 'end', false);\n        for (let k = 0; k < -b.v; k++) rect('sq neg', XL + k * (BS + BG), y + 35, BS, BS, 2);\n      } else if (b.n >= 0) {\n        const L = lay(b.b, b.n);\n        for (let j = 0; j < L.r; j++) for (let i = 0; i < L.c; i++) rect('sq bad', XL + i * (BS + BG), y + 26 + (L.r - 1 - j) * (BS + BG), BS, BS, 2);\n      } else {\n        const L = lay(b.b, -b.n);\n        cutSquare(XL, y + 26, 48, [{ i: 0, j: 0, c: L.c, r: L.r, a: 1 }], [{ c: L.c, r: L.r, a: 1 }], ' bad');\n      }\n    });\n    if (a >= 0.5) REC.slips.push(b);\n    return a >= 0.5 ? 'Below it, the slip: ' + say(badLabel(b)) + '.' : '';\n  }\n  // A line of working: the expression on the left, what it makes on the right.\n  function drawWork(r, y, a, vars) {\n    const c = r.bad ? ' bad' : r.mu ? ' mu' : '';\n    part(a, 6, () => { text(XL, y, r.e + ' =', 'te' + c, 'start', true); text(XR, y, r.w, 'tw' + c, 'end', true); });\n    if (a >= 0.5) REC.work.push({ e: r.e, w: r.w, bad: !!r.bad, vars });\n    return a >= 0.5 ? say(r.e) + ' equals ' + say(r.w) + (r.bad ? ', a slip.' : '.') : '';\n  }\n  // The key, inside the drawing.\n  const KEYS = { mk: 'the stair you are on', sq: 'one unit square', part: 'a part of one square', hop: 'one step of a jump' };\n  function keyItems(d) {\n    const ks = [];\n    d.panels.forEach((p) => {\n      if (p.kind === 'stair') {\n        ks.push('mk');\n        if (PAN.stair.geo(p).amt) { ks.push('sq'); if (p.lo < 0) ks.push('part'); }\n        if (p.hops) ks.push('hop');\n      } else ks.push('sq', 'part');\n    });\n    return ks.filter((k, i) => ks.indexOf(k) === i);\n  }\n  function keyLayout(ks) {\n    let x = XL, row = 0;\n    return ks.map((k) => {\n      const w = (k === 'hop' ? 32 : 24) + tw(KEYS[k], 'key');\n      if (x > XL && x + w > XR) { x = XL; row++; }\n      const it = { k, x, row };\n      x += w + 18;\n      return it;\n    });\n  }\n  function drawKey(G) {\n    keyLayout(G.keys).forEach((it) => {\n      const y = G.keyY + it.row * 22, x = it.x;\n      if (it.k === 'mk') rect('mk', x, y - 7, 18, 13, 4);\n      else if (it.k === 'sq') rect('sq', x + 2, y - 7, 13, 13, 2);\n      else if (it.k === 'part') cutSquare(x + 1, y - 8, 15, [{ i: 0, j: 0, c: 2, r: 2, a: 1 }], [{ c: 2, r: 2, a: 1 }]);\n      else { curve('hop', x + 25, y - 9, x + 11, y - 1, x + 25, y + 7); head(x + 25, y + 7, 14, 8, 'hoph'); text(x + 5, y + 4, '1', 'hk', 'middle', false); }\n      text(x + (it.k === 'hop' ? 32 : 24), y + 5, KEYS[it.k], 'key', 'start', false);\n    });\n  }\n\n  // ---------- each step's sizes ----------\n  const GEO = new Map();\n  function geo(i) {\n    if (GEO.has(i)) return GEO.get(i);\n    const d = STEPS[i], G = { py: [], wy: [], sy: [] };\n    let y = 4;\n    d.panels.forEach((p, k) => {\n      G.py[k] = y; y += PAN[p.kind].h(p);\n      if (d.show) {\n        const n = p.live ? 1 : (p.work || []).length;\n        G.wy[k] = y; y += n ? n * LH + 8 : 0;\n        if (p.slip) { G.sy[k] = y; y += badH(p.slip); }\n      }\n    });\n    G.keys = keyItems(d);\n    const rows = 1 + Math.max(...keyLayout(G.keys).map((it) => it.row));\n    const keyHere = () => { G.keyY = y + 16; y += 8 + rows * 22; };\n    if (!d.show) {\n      keyHere(); y += 6;\n      const ws = Object.keys(d.wrong).map((o) => d.wrong[o]);\n      G.badY = y; y += Math.max(0, ...ws.map((w) => badH(w.bad)));\n      G.workY = y;\n      const n = (d.before || []).length + Math.max(d.right.length, ...ws.map((w) => w.lines.length));\n      y += n ? n * LH + 8 : 0;\n    } else keyHere();\n    G.H = Math.ceil(y + 6);\n    GEO.set(i, G);\n    return G;\n  }\n  // A panel's timetable in a step's state: tin, when it starts arriving (null: there from the start);\n  // act, when its move starts (false: not yet; null: done); D, how long each step of the move takes.\n  function ctxOf(d, st, p) {\n    if (d.show) {\n      if (p.live) return st.prev != null ? { tin: null, act: 0, D: LIVE_D, st } : { tin: p.tl.in, act: null, D: LIVE_D, st };\n      return { tin: p.tl.in, act: p.tl.act == null ? null : p.tl.act, D: p.step || 1.1, st };\n    }\n    return { tin: null, act: st.res === 'right' ? 0.1 : false, D: moveD(p), st };\n  }\n  // The whole picture for a step now; returns it in words.\n  function drawScene(i, d, st, G) {\n    REC = { stairs: [], ops: [], hops: 0, marker: null, amount: null, slips: [], work: [] };\n    const said = [];\n    d.panels.forEach((p, k) => {\n      const C = ctxOf(d, st, p);\n      said.push(PAN[p.kind].draw(p, G.py[k], C, d));\n      if (d.show) {\n        const ws = p.live ? liveWork(p.b, st.n, p.hi) : (p.work || []), now = p.live && st.prev != null;\n        ws.forEach((r, m) => said.push(drawWork(r, G.wy[k] + 20 + LH * m, now ? arr(0.45, 0.4) : vis(p.tl.work[m], 0.4), d.at || {})));\n        if (p.slip) said.push(drawBad(p.slip, G.sy[k], vis(p.slip.t, 0.5)));\n      }\n    });\n    if (!d.show) {\n      const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null ? d.wrong[st.pick] : null;\n      if (wrong && wrong.bad) said.push(drawBad(wrong.bad, G.badY, vis(0.1, 0.5)));\n      const lines = (d.before || []).map((r) => ({ r, t: null }));\n      if (right) d.right.forEach((r, m) => lines.push({ r, t: d.rt + 0.3 * m }));\n      else if (wrong) wrong.lines.forEach((r, m) => lines.push({ r, t: 0.25 + 0.3 * m }));\n      lines.forEach((l, m) => said.push(drawWork(l.r, G.workY + 20 + LH * m, vis(l.t, 0.4), d.at || {})));\n    }\n    drawKey(G);\n    return said.filter(Boolean).join(' ');\n  }\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(i);\n    art.textContent = '';\n    into = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    svg.setAttribute('aria-label', drawScene(i, d, st, G));\n  }\n  // How long a step's motion takes in a state: the latest arrival, and the earliest start.\n  function motionLen(i, st) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = Infinity; latest = 0; earliest = Infinity;\n    try { paint(i); } finally { S[i] = keepS; T = keepT; }\n    return { latest, earliest };\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.prev = null; play(motionLen(i, st).latest); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + (d.mixed ? ' · mixed' : '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    el('tune').hidden = finished || i !== 0;\n    downBtn.el.disabled = S[0].n <= -3;\n    upBtn.el.disabled = S[0].n >= 3;\n    replayBtn.setLabel(d.replay || 'Play again');\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.textContent = '';\n      italics(b.el.appendChild(K.el('span')), opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // Values tried for a letter: whole numbers, a half and a negative.\n  const XS = [2, 3, 0.5, -2];\n  const same = (p, q) => XS.every((x) => close(val(p, { x }), val(q, { x })));\n  const adds = (r, vars) => { const v = val(r.e, vars || {}); return r.w.split('=').every((part) => close(val(part, vars || {}), v)); };\n  // The stairs puzzle: an operation applied to the top stair twice, as each answer would walk it.\n  function opRun(p, o) {\n    const k = +o.replace(/[^0-9]/g, ''), f = o[0] === '÷' ? (v) => v / k : (v) => v - k, v0 = valOf(p.b, p.hi);\n    return [v0, f(v0), f(f(v0))];\n  }\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i);\n      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) }, REC);\n    } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const finalSt = (i, p) => (STEPS[i].show ? (p.live ? liveSt(-3) : blank()) : solvedSt(i));\n\n  K.check('Continue the pattern of decreasing powers by dividing by the base and it reaches the zero power: on the first screen every stair from 4³ down to 4⁻³ holds the amount of the stair above divided by 4, drawn as that many unit squares or that part of one square, and 4⁰ is one whole square', () => {\n    let prev = null;\n    for (let n = 3; n >= -3; n--) {\n      const g = drawn(0, liveSt(n)), a = g.amount, area = a.squares != null ? a.squares : a.shaded / a.cells, s = g.stairs.find((x) => x.p === n);\n      if (!s || s.value !== valText('4', n) || !close(area, valOf('4', n)) || g.marker !== n) return false;\n      if (prev != null && !close(area * 4, prev)) return false;\n      prev = area;\n    }\n    return close(prev, 1 / 64) && drawn(0, liveSt(0)).amount.squares === 1;\n  }, { source: SRC2 });\n  K.check('Any base to the power of zero equals 1 and any base to the power of one is the base itself: on every staircase in the lesson, bases 2, 3, 4, 7 and 10, the stair for power 0 reads 1 and the stair for power 1 reads its base', () => {\n    const seen = new Set();\n    let ok = true;\n    STEPS.forEach((d, i) => d.panels.forEach((p) => {\n      if (p.kind !== 'stair' || !isNum(p.b)) return;\n      const g = drawn(i, finalSt(i, p));\n      g.stairs.forEach((s) => {\n        if (s.value == null) return;\n        if (!close(val(s.value), valOf(p.b, s.p))) ok = false;\n        if (s.p === 0) { seen.add(p.b + '|0'); if (s.value !== '1') ok = false; }\n        if (s.p === 1) { seen.add(p.b + '|1'); if (s.value !== p.b) ok = false; }\n      });\n    }));\n    return ok && ['2', '3', '4', '7', '10'].every((b) => seen.has(b + '|0') && seen.has(b + '|1'));\n  }, { source: SRC3 });\n  K.check('A negative power gives the reciprocal of the number, 1 over the number: every negative stair reads 1 over the stair of the matching positive power, and is drawn as one part of a square cut into that many', () => {\n    let ok = true;\n    STEPS.forEach((d) => d.panels.forEach((p) => {\n      if (p.kind === 'stair' && isNum(p.b)) for (let k = 1; k <= 3; k++) if (valText(p.b, -k) !== '1/' + valText(p.b, k)) ok = false;\n    }));\n    [1, 2, 3].forEach((k) => { const a = drawn(0, liveSt(-k)).amount; if (a.cells !== valOf(4, k) || a.shaded !== 1) ok = false; });\n    const i6 = idx('A negative power of 3'), a6 = drawn(i6, solvedSt(i6)).amount;\n    const i7 = idx('One over'), a7 = drawn(i7, blank()).amount;\n    return ok && a6.cells === 9 && a6.shaded === 1 && a7.squares === 16 && a7.cells === 16 && a7.shaded === 1;\n  }, { source: SRC4 });\n  K.check('A common misconception is that since the power is negative, the result must be negative, and this is not so: every stair at a negative power reads a positive amount, and its picture always keeps some of the square shaded', () =>\n    STEPS.every((d, i) => d.panels.every((p) => {\n      if (p.kind !== 'stair' || !isNum(p.b)) return true;\n      const g = drawn(i, finalSt(i, p));\n      return g.stairs.every((s) => s.value == null || val(s.value) > 0) && (!g.amount || (g.amount.squares || g.amount.shaded) > 0);\n    })) && [1, 2, 3].every((k) => drawn(0, liveSt(-k)).amount.shaded === 1), { source: SRC4 });\n  K.check('Milli is a unit prefix denoting a factor of one thousandth (10⁻³): three steps down from 1 on the stairs of 10 reach 10⁻³ = 1/1000, and the answer is 0.001', () => {\n    const i = idx('Powers of ten below zero'), d = STEPS[i], g = drawn(i, solvedSt(i)), s = g.stairs.find((x) => x.p === -3);\n    return !!s && s.value === '1/1000' && close(val(d.want), 1e-3) && close(val(d.q), 1e-3) && g.marker === -3;\n  }, { source: SRC1 });\n  K.check('Multiplying by 2⁻⁵ divides by 2 five times: the jump on its screen draws 5 hops from 2³ and lands on 2⁻² = 1/4, a quarter of one square', () => {\n    const i = idx('Multiplying jumps down'), g = drawn(i, blank()), a = g.amount, s = g.stairs.find((x) => x.p === -2);\n    return g.hops === 5 && g.marker === -2 && a.cells === 4 && a.shaded === 1 && close(val('2³ × 2⁻⁵'), val('2⁻²')) && !!s && s.value === '1/4';\n  });\n  K.check('Every line of working on every screen adds up at the number tried, and the first screen\\'s working is right at every power from 3 down to −3', () => {\n    const all = [];\n    STEPS.forEach((d) => {\n      if (d.show) d.panels.forEach((p) => (p.live ? [3, 2, 1, 0, -1, -2, -3].map((n) => liveWork(p.b, n, p.hi)).flat() : p.work || []).forEach((r) => all.push([r, d.at])));\n      else [d.before || [], d.right].concat(Object.keys(d.wrong).map((o) => d.wrong[o].lines)).forEach((ls) => ls.forEach((r) => all.push([r, d.at])));\n    });\n    return all.length > 40 && all.every((x) => adds(x[0], x[1]));\n  });\n  K.check('Each puzzle accepts only its right answer, which equals the question at every number tried, while every wrong answer differs, and the right answer\\'s move ends on the stair it names', () =>\n    DO.every((i) => {\n      const d = STEPS[i], p = d.panels[0], vars = d.at || {}, g = drawn(i, solvedSt(i));\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => pickRight(i, o) === (o === d.want))) return false;\n      if (Object.keys(d.wrong).length !== 2 || !Object.keys(d.wrong).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want)) return false;\n      if (g.marker !== p.go || g.texts.indexOf(d.q) < 0) return false;\n      if (d.op) {\n        const want = [p.hi, p.hi - 1, p.hi - 2].map((n) => valOf(p.b, n));\n        return d.opts.every((o) => opRun(p, o).every((v, k) => close(v, want[k])) === (o === d.want)) && g.ops.length === p.hi - p.lo;\n      }\n      return same(d.q, d.want) && close(val(P(p.b, p.go), vars), val(d.want, vars)) && d.opts.every((o) => o === d.want || !close(val(o, vars), val(d.q, vars)));\n    }));\n  K.check('Before an answer, the marker stays on the start stair with no jump drawn and the stairs below what is known read ?, and a wrong pick draws its own slip, its amount worked out from that pick', () =>\n    DO.every((i) => {\n      const d = STEPS[i], p = d.panels[0], g = drawn(i, blank()), knownLo = p.known != null ? p.known : p.n0;\n      if (g.marker !== p.n0 || g.hops !== 0 || g.slips.length || (p.hideOps && g.ops.length)) return false;\n      if (isNum(p.b) && !g.stairs.every((s) => (s.value != null) === (s.p >= knownLo))) return false;\n      if (!p.hops && g.texts.some((t) => t === d.want || t === '= ' + d.want)) return false;\n      return Object.keys(d.wrong).every((o) => {\n        const b = d.wrong[o].bad, h = drawn(i, wrongSt(i, o));\n        if (!b) return h.slips.length === 0;\n        const v = b.v != null ? b.v : valOf(b.b, b.n);\n        return h.slips.length === 1 && close(v, d.op ? opRun(p, o)[2] : val(o, d.at || {}));\n      });\n    }));\n  K.check('Every demonstration has arrived within 5 s of its screen opening, nothing starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, and every step on the first screen within 3 s', () => {\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const m = motionLen(i, blank()); return m.latest <= 5 && m.earliest >= FADE; }\n      return motionLen(i, solvedSt(i)).latest <= 3 && d.opts.filter((o) => o !== d.want).every((o) => motionLen(i, wrongSt(i, o)).latest <= 3);\n    }) && motionLen(0, Object.assign(liveSt(2), { prev: 3, lowBefore: 3 })).latest <= 3 && motionLen(0, Object.assign(liveSt(-1), { prev: 0, lowBefore: 0 })).latest <= 3;\n    paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The staircase of powers",
+  "brief": "The one thing you should see is 4 squares becoming 1, then a quarter, then a sixteenth, dividing by 4 at every step and never dropping below nothing, when you step the power down past zero.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Continue the pattern of decreasing powers by dividing by the base and it reaches the zero power: on the first screen every stair from 4³ down to 4⁻³ holds the amount of the stair above divided by 4, drawn as that many unit squares or that part of one square, and 4⁰ is one whole square",
+     "ok": true,
+     "source": "https://www.khanacademy.org/v/negative-exponent-intuition"
+    },
+    {
+     "label": "Any base to the power of zero equals 1 and any base to the power of one is the base itself: on every staircase in the lesson, bases 2, 3, 4, 7 and 10, the stair for power 0 reads 1 and the stair for power 1 reads its base",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zrqr7v4"
+    },
+    {
+     "label": "A negative power gives the reciprocal of the number, 1 over the number: every negative stair reads 1 over the stair of the matching positive power, and is drawn as one part of a square cut into that many",
+     "ok": true,
+     "source": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf"
+    },
+    {
+     "label": "A common misconception is that since the power is negative, the result must be negative, and this is not so: every stair at a negative power reads a positive amount, and its picture always keeps some of the square shaded",
+     "ok": true,
+     "source": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf"
+    },
+    {
+     "label": "Milli is a unit prefix denoting a factor of one thousandth (10⁻³): three steps down from 1 on the stairs of 10 reach 10⁻³ = 1/1000, and the answer is 0.001",
+     "ok": true,
+     "source": "https://en.wikipedia.org/wiki/Milli-"
+    },
+    {
+     "label": "Multiplying by 2⁻⁵ divides by 2 five times: the jump on its screen draws 5 hops from 2³ and lands on 2⁻² = 1/4, a quarter of one square",
+     "ok": true
+    },
+    {
+     "label": "Every line of working on every screen adds up at the number tried, and the first screen's working is right at every power from 3 down to −3",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, which equals the question at every number tried, while every wrong answer differs, and the right answer's move ends on the stair it names",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, the marker stays on the start stair with no jump drawn and the stairs below what is known read ?, and a wrong pick draws its own slip, its amount worked out from that pick",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has arrived within 5 s of its screen opening, nothing starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, and every step on the first screen within 3 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Down the staircase",
+      "Stairs of 3",
+      "A power of zero",
+      "Seven to the power zero",
+      "Below zero",
+      "A negative power of 3",
+      "One over",
+      "Powers of ten below zero",
+      "Multiplying jumps down",
+      "Add the powers",
+      "Dividing by a power",
+      "A power and its opposite",
+      "Dividing by a negative power"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Step down",
+    "Step up",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T18:00:18.210Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The bold summary calls a negative power \"a small amount\" in general, which is false for a base between 0 and 1 (a half to the power −2 is 4); and \"lesson 4 puts a minus on a fractional power\" is not in lesson 4’s plan."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "\"A negative power is a small amount\" holds only for bases above 1, as on these screens; for a base between 0 and 1 a negative power is large, so the sentence is narrowed to the bases shown."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "The panel does not say the shrinking staircase needs a base above 1: with a base between 0 and 1 the amounts grow as the power goes down, which the lesson otherwise implies cannot happen."
+   }
+  ],
+  "notes": [
+   {
+    "path": "practice.text",
+    "problem": "\"Any base except zero gives 1\" leaves 0⁰ out, which is fair for the staircase argument, but many texts define 0⁰ = 1 and others leave it undefined; a reviewer may want a short hedge that 0⁰ is treated differently in different places."
+   }
+  ]
+ },
+ "error": null,
+ "flags": {}
+}
