@@ -1,0 +1,41 @@
+{
+  "iid": "i1",
+  "title": "Two brackets as an area",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is a rectangle with sides x + a and x + b cutting into four tiles, x², ax, bx and ab, that add up to the expanded rule, when you drag the split on each side.",
+    "title": "Two brackets as an area",
+    "controls": [ { "id": "step", "label": "Step", "min": 0, "max": 12, "step": 1, "value": 0, "unit": "" } ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on a rectangle. Its width is one bracket and its height is the other, so its area is the two brackets multiplied. Each side is cut at a split into an x part and a number part, and lines from the two splits cut the rectangle into four tiles: an x by x square, which is x², two strips and a small corner. The tiles' areas added up give the expanded rule underneath. Dragging the split on a side changes that side's number, and the strips and the corner change with it. When both sides are the same the rectangle is a square, and its two strips match. Where a bracket has a minus sign the rectangle becomes a grid, because a length cannot be below zero. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The numbers in the brackets are small whole numbers chosen as examples. x can be any number and every expansion still holds.",
+    "numbers": [
+      { "label": "Example x = 4, in step 1", "value": 4, "kind": "assumed" },
+      { "label": "At x = 4, (x + 3)(x + 2) = 7 × 6 = 42, in step 1", "value": 42, "kind": "computed" },
+      { "label": "(x + 4)(x + 1) = x² + 5x + 4, in step 2", "value": 4, "kind": "computed" },
+      { "label": "(x + 6)(x + 3) = x² + 9x + 18, in step 4", "value": 18, "kind": "computed" },
+      { "label": "(x + 5)² = x² + 10x + 25, in step 5", "value": 25, "kind": "computed" },
+      { "label": "(x + 3)² = x² + 6x + 9, in step 6", "value": 9, "kind": "computed" },
+      { "label": "(x − 4)(x + 1) = x² − 3x − 4, in step 7", "value": -4, "kind": "computed" },
+      { "label": "(x + 5)(x − 2) = x² + 3x − 10, in step 8", "value": -10, "kind": "computed" },
+      { "label": "(x + 3)(x − 3) = x² − 9, in step 9", "value": -9, "kind": "computed" },
+      { "label": "(x + 7)(x − 7) = x² − 49, in step 10", "value": -49, "kind": "computed" },
+      { "label": "(2x + 1)(x + 3) = 2x² + 7x + 3, in step 11", "value": 7, "kind": "computed" },
+      { "label": "(2x − 1)(x + 4) = 2x² + 7x − 4, in step 12", "value": -4, "kind": "computed" },
+      { "label": "(x − 6)² = x² − 12x + 36, in step 13", "value": 36, "kind": "computed" }
+    ]
+  },
+  "explain": { "text": "Multiplying two brackets is the same as finding the area of a rectangle whose sides are the two brackets. Picture a rectangle x + 3 wide and x + 2 tall.[^1] Cut each side where the x part ends and the number part begins, and the rectangle falls into four tiles: x by x is x², x by 2 is 2x, 3 by x is 3x and 3 by 2 is 6. The area can be written as the two brackets multiplied or as the four tiles added, and these are two ways of writing the same area, so they are equal.[^2] Collect the two strips, 3x + 2x = 5x, and (x + 3)(x + 2) = x² + 5x + 6. At x = 4 the brackets make 7 × 6 = 42, and the tiles make 16 + 12 + 8 + 6 = 42.\n\nDrag the splits and the same thing always happens. For (x + a)(x + b) the strips are ax and bx, which add to (a + b)x, and the corner is ab, so (x + a)(x + b) = x² + (a + b)x + ab. Textbooks call an expression whose highest power of x is x² a [[quadratic]]. When both sides are x + 5 the rectangle is a square with two equal strips, so (x + 5)² = x² + 10x + 25. The common mistake is x² + 25, which leaves out both strips. With numbers, (1 + 4)² = 25, but 1² + 4² is only 17.\n\nA minus sign cannot be drawn as a length, so the rectangle becomes a grid. Each cell holds one term of the first bracket times one term of the second, with its sign. (x − 4)(x + 1) gives x², x, −4x and −4, so x² − 3x − 4. At x = 5 the brackets make 1 × 6 = 6, and 25 − 15 − 4 = 6. In (x + 3)(x − 3) the middle cells are 3x and −3x, which cancel, leaving x² − 9. A number in front works the same way, so (2x + 1)(x + 3) = 2x² + 6x + x + 3 = 2x² + 7x + 3.\n\nThe course puzzle's battery gives a rule with the current squared in it, and expanding brackets is the first step in reading such rules. **Every term in the first bracket multiplies every term in the second,[^3] which is the four tiles of the rectangle, so (x + 3)(x + 2) = x² + 5x + 6.**" },
+  "analogy": { "text": "Say a plant room's floor is 4 m by 3 m, and you extend it 1 m one way and 2 m the other. The new floor is (4 + 1) × (3 + 2) = 25 m², which is the old 12 m² plus strips of 8 m² and 3 m² and a corner of 2 m².", "breaks": "A floor's sides are positive lengths, so it cannot show a minus sign in a bracket." },
+  "practice": { "text": "- Multiply every term in the first bracket by every term in the second.[^3]\n- Collect like terms.\n- Try a number to check.\n\n**Rule of thumb:** For (x + a)(x + b), the middle number is a + b and the end number is a × b.\n\n**Worked example:** (x − 3)(2x + 5) = 2x² + 5x − 6x − 15 = 2x² − x − 15.\n\n**Common mistakes**\n- Leaving out the middle tiles, so (x + 5)² becomes x² + 25.\n- Losing a sign, so (x + 5)(x − 2) ends + 10." },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "Multiplying binomials: area model (video) | Khan Academy", "url": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring/x2f8bb11595b61c86:multiply-binomial/v/area-model-for-multiplying-binomials", "quote": "Sal expresses the area of a rectangle whose height is x+2 and width is x+3." },
+    { "n": 2, "title": "Multiplying binomials: area model (video) | Khan Academy", "url": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring/x2f8bb11595b61c86:multiply-binomial/v/area-model-for-multiplying-binomials", "quote": "So this and this are two ways of expressing the area, so they're going to be equal" },
+    { "n": 3, "title": "How to simplify expressions and expand brackets - GCSE Maths Revision - BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/topics/zxk7g82/articles/zkxk6rd", "quote": "When expanding double brackets, every term in the first bracket has to be multiplied by every term in the second bracket." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

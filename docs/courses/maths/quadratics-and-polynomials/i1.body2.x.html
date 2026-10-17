@@ -1,0 +1,901 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  /* Tiles by kind of term: x² tiles, x strips, number corners; a plain rectangle before it is cut. */
+  .scene .base { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .t2 { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .t1 { fill: var(--k-fill3); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .t0 { fill: var(--k-sunk); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .hot { fill: var(--k-fill2); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .hatch { stroke: none; }
+  .scene #hatch .hl { fill: var(--k-muted); }
+  .scene .pill { fill: var(--k-bg); stroke: none; }
+  .scene .cancel { fill: none; stroke: var(--k-amber-line); stroke-width: 3; }
+  .scene .outline { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .split { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .sl { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tn { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .ta { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tm { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tb { font: 700 17px var(--k-font); fill: var(--k-ink); }
+  .scene .rule { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .te { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .scene .tag { font: 700 13px var(--k-font); fill: var(--k-accent); letter-spacing: .04em; }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  /* The slider for x, and the knobs that drag a side's number. */
+  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }
+  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }
+  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .kmark { fill: none; stroke: var(--k-on-accent2); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A rectangle whose sides are two brackets, cut into tiles, then a grid for brackets with a minus sign. Every number tried is an example.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label=""><defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)"><rect class="hl" x="0" y="0" width="1.6" height="7"></rect></pattern></defs><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each tile or cell is one term of the first bracket times one term of the second.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A bracket is a list of terms [number, power of x]: x + 3 is [[1, 1], [3, 0]], 2x − 1 is [[2, 1], [−1, 0]].
+  // top: the first bracket (the width, or the grid's columns); side: the second (the height, or rows).
+  // pic 'rect': the rectangle cut into tiles (every term above zero); pic 'grid': cells, for a minus sign.
+  // slide: a slider for x (tiles to scale, with their areas); drag: knobs that set each side's number.
+  // rule: the rows of working under the picture; work: expressions tried at the step's x, each
+  // line's numbers worked out from the expression itself; slip: a wrong expansion tried too.
+  // A SHOW step's tl is its timetable in seconds from when the screen opens.
+  // A puzzle: q, the brackets; opts, the answers offered; want, the right one.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'Brackets as a rectangle', pic: 'rect', top: [[1, 1], [3, 0]], side: [[1, 1], [2, 0]], slide: { min: 2, max: 6, x: 4 }, order: 'rows',
+      rule: ['(x + 3)(x + 2) = x² + 3x + 2x + 6', '= x² + 5x + 6'], work: ['(x + 3)(x + 2)', 'x² + 3x + 2x + 6'],
+      dur: 4.4, tl: { split: 1.0, tiles: [1.4, 1.75, 2.1, 2.45], rule: [2.8, 3.1], work: [3.5, 3.8] },
+      text: 'This rectangle is `x + 3` wide and `x + 2` tall, so its area is `(x + 3)(x + 2)`. Cutting each side where its `x` part ends makes four tiles, which add up to `x² + 5x + 6`. At `x = 4` both make 42, and sliding `x` keeps them equal.' },
+    { kind: 'pick', name: 'Four tiles', pic: 'rect', top: [[1, 1], [4, 0]], side: [[1, 1], [1, 0]], vars: { x: 2 },
+      q: '(x + 4)(x + 1)', opts: ['x² + 4', 'x² + 5x + 4', 'x² + 5x + 5'], want: 'x² + 5x + 4',
+      task: 'Writing the brackets as their tiles added up is *expanding* them. Expand `(x + 4)(x + 1)`.',
+      why: 'The tiles are `x²`, `4x`, `x` and 4, as `4 × 1` is 4. The strips collect to `4x + x = 5x`, so the answer is `x² + 5x + 4`. At `x = 2` both make 18.',
+      hint: 'Not quite. Name all four tiles, then add them up.',
+      hints: { 'x² + 4': 'Not quite. That leaves out the two strips, `4x` and `x`.',
+        'x² + 5x + 5': 'Not quite. The corner is `4 × 1`, so it is 4, not 5.' } },
+    { show: true, name: 'Drag the sides', pic: 'rect', drag: { a: 5, b: 2, min: 1, max: 6 }, vars: { x: 1 },
+      dur: 4.0, tl: { split: 0.9, tiles: [1.3, 1.6, 1.9, 2.2], rule: [2.6], work: [3.0, 3.3] },
+      text: 'Drag the knob at the end of each side to change its number. The strips are always each number times `x`, and the corner is the two numbers multiplied. A rule like this, with `x²` as its highest power, is a *quadratic*.' },
+    { kind: 'pick', name: 'Bigger numbers', pic: 'rect', top: [[1, 1], [6, 0]], side: [[1, 1], [3, 0]], vars: { x: 2 },
+      q: '(x + 6)(x + 3)', opts: ['x² + 9x + 18', 'x² + 18x + 9', 'x² + 9x + 9'], want: 'x² + 9x + 18',
+      task: 'Bigger numbers, same pattern. Expand `(x + 6)(x + 3)`.',
+      why: 'The strips are `6x` and `3x`, which make `9x`, and the corner is `6 × 3 = 18`. So the answer is `x² + 9x + 18`, and at `x = 2` both make 40.',
+      hint: 'Not quite. The strips add the numbers, and the corner multiplies them.',
+      hints: { 'x² + 18x + 9': 'Not quite. That swaps them round. The strips add the numbers, and the corner multiplies them.',
+        'x² + 9x + 9': 'Not quite. The corner is `6 × 3`, not `6 + 3`.' } },
+    { show: true, name: 'A square', pic: 'rect', top: [[1, 1], [5, 0]], side: [[1, 1], [5, 0]], vars: { x: 1 }, hot: true,
+      rule: ['(x + 5)² = x² + 10x + 25'], work: ['(x + 5)²', 'x² + 10x + 25'], slip: 'x² + 25',
+      dur: 4.4, tl: { split: 0.9, tiles: [1.3, 1.6, 1.9, 2.2], rule: [2.6], work: [3.0, 3.3, 3.7], slip: 3.7 },
+      text: 'When both sides are `x + 5` the rectangle is a square, with two strips of `5x`. So `(x + 5)²` is `x² + 10x + 25`. An easy slip is `x² + 25`, which leaves out both strips.' },
+    { kind: 'pick', name: 'Square it', pic: 'rect', top: [[1, 1], [3, 0]], side: [[1, 1], [3, 0]], vars: { x: 2 },
+      q: '(x + 3)²', opts: ['x² + 9', 'x² + 3x + 9', 'x² + 6x + 9'], want: 'x² + 6x + 9',
+      task: 'Expand `(x + 3)²`, which means `(x + 3)(x + 3)`.',
+      why: 'The square has two strips of `3x`, which make `6x`, and a corner of `3 × 3 = 9`. So the answer is `x² + 6x + 9`, and at `x = 2` both make 25.',
+      hint: 'Not quite. Name all four tiles of the square, then add them up.',
+      hints: { 'x² + 9': 'Not quite. That leaves out both strips of `3x`.',
+        'x² + 3x + 9': 'Not quite. A square has two strips of `3x`, not one.' } },
+    { show: true, name: 'A minus sign', pic: 'grid', top: [[1, 1], [-4, 0]], side: [[1, 1], [1, 0]], vars: { x: 5 },
+      rule: ['(x − 4)(x + 1) = x² + x − 4x − 4', '= x² − 3x − 4'], work: ['(x − 4)(x + 1)', 'x² − 3x − 4'],
+      dur: 4.4, tl: { tiles: [1.0, 1.35, 1.7, 2.05], rule: [2.5, 2.8], work: [3.3, 3.6] },
+      text: 'No side can be `−4` long, so with a minus sign the rectangle becomes a grid. Each cell is its column times its row, sign and all, and a cell below zero is hatched. The cells collect to `x² − 3x − 4`.' },
+    { kind: 'pick', name: 'A minus on the side', pic: 'grid', top: [[1, 1], [5, 0]], side: [[1, 1], [-2, 0]], vars: { x: 3 },
+      q: '(x + 5)(x − 2)', opts: ['x² + 3x + 10', 'x² − 3x − 10', 'x² + 3x − 10'], want: 'x² + 3x − 10',
+      task: 'Now the minus is in the second bracket. Expand `(x + 5)(x − 2)`.',
+      why: 'The cells are `x²`, `−2x`, `5x` and `5 × −2 = −10`. The middle two collect to `5x − 2x = 3x`, so the answer is `x² + 3x − 10`. At `x = 3` both make 8.',
+      hint: 'Not quite. Multiply each term of the first bracket by each term of the second, sign and all.',
+      hints: { 'x² + 3x + 10': 'Not quite. The corner is `5 × −2`, which is below zero.',
+        'x² − 3x − 10': 'Not quite. The middle cells are `5x` and `−2x`, which make `+3x`.' } },
+    { show: true, name: 'Strips that cancel', pic: 'grid', top: [[1, 1], [3, 0]], side: [[1, 1], [-3, 0]], vars: { x: 5 }, cancel: true,
+      rule: ['(x + 3)(x − 3) = x² − 3x + 3x − 9', '= x² − 9'], work: ['(x + 3)(x − 3)', 'x² − 9'],
+      dur: 4.4, tl: { tiles: [0.9, 1.2, 1.5, 1.8], cancel: 2.3, rule: [2.7, 3.0], work: [3.4, 3.7] },
+      text: 'In `(x + 3)(x − 3)` the middle cells are `−3x` and `3x`, which cancel. That leaves `x² − 9`, with no `x` term at all.' },
+    { kind: 'pick', name: 'Cancelling', pic: 'grid', top: [[1, 1], [7, 0]], side: [[1, 1], [-7, 0]], vars: { x: 8 }, cancel: true,
+      q: '(x + 7)(x − 7)', opts: ['x² − 49', 'x² + 49', 'x² + 14x − 49'], want: 'x² − 49',
+      task: 'Expand `(x + 7)(x − 7)`.',
+      why: 'The middle cells are `7x` and `−7x`, which cancel, and the corner is `7 × −7 = −49`. So the answer is `x² − 49`, and at `x = 8` both make 15.',
+      hint: 'Not quite. Fill in all four cells, then collect them.',
+      hints: { 'x² + 49': 'Not quite. The corner is `7 × −7`, which is below zero.',
+        'x² + 14x − 49': 'Not quite. The middle cells are `7x` and `−7x`, so they cancel.' } },
+    { show: true, name: 'Two x parts', pic: 'rect', top: [[2, 1], [1, 0]], side: [[1, 1], [3, 0]], vars: { x: 1 },
+      rule: ['(2x + 1)(x + 3) = 2x² + 6x + x + 3', '= 2x² + 7x + 3'], work: ['(2x + 1)(x + 3)', '2x² + 7x + 3'],
+      dur: 4.4, tl: { split: 0.9, tiles: [1.2, 1.45, 1.7, 1.95, 2.2, 2.45], rule: [2.8, 3.1], work: [3.5, 3.8] },
+      text: 'A side of `2x + 1` has two `x` parts, so it makes two `x²` tiles, `2x²` in all. The six tiles collect to `2x² + 7x + 3`.' },
+    { kind: 'pick', name: 'Mixed: 2x and a minus', pic: 'grid', top: [[2, 1], [-1, 0]], side: [[1, 1], [4, 0]], vars: { x: 1 },
+      q: '(2x − 1)(x + 4)', opts: ['2x² + 9x − 4', '2x² − 4', '2x² + 7x − 4'], want: '2x² + 7x − 4',
+      task: 'A mix of both. Expand `(2x − 1)(x + 4)`.',
+      why: 'The cells are `2x²`, `8x`, `−x` and `−4`. The middle two collect to `8x − x = 7x`, so the answer is `2x² + 7x − 4`. At `x = 1` both make 5.',
+      hint: 'Not quite. Fill in all four cells, sign and all, then collect them.',
+      hints: { '2x² + 9x − 4': 'Not quite. `−1 × x` is `−x`, so take it away from `8x`.',
+        '2x² − 4': 'Not quite. That leaves out the middle cells, `8x` and `−x`.' } },
+    { kind: 'pick', name: 'Mixed: a squared minus', pic: 'grid', top: [[1, 1], [-6, 0]], side: [[1, 1], [-6, 0]], vars: { x: 2 },
+      q: '(x − 6)²', opts: ['x² + 36', 'x² − 12x + 36', 'x² − 12x − 36'], want: 'x² − 12x + 36',
+      task: 'One more mix. Expand `(x − 6)²`, which means `(x − 6)(x − 6)`.',
+      why: 'The cells are `x²`, `−6x`, `−6x` and `−6 × −6 = 36`. The middle two collect to `−12x`, so the answer is `x² − 12x + 36`. At `x = 2` both make 16.',
+      hint: 'Not quite. Fill in all four cells, sign and all, then collect them.',
+      hints: { 'x² + 36': 'Not quite. That leaves out the middle cells, each `−6x`.',
+        'x² − 12x − 36': 'Not quite. `−6 × −6` is `+36`, as two minus signs multiply to a plus.' } },
+  ];
+  const FINISH = 'Two brackets multiply as the four tiles of a rectangle with those sides, every term in the first times every term in the second. So `(x + 3)(x + 2)` is `x² + 5x + 6`, and trying a number checks the answer.';
+  // Sources the checks restate (the lesson's own).
+  const KHAN = 'https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:quadratics-multiplying-factoring/x2f8bb11595b61c86:multiply-binomial/v/area-model-for-multiplying-binomials';
+  const BITESIZE = 'https://www.bbc.co.uk/bitesize/topics/zxk7g82/articles/zkxk6rd';
+  // One unit is U0 long; x is XL long where it has no value. The rectangle starts at X0, the grid at
+  // GX0 with cells CW by CH. The slider's track runs from SX0 to SX1.
+  const U0 = 24, XL = 96, X0 = 46, GX0 = 84, CW = 116, CH = 60, SX0 = 40, SX1 = 300;
+  const FADE = 0.35, FB = [2.0, 1.2];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- terms and expressions (pure, so the checks can test them) ----------
+  const mul = (s, t) => [s[0] * t[0], s[1] + t[1]];
+  // Every term of the first bracket times every term of the second, column by column (or row by row).
+  const prods = (top, side) => { const o = []; top.forEach((c) => side.forEach((r) => o.push(mul(c, r)))); return o; };
+  const prodsRows = (top, side) => { const o = []; side.forEach((r) => top.forEach((c) => o.push(mul(c, r)))); return o; };
+  function collect(ts) { const by = [0, 0, 0]; ts.forEach((t) => { by[t[1]] += t[0]; }); return [[by[2], 2], [by[1], 1], [by[0], 0]].filter((t) => t[0] !== 0); }
+  function fmtTerm(c, p, lead) {
+    const a = Math.abs(c), body = p === 0 ? String(a) : (a === 1 ? '' : String(a)) + (p === 2 ? 'x²' : 'x');
+    return lead ? (c < 0 ? '−' : '') + body : (c < 0 ? ' − ' : ' + ') + body;
+  }
+  const fmtPoly = (ts) => ts.filter((t) => t[0] !== 0).map((t, k) => fmtTerm(t[0], t[1], k === 0)).join('') || '0';
+  const brk = (ts) => '(' + fmtPoly(ts) + ')';
+  const qOf = (top, side) => (JSON.stringify(top) === JSON.stringify(side) ? brk(top) + '²' : brk(top) + brk(side));
+  // A grid's heading: the first term as it is, the second with its sign (+1, −4).
+  const hdr = (t, k) => (k === 0 ? fmtTerm(t[0], t[1], true) : (t[0] < 0 ? '−' : '+') + fmtTerm(Math.abs(t[0]), t[1], true));
+  const num = (n) => (n < 0 ? '−' : '') + String(Math.abs(Math.round(n * 1e9) / 1e9));
+
+  // Reads +, −, ×, ², brackets, a minus in front and terms side by side (2x², (x + 3)(x + 2)).
+  function evalExpr(s, vars) {
+    const src = String(s).replace(/ /g, ' ').replace(/−/g, '-').replace(/×/g, '*').replace(/\s+/g, '');
+    let i = 0;
+    const peek = () => src[i];
+    function expr() { let v = term(); while (peek() === '+' || peek() === '-') { const op = src[i++]; const t = term(); v = op === '+' ? v + t : v - t; } return v; }
+    function term() { let v = unary(); while (i < src.length && peek() !== '+' && peek() !== '-' && peek() !== ')') { if (peek() === '*') i++; v *= unary(); } return v; }
+    function unary() { if (peek() === '-') { i++; return -unary(); } if (peek() === '+') { i++; return unary(); } return power(); }
+    function power() { let v = atom(); while (peek() === '²') { i++; v *= v; } return v; }
+    function atom() {
+      if (peek() === '(') { i++; const v = expr(); if (src[i] !== ')') throw new Error('no closing bracket'); i++; return v; }
+      const m = /^\d+(?:\.\d+)?/.exec(src.slice(i));
+      if (m) { i += m[0].length; return +m[0]; }
+      if (peek() === 'x') { i++; if (!('x' in vars)) throw new Error('no value for x'); return vars.x; }
+      throw new Error('cannot read ' + src.slice(i));
+    }
+    const v = expr();
+    if (i !== src.length) throw new Error('left over: ' + src.slice(i));
+    return v;
+  }
+  // An expression tried at x, worked out from the expression itself: brackets as their values
+  // multiplied ('7 × 6 = 42', '(−4)² = 16'), anything else term by term ('16 + 12 + 8 + 6 = 42').
+  function valueLine(e, x) {
+    const m = /^\(([^()]+)\)(?:\(([^()]+)\)|(²))$/.exec(e);
+    if (m) {
+      const a = evalExpr(m[1], { x });
+      if (m[3]) return (a < 0 ? '(' + num(a) + ')' : num(a)) + '² = ' + num(a * a);
+      const b = evalExpr(m[2], { x });
+      return num(a) + ' × ' + num(b) + ' = ' + num(a * b);
+    }
+    let out = '', sum = 0;
+    e.split(/ (?=[+−] )/).forEach((t, k) => {
+      let sign = 1, body = t;
+      if (k > 0) { sign = t[0] === '−' ? -1 : 1; body = t.slice(2); } else if (t[0] === '−') { sign = -1; body = t.slice(1); }
+      const v = sign * evalExpr(body, { x });
+      sum += v;
+      out += k === 0 ? num(v) : (v < 0 ? ' − ' : ' + ') + num(Math.abs(v));
+    });
+    return out + ' = ' + num(sum);
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/ /g, ' ').replace(/²/g, ' squared').replace(/\+/g, ' plus ').replace(/×/g, ' times ')
+    .replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // x, a, b: what Dan has set with the slider or the knobs (null until he moves them).
+  function blank() { return { pick: null, res: null, why: false, x: null, a: null, b: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null, GNOW = null;   // what the last paint drew (for the checks), and where (for the knobs)
+
+  const xNow = (d, st) => (d.slide ? (st.x != null ? st.x : d.slide.x) : d.vars.x);
+  const varsOf = (d, st) => ({ x: xNow(d, st) });
+  function sidesOf(d, st) {
+    if (!d.drag) return { top: d.top, side: d.side };
+    const a = st.a != null ? st.a : d.drag.a, b = st.b != null ? st.b : d.drag.b;
+    return { top: [[1, 1], [a, 0]], side: [[1, 1], [b, 0]] };
+  }
+  function ruleOf(d, st) {
+    if (!d.drag) return d.rule;
+    const sd = sidesOf(d, st);
+    return [brk(sd.top) + brk(sd.side) + ' = ' + fmtPoly(collect(prods(sd.top, sd.side)))];
+  }
+  function workOf(d, st) {
+    const x = xNow(d, st);
+    let rows;
+    if (d.drag) { const sd = sidesOf(d, st); rows = [{ e: brk(sd.top) + brk(sd.side) }, { e: fmtPoly(collect(prods(sd.top, sd.side))) }]; }
+    else rows = d.work.map((e) => ({ e }));
+    if (d.slip) rows.push({ e: d.slip, bad: true });
+    return rows.map((r) => ({ e: r.e, w: valueLine(r.e, x), bad: !!r.bad }));
+  }
+  // A side's parts: each x part XL long (or x units on the slider), a number part its number of units.
+  function segs(terms, xl) {
+    const out = [];
+    let at = 0;
+    terms.forEach((t) => {
+      const n = t[1] === 1 ? t[0] : 1, len = t[1] === 1 ? xl : t[0] * U0;
+      for (let k = 0; k < n; k++) { out.push({ t: t[1] === 1 ? [1, 1] : t, a0: at, a1: at + len }); at += len; }
+    });
+    return out;
+  }
+  const segName = (t) => fmtTerm(t[0], t[1], true);
+  function tileCount(d, st) {
+    const sd = sidesOf(d, st);
+    return d.pic === 'rect' ? segs(sd.top, 1).length * segs(sd.side, 1).length : sd.top.length * sd.side.length;
+  }
+
+  // ---------- text with amber key terms and italic x (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])x(?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its x italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one names the tiles and tries the number, a wrong one tries the slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.x = null; st.a = null; st.b = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  // A timetable entry: false, not shown; null, there from the start; a time, arriving then.
+  const vis = (t) => (t === false || t === undefined ? 0 : t == null ? 1 : arr(t));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const nb = (s) => String(s).replace(/ /g, ' ');
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    italics(t, nb(s), true);
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, nb(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  // A side's part: a bracket over the top (or down the left) and its name.
+  function topPart(a0, a1, ry, name) {
+    const x0 = X0 + a0 + 1.5, x1 = X0 + a1 - 1.5, by = ry - 8;
+    add(K.svg('path', { class: 'brk', d: 'M' + r3(x0) + ' ' + r3(by + 5) + ' V' + r3(by) + ' H' + r3(x1) + ' V' + r3(by + 5) }));
+    text(X0 + (a0 + a1) / 2, ry - 15, name, 'sl');
+  }
+  function sidePart(a0, a1, ry, name) {
+    const y0 = ry + a0 + 1.5, y1 = ry + a1 - 1.5;
+    add(K.svg('path', { class: 'brk', d: 'M' + (X0 - 3) + ' ' + r3(y0) + ' H' + (X0 - 8) + ' V' + r3(y1) + ' H' + (X0 - 3) }));
+    text(X0 - 13, ry + (a0 + a1) / 2 + 5, name, 'sl', 'end');
+  }
+  // A knob that drags a side's number, with arrows the way it moves.
+  function knob(k, dir) {
+    add(K.svg('circle', { class: 'knob', cx: r3(k.x), cy: r3(k.y), r: 11 }));
+    const x = k.x, y = k.y;
+    const d = dir === 'h'
+      ? 'M' + (x - 5) + ' ' + y + ' H' + (x + 5) + ' M' + (x - 2) + ' ' + (y - 3) + ' L' + (x - 5) + ' ' + y + ' L' + (x - 2) + ' ' + (y + 3) + ' M' + (x + 2) + ' ' + (y - 3) + ' L' + (x + 5) + ' ' + y + ' L' + (x + 2) + ' ' + (y + 3)
+      : 'M' + x + ' ' + (y - 5) + ' V' + (y + 5) + ' M' + (x - 3) + ' ' + (y - 2) + ' L' + x + ' ' + (y - 5) + ' L' + (x + 3) + ' ' + (y - 2) + ' M' + (x - 3) + ' ' + (y + 2) + ' L' + x + ' ' + (y + 5) + ' L' + (x + 3) + ' ' + (y + 2);
+    add(K.svg('path', { class: 'kmark', d }));
+  }
+  // The slider for x: its track, a tick at each whole number, the knob and its value.
+  const xPos = (s, v) => SX0 + (v - s.min) / (s.max - s.min) * (SX1 - SX0);
+  function drawSlider(d, xv) {
+    const s = d.slide, ty = 42;
+    line('track', SX0, ty, SX1, ty);
+    for (let v = s.min; v <= s.max; v++) line('tick', xPos(s, v), ty - 7, xPos(s, v), ty + 7);
+    const kx = xPos(s, xv), lab = 'x = ' + xv, w = tw(lab, 'xl');
+    add(K.svg('circle', { class: 'knob', cx: r3(kx), cy: ty, r: 10 }));
+    text(K.clamp(kx, 12 + w / 2, 328 - w / 2), 20, lab, 'xl');
+  }
+
+  // A step's timetable in its state.
+  function timeline(d, st) {
+    const n = tileCount(d, st);
+    const tl = { box: null, split: null, tiles: Array(n).fill(false), cancel: false, slip: false, rule: [], work: [] };
+    if (d.show) {
+      const s = d.tl;
+      // The plain rectangle (or grid) with its sides is there from the start; only the cutting moves.
+      tl.box = null; tl.split = s.split != null ? s.split : null; tl.tiles = s.tiles;
+      if (s.cancel != null) tl.cancel = s.cancel;
+      if (s.slip != null) tl.slip = s.slip;
+      tl.rule = ruleOf(d, st).map((r, m) => ({ text: r, t: s.rule[m] }));
+      tl.work = workOf(d, st).map((r, m) => Object.assign({}, r, { t: s.work[m] }));
+      return tl;
+    }
+    // The question's working shows from the start, so the picture has no empty gap before Check.
+    const x = d.vars.x;
+    tl.work.push({ e: d.q, w: valueLine(d.q, x), t: null });
+    if (st.res === 'right') {
+      tl.tiles = tl.tiles.map((z, k) => 0.1 + 0.25 * k);
+      if (d.cancel) tl.cancel = 0.1 + 0.25 * n;
+      tl.work.push({ e: d.want, w: valueLine(d.want, x), t: 1.2 });
+    } else if (st.res === 'wrong' && st.pick != null) tl.work.push({ e: st.pick, w: valueLine(st.pick, x), t: 0.4, bad: true });
+    return tl;
+  }
+
+  // The rows under the picture: the rule, the number tried, and each expression's value there.
+  function drawRows(d, st, tl, y, said) {
+    tl.rule.forEach((r, m) => {
+      let x = 12;
+      if (m > 0 && r.text.indexOf('= ') === 0) { const r0 = tl.rule[0].text, k = r0.indexOf(' = '); if (k > 0) x = 12 + tw(r0.slice(0, k + 1), 'rule'); }
+      const a = vis(r.t), yy = y + 20;
+      part(a, 6, () => text(x, yy, r.text, 'rule', 'start'));
+      if (a >= 0.5) { REC.rule.push(r.text); said.push(say(r.text) + '.'); }
+      y += 28;
+    });
+    if (!d.slide) {
+      const lab = 'Try x = ' + xNow(d, st), a = vis(tl.work.length ? tl.work[0].t : null), yy = y + 16;
+      part(a, 0, () => text(12, yy, lab, 'tag', 'start'));
+      if (a >= 0.5) said.push(say(lab) + '.');
+      y += 24;
+    }
+    const rows = d.show ? tl.work.length : 2;
+    tl.work.forEach((r, m) => {
+      const a = vis(r.t), bad = r.bad ? ' bad' : '', yy = y + 20 + 28 * m;
+      part(a, 6, () => { text(12, yy, r.e, 'te' + bad, 'start'); text(328, yy, r.w, 'tw' + bad, 'end'); });
+      if (a >= 0.5) { REC.work.push({ e: r.e, w: r.w, bad: !!r.bad }); said.push(say(r.e) + ' makes ' + say(r.w) + (r.bad ? ', the slip.' : '.')); }
+    });
+    return y + 28 * rows;
+  }
+  // The key, inside the drawing: each item arrives with the thing it explains.
+  function drawKey(items, y) {
+    let x = 12;
+    items.forEach((it) => {
+      const x0 = x;
+      part(it.a, 0, () => { it.sw(x0, y); text(x0 + 30, y + 5, it.label, 'key', 'start'); });
+      x += 30 + tw(it.label, 'key') + 18;
+    });
+  }
+
+  // The rectangle: its sides' parts, the splits, the tiles with their names (and areas, on the slider).
+  function drawRect(d, st, said) {
+    const sd = sidesOf(d, st), xv = xNow(d, st), xl = d.slide ? xv * U0 : XL;
+    const tops = segs(sd.top, xl), sides = segs(sd.side, xl);
+    const W = tops[tops.length - 1].a1, H = sides[sides.length - 1].a1;
+    const tl = timeline(d, st);
+    let y = 8;
+    if (d.slide) { drawSlider(d, xv); said.push('A slider sets x, now ' + xv + '.'); y = 66; }
+    const ry = y + 34, yb = ry + H;
+    REC.W = W; REC.H = H;
+    const boxA = vis(tl.box);
+    part(boxA, 6, () => {
+      rect('base', X0, ry, W, H, 0);
+      tops.forEach((sg) => topPart(sg.a0, sg.a1, ry, segName(sg.t)));
+      sides.forEach((sg) => sidePart(sg.a0, sg.a1, ry, segName(sg.t)));
+    });
+    if (boxA >= 0.5) said.push('A rectangle ' + say(fmtPoly(sd.top)) + ' wide and ' + say(fmtPoly(sd.side)) + ' tall.');
+    const list = [];
+    if (d.order === 'rows') sides.forEach((sj) => tops.forEach((si) => list.push([si, sj])));
+    else tops.forEach((si) => sides.forEach((sj) => list.push([si, sj])));
+    const names = [];
+    list.forEach((pr2, k) => {
+      const si = pr2[0], sj = pr2[1], pr = mul(si.t, sj.t), nm = fmtTerm(pr[0], pr[1], true);
+      const x0 = X0 + si.a0, y0 = ry + sj.a0, w = si.a1 - si.a0, h = sj.a1 - sj.a0, cx = x0 + w / 2, cy = y0 + h / 2;
+      const a = vis(tl.tiles[k]), hot = !!d.hot && pr[1] === 1;
+      const val = d.slide ? pr[0] * Math.pow(xv, pr[1]) : null;
+      part(a, 0, () => {
+        rect('t' + pr[1], x0, y0, w, h, 0);
+        if (hot) part(vis(tl.slip), 0, () => rect('hot', x0, y0, w, h, 0));
+        if (val != null) { text(cx, cy - 2, nm, 'tn'); text(cx, cy + 16, num(val), 'ta'); }
+        else text(cx, cy + 5, nm, 'tn');
+      });
+      if (a >= 0.5) { names.push(say(nm) + (val != null ? ' of ' + num(val) : '')); REC.tiles.push({ name: nm, c: pr[0], p: pr[1], w, h, val, hot: hot && vis(tl.slip) >= 0.5 }); }
+    });
+    part(vis(tl.split), 0, () => {
+      tops.slice(0, -1).forEach((sg) => line('split', X0 + sg.a1, ry, X0 + sg.a1, yb));
+      sides.slice(0, -1).forEach((sg) => line('split', X0, ry + sg.a1, X0 + W, ry + sg.a1));
+    });
+    part(boxA, 0, () => rect('outline', X0, ry, W, H, 0));
+    if (vis(tl.split) >= 0.5) said.push('Lines from the splits cut it into ' + list.length + ' tiles' + (names.length ? ': ' + names.join(', ') : '') + '.');
+    const G = { ry, xl, W, H };
+    if (d.drag) {
+      G.ka = { x: X0 + W + 16, y: ry + xl / 2 }; G.kb = { x: X0 + xl / 2, y: yb + 16 };
+      knob(G.ka, 'h'); knob(G.kb, 'v');
+      y = yb + 34;
+    } else y = yb + 14;
+    y = drawRows(d, st, tl, y, said);
+    if (d.hot) {
+      const a = vis(tl.slip);
+      drawKey([{ a, label: 'left out by x² + 25', sw: (x0, ky) => rect('hot', x0, ky - 7, 24, 14, 2) }], y + 14);
+      y += 30;
+    }
+    G.H = Math.ceil(y + 6);
+    return G;
+  }
+
+  // The grid: the first bracket's terms across the top, the second's down the side, and each cell
+  // the two multiplied, hatched when it is below zero.
+  function drawGrid(d, st, said) {
+    const tl = timeline(d, st), cols = d.top, rows = d.side;
+    const ry = 42, yb = ry + CH * rows.length;
+    const boxA = vis(tl.box);
+    part(boxA, 6, () => {
+      cols.forEach((c, m) => text(GX0 + CW * m + CW / 2, ry - 12, hdr(c, m), 'sl'));
+      rows.forEach((r, j) => text(GX0 - 14, ry + CH * j + CH / 2 + 5, hdr(r, j), 'sl', 'end'));
+      cols.forEach((c, m) => rows.forEach((r, j) => rect('base', GX0 + CW * m, ry + CH * j, CW, CH, 0)));
+    });
+    if (boxA >= 0.5) said.push('A grid with ' + cols.map((c, m) => say(hdr(c, m))).join(' and ') + ' across the top, and ' + rows.map((r, j) => say(hdr(r, j))).join(' and ') + ' down the side.');
+    const list = [];
+    cols.forEach((c, m) => rows.forEach((r, j) => list.push({ c, r, m, j })));
+    let negAt = false;
+    const names = [];
+    list.forEach((it, k) => {
+      const pr = mul(it.c, it.r), nm = fmtTerm(pr[0], pr[1], true), neg = pr[0] < 0;
+      const how = fmtTerm(it.c[0], it.c[1], true) + ' × ' + fmtTerm(it.r[0], it.r[1], true);
+      const x0 = GX0 + CW * it.m, y0 = ry + CH * it.j, cx = x0 + CW / 2, cy = y0 + CH / 2;
+      if (neg && tl.tiles[k] !== false && (negAt === false || tl.tiles[k] < negAt)) negAt = tl.tiles[k];
+      const a = vis(tl.tiles[k]);
+      part(a, 0, () => {
+        rect('t' + pr[1], x0, y0, CW, CH, 0);
+        if (neg) {
+          add(K.svg('rect', { class: 'hatch', x: r3(x0 + 1), y: r3(y0 + 1), width: CW - 2, height: CH - 2, fill: 'url(#hatch)' }));
+          const w = Math.max(tw(how, 'tm'), tw(nm, 'tb'));
+          rect('pill', cx - w / 2 - 8, cy - 21, w + 16, 45, 8);
+        }
+        text(cx, cy - 6, how, 'tm');
+        text(cx, cy + 17, nm, 'tb');
+      });
+      if (a >= 0.5) { names.push(say(how) + ' is ' + say(nm) + (neg ? ', hatched' : '')); REC.tiles.push({ name: nm, c: pr[0], p: pr[1], how, hatched: neg }); }
+    });
+    if (names.length) said.push('Cells: ' + names.join('; ') + '.');
+    const cA = d.cancel ? vis(tl.cancel) : 0;
+    part(cA, 0, () => list.forEach((it) => { if (mul(it.c, it.r)[1] === 1) rect('cancel', GX0 + CW * it.m + 4, ry + CH * it.j + 4, CW - 8, CH - 8, 6); }));
+    if (cA >= 0.5) { REC.cancel = true; said.push('The two middle cells are outlined: they cancel out.'); }
+    part(boxA, 0, () => rect('outline', GX0, ry, CW * cols.length, CH * rows.length, 0));
+    let y = drawRows(d, st, tl, yb + 14, said);
+    const items = [{ a: vis(negAt), label: 'below zero', sw: (x0, ky) => { rect('t0', x0, ky - 7, 24, 14, 0); add(K.svg('rect', { class: 'hatch', x: x0 + 1, y: ky - 6, width: 22, height: 12, fill: 'url(#hatch)' })); } }];
+    if (d.cancel) items.push({ a: cA, label: 'cancel out', sw: (x0, ky) => rect('cancel', x0 + 1.5, ky - 6, 21, 12, 3) });
+    drawKey(items, y + 14);
+    y += 30;
+    return { ry, H: Math.ceil(y + 6) };
+  }
+
+  // ---------- the slider and the knobs: Dan moves them himself ----------
+  const grips = {};
+  const LIMS = (d, key) => (key === 'x' ? d.slide : d.drag);
+  const active = (key) => !finished && !!LIMS(STEPS[at()], key);
+  function valNow(key) { const d = STEPS[at()], st = S[at()]; return key === 'x' ? xNow(d, st) : (st[key] != null ? st[key] : d.drag[key]); }
+  function setVal(key, v) {
+    const i = at(), d = STEPS[i], st = S[i], lim = LIMS(d, key);
+    v = K.clamp(Math.round(v), lim.min, lim.max);
+    if (st[key] === v && T === Infinity) return;
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    st[key] = v;
+    K.reveal(); K.refresh();
+  }
+  function fromPointer(key, e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm || !GNOW) return;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), d = STEPS[at()];
+    if (key === 'x') setVal('x', d.slide.min + (q.x - SX0) / (SX1 - SX0) * (d.slide.max - d.slide.min));
+    else if (key === 'a') setVal('a', (q.x - 16 - X0 - GNOW.xl) / U0);
+    else setVal('b', (q.y - 16 - GNOW.ry - GNOW.xl) / U0);
+  }
+  ['x', 'a', 'b'].forEach((key) => {
+    const g = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider',
+      'aria-orientation': key === 'b' ? 'vertical' : 'horizontal',
+      'aria-label': key === 'x' ? 'x' : key === 'a' ? 'The number on the top side' : 'The number on the left side' }));
+    g.style.display = 'none';
+    let held = null;
+    g.addEventListener('pointerdown', (e) => {
+      if (!active(key)) return;
+      held = e.pointerId;
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the grip */ }
+      e.preventDefault();
+      fromPointer(key, e);
+    });
+    g.addEventListener('pointermove', (e) => { if (held === e.pointerId && active(key)) fromPointer(key, e); });
+    const letGo = (e) => { if (held === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', () => { held = null; });
+    g.addEventListener('keydown', (e) => {
+      if (!active(key)) return;
+      const lim = LIMS(STEPS[at()], key);
+      const by = { ArrowUp: key === 'b' ? -1 : 1, ArrowRight: 1, ArrowDown: key === 'b' ? 1 : -1, ArrowLeft: -1 }[e.key];
+      if (by == null && e.key !== 'Home' && e.key !== 'End') return;
+      e.preventDefault();
+      setVal(key, e.key === 'Home' ? lim.min : e.key === 'End' ? lim.max : valNow(key) + by);
+    });
+    grips[key] = g;
+  });
+  function placeGrips(d, st, G) {
+    ['x', 'a', 'b'].forEach((key) => {
+      const g = grips[key], lim = LIMS(d, key), on = !!lim && !finished && (key === 'x' || !!G.ka);
+      g.style.display = on ? '' : 'none';
+      g.setAttribute('tabindex', on ? '0' : '-1');
+      if (!on) return;
+      let box;
+      if (key === 'x') box = [SX0 - 24, 14, SX1 - SX0 + 48, 48];
+      else if (key === 'a') box = [G.ka.x - 22, G.ka.y - 28, 44, 56];
+      else box = [G.kb.x - 28, G.kb.y - 22, 56, 44];
+      g.setAttribute('x', r3(box[0])); g.setAttribute('y', r3(box[1])); g.setAttribute('width', box[2]); g.setAttribute('height', box[3]);
+      const v = key === 'x' ? xNow(d, st) : (st[key] != null ? st[key] : d.drag[key]);
+      g.setAttribute('aria-valuemin', lim.min); g.setAttribute('aria-valuemax', lim.max); g.setAttribute('aria-valuenow', v);
+      g.setAttribute('aria-valuetext', key === 'x' ? 'x = ' + v : String(v));
+    });
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { W: 0, H: 0, tiles: [], rule: [], work: [], cancel: false };
+    const said = [];
+    const G = d.pic === 'rect' ? drawRect(d, st, said) : drawGrid(d, st, said);
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', said.filter(Boolean).join(' '));
+    if (i === at()) GNOW = G;
+    placeGrips(d, st, G);
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.x = null; st.a = null; st.b = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);   // one span, so the button's gap does not split "x² + 5x + 4"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const range = (a, b) => Array.from({ length: b - a + 1 }, (z, n) => a + n);
+  // Values tried for x: whole numbers, a half and a negative.
+  const ENVS = [1, 2, 3, 4, 7, 10, 0.5, -4].map((x) => ({ x }));
+  const same = (p, q) => ENVS.every((e) => close(evalExpr(p, e), evalExpr(q, e)));
+  const endOf = (w) => evalExpr(String(w).split('=').pop(), {});
+  const lastRule = (d, st) => { const r = ruleOf(d, st); return r[r.length - 1].replace(/^.*= /, ''); };
+  // Every line of working a step can show, with the x it was tried at.
+  function works(i) {
+    const d = STEPS[i], out = [];
+    if (d.show) {
+      let sts = [blank()];
+      if (d.slide) sts = range(d.slide.min, d.slide.max).map((x) => Object.assign(blank(), { x }));
+      if (d.drag) { sts = []; range(d.drag.min, d.drag.max).forEach((a) => range(d.drag.min, d.drag.max).forEach((b) => sts.push(Object.assign(blank(), { a, b })))); }
+      sts.forEach((st) => workOf(d, st).forEach((r) => out.push({ e: r.e, w: r.w, v: varsOf(d, st) })));
+    } else {
+      out.push({ e: d.q, w: valueLine(d.q, d.vars.x), v: d.vars });
+      d.opts.forEach((o) => out.push({ e: o, w: valueLine(o, d.vars.x), v: d.vars }));
+    }
+    return out;
+  }
+  const workAddsUp = (r) => { const ps = r.w.split('='), end = evalExpr(ps[ps.length - 1], {}); return close(evalExpr(r.e, r.v), end) && ps.slice(0, -1).every((p) => close(evalExpr(p, {}), end)); };
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent.replace(/ /g, ' ')) });
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('When expanding double brackets, every term in the first bracket is multiplied by every term in the second: on every screen the tiles or cells drawn are those products, they add up to the answer, and the brackets and the answer make the same value at every number tried, whole, a half or negative', () =>
+    STEPS.every((d, i) => {
+      const st = d.show ? blank() : solvedSt(i), g = drawn(i, st), sd = sidesOf(d, st), q = qOf(sd.top, sd.side);
+      const want = d.show ? lastRule(d, st) : d.want;
+      const rulesHold = !d.show || ruleOf(d, st).every((r) => same(d.drag ? brk(sd.top) + brk(sd.side) : q, r.replace(/^.*= /, '')) && same(q, r.split(' = ')[1] || r.slice(2)));
+      return g.tiles.length === tileCount(d, st) && fmtPoly(collect(g.tiles.map((t) => [t.c, t.p]))) === want &&
+        fmtPoly(collect(prods(sd.top, sd.side))) === want && same(q, want) && rulesHold;
+    }), { source: BITESIZE });
+  K.check('A rectangle whose height is x + 2 and width is x + 3 opens the lesson, drawn to scale at every x on the slider', () => {
+    const d = STEPS[0];
+    return brk(d.top) === '(x + 3)' && brk(d.side) === '(x + 2)' && range(d.slide.min, d.slide.max).every((x) => {
+      const g = drawn(0, Object.assign(blank(), { x }));
+      return close(g.W, (x + 3) * U0) && close(g.H, (x + 2) * U0);
+    });
+  }, { source: KHAN });
+  K.check('The brackets multiplied and the tiles added are two ways of expressing the same area, so they are equal: at every x on the slider the tiles drawn fill the rectangle exactly, each to scale for its area, and both lines of working make the same value', () => {
+    const d = STEPS[0];
+    return range(d.slide.min, d.slide.max).every((x) => {
+      const g = drawn(0, Object.assign(blank(), { x }));
+      const area = g.tiles.reduce((s, t) => s + t.w * t.h, 0);
+      return g.tiles.length === 4 && close(area, g.W * g.H) && g.tiles.every((t) => close(t.w * t.h, t.val * U0 * U0)) &&
+        g.work.length === 2 && close(endOf(g.work[0].w), (x + 3) * (x + 2)) && close(endOf(g.work[1].w), (x + 3) * (x + 2));
+    });
+  }, { source: KHAN });
+  K.check('Every worked number is right (42 and 16 + 12 + 8 + 6 at x = 4; 18, 8 and 19; 18 at x = 1; 40, 49 and 31; 36 and 26; 25, 13 and 19; 6 at x = 5; 8, 28 and −10; 16; 15, 113 and 127; 12; 5, 7 and −2; 16, 40 and −56), and every line of working on every screen adds up', () => {
+    const listed = [['(x + 3)(x + 2)', 4, 42], ['x² + 3x + 2x + 6', 4, 42], ['(x + 4)(x + 1)', 2, 18], ['x² + 4', 2, 8], ['x² + 5x + 5', 2, 19], ['x² + 5x + 4', 2, 18],
+      ['(x + 5)(x + 2)', 1, 18], ['x² + 7x + 10', 1, 18], ['(x + 6)(x + 3)', 2, 40], ['x² + 18x + 9', 2, 49], ['x² + 9x + 9', 2, 31], ['x² + 9x + 18', 2, 40],
+      ['(x + 5)²', 1, 36], ['x² + 10x + 25', 1, 36], ['x² + 25', 1, 26], ['(x + 3)²', 2, 25], ['x² + 9', 2, 13], ['x² + 3x + 9', 2, 19], ['x² + 6x + 9', 2, 25],
+      ['(x − 4)(x + 1)', 5, 6], ['x² − 3x − 4', 5, 6], ['(x + 5)(x − 2)', 3, 8], ['x² + 3x + 10', 3, 28], ['x² − 3x − 10', 3, -10], ['x² + 3x − 10', 3, 8],
+      ['(x + 3)(x − 3)', 5, 16], ['x² − 9', 5, 16], ['(x + 7)(x − 7)', 8, 15], ['x² + 49', 8, 113], ['x² + 14x − 49', 8, 127], ['x² − 49', 8, 15],
+      ['(2x + 1)(x + 3)', 1, 12], ['2x² + 7x + 3', 1, 12], ['(2x − 1)(x + 4)', 1, 5], ['2x² + 9x − 4', 1, 7], ['2x² − 4', 1, -2], ['2x² + 7x − 4', 1, 5],
+      ['(x − 6)²', 2, 16], ['x² + 36', 2, 40], ['x² − 12x − 36', 2, -56], ['x² − 12x + 36', 2, 16]];
+    const lines = [['(x + 3)(x + 2)', 4, '7 × 6 = 42'], ['x² + 3x + 2x + 6', 4, '16 + 12 + 8 + 6 = 42'], ['(x − 4)(x + 1)', 5, '1 × 6 = 6'], ['x² − 3x − 4', 5, '25 − 15 − 4 = 6'],
+      ['(x + 3)(x − 3)', 5, '8 × 2 = 16'], ['x² − 9', 5, '25 − 9 = 16'], ['(2x + 1)(x + 3)', 1, '3 × 4 = 12'], ['2x² + 7x + 3', 1, '2 + 7 + 3 = 12'], ['(x + 5)²', 1, '6² = 36'], ['(x − 6)²', 2, '(−4)² = 16']];
+    return listed.every((r) => close(evalExpr(r[0], { x: r[1] }), r[2]) && close(endOf(valueLine(r[0], r[1])), r[2])) &&
+      lines.every((r) => valueLine(r[0], r[1]) === r[2]) && STEPS.every((d, i) => works(i).every(workAddsUp));
+  });
+  K.check('Each puzzle accepts only the expansion of its brackets, and every wrong answer offered is marked as a slip making a different value at the number tried', () =>
+    DO.every((i) => {
+      const d = STEPS[i], sd = sidesOf(d, blank());
+      const ok = d.q === qOf(sd.top, sd.side) && fmtPoly(collect(prods(sd.top, sd.side))) === d.want && d.opts.length === 3 &&
+        d.opts.filter((o) => o === d.want).length === 1 && d.opts.every((o) => pickRight(i, o) === (o === d.want));
+      const differ = d.opts.every((o) => o === d.want || (!same(o, d.q) && !close(evalExpr(o, d.vars), evalExpr(d.q, d.vars))));
+      const g = drawn(i, solvedSt(i)), a = g.work[g.work.length - 1];
+      const right = g.work.length === 2 && g.work[0].e === d.q && a.e === d.want && !a.bad && close(endOf(a.w), endOf(g.work[0].w));
+      const slips = d.opts.filter((o) => o !== d.want).every((o) => {
+        const h = drawn(i, wrongSt(i, o)), b = h.work[h.work.length - 1];
+        return h.work.length === 2 && b.e === o && b.bad && !close(endOf(b.w), endOf(h.work[0].w));
+      });
+      return ok && differ && right && slips;
+    }));
+  K.check('Before an answer, a puzzle\'s picture names no tile or cell and shows no answer row', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      return g.tiles.length === 0 && g.texts.indexOf(d.want) < 0 && g.work.length === 1 && g.work[0].e === d.q && !g.cancel;
+    }));
+  K.check('A cell is hatched exactly when its term is below zero: −4x and −4 in (x − 4)(x + 1), while in (x − 6)² the corner −6 × −6 makes 36 and is not', () => {
+    const all = STEPS.every((d, i) => d.pic !== 'grid' || drawn(i, d.show ? blank() : solvedSt(i)).tiles.every((t) => t.hatched === (t.c < 0)));
+    const g6 = drawn(idx('A minus sign'), blank()), g12 = drawn(idx('Mixed: a squared minus'), solvedSt(idx('Mixed: a squared minus')));
+    const corner = g12.tiles.filter((t) => t.how === '−6 × −6')[0];
+    return all && g6.tiles.filter((t) => t.hatched).map((t) => t.name).join() === '−4x,−4' && !!corner && corner.name === '36' && !corner.hatched;
+  });
+  K.check('Dragging the sides: for every pair of numbers from 1 to 6 the strips are each number times x, the corner is the two numbers multiplied, the rule collects them, and at x = 1 the brackets and the tiles make the same value', () => {
+    const i = idx('Drag the sides');
+    return range(1, 6).every((a) => range(1, 6).every((b) => {
+      const g = drawn(i, Object.assign(blank(), { a, b }));
+      const want = ['x²', fmtTerm(a, 1, true), fmtTerm(b, 1, true), String(a * b)].sort().join();
+      return g.tiles.map((t) => t.name).sort().join() === want && close(g.W, XL + a * U0) && close(g.H, XL + b * U0) &&
+        g.rule[0] === '(x + ' + a + ')(x + ' + b + ') = ' + fmtPoly([[1, 2], [a + b, 1], [a * b, 0]]) &&
+        g.work.length === 2 && close(endOf(g.work[0].w), (1 + a) * (1 + b)) && close(endOf(g.work[1].w), (1 + a) * (1 + b));
+    }));
+  });
+  K.check('A square has two equal strips: (x + 5)² has two strips of 5x, the 10x that x² + 25 leaves out; and in (x + 3)(x − 3) and (x + 7)(x − 7) the middle cells cancel, leaving no x term', () => {
+    const s = drawn(idx('A square'), blank()), strips = s.tiles.filter((t) => t.p === 1);
+    const sq = strips.length === 2 && strips.every((t) => t.name === '5x' && t.hot) && same('(x + 5)²', 'x² + 25 + 10x') && !same('(x + 5)²', 'x² + 25') &&
+      s.work.some((r) => r.e === 'x² + 25' && r.bad);
+    const cancels = [idx('Strips that cancel'), idx('Cancelling')].every((i) => {
+      const d = STEPS[i], g = drawn(i, d.show ? blank() : solvedSt(i)), mids = g.tiles.filter((t) => t.p === 1);
+      return mids.length === 2 && mids[0].c + mids[1].c === 0 && g.cancel && collect(prods(d.top, d.side)).every((t) => t[1] !== 1);
+    });
+    return sq && cancels;
+  });
+  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), FB[0]) && FB[0] <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), FB[1]));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
