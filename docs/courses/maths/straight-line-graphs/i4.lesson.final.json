@@ -1,0 +1,394 @@
+{
+  "iid": "i4",
+  "title": "Finding the equation of a line",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the fan of lines through one pin closing to a single line, with c worked out from the pin, when you set m or pin a second point.",
+    "title": "A pin and a turn",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on the squared grid from Gradient from two points. A pin holds a line at one point. With only the pin in, the line swings about it and leaves a faint fan of the lines it could be, every one through the pin. Set the gradient m and the fan closes to one line. There is only one line for each gradient, because every line through the pin with that gradient climbs the same amount from it for each 1 along. Under the grid the working fills in as you go: the rule with m in, y = mx + c, then the pin's x and y put in place of x and y, then c, then the finished rule. The pin's numbers must fit the rule, because the rule holds for every point on the line, and with m known that leaves only c to find. Drop a second pin instead and the line locks through both. Lesson 1's step triangle appears between the pins, with its run and rise, and the working finds m = rise ÷ run first, then c from one pin. The last line of the working puts the other point back in as a check. On the parallel screens a faint ghost of a given line slides across, keeping its tilt, until it passes through the new pin. On the graph screens a line is drawn with no rule, and you read two points where it crosses grid lines exactly. Some screens show an idea and the rest ask you to try it. A puzzle shows the points or the line and three rules. A wrong pick gets a one-line hint naming its slip, and Why? fills in the working for that puzzle.",
+    "ignores": "Pins snap to whole-number points so the sums stay easy; a line passes through points with fractions too. The fan shows a handful of the lines through a pin, but there is one for every gradient, and one more straight up, which has no gradient. The grid shows a short piece of each line, which carries on both ways. The points and lines in the puzzles are example values.",
+    "numbers": [
+      {
+        "label": "Example pin (2, 5), x, in step 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example pin (2, 5), y, in step 1",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example gradient set on the pin, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "c = 5 − 3 × 2, in step 1",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip pin's y as c: 3 × 2 + 5, in step 1",
+        "value": 11,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle point (1, 4), y, in step 2",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle gradient, in step 2",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "c = 4 − 2 × 1, y = 2x + 2, in step 2",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip point's y as c, y = 2x + 4, in step 2",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 2 added not taken, y = 2x + 6, in step 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Example point (3, 1), x, in step 3",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example falling gradient, in step 3",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "c from 1 = −6 + c, y = −2x + 7, in step 3",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Check −2 × 3 + 7, in step 3",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle point (2, −1), y, in step 4",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle gradient, in step 4",
+        "value": -3,
+        "kind": "assumed"
+      },
+      {
+        "label": "c from −1 = −6 + c, y = −3x + 5, in step 4",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 6 taken not added, y = −3x − 7, in step 4",
+        "value": -7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip minus lost, y = 3x − 7, in step 4",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example point A (1, 3) from lesson 1, y, in step 5",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example point B (4, 9) from lesson 1, y, in step 5",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "m = (9 − 3) ÷ (4 − 1), in step 5",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "c from A, 3 − 2 × 1, in step 5",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "c from B, 9 − 2 × 4, in step 5",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle points (2, 1) and (5, 7), y of second, in step 6",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "m = (7 − 1) ÷ (5 − 2), in step 6",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "c = 1 − 2 × 2, y = 2x − 3, in step 6",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip run ÷ rise, m = 3 ÷ 6, y = 0.5x, in step 6",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip first point's y as c, y = 2x + 1, in step 6",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Example points (−1, 5) and (3, −3), y of second, in step 7",
+        "value": -3,
+        "kind": "assumed"
+      },
+      {
+        "label": "m = (−3 − 5) ÷ (3 − (−1)) = −8 ÷ 4, in step 7",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "c from 5 = 2 + c, y = −2x + 3, in step 7",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Check −2 × 3 + 3, in step 7",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle points (−2, 1) and (1, 7), x of first, in step 8",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "m = (7 − 1) ÷ (1 − (−2)) = 6 ÷ 3, in step 8",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "c from 7 = 2 + c, y = 2x + 5, in step 8",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip brackets dropped, run 1 − 2, m = −6, in step 8",
+        "value": -6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip brackets dropped, c = 7 + 6, in step 8",
+        "value": 13,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip minus lost on x, c = 1 − 4, in step 8",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Given line y = 2x + 1, c, in step 9",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "New pin (3, 2), y, in step 9",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "c = 2 − 2 × 3, y = 2x − 4, in step 9",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Given line y = −3x + 4, c, in step 10",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "New pin (1, 5), y, in step 10",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "c = 5 + 3, y = −3x + 8, in step 10",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip old c kept: −3 × 1 + 4, in step 10",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip pin's y as c, y = −3x + 5, in step 10",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Drawn line's y-axis crossing (0, −2), in step 11",
+        "value": -2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Drawn line's grid point (3, 4), y, in step 11",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "m = (4 − (−2)) ÷ (3 − 0), y = 2x − 2, in step 11",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle line's y-axis crossing (0, 3), in step 12",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle line's x-axis crossing (6, 0), in step 12",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "m = (0 − 3) ÷ (6 − 0), y = −0.5x + 3, in step 12",
+        "value": -0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip x-axis crossing as c, y = −0.5x + 6, in step 12",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip run ÷ rise, y = −2x + 3, in step 12",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle points (0, −1) and (2, 5), y of second, in step 13",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "m = (5 − (−1)) ÷ (2 − 0), y = 3x − 1, in step 13",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip brackets dropped, 5 − 1 = 4, m = 2, in step 13",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip later point's y as c, y = 3x + 5, in step 13",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example points (2, 4) and (6, 6): m = 2 ÷ 4",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example c = 4 − 0.5 × 2",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example check 0.5 × 6 + 3",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example parallel line through (4, 1): c",
+        "value": -1,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "One point and a gradient, or two different points, pin down exactly one straight line. To write its rule, get m first, then put a point you know into y = mx + c and solve for c.[^1][^2] Pin a line at (2, 5) and it can swing to any tilt, so one point alone leaves a whole fan of lines. Each tilt gives only one line, because two lines through the pin with the same gradient climb the same amount from it for each 1 along, so they lie on top of each other. Choose m = 3 and the fan closes to one line, y = 3x + c, with c still to find.\n\nThe rule is true for every point on the line,[^3] so the pin must fit it. Put its x and y in: 5 = 3 × 2 + c, so 5 = 6 + c, and c = 5 − 6 = −1. The rule is y = 3x − 1. Putting a point's numbers in place of x and y like this is called [[substituting]] them, and it leaves one unknown, c, to solve for as in Linear equations. c is the pin's y only when the pin sits on the y-axis, because c is the value of y where x = 0, the intercept.[^4] Take the pin's 5 as c and y = 3x + 5 gives 3 × 2 + 5 = 11 at x = 2, not 5, so that line misses the pin. With a falling line, keep the minus in m: through (3, 1) with m = −2, 1 = −2 × 3 + c = −6 + c, so c = 7 and y = −2x + 7. Put the point back in as a check: −2 × 3 + 7 = 1.\n\nA second pin locks the line because two points have only one gradient between them, so the job becomes a point and a gradient again. Work out the gradient first,[^5] then c.[^1] For lesson 1's A (1, 3) and B (4, 9), m = (9 − 3) ÷ (4 − 1) = 6 ÷ 3 = 2. Substituting A gives 3 = 2 × 1 + c, so c = 1 and y = 2x + 1. B gives the same c, 9 = 8 + c, so it makes a free check. Put brackets round negative coordinates: through (−1, 5) and (3, −3), m = (−3 − 5) ÷ (3 − (−1)) = −8 ÷ 4 = −2, and 5 = −2 × (−1) + c = 2 + c, so y = −2x + 3. Two points straight above each other have a run of 0, so the line is straight up, with an undefined gradient and an equation x = a,[^6] not y = mx + c.\n\nA line parallel to a given one has the same m, so only c changes. Parallel to y = 2x + 1 through (3, 2): 2 = 2 × 3 + c, so c = −4 and y = 2x − 4. From a drawn graph, read c where the line crosses the y-axis, not the x-axis, and m from two points the line passes through exactly, because anywhere else you can only estimate. Use the numbers on the axes rather than counting squares: here both axes go up in 1s, but many graphs use different scales on the two axes, and then a square across and a square up stand for different amounts. Where two lines cross is for Linear systems. **Get m first, from the gradient you are given or from two points, then put one point's x and y into y = mx + c and solve for c.[^1][^2]**"
+  },
+  "analogy": {
+    "text": "Fixing a length of trunking to a wall works the same way. With one screw in, it swings round the screw and could sit at any slope. Line it up with a slope marked on the wall, or put a second screw in, and it can sit only one way. The screw is the point, the slope is m, and a second screw is a second point.",
+    "breaks": "Real trunking has width and the screws have a little play, so it can sit a shade either way; a line has no width and no play. And the wall only fixes where the trunking goes: you still have to work out m and c to write its rule."
+  },
+  "practice": {
+    "text": "- Sketch the points first, so you know whether the line should rise or fall.\n- Get m. Given a gradient, use it. Given two points, m = (y₂ − y₁) ÷ (x₂ − x₁), with brackets round negative coordinates. Given a parallel line, use its m.\n- Write y = mx + c with that m in.\n- Put one point's x and y in and solve for c.\n- Write the rule, then put the other point back in as a check.\n- A point on the y-axis, (0, k), gives c = k straight away.\n\n**Rule of thumb:** m first, c second. A point's y is c only when its x is 0.\n\n**Worked example:** through (2, 4) and (6, 6). m = (6 − 4) ÷ (6 − 2) = 2 ÷ 4 = 0.5, so y = 0.5x + c. Put (2, 4) in: 4 = 0.5 × 2 + c = 1 + c, so c = 3 and y = 0.5x + 3. Check (6, 6): 0.5 × 6 + 3 = 6. The parallel line through (4, 1) keeps m = 0.5: 1 = 2 + c, so c = −1 and y = 0.5x − 1. The same line can also be written y − 4 = 0.5(x − 2): expand the bracket and add 4 to both sides and you get y = 0.5x + 3 again.\n\n**Common mistakes**\n- Using the point's y as c. Through (1, 4) with m = 2, c = 4 − 2 = 2, not 4.\n- Turning the gradient upside down. Through (2, 1) and (5, 7), m = 6 ÷ 3 = 2, not 3 ÷ 6.\n- Taking away instead of adding. 1 = −6 + c gives c = 7, not −5.\n- Dropping brackets. 1 − (−2) = 3, not −1.\n- Keeping the old c for a parallel line. y = −3x + 4 gives 1 at x = 1, so it misses (1, 5).\n- Reading c where the line crosses the x-axis. A line drawn through (0, 3) and (6, 0) is y = −0.5x + 3. Writing y = −0.5x + 6 puts its crossing at 6, not where it is drawn.\n- Two points with the same x make a line straight up, x = a, with no y = mx + c rule."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Slope-intercept equation from two points - Khan Academy",
+      "url": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:forms-of-linear-equations/x2f8bb11595b61c86:intro-to-slope-intercept-form/v/equation-of-a-line-3",
+      "quote": "Given two points on a line, we can write an equation for that line by finding the slope between those points, then solving for the y-intercept in the slope-intercept equation y=mx+b."
+    },
+    {
+      "n": 2,
+      "title": "Equation of a straight line - Determining the equation of a straight line - National 5 Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/z24qcj6/revision/1",
+      "quote": "We can find the equation of a straight line when given the gradient and a point on the line"
+    },
+    {
+      "n": 3,
+      "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+      "quote": "The equation is a rule connecting the (x) and (y) coordinates - the rule is true for all points on the line"
+    },
+    {
+      "n": 4,
+      "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+      "quote": "The y coordinate at the point where it crosses the y axis is called the intercept . In the equation y = mx + c , c is the intercept"
+    },
+    {
+      "n": 5,
+      "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+      "quote": "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates"
+    },
+    {
+      "n": 6,
+      "title": "Determine the gradient of a straight line",
+      "url": "https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3",
+      "quote": "Vertical lines have a gradient which is undefined; equation x = a"
+    }
+  ]
+}

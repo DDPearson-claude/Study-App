@@ -1,0 +1,562 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T10:55:07.557Z",
+ "startedAt": "2026-10-17T10:55:07.557Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "Finding the equation of a line",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the fan of lines through one pin closing to a single line, with c worked out from the pin, when you set m or pin a second point.",
+   "title": "A pin and a turn",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on the squared grid from Gradient from two points. A pin holds a line at one point. With only the pin in, the line swings about it and leaves a faint fan of the lines it could be, every one through the pin. Set the gradient m and the fan closes to one line. There is only one line for each gradient, because every line through the pin with that gradient climbs the same amount from it for each 1 along. Under the grid the working fills in as you go: the rule with m in, y = mx + c, then the pin's x and y put in place of x and y, then c, then the finished rule. The pin's numbers must fit the rule, because the rule holds for every point on the line, and with m known that leaves only c to find. Drop a second pin instead and the line locks through both. Lesson 1's step triangle appears between the pins, with its run and rise, and the working finds m = rise ÷ run first, then c from one pin. The last line of the working puts the other point back in as a check. On the parallel screens a faint ghost of a given line slides across, keeping its tilt, until it passes through the new pin. On the graph screens a line is drawn with no rule, and you read two points where it crosses grid lines exactly. Some screens show an idea and the rest ask you to try it. A puzzle shows the points or the line and three rules. A wrong pick gets a one-line hint naming its slip, and Why? fills in the working for that puzzle.",
+   "ignores": "Pins snap to whole-number points so the sums stay easy; a line passes through points with fractions too. The fan shows a handful of the lines through a pin, but there is one for every gradient, and one more straight up, which has no gradient. The grid shows a short piece of each line, which carries on both ways. The points and lines in the puzzles are example values.",
+   "numbers": [
+    {
+     "label": "Example pin (2, 5), x, in step 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example pin (2, 5), y, in step 1",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example gradient set on the pin, in step 1",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "c = 5 − 3 × 2, in step 1",
+     "value": -1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip pin's y as c: 3 × 2 + 5, in step 1",
+     "value": 11,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle point (1, 4), y, in step 2",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle gradient, in step 2",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "c = 4 − 2 × 1, y = 2x + 2, in step 2",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip point's y as c, y = 2x + 4, in step 2",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 2 added not taken, y = 2x + 6, in step 2",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Example point (3, 1), x, in step 3",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example falling gradient, in step 3",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "c from 1 = −6 + c, y = −2x + 7, in step 3",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Check −2 × 3 + 7, in step 3",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle point (2, −1), y, in step 4",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle gradient, in step 4",
+     "value": -3,
+     "kind": "assumed"
+    },
+    {
+     "label": "c from −1 = −6 + c, y = −3x + 5, in step 4",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 6 taken not added, y = −3x − 7, in step 4",
+     "value": -7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip minus lost, y = 3x − 7, in step 4",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Example point A (1, 3) from lesson 1, y, in step 5",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example point B (4, 9) from lesson 1, y, in step 5",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "m = (9 − 3) ÷ (4 − 1), in step 5",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "c from A, 3 − 2 × 1, in step 5",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "c from B, 9 − 2 × 4, in step 5",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle points (2, 1) and (5, 7), y of second, in step 6",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "m = (7 − 1) ÷ (5 − 2), in step 6",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "c = 1 − 2 × 2, y = 2x − 3, in step 6",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip run ÷ rise, m = 3 ÷ 6, y = 0.5x, in step 6",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip first point's y as c, y = 2x + 1, in step 6",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Example points (−1, 5) and (3, −3), y of second, in step 7",
+     "value": -3,
+     "kind": "assumed"
+    },
+    {
+     "label": "m = (−3 − 5) ÷ (3 − (−1)) = −8 ÷ 4, in step 7",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "c from 5 = 2 + c, y = −2x + 3, in step 7",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Check −2 × 3 + 3, in step 7",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle points (−2, 1) and (1, 7), x of first, in step 8",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "m = (7 − 1) ÷ (1 − (−2)) = 6 ÷ 3, in step 8",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "c from 7 = 2 + c, y = 2x + 5, in step 8",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip brackets dropped, run 1 − 2, m = −6, in step 8",
+     "value": -6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip brackets dropped, c = 7 + 6, in step 8",
+     "value": 13,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip minus lost on x, c = 1 − 4, in step 8",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Given line y = 2x + 1, c, in step 9",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "New pin (3, 2), y, in step 9",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "c = 2 − 2 × 3, y = 2x − 4, in step 9",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "Given line y = −3x + 4, c, in step 10",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "New pin (1, 5), y, in step 10",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "c = 5 + 3, y = −3x + 8, in step 10",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip old c kept: −3 × 1 + 4, in step 10",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip pin's y as c, y = −3x + 5, in step 10",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Drawn line's y-axis crossing (0, −2), in step 11",
+     "value": -2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Drawn line's grid point (3, 4), y, in step 11",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "m = (4 − (−2)) ÷ (3 − 0), y = 2x − 2, in step 11",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle line's y-axis crossing (0, 3), in step 12",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle line's x-axis crossing (6, 0), in step 12",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "m = (0 − 3) ÷ (6 − 0), y = −0.5x + 3, in step 12",
+     "value": -0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip x-axis crossing as c, y = −0.5x + 6, in step 12",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip run ÷ rise, y = −2x + 3, in step 12",
+     "value": -2,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle points (0, −1) and (2, 5), y of second, in step 13",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "m = (5 − (−1)) ÷ (2 − 0), y = 3x − 1, in step 13",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip brackets dropped, 5 − 1 = 4, m = 2, in step 13",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip later point's y as c, y = 3x + 5, in step 13",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example points (2, 4) and (6, 6): m = 2 ÷ 4",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example c = 4 − 0.5 × 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example check 0.5 × 6 + 3",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example parallel line through (4, 1): c",
+     "value": -1,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "One point and a gradient, or two different points, pin down exactly one straight line. To write its rule, get m first, then put a point you know into y = mx + c and solve for c.[^1][^2] Pin a line at (2, 5) and it can swing to any tilt, so one point alone leaves a whole fan of lines. Each tilt gives only one line, because two lines through the pin with the same gradient climb the same amount from it for each 1 along, so they lie on top of each other. Choose m = 3 and the fan closes to one line, y = 3x + c, with c still to find.\n\nThe rule is true for every point on the line,[^3] so the pin must fit it. Put its x and y in: 5 = 3 × 2 + c, so 5 = 6 + c, and c = 5 − 6 = −1. The rule is y = 3x − 1. Putting a point's numbers in place of x and y like this is called [[substituting]] them, and it leaves one unknown, c, to solve for as in Linear equations. c is the pin's y only when the pin sits on the y-axis or the line is flat, because c is the value of y where x = 0, the intercept.[^4] Take the pin's 5 as c and y = 3x + 5 gives 3 × 2 + 5 = 11 at x = 2, not 5, so that line misses the pin. With a falling line, keep the minus in m: through (3, 1) with m = −2, 1 = −2 × 3 + c = −6 + c, so c = 7 and y = −2x + 7. Put the point back in as a check: −2 × 3 + 7 = 1.\n\nA second pin locks the line because two points have only one gradient between them, so the job becomes a point and a gradient again. Work out the gradient first,[^5] then c.[^1] For lesson 1's A (1, 3) and B (4, 9), m = (9 − 3) ÷ (4 − 1) = 6 ÷ 3 = 2. Substituting A gives 3 = 2 × 1 + c, so c = 1 and y = 2x + 1. B gives the same c, 9 = 8 + c, so it makes a free check. Put brackets round negative coordinates: through (−1, 5) and (3, −3), m = (−3 − 5) ÷ (3 − (−1)) = −8 ÷ 4 = −2, and 5 = −2 × (−1) + c = 2 + c, so y = −2x + 3. Two points straight above each other have a run of 0, so the line is straight up, with an undefined gradient and an equation x = a,[^6] not y = mx + c.\n\nA line parallel to a given one has the same m, so only c changes. Parallel to y = 2x + 1 through (3, 2): 2 = 2 × 3 + c, so c = −4 and y = 2x − 4. From a drawn graph, read c where the line crosses the y-axis at x = 0, not the x-axis, and m from two points the line passes through exactly, because anywhere else you can only estimate. Use the numbers on the axes rather than counting squares: here both axes go up in 1s, but many graphs use different scales on the two axes, and then a square across and a square up stand for different amounts. Where two lines cross is for Linear systems. **Get m first, from the gradient you are given or from two points, then put one point's x and y into y = mx + c and solve for c.[^1][^2]**"
+  },
+  "analogy": {
+   "text": "Fixing a length of trunking to a wall works the same way. With one screw in, it swings round the screw and could sit at any slope. Line it up with a slope marked on the wall, or put a second screw in, and it can sit only one way. The screw is the point, the slope is m, and a second screw is a second point.",
+   "breaks": "Real trunking has width and the screws have a little play, so it can sit a shade either way; a line has no width and no play. And the wall only fixes where the trunking goes: you still have to work out m and c to write its rule."
+  },
+  "practice": {
+   "text": "- Sketch the points first, so you know whether the line should rise or fall.\n- Get m. Given a gradient, use it. Given two points, m = (y₂ − y₁) ÷ (x₂ − x₁), with brackets round negative coordinates. Given a parallel line, use its m.\n- Write y = mx + c with that m in.\n- Put one point's x and y in and solve for c.\n- Write the rule, then put the other point back in as a check.\n- A point on the y-axis, (0, k), gives c = k straight away.\n\n**Rule of thumb:** m first, c second. A point's y is c only when its x is 0 or the line is flat.\n\n**Worked example:** through (2, 4) and (6, 6). m = (6 − 4) ÷ (6 − 2) = 2 ÷ 4 = 0.5, so y = 0.5x + c. Put (2, 4) in: 4 = 0.5 × 2 + c = 1 + c, so c = 3 and y = 0.5x + 3. Check (6, 6): 0.5 × 6 + 3 = 6. The parallel line through (4, 1) keeps m = 0.5: 1 = 2 + c, so c = −1 and y = 0.5x − 1. The same line can also be written y − 4 = 0.5(x − 2): expand the bracket and add 4 to both sides and you get y = 0.5x + 3 again.\n\n**Common mistakes**\n- Using the point's y as c. Through (1, 4) with m = 2, c = 4 − 2 = 2, not 4.\n- Turning the gradient upside down. Through (2, 1) and (5, 7), m = 6 ÷ 3 = 2, not 3 ÷ 6.\n- Taking away instead of adding. 1 = −6 + c gives c = 7, not −5.\n- Dropping brackets. 1 − (−2) = 3, not −1.\n- Keeping the old c for a parallel line. y = −3x + 4 gives 1 at x = 1, so it misses (1, 5).\n- Reading c where the line crosses the x-axis. A line drawn through (0, 3) and (6, 0) is y = −0.5x + 3. Writing y = −0.5x + 6 puts its y-axis crossing at 6, not where it is drawn.\n- Two points with the same x make a line straight up, x = a, with no y = mx + c rule."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Slope-intercept equation from two points - Khan Academy",
+    "url": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:forms-of-linear-equations/x2f8bb11595b61c86:intro-to-slope-intercept-form/v/equation-of-a-line-3",
+    "quote": "Given two points on a line, we can write an equation for that line by finding the slope between those points, then solving for the y-intercept in the slope-intercept equation y=mx+b."
+   },
+   {
+    "n": 2,
+    "title": "Equation of a straight line - Determining the equation of a straight line - National 5 Maths Revision - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/guides/z24qcj6/revision/1",
+    "quote": "We can find the equation of a straight line when given the gradient and a point on the line"
+   },
+   {
+    "n": 3,
+    "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+    "quote": "The equation is a rule connecting the (x) and (y) coordinates - the rule is true for all points on the line"
+   },
+   {
+    "n": 4,
+    "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+    "quote": "The y coordinate at the point where it crosses the y axis is called the intercept . In the equation y = mx + c , c is the intercept"
+   },
+   {
+    "n": 5,
+    "title": "Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty",
+    "quote": "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates"
+   },
+   {
+    "n": 6,
+    "title": "Determine the gradient of a straight line",
+    "url": "https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3",
+    "quote": "Vertical lines have a gradient which is undefined; equation x = a"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  /* The working under the grid: the rule, the method in one line, then the rows as they fill in. */\n  .ro { border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; }\n  .ro p { margin: 0; }\n  .ro .rule { font-weight: 700; line-height: 1.5; }\n  .ro .ronote { color: var(--k-muted); font-size: .9rem; line-height: 1.45; }\n  .ro .wk { line-height: 1.55; min-height: 1.55em; margin-top: 4px; }\n  #rows { position: relative; }\n  .ro .wk.ph { position: absolute; top: 0; left: 0; }\n  .ro .wk .lab { color: var(--k-muted); font-weight: 700; }\n  .ro .pc { white-space: nowrap; }\n  .ro .pc.end { font-weight: 700; color: var(--k-accent2); }\n  .ro .pc.q { color: var(--k-muted); }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  .scene.grab { touch-action: none; }\n  /* The squared grid, its axes and their numbers. */\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .at { font: 600 13px var(--k-font); fill: var(--k-muted); }\n  /* The line (navy), the faint fan of lines it could be, a given line, its sliding copy, and a wrong pick (red, dashed). */\n  .scene .ln { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .fan { stroke: var(--k-accent2); stroke-opacity: .3; stroke-width: 1.5; stroke-linecap: round; fill: none; }\n  .scene .gv { stroke: var(--k-muted); stroke-width: 2; stroke-linecap: round; fill: none; }\n  .scene .gh { stroke: var(--k-muted); stroke-width: 2.2; stroke-dasharray: 6 5; fill: none; }\n  .scene .wrl { stroke: var(--k-warn); stroke-width: 2.4; stroke-dasharray: 7 5; fill: none; }\n  /* The step: 1 along and m up or down from a pin, or the run and the rise between two points. */\n  .scene .tri { fill: var(--k-accent2); fill-opacity: .07; stroke: none; }\n  .scene .sh { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .hd { fill: var(--k-accent2); stroke: none; }\n  /* The round c dot, the m handle, a pin (a ring with a centre), a point read off a graph (teal). */\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .mh { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .pin { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }\n  .scene .pinc { fill: var(--k-accent2); stroke: none; }\n  .scene .rd { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }\n  /* A faint ring marks whatever can be dragged. */\n  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.5; }\n  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */\n  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene .lab.nv { fill: var(--k-accent2); }\n  .scene .lab.tl { fill: var(--k-accent); }\n  .scene .lab.mu { fill: var(--k-muted); font-weight: 600; }\n  .scene .lab.wt { fill: var(--k-warn); }\n  .scene .v { font-style: italic; }\n  .scene #art *, .scene #labs * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .pz.ask .fb:empty { min-height: 0; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\">Pins hold a line at example points on a squared grid, and the working for its rule fills in under the grid.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 360\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"labs\"></g><g id=\"ui\"></g></svg>\n    <div class=\"ro\" id=\"ro\">\n      <p class=\"rule\" id=\"rule\"></p>\n      <p class=\"ronote\" id=\"ronote\"></p>\n      <div id=\"rows\"></div>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">A faint ring marks whatever you can drag. Pins snap to whole numbers, m to halves.</p>\n\n<script>\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // kind 'pin': a point and a gradient (P1, m); 'two': two points (pts, sub: which one is put in for c);\n  // 'par': parallel to a given line through a pin; 'graph': a line drawn with no rule, read at two exact points.\n  // tl: when each part of a demonstration arrives (seconds). A puzzle: its options and their [m, c] (vals),\n  // want, each wrong option's slip (a test on its value, worked from the puzzle's own numbers) and its own hint.\n  const PICK = 'Tap one of the answers.';\n  const RULE = '`y = mx + c`';\n  const NOTE = 'Get `m` first, then put one point\\'s x and y into the rule and solve for `c`.';\n  const NOTE_P = 'A parallel line has the same `m`, so only `c` changes.';\n  const NOTE_G = 'Read `c` where the line crosses the y-axis, and `m` from two points it passes through exactly.';\n  const SQ = (x0, x1, y0, y1, hmax) => ({ x0, x1, y0, y1, hmax: hmax || 300 });\n  const MMAX = 4;                                                  // the m handle turns the line no steeper than 4 for each 1 along\n  const FANA = [-75, -60, -45, -30, -15, 0, 15, 30, 45, 60, 75];   // the tilts (degrees) of the fan's lines\n  const same = (a, b, tol) => {\n    const t = tol == null ? 1e-9 : tol;\n    return Array.isArray(a) ? Array.isArray(b) && a.length === b.length && a.every((x, n) => Math.abs(x - b[n]) <= t) : !Array.isArray(b) && Math.abs(a - b) <= t;\n  };\n  const TL_PIN = { sweep: 0.4, swept: 1.8, close: 1.9, closed: 2.6, step: 2.5, mlab: 3.2, r0: 2.5, r1: 2.8, r2: 3.3, cdot: 3.3, r3: 3.6, r4: 3.9 };\n  const TL_TWO = { fan: 0.4, p2: 1.0, close: 1.3, closed: 1.9, run: 1.8, rise: 2.2, r0: 2.3, r1: 2.9, r2: 3.3, cdot: 3.3, r3: 3.6, r4: 3.9 };\n  const STEPS = [\n    { show: true, kind: 'pin', name: 'One pin', view: SQ(-2, 6, -2, 10), P1: [2, 5], m: 3, slipRow: true, drag: ['p1', 'm'], dur: 4.6, tl: TL_PIN,\n      text: 'A pin at (2, 5) lets the line swing to any tilt, leaving a fan of lines it could be. Set `m = 3` and the fan closes to one line, `y = 3x + c`. The pin must fit that rule, so put its x and y in, *substituting* them, and solve for c.' },\n    { kind: 'pin', name: 'Through a point', view: SQ(-3, 4, -2, 9), P1: [1, 4], m: 2,\n      opts: ['y = 2x + 4', 'y = 2x + 2', 'y = 2x + 6'], vals: { 'y = 2x + 4': [2, 4], 'y = 2x + 2': [2, 2], 'y = 2x + 6': [2, 6] }, want: 'y = 2x + 2',\n      slip: { 'y = 2x + 4': (d, v) => same(v, [d.m, d.P1[1]]), 'y = 2x + 6': (d, v) => same(v, [d.m, d.P1[1] + d.m * d.P1[0]]) },\n      task: 'A line goes through (1, 4) with gradient 2. Which is its rule?',\n      why: 'The gradient is 2, so the rule is `y = 2x + c`. Put (1, 4) in: `4 = 2 × 1 + c`, so `4 = 2 + c`, and `c = 4 − 2 = 2`. The rule is `y = 2x + 2`.',\n      hint: 'Not quite. Put the point\\'s x and y into `y = 2x + c` and solve for c.',\n      hints: { 'y = 2x + 4': 'Not quite. 4 is the point\\'s y, which is c only on the y-axis. Put (1, 4) in: `4 = 2 × 1 + c`.', 'y = 2x + 6': 'Not quite. `4 = 2 + c`, so take the 2 away: `c = 4 − 2`.' } },\n    { show: true, kind: 'pin', name: 'A falling line', view: SQ(-1, 5, -2, 9), P1: [3, 1], m: -2, drag: ['p1', 'm'], dur: 4.6, tl: TL_PIN,\n      text: 'With a falling line, keep the minus in m. Through (3, 1) with `m = −2`, the pin gives `1 = −6 + c`, so `c = 7`, and putting the point back in checks it.' },\n    { kind: 'pin', name: 'Keep the minus', view: SQ(-2, 4, -7, 6, 320), P1: [2, -1], m: -3,\n      opts: ['y = −3x − 7', 'y = 3x − 7', 'y = −3x + 5'], vals: { 'y = −3x − 7': [-3, -7], 'y = 3x − 7': [3, -7], 'y = −3x + 5': [-3, 5] }, want: 'y = −3x + 5',\n      slip: { 'y = −3x − 7': (d, v) => same(v, [d.m, d.P1[1] + d.m * d.P1[0]]), 'y = 3x − 7': (d, v) => same(v, [-d.m, d.P1[1] - -d.m * d.P1[0]]) },\n      task: 'A line goes through (2, −1) with gradient −3. Which is its rule?',\n      why: 'The gradient is −3, so `y = −3x + c`. Put (2, −1) in: `−1 = −3 × 2 + c`, so `−1 = −6 + c`, and `c = −1 + 6 = 5`. The rule is `y = −3x + 5`.',\n      hint: 'Not quite. Put the point\\'s x and y into `y = −3x + c` and solve for c.',\n      hints: { 'y = −3x − 7': 'Not quite. `−1 = −6 + c`, so add the 6: `c = −1 + 6`.', 'y = 3x − 7': 'Not quite. The gradient is −3, so the line falls. Keep the minus in m.' } },\n    { show: true, kind: 'two', name: 'Two pins', view: SQ(-1, 6, -1, 10), pts: [[1, 3], [4, 9]], names: ['A', 'B'], drag: ['p1', 'p2'], dur: 4.6, tl: TL_TWO,\n      text: 'A second pin locks the line, as two points have only one gradient between them. The step from A to B gives m first, then A gives c, and B makes a free check.' },\n    { kind: 'two', name: 'From two points', view: SQ(-1, 6, -4, 8), pts: [[2, 1], [5, 7]],\n      opts: ['y = 2x + 1', 'y = 2x − 3', 'y = 0.5x'], vals: { 'y = 2x + 1': [2, 1], 'y = 2x − 3': [2, -3], 'y = 0.5x': [0.5, 0] }, want: 'y = 2x − 3',\n      slip: { 'y = 0.5x': (d, v) => { const a = d.pts[0], b = d.pts[1], m2 = (b[0] - a[0]) / (b[1] - a[1]); return same(v, [m2, a[1] - m2 * a[0]]); },\n        'y = 2x + 1': (d, v) => { const a = d.pts[0], b = d.pts[1]; return same(v, [(b[1] - a[1]) / (b[0] - a[0]), a[1]]); } },\n      task: 'Which rule goes through (2, 1) and (5, 7)?',\n      why: '`m = (7 − 1) ÷ (5 − 2) = 6 ÷ 3 = 2`. Put (2, 1) in: `1 = 2 × 2 + c`, so `1 = 4 + c`, and `c = −3`. The rule is `y = 2x − 3`, and (5, 7) checks: `2 × 5 − 3 = 7`.',\n      hint: 'Not quite. Get m first, rise ÷ run, then put one point in to find c.',\n      hints: { 'y = 0.5x': 'Not quite. That is run ÷ rise, upside down. m is rise ÷ run: `6 ÷ 3 = 2`.', 'y = 2x + 1': 'Not quite. 1 is the first point\\'s y, not c. Put (2, 1) in: `1 = 2 × 2 + c`.' } },\n    { show: true, kind: 'two', name: 'Brackets', view: SQ(-2, 4, -4, 6), pts: [[-1, 5], [3, -3]], drag: ['p1', 'p2'], dur: 4.6, tl: TL_TWO,\n      text: 'Put brackets round negative coordinates: the run from −1 to 3 is `3 − (−1) = 4`. With a rise of −8, `m = −2`, and the pin at (−1, 5) gives c.' },\n    { kind: 'two', name: 'Mind the brackets', view: SQ(-3, 3, -1, 9), pts: [[-2, 1], [1, 7]], sub: 1, subNote: 'no minus signs',\n      opts: ['y = 2x + 5', 'y = −6x + 13', 'y = 2x − 3'], vals: { 'y = 2x + 5': [2, 5], 'y = −6x + 13': [-6, 13], 'y = 2x − 3': [2, -3] }, want: 'y = 2x + 5',\n      slip: { 'y = −6x + 13': (d, v) => { const a = d.pts[0], b = d.pts[1], m2 = (b[1] - a[1]) / (b[0] + a[0]); return same(v, [m2, b[1] - m2 * b[0]]); },\n        'y = 2x − 3': (d, v) => { const a = d.pts[0], b = d.pts[1], m = (b[1] - a[1]) / (b[0] - a[0]); return same(v, [m, a[1] - m * -a[0]]); } },\n      task: 'Which rule goes through (−2, 1) and (1, 7)?',\n      why: '`m = (7 − 1) ÷ (1 − (−2)) = 6 ÷ 3 = 2`. Either point works, and (1, 7) has no minus signs, so it is the easier one to put in: `7 = 2 × 1 + c`, so `7 = 2 + c`, and `c = 5`. The rule is `y = 2x + 5`, and (−2, 1) checks: `2 × (−2) + 5 = 1`.',\n      hint: 'Not quite. Put brackets round the negative x, get m, then c.',\n      hints: { 'y = −6x + 13': 'Not quite. The brackets were dropped. The run is `1 − (−2) = 3`, not −1.', 'y = 2x − 3': 'Not quite. The minus on −2 was lost: `2 × (−2)` is −4, not 4.' } },\n    { show: true, kind: 'par', name: 'Same m', view: SQ(-2, 5, -5, 8, 320), given: { m: 2, c: 1 }, P1: [3, 2], drag: ['p1'], dur: 4.0, note: NOTE_P,\n      tl: { ghost: 0.5, slide: 1.0, slid: 2.3, land: 2.3, r0: 0.6, r1: 2.6, r2: 3.2, cdot: 3.2, r3: 3.5 },\n      text: 'A line *parallel* to `y = 2x + 1` has the same m, so only c changes. A copy slides with the same tilt until it passes through the pin at (3, 2), and the pin gives c.' },\n    { kind: 'par', name: 'Parallel', view: SQ(-2, 4, -3, 10, 320), given: { m: -3, c: 4 }, P1: [1, 5], note: NOTE_P,\n      opts: ['y = −3x + 5', 'y = −3x + 4', 'y = −3x + 8'], vals: { 'y = −3x + 5': [-3, 5], 'y = −3x + 4': [-3, 4], 'y = −3x + 8': [-3, 8] }, want: 'y = −3x + 8',\n      slip: { 'y = −3x + 4': (d, v) => same(v, [d.given.m, d.given.c]), 'y = −3x + 5': (d, v) => same(v, [d.given.m, d.P1[1]]) },\n      task: 'Which line is parallel to `y = −3x + 4` and goes through (1, 5)?',\n      why: 'A parallel line keeps `m = −3`, so `y = −3x + c`. Put (1, 5) in: `5 = −3 × 1 + c`, so `5 = −3 + c`, and `c = 5 + 3 = 8`. The rule is `y = −3x + 8`.',\n      hint: 'Not quite. Keep the given m, then put (1, 5) in to find the new c.',\n      hints: { 'y = −3x + 4': 'Not quite. That keeps the old c: `−3 × 1 + 4 = 1`, not 5, so it misses the pin.', 'y = −3x + 5': 'Not quite. 5 is the pin\\'s y, which is c only on the y-axis. Put (1, 5) in: `5 = −3 × 1 + c`.' } },\n    { show: true, kind: 'graph', name: 'Read a graph', view: SQ(-2, 5, -5, 8, 320), pts: [[0, -2], [3, 4]], drag: ['p2'], dur: 4.0, note: NOTE_G,\n      tl: { p1: 0.5, p2: 1.0, r0: 1.2, run: 1.5, rise: 2.0, r1: 2.4, r2: 3.1, cdot: 3.1, r3: 3.5 },\n      text: 'This line comes with no rule. Read two points where it crosses grid lines exactly, here (0, −2) and (3, 4), as anywhere else you could only estimate. The step between them gives m, and (0, −2) on the y-axis gives c.' },\n    { kind: 'graph', name: 'Graph to rule', view: SQ(-1, 7, -2, 5), pts: [[0, 3], [6, 0]], note: NOTE_G,\n      opts: ['y = −2x + 3', 'y = −0.5x + 6', 'y = −0.5x + 3'], vals: { 'y = −2x + 3': [-2, 3], 'y = −0.5x + 6': [-0.5, 6], 'y = −0.5x + 3': [-0.5, 3] }, want: 'y = −0.5x + 3',\n      slip: { 'y = −0.5x + 6': (d, v) => { const R = ruleOf(d); return same(v, [R.m, -R.c / R.m]); }, 'y = −2x + 3': (d, v) => { const R = ruleOf(d); return same(v, [1 / R.m, R.c]); } },\n      task: 'Which rule fits the line drawn?',\n      why: 'The line passes exactly through (0, 3) and (6, 0). `m = (0 − 3) ÷ (6 − 0) = −3 ÷ 6 = −0.5`, and (0, 3) is on the y-axis, so `c = 3`. The rule is `y = −0.5x + 3`.',\n      hint: 'Not quite. Read c where the line crosses the y-axis, and m from two points it passes through exactly.',\n      hints: { 'y = −0.5x + 6': 'Not quite. 6 is where the line crosses the x-axis. c is where it crosses the y-axis, at `x = 0`.', 'y = −2x + 3': 'Not quite. That is run ÷ rise, upside down. m is rise ÷ run: `−3 ÷ 6`.' } },\n    { kind: 'two', name: 'Two more points', view: SQ(-2, 4, -3, 8), pts: [[0, -1], [2, 5]],\n      opts: ['y = 3x + 5', 'y = 3x − 1', 'y = 2x − 1'], vals: { 'y = 3x + 5': [3, 5], 'y = 3x − 1': [3, -1], 'y = 2x − 1': [2, -1] }, want: 'y = 3x − 1',\n      slip: { 'y = 2x − 1': (d, v) => { const a = d.pts[0], b = d.pts[1], m2 = (b[1] + a[1]) / (b[0] - a[0]); return same(v, [m2, a[1] - m2 * a[0]]); },\n        'y = 3x + 5': (d, v) => { const a = d.pts[0], b = d.pts[1]; return same(v, [(b[1] - a[1]) / (b[0] - a[0]), b[1]]); } },\n      task: 'Last one. Which rule goes through (0, −1) and (2, 5)?',\n      why: '`m = (5 − (−1)) ÷ (2 − 0) = 6 ÷ 2 = 3`. (0, −1) is on the y-axis, so `c = −1` straight away. The rule is `y = 3x − 1`, and (2, 5) checks: `3 × 2 − 1 = 5`.',\n      hint: 'Not quite. Get m first, with brackets round −1, then c.',\n      hints: { 'y = 2x − 1': 'Not quite. The brackets were dropped. The rise is `5 − (−1) = 6`, not 4.', 'y = 3x + 5': 'Not quite. 5 is the later point\\'s y. (0, −1) is on the y-axis, so `c = −1`.' } },\n  ];\n  const FINISH = 'One point and a gradient, or two different points, pin down exactly one straight line. Get m first, from the gradient you are given or from two points, then put one point\\'s x and y into `y = mx + c` and solve for c.';\n  // Sources the checks restate (the lesson's own).\n  const SRC_KA = 'https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:forms-of-linear-equations/x2f8bb11595b61c86:intro-to-slope-intercept-form/v/equation-of-a-line-3';\n  const SRC_N5 = 'https://www.bbc.co.uk/bitesize/guides/z24qcj6/revision/1';\n  const SRC_M3 = 'https://www.bbc.co.uk/bitesize/articles/zjbf9ty';\n  const SRC_V = 'https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3';\n  // Margins round the grid (numbers left and below, axis names above and below).\n  const ML = 36, MR = 8, MT = 28, W = 340 - ML - MR;\n  const FB = 2.4;     // seconds a puzzle's drawing takes after a right answer or Why?\n  const FADE = 0.35;\n  const GAP = 0.25;   // seconds between the pieces of one row of working\n  // When a puzzle's parts arrive after a right answer or Why? (seconds).\n  const PZ = { close: 0.1, closed: 0.8, line: 0.1, run: 0.4, rise: 0.8, slide: 0.1, slid: 1.0, land: 1.0, pts: 0.1, r0: 0.3, r1: 0.6, r2: 1.1, cdot: 1.1, r3: 1.4, r4: 1.6 };\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- numbers and rules, written as the explanation writes them ----------\n  const r2 = (v) => Math.round(v * 100) / 100;\n  const neg = (v) => { v = r2(v); return v < 0 ? '−' + Math.abs(v) : String(Math.abs(v) < 1e-12 ? 0 : v); };\n  const br = (v) => (v < 0 ? '(' + neg(v) + ')' : neg(v));\n  const coord = (p) => '(' + neg(p[0]) + ', ' + neg(p[1]) + ')';\n  const exact = (v) => Math.abs(v * 100 - Math.round(v * 100)) < 1e-9;\n  const plusC = (c) => (c < 0 ? ' − ' + neg(-c) : ' + ' + neg(c));\n  const termX = (m) => (m === 1 ? 'x' : m === -1 ? '−x' : neg(m) + 'x');               // 3x, −x, 0x\n  function tidyRHS(m, c) {                                                               // 3x − 1, 5, x, −0.5x + 3\n    const mx = Math.abs(m) < 1e-12 ? '' : m === 1 ? 'x' : m === -1 ? '−x' : neg(m) + 'x';\n    if (!mx) return neg(c);\n    return Math.abs(c) < 1e-12 ? mx : mx + plusC(c);\n  }\n  const ruleTidy = (m, c) => 'y = ' + tidyRHS(m, c);\n  const mulStr = (m, x, c) => neg(m) + ' × ' + br(x) + plusC(c);                         // 2 × 4 + 1\n  const fitsRule = (m, c, p) => Math.abs(m * p[0] + c - p[1]) < 1e-9;\n  const say = (s) => String(s).replace(/−/g, 'minus ');\n  const TH = (m) => Math.atan(m) * 180 / Math.PI;\n  const TM = (th) => Math.tan(th * Math.PI / 180);\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // dr: where Dan has dragged the pins, the m handle or the point read ({P1, P2, m}).\n  function blank() { return { pick: null, res: null, why: false, dr: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  const startDr = (d) => ({ P1: (d.P1 || d.pts[0]).slice(), P2: d.pts ? d.pts[1].slice() : null, m: d.kind === 'pin' ? d.m : null });\n  // The line a step's points and gradient fix: m first, then c from the point put in.\n  function stateOf(d, st) {\n    const dr = st.dr;\n    if (d.kind === 'pin' || d.kind === 'par') {\n      const P1 = dr ? dr.P1 : d.P1, m = d.kind === 'par' ? d.given.m : dr ? dr.m : d.m;\n      return { P1, P2: null, m, c: P1[1] - m * P1[0], sub: P1, other: null, vert: null };\n    }\n    const P1 = dr ? dr.P1 : d.pts[0], P2 = dr ? dr.P2 : d.pts[1];\n    if (P1[0] === P2[0]) return { P1, P2, m: null, c: null, sub: P1, other: P2, vert: P1[0] };\n    const m = (P2[1] - P1[1]) / (P2[0] - P1[0]), sub = d.sub ? P2 : P1;\n    return { P1, P2, m, c: sub[1] - m * sub[0], sub, other: d.sub ? P1 : P2, vert: null };\n  }\n  const ruleOf = (d) => stateOf(d, blank());\n  const canDrag = (d) => !!d.show && !!d.drag && !finished;\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of\n  let YT = [];                                                           // the numbers up the y scale: {val, el, box}\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])(?:mx|[xymc])(?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // A coordinate such as (2, 5) never splits across two lines.\n  const COORD = /(\\(−?\\d+(?:\\.\\d+)?, −?\\d+(?:\\.\\d+)?\\))/;\n  function plain(node, s) {\n    String(s).split(COORD).forEach((p, k) => { if (p) node.appendChild(k % 2 ? K.el('span', { class: 'nw' }, p) : document.createTextNode(p)); });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, mt;\n      while ((mt = re.exec(seg))) {\n        if (mt.index > at0) plain(node, seg.slice(at0, mt.index));\n        node.appendChild(K.el('span', { class: 'term' }, mt[1]));\n        at0 = mt.index + mt[0].length;\n      }\n      if (at0 < seg.length) plain(node, seg.slice(at0));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n  } }));\n  // Check: a right answer draws the line and fills in the working; a wrong one draws its own line, with a hint.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    if (st.res === 'right' && !st.why) play(FB);\n  } });\n  // Why?: draws the line and fills in the working for this puzzle, with a few words.\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    st.why = !st.why;\n    if (st.why && st.res !== 'right') play(FB);\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    S[at()].dr = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and each puzzle's drawing; with reduced motion (and\n  // while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');\n  const add = (node) => art.appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, dd) {\n    if (t0 + dd > latest) latest = t0 + dd;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, dd);\n  }\n  const ln = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  function tx(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });\n    italics(t, s, true);\n    return add(t);\n  }\n  // A step's squared grid: squares U across and U up, its numbers left and below.\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const v = d.view, nx = v.x1 - v.x0, ny = v.y1 - v.y0, U = Math.min(28, W / nx, v.hmax / ny);\n    const gw = nx * U, gh = ny * U, gx = ML + (W - gw) / 2, gy = MT;\n    const G = { v, nx, ny, U, gw, gh, gx, gy, H: Math.ceil(gy + gh + 44),\n      px: (x) => gx + (x - v.x0) * U, py: (y) => gy + gh - (y - v.y0) * U,\n      inv: (X, Y) => [v.x0 + (X - gx) / U, v.y0 + (gy + gh - Y) / U] };\n    GEO.set(d, G);\n    return G;\n  }\n  function drawGrid(G) {\n    const v = G.v;\n    for (let i = 0; i <= G.nx; i++) ln('gl', G.gx + i * G.U, G.gy, G.gx + i * G.U, G.gy + G.gh);\n    for (let j = 0; j <= G.ny; j++) ln('gl', G.gx, G.gy + j * G.U, G.gx + G.gw, G.gy + j * G.U);\n    if (v.x0 <= 0 && v.x1 >= 0) { ln('ax', G.px(0), G.gy, G.px(0), G.gy + G.gh); OBS.segs.push({ s: [G.px(0), G.gy, G.px(0), G.gy + G.gh], c: 8 }); }\n    if (v.y0 <= 0 && v.y1 >= 0) { ln('ax', G.gx, G.py(0), G.gx + G.gw, G.py(0)); OBS.segs.push({ s: [G.gx, G.py(0), G.gx + G.gw, G.py(0)], c: 8 }); }\n    for (let i = 0; i <= G.nx; i++) tx(G.px(v.x0 + i), G.gy + G.gh + 19, neg(v.x0 + i), 'tk');\n    YT = [];\n    const tko = v.x0 === 0 ? 13 : 7;\n    for (let j = 0; j <= G.ny; j++) {\n      const val = v.y0 + j, e = tx(G.gx - tko, G.py(val) + 4.5, neg(val), 'tk', 'end');\n      YT.push({ val, el: e, box: boxOf(G.gx - tko, G.py(val) + 4.5, tw(neg(val), 'tk'), 'end') });\n    }\n    tx(G.gx + G.gw, G.gy + G.gh + 39, 'x', 'at', 'end');\n    tx(G.gx, G.gy - 11, 'y', 'at', 'start');\n    OBS.hard.push(boxOf(G.gx, G.gy - 11, tw('y', 'at'), 'start'));\n  }\n  // The piece of y = mx + c inside the grid, in drawing units (null when it misses the grid).\n  function clipLine(G, m, c) {\n    const v = G.v;\n    let lo = v.x0, hi = v.x1;\n    if (Math.abs(m) > 1e-12) {\n      const xa = (v.y0 - c) / m, xb = (v.y1 - c) / m;\n      lo = Math.max(lo, Math.min(xa, xb)); hi = Math.min(hi, Math.max(xa, xb));\n    } else if (c < v.y0 - 1e-9 || c > v.y1 + 1e-9) return null;\n    if (hi - lo < 1e-9) return null;\n    return [G.px(lo), G.py(m * lo + c), G.px(hi), G.py(m * hi + c)];\n  }\n  // An arrow: a shaft and a filled head with its tip at (x2, y2).\n  function arrow(x1, y1, x2, y2) {\n    const L = Math.hypot(x2 - x1, y2 - y1);\n    if (L < 2) return null;\n    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.7), hw = 5.5, bx = x2 - ux * hl, by = y2 - uy * hl;\n    ln('sh', x1, y1, x2 - ux * hl * 0.6, y2 - uy * hl * 0.6);\n    add(K.svg('path', { class: 'hd', d: 'M' + r2(x2) + ' ' + r2(y2) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' }));\n    const hx = [x2, bx - uy * hw, bx + uy * hw], hy = [y2, by + ux * hw, by - ux * hw];\n    OBS.segs.push({ s: [x1, y1, x2, y2], c: 300 });\n    OBS.hard.push({ x0: Math.min(...hx) - 1, y0: Math.min(...hy) - 1, x1: Math.max(...hx) + 1, y1: Math.max(...hy) + 1 });\n    return [x1, y1, x2, y2];\n  }\n  // The step: across from O to the corner Cn, then up or down to the tip Tp, each arrow stopping short of what sits there.\n  function stepDraw(O, Cn, Tp, gRun, gRise, stopRun, stopRise) {\n    const hasRun = Math.abs(Cn[0] - O[0]) > 1e-6, hasRise = Math.abs(Tp[1] - Cn[1]) > 1e-6;\n    if (hasRun && hasRise) K.fade(add(K.svg('path', { class: 'tri', d: 'M' + r2(O[0]) + ' ' + r2(O[1]) + ' L' + r2(Cn[0]) + ' ' + r2(Cn[1]) + ' L' + r2(Tp[0]) + ' ' + r2(Tp[1]) + ' Z' })), Math.min(gRun, gRise), 0);\n    if (hasRun && gRun > 0) {\n      const dx = Math.sign(Cn[0] - O[0]), end = hasRise ? Cn[0] : Cn[0] - dx * stopRun;\n      arrow(O[0], O[1], K.lerp(O[0], end, gRun), O[1]);\n    }\n    if (hasRise && gRise > 0) {\n      const dy = Math.sign(Tp[1] - Cn[1]);\n      arrow(Cn[0], Cn[1], Cn[0], K.lerp(Cn[1], Tp[1] - dy * stopRise, gRise));\n    }\n  }\n\n  // ---------- labels: clear of each other, the dots, the arrowheads and the numbers; off the lines where they can be ----------\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * (cls === 'lab' ? 8.4 : 7.6);\n  }\n  function boxOf(x, y, w, anchor) {\n    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;\n    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };\n  }\n  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;\n  // Does a line segment pass through a box? (Liang-Barsky)\n  function segHits(s, b) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1];\n    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];\n    for (let k = 0; k < 4; k++) {\n      const p = pq[k][0], q = pq[k][1];\n      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }\n      const r = q / p;\n      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  // Each label tries spots round where it wants to be (or round each of its alternatives, in order),\n  // pulled inside the bounds, and takes the one that hits nothing solid, crosses the fewest lines and moves least.\n  function placeLabels(items, hard, segs, B) {\n    const placed = [];\n    return items.map((it) => {\n      const w = tw(it.text, 'lab'), h = 15.5, g = 4;\n      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],\n        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];\n      let best = null, bestCost = Infinity;\n      const Bi = it.B || B;   // a label may have bounds of its own (c's reaches into the number margin)\n      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {\n        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);\n        const sx = b.x0 < Bi.x0 ? Bi.x0 - b.x0 : b.x1 > Bi.x1 ? Bi.x1 - b.x1 : 0, sy = b.y0 < Bi.y0 ? Bi.y0 - b.y0 : b.y1 > Bi.y1 ? Bi.y1 - b.y1 : 0;\n        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };\n        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;\n        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });\n        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });\n        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };\n        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });\n        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }\n      }));\n      placed.push(best.b);\n      return best;\n    });\n  }\n  const spots = (X, Y, list) => { const alts = list.map((o) => ({ x: X + o[0], y: Y + o[1], anchor: o[2] })); return Object.assign({}, alts[0], { alts }); };\n  const PT_AT = [[16, 5, 'start'], [-16, 5, 'end'], [0, -17, 'middle'], [0, 28, 'middle']];\n  const C_AT = [[-13, 5, 'end'], [-10, -9, 'end'], [-10, 20, 'end'], [13, 5, 'start'], [0, -14, 'middle'], [0, 24, 'middle']];\n  // A spot pushed `off` from (x, y) along u, anchored on the side it leans.\n  function away(x, y, u, off) {\n    const L = Math.hypot(u[0], u[1]) || 1, ux = u[0] / L, uy = u[1] / L;\n    return { x: x + ux * off, y: y + uy * off + (uy > 0.35 ? 11 : uy < -0.35 ? -1 : 5), anchor: ux > 0.4 ? 'start' : ux < -0.4 ? 'end' : 'middle' };\n  }\n  // Spots beside a drawn line at fractions along it, on either side.\n  function along(s, fr) {\n    const dx = s[2] - s[0], dy = s[3] - s[1], L = Math.hypot(dx, dy) || 1;\n    let n = [dy / L, -dx / L];\n    if (n[1] > 0) n = [-n[0], -n[1]];\n    const alts = [];\n    fr.forEach((f) => [1, -1].forEach((sg) => alts.push(away(s[0] + dx * f, s[1] + dy * f, [n[0] * sg, n[1] * sg], 10))));\n    return Object.assign({}, alts[0], { alts });\n  }\n\n  // ---------- the working rows under the grid ----------\n  function checkRow(Q, name, m, c, t, pcs) {\n    const val = m * Q[0] + c, fits = fitsRule(m, c, Q);\n    return { lab: 'Check ' + name + coord(Q), pieces: pcs([mulStr(m, Q[0], c) + (exact(val) ? ' = ' : ' ≈ ') + neg(val) + ',', fits ? 'on the line' : 'not ' + neg(Q[1])], t, true) };\n  }\n  function rowsNow(d, V, open, A, tl) {\n    const pcs = (list, t0, endLast) => list.map((s, n) => ({ s, a: t0 == null ? 1 : A(t0 + GAP * n), cls: endLast && n === list.length - 1 ? 'end' : '' }));\n    const rows = [];\n    if (d.kind === 'par') rows.push({ lab: 'Given', pieces: pcs([ruleTidy(d.given.m, d.given.c)]) });\n    if (!open) return rows.concat([{ lab: 'Rule', pieces: [{ s: 'y = ?', a: 1, cls: 'q' }] }]);\n    const m = V.m, c = V.c, nm = (k) => (d.names ? d.names[k] + ' ' : ''), gr = d.kind === 'graph';\n    if (gr) rows.push({ lab: 'Read', pieces: pcs([coord(V.P1) + ' and ' + coord(V.P2)], tl.r0) });\n    if (d.kind === 'two' || gr) {\n      const a = V.P1, b = V.P2, rise = b[1] - a[1], run = b[0] - a[0], t = gr ? tl.r1 : tl.r0;\n      const frac = '(' + neg(b[1]) + ' − ' + br(a[1]) + ') ÷ (' + neg(b[0]) + ' − ' + br(a[0]) + ')';\n      if (V.vert != null) {\n        rows.push({ lab: 'm = rise ÷ run', pieces: pcs([frac, '= ' + neg(rise) + ' ÷ 0,', 'no gradient'], t) });\n        rows.push({ pieces: pcs(['so the line is straight up:', 'x = ' + neg(V.vert)], gr ? tl.r2 : tl.r1, true) });\n        return rows;\n      }\n      rows.push({ lab: 'm = rise ÷ run', pieces: pcs([frac, '= ' + neg(rise) + ' ÷ ' + neg(run), (exact(m) ? '= ' : '≈ ') + neg(m)], t) });\n    } else rows.push({ lab: d.kind === 'par' ? 'Parallel, same m' : 'm = ' + neg(m), pieces: pcs(['y = ' + termX(m) + ' + c'], tl.r0) });\n    // Put one point in: its x and y in place of x and y leave only c to find.\n    const sIdx = d.sub ? 1 : 0, P = V.sub, ap = exact(m) ? ' = ' : ' ≈ ';\n    if (P[0] === 0) rows.push({ lab: 'On the y-axis', pieces: pcs([nm(sIdx) + coord(P) + ',', 'so c = ' + neg(c)], gr ? tl.r2 : tl.r1) });\n    else {\n      const mx = m * P[0];\n      rows.push({ lab: 'Put in ' + nm(sIdx) + coord(P) + (d.subNote ? ', ' + d.subNote : ''), pieces: pcs([neg(P[1]) + ap + neg(m) + ' × ' + br(P[0]) + ' + c,', 'so ' + neg(P[1]) + ap + neg(mx) + ' + c,'], tl.r1) });\n      rows.push({ pieces: pcs(['so c' + ap + neg(P[1]) + (mx < 0 ? ' + ' + neg(-mx) : ' − ' + neg(mx)) + ap + neg(c)], tl.r2) });\n    }\n    const tie = d.kind === 'par' && same(c, d.given.c);\n    rows.push({ pieces: pcs(['so ' + (exact(m) && exact(c) ? 'y = ' : 'y ≈ ') + tidyRHS(m, c) + (tie ? ',' : '')].concat(tie ? ['the given line itself'] : []), tl.r3, true) });\n    if (d.kind === 'pin' && d.slipRow) {\n      // The slip the explanation names: the pin's y taken as c.\n      const Q = V.P1, val = m * Q[0] + Q[1], hit = Math.abs(m * Q[0]) < 1e-12;\n      rows.push({ lab: neg(Q[1]) + ' as c', pieces: pcs([mulStr(m, Q[0], Q[1]) + ' = ' + neg(val) + ',', hit ? 'so here it is c' : 'not ' + neg(Q[1])], tl.r4, true) });\n    } else if (d.kind === 'pin') rows.push(checkRow(V.P1, '', m, c, tl.r4, pcs));\n    else if (d.kind === 'two') rows.push(checkRow(V.other, nm(1 - sIdx), m, c, tl.r4, pcs));\n    return rows;\n  }\n  function drawRows(rows) {\n    const box = el('rows');\n    box.textContent = '';\n    // Until the first row arrives, a faint y = ? holds its place, as on the puzzles.\n    const a0 = rows.length ? rows[0].pieces[0].a : 1;\n    if (a0 < 1) {\n      const ph = box.appendChild(K.el('p', { class: 'wk ph', 'aria-hidden': 'true' }));\n      ph.appendChild(K.el('span', { class: 'lab' }, 'Rule: '));\n      italics(ph.appendChild(K.el('span', { class: 'pc q' })), 'y = ?', false);\n      K.fade(ph, 1 - a0, 0);\n    }\n    rows.forEach((r) => {\n      const p = box.appendChild(K.el('p', { class: 'wk' }));\n      if (r.lab) { const h = p.appendChild(K.el('span', { class: 'lab' })); italics(h, r.lab + ': ', false); K.fade(h, r.pieces[0].a, 0); }   // a heading arrives with its row\n      r.pieces.forEach((pc, n) => {\n        const s = p.appendChild(K.el('span', { class: 'pc ' + (pc.cls || '') }));\n        italics(s, pc.s, false);\n        K.fade(s, pc.a, 0);\n        if (n < r.pieces.length - 1) p.appendChild(document.createTextNode(' '));\n      });\n      REC.rows.push((r.lab ? r.lab + ': ' : '') + r.pieces.map((pc) => pc.s).join(' '));\n    });\n  }\n  function describe(d, V, open) {\n    const pins = d.kind === 'two' ? 'pins at ' + say(coord(V.P1)) + ' and ' + say(coord(V.P2)) : d.kind === 'graph' ? '' : 'a pin at ' + say(coord(V.P1));\n    let s = 'A squared grid' + (pins ? ' with ' + pins : '') + '.';\n    if (REC.given) s += ' The given line, ' + say(ruleTidy(d.given.m, d.given.c)) + ', stays put.';\n    if (REC.fan.length) s += ' A faint fan of ' + REC.fan.length + ' lines passes through the pin.';\n    if (REC.ghost) s += ' A dashed copy of the given line slides with the same tilt.';\n    if (REC.line) s += V.vert != null ? ' The line stands straight up, x = ' + say(neg(V.vert)) + '.' : d.kind === 'graph' && !open ? ' A straight line is drawn with no rule.' : ' The line is ' + say(ruleTidy(V.m, V.c)) + '.';\n    if (REC.reads.length) s += ' Points are read at ' + REC.reads.map((p) => say(coord(p))).join(' and ') + '.';\n    if (REC.cdot) s += ' The round c dot is on the y-axis at ' + say(coord([0, V.c])) + '.';\n    if (REC.wrong) s += ' The rule picked, ' + say(ruleTidy(REC.wrong.m, REC.wrong.c)) + ', is drawn dashed.';\n    return s;\n  }\n\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d), v = d.view;\n    art.textContent = '';\n    REC = { m: null, c: null, vert: null, P1: null, P2: null, line: null, fan: [], ghost: null, given: null, wrong: null, cdot: null, step: null, mh: null, reads: [], rows: [], labels: [] };\n    OBS = { hard: [], segs: [] };\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    const dragged = !!st.dr, V = stateOf(d, st), open = !!d.show || st.res === 'right' || st.why;\n    const tl = d.show ? (dragged ? {} : d.tl) : PZ;\n    const A = (t0, dd) => (t0 == null ? 1 : arr(t0, dd == null ? 0.4 : dd));\n    const xy = (p) => [G.px(p[0]), G.py(p[1])];\n    const items = [];\n    Object.assign(REC, { m: V.m, c: V.c, vert: V.vert, P1: V.P1, P2: V.P2 || null });\n    drawGrid(G);\n\n    // The given line on the parallel screens: it stays put, labelled with its rule.\n    if (d.given) {\n      const s = clipLine(G, d.given.m, d.given.c);\n      if (s) {\n        ln('gv', s[0], s[1], s[2], s[3]); OBS.segs.push({ s, c: 60 }); REC.given = s;\n        items.push(Object.assign(along(s, [0.88, 0.12, 0.72, 0.28]), { text: ruleTidy(d.given.m, d.given.c), class: 'lab mu', a: 1 }));\n      }\n    }\n\n    // The fan through the first pin closing onto one line, and the tilt of the line itself meanwhile.\n    let lineM = V.m, lineA = 1;\n    const fan = [];\n    const closeFan = (ce, thm, aOf) => {\n      if (ce >= 1) return;\n      const fa = 1 - K.ease(K.clamp((ce - 0.4) / 0.6, 0, 1));\n      FANA.forEach((t, k) => fan.push({ th: K.lerp(t, thm, ce), a: fa * aOf(t, k) }));\n    };\n    if (V.vert == null) {\n      const thm = TH(V.m);\n      if (d.kind === 'pin' && d.show && !dragged) {\n        // The line swings about the pin, leaving each line of the fan as it passes; then m is set and the fan closes.\n        const sw = arr(tl.sweep, tl.swept - tl.sweep), ce = arr(tl.close, tl.closed - tl.close), ths = K.lerp(-75, 80, sw);\n        lineA = arr(tl.sweep, 0.3);\n        if (ce <= 0) { lineM = TM(ths); FANA.forEach((t) => fan.push({ th: t, a: K.ease(K.clamp((ths - t) / 6, 0, 1)) })); }\n        else { if (ce < 1) lineM = TM(K.lerp(80, thm, ce)); closeFan(ce, thm, () => 1); }\n      } else if (d.kind === 'pin' && !d.show) {\n        const ce = open ? arr(PZ.close, PZ.closed - PZ.close) : 0;\n        lineA = ce;\n        closeFan(ce, thm, () => 1);\n      } else if (d.kind === 'two' && d.show && !dragged) {\n        // The fan through A, then B drops in and the fan closes onto the one line through both.\n        const ce = arr(tl.close, tl.closed - tl.close);\n        lineA = ce;\n        closeFan(ce, thm, (t, k) => arr(tl.fan + 0.04 * k, 0.3));\n      } else if (d.kind === 'two' && !d.show) lineA = open ? arr(PZ.line, 0.6) : 0;\n      else if (d.kind === 'par') lineA = d.show ? (dragged ? 1 : arr(tl.land, 0.4)) : open ? arr(PZ.land, 0.4) : 0;\n    }\n    let fanLab = null;\n    fan.forEach((f, k) => {\n      if (f.a <= 0.01) return;\n      const fm = TM(f.th), s = clipLine(G, fm, V.P1[1] - fm * V.P1[0]);\n      if (!s) return;\n      K.fade(ln('fan', s[0], s[1], s[2], s[3]), f.a, 0);\n      OBS.segs.push({ s, c: 3 });\n      if (f.a >= 0.5) REC.fan.push({ m: fm, s });\n      if (k === 4) fanLab = { s, a: f.a };\n    });\n    if (fanLab) items.push(Object.assign(along(fanLab.s, [0.94, 0.06, 0.82, 0.18]), { text: 'lines it could be', class: 'lab mu', a: fanLab.a }));\n\n    // The copy of the given line, sliding with the same tilt until it passes through the pin.\n    if (d.kind === 'par') {\n      let ga = 0, gc = d.given.c;\n      if (d.show && !dragged) { ga = arr(tl.ghost, 0.4) * (1 - arr(tl.land, 0.4)); gc = K.lerp(d.given.c, V.c, arr(tl.slide, tl.slid - tl.slide)); }\n      else if (!d.show && open) { ga = arr(PZ.slide, 0.2) * (1 - arr(PZ.land, 0.4)); gc = K.lerp(d.given.c, V.c, arr(PZ.slide, PZ.slid - PZ.slide)); }\n      const s = ga > 0.01 ? clipLine(G, d.given.m, gc) : null;\n      if (s) {\n        K.fade(ln('gh', s[0], s[1], s[2], s[3]), ga, 0); OBS.segs.push({ s, c: 60 });\n        items.push(Object.assign(along(s, [0.12, 0.88, 0.28, 0.72]), { text: 'same m', class: 'lab mu', a: ga }));\n        if (ga >= 0.5) REC.ghost = { m: d.given.m, c: gc };\n      }\n    }\n\n    // The line itself (upright when two pins share an x).\n    if (lineA > 0.01) {\n      let s;\n      if (V.vert != null) s = V.vert >= v.x0 && V.vert <= v.x1 ? [G.px(V.vert), G.py(v.y0), G.px(V.vert), G.py(v.y1)] : null;\n      else s = clipLine(G, lineM, V.P1[1] - lineM * V.P1[0]);\n      if (s) {\n        K.fade(ln('ln', s[0], s[1], s[2], s[3]), lineA, 0); OBS.segs.push({ s, c: 120 });\n        if (lineA >= 0.5) REC.line = s;\n        if (d.kind === 'par') items.push(Object.assign(along(s, [0.14, 0.86, 0.28, 0.72]), { text: ruleTidy(V.m, V.c), class: 'lab nv', a: lineA * (d.show ? A(tl.r3) : A(PZ.r3)) }));\n      }\n    }\n\n    // A wrong pick: its own line, red and dashed, labelled with its rule (unless it is the given line itself).\n    const pick = !d.show && st.res === 'wrong' && st.pick != null ? d.vals[st.pick] : null;\n    if (pick) {\n      const s = clipLine(G, pick[0], pick[1]);\n      if (s) {\n        ln('wrl', s[0], s[1], s[2], s[3]); OBS.segs.push({ s, c: 120 });\n        REC.wrong = { m: pick[0], c: pick[1], s };\n        if (!(d.given && same(pick, [d.given.m, d.given.c]))) items.push(Object.assign(along(s, [0.84, 0.16, 0.68, 0.32]), { text: ruleTidy(pick[0], pick[1]), class: 'lab wt', a: 1 }));\n      }\n    }\n\n    // The step: from a pin, 1 along and m up or down to the m handle; between two points, the run and then the rise.\n    let gRun = 0, gRise = 0, O = null, Cn = null, Tp = null;\n    const pinK = d.kind === 'pin';\n    if (pinK) {\n      O = xy(V.P1); Cn = xy([V.P1[0] + 1, V.P1[1]]); Tp = xy([V.P1[0] + 1, V.P1[1] + V.m]);\n      if (d.show) { gRun = dragged ? 1 : A(tl.step, 0.6); gRise = dragged ? 1 : A(tl.step + 0.6, 0.6); }\n      else if (open) { gRun = A(PZ.run); gRise = A(PZ.rise); }\n    } else if (d.kind === 'two' || d.kind === 'graph') {\n      O = xy(V.P1); Cn = xy([V.P2[0], V.P1[1]]); Tp = xy(V.P2);\n      if (d.show) { gRun = dragged ? 1 : A(tl.run, 0.5); gRise = dragged ? 1 : A(tl.rise, 0.5); }\n      else if (open) { gRun = A(PZ.run); gRise = A(PZ.rise); }\n    }\n    if (O && (gRun > 0 || gRise > 0)) {\n      stepDraw(O, Cn, Tp, gRun, gRise, pinK ? 9 : 11, pinK ? 8 : 11);\n      if (gRun >= 1 && gRise >= 1) REC.step = { O, Cn, Tp };\n      const run = pinK ? 1 : V.P2[0] - V.P1[0], rise = pinK ? V.m : V.P2[1] - V.P1[1], up = Tp[1] < O[1] - 1e-6;\n      const mx = (O[0] + Cn[0]) / 2, below = O[1] + 19, above = O[1] - 8, y1 = up ? below : above, y2 = up ? above : below;\n      if (Math.abs(run) > 1e-9) items.push({ x: mx, y: y1, anchor: 'middle', alts: [{ x: mx, y: y1, anchor: 'middle' }, { x: mx, y: y2, anchor: 'middle' }], text: pinK ? '1' : 'run ' + neg(run), class: 'lab nv', a: gRun });\n      const flat = Math.abs(rise) < 1e-12, mid = (Cn[1] + Tp[1]) / 2;\n      const side = run >= 0 ? [[9, 5, 'start'], [-9, 5, 'end']] : [[-9, 5, 'end'], [9, 5, 'start']];\n      if (pinK) {\n        const ms = flat ? spots(Tp[0], Tp[1], [[13, -9, 'start'], [0, -14, 'middle'], [13, 19, 'start']]) : spots(Cn[0], mid, side.concat([[13, Tp[1] - mid + 5, 'start']]));\n        items.push(Object.assign(ms, { text: 'm = ' + neg(V.m), class: 'lab nv', a: (flat ? gRun : gRise) * (d.show && !dragged ? A(tl.mlab) : 1) }));\n      } else if (!flat) items.push(Object.assign(spots(Cn[0], mid, side), { text: 'rise ' + neg(rise), class: 'lab nv', a: gRise }));\n    }\n\n    // Points read off a drawn graph (teal), where the line crosses grid lines exactly.\n    if (d.kind === 'graph') [V.P1, V.P2].forEach((p, k) => {\n      const a = d.show ? (dragged ? 1 : A(k ? tl.p2 : tl.p1)) : open ? A(PZ.pts) : 0;\n      if (a <= 0.01) return;\n      const X = G.px(p[0]), Y = G.py(p[1]), cx = r2(X), cy = r2(Y);\n      if (k === 1 && canDrag(d)) K.fade(add(K.svg('circle', { class: 'ring', cx, cy, r: 12 })), a, 0);\n      K.fade(add(K.svg('circle', { class: 'rd', cx, cy, r: 6 })), a, 0);\n      OBS.hard.push({ x0: X - 10, y0: Y - 10, x1: X + 10, y1: Y + 10 });\n      items.push(Object.assign(spots(X, Y, PT_AT), { text: coord(p), class: 'lab tl', a }));\n      if (a >= 0.5) REC.reads.push(p);\n    });\n\n    // The round c dot where the line crosses the y-axis, worked out from the point put in.\n    const aC = V.vert != null ? 0 : d.show ? (dragged ? 1 : A(tl.cdot)) : open ? A(PZ.cdot) : 0;\n    if (aC > 0 && v.x0 <= 0 && v.x1 >= 0 && V.c >= v.y0 - 1e-9 && V.c <= v.y1 + 1e-9) {\n      const Oc = xy([0, V.c]);\n      K.fade(add(K.svg('circle', { class: 'pt', cx: r2(Oc[0]), cy: r2(Oc[1]), r: 7 })), aC, 0);\n      OBS.hard.push({ x0: Oc[0] - 10, y0: Oc[1] - 10, x1: Oc[0] + 10, y1: Oc[1] + 10 });\n      // c's label sits beside the dot, left of the y-axis first, reaching into the number margin; it may cover\n      // only the number at c's own height, which fades as the label arrives.\n      items.unshift(Object.assign(spots(Oc[0], Oc[1], C_AT), { text: 'c ' + (exact(V.c) ? '= ' : '≈ ') + neg(V.c), class: 'lab nv', a: aC, B: { x0: 2, x1: 338, y0: 3, y1: G.gy + G.gh - 2 }, isC: true }));\n      YT.forEach((t) => { if (Math.abs(t.val - V.c) > 1e-9) OBS.hard.push(t.box); });\n      if (aC >= 0.5) REC.cdot = { x: Oc[0], y: Oc[1] };\n    }\n\n    // The pins: a ring with a centre, labelled with where they are.\n    const pins = d.kind === 'graph' ? [] : d.kind === 'two' ? [V.P1, V.P2] : [V.P1];\n    pins.forEach((p, k) => {\n      const a = d.kind === 'two' && d.show && !dragged && k === 1 ? A(tl.p2) : 1;\n      const X = G.px(p[0]), Y = G.py(p[1]), cx = r2(X), cy = r2(Y);\n      if (canDrag(d) && d.drag.indexOf(k ? 'p2' : 'p1') >= 0) K.fade(add(K.svg('circle', { class: 'ring', cx, cy, r: 13 })), a, 0);\n      K.fade(add(K.svg('circle', { class: 'pin', cx, cy, r: 7.5 })), a, 0);\n      K.fade(add(K.svg('circle', { class: 'pinc', cx, cy, r: 2.6 })), a, 0);\n      OBS.hard.push({ x0: X - 10, y0: Y - 10, x1: X + 10, y1: Y + 10 });\n      items.push(Object.assign(spots(X, Y, PT_AT), { text: (d.names ? d.names[k] + ' ' : '') + coord(p), class: 'lab', a }));\n    });\n\n    // The m handle at the step's tip, on the line 1 along from the pin.\n    if (pinK) {\n      const aMh = Math.min(gRun, gRise);\n      if (aMh > 0) {\n        if (canDrag(d)) K.fade(add(K.svg('circle', { class: 'ring', cx: r2(Tp[0]), cy: r2(Tp[1]), r: 10 })), aMh, 0);\n        K.fade(add(K.svg('circle', { class: 'mh', cx: r2(Tp[0]), cy: r2(Tp[1]), r: 5.5 })), aMh, 0);\n        OBS.hard.push({ x0: Tp[0] - 9, y0: Tp[1] - 9, x1: Tp[0] + 9, y1: Tp[1] + 9 });\n        if (aMh >= 0.5) REC.mh = { x: Tp[0], y: Tp[1] };\n      }\n    }\n\n    const pos = placeLabels(items, OBS.hard, OBS.segs, { x0: G.gx + 2, x1: 338, y0: 3, y1: G.gy + G.gh - 2 });\n    labs.textContent = '';\n    items.forEach((it, n) => {\n      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || 'middle' }));\n      italics(t, it.text, true);\n      K.fade(t, it.a, 0);\n      if (it.a >= 0.5) REC.labels.push(it.text);\n      if (it.isC) YT.forEach((y) => { if (meets(pos[n].b, y.box, 1)) K.fade(y.el, 1 - it.a, 0); });   // the number c's label covers\n    });\n    drawRows(rowsNow(d, V, open, A, tl));\n    svg.setAttribute('aria-label', describe(d, V, open));\n    placeGrips(d, V, st, G);\n  }\n\n  // ---------- dragging: pins move on whole numbers, the m handle turns the line about the pin in halves ----------\n  const HN = ['p1', 'p2', 'm'];\n  const grips = HN.map(() => ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Handle' })));\n  let LIVE = [];\n  function placeGrips(d, V, st, G) {\n    LIVE = [];\n    const pos = { p1: V.P1, p2: V.P2, m: d.kind === 'pin' ? [V.P1[0] + 1, V.P1[1] + V.m] : null };\n    svg.classList.toggle('grab', canDrag(d));\n    grips.forEach((g, k) => {\n      const n = HN[k], live = canDrag(d) && d.drag.indexOf(n) >= 0 && !!pos[n];\n      g.style.display = live ? '' : 'none';\n      g.setAttribute('tabindex', live ? '0' : '-1');\n      if (!live) return;\n      const X = G.px(pos[n][0]), Y = G.py(pos[n][1]);\n      g.setAttribute('cx', r2(X)); g.setAttribute('cy', r2(Y));\n      g.setAttribute('aria-label', n === 'm' ? 'The m handle, m = ' + say(neg(V.m)) + '. Drag it up or down to turn the line about the pin, or use the arrow keys.'\n        : (d.kind === 'graph' ? 'The point read at ' : 'The pin at ') + say(coord(pos[n])) + '. Drag it, or move it with the arrow keys.');\n      LIVE.push({ n, x: X, y: Y });\n    });\n  }\n  // Where a handle lands: pins on whole numbers inside the grid (never on each other), m in halves keeping its\n  // handle on the grid, and a point read off a graph only where the line crosses grid lines exactly.\n  function moveHandle(d, n, q, cur) {\n    const v = d.view, o = { P1: cur.P1.slice(), P2: cur.P2 ? cur.P2.slice() : null, m: cur.m };\n    const ri = (x, lo, hi) => K.clamp(Math.round(x), Math.ceil(lo - 1e-9), Math.floor(hi + 1e-9));\n    if (d.kind === 'pin') {\n      if (n === 'm') o.m = K.clamp(Math.round((q[1] - o.P1[1]) * 2) / 2, Math.max(-MMAX, v.y0 - o.P1[1]), Math.min(MMAX, v.y1 - o.P1[1]));\n      else o.P1 = [ri(q[0], v.x0, v.x1 - 1), ri(q[1], v.y0 - Math.min(0, o.m), v.y1 - Math.max(0, o.m))];\n    } else if (d.kind === 'two') {\n      const p = [ri(q[0], v.x0, v.x1), ri(q[1], v.y0, v.y1)], other = n === 'p1' ? o.P2 : o.P1;\n      if (p[0] === other[0] && p[1] === other[1]) return null;\n      if (n === 'p1') o.P1 = p; else o.P2 = p;\n    } else if (d.kind === 'par') o.P1 = [ri(q[0], v.x0, v.x1), ri(q[1], v.y0, v.y1)];\n    else if (d.kind === 'graph') {\n      const R = ruleOf(d);\n      let best = null, bd = Infinity;\n      for (let x = Math.ceil(v.x0); x <= v.x1; x++) {\n        const y = R.m * x + R.c;\n        if (x === o.P1[0] || Math.abs(y - Math.round(y)) > 1e-9 || y < v.y0 - 1e-9 || y > v.y1 + 1e-9) continue;\n        if (Math.abs(x - q[0]) < bd) { bd = Math.abs(x - q[0]); best = [x, Math.round(y)]; }\n      }\n      if (!best) return null;\n      o.P2 = best;\n    }\n    return o;\n  }\n  function setHandle(n, q) {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (!canDrag(d)) return;\n    const cur = st.dr || startDr(d), o = moveHandle(d, n, q, cur);\n    if (!o) return;\n    if (st.dr && same(o.P1, st.dr.P1) && (!o.P2 || same(o.P2, st.dr.P2)) && o.m === st.dr.m) return;\n    st.dr = o;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    K.reveal(); K.refresh();\n  }\n  function svgPt(e) {\n    const mtx = svg.getScreenCTM();\n    if (!mtx) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(mtx.inverse());\n  }\n  let held = null;\n  grips.forEach((g, k) => {\n    g.addEventListener('pointerdown', (e) => {\n      if (!canDrag(STEPS[at()])) return;\n      const q = svgPt(e);\n      if (!q) return;\n      // The nearest live handle to the touch takes it (the pin and the m handle sit close together).\n      let best = null, bd = Infinity;\n      LIVE.forEach((h) => { const dd = Math.hypot(h.x - q.x, h.y - q.y); if (dd < bd) { bd = dd; best = h.n; } });\n      if (!best) return;\n      held = { id: e.pointerId, n: best };\n      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the handle */ }\n      e.preventDefault();\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (!held || held.id !== e.pointerId) return;\n      e.preventDefault();\n      const q = svgPt(e);\n      if (q) setHandle(held.n, geo(STEPS[at()]).inv(q.x, q.y));\n    });\n    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', letGo);\n    g.addEventListener('keydown', (e) => {\n      const d = STEPS[at()], st = S[at()], n = HN[k];\n      const by = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];\n      if (!canDrag(d) || !by) return;\n      e.preventDefault();\n      const cur = st.dr || startDr(d);\n      if (n === 'm') { if (by[1]) setHandle('m', [0, cur.P1[1] + cur.m + by[1] * 0.5]); return; }\n      if (d.kind === 'graph') { setHandle('p2', [cur.P2[0] + (by[0] || by[1]), 0]); return; }\n      const p = n === 'p2' ? cur.P2 : cur.P1;\n      setHandle(n, [p[0] + by[0], p[1] + by[1]]);\n    });\n  });\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.dr = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('pz').classList.toggle('ask', !d.show && !right && !st.why);\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    write(el('rule'), RULE);\n    write(el('ronote'), d.note || NOTE);\n    paint(i);\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(opts[k]);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const ofKind = (...ks) => STEPS.map((d, i) => i).filter((i) => ks.indexOf(STEPS[i].kind) >= 0);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const withDr = (i, o) => Object.assign(blank(), { dr: Object.assign(startDr(STEPS[i]), o) });\n  const answerOk = (d, v) => { const R = ruleOf(d); return same(v, [R.m, R.c]); };\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const shown = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));\n  // The line drawn runs exactly along the rule, inside the grid.\n  function runs(i, g) {\n    if (!g.line || g.m == null) return false;\n    const d = STEPS[i], G = geo(d), v = d.view, a = G.inv(g.line[0], g.line[1]), b = G.inv(g.line[2], g.line[3]);\n    const inV = (p) => p[0] >= v.x0 - 1e-6 && p[0] <= v.x1 + 1e-6 && p[1] >= v.y0 - 1e-6 && p[1] <= v.y1 + 1e-6;\n    return Math.abs(a[1] - (g.m * a[0] + g.c)) < 1e-6 && Math.abs(b[1] - (g.m * b[0] + g.c)) < 1e-6 && inV(a) && inV(b) && b[0] - a[0] > 0.5;\n  }\n\n  K.check('Given two points on a line, its equation comes from the slope between them, then solving for the y-intercept in the slope-intercept equation: on every two-point and graph screen, and with either pin dragged, the one line drawn passes through both points, its m is the slope between them and its c is solved from one of them', () => {\n    const fit = (i, g) => {\n      const a = g.P1, b = g.P2, m = (b[1] - a[1]) / (b[0] - a[0]), s = STEPS[i].sub ? b : a;\n      return runs(i, g) && same(g.m, m) && same(g.c, s[1] - m * s[0]) && fitsRule(g.m, g.c, a) && fitsRule(g.m, g.c, b) && g.fan.length === 0;\n    };\n    const i4 = idx('Two pins'), i6 = idx('Brackets');\n    const drags = [[[0, 0], [2, 5]], [[-1, 9], [5, -1]], [[3, 2], [0, 8]], [[5, 4], [-1, 4]]].every(([p, q]) => fit(i4, drawn(i4, withDr(i4, { P1: p, P2: q })))) &&\n      fit(i6, drawn(i6, withDr(i6, { P1: [-2, -4], P2: [4, 6] })));\n    return ofKind('two', 'graph').every((i) => fit(i, shown(i))) && drags;\n  }, { source: SRC_KA });\n  K.check('We can find the equation of a straight line when given the gradient and a point on the line: on every point-and-gradient screen and both parallel screens, and with the pin or the m handle dragged, the fan has closed to one line, through the pin with that gradient', () => {\n    const fit = (i, g, m, P) => runs(i, g) && same(g.m, m) && fitsRule(g.m, g.c, P) && g.fan.length === 0 && same(g.P1, P);\n    const all = ofKind('pin', 'par').every((i) => { const d = STEPS[i]; return fit(i, shown(i), d.kind === 'par' ? d.given.m : d.m, d.P1); });\n    const i0 = idx('One pin'), i8 = idx('Same m');\n    const drags = [[[2, 5], -1.5], [[0, 3], 2], [[4, 1], 0], [[-2, 0], 4], [[5, 9], -4]].every(([P, m]) => fit(i0, drawn(i0, withDr(i0, { P1: P, m })), m, P)) &&\n      [[0, 5], [-1, -3], [4, 7]].every((P) => fit(i8, drawn(i8, withDr(i8, { P1: P })), 2, P));\n    return all && drags;\n  }, { source: SRC_N5 });\n  K.check('The equation is a rule connecting the x and y coordinates, true for all points on the line: on every screen every pin and point read fits the finished rule, and every check row puts a point back in and gets its y', () => {\n    const fits = (g) => g.vert == null && [g.P1, g.P2].filter(Boolean).every((p) => fitsRule(g.m, g.c, p)) && g.rows.filter((r) => /^Check /.test(r)).every((r) => /, on the line$/.test(r));\n    const i4 = idx('Two pins');\n    return STEPS.every((d, i) => fits(shown(i))) && [[[0, 1], [3, 7]], [[1, 3], [4, 5]], [[-1, 2], [6, 2]]].every(([p, q]) => fits(drawn(i4, withDr(i4, { P1: p, P2: q }))));\n  }, { source: SRC_M3 });\n  K.check('The y coordinate where the line crosses the y axis is called the intercept, and in y = mx + c, c is the intercept: on every screen, and with a pin dragged, the round c dot sits on the y-axis where the line crosses it, and its label gives that c', () => {\n    const fit = (i, g) => { const G = geo(STEPS[i]); return !!g.cdot && Math.abs(g.cdot.x - G.px(0)) < 1e-9 && Math.abs(g.cdot.y - G.py(g.c)) < 1e-9 && g.labels.indexOf('c = ' + neg(g.c)) >= 0 && runs(i, g); };\n    const i0 = idx('One pin'), i4 = idx('Two pins'), i8 = idx('Same m');\n    return STEPS.every((d, i) => fit(i, shown(i))) && fit(i0, drawn(i0, withDr(i0, { P1: [3, 2], m: 1 }))) &&\n      fit(i4, drawn(i4, withDr(i4, { P1: [1, 1], P2: [3, 5] }))) && fit(i8, drawn(i8, withDr(i8, { P1: [-1, 1] })));\n  }, { source: SRC_M3 });\n  K.check('To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates: on every two-point and graph screen the run arrow spans the difference in x, the rise arrow the difference in y, their labels give both, and m is the rise divided by the run', () => {\n    const fit = (i, g) => {\n      const G = geo(STEPS[i]), s = g.step;\n      if (!s) return false;\n      const O = G.inv(s.O[0], s.O[1]), Cn = G.inv(s.Cn[0], s.Cn[1]), Tp = G.inv(s.Tp[0], s.Tp[1]), run = g.P2[0] - g.P1[0], rise = g.P2[1] - g.P1[1];\n      return same(O, g.P1, 1e-6) && same(Cn, [g.P2[0], g.P1[1]], 1e-6) && same(Tp, g.P2, 1e-6) &&\n        g.labels.indexOf('run ' + neg(run)) >= 0 && g.labels.indexOf('rise ' + neg(rise)) >= 0 && same(g.m, rise / run);\n    };\n    const i4 = idx('Two pins'), i10 = idx('Read a graph');\n    return ofKind('two', 'graph').every((i) => fit(i, shown(i))) && fit(i4, drawn(i4, withDr(i4, { P1: [5, 9], P2: [1, 1] }))) &&\n      fit(i10, drawn(i10, withDr(i10, { P2: [5, 8] })));\n  }, { source: SRC_M3 });\n  K.check('Vertical lines have a gradient which is undefined, with equation x = a: with one pin dragged straight above the other, the line drawn stands upright through both, and the working gives no gradient and x = a in place of y = mx + c', () => {\n    const i = idx('Two pins'), G = geo(STEPS[i]), g = drawn(i, withDr(i, { P1: [2, 1], P2: [2, 7] }));\n    return g.vert === 2 && !!g.line && Math.abs(g.line[0] - G.px(2)) < 1e-9 && Math.abs(g.line[2] - G.px(2)) < 1e-9 && !g.cdot &&\n      g.rows.length === 2 && /no gradient$/.test(g.rows[0]) && g.rows[1] === 'so the line is straight up: x = 2' && !g.rows.some((r) => /y =/.test(r));\n  }, { source: SRC_V });\n  K.check('With only the pin in, every line of the fan passes through the pin, each at its own gradient; set m, or drop in a second pin, and only one line is left', () => {\n    const through = (i, g) => g.fan.every((f) => {\n      const G = geo(STEPS[i]), a = G.inv(f.s[0], f.s[1]), b = G.inv(f.s[2], f.s[3]);\n      return Math.abs(a[1] - g.P1[1] - f.m * (a[0] - g.P1[0])) < 1e-6 && Math.abs(b[1] - g.P1[1] - f.m * (b[0] - g.P1[0])) < 1e-6;\n    });\n    const distinct = (g) => new Set(g.fan.map((f) => f.m.toFixed(6))).size === g.fan.length;\n    const i0 = idx('One pin'), i1 = idx('Through a point'), i4 = idx('Two pins');\n    const mid = drawn(i0, blank(), 1.85), end = drawn(i0, blank()), q0 = drawn(i1, blank()), q1 = drawn(i1, solvedSt(i1)), t0 = drawn(i4, blank(), 1.1), t1 = drawn(i4, blank());\n    return mid.fan.length >= 8 && through(i0, mid) && distinct(mid) && end.fan.length === 0 && runs(i0, end) &&\n      q0.fan.length === FANA.length && through(i1, q0) && distinct(q0) && !q0.line && q1.fan.length === 0 && runs(i1, q1) &&\n      t0.fan.length >= 8 && through(i4, t0) && distinct(t0) && t1.fan.length === 0 && runs(i4, t1);\n  });\n  K.check('A parallel line has the same m, so only c changes: the copy of the given line keeps its tilt as it slides from the given line towards the pin, and the line it leaves goes through the pin with the given m; a pin on the given line gives the given line itself', () => {\n    const i = idx('Same m'), d = STEPS[i], cs = [1.2, 1.6, 2.0].map((t) => drawn(i, blank(), t).ghost);\n    const slides = cs.every((gh) => !!gh && gh.m === d.given.m) && cs[0].c < d.given.c && cs[1].c < cs[0].c && cs[2].c < cs[1].c && cs[2].c > -4 - 1e-9;\n    const end = shown(i), q = shown(idx('Parallel')), on = drawn(i, withDr(i, { P1: [1, 3] }));\n    return slides && !end.ghost && same(end.m, 2) && same(end.c, -4) && same(q.m, -3) && same(q.c, 8) && same(on.c, 1) && /the given line itself$/.test(on.rows[on.rows.length - 1]);\n  });\n  K.check('Every worked row is right, by hand: c = 5 − 6 = −1 and 3 × 2 + 5 = 11 for the pin at (2, 5), c = 7 for (3, 1), m = 6 ÷ 3 = 2 and c = 1 for A and B, m = −8 ÷ 4 = −2 with brackets, y = 2x − 4 parallel through (3, 2), y = 2x − 2 read off a graph, and every puzzle\\'s working', () => {\n    const table = [\n      ['One pin', ['m = 3: y = 3x + c', 'Put in (2, 5): 5 = 3 × 2 + c, so 5 = 6 + c,', 'so c = 5 − 6 = −1', 'so y = 3x − 1', '5 as c: 3 × 2 + 5 = 11, not 5']],\n      ['Through a point', ['m = 2: y = 2x + c', 'Put in (1, 4): 4 = 2 × 1 + c, so 4 = 2 + c,', 'so c = 4 − 2 = 2', 'so y = 2x + 2', 'Check (1, 4): 2 × 1 + 2 = 4, on the line']],\n      ['A falling line', ['m = −2: y = −2x + c', 'Put in (3, 1): 1 = −2 × 3 + c, so 1 = −6 + c,', 'so c = 1 + 6 = 7', 'so y = −2x + 7', 'Check (3, 1): −2 × 3 + 7 = 1, on the line']],\n      ['Keep the minus', ['m = −3: y = −3x + c', 'Put in (2, −1): −1 = −3 × 2 + c, so −1 = −6 + c,', 'so c = −1 + 6 = 5', 'so y = −3x + 5', 'Check (2, −1): −3 × 2 + 5 = −1, on the line']],\n      ['Two pins', ['m = rise ÷ run: (9 − 3) ÷ (4 − 1) = 6 ÷ 3 = 2', 'Put in A (1, 3): 3 = 2 × 1 + c, so 3 = 2 + c,', 'so c = 3 − 2 = 1', 'so y = 2x + 1', 'Check B (4, 9): 2 × 4 + 1 = 9, on the line']],\n      ['From two points', ['m = rise ÷ run: (7 − 1) ÷ (5 − 2) = 6 ÷ 3 = 2', 'Put in (2, 1): 1 = 2 × 2 + c, so 1 = 4 + c,', 'so c = 1 − 4 = −3', 'so y = 2x − 3', 'Check (5, 7): 2 × 5 − 3 = 7, on the line']],\n      ['Brackets', ['m = rise ÷ run: (−3 − 5) ÷ (3 − (−1)) = −8 ÷ 4 = −2', 'Put in (−1, 5): 5 = −2 × (−1) + c, so 5 = 2 + c,', 'so c = 5 − 2 = 3', 'so y = −2x + 3', 'Check (3, −3): −2 × 3 + 3 = −3, on the line']],\n      ['Mind the brackets', ['m = rise ÷ run: (7 − 1) ÷ (1 − (−2)) = 6 ÷ 3 = 2', 'Put in (1, 7), no minus signs: 7 = 2 × 1 + c, so 7 = 2 + c,', 'so c = 7 − 2 = 5', 'so y = 2x + 5', 'Check (−2, 1): 2 × (−2) + 5 = 1, on the line']],\n      ['Same m', ['Given: y = 2x + 1', 'Parallel, same m: y = 2x + c', 'Put in (3, 2): 2 = 2 × 3 + c, so 2 = 6 + c,', 'so c = 2 − 6 = −4', 'so y = 2x − 4']],\n      ['Parallel', ['Given: y = −3x + 4', 'Parallel, same m: y = −3x + c', 'Put in (1, 5): 5 = −3 × 1 + c, so 5 = −3 + c,', 'so c = 5 + 3 = 8', 'so y = −3x + 8']],\n      ['Read a graph', ['Read: (0, −2) and (3, 4)', 'm = rise ÷ run: (4 − (−2)) ÷ (3 − 0) = 6 ÷ 3 = 2', 'On the y-axis: (0, −2), so c = −2', 'so y = 2x − 2']],\n      ['Graph to rule', ['Read: (0, 3) and (6, 0)', 'm = rise ÷ run: (0 − 3) ÷ (6 − 0) = −3 ÷ 6 = −0.5', 'On the y-axis: (0, 3), so c = 3', 'so y = −0.5x + 3']],\n      ['Two more points', ['m = rise ÷ run: (5 − (−1)) ÷ (2 − 0) = 6 ÷ 2 = 3', 'On the y-axis: (0, −1), so c = −1', 'so y = 3x − 1', 'Check (2, 5): 3 × 2 − 1 = 5, on the line']],\n    ];\n    const rowsOk = table.length === STEPS.length && table.every((r) => { const g = shown(idx(r[0])); return g.rows.length === r[1].length && g.rows.every((s, n) => s === r[1][n]); });\n    const i0 = idx('One pin'), i4 = idx('Two pins');\n    const flat = drawn(i0, withDr(i0, { P1: [2, 5], m: 0 })).rows.join(' | ');\n    const third = drawn(i4, withDr(i4, { P1: [1, 3], P2: [4, 5] })).rows[0];\n    return rowsOk && flat === 'm = 0: y = 0x + c | Put in (2, 5): 5 = 0 × 2 + c, so 5 = 0 + c, | so c = 5 − 0 = 5 | so y = 5 | 5 as c: 0 × 2 + 5 = 5, so here it is c' &&\n      third === 'm = rise ÷ run: (5 − 3) ÷ (4 − 1) = 2 ÷ 3 ≈ 0.67';\n  });\n  K.check('Before an answer a puzzle keeps back its line and c, and its working reads y = ?; a right answer or Why? draws them and fills in the working; a wrong pick draws its own line dashed, which misses a point or has the wrong gradient, with a hint of its own', () =>\n    DO.every((i) => {\n      const d = STEPS[i], R = ruleOf(d), g0 = drawn(i, blank()), g1 = drawn(i, solvedSt(i)), g2 = drawn(i, Object.assign(blank(), { why: true }));\n      const kept = !g0.cdot && (d.kind === 'graph' ? !!g0.line && g0.reads.length === 0 : !g0.line) && g0.rows.some((r) => /y = \\?$/.test(r));\n      const shownOk = [g1, g2].every((g) => runs(i, g) && !!g.cdot && g.fan.length === 0 && g.rows.every((r) => r.indexOf('?') < 0));\n      const wrongs = d.opts.every((o) => {\n        if (o === d.want) return true;\n        const v = d.vals[o], g = drawn(i, Object.assign(blank(), { pick: o, res: 'wrong' }));\n        return !!g.wrong && same([g.wrong.m, g.wrong.c], v) && ([g.P1, g.P2].filter(Boolean).some((p) => !fitsRule(v[0], v[1], p)) || !same(v[0], R.m)) &&\n          !!d.hints[o] && d.hints[o] !== d.hint;\n      });\n      return kept && shownOk && wrongs;\n    }));\n  K.check('Every answer offered is written from its own numbers, the right one is worked from the puzzle\\'s own points and gradient, and each wrong one is a real slip: a point\\'s y taken as c, adding instead of taking away or the other way round, a lost minus, the run over the rise, brackets dropped, the old c kept, or the x-axis crossing taken as c', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      return d.opts.every((o) => ruleTidy(d.vals[o][0], d.vals[o][1]) === o) && answerOk(d, d.vals[d.want]) &&\n        d.opts.every((o) => o === d.want || (!answerOk(d, d.vals[o]) && !!d.slip[o] && d.slip[o](d, d.vals[o])));\n    }));\n  K.check('Every demonstration has finished arriving within its 2.8 to 5 s, none starting before the 0.35 s screen fade ends; a puzzle\\'s drawing finishes within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 2.8 && d.dur <= 5 && earliest >= FADE\n      : timed(i, solvedSt(i), FB) && timed(i, Object.assign(blank(), { why: true }), FB)));\n    T = keepT; paint();\n    return ok && FB <= 2.5;\n  });\n\n  K.ready();\n</script>",
+  "title": "A pin and a turn",
+  "brief": "The one thing you should see is the fan of lines through one pin closing to a single line, with c worked out from the pin, when you set m or pin a second point.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "Given two points on a line, its equation comes from the slope between them, then solving for the y-intercept in the slope-intercept equation: on every two-point and graph screen, and with either pin dragged, the one line drawn passes through both points, its m is the slope between them and its c is solved from one of them",
+     "ok": true,
+     "source": "https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:forms-of-linear-equations/x2f8bb11595b61c86:intro-to-slope-intercept-form/v/equation-of-a-line-3"
+    },
+    {
+     "label": "We can find the equation of a straight line when given the gradient and a point on the line: on every point-and-gradient screen and both parallel screens, and with the pin or the m handle dragged, the fan has closed to one line, through the pin with that gradient",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/guides/z24qcj6/revision/1"
+    },
+    {
+     "label": "The equation is a rule connecting the x and y coordinates, true for all points on the line: on every screen every pin and point read fits the finished rule, and every check row puts a point back in and gets its y",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty"
+    },
+    {
+     "label": "The y coordinate where the line crosses the y axis is called the intercept, and in y = mx + c, c is the intercept: on every screen, and with a pin dragged, the round c dot sits on the y-axis where the line crosses it, and its label gives that c",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty"
+    },
+    {
+     "label": "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates: on every two-point and graph screen the run arrow spans the difference in x, the rise arrow the difference in y, their labels give both, and m is the rise divided by the run",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zjbf9ty"
+    },
+    {
+     "label": "Vertical lines have a gradient which is undefined, with equation x = a: with one pin dragged straight above the other, the line drawn stands upright through both, and the working gives no gradient and x = a in place of y = mx + c",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3"
+    },
+    {
+     "label": "With only the pin in, every line of the fan passes through the pin, each at its own gradient; set m, or drop in a second pin, and only one line is left",
+     "ok": true
+    },
+    {
+     "label": "A parallel line has the same m, so only c changes: the copy of the given line keeps its tilt as it slides from the given line towards the pin, and the line it leaves goes through the pin with the given m; a pin on the given line gives the given line itself",
+     "ok": true
+    },
+    {
+     "label": "Every worked row is right, by hand: c = 5 − 6 = −1 and 3 × 2 + 5 = 11 for the pin at (2, 5), c = 7 for (3, 1), m = 6 ÷ 3 = 2 and c = 1 for A and B, m = −8 ÷ 4 = −2 with brackets, y = 2x − 4 parallel through (3, 2), y = 2x − 2 read off a graph, and every puzzle's working",
+     "ok": true
+    },
+    {
+     "label": "Before an answer a puzzle keeps back its line and c, and its working reads y = ?; a right answer or Why? draws them and fills in the working; a wrong pick draws its own line dashed, which misses a point or has the wrong gradient, with a hint of its own",
+     "ok": true
+    },
+    {
+     "label": "Every answer offered is written from its own numbers, the right one is worked from the puzzle's own points and gradient, and each wrong one is a real slip: a point's y taken as c, adding instead of taking away or the other way round, a lost minus, the run over the rise, brackets dropped, the old c kept, or the x-axis crossing taken as c",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within its 2.8 to 5 s, none starting before the 0.35 s screen fade ends; a puzzle's drawing finishes within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "One pin",
+      "Through a point",
+      "A falling line",
+      "Keep the minus",
+      "Two pins",
+      "From two points",
+      "Brackets",
+      "Mind the brackets",
+      "Same m",
+      "Parallel",
+      "Read a graph",
+      "Graph to rule",
+      "Two more points"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [
+    "SVG labels \"−1\" and \"c = −1\" are only 4 px apart on one row, so they read as one: leave at least 4 px between them, or label only what differs (at the opening state, and 14 more settings) [at 340 px wide]"
+   ],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T10:55:07.557Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "\"c is the pin's y only when the pin sits on the y-axis\" fails for a flat line (m = 0: through (2, 5), y = 5 has c = 5); and readings graphs in later ideas often draw the vertical axis away from x = 0, so c must be read where x = 0."
+   },
+   {
+    "path": "practice.text",
+    "problem": "\"A point's y is c only when its x is 0\" fails for a flat line (m = 0, c equals every point's y); and \"puts its crossing at 6\" reads as the x-axis crossing, which for y = −0.5x + 6 is 12, so name the y-axis crossing."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

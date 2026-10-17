@@ -1,0 +1,410 @@
+TASK: build-interactive
+
+You are building one small interactive page for "My University", Dan's personal learning app. It lets him see one idea for himself by playing with it. It runs inside a sandboxed iframe on top of the house kit described below, and the app tests it automatically before Dan sees it.
+
+## The idea
+Topic: Straight-line graphs you will actually use
+Idea: Finding the equation of a line (From two points, or a point and the gradient, get m, then put one point into y = mx + c and solve for c.)
+Kind: skill
+Dan knows a little about this topic. Show an equation on the page only if every symbol in it is labelled on the picture; otherwise say the rule in words.
+
+## What the interactive must show
+Brief: The one thing you should see is the fan of lines through one pin closing to a single line, with c worked out from the pin, when you set m or pin a second point.
+Title (the app shows it above the frame, so do not repeat it): A pin and a turn
+The rule (the app shows it just above the frame, under "What you're looking at"): A short lesson in thirteen small screens on the squared grid from Gradient from two points. A pin holds a line at one point. With only the pin in, the line swings about it and leaves a faint fan of the lines it could be, every one through the pin. Set the gradient m and the fan closes to one line. There is only one line for each gradient, because every line through the pin with that gradient climbs the same amount from it for each 1 along. Under the grid the working fills in as you go: the rule with m in, y = mx + c, then the pin's x and y put in place of x and y, then c, then the finished rule. The pin's numbers must fit the rule, because the rule holds for every point on the line, and with m known that leaves only c to find. Drop a second pin instead and the line locks through both. Lesson 1's step triangle appears between the pins, with its run and rise, and the working finds m = rise ÷ run first, then c from one pin. The last line of the working puts the other point back in as a check. On the parallel screens a faint ghost of a given line slides across, keeping its tilt, until it passes through the new pin. On the graph screens a line is drawn with no rule, and you read two points where it crosses grid lines exactly. Some screens show an idea and the rest ask you to try it. A puzzle shows the points or the line and three rules. A wrong pick gets a one-line hint naming its slip, and Why? fills in the working for that puzzle.
+What the model leaves out (the app shows this in its own panel; do not repeat it on the page): Pins snap to whole-number points so the sums stay easy; a line passes through points with fractions too. The fan shows a handful of the lines through a pin, but there is one for every gradient, and one more straight up, which has no gradient. The grid shows a short piece of each line, which carries on both ways. The points and lines in the puzzles are example values.
+Controls (use these ids, ranges and opening values exactly; when the prediction or a check names a setting of a slider, add it to that slider's snap):
+- id "step": Step, from 0 to 12 in steps of 1, opening at 0
+Outputs: none. No rule computes a number here, so show no readouts beyond plain counts of what is on screen ("4 of 7 at war"): the picture, its labels and the .say line do the teaching.
+Numbers it may show (control = Dan sets it; computed = from the rule; constant = a fixed real value; assumed = an example value, said once as an example in the lead line or a caption, then drawn as a plain value; date = a historical date or fact):
+- Example pin (2, 5), x, in step 1: 2 (assumed)
+- Example pin (2, 5), y, in step 1: 5 (assumed)
+- Example gradient set on the pin, in step 1: 3 (assumed)
+- c = 5 − 3 × 2, in step 1: -1 (computed)
+- Slip pin's y as c: 3 × 2 + 5, in step 1: 11 (computed)
+- Puzzle point (1, 4), y, in step 2: 4 (assumed)
+- Puzzle gradient, in step 2: 2 (assumed)
+- c = 4 − 2 × 1, y = 2x + 2, in step 2: 2 (computed)
+- Slip point's y as c, y = 2x + 4, in step 2: 4 (computed)
+- Slip 2 added not taken, y = 2x + 6, in step 2: 6 (computed)
+- Example point (3, 1), x, in step 3: 3 (assumed)
+- Example falling gradient, in step 3: -2 (assumed)
+- c from 1 = −6 + c, y = −2x + 7, in step 3: 7 (computed)
+- Check −2 × 3 + 7, in step 3: 1 (computed)
+- Puzzle point (2, −1), y, in step 4: -1 (assumed)
+- Puzzle gradient, in step 4: -3 (assumed)
+- c from −1 = −6 + c, y = −3x + 5, in step 4: 5 (computed)
+- Slip 6 taken not added, y = −3x − 7, in step 4: -7 (computed)
+- Slip minus lost, y = 3x − 7, in step 4: 3 (computed)
+- Example point A (1, 3) from lesson 1, y, in step 5: 3 (assumed)
+- Example point B (4, 9) from lesson 1, y, in step 5: 9 (assumed)
+- m = (9 − 3) ÷ (4 − 1), in step 5: 2 (computed)
+- c from A, 3 − 2 × 1, in step 5: 1 (computed)
+- c from B, 9 − 2 × 4, in step 5: 1 (computed)
+- Puzzle points (2, 1) and (5, 7), y of second, in step 6: 7 (assumed)
+- m = (7 − 1) ÷ (5 − 2), in step 6: 2 (computed)
+- c = 1 − 2 × 2, y = 2x − 3, in step 6: -3 (computed)
+- Slip run ÷ rise, m = 3 ÷ 6, y = 0.5x, in step 6: 0.5 (computed)
+- Slip first point's y as c, y = 2x + 1, in step 6: 1 (computed)
+- Example points (−1, 5) and (3, −3), y of second, in step 7: -3 (assumed)
+- m = (−3 − 5) ÷ (3 − (−1)) = −8 ÷ 4, in step 7: -2 (computed)
+- c from 5 = 2 + c, y = −2x + 3, in step 7: 3 (computed)
+- Check −2 × 3 + 3, in step 7: -3 (computed)
+- Puzzle points (−2, 1) and (1, 7), x of first, in step 8: -2 (assumed)
+- m = (7 − 1) ÷ (1 − (−2)) = 6 ÷ 3, in step 8: 2 (computed)
+- c from 7 = 2 + c, y = 2x + 5, in step 8: 5 (computed)
+- Slip brackets dropped, run 1 − 2, m = −6, in step 8: -6 (computed)
+- Slip brackets dropped, c = 7 + 6, in step 8: 13 (computed)
+- Slip minus lost on x, c = 1 − 4, in step 8: -3 (computed)
+- Given line y = 2x + 1, c, in step 9: 1 (assumed)
+- New pin (3, 2), y, in step 9: 2 (assumed)
+- c = 2 − 2 × 3, y = 2x − 4, in step 9: -4 (computed)
+- Given line y = −3x + 4, c, in step 10: 4 (assumed)
+- New pin (1, 5), y, in step 10: 5 (assumed)
+- c = 5 + 3, y = −3x + 8, in step 10: 8 (computed)
+- Slip old c kept: −3 × 1 + 4, in step 10: 1 (computed)
+- Slip pin's y as c, y = −3x + 5, in step 10: 5 (computed)
+- Drawn line's y-axis crossing (0, −2), in step 11: -2 (assumed)
+- Drawn line's grid point (3, 4), y, in step 11: 4 (assumed)
+- m = (4 − (−2)) ÷ (3 − 0), y = 2x − 2, in step 11: 2 (computed)
+- Puzzle line's y-axis crossing (0, 3), in step 12: 3 (assumed)
+- Puzzle line's x-axis crossing (6, 0), in step 12: 6 (assumed)
+- m = (0 − 3) ÷ (6 − 0), y = −0.5x + 3, in step 12: -0.5 (computed)
+- Slip x-axis crossing as c, y = −0.5x + 6, in step 12: 6 (computed)
+- Slip run ÷ rise, y = −2x + 3, in step 12: -2 (computed)
+- Puzzle points (0, −1) and (2, 5), y of second, in step 13: 5 (assumed)
+- m = (5 − (−1)) ÷ (2 − 0), y = 3x − 1, in step 13: 3 (computed)
+- Slip brackets dropped, 5 − 1 = 4, m = 2, in step 13: 2 (computed)
+- Slip later point's y as c, y = 3x + 5, in step 13: 5 (computed)
+- Worked example points (2, 4) and (6, 6): m = 2 ÷ 4: 0.5 (computed)
+- Worked example c = 4 − 0.5 × 2: 3 (computed)
+- Worked example check 0.5 × 6 + 3: 6 (computed)
+- Worked example parallel line through (4, 1): c: -1 (computed)
+
+## The explanation Dan reads after playing (use the same words for the same things)
+One point and a gradient, or two different points, pin down exactly one straight line. To write its rule, get m first, then put a point you know into y = mx + c and solve for c. Pin a line at (2, 5) and it can swing to any tilt, so one point alone leaves a whole fan of lines. Each tilt gives only one line, because two lines through the pin with the same gradient climb the same amount from it for each 1 along, so they lie on top of each other. Choose m = 3 and the fan closes to one line, y = 3x + c, with c still to find.
+
+The rule is true for every point on the line, so the pin must fit it. Put its x and y in: 5 = 3 × 2 + c, so 5 = 6 + c, and c = 5 − 6 = −1. The rule is y = 3x − 1. Putting a point's numbers in place of x and y like this is called substituting them, and it leaves one unknown, c, to solve for as in Linear equations. c is the pin's y only when the pin sits on the y-axis or the line is flat, because c is the value of y where x = 0, the intercept. Take the pin's 5 as c and y = 3x + 5 gives 3 × 2 + 5 = 11 at x = 2, not 5, so that line misses the pin. With a falling line, keep the minus in m: through (3, 1) with m = −2, 1 = −2 × 3 + c = −6 + c, so c = 7 and y = −2x + 7. Put the point back in as a check: −2 × 3 + 7 = 1.
+
+A second pin locks the line because two points have only one gradient between them, so the job becomes a point and a gradient again. Work out the grad…
+
+## Sources
+The only web addresses this page may contain, each only as a K.check {source} on a check whose label restates what that source's quote says (a result of your rule, or a fact about your drawing, takes no source; the caption names a source in words). The app rejects any other:
+[1] Slope-intercept equation from two points - Khan Academy (https://www.khanacademy.org/math/algebra/x2f8bb11595b61c86:forms-of-linear-equations/x2f8bb11595b61c86:intro-to-slope-intercept-form/v/equation-of-a-line-3): "Given two points on a line, we can write an equation for that line by finding the slope between those points, then solving for the y-intercept in the slope-intercept equation y=mx+b."
+[2] Equation of a straight line - Determining the equation of a straight line - National 5 Maths Revision - BBC Bitesize (https://www.bbc.co.uk/bitesize/guides/z24qcj6/revision/1): "We can find the equation of a straight line when given the gradient and a point on the line"
+[3] Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/zjbf9ty): "The equation is a rule connecting the (x) and (y) coordinates - the rule is true for all points on the line"
+[4] Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/zjbf9ty): "The y coordinate at the point where it crosses the y axis is called the intercept . In the equation y = mx + c , c is the intercept"
+[5] Module 3 (M3) - Algebra - Coordinates and graphs - BBC Bitesize (https://www.bbc.co.uk/bitesize/articles/zjbf9ty): "To find the gradient of a line joining two points, divide the difference in the y-coordinates by the difference in the x-coordinates"
+[6] Determine the gradient of a straight line (https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3): "Vertical lines have a gradient which is undefined; equation x = a"
+
+## Dan and how he learns
+- He learns best by doing: something visual he can push and watch respond. Warm, plain words, first principles; no jargon unless explained.
+- He uses an Android phone (this frame is about 340 px wide there, touch only) and a laptop (about 1000 px, where K.stage puts the controls beside the visual). Design for the phone first.
+
+## Rules for this page
+- There is no guess to protect: show everything from the start (no k-after-move), curves and results included.
+- The lead line says what is drawn, plainly ("Water from a 5 m drop hits the blades of a wheel"), not what to do: the app gives the action above the frame. Example values are said once there ("an example stream: a 5 m drop, 20 kg of water each second"), then the drawing labels them plainly ("5 m"), never "for example" on the drawing.
+- Every label and arrow sits on, or starts from, the thing it is about: a force arrow starts on the part it pushes; a speed arrow on the part that moves. Anything the rule says turns or flows does so (K.anim), at a speed that follows its control.
+- The .say sentence must make sense on its own to someone who has just read the explanation: what is happening on screen now, cause then effect, in everyday words; no term, threshold or comparison the page or the explanation has not named; a number as part of its whole ("353 W of the stream's 981 W is carried off by the water"). Bad: "The buckets move slower than half the jet speed, so the water still leaves going backwards, taking 353 W away with it." Good: "The buckets are moving slowly, so the water bounces off them still moving fast, and carries 353 W of its 981 W away downstream."
+- A key for the main drawing sits inside the drawing; show each quantity once (a bar, a readout or a curve, not all three); every number drawn that is worked out (a speed from a drop) is explained in "What you're looking at", or is left off.
+- Draw the cause the explanation gives, not only its effect, and let Dan cause it (a drag, a push, a switch); include the setting where the effect does not happen.
+- Mark the brief's one quantity on the picture itself, with a label saying what it is and its value (a bracket between the two heights reading "2.4 m"); an output with a readout is marked without its number, which the readout alone shows (the app hides it while Dan answers a check).
+- A shaded band states something true of the axis it spans: inputs across x, outputs across y. To show many inputs giving nearly the same output, shade the narrow output band (regions {y0, y1}).
+- Draw every comparison the explanation makes the same way, in the same place, on the axis where the effect happens. A time period is a bracket or thin band along the time axis, not a tall block.
+- Give each reference line its own look and a label beside it; every styled line is in the key or labelled on the drawing.
+- Draw only what the brief, the rule or the explanation names, with the same names. An extra figure says on itself how to read it: what its line stands for and which way is which.
+- Show only the numbers listed above or computed from the rule, each written the way the explanation writes it (the same rounding).
+- Any example cases you choose are fair and representative, never picked to exaggerate the effect.
+- Money, health and law: show how it works, never advice, and never a guaranteed outcome.
+
+## The house kit (complete API reference)
+You write the BODY of one page: HTML, an optional `<style>`, then one inline `<script>` ending
+with `K.ready()`. It runs in a sandboxed iframe on Dan's phone (about 340 px wide, touch) and
+laptop, with the global `K` and the kit's stylesheet. No network or storage: no web
+addresses, `fetch`, `localStorage`, `alert` or `prompt`.
+
+### Page shape that works
+1. `<p class="lead">`: one line saying what is drawn (the app adds title and action).
+2. The main visual with its controls right under it: `K.stage('#scene', '#controls')` keeps the
+   pair on one phone screen. A choice that re-sorts the picture may sit above it.
+3. `<p class="say">`: one sentence that changes with the state and says why. Then
+   `<div class="k-readouts">` for numbers the drawing does not label.
+4. Secondary figures and anything that grows go below.
+5. `<p class="caption">`: one short sentence, at most 20 words: where the numbers come from ("A
+   sketch, not measured data") or the rule in the explanation's words. No new claim, no law or
+   term the explanation does not teach. The app shows what the model leaves out.
+
+### Keep the answer hidden until Dan moves
+Dan predicts before he plays: open on a setting the question is not about, and hide whatever
+gives the answer away until his first move:
+- class `k-after-move` on any element (a mark, an arrow, a sentence): hidden, its space kept.
+  Hide the answer, not the controls or a whole figure (a blank hole fails the test).
+- `K.readout({..., afterMove: true})` shows "?" until then; plot series and marks take `afterMove: true` too.
+- `K.moved` is true from then on: in `K.update`, write `K.moved ? answer : question`.
+- `K.afterMove(fn)` runs `fn` once at that moment; `K.reveal()` marks it from your handlers.
+
+### The pipeline
+Controls register themselves; their values form `params` = `{id: value}`.
+```
+K.model(fn)        fn(params) -> outputs {name: number | string}. Pure: no DOM, no lists or objects.
+K.update(fn)       fn(params, outputs): draw everything here. More than one is allowed.
+K.at(over)         -> outputs of the model at those params (others take each control's starting value)
+K.check(label, fn, {source?})   fn() must return exactly true
+K.ready()          call once, last: draws the opening state and runs the checks
+K.complete()       at the lesson's end
+K.params()  K.outputs()  K.refresh()   (refresh reruns the pipeline after you change your own state)
+```
+A readout whose id is an output key updates itself.
+
+### Controls
+Every control takes `into` (a selector or element). Ids are unique; use the lesson's ids exactly.
+```
+K.control({id, label, min, max, step, value, unit?, prefix?, fmt?, log?, snap?, hint?, into}) -> {el, get(), set(v)}
+K.choice({id, label, options: [value | {value, label}], value, hint?, into}) -> {el, get, set}
+K.toggle({id, label, value: false, hint?, into}) -> {el, get, set}
+K.stepper({id, steps: [title | {title, text}], value: 0, compact?, label?, into}) -> {el, get, set, setSteps(list)}
+K.button({label, press, secondary?, into}) -> {el, press(), setLabel(text)}
+K.drag(el, {control, toValue(x, y)}) -> {el}
+```
+`control` is a big slider with − / + buttons. Keep `unit` short; `fmt(v)` returns the whole text;
+`log: true` spans decades; `snap: [values]` lands a drag exactly on a setting the prediction or a
+check names. `choice`: 2-8 short named options; `value` is an option's value or its 0-based
+index. `stepper` walks a process with Back / Next (`compact: true` when your diagram shows the
+content). `button` is an action (Send it in): use it, not plain buttons. `drag` lets Dan move
+the thing itself: `toValue` maps the pointer (viewBox units; px from `el`'s top-left for HTML)
+to the control's value; the first touch counts as his move.
+
+### Outputs
+```
+K.readout({id, label, unit?, prefix?, decimals?, fmt?, big?, hint?, afterMove?, into}) -> {el, set(v), get(), text()}
+```
+One rounding everywhere a number appears: `decimals` matching the lesson text, and the `.say`
+sentence built with `K.fmt(v, {decimals})` or `readout.text()`. Labels under 30 characters.
+While Dan answers a lesson check, the app hides that output's readout and the `.say` lines:
+never repeat a readout's value elsewhere (a label, an aria-label).
+```
+K.plot(target, opts) -> {draw(opts), x(v), y(v), invert(px, py), el, canvas}
+```
+- `x`, `y`: `{min, max, label, log?, prefix?, unit?, fmt?, ticks?}`. Leave out `y.min`/`y.max` to fit the data.
+- `series`: `[{fn: x => y | points: [[x, y], ...], label?, color?, dash?, width?, fill?, dots?, gaps?, afterMove?}]`
+- `shade`: `[{between: [a, b], label?, color?, x0?, x1?}]`: fills between two series (by label), a
+  series and a constant, or two functions.
+- `marks`: `[{x, y, label?, color?, guides?, afterMove?}]`: a dot with a label pill; `guides` adds dashed lines to the axes.
+- `regions`: `[{x0, x1, label?} | {y0, y1, label?}]` (a band); `lines`: `[{x | y, label?}]` (a dashed line).
+- `label`: the text alternative; `height`; `after(ctx, plot)` draws extras using `plot.x()`, `plot.y()`.
+
+`draw(opts)` redraws with `opts` over the creation options: call it in `K.update`. Values must be
+finite (`gaps: true` only where a gap is real). Series are navy, then teal; `color: 'muted',
+dash: true` for a baseline.
+```
+K.bars(target, {max?, unit?, prefix?, decimals?, fmt?}) -> {draw(items)}      items: [{label, value, color?}], values >= 0
+K.anim({step(dt, t), reset?, label?, autoplay?, button?, into}) -> {el, play, pause, toggle, reset, playing()}
+```
+`anim` adds a Play button (text `label`); `reset` adds Reset. When a switch, button or drag
+already starts the motion, pass `button: false` and call `play()` from that control: one control
+per action. In `step` advance your state (`dt` in seconds) and redraw; return `false` to stop. To
+drive a slider, keep the exact value yourself (the slider moves in whole steps).
+
+### Sound
+```
+K.sound.tone(hz, {dur?, type?, gain?})   K.sound.chord([hz, ...], {dur?, stagger?})   K.sound.stop()   K.sound.mute(on)
+K.sound.hold(hz, {type?, gain?, max?}) -> {set({hz?, gain?}), stop(), playing()}
+```
+`dur` in seconds (at most 10). Sound plays only from a `K.button` press, never `K.update`; show
+what is sounding. `hold` keeps a tone going while `set()` follows a slider. Phones can't play
+below about 150 Hz: use 200 to 2,000 Hz.
+
+### Drawings and helpers
+```
+K.el(tag, attrs?, ...children)    attrs: class, style, on: {click: fn}, text, html, dataset, any attribute
+K.svg(tag, attrs?, ...children)   the same in the SVG namespace
+K.labels(group, [{x, y, text, anchor?, size?, class?, color?}], {avoid?}) -> [<text>]
+K.stage(visual, controls, {max?, beside?}) -> {el}
+K.fmt(v, {decimals?, sig?, prefix?, unit?, percent?, sign?, compact?}) -> '1,234.5', '−3', '2.5 × 10⁶'
+K.near(a, b, tol)   K.clamp(v, lo, hi)   K.lerp(a, b, t)   K.linspace(a, b, n)   K.color(role, alpha?)
+K.ease(p)   K.arrive(T, t0, dur?)   K.fade(el, a, rise?)
+```
+Give an `<svg>` a viewBox about 340 wide, `width="100%"`, `role="img"` and an `aria-label` that
+follows the state. Text 13-16 units, never under 12 (a phone shows 340 units at about 0.9x). A
+row of N labels gets about 300/N units each; label only what differs. Every label sits on, or
+points to, something drawn. `K.labels` places labels (13 units unless `size`) clear of other
+text, the edges and the lines or shapes in `avoid`: use it for labels that move or appear later.
+Put an angle's label inside its wedge, beyond the arc, hidden while the wedge is too narrow.
+`K.stage` fits the pair in `max` px (600) on a phone; `beside: false` keeps it stacked.
+
+Draw the mechanism as it physically works. If the explanation gives a reason (X because Y), draw
+Y so Dan can watch it; parts that fit are drawn fitting (teeth in teeth), never two identical
+icons joined by a line; whatever the rule says happens (slides, grips, multiplies) happens on screen.
+
+### Colour
+Colour carries meaning. Use these roles as `var(--k-…)` or `K.color('fill2')` (`K.color('accent2',
+0.3)` is see-through); a colour name fails the test.
+- Lines and text: `ink`, `muted` (secondary, comparisons), `accent2` (navy: the main thing,
+  controls), `accent` (teal: small labels, a second series), `warn` (red: warnings and mistakes
+  only), `good` (green: "done" only), `amber-line` (amber lines that must stand out).
+- Fills: `bg` (page), `panel`, `sunk`, `amber` (note box), `hl` (key-term highlighter), `fill1`
+  (area of the main thing), `fill2` (highlighted area, amber), `fill3` (area of a second thing).
+- `cat1`-`cat4` (blue, orange, magenta, aqua): telling equal things apart, never meaning; with a
+  key or labels; cat1 and cat2 first. A thing with a familiar colour (water, fire) never gets
+  another thing's colour: use the nearest role and label it. What is still there stays solid:
+  mark a state such as unused with a label, not by fading it, and key any dashed style.
+- Also `--k-line`, `--k-strong` (borders), `--k-on-accent2` (text on navy), `--k-font`, `--k-r` (radius).
+
+Never describe colours by lightness or hue in words Dan reads ("the dark square"): dark mode
+changes them.
+
+Classes: `muted`, `small`, `k-label` (small teal caps), `mark` (key term), `note` (amber box),
+`warn-note`, `panel`, `row`, `grid2`, `big`, `k-btn` (`secondary`), and a legend:
+`<div class="key"><span><i class="swatch" style="background:var(--k-accent2)"></i>Your push</span>
+<span><i class="swatch line dash" style="color:var(--k-muted)"></i>The limit</span></div>`.
+
+### Rules for a great interactive
+- One idea. The answer to Dan's prediction shows within about 3 seconds of his first move (add
+  a K.check that it does). Include something Dan causes and a case that surprises. One or two
+  controls, three at most.
+- Phone first: nothing wider than 340 px, no fixed widths over 300 px, rows wrap, no hover-only
+  information, tap targets at least 44 px. Size tiles and grid columns in rem (`minmax(6rem,
+  1fr)`): text grows a quarter at Text size XL, and no word may split across two lines.
+- Every number shown is a control, computed by the rule shown, a constant from the lesson, an
+  example value named once in the lead, or a date from the lesson. Never invent data, rates or chances.
+- The `.say` sentence describes what is on screen now, plainly and warmly, and reads right at the
+  extremes ("none of the 100"). Never claim Dan did something ("When you slid it to 20"):
+  describe the state, or write conditionally ("Push it past 20 and…").
+- 3-5 `K.check` known answers worked out by hand: an edge case, a shape fact (rises, halves,
+  always last), and one answer from outside your formula. `source` may ONLY be a URL from the
+  lesson's own sources, and only on a check whose label restates what that source's quote says;
+  a result of your rule, or a fact about your drawing, takes none. Compare numbers with
+  `K.near(a, b, tol)`: tolerance about a millionth of the size, a thousandth where rounding meets roots.
+- `K.anim` for motion, never timers: soft, unhurried, nothing popping in. Parts arrive about 0.6
+  s apart by `K.fade(el, K.arrive(T, t0))`; travel and growth use `K.ease`; a demonstration takes
+  3-5 s. No `vh` units, `position: fixed` or `height: 100%`.
+- Ideas without numbers (mechanism, process, structure, history, concept): prefer a timeline
+  slider, a named choice, a sorter or a drag; use `K.stepper` only when every step changes the
+  drawing. Checks assert order and structure facts.
+- A timeline runs forward: a slider rising left to right, its `fmt` showing the date (−500 as
+  "500 BC"), or a stepper of named events in order. A lesson's calendar-year control keeps its
+  range, its `fmt` showing the year; years after the first date are for new controls. Each dated
+  event appears as he reaches its date.
+
+### The self-test
+Before Dan sees it, the app loads your body 340, 720 and 1040 px wide, runs every check, moves
+every control, button, animation and drag, reveals the after-move parts, and looks again at Text
+size XL and in the other theme. It fails on an exception, NaN or undefined on the page, an update
+over 150 ms, sideways overflow, text cut off or over other text, SVG text under 11 px on a phone,
+a line or arrowhead through a label, text under 3:1 contrast with what is behind it, a colour
+name, a blank hole until a move, or no `K.ready()`.
+
+### Example
+```html
+<p class="lead">Lengthen the string and watch each swing take longer.</p>
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+<p class="caption">Small swings only; g = 9.81 m/s² is gravity at the Earth's surface.</p>
+<script>
+  const g = 9.81;
+  const period = (L) => 2 * Math.PI * Math.sqrt(L / g);
+  K.control({ id: 'L', label: 'String length', min: 0.1, max: 3, step: 0.05, value: 1, unit: 'm', snap: [2], into: '#controls' });
+  K.stage('#plot', '#controls');
+  K.readout({ id: 'T', label: 'One full swing takes', unit: 's', decimals: 2, into: '#outs' });
+  const plot = K.plot('#plot', { x: { min: 0, max: 3, label: 'Length (m)' }, y: { min: 0, max: 4, label: 'Period (s)' } });
+  K.model((p) => ({ T: period(p.L) }));
+  K.update((p, o) => {
+    plot.draw({ series: [{ fn: period }], marks: [{ x: p.L, y: o.T, guides: true }] });
+    document.getElementById('say').textContent = !K.moved ? 'Make the string four times longer: how much longer is each swing?'
+      : 'A ' + K.fmt(p.L, { decimals: 2 }) + ' m string swings there and back every ' + K.fmt(o.T, { decimals: 2 }) + ' s. Four times the length only doubles that.';
+  });
+  K.check('No length, no swing time', () => K.near(period(0), 0));
+  K.check('A seconds pendulum (2 s per swing) is 0.994 m long', () => K.near(period(0.994), 2, 0.002),
+    { source: 'https://en.wikipedia.org/wiki/Seconds_pendulum' });
+  K.check('Four times the length doubles the period', () => K.near(K.at({ L: 2 }).T / K.at({ L: 0.5 }).T, 2, 1e-9));
+  K.ready();
+</script>
+```
+
+
+## A finished example (kind: quantity). Match its standard and structure, not its topic. Its SOURCE line and {source} addresses belong to that example's own lesson: never copy them
+<!-- kind: quantity -->
+<style>
+  .split { display: flex; height: 26px; border-radius: 8px; overflow: hidden; background: var(--k-sunk); }
+  .split .work { background: var(--k-accent2); transition: width .2s ease; }
+  .split-key { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; font-size: .9rem; color: var(--k-muted); }
+  .nowrap { white-space: nowrap; }
+</style>
+
+<p class="lead">Squeeze the air harder before the fuel burns in it, and watch how much more of the fuel's heat turns into useful work.</p>
+
+<div id="plot"></div>
+<div class="k-controls" id="controls"></div>
+<p class="say" id="say"></p>
+<div class="k-readouts" id="outs"></div>
+
+<div>
+  <span class="k-label">Of every 100 units of heat from the fuel</span>
+  <div class="split" role="img" id="split" aria-label=""><i class="work" id="work"></i></div>
+  <div class="split-key"><span>Becomes work</span><span>Leaves in the hot exhaust</span></div>
+</div>
+
+<p class="caption">The ideal Brayton cycle with γ = 1.4 for air (NASA Glenn Research Center), an upper limit for real engines.</p>
+
+<script>
+  // gamma: ratio of specific heats for air, the value NASA Glenn's Brayton page uses.
+  const GAMMA = 1.4;
+  const SOURCE = 'https://www.grc.nasa.gov/www/k-12/airplane/brayton.html';
+  const pct = (r) => 100 * (1 - Math.pow(r, -(GAMMA - 1) / GAMMA));
+
+  const r = K.control({ id: 'r', label: 'Pressure ratio', hint: 'Pressure after the compressor ÷ pressure before it', min: 1, max: 50, step: 1, value: 8, unit: ':1', into: '#controls' });
+  K.readout({ id: 'eff', label: 'Ideal efficiency', unit: '%', decimals: 1, big: true, into: '#outs' });
+
+  K.stage('#plot', '#controls');   // stacked on a phone, side by side on a laptop
+
+  const plot = K.plot('#plot', {
+    x: { min: 1, max: 50, label: 'Pressure ratio' },
+    y: { min: 0, max: 100, label: 'Ideal efficiency (%)' },
+    label: 'Ideal efficiency rises steeply at low pressure ratios, then flattens',
+  });
+
+  // The pure model: pressure ratio -> ideal efficiency in percent.
+  K.model((p) => ({ eff: pct(p.r) }));
+
+  K.update((p, o) => {
+    plot.draw({
+      series: [{ fn: pct, label: 'Ideal efficiency' }],
+      marks: [{ x: p.r, y: o.eff, guides: true }],   // its value is in the readout alone
+    });
+    document.getElementById('work').style.width = o.eff + '%';
+    document.getElementById('split').setAttribute('aria-label', 'The filled part becomes work: ' + (o.eff < 50 ? 'under' : 'over') + ' half the heat');
+
+    let s;
+    if (p.r === 1) {
+      s = 'With no squeeze at all (r = 1), the hot gas has no extra pressure to push the turbine with, so no work comes out: 0%.';
+    } else if (p.r * 2 <= 50) {
+      const more = pct(p.r * 2) - o.eff;
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Doubling the squeeze to ' +
+        p.r * 2 + ':1 would add ' + more.toFixed(1) + ' more points.';
+    } else {
+      const less = o.eff - pct(p.r / 2);
+      s = 'At ' + p.r + ':1 an ideal engine turns ' + o.eff.toFixed(1) + '% of the fuel\'s heat into work. Halving the squeeze would cost only ' +
+        less.toFixed(1) + ' points: the curve has flattened.';
+    }
+    // Until Dan moves the slider the sentence invites rather than answers his prediction.
+    document.getElementById('say').textContent = K.moved ? s : 'Does doubling the squeeze double the work you get? Move the pressure ratio and see.';
+  });
+
+  // Known answers, worked out by hand from the formula.
+  K.check('No squeeze (r = 1) gives 0% efficiency', () => K.near(K.at({ r: 1 }).eff, 0, 1e-9));
+  K.check('r = 10 gives 48.2%, from the ideal Brayton formula', () => K.near(K.at({ r: 10 }).eff, 48.205, 0.001), { source: SOURCE });
+  K.check('Efficiency rises with every step up in pressure ratio', () => {
+    for (let x = 1; x < 50; x++) if (!(K.at({ r: x + 1 }).eff > K.at({ r: x }).eff)) return false;
+    return true;
+  });
+  K.check('Diminishing returns: 1 → 2 adds 18.0 points, 20 → 40 adds only 7.6', () =>
+    K.near(K.at({ r: 2 }).eff - K.at({ r: 1 }).eff, 17.97, 0.01) && K.near(K.at({ r: 40 }).eff - K.at({ r: 20 }).eff, 7.63, 0.01));
+  K.check('Even at r = 50 the ideal stays below 100% (67.3%)', () => K.near(K.at({ r: 50 }).eff, 67.30, 0.01));
+
+  K.ready();
+</script>
+
+## Output
+Return ONLY the body: HTML elements, an optional <style>, then one inline <script> that ends with K.ready(). No <html>, <head> or <body> tags, no markdown fences, no commentary before or after. Keep it under 40 KB.
