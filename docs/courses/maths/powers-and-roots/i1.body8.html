@@ -1,0 +1,902 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; }
+  /* A tile is one copy of the base; a second base is hatched; a cancelled tile is a dashed outline with a stroke through it. */
+  .scene .tile { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .tile.hatch { fill: url(#pt-hatch); }
+  .scene .tile.bad { fill: var(--k-bg); stroke: var(--k-warn); }
+  .scene .tile.gone { fill: var(--k-bg); stroke: var(--k-muted); stroke-dasharray: 4 3; }
+  .scene .plate, .scene .hb { fill: var(--k-bg); }
+  .scene .hs { fill: var(--k-accent); }
+  .scene .pill { fill: var(--k-sunk); stroke: var(--k-accent2); stroke-width: 1.5; }
+  .scene .grp { fill: var(--k-sunk); stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .xo { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; }
+  .scene .frac { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .tn { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .tn.sm { font-size: 14px; }
+  .scene .tn.gone { fill: var(--k-muted); }
+  .scene .op { font: 600 14px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { font: 700 18px var(--k-font); fill: var(--k-accent2); }
+  .scene .try { font: 700 15px var(--k-font); fill: var(--k-accent); }
+  .scene .note { font: 400 14px var(--k-font); fill: var(--k-muted); }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te { font: 700 16px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 15px var(--k-font); fill: var(--k-ink); }
+  .scene .te.mu, .scene .tw.mu { fill: var(--k-muted); }
+  /* A slip is drawn in the warning colour. */
+  .scene .tn.bad, .scene .op.bad, .scene .lab.bad, .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .row.tune .k-btn { flex: 1 1 8rem; min-height: 48px; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Rows of tiles, one tile for each copy of the base, multiplied together. The other base in a row is hatched, and the numbers tried are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 200" width="100%" role="img" aria-label="">
+      <defs>
+        <pattern id="pt-hatch" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+          <rect class="hb" x="0" y="0" width="7" height="7"></rect>
+          <rect class="hs" x="0" y="0" width="2.4" height="7"></rect>
+        </pattern>
+      </defs>
+      <g id="art"></g>
+    </svg>
+    <div class="row tune" id="tune"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">The tiles are multiplied together, while the small power counts them.</p>
+
+<script>
+  // ---------- powers written out ----------
+  const SUP = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  const sup = (n) => String(n).split('').map((c) => SUP[+c]).join('');
+  const P = (b, n) => (String(b)[0] === '−' ? '(' + b + ')' : String(b)) + sup(n);
+  const chain = (b, n, op) => Array(n).fill(b).join(' ' + (op || '×') + ' ');
+  const isNum = (b) => /^[0-9]+$/.test(String(b));
+  const valOf = (b, n) => Math.pow(+b, n);
+  const powLab = (b, n) => P(b, n) + (isNum(b) ? ' = ' + valOf(b, n) : '');
+  const WORDS = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight'];
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // Each step draws one or more panels. pow: a row of n tiles of base b. join: a row of m and a row
+  // of n, which join into one row. div: tiles above a line (groups side by side) and n below, crossed
+  // out in pairs. grid: a row of m tiles repeated in n rows. mix: two bases in one row, the second
+  // hatched. brk: k blocks, each holding the factors fac, which split and regroup by kind. neg: a
+  // minus in front of a power. Every tag, count and label is worked out from these numbers.
+  // A SHOW panel's tl is its timetable in seconds from when the screen opens; work, its lines of working.
+  // A puzzle: opts, the answers offered; before, lines shown from the start; right, the lines a right
+  // answer adds (from rt seconds); wrong, each wrong answer's own tiles (bad: n tiles of b) and lines.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'A power is a row of tiles', replay: 'Play again',
+      panels: [{ kind: 'pow', b: '2', n: 5, max: 6, live: true, tl: { in: 0.4, lab: 2.0, work: [2.4, 2.8] } }],
+      text: 'In `2⁵` the 2 is the *base*, and the small 5 is the *power*, also called the *index*. It means five 2-tiles multiplied together, which is 32, not five 2s added, which is 10. Add or take away a tile and the power changes with it.' },
+    { name: 'Three 2s', panels: [{ kind: 'pow', b: '2', n: 3, max: 6 }],
+      opts: ['8', '6', '9'], want: '8', rt: 0.2, before: [],
+      right: [{ e: '2³', w: '2 × 2 × 2 = 8' }],
+      wrong: { '6': { bad: { b: '2', n: 3, op: '+' }, lines: [{ e: '2 × 3', w: '2 + 2 + 2 = 6', bad: true }] },
+        '9': { bad: { b: '3', n: 2 }, lines: [{ e: '3²', w: '3 × 3 = 9', bad: true }] } },
+      task: 'What is `2³`?',
+      why: '`2³` is three 2-tiles multiplied. 2 × 2 is 4, and 4 × 2 is 8. The power counts the tiles. It does not multiply the base.',
+      hint: 'Not quite. Multiply the three tiles together.',
+      hints: { '6': 'Not quite. That adds three 2s. The tiles are multiplied, 2 × 2 × 2.', '9': 'Not quite. That is `3²`, two 3s. Here the base 2 is used three times.' } },
+    { show: true, name: 'Multiplying joins rows', replay: 'Multiply',
+      panels: [{ kind: 'join', b: '2', m: 3, n: 4, vals: true, tl: { in: 0.4, act: 1.8, work: [3.6, 3.9] },
+        work: [{ e: '2³ × 2⁴', w: '8 × 16 = 128' }, { e: '2⁷', w: '128' }] }],
+      text: 'To multiply `2³ × 2⁴`, join the two rows into one. The tiles are multiplied, but their count adds, 3 + 4 = 7, so `2³ × 2⁴ = 2⁷`. Check it with 8 × 16, which is 128, the same as `2⁷`.' },
+    { name: 'Add the powers', panels: [{ kind: 'join', b: '9', m: 3, n: 5 }],
+      opts: ['9¹⁵', '9⁸', '81⁸'], want: '9⁸', rt: 1.8, before: [], right: [],
+      wrong: { '9¹⁵': { bad: { b: '9', n: 15, cols: 5 }, lines: [] }, '81⁸': { bad: { b: '81', n: 8 }, lines: [] } },
+      task: 'Write `9³ × 9⁵` as one power of 9.',
+      why: 'Joining the rows gives 3 + 5 = 8 tiles of 9, so `9³ × 9⁵ = 9⁸`. The base stays 9, and the powers add.',
+      hint: 'Not quite. Join the two rows and count the tiles.',
+      hints: { '9¹⁵': 'Not quite. That multiplies the powers, 3 × 5. Joining rows adds the tiles.', '81⁸': 'Not quite. The base stays 9. Only the count of tiles changes.' } },
+    { show: true, name: 'Dividing crosses out pairs', replay: 'Divide',
+      panels: [{ kind: 'div', b: '8', groups: [5], n: 3, cg: 0.4, tl: { in: 0.4, act: 1.8, work: [3.4, 3.7] },
+        work: [{ e: '8⁵ ÷ 8³', w: '8²' }, { e: '8²', w: '8 × 8 = 64' }] }],
+      text: 'To divide `8⁵` by `8³`, put five 8-tiles above the line and three below. Each 8 below cancels one 8 above, because 8 ÷ 8 is 1. Two tiles are left, so `8⁵ ÷ 8³ = 8²`, which is 64.' },
+    { name: 'Take the powers away', panels: [{ kind: 'div', b: '5', groups: [6], n: 2, cg: 0.3 }],
+      opts: ['5³', '1⁴', '5⁴'], want: '5⁴', rt: 1.1, before: [],
+      right: [{ e: '5⁶ ÷ 5²', w: '5⁴ = 625' }],
+      wrong: { '5³': { bad: { b: '5', n: 3 }, lines: [{ e: '5⁶ ÷ 5²', w: '15625 ÷ 25 = 625' }, { e: '5³', w: '5 × 5 × 5 = 125', bad: true }] },
+        '1⁴': { bad: { b: '1', n: 4 }, lines: [{ e: '5⁶ ÷ 5²', w: '15625 ÷ 25 = 625' }, { e: '1⁴', w: '1 × 1 × 1 × 1 = 1', bad: true }] } },
+      task: 'Write `5⁶ ÷ 5²` as one power of 5.',
+      why: 'Each of the two 5s below cancels one 5 above, so 6 − 2 = 4 tiles are left. So `5⁶ ÷ 5² = 5⁴`, which is 625.',
+      hint: 'Not quite. Cross out one tile above for each tile below.',
+      hints: { '5³': 'Not quite. That divides the powers, 6 ÷ 2. Each tile below cancels just one tile above.', '1⁴': 'Not quite. Each crossed-out pair makes 1, but the tiles left are still 5s.' } },
+    { show: true, name: 'A power of a power repeats a row', replay: 'Repeat the row',
+      panels: [{ kind: 'grid', b: '2', m: 4, n: 3, vals: true, rg: 0.45, tl: { in: 0.4, act: 1.4, work: [3.0, 3.3] },
+        work: [{ e: '(2⁴)³', w: '16 × 16 × 16 = 4096' }, { e: '2¹²', w: '4096' }] }],
+      text: '`(2⁴)³` means three `2⁴`s multiplied together, so the row of four tiles is repeated in 3 rows. That makes 3 × 4 = 12 tiles, so `(2⁴)³ = 2¹²`. A power of a power multiplies the powers.' },
+    { name: 'Repeat a row of x', at: { x: 2 }, panels: [{ kind: 'grid', b: 'x', m: 3, n: 4, rg: 0.3, try: true }],
+      opts: ['x⁷', 'x¹²', '4x³'], want: 'x¹²', rt: 1.6,
+      before: [{ e: '(x³)⁴', w: '8⁴ = 4096' }],
+      right: [{ e: 'x¹²', w: '2¹² = 4096' }],
+      wrong: { 'x⁷': { lines: [{ e: 'x⁷', w: '2⁷ = 128', bad: true }] }, '4x³': { lines: [{ e: '4x³', w: '4 × 8 = 32', bad: true }] } },
+      task: 'Simplify `(x³)⁴`.',
+      why: '`(x³)⁴` is four rows of three `x`-tiles, 4 × 3 = 12 tiles, so `(x³)⁴ = x¹²`. At `x = 2` both make 4096.',
+      hint: 'Not quite. Picture the row of three tiles repeated.',
+      hints: { 'x⁷': 'Not quite. That adds the powers, 3 + 4. Repeating a row multiplies them.', '4x³': 'Not quite. The 4 is a power, not a number in front. It repeats the row four times.' } },
+    { show: true, name: 'A second base stays apart', replay: 'Play again', at: { x: 2 },
+      panels: [
+        { kind: 'mix', parts: [['2', 3, false], ['3', 2, true]], tl: { in: 0.4, lab: 1.0, work: [1.2, 1.5] },
+          work: [{ e: '2³ × 3²', w: '8 × 9 = 72' }, { e: '6⁵', w: '7776', bad: true }] },
+        { kind: 'brk', k: 2, fac: [['3', false], ['x', true]], try: true, tl: { in: 1.8, act: 2.5, work: [3.9, 4.2] },
+          work: [{ e: '(3x)²', w: '6² = 36' }, { e: '9x²', w: '9 × 4 = 36' }] }],
+      text: 'The other base in a row is hatched, and its tiles are counted on their own. `2³ × 3²` is three 2s and two 3s, 8 × 9 = 72, not `6⁵`, which is 7776. A bracket powers every factor inside it, and factors multiply in any order, so `(3x)²` regroups into `3² × x² = 9x²`.' },
+    { name: 'Square the number too', at: { a: 3 }, panels: [{ kind: 'brk', k: 2, fac: [['4', false], ['a', true]], try: true }],
+      opts: ['16a²', '4a²', '8a'], want: '16a²', rt: 1.6,
+      before: [{ e: '(4a)²', w: '12² = 144' }], right: [{ e: '16a²', w: '16 × 9 = 144' }],
+      wrong: { '4a²': { lines: [{ e: '4a²', w: '4 × 9 = 36', bad: true }] }, '8a': { lines: [{ e: '8a', w: '8 × 3 = 24', bad: true }] } },
+      task: 'Write `(4a)²` without the bracket.',
+      why: '`(4a)²` is `4a × 4a`, which is 4 × 4 × `a` × `a`. The 4s and the `a`s are counted on their own, so `(4a)² = 4² × a² = 16a²`. At `a = 3` both make 144.',
+      hint: 'Not quite. Split each `4a` into a 4 and an `a`, then count each kind.',
+      hints: { '4a²': 'Not quite. The 4 is inside the bracket, so it is squared too, 4 × 4.', '8a': 'Not quite. That doubles `4a`. Squaring multiplies it by itself, `4a × 4a`.' } },
+    { name: 'Join, then cross out', mixed: true, at: { x: 2 }, panels: [{ kind: 'div', b: 'x', groups: [4, 3], n: 5, cg: 0.15, try: true }],
+      opts: ['x⁷', 'x¹²', 'x²'], want: 'x²', rt: 1.8,
+      before: [{ e: 'x⁴ × x³ ÷ x⁵', w: '16 × 8 ÷ 32 = 4' }], right: [{ e: 'x²', w: '2² = 4' }],
+      wrong: { 'x⁷': { lines: [{ e: 'x⁷', w: '2⁷ = 128', bad: true }] }, 'x¹²': { lines: [{ e: 'x¹²', w: '2¹² = 4096', bad: true }] } },
+      task: 'Simplify `x⁴ × x³ ÷ x⁵`.',
+      why: 'Joining the top rows makes 4 + 3 = 7 `x`-tiles. The five below cancel five of them, so 7 − 5 = 2 are left, `x²`. At `x = 2`, 16 × 8 ÷ 32 = 4, and `2²` is 4.',
+      hint: 'Not quite. Join the top rows, then cross out one pair for each tile below.',
+      hints: { 'x⁷': 'Not quite. That joins the top rows but leaves out the divide. The five tiles below cancel five above.', 'x¹²': 'Not quite. That multiplies the powers. Joining rows adds them, 4 + 3, and then the five below cancel five.' } },
+    { name: 'Where the minus sits', mixed: true, panels: [{ kind: 'neg', b: '3', n: 2 }],
+      opts: ['9', '−9', '−6'], want: '−9', rt: 0.6, before: [],
+      right: [{ e: '−3²', w: '−(3 × 3) = −9' }, { e: '(−3)²', w: '(−3) × (−3) = 9', mu: true }],
+      wrong: { '9': { bad: { b: '−3', n: 2 }, lines: [{ e: '(−3)²', w: '(−3) × (−3) = 9', bad: true }] }, '−6': { lines: [{ e: '−3 × 2', w: '−6', bad: true }] } },
+      task: 'What is `−3²`?',
+      why: 'The power belongs to the 3 alone, so square the 3 first, then put the minus in front. So `−3²` is `−(3 × 3) = −9`. With a bracket, `(−3)²` is `(−3) × (−3) = 9`.',
+      hint: 'Not quite. Ask which tiles the power counts.',
+      hints: { '9': 'Not quite. That is `(−3)²`, with a bracket. Here the power belongs to the 3 alone.', '−6': 'Not quite. The power counts tiles, 3 × 3. It does not multiply by 2.' } },
+    { name: 'A bracket with a power inside', mixed: true, at: { x: 2 }, panels: [{ kind: 'brk', k: 2, fac: [['2', false], ['x', true], ['x', true], ['x', true]], try: true }],
+      opts: ['4x⁶', '2x⁶', '4x⁵'], want: '4x⁶', rt: 1.6,
+      before: [{ e: '(2x³)²', w: '16² = 256' }], right: [{ e: '4x⁶', w: '4 × 64 = 256' }],
+      wrong: { '2x⁶': { lines: [{ e: '2x⁶', w: '2 × 64 = 128', bad: true }] }, '4x⁵': { lines: [{ e: '4x⁵', w: '4 × 32 = 128', bad: true }] } },
+      task: 'Write `(2x³)²` without the bracket.',
+      why: 'The bracket is used twice, `2x³ × 2x³`. The 2s make `2² = 4`, and the `x`-tiles count 3 + 3 = 6, so `(2x³)² = 4x⁶`. At `x = 2` both make 256.',
+      hint: 'Not quite. Split both brackets into tiles and count each kind.',
+      hints: { '2x⁶': 'Not quite. The 2 is inside the bracket, so it is squared too, 2 × 2 = 4.', '4x⁵': 'Not quite. That adds the 2 to the 3. Two lots of `x³` make 3 + 3 = 6 `x`-tiles.' } },
+  ];
+  const FINISH = 'With one base, multiplying adds the powers, dividing takes them away, and a power of a power multiplies them. It works because the tiles are multiplied, while the power only counts them.';
+  // Sources the checks restate (the lesson's own).
+  const SRC1 = 'https://www.bbc.co.uk/bitesize/articles/z93nsk7';
+  const SRC3 = 'https://www.bbc.co.uk/bitesize/guides/z826y4j/revision/1';
+  const SRC4 = 'https://www.bbc.co.uk/bitesize/articles/zf4s9ty';
+  const XL = 12, XR = 328, LH = 26, FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- reading an expression (pure, so the checks can test it) ----------
+  // +, −, ×, ÷, brackets, a minus in front, powers written small, and letters side by side (16a², 2x³).
+  function val(s, vars) {
+    vars = vars || {};
+    const src = String(s).replace(/\s+/g, '');
+    let i = 0;
+    const peek = () => src[i];
+    function sum() {
+      let v = prod();
+      while (peek() === '+' || peek() === '−') { const op = src[i++]; const w = prod(); v = op === '+' ? v + w : v - w; }
+      return v;
+    }
+    function prod() {
+      let v = unary();
+      for (;;) {
+        const c = peek();
+        if (c === '×') { i++; v *= unary(); } else if (c === '÷') { i++; v /= unary(); } else if (c != null && /[0-9(a-z]/.test(c)) v *= unary(); else return v;
+      }
+    }
+    function unary() { if (peek() === '−') { i++; return -unary(); } return powr(); }
+    function powr() {
+      const v = atom();
+      let m = '';
+      while (i < src.length && SUP.indexOf(src[i]) >= 0) m += SUP.indexOf(src[i++]);
+      return m ? Math.pow(v, +m) : v;
+    }
+    function atom() {
+      const c = peek();
+      if (c === '(') { i++; const v = sum(); if (src[i] !== ')') throw new Error('no closing bracket in ' + s); i++; return v; }
+      const m = /^[0-9]+/.exec(src.slice(i));
+      if (m) { i += m[0].length; return +m[0]; }
+      if (c && /[a-z]/.test(c)) { i++; if (!(c in vars)) throw new Error('no value for ' + c); return vars[c]; }
+      throw new Error('cannot read ' + src.slice(i));
+    }
+    const v = sum();
+    if (i !== src.length) throw new Error('left over in ' + s);
+    return v;
+  }
+  // As a screen reader says it.
+  const say = (s) => String(s == null ? '' : s).replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (m) => ' to the power ' + m.split('').map((c) => SUP.indexOf(c)).join('') + ' ')
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/=/g, ' equals ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/\s+/g, ' ').trim();
+
+  // ---------- each panel's names, worked out from its numbers ----------
+  function kindsOf(p) { const ks = []; p.fac.forEach((f) => { if (ks.indexOf(f[0]) < 0) ks.push(f[0]); }); return ks; }
+  const countOf = (p, kd) => p.fac.filter((f) => f[0] === kd).length;
+  const pillOf = (p) => kindsOf(p).map((kd) => kd + (countOf(p, kd) > 1 ? sup(countOf(p, kd)) : '')).join('');
+  function tagOf(p) {
+    if (p.kind === 'pow') return P(p.b, p.n);
+    if (p.kind === 'join') return P(p.b, p.m) + ' × ' + P(p.b, p.n);
+    if (p.kind === 'div') return p.groups.map((g) => P(p.b, g)).join(' × ') + ' ÷ ' + P(p.b, p.n);
+    if (p.kind === 'grid') return '(' + P(p.b, p.m) + ')' + sup(p.n);
+    if (p.kind === 'mix') return p.parts.map((q) => P(q[0], q[1])).join(' × ');
+    if (p.kind === 'brk') return '(' + pillOf(p) + ')' + sup(p.k);
+    return '−' + P(p.b, p.n);
+  }
+  const sumOf = (a) => a.reduce((s, v) => s + v, 0);
+  STEPS.forEach((d) => { if (!d.show) d.q = tagOf(d.panels[0]); });
+  // The tiles a power is, for powers written as one base and one power.
+  // The slip line shows only from 3 tiles up: at 1 and 2 it happens to give the same value.
+  const powWork = (b, n) => [
+    { e: P(b, n), w: n > 1 ? chain(b, n) + ' = ' + valOf(b, n) : String(valOf(b, n)) },
+  ].concat(n > 2 ? [{ e: b + ' × ' + n, w: chain(b, n, '+') + ' = ' + (+b * n), bad: true }] : []);
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // n: the first screen's power; prev: the power before Dan's last change (null when none).
+  function blank() { return { pick: null, res: null, why: false, n: 5, prev: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xa](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Three answer buttons; each step fills in its own options. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one makes its move on the tiles, a wrong one draws its own tiles beside them.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(motionLen(i, st).latest);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // The first screen's power: one tile more or fewer.
+  function setN(by) {
+    if (finished || at() !== 0) return;
+    const st = S[0], v = K.clamp(st.n + by, 1, 6);
+    if (v === st.n) return;
+    st.prev = st.n; st.n = v;
+    play(motionLen(0, st).latest);
+  }
+  const lessBtn = K.button({ label: 'One tile fewer', secondary: true, into: '#tune', press: () => setN(-1) });
+  const moreBtn = K.button({ label: 'One tile more', secondary: true, into: '#tune', press: () => setN(1) });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i].prev = null;
+    play(motionLen(i, S[i]).latest);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur + 0.05; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    d = d == null ? K.SOFT : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t, d) => (t === false ? 0 : t == null ? 1 : arr(t, d));
+  // A panel's arrival (I, from when it opens) and its move (A, from when the move starts).
+  const I = (C, off, d) => (C.tin == null ? 1 : arr(C.tin + off, d));
+  const A = (C, off, d) => (C.act === false ? 0 : C.act == null ? 1 : arr(C.act + off, d));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  function text(x, y, s, cls, anchor, math) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (math) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 15 * 0.6;
+  }
+  const opSign = (x, y, op, bad) => text(x, y, op || '×', 'op' + (bad ? ' bad' : ''), 'middle', false);
+  // Tiles: S across, a gap g between them (with the sign in it), fitted to a row of N.
+  function rg(N) { const S = Math.min(38, Math.floor(316 / (N + (N - 1) * 0.34))); return { S, g: Math.round(S * 0.34) }; }
+  // One tile: its base written on it; hatched for a second base; a cancelled one (gone, 0 to 1) is
+  // a dashed outline with a stroke through it, the base still readable on a small plate.
+  function tile(x, y, S, label, o) {
+    o = o || {};
+    const fs = S >= 30 ? '' : ' sm', bad = o.bad ? ' bad' : '', gone = o.gone || 0;
+    const cx = x + S / 2, by = y + S / 2 + (fs ? 5 : 5.8), pw = Math.max(14, tw(label, 'tn' + fs) + 8), ph = fs ? 18 : 20;
+    if (gone < 1) {
+      rect('tile' + (o.hatch ? ' hatch' : '') + bad, x, y, S, S, 5);
+      if (o.hatch) rect('plate', cx - pw / 2, y + S / 2 - ph / 2, pw, ph, 3);
+      text(cx, by, label, 'tn' + fs + bad, 'middle', true);
+    }
+    if (gone > 0) part(gone, 0, () => {
+      rect('tile gone', x, y, S, S, 5);
+      line('xo', x + 5, y + S - 5, x + S - 5, y + 5);
+      rect('plate', cx - pw / 2, y + S / 2 - ph / 2, pw, ph, 3);
+      text(cx, by, label, 'tn gone' + fs, 'middle', true);
+    });
+    REC.tiles.push({ label: String(label), bad: !!o.bad, hatch: !!o.hatch, gone: (o.gone || 0) >= 0.5, x, y });
+  }
+  // Brackets with their names: under a run of tiles (the bracket's ends point up at them) or over it.
+  function bracketUnder(xa, xb, y, label, math) {
+    add(K.svg('path', { class: 'brk', d: 'M' + r3(xa) + ' ' + r3(y - 5) + ' V' + r3(y) + ' H' + r3(xb) + ' V' + r3(y - 5) }));
+    const w = tw(label, 'lab');
+    text(K.clamp((xa + xb) / 2, XL + w / 2, XR - w / 2), y + 17, label, 'lab', 'middle', math);
+  }
+  function bracketOver(xa, xb, y, label, math) {
+    add(K.svg('path', { class: 'brk', d: 'M' + r3(xa) + ' ' + r3(y + 5) + ' V' + r3(y) + ' H' + r3(xb) + ' V' + r3(y + 5) }));
+    const w = tw(label, 'lab');
+    text(K.clamp((xa + xb) / 2, XL + w / 2, XR - w / 2), y - 7, label, 'lab', 'middle', math);
+  }
+  function tagLine(p, y0, d, tag) {
+    text(XL, y0 + 22, tag || tagOf(p), 'tag', 'start', true);
+    if (p.try && d.at) { const l = Object.keys(d.at)[0]; text(XR, y0 + 22, 'Try ' + l + ' = ' + d.at[l], 'try', 'end', true); }
+  }
+
+  // ---------- the panels ----------
+  const PAN = {};
+  // A power: a row of n tiles. On the first screen Dan adds or takes away a tile.
+  PAN.pow = {
+    h: (p) => 34 + rg(p.max || p.n).S + 32,
+    draw(p, y0, C, d) {
+      const n = p.live ? C.st.n : p.n, prev = p.live && C.st.prev != null ? C.st.prev : n, { S, g } = rg(p.max || p.n), st = S + g, y = y0 + 34;
+      const tag = P(p.b, n);
+      tagLine(p, y0, d, tag);
+      part(I(C, 0), 0, () => text(XL + tw(tag, 'tag') + 14, y0 + 22, 'base ' + p.b + ', power ' + n, 'note', 'start', false));
+      const grow = prev !== n ? arr(0, 0.5) : 1;
+      for (let k = 0; k < Math.max(n, prev); k++) {
+        const a = k >= n ? 1 - grow : k >= prev ? grow : I(C, 0.12 * k);
+        part(a, 8, () => { tile(XL + k * st, y, S, p.b); if (k > 0) opSign(XL + k * st - g / 2, y + S / 2 + 5); });
+      }
+      const wNow = K.lerp(prev * st - g, n * st - g, grow);
+      part(C.lab == null ? 1 : vis(C.lab), 4, () => bracketUnder(XL, XL + wNow, y + S + 6, n + (n === 1 ? ' tile' : ' tiles'), false));
+      return 'A row of ' + n + (n === 1 ? ' tile' : ' tiles') + ', each a ' + p.b + ', multiplied together.';
+    },
+  };
+  // Multiplying: a row of m and a row of n. The labels go, the lower row slides along and up, and
+  // the two become one row of m + n.
+  PAN.join = {
+    h: (p) => 34 + 2 * rg(p.m + p.n).S + 24,
+    draw(p, y0, C, d) {
+      const { S, g } = rg(p.m + p.n), st = S + g, yA = y0 + 34, yB = yA + S + 18;
+      tagLine(p, y0, d);
+      const out = 1 - A(C, 0, 0.35), slide = A(C, 0.35, 0.6), lift = A(C, 0.95, 0.4);
+      const lab = (n) => (p.vals ? powLab(p.b, n) : P(p.b, n));
+      for (let k = 0; k < p.m; k++) part(I(C, 0.1 * k), 8, () => { tile(XL + k * st, yA, S, p.b); if (k > 0) opSign(XL + k * st - g / 2, yA + S / 2 + 5); });
+      part(Math.min(I(C, 0.1 * (p.m - 1)), out), 4, () => text(XL + p.m * st - g + 10, yA + S / 2 + 5, lab(p.m), 'lab', 'start', true));
+      const xB = XL + slide * p.m * st, yNow = K.lerp(yB, yA, lift);
+      for (let k = 0; k < p.n; k++) part(I(C, 0.4 + 0.1 * k), 8, () => { tile(xB + k * st, yNow, S, p.b); if (k > 0) opSign(xB + k * st - g / 2, yNow + S / 2 + 5); });
+      part(Math.min(I(C, 0.4 + 0.1 * (p.n - 1)), out), 4, () => text(XL + p.n * st - g + 10, yB + S / 2 + 5, lab(p.n), 'lab', 'start', true));
+      part(A(C, 1.35, 0.4), 0, () => opSign(XL + p.m * st - g / 2, yA + S / 2 + 5));
+      const tot = p.m + p.n;
+      part(A(C, 1.5), 4, () => bracketUnder(XL, XL + tot * st - g, yA + S + 6, p.m + ' + ' + p.n + ' = ' + tot + ' tiles, so ' + P(p.b, tot), true));
+      return lift >= 0.5 ? 'The two rows have joined into one row of ' + tot + ' tiles of ' + p.b + ', multiplied together.'
+        : 'A row of ' + p.m + ' tiles of ' + p.b + ', and under it a row of ' + p.n + ' more.';
+    },
+  };
+  // Dividing: the top number's tiles above the line, the bottom number's below. Each tile below is
+  // crossed out with the one above it, because a number divided by itself is 1. With two groups on
+  // top (multiply, then divide), the groups first close up into one row.
+  PAN.div = {
+    geo(p) {
+      const tot = sumOf(p.groups), multi = p.groups.length > 1, r = rg(multi ? tot + 1 : Math.max(tot, 5));
+      return { tot, multi, S: r.S, g: r.g, st: r.S + r.g, ex: multi ? Math.round(r.S * 0.8) : 0 };
+    },
+    h: (p) => 82 + 2 * PAN.div.geo(p).S,
+    draw(p, y0, C, d) {
+      const { tot, multi, S, g, st, ex } = PAN.div.geo(p), yL = y0 + 54, yT = y0 + 62, yF = yT + S + 7, yB = yT + S + 14;
+      tagLine(p, y0, d);
+      const close = multi ? A(C, 0, 0.5) : 1, gap = ex * (1 - close), c0 = multi ? 0.6 : 0, cg = p.cg || 0.3, out = 1 - A(C, 0, 0.35);
+      const xT = (k) => XL + k * st + (multi && k >= p.groups[0] ? gap : 0);
+      const gone = (j) => (j < p.n ? A(C, c0 + j * cg, 0.4) : 0);
+      for (let k = 0; k < tot; k++) part(I(C, 0.08 * k), 8, () => { tile(xT(k), yT, S, p.b, { gone: gone(k) }); if (k > 0) opSign((xT(k - 1) + S + xT(k)) / 2, yT + S / 2 + 5); });
+      part(I(C, 0), 0, () => line('frac', XL - 2, yF, XL + tot * st - g + ex + 2, yF));
+      for (let j = 0; j < p.n; j++) part(I(C, 0.5 + 0.08 * j), 8, () => { tile(XL + j * st, yB, S, p.b, { gone: gone(j) }); if (j > 0) opSign(XL + j * st - g / 2, yB + S / 2 + 5); });
+      part(I(C, 0.5 + 0.08 * (p.n - 1)), 4, () => text(XL + p.n * st - g + 10, yB + S / 2 + 5, P(p.b, p.n), 'lab', 'start', true));
+      let k0 = 0;
+      p.groups.forEach((n) => {
+        const xa = xT(k0), xb = xT(k0 + n - 1) + S;
+        part(Math.min(I(C, 0.08 * (k0 + n - 1)), out), 4, () => bracketOver(xa, xb, yL, P(p.b, n), true));
+        k0 += n;
+      });
+      const cLast = c0 + (p.n - 1) * cg;
+      part(A(C, cLast + 0.5), 4, () => bracketOver(xT(p.n), xT(tot - 1) + S, yL, p.groups.join(' + ') + ' − ' + p.n + ' = ' + (tot - p.n) + ' left', false));
+      return tot + ' tiles of ' + p.b + ' above a line and ' + p.n + ' below.' +
+        (gone(p.n - 1) >= 0.5 ? ' Each tile below is crossed out with one above it, leaving ' + (tot - p.n) + ' above.' : '');
+    },
+  };
+  // A power of a power: the row of m tiles is copied down, one row at a time, into n rows.
+  PAN.grid = {
+    h: (p) => 34 + p.n * 44 + 24,
+    draw(p, y0, C, d) {
+      const S = 34, g = 12, st = S + g, x0 = 30, yR = (r) => y0 + 34 + r * 44, rgap = p.rg || 0.3;
+      tagLine(p, y0, d);
+      let rows = 0;
+      for (let r = 0; r < p.n; r++) {
+        const s0 = (r - 1) * rgap, y = r === 0 ? yR(0) : K.lerp(yR(r - 1), yR(r), A(C, s0, 0.6)), a = r === 0 ? null : A(C, s0, 0.3);
+        if (r === 0 || a > 0) rows++;
+        for (let k = 0; k < p.m; k++) part(r === 0 ? I(C, 0.1 * k) : a, r === 0 ? 8 : 0, () => { tile(x0 + k * st, y, S, p.b); if (k > 0) opSign(x0 + k * st - g / 2, y + S / 2 + 5); });
+        part(r === 0 ? I(C, 0.1 * p.m) : A(C, s0 + 0.5, 0.4), 4, () => {
+          text(x0 + p.m * st - g + 12, yR(r) + S / 2 + 5, p.vals ? powLab(p.b, p.m) : P(p.b, p.m), 'lab', 'start', true);
+          if (r > 0) opSign(17, yR(r) + S / 2 + 5);
+        });
+      }
+      const label = p.n + ' rows of ' + p.m + ' = ' + p.n * p.m + ' tiles, so ' + P(p.b, p.n * p.m), w = tw(label, 'lab');
+      part(A(C, (p.n - 2) * rgap + 0.8), 4, () => text(K.clamp(x0 + (p.m * st - g) / 2, XL + w / 2, XR - w / 2), yR(p.n - 1) + S + 20, label, 'lab', 'middle', true));
+      return 'A row of ' + p.m + ' tiles of ' + p.b + (rows > 1 ? ', repeated in ' + rows + ' rows.' : '.');
+    },
+  };
+  // Two bases in one row: the second is hatched, and each is counted on its own.
+  PAN.mix = {
+    h: (p) => 34 + rg(sumOf(p.parts.map((q) => q[1]))).S + 32,
+    draw(p, y0, C, d) {
+      const { S, g } = rg(sumOf(p.parts.map((q) => q[1]))), st = S + g, y = y0 + 34;
+      tagLine(p, y0, d);
+      let k = 0;
+      p.parts.forEach((q) => {
+        const k0 = k;
+        for (let j = 0; j < q[1]; j++, k++) { const kk = k; part(I(C, 0.08 * kk), 8, () => { tile(XL + kk * st, y, S, q[0], { hatch: q[2] }); if (kk > 0) opSign(XL + kk * st - g / 2, y + S / 2 + 5); }); }
+        part(C.lab == null ? 1 : vis(C.lab), 4, () => bracketUnder(XL + k0 * st, XL + (k0 + q[1]) * st - g, y + S + 6, WORDS[q[1]] + ' ' + q[0] + 's', false));
+      });
+      return p.parts.map((q) => WORDS[q[1]] + (q[2] ? ' hatched' : '') + ' tiles of ' + q[0]).join(' and ') + ', multiplied together.';
+    },
+  };
+  // A bracket to a power: k blocks, each splitting into its tiles, which regroup by kind.
+  PAN.brk = {
+    geo(p) {
+      const nf = p.fac.length, r = rg(p.k * nf), S1 = Math.min(r.S, nf > 2 ? 24 : 34), pad = 6, g1 = 5;
+      return { nf, S: r.S, g: r.g, st: r.S + r.g, S1, g1, pad, pw: nf * S1 + (nf - 1) * g1 + 2 * pad, ph: S1 + 2 * pad, pgap: 26 };
+    },
+    h: (p) => { const G = PAN.brk.geo(p); return 34 + G.ph + 26 + G.S + 32; },
+    draw(p, y0, C, d) {
+      const G = PAN.brk.geo(p), yP = y0 + 34, yR = yP + G.ph + 26, pill = pillOf(p), kinds = kindsOf(p);
+      tagLine(p, y0, d);
+      const split = A(C, 0, 0.4), go = A(C, 0.45, 0.7);
+      const slots = [];
+      kinds.forEach((kd) => { for (let i = 0; i < p.k; i++) p.fac.forEach((f, j) => { if (f[0] === kd) slots.push({ i, j }); }); });
+      const px = (i) => XL + i * (G.pw + G.pgap);
+      for (let i = 0; i < p.k; i++) {
+        const a = I(C, 0.15 * i);
+        part(Math.min(a, 1 - go), 6, () => { rect('pill', px(i), yP, G.pw, G.ph, 8); if (i > 0) opSign(px(i) - G.pgap / 2, yP + G.ph / 2 + 5); });
+        part(Math.min(a, 1 - split), 0, () => text(px(i) + G.pw / 2, yP + G.ph / 2 + 6, pill, 'tn', 'middle', true));
+      }
+      slots.forEach((s, m) => {
+        const f = p.fac[s.j], xa = px(s.i) + G.pad + s.j * (G.S1 + G.g1), ya = yP + G.pad, xb = XL + m * G.st;
+        const sz = K.lerp(G.S1, G.S, go), x = K.lerp(xa, xb, go), y = K.lerp(ya, yR, go);
+        part(split, 0, () => tile(x, y, sz, f[0], { hatch: f[1] }));
+        if (m > 0) part(A(C, 1.15, 0.4), 0, () => opSign(XL + m * G.st - G.g / 2, yR + G.S / 2 + 5));
+      });
+      let m0 = 0;
+      kinds.forEach((kd) => {
+        const n = p.k * countOf(p, kd), xa = XL + m0 * G.st, xb = XL + (m0 + n) * G.st - G.g;
+        part(A(C, 1.25), 4, () => bracketUnder(xa, xb, yR + G.S + 6, isNum(kd) ? powLab(kd, n) : P(kd, n), true));
+        m0 += n;
+      });
+      const words = kinds.map((kd) => p.k * countOf(p, kd) + ' tiles of ' + kd).join(' and ');
+      return go >= 0.5 ? 'The tiles regroup into ' + words + '.' : split >= 0.5 ? p.k + ' blocks of ' + say(pill) + ', each split into its tiles.' : p.k + ' blocks of ' + say(pill) + ', multiplied.';
+    },
+  };
+  // A minus in front of a power: the power counts the tiles, and the minus waits outside.
+  PAN.neg = {
+    h: () => 34 + 38 + 36,
+    draw(p, y0, C, d) {
+      tagLine(p, y0, d);
+      const a = I(C, 0), y = y0 + 34, S = 38, g = 13, x0 = 40;
+      part(a, 6, () => {
+        rect('grp', x0 - 6, y - 5, p.n * S + (p.n - 1) * g + 12, S + 10, 8);
+        text(22, y + S / 2 + 6, '−', 'tag', 'middle', false);
+        for (let k = 0; k < p.n; k++) { tile(x0 + k * (S + g), y, S, p.b); if (k > 0) opSign(x0 + k * (S + g) - g / 2, y + S / 2 + 5); }
+      });
+      part(A(C, 0.4), 4, () => bracketUnder(x0, x0 + p.n * S + (p.n - 1) * g, y + S + 13, powLab(p.b, p.n), true));
+      return a >= 0.5 ? 'A minus sign in front of ' + WORDS[p.n] + ' tiles of ' + p.b + ', multiplied.' : '';
+    },
+  };
+
+  // A wrong answer's own tiles, drawn in the warning colour under the question's.
+  const BS = 30, BG = 10;
+  const badH = (b) => (b ? 24 + Math.ceil(b.n / (b.cols || b.n)) * (BS + 8) : 0);
+  function badLabel(b) { return b.op === '+' ? WORDS[b.n] + ' ' + b.b + 's added' : P(b.b, b.n) + ' is ' + b.n + ' tiles of ' + b.b; }
+  function drawBad(b, y, a) {
+    part(a, 6, () => {
+      text(XL, y + 16, badLabel(b), 'lab bad', 'start', true);
+      const cols = b.cols || b.n;
+      for (let k = 0; k < b.n; k++) {
+        const c = k % cols, x = XL + c * (BS + BG), yy = y + 24 + Math.floor(k / cols) * (BS + 8);
+        tile(x, yy, BS, b.b, { bad: true });
+        if (c > 0) opSign(x - BG / 2, yy + BS / 2 + 5, b.op || '×', true);
+      }
+    });
+    return a >= 0.5 ? 'Beside it, the slip: ' + say(badLabel(b)) + '.' : '';
+  }
+  // A line of working: the expression on the left, what it makes on the right.
+  function drawWork(r, y, a, vars) {
+    const c = r.bad ? ' bad' : r.mu ? ' mu' : '';
+    part(a, 6, () => { text(XL, y, r.e + ' =', 'te' + c, 'start', true); text(XR, y, r.w, 'tw' + c, 'end', true); });
+    if (a >= 0.5) REC.work.push({ e: r.e, w: r.w, bad: !!r.bad, vars });
+    return a >= 0.5 ? say(r.e) + ' equals ' + say(r.w) + (r.bad ? ', a slip.' : '.') : '';
+  }
+  // The key, inside the drawing.
+  const KEYS = { tile: 'one copy of the base', hatch: 'the other base in that row', gone: 'a cancelled pair' };
+  function keyItems(d) {
+    const ks = ['tile'];
+    if (d.panels.some((p) => p.kind === 'mix' || p.kind === 'brk')) ks.push('hatch');
+    if (d.panels.some((p) => p.kind === 'div')) ks.push('gone');
+    return ks;
+  }
+  function keyLayout(ks) {
+    let x = XL, row = 0;
+    return ks.map((k) => {
+      const w = 20 + tw(KEYS[k], 'key');
+      if (x > XL && x + w > XR) { x = XL; row++; }
+      const it = { k, x, row };
+      x += w + 18;
+      return it;
+    });
+  }
+  function drawKey(G) {
+    keyLayout(G.keys).forEach((it) => {
+      const y = G.keyY + it.row * 22;
+      if (it.k === 'gone') { rect('tile gone', it.x, y - 7, 14, 14, 3); line('xo', it.x + 3, y + 4, it.x + 11, y - 4); }
+      else rect('tile' + (it.k === 'hatch' ? ' hatch' : ''), it.x, y - 7, 14, 14, 3);
+      text(it.x + 20, y + 5, KEYS[it.k], 'key', 'start', false);
+    });
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(i) {
+    if (GEO.has(i)) return GEO.get(i);
+    const d = STEPS[i], G = { py: [], wy: [] };
+    let y = 4;
+    d.panels.forEach((p, k) => {
+      G.py[k] = y; y += PAN[p.kind].h(p);
+      if (d.show) { const n = p.live ? 2 : (p.work || []).length; G.wy[k] = y; y += n ? n * LH + 8 : 0; }
+    });
+    if (!d.show) {
+      const ws = Object.keys(d.wrong).map((o) => d.wrong[o]);
+      G.badY = y; y += Math.max(0, ...ws.map((w) => badH(w.bad)));
+      G.workY = y;
+      const n = (d.before || []).length + Math.max(d.right.length, ...ws.map((w) => w.lines.length));
+      y += n ? n * LH + 8 : 0;
+    }
+    G.keys = keyItems(d);
+    const rows = 1 + Math.max(...keyLayout(G.keys).map((it) => it.row));
+    G.keyY = y + 16; y += 8 + rows * 22;
+    G.H = Math.ceil(y + 6);
+    GEO.set(i, G);
+    return G;
+  }
+  // A panel's timetable in a step's state: tin, when it starts arriving (null: there from the
+  // start); act, when its move starts (false: not yet; null: done).
+  function ctxOf(d, st, p) {
+    if (d.show) {
+      if (p.live && st.prev != null) return { tin: null, act: null, lab: null, st };
+      return { tin: p.tl.in, act: p.tl.act == null ? null : p.tl.act, lab: p.tl.lab, st };
+    }
+    return { tin: null, act: st.res === 'right' ? 0.1 : false, lab: null, st };
+  }
+  // The whole picture for a step now; returns it in words.
+  function drawScene(i, d, st, G) {
+    REC = { tiles: [], work: [] };
+    const said = [];
+    d.panels.forEach((p, k) => {
+      const C = ctxOf(d, st, p);
+      said.push(say(p.live ? P(p.b, st.n) : tagOf(p)) + '.');
+      said.push(PAN[p.kind].draw(p, G.py[k], C, d));
+      if (d.show) {
+        const ws = p.live ? powWork(p.b, st.n) : (p.work || []), now = p.live && st.prev != null;
+        ws.forEach((r, m) => said.push(drawWork(r, G.wy[k] + 20 + LH * m, now ? 1 : vis(p.tl.work[m]), d.at || {})));
+      }
+    });
+    if (!d.show) {
+      const right = st.res === 'right', wrong = st.res === 'wrong' && st.pick != null ? d.wrong[st.pick] : null;
+      if (wrong && wrong.bad) said.push(drawBad(wrong.bad, G.badY, vis(0.1, 0.5)));
+      const lines = (d.before || []).map((r) => ({ r, t: null }));
+      if (right) d.right.forEach((r, m) => lines.push({ r, t: d.rt + 0.3 * m }));
+      else if (wrong) wrong.lines.forEach((r, m) => lines.push({ r, t: 0.25 + 0.3 * m }));
+      lines.forEach((l, m) => said.push(drawWork(l.r, G.workY + 20 + LH * m, vis(l.t), d.at || {})));
+    }
+    drawKey(G);
+    return said.filter(Boolean).join(' ');
+  }
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(i);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    svg.setAttribute('aria-label', drawScene(i, d, st, G));
+  }
+  // How long a step's motion takes in a state: the latest arrival, and the earliest start.
+  function motionLen(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity; latest = 0; earliest = Infinity;
+    try { paint(i); } finally { S[i] = keepS; T = keepT; }
+    return { latest, earliest };
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.prev = null; play(motionLen(i, st).latest); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + (d.mixed ? ' · mixed' : '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('tune').hidden = finished || i !== 0;
+    lessBtn.el.disabled = S[0].n <= 1;
+    moreBtn.el.disabled = S[0].n >= 6;
+    replayBtn.setLabel(d.replay || 'Play again');
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      italics(b.el.appendChild(K.el('span')), opts[k], false);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const close = (a, b) => Math.abs(a - b) < 1e-9 * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // Values tried for every letter: whole numbers, a half and a negative.
+  const ENVS = [1, 2, 3, 5, 0.5, -2].map((v) => ({ x: v, a: v }));
+  const same = (p, q) => ENVS.every((e) => close(val(p, e), val(q, e)));
+  const adds = (r, vars) => { const v = val(r.e, vars || {}); return r.w.split('=').every((part) => close(val(part, {}), v)); };
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return { texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent), tiles: REC.tiles.slice(), work: REC.work.slice() };
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('The power or index shows how many times a number has been multiplied by itself: at every power on the first screen the row holds exactly that many tiles of the base, and its working multiplies that many copies', () =>
+    [1, 2, 3, 4, 5, 6].every((n) => {
+      const g = drawn(0, Object.assign(blank(), { n })), t = g.tiles.filter((x) => !x.bad);
+      return t.length === n && t.every((x) => x.label === '2') && g.work.length === 2 && g.work[0].e === P('2', n) &&
+        close(val(g.work[0].e), Math.pow(2, n)) && g.work[0].w.split(' × ').length === n && g.texts.indexOf(n + (n === 1 ? ' tile' : ' tiles')) >= 0;
+    }), { source: SRC3 });
+  K.check('The base numbers are the same (9), so add the indices together (3 + 5 = 8): 9³ × 9⁵ = 9⁸, and the joined row holds 8 tiles of 9', () => {
+    const i = idx('Add the powers'), d = STEPS[i], g = drawn(i, solvedSt(i)), nines = g.tiles.filter((x) => x.label === '9' && !x.bad);
+    return d.want === '9⁸' && d.q === '9³ × 9⁵' && close(val('9³ × 9⁵'), val('9⁸')) && nines.length === 8 &&
+      nines.every((x) => close(x.y, nines[0].y)) && g.texts.indexOf('3 + 5 = 8 tiles, so 9⁸') >= 0;
+  }, { source: SRC1 });
+  K.check('Three of the eights from the top row and all of the eights on the bottom row have been crossed out, leaving eight multiplied by eight, eight squared', () => {
+    const i = idx('Dividing crosses out pairs'), g = drawn(i, blank()), ys = g.tiles.map((x) => x.y), top = Math.min(...ys), bot = Math.max(...ys);
+    const up = g.tiles.filter((x) => x.label === '8' && close(x.y, top)), down = g.tiles.filter((x) => x.label === '8' && close(x.y, bot));
+    return up.length === 5 && down.length === 3 && up.filter((x) => x.gone).length === 3 && down.every((x) => x.gone) &&
+      g.work.some((r) => r.w === '8 × 8 = 64') && close(val('8⁵ ÷ 8³'), 64);
+  }, { source: SRC1 });
+  K.check('To raise to a power for a given base, multiply the indices: each grid holds its row of tiles once for every row, rows times tiles in a row', () => {
+    const i6 = idx('A power of a power repeats a row'), i7 = idx('Repeat a row of x');
+    const a = drawn(i6, blank()).tiles.filter((x) => x.label === '2'), b = drawn(i7, solvedSt(i7)).tiles.filter((x) => x.label === 'x');
+    return a.length === 12 && new Set(a.map((x) => x.y)).size === 3 && b.length === 12 && new Set(b.map((x) => x.y)).size === 4 &&
+      close(val('(2⁴)³'), val('2¹²')) && same('(x³)⁴', 'x¹²');
+  }, { source: SRC4 });
+  K.check('A second base is hatched and counted on its own: 2³ × 3² keeps three 2-tiles and two hatched 3-tiles, 8 × 9 = 72, not 6⁵ = 7776, and each bracket regroups into its own kinds of tile', () => {
+    const g = drawn(idx('A second base stays apart'), blank()).tiles, n = (lab, h) => g.filter((x) => x.label === lab && x.hatch === h).length;
+    const i9 = idx('Square the number too'), i12 = idx('A bracket with a power inside');
+    const r9 = drawn(i9, solvedSt(i9)).tiles, r12 = drawn(i12, solvedSt(i12)).tiles;
+    return n('2', false) === 3 && n('3', true) === 2 && n('3', false) === 2 && n('x', true) === 2 && close(val('2³ × 3²'), 72) && close(val('6⁵'), 7776) &&
+      r9.filter((x) => x.label === '4' && !x.hatch).length === 2 && r9.filter((x) => x.label === 'a' && x.hatch).length === 2 &&
+      r12.filter((x) => x.label === '2' && !x.hatch).length === 2 && r12.filter((x) => x.label === 'x' && x.hatch).length === 6 && same('(3x)²', '9x²');
+  });
+  K.check('Every line of working on every screen adds up at the number tried, and the first screen\'s working is right at every power from 1 to 6', () => {
+    const all = [];
+    STEPS.forEach((d) => {
+      if (d.show) d.panels.forEach((p) => (p.live ? [1, 2, 3, 4, 5, 6].map((n) => powWork(p.b, n)).flat() : p.work || []).forEach((r) => all.push([r, d.at])));
+      else [d.before || [], d.right].concat(Object.keys(d.wrong).map((o) => d.wrong[o].lines)).forEach((ls) => ls.forEach((r) => all.push([r, d.at])));
+    });
+    return all.length > 30 && all.every((x) => adds(x[0], x[1]));
+  });
+  K.check('Each puzzle draws the expression it asks about and accepts only its right answer, which equals the question at every number tried, while every wrong answer makes a different value', () =>
+    DO.every((i) => {
+      const d = STEPS[i], at = d.at || {};
+      return drawn(i, blank()).texts.indexOf(d.q) >= 0 && same(d.q, d.want) && d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 &&
+        d.opts.every((o) => pickRight(i, o) === (o === d.want)) && d.opts.every((o) => o === d.want || !close(val(o, at), val(d.q, at))) &&
+        Object.keys(d.wrong).length === 2 && Object.keys(d.wrong).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want);
+    }));
+  K.check('Before an answer, nothing in a puzzle\'s picture shows the answer, and a wrong pick draws its own tiles to count beside the question\'s', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g = drawn(i, blank());
+      if (g.texts.some((t) => t === d.want || t === d.want + ' =') || g.tiles.some((x) => x.gone || x.bad)) return false;
+      return Object.keys(d.wrong).every((o) => {
+        const b = d.wrong[o].bad;
+        if (!b) return true;
+        const h = drawn(i, wrongSt(i, o)), bad = h.tiles.filter((x) => x.bad);
+        return bad.length === b.n && bad.every((x) => x.label === b.b) && h.tiles.filter((x) => !x.bad).length === g.tiles.length && close(val(o, {}), val(P(b.b, b.n), {})) === (b.op !== '+');
+      });
+    }));
+  K.check('Every demonstration has arrived within 5 s of its screen opening, nothing starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, and every change of power within 2.5 s', () => {
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const m = motionLen(i, blank()); return m.latest <= 5 && m.latest >= 3 && m.earliest >= FADE; }
+      return motionLen(i, solvedSt(i)).latest <= 2.5 && d.opts.filter((o) => o !== d.want).every((o) => motionLen(i, wrongSt(i, o)).latest <= 2.5);
+    }) && motionLen(0, Object.assign(blank(), { n: 4, prev: 5 })).latest <= 2.5 && motionLen(0, Object.assign(blank(), { n: 6, prev: 5 })).latest <= 2.5;
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

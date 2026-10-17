@@ -1,0 +1,18 @@
+{
+  "title": "Powers and roots you will actually use",
+  "hook": "Push twice the current through the same resistor and it turns four times as much power into heat. Why four and not two, and what would three times the current do?",
+  "oneBreath": "A power is a short way to write the same number multiplied by itself, and three laws let you multiply, divide and stack powers by counting instead of writing them out. Followed through, those laws say what a zero, negative or fractional power has to mean, and a fractional power turns out to be a root. Powers of ten then give you prefixes such as mA and kV, units such as mm² and m s⁻², and the reason a small change in one quantity can make a big change in another.",
+  "ideas": [
+    { "id": "i1", "title": "Powers and the three laws", "oneLine": "A power counts copies of the base multiplied together, so with one base 9³ × 9⁵ = 9⁸, 8⁵ ÷ 8³ = 8² and (a⁴)³ = a¹².", "deps": [], "kind": "concept" },
+    { "id": "i2", "title": "Zero and negative powers", "oneLine": "Each step down in power divides by the base, so a negative power means one over, never a negative number: 4⁻² is 1/16.", "deps": ["i1"], "kind": "concept" },
+    { "id": "i3", "title": "Roots and surds", "oneLine": "A square root is the side of a square of that area, and leaving it as a surd, such as √3 m, keeps it exact instead of rounded.", "deps": ["i1"], "kind": "concept" },
+    { "id": "i4", "title": "Fractional powers", "oneLine": "A fractional power is a root, with the bottom number the root and the top the power, so 8^(1/3) = 2 and 27^(5/3) = 243.", "deps": ["i1", "i2", "i3"], "kind": "concept" },
+    { "id": "i5", "title": "Powers of ten and prefixes", "oneLine": "Multiplying by a power of ten slides the digits, and each multiple of 3 has a prefix, so 0.0047 A is 4.7 × 10⁻³ A, or 4.7 mA.", "deps": ["i1", "i2"], "kind": "skill" },
+    { "id": "i6", "title": "Units with powers", "oneLine": "A power on a unit takes its prefix too, so 1 mm² = (10⁻³ m)² = 10⁻⁶ m² and 1 cm³ = 10⁻⁶ m³.", "deps": ["i2", "i5"], "kind": "skill" },
+    { "id": "i7", "title": "Powers in formulas", "oneLine": "When one quantity changes by a factor, the result changes by that factor raised to the formula's power, as in P = I²R and the inverse square law.", "deps": ["i1", "i2", "i3", "i4"], "kind": "quantity" }
+  ],
+  "calibration": [
+    { "id": "c1", "iid": "i1", "q": "Which is bigger: 2⁵ or 5²?", "options": ["5²", "They are the same", "2⁵"], "answer": 2, "why": "2⁵ is five 2s multiplied, 2 × 2 × 2 × 2 × 2 = 32, while 5² is 5 × 5 = 25. They are not the same: swapping the base and the power changes what is multiplied and how many times." },
+    { "id": "c2", "iid": "i3", "q": "A 36 m² square and a 64 m² square are swapped for one square of the same total area. How long is its side?", "options": ["14 m", "10 m", "50 m"], "answer": 1, "why": "The total area is 100 m², and 10 m × 10 m = 100 m², so the side is 10 m. Adding the two sides, 6 m + 8 m = 14 m, gives a square of 196 m², and 50 m halves the area instead of finding a side." }
+  ]
+}

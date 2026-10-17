@@ -1,0 +1,302 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Powers and roots you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i1 "Powers and the three laws" — A power counts copies of the base multiplied together, so with one base 9³ × 9⁵ = 9⁸, 8⁵ ÷ 8³ = 8² and (a⁴)³ = a¹². [concept]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i2 Zero and negative powers — Each step down in power divides by the base, so a negative power means one over, never a negative number: 4⁻² is 1/16.
+- i3 Roots and surds — A square root is the side of a square of that area, and leaving it as a surd, such as √3 m, keeps it exact instead of rounded.
+- i4 Fractional powers — A fractional power is a root, with the bottom number the root and the top the power, so 8^(1/3) = 2 and 27^(5/3) = 243.
+- i5 Powers of ten and prefixes — Multiplying by a power of ten slides the digits, and each multiple of 3 has a prefix, so 0.0047 A is 4.7 × 10⁻³ A, or 4.7 mA.
+- i6 Units with powers — A power on a unit takes its prefix too, so 1 mm² = (10⁻³ m)² = 10⁻⁶ m² and 1 cm³ = 10⁻⁶ m³.
+- i7 Powers in formulas — When one quantity changes by a factor, the result changes by that factor raised to the formula's power, as in P = I²R and the inverse square law.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] Using an index or power - Laws of indices - AQA - GCSE Maths Revision - AQA - BBC Bitesize — https://www.bbc.co.uk/bitesize/guides/z826y4j/revision/1
+    "The power or index shows how many times a number has been multiplied by itself."
+[R2] Laws of indices for multiplication and division - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/z93nsk7
+    "The base numbers are the same (9), so add the indices together (3 + 5 = 8). 9³ x 9⁵ = 9⁸"
+[R3] Laws of indices for multiplication and division - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/z93nsk7
+    "Three of the eights from the top row and all of the eights on the bottom row have been crossed out – leaving eight multiplied by eight equals eight squared."
+[R4] Laws of indices - GCSE Maths Revision - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zf4s9ty
+    "To raise to a power for a given base, multiply the indices"
+[R5] Radicals (Roots) and Fractional Exponents - UM Math Prep — University of Michigan — https://prep.math.lsa.umich.edu/cgi-bin/pmc/crtopic?crssxn=prep&sxn=1&top=2
+    "Fractional exponents are defined as roots, which makes sense from the rule for powers of powers"
+[R6] NIST Guide to the SI, Chapter 6: Rules and Style Conventions for Printing and Using Units | NIST — https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-6-rules-and-style-conventions-printing-and-using
+    "The grouping formed by a prefix symbol attached to a unit symbol constitutes a new inseparable symbol (forming a multiple or submultiple of the unit concerned) which can be raised to a positive or negative power"
+[R7] Milli- - Wikipedia — https://en.wikipedia.org/wiki/Milli-
+    "Milli (symbol m ) is a unit prefix in the metric system denoting a factor of one thousandth (10 −3 )."
+Notes (claims, and the sources that support them):
+- A power's index shows how many times a number has been multiplied by itself. [R1]
+- With the same base, multiplying powers adds the indices: 9³ × 9⁵ = 9⁸. [R2]
+- Dividing powers of one base cancels common factors: three eights from the top and all those below leave 8 × 8, which is 8². [R3]
+- Raising a power to a power multiplies the indices. [R4]
+- A power's index says how many times the base is multiplied by itself, and the index laws apply when the bases are the same. [R1][R2]  (whole topic)
+- Fractional exponents are defined as roots, which makes sense from the rule for powers of powers. [R5]  (whole topic)
+- A prefix on a unit symbol forms one new symbol that can be raised to a power, and milli is the prefix for one thousandth, 10⁻³. [R6][R7]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i1",
+ "title": "Powers and the three laws",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is a row of three 2-tiles and one of four joining into a row of seven, 2³ × 2⁴ = 2⁷, the tiles multiplied while their count adds, when you press Multiply.",
+  "title": "Factor tiles",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens on factor tiles. A power is drawn as a row of tiles, one tile for each copy of the base, with × signs between them, and its value written out in full under the row, so 2⁵ is five 2-tiles with 2 × 2 × 2 × 2 × 2 = 32 beneath. The tiles are multiplied together, and the small power is how many tiles there are. On the first screen a stepper sets the power from 1 to 6, and the row grows or shrinks one tile at a time. Multiply joins two rows of the same base end to end, so three 2-tiles and four 2-tiles make one row of seven, and the value under it, 128, matches 8 × 16. Divide sets the top number's row above the bottom number's and crosses out one tile above against each tile below, because 8 ÷ 8 is 1, so the tiles left above are the answer. Power of a power repeats a row: (2⁴)³ is the row of four repeated in 3 rows, a grid of 12 tiles, and its value, 4096, matches 16 × 16 × 16. A second base is hatched. Its tiles multiply in with the others but are counted on their own, so 2³ × 3² keeps three 2-tiles and two hatched 3-tiles, 8 × 9 = 72, with no single count to write. A bracket such as (3x)² is drawn as two 3x blocks, each splitting into a 3-tile and a hatched x-tile, and they regroup into two 3-tiles and two x-tiles, 3² × x² = 9x². Screens 1, 3, 5, 7 and 9 show an idea, screens 2, 4, 6, 8 and 10 ask you to try it, and screens 11 to 13 mix the laws. A puzzle offers three answers, and a wrong pick draws its tiles beside the right ones, or puts a number in for the letter, so the two can be seen to differ.",
+  "ignores": "Tiles are whole copies, so the picture shows only whole-number powers from 1 up; the next lessons find what zero, negative and fractional powers mean. Rows are kept short to fit the screen, while the values grow fast: 2¹² is 4096 though its grid holds only 12 tiles. A letter tile such as x stands for any number, and every law here holds whatever it is, except that you cannot divide by a base of zero. You may know x² as the area of a square and x³ as the volume of a cube: that is the same multiplying, drawn as a square or a cube instead of a row. The puzzles' numbers are examples.",
+  "numbers": [
+   {
+    "label": "Opening example 2⁵ = 2 × 2 × 2 × 2 × 2, in step 1",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Opening power on the stepper, in step 1",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stepper's highest power, 2⁶ = 64, in step 1",
+    "value": 6,
+    "kind": "assumed"
+   },
+   {
+    "label": "The slip 2 × 5, five 2s added, in step 1",
+    "value": 10,
+    "kind": "computed"
+   },
+   {
+    "label": "2³ = 8, not 2 × 3 = 6 or 3² = 9, in step 2",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 2 × 3, in step 2",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 3² = 3 × 3, in step 2",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "2³ × 2⁴: 3 + 4 = 7 tiles, 2⁷, in step 3",
+    "value": 7,
+    "kind": "computed"
+   },
+   {
+    "label": "2⁷ = 128, and 8 × 16 = 128, in step 3",
+    "value": 128,
+    "kind": "computed"
+   },
+   {
+    "label": "9³ × 9⁵ = 9⁸, not 9¹⁵ (3 × 5) or 81⁸, in step 4",
+    "value": 8,
+    "kind": "computed",
+    "source": 1
+   },
+   {
+    "label": "8⁵ ÷ 8³: three pairs crossed out, 8² = 64 left, in step 5",
+    "value": 64,
+    "kind": "computed",
+    "source": 2
+   },
+   {
+    "label": "5⁶ ÷ 5² = 5⁴ = 625, not 5³ (6 ÷ 2) or 1⁴, in step 6",
+    "value": 625,
+    "kind": "computed"
+   },
+   {
+    "label": "(2⁴)³: 3 × 4 = 12 tiles, 2¹², in step 7",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "2¹² = 4096, and 16 × 16 × 16 = 4096, in step 7",
+    "value": 4096,
+    "kind": "computed"
+   },
+   {
+    "label": "(x³)⁴ = x¹², not x⁷ or 4x³; at x = 2: 4096, 128, 32, in step 8",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "2³ × 3² = 8 × 9 = 72, in step 9",
+    "value": 72,
+    "kind": "computed"
+   },
+   {
+    "label": "The slip 6⁵, in step 9",
+    "value": 7776,
+    "kind": "computed"
+   },
+   {
+    "label": "(3x)² = 9x²; at x = 2 both make 36, in step 9",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "(4a)² = 16a², not 4a² or 8a; at a = 3: 144, 36, 24, in step 10",
+    "value": 144,
+    "kind": "computed"
+   },
+   {
+    "label": "x⁴ × x³ ÷ x⁵ = x², not x⁷ or x¹²; at x = 2: 16 × 8 ÷ 32 = 4, in step 11",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "−3² = −9, not 9 or −6; (−3)² = 9, in step 12",
+    "value": -9,
+    "kind": "computed"
+   },
+   {
+    "label": "(2x³)² = 4x⁶, not 2x⁶ or 4x⁵; at x = 2: 256, 128, 128, in step 13",
+    "value": 256,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: example ratio of each step-up stage",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy: three stages, 10³",
+    "value": 1000,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: five stages, 10⁵",
+    "value": 100000,
+    "kind": "computed"
+   },
+   {
+    "label": "Mistake: 2² × 2³ = 4 × 8 = 32 = 2⁵, but 2⁶ = 64",
+    "value": 64,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example check at a = 2: both sides make 128",
+    "value": 128,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: (2 × 8)² = 256, × 16 = 4096, ÷ 32 = 128",
+    "value": 4096,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "A power is a short way to write the same number multiplied by itself, and three laws let you multiply, divide and stack powers by counting instead of writing them all out. 2⁵ means five 2s multiplied together, 2 × 2 × 2 × 2 × 2, which is 32.[^3] The 2 is the [[base]], the number being multiplied, and the small 5 is the [[power]], also called the [[index]];[^3] at college you will hear \"indices\" for more than one. Picture each 2 as a tile in a row, with × between the tiles. For a whole-number power like this, the power is the count of tiles, not a multiplier. 2 × 5 is 10, five 2s added, while 2⁵ is five 2s multiplied, 32. In the same way 2³ is 2 × 2 × 2 = 8, but 3² is 3 × 3 = 9.\n\nAll three laws come from one fact the tiles show: the tiles are multiplied together, but it is their count that you add, take away or multiply. To multiply 2³ × 2⁴, write it out: three 2s multiplied, then four more 2s multiplied on. Join the two rows and there are 3 + 4 = 7 tiles, so 2³ × 2⁴ = 2⁷. As a check, 8 × 16 = 128, and 2⁷ is 128 too. So with the same base, multiplying adds the powers, as in 9³ × 9⁵ = 9⁸.[^1] To divide 8⁵ by 8³, write the five 8s above the line and the three 8s below. Each 8 below cancels one 8 above, because 8 ÷ 8 is 1, and two 8s are left, 8².[^2] So dividing takes the bottom power from the top one. (a⁴)³ means three a⁴s multiplied together, so the row of four tiles is repeated in 3 rows. That is 3 × 4 = 12 tiles, a¹², so raising a power to a power multiplies the powers.[^4]\n\nThe count works only for tiles of one base. 2³ × 3² is three 2s and two 3s multiplied, 8 × 9 = 72, and there is no single row to count, so it is not 6⁵, which is 7776. A bracket raised to a power powers every factor inside it. (3x)² is 3x × 3x, which is 3 × 3 × x × x, so the 3s and the x's are counted separately, 3² × x² = 9x². The course's puzzle starts here: in P = I²R, I² is two current tiles, I × I, so any change you make to the current turns up in both of them. The next lessons follow these same laws to find what a zero, negative or fractional power has to mean.\n\n**With one base, multiplying adds the powers, dividing takes them away, and a power of a power multiplies them,[^1][^2][^4] because the copies of the base are multiplied while a whole-number power counts them.**"
+ },
+ "analogy": {
+  "text": "Say you chain step-up stages that each multiply a voltage by 10. Each stage is a tile and the 10 is the base. Three stages multiply by 10³ = 1000, and two more make five stages, which multiply by 10⁵ = 100,000. The stages multiply, while their count adds: 10³ × 10² = 10⁵.",
+  "breaks": "A real transformer loses a little power, and stepping the voltage up steps the current down, so this follows the voltage ratio only. A ×10 stage followed by a ×2 stage gives ×20, and you cannot add the stage counts, just as 2³ × 3² has no single tile count."
+ },
+ "practice": {
+  "text": "- Check the bases match. If one base is a power of the other, rewrite it first: 4² is (2²)², which is 2⁴, so 2³ × 4² = 2³ × 2⁴ = 2⁷.\n- Multiplying with one base: add the powers.\n- Dividing with one base: take the bottom power from the top one. The base must not be zero, because you cannot divide by zero.\n- A power of a power: multiply the powers.\n- A bracket: raise every factor inside to the power, numbers as well as letters.\n- Unsure? Write the factors out and count them, or put a small number in and compare.\n\n**Rule of thumb:** The tiles multiply and the powers count. Join rows and you add, cross out and you take away, repeat a row and you multiply.\n\n**On a calculator:** textbooks add that a scientific calculator has a power key, marked ^ or xʸ. Key 2, the power key, 5 and = to get 32.\n\n**Worked example:** Simplify (2a³)² × a⁴ ÷ a⁵, with a not zero. The bracket powers both its factors: 2² is 4 and (a³)² is a⁶, so 4a⁶. Multiplying by a⁴ adds the powers, 6 + 4 = 10, giving 4a¹⁰. Dividing by a⁵ takes them away, 10 − 5 = 5, giving 4a⁵. Check with a = 2: (2 × 8)² = 256, 256 × 16 = 4096 and 4096 ÷ 32 = 128, while 4 × 2⁵ = 4 × 32 = 128.\n\n**Common mistakes**\n- Multiplying the powers when you multiply: 9³ × 9⁵ is 9⁸, not 9¹⁵. With 2s you can check it: 2² × 2³ is 4 × 8 = 32, which is 2⁵, while 2⁶ is 64.\n- Joining different bases: 2³ × 3² is 8 × 9 = 72, not 6⁵ = 7776.\n- Forgetting to power the number in a bracket: (4a)² is 16a², not 4a². Try a = 3: 12² is 144, but 4 × 9 is 36.\n- Reading the power as a multiplier: 2⁵ is 32, not 2 × 5 = 10.\n- A minus outside the power: −3² is −9, because the power belongs to the 3 alone, while (−3)² is 9."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Laws of indices for multiplication and division - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/z93nsk7",
+   "quote": "The base numbers are the same (9), so add the indices together (3 + 5 = 8). 9³ x 9⁵ = 9⁸"
+  },
+  {
+   "n": 2,
+   "title": "Laws of indices for multiplication and division - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/z93nsk7",
+   "quote": "Three of the eights from the top row and all of the eights on the bottom row have been crossed out – leaving eight multiplied by eight equals eight squared."
+  },
+  {
+   "n": 3,
+   "title": "Using an index or power - Laws of indices - AQA - GCSE Maths Revision - AQA - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/guides/z826y4j/revision/1",
+   "quote": "The power or index shows how many times a number has been multiplied by itself."
+  },
+  {
+   "n": 4,
+   "title": "Laws of indices - GCSE Maths Revision - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/zf4s9ty",
+   "quote": "To raise to a power for a given base, multiply the indices"
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }
