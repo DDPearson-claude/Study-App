@@ -1,0 +1,55 @@
+{
+  "scores": { "lands": 5, "why": 4, "cause": 5, "trade": 5, "honest": 4, "pleasure": 4 },
+  "findings": [
+    {
+      "severity": "fix",
+      "where": "Step 8 of 13, 'Mind the minus', wrong answer (6, −5)",
+      "what": "Picking (6, −5) and pressing Check makes the point ride down line 1, off the drawn grid, across the x-axis numbers and the key, and stop at y = 404, outside the 374-high picture. Its label '(6, −5)' is left alone at the bottom of the grid with no dot, and the left bar (29) runs off the top of the picture through the bar key, so its '29' cannot be seen. A headless probe confirmed it: point cy 404, bar y −39.7, label y −47.7, x-axis tick 6 hidden. Fix: pointNow should ride to a wrong pair on line 1 only when inViewQ(v), and a bar beyond the screen's scale should be clamped or not drawn."
+    },
+    {
+      "severity": "fix",
+      "where": "Explain, last paragraph ('Textbooks add that a pair of equations with no solution is called inconsistent')",
+      "what": "This claim has no footnote. quotes.json already holds the checked HELM quote ('In (b) the equations are inconsistent ... Hence there are no solutions'), so add it as source [^5]."
+    },
+    {
+      "severity": "polish",
+      "where": "Caption under the picture, all 13 screens",
+      "what": "The caption 'A faint ring marks the point you can drag. It moves in tenths along line 1 and clicks onto the crossing' also shows on the 9 puzzle screens, which have no ring and a point that cannot be dragged (canDrag is for demonstrations only). Show the caption only on the four demonstration screens, or word it so it is true on both kinds."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 9 of 13, 'When the x's cancel', screen text",
+      "what": "The screen says line 2 'runs parallel to line 1' without saying why. Add the explain's reason, 'y − 2x = 4 is y = 2x + 4, the same m as line 1', so the screen does not skip that step."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 9 of 13, working rows",
+      "what": "'Collect 1 = 4' and 'Read it: false whatever x is, so no solution' are on screen from 0.0 s, before the point's ride shows that the left bar stays at 1. Give them a tl.rows of about 1.8 s so the cause is seen before the conclusion."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 5 of 13, 'Between the tenths' (Put back row), and the explain's second paragraph",
+      "what": "'y = 2 × 4/3 + 1 = 11/3' skips the fraction step. Writing '= 8/3 + 1 = 11/3' keeps that step visible, as the line 2 check already does with 15/3."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 7 of 13, 'Make y the subject', and the explain's third paragraph",
+      "what": "Neither place says why 2x + y = 11 is the equation rearranged. Rearranging 3x − y = 9 to y = 3x − 9 would avoid the minus before the bracket altogether. Half a sentence would do: 'either works; this one shows the minus' (and 'take 2x from both sides')."
+    },
+    {
+      "severity": "polish",
+      "where": "Whole lesson, compared with the brief's decision on college words",
+      "what": "The brief says 'inconsistent' (HELM) and 'redundancy' (SQA) are named once in lesson 2. Only 'inconsistent' appears, in the explain and on no step screen, and there is no word for the same-line case."
+    },
+    {
+      "severity": "polish",
+      "where": "Step 1 of 13, opening state (360 px)",
+      "what": "With the point starting at x = 0, its ring hides the y-axis numbers 1 and 2 beside the '(0, 1)' label. The axis reads 14 down to 3 and then has a gap where the point sits."
+    },
+    {
+      "severity": "polish",
+      "where": "Step screens' prose and the answer buttons",
+      "what": "The letters x and y are upright in the step prose ('its y is always', 'Swap that in for y') and on the answer buttons ('2(x + 3) + y = 12'), but italic in the maths beside them."
+    }
+  ]
+}

@@ -1,0 +1,530 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T15:00:23.993Z",
+ "startedAt": "2026-10-17T15:00:23.993Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i2",
+  "title": "Substitution",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the bars for x + (2x + 1) and 7 matching only where the point riding line 1 reaches line 2, when you slide the point along line 1.",
+   "title": "Ride along one line",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens on the squared grid from lesson 1, running 0 to 8 across and 0 to 14 up. Line 1, solid, is the equation that says what y equals, y = 2x + 1 on the first screens, rearranged to start \"y =\" first where it does not (y = 11 − 2x from 2x + y = 11), or saying what x equals on the last screen. Line 2, dashed, is the other equation. A point rides along line 1 only: slide it and it stays on the line, so its y is always line 1's rule worked out for its x. Beside the grid, line 2's equation is written with line 1's expression in place of y, such as x + (2x + 1) = 7, and drawn as two bars from a zero mark: one for the left side, worked out at the point's x, and one for the right side. A value below zero is drawn the other way from the zero mark. The bars match only when the point is on line 2 as well, at the crossing point, because that is the one point on line 1 that fits equation 2 too. The point clicks onto the crossing when it comes near, and the readout there gives the exact pair, such as (4/3, 11/3). Beneath the bars the working runs line by line: the swap, the like terms collected, x, x put back for y, and the check in both equations. When line 2 is parallel to line 1, the x's cancel, so the left bar stays the same wherever the point rides, at 1 for y = 2x + 1, and never matches the right one. When line 2 is line 1 written another way, the bars match everywhere. Some screens show an idea and the rest ask you to try it. A puzzle shows two equations and three answers. A wrong pick gets a one-line hint naming its slip, and Why? puts the pair into both equations.",
+   "ignores": "The point rides line 1 only, but you could swap the other way, riding line 2 and putting its rule into equation 1, and the crossing comes out the same. Between clicks the readout rounds the point's x to tenths, but x can be any number. The grid shows a short piece of each line, which carries on both ways. The equations are example values, chosen so the working stays short.",
+   "numbers": [
+    {
+     "label": "Line 1, y = 2x + 1: its m, steps 0 to 4 and 8",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Line 1, y = 2x + 1: its c, steps 0 to 4 and 8",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid width, 0 to 8 across",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid height, 0 to 14 up",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Line 2, x + y = 7: its total, in steps 0 and 2",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Point starts at x = 0.5, left bar 0.5 + (1 + 1), in step 0",
+     "value": 2.5,
+     "kind": "computed"
+    },
+    {
+     "label": "At x = 1, left bar 1 + (2 + 1), in step 0",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Bars match at x = 2, both 7, in step 0",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle y = x + 3: its c, in steps 1 and 3",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle 2x + y = 12: its total, in steps 1 and 3",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip 2(x + 3) + y = 12 at (3, 6): 12 + 6, in step 1",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip x + 3 = 12 at (3, 6): 3 + 3, not 12, in step 1",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "3x + 1 = 7, so 3x = 6, in step 2",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 2 × 2 + 1, in step 2",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "3x + 3 = 12, so 3x = 9 and x = 3, in step 3",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 3 + 3, in step 3",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 3x = 15 gives (5, 8): 2 × 5 + 8, not 12, in step 3",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Line 2, x + y = 5: its total, in step 4",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "3x + 1 = 5, so 3x = 4, in step 4",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "x = 4/3, in step 4",
+     "value": 1.33,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 2 × 4/3 + 1 = 8/3 + 1 = 11/3, in step 4",
+     "value": 3.67,
+     "kind": "computed"
+    },
+    {
+     "label": "Check: 4/3 + 11/3 = 15/3 = 5, in step 4",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle y = 3x and x + y = 3: its total, in step 5",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "x + 3x = 3, so 4x = 3 and x = 3/4, in step 5",
+     "value": 0.75,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 3 × 3/4 = 9/4, in step 5",
+     "value": 2.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip reading (0.8, 2.2) from lesson 1, in step 5",
+     "value": 0.8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Its y, 2.2, in step 5",
+     "value": 2.2,
+     "kind": "assumed"
+    },
+    {
+     "label": "y = 3x at x = 0.8 gives 2.4, not 2.2, in step 5",
+     "value": 2.4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (4/3, 4): 4/3 + 4 = 16/3, not 3, in step 5",
+     "value": 5.33,
+     "kind": "computed"
+    },
+    {
+     "label": "Line 1, 2x + y = 11, or y = 11 − 2x, in step 6",
+     "value": 11,
+     "kind": "assumed"
+    },
+    {
+     "label": "Line 2, 3x − y = 9: its total, in step 6",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "3x − (11 − 2x) = 9 gives 5x − 11 = 9, so 5x = 20, in step 6",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "x = 20 ÷ 5, in step 6",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 11 − 8, in step 6",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 3x − 11 − 2x = 9 gives x = 20, in explain",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Its y = 11 − 40, in explain",
+     "value": -29,
+     "kind": "computed"
+    },
+    {
+     "label": "Check in 3x − y = 9: 60 + 29, not 9, in explain",
+     "value": 89,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle 2x + y = 7 and 4x − y = 5: totals 7 and 5, in step 7",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "4x − (7 − 2x) = 5 gives 6x = 12, x = 2, in step 7",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 7 − 4, in step 7",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 4x − 7 − 2x = 5 gives (6, −5): 24 + 5, not 5, in step 7",
+     "value": 29,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip y = 2x − 7 gives (−1, −9): −2 − 9, not 7, in step 7",
+     "value": -11,
+     "kind": "computed"
+    },
+    {
+     "label": "Line 2 parallel, y − 2x = 4: (2x + 1) − 2x = 4 is 1 = 4, in step 8",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Line 2 on line 1, y − 2x = 1: 1 = 1, in step 8",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle y = 3x + 2 and y − 3x = −4 give 2 = −4, in step 9",
+     "value": -4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip (3, 2), the m and c: 3 × 3 + 2 = 11, not 2, in step 9",
+     "value": 11,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (2, −4): 3 × 2 + 2 = 8, not −4, in step 9",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle y = x + 2 and 3y − 3x = 6 give 6 = 6, in step 10",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Every point fits, such as (1, 3): 9 − 3 = 6, in step 10",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle x + 2y = 8 and y = x − 2: 3x − 4 = 8, x = 4, in step 11",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 4 − 2, in step 11",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip x + 2x − 2 = 8 gives (10/3, 4/3): 10/3 + 8/3 = 6, not 8, in step 11",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (6, 1): fits x + 2y = 8, but 6 − 2 = 4, not 1, in step 11",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle x = 2y − 1 and x + y = 8: 3y − 1 = 8, y = 3, in step 12",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "x = 2 × 3 − 1, in step 12",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (3, 5), order swapped: 2 × 5 − 1 = 9, not 3, in step 12",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example y = 3x − 2 and 2x + y = 13: 5x = 15",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example x",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example y: 3 × 3 − 2",
+     "value": 7,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "When one equation tells you what y equals, you can write that in place of y in the other equation. That leaves one equation with one unknown,[^1] which you already know how to solve, and the first equation then gives y. Take lesson 1's pair, y = 2x + 1 and x + y = 7. Ride the point along line 1. Wherever it is, its y is 2x + 1, because that is the rule line 1 draws. So for that point, the x + y of equation 2 is x + (2x + 1). The two bars show that total beside 7, and they match only where the point reaches line 2, because that is the one point on line 1 that fits x + y = 7 as well. At the crossing point the y is the same in both equations, so the y in equation 2 is the very y line 1 gives, 2x + 1.\n\nSo write it in. Put the expression for y into the other equation,[^2] with a bracket round it: x + (2x + 1) = 7. Now only x is left. Collect like terms, 3x + 1 = 7, take 1 from both sides, 3x = 6, and x = 2. That is only half the pair, so put x = 2 back into y = 2x + 1 to get y = 5. Check in both: 2 × 2 + 1 = 5 and 2 + 5 = 7, so (2, 5) is the crossing point. Swapping an expression in for a letter like this is called [[substitution]]. It is exact, so lesson 1's crossing that fell between the tenths comes out too. With x + y = 5 you get 3x + 1 = 5, so x = 4/3 and y = 2 × 4/3 + 1 = 8/3 + 1 = 11/3, and 4/3 + 11/3 = 15/3 = 5.\n\nWhen neither equation starts \"y =\", make y the subject of one first. Either equation would do; taking 2x from both sides of 2x + y = 11 gives y = 11 − 2x, and shows how to handle a minus in front of a bracket. Swapped into 3x − y = 9, it gives 3x − (11 − 2x) = 9. The minus takes away all of the bracket, so both signs inside change: 3x − 11 + 2x = 9. Then 5x = 20, x = 4 and y = 11 − 8 = 3. Check: 8 + 3 = 11 and 12 − 3 = 9. Change only the first sign, writing 3x − 11 − 2x = 9, and you get x = 20 and y = 11 − 40 = −29. The check in 3x − y = 9 gives 60 + 29 = 89, not 9, so checking in both catches the slip.\n\nSometimes the x's cancel. With y = 2x + 1 and y − 2x = 4, swapping in gives (2x + 1) − 2x = 4, which is 1 = 4. That is false whatever x is, so no pair fits both. The reason is that y − 2x = 4 is y = 2x + 4, with the same m as line 1 and a different c, so the lines are parallel, and there is no solution.[^3] On line 1, y − 2x is always 1, which is why the x's cancel. Ride the point and the left bar stays at 1, never reaching 4. With y − 2x = 1 instead, you get 1 = 1, true whatever x is, because line 2 is line 1 written another way, and there are endless solutions.[^4] Textbooks add that a pair of equations with no solution is called inconsistent,[^5] and the case of endless solutions is called redundancy.[^6] **Substitution puts what one equation says y equals into the other, which leaves one equation in one unknown;[^1] solve it, put the answer back for y, and check the pair in both.**"
+  },
+  "analogy": {
+   "text": "You know V = IR and P = VI. When you know the current and the resistance but not the voltage, you swap IR in for V and get P = (IR) × I, with V gone. Substitution does the same with a pair of equations. One says what y equals, so that expression can stand in for y in the other, and the letter it replaces drops out.",
+   "breaks": "For a resistor that keeps its resistance, V = IR holds at every current, so P = (IR) × I is a new formula, true at every current. In a pair of equations, y = 2x + 1 holds only along line 1 and the other equation only along line 2, so when the lines cross once, the equation the swap makes is true for just one x, the crossing's."
+  },
+  "practice": {
+   "text": "- Pick the equation that says what y (or x) equals. If neither does, rearrange one, doing the same to both sides.\n- Write that expression in place of the letter in the other equation, inside a bracket.\n- Expand the bracket, minding a minus or a number in front of it, and solve for the one unknown left.\n- Put that value back into the first equation to get the other unknown.\n- Check the pair in both of the original equations.\n- If the letter vanishes, read what is left. A false line such as 1 = 4 means no solution. A true line such as 1 = 1 means the equations are the same line, and every point on it is a solution.\n\n**Rule of thumb:** Swap in with a bracket, and do not stop at x.\n\n**Worked example:** y = 3x − 2 and 2x + y = 13. Swap in: 2x + (3x − 2) = 13. Collect like terms: 5x − 2 = 13, so 5x = 15 and x = 3. Put it back: y = 3 × 3 − 2 = 7. Check: 3 × 3 − 2 = 7 and 2 × 3 + 7 = 13, both true, so x = 3 and y = 7.\n\n**Common mistakes**\n- Changing only the first sign after a minus. 4x − (7 − 2x) is 4x − 7 + 2x, not 4x − 7 − 2x.\n- Multiplying only the first term in the bracket. x + 2(x − 2) is x + 2x − 4, not x + 2x − 2.\n- Rearranging with the wrong sign. 2x + y = 7 gives y = 7 − 2x, not y = 2x − 7.\n- Stopping at x. The answer is a pair, so put x back for y.\n- Checking in only one equation. (6, 1) fits x + 2y = 8, but not y = x − 2, as 6 − 2 = 4.\n- Reading 1 = 1 as x = 1. No x is left, so it says every point on the line fits both.\n- Taking the numbers in the equations as the answer. y = 3x + 2 and y = 3x − 4 have no solution, and (3, 2) fits neither: 3 × 3 + 2 = 11."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax",
+    "url": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables",
+    "quote": "When we solved a system by substitution, we started with two equations and two variables and reduced it to one equation with one variable."
+   },
+   {
+    "n": 2,
+    "title": "5.2 Solve Systems of Equations by Substitution - Elementary Algebra | OpenStax",
+    "url": "https://openstax.org/books/elementary-algebra/pages/5-2-solve-systems-of-equations-by-substitution",
+    "quote": "Step 2. Substitute the expression from Step 1 into the other equation."
+   },
+   {
+    "n": 3,
+    "title": "Solving simultaneous equations graphically - KS3 Maths - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zhbnvj6",
+    "quote": "If the two lines cross, then the coordinates of this intersection are the solutions to the simultaneous equations. If the lines are parallel (and therefore do not intersect), there is no solution."
+   },
+   {
+    "n": 4,
+    "title": "4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax",
+    "url": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables",
+    "quote": "When the two equations were really the same line, there were infinitely many solutions."
+   },
+   {
+    "n": 5,
+    "title": "HELM Workbook 8 Matrix solution of Equations.pdf",
+    "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf",
+    "quote": "In (b) the equations are inconsistent (since the first is 2 x − 3 y = 6 and the second is 2 x − 3 y = 5 which is not possible). Hence there are no solutions."
+   },
+   {
+    "n": 6,
+    "title": "Advanced Higher Mathematics",
+    "url": "https://www.sqa.org.uk/files_ccc/AHCourseSpecMathematics.pdf",
+    "quote": "showing that a system of equations has no solutions (inconsistency)  showing that a system of equations has an infinite number of solutions (redundancy)"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }\n  .scene.grab { touch-action: none; }\n  /* The squared grid, its frame, axes and numbers. */\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .gf { fill: none; stroke: var(--k-strong); stroke-width: 1; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .at { font: italic 600 14px var(--k-font); fill: var(--k-muted); }\n  /* Line 1 solid, line 2 dashed, the crossing's ring, the point, a wrong pair tried. */\n  .scene .l1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .l2 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 8 6; fill: none; }\n  .scene .xr { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .tr { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2.2; }\n  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.5; }\n  /* The bars: equation 2's left side worked out at the point, and its right side, from a zero mark. */\n  .scene .bl { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .br { fill: var(--k-fill3); stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .zm { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .bv { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .eqs { font: 700 18px var(--k-font); fill: var(--k-accent); }\n  .scene .hd { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .hd.q { fill: var(--k-muted); }\n  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */\n  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .v { font-style: italic; }\n  .scene #art *, .scene #labs * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip.hit { cursor: crosshair; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  /* The working under the bars: one line per move, its name on the left. */\n  .work { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 12px; border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; line-height: 1.45; }\n  .work .wl { color: var(--k-muted); font-size: .85rem; font-weight: 700; padding-top: .12rem; }\n  .work .wm { font-weight: 600; }\n  /* The line that follows the point keeps two lines' height, so nothing below it jumps as the point rides. */\n  .work .wm.tall { min-height: 2.9em; }\n  .work .pc { white-space: nowrap; }\n  .work .pc.ok { color: var(--k-accent2); font-weight: 700; }\n  .work .pc.q { color: var(--k-muted); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .pz.ask .fb:empty { min-height: 0; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\" id=\"lead\">A squared grid, 0 to 8 across and 0 to 14 up, with two straight lines and a point that rides along line 1. Beside it, two bars show equation 2 with line 1 swapped in. Every equation here is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 374\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><clipPath id=\"gclip\"><rect x=\"30\" y=\"24\" width=\"160\" height=\"280\"></rect></clipPath></defs><g id=\"art\"></g><g id=\"labs\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"work\" id=\"work\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">On the screens that show an idea, a faint ring marks the point you can drag. It moves in tenths along line 1 and clicks onto the crossing.</p>\n\n<script>\n  // ---------- exact numbers: fractions, written as the lesson writes them ----------\n  const gcd = (a, b) => (b ? gcd(b, a % b) : Math.abs(a));\n  function Q(n, d) {\n    if (d == null) d = 1;\n    if (d < 0) { n = -n; d = -d; }\n    const g = gcd(Math.abs(n), d) || 1;\n    return { n: n / g + 0, d: d / g };\n  }\n  const qi = (k) => Q(k, 1);\n  const qa = (a, b) => Q(a.n * b.d + b.n * a.d, a.d * b.d);\n  const qm = (a, b) => Q(a.n * b.n, a.d * b.d);\n  const qv = (a) => a.n / a.d;\n  const qeq = (a, b) => a.n === b.n && a.d === b.d;\n  const tenthQ = (v) => Q(Math.round(v * 10), 10);\n  const isTenth = (a) => 10 % a.d === 0;\n  // 2, −3, 1.3, 0.5, 4/3: tenths as decimals, every other fraction as a fraction.\n  function qt(a) {\n    const s = a.n < 0 ? '−' : '', n = Math.abs(a.n);\n    if (a.d === 1) return s + n;\n    if (10 % a.d === 0) return s + String(Math.round(n * 10 / a.d) / 10);\n    return s + n + '/' + a.d;\n  }\n  const num = (k) => (k < 0 ? '−' + (-k) : String(k));\n  const pr = (x, y) => [typeof x === 'object' ? x : qi(x), typeof y === 'object' ? y : qi(y)];\n  const coord = (p) => '(' + qt(p[0]) + ', ' + qt(p[1]) + ')';\n  const near = (a, b) => Math.abs(a - b) < 1e-9;\n  const r2 = (v) => Math.round(v * 100) / 100;\n\n  // ---------- lines: a·x + b·y = c in whole numbers, and how each is written ----------\n  // 'y': y = m·x + k (kFirst writes the number first, 11 − 2x); 'x': x = m·y + k; 'e': terms = c, in written order.\n  function Yl(m, k, kFirst) { return { a: -m, b: 1, c: k, w: 'y', m, k, kFirst: !!kFirst }; }\n  function Xl(m, k) { return { a: 1, b: -m, c: k, w: 'x', m, k }; }\n  function El(terms, c) { let a = 0, b = 0; terms.forEach((t) => { if (t[1] === 'x') a += t[0]; else b += t[0]; }); return { a, b, c, w: 'e', terms }; }\n  const fitsQ = (L, p) => qeq(qa(qm(qi(L.a), p[0]), qm(qi(L.b), p[1])), qi(L.c));\n  const freeOf = (L1) => (L1.w === 'y' ? 'x' : 'y');\n  // A point on line 1 at its free letter's value t: (t, m·t + k), or (m·t + k, t) when line 1 says what x equals.\n  function ptAt(L1, t) { const s = qa(qm(qi(L1.m), t), qi(L1.k)); return L1.w === 'y' ? [t, s] : [s, t]; }\n\n  // ---------- the equations used, each pair a line 1 (saying what y or x equals) and a line 2 ----------\n  const SUM = (c) => El([[1, 'x'], [1, 'y']], c);\n  const DIFF = (c) => El([[1, 'y'], [-2, 'x']], c);\n  const SY0 = { L1: Yl(2, 1), L2: SUM(7) };\n  const SY1 = { L1: Yl(1, 3), L2: El([[2, 'x'], [1, 'y']], 12) };\n  const SY4 = { L1: Yl(2, 1), L2: SUM(5) };\n  const SY5 = { L1: Yl(3, 0), L2: SUM(3) };\n  const SY6 = { e1: El([[2, 'x'], [1, 'y']], 11), L1: Yl(-2, 11, true), L2: El([[3, 'x'], [-1, 'y']], 9) };\n  const SY7 = { e1: El([[2, 'x'], [1, 'y']], 7), L1: Yl(-2, 7, true), L2: El([[4, 'x'], [-1, 'y']], 5) };\n  const SY8a = { L1: Yl(2, 1), L2: DIFF(4) }, SY8b = { L1: Yl(2, 1), L2: DIFF(1) };\n  const SY9 = { L1: Yl(3, 2), L2: El([[1, 'y'], [-3, 'x']], -4) };\n  const SY10 = { L1: Yl(1, 2), L2: El([[3, 'y'], [-3, 'x']], 6) };\n  const SY11 = { L1: Yl(1, -2), L2: El([[1, 'x'], [2, 'y']], 8) };\n  const SY12 = { L1: Xl(2, -1), L2: SUM(8) };\n  const SYS = [SY0, SY1, SY4, SY5, SY6, SY7, SY8a, SY8b, SY9, SY10, SY11, SY12];\n\n  // ---------- the working, built from the two rules ----------\n  function termT(k, v, first) {                                          // 2x, −x, + 3y, − 2x, + 7\n    const mag = Math.abs(k), body = v ? (mag === 1 ? v : mag + v) : String(mag);\n    return first ? (k < 0 ? '−' : '') + body : (k < 0 ? ' − ' : ' + ') + body;\n  }\n  function sumT(list) { const l = list.filter((t) => t[0] !== 0); return l.length ? l.map((t, n) => termT(t[0], t[1], n === 0)).join('') : '0'; }\n  const innerOf = (L1) => { const u = freeOf(L1); return (L1.kFirst ? [[L1.k, ''], [L1.m, u]] : [[L1.m, u], [L1.k, '']]).filter((t) => t[0] !== 0); };\n  const rhsT = (L1) => sumT(innerOf(L1));\n  const ruleT = (L) => (L.w === 'e' ? sumT(L.terms) + ' = ' + num(L.c) : L.w + ' = ' + rhsT(L));\n  function bracketT(k, inner, first) {                                   // (2x + 1), − (11 − 2x), 2(x − 2)\n    const mag = Math.abs(k), pre = mag === 1 ? '' : String(mag);\n    return (first ? (k < 0 ? '−' : '') : (k < 0 ? ' − ' : ' + ')) + pre + '(' + inner + ')';\n  }\n  // Equation 2's left side with line 1's expression in place of its letter.\n  function swapLeft(sys) {\n    const L1 = sys.L1, u = freeOf(L1), inn = innerOf(L1);\n    return sys.L2.terms.map((t, n) => {\n      if (t[1] === u) return termT(t[0], u, n === 0);\n      if (inn.length === 1 && t[0] === 1) return termT(inn[0][0], inn[0][1], n === 0);\n      return bracketT(t[0], rhsT(L1), n === 0);\n    }).join('');\n  }\n  const swapT = (sys) => swapLeft(sys) + ' = ' + num(sys.L2.c);\n  // After the swap: A·u + B = C, with u the one letter left.\n  function collect(sys) {\n    const L1 = sys.L1, u = freeOf(L1);\n    let A = 0, B = 0;\n    sys.L2.terms.forEach((t) => {\n      if (t[1] === u) A += t[0];\n      else innerOf(L1).forEach((j) => { if (j[1]) A += t[0] * j[0]; else B += t[0] * j[0]; });\n    });\n    return { A, B, C: sys.L2.c, u, s: L1.w };\n  }\n  function expandT(sys) {\n    const L1 = sys.L1, u = freeOf(L1), out = [];\n    sys.L2.terms.forEach((t) => { if (t[1] === u) out.push([t[0], u]); else innerOf(L1).forEach((j) => out.push([t[0] * j[0], j[1]])); });\n    return sumT(out) + ' = ' + num(sys.L2.c);\n  }\n  const needsExpand = (sys) => innerOf(sys.L1).length > 1 && sys.L2.terms.some((t) => t[1] === sys.L1.w && t[0] !== 1);\n  // The exact pair, or, when the letter cancels, 'none' (a false line) or 'same' (a true one).\n  function solveOf(sys) {\n    const k = collect(sys);\n    if (k.A === 0) return { kind: k.B === k.C ? 'same' : 'none', k };\n    const uv = Q(k.C - k.B, k.A), sv = qa(qm(qi(sys.L1.m), uv), qi(sys.L1.k));\n    return { kind: 'one', k, uv, sv, p: sys.L1.w === 'y' ? [uv, sv] : [sv, uv] };\n  }\n  const leftAt = (sys, t) => { const k = collect(sys); return qa(qm(qi(k.A), t), qi(k.B)); };\n  const brq = (a) => (a.n < 0 ? '(' + qt(a) + ')' : qt(a));\n  const prodT = (m, v) => (m === 1 ? brq(v) : m === -1 ? '−' + brq(v) : num(m) + ' × ' + brq(v));\n  function mulT(m, v, k, kFirst) {                                       // 2 × 2 + 1, 11 − 2 × 4, 3 + 3, 3 × 3/4\n    if (k === 0) return prodT(m, v);\n    if (kFirst) { const mag = Math.abs(m), p = mag === 1 ? brq(v) : mag + ' × ' + brq(v); return num(k) + (m < 0 ? ' − ' : ' + ') + p; }\n    return prodT(m, v) + (k < 0 ? ' − ' + (-k) : ' + ' + k);\n  }\n  const signedT = (v, first) => (first ? qt(v) : (v.n < 0 ? ' − ' : ' + ') + qt(Q(Math.abs(v.n), v.d)));\n  // A pair put into a line as written: the sum, then ✓, or what the line needs.\n  function checkT(L, p) {\n    const x = p[0], y = p[1];\n    if (L.w !== 'e') {\n      const v = L.w === 'y' ? x : y, want = L.w === 'y' ? y : x, got = qa(qm(qi(L.m), v), qi(L.k));\n      return mulT(L.m, v, L.k, L.kFirst) + ' = ' + qt(got) + (qeq(got, want) ? ' ✓' : ', not ' + qt(want));\n    }\n    const vals = L.terms.map((t) => qm(qi(t[0]), t[1] === 'x' ? x : y)), sum = vals.reduce(qa, qi(0));\n    const d = vals[0].d, mid = vals.length > 1 && d > 1 && vals.every((w) => w.d === d) && sum.d === 1 ? num(sum.n * d) + '/' + d + ' = ' : '';\n    return vals.map((w, n) => signedT(w, n === 0)).join('') + ' = ' + mid + qt(sum) + (qeq(sum, qi(L.c)) ? ' ✓' : ', not ' + num(L.c));\n  }\n  // The swapped side worked out at the point: 1 + (2 + 1) = 4, not 7.\n  function atT(sys, t) {\n    const L1 = sys.L1, u = freeOf(L1), inn = innerOf(L1), k = collect(sys);\n    const ev = (j) => (j[1] ? qm(qi(j[0]), t) : qi(j[0]));\n    const s = sys.L2.terms.map((tm, n) => {\n      if (tm[1] === u) return signedT(qm(qi(tm[0]), t), n === 0);\n      if (inn.length === 1 && tm[0] === 1) return signedT(ev(inn[0]), n === 0);\n      return bracketT(tm[0], inn.map((j, m) => signedT(ev(j), m === 0)).join(''), n === 0);\n    }).join('');\n    const tot = qa(qm(qi(k.A), t), qi(k.B));\n    return s + ' = ' + qt(tot) + (qeq(tot, qi(k.C)) ? ' ✓' : ', not ' + num(k.C));\n  }\n  // The solving lines: expand, collect, solve, put back, check in both (or read what is left).\n  function solveRows(sys) {\n    const so = solveOf(sys), k = so.k, out = [];\n    if (needsExpand(sys)) out.push({ l: 'Expand', s: expandT(sys) });\n    out.push({ l: 'Collect', s: (k.A === 0 ? num(k.B) : sumT([[k.A, k.u], [k.B, '']])) + ' = ' + num(k.C) });\n    if (so.kind !== 'one') {\n      out.push({ l: 'Read it', s: (so.kind === 'same' ? 'true' : 'false') + ' whatever ' + k.u + ' is, so ' + (so.kind === 'same' ? 'endless solutions' : 'no solution'), prose: true });\n      return out;\n    }\n    const rhs = k.C - k.B;\n    const solve = k.A === 1 ? k.u + ' = ' + num(rhs)\n      : (k.B !== 0 ? sumT([[k.A, k.u]]) + ' = ' + num(rhs) + ', so ' : '') + k.u + ' = ' + num(rhs) + ' ÷ ' + (k.A < 0 ? '(' + num(k.A) + ')' : String(k.A)) + ' = ' + qt(so.uv);\n    out.push({ l: 'Solve', s: solve });\n    const prod = qm(qi(sys.L1.m), so.uv);\n    const mid = so.uv.d > 1 && sys.L1.k !== 0 && Math.abs(sys.L1.m) !== 1 ? (sys.L1.kFirst ? num(sys.L1.k) + signedT(prod, false) : qt(prod) + signedT(qi(sys.L1.k), false)) + ' = ' : '';\n    out.push({ l: 'Put back', s: k.s + ' = ' + mulT(sys.L1.m, so.uv, sys.L1.k, sys.L1.kFirst) + ' = ' + mid + qt(so.sv) });\n    out.push({ l: 'In line 1', s: checkT(sys.e1 || sys.L1, so.p) });\n    out.push({ l: 'In line 2', s: checkT(sys.L2, so.p) });\n    return out;\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // sys: the two equations (sysEnd and keys: line 2 sliding to another rule). pk: the point's rides\n  // ({t: its free letter's value, at, tr}); solve: the screen works the pair through. tl: when the ring, the '=' and the solving lines arrive (s).\n  // A puzzle: t0 (where the point waits), opts, vals (each answer: a pair, a half answer, 'none', 'same'),\n  // want, task, why, a hint and each wrong answer's own hint; ride: where it rides once answered.\n  const PICK = 'Tap one of the answers.';\n  const FB = 1.6, FADE = 0.35, MAG = 0.12;\n  const PZ = { ride: 0.1, rideT: 0.9, ring: 0.9, rows: 0.5, gap: 0.15, rowT: 0.25 };\n  const FULL = { x0: 0, x1: 8, y0: 0, y1: 14 };\n  const STEPS = [\n    { show: true, name: 'Ride along line 1', sys: SY0, pk: [{ t: Q(5, 10) }, { t: qi(1), at: 0.6, tr: 1.0 }, { t: qi(2), at: 2.3, tr: 1.0 }], dur: 4.0, tl: { ring: 0.5, eq: 3.3 },\n      text: 'The point can only ride along line 1, so its y is always `2x + 1`. Swap that in for y in `x + y = 7` and you get `x + (2x + 1) = 7`, drawn as two bars. They match only where the point meets line 2, at the crossing (2, 5).' },\n    { kind: 'swap', name: 'Swap it in', sys: SY1, t0: qi(1),\n      opts: ['2(x + 3) + y = 12', '2x + (x + 3) = 12', 'x + 3 = 12'], want: '2x + (x + 3) = 12', vals: {},\n      task: 'Line 1 is `y = x + 3` and line 2 is `2x + y = 12`. Which equation do you get by swapping line 1 into line 2?',\n      why: 'Line 1 says y is `x + 3`, so `x + 3` goes in place of y, inside a bracket, giving `2x + (x + 3) = 12`. Now only x is left to find.',\n      hint: 'Not quite. Put line 1\\'s expression in place of y.',\n      hints: { '2(x + 3) + y = 12': 'Not quite. That puts `x + 3` in place of x, but line 1 says what y equals.', 'x + 3 = 12': 'Not quite. That loses the `2x`. Only the y in line 2 is swapped out.' } },\n    { show: true, solve: true, name: 'Solve for x, then y', sys: SY0, pk: [{ t: qi(1) }, { t: qi(2), at: 0.5, tr: 0.8 }], dur: 3.9, tl: { ring: 0.5, eq: 1.3, rows: 1.4, gap: 0.4 },\n      text: 'With y swapped out, only x is left. Collect like terms and solve, and x = 2, then put 2 back into line 1 for y and check the pair in both. Swapping an expression in for a letter like this is called *substitution*.' },\n    { kind: 'pair', name: 'Your turn', sys: SY1, t0: qi(1),\n      opts: ['(5, 8)', 'x = 3', '(3, 6)'], want: '(3, 6)', vals: { '(5, 8)': pr(5, 8), 'x = 3': { half: 'x', v: qi(3) }, '(3, 6)': pr(3, 6) },\n      task: 'Now solve `y = x + 3` and `2x + y = 12`.',\n      why: 'Swapping in gives `2x + (x + 3) = 12`, so `3x + 3 = 12`, `3x = 9` and x = 3. Then `y = 3 + 3 = 6`. It checks in both, as `3 + 3 = 6` and `2 × 3 + 6 = 12`.',\n      hint: 'Not quite. Swap in, solve for x, then put it back for y.',\n      hints: { '(5, 8)': 'Not quite. Take 3 from both sides of `3x + 3 = 12`, don\\'t add it. (5, 8) gives `2 × 5 + 8 = 18`, not 12.', 'x = 3': 'Not quite. That is only half the pair. Put x = 3 back into `y = x + 3`.' } },\n    { show: true, solve: true, name: 'Between the tenths', sys: SY4, pk: [{ t: Q(5, 10) }, { t: Q(13, 10), at: 0.5, tr: 1.0 }, { t: Q(4, 3), at: 2.0, tr: 0.4 }], dur: 4.6, tl: { ring: 0.5, eq: 2.4, rows: 2.6, gap: 0.35 },\n      text: 'With `x + y = 5` the crossing falls between the tenths, so a graph can only estimate it. *Substitution* is exact. `3x + 1 = 5` gives x = 4/3, and the point clicks onto (4/3, 11/3).' },\n    { kind: 'pair', name: 'Exact, not a reading', sys: SY5, t0: qi(2),\n      opts: ['(0.8, 2.2)', '(3/4, 9/4)', '(4/3, 4)'], want: '(3/4, 9/4)', vals: { '(0.8, 2.2)': pr(Q(8, 10), Q(22, 10)), '(3/4, 9/4)': pr(Q(3, 4), Q(9, 4)), '(4/3, 4)': pr(Q(4, 3), 4) },\n      task: 'Solve `y = 3x` and `x + y = 3`.',\n      why: 'Swapping in gives `x + 3x = 3`, so `4x = 3` and x = 3/4. Then `y = 3 × 3/4 = 9/4`. It checks in both, as `3 × 3/4 = 9/4` and `3/4 + 9/4 = 3`.',\n      hint: 'Not quite. Swap in and solve exactly.',\n      hints: { '(0.8, 2.2)': 'Not quite. That is a reading from a graph. Put it back and `3 × 0.8 = 2.4`, not 2.2.', '(4/3, 4)': 'Not quite. `4x = 3` means x = 3 ÷ 4, not 4 ÷ 3. Then `4/3 + 4 = 16/3`, not 3.' } },\n    { show: true, solve: true, name: 'Make y the subject', sys: SY6, pk: [{ t: qi(1) }, { t: qi(4), at: 0.5, tr: 1.2 }], dur: 4.4, tl: { ring: 0.5, eq: 1.7, rows: 1.9, gap: 0.4 },\n      text: 'When neither equation starts with `y =`, rearrange one first. Either would do; here, take `2x` from both sides of `2x + y = 11` to get `y = 11 − 2x`, which shows how a minus in front of a bracket works. That minus takes away all of the bracket, so both signs inside change, and x = 4 and y = 3.' },\n    { kind: 'pair', name: 'Mind the minus', sys: SY7, t0: qi(1),\n      opts: ['(6, −5)', '(2, 3)', '(−1, −9)'], want: '(2, 3)', vals: { '(6, −5)': pr(6, -5), '(2, 3)': pr(2, 3), '(−1, −9)': pr(-1, -9) },\n      task: 'Solve `2x + y = 7` and `4x − y = 5`.',\n      why: 'Make y the subject, `y = 7 − 2x`, and swap it in, giving `4x − (7 − 2x) = 5`. The minus changes both signs, so `4x − 7 + 2x = 5`, `6x = 12` and x = 2. Then `y = 7 − 4 = 3`, and it checks in both, as `4 + 3 = 7` and `8 − 3 = 5`.',\n      hint: 'Not quite. Mind the minus in front of the bracket.',\n      hints: { '(6, −5)': 'Not quite. The minus takes away all of `(7 − 2x)`, so it is `4x − 7 + 2x`. Then `24 + 5 = 29`, not 5.', '(−1, −9)': 'Not quite. `2x + y = 7` gives `y = 7 − 2x`, not `2x − 7`. Then `−2 − 9 = −11`, not 7.' } },\n    { show: true, solve: true, name: 'When the x\\'s cancel', sys: SY8a, sysEnd: SY8b, keys: [{ c: 4 }, { c: 1, at: 3.0, tr: 0.8 }],\n      pk: [{ t: Q(5, 10) }, { t: qi(3), at: 0.4, tr: 1.0 }, { t: qi(1), at: 4.0, tr: 0.9 }], dur: 5.0, tl: { eq: 3.8, rows: 1.5, gap: 0.3 },\n      text: 'Here line 2, `y − 2x = 4`, is `y = 2x + 4`, the same m as line 1, so it runs parallel. Swap in and the x\\'s cancel, leaving `1 = 4`, false wherever the point rides: no solution, which textbooks call *inconsistent*. Slide line 2 onto line 1, as `y − 2x = 1`, and `1 = 1` is true everywhere: endless solutions, called *redundancy*.' },\n    { kind: 'none', name: 'Only numbers left', sys: SY9, t0: qi(1), ride: qi(3),\n      opts: ['(3, 2)', 'No solution', '(2, −4)'], want: 'No solution', vals: { '(3, 2)': pr(3, 2), 'No solution': 'none', '(2, −4)': pr(2, -4) },\n      task: 'Solve `y = 3x + 2` and `y − 3x = −4`.',\n      why: 'Swapping in gives `(3x + 2) − 3x = −4`. The x\\'s cancel and leave `2 = −4`, which is false whatever x is. The lines are parallel, so no pair fits both.',\n      hint: 'Not quite. Swap in and read what is left.',\n      hints: { '(3, 2)': 'Not quite. 3 and 2 are line 1\\'s m and c, not a pair. `3 × 3 + 2 = 11`, not 2.', '(2, −4)': 'Not quite. Those are numbers from the equations, not a pair. `3 × 2 + 2 = 8`, not −4.' } },\n    { kind: 'same', name: 'True whatever x is', sys: SY10, t0: qi(4), ride: qi(1),\n      opts: ['No solution', '(1, 3) only', 'Endless solutions'], want: 'Endless solutions', vals: { 'No solution': 'none', '(1, 3) only': pr(1, 3), 'Endless solutions': 'same' },\n      task: 'Solve `y = x + 2` and `3y − 3x = 6`.',\n      why: 'Swapping in gives `3(x + 2) − 3x = 6`, so `3x + 6 − 3x = 6`, which is `6 = 6`. That is true whatever x is, because line 2 is line 1 written another way, so every point on it fits both.',\n      hint: 'Not quite. Swap in and read what is left.',\n      hints: { 'No solution': 'Not quite. The x\\'s cancel, but what is left, `6 = 6`, is true, not false.', '(1, 3) only': 'Not quite. (1, 3) fits, as `9 − 3 = 6`, but so does every other point on line 1.' } },\n    { kind: 'pair', name: 'A number before the bracket', sys: SY11, t0: qi(6),\n      opts: ['(10/3, 4/3)', '(6, 1)', '(4, 2)'], want: '(4, 2)', vals: { '(10/3, 4/3)': pr(Q(10, 3), Q(4, 3)), '(6, 1)': pr(6, 1), '(4, 2)': pr(4, 2) },\n      task: 'Solve `x + 2y = 8` and `y = x − 2`.',\n      why: 'Swapping in gives `x + 2(x − 2) = 8`, so `x + 2x − 4 = 8`, `3x = 12` and x = 4. Then `y = 4 − 2 = 2`, and it checks in both, as `4 + 4 = 8` and `4 − 2 = 2`.',\n      hint: 'Not quite. Multiply out the bracket carefully.',\n      hints: { '(10/3, 4/3)': 'Not quite. The 2 multiplies both terms in the bracket, so `2(x − 2)` is `2x − 4`. Then `10/3 + 8/3 = 6`, not 8.', '(6, 1)': 'Not quite. (6, 1) fits `x + 2y = 8`, but `6 − 2 = 4`, not 1. Check in both.' } },\n    { kind: 'pair', name: 'Last one', sys: SY12, t0: qi(1),\n      opts: ['(3, 5)', 'y = 3', '(5, 3)'], want: '(5, 3)', vals: { '(3, 5)': pr(3, 5), 'y = 3': { half: 'y', v: qi(3) }, '(5, 3)': pr(5, 3) },\n      task: 'Last one. Solve `x = 2y − 1` and `x + y = 8`.',\n      why: 'This time line 1 says what x equals, so swap it in for x, giving `(2y − 1) + y = 8`. Then `3y − 1 = 8` and y = 3, so `x = 2 × 3 − 1 = 5`. It checks in both, as `2 × 3 − 1 = 5` and `5 + 3 = 8`.',\n      hint: 'Not quite. Swap in for x this time.',\n      hints: { '(3, 5)': 'Not quite. A pair is written (x, y), x first. `2 × 5 − 1 = 9`, not 3.', 'y = 3': 'Not quite. That is only half the pair. Put y = 3 back into `x = 2y − 1`.' } },\n  ];\n  const FINISH = 'When one equation says what y equals, swap that into the other, in a bracket. That leaves one equation with one unknown. Solve it, put the answer back for y, and check the pair in both. If the letter vanishes, a false line means no solution and a true one means endless solutions.';\n  // Sources the checks restate (the lesson's own).\n  const SRC1 = 'https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables';\n  const SRC2 = 'https://openstax.org/books/elementary-algebra/pages/5-2-solve-systems-of-equations-by-substitution';\n  const SRC3 = 'https://www.bbc.co.uk/bitesize/articles/zhbnvj6';\n  // The grid: 8 by 14 squares of 20 units, numbers left and below, the key underneath; the bars on the right.\n  const SQ = 20, GX = 30, GY = 24, GW = 8 * SQ, GH = 14 * SQ, GX1 = GX + GW, GY1 = GY + GH, H = GY1 + 70;\n  const BX1 = 247, BX2 = 297, BW = 26, ZX0 = 226, ZX1 = 318, BT = 96, BB = GY1, HX = 204;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n  const endSys = (d) => d.sysEnd || d.sys;\n  const say = (s) => String(s).replace(/−/g, 'minus ').replace(/×/g, 'times').replace(/÷/g, 'divided by').replace(/✓/g, 'true').replace(/\\//g, ' over ');\n  const inView = (v, p) => p[0] >= v.x0 - 1e-9 && p[0] <= v.x1 + 1e-9 && p[1] >= v.y0 - 1e-9 && p[1] <= v.y1 + 1e-9;\n  const inViewQ = (p) => inView(FULL, [qv(p[0]), qv(p[1])]);\n  const same2 = (a, b) => !!a && !!b && qeq(a[0], b[0]) && qeq(a[1], b[1]);\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // t: where Dan has dragged the point (its free letter's value).\n  function blank() { return { pick: null, res: null, why: false, t: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of\n  const canDrag = (d) => !!d.show && !finished;\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, mt;\n      while ((mt = re.exec(seg))) {\n        if (mt.index > at0) italics(node, seg.slice(at0, mt.index), false);\n        node.appendChild(K.el('span', { class: 'term' }, mt[1]));\n        at0 = mt.index + mt[0].length;\n      }\n      if (at0 < seg.length) italics(node, seg.slice(at0), false);\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  // Up to three answers; a new choice after a wrong answer settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  // Check: a right answer rides the point to the answer and works it through; a wrong one shows its pair, and its hint.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    if (!st.why) play(FB);\n  } });\n  // Why?: rides the point to the answer and works it through, with a few words that check it in both.\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    st.why = !st.why;\n    if (st.why && st.res !== 'right') play(FB);\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    S[at()].t = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and each puzzle's answer; with reduced motion (and\n  // while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- timing: how far a part due at t0 has arrived, noting the timetable for the timing check ----------\n  let latest = 0, earliest = Infinity;\n  function note(t0, dd) { if (t0 + dd > latest) latest = t0 + dd; if (t0 < earliest) earliest = t0; }\n  function arr(t0, dd) { note(t0, dd); return K.arrive(T, t0, dd); }\n\n  // ---------- where things are now ----------\n  function mapper(v) {\n    const kx = GW / (v.x1 - v.x0), ky = GH / (v.y1 - v.y0);\n    return { v, kx, ky, px: (x) => GX + (x - v.x0) * kx, py: (y) => GY1 - (y - v.y0) * ky, inv: (X, Y) => [v.x0 + (X - GX) / kx, v.y0 + (GY1 - Y) / ky] };\n  }\n  // The piece of a line inside the grid, as numbers (a, b) and in drawing units (s); null when it misses.\n  function clipLine(M, L) {\n    const v = M.v, m = -L.a / L.b, k = L.c / L.b;\n    let lo = v.x0, hi = v.x1;\n    if (Math.abs(m) > 1e-12) { const xa = (v.y0 - k) / m, xb = (v.y1 - k) / m; lo = Math.max(lo, Math.min(xa, xb)); hi = Math.min(hi, Math.max(xa, xb)); }\n    else if (k < v.y0 - 1e-9 || k > v.y1 + 1e-9) return null;\n    if (hi - lo < 1e-9) return null;\n    const a = [lo, m * lo + k], b = [hi, m * hi + k];\n    return { a, b, s: [M.px(a[0]), M.py(a[1]), M.px(b[0]), M.py(b[1])] };\n  }\n  // How far along line 1 the point can ride on the grid (its free letter, whole tenths).\n  function tRange(L1) {\n    const s = clipLine(mapper(FULL), L1);\n    const a = L1.w === 'y' ? s.a[0] : s.a[1], b = L1.w === 'y' ? s.b[0] : s.b[1];\n    return [Math.ceil(Math.min(a, b) * 10 - 1e-9) / 10, Math.floor(Math.max(a, b) * 10 + 1e-9) / 10];\n  }\n  // Line 2 on the cancelling screen: it slides from y − 2x = 4 onto line 1; its numbers fade out\n  // before the move and back in once it lands, so no in-between value shows.\n  function lineTwo(d, st) {\n    if (!d.keys) return { sys: d.sys, tsys: d.sys, la: 1, moving: false };\n    const k1 = d.keys[1];\n    note(k1.at - 0.3, 0.3); note(k1.at, k1.tr); note(k1.at + k1.tr, 0.4);\n    if (st.t || T === Infinity) return { sys: d.sysEnd, tsys: d.sysEnd, la: 1, moving: false };\n    const p = (T - k1.at) / k1.tr;\n    if (p <= 0) return { sys: d.sys, tsys: d.sys, la: 1 - K.arrive(T, k1.at - 0.3, 0.3), moving: false };\n    if (p >= 1) return { sys: d.sysEnd, tsys: d.sysEnd, la: K.arrive(T, k1.at + k1.tr, 0.4), moving: false };\n    const c = K.lerp(d.keys[0].c, k1.c, K.ease(p));\n    return { sys: { L1: d.sys.L1, L2: DIFF(c) }, tsys: d.sys, la: 0, moving: true };\n  }\n  // The point in a demonstration: it rides in tenths, landing exactly on each stop.\n  function showPoint(d) {\n    const ks = d.pk;\n    ks.forEach((k) => { if (k.at != null) note(k.at, k.tr); });\n    if (T === Infinity) return { t: ks[ks.length - 1].t };\n    let t = ks[0].t;\n    for (let j = 1; j < ks.length; j++) {\n      const k = ks[j];\n      if (T <= k.at) break;\n      const p = (T - k.at) / k.tr;\n      if (p >= 1) { t = k.t; continue; }\n      t = tenthQ(K.lerp(qv(t), qv(k.t), K.ease(p)));\n      break;\n    }\n    return { t };\n  }\n  // The point in a puzzle: it waits at t0; an answer sends it to the crossing (or along the line),\n  // and a wrong pair that lies on line 1 sends it there.\n  function pointNow(d, st) {\n    if (st.t) return { t: st.t, eqAt: null };\n    if (d.show) return showPoint(d);\n    const t0 = d.t0, open = st.res === 'right' || st.why;\n    let target = null;\n    if (open) target = d.kind === 'pair' ? solveOf(d.sys).uv : d.kind === 'none' || d.kind === 'same' ? d.ride : null;\n    else if (st.res === 'wrong') { const v = d.vals[st.pick]; if (Array.isArray(v) && fitsQ(d.sys.L1, v) && inViewQ(v)) target = d.sys.L1.w === 'y' ? v[0] : v[1]; }\n    if (!target) return { t: t0, eqAt: null };\n    const end = PZ.ride + PZ.rideT;\n    note(PZ.ride, PZ.rideT);\n    if (T === Infinity) return { t: target, eqAt: end };\n    const p = (T - PZ.ride) / PZ.rideT;\n    if (p >= 1) return { t: target, eqAt: end };\n    if (p <= 0) return { t: t0, eqAt: end };\n    return { t: tenthQ(K.lerp(qv(t0), qv(target), K.ease(p))), eqAt: end };\n  }\n  // The bars share one scale on each screen, wide enough for line 1's whole ride and the right side.\n  const SCALES = {};\n  function barScale(i) {\n    if (SCALES[i]) return SCALES[i];\n    const d = STEPS[i], list = [d.sys].concat(d.sysEnd ? [d.sysEnd] : []);\n    let lo = 0, hi = 0;\n    list.forEach((sys) => {\n      const rg = tRange(sys.L1), k = collect(sys);\n      rg.forEach((t) => { const v = k.A * t + k.B; lo = Math.min(lo, v); hi = Math.max(hi, v); });\n      lo = Math.min(lo, sys.L2.c); hi = Math.max(hi, sys.L2.c);\n    });\n    const top = BT, bot = lo < 0 ? BB - 18 : BB, kk = (bot - top) / (hi - lo || 1);\n    return (SCALES[i] = { lo, hi, Y: (v) => top + (hi - v) * kk });\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');\n  const add = (node) => art.appendChild(node);\n  const ln = (cls, x1, y1, x2, y2, into) => (into || art).appendChild(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  function tx(x, y, s, cls, anchor, into) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });\n    t.textContent = s;\n    return (into || art).appendChild(t);\n  }\n  function drawGrid(M) {\n    for (let x = 0; x <= 8; x++) ln('gl', M.px(x), GY, M.px(x), GY1);\n    for (let y = 0; y <= 14; y++) ln('gl', GX, M.py(y), GX1, M.py(y));\n    add(K.svg('rect', { class: 'gf', x: GX, y: GY, width: GW, height: GH }));\n    ln('ax', M.px(0), GY, M.px(0), GY1);\n    ln('ax', GX, M.py(0), GX1, M.py(0));\n  }\n  // The numbers: any that a ring at the grid's edge (the point, the crossing) would run through is left out.\n  function drawTicks(M, rings) {\n    const clearX = (X) => !rings.some((r) => r.y + r.r > GY1 + 6 && Math.abs(X - r.x) < r.r + 10);\n    const clearY = (Y) => !rings.some((r) => r.x - r.r < GX - 3 && Math.abs(Y - r.y) < r.r + 9);\n    const clearAt = (X, Y) => !rings.some((r) => Math.hypot(r.x - X, r.y - Y) < r.r + 10);\n    if (clearAt(GX1 + 14, GY1 + 13)) tx(GX1 + 10, GY1 + 18, 'x', 'at', 'start');\n    if (clearAt(GX, GY - 14)) tx(GX, GY - 9, 'y', 'at', 'middle');\n    for (let x = 0; x <= 8; x++) { const X = M.px(x); if (clearX(X)) tx(X, GY1 + 18, String(x), 'tk', 'middle'); }\n    for (let y = 0; y <= 14; y++) { const Y = M.py(y); if (clearY(Y)) tx(GX - 6, Y + 4.5, String(y), 'tk', 'end'); }\n  }\n\n  // ---------- labels: clear of each other, the dots and rings; off the lines where they can be ----------\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 8.4;\n  }\n  function boxOf(x, y, w, anchor) {\n    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;\n    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };\n  }\n  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;\n  // Does a line segment pass through a box? (Liang-Barsky)\n  function segHits(s, b) {\n    let t0 = 0, t1 = 1;\n    const dx = s[2] - s[0], dy = s[3] - s[1];\n    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];\n    for (let k = 0; k < 4; k++) {\n      const p = pq[k][0], q = pq[k][1];\n      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }\n      const r = q / p;\n      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }\n    }\n    return true;\n  }\n  // Each label tries spots round where it wants to be (or round each alternative, in order), pulled\n  // inside its bounds, and takes the one that hits nothing solid, crosses the fewest lines and moves least.\n  function placeLabels(items, hard, segs, B) {\n    const placed = [];\n    return items.map((it) => {\n      const w = tw(it.text, it.class), h = 15.5, g = 4;\n      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],\n        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];\n      let best = null, bestCost = Infinity;\n      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {\n        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);\n        const sx = b.x0 < B.x0 ? B.x0 - b.x0 : b.x1 > B.x1 ? B.x1 - b.x1 : 0, sy = b.y0 < B.y0 ? B.y0 - b.y0 : b.y1 > B.y1 ? B.y1 - b.y1 : 0;\n        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };\n        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;\n        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });\n        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });\n        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };\n        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });\n        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }\n      }));\n      placed.push(best.b);\n      return best;\n    });\n  }\n  const spots = (X, Y, list) => { const alts = list.map((o) => ({ x: X + o[0], y: Y + o[1], anchor: o[2] })); return Object.assign({}, alts[0], { alts }); };\n  const PT_AT = [[18, 5, 'start'], [-18, 5, 'end'], [0, -19, 'middle'], [0, 29, 'middle']];\n\n  // ---------- the working under the bars ----------\n  const piecesOf = (r) => (r.prose ? r.s.split(' ') : String(r.s).split(/ (?==)|(?<=,) /));\n  function drawRows(list) {\n    const box = el('work');\n    box.textContent = '';\n    list.forEach((r) => {\n      const l = box.appendChild(K.el('span', { class: 'wl' }, r.l));\n      const m = box.appendChild(K.el('span', { class: 'wm' + (r.tall ? ' tall' : '') }));\n      piecesOf(r).forEach((pc, n) => {\n        if (n) m.appendChild(document.createTextNode(' '));\n        italics(m.appendChild(K.el('span', { class: 'pc' + (/✓$/.test(pc) ? ' ok' : '') + (pc === '?' ? ' q' : '') })), pc, false);\n      });\n      K.fade(l, r.a, 0); K.fade(m, r.a, 0);\n      REC.rows.push({ l: r.l, s: r.s, a: r.a });\n    });\n  }\n  function describe(ts, P, leftQ, eq, showLeft) {\n    let s = 'A squared grid, x from 0 to 8 and y from 0 to 14. Line 1, solid: ' + say(ruleT(ts.L1)) + '. Line 2, dashed: ' + say(ruleT(ts.L2)) + '.';\n    s += ' The point rides along line 1, at ' + say(coord(P)) + '.';\n    if (REC.ring) s += ' A ring marks where the lines cross.';\n    if (REC.tried) s += ' The pair tried is at ' + say(coord(REC.tried)) + '.';\n    s += showLeft ? ' Beside the grid, two bars from a zero mark: ' + say(swapLeft(ts)) + ' worked out at the point is ' + say(qt(leftQ)) + ', beside ' + say(num(ts.L2.c)) + (eq ? ', so they match.' : ', so they do not match.')\n      : ' Beside the grid, a bar for the right side, ' + say(num(ts.L2.c)) + '.';\n    return s;\n  }\n\n  // ---------- the scene for a step (the animation calls this every frame) ----------\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    REC = { sys: null, P: null, t: null, left: null, right: null, eq: false, leftShown: false, ring: null, tried: null, rows: [], Y0: null, leftTip: null, rightTip: null, labels: [] };\n    OBS = { hard: [], segs: [] };\n    const open = !!d.show || st.res === 'right' || st.why;\n    const wrong = !d.show && st.res === 'wrong' && !st.why;\n    const tl = d.tl || {};\n    const M = mapper(FULL), items = [], rings = [];\n    drawGrid(M);\n    const clipG = add(K.svg('g', { 'clip-path': 'url(#gclip)' }));\n    const ph = lineTwo(d, st), sys = ph.sys, ts = ph.tsys, la = ph.la;\n    REC.sys = ts;\n\n    // Line 1 solid, line 2 dashed.\n    [[sys.L1, 'l1'], [sys.L2, 'l2']].forEach((e) => {\n      const s = clipLine(M, e[0]);\n      if (!s) return;\n      ln(e[1], s.s[0], s.s[1], s.s[2], s.s[3], clipG);\n      OBS.segs.push({ s: s.s, c: 120 });\n    });\n    // The crossing: a ring at the one pair that fits both.\n    const so = solveOf(ts);\n    let aR = 0;\n    if (so.kind === 'one' && !ph.moving && inViewQ(so.p)) {\n      aR = d.show ? (tl.ring != null ? arr(tl.ring, 0.4) : 1) : open && d.kind === 'pair' ? arr(PZ.ring, 0.4) : 0;\n      if (aR > 0) {\n        const RX = M.px(qv(so.p[0])), RY = M.py(qv(so.p[1]));\n        K.fade(add(K.svg('circle', { class: 'xr', cx: r2(RX), cy: r2(RY), r: 10 })), aR, 0);\n        rings.push({ x: RX, y: RY, r: 10 });\n        OBS.hard.push({ x0: RX - 12, y0: RY - 12, x1: RX + 12, y1: RY + 12 });\n        if (aR >= 0.5) REC.ring = { p: so.p, x: RX, y: RY };\n      }\n    }\n    // A wrong pair that is not on line 1: drawn where it is, with its own ring.\n    const tried = wrong && Array.isArray(d.vals[st.pick]) ? d.vals[st.pick] : null;\n    let aT = 0;\n    if (tried && !fitsQ(ts.L1, tried) && inViewQ(tried)) {\n      aT = arr(0.1, 0.4);\n      const WX = M.px(qv(tried[0])), WY = M.py(qv(tried[1]));\n      K.fade(add(K.svg('circle', { class: 'tr', cx: r2(WX), cy: r2(WY), r: 6 })), aT, 0);\n      OBS.hard.push({ x0: WX - 9, y0: WY - 9, x1: WX + 9, y1: WY + 9 });\n      rings.push({ x: WX, y: WY, r: 8 });\n      items.push(Object.assign(spots(WX, WY, PT_AT), { text: coord(tried), class: 'lab', a: aT }));\n      if (aT >= 0.5) REC.tried = tried;\n    }\n    // The point rides line 1 only, so its y is always line 1's rule worked out for its x.\n    const pn = pointNow(d, st), t = pn.t, P = ptAt(ts.L1, t);\n    const PX = M.px(qv(P[0])), PY = M.py(qv(P[1]));\n    if (canDrag(d)) { add(K.svg('circle', { class: 'ring', cx: r2(PX), cy: r2(PY), r: 12 })); rings.push({ x: PX, y: PY, r: 12 }); }\n    add(K.svg('circle', { class: 'pt', cx: r2(PX), cy: r2(PY), r: 6.5 }));\n    rings.push({ x: PX, y: PY, r: 8 });\n    OBS.hard.push({ x0: PX - 10, y0: PY - 10, x1: PX + 10, y1: PY + 10 });\n    items.push(Object.assign(spots(PX, PY, PT_AT), { text: coord(P), class: 'lab', a: 1 }));\n    REC.P = P; REC.t = t;\n\n    // The bars: equation 2's left side with line 1 swapped in, worked out at the point, beside its right side.\n    const k = collect(sys), sc = barScale(i);\n    const leftQ = qa(qm(qi(k.A), t), qi(k.B)), left = qv(leftQ), C = sys.L2.c, Cq = ts.L2.c;\n    const showLeft = !(d.kind === 'swap' && !open);\n    const aLeft = d.kind === 'swap' ? (open ? arr(0.3, 0.4) : 0) : 1;\n    const eq = showLeft && !ph.moving && Math.abs(left - C) < 1e-9;\n    let aEq = 0;\n    if (eq) {\n      if (d.show) aEq = tl.eq == null ? 1 : arr(tl.eq, 0.3);\n      else aEq = pn.eqAt == null || qeq(leftAt(d.sys, d.t0), qi(d.sys.L2.c)) ? 1 : arr(pn.eqAt, 0.3);\n    }\n    const Y0 = sc.Y(0);\n    ln('zm', ZX0, Y0, ZX1, Y0);\n    tx(ZX0 - 5, Y0 + 4.5, '0', 'tk', 'end');\n    const bar = (cx, v, text, cls, a, aLab) => {\n      const Yt = K.clamp(sc.Y(v), sc.Y(sc.hi), sc.Y(sc.lo)), g = add(K.svg('g'));\n      if (Math.abs(Yt - Y0) > 0.5) g.appendChild(K.svg('rect', { class: cls, x: cx - BW / 2, y: r2(Math.min(Y0, Yt)), width: BW, height: r2(Math.abs(Yt - Y0)) }));\n      K.fade(g, a, 0);\n      K.fade(tx(cx, v < 0 ? Yt + 17 : Yt - 8, text, 'bv', 'middle'), a * aLab, 0);\n      return Yt;\n    };\n    if (aLeft > 0) REC.leftTip = bar(BX1, left, qt(leftQ), 'bl', aLeft, 1);\n    REC.rightTip = bar(BX2, C, num(Cq), 'br', 1, la);\n    if (aEq > 0) K.fade(tx((BX1 + BX2) / 2, C < 0 ? REC.rightTip + 17 : REC.rightTip - 8, '=', 'eqs', 'middle'), aEq, 0);\n    // The bars' key: each bar is one side of equation 2.\n    add(K.svg('rect', { class: 'bl', x: HX, y: 29, width: 12, height: 12 }));\n    const h1 = add(K.svg('text', { class: 'hd' + (showLeft ? '' : ' q'), x: HX + 18, y: 40 }));\n    italics(h1, showLeft ? swapLeft(ts) : '?', true);\n    if (d.kind === 'swap' && open) K.fade(h1, aLeft, 0);\n    add(K.svg('rect', { class: 'br', x: HX, y: 49, width: 12, height: 12 }));\n    K.fade(tx(HX + 18, 60, num(Cq), 'hd', 'start'), la, 0);\n    REC.left = left; REC.right = C; REC.eq = eq && aEq >= 0.5; REC.leftShown = aLeft >= 0.5; REC.Y0 = Y0;\n\n    // The key under the grid: each line and its rule, the point, the crossing or the pair tried.\n    const KY1 = GY1 + 42, KY2 = GY1 + 62, RXK = 238;\n    const keyLine = (y, cls, label, a) => {\n      const g = add(K.svg('g'));\n      ln(cls, GX, y - 4, GX + 22, y - 4, g);\n      italics(g.appendChild(K.svg('text', { class: 'key', x: GX + 28, y })), label, true);\n      K.fade(g, a, 0);\n    };\n    keyLine(KY1, 'l1', 'line 1: ' + ruleT(ts.L1), 1);\n    keyLine(KY2, 'l2', 'line 2: ' + ruleT(ts.L2), la);\n    const keyDot = (y, cls, r, label, a) => {\n      const g = add(K.svg('g'));\n      g.appendChild(K.svg('circle', { class: cls, cx: RXK + 8, cy: y - 4, r }));\n      tx(RXK + 20, y, label, 'key', 'start', g);\n      K.fade(g, a, 0);\n    };\n    keyDot(KY1, 'pt', 5, 'the point', 1);\n    if (aR > 0) keyDot(KY2, 'xr', 7, 'crossing', aR);\n    else if (aT > 0) keyDot(KY2, 'tr', 5, 'pair tried', aT);\n\n    drawTicks(M, rings);\n    // Labels, placed clear of everything above.\n    const pos = placeLabels(items, OBS.hard, OBS.segs, { x0: GX + 2, x1: GX1 - 2, y0: GY + 2, y1: GY1 - 2 });\n    labs.textContent = '';\n    items.forEach((it, n) => {\n      if (it.a <= 0) return;\n      const tt = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || 'middle' }));\n      italics(tt, it.text, true);\n      K.fade(tt, it.a, 0);\n      if (it.a >= 0.5) REC.labels.push(it.text);\n    });\n\n    // The working: the swap and its value at the point; the solving once shown or answered; a wrong pair put into both.\n    const rows = [];\n    if (ts.e1) rows.push({ l: 'Rearrange', s: ruleT(ts.e1) + ', so ' + ruleT(ts.L1), a: 1 });\n    const aSwap = d.kind === 'swap' && open ? aLeft : 1;\n    rows.push({ l: 'Swap in', s: showLeft ? swapT(ts) : '?', a: aSwap });\n    if (showLeft) rows.push({ l: 'At the point', s: atT(ts, t), a: aSwap, tall: true });\n    const solveA = (n) => (d.show ? (tl.rows == null ? 1 : arr(tl.rows + n * tl.gap, 0.4)) : arr(PZ.rows + n * PZ.gap, PZ.rowT));\n    let more = [];\n    if (open && d.kind !== 'swap' && (!d.show || d.solve)) more = solveRows(ts);\n    else if (tried) more = [{ l: 'In line 1', s: checkT(ts.e1 || ts.L1, tried) }, { l: 'In line 2', s: checkT(ts.L2, tried) }];\n    more.forEach((r, n) => { r.a = solveA(n); rows.push(r); });\n    rows.forEach((r) => { r.a *= la; });\n    drawRows(rows);\n\n    svg.setAttribute('viewBox', '0 0 340 ' + H);\n    svg.setAttribute('aria-label', describe(ts, P, leftQ, eq, showLeft));\n    placeGrip(d, P, M);\n  }\n\n  // ---------- dragging: the point stays on line 1, in tenths, and clicks onto the crossing ----------\n  const hit = ui.appendChild(K.svg('rect', { class: 'grip hit', x: GX, y: GY, width: GW, height: GH, 'aria-hidden': 'true' }));\n  const grip = ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'The point' }));\n  let LIVE = false;\n  function placeGrip(d, P, M) {\n    LIVE = canDrag(d);\n    hit.style.display = LIVE ? '' : 'none';\n    grip.style.display = LIVE ? '' : 'none';\n    grip.setAttribute('tabindex', LIVE ? '0' : '-1');\n    svg.classList.toggle('grab', LIVE);\n    if (!LIVE) return;\n    grip.setAttribute('cx', r2(M.px(qv(P[0])))); grip.setAttribute('cy', r2(M.py(qv(P[1]))));\n    grip.setAttribute('aria-label', 'The point on line 1 at ' + say(coord(P)) + '. Drag it along the line, or move it with the arrow keys.');\n  }\n  // The nearest place on line 1 to a touch, in tenths; near the crossing it clicks on exactly.\n  function snapT(d, q) {\n    const sys = endSys(d), L1 = sys.L1, rg = tRange(L1), m = L1.m, k = L1.k;\n    const raw = L1.w === 'y' ? (q[0] + m * (q[1] - k)) / (1 + m * m) : (q[1] + m * (q[0] - k)) / (1 + m * m);\n    const so = solveOf(sys);\n    if (so.kind === 'one' && inViewQ(so.p) && Math.abs(raw - qv(so.uv)) < MAG) return so.uv;\n    return tenthQ(K.clamp(raw, rg[0], rg[1]));\n  }\n  // The arrow keys move a tenth (a whole one with Shift), stopping on the crossing when they pass it.\n  function stepT(d, t, n) {\n    const sys = endSys(d), rg = tRange(sys.L1), so = solveOf(sys), cur = qv(t);\n    const idx10 = K.clamp((n > 0 ? Math.floor(cur * 10 + 1e-9) : Math.ceil(cur * 10 - 1e-9)) + n, Math.round(rg[0] * 10), Math.round(rg[1] * 10));\n    const nt = Q(idx10, 10);\n    if (so.kind === 'one' && inViewQ(so.p)) { const c = qv(so.uv); if ((c - cur) * (qv(nt) - c) > 1e-12) return so.uv; }\n    return nt;\n  }\n  const curT = (d) => S[at()].t || (d.show ? d.pk[d.pk.length - 1].t : d.t0);\n  function setT(t) {\n    const d = STEPS[at()], st = S[at()];\n    if (!canDrag(d)) return;\n    if (st.t && qeq(st.t, t)) return;\n    st.t = t;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    K.reveal(); K.refresh();\n  }\n  function svgPt(e) {\n    const mtx = svg.getScreenCTM();\n    if (!mtx) return null;\n    return new DOMPoint(e.clientX, e.clientY).matrixTransform(mtx.inverse());\n  }\n  const toXY = (q) => mapper(FULL).inv(q.x, q.y);\n  let held = null;\n  // A touch anywhere on the grid brings the point to the nearest place on line 1; a touch on the point picks it up.\n  [hit, grip].forEach((g) => {\n    g.addEventListener('pointerdown', (e) => {\n      if (!LIVE) return;\n      const q = svgPt(e);\n      if (!q) return;\n      held = e.pointerId;\n      try { e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on it */ }\n      e.preventDefault();\n      if (g === hit) setT(snapT(STEPS[at()], toXY(q)));\n    });\n    g.addEventListener('pointermove', (e) => {\n      if (held !== e.pointerId) return;\n      e.preventDefault();\n      const q = svgPt(e);\n      if (q) setT(snapT(STEPS[at()], toXY(q)));\n    });\n    const letGo = (e) => { if (held === e.pointerId) held = null; };\n    g.addEventListener('pointerup', letGo);\n    g.addEventListener('pointercancel', letGo);\n    g.addEventListener('lostpointercapture', letGo);\n  });\n  grip.addEventListener('keydown', (e) => {\n    const dir = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key], d = STEPS[at()];\n    if (!dir || !canDrag(d)) return;\n    e.preventDefault();\n    setT(stepT(d, curT(d), dir * (e.shiftKey ? 10 : 1)));\n  });\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.t = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('pz').classList.toggle('ask', !d.show && !right && !st.why);\n    el('stepbox').hidden = finished;\n    el('lead').hidden = i !== 0 || finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.el.textContent = ''; italics(b.el, opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const whySt = () => Object.assign(blank(), { why: true });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const withT = (t) => Object.assign(blank(), { t });\n  // Every tenth the point can ride to along line 1; fn returning false stops the walk.\n  const tenths = (L1, fn) => { const r = tRange(L1); for (let n = Math.round(r[0] * 10); n <= Math.round(r[1] * 10); n++) if (fn(Q(n, 10)) === false) return false; return true; };\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n\n  K.check('When we solved a system by substitution, we started with two equations and two variables and reduced it to one equation with one variable: every swap here leaves one letter, and at every tenth along line 1 it gives the same total as equation 2 does for the point\\'s own pair, which is what the left bar shows', () =>\n    SYS.every((sys) => {\n      if (new RegExp('(?<![A-Za-z])' + sys.L1.w + '(?![A-Za-z])').test(swapT(sys))) return false;\n      return tenths(sys.L1, (t) => { const p = ptAt(sys.L1, t); return fitsQ(sys.L1, p) && qeq(leftAt(sys, t), qa(qm(qi(sys.L2.a), p[0]), qm(qi(sys.L2.b), p[1]))); });\n    }) && STEPS.every((d, i) => d.kind === 'swap' || (() => { const g = drawn(i, blank()); return near(g.left, qv(leftAt(g.sys, g.t))); })()),\n  { source: SRC1 });\n  K.check('Step 2, substitute the expression from Step 1 into the other equation: line 1\\'s expression goes in place of its letter in equation 2, in a bracket when it has two terms, on every screen and in the first puzzle\\'s answer', () => {\n    const want = ['x + (2x + 1) = 7', '2x + (x + 3) = 12', 'x + (2x + 1) = 5', 'x + 3x = 3', '3x − (11 − 2x) = 9', '4x − (7 − 2x) = 5', '(2x + 1) − 2x = 4', '(2x + 1) − 2x = 1',\n      '(3x + 2) − 3x = −4', '3(x + 2) − 3x = 6', 'x + 2(x − 2) = 8', '(2y − 1) + y = 8'];\n    const d1 = STEPS[idx('Swap it in')];\n    return SYS.map(swapT).join(' | ') === want.join(' | ') && d1.want === swapT(d1.sys) && d1.opts.filter((o) => o === swapT(d1.sys)).length === 1;\n  }, { source: SRC2 });\n  K.check('If the two lines cross, the coordinates of this intersection are the solutions to the simultaneous equations, and if the lines are parallel there is no solution: the bars match where the point reaches the crossing and nowhere else along line 1, the ring sits on both lines, and on the parallel screens the bars never match', () => {\n    const ones = SYS.filter((s) => solveOf(s).kind === 'one'), nones = SYS.filter((s) => solveOf(s).kind === 'none');\n    const one = ones.length === 8 && ones.every((sys) => {\n      const so = solveOf(sys);\n      let hits = 0;\n      const ok = tenths(sys.L1, (t) => { const e = qeq(leftAt(sys, t), qi(sys.L2.c)); if (e !== fitsQ(sys.L2, ptAt(sys.L1, t))) return false; if (e) hits++; return true; });\n      return ok && fitsQ(sys.L1, so.p) && fitsQ(sys.L2, so.p) && hits === (isTenth(so.uv) ? 1 : 0) && qeq(leftAt(sys, so.uv), qi(sys.L2.c));\n    });\n    const none = nones.length === 2 && nones.every((sys) => tenths(sys.L1, (t) => !qeq(leftAt(sys, t), qi(sys.L2.c))));\n    const rings = STEPS.every((d, i) => { const g = drawn(i, d.show ? blank() : solvedSt(i)); return !g.ring || (fitsQ(g.sys.L1, g.ring.p) && fitsQ(g.sys.L2, g.ring.p)); });\n    const a = drawn(0, withT(qi(2))), b = drawn(0, withT(qi(1)));\n    return one && none && rings && a.eq && near(a.left, 7) && !b.eq && near(b.left, 4) && !!a.ring;\n  }, { source: SRC3 });\n  K.check('When the two equations were really the same line, there were infinitely many solutions: on both same-line screens the bars match at every tenth along line 1, the working reads true whatever x is, and the puzzle takes endless solutions as its answer', () => {\n    const sames = SYS.filter((s) => solveOf(s).kind === 'same'), j = idx('True whatever x is');\n    const g = drawn(idx('When the x\\'s cancel'), blank()), h = drawn(j, solvedSt(j));\n    return sames.length === 2 && sames.every((sys) => tenths(sys.L1, (t) => qeq(leftAt(sys, t), qi(sys.L2.c)))) && g.eq && h.eq &&\n      h.rows.some((r) => r.s === 'true whatever x is, so endless solutions') && STEPS[j].want === 'Endless solutions' && STEPS[j].vals[STEPS[j].want] === 'same';\n  }, { source: SRC1 });\n  K.check('Every worked line is right, by hand: 0 + (0 + 1) = 1 and 1 + (2 + 1) = 4 beside 7; 3x = 6 gives (2, 5); 4/3 + 11/3 = 15/3 = 5; 3x − 11 + 2x = 9 gives (4, 3); 3 × 0.8 = 2.4; 24 + 5 = 29; −2 − 9 = −11; 60 + 29 = 89; 10/3 + 8/3 = 6; 2 × 5 − 1 = 9; and y = 3x − 2 with 2x + y = 13 gives 5x = 15 and (3, 7)', () => {\n    const rowsS = (sys) => solveRows(sys).map((r) => r.l + ': ' + r.s).join(' | ');\n    const WX = { L1: Yl(3, -2), L2: El([[2, 'x'], [1, 'y']], 13) };\n    return atT(SY0, qi(0)) === '0 + (0 + 1) = 1, not 7' && atT(SY0, qi(1)) === '1 + (2 + 1) = 4, not 7' && atT(SY0, qi(2)) === '2 + (4 + 1) = 7 ✓' &&\n      atT(SY6, qi(4)) === '12 − (11 − 8) = 9 ✓' && atT(SY12, qi(1)) === '(2 − 1) + 1 = 2, not 8' && atT(SY10, qi(1)) === '3(1 + 2) − 3 = 6 ✓' &&\n      rowsS(SY0) === 'Collect: 3x + 1 = 7 | Solve: 3x = 6, so x = 6 ÷ 3 = 2 | Put back: y = 2 × 2 + 1 = 5 | In line 1: 2 × 2 + 1 = 5 ✓ | In line 2: 2 + 5 = 7 ✓' &&\n      rowsS(SY4) === 'Collect: 3x + 1 = 5 | Solve: 3x = 4, so x = 4 ÷ 3 = 4/3 | Put back: y = 2 × 4/3 + 1 = 8/3 + 1 = 11/3 | In line 1: 2 × 4/3 + 1 = 11/3 ✓ | In line 2: 4/3 + 11/3 = 15/3 = 5 ✓' &&\n      rowsS(SY6) === 'Expand: 3x − 11 + 2x = 9 | Collect: 5x − 11 = 9 | Solve: 5x = 20, so x = 20 ÷ 5 = 4 | Put back: y = 11 − 2 × 4 = 3 | In line 1: 8 + 3 = 11 ✓ | In line 2: 12 − 3 = 9 ✓' &&\n      rowsS(SY5) === 'Collect: 4x = 3 | Solve: x = 3 ÷ 4 = 3/4 | Put back: y = 3 × 3/4 = 9/4 | In line 1: 3 × 3/4 = 9/4 ✓ | In line 2: 3/4 + 9/4 = 12/4 = 3 ✓' &&\n      rowsS(SY12) === 'Collect: 3y − 1 = 8 | Solve: 3y = 9, so y = 9 ÷ 3 = 3 | Put back: x = 2 × 3 − 1 = 5 | In line 1: 2 × 3 − 1 = 5 ✓ | In line 2: 5 + 3 = 8 ✓' &&\n      rowsS(SY9) === 'Collect: 2 = −4 | Read it: false whatever x is, so no solution' &&\n      rowsS(SY10) === 'Expand: 3x + 6 − 3x = 6 | Collect: 6 = 6 | Read it: true whatever x is, so endless solutions' &&\n      checkT(SY5.L1, pr(Q(8, 10), Q(22, 10))) === '3 × 0.8 = 2.4, not 2.2' && checkT(SY5.L2, pr(Q(4, 3), 4)) === '4/3 + 4 = 16/3, not 3' &&\n      checkT(SY7.L2, pr(6, -5)) === '24 + 5 = 29, not 5' && checkT(SY7.e1, pr(-1, -9)) === '−2 − 9 = −11, not 7' && checkT(SY6.L2, pr(20, -29)) === '60 + 29 = 89, not 9' &&\n      checkT(SY1.L2, pr(5, 8)) === '10 + 8 = 18, not 12' && checkT(SY9.L1, pr(3, 2)) === '3 × 3 + 2 = 11, not 2' && checkT(SY9.L1, pr(2, -4)) === '3 × 2 + 2 = 8, not −4' &&\n      checkT(SY10.L2, pr(1, 3)) === '9 − 3 = 6 ✓' && checkT(SY11.L2, pr(Q(10, 3), Q(4, 3))) === '10/3 + 8/3 = 18/3 = 6, not 8' && checkT(SY11.L1, pr(6, 1)) === '6 − 2 = 4, not 1' &&\n      checkT(SY12.L1, pr(3, 5)) === '2 × 5 − 1 = 9, not 3' && collect(WX).A === 5 && coord(solveOf(WX).p) === '(3, 7)';\n  });\n  K.check('Every puzzle\\'s answers are checked against its own two equations: the right pair fits both and is the worked solution, every wrong pair misses at least one, a half answer is the right x or y alone, and every wrong answer has a hint of its own', () =>\n    DO.every((i) => {\n      const d = STEPS[i], so = solveOf(d.sys);\n      const hintsOk = d.opts.every((o) => o === d.want || (!!d.hints[o] && d.hints[o] !== d.hint));\n      const valsOk = d.opts.every((o) => {\n        const v = d.vals[o];\n        if (Array.isArray(v)) {\n          const label = coord(v) === o || coord(v) + ' only' === o, both = fitsQ(d.sys.L1, v) && fitsQ(d.sys.L2, v);\n          if (o === d.want) return label && so.kind === 'one' && same2(v, so.p);\n          return label && (d.kind === 'same' ? both : !both);\n        }\n        if (v && v.half) return o !== d.want && so.kind === 'one' && o === v.half + ' = ' + qt(v.v) && qeq(v.v, v.half === 'x' ? so.p[0] : so.p[1]);\n        if (v === 'none' || v === 'same') return (o === d.want) === (v === so.kind);\n        if (d.kind === 'swap') return (o === d.want) === (o === swapT(d.sys));\n        return false;\n      });\n      return hintsOk && valsOk && d.opts.length === 3 && d.opts.indexOf(d.want) >= 0;\n    }));\n  K.check('Before an answer a puzzle keeps back the crossing ring and the solving, and the first puzzle its swap; a right answer or Why? draws them; a wrong pair on line 1 and on the grid sends the point there, where the bars do not match, and a wrong pair is put into both equations', () =>\n    DO.every((i) => {\n      const d = STEPS[i], b = drawn(i, blank()), so = solveOf(d.sys);\n      const solving = (g) => g.rows.some((r) => r.l === 'Collect' && r.a > 0);\n      if (b.ring || solving(b) || (d.kind === 'swap' && b.leftShown)) return false;\n      const after = [drawn(i, solvedSt(i)), drawn(i, whySt())].every((g) => (d.kind === 'swap' ? g.leftShown && g.rows.some((r) => r.s === swapT(d.sys)) : solving(g)) &&\n        (d.kind === 'pair' ? !!g.ring && g.eq && same2(g.P, so.p) : true));\n      const wrongs = d.opts.every((o) => {\n        const v = d.vals[o];\n        if (o === d.want || !Array.isArray(v)) return true;\n        const g = drawn(i, wrongSt(i, o)), both = fitsQ(d.sys.L1, v) && fitsQ(d.sys.L2, v);\n        const rowsOk = g.rows.filter((r) => /^In line/.test(r.l)).length === 2;\n        if (fitsQ(d.sys.L1, v) && inViewQ(v)) return rowsOk && same2(g.P, v) && g.eq === both;\n        return rowsOk && !g.eq && (!inViewQ(v) || same2(g.tried, v));\n      });\n      return after && wrongs;\n    }));\n  K.check('The first screen shows only the swap and its value at the point; the solving lines arrive on the screens that solve, and only there', () => {\n    const g = drawn(0, blank()), h = drawn(idx('Solve for x, then y'), blank());\n    return g.rows.map((r) => r.l).join() === 'Swap in,At the point' && h.rows.some((r) => r.l === 'Collect') && h.rows.some((r) => r.l === 'In line 2') &&\n      STEPS.filter((d) => d.show).every((d) => !!d.solve === (d.name !== 'Ride along line 1'));\n  });\n  K.check('Dragging: the point stays on line 1, moves in tenths, stops at the grid\\'s edge, and clicks onto the crossing when it comes near, where its label gives the exact pair (4/3, 11/3)', () => {\n    const d0 = STEPS[0], i4 = idx('Between the tenths'), d4 = STEPS[i4];\n    const a = snapT(d0, [4.02, 9.1]), b = snapT(d0, [9, 30]), c = snapT(d4, [1.35, 3.7]), e = snapT(d4, [0.52, 3.3]);\n    const g = drawn(i4, withT(c)), h = drawn(i4, withT(Q(13, 10)));\n    const k1 = stepT(d4, Q(13, 10), 1), k2 = stepT(d4, Q(4, 3), 1), k3 = stepT(d4, Q(4, 3), -1);\n    return qeq(a, qi(4)) && qeq(b, Q(13, 2)) && qeq(c, Q(4, 3)) && qeq(e, qi(1)) && g.eq && g.labels.indexOf('(4/3, 11/3)') >= 0 && !h.eq && h.labels.indexOf('(1.3, 3.6)') >= 0 &&\n      qeq(k1, Q(4, 3)) && qeq(k2, Q(7, 5)) && qeq(k3, Q(13, 10));\n  });\n  K.check('A value below zero is drawn the other way from the zero mark: at x = 0 on the make-y-the-subject screen the left side is −11, hanging below the mark, and on the no-solution puzzle the right side, −4, hangs below it while the left side, 2, stands above', () => {\n    const g = drawn(idx('Make y the subject'), withT(qi(0))), h = drawn(idx('Only numbers left'), blank());\n    return near(g.left, -11) && g.leftTip > g.Y0 && near(h.right, -4) && h.rightTip > h.Y0 && near(h.left, 2) && h.leftTip < h.Y0;\n  });\n  K.check('Every demonstration finishes arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends, and a puzzle\\'s drawing after an answer or Why? finishes within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 3 && d.dur <= 5 && earliest >= FADE\n      : timed(i, solvedSt(i), FB) && timed(i, whySt(), FB) && d.opts.every((o) => o === d.want || timed(i, wrongSt(i, o), FB))));\n    T = keepT; paint();\n    return ok && FB <= 2.5;\n  });\n\n  K.ready();\n</script>",
+  "title": "Ride along one line",
+  "brief": "The one thing you should see is the bars for x + (2x + 1) and 7 matching only where the point riding line 1 reaches line 2, when you slide the point along line 1.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "When we solved a system by substitution, we started with two equations and two variables and reduced it to one equation with one variable: every swap here leaves one letter, and at every tenth along line 1 it gives the same total as equation 2 does for the point's own pair, which is what the left bar shows",
+     "ok": true,
+     "source": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables"
+    },
+    {
+     "label": "Step 2, substitute the expression from Step 1 into the other equation: line 1's expression goes in place of its letter in equation 2, in a bracket when it has two terms, on every screen and in the first puzzle's answer",
+     "ok": true,
+     "source": "https://openstax.org/books/elementary-algebra/pages/5-2-solve-systems-of-equations-by-substitution"
+    },
+    {
+     "label": "If the two lines cross, the coordinates of this intersection are the solutions to the simultaneous equations, and if the lines are parallel there is no solution: the bars match where the point reaches the crossing and nowhere else along line 1, the ring sits on both lines, and on the parallel screens the bars never match",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zhbnvj6"
+    },
+    {
+     "label": "When the two equations were really the same line, there were infinitely many solutions: on both same-line screens the bars match at every tenth along line 1, the working reads true whatever x is, and the puzzle takes endless solutions as its answer",
+     "ok": true,
+     "source": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables"
+    },
+    {
+     "label": "Every worked line is right, by hand: 0 + (0 + 1) = 1 and 1 + (2 + 1) = 4 beside 7; 3x = 6 gives (2, 5); 4/3 + 11/3 = 15/3 = 5; 3x − 11 + 2x = 9 gives (4, 3); 3 × 0.8 = 2.4; 24 + 5 = 29; −2 − 9 = −11; 60 + 29 = 89; 10/3 + 8/3 = 6; 2 × 5 − 1 = 9; and y = 3x − 2 with 2x + y = 13 gives 5x = 15 and (3, 7)",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle's answers are checked against its own two equations: the right pair fits both and is the worked solution, every wrong pair misses at least one, a half answer is the right x or y alone, and every wrong answer has a hint of its own",
+     "ok": true
+    },
+    {
+     "label": "Before an answer a puzzle keeps back the crossing ring and the solving, and the first puzzle its swap; a right answer or Why? draws them; a wrong pair on line 1 and on the grid sends the point there, where the bars do not match, and a wrong pair is put into both equations",
+     "ok": true
+    },
+    {
+     "label": "The first screen shows only the swap and its value at the point; the solving lines arrive on the screens that solve, and only there",
+     "ok": true
+    },
+    {
+     "label": "Dragging: the point stays on line 1, moves in tenths, stops at the grid's edge, and clicks onto the crossing when it comes near, where its label gives the exact pair (4/3, 11/3)",
+     "ok": true
+    },
+    {
+     "label": "A value below zero is drawn the other way from the zero mark: at x = 0 on the make-y-the-subject screen the left side is −11, hanging below the mark, and on the no-solution puzzle the right side, −4, hangs below it while the left side, 2, stands above",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration finishes arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends, and a puzzle's drawing after an answer or Why? finishes within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Ride along line 1",
+      "Swap it in",
+      "Solve for x, then y",
+      "Your turn",
+      "Between the tenths",
+      "Exact, not a reading",
+      "Make y the subject",
+      "Mind the minus",
+      "When the x's cancel",
+      "Only numbers left",
+      "True whatever x is",
+      "A number before the bracket",
+      "Last one"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T15:00:23.993Z",
+  "applied": [
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "It says the left bar stays at 1 for any parallel line 2, but 1 is line 1's c for y = 2x + 1 only; with the parallel pair y = 3x + 2 and y − 3x = −4 it would stay at 2. Tie the 1 to y = 2x + 1."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}
