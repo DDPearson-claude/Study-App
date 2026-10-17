@@ -1,0 +1,1079 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* The graph: a frame, faint gridlines at the ticks, axes through 0, the family's curve in navy. */
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .frame { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.25; }
+  .scene .tlab { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axt { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .cv.bad { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .gdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  /* The beam (and the level line): amber, so it stands out from the curve; a slip's beam is red and dashed. */
+  .scene .beam { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .beam.lvl { stroke-width: 3; }
+  .scene .beam.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }
+  .scene .beam.faint { stroke-dasharray: 3 6; }
+  .scene .beam.ghost { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .hit { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .hit.bad { fill: var(--k-warn); }
+  .scene .hit.ghost { fill: var(--k-muted); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .mk { fill: none; stroke: var(--k-accent2); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .pl { font: 600 13px var(--k-font); fill: var(--k-accent2); paint-order: stroke; stroke: var(--k-bg); stroke-width: 3px; stroke-linejoin: round; }
+  .scene .pl.bad { fill: var(--k-warn); }
+  .scene .key { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .sw { stroke-width: 2.5; stroke-linecap: round; }
+  .scene .sw.b { stroke: var(--k-amber-line); }
+  .scene .sw.g { stroke: var(--k-accent2); }
+  .scene .sw.r { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: butt; }
+  /* Pills: the pointer Dan moves is solid; a reading it gives is outlined; a slip is red; a given reading is dashed. */
+  .scene .tk { font: 700 13px var(--k-font); }
+  .scene .pill.ptr, .scene .notch.ptr { fill: var(--k-accent2); }
+  .scene .tk.ptr { fill: var(--k-on-accent2); }
+  .scene .pill.out { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .tk.out { fill: var(--k-accent2); }
+  .scene .pill.bad, .scene .pill.bptr { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .notch.bptr { fill: var(--k-warn); }
+  .scene .tk.bad, .scene .tk.bptr { fill: var(--k-warn); }
+  .scene .pill.ghost { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .tk.ghost { fill: var(--k-muted); }
+  /* The gallery's tabs, its rule and law, and the table. */
+  .scene .tab { fill: var(--k-accent2); }
+  .scene .tab.off { fill: none; stroke: var(--k-strong); stroke-width: 1; }
+  .scene .tabt { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tabt.on { fill: var(--k-on-accent2); }
+  .scene .rule { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .law { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .th { fill: var(--k-sunk); }
+  .scene .tt { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tc { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .tc.out { font-weight: 700; fill: var(--k-accent2); }
+  .scene .tc.q { fill: var(--k-muted); }
+  .scene .tc.none { font-style: italic; fill: var(--k-muted); }
+  .scene .now { fill: var(--k-fill1); }
+  .scene .tsep { stroke: var(--k-line); stroke-width: 1; }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip, .scene .tabhit { fill: var(--k-bg); fill-opacity: 0; stroke: none; touch-action: none; }
+  .scene .grip { cursor: grab; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .tabhit { cursor: pointer; }
+  .scene .grip:focus, .scene .tabhit:focus { outline: none; }
+  .scene .grip:focus-visible, .scene .tabhit:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A gallery of five graph shapes, each with its rule and a law from work. The 1 Ω cable run and the 12 V supply are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 322" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every point and every table row is worked out from the rule on its tab.</p>
+
+<script>
+  // ---------- numbers, written as the lesson writes them (a true minus sign, no trailing zeros) ----------
+  const fmtN = (v, dp) => { const f = Math.pow(10, dp == null ? 3 : dp), r = Math.round(v * f) / f; return (r < 0 ? '−' : '') + String(Math.abs(r)); };
+  const n3 = (v) => fmtN(v, 3);
+  const ezInv = (f) => Math.acos(1 - 2 * K.clamp(f, 0, 1)) / Math.PI;   // when the kit's eased slide reaches fraction f
+
+  // ---------- the rules every picture is drawn from ----------
+  const OHMS = 1, VOLTS = 12;                              // example cable run (Ω) and supply (V)
+  const loss = (I) => I * I * OHMS;                        // W lost in the run at I amps: P = I²R
+  const load = (s) => 100 * Math.pow(s / 100, 3);          // % of full fan power at s % of full fan speed
+  const amps = (R) => VOLTS / R;                           // A drawn from 12 V through R ohms
+  const flow = (d) => 100 * Math.sqrt(d / 100);            // % of full flow from d % of full pressure difference
+  const gas = (v) => 1 / v;                                // pressure against volume, each as a multiple of the start
+  // The slips a wrong answer draws, each through the given point.
+  const lineS = (s) => s, sqS = (s) => s * s / 100;                                   // on the percentage graphs
+  const lossLine = (I) => loss(3) / 3 * I;                                            // a line through 3 A, 9 W
+  const riseS = (R) => amps(3) / 3 * R, quartS = (R) => amps(3) * 9 / (R * R);        // through 3 Ω, 4 A
+  const gasLine = (v) => gas(1) + (gas(1) - gas(0.5)) / 0.5 * (v - 1), gasSq = (v) => gas(1) * v * v;
+
+  // Each graph: its frame (viewBox units), axes (range, ticks, how a value is written, title, drag step),
+  // its rule (fn over the pieces in dom), and back: output -> every input the drawn curve gives it from.
+  const PB = { x0: 70, x1: 230, y0: 102, y1: 268 };   // beside the table
+  const WB = { x0: 70, x1: 326, y0: 102, y1: 268 };   // the whole width
+  const inDom = (dom, x) => dom.some((q) => x >= q[0] - 1e-9 && x <= q[1] + 1e-9);
+  const fam = (o) => Object.assign(o, { f: (x) => (inDom(o.dom, x) ? [o.fn(x)] : []) });
+  const HEAD = ['x', 'y'];
+  const G = {
+    line: fam({ tab: 'line', box: PB, rule: 'y = x', law: 'Law: a transmitter\'s scale, y = mx + b', head: HEAD,
+      x: { min: -3.6, max: 3.6, ticks: [-3, 0, 3], t: n3, title: 'x', step: 0.5 },
+      y: { min: -3.6, max: 3.6, ticks: [-3, 0, 3], t: n3, title: 'y' },
+      fn: (x) => x, dom: [[-3, 3]], keys: [-3, -2, -1, 0, 1, 2, 3],
+      back: (y) => (Math.abs(y) <= 3 + 1e-9 ? [y] : []), lv: [-3, 3, 0.5, 2] }),
+    sq: fam({ tab: 'sq', box: PB, rule: 'y = x²', law: 'Law: cable loss = current² × resistance', head: HEAD,
+      x: { min: -3.6, max: 3.6, ticks: [-3, 0, 3], t: n3, title: 'x', step: 0.5 },
+      y: { min: -1.2, max: 10.2, ticks: [0, 4, 9], t: n3, title: 'y' },
+      fn: (x) => x * x, dom: [[-3, 3]], keys: [-3, -2, -1, 0, 1, 2, 3],
+      back: (y) => (y > 1e-12 && y <= 9 + 1e-9 ? [-Math.sqrt(y), Math.sqrt(y)] : Math.abs(y) <= 1e-12 ? [0] : []), lv: [-1, 9, 1, 4] }),
+    cube: fam({ tab: 'cube', box: PB, rule: 'y = x³', law: 'Law: engine load = propeller speed³', head: HEAD,
+      x: { min: -2.4, max: 2.4, ticks: [-2, 0, 2], t: n3, title: 'x', step: 0.5 },
+      y: { min: -9.6, max: 9.6, ticks: [-8, 0, 8], t: n3, title: 'y' },
+      fn: (x) => x * x * x, dom: [[-2, 2]], keys: [-2, -1, -0.5, 0, 0.5, 1, 2],
+      back: (y) => (Math.abs(y) <= 8 + 1e-9 ? [Math.cbrt(y)] : []), lv: [-8, 8, 1, 1] }),
+    rec: fam({ tab: 'rec', box: PB, rule: 'y = 1/x', law: 'Law: current = 12 V ÷ resistance', head: HEAD,
+      x: { min: -4.5, max: 4.5, ticks: [-4, 0, 4], t: n3, title: 'x', step: 0.25 },
+      y: { min: -4.5, max: 4.5, ticks: [-4, 0, 4], t: n3, title: 'y' },
+      fn: (x) => 1 / x, dom: [[-4, -1 / 4.5], [1 / 4.5, 4]], samp: 'geo', keys: [-4, -2, -1, 0, 1, 2, 4],
+      back: (y) => (Math.abs(y) >= 0.25 - 1e-9 && Math.abs(y) <= 4.5 ? [1 / y] : []), lv: [-4, 4, 0.25, 2] }),
+    root: fam({ tab: 'root', box: PB, rule: 'y = √x', law: 'Law: flow = √(pressure difference)', head: HEAD,
+      x: { min: -1.6, max: 9.6, ticks: [0, 1, 4, 9], t: n3, title: 'x', step: 0.25 },
+      y: { min: -0.3, max: 3.4, ticks: [0, 1, 2, 3], t: n3, title: 'y' },
+      fn: Math.sqrt, dom: [[0, 9]], samp: 'sq', keys: [-1, 0, 0.5, 1, 4, 9],
+      back: (y) => (y >= -1e-12 && y <= 3 + 1e-9 ? [y * y] : []), lv: [0, 3, 0.25, 2] }),
+    // The laws, each drawn in its own units.
+    Lsq: fam({ tab: 'sq', box: WB, rule: 'y = x²', law: 'Law: cable loss = current² × resistance', keyAt: [78, 118, 'start'],
+      x: { min: 0, max: 6.6, ticks: [0, 2, 4, 6], tl: n3, t: (v) => fmtN(v, 2) + ' A', title: 'current (A)' },
+      y: { min: 0, max: 42, ticks: [0, 10, 20, 30, 40], tl: n3, t: (v) => fmtN(v, 2) + ' W', title: 'power lost (W)' },
+      fn: loss, dom: [[0, 6.3]], back: (y) => (y >= 0 && y <= loss(6.3) ? [Math.sqrt(y / OHMS)] : []) }),
+    Lcube: fam({ tab: 'cube', box: WB, rule: 'y = x³', law: 'Law: fan power = fan speed³', keyAt: [78, 144, 'start'],
+      x: { min: 0, max: 106, ticks: [0, 25, 50, 75, 100], tl: n3, t: (v) => fmtN(v, 2) + '%', title: 'speed (% of full)' },
+      y: { min: 0, max: 106, ticks: [0, 25, 50, 75, 100], tl: n3, t: (v) => fmtN(v, 2) + '%', title: 'power (% of full)' },
+      fn: load, dom: [[0, 100]], back: (y) => (y >= 0 && y <= 100 ? [100 * Math.cbrt(y / 100)] : []) }),
+    Lrec: fam({ tab: 'rec', box: WB, rule: 'y = 1/x', law: 'Law: current = 12 V ÷ resistance', keyAt: [318, 180, 'end'],
+      x: { min: 0, max: 13, ticks: [0, 4, 8, 12], tl: n3, t: (v) => fmtN(v, 2) + ' Ω', title: 'resistance (Ω)' },
+      y: { min: 0, max: 13, ticks: [0, 5, 10], tl: n3, t: (v) => fmtN(v, 2) + ' A', title: 'current (A)' },
+      fn: amps, dom: [[VOLTS / 13, 12]], samp: 'geo', back: (y) => (y >= 1 && y <= 13 ? [VOLTS / y] : []) }),
+    Lroot: fam({ tab: 'root', box: WB, rule: 'y = √x', law: 'Law: flow = √(pressure difference)', keyAt: [78, 144, 'start'],
+      x: { min: 0, max: 106, ticks: [0, 50, 100], tl: n3, t: (v) => fmtN(v, 2) + '%', title: 'pressure difference (% of full)' },
+      y: { min: 0, max: 106, ticks: [0, 25, 50, 75, 100], tl: n3, t: (v) => fmtN(v, 2) + '%', title: 'flow (% of full)' },
+      fn: flow, dom: [[0, 100]], samp: 'sq', back: (y) => (y >= 0 && y <= 100 ? [y * y / 100] : []) }),
+    Lsq2: fam({ tab: 'sq', box: WB, rule: 'y = x²', law: 'Law: cable loss = current² × resistance',
+      x: { min: -4.8, max: 4.8, ticks: [-4, 0, 4], tl: n3, t: (v) => fmtN(v, 2) + ' A', title: 'current (A)' },
+      y: { min: 0, max: 17, ticks: [0, 4, 8, 12, 16], tl: n3, t: (v) => fmtN(v, 2) + ' W', title: 'power lost (W)' },
+      fn: loss, dom: [[-4, 4]], back: (y) => (y > 1e-12 && y <= loss(4) ? [-Math.sqrt(y / OHMS), Math.sqrt(y / OHMS)] : Math.abs(y) <= 1e-12 ? [0] : []) }),
+    Lgas: fam({ tab: null, box: WB, rule: '', law: '', keyAt: [318, 118, 'end'], noCurve: true,
+      x: { min: 0, max: 1.15, ticks: [0.25, 0.5, 1], t: n3, title: 'volume (start = 1)' },
+      y: { min: 0, max: 4.6, ticks: [1, 2, 4], t: n3, title: 'pressure (start = 1)' },
+      fn: gas, dom: [[1 / 4.6, 1.15]], samp: 'geo', dots: [1, 0.5, 0.25].map((v) => [v, gas(v)]), back: (y) => [1 / y] }),
+  };
+  const TABS = [['line', 'line'], ['sq', 'square'], ['cube', 'cube'], ['rec', 'one-over'], ['root', 'root']];
+  const TABN = { line: 'line', sq: 'square', cube: 'cube', rec: 'one-over', root: 'square root' };
+  const TABX = (k) => 2 + 67.5 * k, TABW = 66;
+  const TBL = [{ n: 'A', ys: [1, 3, 5, 7] }, { n: 'B', ys: [0, 1, 4, 9] }, { n: 'C', ys: [1, 2, 4, 8] }];   // the three tables, x = 0 to 3
+
+  // ---------- the lesson: SHOW steps demonstrate (and Dan drags), DO steps are puzzles ----------
+  // ride: the pointer slides from demo.from to demo.v and the point rides the curve, filling the table.
+  // level: the level line slides from demo.from to demo.v. A puzzle's q is the pointer it asks about;
+  // given readings are drawn dashed; ans[option] is what Check draws: the right reading, or the slip, in red.
+  const STEPS = [
+    { show: true, kind: 'ride', name: 'The line', g: 'line', demo: { from: -3, v: 2 }, lo: -3, hi: 3, dur: 3.4,
+      text: 'This is the line, `y = x`, the first of five graph shapes. Drag the marker and the point rides the line while the table fills in. Inputs 1, 2, 3 give 1, 2, 3, so each equal step across gives the same rise, and doubling the input doubles the output.' },
+    { kind: 'tables', name: 'Spot the line', opts: ['A', 'B', 'C'], want: 'A', shows: ['+2'],
+      task: 'Which table comes from a line?',
+      hint: 'Not quite. Look at how much y rises for each step of 1 in x.',
+      hints: { B: 'Not quite. B rises by 1, then 3, then 5. A line rises the same at every step.', C: 'Not quite. C rises by 1, then 2, then 4. A line rises the same at every step.' },
+      why: 'Table A rises by 2 at every step, 1, 3, 5, 7, so its points sit on a straight line. The rises in B and C grow, so their points curve.' },
+    { show: true, kind: 'ride', name: 'The square', g: 'sq', demo: { from: -3, v: 2 }, lo: -3, hi: 3, dur: 3.4,
+      text: 'This is the square, `y = x²`. A negative input gives the same output as the positive one, so −3 and 3 both give 9, and the curve is a U, called a *parabola*. Its outputs 0, 1, 4, 9 rise by 1, 3 and 5, and on a 1 Ω cable run 3 A loses 9 W.' },
+    { kind: 'law', name: 'Double the current', g: 'Lsq', given: [{ read: 'f', v: 3, ghost: true }], q: { dir: 'f', v: 6 },
+      opts: ['36 W', '18 W', '81 W'], want: '36 W', shows: ['36 W'],
+      ans: {
+        '36 W': [{ read: 'f', v: 6, s: 0.1, p: 0.6 }, { span: 'x', a: 3, b: 6, t: 1.3 }, { span: 'y', a: loss(3), b: loss(6), t: 1.6 }],
+        '18 W': [{ curve: lossLine, from: 0, to: 6.3, bad: true, key: 'a line', t: 0.1 }, { read: 'f', v: 6, s: 0.5, p: 0.6, ys: [lossLine(6)], bad: true }],
+        '81 W': [{ fpill: [1.5, 36], text: fmtN(loss(3) * loss(3)) + ' W', t: 0.2 }, { at: [1.5, 36], dx: 30, dy: 4.5, anchor: 'start', label: 'squares the 9 W', t: 0.4, bad: true }],
+      },
+      task: 'A 1 Ω run loses 9 W at 3 A. How much does it lose at 6 A?',
+      hint: 'Not quite. Double the current, then square it.',
+      hints: { '18 W': 'Not quite. 18 W doubles the loss, as a line would. Doubling the current makes the loss four times.', '81 W': 'Not quite. 81 W squares the 9 W. Square the current instead, 6 × 6.' },
+      why: 'Double the current and the loss goes up four times, because `2 × 2 = 4`. So 6 A loses `6 × 6 × 1 = 36` W, not the 18 W a line would give.' },
+    { show: true, kind: 'ride', name: 'The cube', g: 'cube', demo: { from: -2, v: 1 }, lo: -2, hi: 2, dur: 3.4,
+      text: 'This is the cube, `y = x³`. 1 gives 1 and 2 gives 8, so doubling the input makes the output eight times, and a negative input gives a negative output, so −2 gives −8 and the curve is an S that flattens through 0. A ship\'s engine load goes with the cube of propeller speed, a model that works well at steady high speed but breaks down at partial load.' },
+    { kind: 'law', name: 'Half speed', g: 'Lcube', given: [{ read: 'f', v: 100, ghost: true }], q: { dir: 'f', v: 50 },
+      opts: ['12.5%', '50%', '25%'], want: '12.5%', shows: ['12.5%'],
+      ans: {
+        '12.5%': [{ read: 'f', v: 50, s: 0.1, p: 0.6 }],
+        '50%': [{ curve: lineS, from: 0, to: 100, bad: true, key: 'a line', t: 0.1 }, { read: 'f', v: 50, s: 0.5, p: 0.6, ys: [lineS(50)], bad: true }],
+        '25%': [{ curve: sqS, from: 0, to: 100, bad: true, key: 'squared', t: 0.1 }, { read: 'f', v: 50, s: 0.5, p: 0.6, ys: [sqS(50)], bad: true }],
+      },
+      task: 'A fan\'s power goes with the cube of its speed. What share of full power does it use at half speed?',
+      hint: 'Not quite. Cube the half, 0.5 × 0.5 × 0.5.',
+      hints: { '50%': 'Not quite. 50% treats the law as a line. Power goes with the cube of speed.', '25%': 'Not quite. 25% squares the half. The fan law cubes it.' },
+      why: 'Power goes with the cube of speed, so half speed gives `0.5 × 0.5 × 0.5 = 0.125` of full power, which is 12.5%, one eighth.' },
+    { show: true, kind: 'ride', name: 'The one-over', g: 'rec', demo: { from: 4, v: 0.25 }, lo: -4, hi: 4, dur: 3.4,
+      text: 'This is the one-over, `y = 1/x`. Double the input and the output halves, so on a 12 V supply 3 Ω draws 4 A and 6 Ω draws 2 A. There is no point at 0: from the right the curve runs off up the side, and negative inputs make a second curve that runs off down it.' },
+    { kind: 'law', name: 'Double the resistance', g: 'Lrec', given: [{ read: 'f', v: 3, ghost: true }], q: { dir: 'f', v: 6 },
+      opts: ['2 A', '8 A', '1 A'], want: '2 A', shows: ['2 A'],
+      ans: {
+        '2 A': [{ read: 'f', v: 6, s: 0.1, p: 0.6 }, { span: 'x', a: 3, b: 6, top: true, t: 1.3 }, { span: 'y', a: amps(3), b: amps(6), t: 1.6 }],
+        '8 A': [{ curve: riseS, from: 0, to: 9.75, bad: true, key: 'a rising line', t: 0.1 }, { read: 'f', v: 6, s: 0.5, p: 0.6, ys: [riseS(6)], bad: true }],
+        '1 A': [{ curve: quartS, from: 1.7, to: 12, bad: true, key: 'quartered', t: 0.1 }, { read: 'f', v: 6, s: 0.5, p: 0.6, ys: [quartS(6)], bad: true }],
+      },
+      task: 'On the 12 V supply, 3 Ω draws 4 A. How much does 6 Ω draw?',
+      hint: 'Not quite. Doubling the resistance halves the current.',
+      hints: { '8 A': 'Not quite. 8 A makes the current rise with the resistance. More resistance lets less current through.', '1 A': 'Not quite. 1 A quarters the current. Doubling the resistance halves it.' },
+      why: 'Double the resistance and the current halves, because 12 shared by twice as much is half as much. `12 ÷ 6 = 2` A.' },
+    { show: true, kind: 'ride', name: 'The square root', g: 'root', demo: { from: 0, v: 4 }, lo: -1, hi: 9, dur: 3.4,
+      text: 'This is the square root, `y = √x`. It starts at 0 with nothing to its left (lesson 4 says why), and its outputs 1, 2, 3 need inputs 1, 4, 9, so it rises steeply, then flattens. As `√0.5 = 0.707`, a flow meter at 50% of its full pressure difference shows 71% of its full flow.' },
+    { kind: 'law', name: 'A quarter of the difference', g: 'Lroot', given: [{ read: 'f', v: 100, ghost: true }], q: { dir: 'f', v: 25 },
+      opts: ['50%', '25%', '6.25%'], want: '50%', shows: ['50%'],
+      ans: {
+        '50%': [{ read: 'f', v: 25, s: 0.1, p: 0.6 }],
+        '25%': [{ curve: lineS, from: 0, to: 100, bad: true, key: 'a line', t: 0.1 }, { read: 'f', v: 25, s: 0.5, p: 0.6, ys: [lineS(25)], bad: true }],
+        '6.25%': [{ curve: sqS, from: 0, to: 100, bad: true, key: 'squared', t: 0.1 }, { read: 'f', v: 25, s: 0.5, p: 0.6, ys: [sqS(25)], bad: true }],
+      },
+      task: 'What flow does 25% of the full pressure difference give?',
+      hint: 'Not quite. Flow is the square root of the pressure difference.',
+      hints: { '25%': 'Not quite. 25% treats the law as a line. Take the square root of the difference.', '6.25%': 'Not quite. 6.25% squares the 25%. Take the square root instead.' },
+      why: 'Flow is the square root of the pressure difference, and `0.5 × 0.5 = 0.25`, so a 25% difference gives 50% flow.' },
+    { show: true, kind: 'level', name: 'The level line', g: 'sq', demo: { from: 1, v: 4 }, dur: 3.4,
+      text: 'Drag the level line up and down. Anywhere above the bottom of the U it cuts the square twice, at −2 and 2 for 4, so two inputs give one output, called *many-to-one*. Tap the other tabs, where it cuts at most once, so each output has one input, called *one-to-one*.' },
+    { kind: 'law', name: 'Which currents', g: 'Lsq2', q: { dir: 'b', v: 9 },
+      opts: ['−3 A and 3 A', '3 A only', '4.5 A'], want: '−3 A and 3 A', shows: ['−3 A', '3 A'],
+      ans: {
+        '−3 A and 3 A': [{ read: 'b', v: 9, s: 0.1, p: 0.6 }],
+        '3 A only': [{ read: 'b', v: 9, s: 0.1, p: 0.6, last: true, bad: true }, { ring: [-3, loss(-3)], label: 'missed', dx: 16, dy: 22, t: 1.5, bad: true }],
+        '4.5 A': [{ bpill: 9 / 2, text: fmtN(9 / 2, 2) + ' A', t: 0.2, bad: true }],
+      },
+      task: 'Which currents lose 9 W in the 1 Ω run? A negative current is the same current flowing the other way.',
+      hint: 'Not quite. Go across from 9 W, and down from every place the level line cuts the U.',
+      hints: { '3 A only': 'Not quite. The level line at 9 W cuts the U twice. −3 A loses 9 W too.', '4.5 A': 'Not quite. 4.5 A halves the 9. The loss is the current squared, and 3 × 3 = 9.' },
+      why: 'The level line at 9 W cuts the U at −3 A and at 3 A, because `3 × 3 = 9` and `−3 × −3 = 9`. So 3 A loses 9 W whichever way it flows.' },
+    { kind: 'gas', name: 'A gas squeezed', g: 'Lgas', opts: ['One-over', 'Line', 'Square'], want: 'One-over', shows: [],
+      ans: {
+        'One-over': [{ curve: gas, from: 1 / 4.6, to: 1.15, samp: 'geo', key: 'one-over', t: 0.1 }],
+        'Line': [{ curve: gasLine, from: 0, to: 1.15, bad: true, key: 'a line', t: 0.1 }, { ring: [0.25, gas(0.25)], label: 'missed', dy: -14, t: 0.8, bad: true }],
+        'Square': [{ curve: gasSq, from: 0, to: 1.15, bad: true, key: 'the square', t: 0.1 }, { ring: [0.5, gas(0.5)], t: 0.8, bad: true }, { ring: [0.25, gas(0.25)], label: 'missed', dy: -14, t: 0.8, bad: true }],
+      },
+      task: 'Keep a gas at a fixed temperature and halve its volume: its pressure doubles. Which shape is its pressure against its volume?',
+      hint: 'Not quite. Ask what halving the input does to the output.',
+      hints: { Line: 'Not quite. A line through the first two points misses the third. Each halving doubles the pressure again.', Square: 'Not quite. The square rises as its input grows. Here more volume means less pressure.' },
+      why: 'Halving the input doubles the output, the one-over\'s tell-tale, so pressure against volume is the one-over\'s curve, called a *hyperbola*.' },
+  ];
+  const FINISH = 'Five shapes come from what each rule does to a doubled input, to a negative input and to 0. The line, the square\'s U, the cube\'s S, the one-over\'s two curves and the root that starts at 0 are each the shape of a working law.';
+  const PICK = 'Tap one of the answers.';
+  // The lesson's sources, each restated by the check that cites it.
+  const SRC = {
+    CE: 'https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters',
+    CTRL: 'https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables',
+    HP: 'http://hyperphysics.phy-astr.gsu.edu/hbase/electric/elepow.html',
+    SSRN: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4783941',
+    SD: 'https://www.sciencedirect.com/topics/engineering/affinity-law',
+    OS: 'https://openstax.org/books/chemistry-2e/pages/9-2-relating-pressure-volume-amount-and-temperature-the-ideal-gas-law',
+    HELM: 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf',
+  };
+
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res, why: the puzzle. live: Dan has moved the pointer (or level line) himself, to v; seen: the
+  // table inputs his pointer has passed; fam: the tab chosen on the level-line screen.
+  function blank() { return { pick: null, res: null, why: false, live: false, v: null, seen: null, fam: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null, OCC = null, PILLS = null, KEYS = null;   // what the last paint drew (for the checks), and what it still has to draw
+
+  // ---------- motion ----------
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    if (t0 == null || t0 === -Infinity) return 1;
+    if (t0 === Infinity) return 0;
+    d = d == null ? 0.35 : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // A number and its unit never split across two lines.
+  const nb = (s) => String(s == null ? '' : s).replace(/(\d) (?=(mA|A|W|V|Ω)(?![A-Za-z]))/g, '$1 ');
+  function write(el, s) {
+    el.textContent = '';
+    nb(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+  const say = (s) => String(s == null ? '' : s).replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/²/g, ' squared').replace(/³/g, ' cubed').replace(/√/g, ' the square root of ').replace(/Ω/g, ' ohms').replace(/[‹›]/g, '')
+    .replace(/\//g, ' over ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- drawing helpers ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  function text(x, y, s, cls, anchor, maths) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (maths) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 13 * 0.6;
+  }
+  function scales(g) {
+    const b = g.box, X = g.x, Y = g.y;
+    return { x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1,
+      sx: (v) => b.x0 + (v - X.min) / (X.max - X.min) * (b.x1 - b.x0),
+      sy: (v) => b.y1 - (v - Y.min) / (Y.max - Y.min) * (b.y1 - b.y0),
+      ix: (px) => X.min + (px - b.x0) / (b.x1 - b.x0) * (X.max - X.min),
+      iy: (py) => Y.min + (b.y1 - py) / (b.y1 - b.y0) * (Y.max - Y.min) };
+  }
+  // A pill: a value on an axis. row 'b' sits under the bottom axis (cx its centre), row 'l' left
+  // of the side axis (cx its right edge); notch points at the axis. Tick labels make way for it.
+  function pill(cx, cy, s, kind, a, notch, row, cue) {
+    if (a <= 0) return;
+    const hw = Math.max(18, tw(s, 'tk') / 2 + 9), hh = 11;
+    if (row === 'b') { cx = K.clamp(cx, hw + 2, 338 - hw); OCC.b.push({ c: cx, hw, a }); }
+    if (row === 'l') { cx = Math.max(hw + 2, cx - hw); OCC.l.push({ c: cy, a }); }
+    part(a, 0, () => {
+      if (notch === 'up') path('notch ' + kind, 'M' + r3(cx - 6) + ' ' + r3(cy - hh + 1) + ' L' + r3(cx) + ' ' + r3(cy - hh - 5) + ' L' + r3(cx + 6) + ' ' + r3(cy - hh + 1) + ' Z');
+      if (cue && row === 'l') [-1, 1].forEach((k) => path('notch ' + kind, 'M' + r3(cx - 5) + ' ' + r3(cy + k * (hh + 2)) + ' L' + r3(cx) + ' ' + r3(cy + k * (hh + 6)) + ' L' + r3(cx + 5) + ' ' + r3(cy + k * (hh + 2)) + ' Z'));
+      if (notch === 'right') path('notch ' + kind, 'M' + r3(cx + hw - 1) + ' ' + r3(cy - 6) + ' L' + r3(cx + hw + 5) + ' ' + r3(cy) + ' L' + r3(cx + hw - 1) + ' ' + r3(cy + 6) + ' Z');
+      rect('pill ' + kind, cx - hw, cy - hh, 2 * hw, 2 * hh, hh);
+      text(cx, cy + 4.5, s, 'tk ' + kind);
+    });
+    if (a >= 0.5 && kind !== 'ptr' && kind !== 'bptr') REC.outs.push({ t: s, bad: kind === 'bad', ghost: kind === 'ghost', row, cx, cy });
+  }
+  function hit(x, y, px, py, kind, a) {
+    if (a <= 0) return;
+    const c = add(K.svg('circle', { class: 'hit' + (kind ? ' ' + kind : ''), cx: r3(px), cy: r3(py), r: 5 }));
+    if (a < 1) c.style.opacity = a.toFixed(3);
+    if (a >= 0.5) REC.hits.push({ x, y, px, py, bad: kind === 'bad', ghost: kind === 'ghost' });
+  }
+
+  // ---------- a reading up from an input: the beam rises to the curve, then turns across ----------
+  function readF(g, P, it) {
+    const p = it.p || 1, s = it.s == null ? -Infinity : it.s, F = it.fade == null ? 1 : it.fade;
+    const kind = it.ghost ? 'ghost' : it.bad ? 'bad' : 'out', bcls = 'beam' + (it.ghost ? ' ghost' : it.bad ? ' bad' : '');
+    const px = P.sx(it.v);
+    if (!it.noPtr) PILLS.push(() => pill(px, P.y1 + 17, it.cue ? '‹ ' + g.x.t(it.v) + ' ›' : g.x.t(it.v), it.ghost ? 'ghost' : it.bad ? 'bptr' : 'ptr', F, it.ghost ? null : 'up', 'b'));
+    const rd = { dir: 'f', v: it.v, inT: g.x.t(it.v), outs: [] };
+    REC.reads.push(rd);
+    const ys = it.ys || g.f(it.v), a1 = arr(s, 0.6 * p);
+    if (!ys.length) {
+      // No output here: the beam rises the whole way and finds nothing.
+      if (a1 > 0) part(F, 0, () => line(bcls + ' faint', px, P.y1, px, K.lerp(P.y1, P.y0, a1)));
+      const an = arr(s + 0.6 * p, 0.3) * F;
+      PILLS.push(() => pill(px, P.y0 - 10, 'none', 'ghost', an, null, null));
+      if (an >= 0.5) rd.outs.push('none');
+      return;
+    }
+    ys.forEach((y) => {
+      const py = P.sy(y), tk = s + 0.6 * p;
+      if (a1 > 0 && P.y1 - py > 0.5) part(F, 0, () => line(bcls, px, P.y1, px, K.lerp(P.y1, py, a1)));
+      hit(it.v, y, px, py, it.ghost ? 'ghost' : it.bad ? 'bad' : '', arr(tk, 0.2) * F);
+      const a2 = arr(tk + 0.1 * p, 0.5 * p);
+      if (a2 > 0 && px - P.x0 > 0.5) part(F, 0, () => line(bcls, px, py, K.lerp(px, P.x0, a2), py));
+      const ap = arr(tk + 0.6 * p, 0.3) * F, t = g.y.t(y);
+      PILLS.push(() => pill(P.x0 - 6, py, t, kind, ap, null, 'l'));
+      if (ap >= 0.5) rd.outs.push(t);
+    });
+  }
+  // ---------- a reading back from an output: across to the curve, then down from every meeting ----------
+  function readB(g, P, it) {
+    const p = it.p || 1, s = it.s == null ? -Infinity : it.s;
+    const kind = it.bad ? 'bad' : 'out', bcls = 'beam' + (it.bad ? ' bad' : '');
+    const py = P.sy(it.v);
+    if (!it.noPtr) PILLS.push(() => pill(P.x0 - 6, py, g.y.t(it.v), it.bad ? 'bptr' : 'ptr', 1, 'right', 'l'));
+    const rd = { dir: 'b', v: it.v, inT: g.y.t(it.v), outs: [] };
+    REC.reads.push(rd);
+    let xs = g.back(it.v).slice().sort((a, b) => a - b);
+    if (it.last) xs = xs.slice(-1);
+    const far = xs.length ? P.sx(xs[xs.length - 1]) : P.x1, span = far - P.x0, a1 = arr(s, 0.6 * p);
+    if (a1 > 0 && span > 0.5) line(bcls, P.x0, py, K.lerp(P.x0, far, a1), py);
+    xs.forEach((x) => {
+      const px = P.sx(x), tk = s + 0.6 * p * ezInv(span > 0 ? (px - P.x0) / span : 0);
+      hit(x, it.v, px, py, it.bad ? 'bad' : '', arr(tk, 0.2));
+      const a2 = arr(tk + 0.1 * p, 0.5 * p);
+      if (a2 > 0 && P.y1 - py > 0.5) line(bcls, px, py, px, K.lerp(py, P.y1, a2));
+      const ap = arr(tk + 0.6 * p, 0.3), t = g.x.t(x);
+      PILLS.push(() => pill(px, P.y1 + 17, t, kind, ap, null, 'b'));
+      if (ap >= 0.5) rd.outs.push(t);
+    });
+  }
+
+  // ---------- the parts every graph has ----------
+  function drawFrame(g, P) {
+    const ax = 0 > g.x.min && 0 < g.x.max, ay = 0 > g.y.min && 0 < g.y.max;
+    g.x.ticks.forEach((v) => { const x = P.sx(v); if (Math.abs(x - P.x0) > 1 && !(ax && v === 0)) line('grid', x, P.y0, x, P.y1); });
+    g.y.ticks.forEach((v) => { const y = P.sy(v); if (Math.abs(y - P.y1) > 1 && !(ay && v === 0)) line('grid', P.x0, y, P.x1, y); });
+    if (ax) line('axis', P.sx(0), P.y0, P.sx(0), P.y1);
+    if (ay) line('axis', P.x0, P.sy(0), P.x1, P.sy(0));
+    line('frame', P.x0, P.y0, P.x0, P.y1);
+    line('frame', P.x0, P.y1, P.x1, P.y1);
+  }
+  // A curve from its rule, sampled densely where it bends hardest; it breaks where it leaves the picture.
+  function curvePath(g, P, fn, a, b, cls, samp) {
+    let ds = '', pen = false;
+    const n = 160;
+    for (let i = 0; i <= n; i++) {
+      const u = i / n;
+      const x = samp === 'geo' ? Math.sign(a) * Math.abs(a) * Math.pow(Math.abs(b) / Math.abs(a), u) : samp === 'sq' ? a + (b - a) * u * u : a + (b - a) * u;
+      const y = fn(x);
+      if (!isFinite(y) || y < g.y.min - 1e-9 || y > g.y.max + 1e-9) { pen = false; continue; }
+      ds += (pen ? ' L' : ' M') + r3(P.sx(x)) + ' ' + r3(P.sy(y));
+      pen = true;
+    }
+    if (ds) path(cls, ds.trim());
+  }
+  const drawCurve = (g, P) => g.dom.forEach((q) => curvePath(g, P, g.fn, q[0], q[1], 'cv', g.samp));
+  // How clear of a pill a tick label is (gap in units): whole once clear. While something moves it
+  // fades over the last 8 units; a still picture shows it whole or not at all, never half faded.
+  const clear = (gap) => { const q = K.clamp(gap / 8 + 1, 0, 1); return T === Infinity ? (q >= 1 ? 1 : 0) : q; };
+  // Tick labels, drawn last but placed underneath; each makes way for a pill on its axis.
+  function fillTicks(group, g, P) {
+    const keep = into; into = group;
+    g.x.ticks.forEach((v) => {
+      const s = (g.x.tl || g.x.t)(v), x = P.sx(v), need = tw(s, 'tlab') / 2 + 4;
+      let a = 1;
+      OCC.b.forEach((o) => { a *= 1 - o.a * (1 - clear(Math.abs(x - o.c) - o.hw - need)); });
+      if (a > 0.05) { const t = text(x, P.y1 + 18, s, 'tlab'); if (a < 1) t.style.opacity = a.toFixed(3); }
+    });
+    g.y.ticks.forEach((v) => {
+      const s = (g.y.tl || g.y.t)(v), y = P.sy(v);
+      let a = 1;
+      OCC.l.forEach((o) => { a *= 1 - o.a * (1 - clear(Math.abs(y - o.c) - 16)); });
+      if (a > 0.05) { const t = text(P.x0 - 8, y + 4.5, s, 'tlab', 'end'); if (a < 1) t.style.opacity = a.toFixed(3); }
+    });
+    into = keep;
+  }
+  function drawTitles(g, P) {
+    text(8, 96, g.y.title, 'axt', 'start', true);
+    text(P.x1, P.y1 + 44, g.x.title, 'axt', 'end', true);
+  }
+  // The gallery's tabs: the family shown is filled; on the level-line screen every tab is a button.
+  function drawTabs(cur, live) {
+    TABS.forEach((t, k) => {
+      const x = TABX(k), on = t[0] === cur;
+      if (on) rect('tab', x, 4, TABW, 28, 8);
+      else if (live) rect('tab off', x + 0.5, 4.5, TABW - 1, 27, 8);
+      text(x + TABW / 2, 22.5, t[1], 'tabt' + (on ? ' on' : ''));
+    });
+  }
+  // The family's rule, its law from work, and a key for the beam.
+  function drawHead(d, g) {
+    if (g.rule) text(8, 56, g.rule, 'rule', 'start', true);
+    if (g.law) text(8, 76, g.law, 'law', 'start');
+    const lab = d.kind === 'level' ? 'level line' : d.kind === 'gas' ? null : 'beam';
+    if (lab) { const w = tw(lab, 'key'); text(334, 56, lab, 'key', 'end'); line('sw b', 334 - w - 26, 51.5, 334 - w - 8, 51.5); }
+  }
+  // A key inside the picture for any curve an answer draws.
+  function drawKey(g) {
+    if (!KEYS.length || !g.keyAt) return;
+    const kx = g.keyAt[0], ky = g.keyAt[1], end = g.keyAt[2] === 'end';
+    KEYS.forEach((k, j) => part(k.a, 0, () => {
+      const y = ky + 18 * j, w = tw(k.label, 'key'), sx0 = end ? kx - w - 26 : kx;
+      text(end ? kx : kx + 26, y, k.label, 'key', end ? 'end' : 'start');
+      line('sw ' + (k.bad ? 'r' : 'g'), sx0, y - 4.5, sx0 + 18, y - 4.5);
+    }));
+  }
+  // The table beside the graph: inputs down the left, outputs filling in on the right.
+  const TB = { x0: 240, x1: 336, ca: 264, cb: 312 };
+  function drawTable(P, head, rows, title) {
+    if (title) text((TB.x0 + TB.x1) / 2, 96, title, 'pl');
+    rect('th', TB.x0, P.y0, TB.x1 - TB.x0, 24, 4);
+    text(TB.ca, P.y0 + 16.5, head[0], 'tt', 'middle', true);
+    text(TB.cb, P.y0 + 16.5, head[1], 'tt', 'middle', true);
+    rows.forEach((w, i) => {
+      const cy = P.y0 + 42 + 19 * i;
+      if (w.now) rect('now', TB.x0, cy - 13.5, TB.x1 - TB.x0, 19, 3);
+      else if (i < rows.length - 1 && !rows[i + 1].now) line('tsep', TB.x0 + 4, cy + 5.5, TB.x1 - 4, cy + 5.5);
+      text(TB.ca, cy, w.a, 'tc');
+      if (w.fa > 0) part(w.fa, 0, () => text(TB.cb, cy, w.b, 'tc ' + w.cls));
+      if (w.fa < 1) part(1 - w.fa, 0, () => text(TB.cb, cy, '?', 'tc q'));
+      REC.rows.push({ k: w.k, a: w.a, b: w.b, filled: w.fa >= 0.5, now: !!w.now });
+    });
+  }
+
+  // ---------- SHOW: the point rides the curve and the table fills in ----------
+  function ride(d, g, P, st) {
+    const from = d.demo.from, to = d.demo.v, live = st.live;
+    const u = live ? 1 : arr(0.4, 2.6);
+    const vx = live ? st.v : K.lerp(from, to, u);
+    readF(g, P, { v: vx, cue: true });
+    const lo = Math.min(from, to), hi = Math.max(from, to);
+    const rows = g.keys.map((k) => {
+      let fa = 0;
+      if (k >= lo - 1e-9 && k <= hi + 1e-9) fa = live ? 1 : arr(0.4 + 2.6 * ezInv(Math.abs(k - from) / Math.abs(to - from)), 0.3);
+      if (st.seen && st.seen.indexOf(k) >= 0) fa = 1;
+      const ys = g.f(k);
+      return { k, a: n3(k), b: ys.length ? n3(ys[0]) : 'none', cls: ys.length ? 'out' : 'none', fa, now: (live || u >= 1) && Math.abs(vx - k) < 1e-6 };
+    });
+    drawTable(P, g.head, rows);
+  }
+  // ---------- SHOW: the level line, and every place it cuts the curve ----------
+  function levelLine(d, g, P, st) {
+    const live = st.live, u = live ? 1 : arr(0.4, 2.6);
+    const h = live ? st.v : K.lerp(d.demo.from, d.demo.v, u), py = P.sy(h);
+    line('beam lvl', P.x0, py, P.x1, py);
+    PILLS.push(() => pill(P.x0 - 6, py, g.y.t(h), 'ptr', 1, 'right', 'l', true));
+    const xs = g.back(h).slice().sort((a, b) => a - b);
+    xs.forEach((x) => {
+      const px = P.sx(x);
+      if (P.y1 - py > 0.5) line('beam', px, py, px, P.y1);
+      hit(x, h, px, py, '', 1);
+      PILLS.push(() => pill(px, P.y1 + 17, g.x.t(x), 'out', 1, null, 'b'));
+    });
+    REC.cuts = { h, xs };
+    drawTable(P, g.head, xs.map((x) => ({ k: x, a: n3(x), b: n3(h), cls: 'out', fa: 1 })), xs.length === 2 ? 'cuts twice' : xs.length === 1 ? 'cuts once' : 'no cut');
+  }
+  // ---------- DO: three tables, and the rises a picked table makes ----------
+  function paintTables(d, st) {
+    const pick = st.res === 'right' ? 'A' : st.res === 'wrong' ? st.pick : null;
+    TBL.forEach((tb, k) => {
+      const L = 8 + 112 * k, ca = L + 22, cb = L + 58, cr = L + 94;
+      text(L + 40, 80, 'Table ' + tb.n, 'rule');
+      rect('th', L, 96, 76, 24, 4);
+      text(ca, 112.5, 'x', 'tt', 'middle', true);
+      text(cb, 112.5, 'y', 'tt', 'middle', true);
+      tb.ys.forEach((y, r) => {
+        const cy = 148 + 30 * r;
+        text(ca, cy, n3(r), 'tc');
+        text(cb, cy, n3(y), 'tc out');
+        if (r < 3) line('tsep', L + 4, cy + 10.5, L + 72, cy + 10.5);
+      });
+      if (pick !== tb.n) return;
+      const bad = tb.n !== 'A';
+      for (let r = 0; r < 3; r++) {
+        const a = arr(0.2 + 0.4 * r, 0.35), s = '+' + n3(tb.ys[r + 1] - tb.ys[r]);
+        part(a, 0, () => text(cr, 148 + 30 * r + 19.5, s, 'pl' + (bad ? ' bad' : '')));
+        if (a >= 0.5) REC.outs.push({ t: s, bad, row: null });
+      }
+      const al = arr(1.4, 0.35);
+      part(al, 0, () => text(L + 46, 268, bad ? 'rises grow' : 'same rise', 'pl' + (bad ? ' bad' : '')));
+      if (bad && al >= 0.5) REC.marked = true;
+    });
+  }
+
+  // ---------- DO: what a puzzle draws ----------
+  function itemsOf(d, st) {
+    if (st.res === 'right') return d.ans[d.want];
+    if (st.res === 'wrong') return d.ans[st.pick] || [];
+    return [];
+  }
+  function drawItem(d, g, P, it0) {
+    // A puzzle's own pointer is already drawn: a reading from the same place starts from it.
+    const it = (it0.read && d.q && it0.read === d.q.dir && it0.v === d.q.v) ? Object.assign({}, it0, { noPtr: true }) : it0;
+    if (it.read === 'f') return readF(g, P, it);
+    if (it.read === 'b') return readB(g, P, it);
+    const a = arr(it.t, 0.35);
+    if (a <= 0) return;
+    if (it.bad && a >= 0.5) REC.marked = true;
+    if (it.fpill) { PILLS.push(() => pill(P.sx(it.fpill[0]), P.sy(it.fpill[1]), it.text, 'bad', a, null, null)); return; }
+    if (it.bpill != null) { PILLS.push(() => pill(P.sx(it.bpill), P.y1 + 17, it.text, 'bad', a, null, 'b')); return; }
+    if (it.curve) {
+      if (a >= 0.5) REC.curves.push({ fn: it.curve, bad: !!it.bad, key: it.key });
+      if (it.key) KEYS.push({ label: it.key, bad: !!it.bad, a });
+      part(a, 0, () => curvePath(g, P, it.curve, it.from, it.to, 'cv' + (it.bad ? ' bad' : ''), it.samp));
+      return;
+    }
+    part(a, 0, () => {
+      if (it.span === 'x') {
+        // How many times the input grew: a bracket between the two inputs.
+        const xa = P.sx(it.a), xb = P.sx(it.b), y = it.top ? P.y0 + 18 : P.y1 - 12, leg = it.top ? 5 : 5;
+        path('mk', 'M' + r3(xa) + ' ' + r3(y + leg) + ' V' + r3(y) + ' H' + r3(xb) + ' V' + r3(y + leg));
+        text((xa + xb) / 2, y - 6, '×' + n3(it.b / it.a), 'pl');
+      }
+      if (it.span === 'y') {
+        // How many times the output grew (or shrank): a bracket between the two outputs.
+        const ya = P.sy(it.a), yb = P.sy(it.b), x = P.x0 + 12, r = it.b / it.a;
+        path('mk', 'M' + r3(x - 5) + ' ' + r3(ya) + ' H' + r3(x) + ' V' + r3(yb) + ' H' + r3(x - 5));
+        text(x + 6, (ya + yb) / 2 + 4.5, r >= 1 ? '×' + n3(r) : '÷' + n3(1 / r), 'pl', 'start');
+      }
+      if (it.ring) {
+        const px = P.sx(it.ring[0]), py = P.sy(it.ring[1]);
+        add(K.svg('circle', { class: 'ring', cx: r3(px), cy: r3(py), r: 9 }));
+        if (it.label) text(px + (it.dx == null ? 13 : it.dx), py + (it.dy == null ? 4.5 : it.dy), it.label, 'pl bad', it.anchor || 'start');
+      }
+      if (it.at) text(P.sx(it.at[0]) + (it.dx || 0), P.sy(it.at[1]) + (it.dy || 0), it.label, 'pl' + (it.bad ? ' bad' : ''), it.anchor || 'middle');
+    });
+  }
+  function drawQuestion(d, g, P) {
+    if (!d.q) return;
+    REC.q = true;
+    if (d.q.dir === 'f') PILLS.push(() => pill(P.sx(d.q.v), P.y1 + 17, g.x.t(d.q.v), 'ptr', 1, 'up', 'b'));
+    else PILLS.push(() => pill(P.x0 - 6, P.sy(d.q.v), g.y.t(d.q.v), 'ptr', 1, 'right', 'l'));
+  }
+  function words(d, gk) {
+    if (d.kind === 'tables') return say('Three tables, A, B and C, each giving y for x from 0 to 3.' + (REC.outs.length ? ' The rises drawn are ' + REC.outs.map((o) => o.t).join(', ') + '.' : ''));
+    const g = G[gk];
+    let s = d.kind === 'gas' ? 'Three points of pressure against volume.' : 'The ' + TABN[g.tab] + ', ' + g.rule + '. A graph of ' + g.y.title + ' against ' + g.x.title + '.';
+    REC.reads.forEach((r) => { s += ' The beam ' + (r.dir === 'f' ? 'up from ' : 'back from ') + r.inT + (r.outs.length ? ' reads ' + r.outs.join(' and ') : ' has not landed yet') + '.'; });
+    if (REC.cuts) s += ' The level line at ' + g.y.t(REC.cuts.h) + (REC.cuts.xs.length ? ' cuts it at ' + REC.cuts.xs.map(g.x.t).join(' and ') : ' does not cut it') + '.';
+    if (d.kind === 'ride') s += ' ' + REC.rows.filter((w) => w.filled).length + ' of ' + REC.rows.length + ' table rows are filled in.';
+    if (REC.curves.length) s += ' Drawn: ' + REC.curves.map((c) => c.key).join(', ') + '.';
+    if (REC.q && !REC.reads.length) s += ' The pointer waits for your answer.';
+    return say(s);
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    REC = { hits: [], outs: [], reads: [], rows: [], curves: [], marked: false, q: false, cuts: null };
+    OCC = { b: [], l: [] };
+    PILLS = [];
+    KEYS = [];
+    let gk = null;
+    svg.setAttribute('viewBox', d.kind === 'tables' ? '0 58 340 222' : d.kind === 'gas' ? '0 78 340 244' : '0 0 340 322');   // no tab row on these two
+    if (d.kind === 'tables') paintTables(d, st);
+    else {
+      gk = d.kind === 'level' ? (st.fam || d.g) : d.g;
+      const g = G[gk], P = scales(g);
+      if (d.kind !== 'gas') drawTabs(g.tab, d.kind === 'level' && !finished);
+      drawHead(d, g);
+      const ticks = add(K.svg('g'));
+      drawFrame(g, P);
+      if (!g.noCurve) drawCurve(g, P);
+      if (d.kind === 'ride') ride(d, g, P, st);
+      else if (d.kind === 'level') levelLine(d, g, P, st);
+      else {
+        (d.given || []).forEach((it) => drawItem(d, g, P, it));
+        drawQuestion(d, g, P);
+        itemsOf(d, st).forEach((it) => drawItem(d, g, P, it));
+      }
+      (g.dots || []).forEach((q) => add(K.svg('circle', { class: 'gdot', cx: r3(P.sx(q[0])), cy: r3(P.sy(q[1])), r: 5 })));
+      PILLS.forEach((fn) => fn());
+      fillTicks(ticks, g, P);
+      drawTitles(g, P);
+      drawKey(g);
+    }
+    svg.setAttribute('aria-label', words(d, gk));
+    placeGrip(d, st);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Dan's pointer: drag it along its axis (or press an arrow key) and the point rides the curve.
+  function svgPt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return { x: q.x, y: q.y };
+  }
+  const famOf = (d, st) => (d.kind === 'level' ? st.fam || d.g : d.g);
+  function range(d, st) {
+    if (d.kind === 'ride') return { lo: d.lo, hi: d.hi, step: G[d.g].x.step };
+    const lv = G[famOf(d, st)].lv;
+    return { lo: lv[0], hi: lv[1], step: lv[2] };
+  }
+  function setLive(i, raw) {
+    const d = STEPS[i], st = S[i], R = range(d, st);
+    const v = K.round(K.clamp(Math.round(raw / R.step) * R.step, R.lo, R.hi), 6);
+    if (st.live && st.v === v) return;
+    if (d.kind === 'ride') {
+      // Every table input the pointer passes on its way gets its row.
+      const prev = st.live ? st.v : d.demo.v, a = Math.min(prev, v), b = Math.max(prev, v);
+      st.seen = st.seen || [];
+      G[d.g].keys.forEach((k) => { if (k >= a - 1e-9 && k <= b + 1e-9 && st.seen.indexOf(k) < 0) st.seen.push(k); });
+    }
+    st.live = true; st.v = v;
+    anim.pause(); T = Infinity;
+    K.reveal();
+    paint();
+  }
+  function setFam(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.kind !== 'level' || finished || famOf(d, st) === k) return;
+    st.fam = k; st.live = true; st.v = G[k].lv[3];
+    anim.pause(); T = Infinity;
+    K.reveal(); enter('scene'); paint();
+  }
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider' }));
+  grip.style.display = 'none';
+  const tabHits = TABS.map((t, k) => {
+    const r = ui.appendChild(K.svg('rect', { class: 'tabhit', x: r3(TABX(k) - 0.5), y: 0, width: 67, height: 44, tabindex: -1, role: 'button', 'aria-label': 'Show the ' + TABN[t[0]] }));
+    r.style.display = 'none';
+    r.addEventListener('click', () => setFam(t[0]));
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFam(t[0]); } });
+    return r;
+  });
+  let dragId = null;
+  function moveTo(e) {
+    const p = svgPt(e), i = at(), d = STEPS[i];
+    if (!p || !d.show || finished) return;
+    const P = scales(G[famOf(d, S[i])]);
+    setLive(i, d.kind === 'ride' ? P.ix(p.x) : P.iy(p.y));
+  }
+  grip.addEventListener('pointerdown', (e) => {
+    if (!STEPS[at()].show || finished) return;
+    dragId = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the strip */ }
+    moveTo(e);
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => { if (dragId === e.pointerId) moveTo(e); });
+  const endDrag = (e) => { if (dragId === e.pointerId) dragId = null; };
+  grip.addEventListener('pointerup', endDrag);
+  grip.addEventListener('pointercancel', endDrag);
+  grip.addEventListener('keydown', (e) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    const up = e.key === 'ArrowRight' || e.key === 'ArrowUp', down = e.key === 'ArrowLeft' || e.key === 'ArrowDown';
+    if (!up && !down) return;
+    e.preventDefault();
+    const R = range(d, st), now = st.live ? st.v : d.demo.v;
+    setLive(i, now + (up ? R.step : -R.step));
+  });
+  // The grip is a strip along the pointer's axis: the bottom row for x, the side for the level line.
+  function placeGrip(d, st) {
+    const on = !!(d.show && !finished), tabs = d.kind === 'level' && !finished;
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    tabHits.forEach((r, k) => {
+      r.style.display = tabs ? '' : 'none';
+      r.setAttribute('tabindex', tabs ? '0' : '-1');
+      r.setAttribute('aria-pressed', tabs && TABS[k][0] === famOf(d, st) ? 'true' : 'false');
+    });
+    if (!on) return;
+    const g = G[famOf(d, st)], P = scales(g), R = range(d, st), v = st.live ? st.v : d.demo.v;
+    const b = d.kind === 'ride' ? { x: P.x0 - 14, y: P.y1 - 5, w: P.x1 - P.x0 + 28, h: 44 } : { x: 0, y: P.y0 - 12, w: P.x0 + 6, h: P.y1 - P.y0 + 24 };
+    grip.setAttribute('x', r3(b.x)); grip.setAttribute('y', r3(b.y)); grip.setAttribute('width', r3(b.w)); grip.setAttribute('height', r3(b.h));
+    grip.setAttribute('aria-label', d.kind === 'ride' ? 'Input marker on the bottom axis' : 'Level line on the side axis');
+    grip.setAttribute('aria-valuemin', String(R.lo)); grip.setAttribute('aria-valuemax', String(R.hi)); grip.setAttribute('aria-valuenow', String(v));
+    grip.setAttribute('aria-valuetext', say(d.kind === 'ride' ? g.x.t(v) : g.y.t(v)));
+  }
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: a right answer draws its reading; a wrong one draws the slip that makes it, in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(2.5);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.live = false; st.v = null; st.seen = null; st.fam = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -2; stepper.set(0, true);
+  } });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      const opening = lastStep === -1;   // the page opens on the first demonstration finished; Play again runs it
+      lastStep = i; dragId = null; enter('stepbox');
+      if (d.show) { st.live = false; st.v = null; st.seen = null; st.fam = null; }
+      if (d.show && !opening) play(d.dur); else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, nb(opts[k])));   // one span, so the button's gap does not split "12.5%"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const RIDES = STEPS.map((d, i) => i).filter((i) => STEPS[i].kind === 'ride');
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (v, f) => Object.assign(blank(), { live: true, v, fam: f || null });
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // Every value Dan can drag to: the marker on a ride screen, the level line for a family.
+  function dragValues(i, f) {
+    const d = STEPS[i], R = d.kind === 'ride' ? range(d, blank()) : range(d, liveSt(0, f)), out = [];
+    for (let v = R.lo; v <= R.hi + 1e-9; v += R.step) out.push(K.round(v, 6));
+    return out;
+  }
+  // The picture tells the truth: every dot sits on its curve at its place, and every value written
+  // on an axis is the dot's own coordinate.
+  function faithful(gk, rec) {
+    const g = G[gk], P = scales(g), good = rec.hits.filter((h) => !h.bad);
+    const onGraph = good.every((h) => g.f(h.x).some((y) => close(y, h.y, 1e-9)) && close(h.px, P.sx(h.x), 1e-6) && close(h.py, P.sy(h.y), 1e-6));
+    const labelled = rec.outs.filter((o) => !o.bad && o.row).every((o) => good.some((h) => (o.row === 'l' ? g.y.t(h.y) === o.t && close(o.cy, h.py, 1e-6) : g.x.t(h.x) === o.t)));
+    return onGraph && labelled;
+  }
+  const rowsTrue = (g, r) => r.rows.every((w) => !w.filled || w.b === (g.f(w.k).length ? n3(g.f(w.k)[0]) : 'none'));
+
+  K.check('A horizontal line drawn on the graph cuts it more than once, so two different inputs have yielded the same output and the function is many-to-one: on the square the level line meets the U twice at every level above its bottom, at two different inputs that both give that level, and at 4 they are −2 and 2', () => {
+    const i = idx('The level line');
+    const all = dragValues(i, 'sq').every((h) => {
+      const r = drawn(i, liveSt(h, 'sq'));
+      if (h <= 0) return r.hits.length <= 1;
+      return r.hits.length === 2 && !close(r.hits[0].x, r.hits[1].x) && r.hits.every((q) => close(G.sq.fn(q.x), h, 1e-9));
+    });
+    const r4 = drawn(i, blank());
+    return all && r4.hits.map((q) => n3(q.x)).join() === '−2,2' && r4.rows.length === 2;
+  }, { source: SRC.HELM });
+  K.check('On the line, the cube, the one-over and the root the level line meets the curve at most once at every level it can be dragged to, each meeting\'s input giving that level, and the one-over is never cut at 0', () => {
+    const i = idx('The level line');
+    return ['line', 'cube', 'rec', 'root'].every((k) => dragValues(i, k).every((h) => {
+      const r = drawn(i, liveSt(h, k));
+      return r.hits.length <= 1 && r.hits.every((q) => close(G[k].fn(q.x), h, 1e-9));
+    })) && drawn(i, liveSt(0, 'rec')).hits.length === 0;
+  });
+  K.check('The root of a number from 0 to 1 is larger, √0.5 = 0.707, so 50% of the pressure difference is 71% of the flow: the root\'s table reads 0.707 for 0.5, and the flow rule turns 50% into 71%', () => {
+    const r = drawn(idx('The square root'), liveSt(0.5));
+    return close(Math.sqrt(0.5), 0.707, 1e-3) && r.rows.some((w) => w.a === '0.5' && w.b === '0.707' && w.filled) && Math.round(flow(50)) === 71;
+  }, { source: SRC.CE });
+  K.check('The pressure difference goes with the square of the flow, so the flow is found from its square root: every flow on the graph, squared as a fraction of full, gives back its pressure difference, and 25% of the difference reads 50% flow', () => {
+    const i = idx('A quarter of the difference'), r = drawn(i, solvedSt(i));
+    return K.linspace(0, 100, 101).every((dp) => close(Math.pow(flow(dp) / 100, 2) * 100, dp, 1e-9)) && r.outs.some((o) => o.t === '50%' && !o.bad && !o.ghost);
+  }, { source: SRC.CE });
+  K.check('Power lost depends upon the square of the current: on the 1 Ω run twice the current loses four times the power, 3 A loses 9 W and 6 A 36 W, and the graph reads 36 W at 6 A', () => {
+    const i = idx('Double the current'), r = drawn(i, solvedSt(i));
+    return K.linspace(0.5, 3, 6).every((I) => close(loss(2 * I), 4 * loss(I))) && loss(3) === 9 && loss(6) === 36 && r.outs.some((o) => o.t === '36 W' && !o.bad && !o.ghost);
+  }, { source: SRC.HP });
+  K.check('The generalised propeller law makes engine load proportional to the cube of propeller speed: on the cube tab\'s rule, doubling the input makes the output eight times', () =>
+    K.linspace(0.25, 1.2, 5).every((x) => close(G.cube.fn(2 * x), 8 * G.cube.fn(x), 1e-9)), { source: SRC.SSRN });
+  K.check('Fan power goes with the cube of speed, and slowing a fan to 50% speed reduces the power used to 12.5%: half speed gives 0.5 × 0.5 × 0.5 = 0.125 of full power, and the graph reads 12.5% at 50% speed', () => {
+    const i = idx('Half speed'), r = drawn(i, solvedSt(i));
+    return K.linspace(10, 100, 10).every((s) => close(load(s) / load(s / 2), 8, 1e-9)) && close(load(50), 12.5) && r.outs.some((o) => o.t === '12.5%' && !o.bad && !o.ghost);
+  }, { source: SRC.SD });
+  K.check('Plotting a gas\'s pressure against its volume gives a hyperbola: the three points keep pressure × volume the same, each halving of the volume doubles the pressure, and the right answer draws the one-over curve through all three', () => {
+    const g = G.Lgas, i = idx('A gas squeezed'), r = drawn(i, solvedSt(i));
+    const pv = g.dots.every((q) => close(q[0] * q[1], 1)) && close(gas(0.5), 2 * gas(1)) && close(gas(0.25), 2 * gas(0.5));
+    return pv && r.curves.some((c) => c.key === 'one-over' && !c.bad && g.dots.every((q) => close(c.fn(q[0]), q[1], 1e-9)));
+  }, { source: SRC.OS });
+  K.check('Instruments convert with the linear equation y = mx + b, a straight line: table A, 1, 3, 5, 7, rises by 2 at every step, the line y = x by 1 at every step, and the right answer draws A\'s three equal rises of 2', () => {
+    const A = TBL[0].ys, i = idx('Spot the line'), r = drawn(i, solvedSt(i));
+    const eq = A[1] - A[0] === 2 && A[2] - A[1] === 2 && A[3] - A[2] === 2;
+    return eq && K.linspace(-3, 2, 11).every((x) => close(G.line.fn(x + 1) - G.line.fn(x), 1)) && r.outs.filter((o) => o.t === '+2' && !o.bad).length === 3;
+  }, { source: SRC.CTRL });
+  K.check('Every worked number is right: y = x gives 1, 2, 3 for 1, 2, 3; the square gives 9 for −3 and 3, and 0, 1, 4, 9 rise by 1, 3, 5; the 1 Ω run loses 9 W at 3 A and 36 W at 6 A, against 18 W and 81 W; the cube gives −8 and 8 for −2 and 2, and 0.125 for 0.5; half speed is 12.5% of full load, against 50% and 25%; the one-over gives 0.5 and 0.25 for 2 and 4; 12 V draws 4 A through 3 Ω and 2 A through 6 Ω, against 8 A and 1 A; the root gives 1, 2, 3 for 1, 4, 9; 25% of the difference gives 50% flow, against 25% and 6.25%; the level line at 4 cuts the square at −2 and 2; 9 W comes from −3 A and 3 A, against 4.5 A; and 12 V through 2, 4 and 8 Ω draws 6, 3 and 1.5 A', () => {
+    const L = G.line.fn, Q = G.sq.fn, C = G.cube.fn, Rc = G.rec.fn;
+    const a = L(1) === 1 && L(2) === 2 && L(3) === 3 && Q(-3) === 9 && Q(3) === 9 && Q(1) - Q(0) === 1 && Q(2) - Q(1) === 3 && Q(3) - Q(2) === 5;
+    const b = loss(3) === 9 && loss(6) === 36 && close(lossLine(6), 18) && loss(3) * loss(3) === 81;
+    const c = C(-2) === -8 && C(2) === 8 && C(0.5) === 0.125 && close(load(50), 12.5) && close(lineS(50), 50) && close(sqS(50), 25);
+    const e = Rc(2) === 0.5 && Rc(4) === 0.25 && amps(3) === 4 && amps(6) === 2 && close(riseS(6), 8) && close(quartS(6), 1);
+    const f = Math.sqrt(1) === 1 && Math.sqrt(4) === 2 && Math.sqrt(9) === 3 && close(flow(25), 50) && close(lineS(25), 25) && close(sqS(25), 6.25);
+    const g = G.sq.back(4).map(n3).join() === '−2,2' && G.Lsq2.back(9).map(n3).join() === '−3,3' && 9 / 2 === 4.5;
+    const h = amps(2) === 6 && amps(4) === 3 && amps(8) === 1.5;
+    return a && b && c && e && f && g && h;
+  });
+  K.check('Before Check a puzzle draws no answer; a right answer draws its reading and nothing in red, and each wrong answer draws its own slip in red, with the slip\'s value where it names one', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g0 = drawn(i, blank());
+      const quiet = !g0.marked && !g0.outs.some((o) => !o.ghost) && !g0.hits.some((h) => !h.ghost) && g0.curves.length === 0;
+      const g1 = drawn(i, solvedSt(i));
+      const right = !g1.marked && g1.outs.every((o) => !o.bad) && g1.hits.every((h) => !h.bad) && g1.curves.every((c) => !c.bad) &&
+        d.shows.every((t) => g1.outs.some((o) => o.t === t && !o.ghost)) && (d.shows.length > 0 || g1.curves.length > 0);
+      const wrongs = d.opts.filter((o) => o !== d.want).every((o) => {
+        const h = drawn(i, wrongSt(i, o)), red = h.marked || h.outs.some((x) => x.bad) || h.curves.some((c) => c.bad);
+        const valued = /^−?\d+(\.\d+)? ?(W|A|%)$/.test(o);
+        return red && (!valued || h.outs.some((x) => x.bad && x.t === o));
+      });
+      return quiet && right && wrongs;
+    }));
+  K.check('Every dot sits on its curve at its place, every value written on an axis is that dot\'s own reading, and every filled table row is its rule\'s output: on each demonstration, every place Dan can drag to, and every puzzle answer', () =>
+    STEPS.every((d, i) => {
+      if (d.kind === 'tables') return true;
+      if (d.kind === 'ride') {
+        const g = G[d.g];
+        return [blank()].concat(dragValues(i).map((v) => liveSt(v))).every((st) => {
+          const r = drawn(i, st);
+          return faithful(d.g, r) && r.hits.length === g.f(r.reads[0].v).length && rowsTrue(g, r);
+        });
+      }
+      if (d.kind === 'level') return TABS.every((t) => dragValues(i, t[0]).every((h) => {
+        const r = drawn(i, liveSt(h, t[0]));
+        return faithful(t[0], r) && r.rows.length === r.hits.length && r.rows.every((w, j) => w.a === n3(r.hits[j].x) && w.b === n3(h));
+      }));
+      return faithful(d.g, drawn(i, solvedSt(i))) && d.opts.every((o) => faithful(d.g, drawn(i, wrongSt(i, o))));
+    }));
+  K.check('The table fills as the point rides: in each demonstration a row fills only once the pointer has reached its input, every input the pointer passes is filled by the end, and at least one row is left for Dan to fill', () =>
+    RIDES.every((i) => {
+      const d = STEPS[i], span = d.demo.v - d.demo.from;
+      const timesOk = [0.6, 1.2, 1.8, 2.4, 3.0].every((t) => {
+        const r = drawn(i, blank(), t), pos = (r.reads[0].v - d.demo.from) / span;
+        return r.rows.every((w) => !w.filled || (w.k - d.demo.from) / span <= pos + 1e-9);
+      });
+      const end = drawn(i, blank()), lo = Math.min(d.demo.from, d.demo.v), hi = Math.max(d.demo.from, d.demo.v);
+      return timesOk && end.rows.every((w) => w.filled === (w.k >= lo - 1e-9 && w.k <= hi + 1e-9)) && end.rows.some((w) => !w.filled);
+    }));
+  K.check('Every demonstration has finished arriving within its 3.4 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 2.5) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 2.5));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
