@@ -1,0 +1,562 @@
+{
+  "iid": "i3",
+  "title": "Elimination",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the matching term in the sum row turning to 0, and the dotted line turning upright or flat through the crossing, when you set the steppers and the add or take-away switch right.",
+    "title": "Stack, scale and add",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens. The two equations are stacked as rows, x under x, y under y and the number on the right, each row with a × stepper from × 1 to × 5 that multiplies every term in the row, the right-hand side too. A switch chooses add or take away, and its sign stands in front of row 2, which sits in a frame because the whole row is added or taken away. Below them the sum row fills in, x terms with x terms, y terms with y terms and right side with right side. A term that cancels shows 0. When the matching terms are the same size and the switch is the wrong choice, that term doubles instead. Under the rows, a small graph running 0 to 8 across and 0 to 14 up shows row 1 as a solid line, row 2 as a dashed line, and the sum row as a dotted line. Scaling a row does not move its line, because both sides grow together. Any point that fits both rows fits their sum, so the dotted line always passes through the crossing point, whatever the steppers and the switch say. When y cancels, the sum row says what x is for every y, so the dotted line stands upright, such as x = 4. When x cancels, it lies flat, such as y = 3. Beneath, the working runs line by line: the sum row, the one unknown solved, the value put back for the other, and the check in both rows. Some screens show an idea and the rest ask you to try it. A puzzle shows two equations and three answers. A wrong pick gets a one-line hint naming its slip, and Why? shows the working and the check.",
+    "ignores": "The steppers run from × 1 to × 5, but any number other than zero keeps a row true, fractions and minus numbers included. The grid shows a short piece of each line, which carries on both ways. The equations are example values with whole-number answers, chosen so the working stays short; real ones often give fractions, which elimination finds just as exactly.",
+    "numbers": [
+      {
+        "label": "Grid width, 0 to 8 across",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Grid height, 0 to 14 up",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stepper lowest setting, × 1",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stepper highest setting, × 5",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "A cancelled term in the sum row",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Row 1, 2x + y = 11: its total, in step 0",
+        "value": 11,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 2, 3x − y = 9: its total, in step 0",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "Sum row 5x = 11 + 9, in step 0",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "x = 20 ÷ 5, in step 0",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 8 + y = 11, so y, in step 0",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Check row 2: 12 − 3, in step 0",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle 2x + y = 10: its total, in step 1",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle x − y = 2: its total, in step 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Add: 3x = 12, so x = 4, in step 1",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "y = 10 − 8, in step 1",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, take away: x + 2y = 8, y doubled, in step 1",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, y − (−y) read as 0: x = 8, in step 1",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Row 1, 3x + 2y = 18: its total, in steps 2 and 9",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 2, x + 2y = 10: its total, in step 2",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Take away: 2x = 8, so x = 4, in step 2",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 2y = 6, so y = 3, in step 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Wrong choice, add: 4x + 4y = 28, in step 2",
+        "value": 28,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle 4x + 3y = 26: its total, in step 3",
+        "value": 26,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle 4x + y = 14: its total, in step 3",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Take away: 2y = 12, so y = 6, in step 3",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 4x = 8, so x = 2, in step 3",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, added: 8x + 4y = 40, in step 3",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, left taken away, right added: 2y = 40, in step 3",
+        "value": 40,
+        "kind": "computed"
+      },
+      {
+        "label": "Row 1, 3x + y = 15: its total, in steps 4 and 8",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 2, x + 2y = 10: its total, in steps 4 and 8",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 1 at × 2: 6x + 2y = 30, in step 4",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Take away: 5x = 20, so x = 4, in step 4",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 4 + 2y = 10, so y = 3, in step 4",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 6x + 2y = 15 gives 5x = 5, x = 1, in explain",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Its y from x + 2y = 10, in explain",
+        "value": 4.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Check 3 + 4.5, not 15, in explain",
+        "value": 7.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle 2x + y = 7: its total, in step 5",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle 3x + 2y = 11: its total, in step 5",
+        "value": 11,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 1 at × 2: 4x + 2y = 14, in step 5",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Take away: x = 14 − 11, in step 5",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "y = 7 − 6, in step 5",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 4x + 2y = 7 gives x = −4, in step 5",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 4x + y = 14, y not scaled, in step 5",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Row 1, 2x + 3y = 17: its total, in step 6",
+        "value": 17,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 2, 3x + 2y = 18: its total, in step 6",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 1 at × 3: 6x + 9y = 51, in step 6",
+        "value": 51,
+        "kind": "computed"
+      },
+      {
+        "label": "Row 2 at × 2: 6x + 4y = 36, in step 6",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Take away: 5y = 15, so y = 3, in step 6",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 2x + 9 = 17, so x = 4, in step 6",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle 3x + 2y = 13: its total, in step 7",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle 2x + 3y = 12: its total, in step 7",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "At × 3 and × 2: 9x + 6y = 39, in step 7",
+        "value": 39,
+        "kind": "computed"
+      },
+      {
+        "label": "At × 3 and × 2: 4x + 6y = 24, in step 7",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Take away: 5x = 15, so x = 3, in step 7",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 9 + 2y = 13, so y = 2, in step 7",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip × 2 and × 2: 6x + 4y = 26, 4x + 6y = 24, in step 7",
+        "value": 26,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip × 3 and × 3: 9x + 6y = 39, 6x + 9y = 36, in step 7",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Both at × 1, added: 4x + 3y = 25, in step 8",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "At (4, 3): 16 + 9 = 25, in step 8",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle −x + 2y = 2: its total, in step 9",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Take away: 4x = 16, so x = 4, in step 9",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 2y = 6, so y = 3, in step 9",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 3x − (−x) as 2x: 2x = 16, x = 8, in step 9",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Its y: 24 + 2y = 18, so y = −3, in step 9",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Its check: −8 − 6 = −14, not 2, in step 9",
+        "value": -14,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, added: 2x + 4y = 20, in step 9",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle y = 2x − 1: its c, in step 10",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle 3x + y = 14: its total, in step 10",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Swap in: 5x − 1 = 14, so 5x = 15, in step 10",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "x = 15 ÷ 5, in step 10",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "y = 2 × 3 − 1, in step 10",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip (5, 3): 2 × 5 − 1 = 9, not 3, in step 10",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip x = 15 gives y = 29, in step 10",
+        "value": 29,
+        "kind": "computed"
+      },
+      {
+        "label": "Its check: 45 + 29, not 14, in step 10",
+        "value": 74,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle 5x + 2y = 24: its total, in step 11",
+        "value": 24,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle 3x − y = 10: its total, in step 11",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 2 at × 2: 6x − 2y = 20, in step 11",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Add: 11x = 44, so x = 4, in step 11",
+        "value": 44,
+        "kind": "computed"
+      },
+      {
+        "label": "Put back: 20 + 2y = 24, so y = 2, in step 11",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip, taken away with 4y read as 0: −x = 4, so x = −4 and y = 22, in step 11",
+        "value": 22,
+        "kind": "computed"
+      },
+      {
+        "label": "Its check: −12 − 22 = −34, not 10, in step 11",
+        "value": -34,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip (2, 4): 10 + 8, not 24, in step 11",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Puzzle 2x + 3y = 18: its total, in step 12",
+        "value": 18,
+        "kind": "assumed"
+      },
+      {
+        "label": "Puzzle x + y = 7: its total, in step 12",
+        "value": 7,
+        "kind": "assumed"
+      },
+      {
+        "label": "Row 2 at × 2: 2x + 2y = 14, in step 12",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "Take away: y = 18 − 14, in step 12",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "x = 7 − 4, in step 12",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 2x + 2y = 7 gives (−4, 11), in step 12",
+        "value": 11,
+        "kind": "computed"
+      },
+      {
+        "label": "Its check: −8 + 33, not 18, in step 12",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip (4, 3): 8 + 9, not 18, in step 12",
+        "value": 17,
+        "kind": "computed"
+      },
+      {
+        "label": "Students who misjudged the operations, one problem",
+        "value": 76,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Worked example 7x − 2y = 26 at × 5: 35x − 10y = 130",
+        "value": 130,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example 6x + 5y = 29 at × 2: 12x + 10y = 58",
+        "value": 58,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: added, 47x = 188",
+        "value": 188,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example x = 188 ÷ 47",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example y: 28 − 2y = 26",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: 4 bags and 3 tins balance 26 kg",
+        "value": 26,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: 4 bags and 1 tin balance 14 kg",
+        "value": 14,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: 2 tins balance 26 − 14 kg",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: one tin, 12 ÷ 2 kg",
+        "value": 6,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Add or take away the two whole equations so that one letter cancels,[^2] and you are left with one equation in one unknown, which you can solve. Take lesson 2's pair, 2x + y = 11 and 3x − y = 9, stacked as two rows. At the crossing point both are true, so there 3x − y is the same number as 9. Adding 3x − y to the left side of row 1 and 9 to its right side adds the same amount to each side, so the sum row is still true: (2x + y) + (3x − y) = 11 + 9. The +y and −y make 0, so it says 5x = 20, and x = 4. Put that back into row 1: 8 + y = 11, so y = 3. Check row 2: 12 − 3 = 9. That is the crossing point (4, 3) that substitution found, with no rearranging. Removing a letter like this is called [[elimination]].\n\nThe small graph shows why it is safe. The sum row is an equation too, so it draws a line, the dotted one. Any point that fits both rows fits their sum, so the dotted line passes through the crossing point whatever the steppers and the switch say. Once y has cancelled, 5x = 20 says x = 4 for every y, so the dotted line stands upright through (4, 3). When x cancels instead, it lies flat through the crossing point.\n\nWhether to add or take away depends on the signs. The number in front of a letter is its [[coefficient]]. When the matching terms are the same size with opposite signs, like +y and −y, adding cancels them.[^2] When they have the same sign, like the 2y in 3x + 2y = 18 and in x + 2y = 10, taking away cancels them: 2y − 2y = 0, which leaves 2x = 8, so x = 4, and then 2y = 6, so y = 3. Taking away a row takes away every term in it, signs included, and its right side too. Make the wrong choice and the matching term doubles instead of going: adding those two rows gives 4x + 4y = 28, with y still there. Its dotted line still passes through (4, 3), but it is tilted, because both unknowns are still there. In one study, 76% of students misjudged which operations to use on an elimination problem.[^1] Mind a minus as well: 3x take away −x is 3x + x = 4x.\n\nWhen no terms match, scale first. Multiplying every term of a row by the same number, the right side too,[^3] keeps it true and draws the very same line, because both sides grow together. With 3x + y = 15 and x + 2y = 10, × 2 makes row 1 6x + 2y = 30. Take row 2 away: 5x = 20, so x = 4, and 4 + 2y = 10 gives y = 3. Double only the left side, 6x + 2y = 15, and taking away gives 5x = 5, so x = 1 and y = 4.5, but 3 + 4.5 = 7.5, not 15. When scaling one row would need a fraction, scale both: 2x + 3y = 17 and 3x + 2y = 18 at × 3 and × 2 become 6x + 9y = 51 and 6x + 4y = 36, and taking away leaves 5y = 15, so y = 3 and x = 4. **Scale the rows until one letter's terms are the same size, then add if their signs are opposite or take away if they match, so that letter cancels[^2] and one unknown is left; solve it, put it back, and check the pair in both.**"
+  },
+  "analogy": {
+    "text": "Picture two balanced scales. On one, 4 bags and 3 tins balance 26 kg. On the other, 4 bags and 1 tin balance 14 kg. From the first scale, lift 4 bags and 1 tin off the left pan and 14 kg off the right. The second scale shows those two loads weigh the same, so the first still balances, now with 2 tins against 12 kg. The bags have gone, so one tin weighs 6 kg.",
+    "breaks": "A pan cannot hold a minus amount, so a −y has nothing to stand for on the scales, and adding two rows so that +y and −y cancel has no picture there. And the scales show nothing of the two lines or where they cross."
+  },
+  "practice": {
+    "text": "- Line the equations up, x under x, y under y, and the numbers on the right.\n- Choose the letter to remove. Scale one row, or both, so that letter's coefficients are the same size. Multiply every term, the right side too.\n- Opposite signs: add the rows. Same sign: take one row away from the other, every term and the right side.\n- Solve the one-unknown equation that is left.\n- Put that value back into either original equation to find the other unknown.\n- Check the pair in both original equations.\n- If both letters go, read what is left as in lesson 2. A false line such as 0 = 3 means no solution. A true line such as 0 = 0 means the equations are the same line.\n\n**Rule of thumb:** Opposite signs, add. Same signs, take away. If one equation already says y = …, substitution is often quicker.\n\n**Worked example:** 7x − 2y = 26 and 6x + 5y = 29. No terms match, so scale both to make the y's the same size: × 5 gives 35x − 10y = 130 and × 2 gives 12x + 10y = 58. The signs are opposite, so add: 47x = 188, and x = 4. Put it back: 28 − 2y = 26, so 2y = 2 and y = 1. Check: 7 × 4 − 2 × 1 = 26 and 6 × 4 + 5 × 1 = 29, both true, so x = 4 and y = 1.\n\n**Common mistakes**\n- Adding when the signs match, or taking away when they are opposite. The matching term doubles: 3x + 2y = 18 plus x + 2y = 10 gives 4x + 4y = 28, with y still there.\n- Scaling only the left side. 3x + y = 15 at × 2 is 6x + 2y = 30, not 6x + 2y = 15.\n- Losing a minus when taking away. 3x − (−x) is 4x, not 2x.\n- Taking away on the left but adding on the right. Whatever you do to the left sides, do to the right sides.\n- Stopping at x. The answer is a pair, so put x back for y.\n- Checking in only one equation. Put the pair into both."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Some-Common-Misconstructions-and-Misinterpretations-in ...",
+      "url": "https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf",
+      "quote": "When eliminating a variable from a system of linear equations in problem 13, 76% of students misjudged the operations to be performed."
+    },
+    {
+      "n": 2,
+      "title": "4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax",
+      "url": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables",
+      "quote": "We want to have the coefficients of one variable be opposites, so that we can add the equations together and eliminate that variable."
+    },
+    {
+      "n": 3,
+      "title": "How to solve simultaneous equations (KS3 Maths | BBC Bitesize) - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zmpyn9q",
+      "quote": "Sometimes equations need to be altered, by multiplying throughout, before being able to eliminate one of the variables (letters)."
+    }
+  ]
+}

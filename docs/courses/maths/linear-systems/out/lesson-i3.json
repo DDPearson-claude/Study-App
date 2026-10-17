@@ -1,0 +1,721 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T15:55:12.091Z",
+ "startedAt": "2026-10-17T15:55:12.091Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i3",
+  "title": "Elimination",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the matching term in the sum row turning to 0, and the dotted line turning upright or flat through the crossing, when you set the steppers and the add or take-away switch right.",
+   "title": "Stack, scale and add",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in thirteen small screens. The two equations are stacked as rows, x under x, y under y and the number on the right, each row with a × stepper from × 1 to × 5 that multiplies every term in the row, the right-hand side too. A switch chooses add or take away, and its sign stands in front of row 2, which sits in a frame because the whole row is added or taken away. Below them the sum row fills in, x terms with x terms, y terms with y terms and right side with right side. A term that cancels shows 0. When the matching terms are the same size and the switch is the wrong choice, that term doubles instead. Under the rows, a small graph running 0 to 8 across and 0 to 14 up shows row 1 as a solid line, row 2 as a dashed line, and the sum row as a dotted line. Scaling a row does not move its line, because both sides grow together. Any point that fits both rows fits their sum, so the dotted line always passes through the crossing point, whatever the steppers and the switch say. When y cancels, the sum row says what x is for every y, so the dotted line stands upright, such as x = 4. When x cancels, it lies flat, such as y = 3. Beneath, the working runs line by line: the sum row, the one unknown solved, the value put back for the other, and the check in both rows. Some screens show an idea and the rest ask you to try it. A puzzle shows two equations and three answers. A wrong pick gets a one-line hint naming its slip, and Why? shows the working and the check.",
+   "ignores": "The steppers run from × 1 to × 5, but any number other than zero keeps a row's line the same, fractions and minus numbers included. The grid shows a short piece of each line, which carries on both ways. The equations are example values with whole-number answers, chosen so the working stays short; real ones often give fractions, which elimination finds just as exactly.",
+   "numbers": [
+    {
+     "label": "Grid width, 0 to 8 across",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Grid height, 0 to 14 up",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stepper lowest setting, × 1",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stepper highest setting, × 5",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "A cancelled term in the sum row",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Row 1, 2x + y = 11: its total, in step 0",
+     "value": 11,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 2, 3x − y = 9: its total, in step 0",
+     "value": 9,
+     "kind": "assumed"
+    },
+    {
+     "label": "Sum row 5x = 11 + 9, in step 0",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "x = 20 ÷ 5, in step 0",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 8 + y = 11, so y, in step 0",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Check row 2: 12 − 3, in step 0",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle 2x + y = 10: its total, in step 1",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle x − y = 2: its total, in step 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Add: 3x = 12, so x = 4, in step 1",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 10 − 8, in step 1",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, take away: x + 2y = 8, y doubled, in step 1",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, y − (−y) read as 0: x = 8, in step 1",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Row 1, 3x + 2y = 18: its total, in steps 2 and 9",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 2, x + 2y = 10: its total, in step 2",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Take away: 2x = 8, so x = 4, in step 2",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 2y = 6, so y = 3, in step 2",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Wrong choice, add: 4x + 4y = 28, in step 2",
+     "value": 28,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle 4x + 3y = 26: its total, in step 3",
+     "value": 26,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle 4x + y = 14: its total, in step 3",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Take away: 2y = 12, so y = 6, in step 3",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 4x = 8, so x = 2, in step 3",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, added: 8x + 4y = 40, in step 3",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, left taken away, right added: 2y = 40, in step 3",
+     "value": 40,
+     "kind": "computed"
+    },
+    {
+     "label": "Row 1, 3x + y = 15: its total, in steps 4 and 8",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 2, x + 2y = 10: its total, in steps 4 and 8",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 1 at × 2: 6x + 2y = 30, in step 4",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Take away: 5x = 20, so x = 4, in step 4",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 4 + 2y = 10, so y = 3, in step 4",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 6x + 2y = 15 gives 5x = 5, x = 1, in explain",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Its y from x + 2y = 10, in explain",
+     "value": 4.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Check 3 + 4.5, not 15, in explain",
+     "value": 7.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle 2x + y = 7: its total, in step 5",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle 3x + 2y = 11: its total, in step 5",
+     "value": 11,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 1 at × 2: 4x + 2y = 14, in step 5",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Take away: x = 14 − 11, in step 5",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 7 − 6, in step 5",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 4x + 2y = 7 gives x = −4, in step 5",
+     "value": -4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 4x + y = 14, y not scaled, in step 5",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Row 1, 2x + 3y = 17: its total, in step 6",
+     "value": 17,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 2, 3x + 2y = 18: its total, in step 6",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 1 at × 3: 6x + 9y = 51, in step 6",
+     "value": 51,
+     "kind": "computed"
+    },
+    {
+     "label": "Row 2 at × 2: 6x + 4y = 36, in step 6",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Take away: 5y = 15, so y = 3, in step 6",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 2x + 9 = 17, so x = 4, in step 6",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle 3x + 2y = 13: its total, in step 7",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle 2x + 3y = 12: its total, in step 7",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "At × 3 and × 2: 9x + 6y = 39, in step 7",
+     "value": 39,
+     "kind": "computed"
+    },
+    {
+     "label": "At × 3 and × 2: 4x + 6y = 24, in step 7",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Take away: 5x = 15, so x = 3, in step 7",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 9 + 2y = 13, so y = 2, in step 7",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip × 2 and × 2: 6x + 4y = 26, 4x + 6y = 24, in step 7",
+     "value": 26,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip × 3 and × 3: 9x + 6y = 39, 6x + 9y = 36, in step 7",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Both at × 1, added: 4x + 3y = 25, in step 8",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "At (4, 3): 16 + 9 = 25, in step 8",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle −x + 2y = 2: its total, in step 9",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Take away: 4x = 16, so x = 4, in step 9",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 2y = 6, so y = 3, in step 9",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 3x − (−x) as 2x: 2x = 16, x = 8, in step 9",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Its y: 24 + 2y = 18, so y = −3, in step 9",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Its check: −8 − 6 = −14, not 2, in step 9",
+     "value": -14,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, added: 2x + 4y = 20, in step 9",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle y = 2x − 1: its c, in step 10",
+     "value": -1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle 3x + y = 14: its total, in step 10",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Swap in: 5x − 1 = 14, so 5x = 15, in step 10",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "x = 15 ÷ 5, in step 10",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "y = 2 × 3 − 1, in step 10",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (5, 3): 2 × 5 − 1 = 9, not 3, in step 10",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip x = 15 gives y = 29, in step 10",
+     "value": 29,
+     "kind": "computed"
+    },
+    {
+     "label": "Its check: 45 + 29, not 14, in step 10",
+     "value": 74,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle 5x + 2y = 24: its total, in step 11",
+     "value": 24,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle 3x − y = 10: its total, in step 11",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 2 at × 2: 6x − 2y = 20, in step 11",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Add: 11x = 44, so x = 4, in step 11",
+     "value": 44,
+     "kind": "computed"
+    },
+    {
+     "label": "Put back: 20 + 2y = 24, so y = 2, in step 11",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip, taken away with 4y read as 0: −x = 4, so x = −4 and y = 22, in step 11",
+     "value": 22,
+     "kind": "computed"
+    },
+    {
+     "label": "Its check: −12 − 22 = −34, not 10, in step 11",
+     "value": -34,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (2, 4): 10 + 8, not 24, in step 11",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Puzzle 2x + 3y = 18: its total, in step 12",
+     "value": 18,
+     "kind": "assumed"
+    },
+    {
+     "label": "Puzzle x + y = 7: its total, in step 12",
+     "value": 7,
+     "kind": "assumed"
+    },
+    {
+     "label": "Row 2 at × 2: 2x + 2y = 14, in step 12",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "Take away: y = 18 − 14, in step 12",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "x = 7 − 4, in step 12",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 2x + 2y = 7 gives (−4, 11), in step 12",
+     "value": 11,
+     "kind": "computed"
+    },
+    {
+     "label": "Its check: −8 + 33, not 18, in step 12",
+     "value": 25,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (4, 3): 8 + 9, not 18, in step 12",
+     "value": 17,
+     "kind": "computed"
+    },
+    {
+     "label": "Students who misjudged the operations, one problem",
+     "value": 76,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Worked example 7x − 2y = 26 at × 5: 35x − 10y = 130",
+     "value": 130,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example 6x + 5y = 29 at × 2: 12x + 10y = 58",
+     "value": 58,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: added, 47x = 188",
+     "value": 188,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example x = 188 ÷ 47",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example y: 28 − 2y = 26",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: 4 bags and 3 tins balance 26 kg",
+     "value": 26,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: 4 bags and 1 tin balance 14 kg",
+     "value": 14,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: 2 tins balance 26 − 14 kg",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: one tin, 12 ÷ 2 kg",
+     "value": 6,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "Add or take away the two whole equations so that one letter cancels,[^2] and you are left with one equation in one unknown, which you can solve. Take lesson 2's pair, 2x + y = 11 and 3x − y = 9, stacked as two rows. At the crossing point both are true, so there 3x − y is the same number as 9. Adding 3x − y to the left side of row 1 and 9 to its right side adds the same amount to each side, so the sum row is still true: (2x + y) + (3x − y) = 11 + 9. The +y and −y make 0, so it says 5x = 20, and x = 4. Put that back into row 1: 8 + y = 11, so y = 3. Check row 2: 12 − 3 = 9. That is the crossing point (4, 3) that substitution found, with no rearranging. Removing a letter like this is called [[elimination]].\n\nThe small graph shows why it is safe. The sum row is an equation too, so it draws a line, the dotted one. Any point that fits both rows fits their sum, so the dotted line passes through the crossing point whatever the steppers and the switch say. Once y has cancelled, 5x = 20 says x = 4 for every y, so the dotted line stands upright through (4, 3). When x cancels instead, it lies flat through the crossing point.\n\nWhether to add or take away depends on the signs. The number in front of a letter is its [[coefficient]]. When the matching terms are the same size with opposite signs, like +y and −y, adding cancels them.[^2] When they have the same sign, like the 2y in 3x + 2y = 18 and in x + 2y = 10, taking away cancels them: 2y − 2y = 0, which leaves 2x = 8, so x = 4, and then 2y = 6, so y = 3. Taking away a row takes away every term in it, signs included, and its right side too. Make the wrong choice and the matching term doubles instead of going: adding those two rows gives 4x + 4y = 28, with y still there. Its dotted line still passes through (4, 3), but it is tilted, because both unknowns are still there. In one study, 76% of students misjudged which operations to use on an elimination problem.[^1] Mind a minus as well: 3x take away −x is 3x + x = 4x.\n\nWhen no terms match, scale first. Multiplying every term of a row by the same number other than zero, the right side too,[^3] keeps it true and draws the very same line, because both sides grow together. With 3x + y = 15 and x + 2y = 10, × 2 makes row 1 6x + 2y = 30. Take row 2 away: 5x = 20, so x = 4, and 4 + 2y = 10 gives y = 3. Double only the left side, 6x + 2y = 15, and taking away gives 5x = 5, so x = 1 and y = 4.5, but 3 + 4.5 = 7.5, not 15. When scaling one row would need a fraction, scale both: 2x + 3y = 17 and 3x + 2y = 18 at × 3 and × 2 become 6x + 9y = 51 and 6x + 4y = 36, and taking away leaves 5y = 15, so y = 3 and x = 4. **Scale the rows until one letter's terms are the same size, then add if their signs are opposite or take away if they match, so that letter cancels[^2] and one unknown is left; solve it, put it back, and check the pair in both.**"
+  },
+  "analogy": {
+   "text": "Picture two balanced scales. On one, 4 bags and 3 tins balance 26 kg. On the other, 4 bags and 1 tin balance 14 kg. From the first scale, lift 4 bags and 1 tin off the left pan and 14 kg off the right. The second scale shows those two loads weigh the same, so the first still balances, now with 2 tins against 12 kg. The bags have gone, so one tin weighs 6 kg.",
+   "breaks": "A pan cannot hold a minus amount, so a −y has nothing to stand for on the scales, and adding two rows so that +y and −y cancel has no picture there. And the scales show nothing of the two lines or where they cross."
+  },
+  "practice": {
+   "text": "- Line the equations up, x under x, y under y, and the numbers on the right.\n- Choose the letter to remove. Scale one row, or both, so that letter's coefficients are the same size. Multiply every term, the right side too.\n- Opposite signs: add the rows. Same sign: take one row away from the other, every term and the right side.\n- Solve the one-unknown equation that is left.\n- Put that value back into either original equation to find the other unknown.\n- Check the pair in both original equations.\n- If both letters go, read what is left as in lesson 2. A false line such as 0 = 3 means no solution. A true line such as 0 = 0 means the equations are the same line.\n\n**Rule of thumb:** Opposite signs, add. Same signs, take away. If one equation already says y = …, substitution is often quicker.\n\n**Worked example:** 7x − 2y = 26 and 6x + 5y = 29. No terms match, so scale both to make the y's the same size: × 5 gives 35x − 10y = 130 and × 2 gives 12x + 10y = 58. The signs are opposite, so add: 47x = 188, and x = 4. Put it back: 28 − 2y = 26, so 2y = 2 and y = 1. Check: 7 × 4 − 2 × 1 = 26 and 6 × 4 + 5 × 1 = 29, both true, so x = 4 and y = 1.\n\n**Common mistakes**\n- Adding when the signs match, or taking away when they are opposite. The matching term doubles: 3x + 2y = 18 plus x + 2y = 10 gives 4x + 4y = 28, with y still there.\n- Scaling only the left side. 3x + y = 15 at × 2 is 6x + 2y = 30, not 6x + 2y = 15.\n- Losing a minus when taking away. 3x − (−x) is 4x, not 2x.\n- Taking away on the left but adding on the right. Whatever you do to the left sides, do to the right sides.\n- Stopping at x. The answer is a pair, so put x back for y.\n- Checking in only one equation. Put the pair into both."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Some-Common-Misconstructions-and-Misinterpretations-in ...",
+    "url": "https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf",
+    "quote": "When eliminating a variable from a system of linear equations in problem 13, 76% of students misjudged the operations to be performed."
+   },
+   {
+    "n": 2,
+    "title": "4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax",
+    "url": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables",
+    "quote": "We want to have the coefficients of one variable be opposites, so that we can add the equations together and eliminate that variable."
+   },
+   {
+    "n": 3,
+    "title": "How to solve simultaneous equations (KS3 Maths | BBC Bitesize) - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zmpyn9q",
+    "quote": "Sometimes equations need to be altered, by multiplying throughout, before being able to eliminate one of the variables (letters)."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: skill -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }\n  /* The small squared graph, its frame, axes and numbers. */\n  .scene .gl { stroke: var(--k-line); stroke-width: 1; }\n  .scene .gf { fill: none; stroke: var(--k-strong); stroke-width: 1; }\n  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .at { font: italic 600 14px var(--k-font); fill: var(--k-muted); }\n  /* Row 1 solid, row 2 dashed, the sum row dotted, a row tried, and a soft glow when a row is scaled. */\n  .scene .r1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .r2 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-dasharray: 7 5; fill: none; }\n  .scene .ls { stroke: var(--k-accent2); stroke-width: 4; stroke-dasharray: 0.1 6.5; stroke-linecap: round; fill: none; }\n  .scene .rt { stroke: var(--k-warn); stroke-width: 2.5; stroke-linecap: round; fill: none; }\n  .scene .halo { stroke: var(--k-accent2); stroke-width: 10; stroke-linecap: round; fill: none; }\n  .scene .xr { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .scene .tr { fill: none; stroke: var(--k-warn); stroke-width: 2.2; }\n  /* The stacked rows: terms in columns, the stepper's setting, the add or take-away sign. */\n  .scene .eq { font: 700 20px var(--k-font); fill: var(--k-ink); }\n  .scene .eq.q { fill: var(--k-muted); }\n  .scene .eq.bad { fill: var(--k-warn); }\n  .scene .op { font: 700 22px var(--k-font); fill: var(--k-accent2); }\n  .scene .bdg { font: 700 17px var(--k-font); fill: var(--k-accent2); }\n  .scene .rule { stroke: var(--k-ink); stroke-width: 2; }\n  /* Row 2 sits in a frame, its add or take-away sign in front, as the whole row is added or taken away. */\n  .scene .rbox { fill: none; stroke: var(--k-accent2); stroke-width: 1.5; }\n  .scene .hlb { fill: var(--k-hl); }\n  .scene .lc { font: 700 13px var(--k-font); fill: var(--k-accent); }\n  .scene .ld { font: 700 13px var(--k-font); fill: var(--k-warn); }\n  .scene .how { font: 700 14px var(--k-font); fill: var(--k-accent); letter-spacing: .03em; }\n  /* The key beside the graph. */\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .keq { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .kst { font: 700 13px var(--k-font); fill: var(--k-accent); }\n  .scene .kst.m { fill: var(--k-muted); }\n  .scene .kbad { font: 600 13px var(--k-font); fill: var(--k-warn); }\n  .scene #art * { pointer-events: none; }\n  /* The steppers and the switch, drawn on the picture beside the rows they change. */\n  .scene .sb { cursor: pointer; }\n  .scene .sb:focus { outline: none; }\n  .scene .sb:focus-visible .sbf { stroke: var(--k-accent); stroke-width: 3; }\n  .scene .sbf { fill: var(--k-panel); stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .sbt { font: 700 22px var(--k-font); fill: var(--k-ink); pointer-events: none; }\n  .scene .sw .sbt { font-size: 14px; }\n  .scene .sb.hot .sbf { fill: var(--k-fill1); stroke: var(--k-accent2); }\n  .scene .sb.off { cursor: default; }\n  .scene .sb.off .sbf { stroke: var(--k-line); }\n  .scene .sb.off .sbt { fill: var(--k-muted); }\n  .scene .sw.on .sbf { fill: var(--k-accent2); stroke: var(--k-accent2); }\n  .scene .sw.on .sbt { fill: var(--k-on-accent2); }\n  .scene .hit { fill: var(--k-bg); fill-opacity: 0; }\n  /* The working under the picture: one line per move, its name on the left. */\n  .work { position: relative; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 12px; padding: 4px 0 4px 15px; line-height: 1.45; }\n  /* The working's bar fades in with its first line, so an empty box never shows. */\n  .work .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: var(--k-accent2); }\n  .work.keep { min-height: 7.6em; align-content: start; }\n  .work .wl { color: var(--k-muted); font-size: .85rem; font-weight: 700; padding-top: .12rem; }\n  .work .wm { font-weight: 600; }\n  .work .pc { white-space: nowrap; }\n  .work .pc.ok { color: var(--k-accent2); font-weight: 700; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .pz.ask .fb:empty { min-height: 0; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }\n</style>\n\n<p class=\"lead\" id=\"lead\">Two equations stacked as rows, each with a × stepper, a switch to add or take away, and a small graph. Every equation here is an example.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 418\" width=\"100%\" role=\"img\" aria-label=\"\"><defs><clipPath id=\"gclip\"><rect x=\"30\" y=\"196\" width=\"112\" height=\"196\"></rect></clipPath></defs><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"work\" id=\"work\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">On the screens that show an idea, try the − and + steppers and the switch yourself.</p>\n\n<script>\n  // ---------- numbers, written as the lesson writes them ----------\n  const num = (k) => (k < 0 ? '−' + (-k) : String(k));\n  // 2x, −x, + 3y, − 2x, + 7\n  function termT(k, v, first) {\n    const mag = Math.abs(k), body = v ? (mag === 1 ? v : mag + v) : String(mag);\n    return first ? (k < 0 ? '−' : '') + body : (k < 0 ? ' − ' : ' + ') + body;\n  }\n  const brk = (v) => (v < 0 ? '(' + num(v) + ')' : String(v));\n  // 2 × 3 − 1\n  const mulT = (m, v, k) => (m === 1 ? brk(v) : m === -1 ? '−' + brk(v) : num(m) + ' × ' + brk(v)) + (k ? (k < 0 ? ' − ' + (-k) : ' + ' + k) : '');\n  // 12 − 3, −8 + 33\n  const valsT = (list) => list.map((v, n) => (n === 0 ? num(v) : v < 0 ? ' − ' + (-v) : ' + ' + v)).join('');\n  const coord = (p) => '(' + num(p[0]) + ', ' + num(p[1]) + ')';\n  const near = (a, b) => Math.abs(a - b) < 1e-9;\n  const r2 = (v) => Math.round(v * 100) / 100;\n\n  // ---------- rows: a·x + b·y = c in whole numbers ----------\n  const E = (a, b, c) => ({ a, b, c, w: 'e' });\n  const Yr = (m, k) => ({ a: -m, b: 1, c: k, w: 'y', m, k });             // y = m·x + k, as written\n  const scaleR = (r, k) => (k === 1 ? r : { a: r.a * k, b: r.b * k, c: r.c * k, w: 'e' });\n  const SET = (k1, k2, op) => ({ k1, k2, op });\n  const nextK = (k, dir) => Math.min(5, Math.max(1, k + dir));          // the steppers run × 1 to × 5\n  function eqT(r) {\n    if (r.w === 'y') return 'y = ' + termT(r.m, 'x', true) + (r.k ? termT(r.k, '', false) : '');\n    const t = [[r.a, 'x'], [r.b, 'y']].filter((q) => q[0] !== 0);\n    return (t.length ? t.map((q, n) => termT(q[0], q[1], n === 0)).join('') : '0') + ' = ' + num(r.c);\n  }\n  // A row's three columns: its x term, its y term, its right side. A term that cancels shows 0.\n  const cellsOf = (r) => [r.a === 0 ? '0' : termT(r.a, 'x', true), r.b === 0 ? '+ 0' : termT(r.b, 'y', false).trim(), num(r.c)];\n  // The sum row: row 1 at its stepper, add or take away row 2 at its stepper, every term and the right side.\n  function sumOf(s, set) {\n    const g = set.op === 'add' ? 1 : -1, A = scaleR(s.r1, set.k1), B = scaleR(s.r2, set.k2);\n    return { a: A.a + g * B.a, b: A.b + g * B.b, c: A.c + g * B.c, w: 'e' };\n  }\n  // The crossing: the one pair that fits both rows.\n  function cross(s) {\n    const A = s.r1, B = s.r2, det = A.a * B.b - B.a * A.b;\n    return [(A.c * B.b - B.c * A.b) / det, (A.a * B.c - B.a * A.c) / det];\n  }\n  const fits = (r, p) => near(r.a * p[0] + r.b * p[1], r.c);\n  // For x and for y: 'cancel' when the sum row's term is 0; 'double' when the matching terms are the\n  // same size and the switch adds them up instead.\n  function marksOf(s, set) {\n    const A = scaleR(s.r1, set.k1), B = scaleR(s.r2, set.k2), U = sumOf(s, set);\n    return ['a', 'b'].map((f) => (U[f] === 0 ? 'cancel' : Math.abs(A[f]) === Math.abs(B[f]) && Math.abs(U[f]) === 2 * Math.abs(A[f]) ? 'double' : null));\n  }\n  const stateOf = (L) => (L.b === 0 ? 'upright at x = ' + num(L.c / L.a) : L.a === 0 ? 'flat at y = ' + num(L.c / L.b) : 'tilted');\n\n  // ---------- the working, built from the two rows ----------\n  // A pair put into a row as written: the sum, then ✓, or what the row needs.\n  function checkT(r, p) {\n    const x = p[0], y = p[1];\n    if (r.w === 'y') { const got = r.m * x + r.k; return mulT(r.m, x, r.k) + ' = ' + num(got) + (got === y ? ' ✓' : ', not ' + num(y)); }\n    const vals = [[r.a, x], [r.b, y]].filter((q) => q[0] !== 0).map((q) => q[0] * q[1]), tot = vals.reduce((u, v) => u + v, 0);\n    return valsT(vals) + ' = ' + num(tot) + (tot === r.c ? ' ✓' : ', not ' + num(r.c));\n  }\n  // The value found, put back into a row for the other letter: 8 + y = 11, so y = 3.\n  function backT(r, u, v) {\n    if (r.w === 'y') return 'y = ' + mulT(r.m, v, r.k) + ' = ' + num(r.m * v + r.k);\n    const w = u === 'x' ? 'y' : 'x', kU = u === 'x' ? r.a : r.b, kW = u === 'x' ? r.b : r.a, val = kU * v, rest = r.c - val;\n    const known = (first) => (first ? num(val) : val < 0 ? ' − ' + (-val) : ' + ' + val);\n    const left = u === 'x' ? known(true) + termT(kW, w, false) : termT(kW, w, true) + known(false);\n    return left + ' = ' + num(r.c) + ', so ' + (kW === 1 ? w + ' = ' + num(rest) : termT(kW, w, true) + ' = ' + num(rest) + ' and ' + w + ' = ' + num(rest / kW));\n  }\n  // The sum row, then (when a letter has gone) the one unknown solved, put back, and the pair checked in both rows.\n  function workRows(s, set, back) {\n    const U = sumOf(s, set), P = cross(s), out = [{ l: set.op === 'add' ? 'Add' : 'Take away', s: eqT(U) }];\n    if (U.a !== 0 && U.b !== 0) {\n      out.push({ l: 'At ' + coord(P), s: checkT(U, P) });\n      out.push({ l: 'So', s: 'both letters are still there', prose: true });\n      return out;\n    }\n    const u = U.a === 0 ? 'y' : 'x', k = U.a === 0 ? U.b : U.a, v = U.c / k;\n    if (k !== 1) out.push({ l: 'Solve', s: u + ' = ' + num(U.c) + ' ÷ ' + (k < 0 ? '(' + num(k) + ')' : k) + ' = ' + num(v) });\n    out.push({ l: 'Put back', s: backT(back === 2 ? s.r2 : s.r1, u, v) });\n    out.push({ l: 'In row 1', s: checkT(s.r1, P) });\n    out.push({ l: 'In row 2', s: checkT(s.r2, P) });\n    return out;\n  }\n  // When row 1 already says what y is: swap it in for y in row 2, as in lesson 2.\n  function swapOf(s) {\n    const r1 = s.r1, r2 = s.r2, inner = termT(r1.m, 'x', true) + (r1.k ? termT(r1.k, '', false) : '');\n    const mag = Math.abs(r2.b), yPart = (r2.b < 0 ? ' − ' : ' + ') + (mag === 1 ? '' : mag) + '(' + inner + ')';\n    const A = r2.a + r2.b * r1.m, B = r2.b * r1.k;\n    return { text: termT(r2.a, 'x', true) + yPart + ' = ' + num(r2.c), A, B, C: r2.c, line: { a: A, b: 0, c: r2.c - B, w: 'e' },\n      left: termT(A, 'x', true) + (B ? termT(B, '', false) : '') + ' = ' + num(r2.c) };\n  }\n  function swapRows(s) {\n    const w = swapOf(s), P = cross(s), R = w.C - w.B, x = R / w.A;\n    return [\n      { l: 'Swap in', s: w.text },\n      { l: 'Collect', s: w.left + ', so ' + termT(w.A, 'x', true) + ' = ' + num(R) },\n      { l: 'Solve', s: 'x = ' + num(R) + ' ÷ ' + w.A + ' = ' + num(x) },\n      { l: 'Put back', s: backT(s.r1, 'x', x) },\n      { l: 'In row 1', s: checkT(s.r1, P) },\n      { l: 'In row 2', s: checkT(s.r2, P) },\n    ];\n  }\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  const S0 = { r1: E(2, 1, 11), r2: E(3, -1, 9) };\n  const S1 = { r1: E(2, 1, 10), r2: E(1, -1, 2) };\n  const S2 = { r1: E(3, 2, 18), r2: E(1, 2, 10) };\n  const S3 = { r1: E(4, 3, 26), r2: E(4, 1, 14) };\n  const S4 = { r1: E(3, 1, 15), r2: E(1, 2, 10) };\n  const S5 = { r1: E(2, 1, 7), r2: E(3, 2, 11) };\n  const S6 = { r1: E(2, 3, 17), r2: E(3, 2, 18) };\n  const S7 = { r1: E(3, 2, 13), r2: E(2, 3, 12) };\n  const S9 = { r1: E(3, 2, 18), r2: E(-1, 2, 2) };\n  const S10 = { r1: Yr(2, -1), r2: E(3, 1, 14) };\n  const S11 = { r1: E(5, 2, 24), r2: E(3, -1, 10) };\n  const S12 = { r1: E(2, 3, 18), r2: E(1, 1, 7) };\n  const ELIM = [S0, S1, S2, S3, S4, S5, S6, S7, S9, S11, S12];\n  // A SHOW step: keys (what the steppers and switch say, and when each changes), fill (when the sum row\n  // starts filling in), rows (when the working starts), dur. back: the row the found value is put back into.\n  // A DO step: ans (the right steppers and switch, or 'swap'), opts, want, vals (what each answer is),\n  // fx (what a wrong answer shows), task, why, a hint and each wrong answer's own hint.\n  const PICK = 'Tap one of the answers.';\n  const FB = 2.5, FADE = 0.35;\n  const STEPS = [\n    { show: true, name: 'Add the rows', sys: S0, back: 1, keys: [{ at: 0, k1: 1, k2: 1, op: 'add' }], fill: 0.5, rows: 2.3, dur: 4.0,\n      text: 'Add the rows column by column: at the crossing `3x − y` is the same number as 9, so adding it to row 1\\'s left side and 9 to its right adds the same to both sides, and the sum stays true. The `+y` and `−y` make 0, leaving `5x = 20`, so x is 4 whatever y is, and the dotted line, every point with x = 4, stands upright. Removing a letter like this is called *elimination*.' },\n    { kind: 'sum', name: 'Your turn', sys: S1, back: 1, ans: SET(1, 1, 'add'),\n      opts: ['x + 2y = 8', '3x = 12', 'x = 8'], want: '3x = 12', vals: { 'x + 2y = 8': E(1, 2, 8), '3x = 12': E(3, 0, 12), 'x = 8': E(1, 0, 8) },\n      fx: { 'x + 2y = 8': { set: SET(1, 1, 'take') }, 'x = 8': { set: SET(1, 1, 'take') } },\n      task: 'Stack `2x + y = 10` and `x − y = 2`, then add or take away to cancel y. What is left?',\n      why: 'The y terms are `+y` and `−y`, opposite signs, so add the rows. `2x + x = 3x`, `y − y = 0` and `10 + 2 = 12`, so `3x = 12` and x = 4. Then `y = 10 − 8 = 2`, and (4, 2) checks in both, as `8 + 2 = 10` and `4 − 2 = 2`.',\n      hint: 'Not quite. Look at the signs of the y terms.',\n      hints: { 'x + 2y = 8': 'Not quite. Taking away leaves `y − (−y) = 2y`, so y doubles. Opposite signs, so add.', 'x = 8': 'Not quite. `y − (−y)` is `2y`, not 0. Opposite signs, so add.' } },\n    { show: true, name: 'Same signs, take away', sys: S2, back: 1, keys: [{ at: 0, k1: 1, k2: 1, op: 'add' }, { at: 2.2, op: 'take' }], fill: 0.4, rows: 3.1, dur: 4.8,\n      text: 'Both rows have `+2y`, the same sign, so adding doubles it to `4y` and the dotted line tilts. Take away instead, every term and the right side too, and `2y − 2y = 0` leaves `2x = 8`. In one study, 76% of students misjudged which operations to use on one elimination problem.' },\n    { kind: 'sum', name: 'Cancel x', sys: S3, back: 2, ans: SET(1, 1, 'take'),\n      opts: ['8x + 4y = 40', '2y = 40', '2y = 12'], want: '2y = 12', vals: { '8x + 4y = 40': E(8, 4, 40), '2y = 40': E(0, 2, 40), '2y = 12': E(0, 2, 12) },\n      fx: { '8x + 4y = 40': { set: SET(1, 1, 'add') }, '2y = 40': { set: SET(1, 1, 'take'), rhs: 40 } },\n      task: 'Stack `4x + 3y = 26` and `4x + y = 14`, then add or take away to cancel x. What is left?',\n      why: 'Both rows have `+4x`, the same sign, so take row 2 away. `4x − 4x = 0`, `3y − y = 2y` and `26 − 14 = 12`, so `2y = 12` and y = 6. Then `4x + 6 = 14` gives `4x = 8` and x = 2, and (2, 6) checks in both, as `8 + 18 = 26` and `8 + 6 = 14`.',\n      hint: 'Not quite. Look at the signs of the x terms.',\n      hints: { '8x + 4y = 40': 'Not quite. Adding doubles the x terms to `8x`. Same sign, so take away.', '2y = 40': 'Not quite. Take away the right sides too, `26 − 14`, not `26 + 14`.' } },\n    { show: true, name: 'Scale first', sys: S4, back: 2, keys: [{ at: 0, k1: 1, k2: 1, op: null }, { at: 0.6, k1: 2 }, { at: 1.5, op: 'take' }], fill: 1.8, rows: 3.2, dur: 4.9,\n      text: 'No terms match here, so scale first. The stepper at × 2 makes row 1 `6x + 2y = 30`, every term and the right side, so its line stays put. Now take away, and `5x = 20`, so x = 4.' },\n    { kind: 'scale', name: 'Scale every term', sys: S5, back: 1, ans: SET(2, 1, 'take'),\n      opts: ['4x + 2y = 7', '4x + 2y = 14', '4x + y = 14'], want: '4x + 2y = 14', vals: { '4x + 2y = 7': E(4, 2, 7), '4x + 2y = 14': E(4, 2, 14), '4x + y = 14': E(4, 1, 14) },\n      fx: { '4x + 2y = 7': { row1: E(4, 2, 7) }, '4x + y = 14': { row1: E(4, 1, 14) } },\n      task: 'To cancel y in `2x + y = 7` and `3x + 2y = 11`, scale row 1 by 2. What does row 1 become?',\n      why: '× 2 multiplies every term, the right side too, so row 1 becomes `4x + 2y = 14`, and its line stays put. Take row 2 away and `x = 14 − 11 = 3`. Then `y = 7 − 6 = 1`, and (3, 1) checks in both, as `6 + 1 = 7` and `9 + 2 = 11`.',\n      hint: 'Not quite. Multiply every term by 2.',\n      hints: { '4x + 2y = 7': 'Not quite. Scale the right side too. `4x + 2y = 7` is a different line, and would give x = −4.', '4x + y = 14': 'Not quite. × 2 multiplies every term, so `y` becomes `2y`.' } },\n    { show: true, name: 'Scale both', sys: S6, back: 1, keys: [{ at: 0, k1: 1, k2: 1, op: 'take' }, { at: 0.5, k1: 2 }, { at: 0.9, k1: 3 }, { at: 1.3, k2: 2 }], fill: 1.8, rows: 3.1, rowG: 0.28, dur: 4.7,\n      text: 'Scaling one row here would need a fraction, so scale both. At × 3 and × 2 both x terms are `6x`. Take away, and `5y = 15`, so y = 3 and the dotted line lies flat.' },\n    { kind: 'steps', name: 'Make them match', sys: S7, back: 1, ans: SET(3, 2, 'take'),\n      opts: ['× 2 and × 2', '× 3 and × 3', '× 3 and × 2'], want: '× 3 and × 2', vals: { '× 2 and × 2': [2, 2], '× 3 and × 3': [3, 3], '× 3 and × 2': [3, 2] },\n      fx: { '× 2 and × 2': { set: SET(2, 2, null) }, '× 3 and × 3': { set: SET(3, 3, null) } },\n      task: 'Stack `3x + 2y = 13` and `2x + 3y = 12`. Which steppers, row 1 then row 2, make the y terms match?',\n      why: '× 3 and × 2 make both y terms `6y`, giving `9x + 6y = 39` and `4x + 6y = 24`. Take away, and `5x = 15`, so x = 3. Then `9 + 2y = 13` gives y = 2, and (3, 2) checks in both, as `9 + 4 = 13` and `6 + 6 = 12`.',\n      hint: 'Not quite. Make both y terms the same size.',\n      hints: { '× 2 and × 2': 'Not quite. That gives `6x + 4y` and `4x + 6y`, so nothing matches.', '× 3 and × 3': 'Not quite. That gives `9x + 6y` and `6x + 9y`, so nothing matches.' } },\n    { show: true, name: 'Always through the crossing', sys: S4, back: 2, keys: [{ at: 0, k1: 2, k2: 1, op: 'take' }, { at: 1.9, k1: 1, op: 'add' }], fill: 0.4, rows: 3.7, dur: 4.8,\n      text: 'Any sum of the two rows is true at the crossing, because there each row\\'s two sides are the same number, so adding rows adds equal amounts to both sides. So its dotted line always swings through the crossing. Added as they are, `4x + 3y = 25`, and at (4, 3), `16 + 9 = 25`. It stands upright or lies flat only when a letter cancels.' },\n    { kind: 'pair', name: 'Mind the minus', sys: S9, back: 1, ans: SET(1, 1, 'take'),\n      opts: ['(8, −3)', 'x = 4', '(4, 3)'], want: '(4, 3)', vals: { '(8, −3)': [8, -3], 'x = 4': { half: 'x', v: 4 }, '(4, 3)': [4, 3] },\n      fx: { 'x = 4': { set: SET(1, 1, 'take'), half: true } },\n      task: 'Solve `3x + 2y = 18` and `−x + 2y = 2`.',\n      why: 'Both rows have `+2y`, so take away. `3x − (−x)` is `3x + x = 4x`, and `18 − 2 = 16`, so `4x = 16` and x = 4. Then `12 + 2y = 18` gives y = 3, and (4, 3) checks in both, as `12 + 6 = 18` and `−4 + 6 = 2`. Adding instead would give `2x + 4y = 20`, with y still there.',\n      hint: 'Not quite. Mind the minus when you take away.',\n      hints: { '(8, −3)': 'Not quite. `3x − (−x)` is `4x`, not `2x`. (8, −3) gives `−8 − 6 = −14`, not 2.', 'x = 4': 'Not quite. That is only half the pair. Put x = 4 back for y.' } },\n    { kind: 'pair', swap: true, name: 'One already says y =', sys: S10, back: 1, ans: 'swap',\n      opts: ['(3, 5)', '(5, 3)', '(15, 29)'], want: '(3, 5)', vals: { '(3, 5)': [3, 5], '(5, 3)': [5, 3], '(15, 29)': [15, 29] },\n      task: 'Solve `y = 2x − 1` and `3x + y = 14`.',\n      why: 'Row 1 already says what y is, so swap it in, as in lesson 2. `3x + (2x − 1) = 14`, so `5x − 1 = 14`, `5x = 15` and x = 3. Then `y = 2 × 3 − 1 = 5`, and (3, 5) checks in both, as `2 × 3 − 1 = 5` and `9 + 5 = 14`.',\n      hint: 'Not quite. Row 1 already says what y is, so swap it in.',\n      hints: { '(5, 3)': 'Not quite. A pair is written (x, y), x first. `2 × 5 − 1 = 9`, not 3.', '(15, 29)': 'Not quite. `5x = 15` means x = 15 ÷ 5. (15, 29) gives `45 + 29 = 74`, not 14.' } },\n    { kind: 'pair', name: 'Scale, then add', sys: S11, back: 1, ans: SET(1, 2, 'add'),\n      opts: ['(−4, 22)', '(4, 2)', '(2, 4)'], want: '(4, 2)', vals: { '(−4, 22)': [-4, 22], '(4, 2)': [4, 2], '(2, 4)': [2, 4] },\n      task: 'Solve `5x + 2y = 24` and `3x − y = 10`.',\n      why: 'Scale row 2 by 2 to get `6x − 2y = 20`. `+2y` and `−2y` have opposite signs, so add, and `11x = 44`, so x = 4. Then `20 + 2y = 24` gives y = 2, and (4, 2) checks in both, as `20 + 4 = 24` and `12 − 2 = 10`.',\n      hint: 'Not quite. Scale row 2 so the y terms match, then look at their signs.',\n      hints: { '(−4, 22)': 'Not quite. Taking away leaves `2y − (−2y) = 4y`, not 0. Opposite signs, so add.', '(2, 4)': 'Not quite. A pair is written (x, y), x first. (2, 4) gives `10 + 8 = 18`, not 24.' } },\n    { kind: 'pair', name: 'Last one', sys: S12, back: 2, ans: SET(1, 2, 'take'),\n      opts: ['(4, 3)', '(−4, 11)', '(3, 4)'], want: '(3, 4)', vals: { '(4, 3)': [4, 3], '(−4, 11)': [-4, 11], '(3, 4)': [3, 4] },\n      task: 'Last one. Solve `2x + 3y = 18` and `x + y = 7`.',\n      why: 'Scale row 2 by 2 to get `2x + 2y = 14`, and take it away from row 1, so `y = 18 − 14 = 4`. Then `x = 7 − 4 = 3`, and (3, 4) checks in both, as `6 + 12 = 18` and `3 + 4 = 7`.',\n      hint: 'Not quite. Scale row 2 so the x terms match.',\n      hints: { '(−4, 11)': 'Not quite. Scale the right side too, `7 × 2 = 14`. (−4, 11) gives `−8 + 33 = 25`, not 18.', '(4, 3)': 'Not quite. A pair is written (x, y), x first. (4, 3) gives `8 + 9 = 17`, not 18.' } },\n  ];\n  const FINISH = 'Scale the rows until one letter\\'s terms are the same size. Then add if their signs are opposite, or take away if they match, so that letter cancels and one unknown is left. Solve it, put it back, and check the pair in both.';\n  // Sources the checks restate (the lesson's own).\n  const SRC1 = 'https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf';\n  const SRC2 = 'https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables';\n  const SRC3 = 'https://www.bbc.co.uk/bitesize/articles/zmpyn9q';\n\n  // ---------- where things go: the rows on top, the small graph and its key below ----------\n  const SQ = 14, GX = 30, GY = 196, GW = 8 * SQ, GH = 14 * SQ, GX1 = GX + GW, GY1 = GY + GH, H = GY1 + 26;\n  const RY = [30, 82], RULE = 110, SY = 140, LABY = SY + 28;\n  const C_OP = 148, C_X = 198, C_Y = 262, C_EQ = 280, C_C = 330, C_BDG = 57, KX = 160;\n  const XS = [C_X, C_Y, C_C];\n  const px = (x) => GX + x * SQ, py = (y) => GY1 - y * SQ;\n  const inView = (v) => v[0] >= 0 && v[0] <= 8 && v[1] >= 0 && v[1] <= 14;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n  const say = (s) => String(s).replace(/−/g, 'minus ').replace(/×/g, 'times').replace(/÷/g, 'divided by').replace(/✓/g, 'true');\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // set: the steppers and switch as Dan has set them on a SHOW screen; from: what they said before; press: the last button.\n  function blank() { return { pick: null, res: null, why: false, set: null, from: null, press: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n  const canPlay = (d) => !!d.show && !finished;\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z]))/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  // `maths` stays on one line with its letters italic; *a key term* is highlighted.\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, mt;\n      while ((mt = re.exec(seg))) {\n        if (mt.index > at0) italics(node, seg.slice(at0, mt.index), false);\n        node.appendChild(K.el('span', { class: 'term' }, mt[1]));\n        at0 = mt.index + mt[0].length;\n      }\n      if (at0 < seg.length) italics(node, seg.slice(at0), false);\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  // Up to three answers; a new choice after a wrong answer settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; }\n  } }));\n  // Check: a right answer sets the steppers and switch, fills in the sum row and works it through; a wrong one shows its slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    if (!st.why) play(FB);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    st.why = !st.why;\n    if (st.why && st.res !== 'right') play(FB);\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    S[i].set = null; S[i].from = null; S[i].press = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration, each puzzle's answer and each turn of a stepper or the\n  // switch; with reduced motion (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });\n  // A demonstration that opens a screen waits until its picture is at least half in view, so on a\n  // phone it does not run below the first view; one Dan starts himself plays at once.\n  let waiting = false, waitDur = 0, seen = null, io = null;\n  function play(dur, whenSeen) {\n    waiting = false;\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    if (whenSeen && io && seen !== true) { waiting = true; waitDur = dur; anim.pause(); T = 0; return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- timing: how far a part due at t0 has arrived, noting the timetable for the timing check ----------\n  let latest = 0, earliest = Infinity;\n  function note(t0, dd) { if (t0 + dd > latest) latest = t0 + dd; if (t0 < earliest) earliest = t0; }\n  function arr(t0, dd) { note(t0, dd); return K.arrive(T, t0, dd); }\n  // A change at tc: the old text fades out, then the new one fades in, so the two never overlap.\n  function xf(tc) {\n    if (tc === -Infinity) return { o: 0, n: 1 };\n    return { o: 1 - arr(tc, 0.2), n: arr(tc + 0.2, 0.25) };\n  }\n  // A soft glow that rises and fades over a second.\n  function pulse(t0) { note(t0, 1.0); const q = (T - t0) / 1.0; return q > 0 && q < 1 ? Math.sin(Math.PI * q) : 0; }\n\n  // ---------- what a step shows now ----------\n  const strip = (k) => { const o = Object.assign({}, k); delete o.at; return o; };\n  function keysAt(keys) {\n    let j = 0;\n    for (let n = 1; n < keys.length; n++) if (keys[n].at <= T) j = n;\n    const now = Object.assign({}, ...keys.slice(0, j + 1).map(strip));\n    const prev = j ? Object.assign({}, ...keys.slice(0, j).map(strip)) : now;\n    return { now, prev, tc: j ? keys[j].at : -Infinity };\n  }\n  const finalOf = (keys) => Object.assign({}, ...keys.map(strip));\n  // set: the steppers and switch now; prev and tc: before the last change and when it came; fill: when the\n  // sum row fills in (cg apart); lineAt: when its dotted line and the crossing arrive; rows: the working.\n  function planOf(i, st) {\n    const d = STEPS[i], open = !d.show && (st.res === 'right' || st.why), wrong = !d.show && st.res === 'wrong' && !st.why;\n    const p = { set: SET(1, 1, null), prev: SET(1, 1, null), tc: -Infinity, fill: null, cg: 0.2, lineAt: null, ring: false, rows: [], rowAt: 0, rowG: 0.18, rowT: 0.3,\n      row1: null, tried: null, noMatch: null, swap: false, halos: [], hot: [] };\n    if (d.show) {\n      p.cg = 0.35; p.ring = true;\n      if (st.set) {\n        Object.assign(p, { set: st.set, prev: st.from || st.set, tc: 0, fill: -10, lineAt: -10, rowAt: 0.2, rowG: 0 });\n        if (st.from) [1, 2].forEach((r) => { if (st.from['k' + r] !== st.set['k' + r]) p.halos.push({ r, at: 0 }); });\n        if (st.press) p.hot.push({ id: st.press, at: 0 });\n      } else {\n        const k = keysAt(d.keys);\n        Object.assign(p, { set: k.now, prev: k.prev, tc: k.tc, fill: d.fill, lineAt: d.fill + 3 * 0.35, rowAt: d.rows, rowG: d.rowG || 0.3, rowT: 0.4 });\n        d.keys.forEach((ky, n) => {\n          if (!n) return;\n          const before = Object.assign({}, ...d.keys.slice(0, n).map(strip));\n          [1, 2].forEach((r) => {\n            if (ky['k' + r] != null && ky['k' + r] !== before['k' + r]) { p.halos.push({ r, at: ky.at }); p.hot.push({ id: (ky['k' + r] > before['k' + r] ? 'p' : 'm') + r, at: ky.at }); }\n          });\n          if (ky.op && ky.op !== before.op) p.hot.push({ id: ky.op, at: ky.at });\n        });\n      }\n      p.rows = workRows(d.sys, p.set, d.back);\n      return p;\n    }\n    if (open && d.ans === 'swap') {\n      Object.assign(p, { swap: true, fill: 0.45, lineAt: 0.85, rowAt: 1.0, rowG: 0.2, ring: true });\n      p.rows = swapRows(d.sys);\n      return p;\n    }\n    if (open) {\n      const k = keysAt([{ at: 0, k1: 1, k2: 1, op: null }, Object.assign({ at: 0.1 }, d.ans)]);\n      Object.assign(p, { set: k.now, prev: k.prev, tc: k.tc, fill: 0.45, lineAt: 0.45 + 3 * 0.2, rowAt: 1.2, ring: true });\n      p.rows = workRows(d.sys, d.ans, d.back);\n      return p;\n    }\n    if (wrong) {\n      const fx = (d.fx && d.fx[st.pick]) || {}, v = d.vals[st.pick], P = cross(d.sys);\n      if (fx.set) {\n        const k = keysAt([{ at: 0, k1: 1, k2: 1, op: null }, Object.assign({ at: 0.1 }, fx.set)]);\n        Object.assign(p, { set: k.now, prev: k.prev, tc: k.tc });\n        if (fx.rhs != null) {\n          // Taken away on the left but added on the right: the right side shows red, and the row's own line misses the crossing.\n          const U = sumOf(d.sys, fx.set);\n          Object.assign(p, { fill: 0.45, lineAt: 0.45 + 3 * 0.2, rowAt: 1.2, badC: fx.rhs });\n          p.rows = [{ l: 'Take away', s: eqT(Object.assign({}, U, { c: fx.rhs })) },\n            { l: 'Right side', s: num(d.sys.r1.c) + ' + ' + d.sys.r2.c + ' = ' + fx.rhs + ', not ' + d.sys.r1.c + ' − ' + d.sys.r2.c + ' = ' + U.c }];\n        } else if (fx.half) {\n          // Only half the pair: the working stops at x, with y still to find.\n          Object.assign(p, { fill: 0.45, lineAt: 0.45 + 3 * 0.2, rowAt: 1.2 });\n          p.rows = workRows(d.sys, fx.set, d.back).slice(0, 2).concat([{ l: 'Then', s: 'y is still to find', prose: true }]);\n        } else if (fx.set.op) { Object.assign(p, { fill: 0.45, lineAt: 0.45 + 3 * 0.2, rowAt: 1.2, ring: true }); p.rows = workRows(d.sys, fx.set, d.back); }\n        else p.noMatch = 0.5;\n      } else if (fx.row1) {\n        Object.assign(p, { set: SET(2, 1, null), prev: SET(1, 1, null), tc: 0.1, row1: fx.row1, tried: { row: fx.row1, at: 0.4 }, ring: true, lineAt: 0.4, rowAt: 0.6 });\n        p.rows = [{ l: 'At ' + coord(P), s: checkT(fx.row1, P) }];\n      } else if (Array.isArray(v)) {\n        Object.assign(p, { tried: { pair: v, at: 0.1 }, rowAt: 0.3, rowG: 0.2 });\n        p.rows = [{ l: 'In row 1', s: checkT(d.sys.r1, v) }, { l: 'In row 2', s: checkT(d.sys.r2, v) }];\n      }\n    }\n    return p;\n  }\n\n  // ---------- lines on the graph ----------\n  // The piece of the line through (x0, y0) along (dx, dy) that lies on the grid, in grid numbers; null when it misses.\n  function clipDir(x0, y0, dx, dy) {\n    let lo = -Infinity, hi = Infinity;\n    const ax = [[dx, x0, 0, 8], [dy, y0, 0, 14]];\n    for (let n = 0; n < 2; n++) {\n      const q = ax[n];\n      if (Math.abs(q[0]) < 1e-12) { if (q[1] < q[2] - 1e-9 || q[1] > q[3] + 1e-9) return null; continue; }\n      let a = (q[2] - q[1]) / q[0], b = (q[3] - q[1]) / q[0];\n      if (a > b) { const t = a; a = b; b = t; }\n      lo = Math.max(lo, a); hi = Math.min(hi, b);\n    }\n    if (!(hi - lo > 1e-9)) return null;\n    return [x0 + dx * lo, y0 + dy * lo, x0 + dx * hi, y0 + dy * hi];\n  }\n  function clipRow(r) { const n2 = r.a * r.a + r.b * r.b; return clipDir(r.a * r.c / n2, r.b * r.c / n2, r.b, -r.a); }\n  // A line's slope as an angle, and the shorter swing from one to another (a line has no front or back).\n  function angOf(L) { let t = Math.atan2(-L.a, L.b); if (t <= -Math.PI / 2) t += Math.PI; if (t > Math.PI / 2) t -= Math.PI; return t; }\n  function lerpAng(t1, t2, q) { let dd = t2 - t1; while (dd > Math.PI / 2) dd -= Math.PI; while (dd <= -Math.PI / 2) dd += Math.PI; return t1 + dd * q; }\n  const lineOf = (L, P) => { const th = angOf(L); return clipDir(P[0], P[1], Math.cos(th), Math.sin(th)); };\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  if (typeof IntersectionObserver === 'function') {\n    io = new IntersectionObserver((es) => {\n      seen = es[es.length - 1].intersectionRatio >= 0.45;\n      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }\n    }, { threshold: [0, 0.45, 1] });\n    io.observe(svg);\n  }\n  const add = (node) => art.appendChild(node);\n  const ln = (cls, x1, y1, x2, y2, into) => (into || art).appendChild(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));\n  const segLine = (cls, sg, into) => ln(cls, px(sg[0]), py(sg[1]), px(sg[2]), py(sg[3]), into);\n  function tx(x, y, s, cls, anchor, into) {\n    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });\n    italics(t, s, true);\n    return (into || art).appendChild(t);\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    let w = 0;\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return s.length * 11;\n  }\n  function drawGrid() {\n    for (let x = 0; x <= 8; x++) ln('gl', px(x), GY, px(x), GY1);\n    for (let y = 0; y <= 14; y++) ln('gl', GX, py(y), GX1, py(y));\n    add(K.svg('rect', { class: 'gf', x: GX, y: GY, width: GW, height: GH }));\n    ln('ax', px(0), GY, px(0), GY1);\n    ln('ax', GX, py(0), GX1, py(0));\n    for (let x = 0; x <= 8; x += 2) tx(px(x), GY1 + 17, String(x), 'tk', 'middle');\n    for (let y = 0; y <= 14; y += 2) tx(GX - 6, py(y) + 4.5, String(y), 'tk', 'end');\n    tx(GX1 + 13, GY1 + 17, 'x', 'at', 'start');\n    tx(GX, GY - 10, 'y', 'at', 'middle');\n  }\n\n  // ---------- the steppers and the switch: drawn once, shown on the screens that show an idea ----------\n  const BTN = {};\n  function mkBtn(id, cx, cy, w, h, glyph, label, sw, press) {\n    const g = ui.appendChild(K.svg('g', { class: 'sb' + (sw ? ' sw' : ''), role: 'button', tabindex: 0, 'aria-label': label }));\n    const hw = Math.max(48, w), hh = 48;\n    g.appendChild(K.svg('rect', { class: 'hit', x: cx - hw / 2, y: cy - hh / 2, width: hw, height: hh }));\n    g.appendChild(K.svg('rect', { class: 'sbf', x: cx - w / 2, y: cy - h / 2, width: w, height: h, rx: 10 }));\n    g.appendChild(K.svg('text', { class: 'sbt', x: cx, y: cy + (sw ? 5 : 7.5), 'text-anchor': 'middle' }, glyph));\n    g.addEventListener('click', (e) => { e.preventDefault(); press(); });\n    g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); press(); } });\n    BTN[id] = { g, sw };\n  }\n  [1, 2].forEach((r) => {\n    mkBtn('m' + r, 20, RY[r - 1], 36, 40, '−', 'Row ' + r + ' stepper, one less', false, () => tapK(r, -1));\n    mkBtn('p' + r, 94, RY[r - 1], 36, 40, '+', 'Row ' + r + ' stepper, one more', false, () => tapK(r, 1));\n  });\n  mkBtn('add', 32, SY, 56, 40, 'add', 'Add the rows', true, () => tapOp('add'));\n  mkBtn('take', 100, SY, 76, 40, 'take away', 'Take row 2 away from row 1', true, () => tapOp('take'));\n  const curSet = (i) => S[i].set || finalOf(STEPS[i].keys);\n  function apply(i, next, press) {\n    const st = S[i];\n    st.from = curSet(i); st.set = next; st.press = press;\n    play(1.0);\n    K.refresh();\n  }\n  function tapK(r, dir) {\n    const i = at(), d = STEPS[i];\n    if (!canPlay(d)) return;\n    const cur = curSet(i), n = nextK(cur['k' + r], dir);\n    if (n === cur['k' + r]) return;\n    const next = Object.assign({}, cur);\n    next['k' + r] = n;\n    apply(i, next, (dir > 0 ? 'p' : 'm') + r);\n  }\n  function tapOp(op) {\n    const i = at(), d = STEPS[i];\n    if (!canPlay(d)) return;\n    const cur = curSet(i);\n    if (cur.op === op) return;\n    apply(i, Object.assign({}, cur, { op }), op);\n  }\n\n  // ---------- the working under the picture ----------\n  const piecesOf = (r) => (r.prose ? r.s.split(' ') : String(r.s).split(/ (?==)|(?<=,) /));\n  function drawRows(list) {\n    const box = el('work');\n    box.textContent = '';\n    box.hidden = !list.length;\n    K.fade(box.appendChild(K.el('i', { class: 'bar', 'aria-hidden': 'true' })), list.length ? list[0].a : 0, 0);\n    list.forEach((r) => {\n      const l = box.appendChild(K.el('span', { class: 'wl' }, r.l));\n      const m = box.appendChild(K.el('span', { class: 'wm' }));\n      piecesOf(r).forEach((pc, n) => {\n        if (n) m.appendChild(document.createTextNode(' '));\n        italics(m.appendChild(K.el('span', { class: 'pc' + (/✓$/.test(pc) ? ' ok' : '') })), pc, false);\n      });\n      K.fade(l, r.a, 0); K.fade(m, r.a, 0);\n      if (r.a >= 0.5) REC.rows.push({ l: r.l, s: r.s });\n    });\n  }\n\n  // ---------- the scene for a step (the animation calls this every frame) ----------\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], s = d.sys, P = cross(s);\n    art.textContent = '';\n    REC = { sum: null, line: null, ring: false, rows: [], marks: [], state: '', noMatch: false, triedLine: false, tried: null, set: null };\n    const p = planOf(i, st), ch = xf(p.tc);\n    REC.set = p.set;\n\n    // The stacked rows: each at its stepper's setting, every term and the right side multiplied.\n    const R = [1, 2].map((r) => (r === 1 && p.row1 ? p.row1 : scaleR(s['r' + r], p.set['k' + r])));\n    const Rp = [1, 2].map((r) => scaleR(s['r' + r], p.prev['k' + r]));\n    const bad1 = p.row1 ? cellsOf(p.row1).map((c, n) => c !== cellsOf(scaleR(s.r1, p.set.k1))[n]) : null;\n    [0, 1].forEach((n) => {\n      const y = RY[n], r = s['r' + (n + 1)];\n      if (r.w === 'y') { tx(C_C, y + 7, eqT(r), 'eq', 'end'); return; }\n      if (!d.swap) {\n        const k = p.set['k' + (n + 1)], kp = p.prev['k' + (n + 1)];\n        if (k !== kp && ch.o > 0) K.fade(tx(C_BDG, y + 6, '× ' + kp, 'bdg', 'middle'), ch.o, 0);\n        K.fade(tx(C_BDG, y + 6, '× ' + k, 'bdg', 'middle'), k !== kp ? ch.n : 1, 0);\n      }\n      const cn = cellsOf(R[n]), cp = cellsOf(Rp[n]);\n      cn.forEach((c, m) => {\n        const changed = c !== cp[m];\n        if (changed && ch.o > 0) K.fade(tx(XS[m], y + 7, cp[m], 'eq', 'end'), ch.o, 0);\n        K.fade(tx(XS[m], y + 7, c, 'eq' + (n === 0 && bad1 && bad1[m] ? ' bad' : ''), 'end'), changed ? ch.n : 1, 0);\n      });\n      tx(C_EQ, y + 7, '=', 'eq', 'middle');\n    });\n    // Row 2's sign: + to add it, − to take it away.\n    const opG = (o) => (o === 'add' ? '+' : o === 'take' ? '−' : '');\n    const g1 = opG(p.set.op), g0 = opG(p.prev.op);\n    if (g0 && g0 !== g1 && ch.o > 0) K.fade(tx(C_OP, RY[1] + 8, g0, 'op', 'middle'), ch.o, 0);\n    if (g1) K.fade(tx(C_OP, RY[1] + 8, g1, 'op', 'middle'), g0 !== g1 ? ch.n : 1, 0);\n    if (g1) K.fade(add(K.svg('rect', { class: 'rbox', x: 159, y: RY[1] - 19, width: 179, height: 36, rx: 8 })), g0 ? 1 : ch.n, 0);\n    ln('rule', 140, RULE, 338, RULE);\n\n    // The sum row: x terms with x terms, y terms with y terms, right side with right side.\n    const drawSum = p.swap || (p.fill != null && !!p.set.op);\n    let Ln = null;\n    if (p.swap) {\n      const w = swapOf(s), a = arr(p.fill, 0.4);\n      K.fade(tx(C_C, SY + 7, w.text, 'eq', 'end'), a, 0);\n      K.fade(tx(C_BDG, SY + 5, 'swap in', 'how', 'middle'), a, 0);\n      if (a >= 0.5) REC.sum = w.text;\n      Ln = w.line;\n    } else if (drawSum) {\n      Ln = sumOf(s, p.set);\n      if (p.badC != null) Ln = Object.assign({}, Ln, { c: p.badC });\n      const Sp = p.prev.op ? sumOf(s, p.prev) : Ln, cn = cellsOf(Ln), cp = cellsOf(Sp);\n      const late = p.tc > p.fill, cx = late ? ch : { o: 0, n: 1 };\n      const mk = marksOf(s, p.set), mkp = p.prev.op ? marksOf(s, p.prev) : mk;\n      cn.forEach((c, n) => {\n        const aF = arr(p.fill + n * p.cg, 0.3), changed = late && c !== cp[n];\n        if (n === 2) K.fade(tx(C_EQ, SY + 7, '=', 'eq', 'middle'), aF, 0);\n        if (changed && cx.o > 0) K.fade(tx(XS[n], SY + 7, cp[n], 'eq' + (n < 2 && mkp[n] === 'double' ? ' bad' : ''), 'end'), aF * cx.o, 0);\n        const aN = aF * (changed ? cx.n : 1);\n        if (n < 2 && mk[n] === 'cancel') {\n          const w0 = tw('0', 'eq');\n          K.fade(add(K.svg('rect', { class: 'hlb', x: r2(XS[n] - w0 - 4), y: SY - 14, width: r2(w0 + 8), height: 26, rx: 4 })), aN, 0);\n        }\n        K.fade(tx(XS[n], SY + 7, c, 'eq' + ((n < 2 && mk[n] === 'double') || (n === 2 && p.badC != null) ? ' bad' : ''), 'end'), aN, 0);\n        if (n === 2 && aN >= 0.5) REC.sum = cn;\n      });\n      // Under the sum row: which letter cancelled, or which doubled.\n      const mA = arr(p.fill + 3 * p.cg, 0.3);\n      [0, 1].forEach((n) => {\n        const L = n ? 'y' : 'x', lx = n ? C_Y - 10 : C_X - 18, word = (m) => L + (m === 'cancel' ? ' cancels' : ' doubles');\n        const aOld = late && mkp[n] && mkp[n] !== mk[n] ? mA * (1 - arr(p.tc, 0.2)) : 0;\n        if (aOld > 0.01) K.fade(tx(lx, LABY, word(mkp[n]), mkp[n] === 'cancel' ? 'lc' : 'ld', 'middle'), aOld, 0);\n        if (!mk[n]) return;\n        const a = mA * (late && mk[n] !== mkp[n] ? arr(p.tc + 0.45, 0.3) : 1);\n        K.fade(tx(lx, LABY, word(mk[n]), mk[n] === 'cancel' ? 'lc' : 'ld', 'middle'), a, 0);\n        if (a >= 0.5) REC.marks.push(word(mk[n]));\n      });\n      // On a puzzle, what was done: add or take away.\n      if (!d.show) K.fade(tx(C_BDG, SY + 5, p.set.op === 'add' ? 'add' : 'take away', 'how', 'middle'), p.prev.op !== p.set.op ? ch.n : 1, 0);\n    } else if (!d.show) {\n      tx(244, SY + 7, '?', 'eq q', 'middle');\n    }\n    if (p.noMatch != null) {\n      const a = arr(p.noMatch, 0.3);\n      K.fade(tx(244, LABY, 'no terms match', 'ld', 'middle'), a, 0);\n      if (a >= 0.5) REC.noMatch = true;\n    }\n\n    // The small graph: row 1 solid, row 2 dashed; a row does not move when it is scaled.\n    drawGrid();\n    const clipG = add(K.svg('g', { 'clip-path': 'url(#gclip)' }));\n    p.halos.forEach((h) => {\n      const a = pulse(h.at), sg = clipRow(scaleR(s['r' + h.r], 1));\n      if (a > 0.01 && sg) K.fade(segLine('halo', sg, clipG), a * 0.3, 0);\n    });\n    const s1 = clipRow(s.r1), s2 = clipRow(s.r2);\n    if (s1) segLine('r1', s1, clipG);\n    if (s2) segLine('r2', s2, clipG);\n    let aTr = 0;\n    if (p.tried && p.tried.row) {\n      aTr = arr(p.tried.at, 0.4);\n      const sg = clipRow(p.tried.row);\n      if (sg) K.fade(segLine('rt', sg, clipG), aTr, 0);\n      if (sg && aTr >= 0.5) REC.triedLine = true;\n    }\n    // The sum row's dotted line: through the crossing, swinging there when the steppers or switch change.\n    let aL = 0, th = 0;\n    if (drawSum) {\n      const Lp = p.swap || !p.prev.op ? Ln : sumOf(s, p.prev);\n      aL = arr(p.lineAt, 0.5);\n      let q = 1;\n      if (!p.swap && p.tc > p.lineAt) { note(p.tc, 0.8); q = K.ease(K.clamp((T - p.tc) / 0.8, 0, 1)); }\n      th = lerpAng(angOf(Lp), angOf(Ln), q);\n      // A wrong sum row draws its own line, which misses the crossing (or the grid).\n      const sg = p.badC != null ? clipRow(Ln) : clipDir(P[0], P[1], Math.cos(th), Math.sin(th));\n      if (sg && aL > 0) K.fade(segLine('ls', sg, clipG), aL, 0);\n      if (sg && aL >= 0.5) REC.line = sg;\n    }\n    let aR = 0;\n    if (p.ring && p.lineAt != null) {\n      aR = arr(p.lineAt, 0.5);\n      K.fade(add(K.svg('circle', { class: 'xr', cx: r2(px(P[0])), cy: r2(py(P[1])), r: 6.5 })), aR, 0);\n      if (aR >= 0.5) REC.ring = true;\n    }\n    let aT = 0;\n    if (p.tried && p.tried.pair) {\n      REC.tried = p.tried.pair;\n      if (inView(p.tried.pair)) {\n        aT = arr(p.tried.at, 0.4);\n        K.fade(add(K.svg('circle', { class: 'tr', cx: r2(px(p.tried.pair[0])), cy: r2(py(p.tried.pair[1])), r: 6 })), aT, 0);\n      }\n    }\n\n    // The key beside the graph: each line and its equation, the crossing, a pair or row tried.\n    const KY = GY + 12, KT = KX + 28;\n    const sw = (y, cls, a) => { const g = add(K.svg('g')); if (cls === 'xr' || cls === 'tr') g.appendChild(K.svg('circle', { class: cls, cx: KX + 11, cy: y - 4, r: 6 })); else ln(cls, KX, y - 4, KX + 22, y - 4, g); K.fade(g, a, 0); };\n    const keyEq = (y, now, before, cls, aNow) => {\n      if (before != null && before !== now && ch.o > 0) K.fade(tx(KT, y, before, cls, 'start'), ch.o, 0);\n      K.fade(tx(KT, y, now, cls, 'start'), before != null && before !== now ? ch.n : aNow == null ? 1 : aNow, 0);\n    };\n    sw(KY, 'r1', 1); tx(KT, KY, 'row 1', 'key', 'start');\n    keyEq(KY + 16, p.row1 || s.r1.w === 'y' ? eqT(s.r1) : eqT(R[0]), p.row1 || s.r1.w === 'y' ? null : eqT(Rp[0]), 'keq');\n    sw(KY + 38, 'r2', 1); tx(KT, KY + 38, 'row 2', 'key', 'start');\n    keyEq(KY + 54, eqT(R[1]), eqT(Rp[1]), 'keq');\n    sw(KY + 76, 'ls', 1); tx(KT, KY + 76, p.swap ? 'swap in' : 'sum row', 'key', 'start');\n    if (drawSum) {\n      const eqNow = p.swap ? swapOf(s).left : eqT(Ln) + (p.badC != null && !clipRow(Ln) ? ', off the grid' : ''), late = !p.swap && p.tc > p.lineAt;\n      const eqBefore = late ? eqT(sumOf(s, p.prev)) : null, stNow = stateOf(Ln), stBefore = late ? stateOf(sumOf(s, p.prev)) : null;\n      const k2 = late ? ch : { o: 0, n: 1 };\n      if (eqBefore != null && eqBefore !== eqNow && k2.o > 0) K.fade(tx(KT, KY + 92, eqBefore, 'keq', 'start'), aL * k2.o, 0);\n      K.fade(tx(KT, KY + 92, eqNow, 'keq', 'start'), aL * (eqBefore != null && eqBefore !== eqNow ? k2.n : 1), 0);\n      if (stBefore != null && stBefore !== stNow && k2.o > 0) K.fade(tx(KT, KY + 108, stBefore, 'kst' + (stBefore === 'tilted' ? ' m' : ''), 'start'), aL * k2.o, 0);\n      const aS = aL * (stBefore != null && stBefore !== stNow ? k2.n : 1);\n      K.fade(tx(KT, KY + 108, stNow, 'kst' + (stNow === 'tilted' ? ' m' : ''), 'start'), aS, 0);\n      if (aS >= 0.5) REC.state = stNow;\n    } else if (!d.show) {\n      tx(KT, KY + 92, '?', 'keq', 'start');\n    }\n    if (aR > 0) { sw(KY + 130, 'xr', aR); K.fade(tx(KT, KY + 130, 'crossing ' + coord(P), 'key', 'start'), aR, 0); }\n    if (aT > 0) { sw(KY + 152, 'tr', aT); K.fade(tx(KT, KY + 152, 'pair tried ' + coord(p.tried.pair), 'kbad', 'start'), aT, 0); }\n    if (aTr > 0) { sw(KY + 152, 'rt', aTr); K.fade(tx(KT, KY + 152, 'row 1 tried', 'kbad', 'start'), aTr, 0); K.fade(tx(KT, KY + 168, eqT(p.tried.row), 'kbad', 'start'), aTr, 0); }\n\n    // The working, line by line.\n    drawRows(p.rows.map((r, n) => Object.assign({}, r, { a: arr(p.rowAt + n * p.rowG, p.rowT) })));\n\n    // The steppers and switch: live on the screens that show an idea.\n    const live = canPlay(d);\n    Object.keys(BTN).forEach((id) => {\n      const b = BTN[id];\n      b.g.style.display = live ? '' : 'none';\n      b.g.setAttribute('tabindex', live ? '0' : '-1');\n      let off = false, on = false;\n      if (!b.sw) { const k = p.set['k' + id[1]]; off = id[0] === 'm' ? k <= 1 : k >= 5; }\n      else on = p.set.op === id;\n      b.g.classList.toggle('off', off);\n      b.g.classList.toggle('on', on);\n      b.g.classList.toggle('hot', T !== Infinity && p.hot.some((h) => h.id === id && T >= h.at - 0.12 && T <= h.at + 0.3));\n      b.g.setAttribute('aria-disabled', off ? 'true' : 'false');\n      if (b.sw) b.g.setAttribute('aria-pressed', on ? 'true' : 'false');\n    });\n\n    svg.setAttribute('viewBox', '0 0 340 ' + H);\n    svg.setAttribute('aria-label', describe(d, s, p, R, P));\n  }\n  function describe(d, s, p, R, P) {\n    let t = 'Two equations stacked as rows.';\n    [0, 1].forEach((n) => {\n      const r = s['r' + (n + 1)];\n      t += ' Row ' + (n + 1) + (r.w === 'y' || d.swap ? '' : ', times ' + p.set['k' + (n + 1)]) + ': ' + say(r.w === 'y' ? eqT(r) : eqT(R[n])) + '.';\n    });\n    if (REC.sum) t += p.swap ? ' Swapped in: ' + say(REC.sum) + '.' : ' ' + (p.set.op === 'add' ? 'Added' : 'Taken away') + ', the sum row is ' + say(REC.sum[0] + ' ' + REC.sum[1] + ' = ' + REC.sum[2]) + '.';\n    if (REC.marks.length) t += ' ' + REC.marks.join(', ') + '.';\n    if (REC.noMatch) t += ' No terms match.';\n    t += ' Below, a graph 0 to 8 across and 0 to 14 up draws row 1 solid and row 2 dashed';\n    if (REC.line) t += ', and the sum row dotted, ' + REC.state + ', through the crossing ' + say(coord(P));\n    if (REC.triedLine) t += '. The row tried is a different line';\n    if (REC.tried && inView(REC.tried)) t += '. The pair tried is at ' + say(coord(REC.tried));\n    return t + '.';\n  }\n\n  write(el('finish'), FINISH);\n  K.update((prm) => {\n    const i = Math.round(prm.step), d = STEPS[i], st = S[i];\n    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.set = null; st.from = null; st.press = null; play(d.dur, true); } else { waiting = false; anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('pz').classList.toggle('ask', !d.show && !right && !st.why);\n    el('stepbox').hidden = finished;\n    el('lead').hidden = i !== 0 || finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    el('work').classList.toggle('keep', !!d.show);\n    paint(i);\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts;\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.el.textContent = ''; italics(b.el.appendChild(K.el('span', { class: 'nw' })), opts[k], false);\n      b.el.setAttribute('aria-label', say(opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const whySt = () => Object.assign(blank(), { why: true });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const playSt = (set) => Object.assign(blank(), { set });\n  // Every stepper setting and both switch positions; fn returning false stops the walk.\n  const ALL = (fn) => { for (let k1 = 1; k1 <= 5; k1++) for (let k2 = 1; k2 <= 5; k2++) for (const op of ['add', 'take']) if (fn(SET(k1, k2, op)) === false) return false; return true; };\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n\n  K.check('We want the coefficients of one variable to be opposites, so that we can add the equations together and eliminate that variable: at every stepper setting on every screen, opposite matching terms cancel when the rows are added and double when one is taken away, and matching terms of the same sign the other way round', () =>\n    ELIM.every((s) => ALL((set) => [['a', 0], ['b', 1]].every((q) => {\n      const A = scaleR(s.r1, set.k1)[q[0]], B = scaleR(s.r2, set.k2)[q[0]], U = sumOf(s, set)[q[0]], m = marksOf(s, set)[q[1]];\n      if (A === -B) return set.op === 'add' ? U === 0 && m === 'cancel' : Math.abs(U) === 2 * Math.abs(A) && m === 'double';\n      if (A === B) return set.op === 'take' ? U === 0 && m === 'cancel' : Math.abs(U) === 2 * Math.abs(A) && m === 'double';\n      return U !== 0 && m === null;\n    }))), { source: SRC2 });\n  K.check('Sometimes equations need to be altered, by multiplying throughout, before being able to eliminate one of the variables: each stepper multiplies every term of its row, the right side too, so the row draws the very same line, and on the scaling screens nothing cancels until a row is scaled', () => {\n    const same = (a, b) => !!a && !!b && a.every((v, n) => near(v, b[n]));\n    const lines = ELIM.every((s) => [s.r1, s.r2].every((r) => [1, 2, 3, 4, 5].every((k) => {\n      const q = scaleR(r, k);\n      return q.a === r.a * k && q.b === r.b * k && q.c === r.c * k && same(clipRow(q), clipRow(r));\n    })));\n    const none = (s) => ['add', 'take'].every((op) => { const U = sumOf(s, SET(1, 1, op)); return U.a !== 0 && U.b !== 0; });\n    return lines && [S4, S5, S6, S7].every(none) && sumOf(S4, SET(2, 1, 'take')).b === 0 && sumOf(S5, SET(2, 1, 'take')).b === 0 &&\n      sumOf(S6, SET(3, 2, 'take')).a === 0 && sumOf(S7, SET(3, 2, 'take')).b === 0 && sumOf(S12, SET(1, 2, 'take')).a === 0 &&\n      ['add', 'take'].every((op) => sumOf(S11, SET(1, 1, op)).b !== 0) && sumOf(S11, SET(1, 2, 'add')).b === 0;\n  }, { source: SRC3 });\n  K.check('When eliminating a variable from a system of linear equations, 76% of students in one study misjudged the operations to be performed: the add-or-take-away screen says so, and there adding doubles the 2y to 4y while taking away leaves 0', () => {\n    const i = idx('Same signs, take away');\n    return /76%/.test(STEPS[i].text) && sumOf(S2, SET(1, 1, 'add')).b === 4 && sumOf(S2, SET(1, 1, 'take')).b === 0 &&\n      drawn(i, blank(), 1.9).marks.join() === 'y doubles' && drawn(i, blank()).marks.join() === 'y cancels';\n  }, { source: SRC1 });\n  K.check('Any point that fits both rows fits their sum: at every stepper setting and switch position on every screen, the sum row is true at the crossing, so its dotted line passes through it, standing upright when y cancels and lying flat when x cancels', () =>\n    ELIM.every((s) => {\n      const P = cross(s);\n      return Number.isInteger(P[0]) && Number.isInteger(P[1]) && inView(P) && fits(s.r1, P) && fits(s.r2, P) && ALL((set) => {\n        const U = sumOf(s, set), g = lineOf(U, P);\n        if (!g || (U.a === 0 && U.b === 0) || !fits(U, P)) return false;\n        if (U.b === 0) return near(g[0], P[0]) && near(g[2], P[0]) && stateOf(U) === 'upright at x = ' + num(P[0]);\n        if (U.a === 0) return near(g[1], P[1]) && near(g[3], P[1]) && stateOf(U) === 'flat at y = ' + num(P[1]);\n        return !near(g[0], g[2]) && !near(g[1], g[3]) && stateOf(U) === 'tilted';\n      });\n    }) && (() => { const g = drawn(idx('Scale both'), blank()); return !!g.line && near(g.line[1], 3) && near(g.line[3], 3) && g.state === 'flat at y = 3'; })());\n  K.check('The first screen adds 2x + y = 11 and 3x − y = 9: the sum row reads 5x + 0 = 20 with the 0 marked as y cancelling, and its dotted line stands upright at x = 4 through the crossing (4, 3)', () => {\n    const g = drawn(0, blank());\n    return !!g.sum && g.sum.join(' | ') === '5x | + 0 | 20' && g.marks.join() === 'y cancels' && g.state === 'upright at x = 4' && g.ring &&\n      !!g.line && near(g.line[0], 4) && near(g.line[2], 4) && coord(cross(S0)) === '(4, 3)';\n  });\n  K.check('Every worked line is right, by hand: 5x = 20 so x = 4 and 8 + y = 11 gives y = 3; added, 4x + 4y = 28 is 16 + 12 = 28 at (4, 3); 2y = 6 so y = 3; 5y = 15 and 2x + 9 = 17; 3x + (2x − 1) = 14 gives x = 3 and y = 5; and the worked example, 35x − 10y = 130 plus 12x + 10y = 58, gives 47x = 188 and (4, 1)', () => {\n    const W = (s, set, b) => workRows(s, set, b).map((r) => r.l + ': ' + r.s).join(' | ');\n    const WX = { r1: E(7, -2, 26), r2: E(6, 5, 29) };\n    return W(S0, SET(1, 1, 'add'), 1) === 'Add: 5x = 20 | Solve: x = 20 ÷ 5 = 4 | Put back: 8 + y = 11, so y = 3 | In row 1: 8 + 3 = 11 ✓ | In row 2: 12 − 3 = 9 ✓' &&\n      W(S2, SET(1, 1, 'add'), 1) === 'Add: 4x + 4y = 28 | At (4, 3): 16 + 12 = 28 ✓ | So: both letters are still there' &&\n      W(S2, SET(1, 1, 'take'), 1) === 'Take away: 2x = 8 | Solve: x = 8 ÷ 2 = 4 | Put back: 12 + 2y = 18, so 2y = 6 and y = 3 | In row 1: 12 + 6 = 18 ✓ | In row 2: 4 + 6 = 10 ✓' &&\n      W(S4, SET(2, 1, 'take'), 2) === 'Take away: 5x = 20 | Solve: x = 20 ÷ 5 = 4 | Put back: 4 + 2y = 10, so 2y = 6 and y = 3 | In row 1: 12 + 3 = 15 ✓ | In row 2: 4 + 6 = 10 ✓' &&\n      W(S6, SET(3, 2, 'take'), 1) === 'Take away: 5y = 15 | Solve: y = 15 ÷ 5 = 3 | Put back: 2x + 9 = 17, so 2x = 8 and x = 4 | In row 1: 8 + 9 = 17 ✓ | In row 2: 12 + 6 = 18 ✓' &&\n      W(S4, SET(1, 1, 'add'), 2) === 'Add: 4x + 3y = 25 | At (4, 3): 16 + 9 = 25 ✓ | So: both letters are still there' &&\n      W(S1, SET(1, 1, 'add'), 1) === 'Add: 3x = 12 | Solve: x = 12 ÷ 3 = 4 | Put back: 8 + y = 10, so y = 2 | In row 1: 8 + 2 = 10 ✓ | In row 2: 4 − 2 = 2 ✓' &&\n      W(S3, SET(1, 1, 'take'), 2) === 'Take away: 2y = 12 | Solve: y = 12 ÷ 2 = 6 | Put back: 4x + 6 = 14, so 4x = 8 and x = 2 | In row 1: 8 + 18 = 26 ✓ | In row 2: 8 + 6 = 14 ✓' &&\n      W(S5, SET(2, 1, 'take'), 1) === 'Take away: x = 3 | Put back: 6 + y = 7, so y = 1 | In row 1: 6 + 1 = 7 ✓ | In row 2: 9 + 2 = 11 ✓' &&\n      W(S7, SET(3, 2, 'take'), 1) === 'Take away: 5x = 15 | Solve: x = 15 ÷ 5 = 3 | Put back: 9 + 2y = 13, so 2y = 4 and y = 2 | In row 1: 9 + 4 = 13 ✓ | In row 2: 6 + 6 = 12 ✓' &&\n      W(S9, SET(1, 1, 'take'), 1) === 'Take away: 4x = 16 | Solve: x = 16 ÷ 4 = 4 | Put back: 12 + 2y = 18, so 2y = 6 and y = 3 | In row 1: 12 + 6 = 18 ✓ | In row 2: −4 + 6 = 2 ✓' &&\n      W(S11, SET(1, 2, 'add'), 1) === 'Add: 11x = 44 | Solve: x = 44 ÷ 11 = 4 | Put back: 20 + 2y = 24, so 2y = 4 and y = 2 | In row 1: 20 + 4 = 24 ✓ | In row 2: 12 − 2 = 10 ✓' &&\n      W(S12, SET(1, 2, 'take'), 2) === 'Take away: y = 4 | Put back: x + 4 = 7, so x = 3 | In row 1: 6 + 12 = 18 ✓ | In row 2: 3 + 4 = 7 ✓' &&\n      swapRows(S10).map((r) => r.l + ': ' + r.s).join(' | ') === 'Swap in: 3x + (2x − 1) = 14 | Collect: 5x − 1 = 14, so 5x = 15 | Solve: x = 15 ÷ 5 = 3 | Put back: y = 2 × 3 − 1 = 5 | In row 1: 2 × 3 − 1 = 5 ✓ | In row 2: 9 + 5 = 14 ✓' &&\n      checkT(S9.r2, [8, -3]) === '−8 − 6 = −14, not 2' && checkT(S10.r1, [5, 3]) === '2 × 5 − 1 = 9, not 3' && checkT(S10.r2, [15, 29]) === '45 + 29 = 74, not 14' &&\n      checkT(S11.r2, [-4, 22]) === '−12 − 22 = −34, not 10' && sumOf(S11, SET(1, 2, 'take')).a === -1 && checkT(S11.r1, [2, 4]) === '10 + 8 = 18, not 24' && checkT(S12.r1, [-4, 11]) === '−8 + 33 = 25, not 18' &&\n      checkT(S12.r1, [4, 3]) === '8 + 9 = 17, not 18' && checkT(E(4, 2, 7), [3, 1]) === '12 + 2 = 14, not 7' &&\n      eqT(sumOf(WX, SET(5, 2, 'add'))) === '47x = 188' && coord(cross(WX)) === '(4, 1)';\n  });\n  K.check('Every puzzle\\'s answers are checked against its own two equations: the right one is what the steppers and switch really give, or the pair that fits both rows; every wrong one keeps both letters, is false at the crossing, draws a different line, matches nothing, or misses a row; and every wrong answer has a hint of its own', () =>\n    DO.every((i) => {\n      const d = STEPS[i], s = d.sys, P = cross(s);\n      const hintsOk = d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every((o) => o === d.want || (!!d.hints[o] && d.hints[o] !== d.hint));\n      const ok = d.opts.every((o) => {\n        const v = d.vals[o], right = o === d.want;\n        if (d.kind === 'sum') {\n          const U = sumOf(s, d.ans);\n          return eqT(v) === o && (right ? v.a === U.a && v.b === U.b && v.c === U.c && (v.a === 0) !== (v.b === 0) : (v.a !== 0 && v.b !== 0) || !fits(v, P));\n        }\n        if (d.kind === 'scale') {\n          const q = scaleR(s.r1, d.ans.k1);\n          return eqT(v) === o && (right ? v.a === q.a && v.b === q.b && v.c === q.c : !(v.a * s.r1.b === v.b * s.r1.a && v.a * s.r1.c === v.c * s.r1.a));\n        }\n        if (d.kind === 'steps') {\n          const A = scaleR(s.r1, v[0]), B = scaleR(s.r2, v[1]), m = Math.abs(A.a) === Math.abs(B.a) || Math.abs(A.b) === Math.abs(B.b);\n          return o === '× ' + v[0] + ' and × ' + v[1] && (right ? m && v[0] === d.ans.k1 && v[1] === d.ans.k2 : !m);\n        }\n        if (Array.isArray(v)) { const both = fits(s.r1, v) && fits(s.r2, v); return coord(v) === o && (right ? both && near(v[0], P[0]) && near(v[1], P[1]) : !both); }\n        if (v && v.half) return !right && o === v.half + ' = ' + num(v.v) && near(v.v, v.half === 'x' ? P[0] : P[1]);\n        return false;\n      });\n      return hintsOk && ok && (d.ans === 'swap' || (() => { const U = sumOf(s, d.ans); return (U.a === 0) !== (U.b === 0); })());\n    }));\n  K.check('Before an answer a puzzle keeps back the sum row, its dotted line, the crossing ring and the working; a right answer or Why? fills the sum row in, marks the letter that cancels, and draws the dotted line upright or flat through the crossing', () =>\n    DO.every((i) => {\n      const d = STEPS[i], b = drawn(i, blank());\n      if (b.sum || b.line || b.ring || b.rows.length) return false;\n      return [drawn(i, solvedSt(i)), drawn(i, whySt())].every((g) => {\n        if (!g.ring || !g.line || !g.sum || g.rows.length < 4) return false;\n        const P = cross(d.sys), up = near(g.line[0], g.line[2]), flat = near(g.line[1], g.line[3]);\n        return (up || flat) && (up ? near(g.line[0], P[0]) : near(g.line[1], P[1])) && (d.ans === 'swap' || g.marks.some((m) => / cancels$/.test(m)));\n      });\n    }));\n  K.check('A wrong pick shows its slip: the wrong switch doubles the matching term, a right side added after a left side taken away shows red, half a pair stops with y still to find, a row scaled on one side only draws a different line, steppers that match nothing say so, and a wrong pair is put into both rows', () =>\n    DO.every((i) => {\n      const d = STEPS[i];\n      return d.opts.every((o) => {\n        if (o === d.want) return true;\n        const g = drawn(i, wrongSt(i, o)), fx = (d.fx && d.fx[o]) || {}, v = d.vals[o];\n        if (fx.rhs != null) return !!g.sum && g.sum[2] === num(fx.rhs) && g.marks.some((m) => / cancels$/.test(m)) && !g.line && !g.ring && g.rows.some((r) => / not /.test(r.s));\n        if (fx.half) return !!g.sum && !!g.line && !g.ring && g.marks.some((m) => / cancels$/.test(m)) && g.rows.length === 3 && !g.rows.some((r) => /^In row/.test(r.l));\n        if (fx.set && fx.set.op) return g.marks.some((m) => / doubles$/.test(m)) && !g.marks.some((m) => / cancels$/.test(m)) && g.state === 'tilted';\n        if (fx.set) return g.noMatch && !g.sum && !g.line;\n        if (fx.row1) return g.triedLine && !g.sum && g.rows.length === 1 && / not /.test(g.rows[0].s);\n        if (Array.isArray(v)) return g.rows.filter((r) => /^In row/.test(r.l)).length === 2 && g.rows.some((r) => / not /.test(r.s)) && !g.sum;\n        return !g.sum && !g.line && !g.rows.length;\n      });\n    }));\n  K.check('Playing with a screen: a stepper at × 5 stays at × 5 and one at × 1 stays at × 1; on the scale-first screen, row 1 at × 2 with take away cancels y, leaving 5x = 20 and an upright line at x = 4, while × 3 leaves both letters and a tilted line', () => {\n    const i = idx('Scale first'), g = drawn(i, playSt(SET(2, 1, 'take'))), h = drawn(i, playSt(SET(3, 1, 'take')));\n    return nextK(5, 1) === 5 && nextK(1, -1) === 1 && nextK(2, 1) === 3 && g.marks.join() === 'y cancels' && g.state === 'upright at x = 4' &&\n      g.rows.length > 0 && g.rows[0].s === '5x = 20' && h.state === 'tilted' && h.marks.length === 0;\n  });\n  K.check('Every demonstration finishes arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends, and a puzzle\\'s drawing after an answer or Why? finishes within 2.5 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 3 && d.dur <= 5 && earliest >= FADE\n      : timed(i, solvedSt(i), FB) && timed(i, whySt(), FB) && d.opts.every((o) => o === d.want || timed(i, wrongSt(i, o), FB))));\n    T = keepT; paint();\n    return ok && FB <= 2.5;\n  });\n\n  K.ready();\n</script>",
+  "title": "Stack, scale and add",
+  "brief": "The one thing you should see is the matching term in the sum row turning to 0, and the dotted line turning upright or flat through the crossing, when you set the steppers and the add or take-away switch right.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "We want the coefficients of one variable to be opposites, so that we can add the equations together and eliminate that variable: at every stepper setting on every screen, opposite matching terms cancel when the rows are added and double when one is taken away, and matching terms of the same sign the other way round",
+     "ok": true,
+     "source": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables"
+    },
+    {
+     "label": "Sometimes equations need to be altered, by multiplying throughout, before being able to eliminate one of the variables: each stepper multiplies every term of its row, the right side too, so the row draws the very same line, and on the scaling screens nothing cancels until a row is scaled",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zmpyn9q"
+    },
+    {
+     "label": "When eliminating a variable from a system of linear equations, 76% of students in one study misjudged the operations to be performed: the add-or-take-away screen says so, and there adding doubles the 2y to 4y while taking away leaves 0",
+     "ok": true,
+     "source": "https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf"
+    },
+    {
+     "label": "Any point that fits both rows fits their sum: at every stepper setting and switch position on every screen, the sum row is true at the crossing, so its dotted line passes through it, standing upright when y cancels and lying flat when x cancels",
+     "ok": true
+    },
+    {
+     "label": "The first screen adds 2x + y = 11 and 3x − y = 9: the sum row reads 5x + 0 = 20 with the 0 marked as y cancelling, and its dotted line stands upright at x = 4 through the crossing (4, 3)",
+     "ok": true
+    },
+    {
+     "label": "Every worked line is right, by hand: 5x = 20 so x = 4 and 8 + y = 11 gives y = 3; added, 4x + 4y = 28 is 16 + 12 = 28 at (4, 3); 2y = 6 so y = 3; 5y = 15 and 2x + 9 = 17; 3x + (2x − 1) = 14 gives x = 3 and y = 5; and the worked example, 35x − 10y = 130 plus 12x + 10y = 58, gives 47x = 188 and (4, 1)",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle's answers are checked against its own two equations: the right one is what the steppers and switch really give, or the pair that fits both rows; every wrong one keeps both letters, is false at the crossing, draws a different line, matches nothing, or misses a row; and every wrong answer has a hint of its own",
+     "ok": true
+    },
+    {
+     "label": "Before an answer a puzzle keeps back the sum row, its dotted line, the crossing ring and the working; a right answer or Why? fills the sum row in, marks the letter that cancels, and draws the dotted line upright or flat through the crossing",
+     "ok": true
+    },
+    {
+     "label": "A wrong pick shows its slip: the wrong switch doubles the matching term, a right side added after a left side taken away shows red, half a pair stops with y still to find, a row scaled on one side only draws a different line, steppers that match nothing say so, and a wrong pair is put into both rows",
+     "ok": true
+    },
+    {
+     "label": "Playing with a screen: a stepper at × 5 stays at × 5 and one at × 1 stays at × 1; on the scale-first screen, row 1 at × 2 with take away cancels y, leaving 5x = 20 and an upright line at x = 4, while × 3 leaves both letters and a tilted line",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration finishes arriving within its 3 to 5 s, none starting before the 0.35 s screen fade ends, and a puzzle's drawing after an answer or Why? finishes within 2.5 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 12,
+     "step": 1,
+     "steps": [
+      "Add the rows",
+      "Your turn",
+      "Same signs, take away",
+      "Cancel x",
+      "Scale first",
+      "Scale every term",
+      "Scale both",
+      "Make them match",
+      "Always through the crossing",
+      "Mind the minus",
+      "One already says y =",
+      "Scale, then add",
+      "Last one"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T15:55:12.091Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "It says multiplying every term by 'the same number' keeps a row true and draws the very same line, but multiplying by zero turns any row into 0 = 0, which is no longer that line; the rule needs 'other than zero', as the ignores panel already says."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "It implies multiplying by zero would make a row untrue, but 0 = 0 is still true; what zero loses is the line itself, so the contrast should be about keeping the same line."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

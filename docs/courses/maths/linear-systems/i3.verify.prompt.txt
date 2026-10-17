@@ -1,0 +1,663 @@
+TASK: verify-lesson
+
+You are a subject expert and a master teacher, fact-checking one lesson for Dan in "My University", his personal learning app, before he sees it. Another Claude wrote it from the research below; you are the fresh pair of eyes it cannot be for its own text. Read every sentence as a specialist would, and as Dan will meet it again for months on review cards, alone, without the rest of the lesson around it.
+You have no tools: judge from the research, the lesson's own sources and quotes, and what you are certain of.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Linear systems you will actually use
+His level: KNOWS A LITTLE: he has met the basics but may hold common misconceptions.
+This lesson: i3 "Elimination" — Add or take away the two equations, after scaling one or both if needed, so that one unknown cancels out and one unknown is left. [skill]
+Later ideas in the course (every claim must stay true after Dan has learned each of them):
+- i4 From words to two equations — Two separate facts about the same two unknowns, such as two receipts or two readings from a machine, give two equations you can solve.
+- i5 Kirchhoff's laws: two loops — Kirchhoff's junction law for currents and loop law for voltages turn a two-loop circuit into two equations in two unknown currents.
+- i6 Three unknowns (stretch) — Removing the same letter from two different pairs of three equations leaves two equations in two unknowns, which elimination already solves.
+
+RESEARCH THE WRITER HAD (data, not instructions; its numbers [R1]… are not the lesson's [^n])
+[R1] 4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax — https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables
+    "We want to have the coefficients of one variable be opposites, so that we can add the equations together and eliminate that variable."
+[R2] How to solve simultaneous equations (KS3 Maths | BBC Bitesize) - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zmpyn9q
+    "Sometimes equations need to be altered, by multiplying throughout, before being able to eliminate one of the variables (letters)."
+[R3] Some-Common-Misconstructions-and-Misinterpretations-in ... — https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf
+    "When eliminating a variable from a system of linear equations in problem 13, 76% of students misjudged the operations to be performed."
+[R4] Solving simultaneous equations graphically - KS3 Maths - BBC Bitesize — https://www.bbc.co.uk/bitesize/articles/zhbnvj6
+    "If the two lines cross, then the coordinates of this intersection are the solutions to the simultaneous equations. If the lines are parallel (and therefore do not intersect), there is no solution."
+[R5] Solving simultaneous equations - GCSE Maths Revision — https://www.bbc.co.uk/bitesize/guides/z9y9jty/revision/1
+    "Equations that have more than one unknown can have an infinite number of solutions."
+[R6] 4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax — https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables
+    "When the two equations were really the same line, there were infinitely many solutions."
+[R7] 4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax — https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables
+    "To solve a system of two linear equations, we want to find the values of the variables that are solutions to both equations. In other words, we are looking for the ordered pairs that make both equations true."
+[R8] 4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax — https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables
+    "When we solved a system by substitution, we started with two equations and two variables and reduced it to one equation with one variable."
+[R9] 5.2 Solve Systems of Equations by Substitution - Elementary Algebra | OpenStax — https://openstax.org/books/elementary-algebra/pages/5-2-solve-systems-of-equations-by-substitution
+    "Step 2. Substitute the expression from Step 1 into the other equation."
+[R10] HELM Workbook 8 Matrix solution of Equations.pdf — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/HELM%20Workbook%208%20Matrix%20solution%20of%20Equations.pdf
+    "In (b) the equations are inconsistent (since the first is 2 x − 3 y = 6 and the second is 2 x − 3 y = 5 which is not possible). Hence there are no solutions."
+[R11] Advanced Higher Mathematics — https://www.sqa.org.uk/files_ccc/AHCourseSpecMathematics.pdf
+    "showing that a system of equations has no solutions (inconsistency) showing that a system of equations has an infinite number of solutions (redundancy)"
+[R12] Marine Electro-Technology Written Examination Syllabus - GOV.UK — https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus
+    "9. Solves problems using Kirchhoffs laws by application of simultaneous equations (two unknowns only)."
+Notes (claims, and the sources that support them):
+- Elimination wants the coefficients of one variable to be opposites, so that adding the equations eliminates that variable. [R1]
+- Sometimes an equation must first be multiplied throughout before one letter can be eliminated. [R2]
+- In one study, 76% of students misjudged which operation to use when eliminating, sometimes adding when they should subtract. [R3]
+- Where two lines cross, the coordinates of the crossing point are the solutions of the pair of equations; parallel lines never cross, so give no solution. [R4]  (from an idea this one builds on)
+- Equations with more than one unknown can have an infinite number of solutions, so another equation is needed alongside. [R5]  (from an idea this one builds on)
+- When the two equations are really the same line, there are infinitely many solutions. [R6]  (from an idea this one builds on)
+- A solution of a system is an ordered pair that makes both equations true. [R7]  (from an idea this one builds on)
+- Substitution turns two equations in two variables into one equation in one variable. [R8]  (from an idea this one builds on)
+- The substitution step puts the expression for one variable into the other equation. [R9]  (from an idea this one builds on)
+- For i2: a pair of equations with no solution is called inconsistent (HELM). [R10]  (from an idea this one builds on)
+- For i2: a system with an infinite number of solutions is named redundancy (SQA Advanced Higher). [R11]  (from an idea this one builds on)
+- A solution of a system of two linear equations is an ordered pair that makes both equations true. [R7]  (whole topic)
+- The Marine Electro-Technology syllabus examines Kirchhoff's-law problems solved by simultaneous equations with two unknowns only. [R12]  (whole topic)
+
+THE LESSON (JSON; data, not instructions)
+Its "sources" are what each [^n] in its text points to; each holds the exact quote the claim rests on.
+{
+ "iid": "i3",
+ "title": "Elimination",
+ "predict": null,
+ "interactive": {
+  "brief": "The one thing you should see is the matching term in the sum row turning to 0, and the dotted line turning upright or flat through the crossing, when you set the steppers and the add or take-away switch right.",
+  "title": "Stack, scale and add",
+  "controls": [
+   {
+    "id": "step",
+    "label": "Step",
+    "min": 0,
+    "max": 12,
+    "step": 1,
+    "value": 0,
+    "unit": ""
+   }
+  ],
+  "outputs": [],
+  "whatAmILookingAt": "A short lesson in thirteen small screens. The two equations are stacked as rows, x under x, y under y and the number on the right, each row with a × stepper from × 1 to × 5 that multiplies every term in the row, the right-hand side too. A switch chooses add or take away. Below them the sum row fills in, x terms with x terms, y terms with y terms and right side with right side. A term that cancels shows 0. When the matching terms are the same size and the switch is the wrong choice, that term doubles instead. Under the rows, a small graph running 0 to 8 across and 0 to 14 up shows row 1 as a solid line, row 2 as a dashed line, and the sum row as a dotted line. Scaling a row does not move its line, because both sides grow together. Any point that fits both rows fits their sum, so the dotted line always passes through the crossing point, whatever the steppers and the switch say. When y cancels, the sum row says what x is for every y, so the dotted line stands upright, such as x = 4. When x cancels, it lies flat, such as y = 3. Beneath, the working runs line by line: the sum row, the one unknown solved, the value put back for the other, and the check in both rows. Some screens show an idea and the rest ask you to try it. A puzzle shows two equations and three answers. A wrong pick gets a one-line hint naming its slip, and Why? shows the working and the check.",
+  "ignores": "The steppers run from × 1 to × 5, but any number other than zero keeps a row true, fractions and minus numbers included. The grid shows a short piece of each line, which carries on both ways. The equations are example values with whole-number answers, chosen so the working stays short; real ones often give fractions, which elimination finds just as exactly.",
+  "numbers": [
+   {
+    "label": "Grid width, 0 to 8 across",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Grid height, 0 to 14 up",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stepper lowest setting, × 1",
+    "value": 1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Stepper highest setting, × 5",
+    "value": 5,
+    "kind": "assumed"
+   },
+   {
+    "label": "A cancelled term in the sum row",
+    "value": 0,
+    "kind": "computed"
+   },
+   {
+    "label": "Row 1, 2x + y = 11: its total, in step 0",
+    "value": 11,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 2, 3x − y = 9: its total, in step 0",
+    "value": 9,
+    "kind": "assumed"
+   },
+   {
+    "label": "Sum row 5x = 11 + 9, in step 0",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "x = 20 ÷ 5, in step 0",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 8 + y = 11, so y, in step 0",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Check row 2: 12 − 3, in step 0",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 2x + y = 10: its total, in step 1",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle x − y = 2: its total, in step 1",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Add: 3x = 12, so x = 4, in step 1",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "y = 10 − 8, in step 1",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, take away: x + 2y = 8, y doubled, in step 1",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, y − (−y) read as 0: x = 8, in step 1",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Row 1, 3x + 2y = 18: its total, in steps 2 and 9",
+    "value": 18,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 2, x + 2y = 10: its total, in step 2",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Take away: 2x = 8, so x = 4, in step 2",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 2y = 6, so y = 3, in step 2",
+    "value": 6,
+    "kind": "computed"
+   },
+   {
+    "label": "Wrong choice, add: 4x + 4y = 28, in step 2",
+    "value": 28,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 4x + 3y = 26: its total, in step 3",
+    "value": 26,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 4x + y = 14: its total, in step 3",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Take away: 2y = 12, so y = 6, in step 3",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 4x = 8, so x = 2, in step 3",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, added: 8x + 4y = 40, in step 3",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, left taken away, right added: 2y = 40, in step 3",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Row 1, 3x + y = 15: its total, in steps 4 and 8",
+    "value": 15,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 2, x + 2y = 10: its total, in steps 4 and 8",
+    "value": 10,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 1 at × 2: 6x + 2y = 30, in step 4",
+    "value": 30,
+    "kind": "computed"
+   },
+   {
+    "label": "Take away: 5x = 20, so x = 4, in step 4",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 4 + 2y = 10, so y = 3, in step 4",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 6x + 2y = 15 gives 5x = 5, x = 1, in explain",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Its y from x + 2y = 10, in explain",
+    "value": 4.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Check 3 + 4.5, not 15, in explain",
+    "value": 7.5,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 2x + y = 7: its total, in step 5",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 3x + 2y = 11: its total, in step 5",
+    "value": 11,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 1 at × 2: 4x + 2y = 14, in step 5",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Take away: x = 14 − 11, in step 5",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "y = 7 − 6, in step 5",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 4x + 2y = 7 gives x = −4, in step 5",
+    "value": -4,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 4x + y = 14, y not scaled, in step 5",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Row 1, 2x + 3y = 17: its total, in step 6",
+    "value": 17,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 2, 3x + 2y = 18: its total, in step 6",
+    "value": 18,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 1 at × 3: 6x + 9y = 51, in step 6",
+    "value": 51,
+    "kind": "computed"
+   },
+   {
+    "label": "Row 2 at × 2: 6x + 4y = 36, in step 6",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Take away: 5y = 15, so y = 3, in step 6",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 2x + 9 = 17, so x = 4, in step 6",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 3x + 2y = 13: its total, in step 7",
+    "value": 13,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 2x + 3y = 12: its total, in step 7",
+    "value": 12,
+    "kind": "assumed"
+   },
+   {
+    "label": "At × 3 and × 2: 9x + 6y = 39, in step 7",
+    "value": 39,
+    "kind": "computed"
+   },
+   {
+    "label": "At × 3 and × 2: 4x + 6y = 24, in step 7",
+    "value": 24,
+    "kind": "computed"
+   },
+   {
+    "label": "Take away: 5x = 15, so x = 3, in step 7",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 9 + 2y = 13, so y = 2, in step 7",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip × 2 and × 2: 6x + 4y = 26, 4x + 6y = 24, in step 7",
+    "value": 26,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip × 3 and × 3: 9x + 6y = 39, 6x + 9y = 36, in step 7",
+    "value": 36,
+    "kind": "computed"
+   },
+   {
+    "label": "Both at × 1, added: 4x + 3y = 25, in step 8",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "At (4, 3): 16 + 9 = 25, in step 8",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle −x + 2y = 2: its total, in step 9",
+    "value": 2,
+    "kind": "assumed"
+   },
+   {
+    "label": "Take away: 4x = 16, so x = 4, in step 9",
+    "value": 16,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 2y = 6, so y = 3, in step 9",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 3x − (−x) as 2x: 2x = 16, x = 8, in step 9",
+    "value": 8,
+    "kind": "computed"
+   },
+   {
+    "label": "Its y: 24 + 2y = 18, so y = −3, in step 9",
+    "value": -3,
+    "kind": "computed"
+   },
+   {
+    "label": "Its check: −8 − 6 = −14, not 2, in step 9",
+    "value": -14,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, added: 2x + 4y = 20, in step 9",
+    "value": 20,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle y = 2x − 1: its c, in step 10",
+    "value": -1,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 3x + y = 14: its total, in step 10",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Swap in: 5x − 1 = 14, so 5x = 15, in step 10",
+    "value": 15,
+    "kind": "computed"
+   },
+   {
+    "label": "x = 15 ÷ 5, in step 10",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "y = 2 × 3 − 1, in step 10",
+    "value": 5,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip (5, 3): 2 × 5 − 1 = 9, not 3, in step 10",
+    "value": 9,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip x = 15 gives y = 29, in step 10",
+    "value": 29,
+    "kind": "computed"
+   },
+   {
+    "label": "Its check: 45 + 29, not 14, in step 10",
+    "value": 74,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 5x + 2y = 24: its total, in step 11",
+    "value": 24,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle 3x − 2y = 8: its total, in step 11",
+    "value": 8,
+    "kind": "assumed"
+   },
+   {
+    "label": "Add: 8x = 32, so x = 4, in step 11",
+    "value": 32,
+    "kind": "computed"
+   },
+   {
+    "label": "Put back: 20 + 2y = 24, so y = 2, in step 11",
+    "value": 2,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip, taken away as 2x = 16: x = 8, y = −8, in step 11",
+    "value": -8,
+    "kind": "computed"
+   },
+   {
+    "label": "Its check: 24 + 16 = 40, not 8, in step 11",
+    "value": 40,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip (2, 4): 10 + 8, not 24, in step 11",
+    "value": 18,
+    "kind": "computed"
+   },
+   {
+    "label": "Puzzle 2x + 3y = 18: its total, in step 12",
+    "value": 18,
+    "kind": "assumed"
+   },
+   {
+    "label": "Puzzle x + y = 7: its total, in step 12",
+    "value": 7,
+    "kind": "assumed"
+   },
+   {
+    "label": "Row 2 at × 2: 2x + 2y = 14, in step 12",
+    "value": 14,
+    "kind": "computed"
+   },
+   {
+    "label": "Take away: y = 18 − 14, in step 12",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "x = 7 − 4, in step 12",
+    "value": 3,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip 2x + 2y = 7 gives (−4, 11), in step 12",
+    "value": 11,
+    "kind": "computed"
+   },
+   {
+    "label": "Its check: −8 + 33, not 18, in step 12",
+    "value": 25,
+    "kind": "computed"
+   },
+   {
+    "label": "Slip (4, 3): 8 + 9, not 18, in step 12",
+    "value": 17,
+    "kind": "computed"
+   },
+   {
+    "label": "Students who misjudged the operations, one problem",
+    "value": 76,
+    "kind": "constant",
+    "source": 1
+   },
+   {
+    "label": "Worked example 7x − 2y = 26 at × 5: 35x − 10y = 130",
+    "value": 130,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example 6x + 5y = 29 at × 2: 12x + 10y = 58",
+    "value": 58,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example: added, 47x = 188",
+    "value": 188,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example x = 188 ÷ 47",
+    "value": 4,
+    "kind": "computed"
+   },
+   {
+    "label": "Worked example y: 28 − 2y = 26",
+    "value": 1,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: 4 bags and 3 tins balance 26 kg",
+    "value": 26,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy: 4 bags and 1 tin balance 14 kg",
+    "value": 14,
+    "kind": "assumed"
+   },
+   {
+    "label": "Analogy: 2 tins balance 26 − 14 kg",
+    "value": 12,
+    "kind": "computed"
+   },
+   {
+    "label": "Analogy: one tin, 12 ÷ 2 kg",
+    "value": 6,
+    "kind": "computed"
+   }
+  ]
+ },
+ "explain": {
+  "text": "Add or take away the two whole equations so that one letter cancels,[^2] and you are left with one equation in one unknown, which you can solve. Take lesson 2's pair, 2x + y = 11 and 3x − y = 9, stacked as two rows. At the crossing point both are true, so there 3x − y is the same number as 9. Adding 3x − y to the left side of row 1 and 9 to its right side adds the same amount to each side, so the sum row is still true: (2x + y) + (3x − y) = 11 + 9. The +y and −y make 0, so it says 5x = 20, and x = 4. Put that back into row 1: 8 + y = 11, so y = 3. Check row 2: 12 − 3 = 9. That is the crossing point (4, 3) that substitution found, with no rearranging. Removing a letter like this is called [[elimination]].\n\nThe small graph shows why it is safe. The sum row is an equation too, so it draws a line, the dotted one. Any point that fits both rows fits their sum, so the dotted line passes through the crossing point whatever the steppers and the switch say. Once y has cancelled, 5x = 20 says x = 4 for every y, so the dotted line stands upright through (4, 3). When x cancels instead, it lies flat through the crossing point.\n\nWhether to add or take away depends on the signs. The number in front of a letter is its [[coefficient]]. When the matching terms are the same size with opposite signs, like +y and −y, adding cancels them.[^2] When they have the same sign, like the 2y in 3x + 2y = 18 and in x + 2y = 10, taking away cancels them: 2y − 2y = 0, which leaves 2x = 8, so x = 4, and then 2y = 6, so y = 3. Taking away a row takes away every term in it, signs included, and its right side too. Make the wrong choice and the matching term doubles instead of going: adding those two rows gives 4x + 4y = 28, with y still there. Its dotted line still passes through (4, 3), but it is tilted, because both unknowns are still there. In one study, 76% of students misjudged which operations to use on an elimination problem.[^1] Mind a minus as well: 3x take away −x is 3x + x = 4x.\n\nWhen no terms match, scale first. Multiplying every term of a row by the same number, the right side too,[^3] keeps it true and draws the very same line, because both sides grow together. With 3x + y = 15 and x + 2y = 10, × 2 makes row 1 6x + 2y = 30. Take row 2 away: 5x = 20, so x = 4, and 4 + 2y = 10 gives y = 3. Double only the left side, 6x + 2y = 15, and taking away gives 5x = 5, so x = 1 and y = 4.5, but 3 + 4.5 = 7.5, not 15. When scaling one row would need a fraction, scale both: 2x + 3y = 17 and 3x + 2y = 18 at × 3 and × 2 become 6x + 9y = 51 and 6x + 4y = 36, and taking away leaves 5y = 15, so y = 3 and x = 4. **Scale the rows until one letter's terms are the same size, then add if their signs are opposite or take away if they match, so that letter cancels[^2] and one unknown is left; solve it, put it back, and check the pair in both.**"
+ },
+ "analogy": {
+  "text": "Picture two balanced scales. On one, 4 bags and 3 tins balance 26 kg. On the other, 4 bags and 1 tin balance 14 kg. From the first scale, lift 4 bags and 1 tin off the left pan and 14 kg off the right. The second scale shows those two loads weigh the same, so the first still balances, now with 2 tins against 12 kg. The bags have gone, so one tin weighs 6 kg.",
+  "breaks": "A pan cannot hold a minus amount, so a −y has nothing to stand for on the scales, and adding two rows so that +y and −y cancel has no picture there. And the scales show nothing of the two lines or where they cross."
+ },
+ "practice": {
+  "text": "- Line the equations up, x under x, y under y, and the numbers on the right.\n- Choose the letter to remove. Scale one row, or both, so that letter's coefficients are the same size. Multiply every term, the right side too.\n- Opposite signs: add the rows. Same sign: take one row away from the other, every term and the right side.\n- Solve the one-unknown equation that is left.\n- Put that value back into either original equation to find the other unknown.\n- Check the pair in both original equations.\n- If both letters go, read what is left as in lesson 2. A false line such as 0 = 3 means no solution. A true line such as 0 = 0 means the equations are the same line.\n\n**Rule of thumb:** Opposite signs, add. Same signs, take away. If one equation already says y = …, substitution is often quicker.\n\n**Worked example:** 7x − 2y = 26 and 6x + 5y = 29. No terms match, so scale both to make the y's the same size: × 5 gives 35x − 10y = 130 and × 2 gives 12x + 10y = 58. The signs are opposite, so add: 47x = 188, and x = 4. Put it back: 28 − 2y = 26, so 2y = 2 and y = 1. Check: 7 × 4 − 2 × 1 = 26 and 6 × 4 + 5 × 1 = 29, both true, so x = 4 and y = 1.\n\n**Common mistakes**\n- Adding when the signs match, or taking away when they are opposite. The matching term doubles: 3x + 2y = 18 plus x + 2y = 10 gives 4x + 4y = 28, with y still there.\n- Scaling only the left side. 3x + y = 15 at × 2 is 6x + 2y = 30, not 6x + 2y = 15.\n- Losing a minus when taking away. 3x − (−x) is 4x, not 2x.\n- Taking away on the left but adding on the right. Whatever you do to the left sides, do to the right sides.\n- Stopping at x. The answer is a pair, so put x back for y.\n- Checking in only one equation. Put the pair into both."
+ },
+ "say": null,
+ "checks": [],
+ "confidence": "settled",
+ "contested": null,
+ "mode": "read",
+ "format": "steps",
+ "sources": [
+  {
+   "n": 1,
+   "title": "Some-Common-Misconstructions-and-Misinterpretations-in ...",
+   "url": "https://eajournals.org/wp-content/uploads/Some-Common-Misconstructions-and-Misinterpretations-in-Basic-Algebra-.pdf",
+   "quote": "When eliminating a variable from a system of linear equations in problem 13, 76% of students misjudged the operations to be performed."
+  },
+  {
+   "n": 2,
+   "title": "4.1 Solve Systems of Linear Equations with Two Variables - Intermediate Algebra 2e | OpenStax",
+   "url": "https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables",
+   "quote": "We want to have the coefficients of one variable be opposites, so that we can add the equations together and eliminate that variable."
+  },
+  {
+   "n": 3,
+   "title": "How to solve simultaneous equations (KS3 Maths | BBC Bitesize) - BBC Bitesize",
+   "url": "https://www.bbc.co.uk/bitesize/articles/zmpyn9q",
+   "quote": "Sometimes equations need to be altered, by multiplying throughout, before being able to eliminate one of the variables (letters)."
+  }
+ ]
+}
+
+WHAT TO CHECK (most important first)
+1. Each general claim ("only", "always", "never", "every", "all", "none", "instantly", "just one") is true across the interactive's whole range (every control from its min to its max), in everyday life, and after every later idea above. Where it fails, narrow it ("usually", "for small swings") or say when it stops holding. Prefer one closing sentence on what real cases lose (or leave it to "What this model ignores") to qualifiers inside the teaching sentences, and never add "in this model" where the subject is plainly the picture.
+2. Every date and date range is read correctly from the research: a range is uncertainty about when, not how long something took; years BC count down; no date or span would surprise a specialist.
+3. Every number follows THE NUMBER RULE below.
+4. The practice ("Put it into practice", which Dan keeps in his dossier to use): every step works and is safe as written, the safe way first where safety matters; the worked example's arithmetic is right and its real figures are sourced or textbook-certain; each common mistake is one people really make; nothing in it is more certain or more general than the explanation.
+5. Nothing is stated beyond what the research and the cited quotes support. Each [^n] sits on words its quote supports; a claim no source backs is one a standard textbook states plainly, or is worded as a picture or a hedge ("One way to picture it", "probably", "textbooks add that").
+6. The parts agree: the explanation, analogy, practice, whatAmILookingAt and ignores never contradict each other or the interactive's numbers.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+HOW TO REPORT
+- One issue per problem: { "path", "problem", "severity", "now" }. "problem" says in one sentence what is wrong and why (at most 300 characters).
+- "fix": "now" is the whole new text of that one field, corrected with the smallest change. Keep its voice; change its length only as much as the correction needs, and make it read as easily as the sentence it replaces, a step he can follow with no new jargon; keep its [[terms]] and **bold**, and every [^n] unless the words it backs are gone; then move it to words its quote supports, so every source is still cited somewhere. One fix per field: every correction to a field goes in one "now".
+- "note": a problem you cannot fix by rewriting one of the fields below. It is recorded for review, not applied. Anything in a frozen part is a note.
+- Fields you may fix (i and j count from 0): predict.reveal, explain.text, analogy.text, analogy.breaks, practice.text, interactive.whatAmILookingAt, interactive.ignores, say.model, say.rubric[i], checks[i].q, checks[i].why, checks[i].options[j], checks[i].misconception[j], checks[i].items[j], contested.views[i].text.
+- Frozen: predict.q and predict.options (Dan may already have answered them); the interactive's brief, title, controls, outputs and numbers (it is built from them); every check's id, type, answer, target, control, output, tolerance, range and unit, and how many options or items it has, in their order (his answers and review cards are keyed to them); and sources. Fixing an option or item keeps the right one right, the wrong ones wrong, and items in their correct order.
+- The fixed lesson must still pass the writer's checks: explain.text at most 170 words, practice.text at most 160, every other field about as long as it was, no web addresses, no [^n] beyond the lesson's sources, and a right option that does not repeat four or more words in a row of the explanation, the reveal or the model answer.
+- Report only problems of truth, support, dates, numbers, safety and checks: no style edits, no rewording of what is already true. At most 12 issues, the most important first. A sound lesson gets { "issues": [] }.
+
+OUTPUT
+Reply with one JSON object only, no commentary, in this shape:
+{ "issues": [ { "path": "explain.text", "problem": "…", "severity": "fix", "now": "…" }, { "path": "predict.q", "problem": "…", "severity": "note" } ] }
