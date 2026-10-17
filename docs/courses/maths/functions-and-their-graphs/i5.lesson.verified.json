@@ -1,0 +1,217 @@
+{
+  "iid": "i5",
+  "title": "Shifting a graph",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the marked point and the table's inputs moving 3 to the right while the outputs stay the same, as the rule rewrites to f(x − 3), when you drag the graph sideways.",
+    "title": "Drag the graph",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on sliding a graph. A graph sits on axes with the input along the bottom and the output up the side, and you grab it and drag it. A faint copy stays where it started, so you can see how far it has gone. The rule above the graph rewrites as you drag: f(x) + 2 for a slide up 2, f(x − 3) for a slide 3 to the right. One marked point on the graph shows its old and new coordinates side by side. A small three-row table underneath shows three inputs and their outputs, and as you drag it rewrites to show which inputs now give the old outputs. Slides snap to whole squares so points land on grid lines. Sliding up 2 adds 2 to every output, so the table keeps its inputs and each output grows by 2: the square y = x² takes the point (2, 4) to (2, 6). Sliding right 3 gives (x − 3)², which takes 3 off each input before squaring, so an input must be 3 bigger to give the old output: 3, 4 and 5 now give 0, 1 and 4, which 0, 1 and 2 gave before, and (2, 4) moves to (5, 4). Sliding left 2 gives (x + 2)², where −2, −1 and 0 give 0, 1 and 4. The graphs are the square, the cube y = x³ and the square root y = √x from lesson 3, and the 4 to 20 mA transmitter line from lesson 2, S(p) = 0.16p + 4, drawn with the line 0.16p beneath it as the faint copy, so the shift is its 4 mA. The square root is drawn from 0 to 9 and slides with its filled starting dot, so √(x − 4) starts at 4. Before each sideways slide a screen asks you to predict left or right, and then you drag to see. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, or two on a predict screen, and a wrong pick shows the slip that makes it, such as moving the wrong way or moving the input instead of the output.",
+    "ignores": "Each graph shows only part of its curve, which carries on past the edge of the picture. The slides of 1, 2, 3 and 4, the 50% level and the 1 mA error are example values, kept to whole numbers so points land on grid lines; a graph can slide by any amount, a fraction too, and the rules still hold. The transmitter is drawn as its plain straight-line rule. Only ordinary (real) numbers are used.",
+    "numbers": [
+      {
+        "label": "Example slide up, in step 0",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Marked point's input, x = 2, in step 0",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "x² at x = 2 is 4, in step 0",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "x² + 2 at x = 2 is 6: (2, 4) to (2, 6), step 0",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Table: outputs 0, 1, 4 become 2, 3, 6, step 0",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example slide down in x² − 3, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "(1, 1) goes to (1, −2); slips (−2, 1), (1, 4), step 1",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "4 to 20 mA loop: 0% sends 4 mA",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "4 to 20 mA loop: 100% sends 20 mA",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "S(p) = 0.16p + 4: 16 mA over 100%, mA per percent",
+        "value": 0.16,
+        "kind": "computed"
+      },
+      {
+        "label": "Example level, percent, in step 2",
+        "value": 50,
+        "kind": "assumed"
+      },
+      {
+        "label": "0.16 × 50 = 8 mA on the line 0.16p, step 2",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Lifted 4 mA: S(50) = 12 mA, in step 2",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Example slide in (x − 3)², in step 3",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "(3 − 3)² = 0: bottom moves to x = 3, step 3",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Table: inputs 3, 4, 5 give 0, 1, 4, in step 4",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "Marked point (2, 4) moves to (5, 4), in step 4",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Example slide in (x + 2)², in step 5",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Bottom at x = −2; slips right 2, up 2, step 5",
+        "value": -2,
+        "kind": "computed"
+      },
+      {
+        "label": "Table: inputs −2, −1, 0 give 0, 1, 4, step 6",
+        "value": -1,
+        "kind": "computed"
+      },
+      {
+        "label": "Root drawn from 0 to 9, in step 7",
+        "value": 9,
+        "kind": "assumed"
+      },
+      {
+        "label": "√(x − 4) starts at x = 4; slips −4, (0, −4), step 7",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "(x − 3)² + 2: bottom (0, 0) to (3, 2), step 8",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "(1, 1) to (4, 3) and (2, 4) to (5, 6), step 8",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "(x + 1)² − 4: bottom (−1, −4); slips (1, −4), (−1, 4), step 9",
+        "value": -4,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube's middle point (0, 0) slid to (2, −1), step 10",
+        "value": -1,
+        "kind": "assumed"
+      },
+      {
+        "label": "(x − 2)³ − 1 at x = 3: 1 − 1 = 0, step 10",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example reading error, mA high, in step 11",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "S(50) + 1 = 13 mA, in step 11",
+        "value": 13,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip S(51) = 0.16 × 51 + 4 = 12.16 mA, step 11",
+        "value": 12.16,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "Shifting a graph slides it without changing its shape. Add a number to the output and the graph slides up or down; add or take a number from the input inside the bracket and it slides left or right. The sideways move is the one that catches people out, and the function machine from lesson 1 shows why it goes the way it does.\n\nf(x) + 2 means put x through the machine, then add 2 to what comes out. Take the square from lesson 3, f(x) = x². At x = 2 it gives 4, so x² + 2 gives 6. The input is the same and only its output is 2 higher, and that is true at every input, so every point rises 2 and the whole graph slides up 2. That is a [[vertical shift]], a slide straight up or down,[^1] and x² − 3 slides down 3 in the same way. You have met one before. The transmitter's rule from lesson 2, S(p) = 0.16p + 4, is a straight-line rule of the kind instruments use,[^2] and it is the line 0.16p lifted by its 4 mA, so the 8 mA that line gives at 50% becomes 12 mA. Sliding up changes no steepness, so the slope is still 0.16 mA per percent.\n\nf(x − 3) means take 3 off the input first, then put what is left through the machine. So (x − 3)² gives 0 only when x − 3 is 0, which is at x = 3, not at 0. To get the old output 1 you now feed in 4, not 1, and to get 4 you feed in 5, not 2. Each input must be 3 bigger to give the old output, so every point sits 3 further right, and the graph slides 3 to the right. That is a [[horizontal shift]], a slide along the x-axis.[^3] In the same way f(x + 2) adds 2 before the machine, so each input can be 2 smaller, and the graph slides 2 to the left. A common slip is to move f(x + 3) to the right because the 3 is positive.[^4] One point settles it: find the input that makes the bracket 0. Everything about the graph slides with it, including where the machine starts: √x starts at 0, so √(x − 4) starts at 4. The two moves do not get in each other's way, so (x − 3)² + 2 slides right 3 and up 2, and its bottom moves from (0, 0) to (3, 2).\n\n**Adding outside the bracket, f(x) + 3, slides the graph up 3;[^1] taking 3 off the input inside, f(x − 3), slides it 3 to the right, because each input must be 3 bigger to give the old output.**"
+  },
+  "analogy": {
+    "text": "Think of two identical heating timers, the second set 2 hours behind the first. Whatever the first does at 7 o'clock, the second does at 9, so its on-off chart is the first one's slid 2 hours to the right. To find what the late one does at 9, you ask what the early one did at 9 − 2 = 7: late(t) = early(t − 2), a minus inside that moves the chart right.",
+    "breaks": "A day wraps round, so a timer's chart slid past midnight comes back in at the start of the day, while a function's graph just carries on sliding. A timer also copies only the sideways move: a slide up changes the outputs themselves, which no timer setting does."
+  },
+  "practice": {
+    "text": "- Up or down: look for a number added outside the bracket. f(x) + 3 slides the graph up 3, and f(x) − 3 slides it down 3.\n- Left or right: look inside the bracket and find the input that makes it 0. The point that sat at input 0 now sits there. f(x − 3) slides right 3, and f(x + 3) slides left 3.\n- Move one easy point, such as the bottom of a U, then the others: every point moves the same way by the same amount.\n- Check one moved point in the new rule.\n\n**Rule of thumb:** A number added outside the bracket moves it up or down, the way the sign says. For one inside, find the input that makes the bracket 0: the point that sat at input 0 now sits there.\n\n**Worked example:** Sketch y = (x − 3)² + 2 from y = x². Inside, x − 3 is 0 at x = 3, so the graph slides 3 to the right. Outside, the + 2 slides it up 2. The bottom (0, 0) moves to (3, 2), and the points (1, 1) and (2, 4) move to (4, 3) and (5, 6). Check one: at x = 5, (5 − 3)² + 2 = 4 + 2 = 6.\n\n**Common mistakes**\n- Moving f(x + 3) to the right because the 3 is positive.[^4] The bracket is 0 at x = −3, so the graph moves left.\n- Mixing up outside and inside. x² − 3 drops the graph 3; (x − 3)² slides it 3 to the right.\n- Forgetting that where the machine starts slides too. √(x − 4) starts at x = 4, not 0."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Graph transformations - Identifying and sketching related functions - Higher Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zc6hhyc/revision/1",
+      "quote": "Adding or subtracting a constant (k) to a function has the effect of shifting the graph up or down vertically by (k) units."
+    },
+    {
+      "n": 2,
+      "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+      "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+      "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+    },
+    {
+      "n": 3,
+      "title": "Graph transformations - Identifying and sketching related functions - Higher Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/guides/zc6hhyc/revision/1",
+      "quote": "Adding or subtracting a constant (k) to the (x) term has the effect of shifting the graph left or right along the (x)-axis."
+    },
+    {
+      "n": 4,
+      "title": "1.2: 1.2 Graphical Transformations - K12 LibreTexts",
+      "url": "https://k12.libretexts.org/Bookshelves/Mathematics/Precalculus/01%3A_Functions_and_Graphs/1.02%3A_1.2_Graphical_Transformations",
+      "quote": "A common misconception is to shift right because the three is positive."
+    }
+  ]
+}
