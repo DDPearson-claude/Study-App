@@ -1,0 +1,696 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T10:00:47.797Z",
+ "startedAt": "2026-10-17T10:00:47.797Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i10",
+  "title": "Mean and RMS values",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the squared sine wave's humps above 50 A² dropping exactly into its dips, leaving a flat band at half the peak squared, when you slide the fold across.",
+   "title": "Mean and RMS from the area",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in twelve small screens on the mean and RMS values of a changing current. Each screen has a graph of current in amps against time, drawn from a rule the screen names, with bars or a flat rectangle laid over it. The first screen takes lesson 8's current, i = 3t² from 0 s to 2 s, whose area is 8 C: a flat rectangle 4 A high over the same 2 s has the same area, because 8 ÷ 2 = 4, and the part of the curve above it fills the gap below it. Then an a.c. current, a sine wave drawn by the page with a peak of 10 A: over a whole cycle the bars below the axis are hatched and count as minus, and the mean readout shows 0 A. Over half a cycle a slider sets how many bars, from 4 to 100, each as tall as the current at its middle, and the mean of their heights goes 6.53, 6.41, then 6.37 A, 0.637 of the peak. Then the squared current is drawn under the current. A ramp, i = 3t rising to 6 A in 2 s, has a square, 9t², rising to 36 A²; its mean, 12 A², is a flat band, and a readout takes its square root, 3.46 A. On the sine wave's screen the square runs between 0 and 100 A²; a slider marked Fold lifts each hump above the 50 A² line, moves it a quarter cycle along, turns it upside down and drops it into the dip there, where it fits exactly, leaving a flat band at 50 A², whose root is 7.07 A. It fits because a quarter cycle on, the squared current is always 100 minus what it is now: a sine wave is the height of a point going steadily round a circle of radius 10, a quarter turn later its height is what its sideways distance was, and by Pythagoras height² + sideways distance² = 100. A later screen sets three waves side by side, half a cycle of a square wave and of a sine wave, and a ramp, each with its mean, its RMS value and their ratio, the form factor. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graph.",
+   "ignores": "The waves are drawn exactly from rules: a perfect sine wave computed by the page, and a ramp that drops back to zero at once. Real a.c. is only close to a sine wave, and a real ramp takes a moment to drop back. Time is stretched so one cycle fills the screen. The heating rule I²R takes the heater's resistance as steady, though a real element's resistance changes a little as it warms.",
+   "numbers": [
+    {
+     "label": "Lesson 8's current i = 3t² A, in step 1",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Stretch 0 s to 2 s, in step 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Charge 2³ = 8 C, in step 1",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean current 8 ÷ 2 = 4 A, in step 1",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Current at 2 s: 3 × 2² = 12 A, in step 1",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip average of ends (0 + 12) ÷ 2 = 6 A, in step 1",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Example i = t² A from 0 s to 3 s, in step 2",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Charge 3³ ÷ 3 = 9 C, in step 2",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean 9 ÷ 3 = 3 A, in step 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip average of ends (0 + 9) ÷ 2 = 4.5 A, in step 2",
+     "value": 4.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip not dividing: 9 A, in step 2",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Example sine wave peak 10 A, in step 3",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Whole-cycle mean 0 A, in step 3",
+     "value": 0,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Bars slider opens at 4, in step 3",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Bars slider goes up to 100, in step 3",
+     "value": 100,
+     "kind": "control"
+    },
+    {
+     "label": "4 bars' mean 6.53 A, in step 3",
+     "value": 6.53,
+     "kind": "computed"
+    },
+    {
+     "label": "8 bars' mean 6.41 A, in step 3",
+     "value": 6.41,
+     "kind": "computed"
+    },
+    {
+     "label": "100 bars' mean 6.37 A, in step 3",
+     "value": 6.37,
+     "kind": "computed"
+    },
+    {
+     "label": "Half-cycle mean 0.637 of the peak, in step 3",
+     "value": 0.637,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Example sine peak 20 A, in step 4",
+     "value": 20,
+     "kind": "assumed"
+    },
+    {
+     "label": "Half-cycle mean 0.637 × 20 = 12.7 A, in step 4",
+     "value": 12.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip half the peak: 10 A, in step 4",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip whole-cycle mean: 0 A, in step 4",
+     "value": 0,
+     "kind": "computed"
+    },
+    {
+     "label": "Example ramp i = 3t A, 0 s to 2 s, in step 5",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Ramp peak 3 × 2 = 6 A, in step 5",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Ramp mean 6 C ÷ 2 s = 3 A, in step 5",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Ramp's triangle ½ × 2 × 6 = 6 C, in step 5",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Square peak 6² = 36 A², in step 5",
+     "value": 36,
+     "kind": "computed"
+    },
+    {
+     "label": "Square 9t² adds up to 3 × 2³ = 24, in step 5",
+     "value": 24,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean square 24 ÷ 2 = 12 A², in step 5",
+     "value": 12,
+     "kind": "computed"
+    },
+    {
+     "label": "RMS √12 = 3.46 A, in step 5",
+     "value": 3.46,
+     "kind": "computed"
+    },
+    {
+     "label": "√3 is about 1.732, in step 5",
+     "value": 1.732,
+     "kind": "computed"
+    },
+    {
+     "label": "Example ramp i = 6t A, up to 12 A, in step 6",
+     "value": 12,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square 36t² adds up to 12 × 2³ = 96, in step 6",
+     "value": 96,
+     "kind": "computed"
+    },
+    {
+     "label": "Mean square 96 ÷ 2 = 48 A², in step 6",
+     "value": 48,
+     "kind": "computed"
+    },
+    {
+     "label": "RMS √48 = 6.93 A, in step 6",
+     "value": 6.93,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip plain mean: 6 A, in step 6",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip no root: 48, in step 6",
+     "value": 48,
+     "kind": "computed"
+    },
+    {
+     "label": "Squared sine peaks at 10² = 100 A², in step 7",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Flat band 50 A², half the peak squared, in step 7",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Fold slider opens at 0, unfolded, in step 7",
+     "value": 0,
+     "kind": "control"
+    },
+    {
+     "label": "Fold slider ends at 1, folded, in step 7",
+     "value": 1,
+     "kind": "control"
+    },
+    {
+     "label": "RMS √50 = 7.07 A, in step 7",
+     "value": 7.07,
+     "kind": "computed"
+    },
+    {
+     "label": "√2 is about 1.414, in step 7",
+     "value": 1.414,
+     "kind": "computed"
+    },
+    {
+     "label": "Sine RMS 0.707 of the peak, in step 7",
+     "value": 0.707,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Example sine voltage peak 100 V, in step 8",
+     "value": 100,
+     "kind": "assumed"
+    },
+    {
+     "label": "RMS 100 × 0.707 = 70.7 V, in step 8",
+     "value": 70.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip half-cycle mean: 63.7 V, in step 8",
+     "value": 63.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip peak ÷ 2 = 50 V, in step 8",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "Sine peak 1.414 × RMS, in step 9",
+     "value": 1.414,
+     "kind": "constant",
+     "source": 4
+    },
+    {
+     "label": "Example square wave ±10 A, in step 9",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Square wave form factor 10 ÷ 10 = 1, in step 9",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Sine form factor 7.07 ÷ 6.37 = 1.11, in step 9",
+     "value": 1.11,
+     "kind": "computed"
+    },
+    {
+     "label": "Ramp form factor 3.46 ÷ 3 = 1.15, in step 9",
+     "value": 1.15,
+     "kind": "computed"
+    },
+    {
+     "label": "12 A ramp form factor 6.93 ÷ 6 = 1.15, in step 10",
+     "value": 1.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip upside down: 6 ÷ 6.93 = 0.87, in step 10",
+     "value": 0.87,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip RMS ÷ peak: 6.93 ÷ 12 = 0.58, in step 10",
+     "value": 0.58,
+     "kind": "computed"
+    },
+    {
+     "label": "Example sine RMS 5 A, in step 11",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Peak 5 × 1.414 = 7.07 A, in step 11",
+     "value": 7.07,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip dividing: 5 ÷ 1.414 = 3.54 A, in step 11",
+     "value": 3.54,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip doubling: 10 A, in step 11",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Example sawtooth 0 V to 30 V, in step 12",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "RMS 30 ÷ 1.732 = 17.3 V, in step 12",
+     "value": 17.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip sine rule: 30 ÷ 1.414 = 21.2 V, in step 12",
+     "value": 21.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip plain mean: 15 V, in step 12",
+     "value": 15,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: example sine peak 15 A",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: RMS 15 × 0.707 = 10.6 A",
+     "value": 10.6,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: half-cycle mean 15 × 0.637 = 9.56 A",
+     "value": 9.56,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: form factor 10.6 ÷ 9.56 = 1.11",
+     "value": 1.11,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: example readings 2, 6, 6, 2 A",
+     "value": 6,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: mean 16 ÷ 4 = 4 A",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: mean square 80 ÷ 4 = 20 A²",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: RMS √20 = 4.47 A",
+     "value": 4.47,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: form factor 4.47 ÷ 4 = 1.12",
+     "value": 1.12,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "The mean value of a graph over a stretch is the area under it divided by the stretch's length: the height of the flat rectangle with the same area.[^5] The RMS value says how big a changing current is for heating: square the graph, take the mean of the square, then take the square root.[^6] For a sine wave that comes to the peak ÷ √2,[^7] and you can see why without any trigonometry.\n\nRemember the current i = 3t² amps from 0 s to 2 s in lesson 8: the area under it, the charge, is 8 C. A steady current moving the same 8 C in the same 2 s would be 8 ÷ 2 = 4 A, a flat rectangle 4 A high and 2 s long with the same area. That height is the [[mean value]], the definite integral divided by the length of the stretch,[^5] the same move as the mean effective pressure in the last lesson. Where the curve rises above the rectangle, the extra area exactly makes up for where it sits below, because the two shapes hold the same 8 C. The mean is not the average of the end values, (0 + 12) ÷ 2 = 6 A, because this curve spends most of the 2 s low down and only shoots up near the end; on a straight line the two do agree, which is why the slip is easy to make, but not in general. With equal bars the mean is plain averaging: each bar's area is its height times the same width, so the bars' total area ÷ their total width is the average of their heights.\n\nAn a.c. current flows one way, then back. The a.c. from a generator follows the shape of a sine wave,[^8] drawn here with a peak of 10 A; its trigonometry waits for a later course. Over a whole cycle the backward half has the same area as the forward half, and area below the axis counts as minus, so the mean is zero.[^1] A mean of zero says nothing about how big the current is, so for its size the mean is taken over half a cycle, where it flows one way: the bars settle on 6.37 A, 0.637 of the peak.[^2] Heating needs something different again. At each moment a heater takes power i²R, so its heat goes with the square of the current: twice the current gives four times the heat, and a backward current heats just as well, because a minus times a minus is a plus. Over a cycle its mean power is the mean of i² times R. A steady current I gives I²R. The R is the same on both sides, so the two heat alike when I² equals the mean of i²: square the graph, find its mean, then take the square root.[^6] That is the [[RMS value]], short for root mean square: the steady direct current that would give a circuit the same energy.[^9] Take a ramp, i = 3t amps from 0 s to 2 s, rising to 6 A and dropping back. Under it is a triangle, half of 2 s × 6 A, so 6 C, and its mean is 6 C ÷ 2 s = 3 A. Its square is 9t², which the reverse rule turns into 3t³, so its area from 0 s to 2 s is 24 and its mean is 24 ÷ 2 = 12 A². The RMS value is √12 = 3.46 A, more than the mean, because squaring makes the big currents count for more. Any ramp from 0 up to a peak A in a time T works the same way. It is i = A × t ÷ T, its square is A² × t² ÷ T², and the reverse rule turns that into A² × t³ ÷ (3T²), which at T is A² × T ÷ 3. Divide by the length T and the mean square is A² ÷ 3, so the RMS value is A ÷ √3: 6 ÷ 1.732 = 3.46 A.\n\nNow square the sine wave with its 10 A peak. The square runs between 0 and 100 A², never below the axis, and repeats every half cycle, because the backward half squares to the same humps as the forward half. Its humps above 50 A², half the peak squared, are the same shape as its dips below 50 A², turned upside down, so each hump lifts off, moves a quarter cycle along, turns over and drops exactly into the dip there, leaving a flat band at 50 A². One way to picture why: a sine wave is the height of a point going steadily round a circle whose radius is the peak. A quarter turn later its height is what its sideways distance was, and by Pythagoras height² + sideways distance² = 10² = 100 at every moment. So the squared wave and the squared wave a quarter cycle later always add up to 100: wherever one is above 50 by some amount, the other is below 50 by the same amount. The mean of the square is therefore 50 A², and the RMS value is √50 = 7.07 A, the peak ÷ √2, about 0.707 of the peak;[^7][^3] the other way round, the peak is 1.414 × the RMS value.[^4] That is more than the half-cycle mean of 6.37 A, and the RMS value ÷ the mean value is called the [[form factor]]:[^10] 7.07 ÷ 6.37 = 1.11 for a sine wave, and 3.46 ÷ 3 = 1.15 for the ramp. Like the work from a pV diagram, a mean or RMS value comes from an area under a graph, found by bars or the reverse rule, then divided by a length: one more way the integral turns a quantity that keeps changing into a single number you can use. **The mean value is the area under a graph ÷ its length;[^5] the RMS value is the square root of the mean of the squared graph,[^6] which for a sine wave is its peak ÷ √2.[^7]**"
+  },
+  "analogy": {
+   "text": "Picture raking a heap of spoil flat along a trench. The high spots fill the low spots, and the flat level you end with is the heap's mean height: its side-on area ÷ its length, whatever shape it started. The RMS value is the same levelling done on a heap whose every height has been squared first: rake that flat, then take the square root of its level.",
+   "breaks": "Spoil cannot hang below the ground, but a graph's area below the axis counts as minus, which is why an a.c. wave's whole-cycle mean is zero. And spoil packs down as you rake it, while an area moved about on a graph stays exactly the same size."
+  },
+  "practice": {
+   "text": "- Mean value: find the area under the graph over the stretch, by the reverse rule or by bars, and divide by the stretch's length.\n- For a.c., take the mean over half a cycle: over a whole cycle it comes to zero.\n- RMS value: square the graph, find the mean of the square, take the square root. Square first, root last.\n- From readings only: split the stretch into equal strips, read the value at each strip's middle, square each reading, average the squares, then take the root.\n- Sine wave: RMS = peak × 0.707, peak = RMS × 1.414, half-cycle mean = peak × 0.637.\n- A ramp rising steadily from 0 to its peak and dropping back: mean = peak ÷ 2, RMS = peak ÷ √3.\n- Form factor = RMS value ÷ mean value.[^10]\n\n**Rules of thumb:** for the waves in this lesson the RMS value lies at or between the half-cycle mean and the peak. The 0.707 is the sine wave's figure; other shapes usually give other figures, so for them square, mean and root.\n\n**Worked example:** Say a sine current peaks at 15 A. Its RMS value is 15 × 0.707 = 10.6 A, its half-cycle mean is 15 × 0.637 = 9.56 A, and its form factor is 10.6 ÷ 9.56 = 1.11.\n\n**Worked example from readings:** Say half a cycle of an odd-shaped current is split into four equal strips, with middle readings of 2, 6, 6 and 2 A. The mean is 16 ÷ 4 = 4 A. The squares are 4, 36, 36 and 4, so the mean square is 80 ÷ 4 = 20 A² and the RMS value is √20 = 4.47 A. The form factor is 4.47 ÷ 4 = 1.12.\n\n**Where you will meet it:** the MCA's Marine Electro-technology syllabus asks for the mean value, RMS value and form factor of sine waves and of other wave shapes,[^11] and an HN engineering maths unit applies integration to mean values and root mean square values.[^12]\n\n**Common mistakes**\n- Taking the average of the end values as the mean: it is right on a straight line, but not in general.\n- Taking an a.c. mean over a whole cycle and getting zero.\n- Using the mean as the RMS value.\n- Forgetting the square root, which leaves an answer in A².\n- Dividing the peak by 2 instead of by √2.\n- Using peak ÷ √2 for a wave that is not a sine wave.\n- Dividing an RMS value by 1.414 to get the peak, instead of multiplying."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "PRINCIPLES OF ALTERNATING CURRENT",
+    "url": "https://www.tina.com/principles-of-alternating-current",
+    "quote": "Note that the average of a whole cycle is zero."
+   },
+   {
+    "n": 2,
+    "title": "Measuring the Sine Wave",
+    "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+    "quote": "Using only half a cycle, as illustrated in fig 1.2.3 the average value (voltage or current) is always 0.637 of the peak value of the wave."
+   },
+   {
+    "n": 3,
+    "title": "Measuring the Sine Wave",
+    "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+    "quote": "It can be shown that the RMS value of a sine wave is 0.707 of the peak value."
+   },
+   {
+    "n": 4,
+    "title": "Measuring the Sine Wave",
+    "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+    "quote": "Also, the peak value of a sine wave is equal to 1.414 x the RMS value."
+   },
+   {
+    "n": 5,
+    "title": "5.4: Average Value of a Function - Mathematics LibreTexts",
+    "url": "https://math.libretexts.org/Courses/Monroe_Community_College/MTH_210_Calculus_I_(Professor_Dean)/Chapter_5%3A_Integration/5.4%3A_Average_Value_of_a_Function",
+    "quote": "the average value of a function on an interval can be found by calculating the definite integral of the function and dividing that value by the length of the interval"
+   },
+   {
+    "n": 6,
+    "title": "Sine wave RMS value - derivation (without calculus) (video) | Khan Academy",
+    "url": "https://www.khanacademy.org/science/in-in-class-12th-physics-india/x51bd77206da864f3%3Aalternating-current/x51bd77206da864f3%3Arms-values-of-current-voltage/v/sine-wave-rms-value-derivation-without-calculus",
+    "quote": "To calculate the RMS value of any function, we first square it, then find the mean value over some time period, and finally take the square root of it."
+   },
+   {
+    "n": 7,
+    "title": "Power Factor And RMS Explained | Sinusoidal Steady State Power | Power Electronics Textbook",
+    "url": "https://eepower.com/power-electronics-textbook/vol-i-electrical-power-systems-design/chapter-4-sinusoidal-steady-state-power/power-factor-and-rms-explained",
+    "quote": "We learned in Chapter 1 that the RMS value of a voltage or current is equal to the peak value divided by the square root of 2."
+   },
+   {
+    "n": 8,
+    "title": "AC Waveforms | Basic AC Theory | Electronics Textbook",
+    "url": "https://www.allaboutcircuits.com/textbook/alternating-current/chpt-1/ac-waveforms",
+    "quote": "AC produced by an electromechanical alternator follows the graphical shape of a sine wave."
+   },
+   {
+    "n": 9,
+    "title": "Measuring the Sine Wave",
+    "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+    "quote": "The RMS or ROOT MEAN SQUARED value is the value of the equivalent direct (non varying) voltage or current which would provide the same energy to a circuit as the sine wave measured."
+   },
+   {
+    "n": 10,
+    "title": "12.3: Measurements of AC Magnitude - Workforce LibreTexts",
+    "url": "https://workforce.libretexts.org/Courses/Sacramento_City_College/MET_256_-_Fundamentals_of_Instruments_and_Electricity_(Gentry)/12:_Basic_AC_Theory/12.03:_Measurements_of_AC_Magnitude",
+    "quote": "The form factor of an AC waveform is the ratio of its RMS value divided by its average value."
+   },
+   {
+    "n": 11,
+    "title": "Marine Electro-Technology Written Examination Syllabus - GOV.UK",
+    "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus",
+    "quote": "Explains terms, mean value, rms value and form factor with reference to a sine wave. 18. Calculates the rms value, mean value and form factor of sinusoidal and non-sinusoidal wave forms."
+   },
+   {
+    "n": 12,
+    "title": "national unit specification: general information",
+    "url": "https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf",
+    "quote": "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .v { font-style: italic; }\n  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; }\n  .scene .grid { stroke: var(--k-line); stroke-width: 1; }\n  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }\n  .scene .tick, .scene .aname { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene .colname { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  /* The graph of the rule, and the bars or area under it. */\n  .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .curve.thin { stroke-width: 2; }\n  .scene .curve.pick { stroke: var(--k-muted); stroke-dasharray: 6 4; }\n  .scene .curve.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }\n  .scene .bar { fill: var(--k-fill1); }\n  .scene .bar.edge { stroke: var(--k-accent2); stroke-width: 1.2; }\n  .scene .bar.neg { fill: url(#hatch); }\n  .scene .area { fill: var(--k-fill1); }\n  .scene .area.soft { fill: var(--k-sunk); }\n  .scene .area.neg { fill: url(#hatch); }\n  :root[data-theme=\"dark\"] .scene .area.soft { fill: color-mix(in srgb, var(--k-strong) 40%, var(--k-sunk)); stroke: var(--k-strong); stroke-width: 1; }\n  .scene .area.bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  /* The mean: a flat rectangle with the same area. The humps that fold. The RMS level. */\n  .scene .mean { fill: var(--k-fill2); fill-opacity: .6; }\n  .scene .meanedge { stroke: var(--k-amber-line); stroke-width: 2.5; }\n  .scene .hump { fill: var(--k-fill2); fill-opacity: .9; stroke: var(--k-amber-line); stroke-width: 1.5; stroke-linejoin: round; }\n  .scene .rms { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 8 4; }\n  .scene .badln { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .pick { stroke: var(--k-muted); stroke-width: 2.5; stroke-dasharray: 6 4; }\n  .scene .lvl { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; }\n  .scene .hbg { fill: var(--k-fill1); }\n  .scene .hln { stroke: var(--k-accent2); stroke-width: 1.6; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .brk.bad { stroke: var(--k-warn); stroke-width: 2; }\n  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }\n  .scene .lab.bad { fill: var(--k-warn); }\n  .scene .row { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }\n  .scene .row.soft { font-weight: 400; }\n  .scene .row.bad { fill: var(--k-warn); }\n  .scene .v { font-style: italic; }\n  /* The key, inside the drawing. */\n  .scene .sw { stroke: var(--k-strong); stroke-width: 1; }\n  .scene .sw.hatch { fill: url(#hatch); stroke: var(--k-accent2); }\n  .scene .sw.hump { fill: var(--k-fill2); stroke: var(--k-amber-line); }\n  .scene .keyt { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene #art * { pointer-events: none; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 7rem; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stay on one row, each label whole; longer ones stack one to a row. */\n  .row.picks { flex-wrap: nowrap; }\n  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }\n  .row.picks.long { flex-direction: column; gap: 8px; }\n  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }\n  .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why, .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">Graphs of a changing current against time, each drawn from a rule, with bars or a flat rectangle laid over them.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 460\" width=\"100%\" role=\"img\" aria-label=\"\">\n      <defs>\n        <pattern id=\"hatch\" patternUnits=\"userSpaceOnUse\" width=\"6\" height=\"6\" patternTransform=\"rotate(45)\">\n          <rect class=\"hbg\" x=\"0\" y=\"0\" width=\"6\" height=\"6\"></rect>\n          <line class=\"hln\" x1=\"1\" y1=\"0\" x2=\"1\" y2=\"6\"></line>\n        </pattern>\n      </defs>\n      <g id=\"art\"></g>\n    </svg>\n    <div class=\"k-controls\" id=\"cb1\" hidden></div>\n    <div class=\"k-controls\" id=\"cb2\" hidden></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Each wave is drawn from its rule with example values; each mean and RMS is worked out from it.</p>\n\n<script>\n  // ---------- numbers ----------\n  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };\n  const fmtN = (v) => String(tidy(v)).replace('-', '−');\n  const dec = (v, d) => { const p = Math.pow(10, d); return fmtN(Math.round(tidy(v) * p) / p); };\n  const fix = (v, d) => { let s = (Math.round(tidy(v) * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); if (/^-0(\\.0+)?$/.test(s)) s = s.slice(1); return s.replace('-', '−'); };\n\n  // ---------- the rules ----------\n  // Time for an a.c. wave is in cycles (one cycle fills the graph); for the ramps it is in seconds.\n  const TAU = 2 * Math.PI;\n  const sine = (P) => (x) => P * Math.sin(TAU * x);\n  const SIN10 = sine(10);\n  const SQR = (f) => (x) => { const v = f(x); return v * v; };\n  const SQ10 = SQR(SIN10);\n  const R3 = (t) => 3 * t * t;        // lesson 8's current\n  const T2 = (t) => t * t;\n  const RAMP3 = (t) => 3 * t, RAMP6 = (t) => 6 * t;\n  const SQW = (x) => (x < 0.5 ? 10 : -10);   // a square wave of ±10 A\n  const SAW = (t) => 30 * t;                 // one tooth of the sawtooth, 0 to T\n  // N equal bars from a to b, each as tall as the graph at its middle.\n  function barsOf(f, a, b, N) {\n    const w = (b - a) / N, out = [];\n    for (let k = 0; k < N; k++) { const v0 = a + k * w; out.push({ v0, v1: v0 + w, h: f(v0 + w / 2) }); }\n    return out;\n  }\n  const meanH = (list) => list.reduce((s, q) => s + q.h, 0) / list.length;\n  // The mean of a graph over a stretch: its area (20,000 bars) ÷ the stretch's length.\n  const meanOf = (f, a, b) => meanH(barsOf(f, a, b, 20000));\n  const areaBy = (f, a, b) => meanOf(f, a, b) * (b - a);\n  // Square, mean, root.\n  const rmsOf = (f, a, b) => Math.sqrt(meanOf(SQR(f), a, b));\n\n  // The three waves set side by side, each a.c. one over the half cycle where it flows one way: each mean, RMS and their ratio.\n  const FORM = [\n    { name: 'Square wave', f: SQW, xs: [0, 0.5], end: '½ cycle', mspan: [0, 0.5], px: [86, 162],\n      d: (Xc, Ym) => 'M' + r3(Xc(0)) + ' ' + r3(Ym(0)) + ' V' + r3(Ym(10)) + ' H' + r3(Xc(0.5)) + ' V' + r3(Ym(0)) },\n    { name: 'Sine wave', f: SIN10, xs: [0, 0.5], end: '½ cycle', mspan: [0, 0.5], px: [172, 248],\n      d: (Xc, Ym) => K.linspace(0, 0.5, 49).map((t, j) => (j ? ' L' : 'M') + r3(Xc(t)) + ' ' + r3(Ym(SIN10(t)))).join('') },\n    { name: 'Ramp', f: RAMP3, xs: [0, 2], end: '2 s', mspan: [0, 2], px: [258, 334],\n      d: (Xc, Ym) => 'M' + r3(Xc(0)) + ' ' + r3(Ym(0)) + ' L' + r3(Xc(2)) + ' ' + r3(Ym(6)) + ' V' + r3(Ym(0)) },\n  ];\n  function r3(v) { return Math.round(v * 1000) / 1000; }\n  FORM.forEach((c) => { c.mean = meanOf(c.f, c.mspan[0], c.mspan[1]); c.rms = rmsOf(c.f, c.xs[0], c.xs[1]); c.ff = c.rms / c.mean; });\n\n  const SUBS = { '²': ' squared', '³': ' cubed', '½': 'half', '¼': 'a quarter', '¾': 'three quarters' };\n  const say = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/[²³½¼¾]/g, (m) => SUBS[m]).replace(/√/g, 'root ').replace(/±/g, 'plus or minus ')\n    .replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/−/g, ' minus ').replace(/\\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\\s+/g, ' ').trim();\n\n  // ---------- the graphs ----------\n  const AMP = '`i`, current in A', VOLT = '`v`, voltage in V', AMP2 = '`i²`, current squared in A²';\n  const CYC = { x: [0, 1, 0.25], xf: (v) => ({ 0: '0', 0.25: '¼', 0.5: '½', 0.75: '¾', 1: '1' })[v], xn: 'time, in cycles' };\n  const SEC = (b, s) => ({ x: [0, b, s], xn: '`t`, time in s' });\n  const ONE = (o, y, yn) => Object.assign({ top: 56, h: 170, ny: 16 }, o, { y, yn });\n  const TOP = (o, y, yn) => Object.assign({ top: 56, h: 100, ny: 16 }, o, { y, yn, xn: null });\n  const BOT = (o, y, yn) => Object.assign({ top: 214, h: 110, ny: 22 }, o, { y, yn });\n  const G4a = TOP(SEC(2, 0.5), [0, 6, 2], AMP), G4b = BOT(SEC(2, 0.5), [0, 36, 12], AMP2);\n  const G5a = TOP(SEC(2, 0.5), [0, 12, 4], AMP), G5b = BOT(SEC(2, 0.5), [0, 144, 48], AMP2);\n  const G6a = TOP(CYC, [-10, 10, 10], AMP), G6b = BOT(CYC, [0, 100, 50], '`i²` in A²');\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  const TXT = {\n    mean: 'Lesson 8’s current is `i = 3t²` amps from 0 s to 2 s. The reverse rule turns `3t²` into `t³`, so it moves 2³ = 8 C of charge: the area under it. A steady current moving the same 8 C in the same 2 s would be 8 ÷ 2 = 4 A, a flat rectangle with the same area. That height is the *mean value*, the area under a graph ÷ the length of the stretch. Where the curve rises above the rectangle, the extra exactly fills the gap below it. The mean is not the ends’ average, (0 + 12) ÷ 2 = 6 A, as this curve spends most of the 2 s low down.',\n    ac: 'An a.c. current flows one way, then back. A generator’s a.c. follows the shape of a sine wave, drawn here with a 10 A peak, an example. Area below the axis counts as minus, so over a whole cycle the backward half cancels the forward half and the mean is 0 A. A mean of 0 A says nothing about how big the current is, so for its size take the mean over half a cycle, where it flows one way. With equal bars that is the average of their heights: 4 bars give 6.53 A, 8 give 6.41 A and 100 give 6.37 A, 0.637 of the peak.',\n    ramp: 'A heater’s heat goes with the current squared, so a backward current heats just as well. A steady current `I` gives a heater of resistance R the power `I²R`, so it heats the same as a changing current when `I²` equals the mean of `i²`. That steady current is the *RMS value*, root mean square: square the graph, find its mean, then take the square root. Here a ramp, `i = 3t` amps, an example, rises to 6 A in 2 s and drops back. Its square’s mean is 12 A², so its RMS value is √12 = 3.46 A, more than its 3 A mean, as squaring makes the big currents count for more. Any ramp gives its peak ÷ √3.',\n    fold: 'The sine wave’s square runs between 0 and 100 A², and its humps above 50 A² are its dips turned upside down. As the fold slides across, each hump moves a quarter cycle along, turns over and drops exactly into the dip there, leaving a flat band at 50 A², the mean square. Its root, √50 = 7.07 A, is the RMS value, the peak ÷ √2. One way to picture why it fits: a sine wave is the height of a point going steadily round a circle of radius 10. A quarter turn later its height is what its sideways distance was, and by Pythagoras height² + sideways distance² = 100, so the square now and the square a quarter cycle on always add up to 100.',\n    form: 'Three waves side by side: half a cycle of a square wave of ±10 A, an example, and of the sine wave with its 10 A peak, and the ramp rising to 6 A. Under each are its mean and its RMS value, and RMS ÷ mean is called the *form factor*. The square wave’s size is always 10 A, so its mean and its RMS value are both 10 A: 10 ÷ 10 = 1. The sine wave’s is 7.07 ÷ 6.37 = 1.11 and the ramp’s 3.46 ÷ 3 = 1.15. The other way round, a sine wave’s peak is 1.414 × its RMS value.',\n  };\n  const STEPS = [\n    { show: true, kind: 'mean', name: 'The mean value', who: '`i = 3t²`, from 0 s to 2 s', g: ONE(SEC(2, 0.5), [0, 12, 4], AMP), dur: 4.4, rows: 3, text: TXT.mean },\n    { name: 'A mean current', who: '`i = t²`, from 0 s to 3 s', g: ONE(SEC(3, 1), [0, 10, 2], AMP), opts: ['ends', 'right', 'nodiv'],\n      task: 'The current `i = t²` amps, an example, flows from 0 s to 3 s. The reverse rule turns `t²` into `t³ ÷ 3`, so it moves 3³ ÷ 3 = 9 C. What is its mean current?',\n      why: 'Spread the 9 C over the 3 s: 9 ÷ 3 = 3 A, the height of the flat rectangle with the same area. (0 + 9) ÷ 2 = 4.5 A is the ends’ average, too high, as the curve spends most of the 3 s low down. 9 A forgets to divide by the 3 s.',\n      hint: 'Not quite. Divide the charge by the time.',\n      hints: { ends: 'Not quite. The curve is not straight. Divide the charge by the time.', nodiv: 'Not quite. 9 C is the charge. Divide it by the 3 s.' },\n      pre: ['`i = t²` from 0 s to 3 s: 9 C', 'Mean current = ?'], right: ['9 C spread over 3 s', '9 ÷ 3 = 3 A, the same area'],\n      o: {\n        ends: { t: '4.5 A', v: (0 + T2(3)) / 2, rows: ['(0 + 9) ÷ 2 = 4.5 A: the ends’ average', 'Divide the charge by the time'] },\n        right: { t: '3 A', v: tidy(T2(3) * 3 / 3 / 3) },\n        nodiv: { t: '9 A', v: T2(3), rows: ['9 C is the charge, not yet ÷ 3 s', 'Divide it by the 3 s'] },\n      },\n      scene: (s) => {\n        areaOf(T2, 0, 3, s.k === 'right' ? '' : 'soft', 1);\n        if (s.k === 'right') meanRect(0, 3, s.ov, s.a, { x: X(0.05), y: Y(3) - 7, text: 'mean 3 A', anchor: 'start' });\n        if (s.k === 'ends') badRect(0, 3, s.ov, s.a, { x: X(0.75), y: Y(4.5) - 9, text: 'too much area' });\n        if (s.k === 'nodiv') badRect(0, 3, s.ov, s.a, { x: X(1.1), y: Y(6.5), text: 'the 9 C, not ÷ 3 s' });\n        curve(T2, 0, 3, '', 1);\n        queue(1, [{ x: X(2.3), y: Y(1.4), text: '9 C' }]);\n        if (s.pk) pickLine(0, 3, s.pv, s.pt, s.pa, { x: X(0.05), y: Y(s.pv) - 7, anchor: 'start' });\n      } },\n    { show: true, kind: 'ac', name: 'Mean of a sine wave', cid: 'bars', who: 'A sine-wave current, peak 10 A', g: ONE(CYC, [-10, 10, 5], AMP), dur: 4.8, rows: 3,\n      ctour: { v0: 4, log: true, legs: [{ to: 8, t: 2.6, len: 0.6 }, { to: 100, t: 3.4, len: 0.9 }] },\n      rowsAt: (n) => {\n        const m = meanH(barsOf(SIN10, 0, 0.5, n));\n        return [{ s: n + ' bars over half a cycle: mean ' + fix(m, 2) + ' A', big: true },\n          { s: n >= 100 ? 'Settled on 0.637 of the 10 A peak' : 'Closing in on 0.637 of the peak', soft: true }];\n      },\n      text: TXT.ac },\n    { name: 'Half a cycle', who: 'A sine-wave current, peak 20 A', g: ONE(CYC, [-20, 20, 10], AMP), opts: ['half', 'whole', 'right'],\n      task: 'A sine-wave current peaks at 20 A, an example. What is its mean over half a cycle?',\n      why: 'Over half a cycle a sine wave’s mean is 0.637 of its peak: 0.637 × 20 = 12.7 A, the height of the rectangle with the same area as the hump. 10 A, half the peak, leaves too little area. 0 A is the mean over a whole cycle, where the backward half cancels the forward half.',\n      hint: 'Not quite. Take 0.637 of the peak.',\n      hints: { half: 'Not quite. Half the peak leaves too little area. Take 0.637 of it.', whole: 'Not quite. That is a whole cycle. Take half a cycle.' },\n      pre: ['Peak 20 A, over half a cycle', 'Mean = ?'], right: ['Half-cycle mean: 0.637 of the peak', '0.637 × 20 = 12.7 A, the same area'],\n      o: {\n        half: { t: '10 A', v: 20 / 2, rows: ['10 A is half the peak', 'It leaves too little area'] },\n        whole: { t: '0 A', v: 0, rows: ['0 A is the mean over a whole cycle', 'Take half a cycle'] },\n        right: { t: '12.7 A', v: 40 / Math.PI },\n      },\n      scene: (s) => {\n        const f = sine(20);\n        areaOf(f, 0, 0.5, s.k === 'right' ? '' : 'soft', 1);\n        if (s.k === 'right') meanRect(0, 0.5, s.ov, s.a, { x: X(0.5) + 6, y: Y(s.ov) + 5, text: 'mean 12.7 A', anchor: 'start' });\n        if (s.k === 'half') badRect(0, 0.5, s.ov, s.a, { x: X(0.5) + 6, y: Y(s.ov) + 5, text: 'too little area', anchor: 'start' });\n        if (s.k === 'whole') {\n          areaOf(f, 0.5, 1, 'neg', s.a);\n          part(s.a, 0, () => drawKey({ x: X(0.56), y: Y(17), items: [{ sw: 'hatch', text: 'counts as minus' }] }));\n          queue(s.a, [{ x: X(1) - 2, y: Y(9), text: 'a whole cycle cancels', anchor: 'end', cls: 'bad' }]);\n        }\n        curve(f, 0, 1, '', 1);\n        tbr(0, 0.5, -3, 'half a cycle', 1);\n        if (s.pk) pickLine(0, 0.5, s.pv, s.pt, s.pa, { x: X(0.5) + 6, y: Y(s.pv) + (s.pv > 0 ? 5 : -6), anchor: 'start' });\n      } },\n    { show: true, kind: 'ramp', name: 'Square, mean, root', who: 'A ramp, `i = 3t`, and its square', g1: G4a, g2: G4b, dur: 4.8, rows: 5, text: TXT.ramp },\n    { name: 'A steeper ramp', who: 'A ramp, `i = 6t`, and its square', g1: G5a, g2: G5b, opts: ['right', 'mean', 'noroot'],\n      task: 'A ramp current, `i = 6t` amps, rises from 0 to 12 A in 2 s, an example, then drops back. Its square, `36t²`, adds up to 12 × 2³ = 96 over the 2 s. What is its RMS value?',\n      why: 'The mean of the square is 96 ÷ 2 = 48 A², so the RMS value is √48 = 6.93 A, the same as the peak ÷ √3, 12 ÷ 1.732. 6 A is the plain mean, with no squaring. 48 is the mean square, in A², still waiting for its square root.',\n      hint: 'Not quite. Find the mean of the square, then its square root.',\n      hints: { mean: 'Not quite. That is the plain mean. Square first, then mean, then root.', noroot: 'Not quite. 48 is in A². Take its square root.' },\n      pre: ['Square `36t²` adds up to 96 over 2 s', 'RMS = ?'], right: ['Mean square: 96 ÷ 2 = 48 A²', 'RMS: √48 = 6.93 A'],\n      o: {\n        right: { t: '6.93 A', v: Math.sqrt(48) },\n        mean: { t: '6 A', v: RAMP6(2) / 2, rows: ['6 A is the plain mean, 12 ÷ 2', 'Square, mean, then root'] },\n        noroot: { t: '48 A', v: 12 * 8 / 2, rows: ['48 is the mean square, in A²', 'Take its square root'] },\n      },\n      scene: (s) => {\n        const f2 = SQR(RAMP6);\n        use(G5a); frame();\n        curve(RAMP6, 0, 2, '', 1); drop(2, 12, 1);\n        if (s.k === 'right') rmsLine(0, 2, s.ov, s.a, { x: X(0.05), y: Y(s.ov) - 7, text: 'RMS 6.93 A', anchor: 'start' });\n        if (s.k === 'mean') badLine(0, 2, s.ov, s.a, { x: X(0.05), y: Y(s.ov) - 7, text: 'the plain mean', anchor: 'start' });\n        if (s.pk && s.pv <= 12) pickLine(0, 2, s.pv, s.pt, s.pa, { x: X(0.05), y: Y(s.pv) - 7, anchor: 'start' });\n        use(G5b); frame();\n        areaOf(f2, 0, 2, s.k === 'right' ? '' : 'soft', 1);\n        if (s.k === 'right') meanRect(0, 2, 48, s.a, { x: X(0.05), y: Y(48) - 7, text: 'mean 48 A²', anchor: 'start' }, true);\n        if (s.k === 'noroot') badLine(0, 2, 48, s.a, { x: X(0.05), y: Y(48) - 7, text: 'not yet rooted', anchor: 'start' });\n        curve(f2, 0, 2, '', 1); drop(2, 144, 1);\n        queue(1, [{ x: X(1.62), y: Y(30), text: 'adds up to 96' }]);\n      } },\n    { show: true, kind: 'fold', name: 'The fold', cid: 'fold', who: 'The sine wave, 10 A peak, and its square', g1: G6a, g2: G6b, dur: 4.5, rows: 4,\n      ftour: { v0: 0, legs: [{ to: 1, t: 0.6, len: 3.0 }] }, text: TXT.fold },\n    { name: 'A sine voltage', who: 'A sine-wave voltage, peak 100 V', g: ONE(CYC, [-100, 100, 50], VOLT), opts: ['mean', 'half', 'right'],\n      task: 'A sine-wave voltage peaks at 100 V, an example. What is its RMS value?',\n      why: 'For a sine wave the RMS value is the peak ÷ √2, 0.707 of the peak: 100 × 0.707 = 70.7 V. 63.7 V is its mean over half a cycle, 0.637 × 100, not the RMS. 50 V divides the peak by 2 instead of by √2.',\n      hint: 'Not quite. Take 0.707 of the peak.',\n      hints: { mean: 'Not quite. That is the half-cycle mean. The RMS is 0.707 of the peak.', half: 'Not quite. Divide the peak by √2, not by 2.' },\n      pre: ['Peak 100 V', 'RMS = ?'], right: ['RMS: 0.707 of the peak', '100 × 0.707 = 70.7 V'],\n      o: {\n        mean: { t: '63.7 V', v: 200 / Math.PI, rows: ['63.7 V is the half-cycle mean', 'The RMS is 0.707 of the peak'] },\n        half: { t: '50 V', v: 100 / 2, rows: ['100 ÷ 2 = 50 V divides by 2', 'Divide by √2 instead'] },\n        right: { t: '70.7 V', v: 100 / Math.SQRT2 },\n      },\n      scene: (s) => {\n        curve(sine(100), 0, 1, '', 1);\n        if (s.k === 'right') rmsLine(0, 1, s.ov, s.a, { x: X(1) - 4, y: Y(s.ov) - 7, text: 'RMS 70.7 V', anchor: 'end' });\n        if (s.k === 'mean') badLine(0, 0.5, s.ov, s.a, { x: X(0.5) + 6, y: Y(s.ov) + 5, text: 'the half-cycle mean', anchor: 'start' });\n        if (s.k === 'half') badLine(0, 1, s.ov, s.a, { x: X(1) - 4, y: Y(s.ov) - 7, text: '100 ÷ 2, not ÷ √2', anchor: 'end' });\n        if (s.pk) pickLine(0, 1, s.pv, s.pt, s.pa, { x: X(1) - 4, y: Y(s.pv) - 7, anchor: 'end' });\n      } },\n    { show: true, kind: 'form', name: 'Form factor', who: 'Three waves: mean, RMS and form factor', dur: 4.2, vh: 344, rows: 0, text: TXT.form },\n    { name: 'Its form factor', who: 'The ramp `i = 6t`: its mean and RMS', g: ONE(SEC(2, 0.5), [0, 12, 4], AMP), opts: ['flip', 'right', 'peak'],\n      task: 'The ramp `i = 6t`, rising to 12 A in 2 s, has a mean of 6 A and an RMS value of 6.93 A. What is its form factor?',\n      why: 'The form factor is the RMS value ÷ the mean value: 6.93 ÷ 6 = 1.15, the same as the 6 A ramp’s. 0.87 is 6 ÷ 6.93, the division upside down. 0.58 is 6.93 ÷ 12, the RMS value ÷ the peak.',\n      hint: 'Not quite. Divide the RMS value by the mean value.',\n      hints: { flip: 'Not quite. Turn it round: RMS ÷ mean.', peak: 'Not quite. 12 A is the peak. Divide by the mean, 6 A.' },\n      pre: ['Mean 6 A, RMS 6.93 A', 'Form factor = ?'], right: ['Form factor: RMS ÷ mean', '6.93 ÷ 6 = 1.15'],\n      o: {\n        flip: { t: '0.87', v: 6 / Math.sqrt(48), rows: ['6 ÷ 6.93 = 0.87 is mean ÷ RMS', 'Turn it round: RMS ÷ mean'] },\n        right: { t: '1.15', v: Math.sqrt(48) / 6 },\n        peak: { t: '0.58', v: Math.sqrt(48) / 12, rows: ['6.93 ÷ 12 = 0.58 uses the peak', 'Divide by the mean, 6 A'] },\n      },\n      scene: (s) => {\n        const rms = Math.sqrt(48);\n        meanRect(0, 2, 6, 1, { x: X(0.05), y: Y(6) + 17, text: 'mean 6 A', anchor: 'start' });\n        curve(RAMP6, 0, 2, '', 1); drop(2, 12, 1);\n        rmsLine(0, 2, rms, 1, { x: X(0.05), y: Y(rms) - 7, text: 'RMS 6.93 A', anchor: 'start' });\n        if (s.k === 'right') queue(s.a, [{ x: X(0.05), y: Y(10.6), text: 'RMS ÷ mean = 1.15', anchor: 'start' }]);\n        if (s.k === 'flip') queue(s.a, [{ x: X(0.05), y: Y(10.6), text: 'mean ÷ RMS: upside down', anchor: 'start', cls: 'bad' }]);\n        if (s.k === 'peak') { vbr(2, 0, 12, '', true, s.a, 'left'); queue(s.a, [{ x: X(2), y: g.top - 8, text: '÷ 12 A, the peak', anchor: 'end', cls: 'bad' }]); }\n      } },\n    { name: 'From RMS to peak', who: 'A sine-wave current with an RMS of 5 A', g: ONE(CYC, [-10, 10, 5], AMP), opts: ['right', 'div', 'dbl'],\n      task: 'A sine-wave current has an RMS value of 5 A, an example. What is its peak?',\n      why: 'A sine wave’s peak is 1.414 × its RMS value: 5 × 1.414 = 7.07 A. 3.54 A is 5 ÷ 1.414, which goes from a peak to an RMS value, the wrong way. 10 A doubles it, and a 10 A peak has an RMS value of 7.07 A, not 5 A.',\n      hint: 'Not quite. Multiply the RMS value by 1.414.',\n      hints: { div: 'Not quite. The peak is bigger than the RMS. Multiply by 1.414.', dbl: 'Not quite. Multiply by 1.414, not by 2.' },\n      pre: ['RMS 5 A', 'Peak = ?'], right: ['Peak: 1.414 × the RMS value', '5 × 1.414 = 7.07 A'],\n      o: {\n        right: { t: '7.07 A', v: 5 * Math.SQRT2 },\n        div: { t: '3.54 A', v: 5 / Math.SQRT2, rows: ['5 ÷ 1.414 = 3.54 A, under the RMS', 'The peak is 1.414 × the RMS'] },\n        dbl: { t: '10 A', v: 2 * 5, rows: ['10 A doubles the RMS', 'Multiply by 1.414, not by 2'] },\n      },\n      scene: (s) => {\n        const peak = s.k ? s.ov : s.pk ? s.pv : null, al = s.k ? s.a : s.pa;\n        if (peak != null && al > 0) {\n          REC.peak = peak;\n          curve(sine(peak), 0, 1, s.k === 'right' ? '' : s.k ? 'bad' : 'pick', al);\n          dotAt(0.25, peak, al);\n          queue(al, [{ x: X(0.25), y: Y(peak) - 11, text: 'peak ' + (s.k ? s.ot : s.pt), cls: s.k === 'right' ? '' : s.k ? 'bad' : 'soft' }]);\n          if (s.k === 'div') queue(s.a, [{ x: X(0.74), y: Y(8.2), text: 'its peak is under the RMS', cls: 'bad' }]);\n          if (s.k === 'dbl') queue(s.a, [{ x: X(0.74), y: Y(8.2), text: 'its RMS would be 7.07 A', cls: 'bad' }]);\n        }\n        rmsLine(0, 1, 5, 1, { x: X(1) - 4, y: Y(5) - 7, text: 'RMS 5 A', anchor: 'end' });\n      } },\n    { name: 'A sawtooth', who: 'A sawtooth voltage, 0 V to 30 V', g: ONE({ x: [0, 1, 0.5], xf: (v) => (v === 0 ? '0' : v === 0.5 ? '½`T`' : '`T`'), xn: '`t`, time' }, [0, 30, 10], VOLT),\n      opts: ['sine', 'mean', 'right'],\n      task: 'A sawtooth voltage rises steadily from 0 V to 30 V in a time `T`, drops back at once and repeats, an example. What is its RMS value?',\n      why: 'Each tooth is a ramp from 0 to its peak, so its RMS value is the peak ÷ √3: 30 ÷ 1.732 = 17.3 V. 21.2 V is 30 ÷ 1.414, the sine wave’s rule, used on a wave that is not a sine wave. 15 V is the plain mean, 30 ÷ 2, with no squaring.',\n      hint: 'Not quite. A ramp’s RMS value is its peak ÷ √3.',\n      hints: { sine: 'Not quite. ÷ √2 is for sine waves. A ramp’s is its peak ÷ √3.', mean: 'Not quite. That is the plain mean. Square, mean, then root.' },\n      pre: ['One tooth: 0 V to 30 V in a time `T`', 'RMS = ?'], right: ['A ramp: RMS = peak ÷ √3', '30 ÷ 1.732 = 17.3 V'],\n      o: {\n        sine: { t: '21.2 V', v: 30 / Math.SQRT2, rows: ['30 ÷ 1.414 = 21.2 V is the sine rule', 'This wave is a ramp: ÷ √3'] },\n        mean: { t: '15 V', v: 30 / 2, rows: ['15 V is the plain mean, 30 ÷ 2', 'Square, mean, then root'] },\n        right: { t: '17.3 V', v: 30 / Math.sqrt(3) },\n      },\n      scene: (s) => {\n        curve(SAW, 0, 1, '', 1); drop(1, 30, 1);\n        if (s.k === 'right') rmsLine(0, 1, s.ov, s.a, { x: X(0.02), y: Y(s.ov) - 7, text: 'RMS 17.3 V', anchor: 'start' });\n        if (s.k === 'sine') badLine(0, 1, s.ov, s.a, { x: X(0.02), y: Y(s.ov) - 7, text: 'the sine rule', anchor: 'start' });\n        if (s.k === 'mean') badLine(0, 1, s.ov, s.a, { x: X(0.02), y: Y(s.ov) - 7, text: 'the plain mean', anchor: 'start' });\n        if (s.pk) pickLine(0, 1, s.pv, s.pt, s.pa, { x: X(0.02), y: Y(s.pv) - 7, anchor: 'start' });\n      } },\n  ];\n  STEPS.forEach((d) => { if (!d.show) d.rows = Math.max(d.pre.length, d.right.length, 1 + Math.max.apply(null, d.opts.filter((k) => k !== 'right').map((k) => d.o[k].rows.length))); });\n  const FINISH = 'The mean value is the area under a graph ÷ its length; the RMS value is the square root of the mean of the squared graph, which for a sine wave is its peak ÷ √2.';\n  // The lesson's sources the checks restate.\n  const SRC = {\n    zero: 'https://www.tina.com/principles-of-alternating-current',\n    wave: 'https://learnabout-electronics.org/ac_theory/ac_waves02.php',\n    avg: 'https://math.libretexts.org/Courses/Monroe_Community_College/MTH_210_Calculus_I_(Professor_Dean)/Chapter_5%3A_Integration/5.4%3A_Average_Value_of_a_Function',\n    rms: 'https://www.khanacademy.org/science/in-in-class-12th-physics-india/x51bd77206da864f3%3Aalternating-current/x51bd77206da864f3%3Arms-values-of-current-voltage/v/sine-wave-rms-value-derivation-without-calculus',\n    root2: 'https://eepower.com/power-electronics-textbook/vol-i-electrical-power-systems-design/chapter-4-sinusoidal-steady-state-power/power-factor-and-rms-explained',\n    syl: 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus',\n  };\n  const FB = [1.3, 1.2];\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n\n  // ---------- each step's state ----------\n  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;\n  // c: the number of bars Dan has set; f: the fold he has set (0 unfolded, 1 folded flat).\n  function blank() { return { pick: null, res: null, why: false, c: null, f: null }; }\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion\n  let REC = null, checking = false, lastB = 4, lastF = 0;\n\n  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------\n  const ITAL = /([itTv])/;\n  function italics(parent, s, inSvg) {\n    String(s).split(ITAL).forEach((p, k) => {\n      if (!p) return;\n      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));\n    });\n  }\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        node.appendChild(K.el('span', { class: 'mark' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n  const el = (id) => document.getElementById(id);\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;\n    st.pick = d.opts[k]; st.res = null;\n    play(FB[1]);\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = st.pick === 'right' ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()];\n    if (!d.show || finished) return;\n    const st = S[at()];\n    st.c = null; st.f = null;\n    play(d.dur);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n  // The slider for the number of bars, and the fold: each on its own screen.\n  const BC = K.control({ id: 'bars', label: 'Bars over half a cycle', min: 4, max: 100, step: 1, value: 4, snap: [4, 8, 100], fmt: (v) => v + ' bars', into: '#cb1' });\n  const FC = K.control({ id: 'fold', label: 'Fold', min: 0, max: 1, step: 0.01, value: 0, snap: [0, 1], fmt: (v) => (v <= 0 ? 'Unfolded' : v >= 1 ? 'Folded flat' : 'Folding'), into: '#cb2' });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = el('scene'), art = el('art');\n  let into = null, AV = [], LQ = [], g = null;   // AV: lines and shapes labels keep clear of; LQ: labels waiting; g: the graph in use\n  const add = (node) => (into || art).appendChild(node);\n  let latest = 0;\n  const note = (t) => { if (t > latest) latest = t; };\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0 + d); return K.arrive(T, t0, d); }\n  // Travel: 0 to 1 from t0 over len seconds, eased; the moment an eased travel reaches a fraction.\n  function sweep(t0, len) { note(t0 + len); return T === Infinity ? 1 : K.ease((T - t0) / len); }\n  function tAt(frac, t0, len) { let lo = 0, hi = 1; for (let j = 0; j < 30; j++) { const m = (lo + hi) / 2; if (K.ease(m) < frac) lo = m; else hi = m; } return t0 + len * (lo + hi) / 2; }\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const grp = add(K.svg('g'));\n    K.fade(grp, a, rise);\n    const keep = into; into = grp; draw(); into = keep;\n  }\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));\n  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));\n  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }));\n  // Text in the drawing: letters inside backticks are the rule's letters, set in italics.\n  function text(x, y, s, cls, anchor) {\n    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });\n    String(s).split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); });\n    return add(t);\n  }\n  // A line of text kept inside its room: shrunk (never under 12) when it would run past it.\n  function fit(t, room, size) {\n    try { const w = t.getComputedTextLength(); if (w > room) t.style.fontSize = Math.max(12, Math.floor(size * room / w * 10) / 10) + 'px'; } catch (e) { /* measured again next paint */ }\n  }\n  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.\n  const queue = (a, items) => { items = items.filter((it) => it && it.text); if (a > 0 && items.length) LQ.push({ a, items }); };\n  function flushLabels() {\n    const list = LQ; LQ = [];\n    list.forEach((q) => part(q.a, 4, () => {\n      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text.replace(/`/g, ''), anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });\n      ts.forEach((t, j) => {\n        const raw = String(q.items[j].text);\n        if (raw.indexOf('`') >= 0) { t.textContent = ''; raw.split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); }); }\n        REC.labs.push(t.textContent); if (/\\bbad\\b/.test(t.getAttribute('class') || '')) REC.bad++; });\n    }));\n  }\n\n  // ---------- a graph: time along the bottom, the rule's value up the side ----------\n  const PL = 52, PR = 318;\n  const use = (G) => { g = G; };\n  const X = (v) => PL + (v - g.x[0]) / (g.x[1] - g.x[0]) * (PR - PL);\n  const Y = (v) => g.top + g.h - (v - g.y[0]) / (g.y[1] - g.y[0]) * g.h;\n  // Gridlines, the time axis at zero, the value axis on the left, numbers and names.\n  function frame() {\n    const top = g.top, bot = g.top + g.h, y0 = Y(Math.max(0, g.y[0]));\n    for (let j = 0; ; j++) {\n      const v = tidy(g.y[0] + j * g.y[2]);\n      if (v > g.y[1] + 1e-9) break;\n      const y = Y(v);\n      if (Math.abs(v) > 1e-12) line('grid', PL, y, PR, y);\n      text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end');\n    }\n    for (let j = 0; ; j++) {\n      const v = tidy(g.x[0] + j * g.x[2]);\n      if (v > g.x[1] + 1e-9) break;\n      const x = X(v);\n      if (v > g.x[0] + 1e-9) line('grid', x, top, x, bot);\n      line('mtick', x, y0, x, y0 + 5);\n      text(x, bot + 17, g.xf ? g.xf(v) : fmtN(v), 'tick');\n    }\n    AV.push(line('axis', PL, y0, PR + 6, y0), line('axis', PL, top - 6, PL, bot));\n    text(12, top - g.ny, g.yn, 'aname', 'start');\n    if (g.xn) text(PR + 8, bot + 35, g.xn, 'aname', 'end');\n  }\n  // A curve from one time to another, cut where it leaves the graph.\n  function pathOf(f, lo, hi) {\n    const n = 160, y0 = g.y[0], y1 = g.y[1];\n    let s = '', on = false, px = null, pv = null;\n    for (let j = 0; j <= n; j++) {\n      const x = lo + (hi - lo) * j / n, v = f(x), inside = v >= y0 - 1e-9 && v <= y1 + 1e-9;\n      if (inside) {\n        if (!on && pv != null) { const e = pv < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' M' + r3(X(xe)) + ' ' + r3(Y(e)); on = true; }\n        s += (on ? ' L' : ' M') + r3(X(x)) + ' ' + r3(Y(K.clamp(v, y0, y1))); on = true;\n      } else if (on) { const e = v < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' L' + r3(X(xe)) + ' ' + r3(Y(e)); on = false; }\n      px = x; pv = v;\n    }\n    return s.trim();\n  }\n  function curve(f, lo, hi, cls, a) {\n    a = a == null ? 1 : a;\n    if (a <= 0) return;\n    const dd = pathOf(f, lo, hi);\n    if (dd) part(a, 0, () => AV.push(path('curve' + (cls ? ' ' + cls : ''), dd)));\n  }\n  // A wave that drops straight back to zero at time x, from the value v.\n  function drop(x, v, a) { if (a > 0) part(a, 0, () => AV.push(line('curve', X(x), Y(v), X(x), Y(0)))); }\n  // One bar: from the time axis to the graph's value at its middle; hatched (counts as minus) below the axis.\n  function drawBar(q, cls, al) {\n    if (al <= 0) return;\n    const xa = X(q.v0), w = X(q.v1) - X(q.v0), neg = q.h < 0, top = Y(Math.max(q.h, 0)), bot = Y(Math.min(q.h, 0));\n    const c = 'bar' + (neg ? ' neg' : '') + (w >= 5 ? ' edge' : '') + (cls ? ' ' + cls : '');\n    part(al, 0, () => rect(c, xa, top, w, bot - top));\n    if (neg) REC.hatched++;\n    REC.bars.push({ v0: q.v0, v1: q.v1, h: q.h, neg });\n  }\n  // The area between a graph and the time axis: plain, neutral, hatched (minus) or a red outline.\n  function areaOf(f, a, b, cls, al) {\n    if (al <= 0) return;\n    const pts = K.linspace(a, b, 121);\n    const dd = 'M' + r3(X(a)) + ' ' + r3(Y(0)) + pts.map((v) => ' L' + r3(X(v)) + ' ' + r3(Y(K.clamp(f(v), g.y[0], g.y[1])))).join('') + ' L' + r3(X(b)) + ' ' + r3(Y(0)) + ' Z';\n    part(al, 0, () => path('area' + (cls ? ' ' + cls : ''), dd));\n    if (/neg/.test(cls || '')) REC.hatched++;\n  }\n  // The flat rectangle with the same area: its height is the mean (on a squared graph, the mean square).\n  function meanRect(x0, x1, h, al, lab, band) {\n    if (al <= 0 || Math.abs(h) < 1e-9) return;\n    part(al, 0, () => { rect('mean', X(x0), Y(Math.max(h, 0)), X(x1) - X(x0), Math.abs(Y(h) - Y(0))); AV.push(line('meanedge', X(x0), Y(h), X(x1), Y(h))); });\n    if (band) REC.band = tidy(h); else REC.mean = tidy(h);\n    if (lab) queue(al, [lab]);\n  }\n  function hline(cls, x0, x1, v, al, lab) {\n    if (al <= 0) return;\n    part(al, 0, () => AV.push(line(cls, X(x0), Y(v), X(x1), Y(v))));\n    if (lab) queue(al, [lab]);\n  }\n  function rmsLine(x0, x1, v, al, lab) { if (al > 0) REC.rms = tidy(v); hline('rms', x0, x1, v, al, lab); }\n  function badLine(x0, x1, v, al, lab) { if (al > 0) REC.bad++; hline('badln', x0, x1, v, al, Object.assign({ cls: 'bad' }, lab)); }\n  function pickLine(x0, x1, v, t, al, lab) { if (al > 0) REC.mark = v; hline('pick', x0, x1, v, al, Object.assign({ text: t, cls: 'soft' }, lab)); }\n  function badRect(x0, x1, h, al, lab) {\n    if (al <= 0) return;\n    REC.bad++;\n    part(al, 0, () => AV.push(rect('area bad', X(x0), Y(h), X(x1) - X(x0), Y(0) - Y(h))));\n    if (lab) queue(al, [Object.assign({ cls: 'bad' }, lab)]);\n  }\n  function dotAt(x, y, a) {\n    if (a <= 0) return;\n    part(a, 0, () => AV.push(circle('pt', X(x), Y(y), 5)));\n  }\n  // A bracket beside a height (from v0 to v1 at time x), its label on the side given.\n  function vbr(x, v0, v1, label, bad, a, side) {\n    if (a <= 0) return;\n    const right = side === 'right', px = X(x) + (right ? 6 : -6), y0 = Y(v0), y1 = Y(v1), tk = right ? -5 : 5;\n    part(a, 0, () => AV.push(path('brk' + (bad ? ' bad' : ''), 'M' + r3(px + tk) + ' ' + r3(y0) + ' H' + r3(px) + ' V' + r3(y1) + ' H' + r3(px + tk))));\n    if (label) queue(a, [{ x: px + (right ? 8 : -8), y: (y0 + y1) / 2 + 5, text: label, anchor: right ? 'start' : 'end', cls: bad ? 'bad' : '' }]);\n    if (bad) REC.bad++;\n  }\n  // A bracket along a stretch of time, at the value v, its label under it.\n  function tbr(x0, x1, v, label, a) {\n    if (a <= 0) return;\n    const y = Y(v), p0 = X(x0) + 2, p1 = X(x1) - 2;\n    part(a, 0, () => AV.push(path('brk', 'M' + r3(p0) + ' ' + r3(y - 5) + ' V' + r3(y) + ' H' + r3(p1) + ' V' + r3(y - 5))));\n    queue(a, [{ x: (p0 + p1) / 2, y: y + 16, text: label }]);\n  }\n  // The key, inside the drawing.\n  function drawKey(k) {\n    k.items.forEach((it, j) => {\n      const y = k.y + 20 * j;\n      AV.push(rect('sw ' + it.sw, k.x, y - 10, 16, 11));\n      text(k.x + 22, y, it.text, 'keyt', 'start');\n    });\n  }\n\n  // ---------- the working under the drawing, one line each ----------\n  function drawRows(RW, R0) {\n    RW.forEach((r, n) => {\n      const a = r.a != null ? r.a : r.t != null ? arr(r.t) : 1;\n      part(a, 4, () => fit(text(12, R0 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start'), 316, 14));\n      if (a >= 0.5) REC.rows.push(r.s);\n      if (r.bad && a > 0) REC.bad++;\n    });\n  }\n  const rowTop = (d) => { const G = d.g2 || d.g; return G.top + G.h + 60; };\n  const boxH = (d) => d.vh || rowTop(d) + 26 * (d.rows - 1) + 16;\n\n  // ---------- motion along legs: the number of bars, or the fold ----------\n  // x: where it is now; rx: the last place it reached (the working shows that); la: the working's fade.\n  function tourAt(tr) {\n    let x = tr.v0, rx = x, la = 1;\n    for (const Lg of tr.legs) {\n      if (T < Lg.t) break;\n      if (T < Lg.t + Lg.len) {\n        la = 1 - K.arrive(T, Lg.t, 0.3);\n        const e = K.ease((T - Lg.t) / Lg.len);\n        x = tr.log ? Math.exp(K.lerp(Math.log(x), Math.log(Lg.to), e)) : K.lerp(x, Lg.to, e);\n        break;\n      }\n      x = Lg.to; rx = x; la = arr(Lg.t + Lg.len, 0.5);\n    }\n    tr.legs.forEach((Lg) => note(Lg.t + Lg.len + 0.5));\n    return { x, rx, la };\n  }\n\n  // ---------- the fold ----------\n  // Each hump of the squared wave above 50 A² (centred a quarter and three quarters into the cycle,\n  // and the one before the cycle starts) lifts off, moves a quarter cycle along while it turns\n  // upside down, and drops into the dip there. u: 0 unfolded, 1 folded flat.\n  const LIFT = 10;\n  function foldPieces(u) {\n    const up = K.ease(u / 0.25) - K.ease((u - 0.75) / 0.25), q = K.ease((u - 0.25) / 0.5);\n    const sh = 0.25 * q, s = Math.cos(Math.PI * q), base = tidy(50 + LIFT * up);\n    // Each piece is cut at the graph's ends (the wave repeats, so what leaves one end is the next hump arriving at the other).\n    return [-0.25, 0.25, 0.75].map((c) => {\n      const lo = Math.max(0, c - 0.125 + sh), hi = Math.min(1, c + 0.125 + sh);\n      return { c, base, s, pts: hi - lo > 1e-9 ? K.linspace(lo, hi, 41).map((xp) => [xp, base + s * (SQ10(xp - sh) - 50)]) : [] };\n    });\n  }\n\n  // ---------- the SHOW screens ----------\n  // i = 3t²: the area grows behind the dot, then a rectangle with the same area rises to 4 A.\n  function drawMean(d, st, RW) {\n    const tt = 2 * sweep(0.2, 1.6);\n    if (tt > 1e-9) areaOf(R3, 0, tt, '', 1);\n    meanRect(0, 2, 4 * sweep(2.1, 1.0), 1, null);\n    curve(R3, 0, 2, '', 1);\n    dotAt(tt, R3(tt), 1);\n    const la = arr(3.1), ea = arr(3.6);\n    queue(arr(1.9), [{ x: X(1.62), y: Y(1.6) + 5, text: '8 C' }]);\n    queue(la, [{ x: X(0.05), y: Y(4) - 7, text: 'mean 4 A', anchor: 'start' }, { x: X(1.85), y: Y(6.5), text: 'extra' }, { x: X(0.55), y: Y(2.4), text: 'gap' }]);\n    hline('lvl', 0, 2, 6, ea, { x: X(0.05), y: Y(6) - 7, text: 'ends’ average', anchor: 'start', cls: 'soft' });\n    REC.avg = ea > 0 ? (0 + R3(2)) / 2 : null;\n    RW.push({ s: 'Area under the curve: 2³ = 8 C', soft: true, a: 1 }, { s: 'Mean: 8 C ÷ 2 s = 4 A, the same area', big: true, a: Math.max(0.3, arr(3.0)) },\n      { s: 'Not (0 + 12) ÷ 2 = 6 A, the ends’ average', soft: true, a: Math.max(0.3, arr(3.6)) });\n  }\n  // A sine wave: bars across the whole cycle arrive in time order (the backward half hatched),\n  // then the half-cycle mean rises, then the bars thin from 4 to 8 to 100 for each half.\n  function drawAC(d, st, RW) {\n    const own = st.c != null, s = own ? { x: st.c, rx: st.c, la: 1 } : tourAt(d.ctour), N = Math.round(s.x), rn = Math.round(s.rx);\n    REC.n = N;\n    const half = barsOf(SIN10, 0, 0.5, N), all = half.concat(barsOf(SIN10, 0.5, 1, N));\n    all.forEach((q, k) => drawBar(q, '', own ? 1 : arr(tAt((k + 0.5) / all.length, 0.2, 1.6), 0.35)));\n    curve(SIN10, 0, 1, '', 1);\n    drawKey({ x: X(0.56), y: Y(8.4), items: [{ sw: 'hatch', text: 'counts as minus' }] });\n    const ma = own ? 1 : arr(2.2), la = own ? 1 : Math.min(s.la, ma), m = meanH(barsOf(SIN10, 0, 0.5, rn));\n    meanRect(0, 0.5, meanH(half), ma, null);\n    queue(la, [{ x: X(0.5) + 6, y: Y(m) + 5, text: 'mean ' + fix(m, 2) + ' A', anchor: 'start' }]);\n    REC.whole = tidy(all.reduce((t, q) => t + q.h, 0));\n    RW.push({ s: 'Whole cycle: mean 0 A, the minus half cancels', soft: true, a: own ? 1 : arr(2.0) });\n    d.rowsAt(rn).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: la }));\n  }\n  // A ramp and its square: both areas grow behind their dots; the mean and the mean square rise\n  // as flat rectangles; the RMS level, the root of the mean square, arrives on the current's graph.\n  function drawRamp(d, st, RW) {\n    const tt = 2 * sweep(0.2, 1.6), rms = Math.sqrt(12), f2 = SQR(RAMP3);\n    use(d.g1); frame();\n    if (tt > 1e-9) areaOf(RAMP3, 0, tt, '', 1);\n    meanRect(0, 2, 3 * sweep(2.0, 0.8), 1, null);\n    curve(RAMP3, 0, 2, '', 1); drop(2, 6, 1);\n    dotAt(tt, RAMP3(tt), 1);\n    queue(arr(2.8), [{ x: X(0.05), y: Y(3) + 17, text: 'mean 3 A', anchor: 'start' }]);\n    rmsLine(0, 2, rms, arr(3.6), { x: X(0.05), y: Y(rms) - 7, text: 'RMS 3.46 A', anchor: 'start' });\n    use(d.g2); frame();\n    if (tt > 1e-9) areaOf(f2, 0, tt, '', 1);\n    meanRect(0, 2, 12 * sweep(2.6, 0.8), 1, null, true);\n    curve(f2, 0, 2, '', 1); drop(2, 36, 1);\n    dotAt(tt, f2(tt), 1);\n    queue(arr(3.3), [{ x: X(0.05), y: Y(12) - 7, text: 'mean 12 A²', anchor: 'start' }]);\n    RW.push({ s: 'Mean: ½ × 2 × 6 = 6 C, ÷ 2 s = 3 A', soft: true, t: 2.8 }, { s: 'Square `9t²` adds up to 3 × 2³ = 24', soft: true, t: 3.0 },\n      { s: 'Mean square: 24 ÷ 2 = 12 A²', soft: true, t: 3.4 }, { s: 'RMS: √12 = 3.46 A, or 6 ÷ 1.732', big: true, t: 3.7 },\n      { s: 'Any ramp `i = A × t ÷ T`: mean square A² ÷ 3', soft: true, t: 4.0 });\n  }\n  // The sine wave and its square; the square's humps fold into its dips, leaving a band at 50 A².\n  function drawFold(d, st, RW) {\n    const own = st.f != null, s = own ? { x: st.f } : tourAt(d.ftour), u = K.clamp(s.x, 0, 1), ca = own ? 1 : arr(3.8);\n    REC.fold = u;\n    use(d.g1); frame();\n    curve(SIN10, 0, 1, '', 1);\n    rmsLine(0, 1, Math.sqrt(50), ca, { x: X(1) - 4, y: Y(Math.sqrt(50)) - 7, text: 'RMS 7.07 A', anchor: 'end' });\n    use(d.g2); frame();\n    areaOf((x) => Math.min(SQ10(x), 50), 0, 1, '', 1);\n    const pcs = foldPieces(u);\n    pcs.forEach((pc) => {\n      if (pc.pts.length < 2) return;\n      const last = pc.pts[pc.pts.length - 1];\n      path('hump', 'M' + r3(X(pc.pts[0][0])) + ' ' + r3(Y(pc.base)) + pc.pts.map((q) => ' L' + r3(X(q[0])) + ' ' + r3(Y(q[1]))).join('') + ' L' + r3(X(last[0])) + ' ' + r3(Y(pc.base)) + ' Z');\n    });\n    REC.pieces = pcs;\n    AV.push(line('lvl', X(0), Y(50), X(1), Y(50)));\n    curve(SQ10, 0, 1, '', 1);\n    queue(1, [{ x: X(0.5), y: Y(50) - 8, text: '50 A²' }]);\n    drawKey({ x: 186, y: g.top - 22, items: [{ sw: 'hump', text: 'humps above 50 A²' }] });\n    if (u >= 1 - 1e-9) REC.band = 50;\n    RW.push({ s: 'Square now + square a quarter cycle on = 100', soft: true, a: 1 },\n      { s: 'Folded: a flat band at 50 A², the mean', soft: true, a: ca },\n      { s: 'RMS: √50 = 7.07 A, the peak ÷ √2', big: true, a: ca },\n      { s: '10 ÷ 1.414 = 7.07 A: 0.707 of the peak', soft: true, a: ca });\n  }\n  // Three waves on one current scale, each with its mean and RMS level, then a table of the two and their ratio.\n  function drawForm(d, st, RW) {\n    const GTm = 78, GHm = 150, Ym = (v) => GTm + (10 - v) / 10 * GHm, GBm = GTm + GHm;\n    text(12, GTm - 32, AMP, 'aname', 'start');\n    [10, 5, 0].forEach((v) => text(80, Ym(v) + 4.5, fmtN(v), 'tick', 'end'));\n    const ma = arr(2.0), ra = arr(2.7), fa = arr(3.4);\n    REC.form = [];\n    FORM.forEach((c, j) => {\n      const x0 = c.px[0], x1 = c.px[1], Xc = (t) => x0 + (t - c.xs[0]) / (c.xs[1] - c.xs[0]) * (x1 - x0);\n      text((x0 + x1) / 2, GTm - 12, c.name, 'colname');\n      line('grid', x0, Ym(10), x1, Ym(10)); line('grid', x0, Ym(5), x1, Ym(5));\n      AV.push(line('axis', x0, Ym(0), x1, Ym(0)), line('axis', x0, Ym(10) - 4, x0, Ym(0)));\n      if (j === 0) text(x0, GBm + 17, '0', 'tick', 'start');\n      text(x1, GBm + 17, c.end, 'tick', 'end');\n      part(arr(0.2 + 0.6 * j), 0, () => AV.push(path('curve thin', c.d(Xc, Ym))));\n      part(ma, 0, () => AV.push(line('meanedge', Xc(c.mspan[0]), Ym(c.mean), Xc(c.mspan[1]), Ym(c.mean))));\n      part(ra, 0, () => AV.push(line('rms', x0, Ym(c.rms), x1, Ym(c.rms))));\n      REC.form.push([dec(c.mean, 2) + ' A', dec(c.rms, 2) + ' A', dec(c.ff, 2)]);\n    });\n    [{ name: 'Mean', sw: 'meanedge', a: ma }, { name: 'RMS', sw: 'rms', a: ra }, { name: 'Form factor', a: fa, big: true }].forEach((r, n) => {\n      const y = GBm + 46 + 26 * n;\n      part(r.a, 4, () => {\n        if (r.sw) line(r.sw, 12, y - 5, 30, y - 5);\n        text(r.sw ? 36 : 12, y, r.name, 'row soft', 'start');\n        FORM.forEach((c, j) => text((c.px[0] + c.px[1]) / 2, y, REC.form[j][n], 'row' + (r.big ? ' big' : ''), 'middle'));\n      });\n      if (r.a >= 0.5) REC.rows.push(r.name + ': ' + REC.form.map((f) => f[n]).join(', '));\n    });\n  }\n  const DRAW = { mean: drawMean, ac: drawAC, ramp: drawRamp, fold: drawFold, form: drawForm };\n\n  // ---------- the puzzles ----------\n  // Before an answer is picked the working ends in a question mark; a pick marks its own value\n  // on the graph; Check draws the answer that fits, or shows the slip in red on the graph.\n  function puzzleRows(d, k, o, RW) {\n    if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n < d.pre.length - 1 }));\n    else if (k === 'right') d.right.forEach((s, n) => RW.push(n === 0 ? { s, soft: true } : { s, big: n === d.right.length - 1, t: 0.2 + 0.2 * n }));\n    else { RW.push({ s: d.pre[0], soft: true }); o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.2 + 0.2 * n })); }\n  }\n  function drawPuzzle(d, st, RW) {\n    const k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, pk = k ? null : st.pick, a = arr(0.1), pa = pk ? arr(0.05) : 0;\n    d.scene({ k, pk, a, pa, ov: k ? d.o[k].v : null, ot: k ? d.o[k].t : '', pv: pk ? d.o[pk].v : null, pt: pk ? d.o[pk].t : '' });\n    if (k === 'right') REC.ans = d.o.right.v;\n    puzzleRows(d, k, k ? d.o[k] : null, RW);\n  }\n\n  // ---------- each step's picture ----------\n  function drawScene(d, st) {\n    const RW = [];\n    REC = { rows: [], labs: [], bad: 0, bars: [], hatched: 0, n: null, mean: null, band: null, rms: null, ans: null, mark: null, fold: null, pieces: null, peak: null, form: null, avg: null, whole: null };\n    AV = []; LQ = [];\n    fit(text(12, 18, d.who, 'tag', 'start'), 318, 15);\n    if (d.g) { use(d.g); frame(); }\n    (d.kind ? DRAW[d.kind] : drawPuzzle)(d, st, RW);\n    if (!d.vh) drawRows(RW, rowTop(d));\n    flushLabels();\n    return say(d.who) + '. ' + REC.rows.map(say).join('. ');\n  }\n\n  // The scene for a step (the animation calls this every frame). Each screen's own control follows the motion.\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i];\n    art.textContent = '';\n    into = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(boxH(d)));\n    svg.setAttribute('aria-label', drawScene(d, st));\n    if (checking || i !== at()) return;\n    if (d.cid === 'bars') { const v = K.clamp(Math.round(REC.n), 4, 100); if (BC.get() !== v) BC.set(v, true); lastB = BC.get(); }\n    if (d.cid === 'fold') { const v = Math.round(REC.fold * 100) / 100; if (Math.abs(FC.get() - v) > 1e-9) FC.set(v, true); lastF = FC.get(); }\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.c = null; st.f = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    } else if (!finished && d.cid === 'bars' && p.bars !== lastB) {\n      if (anim.playing()) anim.pause();\n      T = Infinity; st.c = p.bars; K.reveal();\n    } else if (!finished && d.cid === 'fold' && p.fold !== lastF) {\n      if (anim.playing()) anim.pause();\n      T = Infinity; st.f = p.fold; K.reveal();\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    if (d.show) el('replay').after(task); else el('count').after(task);\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n    el('cb1').hidden = finished || d.cid !== 'bars';\n    el('cb2').hidden = finished || d.cid !== 'fold';\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);\n    el('picks').hidden = !opts.length;\n    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(labs[k]);\n      b.el.setAttribute('aria-label', say(labs[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That’s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });\n  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const pickSt = (o) => Object.assign(blank(), { pick: o });\n  const nAt = (n) => Object.assign(blank(), { c: n });\n  const foldAt = (u) => Object.assign(blank(), { f: u });\n  const close = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t; checking = true;\n    try {\n      paint(i);\n      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), bars: REC.bars.slice() });\n    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }\n  }\n\n  K.check('The average value of a function on an interval is its definite integral divided by the interval’s length: each flat rectangle drawn has the curve’s area over the same stretch, 4 A × 2 s = 8 C under 3t², 3 A × 3 s = 9 C under t², 3 A × 2 s = 6 C under the ramp and 12 A² × 2 s = 24 under its square', () => {\n    const a = drawn(idx('The mean value'), blank()), b = drawn(idx('A mean current'), solvedSt()), c = drawn(idx('Square, mean, root'), blank());\n    return a.mean === 4 && close(a.mean * 2, areaBy(R3, 0, 2), 1e-6) && close(areaBy(R3, 0, 2), 8, 1e-6) &&\n      b.mean === 3 && close(b.mean * 3, areaBy(T2, 0, 3), 1e-6) && close(areaBy(T2, 0, 3), 9, 1e-6) &&\n      c.mean === 3 && close(c.mean * 2, areaBy(RAMP3, 0, 2), 1e-9) && c.band === 12 && close(c.band * 2, areaBy(SQR(RAMP3), 0, 2), 1e-6) && close(areaBy(SQR(RAMP3), 0, 2), 24, 1e-6);\n  }, { source: SRC.avg });\n  K.check('The average of a whole cycle is zero: on the a.c. screen the hatched bars below the axis cancel the bars above at every bar count from 4 to 100, so their heights add up to 0 A, and the sine wave’s area over a whole cycle comes to 0', () => {\n    const i = idx('Mean of a sine wave');\n    const ok = [4, 8, 37, 100].every((n) => {\n      const h = drawn(i, nAt(n));\n      return h.bars.length === 2 * n && h.hatched === n && Math.abs(h.bars.reduce((s, q) => s + q.h, 0)) < 1e-9 && h.whole === 0 &&\n        h.bars.every((q) => close(q.h, SIN10((q.v0 + q.v1) / 2), 1e-12) && (q.h < 0) === q.neg);\n    });\n    return ok && Math.abs(meanOf(SIN10, 0, 1)) < 1e-9 && Math.abs(meanOf(sine(20), 0, 1)) < 1e-9;\n  }, { source: SRC.zero });\n  K.check('Using only half a cycle the average value is 0.637 of the peak value: for the 10 A peak the bars’ mean drawn goes 6.53, 6.41 and 6.37 A for 4, 8 and 100 bars, falling with every extra bar towards 0.637 of the peak, and the 20 A puzzle’s answer is 0.637 × 20 = 12.7 A', () => {\n    const i = idx('Mean of a sine wave'), want = ['6.53', '6.41', '6.37'];\n    const shown = [4, 8, 100].every((n, j) => fix(drawn(i, nAt(n)).mean, 2) === want[j]);\n    let prev = Infinity;\n    for (let n = 4; n <= 100; n++) { const v = meanH(barsOf(SIN10, 0, 0.5, n)); if (!(v < prev && v > 20 / Math.PI)) return false; prev = v; }\n    const p = drawn(idx('Half a cycle'), solvedSt());\n    return shown && fix(meanOf(SIN10, 0, 0.5) / 10, 3) === '0.637' && fix(p.mean, 1) === '12.7' && fix(0.637 * 20, 1) === '12.7';\n  }, { source: SRC.wave });\n  K.check('To find the RMS value of any function, square it, find the mean over the period, then take the square root: the ramp to 6 A gives √12 = 3.46 A, the ramp to 12 A gives √48 = 6.93 A and the 30 V sawtooth 17.3 V, each from 20,000 squared bars, and the RMS level drawn sits at that height', () => {\n    const q3 = rmsOf(RAMP3, 0, 2), q6 = rmsOf(RAMP6, 0, 2), qs = rmsOf(SAW, 0, 1);\n    const a = drawn(idx('Square, mean, root'), blank()), b = drawn(idx('A steeper ramp'), solvedSt()), c = drawn(idx('A sawtooth'), solvedSt());\n    return fix(q3, 2) === '3.46' && fix(q6, 2) === '6.93' && fix(qs, 1) === '17.3' && close(a.rms, q3, 1e-6) && close(b.rms, q6, 1e-6) && close(c.rms, qs, 1e-6) &&\n      close(meanOf(SQR(RAMP3), 0, 2), 12, 1e-6) && close(meanOf(SQR(RAMP6), 0, 2), 48, 1e-6) && b.band === 48;\n  }, { source: SRC.rms });\n  K.check('The RMS value of a sine wave is 0.707 of the peak value: the squared 10 A sine wave averages 50 A² over a cycle, the fold leaves its flat band at 50 A², √50 = 7.07 A and 7.07 ÷ 10 = 0.707; the RMS level drawn on the fold screen sits at 7.07 A', () => {\n    const h = drawn(idx('The fold'), foldAt(1));\n    return close(meanOf(SQ10, 0, 1), 50, 1e-9) && h.band === 50 && close(h.rms, Math.sqrt(50), 1e-9) && fix(h.rms, 2) === '7.07' && fix(h.rms / 10, 3) === '0.707' &&\n      close(rmsOf(SIN10, 0, 1) / 10, Math.SQRT1_2, 1e-9);\n  }, { source: SRC.wave });\n  K.check('The RMS value of a voltage or current is the peak value divided by the square root of 2: 10 ÷ √2 = 7.07 A for the 10 A sine wave, and 100 ÷ √2 = 70.7 V in the voltage puzzle, where the RMS level drawn once it is answered sits at 70.7 V', () => {\n    const h = drawn(idx('A sine voltage'), solvedSt());\n    return fix(10 / Math.SQRT2, 2) === '7.07' && close(h.rms, 100 / Math.SQRT2, 1e-9) && fix(h.rms, 1) === '70.7' && close(rmsOf(sine(100), 0, 1), 100 / Math.SQRT2, 1e-9);\n  }, { source: SRC.root2 });\n  K.check('The peak value of a sine wave is equal to 1.414 × the RMS value: an RMS of 5 A gives a peak of 5 × 1.414 = 7.07 A, the wave drawn once the puzzle is answered, and that wave’s own RMS from 20,000 squared bars is 5 A', () => {\n    const h = drawn(idx('From RMS to peak'), solvedSt());\n    return close(h.peak, 5 * Math.SQRT2, 1e-9) && fix(h.peak, 2) === '7.07' && fix(5 * 1.414, 2) === '7.07' && close(rmsOf(sine(h.peak), 0, 1), 5, 1e-9);\n  }, { source: SRC.wave });\n  K.check('The RMS value is the steady current that would provide the same energy: squared, the steady 7.07 A drawn on the fold screen matches the 50 A² mean of the squared sine wave, and the steady 3.46 A on the ramp screen matches the 12 A² mean of its square, so with the same resistance each heats alike', () => {\n    const f = drawn(idx('The fold'), foldAt(1)), r = drawn(idx('Square, mean, root'), blank());\n    return close(f.rms * f.rms, meanOf(SQ10, 0, 1), 1e-8) && close(f.rms * f.rms, f.band, 1e-8) && close(r.rms * r.rms, r.band, 1e-8) && close(r.band, meanOf(SQR(RAMP3), 0, 2), 1e-6);\n  }, { source: SRC.wave });\n  K.check('Calculates the rms value, mean value and form factor of sinusoidal and non-sinusoidal wave forms: the three-wave screen shows the square wave 10 A, 10 A and 1, the sine wave 6.37 A, 7.07 A and 1.11, and the ramp 3 A, 3.46 A and 1.15, each worked out from its wave by 20,000 bars with the means over half a cycle for the two a.c. waves; the 12 A ramp’s form factor is 6.93 ÷ 6 = 1.15', () => {\n    const h = drawn(idx('Form factor'), blank()), want = [['10 A', '10 A', '1'], ['6.37 A', '7.07 A', '1.11'], ['3 A', '3.46 A', '1.15']];\n    const shown = h.form && want.every((w, j) => h.form[j].join('|') === w.join('|'));\n    const vals = close(FORM[0].ff, 1, 1e-9) && close(FORM[1].mean, 20 / Math.PI, 1e-6) && close(FORM[1].rms, Math.sqrt(50), 1e-9) && close(FORM[2].mean, 3, 1e-9) && close(FORM[2].rms, Math.sqrt(12), 1e-6);\n    return shown && vals && fix(rmsOf(RAMP6, 0, 2) / meanOf(RAMP6, 0, 2), 2) === '1.15';\n  }, { source: SRC.syl });\n  K.check('The fold fits exactly: a quarter cycle on, the squared current is always 100 minus what it is now; folded flat, every point of each hump lands on the curve of the dip it drops into with its flat side on 50 A², the humps fill every dip across the cycle, and each hump keeps its area', () => {\n    if (!K.linspace(0, 1, 401).every((x) => close(SQ10(x + 0.25) + SQ10(x), 100, 1e-12))) return false;\n    const i = idx('The fold'), h = drawn(i, foldAt(1)), z = drawn(i, foldAt(0));\n    const fits = h.pieces.every((pc) => pc.base === 50 && pc.pts.every((q) => close(q[1], SQ10(q[0]), 1e-9) && q[1] <= 50 + 1e-9));\n    const sits = z.pieces.every((pc) => pc.base === 50 && pc.pts.every((q) => close(q[1], SQ10(q[0]), 1e-12) && q[1] >= 50 - 1e-9));\n    const cover = K.linspace(0.0005, 0.9995, 500).filter((x) => SQ10(x) < 50).every((x) => h.pieces.some((pc) => pc.pts.length > 1 && x >= pc.pts[0][0] - 1e-9 && x <= pc.pts[pc.pts.length - 1][0] + 1e-9));\n    // The humps' area inside the cycle: two humps of 100 ÷ (4π) A² cycles each, unfolded or folded.\n    const ar = (pcs) => pcs.reduce((t, pc) => t + Math.abs(pc.pts.reduce((s, q, j) => (j ? s + (q[0] - pc.pts[j - 1][0]) * ((q[1] + pc.pts[j - 1][1]) / 2 - pc.base) : s), 0)), 0);\n    const keep = close(ar(h.pieces), 2 * 100 / (4 * Math.PI), 1e-3) && close(ar(z.pieces), 2 * 100 / (4 * Math.PI), 1e-3);\n    return fits && sits && cover && keep && h.fold === 1 && z.fold === 0 && h.band === 50 && z.band === null;\n  });\n  K.check('From the rules, by hand: 2³ = 8 C, 8 ÷ 2 = 4 A, (0 + 12) ÷ 2 = 6 A; 3³ ÷ 3 = 9 C, 9 ÷ 3 = 3 A, (0 + 9) ÷ 2 = 4.5 A; 0.637 × 20 = 12.7 A; ½ × 2 × 6 = 6 C, 6 ÷ 2 = 3 A, 3 × 2³ = 24, 24 ÷ 2 = 12 A², √12 = 3.46 A = 6 ÷ 1.732; 12 × 2³ = 96, 96 ÷ 2 = 48 A², √48 = 6.93 A; √50 = 7.07 A = 10 ÷ 1.414; 100 × 0.707 = 70.7 V, 0.637 × 100 = 63.7 V; 7.07 ÷ 6.37 = 1.11, 3.46 ÷ 3 = 1.15, 6.93 ÷ 6 = 1.15, 6 ÷ 6.93 = 0.87, 6.93 ÷ 12 = 0.58; 5 × 1.414 = 7.07 A, 5 ÷ 1.414 = 3.54 A; 30 ÷ 1.732 = 17.3 V, 30 ÷ 1.414 = 21.2 V; and the screens’ words quote these values', () => {\n    const sums = [[Math.pow(2, 3), 0, '8'], [8 / 2, 0, '4'], [(0 + R3(2)) / 2, 0, '6'], [Math.pow(3, 3) / 3, 0, '9'], [9 / 3, 0, '3'], [(0 + T2(3)) / 2, 1, '4.5'],\n      [0.637 * 20, 1, '12.7'], [0.5 * 2 * RAMP3(2), 0, '6'], [6 / 2, 0, '3'], [3 * 8, 0, '24'], [24 / 2, 0, '12'], [Math.sqrt(12), 2, '3.46'], [6 / 1.732, 2, '3.46'],\n      [12 * 8, 0, '96'], [96 / 2, 0, '48'], [Math.sqrt(48), 2, '6.93'], [12 / 1.732, 2, '6.93'], [Math.sqrt(50), 2, '7.07'], [10 / 1.414, 2, '7.07'], [100 * 0.707, 1, '70.7'], [0.637 * 100, 1, '63.7'],\n      [7.07 / 6.37, 2, '1.11'], [3.46 / 3, 2, '1.15'], [Math.sqrt(48) / 6, 2, '1.15'], [6 / 6.93, 2, '0.87'], [6.93 / 12, 2, '0.58'], [5 * 1.414, 2, '7.07'], [5 / 1.414, 2, '3.54'],\n      [30 / 1.732, 1, '17.3'], [30 / 1.414, 1, '21.2'], [Math.sqrt(3), 3, '1.732'], [Math.SQRT2, 3, '1.414'], [RAMP3(2) * RAMP3(2), 0, '36'], [SQ10(0.25), 0, '100']];\n    const nums = sums.every((q) => fix(q[0], q[1]) === q[2]) && areaBy(R3, 0, 2) > 7.999999 && R3(2) === 12 && RAMP6(2) === 12;\n    const has = (name, key, bits) => { const v = STEPS[idx(name)][key]; return bits.every((b) => v.indexOf(b) >= 0); };\n    const words = has('The mean value', 'text', ['2³ = 8 C', '8 ÷ 2 = 4 A', '(0 + 12) ÷ 2 = 6 A']) && has('Mean of a sine wave', 'text', ['6.53 A', '6.41 A', '6.37 A', '0.637 of the peak']) &&\n      has('Square, mean, root', 'text', ['12 A²', '√12 = 3.46 A', '3 A mean', 'peak ÷ √3']) && has('The fold', 'text', ['√50 = 7.07 A', '100 A²', '50 A²']) &&\n      has('Form factor', 'text', ['10 ÷ 10 = 1', '7.07 ÷ 6.37 = 1.11', '3.46 ÷ 3 = 1.15', '1.414 ×']) && has('A mean current', 'task', ['3³ ÷ 3 = 9 C']) &&\n      has('A mean current', 'why', ['9 ÷ 3 = 3 A', '(0 + 9) ÷ 2 = 4.5 A']) && has('Half a cycle', 'why', ['0.637 × 20 = 12.7 A']) && has('A steeper ramp', 'task', ['12 × 2³ = 96']) &&\n      has('A steeper ramp', 'why', ['96 ÷ 2 = 48 A²', '√48 = 6.93 A', '12 ÷ 1.732']) && has('A sine voltage', 'why', ['100 × 0.707 = 70.7 V', '0.637 × 100']) &&\n      has('Its form factor', 'why', ['6.93 ÷ 6 = 1.15', '6 ÷ 6.93', '6.93 ÷ 12']) && has('From RMS to peak', 'why', ['5 × 1.414 = 7.07 A', '5 ÷ 1.414']) &&\n      has('A sawtooth', 'why', ['30 ÷ 1.732 = 17.3 V', '30 ÷ 1.414', '30 ÷ 2']) &&\n      STEPS[idx('Mean of a sine wave')].rowsAt(4)[0].s === '4 bars over half a cycle: mean 6.53 A' && STEPS[idx('Mean of a sine wave')].rowsAt(100)[0].s === '100 bars over half a cycle: mean 6.37 A';\n    return nums && words;\n  });\n  K.check('Every puzzle offers three different answers and accepts only the right one; each answer’s number is the value its slip gives, rounded as shown', () => {\n    const want = {\n      'A mean current': ['4.5 A', '3 A', '9 A'], 'Half a cycle': ['10 A', '0 A', '12.7 A'], 'A steeper ramp': ['6.93 A', '6 A', '48 A'], 'A sine voltage': ['63.7 V', '50 V', '70.7 V'],\n      'Its form factor': ['0.87', '1.15', '0.58'], 'From RMS to peak': ['7.07 A', '3.54 A', '10 A'], 'A sawtooth': ['21.2 V', '15 V', '17.3 V'],\n    };\n    const right = { 'A mean current': 1, 'Half a cycle': 2, 'A steeper ramp': 0, 'A sine voltage': 2, 'Its form factor': 1, 'From RMS to peak': 0, 'A sawtooth': 2 };\n    return DO.length === 7 && DO.every((i) => {\n      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);\n      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1 && d.opts[right[d.name]] === 'right' &&\n        d.opts.every((k) => { const num = d.o[k].t.replace('−', '-').split(' ')[0], dp = (num.split('.')[1] || '').length; return Number(num) === Number(d.o[k].v.toFixed(dp)); });\n    });\n  });\n  K.check('Before Check no puzzle gives its verdict: nothing red and the working ends in a question mark; a picked answer only marks its own value; a right answer draws the answer with nothing red; every wrong answer shows its slip in red', () =>\n    DO.every((i) => {\n      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt());\n      const preOk = pre.bad === 0 && / \\?$/.test(pre.rows[pre.rows.length - 1]) && pre.ans === null && pre.mark === null;\n      const pickOk = d.opts.every((o) => { const h = drawn(i, pickSt(o)); return h.bad === 0 && h.ans === null && / \\?$/.test(h.rows[h.rows.length - 1]) && (h.mark === null || close(h.mark, d.o[o].v)); });\n      const rightOk = ok.bad === 0 && close(ok.ans, d.o.right.v);\n      return preOk && pickOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => drawn(i, wrongSt(k)).bad > 0);\n    }));\n  K.check('Every demonstration has finished arriving within 5 s of its screen opening, and every pick’s or answer’s motion within 1.3 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; checking = true;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; checking = false; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur <= 5 && d.dur >= 3\n      : timed(i, solvedSt(), FB[0]) && d.opts.every((o) => timed(i, pickSt(o), FB[1]) && (o === 'right' || timed(i, wrongSt(o), FB[1])))));\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Mean and RMS from the area",
+  "brief": "The one thing you should see is the squared sine wave's humps above 50 A² dropping exactly into its dips, leaving a flat band at half the peak squared, when you slide the fold across.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The average value of a function on an interval is its definite integral divided by the interval’s length: each flat rectangle drawn has the curve’s area over the same stretch, 4 A × 2 s = 8 C under 3t², 3 A × 3 s = 9 C under t², 3 A × 2 s = 6 C under the ramp and 12 A² × 2 s = 24 under its square",
+     "ok": true,
+     "source": "https://math.libretexts.org/Courses/Monroe_Community_College/MTH_210_Calculus_I_(Professor_Dean)/Chapter_5%3A_Integration/5.4%3A_Average_Value_of_a_Function"
+    },
+    {
+     "label": "The average of a whole cycle is zero: on the a.c. screen the hatched bars below the axis cancel the bars above at every bar count from 4 to 100, so their heights add up to 0 A, and the sine wave’s area over a whole cycle comes to 0",
+     "ok": true,
+     "source": "https://www.tina.com/principles-of-alternating-current"
+    },
+    {
+     "label": "Using only half a cycle the average value is 0.637 of the peak value: for the 10 A peak the bars’ mean drawn goes 6.53, 6.41 and 6.37 A for 4, 8 and 100 bars, falling with every extra bar towards 0.637 of the peak, and the 20 A puzzle’s answer is 0.637 × 20 = 12.7 A",
+     "ok": true,
+     "source": "https://learnabout-electronics.org/ac_theory/ac_waves02.php"
+    },
+    {
+     "label": "To find the RMS value of any function, square it, find the mean over the period, then take the square root: the ramp to 6 A gives √12 = 3.46 A, the ramp to 12 A gives √48 = 6.93 A and the 30 V sawtooth 17.3 V, each from 20,000 squared bars, and the RMS level drawn sits at that height",
+     "ok": true,
+     "source": "https://www.khanacademy.org/science/in-in-class-12th-physics-india/x51bd77206da864f3%3Aalternating-current/x51bd77206da864f3%3Arms-values-of-current-voltage/v/sine-wave-rms-value-derivation-without-calculus"
+    },
+    {
+     "label": "The RMS value of a sine wave is 0.707 of the peak value: the squared 10 A sine wave averages 50 A² over a cycle, the fold leaves its flat band at 50 A², √50 = 7.07 A and 7.07 ÷ 10 = 0.707; the RMS level drawn on the fold screen sits at 7.07 A",
+     "ok": true,
+     "source": "https://learnabout-electronics.org/ac_theory/ac_waves02.php"
+    },
+    {
+     "label": "The RMS value of a voltage or current is the peak value divided by the square root of 2: 10 ÷ √2 = 7.07 A for the 10 A sine wave, and 100 ÷ √2 = 70.7 V in the voltage puzzle, where the RMS level drawn once it is answered sits at 70.7 V",
+     "ok": true,
+     "source": "https://eepower.com/power-electronics-textbook/vol-i-electrical-power-systems-design/chapter-4-sinusoidal-steady-state-power/power-factor-and-rms-explained"
+    },
+    {
+     "label": "The peak value of a sine wave is equal to 1.414 × the RMS value: an RMS of 5 A gives a peak of 5 × 1.414 = 7.07 A, the wave drawn once the puzzle is answered, and that wave’s own RMS from 20,000 squared bars is 5 A",
+     "ok": true,
+     "source": "https://learnabout-electronics.org/ac_theory/ac_waves02.php"
+    },
+    {
+     "label": "The RMS value is the steady current that would provide the same energy: squared, the steady 7.07 A drawn on the fold screen matches the 50 A² mean of the squared sine wave, and the steady 3.46 A on the ramp screen matches the 12 A² mean of its square, so with the same resistance each heats alike",
+     "ok": true,
+     "source": "https://learnabout-electronics.org/ac_theory/ac_waves02.php"
+    },
+    {
+     "label": "Calculates the rms value, mean value and form factor of sinusoidal and non-sinusoidal wave forms: the three-wave screen shows the square wave 10 A, 10 A and 1, the sine wave 6.37 A, 7.07 A and 1.11, and the ramp 3 A, 3.46 A and 1.15, each worked out from its wave by 20,000 bars with the means over half a cycle for the two a.c. waves; the 12 A ramp’s form factor is 6.93 ÷ 6 = 1.15",
+     "ok": true,
+     "source": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus"
+    },
+    {
+     "label": "The fold fits exactly: a quarter cycle on, the squared current is always 100 minus what it is now; folded flat, every point of each hump lands on the curve of the dip it drops into with its flat side on 50 A², the humps fill every dip across the cycle, and each hump keeps its area",
+     "ok": true
+    },
+    {
+     "label": "From the rules, by hand: 2³ = 8 C, 8 ÷ 2 = 4 A, (0 + 12) ÷ 2 = 6 A; 3³ ÷ 3 = 9 C, 9 ÷ 3 = 3 A, (0 + 9) ÷ 2 = 4.5 A; 0.637 × 20 = 12.7 A; ½ × 2 × 6 = 6 C, 6 ÷ 2 = 3 A, 3 × 2³ = 24, 24 ÷ 2 = 12 A², √12 = 3.46 A = 6 ÷ 1.732; 12 × 2³ = 96, 96 ÷ 2 = 48 A², √48 = 6.93 A; √50 = 7.07 A = 10 ÷ 1.414; 100 × 0.707 = 70.7 V, 0.637 × 100 = 63.7 V; 7.07 ÷ 6.37 = 1.11, 3.46 ÷ 3 = 1.15, 6.93 ÷ 6 = 1.15, 6 ÷ 6.93 = 0.87, 6.93 ÷ 12 = 0.58; 5 × 1.414 = 7.07 A, 5 ÷ 1.414 = 3.54 A; 30 ÷ 1.732 = 17.3 V, 30 ÷ 1.414 = 21.2 V; and the screens’ words quote these values",
+     "ok": true
+    },
+    {
+     "label": "Every puzzle offers three different answers and accepts only the right one; each answer’s number is the value its slip gives, rounded as shown",
+     "ok": true
+    },
+    {
+     "label": "Before Check no puzzle gives its verdict: nothing red and the working ends in a question mark; a picked answer only marks its own value; a right answer draws the answer with nothing red; every wrong answer shows its slip in red",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 5 s of its screen opening, and every pick’s or answer’s motion within 1.3 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step",
+    "bars",
+    "fold"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 11,
+     "step": 1,
+     "steps": [
+      "The mean value",
+      "A mean current",
+      "Mean of a sine wave",
+      "Half a cycle",
+      "Square, mean, root",
+      "A steeper ramp",
+      "The fold",
+      "A sine voltage",
+      "Form factor",
+      "Its form factor",
+      "From RMS to peak",
+      "A sawtooth"
+     ],
+     "value": 0
+    },
+    {
+     "id": "bars",
+     "kind": "control",
+     "label": "Bars over half a cycle",
+     "min": 4,
+     "max": 100,
+     "step": 1,
+     "log": false,
+     "value": 4,
+     "snap": [
+      4,
+      8,
+      100
+     ]
+    },
+    {
+     "id": "fold",
+     "kind": "control",
+     "label": "Fold",
+     "min": 0,
+     "max": 1,
+     "step": 0.01,
+     "log": false,
+     "value": 0,
+     "snap": [
+      0,
+      1
+     ]
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T10:00:47.797Z",
+  "applied": [
+   {
+    "path": "explain.text",
+    "problem": "The closing link says a mean or RMS value 'is an area under a graph ... divided by a length', but the RMS value is the square root of the squared graph's area ÷ length, so the sentence is false for RMS as worded."
+   },
+   {
+    "path": "interactive.whatAmILookingAt",
+    "problem": "It gives the ramp a 'half-cycle mean', but the ramp's 3 A mean (used for its 1.15 form factor) is over its whole 2 s rise; over half of that it would be 1.5 A. Only the two a.c. waves take a half-cycle mean."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

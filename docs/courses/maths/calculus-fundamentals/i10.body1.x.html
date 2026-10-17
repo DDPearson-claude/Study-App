@@ -1,0 +1,1011 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; margin-inline: auto; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.08rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 25rem; margin-inline: auto; }
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .axis, .scene .mtick { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tick, .scene .aname { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }
+  .scene .colname { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  /* The graph of the rule, and the bars or area under it. */
+  .scene .curve { fill: none; stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .curve.thin { stroke-width: 2; }
+  .scene .curve.pick { stroke: var(--k-muted); stroke-dasharray: 6 4; }
+  .scene .curve.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }
+  .scene .bar { fill: var(--k-fill1); }
+  .scene .bar.edge { stroke: var(--k-accent2); stroke-width: 1.2; }
+  .scene .bar.neg { fill: url(#hatch); }
+  .scene .area { fill: var(--k-fill1); }
+  .scene .area.soft { fill: var(--k-sunk); }
+  .scene .area.neg { fill: url(#hatch); }
+  :root[data-theme="dark"] .scene .area.soft { fill: color-mix(in srgb, var(--k-strong) 40%, var(--k-sunk)); stroke: var(--k-strong); stroke-width: 1; }
+  .scene .area.bad { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  /* The mean: a flat rectangle with the same area. The humps that fold. The RMS level. */
+  .scene .mean { fill: var(--k-fill2); fill-opacity: .6; }
+  .scene .meanedge { stroke: var(--k-amber-line); stroke-width: 2.5; }
+  .scene .hump { fill: var(--k-fill2); fill-opacity: .9; stroke: var(--k-amber-line); stroke-width: 1.5; stroke-linejoin: round; }
+  .scene .rms { stroke: var(--k-ink); stroke-width: 2; stroke-dasharray: 8 4; }
+  .scene .badln { stroke: var(--k-warn); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .pick { stroke: var(--k-muted); stroke-width: 2.5; stroke-dasharray: 6 4; }
+  .scene .lvl { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 4; }
+  .scene .hbg { fill: var(--k-fill1); }
+  .scene .hln { stroke: var(--k-accent2); stroke-width: 1.6; }
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .brk { fill: none; stroke: var(--k-ink); stroke-width: 1.5; }
+  .scene .brk.bad { stroke: var(--k-warn); stroke-width: 2; }
+  .scene .lab { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .lab.soft { font-weight: 400; fill: var(--k-muted); }
+  .scene .lab.bad { fill: var(--k-warn); }
+  .scene .row { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .row.big { font-weight: 700; fill: var(--k-accent2); }
+  .scene .row.soft { font-weight: 400; }
+  .scene .row.bad { fill: var(--k-warn); }
+  .scene .v { font-style: italic; }
+  /* The key, inside the drawing. */
+  .scene .sw { stroke: var(--k-strong); stroke-width: 1; }
+  .scene .sw.hatch { fill: url(#hatch); stroke: var(--k-accent2); }
+  .scene .sw.hump { fill: var(--k-fill2); stroke: var(--k-amber-line); }
+  .scene .keyt { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why, .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">Graphs of a changing current against time, each drawn from a rule, with bars or a flat rectangle laid over them.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 460" width="100%" role="img" aria-label="">
+      <defs>
+        <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+          <rect class="hbg" x="0" y="0" width="6" height="6"></rect>
+          <line class="hln" x1="1" y1="0" x2="1" y2="6"></line>
+        </pattern>
+        <clipPath id="fclip"><rect id="fclipr" x="0" y="0" width="340" height="460"></rect></clipPath>
+      </defs>
+      <g id="art"></g>
+    </svg>
+    <div class="k-controls" id="cb1" hidden></div>
+    <div class="k-controls" id="cb2" hidden></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each wave is drawn from its rule with example values; each mean and RMS is worked out from it.</p>
+
+<script>
+  // ---------- numbers ----------
+  const tidy = (v) => { const r = +(+v).toPrecision(10); return Math.abs(r) < 1e-12 ? 0 : r; };
+  const fmtN = (v) => String(tidy(v)).replace('-', '−');
+  const dec = (v, d) => { const p = Math.pow(10, d); return fmtN(Math.round(tidy(v) * p) / p); };
+  const fix = (v, d) => { let s = (Math.round(tidy(v) * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d); if (/^-0(\.0+)?$/.test(s)) s = s.slice(1); return s.replace('-', '−'); };
+
+  // ---------- the rules ----------
+  // Time for an a.c. wave is in cycles (one cycle fills the graph); for the ramps it is in seconds.
+  const TAU = 2 * Math.PI;
+  const sine = (P) => (x) => P * Math.sin(TAU * x);
+  const SIN10 = sine(10);
+  const SQR = (f) => (x) => { const v = f(x); return v * v; };
+  const SQ10 = SQR(SIN10);
+  const R3 = (t) => 3 * t * t;        // lesson 8's current
+  const T2 = (t) => t * t;
+  const RAMP3 = (t) => 3 * t, RAMP6 = (t) => 6 * t;
+  const SQW = (x) => (x < 0.5 ? 10 : -10);   // a square wave of ±10 A
+  const SAW = (t) => 30 * t;                 // one tooth of the sawtooth, 0 to T
+  // N equal bars from a to b, each as tall as the graph at its middle.
+  function barsOf(f, a, b, N) {
+    const w = (b - a) / N, out = [];
+    for (let k = 0; k < N; k++) { const v0 = a + k * w; out.push({ v0, v1: v0 + w, h: f(v0 + w / 2) }); }
+    return out;
+  }
+  const meanH = (list) => list.reduce((s, q) => s + q.h, 0) / list.length;
+  // The mean of a graph over a stretch: its area (20,000 bars) ÷ the stretch's length.
+  const meanOf = (f, a, b) => meanH(barsOf(f, a, b, 20000));
+  const areaBy = (f, a, b) => meanOf(f, a, b) * (b - a);
+  // Square, mean, root.
+  const rmsOf = (f, a, b) => Math.sqrt(meanOf(SQR(f), a, b));
+
+  // The three waves set side by side: each mean (over half a cycle for the a.c. ones), RMS and their ratio.
+  const FORM = [
+    { name: 'Square', f: SQW, xs: [0, 1], end: '1 cycle', mspan: [0, 0.5], px: [86, 162],
+      d: (Xc, Ym) => 'M' + r3(Xc(0)) + ' ' + r3(Ym(10)) + ' H' + r3(Xc(0.5)) + ' V' + r3(Ym(-10)) + ' H' + r3(Xc(1)) },
+    { name: 'Sine', f: SIN10, xs: [0, 1], end: '1 cycle', mspan: [0, 0.5], px: [172, 248],
+      d: (Xc, Ym) => K.linspace(0, 1, 97).map((t, j) => (j ? ' L' : 'M') + r3(Xc(t)) + ' ' + r3(Ym(SIN10(t)))).join('') },
+    { name: 'Ramp', f: RAMP3, xs: [0, 2], end: '2 s', mspan: [0, 2], px: [258, 334],
+      d: (Xc, Ym) => 'M' + r3(Xc(0)) + ' ' + r3(Ym(0)) + ' L' + r3(Xc(2)) + ' ' + r3(Ym(6)) + ' V' + r3(Ym(0)) },
+  ];
+  function r3(v) { return Math.round(v * 1000) / 1000; }
+  FORM.forEach((c) => { c.mean = meanOf(c.f, c.mspan[0], c.mspan[1]); c.rms = rmsOf(c.f, c.xs[0], c.xs[1]); c.ff = c.rms / c.mean; });
+
+  const SUBS = { '²': ' squared', '³': ' cubed', '½': 'half', '¼': 'a quarter', '¾': 'three quarters' };
+  const say = (s) => String(s == null ? '' : s).replace(/`/g, '').replace(/[²³½¼¾]/g, (m) => SUBS[m]).replace(/√/g, 'root ').replace(/±/g, 'plus or minus ')
+    .replace(/÷/g, ' divided by ').replace(/×/g, ' times ').replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- the graphs ----------
+  const AMP = '`i`, current in A', VOLT = '`v`, voltage in V', AMP2 = '`i²`, current squared in A²';
+  const CYC = { x: [0, 1, 0.25], xf: (v) => ({ 0: '0', 0.25: '¼', 0.5: '½', 0.75: '¾', 1: '1' })[v], xn: 'time, in cycles' };
+  const SEC = (b, s) => ({ x: [0, b, s], xn: '`t`, time in s' });
+  const ONE = (o, y, yn) => Object.assign({ top: 56, h: 170, ny: 16 }, o, { y, yn });
+  const TOP = (o, y, yn) => Object.assign({ top: 56, h: 100, ny: 16 }, o, { y, yn, xn: null });
+  const BOT = (o, y, yn) => Object.assign({ top: 214, h: 110, ny: 22 }, o, { y, yn });
+  const G4a = TOP(SEC(2, 0.5), [0, 6, 2], AMP), G4b = BOT(SEC(2, 0.5), [0, 36, 12], AMP2);
+  const G5a = TOP(SEC(2, 0.5), [0, 12, 4], AMP), G5b = BOT(SEC(2, 0.5), [0, 144, 48], AMP2);
+  const G6a = TOP(CYC, [-10, 10, 10], AMP), G6b = BOT(CYC, [0, 100, 50], '`i²` in A²');
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  const TXT = {
+    mean: 'Lesson 8’s current, `i = 3t²` amps from 0 s to 2 s, moves 2³ = 8 C of charge: the area under it. A steady current moving the same 8 C in the same 2 s would be 8 ÷ 2 = 4 A, a flat rectangle with the same area. That height is the *mean value*, the area under a graph ÷ the length of the stretch. Where the curve rises above the rectangle, the extra exactly fills the gap below it. The mean is not the ends’ average, (0 + 12) ÷ 2 = 6 A, as this curve spends most of the 2 s low down.',
+    ac: 'An a.c. current flows one way, then back. Textbooks add that a generator’s a.c. is close to a sine wave, drawn here with a 10 A peak, an example. Area below the axis counts as minus, so over a whole cycle the backward half cancels the forward half and the mean is 0 A. A heater warms both ways, so for its size take the mean over half a cycle. With equal bars that is the average of their heights: 4 bars give 6.53 A, 8 give 6.41 A and 100 give 6.37 A, 0.637 of the peak.',
+    ramp: 'A heater’s heat goes with the current squared, so a backward current heats just as well. The *RMS value*, root mean square, is the steady current that heats the same: square the graph, find its mean, then take the square root. Take a ramp, `i = 3t` amps from 0 s to 2 s, an example, rising to 6 A and dropping back. Its mean is 6 C ÷ 2 s = 3 A. Its square, `9t²`, rises to 36 A². The reverse rule makes it `3t³`, so it adds up to 3 × 2³ = 24, and its mean is 24 ÷ 2 = 12 A². The RMS value is √12 = 3.46 A, more than the mean, as squaring makes the big currents count for more. Any ramp gives its peak ÷ √3: 6 ÷ 1.732 = 3.46 A.',
+    fold: 'Now square the sine wave with its 10 A peak. The square runs between 0 and 100 A². Its humps above 50 A², half the peak squared, are its dips turned upside down. As the fold slides across, each hump lifts off, moves a quarter cycle along, turns over and drops exactly into the dip there, leaving a flat band at 50 A². Why it fits: a sine wave is the height of a point going steadily round a circle of radius 10. A quarter turn later its height is what its sideways distance was, and by Pythagoras height² + sideways distance² = 100. So the square now and the square a quarter cycle on always add up to 100. The mean of the square is 50 A², and the RMS value is √50 = 7.07 A, the peak ÷ √2.',
+    form: 'Three waves side by side: a square wave of ±10 A, an example, the sine wave with its 10 A peak, and the ramp rising to 6 A. Under each are its mean, over half a cycle for the two a.c. waves, and its RMS value. Textbooks call RMS ÷ mean the *form factor*. The square wave is always 10 A one way or the other, so squaring changes nothing: 10 ÷ 10 = 1. The sine wave’s is 7.07 ÷ 6.37 = 1.11 and the ramp’s 3.46 ÷ 3 = 1.15. The other way round, a sine wave’s peak is 1.414 × its RMS value.',
+  };
+  const STEPS = [
+    { show: true, kind: 'mean', name: 'The mean value', who: '`i = 3t²`, from 0 s to 2 s', g: ONE(SEC(2, 0.5), [0, 12, 4], AMP), dur: 4.4, rows: 3, text: TXT.mean },
+    { name: 'A mean current', who: '`i = t²`, from 0 s to 3 s', g: ONE(SEC(3, 1), [0, 10, 2], AMP), opts: ['ends', 'right', 'nodiv'],
+      task: 'The current `i = t²` amps, an example, flows from 0 s to 3 s. The reverse rule turns `t²` into `t³ ÷ 3`, so it moves 3³ ÷ 3 = 9 C. What is its mean current?',
+      why: 'Spread the 9 C over the 3 s: 9 ÷ 3 = 3 A, the height of the flat rectangle with the same area. (0 + 9) ÷ 2 = 4.5 A is the ends’ average, too high, as the curve spends most of the 3 s low down. 9 A forgets to divide by the 3 s.',
+      hint: 'Not quite. Divide the charge by the time.',
+      hints: { ends: 'Not quite. The curve is not straight. Divide the charge by the time.', nodiv: 'Not quite. 9 C is the charge. Divide it by the 3 s.' },
+      pre: ['`i = t²` from 0 s to 3 s: 9 C', 'Mean current = ?'], right: ['9 C spread over 3 s', '9 ÷ 3 = 3 A, the same area'],
+      o: {
+        ends: { t: '4.5 A', v: (0 + T2(3)) / 2, rows: ['(0 + 9) ÷ 2 = 4.5 A: the ends’ average', 'Divide the charge by the time'] },
+        right: { t: '3 A', v: tidy(T2(3) * 3 / 3 / 3) },
+        nodiv: { t: '9 A', v: T2(3), rows: ['9 C is the charge, not yet ÷ 3 s', 'Divide it by the 3 s'] },
+      },
+      scene: (s) => {
+        areaOf(T2, 0, 3, s.k === 'right' ? '' : 'soft', 1);
+        if (s.k === 'right') meanRect(0, 3, s.ov, s.a, { x: X(0.05), y: Y(3) - 7, text: 'mean 3 A', anchor: 'start' });
+        if (s.k === 'ends') badRect(0, 3, s.ov, s.a, { x: X(0.75), y: Y(4.5) - 9, text: 'too much area' });
+        if (s.k === 'nodiv') badRect(0, 3, s.ov, s.a, { x: X(1.1), y: Y(6.5), text: 'the 9 C, not ÷ 3 s' });
+        curve(T2, 0, 3, '', 1);
+        queue(1, [{ x: X(2.3), y: Y(1.4), text: '9 C' }]);
+        if (s.pk) pickLine(0, 3, s.pv, s.pt, s.pa, { x: X(0.05), y: Y(s.pv) - 7, anchor: 'start' });
+      } },
+    { show: true, kind: 'ac', name: 'Mean of a sine wave', cid: 'bars', who: 'A sine-wave current, peak 10 A', g: ONE(CYC, [-10, 10, 5], AMP), dur: 4.8, rows: 3,
+      ctour: { v0: 4, log: true, legs: [{ to: 8, t: 2.6, len: 0.6 }, { to: 100, t: 3.4, len: 0.9 }] },
+      rowsAt: (n) => {
+        const m = meanH(barsOf(SIN10, 0, 0.5, n));
+        return [{ s: n + ' bars over half a cycle: mean ' + fix(m, 2) + ' A', big: true },
+          { s: n >= 100 ? 'Settled on 0.637 of the 10 A peak' : 'Closing in on 0.637 of the peak', soft: true }];
+      },
+      text: TXT.ac },
+    { name: 'Half a cycle', who: 'A sine-wave current, peak 20 A', g: ONE(CYC, [-20, 20, 10], AMP), opts: ['half', 'whole', 'right'],
+      task: 'A sine-wave current peaks at 20 A, an example. What is its mean over half a cycle?',
+      why: 'Over half a cycle a sine wave’s mean is 0.637 of its peak: 0.637 × 20 = 12.7 A, the height of the rectangle with the same area as the hump. 10 A, half the peak, leaves too little area. 0 A is the mean over a whole cycle, where the backward half cancels the forward half.',
+      hint: 'Not quite. Take 0.637 of the peak.',
+      hints: { half: 'Not quite. Half the peak leaves too little area. Take 0.637 of it.', whole: 'Not quite. That is a whole cycle. Take half a cycle.' },
+      pre: ['Peak 20 A, over half a cycle', 'Mean = ?'], right: ['Half-cycle mean: 0.637 of the peak', '0.637 × 20 = 12.7 A, the same area'],
+      o: {
+        half: { t: '10 A', v: 20 / 2, rows: ['10 A is half the peak', 'It leaves too little area'] },
+        whole: { t: '0 A', v: 0, rows: ['0 A is the mean over a whole cycle', 'Take half a cycle'] },
+        right: { t: '12.7 A', v: 40 / Math.PI },
+      },
+      scene: (s) => {
+        const f = sine(20);
+        areaOf(f, 0, 0.5, s.k === 'right' ? '' : 'soft', 1);
+        if (s.k === 'right') meanRect(0, 0.5, s.ov, s.a, { x: X(0.5) + 6, y: Y(s.ov) + 5, text: 'mean 12.7 A', anchor: 'start' });
+        if (s.k === 'half') badRect(0, 0.5, s.ov, s.a, { x: X(0.5) + 6, y: Y(s.ov) + 5, text: 'too little area', anchor: 'start' });
+        if (s.k === 'whole') {
+          areaOf(f, 0.5, 1, 'neg', s.a);
+          part(s.a, 0, () => drawKey({ x: X(0.56), y: Y(17), items: [{ sw: 'hatch', text: 'counts as minus' }] }));
+          queue(s.a, [{ x: X(1) - 2, y: Y(9), text: 'a whole cycle cancels', anchor: 'end', cls: 'bad' }]);
+        }
+        curve(f, 0, 1, '', 1);
+        tbr(0, 0.5, -3, 'half a cycle', 1);
+        if (s.pk) pickLine(0, 0.5, s.pv, s.pt, s.pa, { x: X(0.5) + 6, y: Y(s.pv) + (s.pv > 0 ? 5 : -6), anchor: 'start' });
+      } },
+    { show: true, kind: 'ramp', name: 'Square, mean, root', who: 'A ramp, `i = 3t`, and its square', g1: G4a, g2: G4b, dur: 4.4, rows: 4, text: TXT.ramp },
+    { name: 'A steeper ramp', who: 'A ramp, `i = 6t`, and its square', g1: G5a, g2: G5b, opts: ['right', 'mean', 'noroot'],
+      task: 'A ramp current, `i = 6t` amps, rises from 0 to 12 A in 2 s, an example, then drops back. Its square, `36t²`, adds up to 12 × 2³ = 96 over the 2 s. What is its RMS value?',
+      why: 'The mean of the square is 96 ÷ 2 = 48 A², so the RMS value is √48 = 6.93 A, the same as the peak ÷ √3, 12 ÷ 1.732. 6 A is the plain mean, with no squaring. 48 is the mean square, in A², still waiting for its square root.',
+      hint: 'Not quite. Find the mean of the square, then its square root.',
+      hints: { mean: 'Not quite. That is the plain mean. Square first, then mean, then root.', noroot: 'Not quite. 48 is in A². Take its square root.' },
+      pre: ['Square `36t²` adds up to 96 over 2 s', 'RMS = ?'], right: ['Mean square: 96 ÷ 2 = 48 A²', 'RMS: √48 = 6.93 A'],
+      o: {
+        right: { t: '6.93 A', v: Math.sqrt(48) },
+        mean: { t: '6 A', v: RAMP6(2) / 2, rows: ['6 A is the plain mean, 12 ÷ 2', 'Square, mean, then root'] },
+        noroot: { t: '48 A', v: 12 * 8 / 2, rows: ['48 is the mean square, in A²', 'Take its square root'] },
+      },
+      scene: (s) => {
+        const f2 = SQR(RAMP6);
+        use(G5a); frame();
+        curve(RAMP6, 0, 2, '', 1); drop(2, 12, 1);
+        if (s.k === 'right') rmsLine(0, 2, s.ov, s.a, { x: X(0.05), y: Y(s.ov) - 7, text: 'RMS 6.93 A', anchor: 'start' });
+        if (s.k === 'mean') badLine(0, 2, s.ov, s.a, { x: X(0.05), y: Y(s.ov) - 7, text: 'the plain mean', anchor: 'start' });
+        if (s.pk && s.pv <= 12) pickLine(0, 2, s.pv, s.pt, s.pa, { x: X(0.05), y: Y(s.pv) - 7, anchor: 'start' });
+        use(G5b); frame();
+        areaOf(f2, 0, 2, s.k === 'right' ? '' : 'soft', 1);
+        if (s.k === 'right') meanRect(0, 2, 48, s.a, { x: X(0.05), y: Y(48) - 7, text: 'mean 48 A²', anchor: 'start' }, true);
+        if (s.k === 'noroot') badLine(0, 2, 48, s.a, { x: X(0.05), y: Y(48) - 7, text: 'not yet rooted', anchor: 'start' });
+        curve(f2, 0, 2, '', 1); drop(2, 144, 1);
+        queue(1, [{ x: X(1.62), y: Y(30), text: 'adds up to 96' }]);
+      } },
+    { show: true, kind: 'fold', name: 'The fold', cid: 'fold', who: 'The sine wave, 10 A peak, and its square', g1: G6a, g2: G6b, dur: 4.5, rows: 4,
+      ftour: { v0: 0, legs: [{ to: 1, t: 0.6, len: 3.0 }] }, text: TXT.fold },
+    { name: 'A sine voltage', who: 'A sine-wave voltage, peak 100 V', g: ONE(CYC, [-100, 100, 50], VOLT), opts: ['mean', 'half', 'right'],
+      task: 'A sine-wave voltage peaks at 100 V, an example. What is its RMS value?',
+      why: 'For a sine wave the RMS value is the peak ÷ √2, 0.707 of the peak: 100 × 0.707 = 70.7 V. 63.7 V is its mean over half a cycle, 0.637 × 100, not the RMS. 50 V divides the peak by 2 instead of by √2.',
+      hint: 'Not quite. Take 0.707 of the peak.',
+      hints: { mean: 'Not quite. That is the half-cycle mean. The RMS is 0.707 of the peak.', half: 'Not quite. Divide the peak by √2, not by 2.' },
+      pre: ['Peak 100 V', 'RMS = ?'], right: ['RMS: 0.707 of the peak', '100 × 0.707 = 70.7 V'],
+      o: {
+        mean: { t: '63.7 V', v: 200 / Math.PI, rows: ['63.7 V is the half-cycle mean', 'The RMS is 0.707 of the peak'] },
+        half: { t: '50 V', v: 100 / 2, rows: ['100 ÷ 2 = 50 V divides by 2', 'Divide by √2 instead'] },
+        right: { t: '70.7 V', v: 100 / Math.SQRT2 },
+      },
+      scene: (s) => {
+        curve(sine(100), 0, 1, '', 1);
+        if (s.k === 'right') rmsLine(0, 1, s.ov, s.a, { x: X(1) - 4, y: Y(s.ov) - 7, text: 'RMS 70.7 V', anchor: 'end' });
+        if (s.k === 'mean') badLine(0, 0.5, s.ov, s.a, { x: X(0.5) + 6, y: Y(s.ov) + 5, text: 'the half-cycle mean', anchor: 'start' });
+        if (s.k === 'half') badLine(0, 1, s.ov, s.a, { x: X(1) - 4, y: Y(s.ov) - 7, text: '100 ÷ 2, not ÷ √2', anchor: 'end' });
+        if (s.pk) pickLine(0, 1, s.pv, s.pt, s.pa, { x: X(1) - 4, y: Y(s.pv) - 7, anchor: 'end' });
+      } },
+    { show: true, kind: 'form', name: 'Form factor', who: 'Three waves: mean, RMS and form factor', dur: 4.2, vh: 304, rows: 0, text: TXT.form },
+    { name: 'Its form factor', who: 'The ramp `i = 6t`: its mean and RMS', g: ONE(SEC(2, 0.5), [0, 12, 4], AMP), opts: ['flip', 'right', 'peak'],
+      task: 'The ramp `i = 6t`, rising to 12 A in 2 s, has a mean of 6 A and an RMS value of 6.93 A. What is its form factor?',
+      why: 'The form factor is the RMS value ÷ the mean value: 6.93 ÷ 6 = 1.15, the same as the 6 A ramp’s. 0.87 is 6 ÷ 6.93, the division upside down. 0.58 is 6.93 ÷ 12, the RMS value ÷ the peak.',
+      hint: 'Not quite. Divide the RMS value by the mean value.',
+      hints: { flip: 'Not quite. Turn it round: RMS ÷ mean.', peak: 'Not quite. 12 A is the peak. Divide by the mean, 6 A.' },
+      pre: ['Mean 6 A, RMS 6.93 A', 'Form factor = ?'], right: ['Form factor: RMS ÷ mean', '6.93 ÷ 6 = 1.15'],
+      o: {
+        flip: { t: '0.87', v: 6 / Math.sqrt(48), rows: ['6 ÷ 6.93 = 0.87 is mean ÷ RMS', 'Turn it round: RMS ÷ mean'] },
+        right: { t: '1.15', v: Math.sqrt(48) / 6 },
+        peak: { t: '0.58', v: Math.sqrt(48) / 12, rows: ['6.93 ÷ 12 = 0.58 uses the peak', 'Divide by the mean, 6 A'] },
+      },
+      scene: (s) => {
+        const rms = Math.sqrt(48);
+        meanRect(0, 2, 6, 1, { x: X(0.05), y: Y(6) + 17, text: 'mean 6 A', anchor: 'start' });
+        curve(RAMP6, 0, 2, '', 1); drop(2, 12, 1);
+        rmsLine(0, 2, rms, 1, { x: X(0.05), y: Y(rms) - 7, text: 'RMS 6.93 A', anchor: 'start' });
+        if (s.k === 'right') queue(s.a, [{ x: X(0.05), y: Y(10.6), text: 'RMS ÷ mean = 1.15', anchor: 'start' }]);
+        if (s.k === 'flip') queue(s.a, [{ x: X(0.05), y: Y(10.6), text: 'mean ÷ RMS: upside down', anchor: 'start', cls: 'bad' }]);
+        if (s.k === 'peak') { vbr(2, 0, 12, '', true, s.a, 'left'); queue(s.a, [{ x: X(2), y: g.top - 8, text: '÷ 12 A, the peak', anchor: 'end', cls: 'bad' }]); }
+      } },
+    { name: 'From RMS to peak', who: 'A sine-wave current with an RMS of 5 A', g: ONE(CYC, [-10, 10, 5], AMP), opts: ['right', 'div', 'dbl'],
+      task: 'A sine-wave current has an RMS value of 5 A, an example. What is its peak?',
+      why: 'A sine wave’s peak is 1.414 × its RMS value: 5 × 1.414 = 7.07 A. 3.54 A is 5 ÷ 1.414, which goes from a peak to an RMS value, the wrong way. 10 A doubles it, and a 10 A peak has an RMS value of 7.07 A, not 5 A.',
+      hint: 'Not quite. Multiply the RMS value by 1.414.',
+      hints: { div: 'Not quite. The peak is bigger than the RMS. Multiply by 1.414.', dbl: 'Not quite. Multiply by 1.414, not by 2.' },
+      pre: ['RMS 5 A', 'Peak = ?'], right: ['Peak: 1.414 × the RMS value', '5 × 1.414 = 7.07 A'],
+      o: {
+        right: { t: '7.07 A', v: 5 * Math.SQRT2 },
+        div: { t: '3.54 A', v: 5 / Math.SQRT2, rows: ['5 ÷ 1.414 = 3.54 A, under the RMS', 'The peak is 1.414 × the RMS'] },
+        dbl: { t: '10 A', v: 2 * 5, rows: ['10 A doubles the RMS', 'Multiply by 1.414, not by 2'] },
+      },
+      scene: (s) => {
+        const peak = s.k ? s.ov : s.pk ? s.pv : null, al = s.k ? s.a : s.pa;
+        if (peak != null && al > 0) {
+          REC.peak = peak;
+          curve(sine(peak), 0, 1, s.k === 'right' ? '' : s.k ? 'bad' : 'pick', al);
+          dotAt(0.25, peak, al);
+          queue(al, [{ x: X(0.25), y: Y(peak) - 11, text: 'peak ' + (s.k ? s.ot : s.pt), cls: s.k === 'right' ? '' : s.k ? 'bad' : 'soft' }]);
+          if (s.k === 'div') queue(s.a, [{ x: X(0.74), y: Y(8.2), text: 'its peak is under the RMS', cls: 'bad' }]);
+          if (s.k === 'dbl') queue(s.a, [{ x: X(0.74), y: Y(8.2), text: 'its RMS would be 7.07 A', cls: 'bad' }]);
+        }
+        rmsLine(0, 1, 5, 1, { x: X(1) - 4, y: Y(5) - 7, text: 'RMS 5 A', anchor: 'end' });
+      } },
+    { name: 'A sawtooth', who: 'A sawtooth voltage, 0 V to 30 V', g: ONE({ x: [0, 1, 0.5], xf: (v) => (v === 0 ? '0' : v === 0.5 ? '½`T`' : '`T`'), xn: '`t`, time' }, [0, 30, 10], VOLT),
+      opts: ['sine', 'mean', 'right'],
+      task: 'A sawtooth voltage rises steadily from 0 V to 30 V, drops back at once and repeats, an example. What is its RMS value?',
+      why: 'Each tooth is a ramp from 0 to its peak, so its RMS value is the peak ÷ √3: 30 ÷ 1.732 = 17.3 V. 21.2 V is 30 ÷ 1.414, the sine wave’s rule, used on a wave that is not a sine wave. 15 V is the plain mean, 30 ÷ 2, with no squaring.',
+      hint: 'Not quite. A ramp’s RMS value is its peak ÷ √3.',
+      hints: { sine: 'Not quite. ÷ √2 is for sine waves. A ramp’s is its peak ÷ √3.', mean: 'Not quite. That is the plain mean. Square, mean, then root.' },
+      pre: ['A ramp from 0 V to 30 V', 'RMS = ?'], right: ['A ramp: RMS = peak ÷ √3', '30 ÷ 1.732 = 17.3 V'],
+      o: {
+        sine: { t: '21.2 V', v: 30 / Math.SQRT2, rows: ['30 ÷ 1.414 = 21.2 V is the sine rule', 'This wave is a ramp: ÷ √3'] },
+        mean: { t: '15 V', v: 30 / 2, rows: ['15 V is the plain mean, 30 ÷ 2', 'Square, mean, then root'] },
+        right: { t: '17.3 V', v: 30 / Math.sqrt(3) },
+      },
+      scene: (s) => {
+        curve(SAW, 0, 1, '', 1); drop(1, 30, 1);
+        if (s.k === 'right') rmsLine(0, 1, s.ov, s.a, { x: X(0.02), y: Y(s.ov) - 7, text: 'RMS 17.3 V', anchor: 'start' });
+        if (s.k === 'sine') badLine(0, 1, s.ov, s.a, { x: X(0.02), y: Y(s.ov) - 7, text: 'the sine rule', anchor: 'start' });
+        if (s.k === 'mean') badLine(0, 1, s.ov, s.a, { x: X(0.02), y: Y(s.ov) - 7, text: 'the plain mean', anchor: 'start' });
+        if (s.pk) pickLine(0, 1, s.pv, s.pt, s.pa, { x: X(0.02), y: Y(s.pv) - 7, anchor: 'start' });
+      } },
+  ];
+  STEPS.forEach((d) => { if (!d.show) d.rows = Math.max(d.pre.length, d.right.length, 1 + Math.max.apply(null, d.opts.filter((k) => k !== 'right').map((k) => d.o[k].rows.length))); });
+  const FINISH = 'The mean value is the area under a graph ÷ its length; the RMS value is the square root of the mean of the squared graph, which for a sine wave is its peak ÷ √2.';
+  // The lesson's sources the checks restate.
+  const SRC = {
+    zero: 'https://www.tina.com/principles-of-alternating-current',
+    wave: 'https://learnabout-electronics.org/ac_theory/ac_waves02.php',
+    avg: 'https://math.libretexts.org/Courses/Monroe_Community_College/MTH_210_Calculus_I_(Professor_Dean)/Chapter_5%3A_Integration/5.4%3A_Average_Value_of_a_Function',
+    rms: 'https://www.khanacademy.org/science/in-in-class-12th-physics-india/x51bd77206da864f3%3Aalternating-current/x51bd77206da864f3%3Arms-values-of-current-voltage/v/sine-wave-rms-value-derivation-without-calculus',
+    root2: 'https://eepower.com/power-electronics-textbook/vol-i-electrical-power-systems-design/chapter-4-sinusoidal-steady-state-power/power-factor-and-rms-explained',
+    syl: 'https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus',
+  };
+  const FB = [1.3, 1.2];
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // c: the number of bars Dan has set; f: the fold he has set (0 unfolded, 1 folded flat).
+  function blank() { return { pick: null, res: null, why: false, c: null, f: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;   // T: seconds into the current motion
+  let REC = null, checking = false, lastB = 4, lastF = 0;
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /([itTv])/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) node.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        node.appendChild(K.el('span', { class: 'mark' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) node.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+  const el = (id) => document.getElementById(id);
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+    play(FB[1]);
+  } }));
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === 'right' ? 'right' : 'wrong';
+    play(st.res === 'right' ? FB[0] : FB[1]);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    const st = S[at()];
+    st.c = null; st.f = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+  // The slider for the number of bars, and the fold: each on its own screen.
+  const BC = K.control({ id: 'bars', label: 'Bars over half a cycle', min: 4, max: 100, step: 1, value: 4, snap: [4, 8, 100], fmt: (v) => v + ' bars', into: '#cb1' });
+  const FC = K.control({ id: 'fold', label: 'Fold', min: 0, max: 1, step: 0.01, value: 0, snap: [0, 1], fmt: (v) => (v <= 0 ? 'Unfolded' : v >= 1 ? 'Folded flat' : 'Folding'), into: '#cb2' });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art');
+  let into = null, AV = [], LQ = [], g = null;   // AV: lines and shapes labels keep clear of; LQ: labels waiting; g: the graph in use
+  const add = (node) => (into || art).appendChild(node);
+  let latest = 0;
+  const note = (t) => { if (t > latest) latest = t; };
+  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0 + d); return K.arrive(T, t0, d); }
+  // Travel: 0 to 1 from t0 over len seconds, eased; the moment an eased travel reaches a fraction.
+  function sweep(t0, len) { note(t0 + len); return T === Infinity ? 1 : K.ease((T - t0) / len); }
+  function tAt(frac, t0, len) { let lo = 0, hi = 1; for (let j = 0; j < 30; j++) { const m = (lo + hi) / 2; if (K.ease(m) < frac) lo = m; else hi = m; } return t0 + len * (lo + hi) / 2; }
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const grp = add(K.svg('g'));
+    K.fade(grp, a, rise);
+    const keep = into; into = grp; draw(); into = keep;
+  }
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  const path = (cls, dd) => add(K.svg('path', { class: cls, d: dd }));
+  const rect = (cls, x, y, w, h) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)) }));
+  // Text in the drawing: letters inside backticks are the rule's letters, set in italics.
+  function text(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    String(s).split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); });
+    return add(t);
+  }
+  // A line of text kept inside its room: shrunk (never under 12) when it would run past it.
+  function fit(t, room, size) {
+    try { const w = t.getComputedTextLength(); if (w > room) t.style.fontSize = Math.max(12, Math.floor(size * room / w * 10) / 10) + 'px'; } catch (e) { /* measured again next paint */ }
+  }
+  // Labels wait in LQ and are placed last (K.labels), clear of every line, shape and label drawn.
+  const queue = (a, items) => { items = items.filter((it) => it && it.text); if (a > 0 && items.length) LQ.push({ a, items }); };
+  function flushLabels() {
+    const list = LQ; LQ = [];
+    list.forEach((q) => part(q.a, 4, () => {
+      const ts = K.labels(into, q.items.map((it) => ({ x: r3(it.x), y: r3(it.y), text: it.text.replace(/`/g, ''), anchor: it.anchor || 'middle', class: 'lab' + (it.cls ? ' ' + it.cls : '') })), { avoid: AV });
+      ts.forEach((t, j) => {
+        const raw = String(q.items[j].text);
+        if (raw.indexOf('`') >= 0) { t.textContent = ''; raw.split('`').forEach((seg, k) => { if (!seg) return; if (k % 2) italics(t, seg, true); else t.appendChild(document.createTextNode(seg)); }); }
+        REC.labs.push(t.textContent); if (/\bbad\b/.test(t.getAttribute('class') || '')) REC.bad++; });
+    }));
+  }
+
+  // ---------- a graph: time along the bottom, the rule's value up the side ----------
+  const PL = 52, PR = 318;
+  const use = (G) => { g = G; };
+  const X = (v) => PL + (v - g.x[0]) / (g.x[1] - g.x[0]) * (PR - PL);
+  const Y = (v) => g.top + g.h - (v - g.y[0]) / (g.y[1] - g.y[0]) * g.h;
+  // Gridlines, the time axis at zero, the value axis on the left, numbers and names.
+  function frame() {
+    const top = g.top, bot = g.top + g.h, y0 = Y(Math.max(0, g.y[0]));
+    for (let j = 0; ; j++) {
+      const v = tidy(g.y[0] + j * g.y[2]);
+      if (v > g.y[1] + 1e-9) break;
+      const y = Y(v);
+      if (Math.abs(v) > 1e-12) line('grid', PL, y, PR, y);
+      text(PL - 7, y + 4.5, fmtN(v), 'tick', 'end');
+    }
+    for (let j = 0; ; j++) {
+      const v = tidy(g.x[0] + j * g.x[2]);
+      if (v > g.x[1] + 1e-9) break;
+      const x = X(v);
+      if (v > g.x[0] + 1e-9) line('grid', x, top, x, bot);
+      line('mtick', x, y0, x, y0 + 5);
+      text(x, bot + 17, g.xf ? g.xf(v) : fmtN(v), 'tick');
+    }
+    AV.push(line('axis', PL, y0, PR + 6, y0), line('axis', PL, top - 6, PL, bot));
+    text(12, top - g.ny, g.yn, 'aname', 'start');
+    if (g.xn) text(PR + 8, bot + 35, g.xn, 'aname', 'end');
+  }
+  // A curve from one time to another, cut where it leaves the graph.
+  function pathOf(f, lo, hi) {
+    const n = 160, y0 = g.y[0], y1 = g.y[1];
+    let s = '', on = false, px = null, pv = null;
+    for (let j = 0; j <= n; j++) {
+      const x = lo + (hi - lo) * j / n, v = f(x), inside = v >= y0 - 1e-9 && v <= y1 + 1e-9;
+      if (inside) {
+        if (!on && pv != null) { const e = pv < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' M' + r3(X(xe)) + ' ' + r3(Y(e)); on = true; }
+        s += (on ? ' L' : ' M') + r3(X(x)) + ' ' + r3(Y(K.clamp(v, y0, y1))); on = true;
+      } else if (on) { const e = v < y0 ? y0 : y1, xe = px + (x - px) * (e - pv) / (v - pv); s += ' L' + r3(X(xe)) + ' ' + r3(Y(e)); on = false; }
+      px = x; pv = v;
+    }
+    return s.trim();
+  }
+  function curve(f, lo, hi, cls, a) {
+    a = a == null ? 1 : a;
+    if (a <= 0) return;
+    const dd = pathOf(f, lo, hi);
+    if (dd) part(a, 0, () => AV.push(path('curve' + (cls ? ' ' + cls : ''), dd)));
+  }
+  // A wave that drops straight back to zero at time x, from the value v.
+  function drop(x, v, a) { if (a > 0) part(a, 0, () => AV.push(line('curve', X(x), Y(v), X(x), Y(0)))); }
+  // One bar: from the time axis to the graph's value at its middle; hatched (counts as minus) below the axis.
+  function drawBar(q, cls, al) {
+    if (al <= 0) return;
+    const xa = X(q.v0), w = X(q.v1) - X(q.v0), neg = q.h < 0, top = Y(Math.max(q.h, 0)), bot = Y(Math.min(q.h, 0));
+    const c = 'bar' + (neg ? ' neg' : '') + (w >= 5 ? ' edge' : '') + (cls ? ' ' + cls : '');
+    part(al, 0, () => rect(c, xa, top, w, bot - top));
+    if (neg) REC.hatched++;
+    REC.bars.push({ v0: q.v0, v1: q.v1, h: q.h, neg });
+  }
+  // The area between a graph and the time axis: plain, neutral, hatched (minus) or a red outline.
+  function areaOf(f, a, b, cls, al) {
+    if (al <= 0) return;
+    const pts = K.linspace(a, b, 121);
+    const dd = 'M' + r3(X(a)) + ' ' + r3(Y(0)) + pts.map((v) => ' L' + r3(X(v)) + ' ' + r3(Y(K.clamp(f(v), g.y[0], g.y[1])))).join('') + ' L' + r3(X(b)) + ' ' + r3(Y(0)) + ' Z';
+    part(al, 0, () => path('area' + (cls ? ' ' + cls : ''), dd));
+    if (/neg/.test(cls || '')) REC.hatched++;
+  }
+  // The flat rectangle with the same area: its height is the mean (on a squared graph, the mean square).
+  function meanRect(x0, x1, h, al, lab, band) {
+    if (al <= 0 || Math.abs(h) < 1e-9) return;
+    part(al, 0, () => { rect('mean', X(x0), Y(Math.max(h, 0)), X(x1) - X(x0), Math.abs(Y(h) - Y(0))); AV.push(line('meanedge', X(x0), Y(h), X(x1), Y(h))); });
+    if (band) REC.band = tidy(h); else REC.mean = tidy(h);
+    if (lab) queue(al, [lab]);
+  }
+  function hline(cls, x0, x1, v, al, lab) {
+    if (al <= 0) return;
+    part(al, 0, () => AV.push(line(cls, X(x0), Y(v), X(x1), Y(v))));
+    if (lab) queue(al, [lab]);
+  }
+  function rmsLine(x0, x1, v, al, lab) { if (al > 0) REC.rms = tidy(v); hline('rms', x0, x1, v, al, lab); }
+  function badLine(x0, x1, v, al, lab) { if (al > 0) REC.bad++; hline('badln', x0, x1, v, al, Object.assign({ cls: 'bad' }, lab)); }
+  function pickLine(x0, x1, v, t, al, lab) { if (al > 0) REC.mark = v; hline('pick', x0, x1, v, al, Object.assign({ text: t, cls: 'soft' }, lab)); }
+  function badRect(x0, x1, h, al, lab) {
+    if (al <= 0) return;
+    REC.bad++;
+    part(al, 0, () => AV.push(rect('area bad', X(x0), Y(h), X(x1) - X(x0), Y(0) - Y(h))));
+    if (lab) queue(al, [Object.assign({ cls: 'bad' }, lab)]);
+  }
+  function dotAt(x, y, a) {
+    if (a <= 0) return;
+    part(a, 0, () => AV.push(circle('pt', X(x), Y(y), 5)));
+  }
+  // A bracket beside a height (from v0 to v1 at time x), its label on the side given.
+  function vbr(x, v0, v1, label, bad, a, side) {
+    if (a <= 0) return;
+    const right = side === 'right', px = X(x) + (right ? 6 : -6), y0 = Y(v0), y1 = Y(v1), tk = right ? -5 : 5;
+    part(a, 0, () => AV.push(path('brk' + (bad ? ' bad' : ''), 'M' + r3(px + tk) + ' ' + r3(y0) + ' H' + r3(px) + ' V' + r3(y1) + ' H' + r3(px + tk))));
+    if (label) queue(a, [{ x: px + (right ? 8 : -8), y: (y0 + y1) / 2 + 5, text: label, anchor: right ? 'start' : 'end', cls: bad ? 'bad' : '' }]);
+    if (bad) REC.bad++;
+  }
+  // A bracket along a stretch of time, at the value v, its label under it.
+  function tbr(x0, x1, v, label, a) {
+    if (a <= 0) return;
+    const y = Y(v), p0 = X(x0) + 2, p1 = X(x1) - 2;
+    part(a, 0, () => AV.push(path('brk', 'M' + r3(p0) + ' ' + r3(y - 5) + ' V' + r3(y) + ' H' + r3(p1) + ' V' + r3(y - 5))));
+    queue(a, [{ x: (p0 + p1) / 2, y: y + 16, text: label }]);
+  }
+  // The key, inside the drawing.
+  function drawKey(k) {
+    k.items.forEach((it, j) => {
+      const y = k.y + 20 * j;
+      AV.push(rect('sw ' + it.sw, k.x, y - 10, 16, 11));
+      text(k.x + 22, y, it.text, 'keyt', 'start');
+    });
+  }
+
+  // ---------- the working under the drawing, one line each ----------
+  function drawRows(RW, R0) {
+    RW.forEach((r, n) => {
+      const a = r.a != null ? r.a : r.t != null ? arr(r.t) : 1;
+      part(a, 4, () => fit(text(12, R0 + 26 * n, r.s, 'row' + (r.big ? ' big' : '') + (r.soft ? ' soft' : '') + (r.bad ? ' bad' : ''), 'start'), 316, 14));
+      if (a >= 0.5) REC.rows.push(r.s);
+      if (r.bad && a > 0) REC.bad++;
+    });
+  }
+  const rowTop = (d) => { const G = d.g2 || d.g; return G.top + G.h + 60; };
+  const boxH = (d) => d.vh || rowTop(d) + 26 * (d.rows - 1) + 16;
+
+  // ---------- motion along legs: the number of bars, or the fold ----------
+  // x: where it is now; rx: the last place it reached (the working shows that); la: the working's fade.
+  function tourAt(tr) {
+    let x = tr.v0, rx = x, la = 1;
+    for (const Lg of tr.legs) {
+      if (T < Lg.t) break;
+      if (T < Lg.t + Lg.len) {
+        la = 1 - K.arrive(T, Lg.t, 0.3);
+        const e = K.ease((T - Lg.t) / Lg.len);
+        x = tr.log ? Math.exp(K.lerp(Math.log(x), Math.log(Lg.to), e)) : K.lerp(x, Lg.to, e);
+        break;
+      }
+      x = Lg.to; rx = x; la = arr(Lg.t + Lg.len, 0.5);
+    }
+    tr.legs.forEach((Lg) => note(Lg.t + Lg.len + 0.5));
+    return { x, rx, la };
+  }
+
+  // ---------- the fold ----------
+  // Each hump of the squared wave above 50 A² (centred a quarter and three quarters into the cycle,
+  // and the one before the cycle starts) lifts off, moves a quarter cycle along while it turns
+  // upside down, and drops into the dip there. u: 0 unfolded, 1 folded flat.
+  const LIFT = 10;
+  function foldPieces(u) {
+    const up = K.ease(u / 0.25) - K.ease((u - 0.75) / 0.25), q = K.ease((u - 0.25) / 0.5);
+    const sh = 0.25 * q, s = Math.cos(Math.PI * q), base = tidy(50 + LIFT * up);
+    return [-0.25, 0.25, 0.75].map((c) => ({ c, base, s, pts: K.linspace(c - 0.125, c + 0.125, 41).map((x) => [x + sh, base + s * (SQ10(x) - 50)]) }));
+  }
+
+  // ---------- the SHOW screens ----------
+  // i = 3t²: the area grows behind the dot, then a rectangle with the same area rises to 4 A.
+  function drawMean(d, st, RW) {
+    const tt = 2 * sweep(0.2, 1.6);
+    if (tt > 1e-9) areaOf(R3, 0, tt, '', 1);
+    meanRect(0, 2, 4 * sweep(2.1, 1.0), 1, null);
+    curve(R3, 0, 2, '', 1);
+    dotAt(tt, R3(tt), 1);
+    const la = arr(3.1), ea = arr(3.6);
+    queue(arr(1.9), [{ x: X(1.62), y: Y(1.6) + 5, text: '8 C' }]);
+    queue(la, [{ x: X(0.05), y: Y(4) - 7, text: 'mean 4 A', anchor: 'start' }, { x: X(1.85), y: Y(6.5), text: 'extra' }, { x: X(0.55), y: Y(2.4), text: 'gap' }]);
+    hline('lvl', 0, 2, 6, ea, { x: X(0.05), y: Y(6) - 7, text: 'ends’ average', anchor: 'start', cls: 'soft' });
+    REC.avg = ea > 0 ? (0 + R3(2)) / 2 : null;
+    RW.push({ s: 'Area under the curve: 2³ = 8 C', soft: true, t: 1.9 }, { s: 'Mean: 8 C ÷ 2 s = 4 A, the same area', big: true, t: 3.0 },
+      { s: 'Not (0 + 12) ÷ 2 = 6 A, the ends’ average', soft: true, t: 3.6 });
+  }
+  // A sine wave: bars across the whole cycle arrive in time order (the backward half hatched),
+  // then the half-cycle mean rises, then the bars thin from 4 to 8 to 100 for each half.
+  function drawAC(d, st, RW) {
+    const own = st.c != null, s = own ? { x: st.c, rx: st.c, la: 1 } : tourAt(d.ctour), N = Math.round(s.x), rn = Math.round(s.rx);
+    REC.n = N;
+    const half = barsOf(SIN10, 0, 0.5, N), all = half.concat(barsOf(SIN10, 0.5, 1, N));
+    all.forEach((q, k) => drawBar(q, '', own ? 1 : arr(tAt((k + 0.5) / all.length, 0.2, 1.6), 0.35)));
+    curve(SIN10, 0, 1, '', 1);
+    drawKey({ x: X(0.56), y: Y(8.4), items: [{ sw: 'hatch', text: 'counts as minus' }] });
+    const ma = own ? 1 : arr(2.2), la = own ? 1 : Math.min(s.la, ma), m = meanH(barsOf(SIN10, 0, 0.5, rn));
+    meanRect(0, 0.5, meanH(half), ma, null);
+    queue(la, [{ x: X(0.5) + 6, y: Y(m) + 5, text: 'mean ' + fix(m, 2) + ' A', anchor: 'start' }]);
+    REC.whole = tidy(all.reduce((t, q) => t + q.h, 0));
+    RW.push({ s: 'Whole cycle: mean 0 A, the minus half cancels', soft: true, a: own ? 1 : arr(2.0) });
+    d.rowsAt(rn).forEach((r) => RW.push({ s: r.s, big: r.big, soft: r.soft, a: la }));
+  }
+  // A ramp and its square: both areas grow behind their dots; the mean and the mean square rise
+  // as flat rectangles; the RMS level, the root of the mean square, arrives on the current's graph.
+  function drawRamp(d, st, RW) {
+    const tt = 2 * sweep(0.2, 1.6), rms = Math.sqrt(12), f2 = SQR(RAMP3);
+    use(d.g1); frame();
+    if (tt > 1e-9) areaOf(RAMP3, 0, tt, '', 1);
+    meanRect(0, 2, 3 * sweep(2.0, 0.8), 1, null);
+    curve(RAMP3, 0, 2, '', 1); drop(2, 6, 1);
+    dotAt(tt, RAMP3(tt), 1);
+    queue(arr(2.8), [{ x: X(0.05), y: Y(3) + 17, text: 'mean 3 A', anchor: 'start' }]);
+    rmsLine(0, 2, rms, arr(3.6), { x: X(0.05), y: Y(rms) - 7, text: 'RMS 3.46 A', anchor: 'start' });
+    use(d.g2); frame();
+    if (tt > 1e-9) areaOf(f2, 0, tt, '', 1);
+    meanRect(0, 2, 12 * sweep(2.6, 0.8), 1, null, true);
+    curve(f2, 0, 2, '', 1); drop(2, 36, 1);
+    dotAt(tt, f2(tt), 1);
+    queue(arr(3.3), [{ x: X(0.05), y: Y(12) - 7, text: 'mean 12 A²', anchor: 'start' }]);
+    RW.push({ s: 'Mean: ½ × 2 × 6 = 6 C, ÷ 2 s = 3 A', soft: true, t: 2.8 }, { s: 'Square `9t²` adds up to 3 × 2³ = 24', soft: true, t: 3.0 },
+      { s: 'Mean square: 24 ÷ 2 = 12 A²', soft: true, t: 3.4 }, { s: 'RMS: √12 = 3.46 A, or 6 ÷ 1.732', big: true, t: 3.7 });
+  }
+  // The sine wave and its square; the square's humps fold into its dips, leaving a band at 50 A².
+  function drawFold(d, st, RW) {
+    const own = st.f != null, s = own ? { x: st.f } : tourAt(d.ftour), u = K.clamp(s.x, 0, 1), ca = own ? 1 : arr(3.8);
+    REC.fold = u;
+    use(d.g1); frame();
+    curve(SIN10, 0, 1, '', 1);
+    rmsLine(0, 1, Math.sqrt(50), ca, { x: X(1) - 4, y: Y(Math.sqrt(50)) - 7, text: 'RMS 7.07 A', anchor: 'end' });
+    use(d.g2); frame();
+    areaOf((x) => Math.min(SQ10(x), 50), 0, 1, '', 1);
+    const pcs = foldPieces(u), cr = el('fclipr');
+    cr.setAttribute('x', r3(X(0))); cr.setAttribute('y', r3(g.top - 18)); cr.setAttribute('width', r3(X(1) - X(0))); cr.setAttribute('height', r3(g.h + 18));
+    const grp = add(K.svg('g', { 'clip-path': 'url(#fclip)' })), keep = into;
+    into = grp;
+    pcs.forEach((pc) => {
+      const last = pc.pts[pc.pts.length - 1];
+      path('hump', 'M' + r3(X(pc.pts[0][0])) + ' ' + r3(Y(pc.base)) + pc.pts.map((q) => ' L' + r3(X(q[0])) + ' ' + r3(Y(q[1]))).join('') + ' L' + r3(X(last[0])) + ' ' + r3(Y(pc.base)) + ' Z');
+    });
+    into = keep;
+    REC.pieces = pcs;
+    AV.push(line('lvl', X(0), Y(50), X(1), Y(50)));
+    curve(SQ10, 0, 1, '', 1);
+    queue(1, [{ x: X(0.5), y: Y(50) - 8, text: '50 A²' }]);
+    drawKey({ x: 186, y: g.top - 22, items: [{ sw: 'hump', text: 'humps above 50 A²' }] });
+    if (u >= 1 - 1e-9) REC.band = 50;
+    RW.push({ s: 'Square now + square a quarter cycle on = 100', soft: true, a: 1 },
+      { s: 'Folded: a flat band at 50 A², the mean', soft: true, a: ca },
+      { s: 'RMS: √50 = 7.07 A, the peak ÷ √2', big: true, a: ca },
+      { s: '10 ÷ 1.414 = 7.07 A: 0.707 of the peak', soft: true, a: ca });
+  }
+  // Three waves on one current scale, each with its mean and RMS level, then a table of the two and their ratio.
+  function drawForm(d, st, RW) {
+    const GTm = 78, GHm = 110, Ym = (v) => GTm + (10 - v) / 20 * GHm, GBm = GTm + GHm;
+    text(12, GTm - 32, AMP, 'aname', 'start');
+    [10, 0, -10].forEach((v) => text(80, Ym(v) + 4.5, fmtN(v), 'tick', 'end'));
+    const ma = arr(2.0), ra = arr(2.7), fa = arr(3.4);
+    REC.form = [];
+    FORM.forEach((c, j) => {
+      const x0 = c.px[0], x1 = c.px[1], Xc = (t) => x0 + (t - c.xs[0]) / (c.xs[1] - c.xs[0]) * (x1 - x0);
+      text((x0 + x1) / 2, GTm - 12, c.name, 'colname');
+      line('grid', x0, Ym(10), x1, Ym(10)); line('grid', x0, Ym(-10), x1, Ym(-10));
+      AV.push(line('axis', x0, Ym(0), x1, Ym(0)), line('axis', x0, Ym(10) - 4, x0, Ym(-10)));
+      text(x0, GBm + 17, '0', 'tick', 'start'); text(x1, GBm + 17, c.end, 'tick', 'end');
+      part(arr(0.2 + 0.6 * j), 0, () => AV.push(path('curve thin', c.d(Xc, Ym))));
+      part(ma, 0, () => AV.push(line('meanedge', Xc(c.mspan[0]), Ym(c.mean), Xc(c.mspan[1]), Ym(c.mean))));
+      part(ra, 0, () => AV.push(line('rms', x0, Ym(c.rms), x1, Ym(c.rms))));
+      REC.form.push([dec(c.mean, 2) + ' A', dec(c.rms, 2) + ' A', dec(c.ff, 2)]);
+    });
+    [{ name: 'Mean', sw: 'meanedge', a: ma }, { name: 'RMS', sw: 'rms', a: ra }, { name: 'Form factor', a: fa, big: true }].forEach((r, n) => {
+      const y = GBm + 46 + 26 * n;
+      part(r.a, 4, () => {
+        if (r.sw) line(r.sw, 12, y - 5, 30, y - 5);
+        text(r.sw ? 36 : 12, y, r.name, 'row soft', 'start');
+        FORM.forEach((c, j) => text((c.px[0] + c.px[1]) / 2, y, REC.form[j][n], 'row' + (r.big ? ' big' : ''), 'middle'));
+      });
+      if (r.a >= 0.5) REC.rows.push(r.name + ': ' + REC.form.map((f) => f[n]).join(', '));
+    });
+  }
+  const DRAW = { mean: drawMean, ac: drawAC, ramp: drawRamp, fold: drawFold, form: drawForm };
+
+  // ---------- the puzzles ----------
+  // Before an answer is picked the working ends in a question mark; a pick marks its own value
+  // on the graph; Check draws the answer that fits, or shows the slip in red on the graph.
+  function puzzleRows(d, k, o, RW) {
+    if (!k) d.pre.forEach((s, n) => RW.push({ s, soft: n < d.pre.length - 1 }));
+    else if (k === 'right') d.right.forEach((s, n) => RW.push(n === 0 ? { s, soft: true } : { s, big: n === d.right.length - 1, t: 0.2 + 0.2 * n }));
+    else { RW.push({ s: d.pre[0], soft: true }); o.rows.forEach((s, n) => RW.push({ s, bad: true, soft: n === 1, t: 0.2 + 0.2 * n })); }
+  }
+  function drawPuzzle(d, st, RW) {
+    const k = st.res === 'right' ? 'right' : st.res === 'wrong' ? st.pick : null, pk = k ? null : st.pick, a = arr(0.1), pa = pk ? arr(0.05) : 0;
+    d.scene({ k, pk, a, pa, ov: k ? d.o[k].v : null, ot: k ? d.o[k].t : '', pv: pk ? d.o[pk].v : null, pt: pk ? d.o[pk].t : '' });
+    if (k === 'right') REC.ans = d.o.right.v;
+    puzzleRows(d, k, k ? d.o[k] : null, RW);
+  }
+
+  // ---------- each step's picture ----------
+  function drawScene(d, st) {
+    const RW = [];
+    REC = { rows: [], labs: [], bad: 0, bars: [], hatched: 0, n: null, mean: null, band: null, rms: null, ans: null, mark: null, fold: null, pieces: null, peak: null, form: null, avg: null, whole: null };
+    AV = []; LQ = [];
+    fit(text(12, 18, d.who, 'tag', 'start'), 318, 15);
+    if (d.g) { use(d.g); frame(); }
+    (d.kind ? DRAW[d.kind] : drawPuzzle)(d, st, RW);
+    if (!d.vh) drawRows(RW, rowTop(d));
+    flushLabels();
+    return say(d.who) + '. ' + REC.rows.map(say).join('. ');
+  }
+
+  // The scene for a step (the animation calls this every frame). Each screen's own control follows the motion.
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + Math.ceil(boxH(d)));
+    svg.setAttribute('aria-label', drawScene(d, st));
+    if (checking || i !== at()) return;
+    if (d.cid === 'bars') { const v = K.clamp(Math.round(REC.n), 4, 100); if (BC.get() !== v) BC.set(v, true); lastB = BC.get(); }
+    if (d.cid === 'fold') { const v = Math.round(REC.fold * 100) / 100; if (Math.abs(FC.get() - v) > 1e-9) FC.set(v, true); lastF = FC.get(); }
+  }
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.c = null; st.f = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    } else if (!finished && d.cid === 'bars' && p.bars !== lastB) {
+      if (anim.playing()) anim.pause();
+      T = Infinity; st.c = p.bars; K.reveal();
+    } else if (!finished && d.cid === 'fold' && p.fold !== lastF) {
+      if (anim.playing()) anim.pause();
+      T = Infinity; st.f = p.fold; K.reveal();
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    if (d.show) el('replay').after(task); else el('count').after(task);
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    el('cb1').hidden = finished || d.cid !== 'bars';
+    el('cb2').hidden = finished || d.cid !== 'fold';
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts, labs = opts.map((k) => d.o[k].t);
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', labs.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(labs[k]);
+      b.el.setAttribute('aria-label', say(labs[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That’s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? 'Tap one of the answers.' : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });
+  const wrongSt = (o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const pickSt = (o) => Object.assign(blank(), { pick: o });
+  const nAt = (n) => Object.assign(blank(), { c: n });
+  const foldAt = (u) => Object.assign(blank(), { f: u });
+  const close = (a, b, tol) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t; checking = true;
+    try {
+      paint(i);
+      return Object.assign({}, REC, { rows: REC.rows.slice(), labs: REC.labs.slice(), bars: REC.bars.slice() });
+    } finally { S[i] = keepS; T = keepT; checking = false; paint(); }
+  }
+
+  K.check('The average value of a function on an interval is its definite integral divided by the interval’s length: each flat rectangle drawn has the curve’s area over the same stretch, 4 A × 2 s = 8 C under 3t², 3 A × 3 s = 9 C under t², 3 A × 2 s = 6 C under the ramp and 12 A² × 2 s = 24 under its square', () => {
+    const a = drawn(idx('The mean value'), blank()), b = drawn(idx('A mean current'), solvedSt()), c = drawn(idx('Square, mean, root'), blank());
+    return a.mean === 4 && close(a.mean * 2, areaBy(R3, 0, 2), 1e-6) && close(areaBy(R3, 0, 2), 8, 1e-6) &&
+      b.mean === 3 && close(b.mean * 3, areaBy(T2, 0, 3), 1e-6) && close(areaBy(T2, 0, 3), 9, 1e-6) &&
+      c.mean === 3 && close(c.mean * 2, areaBy(RAMP3, 0, 2), 1e-9) && c.band === 12 && close(c.band * 2, areaBy(SQR(RAMP3), 0, 2), 1e-6) && close(areaBy(SQR(RAMP3), 0, 2), 24, 1e-6);
+  }, { source: SRC.avg });
+  K.check('The average of a whole cycle is zero: on the a.c. screen the hatched bars below the axis cancel the bars above at every bar count from 4 to 100, so their heights add up to 0 A, and the sine wave’s area over a whole cycle comes to 0', () => {
+    const i = idx('Mean of a sine wave');
+    const ok = [4, 8, 37, 100].every((n) => {
+      const h = drawn(i, nAt(n));
+      return h.bars.length === 2 * n && h.hatched === n && Math.abs(h.bars.reduce((s, q) => s + q.h, 0)) < 1e-9 && h.whole === 0 &&
+        h.bars.every((q) => close(q.h, SIN10((q.v0 + q.v1) / 2), 1e-12) && (q.h < 0) === q.neg);
+    });
+    return ok && Math.abs(meanOf(SIN10, 0, 1)) < 1e-9 && Math.abs(meanOf(sine(20), 0, 1)) < 1e-9;
+  }, { source: SRC.zero });
+  K.check('Using only half a cycle the average value is 0.637 of the peak value: for the 10 A peak the bars’ mean drawn goes 6.53, 6.41 and 6.37 A for 4, 8 and 100 bars, falling with every extra bar towards 0.637 of the peak, and the 20 A puzzle’s answer is 0.637 × 20 = 12.7 A', () => {
+    const i = idx('Mean of a sine wave'), want = ['6.53', '6.41', '6.37'];
+    const shown = [4, 8, 100].every((n, j) => fix(drawn(i, nAt(n)).mean, 2) === want[j]);
+    let prev = Infinity;
+    for (let n = 4; n <= 100; n++) { const v = meanH(barsOf(SIN10, 0, 0.5, n)); if (!(v < prev && v > 20 / Math.PI)) return false; prev = v; }
+    const p = drawn(idx('Half a cycle'), solvedSt());
+    return shown && fix(meanOf(SIN10, 0, 0.5) / 10, 3) === '0.637' && fix(p.mean, 1) === '12.7' && fix(0.637 * 20, 1) === '12.7';
+  }, { source: SRC.wave });
+  K.check('To find the RMS value of any function, square it, find the mean over the period, then take the square root: the ramp to 6 A gives √12 = 3.46 A, the ramp to 12 A gives √48 = 6.93 A and the 30 V sawtooth 17.3 V, each from 20,000 squared bars, and the RMS level drawn sits at that height', () => {
+    const q3 = rmsOf(RAMP3, 0, 2), q6 = rmsOf(RAMP6, 0, 2), qs = rmsOf(SAW, 0, 1);
+    const a = drawn(idx('Square, mean, root'), blank()), b = drawn(idx('A steeper ramp'), solvedSt()), c = drawn(idx('A sawtooth'), solvedSt());
+    return fix(q3, 2) === '3.46' && fix(q6, 2) === '6.93' && fix(qs, 1) === '17.3' && close(a.rms, q3, 1e-6) && close(b.rms, q6, 1e-6) && close(c.rms, qs, 1e-6) &&
+      close(meanOf(SQR(RAMP3), 0, 2), 12, 1e-6) && close(meanOf(SQR(RAMP6), 0, 2), 48, 1e-6) && b.band === 48;
+  }, { source: SRC.rms });
+  K.check('The RMS value of a sine wave is 0.707 of the peak value: the squared 10 A sine wave averages 50 A² over a cycle, the fold leaves its flat band at 50 A², √50 = 7.07 A and 7.07 ÷ 10 = 0.707; the RMS level drawn on the fold screen sits at 7.07 A', () => {
+    const h = drawn(idx('The fold'), foldAt(1));
+    return close(meanOf(SQ10, 0, 1), 50, 1e-9) && h.band === 50 && close(h.rms, Math.sqrt(50), 1e-9) && fix(h.rms, 2) === '7.07' && fix(h.rms / 10, 3) === '0.707' &&
+      close(rmsOf(SIN10, 0, 1) / 10, Math.SQRT1_2, 1e-9);
+  }, { source: SRC.wave });
+  K.check('The RMS value of a voltage or current is the peak value divided by the square root of 2: 10 ÷ √2 = 7.07 A for the 10 A sine wave, and 100 ÷ √2 = 70.7 V in the voltage puzzle, where the RMS level drawn once it is answered sits at 70.7 V', () => {
+    const h = drawn(idx('A sine voltage'), solvedSt());
+    return fix(10 / Math.SQRT2, 2) === '7.07' && close(h.rms, 100 / Math.SQRT2, 1e-9) && fix(h.rms, 1) === '70.7' && close(rmsOf(sine(100), 0, 1), 100 / Math.SQRT2, 1e-9);
+  }, { source: SRC.root2 });
+  K.check('The peak value of a sine wave is equal to 1.414 × the RMS value: an RMS of 5 A gives a peak of 5 × 1.414 = 7.07 A, the wave drawn once the puzzle is answered, and that wave’s own RMS from 20,000 squared bars is 5 A', () => {
+    const h = drawn(idx('From RMS to peak'), solvedSt());
+    return close(h.peak, 5 * Math.SQRT2, 1e-9) && fix(h.peak, 2) === '7.07' && fix(5 * 1.414, 2) === '7.07' && close(rmsOf(sine(h.peak), 0, 1), 5, 1e-9);
+  }, { source: SRC.wave });
+  K.check('The RMS value is the steady current that would provide the same energy: squared, the steady 7.07 A drawn on the fold screen matches the 50 A² mean of the squared sine wave, and the steady 3.46 A on the ramp screen matches the 12 A² mean of its square, so with the same resistance each heats alike', () => {
+    const f = drawn(idx('The fold'), foldAt(1)), r = drawn(idx('Square, mean, root'), blank());
+    return close(f.rms * f.rms, meanOf(SQ10, 0, 1), 1e-8) && close(f.rms * f.rms, f.band, 1e-8) && close(r.rms * r.rms, r.band, 1e-8) && close(r.band, meanOf(SQR(RAMP3), 0, 2), 1e-6);
+  }, { source: SRC.wave });
+  K.check('Calculates the rms value, mean value and form factor of sinusoidal and non-sinusoidal wave forms: the three-wave screen shows the square wave 10 A, 10 A and 1, the sine wave 6.37 A, 7.07 A and 1.11, and the ramp 3 A, 3.46 A and 1.15, each worked out from its wave by 20,000 bars with the means over half a cycle for the two a.c. waves; the 12 A ramp’s form factor is 6.93 ÷ 6 = 1.15', () => {
+    const h = drawn(idx('Form factor'), blank()), want = [['10 A', '10 A', '1'], ['6.37 A', '7.07 A', '1.11'], ['3 A', '3.46 A', '1.15']];
+    const shown = h.form && want.every((w, j) => h.form[j].join('|') === w.join('|'));
+    const vals = close(FORM[0].ff, 1, 1e-9) && close(FORM[1].mean, 20 / Math.PI, 1e-6) && close(FORM[1].rms, Math.sqrt(50), 1e-9) && close(FORM[2].mean, 3, 1e-9) && close(FORM[2].rms, Math.sqrt(12), 1e-6);
+    return shown && vals && fix(rmsOf(RAMP6, 0, 2) / meanOf(RAMP6, 0, 2), 2) === '1.15';
+  }, { source: SRC.syl });
+  K.check('The fold fits exactly: a quarter cycle on, the squared current is always 100 minus what it is now; folded flat, every point of each hump lands on the curve of the dip it drops into with its flat side on 50 A², the humps fill every dip across the cycle, and each hump keeps its area', () => {
+    if (!K.linspace(0, 1, 401).every((x) => close(SQ10(x + 0.25) + SQ10(x), 100, 1e-12))) return false;
+    const i = idx('The fold'), h = drawn(i, foldAt(1)), z = drawn(i, foldAt(0));
+    const fits = h.pieces.every((pc) => pc.base === 50 && pc.pts.every((q) => close(q[1], SQ10(q[0]), 1e-9) && q[1] <= 50 + 1e-9));
+    const sits = z.pieces.every((pc) => pc.base === 50 && pc.pts.every((q) => close(q[1], SQ10(q[0]), 1e-12) && q[1] >= 50 - 1e-9));
+    const cover = K.linspace(0.0005, 0.9995, 500).filter((x) => SQ10(x) < 50).every((x) => h.pieces.some((pc) => x >= pc.pts[0][0] - 1e-9 && x <= pc.pts[pc.pts.length - 1][0] + 1e-9));
+    const ar = (pc) => Math.abs(pc.pts.reduce((s, q, j) => (j ? s + (q[0] - pc.pts[j - 1][0]) * ((q[1] + pc.pts[j - 1][1]) / 2 - pc.base) : s), 0));
+    const keep = h.pieces.every((pc, j) => close(ar(pc), ar(z.pieces[j]), 1e-9));
+    return fits && sits && cover && keep && h.fold === 1 && z.fold === 0 && h.band === 50 && z.band === null;
+  });
+  K.check('From the rules, by hand: 2³ = 8 C, 8 ÷ 2 = 4 A, (0 + 12) ÷ 2 = 6 A; 3³ ÷ 3 = 9 C, 9 ÷ 3 = 3 A, (0 + 9) ÷ 2 = 4.5 A; 0.637 × 20 = 12.7 A; ½ × 2 × 6 = 6 C, 6 ÷ 2 = 3 A, 3 × 2³ = 24, 24 ÷ 2 = 12 A², √12 = 3.46 A = 6 ÷ 1.732; 12 × 2³ = 96, 96 ÷ 2 = 48 A², √48 = 6.93 A; √50 = 7.07 A = 10 ÷ 1.414; 100 × 0.707 = 70.7 V, 0.637 × 100 = 63.7 V; 7.07 ÷ 6.37 = 1.11, 3.46 ÷ 3 = 1.15, 6.93 ÷ 6 = 1.15, 6 ÷ 6.93 = 0.87, 6.93 ÷ 12 = 0.58; 5 × 1.414 = 7.07 A, 5 ÷ 1.414 = 3.54 A; 30 ÷ 1.732 = 17.3 V, 30 ÷ 1.414 = 21.2 V; and the screens’ words quote these values', () => {
+    const sums = [[Math.pow(2, 3), 0, '8'], [8 / 2, 0, '4'], [(0 + R3(2)) / 2, 0, '6'], [Math.pow(3, 3) / 3, 0, '9'], [9 / 3, 0, '3'], [(0 + T2(3)) / 2, 1, '4.5'],
+      [0.637 * 20, 1, '12.7'], [0.5 * 2 * RAMP3(2), 0, '6'], [6 / 2, 0, '3'], [3 * 8, 0, '24'], [24 / 2, 0, '12'], [Math.sqrt(12), 2, '3.46'], [6 / 1.732, 2, '3.46'],
+      [12 * 8, 0, '96'], [96 / 2, 0, '48'], [Math.sqrt(48), 2, '6.93'], [12 / 1.732, 2, '6.93'], [Math.sqrt(50), 2, '7.07'], [10 / 1.414, 2, '7.07'], [100 * 0.707, 1, '70.7'], [0.637 * 100, 1, '63.7'],
+      [7.07 / 6.37, 2, '1.11'], [3.46 / 3, 2, '1.15'], [6.93 / 6, 2, '1.15'], [6 / 6.93, 2, '0.87'], [6.93 / 12, 2, '0.58'], [5 * 1.414, 2, '7.07'], [5 / 1.414, 2, '3.54'],
+      [30 / 1.732, 1, '17.3'], [30 / 1.414, 1, '21.2'], [Math.sqrt(3), 3, '1.732'], [Math.SQRT2, 3, '1.414'], [RAMP3(2) * RAMP3(2), 0, '36'], [SQ10(0.25), 0, '100']];
+    const nums = sums.every((q) => fix(q[0], q[1]) === q[2]) && areaBy(R3, 0, 2) > 7.999999 && R3(2) === 12 && RAMP6(2) === 12;
+    const has = (name, key, bits) => { const v = STEPS[idx(name)][key]; return bits.every((b) => v.indexOf(b) >= 0); };
+    const words = has('The mean value', 'text', ['2³ = 8 C', '8 ÷ 2 = 4 A', '(0 + 12) ÷ 2 = 6 A']) && has('Mean of a sine wave', 'text', ['6.53 A', '6.41 A', '6.37 A', '0.637 of the peak']) &&
+      has('Square, mean, root', 'text', ['6 C ÷ 2 s = 3 A', '3 × 2³ = 24', '24 ÷ 2 = 12 A²', '√12 = 3.46 A', '6 ÷ 1.732 = 3.46 A']) && has('The fold', 'text', ['√50 = 7.07 A', '100 A²', '50 A²']) &&
+      has('Form factor', 'text', ['10 ÷ 10 = 1', '7.07 ÷ 6.37 = 1.11', '3.46 ÷ 3 = 1.15', '1.414 ×']) && has('A mean current', 'task', ['3³ ÷ 3 = 9 C']) &&
+      has('A mean current', 'why', ['9 ÷ 3 = 3 A', '(0 + 9) ÷ 2 = 4.5 A']) && has('Half a cycle', 'why', ['0.637 × 20 = 12.7 A']) && has('A steeper ramp', 'task', ['12 × 2³ = 96']) &&
+      has('A steeper ramp', 'why', ['96 ÷ 2 = 48 A²', '√48 = 6.93 A', '12 ÷ 1.732']) && has('A sine voltage', 'why', ['100 × 0.707 = 70.7 V', '0.637 × 100']) &&
+      has('Its form factor', 'why', ['6.93 ÷ 6 = 1.15', '6 ÷ 6.93', '6.93 ÷ 12']) && has('From RMS to peak', 'why', ['5 × 1.414 = 7.07 A', '5 ÷ 1.414']) &&
+      has('A sawtooth', 'why', ['30 ÷ 1.732 = 17.3 V', '30 ÷ 1.414', '30 ÷ 2']) &&
+      STEPS[idx('Mean of a sine wave')].rowsAt(4)[0].s === '4 bars over half a cycle: mean 6.53 A' && STEPS[idx('Mean of a sine wave')].rowsAt(100)[0].s === '100 bars over half a cycle: mean 6.37 A';
+    return nums && words;
+  });
+  K.check('Every puzzle offers three different answers and accepts only the right one; each answer’s number is the value its slip gives, rounded as shown', () => {
+    const want = {
+      'A mean current': ['4.5 A', '3 A', '9 A'], 'Half a cycle': ['10 A', '0 A', '12.7 A'], 'A steeper ramp': ['6.93 A', '6 A', '48 A'], 'A sine voltage': ['63.7 V', '50 V', '70.7 V'],
+      'Its form factor': ['0.87', '1.15', '0.58'], 'From RMS to peak': ['7.07 A', '3.54 A', '10 A'], 'A sawtooth': ['21.2 V', '15 V', '17.3 V'],
+    };
+    const right = { 'A mean current': 1, 'Half a cycle': 2, 'A steeper ramp': 0, 'A sine voltage': 2, 'Its form factor': 1, 'From RMS to peak': 0, 'A sawtooth': 2 };
+    return DO.length === 7 && DO.every((i) => {
+      const d = STEPS[i], labs = d.opts.map((k) => d.o[k].t);
+      return labs.join('|') === want[d.name].join('|') && new Set(labs).size === 3 && d.opts.filter((k) => k === 'right').length === 1 && d.opts[right[d.name]] === 'right' &&
+        d.opts.every((k) => { const num = d.o[k].t.replace('−', '-').split(' ')[0], dp = (num.split('.')[1] || '').length; return Number(num) === Number(d.o[k].v.toFixed(dp)); });
+    });
+  });
+  K.check('Before Check no puzzle gives its verdict: nothing red and the working ends in a question mark; a picked answer only marks its own value; a right answer draws the answer with nothing red; every wrong answer shows its slip in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], pre = drawn(i, blank()), ok = drawn(i, solvedSt());
+      const preOk = pre.bad === 0 && / \?$/.test(pre.rows[pre.rows.length - 1]) && pre.ans === null && pre.mark === null;
+      const pickOk = d.opts.every((o) => { const h = drawn(i, pickSt(o)); return h.bad === 0 && h.ans === null && / \?$/.test(h.rows[h.rows.length - 1]) && (h.mark === null || close(h.mark, d.o[o].v)); });
+      const rightOk = ok.bad === 0 && close(ok.ans, d.o.right.v);
+      return preOk && pickOk && rightOk && d.opts.filter((k) => k !== 'right').every((k) => drawn(i, wrongSt(k)).bad > 0);
+    }));
+  K.check('Every demonstration has finished arriving within 5 s of its screen opening, and every pick’s or answer’s motion within 1.3 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; checking = true;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; checking = false; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur <= 5 && d.dur >= 3
+      : timed(i, solvedSt(), FB[0]) && d.opts.every((o) => timed(i, pickSt(o), FB[1]) && (o === 'right' || timed(i, wrongSt(o), FB[1])))));
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

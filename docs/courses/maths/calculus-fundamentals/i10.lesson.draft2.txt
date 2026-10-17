@@ -1,0 +1,476 @@
+{
+  "iid": "i10",
+  "title": "Mean and RMS values",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the squared sine wave's humps above 50 A² dropping exactly into its dips, leaving a flat band at half the peak squared, when you slide the fold across.",
+    "title": "Mean and RMS from the area",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on the mean and RMS values of a changing current. Each screen has a graph of current in amps against time, drawn from a rule the screen names, with bars or a flat rectangle laid over it. The first screen takes lesson 8's current, i = 3t² from 0 s to 2 s, whose area is 8 C: a flat rectangle 4 A high over the same 2 s has the same area, because 8 ÷ 2 = 4, and the part of the curve above it fills the gap below it. Then an a.c. current, a sine wave drawn by the page with a peak of 10 A: over a whole cycle the bars below the axis are hatched and count as minus, and the mean readout shows 0 A. Over half a cycle a slider sets how many bars, from 4 to 100, each as tall as the current at its middle, and the mean of their heights goes 6.53, 6.41, then 6.37 A, 0.637 of the peak. Then the squared current is drawn under the current. A ramp, i = 3t rising to 6 A in 2 s, has a square, 9t², rising to 36 A²; its mean, 12 A², is a flat band, and a readout takes its square root, 3.46 A. On the sine wave's screen the square runs between 0 and 100 A²; a slider marked Fold lifts each hump above the 50 A² line, moves it a quarter cycle along, turns it upside down and drops it into the dip there, where it fits exactly, leaving a flat band at 50 A², whose root is 7.07 A. It fits because a quarter cycle on, the squared current is always 100 minus what it is now: a sine wave is the height of a point going steadily round a circle of radius 10, a quarter turn later its height is what its sideways distance was, and by Pythagoras height² + sideways distance² = 100. A later screen sets three waves side by side, a square wave, a sine wave and a ramp, each with its half-cycle mean, its RMS value and their ratio, the form factor. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick is shown going wrong on the graph.",
+    "ignores": "The waves are drawn exactly from rules: a perfect sine wave computed by the page, and a ramp that drops back to zero at once. Real a.c. is only close to a sine wave, and a real ramp takes a moment to drop back. Time is stretched so one cycle fills the screen. The heating rule I²R takes the heater's resistance as steady, though a real element's resistance changes a little as it warms.",
+    "numbers": [
+      {
+        "label": "Lesson 8's current i = 3t² A, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Stretch 0 s to 2 s, in step 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Charge 2³ = 8 C, in step 1",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Mean current 8 ÷ 2 = 4 A, in step 1",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Current at 2 s: 3 × 2² = 12 A, in step 1",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip average of ends (0 + 12) ÷ 2 = 6 A, in step 1",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Example i = t² A from 0 s to 3 s, in step 2",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Charge 3³ ÷ 3 = 9 C, in step 2",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Mean 9 ÷ 3 = 3 A, in step 2",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip average of ends (0 + 9) ÷ 2 = 4.5 A, in step 2",
+        "value": 4.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip not dividing: 9 A, in step 2",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Example sine wave peak 10 A, in step 3",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Whole-cycle mean 0 A, in step 3",
+        "value": 0,
+        "kind": "constant",
+        "source": 6
+      },
+      {
+        "label": "Bars slider opens at 4, in step 3",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Bars slider goes up to 100, in step 3",
+        "value": 100,
+        "kind": "control"
+      },
+      {
+        "label": "4 bars' mean 6.53 A, in step 3",
+        "value": 6.53,
+        "kind": "computed"
+      },
+      {
+        "label": "8 bars' mean 6.41 A, in step 3",
+        "value": 6.41,
+        "kind": "computed"
+      },
+      {
+        "label": "100 bars' mean 6.37 A, in step 3",
+        "value": 6.37,
+        "kind": "computed"
+      },
+      {
+        "label": "Half-cycle mean 0.637 of the peak, in step 3",
+        "value": 0.637,
+        "kind": "constant",
+        "source": 7
+      },
+      {
+        "label": "Example sine peak 20 A, in step 4",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Half-cycle mean 0.637 × 20 = 12.7 A, in step 4",
+        "value": 12.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip half the peak: 10 A, in step 4",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip whole-cycle mean: 0 A, in step 4",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Example ramp i = 3t A, 0 s to 2 s, in step 5",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Ramp peak 3 × 2 = 6 A, in step 5",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Ramp mean 6 C ÷ 2 s = 3 A, in step 5",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Ramp's triangle ½ × 2 × 6 = 6 C, in step 5",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Square peak 6² = 36 A², in step 5",
+        "value": 36,
+        "kind": "computed"
+      },
+      {
+        "label": "Square 9t² adds up to 3 × 2³ = 24, in step 5",
+        "value": 24,
+        "kind": "computed"
+      },
+      {
+        "label": "Mean square 24 ÷ 2 = 12 A², in step 5",
+        "value": 12,
+        "kind": "computed"
+      },
+      {
+        "label": "RMS √12 = 3.46 A, in step 5",
+        "value": 3.46,
+        "kind": "computed"
+      },
+      {
+        "label": "√3 is about 1.732, in step 5",
+        "value": 1.732,
+        "kind": "computed"
+      },
+      {
+        "label": "Example ramp i = 6t A, up to 12 A, in step 6",
+        "value": 12,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square 36t² adds up to 12 × 2³ = 96, in step 6",
+        "value": 96,
+        "kind": "computed"
+      },
+      {
+        "label": "Mean square 96 ÷ 2 = 48 A², in step 6",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "RMS √48 = 6.93 A, in step 6",
+        "value": 6.93,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip plain mean: 6 A, in step 6",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip no root: 48, in step 6",
+        "value": 48,
+        "kind": "computed"
+      },
+      {
+        "label": "Squared sine peaks at 10² = 100 A², in step 7",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Flat band 50 A², half the peak squared, in step 7",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Fold slider opens at 0, unfolded, in step 7",
+        "value": 0,
+        "kind": "control"
+      },
+      {
+        "label": "Fold slider ends at 1, folded, in step 7",
+        "value": 1,
+        "kind": "control"
+      },
+      {
+        "label": "RMS √50 = 7.07 A, in step 7",
+        "value": 7.07,
+        "kind": "computed"
+      },
+      {
+        "label": "√2 is about 1.414, in step 7",
+        "value": 1.414,
+        "kind": "computed"
+      },
+      {
+        "label": "Sine RMS 0.707 of the peak, in step 7",
+        "value": 0.707,
+        "kind": "constant",
+        "source": 4
+      },
+      {
+        "label": "Example sine voltage peak 100 V, in step 8",
+        "value": 100,
+        "kind": "assumed"
+      },
+      {
+        "label": "RMS 100 × 0.707 = 70.7 V, in step 8",
+        "value": 70.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip half-cycle mean: 63.7 V, in step 8",
+        "value": 63.7,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip peak ÷ 2 = 50 V, in step 8",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "Sine peak 1.414 × RMS, in step 9",
+        "value": 1.414,
+        "kind": "constant",
+        "source": 5
+      },
+      {
+        "label": "Example square wave ±10 A, in step 9",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Square wave form factor 10 ÷ 10 = 1, in step 9",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Sine form factor 7.07 ÷ 6.37 = 1.11, in step 9",
+        "value": 1.11,
+        "kind": "computed"
+      },
+      {
+        "label": "Ramp form factor 3.46 ÷ 3 = 1.15, in step 9",
+        "value": 1.15,
+        "kind": "computed"
+      },
+      {
+        "label": "12 A ramp form factor 6.93 ÷ 6 = 1.15, in step 10",
+        "value": 1.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip upside down: 6 ÷ 6.93 = 0.87, in step 10",
+        "value": 0.87,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip RMS ÷ peak: 6.93 ÷ 12 = 0.58, in step 10",
+        "value": 0.58,
+        "kind": "computed"
+      },
+      {
+        "label": "Example sine RMS 5 A, in step 11",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Peak 5 × 1.414 = 7.07 A, in step 11",
+        "value": 7.07,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip dividing: 5 ÷ 1.414 = 3.54 A, in step 11",
+        "value": 3.54,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip doubling: 10 A, in step 11",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Example sawtooth 0 V to 30 V, in step 12",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "RMS 30 ÷ 1.732 = 17.3 V, in step 12",
+        "value": 17.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip sine rule: 30 ÷ 1.414 = 21.2 V, in step 12",
+        "value": 21.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip plain mean: 15 V, in step 12",
+        "value": 15,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: example sine peak 15 A",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: RMS 15 × 0.707 = 10.6 A",
+        "value": 10.6,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: half-cycle mean 15 × 0.637 = 9.56 A",
+        "value": 9.56,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: form factor 10.6 ÷ 9.56 = 1.11",
+        "value": 1.11,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: example readings 2, 6, 6, 2 A",
+        "value": 6,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: mean 16 ÷ 4 = 4 A",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: mean square 80 ÷ 4 = 20 A²",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: RMS √20 = 4.47 A",
+        "value": 4.47,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: form factor 4.47 ÷ 4 = 1.12",
+        "value": 1.12,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "The mean value of a graph over a stretch is the area under it divided by the stretch's length: the height of the flat rectangle with the same area.[^1] The RMS value says how big a changing current is for heating: square the graph, take the mean of the square, then take the square root.[^2] For a sine wave that comes to the peak ÷ √2,[^3] and you can see why without any trigonometry.\n\nRemember the current i = 3t² amps from 0 s to 2 s in lesson 8: the area under it, the charge, is 8 C. A steady current moving the same 8 C in the same 2 s would be 8 ÷ 2 = 4 A, a flat rectangle 4 A high and 2 s long with the same area. That height is the [[mean value]], the definite integral divided by the length of the stretch,[^1] the same move as the mean effective pressure in the last lesson. Where the curve rises above the rectangle, the extra area exactly makes up for where it sits below, because the two shapes hold the same 8 C. The mean is not the average of the end values, (0 + 12) ÷ 2 = 6 A, because this curve spends most of the 2 s low down and only shoots up near the end; on a straight line the two do agree, which is why the slip is easy to make, but not in general. With equal bars the mean is plain averaging: each bar's area is its height times the same width, so the bars' total area ÷ their total width is the average of their heights.\n\nAn a.c. current flows one way, then back. Textbooks add that the a.c. from a generator is close to a sine wave, the shape drawn here with a peak of 10 A; its trigonometry waits for a later course. Over a whole cycle the backward half has the same area as the forward half, and area below the axis counts as minus, so the mean is zero.[^6] Yet the current warms a heater both ways, so for its size the mean is taken over half a cycle: the bars settle on 6.37 A, 0.637 of the peak.[^7] Heating needs something different again. At each moment a heater takes power i²R, so its heat goes with the square of the current: twice the current gives four times the heat, and a backward current heats just as well, because a minus times a minus is a plus. Over a cycle its mean power is the mean of i² times R. A steady current I gives I²R. The R is the same on both sides, so the two heat alike when I² equals the mean of i²: square the graph, find its mean, then take the square root.[^2] That is the [[RMS value]], short for root mean square: the steady direct current that would give a circuit the same energy.[^8] Take a ramp, i = 3t amps from 0 s to 2 s, rising to 6 A and dropping back. Under it is a triangle, half of 2 s × 6 A, so 6 C, and its mean is 6 C ÷ 2 s = 3 A. Its square is 9t², which the reverse rule turns into 3t³, so its area from 0 s to 2 s is 24 and its mean is 24 ÷ 2 = 12 A². The RMS value is √12 = 3.46 A, more than the mean, because squaring makes the big currents count for more. Any ramp from 0 up to a peak A in a time T works the same way. It is i = A × t ÷ T, its square is A² × t² ÷ T², and the reverse rule turns that into A² × t³ ÷ (3T²), which at T is A² × T ÷ 3. Divide by the length T and the mean square is A² ÷ 3, so the RMS value is A ÷ √3: 6 ÷ 1.732 = 3.46 A.\n\nNow square the sine wave with its 10 A peak. The square runs between 0 and 100 A², never below the axis, and repeats every half cycle, because the backward half squares to the same humps as the forward half. Its humps above 50 A², half the peak squared, are the same shape as its dips below 50 A², turned upside down, so each hump lifts off, moves a quarter cycle along, turns over and drops exactly into the dip there, leaving a flat band at 50 A². One way to picture why: a sine wave is the height of a point going steadily round a circle whose radius is the peak. A quarter turn later its height is what its sideways distance was, and by Pythagoras height² + sideways distance² = 10² = 100 at every moment. So the squared wave and the squared wave a quarter cycle later always add up to 100: wherever one is above 50 by some amount, the other is below 50 by the same amount. The mean of the square is therefore 50 A², and the RMS value is √50 = 7.07 A, the peak ÷ √2, about 0.707 of the peak;[^3][^4] the other way round, the peak is 1.414 × the RMS value.[^5] That is more than the half-cycle mean of 6.37 A, and textbooks add that the RMS value ÷ the mean value is called the [[form factor]]: 7.07 ÷ 6.37 = 1.11 for a sine wave, and 3.46 ÷ 3 = 1.15 for the ramp. Like the work from a pV diagram, a mean or RMS value is an area under a graph, found by bars or the reverse rule, then divided by a length: one more way the integral turns a quantity that keeps changing into a single number you can use. **The mean value is the area under a graph ÷ its length;[^1] the RMS value is the square root of the mean of the squared graph,[^2] which for a sine wave is its peak ÷ √2.[^3]**"
+  },
+  "analogy": {
+    "text": "Picture raking a heap of spoil flat along a trench. The high spots fill the low spots, and the flat level you end with is the heap's mean height: its side-on area ÷ its length, whatever shape it started. The RMS value is the same levelling done on a heap whose every height has been squared first: rake that flat, then take the square root of its level.",
+    "breaks": "Spoil cannot hang below the ground, but a graph's area below the axis counts as minus, which is why an a.c. wave's whole-cycle mean is zero. And spoil packs down as you rake it, while an area moved about on a graph stays exactly the same size."
+  },
+  "practice": {
+    "text": "- Mean value: find the area under the graph over the stretch, by the reverse rule or by bars, and divide by the stretch's length.\n- For a.c., take the mean over half a cycle: over a whole cycle it comes to zero.\n- RMS value: square the graph, find the mean of the square, take the square root. Square first, root last.\n- From readings only: split the stretch into equal strips, read the value at each strip's middle, square each reading, average the squares, then take the root.\n- Sine wave: RMS = peak × 0.707, peak = RMS × 1.414, half-cycle mean = peak × 0.637.\n- A ramp rising steadily from 0 to its peak and dropping back: mean = peak ÷ 2, RMS = peak ÷ √3.\n- Form factor = RMS value ÷ mean value.\n\n**Rules of thumb:** for the waves in this lesson the RMS value lies at or between the half-cycle mean and the peak. The 0.707 is the sine wave's figure; other shapes usually give other figures, so for them square, mean and root.\n\n**Worked example:** Say a sine current peaks at 15 A. Its RMS value is 15 × 0.707 = 10.6 A, its half-cycle mean is 15 × 0.637 = 9.56 A, and its form factor is 10.6 ÷ 9.56 = 1.11.\n\n**Worked example from readings:** Say half a cycle of an odd-shaped current is split into four equal strips, with middle readings of 2, 6, 6 and 2 A. The mean is 16 ÷ 4 = 4 A. The squares are 4, 36, 36 and 4, so the mean square is 80 ÷ 4 = 20 A² and the RMS value is √20 = 4.47 A. The form factor is 4.47 ÷ 4 = 1.12.\n\n**Where you will meet it:** the MCA's Marine Electro-technology syllabus asks for the mean value, RMS value and form factor of sine waves and of other wave shapes,[^9] and an HN engineering maths unit applies integration to mean values and root mean square values.[^32]\n\n**Common mistakes**\n- Taking the average of the end values as the mean: it is right on a straight line, but not in general.\n- Taking an a.c. mean over a whole cycle and getting zero.\n- Using the mean as the RMS value.\n- Forgetting the square root, which leaves an answer in A².\n- Dividing the peak by 2 instead of by √2.\n- Using peak ÷ √2 for a wave that is not a sine wave.\n- Dividing an RMS value by 1.414 to get the peak, instead of multiplying."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "5.4: Average Value of a Function - Mathematics LibreTexts",
+      "url": "https://math.libretexts.org/Courses/Monroe_Community_College/MTH_210_Calculus_I_(Professor_Dean)/Chapter_5%3A_Integration/5.4%3A_Average_Value_of_a_Function",
+      "quote": "the average value of a function on an interval can be found by calculating the definite integral of the function and dividing that value by the length of the interval"
+    },
+    {
+      "n": 2,
+      "title": "Sine wave RMS value - derivation (without calculus) (video) | Khan Academy",
+      "url": "https://www.khanacademy.org/science/in-in-class-12th-physics-india/x51bd77206da864f3%3Aalternating-current/x51bd77206da864f3%3Arms-values-of-current-voltage/v/sine-wave-rms-value-derivation-without-calculus",
+      "quote": "To calculate the RMS value of any function, we first square it, then find the mean value over some time period, and finally take the square root of it."
+    },
+    {
+      "n": 3,
+      "title": "Power Factor And RMS Explained | Sinusoidal Steady State Power | Power Electronics Textbook",
+      "url": "https://eepower.com/power-electronics-textbook/vol-i-electrical-power-systems-design/chapter-4-sinusoidal-steady-state-power/power-factor-and-rms-explained",
+      "quote": "We learned in Chapter 1 that the RMS value of a voltage or current is equal to the peak value divided by the square root of 2."
+    },
+    {
+      "n": 4,
+      "title": "Measuring the Sine Wave",
+      "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+      "quote": "It can be shown that the RMS value of a sine wave is 0.707 of the peak value."
+    },
+    {
+      "n": 5,
+      "title": "Measuring the Sine Wave",
+      "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+      "quote": "Also, the peak value of a sine wave is equal to 1.414 x the RMS value."
+    },
+    {
+      "n": 6,
+      "title": "PRINCIPLES OF ALTERNATING CURRENT",
+      "url": "https://www.tina.com/principles-of-alternating-current",
+      "quote": "Note that the average of a whole cycle is zero."
+    },
+    {
+      "n": 7,
+      "title": "Measuring the Sine Wave",
+      "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+      "quote": "Using only half a cycle, as illustrated in fig 1.2.3 the average value (voltage or current) is always 0.637 of the peak value of the wave."
+    },
+    {
+      "n": 8,
+      "title": "Measuring the Sine Wave",
+      "url": "https://learnabout-electronics.org/ac_theory/ac_waves02.php",
+      "quote": "The RMS or ROOT MEAN SQUARED value is the value of the equivalent direct (non varying) voltage or current which would provide the same energy to a circuit as the sine wave measured."
+    },
+    {
+      "n": 9,
+      "title": "Marine Electro-Technology Written Examination Syllabus - GOV.UK",
+      "url": "https://www.gov.uk/government/publications/second-engineer-written-examination-syllabuses/marine-electro-technology-written-examination-syllabus",
+      "quote": "Explains terms, mean value, rms value and form factor with reference to a sine wave. 18. Calculates the rms value, mean value and form factor of sinusoidal and non-sinusoidal wave forms."
+    },
+    {
+      "n": 32,
+      "title": "national unit specification: general information",
+      "url": "https://www.sqa.org.uk/sqa/files/hn/H7K134.pdf",
+      "quote": "Apply integration to solve problems in Engineering (area under a velocity time curve giving distance travelled, work done by an expanding gas, first and second moments of area, centroids, mean values, root mean square values, etc)"
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}
