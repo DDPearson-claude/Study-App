@@ -1,0 +1,1350 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* The count above the graph: how many readings sit above the line and how many below, each beside its sticks' colour. */
+  .tally { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; font-weight: 700; min-height: 1.6em; }
+  .tally span { white-space: nowrap; }
+  .tally .sw { display: inline-block; width: 4px; height: 1.05em; border-radius: 2px; margin-right: 7px; vertical-align: -0.15em; }
+  .tally .up .sw { background: var(--k-cat1); }
+  .tally .dn .sw { background: var(--k-cat2); }
+  .tally .q { color: var(--k-muted); font-weight: 400; }
+  /* The working under the graph: what the screen is about in one line, then the rows as they fill in. */
+  .ro { border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; }
+  .ro p { margin: 0; }
+  .ro .rule { font-weight: 700; line-height: 1.5; }
+  .ro .wk { line-height: 1.55; min-height: 1.55em; margin-top: 4px; }
+  .ro .wk .lab { color: var(--k-muted); font-weight: 700; }
+  .ro .pc { white-space: nowrap; }
+  .ro .pc.end { font-weight: 700; color: var(--k-accent2); }
+  .ro .pc.q { color: var(--k-muted); }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene.grab { touch-action: none; }
+  /* The graph: its grid, axes, scale numbers and axis names. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .at { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  /* The laid line (navy), the other lines on the machine screen, the stretch carried past the readings (dashed), a wrong pick (red, dashed). */
+  .scene .ln { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .ln2 { stroke: var(--k-ink); stroke-width: 2; stroke-linecap: round; fill: none; }
+  .scene .oth { stroke: var(--k-muted); stroke-width: 1.6; stroke-linecap: round; fill: none; }
+  .scene .dsh { stroke-dasharray: 7 6; stroke-linecap: butt; }
+  .scene .ghost { stroke: var(--k-muted); stroke-width: 2; stroke-dasharray: 5 5; fill: none; }
+  .scene .wrl { stroke: var(--k-warn); stroke-width: 2.4; stroke-dasharray: 7 5; fill: none; }
+  /* The sticks from each reading to the line: one colour for readings above it, another for readings below. */
+  .scene .stk { stroke-width: 2.5; stroke-linecap: butt; fill: none; }
+  .scene .stk.up { stroke: var(--k-cat1); }
+  .scene .stk.dn { stroke: var(--k-cat2); }
+  /* The step triangle: its area, then the run and the rise as arrows. */
+  .scene .tri { fill: var(--k-accent2); fill-opacity: .08; stroke: none; }
+  .scene .sh { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .hd { fill: var(--k-accent2); stroke: none; }
+  /* Readings (navy dots), points read off the line (ink), the intercept (a ring with a centre), a wrong pick's point (red). */
+  .scene .rd { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .rd2 { fill: var(--k-ink); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .wd { fill: var(--k-warn); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pt { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 3; }
+  .scene .ptc { fill: var(--k-accent2); stroke: none; }
+  /* The line's round handles, and the pin at (0, 0). */
+  .scene .hdl { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .pinr { fill: var(--k-bg); stroke: var(--k-ink); stroke-width: 2.5; }
+  .scene .pinc { fill: var(--k-ink); stroke: none; }
+  /* The spring's limit of proportionality: a band across the extensions where it lies. */
+  .scene .band { fill: var(--k-sunk); stroke: none; }
+  /* How closely a height is read: a short bar at each point; the fan of gradients the bars allow. */
+  .scene .bar { stroke: var(--k-ink); stroke-width: 2; fill: none; }
+  .scene .bar.fr { stroke: var(--k-accent); }
+  .scene .bar.wr { stroke: var(--k-warn); }
+  .scene .fan { stroke-width: 1.6; fill: none; }
+  .scene .fan.cl { stroke: var(--k-muted); }
+  .scene .fan.fr { stroke: var(--k-accent); }
+  .scene .fan.wr { stroke: var(--k-warn); stroke-dasharray: 6 4; }
+  .scene .fanf { stroke: none; fill-opacity: .12; }
+  .scene .fanf.cl { fill: var(--k-muted); }
+  .scene .fanf.fr { fill: var(--k-accent); }
+  .scene .fanf.wr { fill: var(--k-warn); fill-opacity: .08; }
+  /* A faint ring marks whatever can be dragged. */
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.5; }
+  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */
+  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .lab.nv { fill: var(--k-accent2); }
+  .scene .lab.tl { fill: var(--k-accent); }
+  .scene .lab.wt { fill: var(--k-warn); }
+  .scene .lab.mu { fill: var(--k-muted); }
+  .scene .keyt { font: 600 13px var(--k-font); fill: var(--k-muted); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .v { font-style: italic; }
+  .scene #art *, .scene #labs * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .tools, .replay { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tools { justify-content: center; }
+  .replay { justify-content: flex-end; }
+  .tools .k-btn, .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .tools .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .pz.ask .fb:empty { min-height: 0; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">Example readings plotted with units on both axes, and one straight line laid across them, with a thin stick from each reading to the line.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <p class="tally" id="tally"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 346" width="100%" role="img" aria-label=""><g id="art"></g><g id="labs"></g><g id="ui"></g></svg>
+    <div class="tools" id="tools"></div>
+    <div class="ro" id="ro">
+      <p class="rule" id="rule"></p>
+      <div id="rows"></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Made-up example readings with a small scatter of their own; the line is laid by eye.</p>
+
+<script>
+  // ---------- the lesson's readings, scales and lines ----------
+  const UW = { xu: '°C', yu: 'Ω', xv: 'T', yv: 'R', xn: 'Temperature _T_ (°C)', yn: 'Resistance _R_ (Ω)', yd: 1 };
+  const US = { xu: 'mm', yu: 'N', xv: 'x', yv: 'F', xn: 'Extension _x_ (mm)', yn: 'Force _F_ (N)', yd: null };
+  const UM = { xu: 'N', yu: 'N', xv: 'W', yv: 'P', xn: 'Load _W_ (N)', yn: 'Effort _P_ (N)', yd: null };
+  // The winding close up (the scale uses most of the graph), the winding from 0, the spring, the machine.
+  const WZ = { x0: 0, x1: 90, xt: 10, y0: 9.5, y1: 14.5, yt: 1 };
+  const WF = { x0: 0, x1: 90, xt: 10, y0: 0, y1: 24, yt: 4 };
+  const SV = { x0: 0, x1: 18, xt: 2, y0: 0, y1: 50, yt: 10 };
+  const MV = { x0: 0, x1: 280, xt: 40, y0: 0, y1: 60, yt: 10 };
+  // Example readings: the winding (°C, Ω), the spring's straight part and the two past its limit (mm, N), the machine (N of load, N of effort).
+  const RW = [[10, 10.5], [20, 10.6], [30, 11.4], [40, 11.5], [50, 11.9], [60, 12.6], [70, 12.7], [80, 13.3]];
+  const RS = [[2, 5.2], [4, 9.9], [6, 15.1], [8, 19.8], [10, 25.2], [12, 29.9]];
+  const RSO = [[14, 33.2], [16, 35.0]];
+  const RM = [[40, 12.4], [80, 17.5], [120, 24.3], [160, 29.6], [200, 36.4], [240, 41.7]];
+  const FIT = { m: 0.04, c: 10 };        // the line through the winding's middle: R = 0.04T + 10
+  const OPEN = { m: 0.04, c: 11 };       // the lay-it puzzle's opening line, above every reading
+  const PIN = 0.26;                      // the pinned line's swing: R = 0.26T
+  const SPRING = { m: 2.5, c: 0 };       // F = 2.5x, pinned through (0, 0)
+  const LC = { m: 0.15, c: 6 };          // the machine's line C: P = 0.15W + 6
+  const MACH = [{ n: 'A', m: 0.15, c: 4 }, { n: 'B', m: 0.25, c: -8 }, { n: 'C', m: 0.15, c: 6 }];
+  const BAR = 0.1;     // how closely a height is read off the line, in Ω (the picture's figure)
+  const LIMIT = 0.4;   // the longest stick the lay-it Check allows, in Ω
+  const XA = 5, XB = 85;   // where the winding line's two handles sit, in °C
+  const SRC_SERC = 'https://serc.carleton.edu/mathyouneed/graphing/bestfit.html';
+  const SRC_RES = 'https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance';
+  const SRC_HOOKE = 'https://www.bbc.co.uk/bitesize/articles/zqt6b7h';
+  const SRC_MCA = 'https://www.edumaritime.net/images/docs/mca-second-engineer-written-exams.pdf';
+
+  const near = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 : tol);
+  const lf = (L) => (x) => L.m * x + L.c;
+  const snapTo = (v, s) => Math.round(Math.round(v / s) * s * 1e6) / 1e6;
+  const fromH = (h, hx) => { const m = (h[1] - h[0]) / (hx[1] - hx[0]); return { m, c: h[0] - m * hx[0] }; };
+  const hOf = (L, hx) => hx.map((x) => snapTo(L.m * x + L.c, 0.1));
+  // Which readings sit above the line, which below, and the longest stick on each side.
+  function tallyOf(L, rd) {
+    const t = { up: 0, dn: 0, on: 0, mx: 0, upMax: null, dnMax: null, sides: [] };
+    rd.forEach((p) => {
+      const r = p[1] - (L.m * p[0] + L.c), a = Math.abs(r);
+      if (r > 1e-9) { t.up++; t.sides.push(1); if (!t.upMax || a > t.upMax.r + 1e-9) t.upMax = { x: p[0], y: p[1], r: a }; }
+      else if (r < -1e-9) { t.dn++; t.sides.push(-1); if (!t.dnMax || a > t.dnMax.r + 1e-9) t.dnMax = { x: p[0], y: p[1], r: a }; }
+      else { t.on++; t.sides.push(0); }
+      if (a > t.mx) t.mx = a;
+    });
+    return t;
+  }
+  const flips = (s) => s.slice(1).filter((x, k) => x !== s[k]).length;
+  // The lay-it Check: four above, four below, and no stick longer than 0.4 Ω; otherwise a hint naming the slip.
+  function layVerdict(L) {
+    const t = tallyOf(L, RW), sit = (n) => n + (n === 1 ? ' sits' : ' sit');
+    if (t.up === 4 && t.dn === 4 && t.mx <= LIMIT + 1e-9) return { ok: true, t };
+    if (t.on > 0) return { ok: false, t, hint: 'Not quite. ' + (t.on === 1 ? 'One reading sits' : t.on + ' readings sit') + ' right on the line. Nudge a handle up or down.' };
+    if (t.up !== t.dn) return { ok: false, t, hint: 'Not quite. ' + sit(t.up) + ' above the line and ' + t.dn + ' below. Move it ' + (t.up > t.dn ? 'up' : 'down') + ' until the count is even.' };
+    return { ok: false, t, hint: 'Not quite. The count is even, but a stick is longer than 0.4 Ω, so the line is tilted. Swing it so the sticks stay short at both ends.' };
+  }
+
+  // ---------- numbers, written as the explanation writes them ----------
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const MINUS = (s) => String(s).replace(/^-/, '−');
+  function trim(v) { const r = Math.round(v * 1000) / 1000; return MINUS(Math.abs(r) < 1e-12 ? 0 : r); }
+  function fixed(v, dp) { return MINUS((Math.abs(v) < 0.5 * Math.pow(10, -dp) ? 0 : v).toFixed(dp)); }
+  const exactTo = (v, dp) => { const k = Math.pow(10, dp); return Math.abs(v * k - Math.round(v * k)) < 1e-6; };
+  function fy(u, v) { return u.yd != null ? fixed(v, u.yd) : trim(v); }
+  function fx(u, v) { return trim(v); }
+  const perU = (u) => u.yu + ' per ' + u.xu;
+  function lawStr(u, m, c) {
+    const cr = Math.round(c * 10) / 10, ok = exactTo(m, 3) && exactTo(c, 1);
+    return '_' + u.yv + '_ ' + (ok ? '=' : '≈') + ' ' + trim(m) + '_' + u.xv + '_' + (Math.abs(cr) < 1e-9 ? '' : (cr < 0 ? ' − ' : ' + ') + trim(Math.abs(cr)));
+  }
+  function rng(lo, hi) { return (exactTo(lo, 3) && exactTo(hi, 3) ? '' : 'about ') + trim(lo) + ' to ' + trim(hi); }
+  const strip = (s) => String(s).replace(/[_*`]/g, '');
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // kind 'fit': readings, a line with handles, a stick from each reading and the count; 'read': the law read off a laid line
+  // (two points, a step triangle, the line carried back); 'far': the bars and fans of two points close and far apart;
+  // 'three': three lines on the machine's readings. tl: when each part of a demonstration arrives (seconds).
+  const H_FIT = 'A line through the middle: about as many readings above it as below, with short sticks';
+  const H_READ = 'Take _m_ and _c_ from two points on the line, far apart, never from the readings';
+  const H_PIN = 'Pin a line through (0, 0) only when _y_ is 0 when _x_ is 0';
+  const H_C = 'The intercept _c_ is _R_ at 0 °C, where the line meets the _R_ axis';
+  const H_FAR = 'Each height is read off to within 0.1 Ω, so take two points far apart';
+  const H_SPR = 'Pinned through (0, 0), and fitted to the straight part only';
+  const H_FITM = 'The line that fits: about as many above as below, spread along it';
+  const H_MACH = 'Law: `_P_ = _aW_ + _b_`, with _a_ the gradient and _b_ the intercept';
+  const PICK = 'Tap one of the answers.';
+
+  const STEPS = [
+    { show: true, kind: 'fit', name: 'Lay one line', view: WZ, u: UW, rd: RW, L0: FIT, hx: [XA, XB], hRange: [9.6, 14.4], drag: true, dur: 3.9,
+      tl: { dots: 0.4, dstep: 0.12, line: 1.5, hdl: 2.0, stk: 2.2, tally: 2.3, slab: 2.7, r0: 2.9, r1: 3.1, r2: 3.3 },
+      head: H_FIT,
+      text: 'Eight example readings of a motor winding scatter a little. One straight line lies through their *middle*, touching none of them. A thin *stick* joins each reading to the line, and four sit above it and four below.' },
+    { kind: 'fit', lay: true, name: 'Lay it yourself', view: WZ, u: UW, rd: RW, L0: OPEN, hx: [XA, XB], hRange: [9.6, 14.4], head: H_FIT,
+      task: 'Here the line sits above every reading. Drag its two handles to lay it through their middle, then press Check.',
+      hint: 'Not quite. Aim for four above and four below, with short sticks.',
+      why: 'A line through the middle leaves about as many readings above it as below, with short sticks spread along it. Four above, four below and no stick longer than 0.4 Ω will do. The dashed line, `_R_ = 0.04_T_ + 10`, is one that does.' },
+    { show: true, kind: 'read', name: 'Read the law', view: WZ, u: UW, rd: RW, L: FIT, pts: [20, 70], lo: 10, hi: 80, ptLab: true, tri: true, back: true, icpt: true, drag: true,
+      iName: '_R_ at 0 °C', rowsOf: ['run', 'rise', 'grad', 'c', 'law'], dur: 4.0,
+      tl: { dots: 0.4, dstep: 0, line: 0.4, pts: 0.9, run: 1.3, rise: 1.7, back: 2.2, icpt: 2.9, r0: 1.5, r1: 1.9, r2: 2.3, r3: 3.1, r4: 3.4 },
+      head: H_READ,
+      text: 'Take the law from the line, not the readings. Two points on it far apart, at 20 °C and 70 °C, rise 2.0 Ω over 50 °C, so the *gradient* is 0.04 Ω per °C. Carried back to 0 °C, the line gives `_c_ = 10.0 Ω`.' },
+    { kind: 'read', name: 'Find the gradient', view: WZ, u: UW, rd: RW, L: FIT, pts: [20, 70], ptLab: true, rdLab: [20, 30], post: { tri: true },
+      rowsOf: ['run', 'rise', 'grad'], ask: { lab: 'Gradient', s: '?' }, head: H_READ, optKind: 'unit',
+      task: 'What is the gradient of the line through the winding\'s readings?',
+      opts: ['0.08 Ω per °C', '0.04 Ω per °C', '25 °C per Ω'], want: '0.04 Ω per °C',
+      vals: { '0.08 Ω per °C': [0.08, 'Ω per °C'], '0.04 Ω per °C': [0.04, 'Ω per °C'], '25 °C per Ω': [25, '°C per Ω'] },
+      right: (d) => { const f = lf(d.L); return [(f(70) - f(20)) / 50, 'Ω per °C']; },
+      slip: { '0.08 Ω per °C': (d) => [(RW[2][1] - RW[1][1]) / (RW[2][0] - RW[1][0]), 'Ω per °C'], '25 °C per Ω': (d) => { const f = lf(d.L); return [50 / (f(70) - f(20)), '°C per Ω']; } },
+      draws: ['0.08 Ω per °C'],
+      wrongDraw: { '0.08 Ω per °C': () => { const m = (RW[2][1] - RW[1][1]) / (RW[2][0] - RW[1][0]); return { line: { m, c: RW[1][1] - m * RW[1][0] }, from: 12, to: 50, text: fixed(RW[2][1] - RW[1][1], 1) + ' Ω ÷ 10 °C' }; } },
+      hint: 'Not quite. Divide the rise between two points on the line by the run between them.',
+      hints: { '0.08 Ω per °C': 'Not quite. That uses two readings, 10.6 and 11.4 Ω, and each brings its own stray. Take the gradient from the line.',
+        '25 °C per Ω': 'Not quite. That is run ÷ rise, upside down. The gradient is rise ÷ run, in Ω per °C.' },
+      why: 'Two points on the line, far apart: 10.8 Ω at 20 °C and 12.8 Ω at 70 °C. The rise is `12.8 − 10.8 = 2.0 Ω` and the run `70 − 20 = 50 °C`, so the gradient is `2.0 Ω ÷ 50 °C = 0.04 Ω per °C`. The readings at 20 and 30 °C give `0.8 Ω ÷ 10 °C = 0.08 Ω per °C`, twice the line\'s, because each brings its own stray.' },
+    { show: true, kind: 'fit', pinBtn: true, name: 'Through zero', view: WF, u: UW, rd: RW, L0: FIT, hx: [XA, XB], hxp: XB, hRange: [0.5, 23.5], mSnap: 0.01, mRange: [0.1, 0.28], drag: true, dur: 4.4,
+      tl: { dots: 0.4, dstep: 0, line: 0.4, hdl: 0.4, stk: 0.7, tally: 0.7, pin: 1.4, swing: 1.7, slab: 3.4, r0: 3.5, r1: 3.7, r2: 3.9 },
+      head: H_PIN,
+      text: 'Switch on *through zero* and the line is pinned at (0, 0), so it can only swing. At `_R_ = 0.26_T_` four readings still sit above and four below, yet the sticks grow to 7.9 Ω and 7.5 Ω. All four above are on the left and all four below on the right, so the line is tilted.' },
+    { kind: 'read', name: 'R at 0 °C', view: WF, u: UW, rd: RW, L: FIT, pts: [20], ptLab: true, post: { back: true, icpt: true },
+      iName: '_R_ at 0 °C', rowsOf: ['c', 'law'], ask: { lab: '_R_ at 0 °C', s: '?' }, head: H_C, optKind: 'unit',
+      task: 'The line through the middle passes 10.8 Ω at 20 °C and climbs 0.04 Ω per °C. What does the winding read at 0 °C?',
+      opts: ['0 Ω', '10.5 Ω', '10.0 Ω'], want: '10.0 Ω',
+      vals: { '0 Ω': [0, 'Ω'], '10.5 Ω': [10.5, 'Ω'], '10.0 Ω': [10, 'Ω'] },
+      right: (d) => { const f = lf(d.L); return [f(20) - d.L.m * 20, 'Ω']; },
+      slip: { '0 Ω': () => [lf({ m: PIN, c: 0 })(0), 'Ω'], '10.5 Ω': () => [RW[0][1], 'Ω'] },
+      draws: ['0 Ω', '10.5 Ω'],
+      wrongDraw: { '0 Ω': () => ({ line: { m: PIN, c: 0 }, from: 0, to: XB, text: 'pinned: _R_ = 0.26_T_' }),
+        '10.5 Ω': () => ({ flat: RW[0], text: fixed(RW[0][1], 1) + ' Ω is _R_ at 10 °C' }) },
+      hint: 'Not quite. Carry the line back from 20 °C to 0 °C.',
+      hints: { '0 Ω': 'Not quite. Pinning the line forces 0 Ω, but the winding still has resistance at 0 °C. Carry the line through the middle back.',
+        '10.5 Ω': 'Not quite. 10.5 Ω is the first reading, at 10 °C, with its own stray. Carry the line back to 0 °C.' },
+      why: 'Carry the line back 20 °C from 10.8 Ω at 20 °C. It falls `0.04 × 20 = 0.8 Ω`, so `_c_ = 10.8 − 0.8 = 10.0 Ω`, and the law is `_R_ = 0.04_T_ + 10`. That trusts the line to stay straight below the readings.' },
+    { show: true, kind: 'far', name: 'Far apart', view: WZ, u: UW, rd: RW, L: FIT, lo: 10, hi: 80, drag: true, dur: 4.4,
+      tl: { dots: 0.4, dstep: 0, line: 0.4, p0: 0.9, f0: 1.3, l0: 1.9, r0: 2.0, p1: 2.4, f1: 2.8, l1: 3.4, r1: 3.5 },
+      head: H_FAR,
+      text: 'You can read a height off a line only so closely, say to within 0.1 Ω. Between 40 and 50 °C that slip lets the gradient be anything from 0.02 to 0.06 Ω per °C. Between 20 and 70 °C it stays between 0.036 and 0.044.' },
+    { kind: 'far', name: 'Which two points?', view: WZ, u: UW, rd: RW, L: FIT, ask: { lab: 'Most trustworthy', s: '?' }, head: H_FAR, optKind: 'names',
+      task: 'Each height is read off the line to within 0.1 Ω. Which two points give the most trustworthy gradient?',
+      opts: ['Line at 40 and 50 °C', 'Line at 20 and 70 °C', 'Readings at 20, 30 °C'], want: 'Line at 20 and 70 °C',
+      draws: ['Line at 40 and 50 °C', 'Readings at 20, 30 °C'],
+      hint: 'Not quite. Pick two points on the line, as far apart as the readings allow.',
+      hints: { 'Line at 40 and 50 °C': 'Not quite. Close together, a 0.1 Ω slip in either height lets the gradient be anything from 0.02 to 0.06.',
+        'Readings at 20, 30 °C': 'Not quite. Readings carry their own stray: 10.6 and 11.4 Ω give 0.08 Ω per °C, twice the line\'s.' },
+      why: 'Read each height to within 0.1 Ω. Between 20 and 70 °C the rise of 2.0 Ω could be 1.8 to 2.2 Ω, a gradient from 0.036 to 0.044 Ω per °C. Between 40 and 50 °C the rise of 0.4 Ω could be 0.2 to 0.6 Ω, anywhere from 0.02 to 0.06. The same slip is a small part of a big rise.' },
+    { show: true, kind: 'fit', name: 'A spring', view: SV, u: US, rd: RS, out: RSO, band: [12, 14], pinned: true, hxp: 16, solidTo: 12, L0: SPRING, mSnap: 0.1, mRange: [1.5, 3.0], drag: true, dur: 4.2,
+      tl: { dots: 0.4, dstep: 0.12, pin: 1.2, line: 1.3, hdl: 1.9, stk: 2.0, tally: 2.1, slab: 2.4, band: 2.5, out: 2.8, olab: 3.2, r0: 3.3, r1: 3.5, r2: 3.7 },
+      head: H_SPR,
+      text: 'With no force a spring does not stretch, so its line is pinned through (0, 0). Up to the *limit of proportionality*, six example readings sit three above and three below `_F_ = 2.5_x_`. Past it the last two bend away below, so they are left out of the fit.' },
+    { kind: 'read', name: 'Spring constant', view: SV, u: US, rd: RS, out: RSO, band: [12, 14], pinned: true, L: SPRING, fwd: 16, pts: [0, 12], post: { tri: true },
+      rowsOf: ['run', 'rise', 'grad'], ask: { lab: 'Spring constant', s: '?' }, head: H_SPR, optKind: 'unit', gu: 'N per mm, the spring constant',
+      task: 'The same spring, its line fitted to the straight part. What is its spring constant?',
+      opts: ['0.9 N per mm', '2.2 N per mm', '2.5 N per mm'], want: '2.5 N per mm',
+      vals: { '0.9 N per mm': [0.9, 'N per mm'], '2.2 N per mm': [2.2, 'N per mm'], '2.5 N per mm': [2.5, 'N per mm'] },
+      right: (d) => [lf(d.L)(12) / 12, 'N per mm'],
+      slip: { '0.9 N per mm': () => [(RSO[1][1] - RSO[0][1]) / (RSO[1][0] - RSO[0][0]), 'N per mm'], '2.2 N per mm': () => [RSO[1][1] / RSO[1][0], 'N per mm'] },
+      stol: { '2.2 N per mm': 0.05 },
+      draws: ['0.9 N per mm', '2.2 N per mm'],
+      wrongDraw: { '0.9 N per mm': () => ({ seg: RSO, text: fixed(RSO[1][1] - RSO[0][1], 1) + ' N ÷ 2 mm' }),
+        '2.2 N per mm': () => ({ seg: [[0, 0], RSO[1]], text: fixed(RSO[1][1], 1) + ' N ÷ 16 mm' }) },
+      hint: 'Not quite. Take the gradient of the line through the straight part.',
+      hints: { '0.9 N per mm': 'Not quite. The last two readings are past the limit of proportionality, where the spring has bent away. Use the straight part.',
+        '2.2 N per mm': 'Not quite. 35.0 N ÷ 16 mm uses a reading past the limit. Take the gradient from the line through the straight part.' },
+      why: 'The line through the straight part is pinned at (0, 0) and passes 30 N at 12 mm. Rise ÷ run is `30 N ÷ 12 mm = 2.5 N per mm`, and that gradient is the *spring constant*. The last two readings, at 14 and 16 mm, are past the limit and left out.' },
+    { kind: 'three', name: 'Which line fits?', view: MV, u: UM, rd: RM, lines: MACH, ask: { lab: 'Line that fits', s: '?' }, head: H_FITM, optKind: 'names',
+      task: 'Example readings of a lifting machine: the effort _P_ it needs against the load _W_ it lifts. Which line fits them?',
+      opts: ['A', 'B', 'C'], want: 'C', draws: [],
+      hint: 'Not quite. Look for about as many above as below, with the sticks spread along the line.',
+      hints: { 'A': 'Not quite. All six readings sit above A, so it runs below their middle.',
+        'B': 'Not quite. B leaves three above and three below, but all three above are on the left, so it is tilted.' },
+      why: 'C leaves three readings above and three below, spread along it, with short sticks. A has all six above it. B splits them three and three, but its three above all sit on the left, with long sticks at both ends, so it is tilted.' },
+    { kind: 'read', name: 'Read its law', view: MV, u: UM, rd: RM, L: LC, pts: [40, 240], ptLab: true, post: { tri: true, back: true, icpt: true },
+      iName: '_P_ at no load', cLab: '_b_ = _P_ at no load', gLab: 'Gradient _a_', gu: 'N of effort per N of load', rowsOf: ['run', 'rise', 'grad', 'c', 'law'],
+      ask: { lab: 'Law', s: '_P_ = ?' }, head: H_MACH, optKind: 'law',
+      task: 'Line C passes 12 N at 40 N of load and 42 N at 240 N. What is its law?',
+      opts: ['P = 0.17W', 'P = 0.15W + 6', 'P = 0.15W + 12.4'], want: 'P = 0.15W + 6',
+      vals: { 'P = 0.17W': [0.17, 0], 'P = 0.15W + 6': [0.15, 6], 'P = 0.15W + 12.4': [0.15, 12.4] },
+      right: (d) => { const f = lf(d.L), a = (f(240) - f(40)) / 200; return [a, f(40) - a * 40]; },
+      slip: { 'P = 0.17W': () => [RM[5][1] / RM[5][0], 0], 'P = 0.15W + 12.4': (d) => { const f = lf(d.L); return [(f(240) - f(40)) / 200, RM[0][1]]; } },
+      stol: { 'P = 0.17W': 0.005 },
+      draws: ['P = 0.17W', 'P = 0.15W + 12.4'],
+      wrongDraw: { 'P = 0.17W': () => ({ seg: [[0, 0], RM[5]], text: trim(RM[5][1]) + ' N ÷ 240 N' }),
+        'P = 0.15W + 12.4': () => ({ line: { m: 0.15, c: RM[0][1] }, from: 0, to: 280, text: '_P_ = 0.15_W_ + 12.4' }) },
+      hint: 'Not quite. Get the gradient from the two points on the line, then carry it back to no load.',
+      hints: { 'P = 0.17W': 'Not quite. 41.7 ÷ 240 forces the line through (0, 0), but the machine needs effort even with no load.',
+        'P = 0.15W + 12.4': 'Not quite. 12.4 N is the first reading, at 40 N of load. Carry the line back to no load.' },
+      why: 'The rise is `42 − 12 = 30 N` of effort over a run of `240 − 40 = 200 N` of load, so `_a_ = 30 ÷ 200 = 0.15`. Carry the line back to no load: `_b_ = 12 − 0.15 × 40 = 6 N`. So `_P_ = 0.15_W_ + 6`.' },
+  ];
+  const FINISH = 'Lay one straight line through the *middle* of the readings, about as many above as below, with short sticks spread along it. Take its gradient from two points on the line far apart, and pin it through zero only when the physics says so.';
+  const LAST = 'That\'s it. Laws that curve can be turned into straight lines too: that comes in Exponentials and logarithms.';
+
+  // Margins round the graph (scale numbers left and below, axis names above and below).
+  const ML = 44, MR = 10, MT = 30, MB = 46, PW = 340 - ML - MR, PH = 270;
+  const FB = 2.1;     // seconds a puzzle's drawing takes after a right answer or Why?
+  const FADE = 0.35;
+  const GAP = 0.2;    // seconds between the pieces of one row of working
+  const SWING = 1.4;  // seconds the line takes to swing when through zero is switched
+  // When a puzzle's parts arrive after a right answer or Why? (seconds).
+  const PZ = { back: 0.1, pts: 0, run: 0.3, rise: 0.6, icpt: 0.8, g: 0.2, f: 0.4, l: 0.8, r0: 0.4, r1: 0.7, r2: 1.0, r3: 1.3, r4: 1.6 };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open; hint: the lay-it hint;
+  // h: the line's heights at its two handles; pm: the pinned line's gradient; pin: through zero on; touched: Dan has taken
+  // over from the demonstration; sw: a swing under way; dr: where Dan has dragged the two points.
+  function blank(i) {
+    const d = STEPS[i];
+    return { pick: null, res: null, why: false, hint: '', dr: null, touched: false, sw: null, pin: false,
+      h: d.hx ? hOf(d.L0, d.hx) : null, pm: d.pinned ? d.L0.m : PIN };
+  }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return d.lay ? st.hint : (d.hints && d.hints[st.pick]) || d.hint; };
+  const canDrag = (d, st) => !finished && ((!!d.show && !!d.drag) || (!!d.lay && st.res !== 'right'));
+  let S = STEPS.map((d, i) => blank(i));
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  function inline(parent, s, inSvg) {
+    String(s).split(/(\*[^*]+\*|_[^_]+_)/).forEach((p) => {
+      if (!p) return;
+      if (p.length > 2 && p[0] === '*' && p[p.length - 1] === '*') parent.appendChild(inSvg ? K.svg('tspan', {}, p.slice(1, -1)) : K.el('span', { class: 'term' }, p.slice(1, -1)));
+      else if (p.length > 2 && p[0] === '_' && p[p.length - 1] === '_') parent.appendChild(inSvg ? K.svg('tspan', { class: 'v' }, p.slice(1, -1)) : K.el('span', { class: 'v' }, p.slice(1, -1)));
+      else parent.appendChild(document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line; *a key term* is highlighted; _x_ is an italic letter.
+  function write(node, s) {
+    node.textContent = '';
+    String(s || '').split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) inline(node.appendChild(K.el('span', { class: 'nw' })), seg, false);
+      else inline(node, seg, false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || d.lay || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Check: a right answer draws the working; a wrong one gets its own hint (and its slip drawn, where it can be).
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (d.lay) {
+      const v = layVerdict(fromH(st.h, d.hx));
+      st.res = v.ok ? 'right' : 'wrong'; st.hint = v.ok ? '' : v.hint;
+      return;
+    }
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right' && !st.why) play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') play(FB);
+  } });
+  // Take over from the demonstration where it stands.
+  function adopt(i) {
+    const d = STEPS[i], st = S[i];
+    if (st.touched) return;
+    st.touched = true; st.sw = null;
+    if (!d.show) return;   // a puzzle's line is already Dan's own
+    if (d.pinBtn) { st.pin = T >= d.tl.pin; st.pm = PIN; st.h = hOf(d.L0, d.hx); }
+    else if (d.pinned) st.pm = d.L0.m;
+    else if (d.hx) st.h = hOf(d.L0, d.hx);
+  }
+  const pinBtn = K.button({ label: 'Through zero: off', secondary: true, into: '#tools', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.pinBtn || finished) return;
+    adopt(i);
+    const from = st.pin ? pinS(d, st.pm) : freeS(d, st.h);
+    st.pin = !st.pin;
+    st.sw = { from, to: st.pin ? pinS(d, st.pm) : freeS(d, st.h), dur: SWING };
+    K.reveal();
+    play(SWING);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blank(i);
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map((d, i) => blank(i)); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each swing and each puzzle's drawing; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');
+  const add = (node) => art.appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  const ln = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function tx(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    inline(t, s, true);
+    return add(t);
+  }
+  const GEO = new Map();
+  function geo(v) {
+    if (GEO.has(v)) return GEO.get(v);
+    const G = { v, px: (x) => ML + (x - v.x0) / (v.x1 - v.x0) * PW, py: (y) => MT + PH - (y - v.y0) / (v.y1 - v.y0) * PH,
+      inv: (X, Y) => [v.x0 + (X - ML) / PW * (v.x1 - v.x0), v.y0 + (MT + PH - Y) / PH * (v.y1 - v.y0)] };
+    GEO.set(v, G);
+    return G;
+  }
+  const xTicks = (v) => { const out = []; for (let k = 0; v.x0 + k * v.xt <= v.x1 + 1e-9; k++) out.push(v.x0 + k * v.xt); return out; };
+  const yTicks = (v) => { const out = []; for (let k = Math.ceil(v.y0 / v.yt - 1e-9); k * v.yt <= v.y1 + 1e-9; k++) out.push(k * v.yt); return out; };
+  function drawGrid(G) {
+    xTicks(G.v).forEach((x) => ln('gl', G.px(x), MT, G.px(x), MT + PH));
+    yTicks(G.v).forEach((y) => ln('gl', ML, G.py(y), ML + PW, G.py(y)));
+    ln('ax', ML, MT, ML, MT + PH); ln('ax', ML, MT + PH, ML + PW, MT + PH);
+    OBS.segs.push({ s: [ML, MT, ML, MT + PH], c: 8 }, { s: [ML, MT + PH, ML + PW, MT + PH], c: 8 });
+  }
+  // The scale numbers and axis names.
+  function drawTicks(G, u) {
+    xTicks(G.v).forEach((x) => tx(Math.min(G.px(x), 337 - tw(trim(x), 'tk') / 2), MT + PH + 19, trim(x), 'tk'));   // the last number kept inside the drawing
+    yTicks(G.v).forEach((y) => tx(ML - 7, G.py(y) + 4.5, trim(y), 'tk', 'end'));
+    tx(8, MT - 12, u.yn, 'at', 'start');
+    tx(ML + PW, MT + PH + 38, u.xn, 'at', 'end');
+    OBS.hard.push(boxOf(8, MT - 12, tw(strip(u.yn), 'at'), 'start'));
+  }
+  // The part of the line y = mx + c inside the graph (and between xa and xb), in data units, or null.
+  function clipLine(L, v, xa, xb) {
+    let x0 = Math.max(xa == null ? v.x0 : xa, v.x0), x1 = Math.min(xb == null ? v.x1 : xb, v.x1);
+    if (Math.abs(L.m) > 1e-12) {
+      const p = (v.y0 - L.c) / L.m, q = (v.y1 - L.c) / L.m;
+      x0 = Math.max(x0, Math.min(p, q)); x1 = Math.min(x1, Math.max(p, q));
+    } else if (L.c < v.y0 || L.c > v.y1) return null;
+    if (x1 - x0 < 1e-9) return null;
+    return [x0, L.m * x0 + L.c, x1, L.m * x1 + L.c];
+  }
+  // A polygon (data units) cut to the graph's box.
+  function clipPoly(P, v) {
+    const cutX = (X) => (a, b) => { const t = (X - a[0]) / (b[0] - a[0]); return [X, a[1] + t * (b[1] - a[1])]; };
+    const cutY = (Y) => (a, b) => { const t = (Y - a[1]) / (b[1] - a[1]); return [a[0] + t * (b[0] - a[0]), Y]; };
+    const edges = [[(p) => p[0] >= v.x0 - 1e-9, cutX(v.x0)], [(p) => p[0] <= v.x1 + 1e-9, cutX(v.x1)], [(p) => p[1] >= v.y0 - 1e-9, cutY(v.y0)], [(p) => p[1] <= v.y1 + 1e-9, cutY(v.y1)]];
+    let out = P;
+    edges.forEach((e) => {
+      const inp = out; out = [];
+      inp.forEach((cur, k) => {
+        const prev = inp[(k + inp.length - 1) % inp.length], ci = e[0](cur), pi = e[0](prev);
+        if (ci) { if (!pi) out.push(e[1](prev, cur)); out.push(cur); } else if (pi) out.push(e[1](prev, cur));
+      });
+    });
+    return out;
+  }
+  // A stretch of a line, clipped to the graph; noted for the checks.
+  function segLine(ctx, cls, L, xa, xb, a, rec) {
+    if (a <= 0.01) return null;
+    const G = ctx.G, c = clipLine(L, G.v, Math.min(xa, xb), Math.max(xa, xb));
+    if (!c) return null;
+    const s = [G.px(c[0]), G.py(c[1]), G.px(c[2]), G.py(c[3])];
+    K.fade(ln(cls, s[0], s[1], s[2], s[3]), a, 0);
+    OBS.segs.push({ s, c: 120 });
+    if (a >= 0.5 && rec !== false) REC.lines.push({ x0: c[0], x1: c[2], m: L.m, c: L.c, dash: /dsh/.test(cls) });
+    return s;
+  }
+  // The key inside the drawing for the dashed stretch of line.
+  function drawKey(a) {
+    if (a <= 0.01) return;
+    const y = MT + 16, x0 = ML + 8, t = 'line carried past the readings';
+    K.fade(ln('ln dsh', x0, y - 4.5, x0 + 24, y - 4.5), a, 0);
+    K.fade(tx(x0 + 30, y, t, 'keyt', 'start'), a, 0);
+    OBS.hard.push({ x0: x0 - 2, y0: y - 14, x1: x0 + 30 + tw(t, 'keyt') + 2, y1: y + 5 });
+    if (a >= 0.5) REC.key = true;
+  }
+  // The key for the bars: each height read off the line to within 0.1 Ω.
+  function drawBarKey(a) {
+    if (a <= 0.01) return;
+    const y = MT + 16, x = ML + 14, t = 'each height read to within 0.1 Ω';
+    K.fade(ln('bar', x, y - 10, x, y + 1), a, 0); K.fade(ln('bar', x - 4, y - 10, x + 4, y - 10), a, 0); K.fade(ln('bar', x - 4, y + 1, x + 4, y + 1), a, 0);
+    K.fade(tx(x + 12, y, t, 'keyt', 'start'), a, 0);
+    OBS.hard.push({ x0: x - 6, y0: y - 14, x1: x + 12 + tw(t, 'keyt') + 2, y1: y + 5 });
+  }
+  // An arrow: a shaft and a filled head with its tip at (x2, y2).
+  function arrow(x1, y1, x2, y2, a) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 2) return;
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.7), hw = 5.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    K.fade(ln('sh', x1, y1, x2 - ux * hl * 0.6, y2 - uy * hl * 0.6), a, 0);
+    K.fade(add(K.svg('path', { class: 'hd', d: 'M' + r2(x2) + ' ' + r2(y2) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' })), a, 0);
+    const hx = [x2, bx - uy * hw, bx + uy * hw], hy = [y2, by + ux * hw, by - ux * hw];
+    OBS.segs.push({ s: [x1, y1, x2, y2], c: 300 });
+    OBS.hard.push({ x0: Math.min(...hx) - 1, y0: Math.min(...hy) - 1, x1: Math.max(...hx) + 1, y1: Math.max(...hy) + 1 });
+  }
+  // The step triangle on a line: the run across from O to the corner Cn, then the rise up to Tp on the line.
+  const RISE_AT = [[9, 5, 'start'], [9, 13, 'start'], [9, -3, 'start'], [-9, 5, 'end']];
+  function drawTri(ctx, o) {
+    const G = ctx.G;
+    const O = [G.px(o.xa), G.py(o.f(o.xa))], Cn = [G.px(o.xb), G.py(o.f(o.xa))], Tp = [G.px(o.xb), G.py(o.f(o.xb))];
+    if (o.gRun > 0 && o.gRise > 0) K.fade(add(K.svg('path', { class: 'tri', d: 'M' + r2(O[0]) + ' ' + r2(O[1]) + ' L' + r2(Cn[0]) + ' ' + r2(Cn[1]) + ' L' + r2(Tp[0]) + ' ' + r2(Tp[1]) + ' Z' })), Math.min(o.gRun, o.gRise), 0);
+    if (o.gRun > 0) arrow(O[0], O[1], K.lerp(O[0], Cn[0], o.gRun), O[1], 1);
+    const h = Cn[1] - Tp[1], stop = Math.min(7, Math.max(0, h * 0.3));
+    if (o.gRise > 0 && h > 1) arrow(Cn[0], Cn[1], Cn[0], K.lerp(Cn[1], Tp[1] + stop, o.gRise), 1);
+    const mx = (O[0] + Cn[0]) / 2, mid = (Cn[1] + Tp[1]) / 2;
+    ctx.items.push({ x: mx, y: O[1] + 19, anchor: 'middle', alts: [{ x: mx, y: O[1] + 19, anchor: 'middle' }, { x: mx, y: O[1] - 9, anchor: 'middle' }, { x: mx, y: O[1] + 38, anchor: 'middle' }], text: o.runT, class: 'lab nv', a: o.gRun });
+    ctx.items.push(Object.assign(spots(Cn[0], mid, RISE_AT), { text: o.riseT, class: 'lab nv', a: o.gRise }));
+    if (o.gRun >= 1 && o.gRise >= 1) REC.tris.push({ xa: o.xa, xb: o.xb, ya: o.f(o.xa), yb: o.f(o.xb), run: o.xb - o.xa, rise: o.f(o.xb) - o.f(o.xa), O, Cn, Tp });
+  }
+
+  // ---------- labels: clear of each other, the dots, the arrowheads and the key; off the lines where they can be ----------
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * (cls === 'lab' ? 8.4 : 7.6);
+  }
+  function boxOf(x, y, w, anchor) {
+    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };
+  }
+  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;
+  // Does a line segment pass through a box? (Liang-Barsky)
+  function segHits(s, b) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];
+    for (let k = 0; k < 4; k++) {
+      const p = pq[k][0], q = pq[k][1];
+      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }
+      const r = q / p;
+      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  // Each label tries spots round where it wants to be (or round each of its alternatives, in order),
+  // pulled inside the bounds, and takes the one that hits nothing solid, crosses the fewest lines and moves least.
+  function placeLabels(items, hard, segs, B) {
+    const placed = [];
+    return items.map((it) => {
+      const w = tw(strip(it.text), 'lab'), h = 15.5, g = 4;
+      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],
+        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];
+      let best = null, bestCost = Infinity;
+      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {
+        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);
+        const sx = b.x0 < B.x0 ? B.x0 - b.x0 : b.x1 > B.x1 ? B.x1 - b.x1 : 0, sy = b.y0 < B.y0 ? B.y0 - b.y0 : b.y1 > B.y1 ? B.y1 - b.y1 : 0;
+        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };
+        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;
+        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });
+        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });
+        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };
+        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });
+        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }
+      }));
+      placed.push(best.b);
+      return best;
+    });
+  }
+  const spots = (X, Y, list) => { const alts = list.map((o) => ({ x: X + o[0], y: Y + o[1], anchor: o[2] })); return Object.assign({}, alts[0], { alts }); };
+  const DOT_AT = [[-10, -9, 'end'], [0, -14, 'middle'], [10, -9, 'start'], [-10, 19, 'end'], [10, 19, 'start'], [0, 24, 'middle']];
+  const STK_AT = [[9, 5, 'start'], [-9, 5, 'end'], [9, -9, 'start'], [-9, -9, 'end'], [9, 19, 'start'], [-9, 19, 'end']];
+  const IC_AT = [[12, 22, 'start'], [12, 41, 'start'], [12, -12, 'start'], [12, 60, 'start']];
+  const PIN_AT = [[28, -8, 'start'], [14, -26, 'start'], [40, -8, 'start'], [14, -44, 'start']];
+  // A spot pushed `off` from (x, y) along u, anchored on the side it leans.
+  function away(x, y, u, off) {
+    const L = Math.hypot(u[0], u[1]) || 1, ux = u[0] / L, uy = u[1] / L;
+    return { x: x + ux * off, y: y + uy * off + (uy > 0.35 ? 11 : uy < -0.35 ? -1 : 5), anchor: ux > 0.4 ? 'start' : ux < -0.4 ? 'end' : 'middle' };
+  }
+  // Spots beside a drawn line at fractions along it, on either side.
+  function along(s, fr) {
+    const dx = s[2] - s[0], dy = s[3] - s[1], L = Math.hypot(dx, dy) || 1;
+    let n = [dy / L, -dx / L];
+    if (n[1] > 0) n = [-n[0], -n[1]];
+    const alts = [];
+    fr.forEach((f) => [1, -1].forEach((sg) => alts.push(away(s[0] + dx * f, s[1] + dy * f, [n[0] * sg, n[1] * sg], 10))));
+    return Object.assign({}, alts[0], { alts });
+  }
+
+  // ---------- the parts every graph shares ----------
+  // The readings as navy dots (the spring's two past its limit too, labelled as left out).
+  function drawDots(ctx) {
+    const { d, demo, tl, A, G, items } = ctx, u = d.u;
+    d.rd.forEach((p, k) => {
+      const a = demo ? A(tl.dots + k * (tl.dstep || 0)) : 1;
+      if (a <= 0.01) return;
+      const X = G.px(p[0]), Y = G.py(p[1]);
+      K.fade(add(K.svg('circle', { class: 'rd', cx: r2(X), cy: r2(Y), r: 4.5 })), a, 0);
+      OBS.hard.push({ x0: X - 7, y0: Y - 7, x1: X + 7, y1: Y + 7 });
+      if (a >= 0.5) REC.dots.push({ x: p[0], y: p[1] });
+      if (d.rdLab && d.rdLab.indexOf(p[0]) >= 0) items.push(Object.assign(spots(X, Y, DOT_AT), { text: fy(u, p[1]) + ' ' + u.yu, class: 'lab nv', a }));
+    });
+    if (!d.out) return;
+    let la = 0;
+    d.out.forEach((p, k) => {
+      const a = demo ? A(tl.out + k * 0.15) : 1;
+      if (a <= 0.01) return;
+      const X = G.px(p[0]), Y = G.py(p[1]);
+      K.fade(add(K.svg('circle', { class: 'rd', cx: r2(X), cy: r2(Y), r: 4.5 })), a, 0);
+      OBS.hard.push({ x0: X - 7, y0: Y - 7, x1: X + 7, y1: Y + 7 });
+      if (a >= 0.5) REC.out.push({ x: p[0], y: p[1] });
+      la = a;
+    });
+    const q = d.out[d.out.length - 1];
+    if (la > 0.01) items.push(Object.assign(spots(G.px(q[0]), G.py(q[1]), [[0, 24, 'middle'], [-14, 22, 'end'], [12, 22, 'start'], [0, 42, 'middle']]), { text: 'left out', class: 'lab', a: demo ? A(tl.olab) : 1 }));
+  }
+  // The spring's limit of proportionality: a band across the extensions where the readings stop following the line.
+  function drawBand(ctx) {
+    const { d, demo, tl, A, G, items } = ctx, a = demo ? A(tl.band) : 1;
+    if (a <= 0.01) return;
+    const X0 = G.px(d.band[0]), X1 = G.px(d.band[1]), Xm = (X0 + X1) / 2;
+    K.fade(add(K.svg('rect', { class: 'band', x: r2(X0), y: MT, width: r2(X1 - X0), height: PH })), a, 0);
+    items.push({ x: Xm, y: MT + PH - 10, anchor: 'middle', alts: [{ x: Xm, y: MT + PH - 10, anchor: 'middle' }, { x: Xm, y: MT + PH - 34, anchor: 'middle' }, { x: X1, y: MT + PH - 10, anchor: 'end' }],
+      text: 'limit of proportionality', class: 'lab mu', a });
+    if (a >= 0.5) REC.band = true;
+  }
+  // The pin at (0, 0).
+  function drawPin(ctx, a) {
+    const G = ctx.G, X = G.px(0), Y = G.py(0);
+    K.fade(add(K.svg('circle', { class: 'pinr', cx: r2(X), cy: r2(Y), r: 7.5 })), a, 0);
+    K.fade(add(K.svg('circle', { class: 'pinc', cx: r2(X), cy: r2(Y), r: 3 })), a, 0);
+    OBS.hard.push({ x0: X - 10, y0: Y - 10, x1: X + 10, y1: Y + 10 });
+    ctx.items.push(Object.assign(spots(X, Y, PIN_AT), { text: 'pinned at (0, 0)', class: 'lab', a }));
+    if (a >= 1) REC.pin = true;
+  }
+  // A stick from each reading straight up or down to the line, in its side's colour; the longest each side labelled when it is long enough to see.
+  function drawSticks(ctx, L, t, grow, a, la) {
+    const { d, G, items } = ctx, f = lf(L), u = d.u;
+    if (a <= 0.01) return;
+    d.rd.forEach((p, k) => {
+      const side = t.sides[k];
+      if (!side) return;
+      const X = G.px(p[0]), Y0 = G.py(p[1]), Y1 = G.py(f(p[0])), Ye = K.lerp(Y0, Y1, grow);
+      if (grow >= 1 && a >= 0.5) REC.sticks.push({ x: p[0], y: p[1], yl: f(p[0]), m: L.m, c: L.c, up: side > 0 });
+      if (Math.abs(Ye - Y0) < 0.3) return;
+      K.fade(ln('stk ' + (side > 0 ? 'up' : 'dn'), X, Y0, X, Ye), a, 0);
+      OBS.segs.push({ s: [X, Y0, X, Ye], c: 60 });
+    });
+    [t.upMax, t.dnMax].forEach((q) => {
+      if (!q || la <= 0.01 || grow < 1) return;
+      const X = G.px(q.x), Y0 = G.py(q.y), Y1 = G.py(f(q.x));
+      if (Math.abs(Y1 - Y0) < 8) return;
+      items.push(Object.assign(spots(X, (Y0 + Y1) / 2, STK_AT), { text: fixed(q.r, 1) + ' ' + u.yu, class: 'lab', a: la }));
+    });
+  }
+  // A wrong pick, drawn where it can be: a segment, flat across to the axis, or a whole line; red and dashed.
+  function drawWrong(ctx, w) {
+    const G = ctx.G, v = G.v;
+    let s;
+    if (w.seg) s = [G.px(w.seg[0][0]), G.py(w.seg[0][1]), G.px(w.seg[1][0]), G.py(w.seg[1][1])];
+    else if (w.flat) {
+      s = [G.px(w.flat[0]), G.py(w.flat[1]), G.px(0), G.py(w.flat[1])];
+      add(K.svg('circle', { class: 'wd', cx: r2(s[2]), cy: r2(s[3]), r: 5 }));
+      OBS.hard.push({ x0: s[2] - 8, y0: s[3] - 8, x1: s[2] + 8, y1: s[3] + 8 });
+    } else {
+      const c = clipLine(w.line, v, w.from, w.to);
+      if (!c) return;
+      s = [G.px(c[0]), G.py(c[1]), G.px(c[2]), G.py(c[3])];
+    }
+    ln('wrl', s[0], s[1], s[2], s[3]); OBS.segs.push({ s, c: 120 });
+    ctx.items.push(Object.assign(along(s, [0.5, 0.7, 0.3, 0.85]), { text: w.text, class: 'lab wt', a: 1 }));
+    REC.wrong = { s, text: strip(w.text) };
+  }
+
+  // ---------- the line and its handles on the laying screens ----------
+  const freeS = (d, h) => ({ L: fromH(h, d.hx), x0: d.hx[0], x1: d.hx[1], pinA: 0, hdl: [{ n: 'ha', x: d.hx[0], a: 1 }, { n: 'hb', x: d.hx[1], a: 1 }] });
+  const pinS = (d, m) => ({ L: { m, c: 0 }, x0: 0, x1: d.hxp, pinA: 1, hdl: [{ n: 'hp', x: d.hxp, a: 1 }] });
+  function fitState(ctx) {
+    const { d, st, demo, tl, A } = ctx;
+    let s;
+    if (d.pinned) {
+      s = pinS(d, demo ? d.L0.m : st.pm);
+      s.lg = demo ? A(tl.line, 0.6) : 1; s.la = 1;
+      if (demo) { s.pinA = A(tl.pin); s.hdl[0].a = A(tl.hdl); }
+      s.on = true;
+    } else if (d.pinBtn && demo) {
+      // The demonstration: the line through the middle, then the pin, then the swing to R = 0.26T.
+      const e = A(tl.swing, 1.6), pa = A(tl.pin), la = A(tl.line), on = T >= tl.pin;
+      s = { L: { m: K.lerp(FIT.m, PIN, e), c: K.lerp(FIT.c, 0, e) }, x0: K.lerp(d.hx[0], 0, e), x1: d.hx[1], pinA: pa,
+        hdl: [{ n: 'ha', x: d.hx[0], a: la * (1 - pa) }, { n: on ? 'hp' : 'hb', x: d.hx[1], a: la }], lg: 1, la, on };
+      if (e > 0 && e < 1) s.hdl[0].a = 0;
+    } else if (d.pinBtn && st.sw && T < st.sw.dur) {
+      // A swing under way after the switch: the line moves between its free and pinned places; the working dips meanwhile.
+      const e = K.arrive(T, 0, st.sw.dur), F = st.sw.from, G2 = st.sw.to;
+      s = { L: { m: K.lerp(F.L.m, G2.L.m, e), c: K.lerp(F.L.c, G2.L.c, e) }, x0: K.lerp(F.x0, G2.x0, e), x1: d.hx[1], pinA: K.lerp(F.pinA, G2.pinA, e), hdl: [], lg: 1, la: 1, on: st.pin,
+        rowL: e < 0.5 ? F.L : G2.L, rowPin: (e < 0.5 ? F.pinA : G2.pinA) >= 1, dip: Math.abs(1 - 2 * e) };
+    } else if (d.pinBtn && st.pin) { s = pinS(d, st.pm); s.lg = 1; s.la = 1; s.on = true; }
+    else {
+      s = freeS(d, demo ? hOf(d.L0, d.hx) : st.h);
+      s.lg = demo ? A(tl.line, 0.6) : 1; s.la = 1; s.on = false;
+      if (demo) s.hdl.forEach((h) => { h.a = A(tl.hdl); });
+    }
+    if (!s.rowL) { s.rowL = s.L; s.rowPin = s.pinA >= 1 && !!(d.pinned || s.on); s.dip = 1; }
+    return s;
+  }
+
+  // ---------- the scenes ----------
+  const PAINT = {};
+  PAINT.fit = function (ctx) {
+    const { d, st, demo, tl, A, G } = ctx, u = d.u, s = fitState(ctx), L = s.L, f = lf(L);
+    drawGrid(G); drawTicks(G, u);
+    if (d.band) drawBand(ctx);
+    let ka = 0;
+    if (s.lg > 0 && s.la > 0) {
+      const xe = K.lerp(s.x0, s.x1, s.lg), xs = d.solidTo != null ? Math.min(xe, d.solidTo) : xe;
+      segLine(ctx, 'ln', L, s.x0, xs, s.la);
+      if (d.solidTo != null && xe > d.solidTo + 1e-9) { segLine(ctx, 'ln dsh', L, d.solidTo, xe, s.la); ka = s.la * K.clamp((xe - d.solidTo) / 2, 0, 1); }
+    }
+    drawKey(ka);
+    // Why? on the lay-it puzzle: a line that passes, dashed and labelled.
+    if (d.lay && st.why) {
+      const ga = A(PZ.g, 0.6), gs = segLine(ctx, 'ghost', FIT, d.hx[0], d.hx[1], ga, false);
+      if (gs) ctx.items.push(Object.assign(along(gs, [0.75, 0.25, 0.9]), { text: '_R_ = 0.04_T_ + 10', class: 'lab mu', a: A(PZ.g + 0.3) }));
+    }
+    const t = tallyOf(L, d.rd), show = d.show && demo;
+    drawSticks(ctx, L, t, show ? A(tl.stk, 0.5) : 1, show ? A(tl.stk) : 1, show ? A(tl.slab) : 1);
+    drawDots(ctx);
+    if (s.pinA > 0.01) drawPin(ctx, s.pinA);
+    ctx.gripAt = [];
+    s.hdl.forEach((h) => {
+      if (h.a <= 0.01) return;
+      const X = G.px(h.x), Y = G.py(f(h.x));
+      K.fade(add(K.svg('circle', { class: 'hdl', cx: r2(X), cy: r2(Y), r: 6.5 })), h.a, 0);
+      OBS.hard.push({ x0: X - 9, y0: Y - 9, x1: X + 9, y1: Y + 9 });
+      if (h.a >= 0.5) REC.handles.push({ n: h.n, x: h.x, y: f(h.x) });
+      ctx.gripAt.push({ n: h.n, X, Y, a: h.a });
+    });
+    REC.L = L; REC.tally = t;
+    ctx.tally = { t, a: show ? A(tl.tally) : 1, out: d.out ? d.out.length : 0 };
+    ctx.on = s.on;
+    ctx.rows = rowsFit(ctx, s);
+  };
+  // Under the graph: the law of the line as it lies now, m and c with their units.
+  function rowsFit(ctx, s) {
+    const { d, demo, tl } = ctx, u = d.u, L = s.rowL, m = L.m, c = L.c, show = d.show && demo;
+    const t0 = (k) => (show ? tl['r' + k] : null);
+    const cT = s.rowPin ? '0 ' + u.yu : (exactTo(c, 1) ? '' : '≈ ') + fixed(c, 1) + ' ' + u.yu;
+    return [
+      ctx.row('Gradient _m_ = rise ÷ run', [(exactTo(m, 3) ? '' : '≈ ') + trim(m) + ' ' + perU(u)], t0(0), s.dip),
+      ctx.row(s.rowPin ? '_c_, pinned at 0' : '_c_ = _' + u.yv + '_ at 0 ' + u.xu, [cT], t0(1), s.dip),
+      ctx.row('Law', [lawStr(u, m, s.rowPin ? 0 : c)], t0(2), s.dip, true),
+    ];
+  }
+
+  // The law read off a laid line: two points on it, a step triangle, the line carried back to the upright axis.
+  PAINT.read = function (ctx) {
+    const { d, st, open, demo, tl, A, G, items } = ctx, u = d.u, L = d.L, f = lf(L), post = d.post || {};
+    drawGrid(G); drawTicks(G, u);
+    if (d.band) drawBand(ctx);
+    const xs = d.rd.map((p) => p[0]), xa = d.pinned ? 0 : Math.min(...xs), xb = d.pinned ? d.pts[1] : Math.max(...xs);
+    const la = d.show ? A(tl.line) : 1;
+    let ka = 0;
+    segLine(ctx, 'ln', L, xa, xb, la);
+    if (d.fwd) { segLine(ctx, 'ln dsh', L, xb, d.fwd, la); ka = la; }
+    const showBack = !!d.back || (!!post.back && open), showIcpt = !!d.icpt || (!!post.icpt && open), showTri = !!d.tri || (!!post.tri && open);
+    if (showBack) {
+      const g = d.show ? A(tl.back, 0.8) : A(PZ.back, 0.6);
+      if (g > 0) { segLine(ctx, 'ln dsh', L, K.lerp(xa, 0, g), xa, 1); ka = Math.max(ka, K.clamp(g * 2, 0, 1)); }
+    }
+    drawKey(ka);
+    if (d.pinned) drawPin(ctx, 1);
+    drawDots(ctx);
+    // The points on the line (dragged along it on the demonstration).
+    const P = d.show && st.dr ? [st.dr.a, st.dr.b] : d.pts;
+    const pa = d.show ? A(tl.pts) : 1;
+    ctx.gripAt = [];
+    P.forEach((x, k) => {
+      if (d.pinned && x === 0) return;
+      if (!d.ptLab && !showTri) return;
+      const X = G.px(x), Y = G.py(f(x));
+      K.fade(add(K.svg('circle', { class: 'rd2', cx: r2(X), cy: r2(Y), r: 4.5 })), pa, 0);
+      OBS.hard.push({ x0: X - 7, y0: Y - 7, x1: X + 7, y1: Y + 7 });
+      if (d.ptLab) items.push(Object.assign(spots(X, Y, [[-10, -10, 'end'], [10, 19, 'start'], [-10, 19, 'end'], [10, -10, 'start'], [0, -16, 'middle']]), { text: fy(u, f(x)) + ' ' + u.yu, class: 'lab', a: pa }));
+      if (d.show && d.drag) ctx.gripAt.push({ n: k ? 'pb' : 'pa', X, Y, a: pa });
+    });
+    if (showTri && P.length === 2) {
+      const gRun = A(tl.run, 0.5), gRise = A(tl.rise, 0.5), run = P[1] - P[0], rise = f(P[1]) - f(P[0]);
+      drawTri(ctx, { xa: P[0], xb: P[1], f, gRun, gRise, runT: 'run ' + fx(u, run) + ' ' + u.xu, riseT: 'rise ' + fy(u, rise) + ' ' + u.yu });
+    }
+    if (showIcpt) {
+      // Where the carried-back line meets the upright axis: a ring with a centre, labelled with what it means.
+      const c = f(P[0]) - L.m * P[0], X = G.px(0), Y = G.py(c), ai = A(tl.icpt);
+      if (ai > 0.01) {
+        K.fade(add(K.svg('circle', { class: 'pt', cx: r2(X), cy: r2(Y), r: 7 })), ai, 0);
+        K.fade(add(K.svg('circle', { class: 'ptc', cx: r2(X), cy: r2(Y), r: 2.6 })), ai, 0);
+        OBS.hard.push({ x0: X - 10, y0: Y - 10, x1: X + 10, y1: Y + 10 });
+        const text = d.iName + ': ' + fy(u, c) + ' ' + u.yu;
+        items.unshift(Object.assign(spots(X, Y, IC_AT), { text, class: 'lab nv', a: A(tl.icpt + 0.2) }));
+        if (ai >= 0.5) REC.icpt = { X, Y, c, text: strip(text) };
+      }
+    }
+    if (!d.show && st.res === 'wrong' && d.wrongDraw && d.wrongDraw[st.pick]) drawWrong(ctx, d.wrongDraw[st.pick](d));
+    REC.L = L;
+    ctx.rows = open ? rowsRead(ctx, P) : [ctx.ask()];
+  };
+  function rowsRead(ctx, P) {
+    const { d, tl } = ctx, u = d.u, f = lf(d.L), out = [];
+    d.rowsOf.forEach((kind, k) => {
+      const t0 = tl['r' + k], a = P[0], b = P[1];
+      if (kind === 'run') out.push(ctx.row('Run', [fx(u, b) + ' − ' + fx(u, a) + ' = ' + fx(u, b - a) + ' ' + u.xu], t0));
+      else if (kind === 'rise') out.push(ctx.row('Rise', [fy(u, f(b)) + ' − ' + fy(u, f(a)) + ' = ' + fy(u, f(b) - f(a)) + ' ' + u.yu], t0));
+      else if (kind === 'grad') {
+        const run = b - a, rise = f(b) - f(a), g = rise / run;
+        REC.grads.push({ rise, run, g });
+        out.push(ctx.row(d.gLab || 'Gradient', [fy(u, rise) + ' ' + u.yu + ' ÷ ' + fx(u, run) + ' ' + u.xu, (exactTo(g, 3) ? '= ' : '≈ ') + trim(g) + ' ' + (d.gu || perU(u))], t0, 1, true));
+      } else if (kind === 'c') {
+        const c = f(a) - d.L.m * a;
+        out.push(ctx.row(d.cLab || '_c_ = ' + d.iName, [fy(u, f(a)) + ' − ' + trim(d.L.m) + ' × ' + fx(u, a) + ' = ' + fy(u, c) + ' ' + u.yu], t0, 1, true));
+      } else if (kind === 'law') out.push(ctx.row('Law', [lawStr(u, d.L.m, f(a) - d.L.m * a)], t0, 1, true));
+    });
+    return out;
+  }
+
+  // Two points read off the line, each with a bar for how closely its height is read, and the fan of gradients the bars allow.
+  function drawPair(ctx, a, b, k, when) {
+    const { d, G, A, items } = ctx, v = G.v, f = lf(d.L), u = d.u;
+    const pa = A(when.pts), fa = A(when.fan, 0.6), lb = A(when.lab);
+    const rise = f(b) - f(a), lo = (rise - 2 * BAR) / (b - a), hi = (rise + 2 * BAR) / (b - a);
+    const Sx = { m: hi, c: f(a) - BAR - hi * a }, Hx = { m: lo, c: f(a) + BAR - lo * a };
+    if (fa > 0.01) {
+      const xc = (Hx.c - Sx.c) / (Sx.m - Hx.m), yc = Sx.m * xc + Sx.c, s = lf(Sx), h = lf(Hx);
+      [[[v.x0, s(v.x0)], [v.x0, h(v.x0)], [xc, yc]], [[xc, yc], [v.x1, s(v.x1)], [v.x1, h(v.x1)]]].forEach((poly) => {
+        const q = clipPoly(poly, v);
+        if (q.length >= 3) K.fade(add(K.svg('path', { class: 'fanf ' + k, d: 'M' + q.map((p) => r2(G.px(p[0])) + ' ' + r2(G.py(p[1]))).join(' L') + ' Z' })), fa, 0);
+      });
+      [Sx, Hx].forEach((Lx) => {
+        const c = clipLine(Lx, v);
+        if (!c) return;
+        const sg = [G.px(c[0]), G.py(c[1]), G.px(c[2]), G.py(c[3])];
+        K.fade(ln('fan ' + k, sg[0], sg[1], sg[2], sg[3]), fa, 0);
+        OBS.segs.push({ s: sg, c: 40 });
+      });
+    }
+    if (pa > 0.01) [a, b].forEach((x) => {
+      const X = G.px(x), Y = G.py(f(x)), Y0 = G.py(f(x) - BAR), Y1 = G.py(f(x) + BAR);
+      K.fade(ln('bar ' + k, X, Y0, X, Y1), pa, 0); K.fade(ln('bar ' + k, X - 4, Y0, X + 4, Y0), pa, 0); K.fade(ln('bar ' + k, X - 4, Y1, X + 4, Y1), pa, 0);
+      K.fade(add(K.svg('circle', { class: 'rd2', cx: r2(X), cy: r2(Y), r: 3.5 })), pa, 0);
+      OBS.hard.push({ x0: X - 6, y0: Y1 - 2, x1: X + 6, y1: Y0 + 2 });
+    });
+    const cs = clipLine(Sx, v);
+    if (cs && lb > 0.01) {
+      const sg = [G.px(cs[0]), G.py(cs[1]), G.px(cs[2]), G.py(cs[3])];
+      items.push(Object.assign(along(sg, k === 'fr' ? [0.12, 0.88, 0.25, 0.75] : [0.88, 0.12, 0.75, 0.25]), { text: rng(lo, hi) + ' ' + perU(u), class: 'lab ' + (k === 'fr' ? 'tl' : k === 'wr' ? 'wt' : ''), a: lb }));
+    }
+    if (fa >= 1 && pa >= 1) REC.fans.push({ a, b, lo, hi, k });
+    if (k === 'wr') REC.wrong = { text: rng(lo, hi) + ' ' + perU(u) };
+    return { a, b, lo, hi, rise };
+  }
+  PAINT.far = function (ctx) {
+    const { d, st, open, demo, tl, A, G } = ctx, u = d.u, f = lf(d.L);
+    drawGrid(G); drawTicks(G, u);
+    segLine(ctx, 'ln', d.L, 10, 80, d.show ? A(tl.line) : 1);
+    drawDots(ctx);
+    const pairs = [];
+    ctx.gripAt = [];
+    if (d.show) {
+      pairs.push(drawPair(ctx, 40, 50, 'cl', { pts: tl.p0, fan: tl.f0, lab: tl.l0 }));
+      const fr = st.dr || { a: 20, b: 70 };
+      pairs.push(drawPair(ctx, fr.a, fr.b, 'fr', { pts: tl.p1, fan: tl.f1, lab: tl.l1 }));
+      ctx.gripAt = [{ n: 'pa', X: G.px(fr.a), Y: G.py(f(fr.a)), a: A(tl.p1) }, { n: 'pb', X: G.px(fr.b), Y: G.py(f(fr.b)), a: A(tl.p1) }];
+      drawBarKey(A(tl.p0));
+    } else {
+      if (open) pairs.push(drawPair(ctx, 20, 70, 'fr', { pts: PZ.g, fan: PZ.f, lab: PZ.l }));
+      if (st.res === 'wrong' && st.pick === d.opts[0]) drawPair(ctx, 40, 50, 'wr', { pts: null, fan: null, lab: null });
+      if (st.res === 'wrong' && st.pick === d.opts[2]) {
+        const m = (RW[2][1] - RW[1][1]) / (RW[2][0] - RW[1][0]);
+        drawWrong(ctx, { line: { m, c: RW[1][1] - m * RW[1][0] }, from: 12, to: 50, text: trim(m) + ' ' + perU(u) });
+      }
+      drawBarKey(open || (st.res === 'wrong' && st.pick === d.opts[0]) ? 1 : 0);
+    }
+    REC.L = d.L;
+    const row = (p, t0) => ctx.row('At ' + fx(u, p.a) + ' and ' + fx(u, p.b) + ' ' + u.xu, ['rise ' + fy(u, p.rise) + ' ' + u.yu + ',', 'read as ' + fy(u, p.rise - 2 * BAR) + ' to ' + fy(u, p.rise + 2 * BAR) + ' ' + u.yu + ',', 'so ' + rng(p.lo, p.hi) + ' ' + perU(u)], t0, 1, true);
+    if (d.show) ctx.rows = [row(pairs[0], tl.r0), row(pairs[1], tl.r1)];
+    else ctx.rows = open ? [row(pairs[0], PZ.r0)] : [ctx.ask()];
+  };
+
+  // Three lines on the machine's readings; the one picked shows its sticks and its count.
+  const LINE_FR = [[0.9, 0.7, 0.5], [0.92, 0.08, 0.75], [0.1, 0.3, 0.5]];
+  PAINT.three = function (ctx) {
+    const { d, st, open, G, items } = ctx, u = d.u, v = G.v, pk = d.lines.find((L) => L.n === st.pick) || null;
+    drawGrid(G); drawTicks(G, u);
+    d.lines.forEach((L, k) => {
+      const mine = pk === L, c = clipLine(L, v, 20, 260);
+      if (!c) return;
+      const s = [G.px(c[0]), G.py(c[1]), G.px(c[2]), G.py(c[3])];
+      ln(mine ? 'ln' : pk ? 'oth' : 'ln2', s[0], s[1], s[2], s[3]); OBS.segs.push({ s, c: 120 });
+      REC.lines.push({ x0: c[0], x1: c[2], m: L.m, c: L.c, dash: false, n: L.n });
+      items.push(Object.assign(along(s, LINE_FR[k]), { text: L.n, class: 'lab' + (mine ? ' nv' : pk ? ' mu' : ''), a: 1 }));
+    });
+    if (pk) {
+      const t = tallyOf(pk, d.rd);
+      drawSticks(ctx, pk, t, 1, 1, 1);
+      ctx.tally = { t, a: 1, name: pk.n };
+      REC.tally = t; REC.L = pk;
+    } else ctx.tally = { ask: 'Pick a line to count the readings above and below it.' };
+    drawDots(ctx);
+    ctx.rows = open ? rowsThree(ctx) : [ctx.ask()];
+  };
+  function rowsThree(ctx) {
+    const d = ctx.d, u = d.u;
+    return d.lines.map((L, k) => {
+      const t = tallyOf(L, d.rd), pieces = [strip(lawStr(u, L.m, L.c)) + ',', t.up + ' above, ' + t.dn + ' below'];
+      if (t.up && t.dn) pieces[1] += ',';
+      if (t.up && t.dn) pieces.push(flips(t.sides) === 1 ? 'all ' + t.up + ' above on the ' + (t.sides[0] > 0 ? 'left' : 'right') : 'spread along it');
+      return ctx.row(L.n, pieces.map((p, n) => (n === 0 ? lawStr(u, L.m, L.c) + ',' : p)), PZ['r' + k], 1, L.n === d.want);
+    });
+  }
+
+  // The count above the graph.
+  function setTally(tt) {
+    const box = el('tally');
+    box.hidden = !tt;
+    if (!tt) return;
+    box.textContent = '';
+    if (tt.ask) { box.appendChild(K.el('span', { class: 'q' }, tt.ask)); K.fade(box, 1, 0); REC.tallyText = box.textContent; return; }
+    const t = tt.t;
+    if (tt.name) box.appendChild(K.el('span', {}, 'Line ' + tt.name + ':'));
+    box.appendChild(K.el('span', { class: 'up' }, K.el('i', { class: 'sw' }), t.up + ' above'));
+    box.appendChild(K.el('span', { class: 'dn' }, K.el('i', { class: 'sw' }), t.dn + ' below'));
+    if (t.on) box.appendChild(K.el('span', {}, t.on + ' on the line'));
+    if (tt.out) box.appendChild(K.el('span', { class: 'q' }, tt.out + ' left out'));
+    K.fade(box, tt.a, 0);
+    REC.tallyText = box.textContent;
+  }
+
+  function drawRows(rows) {
+    const box = el('rows');
+    box.textContent = '';
+    rows.forEach((r) => {
+      const p = box.appendChild(K.el('p', { class: 'wk' }));
+      if (r.lab) { const h = p.appendChild(K.el('span', { class: 'lab' })); inline(h, r.lab + ': ', false); K.fade(h, r.pieces.length ? r.pieces[0].a : 1, 0); }
+      r.pieces.forEach((pc, n) => {
+        const s = p.appendChild(K.el('span', { class: 'pc ' + (pc.cls || '') }));
+        inline(s, pc.s, false);
+        K.fade(s, pc.a, 0);
+        if (n < r.pieces.length - 1) p.appendChild(document.createTextNode(' '));
+      });
+      REC.rows.push(strip((r.lab ? r.lab + ': ' : '') + r.pieces.map((pc) => pc.s).join(' ')));
+    });
+  }
+  function describe(ctx) {
+    const d = ctx.d;
+    let s = 'A graph of ' + strip(d.u.yn) + ' up the side against ' + strip(d.u.xn) + ' along, with ' + (d.rd.length + (d.out ? d.out.length : 0)) + ' example readings.';
+    if (d.kind === 'three') s += ' Three straight lines, A, B and C, lie across them.';
+    else s += ' A straight line lies across them' + (REC.pin ? ', pinned at the origin.' : '.');
+    if (REC.sticks.length && REC.tally) s += ' A stick joins each reading to the line: ' + REC.tally.up + ' readings sit above it and ' + REC.tally.dn + ' below.';
+    if (REC.band) s += ' A band marks the limit of proportionality; the readings past it are left out.';
+    if (REC.tris.length) s += ' A step triangle sits on the line, its run along and its rise up.';
+    if (REC.icpt) s += ' The line, carried back, meets the upright axis at a ring: ' + REC.icpt.text + '.';
+    if (REC.fans.length) s += ' Each point read off the line has a short bar, and a fan shows the gradients those bars allow.';
+    if (REC.wrong) s += ' The answer picked is drawn dashed: ' + REC.wrong.text + '.';
+    return s;
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d.view);
+    art.textContent = '';
+    REC = { tris: [], grads: [], rows: [], labels: [], dots: [], out: [], lines: [], sticks: [], handles: [], fans: [], icpt: null, wrong: null, key: false, pin: false, band: false, L: null, tally: null, tallyText: '' };
+    OBS = { hard: [], segs: [] };
+    const open = !!d.show || st.res === 'right' || st.why;
+    const demo = !!d.show && !st.dr && !st.touched;
+    const tl = demo ? d.tl : d.show ? {} : PZ;
+    const A = (t0, dd) => (t0 == null || isNaN(t0) ? 1 : arr(t0, dd == null ? 0.4 : dd));
+    const ctx = { d, st, open, demo, tl, A, G, items: [], rows: [], gripAt: null, tally: null, on: false };
+    ctx.row = (lab, list, t0, mul, end) => ({ lab, pieces: list.map((s, n) => ({ s, a: A(t0 == null ? null : t0 + GAP * n) * (mul == null ? 1 : mul), cls: end && n === list.length - 1 ? 'end' : '' })) });
+    ctx.ask = () => ({ lab: d.ask.lab, pieces: [{ s: d.ask.s, a: 1, cls: 'q' }] });
+    PAINT[d.kind](ctx);
+    // A faint ring round whatever can be dragged.
+    if (canDrag(d, st)) (ctx.gripAt || []).forEach((h) => {
+      if (h.a <= 0.01) return;
+      K.fade(add(K.svg('circle', { class: 'ring', cx: r2(h.X), cy: r2(h.Y), r: 13 })), h.a, 0);
+      OBS.hard.push({ x0: h.X - 11, y0: h.Y - 11, x1: h.X + 11, y1: h.Y + 11 });
+    });
+    const pos = placeLabels(ctx.items, OBS.hard, OBS.segs, { x0: ML + 2, x1: 338, y0: 3, y1: MT + PH - 2 });
+    labs.textContent = '';
+    ctx.items.forEach((it, n) => {
+      if (it.a <= 0.01) return;
+      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || 'middle' }));
+      inline(t, it.text, true);
+      K.fade(t, it.a, 0);
+      if (it.a >= 0.5) REC.labels.push(strip(it.text));
+    });
+    setTally(ctx.tally);
+    drawRows(ctx.rows);
+    svg.setAttribute('aria-label', describe(ctx));
+    if (d.pinBtn) { pinBtn.setLabel('Through zero: ' + (ctx.on ? 'on' : 'off')); pinBtn.el.setAttribute('aria-pressed', ctx.on ? 'true' : 'false'); }
+    placeGrips(ctx);
+  }
+
+  // ---------- dragging: each handle moves its end of the line up or down; a point slides along the line ----------
+  const GRIP_TEXT = {
+    ha: 'The line\'s left handle. Drag it up or down, or use the arrow keys.',
+    hb: 'The line\'s right handle. Drag it up or down, or use the arrow keys.',
+    hp: 'The pinned line\'s handle. Drag it up or down to swing the line about (0, 0), or use the arrow keys.',
+    pa: 'A point on the line. Drag it along, or use the arrow keys.',
+    pb: 'A point on the line. Drag it along, or use the arrow keys.',
+  };
+  const grips = [0, 1].map(() => ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Handle' })));
+  let LIVE = [];
+  function placeGrips(ctx) {
+    LIVE = [];
+    const list = canDrag(ctx.d, ctx.st) ? (ctx.gripAt || []).filter((h) => h.a >= 0.5) : [];
+    svg.classList.toggle('grab', list.length > 0);
+    grips.forEach((g, k) => {
+      const h = list[k];
+      g.style.display = h ? '' : 'none';
+      g.setAttribute('tabindex', h ? '0' : '-1');
+      if (!h) return;
+      g.setAttribute('cx', r2(h.X)); g.setAttribute('cy', r2(h.Y));
+      g.setAttribute('data-n', h.n);
+      g.setAttribute('aria-label', GRIP_TEXT[h.n]);
+      LIVE.push({ n: h.n, x: h.X, y: h.Y });
+    });
+  }
+  // Where a handle lands: a height on the nearest 0.1 (or the pinned gradient on its own step); a point on the nearest 10 along.
+  function setHandle(n, val) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!canDrag(d, st) || !isFinite(val)) return;
+    if (d.kind === 'fit') {
+      adopt(i);
+      if (n === 'hp') st.pm = K.clamp(snapTo(val / d.hxp, d.mSnap), d.mRange[0], d.mRange[1]);
+      else {
+        if (st.pin) return;
+        const h = st.h.slice(), k = n === 'ha' ? 0 : 1;
+        h[k] = K.clamp(snapTo(val, 0.1), d.hRange[0], d.hRange[1]);
+        if (h[k] === st.h[k]) return;
+        st.h = h;
+      }
+      st.sw = null;
+    } else {
+      const cur = st.dr || { a: d.pts ? d.pts[0] : 20, b: d.pts ? d.pts[1] : 70 }, o = Object.assign({}, cur), sn = (x) => Math.round(x / 10) * 10;
+      if (n === 'pa') o.a = K.clamp(sn(val), d.lo, o.b - 10); else o.b = K.clamp(sn(val), o.a + 10, d.hi);
+      if (st.dr && o.a === st.dr.a && o.b === st.dr.b) return;
+      st.dr = o;
+    }
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  // The value a handle stands at now (for the arrow keys).
+  function handleVal(n) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.kind === 'fit') { adopt(i); return n === 'hp' ? st.pm * d.hxp : st.h[n === 'ha' ? 0 : 1]; }
+    const cur = st.dr || { a: d.pts ? d.pts[0] : 20, b: d.pts ? d.pts[1] : 70 };
+    return n === 'pa' ? cur.a : cur.b;
+  }
+  function svgPt(e) {
+    const mtx = svg.getScreenCTM();
+    if (!mtx) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(mtx.inverse());
+  }
+  let held = null;
+  grips.forEach((g) => {
+    g.addEventListener('pointerdown', (e) => {
+      const d = STEPS[at()];
+      if (!canDrag(d, S[at()])) return;
+      const q = svgPt(e);
+      if (!q) return;
+      // The nearest live handle to the touch takes it.
+      let best = null, bd = Infinity;
+      LIVE.forEach((h) => { const dd = Math.hypot(h.x - q.x, h.y - q.y); if (dd < bd) { bd = dd; best = h.n; } });
+      if (!best) return;
+      held = { id: e.pointerId, n: best };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the handle */ }
+      e.preventDefault();
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId) return;
+      e.preventDefault();
+      const q = svgPt(e);
+      if (!q) return;
+      const p = geo(STEPS[at()].view).inv(q.x, q.y);
+      setHandle(held.n, held.n[0] === 'p' ? p[0] : p[1]);
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', letGo);
+    g.addEventListener('keydown', (e) => {
+      const d = STEPS[at()], n = g.getAttribute('data-n');
+      const by = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+      if (!canDrag(d, S[at()]) || !by || !n) return;
+      e.preventDefault();
+      const stepBy = n[0] === 'p' ? 10 : n === 'hp' ? d.mSnap * d.hxp : 0.1;
+      setHandle(n, handleVal(n) + by * stepBy);
+    });
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(i); play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    const st = S[i];
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('pz').classList.toggle('ask', !d.show && !right && !st.why);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    write(el('rule'), d.head);
+    paint(i);
+
+    el('tools').hidden = !d.pinBtn;
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show || d.lay ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', opts[k].replace(/−/g, 'minus '));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    const yes = i === STEPS.length - 1 ? LAST : d.lay ? 'That\'s it: four above, four below, and every stick short.' : 'That\'s it.';
+    write(fb, d.show ? '' : right ? yes : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const I0 = idx('Lay one line'), I1 = idx('Lay it yourself'), I2 = idx('Read the law'), I3 = idx('Find the gradient'), I4 = idx('Through zero'), I5 = idx('R at 0 °C'),
+    I6 = idx('Far apart'), I7 = idx('Which two points?'), I8 = idx('A spring'), I9 = idx('Spring constant'), I10 = idx('Which line fits?'), I11 = idx('Read its law');
+  const PICKS = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show && !STEPS[i].lay);
+  const solvedSt = (i) => Object.assign(blank(i), { pick: STEPS[i].want, res: 'right' });
+  const withSt = (i, o) => Object.assign(blank(i), o);
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const shown = (i) => drawn(i, STEPS[i].show ? blank(i) : solvedSt(i));
+
+  K.check('The idea is to get a line that has equal numbers of points on either side, and the line may not pass through many of them: the line laid through the winding\'s readings has as many above it as below and passes through none', () => {
+    const g = shown(I0), t = g.tally;
+    return !!t && t.up === t.dn && t.up > 0 && t.on === 0 && g.sticks.length === RW.length;
+  }, { source: SRC_SERC });
+  K.check('By hand: R = 0.04T + 10 leaves 4 above and 4 below, no stick over 0.2 Ω; the opening line R = 0.04T + 11 has all 8 below it; pinned, R = 0.26T still splits them 4 and 4, yet its sticks are 7.9 Ω at 10 °C and 7.5 Ω at 80 °C, all 4 above on the left', () => {
+    const a = shown(I0).tally, b = drawn(I1, blank(I1)).tally, p = shown(I4), c = p.tally;
+    const s10 = p.sticks.find((s) => s.x === 10), s80 = p.sticks.find((s) => s.x === 80);
+    return a.up === 4 && a.dn === 4 && near(a.mx, 0.2, 1e-9) && b.up === 0 && b.dn === 8 &&
+      p.pin && near(p.L.m, 0.26, 1e-9) && near(p.L.c, 0, 1e-9) && c.up === 4 && c.dn === 4 && c.sides.join() === '1,1,1,1,-1,-1,-1,-1' &&
+      !!s10 && !!s80 && near(s10.y - s10.yl, 7.9, 1e-9) && near(s80.yl - s80.y, 7.5, 1e-9) && p.labels.indexOf('7.9 Ω') >= 0 && p.labels.indexOf('7.5 Ω') >= 0;
+  });
+  K.check('The lay-it Check passes exactly when 4 sit above and 4 below with no stick over 0.4 Ω: the line through the middle passes, the opening line fails, a line tilted to 0.05 Ω per °C fails on its long sticks though it splits them 4 and 4, and a gentler 0.0375 passes', () => {
+    const v = (h) => layVerdict(fromH(h, [XA, XB])), tilt = tallyOf(fromH([9.8, 13.8], [XA, XB]), RW);
+    return v([10.2, 13.4]).ok && !v([11.2, 14.4]).ok && /below/.test(v([11.2, 14.4]).hint) && tilt.up === 4 && tilt.dn === 4 &&
+      !v([9.8, 13.8]).ok && /longer than/.test(v([9.8, 13.8]).hint) && v([10.3, 13.3]).ok && near(fromH([10.3, 13.3], [XA, XB]).m, 0.0375, 1e-12);
+  });
+  K.check('In many materials the dependence of resistance on temperature is approximately linear and can be modelled using a linear equation: every example winding reading sits close to one straight line, its stick far shorter than the line\'s rise across the readings', () => {
+    const t = tallyOf(FIT, RW), f = lf(FIT);
+    return t.mx < 0.1 * (f(80) - f(10));
+  }, { source: SRC_RES });
+  K.check('Read off the line at 20 °C and 70 °C: 12.8 − 10.8 = 2.0 Ω over 50 °C gives 0.04 Ω per °C, and c = 10.8 − 0.04 × 20 = 10.0 Ω; dragged anywhere along the line, the two points give the same gradient and the same c', () => {
+    const want = ['Run: 70 − 20 = 50 °C', 'Rise: 12.8 − 10.8 = 2.0 Ω', 'Gradient: 2.0 Ω ÷ 50 °C = 0.04 Ω per °C', 'c = R at 0 °C: 10.8 − 0.04 × 20 = 10.0 Ω', 'Law: R = 0.04T + 10'];
+    const g = shown(I2);
+    let ok = g.rows.length === 5 && g.rows.every((r, k) => r === want[k]) && !!g.icpt && near(g.icpt.c, 10, 1e-9) && g.tris.length === 1;
+    for (let a = 10; a <= 70; a += 10) for (let b = a + 10; b <= 80; b += 10) {
+      const h = drawn(I2, withSt(I2, { dr: { a, b } }));
+      ok = ok && h.grads.length === 1 && near(h.grads[0].g, 0.04, 1e-9) && / = 10\.0 Ω$/.test(h.rows[3]) && h.tris.length === 1 && h.tris[0].xa === a && h.tris[0].xb === b;
+    }
+    return ok;
+  });
+  K.check('Read to within 0.1 Ω, the line at 40 and 50 °C allows 0.02 to 0.06 Ω per °C, at 20 and 70 °C only 0.036 to 0.044, so the far pair\'s fan is the narrower; spread wider still, it narrows further', () => {
+    const g = shown(I6), cl = g.fans.find((p) => p.k === 'cl'), fr = g.fans.find((p) => p.k === 'fr');
+    const w = drawn(I6, withSt(I6, { dr: { a: 10, b: 80 } })).fans.find((p) => p.k === 'fr');
+    return !!cl && !!fr && !!w && near(cl.lo, 0.02, 1e-9) && near(cl.hi, 0.06, 1e-9) && near(fr.lo, 0.036, 1e-9) && near(fr.hi, 0.044, 1e-9) &&
+      fr.hi - fr.lo < cl.hi - cl.lo && w.hi - w.lo < fr.hi - fr.lo && g.labels.indexOf('0.02 to 0.06 Ω per °C') >= 0 && g.labels.indexOf('0.036 to 0.044 Ω per °C') >= 0 &&
+      g.rows[1] === 'At 20 and 70 °C: rise 2.0 Ω, read as 1.8 to 2.2 Ω, so 0.036 to 0.044 Ω per °C';
+  });
+  K.check('Provided that the limit of proportionality is not exceeded, a graph of stretching force against extension is a straight line through the origin: the spring\'s line passes through the origin, is laid only through readings before the limit, and the readings past it fall below the line', () => {
+    const d = STEPS[I8], g = shown(I8);
+    return g.pin && near(g.L.c, 0) && g.band && d.rd.every((p) => p[0] < d.band[0]) && d.out.every((p) => p[0] > d.band[1] && p[1] < g.L.m * p[0]) &&
+      g.tally.up + g.tally.dn + g.tally.on === d.rd.length && g.out.length === d.out.length;
+  }, { source: SRC_HOOKE });
+  K.check('The gradient of the graph of force (y-axis) and extension (x-axis) is numerically equal to the spring constant: on the spring screens force is up the side and extension along, and the gradient comes out in newtons per millimetre, named the spring constant', () => {
+    const d = STEPS[I9], g = shown(I9);
+    return /^Force/.test(d.u.yn) && /^Extension/.test(d.u.xn) && g.grads.length === 1 && near(g.grads[0].g, d.L.m) && / N per mm, the spring constant$/.test(g.rows[2]) && /spring constant/.test(d.why);
+  }, { source: SRC_HOOKE });
+  K.check('The law of a straight line graph is of the form y = ax + b: the lifting machine\'s law is written P = aW + b, with a the step triangle\'s rise over its run and b where the line, carried back, meets the effort axis', () => {
+    const g = shown(I11), t = g.tris[0];
+    return !!t && !!g.icpt && g.grads.length === 1 && near(g.grads[0].g, t.rise / t.run) && near(g.icpt.c, STEPS[I11].L.c, 1e-9) && g.rows.indexOf('Law: ' + strip(lawStr(UM, g.grads[0].g, g.icpt.c))) >= 0;
+  }, { source: SRC_MCA });
+  K.check('Every answer offered is written from its own numbers: the right one is worked from the screen\'s own line, and each wrong one is a real slip (two readings, run over rise, the line pinned through zero, the first reading taken as c, the bent part, or through zero from the last reading)', () => [I3, I5, I9, I11].every((i) => {
+    const d = STEPS[i], R = d.right(d);
+    const eq = (a, b, tol) => a.length === b.length && a.every((x, k) => (typeof x === 'number' ? near(x, b[k], tol) : x === b[k]));
+    const text = (o) => (d.optKind === 'law' ? o === strip(lawStr(d.u, d.vals[o][0], d.vals[o][1])) : o.endsWith(' ' + d.vals[o][1]) && near(parseFloat(o), d.vals[o][0]));
+    return d.opts.length === 3 && d.opts.indexOf(d.want) >= 0 && d.opts.every(text) && eq(d.vals[d.want], R, 1e-9) &&
+      d.opts.every((o) => o === d.want || (!eq(d.vals[o], R, 1e-6) && !!d.slip[o] && eq(d.vals[o], d.slip[o](d), (d.stol && d.stol[o]) || 1e-9)));
+  }));
+  K.check('Which line fits: A leaves 6 above and none below; B leaves 3 and 3 but all 3 above sit on the left; C leaves 3 and 3 spread along it, with the shortest sticks', () => {
+    const t = MACH.map((L) => tallyOf(L, RM));
+    return t[0].up === 6 && t[0].dn === 0 && t[1].up === 3 && t[1].dn === 3 && t[1].sides.slice(0, 3).every((x) => x === 1) && flips(t[1].sides) === 1 &&
+      t[2].up === 3 && t[2].dn === 3 && flips(t[2].sides) >= 3 && t[2].mx < t[0].mx && t[2].mx < t[1].mx && STEPS[I10].want === 'C' &&
+      shown(I10).rows.join(' | ') === 'A: P = 0.15W + 4, 6 above, 0 below | B: P = 0.25W − 8, 3 above, 3 below, all 3 above on the left | C: P = 0.15W + 6, 3 above, 3 below, spread along it';
+  });
+  K.check('Which two points: the line far apart allows the narrowest range of gradients, the line close together a range five times as wide, and two readings give 0.08 Ω per °C, twice the line\'s', () => {
+    const g = shown(I7), wc = drawn(I7, withSt(I7, { pick: STEPS[I7].opts[0], res: 'wrong' })), wr = drawn(I7, withSt(I7, { pick: STEPS[I7].opts[2], res: 'wrong' }));
+    const fr = g.fans.find((p) => p.k === 'fr'), m = (RW[2][1] - RW[1][1]) / (RW[2][0] - RW[1][0]);
+    return STEPS[I7].want === 'Line at 20 and 70 °C' && !!fr && near((0.06 - 0.02) / (fr.hi - fr.lo), 5, 1e-6) && !!wc.wrong && !!wr.wrong && near(m, 2 * FIT.m, 1e-9) && /0\.08 Ω per °C/.test(wr.wrong.text);
+  });
+  K.check('Before an answer a puzzle keeps back its working, triangle, intercept and fans; a right answer or Why? draws them; each wrong pick has a hint of its own, and a slip that can be drawn is drawn dashed', () => PICKS.every((i) => {
+    const d = STEPS[i], post = d.post || {}, g0 = drawn(i, blank(i)), g1 = drawn(i, solvedSt(i)), g2 = drawn(i, withSt(i, { why: true }));
+    const kept = g0.tris.length === 0 && !g0.icpt && g0.fans.length === 0 && g0.rows.length === 1 && /\?$/.test(g0.rows[0]);
+    const opens = [g1, g2].every((g) => g.rows.length >= 1 && g.rows.every((r) => r.indexOf('?') < 0) && (post.tri ? g.tris.length === 1 : true) &&
+      (post.icpt ? !!g.icpt : true) && (d.kind === 'far' ? g.fans.length === 1 : true));
+    const wrongs = d.opts.every((o) => o === d.want || (!!d.hints[o] && d.hints[o] !== d.hint &&
+      (d.draws.indexOf(o) < 0 || !!drawn(i, withSt(i, { pick: o, res: 'wrong' })).wrong)));
+    return kept && opens && wrongs;
+  }));
+  K.check('Every stick runs straight up or down from its reading to the line, and the count above the graph matches the sticks drawn, wherever the handles are dragged', () => {
+    const cases = [shown(I0), drawn(I1, blank(I1)), shown(I4), shown(I8), drawn(I10, withSt(I10, { pick: 'B' })),
+      drawn(I0, withSt(I0, { touched: true, h: [9.8, 13.8] })), drawn(I4, withSt(I4, { touched: true, pin: false, h: [10.2, 13.4] })), drawn(I8, withSt(I8, { touched: true, pm: 2 }))];
+    return cases.every((g) => !!g.tally && g.sticks.length === g.tally.up + g.tally.dn &&
+      g.sticks.every((s) => near(s.yl, s.m * s.x + s.c, 1e-9) && (s.up ? s.y > s.yl : s.y < s.yl)) && g.sticks.filter((s) => s.up).length === g.tally.up &&
+      g.tallyText.indexOf(g.tally.up + ' above') >= 0 && g.tallyText.indexOf(g.tally.dn + ' below') >= 0);
+  });
+  K.check('The through-zero switch pins the line at the origin: on, the line\'s c is 0 and one handle swings it; off, both handles are back on the line through the middle', () => {
+    const on = drawn(I4, withSt(I4, { touched: true, pin: true, pm: PIN })), off = drawn(I4, withSt(I4, { touched: true, pin: false, h: hOf(FIT, [XA, XB]) }));
+    return on.pin && near(on.L.c, 0) && on.handles.length === 1 && on.handles[0].n === 'hp' && !off.pin && off.handles.length === 2 && near(off.L.m, 0.04, 1e-9) && near(off.L.c, 10, 1e-9) &&
+      on.rows[2] === 'Law: R = 0.26T' && off.rows[2] === 'Law: R = 0.04T + 10';
+  });
+  K.check('Every demonstration has finished arriving within its 2.8 to 5 s, none starting before the 0.35 s screen fade ends; a puzzle\'s drawing finishes within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(i), d.dur) && d.dur >= 2.8 && d.dur <= 5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, withSt(i, { why: true }), FB)));
+    T = keepT; paint();
+    return ok && FB <= 2.5;
+  });
+
+  K.ready();
+</script>

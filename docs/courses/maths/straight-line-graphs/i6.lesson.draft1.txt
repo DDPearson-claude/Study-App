@@ -1,0 +1,51 @@
+{
+  "iid": "i6",
+  "title": "Fitting a line to readings",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is each reading's stick to the line shrinking and the above-and-below count evening up, while m and c fill in with units, when you drag the line's two handles.",
+    "title": "Lay the line",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens. Example readings of a motor winding sit as dots on a graph of resistance R in ohms (Ω) against temperature T in °C. A straight line lies across them with a handle at each end. A thin stick runs straight up or down from each reading to the line, and a count above the graph says how many readings sit above the line and how many below. Under the graph the readout gives the line's gradient m in Ω per °C and its value c at 0 °C in Ω, worked out from two points on the line. A switch pins the line through (0, 0). Later screens show a spring's force against its extension and a lifting machine's effort against its load. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "The readings are example values made up for the lesson. The line is laid by eye; there is a way to calculate it, not shown here.",
+    "numbers": [
+      { "label": "Example reading at 10 °C, in Ω", "value": 10.5, "kind": "assumed" },
+      { "label": "Example reading at 20 °C, in Ω", "value": 10.6, "kind": "assumed" },
+      { "label": "Example reading at 30 °C, in Ω", "value": 11.4, "kind": "assumed" },
+      { "label": "Example reading at 40 °C, in Ω", "value": 11.5, "kind": "assumed" },
+      { "label": "Example reading at 50 °C, in Ω", "value": 11.9, "kind": "assumed" },
+      { "label": "Example reading at 60 °C, in Ω", "value": 12.6, "kind": "assumed" },
+      { "label": "Example reading at 70 °C, in Ω", "value": 12.7, "kind": "assumed" },
+      { "label": "Example reading at 80 °C, in Ω", "value": 13.3, "kind": "assumed" },
+      { "label": "Line at 20 °C, in Ω", "value": 10.8, "kind": "computed" },
+      { "label": "Line at 70 °C, in Ω", "value": 12.8, "kind": "computed" },
+      { "label": "Gradient 2.0 ÷ 50, Ω per °C", "value": 0.04, "kind": "computed" },
+      { "label": "c = 10.8 − 0.04 × 20, in Ω", "value": 10, "kind": "computed" },
+      { "label": "Slip from two readings 0.8 ÷ 10", "value": 0.08, "kind": "computed" },
+      { "label": "Spring constant 30 ÷ 12, N per mm", "value": 2.5, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "Real readings scatter, so they never sit exactly on one line. Lay one straight line through their middle, with about as many readings above it as below,[^1] and read the law from that line.\n\nTake example readings of a winding from 10 to 80 °C. A line R = 0.04T + 10 leaves four above and four below. The gradient comes from two points on the line: 2.0 Ω ÷ 50 °C = 0.04 Ω per °C. Taking it from two readings, 20 and 30 °C, gives 0.08, twice too big.\n\nDo not force the line through zero. The winding has resistance at 0 °C. A spring's line does go through zero, but only up to the [[limit of proportionality]].[^2] Its gradient is the spring constant.[^10]\n\nThis is how the course's winding readings become a rule. **Lay one line through the middle of the readings, about as many above as below, and read the law from the line.[^1]**"
+  },
+  "analogy": {
+    "text": "Reading a wavering meter needle: you read the middle of the swing, not the top or bottom.",
+    "breaks": "The needle gives one number; a line gives two."
+  },
+  "practice": {
+    "text": "- Plot the readings.\n- Lay one line through the middle, about as many above as below.\n- Take the gradient from two points on the line far apart.\n- Find c from one point on the line.\n\n**Worked example:** readings 6.4, 6.5, 7.0, 7.1, 7.6, 7.7 Ω at 10 to 60 °C. The line R = 0.03T + 6.0 fits.\n\n**Common mistakes**\n- Joining the dots.\n- Forcing the line through zero.\n- Taking the gradient from two readings."
+  },
+  "say": null,
+  "checks": [],
+  "format": "steps",
+  "sources": [
+    { "n": 1, "title": "How Do I Construct a Straight Line through Data Points? Best-Fit Lines", "url": "https://serc.carleton.edu/mathyouneed/graphing/bestfit.html", "quote": "In many cases, the line may not pass through very many of the plotted points. Instead, the idea is to get a line that has equal numbers of points on either side." },
+    { "n": 2, "title": "What is described by Hooke's law in GCSE Physics? - BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/articles/zqt6b7h", "quote": "Provided that the limit of proportionality is not exceeded , a graph of stretching force against extension is a straight line through the origin" },
+    { "n": 10, "title": "What is described by Hooke's law in GCSE Physics? - BBC Bitesize", "url": "https://www.bbc.co.uk/bitesize/articles/zqt6b7h", "quote": "The gradient of the graph of force (y-axis) and extension (x-axis) is numerically equal to the spring constant" }
+  ],
+  "confidence": "simplified",
+  "contested": null
+}
