@@ -1,0 +1,188 @@
+{
+  "iid": "i2",
+  "title": "Reading a graph as a function",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the beam rising from the input to the graph and turning across to read its one output, and meeting a circle twice, when you drag the pointer along the input axis.",
+    "title": "The input pointer",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 11,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens on reading graphs. Each graph has its input along the bottom and its output up the side, and each axis names a quantity and its unit. Every point on a function's graph is a pair, an input and its output, so the point for an input sits straight above it at the height of its output. A pointer sits on the bottom axis. Drag it and a beam rises to the graph and turns across to the side axis, where the output is read. A second pointer on the side axis reads backwards: its beam goes across to the graph and down to every input that gives that output. The graphs are the 4 to 20 mA transmitter from the last lesson, S(p) = 0.16p + 4, current in mA against percentage of full scale; an example tank's level in metres against time in minutes, rising 0.2 m a minute to 2 m, holding from 10 to 20 minutes and falling 0.2 m a minute to empty at 30; an example workshop's temperature in °C against time of day, rising 1.5 °C an hour from 16 °C at 06:00 to 28 °C at 14:00 and falling 1 °C an hour to 20 °C at 22:00; a pipe's rim drawn as a circle of radius 5 cm, across and up both in centimetres, whose heights come from Pythagoras; and an example tariff, price in pence per kWh against time of day, 10p until 07:00 and 30p from 07:00, where a filled dot marks the point that is included and a hollow dot the end that is not. The tank and workshop graphs are sketches made of straight pieces. Some screens show an idea and the rest ask you to try it: a puzzle offers three answers, and a wrong pick shows the slip that makes it.",
+    "ignores": "The beams land exactly on the values the rules give; reading a real printed graph is only as exact as its scale and gridlines. The tank, workshop, pipe and tariff figures are example values, and the tank and workshop graphs are drawn as straight pieces joined at corners, where a real level or temperature usually turns without a sharp corner. The transmitter is drawn as a perfect straight line; a real one has a small calibration error.",
+    "numbers": [
+      {
+        "label": "4 to 20 mA loop: 0% sends 4 mA",
+        "value": 4,
+        "kind": "constant"
+      },
+      {
+        "label": "4 to 20 mA loop: 100% sends 20 mA",
+        "value": 20,
+        "kind": "constant"
+      },
+      {
+        "label": "S(p) = 0.16p + 4: 16 mA over 100%, mA per percent",
+        "value": 0.16,
+        "kind": "computed"
+      },
+      {
+        "label": "Pointer at 25% reads S(25) = 0.16 × 25 + 4 = 8 mA, step 1",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "At 75% reads 16 mA; slips 12 (from 4 mA line), 20 (line's end), step 2",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Back from 12 mA comes down at 50%, in step 3",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "12 mA from a DP cell is 50% pressure difference",
+        "value": 50,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Back from 18 mA: 87.5%; slips 112.5% (18 ÷ 0.16), 18% (copied), step 4",
+        "value": 87.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example tank: fills 0.2 m a minute to 2 m, holds, empties",
+        "value": 0.2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example tank's top level, metres",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tank level at 5 min is 1 m, in step 5",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "20 to 30 min: level fell 2 m to 0; slips sloping side, downhill, step 6",
+        "value": 0,
+        "kind": "computed"
+      },
+      {
+        "label": "Back from 1 m: 5 min and 25 min, in step 7",
+        "value": 25,
+        "kind": "computed"
+      },
+      {
+        "label": "Example workshop: 16 °C at 06:00 up to 28 °C at 14:00",
+        "value": 28,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example workshop: down 1 °C an hour to 20 °C at 22:00",
+        "value": 20,
+        "kind": "assumed"
+      },
+      {
+        "label": "Workshop is a function; 22 °C at 10:00 and 20:00; slips 22 twice, rise-and-fall, step 8",
+        "value": 22,
+        "kind": "computed"
+      },
+      {
+        "label": "Example pipe rim radius, cm, in step 9",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "At 3 cm across: 4 cm and −4 cm, as 3² + 4² = 5², step 9",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "At 4 cm across: 3 and −3 cm; slips 3 only, 5 (radius), step 10",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Example tariff: 10p per kWh until 07:00, in step 11",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example tariff: 30p per kWh from 07:00; is a function; slips jump, two prices, step 11",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Back from 25 °C: 12:00 and 17:00; slips 12:00 only, none, step 12",
+        "value": 17,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: back from 10 mA comes down at 37.5%",
+        "value": 37.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example check: S(37.5) = 6 + 4 = 10 mA",
+        "value": 10,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A function's graph is every input plotted against the output it gives, the input along the bottom and the output up the side. Each point is one pair, so the point for an input sits straight above it, at the height of its output. To read the graph, start at the input on the bottom axis, go up to the graph, then across to the side axis, and read the output there. Take the 4 to 20 mA transmitter from the last lesson, S(p) = 0.16p + 4, a straight-line rule of the kind instruments use.[^2] From 25% go up to the line and across, and you read 8 mA, so S(25) = 8 mA, which is what the rule gives, 0.16 × 25 + 4 = 8. A function gives a single output for each input,[^3] so an upright beam meets its graph at one height at most, and there is one reading to take.\n\nYou can read backwards too, from an output to the inputs that give it. Start on the side axis, go across to the graph, then down. From 12 mA you come down at 50%, and 12 mA from a pressure-difference cell is indeed 50% of its full pressure difference.[^1] Reading backwards can find more than one input. An example tank that fills to 2 m, holds and empties again was at 1 m twice, at 5 minutes and at 25 minutes. That is allowed, because each time still has one level. When a level line cuts a graph more than once, two different inputs have given the same output, and the function is called [[many-to-one]].[^4] An example workshop that warms from 16 °C to 28 °C and cools to 20 °C is at 22 °C at 10:00 and again at 20:00, and is still a function.\n\nEach axis names a quantity and its unit, so a graph shows one quantity against another. The tank's graph is its level against time, not a drawing of the tank. A flat stretch means the level held still, and a falling stretch means it dropped, not that the tank has a flat or sloping side. A graph looks like the shape of a thing when both its axes are positions, as with the pipe below. A graph can also have a break and still be a function. An example tariff jumps from 10p to 30p per kWh at 07:00. Textbooks add that a filled dot marks a point that is included and a hollow dot an end that is not, so 07:00 itself costs 30p and every time has one price.\n\nWhat fails is one input with two outputs. A pipe's rim of radius 5 cm, drawn up against across in centimetres, is a circle, and here both axes are positions. At 3 cm across, the rim is 4 cm up and 4 cm down, because 3² + 4² = 5². So the question \"what does 3 cm give?\" has two answers, and the circle is not a function. The pointer's beam is an upright line, and textbooks add the [[vertical line test]]: on a graph drawn with the input along the bottom, if any upright line meets it more than once, it is not a function. It is only a quick way of asking what each input gives. A level line meeting a graph twice is fine, as the workshop showed.\n\n**Read a function's graph up from the input to the graph and across to its one output,[^3] and back from an output to every input that gives it.**"
+  },
+  "analogy": {
+    "text": "Think of a chart recorder's pen drawing a temperature against time. At each moment the pen is at one height, so its trace is a function of time. It can rise, hold, fall and come back to a temperature it showed before, and if the pen lifts for a while the trace has a gap, but it is still one reading for each moment. What it can never draw is a circle, because the pen cannot be in two places at once.",
+    "breaks": "A recorder's input is always time, and it only runs forward. A function's input can be any quantity, such as a percentage or a distance across a pipe, and you can read its graph backwards, from an output to the inputs that give it."
+  },
+  "practice": {
+    "text": "- Name the axes before you read: this graph is ___ against ___, each with its unit.\n- Find the input on the bottom axis.\n- Go straight up to the graph, then straight across to the side axis, and read the output with its unit.\n- To read backwards, start at the output on the side axis, go across, and come down from every place you meet the graph.\n- To check a graph is a function, ask what each input gives: an upright line through any input should meet the graph no more than once.\n\n**Rule of thumb:** A level line meeting a graph twice is fine, as two inputs may share an output. An upright line meeting it twice is not, as one input would have two outputs.\n\n**Worked example:** A transmitter on a 4 to 20 mA loop follows S(p) = 0.16p + 4. The loop reads 10 mA. Go across from 10 mA to the line, then down: you land at 37.5%. Check it with the rule: 0.16 × 37.5 + 4 = 6 + 4 = 10 mA. Going forwards from 37.5% gives the 10 mA you started from.\n\n**Common mistakes**\n- Reading a graph as a picture of the thing. Name the axes first: a tank's level against time is not the tank's shape.\n- Stopping at the first place a backwards beam meets the graph. Follow the level line right across, as there may be more inputs.\n- Going up from an output instead of across from it. Outputs start on the side axis, inputs on the bottom.\n- Taking a jump, or a rise and fall, as not a function. Ask what each input gives: if it is one output, it is a function."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Square root scaling for differential pressure flowmeters - Control Engineering",
+      "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters",
+      "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+    },
+    {
+      "n": 2,
+      "title": "Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook",
+      "url": "https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables",
+      "quote": "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+    },
+    {
+      "n": 3,
+      "title": "About the HELM Project",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+      "quote": "A function is a rule which operates on an input and produces a single output from that input."
+    },
+    {
+      "n": 4,
+      "title": "About the HELM Project",
+      "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf",
+      "quote": "We see that a horizontal line drawn on the graph cuts it more than once. This means that two (or more) different inputs have yielded the same output and so the function is many-to-one."
+    }
+  ]
+}

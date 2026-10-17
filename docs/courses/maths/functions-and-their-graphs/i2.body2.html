@@ -1,0 +1,861 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* The graph: a frame, faint gridlines at the ticks, the graph itself in navy. */
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .frame { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.25; }
+  .scene .tlab { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axt { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axt.bad { fill: var(--k-warn); }
+  .scene .axbox { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .gl { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .gl.bad { stroke: var(--k-warn); stroke-dasharray: 7 5; }
+  .scene .gdot { fill: var(--k-accent2); }
+  .scene .gdot.open { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .band { fill: var(--k-fill2); }
+  /* The beam: amber, so it stands out from the graph; a slip's beam is red and dashed. */
+  .scene .beam { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .beam.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }
+  .scene .beam.ghost { stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+  .scene .hit { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .hit.bad { fill: var(--k-warn); }
+  .scene .hit.ghost { fill: var(--k-muted); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .mk { fill: none; stroke: var(--k-warn); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .mk.dash { stroke-dasharray: 6 4; }
+  .scene .pl { font: 600 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .pl.bad { fill: var(--k-warn); }
+  .scene .pl.mut { font-weight: 500; fill: var(--k-muted); }
+  .scene .key { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .sw { stroke-width: 2.5; stroke-linecap: round; }
+  .scene .sw.g { stroke: var(--k-accent2); }
+  .scene .sw.b { stroke: var(--k-amber-line); }
+  /* Pills: the pointer Dan moves is solid; a reading it gives is outlined; a slip is red. */
+  .scene .tk { font: 700 13px var(--k-font); }
+  .scene .pill.ptr, .scene .notch.ptr { fill: var(--k-accent2); }
+  .scene .tk.ptr { fill: var(--k-on-accent2); }
+  .scene .pill.out { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .tk.out { fill: var(--k-accent2); }
+  .scene .pill.bad, .scene .pill.bptr { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .notch.bptr { fill: var(--k-warn); }
+  .scene .tk.bad, .scene .tk.bptr { fill: var(--k-warn); }
+  .scene .pill.ghost { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .tk.ghost { fill: var(--k-muted); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A graph with its input along the bottom and its output up the side, and a pointer whose beam reads it. The tank, workshop, pipe and tariff are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 294" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each point on a graph is one pair, an input and the output it gives.</p>
+
+<script>
+  // ---------- numbers, written as the lesson writes them (a true minus sign, no trailing zeros) ----------
+  const fmtN = (v, dp) => { const f = Math.pow(10, dp == null ? 3 : dp), r = Math.round(v * f) / f; return (r < 0 ? '−' : '') + String(Math.abs(r)); };
+  const hhmm = (h) => { const m = Math.round(h * 60), H = Math.floor(m / 60), M = m - 60 * H; return (H < 10 ? '0' : '') + H + ':' + (M < 10 ? '0' : '') + M; };
+
+  // ---------- the rules every graph is drawn from ----------
+  const Sf = (p) => 0.16 * p + 4;                                        // the transmitter: mA from % of full scale
+  const Sb = (mA) => (mA - 4) / 0.16;                                    // and back: % from mA
+  const lvl = (t) => (t <= 10 ? 0.2 * t : t <= 20 ? 2 : 2 - 0.2 * (t - 20));   // example tank: metres at t minutes
+  const temp = (h) => (h <= 14 ? 16 + 1.5 * (h - 6) : 28 - 1 * (h - 14));      // example workshop: °C at h o'clock
+  const R = 5;                                                           // example pipe rim's radius, cm
+  const rim = (x) => Math.sqrt(R * R - x * x);                           // its height x cm across: x² + y² = 5²
+  const price = (h) => (h < 7 ? 10 : 30);                                // example tariff: p per kWh
+
+  // Each graph: its frame (viewBox units), its axes (range, ticks, how a value is written, title,
+  // pointer step), the rule forwards (f: input -> every output) and backwards (back: output -> every input).
+  const BOX = { x0: 66, x1: 326, y0: 50, y1: 238 };
+  const CBOX = { x0: 110, x1: 298, y0: 50, y1: 238 };   // square, so the rim is drawn round
+  const G = {
+    S: { box: BOX, name: 'S(p) = 0.16p + 4', maths: true,
+      x: { min: 0, max: 105, ticks: [0, 25, 50, 75, 100], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + '%', title: 'reading (%)', step: 5 },
+      y: { min: 0, max: 22, ticks: [0, 4, 8, 12, 16, 20], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + ' mA', title: 'current (mA)', step: 2 },
+      f: (x) => (x >= 0 && x <= 100 ? [Sf(x)] : []),
+      back: (y) => (y >= Sf(0) && y <= Sf(100) ? [Sb(y)] : []),
+      lines: () => [[[0, Sf(0)], [100, Sf(100)]]] },
+    tank: { box: BOX, name: 'tank level',
+      x: { min: 0, max: 32, ticks: [0, 5, 10, 15, 20, 25, 30], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + ' min', title: 'time (min)', step: 1 },
+      y: { min: 0, max: 2.4, ticks: [0, 0.5, 1, 1.5, 2], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + ' m', title: 'level (m)', step: 0.2 },
+      f: (t) => (t >= 0 && t <= 30 ? [lvl(t)] : []),
+      back: (y) => (y > 0 && y < 2 ? [y / 0.2, 20 + (2 - y) / 0.2] : y === 0 ? [0, 30] : []),
+      lines: () => [[0, 10, 20, 30].map((t) => [t, lvl(t)])] },
+    shop: { box: BOX, name: 'temperature',
+      x: { min: 5, max: 23, ticks: [6, 10, 14, 18, 22], tl: hhmm, t: hhmm, title: 'time of day', step: 1 },
+      y: { min: 14, max: 30, ticks: [16, 20, 24, 28], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + ' °C', title: 'temperature (°C)', step: 1 },
+      f: (h) => (h >= 6 && h <= 22 ? [temp(h)] : []),
+      back: (y) => { const out = []; if (y >= temp(6) && y <= temp(14)) out.push(6 + (y - temp(6)) / 1.5); if (y >= temp(22) && y < temp(14)) out.push(14 + (temp(14) - y) / 1); return out; },
+      lines: () => [[6, 14, 22].map((h) => [h, temp(h)])] },
+    pipe: { box: CBOX, name: 'pipe rim', mid: true, circle: R,
+      x: { min: -6.5, max: 6.5, ticks: [-5, 0, 5], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + ' cm', title: 'across (cm)', step: 1 },
+      y: { min: -6.5, max: 6.5, ticks: [-5, 0, 5], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + ' cm', title: 'up (cm)', step: 1 },
+      f: (x) => (Math.abs(x) < R ? [rim(x), -rim(x)] : Math.abs(x) === R ? [0] : []),
+      back: (y) => (Math.abs(y) < R ? [-rim(y), rim(y)] : Math.abs(y) === R ? [0] : []) },
+    tariff: { box: BOX, name: 'price',
+      x: { min: 0, max: 13, ticks: [0, 7, 12], tl: hhmm, t: hhmm, title: 'time of day', step: 1 },
+      y: { min: 0, max: 36, ticks: [0, 10, 20, 30], tl: (v) => fmtN(v), t: (v) => fmtN(v, 1) + 'p', title: 'price (p per kWh)', step: 10 },
+      f: (h) => (h >= 0 && h <= 12.5 ? [price(h)] : []),
+      back: (y) => [],
+      lines: () => [[[0, price(0)], [7, price(0)]], [[7, price(7)], [12.5, price(7)]]],
+      dots: () => [{ x: 7, y: price(0), open: true }, { x: 7, y: price(7) }] },
+  };
+
+  // ---------- the lesson: SHOW steps demonstrate (and Dan drags), DO steps are puzzles ----------
+  // demo: the reading played on opening (dir f: up from an input; b: back from an output); drag: which
+  // pointer Dan moves and between which values. A puzzle's q is the pointer it asks about; ans[option]
+  // is what Check draws: the right reading, or the slip that makes a wrong answer, in red.
+  const xS = G.S.x.t, yS = G.S.y.t;
+  const STEPS = [
+    { show: true, name: 'Up and across', g: 'S', drag: 'f', lo: 0, hi: 100, demo: { v: 25, from: 0 }, dur: 3.2,
+      text: 'This is the transmitter from the last lesson, `S(p) = 0.16p + 4`, its current in mA against its reading in percent. From the *input* ' + xS(25) +
+        ', a beam rises to the line and turns across to read the *output*, ' + yS(Sf(25)) + '. Drag the pointer to read other inputs.' },
+    { name: 'Read 75%', g: 'S', q: { dir: 'f', v: 75 }, opts: ['16 mA', '12 mA', '20 mA'], want: '16 mA', shows: ['16 mA'],
+      ans: {
+        '16 mA': [{ read: 'f', v: 75, s: 0.1, p: 0.6 }],
+        '12 mA': [{ read: 'f', v: 75, s: 0.1, p: 0.6, legs: 1 }, { hline: Sf(0), t: 0.9, bad: true, label: 'from ' + yS(Sf(0)) },
+          { bracket: [75, Sf(0), Sf(75)], t: 1.2, bad: true }, { fpill: [75, (Sf(0) + Sf(75)) / 2], dx: 40, text: yS(Sf(75) - Sf(0)), t: 1.4 }],
+        '20 mA': [{ read: 'f', v: 75, s: 0.1, p: 0.6, legs: 1 }, { seg: [[75, Sf(75)], [100, Sf(100)]], t: 0.9, bad: true },
+          { seg: [[100, Sf(100)], [0, Sf(100)]], t: 1.2, bad: true, dash: true }, { lpill: Sf(100), text: yS(Sf(100)), t: 1.5 },
+          { at: [100, Sf(100)], dy: -12, anchor: 'end', label: 'line\'s end', t: 1.5, bad: true }],
+      },
+      task: 'Where does the beam from 75% land on the side axis?',
+      hint: 'Not quite. Go straight up from 75% to the line, then straight across.',
+      hints: { '12 mA': 'Not quite. That counts up from 4 mA. Read the side axis itself, which starts at 0.', '20 mA': 'Not quite. That reads the line\'s end, at 100%. Turn across where the beam meets the line.' },
+      why: 'Straight up from 75% the beam meets the line, and straight across it reads 16 mA. The rule agrees, `0.16 × 75 + 4 = 16`.' },
+    { show: true, name: 'Read backwards', g: 'S', drag: 'b', lo: 4, hi: 20, demo: { v: 12, from: 4 }, dur: 3.2,
+      text: 'You can read backwards too. From ' + yS(12) + ' on the side axis, the beam goes across to the line and down to ' + xS(Sb(12)) +
+        '. A pressure-difference cell sending 12 mA is indeed at 50% of its full pressure difference.' },
+    { name: 'Back from 18 mA', g: 'S', q: { dir: 'b', v: 18 }, opts: ['87.5%', '6.9 mA', '18%'], want: '87.5%', shows: ['87.5%'],
+      ans: {
+        '87.5%': [{ read: 'b', v: 18, s: 0.1, p: 0.6 }],
+        '6.9 mA': [{ read: 'f', v: 18, s: 0.1, p: 0.6, bad: true }],
+        '18%': [{ seg: [[0, 18], [18, 0]], t: 0.2, bad: true, dash: true }, { bpill: 18, text: xS(18), t: 0.6 },
+          { at: [20, 0], dx: 6, dy: -11, anchor: 'start', label: 'copied across', t: 0.8, bad: true }],
+      },
+      task: 'The loop reads 18 mA. Which reading sent it?',
+      hint: 'Not quite. Start at 18 mA on the side axis, go across to the line, then down.',
+      hints: { '6.9 mA': 'Not quite. That reads forwards from 18%. Here 18 mA is the output, so start on the side axis.', '18%': 'Not quite. That copies the number across. Go across from 18 mA to the line, then down.' },
+      why: 'Across from 18 mA the beam meets the line, and down from there it lands at 87.5%. Check it forwards, `0.16 × 87.5 + 4 = 14 + 4 = 18` mA.' },
+    { show: true, name: 'Level against time', g: 'tank', drag: 'f', lo: 0, hi: 30, demo: { v: 5, from: 0 }, dur: 3.2,
+      text: 'This example tank\'s graph is its level in metres against time in minutes, not a drawing of the tank. From ' + G.tank.x.t(5) +
+        ', the beam reads a level of ' + G.tank.y.t(lvl(5)) + '. Drag the pointer through the filling, the holding and the emptying.' },
+    { name: 'What the fall means', g: 'tank', band: [20, 30], judge: true,
+      opts: ['The level fell from 2 m to 0', 'The tank has a sloping side', 'The water ran downhill'], want: 'The level fell from 2 m to 0', shows: ['2 m', '0 m'],
+      ans: {
+        'The level fell from 2 m to 0': [{ sweep: [20, 30], s: 0.1, p: 0.55 }],
+        'The tank has a sloping side': [{ axes: true, t: 0.2, bad: true }, { at: [15, 0.6], anchor: 'middle', label: 'level against time', t: 0.6, bad: true }],
+        'The water ran downhill': [{ axes: true, t: 0.2, bad: true }, { at: [15, 0.6], anchor: 'middle', label: 'level against time', t: 0.6, bad: true }],
+      },
+      task: 'What does this graph say happened between 20 and 30 minutes?',
+      hint: 'Not quite. Read the axes first. The graph is level against time.',
+      hints: { 'The tank has a sloping side': 'Not quite. The graph is not the tank\'s shape. Its axes are level against time.', 'The water ran downhill': 'Not quite. Nothing here is a hill. Up the side is the level, and it drops.' },
+      why: 'The axes are level against time. From 20 to 30 minutes the beam\'s reading falls from 2 m to 0, so the tank emptied.' },
+    { show: true, name: 'Two times, one level', g: 'tank', drag: 'b', lo: 0.2, hi: 1.8, demo: { v: 1, from: 0.2 }, dur: 3.2,
+      text: 'Back from ' + G.tank.y.t(1) + ', the beam meets the graph twice and comes down at ' + G.tank.back(1).map(G.tank.x.t).join(' and ') +
+        '. Two times share one level, which is fine, because each time still has one level. A function like this is called *many-to-one*.' },
+    { name: 'One temperature each', g: 'shop', judge: true, opts: ['Yes', 'No, 22 °C comes twice', 'No, it rises then falls'], want: 'Yes', shows: ['22 °C'],
+      ans: {
+        'Yes': [{ read: 'f', v: 10, s: 0.1, p: 0.55 }, { read: 'f', v: 20, s: 0.9, p: 0.55 }],
+        'No, 22 °C comes twice': [{ read: 'b', v: 22, s: 0.1, p: 0.6, bad: true }],
+        'No, it rises then falls': [{ over: true, t: 0.2, bad: true }, { at: [14, temp(14)], dy: -14, anchor: 'middle', label: 'rises, then falls', t: 0.6, bad: true }],
+      },
+      task: 'This example workshop is at 22 °C at 10:00 and again at 20:00. Is its temperature a function of the time of day?',
+      hint: 'Not quite. Ask what each time gives. Does any time have two temperatures?',
+      hints: { 'No, 22 °C comes twice': 'Not quite. Two times may share a temperature. A function only fails when one time has two.', 'No, it rises then falls': 'Not quite. A graph may rise and fall. Each time still has one temperature.' },
+      why: 'Up from any time the beam meets the graph once, so each time has one temperature. 10:00 and 20:00 sharing 22 °C is fine, as two inputs may give one output.' },
+    { show: true, name: 'Two outputs', g: 'pipe', drag: 'f', lo: -4, hi: 4, demo: { v: 3, from: 0 }, dur: 3.2,
+      text: 'This example pipe\'s rim, radius ' + G.pipe.x.t(R) + ', is drawn across against up, both in cm. From ' + G.pipe.x.t(3) + ' across, the beam meets the rim twice, at ' +
+        G.pipe.f(3).map(G.pipe.y.t).join(' and ') + ', since 3² + 4² = 5². One input with two outputs fails the *vertical line test*, so the circle is not a function.' },
+    { name: 'Up and down from 4 cm', g: 'pipe', q: { dir: 'f', v: 4 }, opts: ['3 cm and −3 cm', '3 cm only', '5 cm'], want: '3 cm and −3 cm', shows: ['3 cm', '−3 cm'],
+      ans: {
+        '3 cm and −3 cm': [{ read: 'f', v: 4, s: 0.1, p: 0.6 }],
+        '3 cm only': [{ read: 'f', v: 4, s: 0.1, p: 0.6, only: 'up', bad: true }, { ring: [4, -rim(4)], label: 'missed', t: 1.5, bad: true }],
+        '5 cm': [{ seg: [[0, 0], [4, rim(4)]], t: 0.2, bad: true }, { at: [2, rim(4) / 2], dx: -8, dy: -8, anchor: 'end', label: 'radius ' + G.pipe.x.t(R), t: 0.6, bad: true }, { tag: G.pipe.x.t(R), t: 0.6 }],
+      },
+      task: 'Where does the beam from 4 cm across meet the rim?',
+      hint: 'Not quite. Follow the beam both up and down from 4 cm.',
+      hints: { '3 cm only': 'Not quite. The beam goes down as well as up, and meets the rim below too.', '5 cm': 'Not quite. 5 cm is the radius, from the centre to the rim. Read where the beam meets the rim.' },
+      why: 'Up from 4 cm the beam meets the rim at 3 cm, and down at −3 cm, since `4² + 3² = 5²`. One input has two outputs, so the circle is not a function.' },
+    { name: 'A price that jumps', g: 'tariff', judge: true, opts: ['Yes', 'No, it has a gap', 'No, 07:00 has two prices'], want: 'Yes', shows: ['30p'],
+      ans: {
+        'Yes': [{ read: 'f', v: 7, s: 0.1, p: 0.6 }, { at: [7, price(0)], dx: 9, dy: 19, anchor: 'start', label: 'not included', t: 1.2, cls: 'mut' }],
+        'No, it has a gap': [{ bracket: [7, price(0), price(7)], t: 0.2, bad: true }, { at: [7, (price(0) + price(7)) / 2], dx: 20, dy: 4.5, anchor: 'start', label: 'a jump', t: 0.5, bad: true }],
+        'No, 07:00 has two prices': [{ read: 'f', v: 7, s: 0.1, p: 0.6, bad: true, ys: [price(0), price(7)] }],
+      },
+      task: 'In this example tariff, a filled dot is included and a hollow dot is not. Is the price a function of the time of day?',
+      hint: 'Not quite. Ask what each time costs. Does any time have two prices?',
+      hints: { 'No, it has a gap': 'Not quite. A graph can jump and still be a function. Every time still has one price.', 'No, 07:00 has two prices': 'Not quite. The hollow dot is not included, so 07:00 costs only 30p.' },
+      why: 'Every time has one price, 10p before 07:00 and 30p from 07:00. At 07:00 itself the filled dot counts, so it costs 30p.' },
+    { name: 'Back from 25 °C', g: 'shop', q: { dir: 'b', v: 25 }, opts: ['12:00 and 17:00', '12:00 only', 'No time'], want: '12:00 and 17:00', shows: ['12:00', '17:00'],
+      ans: {
+        '12:00 and 17:00': [{ read: 'b', v: 25, s: 0.1, p: 0.6 }],
+        '12:00 only': [{ read: 'b', v: 25, s: 0.1, p: 0.6, first: true, bad: true }, { ring: [G.shop.back(25)[1], 25], label: 'missed', t: 1.5, bad: true }],
+        'No time': [{ corners: true, t: 0.2, bad: true }, { at: [14, 17], anchor: 'middle', label: 'no corner at ' + G.shop.y.t(25), t: 0.6, bad: true }],
+      },
+      task: 'When was the workshop at 25 °C?',
+      hint: 'Not quite. Go across from 25 °C, right the way over, and down from every meeting.',
+      hints: { '12:00 only': 'Not quite. Keep going across. The beam meets the falling side too.', 'No time': 'Not quite. The graph has a temperature at every time, not just at its corners. Go across from 25 °C.' },
+      why: 'Across from 25 °C the beam meets the rise and comes down at 12:00, then meets the fall and comes down at 17:00. Check, `16 + 1.5 × 6 = 25` and `28 − 1 × 3 = 25`.' },
+  ];
+  const FINISH = 'Read a function\'s graph up (or down) from the input to the graph and across to its one output, and back from an output to every input that gives it.';
+  const PICK = 'Tap one of the answers.';
+  // The lesson's sources, each restated by the check that cites it.
+  const CE = 'https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters';
+  const CTRL = 'https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables';
+  const HELM = 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf';
+
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res, why: the puzzle. live: Dan has moved the pointer himself, to v.
+  function blank() { return { pick: null, res: null, why: false, live: false, v: null }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null, OCC = null, PILLS = null, AXBAD = 0;   // what the last paint drew (for the checks), and what it still has to draw
+
+  // ---------- motion ----------
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    if (t0 == null || t0 === -Infinity) return 1;
+    if (t0 === Infinity) return 0;
+    d = d == null ? 0.35 : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[Sp](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // A number and its unit never split across two lines.
+  const nb = (s) => String(s == null ? '' : s).replace(/(\d) (?=(mA|°C|cm|min|m|kWh)\b)/g, '$1\u00a0');
+  function write(el, s) {
+    el.textContent = '';
+    nb(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg.length) el.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+  const say = (s) => String(s == null ? '' : s).replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/²/g, ' squared').replace(/°C/g, ' degrees C')
+    .replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- drawing helpers ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  function text(x, y, s, cls, anchor, maths) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (maths) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 13 * 0.6;
+  }
+  function scales(g) {
+    const b = g.box, X = g.x, Y = g.y;
+    return { x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1,
+      sx: (v) => b.x0 + (v - X.min) / (X.max - X.min) * (b.x1 - b.x0),
+      sy: (v) => b.y1 - (v - Y.min) / (Y.max - Y.min) * (b.y1 - b.y0),
+      ix: (px) => X.min + (px - b.x0) / (b.x1 - b.x0) * (X.max - X.min),
+      iy: (py) => Y.min + (b.y1 - py) / (b.y1 - b.y0) * (Y.max - Y.min) };
+  }
+  // A pill: a value on an axis. row 'b' sits under the bottom axis (cx its centre), row 'l' left
+  // of the side axis (cx its right edge); notch points at the axis. Tick labels make way for it.
+  function pill(cx, cy, s, kind, a, notch, row) {
+    if (a <= 0) return;
+    const hw = Math.max(18, tw(s, 'tk') / 2 + 9), hh = 11;
+    if (row === 'b') { cx = K.clamp(cx, hw + 2, 338 - hw); OCC.b.push({ c: cx, hw, a }); }
+    if (row === 'l') { cx = Math.max(hw + 2, cx - hw); OCC.l.push({ c: cy, a }); }
+    part(a, 0, () => {
+      if (notch === 'up') path('notch ' + kind, 'M' + r3(cx - 6) + ' ' + r3(cy - hh + 1) + ' L' + r3(cx) + ' ' + r3(cy - hh - 5) + ' L' + r3(cx + 6) + ' ' + r3(cy - hh + 1) + ' Z');
+      if (notch === 'right') path('notch ' + kind, 'M' + r3(cx + hw - 1) + ' ' + r3(cy - 6) + ' L' + r3(cx + hw + 5) + ' ' + r3(cy) + ' L' + r3(cx + hw - 1) + ' ' + r3(cy + 6) + ' Z');
+      rect('pill ' + kind, cx - hw, cy - hh, 2 * hw, 2 * hh, hh);
+      text(cx, cy + 4.5, s, 'tk ' + kind);
+    });
+    if (a >= 0.5 && kind !== 'ptr' && kind !== 'bptr') REC.outs.push({ t: s, bad: kind === 'bad', ghost: kind === 'ghost', row, cx, cy });
+  }
+  function hit(x, y, px, py, kind, a) {
+    if (a <= 0) return;
+    const c = add(K.svg('circle', { class: 'hit' + (kind ? ' ' + kind : ''), cx: r3(px), cy: r3(py), r: 5 }));
+    if (a < 1) c.style.opacity = a.toFixed(3);
+    if (a >= 0.5) REC.hits.push({ x, y, px, py, bad: kind === 'bad', ghost: kind === 'ghost' });
+  }
+  const tAt = (f) => Math.acos(1 - 2 * K.clamp(f, 0, 1)) / Math.PI;   // when an eased growth reaches fraction f
+
+  // ---------- a reading up from an input: the beam rises (and falls) to the graph, then turns across ----------
+  function readF(g, P, it) {
+    const p = it.p || 1, s = it.s == null ? -Infinity : it.s, F = it.fade == null ? 1 : it.fade;
+    const kind = it.ghost ? 'ghost' : it.bad ? 'bad' : 'out', bcls = 'beam' + (it.ghost ? ' ghost' : it.bad ? ' bad' : '');
+    const travel = it.from != null && s !== -Infinity;
+    const u = travel ? arr(s, 0.8 * p) : 1;
+    const vx = travel ? K.lerp(it.from, it.v, u) : it.v;
+    const s1 = travel ? s + 0.9 * p : s;
+    const px = P.sx(vx), mid = !!g.mid, axY = mid ? P.sy(0) : P.y1;
+    if (!it.noPtr) {
+      const pk = it.ghost ? 'ghost' : it.bad ? 'bptr' : 'ptr';
+      PILLS.push(() => pill(px, mid ? axY : P.y1 + 17, g.x.t(vx), pk, F, mid || it.ghost ? null : 'up', mid ? null : 'b'));
+    }
+    const rd = { dir: 'f', inT: g.x.t(it.v), outs: [] };
+    REC.reads.push(rd);
+    if (u < 1) return;
+    let ys = (it.ys || g.f(it.v)).slice();
+    if (it.only === 'up') ys = ys.filter((y) => y >= 0);
+    const base = mid ? 0 : g.y.min, a1 = arr(s1, 0.6 * p);
+    [ys.filter((y) => y >= base), ys.filter((y) => y < base)].forEach((list, k) => {
+      if (!list.length) return;
+      const y0 = mid ? axY + (k ? 11 : -11) : axY;
+      const yf = P.sy(k ? Math.min.apply(null, list) : Math.max.apply(null, list)), span = Math.abs(yf - y0);
+      if (a1 > 0 && span > 0.5) part(F, 0, () => line(bcls, px, y0, px, K.lerp(y0, yf, a1)));
+      list.forEach((y) => {
+        const py = P.sy(y), tk = s1 + 0.6 * p * tAt(span > 0 ? Math.abs(py - y0) / span : 0);
+        hit(it.v, y, px, py, it.ghost ? 'ghost' : it.bad ? 'bad' : '', arr(tk, 0.2) * F);
+        if (it.legs === 1) return;
+        const a2 = arr(tk + 0.1 * p, 0.5 * p);
+        if (a2 > 0 && px - P.x0 > 0.5) part(F, 0, () => line(bcls, px, py, K.lerp(px, P.x0, a2), py));
+        const ap = arr(tk + 0.6 * p, 0.3) * F, t = g.y.t(y);
+        PILLS.push(() => pill(P.x0 - 6, py, t, kind, ap, null, 'l'));
+        if (ap >= 0.5) rd.outs.push(t);
+      });
+    });
+    // On the rim, one input meets the graph twice: say so on the drawing.
+    if (mid && ys.length === 2 && !it.bad && !it.ghost) {
+      const al = arr(s1 + 1.3 * p, 0.35);
+      part(al, 0, () => text(P.x1, P.y1 - 6, 'two outputs', 'pl bad', 'end'));
+    }
+  }
+  // ---------- a reading back from an output: across to the graph, then down from every meeting ----------
+  function readB(g, P, it) {
+    const p = it.p || 1, s = it.s == null ? -Infinity : it.s;
+    const kind = it.bad ? 'bad' : 'out', bcls = 'beam' + (it.bad ? ' bad' : '');
+    const travel = it.from != null && s !== -Infinity;
+    const u = travel ? arr(s, 0.8 * p) : 1;
+    const vy = travel ? K.lerp(it.from, it.v, u) : it.v;
+    const s1 = travel ? s + 0.9 * p : s;
+    const py = P.sy(vy);
+    if (!it.noPtr) PILLS.push(() => pill(P.x0 - 6, py, g.y.t(vy), it.bad ? 'bptr' : 'ptr', 1, 'right', 'l'));
+    const rd = { dir: 'b', inT: g.y.t(it.v), outs: [] };
+    REC.reads.push(rd);
+    if (u < 1) return;
+    let xs = g.back(it.v).slice().sort((a, b) => a - b);
+    if (it.first) xs = xs.slice(0, 1);
+    const far = xs.length ? P.sx(xs[xs.length - 1]) : P.x1, span = far - P.x0, a1 = arr(s1, 0.6 * p);
+    if (a1 > 0 && span > 0.5) line(bcls, P.x0, py, K.lerp(P.x0, far, a1), py);
+    xs.forEach((x) => {
+      const px = P.sx(x), tk = s1 + 0.6 * p * tAt(span > 0 ? (px - P.x0) / span : 0);
+      hit(x, it.v, px, py, it.bad ? 'bad' : '', arr(tk, 0.2));
+      const a2 = arr(tk + 0.1 * p, 0.5 * p);
+      if (a2 > 0 && P.y1 - py > 0.5) line(bcls, px, py, px, K.lerp(py, P.y1, a2));
+      const ap = arr(tk + 0.6 * p, 0.3), t = g.x.t(x);
+      PILLS.push(() => pill(px, P.y1 + 17, t, kind, ap, null, 'b'));
+      if (ap >= 0.5) rd.outs.push(t);
+    });
+  }
+  // ---------- a reading that then travels: read at a, then the pointer slides to b with the beam on ----------
+  function readSweep(g, P, it) {
+    const a = it.sweep[0], b = it.sweep[1], p = it.p || 1;
+    const e1 = it.s + 1.2 * p + 0.3, am = arr(e1, 1.0);
+    if (am <= 0) { readF(g, P, { v: a, s: it.s, p }); return; }
+    readF(g, P, { v: a, ghost: true, fade: arr(e1 + 0.3, 0.4) });
+    readF(g, P, { v: K.lerp(a, b, am) });
+  }
+
+  // ---------- the parts every graph has ----------
+  function drawFrame(g, P) {
+    g.x.ticks.forEach((v) => { const x = P.sx(v); if (Math.abs(x - P.x0) > 1 && !(g.mid && v === 0)) line('grid', x, P.y0, x, P.y1); });
+    g.y.ticks.forEach((v) => { const y = P.sy(v); if (Math.abs(y - P.y1) > 1 && !(g.mid && v === 0)) line('grid', P.x0, y, P.x1, y); });
+    if (g.mid) { line('axis', P.sx(0), P.y0, P.sx(0), P.y1); line('axis', P.x0, P.sy(0), P.x1, P.sy(0)); }
+    line('frame', P.x0, P.y0, P.x0, P.y1);
+    line('frame', P.x0, P.y1, P.x1, P.y1);
+  }
+  function linePts(P, pts) { return pts.map((q) => r3(P.sx(q[0])) + ',' + r3(P.sy(q[1]))).join(' '); }
+  function drawGraph(g, P, cls) {
+    if (g.circle) add(K.svg('circle', { class: cls, cx: r3(P.sx(0)), cy: r3(P.sy(0)), r: r3(P.sx(g.circle) - P.sx(0)) }));
+    (g.lines ? g.lines() : []).forEach((pts) => add(K.svg('polyline', { class: cls, points: linePts(P, pts) })));
+  }
+  function drawDots(g, P) {
+    (g.dots ? g.dots() : []).forEach((q) => add(K.svg('circle', { class: 'gdot' + (q.open ? ' open' : ''), cx: r3(P.sx(q.x)), cy: r3(P.sy(q.y)), r: 4.5 })));
+  }
+  // How clear of a pill a tick label is (gap in units): whole once clear. While something moves it
+  // fades over the last 8 units; a still picture shows it whole or not at all, never half faded.
+  const clear = (gap) => { const q = K.clamp(gap / 8 + 1, 0, 1); return T === Infinity ? (q >= 1 ? 1 : 0) : q; };
+  // Tick labels, drawn last but placed underneath; each makes way for a pill on its axis.
+  function fillTicks(group, g, P) {
+    const keep = into; into = group;
+    g.x.ticks.forEach((v) => {
+      const s = g.x.tl(v), x = P.sx(v), need = tw(s, 'tlab') / 2 + 4;
+      let a = 1;
+      OCC.b.forEach((o) => { a *= 1 - o.a * (1 - clear(Math.abs(x - o.c) - o.hw - need)); });
+      if (a > 0.05) { const t = text(x, P.y1 + 18, s, 'tlab'); if (a < 1) t.style.opacity = a.toFixed(3); }
+    });
+    g.y.ticks.forEach((v) => {
+      const s = g.y.tl(v), y = P.sy(v);
+      let a = 1;
+      OCC.l.forEach((o) => { a *= 1 - o.a * (1 - clear(Math.abs(y - o.c) - 19)); });
+      if (a > 0.05) { const t = text(P.x0 - 8, y + 4.5, s, 'tlab', 'end'); if (a < 1) t.style.opacity = a.toFixed(3); }
+    });
+    into = keep;
+  }
+  // Axis titles (each names a quantity and its unit), and a key for the two lines.
+  function drawTitles(g, P) {
+    const tx = [[8, 36, g.y.title, 'start'], [P.x1, P.y1 + 46, g.x.title, 'end']];
+    tx.forEach((q) => { if (AXBAD < 1) part(1 - AXBAD, 0, () => text(q[0], q[1], q[2], 'axt', q[3])); });
+    if (AXBAD > 0) part(AXBAD, 0, () => tx.forEach((q) => {
+      const w = tw(q[2], 'axt'), x = q[3] === 'start' ? q[0] : q[0] - w;
+      rect('axbox', x - 5, q[1] - 14, w + 10, 19, 5);
+      text(q[0], q[1], q[2], 'axt bad', q[3]);
+    }));
+    let x = 334;
+    [{ label: 'beam', sw: 'b' }, { label: g.name, sw: 'g', maths: g.maths }].forEach((k) => {
+      const w = tw(k.label, 'key');
+      text(x, 21, k.label, 'key', 'end', k.maths);
+      line('sw ' + k.sw, x - w - 26, 16.5, x - w - 8, 16.5);
+      x -= w + 26 + 14;
+    });
+  }
+
+  // ---------- what a step draws now ----------
+  function itemsOf(d, st) {
+    if (d.show) {
+      const v = st.live ? st.v : d.demo.v;
+      return [{ read: d.drag, v, from: st.live ? null : d.demo.from, s: st.live ? -Infinity : 0.4, p: 1 }];
+    }
+    if (st.res === 'right') return d.ans[d.want];
+    if (st.res === 'wrong') return d.ans[st.pick] || [];
+    return [];
+  }
+  function drawItem(d, g, P, it0) {
+    // A puzzle's own pointer is already drawn: a reading from the same place starts from it.
+    const it = (it0.read && d.q && it0.read === d.q.dir && it0.v === d.q.v) ? Object.assign({}, it0, { noPtr: true }) : it0;
+    if (it.read === 'f') return readF(g, P, it);
+    if (it.read === 'b') return readB(g, P, it);
+    if (it.sweep) return readSweep(g, P, it);
+    const a = arr(it.t, 0.35);
+    if (a <= 0) return;
+    if (it.bad && a >= 0.5) REC.marked = true;
+    if (it.axes) { AXBAD = a; return; }
+    if (it.fpill) { PILLS.push(() => pill(P.sx(it.fpill[0]) + it.dx, P.sy(it.fpill[1]), it.text, 'bad', a, null, null)); return; }
+    if (it.lpill != null) { PILLS.push(() => pill(P.x0 - 6, P.sy(it.lpill), it.text, 'bad', a, null, 'l')); return; }
+    if (it.bpill != null) { PILLS.push(() => pill(P.sx(it.bpill), P.y1 + 17, it.text, 'bad', a, null, 'b')); return; }
+    if (it.tag) { if (a >= 0.5) REC.outs.push({ t: it.tag, bad: true, row: null }); return; }
+    part(a, 0, () => {
+      if (it.hline != null) {
+        line('mk dash', P.x0, P.sy(it.hline), P.x1, P.sy(it.hline));
+        if (it.label) text(P.x1, P.sy(it.hline) + 17, it.label, 'pl bad', 'end');
+      }
+      if (it.bracket) {
+        const bx = P.sx(it.bracket[0]) + 12, ya = P.sy(it.bracket[1]), yb = P.sy(it.bracket[2]);
+        path('mk', 'M' + r3(bx - 6) + ' ' + r3(ya) + ' H' + r3(bx) + ' V' + r3(yb) + ' H' + r3(bx - 6));
+      }
+      if (it.seg) line('mk' + (it.dash ? ' dash' : ''), P.sx(it.seg[0][0]), P.sy(it.seg[0][1]), P.sx(it.seg[1][0]), P.sy(it.seg[1][1]));
+      if (it.ring) {
+        const px = P.sx(it.ring[0]), py = P.sy(it.ring[1]);
+        add(K.svg('circle', { class: 'ring', cx: r3(px), cy: r3(py), r: 9 }));
+        if (it.label) text(px + 13, py + 4.5, it.label, 'pl bad', 'start');
+      }
+      if (it.over) drawGraph(g, P, 'gl bad');
+      if (it.corners) (g.lines ? g.lines() : []).forEach((pts) => pts.forEach((q) => add(K.svg('circle', { class: 'ring', cx: r3(P.sx(q[0])), cy: r3(P.sy(q[1])), r: 9 }))));
+      if (it.at) text(P.sx(it.at[0]) + (it.dx || 0), P.sy(it.at[1]) + (it.dy || 0), it.label, 'pl ' + (it.bad ? 'bad' : it.cls || ''), it.anchor || 'middle');
+    });
+  }
+  function drawQuestion(d, g, P) {
+    if (d.band) rect('band', P.sx(d.band[0]), P.y1 - 8, P.sx(d.band[1]) - P.sx(d.band[0]), 8, 2);
+    if (!d.q) return;
+    REC.q = true;
+    if (d.q.dir === 'f') PILLS.push(() => pill(P.sx(d.q.v), g.mid ? P.sy(0) : P.y1 + 17, g.x.t(d.q.v), 'ptr', 1, g.mid ? null : 'up', g.mid ? null : 'b'));
+    else PILLS.push(() => pill(P.x0 - 6, P.sy(d.q.v), g.y.t(d.q.v), 'ptr', 1, 'right', 'l'));
+  }
+  function words(g) {
+    let s = 'A graph of ' + g.y.title + ' against ' + g.x.title + '.';
+    REC.reads.forEach((r) => { s += ' The beam ' + (r.dir === 'f' ? 'up from ' : 'back from ') + r.inT + (r.outs.length ? ' reads ' + r.outs.join(' and ') : ' has not landed yet') + '.'; });
+    if (REC.q && !REC.reads.length) s += ' The pointer waits for your answer.';
+    return say(s);
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], g = G[d.g], P = scales(g);
+    art.textContent = '';
+    into = null;
+    REC = { hits: [], outs: [], reads: [], marked: false, q: false };
+    OCC = { b: [], l: [] };
+    PILLS = [];
+    AXBAD = 0;
+    const ticks = add(K.svg('g'));
+    drawFrame(g, P);
+    drawGraph(g, P, 'gl');
+    drawDots(g, P);
+    if (!d.show) drawQuestion(d, g, P);
+    itemsOf(d, st).forEach((it) => drawItem(d, g, P, it));
+    PILLS.forEach((fn) => fn());
+    fillTicks(ticks, g, P);
+    drawTitles(g, P);
+    svg.setAttribute('aria-label', words(g));
+    placeGrip(d, st, g, P);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Dan's pointer: drag it along its axis (or press an arrow key) and the beam reads wherever it is.
+  function svgPt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return { x: q.x, y: q.y };
+  }
+  function setLive(i, raw) {
+    const d = STEPS[i], st = S[i], ax = d.drag === 'f' ? G[d.g].x : G[d.g].y;
+    const v = K.round(K.clamp(Math.round(raw / ax.step) * ax.step, d.lo, d.hi), 6);
+    if (st.live && st.v === v) return;
+    st.live = true; st.v = v;
+    anim.pause(); T = Infinity;
+    K.reveal();
+    paint();
+  }
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider' }));
+  grip.style.display = 'none';
+  let dragId = null;
+  function moveTo(e) {
+    const p = svgPt(e), i = at(), d = STEPS[i];
+    if (!p || !d.show || finished) return;
+    const P = scales(G[d.g]);
+    setLive(i, d.drag === 'f' ? P.ix(p.x) : P.iy(p.y));
+  }
+  grip.addEventListener('pointerdown', (e) => {
+    if (!STEPS[at()].show || finished) return;
+    dragId = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the strip */ }
+    moveTo(e);
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => { if (dragId === e.pointerId) moveTo(e); });
+  const endDrag = (e) => { if (dragId === e.pointerId) dragId = null; };
+  grip.addEventListener('pointerup', endDrag);
+  grip.addEventListener('pointercancel', endDrag);
+  grip.addEventListener('keydown', (e) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    const up = e.key === 'ArrowRight' || e.key === 'ArrowUp', down = e.key === 'ArrowLeft' || e.key === 'ArrowDown';
+    if (!up && !down) return;
+    e.preventDefault();
+    const ax = d.drag === 'f' ? G[d.g].x : G[d.g].y, now = st.live ? st.v : d.demo.v;
+    setLive(i, now + (up ? ax.step : -ax.step));
+  });
+  // The grip is a strip along the pointer's axis: the bottom row, the middle axis of the rim, or the side.
+  function placeGrip(d, st, g, P) {
+    const on = !!(d.show && d.drag && !finished);
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    if (!on) return;
+    let b;
+    if (d.drag === 'f') { const cy = g.mid ? P.sy(0) : P.y1 + 17; b = { x: P.x0 - 14, y: cy - 22, w: P.x1 - P.x0 + 28, h: 44 }; }
+    else b = { x: 0, y: P.y0 - 12, w: P.x0 + 6, h: P.y1 - P.y0 + 24 };
+    grip.setAttribute('x', r3(b.x)); grip.setAttribute('y', r3(b.y)); grip.setAttribute('width', r3(b.w)); grip.setAttribute('height', r3(b.h));
+    const ax = d.drag === 'f' ? g.x : g.y, v = st.live ? st.v : d.demo.v;
+    grip.setAttribute('aria-label', d.drag === 'f' ? 'Pointer on the bottom axis' : 'Pointer on the side axis');
+    grip.setAttribute('aria-valuemin', String(d.lo)); grip.setAttribute('aria-valuemax', String(d.hi)); grip.setAttribute('aria-valuenow', String(v));
+    grip.setAttribute('aria-valuetext', say(ax.t(v)));
+  }
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: a right answer draws its reading; a wrong one draws the slip that makes it, in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(2.5);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.live = false; st.v = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -2; stepper.set(0, true);
+  } });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      const opening = lastStep === -1;   // the page opens on the first demonstration finished; Play again runs it
+      lastStep = i; dragId = null; enter('stepbox');
+      if (d.show) { st.live = false; st.v = null; }
+      if (d.show && !opening) play(d.dur); else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, nb(opts[k])));   // one span, so the button's gap does not split "87.5%"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const SHOWN = STEPS.map((d, i) => i).filter((i) => STEPS[i].show);
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => (STEPS[i].show ? blank() : Object.assign(blank(), { pick: STEPS[i].want, res: 'right' }));
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (v) => Object.assign(blank(), { live: true, v });
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  // Every pointer value Dan can drag to on a demonstration screen.
+  const dragValues = (d) => { const ax = d.drag === 'f' ? G[d.g].x : G[d.g].y, out = []; for (let v = d.lo; v <= d.hi + 1e-9; v += ax.step) out.push(K.round(v, 6)); return out; };
+  // The picture tells the truth: every reading's dot sits on its graph, at its place, and every
+  // value written on an axis is the dot's own coordinate.
+  function faithful(i, rec) {
+    const g = G[STEPS[i].g], P = scales(g), good = rec.hits.filter((h) => !h.bad);
+    const onGraph = good.every((h) => g.f(h.x).some((y) => close(y, h.y, 1e-9)) && close(h.px, P.sx(h.x), 1e-6) && close(h.py, P.sy(h.y), 1e-6));
+    const labelled = rec.outs.filter((o) => !o.bad && o.row).every((o) => good.some((h) => (o.row === 'l' ? g.y.t(h.y) === o.t && close(o.cy, h.py, 1e-6) : g.x.t(h.x) === o.t)));
+    return onGraph && labelled;
+  }
+
+  K.check('A function is a rule which operates on an input and produces a single output from that input: on the transmitter, tank, workshop and tariff graphs the beam up from every input meets the graph once, and only the pipe\'s rim gives one input two outputs', () => {
+    const dom = { S: [0, 100], tank: [0, 30], shop: [6, 22], tariff: [0, 12.5] };
+    const one = Object.keys(dom).every((k) => K.linspace(dom[k][0], dom[k][1], 241).every((x) => G[k].f(x).length === 1));
+    const two = K.linspace(-4.9, 4.9, 99).every((x) => { const ys = G.pipe.f(x); return ys.length === 2 && close(ys[0], -ys[1]) && ys[0] > 0; });
+    const shown = SHOWN.every((i) => { const d = STEPS[i]; return d.drag !== 'f' || dragValues(d).every((v) => drawn(i, liveSt(v)).hits.length === (d.g === 'pipe' ? 2 : 1)); });
+    return one && two && shown;
+  }, { source: HELM });
+  K.check('If there is a 12 mA signal from the DP cell, that is 50% DP: the beam back from 12 mA meets the transmitter\'s line once and comes down at 50%', () => {
+    const r = drawn(idx('Read backwards'), blank());
+    return G.S.back(12).length === 1 && close(G.S.back(12)[0], 50) && r.hits.length === 1 && r.outs.some((o) => o.t === '50%' && !o.bad);
+  }, { source: CE });
+  K.check('Each real-world value is converted into its analog current equivalent with the linear equation y = mx + b: the transmitter\'s graph is one straight line, rising by the same amount for every equal step across', () => {
+    const d0 = Sf(1) - Sf(0);
+    return K.linspace(0, 99, 100).every((x) => close(Sf(x + 1) - Sf(x), d0, 1e-12)) && G.S.lines().length === 1 && G.S.lines()[0].length === 2;
+  }, { source: CTRL });
+  K.check('A horizontal line drawn on the graph cuts it more than once, so two different inputs have yielded the same output and the function is many-to-one: the level line back from the tank\'s level, and from the workshop\'s temperature, meets each graph twice, and both inputs it finds give that same output', () => {
+    const twice = (g, rec, y) => rec.hits.length === 2 && !close(rec.hits[0].x, rec.hits[1].x) && rec.hits.every((h) => g.f(h.x).length === 1 && close(g.f(h.x)[0], y, 1e-9));
+    const i6 = idx('Two times, one level'), i11 = idx('Back from 25 °C');
+    return dragValues(STEPS[i6]).every((v) => twice(G.tank, drawn(i6, liveSt(v)), v)) && twice(G.shop, drawn(i11, solvedSt(i11)), 25);
+  }, { source: HELM });
+  K.check('Every worked number is right: 25% reads 8 mA; 75% reads 16 mA against the slips 12 mA (counted from 4 mA) and 20 mA (the line\'s end); back from 12 mA is 50%; back from 18 mA is 87.5% against 6.9 mA (18% read forwards) and 18%; the tank is at 1 m at 5 min, falls from 2 m at 20 min to 0 at 30 min, and is at 1 m again at 25 min; the workshop is at 22 °C at 10:00 and 20:00 and at 25 °C at 12:00 and 17:00; the rim is 4 and −4 cm up at 3 cm across and 3 and −3 cm at 4 cm, as 3² + 4² = 5²; the tariff is 10p before 07:00 and 30p from 07:00; and back from 10 mA is 37.5%, as 0.16 × 37.5 + 4 = 10', () => {
+    const S1 = close(Sf(25), 8) && close(Sf(75), 16) && close(Sf(75) - Sf(0), 12) && close(Sf(100), 20) && close(Sb(12), 50) && close(Sb(18), 87.5) &&
+      G.S.y.t(Sf(18)) === '6.9 mA' && close(Sf(87.5), 18) && close(Sb(10), 37.5) && close(0.16 * 37.5, 6) && close(Sf(37.5), 10);
+    const tank = close(lvl(5), 1) && close(lvl(20), 2) && close(lvl(30), 0) && G.tank.back(1).length === 2 && close(G.tank.back(1)[0], 5) && close(G.tank.back(1)[1], 25);
+    const shop = close(temp(6), 16) && close(temp(14), 28) && close(temp(22), 20) && close(temp(10), 22) && close(temp(20), 22) &&
+      G.shop.back(25).map(hhmm).join() === '12:00,17:00' && G.shop.back(22).map(hhmm).join() === '10:00,20:00' && close(16 + 1.5 * 6, 25) && 28 - 3 === 25;
+    const pipe = close(rim(3), 4) && close(rim(4), 3) && 3 * 3 + 4 * 4 === 5 * 5 && G.pipe.f(3).map(G.pipe.y.t).join() === '4 cm,−4 cm';
+    const tariff = price(0) === 10 && price(6.99) === 10 && price(7) === 30 && price(12) === 30;
+    return S1 && tank && shop && pipe && tariff;
+  });
+  K.check('Before Check a puzzle draws no reading; a right answer draws the reading it names and nothing in red, and each wrong answer draws its own slip in red, with the slip\'s value where it names one', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g0 = drawn(i, blank());
+      if (g0.outs.length || g0.hits.length || g0.marked) return false;
+      const g1 = drawn(i, solvedSt(i));
+      const right = !g1.marked && g1.outs.length > 0 && g1.outs.every((o) => !o.bad) && g1.hits.every((h) => !h.bad) && d.shows.every((t) => g1.outs.some((o) => o.t === t));
+      const wrongs = d.opts.filter((o) => o !== d.want).every((o) => {
+        const h = drawn(i, wrongSt(i, o)), red = h.marked || h.outs.some((x) => x.bad);
+        const valued = /^−?\d+(\.\d+)? ?(mA|%|cm)$/.test(o);
+        return red && (!valued || h.outs.some((x) => x.bad && x.t === o));
+      });
+      return right && wrongs;
+    }));
+  K.check('Every dot a beam lands on sits on its graph at its place, and every value written on an axis is that dot\'s own reading: on each puzzle\'s answers, each opening demonstration, and every place Dan can drag a pointer to', () =>
+    STEPS.every((d, i) => {
+      if (d.show) return faithful(i, drawn(i, blank())) && dragValues(d).every((v) => faithful(i, drawn(i, liveSt(v))));
+      return faithful(i, drawn(i, solvedSt(i))) && d.opts.every((o) => faithful(i, drawn(i, wrongSt(i, o))));
+    }));
+  K.check('Every demonstration has finished arriving within its 3.2 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 2.5) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 2.5));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
