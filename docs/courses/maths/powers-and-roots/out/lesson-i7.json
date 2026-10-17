@@ -1,0 +1,645 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T22:20:54.988Z",
+ "startedAt": "2026-10-17T22:20:54.988Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i7",
+  "title": "Powers in formulas",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is the two copies of the current in I², each made twice as big, forming a 2 by 2 square of four heat tiles, not two, when you drag the factor dial to ×2.",
+   "title": "The factor dial",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in fourteen small screens on one picture, the factor dial. A law dial picks a formula: P = I²R, the inverse square law shown with light from a lamp, a pump's power against its speed, or pV^n = C. The factor dial, from ×0.5 to ×3, sets the factor the input changes by, with everything else in the formula held the same. The picture draws the old result as one tile and the new result as a shape: a square for a quantity squared, because it is used twice and both copies grow, a cube for a quantity cubed, and a patch of light for the inverse square law. A readout writes the factor raised to the power, such as 2² = 4. Screen 1 opens on P = I²R at ×2: the current is used twice in I², one copy along each side of the square, so when both copies double the heat is a 2 by 2 square of four heat tiles. Screen 3 picks the inverse square law at ×2, a quarter of the light at twice the distance, and pictures it as the same light from a lamp landing on a patch twice as wide and twice as tall, so each square of it gets a quarter; the readout writes 2⁻² = ¼. Screen 5 picks the pump at ×2, a 2 by 2 by 2 cube of eight blocks, then turns the dial to ×0.8, where 0.8³ = 0.512, about half. Screen 7 picks pV^n = C and halves the volume, and an n stepper shows the pressure multiplied by (½)⁻ⁿ = 2ⁿ: 2 at n = 1, which is Boyle's law, and about 2.46 at an example n of 1.3, between 2¹ and 2². Screen 9 runs it backwards: four heat tiles come from √4 = 2 times the current, and two heat tiles make a square whose side is √2, about 1.41. Screen 11 shows readings of y = 3x² + 2, a curve when plotted against x, and the 'plot against x²' switch, which shows pressed once the points start to move, moves each point across to x², where they line up straight with gradient 3 and intercept 2, because with Z standing for x² the formula reads y = 3Z + 2. Screens 1, 3, 5, 7, 9 and 11 show an idea, and screens 2, 4, 6, 8, 10 and 12 ask you to try it: three times the current, three times the distance, half the pump speed, half the volume at an example n of 1.5, the distance that cuts a light reading to a quarter, and a resistance read from a straight line of power against current squared. Screens 13 and 14 mix them: the pump speed that takes ⅛ of the power, run backwards with a cube root, and a lamp brought to half the distance. A puzzle offers three answers, and a wrong pick is drawn in red beside the right one, so you can see it multiplied the factor by the power, forgot the power, or went the wrong way.",
+   "ignores": "The tiles treat the resistance as fixed, though a wire's resistance changes as it warms. The light patch treats the lamp as a point that shines equally in every direction with nothing absorbing the light, so it does not fit a beam, a reflector or a spot close to a long tube. The pump's cube law is the ideal case, and a real system that must lift water to a height does not follow it closely. The values of n, the current, the resistance and the readings are examples, and real readings scatter a little about the straight line.",
+   "numbers": [
+    {
+     "label": "Opening factor on the dial, in step 1",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Lowest factor on the dial",
+     "value": 0.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Highest factor on the dial",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Power on the current in P = I²R",
+     "value": 2,
+     "kind": "constant",
+     "source": 1
+    },
+    {
+     "label": "Heat tiles at twice the current, 2², in step 1",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Current factor, in step 2",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Heat factor at three times the current, 3², in step 2",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: factor times power, 3 × 2, in step 2",
+     "value": 6,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: power forgotten, in step 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Power on the distance in the inverse square law",
+     "value": -2,
+     "kind": "constant",
+     "source": 2
+    },
+    {
+     "label": "Light at twice the distance, 2⁻², in step 3",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Patch area at twice the distance, 2 × 2, in step 3",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Distance factor, in step 4",
+     "value": 3,
+     "kind": "control"
+    },
+    {
+     "label": "Light at three times the distance, 3⁻², in step 4",
+     "value": 0.1111,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: power forgotten, a third, in step 4",
+     "value": 0.3333,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: wrong way, 3², in step 4",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Power on the speed in the pump law",
+     "value": 3,
+     "kind": "constant",
+     "source": 3
+    },
+    {
+     "label": "Cube of blocks at twice the speed, 2³, in step 5",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed factor, in step 5",
+     "value": 0.8,
+     "kind": "control"
+    },
+    {
+     "label": "Pump power at 0.8 of the speed, 0.8³, in step 5",
+     "value": 0.512,
+     "kind": "computed"
+    },
+    {
+     "label": "Speed factor, in step 6",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Pump power at half speed, 0.5³, in step 6",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: power forgotten, a half, in step 6",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: squared, a quarter, in step 6",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Volume factor, in step 7",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Opening n on the stepper, in step 7",
+     "value": 1,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pressure factor at n = 1, 2¹, in step 7",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Example n, in step 7",
+     "value": 1.3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pressure factor at n = 1.3, 2^1.3, in step 7",
+     "value": 2.46,
+     "kind": "computed"
+    },
+    {
+     "label": "Example n, in step 8",
+     "value": 1.5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Pressure factor at n = 1.5, 2^1.5 = 2√2, in step 8",
+     "value": 2.83,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: factor times n, 2 × 1.5, in step 8",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: wrong way, 2^−1.5, in step 8",
+     "value": 0.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat factor run backwards, in step 9",
+     "value": 4,
+     "kind": "control"
+    },
+    {
+     "label": "Current factor for four times the heat, √4, in step 9",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Heat factor to double, in step 9",
+     "value": 2,
+     "kind": "control"
+    },
+    {
+     "label": "Current factor to double the heat, √2, in step 9",
+     "value": 1.41,
+     "kind": "computed"
+    },
+    {
+     "label": "Light reading factor, a quarter, in step 10",
+     "value": 0.25,
+     "kind": "control"
+    },
+    {
+     "label": "Distance factor for a quarter, in step 10",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: root forgotten, in step 10",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: wrong way, a half, in step 10",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Example a in y = 3x² + 2, in step 11",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Example b in y = 3x² + 2, in step 11",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Smallest x read, in step 11",
+     "value": 0,
+     "kind": "assumed"
+    },
+    {
+     "label": "Largest x read, in step 11",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "y at x = 1, in step 11",
+     "value": 5,
+     "kind": "computed"
+    },
+    {
+     "label": "y at x = 2, in step 11",
+     "value": 14,
+     "kind": "computed"
+    },
+    {
+     "label": "y at x = 3, in step 11",
+     "value": 29,
+     "kind": "computed"
+    },
+    {
+     "label": "y at x = 4, in step 11",
+     "value": 50,
+     "kind": "computed"
+    },
+    {
+     "label": "x² at x = 3, in step 11",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "x² at x = 4, in step 11",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Example resistance in ohms, in step 12",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "Current squared read, in A², in step 12",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "Power read, in watts, in step 12",
+     "value": 20,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: divided by the current, 20 ÷ 2, in ohms",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: squared twice, 20 ÷ 16, in ohms",
+     "value": 1.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Pump power share, in step 13",
+     "value": 0.125,
+     "kind": "control"
+    },
+    {
+     "label": "Speed share for ⅛ of the power, ∛⅛, in step 13",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: root left off, in step 13",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: square root, √⅛, in step 13",
+     "value": 0.35,
+     "kind": "computed"
+    },
+    {
+     "label": "Distance factor, half, in step 14",
+     "value": 0.5,
+     "kind": "control"
+    },
+    {
+     "label": "Light at half the distance, 0.5⁻², in step 14",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: power forgotten, in step 14",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip: wrong way, a quarter, in step 14",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: small pizza across, in cm",
+     "value": 15,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: large pizza across, in cm",
+     "value": 30,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: current before, in amps",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: current after, in amps",
+     "value": 13,
+     "kind": "assumed"
+    },
+    {
+     "label": "Practice: current factor, 13 ÷ 10",
+     "value": 1.3,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: heat factor, 1.3²",
+     "value": 1.69,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: extra heat, in per cent",
+     "value": 69,
+     "kind": "computed"
+    },
+    {
+     "label": "Factor ten on a squared quantity, 10²",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "Practice: extra current, in per cent",
+     "value": 30,
+     "kind": "computed"
+    },
+    {
+     "label": "Explanation: a wire twice as thick, diameter factor",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Explanation: cross-section factor, 2²",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Explanation: resistance factor, a quarter",
+     "value": 0.25,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "When a result is one quantity raised to a power, multiplied or divided by things that stay the same, changing that quantity by some factor changes the result by the factor raised to the same power. So twice the current through the same resistor gives 2² = 4 times the heat, because the heat goes with the square of the current.[^1]\n\nHere is why. The heat per second in a wire goes with its resistance times the square of the current,[^1] which you write as P = I²R. I² is I × I, the current used twice. Double the current and both copies double, so their product grows by 2 × 2 = 4. On the screen the old heat is one tile, and the new heat is a square whose two sides are the two doubled copies, two tiles by two. Three times the current makes both copies three times as big, so the heat grows by 3² = 9, not 3 × 2 = 6. A whole-number power says how many copies of the factor multiply together. The US Department of Energy adds that a centrifugal pump with no height to lift against takes power that goes with the cube of its speed,[^3] the speed used three times. So twice the speed takes 2³ = 8 times the power, and 0.8 of the speed takes 0.8³ = 0.512 of it, about half.[^3] The same square sizes a cable: a wire's cross-section goes with the square of its diameter,[^7] and its resistance is its resistivity times its length divided by that area,[^8] so a wire twice as thick has 2² = 4 times the cross-section and a quarter of the resistance.\n\nAn [[inverse square law]] puts the quantity underneath, as 1 ÷ d², which Zero and negative powers taught you to write as d⁻². In an inverse square law, such as the intensity of sound spreading from a source, twice the distance gives 2⁻² = ¼ of the intensity.[^2] What is different from the heat is that the distance divides, so the same 2² that multiplied the heat now divides. Light from a small lamp follows the same law: twice as far away it gives a quarter as much, because the r² underneath is 4 instead of 1.[^4] One way to picture it: the same light leaves the lamp, and twice as far away it lands on a patch twice as wide and twice as tall, four times the area, so each square of it gets a quarter. Engineering notes also give the gas law pV^n = C, where p is the pressure, V the volume, n a fixed number set by how the gas is squeezed, and C a constant;[^5] for a gas kept at the same temperature n = 1,[^6] which is Boyle's law from Proportional reasoning. It says p = C × V⁻ⁿ, so halving the volume multiplies the pressure by (½)⁻ⁿ = 2ⁿ, the same negative-power step as the light: 2 when n = 1, and about 2.46 for an example n of 1.3, a power between whole numbers as in Fractional powers. Here n is given; finding it from readings needs logarithms, which come in Exponentials and logarithms.\n\nRun any of these backwards with a root: four times the heat came from √4 = 2 times the current, and doubling the heat needs √2, about 1.41 times the current. A pump that must take ⅛ of its power runs at ∛⅛ = ½ of its speed. A power also tells you what to plot. In y = aX² + b, write Z for X² and it reads y = aZ + b, the y = mx + c of Straight-line graphs, so readings plotted against X² instead of X line up straight, with gradient a and intercept b. The factor rule does not apply to y itself here, because b is added, not multiplied. The tiles and the patch are simplified pictures: a wire's resistance changes as it warms, and a beam or reflector does not spread its light like a bare point. That answers the course's puzzle: the current is used twice in I²R, so twice the current gives 2² = 4 times the heat, and three times the current gives 3² = 9 times.\n\n**When a result is one quantity's power times things that stay the same, changing that quantity by a factor changes the result by the factor raised to that power: twice the current in P = I²R gives four times the heat, and twice the distance in an inverse square law gives a quarter.[^1][^2]**"
+  },
+  "analogy": {
+   "text": "A pizza 30 cm across has four times the pizza of one 15 cm across, not twice, because it is twice as wide every way across. Its area follows a square law, just like the heat in P = I²R.",
+   "breaks": "A pizza's area is squared because it spreads in two directions you can see. A power such as the 1.3 in pV^n = C has no shape to point at, and an inverse square law divides rather than multiplies, so the picture only fits a squared quantity that multiplies, growing or shrinking."
+  },
+  "practice": {
+   "text": "To see what a change does in a formula:\n- Check the formula's shape: the result is the changing quantity's power, multiplied or divided by things that stay the same. A number added on the end, as in y = aX² + b, breaks the rule.\n- Find the power on the quantity that changes: 2 on I in P = I²R, −2 on d in an inverse square law, n on V in pV^n = C.\n- Work out its factor, new ÷ old.\n- Raise the factor to that power.\n- Multiply the old result by it.\n- If two quantities change in a formula of multiplied and divided quantities, do each factor and multiply them.\n\nThis tells you the size of a change. It does not replace the rating tables you already use to size a cable.\n\n**Rule of thumb:** a squared quantity turns ×2 into ×4, ×3 into ×9 and ×10 into ×100. A cubed one turns ×2 into ×8. An inverse square turns twice as far into a quarter and half as far into four times. To go backwards, take the root: ×4 in a square law came from ×2.\n\n**Worked example:** Say the current in a heater circuit rises from 10 A to 13 A with the same resistance. The factor is 13 ÷ 10 = 1.3, and the current is squared, so the heat goes up by 1.3² = 1.69, which is 69% more heat for 30% more current.\n\n**Common mistakes**\n- Leaving the power off: twice the current gives four times the heat, not twice.\n- Multiplying the factor by the power: three times the current is 3² = 9 times the heat, not 3 × 2 = 6.\n- Going the wrong way for an inverse square: twice as far is a quarter of the light, not four times.\n- Forgetting the root when you run it backwards: a quarter of the light means twice as far, not four times."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Joule heating | Definition, Equation, & Facts | Britannica",
+    "url": "https://www.britannica.com/science/Joules-law",
+    "quote": "The English physicist James Prescott Joule discovered in 1840 that the amount of heat per second that develops in a wire carrying a current is proportional to the electrical resistance of the wire and the square of the current."
+   },
+   {
+    "n": 2,
+    "title": "17.3 Sound Intensity - University Physics Volume 1 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-1/pages/17-3-sound-intensity",
+    "quote": "In an inverse square relationship, such as the intensity, when you double the distance, the intensity decreases to one quarter"
+   },
+   {
+    "n": 3,
+    "title": "Adjustable Speed Pumping Applications: Industrial Technologies Program (ITP) Pumping Systems Tip Sheet #11",
+    "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/adjust_speed_pumping.pdf",
+    "quote": "In centrifugal applications with no static lift, system power requirements vary with the cube of the pump speed. Small decreases in speed or flow can significantly reduce energy use. For example, reducing the speed (flow) by 20% can reduce input power requirements by approximately 50%."
+   },
+   {
+    "n": 4,
+    "title": "15.2 The Behavior of Electromagnetic Radiation - Physics | OpenStax",
+    "url": "https://openstax.org/books/physics/pages/15-2-the-behavior-of-electromagnetic-radiation",
+    "quote": "The illuminance is now only one-fourth as great, because the r 2 term in the denominator is 4 instead of 1."
+   },
+   {
+    "n": 5,
+    "title": "Polytropic Processes - Purdue Engineering",
+    "url": "https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf",
+    "quote": "A polytropic process is one in which pVn = constant, where n is a constant."
+   },
+   {
+    "n": 6,
+    "title": "Polytropic Process - WPI",
+    "url": "https://users.wpi.edu/~sullivan/ES3001/Lectures/Chapter_4/ch04b-jms2013.pdf",
+    "quote": "For a gas modeled as an ideal gas, when n = 1, the process is a constant-temperature (isothermal) process."
+   },
+   {
+    "n": 7,
+    "title": "Copper wire tables",
+    "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf",
+    "quote": "The resistance, mass, and cross section vary with the square of the diameter, hence by the use of the square of the ratio"
+   },
+   {
+    "title": "9.3 Resistivity and Resistance - University Physics Volume 2 | OpenStax",
+    "url": "https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance",
+    "quote": "The unit of resistivity in SI units is the ohm-meter .",
+    "n": 8
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: quantity -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; touch-action: pan-y; }\n  /* Results drawn as tiles: heat and light in amber, a pump's power and a gas's pressure in navy. */\n  .scene .tile { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.2; }\n  .scene .light { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 1.2; stroke-linejoin: round; }\n  .scene .ray { stroke: var(--k-amber-line); stroke-width: 1.2; }\n  .scene .lamp { fill: var(--k-fill2); stroke: var(--k-amber-line); stroke-width: 2.5; }\n  .scene .pw { fill: var(--k-fill1); stroke: var(--k-accent2); stroke-width: 1.2; stroke-linejoin: round; }\n  .scene .pw.side { fill-opacity: .55; }\n  .scene .pgrid { stroke: var(--k-accent2); stroke-width: .8; }\n  .scene .unit { fill: none; stroke: var(--k-ink); stroke-width: 1.2; stroke-dasharray: 4 3; }\n  .scene .gas { fill: var(--k-fill3); }\n  .scene .cyl { fill: none; stroke: var(--k-ink); stroke-width: 2; }\n  .scene .piston { fill: var(--k-accent2); }\n  .scene .rod { stroke: var(--k-accent2); stroke-width: 4; stroke-linecap: round; }\n  .scene .ref { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 5 4; }\n  .scene .axis { stroke: var(--k-ink); stroke-width: 1.5; }\n  .scene .curve { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }\n  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }\n  .scene .ring { fill: none; stroke: var(--k-accent); stroke-width: 2; }\n  .scene .guide { stroke: var(--k-muted); stroke-width: 1.2; stroke-dasharray: 4 3; }\n  .scene .tri { stroke: var(--k-accent); stroke-width: 3; stroke-linecap: round; }\n  .scene .brk { fill: none; stroke: var(--k-muted); stroke-width: 1.5; }\n  /* A slip is drawn in the warning colour. */\n  .scene .bad { fill: var(--k-warn); fill-opacity: .16; stroke: var(--k-warn); stroke-width: 2; stroke-linejoin: round; }\n  .scene .badl { stroke: var(--k-warn); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .tag { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene .tl { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .tlb { font: 700 14px var(--k-font); fill: var(--k-warn); }\n  .scene .tla { font: 700 14px var(--k-font); fill: var(--k-accent); }\n  .scene .cell { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .scene .sm { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .ky { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .wk { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .wkb { font: 600 14px var(--k-font); fill: var(--k-warn); }\n  /* The factor dial: a track, a tick every half, and a knob with its value above. */\n  .scene .track { stroke: var(--k-strong); stroke-width: 4; stroke-linecap: round; }\n  .scene .tick { stroke: var(--k-strong); stroke-width: 2; }\n  .scene .knob { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }\n  .scene .xl { font: 700 15px var(--k-font); fill: var(--k-accent2); }\n  .scene #art * { pointer-events: none; }\n  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }\n  .scene .grip:active { cursor: grabbing; }\n  .scene .grip:focus { outline: none; }\n  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }\n  .dials { display: grid; gap: 8px; }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 6rem; min-height: 48px; }\n  .row.dial { flex-wrap: nowrap; align-items: center; gap: 8px; }\n  .dial .k-label { flex: 0 0 auto; margin: 0; }\n  .row.dial .k-btn { flex: 1 1 0; min-width: 0; min-height: 44px; font-size: 1.05rem; white-space: nowrap; padding-inline: 4px; }\n  .dial .k-btn[aria-pressed=\"true\"], .picks .k-btn[aria-pressed=\"true\"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  /* The answers stack one to a row, each label whole. */\n  .row.picks { flex-direction: column; flex-wrap: nowrap; gap: 8px; }\n  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.1rem; white-space: nowrap; }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A heat tile, a lamp's light, a pump's power and a gas's pressure, each drawn before and after one quantity changes by a factor. The 5 Ω resistance, n = 1.3 and 1.5, and the readings are examples.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 320\" width=\"100%\" role=\"img\" aria-label=\"\"><g id=\"art\"></g><g id=\"ui\"></g></svg>\n    <div class=\"dials\" id=\"dials\">\n      <div class=\"row dial\" id=\"dialN\"><span class=\"k-label\">Gas n</span></div>\n      <div class=\"row dial\" id=\"dialT\"></div>\n    </div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Heat follows Joule's law (Britannica); a quarter at twice the distance is the inverse square law (OpenStax); a pump's cube law is from the US Department of Energy, and pVⁿ = C from Purdue and WPI engineering notes.</p>\n\n<script>\n  // ---------- the rule (pure, so the checks can test it) ----------\n  // A result that is one quantity's power times things held the same changes by the factor raised\n  // to that power. Heat P = I²R (Britannica [1]): power 2 on the current. Light from a small lamp\n  // (OpenStax [2], the inverse square law): power −2 on the distance. A pump with no height to lift:\n  // power 3 on its speed (US DoE). pVⁿ = C: p = C ÷ Vⁿ, so halving V\n  // multiplies p by 2ⁿ. Readings of y = 3x² + 2 against Z = x² make y = 3Z + 2.\n  const BRIT = 'https://www.britannica.com/science/Joules-law';\n  const OPENSTAX = 'https://openstax.org/books/university-physics-volume-1/pages/17-3-sound-intensity';\n  const DOE = 'https://www.energy.gov/sites/prod/files/2014/05/f16/adjust_speed_pumping.pdf';\n  const raise = (f, p) => Math.pow(f, p);\n  const A_ = 3, B_ = 2;\n  const yOf = (x) => A_ * x * x + B_;\n  const XS = [0, 1, 2, 3, 4];\n  const NAME = { heat: 'current', light: 'distance', pump: 'speed' };\n\n  // ---------- numbers as the lesson writes them ----------\n  const closeTo = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 : tol) * Math.max(1, Math.abs(a), Math.abs(b));\n  const near = (a, b) => closeTo(a, b, 1e-9);\n  const r1 = (v) => Math.round(v * 10) / 10;\n  const exact3 = (v) => Math.abs(v * 1000 - Math.round(v * 1000)) < 1e-6;\n  const isInt = (v) => Math.abs(v - Math.round(v)) < 1e-9;\n  const F = (v) => String(Math.round(v * 1000) / 1000).replace('-', '−');\n  const F2 = (v) => String(Math.round(v * 100) / 100).replace('-', '−');\n  const sig3 = (v) => String(+v.toPrecision(3));\n  const FR = [[1 / 2, '½'], [1 / 3, '⅓'], [1 / 4, '¼'], [1 / 8, '⅛'], [1 / 9, '⅑']];\n  function fr(v) { for (let k = 0; k < FR.length; k++) if (Math.abs(v - FR[k][0]) < 1e-9) return FR[k][1]; return null; }\n  const nice = (v) => fr(v) || (exact3(v) ? F(v) : null);\n  // \"lhs = value\", or \"lhs ≈ value\" when the value is rounded.\n  function eq(lhs, v, dp) { const s = nice(v); return s ? lhs + ' = ' + s : lhs + ' ≈ ' + (dp === 2 ? F2(v) : sig3(v)); }\n  const SUP = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '-': '⁻', '−': '⁻', '.': '·', n: 'ⁿ' };\n  const sup = (s) => String(s).split('').map((c) => SUP[c] || c).join('');\n  // A power in words when it is not whole, so 1.5 never reads as 1 × 5.\n  const pw = (b, n) => (isInt(n) ? b + sup(F(n)) : b + ' to the power ' + F(n));\n  const tilesText = (v) => (near(v, 1) ? '1 tile' : v > 1 ? F(v) + ' tiles' : (fr(v) || F(v)) + ' of a tile');\n  const blocksText = (v) => tilesText(v).replace('tile', 'block');\n  const mulI = (f) => (near(f, 1) ? 'I' : F(f) + 'I');\n  const gasNum = (v) => (exact3(v) ? F(v) : '≈ ' + F2(v));\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // pic: heat (P = I²R tiles), light (a lamp and its patch), pump (a cube), gas (cylinder and\n  // pressure column), back (squares run backwards), plot (readings against x or x²), line (power\n  // against current squared), dist (the lamp's distance for a reading). A SHOW step with `dial`\n  // has the factor dial; f is the factor in a puzzle. opts are answer kinds: right, times (the\n  // factor times the power), one (the power left off), sq (squared for cubed), way (the wrong\n  // way), noroot (the root left off), byI, twice (the line's slips). Every answer's words and\n  // value are worked out from the rule.\n  const STEPS = [\n    { show: true, name: 'Two copies of the current', pic: 'heat', dial: { lo: 0.5, hi: 3, to: 2 }, dur: 4.0,\n      text: 'The heat each second in a wire is `P = I²R`, where `I²` is the current used twice, one copy along each side of a heat tile. Double the current and both sides double. The heat fills a 2 by 2 square, four tiles, not two.' },\n    { name: 'Three times the current', pic: 'heat', f: 3, opts: ['right', 'times', 'one'],\n      task: 'The same resistor carries three times the current. How many times the heat?',\n      why: 'Both copies of the current in `I²` are three times as big, so the heat is a 3 by 3 square: `3² = 3 × 3 = 9` tiles.',\n      hint: 'Not quite. Both copies of the current grow.',\n      hints: { times: 'Not quite. That multiplies the factor by the power, `3 × 2`. The power says how many 3s to multiply: `3 × 3`.',\n        one: 'Not quite. That grows one copy of the current. `I²` has two, and both are three times as big.' } },\n    { show: true, name: 'Light spreads out', pic: 'light', dial: { lo: 0.5, hi: 3, to: 2 }, dur: 4.0,\n      text: 'A small lamp gives a quarter of the light at twice the distance, `2⁻² = ¼`: an *inverse square law* (OpenStax). One way to picture it: the same light spreads over a patch twice as wide and twice as tall, four squares, so each square gets a quarter.' },\n    { name: 'Three times as far', pic: 'light', f: 3, opts: ['one', 'way', 'right'],\n      task: 'Move the lamp three times as far away. What does each square get now?',\n      why: 'Three times as far, the patch is 3 wide and 3 tall, 9 squares. The same light shared over 9 squares gives each `3⁻² = ⅑`.',\n      hint: 'Not quite. The patch grows both ways.',\n      hints: { one: 'Not quite. The patch grows three times as wide and three times as tall, not just one way.',\n        way: 'Not quite. Farther away the light spreads out, so each square gets less, not more.' } },\n    { show: true, name: 'A pump cubes its speed', pic: 'pump', dial: { lo: 0.5, hi: 3, to: 2, then: 0.8 }, dur: 4.5,\n      text: 'The US Department of Energy says a pump with no height to lift takes power that goes with its speed cubed, the speed used three times. Twice the speed makes a 2 by 2 by 2 cube of blocks, `2³ = 8` times the power. At 0.8 of the speed it takes `0.8³ = 0.512`, about half.' },\n    { name: 'Half the pump speed', pic: 'pump', f: 0.5, opts: ['one', 'right', 'sq'],\n      task: 'The pump runs at half its speed. What share of its power does it take now?',\n      why: 'Half the speed makes a cube half as wide, half as tall and half as deep: `0.5³ = ½ × ½ × ½ = ⅛` of the power.',\n      hint: 'Not quite. The speed is used three times.',\n      hints: { one: 'Not quite. The speed is used three times, so halve three times.',\n        sq: 'Not quite. That halves twice, a square. The pump\\'s power goes with the cube.' } },\n    { show: true, name: 'A power between whole numbers', pic: 'gas', f: 2, nset: { lo: 1, hi: 2, to: 1.3 }, dur: 4.2,\n      text: 'Engineering notes (Purdue, WPI) give the gas law `pVⁿ = C`, where n is a fixed number and `n = 1` is Boyle\\'s law. So `p = C ÷ Vⁿ`, and halving the volume multiplies the pressure by `(½)⁻ⁿ = 2ⁿ`, a negative power as for the light. That is 2 at `n = 1`, and about 2.46 at `n = 1.3`, between `2¹` and `2²`.' },\n    { name: 'Half the volume', pic: 'gas', f: 2, n: 1.5, opts: ['right', 'times', 'way'],\n      task: 'A gas with `n = 1.5` is squeezed to half its volume. How many times the pressure?',\n      why: 'Halving the volume multiplies the pressure by 2 to the power 1.5, which is `2 × √2`, about 2.83, between `2¹ = 2` and `2² = 4`. Here n is given; finding it from readings needs logarithms, in Exponentials and logarithms.',\n      hint: 'Not quite. Raise 2 to the power 1.5.',\n      hints: { times: 'Not quite. That multiplies 2 by 1.5. The power raises 2 to 1.5, which is `2 × √2`.',\n        way: 'Not quite. Less volume means more pressure, so the answer is more than 1.' } },\n    { show: true, name: 'Run it backwards', pic: 'back', big: 4, small: 2, dur: 4.0,\n      text: 'Run it backwards with a *root*. Four heat tiles make a 2 by 2 square, so they came from `√4 = 2` times the current. Two tiles make a square whose side is `√2`, about 1.41.' },\n    { name: 'A quarter of the light', pic: 'dist', q: 0.25, opts: ['noroot', 'right', 'way'],\n      task: 'A light reading falls to a quarter. How many times as far away is the lamp now?',\n      why: 'Each square gets `1 ÷ d²` of the light. A quarter means `d²` is 4, so the lamp is `√4 = 2` times as far.',\n      hint: 'Not quite. Run the power backwards with a root.',\n      hints: { noroot: 'Not quite. Four times as far gives `4⁻² = 1 ÷ 16`. Take the root: `√4 = 2`.',\n        way: 'Not quite. Less light on each square means the lamp is farther away.' } },\n    { show: true, name: 'Plot against x²', pic: 'plot', dur: 4.2,\n      text: 'Readings of `y = 3x² + 2` make a curve against `x`. Plot them against `x²` and they line up straight, with gradient 3 and intercept 2. With `Z` for `x²` it reads `y = 3Z + 2`.' },\n    { name: 'Resistance from a line', pic: 'line', R: 5, Z: 4, opts: ['byI', 'twice', 'right'],\n      task: 'The heat each second, `P = R × I²`, is plotted against current squared. What is the resistance `R`?',\n      why: 'Against `I²`, `P = R × I²` is `y = mx` with `I²` for x: a straight line through 0 whose gradient is `R`. The rise over the run is `20 W ÷ 4 A² = 5 Ω`.',\n      hint: 'Not quite. Read `P = R × I²` as `y = mx`: R is the gradient, the rise over the run.',\n      hints: { byI: 'Not quite. That divides by the current, `√4 = 2` A. The line is against current squared, 4 A².',\n        twice: 'Not quite. 4 A² is already the current squared, so do not square it again.' } },\n    { name: 'An eighth of the power', pic: 'pump', f: 0.5, q: 0.125, mixed: true, opts: ['noroot', 'sq', 'right'],\n      task: 'A pump with no height to lift must take only ⅛ of its power. What share of its speed should it run at?',\n      why: 'The power goes with the speed cubed, so run it backwards with a cube root: `∛⅛ = ½`, because `½ × ½ × ½ = ⅛`. A block half as wide, half as tall and half as deep holds ⅛ of the first.',\n      hint: 'Not quite. The speed is used three times, so take the cube root.',\n      hints: { noroot: 'Not quite. At ⅛ of the speed the power would be `⅛ × ⅛ × ⅛`, far less. Take the cube root: `∛⅛ = ½`.',\n        sq: 'Not quite. That is the square root, for a power that goes with the speed squared. The pump\\'s power goes with the cube.' } },\n    { name: 'The lamp at half the distance', pic: 'light', f: 0.5, mixed: true, opts: ['one', 'right', 'way'],\n      task: 'A lamp is brought to half the distance. What does each square get now?',\n      why: 'At half the distance the patch is half as wide and half as tall, a quarter of a square. So each square gets `0.5⁻² = 4` times the light.',\n      hint: 'Not quite. The patch shrinks both ways.',\n      hints: { one: 'Not quite. The patch shrinks to half as wide and half as tall.',\n        way: 'Not quite. Closer to the lamp the light is packed tighter, so each square gets more.' } },\n  ];\n  const FINISH = 'Change one quantity by a factor and the result changes by the factor raised to its power: twice the current gives `2² = 4` times the heat, and twice the distance gives `2⁻² = ¼` of the light. A root runs it backwards.';\n  const PICK = 'Tap one of the answers.';\n\n  // What each answer is worth, from the rule.\n  function valueOf(d, k) {\n    const f = d.f;\n    if (d.pic === 'heat') return k === 'right' ? raise(f, 2) : k === 'times' ? f * 2 : f;\n    if (d.pic === 'light') return k === 'right' ? raise(f, -2) : k === 'one' ? raise(f, -1) : raise(f, 2);\n    if (d.pic === 'pump' && d.q) return k === 'right' ? Math.cbrt(d.q) : k === 'noroot' ? d.q : Math.sqrt(d.q);\n    if (d.pic === 'pump') return k === 'right' ? raise(f, 3) : k === 'one' ? f : raise(f, 2);\n    if (d.pic === 'gas') return k === 'right' ? raise(f, d.n) : k === 'times' ? f * d.n : raise(f, -d.n);\n    if (d.pic === 'dist') return k === 'right' ? raise(d.q, -1 / 2) : k === 'noroot' ? 1 / d.q : raise(d.q, 1 / 2);\n    if (d.pic === 'line') { const P = d.R * d.Z; return k === 'right' ? P / d.Z : k === 'byI' ? P / Math.sqrt(d.Z) : P / (d.Z * d.Z); }\n    return NaN;\n  }\n  function labelOf(d, k) {\n    const v = valueOf(d, k);\n    if (d.pic === 'heat') return F(v) + ' times the heat';\n    if (d.pic === 'light') return v < 1 ? (fr(v) || F(v)) + ' of the light' : F(v) + ' times the light';\n    if (d.pic === 'pump' && d.q) return (fr(v) || (exact3(v) ? F(v) : 'about ' + F2(v))) + ' of the speed';\n    if (d.pic === 'pump') return (fr(v) || F(v)) + ' of the power';\n    if (d.pic === 'gas') return exact3(v) ? F(v) + ' times' : 'about ' + F2(v) + ' times';\n    if (d.pic === 'dist') return near(v, 0.5) ? 'half as far' : F(v) + ' times as far';\n    return F(v) + ' Ω';\n  }\n  STEPS.forEach((d) => { if (!d.show) d.want = labelOf(d, 'right'); });\n  // A light patch's distance factor for an answer.\n  function gOf(d, k) {\n    if (d.pic === 'dist') return valueOf(d, k);\n    return k === 'way' ? 1 / d.f : d.f;\n  }\n  // A slip's own line of working.\n  function slipLine(d, k) {\n    const f = d.f;\n    if (d.pic === 'heat') return k === 'times' ? F(f) + ' × 2 = ' + F(f * 2) + ': factor times power' : F(f) + ': one copy of I grown';\n    if (d.pic === 'light') return k === 'one' ? eq('1 ÷ ' + F(f), 1 / f) + (f > 1 ? ': spread one way only' : ': packed one way only')\n      : eq(F(f) + '² = ' + F(f) + ' × ' + F(f), f * f) + ': the wrong way';\n    if (d.pic === 'pump' && d.q) return k === 'noroot' ? 'speed ×' + fr(d.q) + ': the root left off' : eq('√' + fr(d.q), Math.sqrt(d.q), 2) + ': square root, not cube';\n    if (d.pic === 'pump') return k === 'one' ? eq(F(f), f) + ': the power left off' : eq(F(f) + '²', f * f) + ': squared, not cubed';\n    if (d.pic === 'gas') return k === 'times' ? F(f) + ' × ' + F(d.n) + ' = ' + F(f * d.n) + ': factor times n' : eq(pw(F(f), -d.n), raise(f, -d.n), 2) + ': the wrong way';\n    if (d.pic === 'dist') { const g = valueOf(d, k); return k === 'noroot' ? F(g) + '⁻² = 1 ÷ ' + F(g * g) + ': root left off' : eq(F(g) + '⁻² = 1 ÷ ' + F(g * g), 1 / (g * g)) + ': the wrong way'; }\n    const P = d.R * d.Z, v = valueOf(d, k);\n    return k === 'byI' ? F(P) + ' ÷ ' + F(Math.sqrt(d.Z)) + ' = ' + F(v) + ' Ω: divided by I' : F(P) + ' ÷ ' + F(d.Z * d.Z) + ' = ' + F(v) + ' Ω: squared twice';\n  }\n\n  const FADE = 0.35;\n  const FB = [2.0, 1.2];   // how long the motion after a right and a wrong answer plays\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  const el = (id) => document.getElementById(id);\n\n  // ---------- each step's state ----------\n  // pick: the answer kind chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note\n  // open; f: the dial Dan has set; n: the n he has set; sq: the plot switch (null until he uses them).\n  function blank() { return { pick: null, res: null, why: false, f: null, n: null, sq: null }; }\n  const isRight = (i, st) => st.pick != null && st.pick === 'right';\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms (built with K.el, never innerHTML) ----------\n  function write(node, s) {\n    node.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { node.appendChild(K.el('span', { class: 'nw' }, seg)); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at0 = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, m.index)));\n        node.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at0 = m.index + m[0].length;\n      }\n      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = el('nav');\n  const at = () => stepper.get();\n\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(st.res === 'right' ? FB[0] : FB[1]);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || finished) return;\n    st.f = null; st.n = null; st.sq = null;\n    play(d.dur);\n  } });\n  // The gas's n, in tenths from 1 to 2.\n  function setN(by) {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || !d.nset || finished) return;\n    const now = st.n != null ? st.n : d.nset.to;\n    st.n = K.clamp(r1(now + by), d.nset.lo, d.nset.hi);\n    anim.pause(); T = Infinity;\n  }\n  const nDown = K.button({ label: 'Lower n', secondary: true, into: '#dialN', press: () => setN(-0.1) });\n  const nUp = K.button({ label: 'Raise n', secondary: true, into: '#dialN', press: () => setN(0.1) });\n  // The 'plot against x²' switch: the readings slide across to x² and back. It shows pressed only\n  // while they stand against x², so in the demonstration it presses as they start to move (2.2 s).\n  const plotOn = (st) => (st.sq != null ? st.sq : T >= 2.2);\n  const plotBtn = K.button({ label: 'Plot against x²', secondary: true, into: '#dialT', press: () => {\n    const d = STEPS[at()], st = S[at()];\n    if (!d.show || d.pic !== 'plot' || finished) return;\n    st.sq = !plotOn(st);\n    play(1.3);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }\n    motionEnd = dur; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = el(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing helpers ----------\n  const svg = el('scene'), art = el('art'), ui = el('ui');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived, noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function note(t0, d) { if (t0 + d > latest) latest = t0 + d; if (t0 < earliest) earliest = t0; }\n  function arr(t0, d) { d = d == null ? K.SOFT : d; note(t0, d); return K.arrive(T, t0, d); }\n  // Travel and growth: 0 to 1, eased, from t0 over d seconds.\n  function tw(t0, d) { note(t0, d); return T === Infinity ? 1 : K.ease((T - t0) / d); }\n  function part(a, rise, draw) {\n    if (!(a > 0)) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const poly = (pts, cls) => add(K.svg('polygon', { class: cls, points: pts.map((p) => r3(p[0]) + ',' + r3(p[1])).join(' ') }));\n  const pathE = (dd, cls) => add(K.svg('path', { class: cls, d: dd }));\n  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r: r }));\n  function text(x, y, s, cls, anchor) { return add(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, String(s))); }\n  const widths = {};\n  function textW(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 15 * 0.6;\n  }\n  // Brackets: over a top edge (label above), down a left side (label to its left), under a run (label below).\n  function brkTop(x0, x1, y, label, cls) {\n    if (x1 - x0 >= 6) pathE('M' + r3(x0 + 1.5) + ' ' + r3(y - 3) + ' V' + r3(y - 8) + ' H' + r3(x1 - 1.5) + ' V' + r3(y - 3), 'brk');\n    text((x0 + x1) / 2, y - 14, label, cls || 'tl');\n  }\n  function brkLeft(y0, y1, x, label) {\n    if (y1 - y0 >= 6) pathE('M' + r3(x - 3) + ' ' + r3(y0 + 1.5) + ' H' + r3(x - 8) + ' V' + r3(y1 - 1.5) + ' H' + r3(x - 3), 'brk');\n    text(x - 12, (y0 + y1) / 2 + 5, label, 'tl', 'end');\n  }\n  function brkUnder(x0, x1, y, label) {\n    pathE('M' + r3(x0) + ' ' + r3(y - 6) + ' V' + r3(y) + ' H' + r3(x1) + ' V' + r3(y - 6), 'brk');\n    text((x0 + x1) / 2, y + 16, label, 'tl');\n  }\n  // Whole and part tiles filling wU by hU tile-widths, from the top-left corner.\n  function tiles(x, y, wU, hU, U, cls) {\n    let area = 0;\n    const nx = Math.ceil(wU - 1e-9), ny = Math.ceil(hU - 1e-9);\n    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {\n      const w = Math.min(1, wU - i), h = Math.min(1, hU - j);\n      rect(cls, x + i * U, y + j * U, w * U, h * U);\n      area += w * h;\n    }\n    return area;\n  }\n  function drawWork(G, lines) {\n    lines.forEach((l, m) => {\n      const y = G.workY + 24 * (l.row != null ? l.row : m);\n      part(l.a == null ? 1 : l.a, 4, () => { text(12, y, l.t, l.bad ? 'wkb' : 'wk', 'start'); REC.work.push({ t: l.t, bad: !!l.bad, ans: !!l.ans }); });\n    });\n  }\n  // The key, inside the drawing.\n  function drawKey(G, items) {\n    const y = G.keyY;\n    let x = 12;\n    (items || []).forEach((it) => {\n      if (it.kind === 'tile') rect('tile', x, y - 7, 14, 14);\n      else if (it.kind === 'unit') rect('unit', x + 1, y - 7, 13, 13);\n      else if (it.kind === 'gas') rect('gas', x, y - 7, 14, 14);\n      else if (it.kind === 'pw') rect('pw', x, y - 7, 14, 14);\n      else if (it.kind === 'dot') circle('pt', x + 7, y, 5);\n      else if (it.kind === 'line') line('curve', x, y, x + 18, y);\n      x += it.kind === 'none' ? 0 : it.kind === 'line' ? 24 : 20;\n      text(x, y + 5, it.label, 'ky', 'start');\n      x += textW(it.label, 'ky') + 18;\n    });\n  }\n\n  // ---------- each step's sizes ----------\n  const GEO = new Map();\n  function geo(d) {\n    if (GEO.has(d)) return GEO.get(d);\n    const G = { Y0: d.dial ? 96 : 36 };\n    let bottom;\n    if (d.pic === 'heat') {\n      const fMax = d.dial ? d.dial.hi : d.f;\n      G.U = d.dial ? 50 : fMax >= 3 ? 35 : 48;\n      G.OX = 30; G.TY = G.Y0 + 26; G.NX = G.OX + G.U + 48;\n      G.SX = G.NX + Math.max(1, fMax) * G.U + 32;\n      bottom = G.TY + Math.max(1, fMax) * G.U + 26;\n    } else if (d.pic === 'light' || d.pic === 'dist') {\n      const gs = d.dial ? [d.dial.hi] : d.opts.map((k) => gOf(d, k));\n      const gMax = Math.max.apply(null, [1].concat(gs));\n      G.gMax = gMax; G.LX = 22;\n      if (gMax >= 4) { G.D = 66; G.s = 11; } else if (gMax >= 3) { G.D = 72; G.s = 14; } else { G.D = 100; G.s = 18; }\n      G.AY = G.Y0 + 12 + 1.35 * gMax * G.s;\n      G.bot = G.AY + 1.35 * gMax * G.s;\n      bottom = G.bot + 58;\n    } else if (d.pic === 'pump') {\n      const fMax = d.dial ? d.dial.hi : 1;\n      G.U = d.dial ? 36 : 56; G.OX = 26;\n      G.NX = G.OX + 1.5 * G.U + (d.dial ? 54 : 26);\n      G.SX = G.NX + 1.5 * G.U + 26;\n      G.BY = G.Y0 + 20 + 1.35 * fMax * G.U;\n      bottom = G.BY + 48;\n    } else if (d.pic === 'gas') {\n      G.PU = 28; G.BY = G.Y0 + 150; G.CX0 = 14; G.CL = 124; G.CH = 34; G.C1 = G.Y0 + 22; G.C2 = G.Y0 + 76;\n      G.COL = [162, 206, 250]; G.CW = 26;\n      bottom = G.BY + 44;\n    } else if (d.pic === 'back') {\n      G.U = 48; G.OX = 30; G.TY = G.Y0 + 26; G.RX = G.OX + 2 * G.U + 64;\n      bottom = G.TY + 2 * G.U + 26;\n    } else {\n      G.PX0 = 52; G.PX1 = d.pic === 'line' ? 300 : 316; G.PT = G.Y0 + 16; G.PB = G.Y0 + 196;\n      bottom = G.PB + 44;\n    }\n    G.workY = bottom + 20;\n    G.keyY = G.workY + 52;\n    G.H = Math.ceil(G.keyY + 14);\n    GEO.set(d, G);\n    return G;\n  }\n\n  // ---------- P = I²R: one tile before, a square after ----------\n  function heatLines(f) {\n    const w = f > 1 + 1e-9 ? 'grow' : f < 1 - 1e-9 ? 'shrink' : 'stay';\n    return [{ t: 'current ×' + F(f) + ': both copies of I ' + w }, { t: 'heat ×' + eq(F(f) + '² = ' + F(f) + ' × ' + F(f), f * f) }];\n  }\n  function drawHeat(d, st, G) {\n    const U = G.U, OX = G.OX, TY = G.TY, NX = G.NX;\n    let f, aOld = 1, aI = 1, aNew = 1, aBrk = 1, aLab = 1, aSlip = 0, slip = null, square = true;\n    if (d.show) {\n      if (st.f != null) f = st.f;\n      else { aOld = arr(0.4); aI = arr(0.7); aNew = arr(1.0); aBrk = aNew; f = 1 + (d.dial.to - 1) * tw(1.4, 1.6); aLab = arr(3.2); }\n    } else {\n      f = d.f;\n      if (st.res === 'right') { aNew = arr(0.1); f = 1 + (d.f - 1) * tw(0.2, 1.0); aLab = arr(1.2); }\n      else if (st.res === 'wrong' && st.pick) { aLab = 0; slip = st.pick; aSlip = arr(0.1); }\n      else { square = false; aLab = 0; }\n    }\n    const fb = d.show ? f : d.f;\n    const unit = square && f < 1 - 1e-9;\n    const OY = d.show ? TY : TY + (Math.max(1, d.f) - 1) * U / 2;\n    part(aOld, 6, () => { REC.heat.push({ role: 'old', area: tiles(OX, OY, 1, 1, U, 'tile') }); text(OX + U / 2, OY + U + 20, '1 tile', 'tl'); });\n    part(aI, 4, () => { brkTop(OX, OX + U, OY, 'I'); brkLeft(OY, OY + U, OX, 'I'); });\n    if (square) part(aNew, 6, () => {\n      if (unit) rect('unit', NX, TY, U, U);\n      REC.heat.push({ role: 'new', area: tiles(NX, TY, f, f, U, 'tile'), w: f, h: f });\n      if (!d.show) REC.ans = true;\n    });\n    part(aBrk, 4, () => { brkTop(NX, NX + fb * U, TY, mulI(r1(fb))); brkLeft(TY, TY + fb * U, NX, mulI(r1(fb))); });\n    const fl = Math.max(1, f);\n    if (square) part(aLab, 4, () => { text(NX + fl * U / 2, TY + fl * U + 20, tilesText(f * f), 'tl'); REC.count = f * f; });\n    if (slip) part(aSlip, 6, () => {\n      const v = valueOf(d, slip), w = slip === 'times' ? 2 : 1, h = d.f;\n      REC.slip = { kind: slip, m: tiles(G.SX, TY, w, h, U, 'bad'), v: v };\n      text(G.SX + w * U / 2, TY + h * U + 20, tilesText(v), 'tlb');\n    });\n    let lines;\n    if (d.show) lines = heatLines(f).map((l) => Object.assign(l, { a: aLab }));\n    else {\n      lines = [{ t: 'current ×' + F(d.f) + ', R the same: heat ×?' }];\n      if (st.res === 'right') lines.push({ t: 'heat ×' + eq(F(d.f) + '² = ' + F(d.f) + ' × ' + F(d.f), d.f * d.f), a: aLab, ans: true });\n      else if (slip) lines.push({ t: slipLine(d, slip), a: aSlip, bad: true });\n    }\n    const key = [{ kind: 'tile', label: 'the heat each second, P, before' }];\n    if (unit) key.push({ kind: 'unit', label: 'one tile' });\n    const said = 'One heat tile, the heat before, with the current I along two sides. ' +\n      (square ? 'With the current ×' + F(r1(fb)) + ' along both sides, the heat is ' + tilesText(f * f) + '.' : 'The current is ×' + F(d.f) + ' along both sides.') +\n      (slip ? ' In red, the slip: ' + tilesText(valueOf(d, slip)) + '.' : '');\n    return { f: f, lines: lines, key: key, said: said, tag: 'P = I²R, resistance R the same' };\n  }\n\n  // ---------- light from a small lamp: the same light on a patch d or g·d away ----------\n  // Seen from the side and a little above: Y up, Z across, the patch square to the light.\n  const P3 = (G, X, Y, Z) => [X + 0.7 * Z, G.AY - Y - 0.35 * Z];\n  function corners(G, g, zg) {\n    const h = g * G.s, hz = zg * G.s, X = G.LX + g * G.D;\n    return [P3(G, X, h, -hz), P3(G, X, h, hz), P3(G, X, -h, hz), P3(G, X, -h, -hz)];\n  }\n  function patch(G, g, zg, cls) {\n    const c = 2 * G.s, h = g * G.s, hz = zg * G.s, X = G.LX + g * G.D;\n    let area = 0;\n    const ny = Math.ceil(2 * h / c - 1e-9), nz = Math.ceil(2 * hz / c - 1e-9);\n    for (let i = 0; i < ny; i++) for (let j = 0; j < nz; j++) {\n      const y0 = -h + i * c, y1 = Math.min(h, y0 + c), z0 = -hz + j * c, z1 = Math.min(hz, z0 + c);\n      poly([P3(G, X, y1, z0), P3(G, X, y1, z1), P3(G, X, y0, z1), P3(G, X, y0, z0)], cls);\n      area += (y1 - y0) * (z1 - z0) / (c * c);\n    }\n    return { g: g, zg: zg, X: X, h: h, hz: hz, area: area, ny: ny, nz: nz, labels: [] };\n  }\n  function cellLabels(G, p, s) {\n    const c = 2 * G.s, out = [];\n    for (let i = 0; i < p.ny; i++) for (let j = 0; j < p.nz; j++) {\n      const q = P3(G, p.X, -p.h + c * (i + 0.5), -p.hz + c * (j + 0.5));\n      text(q[0], q[1] + 5, s, 'cell');\n      out.push(s);\n    }\n    return out;\n  }\n  function slipPatch(d, k) { return k === 'one' ? { g: d.f, zg: 1 } : { g: gOf(d, k), zg: gOf(d, k) }; }\n  function drawLight(d, st, G) {\n    const dist = d.pic === 'dist';\n    let g, aBase = 1, aRay = 1, aFar = 1, aLab = 1, far = true, slip = null, aSlip = 0;\n    if (d.show) {\n      if (st.f != null) g = st.f;\n      else { aBase = arr(0.4); aRay = arr(0.8); aFar = arr(1.2); g = 1 + (d.dial.to - 1) * tw(1.4, 1.6); aLab = arr(3.2); }\n    } else {\n      const gR = gOf(d, 'right');\n      g = gR;\n      if (st.res === 'right') { aFar = arr(0.1); g = 1 + (gR - 1) * tw(0.2, 1.0); aLab = arr(1.2); }\n      else if (st.res === 'wrong' && st.pick) { aLab = 0; slip = st.pick; aSlip = arr(0.1); }\n      else { far = false; aLab = 0; }\n    }\n    // the light's edges, from the lamp to the farthest patch's corners\n    const gOut = far ? Math.max(1, g) : 1;\n    part(aRay, 0, () => corners(G, gOut, gOut).forEach((q) => line('ray', G.LX, G.AY, q[0], q[1])));\n    const sp = slip ? slipPatch(d, slip) : null;\n    if (sp && sp.g > gOut + 1e-9) part(aSlip, 0, () => corners(G, sp.g, sp.zg).forEach((q) => line('ray', G.LX, G.AY, q[0], q[1])));\n    part(aBase, 6, () => {\n      circle('lamp', G.LX, G.AY, 6);\n      text(G.LX, G.AY - 12, 'lamp', 'ky');\n      const p = patch(G, 1, 1, 'light'); p.role = 'near'; REC.light.push(p);\n    });\n    let farRec = null;\n    if (far) part(aFar, 0, () => {\n      farRec = patch(G, g, g, 'light'); farRec.role = 'far'; REC.light.push(farRec);\n      if (!d.show) REC.ans = true;\n    });\n    if (sp) part(aSlip, 6, () => {\n      const p = patch(G, sp.g, sp.zg, 'bad'); p.role = 'slip'; REC.light.push(p);\n      const v = valueOf(d, slip);\n      REC.slip = { kind: slip, m: dist ? sp.g : 1 / p.area, v: v };\n    });\n    // each square's share: 1 on the near patch, 1 ÷ g² on a far one of whole squares\n    part(aBase, 0, () => { const nr = REC.light.find((p) => p.role === 'near'); if (nr) nr.labels = cellLabels(G, nr, '1'); });\n    if (farRec && isInt(g) && g >= 2 && g <= 3) part(aLab, 0, () => { farRec.labels = cellLabels(G, farRec, fr(1 / (g * g)) || F(1 / (g * g))); });\n    const by = G.bot + 10;\n    const gB = d.show ? g : dist ? (st.res === 'right' ? gOf(d, 'right') : null) : d.f;\n    const nearer = gB != null && gB < 1 && !near(r1(gB), 1);\n    part(aBase, 4, () => brkUnder(G.LX, G.LX + G.D, nearer ? by + 26 : by, 'd'));\n    if (gB != null && !near(r1(gB), 1)) part(d.show || dist ? aFar : 1, 4, () => brkUnder(G.LX, G.LX + gB * G.D, nearer ? by : by + 26, F(r1(gB)) + 'd'));\n    let lines;\n    if (d.show) lines = [{ t: 'distance ×' + F(g) + ': patch ' + F(g) + ' by ' + F(g), a: aLab }, { t: 'per square: ' + eq(F(g) + '⁻² = 1 ÷ ' + F(g * g), 1 / (g * g)), a: aLab }];\n    else if (dist) {\n      const gR = gOf(d, 'right');\n      lines = [{ t: 'per square ×' + (fr(d.q) || F(d.q)) + ': distance ×?' }];\n      if (st.res === 'right') lines.push({ t: '√' + F(1 / d.q) + ' = ' + F(gR) + ', as ' + F(gR) + '⁻² = ' + (fr(d.q) || F(d.q)), a: aLab, ans: true });\n      else if (slip) lines.push({ t: slipLine(d, slip), a: aSlip, bad: true });\n    } else {\n      lines = [{ t: 'distance ×' + F(d.f) + ': per square ×?' }];\n      if (st.res === 'right') lines.push({ t: eq(F(d.f) + '⁻² = 1 ÷ ' + F(d.f * d.f), 1 / (d.f * d.f)), a: aLab, ans: true });\n      else if (slip) lines.push({ t: slipLine(d, slip), a: aSlip, bad: true });\n    }\n    const said = 'A small lamp lights a patch one square in size at distance d, so that square gets all of the light. ' +\n      (far ? 'At ' + F(r1(g)) + ' times the distance the same light covers a patch ' + F(r1(g)) + ' wide and ' + F(r1(g)) + ' tall.' : '') +\n      (slip ? ' In red, the slip.' : '');\n    return { lines: lines, key: [{ kind: 'none', label: 'Number on a square: its share of the light' }], said: said, f: g, tag: 'Light per square goes with 1 ÷ d²' };\n  }\n\n  // ---------- a pump's power: one tile before, a cube after ----------\n  function box(G, x0, w, h, dp, cls, grid) {\n    const P = (x, y, z) => [x0 + x + 0.5 * z, G.BY - y - 0.35 * z];\n    poly([P(0, 0, 0), P(w, 0, 0), P(w, h, 0), P(0, h, 0)], cls);\n    poly([P(0, h, 0), P(w, h, 0), P(w, h, dp), P(0, h, dp)], cls + ' side');\n    poly([P(w, 0, 0), P(w, 0, dp), P(w, h, dp), P(w, h, 0)], cls + ' side');\n    if (grid) {\n      const U = G.U, seg = (a, b) => line('pgrid', a[0], a[1], b[0], b[1]);\n      for (let k = U; k < w - 0.5; k += U) { seg(P(k, 0, 0), P(k, h, 0)); seg(P(k, h, 0), P(k, h, dp)); }\n      for (let k = U; k < h - 0.5; k += U) { seg(P(0, k, 0), P(w, k, 0)); seg(P(w, k, 0), P(w, k, dp)); }\n      for (let k = U; k < dp - 0.5; k += U) { seg(P(0, h, k), P(w, h, k)); seg(P(w, 0, k), P(w, h, k)); }\n    }\n    return (w * h * dp) / (G.U * G.U * G.U);\n  }\n  function unitCube(G, x0) {\n    const U = G.U, P = (x, y, z) => { const q = [x0 + x + 0.5 * z, G.BY - y - 0.35 * z]; return r3(q[0]) + ' ' + r3(q[1]); };\n    pathE('M' + P(0, 0, 0) + ' L' + P(U, 0, 0) + ' L' + P(U, U, 0) + ' L' + P(0, U, 0) + ' Z M' + P(0, U, 0) + ' L' + P(0, U, U) + ' L' + P(U, U, U) + ' L' + P(U, U, 0) +\n      ' M' + P(U, 0, 0) + ' L' + P(U, 0, U) + ' L' + P(U, U, U), 'unit');\n  }\n  function pumpLines(v) {\n    return [{ t: 'speed ×' + F(v) + ': used three times' }, { t: 'power ×' + eq(F(v) + '³ = ' + F(v) + ' × ' + F(v) + ' × ' + F(v), v * v * v) }];\n  }\n  function drawPump(d, st, G) {\n    const U = G.U, NX = G.NX, BY = G.BY;\n    let f, aOld = 1, aNew = 1, labs = [], slip = null, aSlip = 0, cube = true;\n    if (d.show) {\n      if (st.f != null) { f = st.f; labs = [{ v: f, a: 1 }]; }\n      else {\n        aOld = arr(0.4); aNew = arr(0.6);\n        f = 1 + (d.dial.to - 1) * tw(0.8, 1.2);\n        const then = d.dial.then != null ? d.dial.then : d.dial.to;\n        f += (then - d.dial.to) * tw(2.9, 1.0);\n        labs = [{ v: d.dial.to, a: arr(2.0) * (1 - tw(2.6, 0.3)) }, { v: then, a: arr(3.9) }];\n      }\n    } else {\n      f = d.f;\n      if (st.res === 'right') { aNew = arr(0.1); f = 1 + (d.f - 1) * tw(0.2, 1.0); labs = [{ v: d.f, a: arr(1.2), ans: true }]; }\n      else if (st.res === 'wrong' && st.pick) { slip = st.pick; aSlip = arr(0.1); }\n      else cube = false;\n    }\n    const a = f * U;\n    part(aOld, 6, () => { REC.cube.push({ role: 'old', vol: box(G, G.OX, U, U, U, 'pw', false) }); text(G.OX + 0.75 * U, BY + 40, '1 block', 'tl'); });\n    // the old block's outline where the new cube sits, while the new one is smaller\n    const aUnit = d.show ? aNew * K.clamp((1 - f) / 0.15, 0, 1) : 1;\n    part(aUnit, 0, () => unitCube(G, NX));\n    if (cube) part(aNew, 6, () => {\n      REC.cube.push({ role: 'new', vol: box(G, NX, a, a, a, 'pw', true) });\n      if (!d.show) REC.ans = true;\n      const lab = '×' + F(r1(f));\n      text(NX + a / 2, BY + 18, lab, 'tl');\n      const aE = K.clamp((f - 0.8) / 0.2, 0, 1);\n      part(aE, 0, () => { text(NX - 8, BY - a / 2 + 5, lab, 'tl', 'end'); text(NX + 1.25 * a + 8, BY - 0.175 * a + 10, lab, 'tl', 'start'); });\n    });\n    labs.forEach((l) => part(l.a, 4, () => { text(NX + 0.75 * Math.max(1, l.v) * U, BY + 40, blocksText(l.v * l.v * l.v), 'tl'); REC.count = l.v * l.v * l.v; }));\n    // A wrong speed run backwards is drawn as the block that speed would give.\n    if (slip) part(aSlip, 6, () => {\n      const v = valueOf(d, slip);\n      unitCube(G, G.SX);\n      const m = d.q ? box(G, G.SX, v * U, v * U, v * U, 'bad', false) : slip === 'one' ? box(G, G.SX, U, d.f * U, U, 'bad', false) : box(G, G.SX, d.f * U, d.f * U, U, 'bad', false);\n      REC.slip = { kind: slip, m: d.q ? Math.cbrt(m) : m, v: v };\n      text(G.SX + 0.75 * U, BY + 40, d.q ? 'speed ×' + (fr(v) || F2(v)) : blocksText(v), 'tlb');\n    });\n    let lines = [];\n    if (d.show) labs.forEach((l) => pumpLines(l.v).forEach((x, m) => lines.push(Object.assign(x, { a: l.a, row: m }))));\n    else if (d.q) {\n      lines = [{ t: 'power ×' + fr(d.q) + ': speed ×?' }];\n      if (st.res === 'right') lines.push({ t: 'speed ×∛' + fr(d.q) + ' = ' + fr(d.f) + ', as ' + F(d.f) + '³ = ' + fr(d.q), a: labs[0].a, ans: true });\n      else if (slip) lines.push({ t: slipLine(d, slip), a: aSlip, bad: true });\n    } else {\n      lines = [{ t: 'speed ×' + F(d.f) + ': power ×?' }];\n      if (st.res === 'right') lines.push({ t: 'power ×' + eq(F(d.f) + '³ = ' + F(d.f) + ' × ' + F(d.f) + ' × ' + F(d.f), raise(d.f, 3)), a: labs[0].a, ans: true });\n      else if (slip) lines.push({ t: slipLine(d, slip), a: aSlip, bad: true });\n    }\n    const key = [{ kind: 'pw', label: 'the power before' }];\n    if (aUnit > 0) key.push({ kind: 'unit', label: 'one block' });\n    const said = 'One block, the pump\\'s power before. ' + (cube ? 'With the speed ×' + F(r1(f)) + ' along all three edges, the power is ' + blocksText(f * f * f) + '.' : d.q ? 'The power must fall to ' + fr(d.q) + ' of a block.' : 'The speed is halved.') +\n      (slip ? ' In red, the slip: ' + (d.q ? 'speed ×' + (fr(valueOf(d, slip)) || F2(valueOf(d, slip))) : blocksText(valueOf(d, slip))) + '.' : '');\n    return { f: f, lines: lines, key: key, said: said, tag: 'Pump power goes with speed³' };\n  }\n\n  // ---------- pVⁿ = C: the gas squeezed, and its pressure as a column of tiles ----------\n  function drawGas(d, st, G) {\n    const PU = G.PU, BY = G.BY, COL = G.COL, CW = G.CW;\n    let v = 1 / d.f, n, aCyl = 1, aAfter = 1, aLab = 1, hAfter = null, slip = null, aSlip = 0;\n    if (d.show) {\n      if (st.n != null) n = st.n;\n      else { aCyl = arr(0.4); v = 1 - (1 - 1 / d.f) * tw(0.9, 1.2); aAfter = arr(0.9); n = d.nset.lo + (d.nset.to - d.nset.lo) * tw(2.6, 1.0); aLab = arr(3.6); }\n      hAfter = raise(1 / v, n);\n    } else {\n      n = d.n;\n      if (st.res === 'right') { aAfter = arr(0.1); hAfter = 1 + (raise(d.f, d.n) - 1) * tw(0.2, 1.0); aLab = arr(1.2); }\n      else if (st.res === 'wrong' && st.pick) { hAfter = raise(d.f, d.n); aLab = 0; slip = st.pick; aSlip = arr(0.1); }\n      else aLab = 0;\n    }\n    function cyl(y, vv) {\n      const gw = G.CL * vv, px = G.CX0 + gw;\n      rect('gas', G.CX0, y + 1, gw, G.CH - 2);\n      rect('piston', px, y + 2, 8, G.CH - 4, 1);\n      line('rod', px + 8, y + G.CH / 2, G.CX0 + G.CL + 22, y + G.CH / 2);\n      pathE('M' + (G.CX0 + G.CL + 12) + ' ' + y + ' H' + G.CX0 + ' V' + (y + G.CH) + ' H' + (G.CX0 + G.CL + 12), 'cyl');\n      return gw;\n    }\n    function stack(x, h, cls) {\n      let tot = 0;\n      for (let k = 0; k < Math.ceil(h - 1e-9); k++) { const hk = Math.min(1, h - k); rect(cls, x, BY - (k + hk) * PU, CW, hk * PU); tot += hk; }\n      return tot;\n    }\n    part(aCyl, 6, () => {\n      const w1 = cyl(G.C1, 1); text(G.CX0 + w1 / 2, G.C1 + G.CH / 2 + 5, 'V', 'tl');\n      cyl(G.C2, v);\n      REC.col.push({ role: 'old', h: stack(COL[0], 1, 'pw') });\n      text(COL[0] + CW / 2, BY + 18, '1', 'tl');\n      text(COL[0] + CW / 2, BY + 36, 'before', 'sm');\n      text(COL[1] + CW / 2, BY + 36, 'after', 'sm');\n      [1, 2].forEach((m) => { const yy = BY - raise(d.f, m) * PU; line('ref', 198, yy, 282, yy); text(286, yy + 5, F(d.f) + sup(String(m)) + ' = ' + F(raise(d.f, m)), 'sm', 'start'); });\n    });\n    part(aLab, 4, () => text(G.CX0 + G.CL * v / 2, G.C2 + G.CH / 2 + 5, (fr(1 / d.f) || F(1 / d.f)) + 'V', 'tl'));\n    if (hAfter != null) part(aAfter, 6, () => { REC.col.push({ role: 'new', h: stack(COL[1], hAfter, 'pw') }); if (!d.show) REC.ans = true; });\n    if (hAfter != null) part(aLab, 4, () => text(COL[1] + CW / 2, BY + 18, gasNum(hAfter), 'tl'));\n    else text(COL[1] + CW / 2, BY + 18, '?', 'tl');\n    if (slip) part(aSlip, 6, () => {\n      const vS = valueOf(d, slip);\n      REC.slip = { kind: slip, m: stack(COL[2], vS, 'bad'), v: vS };\n      text(COL[2] + CW / 2, BY + 18, gasNum(vS), 'tlb');\n    });\n    const nS = r1(n);\n    let lines;\n    if (d.show) lines = [{ t: 'volume ×' + (fr(1 / d.f) || F(1 / d.f)) + ': pressure ×(' + (fr(1 / d.f) || F(1 / d.f)) + ')⁻ⁿ = ' + F(d.f) + 'ⁿ', a: aLab }, { t: eq(pw(F(d.f), nS), raise(d.f, nS), 2), a: aLab }];\n    else {\n      lines = [{ t: 'volume ×' + (fr(1 / d.f) || F(1 / d.f)) + ', n = ' + F(d.n) + ': pressure ×?' }];\n      const mid = near(d.n % 1, 0.5) ? ' = ' + (Math.floor(d.n) > 1 ? F(raise(d.f, Math.floor(d.n))) : F(d.f)) + ' × √' + F(d.f) : '';\n      if (st.res === 'right') lines.push({ t: eq(pw(F(d.f), d.n) + mid, raise(d.f, d.n), 2), a: aLab, ans: true });\n      else if (slip) lines.push({ t: slipLine(d, slip), a: aSlip, bad: true });\n    }\n    const said = 'A cylinder of gas, volume V, and below it the same gas squeezed to ' + F(v) + ' V. The pressure before is one tile; after, ' +\n      (hAfter != null ? gasNum(hAfter) + ' tiles' : 'not yet shown') + ', with dashed lines at ' + F(raise(d.f, 1)) + ' and ' + F(raise(d.f, 2)) + ' tiles.' + (slip ? ' In red, the slip.' : '');\n    return { n: n, lines: lines, key: [{ kind: 'gas', label: 'gas' }, { kind: 'pw', label: 'pressure p before' }], said: said, tag: 'pVⁿ = C, n = ' + F(nS) + ', C the same' };\n  }\n\n  // ---------- run backwards: tiles into a square, its side the root ----------\n  function drawBack(d, st, G) {\n    const U = G.U, OX = G.OX, TY = G.TY, RX = G.RX, sb = Math.sqrt(d.big), ss = Math.sqrt(d.small);\n    const tilesA = [0.4, 0.6, 0.8, 1.0].map((t) => arr(t));\n    const aL = arr(1.4), aR = arr(1.8), e = tw(2.2, 1.2), aRL = arr(3.4);\n    let k = 0;\n    REC.back.left = { area: 0, side: sb };\n    for (let j = 0; j < Math.round(sb); j++) for (let i = 0; i < Math.round(sb); i++) {\n      const x = OX + i * U, y = TY + j * U;\n      part(tilesA[Math.min(k, tilesA.length - 1)], 6, () => { rect('tile', x, y, U, U); REC.back.left.area += 1; });\n      k++;\n    }\n    part(aL, 4, () => { brkTop(OX, OX + sb * U, TY, '√' + F(d.big) + ' = ' + F(sb)); text(OX + sb * U / 2, TY + sb * U + 20, F(d.big) + ' tiles', 'tl'); });\n    const w = K.lerp(d.small, ss, e) * U, h = d.small * U * U / w;\n    part(aR, 6, () => {\n      rect('tile', RX, TY, w / 2, h); rect('tile', RX + w / 2, TY, w / 2, h);\n      REC.back.right = { w: w / U, h: h / U, area: w * h / (U * U) };\n      text(RX + w / 2, TY + h + 20, F(d.small) + ' tiles', 'tl');\n    });\n    part(aRL, 4, () => brkTop(RX, RX + w, TY, eq('√' + F(d.small), ss, 2)));\n    const lines = [{ t: F(d.big) + ' tiles: current ×√' + F(d.big) + ' = ' + F(sb), a: aL }, { t: F(d.small) + ' tiles: current ×' + eq('√' + F(d.small), ss, 2), a: aRL }];\n    const said = 'Four heat tiles make a square of side ' + F(sb) + '. Two tiles reshape into a square of side about ' + F2(ss) + '.';\n    return { lines: lines, key: [{ kind: 'tile', label: 'one heat tile' }], said: said, tag: 'P = I²R, run backwards' };\n  }\n\n  // ---------- readings of y = 3x² + 2, against x or against x² ----------\n  function drawPlot(d, st, G) {\n    const PX0 = G.PX0, PX1 = G.PX1, PT = G.PT, PB = G.PB, W = PX1 - PX0, YM = yOf(XS[XS.length - 1]);\n    const XM = XS[XS.length - 1], ZM = XM * XM;\n    let e, aAx = 1, aPt = XS.map(() => 1), aCurve = 1, aLab;\n    if (st.sq == null) {\n      aAx = arr(0.4); aPt = XS.map((x, k) => arr(0.6 + 0.2 * k)); aCurve = arr(1.6); e = tw(2.2, 1.4); aLab = arr(3.6);\n    } else {\n      const m = T === Infinity ? 1 : K.ease(T / 1.2);\n      e = st.sq ? m : 1 - m;\n      aLab = K.clamp((e - 0.8) / 0.2, 0, 1);\n    }\n    const hmax = K.lerp(XM, ZM, e);\n    const hx = (x) => PX0 + K.lerp(x, x * x, e) / hmax * W, vy = (y) => PB - y / YM * (PB - PT);\n    const grad = (yOf(XM) - yOf(0)) / ZM, icpt = yOf(0);\n    part(aAx, 0, () => {\n      line('axis', PX0, PT - 4, PX0, PB); line('axis', PX0, PB, PX1 + 4, PB);\n      for (let y = 0; y <= YM + 1e-9; y += 10) { line('axis', PX0 - 5, vy(y), PX0, vy(y)); text(PX0 - 8, vy(y) + 5, F(y), 'sm', 'end'); }\n      text(PX0 + 8, PT + 10, 'y', 'tl', 'start');\n    });\n    part(aAx * (1 - e), 0, () => {\n      for (let x = 1; x <= XM; x++) { const px = PX0 + x / XM * W; line('axis', px, PB, px, PB + 5); text(px, PB + 20, F(x), 'sm'); }\n      text((PX0 + PX1) / 2, PB + 40, 'x', 'tl');\n    });\n    part(aAx * e, 0, () => {\n      for (let z = 4; z <= ZM; z += 4) { const px = PX0 + z / ZM * W; line('axis', px, PB, px, PB + 5); text(px, PB + 20, F(z), 'sm'); }\n      text((PX0 + PX1) / 2, PB + 40, 'x²', 'tl');\n    });\n    part(aCurve, 0, () => {\n      const ps = K.linspace(0, XM, 41).map((x) => r3(hx(x)) + ' ' + r3(vy(yOf(x))));\n      pathE('M' + ps.join(' L'), 'curve');\n    });\n    REC.plot.e = e;\n    XS.forEach((x, k) => part(aPt[k], 4, () => { circle('pt', hx(x), vy(yOf(x)), 5); REC.plot.pts.push([hx(x), vy(yOf(x)), x]); }));\n    part(aLab, 4, () => {\n      circle('ring', PX0, vy(icpt), 9);\n      text(PX0 + 40, vy(icpt) - 4, 'intercept ' + F(icpt), 'tla', 'start');\n      text(PX1, vy(grad * 13 + icpt) + 40, 'gradient ' + F(grad), 'tla', 'end');\n    });\n    const lines = [{ t: 'with Z for x²: y = ' + F(A_) + 'Z + ' + F(B_), a: aCurve }, { t: 'against x: a curve, not a line', a: aCurve * (1 - e), row: 1 },\n      { t: 'against x²: gradient ' + F(grad) + ', intercept ' + F(icpt), a: aLab, row: 1 }];\n    const said = e > 0.5 ? 'Five readings plotted against x squared lie on a straight line, gradient ' + F(grad) + ', intercept ' + F(icpt) + '.' : 'Five readings plotted against x make a curve.';\n    return { lines: lines, key: [{ kind: 'dot', label: 'a reading' }, { kind: 'line', label: 'through the readings' }], said: said, tag: 'Readings of y = ' + F(A_) + 'x² + ' + F(B_) };\n  }\n\n  // ---------- P against I²: a straight line whose gradient is R ----------\n  function drawLine(d, st, G) {\n    const PX0 = G.PX0, PX1 = G.PX1, PT = G.PT, PB = G.PB, W = PX1 - PX0;\n    const ZM = d.Z + 1, PM = d.R * ZM, P = d.R * d.Z;\n    const hx = (z) => PX0 + z / ZM * W, vy = (p) => PB - p / PM * (PB - PT);\n    let aAns = 0, aAnsL = 0, slip = null, aSlip = 0;\n    if (st.res === 'right') { aAns = arr(0.1); aAnsL = arr(0.6); }\n    else if (st.res === 'wrong' && st.pick) { slip = st.pick; aSlip = arr(0.1); }\n    line('axis', PX0, PT - 4, PX0, PB); line('axis', PX0, PB, PX1 + 4, PB);\n    for (let p = 0; p <= PM + 1e-9; p += PM / 5) { line('axis', PX0 - 5, vy(p), PX0, vy(p)); text(PX0 - 8, vy(p) + 5, F(p), 'sm', 'end'); }\n    for (let z = 1; z <= ZM; z++) { line('axis', hx(z), PB, hx(z), PB + 5); text(hx(z), PB + 20, F(z), 'sm'); }\n    text((PX0 + PX1) / 2, PB + 40, 'I² (A²)', 'tl');\n    text(PX0 + 8, PT + 10, 'P (W)', 'tl', 'start');\n    line('guide', hx(d.Z), vy(P), hx(d.Z), PB); line('guide', PX0, vy(P), hx(d.Z), vy(P));\n    line('curve', hx(0), vy(0), hx(ZM), vy(d.R * ZM));\n    circle('pt', hx(d.Z), vy(P), 5);\n    text(hx(d.Z) - 10, vy(P) - 8, F(P) + ' W at ' + F(d.Z) + ' A²', 'tl', 'end');\n    REC.line = { slope: (d.R * ZM - 0) / ZM, through: near(d.R * d.Z, P) };\n    part(aAns, 0, () => { line('tri', hx(d.Z), vy(P), hx(d.Z), PB); line('tri', PX0, PB, hx(d.Z), PB); REC.ans = true; });\n    part(aAnsL, 4, () => { text(hx(d.Z) + 8, (vy(P) + PB) / 2 + 5, 'rise ' + F(P) + ' W', 'tla', 'start'); text((PX0 + hx(d.Z)) / 2, PB - 8, 'run ' + F(d.Z) + ' A²', 'tla'); });\n    if (slip) part(aSlip, 4, () => {\n      const R = valueOf(d, slip), zE = Math.min(ZM, PM / R);\n      line('badl', hx(0), vy(0), hx(zE), vy(R * zE));\n      if (zE < ZM - 1e-9) text(hx(zE) + 6, PT + 12, F(R) + ' Ω', 'tlb', 'start');\n      else text(hx(ZM), vy(R * ZM) + 17, F(R) + ' Ω', 'tlb', 'end');\n      REC.slip = { kind: slip, m: R, v: R };\n    });\n    const lines = [{ t: 'P = ' + F(P) + ' W at I² = ' + F(d.Z) + ' A²' }];\n    if (st.res === 'right') lines.push({ t: 'R = ' + F(P) + ' ÷ ' + F(d.Z) + ' = ' + F(P / d.Z) + ' Ω', a: aAnsL, ans: true });\n    else if (slip) lines.push({ t: slipLine(d, slip), a: aSlip, bad: true });\n    const said = 'Power against current squared: a straight line through 0 and the reading ' + F(P) + ' watts at ' + F(d.Z) + ' amps squared.' + (slip ? ' In red, the slip.' : '');\n    return { lines: lines, key: [{ kind: 'dot', label: 'the reading' }, { kind: 'line', label: 'P against I²' }], said: said, tag: 'P = I²R, plotted against I²' };\n  }\n\n  // ---------- the factor dial: Dan sets the factor himself ----------\n  const SX0 = 40, SX1 = 300;\n  const xPos = (dl, v) => SX0 + (v - dl.lo) / (dl.hi - dl.lo) * (SX1 - SX0);\n  function drawDial(d, f) {\n    const dl = d.dial;\n    line('track', SX0, 62, SX1, 62);\n    for (let v = dl.lo; v <= dl.hi + 1e-9; v += 0.5) line('tick', xPos(dl, v), 55, xPos(dl, v), 69);\n    text(SX0, 88, '×' + F(dl.lo), 'sm'); text(SX1, 88, '×' + F(dl.hi), 'sm');\n    const kx = xPos(dl, K.clamp(f, dl.lo, dl.hi)), lab = NAME[d.pic] + ' ×' + F(r1(f)), w = textW(lab, 'xl');\n    circle('knob', kx, 62, 10);\n    text(K.clamp(kx, 12 + w / 2, 328 - w / 2), 42, lab, 'xl');\n  }\n  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: SX0 - 24, y: 34, width: SX1 - SX0 + 48, height: 48, tabindex: -1, role: 'slider', 'aria-label': 'Factor dial', 'aria-orientation': 'horizontal' }));\n  grip.style.display = 'none';\n  function placeGrip(d, f) {\n    const on = !!d.dial && !finished;\n    grip.style.display = on ? '' : 'none';\n    grip.setAttribute('tabindex', on ? '0' : '-1');\n    if (!on) return;\n    grip.setAttribute('aria-label', NAME[d.pic] + ' factor');\n    grip.setAttribute('aria-valuemin', d.dial.lo); grip.setAttribute('aria-valuemax', d.dial.hi); grip.setAttribute('aria-valuenow', r1(f));\n    grip.setAttribute('aria-valuetext', NAME[d.pic] + ' times ' + F(r1(f)));\n  }\n  const dialing = () => !finished && !!STEPS[at()].dial;\n  function setF(v) {\n    const d = STEPS[at()], st = S[at()];\n    v = K.clamp(r1(v), d.dial.lo, d.dial.hi);\n    if (st.f === v && T === Infinity) return;\n    if (anim.playing()) anim.pause();\n    T = Infinity;\n    st.f = v;\n    K.reveal(); K.refresh();\n  }\n  function fFrom(e) {\n    const ctm = svg.getScreenCTM();\n    if (!ctm) return null;\n    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse()), dl = STEPS[at()].dial;\n    return dl.lo + (q.x - SX0) / (SX1 - SX0) * (dl.hi - dl.lo);\n  }\n  let held = null;\n  grip.addEventListener('pointerdown', (e) => {\n    if (!dialing()) return;\n    held = e.pointerId;\n    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows the pointer while it stays on the band */ }\n    e.preventDefault();\n    const v = fFrom(e);\n    if (v != null) setF(v);\n  });\n  grip.addEventListener('pointermove', (e) => {\n    if (held !== e.pointerId || !dialing()) return;\n    const v = fFrom(e);\n    if (v != null) setF(v);\n  });\n  const letGo = (e) => { if (held === e.pointerId) held = null; };\n  grip.addEventListener('pointerup', letGo);\n  grip.addEventListener('pointercancel', letGo);\n  grip.addEventListener('lostpointercapture', () => { held = null; });\n  grip.addEventListener('keydown', (e) => {\n    if (!dialing()) return;\n    const d = STEPS[at()], st = S[at()], now = st.f != null ? st.f : (d.dial.then != null ? d.dial.then : d.dial.to);\n    const by = { ArrowUp: 0.1, ArrowRight: 0.1, ArrowDown: -0.1, ArrowLeft: -0.1 }[e.key];\n    if (by == null && e.key !== 'Home' && e.key !== 'End') return;\n    e.preventDefault();\n    setF(e.key === 'Home' ? d.dial.lo : e.key === 'End' ? d.dial.hi : now + by);\n  });\n\n  // ---------- the whole picture for a step now ----------\n  const DRAW = { heat: drawHeat, light: drawLight, dist: drawLight, pump: drawPump, gas: drawGas, back: drawBack, plot: drawPlot, line: drawLine };\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(d);\n    art.textContent = '';\n    into = null;\n    REC = { heat: [], light: [], cube: [], col: [], back: {}, plot: { pts: [], e: null }, line: null, ans: false, slip: null, count: null, work: [] };\n    svg.setAttribute('viewBox', '0 0 340 ' + G.H);\n    const out = DRAW[d.pic](d, st, G);\n    if (d.pic === 'plot' && i === at()) plotBtn.el.setAttribute('aria-pressed', plotOn(st) ? 'true' : 'false');\n    text(12, 20, out.tag, 'tag', 'start');\n    if (d.dial) drawDial(d, out.f);\n    drawWork(G, out.lines);\n    drawKey(G, out.key);\n    placeGrip(d, out.f != null ? out.f : 1);\n    svg.setAttribute('aria-label', out.said);\n  }\n\n  write(el('finish'), FINISH);\n  K.update((p) => {\n    const i = Math.round(p.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.f = null; st.n = null; st.sq = null; play(d.dur); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right';\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + (d.mixed ? ' · mixed' : '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    const hasN = !!(d.show && d.nset), hasT = !!(d.show && d.pic === 'plot');\n    el('dialN').hidden = !hasN;\n    el('dialT').hidden = !hasT;\n    el('dials').hidden = !hasN && !hasT;\n    if (hasN) {\n      const n = st.n != null ? st.n : d.nset.to;\n      nDown.el.disabled = n <= d.nset.lo + 1e-9;\n      nUp.el.disabled = n >= d.nset.hi - 1e-9;\n    }\n    plotBtn.el.setAttribute('aria-pressed', plotOn(st) ? 'true' : 'false');\n\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((b, k) => {\n      b.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      b.setLabel(labelOf(d, opts[k]));\n      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const solvedSt = () => Object.assign(blank(), { pick: 'right', res: 'right' });\n  const wrongSt = (k) => Object.assign(blank(), { pick: k, res: 'wrong' });\n  const FS = Array.from({ length: 26 }, (z, k) => r1(0.5 + 0.1 * k));\n  // A step painted in the state given (finished, or t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i);\n      const r = REC;\n      r.texts = Array.from(art.querySelectorAll('text')).map((n) => n.textContent);\n      return r;\n    } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  // Each answer's value worked out again, apart from valueOf.\n  function ruleOf(d) {\n    if (d.pic === 'heat') return d.f * d.f;\n    if (d.pic === 'light') return 1 / (d.f * d.f);\n    if (d.pic === 'pump') return d.q ? Math.exp(Math.log(d.q) / 3) : d.f * d.f * d.f;\n    if (d.pic === 'gas') return Math.exp(d.n * Math.log(d.f));\n    if (d.pic === 'dist') return Math.sqrt(1 / d.q);\n    return (d.R * d.Z) / d.Z;\n  }\n  function slipRule(d, k) {\n    const f = d.f;\n    if (k === 'times') return d.pic === 'gas' ? f * d.n : f * 2;\n    if (k === 'one') return d.pic === 'light' ? 1 / f : f;\n    if (k === 'sq') return d.q ? Math.sqrt(d.q) : f * f;\n    if (k === 'way') return d.pic === 'light' ? f * f : d.pic === 'gas' ? 1 / Math.exp(d.n * Math.log(f)) : Math.sqrt(d.q);\n    if (k === 'noroot') return d.pic === 'pump' ? d.q : 1 / d.q;\n    if (k === 'byI') return (d.R * d.Z) / Math.sqrt(d.Z);\n    if (k === 'twice') return (d.R * d.Z) / (d.Z * d.Z);\n    return NaN;\n  }\n\n  K.check('The heat per second in a wire is proportional to its resistance and the square of the current: at every factor on the dial the heat square holds the factor squared in tiles, both its sides grown by that factor, the resistance unchanged', () =>\n    FS.every((f) => {\n      const r = drawn(0, Object.assign(blank(), { f: f })), nw = r.heat.find((h) => h.role === 'new');\n      return nw && closeTo(nw.area, f * f) && closeTo(nw.w, f) && closeTo(nw.h, f) && closeTo(r.count, f * f);\n    }), { source: BRIT });\n  K.check('When you double the distance from a small lamp, the intensity decreases to one quarter: the same light covers a patch twice as wide and twice as tall, four squares, and each square is marked a quarter', () => {\n    const r = drawn(2, Object.assign(blank(), { f: 2 })), far = r.light.find((p) => p.role === 'far');\n    return !!far && closeTo(far.area, 4) && closeTo(far.g, 2) && far.labels.length === 4 && far.labels.every((s) => s === '¼') &&\n      FS.every((g) => { const q = drawn(2, Object.assign(blank(), { f: g })).light.find((p) => p.role === 'far'); return q && closeTo(q.area, g * g); });\n  }, { source: OPENSTAX });\n  K.check('Every puzzle accepts only its right answer, the factor raised to the formula\\'s power, and each wrong answer is a named slip giving a different value: the factor times the power, the power left off, squared for cubed, the wrong way, or the root left off', () =>\n    DO.every((i) => {\n      const d = STEPS[i], want = ruleOf(d);\n      const kinds = new Set(d.opts), words = new Set(d.opts.map((k) => labelOf(d, k)));\n      return kinds.size === d.opts.length && words.size === d.opts.length && d.opts.indexOf('right') >= 0 &&\n        closeTo(valueOf(d, 'right'), want) && d.want === labelOf(d, 'right') &&\n        d.opts.every((k) => isRight(i, Object.assign(blank(), { pick: k })) === (k === 'right')) &&\n        d.opts.every((k) => k === 'right' || (!closeTo(valueOf(d, k), want, 1e-6) && closeTo(valueOf(d, k), slipRule(d, k))));\n    }));\n  K.check('Every number in the lesson is right: 2² = 4, 3² = 9 not 3 × 2 = 6, 2⁻² = ¼, 3⁻² = ⅑, 2³ = 8, 0.8³ = 0.512, 0.5³ = ⅛, 2 to the 1.3 ≈ 2.46, 2 to the 1.5 ≈ 2.83 and to the −1.5 ≈ 0.35, √4 = 2, √2 ≈ 1.41, y = 5, 14, 29 and 50 at x = 1 to 4, 20 W ÷ 4 A² = 5 Ω, ∛⅛ = ½ and 0.5⁻² = 4', () =>\n    closeTo(raise(2, 2), 4) && closeTo(raise(3, 2), 9) && 3 * 2 === 6 && closeTo(raise(2, -2), 0.25) && closeTo(raise(3, -2), 1 / 9) &&\n    closeTo(raise(2, 3), 8) && closeTo(raise(0.8, 3), 0.512) && closeTo(raise(0.5, 3), 0.125) &&\n    F2(raise(2, 1.3)) === '2.46' && F2(raise(2, 1.5)) === '2.83' && F2(raise(2, -1.5)) === '0.35' &&\n    closeTo(Math.sqrt(4), 2) && F2(Math.sqrt(2)) === '1.41' && [1, 2, 3, 4].map(yOf).join() === '5,14,29,50' &&\n    closeTo(20 / 4, 5) && closeTo(Math.cbrt(0.125), 0.5) && closeTo(0.5 * 0.5 * 0.5, 0.125) && closeTo(raise(0.5, -2), 4) &&\n    STEPS[1].want === '9 times the heat' && STEPS[3].want === '⅑ of the light' && STEPS[5].want === '⅛ of the power' &&\n    STEPS[7].want === 'about 2.83 times' && STEPS[9].want === '2 times as far' && STEPS[11].want === '5 Ω' &&\n    STEPS[12].want === '½ of the speed' && STEPS[13].want === '4 times the light');\n  K.check('With no height to lift, a pump\\'s power varies with the cube of its speed: the cube holds the factor cubed in blocks at every factor on the dial, 8 at twice the speed, 0.512 at 0.8, and ⅛ at half, and run backwards ⅛ of the power needs half the speed', () => {\n    const vol = (r) => { const c = r.cube.find((x) => x.role === 'new'); return c ? c.vol : NaN; };\n    return FS.every((f) => closeTo(vol(drawn(4, Object.assign(blank(), { f: f }))), f * f * f)) &&\n      closeTo(vol(drawn(4, blank())), 0.512) && closeTo(vol(drawn(4, blank(), 2.5)), 8) && closeTo(vol(drawn(5, solvedSt())), 0.125) && closeTo(vol(drawn(12, solvedSt())), 0.125);\n  }, { source: DOE });\n  K.check('Halving the volume multiplies the pressure by 2ⁿ: the column stands 2 tiles at n = 1, about 2.46 at n = 1.3 and 2.83 at n = 1.5, between the 2¹ and 2² lines for every n from 1 to 2', () => {\n    const h = (r) => { const c = r.col.find((x) => x.role === 'new'); return c ? c.h : NaN; };\n    const ns = Array.from({ length: 11 }, (z, k) => r1(1 + 0.1 * k));\n    return ns.every((n) => { const v = h(drawn(6, Object.assign(blank(), { n: n }))); return closeTo(v, Math.pow(2, n)) && v >= 2 - 1e-9 && v <= 4 + 1e-9; }) &&\n      closeTo(h(drawn(6, Object.assign(blank(), { n: 1 }))), 2) && Math.abs(h(drawn(6, blank())) - 2.46) < 0.005 && Math.abs(h(drawn(7, solvedSt())) - 2.83) < 0.005;\n  });\n  K.check('Running it backwards: 4 tiles make a square of side √4 = 2, and 2 tiles reshape into a square of side √2, about 1.41, keeping their 2 tiles of area all the way', () => {\n    const r = drawn(8, blank());\n    const ok = r.back.left.area === 4 && closeTo(r.back.left.side, 2) && closeTo(r.back.right.w, Math.SQRT2) && closeTo(r.back.right.h, Math.SQRT2) && r.texts.indexOf('√2 ≈ 1.41') >= 0;\n    return ok && [2.0, 2.4, 2.8, 3.2, 3.6].every((t) => { const q = drawn(8, blank(), t); return !q.back.right || closeTo(q.back.right.area, 2); });\n  });\n  K.check('Plotted against x², the readings of y = 3x² + 2 lie on one straight line with gradient 3 and intercept 2; plotted against x they do not', () => {\n    const sl = (pts) => pts.slice(1).map((p, k) => (p[1] - pts[k][1]) / (p[0] - pts[k][0]));\n    const sz = sl(XS.map((x) => [x * x, yOf(x)])), sx = sl(XS.map((x) => [x, yOf(x)]));\n    const straight = sz.every((s) => closeTo(s, 3)) && yOf(0) === 2, bent = !sx.every((s) => closeTo(s, sx[0]));\n    const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);\n    const r = drawn(10, blank()), P = r.plot.pts, q = drawn(10, Object.assign(blank(), { sq: false })), Q = q.plot.pts;\n    return straight && bent && P.length === 5 && P.slice(2).every((p) => Math.abs(cross(P[0], P[1], p)) < 1e-6) &&\n      Q.length === 5 && Math.abs(cross(Q[0], Q[1], Q[4])) > 100 && r.texts.indexOf('gradient 3') >= 0 && r.texts.indexOf('intercept 2') >= 0;\n  });\n  K.check('A straight line of power against current squared through 20 W at 4 A² has gradient 20 ÷ 4 = 5 Ω, the resistance, and the line drawn passes through the reading', () => {\n    const d = STEPS[11], r = drawn(11, solvedSt());\n    return closeTo(valueOf(d, 'right'), 5) && closeTo(d.R * d.Z, 20) && !!r.line && closeTo(r.line.slope, 5) && r.line.through &&\n      r.texts.indexOf('rise 20 W') >= 0 && r.texts.indexOf('run 4 A²') >= 0 && r.texts.indexOf('20 W at 4 A²') >= 0;\n  });\n  K.check('Before an answer, no puzzle\\'s picture shows its answer: no answer shape, no answer line of working and no answer label', () =>\n    DO.every((i) => {\n      const d = STEPS[i], r = drawn(i, blank());\n      return !r.ans && !r.slip && r.work.length === 1 && r.work.every((w) => !w.ans && !w.bad) && r.texts.indexOf(d.want) < 0;\n    }));\n  K.check('A right answer draws the answer in place with its working, and each wrong one draws its own slip in red, worth exactly that wrong answer', () =>\n    DO.every((i) => {\n      const d = STEPS[i], r = drawn(i, solvedSt());\n      if (!(r.ans && !r.slip && r.work.some((w) => w.ans))) return false;\n      return d.opts.filter((k) => k !== 'right').every((k) => {\n        const q = drawn(i, wrongSt(k));\n        return !!q.slip && q.slip.kind === k && closeTo(q.slip.m, valueOf(d, k), 1e-6) && q.work.some((w) => w.bad);\n      });\n    }));\n  K.check('Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer\\'s motion, right or wrong, within 2 s', () => {\n    const keepT = T;\n    const timed = (i, st, limit) => {\n      const keepS = S[i];\n      T = Infinity; latest = 0; earliest = Infinity;\n      S[i] = st;\n      try { paint(i); } finally { S[i] = keepS; }\n      return latest <= limit + 1e-9;\n    };\n    const ok = STEPS.every((d, i) => {\n      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }\n      return timed(i, solvedSt(), FB[0]) && d.opts.filter((k) => k !== 'right').every((k) => timed(i, wrongSt(k), FB[1]));\n    });\n    T = keepT; paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "The factor dial",
+  "brief": "The one thing you should see is the two copies of the current in I², each made twice as big, forming a 2 by 2 square of four heat tiles, not two, when you drag the factor dial to ×2.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The heat per second in a wire is proportional to its resistance and the square of the current: at every factor on the dial the heat square holds the factor squared in tiles, both its sides grown by that factor, the resistance unchanged",
+     "ok": true,
+     "source": "https://www.britannica.com/science/Joules-law"
+    },
+    {
+     "label": "When you double the distance from a small lamp, the intensity decreases to one quarter: the same light covers a patch twice as wide and twice as tall, four squares, and each square is marked a quarter",
+     "ok": true,
+     "source": "https://openstax.org/books/university-physics-volume-1/pages/17-3-sound-intensity"
+    },
+    {
+     "label": "Every puzzle accepts only its right answer, the factor raised to the formula's power, and each wrong answer is a named slip giving a different value: the factor times the power, the power left off, squared for cubed, the wrong way, or the root left off",
+     "ok": true
+    },
+    {
+     "label": "Every number in the lesson is right: 2² = 4, 3² = 9 not 3 × 2 = 6, 2⁻² = ¼, 3⁻² = ⅑, 2³ = 8, 0.8³ = 0.512, 0.5³ = ⅛, 2 to the 1.3 ≈ 2.46, 2 to the 1.5 ≈ 2.83 and to the −1.5 ≈ 0.35, √4 = 2, √2 ≈ 1.41, y = 5, 14, 29 and 50 at x = 1 to 4, 20 W ÷ 4 A² = 5 Ω, ∛⅛ = ½ and 0.5⁻² = 4",
+     "ok": true
+    },
+    {
+     "label": "With no height to lift, a pump's power varies with the cube of its speed: the cube holds the factor cubed in blocks at every factor on the dial, 8 at twice the speed, 0.512 at 0.8, and ⅛ at half, and run backwards ⅛ of the power needs half the speed",
+     "ok": true,
+     "source": "https://www.energy.gov/sites/prod/files/2014/05/f16/adjust_speed_pumping.pdf"
+    },
+    {
+     "label": "Halving the volume multiplies the pressure by 2ⁿ: the column stands 2 tiles at n = 1, about 2.46 at n = 1.3 and 2.83 at n = 1.5, between the 2¹ and 2² lines for every n from 1 to 2",
+     "ok": true
+    },
+    {
+     "label": "Running it backwards: 4 tiles make a square of side √4 = 2, and 2 tiles reshape into a square of side √2, about 1.41, keeping their 2 tiles of area all the way",
+     "ok": true
+    },
+    {
+     "label": "Plotted against x², the readings of y = 3x² + 2 lie on one straight line with gradient 3 and intercept 2; plotted against x they do not",
+     "ok": true
+    },
+    {
+     "label": "A straight line of power against current squared through 20 W at 4 A² has gradient 20 ÷ 4 = 5 Ω, the resistance, and the line drawn passes through the reading",
+     "ok": true
+    },
+    {
+     "label": "Before an answer, no puzzle's picture shows its answer: no answer shape, no answer line of working and no answer label",
+     "ok": true
+    },
+    {
+     "label": "A right answer draws the answer in place with its working, and each wrong one draws its own slip in red, worth exactly that wrong answer",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has finished arriving within 4.5 s of its screen opening, none starting before the 0.35 s screen fade ends; every answer's motion, right or wrong, within 2 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "Two copies of the current",
+      "Three times the current",
+      "Light spreads out",
+      "Three times as far",
+      "A pump cubes its speed",
+      "Half the pump speed",
+      "A power between whole numbers",
+      "Half the volume",
+      "Run it backwards",
+      "A quarter of the light",
+      "Plot against x²",
+      "Resistance from a line",
+      "An eighth of the power",
+      "The lamp at half the distance"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "Play again",
+    "Lower n",
+    "Raise n",
+    "Plot against x²",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 1
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T22:20:54.988Z",
+  "applied": [
+   {
+    "path": "analogy.breaks",
+    "problem": "\"only fits squares that grow\" is false: a pizza half as wide has a quarter of the area, just as half the current gives a quarter of the heat, and the dial goes down to ×0.5."
+   },
+   {
+    "path": "explain.text",
+    "problem": "\"a warm wire's resistance changes a little\" understates it: a copper conductor at 70 °C has about a fifth more resistance than at 20 °C, and a lamp filament many times more, so \"a little\" is not true of every real wire."
+   },
+   {
+    "path": "interactive.ignores",
+    "problem": "\"changes a little as it warms\" understates the change for a hot conductor or a filament; saying it changes as it warms keeps the panel true without a size claim no source gives."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

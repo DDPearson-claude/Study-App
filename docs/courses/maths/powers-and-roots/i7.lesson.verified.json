@@ -1,0 +1,474 @@
+{
+  "iid": "i7",
+  "title": "Powers in formulas",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the two copies of the current in I², each made twice as big, forming a 2 by 2 square of four heat tiles, not two, when you drag the factor dial to ×2.",
+    "title": "The factor dial",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 13,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in fourteen small screens on one picture, the factor dial. A law dial picks a formula: P = I²R, the inverse square law shown with light from a lamp, a pump's power against its speed, or pV^n = C. The factor dial, from ×0.5 to ×3, sets the factor the input changes by, with everything else in the formula held the same. The picture draws the old result as one tile and the new result as a shape: a square for a quantity squared, because it is used twice and both copies grow, a cube for a quantity cubed, and a patch of light for the inverse square law. A readout writes the factor raised to the power, such as 2² = 4. Screen 1 opens on P = I²R at ×2: the current is used twice in I², one copy along each side of the square, so when both copies double the heat is a 2 by 2 square of four heat tiles. Screen 3 picks the inverse square law at ×2, a quarter of the light at twice the distance, and pictures it as the same light from a lamp landing on a patch twice as wide and twice as tall, so each square of it gets a quarter; the readout writes 2⁻² = ¼. Screen 5 picks the pump at ×2, a 2 by 2 by 2 cube of eight blocks, then turns the dial to ×0.8, where 0.8³ = 0.512, about half. Screen 7 picks pV^n = C and halves the volume, and an n stepper shows the pressure multiplied by (½)⁻ⁿ = 2ⁿ: 2 at n = 1, which is Boyle's law, and about 2.46 at an example n of 1.3, between 2¹ and 2². Screen 9 runs it backwards: four heat tiles come from √4 = 2 times the current, and two heat tiles make a square whose side is √2, about 1.41. Screen 11 shows readings of y = 3x² + 2, a curve when plotted against x, and the 'plot against x²' switch, which shows pressed once the points start to move, moves each point across to x², where they line up straight with gradient 3 and intercept 2, because with Z standing for x² the formula reads y = 3Z + 2. Screens 1, 3, 5, 7, 9 and 11 show an idea, and screens 2, 4, 6, 8, 10 and 12 ask you to try it: three times the current, three times the distance, half the pump speed, half the volume at an example n of 1.5, the distance that cuts a light reading to a quarter, and a resistance read from a straight line of power against current squared. Screens 13 and 14 mix them: the pump speed that takes ⅛ of the power, run backwards with a cube root, and a lamp brought to half the distance. A puzzle offers three answers, and a wrong pick is drawn in red beside the right one, so you can see it multiplied the factor by the power, forgot the power, or went the wrong way.",
+    "ignores": "The tiles treat the resistance as fixed, though a wire's resistance changes as it warms. The light patch treats the lamp as a point that shines equally in every direction with nothing absorbing the light, so it does not fit a beam, a reflector or a spot close to a long tube. The pump's cube law is the ideal case, and a real system that must lift water to a height does not follow it closely. The values of n, the current, the resistance and the readings are examples, and real readings scatter a little about the straight line.",
+    "numbers": [
+      {
+        "label": "Opening factor on the dial, in step 1",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Lowest factor on the dial",
+        "value": 0.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Highest factor on the dial",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Power on the current in P = I²R",
+        "value": 2,
+        "kind": "constant",
+        "source": 1
+      },
+      {
+        "label": "Heat tiles at twice the current, 2², in step 1",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Current factor, in step 2",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Heat factor at three times the current, 3², in step 2",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: factor times power, 3 × 2, in step 2",
+        "value": 6,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: power forgotten, in step 2",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Power on the distance in the inverse square law",
+        "value": -2,
+        "kind": "constant",
+        "source": 2
+      },
+      {
+        "label": "Light at twice the distance, 2⁻², in step 3",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Patch area at twice the distance, 2 × 2, in step 3",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Distance factor, in step 4",
+        "value": 3,
+        "kind": "control"
+      },
+      {
+        "label": "Light at three times the distance, 3⁻², in step 4",
+        "value": 0.1111,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: power forgotten, a third, in step 4",
+        "value": 0.3333,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: wrong way, 3², in step 4",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Power on the speed in the pump law",
+        "value": 3,
+        "kind": "constant",
+        "source": 3
+      },
+      {
+        "label": "Cube of blocks at twice the speed, 2³, in step 5",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "Speed factor, in step 5",
+        "value": 0.8,
+        "kind": "control"
+      },
+      {
+        "label": "Pump power at 0.8 of the speed, 0.8³, in step 5",
+        "value": 0.512,
+        "kind": "computed"
+      },
+      {
+        "label": "Speed factor, in step 6",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Pump power at half speed, 0.5³, in step 6",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: power forgotten, a half, in step 6",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: squared, a quarter, in step 6",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Volume factor, in step 7",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Opening n on the stepper, in step 7",
+        "value": 1,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pressure factor at n = 1, 2¹, in step 7",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Example n, in step 7",
+        "value": 1.3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pressure factor at n = 1.3, 2^1.3, in step 7",
+        "value": 2.46,
+        "kind": "computed"
+      },
+      {
+        "label": "Example n, in step 8",
+        "value": 1.5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Pressure factor at n = 1.5, 2^1.5 = 2√2, in step 8",
+        "value": 2.83,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: factor times n, 2 × 1.5, in step 8",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: wrong way, 2^−1.5, in step 8",
+        "value": 0.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Heat factor run backwards, in step 9",
+        "value": 4,
+        "kind": "control"
+      },
+      {
+        "label": "Current factor for four times the heat, √4, in step 9",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Heat factor to double, in step 9",
+        "value": 2,
+        "kind": "control"
+      },
+      {
+        "label": "Current factor to double the heat, √2, in step 9",
+        "value": 1.41,
+        "kind": "computed"
+      },
+      {
+        "label": "Light reading factor, a quarter, in step 10",
+        "value": 0.25,
+        "kind": "control"
+      },
+      {
+        "label": "Distance factor for a quarter, in step 10",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: root forgotten, in step 10",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: wrong way, a half, in step 10",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Example a in y = 3x² + 2, in step 11",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Example b in y = 3x² + 2, in step 11",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Smallest x read, in step 11",
+        "value": 0,
+        "kind": "assumed"
+      },
+      {
+        "label": "Largest x read, in step 11",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "y at x = 1, in step 11",
+        "value": 5,
+        "kind": "computed"
+      },
+      {
+        "label": "y at x = 2, in step 11",
+        "value": 14,
+        "kind": "computed"
+      },
+      {
+        "label": "y at x = 3, in step 11",
+        "value": 29,
+        "kind": "computed"
+      },
+      {
+        "label": "y at x = 4, in step 11",
+        "value": 50,
+        "kind": "computed"
+      },
+      {
+        "label": "x² at x = 3, in step 11",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "x² at x = 4, in step 11",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Example resistance in ohms, in step 12",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "Current squared read, in A², in step 12",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "Power read, in watts, in step 12",
+        "value": 20,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: divided by the current, 20 ÷ 2, in ohms",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: squared twice, 20 ÷ 16, in ohms",
+        "value": 1.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Pump power share, in step 13",
+        "value": 0.125,
+        "kind": "control"
+      },
+      {
+        "label": "Speed share for ⅛ of the power, ∛⅛, in step 13",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: root left off, in step 13",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: square root, √⅛, in step 13",
+        "value": 0.35,
+        "kind": "computed"
+      },
+      {
+        "label": "Distance factor, half, in step 14",
+        "value": 0.5,
+        "kind": "control"
+      },
+      {
+        "label": "Light at half the distance, 0.5⁻², in step 14",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: power forgotten, in step 14",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip: wrong way, a quarter, in step 14",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: small pizza across, in cm",
+        "value": 15,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: large pizza across, in cm",
+        "value": 30,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: current before, in amps",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: current after, in amps",
+        "value": 13,
+        "kind": "assumed"
+      },
+      {
+        "label": "Practice: current factor, 13 ÷ 10",
+        "value": 1.3,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: heat factor, 1.3²",
+        "value": 1.69,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: extra heat, in per cent",
+        "value": 69,
+        "kind": "computed"
+      },
+      {
+        "label": "Factor ten on a squared quantity, 10²",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "Practice: extra current, in per cent",
+        "value": 30,
+        "kind": "computed"
+      },
+      {
+        "label": "Explanation: a wire twice as thick, diameter factor",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Explanation: cross-section factor, 2²",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Explanation: resistance factor, a quarter",
+        "value": 0.25,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "When a result is one quantity raised to a power, multiplied or divided by things that stay the same, changing that quantity by some factor changes the result by the factor raised to the same power. So twice the current through the same resistor gives 2² = 4 times the heat, because the heat goes with the square of the current.[^1]\n\nHere is why. The heat per second in a wire goes with its resistance times the square of the current,[^1] which you write as P = I²R. I² is I × I, the current used twice. Double the current and both copies double, so their product grows by 2 × 2 = 4. On the screen the old heat is one tile, and the new heat is a square whose two sides are the two doubled copies, two tiles by two. Three times the current makes both copies three times as big, so the heat grows by 3² = 9, not 3 × 2 = 6. A whole-number power says how many copies of the factor multiply together. The US Department of Energy adds that a centrifugal pump with no height to lift against takes power that goes with the cube of its speed,[^3] the speed used three times. So twice the speed takes 2³ = 8 times the power, and 0.8 of the speed takes 0.8³ = 0.512 of it, about half.[^3] The same square sizes a cable: a wire's cross-section goes with the square of its diameter,[^7] and its resistance is its resistivity times its length divided by that area,[^8] so a wire twice as thick has 2² = 4 times the cross-section and a quarter of the resistance.\n\nAn [[inverse square law]] puts the quantity underneath, as 1 ÷ d², which Zero and negative powers taught you to write as d⁻². In an inverse square law, such as the intensity of sound spreading from a source, twice the distance gives 2⁻² = ¼ of the intensity.[^2] What is different from the heat is that the distance divides, so the same 2² that multiplied the heat now divides. Light from a small lamp follows the same law: twice as far away it gives a quarter as much, because the r² underneath is 4 instead of 1.[^4] One way to picture it: the same light leaves the lamp, and twice as far away it lands on a patch twice as wide and twice as tall, four times the area, so each square of it gets a quarter. Engineering notes also give the gas law pV^n = C, where p is the pressure, V the volume, n a fixed number set by how the gas is squeezed, and C a constant;[^5] for a gas kept at the same temperature n = 1,[^6] which is Boyle's law from Proportional reasoning. It says p = C × V⁻ⁿ, so halving the volume multiplies the pressure by (½)⁻ⁿ = 2ⁿ, the same negative-power step as the light: 2 when n = 1, and about 2.46 for an example n of 1.3, a power between whole numbers as in Fractional powers. Here n is given; finding it from readings needs logarithms, which come in Exponentials and logarithms.\n\nRun any of these backwards with a root: four times the heat came from √4 = 2 times the current, and doubling the heat needs √2, about 1.41 times the current. A pump that must take ⅛ of its power runs at ∛⅛ = ½ of its speed. A power also tells you what to plot. In y = aX² + b, write Z for X² and it reads y = aZ + b, the y = mx + c of Straight-line graphs, so readings plotted against X² instead of X line up straight, with gradient a and intercept b. The factor rule does not apply to y itself here, because b is added, not multiplied. The tiles and the patch are simplified pictures: a wire's resistance changes as it warms, and a beam or reflector does not spread its light like a bare point. That answers the course's puzzle: the current is used twice in I²R, so twice the current gives 2² = 4 times the heat, and three times the current gives 3² = 9 times.\n\n**When a result is one quantity's power times things that stay the same, changing that quantity by a factor changes the result by the factor raised to that power: twice the current in P = I²R gives four times the heat, and twice the distance in an inverse square law gives a quarter.[^1][^2]**"
+  },
+  "analogy": {
+    "text": "A pizza 30 cm across has four times the pizza of one 15 cm across, not twice, because it is twice as wide every way across. Its area follows a square law, just like the heat in P = I²R.",
+    "breaks": "A pizza's area is squared because it spreads in two directions you can see. A power such as the 1.3 in pV^n = C has no shape to point at, and an inverse square law divides rather than multiplies, so the picture only fits a squared quantity that multiplies, growing or shrinking."
+  },
+  "practice": {
+    "text": "To see what a change does in a formula:\n- Check the formula's shape: the result is the changing quantity's power, multiplied or divided by things that stay the same. A number added on the end, as in y = aX² + b, breaks the rule.\n- Find the power on the quantity that changes: 2 on I in P = I²R, −2 on d in an inverse square law, n on V in pV^n = C.\n- Work out its factor, new ÷ old.\n- Raise the factor to that power.\n- Multiply the old result by it.\n- If two quantities change in a formula of multiplied and divided quantities, do each factor and multiply them.\n\nThis tells you the size of a change. It does not replace the rating tables you already use to size a cable.\n\n**Rule of thumb:** a squared quantity turns ×2 into ×4, ×3 into ×9 and ×10 into ×100. A cubed one turns ×2 into ×8. An inverse square turns twice as far into a quarter and half as far into four times. To go backwards, take the root: ×4 in a square law came from ×2.\n\n**Worked example:** Say the current in a heater circuit rises from 10 A to 13 A with the same resistance. The factor is 13 ÷ 10 = 1.3, and the current is squared, so the heat goes up by 1.3² = 1.69, which is 69% more heat for 30% more current.\n\n**Common mistakes**\n- Leaving the power off: twice the current gives four times the heat, not twice.\n- Multiplying the factor by the power: three times the current is 3² = 9 times the heat, not 3 × 2 = 6.\n- Going the wrong way for an inverse square: twice as far is a quarter of the light, not four times.\n- Forgetting the root when you run it backwards: a quarter of the light means twice as far, not four times."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "simplified",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+    {
+      "n": 1,
+      "title": "Joule heating | Definition, Equation, & Facts | Britannica",
+      "url": "https://www.britannica.com/science/Joules-law",
+      "quote": "The English physicist James Prescott Joule discovered in 1840 that the amount of heat per second that develops in a wire carrying a current is proportional to the electrical resistance of the wire and the square of the current."
+    },
+    {
+      "n": 2,
+      "title": "17.3 Sound Intensity - University Physics Volume 1 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-1/pages/17-3-sound-intensity",
+      "quote": "In an inverse square relationship, such as the intensity, when you double the distance, the intensity decreases to one quarter"
+    },
+    {
+      "n": 3,
+      "title": "Adjustable Speed Pumping Applications: Industrial Technologies Program (ITP) Pumping Systems Tip Sheet #11",
+      "url": "https://www.energy.gov/sites/prod/files/2014/05/f16/adjust_speed_pumping.pdf",
+      "quote": "In centrifugal applications with no static lift, system power requirements vary with the cube of the pump speed. Small decreases in speed or flow can significantly reduce energy use. For example, reducing the speed (flow) by 20% can reduce input power requirements by approximately 50%."
+    },
+    {
+      "n": 4,
+      "title": "15.2 The Behavior of Electromagnetic Radiation - Physics | OpenStax",
+      "url": "https://openstax.org/books/physics/pages/15-2-the-behavior-of-electromagnetic-radiation",
+      "quote": "The illuminance is now only one-fourth as great, because the r 2 term in the denominator is 4 instead of 1."
+    },
+    {
+      "n": 5,
+      "title": "Polytropic Processes - Purdue Engineering",
+      "url": "https://engineering.purdue.edu/~wassgren/teaching/ME20000/NotesAndReading/Lec12_LectureNotes.pdf",
+      "quote": "A polytropic process is one in which pVn = constant, where n is a constant."
+    },
+    {
+      "n": 6,
+      "title": "Polytropic Process - WPI",
+      "url": "https://users.wpi.edu/~sullivan/ES3001/Lectures/Chapter_4/ch04b-jms2013.pdf",
+      "quote": "For a gas modeled as an ideal gas, when n = 1, the process is a constant-temperature (isothermal) process."
+    },
+    {
+      "n": 7,
+      "title": "Copper wire tables",
+      "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/hb/nbshandbook100.pdf",
+      "quote": "The resistance, mass, and cross section vary with the square of the diameter, hence by the use of the square of the ratio"
+    },
+    {
+      "title": "9.3 Resistivity and Resistance - University Physics Volume 2 | OpenStax",
+      "url": "https://openstax.org/books/university-physics-volume-2/pages/9-3-resistivity-and-resistance",
+      "quote": "The unit of resistivity in SI units is the ohm-meter .",
+      "n": 8
+    }
+  ]
+}
