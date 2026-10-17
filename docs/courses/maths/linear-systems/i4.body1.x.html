@@ -1,0 +1,913 @@
+<!-- kind: skill -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 46rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; max-width: 34rem; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* The grid of guesses, with the receipt cards beside it on a laptop and under it on a phone. */
+  .board { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: flex-start; }
+  .scene { display: block; flex: 1 1 19rem; max-width: 26rem; width: 100%; min-width: 0; }
+  .scene:focus { outline: none; }
+  .scene:focus-visible { outline: 2px solid var(--k-accent); outline-offset: 2px; border-radius: 6px; }
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .gf { fill: none; stroke: var(--k-strong); stroke-width: 1.2; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .at { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  /* Fact 1's line solid, fact 2's dashed; their marks a filled dot and an open ring. */
+  .scene .l1 { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .l2 { stroke: var(--k-accent); stroke-width: 2.5; stroke-dasharray: 8 6; fill: none; }
+  .scene .m1 { fill: var(--k-accent2); }
+  .scene .m2 { fill: none; stroke: var(--k-accent); stroke-width: 2; }
+  .scene .gr { fill: var(--k-fill1); fill-opacity: .3; stroke: var(--k-accent2); stroke-width: 2.5; }
+  .scene .xr { fill: none; stroke: var(--k-ink); stroke-width: 2; }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .kk { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene #art * { pointer-events: none; }
+  .scene .hit { fill: var(--k-bg); fill-opacity: 0; cursor: grab; touch-action: none; }
+  /* Each fact is a card that checks the guess with its own rule. */
+  .cards { flex: 1 1 13rem; min-width: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: 10px; align-content: start; }
+  .cards .guess { grid-column: 1 / -1; font-weight: 700; color: var(--k-accent2); line-height: 1.45; }
+  .card { border: 1px solid var(--k-line); border-radius: var(--k-r); background: var(--k-panel); padding: 8px 10px; line-height: 1.45; min-width: 0; }
+  .card .ch { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+  .card .ch svg { flex: 0 0 auto; }
+  .card .ci { color: var(--k-muted); font-size: .92rem; }
+  .card .ce { font-weight: 700; margin-top: 4px; }
+  .card .ce.bad { color: var(--k-warn); }
+  .card .cc { margin-top: 2px; }
+  .card .cs { font-weight: 700; }
+  .card .cs.ok { color: var(--k-accent2); }
+  .card .cs.no { color: var(--k-warn); }
+  .card .q { color: var(--k-muted); }
+  /* The working under the picture: one line per move, its name on the left. */
+  .work { position: relative; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 12px; padding: 4px 0 4px 15px; line-height: 1.45; max-width: 40rem; }
+  .work .bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; border-radius: 2px; background: var(--k-accent2); }
+  .work .wl { color: var(--k-muted); font-size: .85rem; font-weight: 700; padding-top: .12rem; }
+  .work .wm { font-weight: 600; }
+  .work .pc, .card .pc { white-space: nowrap; }
+  .work .pc.ok { color: var(--k-accent2); font-weight: 700; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stack one to a row, each label whole. */
+  .row.picks { flex-direction: column; gap: 8px; }
+  .picks .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; font-size: 1.05rem; padding-inline: 10px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .pz.ask .fb:empty { min-height: 0; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead" id="lead">A grid of guesses at two unknown prices, and receipts that each check a guess with their own rule. Every story here uses example figures.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="board">
+      <svg class="scene" id="scene" viewBox="0 0 340 342" width="100%" role="img" tabindex="0" aria-label=""><g id="art"></g><g id="top"></g></svg>
+      <div class="cards" id="cards" aria-live="off"></div>
+    </div>
+    <div class="replay" id="replay"></div>
+    <div class="work" id="work"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Drag the ring, or use the arrow keys, to try any guess on the grid.</p>
+
+<script>
+  // ---------- numbers, written as the lesson writes them ----------
+  const r6 = (v) => Math.round(v * 1e6) / 1e6;
+  const near = (a, b, t) => Math.abs(a - b) <= (t == null ? 1e-7 : t);
+  const mn = (s) => String(s).replace(/-/g, '−');
+  // Money with pence shows two decimals (3.50); everything else as short as it is (0.08).
+  function fv(v, money) { v = r6(v); return mn(money && !Number.isInteger(v) ? v.toFixed(2) : String(v)); }
+  const pounds = (v) => (v > 0 && v < 1 ? Math.round(v * 100) + 'p' : '£' + fv(v, true));
+  // 2d, −x, + 2p, − 4d
+  function termT(k, v, first) { const m = Math.abs(k), body = (m === 1 ? '' : m) + v; return first ? (k < 0 ? '−' : '') + body : (k < 0 ? ' − ' : ' + ') + body; }
+
+  // ---------- the stories: two unknowns (the grid's axes) and the facts that check a guess ----------
+  const A = (v, title, max, step, tick, money) => ({ v, title, max, step, tick, money: !!money });
+  // A fact: a·(across) + b·(up) = c, in its unit. items says it in the story's words.
+  const F = (name, items, a, b, c, unit) => ({ name, items, a, b, c, unit: unit || '£' });
+  const money = (f) => f.unit === '£';
+  const tt = (f, c) => { c = c == null ? f.c : c; return money(f) ? '£' + fv(c, true) : fv(c) + ' ' + f.unit; };
+  const RA = F('Receipt 1', '2 drinks and 1 bag of popcorn', 2, 1, 8);
+  const RB = F('Receipt 2', '1 drink and 2 bags of popcorn', 1, 2, 7);
+  const RC = (c) => F('Receipt 3', '4 drinks and 2 bags of popcorn', 4, 2, c);
+  const POPX = A('d', "d, a drink's price (£)", 5, 0.5, 1, true), POPY = A('p', "p, a bag of popcorn's price (£)", 8, 0.5, 2, true);
+  const POP = { X: POPX, Y: POPY, letters: "d = a drink's price and p = a bag of popcorn's, both in £",
+    means: (P) => 'a drink costs ' + pounds(P[0]) + ' and a bag of popcorn ' + pounds(P[1]) };
+  const story = (base, facts, g0, extra) => Object.assign({}, base, { F: facts, g0 }, extra || {});
+  const MACH = { X: A('a', 'a, effort added per N of load', 0.2, 0.01, 0.05), Y: A('b', 'b, effort with no load (N)', 20, 1, 5),
+    letters: 'In the law P = aW + b, P is the effort and W the load, both in N. The unknowns are a and b',
+    means: (P) => 'P = ' + fv(P[0]) + 'W + ' + fv(P[1]) + ': each extra newton of load needs ' + fv(P[0]) + ' N more effort, and ' + fv(P[1]) + ' N is the effort with no load' };
+  const RD = (n, W, P) => F('Reading ' + n, 'load ' + W + ' N, effort ' + P + ' N', W, 1, P, 'N');
+  const S_A = story(POP, [RA], [2, 4]);
+  const S_AB = story(POP, [RA, RB], [2, 4]);
+  const S_C = (c) => story(POP, [RA, RC(c)], [1, 6]);
+  const S_CAB = story({ X: A('x', 'x, 2.5 mm² cable (£ a metre)', 3, 0.1, 0.5, true), Y: A('y', 'y, 1.5 mm² cable (£ a metre)', 3, 0.1, 0.5, true),
+    letters: "x = the 2.5 mm² cable's price and y = the 1.5 mm²'s, both in £ a metre",
+    means: (P) => 'the 2.5 mm² costs ' + pounds(P[0]) + ' a metre and the 1.5 mm² ' + pounds(P[1]) + ' a metre' },
+    [F('Order 1', '10 m of each size', 10, 10, 20), F('Order 2', '10 m of 2.5 mm² and 20 m of 1.5 mm²', 10, 20, 28)], [1, 1]);
+  const S_SOCK = story({ X: A('s', 's, a socket (£)', 6, 0.5, 1, true), Y: A('w', 'w, a switch (£)', 8, 0.5, 2, true),
+    letters: "s = a socket's price and w = a switch's, both in £", means: (P) => 'a socket costs ' + pounds(P[0]) + ' and a switch ' + pounds(P[1]) },
+    [F('Order 1', '4 sockets and 2 switches', 4, 2, 22), F('Order 2', '2 sockets and 3 switches', 2, 3, 19)], [2, 2]);
+  const S_M1 = story(MACH, [RD(1, 100, 15), RD(2, 300, 35)], [0.05, 10]);
+  const S_M2 = story(MACH, [RD(1, 200, 26), RD(2, 500, 50)], [0.05, 15]);
+  const S_DRUM = story({ X: A('x', 'x, the shorter length (m)', 30, 1, 5), Y: A('y', 'y, the longer length (m)', 30, 1, 5),
+    letters: 'x = the shorter length and y = the longer, both in m', means: (P) => 'the two lengths are ' + fv(P[0]) + ' m and ' + fv(P[1]) + ' m' },
+    [F('Fact 1', 'the two lengths make 30 m', 1, 1, 30, 'm'), F('Fact 2', 'one is 6 m longer than the other', -1, 1, 6, 'm')], [10, 10]);
+  const S_TEA = story({ X: A('c', 'c, a coffee (£)', 5, 0.25, 1, true), Y: A('t', 't, a tea (£)', 5, 0.25, 1, true),
+    letters: "c = a coffee's price and t = a tea's, both in £", means: (P) => 'a coffee costs ' + pounds(P[0]) + ' and a tea ' + pounds(P[1]) },
+    [F('Order 1', '3 coffees and 2 teas', 3, 2, 12.5), F('Order 2', '1 coffee and 2 teas', 1, 2, 6.5)], [2, 2]);
+  const LOAD = 250;   // the load asked about on the last screen, in N
+  const S_M3 = story(MACH, [RD(1, 100, 20), RD(2, 400, 50)], [0.05, 15], { load: LOAD });
+
+  // ---------- each fact's rule, and a guess put into it ----------
+  // A fact whose first term is negative (y − x = 6) is written with its positive term first.
+  const flip = (f) => f.a < 0 && f.b > 0;
+  function eqT(f, s) {
+    return (flip(f) ? termT(f.b, s.Y.v, true) + termT(f.a, s.X.v, false) : termT(f.a, s.X.v, true) + termT(f.b, s.Y.v, false)) + ' = ' + fv(f.c, money(f));
+  }
+  function calcT(f, s, g) {
+    const tm = (k, v, ax, first) => { const m = Math.abs(k), val = fv(v, ax.money), body = m === 1 ? val : m + ' × ' + val; return first ? (k < 0 ? '−' : '') + body : (k < 0 ? ' − ' : ' + ') + body; };
+    const e = flip(f) ? tm(f.b, g[1], s.Y, true) + tm(f.a, g[0], s.X, false) : tm(f.a, g[0], s.X, true) + tm(f.b, g[1], s.Y, false);
+    const tot = r6(f.a * g[0] + f.b * g[1]);
+    return { e, tot, s: e + ' = ' + fv(tot, money(f)), ok: near(tot, f.c), more: tot > f.c };
+  }
+  const passes = (f, g) => near(f.a * g[0] + f.b * g[1], f.c);
+  function cross(f1, f2) {
+    const det = f1.a * f2.b - f2.a * f1.b;
+    if (Math.abs(det) < 1e-12) return null;
+    return [r6((f1.c * f2.b - f2.c * f1.b) / det), r6((f1.a * f2.c - f2.a * f1.c) / det)];
+  }
+  const snapA = (v, ax) => r6(K.clamp(Math.round(v / ax.step) * ax.step, 0, ax.max));
+  const onGrid = (s, g) => g[0] >= -1e-9 && g[0] <= s.X.max + 1e-9 && g[1] >= -1e-9 && g[1] <= s.Y.max + 1e-9;
+  function pairT(s, g) { const m = (ax, v) => (ax.money ? '£' : '') + fv(v, ax.money); return '(' + m(s.X, g[0]) + ', ' + m(s.Y, g[1]) + ')'; }
+  function guessT(s, g) { const m = (ax, v) => { const u = (ax.title.match(/\((N|m)\)$/) || [])[1]; return ax.v + ' = ' + (ax.money ? '£' : '') + fv(v, ax.money) + (u ? ' ' + u : ''); }; return m(s.X, g[0]) + ', ' + m(s.Y, g[1]); }
+  // Every guess on the grid.
+  function gridPts(s) {
+    const out = [], nx = Math.round(s.X.max / s.X.step), ny = Math.round(s.Y.max / s.Y.step);
+    for (let i = 0; i <= nx; i++) for (let j = 0; j <= ny; j++) out.push([r6(i * s.X.step), r6(j * s.Y.step)]);
+    return out;
+  }
+
+  // ---------- the working, built from the facts ----------
+  const okT = (f, s, g) => { const c = calcT(f, s, g); return c.s + (c.ok ? ' ✓' : ', not ' + fv(f.c, money(f))); };
+  const chkRows = (s, g) => s.F.map((f) => ({ l: f.name, s: okT(f, s, g) }));
+  const eqRows = (s) => s.F.map((f) => ({ l: f.name, s: eqT(f, s) }));
+  const letRow = (s) => ({ l: 'Letters', s: s.letters, prose: true });
+  // The value found put back into one fact for the other letter.
+  function putBack(s, f, uX, v) {
+    const ku = uX ? f.a : f.b, kw = uX ? f.b : f.a, axU = uX ? s.X : s.Y, axW = uX ? s.Y : s.X, mo = money(f);
+    const known = r6(ku * v), rest = r6(f.c - known), w = r6(rest / kw);
+    const kv = (Math.abs(ku) === 1 ? '' : Math.abs(ku) + ' × ') + fv(v, axU.money);
+    if (kw === 1 && ku > 0) return { l: 'Put back', s: axW.v + ' = ' + fv(f.c, mo) + ' − ' + kv + ' = ' + fv(f.c, mo) + ' − ' + fv(known, mo) + ' = ' + fv(w, axW.money), w };
+    const left = uX ? kv + termT(kw, axW.v, false) : termT(kw, axW.v, true) + ' + ' + kv;
+    return { l: 'Put back', s: left + ' = ' + fv(f.c, mo) + ', so ' + termT(kw, axW.v, true) + ' = ' + fv(f.c, mo) + ' − ' + fv(known, mo) + ' = ' + fv(rest, mo) + ' and ' + axW.v + ' = ' + fv(rest, mo) + ' ÷ ' + kw + ' = ' + fv(w, axW.money), w };
+  }
+  // Elimination: scale the facts by k, take one away from the other (top minus the other), put back.
+  function elimRows(s, k, top, back) {
+    const G = s.F.map((f, n) => Object.assign({}, f, { a: f.a * k[n], b: f.b * k[n], c: r6(f.c * k[n]) }));
+    const out = [], mo = money(s.F[0]);
+    s.F.forEach((f, n) => { if (k[n] !== 1) out.push({ l: f.name + ' × ' + k[n], s: eqT(G[n], s) }); });
+    const T0 = G[top], O = G[1 - top], D = { a: r6(T0.a - O.a), b: r6(T0.b - O.b), c: r6(T0.c - O.c) };
+    const uX = D.b === 0, Kc = uX ? D.a : D.b, ax = uX ? s.X : s.Y, v = r6(D.c / Kc);
+    out.push({ l: 'Take away', s: (Kc === 1 ? '' : Kc) + ax.v + ' = ' + fv(T0.c, mo) + ' − ' + fv(O.c, mo) + ' = ' + fv(D.c, mo) +
+      (Kc === 1 ? '' : ', so ' + ax.v + ' = ' + fv(D.c, mo) + ' ÷ ' + Kc + ' = ' + fv(v, ax.money)) });
+    const pb = putBack(s, s.F[back], uX, v);
+    out.push({ l: pb.l, s: pb.s });
+    return { rows: out, P: uX ? [v, pb.w] : [pb.w, v] };
+  }
+  // Substitution: fact fi says what the up letter is; swap that into the other fact.
+  function subRows(s, fi) {
+    const f = s.F[fi], g = s.F[1 - fi], X = s.X.v, Y = s.Y.v, mo = money(f);
+    const expr = f.a > 0 ? fv(f.c, mo) + termT(-f.a, X, false) : termT(-f.a, X, true) + ' + ' + fv(f.c, mo);
+    const out = [{ l: 'From ' + f.name.toLowerCase(), s: Y + ' = ' + expr }];
+    out.push({ l: 'Swap in', s: termT(g.a, X, true) + ' + ' + (g.b === 1 ? '' : g.b) + '(' + expr + ') = ' + fv(g.c, mo) });
+    const k0 = r6(g.b * f.c), kx = -g.b * f.a, Kc = g.a + kx, R = r6(g.c - k0), x = r6(R / Kc);
+    out.push({ l: 'Open up', s: termT(g.a, X, true) + ' + ' + fv(k0, mo) + termT(kx, X, false) + ' = ' + fv(g.c, mo) });
+    out.push({ l: 'Solve', s: termT(Kc, X, true) + ' = ' + fv(g.c, mo) + ' − ' + fv(k0, mo) + ' = ' + fv(R, mo) + ', so ' + X + ' = ' + (Kc > 1 ? fv(R, mo) + ' ÷ ' + Kc + ' = ' : '') + fv(x, s.X.money) });
+    const y = r6(f.c - f.a * x);
+    out.push({ l: 'Put back', s: Y + ' = ' + (f.a > 0 ? fv(f.c, mo) + ' − ' + (f.a === 1 ? '' : f.a + ' × ') + fv(x, s.X.money) + ' = ' + fv(f.c, mo) + ' − ' + fv(f.a * x, mo) : fv(x, s.X.money) + ' + ' + fv(f.c, mo)) + ' = ' + fv(y, s.Y.money) });
+    return { rows: out, P: [x, y] };
+  }
+  // The full working for a pair of facts: the letters, one equation per fact, the solve, the check, the meaning.
+  function solveRows(s, how) {
+    const sol = how.sub != null ? subRows(s, how.sub) : elimRows(s, how.k || [1, 1], how.top, how.back);
+    const rows = [letRow(s)].concat(eqRows(s), sol.rows, chkRows(s, sol.P), [{ l: 'Means', s: s.means(sol.P), prose: true }]);
+    if (s.load) rows.push({ l: 'At ' + s.load + ' N', s: 'P = ' + fv(sol.P[0]) + ' × ' + s.load + ' + ' + fv(sol.P[1]) + ' = ' + fv(sol.P[0] * s.load) + ' + ' + fv(sol.P[1]) + ' = ' + fv(sol.P[0] * s.load + sol.P[1]) + ' N' });
+    return { rows, P: sol.P };
+  }
+  // Receipt 3 halved, set beside receipt 1.
+  function halfRows(c) {
+    const C = RC(c), H = Object.assign({}, C, { a: C.a / 2, b: C.b / 2, c: r6(C.c / 2) }), same = near(H.c, RA.c);
+    return [{ l: C.name, s: eqT(C, POP) }, { l: 'Halved', s: eqT(H, POP) + (same ? ', which is receipt 1 again' : ', but receipt 1 says ' + fv(RA.c, true)) },
+      { l: 'So', s: same ? 'the lines lie on top of each other: endless answers' : 'the lines run side by side: no pair fits both', prose: true }];
+  }
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A SHOW step: stops (where the guess goes, and when it sets off), pre (lines and marks already known),
+  // lines (when each fact's line arrives), ring, rows (the working: one time per row), dur.
+  // A DO step: kind ('eq', 'pair' or 'which'), opts, want, a hint and each wrong answer's own hint, why.
+  const PICK = 'Tap one of the answers.';
+  const FB = 2.5, FADE = 0.35, TRAVEL = 0.6, FIRST = 0.45;
+  const A_MARKS = [[2, 4], [3, 2], [1, 6]];
+  const STEPS = [
+    { show: true, name: 'One receipt', sys: S_A, stops: [[0, [2, 4]], [1.2, [3, 2]], [2.2, [1, 6]]], lines: [[0, 3.1]], ring: null, dur: 4.4,
+      rows: (s) => [letRow(s), eqRows(s)[0], { l: 'Accepts', s: A_MARKS.map((g) => pairT(s, g)).join(', ') }, { l: 'So', s: 'one fact allows a whole line of answers', prose: true }], rowAt: [0.5, 0.8, 3.4, 3.8],
+      text: 'A cinema receipt says 2 drinks and 1 bag of popcorn cost £8. Each point on the grid is a guess at the two prices, and the receipt checks it with `2d + p = 8`. Every guess it accepts lands on one straight line.' },
+    { kind: 'eq', name: 'Write the second receipt', sys: S_AB, pre: { lines: [0], marks: [[0, A_MARKS]] },
+      opts: ['d + p + 2 = 7', 'd + 2p = 7', '2d + p = 7'], want: 1,
+      task: 'A second receipt says 1 drink and 2 bags of popcorn cost £7. Which equation is it?',
+      why: 'Each item\'s count times its price, added up, makes the total. One drink is `1 × d` and two bags are `2 × p`, so the receipt says `d + 2p = 7`.',
+      hint: 'Not quite. Count times price for each item, added up.',
+      hints: ['Not quite. Two bags cost 2 times p, which is `2p`, not `p + 2`.', null, 'Not quite. That has 2 drinks and 1 bag. This receipt has 1 drink and 2 bags.'] },
+    { show: true, name: 'Two receipts', sys: S_AB, pre: { lines: [0], marks: [[0, A_MARKS]] }, stops: [[0, [2, 4]], [1.0, [1, 3]], [2.0, [5, 1]], [3.2, [3, 2]]],
+      lines: [[1, 2.8]], ring: 3.9, dur: 4.9,
+      rows: (s) => { const P = cross(s.F[0], s.F[1]); return [letRow(s)].concat(eqRows(s), [{ l: 'Both pass', s: pairT(s, P) }], chkRows(s, P), [{ l: 'Means', s: s.means(P), prose: true }]); },
+      rowAt: [0.5, 0.7, 0.9, 4.0, 4.15, 4.3, 4.45],
+      text: 'Receipt 2 says `d + 2p = 7` and accepts its own line of guesses. A guess on one line can fail the other. Only the crossing passes both receipts, so it is the one answer that fits the whole story.' },
+    { kind: 'pair', name: 'Work it out', sys: S_AB, how: { sub: 0 }, opts: [[2, 4], [3, 2], [2, 3]], want: 1,
+      task: 'Guessing finds the answer one guess at a time. Work it out instead: what do a drink and a bag of popcorn cost?',
+      why: 'Receipt 1 says what p is once `2d` is taken from both sides, so swap that into receipt 2. Only d is left to find. Put it back for p, then check the pair in both receipts.',
+      hint: 'Not quite. Find the pair that fits both receipts.',
+      hints: ['Not quite. That fits receipt 1 only. Check it in receipt 2 too.', null, 'Not quite. That swaps the two prices. Write down which letter is which first.'] },
+    { show: true, name: 'Two orders of cable', sys: S_CAB, how: { top: 1, back: 0 }, stops: [[0, [1, 1]], [1.4, [1.2, 0.8]]], lines: [[0, 2.2], [1, 2.5]], ring: 2.8, dur: 4.3,
+      rowAt: [0.5, 0.7, 0.9, 3.0, 3.2, 3.4, 3.6, 3.8],
+      text: 'The same steps work for any story. Two orders of cable give one equation each. Take order 1 away from order 2 and only y is left.' },
+    { kind: 'pair', name: 'Sockets and switches', sys: S_SOCK, how: { k: [1, 2], top: 1, back: 0 }, opts: [[4, 3.5], [3, 5], [3.5, 4]], want: 2,
+      task: 'Order 1 is 4 sockets and 2 switches for £22. Order 2 is 2 sockets and 3 switches for £19. What does each cost?',
+      why: 'Double order 2 so both orders have 4 sockets. Take order 1 away and only the switches are left. Put the switch\'s price back into order 1 for the socket, then check both orders.',
+      hint: 'Not quite. Find the pair that fits both orders.',
+      hints: ['Not quite. That swaps the two prices. Write down which letter is which first.', 'Not quite. That fits order 1 only. Check it in order 2 too.', null] },
+    { show: true, name: 'A machine\'s law', sys: S_M1, how: { top: 1, back: 0 }, stops: [[0, [0.05, 10]], [1.4, [0.1, 5]]], lines: [[0, 2.2], [1, 2.5]], ring: 2.8, dur: 4.3,
+      rowAt: [0.5, 0.7, 0.9, 3.0, 3.2, 3.4, 3.6, 3.8],
+      text: 'The unknowns need not be prices. A lifting machine\'s law is `P = aW + b`, with effort P and load W, and two readings make a and b the unknowns. Each reading gives one equation.' },
+    { kind: 'pair', name: 'Two readings', sys: S_M2, how: { top: 1, back: 0 }, opts: [[0.13, 0], [0.08, 10], [10, 0.08]], want: 1,
+      task: 'A machine needs 26 N of effort for a 200 N load, and 50 N for a 500 N load. What are a and b in `P = aW + b`?',
+      why: 'Each reading gives one equation in a and b. Take reading 1 away from reading 2 and b goes, leaving a. Put a back into reading 1 for b, then check both readings.',
+      hint: 'Not quite. Find the pair that fits both readings.',
+      hints: ['Not quite. That forces the law through zero, so it fails reading 2. b is the effort with no load.', null, 'Not quite. That swaps a and b. Write down which letter is which first.'] },
+    { show: true, name: 'The same fact twice', sys: S_C(16), pre: { lines: [0], marks: [[0, A_MARKS]] }, slide: { from: 16, to: 15, at: 2.6 }, stops: [[0, [1, 6]]], lines: [[1, 0.9]], ring: null, dur: 4.0,
+      text: 'A receipt for 4 drinks and 2 bags of popcorn at £16 is receipt 1 doubled. It accepts every guess receipt 1 does, so its line lies on top, and there are endless answers. At £15 its line runs alongside, and no pair fits both.' },
+    { kind: 'which', name: 'Something new', sys: S_AB, pre: { lines: [0], marks: [[0, A_MARKS]] }, opts: [RC(16), RB, RC(15)], want: 1,
+      task: 'Receipt 1 says 2 drinks and 1 bag of popcorn cost £8. Which second receipt pins down both prices?',
+      why: 'A second fact must say something new. Receipt 3 at £16 is receipt 1 doubled, so its line lies on top. At £15 it disagrees with receipt 1, so its line runs alongside and never crosses. Receipt 2 crosses receipt 1 at one pair.',
+      hint: 'Not quite. Look for a receipt whose line crosses receipt 1\'s.',
+      hints: ['Not quite. That is receipt 1 doubled, so it says nothing new: endless answers.', null, 'Not quite. Halved, it disagrees with receipt 1, so no pair fits both.'] },
+    { kind: 'pair', name: 'A drum of cable', sys: S_DRUM, how: { sub: 1 }, opts: [[15, 15], [12, 18], [18, 24]], want: 1,
+      label: (s, g) => fv(g[0]) + ' m and ' + fv(g[1]) + ' m',
+      task: 'A 30 m drum of cable is cut into two lengths, one 6 m longer than the other. How long is each?',
+      why: 'Fact 2 says y is x and 6 more, so swap that into fact 1. Only x is left to find. Put it back for y, then check both facts.',
+      hint: 'Not quite. Find the pair that fits both facts.',
+      hints: ['Not quite. Those are equal, not 6 m apart.', null, 'Not quite. Those are 6 m apart, but together they make more than 30 m.'] },
+    { kind: 'pair', name: 'Coffee and tea', sys: S_TEA, how: { top: 0, back: 1 }, opts: [[1.75, 3], [3, 1.75], [2.5, 2.5]], want: 1,
+      task: 'Order 1 is 3 coffees and 2 teas for £12.50. Order 2 is 1 coffee and 2 teas for £6.50. What does each cost?',
+      why: 'Both orders have 2 teas, so take order 2 away from order 1 and only the coffees are left. Put the coffee\'s price back into order 2 for the tea, then check both orders.',
+      hint: 'Not quite. Find the pair that fits both orders.',
+      hints: ['Not quite. That swaps the two prices. Write down which letter is which first.', null, 'Not quite. That fits order 1 only. Check it in order 2 too.'] },
+    { kind: 'pair', name: 'Last one', sys: S_M3, how: { top: 1, back: 0 }, opts: [[0.1, 0], [0.1, 10], [0.2, 0]], want: 1,
+      label: (s, g) => fv(g[0] * s.load + g[1]) + ' N',
+      task: 'Last one. A machine needs 20 N of effort for a 100 N load, and 50 N for a 400 N load. What effort does a 250 N load need?',
+      why: 'Find the law first. Take reading 1 away from reading 2 for a, put it back for b, and check both readings. Then put 250 N into the law.',
+      hint: 'Not quite. Find a and b first.',
+      hints: ['Not quite. That leaves off b, the effort with no load.', null, 'Not quite. That forces the law through zero, so it fails reading 2.'] },
+  ];
+  const FINISH = 'Give each unknown a letter, with what it stands for and its unit. Turn each separate fact into one equation, solve the pair, check it in the story, and say what it means.';
+  const SRC1 = 'https://www.bbc.co.uk/bitesize/guides/z9y9jty/revision/1';
+  const SRC2 = 'https://openstax.org/books/intermediate-algebra-2e/pages/4-1-solve-systems-of-linear-equations-with-two-variables';
+  const SRC6 = 'https://www.bbc.co.uk/bitesize/articles/zhbnvj6';
+  const labelOf = (d, k) => { const o = d.opts[k], s = d.sys; if (d.kind === 'eq') return o; if (d.kind === 'which') return o.items + ', ' + tt(o);
+    return d.label ? d.label(s, o) : s.X.v + ' = ' + (s.X.money ? '£' : '') + fv(o[0], s.X.money) + ', ' + s.Y.v + ' = ' + (s.Y.money ? '£' : '') + fv(o[1], s.Y.money); };
+
+  // ---------- where things go: the grid of guesses, its axes and its key ----------
+  const GX = 44, GY = 28, GW = 280, GH = 216, GX1 = GX + GW, GY1 = GY + GH, H = 342;
+  const px = (s, x) => GX + x / s.X.max * GW, py = (s, y) => GY1 - y / s.Y.max * GH;
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+  const say = (str) => String(str).replace(/−/g, 'minus ').replace(/×/g, 'times').replace(/÷/g, 'divided by').replace(/✓/g, 'fits');
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // guess: where the ring was dragged; um: the marks that guesses left; start: where the ring sat at Check;
+  // c3, from3: receipt 3's total as switched on the doubled-receipt screen, and what it was before.
+  function blank() { return { pick: null, res: null, why: false, guess: null, um: [], start: null, c3: null, from3: null }; }
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let REC = null;   // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const LET = /((?<![A-Za-z²'])[dpxyswabctPW](?![A-Za-z']))/;
+  function italics(parent, str, inSvg) {
+    String(str).split(LET).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(node, str) {
+    node.textContent = '';
+    String(str).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let a0 = 0, mt;
+      while ((mt = re.exec(seg))) {
+        if (mt.index > a0) node.appendChild(document.createTextNode(seg.slice(a0, mt.index)));
+        node.appendChild(K.el('span', { class: 'term' }, mt[1]));
+        a0 = mt.index + mt[0].length;
+      }
+      if (a0 < seg.length) node.appendChild(document.createTextNode(seg.slice(a0)));
+    });
+  }
+  // Maths that may wrap only between its pieces: "2 × 2 + 4" "= 8".
+  function mathInto(node, str) {
+    String(str).split(/ (?=[=+−] )|(?<=,) /).forEach((pc, n) => {
+      if (n) node.appendChild(document.createTextNode(' '));
+      italics(node.appendChild(K.el('span', { class: 'pc' + (/✓$/.test(pc) ? ' ok' : '') })), pc, false);
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = k; st.res = null;
+    if (was) { anim.pause(); T = Infinity; }
+  } }));
+  // Check: a right answer works the story through on the grid; a wrong one tries its pair, or shows its slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.start = curGuess(i); st.guess = null;
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    if (!st.why) play(FB);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') { st.start = curGuess(i); st.guess = null; play(FB); }
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    S[i] = blank();
+    play(d.dur);
+  } });
+  // On the doubled-receipt screen: switch receipt 3's total between £16 and £15.
+  const flipBtn = K.button({ label: 'Make it £16', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.slide || finished) return;
+    const cur = shownC(planOf(i, st).slide, T);
+    st.from3 = cur; st.c3 = cur === d.slide.from ? d.slide.to : d.slide.from;
+    play(1.2);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration, each puzzle's answer and each switch of the total;
+  // with reduced motion (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  let waiting = false, waitDur = 0, seen = null, io = null;
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && !waiting && T !== Infinity) { T = Infinity; paint(); } });
+  // A demonstration that opens a screen waits until its picture is at least half in view.
+  function play(dur, whenSeen) {
+    waiting = false;
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    if (whenSeen && io && seen !== true) { waiting = true; waitDur = dur; anim.pause(); T = 0; return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- timing: how far a part due at t0 has arrived, noting the timetable for the timing check ----------
+  let latest = 0, earliest = Infinity;
+  function note(t0, dd) { if (t0 + dd > latest) latest = t0 + dd; if (t0 < earliest) earliest = t0; }
+  function arr(t0, dd) { if (t0 < 0) return 1; note(t0, dd); return K.arrive(T, t0, dd); }
+
+  // ---------- what a step shows ----------
+  // Receipt 3's total: the line slides from one total to the other; the words switch at the start.
+  function shownC(sl, t) { return !sl ? null : t < sl.at ? sl.from : sl.to; }
+  function lineC(sl, t) {
+    if (!sl) return null;
+    if (sl.at >= 0) note(sl.at, 0.8);
+    if (t < sl.at) return sl.from;
+    return t >= sl.at + 0.8 ? sl.to : K.lerp(sl.from, sl.to, K.ease((t - sl.at) / 0.8));
+  }
+  const withC = (f, c) => (c == null ? f : Object.assign({}, f, { c }));
+  // The marks a guess leaves when it arrives: one for each fact that accepts it.
+  function stopMarks(pl, s, show) {
+    pl.stops.forEach((sp, j) => {
+      if (j === 0 && !show) return;
+      const t = pl.instant ? -10 : j === 0 ? FIRST : sp[0] + TRAVEL, c = pl.slide ? (pl.instant ? pl.slide.to : shownC(pl.slide, t)) : null;
+      pl.facts.forEach((f, k) => {
+        if (!f || !pl.known[k]) return;
+        const fc = k === 1 ? withC(f, c) : f;
+        if (onGrid(s, sp[1]) && passes(fc, sp[1])) pl.marks.push({ k, g: sp[1], at: t, c: fc.c });
+      });
+    });
+  }
+  function planOf(i, st) {
+    const d = STEPS[i], s = d.sys, pre = d.pre || { lines: [], marks: [] };
+    const pl = { facts: s.F.slice(), known: s.F.map(() => true), bad: null, badAt: -10, eqAt: -10, card2At: -10, stops: [[0, st.start || s.g0]], fixed: st.guess,
+      lines: [], marks: [], ring: null, rows: [], rowT: [], slide: null, old: null, instant: false, pre };
+    pre.marks.forEach((q) => q[1].forEach((g) => pl.marks.push({ k: q[0], g, at: -10, c: s.F[q[0]].c })));
+    if (d.show) {
+      if (d.slide) pl.slide = st.c3 != null ? { from: st.from3, to: st.c3, at: 0 } : d.slide;
+      pl.instant = st.c3 != null;
+      pl.stops = d.stops.map((q) => [q[0], q[1]]);
+      pl.lines = d.lines.map((q) => [q[0], pl.instant ? -10 : q[1]]);
+      pl.ring = d.ring;
+      if (pl.slide) {
+        const A0 = eqRows(s)[0], sl = pl.slide;
+        pl.old = { rows: [A0].concat(halfRows(sl.from)), T: pl.instant ? [-10, -10, -10, -10] : [0.5, 1.2, 1.5, 1.8] };
+        pl.rows = [A0].concat(halfRows(sl.to)); pl.rowT = pl.rows.map((r, n) => sl.at + 0.2 + n * 0.12);
+      } else { pl.rows = d.rows ? d.rows(s) : solveRows(s, d.how).rows; pl.rowT = d.rowAt; }
+      stopMarks(pl, s, true);
+      return pl;
+    }
+    const open = st.res === 'right' || st.why, wrong = st.res === 'wrong' && !st.why, start = st.start || s.g0;
+    if (d.kind === 'eq') {
+      pl.known = [true, open];
+      if (open) {
+        const f = s.F[1];
+        pl.eqAt = 0.1;
+        pl.rows = [letRow(s), { l: f.name, s: f.a + ' × ' + s.X.v + ' + ' + f.b + ' × ' + s.Y.v + ' = ' + fv(f.c, money(f)) + ', so ' + eqT(f, s) }];
+        pl.rowT = [0.3, 0.45];
+      } else if (wrong) { pl.bad = d.opts[st.pick]; pl.badAt = 0.1; }
+      return pl;
+    }
+    if (d.kind === 'which') {
+      if (!open && !wrong) { pl.facts = [s.F[0], null]; pl.known = [true, false]; return pl; }
+      const f = open ? d.opts[d.want] : d.opts[st.pick];
+      pl.facts = [s.F[0], f]; pl.card2At = 0.1; pl.lines = [[1, 0.4]];
+      if (cross(s.F[0], f)) {
+        const P = cross(s.F[0], f);
+        pl.stops = [[0, start], [0.6, P]]; pl.ring = 1.3;
+        pl.rows = eqRows(s).concat([{ l: 'Both pass', s: pairT(s, P) }], chkRows(s, P), [{ l: 'Means', s: s.means(P), prose: true }]);
+        pl.rowT = pl.rows.map((r, n) => 1.0 + n * 0.15);
+      } else { pl.rows = halfRows(f.c); pl.rowT = [0.6, 0.75, 0.9]; }
+      stopMarks(pl, s, false);
+      return pl;
+    }
+    if (open) {
+      const sol = solveRows(s, d.how);
+      pl.stops = [[0, start], [0.1, sol.P]]; pl.lines = [[0, 0.6], [1, 0.8]]; pl.ring = 1.0;
+      pl.rows = sol.rows; pl.rowT = sol.rows.map((r, n) => 0.9 + n * 0.12);
+    } else if (wrong) {
+      const v = d.opts[st.pick];
+      pl.stops = [[0, start], [0.1, v]];
+      pl.rows = [{ l: 'Tried', s: pairT(s, v) }].concat(chkRows(s, v)); pl.rowT = [0.8, 0.95, 1.1];
+    }
+    stopMarks(pl, s, false);
+    return pl;
+  }
+  // Where the ring is at time t, and the guess the cards are checking (the last one it reached).
+  function posAt(pl, t) {
+    if (pl.fixed) return pl.fixed;
+    let j = 0;
+    for (let n = 1; n < pl.stops.length; n++) if (pl.stops[n][0] <= t) j = n;
+    const sp = pl.stops[j];
+    if (j > 0) { note(sp[0], TRAVEL); if (t < sp[0] + TRAVEL) { const q = K.ease((t - sp[0]) / TRAVEL), a = pl.stops[j - 1][1]; return [K.lerp(a[0], sp[1][0], q), K.lerp(a[1], sp[1][1], q)]; } }
+    return sp[1];
+  }
+  function arrivedAt(pl, t) {
+    if (pl.fixed) return pl.fixed;
+    let g = pl.stops[0][1];
+    for (let n = 1; n < pl.stops.length; n++) if (pl.stops[n][0] + TRAVEL <= t) g = pl.stops[n][1];
+    return g;
+  }
+  function curGuess(i) { const st = S[i]; return st.guess || arrivedAt(planOf(i, st), T); }
+  // The last change the cards show (a guess arriving, the total switching), before or at t.
+  function lastChange(pl, t) {
+    let tc = -Infinity;
+    pl.stops.forEach((sp, n) => { if (n && sp[0] + TRAVEL <= t) tc = Math.max(tc, sp[0] + TRAVEL); });
+    if (pl.slide && pl.slide.at <= t && !pl.instant) tc = Math.max(tc, pl.slide.at);
+    if (pl.slide && pl.instant && t >= 0) tc = Math.max(tc, 0);
+    return tc;
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), topG = el('top');
+  if (typeof IntersectionObserver === 'function') {
+    io = new IntersectionObserver((es) => {
+      seen = es[es.length - 1].intersectionRatio >= 0.45;
+      if (seen && waiting && !finished) { waiting = false; motionEnd = waitDur; T = 0; anim.play(); }
+    }, { threshold: [0, 0.45, 1] });
+    io.observe(svg);
+  }
+  const add = (node) => art.appendChild(node);
+  const ln = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  // ital: 'first' sets only the axis letter in italics.
+  function tx(x, y, str, cls, anchor, ital) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    if (ital === 'first') { t.appendChild(K.svg('tspan', { class: 'v' }, str[0])); t.appendChild(document.createTextNode(str.slice(1))); }
+    else if (ital) italics(t, str, true);
+    else t.textContent = str;
+    return add(t);
+  }
+  function drawGrid(s) {
+    for (let v = 0; v <= s.X.max + 1e-9; v = r6(v + s.X.tick)) { ln('gl', px(s, v), GY, px(s, v), GY1); tx(px(s, v), GY1 + 17, fv(v), 'tk', 'middle'); }
+    for (let v = 0; v <= s.Y.max + 1e-9; v = r6(v + s.Y.tick)) { ln('gl', GX, py(s, v), GX1, py(s, v)); tx(GX - 6, py(s, v) + 4.5, fv(v), 'tk', 'end'); }
+    add(K.svg('rect', { class: 'gf', x: GX, y: GY, width: GW, height: GH }));
+    tx(GX + GW / 2, GY1 + 38, s.X.title, 'at', 'middle', 'first');
+    tx(4, GY - 12, s.Y.title, 'at', 'start', 'first');
+  }
+  // The part of a fact's line that lies on the grid, in the story's own numbers; null when it misses.
+  function clipFact(s, f) {
+    const n2 = f.a * f.a + f.b * f.b, x0 = f.a * f.c / n2, y0 = f.b * f.c / n2, dx = f.b, dy = -f.a;
+    let lo = -Infinity, hi = Infinity;
+    for (const q of [[dx, x0, s.X.max], [dy, y0, s.Y.max]]) {
+      if (Math.abs(q[0]) < 1e-12) { if (q[1] < -1e-9 || q[1] > q[2] + 1e-9) return null; continue; }
+      let a = -q[1] / q[0], b = (q[2] - q[1]) / q[0];
+      if (a > b) { const w = a; a = b; b = w; }
+      lo = Math.max(lo, a); hi = Math.min(hi, b);
+    }
+    if (!(hi - lo > 1e-12)) return null;
+    return [x0 + dx * lo, y0 + dy * lo, x0 + dx * hi, y0 + dy * hi];
+  }
+  const sameG = (a, b) => near(a[0], b[0], 1e-9) && near(a[1], b[1], 1e-9);
+  const userMarks = (st, k, pl) => st.um.filter((m) => m.k === k && (k !== 1 || !pl.slide || near(m.c, shownC(pl.slide, T))));
+  function swatch(k) {
+    const sv = K.svg('svg', { width: 26, height: 10, viewBox: '0 0 26 10', 'aria-hidden': 'true' });
+    sv.appendChild(K.svg('line', { x1: 2, y1: 5, x2: 24, y2: 5, style: k ? 'stroke: var(--k-accent); stroke-width: 2.5; stroke-dasharray: 6 4' : 'stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round' }));
+    return sv;
+  }
+
+  // ---------- the scene for a step (the animation calls this every frame) ----------
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], s = d.sys, pl = planOf(i, st);
+    art.textContent = '';
+    REC = { lines: [], ring: false, rows: [], cards: [], guess: null, marks: [], line2: null };
+    const cLine = lineC(pl.slide, T), fNow = (k) => (k === 1 ? withC(pl.facts[1], cLine) : pl.facts[k]);
+    drawGrid(s);
+
+    // Each fact's line: known already, arriving as planned, or drawn through two or more marks a drag left.
+    const lineA = pl.facts.map((f, k) => {
+      if (!f || !pl.known[k]) return 0;
+      let a = pl.pre.lines.indexOf(k) >= 0 ? 1 : 0;
+      pl.lines.forEach((q) => { if (q[0] === k) a = Math.max(a, arr(q[1], 0.45)); });
+      if (userMarks(st, k, pl).length + pl.marks.filter((m) => m.k === k && m.at < 0).length >= 2 && st.um.some((m) => m.k === k)) a = 1;
+      return a;
+    });
+    lineA.forEach((a, k) => {
+      if (a <= 0.01) return;
+      const sg = clipFact(s, fNow(k));
+      if (!sg) return;
+      K.fade(ln('l' + (k + 1), px(s, sg[0]), py(s, sg[1]), px(s, sg[2]), py(s, sg[3])), a, 0);
+      if (a >= 0.5) { REC.lines.push(k); if (k === 1) REC.line2 = sg; }
+    });
+    // The marks: a filled dot for fact 1, an open ring for fact 2.
+    const cS = shownC(pl.slide, T);
+    pl.marks.concat(st.um.map((m) => Object.assign({ at: -10, user: true }, m))).forEach((m) => {
+      if (!pl.facts[m.k] || !pl.known[m.k] || !onGrid(s, m.g)) return;
+      let a = arr(m.at, 0.3);
+      if (m.k === 1 && pl.slide && !near(m.c, pl.slide.to)) a *= m.user ? 0 : 1 - arr(pl.slide.at, 0.3);
+      if (m.k === 1 && pl.slide && m.user && !near(m.c, cS)) a = 0;
+      if (a <= 0.01) return;
+      K.fade(add(K.svg('circle', m.k ? { class: 'm2', cx: r2(px(s, m.g[0])), cy: r2(py(s, m.g[1])), r: 7 } : { class: 'm1', cx: r2(px(s, m.g[0])), cy: r2(py(s, m.g[1])), r: 4 })), a, 0);
+      if (a >= 0.5) REC.marks.push(m.k + ':' + m.g.join(','));
+    });
+    // The crossing: the only guess on both lines.
+    const P = pl.facts[1] && pl.known[1] ? cross(pl.facts[0], withC(pl.facts[1], cS)) : null;
+    let ringA = pl.ring != null ? arr(pl.ring, 0.45) : 0;
+    if (st.guess && P && sameG(st.guess, P)) ringA = 1;
+    if (P && onGrid(s, P) && ringA > 0.01) {
+      K.fade(add(K.svg('circle', { class: 'xr', cx: r2(px(s, P[0])), cy: r2(py(s, P[1])), r: 15 })), ringA, 0);
+      if (ringA >= 0.5) REC.ring = true;
+    }
+    // The guess: a ring to drag.
+    const pos = posAt(pl, T);
+    REC.pos = pos;
+    if (onGrid(s, pos)) add(K.svg('circle', { class: 'gr', cx: r2(px(s, pos[0])), cy: r2(py(s, pos[1])), r: 11 }));
+
+    // The key, inside the drawing.
+    const KY = H - 34, KY2 = H - 12;
+    const keyLine = (k, x) => { const g = add(K.svg('g')); g.appendChild(K.svg('line', { class: 'l' + (k + 1), x1: x, y1: KY - 4, x2: x + 24, y2: KY - 4 })); tx(x + 30, KY, pl.facts[k].name.toLowerCase(), 'key', 'start'); return g; };
+    keyLine(0, 8);
+    if (pl.facts[1]) K.fade(keyLine(1, 176), arr(pl.card2At, 0.3), 0);
+    add(K.svg('circle', { class: 'gr', cx: 20, cy: KY2 - 4, r: 8 }));
+    tx(38, KY2, 'guess', 'key', 'start');
+    if (ringA > 0.01 && P) {
+      const g = add(K.svg('g'));
+      g.appendChild(K.svg('circle', { class: 'xr', cx: 188, cy: KY2 - 4, r: 9 }));
+      g.appendChild(tx(206, KY2, 'passes both', 'key', 'start'));
+      K.fade(g, ringA, 0);
+    }
+
+    // The cards: each fact checks the guess it last reached, the old words fading out before the new.
+    const tc = lastChange(pl, T);
+    let shown = T, ca = 1;
+    if (tc > -Infinity && T < tc + 0.2) { shown = tc - 1e-6; ca = 1 - arr(tc, 0.2); }
+    else if (tc > -Infinity) ca = arr(tc + 0.2, 0.25);
+    drawCards(s, pl, st, arrivedAt(pl, shown), shownC(pl.slide, shown), ca);
+
+    // The working, line by line.
+    if (pl.old && T < pl.slide.at + 0.2) drawRows(pl.old.rows.map((r, n) => Object.assign({}, r, { a: arr(pl.old.T[n], 0.3) * (1 - arr(pl.slide.at, 0.2)) })));
+    else drawRows(pl.rows.map((r, n) => Object.assign({}, r, { a: arr(pl.rowT[n], 0.3) })));
+
+    svg.setAttribute('viewBox', '0 0 340 ' + H);
+    svg.setAttribute('aria-label', describe(s, pl, pos, P));
+  }
+  function drawCards(s, pl, st, g, c, ca) {
+    const box = el('cards');
+    box.textContent = '';
+    const both = !!pl.facts[1] && pl.known[1] && pl.facts.every((f, k) => passes(k === 1 ? withC(f, c) : f, g));
+    const gl = box.appendChild(K.el('p', { class: 'guess' }));
+    italics(gl, 'Guess: ' + guessT(s, g) + (onGrid(s, g) ? '' : ', off the grid') + (both ? ', passes both' : ''), false);
+    K.fade(gl, ca, 0);
+    REC.guess = g;
+    pl.facts.forEach((f0, k) => {
+      if (!f0) return;
+      const f = k === 1 ? withC(f0, c) : f0, card = box.appendChild(K.el('div', { class: 'card' })), slid = k === 1 && !!pl.slide;
+      const h = card.appendChild(K.el('div', { class: 'ch' }));
+      h.appendChild(swatch(k)); h.appendChild(K.el('span', {}, f.name));
+      const ci = card.appendChild(K.el('div', { class: 'ci' }, money(f) ? f.items + ', ' + tt(f) : f.items));
+      const ce = card.appendChild(K.el('div', { class: 'ce' }));
+      const rec = { name: f.name, eq: null, calc: null, status: null };
+      if (slid) { K.fade(ci, ca, 0); K.fade(ce, ca, 0); }
+      if (pl.known[k]) {
+        mathInto(ce, eqT(f, s)); rec.eq = eqT(f, s);
+        if (k === 1 && pl.eqAt >= 0) K.fade(ce, arr(pl.eqAt, 0.3), 0);
+        const cl = calcT(f, s, g);
+        const cc = card.appendChild(K.el('div', { class: 'cc' }));
+        mathInto(cc, cl.s);
+        const cs = card.appendChild(K.el('div', { class: 'cs ' + (cl.ok ? 'ok' : 'no') }, cl.ok ? '✓ matches' : cl.more ? 'too much' : 'too little'));
+        K.fade(cc, ca, 0); K.fade(cs, ca, 0);
+        rec.calc = cl.s; rec.status = cs.textContent;
+      } else if (pl.bad) {
+        ce.classList.add('bad'); mathInto(ce, pl.bad); K.fade(ce, arr(pl.badAt, 0.3), 0); rec.eq = pl.bad;
+      } else { ce.appendChild(K.el('span', { class: 'q' }, 'Its equation: ?')); }
+      if (k === 1 && pl.card2At >= 0) K.fade(card, arr(pl.card2At, 0.3), 0);
+      REC.cards.push(rec);
+    });
+  }
+  function drawRows(list) {
+    const box = el('work');
+    box.textContent = '';
+    box.hidden = !list.length;
+    K.fade(box.appendChild(K.el('i', { class: 'bar', 'aria-hidden': 'true' })), list.length ? list[0].a : 0, 0);
+    list.forEach((r) => {
+      const l = box.appendChild(K.el('span', { class: 'wl' }, r.l));
+      const m = box.appendChild(K.el('span', { class: 'wm' }));
+      if (r.prose) m.textContent = r.s; else mathInto(m, r.s);
+      K.fade(l, r.a, 0); K.fade(m, r.a, 0);
+      if (r.a >= 0.5) REC.rows.push({ l: r.l, s: r.s });
+    });
+  }
+  function describe(s, pl, pos, P) {
+    let t = 'A grid of guesses: ' + say(s.X.title) + ' across, from 0 to ' + fv(s.X.max) + ', and ' + say(s.Y.title) + ' up, from 0 to ' + fv(s.Y.max) + '.';
+    REC.lines.forEach((k) => { t += ' The line of every guess ' + pl.facts[k].name.toLowerCase() + ' accepts is drawn' + (k ? ' dashed.' : ' solid.'); });
+    if (REC.ring && P) t += ' A ring marks the crossing at ' + say(pairT(s, P)) + ', the only guess that passes both.';
+    if (onGrid(s, pos)) t += ' The guess ring is at ' + say(pairT(s, pos.map(r6))) + '.';
+    return t;
+  }
+
+  // ---------- dragging the guess (or the arrow keys) ----------
+  const hit = topG.appendChild(K.svg('rect', { class: 'hit', x: GX - 14, y: GY - 14, width: GW + 28, height: GH + 28, 'aria-hidden': 'true' }));
+  function toGuess(ev) {
+    const m = svg.getScreenCTM();
+    if (!m) return null;
+    const q = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()), s = STEPS[at()].sys;
+    return [snapA((q.x - GX) / GW * s.X.max, s.X), snapA((GY1 - q.y) / GH * s.Y.max, s.Y)];
+  }
+  function setGuess(g) {
+    const i = at(), st = S[i];
+    if (finished || (st.guess && sameG(st.guess, g))) return;
+    if (anim.playing() || waiting) { anim.pause(); waiting = false; }
+    T = Infinity;
+    const pl = planOf(i, Object.assign({}, st, { guess: g })), c = pl.slide ? pl.slide.to : null;
+    pl.facts.forEach((f, k) => {
+      if (!f || !pl.known[k]) return;
+      const fc = k === 1 ? withC(f, c) : f;
+      if (passes(fc, g) && !st.um.some((m) => m.k === k && sameG(m.g, g) && near(m.c, fc.c))) st.um.push({ k, g, c: fc.c });
+    });
+    st.guess = g;
+    K.refresh();
+  }
+  let dragId = null;
+  hit.addEventListener('pointerdown', (ev) => {
+    if (ev.button > 0) return;
+    dragId = ev.pointerId;
+    try { hit.setPointerCapture(ev.pointerId); } catch (e) { /* the drag still follows inside the grid */ }
+    ev.preventDefault();
+    const g = toGuess(ev); if (g) setGuess(g);
+  });
+  hit.addEventListener('pointermove', (ev) => { if (dragId !== ev.pointerId) return; ev.preventDefault(); const g = toGuess(ev); if (g) setGuess(g); });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((e) => hit.addEventListener(e, () => { dragId = null; }));
+  hit.addEventListener('touchstart', (ev) => { if (ev.cancelable) ev.preventDefault(); }, { passive: false });
+  svg.addEventListener('keydown', (ev) => {
+    const dir = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[ev.key];
+    if (!dir) return;
+    ev.preventDefault();
+    const s = STEPS[at()].sys, g = curGuess(at());
+    setGuess([snapA(g[0] + dir[0] * s.X.step, s.X), snapA(g[1] + dir[1] * s.Y.step, s.Y)]);
+  });
+
+  write(el('finish'), FINISH);
+  K.update((prm) => {
+    const i = Math.round(prm.step), d = STEPS[i], st = S[i];
+    if (!anim.playing() && !waiting) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { S[i] = blank(); play(d.dur, true); } else { waiting = false; anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const sti = S[i], right = sti.res === 'right';
+    el('pz').classList.toggle('ask', !d.show && !right && !sti.why);
+    el('stepbox').hidden = finished;
+    el('lead').hidden = i !== 0 || finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+    replayBtn.el.hidden = !d.show || REDUCE;
+    flipBtn.el.hidden = !d.slide;
+    if (d.slide) flipBtn.setLabel('Make it £' + (shownC(planOf(i, sti).slide, T) === d.slide.from ? d.slide.to : d.slide.from));
+    el('replay').hidden = replayBtn.el.hidden && flipBtn.el.hidden;
+    const n = d.show ? 0 : d.opts.length;
+    el('picks').hidden = !n;
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= n;
+      if (k >= n) return;
+      const lab = labelOf(d, k);
+      b.el.textContent = ''; italics(b.el.appendChild(K.el('span', {})), lab, false);
+      b.el.setAttribute('aria-label', say(lab));
+      b.el.setAttribute('aria-pressed', sti.pick === k ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : sti.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : sti.res === 'wrong' ? ((d.hints && d.hints[sti.pick]) || d.hint) : sti.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !sti.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(sti.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const STORIES = [S_A, S_AB, S_C(16), S_CAB, S_SOCK, S_M1, S_M2, S_DRUM, S_TEA, S_M3];
+  const PAIRS = [S_AB, S_CAB, S_SOCK, S_M1, S_M2, S_DRUM, S_TEA, S_M3];
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const whySt = () => Object.assign(blank(), { why: true });
+  const wrongSt = (k) => Object.assign(blank(), { pick: k, res: 'wrong' });
+  // A step painted in the state given (finished, or t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const sameSeg = (a, b) => !!a && !!b && sameG(a.slice(0, 2), b.slice(0, 2)) && sameG(a.slice(2), b.slice(2));
+
+  K.check('Equations that have more than one unknown can have an infinite number of solutions: every receipt, order, reading and fact here accepts at least three guesses on its grid, and every guess it accepts lies on its one straight line', () =>
+    STORIES.every((s) => s.F.every((f) => {
+      const ok = gridPts(s).filter((g) => passes(f, g)), sg = clipFact(s, f);
+      return ok.length >= 3 && !!sg && ok.every((g) => near((sg[2] - sg[0]) * (g[1] - sg[1]) - (sg[3] - sg[1]) * (g[0] - sg[0]), 0, 1e-6));
+    })), { source: SRC1 });
+  K.check('A solution of a system of two equations is an ordered pair that makes both equations true: in every two-fact story here exactly one guess on the grid passes both facts, and it is where their two lines cross', () =>
+    PAIRS.every((s) => {
+      const P = cross(s.F[0], s.F[1]), both = gridPts(s).filter((g) => passes(s.F[0], g) && passes(s.F[1], g));
+      return !!P && onGrid(s, P) && both.length === 1 && sameG(both[0], P);
+    }), { source: SRC2 });
+  K.check('When the two equations were really the same line, there were infinitely many solutions: receipt 3 at £16 accepts exactly the guesses receipt 1 accepts, and its line lies on top of receipt 1\'s', () => {
+    const C = RC(16);
+    return gridPts(POP).every((g) => passes(RA, g) === passes(C, g)) && !cross(RA, C) && sameSeg(clipFact(POP, RA), clipFact(POP, C));
+  }, { source: SRC2 });
+  K.check('If the lines are parallel (and therefore do not intersect), there is no solution: at £15 receipt 3\'s line runs alongside receipt 1\'s without meeting it, and no guess on the grid passes both', () => {
+    const C = RC(15);
+    return !cross(RA, C) && !near(C.c / C.a, RA.c / RA.a) && gridPts(POP).every((g) => !(passes(RA, g) && passes(C, g)));
+  }, { source: SRC6 });
+  K.check('Every worked line is right, by hand: p = 8 − 2d swapped in gives d + 16 − 4d = 7, −3d = −9, d = 3 and p = 2; 10y = 8 gives 80p and £1.20 a metre; 4w = 16 and a £3.50 socket; 200a = 20 gives P = 0.1W + 5; 300a = 24 gives a = 0.08 and b = 10; 2x = 24 gives 12 m and 18 m; 2c = 6 gives £3 and £1.75; and 35 N at 250 N', () => {
+    const J = (r) => r.map((x) => x.l + ': ' + x.s).join(' | ');
+    return J(solveRows(S_AB, { sub: 0 }).rows.slice(3, 10)) === 'From receipt 1: p = 8 − 2d | Swap in: d + 2(8 − 2d) = 7 | Open up: d + 16 − 4d = 7 | Solve: −3d = 7 − 16 = −9, so d = 3 | Put back: p = 8 − 2 × 3 = 8 − 6 = 2 | Receipt 1: 2 × 3 + 2 = 8 ✓ | Receipt 2: 3 + 2 × 2 = 7 ✓' &&
+      J(solveRows(S_CAB, { top: 1, back: 0 }).rows.slice(3)) === 'Take away: 10y = 28 − 20 = 8, so y = 8 ÷ 10 = 0.80 | Put back: 10x + 10 × 0.80 = 20, so 10x = 20 − 8 = 12 and x = 12 ÷ 10 = 1.20 | Order 1: 10 × 1.20 + 10 × 0.80 = 20 ✓ | Order 2: 10 × 1.20 + 20 × 0.80 = 28 ✓ | Means: the 2.5 mm² costs £1.20 a metre and the 1.5 mm² 80p a metre' &&
+      J(solveRows(S_SOCK, { k: [1, 2], top: 1, back: 0 }).rows.slice(3, 6)) === 'Order 2 × 2: 4s + 6w = 38 | Take away: 4w = 38 − 22 = 16, so w = 16 ÷ 4 = 4 | Put back: 4s + 2 × 4 = 22, so 4s = 22 − 8 = 14 and s = 14 ÷ 4 = 3.50' &&
+      J(solveRows(S_M1, { top: 1, back: 0 }).rows.slice(3)) === 'Take away: 200a = 35 − 15 = 20, so a = 20 ÷ 200 = 0.1 | Put back: b = 15 − 100 × 0.1 = 15 − 10 = 5 | Reading 1: 100 × 0.1 + 5 = 15 ✓ | Reading 2: 300 × 0.1 + 5 = 35 ✓ | Means: P = 0.1W + 5: each extra newton of load needs 0.1 N more effort, and 5 N is the effort with no load' &&
+      J(solveRows(S_M2, { top: 1, back: 0 }).rows.slice(3, 5)) === 'Take away: 300a = 50 − 26 = 24, so a = 24 ÷ 300 = 0.08 | Put back: b = 26 − 200 × 0.08 = 26 − 16 = 10' &&
+      J(solveRows(S_DRUM, { sub: 1 }).rows.slice(3, 8)) === 'From fact 2: y = x + 6 | Swap in: x + (x + 6) = 30 | Open up: x + 6 + x = 30 | Solve: 2x = 30 − 6 = 24, so x = 24 ÷ 2 = 12 | Put back: y = 12 + 6 = 18' &&
+      J(solveRows(S_TEA, { top: 0, back: 1 }).rows.slice(3, 5)) === 'Take away: 2c = 12.50 − 6.50 = 6, so c = 6 ÷ 2 = 3 | Put back: 3 + 2t = 6.50, so 2t = 6.50 − 3 = 3.50 and t = 3.50 ÷ 2 = 1.75' &&
+      J(solveRows(S_M3, { top: 1, back: 0 }).rows.slice(-1)) === 'At 250 N: P = 0.1 × 250 + 10 = 25 + 10 = 35 N' &&
+      J(halfRows(16).slice(0, 2)) === 'Receipt 3: 4d + 2p = 16 | Halved: 2d + p = 8, which is receipt 1 again' && halfRows(15)[1].s === '2d + p = 7.50, but receipt 1 says 8' &&
+      calcT(RB, S_AB, [2, 4]).s === '2 + 2 × 4 = 10' && calcT(RA, S_AB, [2, 3]).s === '2 × 2 + 3 = 7' && calcT(S_SOCK.F[0], S_SOCK, [4, 3.5]).s === '4 × 4 + 2 × 3.50 = 23' &&
+      calcT(S_SOCK.F[1], S_SOCK, [3, 5]).s === '2 × 3 + 3 × 5 = 21' && calcT(S_M2.F[1], S_M2, [0.13, 0]).s === '500 × 0.13 + 0 = 65' && calcT(S_M2.F[0], S_M2, [10, 0.08]).s === '200 × 10 + 0.08 = 2000.08' &&
+      calcT(S_DRUM.F[0], S_DRUM, [18, 24]).s === '18 + 24 = 42' && calcT(S_DRUM.F[1], S_DRUM, [15, 15]).s === '15 − 15 = 0' && calcT(S_TEA.F[0], S_TEA, [1.75, 3]).s === '3 × 1.75 + 2 × 3 = 11.25' &&
+      calcT(S_TEA.F[1], S_TEA, [2.5, 2.5]).s === '2.50 + 2 × 2.50 = 7.50' && calcT(S_M3.F[1], S_M3, [0.2, 0]).s === '400 × 0.2 + 0 = 80' && calcT(RC(16), POP, [1, 6]).s === '4 × 1 + 2 × 6 = 16';
+  });
+  K.check('Every puzzle has three answers, one of them right, and a hint of its own for each wrong one; the right pair passes both facts, each wrong pair fails at least one, and only the right second receipt crosses receipt 1', () =>
+    DO.every((i) => {
+      const d = STEPS[i], s = d.sys;
+      const hintsOk = d.opts.length === 3 && d.want >= 0 && d.want < 3 && d.opts.every((o, k) => k === d.want || (!!d.hints[k] && d.hints[k] !== d.hint));
+      if (d.kind === 'eq') return hintsOk && labelOf(d, d.want) === eqT(s.F[1], s) && d.opts.every((o, k) => k === d.want || o !== eqT(s.F[1], s));
+      if (d.kind === 'which') return hintsOk && d.opts.every((f, k) => (k === d.want) === !!cross(RA, f));
+      const P = solveRows(s, d.how).P;
+      return hintsOk && sameG(P, cross(s.F[0], s.F[1])) && d.opts.every((g, k) => { const both = passes(s.F[0], g) && passes(s.F[1], g); return k === d.want ? both && sameG(g, P) : !both; });
+    }));
+  K.check('Before an answer a puzzle keeps back the crossing ring and the working; a right answer or Why? draws both lines, rings the crossing, moves the guess there so both cards match, and works it through; a wrong pair is tried in every card and fails one', () =>
+    DO.filter((i) => STEPS[i].kind === 'pair').every((i) => {
+      const d = STEPS[i], P = cross(d.sys.F[0], d.sys.F[1]), b = drawn(i, blank());
+      if (b.ring || b.rows.length || b.lines.length) return false;
+      const good = [drawn(i, solvedSt(i)), drawn(i, whySt())].every((g) => g.ring && g.lines.join() === '0,1' && sameG(g.guess, P) && g.rows.length >= 8 && g.cards.every((c) => c.status === '✓ matches'));
+      return good && d.opts.every((o, k) => { if (k === d.want) return true; const w = drawn(i, wrongSt(k)); return !w.ring && sameG(w.guess, o) && w.rows[0].l === 'Tried' && w.cards.some((c) => c.status !== '✓ matches'); });
+    }) && (() => {
+      const e = STEPS.findIndex((d) => d.kind === 'eq'), b = drawn(e, blank()), r = drawn(e, solvedSt(e)), w = drawn(e, wrongSt(0));
+      return b.cards[1].eq == null && r.cards[1].eq === eqT(RB, S_AB) && w.cards[1].eq === STEPS[e].opts[0] && w.cards[1].calc == null;
+    })() && (() => {
+      const h = STEPS.findIndex((d) => d.kind === 'which'), b = drawn(h, blank()), r = drawn(h, solvedSt(h)), on = drawn(h, wrongSt(0)), off = drawn(h, wrongSt(2));
+      return b.cards.length === 1 && !b.ring && r.ring && sameG(r.guess, [3, 2]) && on.lines.join() === '0,1' && sameSeg(on.line2, clipFact(POP, RA)) && !on.ring &&
+        off.lines.join() === '0,1' && !sameSeg(off.line2, clipFact(POP, RA)) && !off.ring;
+    })());
+  K.check('The first screen opens with a £2 drink and £4 popcorn on receipt 1, where 2 × 2 + 4 = 8 matches; its demonstration leaves marks at (£2, £4), (£3, £2) and (£1, £6) and only then draws the line through them', () => {
+    const o = drawn(0, blank(), 0.3), e = drawn(0, blank(), 3.15), f = drawn(0, blank());
+    return o.cards[0].calc === '2 × 2 + 4 = 8' && o.cards[0].status === '✓ matches' && o.marks.length === 0 && o.lines.length === 0 &&
+      e.lines.length === 0 && e.marks.length === 3 && f.lines.join() === '0' && A_MARKS.every((g) => f.marks.indexOf('0:' + g.join(',')) >= 0);
+  });
+  K.check('On the doubled-receipt screen receipt 3 at £16 accepts a £1 drink and £6 popcorn and its line lies on receipt 1\'s; at £15 the same guess comes to too much, its line moves off to run alongside, and no ring appears', () => {
+    const i = STEPS.findIndex((d) => !!d.slide), a = drawn(i, blank(), 2.0), b = drawn(i, blank());
+    return a.cards[1].calc === '4 × 1 + 2 × 6 = 16' && a.cards[1].status === '✓ matches' && a.lines.join() === '0,1' && sameSeg(a.line2, clipFact(POP, RA)) &&
+      b.cards[1].calc === '4 × 1 + 2 × 6 = 16' && b.cards[1].status === 'too much' && b.lines.join() === '0,1' && !sameSeg(b.line2, clipFact(POP, RA)) && !b.ring && !a.ring;
+  });
+  K.check('Every demonstration settles within its 3 to 5 s, none starting before the 0.35 s screen fade ends, and a puzzle\'s answer, Why? or wrong pick settles within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 3 && d.dur <= 5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, whySt(), FB) && d.opts.every((o, k) => k === d.want || timed(i, wrongSt(k), FB))));
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
