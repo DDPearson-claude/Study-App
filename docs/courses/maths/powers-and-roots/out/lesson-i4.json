@@ -1,0 +1,611 @@
+{
+ "status": "ready",
+ "updatedAt": "2026-10-17T19:47:42.441Z",
+ "startedAt": "2026-10-17T19:47:42.441Z",
+ "by": {
+  "device": "claude-code",
+  "tab": "course-build",
+  "page": "course-build",
+  "holder": "claude-code/course-build"
+ },
+ "lesson": {
+  "iid": "i4",
+  "title": "Fractional powers",
+  "predict": null,
+  "interactive": {
+   "brief": "The one thing you should see is three equal small steps of × 2 landing exactly on the next rung, 8, so 8^(1/3) = 2, when you climb the power ladder one small step at a time.",
+   "title": "Equal steps on a power ladder",
+   "controls": [
+    {
+     "id": "step",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "value": 0,
+     "unit": ""
+    }
+   ],
+   "outputs": [],
+   "whatAmILookingAt": "A short lesson in fourteen small screens on the power ladder. Its rungs are the powers of one base, drawn equally spaced up the screen with each rung's value beside it. For base 8 they are 8⁰ = 1, 8¹ = 8, 8² = 64 and 8³ = 512, so each step up puts one more 8 into the multiplying, as in lesson 1, and multiplies by 8. The height on the ladder is the power, and the number beside it is the value. On the first screen, with the ladder already drawn, three buttons cut every step into 2, 3 or 4 equal small steps, opening at 3, and a stepper climbs one small step at a time. Each small step adds the same fraction to the power, and adding to a power multiplies the value, as lesson 1's adding law says, so every small step multiplies by the same number whichever rung it starts from. Three small steps must make one step of × 8, so each is × 2, because 2 × 2 × 2 = 8, and the first small step lands on 8^(1/3) = 2. Cut into 2, each small step is × √8, about 2.83, and cut into 4 it is about × 1.68: roots that are not whole, written to two places. Screen 3 uses base 4 cut into halves: two small steps of × 2 make one step of × 4, so 4^(1/2) = √4 = 2. Screen 5 climbs two small steps on the base-8 ladder: × 2 then × 2 lands on 4, which is 8^(2/3). Screen 7 has a Root first / Power first switch for 27^(5/3) on a base-27 ladder. Root first cuts each step into three small steps of × 3 and climbs five of them, to 3⁵ = 243. Power first climbs five whole steps, to 27⁵ = 14,348,907, then takes the cube root, which keeps a third of that height, and lands on the same rung, 243. Both are 27^(5/3), because a power of a power multiplies the powers: ⅓ × 5 and 5 × ⅓ are the same. Screen 9 carries the base-8 ladder below 1: each small step down divides by 2, so two small steps down land on 1/4, which is 8^(−2/3), and the ladder gets smaller without reaching nothing. Screen 11 multiplies on the base-4 ladder: half a step, × 2, then three half steps, × 8, make four half steps, two whole steps, so 4^(1/2) × 4^(3/2) = 2 × 8 = 16 = 4². Screen 13 finds a cube tank's edge on the base-8 ladder carried below 1: 0.125 is the rung 8⁻¹, one whole step down, and its cube root is a third of that height, one small step down, 8^(−1/3) = 0.5. Screen 14 takes 16^(−3/4) three small steps of ÷ 2 down the base-16 ladder, to 1/8. Screens 1, 3, 5, 7, 9 and 11 show an idea, screens 2, 4, 6, 8, 10 and 12 ask you to try it, and screens 13 and 14 mix them. A puzzle offers three answers, and a wrong pick climbs its own small steps beside the right ones, so you can see where it lands: three small steps of × 9 reach 729, not 27.",
+   "ignores": "The rungs are drawn equally spaced although each value is 8 times the last, because the height shows the power, not the size of the number; drawn to size, 512 would be off the screen. Roots that are not whole are rounded on screen, mostly to two places, and the root itself is exact. The slider cuts a step into 2, 3 or 4, but any whole number of equal small steps works the same way, and a power such as 1.3 sits between the rungs too. Only positive bases are drawn, and everything the lesson says is about positive numbers. A negative base needs more care: (−8)^(1/3) is usually taken as the real cube root, −2, but (−4)^(1/2) has no answer among ordinary numbers. A positive number has two square roots, 2 and −2 for 4, as lesson 3 showed, and 4^(1/2), like √4, means the positive one. The puzzles' numbers are examples.",
+   "numbers": [
+    {
+     "label": "Base of the ladder, in step 1",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Rung 8⁰, in step 1",
+     "value": 1,
+     "kind": "computed"
+    },
+    {
+     "label": "Rung 8² = 8 × 8, in step 1",
+     "value": 64,
+     "kind": "computed"
+    },
+    {
+     "label": "Rung 8³ = 8 × 8 × 8, in step 1",
+     "value": 512,
+     "kind": "computed"
+    },
+    {
+     "label": "Opening cut: small steps per step, in step 1",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Fewest small steps per step on the slider, in step 1",
+     "value": 2,
+     "kind": "assumed"
+    },
+    {
+     "label": "Most small steps per step on the slider, in step 1",
+     "value": 4,
+     "kind": "assumed"
+    },
+    {
+     "label": "8^(1/3), as 2 × 2 × 2 = 8, in step 1",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "8^(1/2) = √8, in step 1",
+     "value": 2.83,
+     "kind": "computed"
+    },
+    {
+     "label": "8^(1/4), in step 1",
+     "value": 1.68,
+     "kind": "computed"
+    },
+    {
+     "label": "27^(1/3), as 3 × 3 × 3 = 27, in step 2",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Base of the ladder, in step 2",
+     "value": 27,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip 27 × ⅓, in step 2",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Three small steps of × 9: 9³, in step 2",
+     "value": 729,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 27 + ⅓, in step 2",
+     "value": 27.33,
+     "kind": "computed"
+    },
+    {
+     "label": "4^(1/2) = √4, in step 3",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "81^(1/4), as 3 × 3 × 3 × 3 = 81, in step 4",
+     "value": 3,
+     "kind": "computed"
+    },
+    {
+     "label": "Base 81, in step 4",
+     "value": 81,
+     "kind": "assumed"
+    },
+    {
+     "label": "Slip √81, two small steps not four, in step 4",
+     "value": 9,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 81 × ¼, in step 4",
+     "value": 20.25,
+     "kind": "computed"
+    },
+    {
+     "label": "8^(2/3) = 2 × 2, in step 5",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "64^(2/3) = 4², in step 6",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "∛64, as 4 × 4 × 4 = 64, in step 6",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip root on top: (√64)³ = 8³, in step 6",
+     "value": 512,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 64 × ⅔, in step 6",
+     "value": 42.67,
+     "kind": "computed"
+    },
+    {
+     "label": "27^(5/3) = 3⁵, in step 7",
+     "value": 243,
+     "kind": "computed"
+    },
+    {
+     "label": "Power first: 27⁵, in step 7",
+     "value": 14348907,
+     "kind": "computed"
+    },
+    {
+     "label": "Top number of 27^(5/3), small steps climbed, in step 7",
+     "value": 5,
+     "kind": "assumed"
+    },
+    {
+     "label": "1000^(2/3) = 10², in step 8",
+     "value": 100,
+     "kind": "computed"
+    },
+    {
+     "label": "∛1000, in step 8",
+     "value": 10,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 1000 × ⅔, in step 8",
+     "value": 666.67,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip root on top: (√1000)³, in step 8",
+     "value": 31623,
+     "kind": "computed"
+    },
+    {
+     "label": "8^(−1/3) = 1 ÷ 2, in step 9",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "8^(−2/3) = 1/4, in step 9",
+     "value": 0.25,
+     "kind": "computed"
+    },
+    {
+     "label": "27^(−1/3) = 1/3, in step 10",
+     "value": 0.333,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip −3, minus read as negative, in step 10",
+     "value": -3,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip −27 × ⅓, in step 10",
+     "value": -9,
+     "kind": "computed"
+    },
+    {
+     "label": "4^(3/2) = 2³, in step 11",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "4^(1/2) × 4^(3/2) = 4², in step 11",
+     "value": 16,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 4^(3/4), powers multiplied, in step 11",
+     "value": 2.83,
+     "kind": "computed"
+    },
+    {
+     "label": "9^(1/2) × 9^(3/2) = 3 × 27, in step 12",
+     "value": 81,
+     "kind": "computed"
+    },
+    {
+     "label": "9^(3/2) = 3³, in step 12",
+     "value": 27,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 9 × 2, in step 12",
+     "value": 18,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 9^(3/4), powers multiplied, in step 12",
+     "value": 5.2,
+     "kind": "computed"
+    },
+    {
+     "label": "Cube tank volume in m³, in step 13",
+     "value": 0.125,
+     "kind": "assumed"
+    },
+    {
+     "label": "Tank edge 0.125^(1/3) in m, in step 13",
+     "value": 0.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 0.125 × ⅓ in m, in step 13",
+     "value": 0.0417,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip √0.125 in m, in step 13",
+     "value": 0.354,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 8 × ⅓",
+     "value": 2.67,
+     "kind": "computed"
+    },
+    {
+     "label": "Three steps of × 2.67: (8/3)³, about 19",
+     "value": 18.96,
+     "kind": "computed"
+    },
+    {
+     "label": "16^(1/4), as 2 × 2 × 2 × 2 = 16",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy: overall gearbox ratio 8:1",
+     "value": 8,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: number of equal stages",
+     "value": 3,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy: two 2:1 stages make 4:1",
+     "value": 4,
+     "kind": "computed"
+    },
+    {
+     "label": "Analogy breaks: overall ratio 10:1",
+     "value": 10,
+     "kind": "assumed"
+    },
+    {
+     "label": "Analogy breaks: 10^(1/3) per stage",
+     "value": 2.15,
+     "kind": "computed"
+    },
+    {
+     "label": "Calculator slip: 27⁵ ÷ 3",
+     "value": 4782969,
+     "kind": "computed"
+    },
+    {
+     "label": "Calculator: 2^1.3",
+     "value": 2.46,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: 16^(−3/4) = 1/8",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example, power first: 16³",
+     "value": 4096,
+     "kind": "computed"
+    },
+    {
+     "label": "Mistake: 49^(1/2) = 7",
+     "value": 7,
+     "kind": "computed"
+    },
+    {
+     "label": "Mistake: 49 + ½",
+     "value": 49.5,
+     "kind": "computed"
+    },
+    {
+     "label": "Worked example: cube tank volume in m³",
+     "value": 0.343,
+     "kind": "assumed"
+    },
+    {
+     "label": "Worked example: tank edge 0.343^(1/3) in m",
+     "value": 0.7,
+     "kind": "computed"
+    },
+    {
+     "label": "Tank volume 0.125 = 8⁻¹, the rung one whole step below 1 on the 8 ladder, in step 13",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "Lowest rung 8⁻² on the 8 ladder, in step 13",
+     "value": 0.015625,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip (√0.125)³ in m, in step 13",
+     "value": 0.0442,
+     "kind": "computed"
+    },
+    {
+     "label": "Base of the ladder, in step 14",
+     "value": 16,
+     "kind": "assumed"
+    },
+    {
+     "label": "16^(−3/4) = 1 ÷ 2³ = 1/8, in step 14",
+     "value": 0.125,
+     "kind": "computed"
+    },
+    {
+     "label": "16^(1/4), one small step of the 16 ladder, in step 14",
+     "value": 2,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 16^(3/4), the minus left out, in step 14",
+     "value": 8,
+     "kind": "computed"
+    },
+    {
+     "label": "Slip 16 × −¾, in step 14",
+     "value": -12,
+     "kind": "computed"
+    },
+    {
+     "label": "Rung 16⁻¹ = 1/16, in step 14",
+     "value": 0.0625,
+     "kind": "computed"
+    }
+   ]
+  },
+  "explain": {
+   "text": "A power that is a fraction is a root, for any positive number. The bottom number of the fraction says which root to take and the top number says what power to raise it to, so 8^(1/3) is the cube root of 8, which is 2, and 27^(5/3) is the cube root of 27, which is 3, raised to the power 5, which is 243.\n\nStart from lesson 1's adding law. On the power ladder, rungs 1, 8, 64 and 512 are 8⁰, 8¹, 8² and 8³, and each step up multiplies by 8. Now cut one step into three equal small steps, each adding ⅓ to the power. Adding ⅓ to a power multiplies by 8^(1/3), whichever rung you start from, so every small step multiplies by the same number. Three of them make one whole step, because multiplying adds the powers and ⅓ + ⅓ + ⅓ = 1, so 8^(1/3) × 8^(1/3) × 8^(1/3) = 8¹ = 8.[^1] So 8^(1/3) is the number that, used three times in a multiplication, makes 8. That is 2, because 2 × 2 × 2 = 8, so 8^(1/3) = ∛8 = 2, the cube root of lesson 3. The power-of-a-power law agrees: (8^(1/3))³ = 8^(⅓ × 3) = 8¹, which is why a fraction as a power is defined as a root.[^2][^3] Cut a step into two instead and 4^(1/2) × 4^(1/2) = 4¹, so 4^(1/2) = √4 = 2. Cut it into four and you get the [[fourth root]]: 16^(1/4) = 2, because 2 × 2 × 2 × 2 = 16. The bottom of the fraction counts the equal small steps in one whole step, so it is the root.\n\nThe top number counts the small steps you climb. 8^(2/3) is two small steps of × 2, so 8^(2/3) = (∛8)² = 4. A power like this is a [[fractional power]]: the numerator tells you the power and the denominator tells you the root.[^4] 27^(5/3) is five small steps of × 3, so it is 3⁵ = 243. You can take the power first instead: 27⁵ = 14,348,907, and its cube root is 243 as well. Both ways are the power-of-a-power law, (27^(1/3))⁵ = 27^(⅓ × 5) and (27⁵)^(1/3) = 27^(5 × ⅓), and ⅓ × 5 = 5 × ⅓.[^2] Root first usually keeps the numbers small. A minus still means one over, as in lesson 2: 8^(−2/3) = 1/8^(2/3) = 1/4, a small amount, not a negative one.[^5] And multiplying still adds the powers: x^(1/2) × x^(3/2) = x^(1/2 + 3/2) = x². Two slips are worth seeing fail. 8^(1/3) is not 8 × ⅓ ≈ 2.67, because three steps of × 2.67 come to about 19, not 8. And the root goes on the bottom: 64^(2/3) = (∛64)² = 16, while (√64)³ = 512 is 64^(3/2). Square roots of negative numbers, and powers that can be any number, wait for Complex numbers and Exponentials and logarithms.\n\n**A fractional power is a root: the bottom number of the fraction is the root and the top number is the power, so 8^(1/3) = 2 and 27^(5/3) = 3⁵ = 243.[^3][^4]**"
+  },
+  "analogy": {
+   "text": "Say a gearbox brings 8 turns of the motor down to 1 turn of the shaft in three stages that are all the same, and you want each stage's ratio. Stages in a row multiply: two 2:1 stages make 4:1, and three make 8:1. So each stage is 2:1, the cube root of 8. Finding the stage from the total is what a fractional power does: three small steps of × 2 make one step of × 8 on the ladder.",
+   "breaks": "A real stage's ratio is set by whole numbers of teeth, so splitting 10:1 into three equal stages, about 2.15:1 each, can only be got close to. A number has no such limit: 10^(1/3) is exact, written as ∛10."
+  },
+  "practice": {
+   "text": "- Read the fraction: the bottom number is the root, the top number is the power.\n- Take the root first, because it usually keeps the numbers small: for 27^(5/3), ∛27 = 3.\n- Check the root by multiplying it back: 3 × 3 × 3 = 27.\n- Then raise it to the power: 3⁵ = 243.\n- A minus in the power means one over: put the answer under 1.\n- Multiplying powers of the same base, add the fractions; raising a power to a power, multiply them.\n\n**Rule of thumb:** A power of ½ is a square root and a power of ⅓ is a cube root.\n\n**On a calculator** (not from this lesson's sources): on a one-line display, put the power in brackets, 27 ^ ( 5 ÷ 3 ), which gives 243. Without them the calculator can work out 27⁵ ÷ 3 = 4,782,969 instead. On a calculator that shows a raised box for the power, type the whole fraction inside the box. A decimal power such as 1.3 is a fraction too: 2^1.3 is 2^(13/10), between 2¹ = 2 and 2² = 4, and a calculator gives about 2.46.\n\n**Worked example:** A cube-shaped tank holds 0.343 m³. Its edge, used three times in a multiplication, makes the volume, so the edge is 0.343^(1/3) = ∛0.343 = 0.7 m. Check: 0.7 × 0.7 × 0.7 = 0.343. A harder one, 16^(−3/4): the bottom number is 4, so take the fourth root, 2, because 2 × 2 × 2 × 2 = 16. The top number is 3, so cube it: 2³ = 8. The minus means one over, so 16^(−3/4) = 1/8 = 0.125. Power first gives the same: 16³ = 4096, its fourth root is 8, and one over that is 1/8.\n\n**Common mistakes**\n- Multiplying by the fraction: 8^(1/3) is 2, not 8 × ⅓ ≈ 2.67.\n- Adding the fraction: 49^(1/2) is 7, not 49 + ½ = 49.5.\n- The root on top: 64^(2/3) is (∛64)² = 16, not (√64)³ = 512.\n- Reading the minus as a negative answer, a common slip with negative powers:[^6] 27^(−1/3) is 1/3, not −3.\n- Multiplying the powers when you multiply: x^(1/2) × x^(3/2) is x², not x^(3/4)."
+  },
+  "say": null,
+  "checks": [],
+  "confidence": "settled",
+  "contested": null,
+  "mode": "read",
+  "format": "steps",
+  "sources": [
+   {
+    "n": 1,
+    "title": "Laws of indices for multiplication and division - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/z93nsk7",
+    "quote": "The base numbers are the same (9), so add the indices together (3 + 5 = 8). 9³ x 9⁵ = 9⁸"
+   },
+   {
+    "n": 2,
+    "title": "Laws of indices - GCSE Maths Revision - BBC Bitesize",
+    "url": "https://www.bbc.co.uk/bitesize/articles/zf4s9ty",
+    "quote": "To raise to a power for a given base, multiply the indices"
+   },
+   {
+    "n": 3,
+    "title": "Radicals (Roots) and Fractional Exponents - UM Math Prep — University of Michigan",
+    "url": "https://prep.math.lsa.umich.edu/cgi-bin/pmc/crtopic?crssxn=prep&sxn=1&top=2",
+    "quote": "Fractional exponents are defined as roots, which makes sense from the rule for powers of powers"
+   },
+   {
+    "n": 4,
+    "title": "1.3 Radicals and Rational Exponents - Algebra and Trigonometry | OpenStax",
+    "url": "https://openstax.org/books/algebra-and-trigonometry/pages/1-3-radicals-and-rational-exponents",
+    "quote": "The numerator tells us the power and the denominator tells us the root."
+   },
+   {
+    "n": 5,
+    "title": "Engineer cadets maths refresher — Solent University Warsash",
+    "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+    "quote": "So a negative power gives the reciprocal of the number — that is, 1 over the number."
+   },
+   {
+    "n": 6,
+    "title": "Engineer cadets maths refresher — Solent University Warsash",
+    "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+    "quote": "A common misconception is that since the power is negative, the result must be negative: as you can see, this is not so."
+   }
+  ]
+ },
+ "sourced": true,
+ "interactive": {
+  "html": "<!-- kind: concept -->\n<style>\n  [hidden] { display: none !important; }\n  .pz, .lead, .caption { max-width: 30rem; }\n  .pz > * + *, #stepbox > * + * { margin-top: 14px; }\n  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */\n  .pz .k-stepper { gap: 0; }\n  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }\n  .pz .count { margin-top: 10px; }\n  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }\n  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }\n  .nw { white-space: nowrap; }\n  .nw sup, .k-btn sup { font-size: .75em; line-height: 0; }\n  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }\n  /* The ladder: two rails, a thick rung for each whole power and a thin rung for each small step. */\n  .scene .rail { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }\n  .scene .rail.on { stroke: var(--k-muted); stroke-dasharray: 4 4; }\n  .scene .rw { stroke: var(--k-ink); stroke-width: 4; stroke-linecap: round; }\n  .scene .rs { stroke: var(--k-muted); stroke-width: 1.5; }\n  .scene .mk { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }\n  /* A small step climbed is a navy arrow; a wrong pick's own steps are drawn in the warning colour. */\n  .scene .arr { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; }\n  .scene .arrh { fill: var(--k-accent2); }\n  .scene .arr.bad { stroke: var(--k-warn); }\n  .scene .arrh.bad { fill: var(--k-warn); }\n  .scene .gd { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 4 3; }\n  .scene .br { fill: none; stroke: var(--k-accent); stroke-width: 1.8; }\n  .scene .rl { font: 600 13px var(--k-font); fill: var(--k-ink); }\n  .scene .rsl { font: 400 13px var(--k-font); fill: var(--k-ink); }\n  .scene .rsl.ans { font-weight: 700; fill: var(--k-accent2); }\n  .scene .al { font: 700 13px var(--k-font); fill: var(--k-accent2); }\n  .scene .bl { font: 600 13px var(--k-font); fill: var(--k-accent); }\n  .scene .tag { font: 700 18px var(--k-font); fill: var(--k-accent2); }\n  .scene .lab { font: 700 13px var(--k-font); fill: var(--k-ink); }\n  .scene .al.bad, .scene .lab.bad { fill: var(--k-warn); }\n  .scene .note { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }\n  .scene .te { font: 700 14px var(--k-font); fill: var(--k-ink); }\n  .scene .tw { font: 600 14px var(--k-font); fill: var(--k-ink); }\n  .scene .te.mu, .scene .tw.mu { fill: var(--k-muted); }\n  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }\n  .row { display: flex; flex-wrap: wrap; gap: 10px; }\n  .row .k-btn { flex: 1 1 6rem; min-height: 48px; }\n  /* The three cuts stay on one row on a phone. */\n  .row.cuts .k-btn { flex: 1 1 5rem; }\n  .row.cuts .k-btn[aria-pressed=\"true\"], .picks .k-btn[aria-pressed=\"true\"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }\n  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }\n  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }\n  .picks .k-btn { font-size: 1.1rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }\n  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }\n  .fb.right { color: var(--k-good); }\n  .fb.wrong { color: var(--k-ink); }\n  .why { line-height: 1.6; }\n  .done { line-height: 1.6; }\n  .done strong { color: var(--k-accent2); }\n  .done .row { margin-top: 14px; }\n  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */\n  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }\n  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }\n  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }\n  @media (prefers-reduced-motion: reduce) {\n    #stepbox.enter, #done.enter, #scene.enter { animation: none; }\n  }\n</style>\n\n<p class=\"lead\">A power ladder: each rung is a power of one base, drawn equally spaced up the page with its value beside it. The bases and numbers tried are examples.</p>\n\n<div class=\"pz\" id=\"pz\">\n  <div id=\"prog\"></div>\n  <div id=\"stepbox\">\n    <p class=\"k-label count\" id=\"count\"></p>\n    <p class=\"task\" id=\"task\"></p>\n    <svg class=\"scene\" id=\"scene\" viewBox=\"0 0 340 300\" width=\"100%\" role=\"img\" aria-label=\"\">\n      <g id=\"art\"></g>\n    </svg>\n    <div class=\"row cuts\" id=\"cuts\"></div>\n    <div class=\"row tune\" id=\"tune\"></div>\n    <div class=\"replay\" id=\"replay\"></div>\n    <div class=\"row picks\" id=\"picks\"></div>\n    <div class=\"row acts\" id=\"acts\"></div>\n    <p class=\"fb\" id=\"fb\" aria-live=\"polite\"></p>\n    <div class=\"note why\" id=\"why\" hidden></div>\n  </div>\n  <div class=\"panel done\" id=\"done\" hidden>\n    <p><strong id=\"finish\"></strong></p>\n    <div class=\"row\" id=\"again\"></div>\n  </div>\n  <div class=\"row nav\" id=\"nav\"></div>\n</div>\n\n<p class=\"caption\">Each small step adds the same fraction to the power, so every small step multiplies by the same number.</p>\n\n<script>\n  // ---------- numbers and powers written out ----------\n  const SUPC = '⁰¹²³⁴⁵⁶⁷⁸⁹';\n  const sup = (n) => String(n).split('').map((ch) => (ch === '-' ? '⁻' : SUPC[+ch])).join('');\n  const close = (a, b, tol) => Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));\n  const isInt = (v) => close(v, Math.round(v));\n  const grp = (n) => { const s = String(n); return s.length > 4 ? s.replace(/\\B(?=(\\d{3})+(?!\\d))/g, ',') : s; };\n  // A value as the lesson writes it: whole numbers (commas from 10,000), one over a whole number\n  // below 1 on a ladder whose base is above 1, two places above 1, and three figures below 1\n  // unless the decimal is short and exact (0.125).\n  function fmtV(v, frac) {\n    if (v < 0) return '−' + fmtV(-v, frac);\n    if (isInt(v)) return grp(Math.round(v));\n    if (frac && v < 1 && isInt(1 / v)) return '1/' + grp(Math.round(1 / v));\n    if (v >= 1000) return grp(Math.round(v));\n    if (v >= 1) return String(Number(v.toFixed(2)));\n    const six = Number(v.toFixed(6));\n    return String(close(six, v) ? six : Number(v.toPrecision(3)));\n  }\n  // b to the power j/c: a whole power raised small, a fraction written ^(j/c) (drawn raised small).\n  function pw(b, j, c) {\n    if (j % c === 0) return b + sup(j / c);\n    return b + '^(' + (j < 0 ? '−' : '') + Math.abs(j) + '/' + c + ')';\n  }\n  // In the drawing a fractional power is written with small raised figures and a plain slash, 8¹/³\n  // (a plain slash keeps clear of the raised figures, where the fraction slash runs into them).\n  const svgStr = (s) => String(s).replace(/\\^\\(([^)]*)\\)/g, (m, e) => e.split('').map((ch) => (ch === '/' ? '/' : ch === '−' ? '⁻' : SUPC[+ch])).join(''));\n  const THIRD = { 2: '½', 3: '⅓', 4: '¼' };\n\n  // ---------- reading an expression (pure, so the checks can test it) ----------\n  // + − × ÷, brackets, a minus in front, a/b, small raised whole powers, ^(fraction) powers,\n  // √ ∛ ∜ in front of a number or bracket, ½ ⅓ ⅔ ¼ ¾, commas in thousands, and a unit \"m\".\n  const VULG = { '½': 1 / 2, '⅓': 1 / 3, '⅔': 2 / 3, '¼': 1 / 4, '¾': 3 / 4 };\n  const ROOTS = { '√': 2, '∛': 3, '∜': 4 };\n  function val(s) {\n    const src = String(s).replace(/\\s+/g, '').replace(/m$/, '');\n    let i = 0;\n    const peek = () => src[i];\n    function sum() {\n      let v = prod();\n      while (peek() === '+' || peek() === '−') { const op = src[i++]; const w = prod(); v = op === '+' ? v + w : v - w; }\n      return v;\n    }\n    function prod() {\n      let v = unary();\n      for (;;) {\n        const ch = peek();\n        if (ch === '×') { i++; v *= unary(); } else if (ch === '÷') { i++; v /= unary(); } else return v;\n      }\n    }\n    function unary() { if (peek() === '−') { i++; return -unary(); } return frac(); }\n    function frac() { let v = powr(); while (peek() === '/') { i++; v /= powr(); } return v; }\n    function powr() {\n      let v = atom();\n      for (;;) {\n        if (src[i] === '^' && src[i + 1] === '(') {\n          i += 2;\n          const e = sum();\n          if (src[i] !== ')') throw new Error('no closing bracket in ' + s);\n          i++; v = Math.pow(v, e); continue;\n        }\n        const save = i;\n        let neg = false, m = '';\n        if (src[i] === '⁻') { neg = true; i++; }\n        while (i < src.length && SUPC.indexOf(src[i]) >= 0) m += SUPC.indexOf(src[i++]);\n        if (!m) { i = save; return v; }\n        v = Math.pow(v, neg ? -m : +m);\n      }\n    }\n    function atom() {\n      const ch = peek();\n      if (ch === '(') { i++; const v = sum(); if (src[i] !== ')') throw new Error('no closing bracket in ' + s); i++; return v; }\n      if (ch != null && ROOTS[ch]) { i++; return Math.pow(atom(), 1 / ROOTS[ch]); }\n      if (ch != null && VULG[ch] != null) { i++; return VULG[ch]; }\n      const m = /^[0-9][0-9,]*(\\.[0-9]+)?/.exec(src.slice(i));\n      if (m) { i += m[0].length; return +m[0].replace(/,/g, ''); }\n      throw new Error('cannot read ' + src.slice(i) + ' in ' + s);\n    }\n    const v = sum();\n    if (i !== src.length) throw new Error('left over in ' + s);\n    return v;\n  }\n  // As a screen reader says it.\n  const SAYF = { '½': ' one half ', '⅓': ' one third ', '⅔': ' two thirds ', '¼': ' one quarter ', '¾': ' three quarters ' };\n  const say = (s) => String(s == null ? '' : s)\n    .replace(/\\^\\(([^)]*)\\)/g, (m, e) => ' to the power ' + e + ' ')\n    .replace(/⁻?[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (m) => ' to the power ' + m.split('').map((ch) => (ch === '⁻' ? ' minus ' : SUPC.indexOf(ch))).join('') + ' ')\n    .replace(/√/g, ' the square root of ').replace(/∛/g, ' the cube root of ').replace(/∜/g, ' the fourth root of ')\n    .replace(/[½⅓⅔¼¾]/g, (ch) => SAYF[ch])\n    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/≈/g, ' about ').replace(/=/g, ' equals ')\n    .replace(/−/g, ' minus ').replace(/\\+/g, ' plus ').replace(/\\//g, ' over ')\n    .replace(/\\s+/g, ' ').trim();\n\n  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------\n  // A ladder p: base b, whole powers lo to hi, each step cut into c small steps. Heights are counted\n  // in small steps j (power j/c). The marker climbs from 'from' to 'go'; br are brackets [j0, j1]\n  // that say what a run of small steps multiplies by. Every rung value, arrow, bracket and landing\n  // is worked out from b, c and j. A SHOW step's tl is its timetable in seconds from when it opens.\n  // A puzzle: opts, the answers offered; right, the lines a right answer adds; wrong, each wrong\n  // answer's own slip (climb: r small steps n times; mark: where its number sits; neg: below 0) and lines.\n  const PICK = 'Tap one of the answers.';\n  const STEPS = [\n    { show: true, name: 'The power ladder', replay: 'Play again',\n      p: { b: '8', lo: 0, hi: 3, c: 3, H: 84, live: true, tl: { act: 0.6, work: [3.2, 3.5] } },\n      text: 'Each rung is a power of 8, and each step up multiplies by 8. Cut every step into equal small steps: each adds the same fraction to the power, and adding to a power multiplies, so each small step multiplies by the same number. Three small steps of × 2 make × 8, so `8^(1/3)` = 2.' },\n    { name: 'A cube root', q: '27^(1/3)',\n      p: { b: '27', lo: 0, hi: 2, c: 3, from: 0, go: 1, br: [[0, 3]] },\n      opts: ['9', '3', '27.33'], want: '3',\n      right: [{ e: '27^(1/3)', w: '∛27 = 3' }, { e: '3 × 3 × 3', w: '27' }],\n      wrong: { '9': { slip: { r: '27 × ⅓', n: 3 }, lines: [{ e: '27 × ⅓', w: '9', bad: true }, { e: '9 × 9 × 9', w: '729', bad: true }] },\n        '27.33': { slip: { mark: '27 + ⅓', note: 'just above 27' }, lines: [{ e: '27 + ⅓', w: '≈ 27.33', bad: true }] } },\n      task: 'What is `27^(1/3)`?',\n      why: 'Cut one step of the 27 ladder into three equal small steps. Each one is × 3, because 3 × 3 × 3 = 27, so `27^(1/3)` = `∛27` = 3.',\n      hint: 'Not quite. Find the number that makes 27 when it is used three times in a multiplication.',\n      hints: { '9': 'Not quite. That is 27 × ⅓. Three small steps of × 9 climb to 729, not 27.',\n        '27.33': 'Not quite. That is 27 + ⅓, already past 27. Find the number that makes 27 when it is used three times.' } },\n    { show: true, name: 'Halves', replay: 'Play again',\n      p: { b: '4', lo: 0, hi: 2, c: 2, from: 0, go: 2, br: [[0, 2]], tl: { in: 0.4, act: 1.4, step: 0.9, work: [3.6, 3.9] } },\n      work: [{ e: '2 × 2', w: '4' }, { e: '4^(1/2)', w: '√4 = 2' }],\n      text: 'Cut each step of the 4 ladder in two. Two small steps of × 2 make × 4, so `4^(1/2)` = `√4` = 2. A power of one half is a square root.' },\n    { name: 'A fourth root', q: '81^(1/4)',\n      p: { b: '81', lo: 0, hi: 2, c: 4, from: 0, go: 1, br: [[0, 4]] },\n      opts: ['20.25', '9', '3'], want: '3',\n      right: [{ e: '81^(1/4)', w: '∜81 = 3' }, { e: '3 × 3 × 3 × 3', w: '81' }],\n      wrong: { '9': { slip: { r: '√81', n: 4 }, lines: [{ e: '√81', w: '9', mu: true }, { e: '9 × 9 × 9 × 9', w: '6561', bad: true }] },\n        '20.25': { slip: { mark: '81 × ¼' }, lines: [{ e: '81 × ¼', w: '20.25', bad: true }] } },\n      task: 'What is `81^(1/4)`?',\n      why: 'The bottom number, 4, cuts each step into four equal small steps. Each one is × 3, because 3 × 3 × 3 × 3 = 81, so `81^(1/4)` is 3, the *fourth root* of 81.',\n      hint: 'Not quite. Find the number that makes 81 when it is used four times in a multiplication.',\n      hints: { '9': 'Not quite. 9 is `√81`, two small steps to a step. Four small steps of × 9 climb to 6561.',\n        '20.25': 'Not quite. That is 81 × ¼. The power is not a times sign.' } },\n    { show: true, name: 'The top number', replay: 'Play again',\n      p: { b: '8', lo: 0, hi: 2, c: 3, from: 0, go: 2, br: [[0, 2]], tl: { in: 0.4, act: 1.3, step: 0.9, work: [3.4, 3.7] } },\n      work: [{ e: '8^(2/3)', w: '2 × 2 = 4' }, { e: '(∛8)²', w: '2² = 4' }],\n      text: 'The top number counts the small steps you climb. `8^(2/3)` is two small steps of × 2, so it is 2 × 2 = 4. In a *fractional power* the bottom number is the root and the top number is the power.' },\n    { name: 'Two small steps', q: '64^(2/3)',\n      p: { b: '64', lo: 0, hi: 2, c: 3, from: 0, go: 2, br: [[0, 3]] },\n      opts: ['16', '512', '42.67'], want: '16',\n      right: [{ e: '64^(2/3)', w: '4 × 4 = 16' }, { e: '4 × 4 × 4', w: '64' }],\n      wrong: { '512': { slip: { r: '√64', n: 3 }, lines: [{ e: '(√64)³', w: '8 × 8 × 8 = 512', bad: true }, { e: '64^(3/2)', w: '512', mu: true }] },\n        '42.67': { slip: { mark: '64 × ⅔' }, lines: [{ e: '64 × ⅔', w: '≈ 42.67', bad: true }] } },\n      task: 'What is `64^(2/3)`?',\n      why: 'The bottom number, 3, cuts each step into three small steps of × 4, because 4 × 4 × 4 = 64. The top number, 2, climbs two of them, so `64^(2/3)` = 4 × 4 = 16.',\n      hint: 'Not quite. Take the cube root of 64 first, then climb two small steps.',\n      hints: { '512': 'Not quite. That puts the root on top. `(√64)³` = 512 is `64^(3/2)`, three half steps.',\n        '42.67': 'Not quite. That is 64 × ⅔. Take the cube root first, then climb two small steps.' } },\n    { show: true, sw: true, name: 'Root first or power first', replay: 'Play again',\n      p: { b: '27', lo: 0, hi: 5, c: 3, from: 0, go: 5, tl: { in: 0.4, act: 1.3 } },\n      text: 'Root first climbs five small steps of × 3, to 243. Power first climbs five whole steps, to 14,348,907, and the cube root keeps a third of that height. Both land on `27^(5/3)` = 243, because ⅓ × 5 = 5 × ⅓.' },\n    { name: 'A thousand', q: '1000^(2/3)',\n      p: { b: '1000', lo: 0, hi: 2, c: 3, from: 0, go: 2, br: [] },\n      opts: ['666.67', '100', '31,623'], want: '100',\n      right: [{ e: '1000^(2/3)', w: '10 × 10 = 100' }, { e: '10 × 10 × 10', w: '1000' }],\n      wrong: { '666.67': { slip: { mark: '1000 × ⅔' }, lines: [{ e: '1000 × ⅔', w: '≈ 666.67', bad: true }] },\n        '31,623': { slip: { r: '√1000', n: 3 }, lines: [{ e: '(√1000)³', w: '≈ 31,623', bad: true }, { e: '1000^(3/2)', w: '≈ 31,623', mu: true }] } },\n      task: 'What is `1000^(2/3)`?',\n      why: 'Each small step of the 1000 ladder is × 10, because 10 × 10 × 10 = 1000. Two of them make 10 × 10 = 100, so `1000^(2/3)` = 100.',\n      hint: 'Not quite. Take the cube root of 1000, then climb two small steps.',\n      hints: { '666.67': 'Not quite. That is 1000 × ⅔. The power is not a times sign.',\n        '31,623': 'Not quite. That puts the root on top. `(√1000)³` is `1000^(3/2)`, three half steps.' } },\n    { show: true, name: 'Below 1', replay: 'Play again',\n      p: { b: '8', lo: -1, hi: 1, c: 3, from: 0, go: -2, below: true, br: [[0, -2]], tl: { in: 0.4, act: 1.4, step: 0.9, work: [3.6, 3.9] } },\n      work: [{ e: '8^(−1/3)', w: '1 ÷ 2 = 1/2' }, { e: '8^(−2/3)', w: '1 ÷ 2 ÷ 2 = 1/4' }],\n      text: 'Carry the 8 ladder on down past 1. Each small step down divides by 2, so two small steps down land on 1/4, which is `8^(−2/3)`. The values get smaller but never reach 0.' },\n    { name: 'A minus in the power', q: '27^(−1/3)',\n      p: { b: '27', lo: -1, hi: 1, c: 3, from: 0, go: -1, below: true, br: [[0, -3]] },\n      opts: ['1/3', '−3', '−9'], want: '1/3',\n      right: [{ e: '27^(−1/3)', w: '1 ÷ 3 = 1/3' }, { e: '1 ÷ ∛27', w: '1/3' }],\n      wrong: { '−3': { slip: { neg: '−∛27' }, lines: [{ e: '−∛27', w: '−3', bad: true }] },\n        '−9': { slip: { neg: '−27 × ⅓' }, lines: [{ e: '−27 × ⅓', w: '−9', bad: true }] } },\n      task: 'What is `27^(−1/3)`?',\n      why: 'One small step down the 27 ladder divides by 3, so `27^(−1/3)` = 1 ÷ 3 = 1/3. The minus means one over `∛27`, a small amount, not a negative one.',\n      hint: 'Not quite. Take one small step down from 1.',\n      hints: { '−3': 'Not quite. The minus in the power does not make the answer negative. It means one over `∛27`.',\n        '−9': 'Not quite. That is −27 × ⅓. A minus in the power means one over, and every rung is above 0.' } },\n    { show: true, name: 'Multiplying adds small steps', replay: 'Play again',\n      p: { b: '4', lo: 0, hi: 2, c: 2, from: 0, go: 4, br: [[0, 1], [1, 4]], tl: { in: 0.4, act: 1.3, step: 0.65, work: [4.0, 4.3] } },\n      work: [{ e: '4^(1/2) × 4^(3/2)', w: '2 × 8 = 16' }, { e: '½ + 3/2', w: '2' }],\n      text: 'Multiplying still adds the powers. Half a step of × 2 and then three half steps of × 8 make four half steps, which is two whole steps. So `4^(1/2) × 4^(3/2)` = 2 × 8 = 16, which is `4²`.' },\n    { name: 'Add the halves', q: '9^(1/2) × 9^(3/2)',\n      p: { b: '9', lo: 0, hi: 2, c: 2, from: 0, go: 4, br: [[0, 1], [1, 4]] },\n      opts: ['18', '81', '5.2'], want: '81',\n      right: [{ e: '9^(1/2) × 9^(3/2)', w: '3 × 27 = 81' }, { e: '½ + 3/2', w: '2' }],\n      wrong: { '18': { slip: { mark: '9 × 2' }, lines: [{ e: '9 × 2', w: '18', bad: true }] },\n        '5.2': { slip: { mark: '9^(3/4)' }, lines: [{ e: '½ × 3/2', w: '¾', bad: true }, { e: '9^(3/4)', w: '≈ 5.2', bad: true }] } },\n      task: 'What is `9^(1/2) × 9^(3/2)`?',\n      why: 'Half a step of × 3 and then three half steps of × 27 make four half steps, which is two whole steps. The powers add, ½ + 3/2 = 2, so it is `9²` = 81.',\n      hint: 'Not quite. Count the half steps the two powers climb together.',\n      hints: { '18': 'Not quite. That is 9 × 2. Count the half steps instead.',\n        '5.2': 'Not quite. That multiplies the powers, ½ × 3/2 = ¾. Multiplying numbers adds the powers.' } },\n    { name: 'A cube tank', mixed: true, q: '0.125^(1/3)',\n      p: { b: '8', lo: -2, hi: 1, c: 3, from: 0, go: -1, below: true, dec: true, br: [[0, -3]] },\n      opts: ['0.0417 m', '0.354 m', '0.5 m'], want: '0.5 m',\n      right: [{ e: '0.125', w: '8⁻¹' }, { e: '(8⁻¹)^(1/3)', w: '8^(−1/3) = 0.5' }, { e: '0.5 × 0.5 × 0.5', w: '0.125' }],\n      wrong: { '0.0417 m': { slip: { mark: '0.125 × ⅓' }, lines: [{ e: '0.125 × ⅓', w: '≈ 0.0417', bad: true }] },\n        '0.354 m': { slip: { r: '√0.125', n: 3 }, lines: [{ e: '√0.125', w: '≈ 0.354', bad: true }, { e: '(√0.125)³', w: '≈ 0.0442', bad: true }] } },\n      task: 'A cube-shaped tank holds 0.125 m³. Its edge is `0.125^(1/3)` m. How long is that?',\n      why: 'The edge, used three times in a multiplication, makes the volume. On the 8 ladder 0.125 is `8⁻¹`, one whole step below 1, and its cube root is a third of that height: one small step down, ÷ 2, to 0.5. So the edge is `∛0.125` = 0.5 m, and 0.5 × 0.5 × 0.5 = 0.125.',\n      hint: 'Not quite. Find the number that makes 0.125 when it is used three times in a multiplication.',\n      hints: { '0.0417 m': 'Not quite. That is 0.125 × ⅓. Find the number that makes 0.125 when it is used three times.',\n        '0.354 m': 'Not quite. That is `√0.125`, a square root. The volume is the edge used three times in a multiplication, so take the cube root.' } },\n    { name: 'A minus and a top number', mixed: true, q: '16^(−3/4)',\n      p: { b: '16', lo: -1, hi: 1, c: 4, from: 0, go: -3, below: true, br: [[0, -4]] },\n      opts: ['8', '−12', '1/8'], want: '1/8',\n      right: [{ e: '16^(−3/4)', w: '1 ÷ 2³ = 1/8' }],\n      wrong: { '8': { slip: { r: '∜16', n: 3 }, lines: [{ e: '16^(3/4)', w: '2 × 2 × 2 = 8', bad: true }] },\n        '−12': { slip: { neg: '16 × −¾' }, lines: [{ e: '16 × −¾', w: '−12', bad: true }] } },\n      task: 'What is `16^(−3/4)`?',\n      why: 'The bottom number, 4, cuts each step of the 16 ladder into four small steps of × 2, because 2 × 2 × 2 × 2 = 16. The top number, 3, takes three of them, and the minus sends them down, so each divides by 2: `16^(−3/4)` = 1 ÷ 2 ÷ 2 ÷ 2 = 1/8.',\n      hint: 'Not quite. Take the fourth root of 16, take three small steps, and let the minus send them down.',\n      hints: { '8': 'Not quite. That is `16^(3/4)`, three small steps up. The minus sends them down, so it is one over 8.',\n        '−12': 'Not quite. That is 16 × −¾. The power is not a times sign, and a minus in the power means one over.' } },\n  ];\n  const FINISH = 'A fractional power is a root. The bottom number of the fraction is the root and the top number is the power, so `8^(1/3)` = 2 and `27^(5/3)` = 243. A minus in the power still means one over.';\n  // Step 6's lines: root first, and power first.\n  const SWR = [{ e: '(27^(1/3))⁵', w: '3⁵ = 243' }, { e: '⅓ × 5', w: '5/3' }];\n  const SWP = [{ e: '(27⁵)^(1/3)', w: '∛14,348,907 = 243' }, { e: '5 × ⅓', w: '5/3' }];\n  // The first screen's lines, worked out from the cut.\n  const RS = { 2: '√', 3: '∛', 4: '∜' };\n  function liveWork(c) {\n    const r = Math.pow(8, 1 / c), whole = isInt(r), root = RS[c] + '8';\n    return [\n      { e: '8^(1/' + c + ')', w: root + (whole ? ' = ' : ' ≈ ') + fmtV(r, false) },\n      { e: Array(c).fill(whole ? fmtV(r, false) : root).join(' × '), w: '8' },\n    ];\n  }\n  // Sources the checks restate (the lesson's own).\n  const SRC1 = 'https://www.bbc.co.uk/bitesize/articles/z93nsk7';\n  const SRC2 = 'https://www.bbc.co.uk/bitesize/articles/zf4s9ty';\n  const SRC3 = 'https://prep.math.lsa.umich.edu/cgi-bin/pmc/crtopic?crssxn=prep&sxn=1&top=2';\n  const SRC4 = 'https://openstax.org/books/algebra-and-trigonometry/pages/1-3-radicals-and-rational-exponents';\n  const SRC5 = 'https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf';\n\n  const XL = 12, XR = 328, LX = 140, RL = 150, RR = 184, AX = 194, BX = 276, LH = 26, FADE = 0.35;\n  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);\n  const testing = () => document.documentElement.classList.contains('k-testing');\n  // A puzzle's climb: quick enough that the whole move ends within about 2 s.\n  const moveD = (steps) => Math.min(0.6, 1.8 / Math.max(1, steps));\n  const restOf = (p) => (p.go % p.c === 0 ? null : (p.go > p.from ? Math.ceil(p.go / p.c) : Math.floor(p.go / p.c)) * p.c);\n  STEPS.forEach((d) => {\n    if (d.show) return;\n    const p = d.p, steps = Math.abs(p.go - p.from), rt = restOf(p);\n    d.rt = 0.15 + steps * moveD(steps) + (rt == null ? 0 : Math.abs(rt - p.go) * 0.35) + 0.1;\n  });\n\n  // ---------- each step's state ----------\n  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's answer. The first screen:\n  // cut, pos (small steps up), prev (pos before the last move, null when none), known (highest rung\n  // shown before the move), top (highest rung shown), cutMove. Step 7: mode, root or power first.\n  function blank() { return { pick: null, res: null, why: false, cut: 3, pos: 3, prev: null, known: 0, top: 3, cutMove: false, mode: 'root' }; }\n  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;\n  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };\n  let S = STEPS.map(() => blank());\n  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion\n  let motionEnd = 0;\n  let REC = null;                                                        // what the last paint drew, for the checks\n\n  // ---------- text with amber key terms and raised powers (built with K.el, never innerHTML) ----------\n  function maths(parent, s) {\n    String(s).split(/\\^\\(([^)]*)\\)/).forEach((part, k) => {\n      if (!part) return;\n      parent.appendChild(k % 2 ? K.el('sup', null, part) : document.createTextNode(part));\n    });\n  }\n  function write(el, s) {\n    el.textContent = '';\n    String(s).split('`').forEach((seg, k) => {\n      if (!seg) return;\n      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg); return; }\n      const re = /\\*([^*]+)\\*/g;\n      let at = 0, m;\n      while ((m = re.exec(seg))) {\n        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));\n        el.appendChild(K.el('span', { class: 'term' }, m[1]));\n        at = m.index + m[0].length;\n      }\n      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));\n    });\n  }\n\n  // ---------- controls ----------\n  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });\n  const nav = document.getElementById('nav');\n  const at = () => stepper.get();\n\n  // Three answer buttons; each step fills in its own options. A new choice after a wrong answer\n  // settles the picture back to the question.\n  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;\n    const was = st.res === 'wrong';\n    st.pick = d.opts[k]; st.res = null;\n    if (was) { anim.pause(); T = Infinity; enter('scene'); }\n  } }));\n  // Check: marks the answer; a right one climbs the ladder, a wrong one climbs or marks its own slip.\n  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {\n    const i = at(), d = STEPS[i], st = S[i];\n    if (d.show || finished) return;\n    if (st.pick == null) { st.res = 'empty'; return; }\n    st.res = isRight(i, st) ? 'right' : 'wrong';\n    play(motionLen(i, st).latest);\n  } });\n  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {\n    if (STEPS[at()].show || finished) return;\n    const st = S[at()]; st.why = !st.why;\n  } });\n  // The first screen: cut every step into 2, 3 or 4 small steps, and climb one small step at a time.\n  const cutBtns = [2, 3, 4].map((c) => K.button({ label: c + ' parts', secondary: true, into: '#cuts', press: () => {\n    if (finished || at() !== 0) return;\n    const st = S[0];\n    if (st.cut === c) return;\n    Object.assign(st, { cut: c, prev: 0, pos: c, known: 0, top: c, cutMove: true });\n    play(motionLen(0, st).latest);\n  } }));\n  // Step 7: root first or power first.\n  const MODES = ['root', 'power'];\n  const modeBtns = [['root', 'Root first'], ['power', 'Power first']].map((m) => K.button({ label: m[1], secondary: true, into: '#cuts', press: () => {\n    const i = at(), d = STEPS[i];\n    if (finished || !d.sw) return;\n    const st = S[i];\n    if (st.mode === m[0]) return;\n    st.mode = m[0]; st.prev = 1;\n    play(motionLen(i, st).latest);\n  } }));\n  function climb(by) {\n    if (finished || at() !== 0) return;\n    const st = S[0], v = K.clamp(st.pos + by, 0, 3 * st.cut);\n    if (v === st.pos) return;\n    const before = st.top;\n    Object.assign(st, { prev: st.pos, pos: v, known: before, top: Math.max(before, v), cutMove: false });\n    play(motionLen(0, st).latest);\n  }\n  const downBtn = K.button({ label: 'Step down', secondary: true, into: '#tune', press: () => climb(-1) });\n  const upBtn = K.button({ label: 'Step up', secondary: true, into: '#tune', press: () => climb(1) });\n  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {\n    const i = at(), d = STEPS[i];\n    if (!d.show || finished) return;\n    const st = S[i];\n    st.prev = null; st.cutMove = false;\n    if (d.p.live) st.top = st.pos;\n    play(motionLen(i, st).latest);\n  } });\n  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {\n    if (finished) { finished = false; return; }\n    stepper.set(Math.max(0, at() - 1), true);\n  } });\n  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {\n    const i = at();\n    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;\n    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }\n    finished = true;\n    if (typeof K.complete === 'function') K.complete();\n  } });\n  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {\n    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);\n  } });\n\n  // One animation plays each demonstration and the motion after an answer; with reduced motion\n  // (and while the self-test looks) everything opens finished.\n  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {\n    if (finished) return false;\n    T += dt;\n    paint();\n    return T < motionEnd;\n  } });\n  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });\n  function play(dur) {\n    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }\n    motionEnd = dur + 0.05; T = 0; anim.play();\n  }\n  function enter(id) {\n    if (REDUCE) return;\n    const box = document.getElementById(id);\n    box.classList.remove('enter');\n    void box.offsetWidth;\n    box.classList.add('enter');\n  }\n\n  // ---------- drawing ----------\n  const svg = document.getElementById('scene'), art = document.getElementById('art');\n  let into = null;\n  const add = (node) => (into || art).appendChild(node);\n  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.\n  let latest = 0, earliest = Infinity;\n  function arr(t0, d) {\n    if (t0 + d > latest) latest = t0 + d;\n    if (t0 < earliest) earliest = t0;\n    return K.arrive(T, t0, d);\n  }\n  const vis = (t, d) => (t == null ? 1 : arr(t, d));\n  const I = (C, off, d) => (C.tin == null ? 1 : arr(C.tin + off, d));\n  function part(a, rise, draw) {\n    if (a <= 0) return;\n    const g = add(K.svg('g'));\n    K.fade(g, a, rise);\n    const keep = into; into = g;\n    try { draw(); } finally { into = keep; }\n  }\n  // A ladder writes values below 1 as one over a whole number, unless it is marked to use decimals.\n  const fracOf = (p) => +p.b > 1 && !p.dec;\n  const r3 = (v) => Math.round(v * 1000) / 1000;\n  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));\n  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));\n  const curve = (cls, x1, y1, cx, cy, x2, y2) => add(K.svg('path', { class: cls, d: 'M' + r3(x1) + ' ' + r3(y1) + ' Q' + r3(cx) + ' ' + r3(cy) + ' ' + r3(x2) + ' ' + r3(y2) }));\n  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, svgStr(s)));\n  // An arrowhead with its tip at (x, y), pointing along (dx, dy).\n  function head(x, y, dx, dy, cls) {\n    const L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, s = 7, w = 4, bx = x - ux * s, by = y - uy * s;\n    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(bx - uy * w) + ' ' + r3(by + ux * w) + ' L' + r3(bx + uy * w) + ' ' + r3(by - ux * w) + ' Z' }));\n  }\n  // A curved arrow beside the ladder from one height to the next, bulging out to the right.\n  function arrow(x, ya, yb, cls) {\n    const dir = yb < ya ? -1 : 1, y1 = ya + dir * 3, y2 = yb - dir * 3, cx = x + 14, cy = (y1 + y2) / 2;\n    curve('arr' + cls, x, y1, cx, cy, x, y2);\n    head(x, y2, x - cx, y2 - cy, 'arrh' + cls);\n  }\n  // A bracket along a run of steps, its words beside it (or above its top).\n  function bracket(x, ya, yb, lines, a, above) {\n    part(a, 0, () => {\n      add(K.svg('path', { class: 'br', d: 'M' + r3(x - 6) + ' ' + r3(ya + 2) + ' L' + r3(x) + ' ' + r3(ya + 2) + ' L' + r3(x) + ' ' + r3(yb - 2) + ' L' + r3(x - 6) + ' ' + r3(yb - 2) }));\n      if (above) { text(x + 4, ya - 8, lines[0], 'bl', 'end'); return; }\n      const mid = (ya + yb) / 2, n = lines.length;\n      lines.forEach((s, k) => text(x + 7, mid + 5 + (k - (n - 1) / 2) * 17, s, 'bl', 'start'));\n    });\n  }\n  const widths = {};\n  function tw(s, cls) {\n    const key = cls + '|' + s;\n    if (widths[key]) return widths[key];\n    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));\n    let w = 0;\n    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }\n    svg.removeChild(t);\n    if (w > 0) { widths[key] = w; return w; }\n    return String(s).length * 13 * 0.6;\n  }\n\n  // ---------- the key, inside the drawing ----------\n  const KEYS = { rw: 'a whole power', rs: 'a small step', mk: 'you are here', bad: 'a wrong pick' };\n  const keyItems = (d) => (d.show ? ['rw', 'rs', 'mk'] : ['rw', 'rs', 'mk', 'bad']);\n  function keyLayout(ks) {\n    let x = XL, row = 0;\n    return ks.map((k) => {\n      const w = 26 + tw(KEYS[k], 'key');\n      if (x > XL && x + w > XR) { x = XL; row++; }\n      const it = { k, x, row };\n      x += w + 14;\n      return it;\n    });\n  }\n  function drawKey(G, a) {\n    part(a, 0, () => keyLayout(G.keys).forEach((it) => {\n      const yk = G.keyY + it.row * 22, x = it.x;\n      if (it.k === 'rw') line('rw', x + 3, yk, x + 17, yk);\n      else if (it.k === 'rs') line('rs', x + 2, yk, x + 18, yk);\n      else if (it.k === 'mk') rect('mk', x, yk - 6, 20, 12, 6);\n      else { curve('arr bad', x + 5, yk + 8, x + 17, yk, x + 5, yk - 8); head(x + 5, yk - 8, -12, -8, 'arrh bad'); }\n      text(x + 26, yk + 5, KEYS[it.k], 'key', 'start');\n    }));\n  }\n\n  // ---------- each step's sizes ----------\n  const GEO = new Map();\n  function geo(i) {\n    if (GEO.has(i)) return GEO.get(i);\n    const d = STEPS[i], p = d.p, n = p.hi - p.lo, cm = p.live ? 4 : p.c;\n    const G = { H: p.H || Math.max(cm * 20, Math.min(84, 270 / n)), top: 50 };\n    let yy = G.top + n * G.H + 16;\n    if (p.below) yy += 26;\n    if (!d.show && Object.keys(d.wrong).some((o) => d.wrong[o].slip.neg)) { G.negY = yy; yy += 24; }\n    G.keys = keyItems(d);\n    const rows = 1 + Math.max(...keyLayout(G.keys).map((it) => it.row));\n    G.keyY = yy + 12; yy += rows * 22 + 4;\n    const nl = d.show ? (p.live || d.sw ? 2 : d.work.length) : Math.max(d.right.length, ...Object.keys(d.wrong).map((o) => d.wrong[o].lines.length));\n    G.workY = yy; yy += nl * LH + 8;\n    G.Hpx = Math.ceil(yy);\n    GEO.set(i, G);\n    return G;\n  }\n  // A step's timetable in its state: tin, when the ladder starts arriving (null: there from the\n  // start); act, when the climb starts (false: not yet); D, how long each small step takes.\n  function ctxOf(d, st) {\n    const p = d.p;\n    if (p.live) {\n      const moving = st.prev != null, from = moving ? st.prev : 0, n = Math.abs(st.pos - from);\n      return { c: st.cut, live: true, from, to: st.pos, known: moving ? st.known : 0,\n        tin: null, act: moving ? 0 : p.tl.act,\n        D: moving ? Math.min(0.6, 2 / Math.max(1, n)) : Math.min(0.8, 2.4 / Math.max(1, n)),\n        cutA: moving && st.cutMove ? arr(0, 0.4) : 1, workT: moving ? (st.cutMove ? [0.3, 0.45] : null) : p.tl.work };\n    }\n    if (d.sw) {\n      const re = st.prev != null, act = re ? 0.2 : p.tl.act, power = st.mode === 'power';\n      return { c: p.c, sw: true, power, from: 0, to: power ? 0 : p.go, tin: re ? null : p.tl.in, act, D: 0.55, cutA: 1,\n        workT: power ? [act + 3.0, act + 3.25] : [act + 2.85, act + 3.15] };\n    }\n    if (d.show) return { c: p.c, from: p.from, to: p.go, tin: p.tl.in, act: p.tl.act, D: p.tl.step, cutA: 1, workT: p.tl.work };\n    const right = st.res === 'right', steps = Math.abs(p.go - p.from), D = moveD(steps);\n    return { c: p.c, from: p.from, to: p.go, tin: null, act: right ? 0.1 : false, D, cutA: 1,\n      restTo: right ? restOf(p) : null, restT: 0.15 + steps * D };\n  }\n  // The climb in a state: each small step's progress and where the marker is now (in small steps).\n  function moveOf(C) {\n    const from = C.from, to = C.to, steps = Math.abs(to - from), dir = to >= from ? 1 : -1, prog = [];\n    for (let j = 0; j < steps; j++) prog.push(C.act === false ? 0 : C.act == null ? 1 : arr(C.act + j * C.D, C.D));\n    let done = 0;\n    while (done < steps && prog[done] >= 1) done++;\n    const t = done < steps ? prog[done] : 0;\n    return { from, to, dir, steps, prog, done, pos: from + dir * (done + t), depth: prog.reduce((s, v) => s + v, 0) };\n  }\n  // The lines of working a step shows in its state, each with the time it arrives.\n  function workOf(d, st, C) {\n    if (d.p.live) return liveWork(st.cut).map((r, m) => ({ r, t: C.workT ? C.workT[m] : null }));\n    if (d.sw) return (st.mode === 'power' ? SWP : SWR).map((r, m) => ({ r, t: C.workT[m] }));\n    if (d.show) return d.work.map((r, m) => ({ r, t: C.workT[m] }));\n    if (st.res === 'right') return d.right.map((r, m) => ({ r, t: d.rt + 0.25 * m }));\n    if (st.res === 'wrong' && st.pick != null) return d.wrong[st.pick].lines.map((r, m) => ({ r, t: 0.25 + 0.3 * m }));\n    return [];\n  }\n  // A line of working: the expression on the left, what it makes on the right.\n  function drawWork(r, yy, a) {\n    const cls = r.bad ? ' bad' : r.mu ? ' mu' : '', ap = /^≈/.test(r.w), right = r.w.replace(/^≈\\s*/, '');\n    part(a, 6, () => { text(XL, yy, r.e + (ap ? ' ≈' : ' ='), 'te' + cls, 'start'); text(XR, yy, right, 'tw' + cls, 'end'); });\n    if (a >= 0.5) REC.work.push(r);\n    return a >= 0.5 ? say(r.e + (ap ? ' ≈ ' : ' = ') + right) + (r.bad ? ', a slip.' : '.') : '';\n  }\n\n  // The whole picture for a step now; returns it in words.\n  function drawScene(i, d, st, G) {\n    REC = { rungs: [], labels: {}, marker: null, arrows: [], slips: [], brs: [], work: [] };\n    const p = d.p, C = ctxOf(d, st), b = +p.b, c = C.c, frac = fracOf(p), H = G.H;\n    const y = (h) => G.top + (p.hi - h) * H;\n    const said = [];\n    part(I(C, 0, 0.5), 0, () => text(XL, 26, 'Powers of ' + p.b, 'tag', 'start'));\n    const yT = y(p.hi) - 12, yB = y(p.lo) + 12;\n    part(I(C, 0, 0.5), 0, () => { line('rail', RL, yT, RL, yB); line('rail', RR, yT, RR, yB); });\n    if (p.below) part(I(C, 0.8, 0.5), 0, () => {\n      line('rail on', RL, yB, RL, yB + 22); line('rail on', RR, yB, RR, yB + 22);\n      text(LX, yB + 20, 'smaller, never 0', 'note', 'end');\n    });\n\n    // the arrows: one for each small step climbed, saying what it multiplies by\n    const r1 = Math.pow(b, 1 / c);\n    const stepTxt = (dir) => (dir > 0 ? '× ' : '÷ ') + fmtV(r1, false);\n    function arrowAt(j0, j1, a, cls, txt) {\n      if (a <= 0) return;\n      part(a, 0, () => { arrow(AX, y(j0 / c), y(j1 / c), cls); text(AX + 19, (y(j0 / c) + y(j1 / c)) / 2 + 5, txt, 'al' + cls, 'start'); });\n      if (a >= 0.5) REC.arrows.push({ j0, j1, text: txt });\n    }\n\n    // power first: five whole steps, then the cube root keeps a third of that height\n    let mpos = null;\n    if (C.power) {\n      const n = p.go, PD = 0.45, prog = [];\n      for (let k = 0; k < n; k++) prog.push(arr(C.act + k * PD, PD));\n      prog.forEach((g, k) => arrowAt(k * c, (k + 1) * c, K.clamp(g * 2.5, 0, 1), '', '× ' + fmtV(b, frac)));\n      let done = 0;\n      while (done < n && prog[done] >= 1) done++;\n      const climbed = done + (done < n ? prog[done] : 0), t0 = C.act + n * PD;\n      const aA = arr(t0 - 0.05, 0.4), desc = arr(t0 + 0.15, 0.7), aB = arr(t0 + 0.35, 0.5);\n      mpos = desc > 0 ? K.lerp(n * c, n, K.ease(desc)) : climbed * c;\n      C.extra = {}; C.extra[n] = K.clamp((desc - 0.6) / 0.4, 0, 1);\n      bracket(304, y(n), y(0), ['height ' + n], aA, true);\n      bracket(BX, y(n / c), y(0), [THIRD[c] || '1/' + c], aB, false);\n      if (aA >= 0.5) REC.brs.push({ j0: 0, j1: n * c, lines: ['height ' + n] });\n      if (aB >= 0.5) REC.brs.push({ j0: 0, j1: n, lines: [THIRD[c]] });\n    }\n\n    const mo = moveOf(C);\n    if (C.restTo != null) {\n      const steps = Math.abs(C.restTo - C.to), dir = C.restTo > C.to ? 1 : -1, prog = [];\n      for (let k = 0; k < steps; k++) prog.push(arr(C.restT + k * 0.35, 0.35));\n      C.rest = { from: C.to, dir, steps, prog };\n    }\n    const knownJ = (j) => (C.live ? j >= 0 && j <= C.known : j === C.from);\n    function rev(j) {\n      if (knownJ(j)) return 1;\n      for (let k = 1; k <= mo.steps; k++) if (mo.from + mo.dir * k === j) return K.clamp((mo.depth - k + 0.4) / 0.4, 0, 1);\n      if (C.rest) for (let k = 1; k <= C.rest.steps; k++) if (C.rest.from + C.rest.dir * k === j) return K.clamp((C.rest.prog[k - 1] - 0.6) / 0.4, 0, 1);\n      if (C.extra && C.extra[j] != null) return C.extra[j];\n      return 0;\n    }\n    if (C.live) for (let j = 1; j <= C.known; j++) arrowAt(j - 1, j, 1, '', stepTxt(1));\n    for (let k = 1; k <= mo.steps; k++) {\n      const j0 = mo.from + mo.dir * (k - 1), j1 = mo.from + mo.dir * k;\n      if (C.live && knownJ(j0) && knownJ(j1)) continue;\n      arrowAt(j0, j1, K.clamp(mo.prog[k - 1] * 2.5, 0, 1), '', stepTxt(mo.dir));\n    }\n    if (C.rest) for (let k = 1; k <= C.rest.steps; k++) {\n      const j0 = C.rest.from + C.rest.dir * (k - 1);\n      arrowAt(j0, j0 + C.rest.dir, K.clamp(C.rest.prog[k - 1] * 2.5, 0, 1), '', stepTxt(C.rest.dir));\n    }\n\n    // the rungs, bottom to top: whole powers always labelled, small steps once climbed\n    const N = (p.hi - p.lo) * c;\n    for (let j = p.lo * c; j <= p.hi * c; j++) {\n      const whole = j % c === 0, h = j / c, k = j - p.lo * c, v = Math.pow(b, h);\n      const a = Math.min(I(C, 0.15 + 0.7 * k / N, 0.4), whole ? 1 : C.cutA);\n      part(a, 0, () => line(whole ? 'rw' : 'rs', whole ? RL - 5 : RL, y(h), whole ? RR + 5 : RR, y(h)));\n      const la = whole ? a : d.sw && j !== p.go ? 0 : Math.min(a, rev(j)), lab = pw(p.b, j, c) + ' = ' + fmtV(v, frac);\n      const ans = !d.show && st.res === 'right' && j === p.go && !whole;\n      if (la > 0) part(la, 0, () => text(LX, y(h) + 5, lab, whole ? 'rl' : 'rsl' + (ans ? ' ans' : ''), 'end'));\n      REC.rungs.push({ j, h, y: y(h), whole, v });\n      if (la >= 0.5) REC.labels[j] = lab;\n    }\n\n    // the marker: where you are\n    if (mpos == null) mpos = mo.pos;\n    part(I(C, 0.6, 0.5), 0, () => rect('mk', RL - 6, y(mpos / c) - 7, RR - RL + 12, 14, 7));\n    REC.marker = mpos;\n\n    // brackets: what a run of small steps multiplies by\n    const brs = C.power ? [] : C.live ? [[0, c]] : (p.br || []);\n    brs.forEach((jj) => {\n      const j0 = jj[0], j1 = jj[1], a = Math.min(rev(j1), I(C, 0.9, 0.4)), D = j1 - j0;\n      const lines = (p.b.length <= 1 ? [pw(p.b, D, c)] : []).concat([(D > 0 ? '× ' : '÷ ') + fmtV(Math.pow(b, Math.abs(D) / c), frac)]);\n      bracket(BX, Math.min(y(j0 / c), y(j1 / c)), Math.max(y(j0 / c), y(j1 / c)), lines, a, false);\n      if (a >= 0.5) REC.brs.push({ j0, j1, lines });\n    });\n\n    // a wrong pick's own slip, in the warning colour\n    if (!d.show && st.res === 'wrong' && st.pick != null) said.push(drawSlip(d.wrong[st.pick].slip, p, b, c, y, frac, G));\n\n    const on = Math.round(mpos);\n    let words = 'A ladder of powers of ' + p.b + ' with its rungs equally spaced, each whole step cut into ' + c + ' small steps. The marker is on ' +\n      say(pw(p.b, on, c)) + (REC.labels[on] ? ', which is ' + say(fmtV(Math.pow(b, on / c), frac)) : '') + '.';\n    if (REC.arrows.length) words += ' ' + REC.arrows.length + (REC.arrows.length === 1 ? ' step climbed, ' : ' steps climbed, each ') + say(REC.arrows[0].text) + '.';\n    REC.brs.forEach((x) => { words += ' A bracket: ' + say(x.lines.join(', ')) + '.'; });\n    workOf(d, st, C).forEach((l, m) => said.push(drawWork(l.r, G.workY + 20 + LH * m, vis(l.t, 0.4))));\n    drawKey(G, I(C, 0.6, 0.5));\n    return [words].concat(said.filter(Boolean)).join(' ');\n  }\n  // A wrong pick: its own small steps climbed beside the ladder, where its number sits on the\n  // ladder, or, for a number below 0, off the ladder altogether.\n  function drawSlip(s, p, b, c, y, frac, G) {\n    if (s.neg) {\n      const v = val(s.neg), t = fmtV(v, frac) + ' is below 0, where no rung goes';\n      part(vis(0.1, 0.5), 4, () => text(XL, G.negY + 14, t, 'lab bad', 'start'));\n      REC.slips.push({ kind: 'neg', v });\n      return say(t) + '.';\n    }\n    if (s.mark) {\n      const v = val(s.mark), h = Math.log(v) / Math.log(b);\n      part(vis(0.1, 0.5), 0, () => { line('gd', RL - 8, y(h), RR + 8, y(h)); text(AX + 19, y(h) + 5, fmtV(v, frac), 'lab bad', 'start'); if (s.note) text(AX + 19, y(h) + 21, s.note, 'lab bad', 'start'); });\n      REC.slips.push({ kind: 'mark', v, h });\n      return 'The wrong pick ' + say(fmtV(v, frac)) + (s.note ? ', ' + s.note + ',' : '') + ' sits on the ladder at that height, a dashed line.';\n    }\n    const r = val(s.r), dh = Math.log(r) / Math.log(b), h0 = p.from / c, txt = '× ' + fmtV(r, false);\n    for (let k = 1; k <= s.n; k++) {\n      const ha = h0 + (k - 1) * dh, hb = h0 + k * dh;\n      part(vis(0.1 + 0.45 * (k - 1), 0.45), 0, () => { arrow(AX, y(ha), y(hb), ' bad'); text(AX + 19, (y(ha) + y(hb)) / 2 + 5, txt, 'al bad', 'start'); });\n    }\n    const hn = h0 + s.n * dh, vn = Math.pow(r, s.n);\n    part(vis(0.1 + 0.45 * s.n, 0.4), 0, () => { line('gd', RL - 8, y(hn), RR + 8, y(hn)); text(AX + 19, y(hn) + 5, fmtV(vn, frac), 'lab bad', 'start'); });\n    REC.slips.push({ kind: 'climb', r, n: s.n, h: hn, v: vn });\n    return 'The wrong pick climbs ' + s.n + ' small steps of ' + say(txt) + ' and lands on ' + say(fmtV(vn, frac)) + '.';\n  }\n  // The scene for a step (the animation calls this every frame).\n  function paint(i) {\n    if (i == null) i = at();\n    const d = STEPS[i], st = S[i], G = geo(i);\n    art.textContent = '';\n    into = null;\n    svg.setAttribute('viewBox', '0 0 340 ' + G.Hpx);\n    svg.setAttribute('aria-label', drawScene(i, d, st, G));\n  }\n  // How long a step's motion takes in a state: the latest arrival, and the earliest start.\n  function motionLen(i, st) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = Infinity; latest = 0; earliest = Infinity;\n    try { paint(i); } finally { S[i] = keepS; T = keepT; }\n    return { latest, earliest };\n  }\n\n  const el = (id) => document.getElementById(id);\n  write(el('finish'), FINISH);\n  K.update((pp) => {\n    const i = Math.round(pp.step), d = STEPS[i], st = S[i];\n    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished\n    if (i !== lastStep) {\n      lastStep = i; enter('stepbox');\n      if (d.show) { st.prev = null; st.cutMove = false; if (d.p.live) st.top = st.pos; play(motionLen(i, st).latest); } else { anim.pause(); T = Infinity; }\n    }\n    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }\n    const right = st.res === 'right', live = !!d.p.live;\n    el('stepbox').hidden = finished;\n    el('done').hidden = !finished;\n    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + (d.mixed ? ' · mixed' : '');\n    const task = el('task');\n    task.className = 'task' + (d.show ? ' show' : '');\n    write(task, d.show ? d.text : d.task);\n    paint(i);\n\n    el('cuts').hidden = finished || !(live || d.sw);\n    cutBtns.forEach((bt, k) => { bt.el.hidden = !live; bt.el.setAttribute('aria-pressed', S[0].cut === k + 2 ? 'true' : 'false'); });\n    modeBtns.forEach((bt, k) => { bt.el.hidden = !d.sw; bt.el.setAttribute('aria-pressed', st.mode === MODES[k] ? 'true' : 'false'); });\n    el('tune').hidden = finished || !live;\n    downBtn.el.disabled = S[0].pos <= 0;\n    upBtn.el.disabled = S[0].pos >= 3 * S[0].cut;\n    replayBtn.setLabel(d.replay || 'Play again');\n    replayBtn.el.hidden = !d.show || REDUCE;\n    el('replay').hidden = replayBtn.el.hidden;\n    const opts = d.show ? [] : d.opts || [];\n    el('picks').hidden = !opts.length;\n    pickBtns.forEach((bt, k) => {\n      bt.el.hidden = k >= opts.length;\n      if (k >= opts.length) return;\n      bt.setLabel(opts[k]);\n      bt.el.textContent = '';\n      maths(bt.el.appendChild(K.el('span')), opts[k]);\n      bt.el.setAttribute('aria-label', say(opts[k]));\n      bt.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');\n    });\n\n    el('acts').hidden = !!d.show;\n    checkBtn.el.hidden = right;\n    const fb = el('fb');\n    fb.hidden = !!d.show;\n    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');\n    write(fb, d.show ? '' : right ? 'That\\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');\n\n    const why = el('why');\n    why.hidden = d.show || !st.why;\n    write(why, d.show ? '' : d.why);\n    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');\n\n    backBtn.el.hidden = i === 0 && !finished;\n    nextBtn.el.hidden = finished || (!d.show && !right);\n    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');\n    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;\n  });\n\n  // ---------- known answers, worked out by hand ----------\n  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);\n  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));\n  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });\n  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });\n  const liveSt = (c, pos) => Object.assign(blank(), { cut: c, pos, prev: null, known: 0, top: pos });\n  const idx = (name) => STEPS.findIndex((d) => d.name === name);\n  // A line adds up: each part after = equals the expression, each part after ≈ is within 1%.\n  function adds(r) {\n    const v = val(r.e), s = /^\\s*≈/.test(r.w) ? r.w : '= ' + r.w, tok = s.split(/\\s*([=≈])\\s*/).filter((x) => x !== '');\n    if (tok.length % 2) return false;\n    for (let k = 0; k < tok.length; k += 2) {\n      const w = val(tok[k + 1]);\n      if (tok[k] === '=' ? !close(w, v) : Math.abs(w - v) > 0.01 * Math.abs(v)) return false;\n    }\n    return true;\n  }\n  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.\n  function drawn(i, st, t) {\n    const keepS = S[i], keepT = T;\n    S[i] = st; T = t == null ? Infinity : t;\n    try {\n      paint(i);\n      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) }, REC);\n    } finally { S[i] = keepS; T = keepT; paint(); }\n  }\n  const finalSt = (i) => (STEPS[i].show ? blank() : solvedSt(i));\n\n  K.check('The base numbers are the same, so add the indices together (9³ × 9⁵ = 9⁸): on the 8 ladder every small step adds the same fraction to the power, so at each cut, 2, 3 or 4, every rung climbed from 1 to 512 is the one below it times the same number', () => {\n    if (!close(val('9³ × 9⁵'), val('9⁸'))) return false;\n    return [2, 3, 4].every((c) => {\n      const g = drawn(0, liveSt(c, 3 * c)), r = Math.pow(8, 1 / c), rs = g.rungs.slice().sort((a, b) => a.j - b.j);\n      if (rs.length !== 3 * c + 1 || !close(rs[0].v, 1) || !close(rs[rs.length - 1].v, 512)) return false;\n      if (!rs.every((x) => g.labels[x.j] === pw('8', x.j, c) + ' = ' + fmtV(x.v, true))) return false;\n      return rs.every((x, k) => k === 0 || close(x.v / rs[k - 1].v, r)) && g.arrows.length === 3 * c && g.arrows.every((a) => a.text === '× ' + fmtV(r, false));\n    });\n  }, { source: SRC1 });\n  K.check('Fractional exponents are defined as roots, from the rule for powers of powers: at each cut c on the first screen, one small step used c times in a multiplication makes the whole step of × 8, and at cut 3 each small step is × 2, so 8^(1/3) = ∛8 = 2', () =>\n    [2, 3, 4].every((c) => {\n      const g = drawn(0, liveSt(c, c)), r = Math.pow(8, 1 / c);\n      return close(Math.pow(r, c), 8) && g.marker === c && g.arrows.length === c && g.brs.length === 1 && g.brs[0].lines.join('|') === '8¹|× 8';\n    }) && drawn(0, liveSt(3, 1)).labels[1] === '8^(1/3) = 2' && drawn(0, liveSt(3, 1)).arrows[0].text === '× 2' && close(val('∛8'), 2), { source: SRC3 });\n  K.check('The numerator tells us the power and the denominator tells us the root: in each puzzle that asks for a fractional power, the ladder cuts every step into the bottom number of small steps, the right climb takes the top number of them, and it stops on the root raised to that power', () => {\n    const re = /^([0-9.]+)\\^\\((−?)(\\d+)\\/(\\d+)\\)$/, qs = DO.filter((i) => re.test(STEPS[i].q) && re.exec(STEPS[i].q)[1] === STEPS[i].p.b);\n    return qs.length === 6 && qs.every((i) => {\n      const d = STEPS[i], m = re.exec(d.q), b = +m[1], top = +m[3] * (m[2] ? -1 : 1), bot = +m[4], p = d.p, g = drawn(i, solvedSt(i));\n      return p.c === bot && p.go - p.from === top && g.marker === p.go && close(Math.pow(Math.pow(b, 1 / bot), top), val(d.want)) &&\n        g.labels[p.go] === pw(p.b, p.go, p.c) + ' = ' + fmtV(Math.pow(b, p.go / p.c), b > 1);\n    });\n  }, { source: SRC4 });\n  K.check('To raise to a power for a given base, multiply the indices: on the 27 ladder, root first (five small steps of × 3) and power first (five whole steps of × 27 to 14,348,907, then a third of that height) both stop on 27^(5/3) = 243', () => {\n    const i = idx('Root first or power first'), r = drawn(i, blank()), q = drawn(i, Object.assign(blank(), { mode: 'power' }));\n    return r.marker === 5 && r.labels[5] === '27^(5/3) = 243' && r.arrows.length === 5 && r.arrows.every((a) => a.text === '× 3') &&\n      close(q.marker, 5) && q.labels[5] === '27^(5/3) = 243' && q.labels[15] === '27⁵ = 14,348,907' && q.arrows.length === 5 && q.arrows.every((a) => a.text === '× 27') &&\n      q.brs.length === 2 && close(val('(27^(1/3))⁵'), 243) && close(val('(27⁵)^(1/3)'), 243);\n  }, { source: SRC2 });\n  K.check('To raise to a power for a given base, multiply the indices: on the tank screen 0.125 is the rung 8⁻¹, one whole step below 1, and the right climb stops a third of that height down, on 8^(−1/3) = 0.5, where 0.5 × 0.5 × 0.5 = 0.125', () => {\n    const i = idx('A cube tank'), g = drawn(i, solvedSt(i));\n    return g.labels[-3] === '8⁻¹ = 0.125' && g.marker === -1 && g.labels[-1] === '8^(−1/3) = 0.5' && close(val('(8⁻¹)^(1/3)'), 0.5) && close(val('0.5 × 0.5 × 0.5'), 0.125);\n  }, { source: SRC2 });\n  K.check('A negative power gives the reciprocal of the number, 1 over the number: two small steps down the 8 ladder land on 8^(−2/3) = 1/4, one over 8^(2/3) = 4, and one small step down the 27 ladder on 27^(−1/3) = 1/3, one over ∛27', () => {\n    const g = drawn(idx('Below 1'), blank()), i9 = idx('A minus in the power'), h = drawn(i9, solvedSt(i9));\n    return g.marker === -2 && g.labels[-2] === '8^(−2/3) = 1/4' && g.labels[-1] === '8^(−1/3) = 1/2' && close(val('1/8^(2/3)'), 0.25) &&\n      h.marker === -1 && h.labels[-1] === '27^(−1/3) = 1/3' && close(val('1 ÷ ∛27'), 1 / 3);\n  }, { source: SRC5 });\n  K.check('A common misconception is that since the power is negative, the result must be negative, and this is not so: every rung on every ladder in the lesson, those below 1 included, holds a positive amount, and the picks −3 and −9 are drawn below 0, off the ladder', () =>\n    STEPS.every((d, i) => drawn(i, finalSt(i)).rungs.every((r) => r.v > 0)) &&\n    ['−3', '−9'].every((o) => { const i9 = idx('A minus in the power'), s = drawn(i9, wrongSt(i9, o)).slips; return s.length === 1 && s[0].kind === 'neg' && s[0].v < 0; }), { source: SRC5 });\n  K.check('Every line of working on every screen adds up, the first screen\\'s at each cut, 2, 3 and 4', () => {\n    const all = [];\n    [2, 3, 4].forEach((c) => liveWork(c).forEach((r) => all.push(r)));\n    SWR.concat(SWP).forEach((r) => all.push(r));\n    STEPS.forEach((d) => {\n      if (d.show) (d.work || []).forEach((r) => all.push(r));\n      else [d.right].concat(Object.keys(d.wrong).map((o) => d.wrong[o].lines)).forEach((ls) => ls.forEach((r) => all.push(r)));\n    });\n    return all.length > 40 && all.every(adds);\n  });\n  K.check('Each puzzle accepts only its right answer, which equals the question, and the right climb stops on the rung of that value; before an answer no small rung shows a value; each wrong pick draws its own steps or mark on the ladder where its number sits, or below 0 off it', () =>\n    DO.every((i) => {\n      const d = STEPS[i], p = d.p, b = +p.b, want = val(d.want);\n      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => pickRight(i, o) === (o === d.want))) return false;\n      if (Object.keys(d.wrong).length !== 2 || !Object.keys(d.wrong).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want)) return false;\n      if (!close(val(d.q), want) || !d.opts.every((o) => o === d.want || !close(val(o), want, 1e-3))) return false;\n      const g = drawn(i, solvedSt(i));\n      if (g.marker !== p.go || !close(Math.pow(b, p.go / p.c), want) || g.texts.indexOf('Powers of ' + p.b) < 0) return false;\n      const g0 = drawn(i, blank());\n      if (g0.marker !== p.from || g0.slips.length || g0.arrows.length || g0.rungs.some((r) => !r.whole && g0.labels[r.j] != null)) return false;\n      return Object.keys(d.wrong).every((o) => {\n        const s = drawn(i, wrongSt(i, o)).slips, v = val(o);\n        if (s.length !== 1) return false;\n        const x = s[0];\n        if (x.kind === 'neg') return x.v < 0 && close(x.v, v);\n        if (x.h < p.lo - 1e-9 || x.h > p.hi + 1e-9) return false;\n        if (x.kind === 'mark') return close(x.v, v, 2e-3) && fmtV(x.v, fracOf(p)) === o.replace(/ m$/, '');\n        return close(x.r, v, 2e-3) || close(x.v, v, 2e-3);\n      });\n    }));\n  K.check('The rungs are equally spaced: on every ladder each small step is the same height, and the value beside each rung is the one below it times the same number', () =>\n    STEPS.every((d, i) => {\n      const g = drawn(i, finalSt(i)), rs = g.rungs.slice().sort((a, b) => a.j - b.j), gap = rs[1].y - rs[0].y, ratio = rs[1].v / rs[0].v;\n      return gap < 0 && rs.every((r, k) => k === 0 || (close(r.y - rs[k - 1].y, gap, 1e-6) && close(r.v / rs[k - 1].v, ratio)));\n    }));\n  K.check('Every demonstration has arrived within 5 s of its screen opening, nothing before the 0.35 s screen fade; every answer\\'s motion, and every move on the first screen, within 3 s', () => {\n    const ok = STEPS.every((d, i) => {\n      if (d.show) {\n        const m = motionLen(i, blank());\n        if (d.sw) { const q = motionLen(i, Object.assign(blank(), { mode: 'power' })); if (q.latest > 5 || q.earliest < FADE) return false; }\n        return m.latest <= 5 && m.earliest >= FADE;\n      }\n      return motionLen(i, solvedSt(i)).latest <= 3 && d.opts.filter((o) => o !== d.want).every((o) => motionLen(i, wrongSt(i, o)).latest <= 3);\n    }) && [2, 4].every((c) => motionLen(0, Object.assign(blank(), { cut: c, prev: 0, pos: c, known: 0, top: c, cutMove: true })).latest <= 3) &&\n      motionLen(0, Object.assign(blank(), { prev: 3, pos: 4, known: 3, top: 4 })).latest <= 3 &&\n      motionLen(idx('Root first or power first'), Object.assign(blank(), { mode: 'power', prev: 1 })).latest <= 5;\n    paint();\n    return ok;\n  });\n\n  K.ready();\n</script>",
+  "title": "Equal steps on a power ladder",
+  "brief": "The one thing you should see is three equal small steps of × 2 landing exactly on the next rung, 8, so 8^(1/3) = 2, when you climb the power ladder one small step at a time.",
+  "selftest": {
+   "ok": true,
+   "errors": [],
+   "overflow": false,
+   "clipped": [],
+   "checks": [
+    {
+     "label": "The base numbers are the same, so add the indices together (9³ × 9⁵ = 9⁸): on the 8 ladder every small step adds the same fraction to the power, so at each cut, 2, 3 or 4, every rung climbed from 1 to 512 is the one below it times the same number",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/z93nsk7"
+    },
+    {
+     "label": "Fractional exponents are defined as roots, from the rule for powers of powers: at each cut c on the first screen, one small step used c times in a multiplication makes the whole step of × 8, and at cut 3 each small step is × 2, so 8^(1/3) = ∛8 = 2",
+     "ok": true,
+     "source": "https://prep.math.lsa.umich.edu/cgi-bin/pmc/crtopic?crssxn=prep&sxn=1&top=2"
+    },
+    {
+     "label": "The numerator tells us the power and the denominator tells us the root: in each puzzle that asks for a fractional power, the ladder cuts every step into the bottom number of small steps, the right climb takes the top number of them, and it stops on the root raised to that power",
+     "ok": true,
+     "source": "https://openstax.org/books/algebra-and-trigonometry/pages/1-3-radicals-and-rational-exponents"
+    },
+    {
+     "label": "To raise to a power for a given base, multiply the indices: on the 27 ladder, root first (five small steps of × 3) and power first (five whole steps of × 27 to 14,348,907, then a third of that height) both stop on 27^(5/3) = 243",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zf4s9ty"
+    },
+    {
+     "label": "To raise to a power for a given base, multiply the indices: on the tank screen 0.125 is the rung 8⁻¹, one whole step below 1, and the right climb stops a third of that height down, on 8^(−1/3) = 0.5, where 0.5 × 0.5 × 0.5 = 0.125",
+     "ok": true,
+     "source": "https://www.bbc.co.uk/bitesize/articles/zf4s9ty"
+    },
+    {
+     "label": "A negative power gives the reciprocal of the number, 1 over the number: two small steps down the 8 ladder land on 8^(−2/3) = 1/4, one over 8^(2/3) = 4, and one small step down the 27 ladder on 27^(−1/3) = 1/3, one over ∛27",
+     "ok": true,
+     "source": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf"
+    },
+    {
+     "label": "A common misconception is that since the power is negative, the result must be negative, and this is not so: every rung on every ladder in the lesson, those below 1 included, holds a positive amount, and the picks −3 and −9 are drawn below 0, off the ladder",
+     "ok": true,
+     "source": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf"
+    },
+    {
+     "label": "Every line of working on every screen adds up, the first screen's at each cut, 2, 3 and 4",
+     "ok": true
+    },
+    {
+     "label": "Each puzzle accepts only its right answer, which equals the question, and the right climb stops on the rung of that value; before an answer no small rung shows a value; each wrong pick draws its own steps or mark on the ladder where its number sits, or below 0 off it",
+     "ok": true
+    },
+    {
+     "label": "The rungs are equally spaced: on every ladder each small step is the same height, and the value beside each rung is the one below it times the same number",
+     "ok": true
+    },
+    {
+     "label": "Every demonstration has arrived within 5 s of its screen opening, nothing before the 0.35 s screen fade; every answer's motion, and every move on the first screen, within 3 s",
+     "ok": true
+    }
+   ],
+   "sweep": {
+    "ok": true,
+    "problems": []
+   },
+   "controls": [
+    "step"
+   ],
+   "readouts": [],
+   "outputs": [],
+   "inputs": [
+    {
+     "id": "step",
+     "kind": "stepper",
+     "label": "Step",
+     "min": 0,
+     "max": 13,
+     "step": 1,
+     "steps": [
+      "The power ladder",
+      "A cube root",
+      "Halves",
+      "A fourth root",
+      "The top number",
+      "Two small steps",
+      "Root first or power first",
+      "A thousand",
+      "Below 1",
+      "A minus in the power",
+      "Multiplying adds small steps",
+      "Add the halves",
+      "A cube tank",
+      "A minus and a top number"
+     ],
+     "value": 0
+    }
+   ],
+   "actions": [
+    "Answer 1",
+    "Answer 2",
+    "Answer 3",
+    "Check",
+    "Why?",
+    "2 parts",
+    "3 parts",
+    "4 parts",
+    "Root first",
+    "Power first",
+    "Step down",
+    "Step up",
+    "Play again",
+    "Back",
+    "Continue",
+    "Start again",
+    "Demonstration"
+   ],
+   "ready": true,
+   "warnings": [],
+   "widths": [
+    {
+     "width": 340,
+     "ok": true
+    },
+    {
+     "width": 720,
+     "ok": true
+    },
+    {
+     "width": 1040,
+     "ok": true
+    }
+   ],
+   "foreign": [],
+   "unreachable": []
+  },
+  "attempts": 2
+ },
+ "note": null,
+ "avoid": null,
+ "feedback": null,
+ "request": null,
+ "verified": {
+  "status": "done",
+  "at": "2026-10-17T19:47:42.441Z",
+  "applied": [
+   {
+    "path": "interactive.ignores",
+    "problem": "It says roots that are not whole are rounded to two places, but the puzzles show √0.125 as 0.354 and (√1000)³ as 31623; and (−8)^(1/3) = −2 is stated flatly, though for a negative base it is a convention (the real cube root), not a settled value."
+   }
+  ],
+  "notes": []
+ },
+ "error": null,
+ "flags": {}
+}

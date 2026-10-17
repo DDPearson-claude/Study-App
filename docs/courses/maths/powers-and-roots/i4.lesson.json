@@ -1,0 +1,398 @@
+{
+  "iid": "i4",
+  "title": "Fractional powers",
+  "format": "steps",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is three equal small steps of × 2 landing exactly on the next rung, 8, so 8^(1/3) = 2, when you climb the power ladder one small step at a time.",
+    "title": "Equal steps on a power ladder",
+    "controls": [
+      {
+        "id": "step",
+        "label": "Step",
+        "min": 0,
+        "max": 12,
+        "step": 1,
+        "value": 0,
+        "unit": ""
+      }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in thirteen small screens on the power ladder. Its rungs are the powers of one base, drawn equally spaced up the screen with each rung's value beside it. For base 8 they are 8⁰ = 1, 8¹ = 8, 8² = 64 and 8³ = 512, so each step up puts one more 8 into the multiplying, as in lesson 1, and multiplies by 8. The height on the ladder is the power, and the number beside it is the value. On the first screen a slider cuts every step into 2, 3 or 4 equal small steps, opening at 3, and a stepper climbs one small step at a time. Each small step adds the same fraction to the power, and adding to a power multiplies the value, as lesson 1's adding law says, so every small step multiplies by the same number whichever rung it starts from. Three small steps must make one step of × 8, so each is × 2, because 2 × 2 × 2 = 8, and the first small step lands on 8^(1/3) = 2. Cut into 2, each small step is × √8, about 2.83, and cut into 4 it is about × 1.68: roots that are not whole, written to two places. Screen 3 uses base 4 cut into halves: two small steps of × 2 make one step of × 4, so 4^(1/2) = √4 = 2. Screen 5 climbs two small steps on the base-8 ladder: × 2 then × 2 lands on 4, which is 8^(2/3). Screen 7 has a Root first / Power first switch for 27^(5/3) on a base-27 ladder. Root first cuts each step into three small steps of × 3 and climbs five of them, to 3⁵ = 243. Power first climbs five whole steps, to 27⁵ = 14,348,907, then takes the cube root, which keeps a third of that height, and lands on the same rung, 243. Both are 27^(5/3), because a power of a power multiplies the powers: ⅓ × 5 and 5 × ⅓ are the same. Screen 9 carries the base-8 ladder below 1: each small step down divides by 2, so two small steps down land on 1/4, which is 8^(−2/3), and the ladder gets smaller without reaching nothing. Screen 11 multiplies on the base-4 ladder: half a step, × 2, then three half steps, × 8, make four half steps, two whole steps, so 4^(1/2) × 4^(3/2) = 2 × 8 = 16 = 4². Screens 1, 3, 5, 7, 9 and 11 show an idea, screens 2, 4, 6, 8 and 10 ask you to try it, and screens 12 and 13 mix them. A puzzle offers three answers, and a wrong pick climbs its own small steps beside the right ones, so you can see where it lands: three small steps of × 9 reach 729, not 27.",
+    "ignores": "The rungs are drawn equally spaced although each value is 8 times the last, because the height shows the power, not the size of the number; drawn to size, 512 would be off the screen. Roots that are not whole are rounded to two places, and the root itself is exact. The slider cuts a step into 2, 3 or 4, but any whole number of equal small steps works the same way, and a power such as 1.3 sits between the rungs too. Only positive bases are drawn, and everything the lesson says is about positive numbers. A negative base needs more care: (−8)^(1/3) = −2, but (−4)^(1/2) has no answer among ordinary numbers. A positive number has two square roots, 2 and −2 for 4, as lesson 3 showed, and 4^(1/2), like √4, means the positive one. The puzzles' numbers are examples.",
+    "numbers": [
+      {
+        "label": "Base of the ladder, in step 1",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Rung 8⁰, in step 1",
+        "value": 1,
+        "kind": "computed"
+      },
+      {
+        "label": "Rung 8² = 8 × 8, in step 1",
+        "value": 64,
+        "kind": "computed"
+      },
+      {
+        "label": "Rung 8³ = 8 × 8 × 8, in step 1",
+        "value": 512,
+        "kind": "computed"
+      },
+      {
+        "label": "Opening cut: small steps per step, in step 1",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Fewest small steps per step on the slider, in step 1",
+        "value": 2,
+        "kind": "assumed"
+      },
+      {
+        "label": "Most small steps per step on the slider, in step 1",
+        "value": 4,
+        "kind": "assumed"
+      },
+      {
+        "label": "8^(1/3), as 2 × 2 × 2 = 8, in step 1",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "8^(1/2) = √8, in step 1",
+        "value": 2.83,
+        "kind": "computed"
+      },
+      {
+        "label": "8^(1/4), in step 1",
+        "value": 1.68,
+        "kind": "computed"
+      },
+      {
+        "label": "27^(1/3), as 3 × 3 × 3 = 27, in step 2",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Base of the ladder, in step 2",
+        "value": 27,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip 27 × ⅓, in step 2",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Three small steps of × 9: 9³, in step 2",
+        "value": 729,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 27 + ⅓, in step 2",
+        "value": 27.33,
+        "kind": "computed"
+      },
+      {
+        "label": "4^(1/2) = √4, in step 3",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "81^(1/4), as 3 × 3 × 3 × 3 = 81, in step 4",
+        "value": 3,
+        "kind": "computed"
+      },
+      {
+        "label": "Base 81, in step 4",
+        "value": 81,
+        "kind": "assumed"
+      },
+      {
+        "label": "Slip √81, two small steps not four, in step 4",
+        "value": 9,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 81 × ¼, in step 4",
+        "value": 20.25,
+        "kind": "computed"
+      },
+      {
+        "label": "8^(2/3) = 2 × 2, in step 5",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "64^(2/3) = 4², in step 6",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "∛64, as 4 × 4 × 4 = 64, in step 6",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip root on top: (√64)³ = 8³, in step 6",
+        "value": 512,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 64 × ⅔, in step 6",
+        "value": 42.67,
+        "kind": "computed"
+      },
+      {
+        "label": "27^(5/3) = 3⁵, in step 7",
+        "value": 243,
+        "kind": "computed"
+      },
+      {
+        "label": "Power first: 27⁵, in step 7",
+        "value": 14348907,
+        "kind": "computed"
+      },
+      {
+        "label": "Top number of 27^(5/3), small steps climbed, in step 7",
+        "value": 5,
+        "kind": "assumed"
+      },
+      {
+        "label": "1000^(2/3) = 10², in step 8",
+        "value": 100,
+        "kind": "computed"
+      },
+      {
+        "label": "∛1000, in step 8",
+        "value": 10,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 1000 × ⅔, in step 8",
+        "value": 666.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip root on top: (√1000)³, in step 8",
+        "value": 31623,
+        "kind": "computed"
+      },
+      {
+        "label": "8^(−1/3) = 1 ÷ 2, in step 9",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "8^(−2/3) = 1/4, in step 9",
+        "value": 0.25,
+        "kind": "computed"
+      },
+      {
+        "label": "27^(−1/3) = 1/3, in step 10",
+        "value": 0.333,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip −3, minus read as negative, in step 10",
+        "value": -3,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip −27 × ⅓, in step 10",
+        "value": -9,
+        "kind": "computed"
+      },
+      {
+        "label": "4^(3/2) = 2³, in step 11",
+        "value": 8,
+        "kind": "computed"
+      },
+      {
+        "label": "4^(1/2) × 4^(3/2) = 4², in step 11",
+        "value": 16,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 4^(3/4), powers multiplied, in step 11",
+        "value": 2.83,
+        "kind": "computed"
+      },
+      {
+        "label": "9^(1/2) × 9^(3/2) = 3 × 27, in step 12",
+        "value": 81,
+        "kind": "computed"
+      },
+      {
+        "label": "9^(3/2) = 3³, in step 12",
+        "value": 27,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 9 × 2, in step 12",
+        "value": 18,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 9^(3/4), powers multiplied, in step 12",
+        "value": 5.2,
+        "kind": "computed"
+      },
+      {
+        "label": "Cube tank volume in m³, in step 13",
+        "value": 0.125,
+        "kind": "assumed"
+      },
+      {
+        "label": "Tank edge 0.125^(1/3) in m, in step 13",
+        "value": 0.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 0.125 × ⅓ in m, in step 13",
+        "value": 0.0417,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip √0.125 in m, in step 13",
+        "value": 0.354,
+        "kind": "computed"
+      },
+      {
+        "label": "Slip 8 × ⅓",
+        "value": 2.67,
+        "kind": "computed"
+      },
+      {
+        "label": "Three steps of × 2.67: (8/3)³, about 19",
+        "value": 18.96,
+        "kind": "computed"
+      },
+      {
+        "label": "16^(1/4), as 2 × 2 × 2 × 2 = 16",
+        "value": 2,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy: overall gearbox ratio 8:1",
+        "value": 8,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: number of equal stages",
+        "value": 3,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy: two 2:1 stages make 4:1",
+        "value": 4,
+        "kind": "computed"
+      },
+      {
+        "label": "Analogy breaks: overall ratio 10:1",
+        "value": 10,
+        "kind": "assumed"
+      },
+      {
+        "label": "Analogy breaks: 10^(1/3) per stage",
+        "value": 2.15,
+        "kind": "computed"
+      },
+      {
+        "label": "Calculator slip: 27⁵ ÷ 3",
+        "value": 4782969,
+        "kind": "computed"
+      },
+      {
+        "label": "Calculator: 2^1.3",
+        "value": 2.46,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: 16^(−3/4) = 1/8",
+        "value": 0.125,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example, power first: 16³",
+        "value": 4096,
+        "kind": "computed"
+      },
+      {
+        "label": "Mistake: 49^(1/2) = 7",
+        "value": 7,
+        "kind": "computed"
+      },
+      {
+        "label": "Mistake: 49 + ½",
+        "value": 49.5,
+        "kind": "computed"
+      },
+      {
+        "label": "Worked example: cube tank volume in m³",
+        "value": 0.343,
+        "kind": "assumed"
+      },
+      {
+        "label": "Worked example: tank edge 0.343^(1/3) in m",
+        "value": 0.7,
+        "kind": "computed"
+      }
+    ]
+  },
+  "explain": {
+    "text": "A power that is a fraction is a root, for any positive number. The bottom number of the fraction says which root to take and the top number says what power to raise it to, so 8^(1/3) is the cube root of 8, which is 2, and 27^(5/3) is the cube root of 27, which is 3, raised to the power 5, which is 243.\n\nStart from lesson 1's adding law. On the power ladder, rungs 1, 8, 64 and 512 are 8⁰, 8¹, 8² and 8³, and each step up multiplies by 8. Now cut one step into three equal small steps, each adding ⅓ to the power. Adding ⅓ to a power multiplies by 8^(1/3), whichever rung you start from, so every small step multiplies by the same number. Three of them make one whole step, because multiplying adds the powers and ⅓ + ⅓ + ⅓ = 1, so 8^(1/3) × 8^(1/3) × 8^(1/3) = 8¹ = 8.[^4] So 8^(1/3) is the number that, used three times in a multiplication, makes 8. That is 2, because 2 × 2 × 2 = 8, so 8^(1/3) = ∛8 = 2, the cube root of lesson 3. The power-of-a-power law agrees: (8^(1/3))³ = 8^(⅓ × 3) = 8¹, which is why a fraction as a power is defined as a root.[^6][^1] Cut a step into two instead and 4^(1/2) × 4^(1/2) = 4¹, so 4^(1/2) = √4 = 2. Cut it into four and you get the [[fourth root]]: 16^(1/4) = 2, because 2 × 2 × 2 × 2 = 16. The bottom of the fraction counts the equal small steps in one whole step, so it is the root.\n\nThe top number counts the small steps you climb. 8^(2/3) is two small steps of × 2, so 8^(2/3) = (∛8)² = 4. A power like this is a [[fractional power]]: the numerator tells you the power and the denominator tells you the root.[^2] 27^(5/3) is five small steps of × 3, so it is 3⁵ = 243. You can take the power first instead: 27⁵ = 14,348,907, and its cube root is 243 as well. Both ways are the power-of-a-power law, (27^(1/3))⁵ = 27^(⅓ × 5) and (27⁵)^(1/3) = 27^(5 × ⅓), and ⅓ × 5 = 5 × ⅓.[^6] Root first usually keeps the numbers small. A minus still means one over, as in lesson 2: 8^(−2/3) = 1/8^(2/3) = 1/4, a small amount, not a negative one.[^9] And multiplying still adds the powers: x^(1/2) × x^(3/2) = x^(1/2 + 3/2) = x². Two slips are worth seeing fail. 8^(1/3) is not 8 × ⅓ ≈ 2.67, because three steps of × 2.67 come to about 19, not 8. And the root goes on the bottom: 64^(2/3) = (∛64)² = 16, while (√64)³ = 512 is 64^(3/2). Negative bases, and powers that can be any number, wait for Complex numbers and Exponentials and logarithms.\n\n**A fractional power is a root: the bottom number of the fraction is the root and the top number is the power, so 8^(1/3) = 2 and 27^(5/3) = 3⁵ = 243.[^1][^2]**"
+  },
+  "analogy": {
+    "text": "Say a gearbox brings 8 turns of the motor down to 1 turn of the shaft in three stages that are all the same, and you want each stage's ratio. Stages in a row multiply: two 2:1 stages make 4:1, and three make 8:1. So each stage is 2:1, the cube root of 8. Finding the stage from the total is what a fractional power does: three small steps of × 2 make one step of × 8 on the ladder.",
+    "breaks": "A real stage's ratio is set by whole numbers of teeth, so splitting 10:1 into three equal stages, about 2.15:1 each, can only be got close to. A number has no such limit: 10^(1/3) is exact, written as ∛10."
+  },
+  "practice": {
+    "text": "- Read the fraction: the bottom number is the root, the top number is the power.\n- Take the root first, because it usually keeps the numbers small: for 27^(5/3), ∛27 = 3.\n- Check the root by multiplying it back: 3 × 3 × 3 = 27.\n- Then raise it to the power: 3⁵ = 243.\n- A minus in the power means one over: put the answer under 1.\n- Multiplying powers of the same base, add the fractions; raising a power to a power, multiply them.\n\n**Rule of thumb:** A power of ½ is a square root and a power of ⅓ is a cube root.\n\n**On a calculator** (not from this lesson's sources): on a one-line display, put the power in brackets, 27 ^ ( 5 ÷ 3 ), which gives 243. Without them the calculator can work out 27⁵ ÷ 3 = 4,782,969 instead. On a calculator that shows a raised box for the power, type the whole fraction inside the box. A decimal power such as 1.3 is a fraction too: 2^1.3 is 2^(13/10), between 2¹ = 2 and 2² = 4, and a calculator gives about 2.46.\n\n**Worked example:** A cube-shaped tank holds 0.343 m³. Its edge, used three times in a multiplication, makes the volume, so the edge is 0.343^(1/3) = ∛0.343 = 0.7 m. Check: 0.7 × 0.7 × 0.7 = 0.343. A harder one, 16^(−3/4): the bottom number is 4, so take the fourth root, 2, because 2 × 2 × 2 × 2 = 16. The top number is 3, so cube it: 2³ = 8. The minus means one over, so 16^(−3/4) = 1/8 = 0.125. Power first gives the same: 16³ = 4096, its fourth root is 8, and one over that is 1/8.\n\n**Common mistakes**\n- Multiplying by the fraction: 8^(1/3) is 2, not 8 × ⅓ ≈ 2.67.\n- Adding the fraction: 49^(1/2) is 7, not 49 + ½ = 49.5.\n- The root on top: 64^(2/3) is (∛64)² = 16, not (√64)³ = 512.\n- Reading the minus as a negative answer, a common slip with negative powers:[^10] 27^(−1/3) is 1/3, not −3.\n- Multiplying the powers when you multiply: x^(1/2) × x^(3/2) is x², not x^(3/4)."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    {
+      "n": 1,
+      "title": "Radicals (Roots) and Fractional Exponents - UM Math Prep — University of Michigan",
+      "url": "https://prep.math.lsa.umich.edu/cgi-bin/pmc/crtopic?crssxn=prep&sxn=1&top=2",
+      "quote": "Fractional exponents are defined as roots, which makes sense from the rule for powers of powers"
+    },
+    {
+      "n": 2,
+      "title": "1.3 Radicals and Rational Exponents - Algebra and Trigonometry | OpenStax",
+      "url": "https://openstax.org/books/algebra-and-trigonometry/pages/1-3-radicals-and-rational-exponents",
+      "quote": "The numerator tells us the power and the denominator tells us the root."
+    },
+    {
+      "n": 4,
+      "title": "Laws of indices for multiplication and division - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/z93nsk7",
+      "quote": "The base numbers are the same (9), so add the indices together (3 + 5 = 8). 9³ x 9⁵ = 9⁸"
+    },
+    {
+      "n": 6,
+      "title": "Laws of indices - GCSE Maths Revision - BBC Bitesize",
+      "url": "https://www.bbc.co.uk/bitesize/articles/zf4s9ty",
+      "quote": "To raise to a power for a given base, multiply the indices"
+    },
+    {
+      "n": 9,
+      "title": "Engineer cadets maths refresher — Solent University Warsash",
+      "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+      "quote": "So a negative power gives the reciprocal of the number — that is, 1 over the number."
+    },
+    {
+      "n": 10,
+      "title": "Engineer cadets maths refresher — Solent University Warsash",
+      "url": "https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf",
+      "quote": "A common misconception is that since the power is negative, the result must be negative: as you can see, this is not so."
+    }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

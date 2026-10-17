@@ -1,0 +1,926 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .nw sup, .k-btn sup { font-size: .75em; line-height: 0; }
+  .scene { display: block; width: 100%; max-width: 24rem; margin-inline: auto; }
+  /* The ladder: two rails, a thick rung for each whole power and a thin rung for each small step. */
+  .scene .rail { stroke: var(--k-ink); stroke-width: 2.5; stroke-linecap: round; }
+  .scene .rail.on { stroke: var(--k-muted); stroke-dasharray: 4 4; }
+  .scene .rw { stroke: var(--k-ink); stroke-width: 4; stroke-linecap: round; }
+  .scene .rs { stroke: var(--k-muted); stroke-width: 1.5; }
+  .scene .mk { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; }
+  /* A small step climbed is a navy arrow; a wrong pick's own steps are drawn in the warning colour. */
+  .scene .arr { fill: none; stroke: var(--k-accent2); stroke-width: 1.8; }
+  .scene .arrh { fill: var(--k-accent2); }
+  .scene .arr.bad { stroke: var(--k-warn); }
+  .scene .arrh.bad { fill: var(--k-warn); }
+  .scene .gd { stroke: var(--k-warn); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .br { fill: none; stroke: var(--k-accent); stroke-width: 1.8; }
+  .scene .rl { font: 600 13px var(--k-font); fill: var(--k-ink); }
+  .scene .rsl { font: 400 13px var(--k-font); fill: var(--k-ink); }
+  .scene .rsl.ans { font-weight: 700; fill: var(--k-accent2); }
+  .scene .al { font: 700 13px var(--k-font); fill: var(--k-accent2); }
+  .scene .bl { font: 600 13px var(--k-font); fill: var(--k-accent); }
+  .scene .tag { font: 700 18px var(--k-font); fill: var(--k-accent2); }
+  .scene .lab { font: 700 13px var(--k-font); fill: var(--k-ink); }
+  .scene .al.bad, .scene .lab.bad { fill: var(--k-warn); }
+  .scene .note { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .key { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .te { font: 700 14px var(--k-font); fill: var(--k-ink); }
+  .scene .tw { font: 600 14px var(--k-font); fill: var(--k-ink); }
+  .scene .te.mu, .scene .tw.mu { fill: var(--k-muted); }
+  .scene .te.bad, .scene .tw.bad { fill: var(--k-warn); }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 6rem; min-height: 48px; }
+  /* The three cuts stay on one row on a phone. */
+  .row.cuts .k-btn { flex: 1 1 5rem; }
+  .row.cuts .k-btn[aria-pressed="true"], .picks .k-btn[aria-pressed="true"] { border-color: var(--k-accent2); box-shadow: inset 0 0 0 2px var(--k-accent2); font-weight: 700; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  .picks .k-btn { font-size: 1.1rem; min-height: 56px; white-space: nowrap; padding-inline: 6px; }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A power ladder: each rung is a power of one base, drawn equally spaced up the page with its value beside it. The bases and numbers tried are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 300" width="100%" role="img" aria-label="">
+      <g id="art"></g>
+    </svg>
+    <div class="row cuts" id="cuts"></div>
+    <div class="row tune" id="tune"></div>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Each small step adds the same fraction to the power, so every small step multiplies by the same number.</p>
+
+<script>
+  // ---------- numbers and powers written out ----------
+  const SUPC = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+  const sup = (n) => String(n).split('').map((ch) => (ch === '-' ? '⁻' : SUPC[+ch])).join('');
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol || 1e-9) * Math.max(1, Math.abs(a), Math.abs(b));
+  const isInt = (v) => close(v, Math.round(v));
+  const grp = (n) => { const s = String(n); return s.length > 4 ? s.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : s; };
+  // A value as the lesson writes it: whole numbers (commas from 10,000), one over a whole number
+  // below 1 on a ladder whose base is above 1, two places above 1, and three figures below 1
+  // unless the decimal is short and exact (0.125).
+  function fmtV(v, frac) {
+    if (v < 0) return '−' + fmtV(-v, frac);
+    if (isInt(v)) return grp(Math.round(v));
+    if (frac && v < 1 && isInt(1 / v)) return '1/' + grp(Math.round(1 / v));
+    if (v >= 1000) return grp(Math.round(v));
+    if (v >= 1) return String(Number(v.toFixed(2)));
+    const six = Number(v.toFixed(6));
+    return String(close(six, v) ? six : Number(v.toPrecision(3)));
+  }
+  // b to the power j/c: a whole power raised small, a fraction written ^(j/c) (drawn raised small).
+  function pw(b, j, c) {
+    if (j % c === 0) return b + sup(j / c);
+    return b + '^(' + (j < 0 ? '−' : '') + Math.abs(j) + '/' + c + ')';
+  }
+  // In the drawing a fractional power is written with small raised figures and a plain slash, 8¹/³
+  // (a plain slash keeps clear of the raised figures, where the fraction slash runs into them).
+  const svgStr = (s) => String(s).replace(/\^\(([^)]*)\)/g, (m, e) => e.split('').map((ch) => (ch === '/' ? '/' : ch === '−' ? '⁻' : SUPC[+ch])).join(''));
+  const THIRD = { 2: '½', 3: '⅓', 4: '¼' };
+
+  // ---------- reading an expression (pure, so the checks can test it) ----------
+  // + − × ÷, brackets, a minus in front, a/b, small raised whole powers, ^(fraction) powers,
+  // √ ∛ ∜ in front of a number or bracket, ½ ⅓ ⅔ ¼ ¾, commas in thousands, and a unit "m".
+  const VULG = { '½': 1 / 2, '⅓': 1 / 3, '⅔': 2 / 3, '¼': 1 / 4, '¾': 3 / 4 };
+  const ROOTS = { '√': 2, '∛': 3, '∜': 4 };
+  function val(s) {
+    const src = String(s).replace(/\s+/g, '').replace(/m$/, '');
+    let i = 0;
+    const peek = () => src[i];
+    function sum() {
+      let v = prod();
+      while (peek() === '+' || peek() === '−') { const op = src[i++]; const w = prod(); v = op === '+' ? v + w : v - w; }
+      return v;
+    }
+    function prod() {
+      let v = unary();
+      for (;;) {
+        const ch = peek();
+        if (ch === '×') { i++; v *= unary(); } else if (ch === '÷') { i++; v /= unary(); } else return v;
+      }
+    }
+    function unary() { if (peek() === '−') { i++; return -unary(); } return frac(); }
+    function frac() { let v = powr(); while (peek() === '/') { i++; v /= powr(); } return v; }
+    function powr() {
+      let v = atom();
+      for (;;) {
+        if (src[i] === '^' && src[i + 1] === '(') {
+          i += 2;
+          const e = sum();
+          if (src[i] !== ')') throw new Error('no closing bracket in ' + s);
+          i++; v = Math.pow(v, e); continue;
+        }
+        const save = i;
+        let neg = false, m = '';
+        if (src[i] === '⁻') { neg = true; i++; }
+        while (i < src.length && SUPC.indexOf(src[i]) >= 0) m += SUPC.indexOf(src[i++]);
+        if (!m) { i = save; return v; }
+        v = Math.pow(v, neg ? -m : +m);
+      }
+    }
+    function atom() {
+      const ch = peek();
+      if (ch === '(') { i++; const v = sum(); if (src[i] !== ')') throw new Error('no closing bracket in ' + s); i++; return v; }
+      if (ch != null && ROOTS[ch]) { i++; return Math.pow(atom(), 1 / ROOTS[ch]); }
+      if (ch != null && VULG[ch] != null) { i++; return VULG[ch]; }
+      const m = /^[0-9][0-9,]*(\.[0-9]+)?/.exec(src.slice(i));
+      if (m) { i += m[0].length; return +m[0].replace(/,/g, ''); }
+      throw new Error('cannot read ' + src.slice(i) + ' in ' + s);
+    }
+    const v = sum();
+    if (i !== src.length) throw new Error('left over in ' + s);
+    return v;
+  }
+  // As a screen reader says it.
+  const SAYF = { '½': ' one half ', '⅓': ' one third ', '⅔': ' two thirds ', '¼': ' one quarter ', '¾': ' three quarters ' };
+  const say = (s) => String(s == null ? '' : s)
+    .replace(/\^\(([^)]*)\)/g, (m, e) => ' to the power ' + e + ' ')
+    .replace(/⁻?[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g, (m) => ' to the power ' + m.split('').map((ch) => (ch === '⁻' ? ' minus ' : SUPC.indexOf(ch))).join('') + ' ')
+    .replace(/√/g, ' the square root of ').replace(/∛/g, ' the cube root of ').replace(/∜/g, ' the fourth root of ')
+    .replace(/[½⅓⅔¼¾]/g, (ch) => SAYF[ch])
+    .replace(/×/g, ' times ').replace(/÷/g, ' divided by ').replace(/≈/g, ' about ').replace(/=/g, ' equals ')
+    .replace(/−/g, ' minus ').replace(/\+/g, ' plus ').replace(/\//g, ' over ')
+    .replace(/\s+/g, ' ').trim();
+
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // A ladder p: base b, whole powers lo to hi, each step cut into c small steps. Heights are counted
+  // in small steps j (power j/c). The marker climbs from 'from' to 'go'; br are brackets [j0, j1]
+  // that say what a run of small steps multiplies by. Every rung value, arrow, bracket and landing
+  // is worked out from b, c and j. A SHOW step's tl is its timetable in seconds from when it opens.
+  // A puzzle: opts, the answers offered; right, the lines a right answer adds; wrong, each wrong
+  // answer's own slip (climb: r small steps n times; mark: where its number sits; neg: below 0) and lines.
+  const PICK = 'Tap one of the answers.';
+  const STEPS = [
+    { show: true, name: 'The power ladder', replay: 'Play again',
+      p: { b: '8', lo: 0, hi: 3, c: 3, H: 84, live: true, tl: { in: 0.4, act: 1.4, work: [4.0, 4.3] } },
+      text: 'Each rung is a power of 8, and each step up multiplies by 8. Cut every step into equal small steps, and each small step multiplies by the same number. Three small steps of × 2 make × 8, so `8^(1/3)` = 2.' },
+    { name: 'A cube root', q: '27^(1/3)',
+      p: { b: '27', lo: 0, hi: 2, c: 3, from: 0, go: 1, br: [[0, 3]] },
+      opts: ['9', '3', '27.33'], want: '3',
+      right: [{ e: '27^(1/3)', w: '∛27 = 3' }, { e: '3 × 3 × 3', w: '27' }],
+      wrong: { '9': { slip: { r: '27 × ⅓', n: 3 }, lines: [{ e: '27 × ⅓', w: '9', bad: true }, { e: '9 × 9 × 9', w: '729', bad: true }] },
+        '27.33': { slip: { mark: '27 + ⅓' }, lines: [{ e: '27 + ⅓', w: '≈ 27.33', bad: true }] } },
+      task: 'What is `27^(1/3)`?',
+      why: 'Cut one step of the 27 ladder into three equal small steps. Each one is × 3, because 3 × 3 × 3 = 27, so `27^(1/3)` = `∛27` = 3.',
+      hint: 'Not quite. Find the number that makes 27 when it is used three times in a multiplication.',
+      hints: { '9': 'Not quite. That is 27 × ⅓. Three small steps of × 9 climb to 729, not 27.',
+        '27.33': 'Not quite. That is 27 + ⅓, already past 27. Find the number that makes 27 when it is used three times.' } },
+    { show: true, name: 'Halves', replay: 'Play again',
+      p: { b: '4', lo: 0, hi: 2, c: 2, from: 0, go: 2, br: [[0, 2]], tl: { in: 0.4, act: 1.4, step: 0.9, work: [3.6, 3.9] } },
+      work: [{ e: '2 × 2', w: '4' }, { e: '4^(1/2)', w: '√4 = 2' }],
+      text: 'Cut each step of the 4 ladder in two. Two small steps of × 2 make × 4, so `4^(1/2)` = `√4` = 2. A power of one half is a square root.' },
+    { name: 'A fourth root', q: '81^(1/4)',
+      p: { b: '81', lo: 0, hi: 2, c: 4, from: 0, go: 1, br: [[0, 4]] },
+      opts: ['20.25', '9', '3'], want: '3',
+      right: [{ e: '81^(1/4)', w: '∜81 = 3' }, { e: '3 × 3 × 3 × 3', w: '81' }],
+      wrong: { '9': { slip: { r: '√81', n: 4 }, lines: [{ e: '√81', w: '9', mu: true }, { e: '9 × 9 × 9 × 9', w: '6561', bad: true }] },
+        '20.25': { slip: { mark: '81 × ¼' }, lines: [{ e: '81 × ¼', w: '20.25', bad: true }] } },
+      task: 'What is `81^(1/4)`?',
+      why: 'The bottom number, 4, cuts each step into four equal small steps. Each one is × 3, because 3 × 3 × 3 × 3 = 81, so `81^(1/4)` is 3, the *fourth root* of 81.',
+      hint: 'Not quite. Find the number that makes 81 when it is used four times in a multiplication.',
+      hints: { '9': 'Not quite. 9 is `√81`, two small steps to a step. Four small steps of × 9 climb to 6561.',
+        '20.25': 'Not quite. That is 81 × ¼. The power is not a times sign.' } },
+    { show: true, name: 'The top number', replay: 'Play again',
+      p: { b: '8', lo: 0, hi: 2, c: 3, from: 0, go: 2, br: [[0, 2]], tl: { in: 0.4, act: 1.3, step: 0.9, work: [3.4, 3.7] } },
+      work: [{ e: '8^(2/3)', w: '2 × 2 = 4' }, { e: '(∛8)²', w: '2² = 4' }],
+      text: 'The top number counts the small steps you climb. `8^(2/3)` is two small steps of × 2, so it is 2 × 2 = 4. In a *fractional power* the bottom number is the root and the top number is the power.' },
+    { name: 'Two small steps', q: '64^(2/3)',
+      p: { b: '64', lo: 0, hi: 2, c: 3, from: 0, go: 2, br: [[0, 3]] },
+      opts: ['16', '512', '42.67'], want: '16',
+      right: [{ e: '64^(2/3)', w: '4 × 4 = 16' }, { e: '4 × 4 × 4', w: '64' }],
+      wrong: { '512': { slip: { r: '√64', n: 3 }, lines: [{ e: '(√64)³', w: '8 × 8 × 8 = 512', bad: true }, { e: '64^(3/2)', w: '512', mu: true }] },
+        '42.67': { slip: { mark: '64 × ⅔' }, lines: [{ e: '64 × ⅔', w: '≈ 42.67', bad: true }] } },
+      task: 'What is `64^(2/3)`?',
+      why: 'The bottom number, 3, cuts each step into three small steps of × 4, because 4 × 4 × 4 = 64. The top number, 2, climbs two of them, so `64^(2/3)` = 4 × 4 = 16.',
+      hint: 'Not quite. Take the cube root of 64 first, then climb two small steps.',
+      hints: { '512': 'Not quite. That puts the root on top. `(√64)³` = 512 is `64^(3/2)`, three half steps.',
+        '42.67': 'Not quite. That is 64 × ⅔. Take the cube root first, then climb two small steps.' } },
+    { show: true, sw: true, name: 'Root first or power first', replay: 'Play again',
+      p: { b: '27', lo: 0, hi: 5, c: 3, from: 0, go: 5, tl: { in: 0.4, act: 1.3 } },
+      text: 'Root first climbs five small steps of × 3, to 243. Power first climbs five whole steps, to 14,348,907, and the cube root keeps a third of that height. Both land on `27^(5/3)` = 243, because ⅓ × 5 = 5 × ⅓.' },
+    { name: 'A thousand', q: '1000^(2/3)',
+      p: { b: '1000', lo: 0, hi: 2, c: 3, from: 0, go: 2, br: [] },
+      opts: ['666.67', '100', '31,623'], want: '100',
+      right: [{ e: '1000^(2/3)', w: '10 × 10 = 100' }, { e: '10 × 10 × 10', w: '1000' }],
+      wrong: { '666.67': { slip: { mark: '1000 × ⅔' }, lines: [{ e: '1000 × ⅔', w: '≈ 666.67', bad: true }] },
+        '31,623': { slip: { r: '√1000', n: 3 }, lines: [{ e: '(√1000)³', w: '≈ 31,623', bad: true }, { e: '1000^(3/2)', w: '≈ 31,623', mu: true }] } },
+      task: 'What is `1000^(2/3)`?',
+      why: 'Each small step of the 1000 ladder is × 10, because 10 × 10 × 10 = 1000. Two of them make 10 × 10 = 100, so `1000^(2/3)` = 100.',
+      hint: 'Not quite. Take the cube root of 1000, then climb two small steps.',
+      hints: { '666.67': 'Not quite. That is 1000 × ⅔. The power is not a times sign.',
+        '31,623': 'Not quite. That puts the root on top. `(√1000)³` is `1000^(3/2)`, three half steps.' } },
+    { show: true, name: 'Below 1', replay: 'Play again',
+      p: { b: '8', lo: -1, hi: 1, c: 3, from: 0, go: -2, below: true, br: [[0, -2]], tl: { in: 0.4, act: 1.4, step: 0.9, work: [3.6, 3.9] } },
+      work: [{ e: '8^(−1/3)', w: '1 ÷ 2 = 1/2' }, { e: '8^(−2/3)', w: '1 ÷ 2 ÷ 2 = 1/4' }],
+      text: 'Carry the 8 ladder on down past 1. Each small step down divides by 2, so two small steps down land on 1/4, which is `8^(−2/3)`. The values get smaller but never reach 0.' },
+    { name: 'A minus in the power', q: '27^(−1/3)',
+      p: { b: '27', lo: -1, hi: 1, c: 3, from: 0, go: -1, below: true, br: [[0, -3]] },
+      opts: ['1/3', '−3', '−9'], want: '1/3',
+      right: [{ e: '27^(−1/3)', w: '1 ÷ 3 = 1/3' }, { e: '1 ÷ ∛27', w: '1/3' }],
+      wrong: { '−3': { slip: { neg: '−∛27' }, lines: [{ e: '−∛27', w: '−3', bad: true }] },
+        '−9': { slip: { neg: '−27 × ⅓' }, lines: [{ e: '−27 × ⅓', w: '−9', bad: true }] } },
+      task: 'What is `27^(−1/3)`?',
+      why: 'One small step down the 27 ladder divides by 3, so `27^(−1/3)` = 1 ÷ 3 = 1/3. The minus means one over `∛27`, a small amount, not a negative one.',
+      hint: 'Not quite. Take one small step down from 1.',
+      hints: { '−3': 'Not quite. The minus in the power does not make the answer negative. It means one over `∛27`.',
+        '−9': 'Not quite. That is −27 × ⅓. A minus in the power means one over, and every rung is above 0.' } },
+    { show: true, name: 'Multiplying adds small steps', replay: 'Play again',
+      p: { b: '4', lo: 0, hi: 2, c: 2, from: 0, go: 4, br: [[0, 1], [1, 4]], tl: { in: 0.4, act: 1.3, step: 0.65, work: [4.0, 4.3] } },
+      work: [{ e: '4^(1/2) × 4^(3/2)', w: '2 × 8 = 16' }, { e: '½ + 3/2', w: '2' }],
+      text: 'Multiplying still adds the powers. Half a step of × 2 and then three half steps of × 8 make four half steps, which is two whole steps. So `4^(1/2) × 4^(3/2)` = 2 × 8 = 16, which is `4²`.' },
+    { name: 'Add the halves', mixed: true, q: '9^(1/2) × 9^(3/2)',
+      p: { b: '9', lo: 0, hi: 2, c: 2, from: 0, go: 4, br: [[0, 1], [1, 4]] },
+      opts: ['18', '81', '5.2'], want: '81',
+      right: [{ e: '9^(1/2) × 9^(3/2)', w: '3 × 27 = 81' }, { e: '½ + 3/2', w: '2' }],
+      wrong: { '18': { slip: { mark: '9 × 2' }, lines: [{ e: '9 × 2', w: '18', bad: true }] },
+        '5.2': { slip: { mark: '9^(3/4)' }, lines: [{ e: '½ × 3/2', w: '¾', bad: true }, { e: '9^(3/4)', w: '≈ 5.2', bad: true }] } },
+      task: 'What is `9^(1/2) × 9^(3/2)`?',
+      why: 'Half a step of × 3 and then three half steps of × 27 make four half steps, which is two whole steps. The powers add, ½ + 3/2 = 2, so it is `9²` = 81.',
+      hint: 'Not quite. Count the half steps the two powers climb together.',
+      hints: { '18': 'Not quite. That is 9 × 2. Count the half steps instead.',
+        '5.2': 'Not quite. That multiplies the powers, ½ × 3/2 = ¾. Multiplying numbers adds the powers.' } },
+    { name: 'A cube tank', mixed: true, q: '0.125^(1/3)',
+      p: { b: '0.125', lo: 0, hi: 2, c: 3, from: 0, go: 1, br: [] },
+      opts: ['0.0417 m', '0.354 m', '0.5 m'], want: '0.5 m',
+      right: [{ e: '0.125^(1/3)', w: '∛0.125 = 0.5' }, { e: '0.5 × 0.5 × 0.5', w: '0.125' }],
+      wrong: { '0.0417 m': { slip: { mark: '0.125 × ⅓' }, lines: [{ e: '0.125 × ⅓', w: '≈ 0.0417', bad: true }] },
+        '0.354 m': { slip: { r: '√0.125', n: 3 }, lines: [{ e: '√0.125', w: '≈ 0.354', bad: true }, { e: '(√0.125)³', w: '≈ 0.0442', bad: true }] } },
+      task: 'A cube-shaped tank holds 0.125 m³. Its edge is `0.125^(1/3)` m. How long is that?',
+      why: 'The edge, used three times in a multiplication, makes the volume. 0.5 × 0.5 × 0.5 = 0.125, so the edge is `∛0.125` = 0.5 m.',
+      hint: 'Not quite. Find the number that makes 0.125 when it is used three times in a multiplication.',
+      hints: { '0.0417 m': 'Not quite. That is 0.125 × ⅓. Find the number that makes 0.125 when it is used three times.',
+        '0.354 m': 'Not quite. That is `√0.125`, a square root. A cube has three equal edges, so take the cube root.' } },
+  ];
+  const FINISH = 'A fractional power is a root. The bottom number of the fraction is the root and the top number is the power, so `8^(1/3)` = 2 and `27^(5/3)` = 243. A minus in the power still means one over.';
+  // Step 6's lines: root first, and power first.
+  const SWR = [{ e: '(27^(1/3))⁵', w: '3⁵ = 243' }, { e: '⅓ × 5', w: '5/3' }];
+  const SWP = [{ e: '(27⁵)^(1/3)', w: '∛14,348,907 = 243' }, { e: '5 × ⅓', w: '5/3' }];
+  // The first screen's lines, worked out from the cut.
+  const RS = { 2: '√', 3: '∛', 4: '∜' };
+  function liveWork(c) {
+    const r = Math.pow(8, 1 / c), whole = isInt(r), root = RS[c] + '8';
+    return [
+      { e: '8^(1/' + c + ')', w: root + (whole ? ' = ' : ' ≈ ') + fmtV(r, false) },
+      { e: Array(c).fill(whole ? fmtV(r, false) : root).join(' × '), w: '8' },
+    ];
+  }
+  // Sources the checks restate (the lesson's own).
+  const SRC1 = 'https://www.bbc.co.uk/bitesize/articles/z93nsk7';
+  const SRC2 = 'https://www.bbc.co.uk/bitesize/articles/zf4s9ty';
+  const SRC3 = 'https://prep.math.lsa.umich.edu/cgi-bin/pmc/crtopic?crssxn=prep&sxn=1&top=2';
+  const SRC4 = 'https://openstax.org/books/algebra-and-trigonometry/pages/1-3-radicals-and-rational-exponents';
+  const SRC5 = 'https://maritime.solent.ac.uk/documents/training-at-warsash/engineer-cadets-maths-refresher.pdf';
+
+  const XL = 12, XR = 328, LX = 140, RL = 150, RR = 184, AX = 194, BX = 276, LH = 26, FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  // A puzzle's climb: quick enough that the whole move ends within about 2 s.
+  const moveD = (steps) => Math.min(0.6, 1.8 / Math.max(1, steps));
+  const restOf = (p) => (p.go % p.c === 0 ? null : (p.go > p.from ? Math.ceil(p.go / p.c) : Math.floor(p.go / p.c)) * p.c);
+  STEPS.forEach((d) => {
+    if (d.show) return;
+    const p = d.p, steps = Math.abs(p.go - p.from), rt = restOf(p);
+    d.rt = 0.15 + steps * moveD(steps) + (rt == null ? 0 : Math.abs(rt - p.go) * 0.35) + 0.1;
+  });
+
+  // ---------- each step's state ----------
+  // pick, res ('right', 'wrong' or 'empty' once checked), why: a puzzle's answer. The first screen:
+  // cut, pos (small steps up), prev (pos before the last move, null when none), known (highest rung
+  // shown before the move), top (highest rung shown), cutMove. Step 7: mode, root or power first.
+  function blank() { return { pick: null, res: null, why: false, cut: 3, pos: 3, prev: null, known: 0, top: 3, cutMove: false, mode: 'root' }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+
+  // ---------- text with amber key terms and raised powers (built with K.el, never innerHTML) ----------
+  function maths(parent, s) {
+    String(s).split(/\^\(([^)]*)\)/).forEach((part, k) => {
+      if (!part) return;
+      parent.appendChild(k % 2 ? K.el('sup', null, part) : document.createTextNode(part));
+    });
+  }
+  function write(el, s) {
+    el.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { maths(el.appendChild(K.el('span', { class: 'nw' })), seg); return; }
+      const re = /\*([^*]+)\*/g;
+      let at = 0, m;
+      while ((m = re.exec(seg))) {
+        if (m.index > at) el.appendChild(document.createTextNode(seg.slice(at, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at = m.index + m[0].length;
+      }
+      if (at < seg.length) el.appendChild(document.createTextNode(seg.slice(at)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Three answer buttons; each step fills in its own options. A new choice after a wrong answer
+  // settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: marks the answer; a right one climbs the ladder, a wrong one climbs or marks its own slip.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    play(motionLen(i, st).latest);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  // The first screen: cut every step into 2, 3 or 4 small steps, and climb one small step at a time.
+  const cutBtns = [2, 3, 4].map((c) => K.button({ label: 'Cut in ' + c, secondary: true, into: '#cuts', press: () => {
+    if (finished || at() !== 0) return;
+    const st = S[0];
+    if (st.cut === c) return;
+    Object.assign(st, { cut: c, prev: 0, pos: c, known: 0, top: c, cutMove: true });
+    play(motionLen(0, st).latest);
+  } }));
+  // Step 7: root first or power first.
+  const MODES = ['root', 'power'];
+  const modeBtns = [['root', 'Root first'], ['power', 'Power first']].map((m) => K.button({ label: m[1], secondary: true, into: '#cuts', press: () => {
+    const i = at(), d = STEPS[i];
+    if (finished || !d.sw) return;
+    const st = S[i];
+    if (st.mode === m[0]) return;
+    st.mode = m[0]; st.prev = 1;
+    play(motionLen(i, st).latest);
+  } }));
+  function climb(by) {
+    if (finished || at() !== 0) return;
+    const st = S[0], v = K.clamp(st.pos + by, 0, 3 * st.cut);
+    if (v === st.pos) return;
+    const before = st.top;
+    Object.assign(st, { prev: st.pos, pos: v, known: before, top: Math.max(before, v), cutMove: false });
+    play(motionLen(0, st).latest);
+  }
+  const downBtn = K.button({ label: 'Small step down', secondary: true, into: '#tune', press: () => climb(-1) });
+  const upBtn = K.button({ label: 'Small step up', secondary: true, into: '#tune', press: () => climb(1) });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const i = at(), d = STEPS[i];
+    if (!d.show || finished) return;
+    const st = S[i];
+    st.prev = null; st.cutMove = false;
+    if (d.p.live) st.top = st.pos;
+    play(motionLen(i, st).latest);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and the motion after an answer; with reduced motion
+  // (and while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); return; }
+    motionEnd = dur + 0.05; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const vis = (t, d) => (t == null ? 1 : arr(t, d));
+  const I = (C, off, d) => (C.tin == null ? 1 : arr(C.tin + off, d));
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g;
+    try { draw(); } finally { into = keep; }
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const curve = (cls, x1, y1, cx, cy, x2, y2) => add(K.svg('path', { class: cls, d: 'M' + r3(x1) + ' ' + r3(y1) + ' Q' + r3(cx) + ' ' + r3(cy) + ' ' + r3(x2) + ' ' + r3(y2) }));
+  const text = (x, y, s, cls, anchor) => add(K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' }, svgStr(s)));
+  // An arrowhead with its tip at (x, y), pointing along (dx, dy).
+  function head(x, y, dx, dy, cls) {
+    const L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, s = 7, w = 4, bx = x - ux * s, by = y - uy * s;
+    add(K.svg('path', { class: cls, d: 'M' + r3(x) + ' ' + r3(y) + ' L' + r3(bx - uy * w) + ' ' + r3(by + ux * w) + ' L' + r3(bx + uy * w) + ' ' + r3(by - ux * w) + ' Z' }));
+  }
+  // A curved arrow beside the ladder from one height to the next, bulging out to the right.
+  function arrow(x, ya, yb, cls) {
+    const dir = yb < ya ? -1 : 1, y1 = ya + dir * 3, y2 = yb - dir * 3, cx = x + 14, cy = (y1 + y2) / 2;
+    curve('arr' + cls, x, y1, cx, cy, x, y2);
+    head(x, y2, x - cx, y2 - cy, 'arrh' + cls);
+  }
+  // A bracket along a run of steps, its words beside it (or above its top).
+  function bracket(x, ya, yb, lines, a, above) {
+    part(a, 0, () => {
+      add(K.svg('path', { class: 'br', d: 'M' + r3(x - 6) + ' ' + r3(ya + 2) + ' L' + r3(x) + ' ' + r3(ya + 2) + ' L' + r3(x) + ' ' + r3(yb - 2) + ' L' + r3(x - 6) + ' ' + r3(yb - 2) }));
+      if (above) { text(x + 4, ya - 8, lines[0], 'bl', 'end'); return; }
+      const mid = (ya + yb) / 2, n = lines.length;
+      lines.forEach((s, k) => text(x + 7, mid + 5 + (k - (n - 1) / 2) * 17, s, 'bl', 'start'));
+    });
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 13 * 0.6;
+  }
+
+  // ---------- the key, inside the drawing ----------
+  const KEYS = { rw: 'a whole power', rs: 'a small step', mk: 'you are here', bad: 'a wrong pick' };
+  const keyItems = (d) => (d.show ? ['rw', 'rs', 'mk'] : ['rw', 'rs', 'mk', 'bad']);
+  function keyLayout(ks) {
+    let x = XL, row = 0;
+    return ks.map((k) => {
+      const w = 26 + tw(KEYS[k], 'key');
+      if (x > XL && x + w > XR) { x = XL; row++; }
+      const it = { k, x, row };
+      x += w + 14;
+      return it;
+    });
+  }
+  function drawKey(G, a) {
+    part(a, 0, () => keyLayout(G.keys).forEach((it) => {
+      const yk = G.keyY + it.row * 22, x = it.x;
+      if (it.k === 'rw') line('rw', x + 3, yk, x + 17, yk);
+      else if (it.k === 'rs') line('rs', x + 2, yk, x + 18, yk);
+      else if (it.k === 'mk') rect('mk', x, yk - 6, 20, 12, 6);
+      else { curve('arr bad', x + 5, yk + 8, x + 17, yk, x + 5, yk - 8); head(x + 5, yk - 8, -12, -8, 'arrh bad'); }
+      text(x + 26, yk + 5, KEYS[it.k], 'key', 'start');
+    }));
+  }
+
+  // ---------- each step's sizes ----------
+  const GEO = new Map();
+  function geo(i) {
+    if (GEO.has(i)) return GEO.get(i);
+    const d = STEPS[i], p = d.p, n = p.hi - p.lo, cm = p.live ? 4 : p.c;
+    const G = { H: p.H || Math.max(cm * 20, Math.min(84, 270 / n)), top: 50 };
+    let yy = G.top + n * G.H + 16;
+    if (p.below) yy += 26;
+    if (!d.show && Object.keys(d.wrong).some((o) => d.wrong[o].slip.neg)) { G.negY = yy; yy += 24; }
+    G.keys = keyItems(d);
+    const rows = 1 + Math.max(...keyLayout(G.keys).map((it) => it.row));
+    G.keyY = yy + 12; yy += rows * 22 + 4;
+    const nl = d.show ? (p.live || d.sw ? 2 : d.work.length) : Math.max(d.right.length, ...Object.keys(d.wrong).map((o) => d.wrong[o].lines.length));
+    G.workY = yy; yy += nl * LH + 8;
+    G.Hpx = Math.ceil(yy);
+    GEO.set(i, G);
+    return G;
+  }
+  // A step's timetable in its state: tin, when the ladder starts arriving (null: there from the
+  // start); act, when the climb starts (false: not yet); D, how long each small step takes.
+  function ctxOf(d, st) {
+    const p = d.p;
+    if (p.live) {
+      const moving = st.prev != null, from = moving ? st.prev : 0, n = Math.abs(st.pos - from);
+      return { c: st.cut, live: true, from, to: st.pos, known: moving ? st.known : 0,
+        tin: moving ? null : p.tl.in, act: moving ? 0 : p.tl.act,
+        D: moving ? Math.min(0.6, 2 / Math.max(1, n)) : Math.min(0.8, 2.4 / Math.max(1, n)),
+        cutA: moving && st.cutMove ? arr(0, 0.4) : 1, workT: moving ? (st.cutMove ? [0.3, 0.45] : null) : p.tl.work };
+    }
+    if (d.sw) {
+      const re = st.prev != null, act = re ? 0.2 : p.tl.act, power = st.mode === 'power';
+      return { c: p.c, sw: true, power, from: 0, to: power ? 0 : p.go, tin: re ? null : p.tl.in, act, D: 0.55, cutA: 1,
+        workT: power ? [act + 3.0, act + 3.25] : [act + 2.85, act + 3.15] };
+    }
+    if (d.show) return { c: p.c, from: p.from, to: p.go, tin: p.tl.in, act: p.tl.act, D: p.tl.step, cutA: 1, workT: p.tl.work };
+    const right = st.res === 'right', steps = Math.abs(p.go - p.from), D = moveD(steps);
+    return { c: p.c, from: p.from, to: p.go, tin: null, act: right ? 0.1 : false, D, cutA: 1,
+      restTo: right ? restOf(p) : null, restT: 0.15 + steps * D };
+  }
+  // The climb in a state: each small step's progress and where the marker is now (in small steps).
+  function moveOf(C) {
+    const from = C.from, to = C.to, steps = Math.abs(to - from), dir = to >= from ? 1 : -1, prog = [];
+    for (let j = 0; j < steps; j++) prog.push(C.act === false ? 0 : C.act == null ? 1 : arr(C.act + j * C.D, C.D));
+    let done = 0;
+    while (done < steps && prog[done] >= 1) done++;
+    const t = done < steps ? prog[done] : 0;
+    return { from, to, dir, steps, prog, done, pos: from + dir * (done + t), depth: prog.reduce((s, v) => s + v, 0) };
+  }
+  // The lines of working a step shows in its state, each with the time it arrives.
+  function workOf(d, st, C) {
+    if (d.p.live) return liveWork(st.cut).map((r, m) => ({ r, t: C.workT ? C.workT[m] : null }));
+    if (d.sw) return (st.mode === 'power' ? SWP : SWR).map((r, m) => ({ r, t: C.workT[m] }));
+    if (d.show) return d.work.map((r, m) => ({ r, t: C.workT[m] }));
+    if (st.res === 'right') return d.right.map((r, m) => ({ r, t: d.rt + 0.25 * m }));
+    if (st.res === 'wrong' && st.pick != null) return d.wrong[st.pick].lines.map((r, m) => ({ r, t: 0.25 + 0.3 * m }));
+    return [];
+  }
+  // A line of working: the expression on the left, what it makes on the right.
+  function drawWork(r, yy, a) {
+    const cls = r.bad ? ' bad' : r.mu ? ' mu' : '', ap = /^≈/.test(r.w), right = r.w.replace(/^≈\s*/, '');
+    part(a, 6, () => { text(XL, yy, r.e + (ap ? ' ≈' : ' ='), 'te' + cls, 'start'); text(XR, yy, right, 'tw' + cls, 'end'); });
+    if (a >= 0.5) REC.work.push(r);
+    return a >= 0.5 ? say(r.e + (ap ? ' ≈ ' : ' = ') + right) + (r.bad ? ', a slip.' : '.') : '';
+  }
+
+  // The whole picture for a step now; returns it in words.
+  function drawScene(i, d, st, G) {
+    REC = { rungs: [], labels: {}, marker: null, arrows: [], slips: [], brs: [], work: [] };
+    const p = d.p, C = ctxOf(d, st), b = +p.b, c = C.c, frac = b > 1, H = G.H;
+    const y = (h) => G.top + (p.hi - h) * H;
+    const said = [];
+    part(I(C, 0, 0.5), 0, () => text(XL, 26, d.show ? 'Powers of ' + p.b : d.q, 'tag', 'start'));
+    const yT = y(p.hi) - 12, yB = y(p.lo) + 12;
+    part(I(C, 0, 0.5), 0, () => { line('rail', RL, yT, RL, yB); line('rail', RR, yT, RR, yB); });
+    if (p.below) part(I(C, 0.8, 0.5), 0, () => {
+      line('rail on', RL, yB, RL, yB + 22); line('rail on', RR, yB, RR, yB + 22);
+      text(LX, yB + 20, 'smaller, never 0', 'note', 'end');
+    });
+
+    // the arrows: one for each small step climbed, saying what it multiplies by
+    const r1 = Math.pow(b, 1 / c);
+    const stepTxt = (dir) => (dir > 0 ? '× ' : '÷ ') + fmtV(r1, false);
+    function arrowAt(j0, j1, a, cls, txt) {
+      if (a <= 0) return;
+      part(a, 0, () => { arrow(AX, y(j0 / c), y(j1 / c), cls); text(AX + 19, (y(j0 / c) + y(j1 / c)) / 2 + 5, txt, 'al' + cls, 'start'); });
+      if (a >= 0.5) REC.arrows.push({ j0, j1, text: txt });
+    }
+
+    // power first: five whole steps, then the cube root keeps a third of that height
+    let mpos = null;
+    if (C.power) {
+      const n = p.go, PD = 0.45, prog = [];
+      for (let k = 0; k < n; k++) prog.push(arr(C.act + k * PD, PD));
+      prog.forEach((g, k) => arrowAt(k * c, (k + 1) * c, K.clamp(g * 2.5, 0, 1), '', '× ' + fmtV(b, frac)));
+      let done = 0;
+      while (done < n && prog[done] >= 1) done++;
+      const climbed = done + (done < n ? prog[done] : 0), t0 = C.act + n * PD;
+      const aA = arr(t0 - 0.05, 0.4), desc = arr(t0 + 0.15, 0.7), aB = arr(t0 + 0.35, 0.5);
+      mpos = desc > 0 ? K.lerp(n * c, n, K.ease(desc)) : climbed * c;
+      C.extra = {}; C.extra[n] = K.clamp((desc - 0.6) / 0.4, 0, 1);
+      bracket(304, y(n), y(0), ['height ' + n], aA, true);
+      bracket(BX, y(n / c), y(0), [THIRD[c] || '1/' + c], aB, false);
+      if (aA >= 0.5) REC.brs.push({ j0: 0, j1: n * c, lines: ['height ' + n] });
+      if (aB >= 0.5) REC.brs.push({ j0: 0, j1: n, lines: [THIRD[c]] });
+    }
+
+    const mo = moveOf(C);
+    if (C.restTo != null) {
+      const steps = Math.abs(C.restTo - C.to), dir = C.restTo > C.to ? 1 : -1, prog = [];
+      for (let k = 0; k < steps; k++) prog.push(arr(C.restT + k * 0.35, 0.35));
+      C.rest = { from: C.to, dir, steps, prog };
+    }
+    const knownJ = (j) => (C.live ? j >= 0 && j <= C.known : j === C.from);
+    function rev(j) {
+      if (knownJ(j)) return 1;
+      for (let k = 1; k <= mo.steps; k++) if (mo.from + mo.dir * k === j) return K.clamp((mo.depth - k + 0.4) / 0.4, 0, 1);
+      if (C.rest) for (let k = 1; k <= C.rest.steps; k++) if (C.rest.from + C.rest.dir * k === j) return K.clamp((C.rest.prog[k - 1] - 0.6) / 0.4, 0, 1);
+      if (C.extra && C.extra[j] != null) return C.extra[j];
+      return 0;
+    }
+    if (C.live) for (let j = 1; j <= C.known; j++) arrowAt(j - 1, j, 1, '', stepTxt(1));
+    for (let k = 1; k <= mo.steps; k++) {
+      const j0 = mo.from + mo.dir * (k - 1), j1 = mo.from + mo.dir * k;
+      if (C.live && knownJ(j0) && knownJ(j1)) continue;
+      arrowAt(j0, j1, K.clamp(mo.prog[k - 1] * 2.5, 0, 1), '', stepTxt(mo.dir));
+    }
+    if (C.rest) for (let k = 1; k <= C.rest.steps; k++) {
+      const j0 = C.rest.from + C.rest.dir * (k - 1);
+      arrowAt(j0, j0 + C.rest.dir, K.clamp(C.rest.prog[k - 1] * 2.5, 0, 1), '', stepTxt(C.rest.dir));
+    }
+
+    // the rungs, bottom to top: whole powers always labelled, small steps once climbed
+    const N = (p.hi - p.lo) * c;
+    for (let j = p.lo * c; j <= p.hi * c; j++) {
+      const whole = j % c === 0, h = j / c, k = j - p.lo * c, v = Math.pow(b, h);
+      const a = Math.min(I(C, 0.15 + 0.7 * k / N, 0.4), whole ? 1 : C.cutA);
+      part(a, 0, () => line(whole ? 'rw' : 'rs', whole ? RL - 5 : RL, y(h), whole ? RR + 5 : RR, y(h)));
+      const la = whole ? a : Math.min(a, rev(j)), lab = pw(p.b, j, c) + ' = ' + fmtV(v, frac);
+      const ans = !d.show && st.res === 'right' && j === p.go && !whole;
+      if (la > 0) part(la, 0, () => text(LX, y(h) + 5, lab, whole ? 'rl' : 'rsl' + (ans ? ' ans' : ''), 'end'));
+      REC.rungs.push({ j, h, y: y(h), whole, v });
+      if (la >= 0.5) REC.labels[j] = lab;
+    }
+
+    // the marker: where you are
+    if (mpos == null) mpos = mo.pos;
+    part(I(C, 0.6, 0.5), 0, () => rect('mk', RL - 6, y(mpos / c) - 7, RR - RL + 12, 14, 7));
+    REC.marker = mpos;
+
+    // brackets: what a run of small steps multiplies by
+    const brs = C.power ? [] : C.live ? [[0, c]] : (p.br || []);
+    brs.forEach((jj) => {
+      const j0 = jj[0], j1 = jj[1], a = Math.min(rev(j1), I(C, 0.9, 0.4)), D = j1 - j0;
+      const lines = (p.b.length <= 1 ? [pw(p.b, D, c)] : []).concat([(D > 0 ? '× ' : '÷ ') + fmtV(Math.pow(b, Math.abs(D) / c), frac)]);
+      bracket(BX, Math.min(y(j0 / c), y(j1 / c)), Math.max(y(j0 / c), y(j1 / c)), lines, a, false);
+      if (a >= 0.5) REC.brs.push({ j0, j1, lines });
+    });
+
+    // a wrong pick's own slip, in the warning colour
+    if (!d.show && st.res === 'wrong' && st.pick != null) said.push(drawSlip(d.wrong[st.pick].slip, p, b, c, y, frac, G));
+
+    const on = Math.round(mpos);
+    let words = 'A ladder of powers of ' + p.b + ' with its rungs equally spaced, each whole step cut into ' + c + ' small steps. The marker is on ' +
+      say(pw(p.b, on, c)) + (REC.labels[on] ? ', which is ' + say(fmtV(Math.pow(b, on / c), frac)) : '') + '.';
+    if (REC.arrows.length) words += ' ' + REC.arrows.length + (REC.arrows.length === 1 ? ' step climbed, ' : ' steps climbed, each ') + say(REC.arrows[0].text) + '.';
+    REC.brs.forEach((x) => { words += ' A bracket: ' + say(x.lines.join(', ')) + '.'; });
+    workOf(d, st, C).forEach((l, m) => said.push(drawWork(l.r, G.workY + 20 + LH * m, vis(l.t, 0.4))));
+    drawKey(G, I(C, 0.6, 0.5));
+    return [words].concat(said.filter(Boolean)).join(' ');
+  }
+  // A wrong pick: its own small steps climbed beside the ladder, where its number sits on the
+  // ladder, or, for a number below 0, off the ladder altogether.
+  function drawSlip(s, p, b, c, y, frac, G) {
+    if (s.neg) {
+      const v = val(s.neg), t = fmtV(v, frac) + ' is below 0, where no rung goes';
+      part(vis(0.1, 0.5), 4, () => text(XL, G.negY + 14, t, 'lab bad', 'start'));
+      REC.slips.push({ kind: 'neg', v });
+      return say(t) + '.';
+    }
+    if (s.mark) {
+      const v = val(s.mark), h = Math.log(v) / Math.log(b);
+      part(vis(0.1, 0.5), 0, () => { line('gd', RL - 8, y(h), RR + 8, y(h)); text(AX + 19, y(h) + 5, fmtV(v, frac), 'lab bad', 'start'); });
+      REC.slips.push({ kind: 'mark', v, h });
+      return 'The wrong pick ' + say(fmtV(v, frac)) + ' sits on the ladder at that height, a dashed line.';
+    }
+    const r = val(s.r), dh = Math.log(r) / Math.log(b), h0 = p.from / c, txt = '× ' + fmtV(r, false);
+    for (let k = 1; k <= s.n; k++) {
+      const ha = h0 + (k - 1) * dh, hb = h0 + k * dh;
+      part(vis(0.1 + 0.45 * (k - 1), 0.45), 0, () => { arrow(AX, y(ha), y(hb), ' bad'); text(AX + 19, (y(ha) + y(hb)) / 2 + 5, txt, 'al bad', 'start'); });
+    }
+    const hn = h0 + s.n * dh, vn = Math.pow(r, s.n);
+    part(vis(0.1 + 0.45 * s.n, 0.4), 0, () => { line('gd', RL - 8, y(hn), RR + 8, y(hn)); text(AX + 19, y(hn) + 5, fmtV(vn, frac), 'lab bad', 'start'); });
+    REC.slips.push({ kind: 'climb', r, n: s.n, h: hn, v: vn });
+    return 'The wrong pick climbs ' + s.n + ' small steps of ' + say(txt) + ' and lands on ' + say(fmtV(vn, frac)) + '.';
+  }
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(i);
+    art.textContent = '';
+    into = null;
+    svg.setAttribute('viewBox', '0 0 340 ' + G.Hpx);
+    svg.setAttribute('aria-label', drawScene(i, d, st, G));
+  }
+  // How long a step's motion takes in a state: the latest arrival, and the earliest start.
+  function motionLen(i, st) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = Infinity; latest = 0; earliest = Infinity;
+    try { paint(i); } finally { S[i] = keepS; T = keepT; }
+    return { latest, earliest };
+  }
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((pp) => {
+    const i = Math.round(pp.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.prev = null; st.cutMove = false; if (d.p.live) st.top = st.pos; play(motionLen(i, st).latest); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right', live = !!d.p.live;
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length + (d.mixed ? ' · mixed' : '');
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    el('cuts').hidden = finished || !(live || d.sw);
+    cutBtns.forEach((bt, k) => { bt.el.hidden = !live; bt.el.setAttribute('aria-pressed', S[0].cut === k + 2 ? 'true' : 'false'); });
+    modeBtns.forEach((bt, k) => { bt.el.hidden = !d.sw; bt.el.setAttribute('aria-pressed', st.mode === MODES[k] ? 'true' : 'false'); });
+    el('tune').hidden = finished || !live;
+    downBtn.el.disabled = S[0].pos <= 0;
+    upBtn.el.disabled = S[0].pos >= 3 * S[0].cut;
+    replayBtn.setLabel(d.replay || 'Play again');
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    pickBtns.forEach((bt, k) => {
+      bt.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      bt.setLabel(opts[k]);
+      bt.el.textContent = '';
+      maths(bt.el.appendChild(K.el('span')), opts[k]);
+      bt.el.setAttribute('aria-label', say(opts[k]));
+      bt.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const pickRight = (i, v) => isRight(i, Object.assign(blank(), { pick: v }));
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (c, pos) => Object.assign(blank(), { cut: c, pos, prev: null, known: 0, top: pos });
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  // A line adds up: each part after = equals the expression, each part after ≈ is within 1%.
+  function adds(r) {
+    const v = val(r.e), s = /^\s*≈/.test(r.w) ? r.w : '= ' + r.w, tok = s.split(/\s*([=≈])\s*/).filter((x) => x !== '');
+    if (tok.length % 2) return false;
+    for (let k = 0; k < tok.length; k += 2) {
+      const w = val(tok[k + 1]);
+      if (tok[k] === '=' ? !close(w, v) : Math.abs(w - v) > 0.01 * Math.abs(v)) return false;
+    }
+    return true;
+  }
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try {
+      paint(i);
+      return Object.assign({ texts: Array.from(art.querySelectorAll('text')).map((n) => n.textContent) }, REC);
+    } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const finalSt = (i) => (STEPS[i].show ? blank() : solvedSt(i));
+
+  K.check('The base numbers are the same, so add the indices together (9³ × 9⁵ = 9⁸): on the 8 ladder every small step adds the same fraction to the power, so at each cut, 2, 3 or 4, every rung climbed from 1 to 512 is the one below it times the same number', () => {
+    if (!close(val('9³ × 9⁵'), val('9⁸'))) return false;
+    return [2, 3, 4].every((c) => {
+      const g = drawn(0, liveSt(c, 3 * c)), r = Math.pow(8, 1 / c), rs = g.rungs.slice().sort((a, b) => a.j - b.j);
+      if (rs.length !== 3 * c + 1 || !close(rs[0].v, 1) || !close(rs[rs.length - 1].v, 512)) return false;
+      if (!rs.every((x) => g.labels[x.j] === pw('8', x.j, c) + ' = ' + fmtV(x.v, true))) return false;
+      return rs.every((x, k) => k === 0 || close(x.v / rs[k - 1].v, r)) && g.arrows.length === 3 * c && g.arrows.every((a) => a.text === '× ' + fmtV(r, false));
+    });
+  }, { source: SRC1 });
+  K.check('Fractional exponents are defined as roots, from the rule for powers of powers: at each cut c on the first screen, one small step used c times in a multiplication makes the whole step of × 8, and at cut 3 each small step is × 2, so 8^(1/3) = ∛8 = 2', () =>
+    [2, 3, 4].every((c) => {
+      const g = drawn(0, liveSt(c, c)), r = Math.pow(8, 1 / c);
+      return close(Math.pow(r, c), 8) && g.marker === c && g.arrows.length === c && g.brs.length === 1 && g.brs[0].lines.join('|') === '8¹|× 8';
+    }) && drawn(0, liveSt(3, 1)).labels[1] === '8^(1/3) = 2' && drawn(0, liveSt(3, 1)).arrows[0].text === '× 2' && close(val('∛8'), 2), { source: SRC3 });
+  K.check('The numerator tells us the power and the denominator tells us the root: in each puzzle that asks for a fractional power, the ladder cuts every step into the bottom number of small steps, the right climb takes the top number of them, and it stops on the root raised to that power', () => {
+    const re = /^([0-9.]+)\^\((−?)(\d+)\/(\d+)\)$/, qs = DO.filter((i) => re.test(STEPS[i].q));
+    return qs.length === 6 && qs.every((i) => {
+      const d = STEPS[i], m = re.exec(d.q), b = +m[1], top = +m[3] * (m[2] ? -1 : 1), bot = +m[4], p = d.p, g = drawn(i, solvedSt(i));
+      return p.c === bot && p.go - p.from === top && g.marker === p.go && close(Math.pow(Math.pow(b, 1 / bot), top), val(d.want)) &&
+        g.labels[p.go] === pw(p.b, p.go, p.c) + ' = ' + fmtV(Math.pow(b, p.go / p.c), b > 1);
+    });
+  }, { source: SRC4 });
+  K.check('To raise to a power for a given base, multiply the indices: on the 27 ladder, root first (five small steps of × 3) and power first (five whole steps of × 27 to 14,348,907, then a third of that height) both stop on 27^(5/3) = 243', () => {
+    const i = idx('Root first or power first'), r = drawn(i, blank()), q = drawn(i, Object.assign(blank(), { mode: 'power' }));
+    return r.marker === 5 && r.labels[5] === '27^(5/3) = 243' && r.arrows.length === 5 && r.arrows.every((a) => a.text === '× 3') &&
+      close(q.marker, 5) && q.labels[5] === '27^(5/3) = 243' && q.labels[15] === '27⁵ = 14,348,907' && q.arrows.length === 5 && q.arrows.every((a) => a.text === '× 27') &&
+      q.brs.length === 2 && close(val('(27^(1/3))⁵'), 243) && close(val('(27⁵)^(1/3)'), 243);
+  }, { source: SRC2 });
+  K.check('A negative power gives the reciprocal of the number, 1 over the number: two small steps down the 8 ladder land on 8^(−2/3) = 1/4, one over 8^(2/3) = 4, and one small step down the 27 ladder on 27^(−1/3) = 1/3, one over ∛27', () => {
+    const g = drawn(idx('Below 1'), blank()), i9 = idx('A minus in the power'), h = drawn(i9, solvedSt(i9));
+    return g.marker === -2 && g.labels[-2] === '8^(−2/3) = 1/4' && g.labels[-1] === '8^(−1/3) = 1/2' && close(val('1/8^(2/3)'), 0.25) &&
+      h.marker === -1 && h.labels[-1] === '27^(−1/3) = 1/3' && close(val('1 ÷ ∛27'), 1 / 3);
+  }, { source: SRC5 });
+  K.check('A common misconception is that since the power is negative, the result must be negative, and this is not so: every rung on every ladder in the lesson, those below 1 included, holds a positive amount, and the picks −3 and −9 are drawn below 0, off the ladder', () =>
+    STEPS.every((d, i) => drawn(i, finalSt(i)).rungs.every((r) => r.v > 0)) &&
+    ['−3', '−9'].every((o) => { const i9 = idx('A minus in the power'), s = drawn(i9, wrongSt(i9, o)).slips; return s.length === 1 && s[0].kind === 'neg' && s[0].v < 0; }), { source: SRC5 });
+  K.check('Every line of working on every screen adds up, the first screen\'s at each cut, 2, 3 and 4', () => {
+    const all = [];
+    [2, 3, 4].forEach((c) => liveWork(c).forEach((r) => all.push(r)));
+    SWR.concat(SWP).forEach((r) => all.push(r));
+    STEPS.forEach((d) => {
+      if (d.show) (d.work || []).forEach((r) => all.push(r));
+      else [d.right].concat(Object.keys(d.wrong).map((o) => d.wrong[o].lines)).forEach((ls) => ls.forEach((r) => all.push(r)));
+    });
+    return all.length > 40 && all.every(adds);
+  });
+  K.check('Each puzzle accepts only its right answer, which equals the question, and the right climb stops on the rung of that value; before an answer no small rung shows a value; each wrong pick draws its own steps or mark on the ladder where its number sits, or below 0 off it', () =>
+    DO.every((i) => {
+      const d = STEPS[i], p = d.p, b = +p.b, want = val(d.want);
+      if (d.opts.length !== 3 || d.opts.indexOf(d.want) < 0 || !d.opts.every((o) => pickRight(i, o) === (o === d.want))) return false;
+      if (Object.keys(d.wrong).length !== 2 || !Object.keys(d.wrong).every((o) => d.opts.indexOf(o) >= 0 && o !== d.want)) return false;
+      if (!close(val(d.q), want) || !d.opts.every((o) => o === d.want || !close(val(o), want, 1e-3))) return false;
+      const g = drawn(i, solvedSt(i));
+      if (g.marker !== p.go || !close(Math.pow(b, p.go / p.c), want) || g.texts.indexOf(svgStr(d.q)) < 0) return false;
+      const g0 = drawn(i, blank());
+      if (g0.marker !== p.from || g0.slips.length || g0.arrows.length || g0.rungs.some((r) => !r.whole && g0.labels[r.j] != null)) return false;
+      return Object.keys(d.wrong).every((o) => {
+        const s = drawn(i, wrongSt(i, o)).slips, v = val(o);
+        if (s.length !== 1) return false;
+        const x = s[0];
+        if (x.kind === 'neg') return x.v < 0 && close(x.v, v);
+        if (x.h < p.lo - 1e-9 || x.h > p.hi + 1e-9) return false;
+        if (x.kind === 'mark') return close(x.v, v, 2e-3) && fmtV(x.v, b > 1) === o.replace(/ m$/, '');
+        return close(x.r, v, 2e-3) || close(x.v, v, 2e-3);
+      });
+    }));
+  K.check('The rungs are equally spaced: on every ladder each small step is the same height, and the value beside each rung is the one below it times the same number', () =>
+    STEPS.every((d, i) => {
+      const g = drawn(i, finalSt(i)), rs = g.rungs.slice().sort((a, b) => a.j - b.j), gap = rs[1].y - rs[0].y, ratio = rs[1].v / rs[0].v;
+      return gap < 0 && rs.every((r, k) => k === 0 || (close(r.y - rs[k - 1].y, gap, 1e-6) && close(r.v / rs[k - 1].v, ratio)));
+    }));
+  K.check('Every demonstration has arrived within 5 s of its screen opening, nothing before the 0.35 s screen fade; every answer\'s motion, and every move on the first screen, within 3 s', () => {
+    const ok = STEPS.every((d, i) => {
+      if (d.show) {
+        const m = motionLen(i, blank());
+        if (d.sw) { const q = motionLen(i, Object.assign(blank(), { mode: 'power' })); if (q.latest > 5 || q.earliest < FADE) return false; }
+        return m.latest <= 5 && m.earliest >= FADE;
+      }
+      return motionLen(i, solvedSt(i)).latest <= 3 && d.opts.filter((o) => o !== d.want).every((o) => motionLen(i, wrongSt(i, o)).latest <= 3);
+    }) && [2, 4].every((c) => motionLen(0, Object.assign(blank(), { cut: c, prev: 0, pos: c, known: 0, top: c, cutMove: true })).latest <= 3) &&
+      motionLen(0, Object.assign(blank(), { prev: 3, pos: 4, known: 3, top: 4 })).latest <= 3 &&
+      motionLen(idx('Root first or power first'), Object.assign(blank(), { mode: 'power', prev: 1 })).latest <= 5;
+    paint();
+    return ok;
+  });
+
+  K.ready();
+</script>
