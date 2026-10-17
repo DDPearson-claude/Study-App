@@ -1,0 +1,45 @@
+{
+  "iid": "i4",
+  "title": "Domain and range",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is the graph's shadow bands on both axes growing and shrinking, and 'no value' where the machine refuses an input, when you drag the graph's ends or switch family.",
+    "title": "Shadows on the axes",
+    "controls": [
+      { "id": "step", "label": "Step", "min": 0, "max": 11, "step": 1, "value": 0, "unit": "" }
+    ],
+    "outputs": [],
+    "whatAmILookingAt": "A short lesson in twelve small screens. A graph sits on axes with the input along the bottom and the output up the side. It casts a shadow straight down onto the input axis, a thick band showing every input it takes, and straight across onto the output axis, a second band showing every output it gives. Drag either end of the graph and both bands change, with their ends read out. Tabs switch between the transmitter line S(p) = 0.16p + 4, the square y = x², the one-over y = 1/x and the square root y = √x. A pointer on the input axis can be dragged too, and where the rule has no answer, at 0 on the one-over or below 0 on the square root, the machine shows 'no value'. Some screens show an idea and the rest ask you to try it.",
+    "ignores": "Each graph shows only part of its curve. The 25% to 75% level and the sketched hump are example values.",
+    "numbers": [
+      { "label": "4 to 20 mA loop: 0% sends 4 mA", "value": 4, "kind": "constant" },
+      { "label": "4 to 20 mA loop: 100% sends 20 mA", "value": 20, "kind": "constant" },
+      { "label": "S(p) = 0.16p + 4, mA per percent", "value": 0.16, "kind": "computed" },
+      { "label": "Example level between 25% and 75%", "value": 25, "kind": "assumed" },
+      { "label": "S(25) = 8 mA, S(75) = 16 mA", "value": 16, "kind": "computed" },
+      { "label": "Square drawn from −3 to 3: range 0 to 9", "value": 9, "kind": "computed" },
+      { "label": "√0.5 = 0.707: 50% pressure difference is 71% flow", "value": 0.707, "kind": "constant", "source": 3 },
+      { "label": "12 mA from a DP cell is 50% pressure difference", "value": 12, "kind": "constant", "source": 3 },
+      { "label": "12 V through 3 to 12 Ω draws 4 to 1 A", "value": 4, "kind": "computed" }
+    ]
+  },
+  "explain": {
+    "text": "Every function has a [[domain]], the inputs it takes, and a [[range]], the outputs it gives.[^1] On a graph the domain is its shadow on the input axis and the range is its shadow on the output axis.\n\nThe domain always includes every number except the ones that cause dividing by zero or the square root of a negative.[^2] So 1/x takes every input but 0, and √x takes 0 and up. The range of x² is 0 and up.\n\nThe 4 to 20 mA transmitter takes 0 to 100% and gives 4 to 20 mA. A 12 mA signal is 50% of the pressure difference but 71% of the flow.[^3]\n\n**The domain is what goes in, the range is what comes out.**"
+  },
+  "analogy": {
+    "text": "Think of a dimmer: the knob turns through its travel, and the lamp goes from dim to full.",
+    "breaks": "A knob has no gap in the middle."
+  },
+  "practice": {
+    "text": "- Find what inputs are allowed.\n- Find the outputs.\n\n**Worked example:** I = 12/R for R from 3 to 12 Ω gives 1 to 4 A.\n\n**Common mistakes**\n- Mixing up the domain and the range."
+  },
+  "say": null,
+  "checks": [],
+  "sources": [
+    { "n": 1, "title": "About the HELM Project", "url": "https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf", "quote": "The set of values of the function for a given domain, that is, the set of _y_ values, is called the range" },
+    { "n": 2, "title": "Ch. 3 Key Concepts - College Algebra | OpenStax", "url": "https://openstax.org/books/college-algebra/pages/3-key-concepts", "quote": "The domain of a function includes all real input values that would not cause us to attempt an undefined mathematical operation, such as dividing by zero or taking the square root of a negative number." },
+    { "n": 3, "title": "Square root scaling for differential pressure flowmeters - Control Engineering", "url": "https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters", "quote": "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate." }
+  ],
+  "confidence": "settled",
+  "contested": null
+}

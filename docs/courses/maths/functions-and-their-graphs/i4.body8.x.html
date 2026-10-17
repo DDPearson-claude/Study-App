@@ -1,0 +1,1099 @@
+<!-- kind: concept -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  .scene { display: block; width: 100%; max-width: 26rem; margin-inline: auto; touch-action: pan-y; }
+  /* The graph: a frame, faint gridlines at the ticks, axes through 0 where 0 sits inside, the curve in navy. */
+  .scene .grid { stroke: var(--k-line); stroke-width: 1; }
+  .scene .frame { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .axis { stroke: var(--k-strong); stroke-width: 1.25; }
+  .scene .tlab { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .axt { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .cv { fill: none; stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .scene .cv.bad { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 7 5; }
+  .scene .end { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  /* A draggable end: the dot in a dashed ring, unlike a shadow's 'included' dot. */
+  .scene .halo { fill: var(--k-accent2); fill-opacity: .12; stroke: var(--k-accent2); stroke-width: 1.5; stroke-dasharray: 3 3; }
+  .scene .asym { stroke: var(--k-strong); stroke-width: 2; stroke-dasharray: 7 5; fill: none; }
+  /* The shadows: a thick see-through band on each axis. A filled dot is included, a hollow one left out, an arrow runs on. */
+  .scene .band { stroke: var(--k-accent2); stroke-opacity: .32; stroke-width: 10; fill: none; }
+  .scene .band.bad { stroke: var(--k-warn); stroke-opacity: .4; }
+  .scene .band.sw { stroke-width: 8; }
+  .scene .bdot { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .bdot.bad { fill: var(--k-warn); }
+  .scene .bhole { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .barrow { fill: var(--k-accent2); }
+  .scene .barrow.bad { fill: var(--k-warn); }
+  .scene .edge { stroke: var(--k-muted); stroke-width: 1.25; stroke-dasharray: 3 4; fill: none; }
+  /* The beam: amber, from the input up to the graph and across to its output; a slip's beam is red and dashed. */
+  .scene .beam { stroke: var(--k-amber-line); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .beam.bad { stroke: var(--k-warn); stroke-dasharray: 6 4; }
+  .scene .beam.faint { stroke-dasharray: 3 6; }
+  .scene .tip { fill: var(--k-amber-line); }
+  .scene .tip.bad { fill: var(--k-warn); }
+  .scene .hit { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 1.5; }
+  .scene .hit.bad { fill: var(--k-warn); }
+  .scene .ring { fill: none; stroke: var(--k-warn); stroke-width: 2; }
+  .scene .vbar { stroke: var(--k-warn); stroke-width: 4; stroke-linecap: round; }
+  .scene .pl { font: 600 13px var(--k-font); fill: var(--k-accent2); paint-order: stroke; stroke: var(--k-bg); stroke-width: 3px; stroke-linejoin: round; }
+  .scene .pl.bad { fill: var(--k-warn); }
+  .scene .key { font: 500 13px var(--k-font); fill: var(--k-ink); }
+  .scene .sw { stroke-width: 2.5; stroke-linecap: round; }
+  .scene .sw.b { stroke: var(--k-amber-line); }
+  .scene .sw.r { stroke: var(--k-warn); stroke-width: 2; stroke-dasharray: 5 4; stroke-linecap: butt; }
+  /* Pills: an input is solid; an output or a shadow's end is outlined; a slip is red; 'no value' is dashed. */
+  .scene .tk { font: 700 13px var(--k-font); }
+  .scene .pill.ptr, .scene .notch.ptr { fill: var(--k-accent2); }
+  .scene .tk.ptr { fill: var(--k-on-accent2); }
+  .scene .pill.out { fill: var(--k-bg); stroke: var(--k-accent2); stroke-width: 2; }
+  .scene .tk.out { fill: var(--k-accent2); }
+  .scene .pill.bad, .scene .pill.bptr { fill: var(--k-bg); stroke: var(--k-warn); stroke-width: 2; }
+  .scene .notch.bptr, .scene .notch.bad { fill: var(--k-warn); }
+  .scene .tk.bad, .scene .tk.bptr { fill: var(--k-warn); }
+  .scene .pill.ghost { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .scene .tk.ghost { fill: var(--k-muted); }
+  .scene .tab { fill: var(--k-accent2); }
+  .scene .tab.off { fill: none; stroke: var(--k-strong); stroke-width: 1; }
+  .scene .tabt { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  .scene .tabt.on { fill: var(--k-on-accent2); }
+  .scene .rule { font: 700 15px var(--k-font); fill: var(--k-ink); }
+  .scene .v { font-style: italic; }
+  .scene #art * { pointer-events: none; }
+  .scene .grip, .scene .tabhit { fill: var(--k-bg); fill-opacity: 0; stroke: none; touch-action: none; }
+  .scene .grip { cursor: grab; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .tabhit { cursor: pointer; }
+  .scene .grip:focus, .scene .tabhit:focus { outline: none; }
+  .scene .grip:focus-visible, .scene .tabhit:focus-visible { stroke: var(--k-accent); stroke-width: 2; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; white-space: normal; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter, #scene.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter, html.k-testing #scene.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) {
+    #stepbox.enter, #done.enter, #scene.enter { animation: none; }
+  }
+</style>
+
+<p class="lead">A graph casts two shadows: the inputs it takes, down on the frame's bottom edge, and the outputs it gives, across on its left edge. The levels, settings, hump and supply are examples.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <svg class="scene" id="scene" viewBox="0 0 340 316" width="100%" role="img" aria-label=""><g id="art"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">Every shadow, beam and reading is worked out from the rule on its graph; the hump is a sketch.</p>
+
+<script>
+  // ---------- numbers, written as the lesson writes them (a true minus sign, no trailing zeros) ----------
+  const fmtN = (v, dp) => { const f = Math.pow(10, dp == null ? 3 : dp), r = Math.round(v * f) / f; return (r < 0 ? '−' : '') + String(Math.abs(r)); };
+  const n3 = (v) => fmtN(v, 3);
+  const rnd = (v, d) => { const f = Math.pow(10, d == null ? 6 : d); return Math.round(v * f) / f; };
+  const mix = (a, b, u) => (u >= 1 ? b : u <= 0 ? a : a + (b - a) * u);
+  const pc = (v) => fmtN(v, 2) + '%', mA = (v) => fmtN(v, 2) + ' mA', ohm = (v) => fmtN(v, 2) + ' Ω', amp = (v) => fmtN(v, 2) + ' A';
+
+  // ---------- the rules every picture is drawn from ----------
+  const SIG = (p) => 0.16 * p + 4;                                       // mA the transmitter sends at p % of its scale (lesson 2)
+  const SQ = (x) => x * x;
+  const ONE = (x) => 1 / x;
+  const ROOT = (x) => Math.sqrt(x);
+  const HUMP = (x) => 2 + 4 * Math.pow(Math.cos(Math.PI * x / 8), 2);    // a sketch: its top is 6 at 0, its ends 2 at −4 and 4
+  const VOLTS = 12;                                                      // example supply (V)
+  const AMPS = (R) => VOLTS / R;                                         // current (A) through R ohms
+
+  // Each graph: its frame (viewBox units), its rule, how its inputs are set (two draggable ends, or a pointer on
+  // a rule that refuses some inputs), its fixed shadows when the rule sets them, and its axes.
+  const BOX = { x0: 80, x1: 326, y0: 108, y1: 262 };
+  const PL = { x0: 64, x1: 168, y0: 126, y1: 256 }, PR = { x0: 218, x1: 322, y0: 126, y1: 256 };
+  const INF = Infinity;
+  const seg = (a, b, ea, eb) => ({ a, b, ea, eb });
+  const ONEB = [seg(-INF, 0, 'arrow', 'hole'), seg(0, INF, 'hole', 'arrow')];   // every number but 0
+  const ROOTB = [seg(0, INF, 'dot', 'arrow')];                                  // 0 and up
+  const G = {
+    line: { tab: 'line', rule: 'S(p) = 0.16p + 4', box: BOX, fn: SIG, mode: 'ends', lim: [0, 100], step: 5, def: [0, 100], crit: [],
+      x: { min: -12, max: 106, ticks: [0, 25, 50, 75, 100], t: pc, title: 'level, p (% of scale)' },
+      y: { min: 0, max: 22, ticks: [0, 4, 8, 12, 16, 20], tl: n3, t: mA, title: 'signal, S (mA)' } },
+    sq: { tab: 'sq', rule: 'y = x²', box: BOX, fn: SQ, mode: 'ends', lim: [-3, 3], step: 0.5, def: [-3, 3], crit: [0],
+      x: { min: -3.6, max: 3.6, ticks: [-3, -2, -1, 0, 1, 2, 3], t: n3, title: 'x' },
+      y: { min: -2.5, max: 10, ticks: [0, 3, 6, 9], t: n3, title: 'y' } },
+    rec: { tab: 'rec', rule: 'y = 1/x', box: BOX, fn: ONE, mode: 'ptr', ok: (x) => x !== 0, lim: [-4, 4], step: 0.25, def: 2,
+      pieces: [[-4.4, -1e-3, 'geo'], [1e-3, 4.4, 'geo']], xb: ONEB, yb: ONEB,
+      x: { min: -4.4, max: 4.4, ticks: [-4, -2, 0, 2, 4], t: n3, title: 'x' },
+      y: { min: -4.5, max: 4.5, ticks: [-4, -2, 0, 2, 4], t: n3, title: 'y' } },
+    root: { tab: 'root', rule: 'y = √x', box: BOX, fn: ROOT, mode: 'ptr', ok: (x) => x >= 0, lim: [-4, 9], step: 0.25, def: 4,
+      pieces: [[0, 9.6, 'sq']], xb: ROOTB, yb: ROOTB,
+      x: { min: -5, max: 9.6, ticks: [-4, 0, 4, 9], t: n3, title: 'x' },
+      y: { min: 0, max: 3.4, ticks: [0, 1, 2, 3], t: n3, title: 'y' } },
+    flow: { tab: 'flow', rule: 'flow = √(pressure difference)', box: BOX, fn: ROOT, mode: 'ends', lim: [0, 1], step: 0.05, def: [0, 1], crit: [], samp: 'sq', mark: 0.5,
+      x: { min: -0.06, max: 1.08, ticks: [0, 0.5, 1], t: n3, title: 'pressure difference (fraction of full)' },
+      y: { min: 0, max: 1.1, ticks: [0, 0.5, 1], t: n3, title: 'flow (fraction of full)' } },
+    hump: { tab: null, rule: 'a sketched hump', box: BOX, fn: HUMP, mode: 'ends', crit: [0],
+      x: { min: -5, max: 5, ticks: [-4, -2, 0, 2, 4], t: n3, title: 'input' },
+      y: { min: 0, max: 7, ticks: [0, 2, 4, 6], t: n3, title: 'output' } },
+    ohm: { tab: null, rule: 'I = 12/R', box: BOX, fn: AMPS, mode: 'ends', crit: [],
+      x: { min: 0, max: 13.5, ticks: [0, 3, 6, 9, 12], tl: n3, t: ohm, title: 'resistance, R (Ω)' },
+      y: { min: 0, max: 5, ticks: [0, 1, 2, 3, 4], tl: n3, t: amp, title: 'current, I (A)' } },
+    pRec: { tab: null, rule: 'y = 1/x', box: PL, fn: ONE, mode: 'ptr', ok: (x) => x !== 0, pieces: [[-4.6, -1e-3, 'geo'], [1e-3, 4.6, 'geo']], xb: ONEB,
+      x: { min: -4.6, max: 4.6, ticks: [-4, 0, 4], t: n3, title: 'x' }, y: { min: -2.6, max: 2.6, ticks: [-2, 0, 2], t: n3, title: 'y' } },
+    pRoot: { tab: null, rule: 'y = √x', box: PR, fn: ROOT, mode: 'ptr', ok: (x) => x >= 0, pieces: [[0, 4.6, 'sq']], xb: ROOTB,
+      x: { min: -4.6, max: 4.6, ticks: [-4, 0, 4], t: n3, title: 'x' }, y: { min: -2.6, max: 2.6, ticks: [-2, 0, 2], t: n3, title: 'y' } },
+  };
+  const TABS = [['line', 'line'], ['sq', 'square'], ['rec', 'one-over'], ['root', 'root'], ['flow', 'flow']];
+  const TABN = { line: 'transmitter line', sq: 'square', rec: 'one-over', root: 'square root', flow: 'flow meter' };
+  const TABX = (k) => 2 + 67.5 * k, TABW = 66;
+  // The rule's output at x, or nothing where the rule has no answer.
+  const fOf = (g, x) => { if (g.ok && !g.ok(x)) return []; const y = g.fn(x); return isFinite(y) ? [y] : []; };
+
+  // ---------- the lesson: SHOW screens demonstrate (and Dan drags), DO screens are puzzles ----------
+  // A puzzle's ans[option] is what Check draws: the right shadow or reading, or the slip that makes a wrong one, in red.
+  const STEPS = [
+    { show: true, name: 'The transmitter', g: 'line', demo: { from: [40, 60], to: [0, 100], t0: 0.4, dur: 2.6 }, dur: 3.4,
+      text: 'This is the transmitter from lesson 2, `S(p) = 0.16p + 4`. Its shadow straight down on the input axis, 0% to 100%, is its *domain*, and its shadow straight across on the output axis, 4 to 20 mA, is its *range*. Drag either end of the line and both shadows change.' },
+    { name: 'A hump', g: 'hump', ends: [-4, 4], opts: ['−4 to 4', '2 to 6', '0 to 6'], want: '−4 to 4', shows: ['−4', '4'],
+      ans: {
+        '−4 to 4': [{ band: 'domain', t: 0.1 }],
+        '2 to 6': [{ rband: [2, 6], t: 0.1 }],
+        '0 to 6': [{ vbar: [0, 0, 6], label: 'a height', t: 0.1 }],
+      },
+      task: 'This hump\'s top sits on the line `x = 0`, at a height of 6. What is its domain?',
+      hint: 'Not quite. Look straight down from each end of the hump.',
+      hints: { '2 to 6': 'Not quite. 2 to 6 is its range, up the side. The domain is read along the bottom.', '0 to 6': 'Not quite. 6 is the height where the hump meets the line `x = 0`, an output. The domain is read along the bottom.' },
+      why: 'The hump\'s shadow straight down runs from its left end at −4 to its right end at 4, so its domain is −4 to 4. The 6 where it meets the line `x = 0` is a height, an output.' },
+    { show: true, name: 'The square root', g: 'root', demo: { from: 4, to: -1, t0: 0.4, dur: 2.6 }, dur: 3.4,
+      text: 'This is the square root, `y = √x`. Below 0 the beam finds no value, because no ordinary number times itself is negative. At 0 it reads 0, a filled dot, so both shadows start at 0 and run on.' },
+    { name: 'Refused', g: 'root', opts: ['−4', '0', '4'], want: '−4', shows: ['no value'],
+      ans: {
+        '−4': [{ read: -4, t: 0.1 }, { band: 'domain', t: 1.2 }],
+        '0': [{ read: 0, bad: true, t: 0.1 }],
+        '4': [{ read: 4, bad: true, t: 0.1 }],
+      },
+      task: 'Which input does `y = √x` refuse?',
+      hint: 'Not quite. Which input would need a number that gives a negative when multiplied by itself?',
+      hints: { '0': 'Not quite. `√0 = 0`, so 0 is in. Only negative inputs are refused.', '4': 'Not quite. `√4 = 2`, because `2 × 2 = 4`.' },
+      why: 'A positive times a positive is positive, and so is a negative times a negative, so no ordinary number times itself gives −4. The root\'s domain is 0 and up.' },
+    { show: true, name: 'The one-over', g: 'rec', demo: { from: 2, to: 0, t0: 0.4, dur: 2.6 }, dur: 3.4,
+      text: 'This is the one-over, `y = 1/x`. At 0 the beam finds no value, because no number times 0 gives 1, so the input shadow has a hole at 0, and an input where a rule divides by zero like this is called a *pole*. The output shadow has a hole at 0 for its own reason: 1 divided by any number is never 0.' },
+    { name: 'Never given', g: 'rec', opts: ['0', '−1', '100'], want: '0', shows: ['never 0'],
+      ans: {
+        '0': [{ band: 'range', t: 0.1 }, { band: 'domain', t: 0.1 }, { note: 'never 0', t: 0.7 }],
+        '−1': [{ read: -1, bad: true, t: 0.1 }],
+        '100': [{ read: 0.01, off: '100', bad: true, t: 0.1 }],
+      },
+      task: 'Which output does `y = 1/x` never give?',
+      hint: 'Not quite. Ask which number 1 ÷ something can never be.',
+      hints: { '−1': 'Not quite. `1 ÷ −1 = −1`, so the input −1 gives −1.', '100': 'Not quite. `1 ÷ 0.01 = 100`, so a small input gives 100.' },
+      why: '1 divided by any number is never 0, so the range has a hole at 0, just as the domain does. Far out the curve creeps ever closer to the line `y = 0` without ever reaching it.' },
+    { show: true, asym: true, name: 'Asymptotes', g: 'rec', demo: { from: 1, to: 4, t0: 0.4, dur: 2.6 }, dur: 3.4,
+      text: 'Near its pole the one-over shoots up and down ever closer to the dashed line `x = 0`, and far out it creeps ever closer to the dashed line `y = 0`, never crossing either. A line that a graph approaches but never crosses is called an *asymptote*. Drag the beam out to 4 and watch the output close in on 0.' },
+    { name: 'A narrower level', g: 'line', ends: [25, 75], given: true, opts: ['8 to 16 mA', '25 to 75 mA', '4 to 20 mA'], want: '8 to 16 mA', shows: ['8 mA', '16 mA'],
+      ans: {
+        '8 to 16 mA': [{ band: 'range', t: 0.1 }],
+        '25 to 75 mA': [{ swap: 'inputs, in %', t: 0.1 }],
+        '4 to 20 mA': [{ curve: SIG, from: 0, to: 100, key: 'whole scale', t: 0.1 }, { rband: [4, 20], t: 0.6 }],
+      },
+      task: 'A tank\'s level only ever runs from 25% to 75%. What range does the transmitter give?',
+      hint: 'Not quite. Put each end of the domain through the rule.',
+      hints: { '25 to 75 mA': 'Not quite. 25% to 75% are inputs, along the bottom. The range is read up the side.', '4 to 20 mA': 'Not quite. 4 to 20 mA is the whole scale. This level only reaches 25% to 75%.' },
+      why: 'Put the domain\'s ends through the rule. `S(25) = 0.16 × 25 + 4 = 8` and `S(75) = 0.16 × 75 + 4 = 16`, and the line climbs steadily between, so the range is 8 to 16 mA.' },
+    { show: true, name: 'The square', g: 'sq', demo: { from: [1, 3], to: [-3, 3], t0: 0.4, dur: 2.6 }, dur: 3.4,
+      text: 'This is the square, `y = x²`, with its inputs set from −3 to 3. Its range is 0 to 9 and never below 0, because an ordinary number times itself is never negative. Drag the left end past 0 and the bottom of the output shadow stops at 0.' },
+    { name: 'Ends are not enough', g: 'sq', ends: [-2, 3], given: true, opts: ['0 to 9', '4 to 9', '−2 to 3'], want: '0 to 9', shows: ['0', '9'],
+      ans: {
+        '0 to 9': [{ band: 'range', t: 0.1 }],
+        '4 to 9': [{ rband: [4, 9], t: 0.1 }, { ring: [0, 0], label: 'missed', dx: 16, dy: 18, t: 0.7 }],
+        '−2 to 3': [{ rband: [-2, 3], t: 0.1 }],
+      },
+      task: 'Now the square\'s inputs are set from −2 to 3. What is its range?',
+      hint: 'Not quite. Look for the curve\'s lowest point, not just its ends.',
+      hints: { '4 to 9': 'Not quite. The ends give 4 and 9, but the curve dips to 0 on the way.', '−2 to 3': 'Not quite. −2 to 3 is the domain, along the bottom. The range is read up the side.' },
+      why: 'The ends give `(−2)² = 4` and `3² = 9`, but the U dips to 0 at `x = 0` on the way, so the range is 0 to 9, not 4 to 9.' },
+    { show: true, tabs: true, name: 'The flow meter', g: 'flow', demo: { from: [0.3, 0.7], to: [0, 1], t0: 0.4, dur: 1.4 }, mark: 1.85, dur: 3.4,
+      text: 'The flow meter\'s rule is the square root, with pressure difference and flow as fractions of full, so both shadows run 0 to 1. But the outputs bunch towards the top: half the pressure difference already gives 0.707 of the flow, because `√0.5 = 0.707`. Tap the tabs to compare every graph\'s shadows.' },
+    { name: 'A 12 V supply', g: 'ohm', ends: [3, 12], given: true, opts: ['1 to 4 A', '3 to 12 A', '0 to 4 A'], want: '1 to 4 A', shows: ['1 A', '4 A'],
+      ans: {
+        '1 to 4 A': [{ band: 'range', t: 0.1 }],
+        '3 to 12 A': [{ swap: 'inputs, in Ω', t: 0.1 }],
+        '0 to 4 A': [{ rband: [0, 4], t: 0.1 }, { ring: [12, 1], label: 'lowest', dx: 2, dy: -16, anchor: 'middle', t: 0.7 }],
+      },
+      task: 'A 12 V supply feeds a resistance set from 3 to 12 Ω, so `I = 12/R`. What range of current flows?',
+      hint: 'Not quite. Work out the current at each end, `12 ÷ 3` and `12 ÷ 12`.',
+      hints: { '3 to 12 A': 'Not quite. 3 to 12 Ω is the domain, the resistances that go in. The current is read up the side.', '0 to 4 A': 'Not quite. The resistance stops at 12 Ω, where `12 ÷ 12 = 1` A, so the current never gets down to 0.' },
+      why: 'At 3 Ω the current is `12 ÷ 3 = 4` A, and at 12 Ω it is `12 ÷ 12 = 1` A. The curve falls steadily between them, so the range is 1 to 4 A, its ends coming from the domain\'s ends the other way round.' },
+    { name: 'Two machines', pair: true, opts: ['−4', '0', '4'], want: '−4', shows: ['−0.25', 'no value'],
+      ans: {
+        '−4': [{ read: -4, t: 0.1 }, { band: 'domain', t: 1.2 }],
+        '0': [{ read: 0, bad: true, t: 0.1 }],
+        '4': [{ read: 4, bad: true, t: 0.1 }],
+      },
+      task: 'Which input does `y = 1/x` take but `y = √x` refuse?',
+      hint: 'Not quite. Look for an input below 0 that is not 0 itself.',
+      hints: { '0': 'Not quite. At 0 it is the other way round, as `1/x` refuses 0 and `√0 = 0`.', '4': 'Not quite. Both take 4, as `1/4 = 0.25` and `√4 = 2`.' },
+      why: '`1 ÷ −4 = −0.25`, so the one-over takes −4, but no ordinary number times itself gives −4, so the root refuses it. The one-over refuses only 0.' },
+  ];
+  const FINISH = 'The *domain* is every input a function takes, read along the input axis, and the *range* is every output it gives, read up the output axis. The situation can limit the domain, and so can the rule, at a divide by zero or the root of a negative. Read the range from everything the graph reaches, not just its ends.';
+  const PICK = 'Tap one of the answers.';
+  // The lesson's sources, each restated by the check that cites it.
+  const SRC = {
+    CE: 'https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters',
+    HELM: 'https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf',
+    CTRL: 'https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables',
+    OS: 'https://openstax.org/books/college-algebra/pages/3-key-concepts',
+    OSP: 'https://openstax.org/books/precalculus-2e/pages/3-7-rational-functions',
+    MIT: 'https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/f27e6e56fcce3f8683efa52d546c6005_MIT18_03SCF11_s31_1text.pdf',
+  };
+
+  const FADE = 0.35;
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+
+  // ---------- each step's state ----------
+  // pick, res, why: the puzzle. live: Dan has moved something himself (ends lo, hi or pointer v); fam: the tab chosen.
+  function blank() { return { pick: null, res: null, why: false, live: false, lo: null, hi: null, v: null, fam: null, which: 'hi' }; }
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity, motionEnd = 0;
+  let DR = null, HARD = [], SOFT = [], KEYS = [], PLOTS = [];   // what the last paint drew (for the checks), and what it still has to draw
+
+  // ---------- motion ----------
+  let latest = 0, earliest = Infinity;
+  function arr(t0, d) {
+    if (t0 == null || t0 === -Infinity) return 1;
+    if (t0 === Infinity) return 0;
+    d = d == null ? 0.35 : d;
+    if (t0 + d > latest) latest = t0 + d;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, d);
+  }
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = document.getElementById(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xy](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // A number and its unit never split across two lines.
+  const nb = (s) => String(s == null ? '' : s).replace(/(\d) (?=(mA|A|V|Ω)(?![A-Za-z]))/g, '$1 ');
+  function write(el, s) {
+    el.textContent = '';
+    nb(s).split('`').forEach((seg0, k) => {
+      if (!seg0) return;
+      if (k % 2) { italics(el.appendChild(K.el('span', { class: 'nw' })), seg0, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, m;
+      while ((m = re.exec(seg0))) {
+        if (m.index > at0) el.appendChild(document.createTextNode(seg0.slice(at0, m.index)));
+        el.appendChild(K.el('span', { class: 'term' }, m[1]));
+        at0 = m.index + m[0].length;
+      }
+      if (at0 < seg0.length) el.appendChild(document.createTextNode(seg0.slice(at0)));
+    });
+  }
+  const say = (s) => String(s == null ? '' : s).replace(/−/g, ' minus ').replace(/×/g, ' times ').replace(/÷/g, ' divided by ')
+    .replace(/²/g, ' squared').replace(/√/g, ' the square root of ').replace(/Ω/g, ' ohms').replace(/[‹›]/g, '')
+    .replace(/\//g, ' over ').replace(/\+/g, ' plus ').replace(/=/g, ' equals ').replace(/\s+/g, ' ').trim();
+
+  // ---------- drawing helpers ----------
+  const svg = document.getElementById('scene'), art = document.getElementById('art'), ui = document.getElementById('ui');
+  let into = null;
+  const add = (node) => (into || art).appendChild(node);
+  function part(a, rise, draw) {
+    if (a <= 0) return;
+    const g = add(K.svg('g'));
+    K.fade(g, a, rise);
+    const keep = into; into = g; draw(); into = keep;
+  }
+  const r3 = (v) => Math.round(v * 1000) / 1000;
+  const rect = (cls, x, y, w, h, rx) => add(K.svg('rect', { class: cls, x: r3(x), y: r3(y), width: r3(Math.max(0, w)), height: r3(Math.max(0, h)), rx: r3(rx || 0) }));
+  const line = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r3(x1), y1: r3(y1), x2: r3(x2), y2: r3(y2) }));
+  const path = (cls, d) => add(K.svg('path', { class: cls, d }));
+  const circle = (cls, cx, cy, r) => add(K.svg('circle', { class: cls, cx: r3(cx), cy: r3(cy), r }));
+  function text(x, y, s, cls, anchor, maths) {
+    const t = K.svg('text', { class: cls, x: r3(x), y: r3(y), 'text-anchor': anchor || 'middle' });
+    if (maths) italics(t, s, true); else t.textContent = s;
+    return add(t);
+  }
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, String(s)));
+    let w = 0;
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return String(s).length * 13 * 0.6;
+  }
+  const hwOf = (s) => Math.max(18, tw(s, 'tk') / 2 + 9);
+  function scales(g) {
+    const b = g.box, X = g.x, Y = g.y;
+    return { x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1, occ: { b: [], l: [] },
+      sx: (v) => b.x0 + (v - X.min) / (X.max - X.min) * (b.x1 - b.x0),
+      sy: (v) => b.y1 - (v - Y.min) / (Y.max - Y.min) * (b.y1 - b.y0),
+      ix: (px) => X.min + (px - b.x0) / (b.x1 - b.x0) * (X.max - X.min) };
+  }
+  // How clear of a pill a label is (gap in units): whole once clear. While something moves it fades over
+  // the last 8 units; a still picture shows it whole or not at all, never half faded.
+  const clear = (gap) => { const q = K.clamp(gap / 8 + 1, 0, 1); return T === Infinity ? (q >= 1 ? 1 : 0) : q; };
+  // A pill: a value on an axis. Row 'b' sits under the bottom axis (cx its centre), row 'l' left of the side
+  // axis (cx its right edge). A pointer's pill has a notch pointing at the axis.
+  function pill(P, cx, cy, s, kind, a, notch, row) {
+    if (a <= 0) return;
+    const hw = hwOf(s), hh = 11;
+    if (row === 'b') { cx = K.clamp(cx, hw + 2, 338 - hw); P.occ.b.push({ c: cx, hw, a }); }
+    if (row === 'l') { cx = Math.max(hw + 2, cx - hw); P.occ.l.push({ c: cy, a }); }
+    part(a, 0, () => {
+      if (notch === 'up') path('notch ' + kind, 'M' + r3(cx - 6) + ' ' + r3(cy - hh + 1) + ' L' + r3(cx) + ' ' + r3(cy - hh - 5) + ' L' + r3(cx + 6) + ' ' + r3(cy - hh + 1) + ' Z');
+      rect('pill ' + kind, cx - hw, cy - hh, 2 * hw, 2 * hh, hh);
+      text(cx, cy + 4.5, s, 'tk ' + kind);
+    });
+    if (a >= 0.5 && kind !== 'ptr' && kind !== 'bptr') DR.outs.push({ t: s, bad: kind === 'bad', ghost: kind === 'ghost', row });
+    if (a >= 0.5 && (kind === 'bad' || kind === 'bptr')) DR.marked = true;
+  }
+  // A shadow's end, read out in numbers: it makes way for a pointer or reading on the same row.
+  function softPill(P, cx, cy, s, kind, a, row) {
+    const hw = hwOf(s);
+    let f = 1;
+    if (row === 'b') { cx = K.clamp(cx, hw + 2, 338 - hw); P.occ.b.forEach((o) => { if (!o.soft) f *= 1 - o.a * (1 - clear(Math.abs(cx - o.c) - o.hw - hw - 2)); }); }
+    else { cx = Math.max(hw + 2, cx - hw); P.occ.l.forEach((o) => { if (!o.soft) f *= 1 - o.a * (1 - clear(Math.abs(cy - o.c) - 24)); }); }
+    const aa = a * f;
+    if (aa <= 0.02) return;
+    if (row === 'b') P.occ.b.push({ c: cx, hw, a: aa, soft: true }); else P.occ.l.push({ c: cy, a: aa, soft: true });
+    part(aa, 0, () => { rect('pill ' + kind, cx - hw, cy - 11, 2 * hw, 22, 11); text(cx, cy + 4.5, s, 'tk ' + kind); });
+    if (aa >= 0.5) DR.outs.push({ t: s, bad: kind === 'bad', band: true, row });
+  }
+  function hit(gk, x, y, px, py, bad, a) {
+    if (a <= 0) return;
+    const c = circle('hit' + (bad ? ' bad' : ''), px, py, 5);
+    if (a < 1) c.style.opacity = a.toFixed(3);
+    if (a >= 0.5) DR.hits.push({ gk, x, y, px, py, bad });
+  }
+
+  // ---------- the parts every graph has ----------
+  function drawFrame(g, P) {
+    const zx = (0 - g.x.min) / (g.x.max - g.x.min), zy = (0 - g.y.min) / (g.y.max - g.y.min);
+    const ax = zx > 0.12 && zx < 0.88, ay = zy > 0.12 && zy < 0.88;
+    g.x.ticks.forEach((v) => { const x = P.sx(v); if (Math.abs(x - P.x0) > 1 && !(ax && v === 0)) line('grid', x, P.y0, x, P.y1); });
+    g.y.ticks.forEach((v) => { const y = P.sy(v); if (Math.abs(y - P.y1) > 1 && !(ay && v === 0)) line('grid', P.x0, y, P.x1, y); });
+    if (ax) line('axis', P.sx(0), P.y0, P.sx(0), P.y1);
+    if (ay) line('axis', P.x0, P.sy(0), P.x1, P.sy(0));
+    line('frame', P.x0, P.y0, P.x0, P.y1);
+    line('frame', P.x0, P.y1, P.x1, P.y1);
+  }
+  // A curve from its rule, sampled densely where it bends hardest; it breaks where it leaves the picture.
+  function curvePath(g, P, fn, a, b, cls, samp) {
+    if (!(b - a > 1e-9)) return;
+    let ds = '', pen = false;
+    const n = 160;
+    for (let i = 0; i <= n; i++) {
+      const u = i / n;
+      const x = samp === 'geo' ? Math.sign(a) * Math.abs(a) * Math.pow(Math.abs(b) / Math.abs(a), u) : samp === 'sq' ? a + (b - a) * u * u : a + (b - a) * u;
+      const y = fn(x);
+      if (!isFinite(y) || y < g.y.min - 1e-9 || y > g.y.max + 1e-9) { pen = false; continue; }
+      ds += (pen ? ' L' : ' M') + r3(P.sx(x)) + ' ' + r3(P.sy(y));
+      pen = true;
+    }
+    if (ds) path(cls, ds.trim());
+  }
+  // Tick labels, drawn last but placed underneath; each makes way for a pill on its axis.
+  function fillTicks(group, g, P) {
+    const keep = into; into = group;
+    g.x.ticks.forEach((v) => {
+      const s = (g.x.tl || g.x.t)(v), x = P.sx(v), need = tw(s, 'tlab') / 2 + 4;
+      let a = 1;
+      P.occ.b.forEach((o) => { a *= 1 - o.a * (1 - clear(Math.abs(x - o.c) - o.hw - need)); });
+      if (a > 0.05) { const t = text(x, P.y1 + 19, s, 'tlab'); if (a < 1) t.style.opacity = a.toFixed(3); }
+    });
+    g.y.ticks.forEach((v) => {
+      const s = (g.y.tl || g.y.t)(v), y = P.sy(v);
+      let a = 1;
+      P.occ.l.forEach((o) => { a *= 1 - o.a * (1 - clear(Math.abs(y - o.c) - 16)); });
+      if (a > 0.05) { const t = text(P.x0 - 8, y + 4.5, s, 'tlab', 'end'); if (a < 1) t.style.opacity = a.toFixed(3); }
+    });
+    into = keep;
+  }
+  function drawTitles(g, P) {
+    text(8, P.y0 - 8, g.y.title, 'axt', 'start', true);
+    text(P.x1, P.y1 + 44, g.x.title, 'axt', 'end', true);
+  }
+  // The tabs: the graph shown is filled; on the flow meter's screen every tab is a button.
+  function drawTabs(cur, live) {
+    TABS.forEach((t, k) => {
+      if (!live && t[0] !== cur) return;
+      const x = live ? TABX(k) : TABX(0), on = t[0] === cur;
+      if (on) rect('tab', x, 4, TABW, 28, 8);
+      else if (live) rect('tab off', x + 0.5, 4.5, TABW - 1, 27, 8);
+      text(x + TABW / 2, 22.5, t[1], 'tabt' + (on ? ' on' : ''));
+    });
+  }
+  // The rule, and a key for everything drawn (only what is on screen), flowing onto a second row.
+  const KORDER = ['grab', 'shadow', 'edge', 'asym', 'beam', 'dot', 'hole', 'arrow', 'pick', 'slip'];
+  function swatch(k, x, cy) {
+    if (k === 'shadow') line('band sw', x + 2, cy, x + 18, cy);
+    else if (k === 'pick') line('band bad sw', x + 2, cy, x + 18, cy);
+    else if (k === 'edge') line('edge', x, cy, x + 18, cy);
+    else if (k === 'asym') line('asym', x, cy, x + 18, cy);
+    else if (k === 'grab') { circle('halo', x + 9, cy, 8); circle('end', x + 9, cy, 4.5); }
+    else if (k === 'beam') line('sw b', x + 1, cy, x + 17, cy);
+    else if (k === 'slip') line('sw r', x, cy, x + 18, cy);
+    else if (k === 'dot') circle('bdot', x + 9, cy, 5);
+    else if (k === 'hole') circle('bhole', x + 9, cy, 5);
+    else if (k === 'arrow') path('barrow', 'M' + (x + 15) + ' ' + r3(cy) + ' L' + (x + 5) + ' ' + r3(cy - 6) + ' L' + (x + 5) + ' ' + r3(cy + 6) + ' Z');
+  }
+  function drawHead(rule) {
+    let x = 8, y = 56;
+    if (rule) { text(8, 56, rule, 'rule', 'start', true); x = 8 + tw(rule, 'rule') + 18; }
+    const ks = [];
+    KEYS.forEach((k) => { const o = ks.find((q) => q.k === k.k && q.label === k.label); if (o) o.a = Math.max(o.a, k.a); else ks.push(Object.assign({}, k)); });
+    ks.sort((p, q) => KORDER.indexOf(p.k) - KORDER.indexOf(q.k));
+    ks.forEach((k) => {
+      const w = 24 + tw(k.label, 'key');
+      if (x + w > 334) { x = 8; y += 22; }
+      const kx = x, ky = y;
+      part(k.a, 0, () => { swatch(k.k, kx, ky - 4.5); text(kx + 24, ky, k.label, 'key', 'start'); });
+      x += w + 14;
+    });
+  }
+
+  // ---------- the shadows ----------
+  function endMark(P, axis, e, v, side, c) {
+    if (e === 'dot' || e === 'hole') {
+      circle((e === 'dot' ? 'bdot' : 'bhole') + c, axis === 'x' ? P.sx(v) : P.x0, axis === 'x' ? P.y1 : P.sy(v), 5.5);
+    } else if (e === 'arrow') {
+      let d;
+      if (axis === 'x') {
+        const tip = side === 'lo' ? P.x0 + 8 : P.x1 + 8, base = side === 'lo' ? P.x0 + 18 : P.x1 - 2;
+        d = 'M' + r3(tip) + ' ' + r3(P.y1) + ' L' + r3(base) + ' ' + r3(P.y1 - 7) + ' L' + r3(base) + ' ' + r3(P.y1 + 7) + ' Z';
+      } else {
+        const tip = side === 'lo' ? P.y1 - 8 : P.y0 - 8, base = side === 'lo' ? P.y1 - 18 : P.y0 + 2;
+        d = 'M' + r3(P.x0) + ' ' + r3(tip) + ' L' + r3(P.x0 - 7) + ' ' + r3(base) + ' L' + r3(P.x0 + 7) + ' ' + r3(base) + ' Z';
+      }
+      path('barrow' + c, d);
+    }
+  }
+  // A shadow on the input axis ('x', along the bottom) or the output axis ('y', up the side).
+  function drawBand(gk, g, P, axis, segs, a, bad) {
+    if (a <= 0) return;
+    const c = bad ? ' bad' : '';
+    if (a >= 0.5) { DR.bands.push({ gk, axis, bad: !!bad, segs: segs.map((s) => [s.a, s.b, s.ea, s.eb]) }); if (bad) DR.marked = true; }
+    KEYS.push(bad ? { k: 'pick', label: 'your answer', a } : { k: 'shadow', label: 'shadow', a });
+    segs.forEach((s) => [s.ea, s.eb].forEach((e) => {
+      if (e === 'dot' && !bad) KEYS.push({ k: 'dot', label: 'included', a });
+      if (e === 'hole') KEYS.push({ k: 'hole', label: 'left out', a });
+      if (e === 'arrow') KEYS.push({ k: 'arrow', label: 'runs on', a });
+    }));
+    part(a, 0, () => {
+      segs.forEach((s) => {
+        if (axis === 'x') {
+          const pa = s.ea === 'arrow' ? P.x0 + 18 : P.sx(s.a), pb = s.eb === 'arrow' ? P.x1 - 2 : P.sx(s.b);
+          if (pb - pa > 0.5) line('band' + c, pa, P.y1, pb, P.y1);
+        } else {
+          const pa = s.ea === 'arrow' ? P.y1 - 18 : P.sy(s.a), pb = s.eb === 'arrow' ? P.y0 + 2 : P.sy(s.b);
+          if (pa - pb > 0.5) line('band' + c, P.x0, pa, P.x0, pb);
+        }
+      });
+      segs.forEach((s) => { endMark(P, axis, s.ea, s.a, 'lo', c); endMark(P, axis, s.eb, s.b, 'hi', c); });
+    });
+    // Each included end is read out in numbers; two close ends spread apart so both stay whole.
+    const vals = [];
+    segs.forEach((s) => { if (s.ea === 'dot') vals.push(s.a); if (s.eb === 'dot') vals.push(s.b); });
+    const t = axis === 'x' ? g.x.t : g.y.t, kind = bad ? 'bad' : 'out';
+    let pos = vals.map((v) => (axis === 'x' ? P.sx(v) : P.sy(v)));
+    if (vals.length === 2) {
+      const w = vals.map((v) => hwOf(t(v)));
+      if (axis === 'x') {
+        const need = w[0] + w[1] + 4;
+        if (pos[1] - pos[0] < need) { const m = (pos[0] + pos[1]) / 2; pos = [m - need / 2, m + need / 2]; }
+        const over = pos[1] + w[1] - 338, under = 2 - (pos[0] - w[0]);
+        if (over > 0) pos = pos.map((p) => p - over); else if (under > 0) pos = pos.map((p) => p + under);
+      } else if (pos[0] - pos[1] < 25) { const m = (pos[0] + pos[1]) / 2; pos = [m + 12.5, m - 12.5]; }
+    }
+    vals.forEach((v, k) => SOFT.push(() => (axis === 'x' ? softPill(P, pos[k], P.y1 + 17, t(v), kind, a, 'b') : softPill(P, P.x0 - 9, pos[k], t(v), kind, a, 'l'))));
+  }
+  // The lowest and highest outputs between two ends: the ends, and any turning point between them.
+  function spanOf(g, lo, hi) {
+    const xs = [lo, hi].concat((g.crit || []).filter((c) => c > lo + 1e-12 && c < hi - 1e-12));
+    let mn = Infinity, mx = -Infinity, xmn = lo, xmx = lo;
+    xs.forEach((x) => {
+      const y = g.fn(x);
+      if (y < mn - 1e-12 || (Math.abs(y - mn) <= 1e-12 && x > xmn)) { mn = y; xmn = x; }
+      if (y > mx + 1e-12 || (Math.abs(y - mx) <= 1e-12 && x > xmx)) { mx = y; xmx = x; }
+    });
+    return { mn, mx, xmn, xmx };
+  }
+  // Where each shadow's edge comes from: straight down from each end, straight across from the lowest and highest points.
+  function edgesFor(g, P, lo, hi, sp, aD, aR) {
+    if (aD > 0) part(aD, 0, () => [lo, hi].forEach((x) => { const px = P.sx(x), py = P.sy(g.fn(x)); if (P.y1 - py > 9) line('edge', px, py + 6, px, P.y1 - 6); }));
+    if (aR > 0) part(aR, 0, () => [[sp.xmn, sp.mn], [sp.xmx, sp.mx]].forEach((q) => { const px = P.sx(q[0]), py = P.sy(q[1]); if (px - P.x0 > 9 && P.y1 - py > 3) line('edge', px - 6, py, P.x0 + 6, py); }));
+    if (aD > 0 || aR > 0) KEYS.push({ k: 'edge', label: 'shadow edge', a: Math.max(aD, aR) });
+  }
+
+  // ---------- a reading up from an input: the beam rises to the graph, then turns across ----------
+  function readF(gk, g, P, it) {
+    const s = it.s == null ? -Infinity : it.s, bad = !!it.bad;
+    const kind = bad ? 'bad' : 'out', bcls = 'beam' + (bad ? ' bad' : '');
+    const px = P.sx(it.v), a0 = arr(s === -Infinity ? s : s - 0.3, 0.3), tv = g.x.t(it.v);
+    KEYS.push({ k: 'beam', label: 'beam', a: a0 });
+    if (a0 <= 0) return;
+    HARD.push(() => pill(P, px, P.y1 + 17, it.cue ? '‹ ' + tv + ' ›' : tv, bad ? 'bptr' : 'ptr', a0, 'up', 'b'));
+    const rd = { gk, v: it.v, inT: tv, outs: [] };
+    DR.reads.push(rd);
+    const ys = fOf(g, it.v), a1 = arr(s, 0.6);
+    if (!ys.length) {
+      // No output here: the beam rises the whole way and finds nothing.
+      if (a1 > 0) line(bcls + ' faint', px, P.y1, px, K.lerp(P.y1, P.y0, a1));
+      const an = arr(s === -Infinity ? s : s + 0.6, 0.3), cx = Math.max(px, P.x0 + 16 + hwOf('no value'));
+      HARD.push(() => pill(P, cx, P.y0 - 10, 'no value', bad ? 'bad' : 'ghost', an, null, null));
+      if (an >= 0.5) rd.outs.push('no value');
+      return;
+    }
+    const y = ys[0];
+    if (y > g.y.max || y < g.y.min) {
+      // Off the picture: the beam runs to the edge.
+      const top = y > g.y.max;
+      if (a1 > 0) line(bcls, px, P.y1, px, K.lerp(P.y1, top ? P.y0 : P.y1, a1));
+      const at = arr(s === -Infinity ? s : s + 0.6, 0.3);
+      if (it.off) {
+        HARD.push(() => pill(P, Math.max(px, P.x0 + 16 + hwOf(it.off)), P.y0 - 10, it.off, kind, at, 'up', null));
+        if (at >= 0.5) rd.outs.push(it.off);
+      } else if (top) part(at, 0, () => path('tip' + (bad ? ' bad' : ''), 'M' + r3(px) + ' ' + r3(P.y0 - 7) + ' L' + r3(px - 6) + ' ' + r3(P.y0 + 3) + ' L' + r3(px + 6) + ' ' + r3(P.y0 + 3) + ' Z'));
+      return;
+    }
+    const py = P.sy(y), tk = s === -Infinity ? s : s + 0.6;
+    if (a1 > 0 && P.y1 - py > 0.5) line(bcls, px, P.y1, px, K.lerp(P.y1, py, a1));
+    hit(gk, it.v, y, px, py, bad, arr(tk, 0.2));
+    const a2 = arr(tk === -Infinity ? tk : tk + 0.1, 0.5);
+    if (a2 > 0 && px - P.x0 > 0.5) line(bcls, px, py, K.lerp(px, P.x0, a2), py);
+    const ap = arr(tk === -Infinity ? tk : tk + 0.6, 0.3), t = g.y.t(y);
+    HARD.push(() => pill(P, P.x0 - 9, py, t, kind, ap, null, 'l'));
+    if (ap >= 0.5) rd.outs.push(t);
+  }
+
+  // ---------- what a puzzle's answer draws ----------
+  function itemsOf(d, st) {
+    if (st.res === 'right') return d.ans[d.want];
+    if (st.res === 'wrong') return d.ans[st.pick] || [];
+    return [];
+  }
+  function drawItem(d, g, P, it, gk) {
+    if (it.read != null) return readF(gk, g, P, { v: it.read, s: it.t, bad: it.bad, off: it.off });
+    const a = arr(it.t, 0.35);
+    if (a <= 0) return;
+    if (it.curve) {
+      if (a >= 0.5) { DR.curves.push({ fn: it.curve, bad: true, key: it.key }); DR.marked = true; }
+      KEYS.push({ k: 'slip', label: it.key, a });
+      part(a, 0, () => curvePath(g, P, it.curve, it.from, it.to, 'cv bad'));
+      return;
+    }
+    if (it.rband) return drawBand(gk, g, P, 'y', [seg(it.rband[0], it.rband[1], 'dot', 'dot')], a, true);
+    if (it.note) {
+      part(a, 0, () => text(P.x0 + 12, P.sy(0) - 8, it.note, 'pl', 'start'));
+      if (a >= 0.5) DR.outs.push({ t: it.note, bad: false, note: true });
+      return;
+    }
+    if (a >= 0.5) DR.marked = true;
+    part(a, 0, () => {
+      if (it.swap) {
+        // The inputs taken for outputs: the input shadow ringed, and named.
+        const xa = P.sx(d.ends[0]), xb = P.sx(d.ends[1]);
+        rect('ring', xa - 10, P.y1 - 9, xb - xa + 20, 16, 8);
+        text((xa + xb) / 2, P.y1 - 16, it.swap, 'pl bad');
+      }
+      if (it.ring) {
+        const px = P.sx(it.ring[0]), py = P.sy(it.ring[1]);
+        circle('ring', px, py, 9);
+        text(px + it.dx, py + it.dy, it.label, 'pl bad', it.anchor || 'start');
+      }
+      if (it.vbar) {
+        // A height on the output axis read as if it were a spread of inputs.
+        const px = P.sx(it.vbar[0]);
+        line('vbar', px, P.sy(it.vbar[1]), px, P.sy(it.vbar[2]));
+        text(px + 8, P.y1 - 17, it.label, 'pl bad', 'start');
+      }
+    });
+  }
+
+  // ---------- one graph ----------
+  function paintOne(d, gk, st) {
+    const g = G[gk], P = scales(g);
+    if (g.tab) drawTabs(g.tab, !!(d.show && d.tabs && !finished));
+    const tg = add(K.svg('g'));
+    PLOTS.push({ g, P, tg });
+    drawFrame(g, P);
+    if (d.asym) {
+      // The two lines the one-over approaches but never crosses, dashed and named.
+      line('asym', P.sx(0), P.y0, P.sx(0), P.y1);
+      line('asym', P.x0, P.sy(0), P.x1, P.sy(0));
+      text(P.sx(0) - 7, P.y0 + 15, 'x = 0', 'pl', 'end', true);
+      text(P.x1 - 4, P.sy(0) + 19, 'y = 0', 'pl', 'end', true);
+      DR.asym.push({ axis: 'x', at: 0 }, { axis: 'y', at: 0 });
+      KEYS.push({ k: 'asym', label: 'asymptote', a: 1 });
+    }
+    const items = d.show ? [] : itemsOf(d, st);
+    items.filter((it) => it.curve).forEach((it) => drawItem(d, g, P, it, gk));   // a slip's curve goes under the graph
+    let aD = 0, aR = 0;
+    items.forEach((it) => {
+      if (it.band === 'domain') aD = Math.max(aD, arr(it.t, 0.5));
+      if (it.band === 'range') aR = Math.max(aR, arr(it.t, 0.5));
+    });
+    if (g.mode === 'ends') {
+      let lo, hi;
+      if (d.show) {
+        aD = aR = 1;
+        if (st.live) { lo = st.lo; hi = st.hi; }
+        else { const u = arr(d.demo.t0, d.demo.dur); lo = mix(d.demo.from[0], d.demo.to[0], u); hi = mix(d.demo.from[1], d.demo.to[1], u); }
+      } else { lo = d.ends[0]; hi = d.ends[1]; if (d.given) aD = 1; }
+      const sp = spanOf(g, lo, hi);
+      edgesFor(g, P, lo, hi, sp, aD, aR);
+      curvePath(g, P, g.fn, lo, hi, 'cv', g.samp);
+      if (d.show) KEYS.push({ k: 'grab', label: 'drag', a: 1 });
+      [lo, hi].forEach((x) => { const y = g.fn(x), px = P.sx(x), py = P.sy(y); if (d.show) circle('halo', px, py, 12); circle('end', px, py, 6); DR.hits.push({ gk, x, y, px, py, bad: false, end: true }); });
+      drawBand(gk, g, P, 'x', [seg(lo, hi, 'dot', 'dot')], aD, false);
+      drawBand(gk, g, P, 'y', [seg(sp.mn, sp.mx, 'dot', 'dot')], aR, false);
+      if (d.show && g.mark != null && g.mark >= lo - 1e-9 && g.mark <= hi + 1e-9) readF(gk, g, P, { v: g.mark, s: st.live || !d.mark ? -Infinity : d.mark });
+    } else {
+      g.pieces.forEach((q) => curvePath(g, P, g.fn, q[0], q[1], 'cv', q[2]));
+      if (d.show) aD = aR = 1;
+      drawBand(gk, g, P, 'x', g.xb, aD, false);
+      if (g.yb) drawBand(gk, g, P, 'y', g.yb, aR, false);
+      if (d.show) {
+        const v = st.live ? st.v : mix(d.demo.from, d.demo.to, arr(d.demo.t0, d.demo.dur));
+        readF(gk, g, P, { v, cue: true });
+      }
+    }
+    items.filter((it) => !it.curve && !it.band).forEach((it) => drawItem(d, g, P, it, gk));
+    drawTitles(g, P);
+  }
+  // ---------- two machines side by side, given the same input ----------
+  function paintPair(d, st) {
+    const items = itemsOf(d, st);
+    ['pRec', 'pRoot'].forEach((gk) => {
+      const g = G[gk], P = scales(g), tg = add(K.svg('g'));
+      PLOTS.push({ g, P, tg });
+      text(P.x0, 96, g.rule, 'rule', 'start', true);
+      drawFrame(g, P);
+      g.pieces.forEach((q) => curvePath(g, P, g.fn, q[0], q[1], 'cv', q[2]));
+      let aD = 0;
+      items.forEach((it) => { if (it.band === 'domain') aD = Math.max(aD, arr(it.t, 0.5)); });
+      drawBand(gk, g, P, 'x', g.xb, aD, false);
+      items.forEach((it) => { if (it.read != null) readF(gk, g, P, { v: it.read, s: it.t, bad: it.bad }); });
+      text(P.x1, P.y1 + 40, 'x', 'axt', 'end', true);
+    });
+  }
+  function words(d, gk) {
+    const out = [d.pair ? 'Two graphs side by side, y = 1/x and y = √x.' : 'A graph of ' + G[gk].rule + ', input along the bottom, output up the side.'];
+    const desc = (b) => {
+      const g = G[b.gk], t = b.axis === 'x' ? g.x.t : g.y.t, s = b.segs;
+      if (s.length === 2) return 'over every number but ' + t(0);
+      if (s[0][3] === 'arrow') return 'from ' + t(s[0][0]) + ' and on up';
+      return 'from ' + t(s[0][0]) + ' to ' + t(s[0][1]);
+    };
+    DR.bands.forEach((b) => out.push((b.bad ? 'Your answer, drawn on the ' : 'The shadow on the ') + (b.axis === 'x' ? 'input' : 'output') + ' axis' + (d.pair ? ' of ' + G[b.gk].rule : '') + ' runs ' + desc(b) + '.'));
+    DR.reads.forEach((r) => out.push('The beam up from ' + r.inT + (d.pair ? ' on ' + G[r.gk].rule : '') + (r.outs.length ? (r.outs[0] === 'no value' ? ' finds no value' : ' reads ' + r.outs[0]) : ' is on its way') + '.'));
+    DR.outs.filter((o) => o.note).forEach((o) => out.push('The output shadow is marked ' + o.t + '.'));
+    if (DR.asym.length) out.push('Dashed lines mark the asymptotes x = 0 and y = 0.');
+    return say(out.join(' '));
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i];
+    art.textContent = '';
+    into = null;
+    DR = { hits: [], outs: [], reads: [], bands: [], curves: [], asym: [], marked: false };
+    HARD = []; SOFT = []; KEYS = []; PLOTS = [];
+    let gk = null;
+    if (d.pair) paintPair(d, st);
+    else { gk = d.show ? (st.fam || d.g) : d.g; paintOne(d, gk, st); }
+    HARD.forEach((fn) => fn());
+    SOFT.forEach((fn) => fn());
+    PLOTS.forEach((q) => fillTicks(q.tg, q.g, q.P));
+    if (!d.pair) drawHead(G[gk].rule);   // the pair names each graph above it, and its marks were all met before
+    svg.setAttribute('viewBox', d.pair ? '0 76 340 240' : !G[gk].tab ? '0 36 340 280' : '0 0 340 316');   // no tab row on these
+    svg.setAttribute('aria-label', words(d, gk));
+    placeGrip(d, st);
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = document.getElementById('nav');
+  const at = () => stepper.get();
+
+  // Dan's drag: an end of the graph along its curve, or the input pointer along the bottom.
+  function svgPt(e) {
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return null;
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+    return { x: q.x, y: q.y };
+  }
+  const famOf = (d, st) => (d.show ? st.fam || d.g : d.g);
+  function curEnds(d, st, g) { if (st.live && st.lo != null) return [st.lo, st.hi]; if (st.fam) return g.def.slice(); return d.demo.to.slice(); }
+  function curV(d, st, g) { if (st.live && st.v != null) return st.v; if (st.fam) return g.def; return d.demo.to; }
+  function setLive(i, raw, which) {
+    const d = STEPS[i], st = S[i], g = G[famOf(d, st)];
+    const q = (v) => rnd(K.clamp(Math.round(v / g.step) * g.step, g.lim[0], g.lim[1]), 6);
+    if (g.mode === 'ptr') {
+      const v = q(raw);
+      if (st.live && st.v === v) return;
+      st.live = true; st.v = v;
+    } else {
+      const c = curEnds(d, st, g);
+      let lo = c[0], hi = c[1];
+      if (which === 'lo') lo = Math.min(q(raw), rnd(hi - g.step, 6)); else hi = Math.max(q(raw), rnd(lo + g.step, 6));
+      if (st.live && st.lo === lo && st.hi === hi) return;
+      st.live = true; st.lo = lo; st.hi = hi; st.which = which;
+    }
+    anim.pause(); T = Infinity;
+    K.reveal();
+    paint();
+  }
+  function setFam(k) {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.tabs || finished || famOf(d, st) === k) return;
+    const g = G[k];
+    st.fam = k; st.live = true;
+    if (g.mode === 'ptr') { st.v = g.def; st.lo = null; st.hi = null; } else { st.lo = g.def[0]; st.hi = g.def[1]; st.v = null; }
+    anim.pause(); T = Infinity;
+    K.reveal(); enter('scene'); paint();
+  }
+  const grip = ui.appendChild(K.svg('rect', { class: 'grip', x: 0, y: 0, width: 0, height: 0, tabindex: -1, role: 'slider' }));
+  grip.style.display = 'none';
+  const tabHits = TABS.map((t, k) => {
+    const r = ui.appendChild(K.svg('rect', { class: 'tabhit', x: r3(TABX(k) - 0.5), y: 0, width: 67, height: 44, tabindex: -1, role: 'button', 'aria-label': 'Show the ' + TABN[t[0]] }));
+    r.style.display = 'none';
+    r.addEventListener('click', () => setFam(t[0]));
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setFam(t[0]); } });
+    return r;
+  });
+  let dragId = null, dragWhich = 'hi';
+  function moveTo(e, start) {
+    const p = svgPt(e), i = at(), d = STEPS[i];
+    if (!p || !d.show || finished) return;
+    const st = S[i], g = G[famOf(d, st)], x = scales(g).ix(p.x);
+    if (g.mode === 'ends' && start) {
+      const c = curEnds(d, st, g), da = Math.abs(x - c[0]), db = Math.abs(x - c[1]);
+      dragWhich = da < db ? 'lo' : da > db ? 'hi' : (x < c[0] ? 'lo' : 'hi');
+    }
+    setLive(i, x, dragWhich);
+  }
+  grip.addEventListener('pointerdown', (e) => {
+    if (!STEPS[at()].show || finished) return;
+    dragId = e.pointerId;
+    try { grip.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the graph */ }
+    moveTo(e, true);
+    e.preventDefault();
+  });
+  grip.addEventListener('pointermove', (e) => { if (dragId === e.pointerId) moveTo(e, false); });
+  const endDrag = (e) => { if (dragId === e.pointerId) dragId = null; };
+  grip.addEventListener('pointerup', endDrag);
+  grip.addEventListener('pointercancel', endDrag);
+  grip.addEventListener('keydown', (e) => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (!d.show || finished) return;
+    const up = e.key === 'ArrowRight' || e.key === 'ArrowUp', down = e.key === 'ArrowLeft' || e.key === 'ArrowDown';
+    if (!up && !down) return;
+    e.preventDefault();
+    const g = G[famOf(d, st)], dv = up ? g.step : -g.step;
+    if (g.mode === 'ptr') { setLive(i, curV(d, st, g) + dv); return; }
+    const which = e.shiftKey ? 'lo' : 'hi', c = curEnds(d, st, g);
+    setLive(i, (which === 'lo' ? c[0] : c[1]) + dv, which);
+  });
+  // The grip covers the graph and its bottom row; on the flow meter's screen the tabs are buttons too.
+  function placeGrip(d, st) {
+    const on = !!(d.show && !finished), tabs = !!(d.tabs && !finished);
+    grip.style.display = on ? '' : 'none';
+    grip.setAttribute('tabindex', on ? '0' : '-1');
+    tabHits.forEach((r, k) => {
+      r.style.display = tabs ? '' : 'none';
+      r.setAttribute('tabindex', tabs ? '0' : '-1');
+      r.setAttribute('aria-pressed', tabs && TABS[k][0] === famOf(d, st) ? 'true' : 'false');
+    });
+    if (!on) return;
+    const g = G[famOf(d, st)], P = scales(g);
+    grip.setAttribute('x', r3(P.x0 - 14)); grip.setAttribute('y', r3(P.y0 - 6)); grip.setAttribute('width', r3(P.x1 - P.x0 + 28)); grip.setAttribute('height', r3(P.y1 - P.y0 + 46));
+    if (g.mode === 'ptr') {
+      const v = curV(d, st, g);
+      grip.setAttribute('aria-label', 'Input pointer on the bottom axis');
+      grip.setAttribute('aria-valuemin', String(g.lim[0])); grip.setAttribute('aria-valuemax', String(g.lim[1])); grip.setAttribute('aria-valuenow', String(v));
+      grip.setAttribute('aria-valuetext', say(g.x.t(v)));
+    } else {
+      const c = curEnds(d, st, g);
+      grip.setAttribute('aria-label', 'Ends of the graph: arrow keys move the right end, with Shift the left end');
+      grip.setAttribute('aria-valuemin', String(g.lim[0])); grip.setAttribute('aria-valuemax', String(g.lim[1])); grip.setAttribute('aria-valuenow', String(c[1]));
+      grip.setAttribute('aria-valuetext', say('from ' + g.x.t(c[0]) + ' to ' + g.x.t(c[1])));
+    }
+  }
+
+  // Up to three answer buttons; each step fills in its own options. A new choice after a wrong
+  // answer settles the picture back to the question.
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || !d.opts || k >= d.opts.length || st.res === 'right') return;
+    const was = st.res === 'wrong';
+    st.pick = d.opts[k]; st.res = null;
+    if (was) { anim.pause(); T = Infinity; enter('scene'); }
+  } }));
+  // Check: a right answer draws its shadow or reading; a wrong one draws the slip that makes it, in red.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished || st.res === 'right') return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = st.pick === d.want ? 'right' : 'wrong';
+    play(2.5);
+  } });
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    if (STEPS[at()].show || finished) return;
+    const st = S[at()]; st.why = !st.why;
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()], st = S[at()];
+    if (!d.show || finished) return;
+    st.live = false; st.lo = null; st.hi = null; st.v = null; st.fam = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -2; stepper.set(0, true);
+  } });
+
+  const el = (id) => document.getElementById(id);
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      const opening = lastStep === -1;   // the page opens on the first demonstration finished; Play again runs it
+      lastStep = i; dragId = null; enter('stepbox');
+      if (d.show) { st.live = false; st.lo = null; st.hi = null; st.v = null; st.fam = null; }
+      if (d.show && !opening) play(d.dur); else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts || [];
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 7));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.textContent = '';
+      b.el.appendChild(K.el('span', {}, nb(opts[k])));   // one span, so the button's gap does not split "8 mA"
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const close = (a, b, tol) => Math.abs(a - b) <= (tol == null ? 1e-9 * Math.max(1, Math.abs(a), Math.abs(b)) : tol);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const wrongSt = (i, o) => Object.assign(blank(), { pick: o, res: 'wrong' });
+  const liveSt = (o) => Object.assign(blank(), { live: true }, o);
+  const grid = (lo, hi, step) => { const out = []; for (let k = 0; lo + k * step <= hi + 1e-9; k++) out.push(rnd(lo + k * step, 6)); return out; };
+  // A step painted in the state given (finished, or at t seconds into its motion): what it drew.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return DR; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+
+  K.check('The domain includes all real inputs that would not cause an undefined operation, such as dividing by zero or taking the square root of a negative number: dragged along the one-over, the beam finds no value at 0 and a value at every other input; along the root, no value at every negative input and a value from 0 up', () => {
+    const iR = idx('The one-over'), iQ = idx('The square root');
+    const a = grid(-4, 4, 0.25).every((v) => { const o = drawn(iR, liveSt({ v })).reads[0].outs; return o.length === 1 && o[0] === (v === 0 ? 'no value' : n3(1 / v)); });
+    const b = grid(-4, 9, 0.25).every((v) => { const o = drawn(iQ, liveSt({ v })).reads[0].outs; return o.length === 1 && o[0] === (v < 0 ? 'no value' : n3(Math.sqrt(v))); });
+    return a && b;
+  }, { source: SRC.OS });
+  K.check('The range is the set of y values for a given domain: for every setting of the ends on the line, the square and the flow meter, the output shadow runs from the lowest to the highest output on the curve between them, and with inputs from −2 to 3 the square\'s runs 0 to 9, not 4 to 9', () => {
+    const iF = idx('The flow meter');
+    const all = ['line', 'sq', 'flow'].every((k) => {
+      const g = G[k], vs = grid(g.lim[0], g.lim[1], g.step * (k === 'sq' ? 1 : 2));
+      return vs.every((lo) => vs.every((hi) => {
+        if (hi <= lo) return true;
+        const r = drawn(iF, liveSt({ fam: k, lo, hi })), b = r.bands.filter((q) => q.axis === 'y' && !q.bad);
+        const ys = K.linspace(lo, hi, 401).map(g.fn), mn = Math.min.apply(null, ys), mx = Math.max.apply(null, ys), tol = 1e-3 * Math.max(1, mx);
+        return b.length === 1 && close(b[0].segs[0][0], mn, tol) && close(b[0].segs[0][1], mx, tol);
+      }));
+    });
+    const i3 = idx('Ends are not enough'), r = drawn(i3, solvedSt(i3)), b = r.bands.filter((q) => q.axis === 'y' && !q.bad);
+    return all && b.length === 1 && b[0].segs[0][0] === 0 && b[0].segs[0][1] === 9 && SQ(-2) === 4 && SQ(3) === 9;
+  }, { source: SRC.HELM });
+  K.check('Instruments convert with the linear equation y = mx + b, a straight line: S(p) = 0.16p + 4 rises 0.16 mA for every 1%, gives 4 mA at 0% and 20 mA at 100%, and the transmitter\'s shadows read 0% to 100% and 4 mA to 20 mA', () => {
+    const r = drawn(0, blank()), outs = r.outs.filter((o) => o.band && !o.bad).map((o) => o.t);
+    return K.linspace(0, 99, 34).every((p) => close(SIG(p + 1) - SIG(p), 0.16, 1e-9)) && SIG(0) === 4 && close(SIG(100), 20) &&
+      ['0%', '100%', '4 mA', '20 mA'].every((t) => outs.indexOf(t) >= 0);
+  }, { source: SRC.CTRL });
+  K.check('The root of a number from 0 to 1 is larger, √0.5 = 0.707, so a 12 mA signal from the DP cell is 50% DP but 71% flow rate: S(50) = 12 mA, and the flow meter\'s beam up from 0.5 reads 0.707', () => {
+    const r = drawn(idx('The flow meter'), blank());
+    return close(SIG(50), 12) && close(Math.sqrt(0.5), 0.707, 1e-3) && Math.round(100 * Math.sqrt(0.5)) === 71 &&
+      r.reads.some((q) => q.inT === '0.5' && q.outs.length === 1 && q.outs[0] === '0.707');
+  }, { source: SRC.CE });
+  K.check('The pressure difference is proportional to the square of the flow, so flow is scaled from the square root of the pressure difference: every flow on the meter\'s curve, squared, gives back its pressure difference, and both its shadows run 0 to 1', () => {
+    const r = drawn(idx('The flow meter'), blank());
+    const xb = r.bands.find((b) => b.axis === 'x'), yb = r.bands.find((b) => b.axis === 'y');
+    return K.linspace(0, 1, 101).every((dp) => close(Math.pow(ROOT(dp), 2), dp, 1e-12)) && !!xb && !!yb &&
+      xb.segs[0][0] === 0 && xb.segs[0][1] === 1 && yb.segs[0][0] === 0 && yb.segs[0][1] === 1;
+  }, { source: SRC.CE });
+  K.check('Every worked number is right: S(25) = 8, S(75) = 16, S(50) = 12 and S(100) = 20 mA; the square gives 9 for −3 and 3, 4 for −2 and 0 for 0; 1/−1 = −1, 1/0.01 = 100, 1/−4 = −0.25 and 1/4 = 0.25; √0 = 0, √4 = 2 and √9 = 3; 12 V draws 4 A through 3 Ω and 1 A through 12 Ω; the hump is 2 high at −4 and 4 and 6 high at 0', () =>
+    close(SIG(25), 8) && close(SIG(75), 16) && close(SIG(50), 12) && close(SIG(100), 20) && close((20 - 4) / 100, 0.16) &&
+    SQ(-3) === 9 && SQ(3) === 9 && SQ(-2) === 4 && SQ(0) === 0 &&
+    ONE(-1) === -1 && close(ONE(0.01), 100) && ONE(-4) === -0.25 && ONE(4) === 0.25 &&
+    ROOT(0) === 0 && ROOT(4) === 2 && ROOT(9) === 3 && AMPS(3) === 4 && AMPS(12) === 1 &&
+    close(HUMP(-4), 2) && close(HUMP(4), 2) && close(HUMP(0), 6));
+  K.check('A vertical asymptote is a vertical line that the graph approaches but never crosses: as the one-over\'s input nears 0 its output passes any height, up on the right and down on the left, the curve is drawn on both sides of the dashed line x = 0 and never on it', () => {
+    const r = drawn(idx('Asymptotes'), blank());
+    const near = [1e-1, 1e-2, 1e-3, 1e-4].every((h, k) => ONE(h) > Math.pow(10, k) && ONE(-h) < -Math.pow(10, k));
+    return near && r.asym.some((a) => a.axis === 'x' && a.at === 0) && !isFinite(ONE(0)) && G.rec.pieces.every((q) => q[0] * q[1] > 0);
+  }, { source: SRC.OSP });
+  K.check('A horizontal asymptote is a horizontal line that the graph approaches as the input increases or decreases without bound: far out the one-over\'s output shrinks towards 0 and never reaches it, and the beam dragged out to 4 reads 0.25 beside the dashed line y = 0', () => {
+    const xs = [4, 10, 100, 1e3, 1e6];
+    const shrink = xs.every((x, k) => ONE(x) > 0 && ONE(-x) < 0 && (k === 0 || (ONE(x) < ONE(xs[k - 1]) && ONE(-x) > ONE(-xs[k - 1]))));
+    const r = drawn(idx('Asymptotes'), blank());
+    return shrink && r.asym.some((a) => a.axis === 'y' && a.at === 0) && r.reads.some((q) => q.inT === '4' && q.outs[0] === '0.25');
+  }, { source: SRC.OSP });
+  K.check('The poles are the values where the denominator is equal to zero, the points where the function is not defined: the one-over\'s denominator is x, so its one pole is 0, where the beam finds no value, while just either side it finds one', () => {
+    const iR = idx('The one-over'), o = (v) => drawn(iR, liveSt({ v })).reads[0].outs[0];
+    return o(0) === 'no value' && o(0.25) === '4' && o(-0.25) === '−4';
+  }, { source: SRC.MIT });
+  K.check('Before Check a puzzle draws no answer; the right answer draws its shadow or reading and nothing in red, and each wrong answer draws its own slip in red', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g0 = drawn(i, blank());
+      const quiet = !g0.marked && g0.reads.length === 0 && g0.bands.length === (d.given ? 1 : 0) && !g0.outs.some((o) => o.note || o.bad);
+      const g1 = drawn(i, solvedSt(i));
+      const right = !g1.marked && !g1.outs.some((o) => o.bad) && !g1.hits.some((h) => h.bad) && !g1.bands.some((b) => b.bad) &&
+        g1.bands.length > g0.bands.length && d.shows.every((t) => g1.outs.some((o) => o.t === t && !o.bad));
+      const wrongs = d.opts.filter((o) => o !== d.want).every((o) => { const h = drawn(i, wrongSt(i, o)); return h.marked && (h.outs.some((x) => x.bad) || h.bands.some((b) => b.bad) || h.curves.length > 0 || h.marked); });
+      return quiet && right && wrongs;
+    }));
+  K.check('The picture tells the truth: every dot on a graph sits on its curve at its place; the one-over\'s two shadows run on at both ends with a hole at 0; the root\'s both start with a filled dot at 0 and run on; and every shadow set by two ends ends in two filled dots', () => {
+    const onCurve = (r) => r.hits.filter((h) => !h.bad).every((h) => {
+      const g = G[h.gk], P = scales(g);
+      return fOf(g, h.x).some((y) => close(y, h.y)) && close(h.px, P.sx(h.x), 1e-6) && close(h.py, P.sy(h.y), 1e-6);
+    });
+    const states = [];
+    STEPS.forEach((d, i) => {
+      if (d.show) states.push([i, blank()]);
+      else { states.push([i, blank()], [i, solvedSt(i)]); d.opts.forEach((o) => { if (o !== d.want) states.push([i, wrongSt(i, o)]); }); }
+    });
+    const a = states.every((q) => onCurve(drawn(q[0], q[1])));
+    const rr = drawn(idx('The one-over'), blank()), rq = drawn(idx('The square root'), blank());
+    const one = rr.bands.length === 2 && rr.bands.every((b) => b.segs.length === 2 && b.segs[0][2] === 'arrow' && b.segs[0][1] === 0 && b.segs[0][3] === 'hole' && b.segs[1][0] === 0 && b.segs[1][2] === 'hole' && b.segs[1][3] === 'arrow');
+    const root = rq.bands.length === 2 && rq.bands.every((b) => b.segs.length === 1 && b.segs[0][0] === 0 && b.segs[0][2] === 'dot' && b.segs[0][3] === 'arrow');
+    const ends = [idx('The transmitter'), idx('The square'), idx('The flow meter')].every((i) => { const r = drawn(i, blank()); return r.bands.length === 2 && r.bands.every((b) => b.segs.length === 1 && b.segs[0][2] === 'dot' && b.segs[0][3] === 'dot'); });
+    return a && one && root && ends;
+  });
+  K.check('Every demonstration has finished arriving within its 3.4 s, none starting before the 0.35 s screen fade ends; every answer\'s motion, right or wrong, within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity;
+      S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => {
+      if (d.show) { const r = timed(i, blank(), d.dur); return r && d.dur <= 4.5 && d.dur >= 3 && earliest >= FADE; }
+      return timed(i, solvedSt(i), 2.5) && d.opts.filter((o) => o !== d.want).every((o) => timed(i, wrongSt(i, o), 2.5));
+    });
+    T = keepT; paint();
+    return ok;
+  });
+
+  K.ready();
+</script>

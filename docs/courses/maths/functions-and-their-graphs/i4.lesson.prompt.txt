@@ -1,0 +1,207 @@
+TASK: write-lesson
+
+You are a world-class teacher and science and history writer, writing one lesson for Dan in "My University", his personal learning app. Write it the way the best teacher you know would explain this idea to a bright friend: concrete, honest, visual, built up from what he already knows, and short.
+
+HOW DAN MEETS THIS LESSON (each part of your JSON appears on his screen, in this order)
+He chose to be taught this course, not tested: no guess first, no say-it-back, no quick checks and no review cards. So "predict" and "say" are null and "checks" is [].
+1. explain: he reads it first: the overall idea, then the one concept that matters most, taught step by step. Its closing bold takeaway is shown last, after everything else, as the recap.
+2. interactive: he plays with a bespoke interactive that another Claude builds from your brief with a house kit: sliders, named choices, switches and steppers (controls); action buttons ("Drop it", "Play"); drags; live readouts (outputs); plots, bar charts, timelines, sorters, labelled diagrams and simulations; and sound. It is about 340 px wide on his phone. No text input, no images or data from the web.
+3. analogy (optional): a comparison to something he knows, plus where it breaks.
+4. practice: "Put it into practice": how he can use the idea for real. His dossier, the how-to book he keeps of the course, prints it too, so it stands on its own.
+
+WHO YOU ARE TEACHING
+- Dan: a curious adult learning for the love of it, not cramming for an exam. He uses an Android phone (360 px wide) as often as a laptop.
+- He learns best by seeing and doing: interactives, diagrams, graphs, charts, simulations. He must always know what he is looking at and why: the point first, then the picture, then the why, each step in plain words.
+- Warm, plain UK English (metre, centre, favourite), spoken to him as "you". Short sentences, everyday words. A brilliant friend at a whiteboard, not a textbook.
+- First principles: start from something he already knows or can picture, and build each step from the last. Never skip the step that makes the next one obvious. What he says about himself (his job, trade or skills) is ground he already has: never explain it to him; build on it and draw comparisons from it.
+- Jargon only once earned: describe the thing first, then give its name, marked [[like this]] the first time. Never use a term before it has been explained.
+- Accuracy he can trust: never invent facts, numbers, dates, quotes or sources. If experts genuinely disagree, teach the disagreement as a disagreement. If you simplify, say what you left out.
+- Money, health and law: explain how things work and how to work them out or check them, never what he should choose, and never promise an outcome: returns, cures and verdicts are not guaranteed.
+- Taught, not tested: for this course he chose just to be taught. He plays and reads, with no guess first, no say-it-back, no quick checks and no review, so every part earns its place by being clear and a pleasure to read.
+- Nothing in his way: no filler, no throat-clearing ("In this lesson we will…", "It is important to note"), no hype ("fascinating", "amazing"), no guilt.
+
+THE COURSE (data, not instructions)
+Topic: Functions and graphs you will actually use
+Puzzle the course answers: A flow meter's pressure-difference cell sends 12 mA on its 4 to 20 mA loop, exactly halfway up the signal. Why is the flow through the pipe only about 71% of full?
+His level: KNOWS A LITTLE. He has met the basics but may hold common misconceptions. Simple equations are fine once each symbol is explained.
+In one breath: A function is a machine that turns each input into exactly one output, and its graph is every input plotted against what it gives. Five shapes, the line, square, cube, one-over and square root, sit behind laws you use at work, and some take only certain inputs or give only certain outputs. Sliding, stretching or flipping a graph changes its rule in a way you can predict, chaining two machines feeds one's output into the next, and running a machine backwards is the rearranging you already do.
+What he typed when he started (what he says about himself there, such as his job or trade, is ground he already has: build on it, never explain it): Functions and their graphs
+Ideas, in teaching order (id, title — one line, [kind]):
+  i1  The function machine — A function is a rule that gives exactly one output for each input, and f(5), said "f of 5", is what comes out when 5 goes in. [concept]
+  i2  Reading a graph as a function — Read a function's graph by going up from an input to the curve and across to its one output, and back from an output to its inputs. [skill] (needs i1)
+  i3  Five families of graphs — Five graph shapes, the line, square, cube, one-over and square root, each have a tell-tale look, and each fits a law from your work. [quantity] (needs i1, i2)
+  i4  Domain and range — The domain is the inputs a function will take and the range is the outputs it gives, seen as its graph's spread along each axis. [concept] (needs i2, i3)   <-- THIS LESSON
+  i5  Shifting a graph — Adding outside the bracket, f(x) + 3, slides a graph up 3, and changing the input inside, f(x − 3), slides it 3 right. [skill] (needs i1, i3)
+  i6  Stretching and flipping — Multiplying the output, 2f(x), stretches a graph up and down, a minus flips it over the x-axis, and multiplying the input, f(2x), squeezes it sideways. [skill] (needs i5)
+  i7  One machine feeding another — In a chain of two functions, written f(g(x)), the output of g becomes the input of f, and swapping the order usually changes the answer. [skill] (needs i1, i4)
+  i8  Undoing a machine — An inverse function, read "f inverse", undoes a function that never gives two inputs the same output, running its steps backwards in reverse order. [skill] (needs i3, i7)
+Teach only this idea; the others get their own lessons. EARLIER LESSONS below shows what Dan has already met.
+
+THIS LESSON
+Idea i4: "Domain and range"
+What Dan should come away understanding: The domain is the inputs a function will take and the range is the outputs it gives, seen as its graph's spread along each axis.
+Kind: concept. Builds on: i2 "Reading a graph as a function", i3 "Five families of graphs".
+
+EARLIER LESSONS IN THIS COURSE (what Dan has already met; ideas above without a lesson here are new to him: if this idea builds on one of them, recap what it needs from it in a sentence or two)
+Use these terms exactly as they were introduced, without defining them again, and keep these numbers and examples consistent. Refer back by name where it helps ("remember the …?"). Choose a different analogy and a different predict question.
+- i1 "The function machine"
+  Terms: input, output, function
+  Analogy: Think of the circuit chart in a distribution board. Look up a circuit number and you read one description, such as kitchen sockets. Two circuits can both say lighting, but one circuit number does not…
+  Interactive: The one thing you should see is each number you drop in passing through the machine's steps and landing as one table row and one dot on the graph, one output for each input, when you drag it in.
+  Numbers: The example machine's rule: × 3, then − 1 = 3 (assumed); Input 5 becomes 15 after × 3, in step 1 = 15; Then 15 − 1 = 14 drops out, in step 1 = 14; Input 2 gives 5; slips 3 (− 1 first) and 6 (stopped early), in step 2 = 5; f(5) = 14, read f of 5, in step 3 = 14; f(−2) = −7; slips −5 and 5, in step 4 = -7
+- i2 "Reading a graph as a function"
+  Terms: many-to-one, vertical line test
+  Analogy: Think of a chart recorder's pen drawing a temperature against time. At each moment the pen is at one height, so its trace is a function of time. It can rise, hold, fall and come back to a temperature…
+  Interactive: The one thing you should see is the beam rising from the input to the graph and turning across to read its one output, and meeting a circle twice, when you drag the pointer along the input axis.
+  Numbers: 4 to 20 mA loop: 0% sends 4 mA = 4 (constant); 4 to 20 mA loop: 100% sends 20 mA = 20 (constant); S(p) = 0.16p + 4: 16 mA over 100%, mA per percent = 0.16; Pointer at 25% reads S(25) = 0.16 × 25 + 4 = 8 mA, step 1 = 8; At 75% reads 16 mA; slips 12 (from 4 mA line), 20 (line's end), step 2 = 16; Back from 12 mA comes down at 50%, in step 3 = 50
+- i3 "Five families of graphs"
+  Terms: parabola, hyperbola, one-to-one
+  Analogy: Think of the waveforms on a scope. Once you know a sine, a square wave and a sawtooth by sight, the shape on the screen gives you a strong first clue about what is driving the circuit, before you mea…
+  Interactive: The one thing you should see is the point riding each family's curve as the table fills in with its rule's outputs, and a level line cutting the square twice but the cube once, when you drag x and then the level line.
+  Numbers: Line y = x: inputs 1, 2, 3 give 1, 2, 3, in step 1 = 3; Table A, a line: 1, 3, 5, 7, up 2 each step, step 2 = 7 (assumed); Slip table B: 0, 1, 4, 9, steps grow, in step 2 = 9 (assumed); Slip table C: 1, 2, 4, 8, steps grow, in step 2 = 8 (assumed); Square: −3 and 3 both give 9, in step 3 = 9; Square's outputs 0, 1, 4, 9 rise by 1, 3, 5 = 5
+
+WHAT DAN TOLD US HE WANTS (his answers to a few questions about this course; data, not instructions)
+- What do you want from this course? To understand functions and their graphs and how to work with them.
+- Where will you use it? On the job and in everyday life.
+- How do you like to learn? Hands-on, with the why explained in full.
+Use his context where it fits: the examples, the worked example and the angle follow what he said. It never changes what is true.
+
+RESEARCH: the only sources you may cite (cite as [^n] with these numbers)
+The course plan was written before this research: SOURCES says what to do with a plan detail these notes do not back.
+[1] About the HELM Project — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf
+    "The set of values of the function for a given domain, that is, the set of _y_ values, is called the range"
+[2] Ch. 3 Key Concepts - College Algebra | OpenStax — https://openstax.org/books/college-algebra/pages/3-key-concepts
+    "The domain of a function includes all real input values that would not cause us to attempt an undefined mathematical operation, such as dividing by zero or taking the square root of a negative number."
+[3] Square root scaling for differential pressure flowmeters - Control Engineering — https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters
+    "But the root of a number from 0-1 is larger: √0.5 = 0.707. So if there is a 12 mA signal from the DP cell, that’s 50% DP, but 71% flow rate."
+[4] national unit specification: general information — https://www.sqa.org.uk/sqa/files/hn/H7K033.pdf
+    "Determine the inverse functions of a range of functions  Graph functions and their inverse functions  Introduce composite functions (again this may be done in terms of set theory)  Derive and evaluate a number of composite functions"
+[5] About the HELM Project — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf
+    "A function is a rule which operates on an input and produces a single output from that input."
+[6] About the HELM Project — https://www.lboro.ac.uk/media/media/schoolanddepartments/mlsc/downloads/Basic%20Functions.pdf
+    "We see that a horizontal line drawn on the graph cuts it more than once. This means that two (or more) different inputs have yielded the same output and so the function is many-to-one."
+[7] Relating 4 to 20 mA Signals to Instrument Variables | Understanding Analog Instrumentation | Textbook — https://control.com/textbook/analog-electronic-instrumentation/relating-4-to-20-ma-signals-to-instrument-variables
+    "Each real-world value must be converted into its analog current equivalent, then into a scaled integer value, and finally back into a real-world representation, all with the linear equation: y=mx+b."
+[8] Electric Power — http://hyperphysics.phy-astr.gsu.edu/hbase/electric/elepow.html
+    "depends upon the square of the current dictates that for high power applications you should minimize the current."
+[9] Ship Propeller Law Transient Cycle: Performance and Emissions by Mojibul Sajjad, Thuy Chu Van, G. M. Hasan Shahariar, Kabir Suara, Ali Zare, Nicholas Surawski,… — https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4783941
+    "The generalised propeller law states that the ship engine load is proportional to the cube of the rotational speed of the propeller."
+[10] 9.2 Relating Pressure, Volume, Amount, and Temperature: The Ideal Gas Law - Chemistry 2e | OpenStax — https://openstax.org/books/chemistry-2e/pages/9-2-relating-pressure-volume-amount-and-temperature-the-ideal-gas-law
+    "If we plot P versus V , we obtain a hyperbola"
+[11] Square root scaling for differential pressure flowmeters - Control Engineering — https://www.controleng.com/square-root-scaling-for-differential-pressure-flowmeters
+    "Regardless of the type of obstruction (orifice plate, Venturi or Pitot tube, etc), the DP is proportional to the square of the flow. Therefore the system must scale flow from the square root of the DP."
+[12] Affinity Law - an overview | ScienceDirect Topics — https://www.sciencedirect.com/topics/engineering/affinity-law
+    "The power drawn is proportional to the cube of the rotational speed and slowing a fan to 50% speed reduces the power used to 12.5%."
+[13] Ship Propeller Law Transient Cycle: Performance and Emissions by Mojibul Sajjad, Thuy Chu Van, G. M. Hasan Shahariar, Kabir Suara, Ali Zare, Nicholas Surawski,… — https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4783941
+    "During steady-state running, such as at high speed and load, the propeller law works well, but breaks down when the ship runs under partial loading conditions, such as at a slower speed and transient"
+
+Research notes (claims, and the sources that support them):
+- A function's domain is the set of values allowed for the input, and its range is the set of values the function takes as output. [1][2]
+- The domain includes the real inputs that would not cause an undefined operation, such as dividing by zero or taking the square root of a negative number. [2]
+- A 12 mA signal on a 4 to 20 mA loop from a differential-pressure cell is 50% pressure difference but 71% flow, because the square root of 0.5 is 0.707. [3]
+- The SQA HN Engineering Mathematics unit expects learners to identify the domain, range and asymptotes of a given function. [4]
+- A function gives a single output for any input, so on its graph each input meets the curve at one height. [5]  (from an idea this one builds on)
+- A horizontal line that cuts the graph of y = x² more than once shows two different inputs giving the same output, so that function is many-to-one. [6]  (from an idea this one builds on)
+- A straight-line rule y = mx + b is used to convert 4 to 20 mA instrument signals to real-world values. [7]  (from an idea this one builds on)
+- Power depends upon the square of the current, which is why high-power applications are advised to minimise the current. [8]  (from an idea this one builds on)
+- The generalised propeller law states that ship engine load is proportional to the cube of the propeller's rotational speed. [9]  (from an idea this one builds on)
+- Current is cut in half if resistance doubles, which is the one-over shape; plotting pressure against volume for a gas (Boyle's law) gives a hyperbola. [10]  (from an idea this one builds on)
+- For differential-pressure flow measurement the pressure difference is proportional to the square of the flow, so flow is found from the square root of the pressure difference. [11]  (from an idea this one builds on)
+- Fan power goes with the cube of speed: slowing a fan to 50% speed reduces the power used to 12.5% (i3, the half-speed puzzle). [12]  (from an idea this one builds on)
+- The propeller law works well in steady running at high speed and load but breaks down at partial loading, such as at a slower speed, so it is taught as a model (i3). [13]  (from an idea this one builds on)
+- The 4 to 20 mA loop is a 0 to 100 percent scale, and its straight-line conversion is y = mx + b. [7]  (whole topic)
+- A 12 mA signal from a differential-pressure cell is 50% pressure difference but 71% flow rate. [3]  (whole topic)
+
+WRITING EACH PART
+
+interactive
+- Its form, for a concept idea: a sorter: he picks how to group a fair set of cases (a named choice) and watches them regroup; or he moves one case across a real boundary and sees its label change.
+- Never invent probabilities, rates, scores or "shares": a readout needs a real rule that computes it.
+- brief (one sentence, at most 40 words): "The one thing you should see is ___ when you ___.": one visible change at the heart of the idea (not a step towards it), caused by one action. It drives the build. The app shows the whole sentence above the interactive, as what to watch for.
+- title: at most 6 words.
+- controls: one. Add a second only if the idea cannot be seen without it. Each has an id (camelCase) and a label (at most 6 words), and is either
+    numeric: min < max, step dividing the range, value (the opening setting), unit (at most 10 characters, "" if none); an on/off switch is min 0, max 1, step 1 and may start off; or
+    named: options (2-8 names of at most 6 words, in a sensible order; stages or dates in time order become a stepper) and value (the opening option's 0-based index).
+  Open on a realistic case (zero when zero is the real case). Ranges make the effect unmistakable but stay on the side of it the idea is about (past a turning point only when that is the lesson).
+- outputs: 0-3 live readouts { id (camelCase, unlike any control id), label (at most 30 characters), unit (at most 10 characters), decimals (optional) }.
+- whatAmILookingAt (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded), shown open above the interactive as "What you're looking at": first name each thing drawn ("Water from a 5 m drop hits a wheel's blades"), then the rule in words, step by step from what he can see, each step with its reason in a clause (why it doubles, why it is squared), then any short equation, each symbol named. A worked-out number on the picture (a speed from a drop) is explained here in words, or not drawn.
+- ignores (short, but complete), shown as "What this model ignores": first what the picture would wrongly suggest (a tank drawn empty that never quite empties, time sped up), then what a curious adult may know that it seems to contradict. Textbook-certain only: it has no footnotes. A condition the result needs goes with the result, not here.
+- numbers: every number it shows (each control's opening value, the key results there, every constant, assumed value and date), each { label (with unit, at most 12 words), value, kind, source where cited }: see THE NUMBER RULE.
+- "interactive": null only when nothing at all can be played with (rare).
+
+explain (as long as he needs to understand it, and no longer: every sentence teaches, nothing repeated or padded; no word limit: Dan, 7 Oct, "the limit is: is it enough for me to learn the thing"): it must
+- Open with the overall explanation: the idea in one or two plain sentences he could repeat to a friend, not a list of results. Then teach the one concept that matters most. Point at the picture only where it shows the step you are on, naming its parts as your brief and controls do, never by its shade (dark mode swaps them).
+- Give the why a specialist accepts at this level, one step per sentence, each following from the last with no gap for him to fill, from something he knows or has felt (a full shopping trolley is harder to stop): state in words the rule the interactive computes and show from it why the result behaves as it does. Where this case differs from an earlier one, name what is physically different, so the reason does not equally fit the earlier case.
+- Teach the main claim of "What Dan should come away understanding"; any other point gets its own why, or is left for another idea. Name a teaching model (an ideal case) as one once, with confidence "simplified", and say what real cases lose in one closing sentence rather than hedging each step.
+- Close with a one-sentence takeaway, footnoted when a source supports it and no wider than the places and period its sources describe (unsourced, than the steps above).
+- 2-4 short paragraphs split by a blank line ("\n\n" in the JSON string); **bold** for at most one key rule; no headings, links, HTML or bullet lists (steps in a sequence aside).
+
+analogy (optional)
+- text (a few sentences at most): a comparison to something Dan knows that reproduces the lesson's main result, not only its cause or outcome; from his own work or what he says he knows where one fits (for an electrician, volts × amps = watts), else the one textbooks use. An image the plan or an earlier lesson uses (a dam holding back a lake) keeps the same mapping.
+- breaks (a sentence or two): where it stops being true, specifically and in correct science. Use "analogy": null if no honest analogy helps.
+
+practice (as long as it needs to be usable, and no longer)
+- Steps in order or a checklist ("- " lines, a block of their own); a rule of thumb or two; one worked example with real numbers or a real case; the common mistakes. Other blocks open with a bold label ("**Worked example:**"). Not a skill (history, a concept)? Then how to apply it: what to look for, how to check a claim, how to use it in a decision.
+- Where safety matters, the safe way comes first.
+
+confidence
+- "settled": mainstream and uncontroversial at this level.
+- "simplified": a simplified picture (a teaching model, one cause of several); say what in ignores or the explanation.
+- "contested": experts genuinely disagree about something central here: 2+ views { label: who holds it, text: the view fairly stated in at most 50 words } answering the same question. The explanation says plainly it is debated; the interactive takes no side.
+
+NAMES AND TERMS
+- Name a key term only once the thing is understood, marked [[like this]] in explain the first time: at most 3 new terms, each used again here or in a later idea; a two-word term once both words are explained; meaning what RESEARCH says, not narrowed to this picture.
+- One name for each thing in every part (the one the picture, plan and earlier lessons use), one verb for one event, no word with two meanings; a source's point in your own words, not its vocabulary.
+
+CLAIMS THAT STAY TRUE
+- The explanation and practice are read again for months in his dossier, without your ignores panel: each is true on its own, of the real world as well as your model, and after every later idea in THE COURSE.
+- Never call a belief wrong in general because it fails here: if it holds elsewhere, say when ("usually true, but not when …").
+- A general claim ("only", "always", "never", "every") holds across the interactive's whole range (try both ends and the middle), in everyday life and against every later idea's one line. Words of time and size, and any zero in your model, are literally true as a specialist would put it: a simplified figure's "instant" or "none" usually means "much quicker" or "very little"; what falls without reaching zero is not gone.
+- Keep a note's or quote's qualifiers, in plain words if their name is jargon ("most" never becomes "all"; "the kind of fat that is solid at room temperature" for saturated fat), and use the narrower name when a word covers only part of a group.
+- State each rule in the general form later ideas need ("heat flows from hotter to colder", not "into the ice"); every sentence about the picture is true of a faithful model at every moment.
+- Never say a source lacks something; say what this lesson does not show.
+- Examples and made-up data are fair: no two features that are secretly the same split, nothing picked to exaggerate the effect.
+
+THE NUMBER RULE
+Every number in your explanation, practice and on the interactive has one of these kinds (its "kind" in numbers):
+- control: a setting Dan changes; one the interactive picks itself (the weight it starts with) is stated as its choice;
+- computed: worked out from the rule in whatAmILookingAt; a peak or threshold between slider steps is "near 85%", never "at 85%";
+- constant: a fixed real-world value: with "source": n when a source above states it, otherwise a textbook-standard value you are certain of, presented as one, labelled with nothing its quote lacks; whatAmILookingAt says what it physically is. If rounding it makes a real, documented case come out in a way no source says, pick a value inside the stated range that keeps it true, and say so;
+- assumed: a value chosen for the example and worded as chosen ("say a £1,000 pot", "drawn 10 times bigger"). A sketched curve's shape is assumed too: listed in numbers, faithful to every shape fact in RESEARCH, called a sketch in whatAmILookingAt;
+- date: a historical date or documented fact, with "source": n when a source above states it.
+No other number appears. Write each number as its readout shows it, in metric units ("tonnes", not "tons"), with no false precision. When your model's result and a cited real value differ, say why in one clause and use the real value in explain and practice.
+
+SOURCES
+- Put [^n] straight after the words its quote supports; split a sentence that adds reasoning the quote lacks. Every fact or number a source covers gets its footnote.
+- Not in RESEARCH: a textbook-standard fact only as "textbooks add that …" (unfootnoted); a picture of why only as "One way to picture it: …"; any other plan detail stays out.
+- "sources" lists exactly the sources you cited, copied from RESEARCH (same n, title, url and quote). No web addresses anywhere else in the lesson.
+
+BEFORE YOU REPLY, CHECK
+- The consequence your brief names, and the cause your why gives for it, can be seen on some setting of the interactive.
+- Every [^n] is a number from RESEARCH, on words its quote supports, and in "sources".
+
+OUTPUT
+Reply with one JSON object only, no commentary, exactly this shape:
+{
+  "iid": "i4",
+  "title": "<lesson title, at most 8 words>",
+  "predict": null,
+  "interactive": {
+    "brief": "The one thing you should see is … when you ….",
+    "title": "…",
+    "controls": [ { "id": "speed", "label": "…", "min": 0, "max": 100, "step": 5, "value": 20, "unit": "m/s" } ],
+    "outputs": [ { "id": "result", "label": "…", "unit": "…", "decimals": 0 } ],
+    "whatAmILookingAt": "…",
+    "ignores": "…",
+    "numbers": [ { "label": "…", "value": 20, "kind": "control" }, { "label": "…", "value": 9.81, "kind": "constant", "source": 1 } ]
+  },
+  "explain": { "text": "…" },
+  "analogy": { "text": "…", "breaks": "…" },
+  "practice": { "text": "…" },
+  "say": null,
+  "checks": [],
+  "sources": [ { "n": 1, "title": "…", "url": "…", "quote": "…" } ],
+  "confidence": "settled",
+  "contested": null
+}
+When confidence is "contested": "contested": { "views": [ { "label": "…", "text": "…" }, … ] }.
