@@ -1,0 +1,1082 @@
+<!-- kind: quantity -->
+<style>
+  [hidden] { display: none !important; }
+  .pz, .lead, .caption { max-width: 30rem; }
+  .pz > * + *, #stepbox > * + * { margin-top: 14px; }
+  /* The stepper is the page's step control: its dots are the progress bar; Back and Continue are below. */
+  .pz .k-stepper { gap: 0; }
+  .pz .k-stepper .k-label, .pz .k-stepper-nav { display: none; }
+  .pz .count { margin-top: 10px; }
+  .task { font-size: 1.2rem; font-weight: 700; line-height: 1.5; margin-top: 4px; }
+  .task.show { font-size: 1.12rem; font-weight: 400; line-height: 1.6; }
+  .nw { white-space: nowrap; }
+  .v { font-style: italic; }
+  /* The readout above the grid: the rule, what its letters mean, then the working. */
+  .ro { border-left: 3px solid var(--k-accent2); padding: 4px 0 4px 12px; }
+  .ro p { margin: 0; }
+  .ro .rule { font-weight: 700; line-height: 1.5; }
+  .ro .ronote { color: var(--k-muted); font-size: .9rem; line-height: 1.45; }
+  .ro .wk { line-height: 1.55; min-height: 1.55em; margin-top: 4px; }
+  /* A row that rewrites while a handle is dragged keeps two lines, so the grid never jumps under the finger. */
+  .ro .wk.live { min-height: 3.1em; }
+  .ro .wk .lab { color: var(--k-muted); font-weight: 700; }
+  .ro .pc { white-space: nowrap; }
+  .ro .pc.end { font-weight: 700; color: var(--k-accent2); }
+  .ro .pc.q { color: var(--k-muted); }
+  .scene { display: block; width: 100%; max-width: 22rem; margin-inline: auto; touch-action: pan-y; }
+  .scene.grab { touch-action: none; }
+  /* The squared grid, its axes and their numbers. */
+  .scene .gl { stroke: var(--k-line); stroke-width: 1; }
+  .scene .ax { stroke: var(--k-strong); stroke-width: 1.5; }
+  .scene .tk { font: 400 13px var(--k-font); fill: var(--k-muted); }
+  .scene .at { font: 600 13px var(--k-font); fill: var(--k-muted); }
+  /* The line (navy), an answer's line (teal) and the faint copy that stays put. */
+  .scene .ln { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .ln.alt { stroke: var(--k-accent); }
+  .scene .gh { stroke: var(--k-muted); stroke-width: 2; stroke-opacity: .5; stroke-linecap: round; fill: none; }
+  /* The small step under the m handle: 1 across, then m up or down. A second step is teal. */
+  .scene .tri { fill: var(--k-accent2); fill-opacity: .07; stroke: none; }
+  .scene .tri.teal { fill: var(--k-accent); }
+  .scene .sh { stroke: var(--k-accent2); stroke-width: 2.5; stroke-linecap: round; fill: none; }
+  .scene .sh.teal { stroke: var(--k-accent); }
+  .scene .hd { fill: var(--k-accent2); stroke: none; }
+  .scene .hd.teal { fill: var(--k-accent); }
+  /* The round c dot, the m handle, the x-intercept diamond, test points (hollow, lit when they fit). */
+  .scene .pt { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .mh { fill: var(--k-accent2); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .xi { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .tp { fill: var(--k-bg); stroke: var(--k-muted); stroke-width: 2.2; }
+  .scene .tp.on { fill: var(--k-accent); stroke: var(--k-bg); stroke-width: 2; }
+  .scene .halo { fill: var(--k-accent); fill-opacity: .16; stroke: var(--k-accent); stroke-opacity: .55; stroke-width: 1.5; }
+  .scene .gap { stroke: var(--k-accent); stroke-width: 1.6; stroke-linecap: round; }
+  /* A faint ring marks a handle that can be dragged. */
+  .scene .ring { fill: none; stroke: var(--k-accent2); stroke-opacity: .4; stroke-width: 1.5; }
+  /* Labels carry a halo of the page colour, so a line passing behind one never strikes through it. */
+  .scene .lab { font: 700 14px var(--k-font); fill: var(--k-ink); paint-order: stroke; stroke: var(--k-bg); stroke-width: 4px; stroke-linejoin: round; }
+  .scene .lab.nv { fill: var(--k-accent2); }
+  .scene .lab.tl { fill: var(--k-accent); }
+  .scene .lab.mu { fill: var(--k-muted); font-weight: 600; }
+  .scene .v { font-style: italic; }
+  .scene #art *, .scene #labs * { pointer-events: none; }
+  .scene .grip { fill: var(--k-bg); fill-opacity: 0; stroke: none; cursor: grab; touch-action: none; }
+  .scene .grip:active { cursor: grabbing; }
+  .scene .grip:focus { outline: none; }
+  .scene .grip:focus-visible { stroke: var(--k-accent); stroke-width: 3; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .row .k-btn { flex: 1 1 7rem; }
+  .replay { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; }
+  .replay .k-btn { flex: 0 0 auto; min-height: 44px; padding-left: 16px; padding-right: 16px; font-size: .95rem; white-space: nowrap; }
+  /* The answers stay on one row, each label whole; longer ones stack one to a row. */
+  .row.picks { flex-wrap: nowrap; }
+  .picks .k-btn { font-size: 1.15rem; min-height: 56px; flex: 1 1 0; min-width: 0; white-space: nowrap; padding-inline: 6px; }
+  .row.picks.long { flex-direction: column; gap: 8px; }
+  .picks.long .k-btn { flex: 0 0 auto; width: 100%; min-height: 48px; }
+  .picks .k-btn[aria-pressed="true"] { background: var(--k-accent2); color: var(--k-on-accent2); border-color: var(--k-accent2); }
+  .fb { font-weight: 700; min-height: 1.5em; margin-top: 10px; }
+  .pz.ask .fb:empty { min-height: 0; }
+  .fb.right { color: var(--k-good); }
+  .fb.wrong { color: var(--k-ink); }
+  .why { line-height: 1.6; }
+  .done { line-height: 1.6; }
+  .done strong { color: var(--k-accent2); }
+  .done .row { margin-top: 14px; }
+  /* Each new screen settles in softly: its words and picture fade in and rise 4 px. */
+  #stepbox.enter, #done.enter { animation: screen-in .35s ease-out both; }
+  @keyframes screen-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  html.k-testing #stepbox.enter, html.k-testing #done.enter { animation: none; }
+  @media (prefers-reduced-motion: reduce) { #stepbox.enter, #done.enter { animation: none; } }
+</style>
+
+<p class="lead">A squared grid with a straight line, a round c handle where it crosses the y-axis and an m handle 1 along it. The plumber's £40 call-out and £30 an hour are example values.</p>
+
+<div class="pz" id="pz">
+  <div id="prog"></div>
+  <div id="stepbox">
+    <p class="k-label count" id="count"></p>
+    <p class="task" id="task"></p>
+    <div class="ro" id="ro">
+      <p class="rule" id="rule"></p>
+      <p class="ronote" id="ronote"></p>
+      <div id="rows"></div>
+    </div>
+    <svg class="scene" id="scene" viewBox="0 0 340 320" width="100%" role="img" aria-label=""><g id="art"></g><g id="labs"></g><g id="ui"></g></svg>
+    <div class="replay" id="replay"></div>
+    <div class="row picks" id="picks"></div>
+    <div class="row acts" id="acts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="note why" id="why" hidden></div>
+  </div>
+  <div class="panel done" id="done" hidden>
+    <p><strong id="finish"></strong></p>
+    <div class="row" id="again"></div>
+  </div>
+  <div class="row nav" id="nav"></div>
+</div>
+
+<p class="caption">In y = mx + c, m is the climb for each 1 along and c is where the line crosses the y-axis.</p>
+
+<script>
+  // ---------- the lesson: SHOW steps demonstrate, DO steps are puzzles ----------
+  // view: the grid's window (xs, ys: what one square is worth across and up). m, c: the step's rule;
+  // keys: a SHOW step's rules in turn, each starting its move at `at` and taking `tr` seconds.
+  // drag: 'cm' the c and m handles can be dragged, 'p' the test point P. tl: when each part of a
+  // demonstration arrives (seconds). A puzzle: its options and their values (vals), want, each wrong
+  // option's slip (a test on its value, worked from the puzzle's own rule) and its own hint; q: the
+  // labels that read ? until it is answered; hide: the parts drawn only once it is answered.
+  const PICK = 'Tap one of the answers.';
+  const RULE = '`y = mx + c`';
+  const NOTE = '`m` is the climb for each 1 along, and `c` is where the line crosses the y-axis.';
+  const NOTE_X = '`c` is where `x = 0`, on the y-axis. The *x-intercept* is where `y = 0`, on the x-axis.';
+  const NOTE_P = 'Lines with the same `m` and a different `c` are parallel.';
+  const NOTE_D = 'Get `y` alone on the left before reading `m` and `c`.';
+  const SQ = (x0, x1, y0, y1, hmax) => ({ x0, x1, y0, y1, xs: 1, ys: 1, xt: 'x', yt: 'y', run: '1', hmax: hmax || 250 });
+  const BILL = { x0: 0, x1: 4, y0: 0, y1: 180, xs: 1, ys: 20, xt: 'Hours, x', yt: 'Bill in £, y', run: '1 hour', hmax: 250, free: true };
+  const MMAX = 4;   // the m handle turns the line no steeper than 4 up or down for each 1 along
+  const same = (a, b, tol) => {
+    const t = tol == null ? 1e-9 : tol;
+    return Array.isArray(a) ? Array.isArray(b) && a.length === b.length && a.every((x, n) => Math.abs(x - b[n]) <= t) : !Array.isArray(b) && Math.abs(a - b) <= t;
+  };
+  const STEPS = [
+    { show: true, kind: 'from2', name: 'A rule for the line', view: SQ(-1, 6, -1, 10), m: 2, c: 1, pts: [[1, 3], [4, 9]], dur: 4.0,
+      tl: { r0: 0.5, cdot: 1.0, clab: 1.2, step: 1.5, mlab: 2.6, r1: 2.6, lit: 3.1, lit2: 3.4 },
+      text: 'The line from lesson 1 through A and B has a gradient of 2. Going back 1 from A to `x = 0` drops it 2, so it crosses the y-axis at 1, its *intercept*. From there each 1 along adds 2, so the line\'s rule is `y = 2x + 1`, and B fits it.' },
+    { kind: 'test', name: 'On the line?', view: SQ(-1, 8, -1, 10), m: 2, c: 1, x: 3, ans: 'point', hide: { cands: true },
+      opts: ['(3, 7)', '(7, 3)', '(3, 6)'], vals: { '(3, 7)': [3, 7], '(7, 3)': [7, 3], '(3, 6)': [3, 6] }, want: '(3, 7)',
+      slip: { '(7, 3)': (d, v) => same(v, [d.m * d.x + d.c, d.x]), '(3, 6)': (d, v) => same(v, [d.x, d.m * d.x]) },
+      task: 'Which point is on the line `y = 2x + 1`?', ask: 'On the line: ?',
+      why: 'Put each point\'s x into the rule and see whether you get its y. `2 × 3 + 1 = 7`, so (3, 7) is on the line. For (7, 3), `2 × 7 + 1 = 15`, not 3, and for (3, 6), `2 × 3 + 1 = 7`, not 6.',
+      hint: 'Not quite. Put the point\'s x into the rule and see whether you get its y.',
+      hints: { '(7, 3)': 'Not quite. In (7, 3), x is 7, and `2 × 7 + 1 = 15`, not 3.', '(3, 6)': 'Not quite. `2 × 3` is 6, but the rule adds 1, so at `x = 3`, y is 7.' } },
+    { show: true, kind: 'handles', name: 'Two handles', view: SQ(-3, 5, -6, 7, 300), drag: 'cm', dur: 4.8,
+      keys: [{ m: 2, c: 1 }, { m: 2, c: -3, at: 0.7, tr: 0.8, lab: 'Slide c to −3' }, { m: 2, c: 1, at: 2.9, tr: 0.6 }, { m: 0, c: 1, at: 3.6, tr: 0.7, lab: 'Turn m to 0' }],
+      text: 'Slide the round c handle and only c changes, so `y = 2x + 1` becomes `y = 2x − 3`. Turn the line with the m handle and only m changes. At `m = 0` the line lies level, as `y = 0x + 1` is `y = 1`.' },
+    { kind: 'read', name: 'Read the line', view: SQ(-2, 3, -5, 8, 300), m: 3, c: -2, ans: 'rule', q: { m: true, c: true },
+      opts: ['y = 3x − 2', 'y = −2x + 3', 'y = 3x + 2'], vals: { 'y = 3x − 2': [3, -2], 'y = −2x + 3': [-2, 3], 'y = 3x + 2': [3, 2] }, want: 'y = 3x − 2',
+      slip: { 'y = −2x + 3': (d, v) => same(v, [d.c, d.m]), 'y = 3x + 2': (d, v) => same(v, [d.m, -d.c]) },
+      task: 'Which rule fits this line?', ask: 'm = ?, c = ?',
+      why: 'The line crosses the y-axis at −2, so `c = −2`. From there it climbs 3 for each 1 along, so `m = 3`, and the rule is `y = 3x − 2`.',
+      hint: 'Not quite. c is where the line crosses the y-axis, and m is its climb for each 1 along.',
+      hints: { 'y = −2x + 3': 'Not quite. The numbers are swapped. The climb for each 1 along, 3, is m, and the crossing, −2, is c.', 'y = 3x + 2': 'Not quite. The line crosses the y-axis below 0, at −2, so c is −2.' } },
+    { show: true, kind: 'cfirst', name: 'Number first', view: SQ(-2, 4, -4, 6), m: -2, c: 3, drag: 'p', P: [2, -1], step2: true, dur: 3.8,
+      tl: { r0: 0.5, r1: 1.1, step: 1.2, mlab: 2.2, step2: 2.2, r2: 3.0, lit: 3.3 },
+      text: 'In `y = 3 − 2x` the first number is not m. m is the number multiplying x, with its sign, so this is `y = −2x + 3`, with `m = −2` and `c = 3`. Each 1 along, y drops 2.' },
+    { kind: 'cfirst', name: 'Which is m?', view: SQ(-2, 3, -4, 8, 300), m: -3, c: 5, ans: 'm', q: { m: true },
+      opts: ['−3', '5', '3'], vals: { '−3': -3, '5': 5, '3': 3 }, want: '−3',
+      slip: { '5': (d, v) => v === d.c, '3': (d, v) => v === -d.m },
+      task: 'What is m in `y = 5 − 3x`?', ask: 'm = ?',
+      why: '`y = 5 − 3x` is `y = −3x + 5`. The number multiplying x, with its sign, is −3, so `m = −3`, and `c = 5`. The line drops 3 for each 1 along.',
+      hint: 'Not quite. m is the number multiplying x, with its sign.',
+      hints: { '5': 'Not quite. 5 is the number on its own, c. m is the number multiplying x.', '3': 'Not quite. The minus belongs to the 3x, so `m = −3`. The line falls as x grows.' } },
+    { show: true, kind: 'xint', name: 'Where y = 0', view: SQ(-2, 5, -6, 6, 300), m: 2, c: -4, drag: 'cm', xi: true, dur: 2.8, note: NOTE_X,
+      tl: { r0: 0.5, clab: 0.5, xi: 1.4, r1: 1.4, xlab: 1.8 },
+      text: 'c is where `x = 0`, so `y = 2x − 4` crosses the y-axis at (0, −4). The line also crosses the x-axis, where `y = 0`. There `0 = 2x − 4`, so `x = 2`, and (2, 0) is the *x-intercept*.' },
+    { kind: 'xint', name: 'Which crossing?', view: SQ(-2, 4, -7, 6, 300), m: 3, c: -6, xi: true, ans: 'point', hide: { cdot: true, xi: true, step: true }, note: NOTE_X,
+      opts: ['(0, −6)', '(2, 0)', '(0, 6)'], vals: { '(0, −6)': [0, -6], '(2, 0)': [2, 0], '(0, 6)': [0, 6] }, want: '(0, −6)',
+      slip: { '(2, 0)': (d, v) => same(v, [-d.c / d.m, 0]), '(0, 6)': (d, v) => same(v, [0, -d.c]) },
+      task: 'Where does `y = 3x − 6` cross the y-axis?', ask: 'Crossing on the y-axis: ?',
+      why: 'On the y-axis `x = 0`, so `y = 3 × 0 − 6 = −6`, and the crossing is (0, −6), which is c. (2, 0) is where it crosses the x-axis, where `y = 0`.',
+      hint: 'Not quite. On the y-axis, x is 0.',
+      hints: { '(2, 0)': 'Not quite. (2, 0) is the x-intercept, where `y = 0`. On the y-axis, `x = 0`.', '(0, 6)': 'Not quite. The rule takes 6 away, so at `x = 0`, `y = −6`.' } },
+    { show: true, kind: 'par', name: 'Same m', view: SQ(-2, 4, -6, 8, 320), drag: 'cm', ghost: { m: 2, c: 1 }, gx: [-1, 1, 3], dur: 3.6, note: NOTE_P,
+      keys: [{ m: 2, c: 1 }, { m: 2, c: -3, at: 0.7, tr: 1.2 }], tl: { gaps: [2.0, 2.3, 2.6], r2: 2.7 },
+      text: 'A faint copy of `y = 2x + 1` stays put while c slides to −3. Every point drops the same 4, so `y = 2x − 3` runs alongside it, 4 below at every x. Lines with the same m and a different c are *parallel*.' },
+    { kind: 'par', name: 'Parallel', view: SQ(-1, 4, -6, 8, 320), m: 2, c: 1, gx: [1, 3], ans: 'rule', hide: { ans: true }, note: NOTE_P,
+      opts: ['y = 2x − 5', 'y = 5x + 1', 'y = −2x + 1'], vals: { 'y = 2x − 5': [2, -5], 'y = 5x + 1': [5, 1], 'y = −2x + 1': [-2, 1] }, want: 'y = 2x − 5',
+      slip: { 'y = 5x + 1': (d, v) => v[1] === d.c && v[0] !== d.m, 'y = −2x + 1': (d, v) => same(v, [-d.m, d.c]) },
+      task: 'Which line is parallel to `y = 2x + 1`?', ask: 'Parallel: ?',
+      why: 'Parallel lines have the same m. `y = 2x − 5` has `m = 2`, so it runs alongside, 6 below at every x. The other two share `c = 1`, so they meet this line at (0, 1).',
+      hint: 'Not quite. Parallel lines have the same m.',
+      hints: { 'y = 5x + 1': 'Not quite. That line shares c, so it meets this one on the y-axis. Parallel lines share m.', 'y = −2x + 1': 'Not quite. With `m = −2` it falls while this line climbs. Parallel lines have the same m, sign and all.' } },
+    { show: true, kind: 'halve', name: 'Halve every term', view: SQ(-1, 5, -6, 4, 300), m: 1.5, c: -4, k: 2, drag: 'cm', dur: 3.2, note: NOTE_D,
+      tl: { r1: 0.6, r2: 1.3, cdot: 1.3, clab: 1.3, step: 1.6, mlab: 2.7 },
+      text: 'In `2y = 3x − 8`, y has a 2 in front. Halve every term, the 8 too, to get `y = 1.5x − 4`. Now `m = 1.5` and `c = −4`.' },
+    { kind: 'halve', name: 'Divide first', view: SQ(-1, 4, -5, 6, 300), m: 2, c: -3, k: 4, xi: true, ans: 'mc', q: { m: true, c: true }, hide: { xi: true }, note: NOTE_D,
+      opts: ['m = 2, c = −3', 'm = 8, c = −12', 'm = 2, c = 1.5'], vals: { 'm = 2, c = −3': [2, -3], 'm = 8, c = −12': [8, -12], 'm = 2, c = 1.5': [2, 1.5] }, want: 'm = 2, c = −3',
+      slip: { 'm = 8, c = −12': (d, v) => same(v, [d.k * d.m, d.k * d.c]), 'm = 2, c = 1.5': (d, v) => same(v, [d.m, -d.c / d.m]) },
+      task: 'What are m and c for `4y = 8x − 12`?', ask: 'm = ?, c = ?',
+      why: 'Divide every term by 4 to get `y = 2x − 3`. So `m = 2`, and `c = −3`, where the line crosses the y-axis. It crosses the x-axis at 1.5, where `y = 0`.',
+      hint: 'Not quite. Divide every term by 4, then read m and c.',
+      hints: { 'm = 8, c = −12': 'Not quite. y has a 4 in front. Divide every term by 4 first.', 'm = 2, c = 1.5': 'Not quite. 1.5 is where the line crosses the x-axis, where `y = 0`. c is where `x = 0`.' } },
+    { kind: 'bill', name: 'The call-out', view: BILL, m: 30, c: 40, ans: 'rule', q: { m: true, c: true }, tp: [2, 100], hide: { tp: true },
+      opts: ['y = 30x + 40', 'y = 40x + 30', 'y = 70x'], vals: { 'y = 30x + 40': [30, 40], 'y = 40x + 30': [40, 30], 'y = 70x': [70, 0] }, want: 'y = 30x + 40',
+      slip: { 'y = 40x + 30': (d, v) => same(v, [d.c, d.m]), 'y = 70x': (d, v) => same(v, [d.m + d.c, 0]) },
+      task: 'Last one. A plumber charges a £40 call-out plus £30 for each hour. Which rule gives the bill, y pounds, for x hours?', ask: 'y = ?',
+      why: 'The £40 is paid once, before any time passes, so it is c, where the line starts on the y-axis. Each hour adds £30, so `m = 30`. The rule is `y = 30x + 40`, and 2 hours cost `30 × 2 + 40 = 100` pounds.',
+      hint: 'Not quite. The call-out is paid once, and the rate is added for each hour.',
+      hints: { 'y = 40x + 30': 'Not quite. That charges £40 for each hour. The £40 is paid once, before any time passes, so it is c.', 'y = 70x': 'Not quite. That adds the call-out every hour, and charges nothing at 0 hours. The £40 is paid once, so it is c.' } },
+  ];
+  const FINISH = 'Every point on a line that is not straight up fits `y = mx + c`. m, the number multiplying x, is the gradient, the climb for each 1 along. c, the value of y at `x = 0`, is where the line crosses the y-axis, and lines with the same m and a different c are parallel.';
+  // Sources the checks restate (the lesson's own).
+  const SRC1 = 'https://www.bbc.co.uk/bitesize/articles/zjbf9ty';
+  const SRC4 = 'https://www.bbc.co.uk/bitesize/guides/z8383k7/revision/3';
+  // Margins round the grid (numbers left and below, axis names above and below).
+  const ML = 36, MR = 8, MT = 28, W = 340 - ML - MR;
+  const FB = 2.4;   // seconds a puzzle's drawing takes after a right answer or Why?
+  const FADE = 0.35;
+  // When a puzzle's parts arrive after a right answer or Why? (seconds, played at 0.6 of that).
+  const PZ = { cdot: 0.1, step: 0.1, cands: 0.1, ans: 0.1, lab: 0.5, xi: 0.8, xlab: 0.9, tp: 1.0, lit: 1.2, gaps: [1.0, 1.3], r0: 0.4, r1: 0.9, r2: 1.4 };
+  const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const testing = () => document.documentElement.classList.contains('k-testing');
+  const el = (id) => document.getElementById(id);
+
+  // ---------- numbers and rules, written as the explanation writes them ----------
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const neg = (v) => { v = r2(v); return v < 0 ? '−' + Math.abs(v) : String(Math.abs(v) < 1e-12 ? 0 : v); };
+  const br = (v) => (v < 0 ? '(' + neg(v) + ')' : neg(v));
+  const coord = (p) => '(' + neg(p[0]) + ', ' + neg(p[1]) + ')';
+  const exact = (v) => Math.abs(v * 100 - Math.round(v * 100)) < 1e-9;
+  const plusC = (c) => (c < 0 ? ' − ' + neg(-c) : ' + ' + neg(c));
+  const rawRHS = (m, c) => neg(m) + 'x' + plusC(c);                       // 2x − 3, 0x + 1, 1x + 0
+  function tidyRHS(m, c) {                                                // 2x − 3, 1, x, −x + 3
+    const mx = Math.abs(m) < 1e-12 ? '' : m === 1 ? 'x' : m === -1 ? '−x' : neg(m) + 'x';
+    if (!mx) return neg(c);
+    return Math.abs(c) < 1e-12 ? mx : mx + plusC(c);
+  }
+  const ruleTidy = (m, c) => 'y = ' + tidyRHS(m, c);
+  // The rule with both numbers in, then tidied when that reads differently: y = 0x + 1 = 1.
+  const ruleRow = (m, c) => { const a = rawRHS(m, c), b = tidyRHS(m, c); return 'y = ' + a + (a === b ? '' : ' = ' + b); };
+  const mulStr = (m, x, c) => neg(m) + ' × ' + br(x) + plusC(c);         // 2 × 3 + 1
+  const cfirstStr = (m, c) => 'y = ' + neg(c) + (m < 0 ? ' − ' + neg(-m) : ' + ' + neg(m)) + 'x';   // y = 3 − 2x
+  const cfirstMul = (m, c, x) => neg(c) + (m < 0 ? ' − ' : ' + ') + neg(Math.abs(m)) + ' × ' + br(x);  // 3 − 2 × 2
+  const kForm = (k, m, c) => k + 'y = ' + tidyRHS(k * m, k * c);         // 2y = 3x − 8
+  const fitsRule = (m, c, p) => Math.abs(m * p[0] + c - p[1]) < 1e-9;
+  const say = (s) => String(s).replace(/−/g, 'minus ');
+  // Solving 0 = mx + c for the x-intercept, piece by piece.
+  function solvePieces(m, c) {
+    if (Math.abs(m) < 1e-12) return Math.abs(c) < 1e-12 ? ['y is 0 at every x,', 'so the line lies along the x-axis'] : ['y is ' + neg(c) + ' at every x,', 'so the line never crosses the x-axis'];
+    const v = -c / m, mx = m === 1 ? 'x' : m === -1 ? '−x' : neg(m) + 'x';
+    const out = ['0 = ' + tidyRHS(m, c) + ','];
+    if (mx !== 'x') out.push('so ' + mx + ' = ' + neg(-c) + ',');
+    out.push((mx === 'x' ? 'so x ' : 'x ') + (exact(v) ? '= ' : '≈ ') + neg(v));
+    return out;
+  }
+  // Two lines compared: the same m runs alongside, a different m meets.
+  function parSay(b, m, c, asOption) {
+    if (Math.abs(m - b.m) < 1e-12) {
+      const gap = neg(Math.abs(c - b.c));
+      if (asOption) return ['m = ' + neg(m) + ', the same,', 'so parallel, ' + gap + ' apart'];
+      return Math.abs(c - b.c) < 1e-12 ? ['Same m and c,', 'so it is the same line'] : ['Same m, so they are', gap + ' apart at every x'];
+    }
+    const X = (c - b.c) / (b.m - m);
+    if (asOption) return ['m = ' + neg(m) + ', so it meets', 'this line at ' + coord([X, b.m * X + b.c])];
+    return ['Different m, so they meet', 'where x ' + (exact(X) ? '= ' : '≈ ') + neg(X)];
+  }
+
+  // ---------- each step's state ----------
+  // pick: the answer chosen; res: 'right', 'wrong' or 'empty' once checked; why: the Why? note open;
+  // mc: the handles where Dan has dragged them; P: the test point where he has dragged it.
+  function blank() { return { pick: null, res: null, why: false, mc: null, P: null }; }
+  const isRight = (i, st) => st.pick != null && st.pick === STEPS[i].want;
+  const hintFor = (i, st) => { const d = STEPS[i]; return (d.hints && d.hints[st.pick]) || d.hint; };
+  let S = STEPS.map(() => blank());
+  let finished = false, lastStep = -1, lastDone = false, T = Infinity;   // T: seconds into the current motion
+  let motionEnd = 0;
+  let REC = null;                                                        // what the last paint drew, for the checks
+  let OBS = { hard: [], segs: [] };                                      // what labels keep clear of
+
+  // ---------- text with amber key terms and italic letters (built with K.el, never innerHTML) ----------
+  const ITAL = /((?<![A-Za-z])[xymc](?![A-Za-z]))/;
+  function italics(parent, s, inSvg) {
+    String(s).split(ITAL).forEach((p, k) => {
+      if (!p) return;
+      parent.appendChild(k % 2 ? (inSvg ? K.svg('tspan', { class: 'v' }, p) : K.el('span', { class: 'v' }, p)) : document.createTextNode(p));
+    });
+  }
+  // `maths` stays on one line with its letters italic; *a key term* is highlighted.
+  function write(node, s) {
+    node.textContent = '';
+    String(s).split('`').forEach((seg, k) => {
+      if (!seg) return;
+      if (k % 2) { italics(node.appendChild(K.el('span', { class: 'nw' })), seg, false); return; }
+      const re = /\*([^*]+)\*/g;
+      let at0 = 0, mt;
+      while ((mt = re.exec(seg))) {
+        if (mt.index > at0) node.appendChild(document.createTextNode(seg.slice(at0, mt.index)));
+        node.appendChild(K.el('span', { class: 'term' }, mt[1]));
+        at0 = mt.index + mt[0].length;
+      }
+      if (at0 < seg.length) node.appendChild(document.createTextNode(seg.slice(at0)));
+    });
+  }
+
+  // ---------- controls ----------
+  const stepper = K.stepper({ id: 'step', label: 'Step', steps: STEPS.map((d) => d.name), value: 0, compact: true, into: '#prog' });
+  const nav = el('nav');
+  const at = () => stepper.get();
+  const pickBtns = [0, 1, 2].map((k) => K.button({ label: 'Answer ' + (k + 1), secondary: true, into: '#picks', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (finished || d.show || k >= d.opts.length || st.res === 'right') return;
+    st.pick = d.opts[k]; st.res = null;
+  } }));
+  // Check: a right answer draws what was asked and fills in the working; a wrong one gets its hint.
+  const checkBtn = K.button({ label: 'Check', into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    if (st.pick == null) { st.res = 'empty'; return; }
+    st.res = isRight(i, st) ? 'right' : 'wrong';
+    if (st.res === 'right' && !st.why) play(FB);
+  } });
+  // Why?: draws what was asked and fills in the working for this rule, with a few words.
+  const whyBtn = K.button({ label: 'Why?', secondary: true, into: '#acts', press: () => {
+    const i = at(), d = STEPS[i], st = S[i];
+    if (d.show || finished) return;
+    st.why = !st.why;
+    if (st.why && st.res !== 'right') play(FB);
+  } });
+  const replayBtn = K.button({ label: 'Play again', secondary: true, into: '#replay', press: () => {
+    const d = STEPS[at()];
+    if (!d.show || finished) return;
+    S[at()].mc = null; S[at()].P = null;
+    play(d.dur);
+  } });
+  const backBtn = K.button({ label: 'Back', secondary: true, into: '#nav', press: () => {
+    if (finished) { finished = false; return; }
+    stepper.set(Math.max(0, at() - 1), true);
+  } });
+  const nextBtn = K.button({ label: 'Continue', into: '#nav', press: () => {
+    const i = at();
+    if (finished || (!STEPS[i].show && S[i].res !== 'right')) return;
+    if (i < STEPS.length - 1) { stepper.set(i + 1, true); return; }
+    finished = true;
+    if (typeof K.complete === 'function') K.complete();
+  } });
+  K.button({ label: 'Start again', secondary: true, into: '#again', press: () => {
+    S = STEPS.map(() => blank()); finished = false; lastStep = -1; stepper.set(0, true);
+  } });
+
+  // One animation plays each demonstration and each puzzle's drawing; with reduced motion (and
+  // while the self-test looks) everything opens finished.
+  const anim = K.anim({ button: false, label: 'Demonstration', step: (dt) => {
+    if (finished) return false;
+    T += dt;
+    paint();
+    return T < motionEnd;
+  } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !anim.playing() && T !== Infinity) { T = Infinity; paint(); } });
+  function play(dur) {
+    if (REDUCE || testing()) { T = Infinity; anim.pause(); paint(); return; }
+    motionEnd = dur; T = 0; anim.play();
+  }
+  function enter(id) {
+    if (REDUCE) return;
+    const box = el(id);
+    box.classList.remove('enter');
+    void box.offsetWidth;
+    box.classList.add('enter');
+  }
+
+  // ---------- drawing ----------
+  const svg = el('scene'), art = el('art'), labs = el('labs'), ui = el('ui');
+  const add = (node) => art.appendChild(node);
+  // How far a part due at t0 has arrived (K.arrive), noting the timetable for the timing check.
+  let latest = 0, earliest = Infinity;
+  function arr(t0, dd) {
+    if (t0 + dd > latest) latest = t0 + dd;
+    if (t0 < earliest) earliest = t0;
+    return K.arrive(T, t0, dd);
+  }
+  const ln = (cls, x1, y1, x2, y2) => add(K.svg('line', { class: cls, x1: r2(x1), y1: r2(y1), x2: r2(x2), y2: r2(y2) }));
+  function tx(x, y, s, cls, anchor) {
+    const t = K.svg('text', { class: cls, x: r2(x), y: r2(y), 'text-anchor': anchor || 'middle' });
+    italics(t, s, true);
+    return add(t);
+  }
+  // A step's grid: squares Ux across and Uy up (the same on a squared grid), its numbers left and below.
+  const GEO = new Map();
+  function geo(d) {
+    if (GEO.has(d)) return GEO.get(d);
+    const v = d.view, nx = Math.round((v.x1 - v.x0) / v.xs), ny = Math.round((v.y1 - v.y0) / v.ys);
+    let Ux, Uy;
+    if (v.free) { Ux = Math.min(56, W / nx); Uy = Math.min(28, v.hmax / ny); } else { Ux = Uy = Math.min(28, W / nx, v.hmax / ny); }
+    const gw = nx * Ux, gh = ny * Uy, gx = ML + (W - gw) / 2, gy = MT;
+    const G = { v, nx, ny, Ux, Uy, gw, gh, gx, gy, H: Math.ceil(gy + gh + 44), every: Math.min(Ux, Uy) < 22 ? 2 : 1,
+      px: (x) => gx + (x - v.x0) / v.xs * Ux, py: (y) => gy + gh - (y - v.y0) / v.ys * Uy,
+      inv: (X, Y) => [v.x0 + (X - gx) / Ux * v.xs, v.y0 + (gy + gh - Y) / Uy * v.ys] };
+    GEO.set(d, G);
+    return G;
+  }
+  function drawGrid(G) {
+    const v = G.v, skip = (n) => ((n % G.every) + G.every) % G.every !== 0;
+    for (let i = 0; i <= G.nx; i++) ln('gl', G.gx + i * G.Ux, G.gy, G.gx + i * G.Ux, G.gy + G.gh);
+    for (let j = 0; j <= G.ny; j++) ln('gl', G.gx, G.gy + j * G.Uy, G.gx + G.gw, G.gy + j * G.Uy);
+    if (v.x0 <= 0 && v.x1 >= 0) { ln('ax', G.px(0), G.gy, G.px(0), G.gy + G.gh); OBS.segs.push({ s: [G.px(0), G.gy, G.px(0), G.gy + G.gh], c: 8 }); }
+    if (v.y0 <= 0 && v.y1 >= 0) { ln('ax', G.gx, G.py(0), G.gx + G.gw, G.py(0)); OBS.segs.push({ s: [G.gx, G.py(0), G.gx + G.gw, G.py(0)], c: 8 }); }
+    for (let i = 0; i <= G.nx; i++) { const val = v.x0 + i * v.xs; if (!skip(Math.round(val / v.xs))) tx(G.px(val), G.gy + G.gh + 19, neg(val), 'tk'); }
+    for (let j = 0; j <= G.ny; j++) { const val = v.y0 + j * v.ys; if (!skip(Math.round(val / v.ys))) tx(G.gx - 7, G.py(val) + 4.5, neg(val), 'tk', 'end'); }
+    tx(G.gx + G.gw, G.gy + G.gh + 39, v.xt, 'at', 'end');
+    tx(G.gx, G.gy - 11, v.yt, 'at', 'start');
+    OBS.hard.push(boxOf(G.gx, G.gy - 11, tw(v.yt, 'at'), 'start'));
+  }
+  // The piece of y = mx + c inside the grid, in drawing units (null when it misses the grid).
+  function clipLine(G, m, c) {
+    const v = G.v;
+    let lo = v.x0, hi = v.x1;
+    if (Math.abs(m) > 1e-12) {
+      const xa = (v.y0 - c) / m, xb = (v.y1 - c) / m;
+      lo = Math.max(lo, Math.min(xa, xb)); hi = Math.min(hi, Math.max(xa, xb));
+    } else if (c < v.y0 - 1e-9 || c > v.y1 + 1e-9) return null;
+    if (hi - lo < 1e-9) return null;
+    return [G.px(lo), G.py(m * lo + c), G.px(hi), G.py(m * hi + c)];
+  }
+  // An arrow: a shaft and a filled head with its tip at (x2, y2).
+  function arrow(x1, y1, x2, y2, cls) {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    if (L < 2) return null;
+    const ux = (x2 - x1) / L, uy = (y2 - y1) / L, hl = Math.min(10, L * 0.7), hw = 5.5, bx = x2 - ux * hl, by = y2 - uy * hl;
+    ln('sh' + cls, x1, y1, x2 - ux * hl * 0.6, y2 - uy * hl * 0.6);
+    add(K.svg('path', { class: 'hd' + cls, d: 'M' + r2(x2) + ' ' + r2(y2) + ' L' + r2(bx - uy * hw) + ' ' + r2(by + ux * hw) + ' L' + r2(bx + uy * hw) + ' ' + r2(by - ux * hw) + ' Z' }));
+    const hx = [x2, bx - uy * hw, bx + uy * hw], hy = [y2, by + ux * hw, by - ux * hw];
+    OBS.segs.push({ s: [x1, y1, x2, y2], c: 300 });
+    OBS.hard.push({ x0: Math.min(...hx) - 1, y0: Math.min(...hy) - 1, x1: Math.max(...hx) + 1, y1: Math.max(...hy) + 1 });
+    return [x1, y1, x2, y2];
+  }
+  // The small step: 1 across from O to the corner, then up or down to the tip (the m handle).
+  function stepDraw(O, Cn, Tp, gRun, gRise, cls) {
+    if (gRun <= 0) return;
+    const rise = Math.abs(Tp[1] - Cn[1]) > 1e-6;
+    if (rise) K.fade(add(K.svg('path', { class: 'tri' + cls, d: 'M' + r2(O[0]) + ' ' + r2(O[1]) + ' L' + r2(Cn[0]) + ' ' + r2(Cn[1]) + ' L' + r2(Tp[0]) + ' ' + r2(Tp[1]) + ' Z' })), Math.min(gRun, gRise), 0);
+    const end = rise ? Cn[0] : Cn[0] - 9;   // with no rise the run stops short of the m handle
+    arrow(O[0], O[1], K.lerp(O[0], end, gRun), O[1], cls);
+    if (rise && gRise > 0) {
+      const dir = Math.sign(Tp[1] - Cn[1]);
+      arrow(Cn[0], Cn[1], Cn[0], K.lerp(Cn[1], Tp[1] - dir * 8, gRise), cls);
+    }
+  }
+
+  // ---------- labels: clear of each other, the dots, the arrowheads and the numbers; off the lines where they can be ----------
+  const widths = {};
+  function tw(s, cls) {
+    const key = cls + '|' + s;
+    if (widths[key]) return widths[key];
+    let w = 0;
+    const t = svg.appendChild(K.svg('text', { class: cls, x: 0, y: -50 }, s));
+    try { w = t.getComputedTextLength(); } catch (e) { w = 0; }
+    svg.removeChild(t);
+    if (w > 0) { widths[key] = w; return w; }
+    return s.length * (cls === 'lab' ? 8.4 : 7.6);
+  }
+  function boxOf(x, y, w, anchor) {
+    const x0 = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+    return { x0, y0: y - 11.5, x1: x0 + w, y1: y + 4 };
+  }
+  const meets = (a, b, pad) => a.x0 < b.x1 + pad && b.x0 < a.x1 + pad && a.y0 < b.y1 + pad && b.y0 < a.y1 + pad;
+  // Does a line segment pass through a box? (Liang-Barsky)
+  function segHits(s, b) {
+    let t0 = 0, t1 = 1;
+    const dx = s[2] - s[0], dy = s[3] - s[1];
+    const pq = [[-dx, s[0] - b.x0], [dx, b.x1 - s[0]], [-dy, s[1] - b.y0], [dy, b.y1 - s[1]]];
+    for (let k = 0; k < 4; k++) {
+      const p = pq[k][0], q = pq[k][1];
+      if (Math.abs(p) < 1e-12) { if (q < 0) return false; continue; }
+      const r = q / p;
+      if (p < 0) { if (r > t1) return false; if (r > t0) t0 = r; } else { if (r < t0) return false; if (r < t1) t1 = r; }
+    }
+    return true;
+  }
+  // Each label tries spots round where it wants to be (or round each of its alternatives, in order),
+  // pulled inside the bounds, and takes the one that hits nothing solid, crosses the fewest lines and moves least.
+  function placeLabels(items, hard, segs, B) {
+    const placed = [];
+    return items.map((it) => {
+      const w = tw(it.text, 'lab'), h = 15.5, g = 4;
+      const C = [[0, 0], [0, -(h + g)], [0, h + g], [w / 2 + 2 * g, 0], [-(w / 2 + 2 * g), 0], [w / 2 + g, -(h + g)], [-(w / 2 + g), -(h + g)], [w / 2 + g, h + g], [-(w / 2 + g), h + g],
+        [0, -2 * (h + g)], [0, 2 * (h + g)], [w + g, 0], [-(w + g), 0], [w + g, -(h + g)], [-(w + g), -(h + g)], [w + g, h + g], [-(w + g), h + g], [0, -3 * (h + g)], [0, 3 * (h + g)]];
+      let best = null, bestCost = Infinity;
+      (it.alts || [it]).forEach((al, ai) => C.forEach((c, k) => {
+        let b = boxOf(al.x + c[0], al.y + c[1], w, al.anchor);
+        const sx = b.x0 < B.x0 ? B.x0 - b.x0 : b.x1 > B.x1 ? B.x1 - b.x1 : 0, sy = b.y0 < B.y0 ? B.y0 - b.y0 : b.y1 > B.y1 ? B.y1 - b.y1 : 0;
+        b = { x0: b.x0 + sx, x1: b.x1 + sx, y0: b.y0 + sy, y1: b.y1 + sy };
+        let cost = Math.hypot(c[0] + sx, c[1] + sy) * 0.5 + k * 0.5 + ai * 8;
+        hard.forEach((o) => { if (meets(b, o, 3)) cost += 1000; });
+        placed.forEach((o) => { if (meets(b, o, 6)) cost += 1000; });
+        const wide = { x0: b.x0 - 2, y0: b.y0 - 2, x1: b.x1 + 2, y1: b.y1 + 2 };
+        segs.forEach((s) => { if (segHits(s.s, wide)) cost += s.c; });
+        if (cost < bestCost) { bestCost = cost; best = { b, x: al.x + c[0] + sx, y: al.y + c[1] + sy, anchor: al.anchor }; }
+      }));
+      placed.push(best.b);
+      return best;
+    });
+  }
+  const spots = (X, Y, list) => { const alts = list.map((o) => ({ x: X + o[0], y: Y + o[1], anchor: o[2] })); return Object.assign({}, alts[0], { alts }); };
+  const PT_AT = [[13, 5, 'start'], [-13, 5, 'end'], [0, -14, 'middle'], [0, 24, 'middle']];
+  const ON_AT = [[13, 21, 'start'], [-13, 21, 'end'], [13, -11, 'start'], [-13, -11, 'end'], [0, 38, 'middle'], [0, -28, 'middle']];
+  const C_AT = [[-13, 5, 'end'], [-10, -9, 'end'], [-10, 20, 'end'], [13, 5, 'start'], [0, -14, 'middle'], [0, 24, 'middle']];
+  const XI_AT = [[9, 21, 'start'], [-9, 21, 'end'], [9, -11, 'start'], [-9, -11, 'end']];
+  // A spot pushed `off` from (x, y) along u, anchored on the side it leans.
+  function away(x, y, u, off) {
+    const L = Math.hypot(u[0], u[1]) || 1, ux = u[0] / L, uy = u[1] / L;
+    return { x: x + ux * off, y: y + uy * off + (uy > 0.35 ? 11 : uy < -0.35 ? -1 : 5), anchor: ux > 0.4 ? 'start' : ux < -0.4 ? 'end' : 'middle' };
+  }
+  // Spots beside a drawn line at fractions along it, on either side.
+  function along(s, fr) {
+    const dx = s[2] - s[0], dy = s[3] - s[1], L = Math.hypot(dx, dy) || 1;
+    let n = [dy / L, -dx / L];
+    if (n[1] > 0) n = [-n[0], -n[1]];
+    const alts = [];
+    fr.forEach((f) => [1, -1].forEach((sg) => alts.push(away(s[0] + dx * f, s[1] + dy * f, [n[0] * sg, n[1] * sg], 10))));
+    return Object.assign({}, alts[0], { alts });
+  }
+
+  // ---------- where the line is now ----------
+  // A SHOW step's slide from one rule to the next at time T; the numbers fade out before a move and
+  // back in once it lands, so no in-between value shows.
+  function phase(d) {
+    const keys = d.keys;
+    let k = 0;
+    for (let j = 1; j < keys.length; j++) if (T >= keys[j].at) k = j;
+    const kk = keys[k], nx = keys[k + 1];
+    let m = kk.m, c = kk.c, lin = 1, moving = false;
+    if (k > 0) {
+      const s = (T - kk.at) / kk.tr;
+      if (s < 1) {
+        const e = K.ease(Math.max(0, s));
+        m = K.lerp(keys[k - 1].m, kk.m, e); c = K.lerp(keys[k - 1].c, kk.c, e);
+        moving = true; lin = 0;
+      } else lin = arr(kk.at + kk.tr, 0.4);
+    }
+    const out = nx ? 1 - arr(nx.at - 0.3, 0.3) : 1;
+    return { m, c, k, moving, la: moving ? 0 : lin * out };
+  }
+  function values(d, st) {
+    if (st.mc) return { m: st.mc.m, c: st.mc.c, la: 1, moving: false };
+    if (d.keys) return phase(d);
+    return { m: d.m, c: d.c, la: 1, moving: false };
+  }
+  function keyNow(d) {
+    if (!d.keys) return { m: d.m, c: d.c };
+    const k = T === Infinity ? d.keys.length - 1 : phase(d).k;
+    return { m: d.keys[k].m, c: d.keys[k].c };
+  }
+
+  // ---------- the working rows above the grid ----------
+  function testRow(lab, p, m, c, a1, a2, cf, live) {
+    const val = m * p[0] + c, fits = fitsRule(m, c, p);
+    return { lab, live, pieces: [{ s: (cf ? cfirstMul(m, c, p[0]) : mulStr(m, p[0], c)) + ' = ' + neg(val) + ',', a: a1, cls: '' }, { s: fits ? 'on the line' : 'not ' + neg(p[1]), a: a2, cls: fits ? 'end' : '' }] };
+  }
+  function rowsNow(d, st, V, open, A, tl) {
+    const m = V.m, c = V.c, dragged = !!(st.mc || st.P);
+    const rt = (j) => (d.show ? tl['r' + j] : PZ['r' + j]);
+    const pcs = (list, t0, endLast, a0) => list.map((s, n) => ({ s, a: (a0 == null ? 1 : a0) * (t0 == null ? 1 : A(t0 + 0.3 * n)), cls: endLast && n === list.length - 1 ? 'end' : '' }));
+    const q = (s) => [{ pieces: [{ s, a: 1, cls: 'q' }] }];
+    if (d.kind === 'from2') {
+      const a = d.pts[0], b = d.pts[1], g = (b[1] - a[1]) / (b[0] - a[0]);
+      return [
+        { pieces: [{ s: 'm = (' + neg(b[1]) + ' − ' + br(a[1]) + ') ÷ (' + neg(b[0]) + ' − ' + br(a[0]) + ') = ' + neg(g) + ',', a: A(tl.r0), cls: '' },
+          { s: 'c = ' + neg(a[1]) + ' − ' + neg(g * a[0]) + ' = ' + neg(a[1] - g * a[0]), a: A(tl.clab), cls: '' }] },
+        { pieces: [{ s: 'so ' + ruleTidy(m, c), a: A(tl.r1), cls: 'end' }] },
+        testRow('B ' + coord(b), b, m, c, A(tl.lit), A(tl.lit2))];
+    }
+    if (d.kind === 'test') {
+      if (!open) return q(d.ask);
+      return d.opts.map((o, j) => testRow(o, d.vals[o], m, c, A(rt(j)), A(rt(j) + 0.3)));
+    }
+    if (d.kind === 'handles') {
+      const ks = d.keys, start = { lab: 'Start', pieces: pcs([ruleRow(ks[0].m, ks[0].c)]) };
+      if (dragged) return [start, { lab: 'Now', pieces: pcs(['m = ' + neg(m) + ',', 'c = ' + neg(c)]) }, { pieces: pcs(['so ' + ruleRow(m, c)], null, true) }];
+      return [start].concat(ks.filter((k) => k.lab).map((k) => ({ lab: k.lab, pieces: [{ s: ruleRow(k.m, k.c), a: arr(k.at + k.tr, 0.4), cls: 'end' }] })));
+    }
+    if (d.kind === 'read' || d.kind === 'bill') {
+      if (!open) return q(d.ask);
+      const out = [{ pieces: pcs(['m = ' + neg(m) + ',', 'c = ' + neg(c) + ',', 'so ' + ruleTidy(m, c)], rt(0), true) }];
+      if (d.tp) { const y = m * d.tp[0] + c; out.push({ lab: neg(d.tp[0]) + ' hours', pieces: pcs([mulStr(m, d.tp[0], c) + ' = ' + neg(y) + ',', 'so £' + neg(y)], rt(1), true) }); }
+      return out;
+    }
+    if (d.kind === 'cfirst') {
+      const r0 = { pieces: [{ s: cfirstStr(m, c), a: 1, cls: '' }] };
+      if (!open) return [r0].concat(q(d.ask));
+      r0.pieces.push({ s: '= ' + tidyRHS(m, c), a: A(rt(0)), cls: '' });
+      const out = [r0, { pieces: pcs(['so m = ' + neg(m) + ',', 'c = ' + neg(c)], rt(1), true) }];
+      if (d.P) { const p = st.P || d.P; out.push(testRow('P ' + coord(p), p, m, c, A(tl.r2), A(tl.lit), true, true)); }
+      return out;
+    }
+    if (d.kind === 'xint') {
+      if (!open) return q(d.ask);
+      const r1 = solvePieces(m, c), xv = -c / m;
+      if (Math.abs(m) > 1e-12 && (xv < d.view.x0 - 1e-9 || xv > d.view.x1 + 1e-9)) r1[r1.length - 1] += ', beyond the grid';
+      return [{ lab: 'At x = 0', pieces: pcs(['y = ' + mulStr(m, 0, c), '= ' + neg(c)], rt(0), true) },
+        { lab: 'At y = 0', live: !!d.drag, pieces: pcs(r1, rt(1), true) }];
+    }
+    if (d.kind === 'par') {
+      if (d.show) {
+        const g = d.ghost;
+        return [{ lab: 'Faint', pieces: pcs([ruleTidy(g.m, g.c)]) }, { lab: 'Now', pieces: pcs([ruleTidy(m, c)], null, false, V.la) },
+          { live: true, pieces: pcs(parSay(g, m, c, false), dragged ? null : tl.r2, true, V.moving ? 0 : 1) }];
+      }
+      if (!open) return q(d.ask);
+      return d.opts.map((o, j) => ({ lab: o, pieces: pcs(parSay({ m: d.m, c: d.c }, d.vals[o][0], d.vals[o][1], true), rt(j), true) }));
+    }
+    if (d.kind === 'halve') {
+      const r0 = { pieces: [{ s: kForm(d.k, m, c), a: 1, cls: '' }] };
+      if (!open) return [r0].concat(q(d.ask));
+      return [r0, { lab: 'Divide every term by ' + d.k, live: !!d.drag, pieces: pcs([ruleRow(m, c)], rt(1)) }, { pieces: pcs(['so m = ' + neg(m) + ',', 'c = ' + neg(c)], rt(2), true) }];
+    }
+    return [];
+  }
+  function drawRows(rows) {
+    const box = el('rows');
+    box.textContent = '';
+    rows.forEach((r) => {
+      const p = box.appendChild(K.el('p', { class: 'wk' + (r.live ? ' live' : '') }));
+      if (r.lab) { const h = p.appendChild(K.el('span', { class: 'lab' })); italics(h, r.lab + ': ', false); K.fade(h, r.pieces[0].a, 0); }   // a heading arrives with its row
+      r.pieces.forEach((pc, n) => {
+        const s = p.appendChild(K.el('span', { class: 'pc ' + (pc.cls || '') }));
+        italics(s, pc.s, false);
+        K.fade(s, pc.a, 0);
+        if (n < r.pieces.length - 1) p.appendChild(document.createTextNode(' '));
+      });
+      REC.rows.push((r.lab ? r.lab + ': ' : '') + r.pieces.map((pc) => pc.s).join(' '));
+    });
+  }
+  function describe(d, V, open) {
+    let s = d.kind === 'bill' ? 'A grid of hours across and pounds up, with a straight line' : 'A squared grid with a straight line';
+    if (!d.show && !open && (d.q || (d.hide && d.hide.cdot))) return s + ' to read.';
+    s += ', ' + say(ruleTidy(V.m, V.c)) + '. The round c dot is on the y-axis at ' + say(coord([0, V.c])) + ', and the step under the m handle goes 1 along and ' +
+      (Math.abs(V.m) < 1e-12 ? 'stays level.' : V.m > 0 ? say(neg(V.m)) + ' up.' : say(neg(-V.m)) + ' down.');
+    if (REC.xi) s += ' A diamond marks the x-intercept at ' + say(coord([REC.xi.v, 0])) + '.';
+    if (REC.ghost) s += ' A faint copy of ' + say(ruleTidy(d.ghost.m, d.ghost.c)) + ' stays put.';
+    if (REC.ans) s += ' The line ' + say(ruleTidy(REC.ans[0], REC.ans[1])) + ' runs alongside it.';
+    REC.tps.forEach((t) => { s += ' The point ' + say(coord(t.p)) + (t.lit ? ' lights up, on the line.' : t.fits ? ' is on the line.' : ' is off the line.'); });
+    return s;
+  }
+
+  // The scene for a step (the animation calls this every frame).
+  function paint(i) {
+    if (i == null) i = at();
+    const d = STEPS[i], st = S[i], G = geo(d), v = d.view;
+    art.textContent = '';
+    REC = { m: 0, c: 0, line: null, ghost: null, ans: null, cdot: null, mh: null, step: null, xi: null, tps: [], gaps: [], rows: [], labels: [] };
+    OBS = { hard: [], segs: [] };
+    svg.setAttribute('viewBox', '0 0 340 ' + G.H);
+    const dragged = !!(st.mc || st.P);
+    const V = values(d, st), m = V.m, c = V.c, la = V.la;
+    REC.m = m; REC.c = c;
+    const open = !!d.show || st.res === 'right' || st.why;
+    const tl = d.show ? (dragged ? {} : d.tl || {}) : PZ, sc = d.show ? 1 : 0.6;
+    const A = (t0, dd) => (t0 == null ? 1 : arr(t0 * sc, (dd == null ? 0.4 : dd) * sc));
+    const hid = (name) => !d.show && !!d.hide && !!d.hide[name];
+    const part = (name, key) => (d.show ? A(tl[key || name]) : hid(name) ? (open ? A(PZ[key || name]) : 0) : 1);
+    const asked = (name) => !d.show && !!d.q && !!d.q[name];
+    const askA = (name) => (asked(name) && open ? A(PZ.lab) : 1);
+    const xy = (p) => [G.px(p[0]), G.py(p[1])];
+    const items = [];
+    drawGrid(G);
+
+    // The faint copy that stays put (the parallel screen).
+    if (d.ghost) {
+      const s = clipLine(G, d.ghost.m, d.ghost.c);
+      if (s) {
+        ln('gh', s[0], s[1], s[2], s[3]); OBS.segs.push({ s, c: 60 }); REC.ghost = s;
+        items.push(Object.assign(along(s, [0.86, 0.7, 0.14, 0.3]), { text: ruleTidy(d.ghost.m, d.ghost.c), class: 'lab mu', a: 1 }));
+      }
+    }
+    // Gap brackets measure from a base line to another: the faint copy to the line, or the given line to the answer.
+    let other = null;
+    if (d.kind === 'par') other = d.show ? { m, c, base: d.ghost } : { m: d.vals[d.want][0], c: d.vals[d.want][1], base: { m: d.m, c: d.c } };
+    if (other && !d.show) {
+      const aAns = part('ans'), s = clipLine(G, other.m, other.c);
+      if (s && aAns > 0) {
+        K.fade(ln('ln alt', s[0], s[1], s[2], s[3]), aAns, 0); OBS.segs.push({ s, c: 120 });
+        items.push(Object.assign(along(s, [0.82, 0.66, 0.18, 0.34]), { text: ruleTidy(other.m, other.c), class: 'lab tl', a: aAns }));
+      }
+      if (aAns >= 0.5) REC.ans = [other.m, other.c];
+    }
+    if (other) {
+      const b = other.base;
+      (d.gx || []).forEach((x, j) => {
+        const y1 = b.m * x + b.c, y2 = other.m * x + other.c, g = y2 - y1;
+        const a = d.show ? (dragged ? 1 : A(tl.gaps ? tl.gaps[j] : null)) * (V.moving ? 0 : 1) : open ? A(PZ.gaps[Math.min(j, PZ.gaps.length - 1)]) : 0;
+        if (Math.abs(g) < 1e-9 || y1 < v.y0 || y1 > v.y1 || y2 < v.y0 || y2 > v.y1 || a <= 0) return;
+        const X = G.px(x), Y1 = G.py(y1), Y2 = G.py(y2);
+        [ln('gap', X, Y1, X, Y2), ln('gap', X - 5, Y1, X + 5, Y1), ln('gap', X - 5, Y2, X + 5, Y2)].forEach((e) => K.fade(e, a, 0));
+        OBS.segs.push({ s: [X, Y1, X, Y2], c: 300 });
+        items.push(Object.assign(spots(X, (Y1 + Y2) / 2, [[8, 5, 'start'], [-8, 5, 'end']]), { text: neg(Math.abs(g)), class: 'lab tl', a }));
+        if (a >= 0.5) REC.gaps.push({ x, g });
+      });
+    }
+    // The line itself.
+    const L = clipLine(G, m, c);
+    if (L) { ln('ln', L[0], L[1], L[2], L[3]); OBS.segs.push({ s: L, c: 120 }); REC.line = L; }
+
+    // The small step under the m handle: from the c dot, 1 across, then m up or down.
+    const O = xy([0, c]), Cn = xy([1, c]), Tp = xy([1, c + m]), flat = Math.abs(m) < 1e-12;
+    const grow = (off) => (d.show ? (tl.step == null ? 1 : A(tl.step + off, 0.6)) : hid('step') ? (open ? A(PZ.step + off, 0.6) : 0) : 1);
+    const gRun = grow(0), gRise = grow(0.6);
+    stepDraw(O, Cn, Tp, gRun, gRise, '');
+    if (gRun >= 1 && gRise >= 1) REC.step = { O, Cn, Tip: Tp };
+    if (gRun > 0) {
+      const ry = m >= 0 ? O[1] + 19 : O[1] - 8, oy = m >= 0 ? O[1] - 8 : O[1] + 19, mx = (O[0] + Cn[0]) / 2;
+      items.push({ x: mx, y: ry, anchor: 'middle', alts: [{ x: mx, y: ry, anchor: 'middle' }, { x: mx, y: oy, anchor: 'middle' }], text: v.run, class: 'lab nv', a: gRun });
+      const mTxt = asked('m') && !open ? 'm = ?' : 'm = ' + neg(m);
+      const aMl = (flat ? gRun : gRise) * (d.show ? A(tl.mlab) : askA('m')) * la;
+      const mid = (Cn[1] + Tp[1]) / 2;
+      const ms = flat ? spots(Tp[0], Tp[1], [[13, -9, 'start'], [0, -14, 'middle'], [13, 19, 'start']]) : spots(Cn[0], mid, [[9, 5, 'start'], [-9, 5, 'end'], [13, Tp[1] - mid + 5, 'start']]);
+      items.push(Object.assign(ms, { text: mTxt, class: 'lab nv', a: aMl }));
+    }
+    // A second step on (teal), 1 more across and m more, on the number-first screen.
+    if (d.step2) {
+      const g1 = d.show && tl.step2 != null ? A(tl.step2, 0.6) : 1, g2 = d.show && tl.step2 != null ? A(tl.step2 + 0.6, 0.6) : 1;
+      const C2 = xy([2, c + m]), T2 = xy([2, c + 2 * m]);
+      stepDraw(Tp, C2, T2, g1, g2, ' teal');
+      const mx = (Tp[0] + C2[0]) / 2, ry = m >= 0 ? Tp[1] + 19 : Tp[1] - 8;
+      items.push({ x: mx, y: ry, anchor: 'middle', text: '1', class: 'lab tl', a: g1 });
+      if (!flat) items.push(Object.assign(spots(C2[0], (C2[1] + T2[1]) / 2, [[9, 5, 'start'], [-9, 5, 'end']]), { text: neg(m), class: 'lab tl', a: g2 }));
+    }
+    const handles = d.drag === 'cm' && !finished;
+    // The m handle at the step's tip, on the line 1 along from the crossing.
+    const aMh = Math.min(gRun, gRise);
+    if (aMh > 0 && !d.pts) {
+      if (handles) add(K.svg('circle', { class: 'ring', cx: r2(Tp[0]), cy: r2(Tp[1]), r: 10 }));
+      K.fade(add(K.svg('circle', { class: 'mh', cx: r2(Tp[0]), cy: r2(Tp[1]), r: 5.5 })), aMh, 0);
+      OBS.hard.push({ x0: Tp[0] - 9, y0: Tp[1] - 9, x1: Tp[0] + 9, y1: Tp[1] + 9 });
+      if (aMh >= 0.5) REC.mh = { x: Tp[0], y: Tp[1] };
+    }
+    // The round c dot where the line crosses the y-axis.
+    const aC = part('cdot');
+    if (aC > 0) {
+      if (handles) add(K.svg('circle', { class: 'ring', cx: r2(O[0]), cy: r2(O[1]), r: 11 }));
+      K.fade(add(K.svg('circle', { class: 'pt', cx: r2(O[0]), cy: r2(O[1]), r: 7 })), aC, 0);
+      OBS.hard.push({ x0: O[0] - 10, y0: O[1] - 10, x1: O[0] + 10, y1: O[1] + 10 });
+      const cTxt = asked('c') && !open ? 'c = ?' : 'c = ' + neg(c);
+      items.push(Object.assign(spots(O[0], O[1], C_AT), { text: cTxt, class: 'lab nv', a: aC * (d.show ? A(tl.clab) : askA('c')) * la }));
+      if (aC >= 0.5) REC.cdot = { x: O[0], y: O[1], shape: 'circle' };
+    }
+    // The x-intercept: a diamond where y = 0, a different shape from the round c dot.
+    if (d.xi && !flat) {
+      const xv = -c / m, aX = part('xi');
+      if (xv >= v.x0 - 1e-9 && xv <= v.x1 + 1e-9 && aX > 0) {
+        const X = G.px(xv), Y = G.py(0), s = 7.5;
+        K.fade(add(K.svg('path', { class: 'xi', d: 'M' + r2(X) + ' ' + r2(Y - s) + ' L' + r2(X + s) + ' ' + r2(Y) + ' L' + r2(X) + ' ' + r2(Y + s) + ' L' + r2(X - s) + ' ' + r2(Y) + ' Z' })), aX, 0);
+        OBS.hard.push({ x0: X - 10, y0: Y - 10, x1: X + 10, y1: Y + 10 });
+        items.push(Object.assign(spots(X, Y, XI_AT), { text: 'x-intercept (' + (exact(xv) ? '' : '≈ ') + neg(xv) + ', 0)', class: 'lab tl', a: aX * part('xi', 'xlab') }));
+        if (aX >= 0.5) REC.xi = { v: xv, x: X, y: Y, shape: 'diamond' };
+      }
+    }
+    // Named points (lesson 1's A and B) and test points: hollow, lit with a halo and "on the line" when they fit.
+    if (d.pts) {
+      const p = d.pts[0], X = G.px(p[0]), Y = G.py(p[1]);
+      add(K.svg('circle', { class: 'pt', cx: r2(X), cy: r2(Y), r: 6.5 }));
+      OBS.hard.push({ x0: X - 9, y0: Y - 9, x1: X + 9, y1: Y + 9 });
+      items.push(Object.assign(spots(X, Y, [[-13, 5, 'end'], [0, -14, 'middle'], [13, 5, 'start'], [0, 24, 'middle']]), { text: 'A ' + coord(p), class: 'lab', a: 1 }));
+    }
+    const tests = [];
+    if (d.kind === 'from2') tests.push({ p: d.pts[1], name: 'B ' + coord(d.pts[1]), solid: true, aS: 1, aL: A(tl.lit) });
+    if (d.kind === 'test') d.opts.forEach((o) => tests.push({ p: d.vals[o], name: o, aS: part('cands'), aL: part('cands', 'lit') }));
+    if (d.P) tests.push({ p: st.P || d.P, name: 'P ' + coord(st.P || d.P), aS: 1, aL: A(tl.lit), drag: d.drag === 'p' && !finished });
+    if (d.tp) tests.push({ p: d.tp, name: coord(d.tp), aS: part('tp'), aL: part('tp', 'lit') });
+    tests.forEach((t) => {
+      if (t.aS <= 0) return;
+      const X = G.px(t.p[0]), Y = G.py(t.p[1]), fits = fitsRule(m, c, t.p), cx = r2(X), cy = r2(Y);
+      if (t.drag) add(K.svg('circle', { class: 'ring', cx, cy, r: 11 }));
+      if (fits) K.fade(add(K.svg('circle', { class: 'halo', cx, cy, r: 12.5 })), t.aS * t.aL, 0);
+      K.fade(add(K.svg('circle', { class: t.solid ? 'pt' : 'tp', cx, cy, r: 6.5 })), t.aS, 0);
+      if (fits && !t.solid) K.fade(add(K.svg('circle', { class: 'tp on', cx, cy, r: 6.5 })), t.aS * t.aL, 0);
+      OBS.hard.push({ x0: X - 12, y0: Y - 12, x1: X + 12, y1: Y + 12 });
+      items.push(Object.assign(spots(X, Y, PT_AT), { text: t.name, class: 'lab', a: t.aS }));
+      if (fits) items.push(Object.assign(spots(X, Y, ON_AT), { text: 'on the line', class: 'lab tl', a: t.aS * t.aL }));
+      REC.tps.push({ p: t.p, fits, lit: fits && t.aS >= 0.5 && t.aL >= 0.5 });
+    });
+
+    const pos = placeLabels(items, OBS.hard, OBS.segs, { x0: G.gx + 2, x1: 338, y0: 3, y1: G.gy + G.gh - 2 });
+    labs.textContent = '';
+    items.forEach((it, n) => {
+      const t = labs.appendChild(K.svg('text', { class: it.class, x: r2(pos[n].x), y: r2(pos[n].y), 'text-anchor': pos[n].anchor || 'middle' }));
+      italics(t, it.text, true);
+      K.fade(t, it.a, 0);
+      if (it.a >= 0.5) REC.labels.push(it.text);
+    });
+    drawRows(rowsNow(d, st, V, open, A, tl));
+    svg.setAttribute('aria-label', describe(d, V, open));
+    placeGrips(d, V, st, G);
+  }
+
+  // ---------- dragging: the c handle slides c, the m handle turns m, P moves on whole numbers ----------
+  const HN = ['c', 'm', 'p'];
+  const grips = HN.map(() => ui.appendChild(K.svg('circle', { class: 'grip', cx: -100, cy: -100, r: 22, tabindex: -1, role: 'button', 'aria-label': 'Handle' })));
+  let LIVE = [];
+  function placeGrips(d, V, st, G) {
+    LIVE = [];
+    const P = st.P || d.P, at3 = { c: [0, V.c], m: [1, V.c + V.m], p: P };
+    const on = (n) => !finished && (n === 'p' ? d.drag === 'p' : d.drag === 'cm');
+    svg.classList.toggle('grab', !finished && !!d.drag);
+    grips.forEach((g, k) => {
+      const n = HN[k], live = on(n);
+      g.style.display = live ? '' : 'none';
+      g.setAttribute('tabindex', live ? '0' : '-1');
+      if (!live) return;
+      const X = G.px(at3[n][0]), Y = G.py(at3[n][1]);
+      g.setAttribute('cx', r2(X)); g.setAttribute('cy', r2(Y));
+      g.setAttribute('aria-label', n === 'c' ? 'The c handle, c = ' + say(neg(V.c)) + '. Drag it up or down the y-axis, or use the arrow keys.'
+        : n === 'm' ? 'The m handle, m = ' + say(neg(V.m)) + '. Drag it up or down to turn the line, or use the arrow keys.'
+          : 'The test point P at ' + say(coord(P)) + '. Drag it, or move it with the arrow keys.');
+      LIVE.push({ n, x: X, y: Y });
+    });
+  }
+  // c snaps to whole numbers and m to halves, keeping both handles on the grid; c moves only c, m only m.
+  function moveHandle(n, q, cur, v) {
+    const o = { m: cur.m, c: cur.c };
+    if (n === 'c') o.c = K.clamp(Math.round(q[1]), Math.ceil(v.y0 - Math.min(0, o.m)), Math.floor(v.y1 - Math.max(0, o.m)));
+    else o.m = K.clamp(Math.round((q[1] - o.c) * 2) / 2, Math.max(-MMAX, v.y0 - o.c), Math.min(MMAX, v.y1 - o.c));
+    return o;
+  }
+  function setHandle(n, q) {
+    const i = at(), d = STEPS[i], st = S[i], v = d.view;
+    if (finished || !d.drag) return;
+    if (n === 'p') {
+      const old = st.P || d.P, p = [K.clamp(Math.round(q[0]), v.x0, v.x1), K.clamp(Math.round(q[1]), v.y0, v.y1)];
+      if (st.P && p[0] === old[0] && p[1] === old[1]) return;
+      st.P = p;
+    } else {
+      const o = moveHandle(n, q, st.mc || keyNow(d), v);
+      if (st.mc && o.m === st.mc.m && o.c === st.mc.c) return;
+      st.mc = o;
+    }
+    if (anim.playing()) anim.pause();
+    T = Infinity;
+    K.reveal(); K.refresh();
+  }
+  function svgPt(e) {
+    const mtx = svg.getScreenCTM();
+    if (!mtx) return null;
+    return new DOMPoint(e.clientX, e.clientY).matrixTransform(mtx.inverse());
+  }
+  let held = null;
+  grips.forEach((g, k) => {
+    g.addEventListener('pointerdown', (e) => {
+      if (!STEPS[at()].drag || finished) return;
+      const q = svgPt(e);
+      if (!q) return;
+      // The nearest live handle to the touch takes it (the c and m handles can sit close together).
+      let best = null, bd = Infinity;
+      LIVE.forEach((h) => { const dd = Math.hypot(h.x - q.x, h.y - q.y); if (dd < bd) { bd = dd; best = h.n; } });
+      if (!best) return;
+      held = { id: e.pointerId, n: best };
+      try { g.setPointerCapture(e.pointerId); } catch (err) { /* the drag still follows while the pointer stays on the handle */ }
+      e.preventDefault();
+    });
+    g.addEventListener('pointermove', (e) => {
+      if (!held || held.id !== e.pointerId) return;
+      e.preventDefault();
+      const q = svgPt(e);
+      if (q) setHandle(held.n, geo(STEPS[at()]).inv(q.x, q.y));
+    });
+    const letGo = (e) => { if (held && held.id === e.pointerId) held = null; };
+    g.addEventListener('pointerup', letGo);
+    g.addEventListener('pointercancel', letGo);
+    g.addEventListener('lostpointercapture', letGo);
+    g.addEventListener('keydown', (e) => {
+      const d = STEPS[at()], st = S[at()], n = HN[k];
+      const by = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowUp: [0, 1], ArrowDown: [0, -1] }[e.key];
+      if (!d.drag || finished || !by) return;
+      e.preventDefault();
+      if (n === 'p') { const p = st.P || d.P; setHandle('p', [p[0] + by[0], p[1] + by[1]]); return; }
+      if (!by[1]) return;
+      const cur = st.mc || keyNow(d);
+      setHandle(n, n === 'c' ? [0, cur.c + by[1]] : [1, cur.c + cur.m + by[1] * 0.5]);
+    });
+  });
+
+  write(el('finish'), FINISH);
+  K.update((p) => {
+    const i = Math.round(p.step), d = STEPS[i], st = S[i];
+    if (!anim.playing()) T = Infinity;   // motion that was stopped (the page hidden, a test) shows finished
+    if (i !== lastStep) {
+      lastStep = i; enter('stepbox');
+      if (d.show) { st.mc = null; st.P = null; play(d.dur); } else { anim.pause(); T = Infinity; }
+    }
+    if (finished !== lastDone) { lastDone = finished; enter(finished ? 'done' : 'stepbox'); }
+    const right = st.res === 'right';
+    el('pz').classList.toggle('ask', !d.show && !right && !st.why);
+    el('stepbox').hidden = finished;
+    el('done').hidden = !finished;
+    el('count').textContent = 'Step ' + (i + 1) + ' of ' + STEPS.length;
+    const task = el('task');
+    task.className = 'task' + (d.show ? ' show' : '');
+    write(task, d.show ? d.text : d.task);
+    write(el('rule'), RULE);
+    write(el('ronote'), d.note || NOTE);
+    paint(i);
+
+    replayBtn.el.hidden = !d.show || REDUCE;
+    el('replay').hidden = replayBtn.el.hidden;
+    const opts = d.show ? [] : d.opts;
+    el('picks').hidden = !opts.length;
+    el('picks').classList.toggle('long', opts.some((o) => o.length > 6));
+    pickBtns.forEach((b, k) => {
+      b.el.hidden = k >= opts.length;
+      if (k >= opts.length) return;
+      b.setLabel(opts[k]);
+      b.el.setAttribute('aria-label', say(opts[k]));
+      b.el.setAttribute('aria-pressed', st.pick === opts[k] ? 'true' : 'false');
+    });
+    el('acts').hidden = !!d.show;
+    checkBtn.el.hidden = right;
+    const fb = el('fb');
+    fb.hidden = !!d.show;
+    fb.className = 'fb' + (right ? ' right' : st.res === 'wrong' ? ' wrong' : '');
+    write(fb, d.show ? '' : right ? 'That\'s it.' : st.res === 'wrong' ? hintFor(i, st) : st.res === 'empty' ? PICK : '');
+    const why = el('why');
+    why.hidden = d.show || !st.why;
+    write(why, d.show ? '' : d.why);
+    whyBtn.setLabel(st.why ? 'Hide why' : 'Why?');
+    backBtn.el.hidden = i === 0 && !finished;
+    nextBtn.el.hidden = finished || (!d.show && !right);
+    nextBtn.setLabel(i === STEPS.length - 1 ? 'Finish' : 'Continue');
+    nav.hidden = backBtn.el.hidden && nextBtn.el.hidden;
+  });
+
+  // ---------- known answers, worked out by hand ----------
+  const DO = STEPS.map((d, i) => i).filter((i) => !STEPS[i].show);
+  const idx = (name) => STEPS.findIndex((d) => d.name === name);
+  const solvedSt = (i) => Object.assign(blank(), { pick: STEPS[i].want, res: 'right' });
+  const withMc = (m, c) => Object.assign(blank(), { mc: { m, c } });
+  // A step painted in the state given (finished, or at t seconds into its motion): what it draws.
+  function drawn(i, st, t) {
+    const keepS = S[i], keepT = T;
+    S[i] = st; T = t == null ? Infinity : t;
+    try { paint(i); return REC; } finally { S[i] = keepS; T = keepT; paint(); }
+  }
+  const shown = (i) => drawn(i, STEPS[i].show ? blank() : solvedSt(i));
+  function fmtOpt(d, v) {
+    return d.ans === 'point' ? coord(v) : d.ans === 'rule' ? ruleTidy(v[0], v[1]) : d.ans === 'm' ? neg(v) : 'm = ' + neg(v[0]) + ', c = ' + neg(v[1]);
+  }
+  function answerOk(d, v) {
+    if (d.kind === 'test') return fitsRule(d.m, d.c, v);
+    if (d.kind === 'xint') return same(v, [0, d.c]);
+    if (d.kind === 'par') return v[0] === d.m && v[1] !== d.c;
+    if (d.ans === 'm') return v === d.m;
+    return same(v, [d.m, d.c]);
+  }
+  // Before an answer the puzzle keeps back what it asks; after, it draws it.
+  function asks(d, g, open) {
+    const L = g.labels;
+    if (d.kind === 'test') return open ? g.tps.length === 3 : g.tps.length === 0;
+    if (d.kind === 'xint') return open ? !!g.cdot && !!g.xi : !g.cdot && !g.xi;
+    if (d.kind === 'par') return open ? !!g.ans && g.gaps.length >= 1 : !g.ans && g.gaps.length === 0;
+    let ok = true;
+    if (d.q && d.q.m) ok = ok && (open ? L.indexOf('m = ' + neg(d.m)) >= 0 && L.indexOf('m = ?') < 0 : L.indexOf('m = ?') >= 0);
+    if (d.q && d.q.c) ok = ok && (open ? L.indexOf('c = ' + neg(d.c)) >= 0 && L.indexOf('c = ?') < 0 : L.indexOf('c = ?') >= 0);
+    if (d.tp) ok = ok && (open ? g.tps.length === 1 && g.tps[0].lit : g.tps.length === 0);
+    if (d.hide && d.hide.xi) ok = ok && (open ? !!g.xi : !g.xi);
+    return ok;
+  }
+
+  K.check('The equation is a rule connecting the x and y coordinates, true for all points on the line: on every screen, and with the handles or the test point dragged, the line drawn runs exactly along its rule, and a test point lights up only when its numbers fit', () => {
+    const runs = (d, g) => {
+      if (!g.line) return false;
+      const G = geo(d), v = d.view, a = G.inv(g.line[0], g.line[1]), b = G.inv(g.line[2], g.line[3]);
+      const inV = (p) => p[0] >= v.x0 - 1e-6 && p[0] <= v.x1 + 1e-6 && p[1] >= v.y0 - 1e-6 && p[1] <= v.y1 + 1e-6;
+      return Math.abs(a[1] - (g.m * a[0] + g.c)) < 1e-6 && Math.abs(b[1] - (g.m * b[0] + g.c)) < 1e-6 && inV(a) && inV(b) && b[0] - a[0] > 0.5;
+    };
+    const lit = (g) => g.tps.every((t) => t.fits === fitsRule(g.m, g.c, t.p) && t.lit === t.fits);
+    const i2 = idx('Two handles'), i4 = idx('Number first');
+    const all = STEPS.every((d, i) => { const g = shown(i); return runs(d, g) && lit(g); });
+    const drags = [[2, -3], [0.5, 2], [-1.5, 4], [0, -2]].every(([m, c]) => { const g = drawn(i2, withMc(m, c)); return runs(STEPS[i2], g) && g.m === m && g.c === c; });
+    const tests = [[2, -1], [2, 0], [3, -3], [-1, 5], [0, 3], [1, 2]].every((p) => {
+      const g = drawn(i4, Object.assign(blank(), { P: p })), t = g.tps[0];
+      return !!t && same(t.p, p) && t.lit === fitsRule(-2, 3, p);
+    });
+    return all && drags && tests;
+  }, { source: SRC1 });
+  K.check('In the equation y = mx + c, m is the gradient of the line: on every screen the step from the c dot goes one along and then m up or down to the m handle on the line, and its label gives that m', () => {
+    const fit = (d, g) => {
+      const G = geo(d), s = g.step;
+      if (!s) return false;
+      const O = G.inv(s.O[0], s.O[1]), Cn = G.inv(s.Cn[0], s.Cn[1]), Tp = G.inv(s.Tip[0], s.Tip[1]);
+      return same(O, [0, g.c], 1e-6) && same(Cn, [1, g.c], 1e-6) && same(Tp, [1, g.m + g.c], 1e-6) && g.labels.indexOf('m = ' + neg(g.m)) >= 0;
+    };
+    const i2 = idx('Two handles');
+    return STEPS.every((d, i) => fit(d, shown(i))) && [[3, -2], [-2.5, 4], [0, 0]].every(([m, c]) => fit(STEPS[i2], drawn(i2, withMc(m, c))));
+  }, { source: SRC1 });
+  K.check('The y coordinate where the line crosses the y axis is called the intercept, and in y = mx + c, c is the intercept: on every screen the round c dot sits on the y-axis where the line crosses it, and its label gives that c', () => {
+    const fit = (d, g) => { const G = geo(d); return !!g.cdot && g.cdot.shape === 'circle' && Math.abs(g.cdot.x - G.px(0)) < 1e-9 && Math.abs(g.cdot.y - G.py(g.c)) < 1e-9 && g.labels.indexOf('c = ' + neg(g.c)) >= 0; };
+    const i2 = idx('Two handles');
+    return STEPS.every((d, i) => fit(d, shown(i))) && [[2, -6], [-1, 7], [0.5, 0]].every(([m, c]) => fit(STEPS[i2], drawn(i2, withMc(m, c))));
+  }, { source: SRC1 });
+  K.check('Vertical lines have a gradient which is undefined, with equation x = a: the m handle cannot turn the line upright, so dragged as far as it goes either way the line still has a number for m and a rule of the form y = mx + c', () => {
+    const i = idx('Two handles'), v = STEPS[i].view;
+    return [1e6, -1e6].every((y) => {
+      const o = moveHandle('m', [1, y], { m: 2, c: 1 }, v), g = drawn(i, withMc(o.m, o.c));
+      return isFinite(o.m) && Math.abs(o.m) <= MMAX && o.c === 1 && !!g.line && g.rows[2] === 'so ' + ruleRow(o.m, o.c);
+    });
+  }, { source: SRC4 });
+  K.check('Every worked row is right, by hand: y = 2x + 1 from A (1, 3) and B (4, 9), 2 × 3 + 1 = 7, y = 3 − 2x = −2x + 3, 0 = 2x − 4 gives x = 2, 4 apart, 2y = 3x − 8 halves to y = 1.5x − 4, 4y = 8x − 12 gives y = 2x − 3, and 30 × 2 + 40 = 100', () => {
+    const table = [
+      ['A rule for the line', ['m = (9 − 3) ÷ (4 − 1) = 2, c = 3 − 2 = 1', 'so y = 2x + 1', 'B (4, 9): 2 × 4 + 1 = 9, on the line']],
+      ['On the line?', ['(3, 7): 2 × 3 + 1 = 7, on the line', '(7, 3): 2 × 7 + 1 = 15, not 3', '(3, 6): 2 × 3 + 1 = 7, not 6']],
+      ['Two handles', ['Start: y = 2x + 1', 'Slide c to −3: y = 2x − 3', 'Turn m to 0: y = 0x + 1 = 1']],
+      ['Read the line', ['m = 3, c = −2, so y = 3x − 2']],
+      ['Number first', ['y = 3 − 2x = −2x + 3', 'so m = −2, c = 3', 'P (2, −1): 3 − 2 × 2 = −1, on the line']],
+      ['Which is m?', ['y = 5 − 3x = −3x + 5', 'so m = −3, c = 5']],
+      ['Where y = 0', ['At x = 0: y = 2 × 0 − 4 = −4', 'At y = 0: 0 = 2x − 4, so 2x = 4, x = 2']],
+      ['Which crossing?', ['At x = 0: y = 3 × 0 − 6 = −6', 'At y = 0: 0 = 3x − 6, so 3x = 6, x = 2']],
+      ['Same m', ['Faint: y = 2x + 1', 'Now: y = 2x − 3', 'Same m, so they are 4 apart at every x']],
+      ['Parallel', ['y = 2x − 5: m = 2, the same, so parallel, 6 apart', 'y = 5x + 1: m = 5, so it meets this line at (0, 1)', 'y = −2x + 1: m = −2, so it meets this line at (0, 1)']],
+      ['Halve every term', ['2y = 3x − 8', 'Divide every term by 2: y = 1.5x − 4', 'so m = 1.5, c = −4']],
+      ['Divide first', ['4y = 8x − 12', 'Divide every term by 4: y = 2x − 3', 'so m = 2, c = −3']],
+      ['The call-out', ['m = 30, c = 40, so y = 30x + 40', '2 hours: 30 × 2 + 40 = 100, so £100']],
+    ];
+    const rowsOk = table.length === STEPS.length && table.every((r) => { const g = shown(idx(r[0])); return g.rows.length === r[1].length && g.rows.every((s, n) => s === r[1][n]); });
+    const i6 = idx('Where y = 0'), i10 = idx('Halve every term');
+    const dr = (i, m, c) => drawn(i, withMc(m, c)).rows;
+    return rowsOk && dr(i6, 2, -3)[1] === 'At y = 0: 0 = 2x − 3, so 2x = 3, x = 1.5' && dr(i6, 1.5, 1)[1] === 'At y = 0: 0 = 1.5x + 1, so 1.5x = −1, x ≈ −0.67' &&
+      dr(i6, 0, 2)[1] === 'At y = 0: y is 2 at every x, so the line never crosses the x-axis' && dr(i6, 0.5, -4)[1] === 'At y = 0: 0 = 0.5x − 4, so 0.5x = 4, x = 8, beyond the grid' &&
+      dr(i10, 1, -4).join(' | ') === '2y = 2x − 8 | Divide every term by 2: y = 1x − 4 = x − 4 | so m = 1, c = −4';
+  });
+  K.check('Slide c and only c changes, and turn m and only m changes: on the handles screen c = −3 gives y = 2x − 3, m = 0 gives y = 0x + 1 = 1, m = −1.5 with c = 2 gives y = −1.5x + 2, and m = 1 with c = 0 gives y = 1x + 0 = x, with the c handle on the y-axis and the m handle 1 along', () => {
+    const i = idx('Two handles'), v = STEPS[i].view, G = geo(STEPS[i]), base = { m: 2, c: 1 };
+    const a = moveHandle('c', [0, -3.3], base, v), b = moveHandle('m', [1, 1.2], base, v), top = moveHandle('c', [0, 99], base, v);
+    const row = (m, c) => drawn(i, withMc(m, c)).rows[2];
+    const g = drawn(i, withMc(2, -3));
+    return a.m === 2 && a.c === -3 && b.m === 0 && b.c === 1 && top.c === 5 && top.m === 2 &&
+      row(2, -3) === 'so y = 2x − 3' && row(0, 1) === 'so y = 0x + 1 = 1' && row(-1.5, 2) === 'so y = −1.5x + 2' && row(1, 0) === 'so y = 1x + 0 = x' &&
+      !!g.cdot && !!g.mh && Math.abs(g.cdot.x - G.px(0)) < 1e-9 && Math.abs(g.mh.x - G.px(1)) < 1e-9 && Math.abs(g.mh.y - G.py(-1)) < 1e-9;
+  });
+  K.check('Lines with the same m and a different c are parallel: on the parallel screen the line ends 4 below the faint copy at every bracket; with m = 2 every c from −6 to 6 gives the same gap at each bracket, the change in c; with m = 3 the gaps differ and the lines meet', () => {
+    const i = idx('Same m'), end = shown(i);
+    if (!(end.gaps.length === 3 && end.gaps.every((x) => x.g === -4))) return false;
+    for (let c = -6; c <= 6; c++) {
+      const g = drawn(i, withMc(2, c));
+      if (c === 1) { if (g.gaps.length) return false; continue; }
+      if (!g.gaps.length || !g.gaps.every((x) => x.g === c - 1)) return false;
+      if (g.rows[2] !== 'Same m, so they are ' + neg(Math.abs(c - 1)) + ' apart at every x') return false;
+    }
+    const t = drawn(i, withMc(3, -2)), gs = t.gaps.map((x) => x.g);
+    return gs.length >= 2 && new Set(gs).size === gs.length && /^Different m, so they meet/.test(t.rows[2]);
+  });
+  K.check('The x-intercept sits on the line where y = 0, drawn as a diamond apart from the round c dot: y = 2x − 4 crosses at (2, 0) with c = −4, y = 2x − 3 at (1.5, 0), y = 3x − 6 at (2, 0) with c = −6, a level line with c = 2 has none, and y = 2x has both at (0, 0)', () => {
+    const i = idx('Where y = 0'), G = geo(STEPS[i]), g = shown(i);
+    const ok0 = !!g.xi && g.xi.shape === 'diamond' && g.xi.v === 2 && Math.abs(g.xi.y - G.py(0)) < 1e-9 && Math.abs(g.xi.x - G.px(2)) < 1e-9 &&
+      !!g.cdot && g.cdot.shape === 'circle' && Math.abs(g.cdot.y - G.py(-4)) < 1e-9;
+    const a = drawn(i, withMc(2, -3)), b = drawn(i, withMc(0, 2)), z = drawn(i, withMc(2, 0));
+    const j = idx('Which crossing?'), h = shown(j), H = geo(STEPS[j]);
+    return ok0 && !!a.xi && a.xi.v === 1.5 && !b.xi && !!z.xi && z.xi.v === 0 && !!z.cdot && Math.abs(z.cdot.y - G.py(0)) < 1e-9 &&
+      !!h.xi && h.xi.v === 2 && !!h.cdot && Math.abs(h.cdot.y - H.py(-6)) < 1e-9;
+  });
+  K.check('Before an answer a puzzle keeps back what it asks and its working reads ?; a right answer or Why? draws it and fills in the working; every wrong answer has a hint of its own', () =>
+    DO.every((i) => {
+      const d = STEPS[i], g0 = drawn(i, blank()), g1 = drawn(i, solvedSt(i)), g2 = drawn(i, Object.assign(blank(), { why: true }));
+      return g0.rows.some((s) => /\?$/.test(s)) && asks(d, g0, false) && [g1, g2].every((g) => g.rows.every((s) => s.indexOf('?') < 0) && asks(d, g, true)) &&
+        d.opts.every((o) => o === d.want || (!!d.hints[o] && d.hints[o] !== d.hint));
+    }));
+  K.check('Every answer offered is written from its own numbers, the right one is worked from the puzzle\'s rule, and each wrong one is a real slip: x and y swapped, the + 1 left off, numbers swapped, a lost minus, the number on its own taken as m, the x-intercept taken for the crossing or for c, a shared c taken for parallel, a sign changed, terms not divided, or the call-out and rate swapped or added', () =>
+    DO.every((i) => {
+      const d = STEPS[i];
+      return d.opts.every((o) => fmtOpt(d, d.vals[o]) === o) && answerOk(d, d.vals[d.want]) &&
+        d.opts.every((o) => o === d.want || (!answerOk(d, d.vals[o]) && !!d.slip[o] && d.slip[o](d, d.vals[o])));
+    }));
+  K.check('Every demonstration has finished arriving within its 2.8 to 5 s, none starting before the 0.35 s screen fade ends; a puzzle\'s drawing finishes within 2.5 s', () => {
+    const keepT = T;
+    const timed = (i, st, limit) => {
+      const keepS = S[i];
+      T = Infinity; latest = 0; earliest = Infinity; S[i] = st;
+      try { paint(i); } finally { S[i] = keepS; }
+      return latest <= limit + 1e-9;
+    };
+    const ok = STEPS.every((d, i) => (d.show ? timed(i, blank(), d.dur) && d.dur >= 2.8 && d.dur <= 5 && earliest >= FADE
+      : timed(i, solvedSt(i), FB) && timed(i, Object.assign(blank(), { why: true }), FB)));
+    T = keepT; paint();
+    return ok && FB <= 2.5;
+  });
+
+  K.ready();
+</script>
